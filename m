@@ -1,84 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA2E3C3DA7A
-	for <virtualization@archiver.kernel.org>; Wed, 28 Dec 2022 16:48:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E73CC4332F
+	for <virtualization@archiver.kernel.org>; Thu, 29 Dec 2022 02:06:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6EC768131A;
-	Wed, 28 Dec 2022 16:48:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6EC768131A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=N0TSsTaa
+	by smtp2.osuosl.org (Postfix) with ESMTP id EB0D84011D;
+	Thu, 29 Dec 2022 02:06:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EB0D84011D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YAQN-Ps3FK7W; Wed, 28 Dec 2022 16:48:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CB27981339;
-	Wed, 28 Dec 2022 16:48:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB27981339
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id eyjT-WbOi7ke; Thu, 29 Dec 2022 02:06:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5182340122;
+	Thu, 29 Dec 2022 02:06:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5182340122
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95EBEC0033;
-	Wed, 28 Dec 2022 16:48:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08E7BC0033
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E072C0032;
+	Thu, 29 Dec 2022 02:06:22 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 770E0C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 16:48:27 +0000 (UTC)
+ Thu, 29 Dec 2022 02:06:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D77EE4031F
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3F67B60C29
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 16:48:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D77EE4031F
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
- header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg
- header.b=N0TSsTaa
+ Thu, 29 Dec 2022 02:06:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F67B60C29
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sSJNcrMKrIC1
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5X7iPjGM4kaX
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 16:48:25 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77FD640257
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 77FD640257
+ Thu, 29 Dec 2022 02:06:17 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 37A5B6066D
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 37A5B6066D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Dec 2022 16:48:25 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id B15AC6157A;
- Wed, 28 Dec 2022 16:48:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1002C433D2;
- Wed, 28 Dec 2022 16:48:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1672246104;
- bh=XYhhBFQ3h933BRDT9ElSaPmnMb3bxsOPM08S84+TfPw=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=N0TSsTaaX43hMSn3LNC8OZGQv89vKXKbqJwmS4LsAZ1U00rr4+HH80f5i9ZRJWWRp
- JjJkgB3eZvLSBbFYUme2pr2kKLTTc4Mmf3Qt0g2NyJW31ZTORomvLkTiLGL1VXCGwV
- D0M60wsAyWXbSWiwTE1HHp+2JAeRMtYJNnUPVGMY=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: stable@vger.kernel.org
-Subject: [PATCH 6.1 0981/1146] blk-mq: avoid double ->queue_rq() because of
- early timeout
-Date: Wed, 28 Dec 2022 15:42:00 +0100
-Message-Id: <20221228144357.007832616@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20221228144330.180012208@linuxfoundation.org>
-References: <20221228144330.180012208@linuxfoundation.org>
-User-Agent: quilt/0.67
-MIME-Version: 1.0
-Cc: Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
- David Jeffery <djeffery@redhat.com>, Bart Van Assche <bvanassche@acm.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, patches@lists.linux.dev,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Keith Busch <kbusch@kernel.org>,
- Ming Lei <ming.lei@redhat.com>
+ Thu, 29 Dec 2022 02:06:16 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=11; SR=0;
+ TI=SMTPD_---0VYJPPK2_1672279570; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VYJPPK2_1672279570) by smtp.aliyun-inc.com;
+ Thu, 29 Dec 2022 10:06:11 +0800
+Message-ID: <1672279315.3435805-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 4/4] virtio-net: sleep instead of busy waiting for cvq
+ command
+Date: Thu, 29 Dec 2022 10:01:55 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+References: <20221226074908.8154-1-jasowang@redhat.com>
+ <20221226074908.8154-5-jasowang@redhat.com>
+ <1672107557.0142956-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvzhAFj5HCmP--9DKfCAq_4wPNwsmmg4h0Sbv6ra0+DrQ@mail.gmail.com>
+ <1672216748.7057884-1-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtr7r25s6Tgsj=fcw3MD3ShLmuuVHvx0WVNiQHyV_G=zw@mail.gmail.com>
+In-Reply-To: <CACGkMEtr7r25s6Tgsj=fcw3MD3ShLmuuVHvx0WVNiQHyV_G=zw@mail.gmail.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ edumazet@google.com, kuba@kernel.org, maxime.coquelin@redhat.com,
+ pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,156 +78,171 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: David Jeffery <djeffery@redhat.com>
+On Wed, 28 Dec 2022 19:43:56 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Wed, Dec 28, 2022 at 4:40 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> >
+> > On Tue, 27 Dec 2022 12:33:53 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > On Tue, Dec 27, 2022 at 10:25 AM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > >
+> > > > On Mon, 26 Dec 2022 15:49:08 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > > > We used to busy waiting on the cvq command this tends to be
+> > > > > problematic since:
+> > > > >
+> > > > > 1) CPU could wait for ever on a buggy/malicous device
+> > > > > 2) There's no wait to terminate the process that triggers the cvq
+> > > > >    command
+> > > > >
+> > > > > So this patch switch to use virtqueue_wait_for_used() to sleep with a
+> > > > > timeout (1s) instead of busy polling for the cvq command forever. This
+> > > >
+> > > > I don't think that a fixed 1S is a good choice.
+> > >
+> > > Well, it could be tweaked to be a little bit longer.
+> > >
+> > > One way, as discussed, is to let the device advertise a timeout then
+> > > the driver can validate if it's valid and use that timeout. But it
+> > > needs extension to the spec.
+> > >
+> > > > Some of the DPUs are very
+> > > > lazy for cvq handle.
+> > >
+> > > Such design needs to be revisited, cvq (control path) should have a
+> > > better priority or QOS than datapath.
+> > >
+> > > > In particular, we will also directly break the device.
+> > >
+> > > It's kind of hardening for malicious devices.
+> >
+> > Just based on timeout, it is judged that it is a malicious device. I think it is
+> > too arbitrary.
+>
+> Drivers have very little information to make the decision. So it's
+> really a balance.
+>
+> We can start with a very long timeout like 10 minutes. Otherwise a
+> buggy/malicious device will block a lot of important things (reboot,
+> modprobe) even if the scheduler is still functional.
 
-[ Upstream commit 82c229476b8f6afd7e09bc4dc77d89dc19ff7688 ]
+Relatively speaking, starting from a 1min+ timeout, I think it is safe.
 
-David Jeffery found one double ->queue_rq() issue, so far it can
-be triggered in VM use case because of long vmexit latency or preempt
-latency of vCPU pthread or long page fault in vCPU pthread, then block
-IO req could be timed out before queuing the request to hardware but after
-calling blk_mq_start_request() during ->queue_rq(), then timeout handler
-may handle it by requeue, then double ->queue_rq() is caused, and kernel
-panic.
-
-So far, it is driver's responsibility to cover the race between timeout
-and completion, so it seems supposed to be solved in driver in theory,
-given driver has enough knowledge.
-
-But it is really one common problem, lots of driver could have similar
-issue, and could be hard to fix all affected drivers, even it isn't easy
-for driver to handle the race. So David suggests this patch by draining
-in-progress ->queue_rq() for solving this issue.
-
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Keith Busch <kbusch@kernel.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: David Jeffery <djeffery@redhat.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20221026051957.358818-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- block/blk-mq.c | 56 +++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 44 insertions(+), 12 deletions(-)
-
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 4f1c259138e8..a23026099284 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1529,7 +1529,13 @@ static void blk_mq_rq_timed_out(struct request *req)
- 	blk_add_timer(req);
- }
- 
--static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
-+struct blk_expired_data {
-+	bool has_timedout_rq;
-+	unsigned long next;
-+	unsigned long timeout_start;
-+};
-+
-+static bool blk_mq_req_expired(struct request *rq, struct blk_expired_data *expired)
- {
- 	unsigned long deadline;
- 
-@@ -1539,13 +1545,13 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
- 		return false;
- 
- 	deadline = READ_ONCE(rq->deadline);
--	if (time_after_eq(jiffies, deadline))
-+	if (time_after_eq(expired->timeout_start, deadline))
- 		return true;
- 
--	if (*next == 0)
--		*next = deadline;
--	else if (time_after(*next, deadline))
--		*next = deadline;
-+	if (expired->next == 0)
-+		expired->next = deadline;
-+	else if (time_after(expired->next, deadline))
-+		expired->next = deadline;
- 	return false;
- }
- 
-@@ -1561,7 +1567,7 @@ void blk_mq_put_rq_ref(struct request *rq)
- 
- static bool blk_mq_check_expired(struct request *rq, void *priv)
- {
--	unsigned long *next = priv;
-+	struct blk_expired_data *expired = priv;
- 
- 	/*
- 	 * blk_mq_queue_tag_busy_iter() has locked the request, so it cannot
-@@ -1570,7 +1576,18 @@ static bool blk_mq_check_expired(struct request *rq, void *priv)
- 	 * it was completed and reallocated as a new request after returning
- 	 * from blk_mq_check_expired().
- 	 */
--	if (blk_mq_req_expired(rq, next))
-+	if (blk_mq_req_expired(rq, expired)) {
-+		expired->has_timedout_rq = true;
-+		return false;
-+	}
-+	return true;
-+}
-+
-+static bool blk_mq_handle_expired(struct request *rq, void *priv)
-+{
-+	struct blk_expired_data *expired = priv;
-+
-+	if (blk_mq_req_expired(rq, expired))
- 		blk_mq_rq_timed_out(rq);
- 	return true;
- }
-@@ -1579,7 +1596,9 @@ static void blk_mq_timeout_work(struct work_struct *work)
- {
- 	struct request_queue *q =
- 		container_of(work, struct request_queue, timeout_work);
--	unsigned long next = 0;
-+	struct blk_expired_data expired = {
-+		.timeout_start = jiffies,
-+	};
- 	struct blk_mq_hw_ctx *hctx;
- 	unsigned long i;
- 
-@@ -1599,10 +1618,23 @@ static void blk_mq_timeout_work(struct work_struct *work)
- 	if (!percpu_ref_tryget(&q->q_usage_counter))
- 		return;
- 
--	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &next);
-+	/* check if there is any timed-out request */
-+	blk_mq_queue_tag_busy_iter(q, blk_mq_check_expired, &expired);
-+	if (expired.has_timedout_rq) {
-+		/*
-+		 * Before walking tags, we must ensure any submit started
-+		 * before the current time has finished. Since the submit
-+		 * uses srcu or rcu, wait for a synchronization point to
-+		 * ensure all running submits have finished
-+		 */
-+		blk_mq_wait_quiesce_done(q);
-+
-+		expired.next = 0;
-+		blk_mq_queue_tag_busy_iter(q, blk_mq_handle_expired, &expired);
-+	}
- 
--	if (next != 0) {
--		mod_timer(&q->timeout, next);
-+	if (expired.next != 0) {
-+		mod_timer(&q->timeout, expired.next);
- 	} else {
- 		/*
- 		 * Request timeouts are handled as a forward rolling timer. If
--- 
-2.35.1
+Thanks.
 
 
 
+>
+> Thanks
+>
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > >
+> > > > I think it is necessary to add a Virtio-Net parameter to allow users to define
+> > > > this timeout by themselves. Although I don't think this is a good way.
+> > >
+> > > Very hard and unfriendly to the end users.
+> > >
+> > > Thanks
+> > >
+> > > >
+> > > > Thanks.
+> > > >
+> > > >
+> > > > > gives the scheduler a breath and can let the process can respond to
+> > > > > asignal. If the device doesn't respond in the timeout, break the
+> > > > > device.
+> > > > >
+> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > > ---
+> > > > > Changes since V1:
+> > > > > - break the device when timeout
+> > > > > - get buffer manually since the virtio core check more_used() instead
+> > > > > ---
+> > > > >  drivers/net/virtio_net.c | 24 ++++++++++++++++--------
+> > > > >  1 file changed, 16 insertions(+), 8 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > > index efd9dd55828b..6a2ea64cfcb5 100644
+> > > > > --- a/drivers/net/virtio_net.c
+> > > > > +++ b/drivers/net/virtio_net.c
+> > > > > @@ -405,6 +405,7 @@ static void disable_rx_mode_work(struct virtnet_info *vi)
+> > > > >       vi->rx_mode_work_enabled = false;
+> > > > >       spin_unlock_bh(&vi->rx_mode_lock);
+> > > > >
+> > > > > +     virtqueue_wake_up(vi->cvq);
+> > > > >       flush_work(&vi->rx_mode_work);
+> > > > >  }
+> > > > >
+> > > > > @@ -1497,6 +1498,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+> > > > >       return !oom;
+> > > > >  }
+> > > > >
+> > > > > +static void virtnet_cvq_done(struct virtqueue *cvq)
+> > > > > +{
+> > > > > +     virtqueue_wake_up(cvq);
+> > > > > +}
+> > > > > +
+> > > > >  static void skb_recv_done(struct virtqueue *rvq)
+> > > > >  {
+> > > > >       struct virtnet_info *vi = rvq->vdev->priv;
+> > > > > @@ -1984,6 +1990,8 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
+> > > > >       return err;
+> > > > >  }
+> > > > >
+> > > > > +static int virtnet_close(struct net_device *dev);
+> > > > > +
+> > > > >  /*
+> > > > >   * Send command via the control virtqueue and check status.  Commands
+> > > > >   * supported by the hypervisor, as indicated by feature bits, should
+> > > > > @@ -2026,14 +2034,14 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+> > > > >       if (unlikely(!virtqueue_kick(vi->cvq)))
+> > > > >               return vi->ctrl->status == VIRTIO_NET_OK;
+> > > > >
+> > > > > -     /* Spin for a response, the kick causes an ioport write, trapping
+> > > > > -      * into the hypervisor, so the request should be handled immediately.
+> > > > > -      */
+> > > > > -     while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> > > > > -            !virtqueue_is_broken(vi->cvq))
+> > > > > -             cpu_relax();
+> > > > > +     if (virtqueue_wait_for_used(vi->cvq)) {
+> > > > > +             virtqueue_get_buf(vi->cvq, &tmp);
+> > > > > +             return vi->ctrl->status == VIRTIO_NET_OK;
+> > > > > +     }
+> > > > >
+> > > > > -     return vi->ctrl->status == VIRTIO_NET_OK;
+> > > > > +     netdev_err(vi->dev, "CVQ command timeout, break the virtio device.");
+> > > > > +     virtio_break_device(vi->vdev);
+> > > > > +     return VIRTIO_NET_ERR;
+> > > > >  }
+> > > > >
+> > > > >  static int virtnet_set_mac_address(struct net_device *dev, void *p)
+> > > > > @@ -3526,7 +3534,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+> > > > >
+> > > > >       /* Parameters for control virtqueue, if any */
+> > > > >       if (vi->has_cvq) {
+> > > > > -             callbacks[total_vqs - 1] = NULL;
+> > > > > +             callbacks[total_vqs - 1] = virtnet_cvq_done;
+> > > > >               names[total_vqs - 1] = "control";
+> > > > >       }
+> > > > >
+> > > > > --
+> > > > > 2.25.1
+> > > > >
+> > > > > _______________________________________________
+> > > > > Virtualization mailing list
+> > > > > Virtualization@lists.linux-foundation.org
+> > > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> > > >
+> > >
+> >
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
