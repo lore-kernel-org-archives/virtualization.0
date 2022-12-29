@@ -1,117 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 73268C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 29 Dec 2022 08:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AA740C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 29 Dec 2022 08:10:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E47D280B86;
-	Thu, 29 Dec 2022 08:04:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E47D280B86
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AsTHT1XG
+	by smtp3.osuosl.org (Postfix) with ESMTP id 386E360BEC;
+	Thu, 29 Dec 2022 08:10:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 386E360BEC
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tm9C5Xjx
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ci9MtJg-38CY; Thu, 29 Dec 2022 08:04:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 38C4880B4D;
-	Thu, 29 Dec 2022 08:04:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38C4880B4D
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RAWXgQMY5LSo; Thu, 29 Dec 2022 08:10:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 14B4060593;
+	Thu, 29 Dec 2022 08:10:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 14B4060593
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A9B9C0033;
-	Thu, 29 Dec 2022 08:04:35 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE938C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D640AC0033;
+	Thu, 29 Dec 2022 08:10:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5DBB5C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Dec 2022 08:04:32 +0000 (UTC)
+ Thu, 29 Dec 2022 08:10:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B911A40179
+ by smtp4.osuosl.org (Postfix) with ESMTP id 23C26402FB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Dec 2022 08:04:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B911A40179
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 29 Dec 2022 08:10:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 23C26402FB
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=AsTHT1XG
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tm9C5Xjx
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kSAwYIXJhcZK
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MAB8OQhyrKvQ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Dec 2022 08:04:28 +0000 (UTC)
+ Thu, 29 Dec 2022 08:10:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AD4240122
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 46BB3402EF
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4AD4240122
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 46BB3402EF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Dec 2022 08:04:28 +0000 (UTC)
+ Thu, 29 Dec 2022 08:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672301067;
+ s=mimecast20190719; t=1672301425;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=vle3ibqeQcUc3o0c9rRrl2gAzdgVWVtbpb/9M/RDS4Q=;
- b=AsTHT1XGIRKj463Nf7Un8a8YVwu4dMN39IcB2RphMIpQCbnwy0X8F9aF77xqp4ERnEtPiK
- pPtGZ+FeoZ/fkZLJrIscNI49GAxOp11eYVj2t6kJVhTl9gDgxs1gPSWSPTBRzWevre4uJQ
- bZ3TsF+FSxMgTiXg9UJ0/3iB0NUrgnA=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=B3YjoszznLFklLTfwtR5BXbJfmJOzEircr2M/sDATMk=;
+ b=Tm9C5XjxUMWC1E3Yrmo82ealS0BzL7Uob00dgw3eYqR+v+gGnMh+aueSS1Mtx2HoRSSrC9
+ lgJWH5RsjhLhUERTQuKvdPSAHfH0U9LeRjueHtyIuGRZtF622J9N5oTON3tKxlKU0RDVEH
+ xduANlWDlTnP7na5r8ZHtMcmgefsGxE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-232-ZgTPxAdkNieXgNxP9JQVtQ-1; Thu, 29 Dec 2022 03:04:25 -0500
-X-MC-Unique: ZgTPxAdkNieXgNxP9JQVtQ-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-144a21f5c25so8346557fac.2
+ us-mta-36-JwdCCsnvNJ6g6VjYol-4zA-1; Thu, 29 Dec 2022 03:10:21 -0500
+X-MC-Unique: JwdCCsnvNJ6g6VjYol-4zA-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ i26-20020adfaada000000b0027c76c49445so1051097wrc.13
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Dec 2022 00:04:25 -0800 (PST)
+ Thu, 29 Dec 2022 00:10:21 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=vle3ibqeQcUc3o0c9rRrl2gAzdgVWVtbpb/9M/RDS4Q=;
- b=1LjrJOWY39yIDlrrkwvvyk+PrlwayI3Fc0nGKD5oMao60LSTBkxw6U+shIF0TC1sAS
- OmjxrbLQMQmiI286V2iaquCVSCjb3HD8lzSLNJ5lL54NpikzhrLk0xlsha9zDSoPnI/W
- Dtxx46/YvTv8VTB2UrQZVjxFAlgJuvaJ8ScMrGC2CRYbUs6OBS02XlR8VnOuyLmtCZvJ
- +u3rxfNLk6r/NWFgaphPXlM/q4oZTE1bIgb+hIaORqK8Sd80V7JHkzb3DRS3EaPf3Bv4
- GDxhhUmeiRH8j7xdse4sC7hugHiqmbCml6y1zNrlgoFxd7Hd2UegRQmakk9jGXjJ38M4
- sG2Q==
-X-Gm-Message-State: AFqh2kqHu4Id+J1Zw8nT3H2SNREnRQq9ADycyQtVPtr4MkXai7qlbGzY
- 7HM4y5QpTZie838qah2Tr/rxI0xxKwQanVktKaVtrLC/fgEN5Rjh9ex8/KMrHJ2ksr0CYFShB7d
- A9pTGL1L4hLOfhNZ+2CRo+yTQQhs/raYUfv1gbN2QOWYMXA7FpwaUrfXB9Q==
-X-Received: by 2002:aca:1111:0:b0:35e:7a42:7ab5 with SMTP id
- 17-20020aca1111000000b0035e7a427ab5mr1472680oir.280.1672301065020; 
- Thu, 29 Dec 2022 00:04:25 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXvP44RmCToT51pJfyvWSPl3P4STkPSA7vMDACFHHl+aDZ9sWlAE+dF2c1pbK85ZI5ctd6sscLzOaVLzM2bPnB0=
-X-Received: by 2002:aca:1111:0:b0:35e:7a42:7ab5 with SMTP id
- 17-20020aca1111000000b0035e7a427ab5mr1472673oir.280.1672301064783; Thu, 29
- Dec 2022 00:04:24 -0800 (PST)
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=B3YjoszznLFklLTfwtR5BXbJfmJOzEircr2M/sDATMk=;
+ b=XXfctFsb1l3Rw8181MM3sjMNNm67ixPKH3VBg0AKjU4Ni05c36COFXywbCNVBCoaP5
+ 7A5MD3xL//iPwSL23iRQqyp6v58feFB2Wqw9M0tVC9g5sTAn99V8ddBzfKYHtrwiSh+P
+ uSTE3BqZLz5dAGIZANyFBsfwGxU+2pl3nMX6tjiz7V3FwUlOCbPWZsrKKH6inIRaQpkY
+ WCO79fB7w4Iu3ANrD3L31QD0WABni9Vu805oFEv2rh5o15Si6CXKGvuipwecS0gGijz8
+ 4N5gj0mMpAqsoULxoVQpGfzz//4j+2XB91Z4RfzrjfbYEPP75SOKbFw7rixIypSWAXwH
+ 7akA==
+X-Gm-Message-State: AFqh2krwx7Sf476ejKKy6oP5vqxU2kbap5wGMBfe5R3UlvUONn8YMx3p
+ 6CQlG6F13NaNieer+Yc6xOmjEOhCsTN18JOEQ2hl/OCcLjZdzMNzUulbRjAkhQmVCmhuQoeYsuA
+ RMSD04CwsA/+c6sp1R6TVIGC8b4KQkMTHCMFhGC2J5g==
+X-Received: by 2002:a05:600c:1d1d:b0:3cf:81af:8b73 with SMTP id
+ l29-20020a05600c1d1d00b003cf81af8b73mr19417762wms.23.1672301420330; 
+ Thu, 29 Dec 2022 00:10:20 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsdyjNAxEIcjWRVz7IPBxuq2db4McF4Hr2893bchPb3h1HzJQku8xVgut7yyhIFClftc8onVg==
+X-Received: by 2002:a05:600c:1d1d:b0:3cf:81af:8b73 with SMTP id
+ l29-20020a05600c1d1d00b003cf81af8b73mr19417741wms.23.1672301420003; 
+ Thu, 29 Dec 2022 00:10:20 -0800 (PST)
+Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
+ n41-20020a05600c3ba900b003d358beab9dsm26356063wms.47.2022.12.29.00.10.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 29 Dec 2022 00:10:19 -0800 (PST)
+Date: Thu, 29 Dec 2022 03:10:16 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Subject: Re: [PATCH v5] virtio_blk: add VIRTIO_BLK_F_LIFETIME feature support
+Message-ID: <20221229030850-mutt-send-email-mst@kernel.org>
+References: <20221219122155.333099-1-alvaro.karsz@solid-run.com>
 MIME-Version: 1.0
-References: <20221226074908.8154-1-jasowang@redhat.com>
- <20221226074908.8154-4-jasowang@redhat.com>
- <20221226183705-mutt-send-email-mst@kernel.org>
- <CACGkMEuNZLJRnWw+XNxJ-to1y8L2GrTrJkk0y0Gwb5H2YhDczQ@mail.gmail.com>
- <20221227022255-mutt-send-email-mst@kernel.org>
- <d77bc1ce-b73f-1ba8-f04f-b3bffeb731c3@redhat.com>
- <20221227043148-mutt-send-email-mst@kernel.org>
- <0d9f1b89-9374-747b-3fb0-b4b28ad0ace1@redhat.com>
- <CACGkMEv=+D+Es4sfde_X7F0zspVdy4Rs1Wi9qfCudsznsUrOTQ@mail.gmail.com>
- <20221229020553-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20221229020553-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 29 Dec 2022 16:04:13 +0800
-Message-ID: <CACGkMEs5s3Muo+4OfjaLK_P76rTdPhjQdTwykRNGOecAWnt+8g@mail.gmail.com>
-Subject: Re: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20221219122155.333099-1-alvaro.karsz@solid-run.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
- pabeni@redhat.com, davem@davemloft.net
+Content-Disposition: inline
+Cc: Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,81 +117,355 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBEZWMgMjksIDIwMjIgYXQgMzowNyBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEBy
-ZWRoYXQuY29tPiB3cm90ZToKPgo+IE9uIFdlZCwgRGVjIDI4LCAyMDIyIGF0IDA3OjUzOjA4UE0g
-KzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBPbiBXZWQsIERlYyAyOCwgMjAyMiBhdCAyOjM0
-IFBNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPgo+ID4gPgo+
-ID4gPiDlnKggMjAyMi8xMi8yNyAxNzozOCwgTWljaGFlbCBTLiBUc2lya2luIOWGmemBkzoKPiA+
-ID4gPiBPbiBUdWUsIERlYyAyNywgMjAyMiBhdCAwNToxMjo1OFBNICswODAwLCBKYXNvbiBXYW5n
-IHdyb3RlOgo+ID4gPiA+PiDlnKggMjAyMi8xMi8yNyAxNTozMywgTWljaGFlbCBTLiBUc2lya2lu
-IOWGmemBkzoKPiA+ID4gPj4+IE9uIFR1ZSwgRGVjIDI3LCAyMDIyIGF0IDEyOjMwOjM1UE0gKzA4
-MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4+Pj4+IEJ1dCBkZXZpY2UgaXMgc3RpbGwgZ29p
-bmcgYW5kIHdpbGwgbGF0ZXIgdXNlIHRoZSBidWZmZXJzLgo+ID4gPiA+Pj4+Pgo+ID4gPiA+Pj4+
-PiBTYW1lIGZvciB0aW1lb3V0IHJlYWxseS4KPiA+ID4gPj4+PiBBdm9pZGluZyBpbmZpbml0ZSB3
-YWl0L3BvbGwgaXMgb25lIG9mIHRoZSBnb2FscywgYW5vdGhlciBpcyB0byBzbGVlcC4KPiA+ID4g
-Pj4+PiBJZiB3ZSB0aGluayB0aGUgdGltZW91dCBpcyBoYXJkLCB3ZSBjYW4gc3RhcnQgZnJvbSB0
-aGUgd2FpdC4KPiA+ID4gPj4+Pgo+ID4gPiA+Pj4+IFRoYW5rcwo+ID4gPiA+Pj4gSWYgdGhlIGdv
-YWwgaXMgdG8gYXZvaWQgZGlzcnVwdGluZyB0cmFmZmljIHdoaWxlIENWUSBpcyBpbiB1c2UsCj4g
-PiA+ID4+PiB0aGF0IHNvdW5kcyBtb3JlIHJlYXNvbmFibGUuIEUuZy4gc29tZW9uZSBpcyB0dXJu
-aW5nIG9uIHByb21pc2MsCj4gPiA+ID4+PiBhIHNwaWtlIGluIENQVSB1c2FnZSBtaWdodCBiZSB1
-bndlbGNvbWUuCj4gPiA+ID4+Cj4gPiA+ID4+IFllcywgdGhpcyB3b3VsZCBiZSBtb3JlIG9idmlv
-dXMgaXMgVVAgaXMgdXNlZC4KPiA+ID4gPj4KPiA+ID4gPj4KPiA+ID4gPj4+IHRoaW5ncyB3ZSBz
-aG91bGQgYmUgY2FyZWZ1bCB0byBhZGRyZXNzIHRoZW46Cj4gPiA+ID4+PiAxLSBkZWJ1Z2dpbmcu
-IEN1cnJlbnRseSBpdCdzIGVhc3kgdG8gc2VlIGEgd2FybmluZyBpZiBDUFUgaXMgc3R1Y2sKPiA+
-ID4gPj4+ICAgICAgaW4gYSBsb29wIGZvciBhIHdoaWxlLCBhbmQgd2UgYWxzbyBnZXQgYSBiYWNr
-dHJhY2UuCj4gPiA+ID4+PiAgICAgIEUuZy4gd2l0aCB0aGlzIC0gaG93IGRvIHdlIGtub3cgd2hv
-IGhhcyB0aGUgUlROTD8KPiA+ID4gPj4+ICAgICAgV2UgbmVlZCB0byBpbnRlZ3JhdGUgd2l0aCBr
-ZXJuZWwvd2F0Y2hkb2cuYyBmb3IgZ29vZCByZXN1bHRzCj4gPiA+ID4+PiAgICAgIGFuZCB0byBt
-YWtlIHN1cmUgcG9saWN5IGlzIGNvbnNpc3RlbnQuCj4gPiA+ID4+Cj4gPiA+ID4+IFRoYXQncyBm
-aW5lLCB3aWxsIGNvbnNpZGVyIHRoaXMuCj4gPgo+ID4gU28gYWZ0ZXIgc29tZSBpbnZlc3RpZ2F0
-aW9uLCBpdCBzZWVtcyB0aGUgd2F0Y2hkb2cuYyBkb2Vzbid0IGhlbHAuIFRoZQo+ID4gb25seSBl
-eHBvcnQgaGVscGVyIGlzIHRvdWNoX3NvZnRsb2NrdXBfd2F0Y2hkb2coKSB3aGljaCB0cmllcyB0
-byBhdm9pZAo+ID4gdHJpZ2dlcmluZyB0aGUgbG9ja3VwcyB3YXJuaW5nIGZvciB0aGUga25vd24g
-c2xvdyBwYXRoLgo+Cj4gSSBuZXZlciBzYWlkIHlvdSBjYW4ganVzdCB1c2UgZXhpc3RpbmcgZXhw
-b3J0aW5nIEFQSXMuIFlvdSdsbCBoYXZlIHRvCj4gd3JpdGUgbmV3IG9uZXMgOikKCk9rLCBJIHRo
-b3VnaHQgeW91IHdhbnRlZCB0byB0cmlnZ2VyIHNpbWlsYXIgd2FybmluZ3MgYXMgYSB3YXRjaGRv
-Zy4KCkJ0dywgSSB3b25kZXIgd2hhdCBraW5kIG9mIGxvZ2ljIHlvdSB3YW50IGhlcmUuIElmIHdl
-IHN3aXRjaCB0byB1c2luZwpzbGVlcCwgdGhlcmUgd29uJ3QgYmUgc29mdCBsb2NrdXAgYW55bW9y
-ZS4gQSBzaW1wbGUgd2FpdCArIHRpbWVvdXQgKwp3YXJuaW5nIHNlZW1zIHN1ZmZpY2llbnQ/CgpU
-aGFua3MKCj4KPiA+IEFuZCBiZWZvcmUgdGhlIHBhdGNoLCB3ZSBlbmQgdXAgd2l0aCBhIHJlYWwg
-aW5maW5pdGUgbG9vcCB3aGljaCBjb3VsZAo+ID4gYmUgY2F1Z2h0IGJ5IFJDVSBzdGFsbCBkZXRl
-Y3RvciB3aGljaCBpcyBub3QgdGhlIGNhc2Ugb2YgdGhlIHNsZWVwLgo+ID4gV2hhdCB3ZSBjYW4g
-ZG8gaXMgcHJvYmFibHkgZG8gYSBwZXJpb2RpYyBuZXRkZXZfZXJyKCkuCj4gPgo+ID4gVGhhbmtz
-Cj4KPiBPbmx5IHdpdGggYSBiYWQgZGV2aWNlLgo+Cj4gPiA+ID4+Cj4gPiA+ID4+Cj4gPiA+ID4+
-PiAyLSBvdmVyaGVhZC4gSW4gYSB2ZXJ5IGNvbW1vbiBzY2VuYXJpbyB3aGVuIGRldmljZSBpcyBp
-biBoeXBlcnZpc29yLAo+ID4gPiA+Pj4gICAgICBwcm9ncmFtbWluZyB0aW1lcnMgZXRjIGhhcyBh
-IHZlcnkgaGlnaCBvdmVyaGVhZCwgYXQgYm9vdHVwCj4gPiA+ID4+PiAgICAgIGxvdHMgb2YgQ1ZR
-IGNvbW1hbmRzIGFyZSBydW4gYW5kIHNsb3dpbmcgYm9vdCBkb3duIGlzIG5vdCBuaWNlLgo+ID4g
-PiA+Pj4gICAgICBsZXQncyBwb2xsIGZvciBhIGJpdCBiZWZvcmUgd2FpdGluZz8KPiA+ID4gPj4K
-PiA+ID4gPj4gVGhlbiB3ZSBnbyBiYWNrIHRvIHRoZSBxdWVzdGlvbiBvZiBjaG9vc2luZyBhIGdv
-b2QgdGltZW91dCBmb3IgcG9sbC4gQW5kCj4gPiA+ID4+IHBvbGwgc2VlbXMgcHJvYmxlbWF0aWMg
-aW4gdGhlIGNhc2Ugb2YgVVAsIHNjaGVkdWxlciBtaWdodCBub3QgaGF2ZSB0aGUKPiA+ID4gPj4g
-Y2hhbmNlIHRvIHJ1bi4KPiA+ID4gPiBQb2xsIGp1c3QgYSBiaXQgOikgU2VyaW91c2x5IEkgZG9u
-J3Qga25vdywgYnV0IGF0IGxlYXN0IGNoZWNrIG9uY2UKPiA+ID4gPiBhZnRlciBraWNrLgo+ID4g
-Pgo+ID4gPgo+ID4gPiBJIHRoaW5rIGl0IGlzIHdoYXQgdGhlIGN1cnJlbnQgY29kZSBkaWQgd2hl
-cmUgdGhlIGNvbmRpdGlvbiB3aWxsIGJlCj4gPiA+IGNoZWNrIGJlZm9yZSB0cnlpbmcgdG8gc2xl
-ZXAgaW4gdGhlIHdhaXRfZXZlbnQoKS4KPiA+ID4KPiA+ID4KPiA+ID4gPgo+ID4gPiA+Pj4gMy0g
-c3VwcmlzZSByZW1vdmFsLiBuZWVkIHRvIHdha2UgdXAgdGhyZWFkIGluIHNvbWUgd2F5LiB3aGF0
-IGFib3V0Cj4gPiA+ID4+PiAgICAgIG90aGVyIGNhc2VzIG9mIGRldmljZSBicmVha2FnZSAtIGlz
-IHRoZXJlIGEgY2hhbmNlIHRoaXMKPiA+ID4gPj4+ICAgICAgaW50cm9kdWNlcyBuZXcgYnVncyBh
-cm91bmQgdGhhdD8gYXQgbGVhc3QgZW51bWVyYXRlIHRoZW0gcGxlYXNlLgo+ID4gPiA+Pgo+ID4g
-PiA+PiBUaGUgY3VycmVudCBjb2RlIGRpZDoKPiA+ID4gPj4KPiA+ID4gPj4gMSkgY2hlY2sgZm9y
-IHZxLT5icm9rZW4KPiA+ID4gPj4gMikgd2FrZXVwIGR1cmluZyBCQURfUklORygpCj4gPiA+ID4+
-Cj4gPiA+ID4+IFNvIHdlIHdvbid0IGVuZCB1cCB3aXRoIGEgbmV2ZXIgd29rZSB1cCBwcm9jZXNz
-IHdoaWNoIHNob3VsZCBiZSBmaW5lLgo+ID4gPiA+Pgo+ID4gPiA+PiBUaGFua3MKPiA+ID4gPgo+
-ID4gPiA+IEJUVyBCQURfUklORyBvbiByZW1vdmFsIHdpbGwgdHJpZ2dlciBkZXZfZXJyLiBOb3Qg
-c3VyZSB0aGF0IGlzIGEgZ29vZAo+ID4gPiA+IGlkZWEgLSBjYW4gY2F1c2UgY3Jhc2hlcyBpZiBr
-ZXJuZWwgcGFuaWNzIG9uIGVycm9yLgo+ID4gPgo+ID4gPgo+ID4gPiBZZXMsIGl0J3MgYmV0dGVy
-IHRvIHVzZSBfX3ZpcnRxdWV1ZV9icmVhaygpIGluc3RlYWQuCj4gPiA+Cj4gPiA+IEJ1dCBjb25z
-aWRlciB3ZSB3aWxsIHN0YXJ0IGZyb20gYSB3YWl0IGZpcnN0LCBJIHdpbGwgbGltaXQgdGhlIGNo
-YW5nZXMKPiA+ID4gaW4gdmlydGlvLW5ldCB3aXRob3V0IGJvdGhlcmluZyB2aXJ0aW8gY29yZS4K
-PiA+ID4KPiA+ID4gVGhhbmtzCj4gPiA+Cj4gPiA+Cj4gPiA+ID4KPiA+ID4gPj4+Cj4KCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+On Mon, Dec 19, 2022 at 02:21:55PM +0200, Alvaro Karsz wrote:
+> Implement the VIRTIO_BLK_F_LIFETIME feature for Virtio block devices.
+> 
+> This commit introduces a new ioctl command, VIRTIO_BLK_IOCTL_GET_LIFETIME.
+> 
+> VIRTIO_BLK_IOCTL_GET_LIFETIME ioctl asks for the block device to provide
+> lifetime information by sending a VIRTIO_BLK_T_GET_LIFETIME command to
+> the device.
+> 
+> lifetime information fields:
+> 
+> - pre_eol_info: specifies the percentage of reserved blocks that are
+> 		consumed.
+> 		optional values following virtio spec:
+> 		*) 0 - undefined.
+> 		*) 1 - normal, < 80% of reserved blocks are consumed.
+> 		*) 2 - warning, 80% of reserved blocks are consumed.
+> 		*) 3 - urgent, 90% of reserved blocks are consumed.
+> 
+> - device_lifetime_est_typ_a: this field refers to wear of SLC cells and
+> 			     is provided in increments of 10used, and so
+> 			     on, thru to 11 meaning estimated lifetime
+> 			     exceeded. All values above 11 are reserved.
+> 
+> - device_lifetime_est_typ_b: this field refers to wear of MLC cells and is
+> 			     provided with the same semantics as
+> 			     device_lifetime_est_typ_a.
+> 
+> The data received from the device will be sent as is to the user.
+> No data check/decode is done by virtblk.
+> 
+> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+
+So due to my mistake this got pushed out to next linux release.
+Sorry :(
+I'd like to use this opportunity to write a new better
+interface that actually works with modern backends,
+and add it to the virtio spec.
+
+Do you think you can take up this task?
+
+
+> --
+> v2:
+> 	- Remove (void *) casting.
+> 	- Fix comments format in virtio_blk.h.
+> 	- Set ioprio value for legacy devices for REQ_OP_DRV_IN
+> 	  operations.
+> 
+> v3:
+> 	- Initialize struct virtio_blk_lifetime to 0 instead of memset.
+> 	- Rename ioctl from VBLK_LIFETIME to VBLK_GET_LIFETIME.
+> 	- Return EOPNOTSUPP insted of ENOTTY if ioctl is not supported.
+> 	- Check if process is CAP_SYS_ADMIN capable in lifetime ioctl.
+> 	- Check if vdev is not NULL before accessing it in lifetime ioctl.
+> 
+> v4:
+> 	- Create a dedicated virtio_blk_ioctl.h header for the ioctl command
+> 	  and add this file to MAINTAINERS.
+> 	- Rename the ioctl to VIRTIO_BLK_IOCTL_GET_LIFETIME.
+> 	- Document in virtio_blk_ioctl.h which backend device can supply
+> 	  this lifetime information.
+> 
+> v5:
+> 	- Rebase patch on top of mst tree.
+> 	- Add a comment explaining the capable(CAP_SYS_ADMIN) part.
+> --
+> ---
+>  MAINTAINERS                           |   1 +
+>  drivers/block/virtio_blk.c            | 102 +++++++++++++++++++++++++-
+>  include/uapi/linux/virtio_blk.h       |  28 +++++++
+>  include/uapi/linux/virtio_blk_ioctl.h |  44 +++++++++++
+>  4 files changed, 173 insertions(+), 2 deletions(-)
+>  create mode 100644 include/uapi/linux/virtio_blk_ioctl.h
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 4aee796cc..3250f7753 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -21724,6 +21724,7 @@ F:	drivers/block/virtio_blk.c
+>  F:	drivers/scsi/virtio_scsi.c
+>  F:	drivers/vhost/scsi.c
+>  F:	include/uapi/linux/virtio_blk.h
+> +F:	include/uapi/linux/virtio_blk_ioctl.h
+>  F:	include/uapi/linux/virtio_scsi.h
+>  
+>  VIRTIO CONSOLE DRIVER
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 3c9dae237..1e03bfa9f 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/interrupt.h>
+>  #include <linux/virtio.h>
+>  #include <linux/virtio_blk.h>
+> +#include <linux/virtio_blk_ioctl.h>
+>  #include <linux/scatterlist.h>
+>  #include <linux/string_helpers.h>
+>  #include <linux/idr.h>
+> @@ -112,6 +113,18 @@ struct virtblk_req {
+>  	struct scatterlist sg[];
+>  };
+>  
+> +static inline int virtblk_ioctl_result(struct virtblk_req *vbr)
+> +{
+> +	switch (vbr->status) {
+> +	case VIRTIO_BLK_S_OK:
+> +		return 0;
+> +	case VIRTIO_BLK_S_UNSUPP:
+> +		return -EOPNOTSUPP;
+> +	default:
+> +		return -EIO;
+> +	}
+> +}
+> +
+>  static inline blk_status_t virtblk_result(u8 status)
+>  {
+>  	switch (status) {
+> @@ -840,6 +853,90 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+>  	return ret;
+>  }
+>  
+> +/* Get lifetime information from device */
+> +static int virtblk_ioctl_lifetime(struct virtio_blk *vblk, unsigned long arg)
+> +{
+> +	struct request_queue *q = vblk->disk->queue;
+> +	struct request *req = NULL;
+> +	struct virtblk_req *vbr;
+> +	struct virtio_blk_lifetime lifetime = {};
+> +	int ret;
+> +
+> +	/* It's not clear whether exposing lifetime info to userspace
+> +	 * has any security implications but out of abundance of caution
+> +	 * we limit it to privileged users.
+> +	 */
+> +	if (!capable(CAP_SYS_ADMIN))
+> +		return -EPERM;
+> +
+> +	/* The virtio_blk_lifetime struct fields follow virtio spec.
+> +	 * There is no check/decode on values received from the device.
+> +	 * The data is sent as is to the user.
+> +	 */
+> +
+> +	/* This ioctl is allowed only if VIRTIO_BLK_F_LIFETIME
+> +	 * feature is negotiated.
+> +	 */
+> +	if (!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_LIFETIME))
+> +		return -EOPNOTSUPP;
+> +
+> +	req = blk_mq_alloc_request(q, REQ_OP_DRV_IN, 0);
+> +	if (IS_ERR(req))
+> +		return PTR_ERR(req);
+> +
+> +	/* Write the correct type */
+> +	vbr = blk_mq_rq_to_pdu(req);
+> +	vbr->out_hdr.type = cpu_to_virtio32(vblk->vdev, VIRTIO_BLK_T_GET_LIFETIME);
+> +	vbr->out_hdr.sector = 0;
+> +
+> +	ret = blk_rq_map_kern(q, req, &lifetime, sizeof(lifetime), GFP_KERNEL);
+> +	if (ret)
+> +		goto out;
+> +
+> +	blk_execute_rq(req, false);
+> +
+> +	ret = virtblk_ioctl_result(blk_mq_rq_to_pdu(req));
+> +	if (ret)
+> +		goto out;
+> +
+> +	/* Pass the data to the user */
+> +	if (copy_to_user((void __user *)arg, &lifetime, sizeof(lifetime))) {
+> +		ret = -EFAULT;
+> +		goto out;
+> +	}
+> +
+> +out:
+> +	blk_mq_free_request(req);
+> +	return ret;
+> +}
+> +
+> +static int virtblk_ioctl(struct block_device *bd, fmode_t mode,
+> +			 unsigned int cmd, unsigned long arg)
+> +{
+> +	struct virtio_blk *vblk = bd->bd_disk->private_data;
+> +	int ret;
+> +
+> +	mutex_lock(&vblk->vdev_mutex);
+> +
+> +	if (!vblk->vdev) {
+> +		ret = -ENXIO;
+> +		goto exit;
+> +	}
+> +
+> +	switch (cmd) {
+> +	case VIRTIO_BLK_IOCTL_GET_LIFETIME:
+> +		ret = virtblk_ioctl_lifetime(vblk, arg);
+> +		break;
+> +	default:
+> +		ret = -EOPNOTSUPP;
+> +		break;
+> +	}
+> +
+> +exit:
+> +	mutex_unlock(&vblk->vdev_mutex);
+> +	return ret;
+> +}
+> +
+>  static void virtblk_free_disk(struct gendisk *disk)
+>  {
+>  	struct virtio_blk *vblk = disk->private_data;
+> @@ -853,6 +950,7 @@ static const struct block_device_operations virtblk_fops = {
+>  	.owner  	= THIS_MODULE,
+>  	.getgeo		= virtblk_getgeo,
+>  	.free_disk	= virtblk_free_disk,
+> +	.ioctl		= virtblk_ioctl,
+>  	.report_zones	= virtblk_report_zones,
+>  };
+>  
+> @@ -1582,7 +1680,7 @@ static unsigned int features_legacy[] = {
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+>  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+> -	VIRTIO_BLK_F_SECURE_ERASE,
+> +	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+>  }
+>  ;
+>  static unsigned int features[] = {
+> @@ -1590,7 +1688,7 @@ static unsigned int features[] = {
+>  	VIRTIO_BLK_F_RO, VIRTIO_BLK_F_BLK_SIZE,
+>  	VIRTIO_BLK_F_FLUSH, VIRTIO_BLK_F_TOPOLOGY, VIRTIO_BLK_F_CONFIG_WCE,
+>  	VIRTIO_BLK_F_MQ, VIRTIO_BLK_F_DISCARD, VIRTIO_BLK_F_WRITE_ZEROES,
+> -	VIRTIO_BLK_F_SECURE_ERASE,
+> +	VIRTIO_BLK_F_SECURE_ERASE, VIRTIO_BLK_F_LIFETIME,
+>  #ifdef CONFIG_BLK_DEV_ZONED
+>  	VIRTIO_BLK_F_ZONED,
+>  #endif /* CONFIG_BLK_DEV_ZONED */
+> diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+> index 3744e4da1..f4d5ee7c6 100644
+> --- a/include/uapi/linux/virtio_blk.h
+> +++ b/include/uapi/linux/virtio_blk.h
+> @@ -40,6 +40,7 @@
+>  #define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
+>  #define VIRTIO_BLK_F_DISCARD	13	/* DISCARD is supported */
+>  #define VIRTIO_BLK_F_WRITE_ZEROES	14	/* WRITE ZEROES is supported */
+> +#define VIRTIO_BLK_F_LIFETIME	15	/* Storage lifetime information is supported */
+>  #define VIRTIO_BLK_F_SECURE_ERASE	16 /* Secure Erase is supported */
+>  #define VIRTIO_BLK_F_ZONED		17	/* Zoned block device */
+>  
+> @@ -176,6 +177,9 @@ struct virtio_blk_config {
+>  /* Get device ID command */
+>  #define VIRTIO_BLK_T_GET_ID    8
+>  
+> +/* Get lifetime information command */
+> +#define VIRTIO_BLK_T_GET_LIFETIME 10
+> +
+>  /* Discard command */
+>  #define VIRTIO_BLK_T_DISCARD	11
+>  
+> @@ -304,6 +308,30 @@ struct virtio_blk_discard_write_zeroes {
+>  	__le32 flags;
+>  };
+>  
+> +/* Get lifetime information struct for each request */
+> +struct virtio_blk_lifetime {
+> +	/*
+> +	 * specifies the percentage of reserved blocks that are consumed.
+> +	 * optional values following virtio spec:
+> +	 * 0 - undefined
+> +	 * 1 - normal, < 80% of reserved blocks are consumed
+> +	 * 2 - warning, 80% of reserved blocks are consumed
+> +	 * 3 - urgent, 90% of reserved blocks are consumed
+> +	 */
+> +	__le16 pre_eol_info;
+> +	/*
+> +	 * this field refers to wear of SLC cells and is provided in increments of 10used,
+> +	 * and so on, thru to 11 meaning estimated lifetime exceeded. All values above 11
+> +	 * are reserved
+> +	 */
+> +	__le16 device_lifetime_est_typ_a;
+> +	/*
+> +	 * this field refers to wear of MLC cells and is provided with the same semantics as
+> +	 * device_lifetime_est_typ_a
+> +	 */
+> +	__le16 device_lifetime_est_typ_b;
+> +};
+> +
+>  #ifndef VIRTIO_BLK_NO_LEGACY
+>  struct virtio_scsi_inhdr {
+>  	__virtio32 errors;
+> diff --git a/include/uapi/linux/virtio_blk_ioctl.h b/include/uapi/linux/virtio_blk_ioctl.h
+> new file mode 100644
+> index 000000000..f87afb6be
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_blk_ioctl.h
+> @@ -0,0 +1,44 @@
+> +#ifndef _LINUX_VIRTIO_BLK_IOCTL_H
+> +#define _LINUX_VIRTIO_BLK_IOCTL_H
+> +/* This header is BSD licensed so anyone can use the definitions to implement
+> + * compatible drivers/servers.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions
+> + * are met:
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the name of IBM nor the names of its contributors
+> + *    may be used to endorse or promote products derived from this software
+> + *    without specific prior written permission.
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
+> + * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+> + * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+> + * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
+> + * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+> + * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+> + * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+> + * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+> + * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+> + * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+> + * SUCH DAMAGE.
+> + */
+> +
+> +#include <linux/ioctl.h>
+> +#include <linux/virtio_blk.h>
+> +
+> +/*
+> + * The virtio_blk_lifetime fields can be reported by eMMC and UFS storage devices,
+> + * which can predict and measure wear over time.
+> + * eMMC/UFS storage devices are common in embedded systems, making this ioctl beneficial mostly
+> + * for embedded systems using these type of storage as virtio-blk backend.
+> + *
+> + * Please note that virtio_blk_lifetime fields are little endian as defined in the virtio spec.
+> + * Caller must convert the fields to the cpu endianness.
+> + */
+> +#define VIRTIO_BLK_IOCTL_GET_LIFETIME   _IOR('r', 0, struct virtio_blk_lifetime)
+> +
+> +#endif /* _LINUX_VIRTIO_BLK_IOCTL_H */
+> -- 
+> 2.32.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
