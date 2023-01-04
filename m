@@ -1,97 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BDB2C46467
-	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 12:13:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB0AAC5479D
+	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 12:43:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1BC2B40328;
-	Wed,  4 Jan 2023 12:13:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1BC2B40328
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=R5XNmAXf
+	by smtp1.osuosl.org (Postfix) with ESMTP id 630CE80D37;
+	Wed,  4 Jan 2023 12:43:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 630CE80D37
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=R/7nfHYE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q5jH8yL7loUm; Wed,  4 Jan 2023 12:13:31 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id abfbADk2f1bW; Wed,  4 Jan 2023 12:43:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AC87740420;
-	Wed,  4 Jan 2023 12:13:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC87740420
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DD30980C02;
+	Wed,  4 Jan 2023 12:43:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD30980C02
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 84549C0033;
-	Wed,  4 Jan 2023 12:13:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6EAFC0032;
+	Wed,  4 Jan 2023 12:43:52 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 69425C002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55917C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 12:13:29 +0000 (UTC)
+ Wed,  4 Jan 2023 12:43:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 510BD40420
+ by smtp2.osuosl.org (Postfix) with ESMTP id 36AD44038D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 12:13:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 510BD40420
+ Wed,  4 Jan 2023 12:43:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36AD44038D
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+ header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg
+ header.b=R/7nfHYE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0LlBFlnYt6tY
+ with ESMTP id VuH2a0igRlbi
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 12:13:28 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A12840328
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com
- [IPv6:2a00:1450:4864:20::32e])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6A12840328
+ Wed,  4 Jan 2023 12:43:50 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 41BE84012B
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 41BE84012B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 12:13:28 +0000 (UTC)
-Received: by mail-wm1-x32e.google.com with SMTP id
- p1-20020a05600c1d8100b003d8c9b191e0so26261169wms.4
- for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Jan 2023 04:13:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solid-run-com.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=vl5DK/+4EXCuNeg8yiIZUHFWHVaFdQmZhRZ8iijVByY=;
- b=R5XNmAXfgiR6j+vvXNZ+0MNAhF76pMPk9MG8+it8cODFQX1lNK765PPMiR2alCo42e
- yH0qelYDKSNbd1W+5psw4ULMr53BKb54t9dkyqZR2b62eB9luQBg4B6KQLXK/qNpZkEG
- r+XDWZM0gagr6PPINCAR0E2hiNG/7AVMEqeIlbPhnRc+qsknwLkbnu5rb8pOIfTwFwGs
- loDZMQOdk412YAC/2NegtBEoVideuHU8d3To3MokG5zUdv6gqDjnhjnJ+/aBxRMsD0sm
- 0t4VghAAxMU77oq8hVyS8o0nhl3+KHK0WbdfUZ/d7KmFLEYq/aqwp1gN0JF6fC/YDQuK
- 5jfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=vl5DK/+4EXCuNeg8yiIZUHFWHVaFdQmZhRZ8iijVByY=;
- b=XZ9flsEBmIQRZ1P1keCTn6fvTwSQXJ3SFchW3kngBr4p4rvfsv8vZuCqE7mW0/3d9t
- /We89mv0v6vwCIRQMOczocpGSf93XBatVWeK+1NGqKriMYMGvtqoSivahv9I8YwkSKm0
- 8dMtUzRNpry5iqbuwSmhoMCfWksrKkH+h1JgXNYW+iHTpyazLp/+awU8fn/5w0KHScOi
- JKatEfaJO8YGgJhTDdHWJplyWVqGl5Lo2qZBjEeIw0PM7vOQG1bERJXYq/ncLqZlhLTd
- QMyhVL2736SYAkjXW0BzTGncSTQVnPZLAgjUTG6rlb7Xutt/Pz6XPJ68QC5oxgm0I0k7
- snWQ==
-X-Gm-Message-State: AFqh2kqRG+JLdLk+pO/Tre/+9lKP+64VNcNZJihWsV88t6RxSbphGTzN
- AbgTQIqxa9QAMSXiyqlxDAntCp4/AiwEb3Qh
-X-Google-Smtp-Source: AMrXdXuktmXhTLHdcZnQfW8+rj0/DjOxaEqCKSIPOVGoHuTAAy7CqLlEPfU7XjVWIeM9CFuAXF7FtQ==
-X-Received: by 2002:a05:600c:16c5:b0:3d1:f687:1fd0 with SMTP id
- l5-20020a05600c16c500b003d1f6871fd0mr33814216wmn.12.1672834406002; 
- Wed, 04 Jan 2023 04:13:26 -0800 (PST)
-Received: from localhost.localdomain
- (bzq-84-110-153-254.static-ip.bezeqint.net. [84.110.153.254])
- by smtp.gmail.com with ESMTPSA id
- m17-20020a05600c3b1100b003cfbbd54178sm2285157wms.2.2023.01.04.04.13.24
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 04 Jan 2023 04:13:25 -0800 (PST)
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] virtio: vdpa: fix kernel warning in snet_vdpa_remove_vf
-Date: Wed,  4 Jan 2023 14:13:22 +0200
-Message-Id: <20230104121322.3892266-1-alvaro.karsz@solid-run.com>
-X-Mailer: git-send-email 2.32.0
+ Wed,  4 Jan 2023 12:43:50 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 8BD46B8162B;
+ Wed,  4 Jan 2023 12:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9CEAC433EF;
+ Wed,  4 Jan 2023 12:43:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1672836226;
+ bh=gKK35ke75uzbLNdiFo+ZUF6+OSLS2q0DB62aiLXqFus=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=R/7nfHYE0649pnd56Dza8eBumthC+1bmiU/8A0efpKWDA9tLXbh+bR/ew+v+6yt7S
+ r98T4XdbtBoNszBgq6/jjGeVS955ekatwSuOgQ1l1gBR4yVM8M/H57jlug9U8wYQrd
+ rhqBIzXzaf6LhifUtNuy4PDCFiCNOYwIwU6c2XNs=
+Date: Wed, 4 Jan 2023 13:43:43 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: Re: [PATCH 0/2] net/af_packet: Fix kernel BUG in __skb_gso_segment
+Message-ID: <Y7V0f77yhwYplQQz@kroah.com>
+References: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
 MIME-Version: 1.0
-Cc: mst@redhat.com
+Content-Disposition: inline
+In-Reply-To: <20221222083545.1972489-1-tudor.ambarus@linaro.org>
+Cc: willemdebruijn.kernel@gmail.com, mst@redhat.com, netdev@vger.kernel.org,
+ willemb@google.com, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ syzkaller@googlegroups.com, liuhangbin@gmail.com, joneslee@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net,
+ linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,45 +93,53 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Call pci_free_irq_vectors after calling vdpa_unregister_device.
-Otherwise, we get the following kernel warning:
+On Thu, Dec 22, 2022 at 10:35:43AM +0200, Tudor Ambarus wrote:
+> The series is intended for stable@vger.kernel.org # 5.4+
+> 
+> Syzkaller reported the following bug on linux-5.{4, 10, 15}.y:
+> https://syzkaller.appspot.com/bug?id=ce5575575f074c33ff80d104f5baee26f22e95f5
+> 
+> The upstream commit that introduces this bug is:
+> 1ed1d5921139 ("net: skip virtio_net_hdr_set_proto if protocol already set")
+> 
+> Upstream fixes the bug with the following commits, one of which introduces
+> new support:
+> e9d3f80935b6 ("net/af_packet: make sure to pull mac header")
+> dfed913e8b55 ("net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO") 
+> 
+> The additional logic and risk backported seems manageable.
+> 
+> The blammed commit introduces a kernel BUG in __skb_gso_segment for
+> AF_PACKET SOCK_RAW GSO VLAN tagged packets. What happens is that
+> virtio_net_hdr_set_proto() exists early as skb->protocol is already set to
+> ETH_P_ALL. Then in packet_parse_headers() skb->protocol is set to
+> ETH_P_8021AD, but neither the network header position is adjusted, nor the
+> mac header is pulled. Thus when we get to validate the xmit skb and enter
+> skb_mac_gso_segment(), skb->mac_len has value 14, but vlan_depth gets
+> updated to 18 after skb_network_protocol() is called. This causes the
+> BUG_ON from __skb_pull(skb, vlan_depth) to be hit, as the mac header has
+> not been pulled yet.
+> 
+> The fixes from upstream backported cleanly without conflicts. I updated
+> the commit message of the first patch to describe the problem encountered,
+> and added Cc, Fixes, Reported-by and Tested-by tags. For the second patch
+> I just added Cc to stable indicating the versions to be fixed, and added
+> my Tested and Signed-off-by tags.
+> 
+> I tested the patches on linux-5.{4, 10, 15}.y.
+> 
+> Eric Dumazet (1):
+>   net/af_packet: make sure to pull mac header
+> 
+> Hangbin Liu (1):
+>   net/af_packet: add VLAN support for AF_PACKET SOCK_RAW GSO
+> 
+>  net/packet/af_packet.c | 20 +++++++++++++++-----
+>  1 file changed, 15 insertions(+), 5 deletions(-)
 
-	remove_proc_entry: removing non-empty directory 'irq/..',
-	leaking at least '..'
+Now queued up, thanks.
 
-This happens only if SNET_CFG_FLAG_IRQ_PF flag is not set.
-
-This patch should be applied on top of:
-virtio: vdpa: new SolidNET DPU driver,
-by Alvaro Karsz alvaro.karsz@solid-run.com
-
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
----
- drivers/vdpa/solidrun/snet_main.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-index 9ceacf96de0..0c13ccde452 100644
---- a/drivers/vdpa/solidrun/snet_main.c
-+++ b/drivers/vdpa/solidrun/snet_main.c
-@@ -1073,12 +1073,11 @@ static void snet_vdpa_remove_vf(struct pci_dev *pdev)
- 	struct snet *snet = pci_get_drvdata(pdev);
- 	struct psnet *psnet = snet->psnet;
- 
-+	vdpa_unregister_device(&snet->vdpa);
-+	snet_free_vqs(snet);
- 	/* If IRQs are allocated from the VF, we should free the IRQs */
- 	if (!PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF))
- 		pci_free_irq_vectors(pdev);
--
--	vdpa_unregister_device(&snet->vdpa);
--	snet_free_vqs(snet);
- }
- 
- static void snet_vdpa_remove(struct pci_dev *pdev)
--- 
-2.32.0
-
+greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
