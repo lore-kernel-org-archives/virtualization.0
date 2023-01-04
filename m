@@ -1,116 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE356C3DA7D
-	for <virtualization@archiver.kernel.org>; Tue,  3 Jan 2023 15:50:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9DDDAC4708D
+	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 03:39:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3BBEB409C1;
-	Tue,  3 Jan 2023 15:50:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3BBEB409C1
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1D2C761000;
+	Wed,  4 Jan 2023 03:39:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D2C761000
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YLlbIW2k
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GsDzAHqUnhOq; Wed,  4 Jan 2023 03:39:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 284B160FFD;
+	Wed,  4 Jan 2023 03:39:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 284B160FFD
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6C26C0032;
+	Wed,  4 Jan 2023 03:39:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2FE95C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Jan 2023 03:39:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 046D2400DD
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Jan 2023 03:39:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 046D2400DD
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Dsw+a1sk
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YLlbIW2k
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xi2Vq8qGKrGf; Tue,  3 Jan 2023 15:49:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AD76840147;
-	Tue,  3 Jan 2023 15:49:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AD76840147
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 85178C0032;
-	Tue,  3 Jan 2023 15:49:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CAC0EC002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Lc3zF_CkHQCH
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Jan 2023 15:49:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9D318415E6
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Jan 2023 15:49:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9D318415E6
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Dsw+a1sk
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6YNkolO3AIuf
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Jan 2023 15:49:56 +0000 (UTC)
+ Wed,  4 Jan 2023 03:39:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0D6F3408A1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 67DAD400FE
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0D6F3408A1
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 67DAD400FE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Jan 2023 15:49:55 +0000 (UTC)
+ Wed,  4 Jan 2023 03:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672760994;
+ s=mimecast20190719; t=1672803567;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=WC94+qRtcsQoAZV6EJBwTDdUsyIqcyvTkPy2eHYVDF8=;
- b=Dsw+a1skJrczJSjugB4GFPkVku1KQU+pKKtHoH8KoPlUobI7sRzGiWLORGW//f1JBwGbGh
- 2j0ZsbqAF1iwbQCnVmDi7Z3YdwBIex4InD+PZsovaqcenjusr+JQKmr4rRA8n03XTSEnXO
- D5mJlX7dtfLNXRc7IhLo+gPf1Lib6Jo=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ in-reply-to:in-reply-to:references:references;
+ bh=zLEOnNfnmWkj2vt/eKqMGmTtrEyeN38VkEbI9YRGYgo=;
+ b=YLlbIW2k5IsX/mqxNxPnDtIMDSr4zJXgHBbe0VH1f/qDu870mfwBSGknzL3Vnqph/n7Z7A
+ WA2/sv3Q02PfnEp6qC2m3/UkXdJ8u8X87M71UeQFqjWOOnaRWm0IRx5Zjc4cbUYoQY1sHt
+ 2YnrPy6Zg9sUZgNiFgP0JaDodM3oV6w=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-477-yAGNAnrEONavA71XfcqjBw-1; Tue, 03 Jan 2023 10:49:53 -0500
-X-MC-Unique: yAGNAnrEONavA71XfcqjBw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- c66-20020a1c3545000000b003d355c13229so20243544wma.0
+ us-mta-523-T1NJ4HE8ORmqFOGVKWGuXg-1; Tue, 03 Jan 2023 22:39:25 -0500
+X-MC-Unique: T1NJ4HE8ORmqFOGVKWGuXg-1
+Received: by mail-ot1-f72.google.com with SMTP id
+ e15-20020a0568301e4f00b006783b3a27c3so16904579otj.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 03 Jan 2023 07:49:53 -0800 (PST)
+ Tue, 03 Jan 2023 19:39:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:content-disposition:mime-version
- :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=WC94+qRtcsQoAZV6EJBwTDdUsyIqcyvTkPy2eHYVDF8=;
- b=froFSs/6o0YIV2ofTS30PUgs98I4rTJAYXMWVAlX8DQzu8abBSf0qnaVUfm+pJ815x
- NhIwFcv0IRve8bZ7hqrmLpPQ9wvCX+ljfPZKvP6IDlARq/8N6GazBLnmwQ8Dp3125efN
- 2YMWJTM13oRlOiZUrNY0wQpLLOxp2n1/9eX1i/qfKKAxFIYAcBDJvXEmBFb0BbwdU2EV
- W5zUGCbHm96noe9Oowy4iF7sSeuZsJ+pa3qYno6Jg7NeIr6ChLm1jEe2/1NQed6Xp9yh
- WwKgLuXnaFTnHn26JvwmCb7OcpdfCis451b40EQsWPZg2TikBxFP+gGZD+9/Vp/UadkY
- 1ngQ==
-X-Gm-Message-State: AFqh2kodse/KmjCS4AxxxfzZmgnyKBJJG2OKYLZf85hEKdpRAZCc/uth
- 1jLzrYM8dtsKqh5v2EHd90K/WzCj5lf/utzaKJlqnt2Pf6hdhn5BLxS5o/dtL/zP7HZMXQOgwh9
- mb8Sk87bF6JEErsu3r8hik2c0TsiPsBxmgCu6AW024w==
-X-Received: by 2002:a05:600c:4fcf:b0:3d1:d396:1ade with SMTP id
- o15-20020a05600c4fcf00b003d1d3961ademr31416071wmq.9.1672760992129; 
- Tue, 03 Jan 2023 07:49:52 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXvBokw4ntbihohzRlAT/7Kd2Eqgl7eiuIEN+Pul08FB9XjA5yr3GOYK70ZuUvwnVXP0KlLXRw==
-X-Received: by 2002:a05:600c:4fcf:b0:3d1:d396:1ade with SMTP id
- o15-20020a05600c4fcf00b003d1d3961ademr31416049wmq.9.1672760991925; 
- Tue, 03 Jan 2023 07:49:51 -0800 (PST)
-Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
- r10-20020a05600c458a00b003d9a86a13bfsm15382532wmo.28.2023.01.03.07.49.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 03 Jan 2023 07:49:51 -0800 (PST)
-Date: Tue, 3 Jan 2023 10:49:46 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL v2] virtio,vhost,vdpa: fixes, cleanups
-Message-ID: <20230103104946-mutt-send-email-mst@kernel.org>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=zLEOnNfnmWkj2vt/eKqMGmTtrEyeN38VkEbI9YRGYgo=;
+ b=q4ixBqZrGbZ/RpbXNww77qS4canFSyS96u9/E2P2cmTAZhbPGPJw+iBOfd9Id0dwVw
+ lsPJ0ZOnEAmnDCpqayx0imEzHjBRM2K9mKcS9IKtHuMiacjHn953cTEFHIPWRKhXt6eR
+ A43q5+E841MvhfsyViWqS0avcKTbAuT4SC0HQ5Yj15W0Aix0jtmi+KPJ3k4HKIgxd8Cf
+ rDwXG6J1Bm3EXRe0xWLEed9/al2aldnMSlc4t+izW00a2gi21OS6F9gKQVNFafeD8fcJ
+ l389X5wjxDG9p79PYIpbjBCC571LissoYW997qEstGmm3m3GL1vVqZAKNNuWB61cO+Sa
+ V7Zw==
+X-Gm-Message-State: AFqh2krXrZLWup5GTA6wjqdsFj7nlJVRRI6DX9qjUe5JDy/jFdGTs2lP
+ ao/ccLVBIk4rLobpiVtYPfi9BDJrAi8bSlP0hcSqzEB3pA2/dwEzN/sogh0zMCBHBK/+a34KZlD
+ xjL89lq5n2puwRqxJFoi+QPFOQNaSnchSWq8Eno4ueMwSPccGzRhP91Bezg==
+X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
+ u19-20020a056870441300b00144a97b1ae2mr2348268oah.35.1672803564724; 
+ Tue, 03 Jan 2023 19:39:24 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsVz1cKwujH6GJv25hk0r6sfgtJJRuq35xoLxJxoW7+KupoECbyLNoo6T6L/PrFgD6xJ2gklNlIzgvWJxAkF8c=
+X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
+ u19-20020a056870441300b00144a97b1ae2mr2348254oah.35.1672803564372; Tue, 03
+ Jan 2023 19:39:24 -0800 (PST)
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
+References: <0000000000005315c105f1652480@google.com>
+In-Reply-To: <0000000000005315c105f1652480@google.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 4 Jan 2023 11:39:13 +0800
+Message-ID: <CACGkMEv7Dbat08DJw3SQ3QXK7H73aYLAMB0jLkuAmyYkLf_Q=w@mail.gmail.com>
+Subject: Re: [syzbot] possible deadlock in rds_message_put
+To: syzbot <syzbot+f9db6ff27b9bfdcfeca0@syzkaller.appspotmail.com>
+X-Mimecast-Spam-Score: 1
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, mst@redhat.com, dmitry.fomichev@wdc.com,
- yuancan@huawei.com, virtualization@lists.linux-foundation.org,
- shaoqin.huang@intel.com, weiyongjun1@huawei.com, set_pte_at@outlook.com,
- elic@nvidia.com, dave@stgolabs.net, lulu@redhat.com, ruanjinjie@huawei.com,
- sunnanyong@huawei.com, rafaelmendsr@gmail.com, pizhenwei@bytedance.com,
- eperezma@redhat.com, angus.chen@jaguarmicro.com, colin.i.king@gmail.com,
- harshit.m.mogalapalli@oracle.com, wangjianli@cdjrlc.com,
- gautam.dawar@xilinx.com, dengshaomin@cdjrlc.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, wangrong68@huawei.com
+Cc: rds-devel@oss.oracle.com, mst@redhat.com, linux-rdma@vger.kernel.org,
+ netdev@vger.kernel.org, santosh.shilimkar@oracle.com,
+ syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,94 +114,199 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-VGhlc2UgZml4ZXMgaGF2ZSBiZWVuIGluIG5leHQsIHRob3VnaCBub3QgYXMgdGhlc2UgY29tbWl0
-cy4KCkknZCBsaWtlIHRvIGFwb2xvZ2l6ZSBhZ2FpbiB0byBjb250cmlidXRvcnMgZm9yIG1pc3Np
-bmcgdGhlIG1lcmdlCndpbmRvdyB3aXRoIG5ldyBmZWF0dXJlcy4gVGhlc2UgYnkgbmVjZXNzaXR5
-IGhhdmUgYmVlbiBwdXNoZWQgb3V0CnRvIHRoZSBuZXh0IG1lcmdlIHdpbmRvdy4gVGhpcyBwdWxs
-IG9ubHkgaGFzIGJ1Z2ZpeGVzLgoKSSBwdXQgYXV0b21hdGlvbiBpbiBwbGFjZSB0byBoZWxwIHBy
-ZXZlbnQgbWlzc2luZyBtZXJnZSB3aW5kb3cKaW4gdGhlIGZ1dHVyZS4KClRoZSBmb2xsb3dpbmcg
-Y2hhbmdlcyBzaW5jZSBjb21taXQgMWI5MjljMDJhZmQzNzg3MWQ1YWZiOWQ0OTg0MjZmODM0MzJl
-NzFjMjoKCiAgTGludXggNi4yLXJjMSAoMjAyMi0xMi0yNSAxMzo0MTozOSAtMDgwMCkKCmFyZSBh
-dmFpbGFibGUgaW4gdGhlIEdpdCByZXBvc2l0b3J5IGF0OgoKICBodHRwczovL2dpdC5rZXJuZWwu
-b3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9tc3Qvdmhvc3QuZ2l0IHRhZ3MvZm9yX2xpbnVz
-Cgpmb3IgeW91IHRvIGZldGNoIGNoYW5nZXMgdXAgdG8gYTI2MTE2YzFlNzQwMjg5MTRmMjgxODUx
-NDg4NTQ2YzkxY2JhZTU3ZDoKCiAgdmlydGlvX2JsazogRml4IHNpZ25lZG5lc3MgYnVnIGluIHZp
-cnRibGtfcHJlcF9ycSgpICgyMDIyLTEyLTI4IDA1OjI4OjExIC0wNTAwKQoKLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0
-aW8sdmhvc3QsdmRwYTogZml4ZXMsIGNsZWFudXBzCgptb3N0bHkgZml4ZXMgYWxsIG92ZXIgdGhl
-IHBsYWNlLCBhIGNvdXBsZSBvZiBjbGVhbnVwcy4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4g
-VHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCkFuZ3VzIENoZW4gKDIpOgogICAgICB2
-aXJ0aW9fcGNpOiBtb2RpZnkgRU5PRU5UIHRvIEVJTlZBTAogICAgICB2aXJ0aW9fYmxrOiB1c2Ug
-VUlOVF9NQVggaW5zdGVhZCBvZiAtMVUKCkNpbmR5IEx1ICgyKToKICAgICAgdmhvc3RfdmRwYTog
-Zml4IHRoZSBjcmFzaCBpbiB1bm1hcCBhIGxhcmdlIG1lbW9yeQogICAgICB2ZHBhX3NpbV9uZXQ6
-IHNob3VsZCBub3QgZHJvcCB0aGUgbXVsdGljYXN0L2Jyb2FkY2FzdCBwYWNrZXQKCkNvbGluIElh
-biBLaW5nICgxKToKICAgICAgUkRNQS9tbHg1OiByZW1vdmUgdmFyaWFibGUgaQoKRGF2aWRsb2hy
-IEJ1ZXNvICgyKToKICAgICAgdG9vbHMvdmlydGlvOiByZW1vdmUgc3RyYXkgY2hhcmFjdGVycwog
-ICAgICB0b29scy92aXJ0aW86IHJlbW92ZSBzbXBfcmVhZF9iYXJyaWVyX2RlcGVuZHMoKQoKRGF3
-ZWkgTGkgKDEpOgogICAgICB2aXJ0aW86IEltcGxlbWVudGluZyBhdHRyaWJ1dGUgc2hvdyB3aXRo
-IHN5c2ZzX2VtaXQKCkRtaXRyeSBGb21pY2hldiAoMSk6CiAgICAgIHZpcnRpby1ibGs6IHVzZSBh
-IGhlbHBlciB0byBoYW5kbGUgcmVxdWVzdCBxdWV1aW5nIGVycm9ycwoKRWxpIENvaGVuICg1KToK
-ICAgICAgdmRwYS9tbHg1OiBGaXggcnVsZSBmb3J3YXJkaW5nIFZMQU4gdG8gVElSCiAgICAgIHZk
-cGEvbWx4NTogUmV0dXJuIGVycm9yIG9uIHZsYW4gY3RybCBjb21tYW5kcyBpZiBub3Qgc3VwcG9y
-dGVkCiAgICAgIHZkcGEvbWx4NTogRml4IHdyb25nIG1hYyBhZGRyZXNzIGRlbGV0aW9uCiAgICAg
-IHZkcGEvbWx4NTogQXZvaWQgdXNpbmcgcmVzbG9jayBpbiBldmVudF9oYW5kbGVyCiAgICAgIHZk
-cGEvbWx4NTogQXZvaWQgb3ZlcndyaXRpbmcgQ1ZRIGlvdGxiCgpIYXJzaGl0IE1vZ2FsYXBhbGxp
-ICgxKToKICAgICAgdmR1c2U6IFZhbGlkYXRlIHZxX251bSBpbiB2ZHVzZV92YWxpZGF0ZV9jb25m
-aWcoKQoKSmFzb24gV2FuZyAoMik6CiAgICAgIHZkcGE6IGNvbmRpdGlvbmFsbHkgZmlsbCBtYXgg
-bWF4IHF1ZXVlIHBhaXIgZm9yIHN0YXRzCiAgICAgIHZkcGFzaW06IGZpeCBtZW1vcnkgbGVhayB3
-aGVuIGZyZWVpbmcgSU9UTEJzCgpSYWZhZWwgTWVuZG9uY2EgKDEpOgogICAgICB2aXJ0aW9fYmxr
-OiBGaXggc2lnbmVkbmVzcyBidWcgaW4gdmlydGJsa19wcmVwX3JxKCkKClJpY2FyZG8gQ2HDsXVl
-bG8gKDEpOgogICAgICB0b29scy92aXJ0aW86IGluaXRpYWxpemUgc3BpbmxvY2tzIGluIHZyaW5n
-X3Rlc3QuYwoKUm9uZyBXYW5nICgxKToKICAgICAgdmRwYS92cF92ZHBhOiBmaXgga2ZyZWUgYSB3
-cm9uZyBwb2ludGVyIGluIHZwX3ZkcGFfcmVtb3ZlCgpTaGFvbWluIERlbmcgKDEpOgogICAgICB0
-b29sczogRGVsZXRlIHRoZSB1bm5lZWRlZCBzZW1pY29sb24gYWZ0ZXIgY3VybHkgYnJhY2VzCgpT
-aGFvcWluIEh1YW5nICgyKToKICAgICAgdmlydGlvX3BjaTogdXNlIGhlbHBlciBmdW5jdGlvbiBp
-c19wb3dlcl9vZl8yKCkKICAgICAgdmlydGlvX3Jpbmc6IHVzZSBoZWxwZXIgZnVuY3Rpb24gaXNf
-cG93ZXJfb2ZfMigpCgpTaS1XZWkgTGl1ICgxKToKICAgICAgdmRwYTogbWVyZ2UgZnVuY3Rpb25h
-bGx5IGR1cGxpY2F0ZWQgZGV2X2ZlYXR1cmVzIGF0dHJpYnV0ZXMKClN0ZWZhbm8gR2FyemFyZWxs
-YSAoNCk6CiAgICAgIHZyaW5naDogZml4IHJhbmdlIHVzZWQgaW4gaW90bGJfdHJhbnNsYXRlKCkK
-ICAgICAgdmhvc3Q6IGZpeCByYW5nZSB1c2VkIGluIHRyYW5zbGF0ZV9kZXNjKCkKICAgICAgdmhv
-c3QtdmRwYTogZml4IGFuIGlvdGxiIG1lbW9yeSBsZWFrCiAgICAgIHZkcGFfc2ltOiBmaXggdnJp
-bmdoIGluaXRpYWxpemF0aW9uIGluIHZkcGFzaW1fcXVldWVfcmVhZHkoKQoKV2VpIFlvbmdqdW4g
-KDEpOgogICAgICB2aXJ0aW8tY3J5cHRvOiBmaXggbWVtb3J5IGxlYWsgaW4gdmlydGlvX2NyeXB0
-b19hbGdfc2tjaXBoZXJfY2xvc2Vfc2Vzc2lvbigpCgpZdWFuIENhbiAoMSk6CiAgICAgIHZob3N0
-L3Zzb2NrOiBGaXggZXJyb3IgaGFuZGxpbmcgaW4gdmhvc3RfdnNvY2tfaW5pdCgpCgpydWFuamlu
-amllICgxKToKICAgICAgdmRwYV9zaW06IGZpeCBwb3NzaWJsZSBtZW1vcnkgbGVhayBpbiB2ZHBh
-c2ltX25ldF9pbml0KCkgYW5kIHZkcGFzaW1fYmxrX2luaXQoKQoKd2FuZ2ppYW5saSAoMSk6CiAg
-ICAgIHRvb2xzL3ZpcnRpbzogVmFyaWFibGUgdHlwZSBjb21wbGV0aW9uCgogZHJpdmVycy9ibG9j
-ay92aXJ0aW9fYmxrLmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAzNSArKysrKy0tLS0tCiAu
-Li4vY3J5cHRvL3ZpcnRpby92aXJ0aW9fY3J5cHRvX3NrY2lwaGVyX2FsZ3MuYyAgICB8ICAzICst
-CiBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21seDVfdmRwYS5oICAgICAgICAgICAgICAgICB8ICA1
-ICstCiBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMgICAgICAgICAgICAgICAgICAgICAgICB8
-IDQ2ICsrKysrKystLS0tLS0KIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyAgICAg
-ICAgICAgICAgICAgIHwgNzggKysrKysrKy0tLS0tLS0tLS0tLS0tLQogZHJpdmVycy92ZHBhL3Zk
-cGEuYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAxMSArKy0KIGRyaXZlcnMvdmRw
-YS92ZHBhX3NpbS92ZHBhX3NpbS5jICAgICAgICAgICAgICAgICAgIHwgIDcgKy0KIGRyaXZlcnMv
-dmRwYS92ZHBhX3NpbS92ZHBhX3NpbV9ibGsuYyAgICAgICAgICAgICAgIHwgIDQgKy0KIGRyaXZl
-cnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbV9uZXQuYyAgICAgICAgICAgICAgIHwgIDcgKy0KIGRy
-aXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMgICAgICAgICAgICAgICAgIHwgIDMgKwog
-ZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5jICAgICAgICAgICAgICAgICAgfCAgMiAr
-LQogZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCA1
-MiArKysrKysrKystLS0tLS0KIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIHwgIDQgKy0KIGRyaXZlcnMvdmhvc3QvdnJpbmdoLmMgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIHwgIDUgKy0KIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIHwgIDkgKystCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICB8IDEyICsrLS0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19w
-Y2lfbW9kZXJuLmMgICAgICAgICAgICAgICAgIHwgIDQgKy0KIGRyaXZlcnMvdmlydGlvL3ZpcnRp
-b19yaW5nLmMgICAgICAgICAgICAgICAgICAgICAgIHwgIDIgKy0KIGluY2x1ZGUvdWFwaS9saW51
-eC92ZHBhLmggICAgICAgICAgICAgICAgICAgICAgICAgIHwgIDQgKy0KIHRvb2xzL3ZpcnRpby9y
-aW5ndGVzdC9tYWluLmggICAgICAgICAgICAgICAgICAgICAgIHwgMzcgKysrKystLS0tLQogdG9v
-bHMvdmlydGlvL3ZpcnRpby10cmFjZS90cmFjZS1hZ2VudC1jdGwuYyAgICAgICAgfCAgMiArLQog
-dG9vbHMvdmlydGlvL3ZpcnRpb190ZXN0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAgMiAr
-LQogdG9vbHMvdmlydGlvL3ZyaW5naF90ZXN0LmMgICAgICAgICAgICAgICAgICAgICAgICAgfCAg
-MiArCiAyMyBmaWxlcyBjaGFuZ2VkLCAxNzMgaW5zZXJ0aW9ucygrKSwgMTYzIGRlbGV0aW9ucygt
-KQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Wed, Jan 4, 2023 at 8:19 AM syzbot
+<syzbot+f9db6ff27b9bfdcfeca0@syzkaller.appspotmail.com> wrote:
+>
+> Hello,
+>
+> syzbot found the following issue on:
+>
+> HEAD commit:    c183e6c3ec34 Merge git://git.kernel.org/pub/scm/linux/kern..
+> git tree:       net-next
+> console output: https://syzkaller.appspot.com/x/log.txt?x=1161aa7c480000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=8ca07260bb631fb4
+> dashboard link: https://syzkaller.appspot.com/bug?extid=f9db6ff27b9bfdcfeca0
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1370b478480000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17ab141a480000
+>
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/9b693820fb05/disk-c183e6c3.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/e449d80e60dc/vmlinux-c183e6c3.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/08e31763ce79/bzImage-c183e6c3.xz
+>
+> The issue was bisected to:
+>
+> commit 1628c6877f371194b603330c324828d03e0eacda
+> Author: Jason Wang <jasowang@redhat.com>
+> Date:   Mon Jan 4 06:55:02 2021 +0000
+>
+>     virtio_vdpa: don't warn when fail to disable vq
+>
+
+There's little chance for this commit to be the first bad one. It only
+removes a WARN_ON().
+
+Thanks
+
+> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1479f7da480000
+> final oops:     https://syzkaller.appspot.com/x/report.txt?x=1679f7da480000
+> console output: https://syzkaller.appspot.com/x/log.txt?x=1279f7da480000
+>
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+f9db6ff27b9bfdcfeca0@syzkaller.appspotmail.com
+> Fixes: 1628c6877f37 ("virtio_vdpa: don't warn when fail to disable vq")
+>
+> ======================================================
+> WARNING: possible circular locking dependency detected
+> 6.1.0-syzkaller-11778-gc183e6c3ec34 #0 Not tainted
+> ------------------------------------------------------
+> syz-executor390/18169 is trying to acquire lock:
+> ffff8880763af100 (&rm->m_rs_lock){..-.}-{2:2}, at: rds_message_purge net/rds/message.c:138 [inline]
+> ffff8880763af100 (&rm->m_rs_lock){..-.}-{2:2}, at: rds_message_put+0x1dd/0xc20 net/rds/message.c:180
+>
+> but task is already holding lock:
+> ffff88802afafa70 (&rs->rs_recv_lock){...-}-{2:2}, at: rds_clear_recv_queue+0x33/0x350 net/rds/recv.c:761
+>
+> which lock already depends on the new lock.
+>
+>
+> the existing dependency chain (in reverse order) is:
+>
+> -> #1 (&rs->rs_recv_lock){...-}-{2:2}:
+>        __raw_read_lock_irqsave include/linux/rwlock_api_smp.h:160 [inline]
+>        _raw_read_lock_irqsave+0x49/0x90 kernel/locking/spinlock.c:236
+>        rds_wake_sk_sleep+0x23/0xe0 net/rds/af_rds.c:109
+>        rds_send_remove_from_sock+0xb9/0x9e0 net/rds/send.c:634
+>        rds_send_path_drop_acked+0x2f3/0x3d0 net/rds/send.c:710
+>        rds_tcp_write_space+0x1b5/0x690 net/rds/tcp_send.c:198
+>        tcp_new_space net/ipv4/tcp_input.c:5483 [inline]
+>        tcp_check_space+0x11b/0x810 net/ipv4/tcp_input.c:5502
+>        tcp_data_snd_check net/ipv4/tcp_input.c:5511 [inline]
+>        tcp_rcv_established+0x93e/0x2230 net/ipv4/tcp_input.c:6019
+>        tcp_v4_do_rcv+0x670/0x9b0 net/ipv4/tcp_ipv4.c:1721
+>        sk_backlog_rcv include/net/sock.h:1113 [inline]
+>        __release_sock+0x133/0x3b0 net/core/sock.c:2928
+>        release_sock+0x58/0x1b0 net/core/sock.c:3485
+>        rds_send_xmit+0xafc/0x2540 net/rds/send.c:422
+>        rds_sendmsg+0x27d3/0x3080 net/rds/send.c:1381
+>        sock_sendmsg_nosec net/socket.c:714 [inline]
+>        sock_sendmsg+0xd3/0x120 net/socket.c:734
+>        __sys_sendto+0x23a/0x340 net/socket.c:2117
+>        __do_sys_sendto net/socket.c:2129 [inline]
+>        __se_sys_sendto net/socket.c:2125 [inline]
+>        __x64_sys_sendto+0xe1/0x1b0 net/socket.c:2125
+>        do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>        do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+>        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>
+> -> #0 (&rm->m_rs_lock){..-.}-{2:2}:
+>        check_prev_add kernel/locking/lockdep.c:3097 [inline]
+>        check_prevs_add kernel/locking/lockdep.c:3216 [inline]
+>        validate_chain kernel/locking/lockdep.c:3831 [inline]
+>        __lock_acquire+0x2a43/0x56d0 kernel/locking/lockdep.c:5055
+>        lock_acquire kernel/locking/lockdep.c:5668 [inline]
+>        lock_acquire+0x1e3/0x630 kernel/locking/lockdep.c:5633
+>        __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+>        _raw_spin_lock_irqsave+0x3d/0x60 kernel/locking/spinlock.c:162
+>        rds_message_purge net/rds/message.c:138 [inline]
+>        rds_message_put+0x1dd/0xc20 net/rds/message.c:180
+>        rds_inc_put net/rds/recv.c:82 [inline]
+>        rds_inc_put+0x13e/0x1a0 net/rds/recv.c:76
+>        rds_clear_recv_queue+0x14b/0x350 net/rds/recv.c:767
+>        rds_release+0xd8/0x3c0 net/rds/af_rds.c:73
+>        __sock_release+0xcd/0x280 net/socket.c:650
+>        sock_close+0x1c/0x20 net/socket.c:1365
+>        __fput+0x27c/0xa90 fs/file_table.c:320
+>        task_work_run+0x16f/0x270 kernel/task_work.c:179
+>        resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+>        exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+>        exit_to_user_mode_prepare+0x23c/0x250 kernel/entry/common.c:203
+>        __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+>        syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
+>        do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
+>        entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>
+> other info that might help us debug this:
+>
+>  Possible unsafe locking scenario:
+>
+>        CPU0                    CPU1
+>        ----                    ----
+>   lock(&rs->rs_recv_lock);
+>                                lock(&rm->m_rs_lock);
+>                                lock(&rs->rs_recv_lock);
+>   lock(&rm->m_rs_lock);
+>
+>  *** DEADLOCK ***
+>
+> 2 locks held by syz-executor390/18169:
+>  #0: ffff8880719a3210 (&sb->s_type->i_mutex_key#10){+.+.}-{3:3}, at: inode_lock include/linux/fs.h:756 [inline]
+>  #0: ffff8880719a3210 (&sb->s_type->i_mutex_key#10){+.+.}-{3:3}, at: __sock_release+0x86/0x280 net/socket.c:649
+>  #1: ffff88802afafa70 (&rs->rs_recv_lock){...-}-{2:2}, at: rds_clear_recv_queue+0x33/0x350 net/rds/recv.c:761
+>
+> stack backtrace:
+> CPU: 0 PID: 18169 Comm: syz-executor390 Not tainted 6.1.0-syzkaller-11778-gc183e6c3ec34 #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:88 [inline]
+>  dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+>  check_noncircular+0x25f/0x2e0 kernel/locking/lockdep.c:2177
+>  check_prev_add kernel/locking/lockdep.c:3097 [inline]
+>  check_prevs_add kernel/locking/lockdep.c:3216 [inline]
+>  validate_chain kernel/locking/lockdep.c:3831 [inline]
+>  __lock_acquire+0x2a43/0x56d0 kernel/locking/lockdep.c:5055
+>  lock_acquire kernel/locking/lockdep.c:5668 [inline]
+>  lock_acquire+0x1e3/0x630 kernel/locking/lockdep.c:5633
+>  __raw_spin_lock_irqsave include/linux/spinlock_api_smp.h:110 [inline]
+>  _raw_spin_lock_irqsave+0x3d/0x60 kernel/locking/spinlock.c:162
+>  rds_message_purge net/rds/message.c:138 [inline]
+>  rds_message_put+0x1dd/0xc20 net/rds/message.c:180
+>  rds_inc_put net/rds/recv.c:82 [inline]
+>  rds_inc_put+0x13e/0x1a0 net/rds/recv.c:76
+>  rds_clear_recv_queue+0x14b/0x350 net/rds/recv.c:767
+>  rds_release+0xd8/0x3c0 net/rds/af_rds.c:73
+>  __sock_release+0xcd/0x280 net/socket.c:650
+>  sock_close+0x1c/0x20 net/socket.c:1365
+>  __fput+0x27c/0xa90 fs/file_table.c:320
+>  task_work_run+0x16f/0x270 kernel/task_work.c:179
+>  resume_user_mode_work include/linux/resume_user_mode.h:49 [inline]
+>  exit_to_user_mode_loop kernel/entry/common.c:171 [inline]
+>  exit_to_user_mode_prepare+0x23c/0x250 kernel/entry/common.c:203
+>  __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+>  syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
+>  do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> RIP: 0033:0x7f4a3a75f5fb
+> Code: 0f 05 48 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24 0c e8 03 fd ff ff 8b 7c 24 0c 41 89 c0 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 89 44 24 0c e8 41 fd ff ff 8b 44
+> RSP: 002b:00007ffff26fde60 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+> RAX: 0000000000000000 RBX: 0000000000000005 RCX: 00007f4a3a75f5fb
+> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000004
+> RBP: 0000000000000032 R08: 0000000000000000 R09: 00007f4a3a7f51ae
+> R10: 0000000000000000 R11: 0000000000000293 R12: 00007f4a3a8284ec
+> R13: 00007ffff26fdeb0 R14: 00007ffff26fded0 R15: 00007ffff26fdf40
+>  </TASK>
+>
+>
+> ---
+> This report is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+>
+> syzbot will keep track of this issue. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+> syzbot can test patches for this issue, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
