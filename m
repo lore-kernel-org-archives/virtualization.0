@@ -1,112 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 06B14C4332F
-	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 13:04:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1344CC4332F
+	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 13:58:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 87E1A60BA9;
-	Wed,  4 Jan 2023 13:04:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 87E1A60BA9
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T164K/ud
+	by smtp1.osuosl.org (Postfix) with ESMTP id 82DD0819E6;
+	Wed,  4 Jan 2023 13:58:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 82DD0819E6
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvWQ4V9j
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sNQNxIv-et_h; Wed,  4 Jan 2023 13:04:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 17A3160692;
-	Wed,  4 Jan 2023 13:04:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17A3160692
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XngjNEvnDo-q; Wed,  4 Jan 2023 13:58:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F1E26819B8;
+	Wed,  4 Jan 2023 13:58:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F1E26819B8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DFB7DC0032;
-	Wed,  4 Jan 2023 13:04:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 259D8C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CEC17C0033;
+	Wed,  4 Jan 2023 13:58:28 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9CAFBC002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 13:04:10 +0000 (UTC)
+ Wed,  4 Jan 2023 13:58:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D2D7E60B5C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6819940170
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 13:04:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D2D7E60B5C
+ Wed,  4 Jan 2023 13:58:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6819940170
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvWQ4V9j
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ke1HzPFQKNEt
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LodBf215YT4D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 13:04:08 +0000 (UTC)
+ Wed,  4 Jan 2023 13:58:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F3E060692
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6595A40162
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9F3E060692
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6595A40162
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 13:04:08 +0000 (UTC)
+ Wed,  4 Jan 2023 13:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1672837447;
+ s=mimecast20190719; t=1672840704;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qox/oCIKrJgN89xrHJUvG+swnnlfN7DPV4U9vLlEgHk=;
- b=T164K/udNfLL3MHRvqoM9xWudo1b6jZvyCK7ugALKhfH/o0PIVa8XselgTWUwdz2l6VmPX
- dohisYVXSYg3fOnjQi+FLv4W/MZ1GjNLeGnRChsdIUBKbL9VQyWPzWUQ1YIG0lK8cNtKSK
- TgIXhjNOXpKnrINi+njdW1DWZ+lGpFU=
+ bh=y2g7AQiyMo+zQG4hJLCNXn/Y1FS2CxkIcwqayTLaqHw=;
+ b=YvWQ4V9jLkSyHtLRS5eC+w4UoB8jYXiP4L/Aig/+YS0RymviWQ/20Y9CAeOOmBxEORKwet
+ es4EBnDq9zt2m5jlAIfBLnunIOWNB765x5NodYILqCtT4ZF9c99fNFXil8t+K53VL7Vv86
+ FDZ5Qe3r3Uq4u2Sq4VqG+SWLpzHf+r4=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-85-OjYNycrNOKuTGb_ayxF8fw-1; Wed, 04 Jan 2023 08:04:06 -0500
-X-MC-Unique: OjYNycrNOKuTGb_ayxF8fw-1
+ us-mta-501-Ji3ZiZG3P7218iWGv-ZP9A-1; Wed, 04 Jan 2023 08:58:23 -0500
+X-MC-Unique: Ji3ZiZG3P7218iWGv-ZP9A-1
 Received: by mail-wm1-f70.google.com with SMTP id
- bd6-20020a05600c1f0600b003d96f7f2396so18679807wmb.3
+ c7-20020a1c3507000000b003d355c13ba8so18154149wma.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Jan 2023 05:04:05 -0800 (PST)
+ Wed, 04 Jan 2023 05:58:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=qox/oCIKrJgN89xrHJUvG+swnnlfN7DPV4U9vLlEgHk=;
- b=vaBr4bhc/fmnHt2iRQaAcjz4p3HEOEdmhLub0LS6kMrpcy5CTlmf9cSTePXxVnkrul
- ZNTs6TuRnZvvWilVk1WqOI91sReFpYwc/KtSf/dxRZzLwPjsWqt79Qk4b4q4OVvmWSYv
- 6uMy50lXhAEuFOGFJgnfSCl1tvjCT6eIyH3M1Pq8ANzfiMZXSEiDQ7VDYBjKXX2n7w+o
- EEVo8oPGp9Qw8ZrUb7qQkxBLZ4aFfC9W2m5ILonV9KOi67WHF+wUNU0gVODc6enFuLtE
- hFRJqVhmLhZklUeCaBXrRQLzLuFe63dFA8NNfnyYQdjcpAN9p7Nr08lFebBRA0VhIGvr
- YoGw==
-X-Gm-Message-State: AFqh2kqUezXwJmP9QWiGR2GMnuUIzrvX+hru68gQFlM4+GG4oXTk/U54
- 4n7a2z/yyu8sh8Fb4MBvkh+OwUvUIgPg3DviAtZYDLnGG2vDhc/2B7fSLkjExUXN/WunfJvxSqG
- VOc0MrdaQyce2zNZSjTH40VibVSWIgcrhuSJFjsODuA==
-X-Received: by 2002:a05:6000:18c3:b0:288:ca2e:7d74 with SMTP id
- w3-20020a05600018c300b00288ca2e7d74mr14295782wrq.14.1672837444934; 
- Wed, 04 Jan 2023 05:04:04 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtlcfpal455TLuLVy79Kxfe58vG4oN1jPIOPsIFNn4IYhDNS4aZnX9DtEvIz+VUUb8U5/RbTg==
-X-Received: by 2002:a05:6000:18c3:b0:288:ca2e:7d74 with SMTP id
- w3-20020a05600018c300b00288ca2e7d74mr14295762wrq.14.1672837444627; 
- Wed, 04 Jan 2023 05:04:04 -0800 (PST)
+ bh=y2g7AQiyMo+zQG4hJLCNXn/Y1FS2CxkIcwqayTLaqHw=;
+ b=VCo4Wsp0yldeMwafnbuWw8zMytLp5bUIULbApJLhHEFojioyjHi3YGODxaefHjpAVA
+ 710/TWemqYOmuxilPqfn0q3nvIjm5fBOp0o19WuENKurVAfIfy2OPNekoOPMRhrrsFPt
+ yKEmOgy790M/BQi/AVGxxSwYUdNHOCjPjgEcRW6/HcD+hrZoZ0QdlhBr91Xz9it6LPta
+ KePKZGSkkoT0/xxe9jGd7gdzCbyKqtY3yblgN7yKwzhin5RZ5K1Az2jfNls36i9iMnMu
+ 8vOHx8oBtI6j5ntMTmgaSnYTtGrgrgSDyLB0px3Jx+wIOBkFirNK4XPVe6BdxBVGRM47
+ /xfg==
+X-Gm-Message-State: AFqh2kpeSbH0Q4eJny8YDqVRab+iGT5GBq4wyLrN+a9a+WnKxuwmLP8P
+ PTRCbTN1rx8YCcJvtmaP8nSAz6/1dkMrFQ2tq4dZV/je0R+Kjrf0eOaGzjTtSYh8D/IlVCpZtft
+ r6yobCHfSGStKpA4qaCbrPvMJ3Zwts1YOsg0psdJNDQ==
+X-Received: by 2002:adf:c644:0:b0:29f:9df0:a6b2 with SMTP id
+ u4-20020adfc644000000b0029f9df0a6b2mr5619449wrg.64.1672840702661; 
+ Wed, 04 Jan 2023 05:58:22 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuK7jM77xJpOfWK6+w0fu2Xj6muiZi/o2lgkHUF2s7iQgthdchD8fTt/oLTToMpN4rq7X5Q2w==
+X-Received: by 2002:adf:c644:0:b0:29f:9df0:a6b2 with SMTP id
+ u4-20020adfc644000000b0029f9df0a6b2mr5619439wrg.64.1672840702443; 
+ Wed, 04 Jan 2023 05:58:22 -0800 (PST)
 Received: from redhat.com ([2.52.151.85]) by smtp.gmail.com with ESMTPSA id
- j1-20020adfff81000000b0024cb961b6aesm33027899wrr.104.2023.01.04.05.04.02
+ o5-20020adfe805000000b0028cc9d2ec1csm20665518wrm.54.2023.01.04.05.58.21
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 04 Jan 2023 05:04:03 -0800 (PST)
-Date: Wed, 4 Jan 2023 08:03:59 -0500
+ Wed, 04 Jan 2023 05:58:21 -0800 (PST)
+Date: Wed, 4 Jan 2023 08:58:19 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [syzbot] kernel BUG in vhost_vsock_handle_tx_kick
-Message-ID: <20230104074613-mutt-send-email-mst@kernel.org>
-References: <0000000000003a68dc05f164fd69@google.com>
- <Y7T+xTIq2izSlHHE@pop-os.localdomain> <Y6A/Yyoh2uZSR0xj@bullseye>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH -next] vdpa/mlx5: fix check wrong pointer in
+ mlx5_vdpa_add_mac_vlan_rules()
+Message-ID: <20230104085605-mutt-send-email-mst@kernel.org>
+References: <20230104074418.1737510-1-yangyingliang@huawei.com>
+ <DM8PR12MB5400CDBCE2E0150F50E2224FABF59@DM8PR12MB5400.namprd12.prod.outlook.com>
+ <DM8PR12MB540012D1421616399D0903CCABF59@DM8PR12MB5400.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <Y6A/Yyoh2uZSR0xj@bullseye>
-X-Mimecast-Spam-Score: 1
+In-Reply-To: <DM8PR12MB540012D1421616399D0903CCABF59@DM8PR12MB5400.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: bobby.eshleman@gmail.com, kvm@vger.kernel.org, netdev@vger.kernel.org,
- syzkaller-bugs@googlegroups.com,
- syzbot <syzbot+30b72abaa17c07fe39dd@syzkaller.appspotmail.com>,
- linux-kernel@vger.kernel.org, stefanha@redhat.com,
- Cong Wang <xiyou.wangcong@gmail.com>,
- virtualization@lists.linux-foundation.org
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Yang Yingliang <yangyingliang@huawei.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,40 +125,14 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Dec 19, 2022 at 10:46:47AM +0000, Bobby Eshleman wrote:
-> On Tue, Jan 03, 2023 at 08:21:25PM -0800, Cong Wang wrote:
-> > On Tue, Jan 03, 2023 at 04:08:51PM -0800, syzbot wrote:
-> > > Hello,
-> > > 
-> > > syzbot found the following issue on:
-> > > 
-> > > HEAD commit:    c76083fac3ba Add linux-next specific files for 20221226
-> > > git tree:       linux-next
-> > > console+strace: https://syzkaller.appspot.com/x/log.txt?x=1723da42480000
-> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=c217c755f1884ab6
-> > > dashboard link: https://syzkaller.appspot.com/bug?extid=30b72abaa17c07fe39dd
-> > > compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-> > > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14fc414c480000
-> > > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1604b20a480000
-> > > 
-> > > Downloadable assets:
-> > > disk image: https://storage.googleapis.com/syzbot-assets/e388f26357fd/disk-c76083fa.raw.xz
-> > > vmlinux: https://storage.googleapis.com/syzbot-assets/e24f0bae36d5/vmlinux-c76083fa.xz
-> > > kernel image: https://storage.googleapis.com/syzbot-assets/a5a69a059716/bzImage-c76083fa.xz
-> > > 
-> > > IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> > > Reported-by: syzbot+30b72abaa17c07fe39dd@syzkaller.appspotmail.com
-> > 
-> > +bobby.eshleman@gmail.com
-> > 
-> > Bobby, please take a look.
-> > 
-> > Thanks.
-> 
-> Roger that, I'll take a gander asap.
+On Wed, Jan 04, 2023 at 11:41:31AM +0000, Eli Cohen wrote:
+> I see these patches were not sent yet.
+> Michael/Yang Yinglliang, isn't it better to send a fixed patch instead of sending the original and fix on top of it?
 
-I'll going to revert commit f169a9538803469418d9ba2c42a0236fc43cd876 unless
-I hear from you soon, we need linux-next testable.
+depends on the severity of the fix. in this case it seems to leak
+uninitialized stack data to userspace, so I'd say it's best to
+squash in the fix.
+keep signed-off by of the fixup contributor so they get attribution.
 
 -- 
 MST
