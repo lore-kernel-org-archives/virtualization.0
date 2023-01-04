@@ -1,97 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51F1BC46467
-	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 08:43:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BDB2C46467
+	for <virtualization@archiver.kernel.org>; Wed,  4 Jan 2023 12:13:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B6C6540147;
-	Wed,  4 Jan 2023 08:43:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6C6540147
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=zD2tk5KY
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1BC2B40328;
+	Wed,  4 Jan 2023 12:13:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1BC2B40328
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=R5XNmAXf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3ZmKQ59U6pBV; Wed,  4 Jan 2023 08:43:27 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q5jH8yL7loUm; Wed,  4 Jan 2023 12:13:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 09B8D400DC;
-	Wed,  4 Jan 2023 08:43:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 09B8D400DC
+	by smtp2.osuosl.org (Postfix) with ESMTPS id AC87740420;
+	Wed,  4 Jan 2023 12:13:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AC87740420
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9B47C0032;
-	Wed,  4 Jan 2023 08:43:26 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 63FCAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 84549C0033;
+	Wed,  4 Jan 2023 12:13:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69425C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 08:43:26 +0000 (UTC)
+ Wed,  4 Jan 2023 12:13:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3D499400F6
+ by smtp2.osuosl.org (Postfix) with ESMTP id 510BD40420
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 08:43:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3D499400F6
+ Wed,  4 Jan 2023 12:13:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 510BD40420
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wcRjZpIz2bcl
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0LlBFlnYt6tY
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 08:43:25 +0000 (UTC)
+ Wed,  4 Jan 2023 12:13:28 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 46256400DC
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com
- [IPv6:2a00:1450:4864:20::436])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 46256400DC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A12840328
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com
+ [IPv6:2a00:1450:4864:20::32e])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6A12840328
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Jan 2023 08:43:25 +0000 (UTC)
-Received: by mail-wr1-x436.google.com with SMTP id d17so12476896wrs.2
+ Wed,  4 Jan 2023 12:13:28 +0000 (UTC)
+Received: by mail-wm1-x32e.google.com with SMTP id
+ p1-20020a05600c1d8100b003d8c9b191e0so26261169wms.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Jan 2023 00:43:25 -0800 (PST)
+ Wed, 04 Jan 2023 04:13:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=solid-run-com.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:mime-version:message-id:date:subject:cc
  :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=NbUaUyK4DKiN/LpC1zIoNCyihOmH2oj+soivrwgnCFw=;
- b=zD2tk5KYVwqDd0XbyT9/dIPgu1n+ubbYN50TYIDXU6wtuc/7Nqcd5uHMm0dog4vZWs
- SwtYwVudA9Vq1wO3L8t5YwDA1XW6oGyERTtwKrAyJn6oGzbomMa5jpXCDNXMQacOpVks
- W6Z4HPwp7CNq8bXhGufEj+hoyNULWkWS9Wg1DBeEIxA6i6+ae2tAHLTB3a/UPjtnzzVs
- zxLhsOLLBL2sw9A/rlkhIbY4szxSYDEW/9+fypw9UVqCdfU0JxNH5vw5EeTt+GyKSzT7
- a1ls1O4y3v9paGX7vJaJSKR7fgGtX8ptwhEl2U8aqJVPRc7remEAbxZm4b+nIi3PIdcX
- kLWw==
+ bh=vl5DK/+4EXCuNeg8yiIZUHFWHVaFdQmZhRZ8iijVByY=;
+ b=R5XNmAXfgiR6j+vvXNZ+0MNAhF76pMPk9MG8+it8cODFQX1lNK765PPMiR2alCo42e
+ yH0qelYDKSNbd1W+5psw4ULMr53BKb54t9dkyqZR2b62eB9luQBg4B6KQLXK/qNpZkEG
+ r+XDWZM0gagr6PPINCAR0E2hiNG/7AVMEqeIlbPhnRc+qsknwLkbnu5rb8pOIfTwFwGs
+ loDZMQOdk412YAC/2NegtBEoVideuHU8d3To3MokG5zUdv6gqDjnhjnJ+/aBxRMsD0sm
+ 0t4VghAAxMU77oq8hVyS8o0nhl3+KHK0WbdfUZ/d7KmFLEYq/aqwp1gN0JF6fC/YDQuK
+ 5jfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:message-id:date:subject:cc
  :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=NbUaUyK4DKiN/LpC1zIoNCyihOmH2oj+soivrwgnCFw=;
- b=x0M1WGznq1cVR74XIgFb6TAkqqWtdUZZ3GONsrf06RgWvn890m2W9bkQVpyER9R57c
- BHV5hOKspDwgAZNYCwrSHCj11nAvVM2P8AJ9tBB6oWdPu6i7+FCatJkotYrwDPQESZ9X
- 6qiixsb5SWmyxP7E4CzWY/OKg7CmS7euaSaFCajYvjK4uo8dp6JqccVJKZEpOqnlrx9o
- atpmLq+xInOFiVIRR+iWK0P4wsi8l57sMO4EPVHJLSsmUym+VkG2kMqPdy5d4quZIw6W
- BFy8mRCJWOD7Q1UM81uQvhvUxxKw6FiEfO88zwj1qVNp3FF3dZuBBKmlhR2IFf4X8DVn
- VPjQ==
-X-Gm-Message-State: AFqh2kp0zwvQ6d1yAXosX5/JAkmzaKkSNqTF4MRgzSq5C5BZTwEgyb9F
- psj08Mcyg/02L2vVEQ9mgbmrXHlvaPJgB8C7
-X-Google-Smtp-Source: AMrXdXvKI2KtgTMvsitFeIbf8S31N5ntyLmhr055G3WQ4mc6X6RxeEknD7F+5dP4wOj4/S3KEeQo1w==
-X-Received: by 2002:adf:ecc8:0:b0:26a:5040:78f6 with SMTP id
- s8-20020adfecc8000000b0026a504078f6mr31955983wro.46.1672821802627; 
- Wed, 04 Jan 2023 00:43:22 -0800 (PST)
+ bh=vl5DK/+4EXCuNeg8yiIZUHFWHVaFdQmZhRZ8iijVByY=;
+ b=XZ9flsEBmIQRZ1P1keCTn6fvTwSQXJ3SFchW3kngBr4p4rvfsv8vZuCqE7mW0/3d9t
+ /We89mv0v6vwCIRQMOczocpGSf93XBatVWeK+1NGqKriMYMGvtqoSivahv9I8YwkSKm0
+ 8dMtUzRNpry5iqbuwSmhoMCfWksrKkH+h1JgXNYW+iHTpyazLp/+awU8fn/5w0KHScOi
+ JKatEfaJO8YGgJhTDdHWJplyWVqGl5Lo2qZBjEeIw0PM7vOQG1bERJXYq/ncLqZlhLTd
+ QMyhVL2736SYAkjXW0BzTGncSTQVnPZLAgjUTG6rlb7Xutt/Pz6XPJ68QC5oxgm0I0k7
+ snWQ==
+X-Gm-Message-State: AFqh2kqRG+JLdLk+pO/Tre/+9lKP+64VNcNZJihWsV88t6RxSbphGTzN
+ AbgTQIqxa9QAMSXiyqlxDAntCp4/AiwEb3Qh
+X-Google-Smtp-Source: AMrXdXuktmXhTLHdcZnQfW8+rj0/DjOxaEqCKSIPOVGoHuTAAy7CqLlEPfU7XjVWIeM9CFuAXF7FtQ==
+X-Received: by 2002:a05:600c:16c5:b0:3d1:f687:1fd0 with SMTP id
+ l5-20020a05600c16c500b003d1f6871fd0mr33814216wmn.12.1672834406002; 
+ Wed, 04 Jan 2023 04:13:26 -0800 (PST)
 Received: from localhost.localdomain
  (bzq-84-110-153-254.static-ip.bezeqint.net. [84.110.153.254])
  by smtp.gmail.com with ESMTPSA id
- u13-20020a5d468d000000b00275970a85f4sm31176189wrq.74.2023.01.04.00.43.21
+ m17-20020a05600c3b1100b003cfbbd54178sm2285157wms.2.2023.01.04.04.13.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 04 Jan 2023 00:43:21 -0800 (PST)
+ Wed, 04 Jan 2023 04:13:25 -0800 (PST)
 From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-To: virtualization@lists.linux-foundation.org,
-	linux-pci@vger.kernel.org
-Subject: [PATCH v2 2/3] PCI: Avoid FLR for SolidRun SNET DPU rev 1
-Date: Wed,  4 Jan 2023 10:43:19 +0200
-Message-Id: <20230104084319.3424462-1-alvaro.karsz@solid-run.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH] virtio: vdpa: fix kernel warning in snet_vdpa_remove_vf
+Date: Wed,  4 Jan 2023 14:13:22 +0200
+Message-Id: <20230104121322.3892266-1-alvaro.karsz@solid-run.com>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Cc: bhelgaas@google.com, mst@redhat.com
+Cc: mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,44 +108,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch fixes a FLR bug on the SNET DPU rev 1 by setting
-the PCI_DEV_FLAGS_NO_FLR_RESET flag.
+Call pci_free_irq_vectors after calling vdpa_unregister_device.
+Otherwise, we get the following kernel warning:
 
-As there is a quirk to avoid FLR (quirk_no_flr), I added a new
-quirk to check the rev ID before calling to quirk_no_flr.
+	remove_proc_entry: removing non-empty directory 'irq/..',
+	leaking at least '..'
 
-Without this patch, a SNET DPU rev 1 may hang when FLR is applied.
+This happens only if SNET_CFG_FLAG_IRQ_PF flag is not set.
+
+This patch should be applied on top of:
+virtio: vdpa: new SolidNET DPU driver,
+by Alvaro Karsz alvaro.karsz@solid-run.com
 
 Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
---
-v2:
-	- Update patch subject to be more meaningful and similar to
-	  previous quirks.
-	- Update the commit log to describe better what the patch does.
 ---
- drivers/pci/quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/vdpa/solidrun/snet_main.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 285acc4aacc..809d03272c2 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5343,6 +5343,14 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_AMD, 0x149c, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1502, quirk_no_flr);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_INTEL, 0x1503, quirk_no_flr);
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 9ceacf96de0..0c13ccde452 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -1073,12 +1073,11 @@ static void snet_vdpa_remove_vf(struct pci_dev *pdev)
+ 	struct snet *snet = pci_get_drvdata(pdev);
+ 	struct psnet *psnet = snet->psnet;
  
-+/* FLR may cause the SolidRun SNET DPU (rev 0x1) to hang */
-+static void quirk_no_flr_snet(struct pci_dev *dev)
-+{
-+	if (dev->revision == 0x1)
-+		quirk_no_flr(dev);
-+}
-+DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_SOLIDRUN, 0x1000, quirk_no_flr_snet);
-+
- static void quirk_no_ext_tags(struct pci_dev *pdev)
- {
- 	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
++	vdpa_unregister_device(&snet->vdpa);
++	snet_free_vqs(snet);
+ 	/* If IRQs are allocated from the VF, we should free the IRQs */
+ 	if (!PSNET_FLAG_ON(psnet, SNET_CFG_FLAG_IRQ_PF))
+ 		pci_free_irq_vectors(pdev);
+-
+-	vdpa_unregister_device(&snet->vdpa);
+-	snet_free_vqs(snet);
+ }
+ 
+ static void snet_vdpa_remove(struct pci_dev *pdev)
 -- 
 2.32.0
 
