@@ -1,109 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 33E9AC46467
-	for <virtualization@archiver.kernel.org>; Wed, 11 Jan 2023 05:55:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DEA59C46467
+	for <virtualization@archiver.kernel.org>; Wed, 11 Jan 2023 06:07:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 92ED460AFF;
-	Wed, 11 Jan 2023 05:55:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 92ED460AFF
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TfraOEFZ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 345D241930;
+	Wed, 11 Jan 2023 06:07:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 345D241930
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M3N1mR6z
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pUijocZi7U6p; Wed, 11 Jan 2023 05:55:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CCB0C605E0;
-	Wed, 11 Jan 2023 05:55:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CCB0C605E0
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 18vQSOmqDxBP; Wed, 11 Jan 2023 06:07:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 29E3A418B3;
+	Wed, 11 Jan 2023 06:07:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 29E3A418B3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 94919C0033;
-	Wed, 11 Jan 2023 05:55:05 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2AE9C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00E35C0033;
+	Wed, 11 Jan 2023 06:07:48 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9F482C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Jan 2023 05:55:03 +0000 (UTC)
+ Wed, 11 Jan 2023 06:07:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7737760AC4
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6771940232
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Jan 2023 05:55:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7737760AC4
+ Wed, 11 Jan 2023 06:07:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6771940232
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=M3N1mR6z
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ozD1NTFkB4OS
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7apn_sT30ATR
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Jan 2023 05:55:02 +0000 (UTC)
+ Wed, 11 Jan 2023 06:07:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 13087605E0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 78A0D401A2
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 13087605E0
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 78A0D401A2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Jan 2023 05:55:01 +0000 (UTC)
+ Wed, 11 Jan 2023 06:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1673416500;
+ s=mimecast20190719; t=1673417264;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=2QaLGbA/auVkkHt3S1yCaMOL0LGZnHy0mTSjzASi2TM=;
- b=TfraOEFZzgFIpw7qNZ8pD0hvRNcgleYqFjaZwOq+ZftbDPsFlVMEG+KAHtMyqWVoNIaAL3
- eW2cSbztv4gy1KUzgqitTXNfLaJkqspnt3R/N4NT+ubvhkpvFpZ9BwFNd0JXypjNzX069A
- SVNQ/6x87JvpZj0zPiS3QJpyL+ukaDY=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-631-G16AFTU6NpiEeUMsz6OGPg-1; Wed, 11 Jan 2023 00:54:59 -0500
-X-MC-Unique: G16AFTU6NpiEeUMsz6OGPg-1
-Received: by mail-oi1-f197.google.com with SMTP id
- bp6-20020a056808238600b00360c55456bcso4059362oib.2
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Jan 2023 21:54:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=2QaLGbA/auVkkHt3S1yCaMOL0LGZnHy0mTSjzASi2TM=;
- b=WqkLTm2255SeuKbUj+FTrLpVn6lgmuXb3bo1Hw+o66Qfw5UUxbrIKcMYWmXsDePb8b
- u+wbT9Sb/1bJNL+j8OpnWMTa3dY1cpfDmnjXMZJ/FLu0Is97htcXUkqyCj8SzjDx7Gs0
- xNevAUJds0A0XphAEFYizWlxnPPP3rYppx2Behhs8ghu+TjfXhCboA/4Rj3NLadWn90m
- dqpWqC5T72OPLFjRpbZUcvkv0UoC11EtlPRInxh+t69xEybXtC4ZO6rpwVe3ynow0Olm
- mhKx64hCT6oJpcZ3zbM9OMXGP+Z7jkXZ13FE2QS0d0DR1f/3datjjjcqkLspfELKk/Um
- P1dw==
-X-Gm-Message-State: AFqh2kqRJThl7YUJESFGbktMXke4EarNW9jVevuKeQpS1XjSd31ItXR9
- 8lSa8ym7FRiHMg+jkWyOKHcdPRgQZoMnhHYlCXXRrZQchkCh6pjB9V33Mo3ZOUzaAi9uhXLyX5K
- 18oFA0TG4LjlNSKxQHTbEnloZLjX1R+N+xl0UD1zTbaxBuZXMpmAfUABJXw==
-X-Received: by 2002:a54:4e89:0:b0:35c:303d:fe37 with SMTP id
- c9-20020a544e89000000b0035c303dfe37mr3104774oiy.35.1673416498901; 
- Tue, 10 Jan 2023 21:54:58 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXs7Pcd5hAhHUVfkAiJZKDPAqISOY6JH4N8DrXmnBv2nFKpYbwPgNUa2bCZjQ76vdprk/AP+0MaVbiBxAY7PylY=
-X-Received: by 2002:a54:4e89:0:b0:35c:303d:fe37 with SMTP id
- c9-20020a544e89000000b0035c303dfe37mr3104772oiy.35.1673416498603; Tue, 10 Jan
- 2023 21:54:58 -0800 (PST)
-MIME-Version: 1.0
-References: <20221227022528.609839-1-mie@igel.co.jp>
- <20221227022528.609839-3-mie@igel.co.jp>
- <CACGkMEtAaYpuZtS0gx_m931nFzcvqSNK9BhvUZH_tZXTzjgQCg@mail.gmail.com>
- <CANXvt5rfXDYa0nLzKW5-Q-hjhw-19npXVneqBO1TcsariU6rWg@mail.gmail.com>
- <CACGkMEvmZ5MEX4WMa3JhzT404C2uhsNk0nnkYBRtvLPhNTSzHQ@mail.gmail.com>
- <18a0a7cd-0601-0ff6-12d7-353819692155@igel.co.jp>
-In-Reply-To: <18a0a7cd-0601-0ff6-12d7-353819692155@igel.co.jp>
+ content-transfer-encoding:content-transfer-encoding;
+ bh=Mc+ipx3hL+0k3YEmh3Z9O8oX1giHqQaiQUDX7FtPiHI=;
+ b=M3N1mR6zcK7qDkCzaSS1VIZS4fox0kVwuT/N0xeWj3p5F63Q8H7yHsyKKibYY2BEXjYhAq
+ 0IVyp6UDdUZQZDRBrulzWYH/00Dl+1W+Bq1ERGH5gfYKA1ZW/+HdLS/8l3SV5u5boC5H3C
+ q8XBtx74Qk8UQ4OQdzjKla3KM9NKTFo=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-439-R-fD7dCyMXmVJBHNXOeLJg-1; Wed, 11 Jan 2023 01:07:38 -0500
+X-MC-Unique: R-fD7dCyMXmVJBHNXOeLJg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 154E71C07557;
+ Wed, 11 Jan 2023 06:07:38 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-175.pek2.redhat.com
+ [10.72.13.175])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id AA7E440ED784;
+ Wed, 11 Jan 2023 06:07:33 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 11 Jan 2023 13:54:47 +0800
-Message-ID: <CACGkMEsVeE9G=-OkvazGu_EtfKgD8iakon54iLgFFPWYJSSekg@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/9] vringh: remove vringh_iov and unite to vringh_kiov
-To: Shunsuke Mie <mie@igel.co.jp>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
+ stefanha@redhat.com
+Subject: [PATCH] vhost-scsi: unbreak any layout for response
+Date: Wed, 11 Jan 2023 14:07:30 +0800
+Message-Id: <20230111060730.24779-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, bcodding@redhat.com,
+ Al Viro <viro@zeniv.linux.org.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,178 +94,155 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKYW4gMTEsIDIwMjMgYXQgMTE6MjcgQU0gU2h1bnN1a2UgTWllIDxtaWVAaWdlbC5j
-by5qcD4gd3JvdGU6Cj4KPgo+IE9uIDIwMjIvMTIvMjggMTU6MzYsIEphc29uIFdhbmcgd3JvdGU6
-Cj4gPiBPbiBUdWUsIERlYyAyNywgMjAyMiBhdCAzOjA2IFBNIFNodW5zdWtlIE1pZSA8bWllQGln
-ZWwuY28uanA+IHdyb3RlOgo+ID4+IDIwMjLlubQxMuaciDI35pelKOeBqykgMTU6MDQgSmFzb24g
-V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT46Cj4gPj4+IE9uIFR1ZSwgRGVjIDI3LCAyMDIyIGF0
-IDEwOjI1IEFNIFNodW5zdWtlIE1pZSA8bWllQGlnZWwuY28uanA+IHdyb3RlOgo+ID4+Pj4gc3Ry
-dWN0IHZyaW5naF9pb3YgaXMgZGVmaW5lZCB0byBob2xkIHVzZXJsYW5kIGFkZHJlc3Nlcy4gSG93
-ZXZlciwgdG8gdXNlCj4gPj4+PiBjb21tb24gZnVuY3Rpb24sIF9fdnJpbmdfaW92LCBmaW5hbGx5
-IHRoZSB2cmluZ2hfaW92IGNvbnZlcnRzIHRvIHRoZQo+ID4+Pj4gdnJpbmdoX2tpb3Ygd2l0aCBz
-aW1wbGUgY2FzdC4gSXQgaW5jbHVkZXMgY29tcGlsZSB0aW1lIGNoZWNrIGNvZGUgdG8gbWFrZQo+
-ID4+Pj4gc3VyZSBpdCBjYW4gYmUgY2FzdCBjb3JyZWN0bHkuCj4gPj4+Pgo+ID4+Pj4gVG8gc2lt
-cGxpZnkgdGhlIGNvZGUsIHRoaXMgcGF0Y2ggcmVtb3ZlcyB0aGUgc3RydWN0IHZyaW5naF9pb3Yg
-YW5kIHVuaWZpZXMKPiA+Pj4+IEFQSXMgdG8gc3RydWN0IHZyaW5naF9raW92Lgo+ID4+Pj4KPiA+
-Pj4+IFNpZ25lZC1vZmYtYnk6IFNodW5zdWtlIE1pZSA8bWllQGlnZWwuY28uanA+Cj4gPj4+IFdo
-aWxlIGF0IHRoaXMsIEkgd29uZGVyIGlmIHdlIG5lZWQgdG8gZ28gZnVydGhlciwgdGhhdCBpcywg
-c3dpdGNoIHRvCj4gPj4+IHVzaW5nIGFuIGlvdiBpdGVyYXRvciBpbnN0ZWFkIG9mIGEgdnJpbmdo
-IGN1c3RvbWl6ZWQgb25lLgo+ID4+IEkgZGlkbid0IHNlZSB0aGUgaW92IGl0ZXJhdG9yIHlldCwg
-dGhhbmsgeW91IGZvciBpbmZvcm1pbmcgbWUuCj4gPj4gSXMgdGhhdCBpb3ZfaXRlcj8gaHR0cHM6
-Ly9sd24ubmV0L0FydGljbGVzLzYyNTA3Ny8KPiA+IEV4YWN0bHkuCj4KPiBJJ3ZlIGludmVzdGln
-YXRlZCB0aGUgaW92X2l0ZXIsIHZob3N0IGFuZCByZWxhdGVkIEFQSXMuIEFzIGEgcmVzdWx0LCBJ
-Cj4gdGhpbmsgdGhhdCBpdCBpcyBub3QgZWFzeSB0byBzd2l0Y2ggdG8gdXNlIHRoZSBpb3ZfaXRl
-ci4gQmVjYXVzZSwgdGhlCj4gZGVzaWduIG9mIHZob3N0IGFuZCB2cmluZ2ggaXMgZGlmZmVyZW50
-LgoKWWVzLCBidXQganVzdCB0byBtYWtlIHN1cmUgd2UgYXJlIG9uIHRoZSBzYW1lIHBhZ2UsIHRo
-ZSByZWFzb24gSQpzdWdnZXN0IGlvdl9pdGVyIGZvciB2cmluZ2ggaXMgdGhhdCB0aGUgdnJpbmdo
-IGl0c2VsZiBoYXMgY3VzdG9taXplZAppdGVyIGVxdWl2YWxlbnQsIGUuZyBpdCBoYXMgaXRlciBm
-b3Iga2VybmVsLHVzZXIsIG9yIGV2ZW4gaW90bGIuIEF0CmxlYXN0IHRoZSBrZXJuZWwgYW5kIHVz
-ZXJzcGFjZSBwYXJ0IGNvdWxkIGJlIHN3aXRjaGVkIHRvIGlvdl9pdGVyLgpOb3RlIHRoYXQgaXQg
-aGFzIG5vdGhpbmcgdG8gZG8gd2l0aCB2aG9zdC4KCj4KPiBUaGUgaW92X2l0ZXIgaGFzIHZyaW5n
-IGRlc2MgaW5mbyBhbmQgbWV0YSBkYXRhIG9mIHRyYW5zZmVyIG1ldGhvZC4gVGhlCj4gdmhvc3Qg
-cHJvdmlkZXMgZ2VuZXJpYyB0cmFuc2ZlciBmdW5jdGlvbiBmb3IgdGhlIGlvdl9pdGVyLiBJbiBj
-b25zdHJhc3QsCj4gdnJpbmdoX2lvdiBqdXN0IGhhcyB2cmluZyBkZXNjIGluZm8uIFRoZSB2cmlu
-Z2ggcHJvdmlkZXMgdHJhbnNmZXIgZnVuY3Rpb25zCj4gZm9yIGVhY2ggbWV0aG9kcy4KPgo+IElu
-IHRoZSBmdXR1cmUsIGl0IGlzIGJldHRlciB0byB1c2UgY29tbW9uIGRhdGEgc3RydWN0dXJlIGFu
-ZCBBUElzIGJldHdlZW4KPiB2aG9zdCBhbmQgdnJpbmdoIChvciBtZXJnZSBjb21wbGV0ZWx5KSwg
-YnV0IGl0IHJlcXVpcmVzIGEgbG90IG9mCj4gY2hhbmdlcywgc28gSSdkIGxpa2UgdG8ganVzdAo+
-IG9yZ2FuaXplIGRhdGEgc3RydWN0dXJlIGluIHZyaW5naCBhcyBhIGZpcnN0IHN0ZXAgaW4gdGhp
-cyBwYXRjaC4KClRoYXQncyBmaW5lLgoKVGhhbnNrCgo+Cj4KPiBCZXN0Cj4KPiA+IFRoYW5rcwo+
-ID4KPiA+Pj4gVGhhbmtzCj4gPj4+Cj4gPj4+PiAtLS0KPiA+Pj4+ICAgZHJpdmVycy92aG9zdC92
-cmluZ2guYyB8IDMyICsrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ID4+Pj4gICBpbmNs
-dWRlL2xpbnV4L3ZyaW5naC5oIHwgNDUgKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tCj4gPj4+PiAgIDIgZmlsZXMgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgNjcg
-ZGVsZXRpb25zKC0pCj4gPj4+Pgo+ID4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdnJp
-bmdoLmMgYi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4gPj4+PiBpbmRleCA4MjhjMjkzMDY1NjUu
-LmFhM2NkMjdkMjM4NCAxMDA2NDQKPiA+Pj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmMK
-PiA+Pj4+ICsrKyBiL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmMKPiA+Pj4+IEBAIC02OTEsOCArNjkx
-LDggQEAgRVhQT1JUX1NZTUJPTCh2cmluZ2hfaW5pdF91c2VyKTsKPiA+Pj4+ICAgICogY2FsbGlu
-ZyB2cmluZ2hfaW92X2NsZWFudXAoKSB0byByZWxlYXNlIHRoZSBtZW1vcnksIGV2ZW4gb24gZXJy
-b3IhCj4gPj4+PiAgICAqLwo+ID4+Pj4gICBpbnQgdnJpbmdoX2dldGRlc2NfdXNlcihzdHJ1Y3Qg
-dnJpbmdoICp2cmgsCj4gPj4+PiAtICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdnJpbmdo
-X2lvdiAqcmlvdiwKPiA+Pj4+IC0gICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB2cmluZ2hf
-aW92ICp3aW92LAo+ID4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHZyaW5naF9r
-aW92ICpyaW92LAo+ID4+Pj4gKyAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHZyaW5naF9r
-aW92ICp3aW92LAo+ID4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgIGJvb2wgKCpnZXRyYW5n
-ZSkoc3RydWN0IHZyaW5naCAqdnJoLAo+ID4+Pj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgdTY0IGFkZHIsIHN0cnVjdCB2cmluZ2hfcmFuZ2UgKnIpLAo+ID4+Pj4g
-ICAgICAgICAgICAgICAgICAgICAgICAgIHUxNiAqaGVhZCkKPiA+Pj4+IEBAIC03MDgsMjYgKzcw
-OCw2IEBAIGludCB2cmluZ2hfZ2V0ZGVzY191c2VyKHN0cnVjdCB2cmluZ2ggKnZyaCwKPiA+Pj4+
-ICAgICAgICAgIGlmIChlcnIgPT0gdnJoLT52cmluZy5udW0pCj4gPj4+PiAgICAgICAgICAgICAg
-ICAgIHJldHVybiAwOwo+ID4+Pj4KPiA+Pj4+IC0gICAgICAgLyogV2UgbmVlZCB0aGUgbGF5b3V0
-cyB0byBiZSB0aGUgaWRlbnRpY2FsIGZvciB0aGlzIHRvIHdvcmsgKi8KPiA+Pj4+IC0gICAgICAg
-QlVJTERfQlVHX09OKHNpemVvZihzdHJ1Y3QgdnJpbmdoX2tpb3YpICE9IHNpemVvZihzdHJ1Y3Qg
-dnJpbmdoX2lvdikpOwo+ID4+Pj4gLSAgICAgICBCVUlMRF9CVUdfT04ob2Zmc2V0b2Yoc3RydWN0
-IHZyaW5naF9raW92LCBpb3YpICE9Cj4gPj4+PiAtICAgICAgICAgICAgICAgICAgICBvZmZzZXRv
-ZihzdHJ1Y3QgdnJpbmdoX2lvdiwgaW92KSk7Cj4gPj4+PiAtICAgICAgIEJVSUxEX0JVR19PTihv
-ZmZzZXRvZihzdHJ1Y3QgdnJpbmdoX2tpb3YsIGkpICE9Cj4gPj4+PiAtICAgICAgICAgICAgICAg
-ICAgICBvZmZzZXRvZihzdHJ1Y3QgdnJpbmdoX2lvdiwgaSkpOwo+ID4+Pj4gLSAgICAgICBCVUlM
-RF9CVUdfT04ob2Zmc2V0b2Yoc3RydWN0IHZyaW5naF9raW92LCB1c2VkKSAhPQo+ID4+Pj4gLSAg
-ICAgICAgICAgICAgICAgICAgb2Zmc2V0b2Yoc3RydWN0IHZyaW5naF9pb3YsIHVzZWQpKTsKPiA+
-Pj4+IC0gICAgICAgQlVJTERfQlVHX09OKG9mZnNldG9mKHN0cnVjdCB2cmluZ2hfa2lvdiwgbWF4
-X251bSkgIT0KPiA+Pj4+IC0gICAgICAgICAgICAgICAgICAgIG9mZnNldG9mKHN0cnVjdCB2cmlu
-Z2hfaW92LCBtYXhfbnVtKSk7Cj4gPj4+PiAtICAgICAgIEJVSUxEX0JVR19PTihzaXplb2Yoc3Ry
-dWN0IGlvdmVjKSAhPSBzaXplb2Yoc3RydWN0IGt2ZWMpKTsKPiA+Pj4+IC0gICAgICAgQlVJTERf
-QlVHX09OKG9mZnNldG9mKHN0cnVjdCBpb3ZlYywgaW92X2Jhc2UpICE9Cj4gPj4+PiAtICAgICAg
-ICAgICAgICAgICAgICBvZmZzZXRvZihzdHJ1Y3Qga3ZlYywgaW92X2Jhc2UpKTsKPiA+Pj4+IC0g
-ICAgICAgQlVJTERfQlVHX09OKG9mZnNldG9mKHN0cnVjdCBpb3ZlYywgaW92X2xlbikgIT0KPiA+
-Pj4+IC0gICAgICAgICAgICAgICAgICAgIG9mZnNldG9mKHN0cnVjdCBrdmVjLCBpb3ZfbGVuKSk7
-Cj4gPj4+PiAtICAgICAgIEJVSUxEX0JVR19PTihzaXplb2YoKChzdHJ1Y3QgaW92ZWMgKilOVUxM
-KS0+aW92X2Jhc2UpCj4gPj4+PiAtICAgICAgICAgICAgICAgICAgICAhPSBzaXplb2YoKChzdHJ1
-Y3Qga3ZlYyAqKU5VTEwpLT5pb3ZfYmFzZSkpOwo+ID4+Pj4gLSAgICAgICBCVUlMRF9CVUdfT04o
-c2l6ZW9mKCgoc3RydWN0IGlvdmVjICopTlVMTCktPmlvdl9sZW4pCj4gPj4+PiAtICAgICAgICAg
-ICAgICAgICAgICAhPSBzaXplb2YoKChzdHJ1Y3Qga3ZlYyAqKU5VTEwpLT5pb3ZfbGVuKSk7Cj4g
-Pj4+PiAtCj4gPj4+PiAgICAgICAgICAqaGVhZCA9IGVycjsKPiA+Pj4+ICAgICAgICAgIGVyciA9
-IF9fdnJpbmdoX2lvdih2cmgsICpoZWFkLCAoc3RydWN0IHZyaW5naF9raW92ICopcmlvdiwKPiA+
-Pj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAoc3RydWN0IHZyaW5naF9raW92ICopd2lv
-diwKPiA+Pj4+IEBAIC03NDAsMTQgKzcyMCwxNCBAQCBpbnQgdnJpbmdoX2dldGRlc2NfdXNlcihz
-dHJ1Y3QgdnJpbmdoICp2cmgsCj4gPj4+PiAgIEVYUE9SVF9TWU1CT0wodnJpbmdoX2dldGRlc2Nf
-dXNlcik7Cj4gPj4+Pgo+ID4+Pj4gICAvKioKPiA+Pj4+IC0gKiB2cmluZ2hfaW92X3B1bGxfdXNl
-ciAtIGNvcHkgYnl0ZXMgZnJvbSB2cmluZ19pb3YuCj4gPj4+PiArICogdnJpbmdoX2lvdl9wdWxs
-X3VzZXIgLSBjb3B5IGJ5dGVzIGZyb20gdnJpbmdfa2lvdi4KPiA+Pj4+ICAgICogQHJpb3Y6IHRo
-ZSByaW92IGFzIHBhc3NlZCB0byB2cmluZ2hfZ2V0ZGVzY191c2VyKCkgKHVwZGF0ZWQgYXMgd2Ug
-Y29uc3VtZSkKPiA+Pj4+ICAgICogQGRzdDogdGhlIHBsYWNlIHRvIGNvcHkuCj4gPj4+PiAgICAq
-IEBsZW46IHRoZSBtYXhpbXVtIGxlbmd0aCB0byBjb3B5Lgo+ID4+Pj4gICAgKgo+ID4+Pj4gICAg
-KiBSZXR1cm5zIHRoZSBieXRlcyBjb3BpZWQgPD0gbGVuIG9yIGEgbmVnYXRpdmUgZXJybm8uCj4g
-Pj4+PiAgICAqLwo+ID4+Pj4gLXNzaXplX3QgdnJpbmdoX2lvdl9wdWxsX3VzZXIoc3RydWN0IHZy
-aW5naF9pb3YgKnJpb3YsIHZvaWQgKmRzdCwgc2l6ZV90IGxlbikKPiA+Pj4+ICtzc2l6ZV90IHZy
-aW5naF9pb3ZfcHVsbF91c2VyKHN0cnVjdCB2cmluZ2hfa2lvdiAqcmlvdiwgdm9pZCAqZHN0LCBz
-aXplX3QgbGVuKQo+ID4+Pj4gICB7Cj4gPj4+PiAgICAgICAgICByZXR1cm4gdnJpbmdoX2lvdl94
-ZmVyKE5VTEwsIChzdHJ1Y3QgdnJpbmdoX2tpb3YgKilyaW92LAo+ID4+Pj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBkc3QsIGxlbiwgeGZlcl9mcm9tX3VzZXIpOwo+ID4+Pj4gQEAg
-LTc1NSwxNCArNzM1LDE0IEBAIHNzaXplX3QgdnJpbmdoX2lvdl9wdWxsX3VzZXIoc3RydWN0IHZy
-aW5naF9pb3YgKnJpb3YsIHZvaWQgKmRzdCwgc2l6ZV90IGxlbikKPiA+Pj4+ICAgRVhQT1JUX1NZ
-TUJPTCh2cmluZ2hfaW92X3B1bGxfdXNlcik7Cj4gPj4+Pgo+ID4+Pj4gICAvKioKPiA+Pj4+IC0g
-KiB2cmluZ2hfaW92X3B1c2hfdXNlciAtIGNvcHkgYnl0ZXMgaW50byB2cmluZ19pb3YuCj4gPj4+
-PiArICogdnJpbmdoX2lvdl9wdXNoX3VzZXIgLSBjb3B5IGJ5dGVzIGludG8gdnJpbmdfa2lvdi4K
-PiA+Pj4+ICAgICogQHdpb3Y6IHRoZSB3aW92IGFzIHBhc3NlZCB0byB2cmluZ2hfZ2V0ZGVzY191
-c2VyKCkgKHVwZGF0ZWQgYXMgd2UgY29uc3VtZSkKPiA+Pj4+ICAgICogQHNyYzogdGhlIHBsYWNl
-IHRvIGNvcHkgZnJvbS4KPiA+Pj4+ICAgICogQGxlbjogdGhlIG1heGltdW0gbGVuZ3RoIHRvIGNv
-cHkuCj4gPj4+PiAgICAqCj4gPj4+PiAgICAqIFJldHVybnMgdGhlIGJ5dGVzIGNvcGllZCA8PSBs
-ZW4gb3IgYSBuZWdhdGl2ZSBlcnJuby4KPiA+Pj4+ICAgICovCj4gPj4+PiAtc3NpemVfdCB2cmlu
-Z2hfaW92X3B1c2hfdXNlcihzdHJ1Y3QgdnJpbmdoX2lvdiAqd2lvdiwKPiA+Pj4+ICtzc2l6ZV90
-IHZyaW5naF9pb3ZfcHVzaF91c2VyKHN0cnVjdCB2cmluZ2hfa2lvdiAqd2lvdiwKPiA+Pj4+ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IHZvaWQgKnNyYywgc2l6ZV90IGxlbikK
-PiA+Pj4+ICAgewo+ID4+Pj4gICAgICAgICAgcmV0dXJuIHZyaW5naF9pb3ZfeGZlcihOVUxMLCAo
-c3RydWN0IHZyaW5naF9raW92ICopd2lvdiwKPiA+Pj4+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2xp
-bnV4L3ZyaW5naC5oIGIvaW5jbHVkZS9saW51eC92cmluZ2guaAo+ID4+Pj4gaW5kZXggMTk5MWEw
-MmM2NDMxLi43MzNkOTQ4ZTgxMjMgMTAwNjQ0Cj4gPj4+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L3Zy
-aW5naC5oCj4gPj4+PiArKysgYi9pbmNsdWRlL2xpbnV4L3ZyaW5naC5oCj4gPj4+PiBAQCAtNzks
-MTggKzc5LDYgQEAgc3RydWN0IHZyaW5naF9yYW5nZSB7Cj4gPj4+PiAgICAgICAgICB1NjQgb2Zm
-c2V0Owo+ID4+Pj4gICB9Owo+ID4+Pj4KPiA+Pj4+IC0vKioKPiA+Pj4+IC0gKiBzdHJ1Y3QgdnJp
-bmdoX2lvdiAtIGlvdmVjIG1hbmdsZXIuCj4gPj4+PiAtICoKPiA+Pj4+IC0gKiBNYW5nbGVzIGlv
-dmVjIGluIHBsYWNlLCBhbmQgcmVzdG9yZXMgaXQuCj4gPj4+PiAtICogUmVtYWluaW5nIGRhdGEg
-aXMgaW92ICsgaSwgb2YgdXNlZCAtIGkgZWxlbWVudHMuCj4gPj4+PiAtICovCj4gPj4+PiAtc3Ry
-dWN0IHZyaW5naF9pb3Ygewo+ID4+Pj4gLSAgICAgICBzdHJ1Y3QgaW92ZWMgKmlvdjsKPiA+Pj4+
-IC0gICAgICAgc2l6ZV90IGNvbnN1bWVkOyAvKiBXaXRoaW4gaW92W2ldICovCj4gPj4+PiAtICAg
-ICAgIHVuc2lnbmVkIGksIHVzZWQsIG1heF9udW07Cj4gPj4+PiAtfTsKPiA+Pj4+IC0KPiA+Pj4+
-ICAgLyoqCj4gPj4+PiAgICAqIHN0cnVjdCB2cmluZ2hfa2lvdiAtIGt2ZWMgbWFuZ2xlci4KPiA+
-Pj4+ICAgICoKPiA+Pj4+IEBAIC0xMTMsNDQgKzEwMSwxOSBAQCBpbnQgdnJpbmdoX2luaXRfdXNl
-cihzdHJ1Y3QgdnJpbmdoICp2cmgsIHU2NCBmZWF0dXJlcywKPiA+Pj4+ICAgICAgICAgICAgICAg
-ICAgICAgICB2cmluZ19hdmFpbF90IF9fdXNlciAqYXZhaWwsCj4gPj4+PiAgICAgICAgICAgICAg
-ICAgICAgICAgdnJpbmdfdXNlZF90IF9fdXNlciAqdXNlZCk7Cj4gPj4+Pgo+ID4+Pj4gLXN0YXRp
-YyBpbmxpbmUgdm9pZCB2cmluZ2hfaW92X2luaXQoc3RydWN0IHZyaW5naF9pb3YgKmlvdiwKPiA+
-Pj4+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IGlvdmVjICppb3Zl
-YywgdW5zaWduZWQgbnVtKQo+ID4+Pj4gLXsKPiA+Pj4+IC0gICAgICAgaW92LT51c2VkID0gaW92
-LT5pID0gMDsKPiA+Pj4+IC0gICAgICAgaW92LT5jb25zdW1lZCA9IDA7Cj4gPj4+PiAtICAgICAg
-IGlvdi0+bWF4X251bSA9IG51bTsKPiA+Pj4+IC0gICAgICAgaW92LT5pb3YgPSBpb3ZlYzsKPiA+
-Pj4+IC19Cj4gPj4+PiAtCj4gPj4+PiAtc3RhdGljIGlubGluZSB2b2lkIHZyaW5naF9pb3ZfcmVz
-ZXQoc3RydWN0IHZyaW5naF9pb3YgKmlvdikKPiA+Pj4+IC17Cj4gPj4+PiAtICAgICAgIGlvdi0+
-aW92W2lvdi0+aV0uaW92X2xlbiArPSBpb3YtPmNvbnN1bWVkOwo+ID4+Pj4gLSAgICAgICBpb3Yt
-Pmlvdltpb3YtPmldLmlvdl9iYXNlIC09IGlvdi0+Y29uc3VtZWQ7Cj4gPj4+PiAtICAgICAgIGlv
-di0+Y29uc3VtZWQgPSAwOwo+ID4+Pj4gLSAgICAgICBpb3YtPmkgPSAwOwo+ID4+Pj4gLX0KPiA+
-Pj4+IC0KPiA+Pj4+IC1zdGF0aWMgaW5saW5lIHZvaWQgdnJpbmdoX2lvdl9jbGVhbnVwKHN0cnVj
-dCB2cmluZ2hfaW92ICppb3YpCj4gPj4+PiAtewo+ID4+Pj4gLSAgICAgICBpZiAoaW92LT5tYXhf
-bnVtICYgVlJJTkdIX0lPVl9BTExPQ0FURUQpCj4gPj4+PiAtICAgICAgICAgICAgICAga2ZyZWUo
-aW92LT5pb3YpOwo+ID4+Pj4gLSAgICAgICBpb3YtPm1heF9udW0gPSBpb3YtPnVzZWQgPSBpb3Yt
-PmkgPSBpb3YtPmNvbnN1bWVkID0gMDsKPiA+Pj4+IC0gICAgICAgaW92LT5pb3YgPSBOVUxMOwo+
-ID4+Pj4gLX0KPiA+Pj4+IC0KPiA+Pj4+ICAgLyogQ29udmVydCBhIGRlc2NyaXB0b3IgaW50byBp
-b3ZlY3MuICovCj4gPj4+PiAgIGludCB2cmluZ2hfZ2V0ZGVzY191c2VyKHN0cnVjdCB2cmluZ2gg
-KnZyaCwKPiA+Pj4+IC0gICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB2cmluZ2hfaW92ICpy
-aW92LAo+ID4+Pj4gLSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHZyaW5naF9pb3YgKndp
-b3YsCj4gPj4+PiArICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdnJpbmdoX2tpb3YgKnJp
-b3YsCj4gPj4+PiArICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3QgdnJpbmdoX2tpb3YgKndp
-b3YsCj4gPj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgYm9vbCAoKmdldHJhbmdlKShzdHJ1
-Y3QgdnJpbmdoICp2cmgsCj4gPj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB1NjQgYWRkciwgc3RydWN0IHZyaW5naF9yYW5nZSAqciksCj4gPj4+PiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgdTE2ICpoZWFkKTsKPiA+Pj4+Cj4gPj4+PiAgIC8qIENvcHkgYnl0
-ZXMgZnJvbSByZWFkYWJsZSB2c2csIGNvbnN1bWluZyBpdCAoYW5kIGluY3JlbWVudGluZyB3aW92
-LT5pKS4gKi8KPiA+Pj4+IC1zc2l6ZV90IHZyaW5naF9pb3ZfcHVsbF91c2VyKHN0cnVjdCB2cmlu
-Z2hfaW92ICpyaW92LCB2b2lkICpkc3QsIHNpemVfdCBsZW4pOwo+ID4+Pj4gK3NzaXplX3QgdnJp
-bmdoX2lvdl9wdWxsX3VzZXIoc3RydWN0IHZyaW5naF9raW92ICpyaW92LCB2b2lkICpkc3QsIHNp
-emVfdCBsZW4pOwo+ID4+Pj4KPiA+Pj4+ICAgLyogQ29weSBieXRlcyBpbnRvIHdyaXRhYmxlIHZz
-ZywgY29uc3VtaW5nIGl0IChhbmQgaW5jcmVtZW50aW5nIHdpb3YtPmkpLiAqLwo+ID4+Pj4gLXNz
-aXplX3QgdnJpbmdoX2lvdl9wdXNoX3VzZXIoc3RydWN0IHZyaW5naF9pb3YgKndpb3YsCj4gPj4+
-PiArc3NpemVfdCB2cmluZ2hfaW92X3B1c2hfdXNlcihzdHJ1Y3QgdnJpbmdoX2tpb3YgKndpb3Ys
-Cj4gPj4+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCB2b2lkICpzcmMsIHNp
-emVfdCBsZW4pOwo+ID4+Pj4KPiA+Pj4+ICAgLyogTWFyayBhIGRlc2NyaXB0b3IgYXMgdXNlZC4g
-Ki8KPiA+Pj4+IC0tCj4gPj4+PiAyLjI1LjEKPiA+Pj4+Cj4gPj4gQmVzdCwKPiA+PiBTaHVuc3Vr
-ZQo+ID4+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Al Viro said:
+
+"""
+Since "vhost/scsi: fix reuse of &vq->iov[out] in response"
+we have this:
+                cmd->tvc_resp_iov = vq->iov[vc.out];
+                cmd->tvc_in_iovs = vc.in;
+combined with
+                iov_iter_init(&iov_iter, ITER_DEST, &cmd->tvc_resp_iov,
+                              cmd->tvc_in_iovs, sizeof(v_rsp));
+in vhost_scsi_complete_cmd_work().  We used to have ->tvc_resp_iov
+_pointing_ to vq->iov[vc.out]; back then iov_iter_init() asked to
+set an iovec-backed iov_iter over the tail of vq->iov[], with
+length being the amount of iovecs in the tail.
+
+Now we have a copy of one element of that array.  Fortunately, the members
+following it in the containing structure are two non-NULL kernel pointers,
+so copy_to_iter() will not copy anything beyond the first iovec - kernel
+pointer is not (on the majority of architectures) going to be accepted by
+access_ok() in copyout() and it won't be skipped since the "length" (in
+reality - another non-NULL kernel pointer) won't be zero.
+
+So it's not going to give a guest-to-qemu escalation, but it's definitely
+a bug.  Frankly, my preference would be to verify that the very first iovec
+is long enough to hold rsp_size.  Due to the above, any users that try to
+give us vq->iov[vc.out].iov_len < sizeof(struct virtio_scsi_cmd_resp)
+would currently get a failure in vhost_scsi_complete_cmd_work()
+anyway.
+"""
+
+However, the spec doesn't say anything about the legacy descriptor
+layout for the respone. So this patch tries to not assume the response
+to reside in a single separate descriptor which is what commit
+79c14141a487 ("vhost/scsi: Convert completion path to use") tries to
+achieve towards to ANY_LAYOUT.
+
+This is done by allocating and using dedicate resp iov in the
+command. To be safety, start with UIO_MAXIOV to be consistent with the
+vhost core.
+
+Testing with the hacked virtio-scsi driver that use 1 descriptor for 1
+byte in the response.
+
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Benjamin Coddington <bcodding@redhat.com>
+Cc: Nicholas Bellinger <nab@linux-iscsi.org>
+Fixes: a77ec83a5789 ("vhost/scsi: fix reuse of &vq->iov[out] in response")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/scsi.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index dca6346d75b3..7d6d70072603 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -80,7 +80,7 @@ struct vhost_scsi_cmd {
+ 	struct scatterlist *tvc_prot_sgl;
+ 	struct page **tvc_upages;
+ 	/* Pointer to response header iovec */
+-	struct iovec tvc_resp_iov;
++	struct iovec *tvc_resp_iov;
+ 	/* Pointer to vhost_scsi for our device */
+ 	struct vhost_scsi *tvc_vhost;
+ 	/* Pointer to vhost_virtqueue for the cmd */
+@@ -563,7 +563,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ 		memcpy(v_rsp.sense, cmd->tvc_sense_buf,
+ 		       se_cmd->scsi_sense_length);
+ 
+-		iov_iter_init(&iov_iter, ITER_DEST, &cmd->tvc_resp_iov,
++		iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iov,
+ 			      cmd->tvc_in_iovs, sizeof(v_rsp));
+ 		ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
+ 		if (likely(ret == sizeof(v_rsp))) {
+@@ -594,6 +594,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	struct vhost_scsi_cmd *cmd;
+ 	struct vhost_scsi_nexus *tv_nexus;
+ 	struct scatterlist *sg, *prot_sg;
++	struct iovec *tvc_resp_iov;
+ 	struct page **pages;
+ 	int tag;
+ 
+@@ -613,6 +614,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	sg = cmd->tvc_sgl;
+ 	prot_sg = cmd->tvc_prot_sgl;
+ 	pages = cmd->tvc_upages;
++	tvc_resp_iov = cmd->tvc_resp_iov;
+ 	memset(cmd, 0, sizeof(*cmd));
+ 	cmd->tvc_sgl = sg;
+ 	cmd->tvc_prot_sgl = prot_sg;
+@@ -625,6 +627,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	cmd->tvc_data_direction = data_direction;
+ 	cmd->tvc_nexus = tv_nexus;
+ 	cmd->inflight = vhost_scsi_get_inflight(vq);
++	cmd->tvc_resp_iov = tvc_resp_iov;
+ 
+ 	memcpy(cmd->tvc_cdb, cdb, VHOST_SCSI_MAX_CDB_SIZE);
+ 
+@@ -935,7 +938,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 	struct iov_iter in_iter, prot_iter, data_iter;
+ 	u64 tag;
+ 	u32 exp_data_len, data_direction;
+-	int ret, prot_bytes, c = 0;
++	int ret, prot_bytes, i, c = 0;
+ 	u16 lun;
+ 	u8 task_attr;
+ 	bool t10_pi = vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI);
+@@ -1092,7 +1095,8 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		}
+ 		cmd->tvc_vhost = vs;
+ 		cmd->tvc_vq = vq;
+-		cmd->tvc_resp_iov = vq->iov[vc.out];
++		for (i = 0; i < vc.in ; i++)
++			cmd->tvc_resp_iov[i] = vq->iov[vc.out + i];
+ 		cmd->tvc_in_iovs = vc.in;
+ 
+ 		pr_debug("vhost_scsi got command opcode: %#02x, lun: %d\n",
+@@ -1461,6 +1465,7 @@ static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
+ 		kfree(tv_cmd->tvc_sgl);
+ 		kfree(tv_cmd->tvc_prot_sgl);
+ 		kfree(tv_cmd->tvc_upages);
++		kfree(tv_cmd->tvc_resp_iov);
+ 	}
+ 
+ 	sbitmap_free(&svq->scsi_tags);
+@@ -1508,6 +1513,14 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
+ 			goto out;
+ 		}
+ 
++		tv_cmd->tvc_resp_iov = kcalloc(UIO_MAXIOV,
++					       sizeof(struct page *),
++					       GFP_KERNEL);
++		if (!tv_cmd->tvc_resp_iov) {
++			pr_err("Unable to allocate tv_cmd->tvc_resp_iov\n");
++			goto out;
++		}
++
+ 		tv_cmd->tvc_prot_sgl = kcalloc(VHOST_SCSI_PREALLOC_PROT_SGLS,
+ 					       sizeof(struct scatterlist),
+ 					       GFP_KERNEL);
+-- 
+2.25.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
