@@ -4,79 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63C8AC678D7
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52F66C7112B
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BB31F60FAE;
-	Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BB31F60FAE
+	by smtp3.osuosl.org (Postfix) with ESMTP id E2DFD60F8C;
+	Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E2DFD60F8C
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=TlaXG0Uv
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=ATlfmILW
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j6fKUV-QjT1S; Thu, 12 Jan 2023 19:58:20 +0000 (UTC)
+	with ESMTP id V2q-jBEfzkCG; Thu, 12 Jan 2023 19:58:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 903F560F3F;
-	Thu, 12 Jan 2023 19:58:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 903F560F3F
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6A1CA60F25;
+	Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6A1CA60F25
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 43276C0089;
-	Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C2835C007D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 98778C0091;
+	Thu, 12 Jan 2023 19:58:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 247B2C0082
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:09 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7C884417E1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0D34041151
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:58:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7C884417E1
-Authentication-Results: smtp4.osuosl.org;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0D34041151
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=TlaXG0Uv
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=ATlfmILW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8za-6zkAtloW
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id upLLM_B5oWX5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 76C03416EE
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 76C03416EE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3FA8F41177
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3FA8F41177
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Subject:Cc:To:From:Date:Message-ID:
- Sender:Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:
- Content-ID:Content-Description:In-Reply-To:References;
- bh=nVA2Mm1l3YORbADd6moHHe8hZRGP2vbv/t+d/ET+JHY=; b=TlaXG0UvI5/2makRvuA5VeDU0a
- 4qRI7QdjL2xdYtQkDc8A2gDeJm4SgV/ZE4QRpV0RJDXMMB4Ses7eZGFiDTofTYDgr5hwzJFCgjN92
- vjbEtwgBXa7w8/R1TM/dXCqOwghJkDoeZQJX5TmGkr+c4V4wG8XOesTfWGNVPxDj+IWa66EcgnnI+
- N0h0XzCqzVIGmuy6C6fbFV000CEf+CbKGraRaRx5LgxRtmWU3UqYXBQJ9uTZWqnINayTTaNj6FBwG
- 4DgvEy1EZkXwsa6PFe7gZwS9WdTNugjk+fRc/F3eGMFukmGi05t3vedt00SILqwwr57VstSzHs3kM
- kK9YAFjw==;
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+ Content-ID:Content-Description:In-Reply-To;
+ bh=53PdPXBrlefs7aSWYtbVMctVqERBXlbNfkzlUyuHUdw=; b=ATlfmILWtdBMS162SLdQ7satXH
+ lRrHA+Oo8xPovKk8FQq7RK98sDcnma5GRSfOFtLwNMoVkAXDXisud5eoVVLDZihpqE49vRJxWIbw2
+ /Y9OujIMxZk1pbjWaqUFjWo75kJhYQD0AKKQKJ+8CiSaiG3IgyCVvD8TMNqCScPpUugqNp41+I7do
+ 5xU2L9cP7LTkQIolwptF5b7/KAQ9UdyvdXN5gS5y15We2Sa4zjrnXtrvDhbcZWdaP3QN6BMMn3InU
+ Lq/+IhZFycZWB1LH1o2Fy8Qq8PGKdb6bDkxa8FbpQ30yPWc9p7g6EIAFIzA6F77JVZkL+nzT6pZrb
+ 3DJjl/xg==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3hA-0045np-38; Thu, 12 Jan 2023 19:57:05 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1pG3hu-005P7G-BC; Thu, 12 Jan 2023 19:57:50 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A8EB0300293;
- Thu, 12 Jan 2023 20:57:07 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 41FAD303481;
+ Thu, 12 Jan 2023 20:57:14 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 892382CCF1F46; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
-Message-ID: <20230112194314.845371875@infradead.org>
+ id 767D32CD066F4; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195542.335211484@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:14 +0100
+Date: Thu, 12 Jan 2023 20:44:03 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 00/51] cpuidle,rcu: Clean up the mess
+Subject: [PATCH v3 49/51] cpuidle,
+ arch: Mark all regular cpuidle_state::enter methods __cpuidle
+References: <20230112194314.845371875@infradead.org>
+MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com,
  guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
@@ -139,190 +142,130 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi All!
+For all cpuidle drivers that do not use CPUIDLE_FLAG_RCU_IDLE (iow,
+the simple ones) make sure all the functions are marked __cpuidle.
 
-The (hopefully) final respin of cpuidle vs rcu cleanup patches. Barring any
-objections I'll be queueing these patches in tip/sched/core in the next few
-days.
+( due to lack of noinstr validation on these platforms it is entirely
+  possible this isn't complete )
 
-v2: https://lkml.kernel.org/r/20220919095939.761690562@infradead.org
-
-These here patches clean up the mess that is cpuidle vs rcuidle.
-
-At the end of the ride there's only on RCU_NONIDLE user left:
-
-  arch/arm64/kernel/suspend.c:            RCU_NONIDLE(__cpu_suspend_exit());
-
-And I know Mark has been prodding that with something sharp.
-
-The last version was tested by a number of people and I'm hoping to not have
-broken anything in the meantime ;-)
-
-
-Changes since v2:
-
- - rebased to v6.2-rc3; as available at:
-     git://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git sched/idle
-
- - folded: https://lkml.kernel.org/r/Y3UBwYNY15ETUKy9@hirez.programming.kicks-ass.net
-   which makes the ARM cpuidle index 0 consistently not use
-   CPUIDLE_FLAG_RCU_IDLE, as requested by Ulf.
-
- - added a few more __always_inline to empty stub functions as found by the
-   robot.
-
- - Used _RET_IP_ instead of _THIS_IP_ in a few placed because of:
-   https://github.com/ClangBuiltLinux/linux/issues/263
-
- - Added new patches to address various robot reports:
-
-     #35:  trace,hardirq: No moar _rcuidle() tracing
-     #47:  cpuidle: Ensure ct_cpuidle_enter() is always called from noinstr/__cpuidle
-     #48:  cpuidle,arch: Mark all ct_cpuidle_enter() callers __cpuidle
-     #49:  cpuidle,arch: Mark all regular cpuidle_state::enter methods __cpuidle
-     #50:  cpuidle: Comments about noinstr/__cpuidle
-     #51:  context_tracking: Fix noinstr vs KASAN
-
-
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/alpha/kernel/process.c               |  1 -
- arch/alpha/kernel/vmlinux.lds.S           |  1 -
- arch/arc/kernel/process.c                 |  3 ++
- arch/arc/kernel/vmlinux.lds.S             |  1 -
- arch/arm/include/asm/vmlinux.lds.h        |  1 -
- arch/arm/kernel/cpuidle.c                 |  4 +-
- arch/arm/kernel/process.c                 |  1 -
- arch/arm/kernel/smp.c                     |  6 +--
- arch/arm/mach-davinci/cpuidle.c           |  4 +-
- arch/arm/mach-gemini/board-dt.c           |  3 +-
- arch/arm/mach-imx/cpuidle-imx5.c          |  4 +-
- arch/arm/mach-imx/cpuidle-imx6q.c         |  8 ++--
- arch/arm/mach-imx/cpuidle-imx6sl.c        |  4 +-
- arch/arm/mach-imx/cpuidle-imx6sx.c        |  9 ++--
- arch/arm/mach-imx/cpuidle-imx7ulp.c       |  4 +-
- arch/arm/mach-omap2/common.h              |  6 ++-
- arch/arm/mach-omap2/cpuidle34xx.c         | 16 ++++++-
- arch/arm/mach-omap2/cpuidle44xx.c         | 29 +++++++------
- arch/arm/mach-omap2/omap-mpuss-lowpower.c | 12 +++++-
- arch/arm/mach-omap2/pm.h                  |  2 +-
- arch/arm/mach-omap2/pm24xx.c              | 51 +---------------------
- arch/arm/mach-omap2/pm34xx.c              | 14 +++++--
- arch/arm/mach-omap2/pm44xx.c              |  2 +-
- arch/arm/mach-omap2/powerdomain.c         | 10 ++---
- arch/arm/mach-s3c/cpuidle-s3c64xx.c       |  5 +--
- arch/arm64/kernel/cpuidle.c               |  2 +-
- arch/arm64/kernel/idle.c                  |  1 -
- arch/arm64/kernel/smp.c                   |  4 +-
- arch/arm64/kernel/vmlinux.lds.S           |  1 -
- arch/csky/kernel/process.c                |  1 -
- arch/csky/kernel/smp.c                    |  2 +-
- arch/csky/kernel/vmlinux.lds.S            |  1 -
- arch/hexagon/kernel/process.c             |  1 -
- arch/hexagon/kernel/vmlinux.lds.S         |  1 -
- arch/ia64/kernel/process.c                |  1 +
- arch/ia64/kernel/vmlinux.lds.S            |  1 -
- arch/loongarch/kernel/idle.c              |  1 +
- arch/loongarch/kernel/vmlinux.lds.S       |  1 -
- arch/m68k/kernel/vmlinux-nommu.lds        |  1 -
- arch/m68k/kernel/vmlinux-std.lds          |  1 -
- arch/m68k/kernel/vmlinux-sun3.lds         |  1 -
- arch/microblaze/kernel/process.c          |  1 -
- arch/microblaze/kernel/vmlinux.lds.S      |  1 -
- arch/mips/kernel/idle.c                   | 14 +++----
- arch/mips/kernel/vmlinux.lds.S            |  1 -
- arch/nios2/kernel/process.c               |  1 -
- arch/nios2/kernel/vmlinux.lds.S           |  1 -
- arch/openrisc/kernel/process.c            |  1 +
- arch/openrisc/kernel/vmlinux.lds.S        |  1 -
- arch/parisc/kernel/process.c              |  2 -
- arch/parisc/kernel/vmlinux.lds.S          |  1 -
- arch/powerpc/kernel/idle.c                |  5 +--
- arch/powerpc/kernel/vmlinux.lds.S         |  1 -
- arch/riscv/kernel/process.c               |  1 -
- arch/riscv/kernel/vmlinux-xip.lds.S       |  1 -
- arch/riscv/kernel/vmlinux.lds.S           |  1 -
- arch/s390/kernel/idle.c                   |  1 -
- arch/s390/kernel/vmlinux.lds.S            |  1 -
- arch/sh/kernel/idle.c                     |  1 +
- arch/sh/kernel/vmlinux.lds.S              |  1 -
- arch/sparc/kernel/leon_pmc.c              |  4 ++
- arch/sparc/kernel/process_32.c            |  1 -
- arch/sparc/kernel/process_64.c            |  3 +-
- arch/sparc/kernel/vmlinux.lds.S           |  1 -
- arch/um/kernel/dyn.lds.S                  |  1 -
- arch/um/kernel/process.c                  |  1 -
- arch/um/kernel/uml.lds.S                  |  1 -
- arch/x86/boot/compressed/vmlinux.lds.S    |  1 +
- arch/x86/coco/tdx/tdcall.S                | 15 +------
- arch/x86/coco/tdx/tdx.c                   | 25 ++++-------
- arch/x86/events/amd/brs.c                 | 13 +++---
- arch/x86/include/asm/fpu/xcr.h            |  4 +-
- arch/x86/include/asm/irqflags.h           | 11 ++---
- arch/x86/include/asm/mwait.h              | 14 +++----
- arch/x86/include/asm/nospec-branch.h      |  2 +-
- arch/x86/include/asm/paravirt.h           |  6 ++-
- arch/x86/include/asm/perf_event.h         |  2 +-
- arch/x86/include/asm/shared/io.h          |  4 +-
- arch/x86/include/asm/shared/tdx.h         |  1 -
- arch/x86/include/asm/special_insns.h      |  8 ++--
- arch/x86/include/asm/xen/hypercall.h      |  2 +-
- arch/x86/kernel/cpu/bugs.c                |  2 +-
- arch/x86/kernel/fpu/core.c                |  4 +-
- arch/x86/kernel/paravirt.c                | 14 ++++++-
- arch/x86/kernel/process.c                 | 65 ++++++++++++++--------------
- arch/x86/kernel/vmlinux.lds.S             |  1 -
- arch/x86/lib/memcpy_64.S                  |  5 +--
- arch/x86/lib/memmove_64.S                 |  4 +-
- arch/x86/lib/memset_64.S                  |  4 +-
- arch/x86/xen/enlighten_pv.c               |  2 +-
- arch/x86/xen/irq.c                        |  2 +-
- arch/xtensa/kernel/process.c              |  1 +
- arch/xtensa/kernel/vmlinux.lds.S          |  1 -
- drivers/acpi/processor_idle.c             | 28 ++++++++-----
- drivers/base/power/runtime.c              | 24 +++++------
- drivers/clk/clk.c                         |  8 ++--
- drivers/cpuidle/cpuidle-arm.c             |  4 +-
- drivers/cpuidle/cpuidle-big_little.c      | 12 ++++--
- drivers/cpuidle/cpuidle-mvebu-v7.c        | 13 ++++--
- drivers/cpuidle/cpuidle-psci.c            | 26 +++++-------
- drivers/cpuidle/cpuidle-qcom-spm.c        |  4 +-
- drivers/cpuidle/cpuidle-riscv-sbi.c       | 19 +++++----
- drivers/cpuidle/cpuidle-tegra.c           | 31 +++++++++-----
- drivers/cpuidle/cpuidle.c                 | 70 ++++++++++++++++++++++---------
- drivers/cpuidle/dt_idle_states.c          |  2 +-
- drivers/cpuidle/poll_state.c              | 10 ++++-
- drivers/idle/intel_idle.c                 | 19 ++++-----
- drivers/perf/arm_pmu.c                    | 11 +----
- drivers/perf/riscv_pmu_sbi.c              |  8 +---
- include/asm-generic/vmlinux.lds.h         |  9 ++--
- include/linux/clockchips.h                |  4 +-
- include/linux/compiler_types.h            | 18 +++++++-
- include/linux/cpu.h                       |  3 --
- include/linux/cpuidle.h                   | 32 ++++++++++++++
- include/linux/cpumask.h                   |  4 +-
- include/linux/percpu-defs.h               |  2 +-
- include/linux/sched/idle.h                | 40 +++++++++++++-----
- include/linux/thread_info.h               | 18 +++++++-
- include/linux/tracepoint.h                | 15 ++++++-
- kernel/context_tracking.c                 | 12 +++---
- kernel/cpu_pm.c                           |  9 ----
- kernel/printk/printk.c                    |  2 +-
- kernel/sched/idle.c                       | 47 ++++++---------------
- kernel/time/tick-broadcast-hrtimer.c      | 29 ++++++-------
- kernel/time/tick-broadcast.c              |  6 ++-
- kernel/trace/trace.c                      |  3 ++
- kernel/trace/trace_preemptirq.c           | 50 ++++++----------------
- lib/ubsan.c                               |  5 ++-
- mm/kasan/kasan.h                          |  4 ++
- mm/kasan/shadow.c                         | 38 +++++++++++++++++
- tools/objtool/check.c                     | 17 ++++++++
- 131 files changed, 617 insertions(+), 523 deletions(-)
+ arch/arm/kernel/cpuidle.c           |    4 ++--
+ arch/arm/mach-davinci/cpuidle.c     |    4 ++--
+ arch/arm/mach-imx/cpuidle-imx5.c    |    4 ++--
+ arch/arm/mach-imx/cpuidle-imx6sl.c  |    4 ++--
+ arch/arm/mach-imx/cpuidle-imx7ulp.c |    4 ++--
+ arch/arm/mach-s3c/cpuidle-s3c64xx.c |    5 ++---
+ arch/mips/kernel/idle.c             |    6 +++---
+ 7 files changed, 15 insertions(+), 16 deletions(-)
+
+--- a/arch/arm/kernel/cpuidle.c
++++ b/arch/arm/kernel/cpuidle.c
+@@ -26,8 +26,8 @@ static struct cpuidle_ops cpuidle_ops[NR
+  *
+  * Returns the index passed as parameter
+  */
+-int arm_cpuidle_simple_enter(struct cpuidle_device *dev,
+-		struct cpuidle_driver *drv, int index)
++__cpuidle int arm_cpuidle_simple_enter(struct cpuidle_device *dev, struct
++				       cpuidle_driver *drv, int index)
+ {
+ 	cpu_do_idle();
+ 
+--- a/arch/arm/mach-davinci/cpuidle.c
++++ b/arch/arm/mach-davinci/cpuidle.c
+@@ -44,8 +44,8 @@ static void davinci_save_ddr_power(int e
+ }
+ 
+ /* Actual code that puts the SoC in different idle states */
+-static int davinci_enter_idle(struct cpuidle_device *dev,
+-			      struct cpuidle_driver *drv, int index)
++static __cpuidle int davinci_enter_idle(struct cpuidle_device *dev,
++					struct cpuidle_driver *drv, int index)
+ {
+ 	davinci_save_ddr_power(1, ddr2_pdown);
+ 	cpu_do_idle();
+--- a/arch/arm/mach-imx/cpuidle-imx5.c
++++ b/arch/arm/mach-imx/cpuidle-imx5.c
+@@ -8,8 +8,8 @@
+ #include <asm/system_misc.h>
+ #include "cpuidle.h"
+ 
+-static int imx5_cpuidle_enter(struct cpuidle_device *dev,
+-			      struct cpuidle_driver *drv, int index)
++static __cpuidle int imx5_cpuidle_enter(struct cpuidle_device *dev,
++					struct cpuidle_driver *drv, int index)
+ {
+ 	arm_pm_idle();
+ 	return index;
+--- a/arch/arm/mach-imx/cpuidle-imx6sl.c
++++ b/arch/arm/mach-imx/cpuidle-imx6sl.c
+@@ -11,8 +11,8 @@
+ #include "common.h"
+ #include "cpuidle.h"
+ 
+-static int imx6sl_enter_wait(struct cpuidle_device *dev,
+-			    struct cpuidle_driver *drv, int index)
++static __cpuidle int imx6sl_enter_wait(struct cpuidle_device *dev,
++				       struct cpuidle_driver *drv, int index)
+ {
+ 	imx6_set_lpm(WAIT_UNCLOCKED);
+ 	/*
+--- a/arch/arm/mach-imx/cpuidle-imx7ulp.c
++++ b/arch/arm/mach-imx/cpuidle-imx7ulp.c
+@@ -12,8 +12,8 @@
+ #include "common.h"
+ #include "cpuidle.h"
+ 
+-static int imx7ulp_enter_wait(struct cpuidle_device *dev,
+-			    struct cpuidle_driver *drv, int index)
++static __cpuidle int imx7ulp_enter_wait(struct cpuidle_device *dev,
++					struct cpuidle_driver *drv, int index)
+ {
+ 	if (index == 1)
+ 		imx7ulp_set_lpm(ULP_PM_WAIT);
+--- a/arch/arm/mach-s3c/cpuidle-s3c64xx.c
++++ b/arch/arm/mach-s3c/cpuidle-s3c64xx.c
+@@ -19,9 +19,8 @@
+ #include "regs-sys-s3c64xx.h"
+ #include "regs-syscon-power-s3c64xx.h"
+ 
+-static int s3c64xx_enter_idle(struct cpuidle_device *dev,
+-			      struct cpuidle_driver *drv,
+-			      int index)
++static __cpuidle int s3c64xx_enter_idle(struct cpuidle_device *dev,
++					struct cpuidle_driver *drv, int index)
+ {
+ 	unsigned long tmp;
+ 
+--- a/arch/mips/kernel/idle.c
++++ b/arch/mips/kernel/idle.c
+@@ -241,7 +241,7 @@ void __init check_wait(void)
+ 	}
+ }
+ 
+-void arch_cpu_idle(void)
++__cpuidle void arch_cpu_idle(void)
+ {
+ 	if (cpu_wait)
+ 		cpu_wait();
+@@ -249,8 +249,8 @@ void arch_cpu_idle(void)
+ 
+ #ifdef CONFIG_CPU_IDLE
+ 
+-int mips_cpuidle_wait_enter(struct cpuidle_device *dev,
+-			    struct cpuidle_driver *drv, int index)
++__cpuidle int mips_cpuidle_wait_enter(struct cpuidle_device *dev,
++				      struct cpuidle_driver *drv, int index)
+ {
+ 	arch_cpu_idle();
+ 	return index;
+
 
 _______________________________________________
 Virtualization mailing list
