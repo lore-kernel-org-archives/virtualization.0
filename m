@@ -4,79 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6AF9CC63797
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 568D9C678D4
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7013041199;
-	Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7013041199
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4FBD741151;
+	Thu, 12 Jan 2023 19:58:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4FBD741151
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=kYTEx0rz
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=tOV0YOj5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NjFK80spld8U; Thu, 12 Jan 2023 19:58:14 +0000 (UTC)
+	with ESMTP id ntfktN_FBOoe; Thu, 12 Jan 2023 19:58:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C3006414EA;
-	Thu, 12 Jan 2023 19:58:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3006414EA
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1D81B4119C;
+	Thu, 12 Jan 2023 19:58:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1D81B4119C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 06C66C0078;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42E1BC008B;
 	Thu, 12 Jan 2023 19:58:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56FF4C0033
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 04307C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 32606417B3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5C88881E8C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32606417B3
-Authentication-Results: smtp4.osuosl.org;
+ Thu, 12 Jan 2023 19:58:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5C88881E8C
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=kYTEx0rz
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=tOV0YOj5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rWemMboohWU0
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8YuYwq3NhzHV
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:02 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0BE8541799
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0BE8541799
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 804E981FBD
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 804E981FBD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:01 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=mHHfLn3ZXDs7+W84iYI4l64Hgzvzv2j66VWrzu7dGbw=; b=kYTEx0rzU1SllruehA0y8yHATb
- IJE4wnYq/dRbQHRcZnpN0OXGHrGk0U7J3N0VBj+JSbpdQwQu+8TKRK5iCmxygpxvyweDkZe5UIvKY
- MwOlwaQnkBOYRnYTKRZAqS1YnWNOV444ewGH4wdgTge715r6fQsvhW/ij5f47Qprmcr4wA7JNnstB
- e/bXihOVRgcSCgn0rMMHufr9/fNUf4QdhZFePtfdiRCc6x7c+0SOJjOnT1sc/ENafw33wlDFA9nsH
- 0IaR/32BenV0BuTP4t5UZWueg7KT2qaj1MvjhfzmYn2Z4T4bkLiG8Dkn01Xo2lHx6f+yFLnWfJon6
- ooD7L92g==;
+ bh=TpAs8eQceCyyKKtR//95dieD+m+uPCJ6EEXd6r5ehjs=; b=tOV0YOj5iNDK/m47VBWfA6Ru4x
+ bmj0NeQaiaQs0AKpJs0p/FhjCO7xciTK0nJuh8IuzQGajotJsiy0W+x0AVXUaoNLZnZiKFIJAoHmj
+ BUEedwDc02yQZ8ZXdXHY1sc/922UDzqaZjq3c0CNpaERUTU6w4xWrYhr0/MiJvV0yldLmkp8K2I/g
+ S6ObVx4NF7YshbqwRQkug5niXhh7Men/EndtRRY9U+mGWG1XpgKDjfmIdwaWQ286ma4cOjAXN0+WW
+ DLMrjCJbdT3gRxDJNEIJWJVda+cZllU4MucGSA+Yl53ZmDet+O4b9B1wWrxl82vveg8EofoDzBF31
+ ZgLYxuNA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3hG-0045ox-1D; Thu, 12 Jan 2023 19:57:11 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1pG3ht-005P68-BV; Thu, 12 Jan 2023 19:57:49 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 862C3303434;
- Thu, 12 Jan 2023 20:57:13 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 266FB303475;
+ Thu, 12 Jan 2023 20:57:14 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 11A262CCF62AB; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195540.865735001@infradead.org>
+ id 6405E2CD066D8; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195542.089981974@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:39 +0100
+Date: Thu, 12 Jan 2023 20:43:59 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 25/51] printk: Remove trace_.*_rcuidle() usage
+Subject: [PATCH v3 45/51] sched: Always inline __this_cpu_preempt_check()
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
@@ -147,34 +147,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The problem, per commit fc98c3c8c9dc ("printk: use rcuidle console
-tracepoint"), was printk usage from the cpuidle path where RCU was
-already disabled.
-
-Per the patches earlier in this series, this is no longer the case.
+vmlinux.o: warning: objtool: in_entry_stack+0x9: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: default_do_nmi+0x10: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: fpu_idle_fpregs+0x41: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: kvm_read_and_reset_apf_flags+0x1: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: lockdep_hardirqs_on+0xb0: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: lockdep_hardirqs_off+0xae: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: irqentry_nmi_enter+0x69: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: irqentry_nmi_exit+0x32: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0x9: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_idle_enter+0x43: call to __this_cpu_preempt_check() leaves .noinstr.text section
+vmlinux.o: warning: objtool: acpi_idle_enter_s2idle+0x45: call to __this_cpu_preempt_check() leaves .noinstr.text section
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Acked-by: Petr Mladek <pmladek@suse.com>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- kernel/printk/printk.c |    2 +-
+ include/linux/percpu-defs.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2238,7 +2238,7 @@ static u16 printk_sprint(char *text, u16
- 		}
- 	}
+--- a/include/linux/percpu-defs.h
++++ b/include/linux/percpu-defs.h
+@@ -310,7 +310,7 @@ extern void __bad_size_call_parameter(vo
+ #ifdef CONFIG_DEBUG_PREEMPT
+ extern void __this_cpu_preempt_check(const char *op);
+ #else
+-static inline void __this_cpu_preempt_check(const char *op) { }
++static __always_inline void __this_cpu_preempt_check(const char *op) { }
+ #endif
  
--	trace_console_rcuidle(text, text_len);
-+	trace_console(text, text_len);
- 
- 	return text_len;
- }
+ #define __pcpu_size_call_return(stem, variable)				\
 
 
 _______________________________________________
