@@ -1,82 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B564CC54EBE
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63F12C61DB3
 	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CC3A441774;
+	by smtp1.osuosl.org (Postfix) with ESMTP id DB9CE81E7A;
 	Thu, 12 Jan 2023 19:58:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CC3A441774
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=XHTa9fJQ
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DB9CE81E7A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=XY7SfD4J
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k0UgjvgtqPDy; Thu, 12 Jan 2023 19:58:00 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MUrLCruTA3tY; Thu, 12 Jan 2023 19:58:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DA64B416F9;
-	Thu, 12 Jan 2023 19:57:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA64B416F9
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 64EBA81EE3;
+	Thu, 12 Jan 2023 19:58:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 64EBA81EE3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 19227C007E;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D3E9C0082;
 	Thu, 12 Jan 2023 19:57:59 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04BE2C002D
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2705BC002D
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:57:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C7C4260E80
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0362741057
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:57:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C7C4260E80
-Authentication-Results: smtp3.osuosl.org;
+ Thu, 12 Jan 2023 19:57:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0362741057
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=XHTa9fJQ
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=XY7SfD4J
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VnZzh-qhZ5Su
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3R0OtDVcq5EO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:57:52 +0000 (UTC)
+ Thu, 12 Jan 2023 19:57:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 53B6660E00
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DA81A404BA
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 53B6660E00
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DA81A404BA
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=WMNBIHuf5Xvagmacq/Rua4pXk5oPDpB6DgeHQM3GMNM=; b=XHTa9fJQ6l9MxKPEyBfPupJlnK
- QujDsEFDgBb1RH7NNdfEH9tiUdGcD8VlMIlH2CjVqfd+fNH42psBn6fMiV+PWnaBMJfrQlG8/uPJb
- Okf5Z6OyNAqqQFO4RuIwX4H7J3wmUlp/1CUcFGZtL6SomSncCRNiAtmRxykSQS8awMOGDTC4+beqs
- ZcKwNhcoilI8HNj5nEyrlEpuXXx8PCFWAbLEZkl+iVIJPsqVqE5HfY/3I1jWlD4JpB0Yxq934dXPd
- MeGfH84uwYJtbUpHSynk7Q8quBJdyFnyS2B+X1iqYrC1/Fqf9A5HRlMzd1MAQhBIOXenRfEd52BcW
- oZc0vWYw==;
+ bh=zetob5Egrh+4xSqY+h3U8eHRaaU6Xv/VYHG/8LvUn9U=; b=XY7SfD4JzAJJbveELIvdat/cbW
+ E+yFFn4aNWAgBawJ26SoENVk9HjgjCyHK9vtm0DJHnuC5VDdB61ndo4h4/i7Q5MSw1rkqiTic4+xR
+ 3Y4D5MUptZ7ITQwdJ+rd2ao7vl1gTwOWK6Sx7WR4lsMotsDZ0CjhwtIvhpsU+NDMSFoT0g5aNyvGa
+ iMi4QJBO85DnX+Mw7tQFfzfNeRIKSpTPmFw5CM4c/Zo+olx5lzudeaiJOWa1G7jKsVRtgbLWqFUp2
+ QH+tfhDjHvNHMqws27xY0eX//Ypm8qtyiO7rXUI4Q4fOaQ8sTUtjWWcBaaRXjx9gG6YdwAkHM+oGP
+ 31LcvOtQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pG3hX-005OcN-Hu; Thu, 12 Jan 2023 19:57:27 +0000
+ id 1pG3hW-005OcC-5Z; Thu, 12 Jan 2023 19:57:26 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id EA92B3033D2;
- Thu, 12 Jan 2023 20:57:12 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 9F135302D60;
+ Thu, 12 Jan 2023 20:57:11 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 9D69C2CCF1F4E; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
-Message-ID: <20230112195539.637185846@infradead.org>
+ id 956222CCF1F48; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
+Message-ID: <20230112195539.515253662@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:19 +0100
+Date: Thu, 12 Jan 2023 20:43:17 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 05/51] cpuidle,riscv: Push RCU-idle into driver
+Subject: [PATCH v3 03/51] cpuidle/poll: Ensure IRQ state is invariant
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
@@ -147,62 +147,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Doing RCU-idle outside the driver, only to then temporarily enable it
-again, at least twice, before going idle is daft.
+cpuidle_state::enter() methods should be IRQ invariant.
 
-That is, once implicitly through the cpu_pm_*() calls and once
-explicitly doing ct_irq_*_irqon().
+Additionally make sure to use raw_local_irq_*() methods since this
+cpuidle callback will be called with RCU already disabled.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Anup Patel <anup@brainfault.org>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- drivers/cpuidle/cpuidle-riscv-sbi.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/cpuidle/poll_state.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -116,12 +116,12 @@ static int __sbi_enter_domain_idle_state
- 		return -1;
+--- a/drivers/cpuidle/poll_state.c
++++ b/drivers/cpuidle/poll_state.c
+@@ -17,7 +17,7 @@ static int __cpuidle poll_idle(struct cp
  
- 	/* Do runtime PM to manage a hierarchical CPU toplogy. */
--	ct_irq_enter_irqson();
- 	if (s2idle)
- 		dev_pm_genpd_suspend(pd_dev);
- 	else
- 		pm_runtime_put_sync_suspend(pd_dev);
--	ct_irq_exit_irqson();
+ 	dev->poll_time_limit = false;
+ 
+-	local_irq_enable();
++	raw_local_irq_enable();
+ 	if (!current_set_polling_and_test()) {
+ 		unsigned int loop_count = 0;
+ 		u64 limit;
+@@ -36,6 +36,8 @@ static int __cpuidle poll_idle(struct cp
+ 			}
+ 		}
+ 	}
++	raw_local_irq_disable();
 +
-+	ct_idle_enter();
+ 	current_clr_polling();
  
- 	if (sbi_is_domain_state_available())
- 		state = sbi_get_domain_state();
-@@ -130,12 +130,12 @@ static int __sbi_enter_domain_idle_state
- 
- 	ret = sbi_suspend(state) ? -1 : idx;
- 
--	ct_irq_enter_irqson();
-+	ct_idle_exit();
-+
- 	if (s2idle)
- 		dev_pm_genpd_resume(pd_dev);
- 	else
- 		pm_runtime_get_sync(pd_dev);
--	ct_irq_exit_irqson();
- 
- 	cpu_pm_exit();
- 
-@@ -246,6 +246,7 @@ static int sbi_dt_cpu_init_topology(stru
- 	 * of a shared state for the domain, assumes the domain states are all
- 	 * deeper states.
- 	 */
-+	drv->states[state_count - 1].flags |= CPUIDLE_FLAG_RCU_IDLE;
- 	drv->states[state_count - 1].enter = sbi_enter_domain_idle_state;
- 	drv->states[state_count - 1].enter_s2idle =
- 					sbi_enter_s2idle_domain_idle_state;
+ 	return index;
 
 
 _______________________________________________
