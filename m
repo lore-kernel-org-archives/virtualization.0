@@ -1,79 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B331C678D4
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3EB06C678DA
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 19ACD820DF;
-	Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 19ACD820DF
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=WVuIFhrj
+	by smtp4.osuosl.org (Postfix) with ESMTP id CEACA416CE;
+	Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEACA416CE
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=H7KH+Z08
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mEQo2JGNQOE1; Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id ACDB58201A;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id l7dkR46m3yB9; Thu, 12 Jan 2023 19:58:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 284CD41522;
 	Thu, 12 Jan 2023 19:58:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ACDB58201A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 284CD41522
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08FDBC008A;
-	Thu, 12 Jan 2023 19:58:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 85281C0089
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA631C0097;
+	Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0E0DDC0078
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:58:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 39A1981FFE
+ by smtp2.osuosl.org (Postfix) with ESMTP id C41AB4119C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39A1981FFE
+ Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C41AB4119C
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=H7KH+Z08
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lL2l8hMNsxYu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GglngdguEtcF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 116FB81FBD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 506C541181
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 116FB81FBD
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 506C541181
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:05 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=US/ew+5Vik6jGnrGGiz1QKoghqD4+Lgz+zGR8hxwH/s=; b=WVuIFhrj78QG37MwfM8cwsGLW2
- 6RIQ2dKuiBYGWybloHLp61YaKj0cdn/+fLnH2q0WBRmwtWG3yFLWrnccqDo7As6Ov+J9nISGa2R5A
- xzyVRpltpBTMUkFNRLUgPKwxWYfzryyd1cFJPVVp4kqW5FroibddKersX+5xp1NAN0mX2n/IX8uo5
- u3jIptEd8I2RoyVn4KMqbm+bH70AJzyzt5X9Z33H0C0Ne5yJWRvX5w2XDeRGpi6wP1+0NwsgdfANb
- Qs0TXnigQ3IWTW5HruR9gzoAZACuq68YDeONfYzScB1OF3/BKUWdpvZ2B5iPfLpEFiGMDiOvz9iPi
- Ew4yKZpQ==;
+ bh=BAfnvD9cLrzo61xSnZTsQNCRnrvqWps/XpXHA7FoM0k=; b=H7KH+Z08RTaT/3t06vLCizvkOG
+ Nl80fuaYr06fmNux1Mx9qtYbuwqPX3UIm8aftX5Z28NOSi2Mj7BunBpu5fAFoNnbe42np6v2RdXQ3
+ SsfqtFqcG9qi0lyDVOoDELfYVw4hTQlnjw9EXtt56vdDtyaKEp2Xa2RVM+DXP4oJW61oMArRyeeJ0
+ ilQmOrnOonRkmnKqBoOTtnaRQcwrM4jm6DFFkWE7NCRk2QdP8h1Fs9cERrbXc91ROvdPufdHKZpV7
+ QvcZXHXDtmJlQQByg/agmBAC+3sVjR/N/VTls/IF9+ePAkX1RGUky+6xWZXvuRPrOisPJZlzBILYP
+ znwmGuiA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3hH-0045pK-38; Thu, 12 Jan 2023 19:57:14 +0000
+ id 1pG3hI-0045pX-32; Thu, 12 Jan 2023 19:57:25 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B61D2303449;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C4CD6303453;
  Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 2953C2CCF62B7; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195541.233779815@infradead.org>
+ id 364D42CCF62BD; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195541.416110581@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:45 +0100
+Date: Thu, 12 Jan 2023 20:43:48 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 31/51] cpuidle,nospec: Make noinstr clean
+Subject: [PATCH v3 34/51] trace: WARN on rcuidle
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
@@ -144,11 +147,8 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vmlinux.o: warning: objtool: mwait_idle+0x47: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: acpi_processor_ffh_cstate_enter+0xa2: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle+0x91: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle_s2idle+0x8c: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
-vmlinux.o: warning: objtool: intel_idle_irq+0xaa: call to mds_idle_clear_cpu_buffers() leaves .noinstr.text section
+ARCH_WANTS_NO_INSTR (a superset of CONFIG_GENERIC_ENTRY) disallows any
+and all tracing when RCU isn't enabled.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
@@ -156,20 +156,53 @@ Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- arch/x86/include/asm/nospec-branch.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/tracepoint.h |   15 +++++++++++++--
+ kernel/trace/trace.c       |    3 +++
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/nospec-branch.h
-+++ b/arch/x86/include/asm/nospec-branch.h
-@@ -310,7 +310,7 @@ static __always_inline void mds_user_cle
-  *
-  * Clear CPU buffers if the corresponding static key is enabled
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -178,6 +178,17 @@ static inline struct tracepoint *tracepo
+ #endif /* CONFIG_HAVE_STATIC_CALL */
+ 
+ /*
++ * ARCH_WANTS_NO_INSTR archs are expected to have sanitized entry and idle
++ * code that disallow any/all tracing/instrumentation when RCU isn't watching.
++ */
++#ifdef CONFIG_ARCH_WANTS_NO_INSTR
++#define RCUIDLE_COND(rcuidle)	(rcuidle)
++#else
++/* srcu can't be used from NMI */
++#define RCUIDLE_COND(rcuidle)	(rcuidle && in_nmi())
++#endif
++
++/*
+  * it_func[0] is never NULL because there is at least one element in the array
+  * when the array itself is non NULL.
   */
--static inline void mds_idle_clear_cpu_buffers(void)
-+static __always_inline void mds_idle_clear_cpu_buffers(void)
- {
- 	if (static_branch_likely(&mds_idle_clear))
- 		mds_clear_cpu_buffers();
+@@ -188,8 +199,8 @@ static inline struct tracepoint *tracepo
+ 		if (!(cond))						\
+ 			return;						\
+ 									\
+-		/* srcu can't be used from NMI */			\
+-		WARN_ON_ONCE(rcuidle && in_nmi());			\
++		if (WARN_ON_ONCE(RCUIDLE_COND(rcuidle)))		\
++			return;						\
+ 									\
+ 		/* keep srcu and sched-rcu usage consistent */		\
+ 		preempt_disable_notrace();				\
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3119,6 +3119,9 @@ void __trace_stack(struct trace_array *t
+ 		return;
+ 	}
+ 
++	if (WARN_ON_ONCE(IS_ENABLED(CONFIG_GENERIC_ENTRY)))
++		return;
++
+ 	/*
+ 	 * When an NMI triggers, RCU is enabled via ct_nmi_enter(),
+ 	 * but if the above rcu_is_watching() failed, then the NMI
 
 
 _______________________________________________
