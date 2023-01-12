@@ -4,79 +4,79 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FD1DC54EBE
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A094DC678DC
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 66BE281FA5;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2914481FD1;
 	Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 66BE281FA5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2914481FD1
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=EPZzE64m
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=gQ7Q9Sfc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mG49XuVREDYJ; Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
+	with ESMTP id iOZPS6HiRK99; Thu, 12 Jan 2023 19:58:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 58DDB81FEC;
-	Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 58DDB81FEC
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 628EE81FAC;
+	Thu, 12 Jan 2023 19:58:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 628EE81FAC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6DA4BC0084;
-	Thu, 12 Jan 2023 19:58:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29EB8C0094
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1097EC009D;
+	Thu, 12 Jan 2023 19:58:02 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3DB25C008D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:01 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C041B41687
+ by smtp2.osuosl.org (Postfix) with ESMTP id 17C6F41151
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:57:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C041B41687
-Authentication-Results: smtp4.osuosl.org;
+ Thu, 12 Jan 2023 19:58:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 17C6F41151
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=EPZzE64m
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=gQ7Q9Sfc
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id poUg3DL1-hwf
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XVYAUh3UOd85
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:57:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C11FA416EE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8661405F3
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C11FA416EE
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E8661405F3
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=CWtXQ9ScESvHC863qag21jQX+KK5xw/Ija2/01ku3yk=; b=EPZzE64m3oCXia+0wohNVHPJNI
- f4ZNUmyXPrJXWH7PL/wiKrgoxQtuCyfusu/y3sfTkworJKy8iifd1vPpHuP8cALb+9eexAF9i/bVo
- uujPfq/+tsg4qnvDB8OfG48pQXqBC3CNDcGcVnIOkcOltZ3//Ulq9Y9bpaRAZg+03QAYPkLcPO1s4
- wONcCHCuHmLBFH0E7HMRRRMXZzsgmsm4f6hMvQuS12REPp2ZASTvrZVy/uINUGIc+agphKV1b+2yC
- JtrqWDPadPqhgKcTuFKtk4zf466ryZibze46GIPvhsYOTho1iX+RO3kAi0kCHINTSxmQEJ1fXTrIl
- AOBjoGlw==;
+ bh=Hsr5V6aaf/kVSU2t73jNDRAWfLY8tgaZMY/8xmM8jWo=; b=gQ7Q9SfcfOCGLlvaFWMPSlQDV4
+ uKjocE/2Y34Nr3Jz761/H3K8ref7D/RHB23EoGkYYy1xOk3Feint61cmEzrTeJs9pKFsRiW2qqfOc
+ a15g0aXUVDz0ZDo2MzRyxqBDaXdm6wfbxfKkhacFzf0dnqhRTBbnGYC0Ol79TQuuLMUcvUsmgrQsq
+ Yw8OLwDnAiMOrgLy6Ivt5nddQwxIy8BHKaVFy+WqtLrCrntFsEUj0zjrnvFhZolV0YjTu4WNDYy9/
+ lDKMy9PbKPpnqJnECPubZ+WdVv92KEL7klGQq9pXFCJdS/Q4cXnTA6nMiHYLM5YqQGCUzlZ7euq5h
+ XbhFNewA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pG3hY-005Oce-9l; Thu, 12 Jan 2023 19:57:28 +0000
+ id 1pG3ha-005OeK-VA; Thu, 12 Jan 2023 19:57:31 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1E366303403;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7A97530342E;
  Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id BAFC42CCF1F5C; Thu, 12 Jan 2023 20:57:07 +0100 (CET)
-Message-ID: <20230112195540.007918454@infradead.org>
+ id 09BA02CCF1F7F; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195540.743432118@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:25 +0100
+Date: Thu, 12 Jan 2023 20:43:37 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 11/51] cpuidle,omap4: Push RCU-idle into driver
+Subject: [PATCH v3 23/51] arm,smp: Remove trace_.*_rcuidle() usage
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
 Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
@@ -147,126 +147,56 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Doing RCU-idle outside the driver, only to then temporarily enable it
-again, some *four* times, before going idle is daft.
+None of these functions should ever be ran with RCU disabled anymore.
 
-Notably three times explicitly using RCU_NONIDLE() and once implicitly
-through cpu_pm_*().
+Specifically, do_handle_IPI() is only called from handle_IPI() which
+explicitly does irq_enter()/irq_exit() which ensures RCU is watching.
+
+The problem with smp_cross_call() was, per commit 7c64cc0531fa ("arm: Use
+_rcuidle for smp_cross_call() tracepoints"), that
+cpuidle_enter_state_coupled() already had RCU disabled, but that's
+long been fixed by commit 1098582a0f6c ("sched,idle,rcu: Push rcu_idle
+deeper into the idle path").
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- arch/arm/mach-omap2/cpuidle44xx.c |   29 ++++++++++++++++++-----------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ arch/arm/kernel/smp.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm/mach-omap2/cpuidle44xx.c
-+++ b/arch/arm/mach-omap2/cpuidle44xx.c
-@@ -105,7 +105,9 @@ static int omap_enter_idle_smp(struct cp
- 	}
- 	raw_spin_unlock_irqrestore(&mpu_lock, flag);
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -639,7 +639,7 @@ static void do_handle_IPI(int ipinr)
+ 	unsigned int cpu = smp_processor_id();
  
-+	ct_idle_enter();
- 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
-+	ct_idle_exit();
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_entry_rcuidle(ipi_types[ipinr]);
++		trace_ipi_entry(ipi_types[ipinr]);
  
- 	raw_spin_lock_irqsave(&mpu_lock, flag);
- 	if (cx->mpu_state_vote == num_online_cpus())
-@@ -151,10 +153,10 @@ static int omap_enter_idle_coupled(struc
- 				 (cx->mpu_logic_state == PWRDM_POWER_OFF);
- 
- 	/* Enter broadcast mode for periodic timers */
--	RCU_NONIDLE(tick_broadcast_enable());
-+	tick_broadcast_enable();
- 
- 	/* Enter broadcast mode for one-shot timers */
--	RCU_NONIDLE(tick_broadcast_enter());
-+	tick_broadcast_enter();
- 
- 	/*
- 	 * Call idle CPU PM enter notifier chain so that
-@@ -166,7 +168,7 @@ static int omap_enter_idle_coupled(struc
- 
- 	if (dev->cpu == 0) {
- 		pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
--		RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
-+		omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
- 
- 		/*
- 		 * Call idle CPU cluster PM enter notifier chain
-@@ -178,14 +180,16 @@ static int omap_enter_idle_coupled(struc
- 				index = 0;
- 				cx = state_ptr + index;
- 				pwrdm_set_logic_retst(mpu_pd, cx->mpu_logic_state);
--				RCU_NONIDLE(omap_set_pwrdm_state(mpu_pd, cx->mpu_state));
-+				omap_set_pwrdm_state(mpu_pd, cx->mpu_state);
- 				mpuss_can_lose_context = 0;
- 			}
- 		}
+ 	switch (ipinr) {
+ 	case IPI_WAKEUP:
+@@ -686,7 +686,7 @@ static void do_handle_IPI(int ipinr)
  	}
  
-+	ct_idle_enter();
- 	omap4_enter_lowpower(dev->cpu, cx->cpu_state);
- 	cpu_done[dev->cpu] = true;
-+	ct_idle_exit();
+ 	if ((unsigned)ipinr < NR_IPI)
+-		trace_ipi_exit_rcuidle(ipi_types[ipinr]);
++		trace_ipi_exit(ipi_types[ipinr]);
+ }
  
- 	/* Wakeup CPU1 only if it is not offlined */
- 	if (dev->cpu == 0 && cpumask_test_cpu(1, cpu_online_mask)) {
-@@ -194,9 +198,9 @@ static int omap_enter_idle_coupled(struc
- 		    mpuss_can_lose_context)
- 			gic_dist_disable();
+ /* Legacy version, should go away once all irqchips have been converted */
+@@ -709,7 +709,7 @@ static irqreturn_t ipi_handler(int irq,
  
--		RCU_NONIDLE(clkdm_deny_idle(cpu_clkdm[1]));
--		RCU_NONIDLE(omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON));
--		RCU_NONIDLE(clkdm_allow_idle(cpu_clkdm[1]));
-+		clkdm_deny_idle(cpu_clkdm[1]);
-+		omap_set_pwrdm_state(cpu_pd[1], PWRDM_POWER_ON);
-+		clkdm_allow_idle(cpu_clkdm[1]);
+ static void smp_cross_call(const struct cpumask *target, unsigned int ipinr)
+ {
+-	trace_ipi_raise_rcuidle(target, ipi_types[ipinr]);
++	trace_ipi_raise(target, ipi_types[ipinr]);
+ 	__ipi_send_mask(ipi_desc[ipinr], target);
+ }
  
- 		if (IS_PM44XX_ERRATUM(PM_OMAP4_ROM_SMP_BOOT_ERRATUM_GICD) &&
- 		    mpuss_can_lose_context) {
-@@ -222,7 +226,7 @@ static int omap_enter_idle_coupled(struc
- 	cpu_pm_exit();
- 
- cpu_pm_out:
--	RCU_NONIDLE(tick_broadcast_exit());
-+	tick_broadcast_exit();
- 
- fail:
- 	cpuidle_coupled_parallel_barrier(dev, &abort_barrier);
-@@ -247,7 +251,8 @@ static struct cpuidle_driver omap4_idle_
- 			/* C2 - CPU0 OFF + CPU1 OFF + MPU CSWR */
- 			.exit_latency = 328 + 440,
- 			.target_residency = 960,
--			.flags = CPUIDLE_FLAG_COUPLED,
-+			.flags = CPUIDLE_FLAG_COUPLED |
-+				 CPUIDLE_FLAG_RCU_IDLE,
- 			.enter = omap_enter_idle_coupled,
- 			.name = "C2",
- 			.desc = "CPUx OFF, MPUSS CSWR",
-@@ -256,7 +261,8 @@ static struct cpuidle_driver omap4_idle_
- 			/* C3 - CPU0 OFF + CPU1 OFF + MPU OSWR */
- 			.exit_latency = 460 + 518,
- 			.target_residency = 1100,
--			.flags = CPUIDLE_FLAG_COUPLED,
-+			.flags = CPUIDLE_FLAG_COUPLED |
-+				 CPUIDLE_FLAG_RCU_IDLE,
- 			.enter = omap_enter_idle_coupled,
- 			.name = "C3",
- 			.desc = "CPUx OFF, MPUSS OSWR",
-@@ -282,7 +288,8 @@ static struct cpuidle_driver omap5_idle_
- 			/* C2 - CPU0 RET + CPU1 RET + MPU CSWR */
- 			.exit_latency = 48 + 60,
- 			.target_residency = 100,
--			.flags = CPUIDLE_FLAG_TIMER_STOP,
-+			.flags = CPUIDLE_FLAG_TIMER_STOP |
-+				 CPUIDLE_FLAG_RCU_IDLE,
- 			.enter = omap_enter_idle_smp,
- 			.name = "C2",
- 			.desc = "CPUx CSWR, MPUSS CSWR",
 
 
 _______________________________________________
