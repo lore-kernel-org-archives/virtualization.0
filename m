@@ -1,89 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08AB8C678D6
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0260EC54EBE
 	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A944360F49;
-	Thu, 12 Jan 2023 19:58:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A944360F49
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=EGHw1O+V
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7D313820B4;
+	Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7D313820B4
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=Zvs6hw3d
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id b9b31JPYh6f5; Thu, 12 Jan 2023 19:58:19 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PssWgfrj2W4H; Thu, 12 Jan 2023 19:58:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E38560F2F;
-	Thu, 12 Jan 2023 19:58:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E38560F2F
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AC060820B7;
+	Thu, 12 Jan 2023 19:58:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AC060820B7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B73DEC0084;
-	Thu, 12 Jan 2023 19:58:16 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 78713C0090;
+	Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0377DC0085
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 13FF9C0089
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:09 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 85D1E60EA0
+ by smtp3.osuosl.org (Postfix) with ESMTP id DAA3160EB3
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 85D1E60EA0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DAA3160EB3
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=Zvs6hw3d
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ErbK_cMjCN8b
+ with ESMTP id wgvw-pWDN5SW
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 897EA60E48
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 00E4A60EA7
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 897EA60E48
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 00E4A60EA7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:07 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=xUXFMmNjQb3UrGtSZK0a2nhjQSuKqnZvrBUrV/kGZ/M=; b=EGHw1O+VhpWPdN6gdRf/7GSjeB
- 0UpV5ZmI/qCVEO227xSy+GcxcSibZfsbDMVhfrklK7v8AyIqqIkF1gP/LgqbAi0mW/tE1qC+L2HXf
- XvBUyGgq1DaRfzAcG0kIhWQHmV+EHqARCQ0PI+HB0HkJFGK7wif5gXf8cwDpdM+B6kfu/O1OCdau2
- pSpg2AHgEP6HHM59oP5MZjnLVRtw+NHsWIOGgIai3wNHA4pOmXIQM+eJ6kD+gcxp4nDfUTp3XjBF5
- ju6vS//9JRlSRzSlmnzBFsdYZAx2plCN0CogGHUzlIGKzhmNE0tcF4m5z8v0nJtN+98R7CxLONDQE
- HdNpFULw==;
+ bh=dY+sZF8zXVTImEusizdFam+mvD2uBaZ1sCttd0zpvx8=; b=Zvs6hw3dC5vZ9/e3RVPulXa4vo
+ 0LGVycD5ek8na8AFjgsGQDoJWr/GILDhDZZRLr5jcFSKcCvqgSV1b0VFMw8bgB2ismeu3VWWkJ8fT
+ iOKXjPhSfP3BdrVt2KEx/AK1uUamJSxIAfVV8e3ZVtl5XXXBjts18yo5G52OU+rSmciaSR1qJTQOp
+ jrcY4VRNY3AgQZacZ+/mcgJwzOUsYcfiXdjCWRnrFGw8rdAFr9f26ET+gY1q1gut10GpU+iYN1B13
+ B3mDdBlf4EOS02q8DY62DSvt/0WRC0IcizLnoP75ZxAWdBkF7dWM1rEkjziDX2zFcPQkr7kw9pR2z
+ NdL9gE2Q==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3hK-0045pf-2r; Thu, 12 Jan 2023 19:57:25 +0000
+ id 1pG3hJ-0045pY-0x; Thu, 12 Jan 2023 19:57:21 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id ECA69303461;
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CAC91303456;
  Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 49A802CD0121F; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195541.721697850@infradead.org>
+ id 3A2002CCF62BF; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195541.477416709@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:53 +0100
+Date: Thu, 12 Jan 2023 20:43:49 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 39/51] arm,omap2: Use WFI for omap2_pm_idle()
+Subject: [PATCH v3 35/51] trace,hardirq: No moar _rcuidle() tracing
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
-Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
- nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-arch@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
- linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
+ linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com,
+ guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
+ linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
+ vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
+ christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
+ geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
  mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
  linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
  linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
@@ -144,98 +146,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-arch_cpu_idle() is a very simple idle interface and exposes only a
-single idle state and is expected to not require RCU and not do any
-tracing/instrumentation.
+Robot reported that trace_hardirqs_{on,off}() tickle the forbidden
+_rcuidle() tracepoint through local_irq_{en,dis}able().
 
-As such, omap2_pm_idle() is not a valid implementation. Replace it
-with a simple (shallow) omap2_do_wfi() call.
+For 'sane' configs, these calls will only happen with RCU enabled and
+as such can use the regular tracepoint. This also means it's possible
+to trace them from NMI context again.
 
-Omap2 doesn't have a cpuidle driver; but adding one would be the
-recourse to (re)gain the other idle states.
-
-Suggested-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- arch/arm/mach-omap2/pm24xx.c |   51 +------------------------------------------
- 1 file changed, 2 insertions(+), 49 deletions(-)
+ kernel/trace/trace_preemptirq.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/arch/arm/mach-omap2/pm24xx.c
-+++ b/arch/arm/mach-omap2/pm24xx.c
-@@ -116,50 +116,12 @@ static int omap2_enter_full_retention(vo
+--- a/kernel/trace/trace_preemptirq.c
++++ b/kernel/trace/trace_preemptirq.c
+@@ -20,6 +20,15 @@
+ static DEFINE_PER_CPU(int, tracing_irq_cpu);
  
- static int sti_console_enabled;
- 
--static int omap2_allow_mpu_retention(void)
--{
--	if (!omap2xxx_cm_mpu_retention_allowed())
--		return 0;
--	if (sti_console_enabled)
--		return 0;
--
--	return 1;
--}
--
--static void omap2_enter_mpu_retention(void)
-+static void omap2_do_wfi(void)
+ /*
++ * ...
++ */
++#ifdef CONFIG_ARCH_WANTS_NO_INSTR
++#define trace(point)	trace_##point
++#else
++#define trace(point)	if (!in_nmi()) trace_##point##_rcuidle
++#endif
++
++/*
+  * Like trace_hardirqs_on() but without the lockdep invocation. This is
+  * used in the low level entry code where the ordering vs. RCU is important
+  * and lockdep uses a staged approach which splits the lockdep hardirq
+@@ -28,8 +37,7 @@ static DEFINE_PER_CPU(int, tracing_irq_c
+ void trace_hardirqs_on_prepare(void)
  {
- 	const int zero = 0;
+ 	if (this_cpu_read(tracing_irq_cpu)) {
+-		if (!in_nmi())
+-			trace_irq_enable(CALLER_ADDR0, CALLER_ADDR1);
++		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
+ 		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
+ 		this_cpu_write(tracing_irq_cpu, 0);
+ 	}
+@@ -40,8 +48,7 @@ NOKPROBE_SYMBOL(trace_hardirqs_on_prepar
+ void trace_hardirqs_on(void)
+ {
+ 	if (this_cpu_read(tracing_irq_cpu)) {
+-		if (!in_nmi())
+-			trace_irq_enable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
++		trace(irq_enable)(CALLER_ADDR0, CALLER_ADDR1);
+ 		tracer_hardirqs_on(CALLER_ADDR0, CALLER_ADDR1);
+ 		this_cpu_write(tracing_irq_cpu, 0);
+ 	}
+@@ -63,8 +70,7 @@ void trace_hardirqs_off_finish(void)
+ 	if (!this_cpu_read(tracing_irq_cpu)) {
+ 		this_cpu_write(tracing_irq_cpu, 1);
+ 		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
+-		if (!in_nmi())
+-			trace_irq_disable(CALLER_ADDR0, CALLER_ADDR1);
++		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
+ 	}
  
--	/* The peripherals seem not to be able to wake up the MPU when
--	 * it is in retention mode. */
--	if (omap2_allow_mpu_retention()) {
--		/* REVISIT: These write to reserved bits? */
--		omap_prm_clear_mod_irqs(CORE_MOD, PM_WKST1, ~0);
--		omap_prm_clear_mod_irqs(CORE_MOD, OMAP24XX_PM_WKST2, ~0);
--		omap_prm_clear_mod_irqs(WKUP_MOD, PM_WKST, ~0);
--
--		/* Try to enter MPU retention */
--		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_RET);
--
--	} else {
--		/* Block MPU retention */
--		pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
--	}
--
- 	/* WFI */
- 	asm("mcr p15, 0, %0, c7, c0, 4" : : "r" (zero) : "memory", "cc");
--
--	pwrdm_set_next_pwrst(mpu_pwrdm, PWRDM_POWER_ON);
--}
--
--static int omap2_can_sleep(void)
--{
--	if (omap2xxx_cm_fclks_active())
--		return 0;
--	if (__clk_is_enabled(osc_ck))
--		return 0;
--
--	return 1;
  }
- 
- static void omap2_pm_idle(void)
-@@ -169,16 +131,7 @@ static void omap2_pm_idle(void)
- 	if (omap_irq_pending())
- 		return;
- 
--	error = cpu_cluster_pm_enter();
--	if (error || !omap2_can_sleep()) {
--		omap2_enter_mpu_retention();
--		goto out_cpu_cluster_pm;
--	}
--
--	omap2_enter_full_retention();
--
--out_cpu_cluster_pm:
--	cpu_cluster_pm_exit();
-+	omap2_do_wfi();
+@@ -78,8 +84,7 @@ void trace_hardirqs_off(void)
+ 	if (!this_cpu_read(tracing_irq_cpu)) {
+ 		this_cpu_write(tracing_irq_cpu, 1);
+ 		tracer_hardirqs_off(CALLER_ADDR0, CALLER_ADDR1);
+-		if (!in_nmi())
+-			trace_irq_disable_rcuidle(CALLER_ADDR0, CALLER_ADDR1);
++		trace(irq_disable)(CALLER_ADDR0, CALLER_ADDR1);
+ 	}
  }
- 
- static void __init prcm_setup_regs(void)
+ EXPORT_SYMBOL(trace_hardirqs_off);
 
 
 _______________________________________________
