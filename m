@@ -4,88 +4,89 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B0D2C678D7
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E2FCC677F1
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4641041163;
+	by smtp2.osuosl.org (Postfix) with ESMTP id AFBC4415A1;
 	Thu, 12 Jan 2023 19:58:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4641041163
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFBC4415A1
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=HX4zIGc7
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=CDjE30SH
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JaSc4umUhZJH; Thu, 12 Jan 2023 19:58:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 64EE0414EE;
-	Thu, 12 Jan 2023 19:58:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 64EE0414EE
+	with ESMTP id El8KpsPcw2jL; Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DB271411A6;
+	Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB271411A6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 46F6AC0080;
-	Thu, 12 Jan 2023 19:58:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 66C35C002D;
+	Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 53320C0090
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05DF6C0070
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1FA8882008
+ by smtp1.osuosl.org (Postfix) with ESMTP id 501D381FEA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1FA8882008
+ Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 501D381FEA
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=HX4zIGc7
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=CDjE30SH
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9gIiR4bgUPLx
+ with ESMTP id HB7gqZELYAqN
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7ACF58207C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D056981DF6
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7ACF58207C
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D056981DF6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
+ Thu, 12 Jan 2023 19:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=g+drg6uUsP6YHX5z1pA/AishyJbSIL0Ic60jCQj0FKI=; b=HX4zIGc7CNEnvS4rGn7W0D9vH+
- BqXSKBVzbOjdJmVjwKxM7CErrgFVSVz/1+bUhTtJLxqBqKUls/dfAKcxdlM/GqAKIZgPcyyvtiYC/
- xNsvs3jEkA3Tc7wTD9dKX7AqQVMoK3zZGnoIRVPe2/ByXxJkmUGz2mgC+xq8GzDIl2mMQh/SS0wBb
- n8VTeRISnPcLdiCi2mz8Xah5kZu27M2Y+yFi7mr7Ut1y4VkoQunAEfDpTHMkZnAblbze/EQp4/W3m
- gMbvO683icMip+ILGDnrJ2cs/cFkJS4BJyY9lEGJ3v9cTLztSTyffVlb60q8QCxYTmdvnOk8RO/+K
- ZD1kTYwg==;
+ bh=nPi2VaSnukDemWiv4/ra3+urtWJi7QCVP16nY4QbOXo=; b=CDjE30SHxh/MHeshq7LcxCyRnB
+ pAloIyE5xsjlMTbeKB6u/sxCgYnoL1p+OYgspBL5pFU5mK2BmQ486B/NcumbPG/RDRvRocqku+/+w
+ 9uMl5zfVPVAo7sN1COzJFktYLeZ5aZ36fFLW3kVxdMQ9rGWvI/TrmA4iM2REwC6E89NJG4BtwXdYh
+ Cf3lKWPZyztC126H0PkFylComcCFMahDJ0ywksznJkEyMohG+lfLKIpWv0CU/+S3YKvbiUVd/D8wg
+ UbT7ahOD8OTpISXQDxoK1saIUM6+KxGwdAqH9AqOxzOt3IA8iSNroHtgP/sEIC13R1sHdOMtNIcT9
+ tVhxTauA==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3ha-0045wt-0G; Thu, 12 Jan 2023 19:57:33 +0000
+ id 1pG3hG-0045oz-1Q; Thu, 12 Jan 2023 19:57:12 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 51C39300C50;
- Thu, 12 Jan 2023 20:57:14 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8DF5D303438;
+ Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 810012CD066F0; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195542.458034262@infradead.org>
+ id 156E92CCF62AD; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195540.927904612@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:44:05 +0100
+Date: Thu, 12 Jan 2023 20:43:40 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 51/51] context_tracking: Fix noinstr vs KASAN
+Subject: [PATCH v3 26/51] time/tick-broadcast: Remove RCU_NONIDLE usage
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com,
- guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
- linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
+ nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, linux-arch@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org,
+ mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
+ linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
  mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
  linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
  linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
@@ -146,67 +147,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vmlinux.o: warning: objtool: __ct_user_enter+0x72: call to __kasan_check_write() leaves .noinstr.text section
-vmlinux.o: warning: objtool: __ct_user_exit+0x47: call to __kasan_check_write() leaves .noinstr.text section
+No callers left that have already disabled RCU.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- kernel/context_tracking.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ kernel/time/tick-broadcast-hrtimer.c |   29 ++++++++++++-----------------
+ 1 file changed, 12 insertions(+), 17 deletions(-)
 
---- a/kernel/context_tracking.c
-+++ b/kernel/context_tracking.c
-@@ -510,7 +510,7 @@ void noinstr __ct_user_enter(enum ctx_st
- 			 * In this we case we don't care about any concurrency/ordering.
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE))
--				atomic_set(&ct->state, state);
-+				arch_atomic_set(&ct->state, state);
- 		} else {
- 			/*
- 			 * Even if context tracking is disabled on this CPU, because it's outside
-@@ -527,7 +527,7 @@ void noinstr __ct_user_enter(enum ctx_st
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE)) {
- 				/* Tracking for vtime only, no concurrent RCU EQS accounting */
--				atomic_set(&ct->state, state);
-+				arch_atomic_set(&ct->state, state);
- 			} else {
- 				/*
- 				 * Tracking for vtime and RCU EQS. Make sure we don't race
-@@ -535,7 +535,7 @@ void noinstr __ct_user_enter(enum ctx_st
- 				 * RCU only requires RCU_DYNTICKS_IDX increments to be fully
- 				 * ordered.
- 				 */
--				atomic_add(state, &ct->state);
-+				arch_atomic_add(state, &ct->state);
- 			}
- 		}
- 	}
-@@ -630,12 +630,12 @@ void noinstr __ct_user_exit(enum ctx_sta
- 			 * In this we case we don't care about any concurrency/ordering.
- 			 */
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE))
--				atomic_set(&ct->state, CONTEXT_KERNEL);
-+				arch_atomic_set(&ct->state, CONTEXT_KERNEL);
+--- a/kernel/time/tick-broadcast-hrtimer.c
++++ b/kernel/time/tick-broadcast-hrtimer.c
+@@ -56,25 +56,20 @@ static int bc_set_next(ktime_t expires,
+ 	 * hrtimer callback function is currently running, then
+ 	 * hrtimer_start() cannot move it and the timer stays on the CPU on
+ 	 * which it is assigned at the moment.
++	 */
++	hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
++	/*
++	 * The core tick broadcast mode expects bc->bound_on to be set
++	 * correctly to prevent a CPU which has the broadcast hrtimer
++	 * armed from going deep idle.
+ 	 *
+-	 * As this can be called from idle code, the hrtimer_start()
+-	 * invocation has to be wrapped with RCU_NONIDLE() as
+-	 * hrtimer_start() can call into tracing.
++	 * As tick_broadcast_lock is held, nothing can change the cpu
++	 * base which was just established in hrtimer_start() above. So
++	 * the below access is safe even without holding the hrtimer
++	 * base lock.
+ 	 */
+-	RCU_NONIDLE( {
+-		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
+-		/*
+-		 * The core tick broadcast mode expects bc->bound_on to be set
+-		 * correctly to prevent a CPU which has the broadcast hrtimer
+-		 * armed from going deep idle.
+-		 *
+-		 * As tick_broadcast_lock is held, nothing can change the cpu
+-		 * base which was just established in hrtimer_start() above. So
+-		 * the below access is safe even without holding the hrtimer
+-		 * base lock.
+-		 */
+-		bc->bound_on = bctimer.base->cpu_base->cpu;
+-	} );
++	bc->bound_on = bctimer.base->cpu_base->cpu;
++
+ 	return 0;
+ }
  
- 		} else {
- 			if (!IS_ENABLED(CONFIG_CONTEXT_TRACKING_IDLE)) {
- 				/* Tracking for vtime only, no concurrent RCU EQS accounting */
--				atomic_set(&ct->state, CONTEXT_KERNEL);
-+				arch_atomic_set(&ct->state, CONTEXT_KERNEL);
- 			} else {
- 				/*
- 				 * Tracking for vtime and RCU EQS. Make sure we don't race
-@@ -643,7 +643,7 @@ void noinstr __ct_user_exit(enum ctx_sta
- 				 * RCU only requires RCU_DYNTICKS_IDX increments to be fully
- 				 * ordered.
- 				 */
--				atomic_sub(state, &ct->state);
-+				arch_atomic_sub(state, &ct->state);
- 			}
- 		}
- 	}
 
 
 _______________________________________________
