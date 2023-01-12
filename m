@@ -4,86 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D8C1C7112F
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9D28EC54EBE
+	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5EAAE8201A;
-	Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EAAE8201A
+	by smtp1.osuosl.org (Postfix) with ESMTP id A7BAE820FF;
+	Thu, 12 Jan 2023 19:58:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A7BAE820FF
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=Qqod01hb
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=RaGKpqyq
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BdhSaYuSmmU3; Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
+	with ESMTP id HsY21HlrUCWp; Thu, 12 Jan 2023 19:58:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 119B681FBC;
-	Thu, 12 Jan 2023 19:58:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 119B681FBC
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E2B4081FE0;
+	Thu, 12 Jan 2023 19:58:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2B4081FE0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F5F6C0087;
-	Thu, 12 Jan 2023 19:58:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27450C0087
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 883C0C0083;
+	Thu, 12 Jan 2023 19:58:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 68FD4C0070
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:11 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 86BFA81E5D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 48F5D82000
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 86BFA81E5D
+ Thu, 12 Jan 2023 19:58:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48F5D82000
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Q0iOA6re6LxA
+ with ESMTP id FM_V2TaXmP0a
  for <virtualization@lists.linux-foundation.org>;
  Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0799782003
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0799782003
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A7FD081E5C
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A7FD081E5C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
+ Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=9z+4CWfQMO+ElFQ60iDcVJO2pPanU43MIsqpSKsLu08=; b=Qqod01hbcDRSoMsHp2FGB2yRt/
- 657wthIO1WvpTIc8UJxry1BepGtlDwE7epFhhEiyVvYd20FumrIlq3K+vaV0ZtQy7OHhU1Ha6Vy+d
- u0SWb3lIPqXVymeSnZvxVUtagcGxMJy0Xe74jYFZx3+0fLic59abuep7mI8xDIZhMBlZ3t6vzavRb
- Uv1EVPbqUKMaMYAg9feMtnwldJEBNOwkWJYHJ9H531eMj1aqNuc6W4X31PojT7WMjEw5m15cdtiiL
- lKCURu3mZO9ph5F7yR6vShuu1trhYOgXzpxqstDK3EURxd4NXPx8gIyyUp3NSoc32+cD1hUu18TSA
- o+sF+wjQ==;
+ bh=FFPKfQhi1RR6oz0II4O36iNGEMWuMWROzeT05TgEQqM=; b=RaGKpqyq/zK9SlNjTC2tjN4ED5
+ sTgPIaymFfkI7cWpVV179CKQcVzEOQRVhnIy+noiuqisc8Y3evgKJUiyplvjl1HbKExAwqR1L5cRI
+ cIpU16imzCqo4H4t8hHvrKs51Hazpcdis7GPW7WqWYyUnVJMo3glFbEV1YO1/KUq63xmw6zWRni8M
+ q+r+jmD1JPS2/5f1tzIob5VJVF1mYTI34eulJXL7stW6BbKeXceClpw/C7VJmcL8rerOH+EyeRXAA
+ pl/PB9yx4kOt4qfN/jVJ7FuSltcu2ISKODVX2TsZ0lYjwuJHXYkrRHUgz+IKATkftIztoqhxtkYgC
+ NhZ8/Vwg==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pG3hu-005P7h-G4; Thu, 12 Jan 2023 19:57:50 +0000
+ by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+ id 1pG3hK-0045pb-0L; Thu, 12 Jan 2023 19:57:25 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3736830347E;
- Thu, 12 Jan 2023 20:57:14 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E1DCA30345C;
+ Thu, 12 Jan 2023 20:57:13 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 725472CD066E4; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195542.274096325@infradead.org>
+ id 41DA72CD01200; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
+Message-ID: <20230112195541.599561742@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:44:02 +0100
+Date: Thu, 12 Jan 2023 20:43:51 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: peterz@infradead.org
-Subject: [PATCH v3 48/51] cpuidle,
- arch: Mark all ct_cpuidle_enter() callers __cpuidle
+Subject: [PATCH v3 37/51] cpuidle,omap3: Push RCU-idle into omap_sram_idle()
 References: <20230112194314.845371875@infradead.org>
 MIME-Version: 1.0
-Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
- linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com,
- guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
- linux-arch@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
- vincent.guittot@linaro.org, mpe@ellerman.id.au, chenhuacai@kernel.org,
- christophe.leroy@csgroup.eu, linux-acpi@vger.kernel.org, agross@kernel.org,
- geert@linux-m68k.org, linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
+Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
+ nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
+ agordeev@linux.ibm.com, linux-arch@vger.kernel.org,
+ linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org,
+ mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
+ linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
+ linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
  mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
  linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
  linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
@@ -144,231 +144,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-For all cpuidle drivers that use CPUIDLE_FLAG_RCU_IDLE, ensure that
-all functions that call ct_cpuidle_enter() are marked __cpuidle.
+OMAP3 uses full SoC suspend modes as idle states, as such it needs the
+whole power-domain and clock-domain code from the idle path.
 
-( due to lack of noinstr validation on these platforms it is entirely
-  possible this isn't complete )
+All that code is not suitable to run with RCU disabled, as such push
+RCU-idle deeper still.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Frederic Weisbecker <frederic@kernel.org>
+Tested-by: Tony Lindgren <tony@atomide.com>
+Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 ---
- arch/arm/mach-imx/cpuidle-imx6q.c         |    4 ++--
- arch/arm/mach-imx/cpuidle-imx6sx.c        |    4 ++--
- arch/arm/mach-omap2/omap-mpuss-lowpower.c |    4 ++--
- arch/arm/mach-omap2/pm34xx.c              |    2 +-
- arch/arm64/kernel/cpuidle.c               |    2 +-
- drivers/cpuidle/cpuidle-arm.c             |    4 ++--
- drivers/cpuidle/cpuidle-big_little.c      |    4 ++--
- drivers/cpuidle/cpuidle-mvebu-v7.c        |    6 +++---
- drivers/cpuidle/cpuidle-psci.c            |   17 ++++++-----------
- drivers/cpuidle/cpuidle-qcom-spm.c        |    4 ++--
- drivers/cpuidle/cpuidle-riscv-sbi.c       |   10 +++++-----
- drivers/cpuidle/cpuidle-tegra.c           |   10 +++++-----
- 12 files changed, 33 insertions(+), 38 deletions(-)
+ arch/arm/mach-omap2/cpuidle34xx.c |    4 +---
+ arch/arm/mach-omap2/pm.h          |    2 +-
+ arch/arm/mach-omap2/pm34xx.c      |   12 ++++++++++--
+ 3 files changed, 12 insertions(+), 6 deletions(-)
 
---- a/arch/arm/mach-imx/cpuidle-imx6q.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6q.c
-@@ -17,8 +17,8 @@
- static int num_idle_cpus = 0;
- static DEFINE_RAW_SPINLOCK(cpuidle_lock);
+--- a/arch/arm/mach-omap2/cpuidle34xx.c
++++ b/arch/arm/mach-omap2/cpuidle34xx.c
+@@ -133,9 +133,7 @@ static int omap3_enter_idle(struct cpuid
+ 	}
  
--static int imx6q_enter_wait(struct cpuidle_device *dev,
--			    struct cpuidle_driver *drv, int index)
-+static __cpuidle int imx6q_enter_wait(struct cpuidle_device *dev,
-+				      struct cpuidle_driver *drv, int index)
- {
- 	raw_spin_lock(&cpuidle_lock);
- 	if (++num_idle_cpus == num_online_cpus())
---- a/arch/arm/mach-imx/cpuidle-imx6sx.c
-+++ b/arch/arm/mach-imx/cpuidle-imx6sx.c
-@@ -30,8 +30,8 @@ static int imx6sx_idle_finish(unsigned l
- 	return 0;
- }
+ 	/* Execute ARM wfi */
+-	ct_cpuidle_enter();
+-	omap_sram_idle();
+-	ct_cpuidle_exit();
++	omap_sram_idle(true);
  
--static int imx6sx_enter_wait(struct cpuidle_device *dev,
--			    struct cpuidle_driver *drv, int index)
-+static __cpuidle int imx6sx_enter_wait(struct cpuidle_device *dev,
-+				       struct cpuidle_driver *drv, int index)
- {
- 	imx6_set_lpm(WAIT_UNCLOCKED);
+ 	/*
+ 	 * Call idle CPU PM enter notifier chain to restore
+--- a/arch/arm/mach-omap2/pm.h
++++ b/arch/arm/mach-omap2/pm.h
+@@ -29,7 +29,7 @@ static inline int omap4_idle_init(void)
  
---- a/arch/arm/mach-omap2/omap-mpuss-lowpower.c
-+++ b/arch/arm/mach-omap2/omap-mpuss-lowpower.c
-@@ -224,8 +224,8 @@ static void __init save_l2x0_context(voi
-  *	2 - CPUx L1 and logic lost + GIC lost: MPUSS OSWR
-  *	3 - CPUx L1 and logic lost + GIC + L2 lost: DEVICE OFF
-  */
--int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state,
--			 bool rcuidle)
-+__cpuidle int omap4_enter_lowpower(unsigned int cpu, unsigned int power_state,
-+				   bool rcuidle)
- {
- 	struct omap4_cpu_pm_info *pm_info = &per_cpu(omap4_pm_info, cpu);
- 	unsigned int save_state = 0, cpu_logic_state = PWRDM_POWER_RET;
+ extern void *omap3_secure_ram_storage;
+ extern void omap3_pm_off_mode_enable(int);
+-extern void omap_sram_idle(void);
++extern void omap_sram_idle(bool rcuidle);
+ extern int omap_pm_clkdms_setup(struct clockdomain *clkdm, void *unused);
+ 
+ #if defined(CONFIG_PM_OPP)
 --- a/arch/arm/mach-omap2/pm34xx.c
 +++ b/arch/arm/mach-omap2/pm34xx.c
-@@ -175,7 +175,7 @@ static int omap34xx_do_sram_idle(unsigne
+@@ -26,6 +26,7 @@
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/of.h>
++#include <linux/cpuidle.h>
+ 
+ #include <trace/events/power.h>
+ 
+@@ -174,7 +175,7 @@ static int omap34xx_do_sram_idle(unsigne
  	return 0;
  }
  
--void omap_sram_idle(bool rcuidle)
-+__cpuidle void omap_sram_idle(bool rcuidle)
+-void omap_sram_idle(void)
++void omap_sram_idle(bool rcuidle)
  {
  	/* Variable to tell what needs to be saved and restored
  	 * in omap_sram_idle*/
---- a/arch/arm64/kernel/cpuidle.c
-+++ b/arch/arm64/kernel/cpuidle.c
-@@ -62,7 +62,7 @@ int acpi_processor_ffh_lpi_probe(unsigne
- 	return psci_acpi_cpu_init_idle(cpu);
- }
+@@ -254,11 +255,18 @@ void omap_sram_idle(void)
+ 	 */
+ 	if (save_state)
+ 		omap34xx_save_context(omap3_arm_context);
++
++	if (rcuidle)
++		ct_cpuidle_enter();
++
+ 	if (save_state == 1 || save_state == 3)
+ 		cpu_suspend(save_state, omap34xx_do_sram_idle);
+ 	else
+ 		omap34xx_do_sram_idle(save_state);
  
--int acpi_processor_ffh_lpi_enter(struct acpi_lpi_state *lpi)
-+__cpuidle int acpi_processor_ffh_lpi_enter(struct acpi_lpi_state *lpi)
- {
- 	u32 state = lpi->address;
++	if (rcuidle)
++		ct_cpuidle_exit();
++
+ 	/* Restore normal SDRC POWER settings */
+ 	if (cpu_is_omap3430() && omap_rev() >= OMAP3430_REV_ES3_0 &&
+ 	    (omap_type() == OMAP2_DEVICE_TYPE_EMU ||
+@@ -316,7 +324,7 @@ static int omap3_pm_suspend(void)
  
---- a/drivers/cpuidle/cpuidle-arm.c
-+++ b/drivers/cpuidle/cpuidle-arm.c
-@@ -31,8 +31,8 @@
-  * Called from the CPUidle framework to program the device to the
-  * specified target state selected by the governor.
-  */
--static int arm_enter_idle_state(struct cpuidle_device *dev,
--				struct cpuidle_driver *drv, int idx)
-+static __cpuidle int arm_enter_idle_state(struct cpuidle_device *dev,
-+					  struct cpuidle_driver *drv, int idx)
- {
- 	/*
- 	 * Pass idle state index to arm_cpuidle_suspend which in turn
---- a/drivers/cpuidle/cpuidle-big_little.c
-+++ b/drivers/cpuidle/cpuidle-big_little.c
-@@ -122,8 +122,8 @@ static int notrace bl_powerdown_finisher
-  * Called from the CPUidle framework to program the device to the
-  * specified target state selected by the governor.
-  */
--static int bl_enter_powerdown(struct cpuidle_device *dev,
--				struct cpuidle_driver *drv, int idx)
-+static __cpuidle int bl_enter_powerdown(struct cpuidle_device *dev,
-+					struct cpuidle_driver *drv, int idx)
- {
- 	cpu_pm_enter();
- 	ct_cpuidle_enter();
---- a/drivers/cpuidle/cpuidle-mvebu-v7.c
-+++ b/drivers/cpuidle/cpuidle-mvebu-v7.c
-@@ -25,9 +25,9 @@
+ 	omap3_intc_suspend();
  
- static int (*mvebu_v7_cpu_suspend)(int);
+-	omap_sram_idle();
++	omap_sram_idle(false);
  
--static int mvebu_v7_enter_idle(struct cpuidle_device *dev,
--				struct cpuidle_driver *drv,
--				int index)
-+static __cpuidle int mvebu_v7_enter_idle(struct cpuidle_device *dev,
-+					 struct cpuidle_driver *drv,
-+					 int index)
- {
- 	int ret;
- 	bool deepidle = false;
---- a/drivers/cpuidle/cpuidle-psci.c
-+++ b/drivers/cpuidle/cpuidle-psci.c
-@@ -49,14 +49,9 @@ static inline u32 psci_get_domain_state(
- 	return __this_cpu_read(domain_state);
- }
- 
--static inline int psci_enter_state(int idx, u32 state)
--{
--	return CPU_PM_CPU_IDLE_ENTER_PARAM(psci_cpu_suspend_enter, idx, state);
--}
--
--static int __psci_enter_domain_idle_state(struct cpuidle_device *dev,
--					  struct cpuidle_driver *drv, int idx,
--					  bool s2idle)
-+static __cpuidle int __psci_enter_domain_idle_state(struct cpuidle_device *dev,
-+						    struct cpuidle_driver *drv, int idx,
-+						    bool s2idle)
- {
- 	struct psci_cpuidle_data *data = this_cpu_ptr(&psci_cpuidle_data);
- 	u32 *states = data->psci_states;
-@@ -192,12 +187,12 @@ static void psci_idle_init_cpuhp(void)
- 		pr_warn("Failed %d while setup cpuhp state\n", err);
- }
- 
--static int psci_enter_idle_state(struct cpuidle_device *dev,
--				struct cpuidle_driver *drv, int idx)
-+static __cpuidle int psci_enter_idle_state(struct cpuidle_device *dev,
-+					   struct cpuidle_driver *drv, int idx)
- {
- 	u32 *state = __this_cpu_read(psci_cpuidle_data.psci_states);
- 
--	return psci_enter_state(idx, state[idx]);
-+	return CPU_PM_CPU_IDLE_ENTER_PARAM(psci_cpu_suspend_enter, idx, state[idx]);
- }
- 
- static const struct of_device_id psci_idle_state_match[] = {
---- a/drivers/cpuidle/cpuidle-qcom-spm.c
-+++ b/drivers/cpuidle/cpuidle-qcom-spm.c
-@@ -58,8 +58,8 @@ static int qcom_cpu_spc(struct spm_drive
- 	return ret;
- }
- 
--static int spm_enter_idle_state(struct cpuidle_device *dev,
--				struct cpuidle_driver *drv, int idx)
-+static __cpuidle int spm_enter_idle_state(struct cpuidle_device *dev,
-+					  struct cpuidle_driver *drv, int idx)
- {
- 	struct cpuidle_qcom_spm_data *data = container_of(drv, struct cpuidle_qcom_spm_data,
- 							  cpuidle_driver);
---- a/drivers/cpuidle/cpuidle-riscv-sbi.c
-+++ b/drivers/cpuidle/cpuidle-riscv-sbi.c
-@@ -93,8 +93,8 @@ static int sbi_suspend(u32 state)
- 		return sbi_suspend_finisher(state, 0, 0);
- }
- 
--static int sbi_cpuidle_enter_state(struct cpuidle_device *dev,
--				   struct cpuidle_driver *drv, int idx)
-+static __cpuidle int sbi_cpuidle_enter_state(struct cpuidle_device *dev,
-+					     struct cpuidle_driver *drv, int idx)
- {
- 	u32 *states = __this_cpu_read(sbi_cpuidle_data.states);
- 	u32 state = states[idx];
-@@ -106,9 +106,9 @@ static int sbi_cpuidle_enter_state(struc
- 							     idx, state);
- }
- 
--static int __sbi_enter_domain_idle_state(struct cpuidle_device *dev,
--					  struct cpuidle_driver *drv, int idx,
--					  bool s2idle)
-+static __cpuidle int __sbi_enter_domain_idle_state(struct cpuidle_device *dev,
-+						   struct cpuidle_driver *drv, int idx,
-+						   bool s2idle)
- {
- 	struct sbi_cpuidle_data *data = this_cpu_ptr(&sbi_cpuidle_data);
- 	u32 *states = data->states;
---- a/drivers/cpuidle/cpuidle-tegra.c
-+++ b/drivers/cpuidle/cpuidle-tegra.c
-@@ -160,8 +160,8 @@ static int tegra_cpuidle_coupled_barrier
- 	return 0;
- }
- 
--static int tegra_cpuidle_state_enter(struct cpuidle_device *dev,
--				     int index, unsigned int cpu)
-+static __cpuidle int tegra_cpuidle_state_enter(struct cpuidle_device *dev,
-+					       int index, unsigned int cpu)
- {
- 	int err;
- 
-@@ -226,9 +226,9 @@ static int tegra_cpuidle_adjust_state_in
- 	return index;
- }
- 
--static int tegra_cpuidle_enter(struct cpuidle_device *dev,
--			       struct cpuidle_driver *drv,
--			       int index)
-+static __cpuidle int tegra_cpuidle_enter(struct cpuidle_device *dev,
-+					 struct cpuidle_driver *drv,
-+					 int index)
- {
- 	bool do_rcu = drv->states[index].flags & CPUIDLE_FLAG_RCU_IDLE;
- 	unsigned int cpu = cpu_logical_map(dev->cpu);
+ restore:
+ 	/* Restore next_pwrsts */
 
 
 _______________________________________________
