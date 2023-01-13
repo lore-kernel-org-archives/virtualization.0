@@ -1,104 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 699F4C54EBD
-	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 03:41:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77E66C54EBE
+	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 10:01:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D5DCE40227;
-	Fri, 13 Jan 2023 03:41:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D5DCE40227
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=an8w9fMc
+	by smtp1.osuosl.org (Postfix) with ESMTP id E2B7581F8A;
+	Fri, 13 Jan 2023 10:01:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2B7581F8A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W9uzagLs
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cMfd3Q2BGoDV; Fri, 13 Jan 2023 03:41:13 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4Hfe8b4PSubg; Fri, 13 Jan 2023 10:01:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5B92F4012D;
-	Fri, 13 Jan 2023 03:41:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B92F4012D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6E5EB820EE;
+	Fri, 13 Jan 2023 10:01:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6E5EB820EE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AA31C0033;
-	Fri, 13 Jan 2023 03:41:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83AC5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 47552C0032;
+	Fri, 13 Jan 2023 10:01:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF03BC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 03:41:10 +0000 (UTC)
+ Fri, 13 Jan 2023 10:01:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5634760BB0
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8C00060E35
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 03:41:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5634760BB0
+ Fri, 13 Jan 2023 10:01:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C00060E35
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=an8w9fMc
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=W9uzagLs
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id H20IXk5Cxf2y
+ with ESMTP id pDsWz1nmvDh1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 03:41:09 +0000 (UTC)
+ Fri, 13 Jan 2023 10:01:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 78BD460B51
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D859960B8C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 78BD460B51
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D859960B8C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 03:41:09 +0000 (UTC)
+ Fri, 13 Jan 2023 10:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1673581268;
+ s=mimecast20190719; t=1673604079;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=iQ8wi4Br7uO3KhWWeSVPWRGqxXRNQdNc7vx+DzPAcvk=;
- b=an8w9fMcWDDcvviD6PBsl8YEI7bIobYt83J4dLXZM/D5pD6ldn4RnVu0oIVJVz9KT8bMnm
- LPsk98qO7kyt9uFZhl3AX0jO+DJFUEhkEaiubLxfNW7KJxShB0L6ZTNiwfWSXflbH+Fb0N
- zufF0WX6+1nnoNTbVpabLuv9JasMw9o=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=EczEE9EexjVmlZw39NUVKXIGqT7ZbUsB1oWT/kRdJFY=;
+ b=W9uzagLs2sFeOMBAIOnbJOHlNsBLM7N8ZO6EP2QWrhkO/z8jnj6S25EN4KOX+Q9lnesgG6
+ Tq7PaA/OnrjsJpSE5awVxqCfvxPlIq7kJrDlQO4qlQgb5RjiudBDah5q2MvxepjY83GhkA
+ BqbGNW87gcx7bsg0f78cUhPtJFc7TQY=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-628-PnOllV4nMeCank2pOc56AA-1; Thu, 12 Jan 2023 22:41:06 -0500
-X-MC-Unique: PnOllV4nMeCank2pOc56AA-1
-Received: by mail-ot1-f70.google.com with SMTP id
- e8-20020a9d63c8000000b006704cedcfe2so10077593otl.19
+ us-mta-653-OsRro8V6PJy32vnz67EyCg-1; Fri, 13 Jan 2023 05:01:18 -0500
+X-MC-Unique: OsRro8V6PJy32vnz67EyCg-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ d27-20020adfa35b000000b002bc813ba677so2923409wrb.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:41:06 -0800 (PST)
+ Fri, 13 Jan 2023 02:01:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=iQ8wi4Br7uO3KhWWeSVPWRGqxXRNQdNc7vx+DzPAcvk=;
- b=DZa13Gy4ay5A37HGP7G91a8EFPuuf/9rEmP9mPK8YxE3fhykvx4zGPhiFeecPRD2n+
- CTAmVXCbBsbDY4owdhjkWf4UdLexew9ZNm7sf+a4Wu8ITTOUOmhcjT57DjqH7ts1mRv8
- OpUWR4T69wBPi4ElJHyfJ+/gQpu5/dxUlKszGHnuGwocG501gzBnC4Vnx7mLCmA3qjF3
- xkq+fjYqEcjuhOLLXISmIYkPDlz3DUHvu4Xves7qWmDwKxv38NuckV+MWkjQtLd0FVeD
- 83v6tXvb+8Jz03hEuGSI56/RtemVJNKfQsP0/UAHRNBhv8SVmi1AI5KbpuFybRvHBrFW
- UASA==
-X-Gm-Message-State: AFqh2kpBNqijM2puQGFlkzcDXAvxUkaiembL15k4QnaBliSuh4/9BoYm
- KFMhdf5bpr5cBjxHzm2ypu9G58kbhsyNP/tQBDnqt3n/MHFqdOmCbxEzjMDEMtaXwDDzDpuUxIS
- Z8hH4uW05/UD8kHxOa9w8QpCDdxBuUm8OoLDxSSQxAc6LXH15GpeyjktrBg==
-X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
- u19-20020a056870441300b00144a97b1ae2mr4410758oah.35.1673581265476; 
- Thu, 12 Jan 2023 19:41:05 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXsF+gJUbjz/TTiPs9CWR0x7xWMlld1YGa7Vm9251XsEtRPdbMJjqMpS4KIad2giINIz1682V0KhtLR/ewFMee4=
-X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
- u19-20020a056870441300b00144a97b1ae2mr4410753oah.35.1673581265229; Thu, 12
- Jan 2023 19:41:05 -0800 (PST)
-MIME-Version: 1.0
-References: <cover.1672742878.git.sebastien.boeuf@intel.com>
- <15a4566826033c5dd9a2167e5cfb0ef4d90cea49.1672742878.git.sebastien.boeuf@intel.com>
-In-Reply-To: <15a4566826033c5dd9a2167e5cfb0ef4d90cea49.1672742878.git.sebastien.boeuf@intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 13 Jan 2023 11:40:54 +0800
-Message-ID: <CACGkMEueTbLbxtZCBXC3jyqn40nqU4ODgAfzG=GzOLeMjnNwPg@mail.gmail.com>
-Subject: Re: [PATCH v6 4/4] vdpa_sim: Implement resume vdpa op
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=EczEE9EexjVmlZw39NUVKXIGqT7ZbUsB1oWT/kRdJFY=;
+ b=vR7BDJuvfa2bab9QmDpAvnHZ3HJxsKZUiceZrcfSSGxcpOQeA3kC2ac1QW/xQugoPC
+ AQeGJGP/WP2mW4BZ+f4iVIczIa4wbOxGHxlhzo9nluSx+w1yT0kAXc5Rt8n84qV33Piq
+ OgCmJxVW+OFZOoHA7NE2EOCaVN6GUMK4PWJ3Gvdg+8tgvZpp25Oc3J//bmHaJyGmg9RM
+ UIWkDhLA1D8AUuMil8RI/RgWlJy3lvkhlnW55j3nm2M4/N/39hu8MvsAG6dtzrMcwr0I
+ 0Ug9f1+Fq99PnDW2S+shQ/xyPrMeiPrXKg3IqmVHWMP7o27TwWH+so9HLAN2HRJaA9/r
+ y0Fg==
+X-Gm-Message-State: AFqh2ko323KvA1Jx3gNAede7ECHqADa2UKzmcF6abEpQg0CgvYvQeyly
+ KvoTa5ZO+34ZrIj210er4c44A3MqmeDHqv5xz/iBplrkn40w0/tif29JCVDsGbzIsObNP9zSJSD
+ AfxjX581OkB9prZos5pwYirwfVWHuhco0nlG34A5iuw==
+X-Received: by 2002:a5d:640d:0:b0:2bd:e5d5:78ca with SMTP id
+ z13-20020a5d640d000000b002bde5d578camr437849wru.26.1673604077138; 
+ Fri, 13 Jan 2023 02:01:17 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXusl9tAUcjB8IanuOa9qP/xbsfov7bLo4IM93BQPLAyHtEc1TcEnk77dREtGbmxr3vg/WJRxw==
+X-Received: by 2002:a5d:640d:0:b0:2bd:e5d5:78ca with SMTP id
+ z13-20020a5d640d000000b002bde5d578camr437833wru.26.1673604076912; 
+ Fri, 13 Jan 2023 02:01:16 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-244.retail.telecomitalia.it.
+ [79.46.200.244]) by smtp.gmail.com with ESMTPSA id
+ j14-20020adff00e000000b0024cb961b6aesm18126891wro.104.2023.01.13.02.01.15
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 13 Jan 2023 02:01:16 -0800 (PST)
+Date: Fri, 13 Jan 2023 11:01:13 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
 To: sebastien.boeuf@intel.com
+Subject: Re: [PATCH v6 1/4] vdpa: Add resume operation
+Message-ID: <20230113100113.cdnkwrbqkktp3gnc@sgarzare-redhat>
+References: <cover.1672742878.git.sebastien.boeuf@intel.com>
+ <6e05c4b31b47f3e29cb2bd7ebd56c81f84b8f48a.1672742878.git.sebastien.boeuf@intel.com>
+MIME-Version: 1.0
+In-Reply-To: <6e05c4b31b47f3e29cb2bd7ebd56c81f84b8f48a.1672742878.git.sebastien.boeuf@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: eperezma@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -112,117 +118,69 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 3, 2023 at 6:51 PM <sebastien.boeuf@intel.com> wrote:
+On Tue, Jan 03, 2023 at 11:51:05AM +0100, sebastien.boeuf@intel.com wrote:
+>From: Sebastien Boeuf <sebastien.boeuf@intel.com>
 >
-> From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>Add a new operation to allow a vDPA device to be resumed after it has
+>been suspended. Trying to resume a device that wasn't suspended will
+>result in a no-op.
 >
-> Implement resume operation for vdpa_sim devices, so vhost-vdpa will
-> offer that backend feature and userspace can effectively resume the
-> device.
+>This operation is optional. If it's not implemented, the associated
+>backend feature bit will not be exposed. And if the feature bit is not
+>exposed, invoking this operation will return an error.
 >
-> Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>Acked-by: Jason Wang <jasowang@redhat.com>
+>Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>---
+> include/linux/vdpa.h | 6 +++++-
+> 1 file changed, 5 insertions(+), 1 deletion(-)
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Thanks
-
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 29 +++++++++++++++++++++++++++++
->  drivers/vdpa/vdpa_sim/vdpa_sim.h |  1 +
->  2 files changed, 30 insertions(+)
 >
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index b071f0d842fb..756a5db0109c 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -357,6 +357,12 @@ static void vdpasim_kick_vq(struct vdpa_device *vdpa, u16 idx)
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->         struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+>diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+>index 6d0f5e4e82c2..96d308cbf97b 100644
+>--- a/include/linux/vdpa.h
+>+++ b/include/linux/vdpa.h
+>@@ -219,7 +219,10 @@ struct vdpa_map_file {
+>  * @reset:			Reset device
+>  *				@vdev: vdpa device
+>  *				Returns integer: success (0) or error (< 0)
+>- * @suspend:			Suspend or resume the device (optional)
+>+ * @suspend:			Suspend the device (optional)
+>+ *				@vdev: vdpa device
+>+ *				Returns integer: success (0) or error (< 0)
+>+ * @resume:			Resume the device (optional)
+>  *				@vdev: vdpa device
+>  *				Returns integer: success (0) or error (< 0)
+>  * @get_config_size:		Get the size of the configuration space includes
+>@@ -324,6 +327,7 @@ struct vdpa_config_ops {
+> 	void (*set_status)(struct vdpa_device *vdev, u8 status);
+> 	int (*reset)(struct vdpa_device *vdev);
+> 	int (*suspend)(struct vdpa_device *vdev);
+>+	int (*resume)(struct vdpa_device *vdev);
+> 	size_t (*get_config_size)(struct vdpa_device *vdev);
+> 	void (*get_config)(struct vdpa_device *vdev, unsigned int offset,
+> 			   void *buf, unsigned int len);
+>-- 
+>2.37.2
 >
-> +       if (!vdpasim->running &&
-> +           (vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-> +               vdpasim->pending_kick = true;
-> +               return;
-> +       }
-> +
->         if (vq->ready)
->                 schedule_work(&vdpasim->work);
->  }
-> @@ -527,6 +533,27 @@ static int vdpasim_suspend(struct vdpa_device *vdpa)
->         return 0;
->  }
+>---------------------------------------------------------------------
+>Intel Corporation SAS (French simplified joint stock company)
+>Registered headquarters: "Les Montalets"- 2, rue de Paris,
+>92196 Meudon Cedex, France
+>Registration Number:  302 456 199 R.C.S. NANTERRE
+>Capital: 5 208 026.16 Euros
 >
-> +static int vdpasim_resume(struct vdpa_device *vdpa)
-> +{
-> +       struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-> +       int i;
-> +
-> +       spin_lock(&vdpasim->lock);
-> +       vdpasim->running = true;
-> +
-> +       if (vdpasim->pending_kick) {
-> +               /* Process pending descriptors */
-> +               for (i = 0; i < vdpasim->dev_attr.nvqs; ++i)
-> +                       vdpasim_kick_vq(vdpa, i);
-> +
-> +               vdpasim->pending_kick = false;
-> +       }
-> +
-> +       spin_unlock(&vdpasim->lock);
-> +
-> +       return 0;
-> +}
-> +
->  static size_t vdpasim_get_config_size(struct vdpa_device *vdpa)
->  {
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-> @@ -717,6 +744,7 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
->         .set_status             = vdpasim_set_status,
->         .reset                  = vdpasim_reset,
->         .suspend                = vdpasim_suspend,
-> +       .resume                 = vdpasim_resume,
->         .get_config_size        = vdpasim_get_config_size,
->         .get_config             = vdpasim_get_config,
->         .set_config             = vdpasim_set_config,
-> @@ -750,6 +778,7 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
->         .set_status             = vdpasim_set_status,
->         .reset                  = vdpasim_reset,
->         .suspend                = vdpasim_suspend,
-> +       .resume                 = vdpasim_resume,
->         .get_config_size        = vdpasim_get_config_size,
->         .get_config             = vdpasim_get_config,
->         .set_config             = vdpasim_set_config,
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> index 0e78737dcc16..a745605589e2 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> @@ -67,6 +67,7 @@ struct vdpasim {
->         u64 features;
->         u32 groups;
->         bool running;
-> +       bool pending_kick;
->         /* spinlock to synchronize iommu table */
->         spinlock_t iommu_lock;
->  };
-> --
-> 2.37.2
->
-> ---------------------------------------------------------------------
-> Intel Corporation SAS (French simplified joint stock company)
-> Registered headquarters: "Les Montalets"- 2, rue de Paris,
-> 92196 Meudon Cedex, France
-> Registration Number:  302 456 199 R.C.S. NANTERRE
-> Capital: 5 208 026.16 Euros
->
-> This e-mail and any attachments may contain confidential material for
-> the sole use of the intended recipient(s). Any review or distribution
-> by others is strictly prohibited. If you are not the intended
-> recipient, please contact the sender and delete all copies.
+>This e-mail and any attachments may contain confidential material for
+>the sole use of the intended recipient(s). Any review or distribution
+>by others is strictly prohibited. If you are not the intended
+>recipient, please contact the sender and delete all copies.
 >
 
 _______________________________________________
