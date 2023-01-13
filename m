@@ -1,132 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1817C677F1
-	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 22:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23DB7C6379F
+	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 23:24:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 77F3761159;
-	Fri, 13 Jan 2023 22:37:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77F3761159
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=k786YXip
+	by smtp4.osuosl.org (Postfix) with ESMTP id A1171417DC;
+	Fri, 13 Jan 2023 23:24:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1171417DC
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=UGm5XVLZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1O_ffE226jKY; Fri, 13 Jan 2023 22:37:04 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q_Unjw-NV-xx; Fri, 13 Jan 2023 23:24:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 01EAD60A93;
-	Fri, 13 Jan 2023 22:37:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 01EAD60A93
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D83FF415E2;
+	Fri, 13 Jan 2023 23:24:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D83FF415E2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DFFCAC0033;
-	Fri, 13 Jan 2023 22:37:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6171AC0033
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92350C0032;
+	Fri, 13 Jan 2023 23:24:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1E4B9C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 22:37:00 +0000 (UTC)
+ Fri, 13 Jan 2023 23:24:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2E040404F1
+ by smtp1.osuosl.org (Postfix) with ESMTP id D994C81FB7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 22:37:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E040404F1
-Authentication-Results: smtp2.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=k786YXip
+ Fri, 13 Jan 2023 23:24:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D994C81FB7
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=UGm5XVLZ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id u1RMb0Vr4oQ3
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3QOH4dsq8oVd
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 22:36:59 +0000 (UTC)
+ Fri, 13 Jan 2023 23:24:18 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F1D0400C8
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on2050.outbound.protection.outlook.com [40.107.101.50])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 0F1D0400C8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 235A281F02
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com
+ [IPv6:2607:f8b0:4864:20::432])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 235A281F02
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 22:36:58 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=euHYenux/x9w6pTas6jjp1W+mEj4ZPVXC4/Qwg58EdF2dV0U6zmj8GKn4KyttZHPhFuay1I/WqWeUjWTn5iE4D2y4UGtWJU7E5gQltAL0io2wW+TBJUn7GqE6uarGroyR6z+bYy2cnne8QAdjH/WpxWBVofB0Y8aUbQqyl9E1emWTkiWqO61BBdAd3ZFcKrIAkN42bM/mgehKXnZbNmKeL7wncNZeneoraKVOXErcl85dVUU2oDvbGPRAk8iQsAH3/ymVkEXlvkBz4ciPjSxwBTdTlWRIV+PyMBmdXEA4letoQk33SfNIrluXMdIvbP3iQ9JBXAoEX55imYGyYhJXw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fs8cexyEPQtXe/Wqt6dzVZq7uTF0aQLnToWno15hkGs=;
- b=K0FVWDGljnHDhgTlpdKD+YD7NQmzlvglCwRzI4NOACPhA+mS5M5bcRD7LXV3VS7Jruz+Chvyy16zqeiHmdDYkO0OtLRpol1KA7lD/RyJcyAMkM0RWu0xXV2xU9a1kQcNJLHYEIwreAxXzTyEKnrcGdO+1RdpqHhPjo/xYJNAvofJ3o4BTpxBZdiOXsjEB6lriJPchLqL91PoPoXxpjfnoqBpoemJ/iICqEw1h2KnyJNCIxu9JgVRaXWc1P0tBCf4XBPg+IyFh0fj7E/jzzhRw+YeGOgIzKRshnqE76FIedNR6lTLkzU7TMOTM9V1NPGOMm+CYlY/moS80NdnPevZ/w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fs8cexyEPQtXe/Wqt6dzVZq7uTF0aQLnToWno15hkGs=;
- b=k786YXipiebdNoBTZG62Sa0hUqWJyc2xQe3M4UinrQQIenpSxWNe7zaElGvmJ7eZOF/Gw9LF3rasg9LGX4Cp8d5hWrS5hzQshIytFhb2TQnrXRWAbpmuEwZ9bnpbgNV/WdrFhhxvd0SCOBDECl3J8oJ62gaKtddgKpJHHGvbYeV3uXtO29otpTy9w4vBNjlCU9AMoSnlGKUf9LRLodnk5xzoft75Xd6ERheBf8RGak3MEFrtqN7qgQ+6UU30dSQU6mGyArLa0pMSA4w0I1UENh6sAxeslFjw0kOX81WHM9mcNsr87SbqxVHxYekwod46f/3s/o4LwkrChwIMUNMqBA==
-Received: from BN0PR04CA0172.namprd04.prod.outlook.com (2603:10b6:408:eb::27)
- by DS0PR12MB7745.namprd12.prod.outlook.com (2603:10b6:8:130::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.18; Fri, 13 Jan
- 2023 22:36:57 +0000
-Received: from BN8NAM11FT057.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:eb:cafe::c7) by BN0PR04CA0172.outlook.office365.com
- (2603:10b6:408:eb::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.16 via Frontend
- Transport; Fri, 13 Jan 2023 22:36:56 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com;
- dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- BN8NAM11FT057.mail.protection.outlook.com (10.13.177.49) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6002.13 via Frontend Transport; Fri, 13 Jan 2023 22:36:56 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Fri, 13 Jan
- 2023 14:36:43 -0800
-Received: from sw-mtx-036.mtx.labs.mlnx (10.126.230.37) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.36; Fri, 13 Jan 2023 14:36:41 -0800
-To: <mst@redhat.com>, <jasowang@redhat.com>, <netdev@vger.kernel.org>,
- <davem@davemloft.net>, <kuba@kernel.org>
-Subject: [PATCH net-next 2/2] virtio_net: Reuse buffer free function
-Date: Sat, 14 Jan 2023 00:36:19 +0200
-Message-ID: <20230113223619.162405-3-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20230113223619.162405-1-parav@nvidia.com>
+ Fri, 13 Jan 2023 23:24:18 +0000 (UTC)
+Received: by mail-pf1-x432.google.com with SMTP id s3so14741773pfd.12
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 13 Jan 2023 15:24:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:user-agent:content-transfer-encoding:references
+ :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+ :date:message-id:reply-to;
+ bh=FNBX4IUuGCsk3iScEzWUZQTuYhBGbsHeymdyFMhVUUo=;
+ b=UGm5XVLZ/Pf8mEHaqhlTVc3mvoLqx4t5aN0Wq+EvFeDu4Ou3DksaHCq7Xqnlg+tssg
+ 4Op9MTtWSCHUqbsMVchfpEiR+Wyy4OuwH2SLwpXFMArzD0NdBM5znXELBDVhrsb4TfZi
+ ea1zK0tu8FHtrdqaKd+QsMwx8eFMe7/tZPIsY5C1iedYStuFXaMQQ0D7VXzh0NxRP4KY
+ 33w0BLROdaySpI6EBCG34nzgD+Ae6gAB1ORh3waKXitbQry6FVCTl8IvP9yml1+Olxt3
+ zjKBAE/UzhKowPcL6KkcffuMCK1XdIQH4WSIGJ2uJuVFrc5tbYN7QDEiePkrMAbMivK2
+ dJeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=mime-version:user-agent:content-transfer-encoding:references
+ :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=FNBX4IUuGCsk3iScEzWUZQTuYhBGbsHeymdyFMhVUUo=;
+ b=TNFN5hcC8AUur2sDsRGfmtlBncaG42hxiN5aIu5Oqhhu3h1nOc++Xi/xWEHGQxTq5D
+ leuGIwjplRW5xgT9kQAvkfe8NXGAOOEqv2GLlfKcXLVkF85C5T56EQHnkrXb3/SXiQ2u
+ 39QB0cbUgQ0vl/lY855RljCBb1DV8kaVqHu4GWv68k6XwUOtVE0P2RFl5khOLQYYXE/a
+ Jz8awGbFWF3RYdTN7tiYzHa2k0jCoNnUVxHCfx2IsbtrAZxpvqmCVbg/uYQqE45YECx7
+ Hm19c32W1oOXux4VsKbwUOeDcxHvEFO6ZbsgKVA4WcoaMi6WAgazj7sMiV3VfSk7Apes
+ +rjA==
+X-Gm-Message-State: AFqh2kqVHzPI+1UukfGmVJb6ncBhBklIfm9SLRdCdcavq3wS0hKtxYCm
+ eumjMOgmKBsvL5szSqaDejg=
+X-Google-Smtp-Source: AMrXdXuHNLwKi8xWKTozMMZzYnETcsNN3hEIwBwD19VFIxtKaNulpVxuR8G0u7nnncfhnRzChZEApA==
+X-Received: by 2002:aa7:9143:0:b0:580:cfbd:3fd3 with SMTP id
+ 3-20020aa79143000000b00580cfbd3fd3mr76390862pfi.26.1673652257329; 
+ Fri, 13 Jan 2023 15:24:17 -0800 (PST)
+Received: from [192.168.0.128] ([98.97.117.20])
+ by smtp.googlemail.com with ESMTPSA id
+ n125-20020a622783000000b00582cb9deb5asm14602446pfn.176.2023.01.13.15.24.16
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 13 Jan 2023 15:24:16 -0800 (PST)
+Message-ID: <92b98f45dcd65facac78133c6250d9d96ea1a25f.camel@gmail.com>
+Subject: Re: [PATCH net-next 1/2] virtio_net: Fix short frame length check
+From: Alexander H Duyck <alexander.duyck@gmail.com>
+To: Parav Pandit <parav@nvidia.com>, mst@redhat.com, jasowang@redhat.com, 
+ netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
+Date: Fri, 13 Jan 2023 15:24:15 -0800
+In-Reply-To: <20230113223619.162405-2-parav@nvidia.com>
 References: <20230113223619.162405-1-parav@nvidia.com>
+ <20230113223619.162405-2-parav@nvidia.com>
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
-X-Originating-IP: [10.126.230.37]
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8NAM11FT057:EE_|DS0PR12MB7745:EE_
-X-MS-Office365-Filtering-Correlation-Id: d399f21b-bcfc-4c71-62f1-08daf5b6ad60
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: X2DVKPyGPdCGSiql2j8m7AVOThJskJ8K2DVAzL9+HBsO0buHSu5g3Cq2e4Heg8AIKUSxyU8Oxn9reIEgTuqFBWyGaYZkeekXuBrXRSqXxjxznLIu9tj4OEydxUyU2/6g3OhZV7+53i/Ol3K5slOo8fhiKOSv06gKgDli710qTIiy/AdvJeY+F6V/HmVgTdvKJvSvJ9+e1iINz4eORjYF3BcWC10vSHRX34Mi4rLCJIKy73DhHgpxigefKt72I9K7+eadx5wYmPASYLG43oJ+8SkWyMvFdPQSJBwTV8g8gY7doCbta1uOLCIGERYBPvLLSMpPeOJVI/+9dPYOpP7YQun5Y3cNxzsiVJlJZNINZCzLEfHAtygTxg9b45o8Q7ejmtU7yDkcB7jwNk9u9aW1s4WVuTYI6CWlBffmFRyxq/qWDo8eTEJw4mqdC16ygSgkV9uhH2hwWHGqjWOMulf7nO3DTYS7qbewRuhxmkj2NWTaQlyPwae69ZSdfmsRDe5JKZ/zRSBAh02pegtdlGWrCM9t24psDtyIOk1tOegvo5i4n5H+MmX2QvbjDTvtUDaTpTk19r1s8NOzlHTIV+5dFqfpDIh9ogTncqOpH2GlR17cirE+dLb8jf4bIuVu3GDJYK4Khhcb2D5FhhKyvu/JLlLjPaL9/Uu2qALRT0TgY89j6QcPkoT1GFnOCoNtc2zV/GGO0R5Qs95Z2jL9Q88Y3g==
-X-Forefront-Antispam-Report: CIP:216.228.117.161; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge2.nvidia.com; CAT:NONE;
- SFS:(13230022)(4636009)(136003)(396003)(346002)(376002)(39860400002)(451199015)(40470700004)(46966006)(36840700001)(82740400003)(7636003)(36860700001)(4744005)(54906003)(356005)(70206006)(6666004)(86362001)(8676002)(70586007)(41300700001)(110136005)(40460700003)(40480700001)(83380400001)(5660300002)(107886003)(8936002)(16526019)(1076003)(336012)(316002)(2616005)(2906002)(47076005)(26005)(82310400005)(186003)(478600001)(426003)(4326008)(36756003);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jan 2023 22:36:56.5943 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: d399f21b-bcfc-4c71-62f1-08daf5b6ad60
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.161];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT057.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7745
 Cc: edumazet@google.com, pabeni@redhat.com,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -140,44 +109,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtnet_rq_free_unused_buf() helper function to free the buffer
-already exists. Avoid code duplication by reusing existing function.
+On Sat, 2023-01-14 at 00:36 +0200, Parav Pandit wrote:
+> A smallest Ethernet frame defined by IEEE 802.3 is 60 bytes without any
+> preemble and CRC.
+> 
+> Current code only checks for minimal 14 bytes of Ethernet header length.
+> Correct it to consider the minimum Ethernet frame length.
+> 
+> Fixes: 296f96fcfc16 ("Net driver using virtio")
+> Signed-off-by: Parav Pandit <parav@nvidia.com>
+> ---
+>  drivers/net/virtio_net.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7723b2a49d8e..d45e140b6852 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1248,7 +1248,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>  	struct sk_buff *skb;
+>  	struct virtio_net_hdr_mrg_rxbuf *hdr;
+>  
+> -	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+> +	if (unlikely(len < vi->hdr_len + ETH_ZLEN)) {
+>  		pr_debug("%s: short packet %i\n", dev->name, len);
+>  		dev->stats.rx_length_errors++;
+>  		if (vi->mergeable_rx_bufs) {
 
-Signed-off-by: Parav Pandit <parav@nvidia.com>
----
- drivers/net/virtio_net.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+I'm not sure I agree with this change as packets are only 60B if they
+have gone across the wire as they are usually padded out on the
+transmit side. There may be cases where software routed packets may not
+be 60B.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d45e140b6852..c1faaf11fbcd 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1251,13 +1251,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
- 	if (unlikely(len < vi->hdr_len + ETH_ZLEN)) {
- 		pr_debug("%s: short packet %i\n", dev->name, len);
- 		dev->stats.rx_length_errors++;
--		if (vi->mergeable_rx_bufs) {
--			put_page(virt_to_head_page(buf));
--		} else if (vi->big_packets) {
--			give_pages(rq, buf);
--		} else {
--			put_page(virt_to_head_page(buf));
--		}
-+		virtnet_rq_free_unused_buf(rq->vq, buf);
- 		return;
- 	}
- 
--- 
-2.26.2
-
+As such rather than changing out ETH_HLEN for ETH_ZLEN I wonder if we
+should look at maybe making this a "<=" comparison instead since that
+is the only case I can think of where the packet would end up being
+entirely empty after eth_type_trans is called and we would be passing
+an skb with length 0.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
