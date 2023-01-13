@@ -4,133 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E2FCC677F1
-	for <virtualization@archiver.kernel.org>; Thu, 12 Jan 2023 19:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 699F4C54EBD
+	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 03:41:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AFBC4415A1;
-	Thu, 12 Jan 2023 19:58:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFBC4415A1
+	by smtp2.osuosl.org (Postfix) with ESMTP id D5DCE40227;
+	Fri, 13 Jan 2023 03:41:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D5DCE40227
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=CDjE30SH
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=an8w9fMc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id El8KpsPcw2jL; Thu, 12 Jan 2023 19:58:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DB271411A6;
-	Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB271411A6
+	with ESMTP id cMfd3Q2BGoDV; Fri, 13 Jan 2023 03:41:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5B92F4012D;
+	Fri, 13 Jan 2023 03:41:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B92F4012D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 66C35C002D;
-	Thu, 12 Jan 2023 19:58:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 05DF6C0070
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AA31C0033;
+	Fri, 13 Jan 2023 03:41:12 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 83AC5C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:08 +0000 (UTC)
+ Fri, 13 Jan 2023 03:41:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 501D381FEA
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5634760BB0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 501D381FEA
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=CDjE30SH
+ Fri, 13 Jan 2023 03:41:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5634760BB0
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=an8w9fMc
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HB7gqZELYAqN
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id H20IXk5Cxf2y
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:58:02 +0000 (UTC)
+ Fri, 13 Jan 2023 03:41:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D056981DF6
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D056981DF6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 78BD460B51
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 78BD460B51
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Jan 2023 19:57:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
- Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
- Content-ID:Content-Description:In-Reply-To;
- bh=nPi2VaSnukDemWiv4/ra3+urtWJi7QCVP16nY4QbOXo=; b=CDjE30SHxh/MHeshq7LcxCyRnB
- pAloIyE5xsjlMTbeKB6u/sxCgYnoL1p+OYgspBL5pFU5mK2BmQ486B/NcumbPG/RDRvRocqku+/+w
- 9uMl5zfVPVAo7sN1COzJFktYLeZ5aZ36fFLW3kVxdMQ9rGWvI/TrmA4iM2REwC6E89NJG4BtwXdYh
- Cf3lKWPZyztC126H0PkFylComcCFMahDJ0ywksznJkEyMohG+lfLKIpWv0CU/+S3YKvbiUVd/D8wg
- UbT7ahOD8OTpISXQDxoK1saIUM6+KxGwdAqH9AqOxzOt3IA8iSNroHtgP/sEIC13R1sHdOMtNIcT9
- tVhxTauA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pG3hG-0045oz-1Q; Thu, 12 Jan 2023 19:57:12 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 8DF5D303438;
- Thu, 12 Jan 2023 20:57:13 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 156E92CCF62AD; Thu, 12 Jan 2023 20:57:08 +0100 (CET)
-Message-ID: <20230112195540.927904612@infradead.org>
-User-Agent: quilt/0.66
-Date: Thu, 12 Jan 2023 20:43:40 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: peterz@infradead.org
-Subject: [PATCH v3 26/51] time/tick-broadcast: Remove RCU_NONIDLE usage
-References: <20230112194314.845371875@infradead.org>
+ Fri, 13 Jan 2023 03:41:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1673581268;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=iQ8wi4Br7uO3KhWWeSVPWRGqxXRNQdNc7vx+DzPAcvk=;
+ b=an8w9fMcWDDcvviD6PBsl8YEI7bIobYt83J4dLXZM/D5pD6ldn4RnVu0oIVJVz9KT8bMnm
+ LPsk98qO7kyt9uFZhl3AX0jO+DJFUEhkEaiubLxfNW7KJxShB0L6ZTNiwfWSXflbH+Fb0N
+ zufF0WX6+1nnoNTbVpabLuv9JasMw9o=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-628-PnOllV4nMeCank2pOc56AA-1; Thu, 12 Jan 2023 22:41:06 -0500
+X-MC-Unique: PnOllV4nMeCank2pOc56AA-1
+Received: by mail-ot1-f70.google.com with SMTP id
+ e8-20020a9d63c8000000b006704cedcfe2so10077593otl.19
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Jan 2023 19:41:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=iQ8wi4Br7uO3KhWWeSVPWRGqxXRNQdNc7vx+DzPAcvk=;
+ b=DZa13Gy4ay5A37HGP7G91a8EFPuuf/9rEmP9mPK8YxE3fhykvx4zGPhiFeecPRD2n+
+ CTAmVXCbBsbDY4owdhjkWf4UdLexew9ZNm7sf+a4Wu8ITTOUOmhcjT57DjqH7ts1mRv8
+ OpUWR4T69wBPi4ElJHyfJ+/gQpu5/dxUlKszGHnuGwocG501gzBnC4Vnx7mLCmA3qjF3
+ xkq+fjYqEcjuhOLLXISmIYkPDlz3DUHvu4Xves7qWmDwKxv38NuckV+MWkjQtLd0FVeD
+ 83v6tXvb+8Jz03hEuGSI56/RtemVJNKfQsP0/UAHRNBhv8SVmi1AI5KbpuFybRvHBrFW
+ UASA==
+X-Gm-Message-State: AFqh2kpBNqijM2puQGFlkzcDXAvxUkaiembL15k4QnaBliSuh4/9BoYm
+ KFMhdf5bpr5cBjxHzm2ypu9G58kbhsyNP/tQBDnqt3n/MHFqdOmCbxEzjMDEMtaXwDDzDpuUxIS
+ Z8hH4uW05/UD8kHxOa9w8QpCDdxBuUm8OoLDxSSQxAc6LXH15GpeyjktrBg==
+X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
+ u19-20020a056870441300b00144a97b1ae2mr4410758oah.35.1673581265476; 
+ Thu, 12 Jan 2023 19:41:05 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsF+gJUbjz/TTiPs9CWR0x7xWMlld1YGa7Vm9251XsEtRPdbMJjqMpS4KIad2giINIz1682V0KhtLR/ewFMee4=
+X-Received: by 2002:a05:6870:4413:b0:144:a97b:1ae2 with SMTP id
+ u19-20020a056870441300b00144a97b1ae2mr4410753oah.35.1673581265229; Thu, 12
+ Jan 2023 19:41:05 -0800 (PST)
 MIME-Version: 1.0
-Cc: juri.lelli@redhat.com, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- rafael@kernel.org, catalin.marinas@arm.com, linus.walleij@linaro.org,
- nsekhar@ti.com, bsegall@google.com, guoren@kernel.org, pavel@ucw.cz,
- agordeev@linux.ibm.com, linux-arch@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, vincent.guittot@linaro.org,
- mpe@ellerman.id.au, chenhuacai@kernel.org, christophe.leroy@csgroup.eu,
- linux-acpi@vger.kernel.org, agross@kernel.org, geert@linux-m68k.org,
- linux-imx@nxp.com, vgupta@kernel.org, mattst88@gmail.com,
- mturquette@baylibre.com, sammy@sammy.net, pmladek@suse.com,
- linux-pm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
- linux-um@lists.infradead.org, npiggin@gmail.com, tglx@linutronix.de,
- linux-omap@vger.kernel.org, dietmar.eggemann@arm.com, andreyknvl@gmail.com,
- gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
- svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linux-trace-kernel@vger.kernel.org,
- mark.rutland@arm.com, linux-ia64@vger.kernel.org, alim.akhtar@samsung.com,
- dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
- James.Bottomley@HansenPartnership.com, jcmvbkbc@gmail.com,
- thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
- linux-s390@vger.kernel.org, vschneid@redhat.com, john.ogness@linutronix.de,
- ysato@users.sourceforge.jp, linux-sh@vger.kernel.org, will@kernel.org,
- brgl@bgdev.pl, daniel.lezcano@linaro.org, jonathanh@nvidia.com,
- dennis@kernel.org, frederic@kernel.org, lenb@kernel.org,
- linux-xtensa@linux-xtensa.org, kernel@pengutronix.de, gor@linux.ibm.com,
- linux-arm-msm@vger.kernel.org, linux-alpha@vger.kernel.org,
- linux-m68k@lists.linux-m68k.org, loongarch@lists.linux.dev, shorne@gmail.com,
- chris@zankel.net, sboyd@kernel.org, dinguyen@kernel.org, bristot@redhat.com,
- alexander.shishkin@linux.intel.com, lpieralisi@kernel.org,
- atishp@atishpatra.org, linux@rasmusvillemoes.dk, kasan-dev@googlegroups.com,
- festevam@gmail.com, boris.ostrovsky@oracle.com, khilman@kernel.org,
- linux-csky@vger.kernel.org, pv-drivers@vmware.com,
- linux-snps-arc@lists.infradead.org, mgorman@suse.de,
- jacob.jun.pan@linux.intel.com, Arnd Bergmann <arnd@arndb.de>,
- ulli.kroll@googlemail.com, linux-clk@vger.kernel.org, rostedt@goodmis.org,
- ink@jurassic.park.msu.ru, bcain@quicinc.com, tsbogend@alpha.franken.de,
- linux-parisc@vger.kernel.org, konrad.dybcio@linaro.org, ryabinin.a.a@gmail.com,
- sudeep.holla@arm.com, shawnguo@kernel.org, davem@davemloft.net,
- dalias@libc.org, tony@atomide.com, amakhalov@vmware.com, linux-mm@kvack.org,
- glider@google.com, hpa@zytor.com, sparclinux@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
- vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
- yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, mhiramat@kernel.org, aou@eecs.berkeley.edu,
- paulmck@kernel.org, hca@linux.ibm.com, richard.henderson@linaro.org,
- stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
- acme@kernel.org, paul.walmsley@sifive.com, linux-tegra@vger.kernel.org,
- namhyung@kernel.org, andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org,
- dvyukov@google.com, jgross@suse.com, monstr@monstr.eu, andersson@kernel.org,
- linux-mips@vger.kernel.org, krzysztof.kozlowski@linaro.org, palmer@dabbelt.com,
- anup@brainfault.org, bp@alien8.de, johannes@sipsolutions.net,
- linuxppc-dev@lists.ozlabs.org, deller@gmx.de
+References: <cover.1672742878.git.sebastien.boeuf@intel.com>
+ <15a4566826033c5dd9a2167e5cfb0ef4d90cea49.1672742878.git.sebastien.boeuf@intel.com>
+In-Reply-To: <15a4566826033c5dd9a2167e5cfb0ef4d90cea49.1672742878.git.sebastien.boeuf@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Jan 2023 11:40:54 +0800
+Message-ID: <CACGkMEueTbLbxtZCBXC3jyqn40nqU4ODgAfzG=GzOLeMjnNwPg@mail.gmail.com>
+Subject: Re: [PATCH v6 4/4] vdpa_sim: Implement resume vdpa op
+To: sebastien.boeuf@intel.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: eperezma@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -147,59 +117,113 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-No callers left that have already disabled RCU.
+On Tue, Jan 3, 2023 at 6:51 PM <sebastien.boeuf@intel.com> wrote:
+>
+> From: Sebastien Boeuf <sebastien.boeuf@intel.com>
+>
+> Implement resume operation for vdpa_sim devices, so vhost-vdpa will
+> offer that backend feature and userspace can effectively resume the
+> device.
+>
+> Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Frederic Weisbecker <frederic@kernel.org>
-Tested-by: Tony Lindgren <tony@atomide.com>
-Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
----
- kernel/time/tick-broadcast-hrtimer.c |   29 ++++++++++++-----------------
- 1 file changed, 12 insertions(+), 17 deletions(-)
+Acked-by: Jason Wang <jasowang@redhat.com>
 
---- a/kernel/time/tick-broadcast-hrtimer.c
-+++ b/kernel/time/tick-broadcast-hrtimer.c
-@@ -56,25 +56,20 @@ static int bc_set_next(ktime_t expires,
- 	 * hrtimer callback function is currently running, then
- 	 * hrtimer_start() cannot move it and the timer stays on the CPU on
- 	 * which it is assigned at the moment.
-+	 */
-+	hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
-+	/*
-+	 * The core tick broadcast mode expects bc->bound_on to be set
-+	 * correctly to prevent a CPU which has the broadcast hrtimer
-+	 * armed from going deep idle.
- 	 *
--	 * As this can be called from idle code, the hrtimer_start()
--	 * invocation has to be wrapped with RCU_NONIDLE() as
--	 * hrtimer_start() can call into tracing.
-+	 * As tick_broadcast_lock is held, nothing can change the cpu
-+	 * base which was just established in hrtimer_start() above. So
-+	 * the below access is safe even without holding the hrtimer
-+	 * base lock.
- 	 */
--	RCU_NONIDLE( {
--		hrtimer_start(&bctimer, expires, HRTIMER_MODE_ABS_PINNED_HARD);
--		/*
--		 * The core tick broadcast mode expects bc->bound_on to be set
--		 * correctly to prevent a CPU which has the broadcast hrtimer
--		 * armed from going deep idle.
--		 *
--		 * As tick_broadcast_lock is held, nothing can change the cpu
--		 * base which was just established in hrtimer_start() above. So
--		 * the below access is safe even without holding the hrtimer
--		 * base lock.
--		 */
--		bc->bound_on = bctimer.base->cpu_base->cpu;
--	} );
-+	bc->bound_on = bctimer.base->cpu_base->cpu;
-+
- 	return 0;
- }
- 
+Thanks
 
+> ---
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 29 +++++++++++++++++++++++++++++
+>  drivers/vdpa/vdpa_sim/vdpa_sim.h |  1 +
+>  2 files changed, 30 insertions(+)
+>
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> index b071f0d842fb..756a5db0109c 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+> @@ -357,6 +357,12 @@ static void vdpasim_kick_vq(struct vdpa_device *vdpa, u16 idx)
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>         struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+>
+> +       if (!vdpasim->running &&
+> +           (vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK)) {
+> +               vdpasim->pending_kick = true;
+> +               return;
+> +       }
+> +
+>         if (vq->ready)
+>                 schedule_work(&vdpasim->work);
+>  }
+> @@ -527,6 +533,27 @@ static int vdpasim_suspend(struct vdpa_device *vdpa)
+>         return 0;
+>  }
+>
+> +static int vdpasim_resume(struct vdpa_device *vdpa)
+> +{
+> +       struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+> +       int i;
+> +
+> +       spin_lock(&vdpasim->lock);
+> +       vdpasim->running = true;
+> +
+> +       if (vdpasim->pending_kick) {
+> +               /* Process pending descriptors */
+> +               for (i = 0; i < vdpasim->dev_attr.nvqs; ++i)
+> +                       vdpasim_kick_vq(vdpa, i);
+> +
+> +               vdpasim->pending_kick = false;
+> +       }
+> +
+> +       spin_unlock(&vdpasim->lock);
+> +
+> +       return 0;
+> +}
+> +
+>  static size_t vdpasim_get_config_size(struct vdpa_device *vdpa)
+>  {
+>         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+> @@ -717,6 +744,7 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
+>         .set_status             = vdpasim_set_status,
+>         .reset                  = vdpasim_reset,
+>         .suspend                = vdpasim_suspend,
+> +       .resume                 = vdpasim_resume,
+>         .get_config_size        = vdpasim_get_config_size,
+>         .get_config             = vdpasim_get_config,
+>         .set_config             = vdpasim_set_config,
+> @@ -750,6 +778,7 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
+>         .set_status             = vdpasim_set_status,
+>         .reset                  = vdpasim_reset,
+>         .suspend                = vdpasim_suspend,
+> +       .resume                 = vdpasim_resume,
+>         .get_config_size        = vdpasim_get_config_size,
+>         .get_config             = vdpasim_get_config,
+>         .set_config             = vdpasim_set_config,
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> index 0e78737dcc16..a745605589e2 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+> @@ -67,6 +67,7 @@ struct vdpasim {
+>         u64 features;
+>         u32 groups;
+>         bool running;
+> +       bool pending_kick;
+>         /* spinlock to synchronize iommu table */
+>         spinlock_t iommu_lock;
+>  };
+> --
+> 2.37.2
+>
+> ---------------------------------------------------------------------
+> Intel Corporation SAS (French simplified joint stock company)
+> Registered headquarters: "Les Montalets"- 2, rue de Paris,
+> 92196 Meudon Cedex, France
+> Registration Number:  302 456 199 R.C.S. NANTERRE
+> Capital: 5 208 026.16 Euros
+>
+> This e-mail and any attachments may contain confidential material for
+> the sole use of the intended recipient(s). Any review or distribution
+> by others is strictly prohibited. If you are not the intended
+> recipient, please contact the sender and delete all copies.
+>
 
 _______________________________________________
 Virtualization mailing list
