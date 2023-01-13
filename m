@@ -1,107 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7EC5C61DB3
-	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 10:11:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58C7EC54EBD
+	for <virtualization@archiver.kernel.org>; Fri, 13 Jan 2023 10:13:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3C89D60E35;
-	Fri, 13 Jan 2023 10:11:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C89D60E35
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QJkxFkjB
+	by smtp2.osuosl.org (Postfix) with ESMTP id E2FF240989;
+	Fri, 13 Jan 2023 10:13:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E2FF240989
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G/ns3D6D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UXe2s7aYWoIu; Fri, 13 Jan 2023 10:11:55 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id e8g04eq1znEx; Fri, 13 Jan 2023 10:13:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C86C660E81;
-	Fri, 13 Jan 2023 10:11:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C86C660E81
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 660DA40122;
+	Fri, 13 Jan 2023 10:13:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 660DA40122
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 929A2C0033;
-	Fri, 13 Jan 2023 10:11:54 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BFA5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 34BCEC0033;
+	Fri, 13 Jan 2023 10:13:55 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5ACEAC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 10:11:53 +0000 (UTC)
+ Fri, 13 Jan 2023 10:13:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D8EF54189F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 294BA40329
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 10:11:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8EF54189F
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QJkxFkjB
+ Fri, 13 Jan 2023 10:13:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 294BA40329
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id N2DXoZVp7_6F
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BcM67aqEfth2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 10:11:51 +0000 (UTC)
+ Fri, 13 Jan 2023 10:13:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C03B94174F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 69D6340122
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C03B94174F
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 69D6340122
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 10:11:51 +0000 (UTC)
+ Fri, 13 Jan 2023 10:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1673604710;
+ s=mimecast20190719; t=1673604831;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=S39Zw03yvzjBBH5aDpSObn8T87QjmStZQxn222GBMhw=;
- b=QJkxFkjBxMsPL53ctYN1jZVBF+o39dCaFz87SbCBN8hm9ETOfCbWT9tY4xeI8UR6oTYTNP
- ZpZXCbIThmHenXT0EWNQZf3iWQtCt9rJcTPZG5+E466FreIEVwjNFUzv1fNjU3mvpMXoKe
- tbRiCSLDIKT5sonawT0q4u7P0Nn4fyA=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=WlHJzmQ1+H/v9mU7ZLQBlLH1lOk+ivZJgLlR3gMZhkM=;
+ b=G/ns3D6Dd4JJ22/lb2bfv/S5KrSdOfLLrbf9a+qljR2Ew1gqYK27Wnni6hN8JwbzfDB9lO
+ g7a8Ppi4NnfkJotSyk0oLcF0L3S9p7BNKTJdvKm0Hl1EK9s73lT9auNyktHseW3y+ZjN7S
+ P6K5gOmz/NRhwLF5pLvxgCn/EMYD9kA=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-139-US44zFFcNJqvbfIiRn9PEA-1; Fri, 13 Jan 2023 05:11:49 -0500
-X-MC-Unique: US44zFFcNJqvbfIiRn9PEA-1
-Received: by mail-qv1-f69.google.com with SMTP id
- pm24-20020ad446d8000000b0053233e46a00so6582701qvb.23
+ us-mta-586-SMKZD-6TMpKJoFHWIOi1WQ-1; Fri, 13 Jan 2023 05:13:50 -0500
+X-MC-Unique: SMKZD-6TMpKJoFHWIOi1WQ-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ k7-20020ac84747000000b003a87ca26200so10088386qtp.6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Jan 2023 02:11:49 -0800 (PST)
+ Fri, 13 Jan 2023 02:13:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=S39Zw03yvzjBBH5aDpSObn8T87QjmStZQxn222GBMhw=;
- b=Q/ls7uR2g21Umw5CF+1bmuzqk+O1LSwlhbbBxXoUNgBqyr8zTYSSC3IdRG7pKcx009
- +FWBYQi4tvB67r4PpRxKt1zjZaFyJNHa1kfMFIPx8LL/8n7E6rRKdzq/7WW48t7FW6bv
- JtU5mq5YLQsUUsbA/iu4oKVnomHRfw2P9Z61Xv8joSVH9LqW8+3BdlZsIdPAxXVzUmJ3
- HLlbaEfLEFVgZn63vvyL3gls0Qc8ZrFLT6j5KLSlcD6Y2rgUQVkZoB0cOr51jMVgFSnk
- G3hBEoAzavxKit29TR4h1e5EmF7WvVz/qA5XOZMKsCGops6WDP+G5EkUTmWSK2qyPPUd
- jgWA==
-X-Gm-Message-State: AFqh2kqg1iiRRZ1tr3jgXyOBICVsCZ5w+5CxDiGVo/A1BV6Ek1C1Sb0O
- CMBNewv3bMVqKddk6MFcPejbj+yh8UYV1EWwjIYqf3QtXFCLKvl3c4EkLLACjIODi8nP5aX9h9W
- Xdk9zAp0hfcHOd/wPEBsvmor1uX6gxHhWCQ8UKWVjFQ==
-X-Received: by 2002:ad4:4249:0:b0:534:885f:f274 with SMTP id
- l9-20020ad44249000000b00534885ff274mr1614780qvq.40.1673604709220; 
- Fri, 13 Jan 2023 02:11:49 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXvGdzUjqzPGXTMJcXuUWT/fHuKd0p3YOc9smghZW9uBWvNKHGCowxFZEyIpOn10KyCEVrDWQg==
-X-Received: by 2002:ad4:4249:0:b0:534:885f:f274 with SMTP id
- l9-20020ad44249000000b00534885ff274mr1614759qvq.40.1673604708895; 
- Fri, 13 Jan 2023 02:11:48 -0800 (PST)
+ bh=WlHJzmQ1+H/v9mU7ZLQBlLH1lOk+ivZJgLlR3gMZhkM=;
+ b=JuzdlwwEsiKt4l+5oJmkIVgjFCBgZ8XmeX/SJUQlzfUE8yrS2fhnxujvi/Dozwrpq+
+ B8sQuwq1IOmis+1o8+hh8C+30L2gsLevg4kq/eHtlgdiaBlQ2RcxD9Jgq3Lcsmxs8uhV
+ qI30KUcBUZjUgG4WKlbKGs1MzpgSNkguvXcYziimjP4Zb462tj9+A12dXsLU9mMjDhTv
+ 1UqeNCjO5BeUpoN36zstxZvhJgCqPodwPndZ0+F7WDjRpTYts1POBoHwi9cAIOGwqtHB
+ /nDUEQOkqKQlKsk/2cd34I96Bd2T2CiWFaueI223vG3uHmHooIzl75l1reHmbYhEfZua
+ llIw==
+X-Gm-Message-State: AFqh2kooCyQoLI3Sgw9HMcqON7YnDAr+cdjFR3LgYmR1Vzij9xb/jJI3
+ bFZVMUjxOUgQchfmZPYGurPJgWMwdp+vQhCQUKMHYSDHLYF30f/bVDtg9k1TEyuALbNgdttFxHr
+ fkRvaT3D9ADiDQar9gLCRZpW8BHqZW9aR/hJZMqUDlw==
+X-Received: by 2002:a05:6214:5c87:b0:530:49c2:a82d with SMTP id
+ lj7-20020a0562145c8700b0053049c2a82dmr97518494qvb.47.1673604829680; 
+ Fri, 13 Jan 2023 02:13:49 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXvW8LW/MTzlkSFCBwiM31B2B/W/aTzZ6RhChRcNkBcPtF1PUsu1l8favYt1sP1xW1ztjc74lg==
+X-Received: by 2002:a05:6214:5c87:b0:530:49c2:a82d with SMTP id
+ lj7-20020a0562145c8700b0053049c2a82dmr97518473qvb.47.1673604829411; 
+ Fri, 13 Jan 2023 02:13:49 -0800 (PST)
 Received: from sgarzare-redhat (host-79-46-200-244.retail.telecomitalia.it.
  [79.46.200.244]) by smtp.gmail.com with ESMTPSA id
- u15-20020a05620a454f00b006ce76811a07sm12622741qkp.75.2023.01.13.02.11.47
+ bi1-20020a05620a318100b006fb0e638f12sm12442370qkb.4.2023.01.13.02.13.47
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 13 Jan 2023 02:11:48 -0800 (PST)
-Date: Fri, 13 Jan 2023 11:11:44 +0100
+ Fri, 13 Jan 2023 02:13:49 -0800 (PST)
+Date: Fri, 13 Jan 2023 11:13:45 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: sebastien.boeuf@intel.com
-Subject: Re: [PATCH v6 2/4] vhost-vdpa: Introduce RESUME backend feature bit
-Message-ID: <20230113101144.xibw6z55g4cmvjvh@sgarzare-redhat>
+Subject: Re: [PATCH v6 3/4] vhost-vdpa: uAPI to resume the device
+Message-ID: <20230113101345.j7s7ecn2sozkd44s@sgarzare-redhat>
 References: <cover.1672742878.git.sebastien.boeuf@intel.com>
- <b18db236ba3d990cdb41278eb4703be9201d9514.1672742878.git.sebastien.boeuf@intel.com>
+ <73b75fb87d25cff59768b4955a81fe7ffe5b4770.1672742878.git.sebastien.boeuf@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <b18db236ba3d990cdb41278eb4703be9201d9514.1672742878.git.sebastien.boeuf@intel.com>
+In-Reply-To: <73b75fb87d25cff59768b4955a81fe7ffe5b4770.1672742878.git.sebastien.boeuf@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -123,92 +120,90 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 03, 2023 at 11:51:06AM +0100, sebastien.boeuf@intel.com wrote:
+On Tue, Jan 03, 2023 at 11:51:07AM +0100, sebastien.boeuf@intel.com wrote:
 >From: Sebastien Boeuf <sebastien.boeuf@intel.com>
 >
->Userspace knows if the device can be resumed or not by checking this
->feature bit.
+>This new ioctl adds support for resuming the device from userspace.
 >
->It's only exposed if the vdpa driver backend implements the resume()
->operation callback. Userspace trying to negotiate this feature when it
->hasn't been exposed will result in an error.
+>This is required when trying to restore the device in a functioning
+>state after it's been suspended. It is already possible to reset a
+>suspended device, but that means the device must be reconfigured and
+>all the IOMMU/IOTLB mappings must be recreated. This new operation
+>allows the device to be resumed without going through a full reset.
+>
+>This is particularly useful when trying to perform offline migration of
+>a virtual machine (also known as snapshot/restore) as it allows the VMM
+>to resume the virtual machine back to a running state after the snapshot
+>is performed.
 >
 >Acked-by: Jason Wang <jasowang@redhat.com>
 >Signed-off-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
 >---
-> drivers/vhost/vdpa.c             | 16 +++++++++++++++-
-> include/uapi/linux/vhost_types.h |  2 ++
-> 2 files changed, 17 insertions(+), 1 deletion(-)
+> drivers/vhost/vdpa.c       | 18 ++++++++++++++++++
+> include/uapi/linux/vhost.h |  8 ++++++++
+> 2 files changed, 26 insertions(+)
 >
 >diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
->index 166044642fd5..833617d00ef6 100644
+>index 833617d00ef6..1db7bd39fb63 100644
 >--- a/drivers/vhost/vdpa.c
 >+++ b/drivers/vhost/vdpa.c
->@@ -355,6 +355,14 @@ static bool vhost_vdpa_can_suspend(const struct vhost_vdpa *v)
-> 	return ops->suspend;
+>@@ -502,6 +502,21 @@ static long vhost_vdpa_suspend(struct vhost_vdpa *v)
+> 	return ops->suspend(vdpa);
 > }
 >
->+static bool vhost_vdpa_can_resume(const struct vhost_vdpa *v)
+>+/* After a successful return of this ioctl the device resumes processing
+>+ * virtqueue descriptors. The device becomes fully operational the same way it
+>+ * was before it was suspended.
+>+ */
+>+static long vhost_vdpa_resume(struct vhost_vdpa *v)
 >+{
 >+	struct vdpa_device *vdpa = v->vdpa;
 >+	const struct vdpa_config_ops *ops = vdpa->config;
 >+
->+	return ops->resume;
+>+	if (!ops->resume)
+>+		return -EOPNOTSUPP;
+>+
+>+	return ops->resume(vdpa);
 >+}
 >+
-> static long vhost_vdpa_get_features(struct vhost_vdpa *v, u64 __user *featurep)
+> static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+> 				   void __user *argp)
 > {
-> 	struct vdpa_device *vdpa = v->vdpa;
->@@ -602,11 +610,15 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
-> 		if (copy_from_user(&features, featurep, sizeof(features)))
-> 			return -EFAULT;
-> 		if (features & ~(VHOST_VDPA_BACKEND_FEATURES |
->-				 BIT_ULL(VHOST_BACKEND_F_SUSPEND)))
->+				 BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
->+				 BIT_ULL(VHOST_BACKEND_F_RESUME)))
-> 			return -EOPNOTSUPP;
-> 		if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
-> 		     !vhost_vdpa_can_suspend(v))
-> 			return -EOPNOTSUPP;
->+		if ((features & BIT_ULL(VHOST_BACKEND_F_RESUME)) &&
->+		     !vhost_vdpa_can_resume(v))
->+			return -EOPNOTSUPP;
+>@@ -687,6 +702,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+> 	case VHOST_VDPA_SUSPEND:
+> 		r = vhost_vdpa_suspend(v);
+> 		break;
+>+	case VHOST_VDPA_RESUME:
+>+		r = vhost_vdpa_resume(v);
+>+		break;
+> 	default:
+> 		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
+> 		if (r == -ENOIOCTLCMD)
+>diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+>index f9f115a7c75b..92e1b700b51c 100644
+>--- a/include/uapi/linux/vhost.h
+>+++ b/include/uapi/linux/vhost.h
+>@@ -180,4 +180,12 @@
+>  */
+> #define VHOST_VDPA_SUSPEND		_IO(VHOST_VIRTIO, 0x7D)
+>
+>+/* Resume a device so it can resume processing virtqueue requests
+>+ *
+>+ * After the return of this ioctl the device will have restored all the
+>+ * necessary states and it is fully operational to continue processing the
+>+ * virtqueue descriptors.
 
-Not for this patch, but I'd like to refactor this code a bit to fill a 
-`backend_features` field in vhost_vdpa during the vhost_vdpa_probe(), so 
-we don't need to change this code or the VHOST_GET_BACKEND_FEATURES for 
-every new backend feature.
+IIUC this is a no-op if the device wasn't suspended.
+If you have to resend, maybe add this info also here in the user 
+documentation.
 
-I'll send a patch.
-
-This LGTM:
+Anyway, the patch LGTM:
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-
-> 		vhost_set_backend_features(&v->vdev, features);
-> 		return 0;
-> 	}
->@@ -658,6 +670,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
-> 		features = VHOST_VDPA_BACKEND_FEATURES;
-> 		if (vhost_vdpa_can_suspend(v))
-> 			features |= BIT_ULL(VHOST_BACKEND_F_SUSPEND);
->+		if (vhost_vdpa_can_resume(v))
->+			features |= BIT_ULL(VHOST_BACKEND_F_RESUME);
-> 		if (copy_to_user(featurep, &features, sizeof(features)))
-> 			r = -EFAULT;
-> 		break;
->diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
->index 53601ce2c20a..c5690a8992d8 100644
->--- a/include/uapi/linux/vhost_types.h
->+++ b/include/uapi/linux/vhost_types.h
->@@ -163,5 +163,7 @@ struct vhost_vdpa_iova_range {
-> #define VHOST_BACKEND_F_IOTLB_ASID  0x3
-> /* Device can be suspended */
-> #define VHOST_BACKEND_F_SUSPEND  0x4
->+/* Device can be resumed */
->+#define VHOST_BACKEND_F_RESUME  0x5
->
+>+ */
+>+#define VHOST_VDPA_RESUME		_IO(VHOST_VIRTIO, 0x7E)
+>+
 > #endif
 >-- 
 >2.37.2
