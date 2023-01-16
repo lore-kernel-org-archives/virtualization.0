@@ -1,72 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8A6E0C54EBE
-	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 04:40:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64AF0C46467
+	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 06:02:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 088C16059D;
-	Mon, 16 Jan 2023 04:40:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 088C16059D
+	by smtp1.osuosl.org (Postfix) with ESMTP id D0FDA817ED;
+	Mon, 16 Jan 2023 06:02:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D0FDA817ED
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7YVwj9CZXpn0; Mon, 16 Jan 2023 04:40:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7215060812;
-	Mon, 16 Jan 2023 04:40:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7215060812
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QlUZBmLzzlfe; Mon, 16 Jan 2023 06:02:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 71EB281773;
+	Mon, 16 Jan 2023 06:02:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71EB281773
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4008DC0033;
-	Mon, 16 Jan 2023 04:40:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D1FC1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D9FBC0033;
+	Mon, 16 Jan 2023 06:02:48 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 019B6C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 04:40:04 +0000 (UTC)
+ Mon, 16 Jan 2023 06:02:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9E9F3403ED
+ by smtp1.osuosl.org (Postfix) with ESMTP id CFAA5817C3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 04:40:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E9F3403ED
+ Mon, 16 Jan 2023 06:02:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CFAA5817C3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tqAVNVDExz1D
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KmrGYNaJae2f
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 04:40:03 +0000 (UTC)
-X-Greylist: delayed 00:11:50 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 59C2E403D8
+ Mon, 16 Jan 2023 06:02:45 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B8B9381773
 Received: from outgoing2021.csail.mit.edu (outgoing2021.csail.mit.edu
  [128.30.2.78])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 59C2E403D8
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B8B9381773
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 04:40:03 +0000 (UTC)
-Received: from c-24-17-218-140.hsd1.wa.comcast.net ([24.17.218.140]
- helo=srivatsab3MD6R.vmware.com)
- by outgoing2021.csail.mit.edu with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.95)
- (envelope-from <srivatsa@csail.mit.edu>) id 1pHH69-00EU45-Mo;
- Sun, 15 Jan 2023 23:27:53 -0500
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
- x86@kernel.org, virtualization@lists.linux-foundation.org
-References: <20230112152132.4399-1-jgross@suse.com>
+ Mon, 16 Jan 2023 06:02:45 +0000 (UTC)
+Received: from [128.177.82.146] (helo=srivatsa-dev.eng.vmware.com)
+ by outgoing2021.csail.mit.edu with esmtpa (Exim 4.95)
+ (envelope-from <srivatsa@csail.mit.edu>) id 1pHIZd-00EV5m-KZ;
+ Mon, 16 Jan 2023 01:02:25 -0500
 From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH] x86/paravirt: merge activate_mm and dup_mmap callbacks
-Message-ID: <3fcb5078-852e-0886-c084-7fb0cfa5b757@csail.mit.edu>
-Date: Sun, 15 Jan 2023 20:27:50 -0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle state
+Date: Sun, 15 Jan 2023 22:01:34 -0800
+Message-Id: <20230116060134.80259-1-srivatsa@csail.mit.edu>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <20230112152132.4399-1-jgross@suse.com>
-Content-Language: en-US
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
+Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
+ namit@vmware.com, amakhalov@vmware.com, "H. Peter Anvin" <hpa@zytor.com>,
+ "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
  VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Alexey Makhalov <amakhalov@vmware.com>,
- xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+ Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
+ xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
+ Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
+ Juergen Gross <jgross@suse.com>, Lewis Caroll <lewis.carroll@amd.com>,
+ blamoreaux@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,176 +83,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>
 
-Hi Juergen,
+Under hypervisors that support mwait passthrough, a vCPU in mwait
+CPU-idle state remains in guest context (instead of yielding to the
+hypervisor via VMEXIT), which helps speed up wakeups from idle.
 
-On 1/12/23 7:21 AM, Juergen Gross wrote:
-> The two paravirt callbacks .mmu.activate_mm and .mmu.dup_mmap are
-> sharing the same implementations in all cases: for Xen PV guests they
-> are pinning the PGD of the new mm_struct, and for all other cases
-> they are a NOP.
-> 
+However, this runs into problems with CPU hotplug, because the Linux
+CPU offline path prefers to put the vCPU-to-be-offlined in mwait
+state, whenever mwait is available. As a result, since a vCPU in mwait
+remains in guest context and does not yield to the hypervisor, an
+offline vCPU *appears* to be 100% busy as viewed from the host, which
+prevents the hypervisor from running other vCPUs or workloads on the
+corresponding pCPU. [ Note that such a vCPU is not actually busy
+spinning though; it remains in mwait idle state in the guest ].
 
-I was expecting that the duplicated functions xen_activate_mm() and
-xen_dup_mmap() would be merged into a common one, and that both
-.mmu.activate_mm and .mmu.dup_mmap callbacks would be mapped to that
-common implementation for Xen PV.
+Fix this by preventing the use of mwait idle state in the vCPU offline
+play_dead() path for any hypervisor, even if mwait support is
+available.
 
-> So merge them to a common callback .mmu.enter_mmap (in contrast to the
-> corresponding already existing .mmu.exit_mmap).
-> 
+Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Wyes Karny <wyes.karny@amd.com>
+Cc: Lewis Caroll <lewis.carroll@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Alexey Makhalov <amakhalov@vmware.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: x86@kernel.org
+Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org
+Cc: xen-devel@lists.xenproject.org
+---
 
-Instead, this patch seems to be merging the callbacks themselves...
+v1: https://lore.kernel.org/lkml/165843627080.142207.12667479241667142176.stgit@csail.mit.edu/
 
-I see that's not an issue right now since there is no other actual
-user for these callbacks. But are we sure that merging the callbacks
-just because the current user (Xen PV) has the same implementation for
-both is a good idea? The callbacks are invoked at distinct points from
-fork/exec, so wouldn't it be valuable to retain that distinction in
-semantics in the callbacks as well?
+ arch/x86/kernel/smpboot.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-However, if you believe that two separate callbacks are not really
-required here (because there is no significant difference in what they
-mean, rather than because their callback implementations happen to be
-the same right now), then could you please expand on this and call it
-out in the commit message, please?
-
-Thank you!
-
-Regards,
-Srivatsa
-VMware Photon OS
-
-> As the first parameter of the old callbacks isn't used, drop it from
-> the replacement one.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> ---
->  arch/x86/include/asm/mmu_context.h    |  4 ++--
->  arch/x86/include/asm/paravirt.h       | 14 +++-----------
->  arch/x86/include/asm/paravirt_types.h |  7 ++-----
->  arch/x86/kernel/paravirt.c            |  3 +--
->  arch/x86/xen/mmu_pv.c                 | 12 ++----------
->  5 files changed, 10 insertions(+), 30 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/mmu_context.h b/arch/x86/include/asm/mmu_context.h
-> index b8d40ddeab00..6a14b6c2165c 100644
-> --- a/arch/x86/include/asm/mmu_context.h
-> +++ b/arch/x86/include/asm/mmu_context.h
-> @@ -134,7 +134,7 @@ extern void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
->  
->  #define activate_mm(prev, next)			\
->  do {						\
-> -	paravirt_activate_mm((prev), (next));	\
-> +	paravirt_enter_mmap(next);		\
->  	switch_mm((prev), (next), NULL);	\
->  } while (0);
->  
-> @@ -167,7 +167,7 @@ static inline void arch_dup_pkeys(struct mm_struct *oldmm,
->  static inline int arch_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
->  {
->  	arch_dup_pkeys(oldmm, mm);
-> -	paravirt_arch_dup_mmap(oldmm, mm);
-> +	paravirt_enter_mmap(mm);
->  	return ldt_dup_context(oldmm, mm);
->  }
->  
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index 73e9522db7c1..07bbdceaf35a 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -332,16 +332,9 @@ static inline void tss_update_io_bitmap(void)
->  }
->  #endif
->  
-> -static inline void paravirt_activate_mm(struct mm_struct *prev,
-> -					struct mm_struct *next)
-> +static inline void paravirt_enter_mmap(struct mm_struct *next)
->  {
-> -	PVOP_VCALL2(mmu.activate_mm, prev, next);
-> -}
-> -
-> -static inline void paravirt_arch_dup_mmap(struct mm_struct *oldmm,
-> -					  struct mm_struct *mm)
-> -{
-> -	PVOP_VCALL2(mmu.dup_mmap, oldmm, mm);
-> +	PVOP_VCALL1(mmu.enter_mmap, next);
->  }
->  
->  static inline int paravirt_pgd_alloc(struct mm_struct *mm)
-> @@ -787,8 +780,7 @@ extern void default_banner(void);
->  
->  #ifndef __ASSEMBLY__
->  #ifndef CONFIG_PARAVIRT_XXL
-> -static inline void paravirt_arch_dup_mmap(struct mm_struct *oldmm,
-> -					  struct mm_struct *mm)
-> +static inline void paravirt_enter_mmap(struct mm_struct *mm)
->  {
->  }
->  #endif
-> diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-> index 8c1da419260f..71bf64b963df 100644
-> --- a/arch/x86/include/asm/paravirt_types.h
-> +++ b/arch/x86/include/asm/paravirt_types.h
-> @@ -164,11 +164,8 @@ struct pv_mmu_ops {
->  	unsigned long (*read_cr3)(void);
->  	void (*write_cr3)(unsigned long);
->  
-> -	/* Hooks for intercepting the creation/use of an mm_struct. */
-> -	void (*activate_mm)(struct mm_struct *prev,
-> -			    struct mm_struct *next);
-> -	void (*dup_mmap)(struct mm_struct *oldmm,
-> -			 struct mm_struct *mm);
-> +	/* Hook for intercepting the creation/use of an mm_struct. */
-> +	void (*enter_mmap)(struct mm_struct *mm);
->  
->  	/* Hooks for allocating and freeing a pagetable top-level */
->  	int  (*pgd_alloc)(struct mm_struct *mm);
-> diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-> index 327757afb027..ff1109b9c6cd 100644
-> --- a/arch/x86/kernel/paravirt.c
-> +++ b/arch/x86/kernel/paravirt.c
-> @@ -352,8 +352,7 @@ struct paravirt_patch_template pv_ops = {
->  	.mmu.make_pte		= PTE_IDENT,
->  	.mmu.make_pgd		= PTE_IDENT,
->  
-> -	.mmu.dup_mmap		= paravirt_nop,
-> -	.mmu.activate_mm	= paravirt_nop,
-> +	.mmu.enter_mmap		= paravirt_nop,
->  
->  	.mmu.lazy_mode = {
->  		.enter		= paravirt_nop,
-> diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-> index ee29fb558f2e..b3b8d289b9ab 100644
-> --- a/arch/x86/xen/mmu_pv.c
-> +++ b/arch/x86/xen/mmu_pv.c
-> @@ -885,14 +885,7 @@ void xen_mm_unpin_all(void)
->  	spin_unlock(&pgd_lock);
->  }
->  
-> -static void xen_activate_mm(struct mm_struct *prev, struct mm_struct *next)
-> -{
-> -	spin_lock(&next->page_table_lock);
-> -	xen_pgd_pin(next);
-> -	spin_unlock(&next->page_table_lock);
-> -}
-> -
-> -static void xen_dup_mmap(struct mm_struct *oldmm, struct mm_struct *mm)
-> +static void xen_enter_mmap(struct mm_struct *mm)
->  {
->  	spin_lock(&mm->page_table_lock);
->  	xen_pgd_pin(mm);
-> @@ -2153,8 +2146,7 @@ static const typeof(pv_ops) xen_mmu_ops __initconst = {
->  		.make_p4d = PV_CALLEE_SAVE(xen_make_p4d),
->  #endif
->  
-> -		.activate_mm = xen_activate_mm,
-> -		.dup_mmap = xen_dup_mmap,
-> +		.enter_mmap = xen_enter_mmap,
->  		.exit_mmap = xen_exit_mmap,
->  
->  		.lazy_mode = {
-> 
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 55cad72715d9..125a5d4bfded 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1763,6 +1763,15 @@ static inline void mwait_play_dead(void)
+ 		return;
+ 	if (!this_cpu_has(X86_FEATURE_CLFLUSH))
+ 		return;
++
++	/*
++	 * Do not use mwait in CPU offline play_dead if running under
++	 * any hypervisor, to make sure that the offline vCPU actually
++	 * yields to the hypervisor (which may not happen otherwise if
++	 * the hypervisor supports mwait passthrough).
++	 */
++	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
++		return;
+ 	if (__this_cpu_read(cpu_info.cpuid_level) < CPUID_MWAIT_LEAF)
+ 		return;
+ 
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
