@@ -4,122 +4,71 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52135C46467
-	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 14:55:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4627EC46467
+	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 16:11:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AB7438145F;
-	Mon, 16 Jan 2023 14:55:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB7438145F
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PughXJ7o
+	by smtp1.osuosl.org (Postfix) with ESMTP id B4F9581E00;
+	Mon, 16 Jan 2023 16:11:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B4F9581E00
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6ueMt0xQalf3; Mon, 16 Jan 2023 14:55:34 +0000 (UTC)
+	with ESMTP id M4ArWaQCGWk0; Mon, 16 Jan 2023 16:11:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id ED60B813D8;
-	Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED60B813D8
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1FD5781E10;
+	Mon, 16 Jan 2023 16:11:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1FD5781E10
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C5A57C0032;
-	Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 393C2C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1D23C0032;
+	Mon, 16 Jan 2023 16:11:09 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74789C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
+ Mon, 16 Jan 2023 16:11:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 06C4D60B9F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3497181E4C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06C4D60B9F
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PughXJ7o
+ Mon, 16 Jan 2023 16:10:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3497181E4C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id F1DhbriWZxqy
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wIYbyB_ZJ5oc
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 14:55:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DFCCB60625
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DFCCB60625
+ Mon, 16 Jan 2023 16:10:46 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 675CA81E26
+Received: from outgoing2021.csail.mit.edu (outgoing2021.csail.mit.edu
+ [128.30.2.78])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 675CA81E26
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 14:55:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1673880930;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=g48LKw/EQzyimcflA0uDUwRnS8dI8OL8jQyceWm5H5M=;
- b=PughXJ7o8kHmymIdqGuvEVsMHz7v1jxsYtvLoBuvYizxxas0HaC5Exr2ubBjlyBlk6OM0f
- sJX8PSPTYIMofJ72fOBWZwRKA8y874Sii1J47x0B4Q4alYW1hjFbIeJTjMQmd7LUcmKymW
- Sd3wMNEjAWGyeMR8mmV3SAMKsmFhm4g=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-564-e2kGQkmuOry2_JDYz9GnMg-1; Mon, 16 Jan 2023 09:55:29 -0500
-X-MC-Unique: e2kGQkmuOry2_JDYz9GnMg-1
-Received: by mail-ej1-f70.google.com with SMTP id
- gn31-20020a1709070d1f00b0087024adbba2so2390589ejc.20
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 06:55:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=g48LKw/EQzyimcflA0uDUwRnS8dI8OL8jQyceWm5H5M=;
- b=20AptVQcL/hfb2eUK5Gk8ohy3AUPfpBrbQ0/GTChzct/0Ysf8agH4AvQ8/ySfVobsM
- Ko1JFA5cXoPdOkKUZz9MFeuVx6yQ05GT9fKEIqfW5Adr/eMn0bTY5DwtlqafQJJ/krqs
- XMuBNihC2puufAH7Dfm2iJk6447CWJvcK9UWvf3rFbq4295I33iDsqEvs/Y48zERnMWM
- f38J9l0haz3J0bGAkoprfuh1G2rMzahcv/MOX+vvlK47+CQIBKFIUXmYc9arzducF8oK
- A4mgmhEqyPQ0h7dPTKDLIXFHrCMe/HPeUtcSCZiAZ1plTMY7bPmJ+QeOa4trQtt0RcFZ
- xHRg==
-X-Gm-Message-State: AFqh2kqrlkLTxIJ7YKUunwKK1/vDfDxXkHbdLTPDh59b0uqrAQ0qDFmq
- S+OjvUQ2oJVISWvyDiU7+BbC7xfOHnWf7csdy7c3nOc5Dxav0ObLBHvYVtbyTKSUwWJHGkz6p+v
- rE2lb6OnlZNYDgcOuOkB8GS8ePJAgkQWg8xDOSCRG+g==
-X-Received: by 2002:a17:906:8478:b0:84d:373b:39da with SMTP id
- hx24-20020a170906847800b0084d373b39damr29113670ejc.40.1673880928387; 
- Mon, 16 Jan 2023 06:55:28 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXsse3LgRug+Pp9ZoWtZxmVwLzZ7+mUuv4JYFK2PzosFJrEZ0QAORQ3jcyrTsWEYEH4Absw9GA==
-X-Received: by 2002:a17:906:8478:b0:84d:373b:39da with SMTP id
- hx24-20020a170906847800b0084d373b39damr29113641ejc.40.1673880928211; 
- Mon, 16 Jan 2023 06:55:28 -0800 (PST)
-Received: from imammedo.users.ipa.redhat.com (nat-pool-brq-t.redhat.com.
- [213.175.37.10]) by smtp.gmail.com with ESMTPSA id
- a3-20020aa7cf03000000b0049019b48373sm11543707edy.85.2023.01.16.06.55.26
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 16 Jan 2023 06:55:27 -0800 (PST)
-Date: Mon, 16 Jan 2023 15:55:26 +0100
-From: Igor Mammedov <imammedo@redhat.com>
-To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle
- state
-Message-ID: <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
-In-Reply-To: <20230116060134.80259-1-srivatsa@csail.mit.edu>
-References: <20230116060134.80259-1-srivatsa@csail.mit.edu>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.36; x86_64-redhat-linux-gnu)
+ Mon, 16 Jan 2023 16:10:46 +0000 (UTC)
+Received: from c-24-17-218-140.hsd1.wa.comcast.net ([24.17.218.140]
+ helo=srivatsab3MD6R.vmware.com)
+ by outgoing2021.csail.mit.edu with esmtpsa (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.95)
+ (envelope-from <srivatsa@csail.mit.edu>) id 1pHS49-00Ec49-Pd;
+ Mon, 16 Jan 2023 11:10:33 -0500
+Subject: Re: [PATCH] x86/paravirt: merge activate_mm and dup_mmap callbacks
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, virtualization@lists.linux-foundation.org
+References: <20230112152132.4399-1-jgross@suse.com>
+ <3fcb5078-852e-0886-c084-7fb0cfa5b757@csail.mit.edu>
+ <27d08d32-1a17-0959-203f-39e769f555d1@suse.com>
+From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Message-ID: <6a8e25eb-758d-8ad6-23c1-5fea7dab3b09@csail.mit.edu>
+Date: Mon, 16 Jan 2023 08:10:30 -0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
- namit@vmware.com, "H. Peter Anvin" <hpa@zytor.com>, "Rafael J.
- Wysocki" <rafael.j.wysocki@intel.com>,
+In-Reply-To: <27d08d32-1a17-0959-203f-39e769f555d1@suse.com>
+Content-Language: en-US
+Cc: "H. Peter Anvin" <hpa@zytor.com>,
  VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
- xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
- Tom Lendacky <thomas.lendacky@amd.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
- Juergen Gross <jgross@suse.com>, amakhalov@vmware.com,
- linux-kernel@vger.kernel.org, Lewis Caroll <lewis.carroll@amd.com>,
- blamoreaux@vmware.com
+ Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Alexey Makhalov <amakhalov@vmware.com>,
+ xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,99 +80,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, 15 Jan 2023 22:01:34 -0800
-"Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
-
-> From: "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>
-> 
-> Under hypervisors that support mwait passthrough, a vCPU in mwait
-> CPU-idle state remains in guest context (instead of yielding to the
-> hypervisor via VMEXIT), which helps speed up wakeups from idle.
-> 
-> However, this runs into problems with CPU hotplug, because the Linux
-> CPU offline path prefers to put the vCPU-to-be-offlined in mwait
-> state, whenever mwait is available. As a result, since a vCPU in mwait
-> remains in guest context and does not yield to the hypervisor, an
-> offline vCPU *appears* to be 100% busy as viewed from the host, which
-> prevents the hypervisor from running other vCPUs or workloads on the
-> corresponding pCPU. [ Note that such a vCPU is not actually busy
-> spinning though; it remains in mwait idle state in the guest ].
->
-> Fix this by preventing the use of mwait idle state in the vCPU offline
-> play_dead() path for any hypervisor, even if mwait support is
-> available.
-
-if mwait is enabled, it's very likely guest to have cpuidle
-enabled and using the same mwait as well. So exiting early from
- mwait_play_dead(), might just punt workflow down:
-  native_play_dead()
-        ...
-        mwait_play_dead();
-        if (cpuidle_play_dead())   <- possible mwait here                                              
-                hlt_play_dead(); 
-
-and it will end up in mwait again and only if that fails
-it will go HLT route and maybe transition to VMM.
-
-Instead of workaround on guest side,
-shouldn't hypervisor force VMEXIT on being uplugged vCPU when it's
-actually hot-unplugging vCPU? (ex: QEMU kicks vCPU out from guest
-context when it is removing vCPU, among other things)
-
-> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-> Cc: "Paul E. McKenney" <paulmck@kernel.org>
-> Cc: Wyes Karny <wyes.karny@amd.com>
-> Cc: Lewis Caroll <lewis.carroll@amd.com>
-> Cc: Tom Lendacky <thomas.lendacky@amd.com>
-> Cc: Alexey Makhalov <amakhalov@vmware.com>
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: x86@kernel.org
-> Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: kvm@vger.kernel.org
-> Cc: xen-devel@lists.xenproject.org
-> ---
-> 
-> v1: https://lore.kernel.org/lkml/165843627080.142207.12667479241667142176.stgit@csail.mit.edu/
-> 
->  arch/x86/kernel/smpboot.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-> index 55cad72715d9..125a5d4bfded 100644
-> --- a/arch/x86/kernel/smpboot.c
-> +++ b/arch/x86/kernel/smpboot.c
-> @@ -1763,6 +1763,15 @@ static inline void mwait_play_dead(void)
->  		return;
->  	if (!this_cpu_has(X86_FEATURE_CLFLUSH))
->  		return;
-> +
-> +	/*
-> +	 * Do not use mwait in CPU offline play_dead if running under
-> +	 * any hypervisor, to make sure that the offline vCPU actually
-> +	 * yields to the hypervisor (which may not happen otherwise if
-> +	 * the hypervisor supports mwait passthrough).
-> +	 */
-> +	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
-> +		return;
->  	if (__this_cpu_read(cpu_info.cpuid_level) < CPUID_MWAIT_LEAF)
->  		return;
->  
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gMS8xNS8yMyAxMDo0MyBQTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAxNi4wMS4yMyAw
+NToyNywgU3JpdmF0c2EgUy4gQmhhdCB3cm90ZToKPj4KPj4gSGkgSnVlcmdlbiwKPj4KPj4gT24g
+MS8xMi8yMyA3OjIxIEFNLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+Pj4gVGhlIHR3byBwYXJhdmly
+dCBjYWxsYmFja3MgLm1tdS5hY3RpdmF0ZV9tbSBhbmQgLm1tdS5kdXBfbW1hcCBhcmUKPj4+IHNo
+YXJpbmcgdGhlIHNhbWUgaW1wbGVtZW50YXRpb25zIGluIGFsbCBjYXNlczogZm9yIFhlbiBQViBn
+dWVzdHMgdGhleQo+Pj4gYXJlIHBpbm5pbmcgdGhlIFBHRCBvZiB0aGUgbmV3IG1tX3N0cnVjdCwg
+YW5kIGZvciBhbGwgb3RoZXIgY2FzZXMKPj4+IHRoZXkgYXJlIGEgTk9QLgo+Pj4KPj4KPj4gSSB3
+YXMgZXhwZWN0aW5nIHRoYXQgdGhlIGR1cGxpY2F0ZWQgZnVuY3Rpb25zIHhlbl9hY3RpdmF0ZV9t
+bSgpIGFuZAo+PiB4ZW5fZHVwX21tYXAoKSB3b3VsZCBiZSBtZXJnZWQgaW50byBhIGNvbW1vbiBv
+bmUsIGFuZCB0aGF0IGJvdGgKPj4gLm1tdS5hY3RpdmF0ZV9tbSBhbmQgLm1tdS5kdXBfbW1hcCBj
+YWxsYmFja3Mgd291bGQgYmUgbWFwcGVkIHRvIHRoYXQKPj4gY29tbW9uIGltcGxlbWVudGF0aW9u
+IGZvciBYZW4gUFYuCj4+Cj4+PiBTbyBtZXJnZSB0aGVtIHRvIGEgY29tbW9uIGNhbGxiYWNrIC5t
+bXUuZW50ZXJfbW1hcCAoaW4gY29udHJhc3QgdG8gdGhlCj4+PiBjb3JyZXNwb25kaW5nIGFscmVh
+ZHkgZXhpc3RpbmcgLm1tdS5leGl0X21tYXApLgo+Pj4KPj4KPj4gSW5zdGVhZCwgdGhpcyBwYXRj
+aCBzZWVtcyB0byBiZSBtZXJnaW5nIHRoZSBjYWxsYmFja3MgdGhlbXNlbHZlcy4uLgo+Pgo+PiBJ
+IHNlZSB0aGF0J3Mgbm90IGFuIGlzc3VlIHJpZ2h0IG5vdyBzaW5jZSB0aGVyZSBpcyBubyBvdGhl
+ciBhY3R1YWwKPj4gdXNlciBmb3IgdGhlc2UgY2FsbGJhY2tzLiBCdXQgYXJlIHdlIHN1cmUgdGhh
+dCBtZXJnaW5nIHRoZSBjYWxsYmFja3MKPj4ganVzdCBiZWNhdXNlIHRoZSBjdXJyZW50IHVzZXIg
+KFhlbiBQVikgaGFzIHRoZSBzYW1lIGltcGxlbWVudGF0aW9uIGZvcgo+PiBib3RoIGlzIGEgZ29v
+ZCBpZGVhPyBUaGUgY2FsbGJhY2tzIGFyZSBpbnZva2VkIGF0IGRpc3RpbmN0IHBvaW50cyBmcm9t
+Cj4+IGZvcmsvZXhlYywgc28gd291bGRuJ3QgaXQgYmUgdmFsdWFibGUgdG8gcmV0YWluIHRoYXQg
+ZGlzdGluY3Rpb24gaW4KPj4gc2VtYW50aWNzIGluIHRoZSBjYWxsYmFja3MgYXMgd2VsbD8KPj4K
+Pj4gSG93ZXZlciwgaWYgeW91IGJlbGlldmUgdGhhdCB0d28gc2VwYXJhdGUgY2FsbGJhY2tzIGFy
+ZSBub3QgcmVhbGx5Cj4+IHJlcXVpcmVkIGhlcmUgKGJlY2F1c2UgdGhlcmUgaXMgbm8gc2lnbmlm
+aWNhbnQgZGlmZmVyZW5jZSBpbiB3aGF0IHRoZXkKPj4gbWVhbiwgcmF0aGVyIHRoYW4gYmVjYXVz
+ZSB0aGVpciBjYWxsYmFjayBpbXBsZW1lbnRhdGlvbnMgaGFwcGVuIHRvIGJlCj4+IHRoZSBzYW1l
+IHJpZ2h0IG5vdyksIHRoZW4gY291bGQgeW91IHBsZWFzZSBleHBhbmQgb24gdGhpcyBhbmQgY2Fs
+bCBpdAo+PiBvdXQgaW4gdGhlIGNvbW1pdCBtZXNzYWdlLCBwbGVhc2U/Cj4gCj4gV291bGQgeW91
+IGJlIGZpbmUgd2l0aDoKPiAKPiDCoCBJbiB0aGUgZW5kIGJvdGggY2FsbGJhY2tzIGFyZSBtZWFu
+dCB0byByZWdpc3RlciBhbiBhZGRyZXNzIHNwYWNlIHdpdGggdGhlCj4gwqAgdW5kZXJseWluZyBo
+eXBlcnZpc29yLCBzbyB0aGVyZSBuZWVkcyB0byBiZSBvbmx5IGEgc2luZ2xlIGNhbGxiYWNrIGZv
+ciB0aGF0Cj4gwqAgcHVycG9zZS4KPiAKClN1cmUsIHRoYXQgbG9va3MgZ29vZC4gVGhhbmsgeW91
+IQogClJlZ2FyZHMsClNyaXZhdHNhClZNd2FyZSBQaG90b24gT1MKX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
+ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
+bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
