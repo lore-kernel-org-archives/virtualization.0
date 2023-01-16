@@ -1,114 +1,125 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A87ADC46467
-	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 13:41:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52135C46467
+	for <virtualization@archiver.kernel.org>; Mon, 16 Jan 2023 14:55:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2D84C40198;
-	Mon, 16 Jan 2023 13:41:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D84C40198
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LrtyNmXO
+	by smtp1.osuosl.org (Postfix) with ESMTP id AB7438145F;
+	Mon, 16 Jan 2023 14:55:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB7438145F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PughXJ7o
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FXTPHTd5dop5; Mon, 16 Jan 2023 13:41:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 50016401E9;
-	Mon, 16 Jan 2023 13:41:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 50016401E9
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6ueMt0xQalf3; Mon, 16 Jan 2023 14:55:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ED60B813D8;
+	Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED60B813D8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C590C0033;
-	Mon, 16 Jan 2023 13:41:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D83F1C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5A57C0032;
+	Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 393C2C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 13:41:48 +0000 (UTC)
+ Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B1867401E9
+ by smtp3.osuosl.org (Postfix) with ESMTP id 06C4D60B9F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 13:41:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B1867401E9
+ Mon, 16 Jan 2023 14:55:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06C4D60B9F
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=PughXJ7o
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mvBQLBZe8-Ud
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id F1DhbriWZxqy
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 13:41:47 +0000 (UTC)
+ Mon, 16 Jan 2023 14:55:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6450340198
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DFCCB60625
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6450340198
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id DFCCB60625
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 13:41:47 +0000 (UTC)
+ Mon, 16 Jan 2023 14:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1673876506;
+ s=mimecast20190719; t=1673880930;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Dy1VK4lCS2RdiiWOjQOjdjHQSzkWQSXFlBq6wGn15DM=;
- b=LrtyNmXOYov8ewAKviOXrSbStdjvV8E6xhdz0x/Vk2BfxisEhtn/FYqRjjEsRAq8KAyv/v
- o81f8JC4YQTtCPUGWd1SiqUIVELNmRXav2x7uL0PWv/gR+qcHIX3dfiei5UKD/rMxCTBdi
- ANHjhz4o5RZp2LjZeQ6kx8jot8X9xmw=
-Received: from mail-vk1-f197.google.com (mail-vk1-f197.google.com
- [209.85.221.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=g48LKw/EQzyimcflA0uDUwRnS8dI8OL8jQyceWm5H5M=;
+ b=PughXJ7o8kHmymIdqGuvEVsMHz7v1jxsYtvLoBuvYizxxas0HaC5Exr2ubBjlyBlk6OM0f
+ sJX8PSPTYIMofJ72fOBWZwRKA8y874Sii1J47x0B4Q4alYW1hjFbIeJTjMQmd7LUcmKymW
+ Sd3wMNEjAWGyeMR8mmV3SAMKsmFhm4g=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-595-4qzBUn8JOM6dgg510AdrRw-1; Mon, 16 Jan 2023 08:41:45 -0500
-X-MC-Unique: 4qzBUn8JOM6dgg510AdrRw-1
-Received: by mail-vk1-f197.google.com with SMTP id
- v195-20020a1faccc000000b003dae5f6477bso5194380vke.19
+ us-mta-564-e2kGQkmuOry2_JDYz9GnMg-1; Mon, 16 Jan 2023 09:55:29 -0500
+X-MC-Unique: e2kGQkmuOry2_JDYz9GnMg-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ gn31-20020a1709070d1f00b0087024adbba2so2390589ejc.20
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Jan 2023 05:41:45 -0800 (PST)
+ Mon, 16 Jan 2023 06:55:29 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=Dy1VK4lCS2RdiiWOjQOjdjHQSzkWQSXFlBq6wGn15DM=;
- b=aJ6slqMkBqq702yqzvPZ60Cgcv2j1D+1eFVR7aZhr/zew9c+HNuNs4cXYCfXSKisct
- 87ocMIDDAAtCQKM4xGXvHmPO+k9nvZ9yJSTtfBVzVTjGggEduBr0l4yPCsrCgxO0EBuF
- I6qWvZgnvKydl9lDc5bZWUcJV+Hhkr+167oPdwQYGjx1V0x7DAgKN+5SIoVjNiAdx37A
- WN1hvf86RxBGCHWueUclR3j4s+tjZmntEs+3rgKPYEwhIMMAfFzPQzYKdAkZ4pEyZytm
- VAfNtn9SL0I5iVyBy3WCwGTpkEfehyXmFQ/uEptbHtze4R02VNKt4eQmA3h4Bpm7xek/
- LxLA==
-X-Gm-Message-State: AFqh2kqj82NySeb06T61Gl0ddEwoP5MuCjY3gk0rw9UoJsHZkTQrT2JH
- pvv8t5TLqoprzvBdCr/1XBM2VRvzABBEiBOgLxaACDDJWQyFf8C7sY8HnMpo3OGh6JPDzNxl874
- 1Q8qe3Aavh0DY+LqogncXbnOqBZ7S34p+n8ybmROM6g==
-X-Received: by 2002:a05:6102:3f90:b0:3d0:ee83:95a8 with SMTP id
- o16-20020a0561023f9000b003d0ee8395a8mr9681698vsv.22.1673876504561; 
- Mon, 16 Jan 2023 05:41:44 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXvYhRgRNllMe5psFSkuJuj41TDkdErcxfLGtCYOgT62YtFZx3O5juVXyyxqx+mq0RIA79mPcw==
-X-Received: by 2002:a05:6102:3f90:b0:3d0:ee83:95a8 with SMTP id
- o16-20020a0561023f9000b003d0ee8395a8mr9681683vsv.22.1673876504271; 
- Mon, 16 Jan 2023 05:41:44 -0800 (PST)
-Received: from [192.168.100.30] ([82.142.8.70])
- by smtp.gmail.com with ESMTPSA id
- az31-20020a05620a171f00b006fbbdc6c68fsm18203746qkb.68.2023.01.16.05.41.42
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 16 Jan 2023 05:41:43 -0800 (PST)
-Message-ID: <a5990064-df57-f991-832d-56d1156dc3f8@redhat.com>
-Date: Mon, 16 Jan 2023 14:41:40 +0100
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=g48LKw/EQzyimcflA0uDUwRnS8dI8OL8jQyceWm5H5M=;
+ b=20AptVQcL/hfb2eUK5Gk8ohy3AUPfpBrbQ0/GTChzct/0Ysf8agH4AvQ8/ySfVobsM
+ Ko1JFA5cXoPdOkKUZz9MFeuVx6yQ05GT9fKEIqfW5Adr/eMn0bTY5DwtlqafQJJ/krqs
+ XMuBNihC2puufAH7Dfm2iJk6447CWJvcK9UWvf3rFbq4295I33iDsqEvs/Y48zERnMWM
+ f38J9l0haz3J0bGAkoprfuh1G2rMzahcv/MOX+vvlK47+CQIBKFIUXmYc9arzducF8oK
+ A4mgmhEqyPQ0h7dPTKDLIXFHrCMe/HPeUtcSCZiAZ1plTMY7bPmJ+QeOa4trQtt0RcFZ
+ xHRg==
+X-Gm-Message-State: AFqh2kqrlkLTxIJ7YKUunwKK1/vDfDxXkHbdLTPDh59b0uqrAQ0qDFmq
+ S+OjvUQ2oJVISWvyDiU7+BbC7xfOHnWf7csdy7c3nOc5Dxav0ObLBHvYVtbyTKSUwWJHGkz6p+v
+ rE2lb6OnlZNYDgcOuOkB8GS8ePJAgkQWg8xDOSCRG+g==
+X-Received: by 2002:a17:906:8478:b0:84d:373b:39da with SMTP id
+ hx24-20020a170906847800b0084d373b39damr29113670ejc.40.1673880928387; 
+ Mon, 16 Jan 2023 06:55:28 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsse3LgRug+Pp9ZoWtZxmVwLzZ7+mUuv4JYFK2PzosFJrEZ0QAORQ3jcyrTsWEYEH4Absw9GA==
+X-Received: by 2002:a17:906:8478:b0:84d:373b:39da with SMTP id
+ hx24-20020a170906847800b0084d373b39damr29113641ejc.40.1673880928211; 
+ Mon, 16 Jan 2023 06:55:28 -0800 (PST)
+Received: from imammedo.users.ipa.redhat.com (nat-pool-brq-t.redhat.com.
+ [213.175.37.10]) by smtp.gmail.com with ESMTPSA id
+ a3-20020aa7cf03000000b0049019b48373sm11543707edy.85.2023.01.16.06.55.26
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 16 Jan 2023 06:55:27 -0800 (PST)
+Date: Mon, 16 Jan 2023 15:55:26 +0100
+From: Igor Mammedov <imammedo@redhat.com>
+To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Subject: Re: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle
+ state
+Message-ID: <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
+In-Reply-To: <20230116060134.80259-1-srivatsa@csail.mit.edu>
+References: <20230116060134.80259-1-srivatsa@csail.mit.edu>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.36; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v3 4/4] virtio_net: disable cb aggressively
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210526082423.47837-1-mst@redhat.com>
- <20210526082423.47837-5-mst@redhat.com>
-From: Laurent Vivier <lvivier@redhat.com>
-In-Reply-To: <20210526082423.47837-5-mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Stefano Brivio <sbrivio@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Wei Wang <weiwan@google.com>, David Miller <davem@davemloft.net>
+Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
+ namit@vmware.com, "H. Peter Anvin" <hpa@zytor.com>, "Rafael J.
+ Wysocki" <rafael.j.wysocki@intel.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
+ xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
+ Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
+ Juergen Gross <jgross@suse.com>, amakhalov@vmware.com,
+ linux-kernel@vger.kernel.org, Lewis Caroll <lewis.carroll@amd.com>,
+ blamoreaux@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,145 +131,97 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Michael,
+On Sun, 15 Jan 2023 22:01:34 -0800
+"Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
 
-On 5/26/21 10:24, Michael S. Tsirkin wrote:
-> There are currently two cases where we poll TX vq not in response to a
-> callback: start xmit and rx napi.  We currently do this with callbacks
-> enabled which can cause extra interrupts from the card.  Used not to be
-> a big issue as we run with interrupts disabled but that is no longer the
-> case, and in some cases the rate of spurious interrupts is so high
-> linux detects this and actually kills the interrupt.
+> From: "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>
 > 
-> Fix up by disabling the callbacks before polling the tx vq.
+> Under hypervisors that support mwait passthrough, a vCPU in mwait
+> CPU-idle state remains in guest context (instead of yielding to the
+> hypervisor via VMEXIT), which helps speed up wakeups from idle.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> However, this runs into problems with CPU hotplug, because the Linux
+> CPU offline path prefers to put the vCPU-to-be-offlined in mwait
+> state, whenever mwait is available. As a result, since a vCPU in mwait
+> remains in guest context and does not yield to the hypervisor, an
+> offline vCPU *appears* to be 100% busy as viewed from the host, which
+> prevents the hypervisor from running other vCPUs or workloads on the
+> corresponding pCPU. [ Note that such a vCPU is not actually busy
+> spinning though; it remains in mwait idle state in the guest ].
+>
+> Fix this by preventing the use of mwait idle state in the vCPU offline
+> play_dead() path for any hypervisor, even if mwait support is
+> available.
+
+if mwait is enabled, it's very likely guest to have cpuidle
+enabled and using the same mwait as well. So exiting early from
+ mwait_play_dead(), might just punt workflow down:
+  native_play_dead()
+        ...
+        mwait_play_dead();
+        if (cpuidle_play_dead())   <- possible mwait here                                              
+                hlt_play_dead(); 
+
+and it will end up in mwait again and only if that fails
+it will go HLT route and maybe transition to VMM.
+
+Instead of workaround on guest side,
+shouldn't hypervisor force VMEXIT on being uplugged vCPU when it's
+actually hot-unplugging vCPU? (ex: QEMU kicks vCPU out from guest
+context when it is removing vCPU, among other things)
+
+> Suggested-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+> Cc: "Paul E. McKenney" <paulmck@kernel.org>
+> Cc: Wyes Karny <wyes.karny@amd.com>
+> Cc: Lewis Caroll <lewis.carroll@amd.com>
+> Cc: Tom Lendacky <thomas.lendacky@amd.com>
+> Cc: Alexey Makhalov <amakhalov@vmware.com>
+> Cc: Juergen Gross <jgross@suse.com>
+> Cc: x86@kernel.org
+> Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: kvm@vger.kernel.org
+> Cc: xen-devel@lists.xenproject.org
 > ---
->   drivers/net/virtio_net.c | 16 ++++++++++++----
->   1 file changed, 12 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index c29f42d1e04f..a83dc038d8af 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1433,7 +1433,10 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->   		return;
->   
->   	if (__netif_tx_trylock(txq)) {
-> -		free_old_xmit_skbs(sq, true);
-> +		do {
-> +			virtqueue_disable_cb(sq->vq);
-> +			free_old_xmit_skbs(sq, true);
-> +		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->   
->   		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
->   			netif_tx_wake_queue(txq);
-> @@ -1605,12 +1608,17 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->   	struct netdev_queue *txq = netdev_get_tx_queue(dev, qnum);
->   	bool kick = !netdev_xmit_more();
->   	bool use_napi = sq->napi.weight;
-> +	unsigned int bytes = skb->len;
->   
->   	/* Free up any pending old buffers before queueing new ones. */
-> -	free_old_xmit_skbs(sq, false);
-> +	do {
-> +		if (use_napi)
-> +			virtqueue_disable_cb(sq->vq);
->   
-> -	if (use_napi && kick)
-> -		virtqueue_enable_cb_delayed(sq->vq);
-> +		free_old_xmit_skbs(sq, false);
+> v1: https://lore.kernel.org/lkml/165843627080.142207.12667479241667142176.stgit@csail.mit.edu/
+> 
+>  arch/x86/kernel/smpboot.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+> index 55cad72715d9..125a5d4bfded 100644
+> --- a/arch/x86/kernel/smpboot.c
+> +++ b/arch/x86/kernel/smpboot.c
+> @@ -1763,6 +1763,15 @@ static inline void mwait_play_dead(void)
+>  		return;
+>  	if (!this_cpu_has(X86_FEATURE_CLFLUSH))
+>  		return;
 > +
-> +	} while (use_napi && kick &&
-> +	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->   
->   	/* timestamp packet in software */
->   	skb_tx_timestamp(skb);
-
-This patch seems to introduce a problem with QEMU connected to passt using netdev stream 
-backend.
-
-When I run an iperf3 test I get after 1 or 2 seconds of test:
-
-[  254.035559] NETDEV WATCHDOG: ens3 (virtio_net): transmit queue 0 timed out
-...
-[  254.060962] virtio_net virtio1 ens3: TX timeout on queue: 0, sq: output.0, vq: 0x1, 
-name: output.0, 8856000 usecs ago
-[  259.155150] virtio_net virtio1 ens3: TX timeout on queue: 0, sq: output.0, vq: 0x1, 
-name: output.0, 13951000 usecs ago
-
-In QEMU, I can see in virtio_net_tx_bh() the function virtio_net_flush_tx() has flushed 
-all the queue entries and re-enabled the queue notification with 
-virtio_queue_set_notification() and tries to flush again the queue and as it is empty it 
-does nothing more and then rely on a kernel notification to re-enable the bottom half 
-function. As this notification never comes the queue is stuck and kernel add entries but 
-QEMU doesn't remove them:
-
-2812 static void virtio_net_tx_bh(void *opaque)
-2813 {
-...
-2833     ret = virtio_net_flush_tx(q);
-
--> flush the queue and ret is not an error and not n->tx_burst (that would re-schedule the 
-function)
-
-...
-2850     virtio_queue_set_notification(q->tx_vq, 1);
-
--> re-enable the queue notification
-
-2851     ret = virtio_net_flush_tx(q);
-2852     if (ret == -EINVAL) {
-2853         return;
-2854     } else if (ret > 0) {
-2855         virtio_queue_set_notification(q->tx_vq, 0);
-2856         qemu_bh_schedule(q->tx_bh);
-2857         q->tx_waiting = 1;
-2858     }
-
--> ret is 0, exit the function without re-scheduling the function.
-...
-2859 }
-
-If I revert this patch in the kernel (a7766ef18b33 ("virtio_net: disable cb 
-aggressively")), it works fine.
-
-How to reproduce it:
-
-I start passt (https://passt.top/passt):
-
-passt -f
-
-and then QEMU
-
-qemu-system-x86_64 ... --netdev 
-stream,id=netdev0,server=off,addr.type=unix,addr.path=/tmp/passt_1.socket -device 
-virtio-net,mac=9a:2b:2c:2d:2e:2f,netdev=netdev0
-
-Host side:
-
-sysctl -w net.core.rmem_max=134217728
-sysctl -w net.core.wmem_max=134217728
-iperf3 -s
-
-Guest side:
-
-sysctl -w net.core.rmem_max=536870912
-sysctl -w net.core.wmem_max=536870912
-
-ip link set dev $DEV mtu 256
-iperf3 -c $HOST -t10 -i0 -Z -P 8 -l 1M --pacing-timer 1000000 -w 4M
-
-Any idea of what is the problem?
-
-Thanks,
-Laurent
-
+> +	/*
+> +	 * Do not use mwait in CPU offline play_dead if running under
+> +	 * any hypervisor, to make sure that the offline vCPU actually
+> +	 * yields to the hypervisor (which may not happen otherwise if
+> +	 * the hypervisor supports mwait passthrough).
+> +	 */
+> +	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
+> +		return;
+>  	if (__this_cpu_read(cpu_info.cpuid_level) < CPUID_MWAIT_LEAF)
+>  		return;
+>  
 
 _______________________________________________
 Virtualization mailing list
