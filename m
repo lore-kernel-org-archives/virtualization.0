@@ -4,196 +4,85 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CE2FC678DA
-	for <virtualization@archiver.kernel.org>; Tue, 17 Jan 2023 03:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6F9A5C3DA78
+	for <virtualization@archiver.kernel.org>; Tue, 17 Jan 2023 03:47:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AA8B540BDB;
-	Tue, 17 Jan 2023 03:39:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AA8B540BDB
+	by smtp2.osuosl.org (Postfix) with ESMTP id DAB2B40BD3;
+	Tue, 17 Jan 2023 03:47:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DAB2B40BD3
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=hYHF/f55
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U8flMJLa
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SVNuzjw5z91P; Tue, 17 Jan 2023 03:38:59 +0000 (UTC)
+	with ESMTP id Jsic_qVlMfGj; Tue, 17 Jan 2023 03:47:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 36225404AF;
-	Tue, 17 Jan 2023 03:38:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36225404AF
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7D357403E5;
+	Tue, 17 Jan 2023 03:47:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D357403E5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0CCA4C0033;
-	Tue, 17 Jan 2023 03:38:59 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DA03DC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 49CF4C0033;
+	Tue, 17 Jan 2023 03:47:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 09F38C002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 03:38:57 +0000 (UTC)
+ Tue, 17 Jan 2023 03:47:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AE07F607F4
+ by smtp1.osuosl.org (Postfix) with ESMTP id DFF6F81FBB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 03:38:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AE07F607F4
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=hYHF/f55
+ Tue, 17 Jan 2023 03:47:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DFF6F81FBB
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=U8flMJLa
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9AFEuNaRujv4
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OXwcwWFFgBuG
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 03:38:57 +0000 (UTC)
+ Tue, 17 Jan 2023 03:47:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D436B60706
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D436B60706
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 22F9081FB2
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 22F9081FB2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 03:38:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1673926736; x=1705462736;
- h=from:to:cc:subject:date:message-id:references:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=BiK8YdWwF7AcMHXjZUMEuSDOFxsXkHG8GIdDW0EY3yo=;
- b=hYHF/f55vfzA883k+vqGgDJ1Co3zEcj0cPqzXiv+DtH1Kap33Oo+SPCX
- 5dvV8UyXS/ZxpFM3ZjyM8Fy4U2c8l17c1uTxmpJ5mWWTBEFIXA/mN6nLN
- mUM5TIMV9Pb8siFRb8qpJCuVmyEaBDRD/+YA+rRJYb3mTVP1wAOVHwkVb
- C27TJjuMb1io3EWPzKZygCUs6RGb5I1tD4OZGZTYqKtSQFMkQoc/He4UF
- B7VnD8p8WncwSdKKu5ui1bWBmiE1r1RdvC2+djqD1ohw/lK435sTYhr9b
- HfTbwQbQq/3SGTqhCFSnMDMHdfkooW0ExIVhdNymMH6Ma1boSK37ujX41 w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="322292056"
-X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; d="scan'208";a="322292056"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 16 Jan 2023 19:38:55 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10592"; a="691451974"
-X-IronPort-AV: E=Sophos;i="5.97,222,1669104000"; d="scan'208";a="691451974"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
- by orsmga001.jf.intel.com with ESMTP; 16 Jan 2023 19:38:55 -0800
-Received: from fmsmsx612.amr.corp.intel.com (10.18.126.92) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from fmsmsx602.amr.corp.intel.com (10.18.126.82) by
- fmsmsx612.amr.corp.intel.com (10.18.126.92) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from fmsedg602.ED.cps.intel.com (10.1.192.136) by
- fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Mon, 16 Jan 2023 19:38:54 -0800
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.177)
- by edgegateway.intel.com (192.55.55.71) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Mon, 16 Jan 2023 19:38:53 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c0jE+tw1rcZLc0Iu2b2jNlYHzIF7e1uLs8cxkOa/+bs5hWzn33AxiqSTMuDZNTb1vPvHkSpxzjtQHsyspIphgkqA3GUkXWbnIk2hPIrPQLOvJXdwvYjn/uI1br7eEHCULdwokPPj9ZNg2Yq5KHgqZIie/OKWByQI6BnlNZGTE/7Lr7Mdy1Y9ETAAPk8eYyQ+ty2exineQPy1/nASbJTf+WiWvUd07ojqB6xYdXzRTpFFRR4gREqc5kr1eKpziO1QcW/D6SWSdeDgMHxkwKuMsfdewMD5jdVQ2I1x2LcuYzsuRna2JjP/gadAAm6OMdHtjUmwPoB1JMLY6xzTkmZWEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=woUXwpPKNw/jd4o61sXa+h5+uy+kD+yYGda+Veo0EBs=;
- b=Gq7vBEERe6PK594qA0qo7R3ZzJmadWV+xLeO7lnIp9T+VtMbiYlq48r9gRsCkqwHlzQKaPgr2DHj3tvjkinF2ZVzqURUV/sdaTdQRNTYV5jOB4v1OJn+Ujjo5yog4skDbGeNP4c14o3AI+I7joPmGi4XfYXeKbafB9irsjWC2pQs3zoHoyTDUu2Buhu9st/FJ+vyXb3VUOeGhuO/fGy0mIyTlnCh6jAyX7ICbekz9iBdQnpqoh8ToDeZ6gihTm+ogR989FIE/TwKHgiHrF3VrUKeiGeWoGBrHZ1TukrhQQRLu8ISY61tSrKHGWqNQO1n24FsoWscYyDdi7AQjf4stQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by CO1PR11MB4850.namprd11.prod.outlook.com (2603:10b6:303:9c::7) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5986.23; Tue, 17 Jan
- 2023 03:38:52 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d%9]) with mapi id 15.20.5986.023; Tue, 17 Jan 2023
- 03:38:52 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>, Lu Baolu <baolu.lu@linux.intel.com>,
- Joerg Roedel <joro@8bytes.org>, Matthew Rosato <mjrosato@linux.ibm.com>,
- Robin Murphy <robin.murphy@arm.com>
-Subject: RE: [PATCH 7/8] iommu/intel: Support the gfp argument to the
- map_pages op
-Thread-Topic: [PATCH 7/8] iommu/intel: Support the gfp argument to the
- map_pages op
-Thread-Index: AQHZIe3xxYKfQcB18EGoezp52F9yLa6iBZGw
-Date: Tue, 17 Jan 2023 03:38:51 +0000
-Message-ID: <BN9PR11MB52765EE38CA21BA27EEA06548CC69@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
- <7-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
-In-Reply-To: <7-v1-6e8b3997c46d+89e-iommu_map_gfp_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|CO1PR11MB4850:EE_
-x-ms-office365-filtering-correlation-id: f3ca98a3-32d7-458b-685a-08daf83c5a04
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ddXIrX23S6IYUJ95VRMtW8X3H9o4JLrTFnVjWo2Cj+6at0NVH+YzpwuZn3JdyQ3jb20dC+PGiiYC9X/5iqTDvdrjnFI09FPkNctQhrPdBMbBC6nE7JoFAoVfpfz8P6Dn9VOZOll7zzMwNvdr7zfCq12hNM9aDWj8rggzwq1oBYARgC9fX7CWOCyA11PyTNwLQftYiY5R++7NIwqsMseiJ31yvSfCgYc6x5kRKGkFse+noSQ9Ax7mAq/rIOE0T52IAC8lZDrSDgHxtPzd/2eb7RqPCvKKZmeFA3FCH2O4WdBO4d943jueWaqyBSMvZkftkmzqk8F7Tgd3bOCVDTYy8vca8pXU5ZZBwzJAiayCU7tVpW0dabnxkAyRUSigPYHs7fPiqZKt//81UzN+vWGgFfkxjt3062S+ZOdyLMAU+LnClD4DnnyN3IbNWb2VWMd5y3glQsZG4vf/YojcPUrdbKsHupJ4tRnmVclQ+dgVSvz4SyvSVrBiTN4pR7+FHFpwIUYCcEE3qd6CEUcX/NlcX81a6/Ho/6Q3CNvyWpaBcARIjmFaupwNz8RqhD/UA9PF214TCYe1l8Aa77u6TOss8OnrqMf4AweiswzdSnjjwKIABQ7z/4u6PuHt66UT5shOrzoeaJzcaJLUr0+zUqPRUfq0mE9DeVUdDYvZ9KvzeeHiaEd9rTFLm8+XxX9aisQN4p7XSAWCw9vgxyujm5yEUQ==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN9PR11MB5276.namprd11.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(346002)(396003)(366004)(136003)(376002)(39860400002)(84040400005)(451199015)(86362001)(33656002)(83380400001)(186003)(9686003)(26005)(41300700001)(4326008)(64756008)(8676002)(66946007)(66556008)(66476007)(76116006)(66446008)(55016003)(71200400001)(316002)(7696005)(2906002)(6506007)(110136005)(54906003)(478600001)(122000001)(7416002)(38070700005)(38100700002)(52536014)(5660300002)(82960400001)(8936002);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?axMmZGetffPayJhQI4BEu0rBCeXVAGXhaqDMSJQTaMxkZ61q8f4BzsYPPmAz?=
- =?us-ascii?Q?CcEJIqpWohKW1U7agt+mxx0xuDN1IXJLHBc4IJdpBgoWInsmFEbFuUqNGWBT?=
- =?us-ascii?Q?TXCT3UR0f+5+C1gs7VHdTI+5fY+bb1TrvcEDmXdhrAM3BVdbxMcdSgKvIzjE?=
- =?us-ascii?Q?sqytLQyri93do+4cNBRqvzL1qqxgx9xVopFO2Rhi80TeJ8D9JcWTEgijNMuU?=
- =?us-ascii?Q?eM33C3jgOSHyl4PMIhznsqeffrSmblUHGGJsPftRQsK7Dp+vfWeKntOVGxeY?=
- =?us-ascii?Q?Qui54QjhKG4qEuQ782Dgj6a3Rql+/1EW85SDyLvAPOSPclNYgyTg9N0Zg+D6?=
- =?us-ascii?Q?ovZG3x+1ZhLFCi4t6DiMMPCJzcY1r47C6lyKC7jDItB5RqsIq7+fpBYeWTyK?=
- =?us-ascii?Q?hmJysCd5BUHaQPEgwhEOF7UTTBE9Qm7DieysbGWJg7CyWeDvhhww+I6ynMGy?=
- =?us-ascii?Q?kQQKEHbh+kqRj0BTh7fESLvbqOR2P84L5AimGbg1L/aspaTS5myHT0jAdgb3?=
- =?us-ascii?Q?wlommvwnE3/F9cMLg0nS58DSFy5TySP0fA9tgRqBfAymOOhhz6RR5dSDc0lF?=
- =?us-ascii?Q?JGOdSQ8wir/hWa40fpQGPp3qWNdY8EbEiz2vh4U1i/YbzeqbYvqFHXzThsoh?=
- =?us-ascii?Q?DzOorFiYbgB5ZfArY8krMNZ6L0OQObcxyQMgnXgvJ+c1PkC2C7ZWwsB9MWDo?=
- =?us-ascii?Q?OmdGtayM/5HpRKGPgW6DFU5M9tirce2y4v0xwzIEOg9U+3Er58a7KarOoCsI?=
- =?us-ascii?Q?78D0485PQjZiH4FCRX2+q37a/fAb+550XpL7Y+6UYR7pbYBQVWCl4s59hQQ6?=
- =?us-ascii?Q?67rnP2DsXJa6MUxERpN0TOh4Im/TLRvU3FOBFDPxzVhnng2W09Qw2aoCZ9tn?=
- =?us-ascii?Q?YBp8BVJ/PuKTM+svLejDtFADZYIyfSssDvwYQY77eqUlrcDEdb/Qx5Vzz+N2?=
- =?us-ascii?Q?FpUnqE4/s+InYETgcDz85sXk8Y3hmgheBszFQxIVdtIQD4gNge6z3VCMCitV?=
- =?us-ascii?Q?78AaemKZ6uCOEatNqH390KM5Qs8sngN3VT5wf7ej8BtGumegF7PGF51J4KXa?=
- =?us-ascii?Q?2WuL4oq+7nPFIF655TWoGROthN5NVh7bzGfmnruDiKbxvi/Tee05uarhI/M4?=
- =?us-ascii?Q?lgjcuy7Dd1bl8x+KCGiqGuvPYFGwJqKzJLzppX40JhKibaae2sEGBq30IoNj?=
- =?us-ascii?Q?K+6le41p7xRolCpETY+2vElH3391wTA/IVWcBgwIogHfqq32/EzRYN61eN76?=
- =?us-ascii?Q?acgUBxOr/hsPavRlfccy+Ne5aITJd8PugREhQCtQexAYlV+o22WqYtdmpOu1?=
- =?us-ascii?Q?HHDIUvoous9Y4kN1U7aCQoi+hwBcjZKapNs9u/jzqII19JKCrDcZeWNHdY4x?=
- =?us-ascii?Q?mbAadvpIhJGNJY095TViMOzKDYZIEmByJb1bFghA3wvHzV1EIwwAXvv6c7QY?=
- =?us-ascii?Q?Y8Bkd3HqrIBcnRGSDqkqeMVRbcdgcN7xeDjth0l2m85hy63KElH+uN9h9d8v?=
- =?us-ascii?Q?NP8QXb0QYitu0IdMxhk/E4fqo7egp+a0zzh9M8/oG7Ilj0vNhzeIG6p3gvEW?=
- =?us-ascii?Q?h0sfMkZLtXG7yF8xAJzMBOXzu1JBR4CFhZQKOzjb?=
+ Tue, 17 Jan 2023 03:47:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1673927247;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=90WVwCZHiyeI3L+ZIDFVaep8HNaYc9xGptfBX2i+B+U=;
+ b=U8flMJLaM8v04ZBr3YlsiBu7j1/ra/EY2YBOb7A6Roj3SWcA/lG+oR24cnf2UWDTLnRbsk
+ TuV8ekThbXqjEiFEbb1EuV+He9GV6Ox4disz8Y5S5vAfOnczfzEPb/lw5VL/QrM5EaR6r0
+ Sm9GU0k7D2QjF85nzCkyLs/9Dh8uxwo=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-308-Xfu7N253NMu8rBvYODjSUw-1; Mon, 16 Jan 2023 22:47:17 -0500
+X-MC-Unique: Xfu7N253NMu8rBvYODjSUw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4452B858F09;
+ Tue, 17 Jan 2023 03:47:17 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-215.pek2.redhat.com
+ [10.72.13.215])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 571522166B26;
+ Tue, 17 Jan 2023 03:47:09 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH net V3] virtio-net: correctly enable callback during start_xmit
+Date: Tue, 17 Jan 2023 11:47:07 +0800
+Message-Id: <20230117034707.52356-1-jasowang@redhat.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3ca98a3-32d7-458b-685a-08daf83c5a04
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jan 2023 03:38:51.7841 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: WU6JqyvwcWvWut0Q3CyZGbszHiGLzUaoISj2vk8niVKT89+LU7GtH0zndz5Ol6qVc6jVVyDMJ/s1cc7QTmwMgw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR11MB4850
-X-OriginatorOrg: intel.com
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
- Niklas Schnelle <schnelle@linux.ibm.com>,
- "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
- "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "linux-stm32@st-md-mailman.stormreply.com"
- <linux-stm32@st-md-mailman.stormreply.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>,
- "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
- "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "ath11k@lists.infradead.org" <ath11k@lists.infradead.org>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Cc: lvivier@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -210,49 +99,60 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Saturday, January 7, 2023 12:43 AM
-> 
-> @@ -2368,7 +2372,7 @@ static int iommu_domain_identity_map(struct
-> dmar_domain *domain,
-> 
->  	return __domain_mapping(domain, first_vpfn,
->  				first_vpfn, last_vpfn - first_vpfn + 1,
-> -				DMA_PTE_READ|DMA_PTE_WRITE);
-> +				DMA_PTE_READ|DMA_PTE_WRITE,
-> GFP_KERNEL);
->  }
+Commit a7766ef18b33("virtio_net: disable cb aggressively") enables
+virtqueue callback via the following statement:
 
-Baolu, can you help confirm whether switching from GFP_ATOMIC to
-GFP_KERNEL is OK in this path? it looks fine to me in a quick glance
-but want to be conservative here.
+        do {
+		if (use_napi)
+			virtqueue_disable_cb(sq->vq);
 
-> @@ -4333,7 +4337,8 @@ static size_t intel_iommu_unmap(struct
-> iommu_domain *domain,
-> 
->  	/* Cope with horrid API which requires us to unmap more than the
->  	   size argument if it happens to be a large-page mapping. */
-> -	BUG_ON(!pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level));
-> +	BUG_ON(!pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level,
-> +			       GFP_ATOMIC));
+		free_old_xmit_skbs(sq, false);
 
-with level==0 it implies it's only lookup w/o pgtable allocation. From this
-angle it reads better to use a more relaxed gfp e.g. GFP_KERNEL here.
+	} while (use_napi && kick &&
+               unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
 
-> @@ -4392,7 +4397,8 @@ static phys_addr_t
-> intel_iommu_iova_to_phys(struct iommu_domain *domain,
->  	int level = 0;
->  	u64 phys = 0;
-> 
-> -	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level);
-> +	pte = pfn_to_dma_pte(dmar_domain, iova >> VTD_PAGE_SHIFT,
-> &level,
-> +			     GFP_ATOMIC);
+When NAPI is used and kick is false, the callback won't be enabled
+here. And when the virtqueue is about to be full, the tx will be
+disabled, but we still don't enable tx interrupt which will cause a TX
+hang. This could be observed when using pktgen with burst enabled.
 
-ditto
+TO be consistent with the logic that tries to disable cb only for
+NAPI, fixing this by trying to enable delayed callback only when NAPI
+is enabled when the queue is about to be full.
+
+Fixes: a7766ef18b33 ("virtio_net: disable cb aggressively")
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch is needed for -stable.
+Changes since V2:
+- try to enabled delayed callback and schedule NAPI instead of try to
+  poll as when TX NAPI is disabled
+Changes since V1:
+- enable tx interrupt after we disable TX
+---
+ drivers/net/virtio_net.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7723b2a49d8e..18b3de854aeb 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1877,8 +1877,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	 */
+ 	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
+ 		netif_stop_subqueue(dev, qnum);
+-		if (!use_napi &&
+-		    unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
++		if (use_napi) {
++			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
++				virtqueue_napi_schedule(&sq->napi, sq->vq);
++		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+ 			free_old_xmit_skbs(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+-- 
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
