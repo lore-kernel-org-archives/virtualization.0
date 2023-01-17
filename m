@@ -1,87 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3F9FEC3DA78
-	for <virtualization@archiver.kernel.org>; Tue, 17 Jan 2023 08:54:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BF95C3DA78
+	for <virtualization@archiver.kernel.org>; Tue, 17 Jan 2023 10:27:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C5F4F60AF0;
-	Tue, 17 Jan 2023 08:54:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C5F4F60AF0
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=ncsUyaVT
+	by smtp2.osuosl.org (Postfix) with ESMTP id 06438400BF;
+	Tue, 17 Jan 2023 10:27:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 06438400BF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=GQsHqdtN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y72Z3utG4PT5; Tue, 17 Jan 2023 08:54:42 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b65L6LmC3mlR; Tue, 17 Jan 2023 10:27:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5ADC061040;
-	Tue, 17 Jan 2023 08:54:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5ADC061040
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 17740405B1;
+	Tue, 17 Jan 2023 10:27:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 17740405B1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EBE8DC0033;
-	Tue, 17 Jan 2023 08:54:40 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA1CFC0033;
+	Tue, 17 Jan 2023 10:27:07 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A2AEC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CAEDAC002D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 08:54:39 +0000 (UTC)
+ Tue, 17 Jan 2023 10:27:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4E17641795
+ by smtp4.osuosl.org (Postfix) with ESMTP id A658441499
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 08:54:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E17641795
+ Tue, 17 Jan 2023 10:27:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A658441499
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=ncsUyaVT
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=GQsHqdtN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ofRg82gFqKLs
+ with ESMTP id xwVJwB_iy2wW
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 08:54:38 +0000 (UTC)
+ Tue, 17 Jan 2023 10:27:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F399741781
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F399741781
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9DD6D4109F
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9DD6D4109F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Jan 2023 08:54:37 +0000 (UTC)
+ Tue, 17 Jan 2023 10:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=82O7MPpmKDKH/y6naoktZs3WQBLC/PHyEl3Wjqd7/dM=; b=ncsUyaVTQh9fhCexlcLhcCRL9S
- NS41uihsn8PZ17VRTMIIzlrwWNAiQRiZ+A4KgC02XPY3VKPipXvA16q7pUrG6TIkjLDcbi+W3slKi
- h85JYKde28tJS9HLnAiNQ+McUjM7BTsRbUDLFJN9zQZYCnlMQqI+CXescHjmHAOgmblkdCG63TjI5
- hsx9HymmLMz+M4j+0M4z1OxRHRUY9AkKLozOO195MLFu+M+9o7/ZBcr0hniqbdURCPdODH0YEGjlO
- dFmo4sxsYm5aXL3MhIme6f3DivnrrXzkntnOlOoyjw7VtAnFKHFuSFkW50SdsVFAEpGeHYVZ8ifC/
- LYIAtIQA==;
+ bh=oxrJBZkAaCeFAHBiyHLFWLeqn2s4gXmFVHT68O/MsFk=; b=GQsHqdtN/iREDQ8vi1O4Be1MrZ
+ rseA9/3ogzxQ6xZE4SqLUZG4sV/QDZjvMovg65N0xIIgCnRPbkND1+nwy51nHnBc5DWNJS4XUBAN9
+ DGhO4XvtgUfXh3DGTlKQTq1yWaZoEocA9mKp7m7181bsUQeP0yUWn9Ocr+1xM7l1a0UxxyRm82Zw+
+ z3mRAtrbo2NEuxCbyqDel031QfZM7HOcrBLOGqBY1RekqMov5sENJSTJquxMwFQpH1Z5aFuaq2SxP
+ yues13giahhBFOzG58JwmbeFuKGXFy4M+qN2H/Xcy0ClAmlPum6BOEWDZwYNw11AStmRYs4JMNKUo
+ mE/sBfbw==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pHhj2-005saH-0S; Tue, 17 Jan 2023 08:53:48 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1pHjB0-009alj-Ie; Tue, 17 Jan 2023 10:26:46 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7E36D3002BF;
- Tue, 17 Jan 2023 09:53:52 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E6A7A300129;
+ Tue, 17 Jan 2023 11:26:29 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 46751201ABB3C; Tue, 17 Jan 2023 09:53:52 +0100 (CET)
-Date: Tue, 17 Jan 2023 09:53:52 +0100
+ id C3475201C94B3; Tue, 17 Jan 2023 11:26:29 +0100 (CET)
+Date: Tue, 17 Jan 2023 11:26:29 +0100
 From: Peter Zijlstra <peterz@infradead.org>
-To: Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [PATCH v3 35/51] trace,hardirq: No moar _rcuidle() tracing
-Message-ID: <Y8ZiIMHyXX/yW1EI@hirez.programming.kicks-ass.net>
+To: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH v3 00/51] cpuidle,rcu: Clean up the mess
+Message-ID: <Y8Z31UbzG3LJgAXE@hirez.programming.kicks-ass.net>
 References: <20230112194314.845371875@infradead.org>
- <20230112195541.477416709@infradead.org>
- <20230117132446.02ec12e4c10718de27790900@kernel.org>
+ <Y8WCWAuQSHN651dA@FVFF77S0Q05N.cambridge.arm.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230117132446.02ec12e4c10718de27790900@kernel.org>
+In-Reply-To: <Y8WCWAuQSHN651dA@FVFF77S0Q05N.cambridge.arm.com>
 Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linus.walleij@linaro.org, nsekhar@ti.com, bsegall@google.com,
  guoren@kernel.org, pavel@ucw.cz, agordeev@linux.ibm.com,
@@ -97,7 +96,7 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linux-perf-users@vger.kernel.org, senozhatsky@chromium.org,
  svens@linux.ibm.com, jolsa@kernel.org, tj@kernel.org,
  Andrew Morton <akpm@linux-foundation.org>, linux-trace-kernel@vger.kernel.org,
- mark.rutland@arm.com, linux-ia64@vger.kernel.org, alim.akhtar@samsung.com,
+ linux-ia64@vger.kernel.org, alim.akhtar@samsung.com,
  dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
  James.Bottomley@hansenpartnership.com, jcmvbkbc@gmail.com,
  thierry.reding@gmail.com, kernel@xen0n.name, cl@linux.com,
@@ -124,12 +123,12 @@ Cc: juri.lelli@redhat.com, rafael@kernel.org, catalin.marinas@arm.com,
  linux-hexagon@vger.kernel.org, linux-riscv@lists.infradead.org,
  vincenzo.frascino@arm.com, anton.ivanov@cambridgegreys.com, jonas@southpole.se,
  yury.norov@gmail.com, richard@nod.at, x86@kernel.org, linux@armlinux.org.uk,
- mingo@redhat.com, aou@eecs.berkeley.edu, paulmck@kernel.org, hca@linux.ibm.com,
- richard.henderson@linaro.org, stefan.kristiansson@saunalahti.fi,
- openrisc@lists.librecores.org, acme@kernel.org, paul.walmsley@sifive.com,
- linux-tegra@vger.kernel.org, namhyung@kernel.org,
- andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org, dvyukov@google.com,
- jgross@suse.com, monstr@monstr.eu, andersson@kernel.org,
+ mingo@redhat.com, mhiramat@kernel.org, aou@eecs.berkeley.edu,
+ paulmck@kernel.org, hca@linux.ibm.com, richard.henderson@linaro.org,
+ stefan.kristiansson@saunalahti.fi, openrisc@lists.librecores.org,
+ acme@kernel.org, paul.walmsley@sifive.com, linux-tegra@vger.kernel.org,
+ namhyung@kernel.org, andriy.shevchenko@linux.intel.com, jpoimboe@kernel.org,
+ dvyukov@google.com, jgross@suse.com, monstr@monstr.eu, andersson@kernel.org,
  linux-mips@vger.kernel.org, krzysztof.kozlowski@linaro.org, palmer@dabbelt.com,
  anup@brainfault.org, bp@alien8.de, johannes@sipsolutions.net,
  linuxppc-dev@lists.ozlabs.org, deller@gmx.de
@@ -149,39 +148,206 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 17, 2023 at 01:24:46PM +0900, Masami Hiramatsu wrote:
-> Hi Peter,
-> 
-> On Thu, 12 Jan 2023 20:43:49 +0100
-> Peter Zijlstra <peterz@infradead.org> wrote:
-> 
-> > Robot reported that trace_hardirqs_{on,off}() tickle the forbidden
-> > _rcuidle() tracepoint through local_irq_{en,dis}able().
-> > 
-> > For 'sane' configs, these calls will only happen with RCU enabled and
-> > as such can use the regular tracepoint. This also means it's possible
-> > to trace them from NMI context again.
-> > 
-> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> 
-> The code looks good to me. I just have a question about comment.
-> 
-> > ---
-> >  kernel/trace/trace_preemptirq.c |   21 +++++++++++++--------
-> >  1 file changed, 13 insertions(+), 8 deletions(-)
-> > 
-> > --- a/kernel/trace/trace_preemptirq.c
-> > +++ b/kernel/trace/trace_preemptirq.c
-> > @@ -20,6 +20,15 @@
-> >  static DEFINE_PER_CPU(int, tracing_irq_cpu);
-> >  
-> >  /*
-> > + * ...
-> 
-> Is this intended? Wouldn't you leave any comment here?
+On Mon, Jan 16, 2023 at 04:59:04PM +0000, Mark Rutland wrote:
 
-I indeed forgot to write the comment before posting, my bad :/ Ingo fixed
-it up when he applied.
+> I'm sorry to have to bear some bad news on that front. :(
+
+Moo, something had to give..
+
+
+> IIUC what's happenign here is the PSCI cpuidle driver has entered idle and RCU
+> is no longer watching when arm64's cpu_suspend() manipulates DAIF. Our
+> local_daif_*() helpers poke lockdep and tracing, hence the call to
+> trace_hardirqs_off() and the RCU usage.
+
+Right, strictly speaking not needed at this point, IRQs should have been
+traced off a long time ago.
+
+> I think we need RCU to be watching all the way down to cpu_suspend(), and it's
+> cpu_suspend() that should actually enter/exit idle context. That and we need to
+> make cpu_suspend() and the low-level PSCI invocation noinstr.
+> 
+> I'm not sure whether 32-bit will have a similar issue or not.
+
+I'm not seeing 32bit or Risc-V have similar issues here, but who knows,
+maybe I missed somsething.
+
+In any case, the below ought to cure the ARM64 case and remove that last
+known RCU_NONIDLE() user as a bonus.
+
+---
+diff --git a/arch/arm64/kernel/cpuidle.c b/arch/arm64/kernel/cpuidle.c
+index 41974a1a229a..42e19fff40ee 100644
+--- a/arch/arm64/kernel/cpuidle.c
++++ b/arch/arm64/kernel/cpuidle.c
+@@ -67,10 +67,10 @@ __cpuidle int acpi_processor_ffh_lpi_enter(struct acpi_lpi_state *lpi)
+ 	u32 state = lpi->address;
+ 
+ 	if (ARM64_LPI_IS_RETENTION_STATE(lpi->arch_flags))
+-		return CPU_PM_CPU_IDLE_ENTER_RETENTION_PARAM(psci_cpu_suspend_enter,
++		return CPU_PM_CPU_IDLE_ENTER_RETENTION_PARAM_RCU(psci_cpu_suspend_enter,
+ 						lpi->index, state);
+ 	else
+-		return CPU_PM_CPU_IDLE_ENTER_PARAM(psci_cpu_suspend_enter,
++		return CPU_PM_CPU_IDLE_ENTER_PARAM_RCU(psci_cpu_suspend_enter,
+ 					     lpi->index, state);
+ }
+ #endif
+diff --git a/arch/arm64/kernel/suspend.c b/arch/arm64/kernel/suspend.c
+index e7163f31f716..0fbdf5fe64d8 100644
+--- a/arch/arm64/kernel/suspend.c
++++ b/arch/arm64/kernel/suspend.c
+@@ -4,6 +4,7 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ #include <linux/pgtable.h>
++#include <linux/cpuidle.h>
+ #include <asm/alternative.h>
+ #include <asm/cacheflush.h>
+ #include <asm/cpufeature.h>
+@@ -104,6 +105,10 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ 	 * From this point debug exceptions are disabled to prevent
+ 	 * updates to mdscr register (saved and restored along with
+ 	 * general purpose registers) from kernel debuggers.
++	 *
++	 * Strictly speaking the trace_hardirqs_off() here is superfluous,
++	 * hardirqs should be firmly off by now. This really ought to use
++	 * something like raw_local_daif_save().
+ 	 */
+ 	flags = local_daif_save();
+ 
+@@ -120,6 +125,8 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ 	 */
+ 	arm_cpuidle_save_irq_context(&context);
+ 
++	ct_cpuidle_enter();
++
+ 	if (__cpu_suspend_enter(&state)) {
+ 		/* Call the suspend finisher */
+ 		ret = fn(arg);
+@@ -133,8 +140,11 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
+ 		 */
+ 		if (!ret)
+ 			ret = -EOPNOTSUPP;
++
++		ct_cpuidle_exit();
+ 	} else {
+-		RCU_NONIDLE(__cpu_suspend_exit());
++		ct_cpuidle_exit();
++		__cpu_suspend_exit();
+ 	}
+ 
+ 	arm_cpuidle_restore_irq_context(&context);
+diff --git a/drivers/cpuidle/cpuidle-psci.c b/drivers/cpuidle/cpuidle-psci.c
+index 4fc4e0381944..312a34ef28dc 100644
+--- a/drivers/cpuidle/cpuidle-psci.c
++++ b/drivers/cpuidle/cpuidle-psci.c
+@@ -69,16 +69,12 @@ static __cpuidle int __psci_enter_domain_idle_state(struct cpuidle_device *dev,
+ 	else
+ 		pm_runtime_put_sync_suspend(pd_dev);
+ 
+-	ct_cpuidle_enter();
+-
+ 	state = psci_get_domain_state();
+ 	if (!state)
+ 		state = states[idx];
+ 
+ 	ret = psci_cpu_suspend_enter(state) ? -1 : idx;
+ 
+-	ct_cpuidle_exit();
+-
+ 	if (s2idle)
+ 		dev_pm_genpd_resume(pd_dev);
+ 	else
+@@ -192,7 +188,7 @@ static __cpuidle int psci_enter_idle_state(struct cpuidle_device *dev,
+ {
+ 	u32 *state = __this_cpu_read(psci_cpuidle_data.psci_states);
+ 
+-	return CPU_PM_CPU_IDLE_ENTER_PARAM(psci_cpu_suspend_enter, idx, state[idx]);
++	return CPU_PM_CPU_IDLE_ENTER_PARAM_RCU(psci_cpu_suspend_enter, idx, state[idx]);
+ }
+ 
+ static const struct of_device_id psci_idle_state_match[] = {
+diff --git a/drivers/firmware/psci/psci.c b/drivers/firmware/psci/psci.c
+index e7bcfca4159f..f3a044fa4652 100644
+--- a/drivers/firmware/psci/psci.c
++++ b/drivers/firmware/psci/psci.c
+@@ -462,11 +462,22 @@ int psci_cpu_suspend_enter(u32 state)
+ 	if (!psci_power_state_loses_context(state)) {
+ 		struct arm_cpuidle_irq_context context;
+ 
++		ct_cpuidle_enter();
+ 		arm_cpuidle_save_irq_context(&context);
+ 		ret = psci_ops.cpu_suspend(state, 0);
+ 		arm_cpuidle_restore_irq_context(&context);
++		ct_cpuidle_exit();
+ 	} else {
++		/*
++		 * ARM64 cpu_suspend() wants to do ct_cpuidle_*() itself.
++		 */
++		if (!IS_ENABLED(CONFIG_ARM64))
++			ct_cpuidle_enter();
++
+ 		ret = cpu_suspend(state, psci_suspend_finisher);
++
++		if (!IS_ENABLED(CONFIG_ARM64))
++			ct_cpuidle_exit();
+ 	}
+ 
+ 	return ret;
+diff --git a/include/linux/cpuidle.h b/include/linux/cpuidle.h
+index 630c879143c7..3183aeb7f5b4 100644
+--- a/include/linux/cpuidle.h
++++ b/include/linux/cpuidle.h
+@@ -307,7 +307,7 @@ extern s64 cpuidle_governor_latency_req(unsigned int cpu);
+ #define __CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter,			\
+ 				idx,					\
+ 				state,					\
+-				is_retention)				\
++				is_retention, is_rcu)			\
+ ({									\
+ 	int __ret = 0;							\
+ 									\
+@@ -319,9 +319,11 @@ extern s64 cpuidle_governor_latency_req(unsigned int cpu);
+ 	if (!is_retention)						\
+ 		__ret =  cpu_pm_enter();				\
+ 	if (!__ret) {							\
+-		ct_cpuidle_enter();					\
++		if (!is_rcu)						\
++			ct_cpuidle_enter();				\
+ 		__ret = low_level_idle_enter(state);			\
+-		ct_cpuidle_exit();					\
++		if (!is_rcu)						\
++			ct_cpuidle_exit();				\
+ 		if (!is_retention)					\
+ 			cpu_pm_exit();					\
+ 	}								\
+@@ -330,15 +332,21 @@ extern s64 cpuidle_governor_latency_req(unsigned int cpu);
+ })
+ 
+ #define CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx)	\
+-	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, idx, 0)
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, idx, 0, 0)
+ 
+ #define CPU_PM_CPU_IDLE_ENTER_RETENTION(low_level_idle_enter, idx)	\
+-	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, idx, 1)
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, idx, 1, 0)
+ 
+ #define CPU_PM_CPU_IDLE_ENTER_PARAM(low_level_idle_enter, idx, state)	\
+-	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 0)
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 0, 0)
++
++#define CPU_PM_CPU_IDLE_ENTER_PARAM_RCU(low_level_idle_enter, idx, state)	\
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 0, 1)
+ 
+ #define CPU_PM_CPU_IDLE_ENTER_RETENTION_PARAM(low_level_idle_enter, idx, state)	\
+-	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 1)
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 1, 0)
++
++#define CPU_PM_CPU_IDLE_ENTER_RETENTION_PARAM_RCU(low_level_idle_enter, idx, state)	\
++	__CPU_PM_CPU_IDLE_ENTER(low_level_idle_enter, idx, state, 1, 1)
+ 
+ #endif /* _LINUX_CPUIDLE_H */
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
