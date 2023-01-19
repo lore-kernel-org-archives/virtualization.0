@@ -1,195 +1,89 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3A3B8C38142
-	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 03:52:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5189FC00A5A
+	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 06:15:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C218682288;
-	Thu, 19 Jan 2023 03:52:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C218682288
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=J9uLONsE
+	by smtp3.osuosl.org (Postfix) with ESMTP id B11826107E;
+	Thu, 19 Jan 2023 06:15:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B11826107E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RTJdZPty
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m497KTVRlum6; Thu, 19 Jan 2023 03:52:09 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LeTvOxu03Pln; Thu, 19 Jan 2023 06:15:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D4C74821DF;
-	Thu, 19 Jan 2023 03:52:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D4C74821DF
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D03CC61016;
+	Thu, 19 Jan 2023 06:15:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D03CC61016
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B03CFC0033;
-	Thu, 19 Jan 2023 03:52:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A6C5C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9FA8FC0032;
+	Thu, 19 Jan 2023 06:15:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C1623C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 03:52:06 +0000 (UTC)
+ Thu, 19 Jan 2023 06:15:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 53F0682286
+ by smtp4.osuosl.org (Postfix) with ESMTP id 95C014193E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 03:52:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53F0682286
+ Thu, 19 Jan 2023 06:15:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 95C014193E
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RTJdZPty
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yoTxA4UnKcA8
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gt1g2GqGN4s8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 03:52:05 +0000 (UTC)
+ Thu, 19 Jan 2023 06:15:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1AF1B821DF
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1AF1B821DF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BBDAE41930
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id BBDAE41930
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 03:52:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1674100325; x=1705636325;
- h=from:to:cc:subject:date:message-id:references:
- in-reply-to:content-transfer-encoding:mime-version;
- bh=Wnc7qRiD/7yzgTKNE1tb89e71DGTIElgexxNNmIYXj8=;
- b=J9uLONsE8Eslk69u6Bs8/Ukyrpukxg37saar1HJiLleb/WVzF5AUXVHg
- MQde5MAdGa30XOmSG/iz/l6T2OHca0KFWKRQur6DI0HTEyVRX5AEp0+M3
- A1YV0H2/YqZhfKHKxbF94kuP45Vi6PKrSdrVka5SdCuMLGExbvPitv18o
- YIR1kuvqN8gIYDgxEsy7xF3sgYTTWPeX2/3fAuddXERpw+BYH616k90hu
- FQ0fknVvz5zzPz4o7QZZ0ZK27c4OibeN/CLk688OpcYwRB2GtZQBG0O2Z
- LxyI9qlqnDl4WRUdVphKIxZoZyHp019Spicz1UEQ6bugJMIMApdJIvwxg w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="411424379"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; d="scan'208";a="411424379"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 18 Jan 2023 19:52:04 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="988841666"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; d="scan'208";a="988841666"
-Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
- by fmsmga005.fm.intel.com with ESMTP; 18 Jan 2023 19:52:03 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Wed, 18 Jan 2023 19:52:03 -0800
-Received: from orsmsx602.amr.corp.intel.com (10.22.229.15) by
- ORSMSX611.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Wed, 18 Jan 2023 19:52:02 -0800
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Wed, 18 Jan 2023 19:52:02 -0800
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (104.47.70.103)
- by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Wed, 18 Jan 2023 19:52:02 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=e9iOdZa4ffh3Zc4MkZxd4iF8qyld7eYv1dTmDrS1jm7HNrQ6L1+g4a7tGCA0EXfKS1O4ys3QCEg84K4Yth+Rh8bSF74IsMQ4druOB7unnIhGwbqOT3s4X5ZOyq4wKX83Klpk8uIjhldYd1IksECIKsk4W/7YyUHTHAmJZeavurQaqufH6OcxHBcCt9r6rX4+J3Mj8d4g7mozLb6Fb/GSJw2XRDWbQcSM8AgSWmY3bUScdjoXISw+v9WKEMS46f8dLzDsFDgdAIS6zpEmpJWq5kDrF1zdb57LC0PipIt/aGhGYGs4Ixj/ipcrQKJHHAzUem4UjSzSrgmki56FXRHO9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Wnc7qRiD/7yzgTKNE1tb89e71DGTIElgexxNNmIYXj8=;
- b=fzV3KhlrJbU55o4vCwcsKdWngj0X72bBghjk5KK8A1q4KPls6Kidyzg9nkrPnrpYZBCj902dXurnPuWX2LmftlZKm9oxVpMyOdRHGqGbaEKIcgTHpF7+TbF4i6g4vJXVou8F6HaUUEClgxxDCgsQfER6NgliITbTaDujWCMM/MHmCTA72Zd7/6oO8Xe2S4ymAwFlu+cJKT2H0ijjJvyO+FZPANCl6P2z6xlMWnwAE3zft+OyWTN1qwX7NA3PPmgzvHC/OBvPud8Vx5blyj2qIaZ17oOHrWkM+x/8lYXsZ1sQNnUyRICsXRKfcPgGb9+uOc3jiNH+jQJFV6Cc6QyMEA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by SN7PR11MB6948.namprd11.prod.outlook.com (2603:10b6:806:2ab::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.13; Thu, 19 Jan
- 2023 03:52:00 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d%9]) with mapi id 15.20.6002.025; Thu, 19 Jan 2023
- 03:52:00 +0000
-From: "Tian, Kevin" <kevin.tian@intel.com>
-To: Jason Gunthorpe <jgg@nvidia.com>, Lu Baolu <baolu.lu@linux.intel.com>,
- Joerg Roedel <joro@8bytes.org>, Matthew Rosato <mjrosato@linux.ibm.com>,
- Robin Murphy <robin.murphy@arm.com>
-Subject: RE: [PATCH v2 08/10] iommu/intel: Use GFP_KERNEL in sleepable contexts
-Thread-Topic: [PATCH v2 08/10] iommu/intel: Use GFP_KERNEL in sleepable
- contexts
-Thread-Index: AQHZK2blvhJrGbu5mk2nje05cWz9Ma6lG9yQ
-Date: Thu, 19 Jan 2023 03:52:00 +0000
-Message-ID: <BN9PR11MB527652EE44B54F890754A1CB8CC49@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <0-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
- <8-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-In-Reply-To: <8-v2-ce66f632bd0d+484-iommu_map_gfp_jgg@nvidia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|SN7PR11MB6948:EE_
-x-ms-office365-filtering-correlation-id: 2f1b1863-643d-44d1-09d3-08daf9d08514
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: rI8k5kGbOHRTRCmYjT7t6hSo1lhU3kzBQMZ90itzYRq9oFl53RI41dX4Kl0EwmOvAhKO2Y1fejrrHCBIW+1TLdK/ehtPwmZOpAAUVmdO5pZUwgktDZuM85rAWXTlV6aCPtNhSWz4YD3ZsjijXppgwbYZTmtAmHYmbxl5NlvcTC6gnU7XI+FXw1KGkkIAxj4yrMrUwqAgKMGzMDSYYB0u33h/AosJFwACU30kOCkR3TGbM8iv9Iuk9XQrrQ60Lc4GM3IBGDD6bSIwjyXEa0q09wjNsGO0Pr8LlvlWvGjMSUytmdZS7O4AJ2UKA8FeMRxO8DT9VN6dGu1Uce+GqX/Tp0qIIIMzII3rxhZUJ6ERBXPW/kcfurGrDSPKUcnHUhMGy6jd52wgZ/8AWJehQPNAUO9qsHZwcvF9vm8LlhrT8jz1rMk0dqG4osVy6CsbMvK2pGdIpchUdxzvy3uAkT3K3NWVACxxCfWqusBeICdtx9cPeFJKCNhiLj8tK/FIW3dxrl7j4W6e/ymomN9RAgdUxs5jiqmtBKeelTfNU3Sqf1hVbUtgMvgEV9piEpJfUjLhA4UQuE69V7FjGa6I51CMuOvZK9BnLJ1PX/wYrAF4GlwFPVdrPOhsOca18cyELD0DG6XY7Bdi0xNYMlP7R5ApUitoHjQR4wQUIyTuFX7H67Rv723Eo+LMttQ1RM8ibYxj2oDkIlkKV15EV8LvnA3k5g==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN9PR11MB5276.namprd11.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230022)(39860400002)(396003)(376002)(346002)(366004)(136003)(451199015)(6506007)(26005)(186003)(9686003)(7696005)(122000001)(71200400001)(33656002)(478600001)(54906003)(316002)(110136005)(76116006)(66946007)(66556008)(64756008)(66446008)(8676002)(4326008)(66476007)(41300700001)(8936002)(52536014)(55016003)(7416002)(2906002)(5660300002)(38070700005)(38100700002)(82960400001)(86362001)(558084003);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?a9UIMGOvc3+gEsDXtI5F/y1eqdLyxzZIJt+NbpAQ4bEvTjTvV3689PGvMviI?=
- =?us-ascii?Q?BHEEdGCbFI5T1StZ1H1+42TnbuHzR5UbX2it3CRQ83sprHJGpwcMgTj90iC/?=
- =?us-ascii?Q?TMfnnvKAepJrTgA1C6v7f9ystRb28w+HotLoMmYBDzFdDRvXm0Rtb1K0azq8?=
- =?us-ascii?Q?oHSkVjHXKgNEefVIY1IOL7PFzhrbq5dyJ3XPc40/WBrmHqSlbo7z784JPgh7?=
- =?us-ascii?Q?ofp8AXtGmv92poGbvGjYxHcDggrVmYaRd+D22JKHaUvOl0sJ2PSAoGtuAJOv?=
- =?us-ascii?Q?/2pzdc8x6RPut+0HUGnC0MaJYeAUW0qNu4NY6q9o8S8grj4gd8+vpainxQh4?=
- =?us-ascii?Q?zLtZqQW5vM7mMPMscItC9mLjlr3Beos3eLOrGftkM2VLmc9xzy7EBn+fyj66?=
- =?us-ascii?Q?NYeQu6aGQ1nuUGS1yU31S69yJpUp3optpvf+qPhHhwPsHl+aND5wCIk1K9Il?=
- =?us-ascii?Q?nvSFxBsZqVdLVMn5CX/T7bbcGFlGSfYV47lh15fB7pSVT54lqTwBkLqrHcZ7?=
- =?us-ascii?Q?lySS2sF0DEPwC69hJ47HNktwcuZe3GiSw72SRxaPsMLNLOL2pCa4hkzi0oiw?=
- =?us-ascii?Q?tKro/tUYneQ7uaRjMGNIH48L05aNU5I2MhzJtbsanPcWtccum7k+wLwRXE4B?=
- =?us-ascii?Q?b/d8roblWeLiIAkHa+ve5dV/ieew2hNRk3ENgZ+yXR7/TXY67v4fv1cGr1YA?=
- =?us-ascii?Q?A3X3x2/yl6wYQkAbT0q2ZLnwCJZF++IGvkwki9vOTBxKNZPprJ0dnVwosQoV?=
- =?us-ascii?Q?+1CShe5wtXYYZmRFy3R3Imvucmwe7NVGzA13UcOmxrdoTxHRjRghxB/YiMkS?=
- =?us-ascii?Q?ylv65ySxmUuqheVPTGnPq4hFfI685TGpyJXmsA45J02GT+GHkKPLp988qP/i?=
- =?us-ascii?Q?gsoZM6o5tedstBUSAIaicdEE6fQUsLQw9DZe2r1Rf01ddYm8F5WgDlk9ubYJ?=
- =?us-ascii?Q?CLbR/k4ClLE3j3HE5WpyWkI6RFUswXX1zghS3LNtoavADQzajyjXkXNACfyy?=
- =?us-ascii?Q?rzaph6jcuHmxiZus8TNl67vEhQO5jcUhEYGqmvNr3DbgPnEwN6TwzFS1G7ep?=
- =?us-ascii?Q?xr7fYtCG4po6BisWTP/3MHNgY5j2Vbdk20A1RmYq+JJ7KddTCYRexNAfPYR3?=
- =?us-ascii?Q?igv2GbGwRnoDnGfST6EBmRH26aMFnCaZLETgsA7e5DVVixwe4XtDpunn+4pd?=
- =?us-ascii?Q?9FbDp+vDWVq6RrYkTFJShYL6KW0mxQn7hcKyGESXlmy151XzH3RTXDwbZFJ/?=
- =?us-ascii?Q?tK41di4Qt6AFv5ZY7g2UWY4LGHmhdgU7gAwgFmIrCGYGidn+lRrmIUO+P84a?=
- =?us-ascii?Q?LC2/TWt+r8MBiRFSr3foq//jRq0c8KGd64rs44frzNFeywxHdgW7vvvSBPbv?=
- =?us-ascii?Q?Aagc9s91AEb+MBRMI/o/R69gv38sYU7zA/o0kzNfvCRiavu4eyvWD6bajZym?=
- =?us-ascii?Q?dS8EeyAEGYG6dNVQ0uaTvnXpbbRXf8vy7xiBOm5zEjTzzstojDb6jo8Zo9xr?=
- =?us-ascii?Q?y4AQxdQ331WrYZ4j7rwHlXzllOfCm3s4IdtVjXtO+gLks36n3rXc9jsYoGg+?=
- =?us-ascii?Q?BqwKdjDtZjHBQX8Rmb13C7YKWG9AW5K7ym5UUFua?=
+ Thu, 19 Jan 2023 06:15:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674108939;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=jOnSvm4IzUcYhqfj06jz0gGlZdA5hsRgPecmLO10cwQ=;
+ b=RTJdZPty44yecdYx11c8ZT9+IW7Muf0ua69m625iGQ+9fTJyK9uGdtM1JTKEfSdfNhXhxC
+ fhSAC+mcPaXpoQYLyCX4Y4R/hNKHf7PyfpTxPeEE4MV1f3mMZ+maoNSlcBLgpgL62PkEsH
+ g9JS9GTq2LX91pwLpseCgtf++ywQMMw=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-196-v6b9GdA3MzKcCikf44txmA-1; Thu, 19 Jan 2023 01:15:37 -0500
+X-MC-Unique: v6b9GdA3MzKcCikf44txmA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 44FF8280605A;
+ Thu, 19 Jan 2023 06:15:37 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-97.pek2.redhat.com [10.72.13.97])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id D5F541121315;
+ Thu, 19 Jan 2023 06:15:33 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH V2 1/5] virtio_ring: per virtqueue dma device
+Date: Thu, 19 Jan 2023 14:15:21 +0800
+Message-Id: <20230119061525.75068-2-jasowang@redhat.com>
+In-Reply-To: <20230119061525.75068-1-jasowang@redhat.com>
+References: <20230119061525.75068-1-jasowang@redhat.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2f1b1863-643d-44d1-09d3-08daf9d08514
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Jan 2023 03:52:00.6918 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Ue9FlnWshb1mMsuFHuLMBLRuLQ5tPxzewkEJm7uagpvO5sfOr3u4cBu9y699Cf8vhwFqT7BVkR/2CoEtz/IfLg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR11MB6948
-X-OriginatorOrg: intel.com
-Cc: "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
- Niklas Schnelle <schnelle@linux.ibm.com>,
- "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
- "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "linux-stm32@st-md-mailman.stormreply.com"
- <linux-stm32@st-md-mailman.stormreply.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "ath10k@lists.infradead.org" <ath10k@lists.infradead.org>,
- "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
- "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "ath11k@lists.infradead.org" <ath11k@lists.infradead.org>,
- "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
- "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+Cc: gdawar@amd.com, elic@nvidia.com, virtualization@lists.linux-foundation.org,
+ tanuj.kamde@amd.com, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -206,16 +100,451 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> From: Jason Gunthorpe <jgg@nvidia.com>
-> Sent: Thursday, January 19, 2023 2:01 AM
-> 
-> These contexts are sleepable, so use the proper annotation. The
-> GFP_ATOMIC
-> was added mechanically in the prior patches.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This patch introduces a per virtqueue dma device. This will be used
+for virtio devices whose virtqueue are backed by different underlayer
+devices.
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+One example is the vDPA that where the control virtqueue could be
+implemented through software mediation.
+
+Some of the work are actually done before since the helper like
+vring_dma_device(). This work left are:
+
+- Let vring_dma_device() return the per virtqueue dma device instead
+  of the vdev's parent.
+- Allow passing a dma_device when creating the virtqueue through a new
+  helper, old vring creation helper will keep using vdev's parent.
+
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Tested-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 133 ++++++++++++++++++++++++-----------
+ include/linux/virtio_ring.h  |  16 +++++
+ 2 files changed, 109 insertions(+), 40 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 723c4e29e1d3..41144b5246a8 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -202,6 +202,9 @@ struct vring_virtqueue {
+ 	/* DMA, allocation, and size information */
+ 	bool we_own_ring;
+ 
++	/* Device used for doing DMA */
++	struct device *dma_dev;
++
+ #ifdef DEBUG
+ 	/* They're supposed to lock for us. */
+ 	unsigned int in_use;
+@@ -219,7 +222,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 					       bool context,
+ 					       bool (*notify)(struct virtqueue *),
+ 					       void (*callback)(struct virtqueue *),
+-					       const char *name);
++					       const char *name,
++					       struct device *dma_dev);
+ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num);
+ static void vring_free(struct virtqueue *_vq);
+ 
+@@ -297,10 +301,11 @@ size_t virtio_max_dma_size(struct virtio_device *vdev)
+ EXPORT_SYMBOL_GPL(virtio_max_dma_size);
+ 
+ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+-			      dma_addr_t *dma_handle, gfp_t flag)
++			       dma_addr_t *dma_handle, gfp_t flag,
++			       struct device *dma_dev)
+ {
+ 	if (vring_use_dma_api(vdev)) {
+-		return dma_alloc_coherent(vdev->dev.parent, size,
++		return dma_alloc_coherent(dma_dev, size,
+ 					  dma_handle, flag);
+ 	} else {
+ 		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
+@@ -330,10 +335,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+ }
+ 
+ static void vring_free_queue(struct virtio_device *vdev, size_t size,
+-			     void *queue, dma_addr_t dma_handle)
++			     void *queue, dma_addr_t dma_handle,
++			     struct device *dma_dev)
+ {
+ 	if (vring_use_dma_api(vdev))
+-		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
++		dma_free_coherent(dma_dev, size, queue, dma_handle);
+ 	else
+ 		free_pages_exact(queue, PAGE_ALIGN(size));
+ }
+@@ -341,11 +347,11 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
+ /*
+  * The DMA ops on various arches are rather gnarly right now, and
+  * making all of the arch DMA ops work on the vring device itself
+- * is a mess.  For now, we use the parent device for DMA ops.
++ * is a mess.
+  */
+ static inline struct device *vring_dma_dev(const struct vring_virtqueue *vq)
+ {
+-	return vq->vq.vdev->dev.parent;
++	return vq->dma_dev;
+ }
+ 
+ /* Map one sg entry. */
+@@ -1032,11 +1038,12 @@ static int vring_alloc_state_extra_split(struct vring_virtqueue_split *vring_spl
+ }
+ 
+ static void vring_free_split(struct vring_virtqueue_split *vring_split,
+-			     struct virtio_device *vdev)
++			     struct virtio_device *vdev, struct device *dma_dev)
+ {
+ 	vring_free_queue(vdev, vring_split->queue_size_in_bytes,
+ 			 vring_split->vring.desc,
+-			 vring_split->queue_dma_addr);
++			 vring_split->queue_dma_addr,
++			 dma_dev);
+ 
+ 	kfree(vring_split->desc_state);
+ 	kfree(vring_split->desc_extra);
+@@ -1046,7 +1053,8 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
+ 				   struct virtio_device *vdev,
+ 				   u32 num,
+ 				   unsigned int vring_align,
+-				   bool may_reduce_num)
++				   bool may_reduce_num,
++				   struct device *dma_dev)
+ {
+ 	void *queue = NULL;
+ 	dma_addr_t dma_addr;
+@@ -1061,7 +1069,8 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
+ 	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
+ 		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
+ 					  &dma_addr,
+-					  GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO);
++					  GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
++					  dma_dev);
+ 		if (queue)
+ 			break;
+ 		if (!may_reduce_num)
+@@ -1074,7 +1083,8 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
+ 	if (!queue) {
+ 		/* Try to get a single page. You are my only hope! */
+ 		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
+-					  &dma_addr, GFP_KERNEL | __GFP_ZERO);
++					  &dma_addr, GFP_KERNEL | __GFP_ZERO,
++					  dma_dev);
+ 	}
+ 	if (!queue)
+ 		return -ENOMEM;
+@@ -1100,21 +1110,22 @@ static struct virtqueue *vring_create_virtqueue_split(
+ 	bool context,
+ 	bool (*notify)(struct virtqueue *),
+ 	void (*callback)(struct virtqueue *),
+-	const char *name)
++	const char *name,
++	struct device *dma_dev)
+ {
+ 	struct vring_virtqueue_split vring_split = {};
+ 	struct virtqueue *vq;
+ 	int err;
+ 
+ 	err = vring_alloc_queue_split(&vring_split, vdev, num, vring_align,
+-				      may_reduce_num);
++				      may_reduce_num, dma_dev);
+ 	if (err)
+ 		return NULL;
+ 
+ 	vq = __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
+-				   context, notify, callback, name);
++				   context, notify, callback, name, dma_dev);
+ 	if (!vq) {
+-		vring_free_split(&vring_split, vdev);
++		vring_free_split(&vring_split, vdev, dma_dev);
+ 		return NULL;
+ 	}
+ 
+@@ -1132,7 +1143,8 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
+ 
+ 	err = vring_alloc_queue_split(&vring_split, vdev, num,
+ 				      vq->split.vring_align,
+-				      vq->split.may_reduce_num);
++				      vq->split.may_reduce_num,
++				      vring_dma_dev(vq));
+ 	if (err)
+ 		goto err;
+ 
+@@ -1150,7 +1162,7 @@ static int virtqueue_resize_split(struct virtqueue *_vq, u32 num)
+ 	return 0;
+ 
+ err_state_extra:
+-	vring_free_split(&vring_split, vdev);
++	vring_free_split(&vring_split, vdev, vring_dma_dev(vq));
+ err:
+ 	virtqueue_reinit_split(vq);
+ 	return -ENOMEM;
+@@ -1841,22 +1853,26 @@ static struct vring_desc_extra *vring_alloc_desc_extra(unsigned int num)
+ }
+ 
+ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
+-			      struct virtio_device *vdev)
++			      struct virtio_device *vdev,
++			      struct device *dma_dev)
+ {
+ 	if (vring_packed->vring.desc)
+ 		vring_free_queue(vdev, vring_packed->ring_size_in_bytes,
+ 				 vring_packed->vring.desc,
+-				 vring_packed->ring_dma_addr);
++				 vring_packed->ring_dma_addr,
++				 dma_dev);
+ 
+ 	if (vring_packed->vring.driver)
+ 		vring_free_queue(vdev, vring_packed->event_size_in_bytes,
+ 				 vring_packed->vring.driver,
+-				 vring_packed->driver_event_dma_addr);
++				 vring_packed->driver_event_dma_addr,
++				 dma_dev);
+ 
+ 	if (vring_packed->vring.device)
+ 		vring_free_queue(vdev, vring_packed->event_size_in_bytes,
+ 				 vring_packed->vring.device,
+-				 vring_packed->device_event_dma_addr);
++				 vring_packed->device_event_dma_addr,
++				 dma_dev);
+ 
+ 	kfree(vring_packed->desc_state);
+ 	kfree(vring_packed->desc_extra);
+@@ -1864,7 +1880,7 @@ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
+ 
+ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+ 				    struct virtio_device *vdev,
+-				    u32 num)
++				    u32 num, struct device *dma_dev)
+ {
+ 	struct vring_packed_desc *ring;
+ 	struct vring_packed_desc_event *driver, *device;
+@@ -1875,7 +1891,8 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+ 
+ 	ring = vring_alloc_queue(vdev, ring_size_in_bytes,
+ 				 &ring_dma_addr,
+-				 GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO);
++				 GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
++				 dma_dev);
+ 	if (!ring)
+ 		goto err;
+ 
+@@ -1887,7 +1904,8 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+ 
+ 	driver = vring_alloc_queue(vdev, event_size_in_bytes,
+ 				   &driver_event_dma_addr,
+-				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO);
++				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
++				   dma_dev);
+ 	if (!driver)
+ 		goto err;
+ 
+@@ -1897,7 +1915,8 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+ 
+ 	device = vring_alloc_queue(vdev, event_size_in_bytes,
+ 				   &device_event_dma_addr,
+-				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO);
++				   GFP_KERNEL | __GFP_NOWARN | __GFP_ZERO,
++				   dma_dev);
+ 	if (!device)
+ 		goto err;
+ 
+@@ -1909,7 +1928,7 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
+ 	return 0;
+ 
+ err:
+-	vring_free_packed(vring_packed, vdev);
++	vring_free_packed(vring_packed, vdev, dma_dev);
+ 	return -ENOMEM;
+ }
+ 
+@@ -1987,13 +2006,14 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	bool context,
+ 	bool (*notify)(struct virtqueue *),
+ 	void (*callback)(struct virtqueue *),
+-	const char *name)
++	const char *name,
++	struct device *dma_dev)
+ {
+ 	struct vring_virtqueue_packed vring_packed = {};
+ 	struct vring_virtqueue *vq;
+ 	int err;
+ 
+-	if (vring_alloc_queue_packed(&vring_packed, vdev, num))
++	if (vring_alloc_queue_packed(&vring_packed, vdev, num, dma_dev))
+ 		goto err_ring;
+ 
+ 	vq = kmalloc(sizeof(*vq), GFP_KERNEL);
+@@ -2014,6 +2034,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 	vq->broken = false;
+ #endif
+ 	vq->packed_ring = true;
++	vq->dma_dev = dma_dev;
+ 	vq->use_dma_api = vring_use_dma_api(vdev);
+ 
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+@@ -2040,7 +2061,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ err_state_extra:
+ 	kfree(vq);
+ err_vq:
+-	vring_free_packed(&vring_packed, vdev);
++	vring_free_packed(&vring_packed, vdev, dma_dev);
+ err_ring:
+ 	return NULL;
+ }
+@@ -2052,7 +2073,7 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
+ 	struct virtio_device *vdev = _vq->vdev;
+ 	int err;
+ 
+-	if (vring_alloc_queue_packed(&vring_packed, vdev, num))
++	if (vring_alloc_queue_packed(&vring_packed, vdev, num, vring_dma_dev(vq)))
+ 		goto err_ring;
+ 
+ 	err = vring_alloc_state_extra_packed(&vring_packed);
+@@ -2069,7 +2090,7 @@ static int virtqueue_resize_packed(struct virtqueue *_vq, u32 num)
+ 	return 0;
+ 
+ err_state_extra:
+-	vring_free_packed(&vring_packed, vdev);
++	vring_free_packed(&vring_packed, vdev, vring_dma_dev(vq));
+ err_ring:
+ 	virtqueue_reinit_packed(vq);
+ 	return -ENOMEM;
+@@ -2481,7 +2502,8 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 					       bool context,
+ 					       bool (*notify)(struct virtqueue *),
+ 					       void (*callback)(struct virtqueue *),
+-					       const char *name)
++					       const char *name,
++					       struct device *dma_dev)
+ {
+ 	struct vring_virtqueue *vq;
+ 	int err;
+@@ -2507,6 +2529,7 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ #else
+ 	vq->broken = false;
+ #endif
++	vq->dma_dev = dma_dev;
+ 	vq->use_dma_api = vring_use_dma_api(vdev);
+ 
+ 	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+@@ -2549,14 +2572,39 @@ struct virtqueue *vring_create_virtqueue(
+ 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
+ 		return vring_create_virtqueue_packed(index, num, vring_align,
+ 				vdev, weak_barriers, may_reduce_num,
+-				context, notify, callback, name);
++				context, notify, callback, name, vdev->dev.parent);
+ 
+ 	return vring_create_virtqueue_split(index, num, vring_align,
+ 			vdev, weak_barriers, may_reduce_num,
+-			context, notify, callback, name);
++			context, notify, callback, name, vdev->dev.parent);
+ }
+ EXPORT_SYMBOL_GPL(vring_create_virtqueue);
+ 
++struct virtqueue *vring_create_virtqueue_dma(
++	unsigned int index,
++	unsigned int num,
++	unsigned int vring_align,
++	struct virtio_device *vdev,
++	bool weak_barriers,
++	bool may_reduce_num,
++	bool context,
++	bool (*notify)(struct virtqueue *),
++	void (*callback)(struct virtqueue *),
++	const char *name,
++	struct device *dma_dev)
++{
++
++	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
++		return vring_create_virtqueue_packed(index, num, vring_align,
++				vdev, weak_barriers, may_reduce_num,
++				context, notify, callback, name, dma_dev);
++
++	return vring_create_virtqueue_split(index, num, vring_align,
++			vdev, weak_barriers, may_reduce_num,
++			context, notify, callback, name, dma_dev);
++}
++EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
++
+ /**
+  * virtqueue_resize - resize the vring of vq
+  * @_vq: the struct virtqueue we're talking about.
+@@ -2645,7 +2693,8 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 
+ 	vring_init(&vring_split.vring, num, pages, vring_align);
+ 	return __vring_new_virtqueue(index, &vring_split, vdev, weak_barriers,
+-				     context, notify, callback, name);
++				     context, notify, callback, name,
++				     vdev->dev.parent);
+ }
+ EXPORT_SYMBOL_GPL(vring_new_virtqueue);
+ 
+@@ -2658,17 +2707,20 @@ static void vring_free(struct virtqueue *_vq)
+ 			vring_free_queue(vq->vq.vdev,
+ 					 vq->packed.ring_size_in_bytes,
+ 					 vq->packed.vring.desc,
+-					 vq->packed.ring_dma_addr);
++					 vq->packed.ring_dma_addr,
++					 vring_dma_dev(vq));
+ 
+ 			vring_free_queue(vq->vq.vdev,
+ 					 vq->packed.event_size_in_bytes,
+ 					 vq->packed.vring.driver,
+-					 vq->packed.driver_event_dma_addr);
++					 vq->packed.driver_event_dma_addr,
++					 vring_dma_dev(vq));
+ 
+ 			vring_free_queue(vq->vq.vdev,
+ 					 vq->packed.event_size_in_bytes,
+ 					 vq->packed.vring.device,
+-					 vq->packed.device_event_dma_addr);
++					 vq->packed.device_event_dma_addr,
++					 vring_dma_dev(vq));
+ 
+ 			kfree(vq->packed.desc_state);
+ 			kfree(vq->packed.desc_extra);
+@@ -2676,7 +2728,8 @@ static void vring_free(struct virtqueue *_vq)
+ 			vring_free_queue(vq->vq.vdev,
+ 					 vq->split.queue_size_in_bytes,
+ 					 vq->split.vring.desc,
+-					 vq->split.queue_dma_addr);
++					 vq->split.queue_dma_addr,
++					 vring_dma_dev(vq));
+ 		}
+ 	}
+ 	if (!vq->packed_ring) {
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 8b8af1a38991..8b95b69ef694 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -76,6 +76,22 @@ struct virtqueue *vring_create_virtqueue(unsigned int index,
+ 					 void (*callback)(struct virtqueue *vq),
+ 					 const char *name);
+ 
++/*
++ * Creates a virtqueue and allocates the descriptor ring with per
++ * virtqueue DMA device.
++ */
++struct virtqueue *vring_create_virtqueue_dma(unsigned int index,
++					     unsigned int num,
++					     unsigned int vring_align,
++					     struct virtio_device *vdev,
++					     bool weak_barriers,
++					     bool may_reduce_num,
++					     bool ctx,
++					     bool (*notify)(struct virtqueue *vq),
++					     void (*callback)(struct virtqueue *vq),
++					     const char *name,
++					     struct device *dma_dev);
++
+ /*
+  * Creates a virtqueue with a standard layout but a caller-allocated
+  * ring.
+-- 
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
