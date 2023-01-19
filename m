@@ -1,92 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23A36C46467
-	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 20:18:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87CC2C004D4
+	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 21:19:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8A210409B5;
-	Thu, 19 Jan 2023 20:18:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A210409B5
+	by smtp4.osuosl.org (Postfix) with ESMTP id 14218418C3;
+	Thu, 19 Jan 2023 21:19:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14218418C3
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=mdQ7CD0w;
+	dkim=fail reason="signature verification failed" header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=0BJ5w/p0
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JsEnE3y3h_hr; Thu, 19 Jan 2023 21:18:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5717D41C66;
+	Thu, 19 Jan 2023 21:18:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5717D41C66
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 175F0C0033;
+	Thu, 19 Jan 2023 21:18:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30706C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Jan 2023 21:18:57 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 04087405B5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Jan 2023 21:18:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 04087405B5
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=fUZ9Z7l1
+ dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de
+ header.a=rsa-sha256 header.s=2020 header.b=mdQ7CD0w; 
+ dkim=pass header.d=linutronix.de header.i=@linutronix.de
+ header.a=ed25519-sha256 header.s=2020e header.b=0BJ5w/p0
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uxu2xs9avTtV; Thu, 19 Jan 2023 20:18:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BC80D409B0;
-	Thu, 19 Jan 2023 20:18:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BC80D409B0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98861C0032;
-	Thu, 19 Jan 2023 20:18:29 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 24683C002D
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VBsPYntkPIFH
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 20:18:28 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E5B4782486
+ Thu, 19 Jan 2023 21:18:56 +0000 (UTC)
+X-Greylist: delayed 00:06:19 by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DABDB405A7
+Received: from galois.linutronix.de (Galois.linutronix.de
+ [IPv6:2a0a:51c0:0:12e:550::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DABDB405A7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 20:18:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E5B4782486
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=fUZ9Z7l1
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y7x0acd00ycX
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 20:18:25 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C33198247F
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C33198247F
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 20:18:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1674159505; x=1705695505;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=dXacAnPMY8mVEZ8huMGREX1R1yBef6xPx1fIeRYytyA=;
- b=fUZ9Z7l1MnabwTQ/fhKHeThpiufcb+fZYru89P6/988I09txlQu5TMg3
- jR9eFqwy8KFQKukKlUnQSXjjGHqJ0I1aRtvO/MG9Z3msPfLEj6ATAPYz6
- YR9+uWJ1p+2hk02oXx8DFZSMfiW/8pBoJ7wrSmfeRc7ZuXWEQqgRWwccs
- B5xAXWyVVqeEaEiGU20sxjaVSy/WXverVFJ8CGAGBwE1yOPffp7hBdaS2
- lq2dwT0W//f17dwrAt82R8lG7h0mtSMCuK5z6nUf2KWW2J7iOeMwQtndw
- tbiuXEfmJ5yAzs4Q4ZyAUm6a6r3xdp6QiT8Q6W9ss/z/a7ZaQMr8rsrRa w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="327503119"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; d="scan'208";a="327503119"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Jan 2023 12:18:24 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="723659302"
-X-IronPort-AV: E=Sophos;i="5.97,229,1669104000"; d="scan'208";a="723659302"
-Received: from lkp-server01.sh.intel.com (HELO 5646d64e7320) ([10.239.97.150])
- by fmsmga008.fm.intel.com with ESMTP; 19 Jan 2023 12:18:20 -0800
-Received: from kbuild by 5646d64e7320 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pIbMZ-0001om-24;
- Thu, 19 Jan 2023 20:18:19 +0000
-Date: Fri, 20 Jan 2023 04:17:56 +0800
-From: kernel test robot <lkp@intel.com>
-To: Babis Chalios <bchalios@amazon.es>, Olivia Mackall <olivia@selenic.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, linux-crypto@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH 1/2] virtio-rng: implement entropy leak feature
-Message-ID: <202301200407.n4URhGEQ-lkp@intel.com>
-References: <20230119184349.74072-2-bchalios@amazon.es>
+ Thu, 19 Jan 2023 21:18:55 +0000 (UTC)
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1674162752;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=rRUXLP0p0WQ+Qd4xVEuRKMl25ggID9YoYcEY3DCIiik=;
+ b=mdQ7CD0wRJvfaZDOr0f82Dc4967iwC75I1+s5lDCu1fHHwtrp+IBba8UPSoQ/va3j4Qar2
+ ATGu2nZLLKa0vJ8CheBHLvt0I89xHSG06ZUusQKDPY104va7qqUjwYfiuIUukk+LaqO7Gu
+ N+aHnCbtSnW+e8Smx0L+A2DiKy1AOSyLQ5QGRIN4vgJHVE1sRkt9jT/0k9LahiDV7T+AiK
+ jKmIL8dmtVDNgeoMh+UAXcZ37mv49o4hNCz9KdPCGAyDUP9ZfpqnymsWZ0f3dG4LxhFiyw
+ RTndkgdz2BKS/FhRmtxFB9hP9YbenuT2IOAVALIMh4inh4bZRqxisS45FivGfA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1674162752;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=rRUXLP0p0WQ+Qd4xVEuRKMl25ggID9YoYcEY3DCIiik=;
+ b=0BJ5w/p0x778LsQ1MznxzGrIdB3OE1QGABAUfN3vpOmJUgdDINUgQsr9tLqZGxSzWuC+ct
+ ivl26is4VR39BBBw==
+To: Igor Mammedov <imammedo@redhat.com>, "Srivatsa S. Bhat"
+ <srivatsa@csail.mit.edu>
+Subject: Re: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle
+ state
+In-Reply-To: <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
+References: <20230116060134.80259-1-srivatsa@csail.mit.edu>
+ <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
+Date: Thu, 19 Jan 2023 22:12:31 +0100
+Message-ID: <87bkmui5z4.ffs@tglx>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230119184349.74072-2-bchalios@amazon.es>
-Cc: xmarcalx@amazon.co.uk, Jason@zx2c4.com, amit@kernel.org, graf@amazon.de,
- oe-kbuild-all@lists.linux.dev
+Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
+ namit@vmware.com, "H. Peter Anvin" <hpa@zytor.com>, "Rafael J.
+ Wysocki" <rafael.j.wysocki@intel.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
+ xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
+ Borislav Petkov <bp@alien8.de>, Juergen Gross <jgross@suse.com>,
+ amakhalov@vmware.com, linux-kernel@vger.kernel.org,
+ Lewis Caroll <lewis.carroll@amd.com>, blamoreaux@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,385 +110,68 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Babis,
+On Mon, Jan 16 2023 at 15:55, Igor Mammedov wrote:
+> "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
+>> Fix this by preventing the use of mwait idle state in the vCPU offline
+>> play_dead() path for any hypervisor, even if mwait support is
+>> available.
+>
+> if mwait is enabled, it's very likely guest to have cpuidle
+> enabled and using the same mwait as well. So exiting early from
+>  mwait_play_dead(), might just punt workflow down:
+>   native_play_dead()
+>         ...
+>         mwait_play_dead();
+>         if (cpuidle_play_dead())   <- possible mwait here                                              
+>                 hlt_play_dead(); 
+>
+> and it will end up in mwait again and only if that fails
+> it will go HLT route and maybe transition to VMM.
 
-Thank you for the patch! Perhaps something to improve:
+Good point.
 
-[auto build test WARNING on char-misc/char-misc-testing]
-[also build test WARNING on char-misc/char-misc-next char-misc/char-misc-linus linus/master v6.2-rc4 next-20230119]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> Instead of workaround on guest side,
+> shouldn't hypervisor force VMEXIT on being uplugged vCPU when it's
+> actually hot-unplugging vCPU? (ex: QEMU kicks vCPU out from guest
+> context when it is removing vCPU, among other things)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Babis-Chalios/virtio-rng-implement-entropy-leak-feature/20230120-024631
-patch link:    https://lore.kernel.org/r/20230119184349.74072-2-bchalios%40amazon.es
-patch subject: [PATCH 1/2] virtio-rng: implement entropy leak feature
-config: parisc-allyesconfig (https://download.01.org/0day-ci/archive/20230120/202301200407.n4URhGEQ-lkp@intel.com/config)
-compiler: hppa-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/686114cbba5005584d458ad44164b4a4b88135f5
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Babis-Chalios/virtio-rng-implement-entropy-leak-feature/20230120-024631
-        git checkout 686114cbba5005584d458ad44164b4a4b88135f5
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=parisc olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=parisc SHELL=/bin/bash drivers/char/hw_random/
+For a pure guest side CPU unplug operation:
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
+    guest$ echo 0 >/sys/devices/system/cpu/cpu$N/online
 
-All warnings (new ones prefixed by >>):
+the hypervisor is not involved at all. The vCPU is not removed in that
+case.
 
-   In file included from include/linux/err.h:8,
-                    from drivers/char/hw_random/virtio-rng.c:8:
->> arch/parisc/include/uapi/asm/errno.h:7: warning: "ENOMSG" redefined
-       7 | #define ENOMSG          35      /* No message of desired type */
-         | 
-   In file included from drivers/char/hw_random/virtio-rng.c:7:
-   include/uapi/asm-generic/errno.h:23: note: this is the location of the previous definition
-      23 | #define ENOMSG          42      /* No message of desired type */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:8: warning: "EIDRM" redefined
-       8 | #define EIDRM           36      /* Identifier removed */
-         | 
-   include/uapi/asm-generic/errno.h:24: note: this is the location of the previous definition
-      24 | #define EIDRM           43      /* Identifier removed */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:9: warning: "ECHRNG" redefined
-       9 | #define ECHRNG          37      /* Channel number out of range */
-         | 
-   include/uapi/asm-generic/errno.h:25: note: this is the location of the previous definition
-      25 | #define ECHRNG          44      /* Channel number out of range */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:10: warning: "EL2NSYNC" redefined
-      10 | #define EL2NSYNC        38      /* Level 2 not synchronized */
-         | 
-   include/uapi/asm-generic/errno.h:26: note: this is the location of the previous definition
-      26 | #define EL2NSYNC        45      /* Level 2 not synchronized */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:11: warning: "EL3HLT" redefined
-      11 | #define EL3HLT          39      /* Level 3 halted */
-         | 
-   include/uapi/asm-generic/errno.h:27: note: this is the location of the previous definition
-      27 | #define EL3HLT          46      /* Level 3 halted */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:12: warning: "EL3RST" redefined
-      12 | #define EL3RST          40      /* Level 3 reset */
-         | 
-   include/uapi/asm-generic/errno.h:28: note: this is the location of the previous definition
-      28 | #define EL3RST          47      /* Level 3 reset */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:13: warning: "ELNRNG" redefined
-      13 | #define ELNRNG          41      /* Link number out of range */
-         | 
-   include/uapi/asm-generic/errno.h:29: note: this is the location of the previous definition
-      29 | #define ELNRNG          48      /* Link number out of range */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:14: warning: "EUNATCH" redefined
-      14 | #define EUNATCH         42      /* Protocol driver not attached */
-         | 
-   include/uapi/asm-generic/errno.h:30: note: this is the location of the previous definition
-      30 | #define EUNATCH         49      /* Protocol driver not attached */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:15: warning: "ENOCSI" redefined
-      15 | #define ENOCSI          43      /* No CSI structure available */
-         | 
-   include/uapi/asm-generic/errno.h:31: note: this is the location of the previous definition
-      31 | #define ENOCSI          50      /* No CSI structure available */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:16: warning: "EL2HLT" redefined
-      16 | #define EL2HLT          44      /* Level 2 halted */
-         | 
-   include/uapi/asm-generic/errno.h:32: note: this is the location of the previous definition
-      32 | #define EL2HLT          51      /* Level 2 halted */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:17: warning: "EDEADLK" redefined
-      17 | #define EDEADLK         45      /* Resource deadlock would occur */
-         | 
-   include/uapi/asm-generic/errno.h:7: note: this is the location of the previous definition
-       7 | #define EDEADLK         35      /* Resource deadlock would occur */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:19: warning: "ENOLCK" redefined
-      19 | #define ENOLCK          46      /* No record locks available */
-         | 
-   include/uapi/asm-generic/errno.h:9: note: this is the location of the previous definition
-       9 | #define ENOLCK          37      /* No record locks available */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:20: warning: "EILSEQ" redefined
-      20 | #define EILSEQ          47      /* Illegal byte sequence */
-         | 
-   include/uapi/asm-generic/errno.h:67: note: this is the location of the previous definition
-      67 | #define EILSEQ          84      /* Illegal byte sequence */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:22: warning: "ENONET" redefined
-      22 | #define ENONET          50      /* Machine is not on the network */
-         | 
-   include/uapi/asm-generic/errno.h:47: note: this is the location of the previous definition
-      47 | #define ENONET          64      /* Machine is not on the network */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:23: warning: "ENODATA" redefined
-      23 | #define ENODATA         51      /* No data available */
-         | 
-   include/uapi/asm-generic/errno.h:44: note: this is the location of the previous definition
-      44 | #define ENODATA         61      /* No data available */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:24: warning: "ETIME" redefined
-      24 | #define ETIME           52      /* Timer expired */
-         | 
-   include/uapi/asm-generic/errno.h:45: note: this is the location of the previous definition
-      45 | #define ETIME           62      /* Timer expired */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:25: warning: "ENOSR" redefined
-      25 | #define ENOSR           53      /* Out of streams resources */
-         | 
-   include/uapi/asm-generic/errno.h:46: note: this is the location of the previous definition
-      46 | #define ENOSR           63      /* Out of streams resources */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:26: warning: "ENOSTR" redefined
-      26 | #define ENOSTR          54      /* Device not a stream */
-         | 
-   include/uapi/asm-generic/errno.h:43: note: this is the location of the previous definition
-      43 | #define ENOSTR          60      /* Device not a stream */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:27: warning: "ENOPKG" redefined
-      27 | #define ENOPKG          55      /* Package not installed */
-         | 
-   include/uapi/asm-generic/errno.h:48: note: this is the location of the previous definition
-      48 | #define ENOPKG          65      /* Package not installed */
-         | 
->> arch/parisc/include/uapi/asm/errno.h:29: warning: "ENOLINK" redefined
-      29 | #define ENOLINK         57      /* Link has been severed */
-         | 
-   include/uapi/asm-generic/errno.h:50: note: this is the location of the previous definition
-      50 | #define ENOLINK         67      /* Link has been severed */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:30: warning: "EADV" redefined
-      30 | #define EADV            58      /* Advertise error */
-         | 
-   include/uapi/asm-generic/errno.h:51: note: this is the location of the previous definition
-      51 | #define EADV            68      /* Advertise error */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:31: warning: "ESRMNT" redefined
-      31 | #define ESRMNT          59      /* Srmount error */
-         | 
-   include/uapi/asm-generic/errno.h:52: note: this is the location of the previous definition
-      52 | #define ESRMNT          69      /* Srmount error */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:32: warning: "ECOMM" redefined
-      32 | #define ECOMM           60      /* Communication error on send */
-         | 
-   include/uapi/asm-generic/errno.h:53: note: this is the location of the previous definition
-      53 | #define ECOMM           70      /* Communication error on send */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:33: warning: "EPROTO" redefined
-      33 | #define EPROTO          61      /* Protocol error */
-         | 
-   include/uapi/asm-generic/errno.h:54: note: this is the location of the previous definition
-      54 | #define EPROTO          71      /* Protocol error */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:35: warning: "EMULTIHOP" redefined
-      35 | #define EMULTIHOP       64      /* Multihop attempted */
-         | 
-   include/uapi/asm-generic/errno.h:55: note: this is the location of the previous definition
-      55 | #define EMULTIHOP       72      /* Multihop attempted */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:37: warning: "EDOTDOT" redefined
-      37 | #define EDOTDOT         66      /* RFS specific error */
-         | 
-   include/uapi/asm-generic/errno.h:56: note: this is the location of the previous definition
-      56 | #define EDOTDOT         73      /* RFS specific error */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:38: warning: "EBADMSG" redefined
-      38 | #define EBADMSG         67      /* Not a data message */
-         | 
-   include/uapi/asm-generic/errno.h:57: note: this is the location of the previous definition
-      57 | #define EBADMSG         74      /* Not a data message */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:39: warning: "EUSERS" redefined
-      39 | #define EUSERS          68      /* Too many users */
-         | 
-   include/uapi/asm-generic/errno.h:70: note: this is the location of the previous definition
-      70 | #define EUSERS          87      /* Too many users */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:40: warning: "EDQUOT" redefined
-      40 | #define EDQUOT          69      /* Quota exceeded */
-         | 
-   include/uapi/asm-generic/errno.h:105: note: this is the location of the previous definition
-     105 | #define EDQUOT          122     /* Quota exceeded */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:41: warning: "ESTALE" redefined
-      41 | #define ESTALE          70      /* Stale file handle */
-         | 
-   include/uapi/asm-generic/errno.h:99: note: this is the location of the previous definition
-      99 | #define ESTALE          116     /* Stale file handle */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:42: warning: "EREMOTE" redefined
-      42 | #define EREMOTE         71      /* Object is remote */
-         | 
-   include/uapi/asm-generic/errno.h:49: note: this is the location of the previous definition
-      49 | #define EREMOTE         66      /* Object is remote */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:43: warning: "EOVERFLOW" redefined
-      43 | #define EOVERFLOW       72      /* Value too large for defined data type */
-         | 
-   include/uapi/asm-generic/errno.h:58: note: this is the location of the previous definition
-      58 | #define EOVERFLOW       75      /* Value too large for defined data type */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:47: warning: "EBADE" redefined
-      47 | #define EBADE           160     /* Invalid exchange */
-         | 
-   include/uapi/asm-generic/errno.h:33: note: this is the location of the previous definition
-      33 | #define EBADE           52      /* Invalid exchange */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:48: warning: "EBADR" redefined
-      48 | #define EBADR           161     /* Invalid request descriptor */
-         | 
-   include/uapi/asm-generic/errno.h:34: note: this is the location of the previous definition
-      34 | #define EBADR           53      /* Invalid request descriptor */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:49: warning: "EXFULL" redefined
-      49 | #define EXFULL          162     /* Exchange full */
-         | 
-   include/uapi/asm-generic/errno.h:35: note: this is the location of the previous definition
-      35 | #define EXFULL          54      /* Exchange full */
-         | 
-   arch/parisc/include/uapi/asm/errno.h:50: warning: "ENOANO" redefined
-      50 | #define ENOANO          163     /* No anode */
-         | 
-   include/uapi/asm-generic/errno.h:36: note: this is the location of the previous definition
-      36 | #define ENOANO          55      /* No anode */
+So to ensure that this ends up in HLT something like the below is
+required.
+
+Note, the removal of the comment after mwait_play_dead() is intentional
+because the comment is completely bogus. Not having MWAIT is not a
+failure. But that wants to be a seperate patch.
+
+Thanks,
+
+        tglx
+---        
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 55cad72715d9..3f1f20f71ec5 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1833,7 +1833,10 @@ void native_play_dead(void)
+ 	play_dead_common();
+ 	tboot_shutdown(TB_SHUTDOWN_WFS);
+ 
+-	mwait_play_dead();	/* Only returns on failure */
++	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
++		hlt_play_dead();
++
++	mwait_play_dead();
+ 	if (cpuidle_play_dead())
+ 		hlt_play_dead();
+ }
 
 
-vim +/ENOMSG +7 arch/parisc/include/uapi/asm/errno.h
-
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16    6  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   @7  #define	ENOMSG		35	/* No message of desired type */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   @8  #define	EIDRM		36	/* Identifier removed */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   @9  #define	ECHRNG		37	/* Channel number out of range */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @10  #define	EL2NSYNC	38	/* Level 2 not synchronized */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @11  #define	EL3HLT		39	/* Level 3 halted */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @12  #define	EL3RST		40	/* Level 3 reset */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @13  #define	ELNRNG		41	/* Link number out of range */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @14  #define	EUNATCH		42	/* Protocol driver not attached */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @15  #define	ENOCSI		43	/* No CSI structure available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @16  #define	EL2HLT		44	/* Level 2 halted */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @17  #define	EDEADLK		45	/* Resource deadlock would occur */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   18  #define	EDEADLOCK	EDEADLK
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @19  #define	ENOLCK		46	/* No record locks available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @20  #define	EILSEQ		47	/* Illegal byte sequence */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   21  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @22  #define	ENONET		50	/* Machine is not on the network */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @23  #define	ENODATA		51	/* No data available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @24  #define	ETIME		52	/* Timer expired */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @25  #define	ENOSR		53	/* Out of streams resources */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @26  #define	ENOSTR		54	/* Device not a stream */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @27  #define	ENOPKG		55	/* Package not installed */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   28  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @29  #define	ENOLINK		57	/* Link has been severed */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @30  #define	EADV		58	/* Advertise error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @31  #define	ESRMNT		59	/* Srmount error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @32  #define	ECOMM		60	/* Communication error on send */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @33  #define	EPROTO		61	/* Protocol error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   34  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @35  #define	EMULTIHOP	64	/* Multihop attempted */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   36  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @37  #define	EDOTDOT		66	/* RFS specific error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @38  #define	EBADMSG		67	/* Not a data message */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @39  #define	EUSERS		68	/* Too many users */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @40  #define	EDQUOT		69	/* Quota exceeded */
-0ca43435188b9f arch/parisc/include/uapi/asm/errno.h Eric Sandeen        2013-11-12  @41  #define	ESTALE		70	/* Stale file handle */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @42  #define	EREMOTE		71	/* Object is remote */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @43  #define	EOVERFLOW	72	/* Value too large for defined data type */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   44  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   45  /* these errnos are defined by Linux but not HPUX. */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   46  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @47  #define	EBADE		160	/* Invalid exchange */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @48  #define	EBADR		161	/* Invalid request descriptor */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @49  #define	EXFULL		162	/* Exchange full */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @50  #define	ENOANO		163	/* No anode */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @51  #define	EBADRQC		164	/* Invalid request code */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @52  #define	EBADSLT		165	/* Invalid slot */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @53  #define	EBFONT		166	/* Bad font file format */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @54  #define	ENOTUNIQ	167	/* Name not unique on network */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @55  #define	EBADFD		168	/* File descriptor in bad state */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @56  #define	EREMCHG		169	/* Remote address changed */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @57  #define	ELIBACC		170	/* Can not access a needed shared library */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @58  #define	ELIBBAD		171	/* Accessing a corrupted shared library */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @59  #define	ELIBSCN		172	/* .lib section in a.out corrupted */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @60  #define	ELIBMAX		173	/* Attempting to link in too many shared libraries */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @61  #define	ELIBEXEC	174	/* Cannot exec a shared library directly */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @62  #define	ERESTART	175	/* Interrupted system call should be restarted */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @63  #define	ESTRPIPE	176	/* Streams pipe error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @64  #define	EUCLEAN		177	/* Structure needs cleaning */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @65  #define	ENOTNAM		178	/* Not a XENIX named type file */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @66  #define	ENAVAIL		179	/* No XENIX semaphores available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @67  #define	EISNAM		180	/* Is a named type file */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @68  #define	EREMOTEIO	181	/* Remote I/O error */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @69  #define	ENOMEDIUM	182	/* No medium found */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @70  #define	EMEDIUMTYPE	183	/* Wrong medium type */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @71  #define	ENOKEY		184	/* Required key not available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @72  #define	EKEYEXPIRED	185	/* Key has expired */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @73  #define	EKEYREVOKED	186	/* Key has been revoked */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @74  #define	EKEYREJECTED	187	/* Key was rejected by service */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   75  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   76  /* We now return you to your regularly scheduled HPUX. */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   77  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16   78  #define ENOSYM		215	/* symbol does not exist in executable */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @79  #define	ENOTSOCK	216	/* Socket operation on non-socket */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @80  #define	EDESTADDRREQ	217	/* Destination address required */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @81  #define	EMSGSIZE	218	/* Message too long */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @82  #define	EPROTOTYPE	219	/* Protocol wrong type for socket */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @83  #define	ENOPROTOOPT	220	/* Protocol not available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @84  #define	EPROTONOSUPPORT	221	/* Protocol not supported */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @85  #define	ESOCKTNOSUPPORT	222	/* Socket type not supported */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @86  #define	EOPNOTSUPP	223	/* Operation not supported on transport endpoint */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @87  #define	EPFNOSUPPORT	224	/* Protocol family not supported */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @88  #define	EAFNOSUPPORT	225	/* Address family not supported by protocol */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @89  #define	EADDRINUSE	226	/* Address already in use */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @90  #define	EADDRNOTAVAIL	227	/* Cannot assign requested address */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @91  #define	ENETDOWN	228	/* Network is down */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @92  #define	ENETUNREACH	229	/* Network is unreachable */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @93  #define	ENETRESET	230	/* Network dropped connection because of reset */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @94  #define	ECONNABORTED	231	/* Software caused connection abort */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @95  #define	ECONNRESET	232	/* Connection reset by peer */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @96  #define	ENOBUFS		233	/* No buffer space available */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @97  #define	EISCONN		234	/* Transport endpoint is already connected */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @98  #define	ENOTCONN	235	/* Transport endpoint is not connected */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  @99  #define	ESHUTDOWN	236	/* Cannot send after transport endpoint shutdown */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @100  #define	ETOOMANYREFS	237	/* Too many references: cannot splice */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @101  #define	ETIMEDOUT	238	/* Connection timed out */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @102  #define	ECONNREFUSED	239	/* Connection refused */
-3eb53b20d7bd13 arch/parisc/include/uapi/asm/errno.h Helge Deller        2016-08-20  103  #define	EREFUSED	ECONNREFUSED	/* for HP's NFS apparently */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  104  #define	EREMOTERELEASE	240	/* Remote peer released connection */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @105  #define	EHOSTDOWN	241	/* Host is down */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @106  #define	EHOSTUNREACH	242	/* No route to host */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  107  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @108  #define	EALREADY	244	/* Operation already in progress */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @109  #define	EINPROGRESS	245	/* Operation now in progress */
-f5a408d53edef3 arch/parisc/include/uapi/asm/errno.h Guy Martin          2014-01-16  110  #define	EWOULDBLOCK	EAGAIN	/* Operation would block (Not HPUX compliant) */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @111  #define	ENOTEMPTY	247	/* Directory not empty */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @112  #define	ENAMETOOLONG	248	/* File name too long */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @113  #define	ELOOP		249	/* Too many symbolic links encountered */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16 @114  #define	ENOSYS		251	/* Function not implemented */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  115  
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  116  #define ECANCELLED	253	/* aio request was canceled before complete (POSIX.4 / HPUX) */
-05aa10de701409 include/asm-parisc/errno.h           Grant Grundler      2005-10-21 @117  #define ECANCELED	ECANCELLED	/* SuSv3 and Solaris wants one 'L' */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  118  
-4750e2c0c59e0c include/asm-parisc/errno.h           Joe Korty           2005-05-01  119  /* for robust mutexes */
-4750e2c0c59e0c include/asm-parisc/errno.h           Joe Korty           2005-05-01 @120  #define EOWNERDEAD	254	/* Owner died */
-4750e2c0c59e0c include/asm-parisc/errno.h           Joe Korty           2005-05-01 @121  #define ENOTRECOVERABLE	255	/* State not recoverable */
-4750e2c0c59e0c include/asm-parisc/errno.h           Joe Korty           2005-05-01  122  
-7d217d7ffc3433 arch/parisc/include/asm/errno.h      Alexander Beregalov 2009-06-07 @123  #define	ERFKILL		256	/* Operation not possible due to RF-kill */
-^1da177e4c3f41 include/asm-parisc/errno.h           Linus Torvalds      2005-04-16  124  
-69ebb83e13e514 arch/parisc/include/asm/errno.h      Huang Ying          2011-01-30 @125  #define EHWPOISON	257	/* Memory page has hardware error */
-69ebb83e13e514 arch/parisc/include/asm/errno.h      Huang Ying          2011-01-30  126  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+  
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
