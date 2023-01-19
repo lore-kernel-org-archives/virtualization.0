@@ -1,99 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87CC2C004D4
-	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 21:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E738AC46467
+	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 22:31:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 14218418C3;
-	Thu, 19 Jan 2023 21:19:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14218418C3
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=mdQ7CD0w;
-	dkim=fail reason="signature verification failed" header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=0BJ5w/p0
+	by smtp3.osuosl.org (Postfix) with ESMTP id 62DEF60F88;
+	Thu, 19 Jan 2023 22:31:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62DEF60F88
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GXATZjpX
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JsEnE3y3h_hr; Thu, 19 Jan 2023 21:18:59 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id o30nMOgDNDEu; Thu, 19 Jan 2023 22:31:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5717D41C66;
-	Thu, 19 Jan 2023 21:18:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5717D41C66
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AD1D060F80;
+	Thu, 19 Jan 2023 22:31:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AD1D060F80
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 175F0C0033;
-	Thu, 19 Jan 2023 21:18:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 30706C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FD0DC0032;
+	Thu, 19 Jan 2023 22:31:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82F8FC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 21:18:57 +0000 (UTC)
+ Thu, 19 Jan 2023 22:31:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 04087405B5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6B6E540734
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 21:18:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 04087405B5
+ Thu, 19 Jan 2023 22:31:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B6E540734
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de
- header.a=rsa-sha256 header.s=2020 header.b=mdQ7CD0w; 
- dkim=pass header.d=linutronix.de header.i=@linutronix.de
- header.a=ed25519-sha256 header.s=2020e header.b=0BJ5w/p0
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=GXATZjpX
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VBsPYntkPIFH
+ with ESMTP id LyN7MLU4ZvcT
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 21:18:56 +0000 (UTC)
-X-Greylist: delayed 00:06:19 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DABDB405A7
-Received: from galois.linutronix.de (Galois.linutronix.de
- [IPv6:2a0a:51c0:0:12e:550::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DABDB405A7
+ Thu, 19 Jan 2023 22:31:31 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 19A214063C
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 19A214063C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 21:18:55 +0000 (UTC)
-From: Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1674162752;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=rRUXLP0p0WQ+Qd4xVEuRKMl25ggID9YoYcEY3DCIiik=;
- b=mdQ7CD0wRJvfaZDOr0f82Dc4967iwC75I1+s5lDCu1fHHwtrp+IBba8UPSoQ/va3j4Qar2
- ATGu2nZLLKa0vJ8CheBHLvt0I89xHSG06ZUusQKDPY104va7qqUjwYfiuIUukk+LaqO7Gu
- N+aHnCbtSnW+e8Smx0L+A2DiKy1AOSyLQ5QGRIN4vgJHVE1sRkt9jT/0k9LahiDV7T+AiK
- jKmIL8dmtVDNgeoMh+UAXcZ37mv49o4hNCz9KdPCGAyDUP9ZfpqnymsWZ0f3dG4LxhFiyw
- RTndkgdz2BKS/FhRmtxFB9hP9YbenuT2IOAVALIMh4inh4bZRqxisS45FivGfA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1674162752;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=rRUXLP0p0WQ+Qd4xVEuRKMl25ggID9YoYcEY3DCIiik=;
- b=0BJ5w/p0x778LsQ1MznxzGrIdB3OE1QGABAUfN3vpOmJUgdDINUgQsr9tLqZGxSzWuC+ct
- ivl26is4VR39BBBw==
-To: Igor Mammedov <imammedo@redhat.com>, "Srivatsa S. Bhat"
- <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle
- state
-In-Reply-To: <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
-References: <20230116060134.80259-1-srivatsa@csail.mit.edu>
- <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com>
-Date: Thu, 19 Jan 2023 22:12:31 +0100
-Message-ID: <87bkmui5z4.ffs@tglx>
+ Thu, 19 Jan 2023 22:31:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1674167491; x=1705703491;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=JoJGpj8vaP9dF2CWcRmJfrTrGxAvkWjp3W42IgzKc3E=;
+ b=GXATZjpXYxdG4aBE3Knb077gu2F2ss2FBnlybsa+VrJJRnWZfhmwkst8
+ aIKTvY0cDHelp7XSgJxRoQ36qNt9lWH1iMsizTAOFh1UDIROGDkrH2CDV
+ 0KkwgpfWwkvMW8qaEERGQV1OLRr+q3i5EEByHefui9s4sZtuAURroqywd
+ GFPDRyKedslBhqZWnQ1mBi3o2+cXmOmwTQ1Gp0941sgBsleKg25iJUilj
+ KXDd7VHWFzG7a9NS98LFdCW7MzB9prlqq0bOBp0KQgJhcUZmVktaEObau
+ /JtVsBfAkIF4PGZ8eYP6G8Brj5Y4CviCF6YjIII6aUk1j9TyMEnB8yb9v g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="389965189"
+X-IronPort-AV: E=Sophos;i="5.97,230,1669104000"; d="scan'208";a="389965189"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+ by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 19 Jan 2023 14:31:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10595"; a="768410237"
+X-IronPort-AV: E=Sophos;i="5.97,230,1669104000"; d="scan'208";a="768410237"
+Received: from lkp-server01.sh.intel.com (HELO 5646d64e7320) ([10.239.97.150])
+ by fmsmga002.fm.intel.com with ESMTP; 19 Jan 2023 14:31:26 -0800
+Received: from kbuild by 5646d64e7320 with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1pIdRN-0001uq-2N;
+ Thu, 19 Jan 2023 22:31:25 +0000
+Date: Fri, 20 Jan 2023 06:31:05 +0800
+From: kernel test robot <lkp@intel.com>
+To: Babis Chalios <bchalios@amazon.es>, Olivia Mackall <olivia@selenic.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, linux-crypto@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH 2/2] virtio-rng: add sysfs entries for leak detection
+Message-ID: <202301200640.CsblwTsa-lkp@intel.com>
+References: <20230119184349.74072-3-bchalios@amazon.es>
 MIME-Version: 1.0
-Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
- namit@vmware.com, "H. Peter Anvin" <hpa@zytor.com>, "Rafael J.
- Wysocki" <rafael.j.wysocki@intel.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
- xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
- Tom Lendacky <thomas.lendacky@amd.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
- Borislav Petkov <bp@alien8.de>, Juergen Gross <jgross@suse.com>,
- amakhalov@vmware.com, linux-kernel@vger.kernel.org,
- Lewis Caroll <lewis.carroll@amd.com>, blamoreaux@vmware.com
+Content-Disposition: inline
+In-Reply-To: <20230119184349.74072-3-bchalios@amazon.es>
+Cc: xmarcalx@amazon.co.uk, Jason@zx2c4.com, amit@kernel.org, graf@amazon.de,
+ oe-kbuild-all@lists.linux.dev
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,68 +103,99 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 16 2023 at 15:55, Igor Mammedov wrote:
-> "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
->> Fix this by preventing the use of mwait idle state in the vCPU offline
->> play_dead() path for any hypervisor, even if mwait support is
->> available.
->
-> if mwait is enabled, it's very likely guest to have cpuidle
-> enabled and using the same mwait as well. So exiting early from
->  mwait_play_dead(), might just punt workflow down:
->   native_play_dead()
->         ...
->         mwait_play_dead();
->         if (cpuidle_play_dead())   <- possible mwait here                                              
->                 hlt_play_dead(); 
->
-> and it will end up in mwait again and only if that fails
-> it will go HLT route and maybe transition to VMM.
+Hi Babis,
 
-Good point.
+Thank you for the patch! Perhaps something to improve:
 
-> Instead of workaround on guest side,
-> shouldn't hypervisor force VMEXIT on being uplugged vCPU when it's
-> actually hot-unplugging vCPU? (ex: QEMU kicks vCPU out from guest
-> context when it is removing vCPU, among other things)
+[auto build test WARNING on char-misc/char-misc-testing]
+[also build test WARNING on char-misc/char-misc-next char-misc/char-misc-linus linus/master v6.2-rc4 next-20230119]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-For a pure guest side CPU unplug operation:
+url:    https://github.com/intel-lab-lkp/linux/commits/Babis-Chalios/virtio-rng-implement-entropy-leak-feature/20230120-024631
+patch link:    https://lore.kernel.org/r/20230119184349.74072-3-bchalios%40amazon.es
+patch subject: [PATCH 2/2] virtio-rng: add sysfs entries for leak detection
+config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20230120/202301200640.CsblwTsa-lkp@intel.com/config)
+compiler: m68k-linux-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/2a801d93b8225555e4cb293a173e2053870cb2d1
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Babis-Chalios/virtio-rng-implement-entropy-leak-feature/20230120-024631
+        git checkout 2a801d93b8225555e4cb293a173e2053870cb2d1
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash drivers/char/
 
-    guest$ echo 0 >/sys/devices/system/cpu/cpu$N/online
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
 
-the hypervisor is not involved at all. The vCPU is not removed in that
-case.
+All warnings (new ones prefixed by >>):
 
-So to ensure that this ends up in HLT something like the below is
-required.
-
-Note, the removal of the comment after mwait_play_dead() is intentional
-because the comment is completely bogus. Not having MWAIT is not a
-failure. But that wants to be a seperate patch.
-
-Thanks,
-
-        tglx
----        
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 55cad72715d9..3f1f20f71ec5 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1833,7 +1833,10 @@ void native_play_dead(void)
- 	play_dead_common();
- 	tboot_shutdown(TB_SHUTDOWN_WFS);
- 
--	mwait_play_dead();	/* Only returns on failure */
-+	if (this_cpu_has(X86_FEATURE_HYPERVISOR))
-+		hlt_play_dead();
-+
-+	mwait_play_dead();
- 	if (cpuidle_play_dead())
- 		hlt_play_dead();
- }
+>> drivers/char/hw_random/virtio-rng.c:61:9: warning: no previous prototype for 'virtrng_sysfs_read' [-Wmissing-prototypes]
+      61 | ssize_t virtrng_sysfs_read(struct file *filep, struct kobject *kobj,
+         |         ^~~~~~~~~~~~~~~~~~
+>> drivers/char/hw_random/virtio-rng.c:76:5: warning: no previous prototype for 'virtrng_sysfs_mmap' [-Wmissing-prototypes]
+      76 | int virtrng_sysfs_mmap(struct file *filep, struct kobject *kobj,
+         |     ^~~~~~~~~~~~~~~~~~
+   drivers/char/hw_random/virtio-rng.c:106:5: warning: no previous prototype for 'add_fill_on_leak_request' [-Wmissing-prototypes]
+     106 | int add_fill_on_leak_request(struct virtrng_info *vi, struct virtqueue *vq, void *data, size_t len)
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/char/hw_random/virtio-rng.c:120:5: warning: no previous prototype for 'virtrng_fill_on_leak' [-Wmissing-prototypes]
+     120 | int virtrng_fill_on_leak(struct virtrng_info *vi, void *data, size_t len)
+         |     ^~~~~~~~~~~~~~~~~~~~
+   drivers/char/hw_random/virtio-rng.c:141:5: warning: no previous prototype for 'add_copy_on_leak_request' [-Wmissing-prototypes]
+     141 | int add_copy_on_leak_request(struct virtrng_info *vi, struct virtqueue *vq,
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/char/hw_random/virtio-rng.c:160:5: warning: no previous prototype for 'virtrng_copy_on_leak' [-Wmissing-prototypes]
+     160 | int virtrng_copy_on_leak(struct virtrng_info *vi, void *to, void *from, size_t len)
+         |     ^~~~~~~~~~~~~~~~~~~~
 
 
-  
+vim +/virtrng_sysfs_read +61 drivers/char/hw_random/virtio-rng.c
+
+    59	
+    60	#ifdef CONFIG_SYSFS
+  > 61	ssize_t virtrng_sysfs_read(struct file *filep, struct kobject *kobj,
+    62			struct bin_attribute *attr, char *buf, loff_t pos, size_t len)
+    63	{
+    64		struct virtrng_info *vi = attr->private;
+    65		unsigned long gen_counter = *(unsigned long *)vi->map_buffer;
+    66	
+    67		if (!len)
+    68			return 0;
+    69	
+    70		len = min(len, sizeof(gen_counter));
+    71		memcpy(buf, &gen_counter, len);
+    72	
+    73		return len;
+    74	}
+    75	
+  > 76	int virtrng_sysfs_mmap(struct file *filep, struct kobject *kobj,
+    77			struct bin_attribute *attr, struct vm_area_struct *vma)
+    78	{
+    79		struct virtrng_info *vi = attr->private;
+    80	
+    81		if (vma->vm_pgoff || vma_pages(vma) > 1)
+    82			return -EINVAL;
+    83	
+    84		if (vma->vm_flags & VM_WRITE)
+    85			return -EPERM;
+    86	
+    87		vma->vm_flags |= VM_DONTEXPAND;
+    88		vma->vm_flags &= ~VM_MAYWRITE;
+    89	
+    90		return vm_insert_page(vma, vma->vm_start, virt_to_page(vi->map_buffer));
+    91	}
+    92	#endif
+    93	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
