@@ -1,88 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1A29C00A5A
-	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 07:37:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B435CC004D4
+	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 10:39:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3009D4032E;
-	Thu, 19 Jan 2023 07:37:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3009D4032E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JlPkS2k/
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C30F60AA0;
+	Thu, 19 Jan 2023 10:39:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C30F60AA0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=e0az8+4i
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0OFijCmCiMo8; Thu, 19 Jan 2023 07:37:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3213A400EC;
-	Thu, 19 Jan 2023 07:37:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3213A400EC
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Zi7Pl6PPzWlK; Thu, 19 Jan 2023 10:39:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0594460AA3;
+	Thu, 19 Jan 2023 10:39:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0594460AA3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DA144C0033;
-	Thu, 19 Jan 2023 07:37:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CEDAEC0033;
+	Thu, 19 Jan 2023 10:39:51 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B4E8EC002D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB3CFC002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 07:37:05 +0000 (UTC)
+ Thu, 19 Jan 2023 10:39:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7BFFA41982
+ by smtp4.osuosl.org (Postfix) with ESMTP id A554E40915
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 07:37:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7BFFA41982
+ Thu, 19 Jan 2023 10:39:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A554E40915
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=JlPkS2k/
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=e0az8+4i
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7nPyRvEtWZUN
+ with ESMTP id k5yOpaAulNsS
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 07:37:04 +0000 (UTC)
+ Thu, 19 Jan 2023 10:39:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C823A41981
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8DAE2408F2
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C823A41981
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8DAE2408F2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Jan 2023 07:37:03 +0000 (UTC)
+ Thu, 19 Jan 2023 10:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674113822;
+ s=mimecast20190719; t=1674124787;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=S06AqGlmEUyC3/e/k2djDq5Ra/fFhZAiE0FaXodErl0=;
- b=JlPkS2k/OjmsWHCmI4dZ1M87DK43KrgqQgAhun8VSFaj/dU7zcTHSU0gDBaRmhAkfG5h27
- iETq+IBTPVlOcBoIriuEFqVcMx+qiyOJ1LWwz0kShBylbSBepB+1EXbNlStp1cSpSWy3KP
- ah3xwwR6Yws8LCG0jMxgKuQnzVDHV7M=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-654-FQU6fZupOA2w6g_MqcapeA-1; Thu, 19 Jan 2023 02:36:55 -0500
-X-MC-Unique: FQU6fZupOA2w6g_MqcapeA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
- [10.11.54.10])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EB249183B3C8;
- Thu, 19 Jan 2023 07:36:54 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-12-175.pek2.redhat.com
- [10.72.12.175])
- by smtp.corp.redhat.com (Postfix) with ESMTP id EC656492B00;
- Thu, 19 Jan 2023 07:36:49 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Subject: [PATCH V2] vhost-scsi: unbreak any layout for response
-Date: Thu, 19 Jan 2023 15:36:47 +0800
-Message-Id: <20230119073647.76467-1-jasowang@redhat.com>
+ in-reply-to:in-reply-to:references:references;
+ bh=yJyNK1+/ge7a+pCPBNiTz9QCZuOZ3IXj3b3Hi4Jg3Co=;
+ b=e0az8+4igmKGPZOmLle7ywwwajb+HiiNCVC6IA+puR2HPF3wW4xVsp15moA6ezGTkHQa1Z
+ 3/ySdQEILbRvkz0nWxZzChVaHTNpNReQ9SKA7nx8Z5d9J0des7km/gB5DlcVbURsCzRpoh
+ zwdWXpN2trZ2esk+xM3x4fAZpWZhziE=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-523-xGrKipdtNsO1ZJv8S-ddVQ-1; Thu, 19 Jan 2023 05:39:46 -0500
+X-MC-Unique: xGrKipdtNsO1ZJv8S-ddVQ-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ kr11-20020a0562142b8b00b005355b472a65so78514qvb.7
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Jan 2023 02:39:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=yJyNK1+/ge7a+pCPBNiTz9QCZuOZ3IXj3b3Hi4Jg3Co=;
+ b=YRp/yYhHEXnsLqO0K4nxiZOAkEaEw9l5uJxJVRdmomLO8FxvMHkHa7lXu7DjjGEoWs
+ YkmcUvN+RZesaIYXErUNxVP1GhdIKnCdXGnUHAaK5wzQHoKy4NS9RRmY+shYwtFxpNbS
+ d08kdF/Q6XevSg8jDtrRclwwiLinq3pD6Tkex7jsv6veIwQvScE7c/yUiOV+FJ+9jU/G
+ gbDsIjV4k6z8hTCrMC9+q/BGjPIzi7wMAQeyP4azTIOrFHCKRDY0IMqVJSEJMXp9F/1F
+ 9JvzPC2mShgMIfXK6fBaQSiilKlImtpMRDkr6pjL8ZDw9AO5tlqoIv9jyVNEh0E7nPGk
+ 50nQ==
+X-Gm-Message-State: AFqh2kruWx5mjlgUYccbjSUepoPRjHFXO5c8PHZXQ+QMD/kpzTyZnRrf
+ TZPcJfxEu3qb7N1AeEVIf5aq+lvWZaUs2jPzZOGeB9g16CMGHlZxdmTCBtYpIP6rP6Og67cHGN3
+ X2RQEahek1SDD0QwAQbZpN1D1Hv0k80q8Qvm+ySoQUQ==
+X-Received: by 2002:a0c:ea2c:0:b0:532:1fc2:9ad5 with SMTP id
+ t12-20020a0cea2c000000b005321fc29ad5mr43158329qvp.0.1674124785405; 
+ Thu, 19 Jan 2023 02:39:45 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXv2Gva+uX0eO+O8NQDdRYuDL8YmAeXTYwi19LkbvJqdFBP2KsHK7ntGx2b9TWFk0e7+X1H2sA==
+X-Received: by 2002:a0c:ea2c:0:b0:532:1fc2:9ad5 with SMTP id
+ t12-20020a0cea2c000000b005321fc29ad5mr43158304qvp.0.1674124785033; 
+ Thu, 19 Jan 2023 02:39:45 -0800 (PST)
+Received: from sgarzare-redhat (host-82-57-51-245.retail.telecomitalia.it.
+ [82.57.51.245]) by smtp.gmail.com with ESMTPSA id
+ d136-20020ae9ef8e000000b006ef1a8f1b81sm23545975qkg.5.2023.01.19.02.39.39
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 19 Jan 2023 02:39:44 -0800 (PST)
+Date: Thu, 19 Jan 2023 11:39:36 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH RFC 1/3] vsock: support sockmap
+Message-ID: <20230119103936.ezjhewtqldhovybs@sgarzare-redhat>
+References: <20230118-support-vsock-sockmap-connectible-v1-0-d47e6294827b@bytedance.com>
+ <20230118-support-vsock-sockmap-connectible-v1-1-d47e6294827b@bytedance.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, bcodding@redhat.com,
- Al Viro <viro@zeniv.linux.org.uk>, stefanha@redhat.com, pbonzini@redhat.com
+In-Reply-To: <20230118-support-vsock-sockmap-connectible-v1-1-d47e6294827b@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Cong Wang <cong.wang@bytedance.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Song Liu <song@kernel.org>,
+ Eric Dumazet <edumazet@google.com>, Stanislav Fomichev <sdf@google.com>,
+ linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
+ Mykola Lysenko <mykolal@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
+ John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>,
+ Yonghong Song <yhs@fb.com>, Paolo Abeni <pabeni@redhat.com>,
+ KP Singh <kpsingh@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>, Hao Luo <haoluo@google.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jiri Olsa <jolsa@kernel.org>, bpf@vger.kernel.org,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,157 +130,550 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Al Viro said:
+On Wed, Jan 18, 2023 at 12:27:39PM -0800, Bobby Eshleman wrote:
+>This patch adds sockmap support for vsock sockets. It is intended to be
+>usable by all transports, but only the virtio transport is implemented.
+>
+>Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>---
+> drivers/vhost/vsock.c                   |   1 +
+> include/linux/virtio_vsock.h            |   1 +
+> include/net/af_vsock.h                  |  17 +++
+> net/vmw_vsock/Makefile                  |   1 +
+> net/vmw_vsock/af_vsock.c                |  59 +++++++++--
+> net/vmw_vsock/virtio_transport.c        |   2 +
+> net/vmw_vsock/virtio_transport_common.c |  22 ++++
+> net/vmw_vsock/vsock_bpf.c               | 180 ++++++++++++++++++++++++++++++++
+> net/vmw_vsock/vsock_loopback.c          |   2 +
+> 9 files changed, 279 insertions(+), 6 deletions(-)
 
-"""
-Since "vhost/scsi: fix reuse of &vq->iov[out] in response"
-we have this:
-                cmd->tvc_resp_iov = vq->iov[vc.out];
-                cmd->tvc_in_iovs = vc.in;
-combined with
-                iov_iter_init(&iov_iter, ITER_DEST, &cmd->tvc_resp_iov,
-                              cmd->tvc_in_iovs, sizeof(v_rsp));
-in vhost_scsi_complete_cmd_work().  We used to have ->tvc_resp_iov
-_pointing_ to vq->iov[vc.out]; back then iov_iter_init() asked to
-set an iovec-backed iov_iter over the tail of vq->iov[], with
-length being the amount of iovecs in the tail.
+./scripts/checkpatch.pl --strict prints some simple warnings/checks that
+I suggest to fix :-)
 
-Now we have a copy of one element of that array.  Fortunately, the members
-following it in the containing structure are two non-NULL kernel pointers,
-so copy_to_iter() will not copy anything beyond the first iovec - kernel
-pointer is not (on the majority of architectures) going to be accepted by
-access_ok() in copyout() and it won't be skipped since the "length" (in
-reality - another non-NULL kernel pointer) won't be zero.
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 1f3b89c885cca..3c6dc036b9044 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -439,6 +439,7 @@ static struct virtio_transport vhost_transport = {
+> 		.notify_send_post_enqueue = virtio_transport_notify_send_post_enqueue,
+> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+>
+>+		.read_skb = virtio_transport_read_skb,
+> 	},
+>
+> 	.send_pkt = vhost_transport_send_pkt,
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index 3f9c166113063..c58453699ee98 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -245,4 +245,5 @@ u32 virtio_transport_get_credit(struct virtio_vsock_sock *vvs, u32 wanted);
+> void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
+> void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
+> int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
+>+int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
+> #endif /* _LINUX_VIRTIO_VSOCK_H */
+>diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>index 568a87c5e0d0f..a73f5fbd296af 100644
+>--- a/include/net/af_vsock.h
+>+++ b/include/net/af_vsock.h
+>@@ -75,6 +75,7 @@ struct vsock_sock {
+> 	void *trans;
+> };
+>
+>+s64 vsock_connectible_has_data(struct vsock_sock *vsk);
+> s64 vsock_stream_has_data(struct vsock_sock *vsk);
+> s64 vsock_stream_has_space(struct vsock_sock *vsk);
+> struct sock *vsock_create_connected(struct sock *parent);
+>@@ -173,6 +174,9 @@ struct vsock_transport {
+>
+> 	/* Addressing. */
+> 	u32 (*get_local_cid)(void);
+>+
+>+	/* Read a single skb */
+>+	int (*read_skb)(struct vsock_sock *, skb_read_actor_t);
+> };
+>
+> /**** CORE ****/
+>@@ -225,5 +229,18 @@ int vsock_init_tap(void);
+> int vsock_add_tap(struct vsock_tap *vt);
+> int vsock_remove_tap(struct vsock_tap *vt);
+> void vsock_deliver_tap(struct sk_buff *build_skb(void *opaque), void *opaque);
+>+int vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>+			      int flags);
+>+int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
+>+			       size_t len, int flags);
+>+
+>+#ifdef CONFIG_BPF_SYSCALL
+>+extern struct proto vsock_proto;
+>+int vsock_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore);
+>+void __init vsock_bpf_build_proto(void);
+>+#else
+>+static inline void __init vsock_bpf_build_proto(void)
+>+{}
+>+#endif
+>
+> #endif /* __AF_VSOCK_H__ */
+>diff --git a/net/vmw_vsock/Makefile b/net/vmw_vsock/Makefile
+>index 6a943ec95c4a5..5da74c4a9f1d1 100644
+>--- a/net/vmw_vsock/Makefile
+>+++ b/net/vmw_vsock/Makefile
+>@@ -8,6 +8,7 @@ obj-$(CONFIG_HYPERV_VSOCKETS) += hv_sock.o
+> obj-$(CONFIG_VSOCKETS_LOOPBACK) += vsock_loopback.o
+>
+> vsock-y += af_vsock.o af_vsock_tap.o vsock_addr.o
+>+vsock-$(CONFIG_BPF_SYSCALL) += vsock_bpf.o
+>
+> vsock_diag-y += diag.o
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index d593d5b6d4b15..7081b3a992c1e 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -116,10 +116,13 @@ static void vsock_sk_destruct(struct sock *sk);
+> static int vsock_queue_rcv_skb(struct sock *sk, struct sk_buff *skb);
+>
+> /* Protocol family. */
+>-static struct proto vsock_proto = {
+>+struct proto vsock_proto = {
+> 	.name = "AF_VSOCK",
+> 	.owner = THIS_MODULE,
+> 	.obj_size = sizeof(struct vsock_sock),
+>+#ifdef CONFIG_BPF_SYSCALL
+>+	.psock_update_sk_prot = vsock_bpf_update_proto,
+>+#endif
+> };
+>
+> /* The default peer timeout indicates how long we will wait for a peer response
+>@@ -865,7 +868,7 @@ s64 vsock_stream_has_data(struct vsock_sock *vsk)
+> }
+> EXPORT_SYMBOL_GPL(vsock_stream_has_data);
+>
+>-static s64 vsock_connectible_has_data(struct vsock_sock *vsk)
+>+s64 vsock_connectible_has_data(struct vsock_sock *vsk)
+> {
+> 	struct sock *sk = sk_vsock(vsk);
+>
+>@@ -874,6 +877,7 @@ static s64 vsock_connectible_has_data(struct vsock_sock *vsk)
+> 	else
+> 		return vsock_stream_has_data(vsk);
+> }
+>+EXPORT_SYMBOL_GPL(vsock_connectible_has_data);
+>
+> s64 vsock_stream_has_space(struct vsock_sock *vsk)
+> {
+>@@ -1131,6 +1135,19 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
+> 	return mask;
+> }
+>
+>+static int vsock_read_skb(struct sock *sk, skb_read_actor_t read_actor)
+>+{
+>+	struct vsock_sock *vsk = vsock_sk(sk);
+>+
+>+	if (!vsk->transport)
+>+		return -ENODEV;
+>+
+>+	if (!vsk->transport->read_skb)
+>+		return -EOPNOTSUPP;
+>+
+>+	return vsk->transport->read_skb(vsk, read_actor);
+>+}
+>+
+> static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+> 			       size_t len)
+> {
+>@@ -1241,19 +1258,32 @@ static int vsock_dgram_connect(struct socket *sock,
+>
+> 	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
+> 	sock->state = SS_CONNECTED;
+>+	sk->sk_state = TCP_ESTABLISHED;
 
-So it's not going to give a guest-to-qemu escalation, but it's definitely
-a bug.  Frankly, my preference would be to verify that the very first iovec
-is long enough to hold rsp_size.  Due to the above, any users that try to
-give us vq->iov[vc.out].iov_len < sizeof(struct virtio_scsi_cmd_resp)
-would currently get a failure in vhost_scsi_complete_cmd_work()
-anyway.
-"""
+Why we need this change?
+If it's a fix, we should put it in another patch.
 
-However, the spec doesn't say anything about the legacy descriptor
-layout for the respone. So this patch tries to not assume the response
-to reside in a single separate descriptor which is what commit
-79c14141a487 ("vhost/scsi: Convert completion path to use") tries to
-achieve towards to ANY_LAYOUT.
+>
+> out:
+> 	release_sock(sk);
+> 	return err;
+> }
+>
+>-static int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
+>-			       size_t len, int flags)
+>+int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
+>+			size_t len, int flags)
+> {
+>-	struct vsock_sock *vsk = vsock_sk(sock->sk);
+>+	const struct proto *prot;
 
-This is done by allocating and using dedicate resp iov in the
-command. To be safety, start with UIO_MAXIOV to be consistent with the
-limitation that we advertise to the vhost_get_vq_desc().
+We should use the guard for this statement as in
+vsock_connectible_recvmsg().
 
-Testing with the hacked virtio-scsi driver that use 1 descriptor for 1
-byte in the response.
+>+	struct vsock_sock *vsk;
+>+	struct sock *sk;
+>+
+>+	sk = sock->sk;
+>+	vsk = vsock_sk(sk);
+>+
+>+#ifdef CONFIG_BPF_SYSCALL
+>+	prot = READ_ONCE(sk->sk_prot);
+>+	if (prot != &vsock_proto)
+>+		return prot->recvmsg(sk, msg, len, flags, NULL);
+>+#endif
+>
+> 	return vsk->transport->dgram_dequeue(vsk, msg, len, flags);
+> }
+>+EXPORT_SYMBOL_GPL(vsock_dgram_recvmsg);
+>
+> static const struct proto_ops vsock_dgram_ops = {
+> 	.family = PF_VSOCK,
+>@@ -1272,6 +1302,7 @@ static const struct proto_ops vsock_dgram_ops = {
+> 	.recvmsg = vsock_dgram_recvmsg,
+> 	.mmap = sock_no_mmap,
+> 	.sendpage = sock_no_sendpage,
+>+	.read_skb = vsock_read_skb,
+> };
+>
+> static int vsock_transport_cancel_pkt(struct vsock_sock *vsk)
+>@@ -2085,13 +2116,16 @@ static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+> 	return err;
+> }
+>
+>-static int
+>+int
+> vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 			  int flags)
+> {
+> 	struct sock *sk;
+> 	struct vsock_sock *vsk;
+> 	const struct vsock_transport *transport;
+>+#ifdef CONFIG_BPF_SYSCALL
+>+	const struct proto *prot;
+>+#endif
+> 	int err;
+>
+> 	sk = sock->sk;
+>@@ -2138,6 +2172,14 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 		goto out;
+> 	}
+>
+>+#ifdef CONFIG_BPF_SYSCALL
+>+	prot = READ_ONCE(sk->sk_prot);
+>+	if (prot != &vsock_proto) {
+>+		release_sock(sk);
+>+		return prot->recvmsg(sk, msg, len, flags, NULL);
+>+	}
+>+#endif
+>+
+> 	if (sk->sk_type == SOCK_STREAM)
+> 		err = __vsock_stream_recvmsg(sk, msg, len, flags);
+> 	else
+>@@ -2147,6 +2189,7 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 	release_sock(sk);
+> 	return err;
+> }
+>+EXPORT_SYMBOL_GPL(vsock_connectible_recvmsg);
+>
+> static int vsock_set_rcvlowat(struct sock *sk, int val)
+> {
+>@@ -2187,6 +2230,7 @@ static const struct proto_ops vsock_stream_ops = {
+> 	.mmap = sock_no_mmap,
+> 	.sendpage = sock_no_sendpage,
+> 	.set_rcvlowat = vsock_set_rcvlowat,
+>+	.read_skb = vsock_read_skb,
+> };
+>
+> static const struct proto_ops vsock_seqpacket_ops = {
+>@@ -2208,6 +2252,7 @@ static const struct proto_ops vsock_seqpacket_ops = {
+> 	.recvmsg = vsock_connectible_recvmsg,
+> 	.mmap = sock_no_mmap,
+> 	.sendpage = sock_no_sendpage,
+>+	.read_skb = vsock_read_skb,
+> };
+>
+> static int vsock_create(struct net *net, struct socket *sock,
+>@@ -2347,6 +2392,8 @@ static int __init vsock_init(void)
+> 		goto err_unregister_proto;
+> 	}
+>
+>+	vsock_bpf_build_proto();
+>+
+> 	return 0;
+>
+> err_unregister_proto:
+>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>index 28b5a8e8e0948..e95df847176b6 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -457,6 +457,8 @@ static struct virtio_transport virtio_transport = {
+> 		.notify_send_pre_enqueue  = 
+> 		virtio_transport_notify_send_pre_enqueue,
+> 		.notify_send_post_enqueue = virtio_transport_notify_send_post_enqueue,
+> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+>+
+>+		.read_skb = virtio_transport_read_skb,
+> 	},
+>
+> 	.send_pkt = virtio_transport_send_pkt,
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index a1581c77cf84a..9a87ead5b1fc5 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -1388,6 +1388,28 @@ int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *queue)
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_purge_skbs);
+>
+>+int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_actor)
+>+{
+>+	struct virtio_vsock_sock *vvs = vsk->trans;
+>+	struct sock *sk = sk_vsock(vsk);
+>+	struct sk_buff *skb;
+>+	int copied = 0;
 
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Benjamin Coddington <bcodding@redhat.com>
-Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-Fixes: a77ec83a5789 ("vhost/scsi: fix reuse of &vq->iov[out] in response")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Changes since V1:
-- tweak the changelog
-- fix the allocation size for tvc_resp_iov (should be sizeof(struct iovec))
----
- drivers/vhost/scsi.c | 21 +++++++++++++++++----
- 1 file changed, 17 insertions(+), 4 deletions(-)
+We could avoid initializing `copied`, since it is overwritten later.
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index dca6346d75b3..d5ecb8876fc9 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -80,7 +80,7 @@ struct vhost_scsi_cmd {
- 	struct scatterlist *tvc_prot_sgl;
- 	struct page **tvc_upages;
- 	/* Pointer to response header iovec */
--	struct iovec tvc_resp_iov;
-+	struct iovec *tvc_resp_iov;
- 	/* Pointer to vhost_scsi for our device */
- 	struct vhost_scsi *tvc_vhost;
- 	/* Pointer to vhost_virtqueue for the cmd */
-@@ -563,7 +563,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		memcpy(v_rsp.sense, cmd->tvc_sense_buf,
- 		       se_cmd->scsi_sense_length);
- 
--		iov_iter_init(&iov_iter, ITER_DEST, &cmd->tvc_resp_iov,
-+		iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iov,
- 			      cmd->tvc_in_iovs, sizeof(v_rsp));
- 		ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
- 		if (likely(ret == sizeof(v_rsp))) {
-@@ -594,6 +594,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
- 	struct vhost_scsi_cmd *cmd;
- 	struct vhost_scsi_nexus *tv_nexus;
- 	struct scatterlist *sg, *prot_sg;
-+	struct iovec *tvc_resp_iov;
- 	struct page **pages;
- 	int tag;
- 
-@@ -613,6 +614,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
- 	sg = cmd->tvc_sgl;
- 	prot_sg = cmd->tvc_prot_sgl;
- 	pages = cmd->tvc_upages;
-+	tvc_resp_iov = cmd->tvc_resp_iov;
- 	memset(cmd, 0, sizeof(*cmd));
- 	cmd->tvc_sgl = sg;
- 	cmd->tvc_prot_sgl = prot_sg;
-@@ -625,6 +627,7 @@ vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
- 	cmd->tvc_data_direction = data_direction;
- 	cmd->tvc_nexus = tv_nexus;
- 	cmd->inflight = vhost_scsi_get_inflight(vq);
-+	cmd->tvc_resp_iov = tvc_resp_iov;
- 
- 	memcpy(cmd->tvc_cdb, cdb, VHOST_SCSI_MAX_CDB_SIZE);
- 
-@@ -935,7 +938,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 	struct iov_iter in_iter, prot_iter, data_iter;
- 	u64 tag;
- 	u32 exp_data_len, data_direction;
--	int ret, prot_bytes, c = 0;
-+	int ret, prot_bytes, i, c = 0;
- 	u16 lun;
- 	u8 task_attr;
- 	bool t10_pi = vhost_has_feature(vq, VIRTIO_SCSI_F_T10_PI);
-@@ -1092,7 +1095,8 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		}
- 		cmd->tvc_vhost = vs;
- 		cmd->tvc_vq = vq;
--		cmd->tvc_resp_iov = vq->iov[vc.out];
-+		for (i = 0; i < vc.in ; i++)
-+			cmd->tvc_resp_iov[i] = vq->iov[vc.out + i];
- 		cmd->tvc_in_iovs = vc.in;
- 
- 		pr_debug("vhost_scsi got command opcode: %#02x, lun: %d\n",
-@@ -1461,6 +1465,7 @@ static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
- 		kfree(tv_cmd->tvc_sgl);
- 		kfree(tv_cmd->tvc_prot_sgl);
- 		kfree(tv_cmd->tvc_upages);
-+		kfree(tv_cmd->tvc_resp_iov);
- 	}
- 
- 	sbitmap_free(&svq->scsi_tags);
-@@ -1508,6 +1513,14 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
- 			goto out;
- 		}
- 
-+		tv_cmd->tvc_resp_iov = kcalloc(UIO_MAXIOV,
-+					       sizeof(struct iovec),
-+					       GFP_KERNEL);
-+		if (!tv_cmd->tvc_resp_iov) {
-+			pr_err("Unable to allocate tv_cmd->tvc_resp_iov\n");
-+			goto out;
-+		}
-+
- 		tv_cmd->tvc_prot_sgl = kcalloc(VHOST_SCSI_PREALLOC_PROT_SGLS,
- 					       sizeof(struct scatterlist),
- 					       GFP_KERNEL);
--- 
-2.25.1
+>+	int off = 0;
+>+	int err;
+>+
+>+	spin_lock_bh(&vvs->rx_lock);
+>+	skb = __skb_recv_datagram(sk, &vvs->rx_queue, MSG_DONTWAIT, &off, &err);
+
+Will this work also for STREAM and SEQPACKET sockets?
+
+>+	spin_unlock_bh(&vvs->rx_lock);
+>+
+>+	if (!skb)
+>+		return err;
+>+
+>+	copied = recv_actor(sk, skb);
+>+	kfree_skb(skb);
+
+I would have moved these steps to vsock_read_skb() to avoid duplicating
+these steps in each transport. Perhaps not all transports want to pass
+skb ownership to the caller, though, so maybe we can leave it that
+way for now.
+
+>+	return copied;
+>+}
+>+EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
+>+
+> MODULE_LICENSE("GPL v2");
+> MODULE_AUTHOR("Asias He");
+> MODULE_DESCRIPTION("common code for virtio vsock");
+>diff --git a/net/vmw_vsock/vsock_bpf.c b/net/vmw_vsock/vsock_bpf.c
+>new file mode 100644
+>index 0000000000000..9e11282d3bc1f
+>--- /dev/null
+>+++ b/net/vmw_vsock/vsock_bpf.c
+>@@ -0,0 +1,180 @@
+>+// SPDX-License-Identifier: GPL-2.0
+>+/* Copyright (c) 2022 Bobby Eshleman <bobby.eshleman@bytedance.com>
+>+ *
+>+ * Based off of net/unix/unix_bpf.c
+>+ */
+>+
+>+#include <linux/bpf.h>
+>+#include <linux/module.h>
+>+#include <linux/skmsg.h>
+>+#include <linux/socket.h>
+>+#include <net/af_vsock.h>
+>+#include <net/sock.h>
+>+
+>+#define vsock_sk_has_data(__sk, __psock)				\
+>+		({	!skb_queue_empty(&__sk->sk_receive_queue) ||	\
+>+			!skb_queue_empty(&__psock->ingress_skb) ||	\
+>+			!list_empty(&__psock->ingress_msg);		\
+>+		})
+>+
+>+static struct proto *vsock_dgram_prot_saved __read_mostly;
+>+static DEFINE_SPINLOCK(vsock_dgram_prot_lock);
+>+static struct proto vsock_dgram_bpf_prot;
+>+
+>+static bool vsock_has_data(struct vsock_sock *vsk, struct sk_psock *psock)
+>+{
+>+	struct sock *sk = sk_vsock(vsk);
+>+	s64 ret;
+>+
+>+	ret = vsock_connectible_has_data(vsk);
+>+	if (ret > 0)
+>+		return true;
+>+
+>+	return vsock_sk_has_data(sk, psock);
+>+}
+>+
+>+static int vsock_msg_wait_data(struct sock *sk, struct sk_psock *psock, long timeo)
+>+{
+>+	struct vsock_sock *vsk;
+>+	int err;
+>+
+>+	DEFINE_WAIT(wait);
+>+
+>+	vsk = vsock_sk(sk);
+>+	err = 0;
+>+
+>+	while (vsock_has_data(vsk, psock)) {
+>+		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+>+
+>+		if (sk->sk_err != 0 ||
+>+		    (sk->sk_shutdown & RCV_SHUTDOWN) ||
+>+		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
+>+			break;
+>+		}
+>+
+>+		if (timeo == 0) {
+>+			err = -EAGAIN;
+>+			break;
+>+		}
+>+
+>+		release_sock(sk);
+>+		timeo = schedule_timeout(timeo);
+>+		lock_sock(sk);
+>+
+>+		if (signal_pending(current)) {
+>+			err = sock_intr_errno(timeo);
+>+			break;
+>+		} else if (timeo == 0) {
+>+			err = -EAGAIN;
+>+			break;
+>+		}
+>+	}
+>+
+>+	finish_wait(sk_sleep(sk), &wait);
+>+
+>+	if (err)
+>+		return err;
+>+
+>+	return 0;
+>+}
+>+
+>+static int vsock_recvmsg(struct sock *sk, struct msghdr *msg, size_t len, int flags)
+>+{
+>+	int err;
+>+	struct socket *sock = sk->sk_socket;
+>+
+>+	if (sk->sk_type == SOCK_STREAM || sk->sk_type == SOCK_SEQPACKET)
+>+		err = vsock_connectible_recvmsg(sock, msg, len, flags);
+>+	else
+
+Could it happen that it is not DGRAM and we should return an error in
+this case?
+
+Thanks,
+Stefano
+
+>+		err = vsock_dgram_recvmsg(sock, msg, len, flags);
+>+
+>+	return err;
+>+}
+>+
+>+static int vsock_bpf_recvmsg(struct sock *sk, struct msghdr *msg,
+>+			     size_t len, int flags, int *addr_len)
+>+{
+>+	int copied;
+>+	struct sk_psock *psock;
+>+
+>+	lock_sock(sk);
+>+	psock = sk_psock_get(sk);
+>+	if (unlikely(!psock)) {
+>+		release_sock(sk);
+>+		return vsock_recvmsg(sk, msg, len, flags);
+>+	}
+>+
+>+	if (vsock_has_data(vsock_sk(sk), psock) && sk_psock_queue_empty(psock)) {
+>+		sk_psock_put(sk, psock);
+>+		release_sock(sk);
+>+		return vsock_recvmsg(sk, msg, len, flags);
+>+	}
+>+
+>+msg_bytes_ready:
+>+	copied = sk_msg_recvmsg(sk, psock, msg, len, flags);
+>+	if (!copied) {
+>+		long timeo;
+>+		int data;
+>+
+>+		timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+>+		data = vsock_msg_wait_data(sk, psock, timeo);
+>+		if (data) {
+>+			if (!sk_psock_queue_empty(psock))
+>+				goto msg_bytes_ready;
+>+			sk_psock_put(sk, psock);
+>+			release_sock(sk);
+>+			return vsock_recvmsg(sk, msg, len, flags);
+>+		}
+>+		copied = -EAGAIN;
+>+	}
+>+	sk_psock_put(sk, psock);
+>+	release_sock(sk);
+>+
+>+	return copied;
+>+}
+>+
+>+/* Copy of original proto with updated sock_map methods */
+>+static struct proto vsock_dgram_bpf_prot = {
+>+	.close = sock_map_close,
+>+	.recvmsg = vsock_bpf_recvmsg,
+>+	.sock_is_readable = sk_msg_is_readable,
+>+	.unhash = sock_map_unhash,
+>+};
+>+
+>+static void vsock_dgram_bpf_rebuild_protos(struct proto *prot, const struct proto *base)
+>+{
+>+	*prot        = *base;
+>+	prot->close  = sock_map_close;
+>+	prot->recvmsg = vsock_bpf_recvmsg;
+>+	prot->sock_is_readable = sk_msg_is_readable;
+>+}
+>+
+>+static void vsock_dgram_bpf_check_needs_rebuild(struct proto *ops)
+>+{
+>+	if (unlikely(ops != smp_load_acquire(&vsock_dgram_prot_saved))) {
+>+		spin_lock_bh(&vsock_dgram_prot_lock);
+>+		if (likely(ops != vsock_dgram_prot_saved)) {
+>+			vsock_dgram_bpf_rebuild_protos(&vsock_dgram_bpf_prot, ops);
+>+			smp_store_release(&vsock_dgram_prot_saved, ops);
+>+		}
+>+		spin_unlock_bh(&vsock_dgram_prot_lock);
+>+	}
+>+}
+>+
+>+int vsock_bpf_update_proto(struct sock *sk, struct sk_psock *psock, bool restore)
+>+{
+>+	if (restore) {
+>+		sk->sk_write_space = psock->saved_write_space;
+>+		sock_replace_proto(sk, psock->sk_proto);
+>+		return 0;
+>+	}
+>+
+>+	vsock_dgram_bpf_check_needs_rebuild(psock->sk_proto);
+>+	sock_replace_proto(sk, &vsock_dgram_bpf_prot);
+>+	return 0;
+>+}
+>+
+>+void __init vsock_bpf_build_proto(void)
+>+{
+>+	vsock_dgram_bpf_rebuild_protos(&vsock_dgram_bpf_prot, &vsock_proto);
+>+}
+>diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+>index 671e03240fc52..40753b661c135 100644
+>--- a/net/vmw_vsock/vsock_loopback.c
+>+++ b/net/vmw_vsock/vsock_loopback.c
+>@@ -94,6 +94,8 @@ static struct virtio_transport loopback_transport = {
+> 		.notify_send_pre_enqueue  = virtio_transport_notify_send_pre_enqueue,
+> 		.notify_send_post_enqueue = virtio_transport_notify_send_post_enqueue,
+> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+>+
+>+		.read_skb = virtio_transport_read_skb,
+> 	},
+>
+> 	.send_pkt = vsock_loopback_send_pkt,
+>
+>-- 
+>2.30.2
+>
 
 _______________________________________________
 Virtualization mailing list
