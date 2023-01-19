@@ -1,89 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A840AC38147
-	for <virtualization@archiver.kernel.org>; Wed, 18 Jan 2023 16:51:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E2E10C38142
+	for <virtualization@archiver.kernel.org>; Thu, 19 Jan 2023 03:16:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2E98C820A4;
-	Wed, 18 Jan 2023 16:51:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E98C820A4
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=kdTSXI40
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EaoaRsL9877Z; Wed, 18 Jan 2023 16:51:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E04A820A3;
-	Wed, 18 Jan 2023 16:51:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E04A820A3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C711C0032;
-	Wed, 18 Jan 2023 16:51:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B7B87C002D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Jan 2023 16:51:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8C05F41852
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Jan 2023 16:51:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C05F41852
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6CB6C4192F;
+	Thu, 19 Jan 2023 03:16:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6CB6C4192F
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=kdTSXI40
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RLx8+Rlc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ODDGTpwJetFd
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 749IMBy90rc0; Thu, 19 Jan 2023 03:16:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A06C041932;
+	Thu, 19 Jan 2023 03:16:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A06C041932
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 73CA9C0033;
+	Thu, 19 Jan 2023 03:16:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DCDA1C002D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Jan 2023 16:51:10 +0000 (UTC)
+ Thu, 19 Jan 2023 03:16:29 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id B15C2610AB
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Jan 2023 03:16:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B15C2610AB
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RLx8+Rlc
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8H3UK8c9SGmE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Jan 2023 03:16:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 778ED4187A
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 778ED4187A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5B00860B51
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5B00860B51
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Jan 2023 16:51:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1674060670; x=1705596670;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=qBq10ouxVtiB3/iqe3X4Tyh7yKptJbnRSeCrgUrFlZY=;
- b=kdTSXI400Jw0GIpnqQbZqMdwG8/Ct7WbFKiH+w6w1EGQGG2b+xJo6Rlg
- 4GSqFMhZFnuE90BvN8Upj+R3UhMzrN8T677ps29LgrslTI8uEeCd6MdBS
- 9yOvhlsrN5QEi8xNsxbHmeaOuZxMujTgsoLWKKEcugnIUEDVfGAIhRSO3
- HfMjA+JEr8evf5hJdzgr2844YzTkbmv9y5TqZMp38GZqZdF0661jZVaz+
- bm4uh0QUMpoNrsLGJUO7FhXnF0jUK3IKKjU1mkrLyV2qKS6wVvm1xpmlp
- HkMIqdTeI4iAL2w8itihx5bLfec/8PAXyRVmiZQgnOhSFyaY9UCYsHd1g Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="323715980"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; d="scan'208";a="323715980"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 18 Jan 2023 08:51:05 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10594"; a="767824583"
-X-IronPort-AV: E=Sophos;i="5.97,226,1669104000"; d="scan'208";a="767824583"
-Received: from lkp-server01.sh.intel.com (HELO 5646d64e7320) ([10.239.97.150])
- by fmsmga002.fm.intel.com with ESMTP; 18 Jan 2023 08:51:02 -0800
-Received: from kbuild by 5646d64e7320 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pIBeK-0000X9-2U;
- Wed, 18 Jan 2023 16:50:56 +0000
-Date: Thu, 19 Jan 2023 00:50:29 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [linux-next:master] BUILD REGRESSION
- f3381a7baf5ccbd091eb2c4fd2afd84266fcef24
-Message-ID: <63c82355.kCFspGLcQ170XMRT%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ Thu, 19 Jan 2023 03:16:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674098186;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=UEAyeHzgkAupgJMwknbiDqBEC1GYYBnvH2SxqDruG38=;
+ b=RLx8+RlcMFsw9YuOVvjK/Qh4/1tzK+ojs6bkPBqLpw3JwfvXmnTQlvR5CJc2WTWxByORUC
+ wFQdeIuoIB+f3tPP2RinadU7HxnRw0jg5C3+5uYE1qHU9SgSlEFN0kO9rOwpUL2ElXSL/0
+ 8YFUQcDrJ05sT4fI4f38dpHRwLaBEX0=
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
+ [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-371-8vDO62HvPU6O0mL8gNvJkQ-1; Wed, 18 Jan 2023 22:16:25 -0500
+X-MC-Unique: 8vDO62HvPU6O0mL8gNvJkQ-1
+Received: by mail-oa1-f69.google.com with SMTP id
+ 586e51a60fabf-15f2d95f1easo484078fac.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Jan 2023 19:16:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=UEAyeHzgkAupgJMwknbiDqBEC1GYYBnvH2SxqDruG38=;
+ b=Y64qBU7/7k3zkT4UtGjle7J02/4NxcjWhGek2AtjtrnWLRcvGOR2aUiBXsQtbkK1Ue
+ 9PGrg1M1i7AjTmqTusTjZdRkleZRiXWQtqVgB+JixTZD1E5hUNZ8KKsnZzYMPyHW0B6X
+ N4O0D4QOcngaFbJ76P/O+8ELrAal4PZHLkAVWSK/f768nG2+t0sg/VMmmuZ8TSrbVQC/
+ /TSVqoWwkdFB6PSr7QCpgf+fjbL1kTvYYhZ10Dy0b3zWOrUE2A9xyPVK3OmGr7LnCAd1
+ qpG1Q88e3p9EmAlEkYCGETaNfX7WxHiO9rQAsvNpABHzL6KYKHiEJge087LH7T4Jd7CQ
+ 0K2w==
+X-Gm-Message-State: AFqh2kq6jbs5W6heUzzNKDg1Ltj87jDNegSyOrg1EAHNdQwj5ls6qY2X
+ iQo5P1GfbYkXrxhDXBpL6g9B1VQEeC7mqZl0jYDk7lObs40yzuGwJm5+1nEVbS4zEP0TqoMgREI
+ L4zmy+QnomW4w4Ad75H49vAbbPTxNhZoBSydUnulyRyJhNGtAchnGApi5iA==
+X-Received: by 2002:a05:6871:10e:b0:15b:96b5:9916 with SMTP id
+ y14-20020a056871010e00b0015b96b59916mr809556oab.280.1674098184637; 
+ Wed, 18 Jan 2023 19:16:24 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXtw1xnPLkvtcoMtHxPiTCTrubYN1NT29GYArw3LFI7S8h3cfpKtpx8ZzRduNDS5CMtlOt33jyUeuiK0rXs9Yww=
+X-Received: by 2002:a05:6871:10e:b0:15b:96b5:9916 with SMTP id
+ y14-20020a056871010e00b0015b96b59916mr809544oab.280.1674098184424; Wed, 18
+ Jan 2023 19:16:24 -0800 (PST)
 MIME-Version: 1.0
-Cc: linux-scsi@vger.kernel.org, linux-doc@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Linux Memory Management List <linux-mm@kvack.org>,
- linux-fscrypt@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+References: <20230118164359.1523760-1-eperezma@redhat.com>
+ <20230118164359.1523760-2-eperezma@redhat.com>
+In-Reply-To: <20230118164359.1523760-2-eperezma@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 19 Jan 2023 11:16:13 +0800
+Message-ID: <CACGkMEt=po+FMEikgj3OXC7_QC=yhRP2Sx0NU=2sFPGgQ4bujA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vdpa_sim: not reset state in vdpasim_queue_ready
+To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Laurent Vivier <lvivier@redhat.com>, lulu@redhat.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, Gautam Dawar <gdawar@xilinx.com>,
+ virtualization@lists.linux-foundation.org, leiyang@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,170 +114,42 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: f3381a7baf5ccbd091eb2c4fd2afd84266fcef24  Add linux-next specific files for 20230118
-
-Error/Warning reports:
-
-https://lore.kernel.org/oe-kbuild-all/202301171511.4ZszviYP-lkp@intel.com
-
-Error/Warning: (recently discovered and may have been fixed)
-
-Documentation/mm/unevictable-lru.rst:186: WARNING: Title underline too short.
-Error: failed to load BTF from vmlinux: No data available
-drivers/scsi/qla2xxx/qla_mid.c:1094:51: warning: format '%ld' expects argument of type 'long int', but argument 5 has type 'unsigned int' [-Wformat=]
-drivers/scsi/qla2xxx/qla_mid.c:1189:6: warning: no previous prototype for 'qla_trim_buf' [-Wmissing-prototypes]
-drivers/scsi/qla2xxx/qla_mid.c:1221:6: warning: no previous prototype for '__qla_adjust_buf' [-Wmissing-prototypes]
-libbpf: failed to find '.BTF' ELF section in vmlinux
-
-Unverified Error/Warning (likely false positive, please contact us if interested):
-
-drivers/block/virtio_blk.c:721:9: sparse:    bad type *
-drivers/block/virtio_blk.c:721:9: sparse:    unsigned int *
-drivers/block/virtio_blk.c:721:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/block/virtio_blk.c:721:9: sparse: sparse: no generic selection for 'restricted __le32 [addressable] virtio_cread_v'
-drivers/block/virtio_blk.c:721:9: sparse: sparse: no generic selection for 'restricted __le32 virtio_cread_v'
-drivers/nvmem/imx-ocotp.c:599:21: sparse: sparse: symbol 'imx_ocotp_layout' was not declared. Should it be static?
-fs/verity/enable.c:29:2: warning: Null pointer passed as 1st argument to memory set function [clang-analyzer-unix.cstring.NullArg]
-
-Error/Warning ids grouped by kconfigs:
-
-gcc_recent_errors
-|-- alpha-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- arc-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:format-ld-expects-argument-of-type-long-int-but-argument-has-type-unsigned-int
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- arm-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:format-ld-expects-argument-of-type-long-int-but-argument-has-type-unsigned-int
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- arm64-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- csky-randconfig-s051-20230115
-|   `-- drivers-nvmem-imx-ocotp.c:sparse:sparse:symbol-imx_ocotp_layout-was-not-declared.-Should-it-be-static
-|-- i386-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:format-ld-expects-argument-of-type-long-int-but-argument-has-type-unsigned-int
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- ia64-allmodconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- ia64-buildonly-randconfig-r002-20230117
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- loongarch-randconfig-r035-20230116
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- mips-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:format-ld-expects-argument-of-type-long-int-but-argument-has-type-unsigned-int
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- powerpc-allmodconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:format-ld-expects-argument-of-type-long-int-but-argument-has-type-unsigned-int
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- s390-allyesconfig
-|   |-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-__qla_adjust_buf
-|   `-- drivers-scsi-qla2xxx-qla_mid.c:warning:no-previous-prototype-for-qla_trim_buf
-|-- s390-randconfig-s052-20230115
-|   |-- drivers-block-virtio_blk.c:sparse:bad-type
-|   |-- drivers-block-virtio_blk.c:sparse:sparse:incompatible-types-in-comparison-expression-(different-base-types):
-|   |-- drivers-block-virtio_blk.c:sparse:sparse:no-generic-selection-for-restricted-__le32-addressable-virtio_cread_v
-|   |-- drivers-block-virtio_blk.c:sparse:sparse:no-generic-selection-for-restricted-__le32-virtio_cread_v
-|   |-- drivers-block-virtio_blk.c:sparse:unsigned-int
-|   `-- drivers-nvmem-imx-ocotp.c:sparse:sparse:symbol-imx_ocotp_layout-was-not-declared.-Should-it-be-static
-|-- x86_64-allnoconfig
-|   `-- Documentation-mm-unevictable-lru.rst:WARNING:Title-underline-too-short.
-|-- x86_64-allyesconfig
-clang_recent_errors
-`-- i386-randconfig-c001
-    `-- fs-verity-enable.c:warning:Null-pointer-passed-as-1st-argument-to-memory-set-function-clang-analyzer-unix.cstring.NullArg
-
-elapsed time: 728m
-
-configs tested: 63
-configs skipped: 2
-
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-powerpc                           allnoconfig
-i386                                defconfig
-arc                                 defconfig
-m68k                             allyesconfig
-alpha                               defconfig
-m68k                             allmodconfig
-arm                                 defconfig
-s390                             allmodconfig
-arc                              allyesconfig
-x86_64                              defconfig
-alpha                            allyesconfig
-s390                                defconfig
-x86_64                            allnoconfig
-x86_64                               rhel-8.3
-s390                             allyesconfig
-arm                              allyesconfig
-arm64                            allyesconfig
-x86_64               randconfig-a011-20230116
-x86_64               randconfig-a013-20230116
-x86_64                           rhel-8.3-syz
-x86_64                         rhel-8.3-kunit
-x86_64                    rhel-8.3-kselftests
-sh                               allmodconfig
-x86_64                           rhel-8.3-kvm
-x86_64               randconfig-a012-20230116
-x86_64               randconfig-a015-20230116
-x86_64                           rhel-8.3-bpf
-x86_64                           allyesconfig
-powerpc                          allmodconfig
-x86_64                          rhel-8.3-func
-i386                             allyesconfig
-ia64                             allmodconfig
-arc                  randconfig-r043-20230118
-x86_64               randconfig-a014-20230116
-mips                             allyesconfig
-x86_64               randconfig-a016-20230116
-i386                          randconfig-a014
-riscv                randconfig-r042-20230118
-i386                          randconfig-a012
-s390                 randconfig-r044-20230118
-i386                          randconfig-a016
-x86_64               randconfig-k001-20230116
-
-clang tested configs:
-x86_64                          rhel-8.3-rust
-hexagon              randconfig-r045-20230118
-x86_64               randconfig-a001-20230116
-i386                 randconfig-a002-20230116
-i386                 randconfig-a004-20230116
-x86_64               randconfig-a002-20230116
-i386                          randconfig-a013
-x86_64               randconfig-a004-20230116
-i386                          randconfig-a015
-hexagon              randconfig-r041-20230118
-x86_64               randconfig-a005-20230116
-x86_64               randconfig-a006-20230116
-arm                  randconfig-r046-20230118
-x86_64               randconfig-a003-20230116
-i386                          randconfig-a011
-i386                 randconfig-a003-20230116
-i386                 randconfig-a006-20230116
-i386                 randconfig-a005-20230116
-i386                 randconfig-a001-20230116
-
--- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBKYW4gMTksIDIwMjMgYXQgMTI6NDQgQU0gRXVnZW5pbyBQw6lyZXogPGVwZXJlem1h
+QHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4gdmRwYXNpbV9xdWV1ZV9yZWFkeSBjYWxscyB2cmluZ2hf
+aW5pdF9pb3RsYiwgd2hpY2ggcmVzZXRzIHNwbGl0IGluZGV4ZXMuCj4gQnV0IGl0IGNhbiBiZSBj
+YWxsZWQgYWZ0ZXIgc2V0dGluZyBhIHJpbmcgYmFzZSB3aXRoCj4gdmRwYXNpbV9zZXRfdnFfc3Rh
+dGUuCj4KPiBGaXggaXQgYnkgc3Rhc2hpbmcgdGhlbS4gVGhleSdyZSBzdGlsbCByZXNldHRlZCBp
+biB2ZHBhc2ltX3ZxX3Jlc2V0Lgo+Cj4gVGhpcyB3YXMgZGlzY292ZXJlZCBhbmQgdGVzdGVkIGxp
+dmUgbWlncmF0aW5nIHRoZSB2ZHBhX3NpbV9uZXQgZGV2aWNlLgo+Cj4gRml4ZXM6IDJjNTNkMGY2
+NGMwNiAoInZkcGFzaW06IHZEUEEgZGV2aWNlIHNpbXVsYXRvciIpCj4gU2lnbmVkLW9mZi1ieTog
+RXVnZW5pbyBQw6lyZXogPGVwZXJlem1hQHJlZGhhdC5jb20+Cj4gLS0tCj4gIGRyaXZlcnMvdmRw
+YS92ZHBhX3NpbS92ZHBhX3NpbS5jIHwgMiArKwo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRp
+b25zKCspCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMg
+Yi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+IGluZGV4IGNiODg4OTFiNDRhOC4u
+ODgzOTIzMmEzZmNiIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3Np
+bS5jCj4gKysrIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMKPiBAQCAtNjYsNiAr
+NjYsNyBAQCBzdGF0aWMgdm9pZCB2ZHBhc2ltX3ZxX25vdGlmeShzdHJ1Y3QgdnJpbmdoICp2cmlu
+ZykKPiAgc3RhdGljIHZvaWQgdmRwYXNpbV9xdWV1ZV9yZWFkeShzdHJ1Y3QgdmRwYXNpbSAqdmRw
+YXNpbSwgdW5zaWduZWQgaW50IGlkeCkKPiAgewo+ICAgICAgICAgc3RydWN0IHZkcGFzaW1fdmly
+dHF1ZXVlICp2cSA9ICZ2ZHBhc2ltLT52cXNbaWR4XTsKPiArICAgICAgIHVpbnQxNl90IGxhc3Rf
+YXZhaWxfaWR4ID0gdnEtPnZyaW5nLmxhc3RfYXZhaWxfaWR4Owo+Cj4gICAgICAgICB2cmluZ2hf
+aW5pdF9pb3RsYigmdnEtPnZyaW5nLCB2ZHBhc2ltLT5mZWF0dXJlcywgdnEtPm51bSwgZmFsc2Us
+Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAoc3RydWN0IHZyaW5nX2Rlc2MgKikodWludHB0
+cl90KXZxLT5kZXNjX2FkZHIsCj4gQEAgLTc0LDYgKzc1LDcgQEAgc3RhdGljIHZvaWQgdmRwYXNp
+bV9xdWV1ZV9yZWFkeShzdHJ1Y3QgdmRwYXNpbSAqdmRwYXNpbSwgdW5zaWduZWQgaW50IGlkeCkK
+PiAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJ1Y3QgdnJpbmdfdXNlZCAqKQo+ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgKHVpbnRwdHJfdCl2cS0+ZGV2aWNlX2FkZHIpOwo+Cj4gKyAg
+ICAgICB2cS0+dnJpbmcubGFzdF9hdmFpbF9pZHggPSBsYXN0X2F2YWlsX2lkeDsKCkRvZXMgdGhp
+cyBuZWVkIHRvIGJlIHNlcmlhbGl6ZWQgd2l0aCB0aGUgZGF0YXBhdGg/CgpFLmcgaW4gc2V0X3Zx
+X3N0YXRlKCkgd2UgZG86CgpzcGluX2xvY2soJnZkcGFzaW0tPmxvY2spOwp2cmgtPmxhc3RfYXZh
+aWxfaWR4ID0gc3RhdGUtPnNwbGl0LmF2YWlsX2luZGV4OwpzcGluX3VubG9jaygmdmRwYXNpbS0+
+bG9jayk7CgpUaGFua3MKCj4gICAgICAgICB2cS0+dnJpbmcubm90aWZ5ID0gdmRwYXNpbV92cV9u
+b3RpZnk7Cj4gIH0KPgo+IC0tCj4gMi4zMS4xCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
