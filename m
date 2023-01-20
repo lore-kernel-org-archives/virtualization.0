@@ -1,148 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 489F4C25B4E
-	for <virtualization@archiver.kernel.org>; Fri, 20 Jan 2023 09:57:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EE6F7C27C7C
+	for <virtualization@archiver.kernel.org>; Fri, 20 Jan 2023 11:55:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CAD378264C;
-	Fri, 20 Jan 2023 09:57:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CAD378264C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=MUoDqsxA
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kt2bBrsnUTRn; Fri, 20 Jan 2023 09:57:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 53BFB82605;
-	Fri, 20 Jan 2023 09:57:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53BFB82605
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 20C9EC0032;
-	Fri, 20 Jan 2023 09:57:24 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5F5F4C002D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Jan 2023 09:57:21 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 38D114034B
- for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Jan 2023 09:57:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 38D114034B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6CEA2404D4;
+	Fri, 20 Jan 2023 11:55:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6CEA2404D4
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=MUoDqsxA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gwNXb6+v
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dFqSmIu46JkO
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ujVuwO6VD_Rq; Fri, 20 Jan 2023 11:55:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0778F401A1;
+	Fri, 20 Jan 2023 11:55:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0778F401A1
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D92B0C0032;
+	Fri, 20 Jan 2023 11:55:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 23DF4C002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Jan 2023 09:57:18 +0000 (UTC)
+ Fri, 20 Jan 2023 11:55:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id F1C5341C2C
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 20 Jan 2023 11:55:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F1C5341C2C
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gwNXb6+v
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BgxYspvk8jXx
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 20 Jan 2023 11:55:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 354BC4012F
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 354BC4012F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 41ED141BC3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 41ED141BC3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Jan 2023 09:57:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:To:From:Date:Sender:Reply-To:Cc:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=5PCjUACeYMR6O3y/YgzV4vR8g0qeDy6mmRm0X3w+etU=; b=MUoDqsxAueB3UC0X9DEpgPbNXn
- Tj5cnDaYzy266gE7W5G9bVl+xeWuvsanoCSSZvn8aXUXYk/++klaMAsPIpQl1jeuVnTW1saJccdK+
- DdGoQPEvQqs9mymWjC4y513VtI8Jy4W+Sh477ud61/rXfxZpDUDwY2E2lLspwsfnWFNoW0i7KQ+T+
- KRbX9/27/fD43hdnpwgYqN4HT+lbr4i/iKyZlqSTJA7tBGTGIRK5/91srIafoGrsXofd4dgMAzNuT
- W+pAcFw+grziVU17kyiULcfzMkW3d96+ovbjbRfqud5Nl4PuY1aCQOsAbjXg/VqEWhBkxNVtBGAX1
- enGrU91w==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pIo8U-001qF2-HQ; Fri, 20 Jan 2023 09:56:39 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 97C13300744;
- Fri, 20 Jan 2023 10:56:35 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 739372133D202; Fri, 20 Jan 2023 10:56:35 +0100 (CET)
-Date: Fri, 20 Jan 2023 10:56:35 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: richard.henderson@linaro.org, ink@jurassic.park.msu.ru,
- mattst88@gmail.com, vgupta@kernel.org, linux@armlinux.org.uk,
- nsekhar@ti.com, brgl@bgdev.pl, ulli.kroll@googlemail.com,
- linus.walleij@linaro.org, shawnguo@kernel.org,
- Sascha Hauer <s.hauer@pengutronix.de>, kernel@pengutronix.de,
- festevam@gmail.com, linux-imx@nxp.com, tony@atomide.com,
- khilman@kernel.org, krzysztof.kozlowski@linaro.org,
- alim.akhtar@samsung.com, catalin.marinas@arm.com, will@kernel.org,
- guoren@kernel.org, bcain@quicinc.com, chenhuacai@kernel.org,
- kernel@xen0n.name, geert@linux-m68k.org, sammy@sammy.net,
- monstr@monstr.eu, tsbogend@alpha.franken.de, dinguyen@kernel.org,
- jonas@southpole.se, stefan.kristiansson@saunalahti.fi,
- shorne@gmail.com, James.Bottomley@hansenpartnership.com,
- deller@gmx.de, mpe@ellerman.id.au, npiggin@gmail.com,
- christophe.leroy@csgroup.eu, paul.walmsley@sifive.com,
- palmer@dabbelt.com, aou@eecs.berkeley.edu, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com,
- borntraeger@linux.ibm.com, svens@linux.ibm.com,
- ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net,
- richard@nod.at, anton.ivanov@cambridgegreys.com,
- johannes@sipsolutions.net, tglx@linutronix.de, mingo@redhat.com,
- bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
- hpa@zytor.com, acme@kernel.org, mark.rutland@arm.com,
- alexander.shishkin@linux.intel.com, jolsa@kernel.org,
- namhyung@kernel.org, jgross@suse.com, srivatsa@csail.mit.edu,
- amakhalov@vmware.com, pv-drivers@vmware.com,
- boris.ostrovsky@oracle.com, chris@zankel.net, jcmvbkbc@gmail.com,
- rafael@kernel.org, lenb@kernel.org, pavel@ucw.cz,
- gregkh@linuxfoundation.org, mturquette@baylibre.com,
- sboyd@kernel.org, daniel.lezcano@linaro.org, lpieralisi@kernel.org,
- sudeep.holla@arm.com, agross@kernel.org, andersson@kernel.org,
- konrad.dybcio@linaro.org, anup@brainfault.org,
- thierry.reding@gmail.com, jonathanh@nvidia.com,
- jacob.jun.pan@linux.intel.com, atishp@atishpatra.org,
- Arnd Bergmann <arnd@arndb.de>, yury.norov@gmail.com,
- andriy.shevchenko@linux.intel.com, linux@rasmusvillemoes.dk,
- dennis@kernel.org, tj@kernel.org, cl@linux.com, rostedt@goodmis.org,
- mhiramat@kernel.org, frederic@kernel.org, paulmck@kernel.org,
- pmladek@suse.com, senozhatsky@chromium.org,
- john.ogness@linutronix.de, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
- bsegall@google.com, mgorman@suse.de, bristot@redhat.com,
- vschneid@redhat.com, ryabinin.a.a@gmail.com, glider@google.com,
- andreyknvl@gmail.com, dvyukov@google.com, vincenzo.frascino@arm.com,
- Andrew Morton <akpm@linux-foundation.org>, jpoimboe@kernel.org,
- linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-snps-arc@lists.infradead.org, linux-omap@vger.kernel.org,
- linux-samsung-soc@vger.kernel.org, linux-csky@vger.kernel.org,
- linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org,
- loongarch@lists.linux.dev, linux-m68k@lists.linux-m68k.org,
- linux-mips@vger.kernel.org, openrisc@lists.librecores.org,
- linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org,
- linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
- linux-um@lists.infradead.org, linux-perf-users@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- linux-xtensa@linux-xtensa.org, linux-acpi@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-clk@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-trace-kernel@vger.kernel.org, kasan-dev@googlegroups.com,
- "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- Ulf Hansson <ulf.hansson@linaro.org>
-Subject: Re: [PATCH v3 16/51] cpuidle: Annotate poll_idle()
-Message-ID: <Y8plU/f2WsmGG66H@hirez.programming.kicks-ass.net>
-References: <20230112194314.845371875@infradead.org>
- <20230112195540.312601331@infradead.org>
+ Fri, 20 Jan 2023 11:55:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674215746;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=xSseqynolRz7PSqM1s8S1KWufbOig9tOH/7xArRYSoc=;
+ b=gwNXb6+vkxvE6WGhGpEFwb3s6iRFZJEexhqIkylKlRTP38ATL4IoDpRd8UkA1vRctSfQVX
+ 220YDwLWedMi2S3bs6NY4tXQMTHpM49PNSVSKKyw4m3SQYNZ8qbp+05KL/L6DDhpwZLb+u
+ G0iE3afQBlUYHQ0DpPBLyN6pdLa+spo=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-456-BrAsNZBEO06E9XnjXz1hHw-1; Fri, 20 Jan 2023 06:55:44 -0500
+X-MC-Unique: BrAsNZBEO06E9XnjXz1hHw-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ d27-20020adfa35b000000b002bc813ba677so915237wrb.6
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 20 Jan 2023 03:55:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=xSseqynolRz7PSqM1s8S1KWufbOig9tOH/7xArRYSoc=;
+ b=kETnfne/q+E/9Ul4UcmCUBg/0wxHtq6mz8fNmXlNOjm9FaAJ2zd5HgIZ4RmC1Z/zie
+ B3oIALY1O4eIvzvuH6sLd7EQJMzov1txE4UcMWIA5wjg0P9GP3cg5vCSvSvk+PyRJZ/I
+ kOG9a5SXzwlzP/+FFYMLxtzCOXGHra4lel/5YYCeL9VpKxVJxXamxK4pjjcWZaBUhiJF
+ s6wxkMcGErodEFd9uqjNOb4jErflpeUmLYVN/oKC84NLAcq8PCDoto3wXlGenihnNXC3
+ V3hjJDGrWZNFOBfTVj0iLh6jdTrGNRmxHCK+3x49Xhhhn97Edcj7sKl46yYinVdkjPXo
+ ugQQ==
+X-Gm-Message-State: AFqh2kohseZ1oiXgRRNm1tPbiABQS7N7Hz/Rf6sTNOsbS92RYpp6wzA7
+ Va9iI75PVcmeQELGFBNMyL5YEIiNnNGY7Faiw54qDu/v3+ccdyukXjqa9E9MtphqdmbqnbTdw0b
+ prwFGaHbS1cQy5+cUbHTCTtHsIkmFFiTADCjPMHV4Dw==
+X-Received: by 2002:a05:600c:181a:b0:3d2:2043:9cbf with SMTP id
+ n26-20020a05600c181a00b003d220439cbfmr13938711wmp.10.1674215743597; 
+ Fri, 20 Jan 2023 03:55:43 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuOcvaB+LCHhfsBeCZmk1/bVqC5w78IurqnA4dYjWOnrtFroLGFV2PoZ6naZCe1IposyXGIiw==
+X-Received: by 2002:a05:600c:181a:b0:3d2:2043:9cbf with SMTP id
+ n26-20020a05600c181a00b003d220439cbfmr13938687wmp.10.1674215743276; 
+ Fri, 20 Jan 2023 03:55:43 -0800 (PST)
+Received: from redhat.com ([2.52.19.29]) by smtp.gmail.com with ESMTPSA id
+ h11-20020a05600c314b00b003db2e3f2c7csm3089265wmo.0.2023.01.20.03.55.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 20 Jan 2023 03:55:42 -0800 (PST)
+Date: Fri, 20 Jan 2023 06:55:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: Re: [PATCH v1 0/6] Harden a few virtio bits
+Message-ID: <20230120065402-mutt-send-email-mst@kernel.org>
+References: <20230119135721.83345-1-alexander.shishkin@linux.intel.com>
 MIME-Version: 1.0
+In-Reply-To: <20230119135721.83345-1-alexander.shishkin@linux.intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230112195540.312601331@infradead.org>
+Cc: kirill.shutemov@linux.intel.com, linux-kernel@vger.kernel.org,
+ elena.reshetova@intel.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -159,147 +121,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 12, 2023 at 08:43:30PM +0100, Peter Zijlstra wrote:
-> The __cpuidle functions will become a noinstr class, as such they need
-> explicit annotations.
+On Thu, Jan 19, 2023 at 03:57:15PM +0200, Alexander Shishkin wrote:
+> Hi,
 > 
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Acked-by: Frederic Weisbecker <frederic@kernel.org>
-> Tested-by: Tony Lindgren <tony@atomide.com>
-> Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
-> ---
->  drivers/cpuidle/poll_state.c |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
+> Here are 6 patches that harden console, net and 9p drivers against
+> various malicious host input as well as close a bounds check bypass
+> in the split virtio ring.
+
+Hardening against buggy devices is one thing,
+Hardening against malicious devices is another.
+Which is this?
+If really malicious, aren't there any spectre considerations here?
+I am for example surprised not to find anything addressing
+spectre v1 nor any uses of array_index_nospec here.
+
+
+> Changes since previous version:
+>  * Added Christian's R-B to 3/6
+>  * Added a speculation fix per Michael's comment on the cover letter
+>  * CC'ing lkml
 > 
-> --- a/drivers/cpuidle/poll_state.c
-> +++ b/drivers/cpuidle/poll_state.c
-> @@ -13,7 +13,10 @@
->  static int __cpuidle poll_idle(struct cpuidle_device *dev,
->  			       struct cpuidle_driver *drv, int index)
->  {
-> -	u64 time_start = local_clock();
-> +	u64 time_start;
-> +
-> +	instrumentation_begin();
-> +	time_start = local_clock();
->  
->  	dev->poll_time_limit = false;
->  
-> @@ -39,6 +42,7 @@ static int __cpuidle poll_idle(struct cp
->  	raw_local_irq_disable();
->  
->  	current_clr_polling();
-> +	instrumentation_end();
->  
->  	return index;
->  }
+> Alexander Shishkin (3):
+>   virtio console: Harden control message handling
+>   virtio_net: Guard against buffer length overflow in
+>     xdp_linearize_page()
+>   virtio_ring: Prevent bounds check bypass on descriptor index
+> 
+> Andi Kleen (3):
+>   virtio console: Harden multiport against invalid host input
+>   virtio console: Harden port adding
+>   virtio 9p: Fix an overflow
+> 
+>  drivers/char/virtio_console.c | 19 ++++++++++++-------
+>  drivers/net/virtio_net.c      |  4 +++-
+>  drivers/virtio/virtio_ring.c  |  3 +++
+>  net/9p/trans_virtio.c         |  2 +-
+>  4 files changed, 19 insertions(+), 9 deletions(-)
+> 
+> -- 
+> 2.39.0
 
-Pff, this patch is garbage. However wrote it didn't have his brain
-engaged :/
-
-Something like the below fixes it, but I still need to build me funny
-configs like ia64 and paravirt to see if I didn't wreck me something...
-
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index a78e73da4a74..70c07e11caa6 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -215,7 +215,7 @@ static void __init cyc2ns_init_secondary_cpus(void)
- /*
-  * Scheduler clock - returns current time in nanosec units.
-  */
--u64 native_sched_clock(void)
-+noinstr u64 native_sched_clock(void)
- {
- 	if (static_branch_likely(&__use_tsc)) {
- 		u64 tsc_now = rdtsc();
-diff --git a/drivers/cpuidle/cpuidle.c b/drivers/cpuidle/cpuidle.c
-index 500d1720421e..0b00f21cefe3 100644
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -426,7 +426,7 @@ void cpuidle_reflect(struct cpuidle_device *dev, int index)
-  * @dev:   the cpuidle device
-  *
-  */
--u64 cpuidle_poll_time(struct cpuidle_driver *drv,
-+__cpuidle u64 cpuidle_poll_time(struct cpuidle_driver *drv,
- 		      struct cpuidle_device *dev)
- {
- 	int i;
-diff --git a/drivers/cpuidle/poll_state.c b/drivers/cpuidle/poll_state.c
-index d25ec52846e6..bdcfeaecd228 100644
---- a/drivers/cpuidle/poll_state.c
-+++ b/drivers/cpuidle/poll_state.c
-@@ -15,7 +15,6 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
- {
- 	u64 time_start;
- 
--	instrumentation_begin();
- 	time_start = local_clock();
- 
- 	dev->poll_time_limit = false;
-@@ -42,7 +41,6 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
- 	raw_local_irq_disable();
- 
- 	current_clr_polling();
--	instrumentation_end();
- 
- 	return index;
- }
-diff --git a/include/linux/sched/clock.h b/include/linux/sched/clock.h
-index 867d588314e0..7960f0769884 100644
---- a/include/linux/sched/clock.h
-+++ b/include/linux/sched/clock.h
-@@ -45,7 +45,7 @@ static inline u64 cpu_clock(int cpu)
- 	return sched_clock();
- }
- 
--static inline u64 local_clock(void)
-+static __always_inline u64 local_clock(void)
- {
- 	return sched_clock();
- }
-@@ -79,7 +79,7 @@ static inline u64 cpu_clock(int cpu)
- 	return sched_clock_cpu(cpu);
- }
- 
--static inline u64 local_clock(void)
-+static __always_inline u64 local_clock(void)
- {
- 	return sched_clock_cpu(raw_smp_processor_id());
- }
-diff --git a/kernel/sched/clock.c b/kernel/sched/clock.c
-index e374c0c923da..6b3b0559e53c 100644
---- a/kernel/sched/clock.c
-+++ b/kernel/sched/clock.c
-@@ -260,7 +260,7 @@ notrace static inline u64 wrap_max(u64 x, u64 y)
-  *  - filter out backward motion
-  *  - use the GTOD tick value to create a window to filter crazy TSC values
-  */
--notrace static u64 sched_clock_local(struct sched_clock_data *scd)
-+noinstr static u64 sched_clock_local(struct sched_clock_data *scd)
- {
- 	u64 now, clock, old_clock, min_clock, max_clock, gtod;
- 	s64 delta;
-@@ -287,7 +287,7 @@ notrace static u64 sched_clock_local(struct sched_clock_data *scd)
- 	clock = wrap_max(clock, min_clock);
- 	clock = wrap_min(clock, max_clock);
- 
--	if (!try_cmpxchg64(&scd->clock, &old_clock, clock))
-+	if (!arch_try_cmpxchg64(&scd->clock, &old_clock, clock))
- 		goto again;
- 
- 	return clock;
-@@ -360,7 +360,7 @@ notrace static u64 sched_clock_remote(struct sched_clock_data *scd)
-  *
-  * See cpu_clock().
-  */
--notrace u64 sched_clock_cpu(int cpu)
-+noinstr u64 sched_clock_cpu(int cpu)
- {
- 	struct sched_clock_data *scd;
- 	u64 clock;
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
