@@ -1,111 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41EFCC38A23
-	for <virtualization@archiver.kernel.org>; Sat, 21 Jan 2023 19:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F69BC25B4E
+	for <virtualization@archiver.kernel.org>; Sun, 22 Jan 2023 08:34:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9DAEF60B25;
-	Sat, 21 Jan 2023 19:22:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9DAEF60B25
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=blGf0rss
+	by smtp2.osuosl.org (Postfix) with ESMTP id D06D040AA6;
+	Sun, 22 Jan 2023 08:34:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D06D040AA6
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TctIM1ka
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7Wwo9xQzS7YO; Sat, 21 Jan 2023 19:22:37 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QjTGcemNLQMT; Sun, 22 Jan 2023 08:34:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5807C60B36;
-	Sat, 21 Jan 2023 19:22:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5807C60B36
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3BE5A40A93;
+	Sun, 22 Jan 2023 08:34:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3BE5A40A93
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 22955C0033;
-	Sat, 21 Jan 2023 19:22:36 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AFE50C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 13D85C0033;
+	Sun, 22 Jan 2023 08:34:46 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99611C002D
  for <virtualization@lists.linux-foundation.org>;
- Sat, 21 Jan 2023 19:22:35 +0000 (UTC)
+ Sun, 22 Jan 2023 08:34:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7664C60B36
+ by smtp4.osuosl.org (Postfix) with ESMTP id 80F204146F
  for <virtualization@lists.linux-foundation.org>;
- Sat, 21 Jan 2023 19:22:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7664C60B36
+ Sun, 22 Jan 2023 08:34:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 80F204146F
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=TctIM1ka
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SEvwaDC77sIi
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KXLAQwgsHzHL
  for <virtualization@lists.linux-foundation.org>;
- Sat, 21 Jan 2023 19:22:35 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC1D960B25
-Received: from mail-oo1-xc2d.google.com (mail-oo1-xc2d.google.com
- [IPv6:2607:f8b0:4864:20::c2d])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CC1D960B25
+ Sun, 22 Jan 2023 08:34:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F60D4155E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1F60D4155E
  for <virtualization@lists.linux-foundation.org>;
- Sat, 21 Jan 2023 19:22:34 +0000 (UTC)
-Received: by mail-oo1-xc2d.google.com with SMTP id
- h3-20020a4ac443000000b004fb2954e7c3so1537333ooq.10
+ Sun, 22 Jan 2023 08:34:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674376481;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=LBOy3GEyTxqSKd3pw0Cq7/zzqUVdT2OzA5ZHrT96yhk=;
+ b=TctIM1ka4wlmHpfP3FMKRldXGp098rmGxDU8OelNNh3ultcAirYzHdLDK84a1lGE1Za2bq
+ wYCbXLgUA9xXWVtSKKxmoUBuBFUq9DYYj7PJnbihqYaoJci/SPtAo18Q8TPXhAOvtG1AYa
+ 5edC2o4YMPq9fDXDgd35o+qSrkuJ3R0=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-633-cbeEfVKeNI-RuB9i_G0f-Q-1; Sun, 22 Jan 2023 03:34:37 -0500
+X-MC-Unique: cbeEfVKeNI-RuB9i_G0f-Q-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ v8-20020a056402348800b0049e1913bd43so6610473edc.20
  for <virtualization@lists.linux-foundation.org>;
- Sat, 21 Jan 2023 11:22:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=o445b1MnVY2xcczIeGhfEHs/6/N/MTgkwXpPKatAAvc=;
- b=blGf0rssVVm4/xsfLxsV1fJdJ18QG6trE/kND3h68y2KoRQZ7YJqp3Ug2tjGJtc/7C
- UIa94wgq+dllVnMbIEl45CyyUgycOLzfLCm/Gy8CwS+X82vAypOsKizt70EpHKmH35Cn
- eXEc9zjW5E4B3Qzv5HwgiO9plLXKZ1AgZ50JWCmAMizmIZ0LPLCDEZdfGNhrH3W4Nu5u
- pifwhrY8QR5QEvuKGRTWnGkd4zN7cGcM4cBrbXuNdE9Nz2zG1ea9YlqME+265CqNW4ky
- ds2QxNvIFt0WFifhuegALERmlghRRPVH8ypCEe/w9wYyMoPO8g4IJkiV0DEiirQoRZFN
- UluA==
+ Sun, 22 Jan 2023 00:34:37 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=o445b1MnVY2xcczIeGhfEHs/6/N/MTgkwXpPKatAAvc=;
- b=TnQRREt65lngmXyg88yQQrmH+cCLPyOmWnkBvAEPj71TMfuQ7mruupjy+w/Mt9u2pL
- tgF8/oxLd/ywq0mNQMdpM5Wa/h6hy7oT4QC6m/EBI+tjtLyAkbyOlV20P6Ibsw/AKBak
- Waxn5aRbZqzPmW+L6oCOjAC5OHnQRQZ1kveaQ+gLPCCeQJ11jNeCBJS6BlsNgJk1Merm
- DF9O5Co5OcdUho96zF8YR2ylw5kRJKrqz73miW/gNv2rUdCbMo9bMDbWzanYB60Cs6VQ
- +0ANY6bmA+LqLFfBgnlbDhNsdbMKcvfwR5Aims3h3nWJYijKH61eKORkT3CN7XLs6gnl
- B0tw==
-X-Gm-Message-State: AFqh2krVc0SEPVXs97Mo92UvqoV6dWHKWVyAy/yndczcViksj0mlPLXS
- yY4qXG+dOpwY7460ltRDa24=
-X-Google-Smtp-Source: AMrXdXsPJ0hrC7d2aVvmAOndVW+aw6x1kZCJgXCrvyj1ojnc8V7P1KkUOwesPpPFMQGd6vCCgvmGgw==
-X-Received: by 2002:a4a:e68e:0:b0:4f5:200e:a1bf with SMTP id
- u14-20020a4ae68e000000b004f5200ea1bfmr8669367oot.1.1674328953754; 
- Sat, 21 Jan 2023 11:22:33 -0800 (PST)
-Received: from localhost ([2600:1700:65a0:ab60:b306:d5d0:37ec:2fa])
- by smtp.gmail.com with ESMTPSA id
- i23-20020a4a8d97000000b004a0ad937ccdsm10693131ook.1.2023.01.21.11.22.32
+ bh=LBOy3GEyTxqSKd3pw0Cq7/zzqUVdT2OzA5ZHrT96yhk=;
+ b=Ac+w9bfmERykwMmp4UqkJrzZQBxis6GUZzJrI71SNXDYeJ2P+UQeSF1czEMJMxntMo
+ zF834IkuupkqabKvk4PToGRX+aQxnsP8CS97pF/ghHCR7e8IQMXeTGJGjV9K8Oy/yige
+ eTBGScHvBtZIYC3SEx1Ch7830l9L6IQm2mP7we8LE++E4o/sE/z5sq3rOi2Qj/LXpEr+
+ 69SwAI3plphCqK/dT0RtZxtLG3G+31E+IIrZ0KIlwcginErkTVR4scCEVdU/3IbGzLNK
+ uCbRPKaYLw44HcUDRRyU9HwNBUXxESlMOuBjHGadbcr8CGlB+S1QKfG96KXRqy8GSByF
+ SC7w==
+X-Gm-Message-State: AFqh2krDQ2JWPNZatjAVFzzfc0XLXlUXLHejzsOTTdjCD4QXvPj0OiQY
+ 9R8mlp53lL7XwrEFc6j+RY5c0sePXQ1bU1efWlfLt2efWHT2ES5PV2+KaMIIld5zNyOgmU11DR7
+ ON2usxucoxKRoYqexJFlAr/iLNrsqoKE9Tg+/YXRlhg==
+X-Received: by 2002:a17:906:d8ad:b0:875:54f5:740d with SMTP id
+ qc13-20020a170906d8ad00b0087554f5740dmr18980188ejb.51.1674376471264; 
+ Sun, 22 Jan 2023 00:34:31 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXupkktggRT0GhSuPRcESSXkQviODPyb9ZmRHAGX+AHHUI13v12MW9XOdnRYvnmjPv5GEmYCQw==
+X-Received: by 2002:a17:906:d8ad:b0:875:54f5:740d with SMTP id
+ qc13-20020a170906d8ad00b0087554f5740dmr18980169ejb.51.1674376471041; 
+ Sun, 22 Jan 2023 00:34:31 -0800 (PST)
+Received: from redhat.com ([2.52.149.29]) by smtp.gmail.com with ESMTPSA id
+ lb19-20020a170907785300b0084d1efe9af6sm20325371ejc.58.2023.01.22.00.34.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 21 Jan 2023 11:22:32 -0800 (PST)
-Date: Sat, 21 Jan 2023 11:22:31 -0800
-From: Cong Wang <xiyou.wangcong@gmail.com>
-To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Subject: Re: [PATCH RFC 1/3] vsock: support sockmap
-Message-ID: <Y8w7d+6UASP3jUHf@pop-os.localdomain>
-References: <20230118-support-vsock-sockmap-connectible-v1-0-d47e6294827b@bytedance.com>
- <20230118-support-vsock-sockmap-connectible-v1-1-d47e6294827b@bytedance.com>
+ Sun, 22 Jan 2023 00:34:30 -0800 (PST)
+Date: Sun, 22 Jan 2023 03:34:26 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Seth Forshee (DigitalOcean)" <sforshee@digitalocean.com>
+Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
+ loaded vhost worker kthreads
+Message-ID: <20230122032944-mutt-send-email-mst@kernel.org>
+References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
 MIME-Version: 1.0
+In-Reply-To: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230118-support-vsock-sockmap-connectible-v1-1-d47e6294827b@bytedance.com>
-Cc: Cong Wang <cong.wang@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Song Liu <song@kernel.org>,
- Eric Dumazet <edumazet@google.com>, Stanislav Fomichev <sdf@google.com>,
- linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
- Mykola Lysenko <mykolal@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
- John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>,
- Yonghong Song <yhs@fb.com>, Paolo Abeni <pabeni@redhat.com>,
- KP Singh <kpsingh@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Hao Luo <haoluo@google.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Jiri Olsa <jolsa@kernel.org>, bpf@vger.kernel.org,
- Martin KaFai Lau <martin.lau@linux.dev>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ kvm@vger.kernel.org, netdev@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ "Seth Forshee \(DigitalOcean\)" <sforshee@kernel.org>,
+ live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+ Josh Poimboeuf <jpoimboe@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,27 +126,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 18, 2023 at 12:27:39PM -0800, Bobby Eshleman wrote:
-> +static int vsock_read_skb(struct sock *sk, skb_read_actor_t read_actor)
-> +{
-> +	struct vsock_sock *vsk = vsock_sk(sk);
-> +
-> +	if (!vsk->transport)
-> +		return -ENODEV;
-> +
-> +	if (!vsk->transport->read_skb)
-> +		return -EOPNOTSUPP;
+On Fri, Jan 20, 2023 at 04:12:20PM -0600, Seth Forshee (DigitalOcean) wrote:
+> We've fairly regularaly seen liveptches which cannot transition within kpatch's
+> timeout period due to busy vhost worker kthreads. In looking for a solution the
+> only answer I found was to call klp_update_patch_state() from a safe location.
+> I tried adding this call to vhost_worker(), and it works, but this creates the
+> potential for problems if a livepatch attempted to patch vhost_worker().
+> Without a call to klp_update_patch_state() fully loaded vhost kthreads can
+> never switch because vhost_worker() will always appear on the stack, but with
+> the call these kthreads can switch but will still be running the old version of
+> vhost_worker().
+> 
+> To avoid this situation I've added a new function, klp_switch_current(), which
+> switches the current task only if its stack does not include any function being
+> patched. This allows kthreads to safely attempt switching themselves if a patch
+> is pending. There is at least one downside, however. Since there's no way for
+> the kthread to track whether it has already tried to switch for a pending patch
+> it can end up calling klp_switch_current() repeatedly when it can never be
+> safely switched.
+> 
+> I don't know whether this is the right solution, and I'm happy to try out other
+> suggestions. But in my testing these patches proved effective in consistently
+> switching heavily loaded vhost kthreads almost immediately.
+> 
+> To: Josh Poimboeuf <jpoimboe@kernel.org>
+> To: Jiri Kosina <jikos@kernel.org>
+> To: Miroslav Benes <mbenes@suse.cz>
+> To: Petr Mladek <pmladek@suse.com>
+> To: Joe Lawrence <joe.lawrence@redhat.com>
+> To: "Michael S. Tsirkin" <mst@redhat.com>
+> To: Jason Wang <jasowang@redhat.com>
+> Cc: live-patching@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: kvm@vger.kernel.org
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Seth Forshee (DigitalOcean) <sforshee@kernel.org>
 
-Can we move these two checks to sockmap update path? It would make
-vsock_read_skb() faster.
+Don't know enough about live patching to judge this.
 
-> +
-> +	return vsk->transport->read_skb(vsk, read_actor);
-> +}
+I'll let livepatch maintainers judge this, and merge through
+the livepatch tree if appropriate. For that:
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+but pls underestand this is more a 'looks ok superficially and
+I don't have better ideas'  than 'I have reviewed this thoroughly'.
 
-Essentially can be just this one line.
+> 
+> ---
+> Seth Forshee (DigitalOcean) (2):
+>       livepatch: add an interface for safely switching kthreads
+>       vhost: check for pending livepatches from vhost worker kthreads
+> 
+>  drivers/vhost/vhost.c         |  4 ++++
+>  include/linux/livepatch.h     |  2 ++
+>  kernel/livepatch/transition.c | 11 +++++++++++
+>  3 files changed, 17 insertions(+)
+> ---
+> base-commit: 5dc4c995db9eb45f6373a956eb1f69460e69e6d4
+> change-id: 20230120-vhost-klp-switching-ba9a3ae38b8a
+> 
+> Best regards,
+> -- 
+> Seth Forshee (DigitalOcean) <sforshee@kernel.org>
 
-Thanks.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
