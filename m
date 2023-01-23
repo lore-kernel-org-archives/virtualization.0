@@ -1,95 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3427C54EAA
-	for <virtualization@archiver.kernel.org>; Mon, 23 Jan 2023 20:58:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 539F1C25B50
+	for <virtualization@archiver.kernel.org>; Mon, 23 Jan 2023 21:53:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7F4E140891;
-	Mon, 23 Jan 2023 20:58:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7F4E140891
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=FueaaZb7
+	by smtp2.osuosl.org (Postfix) with ESMTP id 97CE540B6D;
+	Mon, 23 Jan 2023 21:53:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 97CE540B6D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2ojIfKcrQhmk; Mon, 23 Jan 2023 20:58:17 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BKYSH4lVbEXK; Mon, 23 Jan 2023 21:53:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C078341820;
-	Mon, 23 Jan 2023 20:58:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C078341820
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 210084023D;
+	Mon, 23 Jan 2023 21:53:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 210084023D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90715C007D;
-	Mon, 23 Jan 2023 20:58:16 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E86B6C0033;
+	Mon, 23 Jan 2023 21:53:17 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1FBCFC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C941C002D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jan 2023 20:58:15 +0000 (UTC)
+ Mon, 23 Jan 2023 21:53:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id ED6B182018
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7DF2F8205E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jan 2023 20:58:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED6B182018
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=FueaaZb7
+ Mon, 23 Jan 2023 21:53:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7DF2F8205E
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AV78Usj7YLp8
+ with ESMTP id vQ3B8W-OtZxE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jan 2023 20:58:14 +0000 (UTC)
+ Mon, 23 Jan 2023 21:53:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0A67182002
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0A67182002
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 433FD8205D
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 433FD8205D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Jan 2023 20:58:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
- Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
- Content-ID:Content-Description:In-Reply-To;
- bh=DwNtSkSaGTU0TFqzb2/WMPSb8JYwGKCIYZsmeR/P6pc=; b=FueaaZb7VWO4atG18KkGUgcSzQ
- FI5cJ88LeuzKk95B4T/ujA5RntI3Q5IOg661T+Nx6Jg1ofr+WaQ3jBAlstIFsm10tCM3ugdjreIdw
- jekc2aQYG/Zbaa+emGpeAz4Lv6QTZxYV0c5nx4gqJLGh7FKawVx+Ru+OgUlQzQ74ginyYEH3WP7dw
- 5txleE63/CC3gyBWdpXXfg+uTfS6QliMubretWIhRomQhaeRWZ4/+Y6MJMCwfLlvq3DfaoQCRPIFH
- +KxmdhhfRE4vj/Ol3tLiIZOlGF2SQI84vVc0Rt8I4gS0JE1bOVgjV0eJCIaInsyf0I1LAQCcZ89zG
- l5gK1P0g==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pK3sB-001dto-1f; Mon, 23 Jan 2023 20:57:02 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6AB39300BCB;
- Mon, 23 Jan 2023 21:57:27 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id D952B2075A6F8; Mon, 23 Jan 2023 21:57:24 +0100 (CET)
-Message-ID: <20230123205515.233366796@infradead.org>
-User-Agent: quilt/0.66
-Date: Mon, 23 Jan 2023 21:50:15 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: mingo@kernel.org
-Subject: [PATCH 6/6] cpuidle: Fix poll_idle() noinstr annotation
+ Mon, 23 Jan 2023 21:53:14 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 640D4B80E40;
+ Mon, 23 Jan 2023 21:53:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F38C433EF;
+ Mon, 23 Jan 2023 21:53:06 +0000 (UTC)
+Date: Mon, 23 Jan 2023 16:53:04 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 3/6] ftrace/x86: Warn and ignore graph tracing when RCU
+ is disabled
+Message-ID: <20230123165304.370121e7@gandalf.local.home>
+In-Reply-To: <20230123205515.059999893@infradead.org>
 References: <20230123205009.790550642@infradead.org>
+ <20230123205515.059999893@infradead.org>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Cc: mark.rutland@arm.com, juri.lelli@redhat.com, daniel.lezcano@linaro.org,
  wanpengli@tencent.com, kvm@vger.kernel.org, rafael@kernel.org,
- peterz@infradead.org, dave.hansen@linux.intel.com,
+ pv-drivers@vmware.com, dave.hansen@linux.intel.com,
  virtualization@lists.linux-foundation.org, bsegall@google.com,
- amakhalov@vmware.com, will@kernel.org, tglx@linutronix.de, vschneid@redhat.com,
- hpa@zytor.com, x86@kernel.org, pv-drivers@vmware.com, mgorman@suse.de,
+ amakhalov@vmware.com, will@kernel.org, vschneid@redhat.com, hpa@zytor.com,
+ x86@kernel.org, mingo@kernel.org, mgorman@suse.de,
  linux-trace-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
- boqun.feng@gmail.com, rostedt@goodmis.org, bp@alien8.de,
- vincent.guittot@linaro.org, boris.ostrovsky@oracle.com,
- dietmar.eggemann@arm.com, jgross@suse.com, seanjc@google.com,
- linux-kernel@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+ boqun.feng@gmail.com, bp@alien8.de, vincent.guittot@linaro.org,
+ boris.ostrovsky@oracle.com, dietmar.eggemann@arm.com, jgross@suse.com,
+ seanjc@google.com, linux-kernel@vger.kernel.org, tglx@linutronix.de,
  mhiramat@kernel.org, pbonzini@redhat.com, bristot@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -107,52 +87,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The instrumentation_begin()/end() annotations in poll_idle() were
-complete nonsense. Specifically they caused tracing to happen in the
-middle of noinstr code, resulting in RCU splats.
+On Mon, 23 Jan 2023 21:50:12 +0100
+Peter Zijlstra <peterz@infradead.org> wrote:
 
-Now that local_clock() is noinstr, mark up the rest and let it rip.
+> All RCU disabled code should be noinstr and hence we should never get
+> here -- when we do, WARN about it and make sure to not actually do
+> tracing.
+> 
+> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> ---
+>  arch/x86/kernel/ftrace.c |    3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> --- a/arch/x86/kernel/ftrace.c
+> +++ b/arch/x86/kernel/ftrace.c
+> @@ -646,6 +646,9 @@ void prepare_ftrace_return(unsigned long
+>  	if (unlikely(atomic_read(&current->tracing_graph_pause)))
+>  		return;
+>  
+> +	if (WARN_ONCE(!rcu_is_watching(), "RCU not on for: %pS\n", (void *)ip))
+> +		return;
+> +
 
-Fixes: 00717eb8c955 ("cpuidle: Annotate poll_idle()")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202301192148.58ece903-oliver.sang@intel.com
----
- drivers/cpuidle/cpuidle.c    |    2 +-
- drivers/cpuidle/poll_state.c |    2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+Please add this to after recursion trylock below. Although WARN_ONCE()
+should not not have recursion issues, as function tracing can do weird
+things, I rather be safe than sorry, and not have the system triple boot
+due to some path that might get added in the future.
 
---- a/drivers/cpuidle/cpuidle.c
-+++ b/drivers/cpuidle/cpuidle.c
-@@ -426,7 +426,7 @@ void cpuidle_reflect(struct cpuidle_devi
-  * @dev:   the cpuidle device
-  *
-  */
--u64 cpuidle_poll_time(struct cpuidle_driver *drv,
-+__cpuidle u64 cpuidle_poll_time(struct cpuidle_driver *drv,
- 		      struct cpuidle_device *dev)
- {
- 	int i;
---- a/drivers/cpuidle/poll_state.c
-+++ b/drivers/cpuidle/poll_state.c
-@@ -15,7 +15,6 @@ static int __cpuidle poll_idle(struct cp
- {
- 	u64 time_start;
- 
--	instrumentation_begin();
- 	time_start = local_clock();
- 
- 	dev->poll_time_limit = false;
-@@ -42,7 +41,6 @@ static int __cpuidle poll_idle(struct cp
- 	raw_local_irq_disable();
- 
- 	current_clr_polling();
--	instrumentation_end();
- 
- 	return index;
- }
+If rcu_is_watching() is false, it will still get by the below recursion
+check and warn. That is, the below check should be done before this
+function calls any other function.
 
+>  	bit = ftrace_test_recursion_trylock(ip, *parent);
+>  	if (bit < 0)
+>  		return;
+> 
 
+-- Steve
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
