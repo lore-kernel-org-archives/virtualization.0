@@ -4,128 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3FC01C05027
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 15:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2DA8BC54EED
+	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 15:15:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C84116101C;
-	Thu, 26 Jan 2023 15:11:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C84116101C
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9E17460D73;
+	Thu, 26 Jan 2023 15:15:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E17460D73
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=iqmwaHjx
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=SCwG+pI8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2NpJtHqgfdzc; Thu, 26 Jan 2023 15:11:57 +0000 (UTC)
+	with ESMTP id QN6zxXmqTAjP; Thu, 26 Jan 2023 15:15:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 35DA460BFE;
-	Thu, 26 Jan 2023 15:11:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 35DA460BFE
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DA35B60BFE;
+	Thu, 26 Jan 2023 15:15:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA35B60BFE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0686DC0032;
-	Thu, 26 Jan 2023 15:11:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02D10C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B425CC0032;
+	Thu, 26 Jan 2023 15:15:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7BF61C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:11:52 +0000 (UTC)
+ Thu, 26 Jan 2023 15:15:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CB2F460E08
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4AAA0415BD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:11:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB2F460E08
+ Thu, 26 Jan 2023 15:15:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AAA0415BD
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=SCwG+pI8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PVvRiR3_GlmI
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7LmktO6SNEHZ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:11:51 +0000 (UTC)
+ Thu, 26 Jan 2023 15:15:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1029B60BFE
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7DDB4400B9
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1029B60BFE
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7DDB4400B9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:11:50 +0000 (UTC)
+ Thu, 26 Jan 2023 15:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=EH9adbDOpWNaGYEHl4xrAV40gwHDwqK76tq84Z0eyXc=; b=iqmwaHjxa8hZXZrYCzuWMxG2Kd
- gUi1Y8eYsd0omFHjfmpVdNaehwIHED+H1VzLiTscJu/MXykaHjjIUo4/UeePSQ/3qO2Scxl5KBcbs
- rwafzWiMp0gW54lDXpQNTGojrzBrhUSE24qBNrz9Eu8wZKUKM+VJeNVRGRDui4Mjh6zNrJRA9uXJe
- 2WKv1rttzI5041i+Ny9WQoRsYwvuy+Pu29+WLEfQrszB7lQZjKA+bZ/4URx7/yXNldScNG2l8YeYl
- moQR7vt2oRKUKukioTBGNdLmNI+GiODuZUH9eGz4sLFdnhDHr8CijQAXVN9xNJqlnGwrCU0R4Kh9h
- Kpe2WfSQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1pL3s4-006q4a-Hd; Thu, 26 Jan 2023 15:09:00 +0000
-Date: Thu, 26 Jan 2023 15:09:00 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH v2 1/6] mm: introduce vma->vm_flags modifier functions
-Message-ID: <Y9KXjLaFFUvqqdd4@casper.infradead.org>
-References: <20230125083851.27759-1-surenb@google.com>
- <20230125083851.27759-2-surenb@google.com>
- <Y9JFFYjfJf9uDijE@kernel.org> <Y9KTUw/04FmBVplw@kernel.org>
+ d=infradead.org; s=casper.20170209; h=Content-Type:MIME-Version:References:
+ Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
+ Content-ID:Content-Description:In-Reply-To;
+ bh=pyTrMe3jhurI/BaMPEZBtDxCzUP65k9hfIEEnQDx/dc=; b=SCwG+pI8dtXiXs5fHX2T03qFh2
+ FxmbB75QLDwxETIRu7SzBr44AIZPxkRheMoOz2leFrDzr7pCwCg96bSIE3YZ7ixOkCI8zeqUnWkeq
+ yhMxx9kJ12vTPTX4yd9cZWPhKEpliYGXUXd6AlvngD7wny+Xocx/BBzCKGB02L8jbUewkukPrldTL
+ g0wdXPHGwND+vSctF5py0h78sDcQ35z39TocjSH26Z2JWyeJTe/zQGOWfraVT7GlVvrLoKlJbnwgL
+ m4iNuVXSYpt6iRhgxyWU6g7BLDonTQNB8dyyViN6YqjQXpJ44ZGL9o+Q8XtceVirkr/I2Ed3hkxap
+ O+p80HNA==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1pL3xn-006qUE-F4; Thu, 26 Jan 2023 15:14:56 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 298AA300657;
+ Thu, 26 Jan 2023 16:14:53 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
+ id 0AE0D2084C4A9; Thu, 26 Jan 2023 16:14:53 +0100 (CET)
+Message-ID: <20230126151323.349423061@infradead.org>
+User-Agent: quilt/0.66
+Date: Thu, 26 Jan 2023 16:08:30 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: mingo@kernel.org
+Subject: [PATCH v2 1/9] drivers: firmware: psci: Dont instrument suspend code
+References: <20230126150829.087606759@infradead.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <Y9KTUw/04FmBVplw@kernel.org>
-Cc: michel@lespinasse.org, nvdimm@lists.linux.dev, heiko@sntech.de,
- leewalsh@google.com, dri-devel@lists.freedesktop.org, perex@perex.cz,
- jglisse@google.com, arjunroy@google.com, m.szyprowski@samsung.com,
- linux-arch@vger.kernel.org, qianweili@huawei.com,
- linux-samsung-soc@vger.kernel.org, aneesh.kumar@linux.ibm.com,
- chenhuacai@kernel.org, kasan-dev@googlegroups.com, linux-acpi@vger.kernel.org,
- rientjes@google.com, xen-devel@lists.xenproject.org, devel@lists.orangefs.org,
- robdclark@gmail.com, minchan@google.com, robert.jarzmik@free.fr,
- linux-um@lists.infradead.org, etnaviv@lists.freedesktop.org, npiggin@gmail.com,
- viro@zeniv.linux.org.uk, luto@kernel.org, gthelen@google.com,
- tglx@linutronix.de, ldufour@linux.ibm.com,
- Suren Baghdasaryan <surenb@google.com>, linux-sgx@vger.kernel.org,
- martin.petersen@oracle.com, linux-usb@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
- linux-crypto@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- akpm@linux-foundation.org, linux-media@vger.kernel.org,
- freedreno@lists.freedesktop.org, joelaf@google.com, linux-aio@kvack.org,
- linux-fbdev@vger.kernel.org, linux-ia64@vger.kernel.org,
- dave.hansen@linux.intel.com, virtualization@lists.linux-foundation.org,
- edumazet@google.com, target-devel@vger.kernel.org, punit.agrawal@bytedance.com,
- linux-s390@vger.kernel.org, dave@stgolabs.net, deller@gmx.de, hughd@google.com,
- andrii@kernel.org, patrik.r.jakobsson@gmail.com,
- linux-stm32@st-md-mailman.stormreply.com, linux-rockchip@lists.infradead.org,
- linux-graphics-maintainer@vmware.com, kernel-team@android.com,
- jayalk@intworks.biz, soheil@google.com, selinux@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, mripard@kernel.org, shakeelb@google.com,
- haojian.zhuang@gmail.com, loongarch@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, tytso@mit.edu, nico@fluxnic.net,
- muchun.song@linux.dev, hjc@rock-chips.com, mcoquelin.stm32@gmail.com,
- tatashin@google.com, mike.kravetz@oracle.com, songliubraving@fb.com,
- alsa-devel@alsa-project.org, linux-tegra@vger.kernel.org, will@kernel.org,
- dmaengine@vger.kernel.org, bhe@redhat.com, miklos@szeredi.hu,
- linux-rdma@vger.kernel.org, linux-staging@lists.linux.dev,
- amd-gfx@lists.freedesktop.org, gurua@google.com, dgilbert@interlog.com,
- xiang@kernel.org, pabeni@redhat.com, jejb@linux.ibm.com,
- quic_abhinavk@quicinc.com, bp@alien8.de, mchehab@kernel.org,
- linux-ext4@vger.kernel.org, tomba@kernel.org, hughlynch@google.com,
- sre@kernel.org, tfiga@chromium.org, linux-xfs@vger.kernel.org,
- zhangfei.gao@linaro.org, wangzhou1@hisilicon.com, netdev@vger.kernel.org,
- bpf@vger.kernel.org, linux-erofs@lists.ozlabs.org, davem@davemloft.net,
- mhocko@suse.com, kvm@vger.kernel.org, mst@redhat.com, peterz@infradead.org,
- bigeasy@linutronix.de, alexandre.torgue@foss.st.com, dhowells@redhat.com,
- linux-mm@kvack.org, ray.huang@amd.com, adilger.kernel@dilger.ca,
- kuba@kernel.org, sparclinux@vger.kernel.org, airlied@gmail.com,
- anton.ivanov@cambridgegreys.com, herbert@gondor.apana.org.au,
- linux-scsi@vger.kernel.org, richard@nod.at, x86@kernel.org, vkoul@kernel.org,
- mingo@redhat.com, axelrasmussen@google.com, intel-gfx@lists.freedesktop.org,
- daniel@ffwll.ch, paulmck@kernel.org, jannh@google.com, chao@kernel.org,
- maarten.lankhorst@linux.intel.com, liam.howlett@oracle.com,
- hdegoede@redhat.com, linux-mediatek@lists.infradead.org,
- matthias.bgg@gmail.com, vbabka@suse.cz, dimitri.sivanich@hpe.com,
- posk@google.com, lstoakes@gmail.com, peterjung1337@gmail.com,
- yoshfuji@linux-ipv6.org, linuxppc-dev@lists.ozlabs.org, dsahern@kernel.org,
- kent.overstreet@linux.dev, kexec@lists.infradead.org, tiwai@suse.com,
- krzysztof.kozlowski@linaro.org, tzimmermann@suse.de, hannes@cmpxchg.org,
- dmitry.baryshkov@linaro.org, johannes@sipsolutions.net,
- mgorman@techsingularity.net, linux-accelerators@lists.ozlabs.org,
- l.stach@pengutronix.de
+Cc: mark.rutland@arm.com, juri.lelli@redhat.com, daniel.lezcano@linaro.org,
+ wanpengli@tencent.com, kvm@vger.kernel.org, rafael@kernel.org,
+ peterz@infradead.org, lpieralisi@kernel.org, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org, bsegall@google.com,
+ amakhalov@vmware.com, will@kernel.org, tglx@linutronix.de, vschneid@redhat.com,
+ hpa@zytor.com, x86@kernel.org, pv-drivers@vmware.com, mingo@redhat.com,
+ mgorman@suse.de, longman@redhat.com, frederic@kernel.org,
+ linux-trace-kernel@vger.kernel.org, paulmck@kernel.org,
+ linux-pm@vger.kernel.org, boqun.feng@gmail.com, rostedt@goodmis.org,
+ bp@alien8.de, vincent.guittot@linaro.org, boris.ostrovsky@oracle.com,
+ dietmar.eggemann@arm.com, jgross@suse.com, seanjc@google.com,
+ linux-kernel@vger.kernel.org, mhiramat@kernel.org, pbonzini@redhat.com,
+ bristot@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -142,24 +108,113 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 26, 2023 at 04:50:59PM +0200, Mike Rapoport wrote:
-> On Thu, Jan 26, 2023 at 11:17:09AM +0200, Mike Rapoport wrote:
-> > On Wed, Jan 25, 2023 at 12:38:46AM -0800, Suren Baghdasaryan wrote:
-> > > +/* Use when VMA is not part of the VMA tree and needs no locking */
-> > > +static inline void init_vm_flags(struct vm_area_struct *vma,
-> > > +				 unsigned long flags)
-> > 
-> > I'd suggest to make it vm_flags_init() etc.
-> 
-> Thinking more about it, it will be even clearer to name these vma_flags_xyz()
+From: Mark Rutland <mark.rutland@arm.com>
 
-Perhaps vma_VERB_flags()?
+The PSCI suspend code is currently instrumentable, which is not safe as
+instrumentation (e.g. ftrace) may try to make use of RCU during idle
+periods when RCU is not watching.
 
-vma_init_flags()
-vma_reset_flags()
-vma_set_flags()
-vma_clear_flags()
-vma_mod_flags()
+To fix this we need to ensure that psci_suspend_finisher() and anything
+it calls are not instrumented. We can do this fairly simply by marking
+psci_suspend_finisher() and the psci*_cpu_suspend() functions as
+noinstr, and the underlying helper functions as __always_inline.
+
+When CONFIG_DEBUG_VIRTUAL=y, __pa_symbol() can expand to an out-of-line
+instrumented function, so we must use __pa_symbol_nodebug() within
+psci_suspend_finisher().
+
+The raw SMCCC invocation functions are written in assembly, and are not
+subject to compiler instrumentation.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ drivers/firmware/psci/psci.c |   31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
+
+--- a/drivers/firmware/psci/psci.c
++++ b/drivers/firmware/psci/psci.c
+@@ -108,9 +108,10 @@ bool psci_power_state_is_valid(u32 state
+ 	return !(state & ~valid_mask);
+ }
+ 
+-static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
+-			unsigned long arg0, unsigned long arg1,
+-			unsigned long arg2)
++static __always_inline unsigned long
++__invoke_psci_fn_hvc(unsigned long function_id,
++		     unsigned long arg0, unsigned long arg1,
++		     unsigned long arg2)
+ {
+ 	struct arm_smccc_res res;
+ 
+@@ -118,9 +119,10 @@ static unsigned long __invoke_psci_fn_hv
+ 	return res.a0;
+ }
+ 
+-static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
+-			unsigned long arg0, unsigned long arg1,
+-			unsigned long arg2)
++static __always_inline unsigned long
++__invoke_psci_fn_smc(unsigned long function_id,
++		     unsigned long arg0, unsigned long arg1,
++		     unsigned long arg2)
+ {
+ 	struct arm_smccc_res res;
+ 
+@@ -128,7 +130,7 @@ static unsigned long __invoke_psci_fn_sm
+ 	return res.a0;
+ }
+ 
+-static int psci_to_linux_errno(int errno)
++static __always_inline int psci_to_linux_errno(int errno)
+ {
+ 	switch (errno) {
+ 	case PSCI_RET_SUCCESS:
+@@ -169,7 +171,8 @@ int psci_set_osi_mode(bool enable)
+ 	return psci_to_linux_errno(err);
+ }
+ 
+-static int __psci_cpu_suspend(u32 fn, u32 state, unsigned long entry_point)
++static __always_inline int
++__psci_cpu_suspend(u32 fn, u32 state, unsigned long entry_point)
+ {
+ 	int err;
+ 
+@@ -177,13 +180,15 @@ static int __psci_cpu_suspend(u32 fn, u3
+ 	return psci_to_linux_errno(err);
+ }
+ 
+-static int psci_0_1_cpu_suspend(u32 state, unsigned long entry_point)
++static __always_inline int
++psci_0_1_cpu_suspend(u32 state, unsigned long entry_point)
+ {
+ 	return __psci_cpu_suspend(psci_0_1_function_ids.cpu_suspend,
+ 				  state, entry_point);
+ }
+ 
+-static int psci_0_2_cpu_suspend(u32 state, unsigned long entry_point)
++static __always_inline int
++psci_0_2_cpu_suspend(u32 state, unsigned long entry_point)
+ {
+ 	return __psci_cpu_suspend(PSCI_FN_NATIVE(0_2, CPU_SUSPEND),
+ 				  state, entry_point);
+@@ -447,10 +452,12 @@ late_initcall(psci_debugfs_init)
+ #endif
+ 
+ #ifdef CONFIG_CPU_IDLE
+-static int psci_suspend_finisher(unsigned long state)
++static noinstr int psci_suspend_finisher(unsigned long state)
+ {
+ 	u32 power_state = state;
+-	phys_addr_t pa_cpu_resume = __pa_symbol(cpu_resume);
++	phys_addr_t pa_cpu_resume;
++
++	pa_cpu_resume = __pa_symbol_nodebug((unsigned long)cpu_resume);
+ 
+ 	return psci_ops.cpu_suspend(power_state, pa_cpu_resume);
+ }
+
 
 _______________________________________________
 Virtualization mailing list
