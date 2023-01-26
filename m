@@ -4,91 +4,78 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41EB1C61DA4
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 15:15:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08683C52D11
+	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 17:03:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7472E419E7;
-	Thu, 26 Jan 2023 15:15:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7472E419E7
+	by smtp4.osuosl.org (Postfix) with ESMTP id 85ABB4088F;
+	Thu, 26 Jan 2023 17:03:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85ABB4088F
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=N5V8bcv3
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=FBh887Jb
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id n-ZkMsrJqkXi; Thu, 26 Jan 2023 15:15:39 +0000 (UTC)
+	with ESMTP id gHNuOiB_JPeN; Thu, 26 Jan 2023 17:03:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8E4DA419F4;
-	Thu, 26 Jan 2023 15:15:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E4DA419F4
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D59874087E;
+	Thu, 26 Jan 2023 17:03:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D59874087E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00C66C0077;
-	Thu, 26 Jan 2023 15:15:37 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC2F7C0033;
+	Thu, 26 Jan 2023 17:03:24 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 367A4C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E1056C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:15:33 +0000 (UTC)
+ Thu, 26 Jan 2023 17:03:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D2BA1419B7
+ by smtp4.osuosl.org (Postfix) with ESMTP id ADEE94087E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:15:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D2BA1419B7
+ Thu, 26 Jan 2023 17:03:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADEE94087E
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wgSqCGSmwTnQ
+ with ESMTP id nf8_W7pGBnQ9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:15:31 +0000 (UTC)
+ Thu, 26 Jan 2023 17:03:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D54041738
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2D54041738
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4368140872
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4368140872
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:15:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
- Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
- Content-ID:Content-Description:In-Reply-To;
- bh=e32s12OZeZPmUAIBV6e3MlO1ukdEIkvaneutSmlGJOw=; b=N5V8bcv3nQdfspCM8LGdgZi/oT
- OfThmYdp9Pep/2oH206oU9jAC0tMaiBzmpz/P02f+5dY3GC7hk8iTZftlMfYW3DnUSk7b806BPb+c
- mYe2ESIuMAbgoZ2KYmD3RytsmEuU7s1YFH3GXYf3mYgIXlhDJAOw2GxAo/vh6p0m77GQ7UOXf5YFW
- 8HI6cHt4CKHll3pbyNAPE3DtOGkuPsBkTUlxgX262LvF2BDG6uvAZJiwvCZjFtXsh6dRQp7U5gRa3
- Ew/3Bxr4wjn+K+cUtOZZazLY/Zef4ZQrrmV3BBD7JoAoeTzZLr/jyk1do7miSH6b2/NleV0ZXxS0m
- uphwb/2Q==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pL3xI-002U1n-1w; Thu, 26 Jan 2023 15:14:24 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 88F1C302D94;
- Thu, 26 Jan 2023 16:14:54 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 236BD2084C4B6; Thu, 26 Jan 2023 16:14:53 +0100 (CET)
-Message-ID: <20230126151323.702003578@infradead.org>
-User-Agent: quilt/0.66
-Date: Thu, 26 Jan 2023 16:08:36 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: mingo@kernel.org
-Subject: [PATCH v2 7/9] x86: Mark sched_clock() noinstr
-References: <20230126150829.087606759@infradead.org>
+ Thu, 26 Jan 2023 17:03:22 +0000 (UTC)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+ by smtp-out1.suse.de (Postfix) with ESMTP id 69A2021F7A;
+ Thu, 26 Jan 2023 17:03:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1674752597; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=eSWKf9uJrUZqhid1T1vG6ji700DgCjuCGV5m/wv4YN4=;
+ b=FBh887JbLkjg9dCJJRwnY5u/KYg0Jgm/9oWUg/Zj7OuP6G7q0eTZxXoFoSmg9SVAKP558h
+ IO/IdIBKVtEnHxvqF8ONuM+ejeJNb8+YV5O9lDvjXCpELqftBaEI2QZuZsbq4tU107l+W2
+ F9ELxNsf8Nnic/OZAJzPIMohwZQHmY8=
+Received: from suse.cz (unknown [10.100.208.146])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by relay2.suse.de (Postfix) with ESMTPS id 476132C141;
+ Thu, 26 Jan 2023 17:03:17 +0000 (UTC)
+Date: Thu, 26 Jan 2023 18:03:16 +0100
+To: "Seth Forshee (DigitalOcean)" <sforshee@digitalocean.com>
+Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
+ loaded vhost worker kthreads
+Message-ID: <Y9KyVKQk3eH+RRse@alley>
+References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
 MIME-Version: 1.0
-Cc: mark.rutland@arm.com, juri.lelli@redhat.com, daniel.lezcano@linaro.org,
- wanpengli@tencent.com, kvm@vger.kernel.org, rafael@kernel.org,
- peterz@infradead.org, lpieralisi@kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org, bsegall@google.com,
- amakhalov@vmware.com, will@kernel.org, tglx@linutronix.de, vschneid@redhat.com,
- hpa@zytor.com, x86@kernel.org, pv-drivers@vmware.com, mingo@redhat.com,
- mgorman@suse.de, longman@redhat.com, frederic@kernel.org,
- linux-trace-kernel@vger.kernel.org, paulmck@kernel.org,
- linux-pm@vger.kernel.org, boqun.feng@gmail.com, rostedt@goodmis.org,
- bp@alien8.de, vincent.guittot@linaro.org, boris.ostrovsky@oracle.com,
- dietmar.eggemann@arm.com, jgross@suse.com, seanjc@google.com,
- linux-kernel@vger.kernel.org, mhiramat@kernel.org, pbonzini@redhat.com,
- bristot@redhat.com
+Content-Disposition: inline
+In-Reply-To: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ "Seth Forshee \(DigitalOcean\)" <sforshee@kernel.org>,
+ live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+ Josh Poimboeuf <jpoimboe@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,233 +87,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Petr Mladek via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Petr Mladek <pmladek@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In order to use sched_clock() from noinstr code, mark it and all it's
-implenentations noinstr.
+On Fri 2023-01-20 16:12:20, Seth Forshee (DigitalOcean) wrote:
+> We've fairly regularaly seen liveptches which cannot transition within kpatch's
+> timeout period due to busy vhost worker kthreads.
 
-The whole pvclock thing (used by KVM/Xen) is a bit of a pain,
-since it calls out to watchdogs, create a
-pvclock_clocksource_read_nowd() variant doesn't do that and can be
-noinstr.
+I have missed this detail. Miroslav told me that we have solved
+something similar some time ago, see
+https://lore.kernel.org/all/20220507174628.2086373-1-song@kernel.org/
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/x86/include/asm/kvmclock.h |    2 +-
- arch/x86/include/asm/paravirt.h |    2 +-
- arch/x86/include/asm/pvclock.h  |    3 ++-
- arch/x86/kernel/cpu/vmware.c    |    2 +-
- arch/x86/kernel/kvmclock.c      |    6 +++---
- arch/x86/kernel/pvclock.c       |   19 +++++++++++++++----
- arch/x86/kernel/tsc.c           |    7 +++----
- arch/x86/xen/time.c             |   12 ++++++++++--
- include/linux/math64.h          |    4 ++--
- 9 files changed, 38 insertions(+), 19 deletions(-)
+Honestly, kpatch's timeout 1 minute looks incredible low to me. Note
+that the transition is tried only once per minute. It means that there
+are "only" 60 attempts.
 
---- a/arch/x86/include/asm/kvmclock.h
-+++ b/arch/x86/include/asm/kvmclock.h
-@@ -8,7 +8,7 @@ extern struct clocksource kvm_clock;
- 
- DECLARE_PER_CPU(struct pvclock_vsyscall_time_info *, hv_clock_per_cpu);
- 
--static inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
-+static __always_inline struct pvclock_vcpu_time_info *this_cpu_pvti(void)
- {
- 	return &this_cpu_read(hv_clock_per_cpu)->pvti;
- }
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -26,7 +26,7 @@ DECLARE_STATIC_CALL(pv_sched_clock, dumm
- 
- void paravirt_set_sched_clock(u64 (*func)(void));
- 
--static inline u64 paravirt_sched_clock(void)
-+static __always_inline u64 paravirt_sched_clock(void)
- {
- 	return static_call(pv_sched_clock)();
- }
---- a/arch/x86/include/asm/pvclock.h
-+++ b/arch/x86/include/asm/pvclock.h
-@@ -7,6 +7,7 @@
- 
- /* some helper functions for xen and kvm pv clock sources */
- u64 pvclock_clocksource_read(struct pvclock_vcpu_time_info *src);
-+u64 pvclock_clocksource_read_nowd(struct pvclock_vcpu_time_info *src);
- u8 pvclock_read_flags(struct pvclock_vcpu_time_info *src);
- void pvclock_set_flags(u8 flags);
- unsigned long pvclock_tsc_khz(struct pvclock_vcpu_time_info *src);
-@@ -39,7 +40,7 @@ bool pvclock_read_retry(const struct pvc
-  * Scale a 64-bit delta by scaling and multiplying by a 32-bit fraction,
-  * yielding a 64-bit result.
-  */
--static inline u64 pvclock_scale_delta(u64 delta, u32 mul_frac, int shift)
-+static __always_inline u64 pvclock_scale_delta(u64 delta, u32 mul_frac, int shift)
- {
- 	u64 product;
- #ifdef __i386__
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -143,7 +143,7 @@ static __init int parse_no_stealacc(char
- }
- early_param("no-steal-acc", parse_no_stealacc);
- 
--static unsigned long long notrace vmware_sched_clock(void)
-+static noinstr u64 vmware_sched_clock(void)
- {
- 	unsigned long long ns;
- 
---- a/arch/x86/kernel/kvmclock.c
-+++ b/arch/x86/kernel/kvmclock.c
-@@ -71,12 +71,12 @@ static int kvm_set_wallclock(const struc
- 	return -ENODEV;
- }
- 
--static u64 kvm_clock_read(void)
-+static noinstr u64 kvm_clock_read(void)
- {
- 	u64 ret;
- 
- 	preempt_disable_notrace();
--	ret = pvclock_clocksource_read(this_cpu_pvti());
-+	ret = pvclock_clocksource_read_nowd(this_cpu_pvti());
- 	preempt_enable_notrace();
- 	return ret;
- }
-@@ -86,7 +86,7 @@ static u64 kvm_clock_get_cycles(struct c
- 	return kvm_clock_read();
- }
- 
--static u64 kvm_sched_clock_read(void)
-+static noinstr u64 kvm_sched_clock_read(void)
- {
- 	return kvm_clock_read() - kvm_sched_clock_offset;
- }
---- a/arch/x86/kernel/pvclock.c
-+++ b/arch/x86/kernel/pvclock.c
-@@ -64,7 +64,8 @@ u8 pvclock_read_flags(struct pvclock_vcp
- 	return flags & valid_flags;
- }
- 
--u64 pvclock_clocksource_read(struct pvclock_vcpu_time_info *src)
-+static __always_inline
-+u64 __pvclock_clocksource_read(struct pvclock_vcpu_time_info *src, bool dowd)
- {
- 	unsigned version;
- 	u64 ret;
-@@ -77,7 +78,7 @@ u64 pvclock_clocksource_read(struct pvcl
- 		flags = src->flags;
- 	} while (pvclock_read_retry(src, version));
- 
--	if (unlikely((flags & PVCLOCK_GUEST_STOPPED) != 0)) {
-+	if (dowd && unlikely((flags & PVCLOCK_GUEST_STOPPED) != 0)) {
- 		src->flags &= ~PVCLOCK_GUEST_STOPPED;
- 		pvclock_touch_watchdogs();
- 	}
-@@ -100,15 +101,25 @@ u64 pvclock_clocksource_read(struct pvcl
- 	 * updating at the same time, and one of them could be slightly behind,
- 	 * making the assumption that last_value always go forward fail to hold.
- 	 */
--	last = atomic64_read(&last_value);
-+	last = arch_atomic64_read(&last_value);
- 	do {
- 		if (ret <= last)
- 			return last;
--	} while (!atomic64_try_cmpxchg(&last_value, &last, ret));
-+	} while (!arch_atomic64_try_cmpxchg(&last_value, &last, ret));
- 
- 	return ret;
- }
- 
-+u64 pvclock_clocksource_read(struct pvclock_vcpu_time_info *src)
-+{
-+	return __pvclock_clocksource_read(src, true);
-+}
-+
-+noinstr u64 pvclock_clocksource_read_nowd(struct pvclock_vcpu_time_info *src)
-+{
-+	return __pvclock_clocksource_read(src, false);
-+}
-+
- void pvclock_read_wallclock(struct pvclock_wall_clock *wall_clock,
- 			    struct pvclock_vcpu_time_info *vcpu_time,
- 			    struct timespec64 *ts)
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -215,7 +215,7 @@ static void __init cyc2ns_init_secondary
- /*
-  * Scheduler clock - returns current time in nanosec units.
-  */
--u64 native_sched_clock(void)
-+noinstr u64 native_sched_clock(void)
- {
- 	if (static_branch_likely(&__use_tsc)) {
- 		u64 tsc_now = rdtsc();
-@@ -248,7 +248,7 @@ u64 native_sched_clock_from_tsc(u64 tsc)
- /* We need to define a real function for sched_clock, to override the
-    weak default version */
- #ifdef CONFIG_PARAVIRT
--unsigned long long sched_clock(void)
-+noinstr u64 sched_clock(void)
- {
- 	return paravirt_sched_clock();
- }
-@@ -258,8 +258,7 @@ bool using_native_sched_clock(void)
- 	return static_call_query(pv_sched_clock) == native_sched_clock;
- }
- #else
--unsigned long long
--sched_clock(void) __attribute__((alias("native_sched_clock")));
-+u64 sched_clock(void) __attribute__((alias("native_sched_clock")));
- 
- bool using_native_sched_clock(void) { return true; }
- #endif
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -60,9 +60,17 @@ static u64 xen_clocksource_get_cycles(st
- 	return xen_clocksource_read();
- }
- 
--static u64 xen_sched_clock(void)
-+static noinstr u64 xen_sched_clock(void)
- {
--	return xen_clocksource_read() - xen_sched_clock_offset;
-+        struct pvclock_vcpu_time_info *src;
-+	u64 ret;
-+
-+	preempt_disable_notrace();
-+	src = &__this_cpu_read(xen_vcpu)->time;
-+	ret = pvclock_clocksource_read_nowd(src);
-+	ret -= xen_sched_clock_offset;
-+	preempt_enable_notrace();
-+	return ret;
- }
- 
- static void xen_read_wallclock(struct timespec64 *ts)
---- a/include/linux/math64.h
-+++ b/include/linux/math64.h
-@@ -161,7 +161,7 @@ static inline u64 mul_u32_u32(u32 a, u32
- #if defined(CONFIG_ARCH_SUPPORTS_INT128) && defined(__SIZEOF_INT128__)
- 
- #ifndef mul_u64_u32_shr
--static inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
-+static __always_inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
- {
- 	return (u64)(((unsigned __int128)a * mul) >> shift);
- }
-@@ -177,7 +177,7 @@ static inline u64 mul_u64_u64_shr(u64 a,
- #else
- 
- #ifndef mul_u64_u32_shr
--static inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
-+static __always_inline u64 mul_u64_u32_shr(u64 a, u32 mul, unsigned int shift)
- {
- 	u32 ah, al;
- 	u64 ret;
+Just by chance, does it help you to increase the timeout, please?
 
+This low timeout might be useful for testing. But in practice, it does
+not matter when the transition is lasting one hour or even longer.
+It takes much longer time to prepare the livepatch.
 
+Best Regards,
+Petr
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
