@@ -1,106 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91C5BC54E94
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 09:30:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21849C61DA3
+	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 11:16:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 080CD81F00;
-	Thu, 26 Jan 2023 09:30:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 080CD81F00
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8C7BE40C03;
+	Thu, 26 Jan 2023 11:16:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8C7BE40C03
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=brCnbvCw
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oEJUALZNutQa; Thu, 26 Jan 2023 11:16:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E640F40124;
+	Thu, 26 Jan 2023 11:16:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E640F40124
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC6A6C0032;
+	Thu, 26 Jan 2023 11:16:39 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CBE34C002D
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Jan 2023 11:16:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 989FB81E2B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Jan 2023 11:16:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 989FB81E2B
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=fjkzkzH2
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=brCnbvCw
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J5XAfNLuuMkU; Thu, 26 Jan 2023 09:30:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 53777817C0;
-	Thu, 26 Jan 2023 09:30:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53777817C0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F0B4C0032;
-	Thu, 26 Jan 2023 09:30:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4CF79C002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hJHCkyKoYEnD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 09:30:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 25AF360D5B
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 09:30:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 25AF360D5B
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=fjkzkzH2
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Hzsbo6UhlOYo
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 09:29:57 +0000 (UTC)
+ Thu, 26 Jan 2023 11:16:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAF096068A
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CAF096068A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9777981446
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9777981446
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 09:29:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=3DdXzjyKWRO1frq1uuF2XoBRpaROEpjsdhpGwWGHFaM=; b=fjkzkzH2IL3D6CrXISfe5PDcJ3
- nztCrKwnbbOsZd0b82sGhquv+EaQOZ9Okui7uVta/2gIuypyOmn8GlL36oAU4PnwgNm4FNAgEpCq5
- YhVrkwtSatfICZgLZiAPfUN22bSLyXhmY8G3b5vGqwePAXF6kKxN/077aXcXJ/5oO58M2rh+zZxMf
- Oas6C0dmM8Lg0kpBU1T1jQUb9HGCAlWAnkAEaEBb5p8prYGJ8g3D87kEn+XLoBUWOOC2rGadDf2Q0
- 5iCHrtMm1C7li0PCgJytcgjKapLEv6D2cKXaxaa5eiP6qNP09v3EzOmsVsyItiQc5gwv6eHS96Q3d
- b0pTc7hg==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pKyYx-006bpo-9p; Thu, 26 Jan 2023 09:28:55 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6DFEC300137;
- Thu, 26 Jan 2023 10:28:51 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 271E9212FFF4C; Thu, 26 Jan 2023 10:28:51 +0100 (CET)
-Date: Thu, 26 Jan 2023 10:28:51 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH 3/6] ftrace/x86: Warn and ignore graph tracing when RCU
- is disabled
-Message-ID: <Y9JH0/Z06254ZJ2g@hirez.programming.kicks-ass.net>
-References: <20230123205009.790550642@infradead.org>
- <20230123205515.059999893@infradead.org>
- <20230123165304.370121e7@gandalf.local.home>
- <20230123170753.7ac9419e@gandalf.local.home>
- <Y8/u00WHGElMDjoo@hirez.programming.kicks-ass.net>
- <Y9ARbgtYhxSuOIlZ@FVFF77S0Q05N>
- <Y9EI0Gn/NUJt6GEk@hirez.programming.kicks-ass.net>
- <20230125184658.GL2948950@paulmck-ThinkPad-P17-Gen-1>
+ Thu, 26 Jan 2023 11:16:37 +0000 (UTC)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+ by smtp-out2.suse.de (Postfix) with ESMTP id E25A31FF65;
+ Thu, 26 Jan 2023 11:16:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1674731794; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=VqvJ//mtxUzAL+qZwt9BocGJmjBDoQtWDsm6f0RHcJw=;
+ b=brCnbvCw0yFj2KB2XLQOvhzBW6Pnv5+JFss008p+DODbsTxFtCHWxo09XShJcZe3aG8Xg8
+ BfRTj2syQl/6yCyoMx/mZorf14W6aVLJvmfyfQs/BnHno/9Krlm5Qys3TD57sskrGWFsqp
+ n7zaBtnzD4oinqFzvBdPIGyKD4DlvDY=
+Received: from suse.cz (unknown [10.100.201.202])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by relay2.suse.de (Postfix) with ESMTPS id B2CC52C141;
+ Thu, 26 Jan 2023 11:16:34 +0000 (UTC)
+Date: Thu, 26 Jan 2023 12:16:32 +0100
+To: Seth Forshee <sforshee@kernel.org>
+Subject: Re: [PATCH 2/2] vhost: check for pending livepatches from vhost
+ worker kthreads
+Message-ID: <Y9JhEJXFRDZjONAH@alley>
+References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
+ <20230120-vhost-klp-switching-v1-2-7c2b65519c43@kernel.org>
+ <Y8/ohzRGcOiqsh69@alley> <Y9ATo5FukOhphwqT@do-x1extreme>
+ <Y9ETwsT4LTXyH/0m@alley> <Y9FfenH/p3qzRlar@do-x1extreme>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230125184658.GL2948950@paulmck-ThinkPad-P17-Gen-1>
-Cc: Mark Rutland <mark.rutland@arm.com>, juri.lelli@redhat.com,
- daniel.lezcano@linaro.org, wanpengli@tencent.com, kvm@vger.kernel.org,
- rafael@kernel.org, pv-drivers@vmware.com,
- Frederic Weisbecker <fweisbec@gmail.com>, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org, bsegall@google.com,
- amakhalov@vmware.com, will@kernel.org, vschneid@redhat.com, hpa@zytor.com,
- x86@kernel.org, mingo@kernel.org, mgorman@suse.de,
- linux-trace-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
- boqun.feng@gmail.com, Steven Rostedt <rostedt@goodmis.org>, bp@alien8.de,
- vincent.guittot@linaro.org, boris.ostrovsky@oracle.com,
- dietmar.eggemann@arm.com, jgross@suse.com, seanjc@google.com,
- linux-kernel@vger.kernel.org, tglx@linutronix.de, mhiramat@kernel.org,
- pbonzini@redhat.com, bristot@redhat.com
+In-Reply-To: <Y9FfenH/p3qzRlar@do-x1extreme>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, live-patching@vger.kernel.org,
+ Miroslav Benes <mbenes@suse.cz>, Josh Poimboeuf <jpoimboe@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,211 +91,178 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Petr Mladek via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Petr Mladek <pmladek@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 25, 2023 at 10:46:58AM -0800, Paul E. McKenney wrote:
-
-> > Ofc. Paul might have an opinion on this glorious bodge ;-)
+On Wed 2023-01-25 10:57:30, Seth Forshee wrote:
+> On Wed, Jan 25, 2023 at 12:34:26PM +0100, Petr Mladek wrote:
+> > On Tue 2023-01-24 11:21:39, Seth Forshee wrote:
+> > > On Tue, Jan 24, 2023 at 03:17:43PM +0100, Petr Mladek wrote:
+> > > > On Fri 2023-01-20 16:12:22, Seth Forshee (DigitalOcean) wrote:
+> > > > > Livepatch relies on stack checking of sleeping tasks to switch kthreads,
+> > > > > so a busy kthread can block a livepatch transition indefinitely. We've
+> > > > > seen this happen fairly often with busy vhost kthreads.
+> > > > 
+> > > > > --- a/drivers/vhost/vhost.c
+> > > > > +++ b/drivers/vhost/vhost.c
+> > > > > @@ -366,6 +367,9 @@ static int vhost_worker(void *data)
+> > > > >  			if (need_resched())
+> > > > >  				schedule();
+> > > > >  		}
+> > > > > +
+> > > > > +		if (unlikely(klp_patch_pending(current)))
+> > > > > +			klp_switch_current();
+> > > > 
+> > > > I suggest to use the following intead:
+> > > > 
+> > > > 		if (unlikely(klp_patch_pending(current)))
+> > > > 			klp_update_patch_state(current);
+> > > > 
+> > > > We already use this in do_idle(). The reason is basically the same.
+> > > > It is almost impossible to livepatch the idle task when a CPU is
+> > > > very idle.
+> > > > 
+> > > > klp_update_patch_state(current) does not check the stack.
+> > > > It switches the task immediately.
+> > > > 
+> > > > It should be safe because the kthread never leaves vhost_worker().
+> > > > It means that the same kthread could never re-enter this function
+> > > > and use the new code.
+> > > 
+> > > My knowledge of livepatching internals is fairly limited, so I'll accept
+> > > it if you say that it's safe to do it this way. But let me ask about one
+> > > scenario.
+> > > 
+> > > Let's say that a livepatch is loaded which replaces vhost_worker(). New
+> > > vhost worker threads are started which use the replacement function. Now
+> > > if the patch is disabled, these new worker threads would be switched
+> > > despite still running the code from the patch module, correct? Could the
+> > > module then be unloaded, freeing the memory containing the code these
+> > > kthreads are executing?
+> > 
+> > The above scenario would require calling klp_update_patch_state() from
+> > the code in the livepatch module. It is not possible at the moment because
+> > this function is not exported for modules.
 > 
-> For some definition of the word "glorious", to be sure.  ;-)
+> vhost can be built as a module, so in order to call
+> klp_update_patch_state() from vhost_worker() it would have to be
+> exported to modules.
+
+I see.
+
+> > Hmm, the same problem might be when we livepatch a function that calls
+> > another function that calls klp_update_patch_state(). But in this case
+> > it would be kthread() from kernel/kthread.c. It would affect any
+> > running kthread. I doubt that anyone would seriously think about
+> > livepatching this function.
 > 
-> Am I correct that you have two things happening here?  (1) Preventing
-> trace recursion and (2) forcing RCU to pay attention when needed.
+> Yes, there are clearly certain functions that are not safe/practical to
+> patch, and authors need to know what they are doing. Most kthread main()
+> functions probably qualify as impractical at best, at least without a
+> strategy to restart relevant kthreads.
+> 
+> But a livepatch transition will normally stall if patching these
+> functions when a relevant kthread is running (unless the patch is
+> forced), so a patch author who made a mistake should quickly notice.
+> vhost_worker() would behave differently.
 
-Mostly just (1), we're in an error situation, I'm not too worried about
-(2).
+Another crazy idea:
 
-> I cannot resist pointing out that you have re-invented RCU_NONIDLE(),
-> though avoiding much of the overhead when not needed.  ;-)
+/**
+ * klp_update_patch_state_safe() - do not update the path state when
+ *	called from a livepatch.
+ * @task: task_struct to be updated
+ * @calller_addr: address of the function which  calls this one
+ *
+ * Do not update the patch set when called from a livepatch.
+ * It would allow to remove the livepatch module even when
+ * the code still might be in use.
+ */
+void klp_update_patch_state_safe(struct task_struct *task, void *caller_addr)
+{
+	static bool checked;
+	static bool safe;
 
-Yeah, this was the absolute minimal bodge I could come up with that
-shuts up the rcu_derefence warning thing.
+	if (unlikely(!checked)) {
+		struct module *mod;
 
-> I would have objections if this ever leaks out onto a non-error code path.
+		preempt_disable();
+		mod = __module_address(caller_addr);
+		if (!mod || !is_livepatch_module(mod))
+			safe = true;
+		checked = true;
+		preempt_enable();
+	}
 
-Agreed.
+	if (safe)
+		klp_update_patch_state(task);
+}
 
-> There are things that need doing when RCU starts and stops watching,
-> and this approach omits those things.  Which again is OK in this case,
-> where this code is only ever executed when something is already broken,
-> but definitely *not* OK when things are not already broken.
+and use in vhost_worker()
 
-And agreed.
+		if (unlikely(klp_patch_pending(current)))
+			klp_update_patch_state_safe(current, vhost_worker);
 
-Current version of the bodge looks like so (will repost the whole series
-a little later today).
+Even better might be to get the caller address using some compiler
+macro. I guess that it should be possible.
 
-I managed to tickle the recursion so that it was a test-case for the
-stack guard...
+And even better would be to detect this at the compile time. But
+I do not know how to do so.
 
-With this on, it prints just the one WARN and lives.
+> > A good enough solution might be to document this. Livepatches could
+> > not be created blindly. There are more situations where the
+> > livepatch is tricky or not possible at all.
+> 
+> I can add this if you like. Is Documentation/livepatch/livepatch.rst the
+> right place for this?
 
----
-Subject: bug: Disable rcu_is_watching() during WARN/BUG
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Wed Jan 25 13:57:49 CET 2023
+Yes, the best place probably would be "7. Limitations" section in
+Documentation/livepatch/livepatch.rst.
 
-In order to avoid WARN/BUG from generating nested or even recursive
-warnings, force rcu_is_watching() true during
-WARN/lockdep_rcu_suspicious().
+Even better would be to add a document about the best practices.
+We have dreamed about it for years ;-)
 
-Notably things like unwinding the stack can trigger rcu_dereference()
-warnings, which then triggers more unwinding which then triggers more
-warnings etc..
+> > Crazy idea. We could prevent this problem even technically. A solution
+> > would be to increment a per-process counter in klp_ftrace_handler() when a
+> > function is redirected(). And klp_update_patch_state() might refuse
+> > the migration when this counter is not zero. But it would require
+> > to use a trampoline on return that would decrement the counter.
+> > I am not sure if this is worth the complexity.
+> > 
+> > One the other hand, this counter might actually remove the need
+> > of the reliable backtrace. It is possible that I miss something
+> > or that it is not easy/possible to implement the return trampoline.
+> 
+> I agree this should work for unpatching, and even for patching a
+> function which is already patched.
+> 
+> Maybe I'm misunderstanding, but this would only work for unpatching or
+> patching an already-patched function, wouldn't it? Because the original
+> functions would not increment the counter so you would not know if tasks
+> still had those on their call stacks.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- include/linux/context_tracking.h |   27 +++++++++++++++++++++++++++
- kernel/locking/lockdep.c         |    3 +++
- kernel/panic.c                   |    5 +++++
- lib/bug.c                        |   15 ++++++++++++++-
- 4 files changed, 49 insertions(+), 1 deletion(-)
+Right. I knew that it could not be that easy. Otherwise, we would have
+used it. I just did not spent enough cycles on the idea yesterday.
 
---- a/include/linux/context_tracking.h
-+++ b/include/linux/context_tracking.h
-@@ -130,9 +130,36 @@ static __always_inline unsigned long ct_
- 	return arch_atomic_add_return(incby, this_cpu_ptr(&context_tracking.state));
- }
- 
-+static __always_inline bool warn_rcu_enter(void)
-+{
-+	bool ret = false;
-+
-+	/*
-+	 * Horrible hack to shut up recursive RCU isn't watching fail since
-+	 * lots of the actual reporting also relies on RCU.
-+	 */
-+	preempt_disable_notrace();
-+	if (rcu_dynticks_curr_cpu_in_eqs()) {
-+		ret = true;
-+		ct_state_inc(RCU_DYNTICKS_IDX);
-+	}
-+
-+	return ret;
-+}
-+
-+static __always_inline void warn_rcu_exit(bool rcu)
-+{
-+	if (rcu)
-+		ct_state_inc(RCU_DYNTICKS_IDX);
-+	preempt_enable_notrace();
-+}
-+
- #else
- static inline void ct_idle_enter(void) { }
- static inline void ct_idle_exit(void) { }
-+
-+static __always_inline bool warn_rcu_enter(void) { return false; }
-+static __always_inline void warn_rcu_exit(bool rcu) { }
- #endif /* !CONFIG_CONTEXT_TRACKING_IDLE */
- 
- #endif
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -55,6 +55,7 @@
- #include <linux/rcupdate.h>
- #include <linux/kprobes.h>
- #include <linux/lockdep.h>
-+#include <linux/context_tracking.h>
- 
- #include <asm/sections.h>
- 
-@@ -6555,6 +6556,7 @@ void lockdep_rcu_suspicious(const char *
- {
- 	struct task_struct *curr = current;
- 	int dl = READ_ONCE(debug_locks);
-+	bool rcu = warn_rcu_enter();
- 
- 	/* Note: the following can be executed concurrently, so be careful. */
- 	pr_warn("\n");
-@@ -6595,5 +6597,6 @@ void lockdep_rcu_suspicious(const char *
- 	lockdep_print_held_locks(curr);
- 	pr_warn("\nstack backtrace:\n");
- 	dump_stack();
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL_GPL(lockdep_rcu_suspicious);
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -34,6 +34,7 @@
- #include <linux/ratelimit.h>
- #include <linux/debugfs.h>
- #include <linux/sysfs.h>
-+#include <linux/context_tracking.h>
- #include <trace/events/error_report.h>
- #include <asm/sections.h>
- 
-@@ -679,6 +680,7 @@ void __warn(const char *file, int line,
- void warn_slowpath_fmt(const char *file, int line, unsigned taint,
- 		       const char *fmt, ...)
- {
-+	bool rcu = warn_rcu_enter();
- 	struct warn_args args;
- 
- 	pr_warn(CUT_HERE);
-@@ -693,11 +695,13 @@ void warn_slowpath_fmt(const char *file,
- 	va_start(args.args, fmt);
- 	__warn(file, line, __builtin_return_address(0), taint, NULL, &args);
- 	va_end(args.args);
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL(warn_slowpath_fmt);
- #else
- void __warn_printk(const char *fmt, ...)
- {
-+	bool rcu = warn_rcu_enter();
- 	va_list args;
- 
- 	pr_warn(CUT_HERE);
-@@ -705,6 +709,7 @@ void __warn_printk(const char *fmt, ...)
- 	va_start(args, fmt);
- 	vprintk(fmt, args);
- 	va_end(args);
-+	warn_rcu_exit(rcu);
- }
- EXPORT_SYMBOL(__warn_printk);
- #endif
---- a/lib/bug.c
-+++ b/lib/bug.c
-@@ -47,6 +47,7 @@
- #include <linux/sched.h>
- #include <linux/rculist.h>
- #include <linux/ftrace.h>
-+#include <linux/context_tracking.h>
- 
- extern struct bug_entry __start___bug_table[], __stop___bug_table[];
- 
-@@ -153,7 +154,7 @@ struct bug_entry *find_bug(unsigned long
- 	return module_find_bug(bugaddr);
- }
- 
--enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
-+static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *regs)
- {
- 	struct bug_entry *bug;
- 	const char *file;
-@@ -209,6 +210,18 @@ enum bug_trap_type report_bug(unsigned l
- 	return BUG_TRAP_TYPE_BUG;
- }
- 
-+enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
-+{
-+	enum bug_trap_type ret;
-+	bool rcu = false;
-+
-+	rcu = warn_rcu_enter();
-+	ret = __report_bug(bugaddr, regs);
-+	warn_rcu_exit(rcu);
-+
-+	return ret;
-+}
-+
- static void clear_once_table(struct bug_entry *start, struct bug_entry *end)
- {
- 	struct bug_entry *bug;
+> > Back to the original problem. I still consider calling
+> > klp_update_patch_state(current) in vhost_worker() safe.
+> 
+> Okay, I can send a v2 which does this, so long as it's okay to export
+> klp_update_patch_state() to modules.
+
+It would be acceptable for me if we added a warning above the function
+definition and into the livepatch documentation.
+
+But I would prefer klp_update_patch_state_safe() if it worked. It is
+possible that I have missed something.
+
+Best Regards,
+Petr
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
