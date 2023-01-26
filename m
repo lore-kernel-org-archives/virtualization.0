@@ -1,85 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 27362C54E94
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 02:14:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91C5BC54E94
+	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 09:30:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 812FD40A5C;
-	Thu, 26 Jan 2023 02:14:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 812FD40A5C
+	by smtp1.osuosl.org (Postfix) with ESMTP id 080CD81F00;
+	Thu, 26 Jan 2023 09:30:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 080CD81F00
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=fjkzkzH2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lOaRCW9XPSHh; Thu, 26 Jan 2023 02:14:15 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id J5XAfNLuuMkU; Thu, 26 Jan 2023 09:30:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C3BC240119;
-	Thu, 26 Jan 2023 02:14:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3BC240119
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 53777817C0;
+	Thu, 26 Jan 2023 09:30:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53777817C0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D5FDC0032;
-	Thu, 26 Jan 2023 02:14:14 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78404C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F0B4C0032;
+	Thu, 26 Jan 2023 09:30:04 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4CF79C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 02:14:13 +0000 (UTC)
+ Thu, 26 Jan 2023 09:30:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4CBD04046A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 25AF360D5B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 02:14:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4CBD04046A
+ Thu, 26 Jan 2023 09:30:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 25AF360D5B
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=fjkzkzH2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Z5VieT9-3p7A
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Hzsbo6UhlOYo
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 02:14:12 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2484F40119
-Received: from outgoing2021.csail.mit.edu (outgoing2021.csail.mit.edu
- [128.30.2.78])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2484F40119
+ Thu, 26 Jan 2023 09:29:57 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAF096068A
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CAF096068A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 02:14:11 +0000 (UTC)
-Received: from c-24-17-218-140.hsd1.wa.comcast.net ([24.17.218.140]
- helo=srivatsab3MD6R.vmware.com)
- by outgoing2021.csail.mit.edu with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.95)
- (envelope-from <srivatsa@csail.mit.edu>) id 1pKrm9-00HW0d-KX;
- Wed, 25 Jan 2023 21:14:05 -0500
-To: Sean Christopherson <seanjc@google.com>,
- Igor Mammedov <imammedo@redhat.com>
-References: <20230116060134.80259-1-srivatsa@csail.mit.edu>
- <20230116155526.05d37ff9@imammedo.users.ipa.redhat.com> <87bkmui5z4.ffs@tglx>
- <ecb9a22e-fd6e-67f0-d916-ad16033fc13c@csail.mit.edu>
- <20230120163734.63e62444@imammedo.users.ipa.redhat.com>
- <Y8rfBBBicRMk+Hut@google.com>
-From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Subject: Re: [PATCH v2] x86/hotplug: Do not put offline vCPUs in mwait idle
- state
-Message-ID: <c3304b18-533b-4845-0ca8-b2680bfd715d@csail.mit.edu>
-Date: Wed, 25 Jan 2023 18:14:01 -0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+ Thu, 26 Jan 2023 09:29:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=3DdXzjyKWRO1frq1uuF2XoBRpaROEpjsdhpGwWGHFaM=; b=fjkzkzH2IL3D6CrXISfe5PDcJ3
+ nztCrKwnbbOsZd0b82sGhquv+EaQOZ9Okui7uVta/2gIuypyOmn8GlL36oAU4PnwgNm4FNAgEpCq5
+ YhVrkwtSatfICZgLZiAPfUN22bSLyXhmY8G3b5vGqwePAXF6kKxN/077aXcXJ/5oO58M2rh+zZxMf
+ Oas6C0dmM8Lg0kpBU1T1jQUb9HGCAlWAnkAEaEBb5p8prYGJ8g3D87kEn+XLoBUWOOC2rGadDf2Q0
+ 5iCHrtMm1C7li0PCgJytcgjKapLEv6D2cKXaxaa5eiP6qNP09v3EzOmsVsyItiQc5gwv6eHS96Q3d
+ b0pTc7hg==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1pKyYx-006bpo-9p; Thu, 26 Jan 2023 09:28:55 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 6DFEC300137;
+ Thu, 26 Jan 2023 10:28:51 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 271E9212FFF4C; Thu, 26 Jan 2023 10:28:51 +0100 (CET)
+Date: Thu, 26 Jan 2023 10:28:51 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [PATCH 3/6] ftrace/x86: Warn and ignore graph tracing when RCU
+ is disabled
+Message-ID: <Y9JH0/Z06254ZJ2g@hirez.programming.kicks-ass.net>
+References: <20230123205009.790550642@infradead.org>
+ <20230123205515.059999893@infradead.org>
+ <20230123165304.370121e7@gandalf.local.home>
+ <20230123170753.7ac9419e@gandalf.local.home>
+ <Y8/u00WHGElMDjoo@hirez.programming.kicks-ass.net>
+ <Y9ARbgtYhxSuOIlZ@FVFF77S0Q05N>
+ <Y9EI0Gn/NUJt6GEk@hirez.programming.kicks-ass.net>
+ <20230125184658.GL2948950@paulmck-ThinkPad-P17-Gen-1>
 MIME-Version: 1.0
-In-Reply-To: <Y8rfBBBicRMk+Hut@google.com>
-Content-Language: en-US
-Cc: x86@kernel.org, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, ganb@vmware.com, ankitja@vmware.com,
- namit@vmware.com, "H. Peter Anvin" <hpa@zytor.com>,
- "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Ingo Molnar <mingo@redhat.com>, bordoloih@vmware.com,
- xen-devel@lists.xenproject.org, Wyes Karny <wyes.karny@amd.com>,
- Tom Lendacky <thomas.lendacky@amd.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, keerthanak@vmware.com,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
- Juergen Gross <jgross@suse.com>, amakhalov@vmware.com,
- linux-kernel@vger.kernel.org, Lewis Caroll <lewis.carroll@amd.com>,
- blamoreaux@vmware.com
+Content-Disposition: inline
+In-Reply-To: <20230125184658.GL2948950@paulmck-ThinkPad-P17-Gen-1>
+Cc: Mark Rutland <mark.rutland@arm.com>, juri.lelli@redhat.com,
+ daniel.lezcano@linaro.org, wanpengli@tencent.com, kvm@vger.kernel.org,
+ rafael@kernel.org, pv-drivers@vmware.com,
+ Frederic Weisbecker <fweisbec@gmail.com>, dave.hansen@linux.intel.com,
+ virtualization@lists.linux-foundation.org, bsegall@google.com,
+ amakhalov@vmware.com, will@kernel.org, vschneid@redhat.com, hpa@zytor.com,
+ x86@kernel.org, mingo@kernel.org, mgorman@suse.de,
+ linux-trace-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
+ boqun.feng@gmail.com, Steven Rostedt <rostedt@goodmis.org>, bp@alien8.de,
+ vincent.guittot@linaro.org, boris.ostrovsky@oracle.com,
+ dietmar.eggemann@arm.com, jgross@suse.com, seanjc@google.com,
+ linux-kernel@vger.kernel.org, tglx@linutronix.de, mhiramat@kernel.org,
+ pbonzini@redhat.com, bristot@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,131 +117,206 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Wed, Jan 25, 2023 at 10:46:58AM -0800, Paul E. McKenney wrote:
 
-Hi Igor and Sean,
+> > Ofc. Paul might have an opinion on this glorious bodge ;-)
+> 
+> For some definition of the word "glorious", to be sure.  ;-)
+> 
+> Am I correct that you have two things happening here?  (1) Preventing
+> trace recursion and (2) forcing RCU to pay attention when needed.
 
-On 1/20/23 10:35 AM, Sean Christopherson wrote:
-> On Fri, Jan 20, 2023, Igor Mammedov wrote:
->> On Fri, 20 Jan 2023 05:55:11 -0800
->> "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:
->>
->>> Hi Igor and Thomas,
->>>
->>> Thank you for your review!
->>>
->>> On 1/19/23 1:12 PM, Thomas Gleixner wrote:
->>>> On Mon, Jan 16 2023 at 15:55, Igor Mammedov wrote:  
->>>>> "Srivatsa S. Bhat" <srivatsa@csail.mit.edu> wrote:  
->>>>>> Fix this by preventing the use of mwait idle state in the vCPU offline
->>>>>> play_dead() path for any hypervisor, even if mwait support is
->>>>>> available.  
->>>>>
->>>>> if mwait is enabled, it's very likely guest to have cpuidle
->>>>> enabled and using the same mwait as well. So exiting early from
->>>>>  mwait_play_dead(), might just punt workflow down:
->>>>>   native_play_dead()
->>>>>         ...
->>>>>         mwait_play_dead();
->>>>>         if (cpuidle_play_dead())   <- possible mwait here                                              
->>>>>                 hlt_play_dead(); 
->>>>>
->>>>> and it will end up in mwait again and only if that fails
->>>>> it will go HLT route and maybe transition to VMM.  
->>>>
->>>> Good point.
->>>>   
->>>>> Instead of workaround on guest side,
->>>>> shouldn't hypervisor force VMEXIT on being uplugged vCPU when it's
->>>>> actually hot-unplugging vCPU? (ex: QEMU kicks vCPU out from guest
->>>>> context when it is removing vCPU, among other things)  
->>>>
->>>> For a pure guest side CPU unplug operation:
->>>>
->>>>     guest$ echo 0 >/sys/devices/system/cpu/cpu$N/online
->>>>
->>>> the hypervisor is not involved at all. The vCPU is not removed in that
->>>> case.
->>>>   
->>>
->>> Agreed, and this is indeed the scenario I was targeting with this patch,
->>> as opposed to vCPU removal from the host side. I'll add this clarification
->>> to the commit message.
-> 
-> Forcing HLT doesn't solve anything, it's perfectly legal to passthrough HLT.  I
-> guarantee there are use cases that passthrough HLT but _not_ MONITOR/MWAIT, and
-> that passthrough all of them.
-> 
->> commit message explicitly said:
->> "which prevents the hypervisor from running other vCPUs or workloads on the
->> corresponding pCPU."
->>
->> and that implies unplug on hypervisor side as well.
->> Why? That's because when hypervisor exposes mwait to guest, it has to reserve/pin
->> a pCPU for each of present vCPUs. And you can safely run other VMs/workloads
->> on that pCPU only after it's not possible for it to be reused by VM where
->> it was used originally.
-> 
-> Pinning isn't strictly required from a safety perspective.  The latency of context
-> switching may suffer due to wake times, but preempting a vCPU that it's C1 (or
-> deeper) won't cause functional problems.   Passing through an entire socket
-> (or whatever scope triggers extra fun) might be a different story, but pinning
-> isn't strictly required.
-> 
-> That said, I 100% agree that this is expected behavior and not a bug.  Letting the
-> guest execute MWAIT or HLT means the host won't have perfect visibility into guest
-> activity state.
-> 
-> Oversubscribing a pCPU and exposing MWAIT and/or HLT to vCPUs is generally not done
-> precisely because the guest will always appear busy without extra effort on the
-> host.  E.g. KVM requires an explicit opt-in from userspace to expose MWAIT and/or
-> HLT.
-> 
-> If someone really wants to effeciently oversubscribe pCPUs and passthrough MWAIT,
-> then their best option is probably to have a paravirt interface so that the guest
-> can tell the host its offlining a vCPU.  Barring that the host could inspect the
-> guest when preempting a vCPU to try and guesstimate how much work the vCPU is
-> actually doing in order to make better scheduling decisions.
-> 
->> Now consider following worst (and most likely) case without unplug
->> on hypervisor side:
->>
->>  1. vm1mwait: pin pCPU2 to vCPU2
->>  2. vm1mwait: guest$ echo 0 >/sys/devices/system/cpu/cpu2/online
->>         -> HLT -> VMEXIT
->>  --
->>  3. vm2mwait: pin pCPU2 to vCPUx and start VM
->>  4. vm2mwait: guest OS onlines Vcpu and starts using it incl.
->>        going into idle=>mwait state
->>  --
->>  5. vm1mwait: it still thinks that vCPU is present it can rightfully do:
->>        guest$ echo 1 >/sys/devices/system/cpu/cpu2/online
->>  --              
->>  6.1 best case vm1mwait online fails after timeout
->>  6.2 worse case: vm2mwait does VMEXIT on vCPUx around time-frame when
->>      vm1mwait onlines vCPU2, the online may succeed and then vm2mwait's
->>      vCPUx will be stuck (possibly indefinitely) until for some reason
->>      VMEXIT happens on vm1mwait's vCPU2 _and_ host decides to schedule
->>      vCPUx on pCPU2 which would make vm1mwait stuck on vCPU2.
->> So either way it's expected behavior.
->>
->> And if there is no intention to unplug vCPU on hypervisor side,
->> then VMEXIT on play_dead is not really necessary (mwait is better
->> then HLT), since hypervisor can't safely reuse pCPU elsewhere and
->> VCPU goes into deep sleep within guest context.
->>
->> PS:
->> The only case where making HLT/VMEXIT on play_dead might work out,
->> would be if new workload weren't pinned to the same pCPU nor
->> used mwait (i.e. host can migrate it elsewhere and schedule
->> vCPU2 back on pCPU2).
+Mostly just (1), we're in an error situation, I'm not too worried about
+(2).
 
+> I cannot resist pointing out that you have re-invented RCU_NONIDLE(),
+> though avoiding much of the overhead when not needed.  ;-)
 
-That makes sense. Thank you both for the detailed explanation!
-Let's drop this patch.
+Yeah, this was the absolute minimal bodge I could come up with that
+shuts up the rcu_derefence warning thing.
 
-Regards,
-Srivatsa
-VMware Photon OS
+> I would have objections if this ever leaks out onto a non-error code path.
+
+Agreed.
+
+> There are things that need doing when RCU starts and stops watching,
+> and this approach omits those things.  Which again is OK in this case,
+> where this code is only ever executed when something is already broken,
+> but definitely *not* OK when things are not already broken.
+
+And agreed.
+
+Current version of the bodge looks like so (will repost the whole series
+a little later today).
+
+I managed to tickle the recursion so that it was a test-case for the
+stack guard...
+
+With this on, it prints just the one WARN and lives.
+
+---
+Subject: bug: Disable rcu_is_watching() during WARN/BUG
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Wed Jan 25 13:57:49 CET 2023
+
+In order to avoid WARN/BUG from generating nested or even recursive
+warnings, force rcu_is_watching() true during
+WARN/lockdep_rcu_suspicious().
+
+Notably things like unwinding the stack can trigger rcu_dereference()
+warnings, which then triggers more unwinding which then triggers more
+warnings etc..
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ include/linux/context_tracking.h |   27 +++++++++++++++++++++++++++
+ kernel/locking/lockdep.c         |    3 +++
+ kernel/panic.c                   |    5 +++++
+ lib/bug.c                        |   15 ++++++++++++++-
+ 4 files changed, 49 insertions(+), 1 deletion(-)
+
+--- a/include/linux/context_tracking.h
++++ b/include/linux/context_tracking.h
+@@ -130,9 +130,36 @@ static __always_inline unsigned long ct_
+ 	return arch_atomic_add_return(incby, this_cpu_ptr(&context_tracking.state));
+ }
+ 
++static __always_inline bool warn_rcu_enter(void)
++{
++	bool ret = false;
++
++	/*
++	 * Horrible hack to shut up recursive RCU isn't watching fail since
++	 * lots of the actual reporting also relies on RCU.
++	 */
++	preempt_disable_notrace();
++	if (rcu_dynticks_curr_cpu_in_eqs()) {
++		ret = true;
++		ct_state_inc(RCU_DYNTICKS_IDX);
++	}
++
++	return ret;
++}
++
++static __always_inline void warn_rcu_exit(bool rcu)
++{
++	if (rcu)
++		ct_state_inc(RCU_DYNTICKS_IDX);
++	preempt_enable_notrace();
++}
++
+ #else
+ static inline void ct_idle_enter(void) { }
+ static inline void ct_idle_exit(void) { }
++
++static __always_inline bool warn_rcu_enter(void) { return false; }
++static __always_inline void warn_rcu_exit(bool rcu) { }
+ #endif /* !CONFIG_CONTEXT_TRACKING_IDLE */
+ 
+ #endif
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -55,6 +55,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/kprobes.h>
+ #include <linux/lockdep.h>
++#include <linux/context_tracking.h>
+ 
+ #include <asm/sections.h>
+ 
+@@ -6555,6 +6556,7 @@ void lockdep_rcu_suspicious(const char *
+ {
+ 	struct task_struct *curr = current;
+ 	int dl = READ_ONCE(debug_locks);
++	bool rcu = warn_rcu_enter();
+ 
+ 	/* Note: the following can be executed concurrently, so be careful. */
+ 	pr_warn("\n");
+@@ -6595,5 +6597,6 @@ void lockdep_rcu_suspicious(const char *
+ 	lockdep_print_held_locks(curr);
+ 	pr_warn("\nstack backtrace:\n");
+ 	dump_stack();
++	warn_rcu_exit(rcu);
+ }
+ EXPORT_SYMBOL_GPL(lockdep_rcu_suspicious);
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -34,6 +34,7 @@
+ #include <linux/ratelimit.h>
+ #include <linux/debugfs.h>
+ #include <linux/sysfs.h>
++#include <linux/context_tracking.h>
+ #include <trace/events/error_report.h>
+ #include <asm/sections.h>
+ 
+@@ -679,6 +680,7 @@ void __warn(const char *file, int line,
+ void warn_slowpath_fmt(const char *file, int line, unsigned taint,
+ 		       const char *fmt, ...)
+ {
++	bool rcu = warn_rcu_enter();
+ 	struct warn_args args;
+ 
+ 	pr_warn(CUT_HERE);
+@@ -693,11 +695,13 @@ void warn_slowpath_fmt(const char *file,
+ 	va_start(args.args, fmt);
+ 	__warn(file, line, __builtin_return_address(0), taint, NULL, &args);
+ 	va_end(args.args);
++	warn_rcu_exit(rcu);
+ }
+ EXPORT_SYMBOL(warn_slowpath_fmt);
+ #else
+ void __warn_printk(const char *fmt, ...)
+ {
++	bool rcu = warn_rcu_enter();
+ 	va_list args;
+ 
+ 	pr_warn(CUT_HERE);
+@@ -705,6 +709,7 @@ void __warn_printk(const char *fmt, ...)
+ 	va_start(args, fmt);
+ 	vprintk(fmt, args);
+ 	va_end(args);
++	warn_rcu_exit(rcu);
+ }
+ EXPORT_SYMBOL(__warn_printk);
+ #endif
+--- a/lib/bug.c
++++ b/lib/bug.c
+@@ -47,6 +47,7 @@
+ #include <linux/sched.h>
+ #include <linux/rculist.h>
+ #include <linux/ftrace.h>
++#include <linux/context_tracking.h>
+ 
+ extern struct bug_entry __start___bug_table[], __stop___bug_table[];
+ 
+@@ -153,7 +154,7 @@ struct bug_entry *find_bug(unsigned long
+ 	return module_find_bug(bugaddr);
+ }
+ 
+-enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
++static enum bug_trap_type __report_bug(unsigned long bugaddr, struct pt_regs *regs)
+ {
+ 	struct bug_entry *bug;
+ 	const char *file;
+@@ -209,6 +210,18 @@ enum bug_trap_type report_bug(unsigned l
+ 	return BUG_TRAP_TYPE_BUG;
+ }
+ 
++enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
++{
++	enum bug_trap_type ret;
++	bool rcu = false;
++
++	rcu = warn_rcu_enter();
++	ret = __report_bug(bugaddr, regs);
++	warn_rcu_exit(rcu);
++
++	return ret;
++}
++
+ static void clear_once_table(struct bug_entry *start, struct bug_entry *end)
+ {
+ 	struct bug_entry *bug;
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
