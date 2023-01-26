@@ -1,79 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 90665C54EED
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 15:15:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E1C5C05027
+	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 15:15:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 341EF41705;
-	Thu, 26 Jan 2023 15:15:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 341EF41705
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=FDXi87ou
+	by smtp4.osuosl.org (Postfix) with ESMTP id C40DA41871;
+	Thu, 26 Jan 2023 15:15:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C40DA41871
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=SoV17rTE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UBCkTZEF3374; Thu, 26 Jan 2023 15:15:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1B0D141706;
-	Thu, 26 Jan 2023 15:15:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1B0D141706
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9F110C0081;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EA5U6RA0iJ9h; Thu, 26 Jan 2023 15:15:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BD14A419E2;
 	Thu, 26 Jan 2023 15:15:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 24C96C002D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 15:15:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AE9B541703
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BD14A419E2
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3F276C0082;
+	Thu, 26 Jan 2023 15:15:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EAD3FC0032
  for <virtualization@lists.linux-foundation.org>;
  Thu, 26 Jan 2023 15:15:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AE9B541703
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C27DD81B25
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Jan 2023 15:15:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C27DD81B25
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=SoV17rTE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6_MXnLGQ6xKW
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id plUUNzs9LbKJ
  for <virtualization@lists.linux-foundation.org>;
  Thu, 26 Jan 2023 15:15:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7A005400B9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2455581CE7
 Received: from desiato.infradead.org (desiato.infradead.org
  [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7A005400B9
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2455581CE7
  for <virtualization@lists.linux-foundation.org>;
  Thu, 26 Jan 2023 15:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=desiato.20200630; h=Content-Type:MIME-Version:References:
  Subject:Cc:To:From:Date:Message-ID:Sender:Reply-To:Content-Transfer-Encoding:
  Content-ID:Content-Description:In-Reply-To;
- bh=ITY5vhqoQzxGNcQfzB0qFe7a/JC0Zil+qvNvTmPdd5g=; b=FDXi87ouOhD/N+HR5oXUf1InkH
- ZbQ7wu2PWcmxsDeqCLwyvbFWzMDt9JKoTSCgnbXmSdW4QlnLZgFcQaeiIagk4uk6Ht2D+3gbaFyMl
- YZVaUh37TBAK1qdqLXmF1z6q4dRQC29a2cA+IdwOgm3uqWDZHpYWME17mUClgR8ZxcUQB1q5yiCFu
- ppr1IlYisLoIGLSB/+HZO8P/cYBxVYTR9k2a2oxSiOz06Vzs+/+SF3+skSs50PwuDyWs+7Jdr7Wth
- RrcN4a9apT7N18+1edgpGiySKxpweOYohIL+3wwDOZMElUP3GUP4GMYiEiLOH9uAOBg8yFfR9945Q
- I/4qKDng==;
+ bh=YEKkyvTZ05I2hq93YUH2assl5KDOT02g9Cn+Y86W8Rg=; b=SoV17rTENpYVgcWXTPv/sGdBPn
+ vpjNtXuSCV1HZytAHinNzdEN/g3C3V78+6SMrD/vm8nXGBaoeAmIVgP6Pj7ybkWY9vV1yKWVovkAX
+ iTdrgHaQNSxC1QuKg95EHjdBqytYpTJFT/a7qLSJ5n3SmRCowSDrqbUVlhYGc5P55D0jQD5bX3Be8
+ YObkOaVvxiFpZMDQt+1SMt/BTQOecqoozb+o+GTt7KgxZSGtjfrqhjXcGwLinOKpaM7ikv+JQFNR/
+ HgKTCoJ2LrfhVv4OSDwp/q74WHMlHON14XfDY1l7U40J3SNuagsx5HTJ1KQHQWrQ+8W7aUI2rbiuR
+ EO4FdU8g==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84]
  helo=noisy.programming.kicks-ass.net)
  by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pL3xH-002U1f-2Z; Thu, 26 Jan 2023 15:14:23 +0000
+ id 1pL3xI-002U1m-1w; Thu, 26 Jan 2023 15:14:24 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature RSA-PSS (4096 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 3A142301BEC;
- Thu, 26 Jan 2023 16:14:53 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 880523021F5;
+ Thu, 26 Jan 2023 16:14:54 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 0)
- id 148172084C4AE; Thu, 26 Jan 2023 16:14:53 +0100 (CET)
-Message-ID: <20230126151323.526275416@infradead.org>
+ id 2E2812084C4AD; Thu, 26 Jan 2023 16:14:53 +0100 (CET)
+Message-ID: <20230126151323.760767043@infradead.org>
 User-Agent: quilt/0.66
-Date: Thu, 26 Jan 2023 16:08:33 +0100
+Date: Thu, 26 Jan 2023 16:08:37 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: mingo@kernel.org
-Subject: [PATCH v2 4/9] tracing, preempt: Squash _rcuidle tracing
+Subject: [PATCH v2 8/9] sched/clock: Make local_clock() noinstr
 References: <20230126150829.087606759@infradead.org>
 MIME-Version: 1.0
 Cc: mark.rutland@arm.com, juri.lelli@redhat.com, daniel.lezcano@linaro.org,
@@ -105,38 +108,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Extend commit 9aedeaed6fc6 ("tracing, hardirq: No moar _rcuidle()
-tracing") to also cover trace_preempt_{on,off}() which were
-mysteriously untouched.
+With sched_clock() noinstr, provide a noinstr implementation of
+local_clock().
 
-Fixes: 9aedeaed6fc6 ("tracing, hardirq: No moar _rcuidle() tracing")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lkml.kernel.org/r/Y9D5AfnOukWNOZ5q@hirez.programming.kicks-ass.net
 ---
-diff --git a/kernel/trace/trace_preemptirq.c b/kernel/trace/trace_preemptirq.c
-index f992444a0b1f..ea96b41c8838 100644
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -100,15 +100,13 @@ NOKPROBE_SYMBOL(trace_hardirqs_off);
- 
- void trace_preempt_on(unsigned long a0, unsigned long a1)
- {
--	if (!in_nmi())
--		trace_preempt_enable_rcuidle(a0, a1);
-+	trace(preempt_enable)(a0, a1);
- 	tracer_preempt_on(a0, a1);
+ include/linux/sched/clock.h |    8 +++-----
+ kernel/sched/clock.c        |   27 +++++++++++++++++++++------
+ 2 files changed, 24 insertions(+), 11 deletions(-)
+
+--- a/include/linux/sched/clock.h
++++ b/include/linux/sched/clock.h
+@@ -45,7 +45,7 @@ static inline u64 cpu_clock(int cpu)
+ 	return sched_clock();
  }
  
- void trace_preempt_off(unsigned long a0, unsigned long a1)
+-static inline u64 local_clock(void)
++static __always_inline u64 local_clock(void)
  {
--	if (!in_nmi())
--		trace_preempt_disable_rcuidle(a0, a1);
-+	trace(preempt_disable)(a0, a1);
- 	tracer_preempt_off(a0, a1);
+ 	return sched_clock();
  }
+@@ -79,10 +79,8 @@ static inline u64 cpu_clock(int cpu)
+ 	return sched_clock_cpu(cpu);
+ }
+ 
+-static inline u64 local_clock(void)
+-{
+-	return sched_clock_cpu(raw_smp_processor_id());
+-}
++extern u64 local_clock(void);
++
  #endif
+ 
+ #ifdef CONFIG_IRQ_TIME_ACCOUNTING
+--- a/kernel/sched/clock.c
++++ b/kernel/sched/clock.c
+@@ -93,7 +93,7 @@ struct sched_clock_data {
+ 
+ static DEFINE_PER_CPU_SHARED_ALIGNED(struct sched_clock_data, sched_clock_data);
+ 
+-notrace static inline struct sched_clock_data *this_scd(void)
++static __always_inline struct sched_clock_data *this_scd(void)
+ {
+ 	return this_cpu_ptr(&sched_clock_data);
+ }
+@@ -244,12 +244,12 @@ late_initcall(sched_clock_init_late);
+  * min, max except they take wrapping into account
+  */
+ 
+-notrace static inline u64 wrap_min(u64 x, u64 y)
++static __always_inline u64 wrap_min(u64 x, u64 y)
+ {
+ 	return (s64)(x - y) < 0 ? x : y;
+ }
+ 
+-notrace static inline u64 wrap_max(u64 x, u64 y)
++static __always_inline u64 wrap_max(u64 x, u64 y)
+ {
+ 	return (s64)(x - y) > 0 ? x : y;
+ }
+@@ -260,7 +260,7 @@ notrace static inline u64 wrap_max(u64 x
+  *  - filter out backward motion
+  *  - use the GTOD tick value to create a window to filter crazy TSC values
+  */
+-notrace static u64 sched_clock_local(struct sched_clock_data *scd)
++static __always_inline u64 sched_clock_local(struct sched_clock_data *scd)
+ {
+ 	u64 now, clock, old_clock, min_clock, max_clock, gtod;
+ 	s64 delta;
+@@ -287,13 +287,28 @@ notrace static u64 sched_clock_local(str
+ 	clock = wrap_max(clock, min_clock);
+ 	clock = wrap_min(clock, max_clock);
+ 
+-	if (!try_cmpxchg64(&scd->clock, &old_clock, clock))
++	if (!arch_try_cmpxchg64(&scd->clock, &old_clock, clock))
+ 		goto again;
+ 
+ 	return clock;
+ }
+ 
+-notrace static u64 sched_clock_remote(struct sched_clock_data *scd)
++noinstr u64 local_clock(void)
++{
++	u64 clock;
++
++	if (static_branch_likely(&__sched_clock_stable))
++		return sched_clock() + __sched_clock_offset;
++
++	preempt_disable_notrace();
++	clock = sched_clock_local(this_scd());
++	preempt_enable_notrace();
++
++	return clock;
++}
++EXPORT_SYMBOL_GPL(local_clock);
++
++static notrace u64 sched_clock_remote(struct sched_clock_data *scd)
+ {
+ 	struct sched_clock_data *my_scd = this_scd();
+ 	u64 this_clock, remote_clock;
 
 
 _______________________________________________
