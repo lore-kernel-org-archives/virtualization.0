@@ -1,87 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0ABD5C38142
-	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 12:09:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88E8DC54EAA
+	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 12:13:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4E03382B3E;
-	Fri, 27 Jan 2023 12:09:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E03382B3E
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1C7D8417DC;
+	Fri, 27 Jan 2023 12:13:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C7D8417DC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FcOdV1gV
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yQfVExE5By68; Fri, 27 Jan 2023 12:13:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2DBE4400CF;
+	Fri, 27 Jan 2023 12:13:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2DBE4400CF
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0138AC0033;
+	Fri, 27 Jan 2023 12:13:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9268AC002D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 Jan 2023 12:13:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6C7BB82C1E
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 Jan 2023 12:13:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6C7BB82C1E
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=sMvrKAeF
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=FcOdV1gV
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aNWXj_wS-1cT; Fri, 27 Jan 2023 12:09:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E27482AC8;
-	Fri, 27 Jan 2023 12:09:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E27482AC8
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C462C0033;
-	Fri, 27 Jan 2023 12:09:07 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0CA48C002D
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RV7zbqgg9d6v
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 12:09:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E886160EB8
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 12:09:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E886160EB8
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=sMvrKAeF
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DEL6gEc4dFWW
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 12:09:06 +0000 (UTC)
+ Fri, 27 Jan 2023 12:13:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D3E5060B36
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D3E5060B36
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B826A82BF5
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B826A82BF5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 12:09:05 +0000 (UTC)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
- by smtp-out1.suse.de (Postfix) with ESMTP id 621CF218BB;
- Fri, 27 Jan 2023 12:09:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1674821343; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Fri, 27 Jan 2023 12:13:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674821579;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=a9faRZ/SxtgILFonZsHOQNT86YKAAhJwA/HSfiWSP6Y=;
- b=sMvrKAeF1FXre3nEN+/+ZQQUn2ojiJ+7aDv42b1jHg+dbyaQVeZI/KWwHjy4mn/l0JBxj1
- TWkdJ4D44Wv8rj+4VbfdLqDSTf/FSTUUZo0J01gqgOs5vQM+tfDOOpi5dgSjp/SsqZc754
- mjK6oH+DAvMdmUOUe3KdLkt0Rzik/wc=
-Received: from suse.cz (unknown [10.100.201.202])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by relay2.suse.de (Postfix) with ESMTPS id 3C7932C141;
- Fri, 27 Jan 2023 12:09:03 +0000 (UTC)
-Date: Fri, 27 Jan 2023 13:09:02 +0100
-To: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
- loaded vhost worker kthreads
-Message-ID: <Y9O+3jzH0PiG1qlJ@alley>
-References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
- <Y9KyVKQk3eH+RRse@alley> <Y9LswwnPAf+nOVFG@do-x1extreme>
- <20230127044355.frggdswx424kd5dq@treble>
- <Y9OpTtqWjAkC2pal@hirez.programming.kicks-ass.net>
+ bh=wDKTzv01CYcLKHmBuAfl2OIpCwnlZ9/jR50g20y4qAI=;
+ b=FcOdV1gVrms3jbR7CQsDGlLfSshuTS6/KuJGyOJ1DJ2k9VT7PtMbafk8N6Ls+tZ61EMCsj
+ keIrj4GiDITNvXuNiSQp/wLgEsUOgNc3tdRx42XqHiSEDYD7hUOdIctIwLuvDbpneFe71k
+ NkHxfru3YdMPqgcp3+E9EFHKrJV0A4Q=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-422-tBTimuMvNUqVkVZ2corlyg-1; Fri, 27 Jan 2023 07:12:58 -0500
+X-MC-Unique: tBTimuMvNUqVkVZ2corlyg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ z11-20020a1c4c0b000000b003db062505b9so1347262wmf.4
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 27 Jan 2023 04:12:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=wDKTzv01CYcLKHmBuAfl2OIpCwnlZ9/jR50g20y4qAI=;
+ b=kRBdyleNXS4H5v6cof+HxWuT4QCa5TYsPO0fryBJff2fGtGqF6f6Uswl4b0G4+TpRL
+ tq6KReAMt4bCwzOUX3BoKAVGrcLxsNVH2A1L8PzAbP3XS4CYSr1b2yIu+p+gsGQtn5ea
+ 8FeqlUXGOJ/MfM49PeweogzQnKBJ9+AX+747CtjcbrP3EV8zwffNxyfMWJL/OwkX1exJ
+ kUrZwylZM4tf94UBeF24ZcFOpQ9nV9/REWRJ06yJ3fLONDtqlnu17yAr0c+mMYJdTqBr
+ wV8zWRp3lg4fIsm+2X6tzi7w6BHK9Dk0KwEVQ2cCoXk9QGez8g9MMghYtfCvZdSmfUuw
+ sCNA==
+X-Gm-Message-State: AO0yUKXljg3V+uLCvXn5rytefvwGX3AdpiXnU41H77YmEts2bKS9vz5s
+ HLpkf7FDvOeNPe2jBEQtbdG8N3h11Ns0TihmRvqTMBLefvGf+Ux2yGqOun8qszM4QDynVvvia3i
+ K12Fkjo8rfERUxZvZgsLoUa0c4+GHgS6RVBUsEuDO9A==
+X-Received: by 2002:adf:b355:0:b0:2bf:b5ec:4844 with SMTP id
+ k21-20020adfb355000000b002bfb5ec4844mr10990498wrd.19.1674821577063; 
+ Fri, 27 Jan 2023 04:12:57 -0800 (PST)
+X-Google-Smtp-Source: AK7set9GmxGoo8X9oAcX4fMwSdtSw/rq5da5Wkddl56eOmBN1nVCfWeny924/48xTuzSrJu0vw90VQ==
+X-Received: by 2002:adf:b355:0:b0:2bf:b5ec:4844 with SMTP id
+ k21-20020adfb355000000b002bfb5ec4844mr10990482wrd.19.1674821576836; 
+ Fri, 27 Jan 2023 04:12:56 -0800 (PST)
+Received: from redhat.com ([2.52.137.69]) by smtp.gmail.com with ESMTPSA id
+ t16-20020adfe450000000b002bbdcd15e44sm3788409wrm.37.2023.01.27.04.12.54
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 27 Jan 2023 04:12:56 -0800 (PST)
+Date: Fri, 27 Jan 2023 07:12:52 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: Re: [PATCH v1 2/6] virtio console: Harden port adding
+Message-ID: <20230127071152-mutt-send-email-mst@kernel.org>
+References: <20230119135721.83345-1-alexander.shishkin@linux.intel.com>
+ <20230119135721.83345-3-alexander.shishkin@linux.intel.com>
+ <Y8lfz8C5uvx2w4fC@kroah.com> <87ilh2quto.fsf@ubik.fi.intel.com>
+ <Y8mSs68JfW6t4mjl@kroah.com> <87a62eqo4h.fsf@ubik.fi.intel.com>
+ <20230127055944-mutt-send-email-mst@kernel.org>
+ <87k018p4xs.fsf@ubik.fi.intel.com>
 MIME-Version: 1.0
+In-Reply-To: <87k018p4xs.fsf@ubik.fi.intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <Y9OpTtqWjAkC2pal@hirez.programming.kicks-ass.net>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- "Seth Forshee \(DigitalOcean\)" <sforshee@digitalocean.com>,
- live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
- Josh Poimboeuf <jpoimboe@kernel.org>
+Cc: Andi Kleen <ak@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>,
+ Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ elena.reshetova@intel.com, kirill.shutemov@linux.intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,117 +123,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Petr Mladek via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Petr Mladek <pmladek@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri 2023-01-27 11:37:02, Peter Zijlstra wrote:
-> On Thu, Jan 26, 2023 at 08:43:55PM -0800, Josh Poimboeuf wrote:
-> > On Thu, Jan 26, 2023 at 03:12:35PM -0600, Seth Forshee (DigitalOcean) wrote:
-> > > On Thu, Jan 26, 2023 at 06:03:16PM +0100, Petr Mladek wrote:
-> > > > On Fri 2023-01-20 16:12:20, Seth Forshee (DigitalOcean) wrote:
-> > > > > We've fairly regularaly seen liveptches which cannot transition within kpatch's
-> > > > > timeout period due to busy vhost worker kthreads.
-> > > > 
-> > > > I have missed this detail. Miroslav told me that we have solved
-> > > > something similar some time ago, see
-> > > > https://lore.kernel.org/all/20220507174628.2086373-1-song@kernel.org/
-> > > 
-> > > Interesting thread. I had thought about something along the lines of the
-> > > original patch, but there are some ideas in there that I hadn't
-> > > considered.
-> > 
-> > Here's another idea, have we considered this?  Have livepatch set
-> > TIF_NEED_RESCHED on all kthreads to force them into schedule(), and then
-> > have the scheduler call klp_try_switch_task() if TIF_PATCH_PENDING is
-> > set.
-> > 
-> > Not sure how scheduler folks would feel about that ;-)
+On Fri, Jan 27, 2023 at 01:55:43PM +0200, Alexander Shishkin wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
 > 
-> So, let me try and page all that back in.... :-)
+> > On Thu, Jan 19, 2023 at 10:13:18PM +0200, Alexander Shishkin wrote:
+> >> When handling control messages, instead of peeking at the device memory
+> >> to obtain bits of the control structure,
+> >
+> > Except the message makes it seem that we are getting data from
+> > device memory, when we do nothing of the kind.
 > 
-> KLP needs to unwind the stack to see if any of the patched functions are
-> active, if not, flip task to new set.
+> We can be, see below.
 > 
-> Unwinding the stack of a task can be done when:
+> >> take a snapshot of it once and
+> >> use it instead, to prevent it from changing under us. This avoids races
+> >> between port id validation and control event decoding, which can lead
+> >> to, for example, a NULL dereference in port removal of a nonexistent
+> >> port.
+> >> 
+> >> The control structure is small enough (8 bytes) that it can be cached
+> >> directly on the stack.
+> >
+> > I still have no real idea why we want a copy here.
+> > If device can poke anywhere at memory then it can crash kernel anyway.
+> > If there's a bounce buffer or an iommu or some other protection
+> > in place, then this memory can no longer change by the time
+> > we look at it.
 > 
->  - task is inactive (stable reg and stack) -- provided it stays inactive
->    while unwinding etc..
+> We can have shared pages between the host and guest without bounce
+> buffers in between, so they can be both looking directly at the same
+> page.
 > 
->  - task is current (guarantees stack doesn't dip below where we started
->    due to being busy on top etc..)
-> 
-> Can NOT be done from interrupt context, because can hit in the middle of
-> setting up stack frames etc..
+> Regards,
 
-All the above seems correct.
+How does this configuration work? What else is in this page?
 
-> The issue at hand is that some tasks run for a long time without passing
-> through an explicit check.
+> --
+> Alex
 
-There might actually be two possibilities why the transition fails
-too often:
-
-1. The task might be in the running state most of the time. Therefore
-   the backtrace is not reliable most of the time.
-
-   In this case, some cooperation with the scheduler would really
-   help. We would need to stop the task and check the stack
-   when it is stopped. Something like the patch you proposed.
-
-
-2. The task might be sleeping but almost always in a livepatched
-   function. Therefore it could not be transitioned.
-
-   It might be the case with vhost_worker(). The main loop is "tiny".
-   The kthread probaly spends most of the time with processing
-   a vhost_work. And if the "works" are livepatched...
-
-   In this case, it would help to call klp_try_switch_task(current)
-   in the main loop in vhost_worker(). It would always succeed
-   when vhost_worker() is not livepatched on its own.
-
-   Note that even this would not help with kPatch when a single
-   vhost_work might need more than the 1 minute timout to get proceed.
-
-> diff --git a/kernel/livepatch/transition.c b/kernel/livepatch/transition.c
-> index f1b25ec581e0..06746095a724 100644
-> --- a/kernel/livepatch/transition.c
-> +++ b/kernel/livepatch/transition.c
-> @@ -9,6 +9,7 @@
->  
->  #include <linux/cpu.h>
->  #include <linux/stacktrace.h>
-> +#include <linux/stop_machine.h>
->  #include "core.h"
->  #include "patch.h"
->  #include "transition.h"
-> @@ -334,6 +335,16 @@ static bool klp_try_switch_task(struct task_struct *task)
->  	return !ret;
->  }
->  
-> +static int __stop_try_switch(void *arg)
-> +{
-> +	return klp_try_switch_task(arg) ? 0 : -EBUSY;
-> +}
-> +
-> +static bool klp_try_switch_task_harder(struct task_struct *task)
-> +{
-> +	return !stop_one_cpu(task_cpu(task), __stop_try_switch, task);
-> +}
-> +
->  /*
->   * Sends a fake signal to all non-kthread tasks with TIF_PATCH_PENDING set.
->   * Kthreads with TIF_PATCH_PENDING set are woken up.
-
-Nice. I am surprised that it can be implemented so easily.
-
-Best Regards,
-Petr
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
