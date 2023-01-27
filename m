@@ -1,100 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EDD84C54EAA
-	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 15:44:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1904C38142
+	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 20:50:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 73BF441D8F;
-	Fri, 27 Jan 2023 15:44:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 73BF441D8F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=kB3eWzbB
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2BB8640FFF;
+	Fri, 27 Jan 2023 20:50:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2BB8640FFF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tdWJ3ZvbQZ7A; Fri, 27 Jan 2023 15:44:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cxWhufXM372N; Fri, 27 Jan 2023 20:50:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B011341D8E;
-	Fri, 27 Jan 2023 15:44:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B011341D8E
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BC34E40187;
+	Fri, 27 Jan 2023 20:50:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BC34E40187
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 74784C0033;
-	Fri, 27 Jan 2023 15:44:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79CBBC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C19FC0032;
+	Fri, 27 Jan 2023 20:50:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F2AAAC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 15:44:31 +0000 (UTC)
+ Fri, 27 Jan 2023 20:50:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3FE9B612AD
+ by smtp2.osuosl.org (Postfix) with ESMTP id BF86540339
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 15:44:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FE9B612AD
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=kB3eWzbB
+ Fri, 27 Jan 2023 20:50:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF86540339
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0UZ44qeaOt1b
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1imTihoYmb6m
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 15:44:30 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5FFC96129D
-Received: from mail-oa1-x2a.google.com (mail-oa1-x2a.google.com
- [IPv6:2001:4860:4864:20::2a])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5FFC96129D
+ Fri, 27 Jan 2023 20:50:51 +0000 (UTC)
+X-Greylist: delayed 00:05:16 by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F30B40187
+Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8F30B40187
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 15:44:30 +0000 (UTC)
-Received: by mail-oa1-x2a.google.com with SMTP id
- 586e51a60fabf-1636eae256cso2639821fac.0
- for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 07:44:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=L5WWz9fhXxpXg6EmN48bNkcnM7o/dG+N+CVzIWey7Ow=;
- b=kB3eWzbBuevretKVLNQIc6LnDaUJHg5dX47XzvPpviB+kLJMTkhi9hl2bFF0hxzGc3
- 1bmSwTNoKR8A+Z6O5ncrKR7CxOx7fXA75d3uTgdaCsreaoy//RN8rK0DyYDVGqmY6LLt
- 2y/4h4bK8kJRWJYGcCig26s7uh0mZE/pdqy0ewstsusrnvnbrfiBYZr8IMxGJEMdYHzc
- M8lj0oIw3aH87LgaDDhE600YKPSJuZ3DWbAOKOMnNgnxlvpgh3tA7/4TZlDV8iWk7HAB
- +x6U3xQnbA/mApF+QruzLba0Dk/H/cWlrGCJ3tWceCwlFNM/X6mKz9KmRccQb5RxqJQo
- i47w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=L5WWz9fhXxpXg6EmN48bNkcnM7o/dG+N+CVzIWey7Ow=;
- b=3M3DrADJ+gjDtcHi4xFjUPAedH4H3aTHRrlMEwVvXt1S2VyLP9Xf4M0poYfFtFudiI
- kpOGNoFv0Xz32cZ1u47XyDPowdJ4tHHTU3SxD3Wh1BCcXJxqS/pGUsQKbSBrMpC7l6ng
- zDCYErUI8d0GI8bcsSXfnxwQcS133cVKipaZ1akKyE9ul6/kb9kOgEjJ8amyAYaOmWHW
- 7ULmX5kQy0moSye5f1dSXuBQDm7Ok3lMVHh842AE9nsb0au/Iq3HKxcM8zZOajD2hgqC
- jYcM50OzJFVVbh/wLg5aYRoBduaBxVmFYqnz0uxpgLbN35hO6qwJXciO/Bir7bs0KwhA
- Mieg==
-X-Gm-Message-State: AFqh2koW9EfKZfo7cBV2xKUmF70BqOn78ykEcPKu4GkLfOuMPxBsBq4/
- e9Mc9kcg9SrjgCc7UJJnyFU0C604XCExE0plIhE=
-X-Google-Smtp-Source: AMrXdXup/oiP7Q12YFafrFfdB69dMqfoWyegvyVl2UR664bFNRQnR7IiR+R5erW+114UUEr4FAe2K42dz+pOGsd06QE=
-X-Received: by 2002:a05:6870:44d0:b0:15b:96b8:e2be with SMTP id
- t16-20020a05687044d000b0015b96b8e2bemr2505559oai.38.1674834269272; Fri, 27
- Jan 2023 07:44:29 -0800 (PST)
+ Fri, 27 Jan 2023 20:50:50 +0000 (UTC)
+Received: from lenovo-t14s.redhat.com ([82.142.8.70]) by
+ mrelayeu.kundenserver.de (mreue106 [212.227.15.183]) with ESMTPSA (Nemesis)
+ id 1Mg6qO-1ojgP34AIw-00heND; Fri, 27 Jan 2023 21:45:04 +0100
+From: Laurent Vivier <lvivier@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/2] virtio_net: vdpa: update MAC address when it is
+ generated by virtio-net
+Date: Fri, 27 Jan 2023 21:44:58 +0100
+Message-Id: <20230127204500.51930-1-lvivier@redhat.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-References: <20230126225815.1518839-1-ryanneph@chromium.org>
-In-Reply-To: <20230126225815.1518839-1-ryanneph@chromium.org>
-From: Rob Clark <robdclark@gmail.com>
-Date: Fri, 27 Jan 2023 07:44:17 -0800
-Message-ID: <CAF6AEGtQ1nsHZtigJs4ABe=3ibqbWJgWXzfPjypBcQZ8vgZekg@mail.gmail.com>
-Subject: Re: [PATCH] drm/virtio: exbuf->fence_fd unmodified on interrupted wait
-To: Ryan Neph <ryanneph@chromium.org>
-Cc: Rob Clark <robdclark@chromium.org>, Robert Foss <robert.foss@collabora.com>,
- Yiwei Zhang <zzyiwei@chromium.org>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
- Gustavo Padovan <gustavo.padovan@collabora.com>,
- Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@redhat.com>,
- virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
- Emil Velikov <emil.velikov@collabora.com>
+X-Provags-ID: V03:K1:TfZQpimzNNMv8hqbL9D41vCDh9lvaXnjCJ//uRr4zVq2ql49+Uq
+ mIZBp/ghKq5cLNQR/0TfdSTWsccWk0W0aQXSsk2fkNQzFtjg0JSXagemyDEAD8zKalRSIkW
+ Tb/biSu28xjL8Q5lkFtL/bCcDf6//ri/JJC6R5s3Fui3kZK2J0rx+W6laqlley4C43BVzWc
+ 8Nl5AHMscT9CjCXjC2Xjg==
+UI-OutboundReport: notjunk:1;M01:P0:37D4RHoTs8k=;qvpIu9esh+64Ekg2dFOK0mB9x0k
+ QZODgaVYBf8Gr1ONqYfztavLfA5YLYLARYpknwmDZjwlO513zfZe9m6ddkS6iHDk8DTXKe9G6
+ GIJTBtrKexpkhk4e/ZcPYLTCqUL6BBKtNNS5o3TnI4KSIMYGHj3t4DvH+hL0euiq5KsA+XVne
+ 8rUVwPGemWl7vPjUqWmgnf4Ppu13/pq76+7Jki3jrC+TiyXlFyqql+3JTlb964tu2JO8jImj5
+ 3dSxq/L3YjB/ozEVgUhdLQ0TsEcOykYc/5pAwixNoKXLLHU55Ghi1HQGcKN43TYkJdQb5nfaE
+ aJwn2ayNGz4Q8h2OdqhlvvSAL8Ip3m4Cz0UAFdn1nlqDXb519oZ3Rdxi84/lrBTnuEzhF2CRZ
+ nLj85m5oPHj2nTF50GragZq1MrCesZVKapnctHrfcGuqFKludcByaoU206n37ar6r8ALhBBb8
+ qpNutx5DOVApPLfUuoqTshx10BOdoaS5jKy8pKf0j6VFY/+ye9IyIr1MOANErHaHFD4EQFYzl
+ Wnk4kgX0xhT2E21LniWAtJwSdiSv8+pmA5e94F/dS1DS3SQbcmMCV71XAiP52SdIBxlIDndlv
+ JHoB8xHqdcH4Yh8bMCL+4e74c8FoeMZ4El/HtnvHXR1wDJjAOItOiX2hoRCNeXXX4Tfl2mrZY
+ 3euHrYHZenahVxCA2CEtpBpkD2tfTKlN6qmBZUZ6mCPr7EWFbcQi85VoOg6tcRVgtp5UUC9IC
+ aMrk9km/OfO8PcY/aHBo+fvhJE5y9VqaQ==
+Cc: Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+ Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
+ Gautam Dawar <gautam.dawar@xilinx.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,85 +90,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jan 27, 2023 at 12:31 AM Ryan Neph <ryanneph@chromium.org> wrote:
->
-> An interrupted dma_fence_wait() becomes an -ERESTARTSYS returned
-> to userspace ioctl(DRM_IOCTL_VIRTGPU_EXECBUFFER) calls, prompting to
-> retry the ioctl(), but the passed exbuf->fence_fd has been reset to -1,
-> making the retry attempt fail at sync_file_get_fence().
->
-> The uapi for DRM_IOCTL_VIRTGPU_EXECBUFFER is changed to retain the
-> passed value for exbuf->fence_fd when returning ERESTARTSYS or EINTR.
->
-> Fixes: 2cd7b6f08bc4 ("drm/virtio: add in/out fence support for explicit synchronization")
-> Signed-off-by: Ryan Neph <ryanneph@chromium.org>
+When the MAC address is not provided by the vdpa device virtio_net
+driver assigns a random one without notifying the device.
+The consequence, in the case of mlx5_vdpa, is the internal routing
+tables of the device are not updated and this can block the
+communication between two namespaces.
 
-Reviewed-by: Rob Clark <robdclark@gmail.com>
+To fix this problem, use virtnet_send_command(VIRTIO_NET_CTRL_MAC)
+to set the address from virtnet_probe() when the MAC address is
+not provided by the device.
 
-> ---
->
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 9 ++++++---
->  include/uapi/drm/virtgpu_drm.h         | 3 +++
->  2 files changed, 9 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index 9f4a90493aea..ffce4e2a409a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -132,6 +132,8 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->         uint64_t fence_ctx;
->         uint32_t ring_idx;
->
-> +       exbuf->fence_fd = -1;
-> +
->         fence_ctx = vgdev->fence_drv.context;
->         ring_idx = 0;
->
-> @@ -152,8 +154,6 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->                 ring_idx = exbuf->ring_idx;
->         }
->
-> -       exbuf->fence_fd = -1;
-> -
->         virtio_gpu_create_context(dev, file);
->         if (exbuf->flags & VIRTGPU_EXECBUF_FENCE_FD_IN) {
->                 struct dma_fence *in_fence;
-> @@ -173,7 +173,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->
->                 dma_fence_put(in_fence);
->                 if (ret)
-> -                       return ret;
-> +                       goto out_err;
->         }
->
->         if (exbuf->flags & VIRTGPU_EXECBUF_FENCE_FD_OUT) {
-> @@ -259,6 +259,9 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
->
->         if (out_fence_fd >= 0)
->                 put_unused_fd(out_fence_fd);
-> +out_err:
-> +       if (ret == -EINTR || ret == -ERESTARTSYS)
-> +               exbuf->fence_fd = in_fence_fd;
->
->         return ret;
->  }
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-> index 0512fde5e697..ac8d1eed12ab 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -64,6 +64,9 @@ struct drm_virtgpu_map {
->         __u32 pad;
->  };
->
-> +/* For ioctl() returning ERESTARTSYS or EINTR, fence_fd is unmodified.
-> + * For all other errors it is set to -1.
-> + */
->  struct drm_virtgpu_execbuffer {
->         __u32 flags;
->         __u32 size;
-> --
-> 2.39.1.456.gfc5497dd1b-goog
->
+v3:
+  - update comments
+  - fail probe if VIRTIO_NET_CTRL_MAC_ADDR_SET fails
+  - move the virtnet_send_command() upper, inside the RTNL lock,
+    this simplifies the cleanup in case of error, and a future patch
+    from Jason adds an ASSERT_RTNL() in virtnet_send_command()
+    ("virtio-net: convert rx mode setting to use workqueue")
+  - add a patch to disable F_STANDBY if F_MAC is not set
+
+v2:
+  - remove vdpa_sim related fixes
+  - check virtio_has_feature(vdev, VIRTIO_NET_F_MAC) rather than
+    addr_assign_type
+
+Laurent Vivier (2):
+  virtio_net: disable VIRTIO_NET_F_STANDBY if VIRTIO_NET_F_MAC is not
+    set
+  virtio_net: notify MAC address change on device initialization
+
+ drivers/net/virtio_net.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+-- 
+2.39.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
