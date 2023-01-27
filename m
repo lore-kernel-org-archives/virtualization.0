@@ -4,114 +4,112 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF05C54EAA
-	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 11:08:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6956DC38142
+	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 11:12:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3134B417C2;
-	Fri, 27 Jan 2023 11:08:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3134B417C2
+	by smtp2.osuosl.org (Postfix) with ESMTP id EC54C417D4;
+	Fri, 27 Jan 2023 11:12:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC54C417D4
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/afB6xn
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YX1kyrjU
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fE1Z3gikDWNt; Fri, 27 Jan 2023 11:08:13 +0000 (UTC)
+	with ESMTP id qCdqSSZDhAeB; Fri, 27 Jan 2023 11:12:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A6BF400E7;
-	Fri, 27 Jan 2023 11:08:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A6BF400E7
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 83097417CA;
+	Fri, 27 Jan 2023 11:12:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 83097417CA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E6009C0032;
-	Fri, 27 Jan 2023 11:08:12 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AB5FAC002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68D52C0033;
+	Fri, 27 Jan 2023 11:12:05 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 97F72C0033
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:08:11 +0000 (UTC)
+ Fri, 27 Jan 2023 11:12:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 78811827CE
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4F01661273
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:08:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78811827CE
-Authentication-Results: smtp1.osuosl.org;
+ Fri, 27 Jan 2023 11:12:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4F01661273
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/afB6xn
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YX1kyrjU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zhwlZ7tJp-ON
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Eg5qsNdAcxcE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:08:10 +0000 (UTC)
+ Fri, 27 Jan 2023 11:11:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 875908270B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 87F146125C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 875908270B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 87F146125C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:08:10 +0000 (UTC)
+ Fri, 27 Jan 2023 11:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674817689;
+ s=mimecast20190719; t=1674817918;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=CKPEQeD05U6KFCAYtgfxbXNA3n/pe6PkgZWvP+2Uf2k=;
- b=Z/afB6xntG4PsNmG+MnNr7ri2/UqOheTxJ9MHkpQ36VKlYSbb1Cc6rAxM7ziuhxOAf+ZvS
- FhiAaMeRoRR8/k4YBR8xtwKNMXnbPy1Xk445k4jrPbMCRYH0IpaPT1AUW/5E8JdWbuFYsw
- ikrzZrufRaKR3tF/sOsCs0xREMVSUA8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=DHdIigeHoqEjPUOvZqjrQoWLn5deR3YQuYptQY45zS0=;
+ b=YX1kyrjUGB9CnVGZZrsAgZccqqGffNJdJDse3HVsdot5mRiABjrye8WmvNqCbZsCgo2QCr
+ 0iFCjF7eglcbBTTQDfv8C3/yzW9ojDq98XzzqJ5JknJgnAyDtVhjCilkzGg/lQ9GsPw5nH
+ iiASuoaQ1uXoZR8qj8NAnxlUy/756Yw=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-553-FPOevN1qPNunh1FaDlfwBg-1; Fri, 27 Jan 2023 06:08:07 -0500
-X-MC-Unique: FPOevN1qPNunh1FaDlfwBg-1
-Received: by mail-ej1-f72.google.com with SMTP id
- gn31-20020a1709070d1f00b0087024adbba2so3247191ejc.20
+ us-mta-322-PHUXV75lN3iiL7rKPELOiA-1; Fri, 27 Jan 2023 06:11:57 -0500
+X-MC-Unique: PHUXV75lN3iiL7rKPELOiA-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ sc9-20020a1709078a0900b0086910fdf624so3238735ejc.13
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 03:08:07 -0800 (PST)
+ Fri, 27 Jan 2023 03:11:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=CKPEQeD05U6KFCAYtgfxbXNA3n/pe6PkgZWvP+2Uf2k=;
- b=YV+95oCaEUOLkIPyZFKqH4xCPiPW7/nSwRlpMDljSOx0qCoFKdPeN5kMwl8LFpZsy9
- cBnSbhhK7XWurAPHQV7UU1kUPNAy1mkcrhj70u4zsCjAiPMRccZEms+7UDLVs09PQPg2
- Qjyozw60W3kl0PCwNmfG4tih+pEMtsWTvjoIGXylxtsk6k0docEZC8qkJIc8Nt5PiboI
- Yitf6UaNpWue9mnDZg3Tfqar4iF+fka8Rouc6VSEKha4wyjYx4fSVwmyafg02mnq7qS3
- vM87f07Cuo9o1nyVa0NqsLjw2swd4l0XFEGVWevWibWnHfpogeAMx0oDHVaSuWXumfdG
- ThHg==
-X-Gm-Message-State: AFqh2kojYM/XL3sV8XzbFmUUR0GBT8Gz+4f20NIK5Ay2gZmfeOcKmUnD
- q65EvLe/NGxe8TG0Uj+Vyf026gyaUXkm1d9M0mN0/PPvsVFxxTlr527GZY7MLmAyT7dG0Lpvkor
- GjyyxMCVdQ+oyNTkkHMhkGbIdR5bGYg3fDrMAsxvxTg==
-X-Received: by 2002:a17:907:8a07:b0:7c1:5ee1:4c57 with SMTP id
- sc7-20020a1709078a0700b007c15ee14c57mr48312981ejc.8.1674817686729; 
- Fri, 27 Jan 2023 03:08:06 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtEZ9qSwCeJX4118ylH95WPKVKjIFX0j4DWxndoYOi4bwRVWxwjupfV2ZGS4Sf/mhJEOQy+Mg==
-X-Received: by 2002:a17:907:8a07:b0:7c1:5ee1:4c57 with SMTP id
- sc7-20020a1709078a0700b007c15ee14c57mr48312963ejc.8.1674817686493; 
- Fri, 27 Jan 2023 03:08:06 -0800 (PST)
+ bh=DHdIigeHoqEjPUOvZqjrQoWLn5deR3YQuYptQY45zS0=;
+ b=sCg2XJYqrml+Vw9jbZgC0MFLssxqF0AqQlRt9X1sbN92jiYbx/WE+G2eIGbYAmP3yW
+ ty1FX3Br1cc2FKPQuySM/n/Bx1m0vuPqbLJt9VONKg5TF6W7GcZNGf/YCY0Xb9l4c2rh
+ hgUuchJUhp89zPKQoWHG5uyDYgW+wIAN28rk0KeLDF9psM7/CCmQkqp0lJAzZDoTytuH
+ BOop3ixW6cLOXuf1Te6LEuJx7PUBQNHVHwv6bWXg/rnIZifHh7cAU7/jdkFJCuX7TyC7
+ rfuuKoB5rm7IbeQ5nHRgYUf9Vh59YX28vuq2UDS9n301T+H8DUugWJuhzBa3/eesa9qj
+ W53w==
+X-Gm-Message-State: AFqh2kp7eh2PiW6pUpQgNVvax8P4VzcDDMHwxBIM6DgpxrjHR23Q89p0
+ +4m3A7me6A3UGDkBzeJyYGScZn4PWXI/Fn1k1EKdPQJQq6xEBzOM2u5zZgQnTxoyqdJlPgslQOI
+ WL6EkVtQnPa/U8HIfoeVy4xxI7OzwYwPDpDpGXvKoWA==
+X-Received: by 2002:a17:907:9a09:b0:85d:3771:18b7 with SMTP id
+ kr9-20020a1709079a0900b0085d377118b7mr42740080ejc.70.1674817915956; 
+ Fri, 27 Jan 2023 03:11:55 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsScJCcghnX87V9jwJo9iQJunv09UWVsejj9/e/mmA0Ci2VvxS4YOTGCYGulNVAT6QXBdRv0w==
+X-Received: by 2002:a17:907:9a09:b0:85d:3771:18b7 with SMTP id
+ kr9-20020a1709079a0900b0085d377118b7mr42740046ejc.70.1674817915717; 
+ Fri, 27 Jan 2023 03:11:55 -0800 (PST)
 Received: from redhat.com ([2.52.137.69]) by smtp.gmail.com with ESMTPSA id
- m5-20020aa7c485000000b0049e19136c22sm2120592edq.95.2023.01.27.03.08.03
+ y14-20020a17090668ce00b0084d3bf4498csm2082705ejr.140.2023.01.27.03.11.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 27 Jan 2023 03:08:05 -0800 (PST)
-Date: Fri, 27 Jan 2023 06:08:01 -0500
+ Fri, 27 Jan 2023 03:11:55 -0800 (PST)
+Date: Fri, 27 Jan 2023 06:11:49 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Laurent Vivier <lvivier@redhat.com>
-Subject: Re: [PATCH v2 1/1] virtio_net: notify MAC address change on device
- initialization
-Message-ID: <20230127060453-mutt-send-email-mst@kernel.org>
-References: <20230123120022.2364889-1-lvivier@redhat.com>
- <20230123120022.2364889-2-lvivier@redhat.com>
- <20230124024711-mutt-send-email-mst@kernel.org>
- <971beeaf-5e68-eb4a-1ceb-63a5ffa74aff@redhat.com>
+To: Li Zetao <lizetao1@huawei.com>
+Subject: Re: [PATCH 0/4] Fix probe failed when modprobe modules
+Message-ID: <20230127061055-mutt-send-email-mst@kernel.org>
+References: <20221128021005.232105-1-lizetao1@huawei.com>
+ <20221128042945-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <971beeaf-5e68-eb4a-1ceb-63a5ffa74aff@redhat.com>
+In-Reply-To: <20221128042945-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Cindy Lu <lulu@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
- Gautam Dawar <gautam.dawar@xilinx.com>, Eli Cohen <elic@nvidia.com>
+Cc: axboe@kernel.dk, rusty@rustcorp.com.au, ericvh@gmail.com,
+ netdev@vger.kernel.org, linux_oss@crudebyte.com, linux-kernel@vger.kernel.org,
+ davem@davemloft.net, linux-block@vger.kernel.org,
+ v9fs-developer@lists.sourceforge.net, edumazet@google.com, stefanha@redhat.com,
+ kuba@kernel.org, pbonzini@redhat.com, pabeni@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,126 +126,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 24, 2023 at 12:04:24PM +0100, Laurent Vivier wrote:
-> On 1/24/23 11:15, Michael S. Tsirkin wrote:
-> > On Mon, Jan 23, 2023 at 01:00:22PM +0100, Laurent Vivier wrote:
-> > > In virtnet_probe(), if the device doesn't provide a MAC address the
-> > > driver assigns a random one.
-> > > As we modify the MAC address we need to notify the device to allow it
-> > > to update all the related information.
-> > > 
-> > > The problem can be seen with vDPA and mlx5_vdpa driver as it doesn't
-> > > assign a MAC address by default. The virtio_net device uses a random
-> > > MAC address (we can see it with "ip link"), but we can't ping a net
-> > > namespace from another one using the virtio-vdpa device because the
-> > > new MAC address has not been provided to the hardware.
-> > 
-> > And then what exactly happens? Does hardware drop the outgoing
-> > or the incoming packets? Pls include in the commit log.
+On Mon, Nov 28, 2022 at 05:14:44AM -0500, Michael S. Tsirkin wrote:
+> On Mon, Nov 28, 2022 at 10:10:01AM +0800, Li Zetao wrote:
+> > This patchset fixes similar issue, the root cause of the
+> > problem is that the virtqueues are not stopped on error
+> > handling path.
 > 
-> I don't know. There is nothing in the kernel logs.
+> I've been thinking about this.
+> Almost all drivers are affected.
 > 
-> The ping error is: "Destination Host Unreachable"
+> The reason really is that it used to be the right thing to do:
+> On legacy pci del_vqs writes 0
+> into vq index and this resets the device as a side effect
+> (we actually do this multiple times, what e.g. writes of MSI vector
+>  after the 1st reset do I have no idea).
 > 
-> I found the problem with the mlx5 driver as in "it doesn't work when MAC
-> address is not set"...
+> mmio ccw and modern pci don't.
 > 
-> Perhaps Eli can explain what happens when the MAC address is not set?
+> Given this has been with us for a while I am inlined to look for
+> a global solution rather than tweaking each driver.
 > 
-> > 
-> > > Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-> > > ---
-> > >   drivers/net/virtio_net.c | 14 ++++++++++++++
-> > >   1 file changed, 14 insertions(+)
-> > > 
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 7723b2a49d8e..4bdc8286678b 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -3800,6 +3800,8 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > >   		eth_hw_addr_set(dev, addr);
-> > >   	} else {
-> > >   		eth_hw_addr_random(dev);
-> > > +		dev_info(&vdev->dev, "Assigned random MAC address %pM\n",
-> > > +			 dev->dev_addr);
-> > >   	}
-> > >   	/* Set up our device-specific information */
-> > > @@ -3956,6 +3958,18 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > >   	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
-> > >   		 dev->name, max_queue_pairs);
-> > > +	/* a random MAC address has been assigned, notify the device */
-> > > +	if (!virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
-> > > +	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-> > 
-> > Maybe add a comment explaining that we don't fail probe if
-> > VIRTIO_NET_F_CTRL_MAC_ADDR is not there because
-> > many devices work fine without getting MAC explicitly.
+> Given many drivers are supposed to work on legacy too, we know del_vqs
+> includes a reset for many of them. So I think I see a better way to do
+> this:
 > 
-> OK
+> Add virtio_reset_device_and_del_vqs()
 > 
-> > 
-> > > +		struct scatterlist sg;
-> > > +
-> > > +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
-> > > +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-> > > +					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
-> > > +			dev_warn(&vdev->dev, "Failed to update MAC address.\n");
-> > 
-> > Here, I'm not sure we want to proceed. Is it useful sometimes?
+> and convert all drivers to that.
 > 
-> I think reporting an error is always useful, but I can remove that if you prefer.
+> When doing this, we also need to/can fix a related problem (and related
+> to the hardening that Jason Wang was looking into):
+> virtio_reset_device is inherently racy: vq interrupts could
+> be in flight when we do reset. We need to prevent handlers from firing in
+> the window between reset and freeing the irq, so we should first
+> free irqs and only then start changing the state by e.g.
+> device reset.
+> 
+> 
+> Quite a lot of core work here. Jason are you still looking into
+> hardening?
+> 
 
-No the question was whether we should fail probe not
-whether we print the warning.
+Li Zetao, Jason, any updates. You guys looking into this?
 
 
-> > I note that we deny with virtnet_set_mac_address.
-> > 
-> > > +		}
-> > > +	}
-> > > +
-> > >   	return 0;
-> > 
-> > 
-> > 
-> > Also, some code duplication with virtnet_set_mac_address here.
-> > 
-> > Also:
-> > 	When using the legacy interface, \field{mac} is driver-writable
-> > 	which provided a way for drivers to update the MAC without
-> > 	negotiating VIRTIO_NET_F_CTRL_MAC_ADDR.
-> > 
-> > How about factoring out code in virtnet_set_mac_address
-> > and reusing that?
-> > 
 > 
-> In fact, we can write in the field only if we have VIRTIO_NET_F_MAC
-> (according to virtnet_set_mac_address(), and this code is executed only if
-> we do not have VIRTIO_NET_F_MAC. So I think it's better not factoring the
-> code as we have only the control queue case to manage.
-> 
-> > This will also handle corner cases such as VIRTIO_NET_F_STANDBY
-> > which are not currently addressed.
-> 
-> F_STANDBY is only enabled when virtio-net device MAC address is equal to the
-> VFIO device MAC address, I don't think it can be enabled when the MAC
-> address is randomly assigned (in this case it has already failed in
-> net_failover_create(), as it has been called using the random mac address),
-> it's why I didn't check for it.
-
-But the spec did not say there's a dependency :(.
-My point is what should we do if there's F_STANDBY but no MAC?
-Maybe add a separate patch clearing F_STANDBY in this case?
-
+> > Li Zetao (4):
+> >   9p: Fix probe failed when modprobe 9pnet_virtio
+> >   virtio-mem: Fix probe failed when modprobe virtio_mem
+> >   virtio-input: Fix probe failed when modprobe virtio_input
+> >   virtio-blk: Fix probe failed when modprobe virtio_blk
 > > 
+> >  drivers/block/virtio_blk.c    | 1 +
+> >  drivers/virtio/virtio_input.c | 1 +
+> >  drivers/virtio/virtio_mem.c   | 1 +
+> >  net/9p/trans_virtio.c         | 1 +
+> >  4 files changed, 4 insertions(+)
 > > 
-> > >   free_unregister_netdev:
-> > > -- 
-> > > 2.39.0
-> > 
-> 
-> Thanks,
-> Laurent
+> > -- 
+> > 2.25.1
 
 _______________________________________________
 Virtualization mailing list
