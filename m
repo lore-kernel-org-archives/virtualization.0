@@ -1,81 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08683C52D11
-	for <virtualization@archiver.kernel.org>; Thu, 26 Jan 2023 17:03:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA0A4C38142
+	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 08:04:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 85ABB4088F;
-	Thu, 26 Jan 2023 17:03:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 85ABB4088F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=FBh887Jb
+	by smtp3.osuosl.org (Postfix) with ESMTP id 464E560B5E;
+	Fri, 27 Jan 2023 08:04:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 464E560B5E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zx5f5Sde
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gHNuOiB_JPeN; Thu, 26 Jan 2023 17:03:25 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ITREebE3M_Q9; Fri, 27 Jan 2023 08:04:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D59874087E;
-	Thu, 26 Jan 2023 17:03:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D59874087E
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BAA0360AB3;
+	Fri, 27 Jan 2023 08:04:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BAA0360AB3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BC2F7C0033;
-	Thu, 26 Jan 2023 17:03:24 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E1056C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 920C8C0032;
+	Fri, 27 Jan 2023 08:04:15 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 660C8C002D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 17:03:23 +0000 (UTC)
+ Fri, 27 Jan 2023 08:04:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id ADEE94087E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 229F940A05
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 17:03:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADEE94087E
+ Fri, 27 Jan 2023 08:04:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 229F940A05
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zx5f5Sde
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nf8_W7pGBnQ9
+ with ESMTP id 4SdJaWAmRx1u
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 17:03:22 +0000 (UTC)
+ Fri, 27 Jan 2023 08:04:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4368140872
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4368140872
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BA1DD40A00
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id BA1DD40A00
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Jan 2023 17:03:22 +0000 (UTC)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
- by smtp-out1.suse.de (Postfix) with ESMTP id 69A2021F7A;
- Thu, 26 Jan 2023 17:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1674752597; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Fri, 27 Jan 2023 08:04:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1674806650;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=eSWKf9uJrUZqhid1T1vG6ji700DgCjuCGV5m/wv4YN4=;
- b=FBh887JbLkjg9dCJJRwnY5u/KYg0Jgm/9oWUg/Zj7OuP6G7q0eTZxXoFoSmg9SVAKP558h
- IO/IdIBKVtEnHxvqF8ONuM+ejeJNb8+YV5O9lDvjXCpELqftBaEI2QZuZsbq4tU107l+W2
- F9ELxNsf8Nnic/OZAJzPIMohwZQHmY8=
-Received: from suse.cz (unknown [10.100.208.146])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ bh=Lr/rQnagNH++eb9Q6h7/tOeChv4rcjLXIX9dBLUgnQk=;
+ b=Zx5f5SdeA3MdkussYUbMPMpv7rkGWDYk5C/EWnK/9enoHQiMCOvfFtEhrCkb1aexcmUKGY
+ CcsfWF0kA8/DZFDleMylOmdASQBccZQiGMQ9MnY+Odt3huxh4OW9rO3QY1ob2yDeBcjoXc
+ dvp4DN4crfC5dRuWnrrFsWDIDCMXWAY=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-615-8pTM94K6PNWNl-kX6Pi9vg-1; Fri, 27 Jan 2023 03:04:04 -0500
+X-MC-Unique: 8pTM94K6PNWNl-kX6Pi9vg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by relay2.suse.de (Postfix) with ESMTPS id 476132C141;
- Thu, 26 Jan 2023 17:03:17 +0000 (UTC)
-Date: Thu, 26 Jan 2023 18:03:16 +0100
-To: "Seth Forshee (DigitalOcean)" <sforshee@digitalocean.com>
-Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
- loaded vhost worker kthreads
-Message-ID: <Y9KyVKQk3eH+RRse@alley>
-References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7B19D1C05EAF;
+ Fri, 27 Jan 2023 08:04:03 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.192.46])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id B857540C141B;
+ Fri, 27 Jan 2023 08:04:02 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 5B7211800606; Fri, 27 Jan 2023 09:04:01 +0100 (CET)
+Date: Fri, 27 Jan 2023 09:04:01 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v10 10/11] drm/virtio: Support memory shrinking
+Message-ID: <20230127080401.aj6uruakajrconts@sirius.home.kraxel.org>
+References: <20230108210445.3948344-1-dmitry.osipenko@collabora.com>
+ <20230108210445.3948344-11-dmitry.osipenko@collabora.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- "Seth Forshee \(DigitalOcean\)" <sforshee@kernel.org>,
- live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
- Josh Poimboeuf <jpoimboe@kernel.org>
+In-Reply-To: <20230108210445.3948344-11-dmitry.osipenko@collabora.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: dri-devel@lists.freedesktop.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>, kernel@collabora.com,
+ David Airlie <airlied@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Rob Herring <robh@kernel.org>, Daniel Stone <daniel@fooishbar.org>,
+ Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>, Maxime Ripard <mripard@kernel.org>,
+ virtualization@lists.linux-foundation.org, Sean Paul <sean@poorly.run>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>, linux-kernel@vger.kernel.org,
+ Rob Clark <robdclark@gmail.com>, Qiang Yu <yuq825@gmail.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,34 +111,23 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Petr Mladek via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Petr Mladek <pmladek@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri 2023-01-20 16:12:20, Seth Forshee (DigitalOcean) wrote:
-> We've fairly regularaly seen liveptches which cannot transition within kpatch's
-> timeout period due to busy vhost worker kthreads.
+On Mon, Jan 09, 2023 at 12:04:44AM +0300, Dmitry Osipenko wrote:
+> Support generic drm-shmem memory shrinker and add new madvise IOCTL to
+> the VirtIO-GPU driver. BO cache manager of Mesa driver will mark BOs as
+> "don't need" using the new IOCTL to let shrinker purge the marked BOs on
+> OOM, the shrinker will also evict unpurgeable shmem BOs from memory if
+> guest supports SWAP file or partition.
+> 
+> Signed-off-by: Daniel Almeida <daniel.almeida@collabora.com>
+> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-I have missed this detail. Miroslav told me that we have solved
-something similar some time ago, see
-https://lore.kernel.org/all/20220507174628.2086373-1-song@kernel.org/
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Honestly, kpatch's timeout 1 minute looks incredible low to me. Note
-that the transition is tried only once per minute. It means that there
-are "only" 60 attempts.
-
-Just by chance, does it help you to increase the timeout, please?
-
-This low timeout might be useful for testing. But in practice, it does
-not matter when the transition is lasting one hour or even longer.
-It takes much longer time to prepare the livepatch.
-
-Best Regards,
-Petr
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
