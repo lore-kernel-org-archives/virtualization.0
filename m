@@ -4,112 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51457C38142
-	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 11:03:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF05C54EAA
+	for <virtualization@archiver.kernel.org>; Fri, 27 Jan 2023 11:08:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DD20D4012B;
-	Fri, 27 Jan 2023 11:02:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DD20D4012B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3134B417C2;
+	Fri, 27 Jan 2023 11:08:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3134B417C2
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EUYqqrYc
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/afB6xn
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id neJU5wHJPIKD; Fri, 27 Jan 2023 11:02:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5A3CA417C2;
-	Fri, 27 Jan 2023 11:02:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A3CA417C2
+	with ESMTP id fE1Z3gikDWNt; Fri, 27 Jan 2023 11:08:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1A6BF400E7;
+	Fri, 27 Jan 2023 11:08:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1A6BF400E7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0812CC0032;
-	Fri, 27 Jan 2023 11:02:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 35928C002D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E6009C0032;
+	Fri, 27 Jan 2023 11:08:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB5FAC002D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:02:55 +0000 (UTC)
+ Fri, 27 Jan 2023 11:08:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 02B7E41CE5
+ by smtp1.osuosl.org (Postfix) with ESMTP id 78811827CE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:02:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 02B7E41CE5
-Authentication-Results: smtp4.osuosl.org;
+ Fri, 27 Jan 2023 11:08:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78811827CE
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EUYqqrYc
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/afB6xn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VR3HFsIxN-0n
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id zhwlZ7tJp-ON
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:02:53 +0000 (UTC)
+ Fri, 27 Jan 2023 11:08:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C15BC41CE4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 875908270B
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C15BC41CE4
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 875908270B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 11:02:52 +0000 (UTC)
+ Fri, 27 Jan 2023 11:08:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674817371;
+ s=mimecast20190719; t=1674817689;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=M3zXIeNDbVEYsNZMd35a+KmGHR0oWBBKX2t8c6pdmTU=;
- b=EUYqqrYcWkEFLfoFmkOGCKM02hfTB/hUVZzGq0d3+oydtKMXClj69msIf9XuJRsx8zke2g
- eJYCuAq+DC6PcFuc/RWuucfd45MtLW91mGWLaK5UyNsv4hp4fRAKutrG6hyWxaasi/sJCY
- uO1ViTk9/SGCdcW/WLDl/HtfdCmqbr4=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=CKPEQeD05U6KFCAYtgfxbXNA3n/pe6PkgZWvP+2Uf2k=;
+ b=Z/afB6xntG4PsNmG+MnNr7ri2/UqOheTxJ9MHkpQ36VKlYSbb1Cc6rAxM7ziuhxOAf+ZvS
+ FhiAaMeRoRR8/k4YBR8xtwKNMXnbPy1Xk445k4jrPbMCRYH0IpaPT1AUW/5E8JdWbuFYsw
+ ikrzZrufRaKR3tF/sOsCs0xREMVSUA8=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-48-67GYx-w8NI2bM2JOG9QoAw-1; Fri, 27 Jan 2023 06:02:50 -0500
-X-MC-Unique: 67GYx-w8NI2bM2JOG9QoAw-1
-Received: by mail-ed1-f69.google.com with SMTP id
- l17-20020a056402255100b00472d2ff0e59so3350087edb.19
+ us-mta-553-FPOevN1qPNunh1FaDlfwBg-1; Fri, 27 Jan 2023 06:08:07 -0500
+X-MC-Unique: FPOevN1qPNunh1FaDlfwBg-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ gn31-20020a1709070d1f00b0087024adbba2so3247191ejc.20
  for <virtualization@lists.linux-foundation.org>;
- Fri, 27 Jan 2023 03:02:50 -0800 (PST)
+ Fri, 27 Jan 2023 03:08:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=M3zXIeNDbVEYsNZMd35a+KmGHR0oWBBKX2t8c6pdmTU=;
- b=pTnmETnnVGD1BtXMFys8CfQVL0ST3tUlNBncFiA+R9jT2Kc1M53TxFEXw4xgHZe9Zc
- 9FQs8w9c6S75sbE9gEiWwu4UtFbO5uu7p1PurzRLTXN68WncrCfNSvHz4293FNL1yw77
- qMiaWRjVdVsLtWILns+5mpU28nIWM6oyskqFfs4KHqC1iyIb0NgnhrU9g+qxYU9+WsXo
- ZDy7mYa+K+JbQrzUG0CX6RhmbD5RXK1HAfugtR3ErZX1DsU2vPqqJAToQfeUnIq0JjXD
- pFCDMZLQVN62Q5RwgFb9IZ7LAE9Bj6lrnvKTJX9ZqTqVl8dSPkgP4LWwin/TVotUzX/f
- gUrw==
-X-Gm-Message-State: AO0yUKXAGImrr3bOMgWcO53ODyRYyU7qFg7Ei5npKLH1hZhRuX6202+f
- 2EdS1m4o+QdCDCJQST3he7GEx2MUhcle/GD4MLq+fpBBjjGeC+2eRKpibobEzpse8I/Ps2k3z0n
- htkl8HvNmVpgwGfgMychsJW5ELwciX0hIL/G30PFhtw==
-X-Received: by 2002:aa7:cf93:0:b0:4a2:11c5:44f8 with SMTP id
- z19-20020aa7cf93000000b004a211c544f8mr777388edx.4.1674817369163; 
- Fri, 27 Jan 2023 03:02:49 -0800 (PST)
-X-Google-Smtp-Source: AK7set8PiWQ9xvT7KQIyI66NVLLiZYQ81dkyQmfw+yrGfEARBdCHZXQ0VuwCg2F2/d1GqcgtuR2Ukg==
-X-Received: by 2002:aa7:cf93:0:b0:4a2:11c5:44f8 with SMTP id
- z19-20020aa7cf93000000b004a211c544f8mr777366edx.4.1674817368972; 
- Fri, 27 Jan 2023 03:02:48 -0800 (PST)
+ bh=CKPEQeD05U6KFCAYtgfxbXNA3n/pe6PkgZWvP+2Uf2k=;
+ b=YV+95oCaEUOLkIPyZFKqH4xCPiPW7/nSwRlpMDljSOx0qCoFKdPeN5kMwl8LFpZsy9
+ cBnSbhhK7XWurAPHQV7UU1kUPNAy1mkcrhj70u4zsCjAiPMRccZEms+7UDLVs09PQPg2
+ Qjyozw60W3kl0PCwNmfG4tih+pEMtsWTvjoIGXylxtsk6k0docEZC8qkJIc8Nt5PiboI
+ Yitf6UaNpWue9mnDZg3Tfqar4iF+fka8Rouc6VSEKha4wyjYx4fSVwmyafg02mnq7qS3
+ vM87f07Cuo9o1nyVa0NqsLjw2swd4l0XFEGVWevWibWnHfpogeAMx0oDHVaSuWXumfdG
+ ThHg==
+X-Gm-Message-State: AFqh2kojYM/XL3sV8XzbFmUUR0GBT8Gz+4f20NIK5Ay2gZmfeOcKmUnD
+ q65EvLe/NGxe8TG0Uj+Vyf026gyaUXkm1d9M0mN0/PPvsVFxxTlr527GZY7MLmAyT7dG0Lpvkor
+ GjyyxMCVdQ+oyNTkkHMhkGbIdR5bGYg3fDrMAsxvxTg==
+X-Received: by 2002:a17:907:8a07:b0:7c1:5ee1:4c57 with SMTP id
+ sc7-20020a1709078a0700b007c15ee14c57mr48312981ejc.8.1674817686729; 
+ Fri, 27 Jan 2023 03:08:06 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXtEZ9qSwCeJX4118ylH95WPKVKjIFX0j4DWxndoYOi4bwRVWxwjupfV2ZGS4Sf/mhJEOQy+Mg==
+X-Received: by 2002:a17:907:8a07:b0:7c1:5ee1:4c57 with SMTP id
+ sc7-20020a1709078a0700b007c15ee14c57mr48312963ejc.8.1674817686493; 
+ Fri, 27 Jan 2023 03:08:06 -0800 (PST)
 Received: from redhat.com ([2.52.137.69]) by smtp.gmail.com with ESMTPSA id
- j25-20020a50ed19000000b004a20fa1c659sm412845eds.82.2023.01.27.03.02.46
+ m5-20020aa7c485000000b0049e19136c22sm2120592edq.95.2023.01.27.03.08.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 27 Jan 2023 03:02:48 -0800 (PST)
-Date: Fri, 27 Jan 2023 06:02:44 -0500
+ Fri, 27 Jan 2023 03:08:05 -0800 (PST)
+Date: Fri, 27 Jan 2023 06:08:01 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: Re: [PATCH v1 2/6] virtio console: Harden port adding
-Message-ID: <20230127055944-mutt-send-email-mst@kernel.org>
-References: <20230119135721.83345-1-alexander.shishkin@linux.intel.com>
- <20230119135721.83345-3-alexander.shishkin@linux.intel.com>
- <Y8lfz8C5uvx2w4fC@kroah.com> <87ilh2quto.fsf@ubik.fi.intel.com>
- <Y8mSs68JfW6t4mjl@kroah.com> <87a62eqo4h.fsf@ubik.fi.intel.com>
+To: Laurent Vivier <lvivier@redhat.com>
+Subject: Re: [PATCH v2 1/1] virtio_net: notify MAC address change on device
+ initialization
+Message-ID: <20230127060453-mutt-send-email-mst@kernel.org>
+References: <20230123120022.2364889-1-lvivier@redhat.com>
+ <20230123120022.2364889-2-lvivier@redhat.com>
+ <20230124024711-mutt-send-email-mst@kernel.org>
+ <971beeaf-5e68-eb4a-1ceb-63a5ffa74aff@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <87a62eqo4h.fsf@ubik.fi.intel.com>
+In-Reply-To: <971beeaf-5e68-eb4a-1ceb-63a5ffa74aff@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Andi Kleen <ak@linux.intel.com>, Arnd Bergmann <arnd@arndb.de>,
- Amit Shah <amit@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- elena.reshetova@intel.com, kirill.shutemov@linux.intel.com
+Cc: Cindy Lu <lulu@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+ Gautam Dawar <gautam.dawar@xilinx.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,147 +128,126 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jan 19, 2023 at 10:13:18PM +0200, Alexander Shishkin wrote:
-> Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
+On Tue, Jan 24, 2023 at 12:04:24PM +0100, Laurent Vivier wrote:
+> On 1/24/23 11:15, Michael S. Tsirkin wrote:
+> > On Mon, Jan 23, 2023 at 01:00:22PM +0100, Laurent Vivier wrote:
+> > > In virtnet_probe(), if the device doesn't provide a MAC address the
+> > > driver assigns a random one.
+> > > As we modify the MAC address we need to notify the device to allow it
+> > > to update all the related information.
+> > > 
+> > > The problem can be seen with vDPA and mlx5_vdpa driver as it doesn't
+> > > assign a MAC address by default. The virtio_net device uses a random
+> > > MAC address (we can see it with "ip link"), but we can't ping a net
+> > > namespace from another one using the virtio-vdpa device because the
+> > > new MAC address has not been provided to the hardware.
+> > 
+> > And then what exactly happens? Does hardware drop the outgoing
+> > or the incoming packets? Pls include in the commit log.
 > 
-> > Then you need to copy it out once, and then only deal with the local
-> > copy.  Otherwise you have an incomplete snapshot.
+> I don't know. There is nothing in the kernel logs.
 > 
-> Ok, would you be partial to something like this:
+> The ping error is: "Destination Host Unreachable"
 > 
-> >From 1bc9bb84004154376c2a0cf643d53257da6d1cd7 Mon Sep 17 00:00:00 2001
-> From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Date: Thu, 19 Jan 2023 21:59:02 +0200
-> Subject: [PATCH] virtio console: Keep a local copy of the control structure
+> I found the problem with the mlx5 driver as in "it doesn't work when MAC
+> address is not set"...
 > 
-> When handling control messages, instead of peeking at the device memory
-> to obtain bits of the control structure,
+> Perhaps Eli can explain what happens when the MAC address is not set?
+> 
+> > 
+> > > Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+> > > ---
+> > >   drivers/net/virtio_net.c | 14 ++++++++++++++
+> > >   1 file changed, 14 insertions(+)
+> > > 
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 7723b2a49d8e..4bdc8286678b 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -3800,6 +3800,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > >   		eth_hw_addr_set(dev, addr);
+> > >   	} else {
+> > >   		eth_hw_addr_random(dev);
+> > > +		dev_info(&vdev->dev, "Assigned random MAC address %pM\n",
+> > > +			 dev->dev_addr);
+> > >   	}
+> > >   	/* Set up our device-specific information */
+> > > @@ -3956,6 +3958,18 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > >   	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
+> > >   		 dev->name, max_queue_pairs);
+> > > +	/* a random MAC address has been assigned, notify the device */
+> > > +	if (!virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
+> > > +	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+> > 
+> > Maybe add a comment explaining that we don't fail probe if
+> > VIRTIO_NET_F_CTRL_MAC_ADDR is not there because
+> > many devices work fine without getting MAC explicitly.
+> 
+> OK
+> 
+> > 
+> > > +		struct scatterlist sg;
+> > > +
+> > > +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
+> > > +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> > > +					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
+> > > +			dev_warn(&vdev->dev, "Failed to update MAC address.\n");
+> > 
+> > Here, I'm not sure we want to proceed. Is it useful sometimes?
+> 
+> I think reporting an error is always useful, but I can remove that if you prefer.
 
-Except the message makes it seem that we are getting data from
-device memory, when we do nothing of the kind.
+No the question was whether we should fail probe not
+whether we print the warning.
 
-> take a snapshot of it once and
-> use it instead, to prevent it from changing under us. This avoids races
-> between port id validation and control event decoding, which can lead
-> to, for example, a NULL dereference in port removal of a nonexistent
-> port.
+
+> > I note that we deny with virtnet_set_mac_address.
+> > 
+> > > +		}
+> > > +	}
+> > > +
+> > >   	return 0;
+> > 
+> > 
+> > 
+> > Also, some code duplication with virtnet_set_mac_address here.
+> > 
+> > Also:
+> > 	When using the legacy interface, \field{mac} is driver-writable
+> > 	which provided a way for drivers to update the MAC without
+> > 	negotiating VIRTIO_NET_F_CTRL_MAC_ADDR.
+> > 
+> > How about factoring out code in virtnet_set_mac_address
+> > and reusing that?
+> > 
 > 
-> The control structure is small enough (8 bytes) that it can be cached
-> directly on the stack.
-
-I still have no real idea why we want a copy here.
-If device can poke anywhere at memory then it can crash kernel anyway.
-If there's a bounce buffer or an iommu or some other protection
-in place, then this memory can no longer change by the time
-we look at it.
-
-> Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Amit Shah <amit@kernel.org>
-> ---
->  drivers/char/virtio_console.c | 29 +++++++++++++++--------------
->  1 file changed, 15 insertions(+), 14 deletions(-)
+> In fact, we can write in the field only if we have VIRTIO_NET_F_MAC
+> (according to virtnet_set_mac_address(), and this code is executed only if
+> we do not have VIRTIO_NET_F_MAC. So I think it's better not factoring the
+> code as we have only the control queue case to manage.
 > 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 6a821118d553..42be0991a72f 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1559,23 +1559,24 @@ static void handle_control_message(struct virtio_device *vdev,
->  				   struct ports_device *portdev,
->  				   struct port_buffer *buf)
->  {
-> -	struct virtio_console_control *cpkt;
-> +	struct virtio_console_control cpkt;
->  	struct port *port;
->  	size_t name_size;
->  	int err;
->  
-> -	cpkt = (struct virtio_console_control *)(buf->buf + buf->offset);
-> +	/* Keep a local copy of the control structure */
-> +	memcpy(&cpkt, buf->buf + buf->offset, sizeof(cpkt));
->  
-> -	port = find_port_by_id(portdev, virtio32_to_cpu(vdev, cpkt->id));
-> +	port = find_port_by_id(portdev, virtio32_to_cpu(vdev, cpkt.id));
->  	if (!port &&
-> -	    cpkt->event != cpu_to_virtio16(vdev, VIRTIO_CONSOLE_PORT_ADD)) {
-> +	    cpkt.event != cpu_to_virtio16(vdev, VIRTIO_CONSOLE_PORT_ADD)) {
->  		/* No valid header at start of buffer.  Drop it. */
->  		dev_dbg(&portdev->vdev->dev,
-> -			"Invalid index %u in control packet\n", cpkt->id);
-> +			"Invalid index %u in control packet\n", cpkt.id);
->  		return;
->  	}
->  
-> -	switch (virtio16_to_cpu(vdev, cpkt->event)) {
-> +	switch (virtio16_to_cpu(vdev, cpkt.event)) {
->  	case VIRTIO_CONSOLE_PORT_ADD:
->  		if (port) {
->  			dev_dbg(&portdev->vdev->dev,
-> @@ -1583,21 +1584,21 @@ static void handle_control_message(struct virtio_device *vdev,
->  			send_control_msg(port, VIRTIO_CONSOLE_PORT_READY, 1);
->  			break;
->  		}
-> -		if (virtio32_to_cpu(vdev, cpkt->id) >=
-> +		if (virtio32_to_cpu(vdev, cpkt.id) >=
->  		    portdev->max_nr_ports) {
->  			dev_warn(&portdev->vdev->dev,
->  				"Request for adding port with "
->  				"out-of-bound id %u, max. supported id: %u\n",
-> -				cpkt->id, portdev->max_nr_ports - 1);
-> +				cpkt.id, portdev->max_nr_ports - 1);
->  			break;
->  		}
-> -		add_port(portdev, virtio32_to_cpu(vdev, cpkt->id));
-> +		add_port(portdev, virtio32_to_cpu(vdev, cpkt.id));
->  		break;
->  	case VIRTIO_CONSOLE_PORT_REMOVE:
->  		unplug_port(port);
->  		break;
->  	case VIRTIO_CONSOLE_CONSOLE_PORT:
-> -		if (!cpkt->value)
-> +		if (!cpkt.value)
->  			break;
->  		if (is_console_port(port))
->  			break;
-> @@ -1618,7 +1619,7 @@ static void handle_control_message(struct virtio_device *vdev,
->  		if (!is_console_port(port))
->  			break;
->  
-> -		memcpy(&size, buf->buf + buf->offset + sizeof(*cpkt),
-> +		memcpy(&size, buf->buf + buf->offset + sizeof(cpkt),
->  		       sizeof(size));
->  		set_console_size(port, size.rows, size.cols);
->  
-> @@ -1627,7 +1628,7 @@ static void handle_control_message(struct virtio_device *vdev,
->  		break;
->  	}
->  	case VIRTIO_CONSOLE_PORT_OPEN:
-> -		port->host_connected = virtio16_to_cpu(vdev, cpkt->value);
-> +		port->host_connected = virtio16_to_cpu(vdev, cpkt.value);
->  		wake_up_interruptible(&port->waitqueue);
->  		/*
->  		 * If the host port got closed and the host had any
-> @@ -1658,7 +1659,7 @@ static void handle_control_message(struct virtio_device *vdev,
->  		 * Skip the size of the header and the cpkt to get the size
->  		 * of the name that was sent
->  		 */
-> -		name_size = buf->len - buf->offset - sizeof(*cpkt) + 1;
-> +		name_size = buf->len - buf->offset - sizeof(cpkt) + 1;
->  
->  		port->name = kmalloc(name_size, GFP_KERNEL);
->  		if (!port->name) {
-> @@ -1666,7 +1667,7 @@ static void handle_control_message(struct virtio_device *vdev,
->  				"Not enough space to store port name\n");
->  			break;
->  		}
-> -		strncpy(port->name, buf->buf + buf->offset + sizeof(*cpkt),
-> +		strncpy(port->name, buf->buf + buf->offset + sizeof(cpkt),
->  			name_size - 1);
->  		port->name[name_size - 1] = 0;
->  
-> -- 
-> 2.39.0
+> > This will also handle corner cases such as VIRTIO_NET_F_STANDBY
+> > which are not currently addressed.
+> 
+> F_STANDBY is only enabled when virtio-net device MAC address is equal to the
+> VFIO device MAC address, I don't think it can be enabled when the MAC
+> address is randomly assigned (in this case it has already failed in
+> net_failover_create(), as it has been called using the random mac address),
+> it's why I didn't check for it.
+
+But the spec did not say there's a dependency :(.
+My point is what should we do if there's F_STANDBY but no MAC?
+Maybe add a separate patch clearing F_STANDBY in this case?
+
+> > 
+> > 
+> > >   free_unregister_netdev:
+> > > -- 
+> > > 2.39.0
+> > 
+> 
+> Thanks,
+> Laurent
 
 _______________________________________________
 Virtualization mailing list
