@@ -1,104 +1,122 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09D00C05027
-	for <virtualization@archiver.kernel.org>; Sun, 29 Jan 2023 06:20:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B900AC05027
+	for <virtualization@archiver.kernel.org>; Sun, 29 Jan 2023 07:30:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 90C8060E6B;
-	Sun, 29 Jan 2023 06:20:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90C8060E6B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=D61UlnSi
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1E74841731;
+	Sun, 29 Jan 2023 07:30:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1E74841731
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MV66PArB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f9Gu8Z8HA_t8; Sun, 29 Jan 2023 06:20:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0933560E72;
-	Sun, 29 Jan 2023 06:20:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0933560E72
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id J3jMsg1qOF6N; Sun, 29 Jan 2023 07:30:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0491B41679;
+	Sun, 29 Jan 2023 07:30:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0491B41679
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DAE8FC0032;
-	Sun, 29 Jan 2023 06:20:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B8562C0033;
+	Sun, 29 Jan 2023 07:30:17 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 997AFC002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 024F1C002B
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Jan 2023 06:20:07 +0000 (UTC)
+ Sun, 29 Jan 2023 07:30:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7535B60E72
+ by smtp3.osuosl.org (Postfix) with ESMTP id BC58F60EF2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Jan 2023 06:20:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7535B60E72
+ Sun, 29 Jan 2023 07:30:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC58F60EF2
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=MV66PArB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U_C12V2Tv2m3
+ with ESMTP id UZE-GnlSb8ln
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Jan 2023 06:20:06 +0000 (UTC)
+ Sun, 29 Jan 2023 07:30:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34C2660EC2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5889C60E67
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 34C2660EC2
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5889C60E67
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Jan 2023 06:20:06 +0000 (UTC)
+ Sun, 29 Jan 2023 07:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1674973205;
+ s=mimecast20190719; t=1674977412;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=uSc5kMQIrJoN9P5YHSL/hseG1HjiJRP/zsBSd2TqU6A=;
- b=D61UlnSiY6rTc10kfr1CETIZb5nNONbX9byWMSMhbMsq1j4ZjmgrLTM08bnRFwMz7nVhTF
- TId2NtMOJq3+Nd0e8wtZJkpyHgZfeGrk2jsI1R6yfIigp4y7PHdJt+pDBYGmg+l0NMUmAx
- gWDEr/Nh+UuZXeBQKp+MIB8Ot7DGsV0=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Ov+1IIBAWUO4cVMGk1jfLqe88PNWYaRlwb1nxeeSoz8=;
+ b=MV66PArBGajreXgRz1MKlGH4MqzoOogvGVw+W3QvLJaXcKcAqhm14YHNlzlsHL6dVUgJ3z
+ qgxGndB7oYO54AEoDcjttsBSzJJR4ivyR6C+GhWqK9nSwI57petwlVPCPbDuBnVUwVG3JY
+ UXqttpx3HnXlQOblvNuV+kCVuOAj7xM=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-632-nbUYgMJYOoSmGHve_asygw-1; Sun, 29 Jan 2023 01:20:03 -0500
-X-MC-Unique: nbUYgMJYOoSmGHve_asygw-1
-Received: by mail-oi1-f197.google.com with SMTP id
- fe12-20020a0568082b0c00b0036eb985c232so3870523oib.21
+ us-mta-56-REti49ztPdWOv9-d34i_ww-1; Sun, 29 Jan 2023 02:30:08 -0500
+X-MC-Unique: REti49ztPdWOv9-d34i_ww-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ o5-20020a05600c4fc500b003db0b3230efso7365705wmq.9
  for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Jan 2023 22:20:03 -0800 (PST)
+ Sat, 28 Jan 2023 23:30:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=uSc5kMQIrJoN9P5YHSL/hseG1HjiJRP/zsBSd2TqU6A=;
- b=lHBDsWy2uHef1nG8FTgNBZbNLxSbfDF9Er9z1QPpy6UrekWXrspZ7E/C3PjnbIFch4
- HyO93Tj9ipUMUQwugXnH+D7skQVMoA54pnnBa6C3vBfkDCcYEQcP3cZ1z8rExFEAkyOs
- JqVc07lXrfPgSMY+8PxDpZOEZRFLRo8Es9Pgy4uNyAJxpcGtkAiC8n21TRWjjIgiXrCv
- FeSVIK3I+OVOFBjbvoDThtQTHhQWhKpcALXOfRmnRgu976tjYGzMKbWZbMIobaW3trHu
- PDIPM1zCxZRBYPyeHr8m0AngtilJazu711+W7ozA0HaDlS8SjgFF9L9htWBGgPmh8GNr
- rpyg==
-X-Gm-Message-State: AFqh2kpGlode0oI0YAdc7aG1+/EP0CyR4ELyMAwZTQJcnT5MiGS6kC29
- qzqD85WZptxboxDfAz4IFJImpP32XljI6pY7bGlx69a+G5OW8m+rEpKCz4xeloVGzMm+z3eSWSx
- vkB8y9uOPkyuzfg5edenQgq8s5EmzQXjmcBqDafKLk/S0TklQvH8xFOEvyQ==
-X-Received: by 2002:aca:3f84:0:b0:36e:f5f8:cce1 with SMTP id
- m126-20020aca3f84000000b0036ef5f8cce1mr791330oia.35.1674973202580; 
- Sat, 28 Jan 2023 22:20:02 -0800 (PST)
-X-Google-Smtp-Source: AMrXdXtMrkKhsCeRHW9oSWEo7doSfwG3bU6YTWnvW+eaZmM8AhcE5yYnBdXalocAY1Y10hzmMIJYfXvFvkx+RHLIPYc=
-X-Received: by 2002:aca:3f84:0:b0:36e:f5f8:cce1 with SMTP id
- m126-20020aca3f84000000b0036ef5f8cce1mr791324oia.35.1674973202261; Sat, 28
- Jan 2023 22:20:02 -0800 (PST)
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=Ov+1IIBAWUO4cVMGk1jfLqe88PNWYaRlwb1nxeeSoz8=;
+ b=UnXI1VGJOy8rEiVwCrDfgjBOK+4CvGzOTqS5n9z/0LAP27fjDAto1i8YPIOIfjmj/S
+ Xe1WnTVQ2YBYY5mvfnEIW2ujqYDW7qdX8OB+oB2eBETZ7ORbARUi/+iO36yjMqtibf6M
+ 6TMT4s2WkB3DEiY8B8QTTiO9wtZL7o+LmGHmh9rXUrrPY+tJffdmHYm2/QOlj8uhpfcp
+ b9wg3wzYdcYpf3xh/tur0XB+ZsxpVroK3xtyPst9iScn8URhrK8vUI6doPZFso4AMYc9
+ yyHMa7gkxFbV8jGUC1FDi8csiIajwuDY50m2+bgNEIlarUSI34rGLlWX2dQJADGPwc4m
+ S/oA==
+X-Gm-Message-State: AO0yUKWJ7ndfpYatvXzXkIZL3OPg82QpgXUk5ayKb7tpcnlgqemhXO5p
+ aFfAl12C0ik7ZbRKb2T+othSy8sSOiPMn/xzHdLQzAxgGrs3Fw13cZCvLqWTh4eR6R05FBjfEun
+ fAA/avUa413jkod2i1UATifAw6hBKxzeCXRu1/YPbDw==
+X-Received: by 2002:a5d:6088:0:b0:2bf:e533:3158 with SMTP id
+ w8-20020a5d6088000000b002bfe5333158mr1886325wrt.20.1674977407430; 
+ Sat, 28 Jan 2023 23:30:07 -0800 (PST)
+X-Google-Smtp-Source: AK7set9LsUvsi2F0Rhe6agjXYMxH1Bd/kDEDU1j0Zr9SlfykK9KgWHLBzwN6kTKcmrPBAf0LiiWnSA==
+X-Received: by 2002:a5d:6088:0:b0:2bf:e533:3158 with SMTP id
+ w8-20020a5d6088000000b002bfe5333158mr1886305wrt.20.1674977407110; 
+ Sat, 28 Jan 2023 23:30:07 -0800 (PST)
+Received: from redhat.com ([2.52.20.248]) by smtp.gmail.com with ESMTPSA id
+ z2-20020a5d6542000000b00267bcb1bbe5sm8398974wrv.56.2023.01.28.23.30.05
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 28 Jan 2023 23:30:06 -0800 (PST)
+Date: Sun, 29 Jan 2023 02:30:03 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 3/4] virtio_ring: introduce a per virtqueue waitqueue
+Message-ID: <20230129022809-mutt-send-email-mst@kernel.org>
+References: <d77bc1ce-b73f-1ba8-f04f-b3bffeb731c3@redhat.com>
+ <20221227043148-mutt-send-email-mst@kernel.org>
+ <0d9f1b89-9374-747b-3fb0-b4b28ad0ace1@redhat.com>
+ <CACGkMEv=+D+Es4sfde_X7F0zspVdy4Rs1Wi9qfCudsznsUrOTQ@mail.gmail.com>
+ <20221229020553-mutt-send-email-mst@kernel.org>
+ <CACGkMEs5s3Muo+4OfjaLK_P76rTdPhjQdTwykRNGOecAWnt+8g@mail.gmail.com>
+ <20221229030633-mutt-send-email-mst@kernel.org>
+ <CACGkMEukqZX=6yz1yCj+psHp5c+ZGVVuEYTUssfRCTQZgVWS6g@mail.gmail.com>
+ <20230127053112-mutt-send-email-mst@kernel.org>
+ <CACGkMEsZs=6TaeSUnu_9Rf+38uisi6ViHyM50=2+ut3Wze2S1g@mail.gmail.com>
 MIME-Version: 1.0
-References: <20230129025034.2000-1-longpeng2@huawei.com>
- <20230129025034.2000-3-longpeng2@huawei.com>
-In-Reply-To: <20230129025034.2000-3-longpeng2@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Sun, 29 Jan 2023 14:19:51 +0800
-Message-ID: <CACGkMEvZsfxQW0fVdy0CpqxoWQzz6z=dYK__xFisncuSRms67A@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] vdpasim: support doorbell mapping
-To: "Longpeng(Mike)" <longpeng2@huawei.com>
+In-Reply-To: <CACGkMEsZs=6TaeSUnu_9Rf+38uisi6ViHyM50=2+ut3Wze2S1g@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, yechuan@huawei.com,
- eperezma@redhat.com, huangzhichao@huawei.com, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
+ pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,200 +128,123 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Jan 29, 2023 at 10:51 AM Longpeng(Mike) <longpeng2@huawei.com> wrote:
->
-> From: Longpeng <longpeng2@huawei.com>
->
-> Support doorbell mapping for vdpasim devices, then we can test the notify
-> passthrough feature even if there's no real hardware on hand.
->
-> Allocates a dummy page which is used to emulate the notify page of the device,
-> all VQs share the same notify register  that initiated to 0xffff. A  periodic
-> work will check whether there're requests need to process ( the value of the
-> notify register is 0xffff or not ).
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 65 ++++++++++++++++++++++++++++++++
->  drivers/vdpa/vdpa_sim/vdpa_sim.h |  3 ++
->  2 files changed, 68 insertions(+)
->
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index b071f0d842fb..4fcfeb6e2fb8 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -39,6 +39,8 @@ MODULE_PARM_DESC(max_iotlb_entries,
->  #define VDPASIM_QUEUE_ALIGN PAGE_SIZE
->  #define VDPASIM_QUEUE_MAX 256
->  #define VDPASIM_VENDOR_ID 0
-> +#define VDPASIM_VRING_POLL_PERIOD 100 /* ms */
-> +#define VDPASIM_NOTIFY_DEFVAL 0xffff
->
->  static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
->  {
-> @@ -246,6 +248,28 @@ static const struct dma_map_ops vdpasim_dma_ops = {
->  static const struct vdpa_config_ops vdpasim_config_ops;
->  static const struct vdpa_config_ops vdpasim_batch_config_ops;
->
-> +static void vdpasim_notify_work(struct work_struct *work)
-> +{
-> +       struct vdpasim *vdpasim;
-> +       u16 *val;
-> +
-> +       vdpasim = container_of(work, struct vdpasim, notify_work.work);
-> +
-> +       if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> +               goto out;
-> +
-> +       if (!vdpasim->running)
-> +               goto out;
-> +
-> +       val = (u16 *)vdpasim->notify;
-> +       if (xchg(val, VDPASIM_NOTIFY_DEFVAL) != VDPASIM_NOTIFY_DEFVAL)
-> +               schedule_work(&vdpasim->work);
-> +
-> +out:
-> +       schedule_delayed_work(&vdpasim->notify_work,
-> +                             msecs_to_jiffies(VDPASIM_VRING_POLL_PERIOD));
-> +}
-> +
->  struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
->                                const struct vdpa_dev_set_config *config)
->  {
-> @@ -287,6 +311,13 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
->         set_dma_ops(dev, &vdpasim_dma_ops);
->         vdpasim->vdpa.mdev = dev_attr->mgmt_dev;
->
-> +       INIT_DELAYED_WORK(&vdpasim->notify_work, vdpasim_notify_work);
-> +
-> +       vdpasim->notify = __get_free_page(GFP_KERNEL | __GFP_ZERO);
-> +       if (!vdpasim->notify)
-> +               goto err_iommu;
-
-We can simply avoid the advertising notification area in this case.
-
-> +       *(u16 *)vdpasim->notify = VDPASIM_NOTIFY_DEFVAL;
-
-WRITE_ONCE()?
-
-> +
->         vdpasim->config = kzalloc(dev_attr->config_size, GFP_KERNEL);
->         if (!vdpasim->config)
->                 goto err_iommu;
-> @@ -498,16 +529,21 @@ static u8 vdpasim_get_status(struct vdpa_device *vdpa)
->  static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
->  {
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-> +       bool started = vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK;
-
-Do we need to do the check under the vdpasim->lock?
-
->
->         spin_lock(&vdpasim->lock);
->         vdpasim->status = status;
->         spin_unlock(&vdpasim->lock);
-> +       if (!started && (status & VIRTIO_CONFIG_S_DRIVER_OK))
-> +               schedule_delayed_work(&vdpasim->notify_work,
-> +                                     msecs_to_jiffies(VDPASIM_VRING_POLL_PERIOD));
->  }
->
->  static int vdpasim_reset(struct vdpa_device *vdpa)
->  {
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->
-> +       cancel_delayed_work_sync(&vdpasim->notify_work);
-
-Do we need to do this after setting running to zero? Otherwise it's racy.
-
-Thanks
-
->         spin_lock(&vdpasim->lock);
->         vdpasim->status = 0;
->         vdpasim_do_reset(vdpasim);
-> @@ -672,11 +708,34 @@ static int vdpasim_dma_unmap(struct vdpa_device *vdpa, unsigned int asid,
->         return 0;
->  }
->
-> +static pgprot_t vdpasim_get_vq_notification_pgprot(struct vdpa_device *vdpa,
-> +                                                  u16 qid, pgprot_t prot)
-> +{
-> +       /*
-> +        * We use normal RAM pages to emulate the vq notification area, so
-> +        * just keep the pgprot as it mmaped.
-> +        */
-> +       return prot;
-> +}
-> +
-> +static struct vdpa_notification_area
-> +vdpasim_get_vq_notification(struct vdpa_device *vdpa, u16 qid)
-> +{
-> +       struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-> +       struct vdpa_notification_area notify;
-> +
-> +       notify.addr = virt_to_phys((void *)vdpasim->notify);
-> +       notify.size = PAGE_SIZE;
-> +
-> +       return notify;
-> +}
-> +
->  static void vdpasim_free(struct vdpa_device *vdpa)
->  {
->         struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->         int i;
->
-> +       cancel_delayed_work_sync(&vdpasim->notify_work);
->         cancel_work_sync(&vdpasim->work);
->
->         for (i = 0; i < vdpasim->dev_attr.nvqs; i++) {
-> @@ -693,6 +752,8 @@ static void vdpasim_free(struct vdpa_device *vdpa)
->         vhost_iotlb_free(vdpasim->iommu);
->         kfree(vdpasim->vqs);
->         kfree(vdpasim->config);
-> +       if (vdpasim->notify)
-> +               free_page(vdpasim->notify);
->  }
->
->  static const struct vdpa_config_ops vdpasim_config_ops = {
-> @@ -704,6 +765,8 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
->         .get_vq_ready           = vdpasim_get_vq_ready,
->         .set_vq_state           = vdpasim_set_vq_state,
->         .get_vq_state           = vdpasim_get_vq_state,
-> +       .get_vq_notification    = vdpasim_get_vq_notification,
-> +       .get_vq_notification_pgprot = vdpasim_get_vq_notification_pgprot,
->         .get_vq_align           = vdpasim_get_vq_align,
->         .get_vq_group           = vdpasim_get_vq_group,
->         .get_device_features    = vdpasim_get_device_features,
-> @@ -737,6 +800,8 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
->         .get_vq_ready           = vdpasim_get_vq_ready,
->         .set_vq_state           = vdpasim_set_vq_state,
->         .get_vq_state           = vdpasim_get_vq_state,
-> +       .get_vq_notification    = vdpasim_get_vq_notification,
-> +       .get_vq_notification_pgprot = vdpasim_get_vq_notification_pgprot,
->         .get_vq_align           = vdpasim_get_vq_align,
->         .get_vq_group           = vdpasim_get_vq_group,
->         .get_device_features    = vdpasim_get_device_features,
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> index 0e78737dcc16..0769ccbd3911 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> @@ -69,6 +69,9 @@ struct vdpasim {
->         bool running;
->         /* spinlock to synchronize iommu table */
->         spinlock_t iommu_lock;
-> +       /* dummy notify page */
-> +       unsigned long notify;
-> +       struct delayed_work notify_work;
->  };
->
->  struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *attr,
-> --
-> 2.23.0
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU3VuLCBKYW4gMjksIDIwMjMgYXQgMDE6NDg6NDlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiBGcmksIEphbiAyNywgMjAyMyBhdCA2OjM1IFBNIE1pY2hhZWwgUy4gVHNpcmtpbiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIEZyaSwgRGVjIDMwLCAyMDIyIGF0IDEx
+OjQzOjA4QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IE9uIFRodSwgRGVjIDI5LCAy
+MDIyIGF0IDQ6MTAgUE0gTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6
+Cj4gPiA+ID4KPiA+ID4gPiBPbiBUaHUsIERlYyAyOSwgMjAyMiBhdCAwNDowNDoxM1BNICswODAw
+LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gT24gVGh1LCBEZWMgMjksIDIwMjIgYXQgMzow
+NyBQTSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+ID4gPiA+
+ID4KPiA+ID4gPiA+ID4gT24gV2VkLCBEZWMgMjgsIDIwMjIgYXQgMDc6NTM6MDhQTSArMDgwMCwg
+SmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBPbiBXZWQsIERlYyAyOCwgMjAyMiBhdCAy
+OjM0IFBNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiDlnKggMjAyMi8xMi8yNyAxNzoz
+OCwgTWljaGFlbCBTLiBUc2lya2luIOWGmemBkzoKPiA+ID4gPiA+ID4gPiA+ID4gT24gVHVlLCBE
+ZWMgMjcsIDIwMjIgYXQgMDU6MTI6NThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4g
+PiA+ID4gPiA+ID4+IOWcqCAyMDIyLzEyLzI3IDE1OjMzLCBNaWNoYWVsIFMuIFRzaXJraW4g5YaZ
+6YGTOgo+ID4gPiA+ID4gPiA+ID4gPj4+IE9uIFR1ZSwgRGVjIDI3LCAyMDIyIGF0IDEyOjMwOjM1
+UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiA+Pj4+PiBCdXQgZGV2
+aWNlIGlzIHN0aWxsIGdvaW5nIGFuZCB3aWxsIGxhdGVyIHVzZSB0aGUgYnVmZmVycy4KPiA+ID4g
+PiA+ID4gPiA+ID4+Pj4+Cj4gPiA+ID4gPiA+ID4gPiA+Pj4+PiBTYW1lIGZvciB0aW1lb3V0IHJl
+YWxseS4KPiA+ID4gPiA+ID4gPiA+ID4+Pj4gQXZvaWRpbmcgaW5maW5pdGUgd2FpdC9wb2xsIGlz
+IG9uZSBvZiB0aGUgZ29hbHMsIGFub3RoZXIgaXMgdG8gc2xlZXAuCj4gPiA+ID4gPiA+ID4gPiA+
+Pj4+IElmIHdlIHRoaW5rIHRoZSB0aW1lb3V0IGlzIGhhcmQsIHdlIGNhbiBzdGFydCBmcm9tIHRo
+ZSB3YWl0Lgo+ID4gPiA+ID4gPiA+ID4gPj4+Pgo+ID4gPiA+ID4gPiA+ID4gPj4+PiBUaGFua3MK
+PiA+ID4gPiA+ID4gPiA+ID4+PiBJZiB0aGUgZ29hbCBpcyB0byBhdm9pZCBkaXNydXB0aW5nIHRy
+YWZmaWMgd2hpbGUgQ1ZRIGlzIGluIHVzZSwKPiA+ID4gPiA+ID4gPiA+ID4+PiB0aGF0IHNvdW5k
+cyBtb3JlIHJlYXNvbmFibGUuIEUuZy4gc29tZW9uZSBpcyB0dXJuaW5nIG9uIHByb21pc2MsCj4g
+PiA+ID4gPiA+ID4gPiA+Pj4gYSBzcGlrZSBpbiBDUFUgdXNhZ2UgbWlnaHQgYmUgdW53ZWxjb21l
+Lgo+ID4gPiA+ID4gPiA+ID4gPj4KPiA+ID4gPiA+ID4gPiA+ID4+IFllcywgdGhpcyB3b3VsZCBi
+ZSBtb3JlIG9idmlvdXMgaXMgVVAgaXMgdXNlZC4KPiA+ID4gPiA+ID4gPiA+ID4+Cj4gPiA+ID4g
+PiA+ID4gPiA+Pgo+ID4gPiA+ID4gPiA+ID4gPj4+IHRoaW5ncyB3ZSBzaG91bGQgYmUgY2FyZWZ1
+bCB0byBhZGRyZXNzIHRoZW46Cj4gPiA+ID4gPiA+ID4gPiA+Pj4gMS0gZGVidWdnaW5nLiBDdXJy
+ZW50bHkgaXQncyBlYXN5IHRvIHNlZSBhIHdhcm5pbmcgaWYgQ1BVIGlzIHN0dWNrCj4gPiA+ID4g
+PiA+ID4gPiA+Pj4gICAgICBpbiBhIGxvb3AgZm9yIGEgd2hpbGUsIGFuZCB3ZSBhbHNvIGdldCBh
+IGJhY2t0cmFjZS4KPiA+ID4gPiA+ID4gPiA+ID4+PiAgICAgIEUuZy4gd2l0aCB0aGlzIC0gaG93
+IGRvIHdlIGtub3cgd2hvIGhhcyB0aGUgUlROTD8KPiA+ID4gPiA+ID4gPiA+ID4+PiAgICAgIFdl
+IG5lZWQgdG8gaW50ZWdyYXRlIHdpdGgga2VybmVsL3dhdGNoZG9nLmMgZm9yIGdvb2QgcmVzdWx0
+cwo+ID4gPiA+ID4gPiA+ID4gPj4+ICAgICAgYW5kIHRvIG1ha2Ugc3VyZSBwb2xpY3kgaXMgY29u
+c2lzdGVudC4KPiA+ID4gPiA+ID4gPiA+ID4+Cj4gPiA+ID4gPiA+ID4gPiA+PiBUaGF0J3MgZmlu
+ZSwgd2lsbCBjb25zaWRlciB0aGlzLgo+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gU28gYWZ0
+ZXIgc29tZSBpbnZlc3RpZ2F0aW9uLCBpdCBzZWVtcyB0aGUgd2F0Y2hkb2cuYyBkb2Vzbid0IGhl
+bHAuIFRoZQo+ID4gPiA+ID4gPiA+IG9ubHkgZXhwb3J0IGhlbHBlciBpcyB0b3VjaF9zb2Z0bG9j
+a3VwX3dhdGNoZG9nKCkgd2hpY2ggdHJpZXMgdG8gYXZvaWQKPiA+ID4gPiA+ID4gPiB0cmlnZ2Vy
+aW5nIHRoZSBsb2NrdXBzIHdhcm5pbmcgZm9yIHRoZSBrbm93biBzbG93IHBhdGguCj4gPiA+ID4g
+PiA+Cj4gPiA+ID4gPiA+IEkgbmV2ZXIgc2FpZCB5b3UgY2FuIGp1c3QgdXNlIGV4aXN0aW5nIGV4
+cG9ydGluZyBBUElzLiBZb3UnbGwgaGF2ZSB0bwo+ID4gPiA+ID4gPiB3cml0ZSBuZXcgb25lcyA6
+KQo+ID4gPiA+ID4KPiA+ID4gPiA+IE9rLCBJIHRob3VnaHQgeW91IHdhbnRlZCB0byB0cmlnZ2Vy
+IHNpbWlsYXIgd2FybmluZ3MgYXMgYSB3YXRjaGRvZy4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBCdHcs
+IEkgd29uZGVyIHdoYXQga2luZCBvZiBsb2dpYyB5b3Ugd2FudCBoZXJlLiBJZiB3ZSBzd2l0Y2gg
+dG8gdXNpbmcKPiA+ID4gPiA+IHNsZWVwLCB0aGVyZSB3b24ndCBiZSBzb2Z0IGxvY2t1cCBhbnlt
+b3JlLiBBIHNpbXBsZSB3YWl0ICsgdGltZW91dCArCj4gPiA+ID4gPiB3YXJuaW5nIHNlZW1zIHN1
+ZmZpY2llbnQ/Cj4gPiA+ID4gPgo+ID4gPiA+ID4gVGhhbmtzCj4gPiA+ID4KPiA+ID4gPiBJJ2Qg
+bGlrZSB0byBhdm9pZCBuZWVkIHRvIHRlYWNoIHVzZXJzIG5ldyBBUElzLiBTbyB3YXRjaGRvZyBz
+ZXR1cCB0byBhcHBseQo+ID4gPiA+IHRvIHRoaXMgZHJpdmVyLiBUaGUgd2FybmluZyBjYW4gYmUg
+ZGlmZmVyZW50Lgo+ID4gPgo+ID4gPiBSaWdodCwgc28gaXQgbG9va3MgdG8gbWUgdGhlIG9ubHkg
+cG9zc2libGUgc2V0dXAgaXMgdGhlCj4gPiA+IHdhdGNoZG9nX3RocmVzLiBJIHBsYW4gdG8gdHJp
+Z2dlciB0aGUgd2FybmluZyBldmVyeSB3YXRjaGRvZ190aHJlcyAqIDIKPiA+ID4gc2Vjb25kIChh
+cyBzb2Z0bG9ja3VwIGRpZCkuCj4gPiA+Cj4gPiA+IEFuZCBJIHRoaW5rIGl0IHdvdWxkIHN0aWxs
+IG1ha2Ugc2Vuc2UgdG8gZmFpbCwgd2UgY2FuIHN0YXJ0IHdpdGggYQo+ID4gPiB2ZXJ5IGxvbmcg
+dGltZW91dCBsaWtlIDEgbWludXRlcyBhbmQgYnJlYWsgdGhlIGRldmljZS4gRG9lcyB0aGlzIG1h
+a2UKPiA+ID4gc2Vuc2U/Cj4gPiA+Cj4gPiA+IFRoYW5rcwo+ID4KPiA+IEknZCBzYXkgd2UgbmVl
+ZCB0byBtYWtlIHRoaXMgbWFuYWdlYWJsZSB0aGVuLgo+IAo+IERpZCB5b3UgbWVhbiBzb21ldGhp
+bmcgbGlrZSBzeXNmcyBvciBtb2R1bGUgcGFyYW1ldGVycz8KCk5vIEknZCBzYXkgcGFzcyBpdCB3
+aXRoIGFuIGlvY3RsLgoKPiA+IENhbid0IHdlIGRvIGl0IG5vcm1hbGx5Cj4gPiBlLmcuIHJlYWN0
+IHRvIGFuIGludGVycnVwdCB0byByZXR1cm4gdG8gdXNlcnNwYWNlPwo+IAo+IEkgZGlkbid0IGdl
+dCB0aGUgbWVhbmluZyBvZiB0aGlzLiBTb3JyeS4KPiAKPiBUaGFua3MKClN0YW5kYXJkIHdheSB0
+byBoYW5kbGUgdGhpbmdzIHRoYXQgY2FuIHRpbWVvdXQgYW5kIHdoZXJlIHVzZXJzcGFjZQpkaWQg
+bm90IHN1cHBseSB0aGUgdGltZSBpcyB0byBibG9jayB1bnRpbCBhbiBpbnRlcnJ1cHQKdGhlbiBy
+ZXR1cm4gRUlOVFIuIFVzZXJzcGFjZSBjb250cm9scyB0aGUgdGltZW91dCBieQp1c2luZyBlLmcu
+IGFsYXJtKDIpLgoKCj4gPgo+ID4KPiA+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gPgo+ID4g
+PiA+ID4gPiA+IEFuZCBiZWZvcmUgdGhlIHBhdGNoLCB3ZSBlbmQgdXAgd2l0aCBhIHJlYWwgaW5m
+aW5pdGUgbG9vcCB3aGljaCBjb3VsZAo+ID4gPiA+ID4gPiA+IGJlIGNhdWdodCBieSBSQ1Ugc3Rh
+bGwgZGV0ZWN0b3Igd2hpY2ggaXMgbm90IHRoZSBjYXNlIG9mIHRoZSBzbGVlcC4KPiA+ID4gPiA+
+ID4gPiBXaGF0IHdlIGNhbiBkbyBpcyBwcm9iYWJseSBkbyBhIHBlcmlvZGljIG5ldGRldl9lcnIo
+KS4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4gPgo+ID4gPiA+
+ID4gPiBPbmx5IHdpdGggYSBiYWQgZGV2aWNlLgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4g
+Pj4KPiA+ID4gPiA+ID4gPiA+ID4+Cj4gPiA+ID4gPiA+ID4gPiA+Pj4gMi0gb3ZlcmhlYWQuIElu
+IGEgdmVyeSBjb21tb24gc2NlbmFyaW8gd2hlbiBkZXZpY2UgaXMgaW4gaHlwZXJ2aXNvciwKPiA+
+ID4gPiA+ID4gPiA+ID4+PiAgICAgIHByb2dyYW1taW5nIHRpbWVycyBldGMgaGFzIGEgdmVyeSBo
+aWdoIG92ZXJoZWFkLCBhdCBib290dXAKPiA+ID4gPiA+ID4gPiA+ID4+PiAgICAgIGxvdHMgb2Yg
+Q1ZRIGNvbW1hbmRzIGFyZSBydW4gYW5kIHNsb3dpbmcgYm9vdCBkb3duIGlzIG5vdCBuaWNlLgo+
+ID4gPiA+ID4gPiA+ID4gPj4+ICAgICAgbGV0J3MgcG9sbCBmb3IgYSBiaXQgYmVmb3JlIHdhaXRp
+bmc/Cj4gPiA+ID4gPiA+ID4gPiA+Pgo+ID4gPiA+ID4gPiA+ID4gPj4gVGhlbiB3ZSBnbyBiYWNr
+IHRvIHRoZSBxdWVzdGlvbiBvZiBjaG9vc2luZyBhIGdvb2QgdGltZW91dCBmb3IgcG9sbC4gQW5k
+Cj4gPiA+ID4gPiA+ID4gPiA+PiBwb2xsIHNlZW1zIHByb2JsZW1hdGljIGluIHRoZSBjYXNlIG9m
+IFVQLCBzY2hlZHVsZXIgbWlnaHQgbm90IGhhdmUgdGhlCj4gPiA+ID4gPiA+ID4gPiA+PiBjaGFu
+Y2UgdG8gcnVuLgo+ID4gPiA+ID4gPiA+ID4gPiBQb2xsIGp1c3QgYSBiaXQgOikgU2VyaW91c2x5
+IEkgZG9uJ3Qga25vdywgYnV0IGF0IGxlYXN0IGNoZWNrIG9uY2UKPiA+ID4gPiA+ID4gPiA+ID4g
+YWZ0ZXIga2ljay4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+
+ID4gSSB0aGluayBpdCBpcyB3aGF0IHRoZSBjdXJyZW50IGNvZGUgZGlkIHdoZXJlIHRoZSBjb25k
+aXRpb24gd2lsbCBiZQo+ID4gPiA+ID4gPiA+ID4gY2hlY2sgYmVmb3JlIHRyeWluZyB0byBzbGVl
+cCBpbiB0aGUgd2FpdF9ldmVudCgpLgo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+Cj4g
+PiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+Pj4gMy0gc3VwcmlzZSByZW1vdmFsLiBu
+ZWVkIHRvIHdha2UgdXAgdGhyZWFkIGluIHNvbWUgd2F5LiB3aGF0IGFib3V0Cj4gPiA+ID4gPiA+
+ID4gPiA+Pj4gICAgICBvdGhlciBjYXNlcyBvZiBkZXZpY2UgYnJlYWthZ2UgLSBpcyB0aGVyZSBh
+IGNoYW5jZSB0aGlzCj4gPiA+ID4gPiA+ID4gPiA+Pj4gICAgICBpbnRyb2R1Y2VzIG5ldyBidWdz
+IGFyb3VuZCB0aGF0PyBhdCBsZWFzdCBlbnVtZXJhdGUgdGhlbSBwbGVhc2UuCj4gPiA+ID4gPiA+
+ID4gPiA+Pgo+ID4gPiA+ID4gPiA+ID4gPj4gVGhlIGN1cnJlbnQgY29kZSBkaWQ6Cj4gPiA+ID4g
+PiA+ID4gPiA+Pgo+ID4gPiA+ID4gPiA+ID4gPj4gMSkgY2hlY2sgZm9yIHZxLT5icm9rZW4KPiA+
+ID4gPiA+ID4gPiA+ID4+IDIpIHdha2V1cCBkdXJpbmcgQkFEX1JJTkcoKQo+ID4gPiA+ID4gPiA+
+ID4gPj4KPiA+ID4gPiA+ID4gPiA+ID4+IFNvIHdlIHdvbid0IGVuZCB1cCB3aXRoIGEgbmV2ZXIg
+d29rZSB1cCBwcm9jZXNzIHdoaWNoIHNob3VsZCBiZSBmaW5lLgo+ID4gPiA+ID4gPiA+ID4gPj4K
+PiA+ID4gPiA+ID4gPiA+ID4+IFRoYW5rcwo+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+
+ID4gPiBCVFcgQkFEX1JJTkcgb24gcmVtb3ZhbCB3aWxsIHRyaWdnZXIgZGV2X2Vyci4gTm90IHN1
+cmUgdGhhdCBpcyBhIGdvb2QKPiA+ID4gPiA+ID4gPiA+ID4gaWRlYSAtIGNhbiBjYXVzZSBjcmFz
+aGVzIGlmIGtlcm5lbCBwYW5pY3Mgb24gZXJyb3IuCj4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4g
+PiA+ID4KPiA+ID4gPiA+ID4gPiA+IFllcywgaXQncyBiZXR0ZXIgdG8gdXNlIF9fdmlydHF1ZXVl
+X2JyZWFrKCkgaW5zdGVhZC4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBCdXQgY29u
+c2lkZXIgd2Ugd2lsbCBzdGFydCBmcm9tIGEgd2FpdCBmaXJzdCwgSSB3aWxsIGxpbWl0IHRoZSBj
+aGFuZ2VzCj4gPiA+ID4gPiA+ID4gPiBpbiB2aXJ0aW8tbmV0IHdpdGhvdXQgYm90aGVyaW5nIHZp
+cnRpbyBjb3JlLgo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+
+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4g
+PiA+Pj4KPiA+ID4gPiA+ID4KPiA+ID4gPgo+ID4KCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
