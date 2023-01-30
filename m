@@ -1,106 +1,77 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C5C2C6379F
-	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 17:09:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2504C636D4
+	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 18:36:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BA4A141843;
-	Mon, 30 Jan 2023 17:09:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BA4A141843
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sLC8JHsVbGDg; Mon, 30 Jan 2023 17:09:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9722241837;
-	Mon, 30 Jan 2023 17:09:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9722241837
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 761F5C0032;
-	Mon, 30 Jan 2023 17:09:31 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B5C7C002B
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 17:09:30 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 48AA081E48
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 17:09:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48AA081E48
+	by smtp1.osuosl.org (Postfix) with ESMTP id 483F3813E4;
+	Mon, 30 Jan 2023 18:36:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 483F3813E4
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fqoKpQlrw7hS
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9Au2n5nXQD01; Mon, 30 Jan 2023 18:36:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E2DCD81427;
+	Mon, 30 Jan 2023 18:36:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2DCD81427
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4F46C0033;
+	Mon, 30 Jan 2023 18:36:45 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 27157C002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 17:09:29 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 76FAE81E44
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com
- [209.85.214.170])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 76FAE81E44
+ Mon, 30 Jan 2023 18:36:44 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id F2FC440739
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 17:09:29 +0000 (UTC)
-Received: by mail-pl1-f170.google.com with SMTP id b5so5047039plz.5
+ Mon, 30 Jan 2023 18:36:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F2FC440739
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MLNGMkIcvC-2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 09:09:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=VcAkkG+7EQ87q1yuQfzrNQ/CVfL1BPFACyrSB5AzC9E=;
- b=YXD5ijCmXWVmOiQaLGwFG6mzlwVl/ifHvN0gKAT5MQYVwj7/LWtONc4EuEoU3ZFG/A
- LJXkUfOFWah9t5nCWEqlB6eLPoYcZjAAT1gqCoZ5RhX6RgSZeGynt7tB4AOEHPSIiS8k
- M//KQNhfVWD5Ry3uVxWvCPH0sDKxXOt02fy6n7EMzBxdtDDcYORpRyScha6DplQAMbko
- 6RH1eN3xIZqmojsfF2epqfjyvK9ENq5JykDdIILYZEAxIPX0iOkCt11ctmPM2owKuLlp
- Gym1Gm72OgUOLVeBfOzIu/D3z0oNTH7W0lhKNhzDL/yo+0uyurjpwFrkZN7EyAONFtly
- tmIQ==
-X-Gm-Message-State: AFqh2koMbOkkx8DNFHsCPaf5lsS+gendXHXAvYn64YUPKN6d0szB8ZgK
- dH7aodcrtHnXk10squfe/4g=
-X-Google-Smtp-Source: AMrXdXsoThEeXwb5X9zNdrMM/dBzAwAKgsQUh4DVjXEWAVyR5f6ZoR++CGV0u6k+ufH+Ks5WBdnq6g==
-X-Received: by 2002:a17:902:f646:b0:194:46e0:1b61 with SMTP id
- m6-20020a170902f64600b0019446e01b61mr52496709plg.63.1675098568615; 
- Mon, 30 Jan 2023 09:09:28 -0800 (PST)
-Received: from ?IPV6:2620:15c:211:201:5016:3bcd:59fe:334b?
- ([2620:15c:211:201:5016:3bcd:59fe:334b])
- by smtp.gmail.com with ESMTPSA id
- y16-20020a170902b49000b0019602263feesm8042186plr.90.2023.01.30.09.09.25
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 30 Jan 2023 09:09:27 -0800 (PST)
-Message-ID: <2bab7050-dec7-3af8-b643-31b414b8c4b4@acm.org>
-Date: Mon, 30 Jan 2023 09:09:23 -0800
+ Mon, 30 Jan 2023 18:36:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D87D940554
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D87D940554
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 Jan 2023 18:36:42 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DDC211FB;
+ Mon, 30 Jan 2023 10:37:23 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.12.187])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CBF2C3F71E;
+ Mon, 30 Jan 2023 10:36:39 -0800 (PST)
+Date: Mon, 30 Jan 2023 18:36:32 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
+ loaded vhost worker kthreads
+Message-ID: <Y9gOMCWGmoc5GQMj@FVFF77S0Q05N>
+References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
+ <Y9KyVKQk3eH+RRse@alley> <Y9LswwnPAf+nOVFG@do-x1extreme>
+ <20230127044355.frggdswx424kd5dq@treble>
+ <Y9OpTtqWjAkC2pal@hirez.programming.kicks-ass.net>
+ <20230127165236.rjcp6jm6csdta6z3@treble>
+ <20230127170946.zey6xbr4sm4kvh3x@treble>
+ <20230127221131.sdneyrlxxhc4h3fa@treble>
+ <Y9e6ssSHUt+MUvum@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH 01/23] block: factor out a bvec_set_page helper
-Content-Language: en-US
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-References: <20230130092157.1759539-1-hch@lst.de>
- <20230130092157.1759539-2-hch@lst.de>
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20230130092157.1759539-2-hch@lst.de>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org,
- David Howells <dhowells@redhat.com>, linux-mm@kvack.org,
- Eric Dumazet <edumazet@google.com>, target-devel@vger.kernel.org,
- Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org,
- Mike Marshall <hubcap@omnibond.com>, linux-cifs@vger.kernel.org,
- Sagi Grimberg <sagi@grimberg.me>, linux-scsi@vger.kernel.org,
- Minchan Kim <minchan@kernel.org>, io-uring@vger.kernel.org,
- Jakub Kicinski <kuba@kernel.org>, Ilya Dryomov <idryomov@gmail.com>,
- Paolo Abeni <pabeni@redhat.com>, devel@lists.orangefs.org,
- linux-block@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
- ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
- Trond Myklebust <trond.myklebust@hammerspace.com>, linux-nfs@vger.kernel.org,
- "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
- samba-technical@lists.samba.org, Steve French <sfrench@samba.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Chuck Lever <chuck.lever@oracle.com>, Anna Schumaker <anna@kernel.org>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <Y9e6ssSHUt+MUvum@hirez.programming.kicks-ass.net>
+Cc: Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
+ kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ "Seth Forshee \(DigitalOcean\)" <sforshee@digitalocean.com>,
+ live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
+ Josh Poimboeuf <jpoimboe@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,43 +83,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 1/30/23 01:21, Christoph Hellwig wrote:
-> Add a helper to initialize a bvec based of a page pointer.  This will help
-> removing various open code bvec initializations.
+On Mon, Jan 30, 2023 at 01:40:18PM +0100, Peter Zijlstra wrote:
+> On Fri, Jan 27, 2023 at 02:11:31PM -0800, Josh Poimboeuf wrote:
+> > @@ -8500,8 +8502,10 @@ EXPORT_STATIC_CALL_TRAMP(might_resched);
+> >  static DEFINE_STATIC_KEY_FALSE(sk_dynamic_cond_resched);
+> >  int __sched dynamic_cond_resched(void)
+> >  {
+> > -	if (!static_branch_unlikely(&sk_dynamic_cond_resched))
+> > +	if (!static_branch_unlikely(&sk_dynamic_cond_resched)) {
+> > +		klp_sched_try_switch();
+> >  		return 0;
+> > +	}
+> >  	return __cond_resched();
+> >  }
+> >  EXPORT_SYMBOL(dynamic_cond_resched);
+> 
+> I would make the klp_sched_try_switch() not depend on
+> sk_dynamic_cond_resched, because __cond_resched() is not a guaranteed
+> pass through __schedule().
+> 
+> But you'll probably want to check with Mark here, this all might
+> generate crap code on arm64.
 
-Why do you want to remove the open-coded bvec initializations? What is 
-wrong with open-coding bvec initialization? This patch series modifies a 
-lot of code but does not improve code readability. Anyone who encounters 
-code that uses the new function bvec_set_page() has to look up the 
-definition of that function to figure out what it does.
+IIUC here klp_sched_try_switch() is a static call, so on arm64 this'll generate
+at least a load, a conditional branch, and an indirect branch. That's not
+ideal, but I'd have to benchmark it to find out whether it's a significant
+overhead relative to the baseline of PREEMPT_DYNAMIC.
 
-> -	iv = bip->bip_vec + bip->bip_vcnt;
-> -
->   	if (bip->bip_vcnt &&
->   	    bvec_gap_to_prev(&bdev_get_queue(bio->bi_bdev)->limits,
->   			     &bip->bip_vec[bip->bip_vcnt - 1], offset))
->   		return 0;
->   
-> -	iv->bv_page = page;
-> -	iv->bv_len = len;
-> -	iv->bv_offset = offset;
-> +	bvec_set_page(&bip->bip_vec[bip->bip_vcnt], page, len, offset);
->   	bip->bip_vcnt++;
-
-Has it been considered to use structure assignment instead of 
-introducing bvec_set_page(), e.g. as follows?
-
-bip->bip_vec[bip->bip_vcnt] = (struct bio_vec) {
-       .bv_page = page, .bv_len = len, .bv_offset = offset };
+For arm64 it'd be a bit nicer to have another static key check, and a call to
+__klp_sched_try_switch(). That way the static key check gets turned into a NOP
+in the common case, and the call to __klp_sched_try_switch() can be a direct
+call (potentially a tail-call if we made it return 0).
 
 Thanks,
-
-Bart.
+Mark.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
