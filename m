@@ -1,68 +1,68 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C57F0C61DA4
-	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 09:23:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A2DBC678D5
+	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 09:23:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 649DF817AB;
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4EC1041714;
 	Mon, 30 Jan 2023 09:23:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 649DF817AB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=SyOpTX9C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4EC1041714
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=UO1e7nwC
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RLfsY6uWv7Yr; Mon, 30 Jan 2023 09:23:54 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Iq3pbg-aCrP0; Mon, 30 Jan 2023 09:23:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C7EDF81959;
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 37A094174C;
 	Mon, 30 Jan 2023 09:23:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C7EDF81959
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37A094174C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 617F8C0082;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BE0CC007F;
 	Mon, 30 Jan 2023 09:23:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C3287C0081
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20882C0077
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:23:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 963B4817AB
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 09:23:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 963B4817AB
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lwqcivpSKE2k
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 09:23:50 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0536F81699
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:3::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0536F81699
+ by smtp4.osuosl.org (Postfix) with ESMTP id D3E2A4172A
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:23:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D3E2A4172A
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oRTt4I79z3Kc
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 Jan 2023 09:23:48 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8AFC641737
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:3::133])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8AFC641737
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 Jan 2023 09:23:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=PasJ3iDfX2TllVLQ6e7N8/T+ZQHWRBi9Mi0fIgNsQxA=; b=SyOpTX9CZKgu/mdg93Px99ohqU
- lpY5+Plpyd7Zy3mO80AFoiDBWvs4Fx74nS7dp1CeTeZRYGYVgZlN3xShKOlsqOHMR8YDIfD97TAOl
- i6DuUXOwtd+Qsu7XWKS9q2lROG9nFii2MJjf2cIawTQo8pmmmRvWWh3yI3j64SspCOd4hOaDYQT59
- IxVhU3Tj/X05Ke06JXfdsywRjVOFjJJT2OqUrGdoAw1YlbWzSVrtgtw54YyS4zmtMPEU8NVcbK/29
- hwDgey6wC2KTsvdLDoGO0KUy407IzJh0Nss1p0gnq5DmSbrdtNR41EirSVoNLrufaOEJ9Q1DMff9S
- /WQX3d/Q==;
+ bh=3qeMDW+n608lQ7XRYvaqAkQtBBNz7xL+OjR215zkIbk=; b=UO1e7nwChScdGRWnt+ckYdCTpz
+ cffGVwmOAr9WIi1CMtOSiggD0UKfJpw5o3aJR+6RY6f+COa5q8cd3szdKLRSmmBk/8o983U1Lg0wc
+ ItPZU29NZPb3hGmbv+C9saZ2NV8isV+EyAxFRsl5oXGS+ls/Ho2UjhKpsysa46PfwsMOU8Gj7CgYM
+ g6aoeD80FmRnqZoMeGySNr8FML9baX8bb5LYGaXTnEgnd2jL+LSJi2XTvT5eG07ufkWNH7IgdO+Im
+ JptBCekoIOossTAp+JWcidjNg977cn+klaWqiqh63OAS82nhx4jRhacaWv23EStcOVhccFrZOwyrk
+ MX6JjZ0A==;
 Received: from [2001:4bb8:19a:272a:732e:e417:47d7:2f4a] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pMQMw-002o87-6w; Mon, 30 Jan 2023 09:22:30 +0000
+ id 1pMQN1-002oA8-Cv; Mon, 30 Jan 2023 09:22:35 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 08/23] rbd: use bvec_set_page to initialize the copy up bvec
-Date: Mon, 30 Jan 2023 10:21:42 +0100
-Message-Id: <20230130092157.1759539-9-hch@lst.de>
+Subject: [PATCH 10/23] zram: use bvec_set_page to initialize bvecs
+Date: Mon, 30 Jan 2023 10:21:44 +0100
+Message-Id: <20230130092157.1759539-11-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230130092157.1759539-1-hch@lst.de>
 References: <20230130092157.1759539-1-hch@lst.de>
@@ -104,34 +104,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use the bvec_set_page helper to initialize the copy up bvec.
+Use the bvec_set_page helper to initialize bvecs.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/rbd.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/block/zram/zram_drv.c | 15 ++++-----------
+ 1 file changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index 04453f4a319cb4..1faca7e07a4d52 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -3068,13 +3068,12 @@ static int setup_copyup_bvecs(struct rbd_obj_request *obj_req, u64 obj_overlap)
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index e290d6d970474e..bd8ae4822dc3ef 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -703,9 +703,7 @@ static ssize_t writeback_store(struct device *dev,
+ 	for (; nr_pages != 0; index++, nr_pages--) {
+ 		struct bio_vec bvec;
  
- 	for (i = 0; i < obj_req->copyup_bvec_count; i++) {
- 		unsigned int len = min(obj_overlap, (u64)PAGE_SIZE);
-+		struct page *page = alloc_page(GFP_NOIO);
+-		bvec.bv_page = page;
+-		bvec.bv_len = PAGE_SIZE;
+-		bvec.bv_offset = 0;
++		bvec_set_page(&bvec, page, PAGE_SIZE, 0);
  
--		obj_req->copyup_bvecs[i].bv_page = alloc_page(GFP_NOIO);
--		if (!obj_req->copyup_bvecs[i].bv_page)
-+		if (!page)
- 			return -ENOMEM;
+ 		spin_lock(&zram->wb_limit_lock);
+ 		if (zram->wb_limit_enable && !zram->bd_wb_limit) {
+@@ -1380,12 +1378,9 @@ static void zram_free_page(struct zram *zram, size_t index)
+ static int zram_bvec_read_from_bdev(struct zram *zram, struct page *page,
+ 				    u32 index, struct bio *bio, bool partial_io)
+ {
+-	struct bio_vec bvec = {
+-		.bv_page = page,
+-		.bv_len = PAGE_SIZE,
+-		.bv_offset = 0,
+-	};
++	struct bio_vec bvec;
  
--		obj_req->copyup_bvecs[i].bv_offset = 0;
--		obj_req->copyup_bvecs[i].bv_len = len;
-+		bvec_set_page(&obj_req->copyup_bvecs[i], page, len, 0);
- 		obj_overlap -= len;
++	bvec_set_page(&bvec, page, PAGE_SIZE, 0);
+ 	return read_from_bdev(zram, &bvec, zram_get_element(zram, index), bio,
+ 			      partial_io);
+ }
+@@ -1652,9 +1647,7 @@ static int zram_bvec_write(struct zram *zram, struct bio_vec *bvec,
+ 		memcpy_from_bvec(dst + offset, bvec);
+ 		kunmap_atomic(dst);
+ 
+-		vec.bv_page = page;
+-		vec.bv_len = PAGE_SIZE;
+-		vec.bv_offset = 0;
++		bvec_set_page(&vec, page, PAGE_SIZE, 0);
  	}
  
+ 	ret = __zram_bvec_write(zram, &vec, index, bio);
 -- 
 2.39.0
 
