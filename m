@@ -1,98 +1,130 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29CB0C54EED
-	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 12:40:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E868C54EED
+	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 15:18:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A2FE4819BE;
-	Mon, 30 Jan 2023 12:40:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A2FE4819BE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=QkGJFOeW
+	by smtp3.osuosl.org (Postfix) with ESMTP id B3DAC60FCA;
+	Mon, 30 Jan 2023 15:18:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B3DAC60FCA
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LYj3dWN8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8N78FTVLfFwe; Mon, 30 Jan 2023 12:40:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 61F19819ED;
-	Mon, 30 Jan 2023 12:40:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 61F19819ED
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EYUIMzFHZk0o; Mon, 30 Jan 2023 15:18:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4F29E60FBF;
+	Mon, 30 Jan 2023 15:18:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4F29E60FBF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3132BC0071;
-	Mon, 30 Jan 2023 12:40:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DF629C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F7E9C0032;
+	Mon, 30 Jan 2023 15:18:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C2746C002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 12:40:30 +0000 (UTC)
+ Mon, 30 Jan 2023 15:18:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AD33D408EC
+ by smtp2.osuosl.org (Postfix) with ESMTP id 946B14011B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 12:40:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AD33D408EC
+ Mon, 30 Jan 2023 15:18:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 946B14011B
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=QkGJFOeW
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=LYj3dWN8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P08w6B2AyFKT
+ with ESMTP id hXbiXD1Fa1J2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 12:40:29 +0000 (UTC)
+ Mon, 30 Jan 2023 15:18:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DF58A408D4
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DF58A408D4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C86EA40A31
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C86EA40A31
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Jan 2023 12:40:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=BFYWJkXqjJPJpFT0wydjtQXbF5F3b4P+HfuG4t2+TMg=; b=QkGJFOeWp2gXOe6u+zph8KHMLb
- rUEhBDEFyUZk4EcT9oGZLIdZxF7YjnkwkWHpvbnke74J8GVbpFHFJjoXO18NdGalTTBsN5MwjjPHG
- 6pwDXBQRsqUEigvaGYU5Pc8I8ani9xlvbugcErUyu3yFyqEyHyl5dz9ncjiGtwbPXt0XBnENbIJcM
- xCRGDvY9VuB6p7D0/ba+Hpqmr3kuHr1mhDq2zGrleo7GL131HPSQKgb+XbBVz7ExZoiK4/jvtUNOU
- Df9wYUkjvVDPD9R2FvDO0TxmLUOeyUj/kE01k4wpD9KW7AKsJrLidNicO8w2NYvQaCQALeDwuuyN+
- JeYAGvpQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pMTRr-003wMy-2V; Mon, 30 Jan 2023 12:39:48 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 39B2A3002BF;
- Mon, 30 Jan 2023 13:40:19 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 14FA920BD2C90; Mon, 30 Jan 2023 13:40:19 +0100 (CET)
-Date: Mon, 30 Jan 2023 13:40:18 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Josh Poimboeuf <jpoimboe@kernel.org>
-Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
- loaded vhost worker kthreads
-Message-ID: <Y9e6ssSHUt+MUvum@hirez.programming.kicks-ass.net>
-References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
- <Y9KyVKQk3eH+RRse@alley> <Y9LswwnPAf+nOVFG@do-x1extreme>
- <20230127044355.frggdswx424kd5dq@treble>
- <Y9OpTtqWjAkC2pal@hirez.programming.kicks-ass.net>
- <20230127165236.rjcp6jm6csdta6z3@treble>
- <20230127170946.zey6xbr4sm4kvh3x@treble>
- <20230127221131.sdneyrlxxhc4h3fa@treble>
+ Mon, 30 Jan 2023 15:18:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1675091888;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=URESPY8B3rO6+zudqQ9a2I8Kc4P4ekxUO74igKr3Ygk=;
+ b=LYj3dWN8F+7XqFa16uGwGmwWWGfX+GbOS/LpjPtQ51Nx3nd2LHEydaiX91f44faRkaSC3Y
+ R1uYLyk+HJyS749bPI3PX+GLKHIIQK2zZKAWQigAJf3Krd7mm3FC533PhAHz4V/m1FF6vY
+ GblLzMbtXXNZLMfRXFmhxX77Mxpkeew=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-631-TTpeKxWiO7u7FuuE3gemEg-1; Mon, 30 Jan 2023 10:18:07 -0500
+X-MC-Unique: TTpeKxWiO7u7FuuE3gemEg-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ i9-20020a0560001ac900b002bfda39265aso1151076wry.13
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 Jan 2023 07:18:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=URESPY8B3rO6+zudqQ9a2I8Kc4P4ekxUO74igKr3Ygk=;
+ b=0AWiXTzbSgv5Jh9I5JKqDkur8Db/fCpHRlr51fO9dowIMpV+YoILgk/8Ei+nzkgErS
+ +vjO8BXm2Um4Q/2lwYQxW/dIJyS1JPcqlvjyS01Tlb+rIwR8bqJjUwucmYXtcEI+VSgJ
+ 4+NF3vEFKksbiShUng82tmBz5FDkbzqIlC44aRrzwEmGcfm7jv84z9SYZ85tFFQK2BvW
+ Z26YixXMrygYuBg0gYVzT5aIKYYbJnSEdG9xZglVz0zJ9xLqCeNlgNXKPCR1mgViat3z
+ emLp/rYnrUzhes4ViLLbd4TSHtk4LZGbKJa5Wnoo6YSTQ4fcpslMg4aeueh03bKZtLHw
+ MY0Q==
+X-Gm-Message-State: AO0yUKVAFR9R2lIJA19DlYgig168SSOFLm9s/xi5WVKpFs1YlNYzDSwv
+ tzmCKtZEdzxVF1Sv8B7dLgaHr2AyP7BQ47DTOA6fUY9Bkpj/OCY6/iPxvyQRD/Ql2WFrlzdoGi7
+ uVivDs9y3ErHz58rXdoFnazA5WpfBKtpDnl3S2EDfTw==
+X-Received: by 2002:a05:6000:1105:b0:2bf:b77c:df72 with SMTP id
+ z5-20020a056000110500b002bfb77cdf72mr16512203wrw.25.1675091885644; 
+ Mon, 30 Jan 2023 07:18:05 -0800 (PST)
+X-Google-Smtp-Source: AK7set9hHGYe0bnBQdwa2LZ/rAVCRbopEtGk+crtv3OHnMIQTfwimU+PtBLrc1/FzlqOKTq9Gtug2w==
+X-Received: by 2002:a05:6000:1105:b0:2bf:b77c:df72 with SMTP id
+ z5-20020a056000110500b002bfb77cdf72mr16512171wrw.25.1675091885371; 
+ Mon, 30 Jan 2023 07:18:05 -0800 (PST)
+Received: from redhat.com ([2.52.144.173]) by smtp.gmail.com with ESMTPSA id
+ p6-20020a5d48c6000000b002bfc0558ecdsm11985935wrs.113.2023.01.30.07.18.00
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 30 Jan 2023 07:18:04 -0800 (PST)
+Date: Mon, 30 Jan 2023 10:17:58 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 09/23] virtio_blk: use bvec_set_virt to initialize
+ special_vec
+Message-ID: <20230130101747-mutt-send-email-mst@kernel.org>
+References: <20230130092157.1759539-1-hch@lst.de>
+ <20230130092157.1759539-10-hch@lst.de>
 MIME-Version: 1.0
+In-Reply-To: <20230130092157.1759539-10-hch@lst.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230127221131.sdneyrlxxhc4h3fa@treble>
-Cc: Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
- kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- "Seth Forshee \(DigitalOcean\)" <sforshee@digitalocean.com>,
- live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
+Cc: kvm@vger.kernel.org, linux-nvme@lists.infradead.org,
+ virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>,
+ linux-mm@kvack.org, Eric Dumazet <edumazet@google.com>,
+ target-devel@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+ linux-afs@lists.infradead.org, Mike Marshall <hubcap@omnibond.com>,
+ linux-cifs@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+ linux-scsi@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+ io-uring@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ Ilya Dryomov <idryomov@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
+ devel@lists.orangefs.org, linux-block@vger.kernel.org,
+ Keith Busch <kbusch@kernel.org>, ceph-devel@vger.kernel.org,
+ Xiubo Li <xiubli@redhat.com>,
+ Trond Myklebust <trond.myklebust@hammerspace.com>,
+ Jens Axboe <axboe@kernel.dk>, linux-nfs@vger.kernel.org,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
+ samba-technical@lists.samba.org, Steve French <sfrench@samba.org>,
+ Sergey Senozhatsky <senozhatsky@chromium.org>,
+ Chuck Lever <chuck.lever@oracle.com>, Anna Schumaker <anna@kernel.org>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,118 +141,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jan 27, 2023 at 02:11:31PM -0800, Josh Poimboeuf wrote:
+On Mon, Jan 30, 2023 at 10:21:43AM +0100, Christoph Hellwig wrote:
+> Use the bvec_set_virt helper to initialize the special_vec.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index 4df2b3e76b30..fbcd3acca25c 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -36,6 +36,7 @@
->  #include <linux/seqlock.h>
->  #include <linux/kcsan.h>
->  #include <linux/rv.h>
-> +#include <linux/livepatch_sched.h>
->  #include <asm/kmap_size.h>
+> ---
+>  drivers/block/virtio_blk.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 6a77fa91742880..dc6e9b989910b0 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -170,9 +170,7 @@ static int virtblk_setup_discard_write_zeroes_erase(struct request *req, bool un
 >  
->  /* task_struct member predeclarations (sorted alphabetically): */
-> @@ -2074,6 +2075,9 @@ DECLARE_STATIC_CALL(cond_resched, __cond_resched);
+>  	WARN_ON_ONCE(n != segments);
 >  
->  static __always_inline int _cond_resched(void)
->  {
-> +	//FIXME this is a bit redundant with preemption disabled
-> +	klp_sched_try_switch();
-> +
->  	return static_call_mod(cond_resched)();
->  }
-
-Right, I was thinking you'd do something like:
-
-	static_call_update(cond_resched, klp_cond_resched);
-
-With:
-
-static int klp_cond_resched(void)
-{
-	klp_try_switch_task(current);
-	return __cond_resched();
-}
-
-That would force cond_resched() into doing the transition thing,
-irrespective of the preemption mode at hand. And then, when KLP be done,
-re-run sched_dynamic_update() to reset it to whatever it ought to be.
-
-> @@ -401,8 +421,10 @@ void klp_try_complete_transition(void)
->  	 */
->  	read_lock(&tasklist_lock);
->  	for_each_process_thread(g, task)
-> -		if (!klp_try_switch_task(task))
-> +		if (!klp_try_switch_task(task)) {
-> +			set_tsk_need_resched(task);
->  			complete = false;
-> +		}
-
-Yeah, no, that's broken -- preemption state live in more than just the
-TIF bit.
-
->  	read_unlock(&tasklist_lock);
+> -	req->special_vec.bv_page = virt_to_page(range);
+> -	req->special_vec.bv_offset = offset_in_page(range);
+> -	req->special_vec.bv_len = sizeof(*range) * segments;
+> +	bvec_set_virt(&req->special_vec, range, sizeof(*range) * segments);
+>  	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
 >  
->  	/*
-> @@ -413,6 +435,7 @@ void klp_try_complete_transition(void)
->  		task = idle_task(cpu);
->  		if (cpu_online(cpu)) {
->  			if (!klp_try_switch_task(task)) {
-> +				set_tsk_need_resched(task);
->  				complete = false;
->  				/* Make idle task go through the main loop. */
->  				wake_up_if_idle(cpu);
-
-Idem.
-
-Also, I don't see the point of this and the __schedule() hook here:
-
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index 3a0ef2fefbd5..01e32d242ef6 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -6506,6 +6506,8 @@ static void __sched notrace __schedule(unsigned int sched_mode)
->  	struct rq *rq;
->  	int cpu;
->  
-> +	klp_sched_try_switch();
-> +
->  	cpu = smp_processor_id();
->  	rq = cpu_rq(cpu);
->  	prev = rq->curr;
-
-If it schedules, you'll get it with the normal switcheroo, because it'll
-be inactive some of the time. If it doesn't schedule, it'll run into
-cond_resched().
-
-> @@ -8500,8 +8502,10 @@ EXPORT_STATIC_CALL_TRAMP(might_resched);
->  static DEFINE_STATIC_KEY_FALSE(sk_dynamic_cond_resched);
->  int __sched dynamic_cond_resched(void)
->  {
-> -	if (!static_branch_unlikely(&sk_dynamic_cond_resched))
-> +	if (!static_branch_unlikely(&sk_dynamic_cond_resched)) {
-> +		klp_sched_try_switch();
->  		return 0;
-> +	}
->  	return __cond_resched();
->  }
->  EXPORT_SYMBOL(dynamic_cond_resched);
-
-I would make the klp_sched_try_switch() not depend on
-sk_dynamic_cond_resched, because __cond_resched() is not a guaranteed
-pass through __schedule().
-
-But you'll probably want to check with Mark here, this all might
-generate crap code on arm64.
-
-Both ways this seems to make KLP 'depend' (or at least work lots better)
-when PREEMPT_DYNAMIC=y. Do we want a PREEMPT_DYNAMIC=n fallback for
-_cond_resched() too?
-
+>  	return 0;
+> -- 
+> 2.39.0
 
 _______________________________________________
 Virtualization mailing list
