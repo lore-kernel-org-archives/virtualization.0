@@ -1,71 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 46485C636D3
-	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 09:25:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 710D4C636D0
+	for <virtualization@archiver.kernel.org>; Mon, 30 Jan 2023 09:25:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D7A6160F37;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 225E581975;
 	Mon, 30 Jan 2023 09:25:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D7A6160F37
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=TGW1NtTw
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 225E581975
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=ykPzBC64
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fG2Ew42Zsu14; Mon, 30 Jan 2023 09:25:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 52ADF60F3D;
-	Mon, 30 Jan 2023 09:25:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 52ADF60F3D
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 21DC5C0082;
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ICk-Z768NzMR; Mon, 30 Jan 2023 09:25:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9C825819C8;
 	Mon, 30 Jan 2023 09:25:04 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6997EC0032
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9C825819C8
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E64F3C007E;
+	Mon, 30 Jan 2023 09:25:03 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6ACCFC0077
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:25:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2D26C41742
+ by smtp2.osuosl.org (Postfix) with ESMTP id 32F0B404C8
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:25:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D26C41742
-Authentication-Results: smtp4.osuosl.org;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 32F0B404C8
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20210309 header.b=TGW1NtTw
+ header.a=rsa-sha256 header.s=bombadil.20210309 header.b=ykPzBC64
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7xQsbMrjyg5R
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2bYTFAiA2bta
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:25:01 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5CF9A4173F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A5EB4010F
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:3::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5CF9A4173F
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6A5EB4010F
  for <virtualization@lists.linux-foundation.org>;
  Mon, 30 Jan 2023 09:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=0OKWMBRutlSAGY543ff9AUr9eECMFxK84Mqoa+H011w=; b=TGW1NtTwMqIanaIKWqoOD1aWmB
- n/scJWrL64fK9k4OmvwoP0vaCMaQaJe9Y+VWY3W+oBkV4Zz5KRTgvvNzhTLAybTpNMypmc86NpWuW
- A6DJic9z1tz1F4S9KHSq9PGe7EQLxke9ZXXIQgiJFf/NHyDM8LsAsGYTs8K1VSljQIgpxA6Q8vcN+
- gkxoIqC9mz7btGrNG99XQEzTqkFz5So1CSl68dtRz5SSJVkhT79kCZOQhxXhh4kdvmuik+6cQ/s3J
- VzbxJG4gwIVB1atsV9i4jRnuqB9m3/Merfm1mu0MlDBtg87/cIKBrDvFskOHTF/k9hYJjdm93ZoXU
- OJuPg8Fw==;
+ bh=H1w/sob2deIb9pxt4pAEZWp01So4kETnigr7yzrrzGg=; b=ykPzBC64zt0+24f/idcoY5rPHl
+ IsFgekhQQBB15Wh2AupkIyS/+sF/MEgiCkwkAzgtsu3rOUsznVfVUdBr0/uyOlhk5rx+h6DR0d9Oq
+ gLrt+9Bh4LcQxj8juVhz0PYX3bpL3oDqD7A7afZtVPoATxq+y4I8dtDm7Fx4FySiMWhyJMVEXE5S5
+ IeDwhKFrXApv9OFQJhn1/to8z+gpYIhjxn4yvN9X71cbtbfi5fbILaUAJrrmpPdUhZHmWkHIRSHQb
+ LJjeyTDO81kNei1tQOu95oSLdNf1G2DlmwqbKXJcHxLcuUQRAtvvSjB9dI7ZC0svAqSMARkOGYONl
+ UAzlVl5Q==;
 Received: from [2001:4bb8:19a:272a:732e:e417:47d7:2f4a] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pMQNd-002oNl-Oa; Mon, 30 Jan 2023 09:23:15 +0000
+ id 1pMQNy-002oTE-C6; Mon, 30 Jan 2023 09:23:34 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 20/23] rxrpc: use bvec_set_page to initialize a bvec
-Date: Mon, 30 Jan 2023 10:21:54 +0100
-Message-Id: <20230130092157.1759539-21-hch@lst.de>
+Subject: [PATCH 23/23] net-ceph: use bvec_set_page to initialize bvecs
+Date: Mon, 30 Jan 2023 10:21:57 +0100
+Message-Id: <20230130092157.1759539-24-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230130092157.1759539-1-hch@lst.de>
 References: <20230130092157.1759539-1-hch@lst.de>
@@ -107,39 +107,103 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use the bvec_set_page helper to initialize a bvec.
+Use the bvec_set_page helper to initialize bvecs.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/rxrpc/rxperf.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ net/ceph/messenger_v1.c |  7 ++-----
+ net/ceph/messenger_v2.c | 28 +++++++++++-----------------
+ 2 files changed, 13 insertions(+), 22 deletions(-)
 
-diff --git a/net/rxrpc/rxperf.c b/net/rxrpc/rxperf.c
-index 16dcabb71ebe16..4a2e90015ca72c 100644
---- a/net/rxrpc/rxperf.c
-+++ b/net/rxrpc/rxperf.c
-@@ -493,7 +493,7 @@ static int rxperf_deliver_request(struct rxperf_call *call)
- static int rxperf_process_call(struct rxperf_call *call)
+diff --git a/net/ceph/messenger_v1.c b/net/ceph/messenger_v1.c
+index d1787d7d33ef9a..d664cb1593a777 100644
+--- a/net/ceph/messenger_v1.c
++++ b/net/ceph/messenger_v1.c
+@@ -40,15 +40,12 @@ static int ceph_tcp_recvmsg(struct socket *sock, void *buf, size_t len)
+ static int ceph_tcp_recvpage(struct socket *sock, struct page *page,
+ 		     int page_offset, size_t length)
  {
- 	struct msghdr msg = {};
--	struct bio_vec bv[1];
-+	struct bio_vec bv;
- 	struct kvec iov[1];
- 	ssize_t n;
- 	size_t reply_len = call->reply_len, len;
-@@ -503,10 +503,8 @@ static int rxperf_process_call(struct rxperf_call *call)
+-	struct bio_vec bvec = {
+-		.bv_page = page,
+-		.bv_offset = page_offset,
+-		.bv_len = length
+-	};
++	struct bio_vec bvec;
+ 	struct msghdr msg = { .msg_flags = MSG_DONTWAIT | MSG_NOSIGNAL };
+ 	int r;
  
- 	while (reply_len > 0) {
- 		len = min_t(size_t, reply_len, PAGE_SIZE);
--		bv[0].bv_page	= ZERO_PAGE(0);
--		bv[0].bv_offset	= 0;
--		bv[0].bv_len	= len;
--		iov_iter_bvec(&msg.msg_iter, WRITE, bv, 1, len);
-+		bvec_set_page(&bv, ZERO_PAGE(0), len, 0);
-+		iov_iter_bvec(&msg.msg_iter, WRITE, &bv, 1, len);
- 		msg.msg_flags = MSG_MORE;
- 		n = rxrpc_kernel_send_data(rxperf_socket, call->rxcall, &msg,
- 					   len, rxperf_notify_end_reply_tx);
+ 	BUG_ON(page_offset + length > PAGE_SIZE);
++	bvec_set_page(&bvec, page, length, page_offset);
+ 	iov_iter_bvec(&msg.msg_iter, ITER_DEST, &bvec, 1, length);
+ 	r = sock_recvmsg(sock, &msg, msg.msg_flags);
+ 	if (r == -EAGAIN)
+diff --git a/net/ceph/messenger_v2.c b/net/ceph/messenger_v2.c
+index 3009028c4fa28f..301a991dc6a68e 100644
+--- a/net/ceph/messenger_v2.c
++++ b/net/ceph/messenger_v2.c
+@@ -149,10 +149,10 @@ static int do_try_sendpage(struct socket *sock, struct iov_iter *it)
+ 
+ 	while (iov_iter_count(it)) {
+ 		/* iov_iter_iovec() for ITER_BVEC */
+-		bv.bv_page = it->bvec->bv_page;
+-		bv.bv_offset = it->bvec->bv_offset + it->iov_offset;
+-		bv.bv_len = min(iov_iter_count(it),
+-				it->bvec->bv_len - it->iov_offset);
++		bvec_set_page(&bv, it->bvec->bv_page,
++			      min(iov_iter_count(it),
++				  it->bvec->bv_len - it->iov_offset),
++			      it->bvec->bv_offset + it->iov_offset);
+ 
+ 		/*
+ 		 * sendpage cannot properly handle pages with
+@@ -286,9 +286,8 @@ static void set_out_bvec_zero(struct ceph_connection *con)
+ 	WARN_ON(iov_iter_count(&con->v2.out_iter));
+ 	WARN_ON(!con->v2.out_zero);
+ 
+-	con->v2.out_bvec.bv_page = ceph_zero_page;
+-	con->v2.out_bvec.bv_offset = 0;
+-	con->v2.out_bvec.bv_len = min(con->v2.out_zero, (int)PAGE_SIZE);
++	bvec_set_page(&con->v2.out_bvec, ceph_zero_page,
++		      min(con->v2.out_zero, (int)PAGE_SIZE), 0);
+ 	con->v2.out_iter_sendpage = true;
+ 	iov_iter_bvec(&con->v2.out_iter, ITER_SOURCE, &con->v2.out_bvec, 1,
+ 		      con->v2.out_bvec.bv_len);
+@@ -863,10 +862,7 @@ static void get_bvec_at(struct ceph_msg_data_cursor *cursor,
+ 
+ 	/* get a piece of data, cursor isn't advanced */
+ 	page = ceph_msg_data_next(cursor, &off, &len);
+-
+-	bv->bv_page = page;
+-	bv->bv_offset = off;
+-	bv->bv_len = len;
++	bvec_set_page(bv, page, len, off);
+ }
+ 
+ static int calc_sg_cnt(void *buf, int buf_len)
+@@ -1855,9 +1851,8 @@ static void prepare_read_enc_page(struct ceph_connection *con)
+ 	     con->v2.in_enc_resid);
+ 	WARN_ON(!con->v2.in_enc_resid);
+ 
+-	bv.bv_page = con->v2.in_enc_pages[con->v2.in_enc_i];
+-	bv.bv_offset = 0;
+-	bv.bv_len = min(con->v2.in_enc_resid, (int)PAGE_SIZE);
++	bvec_set_page(&bv, con->v2.in_enc_pages[con->v2.in_enc_i],
++		      min(con->v2.in_enc_resid, (int)PAGE_SIZE), 0);
+ 
+ 	set_in_bvec(con, &bv);
+ 	con->v2.in_enc_i++;
+@@ -2998,9 +2993,8 @@ static void queue_enc_page(struct ceph_connection *con)
+ 	     con->v2.out_enc_resid);
+ 	WARN_ON(!con->v2.out_enc_resid);
+ 
+-	bv.bv_page = con->v2.out_enc_pages[con->v2.out_enc_i];
+-	bv.bv_offset = 0;
+-	bv.bv_len = min(con->v2.out_enc_resid, (int)PAGE_SIZE);
++	bvec_set_page(&bv, con->v2.out_enc_pages[con->v2.out_enc_i],
++		      min(con->v2.out_enc_resid, (int)PAGE_SIZE), 0);
+ 
+ 	set_out_bvec(con, &bv, false);
+ 	con->v2.out_enc_i++;
 -- 
 2.39.0
 
