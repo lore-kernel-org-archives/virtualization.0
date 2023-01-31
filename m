@@ -1,95 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60B04C38142
-	for <virtualization@archiver.kernel.org>; Tue, 31 Jan 2023 08:51:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0974EC38142
+	for <virtualization@archiver.kernel.org>; Tue, 31 Jan 2023 09:02:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B302F813A9;
-	Tue, 31 Jan 2023 08:51:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B302F813A9
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=P99yUkPK
+	by smtp2.osuosl.org (Postfix) with ESMTP id 70DAF400EF;
+	Tue, 31 Jan 2023 09:02:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 70DAF400EF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ga5Ee7Bs
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Kz2AWV4hRZ8o; Tue, 31 Jan 2023 08:51:21 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2ITYwx_vSTFr; Tue, 31 Jan 2023 09:02:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 3CD41813A4;
-	Tue, 31 Jan 2023 08:51:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3CD41813A4
+	by smtp2.osuosl.org (Postfix) with ESMTPS id CEA7440101;
+	Tue, 31 Jan 2023 09:02:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CEA7440101
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 030B6C0032;
-	Tue, 31 Jan 2023 08:51:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9AB6EC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A5DB2C0032;
+	Tue, 31 Jan 2023 09:02:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C9E1BC002B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 08:51:19 +0000 (UTC)
+ Tue, 31 Jan 2023 09:02:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7BCDF813A3
+ by smtp4.osuosl.org (Postfix) with ESMTP id A356F40981
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 08:51:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7BCDF813A3
+ Tue, 31 Jan 2023 09:02:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A356F40981
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ga5Ee7Bs
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FvEh81nN4Emb
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cKz7_WRoCiJf
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 08:51:16 +0000 (UTC)
+ Tue, 31 Jan 2023 09:02:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 950428135C
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 950428135C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57FA74097A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 57FA74097A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 08:51:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=dIxm+aCWThEzSn6DIW8FvWBq3c9pv2ibQNS0mHEtmHY=; b=P99yUkPKlFO6Em1noB0wAC0mbH
- VVTyTjchkZs8oTDX6DrLsSDzY4w1iEM7Eq83RPSTC6hbJWvJvsD7eNhZ6CKLRYtCAAjCdFdS+HfI1
- aX4w//t5QEWYp1BLw0UGYf+SnVlyPZDFZr+8ujXvuZH/6C0CnmipvNW6SUlpSmcuGWKGNZMwyJ/C8
- osew0SUGCAOdIAXP1ZD/FUbFzZME+QADr0FIX1E5t0otYJ4Dusdj+9abhDnbB2ZqoTh+qFCJmYY3R
- D1CwEnmecBYG7aaYsUp+dFCskwvnPYeyrAx9mqsIK0clEyzBgdS0EIpPCyxgDKlzHyzLEU+GDj/kH
- qNiRlCmQ==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pMmLe-00BA4r-Iv; Tue, 31 Jan 2023 08:50:39 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id BDED43002BF;
- Tue, 31 Jan 2023 09:50:36 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id A1741208358FD; Tue, 31 Jan 2023 09:50:36 +0100 (CET)
-Date: Tue, 31 Jan 2023 09:50:36 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: mingo@kernel.org
-Subject: [PATCH v2.1 4/9] tracing, preempt: Squash _rcuidle tracing
-Message-ID: <Y9jWXKgkxY5EZVwW@hirez.programming.kicks-ass.net>
-References: <20230126150829.087606759@infradead.org>
- <20230126151323.526275416@infradead.org>
+ Tue, 31 Jan 2023 09:02:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1675155720;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=QIHT8E8sby0WGNdWp5sGZRRNaRA79rKzdH9xDxwJQHg=;
+ b=ga5Ee7BsjxWEp1gq0gWDrP/xVWcJ8DKWkzVLRWZOGEmtbeWcSO7SH3zmB5jB7JgmRz0OFw
+ MuG6tZhjatIFVUZXb+UoZUQv6pOBi8yNaQu2WnE7C/smMNGOoQHqjA2lIJmo2GVWCNdm+p
+ MacwoBa/32BLFEi/uieChIjFYFWRTmo=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-356-e96tO8tAMYGPSbSSIBW5FA-1; Tue, 31 Jan 2023 04:01:58 -0500
+X-MC-Unique: e96tO8tAMYGPSbSSIBW5FA-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ a198-20020ae9e8cf000000b007259083a3c8so880985qkg.7
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Jan 2023 01:01:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=mime-version:user-agent:content-transfer-encoding:references
+ :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=0vt2tjqxlN7/1NemGgBR2FJoG/wRT9bFNFt/hjOlWcI=;
+ b=w5XKvStiwmhSzsiVQ8FaQb08116hwN31k2YmzqS81RwPJ4YWhe/1bukQrBX7S3+hy7
+ 0wc6okcFDuGpkiiA+MD/9eB6pwj5K6QvuNVaKnNuyL3tHu+6CzKarnnLWFY+gIP1OXNf
+ agThYzTtH5ZiET/Kxznf3WZwLVZWRhVXy0hniHCT7rIYYHll1TQ4wOUq+x0He1hH+b0v
+ CJ5gNSYtjPdBOBzeB+uTSb12bbtFGpbY38819n0UmWmOFZ64GbM9tvxvm4Go8CG+xQLV
+ NBdagJpuZjEVKXqBSNCd9S3jGs3qEkEwb+lOQjFCanSFnB9g8HZ14vvKGJRgBodmKwfW
+ Icsw==
+X-Gm-Message-State: AO0yUKUzBpzXM1J/82RmigkQ9tbt8Hm/gKPrx1EEDvJ7035BXSAseQrj
+ 8gokxgG9BBUYVj29wxMaO2qyPIL8m/tL2oVTvQPTmUu1uNqho8pZvkBhJlq8qiDmRHttT7Pv6Ct
+ hljNOlCvvOiK0wf750PXO5UKO9IiI3xwNRAh6TKi5LQ==
+X-Received: by 2002:a0c:b282:0:b0:53a:a0b4:99e5 with SMTP id
+ r2-20020a0cb282000000b0053aa0b499e5mr5701070qve.5.1675155718289; 
+ Tue, 31 Jan 2023 01:01:58 -0800 (PST)
+X-Google-Smtp-Source: AK7set/8gyp2fjq9TftLcjH1ZOMz2/ugjeYGTj52R3CtGBrlxJBMNlEq5CYyi69gOrfXhoP9k+Q6SA==
+X-Received: by 2002:a0c:b282:0:b0:53a:a0b4:99e5 with SMTP id
+ r2-20020a0cb282000000b0053aa0b499e5mr5701037qve.5.1675155718008; 
+ Tue, 31 Jan 2023 01:01:58 -0800 (PST)
+Received: from gerbillo.redhat.com (146-241-113-28.dyn.eolo.it.
+ [146.241.113.28]) by smtp.gmail.com with ESMTPSA id
+ z16-20020ae9c110000000b0070617deb4b7sm9385834qki.134.2023.01.31.01.01.55
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 31 Jan 2023 01:01:57 -0800 (PST)
+Message-ID: <949500bd10077989eb21bd41d6bb1a0de296f9d8.camel@redhat.com>
+Subject: Re: [PATCH v3 2/2] virtio_net: notify MAC address change on device
+ initialization
+From: Paolo Abeni <pabeni@redhat.com>
+To: Laurent Vivier <lvivier@redhat.com>, linux-kernel@vger.kernel.org
+Date: Tue, 31 Jan 2023 10:01:53 +0100
+In-Reply-To: <20230127204500.51930-3-lvivier@redhat.com>
+References: <20230127204500.51930-1-lvivier@redhat.com>
+ <20230127204500.51930-3-lvivier@redhat.com>
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230126151323.526275416@infradead.org>
-Cc: mark.rutland@arm.com, juri.lelli@redhat.com, daniel.lezcano@linaro.org,
- wanpengli@tencent.com, kvm@vger.kernel.org, rafael@kernel.org,
- pv-drivers@vmware.com, lpieralisi@kernel.org, dave.hansen@linux.intel.com,
- virtualization@lists.linux-foundation.org, bsegall@google.com,
- amakhalov@vmware.com, will@kernel.org, tglx@linutronix.de, vschneid@redhat.com,
- hpa@zytor.com, x86@kernel.org, mingo@redhat.com, mgorman@suse.de,
- longman@redhat.com, frederic@kernel.org, linux-trace-kernel@vger.kernel.org,
- paulmck@kernel.org, linux-pm@vger.kernel.org, boqun.feng@gmail.com,
- rostedt@goodmis.org, bp@alien8.de, vincent.guittot@linaro.org,
- boris.ostrovsky@oracle.com, dietmar.eggemann@arm.com, jgross@suse.com,
- seanjc@google.com, linux-kernel@vger.kernel.org, mhiramat@kernel.org,
- pbonzini@redhat.com, bristot@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+ Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
+ Gautam Dawar <gautam.dawar@xilinx.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,62 +128,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Fri, 2023-01-27 at 21:45 +0100, Laurent Vivier wrote:
+> In virtnet_probe(), if the device doesn't provide a MAC address the
+> driver assigns a random one.
+> As we modify the MAC address we need to notify the device to allow it
+> to update all the related information.
+> 
+> The problem can be seen with vDPA and mlx5_vdpa driver as it doesn't
+> assign a MAC address by default. The virtio_net device uses a random
+> MAC address (we can see it with "ip link"), but we can't ping a net
+> namespace from another one using the virtio-vdpa device because the
+> new MAC address has not been provided to the hardware:
+> RX packets are dropped since they don't go through the receive filters,
+> TX packets go through unaffected.
+> 
+> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7d700f8e545a..704a05f1c279 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3806,6 +3806,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		eth_hw_addr_set(dev, addr);
+>  	} else {
+>  		eth_hw_addr_random(dev);
+> +		dev_info(&vdev->dev, "Assigned random MAC address %pM\n",
+> +			 dev->dev_addr);
+>  	}
+>  
+>  	/* Set up our device-specific information */
+> @@ -3933,6 +3935,24 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  
+>  	virtio_device_ready(vdev);
+>  
+> +	/* a random MAC address has been assigned, notify the device.
+> +	 * We don't fail probe if VIRTIO_NET_F_CTRL_MAC_ADDR is not there
+> +	 * because many devices work fine without getting MAC explicitly
+> +	 */
+> +	if (!virtio_has_feature(vdev, VIRTIO_NET_F_MAC) &&
+> +	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+> +		struct scatterlist sg;
+> +
+> +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
+> +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> +					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
+> +			pr_debug("virtio_net: setting MAC address failed\n");
+> +			rtnl_unlock();
+> +			err = -EINVAL;
+> +			goto free_unregister_netdev;
 
-Extend commit 9aedeaed6fc6 ("tracing, hardirq: No moar _rcuidle()
-tracing") to also cover trace_preempt_{on,off}() which were
-mysteriously untouched.
+Since the above is still dealing with device initialization, would it
+make sense moving such init step before registering the netdevice? 
 
-Fixes: 9aedeaed6fc6 ("tracing, hardirq: No moar _rcuidle() tracing")
-Reported-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lkml.kernel.org/r/Y9D5AfnOukWNOZ5q@hirez.programming.kicks-ass.net
----
- kernel/trace/trace_preemptirq.c |   14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+Cheers,
 
---- a/kernel/trace/trace_preemptirq.c
-+++ b/kernel/trace/trace_preemptirq.c
-@@ -15,10 +15,6 @@
- #define CREATE_TRACE_POINTS
- #include <trace/events/preemptirq.h>
- 
--#ifdef CONFIG_TRACE_IRQFLAGS
--/* Per-cpu variable to prevent redundant calls when IRQs already off */
--static DEFINE_PER_CPU(int, tracing_irq_cpu);
--
- /*
-  * Use regular trace points on architectures that implement noinstr
-  * tooling: these calls will only happen with RCU enabled, which can
-@@ -33,6 +29,10 @@ static DEFINE_PER_CPU(int, tracing_irq_c
- #define trace(point)	if (!in_nmi()) trace_##point##_rcuidle
- #endif
- 
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+/* Per-cpu variable to prevent redundant calls when IRQs already off */
-+static DEFINE_PER_CPU(int, tracing_irq_cpu);
-+
- /*
-  * Like trace_hardirqs_on() but without the lockdep invocation. This is
-  * used in the low level entry code where the ordering vs. RCU is important
-@@ -100,15 +100,13 @@ NOKPROBE_SYMBOL(trace_hardirqs_off);
- 
- void trace_preempt_on(unsigned long a0, unsigned long a1)
- {
--	if (!in_nmi())
--		trace_preempt_enable_rcuidle(a0, a1);
-+	trace(preempt_enable)(a0, a1);
- 	tracer_preempt_on(a0, a1);
- }
- 
- void trace_preempt_off(unsigned long a0, unsigned long a1)
- {
--	if (!in_nmi())
--		trace_preempt_disable_rcuidle(a0, a1);
-+	trace(preempt_disable)(a0, a1);
- 	tracer_preempt_off(a0, a1);
- }
- #endif
+Paolo
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
