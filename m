@@ -1,98 +1,76 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44341C38142
-	for <virtualization@archiver.kernel.org>; Tue, 31 Jan 2023 10:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75DDAC636D7
+	for <virtualization@archiver.kernel.org>; Tue, 31 Jan 2023 10:22:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AC04560A6C;
-	Tue, 31 Jan 2023 10:03:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC04560A6C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=dO5IsznX
+	by smtp4.osuosl.org (Postfix) with ESMTP id E457A408EF;
+	Tue, 31 Jan 2023 10:22:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E457A408EF
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YEcGuaIbDrUw; Tue, 31 Jan 2023 10:22:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2812B40894;
+	Tue, 31 Jan 2023 10:22:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2812B40894
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DF339C0032;
+	Tue, 31 Jan 2023 10:22:17 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EBBB4C002B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Jan 2023 10:22:16 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C658C6079B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Jan 2023 10:22:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C658C6079B
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u45p4bdCc4bG; Tue, 31 Jan 2023 10:02:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9C7BF60750;
-	Tue, 31 Jan 2023 10:02:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9C7BF60750
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D11AC0032;
-	Tue, 31 Jan 2023 10:02:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6A6E8C002B
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XxA-6afofG1Y
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 10:02:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2487C813AF
- for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 10:02:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2487C813AF
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=desiato.20200630 header.b=dO5IsznX
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id opPag-En6j28
- for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 10:02:47 +0000 (UTC)
+ Tue, 31 Jan 2023 10:22:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DAC53813AC
-Received: from desiato.infradead.org (desiato.infradead.org
- [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DAC53813AC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A7BC960899
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp3.osuosl.org (Postfix) with ESMTP id A7BC960899
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Jan 2023 10:02:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=35NY35ZTQdq0jK+LZ4igcXPsRMRGVAft6MTNkJwdTzM=; b=dO5IsznXm5mFnFeoyNc4/TG0s1
- mpOxkbM+OBJtgsGZLgoSpVZSLQb4T9VkTS2JeBKuFuxshM7ISz0KciiVRowmqcKxrQe8KsIVeSVSE
- xDRWXakwq+rYSNY/nV0p/uIzeJf2Hv/3lrS9BawTvUB7VKD9O2eWaj63J6ocr3VcXqxmONHLqg+QJ
- tg+ItIa96WWwZCejlfiXJoRDhXAAxCu1q7tBVVA9P3O885awA5zbkech37f4qphnvC9g8Dbc9rEhn
- 3vlmuZFXbufWoF8t7ub/r+yvvk8g+pPRy/IE1fCdlUNrsbvO81Hvj+8FHHgQzkAwlMVmHLEyqsmCb
- R7z1bMiA==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84]
- helo=noisy.programming.kicks-ass.net)
- by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
- id 1pMnSe-004J72-0s; Tue, 31 Jan 2023 10:01:56 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (4096 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CBE51300673;
- Tue, 31 Jan 2023 11:02:27 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id AA256240A5DF6; Tue, 31 Jan 2023 11:02:27 +0100 (CET)
-Date: Tue, 31 Jan 2023 11:02:27 +0100
-From: Peter Zijlstra <peterz@infradead.org>
+ Tue, 31 Jan 2023 10:22:15 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DFD102F4;
+ Tue, 31 Jan 2023 02:22:56 -0800 (PST)
+Received: from FVFF77S0Q05N (unknown [10.57.12.254])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id C65F63F64C;
+ Tue, 31 Jan 2023 02:22:12 -0800 (PST)
+Date: Tue, 31 Jan 2023 10:22:09 +0000
+From: Mark Rutland <mark.rutland@arm.com>
 To: Josh Poimboeuf <jpoimboe@kernel.org>
 Subject: Re: [PATCH 0/2] vhost: improve livepatch switching for heavily
  loaded vhost worker kthreads
-Message-ID: <Y9jnM6BW5CcKjXNv@hirez.programming.kicks-ass.net>
-References: <20230120-vhost-klp-switching-v1-0-7c2b65519c43@kernel.org>
- <Y9KyVKQk3eH+RRse@alley> <Y9LswwnPAf+nOVFG@do-x1extreme>
+Message-ID: <Y9jr0fP7DtA9Of1L@FVFF77S0Q05N>
+References: <Y9KyVKQk3eH+RRse@alley> <Y9LswwnPAf+nOVFG@do-x1extreme>
  <20230127044355.frggdswx424kd5dq@treble>
  <Y9OpTtqWjAkC2pal@hirez.programming.kicks-ass.net>
  <20230127165236.rjcp6jm6csdta6z3@treble>
  <20230127170946.zey6xbr4sm4kvh3x@treble>
  <20230127221131.sdneyrlxxhc4h3fa@treble>
  <Y9e6ssSHUt+MUvum@hirez.programming.kicks-ass.net>
- <20230130195930.s5iu76e56j4q5bra@treble>
+ <Y9gOMCWGmoc5GQMj@FVFF77S0Q05N>
+ <20230130194823.6y3rc227bvsgele4@treble>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230130195930.s5iu76e56j4q5bra@treble>
+In-Reply-To: <20230130194823.6y3rc227bvsgele4@treble>
 Cc: Petr Mladek <pmladek@suse.com>, Joe Lawrence <joe.lawrence@redhat.com>,
  kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Peter Zijlstra <peterz@infradead.org>, netdev@vger.kernel.org,
+ Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
  "Seth Forshee \(DigitalOcean\)" <sforshee@digitalocean.com>,
  live-patching@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -111,35 +89,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 30, 2023 at 11:59:30AM -0800, Josh Poimboeuf wrote:
+On Mon, Jan 30, 2023 at 11:48:23AM -0800, Josh Poimboeuf wrote:
+> On Mon, Jan 30, 2023 at 06:36:32PM +0000, Mark Rutland wrote:
+> > On Mon, Jan 30, 2023 at 01:40:18PM +0100, Peter Zijlstra wrote:
+> > > On Fri, Jan 27, 2023 at 02:11:31PM -0800, Josh Poimboeuf wrote:
+> > > > @@ -8500,8 +8502,10 @@ EXPORT_STATIC_CALL_TRAMP(might_resched);
+> > > >  static DEFINE_STATIC_KEY_FALSE(sk_dynamic_cond_resched);
+> > > >  int __sched dynamic_cond_resched(void)
+> > > >  {
+> > > > -	if (!static_branch_unlikely(&sk_dynamic_cond_resched))
+> > > > +	if (!static_branch_unlikely(&sk_dynamic_cond_resched)) {
+> > > > +		klp_sched_try_switch();
+> > > >  		return 0;
+> > > > +	}
+> > > >  	return __cond_resched();
+> > > >  }
+> > > >  EXPORT_SYMBOL(dynamic_cond_resched);
+> > > 
+> > > I would make the klp_sched_try_switch() not depend on
+> > > sk_dynamic_cond_resched, because __cond_resched() is not a guaranteed
+> > > pass through __schedule().
+> > > 
+> > > But you'll probably want to check with Mark here, this all might
+> > > generate crap code on arm64.
+> > 
+> > IIUC here klp_sched_try_switch() is a static call, so on arm64 this'll generate
+> > at least a load, a conditional branch, and an indirect branch. That's not
+> > ideal, but I'd have to benchmark it to find out whether it's a significant
+> > overhead relative to the baseline of PREEMPT_DYNAMIC.
+> > 
+> > For arm64 it'd be a bit nicer to have another static key check, and a call to
+> > __klp_sched_try_switch(). That way the static key check gets turned into a NOP
+> > in the common case, and the call to __klp_sched_try_switch() can be a direct
+> > call (potentially a tail-call if we made it return 0).
+> 
+> Hm, it might be nice if our out-of-line static call implementation would
+> automatically do a static key check as part of static_call_cond() for
+> NULL-type static calls.
+> 
+> But the best answer is probably to just add inline static calls to
+> arm64.  Is the lack of objtool the only thing blocking that?
 
-> @@ -8662,16 +8665,19 @@ void sched_dynamic_update(int mode)
->  
->  	switch (mode) {
->  	case preempt_dynamic_none:
-> -		preempt_dynamic_enable(cond_resched);
-> +		if (!klp_override)
-> +			preempt_dynamic_enable(cond_resched);
->  		preempt_dynamic_disable(might_resched);
->  		preempt_dynamic_disable(preempt_schedule);
->  		preempt_dynamic_disable(preempt_schedule_notrace);
->  		preempt_dynamic_disable(irqentry_exit_cond_resched);
-> +		//FIXME avoid printk for klp restore
+The major issues were branch range limitations (and needing the linker to add
+PLTs), and painful instruction patching requirements (e.g. the architecture's
+"CMODX" rules for Concurrent MODification and eXecution of instructions). We
+went with the static key scheme above because that was what our assembled code
+generation would devolve to anyway.
 
-		if (mode != preempt_dynamic_mode)
+If we knew each call-site would only call a particular function or skip the
+call, then we could do better (and would probably need something like objtool
+to NOP that out at compile time), but since we don't know the callee at build
+time we can't ensure we have a PLT in range when necessary.
 
->  		pr_info("Dynamic Preempt: none\n");
->  		break;
->  
->  	case preempt_dynamic_voluntary:
-> -		preempt_dynamic_enable(cond_resched);
-> +		if (!klp_override)
-> +			preempt_dynamic_enable(cond_resched);
->  		preempt_dynamic_enable(might_resched);
->  		preempt_dynamic_disable(preempt_schedule);
->  		preempt_dynamic_disable(preempt_schedule_notrace);
+> Objtool is now modular, so all the controversial CFG reverse engineering
+> is now optional, so it shouldn't be too hard to just enable objtool for
+> static call inlines.
 
+Funnily enough, I spent some time yesterday looking at enabling a trivial
+objtool for arm64 as I wanted some basic ELF rewriting functionality (to
+manipulate the mcount_loc table). So I'll likely be looking at that soon
+regardless of static calls. :)
 
+Thanks,
+Mark.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
