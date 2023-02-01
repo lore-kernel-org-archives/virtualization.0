@@ -1,94 +1,163 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 453B1C636D7
-	for <virtualization@archiver.kernel.org>; Wed,  1 Feb 2023 17:46:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 36CF0C636D7
+	for <virtualization@archiver.kernel.org>; Wed,  1 Feb 2023 17:47:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C545E4097A;
-	Wed,  1 Feb 2023 17:46:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C545E4097A
+	by smtp3.osuosl.org (Postfix) with ESMTP id AA6B160F4A;
+	Wed,  1 Feb 2023 17:47:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AA6B160F4A
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=microsoft.com header.i=@microsoft.com header.a=rsa-sha256 header.s=selector2 header.b=HPhL1Iva
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T264EBIr7b70; Wed,  1 Feb 2023 17:46:44 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id juWKMxt4f0k1; Wed,  1 Feb 2023 17:47:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ABD0940248;
-	Wed,  1 Feb 2023 17:46:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ABD0940248
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0FE7E60071;
+	Wed,  1 Feb 2023 17:47:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0FE7E60071
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8ABB6C0032;
-	Wed,  1 Feb 2023 17:46:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C331BC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9050C0032;
+	Wed,  1 Feb 2023 17:47:52 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 98281C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 17:46:42 +0000 (UTC)
+ Wed,  1 Feb 2023 17:47:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 86945408FB
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7167B81ED9
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 17:46:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 86945408FB
+ Wed,  1 Feb 2023 17:47:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7167B81ED9
+Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=microsoft.com header.i=@microsoft.com
+ header.a=rsa-sha256 header.s=selector2 header.b=HPhL1Iva
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8qkJ0SnJvCIy
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gm-u5GxYUx0O
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 17:46:41 +0000 (UTC)
+ Wed,  1 Feb 2023 17:47:50 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 33FD6408DF
-Received: from mail-oo1-f42.google.com (mail-oo1-f42.google.com
- [209.85.161.42])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 33FD6408DF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85F2D81EB2
+Received: from DM6FTOPR00CU001-vft-obe.outbound.protection.outlook.com
+ (mail-cusazlp170100000.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c111::])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 85F2D81EB2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 17:46:41 +0000 (UTC)
-Received: by mail-oo1-f42.google.com with SMTP id
- b10-20020a4a9fca000000b004e6f734c6b4so2012392oom.9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Feb 2023 09:46:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=B5ieMICCVHRQ7377at7SykjLSFOGHCDvEdg4MaUlrEI=;
- b=3x3eS5RRNdeQqqsByIxqtAH+8UyksS3FSAIkS8T2GdA3Rv29UPABt7PtZPan/O5NB6
- bVY6IkfcjN0ygXynsAofSMGShcM18zanv6ScEwibxY+t9Qn+2MDoRcxXN/U1Mkdw1SuM
- nJWg/JHjC1mHfoRJ5hT+9wTxwiIYChIbRGRO9tqZ5dpjacLcsaTwKqz5VH1OR5cWEWis
- 4Jg8SnyP2miotBENw2UP/G/e+LnzGA0/OoCOAwsUF6le9ZiwWngPSK9vomCi2coJBMjD
- HG9ruNwJdcct1X4+x6DdT/SU1QmuxAI9hb/PkZukq4r1fC1v3CD7LtIzAkWoTgZrKfzM
- Dzcg==
-X-Gm-Message-State: AO0yUKXd6UqY+2LsVVsUdjVxQxjBgTvbCzjX0F3yyDwRP1IG2JNkh2cG
- RowgEokUTF9n5xJEndOM8Q==
-X-Google-Smtp-Source: AK7set+96DYcWpNNDjOz3WVmZYP3qKBM36nDwTflxgqE4s8Zv/Y+Hek1aSYQygLj/tx4aDfNUN4/8A==
-X-Received: by 2002:a05:6820:131:b0:517:3cd0:5505 with SMTP id
- i17-20020a056820013100b005173cd05505mr1635601ood.3.1675273599932; 
- Wed, 01 Feb 2023 09:46:39 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net.
- [66.90.144.107]) by smtp.gmail.com with ESMTPSA id
- j4-20020a4a92c4000000b004a3d98b2ccdsm7630636ooh.42.2023.02.01.09.46.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 01 Feb 2023 09:46:39 -0800 (PST)
-Received: (nullmailer pid 4050504 invoked by uid 1000);
- Wed, 01 Feb 2023 17:46:38 -0000
-Date: Wed, 1 Feb 2023 11:46:38 -0600
-From: Rob Herring <robh@kernel.org>
-To: Saurabh Singh Sengar <ssengar@linux.microsoft.com>
-Subject: Re: [PATCH v2 6/6] Driver: VMBus: Add device tree support
-Message-ID: <20230201174638.GA3872117-robh@kernel.org>
+ Wed,  1 Feb 2023 17:47:50 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BEd3TSw89OKUdaw2fBM/vDCqsm9YaaN2dbyVtobV1GoM5vXi+cmxfjmmQlF3izHKMOYpENUeeXublfr8GUVxCAzRR3uGu7T/ATwd6Q9IKHvNQ6eqY8m84BPHau/vT97j37Ad13z2Kyp2AolG7AhSxt/Y7MdiQH75aaK1f67qs1EoQ2DF2ztJOtRXxzf5wI3ibraQGmeFfAFVa8G4dTviuhJR2FFZgIhcDH4jPLmkGU0taO1bI5gSnBCYixw/xyb3uOYtThO4WgzCezauRJmpba0IYs891+iV4yLlnhE20iGDj8ZcC68PepMS0t8lSHrMiZdsRiLhakizkUggAKIhSw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6Z8N5jUJsQCSI7/mf8iOw2EgT0wUbhCPKlp5gLNzqD0=;
+ b=ZeWbfJpoBXqKK8f3hpHB22ovig7Lpk/l3wSzDdzpYKfUWTCrheE4I/eX8GbmJ5mGlwlDn9nL9hHjv4XDyS0wu5EsVLF9IdWtIOltoYCW5vu2tqQ81+SXL+uJm62y+B4kt3fAVv5RqnPd+6Urnd/RBXgheQR/CzFI2v13zguj1qdJeTgkTiz2oINAEU9xEqWJfzshUmcmLPibi7T+e5viMIfKXIl32LbjwkvueLdAjaukbfy0xq5qj05zStvfmjYZcaZEkmrcY+xv4qwpEqcw/E2tpoN4Sz7N6dwAo5FdPATj4XBaXOJo+cU+KoUnYHwVzXZyF3kRRPSHS540BGViqg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6Z8N5jUJsQCSI7/mf8iOw2EgT0wUbhCPKlp5gLNzqD0=;
+ b=HPhL1Ivael++Wpr30iE0iH/khhxwVx/37Nqe4R1ymyOnhzGeI6R0FbmTslYx197Kt47yDlj/uhwFZh+oBFBiJU2ZdwhCXNYYW7eAmlNILJBOj26egassXx5k4JJZyKe0hAs+8L5D9899opS8weyg9OnuR5CPdXouBFiAcuIDKi4=
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
+ by BL1PR21MB3376.namprd21.prod.outlook.com (2603:10b6:208:39c::19)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.4; Wed, 1 Feb
+ 2023 17:47:45 +0000
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::9a9e:c614:a89f:396e]) by BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::9a9e:c614:a89f:396e%8]) with mapi id 15.20.6086.005; Wed, 1 Feb 2023
+ 17:47:44 +0000
+To: Saurabh Sengar <ssengar@linux.microsoft.com>, "robh+dt@kernel.org"
+ <robh+dt@kernel.org>, "krzysztof.kozlowski+dt@linaro.org"
+ <krzysztof.kozlowski+dt@linaro.org>, KY Srinivasan <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, "wei.liu@kernel.org"
+ <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+ "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>, "tglx@linutronix.de"
+ <tglx@linutronix.de>, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, "devicetree@vger.kernel.org"
+ <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>, "linux-hyperv@vger.kernel.org"
+ <linux-hyperv@vger.kernel.org>, Saurabh Singh Sengar <ssengar@microsoft.com>
+Subject: RE: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
+ hv_is_hibernation_supported
+Thread-Topic: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
+ hv_is_hibernation_supported
+Thread-Index: AQHZNZ9IFQFykaMu2kK/hQ0cFp0eSq66XU6A
+Date: Wed, 1 Feb 2023 17:47:44 +0000
+Message-ID: <BYAPR21MB1688813B65EEDB79554E30D4D7D19@BYAPR21MB1688.namprd21.prod.outlook.com>
 References: <1675188609-20913-1-git-send-email-ssengar@linux.microsoft.com>
- <1675188609-20913-7-git-send-email-ssengar@linux.microsoft.com>
- <CAL_JsqK_7eTTrSd6EKDGy9A8kC5w6cjVEtSi3CB1M7Awj+zg6g@mail.gmail.com>
- <20230201165133.GA24116@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <1675188609-20913-3-git-send-email-ssengar@linux.microsoft.com>
+In-Reply-To: <1675188609-20913-3-git-send-email-ssengar@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=e08188c9-4968-4e79-9ec4-2695debbbece;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2023-02-01T17:40:29Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|BL1PR21MB3376:EE_
+x-ms-office365-filtering-correlation-id: e7e75fa5-f27e-47cb-7fdf-08db047c6c7d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: fdBcOI9H2FPRStwCP1Am5sYEhaiphPdzPu3tdf+kJGrkR4kJL/Q39PGaok/nji/YpMU7SbA31jZWGp1wyX7Zr8TC9VMxqI7lVQt4cUyDSdWM34/SQd2+2KhfVEJX1VTplKVcnaNYQEZwYA1AplU6vHLBiA6hnvRJ0JoaOUNIKJbXfpfnpHkAWNvQAQnG3bZTHw6HW8aWpl09ezBt7b5zFWdF3T5vofUDbWAdBFkyVUmEedX6cxz+1GQOk/tQUo8mVrASsVwNTfH2meMg/1FzkkzGKiosK9605dvs6Tq5156mxZcUsF17YP1QJ4N1uVGH2y7kFmFc9iLvAac9bBsm9IB5e6xBzNGfWhxZ1DH/T9RS3yyQRDZDW3I60D+12luw59IrbOpFPz/biQqKR6BHsWMJhjmddA0sTOyTZw4muMHlLndv9eoX7PncQJBdw/kQdDaGtJ/58fIoPAXHloss8qptJZTf6j91Hgdl3Qv9P1gNo5pw/IThxw38CefRXmm2ucy5Ogukyc7rDjddOFj27r2Ye3OOo3RVKu60S3Q8MHEA1+6T3XvWovjintnDSy0tzSqTLR9+eD7Iy54SbWI0wo1MgdE5ebnPs0Rjk7/loXr38QFYg9YHIcBpBKi/N9foj/WErr1xibGH84lFf9/PbjQx0We6Yykni576osxmjZjxiwBcONohtIH1tL2sQxgUQ36ric2AyHVlsh0iyxkDp8/+SN8OGCR0ddjRxm4pfvZ19nsJ/P021tXxeo9LUWgYvz9ZMeCx+6Fo8rlyIW/zbg==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR21MB1688.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230025)(4636009)(396003)(39860400002)(346002)(376002)(366004)(136003)(451199018)(5660300002)(2906002)(8990500004)(38070700005)(9686003)(316002)(82950400001)(82960400001)(55016003)(921005)(41300700001)(10290500003)(122000001)(6636002)(110136005)(66476007)(76116006)(64756008)(8936002)(8676002)(52536014)(66446008)(66556008)(6506007)(33656002)(86362001)(26005)(7696005)(186003)(71200400001)(38100700002)(66946007)(478600001);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?yWLge41/+ME8xuI1cRL4IP2d5c57QE8EnE8ABxXq8WiSvyo9oo5+uS5uK95S?=
+ =?us-ascii?Q?5ekjcxHrmMcc21+Zh/Ehl17sNXH6oSbfm+K6dW38QQTHP+BLu2cQLrc2/SLm?=
+ =?us-ascii?Q?4LKlyogrUNpncgKNxk4WYbNoiNcSgX6VE9ziIfuY/GLSc++EPyEni2LoFElN?=
+ =?us-ascii?Q?NEAlFFH26nby67S/TgTjWVSChTWlv0XiLdper/8HRHbDbJQfeh0NOCF3EA1F?=
+ =?us-ascii?Q?uItvhUNQdSRRrNTtw/v1aYLzZO/lN1EW8VjWJejNxBzX7yPummvp5ON5EE5g?=
+ =?us-ascii?Q?qywbcVCBh/J7intbefBP1ITp5ELHaLK0EwgVR3MyHsStj77YBHSa+3JlPtZH?=
+ =?us-ascii?Q?ouV5pm6P12K2F9wND4bVebmAicerpjEJ8BzQ+WLhg8O+qgApTloiL+Bf+wEh?=
+ =?us-ascii?Q?LCAVIZwPjW1EbzDSUkq3EI2Ej0axGOjWBeQmVI36ADhMK7zXwe1+4ZNkvkYI?=
+ =?us-ascii?Q?Y9SLKsf+/up6yUlt1oRDjM4Xz7VMtyrwQ9wZza79C/lwezu+WDnK97uSbOfl?=
+ =?us-ascii?Q?jWIUDWVJ+x9eBmq+FyDwuzIzYRfH6HNlM1fPQi/On401H5f2UAxDRWrjvrZq?=
+ =?us-ascii?Q?otmAwRO5xa6kWqqNCHewcnQGqg3G2rN4VK0p4lWv5vh1H5OErC5FeONAsUeo?=
+ =?us-ascii?Q?ZdLByeb5iFMNqHo5U6jaGDqla4qT+iYwRIHwXwIvrHt6lAJKvPt5kDjpooE5?=
+ =?us-ascii?Q?G4QCmk1FyvK5/2fO3pGhsU12mqcIlo4q1dQVS2OnILunL1B7oS05X1/zV/aq?=
+ =?us-ascii?Q?S8tAdSbrYWrAO4x6EOWRNn7nUZhSLsRNI9TXb7TH8ImGkCXU6XVFIpetD67B?=
+ =?us-ascii?Q?CoPgxrf74A69IoGSOxqPCDxpAPW+HmRBMLd0qPpuZy5VuEhWbhtIhpka0p8d?=
+ =?us-ascii?Q?OX55VjQe0CI+rT0lYz1wnijCFJ8fqRoMfrEFnQo/g+4HdWOdL4IXnyde8sV6?=
+ =?us-ascii?Q?rH0qwhu/mpwmOYYRrv1j3exZliLSDxhtga3is8Q8vXrSoYgwo/ja+4vdpFqc?=
+ =?us-ascii?Q?Iv8MH7Ubr88M91KM/xo6hwpQsJ/45dTPXHhc1LTM+to2X972oZfr25li6Kme?=
+ =?us-ascii?Q?PH2zaPSCHt0lgFOxdzkvFbbFyXghN/CumwKc4UVRdtFoKu3W34AneeSnvCIl?=
+ =?us-ascii?Q?PaRGUKBN02e4MGf66Y5hhGHfJ7+kImK1VwjhqN/SaUaWCSKEGLqRg/nd+PJa?=
+ =?us-ascii?Q?OQNiuM/UEe/qToBNPWz1nsamkT77VwkAj0hKPLI+rUR/l8TAO/8AzPC/m7AQ?=
+ =?us-ascii?Q?d5suMXjLoR5j8//Jpl1QIIXmYEIry5pBaSFivNdpZ2dXtbUe916I2f71N1uy?=
+ =?us-ascii?Q?IkxrxB+CzXfvJ82f14LRS9b9lJ/8IdFRLtQOFbc80qKj8OI8S7ZF/BnohndE?=
+ =?us-ascii?Q?lEz5ds8xnjfYwYa2rKkWtiYLBmlXNqPxwPuLohGSxTCe9lZ7ZhhSW9g85+vz?=
+ =?us-ascii?Q?146+JP1BudCvi+pLtBYVn0I2GwluvEWpniaAykurRD3pdEVVsAvfDbpP1CKO?=
+ =?us-ascii?Q?w9Vji8L4PfJES1rxaREFgGzgxuDnPcN+0cGmiEwU5gMsvcGAbYlQMuAJ94cJ?=
+ =?us-ascii?Q?r5zsnR5huoNWBG2AxeKxNpiQbrGdteUeOlvGj0I2mpoHyns3wQ49jHxUwUDd?=
+ =?us-ascii?Q?EA=3D=3D?=
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230201165133.GA24116@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-Cc: devicetree@vger.kernel.org, wei.liu@kernel.org, ssengar@microsoft.com,
- mikelley@microsoft.com, linux-hyperv@vger.kernel.org, haiyangz@microsoft.com,
- daniel.lezcano@linaro.org, decui@microsoft.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, krzysztof.kozlowski+dt@linaro.org,
- tglx@linutronix.de
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e7e75fa5-f27e-47cb-7fdf-08db047c6c7d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Feb 2023 17:47:44.5208 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: tUktM5NJwIacu0vfjDwWW0moLOhK81ROegioYyCjYyJzTUoQctxAnqpi9rfqU4izHmNkAQm29omMWMqImPtJgUlkUskDcZ/6jlPFex5I+Z0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR21MB3376
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,162 +169,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: "Michael Kelley \(LINUX\) via Virtualization"
+ <virtualization@lists.linux-foundation.org>
+Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 01, 2023 at 08:51:33AM -0800, Saurabh Singh Sengar wrote:
-> On Tue, Jan 31, 2023 at 02:12:53PM -0600, Rob Herring wrote:
-> > On Tue, Jan 31, 2023 at 12:10 PM Saurabh Sengar
-> > <ssengar@linux.microsoft.com> wrote:
-> > >
-> > > Update the driver to support device tree boot as well along with ACPI.
-> > > At present the device tree parsing only provides the mmio region info
-> > > and is not the exact copy of ACPI parsing. This is sufficient to cater
-> > > all the current device tree usecases for VMBus.
-> > >
-> > > Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-> > > ---
-> > >  drivers/hv/vmbus_drv.c | 75 ++++++++++++++++++++++++++++++++++++++++--
-> > >  1 file changed, 73 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> > > index 49030e756b9f..1741f1348f9f 100644
-> > > --- a/drivers/hv/vmbus_drv.c
-> > > +++ b/drivers/hv/vmbus_drv.c
-> > > @@ -2152,7 +2152,7 @@ void vmbus_device_unregister(struct hv_device *device_obj)
-> > >         device_unregister(&device_obj->device);
-> > >  }
-> > >
-> > > -
-> > > +#ifdef CONFIG_ACPI
-> > >  /*
-> > >   * VMBUS is an acpi enumerated device. Get the information we
-> > >   * need from DSDT.
-> > > @@ -2262,6 +2262,7 @@ static acpi_status vmbus_walk_resources(struct acpi_resource *res, void *ctx)
-> > >
-> > >         return AE_OK;
-> > >  }
-> > > +#endif
-> > >
-> > >  static void vmbus_mmio_remove(void)
-> > >  {
-> > > @@ -2282,7 +2283,7 @@ static void vmbus_mmio_remove(void)
-> > >         }
-> > >  }
-> > >
-> > > -static void vmbus_reserve_fb(void)
-> > > +static void __maybe_unused vmbus_reserve_fb(void)
-> > >  {
-> > >         resource_size_t start = 0, size;
-> > >         struct pci_dev *pdev;
-> > > @@ -2442,6 +2443,7 @@ void vmbus_free_mmio(resource_size_t start, resource_size_t size)
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(vmbus_free_mmio);
-> > >
-> > > +#ifdef CONFIG_ACPI
-> > 
-> > It's better to put C 'if (!IS_ENABLED(CONFIG_ACPI)' code in the
+From: Saurabh Sengar <ssengar@linux.microsoft.com> Sent: Tuesday, January 31, 2023 10:10 AM
 > 
-> I wanted to have separate function for ACPI and device tree flow, which
-> can be easily maintained with #ifdef. Please let me know if its fine.
+> acpi_sleep_state_supported API is only define for CONFIG_ACPI flag and
+> thus it can't be used for non-ACPI builds. Initaly there won't be
 
-Yes, you can have separate functions:
+s/Initaly/Initially/
 
-static int vmbus_acpi_add(struct platform_device *pdev)
-{
-	if (!IS_ENABLED(CONFIG_ACPI))
-		return -ENODEV;
+> hibernate support for non ACPI builds.
 
-	...
-}
-
-The compiler will throw away the function in the end if CONFIG_ACPI is 
-not enabled.
-
-That is easier for us to maintain because it reduces the combinations to 
-build.
+s/hibernate/hibernation/
 
 > 
-> > 
-> > >  static int vmbus_acpi_add(struct platform_device *pdev)
-> > >  {
-> > >         acpi_status result;
-> > > @@ -2496,10 +2498,68 @@ static int vmbus_acpi_add(struct platform_device *pdev)
-> > >                 vmbus_mmio_remove();
-> > >         return ret_val;
-> > >  }
-> > > +#else
-> > > +
-> > > +static int vmbus_device_add(struct platform_device *pdev)
-> > > +{
-> > > +       struct resource **cur_res = &hyperv_mmio;
-> > > +       struct device_node *np;
-> > > +       u32 *ranges, len;
-> > > +       u64 start;
-> > > +       int nr_ranges, child_cells = 2, cur_cell = 0, ret = 0;
-> > > +
-> > > +       hv_dev = pdev;
-> > > +       np = pdev->dev.of_node;
-> > > +
-> > > +       nr_ranges = device_property_count_u32(&pdev->dev, "ranges");
-> > 
-> > Parsing ranges yourself is a bad sign. It's a standard property and we
-> > have functions which handle it. If those don't work, then something is
-> > wrong with your DT or they need to be fixed/expanded.
+> This change will help adding device tree support in subsequent commits.
 > 
-> I find all the  standard functions which parse "ranges" property are doing
-> much more then I need. Our requirement is to only pass the mmio memory range
-> and size, I couldn't find any standard API doing this.
-
-You can't just change how standard properties work to suit your needs.
-
-We shouldn't even be having this discussion because we have tools to 
-check all this now. dtc does some and dtschema does a lot more.
-
-> I see some of the drivers are using these APIs to parse ranges property hence
-> I follwed those examples. I will be happy to improve it if I get any better
-> alternative.
-
-You can always find bad examples to follow...
-
-> > > +       if (nr_ranges < 0)
-> > > +               return nr_ranges;
-> > > +       ranges = kcalloc(nr_ranges, sizeof(u32), GFP_KERNEL);
-> > > +       if (!ranges)
-> > > +               return -ENOMEM;
-> > > +
-> > > +       if (device_property_read_u32_array(&pdev->dev, "ranges", ranges, nr_ranges)) {
-> > > +               ret =  -EINVAL;
-> > > +               goto free_ranges;
-> > > +       }
-> > > +
-> > > +       while (cur_cell < nr_ranges) {
-> > > +               struct resource *res;
-> > > +
-> > > +               /* The first u64 in the ranges description isn't used currently. */
-> > > +               cur_cell = cur_cell + child_cells;
-> > > +               start = ranges[cur_cell++];
-> > > +               start = (start << 32) | ranges[cur_cell++];
-> > > +               len = ranges[cur_cell++];
-> > 
-> > To expand my last point, the format of ranges is <child_addr
-> > parent_addr length>. That's not what your 'ranges' has. You've also
-> > just ignored '#address-cells' and '#size-cells'.
+> Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+> ---
+>  drivers/hv/hv_common.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> Got it. However I need to check if there is any standard API which can
-> give me these values, otherwise I may have to parse these as well :(
+> diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
+> index 52a6f89ccdbd..370ec20d1993 100644
+> --- a/drivers/hv/hv_common.c
+> +++ b/drivers/hv/hv_common.c
+> @@ -234,7 +234,11 @@ EXPORT_SYMBOL_GPL(hv_setup_dma_ops);
+> 
+>  bool hv_is_hibernation_supported(void)
+>  {
+> +#ifdef CONFIG_ACPI
+>  	return !hv_root_partition && acpi_sleep_state_supported(ACPI_STATE_S4);
+> +#else
+> +	return false;
+> +#endif
 
-for_each_of_range()
+Is this patch needed?  If CONFIG_ACPI is not set, then per
+arch/x86/Kconfig, CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
+is not selected.  In that case, the #ifdef in include/acpi/acpi_bus.h
+provides a stub for acpi_sleep_state_supported() that returns "false".
+So it seems like the existing code should compile and correctly return
+"false" when CONFIG_ACPI is not set.
 
-That is not how linux works. When the core code doesn't do what you 
-want, you adapt it to your needs. You don't work around it. Read 
-this[1].
+Michael
 
-Rob
+>  }
+>  EXPORT_SYMBOL_GPL(hv_is_hibernation_supported);
+> 
+> --
+> 2.25.1
 
-[1] https://lwn.net/Articles/443531/
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
