@@ -1,108 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 79680C05027
-	for <virtualization@archiver.kernel.org>; Wed,  1 Feb 2023 15:52:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3111FC05027
+	for <virtualization@archiver.kernel.org>; Wed,  1 Feb 2023 15:55:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D52F56106E;
-	Wed,  1 Feb 2023 15:52:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D52F56106E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZPcX9Q53
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9F47A41986;
+	Wed,  1 Feb 2023 15:55:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F47A41986
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=PTfauKBu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LlKMsu4_e7fP; Wed,  1 Feb 2023 15:52:47 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lMHID0Pe0wDG; Wed,  1 Feb 2023 15:55:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7073561069;
-	Wed,  1 Feb 2023 15:52:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7073561069
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 034C5418E8;
+	Wed,  1 Feb 2023 15:55:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 034C5418E8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E155C0032;
-	Wed,  1 Feb 2023 15:52:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A47FDC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C9025C0032;
+	Wed,  1 Feb 2023 15:55:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 09EE0C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 15:52:45 +0000 (UTC)
+ Wed,  1 Feb 2023 15:55:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 77A7740A18
+ by smtp1.osuosl.org (Postfix) with ESMTP id C4D9B81ED7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 15:52:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 77A7740A18
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZPcX9Q53
+ Wed,  1 Feb 2023 15:55:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4D9B81ED7
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=PTfauKBu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CJFpR2VPMpDX
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XzvcnL8xteqt
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 15:52:44 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AEBFC40A07
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AEBFC40A07
+ Wed,  1 Feb 2023 15:55:30 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DBF3081E0A
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com
+ [IPv6:2607:f8b0:4864:20::102b])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DBF3081E0A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 15:52:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1675266763;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XzoNqKV6Cz9SVsHFKDeNJCe9fKu9P6AEJ0vvGP1TI1k=;
- b=ZPcX9Q53yVIImJojI+GgaCuJhqbq1QvFPcRZAF/dXLJflMdW3/vO+ob/twrtJRLIM/wL43
- eRUdFwGKuUSPkoQuF5sA7Q/79TddAita17qspH7zirBbc4lYksTHY3HQZVlj22iGg9Oqrx
- Z+dx4jYnI3IsNBbB1QG0D9Eumr6lP5Q=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-224-EMDstfyrN1O_5Znuwobkig-1; Wed, 01 Feb 2023 10:52:42 -0500
-X-MC-Unique: EMDstfyrN1O_5Znuwobkig-1
-Received: by mail-wm1-f70.google.com with SMTP id
- ay19-20020a05600c1e1300b003dc54daba42so5814682wmb.7
+ Wed,  1 Feb 2023 15:55:30 +0000 (UTC)
+Received: by mail-pj1-x102b.google.com with SMTP id
+ t12-20020a17090aae0c00b00229f4cff534so3652437pjq.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Feb 2023 07:52:41 -0800 (PST)
+ Wed, 01 Feb 2023 07:55:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:from:to:cc:subject:date:message-id:reply-to;
+ bh=UKN0hCxvbVEoS1CGwDslwENkRBIYFzof8kgYWh+ErNQ=;
+ b=PTfauKBugbwxPF1ppL2NcF8OCLSPY7KPya1L/9+KIZUGVsAKGgxYna+k6lBTmoNqg2
+ o8XhJKvK1cpgezAocJxaxfBgAogqMMd92JjL55YSRdXcWKqKHGWmSFx89FTP5C1gbYLi
+ LHPzY6bJ+6yGCzB98ff1b9Oxps1+0KZMVY5FIe5st9BElvXOVjOT4SPAc5Ba+JSI09TY
+ A9PTuNFsl7SyX6FF6h+7gcQ2S5CxLovm3IbIDxtJajcW7TAaafz1t7ZFkXidgoJl0r8T
+ NnWlDZ36SiGUInMtlK4C7+qKBdkb0pOzytHaiNxyEDzAkpkk0NMwYd99HrIZTrIlPEI4
+ d2gA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=XzoNqKV6Cz9SVsHFKDeNJCe9fKu9P6AEJ0vvGP1TI1k=;
- b=6RlzPCo02Is/an/dcWpwRoOVe1yf55bU3bE1q2yHWOhNKdBR2ySMOTtknyB53oQgEf
- Op8cxTPGl18DAndJnhGszrIxHCoEavB1/bPDnJeIlj0e3Bx0tQVhvh+jScjw3wDEELTl
- F7YTaed+dW/stnIFDDfySohGd0Lxnoi1iovcpr0QCN1D+0lkJ5juCWWcOW5HAsfvhv8C
- n/0u9Pdyzx9I4wn/M2Vtu1/+qsAFtw3EhopGoRb00EHKiynMvoHBtmH+WX57VaSJbygb
- iu9kB34HoxGvnC0HPMCdy/WzNN3SuiTeckoSj2QN7+vRZXfwWbGdE54lEBOPo8RVERmY
- wPGg==
-X-Gm-Message-State: AO0yUKXnX8tB1tgzI6rGS38wsJHjesRshBiA2xp/5rDH+8FYsbulV+X/
- R+Pr3K/gFqMATcIWRTwMk3j6l7jb1oPZ9Pq57umhlhT+iKHbrUm9h6CskEzRGJP5aL2Q72tjbWw
- 4nvPNOiziYYqwdm2oVhORbNzvyoRbB0rhkekcW0WEhA==
-X-Received: by 2002:a5d:68c8:0:b0:2bb:6b92:d4cc with SMTP id
- p8-20020a5d68c8000000b002bb6b92d4ccmr2670040wrw.53.1675266759477; 
- Wed, 01 Feb 2023 07:52:39 -0800 (PST)
-X-Google-Smtp-Source: AK7set8qYSlMDMNOSFaN19grpNcj5RrzZI2G3D9+Cd/RumqUU7LsytpntPRQ2vaoy76EUXG76UA3pA==
-X-Received: by 2002:a5d:68c8:0:b0:2bb:6b92:d4cc with SMTP id
- p8-20020a5d68c8000000b002bb6b92d4ccmr2670025wrw.53.1675266759217; 
- Wed, 01 Feb 2023 07:52:39 -0800 (PST)
-Received: from redhat.com ([2.52.144.173]) by smtp.gmail.com with ESMTPSA id
- j15-20020a5d452f000000b002be505ab59asm17589261wra.97.2023.02.01.07.52.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 01 Feb 2023 07:52:38 -0800 (PST)
-Date: Wed, 1 Feb 2023 10:52:35 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [PATCH] vhost-vdpa: print error when vhost_vdpa_alloc_domain fails
-Message-ID: <20230201105200-mutt-send-email-mst@kernel.org>
-References: <20230201152018.1270226-1-alvaro.karsz@solid-run.com>
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=UKN0hCxvbVEoS1CGwDslwENkRBIYFzof8kgYWh+ErNQ=;
+ b=gU95MvlrLfziZiJN8mW4r4aPbPGRuvakKRbXu4LHHwMO302eZbZ56B85CC3UqSQqnJ
+ 91td+u3F42oAqTVypz8okXPlMV0xzY8q4WhilPpJlQrYpEpXIhVt0g0rb8ehiK89KUlc
+ Z5MmNRfCZk6aGSzXF3QEX1F2Nzwgn3Q/2SFJxwEoEpl7kSTiWiU+YaX6qixbfDvdMshm
+ WbJPFxk2LPiXdesRtjcuJ7qo8s2MY21UhuU38V2pVALtTMiv62rGnkznrJ6FzSkHCGeu
+ CLvQ32aD/jAOfzwfSbvb79XCGkWB2LujFGVFsVbCimsyDGCNfmxlLVXDcQKrozsDu/6j
+ 81Xg==
+X-Gm-Message-State: AO0yUKWW3SUmGBxk78mjC+mwZyrWdON+Asxu5e6g9F43RJ2G4oJp2duL
+ SL8DSkam9FnYUB/MEcEeUJpEMVXrsGTjekQBJM/Trg==
+X-Google-Smtp-Source: AK7set+5sivLmBoHQHDMXaqW2OIVufOpfEJc2w0WYvzyCi4CALl0D3F2RP4pgqgdx4UdJEB5LutPDmJ0CbjzNLUdkSQ=
+X-Received: by 2002:a17:90a:670c:b0:22c:46e:6510 with SMTP id
+ n12-20020a17090a670c00b0022c046e6510mr509931pjj.9.1675266930255; Wed, 01 Feb
+ 2023 07:55:30 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20230201152018.1270226-1-alvaro.karsz@solid-run.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+References: <20230201152018.1270226-1-alvaro.karsz@solid-run.com>
+ <20230201105200-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230201105200-mutt-send-email-mst@kernel.org>
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Date: Wed, 1 Feb 2023 17:54:53 +0200
+Message-ID: <CAJs=3_Bw5QiZRu-nSeprhT1AMyGqw4oggTY=t+yaPeXBOAOjLQ@mail.gmail.com>
+Subject: Re: [PATCH] vhost-vdpa: print error when vhost_vdpa_alloc_domain fails
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, Eugenio Perez Martin <eperezma@redhat.com>,
  kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -121,49 +109,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 01, 2023 at 05:20:18PM +0200, Alvaro Karsz wrote:
-> Add a print explaining why vhost_vdpa_alloc_domain failed if the device
-> is not IOMMU cache coherent capable.
-> 
-> Without this print, we have no hint why the operation failed.
-> 
-> For example:
-> 
-> $ virsh start <domain>
-> 	error: Failed to start domain <domain>
-> 	error: Unable to open '/dev/vhost-vdpa-<idx>' for vdpa device:
-> 	       Unknown error 524
-> 
-> Suggested-by: Eugenio Perez Martin <eperezma@redhat.com>
-> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+> I'm not sure this is a good idea. Userspace is not supposed to be
+> able to trigger dev_err.
 
-I'm not sure this is a good idea. Userspace is not supposed to be
-able to trigger dev_err.
-
-> ---
->  drivers/vhost/vdpa.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 23db92388393..56287506aa0d 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1151,8 +1151,11 @@ static int vhost_vdpa_alloc_domain(struct vhost_vdpa *v)
->  	if (!bus)
->  		return -EFAULT;
->  
-> -	if (!device_iommu_capable(dma_dev, IOMMU_CAP_CACHE_COHERENCY))
-> +	if (!device_iommu_capable(dma_dev, IOMMU_CAP_CACHE_COHERENCY)) {
-> +		dev_err(&v->dev,
-> +			"Failed to allocate domain, device is not IOMMU cache coherent capable\n");
->  		return -ENOTSUPP;
-> +	}
->  
->  	v->domain = iommu_domain_alloc(bus);
->  	if (!v->domain)
-> -- 
-> 2.34.1
-
+dev_warn then?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
