@@ -4,57 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 70C92C636D3
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 11:01:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAD8BC6379F
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3D05841A1C;
-	Thu,  2 Feb 2023 11:01:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3D05841A1C
+	by smtp4.osuosl.org (Postfix) with ESMTP id 75A3741B85;
+	Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 75A3741B85
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 65J-a3yh_sXS; Thu,  2 Feb 2023 11:01:14 +0000 (UTC)
+	with ESMTP id SmHyfmAncefe; Thu,  2 Feb 2023 11:01:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 87EDD41A3A;
-	Thu,  2 Feb 2023 11:01:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 87EDD41A3A
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 92A9941B65;
+	Thu,  2 Feb 2023 11:01:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 92A9941B65
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11B62C0082;
-	Thu,  2 Feb 2023 11:01:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15CB5C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A2D2C0032;
+	Thu,  2 Feb 2023 11:01:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D60EC0083
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 11:01:13 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id D26B540C0F
  for <virtualization@lists.linux-foundation.org>;
  Thu,  2 Feb 2023 11:01:12 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D8BDB40C0A
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 11:01:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D8BDB40C0A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D26B540C0F
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rFX9tEpvNz7g
+ with ESMTP id 6vmP3eMdiWQE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 11:01:12 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2AD740C05
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B2AD740C05
  for <virtualization@lists.linux-foundation.org>;
  Thu,  2 Feb 2023 11:01:11 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B08BB40C07
-Received: from out30-97.freemail.mail.aliyun.com
- (out30-97.freemail.mail.aliyun.com [115.124.30.97])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B08BB40C07
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 11:01:10 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=21; SR=0;
- TI=SMTPD_---0Vakpy9T_1675335664; 
+ TI=SMTPD_---0VakkM1T_1675335665; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Vakpy9T_1675335664) by smtp.aliyun-inc.com;
- Thu, 02 Feb 2023 19:01:04 +0800
+ fp:SMTPD_---0VakkM1T_1675335665) by smtp.aliyun-inc.com;
+ Thu, 02 Feb 2023 19:01:05 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH 04/33] virtio_ring: introduce virtqueue_add_outbuf_premapped()
-Date: Thu,  2 Feb 2023 19:00:29 +0800
-Message-Id: <20230202110058.130695-5-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH 05/33] virtio_ring: introduce virtqueue_add_inbuf_premapped()
+Date: Thu,  2 Feb 2023 19:00:30 +0800
+Message-Id: <20230202110058.130695-6-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
 References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
@@ -90,7 +90,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Introduce virtqueue_add_outbuf_premapped() to submit premapped sgs.
+Introduce virtqueue_add_inbuf_premapped() to submit premapped sgs.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
@@ -99,18 +99,18 @@ Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
  2 files changed, 30 insertions(+)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 25027a35fcf8..6bfa5193b0d8 100644
+index 6bfa5193b0d8..e32046fd15a5 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2213,6 +2213,31 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+@@ -2284,6 +2284,31 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
  }
- EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
  
 +/**
-+ * virtqueue_add_outbuf_premapped - expose output buffers to other end
++ * virtqueue_add_inbuf_premapped - expose input buffers to other end
 + * @vq: the struct virtqueue we're talking about.
 + * @sg: scatterlist (must be well-formed and terminated!)
-+ * @num: the number of entries in @sg readable by other side
++ * @num: the number of entries in @sg writable by other side
 + * @data: the token identifying the buffer.
 + * @gfp: how to do memory allocations (if necessary).
 + *
@@ -122,34 +122,34 @@ index 25027a35fcf8..6bfa5193b0d8 100644
 + *
 + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
 + */
-+int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-+				   struct scatterlist *sg, unsigned int num,
-+				   void *data,
-+				   gfp_t gfp)
++int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
++				  struct scatterlist *sg, unsigned int num,
++				  void *data,
++				  gfp_t gfp)
 +{
-+	return virtqueue_add(vq, &sg, num, 1, 0, data, NULL, true, gfp);
++	return virtqueue_add(vq, &sg, num, 0, 1, data, NULL, true, gfp);
 +}
-+EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_premapped);
++EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_premapped);
 +
  /**
-  * virtqueue_add_inbuf - expose input buffers to other end
-  * @vq: the struct virtqueue we're talking about.
+  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
+  * @_vq: the struct virtqueue
 diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index dcab9c7e8784..d8b472a7dcae 100644
+index d8b472a7dcae..3ebb346ebb7c 100644
 --- a/include/linux/virtio.h
 +++ b/include/linux/virtio.h
-@@ -43,6 +43,11 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
- 			 void *data,
- 			 gfp_t gfp);
+@@ -59,6 +59,11 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
+ 			    void *ctx,
+ 			    gfp_t gfp);
  
-+int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-+				   struct scatterlist *sg, unsigned int num,
-+				   void *data,
-+				   gfp_t gfp);
++int virtqueue_add_inbuf_premapped(struct virtqueue *vq,
++				  struct scatterlist *sg, unsigned int num,
++				  void *data,
++				  gfp_t gfp);
 +
- int virtqueue_add_inbuf(struct virtqueue *vq,
- 			struct scatterlist sg[], unsigned int num,
- 			void *data,
+ int virtqueue_add_sgs(struct virtqueue *vq,
+ 		      struct scatterlist *sgs[],
+ 		      unsigned int out_sgs,
 -- 
 2.32.0.3.g01195cf9f
 
