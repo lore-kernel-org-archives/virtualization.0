@@ -4,98 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85D5BC636D6
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 10:45:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEF3CC05027
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 10:57:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0234D60AB3;
-	Thu,  2 Feb 2023 10:45:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0234D60AB3
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6D95960AFF;
+	Thu,  2 Feb 2023 10:57:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6D95960AFF
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=xr7SVjq+
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W29bVnF9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1Kt_dLrRLy3V; Thu,  2 Feb 2023 10:45:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 89229606ED;
-	Thu,  2 Feb 2023 10:45:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 89229606ED
+	with ESMTP id OhDCsSTr7yn4; Thu,  2 Feb 2023 10:57:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E05B4606ED;
+	Thu,  2 Feb 2023 10:57:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E05B4606ED
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5AF86C0032;
-	Thu,  2 Feb 2023 10:45:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1813CC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B5578C0032;
+	Thu,  2 Feb 2023 10:57:10 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E249FC002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 10:45:44 +0000 (UTC)
+ Thu,  2 Feb 2023 10:57:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D410E40A20
+ by smtp1.osuosl.org (Postfix) with ESMTP id C376A81F35
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 10:45:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D410E40A20
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
- header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=xr7SVjq+
+ Thu,  2 Feb 2023 10:57:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C376A81F35
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=W29bVnF9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SU4oQ5-cdm9c
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ipY4Y5-DZqzn
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 10:45:43 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 52CB140250
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com
- [IPv6:2607:f8b0:4864:20::102c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 52CB140250
+ Thu,  2 Feb 2023 10:57:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85F1F812F0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 85F1F812F0
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 10:45:43 +0000 (UTC)
-Received: by mail-pj1-x102c.google.com with SMTP id
- cq16-20020a17090af99000b0022c9791ac39so5151612pjb.4
+ Thu,  2 Feb 2023 10:57:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1675335426;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=nLgisAhVhjxaFOYw08tk2NZkXdHAeHPvk91YSYHYTNo=;
+ b=W29bVnF9nIRsBC4C0eECS/EYKXKvBDL9SIZ6IGx7F2hFo2DOwsDGBhbBUaXhU+hAi3aWCw
+ Q/m9A45WwImHvH8z/f5BUViEVbxcC7vMlQk2Fa/+ai/hT5uz/1YgyN0i9QW59mdDASZ/XW
+ nO5/kiksBatPcHcENTUlGflMkafct3s=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-357-NN_kcX0JOnCQf2GNErP4Lw-1; Thu, 02 Feb 2023 05:57:05 -0500
+X-MC-Unique: NN_kcX0JOnCQf2GNErP4Lw-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ e38-20020a05600c4ba600b003dc434dabbdso2627266wmp.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 02:45:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=Wj1wi+vfvB54wfWKyUZTobNpEfDR2hWH6JizNjshTls=;
- b=xr7SVjq+Qi9fFt/m3pDEUSVVbaizv/QkcY3BkJv7lSkED89MyE2o2ADQSMSY+dFiNY
- eJH5YIxIAEkkg00mBo3BhLjSprH/g46aK8aiEU6y6SqA4wQPGSXcuqJaKHS7rFy5Hpu2
- dFQjraopoEqzjZhNU1wGcGKjF3WbPxhtwJGSf7CeBRvpCBb4KUkYXQrxJCYiB4FLOUjh
- 2SGFbPzMDI85JfBYkQl6YW6L3rp6Un1NquGXRUWrqoSt2eki8rm+f4nHpb6sfOKZfOkx
- LM3gJ8746ODgyOIaHCbQOimsq6+RCG/lZ5PDKu+8ttyyp2wGZb/u8ajv78GfsVlRVlPf
- zcWw==
+ Thu, 02 Feb 2023 02:57:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=Wj1wi+vfvB54wfWKyUZTobNpEfDR2hWH6JizNjshTls=;
- b=X+EfhnjwjP4VAwrYgvWvEpefNY8zfJqVLvPaNTtNDswE5ITSM9e5mVLVs5OyhKIzlP
- sPxsOSjxYKlLSC0UXlJRew2lIv4Q4aCw00TxPcRCKf/OdoFKSMkzhqO5j7jeqIm/2DlY
- qaVR+KD95k5fgMGt6vBw97Qsk6Vhyh/JZ7ctuxKF4kyrigyOXHFW4U2BFq/UxOyN6dvZ
- cY9ouL64XlI8q25N6pGn15Nzw3DGfpT9X0SnOgYidd6ftarnZIXldakwFzlH+h/4khRO
- QP/GQFpmSzT2EDJ5+/vs1NyYGUmlc8L7X9d6eqed9twhDe0IrOPYvIwQBzFJ5FqgONAU
- 1hew==
-X-Gm-Message-State: AO0yUKWTFW4xhTrVrMsv68QmWVnOo7pAIDT825RErPlBz4xreuLYSVPh
- wjUOLUw+a8mX5jdJRu14uA9O3w==
-X-Google-Smtp-Source: AK7set8wpF7VU0PIG0iDBH0+zdbpzQ/i+YdEY06ArnDW1Hqqjrgqjz7XwAHfBQ+YFbg6wWYwlSEbQQ==
-X-Received: by 2002:a17:90b:4ac1:b0:22c:8b3f:e1a1 with SMTP id
- mh1-20020a17090b4ac100b0022c8b3fe1a1mr6262204pjb.19.1675334742618; 
- Thu, 02 Feb 2023 02:45:42 -0800 (PST)
-Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=nLgisAhVhjxaFOYw08tk2NZkXdHAeHPvk91YSYHYTNo=;
+ b=b8nMsyizwnMZupQjQ0b+lsPXaRhHB/ok1C6OL+B4MJH7kBWDJFqtQfgKoV5d4pR2uB
+ 1g3Jhxo7EXFHcExGbfS5lpno98k3q9E81ClL1BcSSN0K7Jv7YiwI98o9Z7qorANrkyyF
+ pOfZjODnDRZNyc9insrMVb+LLG+u+q/1n4B06KAIuDnPcMsPmg1kxBjhPYihb49rFODU
+ tKzy64hoMOXfalkd9eaHwyzLatoVT5Qiy8P4zXS0KZvlviAt9gRbI8CrCRDnwRloTY0o
+ ySL26uNbVc4W7D4LwjvG3iUyPQoRgFQEwFsAEPjUXyb0EATI4G9lpcKstC4VrdgpYV7l
+ G9tg==
+X-Gm-Message-State: AO0yUKVCBj/+FJdlM20/87KYuOSobn4IiNG4KChXS64XrC3q7jzd0+rx
+ D/Am1nyx0Lr2HiElBrGTczFsU92Ab5CnWTHEfgL2vIUhlmRfeP79qgwYnNGOvpEf0nWYXuW9qgk
+ AImsipGXFuOp1MCxsiBscXLKPOPHt7klL0d9e2U5YTQ==
+X-Received: by 2002:a05:600c:3b0c:b0:3d2:813:138a with SMTP id
+ m12-20020a05600c3b0c00b003d20813138amr1515650wms.35.1675335424012; 
+ Thu, 02 Feb 2023 02:57:04 -0800 (PST)
+X-Google-Smtp-Source: AK7set/psrnYQSpicehicPlykAuaLwGGouzJxfU7GSH68r+uUKziLdcFHTfe7pPMuUCzZZ/UZoUzFw==
+X-Received: by 2002:a05:600c:3b0c:b0:3d2:813:138a with SMTP id
+ m12-20020a05600c3b0c00b003d20813138amr1515635wms.35.1675335423854; 
+ Thu, 02 Feb 2023 02:57:03 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1fc:826d:55d8:70a4:3d30:fc2f])
  by smtp.gmail.com with ESMTPSA id
- j6-20020a17090a840600b002270155254csm2919193pjn.24.2023.02.02.02.45.41
+ j25-20020a05600c1c1900b003daf6e3bc2fsm6888625wms.1.2023.02.02.02.56.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Feb 2023 02:45:42 -0800 (PST)
-From: Shunsuke Mie <mie@igel.co.jp>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] tools/virtio: enable to build with retpoline
-Date: Thu,  2 Feb 2023 19:45:38 +0900
-Message-Id: <20230202104538.2041879-1-mie@igel.co.jp>
-X-Mailer: git-send-email 2.25.1
+ Thu, 02 Feb 2023 02:57:03 -0800 (PST)
+Date: Thu, 2 Feb 2023 05:56:57 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH 0/2] virtio-net: close() to follow mirror of open()
+Message-ID: <20230202055630-mutt-send-email-mst@kernel.org>
+References: <20230202050038.3187-1-parav@nvidia.com>
 MIME-Version: 1.0
-Cc: Shunsuke Mie <mie@igel.co.jp>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20230202050038.3187-1-parav@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: hawk@kernel.org, daniel@iogearbox.net, netdev@vger.kernel.org,
+ ast@kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, bpf@vger.kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,29 +123,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add build options to bring it close to a linux kernel. It allows for
-testing that is close to reality.
+On Thu, Feb 02, 2023 at 07:00:36AM +0200, Parav Pandit wrote:
+> Hi,
+> 
+> This two small patches improves ndo_close() callback to follow
+> the mirror sequence of ndo_open() callback. This improves the code auditing
+> and also ensure that xdp rxq info is not unregistered while NAPI on
+> RXQ is ongoing.
 
-Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
----
- tools/virtio/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index 1b25cc7c64bb..7b7139d97d74 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -4,7 +4,7 @@ test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
- 
--CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
-+CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register
- CFLAGS += -pthread
- LDFLAGS += -pthread
- vpath %.c ../../drivers/virtio ../../drivers/vhost
--- 
-2.25.1
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+I'm guessing -net and 1/2 for stable?
+
+> Please review.
+> 
+> Patch summary:
+> patch-1 ensures that xdp rq info is unregistered after rq napi is disabled
+> patch-2 keeps the mirror sequence for close() be mirror of open()
+> 
+> Parav Pandit (2):
+>   virtio-net: Keep stop() to follow mirror sequence of open()
+>   virtio-net: Maintain reverse cleanup order
+> 
+>  drivers/net/virtio_net.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> -- 
+> 2.26.2
 
 _______________________________________________
 Virtualization mailing list
