@@ -1,165 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C172C61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 15:33:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26C0FC61DA4
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 15:46:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 143ED60C05;
-	Thu,  2 Feb 2023 15:33:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 143ED60C05
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=microsoft.com header.i=@microsoft.com header.a=rsa-sha256 header.s=selector2 header.b=i9R5AGI/
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9323340C93;
+	Thu,  2 Feb 2023 15:46:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9323340C93
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=67VAyORv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cesniy2l0mUt; Thu,  2 Feb 2023 15:33:24 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PnPz6xay6PNX; Thu,  2 Feb 2023 15:46:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 24931611A8;
-	Thu,  2 Feb 2023 15:33:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 24931611A8
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E350440120;
+	Thu,  2 Feb 2023 15:46:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E350440120
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F0DCFC0033;
-	Thu,  2 Feb 2023 15:33:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1144CC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6641C0033;
+	Thu,  2 Feb 2023 15:46:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 155D1C002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:33:22 +0000 (UTC)
+ Thu,  2 Feb 2023 15:46:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C7F0C611A8
+ by smtp4.osuosl.org (Postfix) with ESMTP id E7B384098F
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:33:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C7F0C611A8
+ Thu,  2 Feb 2023 15:46:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E7B384098F
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com
+ header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=67VAyORv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 75zWdfKrC-kt
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2h6Iy1qlbZtb
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:33:19 +0000 (UTC)
+ Thu,  2 Feb 2023 15:46:44 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 910EB60C14
-Received: from BN6PR00CU002-vft-obe.outbound.protection.outlook.com
- (mail-eastus2azlp170110002.outbound.protection.outlook.com
- [IPv6:2a01:111:f403:c110::2])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 910EB60C14
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA74740901
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com
+ [IPv6:2a00:1450:4864:20::62f])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DA74740901
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:33:19 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=edU8gyxn9jrapp7tif526GkWijYc8c9S3M21nFQCTMVR8WIHi9O+lhyYTTZVYYrv5RglTEPdU6KySrqgmYiFFLlAJZk9lIqCrlHn5ZwEUBccEQw1VyjT1udvX+nvsEEv7ppA88M7R/ThooC6HH5zyF6utS8zzFn7oD60SjqULsTTBYl6+uzfeOrx7GyxoI5ltKkJDoaeBrZ8wWZC6OIFQVC4Xs2IcM8GQsk6UMT8mlVG7rsnTYxwrQWAoijqnoDT1dwTWaRZVT3B64kml+VUHcNdXsQ5rzvQSmlWSbfcGGEYJfaXo851L/+tiuZwtH1m+PmLaFb96NEdGwd6esea8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=7yFwmGMG+dweQ30eHyhyamkDpZfRqps8zqMZ1tcNLBU=;
- b=eoSTgaIMyakkoOKGBmliKxHCIM2Ai5cMtIMp97N4Xp9xKnhTNJAsaZ15WecrPmtAQ494zkAdZPnJh7Ga4nEvq5Gz5SwdX8HJfRVyX8AI+StqzC7NDMDIRGcqIEAM8m02jjHJXSloLskDoxkbQG4e4aum5aG+3bLz+h42RQrjDqsRrKpECkUodH3dLNkn820zgZMroTQdtjsHbRY8MtNi84bY3aopJ1yH8m+Y22vM6eZuKeckI3So4Kwly7Atcv5jdWo/QbQaq0PIGaXC00GN0TRrbVhPpEThWQrKNA++afpYe6I3fdSHNWFzkflgbWbKarKcaCOa09KRPS52XDxZ5Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=7yFwmGMG+dweQ30eHyhyamkDpZfRqps8zqMZ1tcNLBU=;
- b=i9R5AGI/Ta/nIK/OpkC21fdutkrroYdOd4m04vxOfxcwurLadkFWvSTaJjxFTxAE3dgGRjzaLgF652FfSyUnAZU5Sg9hRWTTCjLAYRRqUYF2BD4FSX5Q6jCPC/pv6zPYRLY2RgnPgHAci1BZxEQJpD+Q60KXbJG3dOXMz7OZR9k=
-Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
- by PH0PR21MB1992.namprd21.prod.outlook.com (2603:10b6:510:1f::14)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.6; Thu, 2 Feb
- 2023 15:33:13 +0000
-Received: from BYAPR21MB1688.namprd21.prod.outlook.com
- ([fe80::9a9e:c614:a89f:396e]) by BYAPR21MB1688.namprd21.prod.outlook.com
- ([fe80::9a9e:c614:a89f:396e%7]) with mapi id 15.20.6086.007; Thu, 2 Feb 2023
- 15:33:13 +0000
-To: Saurabh Singh Sengar <ssengar@linux.microsoft.com>
-Subject: RE: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
- hv_is_hibernation_supported
-Thread-Topic: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
- hv_is_hibernation_supported
-Thread-Index: AQHZNZ9IFQFykaMu2kK/hQ0cFp0eSq66XU6AgAFiV4CAAAv2AA==
-Date: Thu, 2 Feb 2023 15:33:13 +0000
-Message-ID: <BYAPR21MB1688C48CC77B43BC81B2E3E9D7D69@BYAPR21MB1688.namprd21.prod.outlook.com>
-References: <1675188609-20913-1-git-send-email-ssengar@linux.microsoft.com>
- <1675188609-20913-3-git-send-email-ssengar@linux.microsoft.com>
- <BYAPR21MB1688813B65EEDB79554E30D4D7D19@BYAPR21MB1688.namprd21.prod.outlook.com>
- <20230202144843.GA11173@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-In-Reply-To: <20230202144843.GA11173@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=26de2dce-0d04-4a76-aa95-b16be2b3d53a;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2023-02-02T15:31:31Z;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|PH0PR21MB1992:EE_
-x-ms-office365-filtering-correlation-id: edefa456-7c7a-49b9-bca5-08db0532cc2d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: y59kEgExVufJt94AdcBAjn1seMRmklet4FrRCB8EK1zSlb1s9vvtBEbwFzA+5FwTdYJn5IohMKGuGNTy5UFweAI+1LUYVk7r//TvA27MA14LtzMtjoMYq2y7dQUOvCp/JZpEWSoQU7U3aMo3iRNMamXWzz73Sj9H7ZU1X//SJ4U/ScfE6qYWVZ2OX72zlDCqHTfVJpX8WGrHpysWds/K7FC7Avul46LFpG4i2qy5kRmI2y1B7cG6tl8NeAOIB77G6dnjVkwklVlzpQCwCyUzNs4ApZWIL+SbBVAz+J0+Log1LdmxOiKCGVDpjtjcrQnt3Sng6C+TsoWEuaNROCbB3CsBenpppZ1/w+xTWg9F29h6u49yGShOeNERNdzJRLoaLdUs4dv2usYkQFvKQWMshWuvC7XzsVnM4zu24byGvZUp8lbjs9XfthDu48QA/Qz/NDIRJiQanLXH2UIo7Dz28+h6AFBYrqTplVGIxxfBcbu+O1ba/IKHC7l6suPXgfQQVXY7Yuq8fYDAUe8r09AcKokmhv8orKHYOdnJCJvcdx2LiI9DilWw55YH3mj5kH9648bY2MpTgeUDorhre7cpVMIjwFO7ynp0npaCnlKpCWwYafvaSY6Mzyh1hDmULUEDvCpZWWdglBcfDkdxj5T6n7rhXd28EifILyeggKiwfXVlMMx8eSqjDJLbk7V7DOnYE8R44vhfSN4h98l0Wiruzv7LPGfG5apY9CjXIPiXQ1y5G/FH5qBai9PIEg9FLlgt
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR21MB1688.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230025)(4636009)(396003)(366004)(376002)(346002)(39860400002)(136003)(451199018)(38070700005)(38100700002)(55016003)(82950400001)(4326008)(64756008)(66446008)(66556008)(66476007)(66946007)(82960400001)(8676002)(7696005)(6862004)(76116006)(8936002)(5660300002)(86362001)(52536014)(41300700001)(107886003)(9686003)(6506007)(26005)(186003)(478600001)(316002)(10290500003)(54906003)(71200400001)(33656002)(122000001)(8990500004)(2906002);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?UbbQNW4pBTzwulFtJwA24JhgixbA4zme+tzwB3fDfJYn5ZkwqhS+gtatlDgE?=
- =?us-ascii?Q?lU2E0UNLLS9f9SZVPzvZu+9LT5UUj7VJqyfHBPLmBnTn9uiltE5pN5DzMf0O?=
- =?us-ascii?Q?lp3sn5qskBx0sWlGV0aCBWLrFjXA43WvxZs55+rimu/fQHWvF6hWGt3s4e77?=
- =?us-ascii?Q?WFarxSaN8JotIeZeU8FUK1SWliTvR0+fX58BXOy/rzV56I3OlSjiDljI+y/x?=
- =?us-ascii?Q?B8k3k/qbTCpUoD5RJIMbyEl3QYa1ceoOQCeuE3tieDp7TOEGKDWuUW6VT44/?=
- =?us-ascii?Q?w3GhYWX6YuQWgNsYjG9mg3cPHML6eZKDBGSzLfsx/+wYwpyzhCF3izM1QJ9i?=
- =?us-ascii?Q?eApDsYIm3UEPfM6cvmtzPdHTau4oMMIUQHwmYjM89dUBkIW6dVbnv8Ln+GUa?=
- =?us-ascii?Q?oiUZko1p6+3i5fx0Q7L0rAVqwBppaWQHNnKs5EdiESHrXY6mY8Mav3iodHYh?=
- =?us-ascii?Q?QIvvsFKECE/Kq/TAYqo6izzlE6gEuJC5MFASEiM9HeO7gQAMWIyDqMTKc9Vd?=
- =?us-ascii?Q?gfD5mTuvi7j8G0jyHjNTyuoPiAah6AyjIjf+SAySwSdQ3ZiAVglA9cwR+l3E?=
- =?us-ascii?Q?4tK6IIDFb7Vp22LvzZCPUH/KNgyUubsqy/dTElFSr8EGUEXutiJHe8B6M5Xy?=
- =?us-ascii?Q?AOX91KzIJv8XQ5ncF/kAML2t7xyPV2CHpiX1Y7dA2YZNgoqjPeNPyLbPOujY?=
- =?us-ascii?Q?fv2IOWlDncCtvjyNwDnneuFj1RveQ1L19PoSlxJYu9kj90BjGZy5PDUsMQ+Q?=
- =?us-ascii?Q?35yXYdcmHoyD7N2+AxTAOddAzkKnRsGUlqT+8zJxn5PX8I+bjixgTb9mnZTk?=
- =?us-ascii?Q?4BAHNP1f0ZwhUAlDwrPvb2Z7jofS7+br8X4JDhP1rtJ1nwiLaFjMKA+jYRkx?=
- =?us-ascii?Q?KASL96E8htCajIeX+Hb2FB7NRf+4ySx365qGkd/fGtDpeZ0TVXSmTjWvt/li?=
- =?us-ascii?Q?bzv/ZjCCcV588KFdEcxKqiIqci8hh9Z6U7XHZekf44PXkth8tzidn+XY0O/D?=
- =?us-ascii?Q?4mOaPkgbuetGS0l7Q1SdMgw6CSpYw5GCLGK9Sw4uO3b4uENGxt5gORXtUU5z?=
- =?us-ascii?Q?zGCOiGk+W0Ajr/AnZ41tPb76NmvM1t6hAdAlDrph4qaPCJCCGlifVqWoc/uz?=
- =?us-ascii?Q?1yVHaNs4rY+B6fUFQQO/xeQT3o+dxN4yNkYQnUSiwOuaxydmbOjCToGQ8js1?=
- =?us-ascii?Q?sA2SOi6TkydV7B5XpxvfXE9W3TgdM6btqIvSTTDqayKdtD2tOnRM8lQO2NXN?=
- =?us-ascii?Q?rc9tuWm6mSrG6FF5soxDDEEPBaL5Ix5MRmzDbhJbckJ0GGyRIKvhx4GGs3cH?=
- =?us-ascii?Q?MhqB8r/HG1uB9lDkT4GS9XQYxkb06q9BLUZjm7BXpxo/RUbbkizbz7RLQq87?=
- =?us-ascii?Q?8SZXsZKqONR0ItRFVhxIA/WKrGI8umiIuwkGVb4btA89svdshQiGY50as5sr?=
- =?us-ascii?Q?Vve2gpPH+boWqo1nYALsVDGlPVBIDE6BM5UoW1RxMPf78zNzvsBrTmtWDdD3?=
- =?us-ascii?Q?NgvFnhsRUr5udcMLf3woXczHgHu4FKXpk3lWRKxYL8aburSgEBtYtoP7hIOO?=
- =?us-ascii?Q?sbb2/B9KSZnHBgLXbUTX3UQgRZ7QIR3zODWTEjrRX5XFGtcbncdTck2SUEvn?=
- =?us-ascii?Q?mw=3D=3D?=
+ Thu,  2 Feb 2023 15:46:43 +0000 (UTC)
+Received: by mail-ej1-x62f.google.com with SMTP id me3so7137466ejb.7
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 02 Feb 2023 07:46:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=resnulli-us.20210112.gappssmtp.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=Y8Gc65aUVwApOeHyeBrWY9LnhCMXXP4ZkreA7OeG+4U=;
+ b=67VAyORvNbOtmnWVjQlursOQbEnRpUIb8PQ29AvrnI1ROHyz3Be78spBGFafB30mz6
+ wKlDF18QRYFQa5RUBVcuLuF7jvYPaACSnz65hTDC9su12QhMbeMgwsmkkpFLaq8hVuzT
+ 7ngvN5B8r5K9/2C6qtC+rjJqxpxPPJC1RYheRSddhGmeBCsvd0cF5A2qydhTiJV7cGvq
+ v9CbrDoLpItIonop4Vn7OYpk9qjRADcHiMQNgbWTiaqmQU6kHx50EgiolP3kToc0rGyU
+ G4VhAQKISk5qG7hnEkVbahol2M4AFU3yyaLilHmzVc+0i2n4SqMTU/cARtECLPEIElkV
+ 8AmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Y8Gc65aUVwApOeHyeBrWY9LnhCMXXP4ZkreA7OeG+4U=;
+ b=NbfJ5a4KTihTl40ArEBln9bx0yoxB1e7+KLCmnUf3KJ8RJj4jvQZ5UBQ+VkCp2IFh2
+ BV4SjJlamjG05lzXU3Pc88jVFpu+1eKAoHkRIIQK0E88TXBKHIXt2UemixTckLO9PvWu
+ GnXY7MBZLw3/CJCnvLWmQgKCwy/3Reym2havY4Rpg8KAtZ2dzllN1weFPoKAaiEPcTw4
+ S49kt12gEo4tMuEVYc5vqu4Lxtbeq2NYwv18CJHpCtRnSbtGJsqMxgR1QoYEHiEfEuRW
+ 2erSODIOEYlIEiDg1HZ7C4MFUqNpmEaLGkshAo/41dr/I/LGq0L04FhpahOC/HwnD6Ej
+ k/VA==
+X-Gm-Message-State: AO0yUKWPSGlCOy66DPTSzXL0/pipB6y/Y9F+RZROb2lUtwRrLkZpcdKK
+ 17LPOwVl0Pu6rEmpW5qCqBjL7g==
+X-Google-Smtp-Source: AK7set/vvtOpJuh/J1KX2g79Jkm9KHWdxwyC+o/qD9/dF5IauAW+GhEbTVX1t0WBvGA2i55u+YWKLA==
+X-Received: by 2002:a17:907:9c07:b0:88d:ba89:183b with SMTP id
+ ld7-20020a1709079c0700b0088dba89183bmr2463211ejc.12.1675352801454; 
+ Thu, 02 Feb 2023 07:46:41 -0800 (PST)
+Received: from localhost ([86.61.181.4]) by smtp.gmail.com with ESMTPSA id
+ t12-20020a1709063e4c00b0088a9e083318sm5477031eji.168.2023.02.02.07.46.40
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 02 Feb 2023 07:46:40 -0800 (PST)
+Date: Thu, 2 Feb 2023 16:46:39 +0100
+From: Jiri Pirko <jiri@resnulli.us>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH 2/2] virtio-net: Maintain reverse cleanup order
+Message-ID: <Y9va33VLJ/eRPUbW@nanopsycho>
+References: <20230202050038.3187-1-parav@nvidia.com>
+ <20230202050038.3187-3-parav@nvidia.com>
+ <Y9ur9B6CDIwThMN6@nanopsycho>
+ <PH0PR12MB5481C0C7E46B5DFF85178792DCD69@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: edefa456-7c7a-49b9-bca5-08db0532cc2d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2023 15:33:13.4954 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: h2m3jz9EsERCSZ8HdVT1WPzvORUCuLSOHB4Vwlt3RKIdeT/Gpn0xlfjKQq8M1XcgqVWtJ51nTZ2jWak+BVx4Iij1uuym7hZbhLAZRBjwQy4=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR21MB1992
-Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- "wei.liu@kernel.org" <wei.liu@kernel.org>,
- Saurabh Singh Sengar <ssengar@microsoft.com>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
- Dexuan Cui <decui@microsoft.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+Content-Disposition: inline
+In-Reply-To: <PH0PR12MB5481C0C7E46B5DFF85178792DCD69@PH0PR12MB5481.namprd12.prod.outlook.com>
+Cc: "hawk@kernel.org" <hawk@kernel.org>,
+ "daniel@iogearbox.net" <daniel@iogearbox.net>,
+ "mst@redhat.com" <mst@redhat.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "ast@kernel.org" <ast@kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "robh+dt@kernel.org" <robh+dt@kernel.org>,
- "krzysztof.kozlowski+dt@linaro.org" <krzysztof.kozlowski+dt@linaro.org>,
- "tglx@linutronix.de" <tglx@linutronix.de>
+ "edumazet@google.com" <edumazet@google.com>,
+ "kuba@kernel.org" <kuba@kernel.org>,
+ "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+ "pabeni@redhat.com" <pabeni@redhat.com>,
+ "davem@davemloft.net" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -171,75 +120,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Michael Kelley \(LINUX\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Saurabh Singh Sengar <ssengar@linux.microsoft.com> Sent: Thursday, February 2, 2023 6:49 AM
-> 
-> On Wed, Feb 01, 2023 at 05:47:44PM +0000, Michael Kelley (LINUX) wrote:
-> > From: Saurabh Sengar <ssengar@linux.microsoft.com> Sent: Tuesday, January 31,
-> 2023 10:10 AM
-> > >
-> > > acpi_sleep_state_supported API is only define for CONFIG_ACPI flag and
-> > > thus it can't be used for non-ACPI builds. Initaly there won't be
-> >
-> > s/Initaly/Initially/
-> 
-> OK
-> 
-> >
-> > > hibernate support for non ACPI builds.
-> >
-> > s/hibernate/hibernation/
-> 
-> OK
-> 
-> >
-> > >
-> > > This change will help adding device tree support in subsequent commits.
-> > >
-> > > Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
-> > > ---
-> > >  drivers/hv/hv_common.c | 4 ++++
-> > >  1 file changed, 4 insertions(+)
-> > >
-> > > diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
-> > > index 52a6f89ccdbd..370ec20d1993 100644
-> > > --- a/drivers/hv/hv_common.c
-> > > +++ b/drivers/hv/hv_common.c
-> > > @@ -234,7 +234,11 @@ EXPORT_SYMBOL_GPL(hv_setup_dma_ops);
-> > >
-> > >  bool hv_is_hibernation_supported(void)
-> > >  {
-> > > +#ifdef CONFIG_ACPI
-> > >  	return !hv_root_partition && acpi_sleep_state_supported(ACPI_STATE_S4);
-> > > +#else
-> > > +	return false;
-> > > +#endif
-> >
-> > Is this patch needed?  If CONFIG_ACPI is not set, then per
-> > arch/x86/Kconfig, CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
-> > is not selected.  In that case, the #ifdef in include/acpi/acpi_bus.h
-> > provides a stub for acpi_sleep_state_supported() that returns "false".
-> > So it seems like the existing code should compile and correctly return
-> > "false" when CONFIG_ACPI is not set.
-> 
-> You are right, if CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT is not set
-> acpi_sleep_state_supported will return false, but this is applicable only
-> when CONFIG_ACPI is enable. If CONFIG_ACPI is not enable both these
-> functions are not defined.
-> 
+Thu, Feb 02, 2023 at 04:10:56PM CET, parav@nvidia.com wrote:
+>
+>> From: Jiri Pirko <jiri@resnulli.us>
+>> Sent: Thursday, February 2, 2023 7:26 AM
+>> 
+>> Thu, Feb 02, 2023 at 06:00:38AM CET, parav@nvidia.com wrote:
+>> >To easily audit the code, better to keep the device stop() sequence to
+>> >be mirror of the device open() sequence.
+>> >
+>> >Signed-off-by: Parav Pandit <parav@nvidia.com>
+>> 
+>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> If this is not fixing bug (which I believe is the case), you should target it to net-
+>> next ([patch net-next] ..).
+>> 
+>Yes. Right. First one was fix for net-rc, second was for net-next. And 2nd depends on the first to avoid merge conflicts.
+>So, I was unsure how to handle it.
+>Can you please suggest?
 
-Indeed, you are right.  Most of include/acpi/acpi_bus.h is bracketed with
-#ifdef CONFIG_ACPI, including the stub acpi_sleep_state_supported().
-Oh well. :-(
+1) Send the fix to -net
+2) Wait until -net is merged into -net-next
+3) Send the second patch to -net-next
 
-Michael
+>
+>
+>> 
+>> >---
+>> > drivers/net/virtio_net.c | 2 +-
+>> > 1 file changed, 1 insertion(+), 1 deletion(-)
+>> >
+>> >diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
+>> >b7d0b54c3bb0..1f8168e0f64d 100644
+>> >--- a/drivers/net/virtio_net.c
+>> >+++ b/drivers/net/virtio_net.c
+>> >@@ -2279,9 +2279,9 @@ static int virtnet_close(struct net_device *dev)
+>> > 	cancel_delayed_work_sync(&vi->refill);
+>> >
+>> > 	for (i = 0; i < vi->max_queue_pairs; i++) {
+>> >+		virtnet_napi_tx_disable(&vi->sq[i].napi);
+>> > 		napi_disable(&vi->rq[i].napi);
+>> > 		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+>> >-		virtnet_napi_tx_disable(&vi->sq[i].napi);
+>> > 	}
+>> >
+>> > 	return 0;
+>> >--
+>> >2.26.2
+>> >
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
