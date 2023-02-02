@@ -1,98 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4FFFEC61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 09:09:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF48EC64EC3
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 09:10:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DB18A41B31;
-	Thu,  2 Feb 2023 09:09:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB18A41B31
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=QvSn8hl/
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q-wPcNH8mXeS; Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 36E4E41B30;
-	Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 36E4E41B30
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11A5CC0032;
-	Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BA330C0032
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:52 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 88CE340C0D
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 88CE340C0D
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8656B40BF9;
+	Thu,  2 Feb 2023 09:10:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8656B40BF9
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
- header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=QvSn8hl/
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=GH6KARO7
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wFkUmwqXnGRT
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id d8XFzSuCce1M; Thu,  2 Feb 2023 09:10:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id F27E740C0A;
+	Thu,  2 Feb 2023 09:10:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F27E740C0A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D4576C0082;
+	Thu,  2 Feb 2023 09:10:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C8ECC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
+ Thu,  2 Feb 2023 09:10:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 050FF81EC0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 09:10:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 050FF81EC0
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
+ header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=GH6KARO7
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3bE94Xss1sV9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 09:09:59 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D394F40BFF
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
- [IPv6:2607:f8b0:4864:20::1033])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D394F40BFF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54C7A81EA5
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com
+ [IPv6:2607:f8b0:4864:20::1035])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 54C7A81EA5
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
-Received: by mail-pj1-x1033.google.com with SMTP id j5so1290716pjn.5
+ Thu,  2 Feb 2023 09:09:59 +0000 (UTC)
+Received: by mail-pj1-x1035.google.com with SMTP id
+ cq16-20020a17090af99000b0022c9791ac39so4933132pjb.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 01:09:51 -0800 (PST)
+ Thu, 02 Feb 2023 01:09:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:from:to:cc:subject:date
  :message-id:reply-to;
- bh=9fCw3ePbQ4sWf6yjA8O8Z29UEVxW6bYbx76RpPXO7aY=;
- b=QvSn8hl/YfOcJ6FUJ33/gevLAhxNPtImxPhVY9NtVFLqgJKnmAdY4fmFodpUno6RNc
- oen0Nb31vxxT6csN1kDCMM/Td1864giiGAkZEs7gW85Syn6Pj1SM9x2CZKodsLBYYUSz
- aZOTpZ9Y3lhg4gMxyjWaKs2pqWsaLiiUB4wIMa5l+2HevJulxagZJ5Tx67zZocuoTp53
- 98kNK6qXTnqcFpvjdEuaciLik7dIpUAL2MYm3x+dcQFG/xkN+ZY4ApbDm44elRY3YvY4
- 35ynjrCrCa1J9JoHmhwPSALH6eG7hoA8g7zkDWL25SYUeFN3Cv75MEP6szlFF8zvTaih
- A6nw==
+ bh=gcO0uxyztK7wrPRESDhnWawV9bJajYCn05I6EVJHO1Q=;
+ b=GH6KARO7thcAXAecHFCRqv2AThKvwRpSynFUPRyr/OZKPlK2yL0fvDQhRTEuxWPbag
+ soLM3KjFH60hrsUUukVibYDKMQm0sViyKG5mYZqPbfML2bae+Go5bIdqdw9B901M7ibu
+ wNT7zORKjzFmfIR2oCiVQM3HJyrFKC2BPqVxmkD7X27/Tbuv0DsrL5dChFH+9/NwvzIQ
+ EUYkhc2ftdhCYgF8ACeakDBIlsNguRxNJ82koXMxpahyWP6KNfGH647dLQIQkSf08b9Y
+ Kg9/9k7MncrjLlOlQrFvpRobgAOYtK7H68cuL5RxgyxNu+F+hxjmjIGD1BbGwHe4fB3M
+ 210w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=9fCw3ePbQ4sWf6yjA8O8Z29UEVxW6bYbx76RpPXO7aY=;
- b=vR6BoLNu+c+r39IIrSorre4LGMZYg3dzjG1HG/rzVY8EyBdV+hUPnTOt9d6E1MMoS0
- nyleCmILTrNjEu38318kqqswVkJTZPiCG4M0uHlKf1ERu/xuznrS/fztANPmS/tnersw
- ZUDtUErhP68OH76r4c42Z4c/UKWqvpjG1T9mQKdDJGO6Apfniiw2/AithsaeezgjrDuj
- hxsA6c2q6qTZ6vey6hbKLx/0s10e3//D9S3E5/MxGM8wltd+IcVEhaSuxyUvcX8uINmT
- GHQKO7FbPsDQDF0kcw1haVWuZc5CJpOS0A2FKcp7uBCMdO0Soh+tc0EuYy4gR1I5+TVG
- OPzA==
-X-Gm-Message-State: AO0yUKUSQ3GdN8eIIkf9W4CxuZ33drHSVseqkP0E8c7L14fziPEyFeF5
- ekuU2NJA/SfatC9TO08jb7PI9w==
-X-Google-Smtp-Source: AK7set+VcV7K8yqmRf4cYf2lfFnsxI5XpYxApbh7KrJBd8QyBrfSTpMm7lizGCx4Zb9IGMEax7/M/A==
-X-Received: by 2002:a17:902:e850:b0:198:a845:fbaf with SMTP id
- t16-20020a170902e85000b00198a845fbafmr7362979plg.48.1675328991294; 
- Thu, 02 Feb 2023 01:09:51 -0800 (PST)
+ bh=gcO0uxyztK7wrPRESDhnWawV9bJajYCn05I6EVJHO1Q=;
+ b=hr0ev+YGAuqK8IupSSRiDhc+2xjJIMVTohYtnez0oZ7uviibfV/s7TIxL+Xtq5GeBT
+ fdtpjxME8EqQOCv4y2pBbSvI2XBcV45a6LqarXavcoXeI8n97Q9VMqO06TJgW4UJu7Xr
+ xOSGraPjRidG7GwRyffW0roTtDL4kY60MtKFSE9omagDlH/AwPayjhpd1MdBXKOBxvB2
+ ex+LNOElV0krPr1RuhfBwoOklx7c9wKpskopT6V6ofDY6l2SrfN8P3YNlvj5aW8azqMX
+ J8fKcMBPNOQPyUC3iRuJJVtNZO1oKSgemvfcMdulR1X/VByTXZitJDdDD90z8J0qmdMO
+ WhCg==
+X-Gm-Message-State: AO0yUKWJpnxb93GSl8f7rrLrUYC5RwniUSu9iD2PVdGP6giHh8Adh7kD
+ 3u8xhAaVAn4+KDTZN8l6/9U/8w==
+X-Google-Smtp-Source: AK7set/fXvDEmBQhH8c6B3dTk3eGn1u6YNr6DVl3bDrXS4EUzT2lgnlUWdYhoNLU3kNmqiqzSmYyqg==
+X-Received: by 2002:a17:903:2303:b0:195:f06f:84fc with SMTP id
+ d3-20020a170903230300b00195f06f84fcmr7368514plh.40.1675328998631; 
+ Thu, 02 Feb 2023 01:09:58 -0800 (PST)
 Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
  by smtp.gmail.com with ESMTPSA id
- ik12-20020a170902ab0c00b001929827731esm13145968plb.201.2023.02.02.01.09.49
+ ik12-20020a170902ab0c00b001929827731esm13145968plb.201.2023.02.02.01.09.56
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Feb 2023 01:09:51 -0800 (PST)
+ Thu, 02 Feb 2023 01:09:58 -0800 (PST)
 From: Shunsuke Mie <mie@igel.co.jp>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RFC PATCH v2 4/7] tools/virtio: convert to new vringh user APIs
-Date: Thu,  2 Feb 2023 18:09:31 +0900
-Message-Id: <20230202090934.549556-5-mie@igel.co.jp>
+Subject: [RFC PATCH v2 7/7] vringh: IOMEM support
+Date: Thu,  2 Feb 2023 18:09:34 +0900
+Message-Id: <20230202090934.549556-8-mie@igel.co.jp>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230202090934.549556-1-mie@igel.co.jp>
 References: <20230202090934.549556-1-mie@igel.co.jp>
@@ -116,118 +117,142 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-struct vringh_iov is being remove, so convert vringh_test to use the
-vringh user APIs. This has it change to use struct vringh_kiov instead of
-the struct vringh_iov.
+This patch introduces the new memory accessor for vringh. It is able to
+use vringh to virtio rings located on iomemory region.
 
 Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
 ---
- tools/virtio/vringh_test.c | 34 +++++++++++++++++-----------------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ drivers/vhost/Kconfig  |  6 ++++
+ drivers/vhost/vringh.c | 76 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/vringh.h |  8 +++++
+ 3 files changed, 90 insertions(+)
 
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 98ff808d6f0c..6c9533b8a2ca 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -193,8 +193,8 @@ static int parallel_test(u64 features,
- 			errx(1, "Could not set affinity to cpu %u", first_cpu);
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 587fbae06182..a79a4efbc817 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -6,6 +6,12 @@ config VHOST_IOTLB
+ 	  This option is selected by any driver which needs to support
+ 	  an IOMMU in software.
  
- 		while (xfers < NUM_XFERS) {
--			struct iovec host_riov[2], host_wiov[2];
--			struct vringh_iov riov, wiov;
-+			struct kvec host_riov[2], host_wiov[2];
-+			struct vringh_kiov riov, wiov;
- 			u16 head, written;
++config VHOST_IOMEM
++	tristate
++	select VHOST_RING
++	help
++	  Generic IOMEM implementation for vhost and vringh.
++
+ config VHOST_RING
+ 	tristate
+ 	select VHOST_IOTLB
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index 46fb315483ed..e3d9c7281ad0 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -18,6 +18,9 @@
+ #include <linux/highmem.h>
+ #include <linux/vhost_iotlb.h>
+ #endif
++#if IS_REACHABLE(CONFIG_VHOST_IOMEM)
++#include <linux/io.h>
++#endif
+ #include <uapi/linux/virtio_config.h>
  
- 			if (fast_vringh) {
-@@ -216,10 +216,10 @@ static int parallel_test(u64 features,
- 				written = 0;
- 				goto complete;
- 			} else {
--				vringh_iov_init(&riov,
-+				vringh_kiov_init(&riov,
- 						host_riov,
- 						ARRAY_SIZE(host_riov));
--				vringh_iov_init(&wiov,
-+				vringh_kiov_init(&wiov,
- 						host_wiov,
- 						ARRAY_SIZE(host_wiov));
+ static __printf(1,2) __cold void vringh_bad(const char *fmt, ...)
+@@ -1165,4 +1168,77 @@ EXPORT_SYMBOL(vringh_set_iotlb);
  
-@@ -442,8 +442,8 @@ int main(int argc, char *argv[])
- 	struct virtqueue *vq;
- 	struct vringh vrh;
- 	struct scatterlist guest_sg[RINGSIZE], *sgs[2];
--	struct iovec host_riov[2], host_wiov[2];
--	struct vringh_iov riov, wiov;
-+	struct kvec host_riov[2], host_wiov[2];
-+	struct vringh_kiov riov, wiov;
- 	struct vring_used_elem used[RINGSIZE];
- 	char buf[28];
- 	u16 head;
-@@ -517,8 +517,8 @@ int main(int argc, char *argv[])
- 	__kmalloc_fake = NULL;
+ #endif
  
- 	/* Host retreives it. */
--	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
--	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
++#if IS_REACHABLE(CONFIG_VHOST_IOMEM)
++
++/* io-memory space access helpers. */
++static int getu16_iomem(const struct vringh *vrh, u16 *val, const __virtio16 *p)
++{
++	*val = vringh16_to_cpu(vrh, ioread16(p));
++	return 0;
++}
++
++static int putu16_iomem(const struct vringh *vrh, __virtio16 *p, u16 val)
++{
++	iowrite16(cpu_to_vringh16(vrh, val), p);
++	return 0;
++}
++
++static int copydesc_iomem(const struct vringh *vrh, void *dst, const void *src,
++			  size_t len)
++{
++	memcpy_fromio(dst, src, len);
++	return 0;
++}
++
++static int putused_iomem(const struct vringh *vrh, struct vring_used_elem *dst,
++			 const struct vring_used_elem *src, unsigned int num)
++{
++	memcpy_toio(dst, src, num * sizeof(*dst));
++	return 0;
++}
++
++static int xfer_from_iomem(const struct vringh *vrh, void *src, void *dst,
++			   size_t len)
++{
++	memcpy_fromio(dst, src, len);
++	return 0;
++}
++
++static int xfer_to_iomem(const struct vringh *vrh, void *dst, void *src,
++			 size_t len)
++{
++	memcpy_toio(dst, src, len);
++	return 0;
++}
++
++static struct vringh_ops iomem_vringh_ops = {
++	.getu16 = getu16_iomem,
++	.putu16 = putu16_iomem,
++	.xfer_from = xfer_from_iomem,
++	.xfer_to = xfer_to_iomem,
++	.putused = putused_iomem,
++	.copydesc = copydesc_iomem,
++	.range_check = no_range_check,
++	.getrange = NULL,
++};
++
++int vringh_init_iomem(struct vringh *vrh, u64 features, unsigned int num,
++		      bool weak_barriers, gfp_t gfp, struct vring_desc *desc,
++		      struct vring_avail *avail, struct vring_used *used)
++{
++	int err;
++
++	err = __vringh_init(vrh, features, num, weak_barriers, gfp, desc, avail,
++			    used);
++	if (err)
++		return err;
++
++	memcpy(&vrh->ops, &iomem_vringh_ops, sizeof(iomem_vringh_ops));
++
++	return 0;
++}
++EXPORT_SYMBOL(vringh_init_iomem);
++
++#endif
++
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+index 89c73605c85f..420c2d0ed398 100644
+--- a/include/linux/vringh.h
++++ b/include/linux/vringh.h
+@@ -265,4 +265,12 @@ int vringh_init_iotlb(struct vringh *vrh, u64 features,
  
- 	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
- 	if (err != 1)
-@@ -586,8 +586,8 @@ int main(int argc, char *argv[])
- 	__kmalloc_fake = NULL;
+ #endif /* CONFIG_VHOST_IOTLB */
  
- 	/* Host picks it up (allocates new iov). */
--	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
--	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
- 
- 	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
- 	if (err != 1)
-@@ -613,8 +613,8 @@ int main(int argc, char *argv[])
- 		assert(err < 3 || buf[2] == (char)(i + 2));
- 	}
- 	assert(riov.i == riov.used);
--	vringh_iov_cleanup(&riov);
--	vringh_iov_cleanup(&wiov);
-+	vringh_kiov_cleanup(&riov);
-+	vringh_kiov_cleanup(&wiov);
- 
- 	/* Complete using multi interface, just because we can. */
- 	used[0].id = head;
-@@ -638,8 +638,8 @@ int main(int argc, char *argv[])
- 	}
- 
- 	/* Now get many, and consume them all at once. */
--	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
--	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
- 
- 	for (i = 0; i < RINGSIZE; i++) {
- 		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-@@ -723,8 +723,8 @@ int main(int argc, char *argv[])
- 		d[5].flags = 0;
- 
- 		/* Host picks it up (allocates new iov). */
--		vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
--		vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+		vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+		vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
- 
- 		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
- 		if (err != 1)
-@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
- 		/* Data should be linear. */
- 		for (i = 0; i < err; i++)
- 			assert(buf[i] == i);
--		vringh_iov_cleanup(&riov);
-+		vringh_kiov_cleanup(&riov);
- 	}
- 
- 	/* Don't leak memory... */
++#if IS_REACHABLE(CONFIG_VHOST_IOMEM)
++
++int vringh_init_iomem(struct vringh *vrh, u64 features, unsigned int num,
++		      bool weak_barriers, gfp_t gfp, struct vring_desc *desc,
++		      struct vring_avail *avail, struct vring_used *used);
++
++#endif /* CONFIG_VHOST_IOMEM */
++
+ #endif /* _LINUX_VRINGH_H */
 -- 
 2.25.1
 
