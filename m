@@ -1,155 +1,165 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C555C61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 15:11:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C172C61DA4
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 15:33:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DE56941CB6;
-	Thu,  2 Feb 2023 15:11:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DE56941CB6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=A8Sqyvs0
+	by smtp3.osuosl.org (Postfix) with ESMTP id 143ED60C05;
+	Thu,  2 Feb 2023 15:33:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 143ED60C05
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=microsoft.com header.i=@microsoft.com header.a=rsa-sha256 header.s=selector2 header.b=i9R5AGI/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BQwCrjl0jkEK; Thu,  2 Feb 2023 15:11:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 21C5A41CAC;
-	Thu,  2 Feb 2023 15:11:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 21C5A41CAC
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Cesniy2l0mUt; Thu,  2 Feb 2023 15:33:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 24931611A8;
+	Thu,  2 Feb 2023 15:33:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 24931611A8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DFC52C0033;
-	Thu,  2 Feb 2023 15:11:02 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9440AC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F0DCFC0033;
+	Thu,  2 Feb 2023 15:33:22 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1144CC002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:11:01 +0000 (UTC)
+ Thu,  2 Feb 2023 15:33:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4DD376111A
+ by smtp3.osuosl.org (Postfix) with ESMTP id C7F0C611A8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:11:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4DD376111A
-Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=A8Sqyvs0
+ Thu,  2 Feb 2023 15:33:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C7F0C611A8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yH4_BXdImdpv
+ with ESMTP id 75zWdfKrC-kt
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:11:00 +0000 (UTC)
+ Thu,  2 Feb 2023 15:33:19 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17D3A6110E
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10on2062b.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8a::62b])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 17D3A6110E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 910EB60C14
+Received: from BN6PR00CU002-vft-obe.outbound.protection.outlook.com
+ (mail-eastus2azlp170110002.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c110::2])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 910EB60C14
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 15:10:59 +0000 (UTC)
+ Thu,  2 Feb 2023 15:33:19 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZT2WQtIFE3I7RxLpg/Si0HjzpVuBmHsF9CP5UdNOJYpdE7/YT1/ZVXRZjqgAgUAiOWzu4p1JlYR9/3BCKMXonbcS9FrCLZvn1XGeaEUpwXBdAITl745YnFaXmrehQRI8xpZCSqH3sFDex5S0y0HXGfIzaEov2Ki0EVb73tZ7P1SXpu37dgPqvD4cNSZ8lMJEiJtlEH1oYU5lYjj9uLCEtqkPu+cTl2Hk/313bAz0ad0yAxqev2/flyhqUG/iUDGtbYBMVemtvHdd9fD7XgUZncjwXpRrcFA7UPDPkzc5U4mIqqzAZZ5kAbFYBM6/mhDcydAO0YJG+VdlUBlSs+Iznw==
+ b=edU8gyxn9jrapp7tif526GkWijYc8c9S3M21nFQCTMVR8WIHi9O+lhyYTTZVYYrv5RglTEPdU6KySrqgmYiFFLlAJZk9lIqCrlHn5ZwEUBccEQw1VyjT1udvX+nvsEEv7ppA88M7R/ThooC6HH5zyF6utS8zzFn7oD60SjqULsTTBYl6+uzfeOrx7GyxoI5ltKkJDoaeBrZ8wWZC6OIFQVC4Xs2IcM8GQsk6UMT8mlVG7rsnTYxwrQWAoijqnoDT1dwTWaRZVT3B64kml+VUHcNdXsQ5rzvQSmlWSbfcGGEYJfaXo851L/+tiuZwtH1m+PmLaFb96NEdGwd6esea8w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fb20mHB6ia2rbuRQNGDbM4H658n10/dDrVH8JUns/ls=;
- b=apQjAB0HfD0teUOj7WuS2jMt/G1YuadCku9kkeCyUQIG3uuljKY7nEQccd2o2bqdunqfWkoRkABsRinvVGAeVlp4+WM7MbAZq+z7OSpbfAeGhdcs2zDKKRe3u01e3wQU9LAPq0bs98O2zUS4rSvLsSkVed2l9KnMfi0s5TWvwH6hv7oqEPZaAyoasI7Qu0K4IUFU8toAnNxU7BOj2XKx8pI1ReDDCRtcW6dVoidyX1n6G38pSQFVdiTJM3If1aMGUCK/rWLdDT9I5oEOuh41TOJmpJE9LjprNEIR0eLPcBdbEp3bdeCeHI32T8c8ZPdhgtJwf/2DRV/r0PAkxjvU2Q==
+ bh=7yFwmGMG+dweQ30eHyhyamkDpZfRqps8zqMZ1tcNLBU=;
+ b=eoSTgaIMyakkoOKGBmliKxHCIM2Ai5cMtIMp97N4Xp9xKnhTNJAsaZ15WecrPmtAQ494zkAdZPnJh7Ga4nEvq5Gz5SwdX8HJfRVyX8AI+StqzC7NDMDIRGcqIEAM8m02jjHJXSloLskDoxkbQG4e4aum5aG+3bLz+h42RQrjDqsRrKpECkUodH3dLNkn820zgZMroTQdtjsHbRY8MtNi84bY3aopJ1yH8m+Y22vM6eZuKeckI3So4Kwly7Atcv5jdWo/QbQaq0PIGaXC00GN0TRrbVhPpEThWQrKNA++afpYe6I3fdSHNWFzkflgbWbKarKcaCOa09KRPS52XDxZ5Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fb20mHB6ia2rbuRQNGDbM4H658n10/dDrVH8JUns/ls=;
- b=A8Sqyvs0cmM39xOu42/YDGtGLS2hJJwZROZnFA1Dlq0Ta8coUiu12zRcYZ9gbRSYKp+EXDuJ3gFRCSNnvwCMqIEXC+a3WdLQZsb06xjBYXkCFVVQpAnBUzwkDVTaOam41yyI9e45jUc2Jq/BvZDRLu/w32zjXZv3lUXIF0YTt2GLuGHjusvsXHLwNtjpfigAc6BPaETMnjRHco5wuNSlmNKuL2nw89IVLxojggE+m3tQuN98+pHgacGERNp48ii1+SWTgAJmy+0SOYqHHZev6Ea/w+WAyt6SjtH5KV2hXLyQh1ITyxEVeSxtbp0j9rlkm7eM7ls5Y2FGP+GjY4tn1g==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by CH2PR12MB4874.namprd12.prod.outlook.com (2603:10b6:610:64::11)
+ bh=7yFwmGMG+dweQ30eHyhyamkDpZfRqps8zqMZ1tcNLBU=;
+ b=i9R5AGI/Ta/nIK/OpkC21fdutkrroYdOd4m04vxOfxcwurLadkFWvSTaJjxFTxAE3dgGRjzaLgF652FfSyUnAZU5Sg9hRWTTCjLAYRRqUYF2BD4FSX5Q6jCPC/pv6zPYRLY2RgnPgHAci1BZxEQJpD+Q60KXbJG3dOXMz7OZR9k=
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
+ by PH0PR21MB1992.namprd21.prod.outlook.com (2603:10b6:510:1f::14)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.27; Thu, 2 Feb
- 2023 15:10:56 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::a891:beb7:5440:3f0]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::a891:beb7:5440:3f0%4]) with mapi id 15.20.6064.025; Thu, 2 Feb 2023
- 15:10:56 +0000
-To: Jiri Pirko <jiri@resnulli.us>
-Subject: RE: [PATCH 2/2] virtio-net: Maintain reverse cleanup order
-Thread-Topic: [PATCH 2/2] virtio-net: Maintain reverse cleanup order
-Thread-Index: AQHZNsNmqB1HoihArUa+/kiDXzADNK67lZ4AgAAtS/A=
-Date: Thu, 2 Feb 2023 15:10:56 +0000
-Message-ID: <PH0PR12MB5481C0C7E46B5DFF85178792DCD69@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20230202050038.3187-1-parav@nvidia.com>
- <20230202050038.3187-3-parav@nvidia.com> <Y9ur9B6CDIwThMN6@nanopsycho>
-In-Reply-To: <Y9ur9B6CDIwThMN6@nanopsycho>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.6; Thu, 2 Feb
+ 2023 15:33:13 +0000
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::9a9e:c614:a89f:396e]) by BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::9a9e:c614:a89f:396e%7]) with mapi id 15.20.6086.007; Thu, 2 Feb 2023
+ 15:33:13 +0000
+To: Saurabh Singh Sengar <ssengar@linux.microsoft.com>
+Subject: RE: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
+ hv_is_hibernation_supported
+Thread-Topic: [PATCH v2 2/6] Drivers: hv: allow non ACPI compilation for
+ hv_is_hibernation_supported
+Thread-Index: AQHZNZ9IFQFykaMu2kK/hQ0cFp0eSq66XU6AgAFiV4CAAAv2AA==
+Date: Thu, 2 Feb 2023 15:33:13 +0000
+Message-ID: <BYAPR21MB1688C48CC77B43BC81B2E3E9D7D69@BYAPR21MB1688.namprd21.prod.outlook.com>
+References: <1675188609-20913-1-git-send-email-ssengar@linux.microsoft.com>
+ <1675188609-20913-3-git-send-email-ssengar@linux.microsoft.com>
+ <BYAPR21MB1688813B65EEDB79554E30D4D7D19@BYAPR21MB1688.namprd21.prod.outlook.com>
+ <20230202144843.GA11173@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+In-Reply-To: <20230202144843.GA11173@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=26de2dce-0d04-4a76-aa95-b16be2b3d53a;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2023-02-02T15:31:31Z;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
 authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|CH2PR12MB4874:EE_
-x-ms-office365-filtering-correlation-id: 5c4a892c-ce36-4eaa-d37a-08db052faf3f
+x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|PH0PR21MB1992:EE_
+x-ms-office365-filtering-correlation-id: edefa456-7c7a-49b9-bca5-08db0532cc2d
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: bsUPysJU6ghdglXr39xL1o7XRHvqdfC+TLhOmIQzf90zwF+Q3TKZCioBV0+jCFafQi0Ev3bOUxDpDyq+F06lRUaiitbHB3Opqului3ow3GGWLUCcvcNI86zSolyhbiwGQqxxVgk1Apq8sxC+tRsKwy48Uz2aMFOpEqgMwT8LXZYaxa+Axcx+uDws+tAFX4JSqRo5VwLceDckoHNxkMwi03n4zEOF3AKLXurLM1Msv6pefoEnaf9oKpmYWQheJDheyxP0tAQue5aszkPEeIBKnFdQbw9kjkc0NMlJ0u7MDWukCLIgD3lILYr2wsB0X3+xYDij2h5580bAsVw0EYMevajOebI87iVfPKVuWOFR9gdflgXqhLvn56geAoLnFouwB0Ct+p3OOC7xos9b5Nkqg2iYCU2oStZXNMKifutSXTrOXt7izN57orx+xBidQHRP5KXAiykizsxhnx93sAlyqO4auA0WM3aVNNOLpDmmiPYwP5nc1kd6a9srT3s/tMcsnSSWFRwVbdZQWErMLzDwwrhQ73Xj+gCl9qr70xc/C/O4qGZFk3NEZJdQwf66FH1mGOh8aOmRxD3mrgrvMd1bOZodC0nthbAXwxgnOQ9gZgk8U8kYkBv1eRvxFOnvaEvY+kyBXQozu5+jQ8kCV5ty8OrWimxE+d/52zDZh2EeAC9KeOYfywdA/cXuCtuVqADeq7jFYOki23c/WvTcD/Blcw==
+x-microsoft-antispam-message-info: y59kEgExVufJt94AdcBAjn1seMRmklet4FrRCB8EK1zSlb1s9vvtBEbwFzA+5FwTdYJn5IohMKGuGNTy5UFweAI+1LUYVk7r//TvA27MA14LtzMtjoMYq2y7dQUOvCp/JZpEWSoQU7U3aMo3iRNMamXWzz73Sj9H7ZU1X//SJ4U/ScfE6qYWVZ2OX72zlDCqHTfVJpX8WGrHpysWds/K7FC7Avul46LFpG4i2qy5kRmI2y1B7cG6tl8NeAOIB77G6dnjVkwklVlzpQCwCyUzNs4ApZWIL+SbBVAz+J0+Log1LdmxOiKCGVDpjtjcrQnt3Sng6C+TsoWEuaNROCbB3CsBenpppZ1/w+xTWg9F29h6u49yGShOeNERNdzJRLoaLdUs4dv2usYkQFvKQWMshWuvC7XzsVnM4zu24byGvZUp8lbjs9XfthDu48QA/Qz/NDIRJiQanLXH2UIo7Dz28+h6AFBYrqTplVGIxxfBcbu+O1ba/IKHC7l6suPXgfQQVXY7Yuq8fYDAUe8r09AcKokmhv8orKHYOdnJCJvcdx2LiI9DilWw55YH3mj5kH9648bY2MpTgeUDorhre7cpVMIjwFO7ynp0npaCnlKpCWwYafvaSY6Mzyh1hDmULUEDvCpZWWdglBcfDkdxj5T6n7rhXd28EifILyeggKiwfXVlMMx8eSqjDJLbk7V7DOnYE8R44vhfSN4h98l0Wiruzv7LPGfG5apY9CjXIPiXQ1y5G/FH5qBai9PIEg9FLlgt
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230025)(4636009)(136003)(396003)(346002)(376002)(39860400002)(366004)(451199018)(76116006)(66556008)(66446008)(66476007)(66946007)(38100700002)(4326008)(83380400001)(64756008)(8676002)(6916009)(54906003)(122000001)(316002)(478600001)(26005)(186003)(6506007)(9686003)(33656002)(7416002)(5660300002)(86362001)(41300700001)(55016003)(71200400001)(38070700005)(52536014)(8936002)(7696005)(2906002);
- DIR:OUT; SFP:1101; 
+ IPV:NLI; SFV:NSPM; H:BYAPR21MB1688.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230025)(4636009)(396003)(366004)(376002)(346002)(39860400002)(136003)(451199018)(38070700005)(38100700002)(55016003)(82950400001)(4326008)(64756008)(66446008)(66556008)(66476007)(66946007)(82960400001)(8676002)(7696005)(6862004)(76116006)(8936002)(5660300002)(86362001)(52536014)(41300700001)(107886003)(9686003)(6506007)(26005)(186003)(478600001)(316002)(10290500003)(54906003)(71200400001)(33656002)(122000001)(8990500004)(2906002);
+ DIR:OUT; SFP:1102; 
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ZuNzPXQwireEO2Y5QixRcRF61hIddV1yZciqdXLYX1frE91A0chDwWaT+wth?=
- =?us-ascii?Q?AFJ3Ea1bIlplxJb3rrmsbphiknLhXBFb8B126HdwvwEX10GJLDzKgX9UyYYd?=
- =?us-ascii?Q?RkzHilYvsQePzkgLhRPus9XdAAYgBNSOgYkMKEUV18YDWTnvFMOKGz+4ompE?=
- =?us-ascii?Q?CTa19oteDPdsI2dGgqfjJx4y8/8ZUWVrrF/MuWUW2/ij2S6QtdOWN7A5QO98?=
- =?us-ascii?Q?LLTEBq6UXgV6kwH0aH83hPHvevSCaR6+ej9HMhYjCWKPGbapTih4cMHpki3O?=
- =?us-ascii?Q?tdKYrb/uvVa+ydkLt3wMzE28t5cWJp+xcO4d7Vx7r6uF2nq5dwkbIa9IWuVr?=
- =?us-ascii?Q?G+VD1n/pNXzENvSkUInQi/ZeiI2GWH9DEkN1TNSwwab2+ZgSAJpv2pJAtufz?=
- =?us-ascii?Q?DPrISlA7SoFvx0IDpie/Vwr2K+VaT0layAkfjpIu1fLdVRtlO7LgVMWmgmSi?=
- =?us-ascii?Q?wBk3YP9LdThyMMqPI9PSNHe3F79j3sxzYolcWAwM5ktdHhLBhUQOdlHm1XEa?=
- =?us-ascii?Q?hMf/0tIz1kUYI6sftALt9JPOGpmYK2EyMs6JAsNubThp/xLQrEnII5WTJn9y?=
- =?us-ascii?Q?WLrd0urUUwrhW9uFb7R+ws4xAIjwDGeRoGWaRnvNyIQBSh7MFHC+Zc7kZNiM?=
- =?us-ascii?Q?ghoUcQ80YJM4/+zwYCMauuXL/owtmoXH+mClDQB9hUnyBunC60ytYZf6ZdRs?=
- =?us-ascii?Q?tJWgudcSTFRAn0Bf+qze+iADVz9BUA5z2zM/tJ/PQmgbjwc/fcy5aGN5yn+p?=
- =?us-ascii?Q?BDKIXkNxHD4B1SjF7JmLiyYanXZnnSKkQRYkQUBIVPt4B5JG1wDELfCEm98y?=
- =?us-ascii?Q?0dWhtG0xxpEO4F44PP5KRnWTaSO+tJ7KXGLVsFzFp9dVNynLTFfVxDgEYQ9b?=
- =?us-ascii?Q?8jTIQSsS8rVbK8SXJyWQby6WUzCgNkHwkjxCaZ+4wplfEjsxq6g8+MqPVa8K?=
- =?us-ascii?Q?+oBnkYBkFMFJPnCESYZSZbjw8br+G7npKuCzfJ7Sn/+o7GGIto4Oxizt/bDJ?=
- =?us-ascii?Q?+B+QnWzjgPCtaeXYHIAXJ/hCXgfdXIPVsguBv0HwIj93L+RSMlTEKHJT4Ndg?=
- =?us-ascii?Q?rqQz+1SKioBhuO67I558Ts5cJmZUkn0KckcCYa34YZR0hmwSKwZA5k6KdEE9?=
- =?us-ascii?Q?OTf/5HxfOLFH4TWanB1FE9ALnXJJraoSF3zKP9xSr7Fav150RlqoM/3DnIJv?=
- =?us-ascii?Q?JXrASrAGA3vDlg2QC59FKfRJgVVF0p2O3cTqJofHesjSf1t8vQ8z8S/T81Bc?=
- =?us-ascii?Q?T+e+EHY1hr4/6BZQ4S1+lK/Wt2CWg2F7MXKRZO6+evMxwvjF/W+feDHZqDWA?=
- =?us-ascii?Q?xJsBzfI6x9JsNHToXzWfgR0wr3z0p0Pi+EVsbWzXfLSOGhP8guQ3IFdt6DXD?=
- =?us-ascii?Q?bLBdeG6TzRxQ24nPplf5Nvu74bazoY6cQP5hwVC48CTL6V9On4TxwlLEhlvl?=
- =?us-ascii?Q?jDHpvaWLVw3Gq5mxt8jUqCbDnnCo1kBRdGkovlxnLu5pw7gNshUmZawFiVQG?=
- =?us-ascii?Q?W2x9JI/4HhCQhGaA9/vMG3bxgNPXbGCppUi3WK38KmTygeWt5dMaTKFgxwxZ?=
- =?us-ascii?Q?IEdl+NJl8gOfINaUowk=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?UbbQNW4pBTzwulFtJwA24JhgixbA4zme+tzwB3fDfJYn5ZkwqhS+gtatlDgE?=
+ =?us-ascii?Q?lU2E0UNLLS9f9SZVPzvZu+9LT5UUj7VJqyfHBPLmBnTn9uiltE5pN5DzMf0O?=
+ =?us-ascii?Q?lp3sn5qskBx0sWlGV0aCBWLrFjXA43WvxZs55+rimu/fQHWvF6hWGt3s4e77?=
+ =?us-ascii?Q?WFarxSaN8JotIeZeU8FUK1SWliTvR0+fX58BXOy/rzV56I3OlSjiDljI+y/x?=
+ =?us-ascii?Q?B8k3k/qbTCpUoD5RJIMbyEl3QYa1ceoOQCeuE3tieDp7TOEGKDWuUW6VT44/?=
+ =?us-ascii?Q?w3GhYWX6YuQWgNsYjG9mg3cPHML6eZKDBGSzLfsx/+wYwpyzhCF3izM1QJ9i?=
+ =?us-ascii?Q?eApDsYIm3UEPfM6cvmtzPdHTau4oMMIUQHwmYjM89dUBkIW6dVbnv8Ln+GUa?=
+ =?us-ascii?Q?oiUZko1p6+3i5fx0Q7L0rAVqwBppaWQHNnKs5EdiESHrXY6mY8Mav3iodHYh?=
+ =?us-ascii?Q?QIvvsFKECE/Kq/TAYqo6izzlE6gEuJC5MFASEiM9HeO7gQAMWIyDqMTKc9Vd?=
+ =?us-ascii?Q?gfD5mTuvi7j8G0jyHjNTyuoPiAah6AyjIjf+SAySwSdQ3ZiAVglA9cwR+l3E?=
+ =?us-ascii?Q?4tK6IIDFb7Vp22LvzZCPUH/KNgyUubsqy/dTElFSr8EGUEXutiJHe8B6M5Xy?=
+ =?us-ascii?Q?AOX91KzIJv8XQ5ncF/kAML2t7xyPV2CHpiX1Y7dA2YZNgoqjPeNPyLbPOujY?=
+ =?us-ascii?Q?fv2IOWlDncCtvjyNwDnneuFj1RveQ1L19PoSlxJYu9kj90BjGZy5PDUsMQ+Q?=
+ =?us-ascii?Q?35yXYdcmHoyD7N2+AxTAOddAzkKnRsGUlqT+8zJxn5PX8I+bjixgTb9mnZTk?=
+ =?us-ascii?Q?4BAHNP1f0ZwhUAlDwrPvb2Z7jofS7+br8X4JDhP1rtJ1nwiLaFjMKA+jYRkx?=
+ =?us-ascii?Q?KASL96E8htCajIeX+Hb2FB7NRf+4ySx365qGkd/fGtDpeZ0TVXSmTjWvt/li?=
+ =?us-ascii?Q?bzv/ZjCCcV588KFdEcxKqiIqci8hh9Z6U7XHZekf44PXkth8tzidn+XY0O/D?=
+ =?us-ascii?Q?4mOaPkgbuetGS0l7Q1SdMgw6CSpYw5GCLGK9Sw4uO3b4uENGxt5gORXtUU5z?=
+ =?us-ascii?Q?zGCOiGk+W0Ajr/AnZ41tPb76NmvM1t6hAdAlDrph4qaPCJCCGlifVqWoc/uz?=
+ =?us-ascii?Q?1yVHaNs4rY+B6fUFQQO/xeQT3o+dxN4yNkYQnUSiwOuaxydmbOjCToGQ8js1?=
+ =?us-ascii?Q?sA2SOi6TkydV7B5XpxvfXE9W3TgdM6btqIvSTTDqayKdtD2tOnRM8lQO2NXN?=
+ =?us-ascii?Q?rc9tuWm6mSrG6FF5soxDDEEPBaL5Ix5MRmzDbhJbckJ0GGyRIKvhx4GGs3cH?=
+ =?us-ascii?Q?MhqB8r/HG1uB9lDkT4GS9XQYxkb06q9BLUZjm7BXpxo/RUbbkizbz7RLQq87?=
+ =?us-ascii?Q?8SZXsZKqONR0ItRFVhxIA/WKrGI8umiIuwkGVb4btA89svdshQiGY50as5sr?=
+ =?us-ascii?Q?Vve2gpPH+boWqo1nYALsVDGlPVBIDE6BM5UoW1RxMPf78zNzvsBrTmtWDdD3?=
+ =?us-ascii?Q?NgvFnhsRUr5udcMLf3woXczHgHu4FKXpk3lWRKxYL8aburSgEBtYtoP7hIOO?=
+ =?us-ascii?Q?sbb2/B9KSZnHBgLXbUTX3UQgRZ7QIR3zODWTEjrRX5XFGtcbncdTck2SUEvn?=
+ =?us-ascii?Q?mw=3D=3D?=
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
+X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5c4a892c-ce36-4eaa-d37a-08db052faf3f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2023 15:10:56.4385 (UTC)
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: edefa456-7c7a-49b9-bca5-08db0532cc2d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2023 15:33:13.4954 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: bMQAd4fYxGISAvjAYv607NLiLRulOAVp9bC64J3VynuX8DJyRJu0a9YJIiDsHn+raKUjW8mVkJKa1jsId61nxA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4874
-Cc: "hawk@kernel.org" <hawk@kernel.org>,
- "daniel@iogearbox.net" <daniel@iogearbox.net>,
- "mst@redhat.com" <mst@redhat.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "ast@kernel.org" <ast@kernel.org>,
+X-MS-Exchange-CrossTenant-userprincipalname: h2m3jz9EsERCSZ8HdVT1WPzvORUCuLSOHB4Vwlt3RKIdeT/Gpn0xlfjKQq8M1XcgqVWtJ51nTZ2jWak+BVx4Iij1uuym7hZbhLAZRBjwQy4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR21MB1992
+Cc: "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+ "wei.liu@kernel.org" <wei.liu@kernel.org>,
+ Saurabh Singh Sengar <ssengar@microsoft.com>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ "daniel.lezcano@linaro.org" <daniel.lezcano@linaro.org>,
+ Dexuan Cui <decui@microsoft.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "edumazet@google.com" <edumazet@google.com>,
- "kuba@kernel.org" <kuba@kernel.org>,
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
- "pabeni@redhat.com" <pabeni@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>
+ "robh+dt@kernel.org" <robh+dt@kernel.org>,
+ "krzysztof.kozlowski+dt@linaro.org" <krzysztof.kozlowski+dt@linaro.org>,
+ "tglx@linutronix.de" <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -161,57 +171,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
+From: "Michael Kelley \(LINUX\) via Virtualization"
  <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
+Reply-To: "Michael Kelley \(LINUX\)" <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: Saurabh Singh Sengar <ssengar@linux.microsoft.com> Sent: Thursday, February 2, 2023 6:49 AM
+> 
+> On Wed, Feb 01, 2023 at 05:47:44PM +0000, Michael Kelley (LINUX) wrote:
+> > From: Saurabh Sengar <ssengar@linux.microsoft.com> Sent: Tuesday, January 31,
+> 2023 10:10 AM
+> > >
+> > > acpi_sleep_state_supported API is only define for CONFIG_ACPI flag and
+> > > thus it can't be used for non-ACPI builds. Initaly there won't be
+> >
+> > s/Initaly/Initially/
+> 
+> OK
+> 
+> >
+> > > hibernate support for non ACPI builds.
+> >
+> > s/hibernate/hibernation/
+> 
+> OK
+> 
+> >
+> > >
+> > > This change will help adding device tree support in subsequent commits.
+> > >
+> > > Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+> > > ---
+> > >  drivers/hv/hv_common.c | 4 ++++
+> > >  1 file changed, 4 insertions(+)
+> > >
+> > > diff --git a/drivers/hv/hv_common.c b/drivers/hv/hv_common.c
+> > > index 52a6f89ccdbd..370ec20d1993 100644
+> > > --- a/drivers/hv/hv_common.c
+> > > +++ b/drivers/hv/hv_common.c
+> > > @@ -234,7 +234,11 @@ EXPORT_SYMBOL_GPL(hv_setup_dma_ops);
+> > >
+> > >  bool hv_is_hibernation_supported(void)
+> > >  {
+> > > +#ifdef CONFIG_ACPI
+> > >  	return !hv_root_partition && acpi_sleep_state_supported(ACPI_STATE_S4);
+> > > +#else
+> > > +	return false;
+> > > +#endif
+> >
+> > Is this patch needed?  If CONFIG_ACPI is not set, then per
+> > arch/x86/Kconfig, CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT
+> > is not selected.  In that case, the #ifdef in include/acpi/acpi_bus.h
+> > provides a stub for acpi_sleep_state_supported() that returns "false".
+> > So it seems like the existing code should compile and correctly return
+> > "false" when CONFIG_ACPI is not set.
+> 
+> You are right, if CONFIG_ACPI_SYSTEM_POWER_STATES_SUPPORT is not set
+> acpi_sleep_state_supported will return false, but this is applicable only
+> when CONFIG_ACPI is enable. If CONFIG_ACPI is not enable both these
+> functions are not defined.
+> 
 
-> From: Jiri Pirko <jiri@resnulli.us>
-> Sent: Thursday, February 2, 2023 7:26 AM
-> 
-> Thu, Feb 02, 2023 at 06:00:38AM CET, parav@nvidia.com wrote:
-> >To easily audit the code, better to keep the device stop() sequence to
-> >be mirror of the device open() sequence.
-> >
-> >Signed-off-by: Parav Pandit <parav@nvidia.com>
-> 
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> 
-> If this is not fixing bug (which I believe is the case), you should target it to net-
-> next ([patch net-next] ..).
-> 
-Yes. Right. First one was fix for net-rc, second was for net-next. And 2nd depends on the first to avoid merge conflicts.
-So, I was unsure how to handle it.
-Can you please suggest?
+Indeed, you are right.  Most of include/acpi/acpi_bus.h is bracketed with
+#ifdef CONFIG_ACPI, including the stub acpi_sleep_state_supported().
+Oh well. :-(
 
-
-> 
-> >---
-> > drivers/net/virtio_net.c | 2 +-
-> > 1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> >diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
-> >b7d0b54c3bb0..1f8168e0f64d 100644
-> >--- a/drivers/net/virtio_net.c
-> >+++ b/drivers/net/virtio_net.c
-> >@@ -2279,9 +2279,9 @@ static int virtnet_close(struct net_device *dev)
-> > 	cancel_delayed_work_sync(&vi->refill);
-> >
-> > 	for (i = 0; i < vi->max_queue_pairs; i++) {
-> >+		virtnet_napi_tx_disable(&vi->sq[i].napi);
-> > 		napi_disable(&vi->rq[i].napi);
-> > 		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
-> >-		virtnet_napi_tx_disable(&vi->sq[i].napi);
-> > 	}
-> >
-> > 	return 0;
-> >--
-> >2.26.2
-> >
+Michael
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
