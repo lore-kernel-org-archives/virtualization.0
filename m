@@ -1,103 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A21BEC61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 17:24:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 596A7C05027
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 17:26:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2D76682022;
-	Thu,  2 Feb 2023 17:24:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D76682022
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=C/qnb+yW
+	by smtp4.osuosl.org (Postfix) with ESMTP id E231741CD6;
+	Thu,  2 Feb 2023 17:26:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E231741CD6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NPRTwZXW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gOhANk4DaWvC; Thu,  2 Feb 2023 17:24:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id ABD3A81EF6;
-	Thu,  2 Feb 2023 17:24:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ABD3A81EF6
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WJ6R-5ArzeSD; Thu,  2 Feb 2023 17:26:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2B2B341CD4;
+	Thu,  2 Feb 2023 17:26:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B2B341CD4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 874D2C0033;
-	Thu,  2 Feb 2023 17:24:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AB1FEC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 089F7C0033;
+	Thu,  2 Feb 2023 17:26:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 43B9EC002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 17:24:07 +0000 (UTC)
+ Thu,  2 Feb 2023 17:26:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 789A481EF6
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1EE6D41CD5
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 17:24:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 789A481EF6
+ Thu,  2 Feb 2023 17:26:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1EE6D41CD5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T7dzQl3z3v-U
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Kj9nFikUi42j
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 17:24:06 +0000 (UTC)
+ Thu,  2 Feb 2023 17:26:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A427182022
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3CC6241CD4
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A427182022
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3CC6241CD4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 17:24:06 +0000 (UTC)
+ Thu,  2 Feb 2023 17:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1675358645;
+ s=mimecast20190719; t=1675358773;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Zi7pe0UxkBtEbi7YCeZA5YzsyNiHTHBrH46k3JXR73E=;
- b=C/qnb+yWVPess2jif2RMLf+cwDX26deBIqIomkLrBxJZabFmYcg+JviQ4C5Q8zwvW0N/Tw
- eiN8KKPAyUYggL0N/jbSr1THnZguJ82JDfx+V97paH1dzUJ4K95rhbH+UpY3hsZ0E6Coyx
- p0yX8t2fjiTK69aSEVwt7XmA692rzeI=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=6WKJ+xTBuqvHJA/DgjJYK9bFyVaTh4ihb15FuQHGdbU=;
+ b=NPRTwZXW58S3YBbmdCqzMahGDswTvbD8uAAietX4kOcgjYpqr8cLfwnAd/udJpNSvyF64P
+ M8Xj41uSTXRM3yEgr2uMk5ujWtMfc4Q2bVd1yMaleaaEFYyu6f1BeN8/k7K1UH8mJvNwnR
+ 70i31MzSH6J9pA1W+SjEMsG5F7tyb2A=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-387-rpRxRM5dNp272Ri38kkGlQ-1; Thu, 02 Feb 2023 12:24:03 -0500
-X-MC-Unique: rpRxRM5dNp272Ri38kkGlQ-1
-Received: by mail-wm1-f71.google.com with SMTP id
- m3-20020a05600c3b0300b003dfdc6021bcso1167363wms.3
+ us-mta-266-Xar-TO6iP06Mw7NVF2nsiQ-1; Thu, 02 Feb 2023 12:26:07 -0500
+X-MC-Unique: Xar-TO6iP06Mw7NVF2nsiQ-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ o24-20020a5d58d8000000b002bfe173775aso359942wrf.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 09:24:03 -0800 (PST)
+ Thu, 02 Feb 2023 09:26:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=Zi7pe0UxkBtEbi7YCeZA5YzsyNiHTHBrH46k3JXR73E=;
- b=hoQ36BE7+XEAFXUGhfvKol97ZP9X2qgA1FsmjLGP/HWKm6kGT1W3/DvyoRO1jGf50R
- 5zyRtUUC8j2t6yCa1vNFtaKoICP0XDXFWb0nev26jJHuL7IatjinDvbi3ygBzwjwEGkI
- t1mfAcpLxUzyt79fRjw4LwqZZB2FhW6fJddfNFfRsrTAfx8+Clv7w/yv5tu4PqsWGgTq
- ytklywfIWxLa6SAYOXVwPlG/1c5LiG43fMwNy9a0XAozAXuVJzGlrYm/NZNpDhR5LH84
- zQyWkM4uuPqbWgDE4ClBIWB224JdSmBPMO2GLwDPDG85IXLPHgxU5uM6tkztP94I2pKd
- nTMw==
-X-Gm-Message-State: AO0yUKX9smDjwSjZp8ZCZw0WFsgeOKUpAbuLGrAnsA00vAI1Xn5z3WHA
- pyp72zIX/g5JvEAY9EO25oYCCbJBoNH3qXD+LM5qVBArcsPEr/QU3UCGvf9/xZib2kkC3oG9Ohr
- sh/zHjTx4r3mEyjkr2+KY/uhTKz1G9wHUc2hJIU6l6g==
-X-Received: by 2002:a05:600c:3c9b:b0:3dc:46e8:982 with SMTP id
- bg27-20020a05600c3c9b00b003dc46e80982mr6465490wmb.19.1675358642279; 
- Thu, 02 Feb 2023 09:24:02 -0800 (PST)
-X-Google-Smtp-Source: AK7set+SWaayznR+KdR4VtGrVFlQFcvR61IRH4Fc/O+4J8EkSdt36bLQbXIq6MZx64YFcR2JlMxuJA==
-X-Received: by 2002:a05:600c:3c9b:b0:3dc:46e8:982 with SMTP id
- bg27-20020a05600c3c9b00b003dc46e80982mr6465465wmb.19.1675358642098; 
- Thu, 02 Feb 2023 09:24:02 -0800 (PST)
+ bh=6WKJ+xTBuqvHJA/DgjJYK9bFyVaTh4ihb15FuQHGdbU=;
+ b=ywgbR3YkYs/FMEvhHVpg9YHW7pnR1D0CWn2Xy+RRXZckpHRr/v56wY5Ni5umaerkvV
+ eO/Sg6yk3fspWLP5rvfOGDudfg+4w75QnZR0e7I2awfKLDNtWrIJfn4WlxyfiD5YcPIV
+ xN+RhMOfEzzpjdF5UYLhOSUhf6peXOYz0tlR33/74/dAr7XoW+MgkU0bGoW5Qr94lz7P
+ LCH2q/MiD6lTiHHyevTgYKUYHVhSK3WU5/8Z42t+NrLTs9YWWfCa3V+Ym9LPD5GUezay
+ cFlaVrC2Lwx9aMWMZw/qee9O+/Fepy8ooR08mYwnaj6MV9xk3D6eEOujmGotBHZFQiru
+ K0IA==
+X-Gm-Message-State: AO0yUKXO5Sq0e+NHMXaS/WvjMW9FuITtMHh5C2SrItpwNNmR62Nq3BIo
+ Y3ta3A5XfGlvHKIy1g8YhMqQztzKqRxfW2EduoNKf9ZQFSaCRbLnuKrvcmX99/TFiI87n6g7n95
+ +i7hfOKfoNdpYHhYH0X7zmvPRQT9THxV/T1TSF8cvvQ==
+X-Received: by 2002:a05:600c:1e0b:b0:3da:1e35:dfec with SMTP id
+ ay11-20020a05600c1e0b00b003da1e35dfecmr6910492wmb.4.1675358765642; 
+ Thu, 02 Feb 2023 09:26:05 -0800 (PST)
+X-Google-Smtp-Source: AK7set/z5RmItaflCIcRIT8kR78dHQV5cx7Dg457PMDawnbySjhpBnXC5/Fk1nq6JbSLeIjJqL5pxQ==
+X-Received: by 2002:a05:600c:1e0b:b0:3da:1e35:dfec with SMTP id
+ ay11-20020a05600c1e0b00b003da1e35dfecmr6910475wmb.4.1675358765455; 
+ Thu, 02 Feb 2023 09:26:05 -0800 (PST)
 Received: from redhat.com ([2.52.156.122]) by smtp.gmail.com with ESMTPSA id
- c18-20020a7bc012000000b003d1e3b1624dsm5423336wmb.2.2023.02.02.09.23.58
+ i10-20020a05600c354a00b003dd1c15e7fcsm6365187wmq.15.2023.02.02.09.26.02
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Feb 2023 09:24:01 -0800 (PST)
-Date: Thu, 2 Feb 2023 12:23:56 -0500
+ Thu, 02 Feb 2023 09:26:04 -0800 (PST)
+Date: Thu, 2 Feb 2023 12:25:59 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 19/33] virtio_net: introduce virtnet_tx_reset()
-Message-ID: <20230202121745-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 24/33] virtio_net: xsk: stop disable tx napi
+Message-ID: <20230202122445-mutt-send-email-mst@kernel.org>
 References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
- <20230202110058.130695-20-xuanzhuo@linux.alibaba.com>
+ <20230202110058.130695-25-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20230202110058.130695-20-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230202110058.130695-25-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -131,95 +131,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 02, 2023 at 07:00:44PM +0800, Xuan Zhuo wrote:
-> Introduce virtnet_tx_reset() to release the buffers inside virtio ring.
+On Thu, Feb 02, 2023 at 07:00:49PM +0800, Xuan Zhuo wrote:
+> Since xsk's TX queue is consumed by TX NAPI, if sq is bound to xsk, then
+> we must stop tx napi from being disabled.
 > 
-> This is needed for xsk disable. When disable xsk, we need to relese the
-
-typo
-
-> buffer from xsk, so this function is needed.
-> 
-> This patch reuse the virtnet_tx_resize.
-
-reuses
-
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-
 > ---
->  drivers/net/virtio/main.c       | 21 ++++++++++++++++++---
->  drivers/net/virtio/virtio_net.h |  1 +
->  2 files changed, 19 insertions(+), 3 deletions(-)
+>  drivers/net/virtio/main.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> index fb82035a0b7f..049a3bb9d88d 100644
+> index ed79e750bc6c..232cf151abff 100644
 > --- a/drivers/net/virtio/main.c
 > +++ b/drivers/net/virtio/main.c
-> @@ -1806,8 +1806,8 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
->  	return err;
->  }
+> @@ -2728,8 +2728,15 @@ static int virtnet_set_coalesce(struct net_device *dev,
+>  		return ret;
 >  
-> -static int virtnet_tx_resize(struct virtnet_info *vi,
-> -			     struct send_queue *sq, u32 ring_num)
-> +static int __virtnet_tx_reset(struct virtnet_info *vi,
-> +			      struct send_queue *sq, u32 ring_num)
->  {
->  	bool running = netif_running(vi->dev);
->  	struct netdev_queue *txq;
-> @@ -1833,7 +1833,11 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
->  
->  	__netif_tx_unlock_bh(txq);
->  
-> -	err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-> +	if (ring_num)
-> +		err = virtqueue_resize(sq->vq, ring_num, virtnet_sq_free_unused_buf);
-> +	else
-> +		err = virtqueue_reset(sq->vq, virtnet_sq_free_unused_buf);
+>  	if (update_napi) {
+> -		for (i = 0; i < vi->max_queue_pairs; i++)
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> +			/* xsk xmit depend on the tx napi. So if xsk is active,
+
+depends.
+
+> +			 * prevent modifications to tx napi.
+> +			 */
+> +			if (rtnl_dereference(vi->sq[i].xsk.pool))
+> +				continue;
 > +
->  	if (err)
->  		netdev_err(vi->dev, "resize tx fail: tx queue index: %d err: %d\n", qindex, err);
->
+>  			vi->sq[i].napi.weight = napi_weight;
 
-This __virtnet_tx_reset is a really weird API.
+I don't get it.
+changing napi weight does not work then.
+why is this ok?
 
-Suggest just splitting the common parts:
 
-__virtnet_tx_pause
-__virtnet_tx_resume
-
-we can then implement virtnet_tx_resize and virtnet_tx_reset
-using these two.
-
-  
-> @@ -1847,6 +1851,17 @@ static int virtnet_tx_resize(struct virtnet_info *vi,
->  	return err;
->  }
+> +		}
+>  	}
 >  
-> +static int virtnet_tx_resize(struct virtnet_info *vi,
-> +			     struct send_queue *sq, u32 ring_num)
-> +{
-> +	return __virtnet_tx_reset(vi, sq, ring_num);
-> +}
-> +
-> +int virtnet_tx_reset(struct virtnet_info *vi, struct send_queue *sq)
-> +{
-> +	return __virtnet_tx_reset(vi, sq, 0);
-> +}
-> +
->  /*
->   * Send command via the control virtqueue and check status.  Commands
->   * supported by the hypervisor, as indicated by feature bits, should
-> diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-> index af3e7e817f9e..b46f083a630a 100644
-> --- a/drivers/net/virtio/virtio_net.h
-> +++ b/drivers/net/virtio/virtio_net.h
-> @@ -273,4 +273,5 @@ int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xdp,
->  			struct net_device *dev,
->  			unsigned int *xdp_xmit,
->  			struct virtnet_rq_stats *stats);
-> +int virtnet_tx_reset(struct virtnet_info *vi, struct send_queue *sq);
->  #endif
+>  	return ret;
 > -- 
 > 2.32.0.3.g01195cf9f
 
