@@ -1,60 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58B0BC64EC3
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 11:01:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E706BC61DA4
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 11:01:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0006281F16;
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7AF5141B80;
 	Thu,  2 Feb 2023 11:01:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0006281F16
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7AF5141B80
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Xf66tQIDlq16; Thu,  2 Feb 2023 11:01:20 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kNFvd8nL9bbC; Thu,  2 Feb 2023 11:01:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 74C0A81F12;
-	Thu,  2 Feb 2023 11:01:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 74C0A81F12
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 80FB441B87;
+	Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 80FB441B87
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 54EC7C0078;
-	Thu,  2 Feb 2023 11:01:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F0CBC007B
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5D34281F17
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5D34281F17
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YB8x-gHYYsv8
- for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 11:01:17 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 544A3812A4
-Received: from out30-118.freemail.mail.aliyun.com
- (out30-118.freemail.mail.aliyun.com [115.124.30.118])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 544A3812A4
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B437C0032;
+	Thu,  2 Feb 2023 11:01:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3ED52C002B
  for <virtualization@lists.linux-foundation.org>;
  Thu,  2 Feb 2023 11:01:16 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2817040C05
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 11:01:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2817040C05
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iXBQWlCQUolU
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 11:01:15 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCC1240C0F
+Received: from out30-101.freemail.mail.aliyun.com
+ (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DCC1240C0F
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  2 Feb 2023 11:01:14 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R691e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=21; SR=0;
- TI=SMTPD_---0VakpyCA_1675335671; 
+ TI=SMTPD_---0VakkM2a_1675335669; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VakpyCA_1675335671) by smtp.aliyun-inc.com;
- Thu, 02 Feb 2023 19:01:12 +0800
+ fp:SMTPD_---0VakkM2a_1675335669) by smtp.aliyun-inc.com;
+ Thu, 02 Feb 2023 19:01:10 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH 11/33] virtio_net: rename free_old_xmit_skbs to free_old_xmit
-Date: Thu,  2 Feb 2023 19:00:36 +0800
-Message-Id: <20230202110058.130695-12-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH 09/33] xsk: xsk_buff_pool add callback for dma_sync
+Date: Thu,  2 Feb 2023 19:00:34 +0800
+Message-Id: <20230202110058.130695-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
 References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
@@ -90,64 +90,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
-subsequent added xsk, so change the name of this function to
-free_old_xmit.
+Use callback to implement dma sync to simplify subsequent support for
+virtio dma sync.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio_net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ include/net/xsk_buff_pool.h |  6 ++++++
+ net/xdp/xsk_buff_pool.c     | 24 ++++++++++++++++++++----
+ 2 files changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0f0036b1514d..bc7b9ccb325a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1714,7 +1714,7 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
- 	return stats.packets;
+diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
+index 3e952e569418..53b681120354 100644
+--- a/include/net/xsk_buff_pool.h
++++ b/include/net/xsk_buff_pool.h
+@@ -75,6 +75,12 @@ struct xsk_buff_pool {
+ 	u32 chunk_size;
+ 	u32 chunk_shift;
+ 	u32 frame_len;
++	void (*dma_sync_for_cpu)(struct device *dev, dma_addr_t addr,
++				 unsigned long offset, size_t size,
++				 enum dma_data_direction dir);
++	void (*dma_sync_for_device)(struct device *dev, dma_addr_t addr,
++				    unsigned long offset, size_t size,
++				    enum dma_data_direction dir);
+ 	u8 cached_need_wakeup;
+ 	bool uses_need_wakeup;
+ 	bool dma_need_sync;
+diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+index ed6c71826d31..78e325e195fa 100644
+--- a/net/xdp/xsk_buff_pool.c
++++ b/net/xdp/xsk_buff_pool.c
+@@ -403,6 +403,20 @@ static int xp_init_dma_info(struct xsk_buff_pool *pool, struct xsk_dma_map *dma_
+ 	return 0;
  }
  
--static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, bool in_napi)
++static void dma_sync_for_cpu(struct device *dev, dma_addr_t addr,
++			     unsigned long offset, size_t size,
++			     enum dma_data_direction dir)
++{
++	dma_sync_single_range_for_cpu(dev, addr, offset, size, dir);
++}
++
++static void dma_sync_for_device(struct device *dev, dma_addr_t addr,
++				unsigned long offset, size_t size,
++				enum dma_data_direction dir)
++{
++	dma_sync_single_range_for_device(dev, addr, offset, size, dir);
++}
++
+ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
+ 	       unsigned long attrs, struct page **pages, u32 nr_pages)
  {
- 	unsigned int len;
- 	unsigned int packets = 0;
-@@ -1778,7 +1778,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+@@ -421,6 +435,9 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
+ 		return 0;
+ 	}
  
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit_skbs(sq, true);
-+			free_old_xmit(sq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
++	pool->dma_sync_for_cpu = dma_sync_for_cpu;
++	pool->dma_sync_for_device = dma_sync_for_device;
++
+ 	dma_map = xp_create_dma_map(dev, pool->netdev, nr_pages, pool->umem);
+ 	if (!dma_map)
+ 		return -ENOMEM;
+@@ -667,15 +684,14 @@ EXPORT_SYMBOL(xp_raw_get_dma);
  
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-@@ -1870,7 +1870,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit_skbs(sq, true);
-+	free_old_xmit(sq, true);
+ void xp_dma_sync_for_cpu_slow(struct xdp_buff_xsk *xskb)
+ {
+-	dma_sync_single_range_for_cpu(xskb->pool->dev, xskb->dma, 0,
+-				      xskb->pool->frame_len, DMA_BIDIRECTIONAL);
++	xskb->pool->dma_sync_for_cpu(xskb->pool->dev, xskb->dma, 0,
++				     xskb->pool->frame_len, DMA_BIDIRECTIONAL);
+ }
+ EXPORT_SYMBOL(xp_dma_sync_for_cpu_slow);
  
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
-@@ -1960,7 +1960,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
- 
--		free_old_xmit_skbs(sq, false);
-+		free_old_xmit(sq, false);
- 
- 	} while (use_napi && kick &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
-@@ -2006,7 +2006,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(sq, false);
-+			free_old_xmit(sq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				virtqueue_disable_cb(sq->vq);
+ void xp_dma_sync_for_device_slow(struct xsk_buff_pool *pool, dma_addr_t dma,
+ 				 size_t size)
+ {
+-	dma_sync_single_range_for_device(pool->dev, dma, 0,
+-					 size, DMA_BIDIRECTIONAL);
++	pool->dma_sync_for_device(pool->dev, dma, 0, size, DMA_BIDIRECTIONAL);
+ }
+ EXPORT_SYMBOL(xp_dma_sync_for_device_slow);
 -- 
 2.32.0.3.g01195cf9f
 
