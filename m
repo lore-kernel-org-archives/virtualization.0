@@ -1,98 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ED5BFC05027
-	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 09:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4FFFEC61DA4
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 09:09:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 76BC681E9D;
-	Thu,  2 Feb 2023 09:09:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 76BC681E9D
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=lnwrHXTm
+	by smtp4.osuosl.org (Postfix) with ESMTP id DB18A41B31;
+	Thu,  2 Feb 2023 09:09:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB18A41B31
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=QvSn8hl/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SFXA-t_65gsi; Thu,  2 Feb 2023 09:09:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DC52681EA5;
-	Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DC52681EA5
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q-wPcNH8mXeS; Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 36E4E41B30;
+	Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 36E4E41B30
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C79C4C0032;
-	Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C5BF7C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 11A5CC0032;
+	Thu,  2 Feb 2023 09:09:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BA330C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:50 +0000 (UTC)
+ Thu,  2 Feb 2023 09:09:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A0249610EB
+ by smtp2.osuosl.org (Postfix) with ESMTP id 88CE340C0D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0249610EB
-Authentication-Results: smtp3.osuosl.org;
+ Thu,  2 Feb 2023 09:09:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 88CE340C0D
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
  header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=lnwrHXTm
+ header.s=20210112 header.b=QvSn8hl/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DiXGeaj1h6yi
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wFkUmwqXnGRT
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:49 +0000 (UTC)
+ Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80E87607F0
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com
- [IPv6:2607:f8b0:4864:20::631])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 80E87607F0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D394F40BFF
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
+ [IPv6:2607:f8b0:4864:20::1033])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D394F40BFF
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Feb 2023 09:09:49 +0000 (UTC)
-Received: by mail-pl1-x631.google.com with SMTP id m2so1202399plg.4
+ Thu,  2 Feb 2023 09:09:51 +0000 (UTC)
+Received: by mail-pj1-x1033.google.com with SMTP id j5so1290716pjn.5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 01:09:49 -0800 (PST)
+ Thu, 02 Feb 2023 01:09:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=igel-co-jp.20210112.gappssmtp.com; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:from:to:cc:subject:date
  :message-id:reply-to;
- bh=1RMLYkSO95pUa0F6Cu2apQCJX18FS/X+Z1XVi4WpAM8=;
- b=lnwrHXTmExnnyNYgz74oH23XeAVX8+/SsE4zJ+GC4CZY+kMas+zg9v4MfLh4yC6BmV
- Vg7I0LGoPg74p0Efx5Lpyt9KBWgnuIfu8zcqWvo3Kl8yj1RzNxPvb/gqy/jkK/1g1Czy
- YMVfpn95T6dT0ym0mmUpBnfZN98cSoV5hlke77oMv1UnHr/vdEIzL0CgytLEYhuVnflo
- 7+yMjg5MTdo+oNyUwj866U4jfH23qmMDvKsSER1LgQ//yZzWfvPvx5/BJO8vMobr+o0Z
- FjPc+F6O653XmaiuyADkjf0B+AaeVHwhwIdqJOeoky8RIywRS5dGTNQucbUI7zTIwTNF
- ckCA==
+ bh=9fCw3ePbQ4sWf6yjA8O8Z29UEVxW6bYbx76RpPXO7aY=;
+ b=QvSn8hl/YfOcJ6FUJ33/gevLAhxNPtImxPhVY9NtVFLqgJKnmAdY4fmFodpUno6RNc
+ oen0Nb31vxxT6csN1kDCMM/Td1864giiGAkZEs7gW85Syn6Pj1SM9x2CZKodsLBYYUSz
+ aZOTpZ9Y3lhg4gMxyjWaKs2pqWsaLiiUB4wIMa5l+2HevJulxagZJ5Tx67zZocuoTp53
+ 98kNK6qXTnqcFpvjdEuaciLik7dIpUAL2MYm3x+dcQFG/xkN+ZY4ApbDm44elRY3YvY4
+ 35ynjrCrCa1J9JoHmhwPSALH6eG7hoA8g7zkDWL25SYUeFN3Cv75MEP6szlFF8zvTaih
+ A6nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=1RMLYkSO95pUa0F6Cu2apQCJX18FS/X+Z1XVi4WpAM8=;
- b=8D1NSYCswBz/NLh5qIalgDtzlPbz46/dIfFTjg/ypP5F2x/iZaV04Hc01rJhCp5VkS
- BEZAlE4vXiCjSkXOCv798BY2KPPnkFNyJ6LdlpXAPfIXL8amNq3RKrgKP2uzEkAjhxdB
- 2HxLzDHGFsaS3koHCovhj7Mk8MlyA/R4HjLEu+spbkIZxdIIxdcf40+pNDSOreAgVZdc
- mEouWNWTxbehSLx00XuO2c5hmqs8h6zjjTMZWfRY4g/xPYYy2rIm2B/c+8UGt0l4tuQN
- LDxoS79Mz0sZ+NLoYxEqjth1wVqxZjzWWmKSw+K6Rc2E+clBKPJ5xwFUbfJ38EUWR+Nr
- LH9A==
-X-Gm-Message-State: AO0yUKWJ9T6ShsCaaPiyVMlHHqBRqPYi7pcfrKMAu8IcG48uFIgzJNka
- IivM+Bn6q0GXaGCv2AqX8zwX2g==
-X-Google-Smtp-Source: AK7set8TPdsc4qE+Ezq8fdne6seP2FMhU34jrF5Xw3efQHfet86AMSJnW6BukP9zSGqQIKKw12cXxQ==
-X-Received: by 2002:a17:903:1d2:b0:196:2ade:6e21 with SMTP id
- e18-20020a17090301d200b001962ade6e21mr8155036plh.14.1675328988955; 
- Thu, 02 Feb 2023 01:09:48 -0800 (PST)
+ bh=9fCw3ePbQ4sWf6yjA8O8Z29UEVxW6bYbx76RpPXO7aY=;
+ b=vR6BoLNu+c+r39IIrSorre4LGMZYg3dzjG1HG/rzVY8EyBdV+hUPnTOt9d6E1MMoS0
+ nyleCmILTrNjEu38318kqqswVkJTZPiCG4M0uHlKf1ERu/xuznrS/fztANPmS/tnersw
+ ZUDtUErhP68OH76r4c42Z4c/UKWqvpjG1T9mQKdDJGO6Apfniiw2/AithsaeezgjrDuj
+ hxsA6c2q6qTZ6vey6hbKLx/0s10e3//D9S3E5/MxGM8wltd+IcVEhaSuxyUvcX8uINmT
+ GHQKO7FbPsDQDF0kcw1haVWuZc5CJpOS0A2FKcp7uBCMdO0Soh+tc0EuYy4gR1I5+TVG
+ OPzA==
+X-Gm-Message-State: AO0yUKUSQ3GdN8eIIkf9W4CxuZ33drHSVseqkP0E8c7L14fziPEyFeF5
+ ekuU2NJA/SfatC9TO08jb7PI9w==
+X-Google-Smtp-Source: AK7set+VcV7K8yqmRf4cYf2lfFnsxI5XpYxApbh7KrJBd8QyBrfSTpMm7lizGCx4Zb9IGMEax7/M/A==
+X-Received: by 2002:a17:902:e850:b0:198:a845:fbaf with SMTP id
+ t16-20020a170902e85000b00198a845fbafmr7362979plg.48.1675328991294; 
+ Thu, 02 Feb 2023 01:09:51 -0800 (PST)
 Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
  by smtp.gmail.com with ESMTPSA id
- ik12-20020a170902ab0c00b001929827731esm13145968plb.201.2023.02.02.01.09.46
+ ik12-20020a170902ab0c00b001929827731esm13145968plb.201.2023.02.02.01.09.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Feb 2023 01:09:48 -0800 (PST)
+ Thu, 02 Feb 2023 01:09:51 -0800 (PST)
 From: Shunsuke Mie <mie@igel.co.jp>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
  Rusty Russell <rusty@rustcorp.com.au>
-Subject: [RFC PATCH v2 3/7] vringh: remove vringh_iov and unite to vringh_kiov
-Date: Thu,  2 Feb 2023 18:09:30 +0900
-Message-Id: <20230202090934.549556-4-mie@igel.co.jp>
+Subject: [RFC PATCH v2 4/7] tools/virtio: convert to new vringh user APIs
+Date: Thu,  2 Feb 2023 18:09:31 +0900
+Message-Id: <20230202090934.549556-5-mie@igel.co.jp>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230202090934.549556-1-mie@igel.co.jp>
 References: <20230202090934.549556-1-mie@igel.co.jp>
@@ -116,168 +116,118 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-struct vringh_iov is defined to hold userland addresses. However, to use
-common function, __vring_iov, finally the vringh_iov converts to the
-vringh_kiov with simple cast. It includes compile time check code to make
-sure it can be cast correctly.
-
-To simplify the code, this patch removes the struct vringh_iov and unifies
-APIs to struct vringh_kiov.
+struct vringh_iov is being remove, so convert vringh_test to use the
+vringh user APIs. This has it change to use struct vringh_kiov instead of
+the struct vringh_iov.
 
 Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
 ---
- drivers/vhost/vringh.c | 32 ++++++------------------------
- include/linux/vringh.h | 45 ++++--------------------------------------
- 2 files changed, 10 insertions(+), 67 deletions(-)
+ tools/virtio/vringh_test.c | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 33eb941fcf15..bcdbde1d484e 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -691,8 +691,8 @@ EXPORT_SYMBOL(vringh_init_user);
-  * calling vringh_iov_cleanup() to release the memory, even on error!
-  */
- int vringh_getdesc_user(struct vringh *vrh,
--			struct vringh_iov *riov,
--			struct vringh_iov *wiov,
-+			struct vringh_kiov *riov,
-+			struct vringh_kiov *wiov,
- 			bool (*getrange)(struct vringh *vrh,
- 					 u64 addr, struct vringh_range *r),
- 			u16 *head)
-@@ -708,26 +708,6 @@ int vringh_getdesc_user(struct vringh *vrh,
- 	if (err == vrh->vring.num)
- 		return 0;
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index 98ff808d6f0c..6c9533b8a2ca 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -193,8 +193,8 @@ static int parallel_test(u64 features,
+ 			errx(1, "Could not set affinity to cpu %u", first_cpu);
  
--	/* We need the layouts to be the identical for this to work */
--	BUILD_BUG_ON(sizeof(struct vringh_kiov) != sizeof(struct vringh_iov));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, iov) !=
--		     offsetof(struct vringh_iov, iov));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, i) !=
--		     offsetof(struct vringh_iov, i));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, used) !=
--		     offsetof(struct vringh_iov, used));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, max_num) !=
--		     offsetof(struct vringh_iov, max_num));
--	BUILD_BUG_ON(sizeof(struct iovec) != sizeof(struct kvec));
--	BUILD_BUG_ON(offsetof(struct iovec, iov_base) !=
--		     offsetof(struct kvec, iov_base));
--	BUILD_BUG_ON(offsetof(struct iovec, iov_len) !=
--		     offsetof(struct kvec, iov_len));
--	BUILD_BUG_ON(sizeof(((struct iovec *)NULL)->iov_base)
--		     != sizeof(((struct kvec *)NULL)->iov_base));
--	BUILD_BUG_ON(sizeof(((struct iovec *)NULL)->iov_len)
--		     != sizeof(((struct kvec *)NULL)->iov_len));
--
- 	*head = err;
- 	err = __vringh_iov(vrh, *head, (struct vringh_kiov *)riov,
- 			   (struct vringh_kiov *)wiov,
-@@ -740,14 +720,14 @@ int vringh_getdesc_user(struct vringh *vrh,
- EXPORT_SYMBOL(vringh_getdesc_user);
+ 		while (xfers < NUM_XFERS) {
+-			struct iovec host_riov[2], host_wiov[2];
+-			struct vringh_iov riov, wiov;
++			struct kvec host_riov[2], host_wiov[2];
++			struct vringh_kiov riov, wiov;
+ 			u16 head, written;
  
- /**
-- * vringh_iov_pull_user - copy bytes from vring_iov.
-+ * vringh_iov_pull_user - copy bytes from vring_kiov.
-  * @riov: the riov as passed to vringh_getdesc_user() (updated as we consume)
-  * @dst: the place to copy.
-  * @len: the maximum length to copy.
-  *
-  * Returns the bytes copied <= len or a negative errno.
-  */
--ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len)
-+ssize_t vringh_iov_pull_user(struct vringh_kiov *riov, void *dst, size_t len)
- {
- 	return vringh_iov_xfer(NULL, (struct vringh_kiov *)riov,
- 			       dst, len, xfer_from_user);
-@@ -755,14 +735,14 @@ ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len)
- EXPORT_SYMBOL(vringh_iov_pull_user);
+ 			if (fast_vringh) {
+@@ -216,10 +216,10 @@ static int parallel_test(u64 features,
+ 				written = 0;
+ 				goto complete;
+ 			} else {
+-				vringh_iov_init(&riov,
++				vringh_kiov_init(&riov,
+ 						host_riov,
+ 						ARRAY_SIZE(host_riov));
+-				vringh_iov_init(&wiov,
++				vringh_kiov_init(&wiov,
+ 						host_wiov,
+ 						ARRAY_SIZE(host_wiov));
  
- /**
-- * vringh_iov_push_user - copy bytes into vring_iov.
-+ * vringh_iov_push_user - copy bytes into vring_kiov.
-  * @wiov: the wiov as passed to vringh_getdesc_user() (updated as we consume)
-  * @src: the place to copy from.
-  * @len: the maximum length to copy.
-  *
-  * Returns the bytes copied <= len or a negative errno.
-  */
--ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
-+ssize_t vringh_iov_push_user(struct vringh_kiov *wiov,
- 			     const void *src, size_t len)
- {
- 	return vringh_iov_xfer(NULL, (struct vringh_kiov *)wiov,
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 1991a02c6431..733d948e8123 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -79,18 +79,6 @@ struct vringh_range {
- 	u64 offset;
- };
+@@ -442,8 +442,8 @@ int main(int argc, char *argv[])
+ 	struct virtqueue *vq;
+ 	struct vringh vrh;
+ 	struct scatterlist guest_sg[RINGSIZE], *sgs[2];
+-	struct iovec host_riov[2], host_wiov[2];
+-	struct vringh_iov riov, wiov;
++	struct kvec host_riov[2], host_wiov[2];
++	struct vringh_kiov riov, wiov;
+ 	struct vring_used_elem used[RINGSIZE];
+ 	char buf[28];
+ 	u16 head;
+@@ -517,8 +517,8 @@ int main(int argc, char *argv[])
+ 	__kmalloc_fake = NULL;
  
--/**
-- * struct vringh_iov - iovec mangler.
-- *
-- * Mangles iovec in place, and restores it.
-- * Remaining data is iov + i, of used - i elements.
-- */
--struct vringh_iov {
--	struct iovec *iov;
--	size_t consumed; /* Within iov[i] */
--	unsigned i, used, max_num;
--};
--
- /**
-  * struct vringh_kiov - kvec mangler.
-  *
-@@ -113,44 +101,19 @@ int vringh_init_user(struct vringh *vrh, u64 features,
- 		     vring_avail_t __user *avail,
- 		     vring_used_t __user *used);
+ 	/* Host retreives it. */
+-	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
+-	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
++	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
++	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
  
--static inline void vringh_iov_init(struct vringh_iov *iov,
--				   struct iovec *iovec, unsigned num)
--{
--	iov->used = iov->i = 0;
--	iov->consumed = 0;
--	iov->max_num = num;
--	iov->iov = iovec;
--}
--
--static inline void vringh_iov_reset(struct vringh_iov *iov)
--{
--	iov->iov[iov->i].iov_len += iov->consumed;
--	iov->iov[iov->i].iov_base -= iov->consumed;
--	iov->consumed = 0;
--	iov->i = 0;
--}
--
--static inline void vringh_iov_cleanup(struct vringh_iov *iov)
--{
--	if (iov->max_num & VRINGH_IOV_ALLOCATED)
--		kfree(iov->iov);
--	iov->max_num = iov->used = iov->i = iov->consumed = 0;
--	iov->iov = NULL;
--}
--
- /* Convert a descriptor into iovecs. */
- int vringh_getdesc_user(struct vringh *vrh,
--			struct vringh_iov *riov,
--			struct vringh_iov *wiov,
-+			struct vringh_kiov *riov,
-+			struct vringh_kiov *wiov,
- 			bool (*getrange)(struct vringh *vrh,
- 					 u64 addr, struct vringh_range *r),
- 			u16 *head);
+ 	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
+ 	if (err != 1)
+@@ -586,8 +586,8 @@ int main(int argc, char *argv[])
+ 	__kmalloc_fake = NULL;
  
- /* Copy bytes from readable vsg, consuming it (and incrementing wiov->i). */
--ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len);
-+ssize_t vringh_iov_pull_user(struct vringh_kiov *riov, void *dst, size_t len);
+ 	/* Host picks it up (allocates new iov). */
+-	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
+-	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
++	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
++	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
  
- /* Copy bytes into writable vsg, consuming it (and incrementing wiov->i). */
--ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
-+ssize_t vringh_iov_push_user(struct vringh_kiov *wiov,
- 			     const void *src, size_t len);
+ 	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
+ 	if (err != 1)
+@@ -613,8 +613,8 @@ int main(int argc, char *argv[])
+ 		assert(err < 3 || buf[2] == (char)(i + 2));
+ 	}
+ 	assert(riov.i == riov.used);
+-	vringh_iov_cleanup(&riov);
+-	vringh_iov_cleanup(&wiov);
++	vringh_kiov_cleanup(&riov);
++	vringh_kiov_cleanup(&wiov);
  
- /* Mark a descriptor as used. */
+ 	/* Complete using multi interface, just because we can. */
+ 	used[0].id = head;
+@@ -638,8 +638,8 @@ int main(int argc, char *argv[])
+ 	}
+ 
+ 	/* Now get many, and consume them all at once. */
+-	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
+-	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
++	vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
++	vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
+ 
+ 	for (i = 0; i < RINGSIZE; i++) {
+ 		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
+@@ -723,8 +723,8 @@ int main(int argc, char *argv[])
+ 		d[5].flags = 0;
+ 
+ 		/* Host picks it up (allocates new iov). */
+-		vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
+-		vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
++		vringh_kiov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
++		vringh_kiov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
+ 
+ 		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
+ 		if (err != 1)
+@@ -744,7 +744,7 @@ int main(int argc, char *argv[])
+ 		/* Data should be linear. */
+ 		for (i = 0; i < err; i++)
+ 			assert(buf[i] == i);
+-		vringh_iov_cleanup(&riov);
++		vringh_kiov_cleanup(&riov);
+ 	}
+ 
+ 	/* Don't leak memory... */
 -- 
 2.25.1
 
