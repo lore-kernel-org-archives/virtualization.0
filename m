@@ -1,89 +1,149 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DE8A6C63797
-	for <virtualization@archiver.kernel.org>; Wed,  1 Feb 2023 20:02:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8302AC636D7
+	for <virtualization@archiver.kernel.org>; Thu,  2 Feb 2023 04:45:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5A2D741922;
-	Wed,  1 Feb 2023 20:02:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5A2D741922
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=aH2P6l3e
+	by smtp1.osuosl.org (Postfix) with ESMTP id E53C5819D6;
+	Thu,  2 Feb 2023 04:45:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E53C5819D6
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tbeJacjj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id casE9LaSTGAK; Wed,  1 Feb 2023 20:02:54 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9MBjEiJyjr02; Thu,  2 Feb 2023 04:45:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A207A4191C;
-	Wed,  1 Feb 2023 20:02:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A207A4191C
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 23533819E6;
+	Thu,  2 Feb 2023 04:45:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 23533819E6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2551FC0033;
-	Wed,  1 Feb 2023 20:02:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D54B4C0033
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D4A97C0033;
+	Thu,  2 Feb 2023 04:45:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8DD64C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 20:02:51 +0000 (UTC)
+ Thu,  2 Feb 2023 04:45:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A772541922
+ by smtp3.osuosl.org (Postfix) with ESMTP id 28C9F610A3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 20:02:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A772541922
+ Thu,  2 Feb 2023 04:45:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 28C9F610A3
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=tbeJacjj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MCx0hg9SzHyw
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sV3KrT_5FuDt
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 20:02:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9065B4191C
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9065B4191C
+ Thu,  2 Feb 2023 04:45:27 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F1BA6109B
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10on20608.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e89::608])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1F1BA6109B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Feb 2023 20:02:50 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by ams.source.kernel.org (Postfix) with ESMTPS id 21C7AB822A1;
- Wed,  1 Feb 2023 20:02:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D1835C433EF;
- Wed,  1 Feb 2023 20:02:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1675281766;
- bh=ze7tLLajYxPFA1rmGzEl6JCmS9yt5mfKFDsZEe6n59I=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=aH2P6l3eJrPgG0fg5gakMnS5Sk8NF+n3vMDCe6gzXJNEQ5QsjH54CzRhkkI9D3Db8
- zuyTxvCbmwjSWOhMQPgWNMUks31gw9UpX381vXf85S+PocYMDFZ2Mr7IdbQKG4uD3Z
- 3o3YWC5LmbrlOwdMlw5MzhLZmGj8YzYpKg5Vly49JgJO2bVbHgf+h5uAyjrk5QBuJG
- Y9GTh7XZRujno7nypg2jUkw+xdUh6pfWzueMAhWUyyw3cobzJpJVw9eMTYvroYg1el
- zfQ2fRYWUaZSX/Hu/1VRA8I848emRFisRq9C4SyzIicu3MCxohn+cm0BzsARvpqnJ1
- 8L0w7WR5JEpcw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org
- (localhost.localdomain [127.0.0.1])
- by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id
- BD547E21ED2; Wed,  1 Feb 2023 20:02:46 +0000 (UTC)
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: fixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20230201110640-mutt-send-email-mst@kernel.org>
-References: <20230201110640-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <netdev.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20230201110640-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 6b04456e248761cf68f562f2fd7c04e591fcac94
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 9f266ccaa2f5228bfe67ad58a94ca4e0109b954a
-Message-Id: <167528176676.26493.9470166810574496838.pr-tracker-bot@kernel.org>
-Date: Wed, 01 Feb 2023 20:02:46 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- eric.auger@redhat.com, bcodding@redhat.com, 007047221b@gmail.com,
- viro@zeniv.linux.org.uk, mie@igel.co.jp,
- Linus Torvalds <torvalds@linux-foundation.org>
+ Thu,  2 Feb 2023 04:45:26 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=c3z2w2GS7pmbXSBGiB91Zbut3jfLjIravLE9X0MqFGnV5sbEkOuNHQfnQEhLS3zavTLMNMH/2YWh5uOof4scbhxUkZp4BYvvtsT9ygri+Y29FkM4Huf1ccfOymjWLN2UIc2DL0J5/Jtulx4gA2yB1TImoDhfx8blXr2lYGacL+WlRBXtc5swBztprAg37oU3aPuzpgWgSWSaTwTBIGmaC9TJ6truMyFgAoUiFW99BVRIZj6qYExhWhI1PIS3wCVXuGfBn/CDGzMY8XQCZ/GDHFXp2B+eDChuUFArdYTLr7XgttEzyaH0LAjf/5Fu6gTnnXu3xXcVjiK7sxab1VuZUQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=4h9tyzyL96qm+NDl6Ty48O0Fogxc74NWN223rx8RHMM=;
+ b=kkL0svd30+PelTooj7zv/cD81nkwuW8YFFvGckzGqUpuxP+6tWWJF3UxDuOItVmBwAbIvx9IN3i6OPqYHA+XUjJuHsvxlw1askXbtSqkX5/jksQGlLmbtatbbuFkme6BDdrTZVcJZi7/9ycdxPIpRQfV66aaG3V+n+h8gKSX68Z2HXvu8MSgNewld9UvXgTh9VzJB9myGRDTqZ7dwwRUw9QpXt4lNYcnD6Bn3XcnZ0pJGoHcKLFUSZM3dzszRnV2WvUN6NV9omFXhtz1AiUYgYF+ujlVY4/a1QNxTeol1KuGpQrF1Zwpx3MHV9YYDdfrE/w/w0NbpDFB80Tz5KbbrA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=4h9tyzyL96qm+NDl6Ty48O0Fogxc74NWN223rx8RHMM=;
+ b=tbeJacjj07I8KNh5oKtks4zqn9MxRS4BkP6Nigl6lBqZd+jX6xNMjqNbr2mPEYIa1Tk6hMjYw8laGUBDWGgG/7Rm7nDyz0Pk9184KrKdVo1PHLe7cy7hL0sB7boxUDa4AdgE17xYOFAaF+Wq+ke2T2ylV38If5rvsWbV/BFllj+Sl5kexabbNIp1DL6pv3znN/vNi9zM/Ls55zL9KnY0fR8GYPglE0VvAQJqFPfznx8M6JHdSubxaG8AGDCY/z5J9QDS+OiMRolidGg2AvtYgUwucxZEk4/dgjR1TQChi53S/16pBwB81tVxDZ+WuzsRdCLL8CVCLBYhY6BSPpXbxg==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by DS0PR12MB6463.namprd12.prod.outlook.com (2603:10b6:8:c5::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6043.38; Thu, 2 Feb
+ 2023 04:45:24 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::a891:beb7:5440:3f0]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::a891:beb7:5440:3f0%4]) with mapi id 15.20.6064.025; Thu, 2 Feb 2023
+ 04:45:23 +0000
+To: Si-Wei Liu <si-wei.liu@oracle.com>, "mst@redhat.com" <mst@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>, Eli Cohen <elic@nvidia.com>
+Subject: RE: [PATCH v2 1/7] vdpa: fix improper error message when adding vdpa
+ dev
+Thread-Topic: [PATCH v2 1/7] vdpa: fix improper error message when adding vdpa
+ dev
+Thread-Index: AQHZNcrtYY1KrfDk7UG+prT+QyItbq67FgIA
+Date: Thu, 2 Feb 2023 04:45:23 +0000
+Message-ID: <PH0PR12MB5481DFAE7928CDCB5E189C97DCD69@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <1675207345-22328-1-git-send-email-si-wei.liu@oracle.com>
+ <1675207345-22328-2-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1675207345-22328-2-git-send-email-si-wei.liu@oracle.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|DS0PR12MB6463:EE_
+x-ms-office365-filtering-correlation-id: 69ccc2f7-7ebe-4824-04e6-08db04d84b98
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: DKk/Bg5z9dF8Ika42KTO1K5A0yOjNtveo8XN22wkVzLxuEG4/2eqv7335O+4rtOpa7hwMrBrqAilr8iO3kszwsP1EPcKYw/w++eoJk6+UcmvsiC2Xa6cy59f/SSAdyfgrC3rZteb2ocJaMWHQMEwrqxDjtsNgumjgw82c0ia9aatxr5E4cyM3jJ5GbmQDT+e5QQedF4b/1Zzm6b902ls4meL570SN3LfEZB120g2J/uDbhuJarkFGi3TlIWQcfR6VuJRo8qITYc5dGgezO2jPFuYcDoSEuYMWSW/fqhIlhLdei0wJvtIwI//UaLvNhmqDAXEhBvSeku1pQWsko8ZoWImBqO8L6NMgO7PuMBVnuEDfjVcbght8Y3HgYeV3hnmKr76nPyaKx2eFjA/OeV7i/48gaHT4zQ+kcYqokoL1xvyu55oeYptqa1YQCP5Nsotbej8JO5Ch3DdpNrI3VYCaaX9MhiDMupBL7mBFGq52aXb1BYXVasba3c+KwnJiYJMC9nCZgCLH7+Dlsv0VaaDJ7bBEWiUfx0rHFR4VfnRPjM3OOKtFbRPB1MQ5vkajcUzhT+v3S7Yt8NLRQ3fEwi/bsCj0ms8/z72sUUuu0ljsMRxdJq7CnYKm0UB4DcSWtZhVd5ze4qYqiRX0LYsBp+EyrVZ7tMm2+cLngkAcklS6D7rYVYUJZTX2O5cHPy/+IXIw7AfGJAVUrW73QFs2TtNFA==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230025)(4636009)(136003)(366004)(396003)(376002)(346002)(39860400002)(451199018)(55016003)(64756008)(54906003)(6636002)(66476007)(8936002)(41300700001)(52536014)(4326008)(66946007)(316002)(110136005)(8676002)(66446008)(76116006)(186003)(9686003)(6506007)(71200400001)(26005)(38070700005)(478600001)(83380400001)(86362001)(66556008)(15650500001)(5660300002)(2906002)(38100700002)(122000001)(7696005)(33656002);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?HCU4Y4jrULn6nQ9G2jnoz7rjRKcyeWf/yYdnJ6ZTtb20davuXilxBqOTALyu?=
+ =?us-ascii?Q?N4UHe0/Cgbc2Ck+aEGsj0KiIYrMoyiSKHuLOaLsVjAK8C/FlNCUBb3Q0YtyZ?=
+ =?us-ascii?Q?behqGwC2NcS92dmhwRg6EhQhkt7LjXht9uEFi8VMoLcdketA+vkZ2bWWD0dm?=
+ =?us-ascii?Q?YlG0c6LvwWmZeY+m4Qm6/c6Z9m0rCYobA1p7umV8m0H0CbJ2xJykL5E/RJtd?=
+ =?us-ascii?Q?jfj4IXiOtNAfAU5bCjZA9kOQcXChom1J/bjHRjBI4iqP2w7i/IkNgwgxjLhK?=
+ =?us-ascii?Q?Eqb74Au0e/uI4QYMQXinRGUJCGtgExtETrT96k5bRlmmSyjherBf55QP5hps?=
+ =?us-ascii?Q?Hdzbprn5+ZNwpESXuIDwkG+V311rTRcEimco4QBrf/ccpRBGNQYkzxUA2US3?=
+ =?us-ascii?Q?hnb38uiWhzevSTH9PhNIZn1DdxGJElsXOCvGpiat2cPcG++esjPSl07UoabH?=
+ =?us-ascii?Q?ZjwbvXPqfTFsHCWI4FK0qqPzV9oRq5AmPNsxpOq8R7pEytsCeMazwgnfhfo8?=
+ =?us-ascii?Q?zgAx799d5wrTipTQ/Nym0gRM0yVRVULBCaII98CP4RYmJj+s2DDhsjKvzAnh?=
+ =?us-ascii?Q?1SCf3qiOhTB/VuKc7vN+QgldKmIRWaNbpXUronY+qNs7AkiFKTiwFHgaeWUw?=
+ =?us-ascii?Q?MQ72VbSiSXHyAbcltAvfDye0u27xFSNVbGDayC8WbdqT32GQ+mq2n0OkkCv8?=
+ =?us-ascii?Q?MoKrokcbtB4VvoEG273tpCahQieLMVG5VgO1PACiR4m+rbJ1A05uX1u88yDJ?=
+ =?us-ascii?Q?Lcn+8ljYMjyaeDfr/mg+5Af96C2g5tA3u9lcBZRIB1QtVYt/RzyYFPrR58FI?=
+ =?us-ascii?Q?5a3aVUrdgeQV55wk9nzlgZLdSzHroEX1Tz7IN6jAnbQsjoj85PnfyhetIYfB?=
+ =?us-ascii?Q?SCHtx4nwQh6bywbN+j5bOuTpjYJtzm8lZaNSySW4/Ob/l87aNl7NEytM2Rlp?=
+ =?us-ascii?Q?tjAfdX79hjaUDR4x+2craVmqiAP6clP1mciL2HgG2XPVWVbTE8VWfqwL7fid?=
+ =?us-ascii?Q?XGLh29glqsXrdsnDOkutlXsHl75/Rlj0uCGB+hAGRNEGoQmeBXBDjnOfaDCf?=
+ =?us-ascii?Q?4+A7yfDRQYg/NKooaFSPiC5cuQiqHTU7jRxyTWkxr7RhaKL950wG1cMzpqF5?=
+ =?us-ascii?Q?jD7+zL31gyfn/1+b6HzYR/2OyZO63qeb44SUg+w3mNJynpOyExaN2qG1rQgc?=
+ =?us-ascii?Q?jR72rHxkIl4GME31QIs7wTluuiB6mSH+wWTvGVpDF2qTiabkquUPfgJj3iCR?=
+ =?us-ascii?Q?6ZOP6q4dsHpzU0KcAfvpvCVEar5NhM7D3ujcBQRaYdiVBuoCEkuovzcMVw95?=
+ =?us-ascii?Q?szSebptLU/Q+/K5EqBAg58T2KGOFksHUJpLgNS6asyu02DjInjXRu4bAqANm?=
+ =?us-ascii?Q?TzVzL0VSOYwrXktNUNr9muYjYzQMt/p2ESAd75vY57GJu2J4waJWgq1efb+w?=
+ =?us-ascii?Q?RqhXUqX8ZUAqwZtOw9wRn26QMKUZkywew2YJK522Q3ZV3pkZ00yYoNd9uruJ?=
+ =?us-ascii?Q?BCZi67okTnkzo22TMTaBwhc8jZHbh+3HdpefvIgQL3/ZIQCrbB8IdXcFlS+3?=
+ =?us-ascii?Q?6XLkbInRjGvIBkI+7kk=3D?=
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 69ccc2f7-7ebe-4824-04e6-08db04d84b98
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2023 04:45:23.0445 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: RKOjFpNL/C6TSBVs+7WF+QMBH6DN+JgydbkL2QjU+bTGgXDJErbjzXwcxu/OqLJeUvVWDCnpGO15CLFRmcjnyg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB6463
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,24 +155,71 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The pull request you sent on Wed, 1 Feb 2023 11:06:40 -0500:
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> From: Si-Wei Liu <si-wei.liu@oracle.com>
+> Sent: Tuesday, January 31, 2023 6:22 PM
+> 
+> In below example, before the fix, mtu attribute is supported by the parent
+> mgmtdev, but the error message showing "All provided are not supported" is
+> just misleading.
+> 
+> $ vdpa mgmtdev show
+> vdpasim_net:
+>   supported_classes net
+>   max_supported_vqs 3
+>   dev_features MTU MAC CTRL_VQ CTRL_MAC_ADDR ANY_LAYOUT VERSION_1
+> ACCESS_PLATFORM
+> 
+> $ vdpa dev add mgmtdev vdpasim_net name vdpasim0 mtu 5000 max_vqp 2
+> Error: vdpa: All provided attributes are not supported.
+> kernel answers: Operation not supported
+> 
+> After fix, the relevant error message will be like:
+> 
+> $ vdpa dev add mgmtdev vdpasim_net name vdpasim0 mtu 5000 max_vqp 2
+> Error: vdpa: Some provided attributes are not supported: 0x1000.
+> kernel answers: Operation not supported
+> 
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+Please add fixes tag so that older kernel gets this fix.
+With that change,
+Reviewed-by: Parav Pandit <parav@nvidia.com>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/9f266ccaa2f5228bfe67ad58a94ca4e0109b954a
+> ---
+>  drivers/vdpa/vdpa.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index 8ef7aa1..3a82ca78
+> 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -622,9 +622,11 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct
+> sk_buff *skb, struct genl_info *i
+>  		err = PTR_ERR(mdev);
+>  		goto err;
+>  	}
+> +
+>  	if ((config.mask & mdev->config_attr_mask) != config.mask) {
+> -		NL_SET_ERR_MSG_MOD(info->extack,
+> -				   "All provided attributes are not supported");
+> +		NL_SET_ERR_MSG_FMT_MOD(info->extack,
+> +				       "Some provided attributes are not
+> supported: 0x%llx",
+> +				       config.mask & ~mdev->config_attr_mask);
+>  		err = -EOPNOTSUPP;
+>  		goto err;
+>  	}
+> --
+> 1.8.3.1
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
