@@ -1,78 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C61DC6379F
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 07:01:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C796BC61DA4
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 08:09:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A68C181E3B;
-	Fri,  3 Feb 2023 07:01:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A68C181E3B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4A29D40150;
+	Fri,  3 Feb 2023 08:09:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A29D40150
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Xcjp6ETU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Rtaqcw4fDXfX; Fri,  3 Feb 2023 07:01:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 08613818CA;
-	Fri,  3 Feb 2023 07:01:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 08613818CA
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VuGeXVQU9dP9; Fri,  3 Feb 2023 08:09:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A290B400CB;
+	Fri,  3 Feb 2023 08:09:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A290B400CB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D32C7C0032;
-	Fri,  3 Feb 2023 07:01:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C938C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 65D6DC0032;
+	Fri,  3 Feb 2023 08:09:20 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6DD4CC002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 07:01:38 +0000 (UTC)
+ Fri,  3 Feb 2023 08:09:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 109354162C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4EB0160B8C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 07:01:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 109354162C
+ Fri,  3 Feb 2023 08:09:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4EB0160B8C
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Xcjp6ETU
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yFa72CsNCjyq
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2E5cPoSBvjDz
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 07:01:36 +0000 (UTC)
+ Fri,  3 Feb 2023 08:09:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 680BA410AC
-Received: from out30-98.freemail.mail.aliyun.com
- (out30-98.freemail.mail.aliyun.com [115.124.30.98])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 680BA410AC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0A59060AE4
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0A59060AE4
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 07:01:34 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R391e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=22; SR=0;
- TI=SMTPD_---0VanhFlL_1675407687; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VanhFlL_1675407687) by smtp.aliyun-inc.com;
- Fri, 03 Feb 2023 15:01:27 +0800
-Message-ID: <1675407676.377156-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 09/33] xsk: xsk_buff_pool add callback for dma_sync
-Date: Fri, 3 Feb 2023 15:01:16 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Magnus Karlsson <magnus.karlsson@gmail.com>
-References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
- <20230202110058.130695-10-xuanzhuo@linux.alibaba.com>
- <CAJ8uoz2+4+wUFYF1GjF51DFBV8ZsBRtTEVWpu_2fBmFUEQzOLQ@mail.gmail.com>
-In-Reply-To: <CAJ8uoz2+4+wUFYF1GjF51DFBV8ZsBRtTEVWpu_2fBmFUEQzOLQ@mail.gmail.com>
-Cc: Petr Machata <petrm@nvidia.com>, Menglong Dong <imagedong@tencent.com>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- =?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
- Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>,
- Kuniyuki Iwashima <kuniyu@amazon.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Jonathan Lemon <jonathan.lemon@gmail.com>, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+ Fri,  3 Feb 2023 08:09:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1675411755;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=I4jp0pd7nTd2IokMgM4q5yjP1Mu7SicarJFLgTsenx8=;
+ b=Xcjp6ETUpczsGu5XGPBoJT3dcbONhU/WiQB7NZ2Jt/Vuh+koe8sGs+x2TD7D6ZzmCJ+dfO
+ /cDvP8i12BfVFbGxJnEM2gLlIDH+1V/a6fFraUmzm9qiPxJIWrTMlqsH5X2zOnhWl15mPn
+ GnKt+35+zGuY9LNHEYXFxmpkyuw+FEE=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-336-Pc58aKyvN_mXeuuSonRWog-1; Fri, 03 Feb 2023 03:09:14 -0500
+X-MC-Unique: Pc58aKyvN_mXeuuSonRWog-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ d14-20020a170906c20e00b00889f989d8deso3353441ejz.15
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 03 Feb 2023 00:09:14 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=I4jp0pd7nTd2IokMgM4q5yjP1Mu7SicarJFLgTsenx8=;
+ b=J7SYIva5589lcjiJo+fIUhNr/Axi/F/m2Ys8tL448cxUZ0boQziisDP7AqoIo8Dn1P
+ mnH1i+HDoOh340RtQo/bImGYtt37Lpgc2Pg+tuUy7dMrqjiS/kzVyd2k+fxRU4jkmVeG
+ poL8psph4ISWSb+II4BGYQIanwDE5m3o08uVgFzrXeCzJPDLnY3IlpyFbXs7MFjhAXvw
+ 6VkzfhDl22FFATglinMq2G1csICL3/fhSqrgIHsk09ktrEYYH+pKuYHV5j57+gpm5+zh
+ uFfFUOacQBEELhXQ+vucuK8fS9R6ZZ+do5LboFwvSCVMFxYn6EyWHyHjKVwny+An0ore
+ LlFA==
+X-Gm-Message-State: AO0yUKUBhCgMAgcjsw+DMLYwz9i1LtbT962qcLfdI6xHBYcTmPop5iuV
+ Rrj7ECdJPfAVeqfBENN8yi4m5RQxYOnI4XpEWvBgyiORiPk5Miro3o4a5F4clVZH2BBrbbhmKJ2
+ j+0fJr9Kt2YV1BNFnkMsTpDgzHi1AD5ERdZREbJfWNQ==
+X-Received: by 2002:aa7:d84d:0:b0:49c:96f9:417e with SMTP id
+ f13-20020aa7d84d000000b0049c96f9417emr9623171eds.2.1675411753298; 
+ Fri, 03 Feb 2023 00:09:13 -0800 (PST)
+X-Google-Smtp-Source: AK7set+Fq1e3LQCYUMQ4JqNsvVTMReZl/rmJ4045vTiSRljk5PQQqakOY3FlB8VmZndAcRaI3SwG4Q==
+X-Received: by 2002:aa7:d84d:0:b0:49c:96f9:417e with SMTP id
+ f13-20020aa7d84d000000b0049c96f9417emr9623159eds.2.1675411753050; 
+ Fri, 03 Feb 2023 00:09:13 -0800 (PST)
+Received: from redhat.com ([2.52.156.122]) by smtp.gmail.com with ESMTPSA id
+ cn13-20020a0564020cad00b0049eea46c909sm744733edb.37.2023.02.03.00.09.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 03 Feb 2023 00:09:12 -0800 (PST)
+Date: Fri, 3 Feb 2023 03:09:08 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: Re: [PATCH v2 5/7] vdpa: validate device feature provisioning
+ against supported class
+Message-ID: <20230203025523-mutt-send-email-mst@kernel.org>
+References: <1675207345-22328-1-git-send-email-si-wei.liu@oracle.com>
+ <1675207345-22328-6-git-send-email-si-wei.liu@oracle.com>
+MIME-Version: 1.0
+In-Reply-To: <1675207345-22328-6-git-send-email-si-wei.liu@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, elic@nvidia.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,114 +118,130 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, 2 Feb 2023 13:51:20 +0100, Magnus Karlsson <magnus.karlsson@gmail.com> wrote:
-> On Thu, 2 Feb 2023 at 12:05, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> >
-> > Use callback to implement dma sync to simplify subsequent support for
-> > virtio dma sync.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  include/net/xsk_buff_pool.h |  6 ++++++
-> >  net/xdp/xsk_buff_pool.c     | 24 ++++++++++++++++++++----
-> >  2 files changed, 26 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
-> > index 3e952e569418..53b681120354 100644
-> > --- a/include/net/xsk_buff_pool.h
-> > +++ b/include/net/xsk_buff_pool.h
-> > @@ -75,6 +75,12 @@ struct xsk_buff_pool {
-> >         u32 chunk_size;
-> >         u32 chunk_shift;
-> >         u32 frame_len;
-> > +       void (*dma_sync_for_cpu)(struct device *dev, dma_addr_t addr,
-> > +                                unsigned long offset, size_t size,
-> > +                                enum dma_data_direction dir);
-> > +       void (*dma_sync_for_device)(struct device *dev, dma_addr_t addr,
-> > +                                   unsigned long offset, size_t size,
-> > +                                   enum dma_data_direction dir);
->
-> If we put these two pointers here, the number of cache lines required
-> in the data path for this struct will be increased from 2 to 3 which
-> will likely affect performance negatively. These sync operations are
-> also not used on most systems. So how about we put them in the first
-> section of this struct labeled "Members only used in the control path
-> first." instead. There is a 26-byte hole at the end of it that can be
-> used.
+On Tue, Jan 31, 2023 at 03:22:23PM -0800, Si-Wei Liu wrote:
+> Today when device features are explicitly provisioned, the features
+> user supplied may contain device class specific features that are
+> not supported by the parent managment device. On the other hand,
+> when parent managment device supports more than one class, the
+> device features to provision may be ambiguous if none of the class
+> specific attributes is provided at the same time. Validate these
+> cases and prompt appropriate user errors accordingly.
+> 
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+> ---
+>  drivers/vdpa/vdpa.c | 51 ++++++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 42 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 1eba978..35a72d6 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -460,12 +460,30 @@ static int vdpa_nl_mgmtdev_handle_fill(struct sk_buff *msg, const struct vdpa_mg
+>  	return 0;
+>  }
+>  
+> +static u64 vdpa_mgmtdev_get_classes(const struct vdpa_mgmt_dev *mdev,
+> +				    unsigned int *nclasses)
+
+given max value is apparently 64 how important is it that it's unsigned?
+Just make it an int.
+
+Also I'd return u64 through a pointer too for consistency.
+
+> +{
+> +	u64 supported_classes = 0;
+> +	unsigned int n = 0;
+> +	int i = 0;
+> +
+> +	while (mdev->id_table[i].device) {
+> +		if (mdev->id_table[i].device <= 63) {
+> +			supported_classes |= BIT_ULL(mdev->id_table[i].device);
+> +			n++;
+> +		}
+> +		i++;
+> +	}
 
 
-Will fix.
+Better as a for loop. I know you are just moving code if you
+want to make it very clear it's a refactoring split
+as a separate patch, but ok anyway.
 
-Thanks.
+> +	if (nclasses)
+> +		*nclasses = n;
+> +
+> +	return supported_classes;
+> +}
+> +
+>  static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *msg,
+>  			     u32 portid, u32 seq, int flags)
+>  {
+> -	u64 supported_classes = 0;
+>  	void *hdr;
+> -	int i = 0;
+>  	int err;
+>  
+>  	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags, VDPA_CMD_MGMTDEV_NEW);
+> @@ -475,14 +493,9 @@ static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *m
+>  	if (err)
+>  		goto msg_err;
+>  
+> -	while (mdev->id_table[i].device) {
+> -		if (mdev->id_table[i].device <= 63)
+> -			supported_classes |= BIT_ULL(mdev->id_table[i].device);
+> -		i++;
+> -	}
+> -
+>  	if (nla_put_u64_64bit(msg, VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES,
+> -			      supported_classes, VDPA_ATTR_UNSPEC)) {
+> +			      vdpa_mgmtdev_get_classes(mdev, NULL),
+> +			      VDPA_ATTR_UNSPEC)) {
+>  		err = -EMSGSIZE;
+>  		goto msg_err;
+>  	}
+> @@ -571,8 +584,10 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>  	struct vdpa_dev_set_config config = {};
+>  	struct nlattr **nl_attrs = info->attrs;
+>  	struct vdpa_mgmt_dev *mdev;
+> +	unsigned int ncls = 0;
+>  	const u8 *macaddr;
+>  	const char *name;
+> +	u64 classes;
+>  	int err = 0;
+>  
+>  	if (!info->attrs[VDPA_ATTR_DEV_NAME])
+> @@ -649,6 +664,24 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>  		goto err;
+>  	}
+>  
+> +	classes = vdpa_mgmtdev_get_classes(mdev, &ncls);
+> +	if (config.mask & VDPA_DEV_NET_ATTRS_MASK &&
+> +	    !(classes & BIT_ULL(VIRTIO_ID_NET))) {
+> +		NL_SET_ERR_MSG_MOD(info->extack,
+> +				   "Network class attributes provided on unsupported management device");
+> +		err = -EINVAL;
+> +		goto err;
+> +	}
+> +	if (!(config.mask & VDPA_DEV_NET_ATTRS_MASK) &&
+> +	    config.mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES) &&
+> +	    classes & BIT_ULL(VIRTIO_ID_NET) && ncls > 1 &&
+> +	    config.device_features & VIRTIO_DEVICE_F_MASK) {
+> +		NL_SET_ERR_MSG_MOD(info->extack,
+> +				   "Management device supports multi-class while device features specified are ambiguous");
+> +		err = -EINVAL;
+> +		goto err;
+> +	}
+> +
+>  	err = mdev->ops->dev_add(mdev, name, &config);
+>  err:
+>  	up_write(&vdpa_dev_lock);
+> -- 
+> 1.8.3.1
 
-
->
-> >         u8 cached_need_wakeup;
-> >         bool uses_need_wakeup;
-> >         bool dma_need_sync;
-> > diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
-> > index ed6c71826d31..78e325e195fa 100644
-> > --- a/net/xdp/xsk_buff_pool.c
-> > +++ b/net/xdp/xsk_buff_pool.c
-> > @@ -403,6 +403,20 @@ static int xp_init_dma_info(struct xsk_buff_pool *pool, struct xsk_dma_map *dma_
-> >         return 0;
-> >  }
-> >
-> > +static void dma_sync_for_cpu(struct device *dev, dma_addr_t addr,
-> > +                            unsigned long offset, size_t size,
-> > +                            enum dma_data_direction dir)
-> > +{
-> > +       dma_sync_single_range_for_cpu(dev, addr, offset, size, dir);
-> > +}
-> > +
-> > +static void dma_sync_for_device(struct device *dev, dma_addr_t addr,
-> > +                               unsigned long offset, size_t size,
-> > +                               enum dma_data_direction dir)
-> > +{
-> > +       dma_sync_single_range_for_device(dev, addr, offset, size, dir);
-> > +}
-> > +
-> >  int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
-> >                unsigned long attrs, struct page **pages, u32 nr_pages)
-> >  {
-> > @@ -421,6 +435,9 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
-> >                 return 0;
-> >         }
-> >
-> > +       pool->dma_sync_for_cpu = dma_sync_for_cpu;
-> > +       pool->dma_sync_for_device = dma_sync_for_device;
-> > +
-> >         dma_map = xp_create_dma_map(dev, pool->netdev, nr_pages, pool->umem);
-> >         if (!dma_map)
-> >                 return -ENOMEM;
-> > @@ -667,15 +684,14 @@ EXPORT_SYMBOL(xp_raw_get_dma);
-> >
-> >  void xp_dma_sync_for_cpu_slow(struct xdp_buff_xsk *xskb)
-> >  {
-> > -       dma_sync_single_range_for_cpu(xskb->pool->dev, xskb->dma, 0,
-> > -                                     xskb->pool->frame_len, DMA_BIDIRECTIONAL);
-> > +       xskb->pool->dma_sync_for_cpu(xskb->pool->dev, xskb->dma, 0,
-> > +                                    xskb->pool->frame_len, DMA_BIDIRECTIONAL);
-> >  }
-> >  EXPORT_SYMBOL(xp_dma_sync_for_cpu_slow);
-> >
-> >  void xp_dma_sync_for_device_slow(struct xsk_buff_pool *pool, dma_addr_t dma,
-> >                                  size_t size)
-> >  {
-> > -       dma_sync_single_range_for_device(pool->dev, dma, 0,
-> > -                                        size, DMA_BIDIRECTIONAL);
-> > +       pool->dma_sync_for_device(pool->dev, dma, 0, size, DMA_BIDIRECTIONAL);
-> >  }
-> >  EXPORT_SYMBOL(xp_dma_sync_for_device_slow);
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
