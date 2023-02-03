@@ -4,117 +4,190 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08CEEC64EC4
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 17:18:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B27B8C05027
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 19:32:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 71CEA61295;
-	Fri,  3 Feb 2023 17:18:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71CEA61295
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3152E612F3;
+	Fri,  3 Feb 2023 19:32:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3152E612F3
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=R00Jv7r0
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=obbZ5rj2;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=PFURvW8v
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3hCuM5IMSDag; Fri,  3 Feb 2023 17:18:16 +0000 (UTC)
+	with ESMTP id Sp2a2EH62h54; Fri,  3 Feb 2023 19:32:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E4C5B60C27;
-	Fri,  3 Feb 2023 17:18:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E4C5B60C27
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 77A2460BE9;
+	Fri,  3 Feb 2023 19:32:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77A2460BE9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B28CBC0033;
-	Fri,  3 Feb 2023 17:18:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 13081C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F3F0C0033;
+	Fri,  3 Feb 2023 19:32:47 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5623CC002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 17:18:14 +0000 (UTC)
+ Fri,  3 Feb 2023 19:32:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id CE3A4821C5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 21262612C8
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 17:18:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CE3A4821C5
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=kernel-dk.20210112.gappssmtp.com
- header.i=@kernel-dk.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=R00Jv7r0
+ Fri,  3 Feb 2023 19:32:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21262612C8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tQuo6EVsiVyc
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id m6WKYLTS-g13
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 17:18:13 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD7B2821BB
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
- [IPv6:2607:f8b0:4864:20::1032])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DD7B2821BB
+ Fri,  3 Feb 2023 19:32:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 83B8060BE9
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 83B8060BE9
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 17:18:12 +0000 (UTC)
-Received: by mail-pj1-x1032.google.com with SMTP id
- cl23-20020a17090af69700b0022c745bfdc3so5543661pjb.3
- for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Feb 2023 09:18:12 -0800 (PST)
+ Fri,  3 Feb 2023 19:32:42 +0000 (UTC)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 313HnjYq021215; Fri, 3 Feb 2023 19:32:41 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=VQ/7juLVEDQKVHrZgEeI1QFro7ZosEx6TFdjYQ0cpk4=;
+ b=obbZ5rj2AiERv/KJNcy5Vf2dzQESkpc9E9dNNNVOlKfklD+q/oaqiLEykEaQ6t1wVp6J
+ lCh4sgeIlPtfvOSWAiEwT1ei+GM15bfoy+aytHQRU3B7GAHZcPQ4ktDUIZMtaDpczT9O
+ YwkFMxPAMTxdImKXptl2ZUkluPdMzYb43X7MVob1yyORNP3ML5Kc3nV25jcyz3P5ud8P
+ kkP6WbCB+aZIvctMYzoigIhEDKQ3O0BzaNlLZXHN9J2HGU5vIBORVZh+n3lgQ35LGGZ3
+ czSB0B/NTZYt7/DHOhJsz6mdaQ//bGKb6OooPxpkFI3GIJFdwJNQ8YF6uaXX74F2+7Cf JA== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3nfkd1xwrf-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 03 Feb 2023 19:32:41 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 313J2xrv034242; Fri, 3 Feb 2023 19:32:40 GMT
+Received: from nam02-sn1-obe.outbound.protection.outlook.com
+ (mail-sn1nam02lp2042.outbound.protection.outlook.com [104.47.57.42])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3nct5hkaaj-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 03 Feb 2023 19:32:40 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mi9ADMh8FRN5LE5t4iqltWiI8oRt6gaV+FZ8ZZk1cS6v8UvtCBfOOEri4Yi791MTVZjDkp1iAXz5d6hzlB9dh1QJOXlNT44KMKAz3jVvpG46wLq0imrieke89JRoTWmuCIoLY4S7bYHaAzaClHDCimgDKl1p0dru1qKxKHGEJ1KHG2R0U+WwgRPw+w/jZZ+Anc/fur9ytiKc3Y59JmKLrrWkqcA9X2fdai9BFRSJOpRYs6YZC3Z08CsKLhMr38I/ByK+zMm8E07bEvIMAAtrY9H4pTBPRaVNRUEVayY8X2HSEzXeo7iO9ZME/QQniyUsu+gV6ijZoUqVkbNs9smUsw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VQ/7juLVEDQKVHrZgEeI1QFro7ZosEx6TFdjYQ0cpk4=;
+ b=iG7Drr0BIUqruS+lNt5sf3Xr0OoSdOL1PkmEKHgRnROzlPHHPkyCXAw8xN8y/NHLgvKcYwvFZPfCLv1VRk4DjOpFdqEy4wZTVp96tsfu+en6XBrZV/YmVriNtPh5mc++oZKVHsriEbQzDRdYPoyQPbXx7tCB4iMZHr6wUdYPxRexlBmoH6sc45PMXnKrM7DGOeOtVNTGNRkQEhnrF1kBkwanHWhAZZLQewB4+xhOJuuhCZk7yiy2d76LhqLe0+iVkScMFk5XADUeKPSgcoejNHEK5qPHvId+tPvoO0U/YKDvQ9LVwrMTdS2mTdTP7TG+eF/ZbNoKXIgXrT9F1lWizw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=kernel-dk.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:date:message-id:subject
- :references:in-reply-to:cc:to:from:from:to:cc:subject:date
- :message-id:reply-to;
- bh=K70GwBbxm76u0ZHh9QualBnSNVhMmwCaA4xLAgTOsU4=;
- b=R00Jv7r0nGI0Ztnp5TNHhM+FfJ5zmFRR/yKaJPFf48QgjKh7tXSwGMmQnOoqu8Xid4
- wge7CmaLgfoEKprgizb7/sm8rwZ8EQ9OCoyJKMGvTA4kiktJCR4NV/cva7qvSGWATdmE
- /2uT8roACaKsn4YLwQl6hQkgbKX7IYcNLKQL5KVRHggoW1I8XImpl9s6MfEiMUSpHo9Y
- S5fkZix1iQi2f9FmnThOmhtEMaBrJr9ePfucBJOf0enZnaK+aBn2RScZgWLk6sLYtLKJ
- 6yN94xDkDiQ62CShnA6PepLuiQAIJ+UkyAdk860JzMBR19PnaXvBFKHmerQBvkix95On
- 9+yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:date:message-id:subject
- :references:in-reply-to:cc:to:from:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=K70GwBbxm76u0ZHh9QualBnSNVhMmwCaA4xLAgTOsU4=;
- b=NL7QpNI6n2IzZ3mOlPRJC3XAtc4Ru0oOiNm0KKNddpfnH71l4TrLUf4ZoYW2NkqBFl
- WuRvrMUyEd9+48JUgdC2qnlyfqkkSDcQsgyW0zlBmH572J9VUNtAOQLBtpG6Y02mUNal
- 7ksAwqpkxZUOukxjWwSiII6rvcVydXPJU0lBd1yJvOnt5xP990EfweVvJKBU334+vW1o
- YrPeH8UXVLrZkbknM0X9rDgfX7BnWjtyAWt5vrqhyVTfdatt/xxg8Gtdcrb6RWMjiIZj
- Btxl1Zf5vT+I4mVSpUNMxE7kzV7DFy99GDgyjjiU9uvvtH9RFmErtO3kNQP6u5isUjtp
- YLDg==
-X-Gm-Message-State: AO0yUKWVhGd751bzYjiyZB6PmtYxh59DFkwNz4fIZioOnrL6jgqqk92x
- eLOiQHkMNPx/XyW6CWFEx9QOHA==
-X-Google-Smtp-Source: AK7set/8QyEeOBS5HCdwVVv3pX8pLqYaYDC09KN7ZX0YiSUh3tCWtH5sa+Lu+Eay2bGB3phfSCaeYw==
-X-Received: by 2002:a17:90a:3c83:b0:22b:afef:9228 with SMTP id
- g3-20020a17090a3c8300b0022bafef9228mr8980675pjc.4.1675444691816; 
- Fri, 03 Feb 2023 09:18:11 -0800 (PST)
-Received: from [127.0.0.1] ([198.8.77.157]) by smtp.gmail.com with ESMTPSA id
- s1-20020a17090a6e4100b0021900ba8eeesm5189271pjm.2.2023.02.03.09.18.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 03 Feb 2023 09:18:11 -0800 (PST)
-From: Jens Axboe <axboe@kernel.dk>
-To: Christoph Hellwig <hch@lst.de>
-In-Reply-To: <20230203150634.3199647-1-hch@lst.de>
-References: <20230203150634.3199647-1-hch@lst.de>
-Subject: Re: add bvec initialization helpers v2
-Message-Id: <167544468926.66559.8388961280734694655.b4-ty@kernel.dk>
-Date: Fri, 03 Feb 2023 10:18:09 -0700
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VQ/7juLVEDQKVHrZgEeI1QFro7ZosEx6TFdjYQ0cpk4=;
+ b=PFURvW8v63oxKhfsyTx+oWPK0zJ2NJAutZIrAe/k366FfUk7HvvR4jzvv+ntrPFSMzE73WkagdyGH62uHN94azthRR2egXEgNsBg0X/Pz71Bjwa26M2ZIEBrnHKK455W5W4AAUi9cEtRHSvvWxBICOxl2PlAJW63ZXVF0rbXO04=
+Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
+ by CH0PR10MB4858.namprd10.prod.outlook.com (2603:10b6:610:cb::17)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.9; Fri, 3 Feb
+ 2023 19:32:37 +0000
+Received: from MW4PR10MB6535.namprd10.prod.outlook.com
+ ([fe80::cd0e:bbf4:4b15:308b]) by MW4PR10MB6535.namprd10.prod.outlook.com
+ ([fe80::cd0e:bbf4:4b15:308b%6]) with mapi id 15.20.6086.009; Fri, 3 Feb 2023
+ 19:32:37 +0000
+Message-ID: <a497f7d7-51c9-849a-49a3-0a509476e4f3@oracle.com>
+Date: Fri, 3 Feb 2023 11:32:32 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH v2 5/7] vdpa: validate device feature provisioning against
+ supported class
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <1675207345-22328-1-git-send-email-si-wei.liu@oracle.com>
+ <1675207345-22328-6-git-send-email-si-wei.liu@oracle.com>
+ <20230203025523-mutt-send-email-mst@kernel.org>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+In-Reply-To: <20230203025523-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: SA1PR02CA0018.namprd02.prod.outlook.com
+ (2603:10b6:806:2cf::26) To MW4PR10MB6535.namprd10.prod.outlook.com
+ (2603:10b6:303:225::12)
 MIME-Version: 1.0
-X-Mailer: b4 0.12.0
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org,
- David Howells <dhowells@redhat.com>, linux-mm@kvack.org,
- Eric Dumazet <edumazet@google.com>, target-devel@vger.kernel.org,
- Marc Dionne <marc.dionne@auristor.com>, linux-afs@lists.infradead.org,
- Mike Marshall <hubcap@omnibond.com>, linux-cifs@vger.kernel.org,
- Sagi Grimberg <sagi@grimberg.me>, linux-scsi@vger.kernel.org,
- Minchan Kim <minchan@kernel.org>, io-uring@vger.kernel.org,
- Jakub Kicinski <kuba@kernel.org>, Ilya Dryomov <idryomov@gmail.com>,
- Paolo Abeni <pabeni@redhat.com>, devel@lists.orangefs.org,
- linux-block@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
- ceph-devel@vger.kernel.org, Xiubo Li <xiubli@redhat.com>,
- Trond Myklebust <trond.myklebust@hammerspace.com>, linux-nfs@vger.kernel.org,
- "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org,
- samba-technical@lists.samba.org, Steve French <sfrench@samba.org>,
- Sergey Senozhatsky <senozhatsky@chromium.org>,
- Chuck Lever <chuck.lever@oracle.com>, Anna Schumaker <anna@kernel.org>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|CH0PR10MB4858:EE_
+X-MS-Office365-Filtering-Correlation-Id: 29f78dff-74f0-454c-c361-08db061d680b
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Wug7GryiwqTIIXDUuSzQYfOer0CjOgCY0Uqa8NeuRd51FnpmxfVT2x6q7e8enOo8lsaONa+Wc1Zibav591eC94LmjfDzdtVLBatJywd52o3Dks1MlbpOcaTD3bNfcGtozqFrDi1mv+XahD8RZLC9OOFuwLR6a/oKcAxpUPVS+87PuGeMXaHrrlTFRaUh7+ImrGO9aUKwz8cCww4h27cwPAEqJ+t/iEZPadncKBrU33yZwZS+Cl7ByNQHlXOQD58JCbu5VvO4nl2/KGvRDCidUAvVe8mAMaSdWiboPEv/pj+1dhen6JreSJGGKONOOKpK+YrZWVTNv9I3CVJcY6jgOxwP49mWdjOpXvlgKaMt19ACXssj9PMFqgkkIr3AaEkbcfHwvD119Of+HQ69zshJmYg/LjmmrosM/hMajU/Avbb1HanG5YJ8LvPR788MsGaMj78x/6RugTsODFIjjqmF22AtvhmZVmD8sR7aRBW6qi7drs9/7W5O4MfzjP2GN3Z9impi1k6+pOB6s7sARW+PYsIw+KfKKH51a+xeHsQ6Rz4/Cw/9sQ/UYj14oFR58VCMV2SyVQTyYzPlb74as+QBnzP5RpgeU657sG+IhppeKwo2kR71DYttm3YY3sEn51FT33M6GgeNazlQRldXLzDfNBe8f5u07xUso+bS2FHS4TbVILeQJxgaYnZ1OimdVxsdHasMvV81boRPdlwHstXIPqCWv2EuRQFNXir02M9ZfBg=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MW4PR10MB6535.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230025)(136003)(376002)(366004)(396003)(346002)(39860400002)(451199018)(31696002)(36756003)(86362001)(38100700002)(41300700001)(8676002)(66476007)(8936002)(5660300002)(4326008)(316002)(66946007)(66556008)(6916009)(15650500001)(2906002)(83380400001)(478600001)(6486002)(2616005)(53546011)(186003)(6666004)(6506007)(26005)(6512007)(36916002)(31686004)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?N01uY1NmSGpKV05KWDlWZEhtVWtEY2FHWkgwOXNxREw1eXY4MnVVUEVhOTBr?=
+ =?utf-8?B?dlByZUwvd1hqb2ZLOGhIT1NJd3ZBRFFrTUNxWG5rcklmdml4V2IyYUZHTUMx?=
+ =?utf-8?B?dy9wUyt5YWpJMFFrYWxpUWVoSHA1QVA0clF0b28vV2JFcDNQcTUydG5HNDkx?=
+ =?utf-8?B?MStyY2RmMFVDdDk1dWhLNlhoNTBlTG5OUlNVdTlYMGFLWFdhQ25BMUZleXVr?=
+ =?utf-8?B?UHZHMzcwaDREaGxmRjNjSWdVbExXc0FycEtvdDhhOXhjK0VqMEN3SEc2Ync1?=
+ =?utf-8?B?cG56ci9aTGRQaXFscDVpUFpuT0hzRHk2QVJzcmJsSlhueHNpOTVyVmdLYU4x?=
+ =?utf-8?B?SHpDM1ZQRHJYMDFDOVpXVTlxVVpWd2dIcDlmRzNhOXB4d1ViNUJUR3NRd3dJ?=
+ =?utf-8?B?N05uVmQ0WjZyazU2YjlyR201bzF1dW1WdFN3eWhuNVJZVUIra1BOQ0RJeEdS?=
+ =?utf-8?B?V09oNnA1Qjd2QXFVdi84YTA2TTJ2OUZXU3htYWZWdThDZm9Ba04yZHdwSUlU?=
+ =?utf-8?B?QUF2OGgxendScCtudEpWTU5xS01nMGZPcFFYL014RHF6NURrNlZ4dFlXS3FE?=
+ =?utf-8?B?Ti96U0hBM1VXSVdBc3o2N3BnNGhTWlNWZTQ1aFBKcVoxZDd2eE1kSm1ROWY1?=
+ =?utf-8?B?ck01OFczWGk0QllDSHpMSzBNYytTVm1aMWNEaXhhV3FFNmJVREw5N1FsRFBa?=
+ =?utf-8?B?b0lBampzMmJyM251RVdMc0FlMEFqeEhyOCtjMEs3NkpHZmNqMTZhMGNIU1Fs?=
+ =?utf-8?B?T2pWRzhqMzlEWmN4RjhiU2poYWpMbHZPckwwbHBqV2MvZEc5cDVnaEF4aVVH?=
+ =?utf-8?B?OEZHdGdrWWtabGw1bjhBSE5TaHZkYWlyc0JCOGhGYWlGcHo4VFVxcTY2alJi?=
+ =?utf-8?B?MytiVVh1UUlWd3FZbGtoTVFISnZXcS9YaWRQbzAvZ29Tbis0Mko5SXg3MEo1?=
+ =?utf-8?B?NzNsKzJPUGtVVDROOE9PVmVHNDk2RGMwU1RLYjFTeWdwelFPZ1FvMXQyQy9L?=
+ =?utf-8?B?bmxkTXBENmRUWFduYjBVTWJKTUJuOTFtcEVJNG1sNmc0QTk1RXd3ZXlPK3di?=
+ =?utf-8?B?ZGVJMGtCU2VnSDlxbEZLdEp0U1ZVaFhGTmErUHN3aFBVZEQxS0NBcmIxWnlI?=
+ =?utf-8?B?czR2WkhUYVppclFWYnZzelo3cFRtSXo2SmY3cjhXd2pOSCtRSitGUHRzS3NL?=
+ =?utf-8?B?YXFYUXNjNVhGSHFsQXN5SENEQmdpOVZhaG04Si9WdlFrUjlpZmdjNzlZYVBS?=
+ =?utf-8?B?dG4rbGsxd3F0cXdON09DbXU4bFdBV2NMTWtrNm9ma1pLeVM5NTRnSzNOVDVu?=
+ =?utf-8?B?Q3k5aE02UjJmMFVWZ0NWbWZ1aTByTkF3eDBFelhWSktYQk1TT0NOeWpwdGVt?=
+ =?utf-8?B?VzJQZzJmSmh1aGNJc25lcElTaTcvb1QzRlBJOHByQnRyT05Jdm91SnJGemw1?=
+ =?utf-8?B?eDlZM3NDVS9zRkwrc2ZiODg3ZjAzRHJpMmIxZ1B6YSs5RkRTb2JjNk5vaTk2?=
+ =?utf-8?B?aUk3UDRPWG15TldJN0JzWTdzV0ZNaU1ZSERHclh0S3JwSlZvTVdsQU53U3Nr?=
+ =?utf-8?B?T2RRSE1Kd2I2dXNkWVJaR3RKQW53TW00UVU5Z3lSbUNVclNOTHhkSE5tRGE3?=
+ =?utf-8?B?Q3V3UXptM05ndmYzbDRHQkJBMHRDU0hHRCt5a1JSZEhkL1c4Z0pNQkV6dTJM?=
+ =?utf-8?B?VnZTZVl6WnY0TUVhbllXZytPVkNYdm85bi9UVlFVU1NzcjY5dS9EY2Y5Q0NY?=
+ =?utf-8?B?UmdWNS9vanByNVJBN0pMckdBbnZXQmpvUHYzQ0pmZVVmVmlCS0dKZmJpUjEz?=
+ =?utf-8?B?eC9KdFJuMmJ5VWJsYzdTRU9ZSDJDMkxKNjYrOUU4dzlhR1k3UytvZmZZWGFK?=
+ =?utf-8?B?c1V3QjBadnVST2E0aEppa01DZU9HUXloU3dIdm1STTZNamIvOHBINjhpcDVw?=
+ =?utf-8?B?MTlpWGhCZ095MHh1YVdkTVhlbjJSK3RIVDAvWkhPNjAvYnJqK0ltdFRBZVJQ?=
+ =?utf-8?B?a1FPN0FNSERNeVMrWjVhcEloM2orbTFnZURsbUx4WmhCb0lYM3RaLy9oa3NP?=
+ =?utf-8?B?R015Q2NMaWRLb1lYZXN2ak9adEhMQnJiNHhTOGtZaUpRdTJOT0I0OUhyY0Ro?=
+ =?utf-8?Q?hhMBvcpYJkoD8/KANcvMlk4IC?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 6GsAgwMVugyd4SLAweReVd1zuH/LckxW6WmL6XqfmSZ3MIxUDIZIMFgZbeYQ0ycpBGQCScP+o/iQVZgZv5v45ZculUrX0LTGp7TZ0LoQMTIq3+cdGMMUiYMc7AG6Lo/+LqXY6u+r3IjHQAFzjRyxSw++F91TgvtHsPY20JKb2EjN4YEqwUicWxDLBbaGdLzlhOLHSHbdBjmYyKrCy6FIyAahBfHhXvQAzn4OCt6aFbQX7JNRu8AD5nKzC5QTCIjYK70KkYLVgb9NoroZ7ajuMy5T1t+EJa3RDMZrPjaJHXwV5dB9C4nflwj8aqPSNMORB0fbcuYNHOkRWcWY3/Pp7SOzpA2uOuJoP06r6Eku3JLNA6J4k1ko2g0XS8L9jyztS8jZz3/fnupr0h2zwr5MiOGfLlBu+PQCFJ8VBk78FknqZYBt5oHVb9Wh+xGiCA2DKzCn9Vf+pfVKeOTsu7zoIIpBnXoHh50TVBVI08t3adP9agOLE9/CcCJU18y7zCEk9sgnvw7i4NlD4weHEq0rWqCePqN+8jnaWEhPnVjfJuHGzczcmrUaOwlY5LjhW4ZZh09GgYYTf1JMMDTQzWM0g5WlITKbggwbAIhydJoZf3kc80/HllM8cLFAgOSUf3tMrGDDpC4ZWlEJmIrpjyCVvKS2vJpoP79iIJu02Flw3Z1de6RmcRqv2vx9ghqakH3HVAzAKlIgvlND+C+J+2ueMpS8RuNKUJAZRmydUFOxRzf3K7ewYh7HBgpne1in6rjzoCtt3RIbW304ms4DowmUXA4NnKLN7rSp/qRMExWBTGpOLcLYaXsjd6a4qfEWxwV9EWH5prAo/VF1fQsqWcHdSIdnWqaZp0q2NkhFFhZj8n2UD4CPpAEGnAEnxargYHPki9JDrLm97rQUZG+5P17xCw==
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 29f78dff-74f0-454c-c361-08db061d680b
+X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2023 19:32:37.4364 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: OiWb003fdzugyEOzgnVNERoCN9HUmChFvJft/elYAEhF2USVyQDGd7+2q8ie+MunXnpx2ZwHPUkawtDKTizrDw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB4858
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-03_19,2023-02-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
+ malwarescore=0
+ suspectscore=0 adultscore=0 mlxscore=0 phishscore=0 mlxlogscore=999
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2302030178
+X-Proofpoint-GUID: 4j7_wcXG4YVjjePRa3JzSqOac-h33A0q
+X-Proofpoint-ORIG-GUID: 4j7_wcXG4YVjjePRa3JzSqOac-h33A0q
+Cc: linux-kernel@vger.kernel.org, elic@nvidia.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,78 +199,151 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
-On Fri, 03 Feb 2023 16:06:11 +0100, Christoph Hellwig wrote:
-> this series adds the helpers to initalize a bvec.  These remove open coding of
-> bvec internals and help with experimenting with other representations like
-> a phys_addr_t instead of page + offset.
-> 
-> Changes since v1:
->  - fix a typo
->  - simplify the code in ceph's __iter_get_bvecs a little bit further
->  - fix two subject prefixes
-> 
-> [...]
 
-Applied, thanks!
+On 2/3/2023 12:09 AM, Michael S. Tsirkin wrote:
+> On Tue, Jan 31, 2023 at 03:22:23PM -0800, Si-Wei Liu wrote:
+>> Today when device features are explicitly provisioned, the features
+>> user supplied may contain device class specific features that are
+>> not supported by the parent managment device. On the other hand,
+>> when parent managment device supports more than one class, the
+>> device features to provision may be ambiguous if none of the class
+>> specific attributes is provided at the same time. Validate these
+>> cases and prompt appropriate user errors accordingly.
+>>
+>> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+>> ---
+>>   drivers/vdpa/vdpa.c | 51 ++++++++++++++++++++++++++++++++++++++++++---------
+>>   1 file changed, 42 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+>> index 1eba978..35a72d6 100644
+>> --- a/drivers/vdpa/vdpa.c
+>> +++ b/drivers/vdpa/vdpa.c
+>> @@ -460,12 +460,30 @@ static int vdpa_nl_mgmtdev_handle_fill(struct sk_buff *msg, const struct vdpa_mg
+>>   	return 0;
+>>   }
+>>   
+>> +static u64 vdpa_mgmtdev_get_classes(const struct vdpa_mgmt_dev *mdev,
+>> +				    unsigned int *nclasses)
+> given max value is apparently 64 how important is it that it's unsigned?
+> Just make it an int.
+Not sure I understand what you really meant/want. I consider making 
+unsigned is a (good) habit of keeping data type consistent to ensure 
+non-negative value is returned so callers run free of worry for false 
+complaint from (dumb) static code analyzer, and the next caller can 
+promptly interpret possible range of return value just from the function 
+prototype without having to dig into internals implemented by another 
+author. If your intent is to limit the range I can certainly make it an 
+unsigned char or u8, otherwise I don't get why you think int is better 
+than unsigned int. Does it not conform to the coding standard documented 
+somewhere?
 
-[01/23] block: factor out a bvec_set_page helper
-        commit: d58cdfae6a22e5079656c487aad669597a0635c8
-[02/23] block: add a bvec_set_folio helper
-        commit: 26db5ee158510108c819aa7be6eb8c75accf85d7
-[03/23] block: add a bvec_set_virt helper
-        commit: 666e6550cb74e3a7206b5699409c9f31e123887e
-[04/23] sd: factor out a sd_set_special_bvec helper
-        commit: f1e117cbb01a38f764db2f292174b93eab7c2db2
-[05/23] target: use bvec_set_page to initialize bvecs
-        commit: 3c7ebe952fefb646c56b60f1c3e3388f3b938cc7
-[06/23] nvmet: use bvec_set_page to initialize bvecs
-        commit: fc41c97a3a7b08131e6998bc7692f95729f9d359
-[07/23] nvme: use bvec_set_virt to initialize special_vec
-        commit: 4bee16daf13225d6b109bb95d613fd691b04a757
-[08/23] rbd: use bvec_set_page to initialize the copy up bvec
-        commit: 7df2af0bb4912cf360045d065f88fe4ed2f702ca
-[09/23] virtio_blk: use bvec_set_virt to initialize special_vec
-        commit: b831f3a1031664ae2443bab63d35c416ed30c91d
-[10/23] zram: use bvec_set_page to initialize bvecs
-        commit: 13ae4db0c05107814db4e774856aa83e72e8bf04
-[11/23] afs: use bvec_set_folio to initialize a bvec
-        commit: a8173be1863e57393edb5c158860ec43a1f21ed7
-[12/23] ceph: use bvec_set_page to initialize a bvec
-        commit: 5c6542b6612f635eaa001c54af22018f1e996418
-[13/23] cifs: use bvec_set_page to initialize bvecs
-        commit: 220ae4a5c2ba10333b3b01fbf3dea0d759e77a76
-[14/23] coredump: use bvec_set_page to initialize a bvec
-        commit: cd598003206839ed1354902805b52c3a4f6ead2e
-[15/23] nfs: use bvec_set_page to initialize bvecs
-        commit: 8bb7cd842c44b299586bfed6aadde8863c48b415
-[16/23] orangefs: use bvec_set_{page,folio} to initialize bvecs
-        commit: 8ead80b2c5f8c59d6ca18cd7fb582a3ffc7ea5b7
-[17/23] splice: use bvec_set_page to initialize a bvec
-        commit: 664e40789abaad892737a696102052dae199a029
-[18/23] io_uring: use bvec_set_page to initialize a bvec
-        commit: cc342a21930f0e3862c5fd0871cd5a65c5b59e27
-[19/23] swap: use bvec_set_page to initialize bvecs
-        commit: 8976fa6d79d70502181fa16b5e023645c0f44ec4
-[20/23] rxrpc: use bvec_set_page to initialize a bvec
-        commit: efde918ac66958c568926120841e7692b1e9bd9d
-[21/23] sunrpc: use bvec_set_page to initialize bvecs
-        commit: 9088151f1bfe670ae9e28b77095f974196bb2343
-[22/23] vringh: use bvec_set_page to initialize a bvec
-        commit: 58dfe14073846e416d5b3595314a4f37e1a89c50
-[23/23] libceph: use bvec_set_page to initialize bvecs
-        commit: 1eb9cd15004fa91b6d1911af9fbaff299d8e9e45
+> Also I'd return u64 through a pointer too for consistency.
+Here the intent is to make the class bitmask number mandatory to return, 
+while the number of classes returned can be optional. If there's future 
+need to optionally return bitmask, the code can be revisited for sure. 
+For now I'd just keep it this way for simplicity and readability.
 
-Best regards,
--- 
-Jens Axboe
+>> +{
+>> +	u64 supported_classes = 0;
+>> +	unsigned int n = 0;
+>> +	int i = 0;
+>> +
+>> +	while (mdev->id_table[i].device) {
+>> +		if (mdev->id_table[i].device <= 63) {
+>> +			supported_classes |= BIT_ULL(mdev->id_table[i].device);
+>> +			n++;
+>> +		}
+>> +		i++;
+>> +	}
+>
+> Better as a for loop. I know you are just moving code if you
+> want to make it very clear it's a refactoring split
+> as a separate patch, but ok anyway.
+I can make it a for loop. Generally if just moving code people tend to 
+keep the original code as-is without refactoring too much (separate 
+patch needed). But for this simple rewrite it might be okay, it's your call.
 
+Thanks,
+-Siwei
 
+>
+>> +	if (nclasses)
+>> +		*nclasses = n;
+>> +
+>> +	return supported_classes;
+>> +}
+>> +
+>>   static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *msg,
+>>   			     u32 portid, u32 seq, int flags)
+>>   {
+>> -	u64 supported_classes = 0;
+>>   	void *hdr;
+>> -	int i = 0;
+>>   	int err;
+>>   
+>>   	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags, VDPA_CMD_MGMTDEV_NEW);
+>> @@ -475,14 +493,9 @@ static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *m
+>>   	if (err)
+>>   		goto msg_err;
+>>   
+>> -	while (mdev->id_table[i].device) {
+>> -		if (mdev->id_table[i].device <= 63)
+>> -			supported_classes |= BIT_ULL(mdev->id_table[i].device);
+>> -		i++;
+>> -	}
+>> -
+>>   	if (nla_put_u64_64bit(msg, VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES,
+>> -			      supported_classes, VDPA_ATTR_UNSPEC)) {
+>> +			      vdpa_mgmtdev_get_classes(mdev, NULL),
+>> +			      VDPA_ATTR_UNSPEC)) {
+>>   		err = -EMSGSIZE;
+>>   		goto msg_err;
+>>   	}
+>> @@ -571,8 +584,10 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>>   	struct vdpa_dev_set_config config = {};
+>>   	struct nlattr **nl_attrs = info->attrs;
+>>   	struct vdpa_mgmt_dev *mdev;
+>> +	unsigned int ncls = 0;
+>>   	const u8 *macaddr;
+>>   	const char *name;
+>> +	u64 classes;
+>>   	int err = 0;
+>>   
+>>   	if (!info->attrs[VDPA_ATTR_DEV_NAME])
+>> @@ -649,6 +664,24 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+>>   		goto err;
+>>   	}
+>>   
+>> +	classes = vdpa_mgmtdev_get_classes(mdev, &ncls);
+>> +	if (config.mask & VDPA_DEV_NET_ATTRS_MASK &&
+>> +	    !(classes & BIT_ULL(VIRTIO_ID_NET))) {
+>> +		NL_SET_ERR_MSG_MOD(info->extack,
+>> +				   "Network class attributes provided on unsupported management device");
+>> +		err = -EINVAL;
+>> +		goto err;
+>> +	}
+>> +	if (!(config.mask & VDPA_DEV_NET_ATTRS_MASK) &&
+>> +	    config.mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES) &&
+>> +	    classes & BIT_ULL(VIRTIO_ID_NET) && ncls > 1 &&
+>> +	    config.device_features & VIRTIO_DEVICE_F_MASK) {
+>> +		NL_SET_ERR_MSG_MOD(info->extack,
+>> +				   "Management device supports multi-class while device features specified are ambiguous");
+>> +		err = -EINVAL;
+>> +		goto err;
+>> +	}
+>> +
+>>   	err = mdev->ops->dev_add(mdev, name, &config);
+>>   err:
+>>   	up_write(&vdpa_dev_lock);
+>> -- 
+>> 1.8.3.1
 
 _______________________________________________
 Virtualization mailing list
