@@ -4,104 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B1F0C61DA4
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 09:18:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 85A8DC636CC
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 09:24:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F1C6D402A7;
-	Fri,  3 Feb 2023 09:18:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F1C6D402A7
+	by smtp2.osuosl.org (Postfix) with ESMTP id F286F4114E;
+	Fri,  3 Feb 2023 09:24:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F286F4114E
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Da+AK1ye
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eu7YUVXN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hi_GWBurdPAZ; Fri,  3 Feb 2023 09:18:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6A61B401D5;
-	Fri,  3 Feb 2023 09:18:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A61B401D5
+	with ESMTP id JA27dHufYRzC; Fri,  3 Feb 2023 09:24:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 64D9A401D5;
+	Fri,  3 Feb 2023 09:24:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 64D9A401D5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E1EFC0033;
-	Fri,  3 Feb 2023 09:18:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3AFDEC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 38B70C0033;
+	Fri,  3 Feb 2023 09:24:42 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 168E3C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 09:18:09 +0000 (UTC)
+ Fri,  3 Feb 2023 09:24:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 13E3381EC8
+ by smtp3.osuosl.org (Postfix) with ESMTP id D03F460AF6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 09:18:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 13E3381EC8
-Authentication-Results: smtp1.osuosl.org;
+ Fri,  3 Feb 2023 09:24:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D03F460AF6
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Da+AK1ye
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=eu7YUVXN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0VeZpuTi58rX
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id w45brSG3RsN1
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 09:18:08 +0000 (UTC)
+ Fri,  3 Feb 2023 09:24:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 127D08142F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EC0BE608B7
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 127D08142F
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EC0BE608B7
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 09:18:07 +0000 (UTC)
+ Fri,  3 Feb 2023 09:24:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1675415887;
+ s=mimecast20190719; t=1675416278;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=epRfDPzeCVTwbxr7ZzaPb0BTAgrqd0oxNwKqq2k7gGE=;
- b=Da+AK1yepzzoZujPzFrN42VasVkb3RY50ooxTYWkG9Qft3tiX8fPF4TTEcZ8NNPh87zBug
- 2OO3/VH/HCmB0VYs14W/lUVXozVdRhwC/Hzq3Xk/OIO4Sm3vMyKvTkum6smkT8nwH+sz7h
- 3D8cymzFHySHbuNrmWxMPyoBwhyG3aM=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=hzQ7UoxDCUOIsyyrWZEEJT3XokG9b81p4j2nZwVsXUk=;
+ b=eu7YUVXNnlYoLrqBMmues/51LlqxCLbvTFzxG9eKVmCV+2XmD6lKXsb5ERAztxUO7H+O3U
+ 7ExdS+x9QnwLjU0J4qdVOWpgqPbA4/TTxQuOsLatQ2V6nSUh1vNAerFleBUuu24FLCS28D
+ xC0U5WSXao/sDY/FHXaaGt/S2F7V940=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-479-PCQpJI9HPhOFzySG1mdMjg-1; Fri, 03 Feb 2023 04:18:06 -0500
-X-MC-Unique: PCQpJI9HPhOFzySG1mdMjg-1
-Received: by mail-ed1-f71.google.com with SMTP id
- en20-20020a056402529400b004a26ef05c34so3172711edb.16
+ us-mta-14-BxH3JdZXPOWzcPrVA0WCiA-1; Fri, 03 Feb 2023 04:24:37 -0500
+X-MC-Unique: BxH3JdZXPOWzcPrVA0WCiA-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ o21-20020aa7dd55000000b004a245f58006so3226021edw.12
  for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Feb 2023 01:18:05 -0800 (PST)
+ Fri, 03 Feb 2023 01:24:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=epRfDPzeCVTwbxr7ZzaPb0BTAgrqd0oxNwKqq2k7gGE=;
- b=hZ0Ii7f794VMGnR2SNiio+TsmAq1W/47zjpnjWWyxgxSVkJFolDoXIk2TKN8M/4nWU
- RgP6LVNTDMj+amwVJ72yG6Rm1u+HEb0wKsTHs7h+jA/DbaXzN3pGu8Djfu2F6+epGB34
- iJiBbvQlvoue7+hzkcGD5AULcSwsA02K+UJLYKCvRVsthc5EeuegollMIoaWKUUIIGJp
- 4kVN/o0oJO1zS71tx+ha2rLfP7cbbsfdPvhP/jmDHhH5O/4dR7uG9MpcFTsdCX8OgMYY
- DDz5DfuLdhwV/5bfCpNDPlQjxf4iEJHZQRFxSoVx2BWd2sGJJo3R0LDaTYumC6Ndymrx
- M5uw==
-X-Gm-Message-State: AO0yUKUiz0NgM8Oz3YOKQl7WWgl43tZQOYJPNHRX1hq5a3Wg2uICfs12
- d+EniCt3JeKhFGmg7+MQqc9mgokKXpCDn+o8CbLkil6HUxRrVW8Dd0ojXMoGpMBL9L5ESS6pD+7
- ZvgkenHpENRvUjcO34fOEYYchHFUEaJsFPGRtNOiDxA==
-X-Received: by 2002:a17:906:4787:b0:884:37fd:bf4c with SMTP id
- cw7-20020a170906478700b0088437fdbf4cmr10854188ejc.19.1675415884882; 
- Fri, 03 Feb 2023 01:18:04 -0800 (PST)
-X-Google-Smtp-Source: AK7set/r1+CDvVLFdXnEssdesv7QuGqfhjJVfo5pd8868UK6ys7Bboue+Ipv1DMVtJdspKbRue9+hg==
-X-Received: by 2002:a17:906:4787:b0:884:37fd:bf4c with SMTP id
- cw7-20020a170906478700b0088437fdbf4cmr10854167ejc.19.1675415884639; 
- Fri, 03 Feb 2023 01:18:04 -0800 (PST)
+ bh=hzQ7UoxDCUOIsyyrWZEEJT3XokG9b81p4j2nZwVsXUk=;
+ b=qfCUnIIwYJa9KipYcoWOou/EgXXqY0O6bs+uCi0M7DXxPNyWsD9uLe6RpeNvwoX++u
+ 2fvZkr01QKhXIrf7F2dxhUNW09EFbem7w1FwPKgcSkYxigup26lQsBHiiLvzcFnL4Nka
+ ji34yI2jJpLC5aPCNRW0rUMBkWzthVXQV40QYKWpeQsWgil+rTAcI6Z2Qhx5XsqXz5TR
+ oQarQmRZ5md1CfDO9gFZjseig7ffcCldy2TDmJpJLJbnfIdpKB3QtHb4cn23qInccT50
+ H5TL991o+rW96ue4lMS3Tk5bQmapgTV5rnmh0UKrMByLn6v7Mmu13eOjxDyC/5d68l6H
+ bhbw==
+X-Gm-Message-State: AO0yUKX6Y17N7DFIvIkyiNGA1j2XLnB1Uwn1ZaUUJjjWUyQaC5zPoo17
+ XZfUxK8tCpAzpgENeJ+EGxum7dA4YUzeifBO22PkOiFpBdFz3Laiua4VCGAukbYmZh2zONc/442
+ TofRDzuvVDq+DyjPuq1x8N0AbqwKsAPNKnjGDQ/bt9w==
+X-Received: by 2002:a17:906:22c7:b0:877:ef84:c7de with SMTP id
+ q7-20020a17090622c700b00877ef84c7demr8845488eja.61.1675416275977; 
+ Fri, 03 Feb 2023 01:24:35 -0800 (PST)
+X-Google-Smtp-Source: AK7set+TxlGnu/L3yT0xGpB437kqNK6vjM70U7jlUdSRH3DIj5ht8LTpXWMZWGwS/IflEeUiZZRQzQ==
+X-Received: by 2002:a17:906:22c7:b0:877:ef84:c7de with SMTP id
+ q7-20020a17090622c700b00877ef84c7demr8845459eja.61.1675416275741; 
+ Fri, 03 Feb 2023 01:24:35 -0800 (PST)
 Received: from redhat.com ([2.52.156.122]) by smtp.gmail.com with ESMTPSA id
- t24-20020a1709066bd800b0088452ca0666sm1077211ejs.196.2023.02.03.01.18.01
+ e11-20020a170906314b00b0084c4b87aa18sm1093420eje.37.2023.02.03.01.24.32
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 03 Feb 2023 01:18:04 -0800 (PST)
-Date: Fri, 3 Feb 2023 04:17:59 -0500
+ Fri, 03 Feb 2023 01:24:35 -0800 (PST)
+Date: Fri, 3 Feb 2023 04:24:30 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 00/33] virtio-net: support AF_XDP zero copy
-Message-ID: <20230203034212-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 08/33] virtio_ring: introduce dma sync api for virtio
+Message-ID: <20230203042103-mutt-send-email-mst@kernel.org>
 References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
- <5fda6140fa51b4d2944f77b9e24446e4625641e2.camel@redhat.com>
- <1675395211.6279888-2-xuanzhuo@linux.alibaba.com>
+ <20230202110058.130695-9-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <1675395211.6279888-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230202110058.130695-9-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -135,76 +134,121 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 03, 2023 at 11:33:31AM +0800, Xuan Zhuo wrote:
-> On Thu, 02 Feb 2023 15:41:44 +0100, Paolo Abeni <pabeni@redhat.com> wrote:
-> > On Thu, 2023-02-02 at 19:00 +0800, Xuan Zhuo wrote:
-> > > XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-> > > copy feature of xsk (XDP socket) needs to be supported by the driver. The
-> > > performance of zero copy is very good. mlx5 and intel ixgbe already support
-> > > this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-> > > feature.
-> > >
-> > > Virtio-net did not support per-queue reset, so it was impossible to support XDP
-> > > Socket Zerocopy. At present, we have completed the work of Virtio Spec and
-> > > Kernel in Per-Queue Reset. It is time for Virtio-Net to complete the support for
-> > > the XDP Socket Zerocopy.
-> > >
-> > > Virtio-net can not increase the queue at will, so xsk shares the queue with
-> > > kernel.
-> > >
-> > > On the other hand, Virtio-Net does not support generate interrupt manually, so
-> > > when we wakeup tx xmit, we used some tips. If the CPU run by TX NAPI last time
-> > > is other CPUs, use IPI to wake up NAPI on the remote CPU. If it is also the
-> > > local CPU, then we wake up sofrirqd.
-> >
-> > Thank you for the large effort.
-> >
-> > Since this will likely need a few iterations, on next revision please
-> > do split the work in multiple chunks to help the reviewer efforts -
-> > from Documentation/process/maintainer-netdev.rst:
-> >
-> >  - don't post large series (> 15 patches), break them up
-> >
-> > In this case I guess you can split it in 1 (or even 2) pre-req series
-> > and another one for the actual xsk zero copy support.
-> 
-> 
-> OK.
-> 
-> I can split patch into multiple parts such as
-> 
-> * virtio core
-> * xsk
-> * virtio-net prepare
-> * virtio-net support xsk zerocopy
-> 
-> However, there is a problem, the virtio core part should enter the VHOST branch
-> of Michael. Then, should I post follow-up patches to which branch vhost or
-> next-next?
-> 
-> Thanks.
-> 
+On Thu, Feb 02, 2023 at 07:00:33PM +0800, Xuan Zhuo wrote:
+> In the process of dma sync, we involved whether virtio uses dma api. On
+> the other hand, it is also necessary to read vdev->dev.parent. So these
+> API has been introduced.
 
-Here are some ideas on how to make the patchset smaller
-and easier to merge:
-- keep everything in virtio_net.c for now. We can split
-  things out later, but this way your patchset will not
-  conflict with every since change merged meanwhile.
-  Also, split up needs to be done carefully with sane
-  APIs between components, let's maybe not waste time
-  on that now, do the split-up later.
-- you have patches that add APIs then other
-  patches use them. as long as it's only virtio net just
-  add and use in a single patch, review is actually easier this way.
-- we can try merging pre-requisites earlier, then patchset
-  size will shrink.
+you don't need to repeat implementation here.
+just list the new APIs and how they will be used
+with premapped API.
 
 
-> >
-> > Thanks!
-> >
-> > Paolo
-> >
+
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 61 ++++++++++++++++++++++++++++++++++++
+>  include/linux/virtio.h       |  8 +++++
+>  2 files changed, 69 insertions(+)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 67eda7bc23ea..7b393133fd27 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -3102,4 +3102,65 @@ void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_dma_unmap);
+>  
+> +/**
+> + * virtio_dma_need_sync - check dma address need sync
+
+.... whether a dma address needs sync
+
+> + * @dev: virtio device
+> + * @addr: DMA address
+> + */
+> +bool virtio_dma_need_sync(struct device *dev, dma_addr_t addr)
+> +{
+> +	struct virtio_device *vdev = dev_to_virtio(dev);
+> +
+> +	if (!vring_use_dma_api(vdev))
+> +		return 0;
+> +
+> +	return dma_need_sync(vdev->dev.parent, addr);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dma_need_sync);
+> +
+> +/**
+> + * virtio_dma_sync_signle_range_for_cpu - dma sync for cpu
+> + * @dev: virtio device
+> + * @addr: DMA address
+> + * @offset: DMA address offset
+> + * @size: mem size for sync
+> + * @dir: DMA direction
+> + *
+> + * Before calling this function, use virtio_dma_need_sync() to confirm that the
+> + * DMA address really needs to be synchronized
+> + */
+> +void virtio_dma_sync_signle_range_for_cpu(struct device *dev, dma_addr_t addr,
+> +					  unsigned long offset, size_t size,
+> +					  enum dma_data_direction dir)
+> +{
+> +	struct virtio_device *vdev = dev_to_virtio(dev);
+> +
+> +	dma_sync_single_range_for_cpu(vdev->dev.parent, addr, offset,
+> +				      size, DMA_BIDIRECTIONAL);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dma_sync_signle_range_for_cpu);
+> +
+> +/**
+> + * virtio_dma_sync_signle_range_for_device - dma sync for device
+> + * @dev: virtio device
+> + * @addr: DMA address
+> + * @offset: DMA address offset
+> + * @size: mem size for sync
+> + * @dir: DMA direction
+> + *
+> + * Before calling this function, use virtio_dma_need_sync() to confirm that the
+> + * DMA address really needs to be synchronized
+> + */
+> +void virtio_dma_sync_signle_range_for_device(struct device *dev,
+> +					     dma_addr_t addr,
+> +					     unsigned long offset, size_t size,
+> +					     enum dma_data_direction dir)
+> +{
+> +	struct virtio_device *vdev = dev_to_virtio(dev);
+> +
+> +	dma_sync_single_range_for_device(vdev->dev.parent, addr, offset,
+> +					 size, DMA_BIDIRECTIONAL);
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_dma_sync_signle_range_for_device);
+> +
+
+
+Pls document how these APIs are only for pre-mapped buffers,
+for non premapped virtio core handles DMA API internally.
+
+
+>  MODULE_LICENSE("GPL");
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index ce89126becc5..8c2fae318b0c 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -227,4 +227,12 @@ dma_addr_t virtio_dma_map(struct device *dev, void *addr, unsigned int length,
+>  int virtio_dma_mapping_error(struct device *dev, dma_addr_t addr);
+>  void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+>  		      enum dma_data_direction dir);
+> +bool virtio_dma_need_sync(struct device *dev, dma_addr_t addr);
+> +void virtio_dma_sync_signle_range_for_cpu(struct device *dev, dma_addr_t addr,
+> +					  unsigned long offset, size_t size,
+> +					  enum dma_data_direction dir);
+> +void virtio_dma_sync_signle_range_for_device(struct device *dev,
+> +					     dma_addr_t addr,
+> +					     unsigned long offset, size_t size,
+> +					     enum dma_data_direction dir);
+>  #endif /* _LINUX_VIRTIO_H */
+> -- 
+> 2.32.0.3.g01195cf9f
 
 _______________________________________________
 Virtualization mailing list
