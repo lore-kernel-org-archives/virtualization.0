@@ -4,109 +4,119 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E615DC61DA4
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 08:14:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E8E0BC636D6
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 08:33:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7442242590;
-	Fri,  3 Feb 2023 08:14:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7442242590
+	by smtp4.osuosl.org (Postfix) with ESMTP id 66076429C6;
+	Fri,  3 Feb 2023 08:33:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 66076429C6
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QP7oYfyO
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Es+CFDeM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q7nGaTQuFpd4; Fri,  3 Feb 2023 08:14:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8C01D41BB3;
-	Fri,  3 Feb 2023 08:14:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C01D41BB3
+	with ESMTP id H_kiXWmtnn4f; Fri,  3 Feb 2023 08:33:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8D4D041D41;
+	Fri,  3 Feb 2023 08:33:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D4D041D41
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61818C0032;
-	Fri,  3 Feb 2023 08:14:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED2CBC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60497C0032;
+	Fri,  3 Feb 2023 08:33:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D178C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 08:14:38 +0000 (UTC)
+ Fri,  3 Feb 2023 08:33:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BFD53820B3
+ by smtp4.osuosl.org (Postfix) with ESMTP id D62CF41D41
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 08:14:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BFD53820B3
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QP7oYfyO
+ Fri,  3 Feb 2023 08:33:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D62CF41D41
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KI3bNabGkekN
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2VqzUgBfOBy2
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 08:14:36 +0000 (UTC)
+ Fri,  3 Feb 2023 08:33:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9B474820B1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C273541D21
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9B474820B1
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C273541D21
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 08:14:36 +0000 (UTC)
+ Fri,  3 Feb 2023 08:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1675412074;
+ s=mimecast20190719; t=1675413229;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=RBSNvTzGGuF/AnMtphdz8gAhAXklpF3dQGWk2OV7ssc=;
- b=QP7oYfyO15EdW4bZHYjM7C7zrf60fgZ8Of75gzjSVNOflzB1fdQx6TtCMMXBH1nJnkLTDs
- dk+ILqggmpC6iJgo/UYNjtNL25h1pR/MGCzLpEZ8WxNXKc+il2dQruBJbtaG2pyQaDlFpV
- jh+CbfPzY8LA2JQvaq6npMh5xEAHnVo=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=c9gia5gCXojDKJbnjBecgsqKUe4A6lVBjKVa+Q7BTrU=;
+ b=Es+CFDeMQrAGZA/KkThcSvNXwe5vpbGJZXeKQxoddvNTcjN5jvOUGNp8SJhJgKjnFnWfy8
+ FGtRJ7ZUAoKNRI2B6mY2Az+ngvrwpoWNQivK7J2G3kcBsnr4OeDwx7xwCmMkwAm4oq7OWa
+ k1E5WEKIrk9Eat5/XgEpUp486a+lDuA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-611-r4VxaZMjM7emQjCuvpChxQ-1; Fri, 03 Feb 2023 03:14:33 -0500
-X-MC-Unique: r4VxaZMjM7emQjCuvpChxQ-1
-Received: by mail-wr1-f69.google.com with SMTP id
- e9-20020a5d6d09000000b002c172f173a9so566867wrq.17
+ us-mta-279-6cftP8pBNaSNCf9SmJoAHg-1; Fri, 03 Feb 2023 03:33:48 -0500
+X-MC-Unique: 6cftP8pBNaSNCf9SmJoAHg-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ o31-20020a05600c511f00b003dc53da325dso4207060wms.8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Feb 2023 00:14:33 -0800 (PST)
+ Fri, 03 Feb 2023 00:33:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=RBSNvTzGGuF/AnMtphdz8gAhAXklpF3dQGWk2OV7ssc=;
- b=1en3LscwFg10qsGNUAcXoV6eInj6izfaYZf28yyCa9AkidsHcKzpkVGeyLMd/2jE3j
- 9RZgIGNn9NSuYtSLgjbm+n34Wd6JdvlnMfDZfHLMlJKmvRf/lhvs1mgjX++1oLfghram
- YRq7vlm1PdQVeV+2553ebOfrbFv8d40/dlM6L2ENJqochVfb8pPRzWkqWwHKSwzNSNbl
- rmmmyYLhHUm0SGMJaokzE/oiZvoxEnqBxiWASG4ZVrLi1h2FigKc2cUgeRkWjvrlYu3+
- wf2aF819KIpUA+llFauOi2sVbJ/GZOYEQ+ALJcOqE5RuokoqiyNdTfnaI4plXrmUrrKq
- DNyQ==
-X-Gm-Message-State: AO0yUKVXRYIbTIvsQC2DHQqRUoYyaUxW6da666m9ZCQIB1dqNxmUCEiC
- 7MNwOdpmh6QSBcqSmkbBTh/OFc2Pis/HYHZkA1LJOKB6xGmb0wXXin89hXfyxnHOVHT+cRURBsH
- BQLQGy2ON3txSn5jhV1sqySYibL3m9ZC/nwslA5gQhA==
-X-Received: by 2002:a7b:ce11:0:b0:3dc:5302:ad9 with SMTP id
- m17-20020a7bce11000000b003dc53020ad9mr10452474wmc.27.1675412072422; 
- Fri, 03 Feb 2023 00:14:32 -0800 (PST)
-X-Google-Smtp-Source: AK7set9XLR1nt2yYDupc37z1u66lHeROwAvON4PoONn4AVsn75DKzjR5/jFjM4/qc6XCMKADet3/GQ==
-X-Received: by 2002:a7b:ce11:0:b0:3dc:5302:ad9 with SMTP id
- m17-20020a7bce11000000b003dc53020ad9mr10452458wmc.27.1675412072183; 
- Fri, 03 Feb 2023 00:14:32 -0800 (PST)
+ bh=c9gia5gCXojDKJbnjBecgsqKUe4A6lVBjKVa+Q7BTrU=;
+ b=vqTsD2v+an3+VQODJyklSSY/6hm4tR68F0x9EM2IS7cc91wN4k4oKJ1CtLkQGw/9tu
+ rbkCdpliOwDxsjqwTO9/jaftBeZVHZmMVAgqdnb8CdURYpP7SOT0CTUt6yIlY+vUNPE9
+ QK8HQgS4VzmpxaSTysP2sQOCGp0GSdTjP7wpxEc9sSgAYcpdkhgypHcxhD7dBc77vXLm
+ l+J24n6aVvXL9zlwaHVHTbG7UZtSMlmiwp1nA1PXDo9su4z0vu5O1fwNFthXcxC2ZggP
+ K5m/UbZ6c01nZK+XOwdlQLaoSm6S02+gcy7AxZFfmWpu9JGAL2gb4w1VYzhubnCDH2JE
+ 66lA==
+X-Gm-Message-State: AO0yUKUSKHNK6Kg3ND7v6Mahb1nUpCVbGu2CKtnEhyPu12sCNJR20AQy
+ EdrPBFs5Eac2cpjDvX3Eu5cbQETpHcFbEiRqS+yFVzcLefaGdVHu45VODW3Mqvx7VKfabw7SHWa
+ 4tImJL7lsoTsKI0O45RTS3kxeJQkRh6ohWIWrzfamNQ==
+X-Received: by 2002:a05:600c:1d03:b0:3dd:1bcc:eb17 with SMTP id
+ l3-20020a05600c1d0300b003dd1bcceb17mr8913701wms.28.1675413226957; 
+ Fri, 03 Feb 2023 00:33:46 -0800 (PST)
+X-Google-Smtp-Source: AK7set+Y8WwnwZ3TGibkgw7+NTRwE/wRyUdxNN+qG3QQe1IWY+jcAry8oCig/t9FCfmiWTBrHfVg6Q==
+X-Received: by 2002:a05:600c:1d03:b0:3dd:1bcc:eb17 with SMTP id
+ l3-20020a05600c1d0300b003dd1bcceb17mr8913678wms.28.1675413226764; 
+ Fri, 03 Feb 2023 00:33:46 -0800 (PST)
 Received: from redhat.com ([2.52.156.122]) by smtp.gmail.com with ESMTPSA id
- v9-20020a05600c470900b003dfe549da4fsm1622359wmo.18.2023.02.03.00.14.30
+ m13-20020a05600c3b0d00b003dc51c48f0bsm7879692wms.19.2023.02.03.00.33.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 03 Feb 2023 00:14:31 -0800 (PST)
-Date: Fri, 3 Feb 2023 03:14:28 -0500
+ Fri, 03 Feb 2023 00:33:46 -0800 (PST)
+Date: Fri, 3 Feb 2023 03:33:41 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Subject: Re: [PATCH v2 6/7] vdpa/mlx5: conditionally show MTU and STATUS in
- config space
-Message-ID: <20230203030944-mutt-send-email-mst@kernel.org>
-References: <1675207345-22328-1-git-send-email-si-wei.liu@oracle.com>
- <1675207345-22328-7-git-send-email-si-wei.liu@oracle.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 24/33] virtio_net: xsk: stop disable tx napi
+Message-ID: <20230203032945-mutt-send-email-mst@kernel.org>
+References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
+ <20230202110058.130695-25-xuanzhuo@linux.alibaba.com>
+ <20230202122445-mutt-send-email-mst@kernel.org>
+ <1675394682.9569418-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <1675207345-22328-7-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1675394682.9569418-1-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, elic@nvidia.com,
- virtualization@lists.linux-foundation.org
+Cc: Petr Machata <petrm@nvidia.com>, Menglong Dong <imagedong@tencent.com>,
+ Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>,
+ =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
+ Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Kuniyuki Iwashima <kuniyu@amazon.com>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Jonathan Lemon <jonathan.lemon@gmail.com>, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Magnus Karlsson <magnus.karlsson@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,69 +133,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 31, 2023 at 03:22:24PM -0800, Si-Wei Liu wrote:
-> The spec says:
->     mtu only exists if VIRTIO_NET_F_MTU is set
->     status only exists if VIRTIO_NET_F_STATUS is set
+On Fri, Feb 03, 2023 at 11:24:42AM +0800, Xuan Zhuo wrote:
+> On Thu, 2 Feb 2023 12:25:59 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Feb 02, 2023 at 07:00:49PM +0800, Xuan Zhuo wrote:
+> > > Since xsk's TX queue is consumed by TX NAPI, if sq is bound to xsk, then
+> > > we must stop tx napi from being disabled.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/net/virtio/main.c | 9 ++++++++-
+> > >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
+> > > index ed79e750bc6c..232cf151abff 100644
+> > > --- a/drivers/net/virtio/main.c
+> > > +++ b/drivers/net/virtio/main.c
+> > > @@ -2728,8 +2728,15 @@ static int virtnet_set_coalesce(struct net_device *dev,
+> > >  		return ret;
+> > >
+> > >  	if (update_napi) {
+> > > -		for (i = 0; i < vi->max_queue_pairs; i++)
+> > > +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> > > +			/* xsk xmit depend on the tx napi. So if xsk is active,
+> >
+> > depends.
+> >
+> > > +			 * prevent modifications to tx napi.
+> > > +			 */
+> > > +			if (rtnl_dereference(vi->sq[i].xsk.pool))
+> > > +				continue;
+> > > +
+> > >  			vi->sq[i].napi.weight = napi_weight;
+> >
+> > I don't get it.
+> > changing napi weight does not work then.
+> > why is this ok?
 > 
-> We should only show MTU and STATUS conditionally depending on
-> the feature bits.
 > 
-> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
-
-so change the subject pls. it seems to say you are showing them
-when you previously didn't, what's going on is something like:
-
-	make MTU/status access conditional on feature bits
-
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 22 ++++++++++++++--------
->  1 file changed, 14 insertions(+), 8 deletions(-)
+> static void skb_xmit_done(struct virtqueue *vq)
+> {
+> 	struct virtnet_info *vi = vq->vdev->priv;
+> 	struct napi_struct *napi = &vi->sq[vq2txq(vq)].napi;
 > 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 3a6dbbc6..3d49eae 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3009,6 +3009,8 @@ static int event_handler(struct notifier_block *nb, unsigned long event, void *p
->  	struct mlx5_vdpa_wq_ent *wqent;
->  
->  	if (event == MLX5_EVENT_TYPE_PORT_CHANGE) {
-> +		if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_STATUS)))
-> +			return NOTIFY_DONE;
->  		switch (eqe->sub_type) {
->  		case MLX5_PORT_CHANGE_SUBTYPE_DOWN:
->  		case MLX5_PORT_CHANGE_SUBTYPE_ACTIVE:
-> @@ -3118,16 +3120,20 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->  			goto err_alloc;
->  	}
->  
-> -	err = query_mtu(mdev, &mtu);
-> -	if (err)
-> -		goto err_alloc;
-> +	if (device_features & BIT_ULL(VIRTIO_NET_F_MTU)) {
-> +		err = query_mtu(mdev, &mtu);
-> +		if (err)
-> +			goto err_alloc;
->  
-> -	ndev->config.mtu = cpu_to_mlx5vdpa16(mvdev, mtu);
-> +		ndev->config.mtu = cpu_to_mlx5vdpa16(mvdev, mtu);
-> +	}
->  
-> -	if (get_link_state(mvdev))
-> -		ndev->config.status |= cpu_to_mlx5vdpa16(mvdev, VIRTIO_NET_S_LINK_UP);
-> -	else
-> -		ndev->config.status &= cpu_to_mlx5vdpa16(mvdev, ~VIRTIO_NET_S_LINK_UP);
-> +	if (device_features & BIT_ULL(VIRTIO_NET_F_STATUS)) {
-> +		if (get_link_state(mvdev))
-> +			ndev->config.status |= cpu_to_mlx5vdpa16(mvdev, VIRTIO_NET_S_LINK_UP);
-> +		else
-> +			ndev->config.status &= cpu_to_mlx5vdpa16(mvdev, ~VIRTIO_NET_S_LINK_UP);
-> +	}
->  
->  	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR)) {
->  		memcpy(ndev->config.mac, add_config->net.mac, ETH_ALEN);
-> -- 
-> 1.8.3.1
+> 	/* Suppress further interrupts. */
+> 	virtqueue_disable_cb(vq);
+> 
+> 	if (napi->weight)
+> 		virtqueue_napi_schedule(napi, vq);
+> 	else
+> 		/* We were probably waiting for more output buffers. */
+> 		netif_wake_subqueue(vi->dev, vq2txq(vq));
+> }
+> 
+> 
+> If the weight is 0, tx napi will not be triggered again.
+> 
+> Thanks.
+
+This needs more thought then. First ignoring what user is requesting is
+not nice.  Second what if napi is first disabled and then xsk enabled?
+
+
+> >
+> >
+> > > +		}
+> > >  	}
+> > >
+> > >  	return ret;
+> > > --
+> > > 2.32.0.3.g01195cf9f
+> >
 
 _______________________________________________
 Virtualization mailing list
