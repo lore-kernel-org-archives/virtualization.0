@@ -1,68 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BB21C6FA99
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 15:07:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9560DC05027
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 15:07:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EAC3042A4A;
-	Fri,  3 Feb 2023 15:07:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EAC3042A4A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=BeevEGfH
+	by smtp2.osuosl.org (Postfix) with ESMTP id 36BA4415B8;
+	Fri,  3 Feb 2023 15:07:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36BA4415B8
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=SHYAKMQ+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NGO2zuiuZdXB; Fri,  3 Feb 2023 15:07:47 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8ZyNy9i1AxSV; Fri,  3 Feb 2023 15:07:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3644942A57;
-	Fri,  3 Feb 2023 15:07:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3644942A57
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C3E38415AF;
+	Fri,  3 Feb 2023 15:07:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3E38415AF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E3D5C0032;
-	Fri,  3 Feb 2023 15:07:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B5E9C0032;
+	Fri,  3 Feb 2023 15:07:53 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CC99CC002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 57B42C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 15:07:45 +0000 (UTC)
+ Fri,  3 Feb 2023 15:07:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A7B3042A9A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2ADA442A9A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 15:07:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A7B3042A9A
+ Fri,  3 Feb 2023 15:07:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2ADA442A9A
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=bombadil.20210309 header.b=SHYAKMQ+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VXNeqLPkJnST
+ with ESMTP id KFlFevHB8SnP
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 15:07:44 +0000 (UTC)
+ Fri,  3 Feb 2023 15:07:51 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CCCE142A90
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6154342A5E
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:3::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CCCE142A90
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6154342A5E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 15:07:44 +0000 (UTC)
+ Fri,  3 Feb 2023 15:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=hAZBDljuWATtT7MZb8+aicFX05OEHsXWwcxbzwocn/Y=; b=BeevEGfHXEz3RQ2pm30ri/lLot
- 7BknWxcTJCe8bHwiFgaBXD6npSlvAv3IEIcsbkShJ3RfjiaydSSo5L6SFdm8AJ7WoHjFa/htGhWkp
- 4wGSwgvGKmly4xNp6v5luVv0iyrkXZnWP2/pz7K3wCYJcXHk5hRM2nDzle/Au3h9vm087+yLkb6az
- 7ehquK3STiJQhULDlHMJ2qG5Ug/GxsArwlHmPwoqzm3C5tnanQyZve2lPxuQhUSgjWjv2GmcjIlnY
- Visqz9lIqxv7q/UIrUmyPC1LhCL2btyMsdEUNkOGFE9y6nnV9zO5myX06OAAMNCoqqAdLUEkSnYKd
- aGyQrdEg==;
+ bh=81B+gzWiKP3dSyMHoEpejaF7sEqhUPFohDfKzzK3URY=; b=SHYAKMQ+SwVUyLVeypwgrT8ITx
+ 8OWSemfR3V1d5j1KVncg4YVuObwfg9Pbi32h+XryiQ6gJs4IZtST1Vv4iZ2hrbDVmjo3gmEVm7+ex
+ RoPBp7jp/JuF4fa7BxH5vi1oAhRP7/Aw3jj0MJzqlpyt6AFJ90fRZah2qP7iO5Fa4hS+QXNBJM5G2
+ 2fhU4cv9RjOoRb6A67sOeOJMRUWrq9yBLqOOwdzXIP7dYjqfyd7J8G4jWqM9LgJLyWvy41xt0Qfgo
+ kGvvzQfyRIhnon9F7XkqbVma6W8zGAQfkAjRNuTkqVxLf+emMmW/6xjo5W4e00BEBjjlcCfn2iZAf
+ UBeI/ApA==;
 Received: from [2001:4bb8:19a:272a:910:bb67:7287:f956] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1pNxeV-002am6-95; Fri, 03 Feb 2023 15:06:59 +0000
+ id 1pNxeb-002apl-U8; Fri, 03 Feb 2023 15:07:06 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 07/23] nvme: use bvec_set_virt to initialize special_vec
-Date: Fri,  3 Feb 2023 16:06:18 +0100
-Message-Id: <20230203150634.3199647-8-hch@lst.de>
+Subject: [PATCH 09/23] virtio_blk: use bvec_set_virt to initialize special_vec
+Date: Fri,  3 Feb 2023 16:06:20 +0100
+Message-Id: <20230203150634.3199647-10-hch@lst.de>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230203150634.3199647-1-hch@lst.de>
 References: <20230203150634.3199647-1-hch@lst.de>
@@ -86,8 +89,7 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  samba-technical@lists.samba.org, Steve French <sfrench@samba.org>,
  Sergey Senozhatsky <senozhatsky@chromium.org>,
  Chuck Lever <chuck.lever@oracle.com>, Anna Schumaker <anna@kernel.org>,
- Johannes Thumshirn <johannes.thumshirn@wdc.com>, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
  "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -109,26 +111,27 @@ Use the bvec_set_virt helper to initialize the special_vec.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/nvme/host/core.c | 4 +---
+ drivers/block/virtio_blk.c | 4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 505e16f20e57fa..7ba1accc3c22a4 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -806,9 +806,7 @@ static blk_status_t nvme_setup_discard(struct nvme_ns *ns, struct request *req,
- 	cmnd->dsm.nr = cpu_to_le32(segments - 1);
- 	cmnd->dsm.attributes = cpu_to_le32(NVME_DSMGMT_AD);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 6a77fa91742880..dc6e9b989910b0 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -170,9 +170,7 @@ static int virtblk_setup_discard_write_zeroes_erase(struct request *req, bool un
+ 
+ 	WARN_ON_ONCE(n != segments);
  
 -	req->special_vec.bv_page = virt_to_page(range);
 -	req->special_vec.bv_offset = offset_in_page(range);
--	req->special_vec.bv_len = alloc_size;
-+	bvec_set_virt(&req->special_vec, range, alloc_size);
+-	req->special_vec.bv_len = sizeof(*range) * segments;
++	bvec_set_virt(&req->special_vec, range, sizeof(*range) * segments);
  	req->rq_flags |= RQF_SPECIAL_PAYLOAD;
  
- 	return BLK_STS_OK;
+ 	return 0;
 -- 
 2.39.0
 
