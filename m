@@ -4,102 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 05F6DC61DA4
-	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 00:20:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC565C636D6
+	for <virtualization@archiver.kernel.org>; Fri,  3 Feb 2023 00:43:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 828708206E;
-	Fri,  3 Feb 2023 00:20:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 828708206E
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6B20B820A3;
+	Fri,  3 Feb 2023 00:43:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6B20B820A3
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=Q+7fPWvP
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=CHCoyYGB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ceXhr9KxvUyr; Fri,  3 Feb 2023 00:20:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1969A82062;
-	Fri,  3 Feb 2023 00:20:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1969A82062
+	with ESMTP id OGg-OA1XKTCJ; Fri,  3 Feb 2023 00:43:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D17E281D46;
+	Fri,  3 Feb 2023 00:43:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D17E281D46
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EBD7DC0032;
-	Fri,  3 Feb 2023 00:20:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5E02C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B2E2DC0032;
+	Fri,  3 Feb 2023 00:43:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7AD2DC002B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 00:20:18 +0000 (UTC)
+ Fri,  3 Feb 2023 00:43:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 809BA82062
+ by smtp3.osuosl.org (Postfix) with ESMTP id 414C86121C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 00:20:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 809BA82062
+ Fri,  3 Feb 2023 00:43:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 414C86121C
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=linux-foundation.org
+ header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google
+ header.b=CHCoyYGB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gfPvHuoiSpxJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gLVd_UZX-AqY
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 00:20:18 +0000 (UTC)
+ Fri,  3 Feb 2023 00:43:38 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4DBA81358
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com
- [IPv6:2a00:1450:4864:20::636])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C4DBA81358
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 376966121A
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com
+ [IPv6:2a00:1450:4864:20::62d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 376966121A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Feb 2023 00:20:17 +0000 (UTC)
-Received: by mail-ej1-x636.google.com with SMTP id qw12so11052876ejc.2
+ Fri,  3 Feb 2023 00:43:38 +0000 (UTC)
+Received: by mail-ej1-x62d.google.com with SMTP id ml19so11285863ejb.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 16:20:17 -0800 (PST)
+ Thu, 02 Feb 2023 16:43:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=linux-foundation.org; s=google;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=o4SeCtxpTd27qR0RdpcpFno4SRCl6KUuB+kcMLwMuEs=;
- b=Q+7fPWvPlZlKiRFwOebhnC/iujWBaiUECP4cOuLomaMGCsrTaSSFwu6NUnirPZ9+0r
- udrwj8gZKy1N0/sU/gqKjEmE3i76LfJ22MYfwOCp20sV5YXorrAY1INPbtG5ZtgaWzqh
- VMzywQfT+LzEDpBsXEmlYVkThE1KCS8Q/mJA4=
+ bh=M5SZoZOf4A1Tqrq26h6hgOv78mY8qXAzROlOIKANtsE=;
+ b=CHCoyYGBdRXOIoA+Jr7dkkawF4QVxNelCcER/Z8yLvuWU5rEVD95xnWe7+vQy9vp4e
+ DVDx7Zc7ndN58VVIxRJWxoclMnG3zPJ1ArBwZ1jd+P3PGKG9+DBtYR0F7vIB30AJCHRo
+ 0LunAY9rQ0MfEk33PcW07KL6arMLZqus6t4zQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=o4SeCtxpTd27qR0RdpcpFno4SRCl6KUuB+kcMLwMuEs=;
- b=TZNUJnFa0QszJbNr6nO1PsW4Ts39dQ9pY6BZJSfl3nUBatG0za8QBqbxliu4V9xlg3
- cM8sdHBD/ksygbebt/CyXZ2kRNuf+Is3WWbeLynv2emUgEbfyBb/Tv370ubZAB6lxYsD
- ejdpIlXLNKytASNqBPx526xnId33ExJSsUk2CMJ1vqDrdUY+88DX3S3Uvm2LqgrUaiS4
- q+VwnW+F6sKXFaBLepF8vIGf8Z64IVCs4uNjKNOp0HaJVrZgsIVqb8LJm7vHRiBSiKje
- x8zK7TLumDFJtcXLazm5ZKml6YXVTRZx/RaahoHraGpSaV6K7SX19/kb2An3NGYwlHWT
- BCrg==
-X-Gm-Message-State: AO0yUKUh8qTw3MwC030ckOykuZAOXHKSoIxo8zO+5vvWtjM46n3W7jyC
- NJLzlapIxyn7DNo65J1NhizVHfJbB9mrbo/7MlFzO8pV
-X-Google-Smtp-Source: AK7set8C0lvMKy8pwhKZ+Cru2UpWC8OBNsLqwInamcGegk068GVp3zVvT2eQ+GJjG3qcMcz96mKt5A==
-X-Received: by 2002:a17:906:39cd:b0:878:5f8e:26c0 with SMTP id
- i13-20020a17090639cd00b008785f8e26c0mr104849eje.7.1675383615581; 
- Thu, 02 Feb 2023 16:20:15 -0800 (PST)
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com.
- [209.85.218.46]) by smtp.gmail.com with ESMTPSA id
- r17-20020a05640251d100b0046c7c3755a7sm383488edd.17.2023.02.02.16.20.14
+ bh=M5SZoZOf4A1Tqrq26h6hgOv78mY8qXAzROlOIKANtsE=;
+ b=uI0vzgNM0I7kH9T9qPl14DSnqBwHF884eBe/TCR0uKrWKIwdJomhqe7C9mr4w1TkOG
+ TZp6YR0MGAtBwwpA1q6JwMOtruu0nK4Y28uxLmiRx9GG68s2yu6hqFjfmpiyq9YeEEAy
+ Fa0CXE1yy+x1YL9UB0mKZfvm/glJlm6xLlacE3vOg8p99wLvNVlKcA7aswoqStChyf8Q
+ HT/1pgPJKGJ+nyksH5uP90ffuEKlNfstvmeCyYdy1I+ciV/yA4QoqZ2gSpOFN2tYCsGP
+ 7jsSjREzJCBZjkMkbnKFRduhBRgmgQxtBFGUrwwbitt6oIqyjDLZkzNevb21t8IvVWkP
+ xtjw==
+X-Gm-Message-State: AO0yUKUpTzOrGdwXSWaQlIbfwGcQSg39Ijw/IYEeLp2ODH35sMwMunJL
+ btuN76Hj39vn7gTApjzKzVeoQ7OlqZFlocRaxjEeb1Pb
+X-Google-Smtp-Source: AK7set8KsU3zN0sI+/E0dYirj7cB/3ldvZORKpntPMOOYUvBH0mqiIeyuVvOgrDcae/VP5peLGYzMQ==
+X-Received: by 2002:a17:906:fb19:b0:882:2027:c8e2 with SMTP id
+ lz25-20020a170906fb1900b008822027c8e2mr9117034ejb.56.1675385015817; 
+ Thu, 02 Feb 2023 16:43:35 -0800 (PST)
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com.
+ [209.85.218.42]) by smtp.gmail.com with ESMTPSA id
+ z20-20020a1709060ad400b0085d6bfc6201sm539064ejf.86.2023.02.02.16.43.34
  for <virtualization@lists.linux-foundation.org>
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 02 Feb 2023 16:20:15 -0800 (PST)
-Received: by mail-ej1-f46.google.com with SMTP id ud5so11016184ejc.4
+ Thu, 02 Feb 2023 16:43:34 -0800 (PST)
+Received: by mail-ej1-f42.google.com with SMTP id hx15so11046370ejc.11
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Feb 2023 16:20:14 -0800 (PST)
-X-Received: by 2002:a17:906:f109:b0:882:e1b7:a90b with SMTP id
- gv9-20020a170906f10900b00882e1b7a90bmr2323578ejb.187.1675383614548; Thu, 02
- Feb 2023 16:20:14 -0800 (PST)
+ Thu, 02 Feb 2023 16:43:34 -0800 (PST)
+X-Received: by 2002:a17:906:4f98:b0:87b:d510:77a8 with SMTP id
+ o24-20020a1709064f9800b0087bd51077a8mr2541345eju.235.1675385014409; Thu, 02
+ Feb 2023 16:43:34 -0800 (PST)
 MIME-Version: 1.0
 References: <20230202232517.8695-1-michael.christie@oracle.com>
- <20230202232517.8695-5-michael.christie@oracle.com>
-In-Reply-To: <20230202232517.8695-5-michael.christie@oracle.com>
+ <20230202232517.8695-7-michael.christie@oracle.com>
+In-Reply-To: <20230202232517.8695-7-michael.christie@oracle.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 2 Feb 2023 16:19:57 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wjF6j264jDFcY3wgzOUA2RL2SpD2oL5BF9JqCkz3A413Q@mail.gmail.com>
-Message-ID: <CAHk-=wjF6j264jDFcY3wgzOUA2RL2SpD2oL5BF9JqCkz3A413Q@mail.gmail.com>
-Subject: Re: [PATCH v11 4/8] fork: Add USER_WORKER flag to ignore signals
+Date: Thu, 2 Feb 2023 16:43:17 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiEx+G7bwOj6MsHgpWavVkPAg6c1D1zcg4cgugg+ccrPQ@mail.gmail.com>
+Message-ID: <CAHk-=wiEx+G7bwOj6MsHgpWavVkPAg6c1D1zcg4cgugg+ccrPQ@mail.gmail.com>
+Subject: Re: [PATCH v11 6/8] vhost_task: Allow vhost layer to use copy_process
 To: Mike Christie <michael.christie@oracle.com>
 Cc: brauner@kernel.org, mst@redhat.com, konrad.wilk@oracle.com,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- hch@infradead.org, ebiederm@xmission.com, stefanha@redhat.com,
- Christoph Hellwig <hch@lst.de>
+ hch@infradead.org, ebiederm@xmission.com, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,27 +122,54 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 On Thu, Feb 2, 2023 at 3:25 PM Mike Christie
 <michael.christie@oracle.com> wrote:
 >
-> +       if (args->worker_flags & USER_WORKER_SIG_IGN)
-> +               ignore_signals(p);
+> +/**
+> + * vhost_task_start - start a vhost_task created with vhost_task_create
+> + * @vtsk: vhost_task to wake up
+> + * @namefmt: printf-style format string for the thread name
+> + */
+> +void vhost_task_start(struct vhost_task *vtsk, const char namefmt[], ...)
+> +{
+> +       char name[TASK_COMM_LEN];
+> +       va_list args;
+> +
+> +       va_start(args, namefmt);
+> +       vsnprintf(name, sizeof(name), namefmt, args);
+> +       set_task_comm(vtsk->task, name);
+> +       va_end(args);
+> +
+> +       wake_up_new_task(vtsk->task);
+> +}
 
-Same comment as for the other case.
+Ok, I like this more than what we do for the IO workers - they set
+their own names themselves once they start running, rather than have
+the creator do it like this.
 
-There are real reasons to avoid bitfields:
+At the same time, my reaction to this was "why do we need to go
+through that temporary 'name[]' buffer at all?"
 
- - you can't pass addresses to them around
+And I think this patch is very much correct to do so, because
+"copy_thread()" has already exposed the new thread to the rest of the
+world, even though it hasn't actually started running yet.
 
- - it's easier to read or assign multiple fields in one go
+So I think this is all doing the right thing, and I like how it does
+it better than what io_uring does, BUT...
 
- - they are horrible for ABI issues due to the exact bit ordering and
-padding being very subtle
+It does make me think that maybe we should make that task name
+handling part of copy_process(), and simply create the task name
+before we need this careful set_task_comm() with a temporary buffer.
 
-but none of those issues are relevant here, where it's a kernel-internal ABI.
+Because if we just did it in copy_process() before the new task has
+been exposed anywhere,. we could just do it as
 
-All these use-cases seem to actually be testing one bit at a time, and
-the "assignments" are structure initializers for which named bitfields
-are actually perfect and just make the initializer more legible.
+        if (args->name)
+            vsnprintf(tsk->comm, TASK_COMM_LEN, "%s-%d", args->name, tsk->pid);
 
-            Linus
+or something like that.
+
+Not a big deal, it was just me reacting to this patch with "do we
+really need set_task_comm() when we're creating the task?"
+
+               Linus
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
