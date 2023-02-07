@@ -4,91 +4,89 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E01DFC6379F
-	for <virtualization@archiver.kernel.org>; Tue,  7 Feb 2023 17:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 633FFC636D3
+	for <virtualization@archiver.kernel.org>; Tue,  7 Feb 2023 17:54:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6F15140A93;
-	Tue,  7 Feb 2023 17:39:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6F15140A93
+	by smtp2.osuosl.org (Postfix) with ESMTP id E37204064C;
+	Tue,  7 Feb 2023 17:54:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E37204064C
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=GBOSdL5W
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=lgi/S5+a
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id z1lkf8oMh8VB; Tue,  7 Feb 2023 17:39:12 +0000 (UTC)
+	with ESMTP id MMJ7mzaYRiyV; Tue,  7 Feb 2023 17:54:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A7CA6408A3;
-	Tue,  7 Feb 2023 17:39:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A7CA6408A3
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B2D5440A68;
+	Tue,  7 Feb 2023 17:54:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2D5440A68
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 780F3C0033;
-	Tue,  7 Feb 2023 17:39:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5CBCBC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BADAC0033;
+	Tue,  7 Feb 2023 17:54:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F9D8C002B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:10 +0000 (UTC)
+ Tue,  7 Feb 2023 17:54:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3E86A81E8B
+ by smtp1.osuosl.org (Postfix) with ESMTP id 69C0F81E0E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3E86A81E8B
+ Tue,  7 Feb 2023 17:54:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69C0F81E0E
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
- header.a=rsa-sha256 header.s=k20201202 header.b=GBOSdL5W
+ header.a=rsa-sha256 header.s=k20201202 header.b=lgi/S5+a
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CYWo8UdyEtNC
+ with ESMTP id eZSVU2Lxm4zX
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:09 +0000 (UTC)
+ Tue,  7 Feb 2023 17:54:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6BE9081E8A
-Received: from dfw.source.kernel.org (dfw.source.kernel.org
- [IPv6:2604:1380:4641:c500::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6BE9081E8A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53E0B8176D
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 53E0B8176D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:09 +0000 (UTC)
+ Tue,  7 Feb 2023 17:54:10 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 822E460F91
+ by ams.source.kernel.org (Postfix) with ESMTPS id CA068B81A1F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E888BC433A0
+ Tue,  7 Feb 2023 17:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D943C433EF
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Feb 2023 17:39:07 +0000 (UTC)
+ Tue,  7 Feb 2023 17:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1675791547;
- bh=KZlrxH/j0b90gVF45TsrOX41MvrLcj8pAItg6Xzoxdo=;
+ s=k20201202; t=1675792446;
+ bh=QRBQnyyHAR4nNDWnh2/Xyc0CKoOqb7mHoQfl7kZ5vpk=;
  h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
- b=GBOSdL5WJf/wN4rUEjZiQTaQ87SKc9knmDdocyN27DLgtcevcjewUvlju5pPYTDDF
- gCq8LBxzDYG063ZTo2GufKunfjMbvUZMsQ8GEEvTA5aYOo1Wf+Cp1hAGOp0gSjnVRA
- WjBDtIfBbWnW6ehmUX7ZjHqVWfaGQgvebPk/XdfFHM1wqqWl2gpkCUaG5Z5bufAYk5
- ix6av/JK0kWbmRBrF2Au+1HmRQRILDLzlNgEMMUazQ9UvqwRlNuQm13T3uqk868Y3u
- +0FRgWRoArOJP4UmEZKs6B0uPGSJOLn6MZ7G+llBisOq+AIzaVhprre2nlOppjD/Aw
- EHW4b6ffFruMA==
-Received: by mail-vs1-f47.google.com with SMTP id p10so17098966vsu.5
+ b=lgi/S5+a1/ZukFGv53T3arvczqE+I9asjszo6+cA1299DkGCPnySgcfj9zTFFlUTf
+ T2Jt7Zd9IWFxaYQvUptoNjBfr4XCGQrn1RjxaQ0HKubVTj66/up/qYDwgsBsw4sXE3
+ aj4ZIUDZTZedaeuvuXTfAsVQiZmc9izSzFq3LPMI5P8GAVV9VDncsDBRw407iXjcdE
+ axwkA0AEIbSF33cuR2fSOVRf4019mEArjfaK4wQmOCxOzEhL61zRU6SZCwDZvGgs73
+ S1GdrGJEjnD6VMs35rufyWWVn5CsQoYvYZLfQpjq6TUwFqzC8rhjk05pUupGHLwy6k
+ oTyFWfNDu0Pkw==
+Received: by mail-vs1-f43.google.com with SMTP id a24so17148910vsl.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 07 Feb 2023 09:39:07 -0800 (PST)
-X-Gm-Message-State: AO0yUKXwlk1r21XTma4iVM6Uwk/X4OxZ2oXOJc/IJEkGKAGTsp8jv0hn
- X8jvJF6PIrs+ULAkbchBOUxIneizqY0+Yq/YWA==
-X-Google-Smtp-Source: AK7set8he/v5HFsA1kt1CzDG53fUn4W/mqRZFX4p6+6jCqlvPfny4Lqp0rVvcs5fJmGGKMoqWTO9zOzlppsHceLljxs=
+ Tue, 07 Feb 2023 09:54:06 -0800 (PST)
+X-Gm-Message-State: AO0yUKW0/CIfRR1Nj5bJD2YvowA5w+HJvtRoQkS8p5XN+OZvkCT78EAR
+ guPsRNP7XtlCrNBQ62qJoi+ObZEJO9Wx1J0nCw==
+X-Google-Smtp-Source: AK7set+aGI6c3afb0NAGVijCIp/ouYbW3+D03JuQO2RqNg4GVnToaFDDhXrPsBKRZa22R6HxxHE3Q1Ywvlh75hzvsMs=
 X-Received: by 2002:a67:7206:0:b0:3ea:c8c:48a5 with SMTP id
- n6-20020a677206000000b003ea0c8c48a5mr815523vsc.53.1675791546831; Tue, 07 Feb
- 2023 09:39:06 -0800 (PST)
+ n6-20020a677206000000b003ea0c8c48a5mr825382vsc.53.1675792445449; Tue, 07 Feb
+ 2023 09:54:05 -0800 (PST)
 MIME-Version: 1.0
 References: <1675188609-20913-1-git-send-email-ssengar@linux.microsoft.com>
- <1675188609-20913-7-git-send-email-ssengar@linux.microsoft.com>
- <CAL_JsqK_7eTTrSd6EKDGy9A8kC5w6cjVEtSi3CB1M7Awj+zg6g@mail.gmail.com>
- <20230201165133.GA24116@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
- <20230201174638.GA3872117-robh@kernel.org>
- <20230203173616.GA8582@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-In-Reply-To: <20230203173616.GA8582@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <CAL_JsqKL3JA6nAkEHuuyxbs8-Mm=Q-nNkCmpnDApNUDVbLsvKw@mail.gmail.com>
+ <20230201020449.GC20379@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <20230201145146.GA3352796-robh@kernel.org>
+ <20230201163455.GA21409@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+In-Reply-To: <20230201163455.GA21409@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
 From: Rob Herring <robh@kernel.org>
-Date: Tue, 7 Feb 2023 11:38:55 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqKWWg=nL5C1Hz7GQ6YCbc0ssUP71Be6kcn57v5240GQew@mail.gmail.com>
-Message-ID: <CAL_JsqKWWg=nL5C1Hz7GQ6YCbc0ssUP71Be6kcn57v5240GQew@mail.gmail.com>
-Subject: Re: [PATCH v2 6/6] Driver: VMBus: Add device tree support
+Date: Tue, 7 Feb 2023 11:53:54 -0600
+X-Gmail-Original-Message-ID: <CAL_JsqKHPg4ybcmMV2fmqG_Xo+9nR917TD8KmubfhyEwA2cwPA@mail.gmail.com>
+Message-ID: <CAL_JsqKHPg4ybcmMV2fmqG_Xo+9nR917TD8KmubfhyEwA2cwPA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/6] Device tree support for Hyper-V VMBus driver
 To: Saurabh Singh Sengar <ssengar@linux.microsoft.com>
 Cc: devicetree@vger.kernel.org, wei.liu@kernel.org, ssengar@microsoft.com,
  mikelley@microsoft.com, linux-hyperv@vger.kernel.org, haiyangz@microsoft.com,
@@ -106,70 +104,106 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBGZWIgMywgMjAyMyBhdCAxMTozNiBBTSBTYXVyYWJoIFNpbmdoIFNlbmdhcgo8c3Nl
-bmdhckBsaW51eC5taWNyb3NvZnQuY29tPiB3cm90ZToKPgo+IE9uIFdlZCwgRmViIDAxLCAyMDIz
-IGF0IDExOjQ2OjM4QU0gLTA2MDAsIFJvYiBIZXJyaW5nIHdyb3RlOgo+ID4gT24gV2VkLCBGZWIg
-MDEsIDIwMjMgYXQgMDg6NTE6MzNBTSAtMDgwMCwgU2F1cmFiaCBTaW5naCBTZW5nYXIgd3JvdGU6
-Cj4gPiA+IE9uIFR1ZSwgSmFuIDMxLCAyMDIzIGF0IDAyOjEyOjUzUE0gLTA2MDAsIFJvYiBIZXJy
-aW5nIHdyb3RlOgo+ID4gPiA+IE9uIFR1ZSwgSmFuIDMxLCAyMDIzIGF0IDEyOjEwIFBNIFNhdXJh
-YmggU2VuZ2FyCj4gPiA+ID4gPHNzZW5nYXJAbGludXgubWljcm9zb2Z0LmNvbT4gd3JvdGU6Cj4g
-PiA+ID4gPgo+ID4gPiA+ID4gVXBkYXRlIHRoZSBkcml2ZXIgdG8gc3VwcG9ydCBkZXZpY2UgdHJl
-ZSBib290IGFzIHdlbGwgYWxvbmcgd2l0aCBBQ1BJLgo+ID4gPiA+ID4gQXQgcHJlc2VudCB0aGUg
-ZGV2aWNlIHRyZWUgcGFyc2luZyBvbmx5IHByb3ZpZGVzIHRoZSBtbWlvIHJlZ2lvbiBpbmZvCj4g
-PiA+ID4gPiBhbmQgaXMgbm90IHRoZSBleGFjdCBjb3B5IG9mIEFDUEkgcGFyc2luZy4gVGhpcyBp
-cyBzdWZmaWNpZW50IHRvIGNhdGVyCj4gPiA+ID4gPiBhbGwgdGhlIGN1cnJlbnQgZGV2aWNlIHRy
-ZWUgdXNlY2FzZXMgZm9yIFZNQnVzLgo+ID4gPiA+ID4KPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6
-IFNhdXJhYmggU2VuZ2FyIDxzc2VuZ2FyQGxpbnV4Lm1pY3Jvc29mdC5jb20+Cj4gPiA+ID4gPiAt
-LS0KPiA+ID4gPiA+ICBkcml2ZXJzL2h2L3ZtYnVzX2Rydi5jIHwgNzUgKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKy0tCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDcz
-IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gPiA+ID4gPgo+ID4gPiA+ID4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvaHYvdm1idXNfZHJ2LmMgYi9kcml2ZXJzL2h2L3ZtYnVzX2Rydi5jCj4g
-PiA+ID4gPiBpbmRleCA0OTAzMGU3NTZiOWYuLjE3NDFmMTM0OGY5ZiAxMDA2NDQKPiA+ID4gPiA+
-IC0tLSBhL2RyaXZlcnMvaHYvdm1idXNfZHJ2LmMKPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvaHYv
-dm1idXNfZHJ2LmMKPiA+ID4gPiA+IEBAIC0yMTUyLDcgKzIxNTIsNyBAQCB2b2lkIHZtYnVzX2Rl
-dmljZV91bnJlZ2lzdGVyKHN0cnVjdCBodl9kZXZpY2UgKmRldmljZV9vYmopCj4gPiA+ID4gPiAg
-ICAgICAgIGRldmljZV91bnJlZ2lzdGVyKCZkZXZpY2Vfb2JqLT5kZXZpY2UpOwo+ID4gPiA+ID4g
-IH0KPiAoLi4uKQo+ID4gPiA+ID4gICAgICAgICBzdHJ1Y3QgcGNpX2RldiAqcGRldjsKPiA+ID4g
-PiA+IEBAIC0yNDQyLDYgKzI0NDMsNyBAQCB2b2lkIHZtYnVzX2ZyZWVfbW1pbyhyZXNvdXJjZV9z
-aXplX3Qgc3RhcnQsIHJlc291cmNlX3NpemVfdCBzaXplKQo+ID4gPiA+ID4gIH0KPiA+ID4gPiA+
-ICBFWFBPUlRfU1lNQk9MX0dQTCh2bWJ1c19mcmVlX21taW8pOwo+ID4gPiA+ID4KPiA+ID4gPiA+
-ICsjaWZkZWYgQ09ORklHX0FDUEkKPiA+ID4gPgo+ID4gPiA+IEl0J3MgYmV0dGVyIHRvIHB1dCBD
-ICdpZiAoIUlTX0VOQUJMRUQoQ09ORklHX0FDUEkpJyBjb2RlIGluIHRoZQo+ID4gPgo+ID4gPiBJ
-IHdhbnRlZCB0byBoYXZlIHNlcGFyYXRlIGZ1bmN0aW9uIGZvciBBQ1BJIGFuZCBkZXZpY2UgdHJl
-ZSBmbG93LCB3aGljaAo+ID4gPiBjYW4gYmUgZWFzaWx5IG1haW50YWluZWQgd2l0aCAjaWZkZWYu
-IFBsZWFzZSBsZXQgbWUga25vdyBpZiBpdHMgZmluZS4KPiA+Cj4gPiBZZXMsIHlvdSBjYW4gaGF2
-ZSBzZXBhcmF0ZSBmdW5jdGlvbnM6Cj4gPgo+ID4gc3RhdGljIGludCB2bWJ1c19hY3BpX2FkZChz
-dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQo+ID4gewo+ID4gICAgICAgaWYgKCFJU19FTkFC
-TEVEKENPTkZJR19BQ1BJKSkKPiA+ICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9ERVY7Cj4gPgo+
-ID4gICAgICAgLi4uCj4gPiB9Cj4gPgo+ID4gVGhlIGNvbXBpbGVyIHdpbGwgdGhyb3cgYXdheSB0
-aGUgZnVuY3Rpb24gaW4gdGhlIGVuZCBpZiBDT05GSUdfQUNQSSBpcwo+ID4gbm90IGVuYWJsZWQu
-Cj4gPgo+ID4gVGhhdCBpcyBlYXNpZXIgZm9yIHVzIHRvIG1haW50YWluIGJlY2F1c2UgaXQgcmVk
-dWNlcyB0aGUgY29tYmluYXRpb25zIHRvCj4gPiBidWlsZC4KPiA+Cj4KPiBJIHRyaWVkIHJlbW92
-aW5nICNpZmRlZiBDT05GSUdfQUNQSSBhbmQgdXNlIEMncyBpZighSVNfRU5BQkxFRChDT05GSUdf
-QUNQSSkpIGJ1dCBsb29rcwo+IGNvbXBpbGVyIGlzIG5vdCBvcHRpbWl6aW5nIG91dCB0aGUgcmVz
-dCBvZiBmdW5jdGlvbiwgaXQgc3RpbGwgdGhyb3dpbmcgZXJyb3JzCj4gZm9yIGFjcGkgZnVuY3Rp
-b25zLiBUaGlzIGRvZXNuJ3QgbG9vayAxOjEgcmVwbGFjZW1lbnQgdG8gbWUuCj4gUGxlYXNlIGxl
-dCBtZSBrbm93IGlmIEkgaGF2ZSBtaXNzdW5kZXJzdG9vZCBhbnkgb2YgeW91ciBzdWdnZXN0aW9u
-Lgo+Cj4gZHJpdmVycy9odi92bWJ1c19kcnYuYzoyMTc1Ojg6IGVycm9yOiBpbXBsaWNpdCBkZWNs
-YXJhdGlvbiBvZiBmdW5jdGlvbiDigJhhY3BpX2Rldl9yZXNvdXJjZV9pbnRlcnJ1cHTigJkgWy1X
-ZXJyb3I9aW1wbGljaXQtZnVuY3Rpb24tCgpUaGF0J3MgYSBmYWlsdXJlIG9mIHRoZSBBQ1BJIGhl
-YWRlcnMgbm90IGhhdmluZyBlbXB0eSBmdW5jdGlvbgpkZWNsYXJhdGlvbnMuIFRoZSBEVCBmdW5j
-dGlvbnMgZG8uLi4KCkFsc28sIHRoaXMgaXMganVzdCBhIGJyb2tlbiBhc3N1bXB0aW9uOgoKI2lm
-ZGVmIENPTkZJR19BQ1BJCgojZWxzZQovLyBBc3N1bWUgRFQKI2VuZGlmCgpCb3RoIEFDUEkgYW5k
-IERUIGNhbiBiZSBlbmFibGVkIGF0IHRoZSBzYW1lIHRpbWUuIFRoZXkgbWF5IGJlIG11dHVhbGx5
-CmV4Y2x1c2l2ZSBmb3IgYSBwbGF0Zm9ybSwgYnV0IG5vdCB0aGUga2VybmVsLiBGb3IgZGlzdHJv
-IGtlcm5lbHMsIGJvdGgKd2lsbCBiZSBlbmFibGVkIHR5cGljYWxseSBpZiB0aGUgYXJjaCBzdXBw
-b3J0cyBib3RoLiBPbiBhcm02NCwgRFQgaXMKbmV2ZXIgZGlzYWJsZWQgYmVjYXVzZSB0aGUgYm9v
-dCBpbnRlcmZhY2UgaXMgYWx3YXlzIERULgoKRnVydGhlcm1vcmUsIHRoaXMgbWFrZXMgY29tcGls
-ZSB0ZXN0aW5nIHlvdXIgY29kZSBkaWZmaWN1bHQuIFRoZSBhcm02NApkZWZjb25maWcsIGFsbG1v
-ZGNvbmZpZyBhbmQgYWxseWVzY29uZmlnIGFsbCB3aWxsIG5vdCBidWlsZCB0aGUgRFQKY29kZS4g
-VGhlIHNhbWUgZm9yIHg4Ni4gVGhpcyBtZWFucyBhbGwgdGhlIENJIGJ1aWxkcyB0aGF0IGhhcHBl
-biBjYW4ndApidWlsZCB0ZXN0IHRoaXMuCgpSb2IKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Feb 1, 2023 at 10:34 AM Saurabh Singh Sengar
+<ssengar@linux.microsoft.com> wrote:
+>
+> On Wed, Feb 01, 2023 at 08:51:46AM -0600, Rob Herring wrote:
+> > On Tue, Jan 31, 2023 at 06:04:49PM -0800, Saurabh Singh Sengar wrote:
+> > > On Tue, Jan 31, 2023 at 02:27:51PM -0600, Rob Herring wrote:
+> > > > On Tue, Jan 31, 2023 at 12:10 PM Saurabh Sengar
+> > > > <ssengar@linux.microsoft.com> wrote:
+> > > > >
+> > > > > This set of patches expands the VMBus driver to include device tree
+> > > > > support.
+> > > > >
+> > > > > The first two patches enable compilation of Hyper-V APIs in a non-ACPI
+> > > > > build.
+> > > > >
+> > > > > The third patch converts the VMBus driver from acpi to more generic
+> > > > > platform driver.
+> > > > >
+> > > > > Further to add device tree documentation for VMBus, it needs to club with
+> > > > > other virtualization driver's documentation. For this rename the virtio
+> > > > > folder to more generic hypervisor, so that all the hypervisor based
+> > > > > devices can co-exist in a single place in device tree documentation. The
+> > > > > fourth patch does this renaming.
+> > > > >
+> > > > > The fifth patch introduces the device tree documentation for VMBus.
+> > > > >
+> > > > > The sixth patch adds device tree support to the VMBus driver. Currently
+> > > > > this is tested only for x86 and it may not work for other archs.
+> > > >
+> > > > I can read all the patches and see *what* they do. You don't really
+> > > > need to list that here. I'm still wondering *why*. That is what the
+> > > > cover letter and commit messages should answer. Why do you need DT
+> > > > support? How does this even work on x86? FDT is only enabled for
+> > > > CE4100 platform.
+> > >
+> > > HI Rob,
+> > >
+> > > Thanks for your comments.
+> > > We are working on a solution where kernel is booted without ACPI tables to keep
+> > > the overall system's memory footprints slim and possibly faster boot time.
+> > > We have tested this by enabling CONFIG_OF for x86.
+> >
+> > It's CONFIG_OF_EARLY_FLATTREE which you would need and that's not user
+> > selectable. At a minimum, you need some kconfig changes. Where are
+> > those?
+>
+> You are right we have define a new config flag in Kconfig, and selected CONFIG_OF
+> and CONFIG_OF_EARLY_FLATTREE. We are working on upstreaming that patch as well
+> however that will be a separate patch series.
+
+Fair enough, but that should come first IMO. Really I just want to see
+a complete picture. That can be a reference to a git branch(es) or
+other patch series. But again, what I want to see in particular is the
+actual DT and validation run on it.
+
+> > Also see my comment on v1 about running DT validation on your dtb. I'm
+> > sure running it would point out other issues. Such as the root level
+> > comaptible string(s) need to be documented. You need cpu nodes,
+> > interrupt controller, timers, etc. Those all have to be documented.
+>
+> I will be changing the parent node to soc node as suggested by Krzysztof
+> in other thread.
+
+Another issue yes, but orthogonal to my comments.
+
+>
+> soc {
+>         #address-cells = <2>;
+>         #size-cells = <2>;
+
+You are missing 'ranges' here. Without it, addresses aren't translatable.
+
+You are also missing 'compatible = "simple-bus";'. This happens to
+work on x86 because of legacy reasons, but we don't want new cases
+added.
+
+>
+>         vmbus@ff0000000 {
+>             #address-cells = <2>;
+>             #size-cells = <1>;
+>             compatible = "Microsoft,vmbus";
+
+'Microsoft' is not a vendor prefix.
+
+>             ranges = <0x00 0x00 0x0f 0xf0000000 0x10000000>;
+>         };
+> };
+>
+> This will be sufficient.
+
+All these comments are unnecessary because the tools will now check
+these things and we shouldn't have to.
+
+Rob
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
