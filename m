@@ -4,88 +4,155 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41F38C05027
-	for <virtualization@archiver.kernel.org>; Wed,  8 Feb 2023 08:23:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53647C636CC
+	for <virtualization@archiver.kernel.org>; Wed,  8 Feb 2023 08:32:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AC86481F15;
-	Wed,  8 Feb 2023 08:23:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AC86481F15
+	by smtp1.osuosl.org (Postfix) with ESMTP id A98E581F39;
+	Wed,  8 Feb 2023 08:32:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A98E581F39
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=HJ14VCM0
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=ZHZIr3vY
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Wzh0naA7d-T7; Wed,  8 Feb 2023 08:23:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 232EE81F04;
-	Wed,  8 Feb 2023 08:23:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 232EE81F04
+	with ESMTP id aZnBUheAEm4m; Wed,  8 Feb 2023 08:32:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CD2AE81F1F;
+	Wed,  8 Feb 2023 08:32:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD2AE81F1F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4D4AC0032;
-	Wed,  8 Feb 2023 08:23:16 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BB56C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A2F64C0032;
+	Wed,  8 Feb 2023 08:32:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6E0A3C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 08:23:16 +0000 (UTC)
+ Wed,  8 Feb 2023 08:32:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id CC64B81F07
+ by smtp2.osuosl.org (Postfix) with ESMTP id 129C040BA7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 08:23:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC64B81F07
+ Wed,  8 Feb 2023 08:32:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 129C040BA7
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=ZHZIr3vY
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6rrtP2OMkbKl
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cAhzMnXPd-9a
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 08:23:14 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CFB2881F04
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CFB2881F04
+ Wed,  8 Feb 2023 08:32:29 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C01C40150
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam12on20630.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe59::630])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C01C40150
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 08:23:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1675844594; x=1707380594;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=eT7LyT1k1N1zT8h2h1TIVWuk3jB5eyl3BSlItLElxuw=;
- b=HJ14VCM0zredp/n7fuOPjtYpGJrlMAFRk1KgQnUFhdFp4rS7BeldkBma
- 8mNacA7qDZxNLRhrMumroJzi5DYxlcfTXUhOHmA/VqxgpM+jVEgPGfK3a
- HT3kMW+kRov5UmjpNwmFeb1O4lz96EDfE3aJq/YFC6KidrNH0NTinw86S
- 8S5050G5/75LdROh6Yi6j7f4eRrOQr8K9RACHhklAZdIB7MMAhFBNzqPg
- 1EmOHwJdIME2N41OtfwvAfZSZmbDYNTl09k57LK47efR/rW/O6iKNjeQM
- EjG2YGoYq/0CHHZARWfX5gDMaNLhp+62IuPRexG0LCgIuN4PQq/DAh+Oj g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10614"; a="331874270"
-X-IronPort-AV: E=Sophos;i="5.97,280,1669104000"; d="scan'208";a="331874270"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 08 Feb 2023 00:23:01 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10614"; a="996049097"
-X-IronPort-AV: E=Sophos;i="5.97,280,1669104000"; d="scan'208";a="996049097"
-Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
- by fmsmga005.fm.intel.com with ESMTP; 08 Feb 2023 00:22:57 -0800
-Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pPfjE-0004JC-1f;
- Wed, 08 Feb 2023 08:22:56 +0000
-Date: Wed, 8 Feb 2023 16:22:01 +0800
-From: kernel test robot <lkp@intel.com>
-To: Saurabh Sengar <ssengar@linux.microsoft.com>, robh+dt@kernel.org,
- krzysztof.kozlowski+dt@linaro.org, kys@microsoft.com,
- haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
- daniel.lezcano@linaro.org, tglx@linutronix.de,
- virtualization@lists.linux-foundation.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, mikelley@microsoft.com,
- ssengar@microsoft.com, dphadke@linux.microsoft.com
-Subject: Re: [PATCH v4 6/6] Driver: VMBus: Add device tree support
-Message-ID: <202302081621.odizDzHG-lkp@intel.com>
-References: <1675756199-5917-7-git-send-email-ssengar@linux.microsoft.com>
+ Wed,  8 Feb 2023 08:32:28 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PuAUqFtli1W5KytKU5YHrJ9K7yfuHdejI4gLpAFHQTbVeQ/oCFnVH9VAtGZzbEmJTqJx7EG1rzaHMLd5SEbSiTLL73ZKMZXoM1YfGTC6e57LjQUtKA1ZUwzVx+BYY+HHD0Fzp28mS9AN2FhezfZyHrY7Ny014mnmKCGqjwqdlQzVJvza40wgRWDg2hyQGdrVBeLbiwkRbzKY8KzV/zIOLOFrEpadV5XUTEKdxU6IU2lAOF5LiuUtaaIerAj5LAimi87qk95BYVGccYVV5GJqY8GtuSpzZUP4qUrnUeYx/yjZ1rL+Ztic+vDViDy49+evYF2fLUkMHhNQip3bjOv18g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9zcwmrq2yGMyI25Tx9WYNe11r146u6aveXkjSHRUIpc=;
+ b=EEMn/InsIDBxe61Snz9XjmR6j+h+P6zXOPEWj5Un9jKoyU8/L+fcMllpLxo73AsWSZRHYi5UG2lDSZz9QJa6j9PiJJ5wAFhM+EE6U2QrhIih60rtgo/zBOuElgowrYEXtIUyrD5unofIt4VccRS8STQHXWQ/mYk1DmiBQs2xqpncK8SCwMSvQWK2CFwjJsNJqnZv590wkSWUFm4sPBekLsbwWWaJNQo092+VenB5oxwznGPm4txBtAX6+RawMiD+r7hH7ftrdnE3M0oelSAmgwrTWym58SGCMcyAqGQceC7/vO5+62J/p6EPB4WJclzBiATE0slZbcfJPAYJcL1ydA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9zcwmrq2yGMyI25Tx9WYNe11r146u6aveXkjSHRUIpc=;
+ b=ZHZIr3vY4yUFSgRT2LQTivslamEaHGIYuA+6QZfUHBOIRRejhc1gUC+lmS78jnfywGcHMBc1EB06kQUlUFFjDvNGdOFgo1C62LUZr5P0q5fPZ2WtPZQjwmH55rtqXKR+yX6dr7G2CJZcc1GoXWuP/oaSM7Ce3CqanMMmzyxYkuc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by DM4PR12MB5987.namprd12.prod.outlook.com (2603:10b6:8:6a::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.17; Wed, 8 Feb
+ 2023 08:32:21 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::2e4f:4041:28be:ba7a]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::2e4f:4041:28be:ba7a%6]) with mapi id 15.20.6064.032; Wed, 8 Feb 2023
+ 08:32:21 +0000
+Message-ID: <92630398-efd1-24a4-be2b-9e4e7a577f13@amd.com>
+Date: Wed, 8 Feb 2023 09:32:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [drm-misc:drm-misc-next] [drm/ttm] 1802537820:
+ WARNING:at_drivers/gpu/drm/drm_gem_vram_helper.c:#drm_gem_vram_offset
+Content-Language: en-US
+To: Gerd Hoffmann <kraxel@redhat.com>, "airlied@gmail.com"
+ <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>
+References: <202302081038.984b8c1-oliver.sang@intel.com>
+In-Reply-To: <202302081038.984b8c1-oliver.sang@intel.com>
+X-ClientProxiedBy: FR2P281CA0030.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:14::17) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1675756199-5917-7-git-send-email-ssengar@linux.microsoft.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|DM4PR12MB5987:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7876699c-0a33-4be7-5873-08db09aeff37
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vIhWEKF6ktjhxudkMdXHMj9CX671xlS44z8+4nDf+prjpRy8f12MkcyDP6gH8/aj15d7RTjRD7O+fpifl84+wXQx1auh+LuhbA3NKnayCWL3opQ/PEhLt1+PIBXXnWjv8A7bEV+SF0CHXJOs+n1DuVw9l9GoaN8CLCK5IjidsgCUb+oLsyhVJWhmXf58PSx+j9b8k1w3cYOycFeXwNJf1dHzeBQlyZfJZpvL0ws0aEUNcUU1sKrJoL6ptPxiUAL8+P8r6eHIShv1D7MBulDlt2zcIwAlvVFFMSI1W14mV+/zzcyjD+H9ggTF07sqHYJDYpciSU+BC1eTG1jxukrYEzgqjJPhotyfshMH9VcPnaVZ4eLonpeuDQ1MqVT+6gf4+0odeb53W1pCp9zaMLNKUmwMCLem4dBCBo7MGmV/j9fagcE5oyHytXlBTatn0CHj6OhCfzwMnzjZoqyF9On5Z8N2qiZIxowHRzPej8U63h+d+fJgAMKm32bSHJhemmR/xgRJf8uDNpRc1TH5AZZPfjnoHNgHdzO0s/ovhu+KoTJacs8obbEtujvsXJpPv1kGpe+drMpPqAn9bQLSuF24n2QDbVfhT1B5CLBHpYuId/oLtM9V7A5Ga+UKADYfCi7B3+rlrmoFsuWSZRrK/RIqgfs9M5x6GZKs0RhTroF7fGGzrDwLE7Y/SBL2aK5WYun7hO/3N8/Foq9R1OiigbT1QH1MoETRQzpt+CJFmZERSL/CT+PuLvTVPufRPk1fQkMaZppwG1wzwkCchtpE3qlUoX9Jma3bif7174bxcrkfsMjd6tnDVpQbyaq46vp3R1I8
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230025)(4636009)(346002)(376002)(136003)(39860400002)(366004)(396003)(451199018)(6506007)(8936002)(316002)(6666004)(6512007)(186003)(2906002)(83380400001)(54906003)(5660300002)(110136005)(36756003)(45080400002)(478600001)(86362001)(31696002)(6486002)(966005)(66476007)(66556008)(66946007)(41300700001)(4326008)(31686004)(8676002)(38100700002)(2616005)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NjA0QURZeVV4V3VxQnU4QW9XOTFLNWRoMlNpYTU2ZjdqNnNYRlI2aFIwLzNP?=
+ =?utf-8?B?NlNwd2phbUtXeEdOOXRVZVRoZFdVRWV2ZWZLNnJMdDZLaUlMSnpyZ045dmNF?=
+ =?utf-8?B?bUlLZEY3VVJ1WGw0cVB4bUhEL0pOd3FwdHZKbEZ0ejNrakN6YnR4TmtQREdP?=
+ =?utf-8?B?YmxRaXlLVkdRNzRHZU1SblE2aUFDZDA5UkJvaWp3R3RmK2trSi9TdUZhQXRm?=
+ =?utf-8?B?OG1YSERQSEhIRlRRUXhwSGxiNmpWbS9TbHNNVzhMQkZVQTk3c2hiandEN213?=
+ =?utf-8?B?Qy9nUFV6L3NHSHJOMzB4RGhRQUlFTWtuODJWS2J4WUl5TWlEMGxFU1JTcndn?=
+ =?utf-8?B?MGtrK2daYVllaUp0NFdRdGtUOEdidjR3NnR2cmR1Y1RKY2V2K2R1a2dFbUd2?=
+ =?utf-8?B?VG9BYmxuVlRTZzVmc0djNkt2S3RSYW4yQlNUT0UrQVlQaDFMejdleDJZeTFm?=
+ =?utf-8?B?MXFveTBWYmo2ck04RXZmTnRySmxqQ3ZSZE5tMXZqUEtkTTlsSkhjWUsxUlZM?=
+ =?utf-8?B?SWszZ0RhVkMzcENoaHM5MHJWZy93OENEVDZhWUt4NWxmS3F6ak0wSmJRbzBq?=
+ =?utf-8?B?VFVTNUhjdzBVUHdKeVlRaDBjYzREV2ZuN0RSdlJhRjBTeFVNa2JjMzBXYlFq?=
+ =?utf-8?B?dGQ4bmVKeTh0alM4TGdkUWY4WlNuQWczMUE3MW5DUkp3YXQzMHBNL013ZlRQ?=
+ =?utf-8?B?SjFEajRPZ2t2cFZ4TXBrbVovakZHVDFvRGlpNmpwVThIc1ZiR09IVzAwNVhn?=
+ =?utf-8?B?bEpwdXhYODkzUUhDb0lsdlpNcHRQVlhNUmxvZVJNb0d0Zm84VGlCNjRIMVF2?=
+ =?utf-8?B?LytiVHFSUWhnT3hCTjhFcis4ZXdVbzdCM1EzbCtuVHRCVDl5a0xWNlREVHVQ?=
+ =?utf-8?B?NHlXQWdYd3hyYmNyWXNNMFNCNEg4WkhCbVRLcDFDK2pYSXZpNU4vTTNLRXNm?=
+ =?utf-8?B?UGdvamczNDhEa0FwMXp4Q3RHV3dpOVlZU3hZUndpZHhTMFRuclg5UG5XVGxm?=
+ =?utf-8?B?dXlCUU1NdFBLdXU0Q29WM09aL0x4eTl1M3JBclFSV1VabWlzMGJ0L2VnRzJW?=
+ =?utf-8?B?TzRqU09XUjZobHpzRmpWSUpNa3grM3VNbVV6TmlsZWFNSC9lQURjdUJPZm90?=
+ =?utf-8?B?VEdkNGx5S2s0Zlp0SXR6V1pNRXh5am8wK3ptY2tEeFY5YXJWU3VEdzlGYW5o?=
+ =?utf-8?B?NmpNWVhLVDM3UGRZRnpTdTlxcXBHMmdWTjltZS9SdDlkSlk1RXRxUWZiNE1W?=
+ =?utf-8?B?N0tvNEtnQ0Z6RDRtU0ZLK1F5T3lSYlZrZzhqMzBxN3JoeW5HWjk3QlBTR1FB?=
+ =?utf-8?B?bFZYQ01Qa0x0M1FpZEZaMXVpQzRXQTlYOHlpMFZrejVUNWpiSnh1OHpaUk10?=
+ =?utf-8?B?Um8rY2VhQnRsN1RYQ2lPRFZQdTJVVHVFeWxieUFwMHRVN1ZJSFFHYjE5aWdP?=
+ =?utf-8?B?RmE4V0hDQVpSSW5PcGNZdkhYNnU3NGM3dDQ0bVNtQ2RzaUZqWFh2RkdtM3VJ?=
+ =?utf-8?B?R3ZTYUxCSjgzVzE2VFo5cmQ1ZXNGNWlLY3lOcHdQbjNlNjlhK0ZvTHB2ek5M?=
+ =?utf-8?B?K1BkUnJqbmFtdVpGTmttcGoyOVE4aGZEWlZGcWgxMEpacEJ5dHRjQmVhWWtM?=
+ =?utf-8?B?TWxKQUxWQ2ZaUENvelMwL2Y5QnYrV094eVZDejVkUWM1MEEwQkdLQ3prU2J2?=
+ =?utf-8?B?Ri9iWjZMRFJ2bGhETi8zN1loajU5VmpLaG4xbjhoR3ZwL0x0QVd5ODNNb3J2?=
+ =?utf-8?B?eGZnNWpUalNyNkFqeDFjbkNGZkZLdm1CQmJyRHRkMzQvUzBhdDZwTlZUMThB?=
+ =?utf-8?B?UmtXbUpxbEVZa3hkV2RFRExzR2FkNmR2NkZ4NGVtRzhoWmpLOTRsZFhvS0xF?=
+ =?utf-8?B?ZjBHZzZpRTNjaWtFRUxkd05DNXcvNzNmeXVIMEYyRThwckRyMjF4Z3l6TGdP?=
+ =?utf-8?B?ek5STnVNN1pCd0VNeFRQYTNEenlpMmM1NUljYXdsOFJmaHE0Qm9aVmFDM1g4?=
+ =?utf-8?B?Z3R3OUY3N3Rsa1UraHdlSVpyQllZcEZ2WnJxcU1hUHZueHZmVE4xZFZIMEJO?=
+ =?utf-8?B?S0NZRjJuNnFSWGhUTDAxRlFEd2VpWGl4ZER5MU0zNjlSKzJVRnBDbmM3eEdm?=
+ =?utf-8?B?UFZiNWVJNlE0b01yVWpGcUd5WVkzY1k0MldkTFgzbXdKUTVtbFhYS1I1cUNJ?=
+ =?utf-8?Q?KbcSjCBU/8HCzhuQEOsmSnNT+gVTQPvGlpDLYb382ZaC?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7876699c-0a33-4be7-5873-08db09aeff37
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Feb 2023 08:32:21.6021 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: N0rZYISW3MpkSfpvi7Z4jl/3EmorXxRMFNcoJ4OxSHUxCfTbQVDPWMnG2nzoYZFF
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5987
+Cc: oe-lkp@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>, lkp@intel.com,
+ dri-devel@lists.freedesktop.org, Matthew Auld <matthew.auld@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,72 +164,224 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Saurabh,
+Hey guys,
 
-Thank you for the patch! Perhaps something to improve:
+I'm pretty sure this is a bug in bochs which happens to surface because 
+of a recent TTM change, we have seen similar problems in the past with 
+this driver.
 
-[auto build test WARNING on next-20230207]
-[cannot apply to robh/for-next tip/timers/core brgl/gpio/for-next wsa/i2c/for-next linus/master v6.2-rc7 v6.2-rc6 v6.2-rc5 v6.2-rc7]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+What happens is that userspace tries to bind a BO to a CRTC before the 
+BO has even a backing store.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Saurabh-Sengar/drivers-clocksource-hyper-v-non-ACPI-support-in-hyperv-clock/20230207-155113
-patch link:    https://lore.kernel.org/r/1675756199-5917-7-git-send-email-ssengar%40linux.microsoft.com
-patch subject: [PATCH v4 6/6] Driver: VMBus: Add device tree support
-config: i386-randconfig-a015 (https://download.01.org/0day-ci/archive/20230208/202302081621.odizDzHG-lkp@intel.com/config)
-compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project f28c006a5895fc0e329fe15fead81e37457cb1d1)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/b3cd029f78e9c1f5cd1633e1ffc7c5a09deae98f
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Saurabh-Sengar/drivers-clocksource-hyper-v-non-ACPI-support-in-hyperv-clock/20230207-155113
-        git checkout b3cd029f78e9c1f5cd1633e1ffc7c5a09deae98f
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/hv/
+Any idea how to fix this? I can just remove the warning, but that's not 
+really a good solution.
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
+Regards,
+Christian.
 
-All warnings (new ones prefixed by >>):
+Am 08.02.23 um 05:32 schrieb kernel test robot:
+> Greeting,
+>
+> FYI, we noticed WARNING:at_drivers/gpu/drm/drm_gem_vram_helper.c:#drm_gem_vram_offset due to commit (built with gcc-11):
+>
+> commit: 1802537820389183dfcd814e0f6a60d1496a75ef ("drm/ttm: stop allocating dummy resources during BO creation")
+> git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
+>
+> in testcase: boot
+>
+> on test machine: qemu-system-x86_64 -enable-kvm -cpu SandyBridge -smp 2 -m 16G
+>
+> caused below changes (please refer to attached dmesg/kmsg for entire log/backtrace):
+>
+>
+> If you fix the issue, kindly add following tag
+> | Reported-by: kernel test robot <oliver.sang@intel.com>
+> | Link: https://lore.kernel.org/oe-lkp/202302081038.984b8c1-oliver.sang@intel.com
+>
+>
+> [   25.994992][    T1] ------------[ cut here ]------------
+> [ 25.995050][ T1] WARNING: CPU: 0 PID: 1 at drivers/gpu/drm/drm_gem_vram_helper.c:255 drm_gem_vram_offset (??:?)
+> [   25.995080][    T1] Modules linked in:
+> [   25.995100][    T1] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G                T  6.2.0-rc6-01191-g180253782038 #1 a8db67375c3ac749313dafaec43f39836e38fae9
+> [   25.995117][    T1] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-debian-1.16.0-5 04/01/2014
+> [ 25.995128][ T1] RIP: 0010:drm_gem_vram_offset (??:?)
+> [ 25.995144][ T1] Code: 02 00 00 b8 ff ff 37 00 48 89 fa 48 c1 e0 2a 48 c1 ea 03 80 3c 02 00 74 05 e8 7f 1f eb fe 48 8b 9b 20 02 00 00 48 85 db 75 06 <0f> 0b 31 c0 eb 4b 48 8d 7b 10 b8 ff ff 37 00 48 89 fa 48 c1 e0 2a
+> All code
+> ========
+>     0:	02 00                	add    (%rax),%al
+>     2:	00 b8 ff ff 37 00    	add    %bh,0x37ffff(%rax)
+>     8:	48 89 fa             	mov    %rdi,%rdx
+>     b:	48 c1 e0 2a          	shl    $0x2a,%rax
+>     f:	48 c1 ea 03          	shr    $0x3,%rdx
+>    13:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1)
+>    17:	74 05                	je     0x1e
+>    19:	e8 7f 1f eb fe       	callq  0xfffffffffeeb1f9d
+>    1e:	48 8b 9b 20 02 00 00 	mov    0x220(%rbx),%rbx
+>    25:	48 85 db             	test   %rbx,%rbx
+>    28:	75 06                	jne    0x30
+>    2a:*	0f 0b                	ud2    		<-- trapping instruction
+>    2c:	31 c0                	xor    %eax,%eax
+>    2e:	eb 4b                	jmp    0x7b
+>    30:	48 8d 7b 10          	lea    0x10(%rbx),%rdi
+>    34:	b8 ff ff 37 00       	mov    $0x37ffff,%eax
+>    39:	48 89 fa             	mov    %rdi,%rdx
+>    3c:	48 c1 e0 2a          	shl    $0x2a,%rax
+>
+> Code starting with the faulting instruction
+> ===========================================
+>     0:	0f 0b                	ud2
+>     2:	31 c0                	xor    %eax,%eax
+>     4:	eb 4b                	jmp    0x51
+>     6:	48 8d 7b 10          	lea    0x10(%rbx),%rdi
+>     a:	b8 ff ff 37 00       	mov    $0x37ffff,%eax
+>     f:	48 89 fa             	mov    %rdi,%rdx
+>    12:	48 c1 e0 2a          	shl    $0x2a,%rax
+> [   25.995156][    T1] RSP: 0000:ffffc9000001f028 EFLAGS: 00210246
+> [   25.995174][    T1] RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+> [   25.995186][    T1] RDX: 1ffff11026dee544 RSI: ffff8881372d4b10 RDI: ffff888136f72a20
+> [   25.995196][    T1] RBP: ffffc9000001f030 R08: 0000000000000000 R09: 0000000000000000
+> [   25.995206][    T1] R10: 0000000000000000 R11: 0000000000000000 R12: ffff8881372d4b00
+> [   25.995215][    T1] R13: ffff888136e9ee00 R14: ffff888136f4a060 R15: 0000000000000500
+> [   25.995225][    T1] FS:  0000000000000000(0000) GS:ffff8883aee00000(0000) knlGS:0000000000000000
+> [   25.995236][    T1] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   25.995247][    T1] CR2: 00000000f7fa1cd4 CR3: 0000000006015000 CR4: 00000000000406b0
+> [   25.995262][    T1] Call Trace:
+> [   25.995271][    T1]  <TASK>
+> [ 25.995287][ T1] bochs_plane_update (bochs.c:?)
+> [ 25.995308][ T1] ? rcu_read_lock_bh_held (??:?)
+> [ 25.995337][ T1] ? bochs_pci_probe (bochs.c:?)
+> [ 25.995352][ T1] ? srcu_read_unlock (blk-mq.c:?)
+> [ 25.995396][ T1] bochs_pipe_enable (bochs.c:?)
+> [ 25.995410][ T1] ? drm_dev_printk (??:?)
+> [ 25.995435][ T1] ? bochs_pipe_update (bochs.c:?)
+> [ 25.995454][ T1] ? bochs_plane_update (bochs.c:?)
+> [ 25.995473][ T1] ? bochs_pipe_update (bochs.c:?)
+> [ 25.995487][ T1] ? bochs_pipe_update (bochs.c:?)
+> [ 25.995507][ T1] drm_simple_kms_crtc_enable (drm_simple_kms_helper.c:?)
+> [ 25.995533][ T1] drm_atomic_helper_commit_modeset_enables (??:?)
+> [ 25.995570][ T1] drm_atomic_helper_commit_tail (??:?)
+> [ 25.995591][ T1] commit_tail (drm_atomic_helper.c:?)
+> [ 25.995631][ T1] drm_atomic_helper_commit (??:?)
+> [ 25.995652][ T1] ? commit_work (??:?)
+> [ 25.995670][ T1] drm_atomic_commit (??:?)
+> [ 25.995689][ T1] ? drm_atomic_nonblocking_commit (??:?)
+> [ 25.995703][ T1] ? __drm_atomic_helper_set_config (??:?)
+> [ 25.995716][ T1] ? malformed_message+0xe0/0xe0
+> [ 25.995741][ T1] ? update_output_state (??:?)
+> [ 25.995757][ T1] ? malformed_message+0xe0/0xe0
+> [ 25.995804][ T1] drm_client_modeset_commit_atomic (drm_client_modeset.c:?)
+> [ 25.995836][ T1] ? kmalloc_array (core.c:?)
+> [ 25.995894][ T1] ? mutex_trylock (mutex.c:?)
+> [ 25.995910][ T1] ? mark_lock+0x67/0x227
+> [ 25.995951][ T1] ? drm_fb_helper_lastclose (??:?)
+> [ 25.995966][ T1] drm_client_modeset_commit_locked (??:?)
+> [ 25.995988][ T1] drm_client_modeset_commit (??:?)
+> [ 25.996008][ T1] __drm_fb_helper_restore_fbdev_mode_unlocked (drm_fb_helper.c:?)
+> [ 25.996032][ T1] drm_fb_helper_set_par (??:?)
+> [ 25.996054][ T1] set_con2fb_map (fbcon.c:?)
+> [ 25.996090][ T1] do_fb_registered (fbcon.c:?)
+> [ 25.996119][ T1] fbcon_fb_registered (??:?)
+> [ 25.996138][ T1] do_register_framebuffer (fbmem.c:?)
+> [ 25.996158][ T1] ? get_fb_info+0xaa/0xaa
+> [ 25.996218][ T1] register_framebuffer (??:?)
+> [ 25.996241][ T1] __drm_fb_helper_initial_config_and_unlock (drm_fb_helper.c:?)
+> [ 25.996268][ T1] ? __drm_fb_helper_find_sizes (drm_fb_helper.c:?)
+> [ 25.996321][ T1] drm_fb_helper_initial_config (??:?)
+> [ 25.996341][ T1] drm_fbdev_client_hotplug (drm_fbdev_generic.c:?)
+> [ 25.996363][ T1] drm_fbdev_generic_setup (??:?)
+> [ 25.996389][ T1] bochs_pci_probe (bochs.c:?)
+> [ 25.996413][ T1] ? bochs_hw_init (bochs.c:?)
+> [ 25.996429][ T1] ? trace_hardirqs_on (??:?)
+> [ 25.996456][ T1] ? bochs_hw_init (bochs.c:?)
+> [ 25.996477][ T1] local_pci_probe (pci-driver.c:?)
+> [ 25.996507][ T1] pci_call_probe (pci-driver.c:?)
+> [ 25.996520][ T1] ? rcu_read_lock_bh_held (??:?)
+> [ 25.996543][ T1] ? local_pci_probe (pci-driver.c:?)
+> [ 25.996563][ T1] ? __kasan_check_read (??:?)
+> [ 25.996830][ T1] ? pci_match_id (??:?)
+> [ 25.996854][ T1] ? pci_match_device (pci-driver.c:?)
+> [ 25.996882][ T1] pci_device_probe (pci-driver.c:?)
+> [ 25.996904][ T1] really_probe (dd.c:?)
+> [ 25.996933][ T1] __driver_probe_device (dd.c:?)
+> [ 25.996955][ T1] ? __device_attach_driver (dd.c:?)
+> [ 25.996970][ T1] driver_probe_device (dd.c:?)
+> [ 25.996992][ T1] __driver_attach (dd.c:?)
+> [ 25.997014][ T1] ? __device_attach_driver (dd.c:?)
+> [ 25.997030][ T1] bus_for_each_dev (??:?)
+> [ 25.997050][ T1] ? next_device (core.c:?)
+> [ 25.997069][ T1] ? do_raw_spin_unlock (??:?)
+> [ 25.997107][ T1] driver_attach (??:?)
+> [ 25.997127][ T1] bus_add_driver (??:?)
+> [ 25.997158][ T1] driver_register (??:?)
+> [ 25.997182][ T1] __pci_register_driver (??:?)
+> [ 25.997202][ T1] ? etnaviv_init (bochs.c:?)
+> [ 25.997221][ T1] bochs_pci_driver_init (bochs.c:?)
+> [ 25.997240][ T1] do_one_initcall (??:?)
+> [ 25.997260][ T1] ? rcu_lock_acquire (??:?)
+> [ 25.997277][ T1] ? lock_is_held (signal.c:?)
+> [ 25.997293][ T1] ? rcu_read_lock_sched_held (??:?)
+> [ 25.997311][ T1] ? rcu_read_lock_bh_held (??:?)
+> [ 25.997325][ T1] ? ____kasan_kmalloc (common.c:?)
+> [ 25.997348][ T1] ? __kasan_check_read (??:?)
+> [ 25.997376][ T1] do_initcalls (main.c:?)
+> [ 25.997419][ T1] kernel_init_freeable (main.c:?)
+> [ 25.997434][ T1] ? rest_init (main.c:?)
+> [ 25.997461][ T1] kernel_init (main.c:?)
+> [ 25.997481][ T1] ret_from_fork (??:?)
+> [   25.997537][    T1]  </TASK>
+> [   25.997547][    T1] irq event stamp: 177845
+> [ 25.997555][ T1] hardirqs last enabled at (177851): console_trylock_spinning (printk.c:?)
+> [ 25.997573][ T1] hardirqs last disabled at (177856): console_trylock_spinning (printk.c:?)
+> [ 25.997589][ T1] softirqs last enabled at (176444): __do_softirq (??:?)
+> [ 25.997608][ T1] softirqs last disabled at (176437): __irq_exit_rcu (softirq.c:?)
+> [   25.997623][    T1] ---[ end trace 0000000000000000 ]---
+> [   26.013462][   T14] general protection fault, probably for non-canonical address 0xdffffc0000000004: 0000 [#1] SMP KASAN
+> [   26.013480][   T14] KASAN: null-ptr-deref in range [0x0000000000000020-0x0000000000000027]
+> [   26.013490][   T14] CPU: 0 PID: 14 Comm: kworker/0:1 Tainted: G        W       T  6.2.0-rc6-01191-g180253782038 #1 a8db67375c3ac749313dafaec43f39836e38fae9
+> [   26.013503][   T14] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.0-debian-1.16.0-5 04/01/2014
+> [   26.013509][   T14] Workqueue: events drm_fb_helper_damage_work
+> [ 26.013528][ T14] RIP: 0010:ttm_mem_io_reserve (??:?)
+> [ 26.013544][ T14] Code: f6 31 ff 45 31 c0 c3 55 b8 ff ff 37 00 48 c1 e0 2a 48 89 e5 41 55 49 89 fd 48 8d 7e 20 48 89 fa 41 54 49 89 f4 48 c1 ea 03 53 <80> 3c 02 00 74 05 e8 05 60 e5 fe 49 83 7c 24 20 00 74 07 31 c0 e9
+> All code
+> ========
+>     0:	f6 31                	divb   (%rcx)
+>     2:	ff 45 31             	incl   0x31(%rbp)
+>     5:	c0 c3 55             	rol    $0x55,%bl
+>     8:	b8 ff ff 37 00       	mov    $0x37ffff,%eax
+>     d:	48 c1 e0 2a          	shl    $0x2a,%rax
+>    11:	48 89 e5             	mov    %rsp,%rbp
+>    14:	41 55                	push   %r13
+>
+>
+> To reproduce:
+>
+>          # build kernel
+> 	cd linux
+> 	cp config-6.2.0-rc6-01191-g180253782038 .config
+> 	make HOSTCC=gcc-11 CC=gcc-11 ARCH=x86_64 olddefconfig prepare modules_prepare bzImage modules
+> 	make HOSTCC=gcc-11 CC=gcc-11 ARCH=x86_64 INSTALL_MOD_PATH=<mod-install-dir> modules_install
+> 	cd <mod-install-dir>
+> 	find lib/ | cpio -o -H newc --quiet | gzip > modules.cgz
+>
+>
+>          git clone https://github.com/intel/lkp-tests.git
+>          cd lkp-tests
+>          bin/lkp qemu -k <bzImage> -m modules.cgz job-script # job-script is attached in this email
+>
+>          # if come across any failure that blocks the test,
+>          # please remove ~/.lkp and /lkp dir to run from a clean state.
+>
+>
+>
 
->> drivers/hv/vmbus_drv.c:2691:21: warning: attribute declaration must precede definition [-Wignored-attributes]
-   static const struct __maybe_unused of_device_id vmbus_of_match[] = {
-                       ^
-   include/linux/compiler_attributes.h:355:56: note: expanded from macro '__maybe_unused'
-   #define __maybe_unused                  __attribute__((__unused__))
-                                                          ^
-   include/linux/mod_devicetable.h:268:8: note: previous definition is here
-   struct of_device_id {
-          ^
-   1 warning generated.
-
-
-vim +2691 drivers/hv/vmbus_drv.c
-
-  2690	
-> 2691	static const struct __maybe_unused of_device_id vmbus_of_match[] = {
-  2692		{
-  2693			.compatible = "microsoft,vmbus",
-  2694		},
-  2695		{
-  2696			/* sentinel */
-  2697		},
-  2698	};
-  2699	MODULE_DEVICE_TABLE(of, vmbus_of_match);
-  2700	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
