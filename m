@@ -4,76 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98F2EC61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  9 Feb 2023 11:20:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0C97C636D4
+	for <virtualization@archiver.kernel.org>; Thu,  9 Feb 2023 11:20:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 36E5740FCA;
-	Thu,  9 Feb 2023 11:20:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36E5740FCA
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5AC2B40FDD;
+	Thu,  9 Feb 2023 11:20:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5AC2B40FDD
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Z/k6QUZi
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=luqPZxl2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fPZDg8wU-RHM; Thu,  9 Feb 2023 11:20:23 +0000 (UTC)
+	with ESMTP id pglFQteucf1I; Thu,  9 Feb 2023 11:20:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 85B8D404D1;
-	Thu,  9 Feb 2023 11:20:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 85B8D404D1
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C2A63404D1;
+	Thu,  9 Feb 2023 11:20:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C2A63404D1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 60861C0033;
-	Thu,  9 Feb 2023 11:20:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 03E1EC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A97A6C0033;
+	Thu,  9 Feb 2023 11:20:48 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 90FBCC002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 11:20:21 +0000 (UTC)
+ Thu,  9 Feb 2023 11:20:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D22BD60E00
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5E7E582152
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 11:20:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D22BD60E00
-Authentication-Results: smtp3.osuosl.org;
+ Thu,  9 Feb 2023 11:20:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E7E582152
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
- header.a=rsa-sha256 header.s=k20201202 header.b=Z/k6QUZi
+ header.a=rsa-sha256 header.s=k20201202 header.b=luqPZxl2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id t9JxBa0Sjvaw
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4-Y6Cg7eV4SQ
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 11:20:20 +0000 (UTC)
+ Thu,  9 Feb 2023 11:20:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F3F0A60D94
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp3.osuosl.org (Postfix) with ESMTPS id F3F0A60D94
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9870C8214F
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9870C8214F
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 11:20:19 +0000 (UTC)
+ Thu,  9 Feb 2023 11:20:46 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 4F51E61A2B;
- Thu,  9 Feb 2023 11:20:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CDE3C433EF;
- Thu,  9 Feb 2023 11:20:18 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id E882361A1B;
+ Thu,  9 Feb 2023 11:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FE23C4339B;
+ Thu,  9 Feb 2023 11:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1675941619;
- bh=peFmOTB7hqr4OGOw/24rxoXk8Ti2WnzdQLOpzjvaD9k=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Z/k6QUZiOJ3szwL7r/84Ln4sHZbgYNrRuCZ+H+jZYZD+y3vrXpggno1gWFygiHtj8
- 3A0wL37jzurqI+KCiugBAxDQ6biQoJQPrTShPxFtNUyGFh/bAq288AXNubyEto11HJ
- fwS/EwS9sW2G+xzrqFzdfsqRoIYgdeITg7oJ9gqXj4yLNAytNwTrXM2jjROolfG9fg
- LP0yWpg5lPQqvXQ0XEbOPAGYOa2R7/oZNYTbMH+6L8i93o0twAxQqqA2+gE1RwAxFM
- QePs7Y/zmotu1u2JBrygA+PitENldmmbRute5uI5fpabZaX8ipkwC+Mqn6CLvGKaop
- k+775lnTyTpjQ==
+ s=k20201202; t=1675941645;
+ bh=+i8h0uXwDjbALup0iYRRDEeMyobsQLNSiLreJcMMNWo=;
+ h=From:To:Cc:Subject:Date:From;
+ b=luqPZxl2Bdifpv8TsNNbeTsw6C+V0VndZeJ8gAXilTQAUpNAXsusR0oKqz3thcTlK
+ y3FNFRiSM7nowJ6Qo9F2vYOb9pna7N5zrc7RIpeOvNZk7h7vqLerK8uueW/UqwdPpU
+ sAn5R3UamVZiAQebctsQ4XXeiMRBQX4FCQg2GySNT3XqLe8M4TnIWxlcNUYE2GcHtk
+ lPxJG9L/+bMTiyB7PQo+CS0HeuQg0h2GkPTp44xxNtRlmlJ8h8YPMnjRtW08exWZ//
+ m0JNFF/PVZ/oq5NK0cFvYVxbxj+rHtE7r0dnAX53gObQs4dUJJ8l/p/XNGf7Zx9A6N
+ 5fNX8kMBBKn6Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 2/6] tools/virtio: fix the vringh test for virtio
+Subject: [PATCH AUTOSEL 4.14 1/5] tools/virtio: fix the vringh test for virtio
  ring changes
-Date: Thu,  9 Feb 2023 06:19:55 -0500
-Message-Id: <20230209111959.1893269-2-sashal@kernel.org>
+Date: Thu,  9 Feb 2023 06:20:23 -0500
+Message-Id: <20230209112042.1893375-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230209111959.1893269-1-sashal@kernel.org>
-References: <20230209111959.1893269-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -183,7 +182,7 @@ index 0000000000000..43d146f236f14
 +
 +#endif
 diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 7ef45a4a3cba7..0dc38fe2a4f16 100644
+index 268ce239de650..e4e35e66ea14a 100644
 --- a/tools/virtio/linux/kernel.h
 +++ b/tools/virtio/linux/kernel.h
 @@ -10,6 +10,7 @@
@@ -213,7 +212,7 @@ index 0000000000000..272b5aa285d5a
 +
 +#endif /* _LINUX_KMSAN_H */
 diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
-index 369ee308b6686..74d9e1825748e 100644
+index 9a45f90e2d089..97448e1ceebc1 100644
 --- a/tools/virtio/linux/scatterlist.h
 +++ b/tools/virtio/linux/scatterlist.h
 @@ -2,6 +2,7 @@
