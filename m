@@ -1,101 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 421E9C05027
-	for <virtualization@archiver.kernel.org>; Thu,  9 Feb 2023 07:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DBC42C05027
+	for <virtualization@archiver.kernel.org>; Thu,  9 Feb 2023 11:16:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BE278820F4;
-	Thu,  9 Feb 2023 07:51:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BE278820F4
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=DqrB1xyi
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6ExWnccWOWY9; Thu,  9 Feb 2023 07:51:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4845A81DF0;
-	Thu,  9 Feb 2023 07:51:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4845A81DF0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10D56C0070;
-	Thu,  9 Feb 2023 07:51:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3992C002B
- for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AE7F640612
- for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AE7F640612
+	by smtp2.osuosl.org (Postfix) with ESMTP id 631A9404B4;
+	Thu,  9 Feb 2023 11:16:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 631A9404B4
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
- header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=DqrB1xyi
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=uzelx8QV
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ASo0A3EoJyXF
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rN-lu1Nvsska; Thu,  9 Feb 2023 11:16:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 29D7E4011D;
+	Thu,  9 Feb 2023 11:16:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 29D7E4011D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2FF5C0033;
+	Thu,  9 Feb 2023 11:16:07 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4582AC002B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3E4F405F4
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com
- [IPv6:2a00:1450:4864:20::32c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D3E4F405F4
+ Thu,  9 Feb 2023 11:16:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1965060E6A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Feb 2023 07:51:33 +0000 (UTC)
-Received: by mail-wm1-x32c.google.com with SMTP id
- hn2-20020a05600ca38200b003dc5cb96d46so3222199wmb.4
+ Thu,  9 Feb 2023 11:16:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1965060E6A
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
+ header.a=rsa-sha256 header.s=k20201202 header.b=uzelx8QV
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fEX60op10p1T
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Feb 2023 23:51:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solid-run-com.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=1QDLqR7kr/CBmXE1Ms9xiRugP2U40LQHc7BRgK51iXM=;
- b=DqrB1xyivmJru88kV1Sjj24yeq+DQvcVteJX6n0WW6MtgYX2zJk04mtlpg+ymogPJK
- FcNF5d5BK/1LlbpEW5su/cewZcRnfiX+vHByWxFKRh2qekC87EaJcTtKe7kWy7Wf8VNv
- X9TdfnUHpCLkgn5yjbBHoki6XRZJETZiIq+VRFly7Rg2Y6BWafjAeyi7bjpOwSQhyKlE
- 6iR0HQCCa0lUWL6UspgDbgJ4oYTIYNH9Y4QLDx4ar0V4fGdExEMcEzmUu4GtFXMLugKD
- OFwM27wwrb41vN+p0Tvkvx/jnm3s5tIG8npzl//PX5iWuhS6oXxXMzQVwUEkimfgt3jR
- 2GeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=1QDLqR7kr/CBmXE1Ms9xiRugP2U40LQHc7BRgK51iXM=;
- b=DnkiSHqfjnThG7iS/jTwy9LlLoc1kWqg6GtAQKgBU0BcOt90iG9prCVxOwKk/7vc4Q
- F1G6of7IjM3jtaELKn6TQmI0vP6S3O1LZDUXIxwhcLOGcXRkfD2E+Y3UHAGdlb499DKU
- Fd/Ga7axv4FvGD5TiTWir3zwOgjOW6XywbhWukCybusQSqjvdoeeMNgq5rKFg4QNupPV
- 9QSSzzyohhPbFH3ppt7u0xFSZ0136vk6FLUMWqyg725dBUyxznS4xnplLcpRh9FjyApL
- vZrDiu1GC8Db+4ZbZOfw32F7wLVE1NGTRXx6TvJx7prV8iXFjaVA1Hlr5HWTRJ69laPn
- RzNg==
-X-Gm-Message-State: AO0yUKVMcUdw9Qtt2oayOreT19+0BqqoIl2kYVjXB2VACDmqX291iayB
- 53N8ddMq+cjTbGQcStDeohfTOQ==
-X-Google-Smtp-Source: AK7set/ojLbNsz0po4kOLittWulINUDZVJPvBiujfh2vBNARD2+1TpLIinw3h1qbo2JWjjto9/54gQ==
-X-Received: by 2002:a05:600c:2e8a:b0:3dc:5a70:23dc with SMTP id
- p10-20020a05600c2e8a00b003dc5a7023dcmr8766391wmn.27.1675929091993; 
- Wed, 08 Feb 2023 23:51:31 -0800 (PST)
-Received: from alvaro-dell.. (bzq-84-110-153-254.static-ip.bezeqint.net.
- [84.110.153.254]) by smtp.gmail.com with ESMTPSA id
- k21-20020a05600c1c9500b003e01493b136sm4294380wms.43.2023.02.08.23.51.30
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 08 Feb 2023 23:51:31 -0800 (PST)
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Subject: [PATCH] vdpa: snet: clear dpu_ready flag on reset
-Date: Thu,  9 Feb 2023 09:51:28 +0200
-Message-Id: <20230209075128.78915-1-alvaro.karsz@solid-run.com>
-X-Mailer: git-send-email 2.34.1
+ Thu,  9 Feb 2023 11:16:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1A04860C06
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1A04860C06
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  9 Feb 2023 11:16:01 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id 0707761A1D;
+ Thu,  9 Feb 2023 11:16:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C82A9C433EF;
+ Thu,  9 Feb 2023 11:15:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1675941360;
+ bh=R35Mh+mWznxSHlozh9SjVc8YgSD0MQMMI5H3DCOPEnE=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=uzelx8QVEatugxdY/v5JZgJEy4oKwiSDUAEw80G7Dgelg5hsmIKfGwcCN72vZ6+Bt
+ N9rXEEfwDWknsUaURjHjFq2gWrhkB0tT+4DlkV3q5uahU349r405Ygx+Z7bfnQK+pb
+ nI/pZ7W0UFy++waOtJCJas/gc1SHBk5q/gpa67FAhcZdugotIThzcM4Qcxovc/Ug7z
+ wwsQBSluQYFUVpdLO2jGfTwysTqlPkMi0ZxY+rEjiexFAa805Gn1AvkWVQMWFYqCIs
+ I3rncLUonGb9D0NqUUhthfUhW3Ky01MImoLh7P23zHQxdJNYrKbwxH3U+Wjf1SBDw9
+ dnuzDzyphSUEw==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 13/38] tools/virtio: fix the vringh test for
+ virtio ring changes
+Date: Thu,  9 Feb 2023 06:14:32 -0500
+Message-Id: <20230209111459.1891941-13-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
+References: <20230209111459.1891941-1-sashal@kernel.org>
 MIME-Version: 1.0
-Cc: virtualization@lists.linux-foundation.org
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, peng.fan@nxp.com,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ Shunsuke Mie <mie@igel.co.jp>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,28 +97,150 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The flag should be cleared on reset, otherwise, the DPU won't start
-again after reset.
+From: Shunsuke Mie <mie@igel.co.jp>
 
-Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+[ Upstream commit 3f7b75abf41cc4143aa295f62acbb060a012868d ]
+
+Fix the build caused by missing kmsan_handle_dma() and is_power_of_2() that
+are used in drivers/virtio/virtio_ring.c.
+
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Message-Id: <20230110034310.779744-1-mie@igel.co.jp>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/solidrun/snet_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/virtio/linux/bug.h         |  8 +++-----
+ tools/virtio/linux/build_bug.h   |  7 +++++++
+ tools/virtio/linux/cpumask.h     |  7 +++++++
+ tools/virtio/linux/gfp.h         |  7 +++++++
+ tools/virtio/linux/kernel.h      |  1 +
+ tools/virtio/linux/kmsan.h       | 12 ++++++++++++
+ tools/virtio/linux/scatterlist.h |  1 +
+ tools/virtio/linux/topology.h    |  7 +++++++
+ 8 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 tools/virtio/linux/build_bug.h
+ create mode 100644 tools/virtio/linux/cpumask.h
+ create mode 100644 tools/virtio/linux/gfp.h
+ create mode 100644 tools/virtio/linux/kmsan.h
+ create mode 100644 tools/virtio/linux/topology.h
 
-diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-index 0c13ccde4520..68de727398ed 100644
---- a/drivers/vdpa/solidrun/snet_main.c
-+++ b/drivers/vdpa/solidrun/snet_main.c
-@@ -255,6 +255,7 @@ static int snet_reset_dev(struct snet *snet)
- 	snet_free_irqs(snet);
- 	/* Reset status */
- 	snet->status = 0;
-+	snet->dpu_ready = false;
+diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
+index 813baf13f62a2..51a919083d9b8 100644
+--- a/tools/virtio/linux/bug.h
++++ b/tools/virtio/linux/bug.h
+@@ -1,13 +1,11 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef BUG_H
+-#define BUG_H
++#ifndef _LINUX_BUG_H
++#define _LINUX_BUG_H
  
- 	if (ret)
- 		SNET_WARN(pdev, "Incomplete reset to SNET[%u] device\n", snet->sid);
+ #include <asm/bug.h>
+ 
+ #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
+ 
+-#define BUILD_BUG_ON(x)
+-
+ #define BUG() abort()
+ 
+-#endif /* BUG_H */
++#endif /* _LINUX_BUG_H */
+diff --git a/tools/virtio/linux/build_bug.h b/tools/virtio/linux/build_bug.h
+new file mode 100644
+index 0000000000000..cdbb75e28a604
+--- /dev/null
++++ b/tools/virtio/linux/build_bug.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_BUILD_BUG_H
++#define _LINUX_BUILD_BUG_H
++
++#define BUILD_BUG_ON(x)
++
++#endif	/* _LINUX_BUILD_BUG_H */
+diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
+new file mode 100644
+index 0000000000000..307da69d6b26c
+--- /dev/null
++++ b/tools/virtio/linux/cpumask.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_CPUMASK_H
++#define _LINUX_CPUMASK_H
++
++#include <linux/kernel.h>
++
++#endif /* _LINUX_CPUMASK_H */
+diff --git a/tools/virtio/linux/gfp.h b/tools/virtio/linux/gfp.h
+new file mode 100644
+index 0000000000000..43d146f236f14
+--- /dev/null
++++ b/tools/virtio/linux/gfp.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __LINUX_GFP_H
++#define __LINUX_GFP_H
++
++#include <linux/topology.h>
++
++#endif
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 21593bf977552..8b877167933d1 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -10,6 +10,7 @@
+ #include <stdarg.h>
+ 
+ #include <linux/compiler.h>
++#include <linux/log2.h>
+ #include <linux/types.h>
+ #include <linux/overflow.h>
+ #include <linux/list.h>
+diff --git a/tools/virtio/linux/kmsan.h b/tools/virtio/linux/kmsan.h
+new file mode 100644
+index 0000000000000..272b5aa285d5a
+--- /dev/null
++++ b/tools/virtio/linux/kmsan.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_KMSAN_H
++#define _LINUX_KMSAN_H
++
++#include <linux/gfp.h>
++
++inline void kmsan_handle_dma(struct page *page, size_t offset, size_t size,
++			     enum dma_data_direction dir)
++{
++}
++
++#endif /* _LINUX_KMSAN_H */
+diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
+index 369ee308b6686..74d9e1825748e 100644
+--- a/tools/virtio/linux/scatterlist.h
++++ b/tools/virtio/linux/scatterlist.h
+@@ -2,6 +2,7 @@
+ #ifndef SCATTERLIST_H
+ #define SCATTERLIST_H
+ #include <linux/kernel.h>
++#include <linux/bug.h>
+ 
+ struct scatterlist {
+ 	unsigned long	page_link;
+diff --git a/tools/virtio/linux/topology.h b/tools/virtio/linux/topology.h
+new file mode 100644
+index 0000000000000..910794afb993a
+--- /dev/null
++++ b/tools/virtio/linux/topology.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <linux/cpumask.h>
++
++#endif /* _LINUX_TOPOLOGY_H */
 -- 
-2.34.1
+2.39.0
 
 _______________________________________________
 Virtualization mailing list
