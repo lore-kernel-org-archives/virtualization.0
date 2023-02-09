@@ -1,99 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32460C636D3
-	for <virtualization@archiver.kernel.org>; Wed,  8 Feb 2023 20:24:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 421E9C05027
+	for <virtualization@archiver.kernel.org>; Thu,  9 Feb 2023 07:51:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9ACCB404BA;
-	Wed,  8 Feb 2023 20:24:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9ACCB404BA
+	by smtp1.osuosl.org (Postfix) with ESMTP id BE278820F4;
+	Thu,  9 Feb 2023 07:51:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BE278820F4
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=DqrB1xyi
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6ExWnccWOWY9; Thu,  9 Feb 2023 07:51:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4845A81DF0;
+	Thu,  9 Feb 2023 07:51:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4845A81DF0
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 10D56C0070;
+	Thu,  9 Feb 2023 07:51:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D3992C002B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id AE7F640612
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AE7F640612
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Jia+tDjr
+ dkim=pass (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com
+ header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=DqrB1xyi
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OxJV3zpQV7Hi; Wed,  8 Feb 2023 20:24:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B6F8E40338;
-	Wed,  8 Feb 2023 20:24:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B6F8E40338
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CC45C0033;
-	Wed,  8 Feb 2023 20:24:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 06CDCC002B
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ASo0A3EoJyXF
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 20:24:11 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id CF17F403F5
+ Thu,  9 Feb 2023 07:51:34 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3E4F405F4
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com
+ [IPv6:2a00:1450:4864:20::32c])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D3E4F405F4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 20:24:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CF17F403F5
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Jia+tDjr
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nv_Jvcq7zY86
+ Thu,  9 Feb 2023 07:51:33 +0000 (UTC)
+Received: by mail-wm1-x32c.google.com with SMTP id
+ hn2-20020a05600ca38200b003dc5cb96d46so3222199wmb.4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 20:24:09 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EAC16403CA
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id EAC16403CA
- for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Feb 2023 20:24:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1675887847;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Ml0XrxpI4s5idQPM/sdTSxC9+Tt+h6O846Ch5/bRl1Q=;
- b=Jia+tDjrvLAkXrqDyEfQ9smYJzvHm6ncYUbbc8ncusPcjpPriU3Dm0YZfn3kqHSqk6Lyar
- NnBR/t4iOLSGP6SChO2z+GnzGeBbBbCvZIfArFmffeozmwjQXrLDRuf52S5C2UXcKswSTb
- T9CgFHQkJk4q3mH8wNxGIafWB33PGxE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-417-iW992OYAOHuTxPsWOzt1ow-1; Wed, 08 Feb 2023 15:24:04 -0500
-X-MC-Unique: iW992OYAOHuTxPsWOzt1ow-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
- [10.11.54.3])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EE0A88028B0;
- Wed,  8 Feb 2023 20:24:03 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.22.9.25])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 3A6531121315;
- Wed,  8 Feb 2023 20:24:03 +0000 (UTC)
-Received: by fedora.redhat.com (Postfix, from userid 1000)
- id DCD97FA00F; Wed,  8 Feb 2023 15:23:51 -0500 (EST)
-Date: Wed, 8 Feb 2023 15:23:51 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Peter-Jan Gootzen <peter-jan@gootzen.net>
-Subject: Re: virtio-fs: adding support for multi-queue
-Message-ID: <Y+QE17rQaj8/vjrl@redhat.com>
-References: <2fd99bc2-0414-0b85-2bff-3a84ae6c23bd@gootzen.net>
- <Y+KqY3Nse0pVhd3X@fedora> <Y+KsVhIR9aEoSdRu@redhat.com>
- <Y+LDUmWyXCdPIriB@fedora> <Y+LJMwo/K2CHdaPc@redhat.com>
- <9babf0e8-19c3-bb1b-39f8-c755fdc57c8d@gootzen.net>
- <Y+N8x5kIe3pAaeUj@fedora>
- <82ddafee-7548-e7bd-2f41-24ce9251aa25@gootzen.net>
+ Wed, 08 Feb 2023 23:51:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solid-run-com.20210112.gappssmtp.com; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=1QDLqR7kr/CBmXE1Ms9xiRugP2U40LQHc7BRgK51iXM=;
+ b=DqrB1xyivmJru88kV1Sjj24yeq+DQvcVteJX6n0WW6MtgYX2zJk04mtlpg+ymogPJK
+ FcNF5d5BK/1LlbpEW5su/cewZcRnfiX+vHByWxFKRh2qekC87EaJcTtKe7kWy7Wf8VNv
+ X9TdfnUHpCLkgn5yjbBHoki6XRZJETZiIq+VRFly7Rg2Y6BWafjAeyi7bjpOwSQhyKlE
+ 6iR0HQCCa0lUWL6UspgDbgJ4oYTIYNH9Y4QLDx4ar0V4fGdExEMcEzmUu4GtFXMLugKD
+ OFwM27wwrb41vN+p0Tvkvx/jnm3s5tIG8npzl//PX5iWuhS6oXxXMzQVwUEkimfgt3jR
+ 2GeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=1QDLqR7kr/CBmXE1Ms9xiRugP2U40LQHc7BRgK51iXM=;
+ b=DnkiSHqfjnThG7iS/jTwy9LlLoc1kWqg6GtAQKgBU0BcOt90iG9prCVxOwKk/7vc4Q
+ F1G6of7IjM3jtaELKn6TQmI0vP6S3O1LZDUXIxwhcLOGcXRkfD2E+Y3UHAGdlb499DKU
+ Fd/Ga7axv4FvGD5TiTWir3zwOgjOW6XywbhWukCybusQSqjvdoeeMNgq5rKFg4QNupPV
+ 9QSSzzyohhPbFH3ppt7u0xFSZ0136vk6FLUMWqyg725dBUyxznS4xnplLcpRh9FjyApL
+ vZrDiu1GC8Db+4ZbZOfw32F7wLVE1NGTRXx6TvJx7prV8iXFjaVA1Hlr5HWTRJ69laPn
+ RzNg==
+X-Gm-Message-State: AO0yUKVMcUdw9Qtt2oayOreT19+0BqqoIl2kYVjXB2VACDmqX291iayB
+ 53N8ddMq+cjTbGQcStDeohfTOQ==
+X-Google-Smtp-Source: AK7set/ojLbNsz0po4kOLittWulINUDZVJPvBiujfh2vBNARD2+1TpLIinw3h1qbo2JWjjto9/54gQ==
+X-Received: by 2002:a05:600c:2e8a:b0:3dc:5a70:23dc with SMTP id
+ p10-20020a05600c2e8a00b003dc5a7023dcmr8766391wmn.27.1675929091993; 
+ Wed, 08 Feb 2023 23:51:31 -0800 (PST)
+Received: from alvaro-dell.. (bzq-84-110-153-254.static-ip.bezeqint.net.
+ [84.110.153.254]) by smtp.gmail.com with ESMTPSA id
+ k21-20020a05600c1c9500b003e01493b136sm4294380wms.43.2023.02.08.23.51.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 08 Feb 2023 23:51:31 -0800 (PST)
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH] vdpa: snet: clear dpu_ready flag on reset
+Date: Thu,  9 Feb 2023 09:51:28 +0200
+Message-Id: <20230209075128.78915-1-alvaro.karsz@solid-run.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-In-Reply-To: <82ddafee-7548-e7bd-2f41-24ce9251aa25@gootzen.net>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: German Maglione <gmaglione@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Jonas Pfefferle <JPF@zurich.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- miklos@szeredi.hu
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,165 +112,28 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 08, 2023 at 05:29:25PM +0100, Peter-Jan Gootzen wrote:
-> On 08/02/2023 11:43, Stefan Hajnoczi wrote:
-> > On Wed, Feb 08, 2023 at 09:33:33AM +0100, Peter-Jan Gootzen wrote:
-> > > 
-> > > 
-> > > On 07/02/2023 22:57, Vivek Goyal wrote:
-> > > > On Tue, Feb 07, 2023 at 04:32:02PM -0500, Stefan Hajnoczi wrote:
-> > > > > On Tue, Feb 07, 2023 at 02:53:58PM -0500, Vivek Goyal wrote:
-> > > > > > On Tue, Feb 07, 2023 at 02:45:39PM -0500, Stefan Hajnoczi wrote:
-> > > > > > > On Tue, Feb 07, 2023 at 11:14:46AM +0100, Peter-Jan Gootzen wrote:
-> > > > > > > > Hi,
-> > > > > > > > 
-> > > > > > 
-> > > > > > [cc German]
-> > > > > > 
-> > > > > > > > For my MSc thesis project in collaboration with IBM
-> > > > > > > > (https://github.com/IBM/dpu-virtio-fs) we are looking to improve the
-> > > > > > > > performance of the virtio-fs driver in high throughput scenarios. We think
-> > > > > > > > the main bottleneck is the fact that the virtio-fs driver does not support
-> > > > > > > > multi-queue (while the spec does). A big factor in this is that our setup on
-> > > > > > > > the virtio-fs device-side (a DPU) does not easily allow multiple cores to
-> > > > > > > > tend to a single virtio queue.
-> > > > > > 
-> > > > > > This is an interesting limitation in DPU.
-> > > > > 
-> > > > > Virtqueues are single-consumer queues anyway. Sharing them between
-> > > > > multiple threads would be expensive. I think using multiqueue is natural
-> > > > > and not specific to DPUs.
-> > > > 
-> > > > Can we create multiple threads (a thread pool) on DPU and let these
-> > > > threads process requests in parallel (While there is only one virt
-> > > > queue).
-> > > > 
-> > > > So this is what we had done in virtiofsd. One thread is dedicated to
-> > > > pull the requests from virt queue and then pass the request to thread
-> > > > pool to process it. And that seems to help with performance in
-> > > > certain cases.
-> > > > 
-> > > > Is that possible on DPU? That itself can give a nice performance
-> > > > boost for certain workloads without having to implement multiqueue
-> > > > actually.
-> > > > 
-> > > > Just curious. I am not opposed to the idea of multiqueue. I am
-> > > > just curious about the kind of performance gain (if any) it can
-> > > > provide. And will this be helpful for rust virtiofsd running on
-> > > > host as well?
-> > > > 
-> > > > Thanks
-> > > > Vivek
-> > > > 
-> > > There is technically nothing preventing us from consuming a single queue on
-> > > multiple cores, however our current Virtio implementation (DPU-side) is set
-> > > up with the assumption that you should never want to do that (concurrency
-> > > mayham around the Virtqueues and the DMAs). So instead of putting all the
-> > > work into reworking the implementation to support that and still incur the
-> > > big overhead, we see it more fitting to amend the virtio-fs driver with
-> > > multi-queue support.
-> > > 
-> > > 
-> > > > Is it just a theory at this point of time or have you implemented
-> > > > it and seeing significant performance benefit with multiqueue?
-> > > 
-> > > It is a theory, but we are currently seeing that using the single request
-> > > queue, the single core attending to that queue on the DPU is reasonably
-> > > close to being fully saturated.
-> > > 
-> > > > And will this be helpful for rust virtiofsd running on
-> > > > host as well?
-> > > 
-> > > I figure this would be dependent on the workload and the users-needs.
-> > > Having many cores concurrently pulling on their own virtq and then
-> > > immediately process the request locally would of course improve performance.
-> > > But we are offloading all this work to the DPU, for providing
-> > > high-throughput cloud services.
-> > 
-> > I think Vivek is getting at whether your code processes requests
-> > sequentially or in parallel. A single thread processing the virtqueue
-> > that hands off requests to worker threads or uses io_uring to perform
-> > I/O asynchronously will perform differently from a single thread that
-> > processes requests sequentially in a blocking fashion. Multiqueue is not
-> > necessary for parallelism, but the single queue might become a
-> > bottleneck.
-> 
-> Requests are handled non-blocking with remote IO on the DPU. Our current
-> architecture is as follows:
-> T1: Tends to the Virtq, parses FUSE to remote IO and fires off the
-> asynchronous remote IO.
-> T2: Polls for completion on the remote IO and parses it back to FUSE, puts
-> the FUSE buffers in a completion queue of T1.
-> T1: Handles the Virtio completion and DMA of the requests in the CQ.
-> 
-> Thread 1 is busy polling on its two queues (Virtq and CQ) with equal
-> priority, thread 2 is busy polling as well. This setup is not really
-> optimal, but we are working within the constraints of both our DPU and
-> remote IO stack.
-> Currently we are able to get with sequential single job 4k throughput:
-> Write: 246MiB/s
-> Read: 20MiB/s
+The flag should be cleared on reset, otherwise, the DPU won't start
+again after reset.
 
-I had been doing some performance benchmarking for virtiofs and I found
-some old results.
+Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+---
+ drivers/vdpa/solidrun/snet_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-https://github.com/rhvgoyal/virtiofs-tests/tree/master/performance-results/feb-10-2021
-
-While running on top of local fs, with bs=4K, with single queue I could
-achieve more than 600MB/s.
-
-NAME                    WORKLOAD                Bandwidth       IOPS            
-default                 seqread-psync           625.0mb         156.2k          
-no-tpool                seqread-psync           660.8mb         165.2k          
-
-But catch here I think is that host is doing the caching. In your
-case I am assuming there is no caching at DPU and all the I/O is
-going to remote storage (which might be doing caching in memory).
-
-Anyway, point I am trying to make is that even with single vq, virtiofs
-can push a reasonable amount of I/O.
-
-I will be cuirous to find how multiqueue can improve these numbers
-further.
-
-> We are not sure yet where the bottleneck is for reads, we hope to be able to
-> match it to the write speed. For writes the two main bottlenecks we see are:
-> the single Virtq (so limited parallelism on the DPU and remote-side) and
-> that virtio-fs IO is constrained to the page size of 4k (NFS for example,
-> who we are trying to replace, sees huge performance gains with larger block
-> sizes).
-
-I am wondering how did you conclude that single vq is the bottleneck for
-performance and not the remote storage DPU is sending I/O to.
-
-Thanks
-Vivek
-
-> 
-> > > This is what I remembered as well, but can't find it clearly in the source
-> > > right now, do you have references to the source for this?
-> > 
-> > virtio_blk.ko uses an irq_affinity descriptor to tell virtio_find_vqs()
-> > to spread MSI interrupts across CPUs:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/block/virtio_blk.c#n609
-> > 
-> > The core blk-mq code has the blk_mq_virtio_map_queues() function to map
-> > block layer queues to virtqueues:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/block/blk-mq-virtio.c#n24
-> > 
-> > virtio_net.ko manually sets virtqueue affinity:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/net/virtio_net.c#n2283
-> > 
-> > virtio_net.ko tells the core net subsystem about queues using
-> > netif_set_real_num_tx_queues() and then skbs are mapped to queues by
-> > common code:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/net/core/dev.c#n4079
-> 
-> Thanks for the pointers. :)
-> 
-> Thanks,
-> Peter-Jan
-> 
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 0c13ccde4520..68de727398ed 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -255,6 +255,7 @@ static int snet_reset_dev(struct snet *snet)
+ 	snet_free_irqs(snet);
+ 	/* Reset status */
+ 	snet->status = 0;
++	snet->dpu_ready = false;
+ 
+ 	if (ret)
+ 		SNET_WARN(pdev, "Incomplete reset to SNET[%u] device\n", snet->sid);
+-- 
+2.34.1
 
 _______________________________________________
 Virtualization mailing list
