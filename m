@@ -1,109 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D7D5C636D4
-	for <virtualization@archiver.kernel.org>; Mon, 13 Feb 2023 12:14:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B676C636D4
+	for <virtualization@archiver.kernel.org>; Mon, 13 Feb 2023 12:15:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F2DFB4060C;
-	Mon, 13 Feb 2023 12:14:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F2DFB4060C
+	by smtp1.osuosl.org (Postfix) with ESMTP id BF908813DC;
+	Mon, 13 Feb 2023 12:15:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BF908813DC
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=L24AKQoY
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id veFk0TcOIhaf; Mon, 13 Feb 2023 12:15:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BA23381279;
+	Mon, 13 Feb 2023 12:15:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BA23381279
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96176C0032;
+	Mon, 13 Feb 2023 12:15:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D38DDC002B
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Feb 2023 12:15:11 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id BC26240606
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Feb 2023 12:15:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BC26240606
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HVxH9oJ/
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=L24AKQoY
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UsG8TdwQjKz2; Mon, 13 Feb 2023 12:14:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 605CE403EA;
-	Mon, 13 Feb 2023 12:14:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 605CE403EA
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 439A0C0032;
-	Mon, 13 Feb 2023 12:14:18 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 581AEC002B
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Vquhxi21-snt
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 12:14:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2C367410DF
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 12:14:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C367410DF
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HVxH9oJ/
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rzg4bvpTC6Jy
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 12:14:15 +0000 (UTC)
+ Mon, 13 Feb 2023 12:15:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22B1340629
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC506403EA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 22B1340629
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EC506403EA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 12:14:14 +0000 (UTC)
+ Mon, 13 Feb 2023 12:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676290454;
+ s=mimecast20190719; t=1676290509;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=oeKUhJ47kuIa1giwunE6XHk8Ozo1R+YBkI35wsuG/UQ=;
- b=HVxH9oJ/GDqXupHWHM9EDJ4voGxh+5EpR6pdlr9BR1/BhHb4Kq//6wVGjKB02QZlZCGx+K
- 7btDcIcNaysYdn7GdbymPVYHFEaGQSz3TF+SWIajh4YFVUsoHgmgzIpc/5aVsyw3L7Fsfg
- +CvlIR/+0V7Pg9xf8+155kDZOVE9ZOw=
+ bh=/3qa0NV6SAa+DWFZkquUnp2CMq9sj1EY4L6liDe1El0=;
+ b=L24AKQoYMofWTO4wJKQnz7lxaURFEsfXPx/cMsw4SAYVf0k20vRmFPxJkFRKHRlZWV3vpT
+ RWfB/yzIeDlOfmuyVV7oct8dv5tN+WrT+oHCEkr3zcVQPTYPipZiC0Mjmn+EysjGNUxVvY
+ C5kIs6WRI6g4fJ3CcHwpq1ifdcdj7Ho=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-670-Xu2d6b0VOYGZTfD8XKWL9A-1; Mon, 13 Feb 2023 07:14:12 -0500
-X-MC-Unique: Xu2d6b0VOYGZTfD8XKWL9A-1
+ us-mta-41-p0s6vH9JMQSUfDOiblC07w-1; Mon, 13 Feb 2023 07:15:09 -0500
+X-MC-Unique: p0s6vH9JMQSUfDOiblC07w-1
 Received: by mail-wm1-f69.google.com with SMTP id
- r14-20020a05600c35ce00b003e10bfcd160so6743776wmq.6
+ o2-20020a05600c510200b003dc51c95c6aso3741274wms.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 04:14:12 -0800 (PST)
+ Mon, 13 Feb 2023 04:15:08 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=oeKUhJ47kuIa1giwunE6XHk8Ozo1R+YBkI35wsuG/UQ=;
- b=xqxG4f6NjBqQXKxCssdZno186OmXlUiZSKhtfJz02i7SRPb9MrYJLbrVQAm0ld1cfB
- O+Fk24Aad4qswknziELVsHMqIoZ8aNrQljfB3IGU/hx3IEZxkEDS6zMx7emnKh90zA6X
- 3rJyK68apjyc17cKQDqxaiHGBNg30K5O48NEzGcGYPkaN18w8iTx4kC5XNB/8I050Fju
- uFXrsSjgaPCbWTBbv5BmE1eldx+Phlt+fCJugUqHMxgVXjyZeEOzZm2kM8ga/NMTRHyN
- 10bFDSFfVUN2HoMhTys2sE593GMpRfC9/jD0+QOGefTe7W7uM2wLqgQx/VWTFhcLR5om
- eDZw==
-X-Gm-Message-State: AO0yUKXkNXhH21gc+UTPdCq3g7hagttj7pFEPUfbJpzJAL02oiLWH30C
- cmZjXOZcZO6l0UpS88SXwuDrAJi63vtQALfstEGUcj+eWZfeonw047TMu7E1/lwoBotVfNNjgke
- GClGKEKhMGIsbuJwMNb+/NdK5Y4pUBaqStA2b8uw59w==
-X-Received: by 2002:a5d:6805:0:b0:2c5:5886:8505 with SMTP id
- w5-20020a5d6805000000b002c558868505mr2644585wru.53.1676290451749; 
- Mon, 13 Feb 2023 04:14:11 -0800 (PST)
-X-Google-Smtp-Source: AK7set8zRUxN2ig0D8GPy5vqM46LPVnmz4Mz8yPLO/l25VAgcGxc7IfVbeSwjm4uNe1CdrT8idz/FA==
-X-Received: by 2002:a5d:6805:0:b0:2c5:5886:8505 with SMTP id
- w5-20020a5d6805000000b002c558868505mr2644557wru.53.1676290451543; 
- Mon, 13 Feb 2023 04:14:11 -0800 (PST)
+ bh=/3qa0NV6SAa+DWFZkquUnp2CMq9sj1EY4L6liDe1El0=;
+ b=vrNHDzsfVzZQFuPKa75zj6YhbnXZR9tC75vcixYCUJBL6LZOT5i+BHTZarirJTFqJR
+ CAV80dK32GySZOQXpb5K0T8VThHfn+HobXuygS7ZD7aVfAHDhnOwWv4rteCQ0MdWCKpS
+ 8Ce2G0E3qI26bUbkFPLz6B3Ousf6qsCTmEJTmOilhF8K77OF7tTMEsN4yvfjrYHn6snv
+ n0ZBXdVAcGYHXwHvybRXl+kID0aY5txgFMIGvvvOtfcz43N7K77r5hmg8YZ3Zij53m95
+ VU8mp/grJLmNNSqvh8Vy7R6YXRjQKIPYR3ks6ZI4VsoVZKK0Ppaz3Ey3656l4WbePB8Q
+ Tpeg==
+X-Gm-Message-State: AO0yUKX7PObXQljxAdG8/5knV2tlB2o8S4ndqjNPa2ul8DKuK/u8+wTV
+ rq6Xrk39YATfvp8lWgRZO/VNXN9+Jz3nqm1SzulfMKZ7GzhNnMZmCg2/3yuSCw51Wl8xZTrq0xn
+ 6hR/6Bn1BWn2AtYP5zx9QNgbFZDP531Fkf4l4hmAKKA==
+X-Received: by 2002:a05:600c:755:b0:3e0:6c4:6a3a with SMTP id
+ j21-20020a05600c075500b003e006c46a3amr18869000wmn.22.1676290507629; 
+ Mon, 13 Feb 2023 04:15:07 -0800 (PST)
+X-Google-Smtp-Source: AK7set+P43vIsCcaEC0XvwsLyfTrlBYlBKdzBjIMl2f/TTw6XkbvBupTlvvrbK29o+k8EwLe9Lc8fw==
+X-Received: by 2002:a05:600c:755:b0:3e0:6c4:6a3a with SMTP id
+ j21-20020a05600c075500b003e006c46a3amr18868982wmn.22.1676290507441; 
+ Mon, 13 Feb 2023 04:15:07 -0800 (PST)
 Received: from redhat.com ([2.52.132.212]) by smtp.gmail.com with ESMTPSA id
- q14-20020a5d574e000000b002bfb02153d1sm10468168wrw.45.2023.02.13.04.14.07
+ g16-20020a05600c4ed000b003dfee43863fsm19109128wmq.26.2023.02.13.04.15.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Feb 2023 04:14:10 -0800 (PST)
-Date: Mon, 13 Feb 2023 07:14:05 -0500
+ Mon, 13 Feb 2023 04:15:06 -0800 (PST)
+Date: Mon, 13 Feb 2023 07:15:02 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 00/33] virtio-net: support AF_XDP zero copy
-Message-ID: <20230213071148-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 06/33] virtio_ring: introduce virtqueue_reset()
+Message-ID: <20230213071430-mutt-send-email-mst@kernel.org>
 References: <20230202110058.130695-1-xuanzhuo@linux.alibaba.com>
- <5fda6140fa51b4d2944f77b9e24446e4625641e2.camel@redhat.com>
- <1675395211.6279888-2-xuanzhuo@linux.alibaba.com>
- <20230203034212-mutt-send-email-mst@kernel.org>
- <1675651276.3841548-3-xuanzhuo@linux.alibaba.com>
+ <20230202110058.130695-7-xuanzhuo@linux.alibaba.com>
+ <20230203040041-mutt-send-email-mst@kernel.org>
+ <1675415352.3250086-8-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <1675651276.3841548-3-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1675415352.3250086-8-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -137,96 +136,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 06, 2023 at 10:41:16AM +0800, Xuan Zhuo wrote:
-> On Fri, 3 Feb 2023 04:17:59 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Fri, Feb 03, 2023 at 11:33:31AM +0800, Xuan Zhuo wrote:
-> > > On Thu, 02 Feb 2023 15:41:44 +0100, Paolo Abeni <pabeni@redhat.com> wrote:
-> > > > On Thu, 2023-02-02 at 19:00 +0800, Xuan Zhuo wrote:
-> > > > > XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-> > > > > copy feature of xsk (XDP socket) needs to be supported by the driver. The
-> > > > > performance of zero copy is very good. mlx5 and intel ixgbe already support
-> > > > > this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-> > > > > feature.
-> > > > >
-> > > > > Virtio-net did not support per-queue reset, so it was impossible to support XDP
-> > > > > Socket Zerocopy. At present, we have completed the work of Virtio Spec and
-> > > > > Kernel in Per-Queue Reset. It is time for Virtio-Net to complete the support for
-> > > > > the XDP Socket Zerocopy.
-> > > > >
-> > > > > Virtio-net can not increase the queue at will, so xsk shares the queue with
-> > > > > kernel.
-> > > > >
-> > > > > On the other hand, Virtio-Net does not support generate interrupt manually, so
-> > > > > when we wakeup tx xmit, we used some tips. If the CPU run by TX NAPI last time
-> > > > > is other CPUs, use IPI to wake up NAPI on the remote CPU. If it is also the
-> > > > > local CPU, then we wake up sofrirqd.
-> > > >
-> > > > Thank you for the large effort.
-> > > >
-> > > > Since this will likely need a few iterations, on next revision please
-> > > > do split the work in multiple chunks to help the reviewer efforts -
-> > > > from Documentation/process/maintainer-netdev.rst:
-> > > >
-> > > >  - don't post large series (> 15 patches), break them up
-> > > >
-> > > > In this case I guess you can split it in 1 (or even 2) pre-req series
-> > > > and another one for the actual xsk zero copy support.
+On Fri, Feb 03, 2023 at 05:09:12PM +0800, Xuan Zhuo wrote:
+> On Fri, 3 Feb 2023 04:05:38 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Feb 02, 2023 at 07:00:31PM +0800, Xuan Zhuo wrote:
+> > > Introduce virtqueue_reset() to release all buffer inside vq.
 > > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 50 ++++++++++++++++++++++++++++++++++++
+> > >  include/linux/virtio.h       |  2 ++
+> > >  2 files changed, 52 insertions(+)
 > > >
-> > > OK.
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index e32046fd15a5..7dfce7001f9f 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -2735,6 +2735,56 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(virtqueue_resize);
 > > >
-> > > I can split patch into multiple parts such as
-> > >
-> > > * virtio core
-> > > * xsk
-> > > * virtio-net prepare
-> > > * virtio-net support xsk zerocopy
-> > >
-> > > However, there is a problem, the virtio core part should enter the VHOST branch
-> > > of Michael. Then, should I post follow-up patches to which branch vhost or
-> > > next-next?
-> > >
-> > > Thanks.
-> > >
+> > > +/**
+> > > + * virtqueue_reset - reset the vring of vq
 > >
-> > Here are some ideas on how to make the patchset smaller
-> > and easier to merge:
-> > - keep everything in virtio_net.c for now. We can split
-> >   things out later, but this way your patchset will not
-> >   conflict with every since change merged meanwhile.
-> >   Also, split up needs to be done carefully with sane
-> >   APIs between components, let's maybe not waste time
-> >   on that now, do the split-up later.
-> > - you have patches that add APIs then other
-> >   patches use them. as long as it's only virtio net just
-> >   add and use in a single patch, review is actually easier this way.
+> > ..., detach and recycle all unused buffers
+> >
+> > 	after all this is why we are doing this reset, right?
+> >
+> > > + * @_vq: the struct virtqueue we're talking about.
+> > > + * @recycle: callback for recycle the useless buffer
+> >
+> > not useless :) unused:
+> >
+> > 	callback to recycle unused buffers
 > 
-> I will try to merge #16-#18 and #20-#23.
-
-don't do the code reorg thing for now either.
-
-leave this for later.
-
 > 
-> > - we can try merging pre-requisites earlier, then patchset
-> >   size will shrink.
-> 
-> Do you mean the patches of virtio core? Should we put these
-> patches to vhost branch?
+> I agree. Will fix.
 > 
 > Thanks.
 
-I can merge patches 1-8, yes.
-This patchset probably missed the merge window anyway.
+Probably too late for this merge cycle then. Oh well.
 
 
 > >
+> > I know we have the same confusion in virtqueue_resize, I will fix
+> > that.
 > >
-> > > >
-> > > > Thanks!
-> > > >
-> > > > Paolo
-> > > >
+> > > + *
+> > > + * Caller must ensure we don't call this with other virtqueue operations
+> > > + * at the same time (except where noted).
+> > > + *
+> > > + * Returns zero or a negative error.
+> > > + * 0: success.
+> > > + * -EBUSY: Failed to sync with device, vq may not work properly
+> > > + * -ENOENT: Transport or device not supported
+> > > + * -EPERM: Operation not permitted
+> > > + */
+> > > +int virtqueue_reset(struct virtqueue *_vq,
+> > > +		    void (*recycle)(struct virtqueue *vq, void *buf))
+> > > +{
+> > > +	struct vring_virtqueue *vq = to_vvq(_vq);
+> > > +	struct virtio_device *vdev = vq->vq.vdev;
+> > > +	void *buf;
+> > > +	int err;
+> > > +
+> > > +	if (!vq->we_own_ring)
+> > > +		return -EPERM;
+> > > +
+> > > +	if (!vdev->config->disable_vq_and_reset)
+> > > +		return -ENOENT;
+> > > +
+> > > +	if (!vdev->config->enable_vq_after_reset)
+> > > +		return -ENOENT;
+> > > +
+> > > +	err = vdev->config->disable_vq_and_reset(_vq);
+> > > +	if (err)
+> > > +		return err;
+> > > +
+> > > +	while ((buf = virtqueue_detach_unused_buf(_vq)) != NULL)
+> > > +		recycle(_vq, buf);
+> > > +
+> > > +	if (vq->packed_ring)
+> > > +		virtqueue_reinit_packed(vq);
+> > > +	else
+> > > +		virtqueue_reinit_split(vq);
+> > > +
+> > > +	if (vdev->config->enable_vq_after_reset(_vq))
+> > > +		return -EBUSY;
+> > > +
+> > > +	return 0;
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtqueue_reset);
+> > > +
+> > >  /* Only available for split ring */
+> > >  struct virtqueue *vring_new_virtqueue(unsigned int index,
+> > >  				      unsigned int num,
+> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > index 3ebb346ebb7c..3ca2edb1aef3 100644
+> > > --- a/include/linux/virtio.h
+> > > +++ b/include/linux/virtio.h
+> > > @@ -105,6 +105,8 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+> > >
+> > >  int virtqueue_resize(struct virtqueue *vq, u32 num,
+> > >  		     void (*recycle)(struct virtqueue *vq, void *buf));
+> > > +int virtqueue_reset(struct virtqueue *vq,
+> > > +		    void (*recycle)(struct virtqueue *vq, void *buf));
+> > >
+> > >  /**
+> > >   * struct virtio_device - representation of a device using virtio
+> > > --
+> > > 2.32.0.3.g01195cf9f
 > >
 
 _______________________________________________
