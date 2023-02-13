@@ -4,82 +4,90 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91AA8C636D4
-	for <virtualization@archiver.kernel.org>; Mon, 13 Feb 2023 18:41:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB7B6C636D4
+	for <virtualization@archiver.kernel.org>; Mon, 13 Feb 2023 18:53:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F3E39402D2;
-	Mon, 13 Feb 2023 18:41:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F3E39402D2
+	by smtp4.osuosl.org (Postfix) with ESMTP id 340614089E;
+	Mon, 13 Feb 2023 18:53:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 340614089E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.a=rsa-sha256 header.s=2020 header.b=xGob6qvp;
+	dkim=fail reason="signature verification failed" header.d=linutronix.de header.i=@linutronix.de header.a=ed25519-sha256 header.s=2020e header.b=U2axGgm9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rcMmUDWo-WBH; Mon, 13 Feb 2023 18:41:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3AB834046D;
-	Mon, 13 Feb 2023 18:41:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3AB834046D
+	with ESMTP id HwTBg3r4zneO; Mon, 13 Feb 2023 18:53:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 96BE64047D;
+	Mon, 13 Feb 2023 18:53:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 96BE64047D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04462C0032;
-	Mon, 13 Feb 2023 18:41:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7249EC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D78EC0032;
+	Mon, 13 Feb 2023 18:53:51 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89F6BC002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 18:41:09 +0000 (UTC)
+ Mon, 13 Feb 2023 18:53:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3687040949
+ by smtp1.osuosl.org (Postfix) with ESMTP id 71F3680F92
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 18:41:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3687040949
+ Mon, 13 Feb 2023 18:53:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71F3680F92
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de
+ header.a=rsa-sha256 header.s=2020 header.b=xGob6qvp; 
+ dkim=pass header.d=linutronix.de header.i=@linutronix.de
+ header.a=ed25519-sha256 header.s=2020e header.b=U2axGgm9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Yx3WvRHTGAYw
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id V1V7UN_Msd4O
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 18:41:04 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D93A4014B
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com
- [209.85.208.46])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5D93A4014B
+ Mon, 13 Feb 2023 18:53:48 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7AF0B80E07
+Received: from galois.linutronix.de (Galois.linutronix.de
+ [IPv6:2a0a:51c0:0:12e:550::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7AF0B80E07
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 18:41:04 +0000 (UTC)
-Received: by mail-ed1-f46.google.com with SMTP id fi26so14224495edb.7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Feb 2023 10:41:04 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=CDtFU2Jc95gLjieOysLnzEfFJTUgaL6A5DtFJMyaKWg=;
- b=FfmKT8+nGlPGy7TnBvJWYehFRwP4ayXwAaRZa7xDi45fz0rwBmBxHo82DIMuSZdiBe
- KWnofRGKupkd4Da0gomuGhigotLaZGngXfcM9gHXMw22dp9k1J+tpYCed5k9Xs4+9BNn
- QcsmYD/U0RSg+Ykh86Ai4TCtje+ZbFelsjR7ywy0aNQKN1za+cH5IxVZ3zcXKvF3y+NY
- eKkt4kGbYzI3dBBZGS0pfdfmNGp3jxFZr56xhhidozM3A0c3Il6Wts53ST+MWbFqdn7m
- AxrgP5MFMop36MAMabYtnEOhqV44Jvc2z9LmYV7Z3bjn3G6dATnvJcQ0a2qzHv7hURW7
- +ESQ==
-X-Gm-Message-State: AO0yUKVajMlzW6U75YvlG62JV6xlAGK+3MVaVzE2K2BEX+uHoUBhFeDV
- rLWhVqOZ+Wjkq9pfggDIYQkyFhDVJxeHbOrlYBw=
-X-Google-Smtp-Source: AK7set9c7MrFAu9f5jlejY00/6IQgCiFdmwotU5SX7kkOfHGG0KHlQp9HH4RhJUJiR5WCISRbhRFTSlDhAMhz5lGcPE=
-X-Received: by 2002:a50:baab:0:b0:4ac:cdd9:1c97 with SMTP id
- x40-20020a50baab000000b004accdd91c97mr1386918ede.6.1676313662522; Mon, 13 Feb
- 2023 10:41:02 -0800 (PST)
+ Mon, 13 Feb 2023 18:53:48 +0000 (UTC)
+From: Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020; t=1676314425;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=XumuzdKDIJOLVLxOQFa7Ls9fvvPzp/W5mMqaQUxDX9U=;
+ b=xGob6qvpa705D1lyN8pau6eEY/lV1qg5ggnK9ZzlISZV8ZpYwAYAg1c/FVF97Wla8Io1tg
+ 2VXfdtHLOdaWDnew1TPKPLs5MlA3wjmsG6esWNVjdA8OXRZAkmEgj3jJjvb20YkKm2HrQ2
+ Uc9itVGQBUYfrmtd459gBddWmL75xlWzHoAMVyU70zL2bC6LPiCIqOq7iri7wtkG74iQNW
+ DTWaNXRivbVg0QiudwTOLiJxatkUbRXy6JQI2CmbZVn0UsksB9zndbSvgF63/xHGoLa+3N
+ COtu5OoV7cqCoWFGAFVg5q2HbFDRG/ebN3sV3+IfOwNSHLh8JZxvyQ0t5zOv6A==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+ s=2020e; t=1676314425;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=XumuzdKDIJOLVLxOQFa7Ls9fvvPzp/W5mMqaQUxDX9U=;
+ b=U2axGgm9NS+lQo3rT9ONaCbWGnPK9Jm7xmja90tV85w8IO8Bh4aVu0JC8SbfYtOkoz4hHe
+ lUdRHrOqfgY2kuAw==
+To: Yongji Xie <xieyongji@bytedance.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 01/11] genirq/affinity:: Export
+ irq_create_affinity_masks()
+In-Reply-To: <CACycT3uY1dfP=5d1go+POh7-J1tUMW+9RXi92KtcFJYMzq-bOQ@mail.gmail.com>
+References: <20221205084127.535-1-xieyongji@bytedance.com>
+ <20221205084127.535-2-xieyongji@bytedance.com>
+ <20221219023253-mutt-send-email-mst@kernel.org>
+ <CACycT3utDJFZtWzqCUXJaqRjkCXPMTAi+VJd3g6dw25vWqaduw@mail.gmail.com>
+ <20230127032039-mutt-send-email-mst@kernel.org>
+ <CACycT3u=vULuZ9-ZakBjxmbu88iUb+xB2mHJUnHA_8SuUV7H4w@mail.gmail.com>
+ <20230213065116-mutt-send-email-mst@kernel.org>
+ <CACycT3uY1dfP=5d1go+POh7-J1tUMW+9RXi92KtcFJYMzq-bOQ@mail.gmail.com>
+Date: Mon, 13 Feb 2023 19:53:44 +0100
+Message-ID: <87a61htn0n.ffs@tglx>
 MIME-Version: 1.0
-References: <1676021646-2619-1-git-send-email-ssengar@linux.microsoft.com>
- <1676021646-2619-3-git-send-email-ssengar@linux.microsoft.com>
-In-Reply-To: <1676021646-2619-3-git-send-email-ssengar@linux.microsoft.com>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Mon, 13 Feb 2023 19:40:51 +0100
-Message-ID: <CAJZ5v0ivddzCoYFd4TauH3G83KxCWQK1NZSvn25oWt_iy0LOfQ@mail.gmail.com>
-Subject: Re: [PATCH v6 2/5] ACPI: bus: Add stub acpi_sleep_state_supported()
- in non-ACPI cases
-To: Saurabh Sengar <ssengar@linux.microsoft.com>
-Cc: devicetree@vger.kernel.org, wei.liu@kernel.org, mikelley@microsoft.com,
- linux-hyperv@vger.kernel.org, rafael@kernel.org, haiyangz@microsoft.com,
- daniel.lezcano@linaro.org, decui@microsoft.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
- robh+dt@kernel.org, dphadke@linux.microsoft.com,
- krzysztof.kozlowski+dt@linaro.org, tglx@linutronix.de, lenb@kernel.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,45 +104,18 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 10, 2023 at 10:34 AM Saurabh Sengar
-<ssengar@linux.microsoft.com> wrote:
->
-> acpi_sleep_state_supported() is defined only when CONFIG_ACPI=y. The
-> function is in acpi_bus.h, and acpi_bus.h can only be used in
-> CONFIG_ACPI=y cases. Add the stub function to linux/acpi.h to make
-> compilation successful for !CONFIG_ACPI cases.
->
-> Signed-off-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+On Mon, Feb 13 2023 at 22:50, Yongji Xie wrote:
+> On Mon, Feb 13, 2023 at 8:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> I can try to split irq_create_affinity_masks() into a common part and
+> an irq specific part, and move the common part to a common dir such as
+> /lib and export it. Then we can use the common part to build a new API
+> for usage.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+  https://lore.kernel.org/all/20221227022905.352674-1-ming.lei@redhat.com/
 
-and please feel free to toute this patch whichever way is convenient.
+Thanks,
 
-Thanks!
-
-> ---
->  include/linux/acpi.h | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-> index efff750f326d..d331f76b0c19 100644
-> --- a/include/linux/acpi.h
-> +++ b/include/linux/acpi.h
-> @@ -1075,6 +1075,11 @@ static inline u32 acpi_osc_ctx_get_cxl_control(struct acpi_osc_context *context)
->         return 0;
->  }
->
-> +static inline bool acpi_sleep_state_supported(u8 sleep_state)
-> +{
-> +       return false;
-> +}
-> +
->  #endif /* !CONFIG_ACPI */
->
->  #ifdef CONFIG_ACPI_HOTPLUG_IOAPIC
-> --
-> 2.34.1
->
+        tglx
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
