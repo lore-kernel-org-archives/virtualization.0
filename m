@@ -1,108 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC280C636CC
-	for <virtualization@archiver.kernel.org>; Thu, 16 Feb 2023 14:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E19F4C636CC
+	for <virtualization@archiver.kernel.org>; Thu, 16 Feb 2023 15:16:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6C7EE81F5D;
-	Thu, 16 Feb 2023 14:30:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6C7EE81F5D
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EBDJcNW0
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mWVrbPXT1-PM; Thu, 16 Feb 2023 14:30:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EA4A781F51;
-	Thu, 16 Feb 2023 14:30:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA4A781F51
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BF949C0032;
-	Thu, 16 Feb 2023 14:30:39 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 98766C002B
- for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 14:30:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 604F341014
- for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 14:30:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 604F341014
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6453B41023;
+	Thu, 16 Feb 2023 15:16:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6453B41023
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EBDJcNW0
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QnScjDBv
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xFJ02xCAUF5R
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T7_eZmfnv_8C; Thu, 16 Feb 2023 15:16:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 981A0400D7;
+	Thu, 16 Feb 2023 15:16:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 981A0400D7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 683C8C0033;
+	Thu, 16 Feb 2023 15:16:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 95766C002B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 14:30:36 +0000 (UTC)
+ Thu, 16 Feb 2023 15:16:33 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 60FCC61226
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 Feb 2023 15:16:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 60FCC61226
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=QnScjDBv
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fPgjov1m1i4p
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 16 Feb 2023 15:16:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 92B62402EB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 589AF61224
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 92B62402EB
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 589AF61224
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 14:30:36 +0000 (UTC)
+ Thu, 16 Feb 2023 15:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676557835;
+ s=mimecast20190719; t=1676560590;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=U9oWDCNYoCRLAFAE2xiwQxbVwQjtrOQMjZPhjji0izk=;
- b=EBDJcNW0tzaNkcuBS4Kd8UdQ4+xgN+Bj4wsoU0KR2ubsgDOgxJ4ZBfy4p5bbtZIXntN9R2
- CfSlKBgUUlKxL8CozG1P+9rCPeCGkkZd0F/JQGLC3850J8ediYYZhLk0N6zmlwFiB7AL0B
- gEZmNdUC54wr8CaEp82r6C0rOMmmFZQ=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=TfM1ZlXzKUkDCUxuJyuXPYY/56tUGy5zNcAq6nqBMRg=;
+ b=QnScjDBvB40UBs1QN9dlqrJ/okqyFI7B9Qcx2U55jirKwg08IoJtAhpBuRjbP+Itk2uG6c
+ 26TnsJXoSuYCStyIsE5zVmQMv2upT3tKY4bob3FNum7eZL/E0QNFOUGsQHT3tZTGU9u1+q
+ RuHeIzDCEgaDaXPXDrUgIoXE5bw73iM=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-189-mQCnjN-UOVuUafAzC8iCKQ-1; Thu, 16 Feb 2023 09:30:34 -0500
-X-MC-Unique: mQCnjN-UOVuUafAzC8iCKQ-1
-Received: by mail-qk1-f197.google.com with SMTP id
- x14-20020a05620a14ae00b0072f7f0f356bso1295020qkj.1
+ us-mta-616-cCsF1dfXPq-DOTkiSm2FTQ-1; Thu, 16 Feb 2023 10:16:28 -0500
+X-MC-Unique: cCsF1dfXPq-DOTkiSm2FTQ-1
+Received: by mail-qt1-f200.google.com with SMTP id
+ t5-20020a05622a180500b003b9c03cd525so1363438qtc.20
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 06:30:33 -0800 (PST)
+ Thu, 16 Feb 2023 07:16:28 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=U9oWDCNYoCRLAFAE2xiwQxbVwQjtrOQMjZPhjji0izk=;
- b=sS8R8KO8pTvLn4hi5JunW1wwOvfFNZ4ITFUSGSwSC3tiZY3Wq13cg3WiE0BsgMXu4I
- kjQkEs2RDkl47/8tOre4wHTYSIPy0CuOwOLt62yEaKZ3fYsiUCpcLlfil0fZQWnk/58W
- xtF06tw94vfjuOjMGzAJnB6hpio3slmbyhM2UC+n5QmMXg3Cx8spKFKjc+VF5ZFGoewW
- sA5Sk4kE71dgfBvL/Jm9hOPFIPdyRpT2w3AjmGotvPMMaa2vVMWRVtWShmYYceGsdhuU
- Ce1eKSNVgNk5rWuPpl4jv5mMEVSPnqO1mu6tm4ek52QTnTq9mViFv0R4Jf5uVkZhqY6H
- i3/g==
-X-Gm-Message-State: AO0yUKWHKfWFPRACtAgu4n0gUv/H6/jJq+yvr7yhSmFVeAks1UKMCL0R
- 04C3pkvgfzpWH4TtyWWOyvEnOWbOKFmObzVMbNc/awHloqocDDmD2Nqg5ujbx2XOvvm8oHYh0nS
- C1spLMvgzvkkHLCdHsbg+D/yX8InR3ffumW4y5cNLZg==
-X-Received: by 2002:ac8:5849:0:b0:3bd:15d4:ff65 with SMTP id
- h9-20020ac85849000000b003bd15d4ff65mr661141qth.40.1676557833575; 
- Thu, 16 Feb 2023 06:30:33 -0800 (PST)
-X-Google-Smtp-Source: AK7set8XJTsnTm0VaIJmbJX3VcXHUhxxi2M8Gpe8tbPNcNIuLHAOsiSc/znHPpsq3YpeBFeBz2CWkQ==
-X-Received: by 2002:ac8:5849:0:b0:3bd:15d4:ff65 with SMTP id
- h9-20020ac85849000000b003bd15d4ff65mr661093qth.40.1676557833268; 
- Thu, 16 Feb 2023 06:30:33 -0800 (PST)
+ bh=TfM1ZlXzKUkDCUxuJyuXPYY/56tUGy5zNcAq6nqBMRg=;
+ b=CmUPdxVEaIYEgguH3Zw8D4VeoGlz1bGpR4VnkIaO5uPBNqcKzkVwRtSf/G/I+wOzz3
+ GE4/JRsyr6f+wz1ni2RlpEQR5GpJw48LoB7sinKmGmIZCoCNDx/qV01JaM2y2j39WDW2
+ 5gprDEqheGIzb1lS8DYh4/1ycGDDmnrjkWrxJiy4WXFP8EBImXKNMQDfo48+R2T71FsA
+ rJx/xUbI0yI3NhLhrDrnfmMYLpDlVrtqa+wOx5iLzqp5XuOQhEIkJslslnNXsUUvkqET
+ fE8HP2/mh/AeW9BhiB+gYq2kDuI5c7AdvE2I9lTlEJa9znJGD4YKVytrgGFdal8b33uS
+ Pbmw==
+X-Gm-Message-State: AO0yUKVcbdvG9/a+U+gvukGhRvN5BEP8/O2Pz2tFhP3k2+jyzBewhTKK
+ Qk1lEs9Pa07e+I8EykJ+E+SQbXxkP38xBret+bnQgWPaacoU/A1G9Eh5+EnC5Hn5UmQoI4EqR45
+ J+kSSEOH+CZVtKlAUlnjLNYjWTIPQRJD8zA7+xltSJw==
+X-Received: by 2002:a05:622a:1648:b0:3bc:f954:323b with SMTP id
+ y8-20020a05622a164800b003bcf954323bmr8607785qtj.29.1676560588094; 
+ Thu, 16 Feb 2023 07:16:28 -0800 (PST)
+X-Google-Smtp-Source: AK7set/dluYNqaywOvNSwlQKJZgy3rhaatZv5j5C/MDcRhW5QcV5jfGsrL1X9gJrCHlPcHul8bH8Ow==
+X-Received: by 2002:a05:622a:1648:b0:3bc:f954:323b with SMTP id
+ y8-20020a05622a164800b003bcf954323bmr8607754qtj.29.1676560587786; 
+ Thu, 16 Feb 2023 07:16:27 -0800 (PST)
 Received: from sgarzare-redhat (host-82-57-51-167.retail.telecomitalia.it.
  [82.57.51.167]) by smtp.gmail.com with ESMTPSA id
- k6-20020a378806000000b0073912c099cesm1258386qkd.73.2023.02.16.06.30.30
+ a13-20020ac8720d000000b003b860983973sm1371958qtp.60.2023.02.16.07.16.25
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 16 Feb 2023 06:30:32 -0800 (PST)
-Date: Thu, 16 Feb 2023 15:30:27 +0100
+ Thu, 16 Feb 2023 07:16:27 -0800 (PST)
+Date: Thu, 16 Feb 2023 16:16:22 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 06/12] vsock/virtio: non-linear skb handling for
- TAP dev
-Message-ID: <20230216143027.yg737u2ndiwwatm2@sgarzare-redhat>
+Subject: Re: [RFC PATCH v1 07/12] vsock/virtio: MGS_ZEROCOPY flag support
+Message-ID: <20230216151622.xu5jhha3wvc3us2b@sgarzare-redhat>
 References: <0e7c6fc4-b4a6-a27b-36e9-359597bba2b5@sberdevices.ru>
- <ebee740a-95df-ed52-6274-a9340e8dc9d2@sberdevices.ru>
+ <716333a1-d6d1-3dde-d04a-365d4a361bfe@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <ebee740a-95df-ed52-6274-a9340e8dc9d2@sberdevices.ru>
+In-Reply-To: <716333a1-d6d1-3dde-d04a-365d4a361bfe@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -132,117 +131,314 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 06, 2023 at 06:59:21AM +0000, Arseniy Krasnov wrote:
->For TAP device new skb is created and data from the current skb is
->copied to it. This adds copying data from non-linear skb to new
->the skb.
+On Mon, Feb 06, 2023 at 07:00:35AM +0000, Arseniy Krasnov wrote:
+>This adds main logic of MSG_ZEROCOPY flag processing for packet
+>creation. When this flag is set and user's iov iterator fits for
+>zerocopy transmission, call 'get_user_pages()' and add returned
+>pages to the newly created skb.
 >
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 43 +++++++++++++++++++++++--
-> 1 file changed, 40 insertions(+), 3 deletions(-)
+> net/vmw_vsock/virtio_transport_common.c | 212 ++++++++++++++++++++++--
+> 1 file changed, 195 insertions(+), 17 deletions(-)
 >
 >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index a1581c77cf84..05ce97b967ad 100644
+>index 05ce97b967ad..69e37f8a68a6 100644
 >--- a/net/vmw_vsock/virtio_transport_common.c
 >+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -101,6 +101,39 @@ virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *info,
-> 	return NULL;
+>@@ -37,6 +37,169 @@ virtio_transport_get_ops(struct vsock_sock *vsk)
+> 	return container_of(t, struct virtio_transport, transport);
 > }
 >
->+static void virtio_transport_copy_nonlinear_skb(struct sk_buff *skb,
->+						void *dst,
->+						size_t len)
+
+I'd use bool if we don't need to return an error value in the following
+new functions.
+
+>+static int virtio_transport_can_zcopy(struct iov_iter *iov_iter,
+>+				      size_t free_space)
 >+{
->+	size_t rest_len = len;
+>+	size_t pages;
+>+	int i;
 >+
->+	while (rest_len && virtio_vsock_skb_has_frags(skb)) {
->+		struct bio_vec *curr_vec;
->+		size_t curr_vec_end;
->+		size_t to_copy;
->+		int curr_frag;
->+		int curr_offs;
+>+	if (!iter_is_iovec(iov_iter))
+>+		return -1;
 >+
->+		curr_frag = VIRTIO_VSOCK_SKB_CB(skb)->curr_frag;
->+		curr_offs = VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
->+		curr_vec = &skb_shinfo(skb)->frags[curr_frag];
+>+	if (iov_iter->iov_offset)
+>+		return -1;
 >+
->+		curr_vec_end = curr_vec->bv_offset + curr_vec->bv_len;
->+		to_copy = min(rest_len, (size_t)(curr_vec_end - curr_offs));
+>+	/* We can't send whole iov. */
+>+	if (free_space < iov_iter->count)
+>+		return -1;
 >+
->+		memcpy(dst, page_to_virt(curr_vec->bv_page) + curr_offs,
->+		       to_copy);
+>+	for (pages = 0, i = 0; i < iov_iter->nr_segs; i++) {
+>+		const struct iovec *iovec;
+>+		int pages_in_elem;
 >+
->+		rest_len -= to_copy;
->+		VIRTIO_VSOCK_SKB_CB(skb)->frag_off += to_copy;
+>+		iovec = &iov_iter->iov[i];
 >+
->+		if (VIRTIO_VSOCK_SKB_CB(skb)->frag_off == (curr_vec_end)) {
->+			VIRTIO_VSOCK_SKB_CB(skb)->curr_frag++;
->+			VIRTIO_VSOCK_SKB_CB(skb)->frag_off = 0;
+>+		/* Base must be page aligned. */
+>+		if (offset_in_page(iovec->iov_base))
+>+			return -1;
+>+
+>+		/* Only last element could have not page aligned size.  */
+>+		if (i != (iov_iter->nr_segs - 1)) {
+>+			if (offset_in_page(iovec->iov_len))
+>+				return -1;
+>+
+>+			pages_in_elem = iovec->iov_len >> PAGE_SHIFT;
+>+		} else {
+>+			pages_in_elem = round_up(iovec->iov_len, PAGE_SIZE);
+>+			pages_in_elem >>= PAGE_SHIFT;
 >+		}
+>+
+>+		/* In case of user's pages - one page is one frag. */
+>+		if (pages + pages_in_elem > MAX_SKB_FRAGS)
+>+			return -1;
+>+
+>+		pages += pages_in_elem;
 >+	}
+>+
+>+	return 0;
 >+}
 >+
-> /* Packet capture */
-> static struct sk_buff *virtio_transport_build_skb(void *opaque)
-> {
->@@ -109,7 +142,6 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
-> 	struct af_vsockmon_hdr *hdr;
-> 	struct sk_buff *skb;
-> 	size_t payload_len;
->-	void *payload_buf;
->
-> 	/* A packet could be split to fit the RX buffer, so we can retrieve
-> 	 * the payload length from the header and the buffer pointer taking
->@@ -117,7 +149,6 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
-> 	 */
-> 	pkt_hdr = virtio_vsock_hdr(pkt);
-> 	payload_len = pkt->len;
->-	payload_buf = pkt->data;
->
-> 	skb = alloc_skb(sizeof(*hdr) + sizeof(*pkt_hdr) + payload_len,
-> 			GFP_ATOMIC);
->@@ -160,7 +191,13 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
-> 	skb_put_data(skb, pkt_hdr, sizeof(*pkt_hdr));
->
-> 	if (payload_len) {
->-		skb_put_data(skb, payload_buf, payload_len);
->+		if (skb_is_nonlinear(skb)) {
->+			void *data = skb_put(skb, payload_len);
+>+static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
+>+					   struct sk_buff *skb,
+>+					   struct iov_iter *iter,
+>+					   bool zerocopy)
+>+{
+>+	struct ubuf_info_msgzc *uarg_zc;
+>+	struct ubuf_info *uarg;
 >+
->+			virtio_transport_copy_nonlinear_skb(skb, data, payload_len);
+>+	uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+>+				    iov_length(iter->iov, iter->nr_segs),
+>+				    NULL);
+>+
+>+	if (!uarg)
+>+		return -1;
+>+
+>+	uarg_zc = uarg_to_msgzc(uarg);
+>+	uarg_zc->zerocopy = zerocopy ? 1 : 0;
+>+
+>+	skb_zcopy_init(skb, uarg);
+>+
+>+	return 0;
+>+}
+>+
+>+static int virtio_transport_fill_nonlinear_skb(struct sk_buff *skb,
+>+					       struct vsock_sock *vsk,
+>+					       struct virtio_vsock_pkt_info *info)
+>+{
+>+	struct iov_iter *iter;
+>+	int frag_idx;
+>+	int seg_idx;
+>+
+>+	iter = &info->msg->msg_iter;
+>+	frag_idx = 0;
+>+	VIRTIO_VSOCK_SKB_CB(skb)->curr_frag = 0;
+>+	VIRTIO_VSOCK_SKB_CB(skb)->frag_off = 0;
+>+
+>+	/* At this moment:
+>+	 * 1) 'iov_offset' is zero.
+>+	 * 2) Every 'iov_base' and 'iov_len' are also page aligned
+>+	 *    (except length of the last element).
+>+	 * 3) Number of pages in this iov <= MAX_SKB_FRAGS.
+>+	 * 4) Length of the data fits in current credit space.
+>+	 */
+>+	for (seg_idx = 0; seg_idx < iter->nr_segs; seg_idx++) {
+>+		struct page *user_pages[MAX_SKB_FRAGS];
+>+		const struct iovec *iovec;
+>+		size_t last_frag_len;
+>+		size_t pages_in_seg;
+>+		int page_idx;
+>+
+>+		iovec = &iter->iov[seg_idx];
+>+		pages_in_seg = iovec->iov_len >> PAGE_SHIFT;
+>+
+>+		if (iovec->iov_len % PAGE_SIZE) {
+>+			last_frag_len = iovec->iov_len % PAGE_SIZE;
+>+			pages_in_seg++;
 >+		} else {
->+			skb_put_data(skb, pkt->data, payload_len);
+>+			last_frag_len = PAGE_SIZE;
 >+		}
+>+
+>+		if (get_user_pages((unsigned long)iovec->iov_base,
+>+				   pages_in_seg, FOLL_GET, user_pages,
+>+				   NULL) != pages_in_seg)
+>+			return -1;
 
-Ehm I'm a bit confused. Maybe we need to rename the sk_buffs involved in
-this function (pre-existing).
+Reading the get_user_pages() documentation, this should pin the user
+pages, so we should be fine if we then expose them in the virtqueue.
 
-We have `pkt` that is the original sk_buff, and `skb` that it is 
-allocated in this function, so IIUC we should check if `pkt` is 
-nonlinear and copy its payload into `skb`, so we should do this 
-(untested) chage:
+But reading Documentation/core-api/pin_user_pages.rst it seems that
+drivers should use "pin_user_pages*() for DMA-pinned pages", so I'm not
+sure what we should do.
 
-@@ -367,10 +367,10 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
-         skb_put_data(skb, pkt_hdr, sizeof(*pkt_hdr));
+Additional advice would be great!
 
-         if (payload_len) {
--               if (skb_is_nonlinear(skb)) {
-+               if (skb_is_nonlinear(pkt)) {
-                         void *data = skb_put(skb, payload_len);
+Anyway, when we are done using the pages, we should call put_page() or
+unpin_user_page() depending on how we pin them.
 
--                       virtio_transport_copy_nonlinear_skb(skb, data, payload_len);
-+                       virtio_transport_copy_nonlinear_skb(pkt, data, payload_len);
-                 } else {
-                         skb_put_data(skb, pkt->data, payload_len);
-                 }
+>+
+>+		for (page_idx = 0; page_idx < pages_in_seg; page_idx++) {
+>+			int frag_len = PAGE_SIZE;
+>+
+>+			if (page_idx == (pages_in_seg - 1))
+>+				frag_len = last_frag_len;
+>+
+>+			skb_fill_page_desc(skb, frag_idx++,
+>+					   user_pages[page_idx], 0,
+>+					   frag_len);
+>+			skb_len_add(skb, frag_len);
+>+		}
+>+	}
+>+
+>+	return virtio_transport_init_zcopy_skb(vsk, skb, iter, true);
+>+}
+>+
+>+static int virtio_transport_copy_payload(struct sk_buff *skb,
+>+					 struct vsock_sock *vsk,
+>+					 struct virtio_vsock_pkt_info *info,
+>+					 size_t len)
+>+{
+>+	void *payload;
+>+	int err;
+>+
+>+	payload = skb_put(skb, len);
+>+	err = memcpy_from_msg(payload, info->msg, len);
+>+	if (err)
+>+		return -1;
+>+
+>+	if (msg_data_left(info->msg))
+>+		return 0;
+>+
+>+	if (info->type == VIRTIO_VSOCK_TYPE_SEQPACKET) {
+>+		struct virtio_vsock_hdr *hdr;
+>+
+>+		hdr = virtio_vsock_hdr(skb);
+>+
+>+		hdr->flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOM);
+>+
+>+		if (info->msg->msg_flags & MSG_EOR)
+>+			hdr->flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
+>+	}
+>+
 
-Thanks,
-Stefano
+A comment here explaining why this is necessary would be helpful.
 
+>+	if (info->flags & MSG_ZEROCOPY)
+>+		return virtio_transport_init_zcopy_skb(vsk, skb,
+>+						       &info->msg->msg_iter,
+>+						       false);
+>+
+>+	return 0;
+>+}
+>+
+> /* Returns a new packet on success, otherwise returns NULL.
+>  *
+>  * If NULL is returned, errp is set to a negative errno.
+>@@ -47,15 +210,31 @@ virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *info,
+> 			   u32 src_cid,
+> 			   u32 src_port,
+> 			   u32 dst_cid,
+>-			   u32 dst_port)
+>+			   u32 dst_port,
+>+			   struct vsock_sock *vsk)
+> {
+>-	const size_t skb_len = VIRTIO_VSOCK_SKB_HEADROOM + len;
+>+	const size_t skb_len = VIRTIO_VSOCK_SKB_HEADROOM;
+> 	struct virtio_vsock_hdr *hdr;
+> 	struct sk_buff *skb;
+>-	void *payload;
+>-	int err;
+>+	bool use_zcopy = false;
+>+
+>+	if (info->msg) {
+>+		/* If SOCK_ZEROCOPY is not enabled, ignore MSG_ZEROCOPY
+>+		 * flag later and continue in classic way(e.g. without
+>+		 * completion).
+>+		 */
+>+		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
+
+`vsk` can be null, should we check it?
+Otherwise, what about passing only a flag?
+So the caller will check it.
+
+>+			info->flags &= ~MSG_ZEROCOPY;
+>+		} else {
+>+			if ((info->flags & MSG_ZEROCOPY) &&
+>+			    !virtio_transport_can_zcopy(&info->msg->msg_iter, len)) {
+
+This part is not very clear, I think virtio_transport_can_zcopy()
+should return `true` if "can_zcopy".
+
+>+				use_zcopy = true;
+>+			}
+>+		}
+>+	}
+>
+>-	skb = virtio_vsock_alloc_skb(skb_len, GFP_KERNEL);
+>+	/* For MSG_ZEROCOPY length will be added later. */
+>+	skb = virtio_vsock_alloc_skb(skb_len + (use_zcopy ? 0 : len), GFP_KERNEL);
+
+I think is better to adsjut `skb_len` in the previous block, when we set
+`use_zcopy = true`, we can do `skb_len -= len` (with the comment);
+
+> 	if (!skb)
+> 		return NULL;
+>
+>@@ -70,18 +249,15 @@ virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *info,
+> 	hdr->len	= cpu_to_le32(len);
+>
+> 	if (info->msg && len > 0) {
+>-		payload = skb_put(skb, len);
+>-		err = memcpy_from_msg(payload, info->msg, len);
+>-		if (err)
+>-			goto out;
+>+		int err;
+>
+>-		if (msg_data_left(info->msg) == 0 &&
+>-		    info->type == VIRTIO_VSOCK_TYPE_SEQPACKET) {
+>-			hdr->flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOM);
+>+		if (use_zcopy)
+>+			err = virtio_transport_fill_nonlinear_skb(skb, vsk, info);
+>+		else
+>+			err = virtio_transport_copy_payload(skb, vsk, info, len);
+>
+>-			if (info->msg->msg_flags & MSG_EOR)
+>-				hdr->flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
+>-		}
+>+		if (err)
+>+			goto out;
 > 	}
 >
-> 	return skb;
+> 	if (info->reply)
+>@@ -266,7 +442,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>
+> 	skb = virtio_transport_alloc_skb(info, pkt_len,
+> 					 src_cid, src_port,
+>-					 dst_cid, dst_port);
+>+					 dst_cid, dst_port,
+>+					 vsk);
+> 	if (!skb) {
+> 		virtio_transport_put_credit(vvs, pkt_len);
+> 		return -ENOMEM;
+>@@ -842,6 +1019,7 @@ virtio_transport_stream_enqueue(struct vsock_sock *vsk,
+> 		.msg = msg,
+> 		.pkt_len = len,
+> 		.vsk = vsk,
+>+		.flags = msg->msg_flags,
+> 	};
+>
+> 	return virtio_transport_send_pkt_info(vsk, &info);
+>@@ -894,7 +1072,7 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+> 					   le64_to_cpu(hdr->dst_cid),
+> 					   le32_to_cpu(hdr->dst_port),
+> 					   le64_to_cpu(hdr->src_cid),
+>-					   le32_to_cpu(hdr->src_port));
+>+					   le32_to_cpu(hdr->src_port), NULL);
+> 	if (!reply)
+> 		return -ENOMEM;
+>
 >-- 
 >2.25.1
 
