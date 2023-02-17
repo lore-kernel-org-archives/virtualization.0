@@ -1,111 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9CC5BC636D4
-	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 12:22:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A4007C05027
+	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 12:23:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2FE686176B;
-	Fri, 17 Feb 2023 12:22:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2FE686176B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQH57tKs
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aJpNMGukBEKv; Fri, 17 Feb 2023 12:22:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C905D60E66;
-	Fri, 17 Feb 2023 12:22:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C905D60E66
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3B6AC0033;
-	Fri, 17 Feb 2023 12:22:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E5811C002B
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:22:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B1D3541A10
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:22:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B1D3541A10
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2957441A50;
+	Fri, 17 Feb 2023 12:23:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2957441A50
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQH57tKs
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=wSD0+pq4;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=NstaHwo+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5L6aWnQ4sF6r
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1tMi71D6Gqvg; Fri, 17 Feb 2023 12:23:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 479CC41677;
+	Fri, 17 Feb 2023 12:23:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 479CC41677
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 173BAC0033;
+	Fri, 17 Feb 2023 12:23:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2FE0C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:22:12 +0000 (UTC)
+ Fri, 17 Feb 2023 12:23:55 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8DBA14016B
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Feb 2023 12:23:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8DBA14016B
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=wSD0+pq4; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=NstaHwo+
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id u1ig3ASlBAfA
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 17 Feb 2023 12:23:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 359BC41902
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 359BC41902
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 51B1D4011D
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 51B1D4011D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:22:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676636531;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Fri, 17 Feb 2023 12:23:54 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id AC84D33992;
+ Fri, 17 Feb 2023 12:23:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1676636630; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=VbZ6lg0zzAJJ7VsgOJE+0XQphc+KxOOGhEwY/SdO60g=;
- b=NQH57tKsZfg/1xuTjb255MX7ifi+6AdxaF58loFH3AwO8UyrVg6Ma5YqCC8StnwHs0BKVN
- Q1XLPRdkQlnfJaL2WqNJkY32Af2kKxHHnJ1hfJi+iGJOxmips9T6X+vRlDzDVPUGdsjS2o
- /RJvz39cSGpgt6eo8UBjIvbi5rO8nyM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-589-ROuBaOynOJCvtEcr_Msu1g-1; Fri, 17 Feb 2023 07:22:07 -0500
-X-MC-Unique: ROuBaOynOJCvtEcr_Msu1g-1
-Received: by mail-wm1-f69.google.com with SMTP id
- n2-20020a05600c3b8200b003e10d3e1c23so564553wms.1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 04:22:07 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=VbZ6lg0zzAJJ7VsgOJE+0XQphc+KxOOGhEwY/SdO60g=;
- b=5tTMghCZJFTH/o8Om3abVhudFQzlTrwW/5/cF62sRf4o5LbkzHp4krP9lI8iXuk/Ke
- Ul7UorBSw31XsXUmRitjXJTLxkAd68gkjh4+BuB1L3hGQNuyz4GgPhW8rful/FN1cpI9
- dZ8L7lGj/1NdrcZdfF08a8FSPgvz9pr49suzCk6o/JIe37epc6TXaOQiobj8z2F4aAob
- 6UTKMY6Ga5K8mo8s0sqMDv3Fzlx4LE92oLwvQXSlV8w2GZgFVkqv5hvN10052v6daDiw
- G5opf111JKqzE4h0np+Gz7YpaCEK1laHkjFmJJQi0n8Xy147FPWc3ezgnb312U7nfGxb
- +jSQ==
-X-Gm-Message-State: AO0yUKVmNZ99VR74rMrXvh9nDbUnC2Ni5vaztnMXuiYgG6sFZ3evUGTO
- cVgbjlxCXnEsHBjaLP7gFDZ8MzTGUn7pU0gHBk3oC5Re36EtwhPu/nyc/GzkJAg3SKaQiW0l0yd
- XaeTQH/x9dAM5ptCT7nRLYXajR5cH4GYU51600CY0pg==
-X-Received: by 2002:a05:600c:4b1b:b0:3df:fbc7:5b10 with SMTP id
- i27-20020a05600c4b1b00b003dffbc75b10mr341763wmp.0.1676636526333; 
- Fri, 17 Feb 2023 04:22:06 -0800 (PST)
-X-Google-Smtp-Source: AK7set9UTlL1W3RpGlRDPzUeP/pLLVc4PJU4+6e4Mtuwsp+LiTCnneeWPFlM/Gc64uI/ChZO+yqEkA==
-X-Received: by 2002:a05:600c:4b1b:b0:3df:fbc7:5b10 with SMTP id
- i27-20020a05600c4b1b00b003dffbc75b10mr341749wmp.0.1676636526051; 
- Fri, 17 Feb 2023 04:22:06 -0800 (PST)
-Received: from redhat.com ([2.52.5.34]) by smtp.gmail.com with ESMTPSA id
- ay38-20020a05600c1e2600b003dff870ce0esm723720wmb.2.2023.02.17.04.22.03
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 17 Feb 2023 04:22:05 -0800 (PST)
-Date: Fri, 17 Feb 2023 07:22:01 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [patch net-next] net: virtio_net: implement exact header length
- guest feature
-Message-ID: <20230217072032-mutt-send-email-mst@kernel.org>
-References: <20230217121547.3958716-1-jiri@resnulli.us>
+ bh=3ddjyR8ugi+S5EIlkCa0m8Ts4ukLHdqO1La6lUfJnoI=;
+ b=wSD0+pq4c8y3/HMH8Nyb0OTN4FQ7YFTLzzgJSOLK7DgGGlnlQ3fmp1X5XPIrCLY5gpigXY
+ Xdbl4uGraYhW+fnEFyJ+8J0vx6q63aQWlH/mp10I0tyOxdXSzTF542n6N7K8LC9zYwQhuH
+ e7iIk+DEMwb6IKXMADDJ4p1xQqbRMrU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1676636630;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3ddjyR8ugi+S5EIlkCa0m8Ts4ukLHdqO1La6lUfJnoI=;
+ b=NstaHwo+vCdFmJTjkC3/azoenRagWe35BGJMiekBa0DMrSbQjfzNPrTIbnBQTI6HSyu8F/
+ LekfIzhJwYFYrNBw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3549F13274;
+ Fri, 17 Feb 2023 12:23:50 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id fC0KDNZx72MpZAAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Fri, 17 Feb 2023 12:23:50 +0000
+Message-ID: <bd44b702-34b5-816f-9ef9-00205a4375d0@suse.de>
+Date: Fri, 17 Feb 2023 13:23:49 +0100
 MIME-Version: 1.0
-In-Reply-To: <20230217121547.3958716-1-jiri@resnulli.us>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH v10 03/11] drm/gem: Add evict() callback to
+ drm_gem_object_funcs
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Clark <robdclark@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Herring <robh@kernel.org>, Sean Paul <sean@poorly.run>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>
+References: <20230108210445.3948344-1-dmitry.osipenko@collabora.com>
+ <20230108210445.3948344-4-dmitry.osipenko@collabora.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20230108210445.3948344-4-dmitry.osipenko@collabora.com>
+Cc: kernel@collabora.com, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,76 +123,137 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2427011307348285726=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 17, 2023 at 01:15:47PM +0100, Jiri Pirko wrote:
-> From: Jiri Pirko <jiri@nvidia.com>
-> 
-> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
-> 
-> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
-> set implicates that the driver provides the exact size of the header.
-> 
-> The driver already complies to fill the correct value. Introduce the
-> feature and advertise it.
-> 
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============2427011307348285726==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------XgxlqJUeJZ17gdNZZniu83tv"
 
-Could you add a bit of motivation just for the record?
-Does this improve performance for some card? By how much?
-Expected to help some future card?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------XgxlqJUeJZ17gdNZZniu83tv
+Content-Type: multipart/mixed; boundary="------------vYWkz1BEleRqHYNcrZkuGPM3";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Daniel Stone <daniel@fooishbar.org>,
+ Tomeu Vizoso <tomeu.vizoso@collabora.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Rob Clark <robdclark@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Rob Herring <robh@kernel.org>, Sean Paul <sean@poorly.run>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>
+Cc: kernel@collabora.com, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Message-ID: <bd44b702-34b5-816f-9ef9-00205a4375d0@suse.de>
+Subject: Re: [PATCH v10 03/11] drm/gem: Add evict() callback to
+ drm_gem_object_funcs
+References: <20230108210445.3948344-1-dmitry.osipenko@collabora.com>
+ <20230108210445.3948344-4-dmitry.osipenko@collabora.com>
+In-Reply-To: <20230108210445.3948344-4-dmitry.osipenko@collabora.com>
 
-thanks!
+--------------vYWkz1BEleRqHYNcrZkuGPM3
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
+SGkNCg0KQW0gMDguMDEuMjMgdW0gMjI6MDQgc2NocmllYiBEbWl0cnkgT3NpcGVua286DQo+
+IEFkZCBuZXcgY29tbW9uIGV2aWN0KCkgY2FsbGJhY2sgdG8gZHJtX2dlbV9vYmplY3RfZnVu
+Y3MgYW5kIGNvcnJlc3BvbmRpbmcNCj4gZHJtX2dlbV9vYmplY3RfZXZpY3QoKSBoZWxwZXIu
+IFRoaXMgaXMgYSBmaXJzdCBzdGVwIG9uIGEgd2F5IHRvIHByb3ZpZGluZw0KPiBjb21tb24g
+R0VNLXNocmlua2VyIEFQSSBmb3IgRFJNIGRyaXZlcnMuDQo+IA0KPiBTdWdnZXN0ZWQtYnk6
+IFRob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPg0KPiBTaWduZWQtb2Zm
+LWJ5OiBEbWl0cnkgT3NpcGVua28gPGRtaXRyeS5vc2lwZW5rb0Bjb2xsYWJvcmEuY29tPg0K
+DQpSZXZpZXdlZC1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+
+DQoNCndpdGggbXkgY29tbWVudHMgYmVsb3cgYWRkcmVzc2VkLg0KDQo+IC0tLQ0KPiAgIGRy
+aXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMgfCAxNiArKysrKysrKysrKysrKysrDQo+ICAgaW5j
+bHVkZS9kcm0vZHJtX2dlbS5oICAgICB8IDEyICsrKysrKysrKysrKw0KPiAgIDIgZmlsZXMg
+Y2hhbmdlZCwgMjggaW5zZXJ0aW9ucygrKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+Z3B1L2RybS9kcm1fZ2VtLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2dlbS5jDQo+IGluZGV4
+IGM2YmNhNWFjNmUwZi4uZGJiNDhmYzlkZmYzIDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2dw
+dS9kcm0vZHJtX2dlbS5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMNCj4g
+QEAgLTE0NzEsMyArMTQ3MSwxOSBAQCBkcm1fZ2VtX2xydV9zY2FuKHN0cnVjdCBkcm1fZ2Vt
+X2xydSAqbHJ1LA0KPiAgIAlyZXR1cm4gZnJlZWQ7DQo+ICAgfQ0KPiAgIEVYUE9SVF9TWU1C
+T0woZHJtX2dlbV9scnVfc2Nhbik7DQo+ICsNCj4gKy8qKg0KPiArICogZHJtX2dlbV9vYmpl
+Y3RfZXZpY3QgLSBoZWxwZXIgdG8gZXZpY3QgYmFja2luZyBwYWdlcyBmb3IgYSBHRU0gb2Jq
+ZWN0DQo+ICsgKiBAb2JqOiBvYmogaW4gcXVlc3Rpb24NCj4gKyAqLw0KPiArYm9vbA0KDQpQ
+bGVhc2UgdXNlIGludCBhbmQgcmV0dXJuIGFuIGVycm5vIGNvZGUuDQoNCk5vIG5ld2xpbmUg
+aGVyZSwgcGxlYXNlLg0KDQo+ICtkcm1fZ2VtX29iamVjdF9ldmljdChzdHJ1Y3QgZHJtX2dl
+bV9vYmplY3QgKm9iaikNCj4gK3sNCj4gKwlkbWFfcmVzdl9hc3NlcnRfaGVsZChvYmotPnJl
+c3YpOw0KPiArDQo+ICsJaWYgKG9iai0+ZnVuY3MtPmV2aWN0KQ0KPiArCQlyZXR1cm4gb2Jq
+LT5mdW5jcy0+ZXZpY3Qob2JqKTsNCj4gKw0KPiArCXJldHVybiBmYWxzZTsNCj4gK30NCj4g
+K0VYUE9SVF9TWU1CT0woZHJtX2dlbV9vYmplY3RfZXZpY3QpOw0KPiBkaWZmIC0tZ2l0IGEv
+aW5jbHVkZS9kcm0vZHJtX2dlbS5oIGIvaW5jbHVkZS9kcm0vZHJtX2dlbS5oDQo+IGluZGV4
+IGYxZjAwZmMyZGJhNi4uOGU1YzIyZjI1NjkxIDEwMDY0NA0KPiAtLS0gYS9pbmNsdWRlL2Ry
+bS9kcm1fZ2VtLmgNCj4gKysrIGIvaW5jbHVkZS9kcm0vZHJtX2dlbS5oDQo+IEBAIC0xNzIs
+NiArMTcyLDE2IEBAIHN0cnVjdCBkcm1fZ2VtX29iamVjdF9mdW5jcyB7DQo+ICAgCSAqIFRo
+aXMgaXMgb3B0aW9uYWwgYnV0IG5lY2Vzc2FyeSBmb3IgbW1hcCBzdXBwb3J0Lg0KPiAgIAkg
+Ki8NCj4gICAJY29uc3Qgc3RydWN0IHZtX29wZXJhdGlvbnNfc3RydWN0ICp2bV9vcHM7DQo+
+ICsNCj4gKwkvKioNCj4gKwkgKiBAZXZpY3Q6DQo+ICsJICoNCj4gKwkgKiBFdmljdHMgZ2Vt
+IG9iamVjdCBvdXQgZnJvbSBtZW1vcnkuIFVzZWQgYnkgdGhlIGRybV9nZW1fb2JqZWN0X2V2
+aWN0KCkNCj4gKwkgKiBoZWxwZXIuIFJldHVybnMgdHJ1ZSBvbiBzdWNjZXNzLCBmYWxzZSBv
+dGhlcndpc2UuDQo+ICsJICoNCj4gKwkgKiBUaGlzIGNhbGxiYWNrIGlzIG9wdGlvbmFsLg0K
+PiArCSAqLw0KPiArCWJvb2wgKCpldmljdCkoc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmop
+Ow0KDQpUaGlzIHNob3VsZCBiZSBkZWNsYXJlZCBiZXR3ZWVuIG1tYXAgYW5kIGV2aWN0Lg0K
+DQpBZ2FpbiwgcGxlYXNlIHVzZSBpbnQgYW5kIHJldHVybiBhbiBlcnJubyBjb2RlLg0KDQo+
+ICAgfTsNCj4gICANCj4gICAvKioNCj4gQEAgLTQ4MSw0ICs0OTEsNiBAQCB1bnNpZ25lZCBs
+b25nIGRybV9nZW1fbHJ1X3NjYW4oc3RydWN0IGRybV9nZW1fbHJ1ICpscnUsDQo+ICAgCQkJ
+ICAgICAgIHVuc2lnbmVkIGxvbmcgKnJlbWFpbmluZywNCj4gICAJCQkgICAgICAgYm9vbCAo
+KnNocmluaykoc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopKTsNCj4gICANCj4gK2Jvb2wg
+ZHJtX2dlbV9vYmplY3RfZXZpY3Qoc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopOw0KDQpk
+cm1fZ2VtX2V2aWN0KCkgc2hvdWxkIGJlIHRoZSBjb3JyZWN0IG5hbWU7IGxpa2UgZHJtX2dl
+bV92bWFwKCkgYW5kIA0KZHJtX2dlbV9waW4oKSwgZXRjLg0KDQpCZXN0IHJlZ2FyZHMNClRo
+b21hcw0KDQo+ICsNCj4gICAjZW5kaWYgLyogX19EUk1fR0VNX0hfXyAqLw0KDQotLSANClRo
+b21hcyBaaW1tZXJtYW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3
+YXJlIFNvbHV0aW9ucyBHZXJtYW55IEdtYkgNCk1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJu
+YmVyZywgR2VybWFueQ0KKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJnKQ0KR2VzY2jDpGZ0c2bD
+vGhyZXI6IEl2byBUb3Rldg0K
 
-> ---
->  drivers/net/virtio_net.c        | 6 ++++--
->  include/uapi/linux/virtio_net.h | 1 +
->  2 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index fb5e68ed3ec2..e85b03988733 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
->  	VIRTIO_NET_F_GUEST_UFO,
->  	VIRTIO_NET_F_GUEST_CSUM,
->  	VIRTIO_NET_F_GUEST_USO4,
-> -	VIRTIO_NET_F_GUEST_USO6
-> +	VIRTIO_NET_F_GUEST_USO6,
-> +	VIRTIO_NET_F_GUEST_HDRLEN
->  };
->  
->  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
-> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
->  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
->  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
->  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
-> -	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
-> +	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
-> +	VIRTIO_NET_F_GUEST_HDRLEN
->  
->  static unsigned int features[] = {
->  	VIRTNET_FEATURES,
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index b4062bed186a..12c1c9699935 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -61,6 +61,7 @@
->  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
->  #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
->  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
-> +#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
->  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
->  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
->  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
-> -- 
-> 2.39.0
+--------------vYWkz1BEleRqHYNcrZkuGPM3--
+
+--------------XgxlqJUeJZ17gdNZZniu83tv
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmPvcdUFAwAAAAAACgkQlh/E3EQov+Cw
+bw/8Dcmr9ufV3Ln2EKd7jQSorGRz4kFZFVHwfHvZ4KQPJ1eUbZU5e5XdNrBvN7EDjZhBFLMhoStb
+JTp8BZm9eq4DLp4uJLDXdKqeqj1Q004RIll7Z3wVHM26tGN7uIjM4SqnWi0NZc43IhJ6AuxRMQZE
+Piq1wMD+JtYJhTmuSn3QkS34Q/YlFlUnsPwVxnXBQW5/78u2F0WH9PXes6hBdTF96HL8CTqCBK10
+5P93U048jeouDF7HbBpj5IWaw006ZZAIW6MOzQoXV4eXOqXpCbzP62ySwh9Nu/nWBAZ8qPtDsAlg
+nuuL1NeziySRR1uTqpVtFNAFJGi3LsVVLiFOrMHoQ8fWtkvpPYg/GPwYzKK+/U8H3HNF2g/pzSb9
+eL0V4CWJgW+PAnH1sFe0xl24+igCoasX658j7E7EIoXV+6ZfP3bqc/320fEewEz1cc7YvngvsCSO
+3WQRyvXOTczS35LntWqHNXdoevJWK7zjC72v/nrku67xDJQIdmFH1SlASeQvseafvPslcwzDaLdt
+YVTSw4UmF34GXzTNq333LmC98aLg33uKLN+h95QihgLo+ytENdh+YJn8w9xSrfM4FPWLSHVJ0Qy5
+4uGOejKID3mLOYtNufOAL0GUT9xrZ6jfaLD5XRaq+pNa5QKrYQWED9R/6Lq3iyRbjgmpcqgzJEYU
+vZA=
+=hjd0
+-----END PGP SIGNATURE-----
+
+--------------XgxlqJUeJZ17gdNZZniu83tv--
+
+--===============2427011307348285726==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2427011307348285726==--
