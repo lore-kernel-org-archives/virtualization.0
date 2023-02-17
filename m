@@ -1,107 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 663C5C636D6
-	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 05:23:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98E5DC05027
+	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 05:36:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DB46E404C9;
-	Fri, 17 Feb 2023 05:23:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB46E404C9
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y6yGSppn
+	by smtp1.osuosl.org (Postfix) with ESMTP id 29A9A81F68;
+	Fri, 17 Feb 2023 05:36:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29A9A81F68
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/cQ3kXL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0rxrcEG1KbU9; Fri, 17 Feb 2023 05:23:34 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QA6-F-xkgcRv; Fri, 17 Feb 2023 05:36:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 549A4400A4;
-	Fri, 17 Feb 2023 05:23:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 549A4400A4
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B5E9F81F5B;
+	Fri, 17 Feb 2023 05:36:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5E9F81F5B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29E12C0033;
-	Fri, 17 Feb 2023 05:23:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C4E9C0033;
+	Fri, 17 Feb 2023 05:36:19 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C193FC002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF2AFC002B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 05:23:31 +0000 (UTC)
+ Fri, 17 Feb 2023 05:36:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 88AD5402BD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 91089419AB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 05:23:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 88AD5402BD
+ Fri, 17 Feb 2023 05:36:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 91089419AB
 Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y6yGSppn
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=J/cQ3kXL
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xIh1uiJfLNeI
+ with ESMTP id kQGfdgVo4zgl
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 05:23:30 +0000 (UTC)
+ Fri, 17 Feb 2023 05:36:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 096E8401FF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1CE2D41933
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 096E8401FF
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1CE2D41933
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 05:23:29 +0000 (UTC)
+ Fri, 17 Feb 2023 05:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676611408;
+ s=mimecast20190719; t=1676612175;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SEhUHalQiI4aJxPso4UP1aHihgoarZd8OfJxRGmCl2g=;
- b=Y6yGSppng1ihn3yfe+gt7Wy0zD2fVEhMzp9oeaAsaqnBD5kccTbIBTnzE4tljwC5mnTuBb
- ALO+OQlIxXC5YaKMxIl5W8ERjGlWWdJOSMN0RPF6z59aswXmSGIWURE6MpYONoEDGmovbL
- mMpipn1U7qB3Z2ea58SPfpxq76MgrtM=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Q8y4UETkQqs5POhMp8MHo+VmSRaMVJi1lvssc8jHWBA=;
+ b=J/cQ3kXLd0dAohvw7vAsT25mStdAVLcgpTPA0O5vVdQSNlGs0g/KJNdXDvy3Vz8NpOawat
+ UewZzU1+j2sLmBMRtoMr2i8Gp3VXiF44buDZircM6dEDIPX//HcIAU6PwiyrE++8DiSNvL
+ AkdhB21yA0tQmj+mjQRNQ5nAuoFsKto=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-190-bDM0r8bDNmaZp5XdWrReWA-1; Fri, 17 Feb 2023 00:23:26 -0500
-X-MC-Unique: bDM0r8bDNmaZp5XdWrReWA-1
-Received: by mail-oo1-f71.google.com with SMTP id
- bc13-20020a056820168d00b0051f97e7b7f9so32689oob.13
+ us-mta-137-GST4QjVlP4muJrk6pJLY-Q-1; Fri, 17 Feb 2023 00:36:11 -0500
+X-MC-Unique: GST4QjVlP4muJrk6pJLY-Q-1
+Received: by mail-oa1-f71.google.com with SMTP id
+ 586e51a60fabf-16df95b8731so2257650fac.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Feb 2023 21:23:26 -0800 (PST)
+ Thu, 16 Feb 2023 21:36:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=SEhUHalQiI4aJxPso4UP1aHihgoarZd8OfJxRGmCl2g=;
- b=kNhLMH3080Mi5oy7AE8XqHhsS/W1NaQZfuGALjFXwcsh21c97Cah48U+REj0X3xeZb
- wu+MxUAWO17Wf/wBP8rVcrtsagiG5KoFBt9YV/6pD0nBicP9vlV4qymujZyU1rpjbtMM
- eP5KZBeI/K2MUduEvkmXhnFwz4L+YXn8HKA1Gx3NpBg9jujnOoz/zFwxzz9JnH8fOnCd
- EQB7nCC1D40gzvtRqfLbpEI7LzG6JaMdAdOMb6aE0Tk6jMUmYF9PF2vwK3UW+lsSVNiI
- 77kdepfLed4TeRrqTPe6yaRVoNN93Dny8wU0HxNIcIbQ4CjLB6DkjijtxXb18y1woeN/
- FWQw==
-X-Gm-Message-State: AO0yUKXohtAFZBiL4REr9JH0zdYBscf8aglya40iit29rHNPOSnpBl6l
- m6pwwfvQ3khIG8jkfb8Xq9R/FT/U8VwWK5tNE/lh/3VDVolorvBi76ARBMnRlZw59GxScGtjCLh
- 4NSgsYK7uG7ph18uA+k1wCOKuoCE6rhYLp3nfzs8onTYjSDb0JrgELadbQw==
+ bh=Q8y4UETkQqs5POhMp8MHo+VmSRaMVJi1lvssc8jHWBA=;
+ b=iLlgJmikpobbDeotS1Q7+zsc5zYxLEYNRF6Y/sgoD99dpkE6e/g8jpWWjgRG3TAE3s
+ E0aynbdn66psxJ2Uq1arg7HFjI28nZmYXq+Q7n9uw9H2PVpAQDToO9If5gDKtyT3Qu1S
+ BT9fQ7Eh6BCzZHMbJhcQwrmMJzIhmoD3uYnZM1WsozmYfQ+vxKuCwrS3eSUMNQ0h8ndZ
+ LDtHWwmlR7CMZJuNd3SDI2POHq06GkT4BjPiHL0AxyR5oicjHFWHDEXSILJYveZxydOf
+ haaUlItmFRPDZNvNJj/N4tLgf6V3CxFVGFmPCjnz2aBJ6tYa9cyxGLv6JHliSKy8N9Dn
+ d1Gg==
+X-Gm-Message-State: AO0yUKXercUweEtH8L2QDGW9OC/I5O8xbjs5ief3pC7Vm6Z3teWZSz5T
+ VDdD2rMQRMfcL3NBKyKE9kunaNe+CpNrCZ5nJ45E564zEazTCBMCEwQ7bKIMQg2+0nVdONPxZWb
+ y16tXPeV+MPSedSO9URSCKXzlcO7uoNaJ61cYQ3Em7qdsYMs2dqzI2tn1XA==
 X-Received: by 2002:a05:6808:3186:b0:37d:5d77:e444 with SMTP id
- cd6-20020a056808318600b0037d5d77e444mr294694oib.35.1676611406185; 
- Thu, 16 Feb 2023 21:23:26 -0800 (PST)
-X-Google-Smtp-Source: AK7set8IPOjWEYRD3Pjb1Gw8WoQBhHw/tco7wdx+EJLW+upCYz3b+D8TKan4VZVttrqiUbnOmio+cTxWNyHOJccRYk0=
+ cd6-20020a056808318600b0037d5d77e444mr296401oib.35.1676612170542; 
+ Thu, 16 Feb 2023 21:36:10 -0800 (PST)
+X-Google-Smtp-Source: AK7set+hY95HRDtXDD+GXnz1YrR2uwZRZowpsAyCm1bMt4U0npjM2XW+YfzeYKDUlmV5UD794AQCKMHVcQs7RZ9kgLs=
 X-Received: by 2002:a05:6808:3186:b0:37d:5d77:e444 with SMTP id
- cd6-20020a056808318600b0037d5d77e444mr294690oib.35.1676611405874; Thu, 16 Feb
- 2023 21:23:25 -0800 (PST)
+ cd6-20020a056808318600b0037d5d77e444mr296388oib.35.1676612170318; Thu, 16 Feb
+ 2023 21:36:10 -0800 (PST)
 MIME-Version: 1.0
-References: <20230214072704.126660-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEsMfBLByXpPrHXDcsDdQmJSQAp-HEanCAn1-d8kFtFYJQ@mail.gmail.com>
- <1676547964.6918266-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1676547964.6918266-1-xuanzhuo@linux.alibaba.com>
+References: <20230207120843.1580403-1-sunnanyong@huawei.com>
+ <Y+7G+tiBCjKYnxcZ@nvidia.com>
+In-Reply-To: <Y+7G+tiBCjKYnxcZ@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 17 Feb 2023 13:23:14 +0800
-Message-ID: <CACGkMEtY+aJaPg=nJ5wf1tFkH97-AEmZcDsOnN976Cm5x=Q2rQ@mail.gmail.com>
-Subject: Re: [PATCH vhost 00/10] virtio core prepares for AF_XDP
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date: Fri, 17 Feb 2023 13:35:59 +0800
+Message-ID: <CACGkMEtehykvqNUnfCi0VmHR1xpmhj4sSWdYW1-0oATY=0YhXw@mail.gmail.com>
+Subject: Re: [PATCH v2] vhost/vdpa: Add MSI translation tables to iommu for
+ software-managed MSI
+To: Jason Gunthorpe <jgg@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, will@kernel.org, joro@8bytes.org,
+ Nanyong Sun <sunnanyong@huawei.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ netdev@vger.kernel.org, robin.murphy@arm.com, wangrong68@huawei.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,92 +120,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 16, 2023 at 7:50 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+On Fri, Feb 17, 2023 at 8:15 AM Jason Gunthorpe <jgg@nvidia.com> wrote:
 >
-> On Thu, 16 Feb 2023 13:27:00 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > On Tue, Feb 14, 2023 at 3:27 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > >
-> > > XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-> > > copy feature of xsk (XDP socket) needs to be supported by the driver. The
-> > > performance of zero copy is very good.
-> > >
-> > > ENV: Qemu with vhost.
-> > >
-> > >                    vhost cpu | Guest APP CPU |Guest Softirq CPU | PPS
-> > > -----------------------------|---------------|------------------|------------
-> > > xmit by sockperf:     90%    |   100%        |                  |  318967
-> > > xmit by xsk:          100%   |   30%         |   33%            | 1192064
+> On Tue, Feb 07, 2023 at 08:08:43PM +0800, Nanyong Sun wrote:
+> > From: Rong Wang <wangrong68@huawei.com>
 > >
-> > What's the setup of this test?
-> >
-> > CPU model/frequency, packet size, zerocopy enabled or not.
+> > Once enable iommu domain for one device, the MSI
+> > translation tables have to be there for software-managed MSI.
+> > Otherwise, platform with software-managed MSI without an
+> > irq bypass function, can not get a correct memory write event
+> > from pcie, will not get irqs.
+> > The solution is to obtain the MSI phy base address from
+> > iommu reserved region, and set it to iommu MSI cookie,
+> > then translation tables will be created while request irq.
 >
-> Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+> Probably not what anyone wants to hear, but I would prefer we not add
+> more uses of this stuff. It looks like we have to get rid of
+> iommu_get_msi_cookie() :\
 >
-> zerocopy: enabled
->
-> size: 64
->
->
-> >
-> > (I remember I can get better performance with my old laptop through
-> > pktgen (about 2Mpps))
->
-> Let's compare sockperf just.
->
-> The result of the test on Alibaba Cloud was 3.5M+PPS/60%cpu.
+> I'd like it if vdpa could move to iommufd not keep copying stuff from
+> it..
 
-Just to make sure I understand here, the above said:
+Yes, but we probably need a patch for -stable.
 
- xmit by sockperf:     90%    |   100%        |                  |  318967
+>
+> Also the iommu_group_has_isolated_msi() check is missing on the vdpa
+> path, and it is missing the iommu ownership mechanism.
 
-It's 0.3 Mpps, what's the difference between those two?
+Ok.
+
+>
+> Also which in-tree VDPA driver that uses the iommu runs on ARM? Please
+
+ifcvf and vp_vpda are two drivers that use platform IOMMU.
 
 Thanks
 
+> don't propose core changes for unmerged drivers. :(
 >
-> Thanks.
->
->
-> >
-> > Thanks
-> >
-> > > recv by sockperf:     100%   |   68%         |   100%           |  692288
-> > > recv by xsk:          100%   |   33%         |   43%            |  771670
-> > >
-> > > Before achieving the function of Virtio-Net, we also have to let virtio core
-> > > support these features:
-> > >
-> > > 1. virtio core support premapped
-> > > 2. virtio core support reset per-queue
-> > > 3. introduce DMA APIs to virtio core
-> > >
-> > > Please review.
-> > >
-> > > Thanks.
-> > >
-> > > Xuan Zhuo (10):
-> > >   virtio_ring: split: refactor virtqueue_add_split() for premapped
-> > >   virtio_ring: packed: separate prepare code from
-> > >     virtuque_add_indirect_packed()
-> > >   virtio_ring: packed: refactor virtqueue_add_packed() for premapped
-> > >   virtio_ring: split: introduce virtqueue_add_split_premapped()
-> > >   virtio_ring: packed: introduce virtqueue_add_packed_premapped()
-> > >   virtio_ring: introduce virtqueue_add_inbuf_premapped()
-> > >   virtio_ring: add api virtio_dma_map() for advance dma
-> > >   virtio_ring: introduce dma sync api for virtio
-> > >   virtio_ring: correct the expression of the description of
-> > >     virtqueue_resize()
-> > >   virtio_ring: introduce virtqueue_reset()
-> > >
-> > >  drivers/virtio/virtio_ring.c | 792 ++++++++++++++++++++++++++++-------
-> > >  include/linux/virtio.h       |  29 ++
-> > >  2 files changed, 659 insertions(+), 162 deletions(-)
-> > >
-> > > --
-> > > 2.32.0.3.g01195cf9f
-> > >
-> >
+> Jason
 >
 
 _______________________________________________
