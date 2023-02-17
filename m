@@ -1,114 +1,89 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0BD84C05027
-	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 13:47:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1EFE2C678DB
+	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 16:39:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 95596404B5;
-	Fri, 17 Feb 2023 13:47:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 95596404B5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PSOop/BP
+	by smtp3.osuosl.org (Postfix) with ESMTP id 71E58617B7;
+	Fri, 17 Feb 2023 16:39:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71E58617B7
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=c1DEMFQA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tx3jlAARBk9Y; Fri, 17 Feb 2023 13:47:47 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1_i3Azlr7PQJ; Fri, 17 Feb 2023 16:39:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DF4D240108;
-	Fri, 17 Feb 2023 13:47:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DF4D240108
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 89146605A3;
+	Fri, 17 Feb 2023 16:39:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 89146605A3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AF5C6C0032;
-	Fri, 17 Feb 2023 13:47:46 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 23A3AC002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45D62C0033;
+	Fri, 17 Feb 2023 16:39:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A051C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 13:47:45 +0000 (UTC)
+ Fri, 17 Feb 2023 16:39:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id F29F381268
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0E168617B0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 13:47:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F29F381268
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PSOop/BP
+ Fri, 17 Feb 2023 16:39:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E168617B0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wyX5y3biaZn0
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T1O8v55cwepd
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 13:47:44 +0000 (UTC)
+ Fri, 17 Feb 2023 16:39:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 34AA681214
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 34AA681214
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8A3AE605A3
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8A3AE605A3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 13:47:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676641663;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=j566sxiFR30aTmiG4rGSD34hpOB39mjJ2E7i4/yghZo=;
- b=PSOop/BPHY9R/bsa4nTDFByM9Wqb6Vp1NSw92L1IRsFaUDltOnOQgXoOxTgnS+Hr9QkQXg
- w9yvgGHbovV3gVRYuWrGY0Yj0I9I15Bo6nHnQo8CiJVW6B6fV5R1JvMqdEC8GAqcsu1kUZ
- gMCpe6xWo/MXVfMmwZcmzp2LZKn/R54=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-618-JjUEY9c-N4eS4vxTU2BgWg-1; Fri, 17 Feb 2023 08:47:41 -0500
-X-MC-Unique: JjUEY9c-N4eS4vxTU2BgWg-1
-Received: by mail-wm1-f72.google.com with SMTP id
- v6-20020a05600c444600b003e206cbce8dso755403wmn.7
- for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 05:47:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=j566sxiFR30aTmiG4rGSD34hpOB39mjJ2E7i4/yghZo=;
- b=6ATKUOZ6dQYHwOm46eBPM78OZyJGE0q50W8oG22mP8kTD78cOZOOKFD88nd/QFadJ3
- LT6G/XaK8NyJFaA5LHQHZzYKXaGecj1+M7kzdA8xaHSobDDfM0lBuiUR1KMz45U8cCfm
- ayZhvyENNLnlEZXRqZ9Xtcau0ONldyPGR1iGpGa8HvjQwpQsWi/t1THGvvA4ENVRgzNm
- +7hWBnK0ckhsyxSu7JCZV2iexB5Vu4/YM9Ep9XO1KjOt/6RG85Xt7plqEpktbanHhgU2
- IBzMMh74x3kc+Gnv9UP58keEtrf/LFfyc0CUM3S9SpDaK8rzKdXlgG+BUcRwN3SSep3Y
- hBOA==
-X-Gm-Message-State: AO0yUKUUPSHceRFvVc0nCvhIr8V0wu5K1wZlUoF3wUFaLBKYeJwZ9iCF
- VcTFVhbGMzWTtSXauxhFUo+OWEmEhglUb0lPqd9PkoniivM7EaCNavMwbqUahPE1lX2Xq539WpK
- zLdcRRujAEciTEeCooKTt/dQMOw/Bm9eFfUQRjRa9bw==
-X-Received: by 2002:a05:600c:4591:b0:3df:9858:c038 with SMTP id
- r17-20020a05600c459100b003df9858c038mr5078950wmo.13.1676641660747; 
- Fri, 17 Feb 2023 05:47:40 -0800 (PST)
-X-Google-Smtp-Source: AK7set+oXntli+obuZQPsa34EK1fBtgGYx9q6alm4B/8LEVVaw4ZU1QEArkNeZvSg69zjWc09iakSg==
-X-Received: by 2002:a05:600c:4591:b0:3df:9858:c038 with SMTP id
- r17-20020a05600c459100b003df9858c038mr5078939wmo.13.1676641660475; 
- Fri, 17 Feb 2023 05:47:40 -0800 (PST)
-Received: from redhat.com ([2.52.5.34]) by smtp.gmail.com with ESMTPSA id
- y11-20020a05600c364b00b003dc0cb5e3f1sm4622433wmq.46.2023.02.17.05.47.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 17 Feb 2023 05:47:39 -0800 (PST)
-Date: Fri, 17 Feb 2023 08:47:36 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jiri Pirko <jiri@resnulli.us>
-Subject: Re: [patch net-next] net: virtio_net: implement exact header length
- guest feature
-Message-ID: <20230217083915-mutt-send-email-mst@kernel.org>
-References: <20230217121547.3958716-1-jiri@resnulli.us>
- <20230217072032-mutt-send-email-mst@kernel.org>
- <Y+94418p73aUQyIn@nanopsycho>
+ Fri, 17 Feb 2023 16:39:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1676651973; x=1708187973;
+ h=date:from:to:cc:subject:message-id:mime-version:
+ content-transfer-encoding;
+ bh=wB8bS9gaVZyffaJg0ZFoYa1F5bIUV9IsyIRY37Ib0Ic=;
+ b=c1DEMFQADbHCH0A30Vd2Be20JeLpAC5k2zN58iwz6YdouRorviwEylvt
+ y3PQdfEVGtry1bGwEHlNlqR+B5+lhlTRDD/QL/rQQgJJkikIXcL7xD7bc
+ TRhaDS8YAN7PDv2ydOSlP8Z1JNAUcpL4wz4b3Su4yNTCqi9i8EiG4lePk
+ Jp3TEhvSFsfJaCplGWRN9omV79gR8T7QMAZd9PCbhavo+USGcJlkL4Mlo
+ 48a3CoCwB/nb8iHedttAvEMf74uhtWhw0e8ijDCTPCrLCZOxlgwDXyeV5
+ ssRaYykliY7aS/IRhzq/sQUBzekdz3KlXtGH32VAPsS6kVVCXixWpAxZB A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10624"; a="418248078"
+X-IronPort-AV: E=Sophos;i="5.97,306,1669104000"; d="scan'208";a="418248078"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+ by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 17 Feb 2023 08:39:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10624"; a="620438581"
+X-IronPort-AV: E=Sophos;i="5.97,306,1669104000"; d="scan'208";a="620438581"
+Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
+ by orsmga003.jf.intel.com with ESMTP; 17 Feb 2023 08:39:28 -0800
+Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1pT3lf-000BeE-14;
+ Fri, 17 Feb 2023 16:39:27 +0000
+Date: Sat, 18 Feb 2023 00:39:18 +0800
+From: kernel test robot <lkp@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Subject: [linux-next:master] BUILD REGRESSION
+ c068f40300a0eaa34f7105d137a5560b86951aa9
+Message-ID: <63efadb6.cR48xA1nWh81uK+0%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-In-Reply-To: <Y+94418p73aUQyIn@nanopsycho>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Vitaly Mireyno <vmireyno@marvell.com>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+Cc: linux-arch@vger.kernel.org, linux-doc@vger.kernel.org,
+ netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org,
+ linux-mips@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ Linux Memory Management List <linux-mm@kvack.org>,
+ linux-serial@vger.kernel.org, ntfs3@lists.linux.dev
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,89 +100,235 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Feb 17, 2023 at 01:53:55PM +0100, Jiri Pirko wrote:
-> Fri, Feb 17, 2023 at 01:22:01PM CET, mst@redhat.com wrote:
-> >On Fri, Feb 17, 2023 at 01:15:47PM +0100, Jiri Pirko wrote:
-> >> From: Jiri Pirko <jiri@nvidia.com>
-> >> 
-> >> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
-> >> 
-> >> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
-> >> set implicates that the driver provides the exact size of the header.
-> >> 
-> >> The driver already complies to fill the correct value. Introduce the
-> >> feature and advertise it.
-> >> 
-> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> >
-> >Could you add a bit of motivation just for the record?
-> >Does this improve performance for some card? By how much?
-> >Expected to help some future card?
-> 
-> I can get that info, but isn't that rather something to be appended to
-> the virtio-spec patch? I mean, the feature is there, this is just
-> implementing it in one driver.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+branch HEAD: c068f40300a0eaa34f7105d137a5560b86951aa9  Add linux-next specific files for 20230217
 
-It is more like using it in the driver.  It's not like we have to use
-everything - it could be useful for e.g. dpdk but not linux.
-Implementing it in the Linux driver has support costs - for example what
-if there's a bug and sometimes the length is incorrect?
-We'll be breaking things.
+Error/Warning reports:
 
-The patch was submitted by Marvell but they never bothered with
-using it in Linux. I guess they are using it for something else?
-CC Vitaly who put this in.
+https://lore.kernel.org/oe-kbuild-all/202302062224.ByzeTXh1-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302092211.54EYDhYH-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302111601.jtY4lKrA-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302112104.g75cGHZd-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302161117.pNuySGWi-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302170355.Ljqlzucu-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202302172104.q3ddwzqu-lkp@intel.com
 
-> 
-> >
-> >thanks!
-> >
-> >
-> >> ---
-> >>  drivers/net/virtio_net.c        | 6 ++++--
-> >>  include/uapi/linux/virtio_net.h | 1 +
-> >>  2 files changed, 5 insertions(+), 2 deletions(-)
-> >> 
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index fb5e68ed3ec2..e85b03988733 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
-> >>  	VIRTIO_NET_F_GUEST_UFO,
-> >>  	VIRTIO_NET_F_GUEST_CSUM,
-> >>  	VIRTIO_NET_F_GUEST_USO4,
-> >> -	VIRTIO_NET_F_GUEST_USO6
-> >> +	VIRTIO_NET_F_GUEST_USO6,
-> >> +	VIRTIO_NET_F_GUEST_HDRLEN
-> >>  };
-> >>  
-> >>  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
-> >> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
-> >>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
-> >>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
-> >>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
-> >> -	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
-> >> +	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
-> >> +	VIRTIO_NET_F_GUEST_HDRLEN
-> >>  
-> >>  static unsigned int features[] = {
-> >>  	VIRTNET_FEATURES,
-> >> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> >> index b4062bed186a..12c1c9699935 100644
-> >> --- a/include/uapi/linux/virtio_net.h
-> >> +++ b/include/uapi/linux/virtio_net.h
-> >> @@ -61,6 +61,7 @@
-> >>  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
-> >>  #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
-> >>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
-> >> +#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
-> >>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
-> >>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
-> >>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
-> >> -- 
-> >> 2.39.0
-> >
+Error/Warning: (recently discovered and may have been fixed)
 
+Documentation/sphinx/templates/kernel-toc.html: 1:36 Invalid token: #}
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/dma/fsl-edma.ko] undefined!
+ERROR: modpost: "devm_platform_ioremap_resource" [drivers/dma/idma64.ko] undefined!
+arch/mips/kernel/vpe.c:643:35: error: no member named 'mod_mem' in 'struct module'
+arch/mips/kernel/vpe.c:643:41: error: 'struct module' has no member named 'mod_mem'
+drivers/gpu/drm/amd/amdgpu/../display/dc/dcn30/dcn30_optc.c:294:6: warning: no previous prototype for 'optc3_wait_drr_doublebuffer_pending_clear' [-Wmissing-prototypes]
+drivers/gpu/drm/amd/amdgpu/../display/dc/dcn32/dcn32_resource_helpers.c:62:18: warning: variable 'cursor_bpp' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/../display/dc/link/link_detection.c:1199: warning: expecting prototype for dc_link_detect_connection_type(). Prototype was for link_detect_connection_type() instead
+drivers/gpu/drm/amd/amdgpu/../display/dc/link/protocols/link_dp_capability.c:1292:32: warning: variable 'result_write_min_hblank' set but not used [-Wunused-but-set-variable]
+drivers/gpu/drm/amd/amdgpu/../display/dc/link/protocols/link_dp_training.c:1586:38: warning: variable 'result' set but not used [-Wunused-but-set-variable]
+drivers/net/ethernet/sfc/ef100_nic.c:1128:21: warning: unused variable 'net_dev' [-Wunused-variable]
+drivers/net/ethernet/sfc/ef100_nic.c:1170:9: warning: variable 'rc' is uninitialized when used here [-Wuninitialized]
+drivers/net/ethernet/sfc/efx_devlink.c:185:17: error: expected declaration or statement at end of input
+drivers/net/ethernet/sfc/efx_devlink.c:185:23: error: expected ';' at end of input
+drivers/net/ethernet/sfc/efx_devlink.c:522:2: error: unterminated argument list invoking macro "memset"
+include/linux/build_bug.h:78:41: error: static assertion failed: "SKB_WITH_OVERHEAD(TEST_XDP_FRAME_SIZE - XDP_PACKET_HEADROOM) == TEST_MAX_PKT_SIZE"
+
+Unverified Error/Warning (likely false positive, please contact us if interested):
+
+drivers/tty/serial/8250/8250_dfl.c:63 dfl_uart_get_params() error: uninitialized symbol 'clk_freq'.
+drivers/tty/serial/8250/8250_dfl.c:69 dfl_uart_get_params() error: uninitialized symbol 'fifo_len'.
+drivers/tty/serial/8250/8250_dfl.c:90 dfl_uart_get_params() error: uninitialized symbol 'reg_layout'.
+drivers/usb/gadget/composite.c:2082:33: sparse: sparse: restricted __le16 degrades to integer
+drivers/virtio/virtio_ring.c:1585 virtqueue_add_packed_vring() error: uninitialized symbol 'prev'.
+drivers/virtio/virtio_ring.c:1593 virtqueue_add_packed_vring() error: uninitialized symbol 'head_flags'.
+drivers/virtio/virtio_ring.c:697 virtqueue_add_split_vring() error: uninitialized symbol 'prev'.
+fs/ntfs3/super.c:1351 ntfs_fill_super() warn: passing a valid pointer to 'PTR_ERR'
+net/mac80211/mlme.c:7124 ieee80211_setup_assoc_link() warn: variable dereferenced before check 'elem' (see line 7122)
+net/mac80211/rx.c:2947 __ieee80211_rx_h_amsdu() error: we previously assumed 'rx->sta' could be null (see line 2933)
+
+Error/Warning ids grouped by kconfigs:
+
+gcc_recent_errors
+|-- alpha-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- alpha-randconfig-c041-20230212
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|-- arc-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- arm-allmodconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- arm-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- arm64-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn30-dcn30_optc.c:warning:no-previous-prototype-for-optc3_wait_drr_doublebuffer_pending_clear
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn32-dcn32_resource_helpers.c:warning:variable-cursor_bpp-set-but-not-used
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- arm64-randconfig-r031-20230212
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn30-dcn30_optc.c:warning:no-previous-prototype-for-optc3_wait_drr_doublebuffer_pending_clear
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn32-dcn32_resource_helpers.c:warning:variable-cursor_bpp-set-but-not-used
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- i386-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn30-dcn30_optc.c:warning:no-previous-prototype-for-optc3_wait_drr_doublebuffer_pending_clear
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-dcn32-dcn32_resource_helpers.c:warning:variable-cursor_bpp-set-but-not-used
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_capability.c:warning:variable-result_write_min_hblank-set-but-not-used
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-protocols-link_dp_training.c:warning:variable-result-set-but-not-used
+|-- i386-randconfig-m021
+|   |-- drivers-virtio-virtio_ring.c-virtqueue_add_packed_vring()-error:uninitialized-symbol-head_flags-.
+|   |-- drivers-virtio-virtio_ring.c-virtqueue_add_packed_vring()-error:uninitialized-symbol-prev-.
+|   `-- drivers-virtio-virtio_ring.c-virtqueue_add_split_vring()-error:uninitialized-symbol-prev-.
+|-- i386-randconfig-s001
+|   |-- drivers-gpu-drm-i915-gem-i915_gem_ttm.c:sparse:sparse:incorrect-type-in-assignment-(different-base-types)-expected-restricted-vm_fault_t-assigned-usertype-ret-got-int
+|   `-- drivers-usb-gadget-composite.c:sparse:sparse:restricted-__le16-degrades-to-integer
+|-- i386-randconfig-s002
+|   `-- drivers-gpu-drm-i915-gem-i915_gem_ttm.c:sparse:sparse:incorrect-type-in-assignment-(different-base-types)-expected-restricted-vm_fault_t-assigned-usertype-ret-got-int
+|-- i386-randconfig-s003
+|   `-- drivers-usb-gadget-composite.c:sparse:sparse:restricted-__le16-degrades-to-integer
+|-- ia64-allmodconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_detection.c:warning:expecting-prototype-for-dc_link_detect_connection_type().-Prototype-was-for-link_detect_connection_type()-instead
+clang_recent_errors
+|-- i386-randconfig-a015
+|   |-- drivers-net-ethernet-sfc-ef100_nic.c:warning:unused-variable-net_dev
+|   `-- drivers-net-ethernet-sfc-ef100_nic.c:warning:variable-rc-is-uninitialized-when-used-here
+`-- mips-maltaaprp_defconfig
+    `-- arch-mips-kernel-vpe.c:error:no-member-named-mod_mem-in-struct-module
+
+elapsed time: 727m
+
+configs tested: 112
+configs skipped: 5
+
+gcc tested configs:
+alpha                            allyesconfig
+alpha                               defconfig
+arc                              allyesconfig
+arc                          axs101_defconfig
+arc                                 defconfig
+arc                  randconfig-r043-20230217
+arm                              allmodconfig
+arm                              allyesconfig
+arm                         at91_dt_defconfig
+arm                                 defconfig
+arm                            hisi_defconfig
+arm                       multi_v4t_defconfig
+arm                  randconfig-c002-20230217
+arm64                            alldefconfig
+arm64                            allyesconfig
+arm64                               defconfig
+csky                                defconfig
+i386                             allyesconfig
+i386                              debian-10.3
+i386                         debian-10.3-func
+i386                   debian-10.3-kselftests
+i386                        debian-10.3-kunit
+i386                          debian-10.3-kvm
+i386                                defconfig
+i386                          randconfig-a001
+i386                          randconfig-a003
+i386                          randconfig-a005
+i386                 randconfig-a011-20230213
+i386                 randconfig-a012-20230213
+i386                 randconfig-a013-20230213
+i386                 randconfig-a014-20230213
+i386                 randconfig-a015-20230213
+i386                 randconfig-a016-20230213
+ia64                             allmodconfig
+ia64                                defconfig
+loongarch                        allmodconfig
+loongarch                         allnoconfig
+loongarch                           defconfig
+m68k                             allmodconfig
+m68k                         amcore_defconfig
+m68k                         apollo_defconfig
+m68k                                defconfig
+m68k                        stmark2_defconfig
+m68k                           virt_defconfig
+mips                             allmodconfig
+mips                             allyesconfig
+mips                           xway_defconfig
+nios2                               defconfig
+openrisc                    or1ksim_defconfig
+parisc                              defconfig
+parisc64                            defconfig
+powerpc                          allmodconfig
+powerpc                           allnoconfig
+powerpc                      cm5200_defconfig
+powerpc                mpc7448_hpc2_defconfig
+riscv                            allmodconfig
+riscv                             allnoconfig
+riscv                               defconfig
+riscv             nommu_k210_sdcard_defconfig
+riscv                randconfig-r042-20230217
+riscv                          rv32_defconfig
+s390                             allmodconfig
+s390                             allyesconfig
+s390                                defconfig
+s390                 randconfig-r044-20230217
+sh                               allmodconfig
+sh                           se7619_defconfig
+sh                           se7751_defconfig
+sh                        sh7757lcr_defconfig
+sh                  sh7785lcr_32bit_defconfig
+sparc                               defconfig
+sparc64                             defconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+x86_64                            allnoconfig
+x86_64                           allyesconfig
+x86_64                              defconfig
+x86_64                                  kexec
+x86_64               randconfig-a011-20230213
+x86_64               randconfig-a012-20230213
+x86_64               randconfig-a013-20230213
+x86_64               randconfig-a014-20230213
+x86_64               randconfig-a015-20230213
+x86_64               randconfig-a016-20230213
+x86_64                               rhel-8.3
+xtensa                       common_defconfig
+
+clang tested configs:
+arm                         bcm2835_defconfig
+arm                           omap1_defconfig
+arm                          pxa168_defconfig
+arm                  randconfig-r046-20230217
+hexagon              randconfig-r041-20230217
+hexagon              randconfig-r045-20230217
+i386                          randconfig-a002
+i386                          randconfig-a004
+i386                          randconfig-a006
+mips                          malta_defconfig
+mips                      maltaaprp_defconfig
+mips                           mtx1_defconfig
+mips                       rbtx49xx_defconfig
+powerpc                 mpc8313_rdb_defconfig
+powerpc               mpc834x_itxgp_defconfig
+powerpc                      walnut_defconfig
+powerpc                 xes_mpc85xx_defconfig
+riscv                            alldefconfig
+x86_64               randconfig-a001-20230213
+x86_64               randconfig-a002-20230213
+x86_64               randconfig-a003-20230213
+x86_64               randconfig-a004-20230213
+x86_64               randconfig-a005-20230213
+x86_64               randconfig-a006-20230213
+x86_64                        randconfig-k001
+x86_64                          rhel-8.3-rust
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
