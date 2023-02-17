@@ -1,97 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 30C58C636D4
-	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 12:15:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9CC5BC636D4
+	for <virtualization@archiver.kernel.org>; Fri, 17 Feb 2023 12:22:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A6E4441B51;
-	Fri, 17 Feb 2023 12:15:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6E4441B51
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=GLRo7Gjr
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2FE686176B;
+	Fri, 17 Feb 2023 12:22:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2FE686176B
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQH57tKs
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eRx72_YhcWIB; Fri, 17 Feb 2023 12:15:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DC2A041B48;
-	Fri, 17 Feb 2023 12:15:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DC2A041B48
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aJpNMGukBEKv; Fri, 17 Feb 2023 12:22:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C905D60E66;
+	Fri, 17 Feb 2023 12:22:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C905D60E66
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C3110C0033;
-	Fri, 17 Feb 2023 12:15:56 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DA89C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3B6AC0033;
+	Fri, 17 Feb 2023 12:22:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E5811C002B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:15:55 +0000 (UTC)
+ Fri, 17 Feb 2023 12:22:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E9A1D41B51
+ by smtp4.osuosl.org (Postfix) with ESMTP id B1D3541A10
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:15:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E9A1D41B51
+ Fri, 17 Feb 2023 12:22:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B1D3541A10
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQH57tKs
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IlLsukQLLWEo
+ with ESMTP id 5L6aWnQ4sF6r
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:15:52 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 666D141B48
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com
- [IPv6:2a00:1450:4864:20::32b])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 666D141B48
+ Fri, 17 Feb 2023 12:22:12 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 359BC41902
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 359BC41902
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 12:15:52 +0000 (UTC)
-Received: by mail-wm1-x32b.google.com with SMTP id
- e4-20020a05600c4e4400b003dc4050c94aso802362wmq.4
+ Fri, 17 Feb 2023 12:22:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1676636531;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=VbZ6lg0zzAJJ7VsgOJE+0XQphc+KxOOGhEwY/SdO60g=;
+ b=NQH57tKsZfg/1xuTjb255MX7ifi+6AdxaF58loFH3AwO8UyrVg6Ma5YqCC8StnwHs0BKVN
+ Q1XLPRdkQlnfJaL2WqNJkY32Af2kKxHHnJ1hfJi+iGJOxmips9T6X+vRlDzDVPUGdsjS2o
+ /RJvz39cSGpgt6eo8UBjIvbi5rO8nyM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-589-ROuBaOynOJCvtEcr_Msu1g-1; Fri, 17 Feb 2023 07:22:07 -0500
+X-MC-Unique: ROuBaOynOJCvtEcr_Msu1g-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ n2-20020a05600c3b8200b003e10d3e1c23so564553wms.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 17 Feb 2023 04:15:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=resnulli-us.20210112.gappssmtp.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=fdAd75IKeGuiZC/gLVi/q5gzUOXi0Tilg6lxXWoO9Ic=;
- b=GLRo7GjrvRH2s3vxMtLX0NXuTsxH0mOLf2t4mh+bq3UTYnPxFxKa+aclc+N+Bg3Kwr
- YhZ3Q/YibkXLUgFCiJCvVHqL2bEj+abEN0qdl8U5gOAWUqE5iyXBh6lsQKU1DEbwatXG
- KC7YrbwNFJoQZFY7hEZdnGWp2I0etkgmkx2PoLCj0NYqjd8VSY+Wc8gRvz/toEHQtmdh
- +GLu/q2T/nM7PbNfwmlceO9Y7wPiUSgghmxHOiIdgHidKmWDDHQdsTLeRl1/6vUIvTbu
- wwcYTU3RgeLp62a/vPt+KntMJKKQ56Vp6E1QXJNJS2QAICNb95NoTqDxcLZwCWpmq+sK
- o5bw==
+ Fri, 17 Feb 2023 04:22:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=fdAd75IKeGuiZC/gLVi/q5gzUOXi0Tilg6lxXWoO9Ic=;
- b=6ZDXjxh3qFzC8NKO/s5IqKYOiZKsTcmsxfMW0Y1G/YiLxqpRGruHPuRLYVbu4GrvzS
- gFGORUsAl9e1+/ipYTeX5bg6VRTVPNac2+B3UMBTfSV1zkioVLt36VjTCiteSRtS32JS
- njtSAzF0kr4GR7BfzrsfwbLtjXhCUsmUWu7zhg1UdZinVsURQsUNZbbch+Pf7lonqSED
- gi4SvNh4fLoTC4cVXLrKOATb7mNc07/nyFWno/ZU7TvO/LYS+Eztjrr7DXO8PZS2F76a
- pgvcJZ49ToJ27MWWuSsRqI+m3GfQ0O3xlIedypNymYZjF5lEJwWinZk5VJfwtYG8m301
- NhWw==
-X-Gm-Message-State: AO0yUKWs7pUTpUbanCc9OJTe3dTBvkuDMEUTplivLDqOaSybRp3uxc4B
- yGDax9xj1tv2Fao7o3D2rA6amw==
-X-Google-Smtp-Source: AK7set+NC36+Q5PbXb31/vlW/fxp3sjTPYoccHDngY01oTfli/nug4z1vpF9dVoW6KhN6RJwOVlWRQ==
-X-Received: by 2002:a05:600c:2eca:b0:3df:f7e7:5f01 with SMTP id
- q10-20020a05600c2eca00b003dff7e75f01mr777021wmn.15.1676636150111; 
- Fri, 17 Feb 2023 04:15:50 -0800 (PST)
-Received: from localhost (host-213-179-129-39.customer.m-online.net.
- [213.179.129.39]) by smtp.gmail.com with ESMTPSA id
- 4-20020a05600c024400b003e01493b136sm8425722wmj.43.2023.02.17.04.15.48
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=VbZ6lg0zzAJJ7VsgOJE+0XQphc+KxOOGhEwY/SdO60g=;
+ b=5tTMghCZJFTH/o8Om3abVhudFQzlTrwW/5/cF62sRf4o5LbkzHp4krP9lI8iXuk/Ke
+ Ul7UorBSw31XsXUmRitjXJTLxkAd68gkjh4+BuB1L3hGQNuyz4GgPhW8rful/FN1cpI9
+ dZ8L7lGj/1NdrcZdfF08a8FSPgvz9pr49suzCk6o/JIe37epc6TXaOQiobj8z2F4aAob
+ 6UTKMY6Ga5K8mo8s0sqMDv3Fzlx4LE92oLwvQXSlV8w2GZgFVkqv5hvN10052v6daDiw
+ G5opf111JKqzE4h0np+Gz7YpaCEK1laHkjFmJJQi0n8Xy147FPWc3ezgnb312U7nfGxb
+ +jSQ==
+X-Gm-Message-State: AO0yUKVmNZ99VR74rMrXvh9nDbUnC2Ni5vaztnMXuiYgG6sFZ3evUGTO
+ cVgbjlxCXnEsHBjaLP7gFDZ8MzTGUn7pU0gHBk3oC5Re36EtwhPu/nyc/GzkJAg3SKaQiW0l0yd
+ XaeTQH/x9dAM5ptCT7nRLYXajR5cH4GYU51600CY0pg==
+X-Received: by 2002:a05:600c:4b1b:b0:3df:fbc7:5b10 with SMTP id
+ i27-20020a05600c4b1b00b003dffbc75b10mr341763wmp.0.1676636526333; 
+ Fri, 17 Feb 2023 04:22:06 -0800 (PST)
+X-Google-Smtp-Source: AK7set9UTlL1W3RpGlRDPzUeP/pLLVc4PJU4+6e4Mtuwsp+LiTCnneeWPFlM/Gc64uI/ChZO+yqEkA==
+X-Received: by 2002:a05:600c:4b1b:b0:3df:fbc7:5b10 with SMTP id
+ i27-20020a05600c4b1b00b003dffbc75b10mr341749wmp.0.1676636526051; 
+ Fri, 17 Feb 2023 04:22:06 -0800 (PST)
+Received: from redhat.com ([2.52.5.34]) by smtp.gmail.com with ESMTPSA id
+ ay38-20020a05600c1e2600b003dff870ce0esm723720wmb.2.2023.02.17.04.22.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 17 Feb 2023 04:15:49 -0800 (PST)
-From: Jiri Pirko <jiri@resnulli.us>
-To: netdev@vger.kernel.org
-Subject: [patch net-next] net: virtio_net: implement exact header length guest
- feature
-Date: Fri, 17 Feb 2023 13:15:47 +0100
-Message-Id: <20230217121547.3958716-1-jiri@resnulli.us>
-X-Mailer: git-send-email 2.39.0
+ Fri, 17 Feb 2023 04:22:05 -0800 (PST)
+Date: Fri, 17 Feb 2023 07:22:01 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [patch net-next] net: virtio_net: implement exact header length
+ guest feature
+Message-ID: <20230217072032-mutt-send-email-mst@kernel.org>
+References: <20230217121547.3958716-1-jiri@resnulli.us>
 MIME-Version: 1.0
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org,
+In-Reply-To: <20230217121547.3958716-1-jiri@resnulli.us>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
  edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -109,60 +122,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Jiri Pirko <jiri@nvidia.com>
+On Fri, Feb 17, 2023 at 01:15:47PM +0100, Jiri Pirko wrote:
+> From: Jiri Pirko <jiri@nvidia.com>
+> 
+> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
+> 
+> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
+> set implicates that the driver provides the exact size of the header.
+> 
+> The driver already complies to fill the correct value. Introduce the
+> feature and advertise it.
+> 
+> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
 
-virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
+Could you add a bit of motivation just for the record?
+Does this improve performance for some card? By how much?
+Expected to help some future card?
 
-Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
-set implicates that the driver provides the exact size of the header.
+thanks!
 
-The driver already complies to fill the correct value. Introduce the
-feature and advertise it.
 
-Signed-off-by: Jiri Pirko <jiri@nvidia.com>
----
- drivers/net/virtio_net.c        | 6 ++++--
- include/uapi/linux/virtio_net.h | 1 +
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index fb5e68ed3ec2..e85b03988733 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
- 	VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_GUEST_CSUM,
- 	VIRTIO_NET_F_GUEST_USO4,
--	VIRTIO_NET_F_GUEST_USO6
-+	VIRTIO_NET_F_GUEST_USO6,
-+	VIRTIO_NET_F_GUEST_HDRLEN
- };
- 
- #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
-@@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
- 	VIRTIO_NET_F_CTRL_MAC_ADDR, \
- 	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
- 	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
--	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
-+	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
-+	VIRTIO_NET_F_GUEST_HDRLEN
- 
- static unsigned int features[] = {
- 	VIRTNET_FEATURES,
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index b4062bed186a..12c1c9699935 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -61,6 +61,7 @@
- #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
- #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
- #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
-+#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
- #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
- #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
- #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
--- 
-2.39.0
+> ---
+>  drivers/net/virtio_net.c        | 6 ++++--
+>  include/uapi/linux/virtio_net.h | 1 +
+>  2 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index fb5e68ed3ec2..e85b03988733 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
+>  	VIRTIO_NET_F_GUEST_UFO,
+>  	VIRTIO_NET_F_GUEST_CSUM,
+>  	VIRTIO_NET_F_GUEST_USO4,
+> -	VIRTIO_NET_F_GUEST_USO6
+> +	VIRTIO_NET_F_GUEST_USO6,
+> +	VIRTIO_NET_F_GUEST_HDRLEN
+>  };
+>  
+>  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
+> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
+>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+> -	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
+> +	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
+> +	VIRTIO_NET_F_GUEST_HDRLEN
+>  
+>  static unsigned int features[] = {
+>  	VIRTNET_FEATURES,
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index b4062bed186a..12c1c9699935 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -61,6 +61,7 @@
+>  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
+>  #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
+>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+> +#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
+>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
+>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+> -- 
+> 2.39.0
 
 _______________________________________________
 Virtualization mailing list
