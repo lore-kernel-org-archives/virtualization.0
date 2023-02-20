@@ -1,101 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0B96C636CC
-	for <virtualization@archiver.kernel.org>; Mon, 20 Feb 2023 14:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 287ADC636CC
+	for <virtualization@archiver.kernel.org>; Mon, 20 Feb 2023 15:24:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2051C81B01;
-	Mon, 20 Feb 2023 14:22:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2051C81B01
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7AF4660BC9;
+	Mon, 20 Feb 2023 15:24:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7AF4660BC9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Vc8E9jyE
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WMCi3cm2xNon; Mon, 20 Feb 2023 15:24:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D256E60BC5;
+	Mon, 20 Feb 2023 15:24:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D256E60BC5
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A05B6C0033;
+	Mon, 20 Feb 2023 15:24:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CFEA2C002B
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Feb 2023 15:24:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B806481A34
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Feb 2023 15:24:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B806481A34
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Iyn/H30X;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=ag0OK4/P
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Vc8E9jyE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id a2M0hQECKb_3; Mon, 20 Feb 2023 14:22:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8EDF681570;
-	Mon, 20 Feb 2023 14:22:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8EDF681570
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 62E50C0032;
-	Mon, 20 Feb 2023 14:22:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 90FE2C002B
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cLNSAsKRA2wv
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 14:22:08 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 576BB410A8
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 14:22:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 576BB410A8
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=Iyn/H30X; 
- dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=ag0OK4/P
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PzHoMDek5P_w
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 14:22:07 +0000 (UTC)
+ Mon, 20 Feb 2023 15:24:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 445E2408D0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 445E2408D0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD92C818EC
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DD92C818EC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 14:22:07 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 05C67203E1;
- Mon, 20 Feb 2023 14:22:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1676902924; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Mon, 20 Feb 2023 15:24:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1676906669;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=usq2J/A02vvXu+D3dj5S2uYZKeTAbNVbciu3CO0eiEw=;
- b=Iyn/H30XD9cJIrf0ikAp7FcWKtx0Cvtwfu/XZ4MVpqzC138dOouySwusuOuaFeKMiMz/gG
- C1j88F79yAbXuwqBnspJdxX2pjbEcaMILL756C5IpLKJIB1duXDruat2toT82JY37iXwWI
- PXgnB9x/MmXTJcHAfurhduYSmciJNiQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1676902924;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=usq2J/A02vvXu+D3dj5S2uYZKeTAbNVbciu3CO0eiEw=;
- b=ag0OK4/Pexe3qUqIWsQ9rF9d1qwqgidytqC4p3yO714nprAYGzcwGfp2fZOfMgu7yBhjpf
- OxZk2N9Hx2assoBw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id D5545139DB;
- Mon, 20 Feb 2023 14:22:03 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id b1oNMwuC82PzLwAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Mon, 20 Feb 2023 14:22:03 +0000
-Message-ID: <edafc067-f8f1-e45b-9b0b-da0f1cabac4b@suse.de>
-Date: Mon, 20 Feb 2023 15:22:03 +0100
+ bh=XXbeg/8n4ojsPY6rFquIIVMt+7vRYFxzuQ9z7o+cgT8=;
+ b=Vc8E9jyEHLj61nUOjktduqzw57TqpoBXWks/hxSvl9sa4JIlaKgQWq4o5DEvrqJetQxUBJ
+ aBk2yFmKJZ6cYKsHobf5ZWk8gDMrU5TiUkjhZh7q/9coJmPX7kBnY6VDsF7PR57CBdCo4j
+ YO5tey18tN5F9xDyWJxX8pbxq+YW93E=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-278-c0okpVIkNtGHBf8HWM0www-1; Mon, 20 Feb 2023 10:24:28 -0500
+X-MC-Unique: c0okpVIkNtGHBf8HWM0www-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ h8-20020a05600c314800b003e10bfcd160so620807wmo.6
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Feb 2023 07:24:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=XXbeg/8n4ojsPY6rFquIIVMt+7vRYFxzuQ9z7o+cgT8=;
+ b=N5NcqXmOBQkG7qp11fdoLvT8g6ehylp9B4btCZwzH4LBwG63gDjfRFDlhydvuhv/1P
+ IPsGRGpaMQcp7byL/KE5QvmDLpR135m5YiUVw6asTiMEoVct3AfCaLI8OUc1KU5nO6FK
+ g0PL7+1iJgQOTdhO+iUjXOpBN/7RCs8W5wCtUdMs19cYu525ynZZygm98neCSkif7uiI
+ +8HpZAMkbgLZiaEOxAPyzBP3eL01zGV8EjT626bbZEZClJ100i+iqG2SapcP4R7FST2U
+ rdnTDkVoKwSFeRC/yfKC4oEEuPwAg9bjBlieseSwuIxp4Gr8o+hifOZn+4r8JTzbXgRo
+ +2kA==
+X-Gm-Message-State: AO0yUKX9Nyq7iEDndadjbGTMB8qLGqsapx95SZZS2vBT/rKFCZy9dWnt
+ 4TxA9dRwFItCy3wAU1ZQCdwaFOooc94Ls7fo3vmDAv0zkeO2Ni7g2CynpAq2cmOLza1z49gzTik
+ NBzgl6PNOovQRnvkHqoG3rxCDxk+kANy9jEHGMfLVZA==
+X-Received: by 2002:a05:600c:4591:b0:3e0:481:c897 with SMTP id
+ r17-20020a05600c459100b003e00481c897mr1269887wmo.37.1676906667353; 
+ Mon, 20 Feb 2023 07:24:27 -0800 (PST)
+X-Google-Smtp-Source: AK7set9tFwhAVYPdJYx0EhG2sVxAmzmAIlOl5vAvFJ3YD45gjzKLDP25kfvtfbMuXNPd38LD2ll++g==
+X-Received: by 2002:a05:600c:4591:b0:3e0:481:c897 with SMTP id
+ r17-20020a05600c459100b003e00481c897mr1269863wmo.37.1676906667016; 
+ Mon, 20 Feb 2023 07:24:27 -0800 (PST)
+Received: from redhat.com ([2.52.5.34]) by smtp.gmail.com with ESMTPSA id
+ p8-20020a1c7408000000b003b47b80cec3sm541587wmc.42.2023.02.20.07.24.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 20 Feb 2023 07:24:26 -0800 (PST)
+Date: Mon, 20 Feb 2023 10:24:22 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2] vhost/vdpa: Add MSI translation tables to iommu for
+ software-managed MSI
+Message-ID: <20230220102216-mutt-send-email-mst@kernel.org>
+References: <20230207120843.1580403-1-sunnanyong@huawei.com>
+ <Y+7G+tiBCjKYnxcZ@nvidia.com>
+ <CACGkMEtehykvqNUnfCi0VmHR1xpmhj4sSWdYW1-0oATY=0YhXw@mail.gmail.com>
+ <20230217051038-mutt-send-email-mst@kernel.org>
+ <CACGkMEuDG1NUs0=ry1=Mphfd+TrqAvVS0yeu9hcni2VrPkB8tQ@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Subject: Re: [PATCH 17/17] drm/cirrus: Use VGA macro constants to unblank
-Content-Language: en-US
-To: Gerd Hoffmann <kraxel@redhat.com>
-References: <20230215161517.5113-1-tzimmermann@suse.de>
- <20230215161517.5113-18-tzimmermann@suse.de>
- <20230216113330.rmzmkdvpxdqk2nrd@sirius.home.kraxel.org>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <20230216113330.rmzmkdvpxdqk2nrd@sirius.home.kraxel.org>
-Cc: airlied@redhat.com, sam@ravnborg.org, javierm@redhat.com,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <CACGkMEuDG1NUs0=ry1=Mphfd+TrqAvVS0yeu9hcni2VrPkB8tQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>, will@kernel.org,
+ joro@8bytes.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ Jason Gunthorpe <jgg@nvidia.com>, netdev@vger.kernel.org, robin.murphy@arm.com,
+ wangrong68@huawei.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,84 +124,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7236157228233009833=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7236157228233009833==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------7gXLJSRR3CZNUIuU32SQhT0T"
+On Mon, Feb 20, 2023 at 10:36:27AM +0800, Jason Wang wrote:
+> On Fri, Feb 17, 2023 at 6:11 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Feb 17, 2023 at 01:35:59PM +0800, Jason Wang wrote:
+> > > On Fri, Feb 17, 2023 at 8:15 AM Jason Gunthorpe <jgg@nvidia.com> wrote:
+> > > >
+> > > > On Tue, Feb 07, 2023 at 08:08:43PM +0800, Nanyong Sun wrote:
+> > > > > From: Rong Wang <wangrong68@huawei.com>
+> > > > >
+> > > > > Once enable iommu domain for one device, the MSI
+> > > > > translation tables have to be there for software-managed MSI.
+> > > > > Otherwise, platform with software-managed MSI without an
+> > > > > irq bypass function, can not get a correct memory write event
+> > > > > from pcie, will not get irqs.
+> > > > > The solution is to obtain the MSI phy base address from
+> > > > > iommu reserved region, and set it to iommu MSI cookie,
+> > > > > then translation tables will be created while request irq.
+> > > >
+> > > > Probably not what anyone wants to hear, but I would prefer we not add
+> > > > more uses of this stuff. It looks like we have to get rid of
+> > > > iommu_get_msi_cookie() :\
+> > > >
+> > > > I'd like it if vdpa could move to iommufd not keep copying stuff from
+> > > > it..
+> > >
+> > > Yes, but we probably need a patch for -stable.
+> >
+> > Hmm do we? this looks like it's enabling new platforms is not a bugfix...
+> 
+> I think we haven't limited vDPA to any specific arch in the past?
+> 
+> Thanks
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------7gXLJSRR3CZNUIuU32SQhT0T
-Content-Type: multipart/mixed; boundary="------------0BWpDwiySRfk7ruJQ1dQXzG0";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: javierm@redhat.com, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, airlied@redhat.com,
- sam@ravnborg.org
-Message-ID: <edafc067-f8f1-e45b-9b0b-da0f1cabac4b@suse.de>
-Subject: Re: [PATCH 17/17] drm/cirrus: Use VGA macro constants to unblank
-References: <20230215161517.5113-1-tzimmermann@suse.de>
- <20230215161517.5113-18-tzimmermann@suse.de>
- <20230216113330.rmzmkdvpxdqk2nrd@sirius.home.kraxel.org>
-In-Reply-To: <20230216113330.rmzmkdvpxdqk2nrd@sirius.home.kraxel.org>
+No, but it still fails gracefully right?
 
---------------0BWpDwiySRfk7ruJQ1dQXzG0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Anyway, this will need iommu maintainer's ack.  We'll see.
 
-SGkNCg0KQW0gMTYuMDIuMjMgdW0gMTI6MzMgc2NocmllYiBHZXJkIEhvZmZtYW5uOg0KPiBP
-biBXZWQsIEZlYiAxNSwgMjAyMyBhdCAwNToxNToxN1BNICswMTAwLCBUaG9tYXMgWmltbWVy
-bWFubiB3cm90ZToNCj4+IFNldCB0aGUgVkdBIGJpdCBmb3IgdW5ibGFua2luZyB3aXRoIG1h
-Y3JvIGNvbnN0YW50cyBpbnN0ZWFkIG9mIG1hZ2ljDQo+PiB2YWx1ZXMuIE5vIGZ1bmN0aW9u
-YWwgY2hhbmdlcy4NCj4gDQo+IGJsYW5rL3VuYmxhbmsgc2hvdWxkIHdvcmsgc2ltbGlhciB0
-byBib2NocyAoc2VlIGNvbW1pdCAyNTBlNzQzOTE1ZDQpLA0KPiB0aGF0IGlzIG1heWJlIGEg
-bmljZSB0aGluZyB0byBhZGQgb2YgeW91IG1vZGVybml6ZSB0aGUgZHJpdmVyIGFueXdheS4N
-Cj4gDQo+IHRha2UgY2FyZSwNCj4gICAgR2VyZA0KPiANCg0KRG8geW91IGhhdmUgY29tbWVu
-dHMgb24gdGhlIG90aGVyIHBhdGNoZXM/DQoNCkJlc3QgcmVnYXJkcw0KVGhvbWFzDQoNCi0t
-IA0KVGhvbWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNVU0Ug
-U29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KTWF4ZmVsZHN0ci4gNSwgOTA0MDkg
-TsO8cm5iZXJnLCBHZXJtYW55DQooSFJCIDM2ODA5LCBBRyBOw7xybmJlcmcpDQpHZXNjaMOk
-ZnRzZsO8aHJlcjogSXZvIFRvdGV2DQo=
 
---------------0BWpDwiySRfk7ruJQ1dQXzG0--
-
---------------7gXLJSRR3CZNUIuU32SQhT0T
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmPzggsFAwAAAAAACgkQlh/E3EQov+C5
-wA/+O1d2tfCvQgNMsri96mX7NyZ+d7B8d61CHLnf88JgtpPk2r9Tuy2yNKDv8dXLP26L6INx0v5i
-FOY1MqBIJJUYfGlml7CoELqWPO+PSk0YXLwX4VocqgJkAz5GPa8oz5j/38emUbf9USVDT6YJKDbl
-VRzQBJQg23L1zINO2DyP4IpNa8rz2ScWgC05kWjHltdHnQ5KRDFzynx3BI6bgufV4lw6QVDacrAp
-LROfE2Ul1jCKxK3LhvHsw01Ecz5wqA7KEvkDaAxlQPabnVuIBV24guP8wCcXyHDB6WYIT2ZkF6om
-0sRLZUOd3AA1Y+dOb9fs1zmdWKpL6AQBRBPG3DPeJdjZDOHe3P+j4JHDnQn+nNQVNVZbEN8Au1c2
-XXZyDyua+yLNxDqqyf/hBt36ldOHI4ayrCkl5LnL6GvvtCXlZxXwusEm8kEUlsa1DX8H7OatXaJY
-CjBflw5Xvig037q6FGpRt64N1WDrPXHRCnazVPiAZcLgkcHY5wVIgv66LMQ57ARt1HoFGC+f2Hbz
-SdjPtzxyK1QSFRqOdkevaUkKa2OG9Tcpb17EdbxMDVfAQUVlOSSCU4+5p2HHuIJsPNj6JCa4/8wd
-YuuuG+ZfcjR4Ohvlthcf07MaTFVQmSADDA4SkcEqszR8CjFWCPyWSE4AOmFOIsoX2v5dF6gJBouG
-+xI=
-=FlQa
------END PGP SIGNATURE-----
-
---------------7gXLJSRR3CZNUIuU32SQhT0T--
-
---===============7236157228233009833==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> >
+> > > >
+> > > > Also the iommu_group_has_isolated_msi() check is missing on the vdpa
+> > > > path, and it is missing the iommu ownership mechanism.
+> > >
+> > > Ok.
+> > >
+> > > >
+> > > > Also which in-tree VDPA driver that uses the iommu runs on ARM? Please
+> > >
+> > > ifcvf and vp_vpda are two drivers that use platform IOMMU.
+> > >
+> > > Thanks
+> > >
+> > > > don't propose core changes for unmerged drivers. :(
+> > > >
+> > > > Jason
+> > > >
+> >
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7236157228233009833==--
