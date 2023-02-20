@@ -1,112 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 37DFEC636CC
-	for <virtualization@archiver.kernel.org>; Mon, 20 Feb 2023 12:13:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26BF1C05027
+	for <virtualization@archiver.kernel.org>; Mon, 20 Feb 2023 12:55:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2346C6107B;
-	Mon, 20 Feb 2023 12:13:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2346C6107B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=e8F2NuS4
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7E49641090;
+	Mon, 20 Feb 2023 12:55:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7E49641090
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ACQGhoK/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8ABUOA6lteEc; Mon, 20 Feb 2023 12:13:06 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LJPbRuOfx3qj; Mon, 20 Feb 2023 12:55:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B854960E58;
-	Mon, 20 Feb 2023 12:13:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B854960E58
+	by smtp2.osuosl.org (Postfix) with ESMTPS id AB5F540906;
+	Mon, 20 Feb 2023 12:55:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AB5F540906
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 86392C0032;
-	Mon, 20 Feb 2023 12:13:05 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 821CAC0032;
+	Mon, 20 Feb 2023 12:55:44 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CDD48C002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ABC4AC002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 12:13:03 +0000 (UTC)
+ Mon, 20 Feb 2023 12:55:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A126B80D74
+ by smtp1.osuosl.org (Postfix) with ESMTP id 792FF81E96
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 12:13:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A126B80D74
+ Mon, 20 Feb 2023 12:55:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 792FF81E96
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=e8F2NuS4
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ACQGhoK/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WkYJqjJMk5S1
+ with ESMTP id Q7hon8OC6vxK
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 12:13:02 +0000 (UTC)
+ Mon, 20 Feb 2023 12:55:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71B8080C38
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85F0381E91
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 71B8080C38
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 85F0381E91
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 12:13:02 +0000 (UTC)
+ Mon, 20 Feb 2023 12:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676895181;
+ s=mimecast20190719; t=1676897740;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=b2M3s4k1g1fOWVIQkyFRNO1/JHP/5wD2dU1/haO6PnA=;
- b=e8F2NuS4NEcQW70WgyUnsEJ3L7xneAo8XoPtlSxfxgK8FXdSouKxJXv24gDJ9Ql0bOhiu9
- lEb4a08UsaNmGsVeoiSgimmczX/BLPvOr+I0IQ5ujvWiv4ALBW8vZfkfWElEJL20IRn6D0
- qUnOkmp5jcsBIhzSouhSmCi7XvTcB6A=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=t5T9bZZKt8QsdieBTdNvr7iToD1QjAmvloZaVLt8Qlc=;
+ b=ACQGhoK/Rs9xZWf2yOeZuzbjIYdM0y+qcHMbNFg+Nv0xuMb//9SQ/d0iE4NT0sW/fwCIuQ
+ O5CakJ8zRtZGj2xYb5N2oG2SqsSW6b/QcEGlTLSkRL/0SNb+eYe/mq1x+KpUmk4dcd2liv
+ 8ioY7NNjkPkGtQ++XMZDYV5ljKMs8ZY=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-284-8-GZRgY4MC2rHEQrqwfWGg-1; Mon, 20 Feb 2023 07:12:59 -0500
-X-MC-Unique: 8-GZRgY4MC2rHEQrqwfWGg-1
-Received: by mail-wr1-f72.google.com with SMTP id
- j9-20020a5d4529000000b002c5588d962fso316053wra.10
+ us-mta-364-5DMrCXKuOC2UFt4r82bMag-1; Mon, 20 Feb 2023 07:55:39 -0500
+X-MC-Unique: 5DMrCXKuOC2UFt4r82bMag-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ c14-20020adffb0e000000b002bfda39265aso358849wrr.13
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 04:12:59 -0800 (PST)
+ Mon, 20 Feb 2023 04:55:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=b2M3s4k1g1fOWVIQkyFRNO1/JHP/5wD2dU1/haO6PnA=;
- b=NfFVI7fQGnmE7ZdF3yOPrCaO5IqrQyezlSz9906C8fSiQfrWz7lOYxke66O8fd0o2Z
- pyRajqiz+ew9taWem2p0asCFAWcUovu8QA0+57zhjJ0UKj7PVyRcHluCqxGbsv4aumkl
- DAZBq4sMkdRPSmDnlqM6JXQ51VlMB6XAcQUsBu+5tkP0zQ1suneBXVWLnvcPz884gq5h
- Il9i4mzJNW/5jTbH7pObRIaCUN2VFkIWxxyTa4QV+IqU+14P7cairX9DAD5Lxn0pvVus
- yzuavWM9lWJRAdQquIb4hHSXP189Vod6oz+Vi3eZQsgLSyP3a+8HKoUS+XXuWCa7Sd8P
- uDHQ==
-X-Gm-Message-State: AO0yUKWCdMbxtk0g9zFImcnaEcWkdQjIywOp74wOsRmvO0dUiYr9CA5M
- WK1jvb6I6kyuoypba96HjCCRqYW96E1k4lIJTy0hbUInBUqka09rJMLXVGS9wWlGgoR/fU5XI1K
- vkxc75vqJabnbnNBG9FJfDMzqLXEd712NfAUx2MDAiw==
-X-Received: by 2002:adf:ef47:0:b0:2c5:9ed8:7c74 with SMTP id
- c7-20020adfef47000000b002c59ed87c74mr626720wrp.19.1676895178698; 
- Mon, 20 Feb 2023 04:12:58 -0800 (PST)
-X-Google-Smtp-Source: AK7set/hobYSeobF6Lg+xz9eZkKUsoGc02UN2QKzyvpPGkTIB3OJOC9Yk3raH+HfIricR4oNXt54Qg==
-X-Received: by 2002:adf:ef47:0:b0:2c5:9ed8:7c74 with SMTP id
- c7-20020adfef47000000b002c59ed87c74mr626700wrp.19.1676895178289; 
- Mon, 20 Feb 2023 04:12:58 -0800 (PST)
+ bh=t5T9bZZKt8QsdieBTdNvr7iToD1QjAmvloZaVLt8Qlc=;
+ b=L7Osd+JIWhNGMqJ9wxEaZ38N7Hf0cqBgGbcb0wYkLP/Y4+wNDy/iPn/+QAu3KWzCE7
+ TNUes1FGyyjhlHhzsbyC13utxlE3Gq+5svGl7b7MerEUTKzca1VRx4NgwXU9LGd0mouf
+ rVNfaZEvjKhTPoI8uFxcX8jGrFEADl/dH17p5uSTTnxLc/YVnj853w58XUs/LPZ8fgOj
+ rVeBnQ+Aq58Y/tjtNZw0mQ3gEQXjHeJl++J8zXjTuWjX2z/97sGXLwAaYUhZEXeizQtH
+ WfnXCJCc7f9qDq5rvBHjenXNhrvG7b5yIypBF82YK0nIboIsr6A15650eyqQ1Gyg8jD5
+ GZtQ==
+X-Gm-Message-State: AO0yUKUFA1E1bh76QKZpYh2BBQYkwq8bcEZ4P18SlshX6Y04uw++CVkz
+ bRR0hcfPgf1gF+NJOjB1IDOOv6tqwyq1xVu+X9KW9SLP/oQ4XKdii5n9harOVAsp2BDzzxjj/HY
+ y7MKz05kgGJ9mv/V6hG1Rwk+lfl3NndZi5qlx9tjhOA==
+X-Received: by 2002:a05:600c:319a:b0:3df:d431:cf64 with SMTP id
+ s26-20020a05600c319a00b003dfd431cf64mr225442wmp.39.1676897737814; 
+ Mon, 20 Feb 2023 04:55:37 -0800 (PST)
+X-Google-Smtp-Source: AK7set9MI/dsrz3E0sVvpzNF+oMUF9C/eNq3ChWdTY2lAFidx7zFfAjZqw7+KQ0K84Mn2XSwoT0xmg==
+X-Received: by 2002:a05:600c:319a:b0:3df:d431:cf64 with SMTP id
+ s26-20020a05600c319a00b003dfd431cf64mr225427wmp.39.1676897737450; 
+ Mon, 20 Feb 2023 04:55:37 -0800 (PST)
 Received: from redhat.com ([2.52.5.34]) by smtp.gmail.com with ESMTPSA id
- s5-20020adfeb05000000b002c54c0a5aa9sm12289734wrn.74.2023.02.20.04.12.56
+ p8-20020a1c7408000000b003b47b80cec3sm151899wmc.42.2023.02.20.04.55.35
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Feb 2023 04:12:57 -0800 (PST)
-Date: Mon, 20 Feb 2023 07:12:54 -0500
+ Mon, 20 Feb 2023 04:55:36 -0800 (PST)
+Date: Mon, 20 Feb 2023 07:55:33 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH vhost 01/10] virtio_ring: split: refactor
- virtqueue_add_split() for premapped
-Message-ID: <20230220071202-mutt-send-email-mst@kernel.org>
-References: <20230214072704.126660-1-xuanzhuo@linux.alibaba.com>
- <20230214072704.126660-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEtnVwTBzwmRGGXELNkds=b1K+crAmonyjn9=rM1R2-Fkw@mail.gmail.com>
+To: Jiri Pirko <jiri@resnulli.us>
+Subject: Re: [patch net-next] net: virtio_net: implement exact header length
+ guest feature
+Message-ID: <20230220074947-mutt-send-email-mst@kernel.org>
+References: <20230217121547.3958716-1-jiri@resnulli.us>
+ <20230217072032-mutt-send-email-mst@kernel.org>
+ <Y+94418p73aUQyIn@nanopsycho>
+ <20230217083915-mutt-send-email-mst@kernel.org>
+ <Y/MwtAGru3yAY7r3@nanopsycho>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtnVwTBzwmRGGXELNkds=b1K+crAmonyjn9=rM1R2-Fkw@mail.gmail.com>
+In-Reply-To: <Y/MwtAGru3yAY7r3@nanopsycho>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org
+Cc: Vitaly Mireyno <vmireyno@marvell.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,344 +127,121 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 20, 2023 at 01:37:37PM +0800, Jason Wang wrote:
-> On Tue, Feb 14, 2023 at 3:27 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+On Mon, Feb 20, 2023 at 09:35:00AM +0100, Jiri Pirko wrote:
+> Fri, Feb 17, 2023 at 02:47:36PM CET, mst@redhat.com wrote:
+> >On Fri, Feb 17, 2023 at 01:53:55PM +0100, Jiri Pirko wrote:
+> >> Fri, Feb 17, 2023 at 01:22:01PM CET, mst@redhat.com wrote:
+> >> >On Fri, Feb 17, 2023 at 01:15:47PM +0100, Jiri Pirko wrote:
+> >> >> From: Jiri Pirko <jiri@nvidia.com>
+> >> >> 
+> >> >> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
+> >> >> 
+> >> >> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
+> >> >> set implicates that the driver provides the exact size of the header.
+> >> >> 
+> >> >> The driver already complies to fill the correct value. Introduce the
+> >> >> feature and advertise it.
+> >> >> 
+> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+> >> >
+> >> >Could you add a bit of motivation just for the record?
+> >> >Does this improve performance for some card? By how much?
+> >> >Expected to help some future card?
+> >> 
+> >> I can get that info, but isn't that rather something to be appended to
+> >> the virtio-spec patch? I mean, the feature is there, this is just
+> >> implementing it in one driver.
 > >
-> > DMA-related logic is separated from the virtqueue_add_split to prepare
-> > for subsequent support for premapped.
+> >It is more like using it in the driver.  It's not like we have to use
+> >everything - it could be useful for e.g. dpdk but not linux.
+> >Implementing it in the Linux driver has support costs - for example what
+> >if there's a bug and sometimes the length is incorrect?
+> >We'll be breaking things.
 > 
-> The patch seems to do more than what is described here.
+> I understand. To my understanding this feature just fixes the original
+> ambiguity in the virtio spec.
 > 
-> To simplify reviewers, I'd suggest to split this patch into three:
+> Quoting the original virtio spec:
+> "hdr_len is a hint to the device as to how much of the header needs to
+>  be kept to copy into each packet"
 > 
-> 1) virtqueue_add_split_prepare() (could we have a better name?)
-> 2) virtqueue_map_sgs()
-> 3) virtqueue_add_split_vring()
+> "a hint" might not be clear for the reader what does it mean, if it is
+> "maybe like that" of "exactly like that". This feature just makes it
+> crystal clear.
 > 
-> (Or only factor DMA parts out, I haven't gone through the reset of the patches)
-> 
-> Thanks
+> If you look at the tap implementation, it uses hdr_len to alloc
+> skb linear part. No hint, it counts with the provided value.
+> So if the driver is currently not precise, it breaks tap.
+
+Well that's only for gso though right?
+And making it bigger than necessary works fine ...
+
+> I will add this to the patch description and send v2.
 > 
 
-It's pretty small, even split is not mandatary imho.
-But definitely please do document what is done fully.
+I feel this does not answer the question yet, or maybe I am being dense.
+My point was not about making hdr_len precise.  My point was that we are
+making a change here for no apparent reason. I am guessing you are not
+doing it for fun - so why? Is there a device with this feature bit
+you are aware of?
 
 
 
+> 
 > >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/virtio/virtio_ring.c | 219 ++++++++++++++++++++++++-----------
-> >  1 file changed, 152 insertions(+), 67 deletions(-)
+> >The patch was submitted by Marvell but they never bothered with
+> >using it in Linux. I guess they are using it for something else?
+> >CC Vitaly who put this in.
 > >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 41144b5246a8..560ee30d942c 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -520,29 +520,83 @@ static inline unsigned int virtqueue_add_desc_split(struct virtqueue *vq,
-> >         return next;
-> >  }
-> >
-> > -static inline int virtqueue_add_split(struct virtqueue *_vq,
-> > -                                     struct scatterlist *sgs[],
-> > -                                     unsigned int total_sg,
-> > -                                     unsigned int out_sgs,
-> > -                                     unsigned int in_sgs,
-> > -                                     void *data,
-> > -                                     void *ctx,
-> > -                                     gfp_t gfp)
-> > +static int virtqueue_map_sgs(struct vring_virtqueue *vq,
-> > +                            struct scatterlist *sgs[],
-> > +                            unsigned int total_sg,
-> > +                            unsigned int out_sgs,
-> > +                            unsigned int in_sgs)
-> >  {
-> > -       struct vring_virtqueue *vq = to_vvq(_vq);
-> >         struct scatterlist *sg;
-> > -       struct vring_desc *desc;
-> > -       unsigned int i, n, avail, descs_used, prev, err_idx;
-> > -       int head;
-> > -       bool indirect;
-> > +       unsigned int n;
-> >
-> > -       START_USE(vq);
-> > +       for (n = 0; n < out_sgs; n++) {
-> > +               for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > +                       dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_TO_DEVICE);
-> > +
-> > +                       if (vring_mapping_error(vq, addr))
-> > +                               return -ENOMEM;
-> > +
-> > +                       sg->dma_address = addr;
-> > +               }
-> > +       }
-> > +       for (; n < (out_sgs + in_sgs); n++) {
-> > +               for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > +                       dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_FROM_DEVICE);
-> > +
-> > +                       if (vring_mapping_error(vq, addr))
-> > +                               return -ENOMEM;
-> > +
-> > +                       sg->dma_address = addr;
-> > +               }
-> > +       }
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +static void virtqueue_unmap_sgs(struct vring_virtqueue *vq,
-> > +                               struct scatterlist *sgs[],
-> > +                               unsigned int total_sg,
-> > +                               unsigned int out_sgs,
-> > +                               unsigned int in_sgs)
-> > +{
-> > +       struct scatterlist *sg;
-> > +       unsigned int n;
-> > +
-> > +       for (n = 0; n < out_sgs; n++) {
-> > +               for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > +                       if (!sg->dma_address)
-> > +                               return;
-> > +
-> > +                       dma_unmap_single(vring_dma_dev(vq), sg->dma_address,
-> > +                                        sg->length, DMA_TO_DEVICE);
-> > +               }
-> > +       }
-> > +       for (; n < (out_sgs + in_sgs); n++) {
-> > +               for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > +                       if (!sg->dma_address)
-> > +                               return;
-> > +
-> > +                       dma_unmap_single(vring_dma_dev(vq), sg->dma_address,
-> > +                                        sg->length, DMA_FROM_DEVICE);
-> > +               }
-> > +       }
-> > +}
-> > +
-> > +static inline int virtqueue_add_split_prepare(struct vring_virtqueue *vq,
-> > +                                             unsigned int total_sg,
-> > +                                             unsigned int out_sgs,
-> > +                                             void *data,
-> > +                                             void *ctx,
-> > +                                             gfp_t gfp,
-> > +                                             struct vring_desc **pdesc)
-> > +{
-> > +       struct vring_desc *desc;
-> > +       unsigned int descs_used;
-> >
-> >         BUG_ON(data == NULL);
-> >         BUG_ON(ctx && vq->indirect);
-> >
-> >         if (unlikely(vq->broken)) {
-> > -               END_USE(vq);
-> >                 return -EIO;
-> >         }
-> >
-> > @@ -550,27 +604,17 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >
-> >         BUG_ON(total_sg == 0);
-> >
-> > -       head = vq->free_head;
-> > -
-> >         if (virtqueue_use_indirect(vq, total_sg))
-> > -               desc = alloc_indirect_split(_vq, total_sg, gfp);
-> > +               desc = alloc_indirect_split(&vq->vq, total_sg, gfp);
-> >         else {
-> >                 desc = NULL;
-> >                 WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
-> >         }
-> >
-> > -       if (desc) {
-> > -               /* Use a single buffer which doesn't continue */
-> > -               indirect = true;
-> > -               /* Set up rest to use this indirect table. */
-> > -               i = 0;
-> > +       if (desc)
-> >                 descs_used = 1;
-> > -       } else {
-> > -               indirect = false;
-> > -               desc = vq->split.vring.desc;
-> > -               i = head;
-> > +       else
-> >                 descs_used = total_sg;
-> > -       }
-> >
-> >         if (unlikely(vq->vq.num_free < descs_used)) {
-> >                 pr_debug("Can't add buf len %i - avail = %i\n",
-> > @@ -580,38 +624,64 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >                  * host should service the ring ASAP. */
-> >                 if (out_sgs)
-> >                         vq->notify(&vq->vq);
-> > -               if (indirect)
-> > -                       kfree(desc);
-> > -               END_USE(vq);
-> > +               kfree(desc);
-> >                 return -ENOSPC;
-> >         }
-> >
-> > +       *pdesc = desc;
-> > +
-> > +       return 0;
-> > +}
-> > +
-> > +static inline int virtqueue_add_split_vring(struct vring_virtqueue *vq,
-> > +                                           struct scatterlist *sgs[],
-> > +                                           unsigned int total_sg,
-> > +                                           unsigned int out_sgs,
-> > +                                           unsigned int in_sgs,
-> > +                                           struct vring_desc *desc)
-> > +{
-> > +       unsigned int n, i, avail, descs_used, prev;
-> > +       struct virtqueue *_vq = &vq->vq;
-> > +       struct scatterlist *sg;
-> > +       bool indirect;
-> > +       int head;
-> > +
-> > +       head = vq->free_head;
-> > +
-> > +       if (desc) {
-> > +               /* Use a single buffer which doesn't continue */
-> > +               indirect = true;
-> > +               /* Set up rest to use this indirect table. */
-> > +               i = 0;
-> > +               descs_used = 1;
-> > +       } else {
-> > +               indirect = false;
-> > +               desc = vq->split.vring.desc;
-> > +               i = head;
-> > +               descs_used = total_sg;
-> > +       }
-> > +
-> >         for (n = 0; n < out_sgs; n++) {
-> >                 for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > -                       dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_TO_DEVICE);
-> > -                       if (vring_mapping_error(vq, addr))
-> > -                               goto unmap_release;
-> > -
-> >                         prev = i;
-> >                         /* Note that we trust indirect descriptor
-> >                          * table since it use stream DMA mapping.
-> >                          */
-> > -                       i = virtqueue_add_desc_split(_vq, desc, i, addr, sg->length,
-> > +                       i = virtqueue_add_desc_split(_vq, desc, i,
-> > +                                                    sg->dma_address,
-> > +                                                    sg->length,
-> >                                                      VRING_DESC_F_NEXT,
-> >                                                      indirect);
-> >                 }
-> >         }
-> >         for (; n < (out_sgs + in_sgs); n++) {
-> >                 for (sg = sgs[n]; sg; sg = sg_next(sg)) {
-> > -                       dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_FROM_DEVICE);
-> > -                       if (vring_mapping_error(vq, addr))
-> > -                               goto unmap_release;
-> > -
-> >                         prev = i;
-> >                         /* Note that we trust indirect descriptor
-> >                          * table since it use stream DMA mapping.
-> >                          */
-> > -                       i = virtqueue_add_desc_split(_vq, desc, i, addr,
-> > +                       i = virtqueue_add_desc_split(_vq, desc, i,
-> > +                                                    sg->dma_address,
-> >                                                      sg->length,
-> >                                                      VRING_DESC_F_NEXT |
-> >                                                      VRING_DESC_F_WRITE,
-> > @@ -630,7 +700,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >                         vq, desc, total_sg * sizeof(struct vring_desc),
-> >                         DMA_TO_DEVICE);
-> >                 if (vring_mapping_error(vq, addr))
-> > -                       goto unmap_release;
-> > +                       return -ENOMEM;
-> >
-> >                 virtqueue_add_desc_split(_vq, vq->split.vring.desc,
-> >                                          head, addr,
-> > @@ -648,13 +718,6 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >         else
-> >                 vq->free_head = i;
-> >
-> > -       /* Store token and indirect buffer state. */
-> > -       vq->split.desc_state[head].data = data;
-> > -       if (indirect)
-> > -               vq->split.desc_state[head].indir_desc = desc;
-> > -       else
-> > -               vq->split.desc_state[head].indir_desc = ctx;
-> > -
-> >         /* Put entry in available array (but don't update avail->idx until they
-> >          * do sync). */
-> >         avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
-> > @@ -677,30 +740,52 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >                 virtqueue_kick(_vq);
-> >
-> >         return 0;
-> > +}
-> >
-> > -unmap_release:
-> > -       err_idx = i;
-> > +static inline int virtqueue_add_split(struct virtqueue *_vq,
-> > +                                     struct scatterlist *sgs[],
-> > +                                     unsigned int total_sg,
-> > +                                     unsigned int out_sgs,
-> > +                                     unsigned int in_sgs,
-> > +                                     void *data,
-> > +                                     void *ctx,
-> > +                                     gfp_t gfp)
-> > +{
-> > +       struct vring_virtqueue *vq = to_vvq(_vq);
-> > +       struct vring_desc *desc;
-> > +       int head;
-> > +       int err;
-> >
-> > -       if (indirect)
-> > -               i = 0;
-> > -       else
-> > -               i = head;
-> > +       START_USE(vq);
-> >
-> > -       for (n = 0; n < total_sg; n++) {
-> > -               if (i == err_idx)
-> > -                       break;
-> > -               if (indirect) {
-> > -                       vring_unmap_one_split_indirect(vq, &desc[i]);
-> > -                       i = virtio16_to_cpu(_vq->vdev, desc[i].next);
-> > -               } else
-> > -                       i = vring_unmap_one_split(vq, i);
-> > -       }
-> > +       /* check vq state and try to alloc desc for indirect. */
-> > +       err = virtqueue_add_split_prepare(vq, total_sg, out_sgs, data, ctx, gfp, &desc);
-> > +       if (err)
-> > +               goto end;
-> >
-> > -       if (indirect)
-> > -               kfree(desc);
-> > +       err = virtqueue_map_sgs(vq, sgs, total_sg, out_sgs, in_sgs);
-> > +       if (err)
-> > +               goto err;
-> >
-> > +       head = vq->free_head;
-> > +       err = virtqueue_add_split_vring(vq, sgs, total_sg, out_sgs, in_sgs, desc);
-> > +       if (err)
-> > +               goto err;
-> > +
-> > +       /* Store token and indirect buffer state. */
-> > +       vq->split.desc_state[head].data = data;
-> > +       vq->split.desc_state[head].indir_desc = desc ? desc : ctx;
-> > +
-> > +       goto end;
-> > +
-> > +err:
-> > +       virtqueue_unmap_sgs(vq, sgs, total_sg, out_sgs, in_sgs);
-> > +
-> > +       kfree(desc);
-> > +
-> > +end:
-> >         END_USE(vq);
-> > -       return -ENOMEM;
-> > +       return err;
-> >  }
-> >
-> >  static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
-> > --
-> > 2.32.0.3.g01195cf9f
+> >> 
+> >> >
+> >> >thanks!
+> >> >
+> >> >
+> >> >> ---
+> >> >>  drivers/net/virtio_net.c        | 6 ++++--
+> >> >>  include/uapi/linux/virtio_net.h | 1 +
+> >> >>  2 files changed, 5 insertions(+), 2 deletions(-)
+> >> >> 
+> >> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> >> >> index fb5e68ed3ec2..e85b03988733 100644
+> >> >> --- a/drivers/net/virtio_net.c
+> >> >> +++ b/drivers/net/virtio_net.c
+> >> >> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
+> >> >>  	VIRTIO_NET_F_GUEST_UFO,
+> >> >>  	VIRTIO_NET_F_GUEST_CSUM,
+> >> >>  	VIRTIO_NET_F_GUEST_USO4,
+> >> >> -	VIRTIO_NET_F_GUEST_USO6
+> >> >> +	VIRTIO_NET_F_GUEST_USO6,
+> >> >> +	VIRTIO_NET_F_GUEST_HDRLEN
+> >> >>  };
+> >> >>  
+> >> >>  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
+> >> >> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
+> >> >>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+> >> >>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+> >> >>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+> >> >> -	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
+> >> >> +	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
+> >> >> +	VIRTIO_NET_F_GUEST_HDRLEN
+> >> >>  
+> >> >>  static unsigned int features[] = {
+> >> >>  	VIRTNET_FEATURES,
+> >> >> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> >> >> index b4062bed186a..12c1c9699935 100644
+> >> >> --- a/include/uapi/linux/virtio_net.h
+> >> >> +++ b/include/uapi/linux/virtio_net.h
+> >> >> @@ -61,6 +61,7 @@
+> >> >>  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
+> >> >>  #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
+> >> >>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+> >> >> +#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
+> >> >>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+> >> >>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
+> >> >>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+> >> >> -- 
+> >> >> 2.39.0
+> >> >
 > >
 
 _______________________________________________
