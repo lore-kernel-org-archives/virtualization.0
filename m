@@ -1,91 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B1E5C61DA3
-	for <virtualization@archiver.kernel.org>; Tue, 21 Feb 2023 15:27:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DEB61C61DA3
+	for <virtualization@archiver.kernel.org>; Tue, 21 Feb 2023 15:39:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C4EB1415AC;
-	Tue, 21 Feb 2023 15:27:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C4EB1415AC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=solid-run-com.20210112.gappssmtp.com header.i=@solid-run-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=ganXHfcs
+	by smtp3.osuosl.org (Postfix) with ESMTP id 57D0F611F3;
+	Tue, 21 Feb 2023 15:39:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 57D0F611F3
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=wEIZixv0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id G1-NG9iyTyaC; Tue, 21 Feb 2023 15:26:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2754A41016;
-	Tue, 21 Feb 2023 15:26:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2754A41016
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DvDS_shlbC8N; Tue, 21 Feb 2023 15:39:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 93BB0610F3;
+	Tue, 21 Feb 2023 15:39:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 93BB0610F3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB832C0032;
-	Tue, 21 Feb 2023 15:26:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6EA77C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6754AC0032;
+	Tue, 21 Feb 2023 15:39:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4D836C002B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 15:26:57 +0000 (UTC)
+ Tue, 21 Feb 2023 15:39:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4A0D341016
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1A79842C8C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 15:26:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A0D341016
+ Tue, 21 Feb 2023 15:39:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1A79842C8C
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com
+ header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256
+ header.s=20210112 header.b=wEIZixv0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tRxhuEDG7zxX
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UPAkXncJEQjq
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 15:26:56 +0000 (UTC)
+ Tue, 21 Feb 2023 15:39:38 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 750C24023B
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com
- [IPv6:2607:f8b0:4864:20::102f])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 750C24023B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C1F0941868
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com
+ [IPv6:2a00:1450:4864:20::130])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C1F0941868
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 15:26:56 +0000 (UTC)
-Received: by mail-pj1-x102f.google.com with SMTP id u10so5339283pjc.5
+ Tue, 21 Feb 2023 15:39:37 +0000 (UTC)
+Received: by mail-lf1-x130.google.com with SMTP id i9so6083802lfc.6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 07:26:56 -0800 (PST)
+ Tue, 21 Feb 2023 07:39:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solid-run-com.20210112.gappssmtp.com; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:from:to:cc:subject:date:message-id:reply-to;
- bh=CEBQYFfz8u1AQ/qusEQlYsB5MIzDcptJm3TnGtSX42M=;
- b=ganXHfcsHc1FLGIm1FbFzKTNHXRPhCgH9k4aSTvgxxXPEtvDtIL5Gno0e4Du667/wn
- 0g1TugteC6QFgAAzMbrQrDHZYw6hf6mElcJ4FNSKzQ4idls6Ys3UIzMT3ShAni7PHNQQ
- lA55rflyFv9EbcbWnsoEVHF0/zGnNVAb14eS1OLUOtrGbY84y17lRiPqrPZN++TlS2d7
- aDKYriyo6FWfkHAT5Od5SSyO4tQFb2vlhKUbyHS92lG+f7asbS5pZcb/WcJzQ43/GD7k
- pAldqMBgElL8Tj6ofNihxl52LhazIPkPpH/Hs+//hl6DGHl329HcpWcZT9TtsG4O+3tO
- rbbg==
+ d=resnulli-us.20210112.gappssmtp.com; s=20210112;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=HutO66KxdGHGXw1VHimKBSyzTw6e0TxvcOhPJxxjBb0=;
+ b=wEIZixv04yJaFPEtg6JdN9oobN3EhiImcU0Co823WH+CzQNc6Ow3t7pJAET3RbY510
+ vCCezjypPz/mj2XD0rEwYmJahaENiyWpBPqO28pHhu1ERoeMIuOyod69izUU/ejva0fr
+ ktLc9UVkP/ZiboLkh5xKHHpvIE6M+ZPS+NzPtVseb7rK9plTiE6OMzYWGVpsA/RcPOr7
+ TJ7r/hGnWEc9p9TGMfoNqZXAiqwVCDrt+Hf41n1T5c8Y8FJnMYz/ypv9EbV9sdfsHZXJ
+ 55DX9q3NDoWQzFLBCnG8tjGpPIvKAaF7tNlVUYr+CQEZ6DULfIow43bGa53NR5lw+qsT
+ loWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=cc:to:subject:message-id:date:from:in-reply-to:references
- :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=CEBQYFfz8u1AQ/qusEQlYsB5MIzDcptJm3TnGtSX42M=;
- b=4ZlpD16J+5+JaIIf3bMRL1sGKl7VyQlf1XTRrQ8YxmjPHUcGksYBKMP/0A/YK2NvQQ
- 2vvsZIOcJ2dWPATfn/Uajs96FdcOFcAF7bd7SkStZ1gKkIHuCBksunomgO4W6+5ot5wg
- TBO5g4jr4lLGLP7zNhfkaSxGDvjZuyo0p4G6iq9y30PC/xtd4w/AALdz3uhUoatDqUjf
- V8lVgVSzXE6bmMP0NLVkO5EBG8155HCDQN+byX1e0mgV/uuTAecjStWtcyPmyTVksHjg
- LLXMulu14caGI9U0+CRRO/lVAZEhSfjqEV1ND4LUB06S+G2kuNsJlfbbimreBEWwfghD
- i5Ig==
-X-Gm-Message-State: AO0yUKUceVLlNYA3vk3T7+69MK9dyoslDi0TXNeSLMSGWHU7WZE8FCac
- Quo9M0/80pvhWIlkq61h0U3QTMC6/GbXTq/4RtRUTA2o6TNr9IlJ
-X-Google-Smtp-Source: AK7set/qHTpAvHhp8PD1WmOrzerofi/YjEjmRzdSlSv29jiMeyxbdKlgxlSYSlQmd118whC13xVGKzd2fpwhr8zKhVo=
-X-Received: by 2002:a17:90b:3912:b0:233:f53f:95eb with SMTP id
- ob18-20020a17090b391200b00233f53f95ebmr1575044pjb.51.1676993215734; Tue, 21
- Feb 2023 07:26:55 -0800 (PST)
-MIME-Version: 1.0
-References: <20230221144741.316477-1-jiri@resnulli.us>
-In-Reply-To: <20230221144741.316477-1-jiri@resnulli.us>
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Date: Tue, 21 Feb 2023 17:26:19 +0200
-Message-ID: <CAJs=3_Aqy25Xnm3fNV7A2Xz6uN9vdKGXE9w5Zg99fb0HgpbZnQ@mail.gmail.com>
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=HutO66KxdGHGXw1VHimKBSyzTw6e0TxvcOhPJxxjBb0=;
+ b=FbIrrw8ILbfwhmIM0wYc80ILM9mQuETaQWetM1Uj08yVzFgAclPXTdZNo5ymDGOzJS
+ SfKHZ//FPHO+0797vfp3zUoM0FxnFcVwCuFPICPLhsvNCJ2OzdpRjArExGuUSibof0eR
+ 3g01iUeSrsQ4+yV4r0B4mVikDy9HZC+fVy+j53MJj/0+UMVjnkTgTd7AWIqO2CsqfMk2
+ WDWBtdkh9kqbFXIbu7lzWa61yEAo7YkzTeS4A0ccIBWOzN2OTZx9DQDVUN736U+CYmvh
+ 1JjrrzSBe1fsmM+lKrpAhBzWahLDYtGOMrySTNB++7lqHd4ntYsx0EXHmX6smM6xzpcH
+ E+SQ==
+X-Gm-Message-State: AO0yUKWsnAue8Of5xJo6pbTfi/c7WdJfnVWB2wQsTE9AkdS2jvlBym78
+ 2+2ZNyBsiZYYVwntg87+HeeInQ==
+X-Google-Smtp-Source: AK7set/vRNIeWrREIcRiKHq0u5h+Fj+Gsr9w4Yql0nAXYDncrBF9KTq5y19jLB+EEC6drEZoWOepGQ==
+X-Received: by 2002:a05:6512:32c5:b0:4d8:86c1:4781 with SMTP id
+ f5-20020a05651232c500b004d886c14781mr2106698lfg.22.1676993974766; 
+ Tue, 21 Feb 2023 07:39:34 -0800 (PST)
+Received: from localhost (host-213-179-129-39.customer.m-online.net.
+ [213.179.129.39]) by smtp.gmail.com with ESMTPSA id
+ q10-20020ac25a0a000000b004dc4b0ca734sm385566lfn.250.2023.02.21.07.39.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 21 Feb 2023 07:39:34 -0800 (PST)
+Date: Tue, 21 Feb 2023 16:39:32 +0100
+From: Jiri Pirko <jiri@resnulli.us>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
 Subject: Re: [patch net-next v2] net: virtio_net: implement exact header
  length guest feature
-To: Jiri Pirko <jiri@resnulli.us>
+Message-ID: <Y/TltJnD4k5hB6Z1@nanopsycho>
+References: <20230221144741.316477-1-jiri@resnulli.us>
+ <63f4df39e0728_ce6df208fe@willemb.c.googlers.com.notmuch>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <63f4df39e0728_ce6df208fe@willemb.c.googlers.com.notmuch>
 Cc: mst@redhat.com, netdev@vger.kernel.org, vmireyno@marvell.com,
  virtualization@lists.linux-foundation.org, edumazet@google.com,
  kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
@@ -105,97 +116,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Tue, Feb 21, 2023 at 04:11:53PM CET, willemdebruijn.kernel@gmail.com wrote:
+>Jiri Pirko wrote:
+>> From: Jiri Pirko <jiri@nvidia.com>
+>> 
+>> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
+>> set implicates that the driver provides the exact size of the header.
+>> 
+>> Quoting the original virtio spec:
+>> "hdr_len is a hint to the device as to how much of the header needs to
+>>  be kept to copy into each packet"
+>> 
+>> "a hint" might not be clear for the reader what does it mean, if it is
+>> "maybe like that" of "exactly like that". This feature just makes it
+>> crystal clear and let the device count on the hdr_len being filled up
+>> by the exact length of header.
+>> 
+>> Also note the spec already has following note about hdr_len:
+>> "Due to various bugs in implementations, this field is not useful
+>>  as a guarantee of the transport header size."
+>> 
+>> Without this feature the device needs to parse the header in core
+>> data path handling. Accurate information helps the device to eliminate
+>> such header parsing and directly use the hardware accelerators
+>> for GSO operation.
+>> 
+>> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
+>> The driver already complies to fill the correct value. Introduce the
+>> feature and advertise it.
+>> 
+>> Note that virtio spec also includes following note for device
+>> implementation:
+>> "Caution should be taken by the implementation so as to prevent
+>>  a malicious driver from attacking the device by setting
+>>  an incorrect hdr_len."
+>> 
+>> There is a plan to support this feature in our emulated device.
+>> A device of SolidRun offers this feature bit. They claim this feature
+>> will save the device a few cycles for every GSO packet.
+>> 
+>> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
+>> ---
+>> v1->v2:
+>> - extended patch description
 >
-> From: Jiri Pirko <jiri@nvidia.com>
->
-> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
-> set implicates that the driver provides the exact size of the header.
->
-> Quoting the original virtio spec:
-> "hdr_len is a hint to the device as to how much of the header needs to
->  be kept to copy into each packet"
->
-> "a hint" might not be clear for the reader what does it mean, if it is
-> "maybe like that" of "exactly like that". This feature just makes it
-> crystal clear and let the device count on the hdr_len being filled up
-> by the exact length of header.
->
-> Also note the spec already has following note about hdr_len:
-> "Due to various bugs in implementations, this field is not useful
->  as a guarantee of the transport header size."
->
-> Without this feature the device needs to parse the header in core
-> data path handling. Accurate information helps the device to eliminate
-> such header parsing and directly use the hardware accelerators
-> for GSO operation.
->
-> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
-> The driver already complies to fill the correct value. Introduce the
-> feature and advertise it.
->
-> Note that virtio spec also includes following note for device
-> implementation:
-> "Caution should be taken by the implementation so as to prevent
->  a malicious driver from attacking the device by setting
->  an incorrect hdr_len."
->
-> There is a plan to support this feature in our emulated device.
-> A device of SolidRun offers this feature bit. They claim this feature
-> will save the device a few cycles for every GSO packet.
->
-> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> ---
-> v1->v2:
-> - extended patch description
-> ---
->  drivers/net/virtio_net.c        | 6 ++++--
->  include/uapi/linux/virtio_net.h | 1 +
->  2 files changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index fb5e68ed3ec2..e85b03988733 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
->         VIRTIO_NET_F_GUEST_UFO,
->         VIRTIO_NET_F_GUEST_CSUM,
->         VIRTIO_NET_F_GUEST_USO4,
-> -       VIRTIO_NET_F_GUEST_USO6
-> +       VIRTIO_NET_F_GUEST_USO6,
-> +       VIRTIO_NET_F_GUEST_HDRLEN
->  };
->
->  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
-> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
->         VIRTIO_NET_F_CTRL_MAC_ADDR, \
->         VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
->         VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
-> -       VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
-> +       VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
-> +       VIRTIO_NET_F_GUEST_HDRLEN
->
->  static unsigned int features[] = {
->         VIRTNET_FEATURES,
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index b4062bed186a..12c1c9699935 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -61,6 +61,7 @@
->  #define VIRTIO_NET_F_GUEST_USO6        55      /* Guest can handle USOv6 in. */
->  #define VIRTIO_NET_F_HOST_USO  56      /* Host can handle USO in. */
->  #define VIRTIO_NET_F_HASH_REPORT  57   /* Supports hash report */
-> +#define VIRTIO_NET_F_GUEST_HDRLEN  59  /* Guest provides the exact hdr_len value. */
->  #define VIRTIO_NET_F_RSS         60    /* Supports RSS RX steering */
->  #define VIRTIO_NET_F_RSC_EXT     61    /* extended coalescing info */
->  #define VIRTIO_NET_F_STANDBY     62    /* Act as standby for another device
-> --
-> 2.39.0
->
+>Is the expectation that in-kernel devices support this feature, and
+>if so how would it affect them? If I read the spec correctly, devices
 
-This indeed saves some cycles in our device.
-Thanks!
+Well, the tap driver actually trusts the hdr_len to be of correct header
+size nowadays.
 
-Reviewed-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+
+>still need to be careful against malicious drivers, so cannot assume
+>much beyond what they do today (i.e., a hint).
+
+Malicious how? There is upper limit of size in tap which is checked.
+I assume that for hw implementation, that would be the same.
+
+But anyway, this discussion would be rather part of the spec/device
+patch, don't you think?
+
+
+>
+>Might be good to point to the definition commit:
+>https://github.com/oasis-tcs/virtio-spec/commit/4f1981a1ff46b7aeb801c4c524ff76e93d9ce022
+
+There were couple of fixes to the spec since then, that's why I didn't
+include it. It is trivial to look it up in the spec.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
