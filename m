@@ -1,104 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0CBFEC636D6
-	for <virtualization@archiver.kernel.org>; Tue, 21 Feb 2023 01:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D90BC636D6
+	for <virtualization@archiver.kernel.org>; Tue, 21 Feb 2023 01:51:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 93CE682779;
-	Tue, 21 Feb 2023 01:50:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93CE682779
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XgHXPrjo
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id M-jFvEQ0dDF5; Tue, 21 Feb 2023 01:50:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D7F4E82751;
-	Tue, 21 Feb 2023 01:50:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D7F4E82751
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7BAEC0033;
-	Tue, 21 Feb 2023 01:50:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D79FAC002B
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 01:50:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B295540286
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 01:50:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B295540286
+	by smtp2.osuosl.org (Postfix) with ESMTP id 18ED940AF7;
+	Tue, 21 Feb 2023 01:51:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 18ED940AF7
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XgHXPrjo
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QYejNKwc
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SRwRXPRWr-eL; Tue, 21 Feb 2023 01:51:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 57D6A40286;
+	Tue, 21 Feb 2023 01:51:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 57D6A40286
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 33456C0033;
+	Tue, 21 Feb 2023 01:51:24 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 453EBC002B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Feb 2023 01:51:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 127C6409D6
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Feb 2023 01:51:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 127C6409D6
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7cSsQMC16xxu
+ with ESMTP id dBgHg3MJo9k2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 01:50:00 +0000 (UTC)
+ Tue, 21 Feb 2023 01:51:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34BB94012A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1947540286
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 34BB94012A
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1947540286
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Feb 2023 01:49:59 +0000 (UTC)
+ Tue, 21 Feb 2023 01:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1676944199;
+ s=mimecast20190719; t=1676944281;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=i/DY70CMvS/TN+XutRMzZuXilGEBIVpnLBguHqem0b0=;
- b=XgHXPrjoHQLrAK5Al3GfoZRu3QUndLpsJ6VYq+qDmbzCJZJzUBNGwF7Su5FpYAnnRDUbJP
- PtshR+1VOJBXq+59NMR39KsQJgUXV/rawSTLOSyoSUPLa+94YHXAvGJtHdhn1qzRMwIgiZ
- 6vX8PViC1nv0nAMdMy7ugx54L547h7Y=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=BKuL1iO3A0jvTYhiS6Md3ZdRpaYoe7zLFGJmYdFE+A8=;
+ b=QYejNKwc0QQxb1c9efUAOdEyGf0vJNO6OvYluQErawUbN/kx8IIwgO78i/9BTgd8QxiVJO
+ TmS9bYonV22VZw7pcYrbMhAuORHMe1UfQKqvvmfwQdQxXbyxDGN+6V2NKuFXPQJS4e+Bm+
+ 4vbHg7w/8NLqS1dXLJ7DKO8CVCsEX88=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-607-ieiHeTASNDq5Q472edTVFA-1; Mon, 20 Feb 2023 20:49:57 -0500
-X-MC-Unique: ieiHeTASNDq5Q472edTVFA-1
-Received: by mail-oo1-f71.google.com with SMTP id
- n10-20020a4ad12a000000b0051f97e7b7f9so583294oor.13
+ us-mta-121-1QKfeHISMnK7WOV6BrWBgQ-1; Mon, 20 Feb 2023 20:51:19 -0500
+X-MC-Unique: 1QKfeHISMnK7WOV6BrWBgQ-1
+Received: by mail-ot1-f72.google.com with SMTP id
+ k5-20020a056830168500b00690d1e0d27dso942472otr.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Feb 2023 17:49:57 -0800 (PST)
+ Mon, 20 Feb 2023 17:51:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=cc:to:subject:message-id:date:from:in-reply-to:references
  :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
  :reply-to;
- bh=i/DY70CMvS/TN+XutRMzZuXilGEBIVpnLBguHqem0b0=;
- b=meMXhlofbyLIeda42ZaDrFpD3b10QyPwyL1gn0vkY7E1G5SY6TLF1rIp1bPsaBRvsI
- xtsd4GID9ufpksJCMCbrWOkXdXzZbVnGgbzwA1erP38pFA1Ke2v0oIT8iYboL73rp2U6
- MIoFr41qMlLNkFODzqIB+5dUGWj/OKqW8LA61xwsfGNAFUh4mhSxKz2jXrFa2p8VOgHA
- 0VDF3ZK7i1S/JdyvBXtHSKmbpXg74EgCTnCxVZ8NstAIxUnHFiWW5PTUrIoMtSXMyCmB
- O7K+2rhn5wdnpvb/e3fBWodGzMriEHa7VO1SxT/5HWSPffWHuzvj4jiRVIRvoIhg/J1N
- UGkw==
-X-Gm-Message-State: AO0yUKVEM3BmjJ9DYqJRJi6ncQIvVPctN0e6cz49tbz5Rcz7c9fuo+8q
- SlihLOM27MuA50YUfgs22dA4H6KarT4GnEBuA2Dk5rgHO5DnMqdyP+NlKJoUkh/EzK07oQkymEF
- k6q3U8N3KopQh0uJaQnFxhoOWpWHt0WL+gDkIo7ffdb79o/e0i4vsg97jsQ==
-X-Received: by 2002:a05:6808:1812:b0:37a:3ebc:d282 with SMTP id
- bh18-20020a056808181200b0037a3ebcd282mr1150679oib.217.1676944197026; 
- Mon, 20 Feb 2023 17:49:57 -0800 (PST)
-X-Google-Smtp-Source: AK7set/JC/w8xGl4FLSNEkpzuwA2HQ4Uc6GkccF1DKLQWZD17gnqaJRZbNqHuyjw+xQHZ4uS+Oka50myxD7PtSlmYW0=
-X-Received: by 2002:a05:6808:1812:b0:37a:3ebc:d282 with SMTP id
- bh18-20020a056808181200b0037a3ebcd282mr1150677oib.217.1676944196675; Mon, 20
- Feb 2023 17:49:56 -0800 (PST)
+ bh=BKuL1iO3A0jvTYhiS6Md3ZdRpaYoe7zLFGJmYdFE+A8=;
+ b=Nam6/01RPciPUMJYuHJB8qbNmwwW9FfkSxcLGhojqbl2EWcF37Ou7V3QD3llVXRI4v
+ FVjyDRWjj+A8UrDxmCAXkz0HcOpeaGI0jpvqAXcV9rKQeGulJdyWaDzbhge2dD1HLLHd
+ OdkR/kj1PWiYQuoqldxEWOSde5kGVeCjqdLkIqDHHGisPnxXJhvmNlFIiga3aSPF6c1b
+ 70+gDr/O3VbeEKJcUnqziKyow1XR+WomvIRz6IKnM6LwgNmz4OL3LVFH+wrLiTSFf3/p
+ ciS4yXWNqOUiY887VtRH0AtVw+ZZVyaTDhYWN6GhEg3Cf9aBU60rte3cvVWZqCR/EipS
+ 7mVg==
+X-Gm-Message-State: AO0yUKWRuBjpxy0qtgS8bmPDEnycNY8r/e+61KLwBnU5AfnJH7Ra9jjc
+ S1t7V2lucOWaPJ8L4EKAx8UcHn7UoUFq8H2CEbfiGgqM5h/Kl17D4pudiLhuxIGM+YotVb2fnqS
+ oFnkqZyzET+VQroIuhagMTfaGboqxBiagOu1F3RS8DiqxdZ0NCwv+KDsNpg==
+X-Received: by 2002:a05:6870:610c:b0:171:d1a1:c5cb with SMTP id
+ s12-20020a056870610c00b00171d1a1c5cbmr467954oae.217.1676944279210; 
+ Mon, 20 Feb 2023 17:51:19 -0800 (PST)
+X-Google-Smtp-Source: AK7set+vG1e+WHAhG3r3iUWzJUSXuxeWYYmXOXDDd0Z9H0lrGo2JAnWy/1JU2cks+/KV7g+19QyvKhccnUKLIO3zM4c=
+X-Received: by 2002:a05:6870:610c:b0:171:d1a1:c5cb with SMTP id
+ s12-20020a056870610c00b00171d1a1c5cbmr467951oae.217.1676944278748; Mon, 20
+ Feb 2023 17:51:18 -0800 (PST)
 MIME-Version: 1.0
 References: <20230214072704.126660-1-xuanzhuo@linux.alibaba.com>
- <20230214072704.126660-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEvWG1VVPHQd64SsdB52tgimoN_Dd6QT2Uvc5S8Qmrdcow@mail.gmail.com>
- <1676875439.7257378-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1676875439.7257378-1-xuanzhuo@linux.alibaba.com>
+ <20230214072704.126660-8-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs_jQd84LSC5F_at0+G_D=JnBWOJH71B5=RQFPYQKwtBg@mail.gmail.com>
+ <1676876377.4263525-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1676876377.4263525-4-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 21 Feb 2023 09:49:45 +0800
-Message-ID: <CACGkMEstgYx3Z+_mCJUKh=551BXU23dgfEf6fYTYAbnZY3rmDA@mail.gmail.com>
-Subject: Re: [PATCH vhost 04/10] virtio_ring: split: introduce
- virtqueue_add_split_premapped()
+Date: Tue, 21 Feb 2023 09:51:07 +0800
+Message-ID: <CACGkMEvxyV9fAyN1L_vqRvQGzA5XnmhviVFKZdNJS6oKqGLpBA@mail.gmail.com>
+Subject: Re: [PATCH vhost 07/10] virtio_ring: add api virtio_dma_map() for
+ advance dma
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
@@ -120,267 +117,190 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 20, 2023 at 2:56 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+On Mon, Feb 20, 2023 at 3:02 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 >
-> On Mon, 20 Feb 2023 13:38:13 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, 20 Feb 2023 13:38:24 +0800, Jason Wang <jasowang@redhat.com> wrote:
 > > On Tue, Feb 14, 2023 at 3:27 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
 > > >
-> > > virtqueue_add_split() only supports virtual addresses, dma is completed
-> > > in virtqueue_add_split().
-> > >
-> > > In some scenarios (such as the AF_XDP scenario), the memory is allocated
-> > > and DMA is completed in advance, so it is necessary for us to support
-> > > passing the DMA address to virtio core.
-> > >
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > ---
-> > >  drivers/virtio/virtio_ring.c | 100 +++++++++++++++++++++++++++++++++--
-> > >  include/linux/virtio.h       |   5 ++
-> > >  2 files changed, 100 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 47b6f9152f9f..a31155abe101 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -70,6 +70,7 @@
-> > >  struct vring_desc_state_split {
-> > >         void *data;                     /* Data for callback. */
-> > >         struct vring_desc *indir_desc;  /* Indirect descriptor, if any. */
-> > > +       bool premapped;
+> > > Added virtio_dma_map() to map DMA addresses for virtual memory in
+> > > advance. The purpose is to keep memory mapped across multiple add/get
+> > > buf operations.
 > >
-> > Better with a comment.
-> >
-> > Not native speaker, but "dma_addr" might be better?
-> >
-> > >  };
-> > >
-> > >  struct vring_desc_state_packed {
-> > > @@ -440,7 +441,7 @@ static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
-> > >  }
-> > >
-> > >  static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
-> > > -                                         unsigned int i)
-> > > +                                         unsigned int i, bool premapped)
-> > >  {
-> > >         struct vring_desc_extra *extra = vq->split.desc_extra;
-> > >         u16 flags;
-> > > @@ -457,6 +458,9 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
-> > >                                  (flags & VRING_DESC_F_WRITE) ?
-> > >                                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
-> > >         } else {
-> > > +               if (premapped)
-> > > +                       goto out;
-> > > +
-> > >                 dma_unmap_page(vring_dma_dev(vq),
-> > >                                extra[i].addr,
-> > >                                extra[i].len,
-> > > @@ -788,6 +792,47 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> > >         return err;
-> > >  }
-> > >
-> > > +static inline int virtqueue_add_split_premapped(struct virtqueue *_vq,
-> > > +                                               struct scatterlist *sgs[],
-> > > +                                               unsigned int total_sg,
-> > > +                                               unsigned int out_sgs,
-> > > +                                               unsigned int in_sgs,
-> > > +                                               void *data,
-> > > +                                               void *ctx,
-> > > +                                               gfp_t gfp)
-> > > +{
-> > > +       struct vring_virtqueue *vq = to_vvq(_vq);
-> > > +       struct vring_desc *desc;
-> > > +       int head;
-> > > +       int err;
-> > > +
-> > > +       START_USE(vq);
-> > > +
-> > > +       /* check vq state and try to alloc desc for indirect. */
-> > > +       err = virtqueue_add_split_prepare(vq, total_sg, out_sgs, data, ctx, gfp, &desc);
-> > > +       if (err)
-> > > +               goto end;
-> > > +
-> > > +       head = vq->free_head;
-> > > +       err = virtqueue_add_split_vring(vq, sgs, total_sg, out_sgs, in_sgs, desc);
-> > > +       if (err)
-> > > +               goto err;
-> > > +
-> > > +       /* Store token and indirect buffer state. */
-> > > +       vq->split.desc_state[head].data = data;
-> > > +       vq->split.desc_state[head].indir_desc = desc ? desc : ctx;
-> > > +       vq->split.desc_state[head].premapped = true;
-> >
-> > This function duplicates most of the logic of virtqueue_add_split()
-> > let's unify it.
+> > I wonder if instead of exporting helpers like this, it might be simple
+> > to just export dma_dev then the upper layer can use DMA API at will?
 >
-> I want to know that the __virtqueue_add_split is the original
-> virtqueue_add_split or my refactor virtqueue_add_split?
+>
+> The reason for not doing this, Virtio is not just using DMA_DEV to mapp, but
+> also check whether DMA is used.
 
-It's basically just the virtqueue_add_split_premapped() but with a
-boolean to say if it is premapped.
-
->
-> >
-> > probably:
-> >
-> > __virtqueue_add_split(..., bool premapped);
-> > virtqueue_add_split()
-> > {
-> >     __virtqueue_add_split(..., false);
-> > }
-> >
-> > virtqueue_add_split_premapped()
-> > {
-> >    __virtqueue_add_split(..., true);
-> > }
->
-> I am trying to reduce the inspection of premapped.
->
-> In fact, this is Michael's request, although I am not particularly sure that my
-> implementation has met his requirements.
->
-> https://lore.kernel.org/all/20230203041006-mutt-send-email-mst@kernel.org/
-
-I think there should be no conflict,  the use of premapped was limited
-to the above two functions?
+We should let the DMA API decide by exporting a correct dma_dev. E.g
+when ACCESS_PLATFORM is not negotiated, advertising a DMA dev without
+dma_ops.
 
 Thanks
 
+>
+>
+> >
+> > (Otherwise the DMA helpers need to grow/shrink as the DMA API evolves?)
+> >
+> > >
+> > > Added virtio_dma_unmap() for unmap DMA address.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 92 ++++++++++++++++++++++++++++++++++++
+> > >  include/linux/virtio.h       |  9 ++++
+> > >  2 files changed, 101 insertions(+)
+> > >
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index cd9364eb2345..855338609c7f 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -3172,4 +3172,96 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+> > >
+> > > +/**
+> > > + * virtio_dma_map_page - get the DMA addr of the memory for virtio device
+> > > + * @dev: virtio device
+> > > + * @page: the page of the memory to DMA
+> > > + * @offset: the offset of the memory inside page
+> > > + * @length: memory length
+> > > + * @dir: DMA direction
+> > > + *
+> > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > + * core handles DMA API internally.
+> > > + *
+> > > + * Returns the DMA addr. DMA_MAPPING_ERROR means error.
+> > > + */
+> > > +dma_addr_t virtio_dma_map_page(struct device *dev, struct page *page, size_t offset,
+> > > +                              unsigned int length, enum dma_data_direction dir)
+> > > +{
+> >
+> > This (and the reset) needs to be done per virtqueue instead per device
+> > after b0e504e5505d184b0be248b7dcdbe50b79f03758 ("virtio_ring: per
+> > virtqueue dma device").
+>
+>
+> YES.
+>
+>
+> >
+> > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > +
+> > > +       if (!vring_use_dma_api(vdev))
+> > > +               return page_to_phys(page) + offset;
+> > > +
+> > > +       return dma_map_page(vdev->dev.parent, page, offset, length, dir);
+> > > +}
+> >
+> > Need either inline or EXPORT_SYMBOL_GPL() here.
+>
+> Because I did not use this interface, I did not  export it.
 >
 > Thanks.
 >
 >
 > >
-> > ?
-> >
-> > And so did for packed (patch 5).
-> >
 > > Thanks
 > >
 > >
-> >
 > > > +
-> > > +       goto end;
-> > > +
-> > > +err:
-> > > +       kfree(desc);
-> > > +
-> > > +end:
-> > > +       END_USE(vq);
-> > > +       return err;
-> > > +}
-> > > +
-> > >  static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
-> > >  {
-> > >         struct vring_virtqueue *vq = to_vvq(_vq);
-> > > @@ -824,20 +869,23 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
-> > >  {
-> > >         unsigned int i, j;
-> > >         __virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-> > > +       bool premapped;
-> > >
-> > >         /* Clear data ptr. */
-> > >         vq->split.desc_state[head].data = NULL;
-> > >
-> > > +       premapped = vq->split.desc_state[head].premapped;
-> > > +
-> > >         /* Put back on free list: unmap first-level descriptors and find end */
-> > >         i = head;
-> > >
-> > >         while (vq->split.vring.desc[i].flags & nextflag) {
-> > > -               vring_unmap_one_split(vq, i);
-> > > +               vring_unmap_one_split(vq, i, premapped);
-> > >                 i = vq->split.desc_extra[i].next;
-> > >                 vq->vq.num_free++;
-> > >         }
-> > >
-> > > -       vring_unmap_one_split(vq, i);
-> > > +       vring_unmap_one_split(vq, i, premapped);
-> > >         vq->split.desc_extra[i].next = vq->free_head;
-> > >         vq->free_head = head;
-> > >
-> > > @@ -859,8 +907,10 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
-> > >                                 VRING_DESC_F_INDIRECT));
-> > >                 BUG_ON(len == 0 || len % sizeof(struct vring_desc));
-> > >
-> > > -               for (j = 0; j < len / sizeof(struct vring_desc); j++)
-> > > -                       vring_unmap_one_split_indirect(vq, &indir_desc[j]);
-> > > +               if (!premapped) {
-> > > +                       for (j = 0; j < len / sizeof(struct vring_desc); j++)
-> > > +                               vring_unmap_one_split_indirect(vq, &indir_desc[j]);
-> > > +               }
-> > >
-> > >                 kfree(indir_desc);
-> > >                 vq->split.desc_state[head].indir_desc = NULL;
-> > > @@ -2204,6 +2254,21 @@ static inline int virtqueue_add(struct virtqueue *_vq,
-> > >                                         out_sgs, in_sgs, data, ctx, gfp);
-> > >  }
-> > >
-> > > +static inline int virtqueue_add_premapped(struct virtqueue *_vq,
-> > > +                                         struct scatterlist *sgs[],
-> > > +                                         unsigned int total_sg,
-> > > +                                         unsigned int out_sgs,
-> > > +                                         unsigned int in_sgs,
-> > > +                                         void *data,
-> > > +                                         void *ctx,
-> > > +                                         gfp_t gfp)
-> > > +{
-> > > +       struct vring_virtqueue *vq = to_vvq(_vq);
-> > > +
-> > > +       return virtqueue_add_split_premapped(_vq, sgs, total_sg, out_sgs,
-> > > +                                            in_sgs, data, ctx, gfp);
-> > > +}
-> > > +
-> > >  /**
-> > >   * virtqueue_add_sgs - expose buffers to other end
-> > >   * @_vq: the struct virtqueue we're talking about.
-> > > @@ -2261,6 +2326,31 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
-> > >
 > > > +/**
-> > > + * virtqueue_add_outbuf_premapped - expose output buffers to other end
-> > > + * @vq: the struct virtqueue we're talking about.
-> > > + * @sg: scatterlist (must be well-formed and terminated!)
-> > > + * @num: the number of entries in @sg readable by other side
-> > > + * @data: the token identifying the buffer.
-> > > + * @gfp: how to do memory allocations (if necessary).
+> > > + * virtio_dma_map - get the DMA addr of the memory for virtio device
+> > > + * @dev: virtio device
+> > > + * @addr: the addr to DMA
+> > > + * @length: memory length
+> > > + * @dir: DMA direction
 > > > + *
-> > > + * Caller must ensure we don't call this with other virtqueue operations
-> > > + * at the same time (except where noted).
+> > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > + * core handles DMA API internally.
 > > > + *
-> > > + * It is required that all addrs have completed DMA operations. And use
-> > > + * sg->dma_address, sg->length to pass addr and length.
-> > > + *
-> > > + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
+> > > + * Returns the DMA addr.
 > > > + */
-> > > +int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-> > > +                                  struct scatterlist *sg, unsigned int num,
-> > > +                                  void *data,
-> > > +                                  gfp_t gfp)
+> > > +dma_addr_t virtio_dma_map(struct device *dev, void *addr, unsigned int length,
+> > > +                         enum dma_data_direction dir)
 > > > +{
-> > > +       return virtqueue_add_premapped(vq, &sg, num, 1, 0, data, NULL, gfp);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_premapped);
+> > > +       struct page *page;
+> > > +       size_t offset;
 > > > +
-> > >  /**
-> > >   * virtqueue_add_inbuf - expose input buffers to other end
-> > >   * @vq: the struct virtqueue we're talking about.
+> > > +       page = virt_to_page(addr);
+> > > +       offset = offset_in_page(addr);
+> > > +
+> > > +       return virtio_dma_map_page(dev, page, offset, length, dir);
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtio_dma_map);
+> > > +
+> > > +/**
+> > > + * virtio_dma_mapping_error - check dma address
+> > > + * @dev: virtio device
+> > > + * @addr: DMA address
+> > > + *
+> > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > + * core handles DMA API internally.
+> > > + *
+> > > + * Returns 0 means dma valid. Other means invalid dma address.
+> > > + */
+> > > +int virtio_dma_mapping_error(struct device *dev, dma_addr_t addr)
+> > > +{
+> > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > +
+> > > +       if (!vring_use_dma_api(vdev))
+> > > +               return 0;
+> > > +
+> > > +       return dma_mapping_error(vdev->dev.parent, addr);
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtio_dma_mapping_error);
+> > > +
+> > > +/**
+> > > + * virtio_dma_unmap - unmap DMA addr
+> > > + * @dev: virtio device
+> > > + * @dma: DMA address
+> > > + * @length: memory length
+> > > + * @dir: DMA direction
+> > > + *
+> > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > + * core handles DMA API internally.
+> > > + */
+> > > +void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+> > > +                     enum dma_data_direction dir)
+> > > +{
+> > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > +
+> > > +       if (!vring_use_dma_api(vdev))
+> > > +               return;
+> > > +
+> > > +       dma_unmap_page(vdev->dev.parent, dma, length, dir);
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtio_dma_unmap);
+> > > +
+> > >  MODULE_LICENSE("GPL");
 > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index dcab9c7e8784..d8b472a7dcae 100644
+> > > index 3ebb346ebb7c..b5fa71476737 100644
 > > > --- a/include/linux/virtio.h
 > > > +++ b/include/linux/virtio.h
-> > > @@ -43,6 +43,11 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
-> > >                          void *data,
-> > >                          gfp_t gfp);
+> > > @@ -9,6 +9,7 @@
+> > >  #include <linux/device.h>
+> > >  #include <linux/mod_devicetable.h>
+> > >  #include <linux/gfp.h>
+> > > +#include <linux/dma-mapping.h>
 > > >
-> > > +int virtqueue_add_outbuf_premapped(struct virtqueue *vq,
-> > > +                                  struct scatterlist *sg, unsigned int num,
-> > > +                                  void *data,
-> > > +                                  gfp_t gfp);
+> > >  /**
+> > >   * struct virtqueue - a queue to register buffers for sending or receiving.
+> > > @@ -216,4 +217,12 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+> > >  #define module_virtio_driver(__virtio_driver) \
+> > >         module_driver(__virtio_driver, register_virtio_driver, \
+> > >                         unregister_virtio_driver)
 > > > +
-> > >  int virtqueue_add_inbuf(struct virtqueue *vq,
-> > >                         struct scatterlist sg[], unsigned int num,
-> > >                         void *data,
+> > > +dma_addr_t virtio_dma_map_page(struct device *dev, struct page *page, size_t offset,
+> > > +                              unsigned int length, enum dma_data_direction dir);
+> > > +dma_addr_t virtio_dma_map(struct device *dev, void *addr, unsigned int length,
+> > > +                         enum dma_data_direction dir);
+> > > +int virtio_dma_mapping_error(struct device *dev, dma_addr_t addr);
+> > > +void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+> > > +                     enum dma_data_direction dir);
+> > >  #endif /* _LINUX_VIRTIO_H */
 > > > --
 > > > 2.32.0.3.g01195cf9f
 > > >
