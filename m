@@ -1,105 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26250C61DA4
-	for <virtualization@archiver.kernel.org>; Wed, 22 Feb 2023 11:32:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 94578C61DA4
+	for <virtualization@archiver.kernel.org>; Wed, 22 Feb 2023 14:32:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AEB4F4188A;
-	Wed, 22 Feb 2023 11:32:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AEB4F4188A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=xWNgHhp8
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Mm5VJim5ukQz; Wed, 22 Feb 2023 11:32:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 903C44187A;
-	Wed, 22 Feb 2023 11:32:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 903C44187A
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 63065C0032;
-	Wed, 22 Feb 2023 11:32:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D33D6C002B
- for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 11:32:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A040B60E25
- for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 11:32:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A040B60E25
+	by smtp3.osuosl.org (Postfix) with ESMTP id D06A461122;
+	Wed, 22 Feb 2023 14:32:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D06A461122
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=resnulli-us.20210112.gappssmtp.com
- header.i=@resnulli-us.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=xWNgHhp8
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g6wfbpWQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PIQEQwmPTsGI
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rsBrC4bpUR9F; Wed, 22 Feb 2023 14:32:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1DCC461127;
+	Wed, 22 Feb 2023 14:32:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1DCC461127
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E02A0C0033;
+	Wed, 22 Feb 2023 14:32:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBE74C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 11:32:14 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C112260E24
-Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com
- [IPv6:2a00:1450:4864:20::229])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C112260E24
+ Wed, 22 Feb 2023 14:32:25 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8A97541039
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 11:32:13 +0000 (UTC)
-Received: by mail-lj1-x229.google.com with SMTP id z5so7461651ljc.8
+ Wed, 22 Feb 2023 14:32:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A97541039
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=g6wfbpWQ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5QWycbmh9fzI
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 03:32:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=resnulli-us.20210112.gappssmtp.com; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=/ie1EAFQskbLzZ9c2yaNowwo9PJlaG1TNIeFawZhYi0=;
- b=xWNgHhp8xCIMwy7xA2QF5fvHhjJIN7RaD2lzH5hVBAweuJCGQVwDtqwoDrDKNsHdj/
- 6xuR4XRfzJBp6jc4zWN9+83WCqmZMYauiH0QbaxWN2cX0edNa7GksmJDl1ONaOjMZln5
- 9vqOtwaXQDvMnpCHDv/g3Qf8IXdPjR3KMnFulByRAhMWY77/7Z6PZsEeptCYPaHb33rV
- sMFWqIyEdU3fAAS3VOmzDm51cvES0MtscEuuMXeLTMjE278Xzpc6FDmOxvTCnWxqr+jI
- dVs+unrHiugxXC14B8PYzY8HeQahpyXG8o0DPjui9fwxBfFaq/LGDNvmaj5RrWKQNi6B
- nO0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=/ie1EAFQskbLzZ9c2yaNowwo9PJlaG1TNIeFawZhYi0=;
- b=TEZzOpl+DTWbotXGYPFCZ7I5gcA3TGiCrwj98O1YcHXGQ/Bj/dUQOSGdmwwFdWCV0r
- g9JBtUZjv9yEWs+xbYKBwakGd7RWc0d3k9cKWGlQI3mkTpyNk69C22rWCUbEycg/5ibi
- Iv+8P3CjFWFIqNnT1OxTJUt2ESakrLUuZ91sk7sCO12JPN+/Hdb/5kIvFC/Tlx/5rIgp
- /jNagkRsIpGBlEjw+uUUfZhSuMliHWWNWm6bHhGumQQjmXkUBDe9LbpP+0nBMfkB5qNi
- mIOKXG7NTcLrUbNzzqVf3mwFDJ0vjq0Xd3WmgrRoWdSnzQxo/iHxPsz78r/WWULIEX9o
- O0Eg==
-X-Gm-Message-State: AO0yUKXWvebWZvT6mfMsLcZWKMcp/yYxdvrtyCAPanYg1v7sgd6Fe375
- ObS+Z9OLrX4QZh6nnUE/PSNlgw==
-X-Google-Smtp-Source: AK7set+I8w4pkOUhwzpfmgCYOfKOm3eSL1n1kvZ0XXIfmWo9tLlMJhHKbv1hRKDeX2oMfvGFV/1esA==
-X-Received: by 2002:a2e:505e:0:b0:293:4e64:1058 with SMTP id
- v30-20020a2e505e000000b002934e641058mr2951517ljd.35.1677065530839; 
- Wed, 22 Feb 2023 03:32:10 -0800 (PST)
-Received: from localhost (host-213-179-129-39.customer.m-online.net.
- [213.179.129.39]) by smtp.gmail.com with ESMTPSA id
- t5-20020a2e9c45000000b002934baca39bsm913872ljj.47.2023.02.22.03.32.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 22 Feb 2023 03:32:10 -0800 (PST)
-Date: Wed, 22 Feb 2023 12:32:08 +0100
-From: Jiri Pirko <jiri@resnulli.us>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [patch net-next v3] net: virtio_net: implement exact header
- length guest feature
-Message-ID: <Y/X9OKgGEbxCVdn9@nanopsycho>
-References: <20230222080638.382211-1-jiri@resnulli.us>
- <20230222062208-mutt-send-email-mst@kernel.org>
+ Wed, 22 Feb 2023 14:32:24 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 735DD41032
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 735DD41032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 Feb 2023 14:32:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677076343;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=8OKQj3t8S0pTtjXIJ5z6E2Ald/inmSLj8Dmaw0CJESo=;
+ b=g6wfbpWQ3aulEkOYn+BcOLeOId02HOVBk0bfkt0AiWuUjgPeVV4LAqeC39LXoN9y/aO5WM
+ bckFFaUB0295iEhmpXirdYn/XtKYjX4FYhN9s/knGiqIUryFgfT7JrJYQf/ldELkt+ss+c
+ pBb2ZBj48fNnriiwdUGKBV1NHcwxsUU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-539-FWfEdfHaMT-Zj8N-gEZCNg-1; Wed, 22 Feb 2023 09:32:22 -0500
+X-MC-Unique: FWfEdfHaMT-Zj8N-gEZCNg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AC18B181E3F5;
+ Wed, 22 Feb 2023 14:32:20 +0000 (UTC)
+Received: from localhost (unknown [10.39.195.171])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 9DC48492B05;
+ Wed, 22 Feb 2023 14:32:18 +0000 (UTC)
+Date: Wed, 22 Feb 2023 09:32:16 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Peter-Jan Gootzen <peter-jan@gootzen.net>
+Subject: Re: virtio-fs: adding support for multi-queue
+Message-ID: <Y/YncAV/7H+vzNCy@fedora>
+References: <2fd99bc2-0414-0b85-2bff-3a84ae6c23bd@gootzen.net>
+ <Y+KqY3Nse0pVhd3X@fedora> <Y+KsVhIR9aEoSdRu@redhat.com>
+ <Y+LDUmWyXCdPIriB@fedora> <Y+LJMwo/K2CHdaPc@redhat.com>
+ <9babf0e8-19c3-bb1b-39f8-c755fdc57c8d@gootzen.net>
+ <Y+N8x5kIe3pAaeUj@fedora>
+ <82ddafee-7548-e7bd-2f41-24ce9251aa25@gootzen.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230222062208-mutt-send-email-mst@kernel.org>
-Cc: willemdebruijn.kernel@gmail.com, vmireyno@marvell.com,
- netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+In-Reply-To: <82ddafee-7548-e7bd-2f41-24ce9251aa25@gootzen.net>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+Cc: German Maglione <gmaglione@redhat.com>,
+ virtualization@lists.linux-foundation.org,
+ Jonas Pfefferle <JPF@zurich.ibm.com>, Vivek Goyal <vgoyal@redhat.com>,
+ miklos@szeredi.hu
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,122 +100,167 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4572256673956295480=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Wed, Feb 22, 2023 at 12:24:18PM CET, mst@redhat.com wrote:
->On Wed, Feb 22, 2023 at 09:06:38AM +0100, Jiri Pirko wrote:
->> From: Jiri Pirko <jiri@nvidia.com>
->> 
->> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
->> which when 
->
->which when which when is probably unintentional :)
 
-I copy-pasted your text :)
-
-Anyway, I guess net-next is closed anyway. Will fix&send after merge
-window closes.
+--===============4572256673956295480==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="5plz32DEjUIEOTyp"
+Content-Disposition: inline
 
 
->
->>set implicates that device benefits from knowing the exact
->> size of the header. For compatibility, to signal to the device that
->> the header is reliable driver also needs to set this feature.
->> Without this feature set by driver, device has to figure
->> out the header size itself.
->> 
->> Quoting the original virtio spec:
->> "hdr_len is a hint to the device as to how much of the header needs to
->>  be kept to copy into each packet"
->> 
->> "a hint" might not be clear for the reader what does it mean, if it is
->> "maybe like that" of "exactly like that". This feature just makes it
->> crystal clear and let the device count on the hdr_len being filled up
->> by the exact length of header.
->> 
->> Also note the spec already has following note about hdr_len:
->> "Due to various bugs in implementations, this field is not useful
->>  as a guarantee of the transport header size."
->> 
->> Without this feature the device needs to parse the header in core
->> data path handling. Accurate information helps the device to eliminate
->> such header parsing and directly use the hardware accelerators
->> for GSO operation.
->> 
->> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
->> The driver already complies to fill the correct value. Introduce the
->> feature and advertise it.
->> 
->> Note that virtio spec also includes following note for device
->> implementation:
->> "Caution should be taken by the implementation so as to prevent
->>  a malicious driver from attacking the device by setting
->>  an incorrect hdr_len."
->> 
->> There is a plan to support this feature in our emulated device.
->> A device of SolidRun offers this feature bit. They claim this feature
->> will save the device a few cycles for every GSO packet.
->> 
->> Link: https://docs.oasis-open.org/virtio/virtio/v1.2/cs01/virtio-v1.2-cs01.html#x1-230006x3
->> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
->> Reviewed-by: Parav Pandit <parav@nvidia.com>
->> Reviewed-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
->> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->> ---
->> v2->v3:
->> - changed the first paragraph in patch description according to
->>   Michael's suggestion
->> - added Link tag with link to the spec
->> v1->v2:
->> - extended patch description
->> ---
->>  drivers/net/virtio_net.c        | 6 ++++--
->>  include/uapi/linux/virtio_net.h | 1 +
->>  2 files changed, 5 insertions(+), 2 deletions(-)
->> 
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index fb5e68ed3ec2..e85b03988733 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -62,7 +62,8 @@ static const unsigned long guest_offloads[] = {
->>  	VIRTIO_NET_F_GUEST_UFO,
->>  	VIRTIO_NET_F_GUEST_CSUM,
->>  	VIRTIO_NET_F_GUEST_USO4,
->> -	VIRTIO_NET_F_GUEST_USO6
->> +	VIRTIO_NET_F_GUEST_USO6,
->> +	VIRTIO_NET_F_GUEST_HDRLEN
->>  };
->>  
->>  #define GUEST_OFFLOAD_GRO_HW_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
->> @@ -4213,7 +4214,8 @@ static struct virtio_device_id id_table[] = {
->>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
->>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
->>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
->> -	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL
->> +	VIRTIO_NET_F_RSS, VIRTIO_NET_F_HASH_REPORT, VIRTIO_NET_F_NOTF_COAL, \
->> +	VIRTIO_NET_F_GUEST_HDRLEN
->>  
->>  static unsigned int features[] = {
->>  	VIRTNET_FEATURES,
->> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
->> index b4062bed186a..12c1c9699935 100644
->> --- a/include/uapi/linux/virtio_net.h
->> +++ b/include/uapi/linux/virtio_net.h
->> @@ -61,6 +61,7 @@
->>  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
->>  #define VIRTIO_NET_F_HOST_USO	56	/* Host can handle USO in. */
->>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
->> +#define VIRTIO_NET_F_GUEST_HDRLEN  59	/* Guest provides the exact hdr_len value. */
->>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
->>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
->>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
->> -- 
->> 2.39.0
->
+--5plz32DEjUIEOTyp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Feb 08, 2023 at 05:29:25PM +0100, Peter-Jan Gootzen wrote:
+> On 08/02/2023 11:43, Stefan Hajnoczi wrote:
+> > On Wed, Feb 08, 2023 at 09:33:33AM +0100, Peter-Jan Gootzen wrote:
+> > >=20
+> > >=20
+> > > On 07/02/2023 22:57, Vivek Goyal wrote:
+> > > > On Tue, Feb 07, 2023 at 04:32:02PM -0500, Stefan Hajnoczi wrote:
+> > > > > On Tue, Feb 07, 2023 at 02:53:58PM -0500, Vivek Goyal wrote:
+> > > > > > On Tue, Feb 07, 2023 at 02:45:39PM -0500, Stefan Hajnoczi wrote:
+> > > > > > > On Tue, Feb 07, 2023 at 11:14:46AM +0100, Peter-Jan Gootzen w=
+rote:
+> > > > > > > > Hi,
+> > > > > > > >=20
+> > > > > >=20
+> > > > > > [cc German]
+> > > > > >=20
+> > > > > > > > For my MSc thesis project in collaboration with IBM
+> > > > > > > > (https://github.com/IBM/dpu-virtio-fs) we are looking to im=
+prove the
+> > > > > > > > performance of the virtio-fs driver in high throughput scen=
+arios. We think
+> > > > > > > > the main bottleneck is the fact that the virtio-fs driver d=
+oes not support
+> > > > > > > > multi-queue (while the spec does). A big factor in this is =
+that our setup on
+> > > > > > > > the virtio-fs device-side (a DPU) does not easily allow mul=
+tiple cores to
+> > > > > > > > tend to a single virtio queue.
+> > > > > >=20
+> > > > > > This is an interesting limitation in DPU.
+> > > > >=20
+> > > > > Virtqueues are single-consumer queues anyway. Sharing them between
+> > > > > multiple threads would be expensive. I think using multiqueue is =
+natural
+> > > > > and not specific to DPUs.
+> > > >=20
+> > > > Can we create multiple threads (a thread pool) on DPU and let these
+> > > > threads process requests in parallel (While there is only one virt
+> > > > queue).
+> > > >=20
+> > > > So this is what we had done in virtiofsd. One thread is dedicated to
+> > > > pull the requests from virt queue and then pass the request to thre=
+ad
+> > > > pool to process it. And that seems to help with performance in
+> > > > certain cases.
+> > > >=20
+> > > > Is that possible on DPU? That itself can give a nice performance
+> > > > boost for certain workloads without having to implement multiqueue
+> > > > actually.
+> > > >=20
+> > > > Just curious. I am not opposed to the idea of multiqueue. I am
+> > > > just curious about the kind of performance gain (if any) it can
+> > > > provide. And will this be helpful for rust virtiofsd running on
+> > > > host as well?
+> > > >=20
+> > > > Thanks
+> > > > Vivek
+> > > >=20
+> > > There is technically nothing preventing us from consuming a single qu=
+eue on
+> > > multiple cores, however our current Virtio implementation (DPU-side) =
+is set
+> > > up with the assumption that you should never want to do that (concurr=
+ency
+> > > mayham around the Virtqueues and the DMAs). So instead of putting all=
+ the
+> > > work into reworking the implementation to support that and still incu=
+r the
+> > > big overhead, we see it more fitting to amend the virtio-fs driver wi=
+th
+> > > multi-queue support.
+> > >=20
+> > >=20
+> > > > Is it just a theory at this point of time or have you implemented
+> > > > it and seeing significant performance benefit with multiqueue?
+> > >=20
+> > > It is a theory, but we are currently seeing that using the single req=
+uest
+> > > queue, the single core attending to that queue on the DPU is reasonab=
+ly
+> > > close to being fully saturated.
+> > >=20
+> > > > And will this be helpful for rust virtiofsd running on
+> > > > host as well?
+> > >=20
+> > > I figure this would be dependent on the workload and the users-needs.
+> > > Having many cores concurrently pulling on their own virtq and then
+> > > immediately process the request locally would of course improve perfo=
+rmance.
+> > > But we are offloading all this work to the DPU, for providing
+> > > high-throughput cloud services.
+> >=20
+> > I think Vivek is getting at whether your code processes requests
+> > sequentially or in parallel. A single thread processing the virtqueue
+> > that hands off requests to worker threads or uses io_uring to perform
+> > I/O asynchronously will perform differently from a single thread that
+> > processes requests sequentially in a blocking fashion. Multiqueue is not
+> > necessary for parallelism, but the single queue might become a
+> > bottleneck.
+>=20
+> Requests are handled non-blocking with remote IO on the DPU. Our current
+> architecture is as follows:
+> T1: Tends to the Virtq, parses FUSE to remote IO and fires off the
+> asynchronous remote IO.
+> T2: Polls for completion on the remote IO and parses it back to FUSE, puts
+> the FUSE buffers in a completion queue of T1.
+> T1: Handles the Virtio completion and DMA of the requests in the CQ.
+>=20
+> Thread 1 is busy polling on its two queues (Virtq and CQ) with equal
+> priority, thread 2 is busy polling as well. This setup is not really
+> optimal, but we are working within the constraints of both our DPU and
+> remote IO stack.
+
+Why does T1 need to handle VIRTIO completion and DMA requests instead of
+T2?
+
+Stefan
+
+--5plz32DEjUIEOTyp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmP2J3AACgkQnKSrs4Gr
+c8iK1Qf/YhA4nioX1FwTvISeIQMkywISYTB/HirQzmboUAeHU+Zh9NKc0J+xst0W
+dlXdMm70u4vu9MVZAzmXiPIRiUPPCmsjofdcRkHXE6K2xHPu32Xq3ujQ9OGd7Yts
+a9qBnBUTag5CztInUz/GF8Haz7OPkZO+oCRZ+uDsFuHHHnMbP6FniAdwrhz2sUGL
+V2QjRyXDmRTPYQk7zAFAg1qI871/R9L6Ct0zxPQKK9PiL6EFTLbRMWa3uJWW2yg0
+HQKv4G8FTqjlSENBoDujgqMZY26Gu60xsRVhR3Qv3J7ZNxioRRE7HMnDyNrqajiq
+AhAUVPANqIicZUyQiUaXPTA2Y2skNQ==
+=b2mk
+-----END PGP SIGNATURE-----
+
+--5plz32DEjUIEOTyp--
+
+
+--===============4572256673956295480==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4572256673956295480==--
+
