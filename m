@@ -1,105 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21605C636D6
-	for <virtualization@archiver.kernel.org>; Wed, 22 Feb 2023 15:14:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 99404C61DA4
+	for <virtualization@archiver.kernel.org>; Wed, 22 Feb 2023 16:11:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9062941972;
-	Wed, 22 Feb 2023 15:14:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9062941972
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=kZ1fJnQ2
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2760B4169C;
+	Wed, 22 Feb 2023 16:11:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2760B4169C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XPmvFZmJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3hmX83N1jTGs; Wed, 22 Feb 2023 15:14:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DF7CE4197A;
-	Wed, 22 Feb 2023 15:14:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DF7CE4197A
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4WF2JThEuBju; Wed, 22 Feb 2023 16:11:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A32D940329;
+	Wed, 22 Feb 2023 16:11:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A32D940329
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BEF4AC0032;
-	Wed, 22 Feb 2023 15:14:25 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 76F1BC0032;
+	Wed, 22 Feb 2023 16:11:17 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C1616C002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2FD2C002B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 15:14:24 +0000 (UTC)
+ Wed, 22 Feb 2023 16:11:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9BAAE820FA
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8023F820DE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 15:14:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9BAAE820FA
+ Wed, 22 Feb 2023 16:11:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8023F820DE
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=kZ1fJnQ2
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=XPmvFZmJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pBrEVrqBBP-i
+ with ESMTP id LFmHaaGCLJQj
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 15:14:23 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A00DD820F8
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com
- [IPv6:2607:f8b0:4864:20::82a])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A00DD820F8
+ Wed, 22 Feb 2023 16:11:15 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F3378209A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1F3378209A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 15:14:23 +0000 (UTC)
-Received: by mail-qt1-x82a.google.com with SMTP id bt6so7837798qtb.4
+ Wed, 22 Feb 2023 16:11:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677082273;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=S8/ghNNTbLiIrYnO3iHVdavpmvCg0NzWCI0d6aV/XW4=;
+ b=XPmvFZmJwp9zCR9TFDRy0iWYmeg2mitgiaZL2UdMgi8yhLq/Uejskqf4fRAskzb5rDPJL7
+ lbC8np7dcYNCzgK5PhcLxH8gDstB+pJebEk7YW5rLYMC9WfgZZKiNeKIBirjADsDaM8h98
+ qkHF9ehaMdDwFjrHKaJr/oS+K/6uVEc=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-478-BNMx5DrvPpWRXJRmKzLyrA-1; Wed, 22 Feb 2023 11:11:12 -0500
+X-MC-Unique: BNMx5DrvPpWRXJRmKzLyrA-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ e17-20020a05600c219100b003e21fa60ec1so3656645wme.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Feb 2023 07:14:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
- :message-id:reply-to;
- bh=MP1pABxMzHpo8AMSOhxmhgtFnSUnUlB+dz2nSbkmVCQ=;
- b=kZ1fJnQ2f3gOa5uXlR2LpEgx6VA++mAR1qwnk0jNLxQIaqMmCKjpuI84eJL7NafRnD
- XxT+fvn+mo7gXp+UEUecXMoXKRAMvwQ9N4xwvwGpQyC/SJs0WoXUtDi9gALRFKzKYnQq
- Y01H1UF0RiJOxBiuUSj9w+PyyM6Zsk0Htyc/M6Z0ZkuqjiohQ48Yt4syLlsdu+V6tfqb
- m7oIRQ7CehOYcX6No6m8n1oQP8WMS0C7gy3dLGJOB1EwQhNF9eOPr6z2IaJFkIZwJf4i
- fLGGhI6AlF1JG7cIgeFFQOO2a9WhUF0vak2xm6jDjEKVi/vEAd8h2GIGxNWau0+rUbox
- QREA==
+ Wed, 22 Feb 2023 08:11:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
- :cc:subject:date:message-id:reply-to;
- bh=MP1pABxMzHpo8AMSOhxmhgtFnSUnUlB+dz2nSbkmVCQ=;
- b=b9XXlL/FQpFB0mXqRCcEuhePjGQYzk5WYD9xymaHvv8hFZQCdQwL8fCFmVOSLuo5qj
- D3Gj4Bycyde9R698BE651Y2vsYhzXRKna0UE52TDJ9rCvLDW17rtqu5c/xaa52PBTmbh
- ndVkwFEoe8re2T7iq/oLYt2ABFwU9ttq2vRN03PvSysG/EAO0x0FRh3tty+WfMA/IpNy
- 9ps83S5KK1I0oZa0kd7EaOwEoKV3FGnEIOAu7b7KJqEtatp0VSALARmdH46TlN35+Hw6
- y8UoGU53SsVM3OIS4X3s7qHsI9jvOJaY9JNAfi4uuhLjd9NX6nGudcsAfAPYshwJUh3p
- 96Cg==
-X-Gm-Message-State: AO0yUKUvX2xLKHd+PTUIe7qhK/lEKIOAvJLIIhv3CRpWMNNUGIyijc0h
- WARWSLNWhPHZNISttSIR//E=
-X-Google-Smtp-Source: AK7set+Q2a5jr0Nuelg2LNI7xaz7htgjSkqBaSR0VnulEScQizwo/0NwhpPrYspCF+rzIDzIb9ZI9w==
-X-Received: by 2002:ac8:5cce:0:b0:3b8:2a6c:d1e9 with SMTP id
- s14-20020ac85cce000000b003b82a6cd1e9mr11314604qta.18.1677078862133; 
- Wed, 22 Feb 2023 07:14:22 -0800 (PST)
-Received: from localhost (240.157.150.34.bc.googleusercontent.com.
- [34.150.157.240]) by smtp.gmail.com with ESMTPSA id
- x6-20020ac86b46000000b003b860983973sm4060867qts.60.2023.02.22.07.14.21
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=S8/ghNNTbLiIrYnO3iHVdavpmvCg0NzWCI0d6aV/XW4=;
+ b=TeN3Io+8LMrGViaBDI6UZ7uu3Li3Ka5RpBTe+eeqawKlaMVyGm+Bn06ETsmiq9LSlg
+ vYjR3uit0k27MB6YuF4PmaBllF5/babzxejtG3LgazzuLLuAiff2w1UhowShPwjPkcjK
+ Vl/VnisDC3nnxh6gyveOjQHJ2P5vAGHvZmST/rwnGpQpziv+cH+oZW2A1ZpVVaG0Cy2G
+ wIABczuKkrFJCKxW/WB3QUhHS5hGtueIoltGceva0zZpVTvOGkhJkfhpdqeDp3SfyKZp
+ Qww1BGAewNJCvH4UELv6RMKficLrB6d7qyM37RVzlBFzE78CIe4LNyj6LqGl4N1bB5TI
+ blCQ==
+X-Gm-Message-State: AO0yUKXp1T4N9u1quCMo2IsnRX6DNXpv0psKdkgg9FZRHq3Bm8Lj6aFi
+ qKIaJrrExnIsBDK27A8/1FDBZAdgEWHN3SqS/zOL4+VGbvyb1pu4lghtVS2jzZ2iK+srx2rHZF0
+ rdEA91AN0k3+eETDsKEDR8WeFPJBPVqxVmYjZPszudA==
+X-Received: by 2002:a05:600c:c8:b0:3d2:392e:905f with SMTP id
+ u8-20020a05600c00c800b003d2392e905fmr6409848wmm.24.1677082271079; 
+ Wed, 22 Feb 2023 08:11:11 -0800 (PST)
+X-Google-Smtp-Source: AK7set+Un1ypNExaFc+kZXMwSn3M07lTqk0Yp2UvtUsGjthoH8fmjLy+NvB/zR6OGvIrn8kdBsh6vQ==
+X-Received: by 2002:a05:600c:c8:b0:3d2:392e:905f with SMTP id
+ u8-20020a05600c00c800b003d2392e905fmr6409831wmm.24.1677082270782; 
+ Wed, 22 Feb 2023 08:11:10 -0800 (PST)
+Received: from redhat.com ([2.52.2.78]) by smtp.gmail.com with ESMTPSA id
+ iz4-20020a05600c554400b003e203681b26sm5571009wmb.29.2023.02.22.08.11.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 22 Feb 2023 07:14:21 -0800 (PST)
-Date: Wed, 22 Feb 2023 10:14:21 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Jiri Pirko <jiri@resnulli.us>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Message-ID: <63f6314d678bc_2ab6208a@willemb.c.googlers.com.notmuch>
-In-Reply-To: <Y/XLIs+4eg7xPyF0@nanopsycho>
+ Wed, 22 Feb 2023 08:11:10 -0800 (PST)
+Date: Wed, 22 Feb 2023 11:11:06 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [patch net-next v2] net: virtio_net: implement exact header
+ length guest feature
+Message-ID: <20230222110534-mutt-send-email-mst@kernel.org>
 References: <20230221144741.316477-1-jiri@resnulli.us>
  <63f4df39e0728_ce6df208fe@willemb.c.googlers.com.notmuch>
  <Y/TltJnD4k5hB6Z1@nanopsycho>
  <63f4ed716af37_d174a20880@willemb.c.googlers.com.notmuch>
  <Y/XLIs+4eg7xPyF0@nanopsycho>
-Subject: Re: [patch net-next v2] net: virtio_net: implement exact header
- length guest feature
-Mime-Version: 1.0
-Cc: mst@redhat.com, netdev@vger.kernel.org, vmireyno@marvell.com,
+ <63f6314d678bc_2ab6208a@willemb.c.googlers.com.notmuch>
+MIME-Version: 1.0
+In-Reply-To: <63f6314d678bc_2ab6208a@willemb.c.googlers.com.notmuch>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Jiri Pirko <jiri@resnulli.us>, vmireyno@marvell.com, netdev@vger.kernel.org,
  virtualization@lists.linux-foundation.org, edumazet@google.com,
  kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -118,102 +128,49 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Jiri Pirko wrote:
-> Tue, Feb 21, 2023 at 05:12:33PM CET, willemdebruijn.kernel@gmail.com wrote:
-> >Jiri Pirko wrote:
-> >> Tue, Feb 21, 2023 at 04:11:53PM CET, willemdebruijn.kernel@gmail.com wrote:
-> >> >Jiri Pirko wrote:
-> >> >> From: Jiri Pirko <jiri@nvidia.com>
-> >> >> 
-> >> >> Virtio spec introduced a feature VIRTIO_NET_F_GUEST_HDRLEN which when
-> >> >> set implicates that the driver provides the exact size of the header.
-> >> >> 
-> >> >> Quoting the original virtio spec:
-> >> >> "hdr_len is a hint to the device as to how much of the header needs to
-> >> >>  be kept to copy into each packet"
-> >> >> 
-> >> >> "a hint" might not be clear for the reader what does it mean, if it is
-> >> >> "maybe like that" of "exactly like that". This feature just makes it
-> >> >> crystal clear and let the device count on the hdr_len being filled up
-> >> >> by the exact length of header.
-> >> >> 
-> >> >> Also note the spec already has following note about hdr_len:
-> >> >> "Due to various bugs in implementations, this field is not useful
-> >> >>  as a guarantee of the transport header size."
-> >> >> 
-> >> >> Without this feature the device needs to parse the header in core
-> >> >> data path handling. Accurate information helps the device to eliminate
-> >> >> such header parsing and directly use the hardware accelerators
-> >> >> for GSO operation.
-> >> >> 
-> >> >> virtio_net_hdr_from_skb() fills up hdr_len to skb_headlen(skb).
-> >> >> The driver already complies to fill the correct value. Introduce the
-> >> >> feature and advertise it.
-> >> >> 
-> >> >> Note that virtio spec also includes following note for device
-> >> >> implementation:
-> >> >> "Caution should be taken by the implementation so as to prevent
-> >> >>  a malicious driver from attacking the device by setting
-> >> >>  an incorrect hdr_len."
-> >> >> 
-> >> >> There is a plan to support this feature in our emulated device.
-> >> >> A device of SolidRun offers this feature bit. They claim this feature
-> >> >> will save the device a few cycles for every GSO packet.
-> >> >> 
-> >> >> Signed-off-by: Jiri Pirko <jiri@nvidia.com>
-> >> >> ---
-> >> >> v1->v2:
-> >> >> - extended patch description
-> >> >
-> >> >Is the expectation that in-kernel devices support this feature, and
-> >> >if so how would it affect them? If I read the spec correctly, devices
-> >> 
-> >> Well, the tap driver actually trusts the hdr_len to be of correct header
-> >> size nowadays.
-> >
-> >tap_get_user performs basic bounds checking on the length passed.
+On Wed, Feb 22, 2023 at 10:14:21AM -0500, Willem de Bruijn wrote:
+> Either including the link that Michael shared or quoting the relevant
+> part verbatim in the commit message would help, thanks.
 > 
-> Sure. It trusts the hdr_len, but it sanitizes the input.
->
+> Thinking it over, my main concern is that the prescriptive section in
+> the spec does not state what to do when the value is clearly garbage,
+> as we have seen with syzkaller.
 > 
-> > 
-> >> 
-> >> >still need to be careful against malicious drivers, so cannot assume
-> >> >much beyond what they do today (i.e., a hint).
-> >> 
-> >> Malicious how? There is upper limit of size in tap which is checked.
-> >> I assume that for hw implementation, that would be the same.
-> >
-> >A device cannot blindly trust a hdr_len passed from a driver. We have
-> >had bugs in the kernel with this before, such as the one fixed in
-> >commit 57031eb79490 ("packet: round up linear to header len").
-> >
-> >> But anyway, this discussion would be rather part of the spec/device
-> >> patch, don't you think?
-> >
-> >I disagree. If it's not much effort to make a commit self-documenting
-> >that is preferable. And if not, then an explicit reference to an
-> >authoratitive external reference is preferable over "it is trivial to
-> >look it up".
+> Having to sanitize input, by dropping if < ETH_HLEN or > length, to
+> me means that the device cannot trust the field, as the spec says it
+> should. 
+
+Right. I think the implication is that if device detects and illegal
+value it's OK for it to just drop the packet or reset or enter
+a broken mode until reset.
+
+By contrast without the feature bit the header size can be
+used as a hint e.g. to size allocations but you must
+recover if it's incorrect.
+
+And yes tap seems to break if you make it too small or if you make
+it huge so it does not really follow the spec in this regard.
+
+Setting the flag will not fix tap because we can't really
+affort breaking all drivers who don't set it. But it will
+prepare the ground for when tens of years from now we
+actually look back and say all drivers set it, no problem.
+
+So that's a good reason to ack this patch.
+
+However if someone is worried about this then fixing tap
+so it recovers from incorrect header length without
+packet loss is a good idea.
+
+> Sanitization is harder in the kernel, because it has to support all
+> kinds of link layers, including variable length.
 > 
-> Sorry, I don't follow. What exactly do you want me to do?
+> Perhaps that's a discussion for the spec rather than this commit. But
+> it's a point to clarify as we add support to the code.
 
-Either including the link that Michael shared or quoting the relevant
-part verbatim in the commit message would help, thanks.
+-- 
+MST
 
-Thinking it over, my main concern is that the prescriptive section in
-the spec does not state what to do when the value is clearly garbage,
-as we have seen with syzkaller.
-
-Having to sanitize input, by dropping if < ETH_HLEN or > length, to
-me means that the device cannot trust the field, as the spec says it
-should. 
-
-Sanitization is harder in the kernel, because it has to support all
-kinds of link layers, including variable length.
-
-Perhaps that's a discussion for the spec rather than this commit. But
-it's a point to clarify as we add support to the code.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
