@@ -1,91 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 62071C7EE2E
-	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 15:48:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 676F5C7EE23
+	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 15:51:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EA4C8813E3;
-	Mon, 27 Feb 2023 15:48:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA4C8813E3
+	by smtp3.osuosl.org (Postfix) with ESMTP id E88B66101F;
+	Mon, 27 Feb 2023 15:51:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E88B66101F
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PLXiBi+o
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OWHz8JLG1MQZ; Mon, 27 Feb 2023 15:51:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6075660FE4;
+	Mon, 27 Feb 2023 15:51:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6075660FE4
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 441B9C0032;
+	Mon, 27 Feb 2023 15:51:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0639DC002B
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Feb 2023 15:51:11 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C2DE081A95
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Feb 2023 15:51:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C2DE081A95
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=VSg0w7k0
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=PLXiBi+o
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oigmRzxHZ3q0; Mon, 27 Feb 2023 15:48:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4464C813DC;
-	Mon, 27 Feb 2023 15:48:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4464C813DC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B2764C0032;
-	Mon, 27 Feb 2023 15:48:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5C543C002B
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JTTWmCVxoPGV
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 15:48:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 37D974086E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 15:48:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37D974086E
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=VSg0w7k0
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5BWn9n-L8dmj
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 15:48:05 +0000 (UTC)
+ Mon, 27 Feb 2023 15:51:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CC578408A6
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CC578408A6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 089DE81987
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 089DE81987
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 15:48:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1677512885; x=1709048885;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=4cs4e88M3T6bD2HjjcA0Xw1dtM6aKTcupBirC2netkU=;
- b=VSg0w7k0HRAmK9VfRozeAd5u/vfq6pkSboKLQe/4rUSD6hPCsE5gAnnb
- eFDdquC4ukdD9VW+7mqcaTAfbQGKFUc3+SgHY9L1m5rWMHHTFKXTTfN+x
- JbSylLdaAwS2f0it1NFgg58EF3qsNb9eOHd4R4PK7onLktYiJ9/GtEjg5
- XE4HHMDM0p4hjeXYn0PqxuEVJ1vepitVFbf52HdJkkVyhLAW8FDl8Ap2B
- CylEyz3ft2p9jpz2JGNFPheq1hwQhzSPsbrkPounDHuBVIGqF6vDlHFMF
- mYygaM+Theqb0PdzONywDtfDcjECOzoyQng7fKFLzy83harJkoGFDdQQj g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="332609573"
-X-IronPort-AV: E=Sophos;i="5.98,219,1673942400"; d="scan'208";a="332609573"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 27 Feb 2023 07:47:50 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="623621426"
-X-IronPort-AV: E=Sophos;i="5.98,219,1673942400"; d="scan'208";a="623621426"
-Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
- by orsmga003.jf.intel.com with ESMTP; 27 Feb 2023 07:47:47 -0800
-Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pWfj8-0004Xh-2Q;
- Mon, 27 Feb 2023 15:47:46 +0000
-Date: Mon, 27 Feb 2023 23:47:06 +0800
-From: kernel test robot <lkp@intel.com>
-To: "Longpeng(Mike)" <longpeng2@huawei.com>, mst@redhat.com,
- jasowang@redhat.com
-Subject: Re: [PATCH v4 2/2] vdpasim: support doorbell mapping
-Message-ID: <202302272333.Jioo8IEs-lkp@intel.com>
-References: <20230227091857.2406-3-longpeng2@huawei.com>
+ Mon, 27 Feb 2023 15:51:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677513069;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=jNvg4E8Z6zMANFNmdTK5jx0RNqeAkDBts5LT2tbeeH0=;
+ b=PLXiBi+oiPV4s3QlswrQ5x/7v5YobicIdipeBbBm+TA99yYpdMtsSP/Wfxn/uECp00Qh7I
+ 5STMd6MnyTUsAgXdq5bYLum8K6METXih8xryA4AGKunIdkfzRDpDwVA5BII0OgBblofx4P
+ hEWSIEKVm+Yt7b823+FVBwBRdKh3pfs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-589-kuoRm_BlMQqWkCB96-PoRw-1; Mon, 27 Feb 2023 10:51:05 -0500
+X-MC-Unique: kuoRm_BlMQqWkCB96-PoRw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B0683857F40;
+ Mon, 27 Feb 2023 15:51:04 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.18])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id AC6B61121314;
+ Mon, 27 Feb 2023 15:51:03 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+ Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+ Kingdom.
+ Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+To: Jens Axboe <axboe@suse.de>, Matthew Wilcox <willy@infradead.org>,
+ Miklos Szeredi <miklos@szeredi.hu>, Amit Shah <amit@kernel.org>
+Subject: [RFC][PATCH v2] splice: Prevent gifting of multipage folios
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230227091857.2406-3-longpeng2@huawei.com>
-Cc: llvm@lists.linux.dev, linux-kernel@vger.kernel.org, yechuan@huawei.com,
- eperezma@redhat.com, huangzhichao@huawei.com, stefanha@redhat.com,
- oe-kbuild-all@lists.linux.dev, Longpeng <longpeng2@huawei.com>,
- virtualization@lists.linux-foundation.org
+Content-ID: <2740800.1677513063.1@warthog.procyon.org.uk>
+Date: Mon, 27 Feb 2023 15:51:03 +0000
+Message-ID: <2740801.1677513063@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+Cc: dhowells@redhat.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,49 +102,44 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Longpeng(Mike),
+    
+Don't let parts of compound pages/multipage folios be gifted by (vm)splice
+into a pipe as the other end may only be expecting single-page gifts (fuse
+and virtio console for example).
 
-Thank you for the patch! Yet something to improve:
+replace_page_cache_folio(), for example, will do the wrong thing if it
+tries to replace a single paged folio with a multipage folio.
 
-[auto build test ERROR on v6.2]
-[also build test ERROR on next-20230227]
-[cannot apply to mst-vhost/linux-next linus/master]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Try to avoid this by making add_to_pipe() remove the gift flag on multipage
+folios.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Longpeng-Mike/vdpa-support-specify-the-pgprot-of-vq-notification-area/20230227-172516
-patch link:    https://lore.kernel.org/r/20230227091857.2406-3-longpeng2%40huawei.com
-patch subject: [PATCH v4 2/2] vdpasim: support doorbell mapping
-config: arm-randconfig-r046-20230227 (https://download.01.org/0day-ci/archive/20230227/202302272333.Jioo8IEs-lkp@intel.com/config)
-compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project db89896bbbd2251fff457699635acbbedeead27f)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # install arm cross compiling tool for clang build
-        # apt-get install binutils-arm-linux-gnueabi
-        # https://github.com/intel-lab-lkp/linux/commit/a472c7ad92f68b5b596fd68e1936b2d47fe2ea0b
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Longpeng-Mike/vdpa-support-specify-the-pgprot-of-vq-notification-area/20230227-172516
-        git checkout a472c7ad92f68b5b596fd68e1936b2d47fe2ea0b
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=arm olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=arm SHELL=/bin/bash
+Fixes: 7afa6fd037e5 ("[PATCH] vmsplice: allow user to pass in gift pages")
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: Jens Axboe <axboe@suse.de>
+cc: Miklos Szeredi <miklos@szeredi.hu>
+cc: Amit Shah <amit@kernel.org>
+cc: linux-fsdevel@vger.kernel.org
+cc: virtualization@lists.linux-foundation.org
+cc: linux-mm@kvack.org
+---
+ fs/splice.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202302272333.Jioo8IEs-lkp@intel.com/
+diff --git a/fs/splice.c b/fs/splice.c
+index 2e76dbb81a8f..8bbd7794d9f0 100644
+--- a/fs/splice.c
++++ b/fs/splice.c
+@@ -240,6 +240,8 @@ ssize_t add_to_pipe(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
+ 	} else if (pipe_full(head, tail, pipe->max_usage)) {
+ 		ret = -EAGAIN;
+ 	} else {
++		if (PageCompound(buf->page))
++			buf->flags &= ~PIPE_BUF_FLAG_GIFT;
+ 		pipe->bufs[head & mask] = *buf;
+ 		pipe->head = head + 1;
+ 		return buf->len;
 
-All errors (new ones prefixed by >>):
-
->> ld.lld: error: undefined symbol: __bad_xchg
-   >>> referenced by cmpxchg.h:110 (arch/arm/include/asm/cmpxchg.h:110)
-   >>>               drivers/vdpa/vdpa_sim/vdpa_sim.o:(vdpasim_notify_work) in archive vmlinux.a
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
