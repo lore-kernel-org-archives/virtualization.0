@@ -1,77 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA829C7EE23
-	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 14:45:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EC835C64ED8
+	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 15:24:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 79D2E416D2;
-	Mon, 27 Feb 2023 14:45:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 79D2E416D2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=nhM1whik
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5E5EB81E8C;
+	Mon, 27 Feb 2023 15:24:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E5EB81E8C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=REqR8xt+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FHGIfM_3vizb; Mon, 27 Feb 2023 14:45:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BB212416AD;
-	Mon, 27 Feb 2023 14:45:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB212416AD
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OvJGaEG7fS6n; Mon, 27 Feb 2023 15:24:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 07B8981E1E;
+	Mon, 27 Feb 2023 15:24:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 07B8981E1E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F38CC0033;
-	Mon, 27 Feb 2023 14:45:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B8BFDC0032;
+	Mon, 27 Feb 2023 15:24:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F2473C002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3EC74C002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 14:45:37 +0000 (UTC)
+ Mon, 27 Feb 2023 15:24:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DAA4360F8C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2714760BF9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 14:45:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DAA4360F8C
+ Mon, 27 Feb 2023 15:24:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2714760BF9
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=casper.20170209 header.b=nhM1whik
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=REqR8xt+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7eE1-yCz10eX
+ with ESMTP id IyfIDFTz6VQe
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 14:45:35 +0000 (UTC)
+ Mon, 27 Feb 2023 15:24:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 019E260C0B
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 019E260C0B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1ED376103F
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1ED376103F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 14:45:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=WHlGPMlhmQhls5CrvpHbn4RzyZ0OA10s0RB2VJXkfDc=; b=nhM1whikAgFj+vbpfnVeXY4oZY
- 2vaGmpG5WPadKmsXWSJvTVN0HGNsG938uwJMOoDec3U3tmmvMz9KN2imgIYkuSrRWKIoAt1uINXkf
- d6QPAqlGXaY5YcU5bipS0QEKB8oquvo9rYL6pH7LG40EsaeFQB6pUUcBv2bGKIvEIhmD7ybmp58bK
- fy2rfHjPwEzaXBLcuV+UvfMepAY8tZPZ+RbaVLwstFi6isym9EmPKSGrq0gvhWAh0zGmHGwx+EcKB
- reCDUiICba0ySCfvlJkiDN/ho6hmwanYd9S7kNGnEUr87rIQQr09fuptXLjkwQDMyqp9Nv1Y6mi0G
- tQgqfF8Q==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red
- Hat Linux)) id 1pWekp-000BPv-2R; Mon, 27 Feb 2023 14:45:27 +0000
-Date: Mon, 27 Feb 2023 14:45:27 +0000
-From: Matthew Wilcox <willy@infradead.org>
-To: David Howells <dhowells@redhat.com>
+ Mon, 27 Feb 2023 15:24:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677511469;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=NWdwiI4PJ+IBncsrNHjeMLRPIquT5DILZIcxMXt8jUI=;
+ b=REqR8xt+7gv+IABmapf6wBcnMzby4HnHZODSllza9ugMfiU9DvGLx4Po7zjGxfFPefXGyI
+ xS62/DpOtEUfHOzT+k1TwwgtQIPbhodWKJTGGJGzkiqahkg7ad9YXem4egZU28/M7+ZMiM
+ xUz54gs0uWbkjQY0AGBkKqd/nNXiYK4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-183-XHmEih5kMpWQMmNTXrNLrw-1; Mon, 27 Feb 2023 10:24:22 -0500
+X-MC-Unique: XHmEih5kMpWQMmNTXrNLrw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 18B33830F81;
+ Mon, 27 Feb 2023 15:24:22 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.18])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 13A182026D68;
+ Mon, 27 Feb 2023 15:24:20 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+ Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+ Kingdom.
+ Registered in England and Wales under Company Registration No. 3798903
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Y/zCB43mmeZ/vSbz@casper.infradead.org>
+References: <Y/zCB43mmeZ/vSbz@casper.infradead.org>
+ <2734058.1677507812@warthog.procyon.org.uk>
+To: Matthew Wilcox <willy@infradead.org>
 Subject: Re: [RFC][PATCH] splice: Prevent gifting of multipage folios
-Message-ID: <Y/zCB43mmeZ/vSbz@casper.infradead.org>
-References: <2734058.1677507812@warthog.procyon.org.uk>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <2734058.1677507812@warthog.procyon.org.uk>
+Content-ID: <2737654.1677511460.1@warthog.procyon.org.uk>
+Date: Mon, 27 Feb 2023 15:24:20 +0000
+Message-ID: <2737655.1677511460@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
 Cc: Amit Shah <amit@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+ dhowells@redhat.com, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,48 +105,15 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 27, 2023 at 02:23:32PM +0000, David Howells wrote:
->     
-> Don't let parts of multipage folios be gifted by (vm)splice into a pipe as
-> the other end may only be expecting single-page gifts (fuse and virtio
-> console for example).
-> 
-> replace_page_cache_folio(), for example, will do the wrong thing if it
-> tries to replace a single paged folio with a multipage folio.
-> 
-> Try to avoid this by making add_to_pipe() remove the gift flag on multipage
-> folios.
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
+Matthew Wilcox <willy@infradead.org> wrote:
 
-What should the Fixes: here be?  This was already possible with THPs
-(both anon and tmpfs backed) long before I introduced folios.
+> What should the Fixes: here be?  This was already possible with THPs
+> (both anon and tmpfs backed) long before I introduced folios.
 
-> cc: Matthew Wilcox <willy@infradead.org>
-> cc: Miklos Szeredi <miklos@szeredi.hu>
-> cc: Amit Shah <amit@kernel.org>
-> cc: linux-fsdevel@vger.kernel.org
-> cc: virtualization@lists.linux-foundation.org
-> cc: linux-mm@kvack.org
-> ---
->  fs/splice.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/fs/splice.c b/fs/splice.c
-> index 2e76dbb81a8f..33caa28a86e4 100644
-> --- a/fs/splice.c
-> +++ b/fs/splice.c
-> @@ -240,6 +240,8 @@ ssize_t add_to_pipe(struct pipe_inode_info *pipe, struct pipe_buffer *buf)
->  	} else if (pipe_full(head, tail, pipe->max_usage)) {
->  		ret = -EAGAIN;
->  	} else {
-> +		if (folio_nr_pages(page_folio(buf->page)) > 1)
-> +			buf->flags &= ~PIPE_BUF_FLAG_GIFT;
+Good question.  How do I tell when THPs were introduced?  It looks like they
+might predate git, looking at free_compound_page()'s comment.
 
-		if (PageCompound(buf->page))
-			buf->flags &= ~PIPE_BUF_FLAG_GIFT;
-
-would be simpler and more backportable.
+David
 
 _______________________________________________
 Virtualization mailing list
