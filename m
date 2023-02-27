@@ -1,110 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9EBFFC64ED6
-	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 21:54:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC309C64ED6
+	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 22:10:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2776640AAB;
-	Mon, 27 Feb 2023 21:54:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2776640AAB
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iJyi0S45
+	by smtp1.osuosl.org (Postfix) with ESMTP id 39C4E81F68;
+	Mon, 27 Feb 2023 22:10:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39C4E81F68
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cj8S9gQj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tjbJ3UXqFFtn; Mon, 27 Feb 2023 21:54:05 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 19HNDUYo1ojO; Mon, 27 Feb 2023 22:10:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9E4294014E;
-	Mon, 27 Feb 2023 21:54:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E4294014E
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 97B4881F69;
+	Mon, 27 Feb 2023 22:10:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 97B4881F69
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8282AC0032;
-	Mon, 27 Feb 2023 21:54:04 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 661A5C0032;
+	Mon, 27 Feb 2023 22:10:26 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 57166C002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 34251C002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 21:54:03 +0000 (UTC)
+ Mon, 27 Feb 2023 22:10:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 31509416D7
+ by smtp4.osuosl.org (Postfix) with ESMTP id 08B8F417D2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 21:54:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 31509416D7
+ Mon, 27 Feb 2023 22:10:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 08B8F417D2
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iJyi0S45
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=cj8S9gQj
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XDZk-TYBeHvm
+ with ESMTP id uch5YBuHFAJs
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 21:54:02 +0000 (UTC)
+ Mon, 27 Feb 2023 22:10:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E0EAC41621
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E0EAC41621
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9813A417CC
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9813A417CC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 21:54:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1677534840;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=NH1zCP7fchiReMFqu555SwmXjnCrBh0XjRIbNOlyPW8=;
- b=iJyi0S45rNUfqGcbzQOs93fhrJfj2NQwY89GE8TG6avazsxutiBXVAEy5AJ4NoBLPIZBpi
- W+/fcoUhqzF4yKVt5lgL06MJ50kAdviSgi2N2GuAfqvsfC3Nd6OBa3s+Irnbediw9YV/HS
- us/clbyPsUaktJipsbmCu+yofl3d+sE=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-426-FSiE0J-FPBiC5SMVF19zYA-1; Mon, 27 Feb 2023 16:53:59 -0500
-X-MC-Unique: FSiE0J-FPBiC5SMVF19zYA-1
-Received: by mail-ed1-f69.google.com with SMTP id
- ec13-20020a0564020d4d00b004a621e993a8so10664012edb.13
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 13:53:59 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=NH1zCP7fchiReMFqu555SwmXjnCrBh0XjRIbNOlyPW8=;
- b=lg44YbWbMYZEF1ik5cdHzhS67jc4WWCb9uYS6u2MdrPMn/DoJZMy1PlI/2x2CSzJhA
- iJeNX2A0DZIbtQjbluMWX4FFx3MHPaa+NXtlHtJp6yHppVV3OUBm9vfc26d1WZ07jNwt
- gUYLrj20E7JuAUuGWkJtW6a7/Sx353kijzMYdl5XXWJcDOjnGq0Bt5C/ZsAZKjUEGGUP
- bUzgHvXfhjDbUiIRrsdAfo1MXmEnh3x5m/caJT0UEPZ7uws4VbkeYtKthJdpm8+gAmEu
- NdOgabuwiV8mbcfxnjkAI5FAgcajkWHjq51LUiPBalF4nKRZqNOunRt9x7A5We4RtWD8
- A6+w==
-X-Gm-Message-State: AO0yUKVOCbA6jecEU5Xa21hwww46X0dSKIeGX6Iv0Wc1DPWeoPqlqr2R
- C26pAW/aXUirxIUSHhmrnqGxURt+lVWPncJP+PL4gzCMY4P5VkTmrNChmc/3rEdmeiJAPoHnIYS
- su8J30PVpL9I8CKXOM1SaAuR7RUQaXHGkWKwWxr0pvw==
-X-Received: by 2002:a17:907:20ca:b0:87b:d2b3:67ca with SMTP id
- qq10-20020a17090720ca00b0087bd2b367camr159469ejb.75.1677534838092; 
- Mon, 27 Feb 2023 13:53:58 -0800 (PST)
-X-Google-Smtp-Source: AK7set9ogYP9qlfEFY1lD8iKUQGWG7h/CDs1XyL2Fcs+3FtFVG3WfF+4nQOz3bzdoERPheVvemFjnQ==
-X-Received: by 2002:a17:907:20ca:b0:87b:d2b3:67ca with SMTP id
- qq10-20020a17090720ca00b0087bd2b367camr159448ejb.75.1677534837776; 
- Mon, 27 Feb 2023 13:53:57 -0800 (PST)
-Received: from redhat.com ([2.52.141.194]) by smtp.gmail.com with ESMTPSA id
- o15-20020a1709064f8f00b008b17662e1f7sm3721063eju.53.2023.02.27.13.53.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Feb 2023 13:53:57 -0800 (PST)
-Date: Mon, 27 Feb 2023 16:53:53 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jacob Keller <jacob.e.keller@intel.com>
-Subject: Re: [PATCH] vhost: use struct_size and size_add to compute flex
- array sizes
-Message-ID: <20230227165340-mutt-send-email-mst@kernel.org>
-References: <20230227214127.3678392-1-jacob.e.keller@intel.com>
+ Mon, 27 Feb 2023 22:10:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1677535823; x=1709071823;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=P04NtkaiRm5S5kBVsea3jyY+3h4Cr03S9oHrE2g5Ds0=;
+ b=cj8S9gQjqzmHDGIDgV6ayfRxCSb/bY2I09l5b54Fw2RgI8WBUvaqp978
+ wxIkMHjnLAIewjUF5BJKpTNVh2LUkVIMsuogNtnumktkSvl1v+b9M6Cuh
+ 3mr8SQTDboBY+9hly2S5pS7aknNYYs+ivoNx8qKRqEuzp3OYOR11n7YZT
+ pYK1ha/yGuMwUip1WmGxOSeBBBHYjwD6zww0Qdir7ALdI4TUAg45kUAjS
+ dTbiWF9C+VgS6V3k3xbf1GyQ1SGGs8fO3rm4duKiWV5cN0B3ym3AuQbX9
+ wqherSZwS/OjZ87Zcy1IWVP+mmhnSjsvwt69/3K2tFr6FMQeLtMpmtBe4 Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="317779465"
+X-IronPort-AV: E=Sophos;i="5.98,220,1673942400"; d="scan'208";a="317779465"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 27 Feb 2023 14:10:06 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="623782694"
+X-IronPort-AV: E=Sophos;i="5.98,220,1673942400"; d="scan'208";a="623782694"
+Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
+ by orsmga003.jf.intel.com with ESMTP; 27 Feb 2023 14:10:03 -0800
+Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1pWlh4-0004ox-2w;
+ Mon, 27 Feb 2023 22:10:02 +0000
+Date: Tue, 28 Feb 2023 06:09:15 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Longpeng(Mike)" <longpeng2@huawei.com>, mst@redhat.com,
+ jasowang@redhat.com
+Subject: Re: [PATCH v4 2/2] vdpasim: support doorbell mapping
+Message-ID: <202302280613.0lyqDCJr-lkp@intel.com>
+References: <20230227091857.2406-3-longpeng2@huawei.com>
 MIME-Version: 1.0
-In-Reply-To: <20230227214127.3678392-1-jacob.e.keller@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20230227091857.2406-3-longpeng2@huawei.com>
+Cc: linux-kernel@vger.kernel.org, yechuan@huawei.com, eperezma@redhat.com,
+ huangzhichao@huawei.com, stefanha@redhat.com, oe-kbuild-all@lists.linux.dev,
+ Longpeng <longpeng2@huawei.com>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,61 +101,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 27, 2023 at 01:41:27PM -0800, Jacob Keller wrote:
-> The vhost_get_avail_size and vhost_get_used_size functions compute the size
-> of structures with flexible array members with an additional 2 bytes if the
-> VIRTIO_RING_F_EVENT_IDX feature flag is set. Convert these functions to use
-> struct_size() and size_add() instead of coding the calculation by hand.
-> 
-> This ensures that the calculations will saturate at SIZE_MAX rather than
-> overflowing.
-> 
-> Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: kvm@vger.kernel.org
+Hi Longpeng(Mike),
 
+Thank you for the patch! Yet something to improve:
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+[auto build test ERROR on v6.2]
+[cannot apply to mst-vhost/linux-next linus/master]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Will merge, thanks!
-> ---
-> 
-> I found this using a coccinelle patch I developed and submitted at [1].
-> 
-> [1]: https://lore.kernel.org/all/20230227202428.3657443-1-jacob.e.keller@intel.com/
-> 
->  drivers/vhost/vhost.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index f11bdbe4c2c5..43fa626d4e44 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -436,8 +436,7 @@ static size_t vhost_get_avail_size(struct vhost_virtqueue *vq,
->  	size_t event __maybe_unused =
->  	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
->  
-> -	return sizeof(*vq->avail) +
-> -	       sizeof(*vq->avail->ring) * num + event;
-> +	return size_add(struct_size(vq->avail, ring, num), event);
->  }
->  
->  static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
-> @@ -446,8 +445,7 @@ static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
->  	size_t event __maybe_unused =
->  	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
->  
-> -	return sizeof(*vq->used) +
-> -	       sizeof(*vq->used->ring) * num + event;
-> +	return size_add(struct_size(vq->used, ring, num), event);
->  }
->  
->  static size_t vhost_get_desc_size(struct vhost_virtqueue *vq,
-> -- 
-> 2.39.1.405.gd4c25cc71f83
+url:    https://github.com/intel-lab-lkp/linux/commits/Longpeng-Mike/vdpa-support-specify-the-pgprot-of-vq-notification-area/20230227-172516
+patch link:    https://lore.kernel.org/r/20230227091857.2406-3-longpeng2%40huawei.com
+patch subject: [PATCH v4 2/2] vdpasim: support doorbell mapping
+config: arm-allyesconfig (https://download.01.org/0day-ci/archive/20230228/202302280613.0lyqDCJr-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 12.1.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/a472c7ad92f68b5b596fd68e1936b2d47fe2ea0b
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Longpeng-Mike/vdpa-support-specify-the-pgprot-of-vq-notification-area/20230227-172516
+        git checkout a472c7ad92f68b5b596fd68e1936b2d47fe2ea0b
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arm olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=arm SHELL=/bin/bash
 
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202302280613.0lyqDCJr-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   arm-linux-gnueabi-ld: drivers/vdpa/vdpa_sim/vdpa_sim.o: in function `vdpasim_notify_work':
+>> vdpa_sim.c:(.text+0x12d0): undefined reference to `__bad_xchg'
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
