@@ -4,101 +4,88 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 902F6C64ED6
-	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 17:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 181BDC7EE23
+	for <virtualization@archiver.kernel.org>; Mon, 27 Feb 2023 18:07:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 099624021E;
-	Mon, 27 Feb 2023 17:38:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 099624021E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 974A041759;
+	Mon, 27 Feb 2023 18:07:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 974A041759
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=eXJ7ddIA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AVMM4qnT
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CHkffVaCw-jo; Mon, 27 Feb 2023 17:38:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2A7D940203;
-	Mon, 27 Feb 2023 17:38:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A7D940203
+	with ESMTP id 3weZigx1qFfV; Mon, 27 Feb 2023 18:07:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BB8204175E;
+	Mon, 27 Feb 2023 18:07:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB8204175E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E44CFC0032;
-	Mon, 27 Feb 2023 17:38:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4DE21C002B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 87D86C0033;
+	Mon, 27 Feb 2023 18:07:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6ADACC002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 17:38:12 +0000 (UTC)
+ Mon, 27 Feb 2023 18:07:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2A4CD405FB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3E5054175E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 17:38:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2A4CD405FB
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=eXJ7ddIA
+ Mon, 27 Feb 2023 18:07:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3E5054175E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w8qi-g8-8svP
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7IcjMCrSG9dH
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 17:38:11 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3FBD4401E1
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com
- [IPv6:2607:f8b0:4864:20::102a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3FBD4401E1
+ Mon, 27 Feb 2023 18:06:57 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D01C41759
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8D01C41759
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 17:38:11 +0000 (UTC)
-Received: by mail-pj1-x102a.google.com with SMTP id
- h11-20020a17090a2ecb00b00237c740335cso5848688pjs.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Feb 2023 09:38:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=rNfTITiB76ukzwFF6cFliF1Hu+NibHQ+AsYiWgqYkCQ=;
- b=eXJ7ddIAJ7waVdfnoYhVLXmN2+0TxqaR5PmjrQJg6HeA0mQmBG0DfgD3GIJJeALDfY
- WdnQJr3gpoKJsm96pDlGwhfXfwNZrKKv+PrAqcYNZQpEcVkzEv/NdOK6ZiV1K8n5YvrJ
- HqBt5LELLlO89gyVeGhn2H7UbZV2ngWy52FkAiqxjCBPyWuyIM/FZ5X6OFqgiyMQu5eP
- e04qpaZaHyHAhTOKumvdycHgBgdNRoCDfkK6pBkU7azFTb7YZyXfG1nezfOjl2mMvdE/
- ZPf9DoVJ0lGKZPXpSWltya7SIXwG5B+1bNpDB9BPearrz5NJ91rkguCrhFcfTdPwqdv1
- fO8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=rNfTITiB76ukzwFF6cFliF1Hu+NibHQ+AsYiWgqYkCQ=;
- b=tOaEYHkOSTwmCvBIzqa4JVzuJ4jC6uX1mxbBATM25+RWWTkxNbG7IBZp43t2QTCKc8
- +macA7srn0xp05AtCjO0KutDQOeY4A1HRxutLahMCa54fyf/3fzKPtTHH8LItwdDfZ9Y
- qFn59RRoUH0kUEVrmbsC62KQq4XZ3bkuTE5xHeZ0uc9ulk3tVkTZoQT/HGzzH0HLMcKz
- 2ikReSWmq2ocTVYZsVAKfaeH5+UFv4mNaBlqShHiYvCvoL6R01s6BIJHaiY7mlNrUPHH
- 2dxdDCbeVWfUaxgJrrangeIZKT5Hqu9QJsidNc3wdwQBPGT7zp2bvisMAS3d8KX+rCA6
- eL9A==
-X-Gm-Message-State: AO0yUKVg9YeZzi6fNjb42zVgh8ja4rJpPe3y3R2YTp+Ca5nIJ8eJNKy0
- rT+pG7m46KT2Lu/lrIVmH2w=
-X-Google-Smtp-Source: AK7set/pvdAaqce378lV7yVOMqQ/LwE6WHpuj+2JJlXB4fyZwHAN6lzowY+ASeiTUC5nDZ6ywH8STg==
-X-Received: by 2002:a05:6a20:77a4:b0:cc:1ec7:45e5 with SMTP id
- c36-20020a056a2077a400b000cc1ec745e5mr167119pzg.35.1677519490483; 
- Mon, 27 Feb 2023 09:38:10 -0800 (PST)
-Received: from localhost ([2a00:79e1:abd:4a00:61b:48ed:72ab:435b])
- by smtp.gmail.com with ESMTPSA id
- v20-20020a62a514000000b005d9984a947bsm4462373pfm.139.2023.02.27.09.38.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Feb 2023 09:38:09 -0800 (PST)
-From: Rob Clark <robdclark@gmail.com>
-To: dri-devel@lists.freedesktop.org
-Subject: [PATCH v3] drm/virtio: Add option to disable KMS support
-Date: Mon, 27 Feb 2023 09:38:00 -0800
-Message-Id: <20230227173800.2809727-1-robdclark@gmail.com>
-X-Mailer: git-send-email 2.39.1
+ Mon, 27 Feb 2023 18:06:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677521216;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=A0XiMaVk2NRHD3G7gBjNzwZV65APgDc5PN3bQr3CxgQ=;
+ b=AVMM4qnTgdNqkCYPMVZKJdAzwJu68r2UvobHcMOvJpjLYUwx4F3uhPLISrRoXDNnWDEJxu
+ QUJ++UQa2ZLes116fnJtLH1WNv8jvJUbsWqrYDlDDPvjeRnYoroAWRP2+OrD8r9IET++mR
+ qbwYPf+axEqm5hKz8trLOUrsbsqmBhg=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-584-xsKvlzbSMLCqXzj1QpnMwQ-1; Mon, 27 Feb 2023 13:06:52 -0500
+X-MC-Unique: xsKvlzbSMLCqXzj1QpnMwQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1FD97802D2E;
+ Mon, 27 Feb 2023 18:06:52 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.22.33.77])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id A71062026D4B;
+ Mon, 27 Feb 2023 18:06:51 +0000 (UTC)
+Received: by fedora.redhat.com (Postfix, from userid 1000)
+ id 40EAF139788; Mon, 27 Feb 2023 13:06:51 -0500 (EST)
+Date: Mon, 27 Feb 2023 13:06:51 -0500
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [RESEND v2 PATCH] init/do_mounts.c: add virtiofs root fs support
+Message-ID: <Y/zxO9PMaES8SenN@redhat.com>
+References: <20230224143751.36863-1-david@ixit.cz>
+ <Y/zSCarxyabSC1Zf@fedora>
 MIME-Version: 1.0
-Cc: Rob Clark <robdclark@chromium.org>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Ryan Neph <ryanneph@chromium.org>, open list <linux-kernel@vger.kernel.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- David Airlie <airlied@redhat.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Chia-I Wu <olvaffe@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <Y/zSCarxyabSC1Zf@fedora>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Cc: David Heidelberg <david@ixit.cz>, Miklos Szeredi <miklos@szeredi.hu>,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, wsa+renesas@sang-engineering.com,
+ helen.koike@collabora.com, Al Viro <viro@zeniv.linux.org.uk>,
+ linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,173 +102,87 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Rob Clark <robdclark@chromium.org>
+On Mon, Feb 27, 2023 at 10:53:45AM -0500, Stefan Hajnoczi wrote:
+> On Fri, Feb 24, 2023 at 03:37:51PM +0100, David Heidelberg wrote:
+> > From: Stefan Hajnoczi <stefanha@redhat.com>
+> > 
+> > Make it possible to boot directly from a virtiofs file system with tag
+> > 'myfs' using the following kernel parameters:
+> > 
+> >   rootfstype=virtiofs root=myfs rw
+> > 
+> > Booting directly from virtiofs makes it possible to use a directory on
+> > the host as the root file system.  This is convenient for testing and
+> > situations where manipulating disk image files is cumbersome.
+> > 
+> > Reviewed-by: Helen Koike <helen.koike@collabora.com>
+> > Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > Signed-off-by: David Heidelberg <david@ixit.cz>
+> > ---
+> > v2: added Reviewed-by and CCed everyone interested.
+> > 
+> > We have used this option in Mesa3D CI for testing crosvm for
+> > more than one years and it's proven to work reliably.
+> > 
+> > We are working on effort to removing custom patches to be able to do 
+> > automated apply and test of patches from any tree.                              
+> > 
+> > https://gitlab.freedesktop.org/mesa/mesa/-/blob/main/.gitlab-ci/crosvm-runner.sh#L85
+> >  init/do_mounts.c | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> 
+> Vivek, do you remember where we ended up with boot from virtiofs? I
+> thought a different solution was merged some time ago.
 
-Add a build option to disable modesetting support.  This is useful in
-cases where the guest only needs to use the GPU in a headless mode, or
-(such as in the CrOS usage) window surfaces are proxied to a host
-compositor.
+We merged a patch from Christoph Hellwig to support this.
 
-v2: Use more if (IS_ENABLED(...))
-v3: Also permit the host to advertise no scanouts
+commit f9259be6a9e7c22d92e5a5000913147ae17e8321
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Wed Jul 14 16:23:20 2021 -0400
 
-Signed-off-by: Rob Clark <robdclark@chromium.org>
----
- drivers/gpu/drm/virtio/Kconfig       | 11 +++++++
- drivers/gpu/drm/virtio/Makefile      |  5 +++-
- drivers/gpu/drm/virtio/virtgpu_drv.c |  6 +++-
- drivers/gpu/drm/virtio/virtgpu_drv.h | 10 +++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c | 44 ++++++++++++++++++----------
- 5 files changed, 59 insertions(+), 17 deletions(-)
+    init: allow mounting arbitrary non-blockdevice filesystems as root
 
-diff --git a/drivers/gpu/drm/virtio/Kconfig b/drivers/gpu/drm/virtio/Kconfig
-index 51ec7c3240c9..ea06ff2aa4b4 100644
---- a/drivers/gpu/drm/virtio/Kconfig
-+++ b/drivers/gpu/drm/virtio/Kconfig
-@@ -11,3 +11,14 @@ config DRM_VIRTIO_GPU
- 	   QEMU based VMMs (like KVM or Xen).
- 
- 	   If unsure say M.
-+
-+config DRM_VIRTIO_GPU_KMS
-+	bool "Virtio GPU driver modesetting support"
-+	depends on DRM_VIRTIO_GPU
-+	default y
-+	help
-+	   Enable modesetting support for virtio GPU driver.  This can be
-+	   disabled in cases where only "headless" usage of the GPU is
-+	   required.
-+
-+	   If unsure, say Y.
-diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
-index b99fa4a73b68..24c7ebe87032 100644
---- a/drivers/gpu/drm/virtio/Makefile
-+++ b/drivers/gpu/drm/virtio/Makefile
-@@ -4,8 +4,11 @@
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
- 
- virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_gem.o virtgpu_vram.o \
--	virtgpu_display.o virtgpu_vq.o \
-+	virtgpu_vq.o \
- 	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
- 	virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o
- 
-+virtio-gpu-$(CONFIG_DRM_VIRTIO_GPU_KMS) += \
-+	virtgpu_display.o
-+
- obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ae97b98750b6..9cb7d6dd3da6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -172,7 +172,11 @@ MODULE_AUTHOR("Alon Levy");
- DEFINE_DRM_GEM_FOPS(virtio_gpu_driver_fops);
- 
- static const struct drm_driver driver = {
--	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
-+	.driver_features =
-+#if defined(CONFIG_DRM_VIRTIO_GPU_KMS)
-+			DRIVER_MODESET | DRIVER_ATOMIC |
-+#endif
-+			DRIVER_GEM | DRIVER_RENDER,
- 	.open = virtio_gpu_driver_open,
- 	.postclose = virtio_gpu_driver_postclose,
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index af6ffb696086..ffe8faf67247 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -426,8 +426,18 @@ virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
- 				uint32_t x, uint32_t y);
- 
- /* virtgpu_display.c */
-+#if defined(CONFIG_DRM_VIRTIO_GPU_KMS)
- int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
- void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
-+#else
-+static inline int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
-+{
-+	return 0;
-+}
-+static inline void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
-+{
-+}
-+#endif
- 
- /* virtgpu_plane.c */
- uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 27b7f14dae89..1d888e309d6b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -161,7 +161,8 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
- 		vgdev->has_virgl_3d = true;
- #endif
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) &&
-+	    virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
- 		vgdev->has_edid = true;
- 	}
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-@@ -218,17 +219,28 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 		goto err_vbufs;
- 	}
- 
--	/* get display info */
--	virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
--			num_scanouts, &num_scanouts);
--	vgdev->num_scanouts = min_t(uint32_t, num_scanouts,
--				    VIRTIO_GPU_MAX_SCANOUTS);
--	if (!vgdev->num_scanouts) {
--		DRM_ERROR("num_scanouts is zero\n");
--		ret = -EINVAL;
--		goto err_scanouts;
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS)) {
-+		/* get display info */
-+		virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
-+				num_scanouts, &num_scanouts);
-+		vgdev->num_scanouts = min_t(uint32_t, num_scanouts,
-+					    VIRTIO_GPU_MAX_SCANOUTS);
-+		if (!vgdev->num_scanouts) {
-+			/*
-+			 * Having an EDID but no scanouts is non-sensical,
-+			 * but it is permitted to have no scanouts and no
-+			 * EDID (in which case DRIVER_MODESET and
-+			 * DRIVER_ATOMIC are not advertised)
-+			 */
-+			if (vgdev->has_edid) {
-+				DRM_ERROR("num_scanouts is zero\n");
-+				ret = -EINVAL;
-+				goto err_scanouts;
-+			}
-+			dev->driver_features &= ~(DRIVER_MODESET | DRIVER_ATOMIC);
-+		}
-+		DRM_INFO("number of scanouts: %d\n", num_scanouts);
- 	}
--	DRM_INFO("number of scanouts: %d\n", num_scanouts);
- 
- 	virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
- 			num_capsets, &num_capsets);
-@@ -246,10 +258,12 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 		virtio_gpu_get_capsets(vgdev, num_capsets);
- 	if (vgdev->has_edid)
- 		virtio_gpu_cmd_get_edids(vgdev);
--	virtio_gpu_cmd_get_display_info(vgdev);
--	virtio_gpu_notify(vgdev);
--	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
--			   5 * HZ);
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) && vgdev->num_scanouts) {
-+		virtio_gpu_cmd_get_display_info(vgdev);
-+		virtio_gpu_notify(vgdev);
-+		wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
-+				   5 * HZ);
-+	}
- 	return 0;
- 
- err_scanouts:
--- 
-2.39.1
+Now one should be able to mount virtiofs using following syntax.
+
+"root=myfs rootfstype=virtiofs rw"
+
+IIUC, this patch should not be required anymore.
+
+Thanks
+Vivek
+
+> 
+> There is documentation from the virtiofs community here:
+> https://virtio-fs.gitlab.io/howto-boot.html
+> 
+> Stefan
+> 
+> > 
+> > diff --git a/init/do_mounts.c b/init/do_mounts.c
+> > index 811e94daf0a8..11c11abe23d7 100644
+> > --- a/init/do_mounts.c
+> > +++ b/init/do_mounts.c
+> > @@ -578,6 +578,16 @@ void __init mount_root(void)
+> >  			printk(KERN_ERR "VFS: Unable to mount root fs via SMB.\n");
+> >  		return;
+> >  	}
+> > +#endif
+> > +#ifdef CONFIG_VIRTIO_FS
+> > +	if (root_fs_names && !strcmp(root_fs_names, "virtiofs")) {
+> > +		if (!do_mount_root(root_device_name, "virtiofs",
+> > +				   root_mountflags, root_mount_data))
+> > +			return;
+> > +
+> > +		panic("VFS: Unable to mount root fs \"%s\" from virtiofs",
+> > +		      root_device_name);
+> > +	}
+> >  #endif
+> >  	if (ROOT_DEV == 0 && root_device_name && root_fs_names) {
+> >  		if (mount_nodev_root() == 0)
+> > -- 
+> > 2.39.1
+> > 
+
 
 _______________________________________________
 Virtualization mailing list
