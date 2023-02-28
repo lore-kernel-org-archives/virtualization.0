@@ -1,103 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26BE3C64ED6
-	for <virtualization@archiver.kernel.org>; Tue, 28 Feb 2023 15:54:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00875C64EC7
+	for <virtualization@archiver.kernel.org>; Tue, 28 Feb 2023 21:36:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C3C3981F75;
-	Tue, 28 Feb 2023 15:54:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C3C3981F75
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=NY9SP6qp
+	by smtp4.osuosl.org (Postfix) with ESMTP id C285A417DE;
+	Tue, 28 Feb 2023 21:36:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C285A417DE
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SNIo3FCA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yH6LZOzzxja2; Tue, 28 Feb 2023 15:54:15 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0DVFTTGYOuhZ; Tue, 28 Feb 2023 21:36:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2ED7181E98;
-	Tue, 28 Feb 2023 15:54:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2ED7181E98
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 111014176D;
+	Tue, 28 Feb 2023 21:36:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 111014176D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05CDBC0033;
-	Tue, 28 Feb 2023 15:54:15 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D76EAC0033;
+	Tue, 28 Feb 2023 21:36:35 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9CE8DC002B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 866FBC002B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Feb 2023 15:54:13 +0000 (UTC)
+ Tue, 28 Feb 2023 21:36:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6C249404AF
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4E09C400D2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Feb 2023 15:54:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6C249404AF
+ Tue, 28 Feb 2023 21:36:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4E09C400D2
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20210112 header.b=NY9SP6qp
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SNIo3FCA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vv5bNItID9GU
+ with ESMTP id JEhu7LTxrf9C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Feb 2023 15:54:11 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5E215401D5
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com
- [IPv6:2607:f8b0:4864:20::629])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5E215401D5
+ Tue, 28 Feb 2023 21:36:33 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E78C400C8
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9E78C400C8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Feb 2023 15:54:11 +0000 (UTC)
-Received: by mail-pl1-x629.google.com with SMTP id y11so6767308plg.1
+ Tue, 28 Feb 2023 21:36:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1677620192;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Fr6G339eh4CzZb9wRNzdMKECxjo2Rk+TLv6cPbI33P8=;
+ b=SNIo3FCAGjAJvRoLuaxJ3/RkQJ3sBqXZ3+mUk7R74WAR/wjyWRPDsfCS5UjT/xZoq7OtlM
+ h3nE0xTi1hdTzWOnjGPYZuGMNC0vSX6i32oG6x9Jryxjz/CTF4vSYJEDsPxyd5+gKNdyQl
+ iJj4e/PHj9gdIa/4fLhrj5o8Y126wh4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-183-WTEoXZy5OvWqPSrCgUnJ0w-1; Tue, 28 Feb 2023 16:36:30 -0500
+X-MC-Unique: WTEoXZy5OvWqPSrCgUnJ0w-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ j6-20020a05600c1c0600b003eaf882cb85so4725182wms.9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Feb 2023 07:54:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=xw2WUA8mFvMCKalxYRCZJO97ik9Rv3lPc280o9Y+fdQ=;
- b=NY9SP6qpNOYZLx9fij86g1bqzs4xbAG2fso2og2T3wxOd34OfdmRoXb95G6vCllXGL
- PObC2iguXamZOrzALd1IOlMkgb3UfOcm1SSJ8ixJnSIWP6HQEkRVEI8MdO3Lp3C/7Jgm
- hGLePAqnPzXMproE9miOH26dz4ePn9+5Jnz3Ial8doyAlkztj6ckSy2F6gxf7S+yKag3
- J9jG9+Of9x6z8c5PelYhQNyvLhQh8BSv6HGO/oa0vCPfcVM9MdleizR68DLRfycXp2lv
- ig0Zr7nlUZrhcXfz6ySzd8C5JPjWvCXvVhwGQUHzqvIqukIiwzLR6XI47A0+64gX8XmK
- WlyQ==
+ Tue, 28 Feb 2023 13:36:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=xw2WUA8mFvMCKalxYRCZJO97ik9Rv3lPc280o9Y+fdQ=;
- b=GNBj1ZUQW92ojx46JSIK3Tiw/JAFkw7DkZZoIBThTbe+t+ivPk7Zeg8lC5HEOYyQYo
- ILudzQU2DRF2UEf3HfVMH+Q1tjQjeEDP7ttPTy3ehWKT2jhR7dz9RlHatOmuFmXJQCeI
- gQOax5U9WtB+QTE5RX/rGdo9yK1IP4M7a37154OVmkz7PFas/netjxVFDGm27M1QO/Vy
- yEzzrJ7+Drm9L/iIS5sXiPfRrPEVcWzBXxnq7qDd9/eSl8K1lFnF7w0gvic+b8CICGSG
- PN18Hz1ufpqRFsoW3FTus2Q6E0a2ywPDiEG7hplh5EyBLUtRYRdHdxbmQYpEummwm9as
- NW0w==
-X-Gm-Message-State: AO0yUKUraeQZ8RC1mNDVXl4mxyf3nJBKJ3N/MOZR/eirtiwtgpiyqj9z
- Y7dituORduDA7MOLEAX4pHU=
-X-Google-Smtp-Source: AK7set9Jgq9ZQhTADHjg3H6EfnFAKDeu0hMzuI3+D+kLEzZBWjL7xvRjyA9i1WiIEXsFG+bOs7CMjA==
-X-Received: by 2002:a05:6a20:3d11:b0:cd:3f69:e15 with SMTP id
- y17-20020a056a203d1100b000cd3f690e15mr4215843pzi.11.1677599650629; 
- Tue, 28 Feb 2023 07:54:10 -0800 (PST)
-Received: from localhost ([2a00:79e1:abd:4a00:61b:48ed:72ab:435b])
- by smtp.gmail.com with ESMTPSA id
- u1-20020aa78381000000b005cd81a74821sm6190301pfm.152.2023.02.28.07.54.09
+ d=1e100.net; s=20210112; t=1677620189;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Fr6G339eh4CzZb9wRNzdMKECxjo2Rk+TLv6cPbI33P8=;
+ b=6HhLrZfSSFSKPuJxDh3+fGC1nirpc/pC57B7geKOY12ZzQAsBBR3wpKpKo3rnTIf/9
+ 5RN+5QaZqog2DjYhqavv80csEURTCZ1MHLUrUuN34GSC5gbwq0ch/7owfXUI1mKhhU79
+ BptatPhEfK7KkjIIo6BP8JSiPsYdDyMzD2ncJwtW9/KJqkdsbD73+NDH4wkTdLI0X3I1
+ uvNxKXXGe5T3U7Sft9mQ2XBv6ykBeVb955qEMrXsRFCeiGxJ9Vd9TeJuYvCdkAodBDtq
+ RAoIssPypQsKqU13Ncl6anR070AZdiTmR1Ev1Gx7n6ae9fa8SCkvKSYsBhPnpNJS9tTm
+ Kp7Q==
+X-Gm-Message-State: AO0yUKUz5P5BsC233zb5UGZBaqexXIYKi6XB30kiydG+GcBOYuW/XwyV
+ 4Rl2hzAvmxxhuIhonJDDsoQ9nLJxgi8rih/+uM7SXoiO/dAbowRCvZ3nf0fIFsrteOuJHGgGdRO
+ kuGjtnSDaKSEldKWMNieQlzSIw+BgdpDslY5JxiZWQQ==
+X-Received: by 2002:a05:600c:310c:b0:3eb:395b:8b62 with SMTP id
+ g12-20020a05600c310c00b003eb395b8b62mr3713267wmo.39.1677620189703; 
+ Tue, 28 Feb 2023 13:36:29 -0800 (PST)
+X-Google-Smtp-Source: AK7set9Z8lGr1yxjI9Ypmg9yFzicADc+OvbqqKFlwiu50yEmyScxxP766NN0zApqhzmUJ0CYnPz/ow==
+X-Received: by 2002:a05:600c:310c:b0:3eb:395b:8b62 with SMTP id
+ g12-20020a05600c310c00b003eb395b8b62mr3713241wmo.39.1677620189364; 
+ Tue, 28 Feb 2023 13:36:29 -0800 (PST)
+Received: from redhat.com ([2.52.141.194]) by smtp.gmail.com with ESMTPSA id
+ m25-20020a7bca59000000b003db0bb81b6asm13684976wml.1.2023.02.28.13.36.25
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 28 Feb 2023 07:54:09 -0800 (PST)
-From: Rob Clark <robdclark@gmail.com>
-To: dri-devel@lists.freedesktop.org
-Subject: [PATCH v4] drm/virtio: Add option to disable KMS support
-Date: Tue, 28 Feb 2023 07:54:05 -0800
-Message-Id: <20230228155406.2881252-1-robdclark@gmail.com>
-X-Mailer: git-send-email 2.39.1
+ Tue, 28 Feb 2023 13:36:28 -0800 (PST)
+Date: Tue, 28 Feb 2023 16:36:22 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH net-next v3 1/3] vsock: support sockmap
+Message-ID: <20230228163518-mutt-send-email-mst@kernel.org>
+References: <20230227-vsock-sockmap-upstream-v3-0-7e7f4ce623ee@bytedance.com>
+ <20230227-vsock-sockmap-upstream-v3-1-7e7f4ce623ee@bytedance.com>
 MIME-Version: 1.0
-Cc: Rob Clark <robdclark@chromium.org>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Ryan Neph <ryanneph@chromium.org>, open list <linux-kernel@vger.kernel.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- David Airlie <airlied@redhat.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Chia-I Wu <olvaffe@gmail.com>
+In-Reply-To: <20230227-vsock-sockmap-upstream-v3-1-7e7f4ce623ee@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Cong Wang <cong.wang@bytedance.com>, kvm@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Song Liu <song@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Stanislav Fomichev <sdf@google.com>, linux-kselftest@vger.kernel.org,
+ Shuah Khan <shuah@kernel.org>, Mykola Lysenko <mykolal@fb.com>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>,
+ Yonghong Song <yhs@fb.com>, Paolo Abeni <pabeni@redhat.com>,
+ KP Singh <kpsingh@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>, Hao Luo <haoluo@google.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Jiri Olsa <jolsa@kernel.org>, bpf@vger.kernel.org,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,180 +134,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Rob Clark <robdclark@chromium.org>
+On Tue, Feb 28, 2023 at 07:04:34PM +0000, Bobby Eshleman wrote:
+> @@ -1241,19 +1252,34 @@ static int vsock_dgram_connect(struct socket *sock,
+>  
+>  	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
+>  	sock->state = SS_CONNECTED;
+> +	sk->sk_state = TCP_ESTABLISHED;
+>  
+>  out:
+>  	release_sock(sk);
+>  	return err;
+>  }
 
-Add a build option to disable modesetting support.  This is useful in
-cases where the guest only needs to use the GPU in a headless mode, or
-(such as in the CrOS usage) window surfaces are proxied to a host
-compositor.
 
-As the modesetting ioctls are a big surface area for potential security
-bugs to be found (it's happened in the past, we should assume it will
-again in the future), it makes sense to have a build option to disable
-those ioctls in cases where they serve no legitimate purpose.
+How is this related? Maybe add a comment to explain? Does
+TCP_ESTABLISHED make sense for all types of sockets?
 
-v2: Use more if (IS_ENABLED(...))
-v3: Also permit the host to advertise no scanouts
-v4: Spiff out commit msg
-
-Signed-off-by: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
----
- drivers/gpu/drm/virtio/Kconfig       | 11 +++++++
- drivers/gpu/drm/virtio/Makefile      |  5 +++-
- drivers/gpu/drm/virtio/virtgpu_drv.c |  6 +++-
- drivers/gpu/drm/virtio/virtgpu_drv.h | 10 +++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c | 44 ++++++++++++++++++----------
- 5 files changed, 59 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/Kconfig b/drivers/gpu/drm/virtio/Kconfig
-index 51ec7c3240c9..ea06ff2aa4b4 100644
---- a/drivers/gpu/drm/virtio/Kconfig
-+++ b/drivers/gpu/drm/virtio/Kconfig
-@@ -11,3 +11,14 @@ config DRM_VIRTIO_GPU
- 	   QEMU based VMMs (like KVM or Xen).
- 
- 	   If unsure say M.
-+
-+config DRM_VIRTIO_GPU_KMS
-+	bool "Virtio GPU driver modesetting support"
-+	depends on DRM_VIRTIO_GPU
-+	default y
-+	help
-+	   Enable modesetting support for virtio GPU driver.  This can be
-+	   disabled in cases where only "headless" usage of the GPU is
-+	   required.
-+
-+	   If unsure, say Y.
-diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
-index b99fa4a73b68..24c7ebe87032 100644
---- a/drivers/gpu/drm/virtio/Makefile
-+++ b/drivers/gpu/drm/virtio/Makefile
-@@ -4,8 +4,11 @@
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
- 
- virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_gem.o virtgpu_vram.o \
--	virtgpu_display.o virtgpu_vq.o \
-+	virtgpu_vq.o \
- 	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
- 	virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o
- 
-+virtio-gpu-$(CONFIG_DRM_VIRTIO_GPU_KMS) += \
-+	virtgpu_display.o
-+
- obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ae97b98750b6..9cb7d6dd3da6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -172,7 +172,11 @@ MODULE_AUTHOR("Alon Levy");
- DEFINE_DRM_GEM_FOPS(virtio_gpu_driver_fops);
- 
- static const struct drm_driver driver = {
--	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
-+	.driver_features =
-+#if defined(CONFIG_DRM_VIRTIO_GPU_KMS)
-+			DRIVER_MODESET | DRIVER_ATOMIC |
-+#endif
-+			DRIVER_GEM | DRIVER_RENDER,
- 	.open = virtio_gpu_driver_open,
- 	.postclose = virtio_gpu_driver_postclose,
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index af6ffb696086..ffe8faf67247 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -426,8 +426,18 @@ virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
- 				uint32_t x, uint32_t y);
- 
- /* virtgpu_display.c */
-+#if defined(CONFIG_DRM_VIRTIO_GPU_KMS)
- int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
- void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
-+#else
-+static inline int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
-+{
-+	return 0;
-+}
-+static inline void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
-+{
-+}
-+#endif
- 
- /* virtgpu_plane.c */
- uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 27b7f14dae89..1d888e309d6b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -161,7 +161,8 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_VIRGL))
- 		vgdev->has_virgl_3d = true;
- #endif
--	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) &&
-+	    virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_EDID)) {
- 		vgdev->has_edid = true;
- 	}
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
-@@ -218,17 +219,28 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 		goto err_vbufs;
- 	}
- 
--	/* get display info */
--	virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
--			num_scanouts, &num_scanouts);
--	vgdev->num_scanouts = min_t(uint32_t, num_scanouts,
--				    VIRTIO_GPU_MAX_SCANOUTS);
--	if (!vgdev->num_scanouts) {
--		DRM_ERROR("num_scanouts is zero\n");
--		ret = -EINVAL;
--		goto err_scanouts;
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS)) {
-+		/* get display info */
-+		virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
-+				num_scanouts, &num_scanouts);
-+		vgdev->num_scanouts = min_t(uint32_t, num_scanouts,
-+					    VIRTIO_GPU_MAX_SCANOUTS);
-+		if (!vgdev->num_scanouts) {
-+			/*
-+			 * Having an EDID but no scanouts is non-sensical,
-+			 * but it is permitted to have no scanouts and no
-+			 * EDID (in which case DRIVER_MODESET and
-+			 * DRIVER_ATOMIC are not advertised)
-+			 */
-+			if (vgdev->has_edid) {
-+				DRM_ERROR("num_scanouts is zero\n");
-+				ret = -EINVAL;
-+				goto err_scanouts;
-+			}
-+			dev->driver_features &= ~(DRIVER_MODESET | DRIVER_ATOMIC);
-+		}
-+		DRM_INFO("number of scanouts: %d\n", num_scanouts);
- 	}
--	DRM_INFO("number of scanouts: %d\n", num_scanouts);
- 
- 	virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
- 			num_capsets, &num_capsets);
-@@ -246,10 +258,12 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 		virtio_gpu_get_capsets(vgdev, num_capsets);
- 	if (vgdev->has_edid)
- 		virtio_gpu_cmd_get_edids(vgdev);
--	virtio_gpu_cmd_get_display_info(vgdev);
--	virtio_gpu_notify(vgdev);
--	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
--			   5 * HZ);
-+	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) && vgdev->num_scanouts) {
-+		virtio_gpu_cmd_get_display_info(vgdev);
-+		virtio_gpu_notify(vgdev);
-+		wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
-+				   5 * HZ);
-+	}
- 	return 0;
- 
- err_scanouts:
 -- 
-2.39.1
+MST
 
 _______________________________________________
 Virtualization mailing list
