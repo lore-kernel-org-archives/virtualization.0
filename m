@@ -1,112 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49CD3C64ED6
-	for <virtualization@archiver.kernel.org>; Wed,  1 Mar 2023 14:44:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6024AC6FA9D
+	for <virtualization@archiver.kernel.org>; Wed,  1 Mar 2023 18:54:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 989E641971;
-	Wed,  1 Mar 2023 14:44:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 989E641971
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bTk2IXxj
+	by smtp3.osuosl.org (Postfix) with ESMTP id DAF1760FCC;
+	Wed,  1 Mar 2023 18:54:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DAF1760FCC
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=pHLFh6/N
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ten51vO7AGH8; Wed,  1 Mar 2023 14:44:21 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jxaAIvYHi4Qe; Wed,  1 Mar 2023 18:54:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 942404196B;
-	Wed,  1 Mar 2023 14:44:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 942404196B
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 19F3860BB3;
+	Wed,  1 Mar 2023 18:54:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 19F3860BB3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7266CC0035;
-	Wed,  1 Mar 2023 14:44:20 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1622FC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2B1DC0035;
+	Wed,  1 Mar 2023 18:54:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F2B5C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 14:44:19 +0000 (UTC)
+ Wed,  1 Mar 2023 18:54:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D7DF481215
+ by smtp3.osuosl.org (Postfix) with ESMTP id DE18460F85
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 14:44:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D7DF481215
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=bTk2IXxj
+ Wed,  1 Mar 2023 18:54:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE18460F85
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id L2NXR33Cb7q6
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r5rcAzu4QqCT
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 14:44:17 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A30D80FB6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8A30D80FB6
+ Wed,  1 Mar 2023 18:54:38 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ED54860BB3
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com
+ [IPv6:2607:f8b0:4864:20::1029])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id ED54860BB3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 14:44:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1677681856;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=E86jCb8kW1PzrvPSO5dVoBke0amKLBuYHjvi+nJQr9o=;
- b=bTk2IXxjyM8H25glC8AUnI8Nvf7PrGOtJM0U4bFXTraGafQvNNnwqGKMD68lNez2cjCeuD
- b0xuj84RHxU8q8eLhCZzTn2uD+C8RuDKf3BCnYjD60hYCrDECSiRRdEPN4ZS1cEa7wspr2
- oFpOBKMeBwtdnl4AOUlSDrmVrxG+hEA=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-111-FWkfAM1nOUOBIzB6yjnoTA-1; Wed, 01 Mar 2023 09:44:15 -0500
-X-MC-Unique: FWkfAM1nOUOBIzB6yjnoTA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- k20-20020a05600c1c9400b003e2249bd2b4so4641774wms.5
+ Wed,  1 Mar 2023 18:54:37 +0000 (UTC)
+Received: by mail-pj1-x1029.google.com with SMTP id
+ x20-20020a17090a8a9400b00233ba727724so1613667pjn.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Mar 2023 06:44:15 -0800 (PST)
+ Wed, 01 Mar 2023 10:54:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20210112; t=1677696877;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=qIhBybknQqSSCYaaXviqV/xcYtdK0wdqPp4paRUIIu0=;
+ b=pHLFh6/NTQjadjGwr/P+ltAcpWdPLZqgVM9lMSDvqBcLYPNruHqX400/0+7OvKxxyd
+ yAQMukFfkTmQ6rqX91Tt2iIS7TZyzTjor7Tb6V+eXkyDqtGqt1/bwY6PiEaOpPlN8hJL
+ j1kX75ajoyEMSH3BzjnZaDXr//eko5EC5mmkyzSIq21N6ttdhwJaRajFta7XhPJt2n9h
+ s7gLYsD5C5jVHsXJw2EdstgQTa8jOw/ugze68oLP116+agbM1do6xZ0paG6q9BJsizam
+ 3W2NyRi/mFWRRLsMVq6cLDdUNPCsz5qqNVxKuvTaQjfSj7OI+I3gv4+SxXs+pwRiVhkc
+ r7vg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1677681854;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=E86jCb8kW1PzrvPSO5dVoBke0amKLBuYHjvi+nJQr9o=;
- b=5wS3jzGa54OHRZ/89cNScL3e7mi1vygGAAIZCDL35cM9iEpMQrNRwobiuKCrNOOhbi
- /r04e3ssTpZTMrQPDBFjazDXhr/wr6yhOcs/TfXjzIlumdn1sKW1KlWUPxVm+Iiy2Bac
- Fr2JX7DF/ggJqTbcuRve+u7u66Khh3H98X12h0nMZgcz6qTZtwOsNEqV+YqPwCA5OgM9
- F3r9GoaBOqqtZ1QwsW97XPaJkd9+ATUXkpK243EXjfKzvukRdIPv0BQ8XqnHyI4tyoyj
- bx7LEon2F+xhPn4wtZF8tiZhhxJdaZ4kY9XFqjXE8+CPfEYwTc8QiL4+W421HiNQaU9R
- Aq+g==
-X-Gm-Message-State: AO0yUKV/cGxjuc7W6/SJocKjpMO7vojZWQw4+0tH4CTisbEM2KFBJyVp
- Qm5+rPNYGHGtxAN0ZCPyC/9B9r82uSnkiq2+sbfhqBX5BBlwOxoCmpf0C7mxt+OcAwf6iXzHOP6
- UJfqvSFJBJAavL5SmtqZHoTVqFfLW15gWuvw4bIjYiQ==
-X-Received: by 2002:a5d:6e09:0:b0:2c7:5247:e496 with SMTP id
- h9-20020a5d6e09000000b002c75247e496mr5056891wrz.60.1677681854203; 
- Wed, 01 Mar 2023 06:44:14 -0800 (PST)
-X-Google-Smtp-Source: AK7set8mSY3e1Y8uBNg7J/umChcu632unCjyUQQS2o6WA2kpSEr1P+PNtHKwqRrvNwfJaKiCprzfMA==
-X-Received: by 2002:a5d:6e09:0:b0:2c7:5247:e496 with SMTP id
- h9-20020a5d6e09000000b002c75247e496mr5056875wrz.60.1677681853859; 
- Wed, 01 Mar 2023 06:44:13 -0800 (PST)
-Received: from redhat.com ([2.52.141.194]) by smtp.gmail.com with ESMTPSA id
- t14-20020adfe44e000000b002c5503a8d21sm13145104wrm.70.2023.03.01.06.44.11
+ d=1e100.net; s=20210112; t=1677696877;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=qIhBybknQqSSCYaaXviqV/xcYtdK0wdqPp4paRUIIu0=;
+ b=7b1d8e9hfwMjt1f+Wd7mbu1vtR2r+5Y1uOrGH8NJuF8Ej/tCPdnIFhWzvYcLiSrzYY
+ nRF6tZTFdmdkCW0URUaPrURQJrCPmH+lN367nAhevxmRQdPwgoMsJsBw7xGnA59vavdz
+ hFVq+d50CrNRTXas5uN5AHOmFbdrDyHfZDrBjV9mKDLrd1s8NB2xkI25LiiEi0XjMexC
+ iro3de24QKoLa+blD4Qt6VQ6hWfmH5t6JNt2w+EHj6wvpNb6wlCLK9OXy3/YrL9dRdKc
+ doFRZUYwf3C1UIywQuFA3GToWlLMMI2yOF5CFhDXpxWCld6c4fEVjj3IsS2m6TnxSj87
+ OHLQ==
+X-Gm-Message-State: AO0yUKWOMkIZdQI6zxtWEe4Imf04WAzRRrxylU+CNTJEnOH70EtBToO0
+ oeganKrI9xBQimgkBUns4eI=
+X-Google-Smtp-Source: AK7set+PMn6YNoOuC6/NpsrFMwgq4P7BDo+JBRMQgrh+GPtAgWrragL0O79B+cVbgIzsDzIXyTIlUw==
+X-Received: by 2002:a05:6a20:6922:b0:ce:33ea:a07c with SMTP id
+ q34-20020a056a20692200b000ce33eaa07cmr2376980pzj.30.1677696877104; 
+ Wed, 01 Mar 2023 10:54:37 -0800 (PST)
+Received: from localhost ([2a00:79e1:abd:4a00:61b:48ed:72ab:435b])
+ by smtp.gmail.com with ESMTPSA id
+ i21-20020a633c55000000b005034a46fbf7sm5563111pgn.28.2023.03.01.10.54.36
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 01 Mar 2023 06:44:13 -0800 (PST)
-Date: Wed, 1 Mar 2023 09:44:09 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: rbradford@rivosinc.com
-Subject: Re: [PATCH v3] virtio-net: Fix probe of virtio-net on kvmtool
-Message-ID: <20230301093054-mutt-send-email-mst@kernel.org>
-References: <20230223-virtio-net-kvmtool-v3-1-e038660624de@rivosinc.com>
+ Wed, 01 Mar 2023 10:54:36 -0800 (PST)
+From: Rob Clark <robdclark@gmail.com>
+To: dri-devel@lists.freedesktop.org
+Subject: [PATCH v5] drm/virtio: Add option to disable KMS support
+Date: Wed,  1 Mar 2023 10:54:32 -0800
+Message-Id: <20230301185432.3010939-1-robdclark@gmail.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-In-Reply-To: <20230223-virtio-net-kvmtool-v3-1-e038660624de@rivosinc.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Rob Clark <robdclark@chromium.org>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Ryan Neph <ryanneph@chromium.org>, open list <linux-kernel@vger.kernel.org>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ David Airlie <airlied@redhat.com>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Chia-I Wu <olvaffe@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,131 +114,167 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 01, 2023 at 01:59:52PM +0000, Rob Bradford via B4 Relay wrote:
-> From: Rob Bradford <rbradford@rivosinc.com>
-> 
-> Since the following commit virtio-net on kvmtool has printed a warning
-> during the probe:
-> 
-> commit dbcf24d153884439dad30484a0e3f02350692e4c
-> Author: Jason Wang <jasowang@redhat.com>
-> Date:   Tue Aug 17 16:06:59 2021 +0800
-> 
->     virtio-net: use NETIF_F_GRO_HW instead of NETIF_F_LRO
-> 
-> [    1.865992] net eth0: Fail to set guest offload.
-> [    1.872491] virtio_net virtio2 eth0: set_features() failed (-22); wanted 0x0000000000134829, left 0x0080000000134829
-> 
-> This is because during the probing the underlying netdev device has
-> identified that the netdev features on the device has changed and
-> attempts to update the virtio-net offloads through the virtio-net
-> control queue. kvmtool however does not have a control queue that supports
-> offload changing (VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is not advertised)
-> 
-> The netdev features have changed due to validation checks in
-> netdev_fix_features():
-> 
-> if (!(features & NETIF_F_RXCSUM)) {
-> 	/* NETIF_F_GRO_HW implies doing RXCSUM since every packet
-> 	 * successfully merged by hardware must also have the
-> 	 * checksum verified by hardware.  If the user does not
-> 	 * want to enable RXCSUM, logically, we should disable GRO_HW.
-> 	 */
-> 	if (features & NETIF_F_GRO_HW) {
-> 		netdev_dbg(dev, "Dropping NETIF_F_GRO_HW since no RXCSUM feature.\n");
-> 		features &= ~NETIF_F_GRO_HW;
-> 	}
-> }
-> 
-> Since kvmtool does not advertise the VIRTIO_NET_F_GUEST_CSUM feature the
-> NETIF_F_RXCSUM bit is not present and so the NETIF_F_GRO_HW bit is
-> cleared. This results in the netdev features changing, which triggers
-> the attempt to reprogram the virtio-net offloads which then fails.
-> 
-> This commit prevents that set of netdev features from changing by
-> preemptively applying the same validation and only setting
-> NETIF_F_GRO_HW if NETIF_F_RXCSUM is set because the device supports both
-> VIRTIO_NET_F_GUEST_CSUM and VIRTIO_NET_F_GUEST_TSO{4,6}
-> 
-> Signed-off-by: Rob Bradford <rbradford@rivosinc.com>
-> ---
-> Changes in v3:
-> - Identified root-cause of feature bit changing and updated conditions
->   check
-> - Link to v2: https://lore.kernel.org/r/20230223-virtio-net-kvmtool-v2-1-8ec93511e67f@rivosinc.com
-> 
-> Changes in v2:
-> - Use parentheses to group logical OR of features 
-> - Link to v1:
->   https://lore.kernel.org/r/20230223-virtio-net-kvmtool-v1-1-fc23d29b9d7a@rivosinc.com
-> ---
->  drivers/net/virtio_net.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 61e33e4dd0cd..2e7705142ca5 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3778,11 +3778,13 @@ static int virtnet_probe(struct virtio_device *vdev)
->  			dev->features |= dev->hw_features & NETIF_F_ALL_TSO;
->  		/* (!csum && gso) case will be fixed by register_netdev() */
->  	}
-> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM)) {
->  		dev->features |= NETIF_F_RXCSUM;
-> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> -	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
-> -		dev->features |= NETIF_F_GRO_HW;
-> +		/* This dependency is enforced by netdev_fix_features */
-> +		if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> +		    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
-> +			dev->features |= NETIF_F_GRO_HW;
-> +	}
->  	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
->  		dev->hw_features |= NETIF_F_GRO_HW;
->  
+From: Rob Clark <robdclark@chromium.org>
 
-I see. It is annoying that we are duplicating the logic from
-netdev_fix_features here though :(
-Maybe we should call netdev_update_features, in the callback check
-the flags and decide what to set and what to clear?
-Or export netdev_fix_features to modules?
+Add a build option to disable modesetting support.  This is useful in
+cases where the guest only needs to use the GPU in a headless mode, or
+(such as in the CrOS usage) window surfaces are proxied to a host
+compositor.
 
+As the modesetting ioctls are a big surface area for potential security
+bugs to be found (it's happened in the past, we should assume it will
+again in the future), it makes sense to have a build option to disable
+those ioctls in cases where they serve no legitimate purpose.
 
+v2: Use more if (IS_ENABLED(...))
+v3: Also permit the host to advertise no scanouts
+v4: Spiff out commit msg
+v5: Make num_scanouts==0 and DRM_VIRTIO_GPU_KMS=n behave the same
 
-Also re-reading Documentation/networking/netdev-features.rst - 
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+---
+ drivers/gpu/drm/virtio/Kconfig       | 11 ++++++++++
+ drivers/gpu/drm/virtio/Makefile      |  5 ++++-
+ drivers/gpu/drm/virtio/virtgpu_drv.c |  4 ++++
+ drivers/gpu/drm/virtio/virtgpu_drv.h | 10 +++++++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 33 +++++++++++++++++-----------
+ 5 files changed, 49 insertions(+), 14 deletions(-)
 
- 1. netdev->hw_features set contains features whose state may possibly
-    be changed (enabled or disabled) for a particular device by user's
-    request.  This set should be initialized in ndo_init callback and not
-    changed later.
-
- 2. netdev->features set contains features which are currently enabled
-    for a device.  This should be changed only by network core or in
-    error paths of ndo_set_features callback.
-
-
-is it then wrong that virtio sets NETIF_F_RXCSUM and NETIF_F_GRO_HW in
-dev->features and not in dev->hw_features? We set it there because
-without ctrl guest offload these can not be changed.
-I suspect this is just a minor documentation bug yes? Maybe devices
-where features can't be cleared are uncommon.
-
-Also:
-        if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
-                dev->hw_features |= NETIF_F_GRO_HW;
-
-but should we not set NETIF_F_RXCSUM there too?
-
-
-
-> ---
-> base-commit: c39cea6f38eefe356d64d0bc1e1f2267e282cdd3
-> change-id: 20230223-virtio-net-kvmtool-87f37515be22
-> 
-> Best regards,
-> -- 
-> Rob Bradford <rbradford@rivosinc.com>
+diff --git a/drivers/gpu/drm/virtio/Kconfig b/drivers/gpu/drm/virtio/Kconfig
+index 51ec7c3240c9..ea06ff2aa4b4 100644
+--- a/drivers/gpu/drm/virtio/Kconfig
++++ b/drivers/gpu/drm/virtio/Kconfig
+@@ -11,3 +11,14 @@ config DRM_VIRTIO_GPU
+ 	   QEMU based VMMs (like KVM or Xen).
+ 
+ 	   If unsure say M.
++
++config DRM_VIRTIO_GPU_KMS
++	bool "Virtio GPU driver modesetting support"
++	depends on DRM_VIRTIO_GPU
++	default y
++	help
++	   Enable modesetting support for virtio GPU driver.  This can be
++	   disabled in cases where only "headless" usage of the GPU is
++	   required.
++
++	   If unsure, say Y.
+diff --git a/drivers/gpu/drm/virtio/Makefile b/drivers/gpu/drm/virtio/Makefile
+index b99fa4a73b68..24c7ebe87032 100644
+--- a/drivers/gpu/drm/virtio/Makefile
++++ b/drivers/gpu/drm/virtio/Makefile
+@@ -4,8 +4,11 @@
+ # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
+ 
+ virtio-gpu-y := virtgpu_drv.o virtgpu_kms.o virtgpu_gem.o virtgpu_vram.o \
+-	virtgpu_display.o virtgpu_vq.o \
++	virtgpu_vq.o \
+ 	virtgpu_fence.o virtgpu_object.o virtgpu_debugfs.o virtgpu_plane.o \
+ 	virtgpu_ioctl.o virtgpu_prime.o virtgpu_trace_points.o
+ 
++virtio-gpu-$(CONFIG_DRM_VIRTIO_GPU_KMS) += \
++	virtgpu_display.o
++
+ obj-$(CONFIG_DRM_VIRTIO_GPU) += virtio-gpu.o
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index ae97b98750b6..add075681e18 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -172,6 +172,10 @@ MODULE_AUTHOR("Alon Levy");
+ DEFINE_DRM_GEM_FOPS(virtio_gpu_driver_fops);
+ 
+ static const struct drm_driver driver = {
++	/*
++	 * If KMS is disabled DRIVER_MODESET and DRIVER_ATOMIC are masked
++	 * out via drm_device::driver_features:
++	 */
+ 	.driver_features = DRIVER_MODESET | DRIVER_GEM | DRIVER_RENDER | DRIVER_ATOMIC,
+ 	.open = virtio_gpu_driver_open,
+ 	.postclose = virtio_gpu_driver_postclose,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index af6ffb696086..ffe8faf67247 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -426,8 +426,18 @@ virtio_gpu_cmd_set_scanout_blob(struct virtio_gpu_device *vgdev,
+ 				uint32_t x, uint32_t y);
+ 
+ /* virtgpu_display.c */
++#if defined(CONFIG_DRM_VIRTIO_GPU_KMS)
+ int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
+ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
++#else
++static inline int virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
++{
++	return 0;
++}
++static inline void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
++{
++}
++#endif
+ 
+ /* virtgpu_plane.c */
+ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 27b7f14dae89..61a1afe2c8c8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -223,21 +223,26 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 			num_scanouts, &num_scanouts);
+ 	vgdev->num_scanouts = min_t(uint32_t, num_scanouts,
+ 				    VIRTIO_GPU_MAX_SCANOUTS);
+-	if (!vgdev->num_scanouts) {
+-		DRM_ERROR("num_scanouts is zero\n");
+-		ret = -EINVAL;
+-		goto err_scanouts;
++
++	if (IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) || !vgdev->num_scanouts) {
++		DRM_INFO("KMS disabled\n");
++		vgdev->num_scanouts = 0;
++		vgdev->has_edid = false;
++		dev->driver_features &= ~(DRIVER_MODESET | DRIVER_ATOMIC);
++	} else {
++		DRM_INFO("number of scanouts: %d\n", num_scanouts);
+ 	}
+-	DRM_INFO("number of scanouts: %d\n", num_scanouts);
+ 
+ 	virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
+ 			num_capsets, &num_capsets);
+ 	DRM_INFO("number of cap sets: %d\n", num_capsets);
+ 
+-	ret = virtio_gpu_modeset_init(vgdev);
+-	if (ret) {
+-		DRM_ERROR("modeset init failed\n");
+-		goto err_scanouts;
++	if (vgdev->num_scanouts) {
++		ret = virtio_gpu_modeset_init(vgdev);
++		if (ret) {
++			DRM_ERROR("modeset init failed\n");
++			goto err_scanouts;
++		}
+ 	}
+ 
+ 	virtio_device_ready(vgdev->vdev);
+@@ -246,10 +251,12 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 		virtio_gpu_get_capsets(vgdev, num_capsets);
+ 	if (vgdev->has_edid)
+ 		virtio_gpu_cmd_get_edids(vgdev);
+-	virtio_gpu_cmd_get_display_info(vgdev);
+-	virtio_gpu_notify(vgdev);
+-	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
+-			   5 * HZ);
++	if (vgdev->num_scanouts) {
++		virtio_gpu_cmd_get_display_info(vgdev);
++		virtio_gpu_notify(vgdev);
++		wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
++				   5 * HZ);
++	}
+ 	return 0;
+ 
+ err_scanouts:
+-- 
+2.39.1
 
 _______________________________________________
 Virtualization mailing list
