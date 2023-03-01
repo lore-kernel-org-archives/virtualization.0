@@ -1,92 +1,69 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 138E1C64EC7
-	for <virtualization@archiver.kernel.org>; Wed,  1 Mar 2023 05:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5CBA4C7EE31
+	for <virtualization@archiver.kernel.org>; Wed,  1 Mar 2023 11:55:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 978C941608;
-	Wed,  1 Mar 2023 05:50:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 978C941608
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HbzrjoxD
+	by smtp3.osuosl.org (Postfix) with ESMTP id C271160E48;
+	Wed,  1 Mar 2023 11:55:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C271160E48
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4k_upEjIpfR7; Wed,  1 Mar 2023 05:50:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2BE1D4160A;
-	Wed,  1 Mar 2023 05:50:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BE1D4160A
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8kyGLD3grLNs; Wed,  1 Mar 2023 11:55:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0C84460D94;
+	Wed,  1 Mar 2023 11:55:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0C84460D94
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 092B4C0077;
-	Wed,  1 Mar 2023 05:50:20 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BB2ABC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C7AF4C0035;
+	Wed,  1 Mar 2023 11:55:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55B2EC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 05:50:18 +0000 (UTC)
+ Wed,  1 Mar 2023 11:55:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 920844160A
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2B31D4048B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 05:50:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 920844160A
+ Wed,  1 Mar 2023 11:55:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2B31D4048B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J4V71ANYig9x
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ma3rL0D_KtP0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 05:50:13 +0000 (UTC)
+ Wed,  1 Mar 2023 11:55:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2340D41675
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2340D41675
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2BE6B4046D
+Received: from out30-112.freemail.mail.aliyun.com
+ (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2BE6B4046D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Mar 2023 05:50:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1677649811;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ckGumOJdLFih87T5un7JUmXQL9qObNSTxVhiK7Kwu5M=;
- b=HbzrjoxDIJLiVGrOIEejdFwF2gD10ZA3Quu30Uo4IJhfCDOofj485KOPjXesCqx9Rri2nD
- ZtTFXhdzOs7+yMDUQ03l2kBncXmwGdCEtrWCguZIfFW14ZpWFSSew4qAzws+Rkl822xUpu
- I/Ae3fcGmQ+qt4tY9hpP6s5h4s2NHk4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-340-qUFLjPVjMimadptElzBKVw-1; Wed, 01 Mar 2023 00:50:07 -0500
-X-MC-Unique: qUFLjPVjMimadptElzBKVw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 94DC180D104;
- Wed,  1 Mar 2023 05:50:06 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.49])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 2B6C62166B26;
- Wed,  1 Mar 2023 05:50:06 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 50B7C180309B; Wed,  1 Mar 2023 06:50:03 +0100 (CET)
-Date: Wed, 1 Mar 2023 06:50:03 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Subject: Re: [PATCH v4] drm/virtio: Add option to disable KMS support
-Message-ID: <20230301055003.ondht4o2ojajxt74@sirius.home.kraxel.org>
-References: <20230228155406.2881252-1-robdclark@gmail.com>
- <583bf774-5594-5553-f5e2-45ccf7babff7@collabora.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <583bf774-5594-5553-f5e2-45ccf7babff7@collabora.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-Cc: Rob Clark <robdclark@chromium.org>, Ryan Neph <ryanneph@chromium.org>,
- open list <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>, Rob Clark <robdclark@gmail.com>,
- Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@redhat.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Chia-I Wu <olvaffe@gmail.com>
+ Wed,  1 Mar 2023 11:55:14 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R951e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045170;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
+ TI=SMTPD_---0VctF2EJ_1677671708; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VctF2EJ_1677671708) by smtp.aliyun-inc.com;
+ Wed, 01 Mar 2023 19:55:08 +0800
+Message-ID: <1677671253.5474837-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 07/10] virtio_ring: add api virtio_dma_map() for
+ advance dma
+Date: Wed, 1 Mar 2023 19:47:33 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+References: <20230214072704.126660-1-xuanzhuo@linux.alibaba.com>
+ <20230214072704.126660-8-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs_jQd84LSC5F_at0+G_D=JnBWOJH71B5=RQFPYQKwtBg@mail.gmail.com>
+ <1676876377.4263525-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvxyV9fAyN1L_vqRvQGzA5XnmhviVFKZdNJS6oKqGLpBA@mail.gmail.com>
+In-Reply-To: <CACGkMEvxyV9fAyN1L_vqRvQGzA5XnmhviVFKZdNJS6oKqGLpBA@mail.gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,57 +75,218 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 01, 2023 at 03:37:24AM +0300, Dmitry Osipenko wrote:
-> On 2/28/23 18:54, Rob Clark wrote:
-> > From: Rob Clark <robdclark@chromium.org>
-> > 
-> > Add a build option to disable modesetting support.  This is useful in
-> > cases where the guest only needs to use the GPU in a headless mode, or
-> > (such as in the CrOS usage) window surfaces are proxied to a host
-> > compositor.
-> > 
-> > As the modesetting ioctls are a big surface area for potential security
-> > bugs to be found (it's happened in the past, we should assume it will
-> > again in the future), it makes sense to have a build option to disable
-> > those ioctls in cases where they serve no legitimate purpose.
-> > 
-> > v2: Use more if (IS_ENABLED(...))
-> > v3: Also permit the host to advertise no scanouts
-> > v4: Spiff out commit msg
-> > 
-> > Signed-off-by: Rob Clark <robdclark@chromium.org>
-> > Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> > ---
-> 
-> Gerd, to give you some context on the v4.. we've chatted a bit more on
-> the #dri-devel and concluded that config option is the most robust way
-> of having KMS disabled from a security stand point. We would also want
-> to have a per-driver option (and not global) because there are scenarios
-> of using passthrough GPU + virtio-gpu in a guest, hence we would only
-> want to toggle KMS for a particular driver.
+On Tue, 21 Feb 2023 09:51:07 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Mon, Feb 20, 2023 at 3:02 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> >
+> > On Mon, 20 Feb 2023 13:38:24 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> > > On Tue, Feb 14, 2023 at 3:27 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > >
+> > > > Added virtio_dma_map() to map DMA addresses for virtual memory in
+> > > > advance. The purpose is to keep memory mapped across multiple add/get
+> > > > buf operations.
+> > >
+> > > I wonder if instead of exporting helpers like this, it might be simple
+> > > to just export dma_dev then the upper layer can use DMA API at will?
+> >
+> >
+> > The reason for not doing this, Virtio is not just using DMA_DEV to mapp, but
+> > also check whether DMA is used.
+>
+> We should let the DMA API decide by exporting a correct dma_dev. E.g
+> when ACCESS_PLATFORM is not negotiated, advertising a DMA dev without
+> dma_ops.
 
-IMHO both ways options to disable the KMS bits should work the same way.
-With the current patch modeset_init() runs with num_scanouts == 0 but
-doesn't with CONFIG_KMS=n.  There are also two different ways to tweak
-driver_features.  Can we get rid of that please, for robustness reasons?
 
-I'd suggest to have a is_kms_enabled() helper function (probably best as
-inline so gcc can figure it is constant false for CONFIG_KMS=n and throw
-away unreachable code).  Add "if (!is_kms_enabled()) return;" to
-modeset_init() and modeset_fini() instead of stubbing them out.  Use the
-drm_device->driver_features override in both cases.
+In XSK, we need to pass a device to XSK.
 
-Also the edid check can go away.  As already mentioned this is about a
-device feature not a edid being present.
+If vdev->dev is passed, we can't get dma_dev in XSK. Because each VQ has a
+dma_dev. So we should pass dma_dev to XSK. But how do we determine whether to
+use DMA_OPS based on dma_dev?
 
-take care,
-  Gerd
+At present, my API design, the caller should determine whether it is a Virtio
+device. If we also need the caller to determine whether to use DMA_OPS, this is
+too unfriendly for the caller.
 
+Thanks.
+
+
+>
+> Thanks
+>
+> >
+> >
+> > >
+> > > (Otherwise the DMA helpers need to grow/shrink as the DMA API evolves?)
+> > >
+> > > >
+> > > > Added virtio_dma_unmap() for unmap DMA address.
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_ring.c | 92 ++++++++++++++++++++++++++++++++++++
+> > > >  include/linux/virtio.h       |  9 ++++
+> > > >  2 files changed, 101 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > > index cd9364eb2345..855338609c7f 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -3172,4 +3172,96 @@ const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+> > > >  }
+> > > >  EXPORT_SYMBOL_GPL(virtqueue_get_vring);
+> > > >
+> > > > +/**
+> > > > + * virtio_dma_map_page - get the DMA addr of the memory for virtio device
+> > > > + * @dev: virtio device
+> > > > + * @page: the page of the memory to DMA
+> > > > + * @offset: the offset of the memory inside page
+> > > > + * @length: memory length
+> > > > + * @dir: DMA direction
+> > > > + *
+> > > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > > + * core handles DMA API internally.
+> > > > + *
+> > > > + * Returns the DMA addr. DMA_MAPPING_ERROR means error.
+> > > > + */
+> > > > +dma_addr_t virtio_dma_map_page(struct device *dev, struct page *page, size_t offset,
+> > > > +                              unsigned int length, enum dma_data_direction dir)
+> > > > +{
+> > >
+> > > This (and the reset) needs to be done per virtqueue instead per device
+> > > after b0e504e5505d184b0be248b7dcdbe50b79f03758 ("virtio_ring: per
+> > > virtqueue dma device").
+> >
+> >
+> > YES.
+> >
+> >
+> > >
+> > > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > > +
+> > > > +       if (!vring_use_dma_api(vdev))
+> > > > +               return page_to_phys(page) + offset;
+> > > > +
+> > > > +       return dma_map_page(vdev->dev.parent, page, offset, length, dir);
+> > > > +}
+> > >
+> > > Need either inline or EXPORT_SYMBOL_GPL() here.
+> >
+> > Because I did not use this interface, I did not  export it.
+> >
+> > Thanks.
+> >
+> >
+> > >
+> > > Thanks
+> > >
+> > >
+> > > > +
+> > > > +/**
+> > > > + * virtio_dma_map - get the DMA addr of the memory for virtio device
+> > > > + * @dev: virtio device
+> > > > + * @addr: the addr to DMA
+> > > > + * @length: memory length
+> > > > + * @dir: DMA direction
+> > > > + *
+> > > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > > + * core handles DMA API internally.
+> > > > + *
+> > > > + * Returns the DMA addr.
+> > > > + */
+> > > > +dma_addr_t virtio_dma_map(struct device *dev, void *addr, unsigned int length,
+> > > > +                         enum dma_data_direction dir)
+> > > > +{
+> > > > +       struct page *page;
+> > > > +       size_t offset;
+> > > > +
+> > > > +       page = virt_to_page(addr);
+> > > > +       offset = offset_in_page(addr);
+> > > > +
+> > > > +       return virtio_dma_map_page(dev, page, offset, length, dir);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(virtio_dma_map);
+> > > > +
+> > > > +/**
+> > > > + * virtio_dma_mapping_error - check dma address
+> > > > + * @dev: virtio device
+> > > > + * @addr: DMA address
+> > > > + *
+> > > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > > + * core handles DMA API internally.
+> > > > + *
+> > > > + * Returns 0 means dma valid. Other means invalid dma address.
+> > > > + */
+> > > > +int virtio_dma_mapping_error(struct device *dev, dma_addr_t addr)
+> > > > +{
+> > > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > > +
+> > > > +       if (!vring_use_dma_api(vdev))
+> > > > +               return 0;
+> > > > +
+> > > > +       return dma_mapping_error(vdev->dev.parent, addr);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(virtio_dma_mapping_error);
+> > > > +
+> > > > +/**
+> > > > + * virtio_dma_unmap - unmap DMA addr
+> > > > + * @dev: virtio device
+> > > > + * @dma: DMA address
+> > > > + * @length: memory length
+> > > > + * @dir: DMA direction
+> > > > + *
+> > > > + * This API is only for pre-mapped buffers, for non premapped buffers virtio
+> > > > + * core handles DMA API internally.
+> > > > + */
+> > > > +void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+> > > > +                     enum dma_data_direction dir)
+> > > > +{
+> > > > +       struct virtio_device *vdev = dev_to_virtio(dev);
+> > > > +
+> > > > +       if (!vring_use_dma_api(vdev))
+> > > > +               return;
+> > > > +
+> > > > +       dma_unmap_page(vdev->dev.parent, dma, length, dir);
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(virtio_dma_unmap);
+> > > > +
+> > > >  MODULE_LICENSE("GPL");
+> > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > > index 3ebb346ebb7c..b5fa71476737 100644
+> > > > --- a/include/linux/virtio.h
+> > > > +++ b/include/linux/virtio.h
+> > > > @@ -9,6 +9,7 @@
+> > > >  #include <linux/device.h>
+> > > >  #include <linux/mod_devicetable.h>
+> > > >  #include <linux/gfp.h>
+> > > > +#include <linux/dma-mapping.h>
+> > > >
+> > > >  /**
+> > > >   * struct virtqueue - a queue to register buffers for sending or receiving.
+> > > > @@ -216,4 +217,12 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+> > > >  #define module_virtio_driver(__virtio_driver) \
+> > > >         module_driver(__virtio_driver, register_virtio_driver, \
+> > > >                         unregister_virtio_driver)
+> > > > +
+> > > > +dma_addr_t virtio_dma_map_page(struct device *dev, struct page *page, size_t offset,
+> > > > +                              unsigned int length, enum dma_data_direction dir);
+> > > > +dma_addr_t virtio_dma_map(struct device *dev, void *addr, unsigned int length,
+> > > > +                         enum dma_data_direction dir);
+> > > > +int virtio_dma_mapping_error(struct device *dev, dma_addr_t addr);
+> > > > +void virtio_dma_unmap(struct device *dev, dma_addr_t dma, unsigned int length,
+> > > > +                     enum dma_data_direction dir);
+> > > >  #endif /* _LINUX_VIRTIO_H */
+> > > > --
+> > > > 2.32.0.3.g01195cf9f
+> > > >
+> > >
+> >
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
