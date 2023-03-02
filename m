@@ -1,117 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91CF6C6FA8E
-	for <virtualization@archiver.kernel.org>; Thu,  2 Mar 2023 13:39:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C11A0C678D4
+	for <virtualization@archiver.kernel.org>; Thu,  2 Mar 2023 15:48:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0DD6682043;
-	Thu,  2 Mar 2023 13:39:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0DD6682043
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zei47VLs
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5431260C12;
+	Thu,  2 Mar 2023 15:48:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5431260C12
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DGZmsXDF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tO_F4isNL9bD; Thu,  2 Mar 2023 13:39:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 630AC8203C;
-	Thu,  2 Mar 2023 13:38:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 630AC8203C
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Fk-RuSnihlnI; Thu,  2 Mar 2023 15:48:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A98A460BAC;
+	Thu,  2 Mar 2023 15:48:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A98A460BAC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 43E2FC0035;
-	Thu,  2 Mar 2023 13:38:59 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8CCE4C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7DC4FC0035;
+	Thu,  2 Mar 2023 15:48:22 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2AA5AC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Mar 2023 13:38:57 +0000 (UTC)
+ Thu,  2 Mar 2023 15:48:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 59CA841832
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1304541045
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Mar 2023 13:38:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 59CA841832
-Authentication-Results: smtp4.osuosl.org;
+ Thu,  2 Mar 2023 15:48:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1304541045
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Zei47VLs
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DGZmsXDF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BahEivcpI8bF
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1Dj2-Z1-6QhL
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Mar 2023 13:38:56 +0000 (UTC)
+ Thu,  2 Mar 2023 15:48:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37DF041751
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 20EF440352
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 37DF041751
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 20EF440352
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Mar 2023 13:38:55 +0000 (UTC)
+ Thu,  2 Mar 2023 15:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1677764334;
+ s=mimecast20190719; t=1677772099;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=4ZdM39Rwm+APVNSKOoKjEHl8iHMadAxZ6z3x8N7ucVs=;
- b=Zei47VLsm/aZ1PCSOugc/UFqQ6gQTVHaMdniqqbszL7D6MrI9GQoq0ExXOsYgQUQN52a+F
- t4u67ett89Y6Ta96gRc6BWyzavZb+2WA58i9NgqF2YWsDikdj3nKLI7HSH7MulwTpwaZ0u
- puVhKb2Y1zBsNcSj5F53qVI4wkeMI0E=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-141-8-X00b1HMIylliKexu473Q-1; Thu, 02 Mar 2023 08:38:51 -0500
-X-MC-Unique: 8-X00b1HMIylliKexu473Q-1
-Received: by mail-wm1-f69.google.com with SMTP id
- l23-20020a7bc457000000b003e206cbce8dso5758231wmi.7
+ bh=07sLndxtEbNcERZvee6i0lRr3/Y/p7RWfWIjrJTakUw=;
+ b=DGZmsXDFAlzQVeozyjSTr27NJVcys46eUQg3WM+r2gMQCC8DyQqG46pjIzFL8FnVxkT97f
+ 87yMZ7q1TuLZuH1vw/sreJUyDlV2laE9QWlbnnkOv7yHo4qpV4+8Ej/gWHz91G933Bsdvm
+ XWScgiVB3+BsfyeKbOT6aBpTjwr0sk0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-256-GDjEi8WdOXyC0FqBnGLfuQ-1; Thu, 02 Mar 2023 10:48:13 -0500
+X-MC-Unique: GDjEi8WdOXyC0FqBnGLfuQ-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ m15-20020adfa3cf000000b002be0eb97f4fso3284236wrb.8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Mar 2023 05:38:50 -0800 (PST)
+ Thu, 02 Mar 2023 07:48:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1677764330;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=4ZdM39Rwm+APVNSKOoKjEHl8iHMadAxZ6z3x8N7ucVs=;
- b=bvfhPKNQe6fRv3X+BVdpbUMcGujkQg5GO5Ue6zBCLe+B6orRlptqi936K6Y5hOfOue
- /B7mD7lIdgSe+/vDQvN7Lfr15orlhPTsse8VAeSitUVURHpMwtLaWUrEFZ8wVfayHAUc
- cbzwUoQbgiMcSm7m4mzhEnMmR+3yoaLFg3u55HjRlBZVCHMD/WxE6eWtBru99NKdGWJs
- 6YDQUqrEXTaG9LS87cV1irEoBFvQA7rRhoTukjjQBb8Bbe2veB6IKxMisi3HOzFpOjiE
- JlqEBi4Vwd/ZRrgV9qkwNg1ezLj0A/NxItjqTuMTxqmrQkJDAr25mzHoOdGWikdyYlvq
- o8HA==
-X-Gm-Message-State: AO0yUKVncYvK05AzK6/eFv6j1BuZ9wQBRmy6S6t73hWPSsOo+TPMN5vQ
- Wu/+Rx2Ys4xEl2K+ig7ygkONm5gkqouTVhZch+1imL95zIOlcpMTA778raQx4mmJgG6O5i6i2mH
- Eg/Ll7moAh4zz6rUGJDVXUJz9nI34bF+GdN55uvyniw==
-X-Received: by 2002:a5d:56cb:0:b0:2c7:1b3d:1fb9 with SMTP id
- m11-20020a5d56cb000000b002c71b3d1fb9mr7355479wrw.50.1677764329883; 
- Thu, 02 Mar 2023 05:38:49 -0800 (PST)
-X-Google-Smtp-Source: AK7set86niPGr89uB0anqISxCl4PutLnmZ7/ReX6UXFcr5ISdGk14j6U7XkC6IbLZNuiZojlUcc9Bw==
-X-Received: by 2002:a5d:56cb:0:b0:2c7:1b3d:1fb9 with SMTP id
- m11-20020a5d56cb000000b002c71b3d1fb9mr7355466wrw.50.1677764329563; 
- Thu, 02 Mar 2023 05:38:49 -0800 (PST)
+ d=1e100.net; s=20210112; t=1677772084;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=07sLndxtEbNcERZvee6i0lRr3/Y/p7RWfWIjrJTakUw=;
+ b=VgP5G4mCxWRxBmePRH+N2GhtAxOGkOCKkaNw/U0XJ7tKb75tPyxODXkdLfSmrToLNt
+ pV8HDPSgSiAo4ULU2HG8hAocsqjL6Lbmatd8NkeuUaniyEGSj9ON/ViZiMwkjMWtEVMq
+ CqY6sU4pQW9V8+GN6l29BNhkDVuMLxWhdfZtpXFSC4GeHoDRXI9cd1tiVpAawvHOgCfs
+ +qfJrJAaIHyRG2XJCpz72JVJqKnNw/7TQPCCe9+zkvyFrkilQNUHd9Z7TLTnWM6hOomi
+ 0Rbz8OLzONLZ+sPJpH3B/k209so1f+6qpLLCJbgLpX0ZMAyWdksokE7qWOfIQWv5AIz7
+ JQDw==
+X-Gm-Message-State: AO0yUKVkiARHlg8xWXadKWHwKgZ2p7OkVBPMTSPXVHiXID976UfcVfFa
+ uLdfvNv0xut/XiH7XcK/owvrIXrDU6lnrCFIJ6mep1U3TtIgWEH+rTwQG17x1Byj5PLXOQZJV/E
+ +SNgqSRyB97mC0Pr+/jhWza2sMeu+G0LxwgHzsMYAyw==
+X-Received: by 2002:a05:6000:1a42:b0:2c3:be89:7c2a with SMTP id
+ t2-20020a0560001a4200b002c3be897c2amr1809000wry.13.1677772084120; 
+ Thu, 02 Mar 2023 07:48:04 -0800 (PST)
+X-Google-Smtp-Source: AK7set/EzktI0OlHucSuQTWKTKC3fqx8GzoJhXbuJEu5Rqstra/4hZCkq7D6l1IWXwedBvmq/luXbw==
+X-Received: by 2002:a05:6000:1a42:b0:2c3:be89:7c2a with SMTP id
+ t2-20020a0560001a4200b002c3be897c2amr1808989wry.13.1677772083843; 
+ Thu, 02 Mar 2023 07:48:03 -0800 (PST)
 Received: from sgarzare-redhat (c-115-213.cust-q.wadsl.it. [212.43.115.213])
  by smtp.gmail.com with ESMTPSA id
- hg13-20020a05600c538d00b003d9aa76dc6asm3022317wmb.0.2023.03.02.05.38.47
+ s18-20020a7bc392000000b003eb20d4d4a8sm3202128wmj.44.2023.03.02.07.48.02
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Mar 2023 05:38:49 -0800 (PST)
-Date: Thu, 2 Mar 2023 14:38:45 +0100
+ Thu, 02 Mar 2023 07:48:03 -0800 (PST)
+Date: Thu, 2 Mar 2023 16:48:00 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1] vsock: check error queue to set EPOLLERR
-Message-ID: <20230302133845.hglm4uregjsvrcrc@sgarzare-redhat>
-References: <76e7698d-890b-d14d-fa34-da5dd7dd13d8@sberdevices.ru>
- <20230302100621.gk45unegjbqjgpxh@sgarzare-redhat>
- <3b38870c-7606-bf2e-8b17-21a75a1ed751@sberdevices.ru>
+To: Simon Horman <simon.horman@corigine.com>
+Subject: Re: [PATCH v2 6/8] vdpa_sim: use kthread worker
+Message-ID: <20230302154800.z3i4fpjlvtb74efu@sgarzare-redhat>
+References: <20230302113421.174582-1-sgarzare@redhat.com>
+ <20230302113421.174582-7-sgarzare@redhat.com>
+ <ZADA/GgpbDoi+SzU@corigine.com>
 MIME-Version: 1.0
-In-Reply-To: <3b38870c-7606-bf2e-8b17-21a75a1ed751@sberdevices.ru>
+In-Reply-To: <ZADA/GgpbDoi+SzU@corigine.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, netdev@vger.kernel.org,
+Cc: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, oxffffaa@gmail.com, kernel@sberdevices.ru,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+ eperezma@redhat.com, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,119 +121,121 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 02, 2023 at 02:41:29PM +0300, Arseniy Krasnov wrote:
->Hello!
+On Thu, Mar 02, 2023 at 04:30:04PM +0100, Simon Horman wrote:
+>On Thu, Mar 02, 2023 at 12:34:19PM +0100, Stefano Garzarella wrote:
+>> Let's use our own kthread to run device jobs.
+>> This allows us more flexibility, especially we can attach the kthread
+>> to the user address space when vDPA uses user's VA.
+>>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>>  drivers/vdpa/vdpa_sim/vdpa_sim.h |  3 ++-
+>>  drivers/vdpa/vdpa_sim/vdpa_sim.c | 17 ++++++++++++-----
+>>  2 files changed, 14 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+>> index acee20faaf6a..ce83f9130a5d 100644
+>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
+>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+>> @@ -57,7 +57,8 @@ struct vdpasim_dev_attr {
+>>  struct vdpasim {
+>>  	struct vdpa_device vdpa;
+>>  	struct vdpasim_virtqueue *vqs;
+>> -	struct work_struct work;
+>> +	struct kthread_worker *worker;
+>> +	struct kthread_work work;
+>>  	struct vdpasim_dev_attr dev_attr;
+>>  	/* spinlock to synchronize virtqueue state */
+>>  	spinlock_t lock;
+>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> index a6ee830efc38..6feb29726c2a 100644
+>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> @@ -11,8 +11,8 @@
+>>  #include <linux/module.h>
+>>  #include <linux/device.h>
+>>  #include <linux/kernel.h>
+>> +#include <linux/kthread.h>
+>>  #include <linux/slab.h>
+>> -#include <linux/sched.h>
+>>  #include <linux/dma-map-ops.h>
+>>  #include <linux/vringh.h>
+>>  #include <linux/vdpa.h>
+>> @@ -116,7 +116,7 @@ static void vdpasim_do_reset(struct vdpasim *vdpasim)
+>>  static const struct vdpa_config_ops vdpasim_config_ops;
+>>  static const struct vdpa_config_ops vdpasim_batch_config_ops;
+>>
+>> -static void vdpasim_work_fn(struct work_struct *work)
+>> +static void vdpasim_work_fn(struct kthread_work *work)
+>>  {
+>>  	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
+>>
+>> @@ -159,7 +159,13 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
+>>
+>>  	vdpasim = vdpa_to_sim(vdpa);
+>>  	vdpasim->dev_attr = *dev_attr;
+>> -	INIT_WORK(&vdpasim->work, vdpasim_work_fn);
+>> +
+>> +	kthread_init_work(&vdpasim->work, vdpasim_work_fn);
+>> +	vdpasim->worker = kthread_create_worker(0, "vDPA sim worker: %s",
+>> +						dev_attr->name);
+>> +	if (IS_ERR(vdpasim->worker))
+>> +		goto err_iommu;
 >
->On 02.03.2023 13:06, Stefano Garzarella wrote:
->> On Wed, Mar 01, 2023 at 08:19:45AM +0300, Arseniy Krasnov wrote:
->>> EPOLLERR must be set not only when there is error on the socket, but al=
-so
->>> when error queue of it is not empty (may be it contains some control
->>> messages). Without this patch 'poll()' won't detect data in error queue.
->>
->> Do you have a reproducer?
->>
->Dedicated reproducer - no:)
->To reproduce this issue, i used last MSG_ZEROCOPY patches. Completion was =
-inserted to
->error queue, and 'poll()' didn't report about it. That was the reason, why=
- this patch
->was included to MSG_ZEROCOPY patchset. But also i think it is better to re=
-duce number
->of patches in it(i'm working on v2), so it is good to handle this patch se=
-parately.
+>Branching to err_iommu will result in a call to put_device(dev)...
 
-Yep, absolutely!
-
->May be one way to reproduce it is use SO_TIMESTAMP(time info about skbuff =
-will be queued
->to the error queue). IIUC this feature is implemented at socket layer and =
-may work in
->vsock (but i'm not sure). Ok, i'll check it and try to implement reproduce=
-r.
->
->IIUC, for future, policy for fixes is "for each fix implement reproducer i=
-n vsock_test"?
-
-Nope, but for each fix we should have a Fixes tag.
-
-Usually we use vsock_test to check regressions on features and also the
-behaviour of different transports.
-My question was more about whether this problem was there before
-supporting sk_buff or not, to figure out which Fixes tag to use.
+Good catch!
 
 >
->>> This patch is based on 'tcp_poll()'.
->>
->> LGTM but we should add a Fixes tag.
->> It's not clear to me whether the problem depends on when we switched to =
-using sk_buff or was pre-existing.
->>
->> Do you have any idea when we introduced this issue?
->git blame shows, that this code exists since first commit to vsock:
+>> +
+>>  	spin_lock_init(&vdpasim->lock);
+>>  	spin_lock_init(&vdpasim->iommu_lock);
+>
+>... but dev is not initialised until the line following this hunk,
+>which is:
+>
+>	dev = &vdpasim->vdpa.dev;
+>
+>In order to avoid leaking dev I _think_ the correct approach
+>is to move the initialisation of dev above the branch to
+>err_iommu, perhaps above the call to kthread_init_work()
+>is a good place.
 
-Okay, but did we use sk_error_queue before supporting sk_buff?
-
-Anyway, if we are not sure I think we can use the following Fixes tag,
-I don't see any issue if we backport this patch also before supporting
-sk_buff.
+Yep, I agree. I'll fix in v3.
 
 Thanks,
 Stefano
 
 >
->commit d021c344051af91f42c5ba9fdedc176740cbd238
->Author: Andy King <acking@vmware.com>
->Date:   Wed Feb 6 14:23:56 2013 +0000
+>This does move the assignment outside the locks above.
+>But I _think_ that is ok.
 >
->    VSOCK: Introduce VM Sockets
->
->For TCP same logic was added by:
->
->commit 4ed2d765dfaccff5ebdac68e2064b59125033a3b
->Author: Willem de Bruijn <willemb@google.com>
->Date:   Mon Aug 4 22:11:49 2014 -0400
->
->    net-timestamp: TCP timestamping
->
->
+>> @@ -212,7 +218,7 @@ EXPORT_SYMBOL_GPL(vdpasim_create);
 >>
->> Thanks,
->> Stefano
+>>  void vdpasim_schedule_work(struct vdpasim *vdpasim)
+>>  {
+>> -	schedule_work(&vdpasim->work);
+>> +	kthread_queue_work(vdpasim->worker, &vdpasim->work);
+>>  }
+>>  EXPORT_SYMBOL_GPL(vdpasim_schedule_work);
 >>
->
->Thanks Arseniy
->
->>>
->>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->>> ---
->>> net/vmw_vsock/af_vsock.c | 2 +-
->>> 1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->>> index 19aea7cba26e..b5e51ef4a74c 100644
->>> --- a/net/vmw_vsock/af_vsock.c
->>> +++ b/net/vmw_vsock/af_vsock.c
->>> @@ -1026,7 +1026,7 @@ static __poll_t vsock_poll(struct file *file, str=
-uct socket *sock,
->>> =A0=A0=A0=A0poll_wait(file, sk_sleep(sk), wait);
->>> =A0=A0=A0=A0mask =3D 0;
->>>
->>> -=A0=A0=A0 if (sk->sk_err)
->>> +=A0=A0=A0 if (sk->sk_err || !skb_queue_empty_lockless(&sk->sk_error_qu=
-eue))
->>> =A0=A0=A0=A0=A0=A0=A0 /* Signify that there has been an error on this s=
-ocket. */
->>> =A0=A0=A0=A0=A0=A0=A0 mask |=3D EPOLLERR;
->>>
->>> --=A0
->>> 2.25.1
->>>
+>> @@ -612,7 +618,8 @@ static void vdpasim_free(struct vdpa_device *vdpa)
+>>  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+>>  	int i;
+>>
+>> -	cancel_work_sync(&vdpasim->work);
+>> +	kthread_cancel_work_sync(&vdpasim->work);
+>> +	kthread_destroy_worker(vdpasim->worker);
+>>
+>>  	for (i = 0; i < vdpasim->dev_attr.nvqs; i++) {
+>>  		vringh_kiov_cleanup(&vdpasim->vqs[i].out_iov);
+>> --
+>> 2.39.2
 >>
 >
 
