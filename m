@@ -1,93 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9B65C7EE2F
-	for <virtualization@archiver.kernel.org>; Fri,  3 Mar 2023 07:27:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD83EC6FA9E
+	for <virtualization@archiver.kernel.org>; Sun,  5 Mar 2023 09:54:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3651141A3D;
-	Fri,  3 Mar 2023 07:27:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3651141A3D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z/t58rc5
+	by smtp1.osuosl.org (Postfix) with ESMTP id 49FF581494;
+	Sun,  5 Mar 2023 09:54:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 49FF581494
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=frZEOw7t
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id D99TqQetfWXr; Fri,  3 Mar 2023 07:27:17 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TPTjvQVpEBVW; Sun,  5 Mar 2023 09:54:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 576FF4194A;
-	Fri,  3 Mar 2023 07:27:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 576FF4194A
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DCACE814B8;
+	Sun,  5 Mar 2023 09:54:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DCACE814B8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3817DC0071;
-	Fri,  3 Mar 2023 07:27:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A8D8AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B622CC0071;
+	Sun,  5 Mar 2023 09:54:09 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 305AAC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Mar 2023 07:27:14 +0000 (UTC)
+ Sun,  5 Mar 2023 09:54:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6D5E64195B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 17AB260BDD
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Mar 2023 07:27:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6D5E64195B
+ Sun,  5 Mar 2023 09:54:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17AB260BDD
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=frZEOw7t
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vvpVkqTbwfvx
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dfqhwKWhvC7w
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Mar 2023 07:27:13 +0000 (UTC)
+ Sun,  5 Mar 2023 09:54:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 51F1C4194A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E15E60BB0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 51F1C4194A
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0E15E60BB0
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Mar 2023 07:27:13 +0000 (UTC)
+ Sun,  5 Mar 2023 09:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1677828432;
+ s=mimecast20190719; t=1678010045;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Au2NkNrNK1UjGjHlvSvRzl5tANm09oMF2vYOqqREeHg=;
- b=Z/t58rc5eB+DPfyHdeZrEwVVHQqt/8Z9Xc3t4RO9OXmS1PHmXmTP2pIXhXX2jd7jVOn5vT
- XRJrj8KJXTglV77LamRDIk+mVJNXngKO26T3YquzoY9R7IzeJ39kquCO/pLgqoHnacffvG
- +tl6NJjfji6+tyNOg1z8u9cvvxpvxmQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-61-lliOLg0vNIuyRkidgYjJqw-1; Fri, 03 Mar 2023 02:27:08 -0500
-X-MC-Unique: lliOLg0vNIuyRkidgYjJqw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CEC503C02536;
- Fri,  3 Mar 2023 07:27:07 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.43])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 69F632166B26;
- Fri,  3 Mar 2023 07:27:07 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id AC9B2180061F; Fri,  3 Mar 2023 08:27:05 +0100 (CET)
-Date: Fri, 3 Mar 2023 08:27:05 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Rob Clark <robdclark@gmail.com>
-Subject: Re: [PATCH v6] drm/virtio: Add option to disable KMS support
-Message-ID: <20230303072705.55fbvt4c4uu4i2i7@sirius.home.kraxel.org>
-References: <20230302233506.3146290-1-robdclark@gmail.com>
+ bh=zZ1FRbEzDhg7eiI4sxCa3iFgs3/LMEjHpvregVmhCSg=;
+ b=frZEOw7tGhYHFMuUwPJpmgvB5kENa87clBxOBlT3YVfd0PKk4HrWAqoogAJj9T5CFoFBff
+ GJsz0qw9SgnXVSG5+yhHQ6YkNlNiv/mH4vP429egBwZhY2QcPZ/84uIntfkIo2vtAwjH9u
+ CvMgoI3lJ8FcZ4G0L6UYHyTxhJMgvjI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-345-reRZ69XWO1Gzk_nDe6CuOA-1; Sun, 05 Mar 2023 04:54:03 -0500
+X-MC-Unique: reRZ69XWO1Gzk_nDe6CuOA-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ j6-20020a05600c1c0600b003eaf882cb85so2592023wms.9
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 05 Mar 2023 01:54:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1678010042;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=zZ1FRbEzDhg7eiI4sxCa3iFgs3/LMEjHpvregVmhCSg=;
+ b=O+t6NPWMlmWMgqYovR7AAgwOPNUfIKYnXnHunpJanUk5ZJsDAtHs/IH0oHj5FUvbLN
+ hf+vYSR8B5SYti6Tsgpmq3uyRSpKzOUk22mal+Kagl4y0dt6btrRKx2Vf0oQ3E3XYIik
+ 3rHYHnN+Pfwq1VM7cp1zrDsLj5wGjCUVe3zzwOVHlx7TdyR/VnomevVoMoKH4NaPMTVL
+ 6DiJlbvq9VvLVW4Nd2MshEqurhKkHcOcxT1n7nOc+P4LKu1rCBdGeM7WvpY5mpoETsOm
+ AylE5Tk79Oafb9307YUFU+/fCHeIy4/fxDMlYQbnvNli3IUBcG0eqVcj0TmiPeo15l75
+ MUHQ==
+X-Gm-Message-State: AO0yUKWYEYU1Z3PiuxFnpvsfVSW3p/JMvUBck32Xe5pPqWsWL243CNhy
+ PFUiPudWH52dNclHNm3eK7XKNN0KSjALwOrFg7/NhahAnuPso7wZuhHY/JzSE51iX2SFOm9f32Z
+ BDpn8HdKvD9xurqtajVQE3bwToaLMUfFYyjq2Q0PubQ==
+X-Received: by 2002:adf:fc0d:0:b0:2c7:1e3b:2d46 with SMTP id
+ i13-20020adffc0d000000b002c71e3b2d46mr4900205wrr.17.1678010042431; 
+ Sun, 05 Mar 2023 01:54:02 -0800 (PST)
+X-Google-Smtp-Source: AK7set8IoOS6Gx/WJKStkNGfdBuK7UXUinqGFeitKJGyU7CYQyNcgwXAwkQ7nJs7SEFHzH1aVenCxA==
+X-Received: by 2002:adf:fc0d:0:b0:2c7:1e3b:2d46 with SMTP id
+ i13-20020adffc0d000000b002c71e3b2d46mr4900192wrr.17.1678010042180; 
+ Sun, 05 Mar 2023 01:54:02 -0800 (PST)
+Received: from redhat.com ([2.52.23.160]) by smtp.gmail.com with ESMTPSA id
+ k8-20020a5d66c8000000b002c573a6216fsm6984304wrw.37.2023.03.05.01.54.00
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 05 Mar 2023 01:54:01 -0800 (PST)
+Date: Sun, 5 Mar 2023 04:53:58 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH v3] virtio-net: Fix probe of virtio-net on kvmtool
+Message-ID: <20230305045249-mutt-send-email-mst@kernel.org>
+References: <20230223-virtio-net-kvmtool-v3-1-e038660624de@rivosinc.com>
+ <20230301093054-mutt-send-email-mst@kernel.org>
+ <CACGkMEsG10CWigz+S6JgSVK8XfbpT=L=30hZ8LDvohtaanAiZQ@mail.gmail.com>
+ <20230302044806-mutt-send-email-mst@kernel.org>
+ <20230303164603.7b35a76f@kernel.org>
 MIME-Version: 1.0
+In-Reply-To: <20230303164603.7b35a76f@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230302233506.3146290-1-robdclark@gmail.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-Cc: Rob Clark <robdclark@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- open list <linux-kernel@vger.kernel.org>,
- Javier Martinez Canillas <javierm@redhat.com>, dri-devel@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Ryan Neph <ryanneph@chromium.org>, David Airlie <airlied@redhat.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Chia-I Wu <olvaffe@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ rbradford@rivosinc.com, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,27 +127,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 02, 2023 at 03:35:06PM -0800, Rob Clark wrote:
-> From: Rob Clark <robdclark@chromium.org>
+On Fri, Mar 03, 2023 at 04:46:03PM -0800, Jakub Kicinski wrote:
+> On Thu, 2 Mar 2023 04:48:38 -0500 Michael S. Tsirkin wrote:
+> > > Looks not the core can try to enable and disable features according to
+> > > the diff between features and hw_features
+> > > 
+> > > static inline netdev_features_t netdev_get_wanted_features(
+> > >         struct net_device *dev)
+> > > {
+> > >         return (dev->features & ~dev->hw_features) | dev->wanted_features;
+> > > }
+> > 
+> > yes what we do work according to code.  So the documentation is wrong then?
 > 
-> Add a build option to disable modesetting support.  This is useful in
-> cases where the guest only needs to use the GPU in a headless mode, or
-> (such as in the CrOS usage) window surfaces are proxied to a host
-> compositor.
-> 
-> As the modesetting ioctls are a big surface area for potential security
-> bugs to be found (it's happened in the past, we should assume it will
-> again in the future), it makes sense to have a build option to disable
-> those ioctls in cases where they serve no legitimate purpose.
-> 
-> v2: Use more if (IS_ENABLED(...))
-> v3: Also permit the host to advertise no scanouts
-> v4: Spiff out commit msg
-> v5: Make num_scanouts==0 and DRM_VIRTIO_GPU_KMS=n behave the same
-> v6: Drop conditionally building virtgpu_display.c and early-out of
->     it's init/fini fxns instead
+> It's definitely incomplete but which part are you saying is wrong?
 
-Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+So it says:
+  2. netdev->features set contains features which are currently enabled
+     for a device.
+
+ok so far.
+But this part:
+
+  This should be changed only by network core or in
+     error paths of ndo_set_features callback.
+
+seems to say virtio should not touch netdev->features, no?
+
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
