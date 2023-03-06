@@ -1,94 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E0E7C678D4
-	for <virtualization@archiver.kernel.org>; Mon,  6 Mar 2023 14:46:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C411CC64EC4
+	for <virtualization@archiver.kernel.org>; Mon,  6 Mar 2023 15:51:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E19ED4093A;
-	Mon,  6 Mar 2023 14:46:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E19ED4093A
+	by smtp2.osuosl.org (Postfix) with ESMTP id 46BF14049B;
+	Mon,  6 Mar 2023 15:51:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 46BF14049B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IDGY3v4C
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YBFq53cG5VRD; Mon,  6 Mar 2023 15:51:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 491E4400F2;
+	Mon,  6 Mar 2023 15:51:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 491E4400F2
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 20DA7C0035;
+	Mon,  6 Mar 2023 15:51:32 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4CE3C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Mar 2023 15:51:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9C99D41527
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Mar 2023 15:51:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9C99D41527
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y2RDdAHS
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=IDGY3v4C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d3ag6RPsdXDe; Mon,  6 Mar 2023 14:46:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id F05C940936;
-	Mon,  6 Mar 2023 14:46:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F05C940936
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C1D8DC0071;
-	Mon,  6 Mar 2023 14:46:50 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 698EEC0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b83rn3Rpk1JV
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Mar 2023 14:46:49 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 30F6360AC0
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Mar 2023 14:46:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 30F6360AC0
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Y2RDdAHS
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eF0JuTtKJqdI
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Mar 2023 14:46:48 +0000 (UTC)
+ Mon,  6 Mar 2023 15:51:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 463C2607C1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD94C4151F
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 463C2607C1
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id AD94C4151F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Mar 2023 14:46:48 +0000 (UTC)
+ Mon,  6 Mar 2023 15:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678114007;
+ s=mimecast20190719; t=1678117888;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ePnoIICLAgX5+yYDBioH0vdLJ6br42cKaUY5oT5Uciw=;
- b=Y2RDdAHSwbhMF4FWuM3uk1BtjZbj/mZjA8mwAs2/jiJG6vz5NvPI+7icdsKlI+iXpd/XPj
- mdkLButgANJvj14A5Oi22LrJOOdCsRaojr4uoCxTBmD7FKHjnGZyIr4wHoeP4j6NI+bLN4
- wg6mkT5x/7Bvk0Ju0tRA+zhVr9bdmPc=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-343-su8vUQvyPQKmkMm2FULrTQ-1; Mon, 06 Mar 2023 09:46:43 -0500
-X-MC-Unique: su8vUQvyPQKmkMm2FULrTQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
- [10.11.54.7])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D50B229AA39C;
- Mon,  6 Mar 2023 14:46:42 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.23])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 87CDE1410DD9;
- Mon,  6 Mar 2023 14:46:42 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 05829180062C; Mon,  6 Mar 2023 15:46:40 +0100 (CET)
-Date: Mon, 6 Mar 2023 15:46:40 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Subject: Re: [PATCH v2] drm/virtio: Fix handling CONFIG_DRM_VIRTIO_GPU_KMS
- option
-Message-ID: <20230306144640.ta7jca5iabg66uoy@sirius.home.kraxel.org>
-References: <20230306143234.1561759-1-dmitry.osipenko@collabora.com>
+ bh=Q86XLZ7Q4ZHp1CUGcCN/NjLhC2ggJRWLx1s//bOcLDM=;
+ b=IDGY3v4CGTQZ5idFWVW87EHcy0lVva+Ckm1QP33JE4zD1o0xlMWDuXOwOCDMlbt0PLkbsw
+ cuVE2g+sX2EJtbLsfVEBTjN60pf/ea00y0B1DV8muqwcvqkb291HZ7z4hWMKGOsuizk4Rt
+ 32ElIB+cwlfCStYB3uVtvK3uVAFrA3w=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-294-LMmpyLvIN4OT4HaOHagfIw-1; Mon, 06 Mar 2023 10:51:27 -0500
+X-MC-Unique: LMmpyLvIN4OT4HaOHagfIw-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ g13-20020ac8124d000000b003bfba5d76a3so5400281qtj.15
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 06 Mar 2023 07:51:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1678117887;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Q86XLZ7Q4ZHp1CUGcCN/NjLhC2ggJRWLx1s//bOcLDM=;
+ b=JEiIXEpdOsLcYnSDu382TCf7tJaBU0+emsRuEwfGrtg4uYFkv76yDW0nT7DQ0avKwt
+ r5dga2v1lNQOsOICHrQGrHhNQZ5cKxXv9lPCTyEAiyHK/tm/7hkYfGct4Zs+IZfEr6HC
+ lJ3gvRXvWEz0Zaxe1UfH/Nwj9pfC01MYESrM8ct2qCexUvMAZJePgsTjKvhuEJhKhGhL
+ JLPZDKfiXjJCMELeWRa5MrnnguCkPqaL/iGOD79TPF5665vUOqOsW+rvWQHe7mIndKqp
+ LzVYu61bNhLoOQR+s6qZxy0VXu/BcmKHfi7+Pg80H+aV/MbvsJRSEzqhl3+SkhDV4fgs
+ U2+Q==
+X-Gm-Message-State: AO0yUKXMctJ1ThQrGhrKBL1b+ZrZ1xbdYfoPzGFBkGiaDIcxJ0tgcYtK
+ AorcYd3icEbbNJdYgS1/Px8OLFEBu1fyjFNPapfa3CUFmXYBgRVzyxgf6Q2v6SgNjgjRvTv7fyU
+ 0wG3FFDiN7YJpSwJp0Cc/k60AYmlU+z9mjS8bpX6kTg==
+X-Received: by 2002:a05:622a:c:b0:3b9:bc8c:c207 with SMTP id
+ x12-20020a05622a000c00b003b9bc8cc207mr26969678qtw.18.1678117886723; 
+ Mon, 06 Mar 2023 07:51:26 -0800 (PST)
+X-Google-Smtp-Source: AK7set8J+A3R80v+MVqfE2WCygPas52Ry5LmPSFlnPMQvzMyOQV6nh5+6ZCsftO+pkisfBFlvJJ58Q==
+X-Received: by 2002:a05:622a:c:b0:3b9:bc8c:c207 with SMTP id
+ x12-20020a05622a000c00b003b9bc8cc207mr26969642qtw.18.1678117886394; 
+ Mon, 06 Mar 2023 07:51:26 -0800 (PST)
+Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
+ [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
+ q17-20020ac84111000000b003bfa52112f9sm7805681qtl.4.2023.03.06.07.51.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 06 Mar 2023 07:51:25 -0800 (PST)
+Date: Mon, 6 Mar 2023 16:51:21 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v2 2/4] virtio/vsock: remove all data from sk_buff
+Message-ID: <20230306155121.7xwxzgxtle7qjbnc@sgarzare-redhat>
+References: <a7ab414b-5e41-c7b6-250b-e8401f335859@sberdevices.ru>
+ <dfadea17-a91e-105f-c213-a73f9731c8bd@sberdevices.ru>
+ <20230306120857.6flftb3fftmsceyl@sgarzare-redhat>
+ <b18e3b13-3386-e9ee-c817-59588e6d5fb6@sberdevices.ru>
 MIME-Version: 1.0
+In-Reply-To: <b18e3b13-3386-e9ee-c817-59588e6d5fb6@sberdevices.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230306143234.1561759-1-dmitry.osipenko@collabora.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>, Rob Clark <robdclark@gmail.com>,
- Ryan Neph <ryanneph@chromium.org>, David Airlie <airlied@redhat.com>,
- Javier Martinez Canillas <javierm@redhat.com>, kernel@collabora.com,
- virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ kernel@sberdevices.ru, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,36 +124,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 06, 2023 at 05:32:34PM +0300, Dmitry Osipenko wrote:
-> VirtIO-GPU got a new config option for disabling KMS. There were two
-> problems left unnoticed during review when the new option was added:
-> 
-> 1. The IS_ENABLED(CONFIG_DRM_VIRTIO_GPU_KMS) check in the code was
-> inverted, hence KMS was disabled when it should be enabled and vice versa.
-> 
-> 2. The disabled KMS crashed kernel with a NULL dereference in
-> drm_kms_helper_hotplug_event(), which shall not be invoked with a
-> disabled KMS.
-> 
-> Fix the inverted config option check in the code and skip handling the
-> VIRTIO_GPU_EVENT_DISPLAY sent by host when KMS is disabled in guest to fix
-> the crash.
-> 
-> Fixes: 72122c69d717 ("drm/virtio: Add option to disable KMS support")
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> ---
-> 
-> Changelog:
-> 
-> v2: - Moved the "has_edid" under the "num_scanouts" condition, like was
->       suggested by Gerd Hoffmann.
+On Mon, Mar 06, 2023 at 06:31:22PM +0300, Arseniy Krasnov wrote:
+>
+>
+>On 06.03.2023 15:08, Stefano Garzarella wrote:
+>> On Sun, Mar 05, 2023 at 11:07:37PM +0300, Arseniy Krasnov wrote:
+>>> In case of SOCK_SEQPACKET all sk_buffs are used once - after read some
+>>> data from it, it will be removed, so user will never read rest of the
+>>> data. Thus we need to update credit parameters of the socket like whole
+>>> sk_buff is read - so call 'skb_pull()' for the whole buffer.
+>>>
+>>> Fixes: 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")
+>>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>>> ---
+>>> net/vmw_vsock/virtio_transport_common.c | 2 +-
+>>> 1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> Maybe we could avoid this patch if we directly use pkt_len as I
+>> suggested in the previous patch.
+>Hm, may be we can avoid calling 'skb_pull()' here if 'virtio_transport_dec_rx_pkt()'
+>will use integer argument?
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+Yep, exactly!
+
+>Just call 'virtio_transport_dec_rx_pkt(skb->len)'. skb
+
+It depends on how we call virtio_transport_inc_rx_pkt(). If we use
+hdr->len there I would use the same to avoid confusion. Plus that's the
+value the other peer sent us, so definitely the right value to increase
+fwd_cnt with. But if skb->len always reflects it, then that's fine.
+
+>is never returned to queue to read it again, so i think may be there is no sense for
+>extra call 'skb_pull'?
+
+Right!
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
