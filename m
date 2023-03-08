@@ -1,112 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44B4FC64EC4
-	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 14:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 49181C64EC4
+	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 14:17:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C1B204183E;
-	Wed,  8 Mar 2023 14:16:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C1B204183E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EWFaV14V
+	by smtp2.osuosl.org (Postfix) with ESMTP id CBF1440BFE;
+	Wed,  8 Mar 2023 14:17:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CBF1440BFE
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P9XLOuMV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tw1M4WLkMkCI; Wed,  8 Mar 2023 14:16:13 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JUUn33DUr3aA; Wed,  8 Mar 2023 14:17:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CD09A41835;
-	Wed,  8 Mar 2023 14:16:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CD09A41835
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2968940242;
+	Wed,  8 Mar 2023 14:17:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2968940242
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 99C4DC0071;
-	Wed,  8 Mar 2023 14:16:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BE85CC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00813C0071;
+	Wed,  8 Mar 2023 14:17:47 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 872C5C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:16:10 +0000 (UTC)
+ Wed,  8 Mar 2023 14:17:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 968E94183D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 61B6060C09
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:16:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 968E94183D
+ Wed,  8 Mar 2023 14:17:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61B6060C09
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=P9XLOuMV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qGAaDiDLKjRu
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fUDkFF5xb05S
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:16:09 +0000 (UTC)
+ Wed,  8 Mar 2023 14:17:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 96B0D41835
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7369660A77
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 96B0D41835
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7369660A77
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:16:09 +0000 (UTC)
+ Wed,  8 Mar 2023 14:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678284968;
+ s=mimecast20190719; t=1678285064;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=pfZYe+kVp7t8ATPaeyVDKI3woZqxEgv/0sSkiCPknkQ=;
- b=EWFaV14VDOyglPbl+Wg0YzJtHBQ5obQo7WZGkzWIj85r5Pn32fna2DFh+43Wj/5DAPep2l
- /w52suf4weuhSs79+qwVXLjqHrvRVe0Euy2l/eTarrZLdIuVt8YEh+OKhQOTR7qdo8hF7D
- Fz5VysxkriNUuPHqsZ8SyYt74jzYvkA=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ttecRVaLcokGkQnpMMD3LNLXwWSTcMNNpaM+wYM2sIQ=;
+ b=P9XLOuMVEysruAnCVh63L3K+e+nhI3rwvWYc85VoUXMJfX4U2Xfbjxp1fssNe8LbLJGhdk
+ FtwOjuZWfS+9Jd4HYQfHNnxWd/6kOMJClPsLCdcmzljiaSCid0UeCXM+IrOYQV0hgnwNWb
+ PSYYUADtwwCOZ7AeiyLpOWftkjl7F0A=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-70-_8CKuCIKPYK30MaElGtnoQ-1; Wed, 08 Mar 2023 09:16:07 -0500
-X-MC-Unique: _8CKuCIKPYK30MaElGtnoQ-1
-Received: by mail-ed1-f71.google.com with SMTP id
- z14-20020a05640235ce00b004e07ddbc2f8so15325200edc.7
+ us-mta-600-alRPNyHQOtmRqu0yle9yyg-1; Wed, 08 Mar 2023 09:17:43 -0500
+X-MC-Unique: alRPNyHQOtmRqu0yle9yyg-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ 8-20020a370508000000b00724fd33cb3eso9416809qkf.14
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Mar 2023 06:16:07 -0800 (PST)
+ Wed, 08 Mar 2023 06:17:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1678284966;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=pfZYe+kVp7t8ATPaeyVDKI3woZqxEgv/0sSkiCPknkQ=;
- b=dPD+q/wRrXMjmKHCwnCPhMYVgtPw4fhxvBoaNZRy8N/BdHzcUOQoaEoiEQyRzGqZCQ
- VdCwjqLklli7tpnzeAi6sRMo/+vfW2cZrLxsEk1B3dLEe2Qte+3UBgBOQ5/snE9Yozwb
- MS/P8nFhLfxbEk6afUs5xYkN8PEbSU8QYxqLjRdT147TQ06ZOQrITUzT9Ar+/RcrmQgP
- 9PMCyV72kuDJ09WNeVl4QmGmzhz9zF5nYxrAjuPel+OPVq3T1t3FmL2ZdY7kgtmu+VzF
- EhhgarmRYAYbhasS9PlGzfyfIGGsO+TPUD3w/PFGYxq37Vz9pSjQbg5vVkffuwbHZP+L
- kjyg==
-X-Gm-Message-State: AO0yUKU6Ct8kCkYNWRule2t73RH5RcoJIy3pixSQXTL2NIXxgrJToXSh
- 8VJpo43jAeWTA737TV//DbFUwq4kgvbrxQ66k5sLkISKu3NBTerAmrO8ir/B1w1MnrHVbzLSsiC
- c/AAJQM83iX44C29YBdNKE8bHMvytRqwp0F78iirGCw==
-X-Received: by 2002:a17:906:af18:b0:8aa:c155:9233 with SMTP id
- lx24-20020a170906af1800b008aac1559233mr17654564ejb.26.1678284966327; 
- Wed, 08 Mar 2023 06:16:06 -0800 (PST)
-X-Google-Smtp-Source: AK7set/fweoDPXvwqMsH9l5ZXTF7xQQKM36+ghU1qVk/lWB4ZCw8uku8fpbjlFXrIMwt+Oy8xChG7A==
-X-Received: by 2002:a17:906:af18:b0:8aa:c155:9233 with SMTP id
- lx24-20020a170906af1800b008aac1559233mr17654544ejb.26.1678284966048; 
- Wed, 08 Mar 2023 06:16:06 -0800 (PST)
-Received: from redhat.com ([2.52.138.216]) by smtp.gmail.com with ESMTPSA id
- p23-20020a170906615700b008d5d721f8a4sm7483817ejl.197.2023.03.08.06.16.04
+ d=1e100.net; s=20210112; t=1678285062;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=ttecRVaLcokGkQnpMMD3LNLXwWSTcMNNpaM+wYM2sIQ=;
+ b=CUtY9YsURekKaKVc01uXSvxlGSSH0Dy0EltpbceeuZ81+A0F7G6byseSAAWw9IcWpe
+ TIUo8bfc3XUzt4vrd9Rnu/PH0ga0yfVZob5k6SSA9YUeJFtDt/jJRFs24gjUUXz8Udqj
+ +TXN4b6WAn9dRtzWmmAZmjgtVDaxhuD4hzH5AAvrRWL+T6xMTIViTRIE1NvTb6iHh4/S
+ 3fi55/KG0KYzf6ftXa55/xzd7iFxatEf3oyei2H8lH6qIfuY6A0973pQpQqCADUOaccn
+ iZtQtee9NZ2blGAq1cZ172QbNdnFaFtF8AlCpeR2Aho9W3w1GsYvlItEdCnw4zRoSXIe
+ fAfQ==
+X-Gm-Message-State: AO0yUKX/msMr6pq+GYgSUYbOsk44lYL/jkZM1YxdakHwFyvUFpYVxmDc
+ uGr2Ap7xdq007os60fhmHjdEbfdz1RPDkBLKwbXs7JCt84X/MTTN4nLO6L/+K6m/HCUKMuUeFgY
+ HQUu9D8mZHXjkIFniz8jUDVpM1mZkNrwV8hd2g2uE7A==
+X-Received: by 2002:ac8:5f4f:0:b0:3bb:8a14:badd with SMTP id
+ y15-20020ac85f4f000000b003bb8a14baddmr32533620qta.29.1678285062638; 
+ Wed, 08 Mar 2023 06:17:42 -0800 (PST)
+X-Google-Smtp-Source: AK7set9vFABDqE96MkgXNbZHat3oPZ5tvsXBqvU9/f0sBWiq54XK/Fphhn5yZSGJuDf8rbsfS4nA+g==
+X-Received: by 2002:ac8:5f4f:0:b0:3bb:8a14:badd with SMTP id
+ y15-20020ac85f4f000000b003bb8a14baddmr32533583qta.29.1678285062353; 
+ Wed, 08 Mar 2023 06:17:42 -0800 (PST)
+Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
+ [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
+ a18-20020ac84352000000b003bfaff2a6b9sm11697660qtn.10.2023.03.08.06.17.40
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 08 Mar 2023 06:16:05 -0800 (PST)
-Date: Wed, 8 Mar 2023 09:16:02 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Feng Liu <feliu@nvidia.com>
-Subject: Re: [PATCH 3/3] virtio_ring: Use const to annotate read-only pointer
- params
-Message-ID: <20230308091442-mutt-send-email-mst@kernel.org>
-References: <20230307035705.4479-1-feliu@nvidia.com>
- <20230307035705.4479-4-feliu@nvidia.com>
- <CACGkMEsMQZb6cMPmf8MxrhNhLGGzYRm_=1e8PCUt+1-DExaStg@mail.gmail.com>
- <55af3dc3-ed82-c22a-1205-0a1b8315c88f@nvidia.com>
+ Wed, 08 Mar 2023 06:17:41 -0800 (PST)
+Date: Wed, 8 Mar 2023 15:17:37 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Rong Tao <rtoax@foxmail.com>
+Subject: Re: [PATCH] tools/virtio: virtio_test -h,--help should return directly
+Message-ID: <20230308141737.ioxvifnarhluafmh@sgarzare-redhat>
+References: <tencent_A95EA946D511450DBE8486B2122FA1549609@qq.com>
 MIME-Version: 1.0
-In-Reply-To: <55af3dc3-ed82-c22a-1205-0a1b8315c88f@nvidia.com>
+In-Reply-To: <tencent_A95EA946D511450DBE8486B2122FA1549609@qq.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, Jiri Pirko <jiri@nvidia.com>,
- Bodong Wang <bodong@nvidia.com>, Gavin Li <gavinl@nvidia.com>
+Cc: open list <linux-kernel@vger.kernel.org>,
+ "open list:VIRTIO CORE AND NET DRIVERS"
+ <virtualization@lists.linux-foundation.org>, Rong Tao <rongtao@cestc.cn>,
+ mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,37 +119,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBNYXIgMDgsIDIwMjMgYXQgMDk6MDc6NDlBTSAtMDUwMCwgRmVuZyBMaXUgd3JvdGU6
-Cj4gCj4gCj4gT24gMjAyMy0wMy0wOCBhLm0uMTI6NTgsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiBF
-eHRlcm5hbCBlbWFpbDogVXNlIGNhdXRpb24gb3BlbmluZyBsaW5rcyBvciBhdHRhY2htZW50cwo+
-ID4gCj4gPiAKPiA+IE9uIFR1ZSwgTWFyIDcsIDIwMjMgYXQgMTE6NTfigK9BTSBGZW5nIExpdSA8
-ZmVsaXVAbnZpZGlhLmNvbT4gd3JvdGU6Cj4gPiA+IAo+ID4gPiBBZGQgY29uc3QgdG8gbWFrZSB0
-aGUgcmVhZC1vbmx5IHBvaW50ZXIgcGFyYW1ldGVycyBjbGVhciwgc2ltaWxhciB0bwo+ID4gPiBt
-YW55IGV4aXN0aW5nIGZ1bmN0aW9ucy4KPiA+ID4gCj4gPiA+IFNpZ25lZC1vZmYtYnk6IEZlbmcg
-TGl1IDxmZWxpdUBudmlkaWEuY29tPgo+ID4gPiBSZXZpZXdlZC1ieTogSmlyaSBQaXJrbyA8amly
-aUBudmlkaWEuY29tPgo+ID4gPiBSZXZpZXdlZC1ieTogUGFyYXYgUGFuZGl0IDxwYXJhdkBudmlk
-aWEuY29tPgo+ID4gPiBSZXZpZXdlZC1ieTogR2F2aW4gTGkgPGdhdmlubEBudmlkaWEuY29tPgo+
-ID4gPiBSZXZpZXdlZC1ieTogQm9kb25nIFdhbmcgPGJvZG9uZ0BudmlkaWEuY29tPgo+ID4gPiAt
-LS0KPiA+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMjUgKysrKysrKysrKysr
-LS0tLS0tLS0tLS0tLQo+ID4gPiAgIGluY2x1ZGUvbGludXgvdmlydGlvLmggICAgICAgfCAxMiAr
-KysrKystLS0tLS0KPiA+ID4gICAyIGZpbGVzIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDE5
-IGRlbGV0aW9ucygtKQo+ID4gPiAKPiA+IAo+ID4gWy4uLl0KPiA+IAo+ID4gPiAKPiA+ID4gLS8q
-Cj4gPiA+IC0gKiBUaGlzIHNob3VsZCBwcmV2ZW50IHRoZSBkZXZpY2UgZnJvbSBiZWluZyB1c2Vk
-LCBhbGxvd2luZyBkcml2ZXJzIHRvCj4gPiA+ICsvIFRoaXMgc2hvdWxkIHByZXZlbnQgdGhlIGRl
-dmljZSBmcm9tIGJlaW5nIHVzZWQsIGFsbG93aW5nIGRyaXZlcnMgdG8KPiA+ID4gICAgKiByZWNv
-dmVyLiAgWW91IG1heSBuZWVkIHRvIGdyYWIgYXBwcm9wcmlhdGUgbG9ja3MgdG8gZmx1c2guCj4g
-PiA+ICAgICovCj4gPiAKPiA+IEFueSByZWFzb24gZm9yIHRoaXMgY2hhbmdlPwo+ID4gCj4gSGks
-IEphc29uCj4gVGhlIG9yaWdpbmFsIGNvbW1lbnQgb2YgdGhlIGNvZGUgaGFkIGEgc3ludGF4IHBy
-b2JsZW0gYW5kIGNvdWxkbid0IGNvbXBpbGUsCj4gSSBmaXhlZCBpdCBoZXJlCgpUaGlzIGlzIGhv
-dyBpdCBsb29rZWQgYmVmb3JlIHlvdXIgcGF0Y2g6CgovKgogKiBUaGlzIHNob3VsZCBwcmV2ZW50
-IHRoZSBkZXZpY2UgZnJvbSBiZWluZyB1c2VkLCBhbGxvd2luZyBkcml2ZXJzIHRvCiAqIHJlY292
-ZXIuICBZb3UgbWF5IG5lZWQgdG8gZ3JhYiBhcHByb3ByaWF0ZSBsb2NrcyB0byBmbHVzaC4KICov
-CgpJIHNlZSBubyBwcm9ibGVtIGhlcmUuCgoKPiA+IFRoYW5rcwo+ID4gCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Feb 24, 2023 at 10:30:30PM +0800, Rong Tao wrote:
+>From: Rong Tao <rongtao@cestc.cn>
+>
+>When we get help information, we should return directly, and we should not
+>execute test cases. At the same time, the code indentation issue was fixed
+>and virtio-trace/trace-agent was added to .gitignore.
+
+Thanks for this cleanup, but you mentioned 3 independent things that
+this patch does, so it would be better to split it into 3 separate
+patches.
+
+>
+>Signed-off-by: Rong Tao <rongtao@cestc.cn>
+>---
+> tools/virtio/.gitignore    | 1 +
+> tools/virtio/virtio_test.c | 6 +++---
+> 2 files changed, 4 insertions(+), 3 deletions(-)
+>
+>diff --git a/tools/virtio/.gitignore b/tools/virtio/.gitignore
+>index 075588c4da08..9934d48d9a55 100644
+>--- a/tools/virtio/.gitignore
+>+++ b/tools/virtio/.gitignore
+>@@ -2,3 +2,4 @@
+> *.d
+> virtio_test
+> vringh_test
+>+virtio-trace/trace-agent
+>diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+>index 120062f94590..6370cdada396 100644
+>--- a/tools/virtio/virtio_test.c
+>+++ b/tools/virtio/virtio_test.c
+>@@ -134,7 +134,7 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
+> 	dev->buf_size = 1024;
+> 	dev->buf = malloc(dev->buf_size);
+> 	assert(dev->buf);
+>-        dev->control = open("/dev/vhost-test", O_RDWR);
+>+	dev->control = open("/dev/vhost-test", O_RDWR);
+> 	assert(dev->control >= 0);
+> 	r = ioctl(dev->control, VHOST_SET_OWNER, NULL);
+> 	assert(r >= 0);
+>@@ -142,7 +142,7 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
+> 			  sizeof dev->mem->regions[0]);
+> 	assert(dev->mem);
+> 	memset(dev->mem, 0, offsetof(struct vhost_memory, regions) +
+>-                          sizeof dev->mem->regions[0]);
+>+			sizeof dev->mem->regions[0]);
+
+This did not seem to me to be an indentation issue, there are 2 tabs and
+1 space to line it up with the opening of the parenthesis of the line
+above.
+
+> 	dev->mem->nregions = 1;
+> 	dev->mem->regions[0].guest_phys_addr = (long)dev->buf;
+> 	dev->mem->regions[0].userspace_addr = (long)dev->buf;
+>@@ -361,7 +361,7 @@ int main(int argc, char **argv)
+> 			break;
+> 		case 'h':
+> 			help();
+>-			goto done;
+>+			exit(0);
+
+Maybe we can move the exit() directly into the help() function and 
+remove it from case '?'.
+
+I would return a value different from 0 (like in the case '?').
+
+Thanks,
+Stefano
+
+> 		case 'i':
+> 			features &= ~(1ULL << VIRTIO_RING_F_INDIRECT_DESC);
+> 			break;
+>-- 
+>2.39.2
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
