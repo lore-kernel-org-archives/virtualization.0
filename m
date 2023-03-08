@@ -1,121 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BC97EC678D5
-	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 12:21:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2758FC678D5
+	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 14:07:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 31D7160C03;
-	Wed,  8 Mar 2023 12:21:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 31D7160C03
+	by smtp2.osuosl.org (Postfix) with ESMTP id A417E404F7;
+	Wed,  8 Mar 2023 14:07:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A417E404F7
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RgVDlV8x
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1IZzuyBHqEvv; Wed,  8 Mar 2023 14:07:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2D83A40C84;
+	Wed,  8 Mar 2023 14:07:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2D83A40C84
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04786C0071;
+	Wed,  8 Mar 2023 14:07:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 83BB2C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Mar 2023 14:07:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 49CD860E3F
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Mar 2023 14:07:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 49CD860E3F
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dNXslAKa
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RgVDlV8x
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3CL2kYywy_Ln; Wed,  8 Mar 2023 12:21:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9DC0C607A1;
-	Wed,  8 Mar 2023 12:21:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9DC0C607A1
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C176C0071;
-	Wed,  8 Mar 2023 12:21:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 23102C0032
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9CCJoj0X14-9
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 12:21:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id EAA7F417CE
- for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 12:21:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EAA7F417CE
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dNXslAKa
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rlicJk5FjiE4
- for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 12:21:16 +0000 (UTC)
+ Wed,  8 Mar 2023 14:07:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 73532417CF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 454AB60C09
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 73532417CF
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 454AB60C09
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 12:21:16 +0000 (UTC)
+ Wed,  8 Mar 2023 14:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678278074;
+ s=mimecast20190719; t=1678284440;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=FYUSGl+c2i/XrGfwxUOIC1FfAmTL8/NIk2jsBnOFyek=;
- b=dNXslAKaVVzoJaoP6flqaB/MeRyrz4fIAyVMB9vj+Yr96c67tZv4yno51oV8/5wBeKYBcd
- 6N+HwcgyvGnWP/oKoUykoRYkeuxg0G67PAAh6soIBTajTqODsuokgzQHtt3hGOn5Y/zdwE
- SyhMH+w52z+tXSv+5BrcSqWmByTevcc=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=V6cnINXPKnD2lG8vxbE8F7RlXvTWARojvYuwDfsphHk=;
+ b=RgVDlV8xhnONZDDJqmGIv5wGxz6lR64KO7h7ojewT+tzQzXU3UzJANZ6y8G8hNUQsHJ9jE
+ u1MwZVjHZ42n3hFBPmguFRtuUgRXzaX6GNuoeERABbgmtCrCDgK/pJH7Jsq+DuyDWgZECe
+ Q0aIHR29MLHA0dhWwweT5Dc/CiYki9w=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-407-uWS8jdfBObi1xixK-nbpJg-1; Wed, 08 Mar 2023 07:21:13 -0500
-X-MC-Unique: uWS8jdfBObi1xixK-nbpJg-1
-Received: by mail-ed1-f72.google.com with SMTP id
- dn8-20020a05640222e800b004bd35dd76a9so23801874edb.13
+ us-mta-182-rMAQiYIINVyGxFUmo4hpUA-1; Wed, 08 Mar 2023 09:07:16 -0500
+X-MC-Unique: rMAQiYIINVyGxFUmo4hpUA-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ l2-20020ac87242000000b003bfecc6d046so9150982qtp.17
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Mar 2023 04:21:13 -0800 (PST)
+ Wed, 08 Mar 2023 06:07:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1678278072;
+ d=1e100.net; s=20210112; t=1678284429;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=FYUSGl+c2i/XrGfwxUOIC1FfAmTL8/NIk2jsBnOFyek=;
- b=QoCL+hJgD2GUHA26ZNnnPAIz0cRV77/ZCULaamyvSR5N+4IVDCDHWCO/EZRZizZ1Pc
- eVtFNaRc5Vm8QrYe2GEJfwApqlJDjLf0uzBXFJ5XYm2Hcim5Wjxy915QNPclaz629wKH
- GQmeNYIFfuBQjdCQ9LV3bcP5FwOq4zEYQJnMM8xnN30jhEuRtTp9SJniuFnu0NGhRzOA
- 5fO1dK/5A12RnAUGFw4Ck60Ul8ZJnCzyCRD1WuOgZDI6iL2Nzxc7hSJptOePQT3bH+Wu
- YZ4UEERf4kZEW5/Dg9u+2//XUfSQ8RS9W0csT1+GuBkQR2dKvi3DuFG8+sv70BnpJLGP
- zLxQ==
-X-Gm-Message-State: AO0yUKUfj6o7Z8oCI9CZ089fYapqFcPagYXgBUXDCxdS10UdSxSgrxhn
- ak31RnQdLpJmretN4MSwzLZN6hnd2euDMdiTQpVcX/32Ga2vHgSa0u+YUDhTgiAIv1zY1suh9x4
- LJQfFctGHT2LJxXO0WKd3eUV7FkRLDWOZ3E5egLXdkQ==
-X-Received: by 2002:aa7:d856:0:b0:4af:6e95:861b with SMTP id
- f22-20020aa7d856000000b004af6e95861bmr23390137eds.2.1678278072618; 
- Wed, 08 Mar 2023 04:21:12 -0800 (PST)
-X-Google-Smtp-Source: AK7set+6tZBfhWzjylNGTyxDwu7Yy+PpamZXGOVNIhYLZOhQ3DZ5QD/rfxx44WLOJiGYe6hsxp2zJQ==
-X-Received: by 2002:aa7:d856:0:b0:4af:6e95:861b with SMTP id
- f22-20020aa7d856000000b004af6e95861bmr23390108eds.2.1678278072292; 
- Wed, 08 Mar 2023 04:21:12 -0800 (PST)
-Received: from redhat.com ([2.52.138.216]) by smtp.gmail.com with ESMTPSA id
- r15-20020a50c00f000000b004bbc90e1fa3sm8087835edb.93.2023.03.08.04.21.09
+ bh=V6cnINXPKnD2lG8vxbE8F7RlXvTWARojvYuwDfsphHk=;
+ b=8AA/sQHu5zQ4Y6JDY9aMC1qZjgbJ4yewf6utpsVlYNUXAuXAdgK9aTMUfgjKdQC4Ep
+ fdUbJzqeDyqmxIMZQkhGKYrPT6gGLI2c1ZvDwsKmVJxVF+uvF8FfLLlbJEqm/hNBOqdk
+ Pr4L6zVfVxshaOrLaKsCqJw5iEwQVt/wKSYr0l3XWvW2iAM54H6XqDrU9uoeSDKnQZBO
+ 8Jv6hFxsjNMj4x2+Q0FDiZ9MPLhoAwtlvC667BTaSudMlflTDfpYUGQhBW0QVN8dkWrh
+ HVQB/ni0lD5jtOJCFcNu6mL5nMhZ3l6vQ7jtmDTZrpKdfOyUSl8N9Qv+95pIWBnBl9Vo
+ VR8w==
+X-Gm-Message-State: AO0yUKVf+F4Xje4/OJRMsdPl0Y9BUS8lwrL3Vw88j/XWgjcNV3KLd7TO
+ mmX+N8bCPTHZZUOnKgy4Gko/xlNWru+Nwyon+LCIGHGvWKE0veMh4fZPW07IGU4SQ/YwEoIdkS+
+ ZkLSjVl/xvaQBHQnnvj5vuLi0E7t5r/S7LS0H82YHzg==
+X-Received: by 2002:a05:622a:514:b0:3b9:bc8c:c213 with SMTP id
+ l20-20020a05622a051400b003b9bc8cc213mr38252435qtx.30.1678284429137; 
+ Wed, 08 Mar 2023 06:07:09 -0800 (PST)
+X-Google-Smtp-Source: AK7set+bnIm7lfXZMPMGp+YTM6UrwsXhtqFanRzxTP/WHmpltxuwqtKd97gRjNlbA6Fwv+mkWztPJw==
+X-Received: by 2002:a05:622a:514:b0:3b9:bc8c:c213 with SMTP id
+ l20-20020a05622a051400b003b9bc8cc213mr38252394qtx.30.1678284428852; 
+ Wed, 08 Mar 2023 06:07:08 -0800 (PST)
+Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
+ [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
+ x185-20020a3763c2000000b0073baa5ec0besm11506824qkb.115.2023.03.08.06.07.07
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 08 Mar 2023 04:21:11 -0800 (PST)
-Date: Wed, 8 Mar 2023 07:21:07 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: Re: [PATCH net, stable v1 3/3] virtio_net: add checking sq is full
- inside xdp xmit
-Message-ID: <20230308071921-mutt-send-email-mst@kernel.org>
-References: <20230308024935.91686-1-xuanzhuo@linux.alibaba.com>
- <20230308024935.91686-4-xuanzhuo@linux.alibaba.com>
- <7eea924e-5cc3-8584-af95-04587f303f8f@huawei.com>
- <1678259647.118581-1-xuanzhuo@linux.alibaba.com>
- <5a4564dc-af93-4305-49a4-5ca16d737bc3@huawei.com>
+ Wed, 08 Mar 2023 06:07:08 -0800 (PST)
+Date: Wed, 8 Mar 2023 15:07:04 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: Re: [PATCH] virtio: Reorder fields in 'struct virtqueue'
+Message-ID: <20230308140704.jsggcp4g3tz7vhxu@sgarzare-redhat>
+References: <8f3d2e49270a2158717e15008e7ed7228196ba02.1676707807.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-In-Reply-To: <5a4564dc-af93-4305-49a4-5ca16d737bc3@huawei.com>
+In-Reply-To: <8f3d2e49270a2158717e15008e7ed7228196ba02.1676707807.git.christophe.jaillet@wanadoo.fr>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Yichun Zhang <yichun@openresty.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Alexander Duyck <alexanderduyck@fb.com>, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+Cc: virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org,
+ linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,93 +117,90 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 08, 2023 at 04:13:12PM +0800, Yunsheng Lin wrote:
-> On 2023/3/8 15:14, Xuan Zhuo wrote:
-> > On Wed, 8 Mar 2023 14:59:36 +0800, Yunsheng Lin <linyunsheng@huawei.com> wrote:
-> >> On 2023/3/8 10:49, Xuan Zhuo wrote:
-> >>> If the queue of xdp xmit is not an independent queue, then when the xdp
-> >>> xmit used all the desc, the xmit from the __dev_queue_xmit() may encounter
-> >>> the following error.
-> >>>
-> >>> net ens4: Unexpected TXQ (0) queue failure: -28
-> >>>
-> >>> This patch adds a check whether sq is full in xdp xmit.
-> >>>
-> >>> Fixes: 56434a01b12e ("virtio_net: add XDP_TX support")
-> >>> Reported-by: Yichun Zhang <yichun@openresty.com>
-> >>> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> >>> Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-> >>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> >>> ---
-> >>>  drivers/net/virtio_net.c | 3 +++
-> >>>  1 file changed, 3 insertions(+)
-> >>>
-> >>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >>> index 46bbddaadb0d..1a309cfb4976 100644
-> >>> --- a/drivers/net/virtio_net.c
-> >>> +++ b/drivers/net/virtio_net.c
-> >>> @@ -767,6 +767,9 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >>>  	}
-> >>>  	ret = nxmit;
-> >>>
-> >>> +	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
-> >>> +		check_sq_full_and_disable(vi, dev, sq);
-> >>> +
-> >>
-> >> Sorry if I missed something obvious here.
-> >>
-> >> As the comment in start_xmit(), the current skb is added to the sq->vq, so
-> >> NETDEV_TX_BUSY can not be returned.
-> >>
-> >> 	/* If running out of space, stop queue to avoid getting packets that we
-> >> 	 * are then unable to transmit.
-> >> 	 * An alternative would be to force queuing layer to requeue the skb by
-> >> 	 * returning NETDEV_TX_BUSY. However, NETDEV_TX_BUSY should not be
-> >> 	 * returned in a normal path of operation: it means that driver is not
-> >> 	 * maintaining the TX queue stop/start state properly, and causes
-> >> 	 * the stack to do a non-trivial amount of useless work.
-> >> 	 * Since most packets only take 1 or 2 ring slots, stopping the queue
-> >> 	 * early means 16 slots are typically wasted.
-> >> 	 */
-> >>
-> >> It there any reason not to check the sq->vq->num_free at the begin of start_xmit(),
-> >> if the space is not enough for the current skb, TX queue is stopped and NETDEV_TX_BUSY
-> >> is return to the stack to requeue the current skb.
-> >>
-> >> It seems it is the pattern that most network driver follow, and it seems we can avoid
-> >> calling check_sq_full_and_disable() in this patch and not wasting 16 slots as mentioned
-> >> in the comment above.
-> >>
-> > 
-> > 
-> > 
-> >  * netdev_tx_t (*ndo_start_xmit)(struct sk_buff *skb,
-> >  *                               struct net_device *dev);
-> >  *	Called when a packet needs to be transmitted.
-> >  *	Returns NETDEV_TX_OK.  Can return NETDEV_TX_BUSY, but you should stop
-> >  *	the queue before that can happen; it's for obsolete devices and weird
-> >  *	corner cases, but the stack really does a non-trivial amount
-> >  *	of useless work if you return NETDEV_TX_BUSY.
-> >  *	Required; cannot be NULL.
-> 
-> Thanks for the pointer. It is intersting, it seems most driver is not flollowing
-> the suggestion.
+On Sat, Feb 18, 2023 at 09:10:31AM +0100, Christophe JAILLET wrote:
+>Group some variables based on their sizes to reduce hole and avoid padding.
+>On x86_64, this shrinks the size of 'struct virtqueue'
+>from 72 to 68 bytes.
+>
+>It saves a few bytes of memory.
+>
+>Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+>---
 
-Yes - I don't know why.
+LGTM!
 
-> I found out why the above comment was added, but I am not sure I understand
-> what does "non-trivial amount of useless work" means yet.
-> https://lists.linuxfoundation.org/pipermail/virtualization/2015-April/029718.html
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-dev_requeue_skb 
-
--- 
-MST
+>Using pahole
+>
+>Before:
+>======
+>struct virtqueue {
+>	struct list_head           list;                 /*     0    16 */
+>	void                       (*callback)(struct virtqueue *); /*    16     8 */
+>	const char  *              name;                 /*    24     8 */
+>	struct virtio_device *     vdev;                 /*    32     8 */
+>	unsigned int               index;                /*    40     4 */
+>	unsigned int               num_free;             /*    44     4 */
+>	unsigned int               num_max;              /*    48     4 */
+>
+>	/* XXX 4 bytes hole, try to pack */
+>
+>	void *                     priv;                 /*    56     8 */
+>	/* --- cacheline 1 boundary (64 bytes) --- */
+>	bool                       reset;                /*    64     1 */
+>
+>	/* size: 72, cachelines: 2, members: 9 */
+>	/* sum members: 61, holes: 1, sum holes: 4 */
+>	/* padding: 7 */
+>	/* last cacheline: 8 bytes */
+>};
+>
+>After:
+>=====
+>struct virtqueue {
+>	struct list_head           list;                 /*     0    16 */
+>	void                       (*callback)(struct virtqueue *); /*    16     8 */
+>	const char  *              name;                 /*    24     8 */
+>	struct virtio_device *     vdev;                 /*    32     8 */
+>	unsigned int               index;                /*    40     4 */
+>	unsigned int               num_free;             /*    44     4 */
+>	unsigned int               num_max;              /*    48     4 */
+>	bool                       reset;                /*    52     1 */
+>
+>	/* XXX 3 bytes hole, try to pack */
+>
+>	void *                     priv;                 /*    56     8 */
+>
+>	/* size: 64, cachelines: 1, members: 9 */
+>	/* sum members: 61, holes: 1, sum holes: 3 */
+>};
+>---
+> include/linux/virtio.h | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+>index 6ac2655500dc..9439ae898310 100644
+>--- a/include/linux/virtio.h
+>+++ b/include/linux/virtio.h
+>@@ -35,8 +35,8 @@ struct virtqueue {
+> 	unsigned int index;
+> 	unsigned int num_free;
+> 	unsigned int num_max;
+>-	void *priv;
+> 	bool reset;
+>+	void *priv;
+> };
+>
+> int virtqueue_add_outbuf(struct virtqueue *vq,
+>-- 
+>2.34.1
+>
 
 _______________________________________________
 Virtualization mailing list
