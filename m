@@ -1,154 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B07F7C6FD20
-	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 14:13:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0CDBC64EC4
+	for <virtualization@archiver.kernel.org>; Wed,  8 Mar 2023 14:14:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 37188417E3;
-	Wed,  8 Mar 2023 14:13:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37188417E3
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5F3F260FE4;
+	Wed,  8 Mar 2023 14:14:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5F3F260FE4
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VNGqq9Mm
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b0vhu5M_v68i; Wed,  8 Mar 2023 14:14:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8248160ABE;
+	Wed,  8 Mar 2023 14:14:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8248160ABE
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F6AAC0071;
+	Wed,  8 Mar 2023 14:14:10 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 95BAFC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Mar 2023 14:14:09 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 61651417E5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  8 Mar 2023 14:14:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 61651417E5
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=WkjF3vAM
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VNGqq9Mm
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9q8HvIWnHl6j; Wed,  8 Mar 2023 14:13:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3134C417D3;
-	Wed,  8 Mar 2023 14:13:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3134C417D3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D2C9C0071;
-	Wed,  8 Mar 2023 14:13:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F3276C0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AwLSDPb89x7e
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:13:46 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C145840C0F
+ Wed,  8 Mar 2023 14:14:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CAC2F41800
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CAC2F41800
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:13:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C145840C0F
-Authentication-Results: smtp2.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=WkjF3vAM
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0THdQJcB5IsU
+ Wed,  8 Mar 2023 14:14:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1678284846;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=SuGUGzyvDO4F2NPZ8Oo8JDIwnK95EVehqB8FahWEx0U=;
+ b=VNGqq9Mm0Hi5tNjU3Qo6X96647mnxkJGBPXOaeBi9rHcHVKoxMEikqG75IO0N5Fmz5gcy7
+ IzErqgYO8JZUrC93r+ybTOVmz8yL5w3d2omfy9gMu97guF8PBViJElUuq7+1hjHVcNHkT/
+ cXvVvKdpGgCBYeJxhCig3PtO2AKxPdY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-651-BV0KlRINPCq1_ie2GgI9Vw-1; Wed, 08 Mar 2023 09:14:05 -0500
+X-MC-Unique: BV0KlRINPCq1_ie2GgI9Vw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ l20-20020a05600c1d1400b003e10d3e1c23so1014353wms.1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:13:45 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CC79C40242
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on20618.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8c::618])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CC79C40242
- for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Mar 2023 14:13:45 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LhKPpJPDpZAYJMp08bTCcvALoNKL78esxvJ6A4LMLUXTccJ8fa8Ta4c5lS0otsHmH1ikH+tUS86luqO9ZxEcnmMaQ/rttKVg8SpOEPuf0h0fRzvAENv1NkBh3s1bG0IhDPi/Jt93OB3fJFkoT2NaPzJvLqMt1BpTjw9e4WJCBD6ULsoo1gAELMdpIGAFiJqEE+AuyaBI0AJM0BKa7c/zF6awPNAREZ6aukNHp/lmV0iR4D0Q+qPoFKOzBZtHVCLbZZ7ntSwNrwdicZl6wureiDqcK0d4TuhUkEnZRFMymbOPE/l0CNqAclFZTxuN9ExcPNjmvmpQe/XHwD9BfMuj+Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3A5gVm5CX1q+DQudNh9KydGozldvto/s+BFrB6LmZdE=;
- b=IbgeottnlR1qz1t5GgZald+IltoeOBu2qf4EcMcmha5OYwjjgDUeBbgiLHSerOW0TtBKnMgVjYgoYhdAhAqtUJVyxq7TMBcZ4Is/VJfUXgeJ10GiOuMDNk+J9alH+G/PykTCyBE2JXAAdW2vfd6YvQYwgEAGXE70YoUHHPcVgKXo8I9m1H9Z3dVlfdCrJnJqNzuy7xLvzZ/GKkSUVq/tN2u/iMFdWdI+kwE5R/aaVLQM5cei+dhagq+0b8BSFy8OpKwifSVkF8HHaKg9kg3Kc2dtJ/PzW+OrHrkiQbJ2uwFo4vARpHfL6INklARJnSvMRlaW00UiHY74McAmGqYKDw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3A5gVm5CX1q+DQudNh9KydGozldvto/s+BFrB6LmZdE=;
- b=WkjF3vAMqd6hSsw4VPadekQTX2dmGCPwGTQZMwGlRN7u3CMmoEpMZJrCsUD8B5qacC5/ZwYERJGtwCLc+YTDa6vb+G4w8nFjMmcZSSAaYGEZ8LWwDkPhNUoRfl0zhD12ba9kfEAKiZ7KwxjoxkTfhlkWzbBA0TLlyp3xVqhr5UhOOc88GAAIryQCm9+w9X8REgNlT8/88IVbVFPOTkQy270tSqROm950YlJPfeTW64JiMXQZVfqU0tsLzcP0q491nFPf3TTIx3Noz4fvqKpGZ3N8B0LQj9W1RVcI7Ohz/MOfjqcRSXg0OTBYi526suzg0afmxzLtZdlariqwwVJf2Q==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
- by CY8PR12MB7364.namprd12.prod.outlook.com (2603:10b6:930:50::20)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.28; Wed, 8 Mar
- 2023 14:13:42 +0000
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::dfb7:e322:9a22:8eda]) by CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::dfb7:e322:9a22:8eda%4]) with mapi id 15.20.6156.028; Wed, 8 Mar 2023
- 14:13:42 +0000
-Message-ID: <a3f4e89b-801c-6f4d-e9bc-a420ff4221ae@nvidia.com>
-Date: Wed, 8 Mar 2023 09:13:39 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
+ Wed, 08 Mar 2023 06:14:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1678284843;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=SuGUGzyvDO4F2NPZ8Oo8JDIwnK95EVehqB8FahWEx0U=;
+ b=AM8+WjFPuiI0NEfSjZCk7LAdngAjRFhp4ewl7JeU1evGv/DZcPT4wmL+Vbz716yh8k
+ +qPYH7O2E5I9Q1voac1xguuvjjwJiHp8w62IZ4szuX6tNX9aNfRLOKoiNdDqyCXgkEqC
+ R93fH6OvH83BBrIPtmqV4Co2kRlNrzUeZao64MvQgDlHNsOTAovXPabJWV5+Nx8L/CNl
+ 9o9OcqIaW+GuKFUBX4uDxnEM3AlRa9c+MmKh1OZTIlZB72NbG1ILeyQq3HRBQ6zGnJT2
+ 5z+gGFOTg60DxJgCcvYPp1SlShIoiElddUgKeIMI4mBLUWv2xYXi91fE+n+d14YZ7n1g
+ JadQ==
+X-Gm-Message-State: AO0yUKVoOwIUvdFyeRLwnPqnDeOjyT+zGtR1rUzStsbyREjG3szJ9VyO
+ NQpXY3LZwjaSI5ZsFpRz3hSht0vBEAbs3Mi8mg1HU3idyYcyQlJLjh2UHMD1vz7n6nGE+YbOkoh
+ DJYf8QBim5oPwpVWXheCThvGsQlHIGr4UXBGmxD3HHw==
+X-Received: by 2002:a05:600c:45cd:b0:3eb:2de9:8aed with SMTP id
+ s13-20020a05600c45cd00b003eb2de98aedmr15762639wmo.41.1678284843039; 
+ Wed, 08 Mar 2023 06:14:03 -0800 (PST)
+X-Google-Smtp-Source: AK7set/IFUVT8lR7Y5aPU4ZB2Jc/mQaAJ1lCkwgFQF8E0cR05zcXNC4oR91tloxCKnlBe8EVRgT8Dg==
+X-Received: by 2002:a05:600c:45cd:b0:3eb:2de9:8aed with SMTP id
+ s13-20020a05600c45cd00b003eb2de98aedmr15762615wmo.41.1678284842671; 
+ Wed, 08 Mar 2023 06:14:02 -0800 (PST)
+Received: from redhat.com ([2.52.138.216]) by smtp.gmail.com with ESMTPSA id
+ p13-20020a056000018d00b002c5691f13eesm15163894wrx.50.2023.03.08.06.14.01
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 08 Mar 2023 06:14:02 -0800 (PST)
+Date: Wed, 8 Mar 2023 09:13:59 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Feng Liu <feliu@nvidia.com>
 Subject: Re: [PATCH 3/3] virtio_ring: Use const to annotate read-only pointer
  params
-To: virtualization@lists.linux-foundation.org
+Message-ID: <20230308091321-mutt-send-email-mst@kernel.org>
 References: <20230307035705.4479-1-feliu@nvidia.com>
  <20230307035705.4479-4-feliu@nvidia.com>
- <CACGkMEsMQZb6cMPmf8MxrhNhLGGzYRm_=1e8PCUt+1-DExaStg@mail.gmail.com>
- <55af3dc3-ed82-c22a-1205-0a1b8315c88f@nvidia.com>
-In-Reply-To: <55af3dc3-ed82-c22a-1205-0a1b8315c88f@nvidia.com>
-X-ClientProxiedBy: SN7PR18CA0003.namprd18.prod.outlook.com
- (2603:10b6:806:f3::23) To CY5PR12MB6201.namprd12.prod.outlook.com
- (2603:10b6:930:26::16)
+ <m2ttywzzxd.fsf@oracle.com>
+ <4e8d1e89-9b32-8dcd-acd1-6957f13fcbb9@nvidia.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|CY8PR12MB7364:EE_
-X-MS-Office365-Filtering-Correlation-Id: 33d236ae-f4ec-4ba3-7bbb-08db1fdf5299
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: E9jqoCOPbYdYBoy85A12sniL3oxBHjeeU3k36x9BIEbOcrUGDmsi3tLuYWkrnR0p6HZSpkfh6ha1nVa3lbVliMWG1HTtlR49MHjBjHFjAs8t7y3oGQHVxbqiv3BMKo6ILrdthCXMZtYFrgL2GfJtlDu9BSAZoh3o3amGFVdg1pwhzO+COWJkZ9ESyThTXtJEmU8xsGC+eay4zCAQ+V6ylWCA7VpY5tPeQK81oTWarzMvaG0SWif0LuGziclxpTyNl9HiJk1s6h1TKbiAG2+oPD7XNAiBauFUE307dYLdVarJdTStcHe+biFW7WZRat9DzG3nB8TkiNeu1gi+yflwwyqTHlKKNXkT/0RUrf7kzMcgOP5DzAy24wmUASIkGwm7h6yZDiMz5imDhxZaQ/htrYtMPGHNJdxJJsFFpPGKS2Ra+cag/hh1ikpd+BIqnqu9x3ZGx9Z2kMZnYhxwMNa27AiKIyMDu2qdOf/N+REGOOoYEIAoRvvtBEyKWEGvzl02uf833z8S6h5ChCM4T1iT/UIjur+9TKByzJ5cjJImtHPWdeyknKWbS8eSjXztT6XUzARqsLZAJuSp7OpbuiFsQ7NePJxIa4tbaQkD8YQ49ccfoeznSMJKp7yeSQtowKQZc4sz2cjifUVqsJFX9iZKp5p5l1JbdObZshCQE7OP8Z/c0tQXT4LykJDxFjV21CKWB2xUFvV+CI61lA3Ofti4As5q2KmsVi5MIpNM/fRbLkQ=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230025)(4636009)(346002)(396003)(366004)(136003)(39860400002)(376002)(451199018)(31686004)(36756003)(26005)(83380400001)(45080400002)(478600001)(6506007)(38100700002)(316002)(6512007)(5660300002)(6666004)(2616005)(6486002)(966005)(53546011)(186003)(41300700001)(66476007)(66946007)(31696002)(66556008)(8936002)(6916009)(2906002)(86362001)(8676002)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NEd3QlppWHNVdVRjNktXdWt2ekhzM3hlMG0yZnNsL2EyR1UreFlwYzVacGN0?=
- =?utf-8?B?aUJ6SzZQZE9JRURQQTFNUjUyUFZ3d0RIL080dDZaQlZWZkpkSElYT24xRklP?=
- =?utf-8?B?VW50MzVFTU4yejBzcnZ0LzJPMGoxTkFlYkRWdzd3VWFZNnBjR0dXUTlkNFNN?=
- =?utf-8?B?b2dBL3dVL1ZsOC8xcGZuSExiV0hOcjkzNkxoV09IUXdhTVVyVm0vUWxuMEF0?=
- =?utf-8?B?bGFWKzJ2RGthVXIvRm5BejVJUTdWTFpBMEsrNXZDQlpqckI5c1FhTlE3OGcw?=
- =?utf-8?B?aWpXNG5TTHRLVU5EZXRPVjlKWFRUMXZnbEo0SkdOSXg2R2dQQWtLRHFWTDFs?=
- =?utf-8?B?UGhpTm40ZXcvQWxsU1V0VVZiMzFhWk1TTDZOYTNkajlUYS90OFgyUE5SMzVk?=
- =?utf-8?B?cTdKTUg2VVE2UDBacWpyRmxqcVpZSG1mRzRPRUpibStVYi9aS3MxcW9NOTZa?=
- =?utf-8?B?UzQ3UlFTTzgxK05pNlZjc2s0OVFVQnhLK3dDVXo1WndyZDRPWTVHM0VCc2hF?=
- =?utf-8?B?UnN4bHV2bEVxSW14bWE1b0xlM2x2QkJ1SWg0WVk5ZkhzNGpvNTdBUExNaTV4?=
- =?utf-8?B?SnNOVkcrbGR1MHdjU0NmbkhVNVhKYVFma1lUTzBWaFV5QjYrajhBSjRkU0hC?=
- =?utf-8?B?bW5OOWkxTFJEY2hiakdKMlJERVRSckZSODVGSkdGWStpa1JlQ0ZpNHlmVnBB?=
- =?utf-8?B?dkJ0TVZTWm96YXBlejVDRisrNS80N2YzU3NLY1JkSDVEcE9DUjBTc2dDTm1x?=
- =?utf-8?B?MzZ6cUNicVF0MjEyRzU5TkNXRUhmeG9YY1dvQVBaeGI0alpOK1JWZElkdWF4?=
- =?utf-8?B?dVVYbGtMUitVR1crdGhpMGtFQkd2L2lBR2h1WjNaUm1BVkFYOWk4UE5HWSti?=
- =?utf-8?B?c3YzbzBTZ3BYeVVmUThla3ZDYTMzd0pnMC84WGNRTm53VHRYbThvelN2UHhD?=
- =?utf-8?B?T1hzMWhNcjdJZ25Sd24rMzJCaWFSM1ZVZUtLQUJCUCsvVmJkVGVQcEZSWG1U?=
- =?utf-8?B?NUI4SkVmY3FJL3ZaVFBPMjkzOFRoekxmNDQxUU5jeHN2T3BBZWU5VXNMVmJp?=
- =?utf-8?B?YTRoQmVmUjZOVEEyaVY5dGJtZVJ6cVBnV0tyVm1ZMlFRK1lhZGlVOUMvT3NK?=
- =?utf-8?B?RTJHcHIwSkRVdWNVcjNYT0FWN3BZcU5mNWp3Y3lxTUpMSVlZM2lGSjRGU2dG?=
- =?utf-8?B?MTUrUVBGYWdCaktQYlVvUGxwSUVST0o5UVZVYlpmaHRaMm55czlBTUpDQmk1?=
- =?utf-8?B?Ry9zQUZzRm9YN2RkU2dSKzh4NE1tQm01VG1LRmRJbGZKL21vQURRMlRBNnZm?=
- =?utf-8?B?VVZmRW1lM1VuS3BGeWlBTkVYc2xxUGU0RitPU21GTDVlQjNuQUNXVTRzZXZy?=
- =?utf-8?B?T2FhVkh0VnVXZ01OV3JMQ0pEQjBlbzhrN1JrR3BnMVYrbnJWaTdNVXhnYk9J?=
- =?utf-8?B?ellHMkYvTVBGb3FLZUxHcE1paU83Y2ZzdSsxdmhKRzRjUWRpaElzaStjT0dE?=
- =?utf-8?B?elovL1h1eDR4Z1d1SVdhVjZFaHdvL3pieHhzN3cvMFkxWSsvTWI5UUFVRVFD?=
- =?utf-8?B?bThYa0JGZWJ0aERlYndqWDFwQmNGY1l6SG1tbmYrQTFieHlvVnYrZm9aNTlJ?=
- =?utf-8?B?OS9yNWZjQ2dzUkttRnFyYWkvaUFGZUdDRW9GTk5oT0VxOFVESGlzZDNZUXpL?=
- =?utf-8?B?QVJzbUlRQ1d3M09LVStyenFLUjBKTU9GbDVVQ2k2dXpoVmFML2FKN1BROE42?=
- =?utf-8?B?b2F5bUFVdDg4eDVnbXhxYkRhVW03OU5odythOWlIc29KUmo4ZUZUU2ZZQitC?=
- =?utf-8?B?cmE4eEhNazljd0JrWktoWGJoaW5wMzd6c2JjcHVsZXd4cjdxME8yQnRtUVFN?=
- =?utf-8?B?K0lrd0cxUEdyRjhvcG51cDRGUEFlMjh2d1NockZ6N2x5VURRSTRyQkd1Yk9G?=
- =?utf-8?B?QmE1U2haZGJCSDNiZDA3d0NEV0VxMnBDQS9SaGl5Mnk1MHFYSkVLSEltQnVi?=
- =?utf-8?B?aFZnaExjQUY1bTJCdmxlMEpXcC9mcnJKZTFTSGY0Q2pzRWowUzVwZlgxZi9T?=
- =?utf-8?B?SmpLTXI5NVJJZjBJS3B3NHhOVzBzNU9Rb0MyL3ppSjdVd0ozMFZ1b2VQU2tk?=
- =?utf-8?Q?zZRbBQjXl+Epdh6WX6jCLcBGR?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 33d236ae-f4ec-4ba3-7bbb-08db1fdf5299
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2023 14:13:42.8577 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /Tp2ER9fayCbWwFYobX+/Y1pIFFbazlYDj0b3B8aV/FE5XHvV1RAL9KFL4BhRWXY21N2FxL8Sj5PYhEfBaot6w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7364
+In-Reply-To: <4e8d1e89-9b32-8dcd-acd1-6957f13fcbb9@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "feng.liu.kernel@gmail.com" <feng.liu.kernel@gmail.com>,
+ Jiri Pirko <jiri@nvidia.com>, Bodong Wang <bodong@nvidia.com>,
+ Gavin Li <gavinl@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -160,47 +123,201 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Feng Liu <feliu@nvidia.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiAyMDIzLTAzLTA4IGEubS45OjA3LCBGZW5nIExpdSB2aWEgVmlydHVhbGl6YXRpb24gd3Jv
-dGU6Cj4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcgbGlua3Mgb3IgYXR0YWNo
-bWVudHMKPiAKPiAKPiBPbiAyMDIzLTAzLTA4IGEubS4xMjo1OCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcgbGlua3Mgb3IgYXR0YWNobWVu
-dHMKPj4KPj4KPj4gT24gVHVlLCBNYXIgNywgMjAyMyBhdCAxMTo1N+KAr0FNIEZlbmcgTGl1IDxm
-ZWxpdUBudmlkaWEuY29tPiB3cm90ZToKPj4+Cj4+PiBBZGQgY29uc3QgdG8gbWFrZSB0aGUgcmVh
-ZC1vbmx5IHBvaW50ZXIgcGFyYW1ldGVycyBjbGVhciwgc2ltaWxhciB0bwo+Pj4gbWFueSBleGlz
-dGluZyBmdW5jdGlvbnMuCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogRmVuZyBMaXUgPGZlbGl1QG52
-aWRpYS5jb20+Cj4+PiBSZXZpZXdlZC1ieTogSmlyaSBQaXJrbyA8amlyaUBudmlkaWEuY29tPgo+
-Pj4gUmV2aWV3ZWQtYnk6IFBhcmF2IFBhbmRpdCA8cGFyYXZAbnZpZGlhLmNvbT4KPj4+IFJldmll
-d2VkLWJ5OiBHYXZpbiBMaSA8Z2F2aW5sQG52aWRpYS5jb20+Cj4+PiBSZXZpZXdlZC1ieTogQm9k
-b25nIFdhbmcgPGJvZG9uZ0BudmlkaWEuY29tPgo+Pj4gLS0tCj4+PiDCoCBkcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fcmluZy5jIHwgMjUgKysrKysrKysrKysrLS0tLS0tLS0tLS0tLQo+Pj4gwqAgaW5j
-bHVkZS9saW51eC92aXJ0aW8uaMKgwqDCoMKgwqDCoCB8IDEyICsrKysrKy0tLS0tLQo+Pj4gwqAg
-MiBmaWxlcyBjaGFuZ2VkLCAxOCBpbnNlcnRpb25zKCspLCAxOSBkZWxldGlvbnMoLSkKPj4+Cj4+
-Cj4+IFsuLi5dCj4+Cj4+Pgo+Pj4gLS8qCj4+PiAtICogVGhpcyBzaG91bGQgcHJldmVudCB0aGUg
-ZGV2aWNlIGZyb20gYmVpbmcgdXNlZCwgYWxsb3dpbmcgZHJpdmVycyB0bwo+Pj4gKy8gVGhpcyBz
-aG91bGQgcHJldmVudCB0aGUgZGV2aWNlIGZyb20gYmVpbmcgdXNlZCwgYWxsb3dpbmcgZHJpdmVy
-cyB0bwo+Pj4gwqDCoCAqIHJlY292ZXIuwqAgWW91IG1heSBuZWVkIHRvIGdyYWIgYXBwcm9wcmlh
-dGUgbG9ja3MgdG8gZmx1c2guCj4+PiDCoMKgICovCj4+Cj4+IEFueSByZWFzb24gZm9yIHRoaXMg
-Y2hhbmdlPwo+Pgo+IEhpLCBKYXNvbgo+IFRoZSBvcmlnaW5hbCBjb21tZW50IG9mIHRoZSBjb2Rl
-IGhhZCBhIHN5bnRheCBwcm9ibGVtIGFuZCBjb3VsZG4ndAo+IGNvbXBpbGUsIEkgZml4ZWQgaXQg
-aGVyZQo+IApTb3JyeSwgdGhlcmUgaXMgYSBtaXN0YWtlLCBJIHdpbGwgZml4ZWQgaXQKCj4+IFRo
-YW5rcwo+Pgo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-Cj4gVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0Cj4gVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKPiBodHRwczovL25hbTExLnNhZmVsaW5rcy5wcm90ZWN0aW9uLm91
-dGxvb2suY29tLz91cmw9aHR0cHMlM0ElMkYlMkZsaXN0cy5saW51eGZvdW5kYXRpb24ub3JnJTJG
-bWFpbG1hbiUyRmxpc3RpbmZvJTJGdmlydHVhbGl6YXRpb24mZGF0YT0wNSU3QzAxJTdDZmVsaXUl
-NDBudmlkaWEuY29tJTdDMmQ0MDYzODhlODY2NDA3YTNhNjQwOGRiMWZkZTg4MTklN0M0MzA4M2Qx
-NTcyNzM0MGMxYjdkYjM5ZWZkOWNjYzE3YSU3QzAlN0MwJTdDNjM4MTM4ODEyODU3MzkxNjQ2JTdD
-VW5rbm93biU3Q1RXRnBiR1pzYjNkOGV5SldJam9pTUM0d0xqQXdNREFpTENKUUlqb2lWMmx1TXpJ
-aUxDSkJUaUk2SWsxaGFXd2lMQ0pYVkNJNk1uMCUzRCU3QzMwMDAlN0MlN0MlN0Mmc2RhdGE9b1hv
-amhOdHhNNFNLQXp6bmF3UVNJR1UxMVhxYmhWQ0NVRkI2RFhKb29JUSUzRCZyZXNlcnZlZD0wCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Tue, Mar 07, 2023 at 09:17:55PM +0000, Feng Liu wrote:
+> On 2023-03-07 04:14, David Edmondson wrote:
+> > External email: Use caution opening links or attachments
+> > 
+> > 
+> > Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+> > writes:
+> > 
+> >> Add const to make the read-only pointer parameters clear, similar to
+> >> many existing functions.
+> > 
+> > In many of the modified functions the local variable that is a cast of
+> > the argument could also be const. Is there a reason not to do both at
+> > the same time?
+> > 
+> 
+> Hi,David
+> 
+> In order to prevent the content of a pointer parameter from being 
+> modified and increase the readability of the function, it is recommended 
+> to add the 'const' keyword to the parameter. This is not necessary for 
+> local variables and non-pointer parameters, as they are only stored on 
+> the stack and do not affect the original value or structure member 
+> passed into the function. Therefore, in this case, the 'const' keyword 
+> is only added to pointer parameters.
+
+This makes no sense to me. If ytou cast away the const then it is
+pointless.
+
+> 
+> >> Signed-off-by: Feng Liu <feliu@nvidia.com>
+> >> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> >> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> >> Reviewed-by: Gavin Li <gavinl@nvidia.com>
+> >> Reviewed-by: Bodong Wang <bodong@nvidia.com>
+> >> ---
+> >>   drivers/virtio/virtio_ring.c | 25 ++++++++++++-------------
+> >>   include/linux/virtio.h       | 12 ++++++------
+> >>   2 files changed, 18 insertions(+), 19 deletions(-)
+> >>
+> >> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> >> index 806cc44eae64..8010fd1d2047 100644
+> >> --- a/drivers/virtio/virtio_ring.c
+> >> +++ b/drivers/virtio/virtio_ring.c
+> >> @@ -233,7 +233,7 @@ static void vring_free(struct virtqueue *_vq);
+> >>
+> >>   #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
+> >>
+> >> -static bool virtqueue_use_indirect(struct vring_virtqueue *vq,
+> >> +static bool virtqueue_use_indirect(const struct vring_virtqueue *vq,
+> >>                                          unsigned int total_sg)
+> >>   {
+> >>        /*
+> >> @@ -269,7 +269,7 @@ static bool virtqueue_use_indirect(struct vring_virtqueue *vq,
+> >>    * unconditionally on data path.
+> >>    */
+> >>
+> >> -static bool vring_use_dma_api(struct virtio_device *vdev)
+> >> +static bool vring_use_dma_api(const struct virtio_device *vdev)
+> >>   {
+> >>        if (!virtio_has_dma_quirk(vdev))
+> >>                return true;
+> >> @@ -289,7 +289,7 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+> >>        return false;
+> >>   }
+> >>
+> >> -size_t virtio_max_dma_size(struct virtio_device *vdev)
+> >> +size_t virtio_max_dma_size(const struct virtio_device *vdev)
+> >>   {
+> >>        size_t max_segment_size = SIZE_MAX;
+> >>
+> >> @@ -423,7 +423,7 @@ static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
+> >>    */
+> >>
+> >>   static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
+> >> -                                        struct vring_desc *desc)
+> >> +                                        const struct vring_desc *desc)
+> >>   {
+> >>        u16 flags;
+> >>
+> >> @@ -1183,7 +1183,7 @@ static u16 packed_last_used(u16 last_used_idx)
+> >>   }
+> >>
+> >>   static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
+> >> -                                  struct vring_desc_extra *extra)
+> >> +                                  const struct vring_desc_extra *extra)
+> >>   {
+> >>        u16 flags;
+> >>
+> >> @@ -1206,7 +1206,7 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
+> >>   }
+> >>
+> >>   static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+> >> -                                struct vring_packed_desc *desc)
+> >> +                                 const struct vring_packed_desc *desc)
+> >>   {
+> >>        u16 flags;
+> >>
+> >> @@ -2786,7 +2786,7 @@ EXPORT_SYMBOL_GPL(vring_transport_features);
+> >>    * Returns the size of the vring.  This is mainly used for boasting to
+> >>    * userspace.  Unlike other operations, this need not be serialized.
+> >>    */
+> >> -unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
+> >> +unsigned int virtqueue_get_vring_size(const struct virtqueue *_vq)
+> >>   {
+> >>
+> >>        struct vring_virtqueue *vq = to_vvq(_vq);
+> >> @@ -2819,7 +2819,7 @@ void __virtqueue_unbreak(struct virtqueue *_vq)
+> >>   }
+> >>   EXPORT_SYMBOL_GPL(__virtqueue_unbreak);
+> >>
+> >> -bool virtqueue_is_broken(struct virtqueue *_vq)
+> >> +bool virtqueue_is_broken(const struct virtqueue *_vq)
+> >>   {
+> >>        struct vring_virtqueue *vq = to_vvq(_vq);
+> >>
+> >> @@ -2827,8 +2827,7 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
+> >>   }
+> >>   EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+> >>
+> >> -/*
+> >> - * This should prevent the device from being used, allowing drivers to
+> >> +/ This should prevent the device from being used, allowing drivers to
+> >>    * recover.  You may need to grab appropriate locks to flush.
+> >>    */
+> >>   void virtio_break_device(struct virtio_device *dev)
+> >> @@ -2881,7 +2880,7 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *_vq)
+> >>   }
+> >>   EXPORT_SYMBOL_GPL(virtqueue_get_desc_addr);
+> >>
+> >> -dma_addr_t virtqueue_get_avail_addr(struct virtqueue *_vq)
+> >> +dma_addr_t virtqueue_get_avail_addr(const struct virtqueue *_vq)
+> >>   {
+> >>        struct vring_virtqueue *vq = to_vvq(_vq);
+> >>
+> >> @@ -2895,7 +2894,7 @@ dma_addr_t virtqueue_get_avail_addr(struct virtqueue *_vq)
+> >>   }
+> >>   EXPORT_SYMBOL_GPL(virtqueue_get_avail_addr);
+> >>
+> >> -dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
+> >> +dma_addr_t virtqueue_get_used_addr(const struct virtqueue *_vq)
+> >>   {
+> >>        struct vring_virtqueue *vq = to_vvq(_vq);
+> >>
+> >> @@ -2910,7 +2909,7 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
+> >>   EXPORT_SYMBOL_GPL(virtqueue_get_used_addr);
+> >>
+> >>   /* Only available for split ring */
+> >> -const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+> >> +const struct vring *virtqueue_get_vring(const struct virtqueue *vq)
+> >>   {
+> >>        return &to_vvq(vq)->split.vring;
+> >>   }
+> >> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> >> index 2b472514c49b..36a79374e735 100644
+> >> --- a/include/linux/virtio.h
+> >> +++ b/include/linux/virtio.h
+> >> @@ -84,14 +84,14 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+> >>
+> >>   void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+> >>
+> >> -unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+> >> +unsigned int virtqueue_get_vring_size(const struct virtqueue *vq);
+> >>
+> >> -bool virtqueue_is_broken(struct virtqueue *vq);
+> >> +bool virtqueue_is_broken(const struct virtqueue *vq);
+> >>
+> >> -const struct vring *virtqueue_get_vring(struct virtqueue *vq);
+> >> -dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+> >> -dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+> >> -dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+> >> +const struct vring *virtqueue_get_vring(const struct virtqueue *vq);
+> >> +dma_addr_t virtqueue_get_desc_addr(const struct virtqueue *vq);
+> >> +dma_addr_t virtqueue_get_avail_addr(const struct virtqueue *vq);
+> >> +dma_addr_t virtqueue_get_used_addr(const struct virtqueue *vq);
+> >>
+> >>   int virtqueue_resize(struct virtqueue *vq, u32 num,
+> >>                     void (*recycle)(struct virtqueue *vq, void *buf));
+> >> --
+> >> 2.34.1
+> >>
+> >> _______________________________________________
+> >> Virtualization mailing list
+> >> Virtualization@lists.linux-foundation.org
+> >> https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Flists.linuxfoundation.org%2Fmailman%2Flistinfo%2Fvirtualization&data=05%7C01%7Cfeliu%40nvidia.com%7C6265cc6ac03e484167ba08db1eec5428%7C43083d15727340c1b7db39efd9ccc17a%7C0%7C0%7C638137772595544505%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=74eHEHUMF89nTG6hrrdMpkl43DJWvC9xCjwqNOny%2FQE%3D&reserved=0
+> > --
+> > Woke up in my clothes again this morning, don't know exactly where I am.
+> 
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
