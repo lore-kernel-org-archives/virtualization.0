@@ -1,112 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3C000C61DA4
-	for <virtualization@archiver.kernel.org>; Thu,  9 Mar 2023 08:24:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7153BC61DA4
+	for <virtualization@archiver.kernel.org>; Thu,  9 Mar 2023 08:31:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CB4A481EDE;
-	Thu,  9 Mar 2023 08:24:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB4A481EDE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NZ/6V4ZD
+	by smtp3.osuosl.org (Postfix) with ESMTP id E377861186;
+	Thu,  9 Mar 2023 08:31:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E377861186
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gGnIoi6h
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iG_SAkVux5wl; Thu,  9 Mar 2023 08:24:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 505808139B;
-	Thu,  9 Mar 2023 08:24:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 505808139B
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LwW4wLv_oghh; Thu,  9 Mar 2023 08:31:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6288E60E3F;
+	Thu,  9 Mar 2023 08:31:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6288E60E3F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B0ABC0035;
-	Thu,  9 Mar 2023 08:24:23 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4327CC0035;
+	Thu,  9 Mar 2023 08:31:43 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 19E8BC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B12DC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Mar 2023 08:24:20 +0000 (UTC)
+ Thu,  9 Mar 2023 08:31:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E9A3D402B1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3E0E6402CE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Mar 2023 08:24:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E9A3D402B1
+ Thu,  9 Mar 2023 08:31:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E0E6402CE
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NZ/6V4ZD
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gGnIoi6h
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id F-KWTyYXewT9
+ with ESMTP id mPv-ntHkrfkH
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Mar 2023 08:24:19 +0000 (UTC)
+ Thu,  9 Mar 2023 08:31:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3E9BE40111
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D8EC40111
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3E9BE40111
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6D8EC40111
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Mar 2023 08:24:19 +0000 (UTC)
+ Thu,  9 Mar 2023 08:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678350258;
+ s=mimecast20190719; t=1678350699;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=KKd192dm2AeL+ZfUgfO3ZLwcRrb/6MAd0iIB60AdtXk=;
- b=NZ/6V4ZDDrnn4h3ktRqk4aCRe6n/b55RqRkZQlIYXOpMDKa/rD2Zyg+LNI5QVUS0qAvVNZ
- VmCY2foqjPiPuQvNINXfF/AhHIE59MqeSUarWItPvTB8P6SsfEXB68++Ug3eldCuvBGqJK
- E3I5veAUVJ3as/RGTmW3c9JMw4rd4gM=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=G4DxzMWFw5jGE1+NNVtKuCD9/BZ7uSP6hGTNxIYyrI0=;
+ b=gGnIoi6hM6iBb9zeqGoHCc3GZNS73QsR1fmmJft9fbizgOqzNJg8elhmbZ3UXxJoTVoQK6
+ GDJjK3meeuCsf3MlLtFJM+nPxdBSqZ1YK5XawY/dv3swbrAmLNZN1ntVTjY99gBfTZZQF8
+ ch9DL5IrxQT2OFVJ1QZi6akmVZnFOFs=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-316-eD23RWWkOE65-E7Tq-bJKw-1; Thu, 09 Mar 2023 03:24:16 -0500
-X-MC-Unique: eD23RWWkOE65-E7Tq-bJKw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- l31-20020a05600c1d1f00b003e8626cdd42so385003wms.3
+ us-mta-652-WDRwkrXOPTqaNGKHgz10tw-1; Thu, 09 Mar 2023 03:31:38 -0500
+X-MC-Unique: WDRwkrXOPTqaNGKHgz10tw-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ d4-20020a05620a166400b00742859d0d4fso799782qko.15
  for <virtualization@lists.linux-foundation.org>;
- Thu, 09 Mar 2023 00:24:16 -0800 (PST)
+ Thu, 09 Mar 2023 00:31:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1678350255;
+ d=1e100.net; s=20210112; t=1678350698;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=KKd192dm2AeL+ZfUgfO3ZLwcRrb/6MAd0iIB60AdtXk=;
- b=6+m3jhWnkKJ3V5gx+fmiirLuJuytM+jmM1XGK7l2kV5Xo9QdqVgqosttxbDI+t7xp2
- SBvGj7cFuRJYVqCQlTYuGuj0Sf1OrLHQBLhaka2EqiB2RJWnnZ5ekiUckYaBBwRl70Gv
- VjFQCM1pELpQoITDggVy/uqAf5+/XdoEs+KphPx1nWYnJuzvClJeCb4b+exEV+k0jsh6
- IxLAXO6luW1GbqhBwxLpN75wBf4txrqpMNOVPB/VCD9JzNJ1+OFNnnUkofCtJidG5orL
- YY5xvY3HvYHA2ZC9krXko2F4KqUgPmKsQWvSw5PnSXWH5asKWZu4nT5iK/DCzMmsBqp8
- bmSg==
-X-Gm-Message-State: AO0yUKVmA8Qbw6CZOlwuapQQ6LXcixvPHAna/RfCX7W+U+WzDPNY9O0N
- 9ajycls/l9AQz+W665SbPvbpT3eZtV5aXIdn0I0klfXe0/EOp9Uk1X9GvYFf9JGNiB/PAjAA/Bw
- 1bWpnVaXz7vDP2hrDhrXJJpl/8+PHN0s/lMm4A4KN+EYcqIXOCw==
-X-Received: by 2002:a05:600c:1c12:b0:3eb:389d:156c with SMTP id
- j18-20020a05600c1c1200b003eb389d156cmr18410277wms.37.1678350255022; 
- Thu, 09 Mar 2023 00:24:15 -0800 (PST)
-X-Google-Smtp-Source: AK7set81Q5EAoFOSJYyUpDBHF44G5XfExEzpA2t/qHqCgPH7fAmK72jRNAakqfKtUPzJ2Tpk8jg1Ew==
-X-Received: by 2002:a05:600c:1c12:b0:3eb:389d:156c with SMTP id
- j18-20020a05600c1c1200b003eb389d156cmr18410264wms.37.1678350254762; 
- Thu, 09 Mar 2023 00:24:14 -0800 (PST)
+ bh=G4DxzMWFw5jGE1+NNVtKuCD9/BZ7uSP6hGTNxIYyrI0=;
+ b=mWCRt90zQKmcDg6jUd4YZ322n9tLRgeDjanahpSspDgxE8nM9c07SCgBQ0528J4RiP
+ aN8vJ4LOUto6NaqAIRpEgMhndjyyUNDPWqPsfgohfF2vpMsdtE6fMXCEh+qym35V+zmI
+ mrFKfQXbUv0yQMViSJv2FccN3fB8JkN+PlgUjVHE08AsLhcyMfNcxK0bkxeQfldSr3T9
+ hqE9BrdU60NjDWxDQtM/lLFcT7Q7rIeLVHYnuiQkIQ3+Jsv/+ylOqMq2YbxVGUpW4xuN
+ +mZDIpMC5YoOdJGTHGdSJGumhdSoWY8rb/3BbldCOJvZP372Jhczd8c+brGW23SPglgf
+ 8aUQ==
+X-Gm-Message-State: AO0yUKVS33l1KnHI+mJjnv7I/BDaUQfy3xcE3CIqafhJYN8O5ad9UiYN
+ Sstf5P9HPRzicA1QhDx3Po1NfOO/1sS0sohXhXn1TDRIYT+GDLOirTN1HO2C6Pk9N+xNhcl+tFy
+ 4wzDrhrpgmP782g/H5H84YsTlcBo9jYwoopCT8IWRcw==
+X-Received: by 2002:a05:622a:54c:b0:3bf:d9d2:484f with SMTP id
+ m12-20020a05622a054c00b003bfd9d2484fmr35189151qtx.11.1678350698223; 
+ Thu, 09 Mar 2023 00:31:38 -0800 (PST)
+X-Google-Smtp-Source: AK7set+lOQQ30IfqLTp3od+p+eKiTOPO28RD1XBMQ8cVo6/e0bR73jy7mpBYd6WWU+y5fBzb1/Ok4A==
+X-Received: by 2002:a05:622a:54c:b0:3bf:d9d2:484f with SMTP id
+ m12-20020a05622a054c00b003bfd9d2484fmr35189140qtx.11.1678350697996; 
+ Thu, 09 Mar 2023 00:31:37 -0800 (PST)
 Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
  [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
- o4-20020a05600c378400b003e4326a6d53sm1752740wmr.35.2023.03.09.00.24.13
+ y9-20020ac87089000000b003bfaae103f6sm13229024qto.89.2023.03.09.00.31.36
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 09 Mar 2023 00:24:14 -0800 (PST)
-Date: Thu, 9 Mar 2023 09:24:11 +0100
+ Thu, 09 Mar 2023 00:31:37 -0800 (PST)
+Date: Thu, 9 Mar 2023 09:31:33 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Rong Tao <rtoax@foxmail.com>
-Subject: Re: [PATCH] tools/virtio: virtio_test: Fix indentation
-Message-ID: <20230309082411.nm5apbepytansfpm@sgarzare-redhat>
-References: <tencent_89579C514BC4020324A1A4ACA44B5B95BB07@qq.com>
+Subject: Re: [PATCH] tools/virtio: virtio_test -h,--help should return directly
+Message-ID: <20230309083133.zfebcl67k35b7rkt@sgarzare-redhat>
+References: <tencent_4B5122C4158323A1D1ACA04B3295F1579207@qq.com>
 MIME-Version: 1.0
-In-Reply-To: <tencent_89579C514BC4020324A1A4ACA44B5B95BB07@qq.com>
+In-Reply-To: <tencent_4B5122C4158323A1D1ACA04B3295F1579207@qq.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "open list:VIRTIO CORE AND NET DRIVERS"
- <virtualization@lists.linux-foundation.org>,
- open list <linux-kernel@vger.kernel.org>, mst@redhat.com
+Cc: open list <linux-kernel@vger.kernel.org>,
+ "open list:VIRTIO CORE AND NET DRIVERS"
+ <virtualization@lists.linux-foundation.org>, Rong Tao <rongtao@cestc.cn>,
+ mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,30 +124,55 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 09, 2023 at 02:13:20PM +0800, Rong Tao wrote:
->Replace eight spaces with Tab.
+On Thu, Mar 09, 2023 at 02:13:13PM +0800, Rong Tao wrote:
+>From: Rong Tao <rongtao@cestc.cn>
 >
->Signed-off-by: Rong Tao <rtoax@foxmail.com>
+>When we get help information, we should return directly, and we should not
+>execute test cases. Move the exit() directly into the help() function and
+>remove it from case '?'.
+>
+>Signed-off-by: Rong Tao <rongtao@cestc.cn>
 >---
-> tools/virtio/virtio_test.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-
+> tools/virtio/virtio_test.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
 >
 >diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
->index 6e348fbdc5d8..44409a311580 100644
+>index 120062f94590..6e348fbdc5d8 100644
 >--- a/tools/virtio/virtio_test.c
 >+++ b/tools/virtio/virtio_test.c
->@@ -134,7 +134,7 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
-> 	dev->buf_size = 1024;
-> 	dev->buf = malloc(dev->buf_size);
-> 	assert(dev->buf);
->-        dev->control = open("/dev/vhost-test", O_RDWR);
->+	dev->control = open("/dev/vhost-test", O_RDWR);
-> 	assert(dev->control >= 0);
-> 	r = ioctl(dev->control, VHOST_SET_OWNER, NULL);
-> 	assert(r >= 0);
+>@@ -337,6 +337,8 @@ static void help(void)
+> 		" [--batch=random/N]"
+> 		" [--reset=N]"
+> 		"\n");
+>+
+>+	exit(0);
+
+Please exit with a value different from 0 (e.g. 2).
+
+> }
+>
+> int main(int argc, char **argv)
+>@@ -354,14 +356,12 @@ int main(int argc, char **argv)
+> 		case -1:
+> 			goto done;
+> 		case '?':
+>-			help();
+> 			exit(2);
+
+Sorry, I meant the opposite, remove exit(2) and leave help().
+
+Thanks,
+Stefano
+
+> 		case 'e':
+> 			features &= ~(1ULL << VIRTIO_RING_F_EVENT_IDX);
+> 			break;
+> 		case 'h':
+> 			help();
+>-			goto done;
+> 		case 'i':
+> 			features &= ~(1ULL << VIRTIO_RING_F_INDIRECT_DESC);
+> 			break;
 >-- 
 >2.39.1
 >
