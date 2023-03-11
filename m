@@ -1,222 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2478DC61DA4
-	for <virtualization@archiver.kernel.org>; Sat, 11 Mar 2023 16:11:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11236C6FD1C
+	for <virtualization@archiver.kernel.org>; Sat, 11 Mar 2023 17:21:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 58B9D41C07;
-	Sat, 11 Mar 2023 16:11:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 58B9D41C07
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7566240391;
+	Sat, 11 Mar 2023 17:21:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7566240391
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=bq0ksj/O
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W73Lko5rEpY7; Sat, 11 Mar 2023 17:21:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EFA8C400C4;
+	Sat, 11 Mar 2023 17:21:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EFA8C400C4
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C49C0C0071;
+	Sat, 11 Mar 2023 17:21:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19780C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 11 Mar 2023 17:21:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id E0F2741B2C
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 11 Mar 2023 17:21:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E0F2741B2C
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cY7CHNF0;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=gWHff9Dw
+ dkim=pass (1024-bit key) header.d=linux-foundation.org
+ header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google
+ header.b=bq0ksj/O
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cz6X15lR60Ti; Sat, 11 Mar 2023 16:11:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 60B0841B72;
-	Sat, 11 Mar 2023 16:11:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 60B0841B72
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 398E9C0071;
-	Sat, 11 Mar 2023 16:11:49 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7828EC0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GoGdtVPfVyhU
  for <virtualization@lists.linux-foundation.org>;
- Sat, 11 Mar 2023 16:11:48 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1404560030
+ Sat, 11 Mar 2023 17:21:35 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8E9E41849
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com
+ [IPv6:2a00:1450:4864:20::535])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D8E9E41849
  for <virtualization@lists.linux-foundation.org>;
- Sat, 11 Mar 2023 16:11:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1404560030
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=cY7CHNF0; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=gWHff9Dw
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vIGV9KB1v4UM
+ Sat, 11 Mar 2023 17:21:34 +0000 (UTC)
+Received: by mail-ed1-x535.google.com with SMTP id r15so5773604edq.11
  for <virtualization@lists.linux-foundation.org>;
- Sat, 11 Mar 2023 16:11:46 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8AC46606E7
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8AC46606E7
- for <virtualization@lists.linux-foundation.org>;
- Sat, 11 Mar 2023 16:11:46 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 32BDOqr9007563; Sat, 11 Mar 2023 16:11:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=Wi9yiwMBSxjtLy8cndYA8XiMrgB2QqG+hZf6Q8xu1I8=;
- b=cY7CHNF0vnBwHjoT2fI0UXS45fed8yZaOOL7ZiIisqVTQ1V/5V7PGy9Axb7/J1e42Ap4
- LeibHwZDTVEwR5A2ABCz6Oc6+vD7Cd0Tth8Kgr09PSXZA62OGwi1LN08DBF6O116iENs
- r9ThU9IuZiVdzmlnD+BqNdc8h45X60AcKt0nOtG7Km1Zq6aP2Ola/IzfcUw6si8ASTIz
- tsJ99M/E68QH1I/+m7vaQITq/KsA6JzJcoOyBLxrX93M9wwMEukgm4Gr9S0Oglfpk7VS
- jfO90NdzhY6jNqjBL+MF6pWgJEwrxUUdHBMl3HVe7RkujaBGiR7k8F8MSPQFxFO2eeLM KQ== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3p8j6u0g0p-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 11 Mar 2023 16:11:33 +0000
-Received: from pps.filterd
- (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 32BG1XnN008160; Sat, 11 Mar 2023 16:11:32 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2101.outbound.protection.outlook.com [104.47.58.101])
- by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
- 3p8g32xm6y-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 11 Mar 2023 16:11:32 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lP7YfymcnAwy8XK7i1LwjaNPLetfi7miKE46+X1CaX0qaV4zpu9aTAEhPKxm/NFvEQje7tyFzPgb1sfDajPOFNNrbb7nqq1lyXln27PpPChS+Zz5QOo6mD2jqww1qlZxclnUBkfNV113XPaygpioxnUJ/3y2au5gqTH67adfwyBKmlttBpsumF9FcBoWzOSJt8ABO+jqwgkAwxCK0KlpkSwf3siN/AfM7isZTxcIQ5Z5bxZ1l1YPAsd309UwtyfagnPagTd1fYi/dtTkAuuuOJqCNnAG0FFwtrQMxWwYa8KUh3iVddN6xm/U3iJbimdgzgVCp8MbQ+GP8DZTFt1TKA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Wi9yiwMBSxjtLy8cndYA8XiMrgB2QqG+hZf6Q8xu1I8=;
- b=KTJt9DlYq5a78PeOQE9WLAR0RampktPMw8oREXhHg7EVz7N3E061XYOd/ClinOniK2/ua8bz5ZhA5bTq/EO+xRZN9y3WUjqVFXzoJyjX4kfJgo2NX6kwbIvmHtbMTIzer4KNYAxoKP4kP0ffvWlVcCGnra6OShPAg0salgTV0SVCIP/+Nhb4wRzmxcOIEQD9KWz4JG8qsq5K2EVbP/e9VNUZWTjObErf1gLIfs3/S7rJcHL5Pd4M3UWUw4qTHgyHLqBPqyQhTJaRv1TDcK8bXyxH0lcouW339E820769aOs06yCEQ0i6AROPM0G2O+FcrtFvJ1NrFJIACvDQR9y3Mg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+ Sat, 11 Mar 2023 09:21:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Wi9yiwMBSxjtLy8cndYA8XiMrgB2QqG+hZf6Q8xu1I8=;
- b=gWHff9DwW7S1pK2ZFzfWRoKqTNnx2r9cOACHUHkOv01EgocOK91Y7CC9n5yGh6ZGTALGrk60kkzsrKgs566DWwUaIIvG7Phsxg9u1l/zolQv0bQJ0yyOXdbGYjd989uTgKjMHLKcdZfQhRJnXMSpd1Tv2J+94QYx1SAzTkehxiE=
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
- CH0PR10MB7412.namprd10.prod.outlook.com (2603:10b6:610:184::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6156.28; Sat, 11 Mar
- 2023 16:11:30 +0000
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::7dd7:8d22:104:8d64]) by DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::7dd7:8d22:104:8d64%7]) with mapi id 15.20.6178.022; Sat, 11 Mar 2023
- 16:11:29 +0000
-Message-ID: <74a17cb6-9dcd-749b-5d06-b2c364d36ae2@oracle.com>
-Date: Sat, 11 Mar 2023 10:11:26 -0600
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.8.0
-Subject: Re: [PATCH 03/11] kthread: Pass in the thread's name during creation
-To: Christian Brauner <brauner@kernel.org>
-References: <20230310220332.5309-1-michael.christie@oracle.com>
- <20230310220332.5309-4-michael.christie@oracle.com>
- <20230311085326.m7aub5duy76hnnam@wittgenstein>
-Content-Language: en-US
-From: michael.christie@oracle.com
-In-Reply-To: <20230311085326.m7aub5duy76hnnam@wittgenstein>
-X-ClientProxiedBy: CH2PR08CA0019.namprd08.prod.outlook.com
- (2603:10b6:610:5a::29) To DM5PR10MB1466.namprd10.prod.outlook.com
- (2603:10b6:3:b::7)
+ d=linux-foundation.org; s=google; t=1678555292;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=PcyIKKidvdnUoalhAwrLa874ozqa2TDtvQ0KGDZ6tLY=;
+ b=bq0ksj/OxdNKgwNFgCnMNiOkKhkZK+jlz82BfV8zxQqpNeomWHcelcWvY9ytsvPbcj
+ OfwQNwlze5lOq2Fjoj2rsu3oOHMD76HKjE0wTbiys75WBsVoNG1r+50+ZIQQHKKQ36ep
+ rW+RyoCNK/+5q3qUsKUT6e4CiDwxlJOoze7f8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1678555292;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=PcyIKKidvdnUoalhAwrLa874ozqa2TDtvQ0KGDZ6tLY=;
+ b=AF8mpw5TAT21nS+gQwL+Zq+qxUljXH1GdoUlgpmmEwwzR2ZlZX0/B0CzkW4ZONs/qQ
+ RGQ7ybUMVbjlSanyOYVgW1bMJOjjEA7Sxqyz7MnJryJ9gGEEXZmO4gL8ouqV0OHvu7Sw
+ QMbLWt4R4X7YsJgGqBekr/fa6O/2wFP52pHHzvT7AagDk78R5yDgEcLWp6YOHS+FRKP6
+ H3Knxbog3sjYnITpfAXUaGvXK+T+G48B8uUnfb+7KOApYGhSGJz3J7ktxR7XMShX1Fyf
+ MTKV+kQ0CBd6aXZYghBhbiIMiXb78Aa3cX5iV9SUIPwU6QGkxy2RyDtTBeke3m8qQ99o
+ CrDQ==
+X-Gm-Message-State: AO0yUKVJ44jvwub8JIy74BIC8e3QDsKmR2PB8OQ+CHPOabsza24L7DZm
+ Jg01p07RMkrp/HGcZwsf0Be8iElZwHp8R8RokMPqdGWG
+X-Google-Smtp-Source: AK7set/l1EtT3FLwFJ3apvEvZjY2SrMlfpdokSBTVtGejiCTl4kfqzlPQ/TvVWcsO6qWzwX39Glzvg==
+X-Received: by 2002:a17:907:9702:b0:8b2:d30:e722 with SMTP id
+ jg2-20020a170907970200b008b20d30e722mr37405496ejc.3.1678555292355; 
+ Sat, 11 Mar 2023 09:21:32 -0800 (PST)
+Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com.
+ [209.85.208.46]) by smtp.gmail.com with ESMTPSA id
+ g14-20020a170906594e00b008be5b97ca49sm1276454ejr.150.2023.03.11.09.21.31
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sat, 11 Mar 2023 09:21:31 -0800 (PST)
+Received: by mail-ed1-f46.google.com with SMTP id g10so4090043eda.1
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 11 Mar 2023 09:21:31 -0800 (PST)
+X-Received: by 2002:a17:906:4997:b0:877:7480:c75d with SMTP id
+ p23-20020a170906499700b008777480c75dmr15142962eju.0.1678555291270; Sat, 11
+ Mar 2023 09:21:31 -0800 (PST)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM5PR10MB1466:EE_|CH0PR10MB7412:EE_
-X-MS-Office365-Filtering-Correlation-Id: 89be88ee-70a8-4125-f97d-08db224b4599
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: LA9BRD2vDRrx6NNdMkeicB+83qr7jZpZmPCPoQcH4hDkzGylxnjXDclyeIryUgkdmV5bobD0Dhh7BIFRLJopt1oQXEjM1IkduPhWfwoYUfPrqQetHbDqct4cvUPeymDO5lx71/1fiTokgbPUrDONtBcZ/Zar1NssBjuCOVNHbx/6WeAGTS/48EMi6JPl2qdJ1bzHKGlzB92qCCuXHHQtXhV/ubGNyMsrJ+Qa0ERGDVGPYLVs/br6ovZkLgvoYsTpz99KGvBaCCmmUNq5AXQUVVhlUFPo/yHQhhV1wDHsjOPdgnzre6VKCL59HMVsMGYc8Rhs4VLJYqPq/SiIWR/HGWW4R00XysWDYNx8Y0f7FS6EGPAmkfoUYSfQXKFxXqx0GZlVzy77qwcEIz/cgkF6fyq1E9bASN1wAjY8s/ru5cdlQHqcIj956LGAVnyYbtXzMRWU8trZcZjwYke9xlRNIRq/sjmIwdxL9bN7gwOQP+yStSl+C9NLoONPInupscaLakO0kf72c2Vn9m1PY4L145Uf9ygWsPsvZEEXRw8pahGUh33Oag0fcEwyDp0itCVE/tlRJhZDYSoFbbgplCh5Td+HOmzJ0IAK+e7OcSubjZVqzRW0ieu0vFAv1oRTjD6dhYfWXPqaHsss4oIHtwjBp9sUYKxadrd/HpSmyFI5Lpx+a/zlihjHNFZPKqyL4heP8KMi4xuOb7t0C/ZM6UXhyA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230025)(376002)(396003)(39860400002)(366004)(346002)(136003)(451199018)(31686004)(7416002)(5660300002)(2906002)(41300700001)(86362001)(31696002)(36756003)(38100700002)(8936002)(66556008)(66476007)(8676002)(478600001)(6486002)(6666004)(6916009)(66946007)(4326008)(316002)(83380400001)(53546011)(186003)(2616005)(9686003)(26005)(6512007)(6506007)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?d0k3WVlsOG5yOFhweFJ4MVA4MnZmbWRiVXdZR3daU2JyRTZZVjZNVzdOZU10?=
- =?utf-8?B?SHVHVjFoSFIvemlhK0h0ajE2MXVUMkgxSnpFSnZZZW5LTEovT1E3Z2tLSGF1?=
- =?utf-8?B?UHg5N3ZZMUdmTDRXaFJSUU8xUUNBemdteG9lTXhRVTFkVHhDQjg2QTJuNGlB?=
- =?utf-8?B?WjNEeHJudzhESS92Vkd0YnJPQUNIYmdyemxQQ3cvaGdjNlhKQ1k3aUZyZ2tM?=
- =?utf-8?B?c0VKTW80TjdMa1prOWNQZEJBeVZ4N01VemgrY3d3K0ducGRjR01pUUFOY3NM?=
- =?utf-8?B?VTBkcXZxYzJUb2R6bGp6V1VEQmUzREpldFk2MmFBaTQ5cTlMQ3ZKdWs2cHFy?=
- =?utf-8?B?NzNLVW0yYTJoclVBdE50ZlRIODd1UDJGZVVZU2FsZ0RrM0c0cnV2MjNEdThK?=
- =?utf-8?B?SzBXcE14Y082R2t0TGRmTlFaWG01OEZmYXQ0VExnbDRHZEkzVjJnUjArMjJX?=
- =?utf-8?B?MDJtTGppRnhERkxiY1F5dE9vdUZOMS9yY3IzTXZQL0htZCtRdmU4T3VXOTNV?=
- =?utf-8?B?M1Zaa1d3LzJXeUE5VSt1Zkk0TnBGaEZoNUZqL2kzaS82VE1TYUpBT3M3MGdR?=
- =?utf-8?B?QUlFcXJ0akdwZ2Z4UkkzU3o5aGg5MnNaUlVTaElGZUpyemQreFBKYUcxbk0w?=
- =?utf-8?B?bWFrQStScmU0T2owQ3BTbU5lMkpmQmhEcE1FRXhQRjdrZjlPak82T2pFaU8v?=
- =?utf-8?B?QUQxUU8vQnRVaTM5cnlJRU9sT0JMMHpCWHpPdTZkUjJmeC9OeUV2ZUUzK3ly?=
- =?utf-8?B?MjR1dnBVRkpTSUlMQ0x4emNoRFh6N2lPOFZXMWxZK0lKL0FkK2RmS3JjZkRq?=
- =?utf-8?B?NU9xWU1Xb0hySjJrYXE4enMyVXBGYlk5a3VVdEYrMTZEWm9UMnBYU2FOTE5Z?=
- =?utf-8?B?eFFrYUJ4Z3ZQRzR6YS8zSElzL1UrSFdGV1U0UzNDKzM3MWNuQTJOLzVZY3R3?=
- =?utf-8?B?UzJyeHRqQ0VnV0t5ZWZpS09rbnQvRXFqQnFwODlBcGlYMDFUQVFwRDJCTWt1?=
- =?utf-8?B?OFVCL3BsVVJXNHZkU3NCSnoxVkRUcm00eHJMdm1uWml6N1BKUEhUZlpGS2dP?=
- =?utf-8?B?NDBaU1hyY0d5VURDSVc0YjlTNnlqRXUwbE94elhUQ09MOFllaWs1NHNHZkhy?=
- =?utf-8?B?cGQvOTczWVh2SlRrZXB2cVQvb0MwUDlUUGJCRWRSS3ordjBUVzZQR0dSMDll?=
- =?utf-8?B?NFdpUGIyazlHVE43VHQwSmxCVCtseEpOZDhUdDNLZ2d3cmpJWGZ6VVNyeXVo?=
- =?utf-8?B?V0tVRkNJeFEwNExQamdHYVJSNE96OUNsaHVpZUpVVjF5WDdxRHQwWUN5MXls?=
- =?utf-8?B?WWVhVHZ3enZ1OE9ucjVVL1gzSW9veXBxSnkzbGRnRk5YQmhtT3d3M2ZGelhz?=
- =?utf-8?B?U3B5dDgwYWJHbEd6bGZGSkxPVGVjZkVnNGtrYk5ldTNLY0l5V0cvR0kwK2M1?=
- =?utf-8?B?enpGV2xwNUpBa0JuOFR2VktsTU13ME15TlNZWEZDTnR5ZzlUREtLL1pabW1S?=
- =?utf-8?B?ZE5lS05VaHZYSUlnbVc1dHlValpXZ2JzamgvL1dsQlhUQnNvMm1JT0RTWG1S?=
- =?utf-8?B?aHZqV3BWTVYrOWRPRVlZY3NVbDgyTzdKenplYlZwQ3Q2aTdyRHROMjRwTFJa?=
- =?utf-8?B?d29Pd0Z6VFdoVUo3L21KNVptNFprY1kzOWtjRk50eFJsZm83eS9lb2s5cTNm?=
- =?utf-8?B?RnBzR3ZsZzkyQnNEajg2R0hqY1NVZnJLeENTYm9SaFpVUHhqMUc4ampoVFF1?=
- =?utf-8?B?N3JiTjdDTWY4b2d5N1pPMlhFUHh0TU83ODZZY0lxNUJJOHVadDA3cFVORmR5?=
- =?utf-8?B?VjdaMktJUVMrZEY4dE5mZ2xtcFRLQWl5WXdsRytxVGFLU21nd0lVTHVlTmZu?=
- =?utf-8?B?bnBZeWdsUWFUUlUrUEk5QmxEcm1NUzhjc0hoQzNTMjVZQWdOZXQyZmhCejRr?=
- =?utf-8?B?ajByQzExTHRUMC8zc3pRVk5jUW1Qc2w3dkI1MVg2bzJ3RjIwUVpCY0ZCQkQ5?=
- =?utf-8?B?THZadGRRWTd4WVk0SkFpcC9EV3FwL2VoT3REYURWcDJvNUlkTk9IK2hKU3JU?=
- =?utf-8?B?UGIzbENkMTRjVWdXTnlSVXJjSjlxL055ZkUrTG9sRTk1OUdId0NDd2dGaVBC?=
- =?utf-8?B?U0xMNHNzdDk4RStjRHUwNnhnbVY1NFpCelBQWlk4YXZUYVd3ZGY4bGcxTEhy?=
- =?utf-8?B?eEE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?QUZ4Q3haNkpLWkdvQzd3aWVJR21vTDNkNG9UMEQwQlRzWXQ3N1NRbWdibzFI?=
- =?utf-8?B?cFJxME85bGNZb0pSNmRhbk4vWHZLb1FRTjNwUkNWQ0dJNzhoRjBnYmZEelVr?=
- =?utf-8?B?bHNCVzFuV3gyczc2RXFiN25CNURBWHJUdHhIWStVY0tOQVh5eXZVWUFSaUJJ?=
- =?utf-8?B?RU8zdU9hK01nMFpCRnhOSzU0ZW1LNGIvcUFxc044eWhORmt5VkxiYTRRZWJ0?=
- =?utf-8?B?bUpkTENjNGJ5M1BxejhDSVJBbGtjeklKQnFCS2Z2V1IyQmNzYjMwdFRpdUN0?=
- =?utf-8?B?OXNLWTlVeGQvR2hUenVmbklkWnJDc0hKV2tGcWNPZ1g4QXE0Y0xucEhFUDJQ?=
- =?utf-8?B?djlxd3pqVEkwQks0UHUwSHNJeVdwN1YwQStrQ29BL0Fram5BZGY3Wk1aTE5i?=
- =?utf-8?B?SlBibDJBL0RuL21FWDVWMlhTZ3l5VHlxcDVZWnZveUtObm9aazkxTFBZeUV6?=
- =?utf-8?B?Vkpic3Z4YzBsb2Q2QTZLTUJkaU8yOTk5dW5lNCs3a1VPSWo4ZXQ0bDdueC9D?=
- =?utf-8?B?dFVlVlgzNkdOOUxtQ1RzMnpsckpFcGVSdXlEUU9kSzdudDR4Q3RmUW9Fb29R?=
- =?utf-8?B?VTJ6SFppNjl1N3c4ZklGeXhJWjhqVzYwdjBuUlF1YjRWNVl6UG4raFgwQ3BP?=
- =?utf-8?B?d3BkaStubmQrSkJVRkJ2Q2JYSFZtTkZBRmY1NmIrR0FBeXcxOGNueDJqSUd3?=
- =?utf-8?B?VUVoMFpHOFpkRlgwN1IwcW1aOU1QaGlONnhEOG5TMEJPV0tPMTFTN3lLU2Nz?=
- =?utf-8?B?N21pc2ZXNnBFcStYeEpHWndqK2c3dUpOSE5IWjA4UUpKOEgyKzJrcit2Zzh3?=
- =?utf-8?B?K25zdzFYQ1VMa2JvUnpkM0ozUTVmVi81RVNIb0Z3USs0b1hRenUraVV6V3VR?=
- =?utf-8?B?a01YT1FaMjZDa29ZTkpza2d6eGFQdS90MndQUnh5SnovbjBHTzhoM2NBNFN4?=
- =?utf-8?B?YWFFK2dzYU9GZEpKREE0MzJpYW5URmxMRHR2OWdVcnhVZGpWSUFvcTVXY1lW?=
- =?utf-8?B?ejRjbVpxN0h6MTRMWXVGbHZ0elkwNWxyNFhHenFWd1pUamZtUzJBV3U1TjYw?=
- =?utf-8?B?QmIwU0dsY0Y5eVJRZUMvQXBQOUdrREU0SmJyckovdUlKTEN6NFozNEZlSVcw?=
- =?utf-8?B?M2JsTTlwaVhidjRrRm4zdXNQVXpaZVpaVGR5VkptUnFCVkxOcUp2YmdHbEJs?=
- =?utf-8?B?cmRDSlhXc3VXeDFyUDlCa2VsSnFhZjhRMHRTRmwyQXkzVGZVRE94Z0sweTRR?=
- =?utf-8?B?cHBPS29uTFFXOGpJazBnTVBtRXE3cEVhKzhubzI5M0MwQWZSbG5mYjZZMDls?=
- =?utf-8?B?QmtkTnd1V1ZuUHhqbzlRWjFud3V2MS9EcjRaWG9JdldMcEIvQllkcXVEVTlk?=
- =?utf-8?B?aEJvVVo1eThNb2c9PQ==?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 89be88ee-70a8-4125-f97d-08db224b4599
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 Mar 2023 16:11:29.1011 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PEW4tYvzumqPKe1YIBFZWpls3nd+nfumqv64MNhBax3XixT3b2GwUWHPldjAWbibRPY5xxx+TEFuywlVXBEI02kGcSnHEP0J93e8MjJkqRY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB7412
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-11_04,2023-03-10_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- phishscore=0
- suspectscore=0 spamscore=0 malwarescore=0 adultscore=0 mlxscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303110146
-X-Proofpoint-GUID: 0-tlBm7_auJbzo5ionK4l_WjflC8wIiy
-X-Proofpoint-ORIG-GUID: 0-tlBm7_auJbzo5ionK4l_WjflC8wIiy
-Cc: mst@redhat.com, konrad.wilk@oracle.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- ebiederm@xmission.com, stefanha@redhat.com, torvalds@linux-foundation.org
+References: <20230310220332.5309-1-michael.christie@oracle.com>
+In-Reply-To: <20230310220332.5309-1-michael.christie@oracle.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Sat, 11 Mar 2023 09:21:14 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wgenic8Ba1WxNP=9YJXk78k9Sg6R7RLkhduYjtVy2gdkg@mail.gmail.com>
+Message-ID: <CAHk-=wgenic8Ba1WxNP=9YJXk78k9Sg6R7RLkhduYjtVy2gdkg@mail.gmail.com>
+Subject: Re: [PATCH 00/11] Use copy_process in vhost layer
+To: Mike Christie <michael.christie@oracle.com>
+Cc: brauner@kernel.org, mst@redhat.com, konrad.wilk@oracle.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ hch@infradead.org, ebiederm@xmission.com, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -228,59 +114,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 3/11/23 2:53 AM, Christian Brauner wrote:
-> On Fri, Mar 10, 2023 at 04:03:24PM -0600, Mike Christie wrote:
->> This has us pass in the thread's name during creation in kernel_thread.
->>
->> Signed-off-by: Mike Christie <michael.christie@oracle.com>
->> ---
->>  kernel/kthread.c | 35 ++++++++++++++---------------------
->>  1 file changed, 14 insertions(+), 21 deletions(-)
->>
->> diff --git a/kernel/kthread.c b/kernel/kthread.c
->> index 63574cee925e..831a55b406d8 100644
->> --- a/kernel/kthread.c
->> +++ b/kernel/kthread.c
->> @@ -38,6 +38,7 @@ struct task_struct *kthreadd_task;
->>  struct kthread_create_info
->>  {
->>  	/* Information passed to kthread() from kthreadd. */
->> +	char *full_name;
->>  	int (*threadfn)(void *data);
->>  	void *data;
->>  	int node;
->> @@ -343,10 +344,15 @@ static int kthread(void *_create)
->>  	/* Release the structure when caller killed by a fatal signal. */
->>  	done = xchg(&create->done, NULL);
->>  	if (!done) {
->> +		kfree(create->full_name);
->>  		kfree(create);
->>  		kthread_exit(-EINTR);
->>  	}
->>  
->> +	if (strlen(create->full_name) >= TASK_COMM_LEN)
->> +		self->full_name = create->full_name;
->> +	else
->> +		kfree(create->full_name);
-> 
-> This is monir but wwiw, this looks suspicious when reading it without
-> more context. It took me a while to see that kthread->full_name is
-> intended to store the untruncated name only if truncation actually needs
-> to happen. So either we should always initialize this or we should add a
-> comment. You can just send a tiny patch that I can fold into this one so
-> you don't have to resend the whole series...
-Ok. Thanks. I think always initializing it would make the code a lot easier
-to understand and be nicer.
-
-I don't think it would be too much extra memory used, and we don't have
-to worry about some random userspace app breaking because it wanted to
-configure the thread but the name got truncated.
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBNYXIgMTAsIDIwMjMgYXQgMjowNOKAr1BNIE1pa2UgQ2hyaXN0aWUKPG1pY2hhZWwu
+Y2hyaXN0aWVAb3JhY2xlLmNvbT4gd3JvdGU6Cj4KPiBUaGUgZm9sbG93aW5nIHBhdGNoZXMgd2Vy
+ZSBtYWRlIG92ZXIgTGludXMncyB0cmVlIGFuZCBhcHBseSBvdmVyIG5leHQuIFRoZXkKPiBhbGxv
+dyB0aGUgdmhvc3QgbGF5ZXIgdG8gdXNlIGNvcHlfcHJvY2VzcyBpbnN0ZWFkIG9mIHVzaW5nCj4g
+d29ya3F1ZXVlX3N0cnVjdHMgdG8gY3JlYXRlIHdvcmtlciB0aHJlYWRzIGZvciBWTSdzIGRldmlj
+ZXMuCgpPaywgYWxsIHRoZXNlIHBhdGNoZXMgbG9va2VkIGZpbmUgdG8gbWUgZnJvbSBhIHF1aWNr
+IHNjYW4gLSBub3RoaW5nCnRoYXQgSSByZWFjdGVkIHRvIGFzIG9iamVjdGlvbmFibGUsIGFuZCBz
+ZXZlcmFsIG9mIHRoZW0gbG9va2VkIGxpa2UKbmljZSBjbGVhbnVwcy4KClRoZSBvbmx5IG9uZSBJ
+IHdlbnQgIldoeSBkbyB5b3UgZG8gaXQgdGhhdCB3YXkiIGZvciB3YXMgaW4gMTAvMTEKKGVudGly
+ZWx5IGludGVybmFsIHRvIHZob3N0LCBzbyBJIGRvbid0IGZlZWwgdG9vIHN0cm9uZ2x5IGFib3V0
+IHRoaXMpCmhvdyB5b3UgbWFkZSAic3RydWN0IHZob3N0X3dvcmtlciIgYmUgYSBwb2ludGVyIGlu
+ICJzdHJ1Y3Qgdmhvc3RfZGV2Ii4KCkl0IF9sb29rc18gdG8gbWUgbGlrZSBpdCBjb3VsZCBqdXN0
+IGhhdmUgYmVlbiBhbiBlbWJlZGRlZCBzdHJ1Y3R1cmUKcmF0aGVyIHRoYW4gYSBzZXBhcmF0ZSBh
+bGxvY2F0aW9uLgoKSU9XLCB3aHkgZG8KCiAgIHZob3N0X2Rldi0+d29ya2VyCgppbnN0ZWFkIG9m
+IGRvaW5nCgogIHZob3N0X2Rldi53b3JrZXIKCmFuZCBqdXN0IGhhdmluZyBpdCBhbGwgaW4gdGhl
+IHNhbWUgYWxsb2NhdGlvbj8KCk5vdCBhIGJpZyBkZWFsLiBNYXliZSB5b3Ugd2FudGVkIHRoZSAn
+dGVzdCBpZiB3b3JrZXIgcG9pbnRlciBpcyBOVUxMJwpjb2RlIHRvIHN0YXkgYXJvdW5kLCBhbmQg
+YmFzaWNhbGx5IHVzZSB0aGF0IHBvaW50ZXIgYXMgYSBmbGFnIHRvby4gT3IKbWF5YmUgdGhlcmUg
+aXMgc29tZSBvdGhlciByZWFzb24geW91IHdhbnQgdG8ga2VlcCB0aGF0IHNlcGFyYXRlLi4KCiAg
+ICAgICAgICAgICAgIExpbnVzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
