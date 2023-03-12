@@ -4,114 +4,110 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0659CC6FA99
-	for <virtualization@archiver.kernel.org>; Sun, 12 Mar 2023 06:46:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B8ACC6FA99
+	for <virtualization@archiver.kernel.org>; Sun, 12 Mar 2023 06:48:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7B17481378;
-	Sun, 12 Mar 2023 06:46:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B17481378
+	by smtp1.osuosl.org (Postfix) with ESMTP id D76C181B14;
+	Sun, 12 Mar 2023 06:48:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D76C181B14
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LNdDV1k/
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P+uEDJKd
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B02q_EoevwRk; Sun, 12 Mar 2023 06:46:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 02FC38135E;
-	Sun, 12 Mar 2023 06:46:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 02FC38135E
+	with ESMTP id oRq5e-JexuSW; Sun, 12 Mar 2023 06:48:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5285081A5F;
+	Sun, 12 Mar 2023 06:48:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5285081A5F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BFE3FC0071;
-	Sun, 12 Mar 2023 06:46:42 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2350FC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25090C0071;
+	Sun, 12 Mar 2023 06:48:10 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4151CC0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Mar 2023 06:46:42 +0000 (UTC)
+ Sun, 12 Mar 2023 06:48:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D814C60F45
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0E835410A7
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Mar 2023 06:46:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D814C60F45
-Authentication-Results: smtp3.osuosl.org;
+ Sun, 12 Mar 2023 06:48:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E835410A7
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=LNdDV1k/
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=P+uEDJKd
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JKab6BODfVwO
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uYnWzodqo6Yc
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Mar 2023 06:46:40 +0000 (UTC)
+ Sun, 12 Mar 2023 06:48:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BC5CB60F41
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B4DE4410A0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BC5CB60F41
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B4DE4410A0
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Mar 2023 06:46:40 +0000 (UTC)
+ Sun, 12 Mar 2023 06:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678603599;
+ s=mimecast20190719; t=1678603685;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ARRgAW1rdAOIpriCSP8Ui2IvwhTOUYp4LtJkYm3vtrY=;
- b=LNdDV1k/4v9ncIWzUL3ur1BmsT2AjNiSjUZqB/xKFQUq0hc7c10lOrMqVeelMefazXIAYm
- RtixZSrYfeVmgc36fXvXxO6fp1DakhhUuhetFE+LVHYj9BD0to8rMM4S71boGjPMF5fd6m
- dmHMfsQoJRtbv9dr8SFNFZ7+QAJNAoU=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/MGBMB8V+RyMvX5Yg8Jpm8tdqEc5z5gytWcPVLlptK0=;
+ b=P+uEDJKdPsAn8RWIECSDVv4X67GfqmI2oFRJUYJg+De0fsiPokB20dseQ+znb04j3dvKbL
+ z6X+0GxcIcOk2RGtfxGzGoKOK8i43/qgZXU8FIMSJzJCCYfk9/Oa6CnOy+0gb6LlLZSljm
+ +fFf/M2uRDqFtuz7UG1+IABBT0me6aI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-104-bovL53VINei99niCLvZ8mA-1; Sun, 12 Mar 2023 01:46:37 -0500
-X-MC-Unique: bovL53VINei99niCLvZ8mA-1
-Received: by mail-wr1-f71.google.com with SMTP id
- m10-20020adfe94a000000b002cdc5eac0d0so1671813wrn.2
+ us-mta-653-g0vWj_VGPSyjR0xcpB_xZg-1; Sun, 12 Mar 2023 01:48:04 -0500
+X-MC-Unique: g0vWj_VGPSyjR0xcpB_xZg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ az12-20020a05600c600c00b003e8910ec2fdso3172303wmb.6
  for <virtualization@lists.linux-foundation.org>;
- Sat, 11 Mar 2023 22:46:36 -0800 (PST)
+ Sat, 11 Mar 2023 22:48:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1678603596;
+ d=1e100.net; s=20210112; t=1678603683;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=ARRgAW1rdAOIpriCSP8Ui2IvwhTOUYp4LtJkYm3vtrY=;
- b=2EtCCdvryR4wAzVzzKrRGSmZhFjt+xJ6RrgFXkeMzhNQJokkW37mUqhFDaeFrZV9tu
- DAHBUSL+nf9Pm++robzFwV+Unio0PyhwKx+cUNMJXecnWSLXFvTkHgeXJBilFEEpNr3j
- gnd0T/2y+niJuJ75qME9nxx8gjNSrOMtXTiL/s683U7duxBp9n9VUO/hSkYYZpaWAs19
- qG6+b4QyJbux9uMzBzUdeUiIiz8rvNdHRFg3sIvEuKZ5E/1272a3H8n5MetC7GQOkyNZ
- PeIV6eSreb26+YC0v39rPsoSKhtt37wEHdDr5YvZBARuq4ivg2vX6hOYA86FZt3MmDYs
- J5AA==
-X-Gm-Message-State: AO0yUKXx/rPexRC2uYMbZxPHrtJ97ynH3fgOLtKZKfDgYeaKLrk5AnQZ
- 6PAqcxheSJhFVKjr06BxU6U08gsrpKdrkOvcLgO6umfmpXYZ5sUBstJesk0d2UleGk707S3g7w6
- 2VheU9jK3/sxadqjWGEqm7KMAT23m0MQInEoC4Bzvgg==
-X-Received: by 2002:a05:600c:4f08:b0:3ea:e554:7815 with SMTP id
- l8-20020a05600c4f0800b003eae5547815mr7563179wmq.9.1678603595959; 
- Sat, 11 Mar 2023 22:46:35 -0800 (PST)
-X-Google-Smtp-Source: AK7set+80MjuHQn7U2MSHy4W2WqvQo+AGEJK89nVvK3A9XRJG5XIKjDze9gn/quBSvbzMhcotlJLaQ==
-X-Received: by 2002:a05:600c:4f08:b0:3ea:e554:7815 with SMTP id
- l8-20020a05600c4f0800b003eae5547815mr7563172wmq.9.1678603595612; 
- Sat, 11 Mar 2023 22:46:35 -0800 (PST)
+ bh=/MGBMB8V+RyMvX5Yg8Jpm8tdqEc5z5gytWcPVLlptK0=;
+ b=2SOgHDLJXr71pss2ahvpkt7/UMKFWCU18D08XmhY/Z2s/ltnqpEmF4/07XCbXDkgIx
+ 8kAquy2lGqBtR1iBiU8yAdLTcpP0bovMFdAnSegXUEd9rVrHuuJa5st/hA8YT+CWc7U5
+ dBuTMgbvl/d/AuM7dPCJDuh79CXBEFsimiGgtlmooO9W/8thP5P1Ks2pjGV1G1MM05zk
+ DCmq1pkGgMgX3j/MaqMnBtShbl5Ai33y9sN50fhiYq82AW4mv9xjoYmMEZN2P6FyZa9z
+ 7aSN2NoguLtZ2j5HUGRjPsF4i21pNPw4rgVAcR3zW82ESxbyEFxuvjPgVA8oco6TvRsn
+ eLBw==
+X-Gm-Message-State: AO0yUKXS1Nx3P7dJzs449TAmAwHuXg4VKbzN8bk9euFge7hmKVbW+M2+
+ kY3aTlTON1vO9S1YJ3Z3z0e8iT2DdUHkKbl6GkkPqZ3xigDp3cX+zSVGY6BoQrtIX8UtTi8Szj+
+ c2jxP9CoTwQl4dZSFa4Z9fIBfqVHItMuplhFEhlww+Q==
+X-Received: by 2002:a05:600c:548e:b0:3eb:2708:86ca with SMTP id
+ iv14-20020a05600c548e00b003eb270886camr7661079wmb.28.1678603683271; 
+ Sat, 11 Mar 2023 22:48:03 -0800 (PST)
+X-Google-Smtp-Source: AK7set8uyFMuQBoVusVSQX+GO75f9FSj5c5dvx6BVxihm5DSxXQAxeIy/vI/V/Z6b/PRWsDUaL2tLQ==
+X-Received: by 2002:a05:600c:548e:b0:3eb:2708:86ca with SMTP id
+ iv14-20020a05600c548e00b003eb270886camr7661068wmb.28.1678603682974; 
+ Sat, 11 Mar 2023 22:48:02 -0800 (PST)
 Received: from redhat.com ([2.52.29.35]) by smtp.gmail.com with ESMTPSA id
- z4-20020a056000110400b002c71a32394dsm4091672wrw.64.2023.03.11.22.46.33
+ x26-20020a1c7c1a000000b003eae73ee4a1sm4705358wmc.17.2023.03.11.22.48.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 11 Mar 2023 22:46:35 -0800 (PST)
-Date: Sun, 12 Mar 2023 01:46:32 -0500
+ Sat, 11 Mar 2023 22:48:02 -0800 (PST)
+Date: Sun, 12 Mar 2023 01:47:59 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Feng Liu <feliu@nvidia.com>
-Subject: Re: [PATCH v2 1/3] virtio_pci_modern: Allow non power of 2 sizes for
- virtqueues
-Message-ID: <20230312014544-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2 0/3] virtio_ring: Clean up code for virtio ring and pci
+Message-ID: <20230312014705-mutt-send-email-mst@kernel.org>
 References: <20230310053428.3376-1-feliu@nvidia.com>
- <20230310053428.3376-2-feliu@nvidia.com>
- <PH0PR12MB5481188C606714C32353ED88DCBA9@PH0PR12MB5481.namprd12.prod.outlook.com>
- <bd763bf7-0b8e-ba9e-cbd2-a0302e820cc6@nvidia.com>
- <20230311140355-mutt-send-email-mst@kernel.org>
- <1bdcad80-eca7-9a6b-1375-1ddab3e6bae8@nvidia.com>
+ <20230310030624-mutt-send-email-mst@kernel.org>
+ <fb824fb0-1704-daeb-eb02-fdcfe1686902@nvidia.com>
+ <20230311140528-mutt-send-email-mst@kernel.org>
+ <4da4a05e-4b0f-2c1e-8b58-ade2c620c868@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <1bdcad80-eca7-9a6b-1375-1ddab3e6bae8@nvidia.com>
+In-Reply-To: <4da4a05e-4b0f-2c1e-8b58-ade2c620c868@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jiri Pirko <jiri@nvidia.com>,
- Bodong Wang <bodong@nvidia.com>, Gavin Li <gavinl@nvidia.com>
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,72 +124,79 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Mar 11, 2023 at 05:25:04PM -0500, Feng Liu wrote:
+On Sat, Mar 11, 2023 at 05:19:43PM -0500, Feng Liu wrote:
 > 
 > 
-> On 2023-03-11 p.m.2:05, Michael S. Tsirkin wrote:
+> On 2023-03-11 p.m.2:06, Michael S. Tsirkin wrote:
 > > External email: Use caution opening links or attachments
 > > 
 > > 
-> > On Fri, Mar 10, 2023 at 10:23:16AM -0500, Feng Liu wrote:
+> > On Fri, Mar 10, 2023 at 08:21:31AM -0500, Feng Liu wrote:
 > > > 
 > > > 
-> > > On 2023-03-10 a.m.8:36, Parav Pandit wrote:
+> > > On 2023-03-10 a.m.3:06, Michael S. Tsirkin wrote:
+> > > > External email: Use caution opening links or attachments
 > > > > 
 > > > > 
-> > > > > From: Feng Liu <feliu@nvidia.com>
-> > > > > Sent: Friday, March 10, 2023 12:34 AM
-> > > > 
+> > > > On Fri, Mar 10, 2023 at 07:34:25AM +0200, Feng Liu wrote:
+> > > > > This patch series performs a clean up of the code in virtio_ring and
+> > > > > virtio_pci, modifying it to conform with the Linux kernel coding style
+> > > > > guidance [1]. The modifications ensure the code easy to read and
+> > > > > understand. This small series does few short cleanups in the code.
 > > > > > 
-> > > > > - if (!is_power_of_2(num)) {
-> > > > > -         dev_warn(&vp_dev->pci_dev->dev, "bad queue size %u",
-> > > > > num);
-> > > > > -         return ERR_PTR(-EINVAL);
-> > > > > - }
-> > > > > -
+> > > > > Patch-1 Allow non power of 2 sizes for virtqueues
+> > > > > Patch-2 Avoid using inline for small functions.
+> > > > > Patch-3 Use const to annotate read-only pointer params.
+> > > > > 
+> > > > > [1]
+> > > > > https://nam11.safelinks.protection.outlook.com/?url=https%3A%2F%2Fwww.kernel.org%2Fdoc%2Fhtml%2Fv6.2-rc3%2Fprocess%2Fcoding-style.html%23the-inline-disease&data=05%7C01%7Cfeliu%40nvidia.com%7C6cd34740c4674c1892f608db2263b300%7C43083d15727340c1b7db39efd9ccc17a%7C0%7C0%7C638141583834629671%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C3000%7C%7C%7C&sdata=IA0QCCKjHnYiEk2vPlZ5WjlXs1CMXDphyyqTYnbqQqo%3D&reserved=0
+> > > > > 
+> > > > > All of the patches have been verified based on the kernel code
+> > > > > commit 44889ba56cbb ("Merge tag 'net-6.3-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net")
 > > > > 
-> > > > The check is still valid for split q.
-> > > > Maybe the right place for such a check is not the pci transport driver.
-> > > > But layer below where split vs packed q knowledge resides and hence, power of 2 check can be omitted for packed vq.
-> > > 
-> > > Hi, Parav
-> > >      I think you are right, I checked the virtio spec, only packed virtqueue
-> > > can use queue size which is not power_of_2; so, I think the check can be
-> > > reserved only for split queue here, something like
-> > > 
-> > > struct virtio_device *vdev = &vp_dev->vdev;
-> > > if (!virtio_has_feature(vdev, VIRTIO_F_RING_PACKED)
-> > >   && !is_power_of_2(num)){
-> > >      dev_warn(&vp_dev->pci_dev->dev, "bad queue size %u", num);
-> > >      return ERR_PTR(-EINVAL);
-> > > }
-> > > 
-> > > I will fix it in next version
-> > > 
-> > > Hi, Michael and Jason
-> > > Do you have any comments on this?
-> > > 
+> > > > verified how?
+> > > > 
+> > > Hi Michael
+> > > 1. Applied the patches on lastest kernel source(44889ba56cbb), compile and
+> > > install the kernel, and use iperf to test traffic
+> > > 2. To validate this change, we tested various virtqueue sizes for packed
+> > > rings, including 128, 256, 512, 100, 200, 500, and 1000, with
+> > > CONFIG_PAGE_POISONING enabled, and test by iperf& ping -f and all tests
+> > > passed successfully.
 > > 
-> > Hmm good point. Which raises the question: so how did you test it then?
+> > Given split ring does not support non power of 2 how exactly
+> > did you configure non power of 2?
 > > 
-> Hi Michael
 > 
-> I will construct a non power of 2 size packed virtqueue device to test
-> whether the driver is loaded successfully and whether the traffic is normal;
-> at the same time, I will also construct a non power of 2 size split
-> virtqueue device for testing to see if an warning is given and the driver is
-> loaded fail
-> 
-> The method of constructing the device, such as the reply steps in the
-> previous email
+> Hi, Michael
+> We can implement the test by modifying qemu; 1. force the
+> VIRTIO_F_RING_PACKED feature bit to be set, 2. set
+> VIRTIO_NET_RX_QUEUE_DEFAULT_SIZE and VIRTIO_NET_TX_QUEUE_DEFAULT_SIZE to the
+> value of non power_of_2, 3. remove the check of is_power_of virtqueue, then
+> qemu can create the required virtual device (non power_2 size , packed
+> virtqueue device) ;In this way, any length and packed ring test can be
+> performed;
+> remove the modified code, I can test split vq, and can see that the size of
+> power_of_2 can load the driver normally, and the size of non power_of_2 will
+> give an warning and fail to load the driver
 
-Okay but previously you said you tested ring sizes 100 and 200 with
-iperf. How did you construct these?
+Sounds like a plan but what exactly did you do previously?
+You indicated you tested non powers of 2.
 
-
-> > 
-> > --
-> > MST
+> > > 
+> > > > > Feng Liu (3):
+> > > > >     virtio_pci_modern: Allow non power of 2 sizes for virtqueues
+> > > > >     virtio_ring: Avoid using inline for small functions
+> > > > >     virtio_ring: Use const to annotate read-only pointer params
+> > > > > 
+> > > > >    drivers/virtio/virtio_pci_modern.c |  5 ----
+> > > > >    drivers/virtio/virtio_ring.c       | 48 +++++++++++++++---------------
+> > > > >    include/linux/virtio.h             | 14 ++++-----
+> > > > >    3 files changed, 31 insertions(+), 36 deletions(-)
+> > > > > 
+> > > > > --
+> > > > > 2.34.1
+> > > > 
 > > 
 
 _______________________________________________
