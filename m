@@ -1,97 +1,83 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EF3A3C6FD19
-	for <virtualization@archiver.kernel.org>; Mon, 13 Mar 2023 08:52:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B120C74A4B
+	for <virtualization@archiver.kernel.org>; Mon, 13 Mar 2023 18:05:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6B8DD4029A;
-	Mon, 13 Mar 2023 08:52:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6B8DD4029A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LFRAC1GE
+	by smtp3.osuosl.org (Postfix) with ESMTP id A039960FBC;
+	Mon, 13 Mar 2023 18:05:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A039960FBC
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=desiato.20200630 header.b=QWADTLVQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FG3sXpwy00GA; Mon, 13 Mar 2023 08:52:28 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YzfzwE1FESSU; Mon, 13 Mar 2023 18:05:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7BBDF401EE;
-	Mon, 13 Mar 2023 08:52:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7BBDF401EE
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E5CC60FD7;
+	Mon, 13 Mar 2023 18:05:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E5CC60FD7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B391C0035;
-	Mon, 13 Mar 2023 08:52:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ED477C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4793CC0035;
+	Mon, 13 Mar 2023 18:05:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A04A3C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Mar 2023 08:52:25 +0000 (UTC)
+ Mon, 13 Mar 2023 18:05:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D542840441
+ by smtp1.osuosl.org (Postfix) with ESMTP id 67A81818BE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Mar 2023 08:52:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D542840441
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=LFRAC1GE
+ Mon, 13 Mar 2023 18:05:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 67A81818BE
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=desiato.20200630 header.b=QWADTLVQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9QqL9kUW6W8C
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Tjryi5ejC9TM
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Mar 2023 08:52:25 +0000 (UTC)
+ Mon, 13 Mar 2023 18:05:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2EDD74012F
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2EDD74012F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4126181970
+Received: from desiato.infradead.org (desiato.infradead.org
+ [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4126181970
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Mar 2023 08:52:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1678697544;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=rn0ZDN/u4ONTQp/tmI2ypE9T4TH7mmvAAf+chBeDHxQ=;
- b=LFRAC1GE3817jBqsaGnziGmINzNe00lI9T9qcZNFvH/bzQJeTMouMPvLZ0NTxEmk8LW2HL
- YlnOInaNcVKsX9kohXPcacUJNtbzIHSGBGeGCr06BUktdI2A71Ht+ArQrLeP9i+v7G+2/P
- oLs+O2ofNOhX/hExbjWluPNZZBhhaoc=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-326-j-eQXjg8ORK0ti-wx5PCJA-1; Mon, 13 Mar 2023 04:52:21 -0400
-X-MC-Unique: j-eQXjg8ORK0ti-wx5PCJA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 71414800050;
- Mon, 13 Mar 2023 08:52:21 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.142])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 3214D202701E;
- Mon, 13 Mar 2023 08:52:21 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 191791801CF6; Mon, 13 Mar 2023 09:52:20 +0100 (CET)
-Date: Mon, 13 Mar 2023 09:52:20 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Javier Martinez Canillas <javierm@redhat.com>
-Subject: Re: [PATCH] drm/virtio: Enable fb damage clips property for the
- primary plane
-Message-ID: <20230313085220.fwvcul7sz7ycxtm4@sirius.home.kraxel.org>
-References: <20230310125943.912514-1-javierm@redhat.com>
+ Mon, 13 Mar 2023 18:05:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=desiato.20200630; h=MIME-Version:Content-Transfer-Encoding
+ :Content-Type:References:In-Reply-To:Date:To:From:Subject:Message-ID:Sender:
+ Reply-To:Cc:Content-ID:Content-Description;
+ bh=G/ko5TGzuHEcgDJnamjpPEj0WHGMkQQVi8DJaI/SzYg=; b=QWADTLVQC188kv7oMbz4BHRYWc
+ 71WvmVgDBgXZR0ElQENg9v47nhT0sb7lTKLwph5P7XyH2GLBtfqGT+RNX6GsXSMSfD13TnQ5aPrRG
+ CjXvEN34naTsP+EDdHO+a5mJJmUlcnG3I0FF4FYUiGBtNpG50K2RuWqC2BdUmWCKZxzleT6f2Cbd9
+ dEvgDXovnxWdgy8/pk0byGAokVdVA7chwUS0yYjmvc6kr4JGIGtY2FwLMY+NzAnJyKhfngyRzRAQP
+ zbyV4QKaoEUWvfq2FFU4TF4mVDG+yktLc0HGO4rbG3G528Yn5bQhz1cSw0jsrIP23K+7Rp8aWaan9
+ HWFCgBlQ==;
+Received: from [54.239.6.189] (helo=[192.168.11.210])
+ by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+ id 1pbmXp-001Tlb-1s; Mon, 13 Mar 2023 18:05:13 +0000
+Message-ID: <5441d09dc213998042a337b7f411bd1662b604bc.camel@infradead.org>
+Subject: Re: [PATCH v2 0/2] [RFC] virtio-rng entropy leak reporting feature
+From: Amit Shah <amit@infradead.org>
+To: bchalios@amazon.es, "Jason A. Donenfeld" <Jason@zx2c4.com>, Olivia
+ Mackall <olivia@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ linux-crypto@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,  sgarzare@redhat.com,
+ amit@kernel.org, graf@amazon.de, xmarcalx@amazon.co.uk
+Date: Mon, 13 Mar 2023 19:05:11 +0100
+In-Reply-To: <e1c03136-b873-1f1d-8b06-d9186566fc0c@amazon.es>
+References: <20230131145543.86369-1-bchalios@amazon.es>
+ <Y9lBeymca9eFaJ33@zx2c4.com>
+ <65d872db2e1be29bb03b43ed606e7cc9e74ec08d.camel@infradead.org>
+ <e1c03136-b873-1f1d-8b06-d9186566fc0c@amazon.es>
+User-Agent: Evolution 3.44.4-0ubuntu1 
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230310125943.912514-1-javierm@redhat.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
-Cc: Jocelyn Falempe <jfalempe@redhat.com>,
- Enric Balletbo i Serra <eballetb@redhat.com>,
- Bilal Elmoussaoui <belmouss@redhat.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@redhat.com>,
- Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org,
- Christian Hergert <chergert@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
- Albert Esteve <aesteve@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,19 +94,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Mar 10, 2023 at 01:59:42PM +0100, Javier Martinez Canillas wrote:
-> Christian Hergert reports that the driver doesn't enable the property and
-> that leads to always doing a full plane update, even when the driver does
-> support damage clipping for the primary plane.
-> 
-> Don't enable it for the cursor plane, because its .atomic_update callback
-> doesn't handle damage clips.
-> 
-> Reported-by: Christian Hergert <chergert@redhat.com>
-> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Hey Herbert / Jason / crypto maintainers,
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 
+On Mon, 2023-03-13 at 11:42 +0100, bchalios@amazon.es wrote:
+> Hi Amit,
+> 
+> Thanks for taking the time to look into this.
+> 
+> On 3/2/23 5:55 PM, Amit Shah <amit@infradead.org> wrote:
+> > CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
+> > 
+> > 
+> > 
+> > Hey all,
+> > 
+> > On Tue, 2023-01-31 at 17:27 +0100, Jason A. Donenfeld wrote:
+> > > You sent a v2, but I'm not back until the 11th to provide comments on
+> > > v1. I still think this isn't the right direction, as this needs tie-ins
+> > > to the rng to actually be useful. Please stop posting new versions of
+> > > this for now, so that somebody doesn't accidentally merge it; that'd be
+> > > a big mistake. I'll paste what I wrote you prior:
+> > 
+> > I sat down to review the patchset but looks like there's some
+> > background I'm not aware of.
+> > 
+> > It looks like Babis has implemented the guest side here according to
+> > the spec change that Michael has posted.
+> > 
+> > Jason, do you have an alternative in mind?  In that case, we should
+> > pick this up in the spec update thread instead.
+> 
+> I am not sure what Jason meant here by "This needs to be integrated more closely with random.c itself, similar to how vmgenid works",
+> but here's my take on this.
+> 
+> The point of the patchset is to provide an implementation of Michael's spec on which we can discuss. It implements the HW API and it has
+> some hooks showing how this API could be used. It is mainly directed towards the user-space where we did not have a proper API to consume
+> VMGENID-like functionality. With regards to the random.c components it does exactly what VMGENID does currently, i.e. whenever an entropy-leak
+> is detected it uses the new random bytes provided by the virtio-rng device as entropy. This is as racy as VMGENID, as I mention in the cover
+> letter of the patchset.
+
+Yea, this does solve the race condition from the userspace pov, so does
+look better.  Thanks for the details!
+
+Not sure if Jason's back yet - but Herbert, or other crypto
+maintainers, can you chime in from the crypto/rng perspective if this
+looks sane?
+
+Jason has previously NACKed the patch without follow-up, and I don't
+want the patch to linger without a path to merging, especially when
+it's not clear what Jason meant.
+
+> However, the new spec does allow us to do things _correctly_, i.e. not rely on asynchronous handling of events to re-seed the kernel. For example, we
+> could achieve something like that by making use of the "copy-on-leak" operation, so that a flag changes value before vCPUs get resumed, so we know
+> when a leak has happened when needed, e.g. before returning random bytes to user-space. At least, that's what I remember us discussing during LPC.
+> Jason, Michael, Alex, please keep me honest here :)
+> 
+> Unfortunately, I am not very familiar with the random.c code and did not want to do something there that would most certainly be wrong, hence I posted
+> this as an RFC, asking for input on how we could achieve this better integration. Hopefully, when Jason is back from his vacation he can share his thoughts
+> on this, but if yourself (or anyone else interested) have any ideas on how we could design this properly, I 'm happy to discuss!
+
+Let's wait a couple more days for responses, otherwise I suggest you
+resubmit to kickstart a new discussion, with the note that Jason had
+something else in mind - so that it doesn't appear as though we're
+trying to override that.
+
+Thanks for the patience,
+
+		Amit
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
