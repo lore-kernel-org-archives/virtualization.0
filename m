@@ -4,69 +4,80 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80636C6FD1D
-	for <virtualization@archiver.kernel.org>; Tue, 14 Mar 2023 11:28:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9E7BC7618E
+	for <virtualization@archiver.kernel.org>; Tue, 14 Mar 2023 17:26:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0D24040396;
-	Tue, 14 Mar 2023 11:28:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0D24040396
+	by smtp2.osuosl.org (Postfix) with ESMTP id 45131403AC;
+	Tue, 14 Mar 2023 17:26:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 45131403AC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=VgO2HU30
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ELK0-OhRFyKv; Tue, 14 Mar 2023 11:28:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 99033403C7;
-	Tue, 14 Mar 2023 11:28:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 99033403C7
+	with ESMTP id wAQI61M27crQ; Tue, 14 Mar 2023 17:26:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2746E4011D;
+	Tue, 14 Mar 2023 17:26:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2746E4011D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 711D6C0035;
-	Tue, 14 Mar 2023 11:28:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B0FBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EEDC9C0035;
+	Tue, 14 Mar 2023 17:26:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ADFA6C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Mar 2023 11:28:16 +0000 (UTC)
+ Tue, 14 Mar 2023 17:26:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 62ACC61093
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8EE3E4011D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Mar 2023 11:28:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62ACC61093
+ Tue, 14 Mar 2023 17:26:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8EE3E4011D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cHOzP5jM9TWU
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fSboLhYsyXoa
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Mar 2023 11:28:15 +0000 (UTC)
+ Tue, 14 Mar 2023 17:26:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 96F9661063
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 96F9661063
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F2E240227
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5F2E240227
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Mar 2023 11:28:14 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=15; SR=0;
- TI=SMTPD_---0VdsByGS_1678793285; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VdsByGS_1678793285) by smtp.aliyun-inc.com;
- Tue, 14 Mar 2023 19:28:06 +0800
-Message-ID: <1678793273.5523777-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net v1 2/2] virtio_net: free xdp shinfo frags when
- build_skb_from_xdp_buff() fails
-Date: Tue, 14 Mar 2023 19:27:53 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Yunsheng Lin <linyunsheng@huawei.com>
-References: <20230314104939.67212-1-xuanzhuo@linux.alibaba.com>
- <20230314104939.67212-3-xuanzhuo@linux.alibaba.com>
- <faf3772c-b494-54bd-b29a-6cc3068985d5@huawei.com>
-In-Reply-To: <faf3772c-b494-54bd-b29a-6cc3068985d5@huawei.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Heng Qi <hengqi@linux.alibaba.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Tue, 14 Mar 2023 17:26:37 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by ams.source.kernel.org (Postfix) with ESMTPS id A14DDB81AA0;
+ Tue, 14 Mar 2023 17:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F12C4339B;
+ Tue, 14 Mar 2023 17:26:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1678814793;
+ bh=/AjYsdeKz3/ZT6yxEbbyk1Cv8mFWK+qWnAMphe/pZsA=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=VgO2HU30/PeyB1p0xRf6TUVkypNHkbxLPi24EJV+zXqlSYmYZu3gGBnmCi7Z2qmP+
+ uKNkIarlRm2bP5wa90KpPzCz8gQWGUgAJr5jmkDFVp+VPD8Z2V9gPUYGfSrhfJYPBC
+ zXFVXvJZ5kLUkvU0xGiR5QW+31s0VG2vBlbLXliq8iW0WDIjiv507hDGnxbMLRzZQ6
+ ewwKSF1YC08tawdWFTv0jPttiYRM+bqy434YTsgOM7e2Tcp4uQwc75BCVWHZ/geZJe
+ oUtozSVv1Jo0wX4Wg48U6xRFgqCLVy7y4x5KRr5tzvrk17uWUcSNbTbY0opMQhftBu
+ 52Vk0fl6+iZNg==
+Date: Tue, 14 Mar 2023 13:26:32 -0400
+From: Sasha Levin <sashal@kernel.org>
+To: Nico Boehr <nrb@linux.ibm.com>
+Subject: Re: [PATCH AUTOSEL 6.2 05/16] s390/virtio: sort out physical vs
+ virtual pointers usage
+Message-ID: <ZBCuSCIRrtdQQTeM@sashalap>
+References: <20230305135207.1793266-1-sashal@kernel.org>
+ <20230305135207.1793266-5-sashal@kernel.org>
+ <167809840006.10483.605220541481258700@t14-nrb.local>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <167809840006.10483.605220541481258700@t14-nrb.local>
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com,
+ Janosch Frank <frankja@linux.ibm.com>, gor@linux.ibm.com, hca@linux.ibm.com,
+ cohuck@redhat.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, pasic@linux.ibm.com,
+ kvm@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,52 +89,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 14 Mar 2023 19:19:19 +0800, Yunsheng Lin <linyunsheng@huawei.com> wrote:
-> On 2023/3/14 18:49, Xuan Zhuo wrote:
-> > build_skb_from_xdp_buff() may return NULL, in this case
-> > we need to free the frags of xdp shinfo.
-> >
-> > Fixes: fab89bafa95b ("virtio-net: support multi-buffer xdp")
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >  drivers/net/virtio_net.c | 5 ++++-
-> >  1 file changed, 4 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 8ecf7a341d54..d36183be0481 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1273,9 +1273,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >
-> >  		switch (act) {
-> >  		case XDP_PASS:
-> > +			head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-> > +			if (!head_skb)
+On Mon, Mar 06, 2023 at 11:26:40AM +0100, Nico Boehr wrote:
+>Hi Sasha, s390 maintainers,
 >
-> It is a error case, perhaps add a unlikely() for it.
-
-Yes. Will fix.
-
-Thanks.
-
-
+>Quoting Sasha Levin (2023-03-05 14:51:56)
+>> From: Alexander Gordeev <agordeev@linux.ibm.com>
+>>
+>> [ Upstream commit 5fc5b94a273655128159186c87662105db8afeb5 ]
+>>
+>> This does not fix a real bug, since virtual addresses
+>> are currently indentical to physical ones.
 >
-> > +				goto err_xdp_frags;
-> > +
-> >  			if (unlikely(xdp_page != page))
-> >  				put_page(page);
-> > -			head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
-> >  			rcu_read_unlock();
-> >  			return head_skb;
-> >  		case XDP_TX:
-> >
+>not sure if it is appropriate to pick for stable, since it does not fix a bug currently.
+>
+>Alexander, Janosch, your opinion?
+
+I'll drop it, thanks!
+
+-- 
+Thanks,
+Sasha
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
