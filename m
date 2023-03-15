@@ -1,99 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D923C7618D
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9042C6FD1D
 	for <virtualization@archiver.kernel.org>; Wed, 15 Mar 2023 16:14:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D483B81E55;
-	Wed, 15 Mar 2023 16:14:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D483B81E55
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Qc72hCp6;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=tINe9njJ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 827AD60F6C;
+	Wed, 15 Mar 2023 16:14:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 827AD60F6C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=FSStY76U;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=lup7F//R
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NeMzrAHreXPY; Wed, 15 Mar 2023 16:14:52 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id x4Lw240kyPQ0; Wed, 15 Mar 2023 16:14:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DA6BA81E29;
-	Wed, 15 Mar 2023 16:14:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DA6BA81E29
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 205A760F71;
+	Wed, 15 Mar 2023 16:14:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 205A760F71
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C854DC0091;
-	Wed, 15 Mar 2023 16:14:49 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3075BC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 91C3BC009F;
+	Wed, 15 Mar 2023 16:14:50 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F170C008C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Mar 2023 16:14:48 +0000 (UTC)
+ Wed, 15 Mar 2023 16:14:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0B566410B7
+ by smtp3.osuosl.org (Postfix) with ESMTP id C03C160F0F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Mar 2023 16:14:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0B566410B7
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=Qc72hCp6; 
- dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=tINe9njJ
+ Wed, 15 Mar 2023 16:14:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C03C160F0F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P1l_P6d-yyZs
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id a1J4gYjrw8n7
  for <virtualization@lists.linux-foundation.org>;
  Wed, 15 Mar 2023 16:14:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5425B4094D
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5425B4094D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7EEB860B97
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7EEB860B97
  for <virtualization@lists.linux-foundation.org>;
  Wed, 15 Mar 2023 16:14:46 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 01E8921958;
- Wed, 15 Mar 2023 16:14:44 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id B0A281FD80;
+ Wed, 15 Mar 2023 16:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1678896884; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=pfvBMyRCMA30rWAC2AIJtcS0j9o5UpaO33vwFqQSn34=;
- b=Qc72hCp68B34xosr4P2nYGd2TtzZxkKF/giDDqEBpanV093u8seG4yQ2Jk5eMe3aJf3X1H
- ymsN5cfXKWLu0lKgnjLLbe98QFXxucif6OeSgkZqUsQi8P+f0yIy39I67IjX2FWH0eDzhu
- VOmZhNHr9XvxhUvcd70XvZWCeRdkOgo=
+ t=1678896883; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=/s20+U9lqKe8TkL0+NybCexAELZRyFRoTsa7CKljr7E=;
+ b=FSStY76U4lO/wtb8cfNG42ryAcS+jPmRs0zgoUYf3Me116SMKDLykcSNor9Fs7PhDTlnN5
+ 6rAh+X+hT32jUSqHXo+P7rq6nA+J/bXHik00fgBlK42Z1WAmmYEKtxxAB9m0CX3+en2Mn5
+ KHTTprB0/GCt/KtFPieLUpalqtlsxQ4=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1678896884;
+ s=susede2_ed25519; t=1678896883;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=pfvBMyRCMA30rWAC2AIJtcS0j9o5UpaO33vwFqQSn34=;
- b=tINe9njJHK7tQh7Ixisj6EAGtX0ReRPkrBzB1VudZgOelOnJ++j4dARb0ohXoeNUtiTBn9
- D0T0a87BstDi/CDg==
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=/s20+U9lqKe8TkL0+NybCexAELZRyFRoTsa7CKljr7E=;
+ b=lup7F//RMBsu0ZKErzyEVOlBVGeOr0wEUM6kxmhGRC//Wx5sSA2I4/UTFYonIeG2O69yjQ
+ AxbgaudWdezbuTCA==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B592513A7A;
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7538113A2F;
  Wed, 15 Mar 2023 16:14:43 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id GEtTK/PuEWTrAwAAMHmgww
+ by imap2.suse-dmz.suse.de with ESMTPSA id mB6dG/PuEWTrAwAAMHmgww
  (envelope-from <tzimmermann@suse.de>); Wed, 15 Mar 2023 16:14:43 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: javierm@redhat.com, daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
  maarten.lankhorst@linux.intel.com, zackr@vmware.com, kraxel@redhat.com,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
  linux-graphics-maintainer@vmware.com
-Subject: [PATCH 1/6] drm/fbdev-generic: Always use shadow buffering
-Date: Wed, 15 Mar 2023 17:14:37 +0100
-Message-Id: <20230315161442.27318-2-tzimmermann@suse.de>
+Subject: [PATCH 0/6] drm/fbdev-generic: Mandatory shadow buffering
+Date: Wed, 15 Mar 2023 17:14:36 +0100
+Message-Id: <20230315161442.27318-1-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230315161442.27318-1-tzimmermann@suse.de>
-References: <20230315161442.27318-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Cc: Thomas Zimmermann <tzimmermann@suse.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -112,282 +101,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Remove all codepaths that implement fbdev output directly on GEM
-buffers. Always allocate a shadow buffer in system memory and set
-up deferred I/O for mmap.
+After adding fbdev-dma and converting drivers, all users of
+fbdev-generic require shadow buffering. Make it mandatory and
+remove all other codepaths. This change greatly simplifies the
+code for generic fbdev emulation. It will work with any driver
+that supports GEM's vmap and vunmap.
 
-The fbdev code that operated directly on GEM buffers was used by
-drivers based on GEM DMA helpers. Those drivers have been migrated
-to use fbdev-dma, a dedicated fbdev emulation for DMA memory. All
-remaining users of fbdev-generic require shadow buffering.
+The change further allows for a number of cleanups and fixes. The
+flag prefer_shadow_fbdev is unused and to be removed. Probing in
+fbdev-generic is now simple enough to roll back if it fails. Further
+simplify the code for exporting the framebuffer's physical address.
+Finally rename the symbols to follow other fbdev emulation.
 
-Memory management of the remaining callers uses TTM, GEM SHMEM
-helpers or a variant of GEM DMA helpers that is incompatible with
-fbdev-dma. Therefore remove the unused codepaths from fbdev-generic
-and simplify the code.
+Thomas Zimmermann (6):
+  drm/fbdev-generic: Always use shadow buffering
+  drm/fbdev-generic: Remove unused prefer_shadow_fbdev flag
+  drm/fb-helper: Export drm_fb_helper_release_info()
+  drm/fbdev-generic: Clean up after failed probing
+  drm/fb-helper: Consolidate CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM
+  drm/fbdev-generic: Rename symbols
 
-Using a shadow buffer with deferred I/O is probably the best case
-for most remaining callers. Some of the TTM-based drivers might
-benefit from a dedicated fbdev emulation that operates directly on
-the driver's video memory.
+ drivers/gpu/drm/drm_fb_helper.c     |  55 +++---
+ drivers/gpu/drm/drm_fbdev_dma.c     |   9 +-
+ drivers/gpu/drm/drm_fbdev_generic.c | 280 +++++++++-------------------
+ drivers/gpu/drm/tiny/bochs.c        |   1 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |   1 -
+ include/drm/drm_fb_helper.h         |  14 +-
+ include/drm/drm_mode_config.h       |   7 -
+ 7 files changed, 125 insertions(+), 242 deletions(-)
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_fbdev_generic.c | 184 +++++-----------------------
- 1 file changed, 30 insertions(+), 154 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_fbdev_generic.c b/drivers/gpu/drm/drm_fbdev_generic.c
-index 4d6325e91565..e48a8e82378d 100644
---- a/drivers/gpu/drm/drm_fbdev_generic.c
-+++ b/drivers/gpu/drm/drm_fbdev_generic.c
-@@ -11,16 +11,6 @@
- 
- #include <drm/drm_fbdev_generic.h>
- 
--static bool drm_fbdev_use_shadow_fb(struct drm_fb_helper *fb_helper)
--{
--	struct drm_device *dev = fb_helper->dev;
--	struct drm_framebuffer *fb = fb_helper->fb;
--
--	return dev->mode_config.prefer_shadow_fbdev ||
--	       dev->mode_config.prefer_shadow ||
--	       fb->funcs->dirty;
--}
--
- /* @user: 1=userspace, 0=fbcon */
- static int drm_fbdev_fb_open(struct fb_info *info, int user)
- {
-@@ -46,115 +36,33 @@ static int drm_fbdev_fb_release(struct fb_info *info, int user)
- static void drm_fbdev_fb_destroy(struct fb_info *info)
- {
- 	struct drm_fb_helper *fb_helper = info->par;
--	void *shadow = NULL;
-+	void *shadow = info->screen_buffer;
- 
- 	if (!fb_helper->dev)
- 		return;
- 
--	if (info->fbdefio)
--		fb_deferred_io_cleanup(info);
--	if (drm_fbdev_use_shadow_fb(fb_helper))
--		shadow = info->screen_buffer;
--
-+	fb_deferred_io_cleanup(info);
- 	drm_fb_helper_fini(fb_helper);
--
--	if (shadow)
--		vfree(shadow);
--	else if (fb_helper->buffer)
--		drm_client_buffer_vunmap(fb_helper->buffer);
--
-+	vfree(shadow);
- 	drm_client_framebuffer_delete(fb_helper->buffer);
--	drm_client_release(&fb_helper->client);
- 
-+	drm_client_release(&fb_helper->client);
- 	drm_fb_helper_unprepare(fb_helper);
- 	kfree(fb_helper);
- }
- 
--static int drm_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
--{
--	struct drm_fb_helper *fb_helper = info->par;
--
--	if (drm_fbdev_use_shadow_fb(fb_helper))
--		return fb_deferred_io_mmap(info, vma);
--	else if (fb_helper->dev->driver->gem_prime_mmap)
--		return fb_helper->dev->driver->gem_prime_mmap(fb_helper->buffer->gem, vma);
--	else
--		return -ENODEV;
--}
--
--static bool drm_fbdev_use_iomem(struct fb_info *info)
--{
--	struct drm_fb_helper *fb_helper = info->par;
--	struct drm_client_buffer *buffer = fb_helper->buffer;
--
--	return !drm_fbdev_use_shadow_fb(fb_helper) && buffer->map.is_iomem;
--}
--
--static ssize_t drm_fbdev_fb_read(struct fb_info *info, char __user *buf,
--				 size_t count, loff_t *ppos)
--{
--	ssize_t ret;
--
--	if (drm_fbdev_use_iomem(info))
--		ret = drm_fb_helper_cfb_read(info, buf, count, ppos);
--	else
--		ret = drm_fb_helper_sys_read(info, buf, count, ppos);
--
--	return ret;
--}
--
--static ssize_t drm_fbdev_fb_write(struct fb_info *info, const char __user *buf,
--				  size_t count, loff_t *ppos)
--{
--	ssize_t ret;
--
--	if (drm_fbdev_use_iomem(info))
--		ret = drm_fb_helper_cfb_write(info, buf, count, ppos);
--	else
--		ret = drm_fb_helper_sys_write(info, buf, count, ppos);
--
--	return ret;
--}
--
--static void drm_fbdev_fb_fillrect(struct fb_info *info,
--				  const struct fb_fillrect *rect)
--{
--	if (drm_fbdev_use_iomem(info))
--		drm_fb_helper_cfb_fillrect(info, rect);
--	else
--		drm_fb_helper_sys_fillrect(info, rect);
--}
--
--static void drm_fbdev_fb_copyarea(struct fb_info *info,
--				  const struct fb_copyarea *area)
--{
--	if (drm_fbdev_use_iomem(info))
--		drm_fb_helper_cfb_copyarea(info, area);
--	else
--		drm_fb_helper_sys_copyarea(info, area);
--}
--
--static void drm_fbdev_fb_imageblit(struct fb_info *info,
--				   const struct fb_image *image)
--{
--	if (drm_fbdev_use_iomem(info))
--		drm_fb_helper_cfb_imageblit(info, image);
--	else
--		drm_fb_helper_sys_imageblit(info, image);
--}
--
- static const struct fb_ops drm_fbdev_fb_ops = {
- 	.owner		= THIS_MODULE,
--	DRM_FB_HELPER_DEFAULT_OPS,
- 	.fb_open	= drm_fbdev_fb_open,
- 	.fb_release	= drm_fbdev_fb_release,
-+	.fb_read	= drm_fb_helper_sys_read,
-+	.fb_write	= drm_fb_helper_sys_write,
-+	DRM_FB_HELPER_DEFAULT_OPS,
-+	.fb_fillrect	= drm_fb_helper_sys_fillrect,
-+	.fb_copyarea	= drm_fb_helper_sys_copyarea,
-+	.fb_imageblit	= drm_fb_helper_sys_imageblit,
-+	.fb_mmap	= fb_deferred_io_mmap,
- 	.fb_destroy	= drm_fbdev_fb_destroy,
--	.fb_mmap	= drm_fbdev_fb_mmap,
--	.fb_read	= drm_fbdev_fb_read,
--	.fb_write	= drm_fbdev_fb_write,
--	.fb_fillrect	= drm_fbdev_fb_fillrect,
--	.fb_copyarea	= drm_fbdev_fb_copyarea,
--	.fb_imageblit	= drm_fbdev_fb_imageblit,
- };
- 
- /*
-@@ -169,7 +77,6 @@ static int drm_fbdev_fb_probe(struct drm_fb_helper *fb_helper,
- 	struct drm_framebuffer *fb;
- 	struct fb_info *info;
- 	u32 format;
--	struct iosys_map map;
- 	int ret;
- 
- 	drm_dbg_kms(dev, "surface width(%d), height(%d) and bpp(%d)\n",
-@@ -197,44 +104,21 @@ static int drm_fbdev_fb_probe(struct drm_fb_helper *fb_helper,
- 
- 	drm_fb_helper_fill_info(info, fb_helper, sizes);
- 
--	if (drm_fbdev_use_shadow_fb(fb_helper)) {
--		info->screen_buffer = vzalloc(info->screen_size);
--		if (!info->screen_buffer)
--			return -ENOMEM;
--		info->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
-+	info->screen_buffer = vzalloc(info->screen_size);
-+	if (!info->screen_buffer)
-+		return -ENOMEM;
-+	info->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
- 
--		/* Set a default deferred I/O handler */
--		fb_helper->fbdefio.delay = HZ / 20;
--		fb_helper->fbdefio.deferred_io = drm_fb_helper_deferred_io;
-+	info->fix.smem_start = page_to_phys(vmalloc_to_page(info->screen_buffer));
- 
--		info->fbdefio = &fb_helper->fbdefio;
--		ret = fb_deferred_io_init(info);
--		if (ret)
--			return ret;
--	} else {
--		/* buffer is mapped for HW framebuffer */
--		ret = drm_client_buffer_vmap(fb_helper->buffer, &map);
--		if (ret)
--			return ret;
--		if (map.is_iomem) {
--			info->screen_base = map.vaddr_iomem;
--		} else {
--			info->screen_buffer = map.vaddr;
--			info->flags |= FBINFO_VIRTFB;
--		}
--
--		/*
--		 * Shamelessly leak the physical address to user-space. As
--		 * page_to_phys() is undefined for I/O memory, warn in this
--		 * case.
--		 */
--#if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
--		if (fb_helper->hint_leak_smem_start && info->fix.smem_start == 0 &&
--		    !drm_WARN_ON_ONCE(dev, map.is_iomem))
--			info->fix.smem_start =
--				page_to_phys(virt_to_page(info->screen_buffer));
--#endif
--	}
-+	/* Set a default deferred I/O handler */
-+	fb_helper->fbdefio.delay = HZ / 20;
-+	fb_helper->fbdefio.deferred_io = drm_fb_helper_deferred_io;
-+
-+	info->fbdefio = &fb_helper->fbdefio;
-+	ret = fb_deferred_io_init(info);
-+	if (ret)
-+		return ret;
- 
- 	return 0;
- }
-@@ -318,18 +202,13 @@ static int drm_fbdev_fb_dirty(struct drm_fb_helper *helper, struct drm_clip_rect
- 	struct drm_device *dev = helper->dev;
- 	int ret;
- 
--	if (!drm_fbdev_use_shadow_fb(helper))
--		return 0;
--
- 	/* Call damage handlers only if necessary */
- 	if (!(clip->x1 < clip->x2 && clip->y1 < clip->y2))
- 		return 0;
- 
--	if (helper->buffer) {
--		ret = drm_fbdev_damage_blit(helper, clip);
--		if (drm_WARN_ONCE(dev, ret, "Damage blitter failed: ret=%d\n", ret))
--			return ret;
--	}
-+	ret = drm_fbdev_damage_blit(helper, clip);
-+	if (drm_WARN_ONCE(dev, ret, "Damage blitter failed: ret=%d\n", ret))
-+		return ret;
- 
- 	if (helper->fb->funcs->dirty) {
- 		ret = helper->fb->funcs->dirty(helper->fb, NULL, 0, 0, clip, 1);
-@@ -415,12 +294,9 @@ static const struct drm_client_funcs drm_fbdev_client_funcs = {
-  * suspend/resume need to call drm_fb_helper_set_suspend_unlocked() themselves.
-  * Simple drivers might use drm_mode_config_helper_suspend().
-  *
-- * Drivers that set the dirty callback on their framebuffer will get a shadow
-- * fbdev buffer that is blitted onto the real buffer. This is done in order to
-- * make deferred I/O work with all kinds of buffers. A shadow buffer can be
-- * requested explicitly by setting struct drm_mode_config.prefer_shadow or
-- * struct drm_mode_config.prefer_shadow_fbdev to true beforehand. This is
-- * required to use generic fbdev emulation with SHMEM helpers.
-+ * In order to provide fixed mmap-able memory ranges, generic fbdev emulation
-+ * uses a shadow buffer in system memory. The implementation blits the shadow
-+ * fbdev buffer onto the real buffer in regular intervals.
-  *
-  * This function is safe to call even when there are no connectors present.
-  * Setup will be retried on the next hotplug event.
+base-commit: ec0708e846b819c8d5b642de42448a87d7526564
 -- 
 2.39.2
 
