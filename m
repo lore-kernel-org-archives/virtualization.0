@@ -4,105 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 36E91C7618A
-	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 15:08:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2C5FC7618A
+	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 15:31:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E3B9B40904;
-	Mon, 20 Mar 2023 15:08:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3B9B40904
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2CB014020B;
+	Mon, 20 Mar 2023 15:31:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2CB014020B
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=S3/eMPW/
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fGCkUo0O
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bUk8AQfymmIZ; Mon, 20 Mar 2023 15:08:11 +0000 (UTC)
+	with ESMTP id LvEbkG5YP-5L; Mon, 20 Mar 2023 15:31:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 68951403EA;
-	Mon, 20 Mar 2023 15:08:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68951403EA
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8749C40184;
+	Mon, 20 Mar 2023 15:31:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8749C40184
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51DA0C0035;
-	Mon, 20 Mar 2023 15:08:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B990CC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DD2DC0035;
+	Mon, 20 Mar 2023 15:31:46 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47222C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
+ Mon, 20 Mar 2023 15:31:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 946E061030
+ by smtp4.osuosl.org (Postfix) with ESMTP id 21CCB415FE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 946E061030
-Authentication-Results: smtp3.osuosl.org;
+ Mon, 20 Mar 2023 15:31:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 21CCB415FE
+Authentication-Results: smtp4.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=S3/eMPW/
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=fGCkUo0O
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HbQqyAe92qFh
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G7_ZJjKvPAKg
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
+ Mon, 20 Mar 2023 15:31:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E35236102E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 16F2C409EA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E35236102E
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 16F2C409EA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:08:06 +0000 (UTC)
+ Mon, 20 Mar 2023 15:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679324876;
+ s=mimecast20190719; t=1679326303;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=VgebBbttaGt4D40EQmQ7/+4mDXUoVf9daeLT8gWgLtM=;
- b=S3/eMPW/UlzHc5S+WhP3Fjnx2JLK1PatRiJyFOhhjH3yaJBgEEJ5M1fcva0glxwx1M91+c
- G1ah5IMrNkb3IHiKyerSw8C1bAPAoLN4N+aqHdp4cld2VzfME2cPjVmyyECImHJNmgu8ZE
- NXNd01jHYdz+QAh3aZUwAoJ1uu4l1Ss=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=4kPJZ32Y+l53box6ko+ne5cwDvp4Win8rdXeR0QS2JU=;
+ b=fGCkUo0OkgNzQ0OppMZ5fphmJm9DGhO4QUhynQfJ5pDsiYty5IYkXyXxw5sPGblhOsXhdj
+ 1B0Dtm3LF+VoSTdasXyjFfB2hBeGGSYQZc4lxJGjtviUpekvSV9XxByQw9jM820I/IRkbA
+ MljCWqDzgOwd+E9l99itnvsEZEYGTJI=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-621-CAD-Wsp6Osm2A-BMQ2UmIw-1; Mon, 20 Mar 2023 11:07:23 -0400
-X-MC-Unique: CAD-Wsp6Osm2A-BMQ2UmIw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- i8-20020a05600c354800b003ed59bae33bso4594248wmq.5
+ us-mta-128-MVlLuENDMO-3F0b1bd17xg-1; Mon, 20 Mar 2023 11:31:39 -0400
+X-MC-Unique: MVlLuENDMO-3F0b1bd17xg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ n38-20020a05600c3ba600b003ed29a0b729so5696036wms.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 08:07:22 -0700 (PDT)
+ Mon, 20 Mar 2023 08:31:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679324839;
+ d=1e100.net; s=20210112; t=1679326298;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=VgebBbttaGt4D40EQmQ7/+4mDXUoVf9daeLT8gWgLtM=;
- b=ixE8NW+5vtCvoEIwkGUkLamiMrRqj7KKCYg2tL7IxnuDSG8Sg5Qqd1PPm22GSY0ZYD
- eVs9WoabA0njGP6l8AeJXlkgvOmsNoGU3I1m6knBmmGtLNf2+9/ixRyiH1Sw1GHtxCHT
- 1TMh7fbuWBVfMGPeBtFwpN/HjSrRPpwOBf3b/UDj0/a4x/yG1qSzj5Zv8xoQHmf6hpkh
- Y6hE7ys7nU1z8F8Fa00OBUOYAAJkZ4+E8eJfA6tw9BMKuBjmAgQWAE/cMhXeQoUqX/xv
- QulfGPCdCJ0okcR/nhuHqeTj5J1rH9d1mLza/HnpTyodvDO+xfiUt7db2lFJe69qbRcH
- M5/w==
-X-Gm-Message-State: AO0yUKWacYXrpTFEPPWRfBPARd67jv8wDTBGwf/VW+9DuwIkDg9OAe7Y
- zUhpOt9peInb1KR6n6Mx2t5utxFKn82cXkPsfIZ2U0iS0xoCCK0mkYZljrRhaxXyBTac0kbcsP8
- HNPgvDL3bDNWpDjzl+gKozdHgTnA5mvHb1A4ctUC8wQ==
-X-Received: by 2002:a5d:574a:0:b0:2d7:a1e2:f5 with SMTP id
- q10-20020a5d574a000000b002d7a1e200f5mr1911372wrw.55.1679324839305; 
- Mon, 20 Mar 2023 08:07:19 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/T14nWSia5GZnuqnU654Kdl6pDq7bn2tDAbaRQz0T3coNj3BVGpa9eETzLvxUNUoJckiLdQg==
-X-Received: by 2002:a5d:574a:0:b0:2d7:a1e2:f5 with SMTP id
- q10-20020a5d574a000000b002d7a1e200f5mr1911351wrw.55.1679324838997; 
- Mon, 20 Mar 2023 08:07:18 -0700 (PDT)
+ bh=4kPJZ32Y+l53box6ko+ne5cwDvp4Win8rdXeR0QS2JU=;
+ b=D02bRmPCVFt3Xe9fKmP+Im0DcK6J3+0JngNsxyK30neeTcqo2xYQFbSupF38Fqg39Q
+ YospXQu+QIIZQGjHc2Qm8JIA4aQuQuy7c2FwNyLZZcwiFBnwcl+UsLc1SngilPHldJPd
+ uXUdPZ7HF3eInfHfAj0cVSqGZ5lHeEBEyXvu26ik1PW+96bSxDxPxBfklt1U9QQk+bmb
+ j2pH0nY7kJ6tBOW4sA8oC8yCok6Wn7GKjhICuT6OB4yzyZ8eS0wFu89pBjQ8u0hMtHov
+ +tmfppSJtcrszLRKvlDYQRDikogX1pDtikGS7gCAj0H7yH5oW/0lqclQ2sKZuPETnLO/
+ MOmQ==
+X-Gm-Message-State: AO0yUKX9ZBRj0zt5J21XZJ49VI25peJEH+TUQ1Al9vNy5uaIwdDKNHn9
+ xXYeo09Bo+O9bTZg/xXtrO2Htu8rhEKe5uD3Z+qrEO+L4C4XlzUApo9JN5ccB4dezK/GzHg4GZ2
+ hJT0yIj5uKFPU1al6OeYps0Ig+kLon/KiuEg3DrRE4w==
+X-Received: by 2002:a05:600c:3aca:b0:3ed:6049:a5ae with SMTP id
+ d10-20020a05600c3aca00b003ed6049a5aemr9662594wms.4.1679326298129; 
+ Mon, 20 Mar 2023 08:31:38 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+K/iSPqBhOxqnDWry6nMA6XFyLEMJvZ5BagJzhVQg80QiS5si7gT89jIVKwdv6jvS+LcnPCg==
+X-Received: by 2002:a05:600c:3aca:b0:3ed:6049:a5ae with SMTP id
+ d10-20020a05600c3aca00b003ed6049a5aemr9662575wms.4.1679326297864; 
+ Mon, 20 Mar 2023 08:31:37 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
  [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
- k2-20020a5d6e82000000b002c55b0e6ef1sm9243349wrz.4.2023.03.20.08.07.17
+ h11-20020a05600c314b00b003e7c89b3514sm7332828wmo.23.2023.03.20.08.31.36
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Mar 2023 08:07:18 -0700 (PDT)
-Date: Mon, 20 Mar 2023 16:07:15 +0100
+ Mon, 20 Mar 2023 08:31:37 -0700 (PDT)
+Date: Mon, 20 Mar 2023 16:31:32 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 2/3] virtio/vsock: add WARN() for invalid state of
- socket
-Message-ID: <20230320150715.twapgesp2gj6egua@sgarzare-redhat>
+Subject: Re: [RFC PATCH v1 3/3] test/vsock: skbuff merging test
+Message-ID: <20230320153132.o3xvwxmn3722lin4@sgarzare-redhat>
 References: <e141e6f1-00ae-232c-b840-b146bdb10e99@sberdevices.ru>
- <da93402d-920e-c248-a5a1-baf24b70ebee@sberdevices.ru>
+ <14ca87d1-3e07-85e9-d11c-39789a9d17d4@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <da93402d-920e-c248-a5a1-baf24b70ebee@sberdevices.ru>
+In-Reply-To: <14ca87d1-3e07-85e9-d11c-39789a9d17d4@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -128,43 +127,151 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Mar 19, 2023 at 09:52:19PM +0300, Arseniy Krasnov wrote:
->This prints WARN() and returns from stream dequeue callback when socket's
->queue is empty, but 'rx_bytes' still non-zero.
+On Sun, Mar 19, 2023 at 09:53:54PM +0300, Arseniy Krasnov wrote:
+>This adds test which checks case when data of newly received skbuff is
+>appended to the last skbuff in the socket's queue.
+>
+>This test is actual only for virtio transport.
 >
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 7 +++++++
-> 1 file changed, 7 insertions(+)
+> tools/testing/vsock/vsock_test.c | 81 ++++++++++++++++++++++++++++++++
+> 1 file changed, 81 insertions(+)
 >
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 3c75986e16c2..c35b03adad8d 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -388,6 +388,13 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
-> 	u32 free_space;
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index 3de10dbb50f5..00216c52d8b6 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -968,6 +968,82 @@ static void test_seqpacket_inv_buf_server(const struct test_opts *opts)
+> 	test_inv_buf_server(opts, false);
+> }
 >
-> 	spin_lock_bh(&vvs->rx_lock);
+>+static void test_stream_virtio_skb_merge_client(const struct test_opts *opts)
+>+{
+>+	ssize_t res;
+>+	int fd;
 >+
->+	if (skb_queue_empty(&vvs->rx_queue) && vvs->rx_bytes) {
->+		WARN(1, "No skbuffs with non-zero 'rx_bytes'\n");
-
-I would use WARN_ONCE, since we can't recover so we will flood the log.
-
-And you can put the condition in the first argument, I mean something
-like this:
-         if (WARN_ONCE(skb_queue_empty(&vvs->rx_queue) && vvs->rx_bytes,
-                       "rx_queue is empty, but rx_bytes is non-zero\n")) {
-
-Thanks,
-Stefano
-
->+		spin_unlock_bh(&vvs->rx_lock);
->+		return err;
+>+	fd = vsock_stream_connect(opts->peer_cid, 1234);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
 >+	}
 >+
-> 	while (total < len && !skb_queue_empty(&vvs->rx_queue)) {
-> 		skb = skb_peek(&vvs->rx_queue);
+
+Please use a macro for "HELLO" or a variabile, e.g.
+
+         char *buf;
+         ...
+
+         buf = "HELLO";
+         res = send(fd, buf, strlen(buf), 0);
+         ...
+
+>+	res = send(fd, "HELLO", strlen("HELLO"), 0);
+>+	if (res != strlen("HELLO")) {
+>+		fprintf(stderr, "unexpected send(2) result %zi\n", res);
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("SEND0");
+>+	/* Peer reads part of first packet. */
+>+	control_expectln("REPLY0");
+>+
+>+	/* Send second skbuff, it will be merged. */
+>+	res = send(fd, "WORLD", strlen("WORLD"), 0);
+
+Ditto.
+
+>+	if (res != strlen("WORLD")) {
+>+		fprintf(stderr, "unexpected send(2) result %zi\n", res);
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("SEND1");
+>+	/* Peer reads merged skbuff packet. */
+>+	control_expectln("REPLY1");
+>+
+>+	close(fd);
+>+}
+>+
+>+static void test_stream_virtio_skb_merge_server(const struct test_opts *opts)
+>+{
+>+	unsigned char buf[64];
+>+	ssize_t res;
+>+	int fd;
+>+
+>+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_expectln("SEND0");
+>+
+>+	/* Read skbuff partially. */
+>+	res = recv(fd, buf, 2, 0);
+>+	if (res != 2) {
+>+		fprintf(stderr, "expected recv(2) failure, got %zi\n", res);
+
+We don't expect a failure, so please update the error message and make
+it easy to figure out which recv() is failing. For example by saying
+how many bytes you expected and how many you received.
+
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("REPLY0");
+>+	control_expectln("SEND1");
+>+
+>+
+>+	res = recv(fd, buf, sizeof(buf), 0);
+
+Perhaps a comment here to explain why we expect only 8 bytes.
+
+>+	if (res != 8) {
+>+		fprintf(stderr, "expected recv(2) failure, got %zi\n", res);
+
+Ditto.
+
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	res = recv(fd, buf, sizeof(buf), MSG_DONTWAIT);
+>+	if (res != -1) {
+>+		fprintf(stderr, "expected recv(2) success, got %zi\n", res);
+
+It's the other way around, isn't it?
+Here you expect it to fail instead it is not failing.
+
+>+		exit(EXIT_FAILURE);
+>+	}
+
+Moving the pointer correctly, I would also check that there is
+HELLOWORLD in the buffer.
+
+Thanks for adding tests in this suite!
+Stefano
+
+>+
+>+	control_writeln("REPLY1");
+>+
+>+	close(fd);
+>+}
+>+
+> static struct test_case test_cases[] = {
+> 	{
+> 		.name = "SOCK_STREAM connection reset",
+>@@ -1038,6 +1114,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_seqpacket_inv_buf_client,
+> 		.run_server = test_seqpacket_inv_buf_server,
+> 	},
+>+	{
+>+		.name = "SOCK_STREAM virtio skb merge",
+>+		.run_client = test_stream_virtio_skb_merge_client,
+>+		.run_server = test_stream_virtio_skb_merge_server,
+>+	},
+> 	{},
+> };
 >
 >-- 
 >2.25.1
