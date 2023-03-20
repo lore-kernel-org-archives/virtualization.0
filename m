@@ -4,98 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A65EDC77B61
-	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 15:08:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 36E91C7618A
+	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 15:08:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 34797408EC;
-	Mon, 20 Mar 2023 15:08:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 34797408EC
+	by smtp2.osuosl.org (Postfix) with ESMTP id E3B9B40904;
+	Mon, 20 Mar 2023 15:08:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E3B9B40904
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=ivfOL9K1;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=naJRwvqJ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=S3/eMPW/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y7lkVuyLKRr8; Mon, 20 Mar 2023 15:08:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4586440904;
-	Mon, 20 Mar 2023 15:08:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4586440904
+	with ESMTP id bUk8AQfymmIZ; Mon, 20 Mar 2023 15:08:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 68951403EA;
+	Mon, 20 Mar 2023 15:08:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68951403EA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CCBB8C0090;
-	Mon, 20 Mar 2023 15:08:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B941C0097
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 51DA0C0035;
+	Mon, 20 Mar 2023 15:08:10 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B990CC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:07:59 +0000 (UTC)
+ Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A4B498136A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 946E061030
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:07:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A4B498136A
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
- header.a=rsa-sha256 header.s=susede2_rsa header.b=ivfOL9K1; 
- dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=naJRwvqJ
+ Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 946E061030
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=S3/eMPW/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3cwg2V9oxgDr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HbQqyAe92qFh
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:07:56 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC43D81365
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BC43D81365
+ Mon, 20 Mar 2023 15:08:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E35236102E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E35236102E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 15:07:56 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 094E221AD2;
- Mon, 20 Mar 2023 15:07:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1679324875; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ Mon, 20 Mar 2023 15:08:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1679324876;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pCNvG15Q952Ad44DsKZLXnoyoh4oOpFvzAPicGCV6u0=;
- b=ivfOL9K1vs6U2z9fT05EHYDNFKn+n9mU/Hey/FqTEFCmTYnHm/F4KVkb4D7pOGYlLyYr/Y
- PJk+3jEwbofX6lVzH1JoCyJCyzLuJASg4Lb2l/cGqwQfefF7N+jDkL3VaabDwMpACHaAtP
- PDBiaNQDAraH8x1OAexn/7g2pSFiEjg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1679324875;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=pCNvG15Q952Ad44DsKZLXnoyoh4oOpFvzAPicGCV6u0=;
- b=naJRwvqJgwOg6PhSNWR6ic6ak1BWq8rtsEmKTEnNNrcCaTAjEuQnxqYtd46mF3i9ySNzEf
- gaqN9rIGdfZcarAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id C4B3C13A00;
- Mon, 20 Mar 2023 15:07:54 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id AAkdL8p2GGTXOgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Mon, 20 Mar 2023 15:07:54 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: javierm@redhat.com, daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
- maarten.lankhorst@linux.intel.com, zackr@vmware.com, kraxel@redhat.com,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-graphics-maintainer@vmware.com
-Subject: [PATCH v2 6/8] drm/fbdev-generic: Clean up after failed probing
-Date: Mon, 20 Mar 2023 16:07:49 +0100
-Message-Id: <20230320150751.20399-7-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20230320150751.20399-1-tzimmermann@suse.de>
-References: <20230320150751.20399-1-tzimmermann@suse.de>
+ bh=VgebBbttaGt4D40EQmQ7/+4mDXUoVf9daeLT8gWgLtM=;
+ b=S3/eMPW/UlzHc5S+WhP3Fjnx2JLK1PatRiJyFOhhjH3yaJBgEEJ5M1fcva0glxwx1M91+c
+ G1ah5IMrNkb3IHiKyerSw8C1bAPAoLN4N+aqHdp4cld2VzfME2cPjVmyyECImHJNmgu8ZE
+ NXNd01jHYdz+QAh3aZUwAoJ1uu4l1Ss=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-621-CAD-Wsp6Osm2A-BMQ2UmIw-1; Mon, 20 Mar 2023 11:07:23 -0400
+X-MC-Unique: CAD-Wsp6Osm2A-BMQ2UmIw-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ i8-20020a05600c354800b003ed59bae33bso4594248wmq.5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Mar 2023 08:07:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679324839;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=VgebBbttaGt4D40EQmQ7/+4mDXUoVf9daeLT8gWgLtM=;
+ b=ixE8NW+5vtCvoEIwkGUkLamiMrRqj7KKCYg2tL7IxnuDSG8Sg5Qqd1PPm22GSY0ZYD
+ eVs9WoabA0njGP6l8AeJXlkgvOmsNoGU3I1m6knBmmGtLNf2+9/ixRyiH1Sw1GHtxCHT
+ 1TMh7fbuWBVfMGPeBtFwpN/HjSrRPpwOBf3b/UDj0/a4x/yG1qSzj5Zv8xoQHmf6hpkh
+ Y6hE7ys7nU1z8F8Fa00OBUOYAAJkZ4+E8eJfA6tw9BMKuBjmAgQWAE/cMhXeQoUqX/xv
+ QulfGPCdCJ0okcR/nhuHqeTj5J1rH9d1mLza/HnpTyodvDO+xfiUt7db2lFJe69qbRcH
+ M5/w==
+X-Gm-Message-State: AO0yUKWacYXrpTFEPPWRfBPARd67jv8wDTBGwf/VW+9DuwIkDg9OAe7Y
+ zUhpOt9peInb1KR6n6Mx2t5utxFKn82cXkPsfIZ2U0iS0xoCCK0mkYZljrRhaxXyBTac0kbcsP8
+ HNPgvDL3bDNWpDjzl+gKozdHgTnA5mvHb1A4ctUC8wQ==
+X-Received: by 2002:a5d:574a:0:b0:2d7:a1e2:f5 with SMTP id
+ q10-20020a5d574a000000b002d7a1e200f5mr1911372wrw.55.1679324839305; 
+ Mon, 20 Mar 2023 08:07:19 -0700 (PDT)
+X-Google-Smtp-Source: AK7set/T14nWSia5GZnuqnU654Kdl6pDq7bn2tDAbaRQz0T3coNj3BVGpa9eETzLvxUNUoJckiLdQg==
+X-Received: by 2002:a5d:574a:0:b0:2d7:a1e2:f5 with SMTP id
+ q10-20020a5d574a000000b002d7a1e200f5mr1911351wrw.55.1679324838997; 
+ Mon, 20 Mar 2023 08:07:18 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
+ [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
+ k2-20020a5d6e82000000b002c55b0e6ef1sm9243349wrz.4.2023.03.20.08.07.17
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 20 Mar 2023 08:07:18 -0700 (PDT)
+Date: Mon, 20 Mar 2023 16:07:15 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v1 2/3] virtio/vsock: add WARN() for invalid state of
+ socket
+Message-ID: <20230320150715.twapgesp2gj6egua@sgarzare-redhat>
+References: <e141e6f1-00ae-232c-b840-b146bdb10e99@sberdevices.ru>
+ <da93402d-920e-c248-a5a1-baf24b70ebee@sberdevices.ru>
 MIME-Version: 1.0
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <da93402d-920e-c248-a5a1-baf24b70ebee@sberdevices.ru>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ kernel@sberdevices.ru, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,103 +123,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Clean up fbdev and client state if the probe function fails. It
-used to leak allocated resources. Also reorder the individual steps
-to simplify cleanup.
+On Sun, Mar 19, 2023 at 09:52:19PM +0300, Arseniy Krasnov wrote:
+>This prints WARN() and returns from stream dequeue callback when socket's
+>queue is empty, but 'rx_bytes' still non-zero.
+>
+>Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>---
+> net/vmw_vsock/virtio_transport_common.c | 7 +++++++
+> 1 file changed, 7 insertions(+)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 3c75986e16c2..c35b03adad8d 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -388,6 +388,13 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	u32 free_space;
+>
+> 	spin_lock_bh(&vvs->rx_lock);
+>+
+>+	if (skb_queue_empty(&vvs->rx_queue) && vvs->rx_bytes) {
+>+		WARN(1, "No skbuffs with non-zero 'rx_bytes'\n");
 
-v2:
-	* move screen_size update into separate patches
+I would use WARN_ONCE, since we can't recover so we will flood the log.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Acked-by: Zack Rusin <zackr@vmware.com>
----
- drivers/gpu/drm/drm_fbdev_generic.c | 40 ++++++++++++++++++++---------
- 1 file changed, 28 insertions(+), 12 deletions(-)
+And you can put the condition in the first argument, I mean something
+like this:
+         if (WARN_ONCE(skb_queue_empty(&vvs->rx_queue) && vvs->rx_bytes,
+                       "rx_queue is empty, but rx_bytes is non-zero\n")) {
 
-diff --git a/drivers/gpu/drm/drm_fbdev_generic.c b/drivers/gpu/drm/drm_fbdev_generic.c
-index 73834a3cc6b0..e7eeba0c44b4 100644
---- a/drivers/gpu/drm/drm_fbdev_generic.c
-+++ b/drivers/gpu/drm/drm_fbdev_generic.c
-@@ -77,6 +77,7 @@ static int drm_fbdev_fb_probe(struct drm_fb_helper *fb_helper,
- 	struct drm_client_buffer *buffer;
- 	struct fb_info *info;
- 	size_t screen_size;
-+	void *screen_buffer;
- 	u32 format;
- 	int ret;
- 
-@@ -92,36 +93,51 @@ static int drm_fbdev_fb_probe(struct drm_fb_helper *fb_helper,
- 
- 	fb_helper->buffer = buffer;
- 	fb_helper->fb = buffer->fb;
-+
- 	screen_size = buffer->gem->size;
-+	screen_buffer = vzalloc(screen_size);
-+	if (!screen_buffer) {
-+		ret = -ENOMEM;
-+		goto err_drm_client_framebuffer_delete;
-+	}
- 
- 	info = drm_fb_helper_alloc_info(fb_helper);
--	if (IS_ERR(info))
--		return PTR_ERR(info);
-+	if (IS_ERR(info)) {
-+		ret = PTR_ERR(info);
-+		goto err_vfree;
-+	}
-+
-+	drm_fb_helper_fill_info(info, fb_helper, sizes);
- 
- 	info->fbops = &drm_fbdev_fb_ops;
--	info->screen_size = screen_size;
--	info->fix.smem_len = screen_size;
- 	info->flags = FBINFO_DEFAULT;
- 
--	drm_fb_helper_fill_info(info, fb_helper, sizes);
--
--	info->screen_buffer = vzalloc(screen_size);
--	if (!info->screen_buffer)
--		return -ENOMEM;
-+	/* screen */
- 	info->flags |= FBINFO_VIRTFB | FBINFO_READS_FAST;
--
-+	info->screen_buffer = screen_buffer;
- 	info->fix.smem_start = page_to_phys(vmalloc_to_page(info->screen_buffer));
-+	info->fix.smem_len = screen_size;
- 
--	/* Set a default deferred I/O handler */
-+	/* deferred I/O */
- 	fb_helper->fbdefio.delay = HZ / 20;
- 	fb_helper->fbdefio.deferred_io = drm_fb_helper_deferred_io;
- 
- 	info->fbdefio = &fb_helper->fbdefio;
- 	ret = fb_deferred_io_init(info);
- 	if (ret)
--		return ret;
-+		goto err_drm_fb_helper_release_info;
- 
- 	return 0;
-+
-+err_drm_fb_helper_release_info:
-+	drm_fb_helper_release_info(fb_helper);
-+err_vfree:
-+	vfree(screen_buffer);
-+err_drm_client_framebuffer_delete:
-+	fb_helper->fb = NULL;
-+	fb_helper->buffer = NULL;
-+	drm_client_framebuffer_delete(buffer);
-+	return ret;
- }
- 
- static void drm_fbdev_damage_blit_real(struct drm_fb_helper *fb_helper,
--- 
-2.40.0
+Thanks,
+Stefano
+
+>+		spin_unlock_bh(&vvs->rx_lock);
+>+		return err;
+>+	}
+>+
+> 	while (total < len && !skb_queue_empty(&vvs->rx_queue)) {
+> 		skb = skb_peek(&vvs->rx_queue);
+>
+>-- 
+>2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
