@@ -1,113 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 437FAC6FD1D
-	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 14:57:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF211C7618D
+	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 15:08:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C983981A27;
-	Mon, 20 Mar 2023 14:57:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C983981A27
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ai6Y5y00
+	by smtp4.osuosl.org (Postfix) with ESMTP id 14E1341778;
+	Mon, 20 Mar 2023 15:08:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14E1341778
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=gbzEeQ5v;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=QisLF+tD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K5RYjmMPmsCf; Mon, 20 Mar 2023 14:57:37 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pA-CNFxrC92b; Mon, 20 Mar 2023 15:08:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 71DCD8188A;
-	Mon, 20 Mar 2023 14:57:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71DCD8188A
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 43FD84167E;
+	Mon, 20 Mar 2023 15:07:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 43FD84167E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DA7FC0071;
-	Mon, 20 Mar 2023 14:57:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9E36DC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA9CEC0035;
+	Mon, 20 Mar 2023 15:07:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9CF46C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 14:57:34 +0000 (UTC)
+ Mon, 20 Mar 2023 15:07:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6BDE5819BE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 69E02403AE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 14:57:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6BDE5819BE
+ Mon, 20 Mar 2023 15:07:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 69E02403AE
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=gbzEeQ5v; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=QisLF+tD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MW1iOyk11jOH
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id v6jkMv6iCTvW
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 14:57:33 +0000 (UTC)
+ Mon, 20 Mar 2023 15:07:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A1F738188A
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A1F738188A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13D1C40184
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 13D1C40184
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 14:57:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679324252;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=OQtFmm4KZTwh3zjk0Ct7Wnh43xep01cq4SPytfY48TY=;
- b=ai6Y5y00wR6f76FPHFokaQjnJ9NTg1y6w5o3u4LkK1CmZ83WSTud9OdCpdk3gXbBfxGNOY
- EZjuqLd26ngLGsflS2iCCe715i9o0sNQBMpJGgUFGGj7yjGjkqH0c2eWbTzmLDE9MuGllR
- s259Z9nHRvG288FORzXWZ8ZIw2+WmH4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-461-qH7xE-p5NOmefg0h93nPsg-1; Mon, 20 Mar 2023 10:57:25 -0400
-X-MC-Unique: qH7xE-p5NOmefg0h93nPsg-1
-Received: by mail-wm1-f69.google.com with SMTP id
- ay12-20020a05600c1e0c00b003ed201dcf71so5656511wmb.4
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 07:57:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679324244;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=OQtFmm4KZTwh3zjk0Ct7Wnh43xep01cq4SPytfY48TY=;
- b=8DqWvvKf+qR0Hc2ja0/qvL2hAjrJADNfPTZvwSjkpi1+XEVnxdBUqzpohACJawfJHW
- hy38kOZYbwmjde3pEVzVuLSaHBBqd0wZ/w/r+cbEAcHuL0iKTDpG6v5SBdcbsE8qvUIo
- yVvkpGBiwFZu/NlLq7d2Oq7XjpMWAaHJWc1GXpnMoz3JjM5SD0WAblZYZo9hMT5PY58o
- GeNSz4oOsCMfQ3hf3QzgaAAPQOgWh/NNF1JZaNKrQ+kFGWDM8+0LaT22yWhf0b/E56uI
- fo86ycSBWB68PzwrNE4bWjKxfSSsGPC05PO7SJrwMv0A78sxA0H16L0GI6cB6kPn/091
- zLlw==
-X-Gm-Message-State: AO0yUKXgAlv/myXiNoTnggprfwMWwr2y0+yhMCKhyBA6KXUEK/t0sV1p
- stDL4vCBWjiaVFTEpNyNgJUTf3n5GZEXKeuaQqGoyQBtolgTKffV0elaOAxS5DFMqfUqokccbVf
- iY/22epdWfxX1wfMmbkEpFrVInobLRgOtlyW637Nk0g==
-X-Received: by 2002:a05:600c:350f:b0:3eb:3843:9f31 with SMTP id
- h15-20020a05600c350f00b003eb38439f31mr32779743wmq.10.1679324244388; 
- Mon, 20 Mar 2023 07:57:24 -0700 (PDT)
-X-Google-Smtp-Source: AK7set+H3q9948VZ11zwy3FuyhsaXEplz4rpzcboLvqOLEhb7JocoduN7nI4hrj2vQBstLG8pNpEyw==
-X-Received: by 2002:a05:600c:350f:b0:3eb:3843:9f31 with SMTP id
- h15-20020a05600c350f00b003eb38439f31mr32779734wmq.10.1679324244157; 
- Mon, 20 Mar 2023 07:57:24 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
- [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
- bg5-20020a05600c3c8500b003e7f1086660sm16977466wmb.15.2023.03.20.07.57.22
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Mar 2023 07:57:23 -0700 (PDT)
-Date: Mon, 20 Mar 2023 15:57:18 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 1/3] virtio/vsock: fix header length on skb merging
-Message-ID: <20230320145718.5gytg6t5pcz5rpnm@sgarzare-redhat>
-References: <e141e6f1-00ae-232c-b840-b146bdb10e99@sberdevices.ru>
- <63445f2f-a0bb-153c-0e15-74a09ea26dc1@sberdevices.ru>
+ Mon, 20 Mar 2023 15:07:55 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 7A5641F88F;
+ Mon, 20 Mar 2023 15:07:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1679324873; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=/F3Uv+gDIJaQ28jjNA4mJ3c4Lr8XCJ5cTNG7r+OmCu0=;
+ b=gbzEeQ5v14FqgVm1HEPPWosuLRuJSkL0wAelyZ+0LVzJefDQJMl/Wj0hPL+FRas8ZRiuWv
+ k2ha10IOh4Ce0I3/ijDt2q7zEglcrj2j/fnDmG/VWG3UV0QoBS5pHFLxBqFGY3Rmsoc9gb
+ zQlULcrVcMGgMJpARDgMHs70k8A4SI8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1679324873;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=/F3Uv+gDIJaQ28jjNA4mJ3c4Lr8XCJ5cTNG7r+OmCu0=;
+ b=QisLF+tDZ9Skilm0JjkO5y3wOQ9h8e5opDbdLDzNxayB6pw4XnT4646MlQohtc4Ujq+7jn
+ UneD23GV0HU9mJCQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3CDA513A00;
+ Mon, 20 Mar 2023 15:07:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id B+/hDcl2GGTXOgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Mon, 20 Mar 2023 15:07:53 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: javierm@redhat.com, daniel@ffwll.ch, airlied@gmail.com, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, zackr@vmware.com, kraxel@redhat.com,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linux-graphics-maintainer@vmware.com
+Subject: [PATCH v2 0/8] drm/fbdev-generic: Mandatory shadow buffering
+Date: Mon, 20 Mar 2023 16:07:43 +0100
+Message-Id: <20230320150751.20399-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.40.0
 MIME-Version: 1.0
-In-Reply-To: <63445f2f-a0bb-153c-0e15-74a09ea26dc1@sberdevices.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
- Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- kernel@sberdevices.ru, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,51 +101,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Mar 19, 2023 at 09:51:06PM +0300, Arseniy Krasnov wrote:
->This fixes header length calculation of skbuff during data appending to
->it. When such skbuff is processed in dequeue callbacks, e.g. 'skb_pull()'
->is called on it, 'skb->len' is dynamic value, so it is impossible to use
->it in header, because value from header must be permanent for valid
->credit calculation ('rx_bytes'/'fwd_cnt').
->
->Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
+After adding fbdev-dma and converting drivers, all users of
+fbdev-generic require shadow buffering. Make it mandatory and
+remove all other codepaths. This change greatly simplifies the
+code for generic fbdev emulation. It will work with any driver
+that supports GEM's vmap and vunmap.
 
-I don't understand how this commit introduced this problem, can you
-explain it better?
+The change further allows for a number of cleanups and fixes. The
+flag prefer_shadow_fbdev is unused and to be removed. Probing in
+fbdev-generic is now simple enough to roll back if it fails. Further
+simplify the code for exporting the framebuffer's physical address.
+Finally rename the symbols to follow other fbdev emulation.
 
-Is it related more to the credit than to the size in the header itself?
+v2:
+	* handle screen_size in separate patches (Javier)
 
-Anyway, the patch LGTM, but we should explain better the issue.
+Thomas Zimmermann (8):
+  drm/fbdev-generic: Always use shadow buffering
+  drm/fbdev-generic: Remove unused prefer_shadow_fbdev flag
+  drm/fb-helper: Export drm_fb_helper_release_info()
+  drm/fb-helper: Support smem_len in deferred I/O
+  drm/fbdev-generic: Set screen size to size of GEM buffer
+  drm/fbdev-generic: Clean up after failed probing
+  drm/fb-helper: Consolidate CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM
+  drm/fbdev-generic: Rename symbols
 
-Thanks,
-Stefano
+ drivers/gpu/drm/drm_fb_helper.c     |  63 ++++---
+ drivers/gpu/drm/drm_fbdev_dma.c     |   9 +-
+ drivers/gpu/drm/drm_fbdev_generic.c | 279 +++++++++-------------------
+ drivers/gpu/drm/tiny/bochs.c        |   1 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c |   1 -
+ include/drm/drm_fb_helper.h         |  14 +-
+ include/drm/drm_mode_config.h       |   7 -
+ 7 files changed, 130 insertions(+), 244 deletions(-)
 
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> net/vmw_vsock/virtio_transport_common.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 6d15cd4d090a..3c75986e16c2 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1091,7 +1091,7 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> 			memcpy(skb_put(last_skb, skb->len), skb->data, skb->len);
-> 			free_pkt = true;
-> 			last_hdr->flags |= hdr->flags;
->-			last_hdr->len = cpu_to_le32(last_skb->len);
->+			le32_add_cpu(&last_hdr->len, len);
-> 			goto out;
-> 		}
-> 	}
->-- 
->2.25.1
->
+
+base-commit: 3333280906872bb8c2dff02666c7a8e46f085b24
+-- 
+2.40.0
 
 _______________________________________________
 Virtualization mailing list
