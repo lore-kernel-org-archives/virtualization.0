@@ -1,109 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9C5CC6FD1C
-	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 20:02:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6664FC6FD1D
+	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 20:36:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 56FBB40A6D;
-	Mon, 20 Mar 2023 20:02:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 56FBB40A6D
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HqM/4hxD
+	by smtp1.osuosl.org (Postfix) with ESMTP id CB91E81E41;
+	Mon, 20 Mar 2023 20:36:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB91E81E41
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=VdootZUn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FBWVEQ9YoyU4; Mon, 20 Mar 2023 20:02:55 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id v5-8IPli_rF4; Mon, 20 Mar 2023 20:36:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D4EF54047B;
-	Mon, 20 Mar 2023 20:02:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D4EF54047B
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 580EE81E2F;
+	Mon, 20 Mar 2023 20:36:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 580EE81E2F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 913E3C0035;
-	Mon, 20 Mar 2023 20:02:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65A6BC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3344CC0071;
+	Mon, 20 Mar 2023 20:36:05 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F044FC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 20:02:53 +0000 (UTC)
+ Mon, 20 Mar 2023 20:36:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3A19E40A5C
+ by smtp3.osuosl.org (Postfix) with ESMTP id B719661068
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 20:02:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3A19E40A5C
+ Mon, 20 Mar 2023 20:36:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B719661068
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=VdootZUn
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9dftqPrGKe5p
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wso7xl_ZKOsy
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 20:02:52 +0000 (UTC)
+ Mon, 20 Mar 2023 20:36:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 315084047B
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 315084047B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B1B5560A92
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B1B5560A92
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 20:02:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679342570;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=n+odsWK/6XB/7HnKfFcwb3aXLzuuaTQPBIxdkaXeqKE=;
- b=HqM/4hxDJ/E5TcJeLu+0tky8/CPSH05dIxdEj4Npb/pZ1QDIQC9MT7ol1JlJpoaFIh+KrO
- HEHI1KB59crLB/1xbym/o93yjjmPnp2mMCsb9pgkRJ+PK6OLwFbWadJxLOPt2aCVkzfAto
- kOJk/mHUxIxM6tqBlVL0bmJdGpsxoMs=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-516-O15UWDIkNaWfavuJ5xmnXQ-1; Mon, 20 Mar 2023 16:02:49 -0400
-X-MC-Unique: O15UWDIkNaWfavuJ5xmnXQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- fl22-20020a05600c0b9600b003ed26ca6206so8956165wmb.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 13:02:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679342568;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=n+odsWK/6XB/7HnKfFcwb3aXLzuuaTQPBIxdkaXeqKE=;
- b=uddDqVhTLY9+i0mPL2U5ndWeITVDpJxghR2C5Ixfu7ogPqLyxrpumPLS0DKBvrQXQD
- FV3wE9IjhUj/qNxhH51LcBX6vXR7DGfqXKzBhz0YadT7NpgCypZ74P7ExT4lhro4ijNQ
- 4Hc3dCGGoLxzM6CtCjb09dMxKzXOlOc0B8H7wOk+niPDh6NZ0bgvu33tnJj9LJR377dW
- WITR4x7dg7r+P7V0GPAIL4WK8cEv8kmx5l6Do5M52pqfxNSgBRGy6oQfdX1lzCzFYJ6G
- 0+RnR7pkEgBYVSWCV7JsPEJO5ZRzztoAKfE9Y++WwONf1XGsZxbch1cvn2WxFKBz8igX
- hVDQ==
-X-Gm-Message-State: AO0yUKVrw1JWxHtBtN49ZOReHf8X+mt4ogEUg1hIQxqwVkG5p/Gq8SEQ
- 0Jzds8Zljv77P8ofZKOQm3VdU8H/Av13+B/YYSapPBpXCxTGCIXJAUgF9Gl+OxCU639cqX41oys
- y7OtL/Om1+FpRCzxgFPZefe/A7P5zhOSV3igutztqDA==
-X-Received: by 2002:a05:600c:22d4:b0:3ed:7700:eb88 with SMTP id
- 20-20020a05600c22d400b003ed7700eb88mr537332wmg.13.1679342568387; 
- Mon, 20 Mar 2023 13:02:48 -0700 (PDT)
-X-Google-Smtp-Source: AK7set8K4GLauapoPdv1AfU5pXJtSJp9GuT0N93+IE9hlzwBpTuUQqlUbDQR1Qkq31uqOQKagcBFhQ==
-X-Received: by 2002:a05:600c:22d4:b0:3ed:7700:eb88 with SMTP id
- 20-20020a05600c22d400b003ed7700eb88mr537319wmg.13.1679342568099; 
- Mon, 20 Mar 2023 13:02:48 -0700 (PDT)
-Received: from redhat.com ([2.52.1.105]) by smtp.gmail.com with ESMTPSA id
- t17-20020a05600c451100b003edddae1068sm5605654wmo.9.2023.03.20.13.02.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Mar 2023 13:02:47 -0700 (PDT)
-Date: Mon, 20 Mar 2023 16:02:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH v3 2/2] vdpa/mlx5: Make VIRTIO_NET_F_MRG_RXBUF off by
- default
-Message-ID: <20230320155938-mutt-send-email-mst@kernel.org>
-References: <20230320114930.8457-1-elic@nvidia.com>
- <20230320114930.8457-3-elic@nvidia.com>
+ Mon, 20 Mar 2023 20:36:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1679344560; x=1710880560;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=XsI54tRIC2yyLGKG7ZmZAaYYUDtiaowqXj/qk8ckWTM=;
+ b=VdootZUnul1wuBs49AIdJVfcV1esskW86/k6l0ri8ImgROr+vbcitQ/i
+ nYjrTDqVOpKlcjF0Z4HfOHiUCpM3KP21Q0Uz7QqNTd7wHC69xrY6t0aYF
+ 6AqffWYTnTzFcPLq3N6uzTp88beYEch5R0b9Bdce482Jh8gEJT1KP/Id5
+ eBZbnOMvx0l2blXq0DuIfQbS90GFYGgq7wHpX1azcLQlBWDsd1qjmFWSf
+ Ju+QJEaLv7LHRuNLjbKeYd6QaxmTjPIAoYB5ntFmSBb93qCGrklR8F+6I
+ mraOH4Vb8Q+WBpZbrWubzHkoWbUQtsfAniKw0z8iQ4km9/jae8R+ZDJpS w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="318424154"
+X-IronPort-AV: E=Sophos;i="5.98,276,1673942400"; d="scan'208";a="318424154"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 20 Mar 2023 13:35:59 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="681223512"
+X-IronPort-AV: E=Sophos;i="5.98,276,1673942400"; d="scan'208";a="681223512"
+Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
+ by orsmga002.jf.intel.com with ESMTP; 20 Mar 2023 13:35:57 -0700
+Received: from kbuild by b613635ddfff with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1peMEW-000BIQ-0J;
+ Mon, 20 Mar 2023 20:35:56 +0000
+Date: Tue, 21 Mar 2023 04:34:56 +0800
+From: kernel test robot <lkp@intel.com>
+To: Viktor Prutyanov <viktor@daynix.com>, mst@redhat.com, jasowang@redhat.com
+Subject: Re: [PATCH] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+Message-ID: <202303210449.m2ERQJXB-lkp@intel.com>
+References: <20230320115451.1232171-1-viktor@daynix.com>
 MIME-Version: 1.0
-In-Reply-To: <20230320114930.8457-3-elic@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: eperezma@redhat.com, parav@mellanox.com,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20230320115451.1232171-1-viktor@daynix.com>
+Cc: yan@daynix.com, virtualization@lists.linux-foundation.org,
+ viktor@daynix.com, linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,51 +99,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 20, 2023 at 01:49:30PM +0200, Eli Cohen wrote:
-> One can still enable it when creating the vdpa device using vdpa tool by
-> providing features that include it.
-> 
-> For example:
-> $ vdpa dev add name vdpa0 mgmtdev pci/0000:86:00.2 device_features 0x300cb982b
-> 
-> Please be aware that this feature was not supported before the previous
-> patch in this list was introduced so we don't change user experience.
+Hi Viktor,
 
-so I would  say the patches have to be reordered to avoid a regression?
+Thank you for the patch! Perhaps something to improve:
 
-> Current firmware versions show degradation in packet rate when using
-> MRG_RXBUF. Users who favor memory saving over packet rate could enable
-> this feature but we want to keep it off by default.
-> 
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.3-rc3 next-20230320]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-OK and when future firmware will (maybe) fix this up how
-will you know it's ok to enable by default?
-Some version check I guess?
-It would be better if firmware specified flags to enable
-by default ...
+url:    https://github.com/intel-lab-lkp/linux/commits/Viktor-Prutyanov/virtio-add-VIRTIO_F_NOTIFICATION_DATA-feature-support/20230320-195725
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20230320115451.1232171-1-viktor%40daynix.com
+patch subject: [PATCH] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+config: nios2-randconfig-s051-20230319 (https://download.01.org/0day-ci/archive/20230321/202303210449.m2ERQJXB-lkp@intel.com/config)
+compiler: nios2-linux-gcc (GCC) 12.1.0
+reproduce:
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # apt-get install sparse
+        # sparse version: v0.6.4-39-gce1a6720-dirty
+        # https://github.com/intel-lab-lkp/linux/commit/b6212a12ca1691dc346e5de046ec46bd3ce11247
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Viktor-Prutyanov/virtio-add-VIRTIO_F_NOTIFICATION_DATA-feature-support/20230320-195725
+        git checkout b6212a12ca1691dc346e5de046ec46bd3ce11247
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=nios2 olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=nios2 SHELL=/bin/bash drivers/virtio/
 
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Link: https://lore.kernel.org/oe-kbuild-all/202303210449.m2ERQJXB-lkp@intel.com/
 
-> ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 5285dd76c793..24397a71d6f3 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -3146,6 +3146,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->  			return -EINVAL;
->  		}
->  		device_features &= add_config->device_features;
-> +	} else {
-> +		device_features &= ~BIT_ULL(VIRTIO_NET_F_MRG_RXBUF);
->  	}
->  	if (!(device_features & BIT_ULL(VIRTIO_F_VERSION_1) &&
->  	      device_features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM))) {
-> -- 
-> 2.38.1
+sparse warnings: (new ones prefixed by >>)
+>> drivers/virtio/virtio_mmio.c:293:16: sparse: sparse: incorrect type in argument 1 (different base types) @@     expected unsigned int [usertype] value @@     got restricted __le32 [usertype] data @@
+   drivers/virtio/virtio_mmio.c:293:16: sparse:     expected unsigned int [usertype] value
+   drivers/virtio/virtio_mmio.c:293:16: sparse:     got restricted __le32 [usertype] data
 
+vim +293 drivers/virtio/virtio_mmio.c
+
+   287	
+   288	static bool vm_notify_with_data(struct virtqueue *vq)
+   289	{
+   290		struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+   291		__le32 data = vring_fill_notification_data(vq);
+   292	
+ > 293		writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+   294	
+   295		return true;
+   296	}
+   297	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
