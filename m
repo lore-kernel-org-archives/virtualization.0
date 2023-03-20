@@ -1,106 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2D11C6FD1D
-	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 13:58:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 260C4C6FD1D
+	for <virtualization@archiver.kernel.org>; Mon, 20 Mar 2023 14:30:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D61B8404A6;
-	Mon, 20 Mar 2023 13:58:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D61B8404A6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c8WPMUJJ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jGACLeNLCHQN; Mon, 20 Mar 2023 13:58:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 29CE5403CC;
-	Mon, 20 Mar 2023 13:58:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 29CE5403CC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BD885C0035;
-	Mon, 20 Mar 2023 13:58:26 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 674E7C0032
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 13:58:25 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3563760ECA
- for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 13:58:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3563760ECA
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9899F61008;
+	Mon, 20 Mar 2023 14:30:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9899F61008
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=c8WPMUJJ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Met1hgLl
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id N9uYDi8skQmh
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PO66DVdoSt3o; Mon, 20 Mar 2023 14:30:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0D98660FFF;
+	Mon, 20 Mar 2023 14:30:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0D98660FFF
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DA25FC0071;
+	Mon, 20 Mar 2023 14:30:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DFA1AC008A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 13:58:24 +0000 (UTC)
+ Mon, 20 Mar 2023 14:30:14 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id ADC82813B8
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Mar 2023 14:30:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ADC82813B8
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Met1hgLl
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UDORJ-JZ0SE0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 20 Mar 2023 14:30:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1681260E89
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF09C813B1
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1681260E89
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AF09C813B1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 13:58:23 +0000 (UTC)
+ Mon, 20 Mar 2023 14:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679320702;
+ s=mimecast20190719; t=1679322612;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=xluQCIRM9KUg+iS1ks5cvU7xSezg5DUOPbgJwMPELqs=;
- b=c8WPMUJJcAHK9PTmLc2ZgJJ+kU/Xfx9ms053qTHcb33hzgw2+XWzndFQ4UHKVlDoPtjPl4
- PboCQ72LWxNondj24x6Hg0OXjGmplH/PYWajoCtjcc7Clo6psPder1YiyfJPxRw/WY4JsI
- yPw49mF2B4Gfg9GVjG2lsSj6TSHrpr0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=fYYltObAoBAJHBew4d0/wtXHVG5SadqFvZoyE4YqRs0=;
+ b=Met1hgLlnsG3dRBgOXTnLgUSMerMG6EAN01dOJpfP/BV8+uaCO5K1/ko0Rd35Hv1yXbJ3a
+ YP9QVWhlh7VtHbfU8vwB9cPWeKx/LhO0ur/ws94yR1NkvXCQ7W/eLBdGghTMWHJMJgkqSM
+ q3qkIkK61aGH7t5n3hJFwMRE1eivn+A=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-308-SHT0NcjYMSaITSCSZMweOA-1; Mon, 20 Mar 2023 09:58:18 -0400
-X-MC-Unique: SHT0NcjYMSaITSCSZMweOA-1
-Received: by mail-wm1-f69.google.com with SMTP id
- bg13-20020a05600c3c8d00b003ed40f09355so5567816wmb.5
+ us-mta-85-uC7bCzKBOUGQJHctgIkO2Q-1; Mon, 20 Mar 2023 10:30:10 -0400
+X-MC-Unique: uC7bCzKBOUGQJHctgIkO2Q-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ d187-20020a3768c4000000b00746864b272cso1176477qkc.15
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Mar 2023 06:58:18 -0700 (PDT)
+ Mon, 20 Mar 2023 07:30:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679320697;
+ d=1e100.net; s=20210112; t=1679322605;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=xluQCIRM9KUg+iS1ks5cvU7xSezg5DUOPbgJwMPELqs=;
- b=4/1U/JindL+ScocChbKY22Dd+0aFi6TD0TKTRCvsHVYBwXz9wsvKgOtc1RzCSK1urt
- ctJZ++M7jdB+S04kialc17R7Us3y0Sb0jVr6iI1HTQnYaxIQqnJo8JzxJXyjRe+EMoyK
- w8ZkXKMdCJ0CdQxjRk2yY1rtIsq+2XNlUbsx8pWXek45qvnlSjbz+bmIfuHoIaMM9eAF
- g6FEyafkZwoT8qEwpEHNwLr15vMBSY36pvEotgSSbcafOE4sftUhFahmOkY9Q3NRBa+8
- LP5qzihjWiMRR4xtsF0x/7hx/obxRLwdMLJyqmuemSSrltxI6R/mP+EG/uGXdOO5U7du
- BQVg==
-X-Gm-Message-State: AO0yUKUwvb3tqXWfXkoIZVyxPo83mbjXEckuLa1lvS21OW7HZ91+jsiT
- mVL7prVW1/gId8FWyuQPypqM3Js5QkUqc59YipU05ATsBQu46FH4XwNNDOxkSl2i9nc0jjr0jVw
- S6ISR+Q/cWbCdrKIRK3sqdG/PUOWf6wahmVIMmWEfIA==
-X-Received: by 2002:adf:ce11:0:b0:2c7:851:c0bf with SMTP id
- p17-20020adfce11000000b002c70851c0bfmr13818708wrn.0.1679320697842; 
- Mon, 20 Mar 2023 06:58:17 -0700 (PDT)
-X-Google-Smtp-Source: AK7set+FUDvH/psBKoCx/B613vRQOYlndcOrSX0ahkGfyMMplDZBRpmL9wOqCuvTHwUfmOLfiNDOAg==
-X-Received: by 2002:adf:ce11:0:b0:2c7:851:c0bf with SMTP id
- p17-20020adfce11000000b002c70851c0bfmr13818684wrn.0.1679320697599; 
- Mon, 20 Mar 2023 06:58:17 -0700 (PDT)
+ bh=fYYltObAoBAJHBew4d0/wtXHVG5SadqFvZoyE4YqRs0=;
+ b=3M+DN9YnTqVP0JbOdv7OHxUFA5gwHcSZvnalguIedD86ylkVIMfoKtgU2dB7nO6uke
+ tsg9QaOGp89ONohrHAXHrOyS0CNTS8dppPm2qY6a3AOKwfhARLS2jV1p/OTqYASgZwNk
+ zaa2McQjgMho5Fb9QQW5lF+hf/H2axalN5Oh4pU8J3Ke01Y86t95nQXylkQyHwgDxxy8
+ kuTa7vriD89Y8wjpS6hn5OULcH4WPZZ9I7FpT5LYbyon7jlgt0+MFAf+gbmJfjwQUsLz
+ +20IYnm8PJa3yX+SHv+X9BIOZ9+H+HFta9oEMwOXR5j7ZtYmUZV8sYenvDS3lE3ZkD6c
+ qlBA==
+X-Gm-Message-State: AO0yUKXfb4A4VvR6ivBa6Q8QSZz3mYhvar++O0Xx9+CFDSemnoBD+vi5
+ LvQ9TKYRuWRnqKH9z8uySJFOlGdZjwFWb6pN9DwhQJf93W0OFZJHaoW7wP1FX2jIYVdPMCshGvT
+ 3QRRuw7qcX21MjJoAnhDaMtasZ7dgbUQYRNUXA5LTwA==
+X-Received: by 2002:ac8:4e42:0:b0:3d7:57b:467c with SMTP id
+ e2-20020ac84e42000000b003d7057b467cmr29522681qtw.43.1679322605284; 
+ Mon, 20 Mar 2023 07:30:05 -0700 (PDT)
+X-Google-Smtp-Source: AK7set9hlZuyivlx1H18m4rYyb3oaING8patBHWuxdHYD2CvI9lsFliZKypqpOpiOcNd9X094fyYsg==
+X-Received: by 2002:ac8:4e42:0:b0:3d7:57b:467c with SMTP id
+ e2-20020ac84e42000000b003d7057b467cmr29522623qtw.43.1679322604965; 
+ Mon, 20 Mar 2023 07:30:04 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
  [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
- s13-20020a5d510d000000b002c794495f6fsm5977998wrt.117.2023.03.20.06.58.16
+ t10-20020ac86a0a000000b003b9b48cdbe8sm6446788qtr.58.2023.03.20.07.30.02
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 20 Mar 2023 06:58:17 -0700 (PDT)
-Date: Mon, 20 Mar 2023 14:58:14 +0100
+ Mon, 20 Mar 2023 07:30:04 -0700 (PDT)
+Date: Mon, 20 Mar 2023 15:29:59 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1] virtio/vsock: check transport before skb allocation
-Message-ID: <20230320135814.jncpvznka56liu36@sgarzare-redhat>
-References: <47a7dbf6-1c63-3338-5102-122766e6378d@sberdevices.ru>
+Subject: Re: [RFC PATCH v2] virtio/vsock: allocate multiple skbuffs on tx
+Message-ID: <20230320142959.2wwf474fiyp3ex5z@sgarzare-redhat>
+References: <ea5725eb-6cb5-cf15-2938-34e335a442fa@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <47a7dbf6-1c63-3338-5102-122766e6378d@sberdevices.ru>
+In-Reply-To: <ea5725eb-6cb5-cf15-2938-34e335a442fa@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -126,49 +126,122 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Mar 17, 2023 at 01:37:10PM +0300, Arseniy Krasnov wrote:
->Pointer to transport could be checked before allocation of skbuff, thus
->there is no need to free skbuff when this pointer is NULL.
+On Sun, Mar 19, 2023 at 09:46:10PM +0300, Arseniy Krasnov wrote:
+>This adds small optimization for tx path: instead of allocating single
+>skbuff on every call to transport, allocate multiple skbuff's until
+>credit space allows, thus trying to send as much as possible data without
+>return to af_vsock.c.
 >
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 8 +++-----
-> 1 file changed, 3 insertions(+), 5 deletions(-)
+> Link to v1:
+> https://lore.kernel.org/netdev/2c52aa26-8181-d37a-bccd-a86bd3cbc6e1@sberdevices.ru/
+>
+> Changelog:
+> v1 -> v2:
+> - If sent something, return number of bytes sent (even in
+>   case of error). Return error only if failed to sent first
+>   skbuff.
+>
+> net/vmw_vsock/virtio_transport_common.c | 53 ++++++++++++++++++-------
+> 1 file changed, 39 insertions(+), 14 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 6564192e7f20..3fdf1433ec28 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -196,7 +196,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+> 	const struct virtio_transport *t_ops;
+> 	struct virtio_vsock_sock *vvs;
+> 	u32 pkt_len = info->pkt_len;
+>-	struct sk_buff *skb;
+>+	u32 rest_len;
+>+	int ret;
+>
+> 	info->type = virtio_transport_get_type(sk_vsock(vsk));
+>
+>@@ -216,10 +217,6 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>
+> 	vvs = vsk->trans;
+>
+>-	/* we can send less than pkt_len bytes */
+>-	if (pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
+>-		pkt_len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
+>-
+> 	/* virtio_transport_get_credit might return less than pkt_len credit */
+> 	pkt_len = virtio_transport_get_credit(vvs, pkt_len);
+>
+>@@ -227,17 +224,45 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+> 	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
+> 		return pkt_len;
+>
+>-	skb = virtio_transport_alloc_skb(info, pkt_len,
+>-					 src_cid, src_port,
+>-					 dst_cid, dst_port);
+>-	if (!skb) {
+>-		virtio_transport_put_credit(vvs, pkt_len);
+>-		return -ENOMEM;
+>-	}
+>+	ret = 0;
+>+	rest_len = pkt_len;
+>+
+>+	do {
+>+		struct sk_buff *skb;
+>+		size_t skb_len;
+>+
+>+		skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE, rest_len);
+>+
+>+		skb = virtio_transport_alloc_skb(info, skb_len,
+>+						 src_cid, src_port,
+>+						 dst_cid, dst_port);
+>+		if (!skb) {
+>+			ret = -ENOMEM;
+>+			break;
+>+		}
+>+
+>+		virtio_transport_inc_tx_pkt(vvs, skb);
+>+
+>+		ret = t_ops->send_pkt(skb);
+>+
+>+		if (ret < 0)
+>+			break;
+>
+>-	virtio_transport_inc_tx_pkt(vvs, skb);
+>+		rest_len -= skb_len;
 
-LGTM, I think net-next is fine for this.
+t_ops->send_pkt() is returning the number of bytes sent. Current
+implementations always return `skb_len`, so there should be no problem,
+but it would be better to put a comment here, or we should handle the
+case where ret != skb_len to avoid future issues.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>+	} while (rest_len);
+>
+>-	return t_ops->send_pkt(skb);
+>+	/* Don't call this function with zero as argument:
+>+	 * it tries to acquire spinlock and such argument
+>+	 * makes this call useless.
+
+Good point, can we do the same also for virtio_transport_get_credit()?
+(Maybe in a separate patch)
+
+I'm thinking if may be better to do it directly inside the functions,
+but I don't have a strong opinion on that since we only call them here.
 
 Thanks,
 Stefano
 
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index cda587196475..607149259e8b 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -867,6 +867,9 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
-> 	if (le16_to_cpu(hdr->op) == VIRTIO_VSOCK_OP_RST)
-> 		return 0;
->
->+	if (!t)
->+		return -ENOTCONN;
+>+	 */
+>+	if (rest_len)
+>+		virtio_transport_put_credit(vvs, rest_len);
 >+
-> 	reply = virtio_transport_alloc_skb(&info, 0,
-> 					   le64_to_cpu(hdr->dst_cid),
-> 					   le32_to_cpu(hdr->dst_port),
->@@ -875,11 +878,6 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
-> 	if (!reply)
-> 		return -ENOMEM;
->
->-	if (!t) {
->-		kfree_skb(reply);
->-		return -ENOTCONN;
->-	}
->-
-> 	return t->send_pkt(reply);
+>+	/* Return number of bytes, if any data has been sent. */
+>+	if (rest_len != pkt_len)
+>+		ret = pkt_len - rest_len;
+>+
+>+	return ret;
 > }
 >
+> static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
 >-- 
 >2.25.1
 >
