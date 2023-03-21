@@ -1,60 +1,61 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 648BDC74A5B
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 87EFEC6FD1D
 	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 09:35:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 06D8C60F7E;
-	Tue, 21 Mar 2023 09:35:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 06D8C60F7E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 335A04181E;
+	Tue, 21 Mar 2023 09:35:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 335A04181E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QIsQbI_6PFJq; Tue, 21 Mar 2023 09:35:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7778560FA2;
-	Tue, 21 Mar 2023 09:35:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7778560FA2
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mwVmi0s2TVMp; Tue, 21 Mar 2023 09:35:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5978E4095F;
+	Tue, 21 Mar 2023 09:35:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5978E4095F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EEB02C009B;
-	Tue, 21 Mar 2023 09:35:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 89A9BC00A0;
+	Tue, 21 Mar 2023 09:35:21 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 12A38C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05D0AC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 09:35:19 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9480A60E29
  for <virtualization@lists.linux-foundation.org>;
  Tue, 21 Mar 2023 09:35:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DEC6260F27
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:35:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DEC6260F27
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9480A60E29
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zyeAWYQkHWfl
+ with ESMTP id fQ8pmamdnC3M
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:35:17 +0000 (UTC)
+ Tue, 21 Mar 2023 09:35:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AE90460F26
-Received: from out30-119.freemail.mail.aliyun.com
- (out30-119.freemail.mail.aliyun.com [115.124.30.119])
- by smtp3.osuosl.org (Postfix) with ESMTPS id AE90460F26
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6295B60BD2
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6295B60BD2
  for <virtualization@lists.linux-foundation.org>;
  Tue, 21 Mar 2023 09:35:16 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R491e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
- TI=SMTPD_---0VeMguId_1679391312; 
+ TI=SMTPD_---0VeMeIT3_1679391312; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VeMguId_1679391312) by smtp.aliyun-inc.com;
- Tue, 21 Mar 2023 17:35:12 +0800
+ fp:SMTPD_---0VeMeIT3_1679391312) by smtp.aliyun-inc.com;
+ Tue, 21 Mar 2023 17:35:13 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH vhost v3 08/11] virtio_ring: introduce virtqueue_dma_dev()
-Date: Tue, 21 Mar 2023 17:35:03 +0800
-Message-Id: <20230321093506.6546-9-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v3 09/11] virtio_ring: correct the expression of the
+ description of virtqueue_resize()
+Date: Tue, 21 Mar 2023 17:35:04 +0800
+Message-Id: <20230321093506.6546-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20230321093506.6546-1-xuanzhuo@linux.alibaba.com>
 References: <20230321093506.6546-1-xuanzhuo@linux.alibaba.com>
@@ -77,81 +78,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Added virtqueue_dma_dev() to get DMA device for virtio. Then the
-caller can do dma operation in advance. The purpose is to keep memory
-mapped across multiple add/get buf operations.
+Modify the "useless" to a more accurate "unused".
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio.c      |  6 ++++++
- drivers/virtio/virtio_ring.c | 17 +++++++++++++++++
- include/linux/virtio.h       |  2 ++
- 3 files changed, 25 insertions(+)
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 3893dc29eb26..11c5035369e2 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -1,4 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/dma-mapping.h>
- #include <linux/virtio.h>
- #include <linux/spinlock.h>
- #include <linux/virtio_config.h>
-@@ -243,6 +244,11 @@ static int virtio_dev_probe(struct device *_d)
- 	u64 driver_features;
- 	u64 driver_features_legacy;
- 
-+	_d->dma_mask = &_d->coherent_dma_mask;
-+	err = dma_set_mask_and_coherent(_d, DMA_BIT_MASK(64));
-+	if (err)
-+		return err;
-+
- 	/* We have a driver! */
- 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
- 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 78ec8a430033..d214a8a2fd4b 100644
+index d214a8a2fd4b..6f093528afd0 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -2299,6 +2299,23 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
- 
-+/**
-+ * virtqueue_dma_dev - get the dma dev
-+ * @vq: the struct virtqueue we're talking about.
-+ *
-+ * Returns the dma dev. That can been used for dma api.
-+ */
-+struct device *virtqueue_dma_dev(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	if (vq->use_dma_api)
-+		return vring_dma_dev(vq);
-+	else
-+		return &vq->vq.vdev->dev;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_dma_dev);
-+
- /**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-  * @_vq: the struct virtqueue
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 2b472514c49b..1fa50191cf0a 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -61,6 +61,8 @@ int virtqueue_add_sgs(struct virtqueue *vq,
- 		      void *data,
- 		      gfp_t gfp);
- 
-+struct device *virtqueue_dma_dev(struct virtqueue *vq);
-+
- bool virtqueue_kick(struct virtqueue *vq);
- 
- bool virtqueue_kick_prepare(struct virtqueue *vq);
+@@ -2704,7 +2704,7 @@ EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
+  * virtqueue_resize - resize the vring of vq
+  * @_vq: the struct virtqueue we're talking about.
+  * @num: new ring num
+- * @recycle: callback for recycle the useless buffer
++ * @recycle: callback to recycle unused buffers
+  *
+  * When it is really necessary to create a new vring, it will set the current vq
+  * into the reset state. Then call the passed callback to recycle the buffer
 -- 
 2.32.0.3.g01195cf9f
 
