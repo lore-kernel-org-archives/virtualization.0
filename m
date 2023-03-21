@@ -1,102 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A3E8C74A5B
-	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 09:23:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8FF6C6FD1D
+	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 09:27:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 010A7610E9;
-	Tue, 21 Mar 2023 09:23:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 010A7610E9
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3252E4186F;
+	Tue, 21 Mar 2023 09:27:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3252E4186F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bVWOz5P9
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iCSxbQO7zRLr; Tue, 21 Mar 2023 09:27:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 406D241870;
+	Tue, 21 Mar 2023 09:27:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 406D241870
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F00B8C0071;
+	Tue, 21 Mar 2023 09:27:48 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 937DEC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 09:27:47 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5D46360AC1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 09:27:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5D46360AC1
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NDBWYKfj
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=bVWOz5P9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t9YPvjONXdlJ; Tue, 21 Mar 2023 09:23:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4257E60881;
-	Tue, 21 Mar 2023 09:23:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4257E60881
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 125D3C0071;
-	Tue, 21 Mar 2023 09:23:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D10D3C0032
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VW0WMuSspvX2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:23:31 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A56BE81EE8
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:23:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A56BE81EE8
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NDBWYKfj
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QgrsfGj_oVvu
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:23:30 +0000 (UTC)
+ Tue, 21 Mar 2023 09:27:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9FF6181EDD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 63E146105E
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9FF6181EDD
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 63E146105E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:23:30 +0000 (UTC)
+ Tue, 21 Mar 2023 09:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679390609;
+ s=mimecast20190719; t=1679390865;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Pn5brbGgNvIiwAbTr396tg4MWSNJ8Oc96gtsZGXUcYM=;
- b=NDBWYKfjlLIugD/7aSM/uSyMNmnVFDfb+c2GrNudcZo6PmuCrZhljGGOJQ5zKxrY7l3Ok4
- qSz/Nx8QmB8/XfkfIupuouv5CE23iJqJocAbmnsPRLQTNb/0wn6F1aFA3xT1Qdn2oWk0wB
- k3bnCOUbiPhjOFLLZlOsri8vct69quw=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
+ b=bVWOz5P9M85nczh0838yoJOSzSLWF67JGpSjQa/SmrXjfY4oKJxD3mnLzBj5pUwEKPV+F2
+ lAEnE1TJl2Y5qwWImZUnWsJ7K5gk5GZ48Mk7XJv6HrP8tVkrFefaZ6n9NtOq4497dN9W2A
+ H4GWYCwIdvOIZ3QPuwXFoZ+4YEa3RM8=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-657-eoN_3zTYONiIsjtB_dPzbQ-1; Tue, 21 Mar 2023 05:23:25 -0400
-X-MC-Unique: eoN_3zTYONiIsjtB_dPzbQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- i3-20020a05600c354300b003edfa408811so2569407wmq.1
+ us-mta-134-gQYAmyNEO8m4D-ycslwZRA-1; Tue, 21 Mar 2023 05:27:41 -0400
+X-MC-Unique: gQYAmyNEO8m4D-ycslwZRA-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ fl22-20020a05600c0b9600b003ed26ca6206so9722152wmb.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:23:25 -0700 (PDT)
+ Tue, 21 Mar 2023 02:27:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679390604;
+ d=1e100.net; s=20210112; t=1679390860;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=Pn5brbGgNvIiwAbTr396tg4MWSNJ8Oc96gtsZGXUcYM=;
- b=iLN1Ui+M0yc0QQr3mARpyeQA91wT1fM7KqdYmpOkEQVRChLwO8L+CKvLziEqkDiFNC
- dYw6/rBNyN2HaH7aTDchWg59BK4PA+Nnt9n0vPr3lRbUgtCvZTAyoE9nfKocev+MTIFb
- 7YL4ccD2AN2JMnnZP2qIEJy3GGWToAdymmYSiJzlXLfaT5XFHFIEWZT8KG0fA60rBAg5
- d//NarRimDyquTlD4KnZ/lyG+Mv2scRM7v57hroEINol8OimNWiShROfUSG2X4A2r7gh
- lgVnPTzPIqnVfEeWhWzeYqb4aV22po/7HVxvC5O5Z5zxykjLodDR54kHTlPCUJRoYabd
- CPRA==
-X-Gm-Message-State: AO0yUKXjEThkuWit6424Y8cN1i9jM3fzdf65N5G7G9nh/cn0ON1nbFMW
- wptLqWaJGWemHobhBVZNqYJaS2XYS5t+x5oBw4t7wW4ZWbrBZIayBn6GIA5p4WtdcxVVQPizzqQ
- TAF9r2U9E6jViWDrnwY083UtJ28KjbCH6qoDLWOxMNQ==
-X-Received: by 2002:a1c:6a08:0:b0:3ea:ed4d:38eb with SMTP id
- f8-20020a1c6a08000000b003eaed4d38ebmr1871986wmc.24.1679390604692; 
- Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/5Sl5sP+nX8YGttWKA3yT06XBaU7ihGH43O5M3uoUtpcc9jFKpSMids9Me1PPqfY0eMN3yJA==
-X-Received: by 2002:a1c:6a08:0:b0:3ea:ed4d:38eb with SMTP id
- f8-20020a1c6a08000000b003eaed4d38ebmr1871973wmc.24.1679390604390; 
- Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
+ bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
+ b=Rc+LlKLg6w3TWQ50tw/XbobCOPScmG/cl5Q6tMAKfOnSnLPlRDrgg2ttYMk3yEAQsd
+ ZOhtskPj/dmt9ujsQz+lBx/euLKfNWBqcX5B8M/54kJriJtNBYult1biNo7qy+bAhkV4
+ 8cStAU8hMw6Nty5x3Wz/GArZMdpNI1xU18MmfzH+YoNv3n2qkM5Y9EmSzRKI4ZXTHPaG
+ 5Tol0Jk1G3ZdoOUwYHO4dPPmesjIWe8Z7vMRO90XvXhzk/oXjFz9HyDdOrJypBlu5KQH
+ NUBBrBc3+QiNGpDTQqUt9ahJLweoTFCxe3YoclBXhd//NBJ3rqCamSEvYEZGifbSf/lM
+ tuYA==
+X-Gm-Message-State: AO0yUKXVTVmLGi00y3erPcpph48RXuFXqHTinXalgKL/cp0bKS5UQE/8
+ YaO61ajY+wRiRqkwOyE4t6kwF4jvvghZ3EhHoWhKBN6quKWj7pOkFNmmWDNC/PltVlrz9Gb9+aF
+ 47C9NsP60lzV2Ii6DOYM4e8amJqf3f81be8tlg3DBdw==
+X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id
+ l21-20020a1c7915000000b003ed39936aa2mr1859032wme.11.1679390859815; 
+ Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+zdomxqmeYP5mRC/r2MmjfSKc6viUTnX8ys2OMP5VJHTZHJ5/PmqhW2iDdydInHE6oIrLGWA==
+X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id
+ l21-20020a1c7915000000b003ed39936aa2mr1859021wme.11.1679390859486; 
+ Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
 Received: from redhat.com ([2.52.1.105]) by smtp.gmail.com with ESMTPSA id
- n1-20020a7bc5c1000000b003db03725e86sm13222630wmk.8.2023.03.21.02.23.22
+ t20-20020a1c7714000000b003ee10fb56ebsm3670868wmi.9.2023.03.21.02.27.37
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 21 Mar 2023 02:23:24 -0700 (PDT)
-Date: Tue, 21 Mar 2023 05:23:20 -0400
+ Tue, 21 Mar 2023 02:27:38 -0700 (PDT)
+Date: Tue, 21 Mar 2023 05:27:35 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Viktor Prutyanov <viktor@daynix.com>
 Subject: Re: [PATCH v2] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Message-ID: <20230321050747-mutt-send-email-mst@kernel.org>
+Message-ID: <20230321052407-mutt-send-email-mst@kernel.org>
 References: <20230320232115.1940587-1-viktor@daynix.com>
 MIME-Version: 1.0
 In-Reply-To: <20230320232115.1940587-1-viktor@daynix.com>
@@ -195,11 +195,6 @@ On Tue, Mar 21, 2023 at 02:21:15AM +0300, Viktor Prutyanov wrote:
 >  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
 > -				 true, true, ctx, vm_notify, callback, name);
 > +			true, true, ctx, VM_NOTIFY(vdev), callback, name);
-
-I don't see why is this macro useful.
-
-
-
 >  	if (!vq) {
 >  		err = -ENOMEM;
 >  		goto error_new_virtqueue;
@@ -281,6 +276,9 @@ I don't see why is this macro useful.
 >  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
 >  
 > +u32 vring_fill_notification_data(struct virtqueue *_vq)
+
+btw what does "fill" mean here? why not just vring_notification_data?
+
 > +{
 > +	struct vring_virtqueue *vq = to_vvq(_vq);
 > +	u16 next;
@@ -288,28 +286,22 @@ I don't see why is this macro useful.
 > +	if (vq->packed_ring)
 > +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
 > +			((u16)vq->packed.avail_wrap_counter << 15);
-
-I don't think the cast is needed. Neither is () around << the second <<
-here (first is needed because gcc chooses to complain: apparently it
-considers bitwise and a math operation for some obscure reason).
-
 > +	else
 > +		next = virtio16_to_cpu(_vq->vdev, vq->split.vring.avail->idx);
+
+BTW it's annoying to poke at avail->idx here - will cause a bunch of
+cache misses. And the byte-swap is a waste.
+
+Isn't this why we have avail_idx_shadow?
+
 > +
 > +	return ((u32)next << 16) | _vq->index;
-
-I don't think the cast is needed. Neither is () around << needed.
-
 > +}
 > +EXPORT_SYMBOL_GPL(vring_fill_notification_data);
 > +
-
-I'd inline this - it's on data path ...
-
 >  /* Manipulates transport-specific feature bits. */
 >  void vring_transport_features(struct virtio_device *vdev)
 >  {
-
 > @@ -2718,6 +2733,8 @@ void vring_transport_features(struct virtio_device *vdev)
 >  			break;
 >  		case VIRTIO_F_ORDER_PLATFORM:
