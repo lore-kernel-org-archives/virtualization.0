@@ -1,88 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41027C6FD1C
-	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 00:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B653DC6FD1C
+	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 02:06:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 61F7681EEA;
-	Tue, 21 Mar 2023 00:12:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 61F7681EEA
+	by smtp3.osuosl.org (Postfix) with ESMTP id F27C56109D;
+	Tue, 21 Mar 2023 02:06:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F27C56109D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=zwAtqapJ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u9WukVbYFb9y; Tue, 21 Mar 2023 02:06:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 795F36108A;
+	Tue, 21 Mar 2023 02:06:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 795F36108A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 49A17C0071;
+	Tue, 21 Mar 2023 02:06:34 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3144C0071
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 02:06:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C686881EB0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 02:06:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C686881EB0
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=AbkS4wRH
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=zwAtqapJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RASvsw7j5GKU; Tue, 21 Mar 2023 00:12:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 728A081ECB;
-	Tue, 21 Mar 2023 00:12:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 728A081ECB
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33665C0071;
-	Tue, 21 Mar 2023 00:12:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F3C0FC0032
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aHr_X3JhAsT8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 00:12:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C7BBD4098B
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 00:12:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C7BBD4098B
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=AbkS4wRH
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6NUdtARYVuh1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 00:12:05 +0000 (UTC)
+ Tue, 21 Mar 2023 02:06:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A06194026A
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A06194026A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A824381EAF
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A824381EAF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 00:12:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1679357525; x=1710893525;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=+5a2YmyBZp3fw4mi/x3mK/rGgHuoUUvw3eQd2IAKZa4=;
- b=AbkS4wRHDMCrJaNBbKs5w/dTxfgBVlohAcAXhPEeAtO2qTjWrIfbdZKZ
- 7gfD5YRgToqWtKmy7KlJ1xkJzw9d5NwA2tAggyFCAgUPFfTXIJzlx1Dpb
- GpMsEKknT1Ncm6TKFTfSRwusplloaPy1/sALvxooVnTtIuNv9Fb2mqgG8
- METpMUqkuwdXLE89pKcrjfivhyl9eA7IQ52VmM3m8lua/axM4swhD7gtF
- KJ1AQ8LxgNqm2TlzJrjN+3Q/dyUj/S4KGw/g8x4pUGZ0W9uDXYv3mV+2y
- 5Wbdg2MpvQT0autG+e1jBfy8A5XfJtmLryArqJqO5ojjXAWj8b8DopV9q g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="337525199"
-X-IronPort-AV: E=Sophos;i="5.98,277,1673942400"; d="scan'208";a="337525199"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 20 Mar 2023 17:12:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10655"; a="631338457"
-X-IronPort-AV: E=Sophos;i="5.98,277,1673942400"; d="scan'208";a="631338457"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
- by orsmga003.jf.intel.com with ESMTP; 20 Mar 2023 17:12:02 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pePbd-000BQA-1Y;
- Tue, 21 Mar 2023 00:12:01 +0000
-Date: Tue, 21 Mar 2023 08:11:17 +0800
-From: kernel test robot <lkp@intel.com>
-To: Viktor Prutyanov <viktor@daynix.com>, mst@redhat.com, jasowang@redhat.com
-Subject: Re: [PATCH] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Message-ID: <202303210740.w7RIuIzb-lkp@intel.com>
-References: <20230320115451.1232171-1-viktor@daynix.com>
+ Tue, 21 Mar 2023 02:06:31 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 32KM4RGV014750; Tue, 21 Mar 2023 02:06:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2022-7-12;
+ bh=mPrQHdQOaZkxh1Qbo5znE9BUO57yBo10h6YULnR6O6U=;
+ b=zwAtqapJBwB7C6k+3d0iHV2zXLFR5pgt+1R5FGGQGIIGpq68fz5FvZEsOeTCM7RYVdHu
+ 2ivinXjo7PiG1FyN1iqzqp2NHi1sWhvmsdPOv0CUf+eBJ5Dv/PhrilO4uwA4WnO1JWWw
+ LLttVyrnu7nucludSh9S2o/ZR3+OFQVS72cqw0KwuOHdlVAsCDD2vgEbZt9TyNrUeDa/
+ 3HZgT4cNuirlazu5MOpZm5Wp3SCpWE3rOqBFV3E/ic/jlJmZytvPn0ElnTXvNWPBJxv6
+ s6VQUX/tQDbe1J/zeiwrCvDOxZjZQKYtsoJ5FMSO+CK665UnN+frUgkejcvfX8hEdVwT 8Q== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pd4wt4yrj-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 21 Mar 2023 02:06:30 +0000
+Received: from pps.filterd
+ (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 32KNRDJI010339; Tue, 21 Mar 2023 02:06:29 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+ by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3peqjn4c2c-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 21 Mar 2023 02:06:29 +0000
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32L26T9S007440;
+ Tue, 21 Mar 2023 02:06:29 GMT
+Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-165-250.vpn.oracle.com
+ [10.154.165.250])
+ by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
+ 3peqjn4c0v-2; Tue, 21 Mar 2023 02:06:29 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: target-devel@vger.kernel.org, linux-scsi@vger.kernel.org,
+ stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+ sgarzare@redhat.com, virtualization@lists.linux-foundation.org
+Subject: [PATCH v2 1/7] vhost-scsi: Fix vhost_scsi struct use after free
+Date: Mon, 20 Mar 2023 21:06:18 -0500
+Message-Id: <20230321020624.13323-2-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230321020624.13323-1-michael.christie@oracle.com>
+References: <20230321020624.13323-1-michael.christie@oracle.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230320115451.1232171-1-viktor@daynix.com>
-Cc: yan@daynix.com, virtualization@lists.linux-foundation.org,
- viktor@daynix.com, linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-20_18,2023-03-20_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ mlxlogscore=999
+ phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0 spamscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303150002 definitions=main-2303210017
+X-Proofpoint-GUID: v6_BLPy3Y6golBYeEqYuoEtDWuHmh-zT
+X-Proofpoint-ORIG-GUID: v6_BLPy3Y6golBYeEqYuoEtDWuHmh-zT
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,61 +120,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Viktor,
+If vhost_scsi_setup_vq_cmds fails we leave the tpg->vhost_scsi pointer
+set. If the device is freed and then the user unmaps the LUN, the call to
+vhost_scsi_port_unlink -> vhost_scsi_hotunplug will see the that
+tpg->vhost_scsi is still set and try to use it.
 
-Thank you for the patch! Perhaps something to improve:
+This has us clear the vhost_scsi pointer in the failure path. It also
+has us take tv_tpg_mutex in this failure path, because tv_tpg_vhost_count
+is accessed under this mutex in vhost_scsi_drop_nexus and in the future
+we will want to serialize access to tpg->vhost_scsi with that mutex
+instead of the vhost_scsi_mutex.
 
-[auto build test WARNING on mst-vhost/linux-next]
-[also build test WARNING on linus/master v6.3-rc3 next-20230320]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+---
+ drivers/vhost/scsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Viktor-Prutyanov/virtio-add-VIRTIO_F_NOTIFICATION_DATA-feature-support/20230320-195725
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20230320115451.1232171-1-viktor%40daynix.com
-patch subject: [PATCH] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-config: sparc64-randconfig-s031-20230319 (https://download.01.org/0day-ci/archive/20230321/202303210740.w7RIuIzb-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 12.1.0
-reproduce:
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # apt-get install sparse
-        # sparse version: v0.6.4-39-gce1a6720-dirty
-        # https://github.com/intel-lab-lkp/linux/commit/b6212a12ca1691dc346e5de046ec46bd3ce11247
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Viktor-Prutyanov/virtio-add-VIRTIO_F_NOTIFICATION_DATA-feature-support/20230320-195725
-        git checkout b6212a12ca1691dc346e5de046ec46bd3ce11247
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=sparc64 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' O=build_dir ARCH=sparc64 SHELL=/bin/bash drivers/virtio/
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202303210740.w7RIuIzb-lkp@intel.com/
-
-sparse warnings: (new ones prefixed by >>)
->> drivers/virtio/virtio_pci_common.c:54:19: sparse: sparse: incorrect type in argument 1 (different base types) @@     expected unsigned int [usertype] l @@     got restricted __le32 [usertype] data @@
-   drivers/virtio/virtio_pci_common.c:54:19: sparse:     expected unsigned int [usertype] l
-   drivers/virtio/virtio_pci_common.c:54:19: sparse:     got restricted __le32 [usertype] data
-
-vim +54 drivers/virtio/virtio_pci_common.c
-
-    49	
-    50	bool vp_notify_with_data(struct virtqueue *vq)
-    51	{
-    52		__le32 data = vring_fill_notification_data(vq);
-    53	
-  > 54		iowrite32(data, (void __iomem *)vq->priv);
-    55	
-    56		return true;
-    57	}
-    58	
-
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index b244e7c0f514..5875241e1654 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1658,7 +1658,10 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 	for (i = 0; i < VHOST_SCSI_MAX_TARGET; i++) {
+ 		tpg = vs_tpg[i];
+ 		if (tpg) {
++			mutex_lock(&tpg->tv_tpg_mutex);
++			tpg->vhost_scsi = NULL;
+ 			tpg->tv_tpg_vhost_count--;
++			mutex_unlock(&tpg->tv_tpg_mutex);
+ 			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
+ 		}
+ 	}
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
