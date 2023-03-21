@@ -4,111 +4,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B30B2C74A5B
-	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 07:14:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 65D8DC6FD1D
+	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 08:29:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 28A9C41855;
-	Tue, 21 Mar 2023 07:14:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 28A9C41855
+	by smtp4.osuosl.org (Postfix) with ESMTP id CCB4B40354;
+	Tue, 21 Mar 2023 08:29:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CCB4B40354
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LZ6B2ADL
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MGSjrHKE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CmcEfoqVInlK; Tue, 21 Mar 2023 07:14:00 +0000 (UTC)
+	with ESMTP id c8IKHb0-WWEf; Tue, 21 Mar 2023 08:29:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5C43741847;
-	Tue, 21 Mar 2023 07:13:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C43741847
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C2CB44038C;
+	Tue, 21 Mar 2023 08:29:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C2CB44038C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 32BC9C0071;
-	Tue, 21 Mar 2023 07:13:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87052C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 71F82C0071;
+	Tue, 21 Mar 2023 08:29:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4828BC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 07:13:57 +0000 (UTC)
+ Tue, 21 Mar 2023 08:29:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 54D5540B5C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 22DA58141C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 07:13:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 54D5540B5C
-Authentication-Results: smtp2.osuosl.org;
+ Tue, 21 Mar 2023 08:29:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 22DA58141C
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=LZ6B2ADL
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=MGSjrHKE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fQb5KHh0dpbD
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BiqlPwIAR3CY
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 07:13:56 +0000 (UTC)
+ Tue, 21 Mar 2023 08:29:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 942BD40B60
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 22D4381414
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 942BD40B60
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 22D4381414
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 07:13:56 +0000 (UTC)
+ Tue, 21 Mar 2023 08:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679382835;
+ s=mimecast20190719; t=1679387344;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=nuTFG9ab3u7R1jpb31bRtm51snrAor/YhsIuMOJ3A2I=;
- b=LZ6B2ADLK8ZTGLVnohGRp8i2/LgVlupCvL7tmJ4j5dYYB9C8kj44cfLqrzu88LYwwABZ32
- +m4YYlan27J63LryuQn5KgW6wMXZBJxvrRvcZBPlfSH5ABq/AHqJY53x0pakBuOroe4h9P
- 7qTuVD8RiYTKBwycqQopzSQumT4dDS8=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=VdAkEc4+Jc17UFo+IFspyWLrKMsHzFG0fne7hcDGYj8=;
+ b=MGSjrHKE9MduzQRUmNwRV7KkuPBQmZNT6YD1KUJZ/42qM+WZ6/++dI53qJRUKWLRtb/Ogo
+ P9N1hf8Wj+CLGENWRvrX/zd/CxuUjZMDGNEQSpTtKqE7rPzUp+Dn9A05lqV7NajY7KBI7I
+ bf1tji7frtx2KxgAXvyY5DNDP80xnTo=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-321-ZmIAklKVNzuuMqX2rKo2fw-1; Tue, 21 Mar 2023 03:13:54 -0400
-X-MC-Unique: ZmIAklKVNzuuMqX2rKo2fw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- fl22-20020a05600c0b9600b003ed26ca6206so9574471wmb.2
+ us-mta-435-8ecPUUAtN2S_HAJtUsIgfA-1; Tue, 21 Mar 2023 04:29:02 -0400
+X-MC-Unique: 8ecPUUAtN2S_HAJtUsIgfA-1
+Received: by mail-qv1-f70.google.com with SMTP id
+ jo13-20020a056214500d00b004c6c72bf1d0so7245847qvb.9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 00:13:53 -0700 (PDT)
+ Tue, 21 Mar 2023 01:29:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679382833;
+ d=1e100.net; s=20210112; t=1679387342;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=nuTFG9ab3u7R1jpb31bRtm51snrAor/YhsIuMOJ3A2I=;
- b=efjAgDW9EmUYnD0ANdJrnUnXb1einX4Ra8HZDhOD/bPDOqeg7C5QaEYcvJgu/PLB8g
- 4Kx5m8TWtC0nYgtxOMlan102qpPT3sDY85hGX9UhVw03UghxrgYz8du9KoNrTmMHHEf5
- 4cL31saxm4wyQ9Kvm4C41OtExwIks52LqnFjskJvmy5ESyWIo5ItrWTF0Hw/AE1YF73k
- yUXjAYW1S+tUgImO8xOsBGvaHjhOqNnyXXuprOQru6cLwajUuzHSepce//M2LKWua4wA
- LuAhePvAJPzY/NeUuv4Em047AcU5bMqMmEkagO14nsjWR80oQbYrvr6899JwAqfPXh+I
- KP7Q==
-X-Gm-Message-State: AO0yUKW7UqQ0nS+mvluyHt5WYJBozyh/KFORB1vZGz6vgjwtS0Owu7rb
- T+Qm+CaAEG+yyq3YXlIcfNdJiMmfSqK4CL+Vd1LyEpGJmKSdl06wdWv2ayk1kaai+Hw/aIn1eFO
- oAAp2pyhazbuTFS8ET/wSZvjbcL925kn4HI8Onv7wjQ==
-X-Received: by 2002:a5d:65c4:0:b0:2ce:a899:2293 with SMTP id
- e4-20020a5d65c4000000b002cea8992293mr1412886wrw.5.1679382833022; 
- Tue, 21 Mar 2023 00:13:53 -0700 (PDT)
-X-Google-Smtp-Source: AK7set8KbQmL98dbtoe1oAsaweQtFdB3Ts7JtWE2aDdoQilOLg6IOnVYsFOh/EJ1qessZOqW8oHHZA==
-X-Received: by 2002:a5d:65c4:0:b0:2ce:a899:2293 with SMTP id
- e4-20020a5d65c4000000b002cea8992293mr1412874wrw.5.1679382832726; 
- Tue, 21 Mar 2023 00:13:52 -0700 (PDT)
-Received: from redhat.com ([2.52.1.105]) by smtp.gmail.com with ESMTPSA id
- a10-20020a056000050a00b002d78a96cf5fsm3384706wrf.70.2023.03.21.00.13.50
+ bh=VdAkEc4+Jc17UFo+IFspyWLrKMsHzFG0fne7hcDGYj8=;
+ b=gJNdepNjpVZfgFpvdRUlDwlXwn6jgvMpXb1irR07n9M3Fb0bo51HsXQjZqCg9v0oxl
+ DDofurjYUGM3kc0Y2tXUHjqQwSW2dAolKPOolhv3ikdZNa63nG2afnimPmed8NvYf6me
+ rfwHvoLedaWidh9WsOtMiUQhUJt+t8kWFO3tlv9wGRAaBUkMpnNa6CkkbbsC8UljOHl8
+ NmyZ7upYZw/BCsNK6cxUzVmWeQYqE8QVkU2BT+zHLhMtCSprBtnz3ZQGPi+WOKnpfjJx
+ nt+HC4UmPICucyKM5Dd1hcH+HkquYYrVThNcfH3jx9TIQNvxxwmlnEW2T1CZtCifw0rq
+ 31kg==
+X-Gm-Message-State: AO0yUKVYSlksHzwXOqF7H1e1h1PldI/LCyK2RoXoYkdlZOCAMYExgEus
+ IRPE7RB2soaOFZs/oLQ29IqgSijrnKURX8c/bqFqdm2APXylT45GisE1y2IveNBmSpoAh64IZSt
+ T1pVw5zQI4JcUTVjzPgRnm02gex9XBoUmEG04tOlJAQ==
+X-Received: by 2002:a05:622a:1051:b0:3d4:eb79:744f with SMTP id
+ f17-20020a05622a105100b003d4eb79744fmr3461685qte.24.1679387342097; 
+ Tue, 21 Mar 2023 01:29:02 -0700 (PDT)
+X-Google-Smtp-Source: AK7set8+9mH/ASsttF6m8QpFD8AJ5PwroH0B+Mwvj5O0naMIvFjj0iJ1GdQ1UqCQuemzR8tKily5qQ==
+X-Received: by 2002:a05:622a:1051:b0:3d4:eb79:744f with SMTP id
+ f17-20020a05622a105100b003d4eb79744fmr3461667qte.24.1679387341779; 
+ Tue, 21 Mar 2023 01:29:01 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-170.retail.telecomitalia.it.
+ [82.57.51.170]) by smtp.gmail.com with ESMTPSA id
+ i19-20020ac87653000000b003b9a73cd120sm279816qtr.17.2023.03.21.01.28.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 21 Mar 2023 00:13:52 -0700 (PDT)
-Date: Tue, 21 Mar 2023 03:13:48 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Message-ID: <20230321031310-mutt-send-email-mst@kernel.org>
-References: <20230320232115.1940587-1-viktor@daynix.com>
- <CACGkMEu5qa2KUHti3w59DcXNxBdh8_ogZ9oW9bo1_PHwbNiCBg@mail.gmail.com>
+ Tue, 21 Mar 2023 01:29:01 -0700 (PDT)
+Date: Tue, 21 Mar 2023 09:28:54 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v2] virtio/vsock: allocate multiple skbuffs on tx
+Message-ID: <20230321082854.jluiqjyc4n5k2vza@sgarzare-redhat>
+References: <ea5725eb-6cb5-cf15-2938-34e335a442fa@sberdevices.ru>
+ <20230320142959.2wwf474fiyp3ex5z@sgarzare-redhat>
+ <2be688af-89a6-d903-017b-dafee3e48c33@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEu5qa2KUHti3w59DcXNxBdh8_ogZ9oW9bo1_PHwbNiCBg@mail.gmail.com>
+In-Reply-To: <2be688af-89a6-d903-017b-dafee3e48c33@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, kvm@vger.kernel.org,
- cohuck@redhat.com, Viktor Prutyanov <viktor@daynix.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- pasic@linux.ibm.com, yan@daynix.com
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ kernel@sberdevices.ru, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,58 +124,175 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBNYXIgMjEsIDIwMjMgYXQgMTA6Mjk6MTFBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiBUdWUsIE1hciAyMSwgMjAyMyBhdCA3OjIx4oCvQU0gVmlrdG9yIFBydXR5YW5vdiA8
-dmlrdG9yQGRheW5peC5jb20+IHdyb3RlOgo+ID4KPiA+IEFjY29yZGluZyB0byBWaXJ0SU8gc3Bl
-YyB2MS4yLCBWSVJUSU9fRl9OT1RJRklDQVRJT05fREFUQSBmZWF0dXJlCj4gPiBpbmRpY2F0ZXMg
-dGhhdCB0aGUgZHJpdmVyIHBhc3NlcyBleHRyYSBkYXRhIGFsb25nIHdpdGggdGhlIHF1ZXVlCj4g
-PiBub3RpZmljYXRpb25zLgo+ID4KPiA+IEluIGEgc3BsaXQgcXVldWUgY2FzZSwgdGhlIGV4dHJh
-IGRhdGEgaXMgMTYtYml0IGF2YWlsYWJsZSBpbmRleC4gSW4gYQo+ID4gcGFja2VkIHF1ZXVlIGNh
-c2UsIHRoZSBleHRyYSBkYXRhIGlzIDEtYml0IHdyYXAgY291bnRlciBhbmQgMTUtYml0Cj4gPiBh
-dmFpbGFibGUgaW5kZXguCj4gPgo+ID4gQWRkIHN1cHBvcnQgZm9yIHRoaXMgZmVhdHVyZSBmb3Ig
-TU1JTyBhbmQgUENJIHRyYW5zcG9ydHMuIENoYW5uZWwgSS9PCj4gPiB0cmFuc3BvcnQgd2lsbCBu
-b3QgYWNjZXB0IHRoaXMgZmVhdHVyZS4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBWaWt0b3IgUHJ1
-dHlhbm92IDx2aWt0b3JAZGF5bml4LmNvbT4KPiA+IC0tLQo+ID4KPiA+ICB2MjogcmVqZWN0IHRo
-ZSBmZWF0dXJlIGluIHZpcnRpb19jY3csIHJlcGxhY2UgX19sZTMyIHdpdGggdTMyCj4gPgo+ID4g
-IGRyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jICAgfCAgNCArLS0tCj4gPiAgZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX21taW8uYyAgICAgICB8IDE1ICsrKysrKysrKysrKysrLQo+ID4gIGRy
-aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmMgfCAxMCArKysrKysrKysrCj4gPiAgZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uaCB8ICA0ICsrKysKPiA+ICBkcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcGNpX2xlZ2FjeS5jIHwgIDIgKy0KPiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcGNpX21vZGVybi5jIHwgIDIgKy0KPiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5j
-ICAgICAgIHwgMTcgKysrKysrKysrKysrKysrKysKPiA+ICBpbmNsdWRlL2xpbnV4L3ZpcnRpb19y
-aW5nLmggICAgICAgIHwgIDIgKysKPiA+ICBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2NvbmZp
-Zy5oIHwgIDYgKysrKysrCj4gPiAgOSBmaWxlcyBjaGFuZ2VkLCA1NiBpbnNlcnRpb25zKCspLCA2
-IGRlbGV0aW9ucygtKQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3MzOTAvdmlydGlvL3Zp
-cnRpb19jY3cuYyBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4gPiBpbmRleCBh
-MTBkYmU2MzJlZjkuLmQ3MmE1OTQxNTUyNyAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvczM5MC92
-aXJ0aW8vdmlydGlvX2Njdy5jCj4gPiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlvL3ZpcnRpb19j
-Y3cuYwo+ID4gQEAgLTc4OSw5ICs3ODksNyBAQCBzdGF0aWMgdTY0IHZpcnRpb19jY3dfZ2V0X2Zl
-YXR1cmVzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4KPiA+ICBzdGF0aWMgdm9pZCBj
-Y3dfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gIHsK
-PiA+IC0gICAgICAgLyoKPiA+IC0gICAgICAgICogQ3VycmVudGx5IG5vdGhpbmcgdG8gZG8gaGVy
-ZS4KPiA+IC0gICAgICAgICovCj4gPiArICAgICAgIF9fdmlydGlvX2NsZWFyX2JpdCh2ZGV2LCBW
-SVJUSU9fRl9OT1RJRklDQVRJT05fREFUQSk7Cj4gCj4gSXMgdGhlcmUgYW55IHJlc3RyaWN0aW9u
-IHRoYXQgcHJldmVudHMgdXMgZnJvbSBpbXBsZW1lbnRpbmcKPiBWSVJUSU9fRl9OT1RJRklDQVRJ
-T05fREFUQT8gKFNwZWMgc2VlbXMgZG9lc24ndCBsaW1pdCB1cyBmcm9tIHRoaXMpCgpSaWdodCwg
-c3BlYyBhY3R1YWxseSB0ZWxscyB5b3Ugd2hhdCB0byBkby4KCj4gPiAgfQo+ID4KPiA+ICBzdGF0
-aWMgaW50IHZpcnRpb19jY3dfZmluYWxpemVfZmVhdHVyZXMoc3RydWN0IHZpcnRpb19kZXZpY2Ug
-KnZkZXYpCj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYyBiL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiA+IGluZGV4IDNmZjc0NmUzZjI0YS4uMGUxM2Rh
-MTdmZTBhIDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ID4g
-KysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ID4gQEAgLTI4NSw2ICsyODUsMTkg
-QEAgc3RhdGljIGJvb2wgdm1fbm90aWZ5KHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ID4gICAgICAg
-ICByZXR1cm4gdHJ1ZTsKPiA+ICB9Cj4gPgo+ID4gK3N0YXRpYyBib29sIHZtX25vdGlmeV93aXRo
-X2RhdGEoc3RydWN0IHZpcnRxdWV1ZSAqdnEpCj4gPiArewo+ID4gKyAgICAgICBzdHJ1Y3Qgdmly
-dGlvX21taW9fZGV2aWNlICp2bV9kZXYgPSB0b192aXJ0aW9fbW1pb19kZXZpY2UodnEtPnZkZXYp
-Owo+ID4gKyAgICAgICB1MzIgZGF0YSA9IHZyaW5nX2ZpbGxfbm90aWZpY2F0aW9uX2RhdGEodnEp
-Owo+IAo+IENhbiB3ZSBtb3ZlIHRoaXMgdG8gdGhlIGluaXRpYWxpemF0aW9uPwo+IAo+IFRoYW5r
-cwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Mon, Mar 20, 2023 at 09:02:19PM +0300, Arseniy Krasnov wrote:
+>
+>
+>On 20.03.2023 17:29, Stefano Garzarella wrote:
+>> On Sun, Mar 19, 2023 at 09:46:10PM +0300, Arseniy Krasnov wrote:
+>>> This adds small optimization for tx path: instead of allocating single
+>>> skbuff on every call to transport, allocate multiple skbuff's until
+>>> credit space allows, thus trying to send as much as possible data witho=
+ut
+>>> return to af_vsock.c.
+>>>
+>>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>>> ---
+>>> Link to v1:
+>>> https://lore.kernel.org/netdev/2c52aa26-8181-d37a-bccd-a86bd3cbc6e1@sbe=
+rdevices.ru/
+>>>
+>>> Changelog:
+>>> v1 -> v2:
+>>> - If sent something, return number of bytes sent (even in
+>>> =A0 case of error). Return error only if failed to sent first
+>>> =A0 skbuff.
+>>>
+>>> net/vmw_vsock/virtio_transport_common.c | 53 ++++++++++++++++++-------
+>>> 1 file changed, 39 insertions(+), 14 deletions(-)
+>>>
+>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
+rtio_transport_common.c
+>>> index 6564192e7f20..3fdf1433ec28 100644
+>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>> @@ -196,7 +196,8 @@ static int virtio_transport_send_pkt_info(struct vs=
+ock_sock *vsk,
+>>> =A0=A0=A0=A0const struct virtio_transport *t_ops;
+>>> =A0=A0=A0=A0struct virtio_vsock_sock *vvs;
+>>> =A0=A0=A0=A0u32 pkt_len =3D info->pkt_len;
+>>> -=A0=A0=A0 struct sk_buff *skb;
+>>> +=A0=A0=A0 u32 rest_len;
+>>> +=A0=A0=A0 int ret;
+>>>
+>>> =A0=A0=A0=A0info->type =3D virtio_transport_get_type(sk_vsock(vsk));
+>>>
+>>> @@ -216,10 +217,6 @@ static int virtio_transport_send_pkt_info(struct v=
+sock_sock *vsk,
+>>>
+>>> =A0=A0=A0=A0vvs =3D vsk->trans;
+>>>
+>>> -=A0=A0=A0 /* we can send less than pkt_len bytes */
+>>> -=A0=A0=A0 if (pkt_len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
+>>> -=A0=A0=A0=A0=A0=A0=A0 pkt_len =3D VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
+>>> -
+>>> =A0=A0=A0=A0/* virtio_transport_get_credit might return less than pkt_l=
+en credit */
+>>> =A0=A0=A0=A0pkt_len =3D virtio_transport_get_credit(vvs, pkt_len);
+>>>
+>>> @@ -227,17 +224,45 @@ static int virtio_transport_send_pkt_info(struct =
+vsock_sock *vsk,
+>>> =A0=A0=A0=A0if (pkt_len =3D=3D 0 && info->op =3D=3D VIRTIO_VSOCK_OP_RW)
+>>> =A0=A0=A0=A0=A0=A0=A0 return pkt_len;
+>>>
+>>> -=A0=A0=A0 skb =3D virtio_transport_alloc_skb(info, pkt_len,
+>>> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 src_cid, =
+src_port,
+>>> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 dst_cid, =
+dst_port);
+>>> -=A0=A0=A0 if (!skb) {
+>>> -=A0=A0=A0=A0=A0=A0=A0 virtio_transport_put_credit(vvs, pkt_len);
+>>> -=A0=A0=A0=A0=A0=A0=A0 return -ENOMEM;
+>>> -=A0=A0=A0 }
+>>> +=A0=A0=A0 ret =3D 0;
+>>> +=A0=A0=A0 rest_len =3D pkt_len;
+>>> +
+>>> +=A0=A0=A0 do {
+>>> +=A0=A0=A0=A0=A0=A0=A0 struct sk_buff *skb;
+>>> +=A0=A0=A0=A0=A0=A0=A0 size_t skb_len;
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0 skb_len =3D min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_=
+SIZE, rest_len);
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0 skb =3D virtio_transport_alloc_skb(info, skb_len,
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 src_cid, src_port,
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 dst_cid, dst_port);
+>>> +=A0=A0=A0=A0=A0=A0=A0 if (!skb) {
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ret =3D -ENOMEM;
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break;
+>>> +=A0=A0=A0=A0=A0=A0=A0 }
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0 virtio_transport_inc_tx_pkt(vvs, skb);
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0 ret =3D t_ops->send_pkt(skb);
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0 if (ret < 0)
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break;
+>>>
+>>> -=A0=A0=A0 virtio_transport_inc_tx_pkt(vvs, skb);
+>>> +=A0=A0=A0=A0=A0=A0=A0 rest_len -=3D skb_len;
+>>
+>> t_ops->send_pkt() is returning the number of bytes sent. Current
+>> implementations always return `skb_len`, so there should be no problem,
+>> but it would be better to put a comment here, or we should handle the
+>> case where ret !=3D skb_len to avoid future issues.
+>
+>Hello, thanks for review!
+>
+>I see. I think i'll handle such partial sends (ret !=3D skb_len) as error,=
+ as
+>it is the only thing to do - we remove 'skb_len' from user's buffer, but
+>'send_pkt()' returns another value, so it will be strange for me to contin=
+ue
+>this tx loop as everything is ok. Something like this:
+>+
+>+ if (ret < 0)
+>+    break;
+>+
+>+ if (ret !=3D skb_len) {
+>+    ret =3D -EFAULT;//or may be -EIO
+>+    break;
+>+ }
+
+Good for me.
+
+>
+>>
+>>> +=A0=A0=A0 } while (rest_len);
+>>>
+>>> -=A0=A0=A0 return t_ops->send_pkt(skb);
+>>> +=A0=A0=A0 /* Don't call this function with zero as argument:
+>>> +=A0=A0=A0=A0 * it tries to acquire spinlock and such argument
+>>> +=A0=A0=A0=A0 * makes this call useless.
+>>
+>> Good point, can we do the same also for virtio_transport_get_credit()?
+>> (Maybe in a separate patch)
+>>
+>> I'm thinking if may be better to do it directly inside the functions,
+>> but I don't have a strong opinion on that since we only call them here.
+>>
+>
+>I think in this patch i can call 'virtio_transport_put_credit()' without i=
+f, but
+>i'll prepare separate patch which adds zero argument check to this functio=
+n.
+
+Yep, I agree.
+
+>As i see, the only function suitable for such 'if' condition is
+>'virtio_transport_put_credit()'.
+
+Why not even for virtio_transport_get_credit() ?
+
+When we send packets without payload (e.g. VIRTIO_VSOCK_OP_REQUEST,
+VIRTIO_VSOCK_OP_SHUTDOWN) we call virtio_transport_get_credit()
+with `credit` parameter equal to 0, then we acquire the spinlock but
+in the end we do nothing.
+
+>Anyway - for future use this check won't be bad.
+
+Yep, these are minor improvements ;-)
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
