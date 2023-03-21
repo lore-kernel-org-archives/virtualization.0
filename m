@@ -1,111 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8FF6C6FD1D
-	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 09:27:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6CDABC74A5B
+	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 09:29:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3252E4186F;
-	Tue, 21 Mar 2023 09:27:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3252E4186F
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bVWOz5P9
+	by smtp2.osuosl.org (Postfix) with ESMTP id F413840B11;
+	Tue, 21 Mar 2023 09:29:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F413840B11
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Nef2R0DT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iCSxbQO7zRLr; Tue, 21 Mar 2023 09:27:50 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ul4TznDHREKO; Tue, 21 Mar 2023 09:29:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 406D241870;
-	Tue, 21 Mar 2023 09:27:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 406D241870
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9D82240A09;
+	Tue, 21 Mar 2023 09:29:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D82240A09
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F00B8C0071;
-	Tue, 21 Mar 2023 09:27:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 937DEC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A761C0071;
+	Tue, 21 Mar 2023 09:29:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B578AC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:27:47 +0000 (UTC)
+ Tue, 21 Mar 2023 09:29:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5D46360AC1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 841BF40B08
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:27:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5D46360AC1
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=bVWOz5P9
+ Tue, 21 Mar 2023 09:29:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 841BF40B08
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VW0WMuSspvX2
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id A-spHvi50UYM
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:27:46 +0000 (UTC)
+ Tue, 21 Mar 2023 09:29:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 63E146105E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ABFBA40A09
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 63E146105E
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id ABFBA40A09
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 09:27:46 +0000 (UTC)
+ Tue, 21 Mar 2023 09:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679390865;
+ s=mimecast20190719; t=1679390987;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
- b=bVWOz5P9M85nczh0838yoJOSzSLWF67JGpSjQa/SmrXjfY4oKJxD3mnLzBj5pUwEKPV+F2
- lAEnE1TJl2Y5qwWImZUnWsJ7K5gk5GZ48Mk7XJv6HrP8tVkrFefaZ6n9NtOq4497dN9W2A
- H4GWYCwIdvOIZ3QPuwXFoZ+4YEa3RM8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=YnK+9bZZwPpOS/74aZfJ3wVOv5LWVrjm/j44hbYyduY=;
+ b=Nef2R0DTo5z0YE7JLJ/Tx2k9cHT40Ye4YZUMpXQNzIzThQsLOEttvZE7CnEmnX9rfXIfn0
+ hHGEQdW0w5hZH+EySiI2lniRuZgnY9YvyGzgyNJZbTtaBiMWhJsMgJDSl23Rt+oRtjLtgZ
+ T7pXSwySO/TDJFL59IDgMz3iGi08fkk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-134-gQYAmyNEO8m4D-ycslwZRA-1; Tue, 21 Mar 2023 05:27:41 -0400
-X-MC-Unique: gQYAmyNEO8m4D-ycslwZRA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- fl22-20020a05600c0b9600b003ed26ca6206so9722152wmb.2
+ us-mta-435-q0MEd-khNXaWev5SQrepuw-1; Tue, 21 Mar 2023 05:29:46 -0400
+X-MC-Unique: q0MEd-khNXaWev5SQrepuw-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ p10-20020a05600c358a00b003edf7d484d4so2140543wmq.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:27:40 -0700 (PDT)
+ Tue, 21 Mar 2023 02:29:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679390860;
+ d=1e100.net; s=20210112; t=1679390985;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=LA+RXUqkYMz8XHraazbxDwAoyRZ6mtYEiWEaraKXgsw=;
- b=Rc+LlKLg6w3TWQ50tw/XbobCOPScmG/cl5Q6tMAKfOnSnLPlRDrgg2ttYMk3yEAQsd
- ZOhtskPj/dmt9ujsQz+lBx/euLKfNWBqcX5B8M/54kJriJtNBYult1biNo7qy+bAhkV4
- 8cStAU8hMw6Nty5x3Wz/GArZMdpNI1xU18MmfzH+YoNv3n2qkM5Y9EmSzRKI4ZXTHPaG
- 5Tol0Jk1G3ZdoOUwYHO4dPPmesjIWe8Z7vMRO90XvXhzk/oXjFz9HyDdOrJypBlu5KQH
- NUBBrBc3+QiNGpDTQqUt9ahJLweoTFCxe3YoclBXhd//NBJ3rqCamSEvYEZGifbSf/lM
- tuYA==
-X-Gm-Message-State: AO0yUKXVTVmLGi00y3erPcpph48RXuFXqHTinXalgKL/cp0bKS5UQE/8
- YaO61ajY+wRiRqkwOyE4t6kwF4jvvghZ3EhHoWhKBN6quKWj7pOkFNmmWDNC/PltVlrz9Gb9+aF
- 47C9NsP60lzV2Ii6DOYM4e8amJqf3f81be8tlg3DBdw==
-X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id
- l21-20020a1c7915000000b003ed39936aa2mr1859032wme.11.1679390859815; 
- Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
-X-Google-Smtp-Source: AK7set+zdomxqmeYP5mRC/r2MmjfSKc6viUTnX8ys2OMP5VJHTZHJ5/PmqhW2iDdydInHE6oIrLGWA==
-X-Received: by 2002:a1c:7915:0:b0:3ed:3993:6aa2 with SMTP id
- l21-20020a1c7915000000b003ed39936aa2mr1859021wme.11.1679390859486; 
- Tue, 21 Mar 2023 02:27:39 -0700 (PDT)
+ bh=YnK+9bZZwPpOS/74aZfJ3wVOv5LWVrjm/j44hbYyduY=;
+ b=EK5yzxCghac90NXWm4z2OdZwZmU0XoRG+5jCmw6wrmr0EsD+HbgpNwkAruLUcWJJpZ
+ Tm7ILkGLLqIYDIXr/hWLTL6T2uHnh+NYGLjyv9K1Rz1zcKiwhHnyBvyRaoiG/fU0yaTy
+ in5JLfVB9/7MAXcGAtXUPBGf87WHmbPfuiev09Mmd/ishOgqgvlo8Rg8bWp2uawLz12C
+ 7mgTNEjlecglQrsY5fJirbK4BcoxsetCzx7AtLpBbUdXj7gkr+K3qSAwLF+YxDgQvorC
+ TuKiJWYwTeM5EF5O4gcySQbCVRhbeNf5s4lbnodtivLnDsXbPZ/LhwwcvEaRo7PgwI8f
+ YDpQ==
+X-Gm-Message-State: AO0yUKVPF45J0X06CZsitJ2uH6S/Rp+YGH6nFsPgjex1b6x+AEOccSet
+ Ukb9gRt+F+HzUnI48K1r0z23HNlB30iIchAr2tQprQOhzONZ4v6B6jrQjNoPT9iIRhiLojyPiBY
+ Rd9YDv+rG8B5hXNlKwT9iHItuyYuq65NB7jhaKzEsBw==
+X-Received: by 2002:a7b:c7c7:0:b0:3ed:eab9:976a with SMTP id
+ z7-20020a7bc7c7000000b003edeab9976amr1865081wmk.5.1679390985272; 
+ Tue, 21 Mar 2023 02:29:45 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+L8yxrNpkkgsXTefM6KFCtbwCPTbi/L/3SYED9JDBMUnQbcgCYh1jEfCuqLn/5J41gXK4qDA==
+X-Received: by 2002:a7b:c7c7:0:b0:3ed:eab9:976a with SMTP id
+ z7-20020a7bc7c7000000b003edeab9976amr1865071wmk.5.1679390985023; 
+ Tue, 21 Mar 2023 02:29:45 -0700 (PDT)
 Received: from redhat.com ([2.52.1.105]) by smtp.gmail.com with ESMTPSA id
- t20-20020a1c7714000000b003ee10fb56ebsm3670868wmi.9.2023.03.21.02.27.37
+ 4-20020a05600c028400b003eb192787bfsm12931779wmk.25.2023.03.21.02.29.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 21 Mar 2023 02:27:38 -0700 (PDT)
-Date: Tue, 21 Mar 2023 05:27:35 -0400
+ Tue, 21 Mar 2023 02:29:44 -0700 (PDT)
+Date: Tue, 21 Mar 2023 05:29:41 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Viktor Prutyanov <viktor@daynix.com>
-Subject: Re: [PATCH v2] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Message-ID: <20230321052407-mutt-send-email-mst@kernel.org>
-References: <20230320232115.1940587-1-viktor@daynix.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH v3 2/2] vdpa/mlx5: Make VIRTIO_NET_F_MRG_RXBUF off by
+ default
+Message-ID: <20230321052812-mutt-send-email-mst@kernel.org>
+References: <20230320114930.8457-1-elic@nvidia.com>
+ <20230320114930.8457-3-elic@nvidia.com>
+ <20230320155938-mutt-send-email-mst@kernel.org>
+ <ff359e29-8249-8a6f-7cd3-77c5c43ff96c@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20230320232115.1940587-1-viktor@daynix.com>
+In-Reply-To: <ff359e29-8249-8a6f-7cd3-77c5c43ff96c@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, kvm@vger.kernel.org,
- cohuck@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, yan@daynix.com
+Cc: eperezma@redhat.com, parav@mellanox.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,225 +122,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 21, 2023 at 02:21:15AM +0300, Viktor Prutyanov wrote:
-> According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
-> indicates that the driver passes extra data along with the queue
-> notifications.
+On Tue, Mar 21, 2023 at 11:24:34AM +0200, Eli Cohen wrote:
 > 
-> In a split queue case, the extra data is 16-bit available index. In a
-> packed queue case, the extra data is 1-bit wrap counter and 15-bit
-> available index.
-> 
-> Add support for this feature for MMIO and PCI transports. Channel I/O
-> transport will not accept this feature.
-> 
-> Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
-> ---
-> 
->  v2: reject the feature in virtio_ccw, replace __le32 with u32
-> 
->  drivers/s390/virtio/virtio_ccw.c   |  4 +---
->  drivers/virtio/virtio_mmio.c       | 15 ++++++++++++++-
->  drivers/virtio/virtio_pci_common.c | 10 ++++++++++
->  drivers/virtio/virtio_pci_common.h |  4 ++++
->  drivers/virtio/virtio_pci_legacy.c |  2 +-
->  drivers/virtio/virtio_pci_modern.c |  2 +-
->  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
->  include/linux/virtio_ring.h        |  2 ++
->  include/uapi/linux/virtio_config.h |  6 ++++++
->  9 files changed, 56 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index a10dbe632ef9..d72a59415527 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -789,9 +789,7 @@ static u64 virtio_ccw_get_features(struct virtio_device *vdev)
->  
->  static void ccw_transport_features(struct virtio_device *vdev)
->  {
-> -	/*
-> -	 * Currently nothing to do here.
-> -	 */
-> +	__virtio_clear_bit(vdev, VIRTIO_F_NOTIFICATION_DATA);
->  }
->  
->  static int virtio_ccw_finalize_features(struct virtio_device *vdev)
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 3ff746e3f24a..0e13da17fe0a 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -285,6 +285,19 @@ static bool vm_notify(struct virtqueue *vq)
->  	return true;
->  }
->  
-> +static bool vm_notify_with_data(struct virtqueue *vq)
-> +{
-> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
-> +	u32 data = vring_fill_notification_data(vq);
-> +
-> +	writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
-> +
-> +	return true;
-> +}
-> +
-> +#define VM_NOTIFY(vdev) (__virtio_test_bit((vdev), VIRTIO_F_NOTIFICATION_DATA) \
-> +	? vm_notify_with_data : vm_notify)
-> +
->  /* Notify all virtqueues on an interrupt. */
->  static irqreturn_t vm_interrupt(int irq, void *opaque)
->  {
-> @@ -397,7 +410,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
->  
->  	/* Create the vring */
->  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-> -				 true, true, ctx, vm_notify, callback, name);
-> +			true, true, ctx, VM_NOTIFY(vdev), callback, name);
->  	if (!vq) {
->  		err = -ENOMEM;
->  		goto error_new_virtqueue;
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index a6c86f916dbd..535263abc2bd 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -43,6 +43,16 @@ bool vp_notify(struct virtqueue *vq)
->  	/* we write the queue's selector into the notification register to
->  	 * signal the other end */
->  	iowrite16(vq->index, (void __iomem *)vq->priv);
-> +
-> +	return true;
-> +}
-> +
-> +bool vp_notify_with_data(struct virtqueue *vq)
-> +{
-> +	u32 data = vring_fill_notification_data(vq);
-> +
-> +	iowrite32(data, (void __iomem *)vq->priv);
-> +
->  	return true;
->  }
->  
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index 23112d84218f..9a7212dcbb32 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -105,6 +105,7 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
->  void vp_synchronize_vectors(struct virtio_device *vdev);
->  /* the notify function used when creating a virt queue */
->  bool vp_notify(struct virtqueue *vq);
-> +bool vp_notify_with_data(struct virtqueue *vq);
->  /* the config->del_vqs() implementation */
->  void vp_del_vqs(struct virtio_device *vdev);
->  /* the config->find_vqs() implementation */
-> @@ -114,6 +115,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
->  		struct irq_affinity *desc);
->  const char *vp_bus_name(struct virtio_device *vdev);
->  
-> +#define VP_NOTIFY(vdev) (__virtio_test_bit((vdev), VIRTIO_F_NOTIFICATION_DATA) \
-> +	? vp_notify : vp_notify_with_data)
-> +
->  /* Setup the affinity for a virtqueue:
->   * - force the affinity for per vq vector
->   * - OR over all affinities for shared MSI
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index 2257f1b3d8ae..b98e994cae48 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -131,7 +131,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  	vq = vring_create_virtqueue(index, num,
->  				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
->  				    true, false, ctx,
-> -				    vp_notify, callback, name);
-> +				    VP_NOTIFY(&vp_dev->vdev), callback, name);
->  	if (!vq)
->  		return ERR_PTR(-ENOMEM);
->  
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 9e496e288cfa..7fcd8af5af7e 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -321,7 +321,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  	vq = vring_create_virtqueue(index, num,
->  				    SMP_CACHE_BYTES, &vp_dev->vdev,
->  				    true, true, ctx,
-> -				    vp_notify, callback, name);
-> +				    VP_NOTIFY(&vp_dev->vdev), callback, name);
->  	if (!vq)
->  		return ERR_PTR(-ENOMEM);
->  
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 723c4e29e1d3..5e9e1800bb6e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2699,6 +2699,21 @@ void vring_del_virtqueue(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
->  
-> +u32 vring_fill_notification_data(struct virtqueue *_vq)
+> On 20/03/2023 22:02, Michael S. Tsirkin wrote:
+> > On Mon, Mar 20, 2023 at 01:49:30PM +0200, Eli Cohen wrote:
+> > > One can still enable it when creating the vdpa device using vdpa tool by
+> > > providing features that include it.
+> > > 
+> > > For example:
+> > > $ vdpa dev add name vdpa0 mgmtdev pci/0000:86:00.2 device_features 0x300cb982b
+> > > 
+> > > Please be aware that this feature was not supported before the previous
+> > > patch in this list was introduced so we don't change user experience.
+> > so I would  say the patches have to be reordered to avoid a regression?
+> Yes, I can do that.
+> > 
+> > > Current firmware versions show degradation in packet rate when using
+> > > MRG_RXBUF. Users who favor memory saving over packet rate could enable
+> > > this feature but we want to keep it off by default.
+> > > 
+> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > OK and when future firmware will (maybe) fix this up how
+> > will you know it's ok to enable by default?
+> > Some version check I guess?
+> > It would be better if firmware specified flags to enable
+> > by default ...
+> Currently there are no flags for that so let's just keep the default off.
 
-btw what does "fill" mean here? why not just vring_notification_data?
+Right but I mean, why are mrg buffers slow? It's a firmware bug right?
 
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +	u16 next;
-> +
-> +	if (vq->packed_ring)
-> +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
-> +			((u16)vq->packed.avail_wrap_counter << 15);
-> +	else
-> +		next = virtio16_to_cpu(_vq->vdev, vq->split.vring.avail->idx);
-
-BTW it's annoying to poke at avail->idx here - will cause a bunch of
-cache misses. And the byte-swap is a waste.
-
-Isn't this why we have avail_idx_shadow?
-
-> +
-> +	return ((u32)next << 16) | _vq->index;
-> +}
-> +EXPORT_SYMBOL_GPL(vring_fill_notification_data);
-> +
->  /* Manipulates transport-specific feature bits. */
->  void vring_transport_features(struct virtio_device *vdev)
->  {
-> @@ -2718,6 +2733,8 @@ void vring_transport_features(struct virtio_device *vdev)
->  			break;
->  		case VIRTIO_F_ORDER_PLATFORM:
->  			break;
-> +		case VIRTIO_F_NOTIFICATION_DATA:
-> +			break;
->  		default:
->  			/* We don't understand this bit. */
->  			__virtio_clear_bit(vdev, i);
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index 8b8af1a38991..1f65d2f77012 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -101,4 +101,6 @@ void vring_del_virtqueue(struct virtqueue *vq);
->  void vring_transport_features(struct virtio_device *vdev);
->  
->  irqreturn_t vring_interrupt(int irq, void *_vq);
-> +
-> +u32 vring_fill_notification_data(struct virtqueue *_vq);
->  #endif /* _LINUX_VIRTIO_RING_H */
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index 3c05162bc988..2c712c654165 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -99,6 +99,12 @@
->   */
->  #define VIRTIO_F_SR_IOV			37
->  
-> +/*
-> + * This feature indicates that the driver passes extra data (besides
-> + * identifying the virtqueue) in its device notifications.
-> + */
-> +#define VIRTIO_F_NOTIFICATION_DATA	38
-> +
->  /*
->   * This feature indicates that the driver can reset a queue individually.
->   */
-> -- 
-> 2.35.1
+> > 
+> > > ---
+> > >   drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 ++
+> > >   1 file changed, 2 insertions(+)
+> > > 
+> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > index 5285dd76c793..24397a71d6f3 100644
+> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > @@ -3146,6 +3146,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+> > >   			return -EINVAL;
+> > >   		}
+> > >   		device_features &= add_config->device_features;
+> > > +	} else {
+> > > +		device_features &= ~BIT_ULL(VIRTIO_NET_F_MRG_RXBUF);
+> > >   	}
+> > >   	if (!(device_features & BIT_ULL(VIRTIO_F_VERSION_1) &&
+> > >   	      device_features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM))) {
+> > > -- 
+> > > 2.38.1
 
 _______________________________________________
 Virtualization mailing list
