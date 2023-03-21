@@ -1,109 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB315C77B62
-	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 02:06:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8B89C6FD1D
+	for <virtualization@archiver.kernel.org>; Tue, 21 Mar 2023 02:20:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8B5F181F0A;
-	Tue, 21 Mar 2023 02:06:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8B5F181F0A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=es1YJ3vs
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5DB75400F3;
+	Tue, 21 Mar 2023 02:20:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5DB75400F3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cy0bbcoF9ztJ; Tue, 21 Mar 2023 02:06:45 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VMebjauCSeJj; Tue, 21 Mar 2023 02:20:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E54DE81F24;
-	Tue, 21 Mar 2023 02:06:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E54DE81F24
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A90CB40AB9;
+	Tue, 21 Mar 2023 02:20:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A90CB40AB9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC3BAC007C;
-	Tue, 21 Mar 2023 02:06:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D575C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68FCBC0071;
+	Tue, 21 Mar 2023 02:20:20 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 73900C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:06:43 +0000 (UTC)
+ Tue, 21 Mar 2023 02:20:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5BC18610A0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 489D240AB9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:06:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5BC18610A0
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=es1YJ3vs
+ Tue, 21 Mar 2023 02:20:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 489D240AB9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MpU9VE8QWwBc
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kCDxKKLRMA52
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:06:42 +0000 (UTC)
+ Tue, 21 Mar 2023 02:20:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F58261093
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9F58261093
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0AEE2400F3
+Received: from out30-111.freemail.mail.aliyun.com
+ (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0AEE2400F3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Mar 2023 02:06:42 +0000 (UTC)
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 32KM4pHX026340; Tue, 21 Mar 2023 02:06:42 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=corp-2022-7-12;
- bh=H9r2il6PViKSpQVaulibxENpxkzMyrAhWfxHwqY8eGY=;
- b=es1YJ3vsQyoGuNvLze/XpPDfgf1/9n0YiY8ET6tPdm0G6Xe+tW1owSTHQykgY5664oIU
- 7B89dEivBZd0KEkx3vQb71ZoBCEMfGoMq05v6Ba0oq+8f+zobcMdCMorTNYMOGNvVD+O
- cGCw50BnEn0a8Vx1FowwibdiUGkWCL3C86bwj7dGTX+8eeSmx7t0O7r2w26K+m/qZJDC
- vWhPq3Q1EGeVBrTLbSr7f7XZ5mGndwybn6d510PPetcWQjpVD/7cw6p3kGc0Ug7xWwFh
- vSTJpfLwOF93bDI/h69Q59mbwWZL6jWCTUcjOxXfYDCRgSpzOSxhBBba+gFHBUdNcG8R 9Q== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pd47tn0sr-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 21 Mar 2023 02:06:41 +0000
-Received: from pps.filterd
- (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 32KNExeQ010388; Tue, 21 Mar 2023 02:06:40 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3peqjn4c5s-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 21 Mar 2023 02:06:40 +0000
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32L26T9e007440;
- Tue, 21 Mar 2023 02:06:39 GMT
-Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-165-250.vpn.oracle.com
- [10.154.165.250])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
- 3peqjn4c0v-8; Tue, 21 Mar 2023 02:06:39 +0000
-From: Mike Christie <michael.christie@oracle.com>
-To: target-devel@vger.kernel.org, linux-scsi@vger.kernel.org,
- stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
- sgarzare@redhat.com, virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 7/7] vhost-scsi: Reduce vhost_scsi_mutex use
-Date: Mon, 20 Mar 2023 21:06:24 -0500
-Message-Id: <20230321020624.13323-8-michael.christie@oracle.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230321020624.13323-1-michael.christie@oracle.com>
-References: <20230321020624.13323-1-michael.christie@oracle.com>
-MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-20_18,2023-03-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
- mlxlogscore=999
- phishscore=0 suspectscore=0 malwarescore=0 mlxscore=0 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2303150002 definitions=main-2303210017
-X-Proofpoint-GUID: QtG3BjkRHARJkLjfhDuFDNXl5a2DGMFy
-X-Proofpoint-ORIG-GUID: QtG3BjkRHARJkLjfhDuFDNXl5a2DGMFy
+ Tue, 21 Mar 2023 02:20:16 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=6; SR=0;
+ TI=SMTPD_---0VeL2P0w_1679365210; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VeL2P0w_1679365210) by smtp.aliyun-inc.com;
+ Tue, 21 Mar 2023 10:20:11 +0800
+Message-ID: <1679364946.2946873-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
+Date: Tue, 21 Mar 2023 10:15:46 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Viktor Prutyanov <viktor@daynix.com>
+References: <20230320115451.1232171-1-viktor@daynix.com>
+In-Reply-To: <20230320115451.1232171-1-viktor@daynix.com>
+Cc: mst@redhat.com, viktor@daynix.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, yan@daynix.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,127 +70,226 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-We on longer need to hold the vhost_scsi_mutex the entire time we
-set/clear the endpoint. The tv_tpg_mutex handles tpg accesses not related
-to the tpg list, the port link/unlink functions use the tv_tpg_mutex while
-accessing the tpg->vhost_scsi pointer, vhost_scsi_do_plug will no longer
-queue events after the virtqueue's backend has been cleared and flushed,
-and we don't drop our refcount to the tpg until after we have stopped
-cmds and wait for outstanding cmds to complete.
+On Mon, 20 Mar 2023 14:54:51 +0300, Viktor Prutyanov <viktor@daynix.com> wrote:
+> According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
+> indicates that the driver passes extra data along with the queue
+> notifications.
+>
+> In a split queue case, the extra data is 16-bit available index. In a
+> packed queue case, the extra data is 1-bit wrap counter and 15-bit
+> available index.
+>
+> Add support for this feature for both MMIO and PCI.
+>
+> Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
+> ---
+>  drivers/virtio/virtio_mmio.c       | 15 ++++++++++++++-
+>  drivers/virtio/virtio_pci_common.c | 10 ++++++++++
+>  drivers/virtio/virtio_pci_common.h |  4 ++++
+>  drivers/virtio/virtio_pci_legacy.c |  2 +-
+>  drivers/virtio/virtio_pci_modern.c |  2 +-
+>  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
+>  include/linux/virtio_ring.h        |  2 ++
+>  include/uapi/linux/virtio_config.h |  6 ++++++
+>  8 files changed, 55 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 3ff746e3f24a..05da5ad7fc93 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -285,6 +285,19 @@ static bool vm_notify(struct virtqueue *vq)
+>  	return true;
+>  }
+>
+> +static bool vm_notify_with_data(struct virtqueue *vq)
+> +{
+> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+> +	__le32 data = vring_fill_notification_data(vq);
+> +
+> +	writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+> +
+> +	return true;
+> +}
+> +
+> +#define VM_NOTIFY(vdev) (__virtio_test_bit((vdev), VIRTIO_F_NOTIFICATION_DATA) \
+> +	? vm_notify_with_data : vm_notify)
 
-This moves the vhost_scsi_mutex use to it's documented use of being used
-to access the tpg list. We then don't need to hold it while a flush is
-being performed causing other device's vhost_scsi_set_endpoint
-and vhost_scsi_make_tpg/vhost_scsi_drop_tpg calls to have to wait on a
-flakey device.
 
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
----
- drivers/vhost/scsi.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+Is this macro necessary, it is only used once. And I don't recognize that this
+logic is necessary to use macro.
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index d4372a4aff49..3b0b556c57ef 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -229,7 +229,10 @@ struct vhost_scsi_ctx {
- 	struct iov_iter out_iter;
- };
- 
--/* Global spinlock to protect vhost_scsi TPG list for vhost IOCTL access */
-+/*
-+ * Global mutex to protect vhost_scsi TPG list for vhost IOCTLs and LIO
-+ * configfs management operations.
-+ */
- static DEFINE_MUTEX(vhost_scsi_mutex);
- static LIST_HEAD(vhost_scsi_list);
- 
-@@ -1526,7 +1529,7 @@ static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
-  * vhost_scsi_tpg with an active struct vhost_scsi_nexus
-  *
-  *  The lock nesting rule is:
-- *    vhost_scsi_mutex -> vs->dev.mutex -> tpg->tv_tpg_mutex -> vq->mutex
-+ *    vs->dev.mutex -> vhost_scsi_mutex -> tpg->tv_tpg_mutex -> vq->mutex
-  */
- static int
- vhost_scsi_set_endpoint(struct vhost_scsi *vs,
-@@ -1540,7 +1543,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 	int index, ret, i, len;
- 	bool match = false;
- 
--	mutex_lock(&vhost_scsi_mutex);
- 	mutex_lock(&vs->dev.mutex);
- 
- 	/* Verify that ring has been setup correctly. */
-@@ -1561,6 +1563,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 	if (vs->vs_tpg)
- 		memcpy(vs_tpg, vs->vs_tpg, len);
- 
-+	mutex_lock(&vhost_scsi_mutex);
- 	list_for_each_entry(tpg, &vhost_scsi_list, tv_tpg_list) {
- 		mutex_lock(&tpg->tv_tpg_mutex);
- 		if (!tpg->tpg_nexus) {
-@@ -1576,6 +1579,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
- 			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
- 				mutex_unlock(&tpg->tv_tpg_mutex);
-+				mutex_unlock(&vhost_scsi_mutex);
- 				ret = -EEXIST;
- 				goto undepend;
- 			}
-@@ -1590,6 +1594,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 			if (ret) {
- 				pr_warn("target_depend_item() failed: %d\n", ret);
- 				mutex_unlock(&tpg->tv_tpg_mutex);
-+				mutex_unlock(&vhost_scsi_mutex);
- 				goto undepend;
- 			}
- 			tpg->tv_tpg_vhost_count++;
-@@ -1599,6 +1604,7 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 		}
- 		mutex_unlock(&tpg->tv_tpg_mutex);
- 	}
-+	mutex_unlock(&vhost_scsi_mutex);
- 
- 	if (match) {
- 		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
-@@ -1654,7 +1660,6 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
- 	kfree(vs_tpg);
- out:
- 	mutex_unlock(&vs->dev.mutex);
--	mutex_unlock(&vhost_scsi_mutex);
- 	return ret;
- }
- 
-@@ -1670,7 +1675,6 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
- 	int index, ret, i;
- 	u8 target;
- 
--	mutex_lock(&vhost_scsi_mutex);
- 	mutex_lock(&vs->dev.mutex);
- 	/* Verify that ring has been setup correctly. */
- 	for (index = 0; index < vs->dev.nvqs; ++index) {
-@@ -1757,12 +1761,10 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
- 	vs->vs_tpg = NULL;
- 	WARN_ON(vs->vs_events_nr);
- 	mutex_unlock(&vs->dev.mutex);
--	mutex_unlock(&vhost_scsi_mutex);
- 	return 0;
- 
- err_dev:
- 	mutex_unlock(&vs->dev.mutex);
--	mutex_unlock(&vhost_scsi_mutex);
- 	return ret;
- }
- 
--- 
-2.25.1
+> +
+>  /* Notify all virtqueues on an interrupt. */
+>  static irqreturn_t vm_interrupt(int irq, void *opaque)
+>  {
+> @@ -397,7 +410,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+>
+>  	/* Create the vring */
+>  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
+> -				 true, true, ctx, vm_notify, callback, name);
+> +			true, true, ctx, VM_NOTIFY(vdev), callback, name);
+>  	if (!vq) {
+>  		err = -ENOMEM;
+>  		goto error_new_virtqueue;
+> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> index a6c86f916dbd..bf7daad9ce65 100644
+> --- a/drivers/virtio/virtio_pci_common.c
+> +++ b/drivers/virtio/virtio_pci_common.c
+> @@ -43,6 +43,16 @@ bool vp_notify(struct virtqueue *vq)
+>  	/* we write the queue's selector into the notification register to
+>  	 * signal the other end */
+>  	iowrite16(vq->index, (void __iomem *)vq->priv);
+> +
+> +	return true;
+> +}
+> +
+> +bool vp_notify_with_data(struct virtqueue *vq)
+> +{
+> +	__le32 data = vring_fill_notification_data(vq);
+> +
+> +	iowrite32(data, (void __iomem *)vq->priv);
+> +
+>  	return true;
+>  }
+>
+> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+> index 23112d84218f..9a7212dcbb32 100644
+> --- a/drivers/virtio/virtio_pci_common.h
+> +++ b/drivers/virtio/virtio_pci_common.h
+> @@ -105,6 +105,7 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
+>  void vp_synchronize_vectors(struct virtio_device *vdev);
+>  /* the notify function used when creating a virt queue */
+>  bool vp_notify(struct virtqueue *vq);
+> +bool vp_notify_with_data(struct virtqueue *vq);
+>  /* the config->del_vqs() implementation */
+>  void vp_del_vqs(struct virtio_device *vdev);
+>  /* the config->find_vqs() implementation */
+> @@ -114,6 +115,9 @@ int vp_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
+>  		struct irq_affinity *desc);
+>  const char *vp_bus_name(struct virtio_device *vdev);
+>
+> +#define VP_NOTIFY(vdev) (__virtio_test_bit((vdev), VIRTIO_F_NOTIFICATION_DATA) \
+> +	? vp_notify : vp_notify_with_data)
+> +
 
+I also think that this is not necessary, although it has been used twice.
+
+
+>  /* Setup the affinity for a virtqueue:
+>   * - force the affinity for per vq vector
+>   * - OR over all affinities for shared MSI
+> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+> index 2257f1b3d8ae..b98e994cae48 100644
+> --- a/drivers/virtio/virtio_pci_legacy.c
+> +++ b/drivers/virtio/virtio_pci_legacy.c
+> @@ -131,7 +131,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>  	vq = vring_create_virtqueue(index, num,
+>  				    VIRTIO_PCI_VRING_ALIGN, &vp_dev->vdev,
+>  				    true, false, ctx,
+> -				    vp_notify, callback, name);
+> +				    VP_NOTIFY(&vp_dev->vdev), callback, name);
+>  	if (!vq)
+>  		return ERR_PTR(-ENOMEM);
+>
+> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> index 9e496e288cfa..7fcd8af5af7e 100644
+> --- a/drivers/virtio/virtio_pci_modern.c
+> +++ b/drivers/virtio/virtio_pci_modern.c
+> @@ -321,7 +321,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+>  	vq = vring_create_virtqueue(index, num,
+>  				    SMP_CACHE_BYTES, &vp_dev->vdev,
+>  				    true, true, ctx,
+> -				    vp_notify, callback, name);
+> +				    VP_NOTIFY(&vp_dev->vdev), callback, name);
+>  	if (!vq)
+>  		return ERR_PTR(-ENOMEM);
+>
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 41144b5246a8..8de0800efee7 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -2752,6 +2752,21 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+>  }
+>  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
+>
+> +__le32 vring_fill_notification_data(struct virtqueue *_vq)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +	u16 next;
+> +
+> +	if (vq->packed_ring)
+> +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
+> +			((u16)vq->packed.avail_wrap_counter << 15);
+> +	else
+> +		next = virtio16_to_cpu(_vq->vdev, vq->split.vring.avail->idx);
+> +
+> +	return cpu_to_le32(((u32)next << 16) | _vq->index);
+> +}
+> +EXPORT_SYMBOL_GPL(vring_fill_notification_data);
+> +
+>  /* Manipulates transport-specific feature bits. */
+>  void vring_transport_features(struct virtio_device *vdev)
+>  {
+> @@ -2771,6 +2786,8 @@ void vring_transport_features(struct virtio_device *vdev)
+>  			break;
+>  		case VIRTIO_F_ORDER_PLATFORM:
+>  			break;
+> +		case VIRTIO_F_NOTIFICATION_DATA:
+> +			break;
+>  		default:
+>  			/* We don't understand this bit. */
+>  			__virtio_clear_bit(vdev, i);
+> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+> index 8b95b69ef694..3222324fb244 100644
+> --- a/include/linux/virtio_ring.h
+> +++ b/include/linux/virtio_ring.h
+> @@ -117,4 +117,6 @@ void vring_del_virtqueue(struct virtqueue *vq);
+>  void vring_transport_features(struct virtio_device *vdev);
+>
+>  irqreturn_t vring_interrupt(int irq, void *_vq);
+> +
+> +__le32 vring_fill_notification_data(struct virtqueue *_vq);
+>  #endif /* _LINUX_VIRTIO_RING_H */
+> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+> index 3c05162bc988..2c712c654165 100644
+> --- a/include/uapi/linux/virtio_config.h
+> +++ b/include/uapi/linux/virtio_config.h
+> @@ -99,6 +99,12 @@
+>   */
+>  #define VIRTIO_F_SR_IOV			37
+>
+> +/*
+> + * This feature indicates that the driver passes extra data (besides
+> + * identifying the virtqueue) in its device notifications.
+> + */
+> +#define VIRTIO_F_NOTIFICATION_DATA	38
+> +
+
+
+Although this patch is not large, I think it can be split:
+
+* add VIRTIO_F_NOTIFICATION_DATA
+* pci support
+* mmio support
+
+
+This is beneficial to backport.
+
+Thanks.
+
+>  /*
+>   * This feature indicates that the driver can reset a queue individually.
+>   */
+> --
+> 2.35.1
+>
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
