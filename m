@@ -1,71 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86B72C77B61
-	for <virtualization@archiver.kernel.org>; Wed, 22 Mar 2023 03:03:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6F35C6FD1F
+	for <virtualization@archiver.kernel.org>; Wed, 22 Mar 2023 03:32:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 22121405AA;
-	Wed, 22 Mar 2023 03:03:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 22121405AA
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2BEE782217;
+	Wed, 22 Mar 2023 03:32:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2BEE782217
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fe0OtSP+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rrGLAStV-Pd3; Wed, 22 Mar 2023 03:03:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 84D5840BDB;
-	Wed, 22 Mar 2023 03:03:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84D5840BDB
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8ik7c2mRJ6VD; Wed, 22 Mar 2023 03:32:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A9A2B8207B;
+	Wed, 22 Mar 2023 03:32:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A9A2B8207B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F815C0035;
-	Wed, 22 Mar 2023 03:03:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E0CD7C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68DB1C0071;
+	Wed, 22 Mar 2023 03:32:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82503C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 03:03:24 +0000 (UTC)
+ Wed, 22 Mar 2023 03:32:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AFFF06139F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 565A182178
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 03:03:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AFFF06139F
+ Wed, 22 Mar 2023 03:32:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 565A182178
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PO_4RbK-Ezw2
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GMQFm3nqfjj9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 03:03:22 +0000 (UTC)
+ Wed, 22 Mar 2023 03:32:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 82C0E61392
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 82C0E61392
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4F83B8207B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4F83B8207B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 03:03:21 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R911e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
- TI=SMTPD_---0VeOqVkP_1679454196; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VeOqVkP_1679454196) by smtp.aliyun-inc.com;
- Wed, 22 Mar 2023 11:03:17 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH net-next 8/8] virtio_net: introduce receive_small_xdp()
-Date: Wed, 22 Mar 2023 11:03:08 +0800
-Message-Id: <20230322030308.16046-9-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20230322030308.16046-1-xuanzhuo@linux.alibaba.com>
-References: <20230322030308.16046-1-xuanzhuo@linux.alibaba.com>
+ Wed, 22 Mar 2023 03:32:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1679455959;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+5ozyksmBgQ5o9j+m73jd3TzZUhnMnKkTv9SFtMBtSc=;
+ b=fe0OtSP+FrZ85jowAjDFHGr8BmdbMU0MTy3FMaIH/NXvRpnPBvIIxLYWEWAAJAwa6tXe0v
+ xN6EHTGGfNIy/tpj64yyuP48xlybf+2OP1DWDWlrpDsN0cT4E3TN5JISj6x/O6MBZFG8yN
+ qHQOegH8hxn6PW6+c6yE69qOxd4ROns=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-141-biIr5D9aM0KGcqkeZCoSoQ-1; Tue, 21 Mar 2023 23:32:38 -0400
+X-MC-Unique: biIr5D9aM0KGcqkeZCoSoQ-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ ay12-20020a05600c1e0c00b003ed201dcf71so8050262wmb.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 21 Mar 2023 20:32:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679455956;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=+5ozyksmBgQ5o9j+m73jd3TzZUhnMnKkTv9SFtMBtSc=;
+ b=pEIcDL40KVImWS6rzCYdhS+0EMoesDi4h5IwF+ebQn4hPb0trIYilZBwn0FZnWd9w6
+ GfSOo8Nz8K0IMddaNTkS1WwPKqchAJ/1CaveeWdcqerkXa8SBsYWloFVWhUxR2khrVvq
+ NgLJSTvJ1YtntMspbIVMRbkpTf8VLNMOI51zoLWAT2JVOLkncoWyu/tZfyIU5mmhb4Bn
+ dTACtoKrkyJWHtJ5ortx7YbIFhGiPKi4UdDLdADk+01UQbxHH1WwXurofWwDGu8plSYE
+ +32ajKSm51cmSWmc6xm5cmachb7/dRUO4FZ+dS21MhSiSw7bC6KwJdfQn3YgQCtboDtA
+ Yq7A==
+X-Gm-Message-State: AO0yUKX/XPSai+Blbpc4gjJOXz4cl/0Va1uMIvva0hWfZ8x9WSegBl7K
+ f7XCBhUAwAXW9Vqbx1F7bVoWOaY3jqg5XkbyfIRWmZGmfunjAgUq4YWeceIzu++L3doLjJqCEYs
+ HxJ56BRaY89sbjcrabM0DT+oLD+WNtb5q+m5MoDfQmQ==
+X-Received: by 2002:a1c:cc1a:0:b0:3ee:18e:a1ef with SMTP id
+ h26-20020a1ccc1a000000b003ee018ea1efmr3864286wmb.1.1679455956524; 
+ Tue, 21 Mar 2023 20:32:36 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+AEBHGc97UmkB75LQFIVb5++WH6WZGSxtJOSJqQtQgzaAiQAQFTLtvRmQvm7FJyMx4yf4IHw==
+X-Received: by 2002:a1c:cc1a:0:b0:3ee:18e:a1ef with SMTP id
+ h26-20020a1ccc1a000000b003ee018ea1efmr3864279wmb.1.1679455956251; 
+ Tue, 21 Mar 2023 20:32:36 -0700 (PDT)
+Received: from redhat.com ([2.52.1.105]) by smtp.gmail.com with ESMTPSA id
+ d8-20020a1c7308000000b003ed1f6878a5sm15458136wmb.5.2023.03.21.20.32.34
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 21 Mar 2023 20:32:35 -0700 (PDT)
+Date: Tue, 21 Mar 2023 23:32:32 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH v4 1/2] vdpa/mlx5: Make VIRTIO_NET_F_MRG_RXBUF off by
+ default
+Message-ID: <20230321232937-mutt-send-email-mst@kernel.org>
+References: <20230321112809.221432-1-elic@nvidia.com>
+ <20230321112809.221432-2-elic@nvidia.com>
 MIME-Version: 1.0
-X-Git-Hash: 7e9e1372f356
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20230321112809.221432-2-elic@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: eperezma@redhat.com, parav@mellanox.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -82,224 +120,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The purpose of this patch is to simplify the receive_small().
-Separate all the logic of XDP of small into a function.
+On Tue, Mar 21, 2023 at 01:28:08PM +0200, Eli Cohen wrote:
+> Following patch adds driver support for VIRTIO_NET_F_MRG_RXBUF.
+> 
+> Current firmware versions show degradation in packet rate when using
+> MRG_RXBUF. Users who favor memory saving over packet rate could enable
+> this feature but we want to keep it off by default.
+> 
+> One can still enable it when creating the vdpa device using vdpa tool by
+> providing features that include it.
+> 
+> For example:
+> $ vdpa dev add name vdpa0 mgmtdev pci/0000:86:00.2 device_features 0x300cb982b
+> 
+> 
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 165 +++++++++++++++++++++++----------------
- 1 file changed, 97 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 6ecb17e972e1..23b1a6fd1224 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -939,6 +939,96 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
- 	return NULL;
- }
- 
-+static struct sk_buff *receive_small_xdp(struct net_device *dev,
-+					 struct virtnet_info *vi,
-+					 struct receive_queue *rq,
-+					 struct bpf_prog *xdp_prog,
-+					 void *buf,
-+					 void *ctx,
-+					 unsigned int len,
-+					 unsigned int *xdp_xmit,
-+					 struct virtnet_rq_stats *stats)
-+{
-+	unsigned int xdp_headroom = (unsigned long)ctx;
-+	unsigned int header_offset = VIRTNET_RX_PAD + xdp_headroom;
-+	unsigned int headroom = vi->hdr_len + header_offset;
-+	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
-+	struct page *page = virt_to_head_page(buf);
-+	struct page *xdp_page;
-+	unsigned int buflen;
-+	struct xdp_buff xdp;
-+	struct sk_buff *skb;
-+	unsigned int delta = 0;
-+	unsigned int metasize = 0;
-+	void *orig_data;
-+	u32 act;
-+
-+	if (unlikely(hdr->hdr.gso_type))
-+		goto err_xdp;
-+
-+	if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
-+		int offset = buf - page_address(page) + header_offset;
-+		unsigned int tlen = len + vi->hdr_len;
-+		int num_buf = 1;
-+
-+		xdp_headroom = virtnet_get_headroom(vi);
-+		header_offset = VIRTNET_RX_PAD + xdp_headroom;
-+		headroom = vi->hdr_len + header_offset;
-+		buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
-+			SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+		xdp_page = xdp_linearize_page(rq, &num_buf, page,
-+					      offset, header_offset,
-+					      &tlen);
-+		if (!xdp_page)
-+			goto err_xdp;
-+
-+		buf = page_address(xdp_page);
-+		put_page(page);
-+		page = xdp_page;
-+	}
-+
-+	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
-+	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
-+			 xdp_headroom, len, true);
-+	orig_data = xdp.data;
-+
-+	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-+
-+	switch (act) {
-+	case VIRTNET_XDP_RES_PASS:
-+		/* Recalculate length in case bpf program changed it */
-+		delta = orig_data - xdp.data;
-+		len = xdp.data_end - xdp.data;
-+		metasize = xdp.data - xdp.data_meta;
-+		break;
-+
-+	case VIRTNET_XDP_RES_CONSUMED:
-+		goto xdp_xmit;
-+
-+	case VIRTNET_XDP_RES_DROP:
-+		goto err_xdp;
-+	}
-+
-+	skb = build_skb(buf, buflen);
-+	if (!skb)
-+		goto err;
-+
-+	skb_reserve(skb, headroom - delta);
-+	skb_put(skb, len);
-+	if (metasize)
-+		skb_metadata_set(skb, metasize);
-+
-+	return skb;
-+
-+err_xdp:
-+	stats->xdp_drops++;
-+err:
-+	stats->drops++;
-+	put_page(page);
-+xdp_xmit:
-+	return NULL;
-+}
-+
- static struct sk_buff *receive_small(struct net_device *dev,
- 				     struct virtnet_info *vi,
- 				     struct receive_queue *rq,
-@@ -949,15 +1039,11 @@ static struct sk_buff *receive_small(struct net_device *dev,
- {
- 	struct sk_buff *skb;
- 	struct bpf_prog *xdp_prog;
--	unsigned int xdp_headroom = (unsigned long)ctx;
--	unsigned int header_offset = VIRTNET_RX_PAD + xdp_headroom;
-+	unsigned int header_offset = VIRTNET_RX_PAD;
- 	unsigned int headroom = vi->hdr_len + header_offset;
- 	unsigned int buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
- 			      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
- 	struct page *page = virt_to_head_page(buf);
--	unsigned int delta = 0;
--	struct page *xdp_page;
--	unsigned int metasize = 0;
- 
- 	len -= vi->hdr_len;
- 	stats->bytes += len;
-@@ -977,57 +1063,9 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(rq->xdp_prog);
- 	if (xdp_prog) {
--		struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
--		struct xdp_buff xdp;
--		void *orig_data;
--		u32 act;
--
--		if (unlikely(hdr->hdr.gso_type))
--			goto err_xdp;
--
--		if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
--			int offset = buf - page_address(page) + header_offset;
--			unsigned int tlen = len + vi->hdr_len;
--			int num_buf = 1;
--
--			xdp_headroom = virtnet_get_headroom(vi);
--			header_offset = VIRTNET_RX_PAD + xdp_headroom;
--			headroom = vi->hdr_len + header_offset;
--			buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
--				 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
--			xdp_page = xdp_linearize_page(rq, &num_buf, page,
--						      offset, header_offset,
--						      &tlen);
--			if (!xdp_page)
--				goto err_xdp;
--
--			buf = page_address(xdp_page);
--			put_page(page);
--			page = xdp_page;
--		}
--
--		xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
--		xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
--				 xdp_headroom, len, true);
--		orig_data = xdp.data;
--
--		act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
--
--		switch (act) {
--		case VIRTNET_XDP_RES_PASS:
--			/* Recalculate length in case bpf program changed it */
--			delta = orig_data - xdp.data;
--			len = xdp.data_end - xdp.data;
--			metasize = xdp.data - xdp.data_meta;
--			break;
--
--		case VIRTNET_XDP_RES_CONSUMED:
--			rcu_read_unlock();
--			goto xdp_xmit;
--
--		case VIRTNET_XDP_RES_DROP:
--			goto err_xdp;
--		}
-+		skb = receive_small_xdp(dev, vi, rq, xdp_prog, buf, ctx, len, xdp_xmit, stats);
-+		rcu_read_unlock();
-+		return skb;
- 	}
- 	rcu_read_unlock();
- 
-@@ -1035,25 +1073,16 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 	skb = build_skb(buf, buflen);
- 	if (!skb)
- 		goto err;
--	skb_reserve(skb, headroom - delta);
-+	skb_reserve(skb, headroom);
- 	skb_put(skb, len);
--	if (!xdp_prog) {
--		buf += header_offset;
--		memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
--	} /* keep zeroed vnet hdr since XDP is loaded */
--
--	if (metasize)
--		skb_metadata_set(skb, metasize);
- 
-+	buf += header_offset;
-+	memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
- 	return skb;
- 
--err_xdp:
--	rcu_read_unlock();
--	stats->xdp_drops++;
- err:
- 	stats->drops++;
- 	put_page(page);
--xdp_xmit:
- 	return NULL;
- }
- 
--- 
-2.32.0.3.g01195cf9f
+I have a question. Could you guys try with the recent XDP mergeable
+buffer rework? Does this address the performance issue you are
+observing?
+
+Specifically:
+
+Message-Id: <20230322025701.2955-1-xuanzhuo@linux.alibaba.com>
+Message-Id: <20230322030308.16046-1-xuanzhuo@linux.alibaba.com>
+
+I would very much appreciate if you posted perf numbers
+in response to that thread - both to help evaluate that
+patchset and this one.
+Thanks!
+
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 520646ae7fa0..502c482a93ce 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -3122,6 +3122,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>  			return -EINVAL;
+>  		}
+>  		device_features &= add_config->device_features;
+> +	} else {
+> +		device_features &= ~BIT_ULL(VIRTIO_NET_F_MRG_RXBUF);
+>  	}
+>  	if (!(device_features & BIT_ULL(VIRTIO_F_VERSION_1) &&
+>  	      device_features & BIT_ULL(VIRTIO_F_ACCESS_PLATFORM))) {
+> -- 
+> 2.38.1
 
 _______________________________________________
 Virtualization mailing list
