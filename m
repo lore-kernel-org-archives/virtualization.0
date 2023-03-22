@@ -1,91 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4D906C76196
-	for <virtualization@archiver.kernel.org>; Wed, 22 Mar 2023 16:42:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98E20C6FD1C
+	for <virtualization@archiver.kernel.org>; Wed, 22 Mar 2023 18:56:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D3F5C417F0;
-	Wed, 22 Mar 2023 16:42:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3F5C417F0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ifPGVzli
+	by smtp3.osuosl.org (Postfix) with ESMTP id 094D261320;
+	Wed, 22 Mar 2023 18:56:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 094D261320
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=uJjJm+G2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZvcduiQfTYRH; Wed, 22 Mar 2023 16:42:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 60C66401F3;
-	Wed, 22 Mar 2023 16:42:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60C66401F3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fgVgnAj4wEAL; Wed, 22 Mar 2023 18:56:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B19CB6148B;
+	Wed, 22 Mar 2023 18:56:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B19CB6148B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3519CC0071;
-	Wed, 22 Mar 2023 16:42:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAC11C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 65AD9C0071;
+	Wed, 22 Mar 2023 18:56:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A53B3C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 16:42:27 +0000 (UTC)
+ Wed, 22 Mar 2023 18:56:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 770A5418FD
+ by smtp3.osuosl.org (Postfix) with ESMTP id 71E706148B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 16:42:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 770A5418FD
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ifPGVzli
+ Wed, 22 Mar 2023 18:56:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71E706148B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uXnhjxI5xmn5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id un8bQ00WLZmP
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 16:42:26 +0000 (UTC)
+ Wed, 22 Mar 2023 18:56:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D4E34096D
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8D4E34096D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A3F3261320
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A3F3261320
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Mar 2023 16:42:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679503345;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=cC9A56nYy1+m5j88UXEHoA+LJcmsoLgXsOwYg6hVvpA=;
- b=ifPGVzlip0YKEZkqFCD9cPSfxWpiEXR0xNNtkQDCA2SfaQJwc/g6J9h7R/r8M9kfzVkeZD
- Cq3Ad9gcf7pxxf+W22AfH4zqlsrdqiNJI+gx9VgEq8jqXE5QCN3X9gBVGAcYty4WEiyotH
- Mdwl+0dE/NnuglA7oacoORrQ4bLdrHQ=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-435-5HfkHJV8NauG4Jivpvuunw-1; Wed, 22 Mar 2023 12:42:22 -0400
-X-MC-Unique: 5HfkHJV8NauG4Jivpvuunw-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
- [10.11.54.9])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 56DB02823822;
- Wed, 22 Mar 2023 16:42:21 +0000 (UTC)
-Received: from localhost (dhcp-192-239.str.redhat.com [10.33.192.239])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 1CD47492C13;
- Wed, 22 Mar 2023 16:42:20 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Viktor Prutyanov <viktor@daynix.com>
-Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-In-Reply-To: <20230322123121-mutt-send-email-mst@kernel.org>
-Organization: Red Hat GmbH
-References: <20230322141031.2211141-1-viktor@daynix.com>
- <20230322123121-mutt-send-email-mst@kernel.org>
-User-Agent: Notmuch/0.37 (https://notmuchmail.org)
-Date: Wed, 22 Mar 2023 17:42:20 +0100
-Message-ID: <87mt44hh5f.fsf@redhat.com>
+ Wed, 22 Mar 2023 18:56:13 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 32MIMkjQ030889; Wed, 22 Mar 2023 18:56:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2022-7-12; bh=nXUkYuAUVgMJXfQ1b2OVpiN3TmnwlbMSYdai19XO/8o=;
+ b=uJjJm+G2o9N9d0ehFB2lSzjMQcXhAkWVETOR7f1AqC7N/z6FVP10KCVZzVLoim1XlKcE
+ FW6+mcYltY9Qp3jYMkh3LpiBWhvGV6Z763IXxd4W8NjTUX1X5yDooJ6WufiIdB4IiDNa
+ IQFAL509YYR8+sGFZnIsLjrRVD+7vFeJE+cxXK/3EALlV85JiBzFTD79+FOW/k/CNxKC
+ kzbOOqAe2r9PxDpPzf4XoVyLQTLPoalymfHO4QiI9xGMZg7og3xhzOmgYwaq+h9QiuWZ
+ ae1h8NpdYmPvcP8Bwetd7gnrVOSooy6LF1nwkHMBUZoVW4hDHuHn7j69U/KXGIiiFjHZ uw== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pd56b1qrn-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 22 Mar 2023 18:56:10 +0000
+Received: from pps.filterd
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 32MIWp9n002235; Wed, 22 Mar 2023 18:56:08 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3pg7238srj-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 22 Mar 2023 18:56:08 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32MIu8UY000312;
+ Wed, 22 Mar 2023 18:56:08 GMT
+Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-169-59.vpn.oracle.com
+ [10.154.169.59])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
+ 3pg7238spf-1; Wed, 22 Mar 2023 18:56:07 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ mst@redhat.com, sgarzare@redhat.com, jasowang@redhat.com,
+ stefanha@redhat.com, brauner@kernel.org
+Subject: [PATCH 1/1] vhost_task: Fix vhost_task_create return value
+Date: Wed, 22 Mar 2023 13:56:05 -0500
+Message-Id: <20230322185605.1307-1-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- pasic@linux.ibm.com, yan@daynix.com
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-22_15,2023-03-22_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ spamscore=0 adultscore=0
+ suspectscore=0 mlxscore=0 bulkscore=0 phishscore=0 mlxlogscore=949
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303150002
+ definitions=main-2303220131
+X-Proofpoint-ORIG-GUID: aHz4IwfU2BEZ_HtlkxtmGjInSvl1fI5p
+X-Proofpoint-GUID: aHz4IwfU2BEZ_HtlkxtmGjInSvl1fI5p
+Cc: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,44 +115,32 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 22 2023, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+vhost_task_create is supposed to return the vhost_task or NULL on
+failure. This fixes it to return the correct value when the allocation
+of the struct fails.
 
-> On Wed, Mar 22, 2023 at 05:10:31PM +0300, Viktor Prutyanov wrote:
->> According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
->> indicates that the driver passes extra data along with the queue
->> notifications.
->> 
->> In a split queue case, the extra data is 16-bit available index. In a
->> packed queue case, the extra data is 1-bit wrap counter and 15-bit
->> available index.
->> 
->> Add support for this feature for MMIO, channel I/O and modern PCI
->> transports.
->> 
->> Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
->> ---
->>  v4: remove VP_NOTIFY macro and legacy PCI support, add
->>     virtio_ccw_kvm_notify_with_data to virtio_ccw
->>  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_shadow,
->>     remove byte swap, rename to vring_notification_data
->>  v2: reject the feature in virtio_ccw, replace __le32 with u32
->> 
->>  Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-s390x
->>  (virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
->>  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci)
->>  to make sure nothing is broken.
->>  Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V Linux
->>  and my hardware implementation of virtio-rng.
->
-> what did you test? virtio pci? mmio? guessing not ccw...
->
-> Cornelia could you hack up something to quickly test ccw?
+Fixes: 77feab3c4156 ("vhost_task: Allow vhost layer to use copy_process") # mainline only
+Reported-by: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+---
+ kernel/vhost_task.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hm, I'm not entirely sure how notification data is supposed to be used
-in real life -- Viktor, what is your virtio-rng implementation doing;
-can this be hacked into all transports?
-
-(Also, if the other ccw folks have something handy, please speak up :)
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index 4b8aff160640..b7cbd66f889e 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -88,7 +88,7 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
+ 
+ 	vtsk = kzalloc(sizeof(*vtsk), GFP_KERNEL);
+ 	if (!vtsk)
+-		return ERR_PTR(-ENOMEM);
++		return NULL;
+ 	init_completion(&vtsk->exited);
+ 	vtsk->data = arg;
+ 	vtsk->fn = fn;
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
