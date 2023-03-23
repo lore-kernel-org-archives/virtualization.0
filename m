@@ -4,62 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38F97C6FD1F
-	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 01:43:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4794DC7619A
+	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 01:50:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C32794032F;
-	Thu, 23 Mar 2023 01:43:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C32794032F
+	by smtp4.osuosl.org (Postfix) with ESMTP id C39DF41C14;
+	Thu, 23 Mar 2023 01:50:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C39DF41C14
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IoO9kL5Mhzdp; Thu, 23 Mar 2023 01:43:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DA921402F4;
-	Thu, 23 Mar 2023 01:43:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA921402F4
+	with ESMTP id rpqtUx1vmrNU; Thu, 23 Mar 2023 01:50:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BB428417F5;
+	Thu, 23 Mar 2023 01:50:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB428417F5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC3EDC0035;
-	Thu, 23 Mar 2023 01:43:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93C4BC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A46C0C0035;
+	Thu, 23 Mar 2023 01:50:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7C199C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:43:20 +0000 (UTC)
+ Thu, 23 Mar 2023 01:50:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 669454032C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 563BA417F6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:43:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 669454032C
+ Thu, 23 Mar 2023 01:50:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 563BA417F6
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YtAidYB8FLai
+ with ESMTP id prVPU95yLj5k
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:43:18 +0000 (UTC)
+ Thu, 23 Mar 2023 01:50:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05D5E402F4
-Received: from out30-97.freemail.mail.aliyun.com
- (out30-97.freemail.mail.aliyun.com [115.124.30.97])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 05D5E402F4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 608A1417F5
+Received: from out30-118.freemail.mail.aliyun.com
+ (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 608A1417F5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:43:17 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
+ Thu, 23 Mar 2023 01:50:17 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R501e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VeSP1eG_1679535791; 
+ TI=SMTPD_---0VeSND30_1679536210; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VeSP1eG_1679535791) by smtp.aliyun-inc.com;
- Thu, 23 Mar 2023 09:43:12 +0800
-Message-ID: <1679535365.5410192-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next 1/8] virtio_net: mergeable xdp: put old page
- immediately
-Date: Thu, 23 Mar 2023 09:36:05 +0800
+ fp:SMTPD_---0VeSND30_1679536210) by smtp.aliyun-inc.com;
+ Thu, 23 Mar 2023 09:50:11 +0800
+Message-ID: <1679535924.6219428-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 2/8] virtio_net: mergeable xdp: introduce
+ mergeable_xdp_prepare
+Date: Thu, 23 Mar 2023 09:45:24 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Yunsheng Lin <linyunsheng@huawei.com>
 References: <20230322030308.16046-1-xuanzhuo@linux.alibaba.com>
- <20230322030308.16046-2-xuanzhuo@linux.alibaba.com>
- <4bd07874-b1ad-336b-b15e-ba56a10182e9@huawei.com>
-In-Reply-To: <4bd07874-b1ad-336b-b15e-ba56a10182e9@huawei.com>
+ <20230322030308.16046-3-xuanzhuo@linux.alibaba.com>
+ <c7749936-c154-da51-ccfb-f16150d19c62@huawei.com>
+In-Reply-To: <c7749936-c154-da51-ccfb-f16150d19c62@huawei.com>
 Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
  Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
  netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
@@ -79,91 +79,222 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCAyMiBNYXIgMjAyMyAxNjoyMjoxOCArMDgwMCwgWXVuc2hlbmcgTGluIDxsaW55dW5z
-aGVuZ0BodWF3ZWkuY29tPiB3cm90ZToKPiBPbiAyMDIzLzMvMjIgMTE6MDMsIFh1YW4gWmh1byB3
-cm90ZToKPiA+IEluIHRoZSB4ZHAgaW1wbGVtZW50YXRpb24gb2YgdmlydGlvLW5ldCBtZXJnZWFi
-bGUsIGl0IGFsd2F5cyBjaGVja3MKPiA+IHdoZXRoZXIgdHdvIHBhZ2UgaXMgdXNlZCBhbmQgYSBw
-YWdlIGlzIHNlbGVjdGVkIHRvIHJlbGVhc2UuIFRoaXMgaXMKPiA+IGNvbXBsaWNhdGVkIGZvciB0
-aGUgcHJvY2Vzc2luZyBvZiBhY3Rpb24sIGFuZCBiZSBjYXJlZnVsLgo+ID4KPiA+IEluIHRoZSBl
-bnRpcmUgcHJvY2Vzcywgd2UgaGF2ZSBzdWNoIHByaW5jaXBsZXM6Cj4gPiAqIElmIHhkcF9wYWdl
-IGlzIHVzZWQgKFBBU1MsIFRYLCBSZWRpcmVjdCksIHRoZW4gd2UgcmVsZWFzZSB0aGUgb2xkCj4g
-PiAgIHBhZ2UuCj4gPiAqIElmIGl0IGlzIGEgZHJvcCBjYXNlLCB3ZSB3aWxsIHJlbGVhc2UgdHdv
-LiBUaGUgb2xkIHBhZ2Ugb2J0YWluZWQgZnJvbQo+ID4gICBidWYgaXMgcmVsZWFzZSBpbnNpZGUg
-ZXJyX3hkcCwgYW5kIHhkcF9wYWdlIG5lZWRzIGJlIHJlbGFzZWQgYnkgdXMuCj4gPgo+ID4gQnV0
-IGluIGZhY3QsIHdoZW4gd2UgYWxsb2NhdGUgYSBuZXcgcGFnZSwgd2UgY2FuIHJlbGVhc2UgdGhl
-IG9sZCBwYWdlCj4gPiBpbW1lZGlhdGVseS4gVGhlbiBqdXN0IG9uZSBpcyB1c2luZywgd2UganVz
-dCBuZWVkIHRvIHJlbGVhc2UgdGhlIG5ldwo+ID4gcGFnZSBmb3IgZHJvcCBjYXNlLiBPbiB0aGUg
-ZHJvcCBwYXRoLCBlcnJfeGRwIHdpbGwgcmVsZWFzZSB0aGUgdmFyaWFibGUKPiA+ICJwYWdlIiwg
-c28gd2Ugb25seSBuZWVkIHRvIGxldCAicGFnZSIgcG9pbnQgdG8gdGhlIG5ldyB4ZHBfcGFnZSBp
-bgo+ID4gYWR2YW5jZS4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVv
-QGxpbnV4LmFsaWJhYmEuY29tPgo+ID4gLS0tCj4gPiAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
-IHwgMTUgKysrKysrLS0tLS0tLS0tCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygr
-KSwgOSBkZWxldGlvbnMoLSkKPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBpbmRleCBlMjU2MGI2Zjc5ODAu
-LjRkMmJmMWNlMDczMCAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+
-ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBAQCAtMTI0NSw2ICsxMjQ1LDkg
-QEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2Rl
-dmljZSAqZGV2LAo+ID4gIAkJCWlmICgheGRwX3BhZ2UpCj4gPiAgCQkJCWdvdG8gZXJyX3hkcDsK
-PiA+ICAJCQlvZmZzZXQgPSBWSVJUSU9fWERQX0hFQURST09NOwo+ID4gKwo+ID4gKwkJCXB1dF9w
-YWdlKHBhZ2UpOwo+Cj4gdGhlIGVycm9yIGhhbmRsaW5nIG9mIHhkcF9saW5lYXJpemVfcGFnZSgp
-IGRvZXMgbm90IHNlZW1zIHNlbGYgY29udGFpbmVkLgo+IERvZXMgaXQgbm90IHNlZW0gYmV0dGVy
-77yaCj4gMS4gaWYgeGRwX2xpbmVhcml6ZV9wYWdlKCkgc3VjY2VzZWQsIGNhbGwgcHV0X3BhZ2Uo
-KSBmb3IgZmlyc3QgYnVmZmVyIGp1c3QKPiAgICBhcyBwdXRfcGFnZSgpIGlzIGNhbGwgZm9yIG90
-aGVyIGJ1ZmZlcgo+IDIuIG9yIGNhbGwgdmlydHF1ZXVlX2dldF9idWYoKSBhbmQgcHV0X3BhZ2Uo
-KSBmb3IgYWxsIHRoZSBidWZmZXIgb2YgdGhlIHBhY2tldAo+ICAgIHNvIHRoZSBlcnJvciBoYW5k
-bGluZyBpcyBub3QgbmVlZGVkIG91dHNpZGUgdGhlIHZpcnRxdWV1ZV9nZXRfYnVmKCkuCj4KPiBJ
-biB0aGF0IGNhc2UsIGl0IHNlZW1zIHdlIGNhbiBqdXN0IGRvIGJlbG93IHdpdGhvdXQgeGRwX3Bh
-Z2U6Cj4gcGFnZSA9IHhkcF9saW5lYXJpemVfcGFnZShycSwgbnVtX2J1ZiwgcGFnZSwgLi4uKTsK
-CgpUaGlzIGRvZXMgbG9vayBiZXR0ZXIuCgpJbiBmYWN0LCB3ZSBhbHJlYWR5IGhhdmUgdnEgcmVz
-ZXQsIHdlIGNhbiBsb2FkIFhEUCBiYXNlZCBvbiB2cSByZXNldC4KSW4gdGhpcyB3YXksIHdlIGNh
-biBydW4gd2l0aG91dCB4ZHBfbGluZWFyaXplX3BhZ2UuCgoKPgo+Cj4gPiArCQkJcGFnZSA9IHhk
-cF9wYWdlOwo+ID4gIAkJfSBlbHNlIGlmICh1bmxpa2VseShoZWFkcm9vbSA8IHZpcnRuZXRfZ2V0
-X2hlYWRyb29tKHZpKSkpIHsKPiA+ICAJCQl4ZHBfcm9vbSA9IFNLQl9EQVRBX0FMSUdOKFZJUlRJ
-T19YRFBfSEVBRFJPT00gKwo+ID4gIAkJCQkJCSAgc2l6ZW9mKHN0cnVjdCBza2Jfc2hhcmVkX2lu
-Zm8pKTsKPiA+IEBAIC0xMjU5LDYgKzEyNjIsOSBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJl
-Y2VpdmVfbWVyZ2VhYmxlKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgCQkJICAgICAgIHBh
-Z2VfYWRkcmVzcyhwYWdlKSArIG9mZnNldCwgbGVuKTsKPiA+ICAJCQlmcmFtZV9zeiA9IFBBR0Vf
-U0laRTsKPiA+ICAJCQlvZmZzZXQgPSBWSVJUSU9fWERQX0hFQURST09NOwo+ID4gKwo+ID4gKwkJ
-CXB1dF9wYWdlKHBhZ2UpOwo+ID4gKwkJCXBhZ2UgPSB4ZHBfcGFnZTsKPgo+IEl0IHNlZW1zIHdl
-IGNhbiBsaW1pdCB0aGUgc2NvcGUgb2YgeGRwX3BhZ2UgaW4gdGhpcyAiZWxzZSBpZiIgYmxvY2su
-Cj4KPiA+ICAJCX0gZWxzZSB7Cj4gPiAgCQkJeGRwX3BhZ2UgPSBwYWdlOwo+ID4gIAkJfQo+Cj4g
-SXQgc2VlbXMgdGhlIGFib3ZlIGVsc2UgYmxvY2sgaXMgbm90IG5lZWRlZCBhbnltb3JlLgoKWWVz
-LCB0aGUgZm9sbG93LXVwIHBhdGNoIGhhcyB0aGlzIG9wdGltaXphdGlvbi4KCgo+Cj4gPiBAQCAt
-MTI3OCw4ICsxMjg0LDYgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJs
-ZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gIAkJCWlmICh1bmxpa2VseSghaGVhZF9za2Ip
-KQo+ID4gIAkJCQlnb3RvIGVycl94ZHBfZnJhZ3M7Cj4gPgo+ID4gLQkJCWlmICh1bmxpa2VseSh4
-ZHBfcGFnZSAhPSBwYWdlKSkKPiA+IC0JCQkJcHV0X3BhZ2UocGFnZSk7Cj4gPiAgCQkJcmN1X3Jl
-YWRfdW5sb2NrKCk7Cj4gPiAgCQkJcmV0dXJuIGhlYWRfc2tiOwo+ID4gIAkJY2FzZSBYRFBfVFg6
-Cj4gPiBAQCAtMTI5Nyw4ICsxMzAxLDYgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZl
-X21lcmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gIAkJCQlnb3RvIGVycl94ZHBf
-ZnJhZ3M7Cj4gPiAgCQkJfQo+ID4gIAkJCSp4ZHBfeG1pdCB8PSBWSVJUSU9fWERQX1RYOwo+ID4g
-LQkJCWlmICh1bmxpa2VseSh4ZHBfcGFnZSAhPSBwYWdlKSkKPiA+IC0JCQkJcHV0X3BhZ2UocGFn
-ZSk7Cj4gPiAgCQkJcmN1X3JlYWRfdW5sb2NrKCk7Cj4gPiAgCQkJZ290byB4ZHBfeG1pdDsKPiA+
-ICAJCWNhc2UgWERQX1JFRElSRUNUOgo+ID4gQEAgLTEzMDcsOCArMTMwOSw2IEBAIHN0YXRpYyBz
-dHJ1Y3Qgc2tfYnVmZiAqcmVjZWl2ZV9tZXJnZWFibGUoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwK
-PiA+ICAJCQlpZiAoZXJyKQo+ID4gIAkJCQlnb3RvIGVycl94ZHBfZnJhZ3M7Cj4gPiAgCQkJKnhk
-cF94bWl0IHw9IFZJUlRJT19YRFBfUkVESVI7Cj4gPiAtCQkJaWYgKHVubGlrZWx5KHhkcF9wYWdl
-ICE9IHBhZ2UpKQo+ID4gLQkJCQlwdXRfcGFnZShwYWdlKTsKPiA+ICAJCQlyY3VfcmVhZF91bmxv
-Y2soKTsKPiA+ICAJCQlnb3RvIHhkcF94bWl0Owo+ID4gIAkJZGVmYXVsdDoKPiA+IEBAIC0xMzIx
-LDkgKzEzMjEsNiBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxlKHN0
-cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgCQkJZ290byBlcnJfeGRwX2ZyYWdzOwo+ID4gIAkJ
-fQo+ID4gIGVycl94ZHBfZnJhZ3M6Cj4gPiAtCQlpZiAodW5saWtlbHkoeGRwX3BhZ2UgIT0gcGFn
-ZSkpCj4gPiAtCQkJX19mcmVlX3BhZ2VzKHhkcF9wYWdlLCAwKTsKPgo+IEl0IHNlZW1zIF9fZnJl
-ZV9wYWdlcygpIGFuZCBwdXRfcGFnZSgpIGlzIHVzZWQgaW50ZXJjaGFuZ2VhYmx5IGhlcmUuCj4g
-UGVyaGFwcyB1c2luZyBfX2ZyZWVfcGFnZXMoKSBoYXZlIHBlcmZvcm1hbmNlIHJlYXNvbj8gQXMg
-dGhlIGNvbW1lbnQgYmVsb3c6Cj4KPiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51eC92
-Ni4zLXJjMy9zb3VyY2UvbmV0L2NvcmUvcGFnZV9wb29sLmMjTDUwMAoKClllcywgYnV0IG5vdyB3
-ZSBkb24ndCBzZWVtIHRvIGJlIHZlcnkgZ29vZCB0byBkaXN0aW5ndWlzaCBpdC4gQnV0IEkgdGhp
-bmsKaXQgZG9lc24ndCBtYXR0ZXIuIFRoaXMgbG9naWMgaXMgcmFyZSB1bmRlciBhY3R1YWwgc2l0
-dWF0aW9uLgoKVGhhbmtzLgoKCj4KPiA+IC0KPiA+ICAJCWlmICh4ZHBfYnVmZl9oYXNfZnJhZ3Mo
-JnhkcCkpIHsKPiA+ICAJCQlzaGluZm8gPSB4ZHBfZ2V0X3NoYXJlZF9pbmZvX2Zyb21fYnVmZigm
-eGRwKTsKPiA+ICAJCQlmb3IgKGkgPSAwOyBpIDwgc2hpbmZvLT5ucl9mcmFnczsgaSsrKSB7Cj4g
-PgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On Wed, 22 Mar 2023 19:52:48 +0800, Yunsheng Lin <linyunsheng@huawei.com> wrote:
+> On 2023/3/22 11:03, Xuan Zhuo wrote:
+> > Separating the logic of preparation for xdp from receive_mergeable.
+> >
+> > The purpose of this is to simplify the logic of execution of XDP.
+> >
+> > The main logic here is that when headroom is insufficient, we need to
+> > allocate a new page and calculate offset. It should be noted that if
+> > there is new page, the variable page will refer to the new page.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/net/virtio_net.c | 135 ++++++++++++++++++++++-----------------
+> >  1 file changed, 77 insertions(+), 58 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 4d2bf1ce0730..bb426958cdd4 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1162,6 +1162,79 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+> >  	return 0;
+> >  }
+> >
+> > +static void *mergeable_xdp_prepare(struct virtnet_info *vi,
+> > +				   struct receive_queue *rq,
+> > +				   struct bpf_prog *xdp_prog,
+> > +				   void *ctx,
+> > +				   unsigned int *frame_sz,
+> > +				   int *num_buf,
+> > +				   struct page **page,
+> > +				   int offset,
+> > +				   unsigned int *len,
+> > +				   struct virtio_net_hdr_mrg_rxbuf *hdr)
+>
+> The naming convention seems to be xdp_prepare_mergeable().
+
+What convention?
+
+
+>
+> > +{
+> > +	unsigned int truesize = mergeable_ctx_to_truesize(ctx);
+> > +	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
+> > +	struct page *xdp_page;
+> > +	unsigned int xdp_room;
+> > +
+> > +	/* Transient failure which in theory could occur if
+> > +	 * in-flight packets from before XDP was enabled reach
+> > +	 * the receive path after XDP is loaded.
+> > +	 */
+> > +	if (unlikely(hdr->hdr.gso_type))
+> > +		return NULL;
+> > +
+> > +	/* Now XDP core assumes frag size is PAGE_SIZE, but buffers
+> > +	 * with headroom may add hole in truesize, which
+> > +	 * make their length exceed PAGE_SIZE. So we disabled the
+> > +	 * hole mechanism for xdp. See add_recvbuf_mergeable().
+> > +	 */
+> > +	*frame_sz = truesize;
+> > +
+> > +	/* This happens when headroom is not enough because
+> > +	 * of the buffer was prefilled before XDP is set.
+> > +	 * This should only happen for the first several packets.
+> > +	 * In fact, vq reset can be used here to help us clean up
+> > +	 * the prefilled buffers, but many existing devices do not
+> > +	 * support it, and we don't want to bother users who are
+> > +	 * using xdp normally.
+> > +	 */
+> > +	if (!xdp_prog->aux->xdp_has_frags &&
+> > +	    (*num_buf > 1 || headroom < virtnet_get_headroom(vi))) {
+> > +		/* linearize data for XDP */
+> > +		xdp_page = xdp_linearize_page(rq, num_buf,
+> > +					      *page, offset,
+> > +					      VIRTIO_XDP_HEADROOM,
+> > +					      len);
+> > +
+> > +		if (!xdp_page)
+> > +			return NULL;
+> > +	} else if (unlikely(headroom < virtnet_get_headroom(vi))) {
+> > +		xdp_room = SKB_DATA_ALIGN(VIRTIO_XDP_HEADROOM +
+> > +					  sizeof(struct skb_shared_info));
+> > +		if (*len + xdp_room > PAGE_SIZE)
+> > +			return NULL;
+> > +
+> > +		xdp_page = alloc_page(GFP_ATOMIC);
+> > +		if (!xdp_page)
+> > +			return NULL;
+> > +
+> > +		memcpy(page_address(xdp_page) + VIRTIO_XDP_HEADROOM,
+> > +		       page_address(*page) + offset, *len);
+>
+> It seems the above 'else if' was not really tested even before this patch,
+> as there is no "--*num_buf" if xdp_linearize_page() is not called, which
+> may causes virtnet_build_xdp_buff_mrg() to comsume one more buffer than
+> expected?
+
+Why do you think so?
+
+>
+> Also, it seems better to split the xdp_linearize_page() to two functions
+> as pskb_expand_head() and __skb_linearize() do, one to expand the headroom,
+> the other one to do the linearizing.
+
+No skb here.
+
+
+>
+>
+> > +	} else {
+> > +		return page_address(*page) + offset;
+> > +	}
+> > +
+> > +	*frame_sz = PAGE_SIZE;
+> > +
+> > +	put_page(*page);
+> > +
+> > +	*page = xdp_page;
+> > +
+> > +	return page_address(xdp_page) + VIRTIO_XDP_HEADROOM;
+> > +}
+> > +
+> >  static struct sk_buff *receive_mergeable(struct net_device *dev,
+> >  					 struct virtnet_info *vi,
+> >  					 struct receive_queue *rq,
+> > @@ -1181,7 +1254,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+> >  	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
+> >  	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+> >  	unsigned int room = SKB_DATA_ALIGN(headroom + tailroom);
+> > -	unsigned int frame_sz, xdp_room;
+> > +	unsigned int frame_sz;
+> >  	int err;
+> >
+> >  	head_skb = NULL;
+> > @@ -1211,65 +1284,11 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+> >  		u32 act;
+> >  		int i;
+> >
+> > -		/* Transient failure which in theory could occur if
+> > -		 * in-flight packets from before XDP was enabled reach
+> > -		 * the receive path after XDP is loaded.
+> > -		 */
+> > -		if (unlikely(hdr->hdr.gso_type))
+> > +		data = mergeable_xdp_prepare(vi, rq, xdp_prog, ctx, &frame_sz, &num_buf, &page,
+> > +					     offset, &len, hdr);
+> > +		if (!data)
+>
+> unlikely().
+
+
+Thanks.
+
+>
+> >  			goto err_xdp;
+> >
+> > -		/* Now XDP core assumes frag size is PAGE_SIZE, but buffers
+> > -		 * with headroom may add hole in truesize, which
+> > -		 * make their length exceed PAGE_SIZE. So we disabled the
+> > -		 * hole mechanism for xdp. See add_recvbuf_mergeable().
+> > -		 */
+> > -		frame_sz = truesize;
+> > -
+> > -		/* This happens when headroom is not enough because
+> > -		 * of the buffer was prefilled before XDP is set.
+> > -		 * This should only happen for the first several packets.
+> > -		 * In fact, vq reset can be used here to help us clean up
+> > -		 * the prefilled buffers, but many existing devices do not
+> > -		 * support it, and we don't want to bother users who are
+> > -		 * using xdp normally.
+> > -		 */
+> > -		if (!xdp_prog->aux->xdp_has_frags &&
+> > -		    (num_buf > 1 || headroom < virtnet_get_headroom(vi))) {
+> > -			/* linearize data for XDP */
+> > -			xdp_page = xdp_linearize_page(rq, &num_buf,
+> > -						      page, offset,
+> > -						      VIRTIO_XDP_HEADROOM,
+> > -						      &len);
+> > -			frame_sz = PAGE_SIZE;
+> > -
+> > -			if (!xdp_page)
+> > -				goto err_xdp;
+> > -			offset = VIRTIO_XDP_HEADROOM;
+> > -
+> > -			put_page(page);
+> > -			page = xdp_page;
+> > -		} else if (unlikely(headroom < virtnet_get_headroom(vi))) {
+> > -			xdp_room = SKB_DATA_ALIGN(VIRTIO_XDP_HEADROOM +
+> > -						  sizeof(struct skb_shared_info));
+> > -			if (len + xdp_room > PAGE_SIZE)
+> > -				goto err_xdp;
+> > -
+> > -			xdp_page = alloc_page(GFP_ATOMIC);
+> > -			if (!xdp_page)
+> > -				goto err_xdp;
+> > -
+> > -			memcpy(page_address(xdp_page) + VIRTIO_XDP_HEADROOM,
+> > -			       page_address(page) + offset, len);
+> > -			frame_sz = PAGE_SIZE;
+> > -			offset = VIRTIO_XDP_HEADROOM;
+> > -
+> > -			put_page(page);
+> > -			page = xdp_page;
+> > -		} else {
+> > -			xdp_page = page;
+> > -		}
+> > -
+> > -		data = page_address(xdp_page) + offset;
+> >  		err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
+> >  						 &num_buf, &xdp_frags_truesz, stats);
+> >  		if (unlikely(err))
+> >
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
