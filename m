@@ -1,66 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF774C6FD1C
-	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 01:22:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38F97C6FD1F
+	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 01:43:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5186B82234;
-	Thu, 23 Mar 2023 01:22:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5186B82234
+	by smtp4.osuosl.org (Postfix) with ESMTP id C32794032F;
+	Thu, 23 Mar 2023 01:43:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C32794032F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gGX5U-IE_my5; Thu, 23 Mar 2023 01:22:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 92BD782058;
-	Thu, 23 Mar 2023 01:22:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 92BD782058
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IoO9kL5Mhzdp; Thu, 23 Mar 2023 01:43:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DA921402F4;
+	Thu, 23 Mar 2023 01:43:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA921402F4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 67399C0035;
-	Thu, 23 Mar 2023 01:22:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 11901C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AC3EDC0035;
+	Thu, 23 Mar 2023 01:43:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 93C4BC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:22:32 +0000 (UTC)
+ Thu, 23 Mar 2023 01:43:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D38DC400EC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 669454032C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:22:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D38DC400EC
+ Thu, 23 Mar 2023 01:43:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 669454032C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tMK1oVvgzPpH
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YtAidYB8FLai
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:22:30 +0000 (UTC)
+ Thu, 23 Mar 2023 01:43:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BBA74400CF
-Received: from out30-99.freemail.mail.aliyun.com
- (out30-99.freemail.mail.aliyun.com [115.124.30.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BBA74400CF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05D5E402F4
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 05D5E402F4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 01:22:29 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=11; SR=0;
- TI=SMTPD_---0VeS87rx_1679534542; 
+ Thu, 23 Mar 2023 01:43:17 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
+ TI=SMTPD_---0VeSP1eG_1679535791; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VeS87rx_1679534542) by smtp.aliyun-inc.com;
- Thu, 23 Mar 2023 09:22:22 +0800
-Message-ID: <1679534465.5760474-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v4] virtio: add VIRTIO_F_NOTIFICATION_DATA feature support
-Date: Thu, 23 Mar 2023 09:21:05 +0800
+ fp:SMTPD_---0VeSP1eG_1679535791) by smtp.aliyun-inc.com;
+ Thu, 23 Mar 2023 09:43:12 +0800
+Message-ID: <1679535365.5410192-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next 1/8] virtio_net: mergeable xdp: put old page
+ immediately
+Date: Thu, 23 Mar 2023 09:36:05 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Viktor Prutyanov <viktor@daynix.com>
-References: <20230322141031.2211141-1-viktor@daynix.com>
-In-Reply-To: <20230322141031.2211141-1-viktor@daynix.com>
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, kvm@vger.kernel.org,
- mst@redhat.com, cohuck@redhat.com, viktor@daynix.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- pasic@linux.ibm.com, yan@daynix.com
+To: Yunsheng Lin <linyunsheng@huawei.com>
+References: <20230322030308.16046-1-xuanzhuo@linux.alibaba.com>
+ <20230322030308.16046-2-xuanzhuo@linux.alibaba.com>
+ <4bd07874-b1ad-336b-b15e-ba56a10182e9@huawei.com>
+In-Reply-To: <4bd07874-b1ad-336b-b15e-ba56a10182e9@huawei.com>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -73,252 +79,91 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 22 Mar 2023 17:10:31 +0300, Viktor Prutyanov <viktor@daynix.com> wrote:
-> According to VirtIO spec v1.2, VIRTIO_F_NOTIFICATION_DATA feature
-> indicates that the driver passes extra data along with the queue
-> notifications.
->
-> In a split queue case, the extra data is 16-bit available index. In a
-> packed queue case, the extra data is 1-bit wrap counter and 15-bit
-> available index.
->
-> Add support for this feature for MMIO, channel I/O and modern PCI
-> transports.
->
-> Signed-off-by: Viktor Prutyanov <viktor@daynix.com>
-> ---
->  v4: remove VP_NOTIFY macro and legacy PCI support, add
->     virtio_ccw_kvm_notify_with_data to virtio_ccw
->  v3: support feature in virtio_ccw, remove VM_NOTIFY, use avail_idx_shadow,
->     remove byte swap, rename to vring_notification_data
->  v2: reject the feature in virtio_ccw, replace __le32 with u32
->
->  Tested with disabled VIRTIO_F_NOTIFICATION_DATA on qemu-system-s390x
->  (virtio-blk-ccw), qemu-system-riscv64 (virtio-blk-device,
->  virtio-rng-device), qemu-system-x86_64 (virtio-blk-pci, virtio-net-pci)
->  to make sure nothing is broken.
->  Tested with enabled VIRTIO_F_NOTIFICATION_DATA on 64-bit RISC-V Linux
->  and my hardware implementation of virtio-rng.
->
->  drivers/s390/virtio/virtio_ccw.c   | 19 ++++++++++++++++---
->  drivers/virtio/virtio_mmio.c       | 14 +++++++++++++-
->  drivers/virtio/virtio_pci_modern.c | 13 ++++++++++++-
->  drivers/virtio/virtio_ring.c       | 17 +++++++++++++++++
->  include/linux/virtio_ring.h        |  2 ++
->  include/uapi/linux/virtio_config.h |  6 ++++++
->  6 files changed, 66 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 954fc31b4bc7..3619676effb8 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -391,7 +391,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
->  	ccw_device_dma_free(vcdev->cdev, thinint_area, sizeof(*thinint_area));
->  }
->
-> -static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
-> +static inline bool virtio_ccw_do_kvm_notify(struct virtqueue *vq, u32 data)
->  {
->  	struct virtio_ccw_vq_info *info = vq->priv;
->  	struct virtio_ccw_device *vcdev;
-> @@ -402,12 +402,22 @@ static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
->  	BUILD_BUG_ON(sizeof(struct subchannel_id) != sizeof(unsigned int));
->  	info->cookie = kvm_hypercall3(KVM_S390_VIRTIO_CCW_NOTIFY,
->  				      *((unsigned int *)&schid),
-> -				      vq->index, info->cookie);
-> +				      data, info->cookie);
->  	if (info->cookie < 0)
->  		return false;
->  	return true;
->  }
->
-> +static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
-> +{
-> +	return virtio_ccw_do_kvm_notify(vq, vq->index);
-> +}
-> +
-> +static bool virtio_ccw_kvm_notify_with_data(struct virtqueue *vq)
-> +{
-> +	return virtio_ccw_do_kvm_notify(vq, vring_notification_data(vq));
-> +}
-> +
->  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
->  				   struct ccw1 *ccw, int index)
->  {
-> @@ -501,6 +511,9 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  	u64 queue;
->  	unsigned long flags;
->  	bool may_reduce;
-> +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(vdev,
-> +		VIRTIO_F_NOTIFICATION_DATA) ?
-> +		virtio_ccw_kvm_notify_with_data : virtio_ccw_kvm_notify;
->
->  	/* Allocate queue. */
->  	info = kzalloc(sizeof(struct virtio_ccw_vq_info), GFP_KERNEL);
-> @@ -524,7 +537,7 @@ static struct virtqueue *virtio_ccw_setup_vq(struct virtio_device *vdev,
->  	may_reduce = vcdev->revision > 0;
->  	vq = vring_create_virtqueue(i, info->num, KVM_VIRTIO_CCW_RING_ALIGN,
->  				    vdev, true, may_reduce, ctx,
-> -				    virtio_ccw_kvm_notify, callback, name);
-> +				    notify, callback, name);
->
->  	if (!vq) {
->  		/* For now, we fail if we can't get the requested size. */
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 3ff746e3f24a..7c16e622c33d 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.cv
-> @@ -285,6 +285,16 @@ static bool vm_notify(struct virtqueue *vq)
->  	return true;
->  }
->
-> +static bool vm_notify_with_data(struct virtqueue *vq)
-> +{
-> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
-> +	u32 data = vring_notification_data(vq);
-> +
-> +	writel(data, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
-> +
-> +	return true;
-> +}
-> +
->  /* Notify all virtqueues on an interrupt. */
->  static irqreturn_t vm_interrupt(int irq, void *opaque)
->  {
-> @@ -368,6 +378,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
->  	unsigned long flags;
->  	unsigned int num;
->  	int err;
-> +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(vdev,
-> +		VIRTIO_F_NOTIFICATION_DATA) ? vm_notify_with_data : vm_notify;
-
-
-Can we optimize this line?
-
-Thanks.
-
->
->  	if (!name)
->  		return NULL;
-> @@ -397,7 +409,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
->
->  	/* Create the vring */
->  	vq = vring_create_virtqueue(index, num, VIRTIO_MMIO_VRING_ALIGN, vdev,
-> -				 true, true, ctx, vm_notify, callback, name);
-> +				 true, true, ctx, notify, callback, name);
->  	if (!vq) {
->  		err = -ENOMEM;
->  		goto error_new_virtqueue;
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 9e496e288cfa..9cc56f463dba 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -288,6 +288,15 @@ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
->  	return vp_modern_config_vector(&vp_dev->mdev, vector);
->  }
->
-> +static bool vp_notify_with_data(struct virtqueue *vq)
-> +{
-> +	u32 data = vring_notification_data(vq);
-> +
-> +	iowrite32(data, (void __iomem *)vq->priv);
-> +
-> +	return true;
-> +}
-> +
->  static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  				  struct virtio_pci_vq_info *info,
->  				  unsigned int index,
-> @@ -301,6 +310,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  	struct virtqueue *vq;
->  	u16 num;
->  	int err;
-> +	bool (*notify)(struct virtqueue *vq) = __virtio_test_bit(&vp_dev->vdev,
-> +		VIRTIO_F_NOTIFICATION_DATA) ? vp_notify_with_data : vp_notify;
->
->  	if (index >= vp_modern_get_num_queues(mdev))
->  		return ERR_PTR(-EINVAL);
-> @@ -321,7 +332,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  	vq = vring_create_virtqueue(index, num,
->  				    SMP_CACHE_BYTES, &vp_dev->vdev,
->  				    true, true, ctx,
-> -				    vp_notify, callback, name);
-> +				    notify, callback, name);
->  	if (!vq)
->  		return ERR_PTR(-ENOMEM);
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 4c3bb0ddeb9b..837875cc3190 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2752,6 +2752,21 @@ void vring_del_virtqueue(struct virtqueue *_vq)
->  }
->  EXPORT_SYMBOL_GPL(vring_del_virtqueue);
->
-> +u32 vring_notification_data(struct virtqueue *_vq)
-> +{
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +	u16 next;
-> +
-> +	if (vq->packed_ring)
-> +		next = (vq->packed.next_avail_idx & ~(1 << 15)) |
-> +			vq->packed.avail_wrap_counter << 15;
-> +	else
-> +		next = vq->split.avail_idx_shadow;
-> +
-> +	return next << 16 | _vq->index;
-> +}
-> +EXPORT_SYMBOL_GPL(vring_notification_data);
-> +
->  /* Manipulates transport-specific feature bits. */
->  void vring_transport_features(struct virtio_device *vdev)
->  {
-> @@ -2771,6 +2786,8 @@ void vring_transport_features(struct virtio_device *vdev)
->  			break;
->  		case VIRTIO_F_ORDER_PLATFORM:
->  			break;
-> +		case VIRTIO_F_NOTIFICATION_DATA:
-> +			break;
->  		default:
->  			/* We don't understand this bit. */
->  			__virtio_clear_bit(vdev, i);
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index 8b95b69ef694..2550c9170f4f 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -117,4 +117,6 @@ void vring_del_virtqueue(struct virtqueue *vq);
->  void vring_transport_features(struct virtio_device *vdev);
->
->  irqreturn_t vring_interrupt(int irq, void *_vq);
-> +
-> +u32 vring_notification_data(struct virtqueue *_vq);
->  #endif /* _LINUX_VIRTIO_RING_H */
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index 3c05162bc988..2c712c654165 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -99,6 +99,12 @@
->   */
->  #define VIRTIO_F_SR_IOV			37
->
-> +/*
-> + * This feature indicates that the driver passes extra data (besides
-> + * identifying the virtqueue) in its device notifications.
-> + */
-> +#define VIRTIO_F_NOTIFICATION_DATA	38
-> +
->  /*
->   * This feature indicates that the driver can reset a queue individually.
->   */
-> --
-> 2.35.1
->
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCAyMiBNYXIgMjAyMyAxNjoyMjoxOCArMDgwMCwgWXVuc2hlbmcgTGluIDxsaW55dW5z
+aGVuZ0BodWF3ZWkuY29tPiB3cm90ZToKPiBPbiAyMDIzLzMvMjIgMTE6MDMsIFh1YW4gWmh1byB3
+cm90ZToKPiA+IEluIHRoZSB4ZHAgaW1wbGVtZW50YXRpb24gb2YgdmlydGlvLW5ldCBtZXJnZWFi
+bGUsIGl0IGFsd2F5cyBjaGVja3MKPiA+IHdoZXRoZXIgdHdvIHBhZ2UgaXMgdXNlZCBhbmQgYSBw
+YWdlIGlzIHNlbGVjdGVkIHRvIHJlbGVhc2UuIFRoaXMgaXMKPiA+IGNvbXBsaWNhdGVkIGZvciB0
+aGUgcHJvY2Vzc2luZyBvZiBhY3Rpb24sIGFuZCBiZSBjYXJlZnVsLgo+ID4KPiA+IEluIHRoZSBl
+bnRpcmUgcHJvY2Vzcywgd2UgaGF2ZSBzdWNoIHByaW5jaXBsZXM6Cj4gPiAqIElmIHhkcF9wYWdl
+IGlzIHVzZWQgKFBBU1MsIFRYLCBSZWRpcmVjdCksIHRoZW4gd2UgcmVsZWFzZSB0aGUgb2xkCj4g
+PiAgIHBhZ2UuCj4gPiAqIElmIGl0IGlzIGEgZHJvcCBjYXNlLCB3ZSB3aWxsIHJlbGVhc2UgdHdv
+LiBUaGUgb2xkIHBhZ2Ugb2J0YWluZWQgZnJvbQo+ID4gICBidWYgaXMgcmVsZWFzZSBpbnNpZGUg
+ZXJyX3hkcCwgYW5kIHhkcF9wYWdlIG5lZWRzIGJlIHJlbGFzZWQgYnkgdXMuCj4gPgo+ID4gQnV0
+IGluIGZhY3QsIHdoZW4gd2UgYWxsb2NhdGUgYSBuZXcgcGFnZSwgd2UgY2FuIHJlbGVhc2UgdGhl
+IG9sZCBwYWdlCj4gPiBpbW1lZGlhdGVseS4gVGhlbiBqdXN0IG9uZSBpcyB1c2luZywgd2UganVz
+dCBuZWVkIHRvIHJlbGVhc2UgdGhlIG5ldwo+ID4gcGFnZSBmb3IgZHJvcCBjYXNlLiBPbiB0aGUg
+ZHJvcCBwYXRoLCBlcnJfeGRwIHdpbGwgcmVsZWFzZSB0aGUgdmFyaWFibGUKPiA+ICJwYWdlIiwg
+c28gd2Ugb25seSBuZWVkIHRvIGxldCAicGFnZSIgcG9pbnQgdG8gdGhlIG5ldyB4ZHBfcGFnZSBp
+bgo+ID4gYWR2YW5jZS4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVv
+QGxpbnV4LmFsaWJhYmEuY29tPgo+ID4gLS0tCj4gPiAgZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+IHwgMTUgKysrKysrLS0tLS0tLS0tCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygr
+KSwgOSBkZWxldGlvbnMoLSkKPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlv
+X25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBpbmRleCBlMjU2MGI2Zjc5ODAu
+LjRkMmJmMWNlMDczMCAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+
+ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBAQCAtMTI0NSw2ICsxMjQ1LDkg
+QEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2Rl
+dmljZSAqZGV2LAo+ID4gIAkJCWlmICgheGRwX3BhZ2UpCj4gPiAgCQkJCWdvdG8gZXJyX3hkcDsK
+PiA+ICAJCQlvZmZzZXQgPSBWSVJUSU9fWERQX0hFQURST09NOwo+ID4gKwo+ID4gKwkJCXB1dF9w
+YWdlKHBhZ2UpOwo+Cj4gdGhlIGVycm9yIGhhbmRsaW5nIG9mIHhkcF9saW5lYXJpemVfcGFnZSgp
+IGRvZXMgbm90IHNlZW1zIHNlbGYgY29udGFpbmVkLgo+IERvZXMgaXQgbm90IHNlZW0gYmV0dGVy
+77yaCj4gMS4gaWYgeGRwX2xpbmVhcml6ZV9wYWdlKCkgc3VjY2VzZWQsIGNhbGwgcHV0X3BhZ2Uo
+KSBmb3IgZmlyc3QgYnVmZmVyIGp1c3QKPiAgICBhcyBwdXRfcGFnZSgpIGlzIGNhbGwgZm9yIG90
+aGVyIGJ1ZmZlcgo+IDIuIG9yIGNhbGwgdmlydHF1ZXVlX2dldF9idWYoKSBhbmQgcHV0X3BhZ2Uo
+KSBmb3IgYWxsIHRoZSBidWZmZXIgb2YgdGhlIHBhY2tldAo+ICAgIHNvIHRoZSBlcnJvciBoYW5k
+bGluZyBpcyBub3QgbmVlZGVkIG91dHNpZGUgdGhlIHZpcnRxdWV1ZV9nZXRfYnVmKCkuCj4KPiBJ
+biB0aGF0IGNhc2UsIGl0IHNlZW1zIHdlIGNhbiBqdXN0IGRvIGJlbG93IHdpdGhvdXQgeGRwX3Bh
+Z2U6Cj4gcGFnZSA9IHhkcF9saW5lYXJpemVfcGFnZShycSwgbnVtX2J1ZiwgcGFnZSwgLi4uKTsK
+CgpUaGlzIGRvZXMgbG9vayBiZXR0ZXIuCgpJbiBmYWN0LCB3ZSBhbHJlYWR5IGhhdmUgdnEgcmVz
+ZXQsIHdlIGNhbiBsb2FkIFhEUCBiYXNlZCBvbiB2cSByZXNldC4KSW4gdGhpcyB3YXksIHdlIGNh
+biBydW4gd2l0aG91dCB4ZHBfbGluZWFyaXplX3BhZ2UuCgoKPgo+Cj4gPiArCQkJcGFnZSA9IHhk
+cF9wYWdlOwo+ID4gIAkJfSBlbHNlIGlmICh1bmxpa2VseShoZWFkcm9vbSA8IHZpcnRuZXRfZ2V0
+X2hlYWRyb29tKHZpKSkpIHsKPiA+ICAJCQl4ZHBfcm9vbSA9IFNLQl9EQVRBX0FMSUdOKFZJUlRJ
+T19YRFBfSEVBRFJPT00gKwo+ID4gIAkJCQkJCSAgc2l6ZW9mKHN0cnVjdCBza2Jfc2hhcmVkX2lu
+Zm8pKTsKPiA+IEBAIC0xMjU5LDYgKzEyNjIsOSBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJl
+Y2VpdmVfbWVyZ2VhYmxlKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgCQkJICAgICAgIHBh
+Z2VfYWRkcmVzcyhwYWdlKSArIG9mZnNldCwgbGVuKTsKPiA+ICAJCQlmcmFtZV9zeiA9IFBBR0Vf
+U0laRTsKPiA+ICAJCQlvZmZzZXQgPSBWSVJUSU9fWERQX0hFQURST09NOwo+ID4gKwo+ID4gKwkJ
+CXB1dF9wYWdlKHBhZ2UpOwo+ID4gKwkJCXBhZ2UgPSB4ZHBfcGFnZTsKPgo+IEl0IHNlZW1zIHdl
+IGNhbiBsaW1pdCB0aGUgc2NvcGUgb2YgeGRwX3BhZ2UgaW4gdGhpcyAiZWxzZSBpZiIgYmxvY2su
+Cj4KPiA+ICAJCX0gZWxzZSB7Cj4gPiAgCQkJeGRwX3BhZ2UgPSBwYWdlOwo+ID4gIAkJfQo+Cj4g
+SXQgc2VlbXMgdGhlIGFib3ZlIGVsc2UgYmxvY2sgaXMgbm90IG5lZWRlZCBhbnltb3JlLgoKWWVz
+LCB0aGUgZm9sbG93LXVwIHBhdGNoIGhhcyB0aGlzIG9wdGltaXphdGlvbi4KCgo+Cj4gPiBAQCAt
+MTI3OCw4ICsxMjg0LDYgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21lcmdlYWJs
+ZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gIAkJCWlmICh1bmxpa2VseSghaGVhZF9za2Ip
+KQo+ID4gIAkJCQlnb3RvIGVycl94ZHBfZnJhZ3M7Cj4gPgo+ID4gLQkJCWlmICh1bmxpa2VseSh4
+ZHBfcGFnZSAhPSBwYWdlKSkKPiA+IC0JCQkJcHV0X3BhZ2UocGFnZSk7Cj4gPiAgCQkJcmN1X3Jl
+YWRfdW5sb2NrKCk7Cj4gPiAgCQkJcmV0dXJuIGhlYWRfc2tiOwo+ID4gIAkJY2FzZSBYRFBfVFg6
+Cj4gPiBAQCAtMTI5Nyw4ICsxMzAxLDYgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZl
+X21lcmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gIAkJCQlnb3RvIGVycl94ZHBf
+ZnJhZ3M7Cj4gPiAgCQkJfQo+ID4gIAkJCSp4ZHBfeG1pdCB8PSBWSVJUSU9fWERQX1RYOwo+ID4g
+LQkJCWlmICh1bmxpa2VseSh4ZHBfcGFnZSAhPSBwYWdlKSkKPiA+IC0JCQkJcHV0X3BhZ2UocGFn
+ZSk7Cj4gPiAgCQkJcmN1X3JlYWRfdW5sb2NrKCk7Cj4gPiAgCQkJZ290byB4ZHBfeG1pdDsKPiA+
+ICAJCWNhc2UgWERQX1JFRElSRUNUOgo+ID4gQEAgLTEzMDcsOCArMTMwOSw2IEBAIHN0YXRpYyBz
+dHJ1Y3Qgc2tfYnVmZiAqcmVjZWl2ZV9tZXJnZWFibGUoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwK
+PiA+ICAJCQlpZiAoZXJyKQo+ID4gIAkJCQlnb3RvIGVycl94ZHBfZnJhZ3M7Cj4gPiAgCQkJKnhk
+cF94bWl0IHw9IFZJUlRJT19YRFBfUkVESVI7Cj4gPiAtCQkJaWYgKHVubGlrZWx5KHhkcF9wYWdl
+ICE9IHBhZ2UpKQo+ID4gLQkJCQlwdXRfcGFnZShwYWdlKTsKPiA+ICAJCQlyY3VfcmVhZF91bmxv
+Y2soKTsKPiA+ICAJCQlnb3RvIHhkcF94bWl0Owo+ID4gIAkJZGVmYXVsdDoKPiA+IEBAIC0xMzIx
+LDkgKzEzMjEsNiBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxlKHN0
+cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgCQkJZ290byBlcnJfeGRwX2ZyYWdzOwo+ID4gIAkJ
+fQo+ID4gIGVycl94ZHBfZnJhZ3M6Cj4gPiAtCQlpZiAodW5saWtlbHkoeGRwX3BhZ2UgIT0gcGFn
+ZSkpCj4gPiAtCQkJX19mcmVlX3BhZ2VzKHhkcF9wYWdlLCAwKTsKPgo+IEl0IHNlZW1zIF9fZnJl
+ZV9wYWdlcygpIGFuZCBwdXRfcGFnZSgpIGlzIHVzZWQgaW50ZXJjaGFuZ2VhYmx5IGhlcmUuCj4g
+UGVyaGFwcyB1c2luZyBfX2ZyZWVfcGFnZXMoKSBoYXZlIHBlcmZvcm1hbmNlIHJlYXNvbj8gQXMg
+dGhlIGNvbW1lbnQgYmVsb3c6Cj4KPiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51eC92
+Ni4zLXJjMy9zb3VyY2UvbmV0L2NvcmUvcGFnZV9wb29sLmMjTDUwMAoKClllcywgYnV0IG5vdyB3
+ZSBkb24ndCBzZWVtIHRvIGJlIHZlcnkgZ29vZCB0byBkaXN0aW5ndWlzaCBpdC4gQnV0IEkgdGhp
+bmsKaXQgZG9lc24ndCBtYXR0ZXIuIFRoaXMgbG9naWMgaXMgcmFyZSB1bmRlciBhY3R1YWwgc2l0
+dWF0aW9uLgoKVGhhbmtzLgoKCj4KPiA+IC0KPiA+ICAJCWlmICh4ZHBfYnVmZl9oYXNfZnJhZ3Mo
+JnhkcCkpIHsKPiA+ICAJCQlzaGluZm8gPSB4ZHBfZ2V0X3NoYXJlZF9pbmZvX2Zyb21fYnVmZigm
+eGRwKTsKPiA+ICAJCQlmb3IgKGkgPSAwOyBpIDwgc2hpbmZvLT5ucl9mcmFnczsgaSsrKSB7Cj4g
+PgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
