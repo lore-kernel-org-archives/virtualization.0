@@ -1,90 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4E71BC76195
-	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 02:07:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 873F3C6FD1C
+	for <virtualization@archiver.kernel.org>; Thu, 23 Mar 2023 02:56:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9A43782151;
-	Thu, 23 Mar 2023 02:07:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A43782151
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dOdhi50g
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0587541C0F;
+	Thu, 23 Mar 2023 02:56:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0587541C0F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Nql9IjUm
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DgbHYJhOtY0l; Thu, 23 Mar 2023 02:07:13 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fa5YmMmSE6gf; Thu, 23 Mar 2023 02:56:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BE7EA820B1;
-	Thu, 23 Mar 2023 02:07:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BE7EA820B1
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E79C441C5F;
+	Thu, 23 Mar 2023 02:56:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E79C441C5F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 92F1DC0035;
-	Thu, 23 Mar 2023 02:07:12 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DE2C3C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF3EFC0071;
+	Thu, 23 Mar 2023 02:56:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3D3D8C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 02:07:11 +0000 (UTC)
+ Thu, 23 Mar 2023 02:56:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B3451820CD
+ by smtp2.osuosl.org (Postfix) with ESMTP id 03EAB405BA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 02:07:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B3451820CD
+ Thu, 23 Mar 2023 02:56:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 03EAB405BA
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Nql9IjUm
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AjYyrN_shtxH
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ffy4xtk0b6hn
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 02:07:09 +0000 (UTC)
+ Thu, 23 Mar 2023 02:56:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59472820B1
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 59472820B1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C8F9400CF
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C8F9400CF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 23 Mar 2023 02:07:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1679537229; x=1711073229;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=YcF6oXbkraAUc5DQwXJNDo/0gXTDsPYlop4iuj4uF1E=;
- b=dOdhi50g5Kdp7MIK8jZJoGfHT97jo+LA+qJHgqDA5QnN47sa4h3q9KZi
- 6fkECYS5dOsXbSnL6tFAlTeqs5d7BKpEMVz2EpVZ5YuswIAbXRBK/L8kU
- lUGFThl4nDvzE9Hv29VGDJRP56/pWi5AfF1MYBfFE8L4uqYpK+Uxp6oH1
- 62+N2uP6zVBJNRdkbNqHdGRVVrdWemxgJ8snal/9PeAN3KP7uEjOsJPIE
- yT2r+tbGkiXJNJ8GwZbLOFSeOHrOhER6VcEQQTthFJLHx8DZdghVtGzEI
- oQdXrhlfuErs+Qd3cYdl1xRTpk332BrguIlVwtbTiqtYk0a4/sJHqNXgj w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="341739536"
-X-IronPort-AV: E=Sophos;i="5.98,283,1673942400"; d="scan'208";a="341739536"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 22 Mar 2023 19:07:08 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10657"; a="684527365"
-X-IronPort-AV: E=Sophos;i="5.98,283,1673942400"; d="scan'208";a="684527365"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
- by fmsmga007.fm.intel.com with ESMTP; 22 Mar 2023 19:07:05 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pfAM4-000DqN-1B;
- Thu, 23 Mar 2023 02:07:04 +0000
-Date: Thu, 23 Mar 2023 10:06:44 +0800
-From: kernel test robot <lkp@intel.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-Subject: Re: [PATCH net-next 8/8] virtio_net: introduce receive_small_xdp()
-Message-ID: <202303230953.y0P1e1Fc-lkp@intel.com>
-References: <20230322030308.16046-9-xuanzhuo@linux.alibaba.com>
+ Thu, 23 Mar 2023 02:56:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1679540160;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=bD3AYvLDdJpACgOaSgChuuGO1foK304lHU4Mz/VLtvs=;
+ b=Nql9IjUm90xE+TgGiuGnfyMwke7jS+am+GAXOYbQkYGJXcN2y8aE3EWw2qV4QS9+toc/Wt
+ WILbyI7TKmcHCdLoJyFM5AvQofdB2P0JOFf8YRBxp6EOhhA609ZIWvf3hldFXXgKJ0IygL
+ ENQBlTTqy5F537UXGr68vBnztq5uFVs=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-96-3WvwB47tMBSLAf03FNIK7g-1; Wed, 22 Mar 2023 22:55:59 -0400
+X-MC-Unique: 3WvwB47tMBSLAf03FNIK7g-1
+Received: by mail-oo1-f69.google.com with SMTP id
+ f74-20020a4a584d000000b0053b693ef13dso2179297oob.16
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 Mar 2023 19:55:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679540158;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=bD3AYvLDdJpACgOaSgChuuGO1foK304lHU4Mz/VLtvs=;
+ b=wB3tHNKBVLOmLf0TyyVne49+n3PjrrQAARMHWI78KmJio6zBk8+nVJ9S2g+kgz81q2
+ re/4LWko7hFKPEQg1q8aU8YR2gXPNWLhelFSv9afCfKSZgqcircR2P5cH2DFTH/phaR/
+ nQVYQrhvuU/mw68dNISKkuph1G0kC7YyQgH//luyclqFio/HY4r4OivToRTwuYiC5geu
+ Yu3KyL/xbfuB2x16GYExDRxR6hq+Xt0dA/IP2hLaVAB2M3pMG2qGA2wfE6mhQwCamABb
+ AlY1cvpt/CoLfPOPMfgU97TZfWdloBD9XF52mNnzEbE39rnlla/XD5P7Pr3IPwf3vkdx
+ +siA==
+X-Gm-Message-State: AO0yUKXFbKcUDAcRZ+faG9FNSpEI4LlqulknXeJp/dYrULuFpj7FolZo
+ atYdNzosRVERwoB4GZeBT0tsLuoLn+rvEYKoNB1diF1lqtXiCQQRgV1JuGJKEsO6FdU9/yxjk+F
+ 3OCUP7eeGnZ6vfyFX/Wn85Asa0jTUHhAb6EX2Ku1ccXi1SiahHZp7niMJhA==
+X-Received: by 2002:a05:6830:1411:b0:69f:229:ce72 with SMTP id
+ v17-20020a056830141100b0069f0229ce72mr1849066otp.2.1679540158283; 
+ Wed, 22 Mar 2023 19:55:58 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+zom00rB/ymaeJnuVBl4qZWJk6TRG8tuaoZndr7OtAG6BzhPugrygDRux2XbjBhH3tI81HagFJgev9P3nxYsg=
+X-Received: by 2002:a05:6830:1411:b0:69f:229:ce72 with SMTP id
+ v17-20020a056830141100b0069f0229ce72mr1849059otp.2.1679540158036; Wed, 22 Mar
+ 2023 19:55:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230322030308.16046-9-xuanzhuo@linux.alibaba.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- llvm@lists.linux.dev, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, oe-kbuild-all@lists.linux.dev,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>
+References: <20230321093506.6546-1-xuanzhuo@linux.alibaba.com>
+ <20230321093506.6546-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230321093506.6546-2-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 23 Mar 2023 10:55:46 +0800
+Message-ID: <CACGkMEvKtAZhanyvUcocct1jHBjh3Xq53=__Kzzu-RsxGmT7VQ@mail.gmail.com>
+Subject: Re: [PATCH vhost v3 01/11] virtio_ring: split: separate dma codes
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,189 +113,146 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Xuan,
-
-Thank you for the patch! Perhaps something to improve:
-
-[auto build test WARNING on net-next/main]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_net-mergeable-xdp-put-old-page-immediately/20230322-110445
-patch link:    https://lore.kernel.org/r/20230322030308.16046-9-xuanzhuo%40linux.alibaba.com
-patch subject: [PATCH net-next 8/8] virtio_net: introduce receive_small_xdp()
-config: i386-randconfig-a002 (https://download.01.org/0day-ci/archive/20230323/202303230953.y0P1e1Fc-lkp@intel.com/config)
-compiler: clang version 14.0.6 (https://github.com/llvm/llvm-project f28c006a5895fc0e329fe15fead81e37457cb1d1)
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/6445923dc4c91e57f98b8356d0bd706e95dafaa1
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Xuan-Zhuo/virtio_net-mergeable-xdp-put-old-page-immediately/20230322-110445
-        git checkout 6445923dc4c91e57f98b8356d0bd706e95dafaa1
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/net/
-
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202303230953.y0P1e1Fc-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/net/virtio_net.c:969:6: warning: variable 'buflen' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
-           if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:78:22: note: expanded from macro 'unlikely'
-   # define unlikely(x)    __builtin_expect(!!(x), 0)
-                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:990:22: note: uninitialized use occurs here
-           xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
-                               ^~~~~~
-   drivers/net/virtio_net.c:969:2: note: remove the 'if' if its condition is always true
-           if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:958:21: note: initialize the variable 'buflen' to silence this warning
-           unsigned int buflen;
-                              ^
-                               = 0
-   drivers/net/virtio_net.c:1428:6: warning: variable 'page' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (unlikely(len > truesize - room)) {
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:78:22: note: expanded from macro 'unlikely'
-   # define unlikely(x)    __builtin_expect(!!(x), 0)
-                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:1519:11: note: uninitialized use occurs here
-           put_page(page);
-                    ^~~~
-   drivers/net/virtio_net.c:1428:2: note: remove the 'if' if its condition is always false
-           if (unlikely(len > truesize - room)) {
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:1421:19: note: initialize the variable 'page' to silence this warning
-           struct page *page;
-                            ^
-                             = NULL
-   drivers/net/virtio_net.c:1428:6: warning: variable 'num_buf' is used uninitialized whenever 'if' condition is true [-Wsometimes-uninitialized]
-           if (unlikely(len > truesize - room)) {
-               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   include/linux/compiler.h:78:22: note: expanded from macro 'unlikely'
-   # define unlikely(x)    __builtin_expect(!!(x), 0)
-                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:1520:25: note: uninitialized use occurs here
-           mergeable_buf_free(rq, num_buf, dev, stats);
-                                  ^~~~~~~
-   drivers/net/virtio_net.c:1428:2: note: remove the 'if' if its condition is always false
-           if (unlikely(len > truesize - room)) {
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   drivers/net/virtio_net.c:1422:13: note: initialize the variable 'num_buf' to silence this warning
-           int num_buf;
-                      ^
-                       = 0
-   3 warnings generated.
-
-
-vim +969 drivers/net/virtio_net.c
-
-4941d472bf95b4 Jason Wang             2017-07-19   941  
-6445923dc4c91e Xuan Zhuo              2023-03-22   942  static struct sk_buff *receive_small_xdp(struct net_device *dev,
-bb91accf27335c Jason Wang             2016-12-23   943  					 struct virtnet_info *vi,
-bb91accf27335c Jason Wang             2016-12-23   944  					 struct receive_queue *rq,
-6445923dc4c91e Xuan Zhuo              2023-03-22   945  					 struct bpf_prog *xdp_prog,
-6445923dc4c91e Xuan Zhuo              2023-03-22   946  					 void *buf,
-6445923dc4c91e Xuan Zhuo              2023-03-22   947  					 void *ctx,
-186b3c998c50fc Jason Wang             2017-09-19   948  					 unsigned int len,
-7d9d60fd4ab696 Toshiaki Makita        2018-07-23   949  					 unsigned int *xdp_xmit,
-d46eeeaf99bcfa Jason Wang             2018-07-31   950  					 struct virtnet_rq_stats *stats)
-f121159d72091f Michael S. Tsirkin     2013-11-28   951  {
-4941d472bf95b4 Jason Wang             2017-07-19   952  	unsigned int xdp_headroom = (unsigned long)ctx;
-f6b10209b90d48 Jason Wang             2017-02-21   953  	unsigned int header_offset = VIRTNET_RX_PAD + xdp_headroom;
-f6b10209b90d48 Jason Wang             2017-02-21   954  	unsigned int headroom = vi->hdr_len + header_offset;
-6445923dc4c91e Xuan Zhuo              2023-03-22   955  	struct virtio_net_hdr_mrg_rxbuf *hdr = buf + header_offset;
-4941d472bf95b4 Jason Wang             2017-07-19   956  	struct page *page = virt_to_head_page(buf);
-4941d472bf95b4 Jason Wang             2017-07-19   957  	struct page *xdp_page;
-6445923dc4c91e Xuan Zhuo              2023-03-22   958  	unsigned int buflen;
-0354e4d19cd5de John Fastabend         2017-02-02   959  	struct xdp_buff xdp;
-6445923dc4c91e Xuan Zhuo              2023-03-22   960  	struct sk_buff *skb;
-6445923dc4c91e Xuan Zhuo              2023-03-22   961  	unsigned int delta = 0;
-6445923dc4c91e Xuan Zhuo              2023-03-22   962  	unsigned int metasize = 0;
-f6b10209b90d48 Jason Wang             2017-02-21   963  	void *orig_data;
-bb91accf27335c Jason Wang             2016-12-23   964  	u32 act;
-bb91accf27335c Jason Wang             2016-12-23   965  
-95dbe9e7b3720e Jesper Dangaard Brouer 2018-02-20   966  	if (unlikely(hdr->hdr.gso_type))
-bb91accf27335c Jason Wang             2016-12-23   967  		goto err_xdp;
-0354e4d19cd5de John Fastabend         2017-02-02   968  
-4941d472bf95b4 Jason Wang             2017-07-19  @969  	if (unlikely(xdp_headroom < virtnet_get_headroom(vi))) {
-4941d472bf95b4 Jason Wang             2017-07-19   970  		int offset = buf - page_address(page) + header_offset;
-4941d472bf95b4 Jason Wang             2017-07-19   971  		unsigned int tlen = len + vi->hdr_len;
-981f14d42a7f16 Heng Qi                2023-01-31   972  		int num_buf = 1;
-4941d472bf95b4 Jason Wang             2017-07-19   973  
-4941d472bf95b4 Jason Wang             2017-07-19   974  		xdp_headroom = virtnet_get_headroom(vi);
-4941d472bf95b4 Jason Wang             2017-07-19   975  		header_offset = VIRTNET_RX_PAD + xdp_headroom;
-4941d472bf95b4 Jason Wang             2017-07-19   976  		headroom = vi->hdr_len + header_offset;
-4941d472bf95b4 Jason Wang             2017-07-19   977  		buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
-4941d472bf95b4 Jason Wang             2017-07-19   978  			SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-4941d472bf95b4 Jason Wang             2017-07-19   979  		xdp_page = xdp_linearize_page(rq, &num_buf, page,
-4941d472bf95b4 Jason Wang             2017-07-19   980  					      offset, header_offset,
-4941d472bf95b4 Jason Wang             2017-07-19   981  					      &tlen);
-4941d472bf95b4 Jason Wang             2017-07-19   982  		if (!xdp_page)
-4941d472bf95b4 Jason Wang             2017-07-19   983  			goto err_xdp;
-4941d472bf95b4 Jason Wang             2017-07-19   984  
-4941d472bf95b4 Jason Wang             2017-07-19   985  		buf = page_address(xdp_page);
-4941d472bf95b4 Jason Wang             2017-07-19   986  		put_page(page);
-4941d472bf95b4 Jason Wang             2017-07-19   987  		page = xdp_page;
-4941d472bf95b4 Jason Wang             2017-07-19   988  	}
-4941d472bf95b4 Jason Wang             2017-07-19   989  
-43b5169d8355cc Lorenzo Bianconi       2020-12-22   990  	xdp_init_buff(&xdp, buflen, &rq->xdp_rxq);
-be9df4aff65f18 Lorenzo Bianconi       2020-12-22   991  	xdp_prepare_buff(&xdp, buf + VIRTNET_RX_PAD + vi->hdr_len,
-be9df4aff65f18 Lorenzo Bianconi       2020-12-22   992  			 xdp_headroom, len, true);
-f6b10209b90d48 Jason Wang             2017-02-21   993  	orig_data = xdp.data;
-4249e276b1ab30 Xuan Zhuo              2023-03-22   994  
-4249e276b1ab30 Xuan Zhuo              2023-03-22   995  	act = virtnet_xdp_handler(xdp_prog, &xdp, dev, xdp_xmit, stats);
-0354e4d19cd5de John Fastabend         2017-02-02   996  
-bb91accf27335c Jason Wang             2016-12-23   997  	switch (act) {
-4249e276b1ab30 Xuan Zhuo              2023-03-22   998  	case VIRTNET_XDP_RES_PASS:
-2de2f7f40ef923 John Fastabend         2017-02-02   999  		/* Recalculate length in case bpf program changed it */
-f6b10209b90d48 Jason Wang             2017-02-21  1000  		delta = orig_data - xdp.data;
-6870de435b90c0 Nikita V. Shirokov     2018-04-17  1001  		len = xdp.data_end - xdp.data;
-503d539a6e417b Yuya Kusakabe          2020-02-25  1002  		metasize = xdp.data - xdp.data_meta;
-bb91accf27335c Jason Wang             2016-12-23  1003  		break;
-4249e276b1ab30 Xuan Zhuo              2023-03-22  1004  
-4249e276b1ab30 Xuan Zhuo              2023-03-22  1005  	case VIRTNET_XDP_RES_CONSUMED:
-bb91accf27335c Jason Wang             2016-12-23  1006  		goto xdp_xmit;
-4249e276b1ab30 Xuan Zhuo              2023-03-22  1007  
-4249e276b1ab30 Xuan Zhuo              2023-03-22  1008  	case VIRTNET_XDP_RES_DROP:
-bb91accf27335c Jason Wang             2016-12-23  1009  		goto err_xdp;
-bb91accf27335c Jason Wang             2016-12-23  1010  	}
-bb91accf27335c Jason Wang             2016-12-23  1011  
-f6b10209b90d48 Jason Wang             2017-02-21  1012  	skb = build_skb(buf, buflen);
-053c9e18c6f9cf Wenliang Wang          2021-12-16  1013  	if (!skb)
-f6b10209b90d48 Jason Wang             2017-02-21  1014  		goto err;
-6445923dc4c91e Xuan Zhuo              2023-03-22  1015  
-f6b10209b90d48 Jason Wang             2017-02-21  1016  	skb_reserve(skb, headroom - delta);
-6870de435b90c0 Nikita V. Shirokov     2018-04-17  1017  	skb_put(skb, len);
-503d539a6e417b Yuya Kusakabe          2020-02-25  1018  	if (metasize)
-503d539a6e417b Yuya Kusakabe          2020-02-25  1019  		skb_metadata_set(skb, metasize);
-503d539a6e417b Yuya Kusakabe          2020-02-25  1020  
-f121159d72091f Michael S. Tsirkin     2013-11-28  1021  	return skb;
-bb91accf27335c Jason Wang             2016-12-23  1022  
-bb91accf27335c Jason Wang             2016-12-23  1023  err_xdp:
-d46eeeaf99bcfa Jason Wang             2018-07-31  1024  	stats->xdp_drops++;
-053c9e18c6f9cf Wenliang Wang          2021-12-16  1025  err:
-d46eeeaf99bcfa Jason Wang             2018-07-31  1026  	stats->drops++;
-4941d472bf95b4 Jason Wang             2017-07-19  1027  	put_page(page);
-bb91accf27335c Jason Wang             2016-12-23  1028  xdp_xmit:
-bb91accf27335c Jason Wang             2016-12-23  1029  	return NULL;
-f121159d72091f Michael S. Tsirkin     2013-11-28  1030  }
-f121159d72091f Michael S. Tsirkin     2013-11-28  1031  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBNYXIgMjEsIDIwMjMgYXQgNTozNeKAr1BNIFh1YW4gWmh1byA8eHVhbnpodW9AbGlu
+dXguYWxpYmFiYS5jb20+IHdyb3RlOgo+Cj4gRE1BLXJlbGF0ZWQgbG9naWMgaXMgc2VwYXJhdGVk
+IGZyb20gdGhlIHZpcnRxdWV1ZV9hZGRfc3BsaXQoKSB0bwo+IG9uZSBuZXcgZnVuY3Rpb24uIERN
+QSBhZGRyZXNzIHdpbGwgYmUgc2F2ZWQgYXMgc2ctPmRtYV9hZGRyZXNzIGlmCj4gdXNlX2RtYV9h
+cGkgaXMgdHJ1ZSwgdGhlbiB2aXJ0cXVldWVfYWRkX3NwbGl0KCkgd2lsbCB1c2UgaXQgZGlyZWN0
+bHkuCj4gVW5tYXAgb3BlcmF0aW9uIHdpbGwgYmUgc2ltcGxlci4KPgo+IFRoZSBwdXJwb3NlIG9m
+IHRoaXMgaXMgdG8gZmFjaWxpdGF0ZSBzdWJzZXF1ZW50IHN1cHBvcnQgdG8gcmVjZWl2ZQo+IGRt
+YSBhZGRyZXNzIG1hcHBlZCBieSBkcml2ZXJzLgo+Cj4gU2lnbmVkLW9mZi1ieTogWHVhbiBaaHVv
+IDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KPiAtLS0KPiAgZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYyB8IDEyMSArKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLQo+ICAx
+IGZpbGUgY2hhbmdlZCwgOTMgaW5zZXJ0aW9ucygrKSwgMjggZGVsZXRpb25zKC0pCj4KPiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3Zp
+cnRpb19yaW5nLmMKPiBpbmRleCA0MTE0NGI1MjQ2YTguLmZlNzA0Y2E2YzgxMyAxMDA2NDQKPiAt
+LS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8v
+dmlydGlvX3JpbmcuYwo+IEBAIC0zNzksNiArMzc5LDE0IEBAIHN0YXRpYyBkbWFfYWRkcl90IHZy
+aW5nX21hcF9vbmVfc2coY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsCj4gICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIGRpcmVjdGlvbik7Cj4gIH0KPgo+ICtzdGF0aWMgZG1hX2Fk
+ZHJfdCB2cmluZ19zZ19hZGRyZXNzKHN0cnVjdCBzY2F0dGVybGlzdCAqc2cpCj4gK3sKPiArICAg
+ICAgIGlmIChzZy0+ZG1hX2FkZHJlc3MpCj4gKyAgICAgICAgICAgICAgIHJldHVybiBzZy0+ZG1h
+X2FkZHJlc3M7Cj4gKwo+ICsgICAgICAgcmV0dXJuIChkbWFfYWRkcl90KXNnX3BoeXMoc2cpOwo+
+ICt9Cj4gKwo+ICBzdGF0aWMgZG1hX2FkZHJfdCB2cmluZ19tYXBfc2luZ2xlKGNvbnN0IHN0cnVj
+dCB2cmluZ192aXJ0cXVldWUgKnZxLAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgdm9pZCAqY3B1X2FkZHIsIHNpemVfdCBzaXplLAo+ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgZW51bSBkbWFfZGF0YV9kaXJlY3Rpb24gZGlyZWN0aW9uKQo+IEBAIC01MjAs
+NiArNTI4LDgwIEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50IHZpcnRxdWV1ZV9hZGRfZGVz
+Y19zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICp2cSwKPiAgICAgICAgIHJldHVybiBuZXh0Owo+ICB9
+Cj4KPiArc3RhdGljIHZvaWQgdmlydHF1ZXVlX3VubWFwX3NncyhzdHJ1Y3QgdnJpbmdfdmlydHF1
+ZXVlICp2cSwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBzY2F0dGVy
+bGlzdCAqc2dzW10sCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBp
+bnQgdG90YWxfc2csCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBp
+bnQgb3V0X3NncywKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGlu
+dCBpbl9zZ3MpCj4gK3sKPiArICAgICAgIHN0cnVjdCBzY2F0dGVybGlzdCAqc2c7Cj4gKyAgICAg
+ICB1bnNpZ25lZCBpbnQgbjsKPiArCj4gKyAgICAgICBpZiAoIXZxLT51c2VfZG1hX2FwaSkKPiAr
+ICAgICAgICAgICAgICAgcmV0dXJuOwo+ICsKPiArICAgICAgIGZvciAobiA9IDA7IG4gPCBvdXRf
+c2dzOyBuKyspIHsKPiArICAgICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsgc2c7IHNnID0g
+c2dfbmV4dChzZykpIHsKPiArICAgICAgICAgICAgICAgICAgICAgICBpZiAoIXNnLT5kbWFfYWRk
+cmVzcykKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybjsKPiArCj4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgZG1hX3VubWFwX3BhZ2UodnJpbmdfZG1hX2Rldih2cSksIHNn
+LT5kbWFfYWRkcmVzcywKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBz
+Zy0+bGVuZ3RoLCBETUFfVE9fREVWSUNFKTsKPiArICAgICAgICAgICAgICAgfQo+ICsgICAgICAg
+fQo+ICsKPiArICAgICAgIGZvciAoOyBuIDwgKG91dF9zZ3MgKyBpbl9zZ3MpOyBuKyspIHsKPiAr
+ICAgICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsgc2c7IHNnID0gc2dfbmV4dChzZykpIHsK
+PiArICAgICAgICAgICAgICAgICAgICAgICBpZiAoIXNnLT5kbWFfYWRkcmVzcykKPiArICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybjsKPiArCj4gKyAgICAgICAgICAgICAgICAg
+ICAgICAgZG1hX3VubWFwX3BhZ2UodnJpbmdfZG1hX2Rldih2cSksIHNnLT5kbWFfYWRkcmVzcywK
+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZy0+bGVuZ3RoLCBETUFf
+RlJPTV9ERVZJQ0UpOwo+ICsgICAgICAgICAgICAgICB9Cj4gKyAgICAgICB9Cj4gK30KPiArCj4g
+K3N0YXRpYyBpbnQgdmlydHF1ZXVlX21hcF9zZ3Moc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEs
+Cj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1td
+LAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgaW50IHRvdGFsX3NnLAo+
+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgaW50IG91dF9zZ3MsCj4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBpbnQgaW5fc2dzKQo+ICt7Cj4gKyAg
+ICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnOwo+ICsgICAgICAgdW5zaWduZWQgaW50IG47Cj4g
+Kwo+ICsgICAgICAgaWYgKCF2cS0+dXNlX2RtYV9hcGkpCj4gKyAgICAgICAgICAgICAgIHJldHVy
+biAwOwo+ICsKPiArICAgICAgIGZvciAobiA9IDA7IG4gPCBvdXRfc2dzOyBuKyspIHsKPiArICAg
+ICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsgc2c7IHNnID0gc2dfbmV4dChzZykpIHsKPiAr
+ICAgICAgICAgICAgICAgICAgICAgICBkbWFfYWRkcl90IGFkZHIgPSB2cmluZ19tYXBfb25lX3Nn
+KHZxLCBzZywgRE1BX1RPX0RFVklDRSk7Cj4gKwo+ICsgICAgICAgICAgICAgICAgICAgICAgIGlm
+ICh2cmluZ19tYXBwaW5nX2Vycm9yKHZxLCBhZGRyKSkKPiArICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIGdvdG8gZXJyOwo+ICsKPiArICAgICAgICAgICAgICAgICAgICAgICBzZy0+ZG1h
+X2FkZHJlc3MgPSBhZGRyOwo+ICsgICAgICAgICAgICAgICB9Cj4gKyAgICAgICB9Cj4gKwo+ICsg
+ICAgICAgZm9yICg7IG4gPCAob3V0X3NncyArIGluX3Nncyk7IG4rKykgewo+ICsgICAgICAgICAg
+ICAgICBmb3IgKHNnID0gc2dzW25dOyBzZzsgc2cgPSBzZ19uZXh0KHNnKSkgewo+ICsgICAgICAg
+ICAgICAgICAgICAgICAgIGRtYV9hZGRyX3QgYWRkciA9IHZyaW5nX21hcF9vbmVfc2codnEsIHNn
+LCBETUFfRlJPTV9ERVZJQ0UpOwo+ICsKPiArICAgICAgICAgICAgICAgICAgICAgICBpZiAodnJp
+bmdfbWFwcGluZ19lcnJvcih2cSwgYWRkcikpCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICBnb3RvIGVycjsKPiArCj4gKyAgICAgICAgICAgICAgICAgICAgICAgc2ctPmRtYV9hZGRy
+ZXNzID0gYWRkcjsKPiArICAgICAgICAgICAgICAgfQo+ICsgICAgICAgfQo+ICsKPiArICAgICAg
+IHJldHVybiAwOwo+ICsKPiArZXJyOgo+ICsgICAgICAgdmlydHF1ZXVlX3VubWFwX3Nncyh2cSwg
+c2dzLCB0b3RhbF9zZywgb3V0X3NncywgaW5fc2dzKTsKPiArICAgICAgIHJldHVybiAtRU5PTUVN
+Owo+ICt9Cj4gKwo+ICBzdGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0cnVj
+dCB2aXJ0cXVldWUgKl92cSwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHN0cnVjdCBzY2F0dGVybGlzdCAqc2dzW10sCj4gICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICB1bnNpZ25lZCBpbnQgdG90YWxfc2csCj4gQEAgLTUzMiw5ICs2MTQsOSBAQCBz
+dGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0cnVjdCB2aXJ0cXVldWUgKl92
+cSwKPiAgICAgICAgIHN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxID0gdG9fdnZxKF92cSk7Cj4g
+ICAgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnOwo+ICAgICAgICAgc3RydWN0IHZyaW5nX2Rl
+c2MgKmRlc2M7Cj4gLSAgICAgICB1bnNpZ25lZCBpbnQgaSwgbiwgYXZhaWwsIGRlc2NzX3VzZWQs
+IHByZXYsIGVycl9pZHg7Cj4gLSAgICAgICBpbnQgaGVhZDsKPiArICAgICAgIHVuc2lnbmVkIGlu
+dCBpLCBuLCBhdmFpbCwgZGVzY3NfdXNlZCwgcHJldjsKPiAgICAgICAgIGJvb2wgaW5kaXJlY3Q7
+Cj4gKyAgICAgICBpbnQgaGVhZDsKPgo+ICAgICAgICAgU1RBUlRfVVNFKHZxKTsKPgo+IEBAIC01
+ODYsMzIgKzY2OCwzMCBAQCBzdGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0
+cnVjdCB2aXJ0cXVldWUgKl92cSwKPiAgICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9TUEM7Cj4g
+ICAgICAgICB9Cj4KPiArICAgICAgIGlmICh2aXJ0cXVldWVfbWFwX3Nncyh2cSwgc2dzLCB0b3Rh
+bF9zZywgb3V0X3NncywgaW5fc2dzKSkKCkVORF9VU0UodnEpIGlzIG5lZWRlZC4KCldpdGggdGhp
+cyBmaXhlZC4KCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCj4g
+KyAgICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOwo+ICsKPiAgICAgICAgIGZvciAobiA9IDA7
+IG4gPCBvdXRfc2dzOyBuKyspIHsKPiAgICAgICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsg
+c2c7IHNnID0gc2dfbmV4dChzZykpIHsKPiAtICAgICAgICAgICAgICAgICAgICAgICBkbWFfYWRk
+cl90IGFkZHIgPSB2cmluZ19tYXBfb25lX3NnKHZxLCBzZywgRE1BX1RPX0RFVklDRSk7Cj4gLSAg
+ICAgICAgICAgICAgICAgICAgICAgaWYgKHZyaW5nX21hcHBpbmdfZXJyb3IodnEsIGFkZHIpKQo+
+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ290byB1bm1hcF9yZWxlYXNlOwo+IC0K
+PiAgICAgICAgICAgICAgICAgICAgICAgICBwcmV2ID0gaTsKPiAgICAgICAgICAgICAgICAgICAg
+ICAgICAvKiBOb3RlIHRoYXQgd2UgdHJ1c3QgaW5kaXJlY3QgZGVzY3JpcHRvcgo+ICAgICAgICAg
+ICAgICAgICAgICAgICAgICAqIHRhYmxlIHNpbmNlIGl0IHVzZSBzdHJlYW0gRE1BIG1hcHBpbmcu
+Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICovCj4gLSAgICAgICAgICAgICAgICAgICAgICAg
+aSA9IHZpcnRxdWV1ZV9hZGRfZGVzY19zcGxpdChfdnEsIGRlc2MsIGksIGFkZHIsIHNnLT5sZW5n
+dGgsCj4gKyAgICAgICAgICAgICAgICAgICAgICAgaSA9IHZpcnRxdWV1ZV9hZGRfZGVzY19zcGxp
+dChfdnEsIGRlc2MsIGksCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB2cmluZ19zZ19hZGRyZXNzKHNnKSwKPiArICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNnLT5sZW5ndGgsCj4gICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBWUklOR19ERVNDX0Zf
+TkVYVCwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIGluZGlyZWN0KTsKPiAgICAgICAgICAgICAgICAgfQo+ICAgICAgICAgfQo+ICAgICAgICAg
+Zm9yICg7IG4gPCAob3V0X3NncyArIGluX3Nncyk7IG4rKykgewo+ICAgICAgICAgICAgICAgICBm
+b3IgKHNnID0gc2dzW25dOyBzZzsgc2cgPSBzZ19uZXh0KHNnKSkgewo+IC0gICAgICAgICAgICAg
+ICAgICAgICAgIGRtYV9hZGRyX3QgYWRkciA9IHZyaW5nX21hcF9vbmVfc2codnEsIHNnLCBETUFf
+RlJPTV9ERVZJQ0UpOwo+IC0gICAgICAgICAgICAgICAgICAgICAgIGlmICh2cmluZ19tYXBwaW5n
+X2Vycm9yKHZxLCBhZGRyKSkKPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8g
+dW5tYXBfcmVsZWFzZTsKPiAtCj4gICAgICAgICAgICAgICAgICAgICAgICAgcHJldiA9IGk7Cj4g
+ICAgICAgICAgICAgICAgICAgICAgICAgLyogTm90ZSB0aGF0IHdlIHRydXN0IGluZGlyZWN0IGRl
+c2NyaXB0b3IKPiAgICAgICAgICAgICAgICAgICAgICAgICAgKiB0YWJsZSBzaW5jZSBpdCB1c2Ug
+c3RyZWFtIERNQSBtYXBwaW5nLgo+ICAgICAgICAgICAgICAgICAgICAgICAgICAqLwo+IC0gICAg
+ICAgICAgICAgICAgICAgICAgIGkgPSB2aXJ0cXVldWVfYWRkX2Rlc2Nfc3BsaXQoX3ZxLCBkZXNj
+LCBpLCBhZGRyLAo+ICsgICAgICAgICAgICAgICAgICAgICAgIGkgPSB2aXJ0cXVldWVfYWRkX2Rl
+c2Nfc3BsaXQoX3ZxLCBkZXNjLCBpLAo+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgdnJpbmdfc2dfYWRkcmVzcyhzZyksCj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZy0+bGVuZ3RoLAo+ICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVlJJTkdf
+REVTQ19GX05FWFQgfAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgVlJJTkdfREVTQ19GX1dSSVRFLAo+IEBAIC02NzksMjIgKzc1OSw3IEBAIHN0
+YXRpYyBpbmxpbmUgaW50IHZpcnRxdWV1ZV9hZGRfc3BsaXQoc3RydWN0IHZpcnRxdWV1ZSAqX3Zx
+LAo+ICAgICAgICAgcmV0dXJuIDA7Cj4KPiAgdW5tYXBfcmVsZWFzZToKPiAtICAgICAgIGVycl9p
+ZHggPSBpOwo+IC0KPiAtICAgICAgIGlmIChpbmRpcmVjdCkKPiAtICAgICAgICAgICAgICAgaSA9
+IDA7Cj4gLSAgICAgICBlbHNlCj4gLSAgICAgICAgICAgICAgIGkgPSBoZWFkOwo+IC0KPiAtICAg
+ICAgIGZvciAobiA9IDA7IG4gPCB0b3RhbF9zZzsgbisrKSB7Cj4gLSAgICAgICAgICAgICAgIGlm
+IChpID09IGVycl9pZHgpCj4gLSAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7Cj4gLSAgICAg
+ICAgICAgICAgIGlmIChpbmRpcmVjdCkgewo+IC0gICAgICAgICAgICAgICAgICAgICAgIHZyaW5n
+X3VubWFwX29uZV9zcGxpdF9pbmRpcmVjdCh2cSwgJmRlc2NbaV0pOwo+IC0gICAgICAgICAgICAg
+ICAgICAgICAgIGkgPSB2aXJ0aW8xNl90b19jcHUoX3ZxLT52ZGV2LCBkZXNjW2ldLm5leHQpOwo+
+IC0gICAgICAgICAgICAgICB9IGVsc2UKPiAtICAgICAgICAgICAgICAgICAgICAgICBpID0gdnJp
+bmdfdW5tYXBfb25lX3NwbGl0KHZxLCBpKTsKPiAtICAgICAgIH0KPiArICAgICAgIHZpcnRxdWV1
+ZV91bm1hcF9zZ3ModnEsIHNncywgdG90YWxfc2csIG91dF9zZ3MsIGluX3Nncyk7Cj4KPiAgICAg
+ICAgIGlmIChpbmRpcmVjdCkKPiAgICAgICAgICAgICAgICAga2ZyZWUoZGVzYyk7Cj4gLS0KPiAy
+LjMyLjAuMy5nMDExOTVjZjlmCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
