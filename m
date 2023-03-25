@@ -1,115 +1,223 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 154A1C76196
-	for <virtualization@archiver.kernel.org>; Fri, 24 Mar 2023 15:40:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 392E7C76196
+	for <virtualization@archiver.kernel.org>; Sat, 25 Mar 2023 22:45:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BB09E41E39;
-	Fri, 24 Mar 2023 15:40:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BB09E41E39
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cBn5KOpG
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yg0IUElsKgX4; Fri, 24 Mar 2023 15:40:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 11FDE4017B;
-	Fri, 24 Mar 2023 15:40:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 11FDE4017B
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E3E68C0035;
-	Fri, 24 Mar 2023 15:40:16 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A505AC0032
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Mar 2023 15:40:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 73C888216F
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Mar 2023 15:40:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 73C888216F
+	by smtp1.osuosl.org (Postfix) with ESMTP id AE66981F8D;
+	Sat, 25 Mar 2023 22:45:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE66981F8D
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cBn5KOpG
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=c2bwpYfL;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=KWFdzo+8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PWm6v29CKbWi
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UoCa8zG9TnOC; Sat, 25 Mar 2023 22:45:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 48B6781F95;
+	Sat, 25 Mar 2023 22:45:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48B6781F95
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DBEFCC0035;
+	Sat, 25 Mar 2023 22:45:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56B14C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Mar 2023 15:40:14 +0000 (UTC)
+ Sat, 25 Mar 2023 22:45:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2404E40527
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 25 Mar 2023 22:45:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2404E40527
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=c2bwpYfL; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=KWFdzo+8
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GaGv_VGLGwGm
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 25 Mar 2023 22:45:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E5AA8215C
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8E5AA8215C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 07C3640128
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 07C3640128
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Mar 2023 15:40:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679672413;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=gKYp+kOgUX/GJB2EDtARo8NYPrwRtHr03kQCkOwXG8g=;
- b=cBn5KOpGpqpUIbnmaszgQntT2hvc7oAfIxyBdGz9rIy1VuYX7EHhLX7UCyvgkeBfsw4c2k
- H6TNYkTCf2sBQ/alI3InMAZWynIH8kcTKEr1/ZUCwSU8821XYmW5paXohhAzh+zH1uRv3S
- HFVm8Ig95mSTObl79IiKjaPJI4RIoCA=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-249-udK5brbbOwGTEI4elrckjQ-1; Fri, 24 Mar 2023 11:40:12 -0400
-X-MC-Unique: udK5brbbOwGTEI4elrckjQ-1
-Received: by mail-ed1-f71.google.com with SMTP id
- r19-20020a50aad3000000b005002e950cd3so3802363edc.11
- for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Mar 2023 08:40:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679672411;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=gKYp+kOgUX/GJB2EDtARo8NYPrwRtHr03kQCkOwXG8g=;
- b=Ol/6wjtuDAnvIjFz+dXZUo1KbKSGzQ6eAp7itt20N6YgDnRLQ9qJk1uBoqaLvraLJF
- FoLJ+6849Fq+ky2E+UtJJxCNdYEvahW8qykhG4OqIEPAXIkEhyjpjZV/h2wzfznsTZrx
- XqfVTaXseH0jPz/5+5Hinzgyzv//o//9P8O68AWD7zb/qdENNCA9XKQJdAE3lj9BLGbe
- 34b0x6fmwPXVSfhc8JBCuYCZtZAyi3auQvMy9hS1fk4RPAQiO0LxrbEuWY7wmcP75aKw
- QzHPyErEkbcCsUdVDJdOr92T7QAyrpncFNjIQU4bCOFo8XL7cUiEsYN+A5ivL/+tc0Rq
- bGVg==
-X-Gm-Message-State: AAQBX9fB4ClXf3pwYx8hhVGlMaGTe41z4nwX7XnNgGT/7k7mqLXBBjMp
- ctHiuxO7zv3e1wEOp9FWPgOpRwK5lhUdSpCWF/Cpj/q18O2W6RzvTCTlaOQXdIvdlGiO/bWzSLg
- 2rb1tgM4CfzndBByU4yBQ0K676JdvM6l3OtE7cMEvR8Qpmp7AuH6UXDM6XSoA8K4ZBCTYtqqQmQ
- ewjYijoKHuBr5TjpfbRiT7z0whmA==
-X-Received: by 2002:a17:907:161f:b0:932:7f5c:4bb2 with SMTP id
- hb31-20020a170907161f00b009327f5c4bb2mr3662688ejc.75.1679672410991; 
- Fri, 24 Mar 2023 08:40:10 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bOoCuwJSj7M6y3xIb2GqOaJXnqsAm1iiu9XIoxjTNWkiXIxcyzzt0vuR0WGchtmVY+X6sMOg==
-X-Received: by 2002:a17:907:161f:b0:932:7f5c:4bb2 with SMTP id
- hb31-20020a170907161f00b009327f5c4bb2mr3662649ejc.75.1679672410627; 
- Fri, 24 Mar 2023 08:40:10 -0700 (PDT)
-Received: from localhost.localdomain
- (host-82-53-134-98.retail.telecomitalia.it. [82.53.134.98])
- by smtp.gmail.com with ESMTPSA id
- rk28-20020a170907215c00b00933b38505f9sm7857073ejb.152.2023.03.24.08.40.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 24 Mar 2023 08:40:09 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 9/9] vdpa_sim: add support for user VA
-Date: Fri, 24 Mar 2023 16:40:00 +0100
-Message-Id: <20230324154000.47809-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230324153607.46836-1-sgarzare@redhat.com>
-References: <20230324153607.46836-1-sgarzare@redhat.com>
+ Sat, 25 Mar 2023 22:45:36 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 32PMdvIc032009; Sat, 25 Mar 2023 22:45:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
+ b=c2bwpYfLDQp2Vbm66w9kWQ9il1p86Qml3bf8SHATazJdoEm7TB39eyI4T7Kkwn5t3ggh
+ TL5oba5ojN1omo3vHWBP9Gg0uzWWuBH0o/+uqk4TU0T+MrXsNicHpywKAdF7xxg2sRvf
+ xFQ6twmHWb6v2q1DIwipbt3HKJdCdXtA3HIUxohdZ4/KNkZ711oB1GSMs4rD69fZkg/I
+ 9fjesY2Oodm+81PYVvquyXzsfNljohDleUtILuQ0o3hP/t+XUA0fTTVbUABr2gbgEeXi
+ u6KfBQQPsPZucVzbNX6BvG3I+KEaSUgTyI7c0ZaPhrnyYNX6P1BK3DVAP740PS63JFID 6g== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pj9xhr03h-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sat, 25 Mar 2023 22:45:32 +0000
+Received: from pps.filterd
+ (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 32PJbHME027808; Sat, 25 Mar 2023 22:45:32 GMT
+Received: from nam10-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10lp2100.outbound.protection.outlook.com [104.47.58.100])
+ by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3phqd3bagt-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sat, 25 Mar 2023 22:45:31 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CnwWddFbSsmQx69Ljt04dPcP9yvxauuPeAT8kcXANRhh8xVrJ5vuUIvyw015x/6ug5H42Wef4Mx8Vp+7UEPgsCRK2cCQTPmbg3taCJsnchWtUW3vtNqE99Z5SMJDRJxlutjmVzkN4XjFjpMzCrlFvpTIlSop5VYK/u9YKpXlctZgtbdPGTQZE1NnkjI0Z4ApW5AewV6CfYdXgkrshvJyfgYd1UvoDUiAK8E/LGoJ7af58gUqbi7UX2+JZRHVRz8lnHhA+tVSmZ1uNev0uPNJDa4trNsSNVziT7mp/O2CXLAjJVPYjdA2vlP65FF9lbta1UwfxOJdU9tG92N/P2Haog==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
+ b=WBxcDB+gKSmYviP2cBe6Cx5rbDb0tLKSN8aWUv/Dbd2HO91LqzsxC9VDy2OddmkSBwrLXA8x0OBAOjrkoyT5hznnObwap3v6Hd6UoBGWDhRjO6DRRu/hDs+TPEwPgMU5AnvLhKPQi/oBj8ZzTHCwV6J2+P5qGtMijyk4VCVylM7+V4jRB2NmaP2rR4AdN/ri/O5+nvhZukpr9880XUpP6NXngvbQoKhznAhfidXgdgkDiDVYNd7lIaTMEv+k6Gr4huqpgeKn2sFWgOJ4fJfGuarKQ7hJ0IopH9wSPCR4bl8y6zSAvNKG+KxSMefPix9leBk9qsQrQs9FnHiS2LE2Lg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
+ b=KWFdzo+86gjM8YxOGJhCXG7+BeGgt6dU8mdsIuzHdexSNWtHVLp6GRl61GS7Ch10XkAGPlxBCUonF1sc7nGkdNTC6qMcFolgrUMaRm6DVb0Wgr5UNIQKIroHAwACfnycZvFXUDapIlhhTV5puqxX4Q/7rEJmNP3dlirdKBLE3cc=
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
+ DM4PR10MB6814.namprd10.prod.outlook.com (2603:10b6:8:10a::17) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6178.38; Sat, 25 Mar 2023 22:45:29 +0000
+Received: from DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::7dd7:8d22:104:8d64]) by DM5PR10MB1466.namprd10.prod.outlook.com
+ ([fe80::7dd7:8d22:104:8d64%7]) with mapi id 15.20.6178.041; Sat, 25 Mar 2023
+ 22:45:29 +0000
+Message-ID: <7ab00d3c-3148-93b5-072d-e6ee6ab485b6@oracle.com>
+Date: Sat, 25 Mar 2023 17:45:27 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 1/1] vhost_task: Fix vhost_task_create return value
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+ Christian Brauner <brauner@kernel.org>
+References: <20230322185605.1307-1-michael.christie@oracle.com>
+ <20230323033557-mutt-send-email-mst@kernel.org>
+ <20230323104445.qidusxeruimeawy6@wittgenstein>
+ <20230323073918-mutt-send-email-mst@kernel.org>
+ <20230323115049.vsrnufcaqstpxik3@wittgenstein>
+ <20230323084648-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <20230323084648-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: DS7PR06CA0044.namprd06.prod.outlook.com
+ (2603:10b6:8:54::20) To DM5PR10MB1466.namprd10.prod.outlook.com
+ (2603:10b6:3:b::7)
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Andrey Zhadchenko <andrey.zhadchenko@virtuozzo.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, eperezma@redhat.com, stefanha@redhat.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM5PR10MB1466:EE_|DM4PR10MB6814:EE_
+X-MS-Office365-Filtering-Correlation-Id: abc580c8-2960-40cf-664d-08db2d82a1ee
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: /8p9Vm/PClMjhbv9qPXGsw360PW+sDwCrgsFsJDnXp1cXP7gGfhKbK7yhcKAKC5Weg3lujQXDNMraAIG9BXcrzPhytanKAjVVXNxdAN9a9ivrN4TAT1nY7F+KF9CF3fMht1u8EFIBNWQxIaCfPB/fDshGdEBAfXAos8FfWr+e0MgtI8RrK6LdSrg1uQs4rugCco+0eG/RzVejL4YPads/QZmWbtViB0bgE63gO2ngKgtZpdWMwckzBdIeS4MNW7xzTHrLU+CaIdnXeMtyaoIxZMCbFpXGjcgqEaz62RZ+TE0UgDJTpKm+ASFHVNsBeKYl5JsbMglT5vYZSoU0xss3RudTqg6oPXGt+YtE2LWCyGJa8zkwIqoXb0UGQn9KqRPgCNqEBwYCZqMjpnTIAPEYSULyMl8k1JP/H9xPoIsHNVdXfhO5EWfeOj+2UCEjXJwdywAQoUB+qwhW0K2E6f6AECSaD6y6cxBgYYvGWNfvu1HIXskujQ67kFYxQ9N4i8t1CvEgAbiX4UF6qU2co8IyOqVn4x1PqcMJTqtM8YEShfNHEtGJE+o6cOKHcZEgm+5kFSo04akVsz3ThI7ZYegeLKO5e7z0zdNejMTJpZhb5JOe/tWphbKHXYKTiepge3h7A+v0f5C7iFsf/Q8dEiSxQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(396003)(346002)(376002)(39860400002)(366004)(136003)(451199021)(53546011)(66899021)(2906002)(36756003)(316002)(6486002)(38100700002)(6512007)(26005)(186003)(83380400001)(31696002)(2616005)(8676002)(110136005)(66556008)(66946007)(86362001)(66476007)(4326008)(41300700001)(31686004)(8936002)(478600001)(6506007)(5660300002)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UkRKSGFqYkpCOUErZEdsc2pPL1JDMDdtbHpFbTNRQ29NVnlGRzh6U1llL21F?=
+ =?utf-8?B?NVNHdUh0N0FGYWY1TzV6bng1dEloWG5SR0pIdjV2WFFWbnk4dkxBbmxjdCtl?=
+ =?utf-8?B?bjlmVGR0NGFYNnlpajB2bHk3MVNDdFpaSFJDajdjTHFYOGFvV3NZaHpabHpR?=
+ =?utf-8?B?cFkxL25PQXBJekUwMXhIbEQ2K2hWMUVjQlVTUHRlNzB3a3k3dGNOaktVOW1i?=
+ =?utf-8?B?MVF5bHlSTGZ3Ykk3TVV6b2FzamI3YmR2RHRuWi9RcWRDZHlwdHJjcGdROUpr?=
+ =?utf-8?B?ZGpmL0ppUHBhSzhFSjZNR2ZKRmxReHZ3bzFldHVweUtlZjk5bGIvOHJOUzR4?=
+ =?utf-8?B?OGQ3d255Zk9yNzBFcS9saG02cXZ3bnM4QTNvQXIwaC94Y2ZIT3p4Qzl6Y2l4?=
+ =?utf-8?B?NEdGYjBJSEhVWkZ3bWMzaWJsTmhITC9Ta1hHMmxBVE1BdHhaRkVKRU12blBU?=
+ =?utf-8?B?eFA2ZzY1czRjVUtFaUtKREtRQmpXY3lkc2tNOVQ3ZHZvYWUwTWVsWGtjVXJ6?=
+ =?utf-8?B?cHZRa2lBdlNWZnpTYzdpK0duSGlCK3p0WWtsbWxzRGhyUGhxc0Zmem5JS2oz?=
+ =?utf-8?B?am1SNW5CaVExQ0p0Q0FiamZhN1UvRzNzQ05YZXpmQ0VSZTEvNTZJZVVlb1lE?=
+ =?utf-8?B?WkF1OUVFaUg4QzB3VTd3RXVnaEMyMUUzTHNmMTN4TVk4N3dMcHZJNTNLNWJU?=
+ =?utf-8?B?dVhCU3gwYnZPa003RWdrSkpiRDFTY2x6NC9uQThQOWZLbHZQYjhjb1NZM2tI?=
+ =?utf-8?B?anVvUDhXYTR0aXFNSXdLRjE3K3RtNSt5aWlTZjZIbWl2UzlsbGtzSm1PUWZL?=
+ =?utf-8?B?R3BONWdYVUErd2k3UVBqbC90QkpYcXFISkdVUm9ReG0wMlFiaXdkWG1wNWdt?=
+ =?utf-8?B?N1RSOURTeFRJYkpjeU95RS93SjVLTmZ6dzNIZ3hhTGNtSUNPelg5cG1VWHJG?=
+ =?utf-8?B?YnNQWEtIdGh0c2ZGdGM1RzVPL1RsQ2prdjBPam81QzZJSFRhMDVxTldQYStO?=
+ =?utf-8?B?akpZQUhkS04wK0VPaTRSYWVaTXBqNTJOaWJHVk10cU1OUlVBM0FaMi8wbkF0?=
+ =?utf-8?B?TzBpVGtnS1BWb0lvWHhWTlEvQ1dubGdpN3JRaE5mT0psL3JpWlBzRTFrOThZ?=
+ =?utf-8?B?T0VFL1RlNHk0bFVpMmMxeFNFcTZpSk1hQVNrOHBiODg4RkdjNU5FWks1Mytz?=
+ =?utf-8?B?bmg3ZkhNaEZSNXhBR2d1SHM2dFlkWVB4OVMybU5iZS9sQnQwVS96RmxNQ0lt?=
+ =?utf-8?B?Ulh4UU5qR1Z3N1FGL0dqL1lpOFZRVU5TUG5qSncrQTlYVGV3aFNkb2JESWNL?=
+ =?utf-8?B?RFlENWEwQ3RvNk5hVGdBSWlWVEk3MWw5OUZCKzk3eE9lVExzazA3dXNueTJu?=
+ =?utf-8?B?M3BYdlBwVWIzaWdPSnd5R0t6V2pZNWVISXJZWUU3bHdCRHdHc0NONEhSNnB2?=
+ =?utf-8?B?ejlEOEhaODJ2REhkdDliR1RSRzJ4bTF5aEdQZVcvUjJRa2ZrWVAyWWhEM2x4?=
+ =?utf-8?B?WHA2dHpzN1Q3YTdqVzdrWitpQzl0WVhBNklwcCtWRXhaYzM3cHZETzE3bkZV?=
+ =?utf-8?B?bE1MK0w1TkNlTUt2Z2s1MFVKTHRqUTQxNG9XdU1UZHFxQTM0V2RDTEg1Y0E3?=
+ =?utf-8?B?RlViNzhOT1R1K1FrVnV5SEg1SWxoZ3B0eHl4U2dITXQzOFhiWGoyd2hNMUN6?=
+ =?utf-8?B?YjlTY3ZjQXFKWmZXN01YNXUzNkx4c3hTWmNPakM5RXd6TlR5M2NYWCtxL3hB?=
+ =?utf-8?B?U29vK3hlbkFoWVhKa3RTSExNaHF4c2xzU0RjUEs4bjBsdStxWlZTZDRldGVI?=
+ =?utf-8?B?THhEanI3Ny83TG1HR0FvZVdaS05yMENoOGdrY0dkUlR2TWtFS3RZUlRON2Iv?=
+ =?utf-8?B?Ynk2VVRwbVkxKzAza1Rma3RFcTNHRjZLbElqMXlQcFYxOW55SWk3ZlB4S2wx?=
+ =?utf-8?B?UzNkU05OSHRNVDNSOW5kelY3NkVldVlTNW8yYWJJdy9IbENvWVFscjZVQkNP?=
+ =?utf-8?B?RjFtc0Rwd0FndWRSM3EwOXBrTzYyeXRzUEFkMGdiYlJqWHdUUjlLM0haUGo2?=
+ =?utf-8?B?WUpyS05taURUdFlIK1V6OGM5ZkdGQ3NOVG42SDREbnNUbGV4bEN6aTNSM2Zv?=
+ =?utf-8?B?YlFjMHdyL0Y4cDM1T0NYZlJwU243NlFNWmQrVEJWNzVQaWNrNGl2NUpHbFlR?=
+ =?utf-8?B?MkE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?c05sN0ppWWM5bTk1VFdSaDBPRXdHckQ0Z2psNUMydEJXSG5DQ3p6UEI1SVNO?=
+ =?utf-8?B?bXRZZEhyeWViNGs3TUovaGdydkpkek5zSkNKY0tQZ1lnSXQ3Vzg1NFZqcTJn?=
+ =?utf-8?B?SE9maXVPWnNRT1J0ak45WVg4dFNLWmlVMlhIV1FkbXVKbUZZMzd3Y2VwU2hN?=
+ =?utf-8?B?OWFHUmg4SnNIaEhMeWJMbkFCSEFCQ1RFYng3dzVGMGM4WjNPUjF5OGNqNjdS?=
+ =?utf-8?B?eTY5eXJKM0trcUg3TUpHMi9qb2hzUnM3TVBOaUlrRExTQU5Xb1NHdWZFbnh5?=
+ =?utf-8?B?MUVUdllFRFYwVjNZS3UyL0krbkRrVjFhUDZ2UEV0NC9CKzRwOE1md3FLYTJs?=
+ =?utf-8?B?UE1FVk4rTmRwTGtEWHl4dVFZdWJBUzIrWjZYUnFCdE92NVpYN2EyRys3V3RF?=
+ =?utf-8?B?M3JzVC9hNjVESnFFTTRlSjd1cVZwOTJ2RXAwQnd2NXFBT3Z0OTkvdVZWQ1Rn?=
+ =?utf-8?B?V01SQ2ZFVVNNRmhnQVd2RmpaZTRkL0hPRkVTNmpkZmVweVNqRk5zMk5SdS8y?=
+ =?utf-8?B?NGVENTZvU0JhUW1lVkMramFtNmxQSERLK2l2RENSV1NYNzhRbEpUK2UzSGMr?=
+ =?utf-8?B?STZTUmZZRVQ0Zk1WOUZEWnljck9QWHBpdHZlRm80ZGxIdjA1YzFPemF3dXVo?=
+ =?utf-8?B?dGYrUjdIUzVBMFIxR0h3UGpSWVdVWktsbGpBOHBpUWdVQTRLcmNKbEphdVRk?=
+ =?utf-8?B?eDNNblhXdFdSeHJZZldVd2pzR0E4Z3BnYWE3YXFBTEIzMG1kMC9SaWxodkl1?=
+ =?utf-8?B?b08wbFBhYzJTVjRnL1BqbmhLTXkrZHJFUEpOV2w5TzBqY3ZDdzZ3dGd2ejdR?=
+ =?utf-8?B?ZC9TekhYc2NqV0lOazg3YS8vNEl5aTVneFAxK3lVNHR3b1ExSlE4L1dxQUZR?=
+ =?utf-8?B?TEoxdDJJcHd3RUNtM2g1Slp4T3U1dnV5d2xuNkRaUlp1VW9uSEJ5VkJJT0J4?=
+ =?utf-8?B?M1ZNVE10L3FISDg5Y3JTQnJ2ZDgzT2FTWE55K3ZxYnhSUzhHbTlXMk9lejFV?=
+ =?utf-8?B?WkVpbjZpYUJqTXh3TWZwM2pPSnU5RkgvUWIrdWxpY2orbzRYcHptTVZRVGpH?=
+ =?utf-8?B?Qm8xZXFXd0YwZ1drbVN2a2xEbGc1TTFXZ1lTQTNTL09kdDJxUUxBbmVtMU1E?=
+ =?utf-8?B?dWRuSVZKY2g2MUFmTDNOdU95T2xlV3FNd2xFZ3luMTVzeE5GZDUrS3ZURlpP?=
+ =?utf-8?B?bEw0UXYxWDBYTFRJWTRRVFZKNXFsTERGNlB1V1FtaEFKemc3V1RjTyt0K2hX?=
+ =?utf-8?B?OGEycDd0cTl0RTc0d1JvNnB6WFBvbWR3OFJiUytCZ2hhNGVVUT09?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: abc580c8-2960-40cf-664d-08db2d82a1ee
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Mar 2023 22:45:29.1154 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: DSgl+f+I2y5bAam6XazXJ30TQoUkTYOyalnzzHqqQu3rGws9XP2oL4797uaSARYmeU4Jko8Xdd6/8Au6YsqdNxOUozAITHZt/HaSXg1p8GA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB6814
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_11,2023-03-24_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ bulkscore=0 malwarescore=0
+ mlxscore=0 mlxlogscore=999 adultscore=0 suspectscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2303250189
+X-Proofpoint-GUID: hxtapYoXLgrAOCeG4G0xU0FOIwd8ETzO
+X-Proofpoint-ORIG-GUID: hxtapYoXLgrAOCeG4G0xU0FOIwd8ETzO
+Cc: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,228 +234,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The new "use_va" module parameter (default: true) is used in
-vdpa_alloc_device() to inform the vDPA framework that the device
-supports VA.
+On 3/23/23 7:47 AM, Michael S. Tsirkin wrote:
+> On Thu, Mar 23, 2023 at 12:50:49PM +0100, Christian Brauner wrote:
+>> On Thu, Mar 23, 2023 at 07:43:04AM -0400, Michael S. Tsirkin wrote:
+>>> On Thu, Mar 23, 2023 at 11:44:45AM +0100, Christian Brauner wrote:
+>>>> On Thu, Mar 23, 2023 at 03:37:19AM -0400, Michael S. Tsirkin wrote:
+>>>>> On Wed, Mar 22, 2023 at 01:56:05PM -0500, Mike Christie wrote:
+>>>>>> vhost_task_create is supposed to return the vhost_task or NULL on
+>>>>>> failure. This fixes it to return the correct value when the allocation
+>>>>>> of the struct fails.
+>>>>>>
+>>>>>> Fixes: 77feab3c4156 ("vhost_task: Allow vhost layer to use copy_process") # mainline only
+>>>>>> Reported-by: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com
+>>>>>> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+>>>>>
+>>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>>>>>
+>>>>> The affected patch is not upstream yet, right?
+>>>>> I don't know if the tree in question allows rebases - linux-next
+>>>>> does. So ideally it would be squashed to avoid issues during bisect.
+>>>>> Still it's error path so I guess not a tragedy even without squashing.
+>>>>
+>>>> I tend to not rebase once stuff has been in linux-next but I make
+>>>> exceptions as long as it's before -rc4. For now I've put the patch on
+>>>> top (see the other mail I sent) but if it's really important I can
+>>>> squash it after the weekend (I'll be mostly afk until then.).
+>>>
+>>> Hard to say how important, but I'd prefer that, yes.
+>>
+>> Ok, fold the fixup into
+>>
+>> e297cd54b3f8 vhost_task: Allow vhost layer to use copy_process
+>>
+>> the series is now at:
+>>
+>> tree:   git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git
+>> branch: kernel.user_worker
+>>
+>> 1a5f8090c6de vhost: move worker thread fields to new struct
+>> e297cd54b3f8 vhost_task: Allow vhost layer to use copy_process
+>> 89c8e98d8cfb fork: allow kernel code to call copy_process
+>> 094717586bf7 fork: Add kernel_clone_args flag to ignore signals
+>> 11f3f500ec8a fork: add kernel_clone_args flag to not dup/clone files
+>> 54e6842d0775 fork/vm: Move common PF_IO_WORKER behavior to new flag
+>> c81cc5819faf kernel: Make io_thread and kthread bit fields
+>> 73e0c116594d kthread: Pass in the thread's name during creation
+>> cf587db2ee02 kernel: Allow a kernel thread's name to be set in copy_process
+>> e0a98139c162 csky: Remove kernel_thread declaration
+> 
+> Thanks a lot! Mike could you give it a spin to make sure all is well?
 
-vringh is initialized to use VA only when "use_va" is true and the
-user's mm has been bound. So, only when the bus supports user VA
-(e.g. vhost-vdpa).
-
-vdpasim_mm_work_fn work is used to serialize the binding to a new
-address space when the .bind_mm callback is invoked, and unbinding
-when the .unbind_mm callback is invoked.
-
-Call mmget_not_zero()/kthread_use_mm() inside the worker function
-to pin the address space only as long as needed, following the
-documentation of mmget() in include/linux/sched/mm.h:
-
-  * Never use this function to pin this address space for an
-  * unbounded/indefinite amount of time.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
-
-Notes:
-    v4:
-    - checked `use_va` in vdpasim_work_fn() [Jason]
-    - removed `va_enabled` variable now used only in the if condition
-    v3:
-    - called mmget_not_zero() before kthread_use_mm() [Jason]
-      As the documentation of mmget() in include/linux/sched/mm.h says:
-    
-      * Never use this function to pin this address space for an
-      * unbounded/indefinite amount of time.
-    
-      I moved mmget_not_zero/kthread_use_mm inside the worker function,
-      this way we pin the address space only as long as needed.
-      This is similar to what vfio_iommu_type1_dma_rw_chunk() does in
-      drivers/vfio/vfio_iommu_type1.c
-    - simplified the mm bind/unbind [Jason]
-    - renamed vdpasim_worker_change_mm_sync() [Jason]
-    - fix commit message (s/default: false/default: true)
-    v2:
-    - `use_va` set to true by default [Eugenio]
-    - supported the new unbind_mm callback [Jason]
-    - removed the unbind_mm call in vdpasim_do_reset() [Jason]
-    - avoided to release the lock while call kthread_flush_work() since we
-      are now using a mutex to protect the device state
-
- drivers/vdpa/vdpa_sim/vdpa_sim.h |  1 +
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 97 +++++++++++++++++++++++++++++---
- 2 files changed, 90 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-index 4774292fba8c..3a42887d05d9 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -59,6 +59,7 @@ struct vdpasim {
- 	struct vdpasim_virtqueue *vqs;
- 	struct kthread_worker *worker;
- 	struct kthread_work work;
-+	struct mm_struct *mm_bound;
- 	struct vdpasim_dev_attr dev_attr;
- 	/* mutex to synchronize virtqueue state */
- 	struct mutex mutex;
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 2b2e439a66f7..2c706bb18897 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -35,10 +35,44 @@ module_param(max_iotlb_entries, int, 0444);
- MODULE_PARM_DESC(max_iotlb_entries,
- 		 "Maximum number of iotlb entries for each address space. 0 means unlimited. (default: 2048)");
- 
-+static bool use_va = true;
-+module_param(use_va, bool, 0444);
-+MODULE_PARM_DESC(use_va, "Enable/disable the device's ability to use VA");
-+
- #define VDPASIM_QUEUE_ALIGN PAGE_SIZE
- #define VDPASIM_QUEUE_MAX 256
- #define VDPASIM_VENDOR_ID 0
- 
-+struct vdpasim_mm_work {
-+	struct kthread_work work;
-+	struct vdpasim *vdpasim;
-+	struct mm_struct *mm_to_bind;
-+	int ret;
-+};
-+
-+static void vdpasim_mm_work_fn(struct kthread_work *work)
-+{
-+	struct vdpasim_mm_work *mm_work =
-+		container_of(work, struct vdpasim_mm_work, work);
-+	struct vdpasim *vdpasim = mm_work->vdpasim;
-+
-+	mm_work->ret = 0;
-+
-+	//TODO: should we attach the cgroup of the mm owner?
-+	vdpasim->mm_bound = mm_work->mm_to_bind;
-+}
-+
-+static void vdpasim_worker_change_mm_sync(struct vdpasim *vdpasim,
-+					  struct vdpasim_mm_work *mm_work)
-+{
-+	struct kthread_work *work = &mm_work->work;
-+
-+	kthread_init_work(work, vdpasim_mm_work_fn);
-+	kthread_queue_work(vdpasim->worker, work);
-+
-+	kthread_flush_work(work);
-+}
-+
- static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
- {
- 	return container_of(vdpa, struct vdpasim, vdpa);
-@@ -59,13 +93,20 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
- {
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
- 	uint16_t last_avail_idx = vq->vring.last_avail_idx;
--
--	vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num, true,
--			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
--			  (struct vring_avail *)
--			  (uintptr_t)vq->driver_addr,
--			  (struct vring_used *)
--			  (uintptr_t)vq->device_addr);
-+	struct vring_desc *desc = (struct vring_desc *)
-+				  (uintptr_t)vq->desc_addr;
-+	struct vring_avail *avail = (struct vring_avail *)
-+				    (uintptr_t)vq->driver_addr;
-+	struct vring_used *used = (struct vring_used *)
-+				  (uintptr_t)vq->device_addr;
-+
-+	if (use_va && vdpasim->mm_bound) {
-+		vringh_init_iotlb_va(&vq->vring, vdpasim->features, vq->num,
-+				     true, desc, avail, used);
-+	} else {
-+		vringh_init_iotlb(&vq->vring, vdpasim->features, vq->num,
-+				  true, desc, avail, used);
-+	}
- 
- 	vq->vring.last_avail_idx = last_avail_idx;
- 
-@@ -130,8 +171,20 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops;
- static void vdpasim_work_fn(struct kthread_work *work)
- {
- 	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
-+	struct mm_struct *mm = vdpasim->mm_bound;
-+
-+	if (use_va && mm) {
-+		if (!mmget_not_zero(mm))
-+			return;
-+		kthread_use_mm(mm);
-+	}
- 
- 	vdpasim->dev_attr.work_fn(vdpasim);
-+
-+	if (use_va && mm) {
-+		kthread_unuse_mm(mm);
-+		mmput(mm);
-+	}
- }
- 
- struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
-@@ -162,7 +215,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr,
- 	vdpa = __vdpa_alloc_device(NULL, ops,
- 				   dev_attr->ngroups, dev_attr->nas,
- 				   dev_attr->alloc_size,
--				   dev_attr->name, false);
-+				   dev_attr->name, use_va);
- 	if (IS_ERR(vdpa)) {
- 		ret = PTR_ERR(vdpa);
- 		goto err_alloc;
-@@ -582,6 +635,30 @@ static int vdpasim_set_map(struct vdpa_device *vdpa, unsigned int asid,
- 	return ret;
- }
- 
-+static int vdpasim_bind_mm(struct vdpa_device *vdpa, struct mm_struct *mm)
-+{
-+	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-+	struct vdpasim_mm_work mm_work;
-+
-+	mm_work.vdpasim = vdpasim;
-+	mm_work.mm_to_bind = mm;
-+
-+	vdpasim_worker_change_mm_sync(vdpasim, &mm_work);
-+
-+	return mm_work.ret;
-+}
-+
-+static void vdpasim_unbind_mm(struct vdpa_device *vdpa)
-+{
-+	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-+	struct vdpasim_mm_work mm_work;
-+
-+	mm_work.vdpasim = vdpasim;
-+	mm_work.mm_to_bind = NULL;
-+
-+	vdpasim_worker_change_mm_sync(vdpasim, &mm_work);
-+}
-+
- static int vdpasim_dma_map(struct vdpa_device *vdpa, unsigned int asid,
- 			   u64 iova, u64 size,
- 			   u64 pa, u32 perm, void *opaque)
-@@ -678,6 +755,8 @@ static const struct vdpa_config_ops vdpasim_config_ops = {
- 	.set_group_asid         = vdpasim_set_group_asid,
- 	.dma_map                = vdpasim_dma_map,
- 	.dma_unmap              = vdpasim_dma_unmap,
-+	.bind_mm		= vdpasim_bind_mm,
-+	.unbind_mm		= vdpasim_unbind_mm,
- 	.free                   = vdpasim_free,
- };
- 
-@@ -712,6 +791,8 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
- 	.get_iova_range         = vdpasim_get_iova_range,
- 	.set_group_asid         = vdpasim_set_group_asid,
- 	.set_map                = vdpasim_set_map,
-+	.bind_mm		= vdpasim_bind_mm,
-+	.unbind_mm		= vdpasim_unbind_mm,
- 	.free                   = vdpasim_free,
- };
- 
--- 
-2.39.2
+Reviewed and tested the patches and it's all ok.
 
 _______________________________________________
 Virtualization mailing list
