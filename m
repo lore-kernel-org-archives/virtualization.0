@@ -1,223 +1,119 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 392E7C76196
-	for <virtualization@archiver.kernel.org>; Sat, 25 Mar 2023 22:45:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 787A2C6FD1C
+	for <virtualization@archiver.kernel.org>; Sun, 26 Mar 2023 09:19:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AE66981F8D;
-	Sat, 25 Mar 2023 22:45:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE66981F8D
+	by smtp3.osuosl.org (Postfix) with ESMTP id E8B7E60A64;
+	Sun, 26 Mar 2023 09:19:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E8B7E60A64
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20210112 header.b=gqqvpvRZ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8vbcTDDbs1Ob; Sun, 26 Mar 2023 09:19:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7622960B8E;
+	Sun, 26 Mar 2023 09:19:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7622960B8E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 43373C0035;
+	Sun, 26 Mar 2023 09:19:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BEB11C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 26 Mar 2023 09:19:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8A44E81E63
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 26 Mar 2023 09:19:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A44E81E63
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=c2bwpYfL;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=KWFdzo+8
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20210112 header.b=gqqvpvRZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UoCa8zG9TnOC; Sat, 25 Mar 2023 22:45:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 48B6781F95;
-	Sat, 25 Mar 2023 22:45:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 48B6781F95
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DBEFCC0035;
-	Sat, 25 Mar 2023 22:45:39 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56B14C0032
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XnuzCKdyVrrz
  for <virtualization@lists.linux-foundation.org>;
- Sat, 25 Mar 2023 22:45:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2404E40527
+ Sun, 26 Mar 2023 09:19:31 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78BA481E50
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com
+ [IPv6:2a00:1450:4864:20::52e])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 78BA481E50
  for <virtualization@lists.linux-foundation.org>;
- Sat, 25 Mar 2023 22:45:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2404E40527
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=c2bwpYfL; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=KWFdzo+8
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GaGv_VGLGwGm
+ Sun, 26 Mar 2023 09:19:31 +0000 (UTC)
+Received: by mail-ed1-x52e.google.com with SMTP id er18so13033273edb.9
  for <virtualization@lists.linux-foundation.org>;
- Sat, 25 Mar 2023 22:45:37 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 07C3640128
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 07C3640128
- for <virtualization@lists.linux-foundation.org>;
- Sat, 25 Mar 2023 22:45:36 +0000 (UTC)
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 32PMdvIc032009; Sat, 25 Mar 2023 22:45:33 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2022-7-12;
- bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
- b=c2bwpYfLDQp2Vbm66w9kWQ9il1p86Qml3bf8SHATazJdoEm7TB39eyI4T7Kkwn5t3ggh
- TL5oba5ojN1omo3vHWBP9Gg0uzWWuBH0o/+uqk4TU0T+MrXsNicHpywKAdF7xxg2sRvf
- xFQ6twmHWb6v2q1DIwipbt3HKJdCdXtA3HIUxohdZ4/KNkZ711oB1GSMs4rD69fZkg/I
- 9fjesY2Oodm+81PYVvquyXzsfNljohDleUtILuQ0o3hP/t+XUA0fTTVbUABr2gbgEeXi
- u6KfBQQPsPZucVzbNX6BvG3I+KEaSUgTyI7c0ZaPhrnyYNX6P1BK3DVAP740PS63JFID 6g== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pj9xhr03h-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 25 Mar 2023 22:45:32 +0000
-Received: from pps.filterd
- (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
- with ESMTP id 32PJbHME027808; Sat, 25 Mar 2023 22:45:32 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2100.outbound.protection.outlook.com [104.47.58.100])
- by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
- 3phqd3bagt-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 25 Mar 2023 22:45:31 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CnwWddFbSsmQx69Ljt04dPcP9yvxauuPeAT8kcXANRhh8xVrJ5vuUIvyw015x/6ug5H42Wef4Mx8Vp+7UEPgsCRK2cCQTPmbg3taCJsnchWtUW3vtNqE99Z5SMJDRJxlutjmVzkN4XjFjpMzCrlFvpTIlSop5VYK/u9YKpXlctZgtbdPGTQZE1NnkjI0Z4ApW5AewV6CfYdXgkrshvJyfgYd1UvoDUiAK8E/LGoJ7af58gUqbi7UX2+JZRHVRz8lnHhA+tVSmZ1uNev0uPNJDa4trNsSNVziT7mp/O2CXLAjJVPYjdA2vlP65FF9lbta1UwfxOJdU9tG92N/P2Haog==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
- b=WBxcDB+gKSmYviP2cBe6Cx5rbDb0tLKSN8aWUv/Dbd2HO91LqzsxC9VDy2OddmkSBwrLXA8x0OBAOjrkoyT5hznnObwap3v6Hd6UoBGWDhRjO6DRRu/hDs+TPEwPgMU5AnvLhKPQi/oBj8ZzTHCwV6J2+P5qGtMijyk4VCVylM7+V4jRB2NmaP2rR4AdN/ri/O5+nvhZukpr9880XUpP6NXngvbQoKhznAhfidXgdgkDiDVYNd7lIaTMEv+k6Gr4huqpgeKn2sFWgOJ4fJfGuarKQ7hJ0IopH9wSPCR4bl8y6zSAvNKG+KxSMefPix9leBk9qsQrQs9FnHiS2LE2Lg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+ Sun, 26 Mar 2023 02:19:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=G21OEEA12ddNyJGv/1tdnL3PFaVVkfieFScDSI0bFvk=;
- b=KWFdzo+86gjM8YxOGJhCXG7+BeGgt6dU8mdsIuzHdexSNWtHVLp6GRl61GS7Ch10XkAGPlxBCUonF1sc7nGkdNTC6qMcFolgrUMaRm6DVb0Wgr5UNIQKIroHAwACfnycZvFXUDapIlhhTV5puqxX4Q/7rEJmNP3dlirdKBLE3cc=
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
- DM4PR10MB6814.namprd10.prod.outlook.com (2603:10b6:8:10a::17) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6178.38; Sat, 25 Mar 2023 22:45:29 +0000
-Received: from DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::7dd7:8d22:104:8d64]) by DM5PR10MB1466.namprd10.prod.outlook.com
- ([fe80::7dd7:8d22:104:8d64%7]) with mapi id 15.20.6178.041; Sat, 25 Mar 2023
- 22:45:29 +0000
-Message-ID: <7ab00d3c-3148-93b5-072d-e6ee6ab485b6@oracle.com>
-Date: Sat, 25 Mar 2023 17:45:27 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 1/1] vhost_task: Fix vhost_task_create return value
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Christian Brauner <brauner@kernel.org>
-References: <20230322185605.1307-1-michael.christie@oracle.com>
- <20230323033557-mutt-send-email-mst@kernel.org>
- <20230323104445.qidusxeruimeawy6@wittgenstein>
- <20230323073918-mutt-send-email-mst@kernel.org>
- <20230323115049.vsrnufcaqstpxik3@wittgenstein>
- <20230323084648-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20230323084648-mutt-send-email-mst@kernel.org>
-X-ClientProxiedBy: DS7PR06CA0044.namprd06.prod.outlook.com
- (2603:10b6:8:54::20) To DM5PR10MB1466.namprd10.prod.outlook.com
- (2603:10b6:3:b::7)
+ d=gmail.com; s=20210112; t=1679822369;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=iHZVFQkvBzOY5c4akiAgaCUw1iB4MGS8We/N4ruh3k8=;
+ b=gqqvpvRZ0SdoxCmQqae1KSjIEjDh2PjxWE9UOelHJdAZQNfXsfpIUmhQzlSEEoqf+o
+ mfQUctvn6msdbvoegyTomav7T+kjGRO3PRvwcyFXV0AWKAuqXbCTVILx//2bumI7cxGH
+ KBI+kaEhRIdAt97A53YpSBEBjoJNNyonkARH4XdfaqZYtZfwdnvQNSF39wUcd7my8HKj
+ m/Qtv/qshyPbwYZ1/LnrqlafjseLlHovhJs61rABrFLmZoZ/3APhoBnDgGLBifFPCQ5z
+ ezjlApqFuRBYlMEJPbb34cSN6GyqZUfrFT7g8FLDS8hztVQrLVgzQQ3W+yW5jubhPOhh
+ l8AA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1679822369;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=iHZVFQkvBzOY5c4akiAgaCUw1iB4MGS8We/N4ruh3k8=;
+ b=Au0Hx5DqUo3FvRa4N9qJN7teYRVWD0CllbLxF2x03xlA6w0ylQSUqCCHrB0fsJ5syx
+ mKd1QH4spYHmsrdCYg0Gj/g8hnRC+pD62CZdnZ+hqXNnO9lKrPb72Zfgp5oeDGaoQZzb
+ 2VTdAVE8Jad5nzEu4LpmPuMwkNLqeFtw9FzuTeiVZ8Om5kY5eycAx1D9ZTdZHpV6FJPj
+ b3EaLhRbco/zbfQY8+MxCyLazN5agRUzJGvfGXk6InjgV8KMaJ+5QqOaazlMuwVgF/WF
+ f9nlVavOz61UyBdUniA1F3Fubbtzup9RYFQSvSEFWmwbAgaaPvlKaSqirzQi0HbRRhRu
+ 6Xog==
+X-Gm-Message-State: AAQBX9e13NzASmBOLGEsAfWqpZv05J8evpMeLGXYFuNCXDYVQtJQZHX7
+ W6TDWX0fJMiSkm31XqnXqvo=
+X-Google-Smtp-Source: AKy350YY0uqokPOGnxU+dnpux6gC0xC75d1rTwE9/7vPu2Z8GpOMozFb6sLJdMp92bUZ13hIuhS3MA==
+X-Received: by 2002:a17:906:1514:b0:92b:ae6c:23e7 with SMTP id
+ b20-20020a170906151400b0092bae6c23e7mr8926676ejd.56.1679822369040; 
+ Sun, 26 Mar 2023 02:19:29 -0700 (PDT)
+Received: from ?IPV6:2a02:908:1256:79a0:87fb:f6c5:5d64:ee25?
+ ([2a02:908:1256:79a0:87fb:f6c5:5d64:ee25])
+ by smtp.gmail.com with ESMTPSA id
+ c24-20020a50d658000000b00501d5432f2fsm8382000edj.60.2023.03.26.02.19.27
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 26 Mar 2023 02:19:28 -0700 (PDT)
+Message-ID: <2631edac-a57e-638d-226c-08ea3d9b6b8d@gmail.com>
+Date: Sun, 26 Mar 2023 11:19:26 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM5PR10MB1466:EE_|DM4PR10MB6814:EE_
-X-MS-Office365-Filtering-Correlation-Id: abc580c8-2960-40cf-664d-08db2d82a1ee
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /8p9Vm/PClMjhbv9qPXGsw360PW+sDwCrgsFsJDnXp1cXP7gGfhKbK7yhcKAKC5Weg3lujQXDNMraAIG9BXcrzPhytanKAjVVXNxdAN9a9ivrN4TAT1nY7F+KF9CF3fMht1u8EFIBNWQxIaCfPB/fDshGdEBAfXAos8FfWr+e0MgtI8RrK6LdSrg1uQs4rugCco+0eG/RzVejL4YPads/QZmWbtViB0bgE63gO2ngKgtZpdWMwckzBdIeS4MNW7xzTHrLU+CaIdnXeMtyaoIxZMCbFpXGjcgqEaz62RZ+TE0UgDJTpKm+ASFHVNsBeKYl5JsbMglT5vYZSoU0xss3RudTqg6oPXGt+YtE2LWCyGJa8zkwIqoXb0UGQn9KqRPgCNqEBwYCZqMjpnTIAPEYSULyMl8k1JP/H9xPoIsHNVdXfhO5EWfeOj+2UCEjXJwdywAQoUB+qwhW0K2E6f6AECSaD6y6cxBgYYvGWNfvu1HIXskujQ67kFYxQ9N4i8t1CvEgAbiX4UF6qU2co8IyOqVn4x1PqcMJTqtM8YEShfNHEtGJE+o6cOKHcZEgm+5kFSo04akVsz3ThI7ZYegeLKO5e7z0zdNejMTJpZhb5JOe/tWphbKHXYKTiepge3h7A+v0f5C7iFsf/Q8dEiSxQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(396003)(346002)(376002)(39860400002)(366004)(136003)(451199021)(53546011)(66899021)(2906002)(36756003)(316002)(6486002)(38100700002)(6512007)(26005)(186003)(83380400001)(31696002)(2616005)(8676002)(110136005)(66556008)(66946007)(86362001)(66476007)(4326008)(41300700001)(31686004)(8936002)(478600001)(6506007)(5660300002)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UkRKSGFqYkpCOUErZEdsc2pPL1JDMDdtbHpFbTNRQ29NVnlGRzh6U1llL21F?=
- =?utf-8?B?NVNHdUh0N0FGYWY1TzV6bng1dEloWG5SR0pIdjV2WFFWbnk4dkxBbmxjdCtl?=
- =?utf-8?B?bjlmVGR0NGFYNnlpajB2bHk3MVNDdFpaSFJDajdjTHFYOGFvV3NZaHpabHpR?=
- =?utf-8?B?cFkxL25PQXBJekUwMXhIbEQ2K2hWMUVjQlVTUHRlNzB3a3k3dGNOaktVOW1i?=
- =?utf-8?B?MVF5bHlSTGZ3Ykk3TVV6b2FzamI3YmR2RHRuWi9RcWRDZHlwdHJjcGdROUpr?=
- =?utf-8?B?ZGpmL0ppUHBhSzhFSjZNR2ZKRmxReHZ3bzFldHVweUtlZjk5bGIvOHJOUzR4?=
- =?utf-8?B?OGQ3d255Zk9yNzBFcS9saG02cXZ3bnM4QTNvQXIwaC94Y2ZIT3p4Qzl6Y2l4?=
- =?utf-8?B?NEdGYjBJSEhVWkZ3bWMzaWJsTmhITC9Ta1hHMmxBVE1BdHhaRkVKRU12blBU?=
- =?utf-8?B?eFA2ZzY1czRjVUtFaUtKREtRQmpXY3lkc2tNOVQ3ZHZvYWUwTWVsWGtjVXJ6?=
- =?utf-8?B?cHZRa2lBdlNWZnpTYzdpK0duSGlCK3p0WWtsbWxzRGhyUGhxc0Zmem5JS2oz?=
- =?utf-8?B?am1SNW5CaVExQ0p0Q0FiamZhN1UvRzNzQ05YZXpmQ0VSZTEvNTZJZVVlb1lE?=
- =?utf-8?B?WkF1OUVFaUg4QzB3VTd3RXVnaEMyMUUzTHNmMTN4TVk4N3dMcHZJNTNLNWJU?=
- =?utf-8?B?dVhCU3gwYnZPa003RWdrSkpiRDFTY2x6NC9uQThQOWZLbHZQYjhjb1NZM2tI?=
- =?utf-8?B?anVvUDhXYTR0aXFNSXdLRjE3K3RtNSt5aWlTZjZIbWl2UzlsbGtzSm1PUWZL?=
- =?utf-8?B?R3BONWdYVUErd2k3UVBqbC90QkpYcXFISkdVUm9ReG0wMlFiaXdkWG1wNWdt?=
- =?utf-8?B?N1RSOURTeFRJYkpjeU95RS93SjVLTmZ6dzNIZ3hhTGNtSUNPelg5cG1VWHJG?=
- =?utf-8?B?YnNQWEtIdGh0c2ZGdGM1RzVPL1RsQ2prdjBPam81QzZJSFRhMDVxTldQYStO?=
- =?utf-8?B?akpZQUhkS04wK0VPaTRSYWVaTXBqNTJOaWJHVk10cU1OUlVBM0FaMi8wbkF0?=
- =?utf-8?B?TzBpVGtnS1BWb0lvWHhWTlEvQ1dubGdpN3JRaE5mT0psL3JpWlBzRTFrOThZ?=
- =?utf-8?B?T0VFL1RlNHk0bFVpMmMxeFNFcTZpSk1hQVNrOHBiODg4RkdjNU5FWks1Mytz?=
- =?utf-8?B?bmg3ZkhNaEZSNXhBR2d1SHM2dFlkWVB4OVMybU5iZS9sQnQwVS96RmxNQ0lt?=
- =?utf-8?B?Ulh4UU5qR1Z3N1FGL0dqL1lpOFZRVU5TUG5qSncrQTlYVGV3aFNkb2JESWNL?=
- =?utf-8?B?RFlENWEwQ3RvNk5hVGdBSWlWVEk3MWw5OUZCKzk3eE9lVExzazA3dXNueTJu?=
- =?utf-8?B?M3BYdlBwVWIzaWdPSnd5R0t6V2pZNWVISXJZWUU3bHdCRHdHc0NONEhSNnB2?=
- =?utf-8?B?ejlEOEhaODJ2REhkdDliR1RSRzJ4bTF5aEdQZVcvUjJRa2ZrWVAyWWhEM2x4?=
- =?utf-8?B?WHA2dHpzN1Q3YTdqVzdrWitpQzl0WVhBNklwcCtWRXhaYzM3cHZETzE3bkZV?=
- =?utf-8?B?bE1MK0w1TkNlTUt2Z2s1MFVKTHRqUTQxNG9XdU1UZHFxQTM0V2RDTEg1Y0E3?=
- =?utf-8?B?RlViNzhOT1R1K1FrVnV5SEg1SWxoZ3B0eHl4U2dITXQzOFhiWGoyd2hNMUN6?=
- =?utf-8?B?YjlTY3ZjQXFKWmZXN01YNXUzNkx4c3hTWmNPakM5RXd6TlR5M2NYWCtxL3hB?=
- =?utf-8?B?U29vK3hlbkFoWVhKa3RTSExNaHF4c2xzU0RjUEs4bjBsdStxWlZTZDRldGVI?=
- =?utf-8?B?THhEanI3Ny83TG1HR0FvZVdaS05yMENoOGdrY0dkUlR2TWtFS3RZUlRON2Iv?=
- =?utf-8?B?Ynk2VVRwbVkxKzAza1Rma3RFcTNHRjZLbElqMXlQcFYxOW55SWk3ZlB4S2wx?=
- =?utf-8?B?UzNkU05OSHRNVDNSOW5kelY3NkVldVlTNW8yYWJJdy9IbENvWVFscjZVQkNP?=
- =?utf-8?B?RjFtc0Rwd0FndWRSM3EwOXBrTzYyeXRzUEFkMGdiYlJqWHdUUjlLM0haUGo2?=
- =?utf-8?B?WUpyS05taURUdFlIK1V6OGM5ZkdGQ3NOVG42SDREbnNUbGV4bEN6aTNSM2Zv?=
- =?utf-8?B?YlFjMHdyL0Y4cDM1T0NYZlJwU243NlFNWmQrVEJWNzVQaWNrNGl2NUpHbFlR?=
- =?utf-8?B?MkE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?c05sN0ppWWM5bTk1VFdSaDBPRXdHckQ0Z2psNUMydEJXSG5DQ3p6UEI1SVNO?=
- =?utf-8?B?bXRZZEhyeWViNGs3TUovaGdydkpkek5zSkNKY0tQZ1lnSXQ3Vzg1NFZqcTJn?=
- =?utf-8?B?SE9maXVPWnNRT1J0ak45WVg4dFNLWmlVMlhIV1FkbXVKbUZZMzd3Y2VwU2hN?=
- =?utf-8?B?OWFHUmg4SnNIaEhMeWJMbkFCSEFCQ1RFYng3dzVGMGM4WjNPUjF5OGNqNjdS?=
- =?utf-8?B?eTY5eXJKM0trcUg3TUpHMi9qb2hzUnM3TVBOaUlrRExTQU5Xb1NHdWZFbnh5?=
- =?utf-8?B?MUVUdllFRFYwVjNZS3UyL0krbkRrVjFhUDZ2UEV0NC9CKzRwOE1md3FLYTJs?=
- =?utf-8?B?UE1FVk4rTmRwTGtEWHl4dVFZdWJBUzIrWjZYUnFCdE92NVpYN2EyRys3V3RF?=
- =?utf-8?B?M3JzVC9hNjVESnFFTTRlSjd1cVZwOTJ2RXAwQnd2NXFBT3Z0OTkvdVZWQ1Rn?=
- =?utf-8?B?V01SQ2ZFVVNNRmhnQVd2RmpaZTRkL0hPRkVTNmpkZmVweVNqRk5zMk5SdS8y?=
- =?utf-8?B?NGVENTZvU0JhUW1lVkMramFtNmxQSERLK2l2RENSV1NYNzhRbEpUK2UzSGMr?=
- =?utf-8?B?STZTUmZZRVQ0Zk1WOUZEWnljck9QWHBpdHZlRm80ZGxIdjA1YzFPemF3dXVo?=
- =?utf-8?B?dGYrUjdIUzVBMFIxR0h3UGpSWVdVWktsbGpBOHBpUWdVQTRLcmNKbEphdVRk?=
- =?utf-8?B?eDNNblhXdFdSeHJZZldVd2pzR0E4Z3BnYWE3YXFBTEIzMG1kMC9SaWxodkl1?=
- =?utf-8?B?b08wbFBhYzJTVjRnL1BqbmhLTXkrZHJFUEpOV2w5TzBqY3ZDdzZ3dGd2ejdR?=
- =?utf-8?B?ZC9TekhYc2NqV0lOazg3YS8vNEl5aTVneFAxK3lVNHR3b1ExSlE4L1dxQUZR?=
- =?utf-8?B?TEoxdDJJcHd3RUNtM2g1Slp4T3U1dnV5d2xuNkRaUlp1VW9uSEJ5VkJJT0J4?=
- =?utf-8?B?M1ZNVE10L3FISDg5Y3JTQnJ2ZDgzT2FTWE55K3ZxYnhSUzhHbTlXMk9lejFV?=
- =?utf-8?B?WkVpbjZpYUJqTXh3TWZwM2pPSnU5RkgvUWIrdWxpY2orbzRYcHptTVZRVGpH?=
- =?utf-8?B?Qm8xZXFXd0YwZ1drbVN2a2xEbGc1TTFXZ1lTQTNTL09kdDJxUUxBbmVtMU1E?=
- =?utf-8?B?dWRuSVZKY2g2MUFmTDNOdU95T2xlV3FNd2xFZ3luMTVzeE5GZDUrS3ZURlpP?=
- =?utf-8?B?bEw0UXYxWDBYTFRJWTRRVFZKNXFsTERGNlB1V1FtaEFKemc3V1RjTyt0K2hX?=
- =?utf-8?B?OGEycDd0cTl0RTc0d1JvNnB6WFBvbWR3OFJiUytCZ2hhNGVVUT09?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: abc580c8-2960-40cf-664d-08db2d82a1ee
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Mar 2023 22:45:29.1154 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DSgl+f+I2y5bAam6XazXJ30TQoUkTYOyalnzzHqqQu3rGws9XP2oL4797uaSARYmeU4Jko8Xdd6/8Au6YsqdNxOUozAITHZt/HaSXg1p8GA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB6814
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-03-24_11,2023-03-24_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
- bulkscore=0 malwarescore=0
- mlxscore=0 mlxlogscore=999 adultscore=0 suspectscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
- definitions=main-2303250189
-X-Proofpoint-GUID: hxtapYoXLgrAOCeG4G0xU0FOIwd8ETzO
-X-Proofpoint-ORIG-GUID: hxtapYoXLgrAOCeG4G0xU0FOIwd8ETzO
-Cc: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- stefanha@redhat.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH v13 01/10] drm/shmem-helper: Switch to reservation lock
+Content-Language: en-US
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+References: <20230314022659.1816246-1-dmitry.osipenko@collabora.com>
+ <20230314022659.1816246-2-dmitry.osipenko@collabora.com>
+ <6b5644cf-6229-f99b-d429-a45d724493ee@collabora.com>
+ <20c88807-8513-a816-aed9-5cd67eb5c1ed@collabora.com>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
+In-Reply-To: <20c88807-8513-a816-aed9-5cd67eb5c1ed@collabora.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ kernel@collabora.com, David Airlie <airlied@gmail.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>, Rob Herring <robh@kernel.org>,
+ Daniel Stone <daniel@fooishbar.org>, Steven Price <steven.price@arm.com>,
+ Gustavo Padovan <gustavo.padovan@collabora.com>,
+ Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
+ Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ intel-gfx@lists.freedesktop.org,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, linux-kernel@vger.kernel.org,
+ Qiang Yu <yuq825@gmail.com>, Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -229,63 +125,69 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 3/23/23 7:47 AM, Michael S. Tsirkin wrote:
-> On Thu, Mar 23, 2023 at 12:50:49PM +0100, Christian Brauner wrote:
->> On Thu, Mar 23, 2023 at 07:43:04AM -0400, Michael S. Tsirkin wrote:
->>> On Thu, Mar 23, 2023 at 11:44:45AM +0100, Christian Brauner wrote:
->>>> On Thu, Mar 23, 2023 at 03:37:19AM -0400, Michael S. Tsirkin wrote:
->>>>> On Wed, Mar 22, 2023 at 01:56:05PM -0500, Mike Christie wrote:
->>>>>> vhost_task_create is supposed to return the vhost_task or NULL on
->>>>>> failure. This fixes it to return the correct value when the allocation
->>>>>> of the struct fails.
->>>>>>
->>>>>> Fixes: 77feab3c4156 ("vhost_task: Allow vhost layer to use copy_process") # mainline only
->>>>>> Reported-by: syzbot+6b27b2d2aba1c80cc13b@syzkaller.appspotmail.com
->>>>>> Signed-off-by: Mike Christie <michael.christie@oracle.com>
->>>>>
->>>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>>>>
->>>>> The affected patch is not upstream yet, right?
->>>>> I don't know if the tree in question allows rebases - linux-next
->>>>> does. So ideally it would be squashed to avoid issues during bisect.
->>>>> Still it's error path so I guess not a tragedy even without squashing.
->>>>
->>>> I tend to not rebase once stuff has been in linux-next but I make
->>>> exceptions as long as it's before -rc4. For now I've put the patch on
->>>> top (see the other mail I sent) but if it's really important I can
->>>> squash it after the weekend (I'll be mostly afk until then.).
->>>
->>> Hard to say how important, but I'd prefer that, yes.
+Am 25.03.23 um 15:58 schrieb Dmitry Osipenko:
+> On 3/15/23 16:46, Dmitry Osipenko wrote:
+>> On 3/14/23 05:26, Dmitry Osipenko wrote:
+>>> @@ -633,7 +605,10 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
+>>>   		return ret;
+>>>   	}
+>>>   
+>>> +	dma_resv_lock(shmem->base.resv, NULL);
+>>>   	ret = drm_gem_shmem_get_pages(shmem);
+>>> +	dma_resv_unlock(shmem->base.resv);
+>> Intel CI reported locking problem [1] here. It actually was also
+>> reported for v12, but I missed that report because of the other noisy
+>> reports.
 >>
->> Ok, fold the fixup into
+>> [1]
+>> https://intel-gfx-ci.01.org/tree/drm-tip/Patchwork_114671v2/shard-snb5/igt@prime_vgem@sync@rcs0.html
 >>
->> e297cd54b3f8 vhost_task: Allow vhost layer to use copy_process
+>> The test does the following:
 >>
->> the series is now at:
+>> 1. creates vgem
+>> 2. export it do dmabuf
+>> 3. mmaps dmabuf
 >>
->> tree:   git://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git
->> branch: kernel.user_worker
+>> There is an obvious deadlock there. The DRM code assumes that mmap() is
+>> unlocked, while for dma-buf it's locked. I'll see how to fix it for v14.
 >>
->> 1a5f8090c6de vhost: move worker thread fields to new struct
->> e297cd54b3f8 vhost_task: Allow vhost layer to use copy_process
->> 89c8e98d8cfb fork: allow kernel code to call copy_process
->> 094717586bf7 fork: Add kernel_clone_args flag to ignore signals
->> 11f3f500ec8a fork: add kernel_clone_args flag to not dup/clone files
->> 54e6842d0775 fork/vm: Move common PF_IO_WORKER behavior to new flag
->> c81cc5819faf kernel: Make io_thread and kthread bit fields
->> 73e0c116594d kthread: Pass in the thread's name during creation
->> cf587db2ee02 kernel: Allow a kernel thread's name to be set in copy_process
->> e0a98139c162 csky: Remove kernel_thread declaration
-> 
-> Thanks a lot! Mike could you give it a spin to make sure all is well?
+> Christian, there is a deadlock problem in drm_gem_shmem_mmap() once we
+> move drm-shmem to use resv lock. The current dma-buf locking policy
+> claims that importer holds the lock for mmap(), but DRM code assumes
+> that obj->mmap() handles the locking itself and then the same
+> obj->mmap() code path is used by both dma-buf DRM and a usual DRM object
+> paths. Hence importer -> dma_buf_mmap_internal()[takes the lock] ->
+> exporter -> drm_gem_shmem_mmap()[takes the lock] deadlocks.
+>
+> I was looking at how to fix it and to me the best option is to change
+> the dma-buf locking policy, making exporter responsible for handling the
+> resv lock. Changing DRM code mmap lockings might be possible too [moving
+> locking to drm_gem_mmap_obj()], but will be very messy and doesn't feel
+> intuitive.
+>
+> Want to get yours thoughts on this before sending out the dma-buf mmap()
+> policy-change patch. Does the new mmap() locking policy sound good to
+> you? Thanks!
 
-Reviewed and tested the patches and it's all ok.
 
+IIRC we tried that before and ran into problems.
+
+dma_buf_mmap() needs to swap the backing file of the VMA and for this 
+calls fput() on the old file.
+
+This fput() in turn could (in theory) grab the resv lock as well and 
+there isn't anything we could do about that.
+
+Just information from the back of my memory, probably best if you double 
+check that.
+
+Regards,
+Christian.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
