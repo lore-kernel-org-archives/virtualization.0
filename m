@@ -1,99 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8AF41C761A6
-	for <virtualization@archiver.kernel.org>; Mon, 27 Mar 2023 12:38:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5C8C0C7619A
+	for <virtualization@archiver.kernel.org>; Mon, 27 Mar 2023 12:41:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 04EF840B0E;
-	Mon, 27 Mar 2023 12:38:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 04EF840B0E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZM7QbGGn
+	by smtp4.osuosl.org (Postfix) with ESMTP id D8E3B416AC;
+	Mon, 27 Mar 2023 12:41:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8E3B416AC
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZvbBkKoG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QPl09V94K-Wr; Mon, 27 Mar 2023 12:38:47 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VNd4M6eTbs8C; Mon, 27 Mar 2023 12:41:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5CF6840AA8;
-	Mon, 27 Mar 2023 12:38:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5CF6840AA8
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C5C5440980;
+	Mon, 27 Mar 2023 12:41:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5C5440980
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 24F89C0035;
-	Mon, 27 Mar 2023 12:38:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D9F8C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B14FC0035;
+	Mon, 27 Mar 2023 12:41:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 868CFC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:38:44 +0000 (UTC)
+ Mon, 27 Mar 2023 12:41:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 758C640B0E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5DF206102D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:38:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 758C640B0E
+ Mon, 27 Mar 2023 12:41:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5DF206102D
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZvbBkKoG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eGXDELZadev7
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 03qMHjyNPZu8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:38:43 +0000 (UTC)
+ Mon, 27 Mar 2023 12:41:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 221A340AA8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5EDC761029
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 221A340AA8
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5EDC761029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:38:42 +0000 (UTC)
+ Mon, 27 Mar 2023 12:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679920722;
+ s=mimecast20190719; t=1679920891;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=UbpDTYoq/At0Odd8hud1kBCg5j4qR/OHbJf1L4Zi2CM=;
- b=ZM7QbGGnyhIZhpYGU+kWqd3Mro2RaQCBrZohHhFmWJqTre7PYm6XesH7mbRRkIJkDtvUlH
- 8QWUOX+P7hV46LZfFweES0mMUYTyoxXem9tJeeAwzFa1LybHcCxh17Yne8UIJojxCrfVl/
- dMdYSNC33Xmmlp+6f0Vvn2NNyNwgQoM=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=XnNb/G7ybwqWhcVGEs7/goXAytcVF/QTmVVHZFaD61k=;
+ b=ZvbBkKoGtUWSJFZRztkl8Fx+Vx994SQrMevkXCWH/g7Fq02fTX0HgFjicxIT/tu1jKBgxJ
+ YIvgcn7n74+28JfbDzxwXCeUItJbgNIH/uphMdETDwbk5/G9avamXrt34lhLwTt6aL9hvX
+ SwMX3Dowx4YwIZsWP5R1tQEpvkNK/gU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-122-Xm5z9g85MXC2Zl1q-p3HiQ-1; Mon, 27 Mar 2023 08:38:40 -0400
-X-MC-Unique: Xm5z9g85MXC2Zl1q-p3HiQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- n19-20020a05600c3b9300b003ef63ef4519so3164755wms.3
+ us-mta-643-9_qZ6MxpO6Knp6xstjo8jQ-1; Mon, 27 Mar 2023 08:41:29 -0400
+X-MC-Unique: 9_qZ6MxpO6Knp6xstjo8jQ-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ o37-20020a05600c512500b003edd119ec9eso4670622wms.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 05:38:40 -0700 (PDT)
+ Mon, 27 Mar 2023 05:41:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679920719;
+ d=1e100.net; s=20210112; t=1679920888;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=UbpDTYoq/At0Odd8hud1kBCg5j4qR/OHbJf1L4Zi2CM=;
- b=VpW7CHAHiuFwB+yRupIoGbc9DQtNXpwsYxPXUjlJhmDmgBianc9i+xI5uED5v3eRRp
- 12fqFa6y3H7zKjeMBQNfaowr7+RMhP76hOErnNHnqb3GHP42gW8TW00CVnEml7dIRbua
- RuM0i3gsLF8d1eWx/HvOW8BZKlN4a8YoQ0vyPmnVmp7OyEq3Dez6n0KFnfg4MNE9JWeK
- 9+RyVF06qe81E8mJ41P3RkP9s8rScvxT5jjCpaRFAPJ/1nGcn40KfIR8FO5FImNY0PwA
- rfp1A3GiDsBd7MX247uJ02gEwsy5eFpaZc2dstLQ91VMACfHeoMl2gpxEr/2puiyNXrG
- ocfw==
-X-Gm-Message-State: AO0yUKV31NFJr3MiKyE9kTprKZOF8RSgGOV2ozI7Xe2LWAJUlPhrSZfB
- p4sfq+hFxHVGucR6s4uXAmB0OHPz2OETDIb6b/Y1npDu8z+Xrmneq7WsMPDzkyxXYY678CawpwL
- 3wB/7I/7HRNoM13WwzJ7LirH07FNtzuzckVp8KAD5XQ==
-X-Received: by 2002:a05:600c:258:b0:3ea:d611:f8 with SMTP id
- 24-20020a05600c025800b003ead61100f8mr9724859wmj.38.1679920719465; 
- Mon, 27 Mar 2023 05:38:39 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/UOswx17qrbUv+u0cZBTGAeBQHLdmx7zBkJZuZH8ZoyS2hYQ9YIiLS1+VRCy5yxrWGcPVlrQ==
-X-Received: by 2002:a05:600c:258:b0:3ea:d611:f8 with SMTP id
- 24-20020a05600c025800b003ead61100f8mr9724839wmj.38.1679920719133; 
- Mon, 27 Mar 2023 05:38:39 -0700 (PDT)
+ bh=XnNb/G7ybwqWhcVGEs7/goXAytcVF/QTmVVHZFaD61k=;
+ b=TurusBKf94cmjyq11BWZO4BlFU03ULDqB7Bx9tzPf6rvFUQZ0GH2pqNV+ZzUaqfUw7
+ LCS4Kk5nl54HjhlOsI203avF3ecuq2L54OmEGCAxNrI3e3aiynHVkEVPwZ6MQAm85LwP
+ BykQB7dMN9zRlbRd3qltY+01gvixg7p8UoCaIfU/5P3D7IBvSE7tBoEleBc5Sqpe5HLq
+ W060OG2h+uGk9UVs+bpaB2W+6F8EAec7YbEukiRwhX+y8n9dLXxIlk863NPfBZldDsL1
+ hwft4aOWY19GgV9bXRWDD1XBNL2ccZnHUfaUs2hjcS5KxXzxJHt4UtsshMFAeeamhIEl
+ qxJw==
+X-Gm-Message-State: AO0yUKWUig4uhrruIYpMy5bzA13xkFpyqC9hEeTQMMqSQRDQILRiE1Mr
+ QswYfy4PPWJT+q5DX4MorxNfp3c7jLhQnovHFiwktuFJqY98a97aGiQ3k/VmCpA+UnFKwklbE/P
+ o0pjvlVDz246vsMbsoBV9iV+WVJi0eKuN6MnWbTXVfw==
+X-Received: by 2002:a05:600c:1d10:b0:3ee:f807:bcf2 with SMTP id
+ l16-20020a05600c1d1000b003eef807bcf2mr8673503wms.3.1679920888147; 
+ Mon, 27 Mar 2023 05:41:28 -0700 (PDT)
+X-Google-Smtp-Source: AK7set8TheuTUoGWRf114NxKydwfPVjTWBZdqU/RmcMnT3g8MnJOEE2t91Q5eAT2uv4X4aE7YpCf2g==
+X-Received: by 2002:a05:600c:1d10:b0:3ee:f807:bcf2 with SMTP id
+ l16-20020a05600c1d1000b003eef807bcf2mr8673494wms.3.1679920887875; 
+ Mon, 27 Mar 2023 05:41:27 -0700 (PDT)
 Received: from redhat.com ([2.52.153.142]) by smtp.gmail.com with ESMTPSA id
- j1-20020a05600c1c0100b003ee6def283bsm8838117wms.11.2023.03.27.05.38.37
+ hg26-20020a05600c539a00b003ef5b285f65sm8588231wmb.46.2023.03.27.05.41.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Mar 2023 05:38:38 -0700 (PDT)
-Date: Mon, 27 Mar 2023 08:38:35 -0400
+ Mon, 27 Mar 2023 05:41:27 -0700 (PDT)
+Date: Mon, 27 Mar 2023 08:41:24 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eli Cohen <elic@nvidia.com>
 Subject: Re: [PATCH] vdpa/mlx5: Avoid losing link state updates
-Message-ID: <20230327083408-mutt-send-email-mst@kernel.org>
+Message-ID: <20230327084043-mutt-send-email-mst@kernel.org>
 References: <20230320080105.2867-1-elic@nvidia.com>
 MIME-Version: 1.0
 In-Reply-To: <20230320080105.2867-1-elic@nvidia.com>
@@ -130,39 +133,6 @@ On Mon, Mar 20, 2023 at 10:01:05AM +0200, Eli Cohen wrote:
 > 
 > Fixes: 033779a708f0 ("vdpa/mlx5: make MTU/STATUS presence conditional on feature bits")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
-
-Hmm I don't get it.
-
-link state changes are config updates are they not?
-probe sequence is:
-
-        err = virtio_features_ok(dev);
-        if (err)
-                goto err;
-
-        err = drv->probe(dev);
-        if (err)
-                goto err;
-
-        /* If probe didn't do it, mark device DRIVER_OK ourselves. */
-        if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-                virtio_device_ready(dev);
-
-        if (drv->scan)
-                drv->scan(dev);
-
-        virtio_config_enable(dev);
-
-Looks like config changes that trigger before negotiation are queued,
-not lost.
-
-Was there an actual bug you observed or is this theoretical?
-
-Thanks!
-
-
-
-
 > ---
 >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 91 ++++++++++++++++++++-----------
 >  drivers/vdpa/mlx5/net/mlx5_vnet.h |  2 +
@@ -177,6 +147,10 @@ Thanks!
 >  }
 >  
 > +static bool f_status_was_set(u64 old, u64 new)
+
+the name is exact reverse of what it does is it not?
+it is true if status was not set and is being set.
+
 > +{
 > +	if (!(old & BIT_ULL(VIRTIO_NET_F_STATUS)) &&
 > +	    (new & BIT_ULL(VIRTIO_NET_F_STATUS)))
