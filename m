@@ -1,109 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BCE2C7619A
-	for <virtualization@archiver.kernel.org>; Mon, 27 Mar 2023 12:43:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5B156C76195
+	for <virtualization@archiver.kernel.org>; Mon, 27 Mar 2023 13:19:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 04D298131A;
-	Mon, 27 Mar 2023 12:43:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04D298131A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G8phJLBK
+	by smtp3.osuosl.org (Postfix) with ESMTP id E28BA61032;
+	Mon, 27 Mar 2023 13:19:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E28BA61032
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=a6La+48u
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Bq8clev7Fbow; Mon, 27 Mar 2023 12:43:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 358E480DA5;
-	Mon, 27 Mar 2023 12:43:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 358E480DA5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id U4DI461hqqp9; Mon, 27 Mar 2023 13:19:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E8A260BD1;
+	Mon, 27 Mar 2023 13:19:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E8A260BD1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0AAE0C0035;
-	Mon, 27 Mar 2023 12:43:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DCD7CC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E678C0035;
+	Mon, 27 Mar 2023 13:19:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 620F4C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:43:35 +0000 (UTC)
+ Mon, 27 Mar 2023 13:19:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AB92D40B34
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3CA2660FA1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:43:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AB92D40B34
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=G8phJLBK
+ Mon, 27 Mar 2023 13:19:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3CA2660FA1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y9mm25rHlWgF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id O3HSkpnHunAH
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:43:35 +0000 (UTC)
+ Mon, 27 Mar 2023 13:19:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D1DE440B20
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E90F260BD1
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D1DE440B20
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E90F260BD1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 12:43:34 +0000 (UTC)
+ Mon, 27 Mar 2023 13:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1679921013;
+ s=mimecast20190719; t=1679923192;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=okew6DGjoVJwf2XramfWu6hiLwNPjgMAsie77LgA37k=;
- b=G8phJLBKC2DZq9v/hM8HFFkXodiEz4v9bWzTJ/ftNjFKmvXN2qPElUWpIFyQ0MrptenbON
- qFO7xarvxVLEJ2lNvkogPkm1OQFGRLQNJzHkEeR7w3GzoCORnL8Iz4QkhVdzSbTBUzG++B
- hafhTDD+rQQ1B6yAXtLOYjYjj5LC6s0=
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=fp97bd4egAyMlz94O+W8oRAJLsbe6t9my51Gm91T/aM=;
+ b=a6La+48uF1wwhBHmYLfNCk0mzYxOeFLRbpl738We7+ghtDeFwY4/9d0UVQb4pLDyKMxaNK
+ 8bpMCVmT1CpP3huJtpgGayE+qX1iQsT+CMUK3HU6MIh8KaLzg+ZpXrc3o8xPm+jA3ZM6Uu
+ XJSBBxxiGgnBs2Hl/pIABbAmHbWEj6I=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-209-GOymg6yaNLi71_Zhqi8rig-1; Mon, 27 Mar 2023 08:43:32 -0400
-X-MC-Unique: GOymg6yaNLi71_Zhqi8rig-1
+ us-mta-103-n4gIXESuOfWaVEAVFpfDbA-1; Mon, 27 Mar 2023 09:19:51 -0400
+X-MC-Unique: n4gIXESuOfWaVEAVFpfDbA-1
 Received: by mail-wm1-f69.google.com with SMTP id
- o7-20020a05600c4fc700b003edf85f6bb1so5679420wmq.3
+ bh19-20020a05600c3d1300b003ee93fac4a9so5364572wmb.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Mar 2023 05:43:32 -0700 (PDT)
+ Mon, 27 Mar 2023 06:19:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1679921011;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=okew6DGjoVJwf2XramfWu6hiLwNPjgMAsie77LgA37k=;
- b=KvNkwB39rqe5n3TS9PrEw78/HyjRdzqqCG+28vLllEi3VODr9TZV8qBEvHXy/k4RSs
- nlCWyOEXmVMHBhtVOfckH4aAj9QJtt2QDOCmTV37Z3fIB/K6btanG5p/uFN7qE6CMull
- bHEem4rsW/KE8j+6Ivnj39ui3lakPLKnOx3SPxCoxAQ49Fb0lZrtloDejJLCZ6TQmqub
- yGCXtgAovEOkmIctcfSN+oMP7coMGzSQwhpWMQOlwEJfHHJpuHy/5/9kAKt7ASwuvVEJ
- bhyJO9TjAJxq8M/A/LO3niH6Oz3RJOtREUSUjiyygwwvz+yD/K7sOAMDHo9wnK1E8f1+
- gb5Q==
-X-Gm-Message-State: AAQBX9etsHXJRHfJ+3Zlu9qlAX/1ucX/75XQGQ7rcZ4BrY3KxmHsTB6q
- 7g7JIuReLQ2pDjNz5v/o+h68pU/JuvhChBMgATYC1r58tgS7a4XtLbgZG23TtNAXrmvShJ9eQzn
- 6EbJgIWfulu36AuDOP5e7AbRMRnmQkaWw6wjkL3scmw==
-X-Received: by 2002:a7b:c045:0:b0:3ef:6fee:8057 with SMTP id
- u5-20020a7bc045000000b003ef6fee8057mr1516952wmc.25.1679921011575; 
- Mon, 27 Mar 2023 05:43:31 -0700 (PDT)
-X-Google-Smtp-Source: AKy350b8/SyqswJ4jRTerw8oSEMPhEZEW1SwIMQQ5198eUS5XRuV+yjc/mQikzsTZrLWNyeSaRuqQQ==
-X-Received: by 2002:a7b:c045:0:b0:3ef:6fee:8057 with SMTP id
- u5-20020a7bc045000000b003ef6fee8057mr1516940wmc.25.1679921011227; 
- Mon, 27 Mar 2023 05:43:31 -0700 (PDT)
+ d=1e100.net; s=20210112; t=1679923190;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=fp97bd4egAyMlz94O+W8oRAJLsbe6t9my51Gm91T/aM=;
+ b=L4mMwsp8wWOae9iR7L8/grNeGPDHJMNt45dl6Ujv717fdVNyxqblrWY+DyCkvntfVe
+ tqx6mjwYR4fRrIuAK3GmeRfLF4OWmlP8VlPXxarLMeO1HhJ4BLFNgbL2jw48vEGg34UG
+ 07FrHP7fqAjsjX/FvZ/HEJ8/Vxjp71G6RZLPnDKKBr8QVc/yer9rp6lNcYXfDtyPFr4V
+ bk/3mpbeScARn9S6v6Hbb44SlnohQvq4NEBB8/k6wN83LyKycfAHIH8IBiY6Vu4WL9ad
+ W2utugAwPjMsKE0HZPX5oBt8YUzayFfjPEYMiQfe+Ls/6NhH2ZRr26a6osl03w9ba2w+
+ 9kBg==
+X-Gm-Message-State: AO0yUKXqlvH8BYMjTEa2BNqRDqA/LX9UrZZqL7eQJnAZwYvBybV3s+a4
+ rUCwVYVpNVnI0DSR5kVShInVoyze0++syEVuJbOYL+JL/0WMC+MuKs3stLRnBMG+ko4ov0Ax2xi
+ KSOPPy6D/Q6RmTox+G0JVYtloUCzUEuADHT0wILMD1Q==
+X-Received: by 2002:a1c:7c1a:0:b0:3ee:6d88:774a with SMTP id
+ x26-20020a1c7c1a000000b003ee6d88774amr8075072wmc.14.1679923190461; 
+ Mon, 27 Mar 2023 06:19:50 -0700 (PDT)
+X-Google-Smtp-Source: AK7set+a3nlhZjRZvrUa3ZYlE0VCFu21NVVFHGZYCsteCubT34r2yrI5XsBkcW+x/td8mODOzUHdhw==
+X-Received: by 2002:a1c:7c1a:0:b0:3ee:6d88:774a with SMTP id
+ x26-20020a1c7c1a000000b003ee6d88774amr8075048wmc.14.1679923190202; 
+ Mon, 27 Mar 2023 06:19:50 -0700 (PDT)
 Received: from redhat.com ([2.52.153.142]) by smtp.gmail.com with ESMTPSA id
- s11-20020a05600c384b00b003edf2ae2432sm8703889wmr.7.2023.03.27.05.43.29
+ p5-20020a05600c358500b003ef6f87118dsm2752456wmq.42.2023.03.27.06.19.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Mar 2023 05:43:30 -0700 (PDT)
-Date: Mon, 27 Mar 2023 08:43:27 -0400
+ Mon, 27 Mar 2023 06:19:49 -0700 (PDT)
+Date: Mon, 27 Mar 2023 09:19:47 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Albert Huang <huangjie.albert@bytedance.com>
-Subject: Re: [PATCH v2] virtio_ring: don't update event idx on get_buf
-Message-ID: <20230327084248-mutt-send-email-mst@kernel.org>
-References: <20230325105633.58592-1-huangjie.albert@bytedance.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] vdpa: bugfix
+Message-ID: <20230327091947-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20230325105633.58592-1-huangjie.albert@bytedance.com>
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,76 +116,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-is the below same as what I posted or different? how?
+The following changes since commit e8d018dd0257f744ca50a729e3d042cf2ec9da65:
 
-On Sat, Mar 25, 2023 at 06:56:33PM +0800, Albert Huang wrote:
-> in virtio_net, if we disable the napi_tx, when we triger a tx interrupt,
-> the vq->event_triggered will be set to true. It will no longer be set to
-> false. Unless we explicitly call virtqueue_enable_cb_delayed or
-> virtqueue_enable_cb_prepare.
-> 
-> If we disable the napi_tx, it will only be called when the tx ring
-> buffer is relatively small.
-> 
-> Because event_triggered is true. Therefore, VRING_AVAIL_F_NO_INTERRUPT or
-> VRING_PACKED_EVENT_FLAG_DISABLE will not be set. So we update
-> vring_used_event(&vq->split.vring) or vq->packed.vring.driver->off_wrap
-> every time we call virtqueue_get_buf_ctx. This will bring more interruptions.
-> 
-> To summarize:
-> 1) event_triggered was set to true in vring_interrupt()
-> 2) after this nothing will happen for virtqueue_disable_cb() so
->    VRING_AVAIL_F_NO_INTERRUPT is not set in avail_flags_shadow
-> 3) virtqueue_get_buf_ctx_split() will still think the cb is enabled
->    then it tries to publish new event
-> 
-> To fix, if event_triggered is set to true, do not update
-> vring_used_event(&vq->split.vring) or vq->packed.vring.driver->off_wrap
-> 
-> Tested with iperf:
-> iperf3 tcp stream:
-> vm1 -----------------> vm2
-> vm2 just receives tcp data stream from vm1, and sends the ack to vm1,
-> there are many tx interrupts in vm2.
-> but without event_triggered there are just a few tx interrupts.
-> 
-> Fixes: 8d622d21d248 ("virtio: fix up virtio_disable_cb")
-> Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
-> Message-Id: <20230321085953.24949-1-huangjie.albert@bytedance.com>
+  Linux 6.3-rc3 (2023-03-19 13:27:55 -0700)
 
-what is this exactly?
+are available in the Git repository at:
 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index cbeeea1b0439..1c36fa477966 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -914,7 +914,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	/* If we expect an interrupt for the next entry, tell host
->  	 * by writing event index and flush out the write before
->  	 * the read in the next get_buf call. */
-> -	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
-> +	if (unlikely(!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT) &&
-> +		     !vq->event_triggered))
->  		virtio_store_mb(vq->weak_barriers,
->  				&vring_used_event(&vq->split.vring),
->  				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
-> @@ -1744,7 +1745,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->  	 * by writing event index and flush out the write before
->  	 * the read in the next get_buf call.
->  	 */
-> -	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DESC)
-> +	if (unlikely(vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DESC &&
-> +		     !vq->event_triggered))
->  		virtio_store_mb(vq->weak_barriers,
->  				&vq->packed.vring.driver->off_wrap,
->  				cpu_to_le16(vq->last_used_idx));
-> -- 
-> 2.37.0 (Apple Git-136)
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 8fc9ce051f22581f60325fd87a0fd0f37a7b70c3:
+
+  vdpa/mlx5: Remove debugfs file after device unregister (2023-03-21 16:39:02 -0400)
+
+----------------------------------------------------------------
+vdpa: bugfix
+
+An error handling fix in mlx5.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Eli Cohen (1):
+      vdpa/mlx5: Remove debugfs file after device unregister
+
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 _______________________________________________
 Virtualization mailing list
