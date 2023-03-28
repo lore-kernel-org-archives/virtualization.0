@@ -4,57 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E471C77B72
-	for <virtualization@archiver.kernel.org>; Tue, 28 Mar 2023 09:29:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F41DFC76195
+	for <virtualization@archiver.kernel.org>; Tue, 28 Mar 2023 09:29:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2E705418F1;
-	Tue, 28 Mar 2023 09:29:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2E705418F1
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7353D41902;
+	Tue, 28 Mar 2023 09:29:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7353D41902
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bKLbzTcKcrKV; Tue, 28 Mar 2023 09:29:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5056A418F0;
-	Tue, 28 Mar 2023 09:29:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5056A418F0
+	with ESMTP id JWXwnxplkxj6; Tue, 28 Mar 2023 09:29:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8C13C418F8;
+	Tue, 28 Mar 2023 09:29:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8C13C418F8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2481AC0037;
-	Tue, 28 Mar 2023 09:29:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9FDADC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6EB10C002F;
+	Tue, 28 Mar 2023 09:29:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0C7D2C0089
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 09:29:03 +0000 (UTC)
+ Tue, 28 Mar 2023 09:29:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 72D0C41665
+ by smtp1.osuosl.org (Postfix) with ESMTP id C626B8225D
  for <virtualization@lists.linux-foundation.org>;
  Tue, 28 Mar 2023 09:29:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 72D0C41665
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C626B8225D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W8eFiQkMzT6w
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id K8gRu6tGFV2T
  for <virtualization@lists.linux-foundation.org>;
  Tue, 28 Mar 2023 09:29:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6246E4158F
-Received: from out30-98.freemail.mail.aliyun.com
- (out30-98.freemail.mail.aliyun.com [115.124.30.98])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6246E4158F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C118B81FEB
+Received: from out30-99.freemail.mail.aliyun.com
+ (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C118B81FEB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 09:29:01 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R731e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
+ Tue, 28 Mar 2023 09:29:02 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
- TI=SMTPD_---0Vesaxcb_1679995735; 
+ TI=SMTPD_---0VeseIC9_1679995737; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Vesaxcb_1679995735) by smtp.aliyun-inc.com;
- Tue, 28 Mar 2023 17:28:56 +0800
+ fp:SMTPD_---0VeseIC9_1679995737) by smtp.aliyun-inc.com;
+ Tue, 28 Mar 2023 17:28:58 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH 07/16] virtio_net: remove lock from virtnet_ack_link_announce()
-Date: Tue, 28 Mar 2023 17:28:38 +0800
-Message-Id: <20230328092847.91643-8-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH 09/16] virtio_net: introduce virtnet_rq_update_stats()
+Date: Tue, 28 Mar 2023 17:28:40 +0800
+Message-Id: <20230328092847.91643-10-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20230328092847.91643-1-xuanzhuo@linux.alibaba.com>
 References: <20230328092847.91643-1-xuanzhuo@linux.alibaba.com>
@@ -82,41 +82,66 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Removing rtnl_lock() from virtnet_ack_link_announce(). This is to
-facilitate separating cq-related functions into a separate file.
+Separating the code of updating rq stats.
+
+This is prepare for separating the code of ethtool.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio/virtnet.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/virtio/virtnet.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/net/virtio/virtnet.c b/drivers/net/virtio/virtnet.c
-index 6ad217af44d9..4a3b5efb674e 100644
+index 84b90333dc77..36c747e43b3f 100644
 --- a/drivers/net/virtio/virtnet.c
 +++ b/drivers/net/virtio/virtnet.c
-@@ -2083,11 +2083,9 @@ static void virtnet_stats(struct net_device *dev,
- 
- static void virtnet_ack_link_announce(struct virtnet_info *vi)
- {
--	rtnl_lock();
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
- 				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
- 		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
--	rtnl_unlock();
+@@ -1550,6 +1550,21 @@ static void refill_work(struct work_struct *work)
+ 	}
  }
  
- static int virtnet_ctrl_set_queues(struct virtnet_info *vi, u16 queue_pairs)
-@@ -3187,7 +3185,10 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 
- 	if (v & VIRTIO_NET_S_ANNOUNCE) {
- 		netdev_notify_peers(vi->dev);
++static void virtnet_rq_update_stats(struct virtnet_rq *rq, struct virtnet_rq_stats *stats)
++{
++	int i;
 +
-+		rtnl_lock();
- 		virtnet_ack_link_announce(vi);
-+		rtnl_unlock();
++	u64_stats_update_begin(&rq->stats.syncp);
++	for (i = 0; i < VIRTNET_RQ_STATS_LEN; i++) {
++		size_t offset = virtnet_rq_stats_desc[i].offset;
++		u64 *item;
++
++		item = (u64 *)((u8 *)&rq->stats + offset);
++		*item += *(u64 *)((u8 *)stats + offset);
++	}
++	u64_stats_update_end(&rq->stats.syncp);
++}
++
+ static int virtnet_receive(struct virtnet_rq *rq, int budget,
+ 			   unsigned int *xdp_xmit)
+ {
+@@ -1557,7 +1572,6 @@ static int virtnet_receive(struct virtnet_rq *rq, int budget,
+ 	struct virtnet_rq_stats stats = {};
+ 	unsigned int len;
+ 	void *buf;
+-	int i;
+ 
+ 	if (!vi->big_packets || vi->mergeable_rx_bufs) {
+ 		void *ctx;
+@@ -1584,15 +1598,7 @@ static int virtnet_receive(struct virtnet_rq *rq, int budget,
+ 		}
  	}
  
- 	/* Ignore unknown (future) status bits */
+-	u64_stats_update_begin(&rq->stats.syncp);
+-	for (i = 0; i < VIRTNET_RQ_STATS_LEN; i++) {
+-		size_t offset = virtnet_rq_stats_desc[i].offset;
+-		u64 *item;
+-
+-		item = (u64 *)((u8 *)&rq->stats + offset);
+-		*item += *(u64 *)((u8 *)&stats + offset);
+-	}
+-	u64_stats_update_end(&rq->stats.syncp);
++	virtnet_rq_update_stats(rq, &stats);
+ 
+ 	return stats.packets;
+ }
 -- 
 2.32.0.3.g01195cf9f
 
