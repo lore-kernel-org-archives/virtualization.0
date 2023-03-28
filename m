@@ -1,96 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 64295C76195
-	for <virtualization@archiver.kernel.org>; Tue, 28 Mar 2023 02:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D214C76195
+	for <virtualization@archiver.kernel.org>; Tue, 28 Mar 2023 02:17:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BE11F40103;
-	Tue, 28 Mar 2023 02:14:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BE11F40103
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=xPW62TJv;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=codewreck.org header.i=@codewreck.org header.a=rsa-sha256 header.s=2 header.b=xPW62TJv
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uE-_2br22QT4; Tue, 28 Mar 2023 02:14:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AFC7C400EC;
-	Tue, 28 Mar 2023 02:14:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFC7C400EC
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F91FC007E;
-	Tue, 28 Mar 2023 02:14:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C1E9C007C
- for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 02:14:00 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 03A2A81F50
- for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 02:14:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 03A2A81F50
+	by smtp1.osuosl.org (Postfix) with ESMTP id C238182046;
+	Tue, 28 Mar 2023 02:17:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C238182046
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org
- header.a=rsa-sha256 header.s=2 header.b=xPW62TJv; 
- dkim=pass (2048-bit key) header.d=codewreck.org header.i=@codewreck.org
- header.a=rsa-sha256 header.s=2 header.b=xPW62TJv
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=fY0gJ1Lf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bv76rLFkHFs1
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rF0vq6WFqn2Y; Tue, 28 Mar 2023 02:17:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 420AE81FC8;
+	Tue, 28 Mar 2023 02:17:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 420AE81FC8
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0EE27C007E;
+	Tue, 28 Mar 2023 02:17:27 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74091C007C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 02:13:57 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 18D5E81F4F
-Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 18D5E81F4F
+ Tue, 28 Mar 2023 02:17:25 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 488DE4010C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 02:13:57 +0000 (UTC)
-Received: by nautica.notk.org (Postfix, from userid 108)
- id EE4F2C01C; Tue, 28 Mar 2023 04:13:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
- t=1679969633; bh=wqMNk37v7ep6rr1jhz7sYBORs1dIt3NXHYcIbaQ7jIg=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=xPW62TJvFSHPl3Gv9JQ8HAfCEesqn8fdPlrV/CljUx8VPMf1mGBfubqVsMbbBLDP1
- k/nyIvbgcrXG1s6YDRs3CA0dcn2CAUE1rBN2WGUpmWHfJ2yUYVKV3K7GDV0camJXxY
- uJTGxrpr4i6TbwJtSv/zBV8oLhJWFv9ShJwHjSKFOHAe376n/xtBtayDrsxdKYOgv1
- RDxRmc5C8zR2V6Fj69hCPWk1hi+UFbd/7EzKdE923DKvf5XqwU0J5t40q/ie2PQR+x
- GbwSmpsScKd8D44OkV+Vo3YLetFhBfoxgMG197N335V0aiPlAWRN8JCmlS8YG97Q/d
- GvX97CEcOLOog==
-Received: from odin.codewreck.org (localhost [127.0.0.1])
- by nautica.notk.org (Postfix) with ESMTPS id 7569FC009;
- Tue, 28 Mar 2023 04:13:50 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
- t=1679969633; bh=wqMNk37v7ep6rr1jhz7sYBORs1dIt3NXHYcIbaQ7jIg=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=xPW62TJvFSHPl3Gv9JQ8HAfCEesqn8fdPlrV/CljUx8VPMf1mGBfubqVsMbbBLDP1
- k/nyIvbgcrXG1s6YDRs3CA0dcn2CAUE1rBN2WGUpmWHfJ2yUYVKV3K7GDV0camJXxY
- uJTGxrpr4i6TbwJtSv/zBV8oLhJWFv9ShJwHjSKFOHAe376n/xtBtayDrsxdKYOgv1
- RDxRmc5C8zR2V6Fj69hCPWk1hi+UFbd/7EzKdE923DKvf5XqwU0J5t40q/ie2PQR+x
- GbwSmpsScKd8D44OkV+Vo3YLetFhBfoxgMG197N335V0aiPlAWRN8JCmlS8YG97Q/d
- GvX97CEcOLOog==
-Received: from localhost (odin.codewreck.org [local])
- by odin.codewreck.org (OpenSMTPD) with ESMTPA id c6bb0979;
- Tue, 28 Mar 2023 02:13:48 +0000 (UTC)
-Date: Tue, 28 Mar 2023 11:13:32 +0900
-From: Dominique Martinet <asmadeus@codewreck.org>
-To: Albert Huang <huangjie.albert@bytedance.com>,
- "Michael S. Tsirkin" <mst@redhat.com>
-Subject: 9p regression (Was: [PATCH v2] virtio_ring: don't update event idx
- on get_buf)
-Message-ID: <ZCJNTBQLZeyLBKKB@codewreck.org>
-References: <20230325105633.58592-1-huangjie.albert@bytedance.com>
+ Tue, 28 Mar 2023 02:17:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 488DE4010C
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2022-7-12 header.b=fY0gJ1Lf
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IgtmY6Xuieat
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Mar 2023 02:17:24 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 11F99400EC
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 11F99400EC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Mar 2023 02:17:23 +0000 (UTC)
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 32S24StY002382; Tue, 28 Mar 2023 02:17:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=corp-2022-7-12;
+ bh=TeXfkbDh2KcwXeybNvHOYW2upTF1dynsnaGBTvZ0uj8=;
+ b=fY0gJ1LfIbkapg9A3I9lvxHgk4wcD/qgTCGNAEEj+tf76FrTMC9GdjuRPblETrcOq/Ge
+ 78qOc/2FaWhaK1s+9bcsTf7zqKL3a2RrC3Pyf0fJRW+ZAkto6jFCwxqk71f0USQ5trbW
+ bgXeJ8SJKSN+em2wcobkNtuu+lK7eLKPAcPjxt2dbOqiVs/CQAY08yQtaID7VIgLAd16
+ Ykqe41qYAyehqJpdkbxz6K7anSOpQBxl1OKrSWPalmfHSNlC8fUCYSffuEfejRmaAh09
+ FzrfOzG1EVshFr7yk9HdChsL9/sMqy4luf95ok9BKCFR5PudjvVNksQSZUzbcdMa/Spr Ww== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3pkq4j80eq-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 28 Mar 2023 02:17:23 +0000
+Received: from pps.filterd
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5)
+ with ESMTP id 32S1611a020313; Tue, 28 Mar 2023 02:17:22 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3phqd61bny-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 28 Mar 2023 02:17:22 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 32S2FZlf038246;
+ Tue, 28 Mar 2023 02:17:22 GMT
+Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-123-40.vpn.oracle.com
+ [10.154.123.40])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id
+ 3phqd61bky-3; Tue, 28 Mar 2023 02:17:22 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: stefanha@redhat.com, jasowang@redhat.com, mst@redhat.com,
+ sgarzare@redhat.com, virtualization@lists.linux-foundation.org
+Subject: [PATCH v6 02/11] vhost, vhost-net: add helper to check if vq has work
+Date: Mon, 27 Mar 2023 21:17:08 -0500
+Message-Id: <20230328021717.42268-3-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230328021717.42268-1-michael.christie@oracle.com>
+References: <20230328021717.42268-1-michael.christie@oracle.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230325105633.58592-1-huangjie.albert@bytedance.com>
-Cc: Eric Van Hensbergen <ericvh@gmail.com>,
- Christian Schoenebeck <linux_oss@crudebyte.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Luis Chamberlain <mcgrof@kernel.org>, v9fs-developer@lists.sourceforge.net
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-03-24_11,2023-03-27_02,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ mlxscore=0 phishscore=0
+ malwarescore=0 adultscore=0 spamscore=0 mlxlogscore=999 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2303200000
+ definitions=main-2303280016
+X-Proofpoint-ORIG-GUID: LJ11B9rXAMEtKunSC8gS9FYtUEA4tcRO
+X-Proofpoint-GUID: LJ11B9rXAMEtKunSC8gS9FYtUEA4tcRO
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,100 +119,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Michael, Albert,
+In the next patches each vq might have different workers so one could
+have work but others do not. For net, we only want to check specific vqs,
+so this adds a helper to check if a vq has work pending and converts
+vhost-net to use it.
 
-Albert Huang wrote on Sat, Mar 25, 2023 at 06:56:33PM +0800:
-> in virtio_net, if we disable the napi_tx, when we triger a tx interrupt,
-> the vq->event_triggered will be set to true. It will no longer be set to
-> false. Unless we explicitly call virtqueue_enable_cb_delayed or
-> virtqueue_enable_cb_prepare.
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+---
+ drivers/vhost/net.c   | 2 +-
+ drivers/vhost/vhost.c | 6 +++---
+ drivers/vhost/vhost.h | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-This patch (commited as 35395770f803 ("virtio_ring: don't update event
-idx on get_buf") in next-20230327 apparently breaks 9p, as reported by
-Luis in https://lkml.kernel.org/r/ZCI+7Wg5OclSlE8c@bombadil.infradead.org
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 07181cd8d52e..8ed63651b9eb 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -546,7 +546,7 @@ static void vhost_net_busy_poll(struct vhost_net *net,
+ 	endtime = busy_clock() + busyloop_timeout;
+ 
+ 	while (vhost_can_busy_poll(endtime)) {
+-		if (vhost_has_work(&net->dev)) {
++		if (vhost_vq_has_work(vq)) {
+ 			*busyloop_intr = true;
+ 			break;
+ 		}
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index e041e116afee..6567aed69ebb 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -262,11 +262,11 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+ EXPORT_SYMBOL_GPL(vhost_work_queue);
+ 
+ /* A lockless hint for busy polling code to exit the loop */
+-bool vhost_has_work(struct vhost_dev *dev)
++bool vhost_vq_has_work(struct vhost_virtqueue *vq)
+ {
+-	return dev->worker && !llist_empty(&dev->worker->work_list);
++	return vq->worker && !llist_empty(&vq->worker->work_list);
+ }
+-EXPORT_SYMBOL_GPL(vhost_has_work);
++EXPORT_SYMBOL_GPL(vhost_vq_has_work);
+ 
+ void vhost_poll_queue(struct vhost_poll *poll)
+ {
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index e72b665ba3a5..0dde119fb0ee 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -45,7 +45,6 @@ struct vhost_poll {
+ 
+ void vhost_work_init(struct vhost_work *work, vhost_work_fn_t fn);
+ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work);
+-bool vhost_has_work(struct vhost_dev *dev);
+ 
+ void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
+ 		     __poll_t mask, struct vhost_dev *dev);
+@@ -195,6 +194,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *,
+ 		      struct vhost_log *log, unsigned int *log_num);
+ void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+ 
++bool vhost_vq_has_work(struct vhost_virtqueue *vq);
+ bool vhost_vq_is_setup(struct vhost_virtqueue *vq);
+ int vhost_vq_init_access(struct vhost_virtqueue *);
+ int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+-- 
+2.25.1
 
-I've just hit had a look at recent patches[1] and reverted this to test
-and I can mount again, so I'm pretty sure this is the culprit, but I
-didn't look at the content at all yet so cannot advise further.
-It might very well be that we need some extra handling for 9p
-specifically that can be added separately if required.
-
-[1] git log 0ec57cfa721fbd36b4c4c0d9ccc5d78a78f7fa35..HEAD drivers/virtio/
-
-
-This can be reproduced with a simple mount, run qemu with some -virtfs
-argument and `mount -t 9p -o debug=65535 tag mountpoint` will hang after
-these messages:
-9pnet: -- p9_virtio_request (83): 9p debug: virtio request
-9pnet: -- p9_virtio_request (83): virtio request kicked
-
-So I suspect we're just not getting a callback.
-
-
-I'll have a closer look after work, but any advice meanwhile will be
-appreciated!
-(I'm sure Luis would also like a temporary drop from -next until
-this is figured out, but I'll leave this up to you)
-
-
-> 
-> If we disable the napi_tx, it will only be called when the tx ring
-> buffer is relatively small.
-> 
-> Because event_triggered is true. Therefore, VRING_AVAIL_F_NO_INTERRUPT or
-> VRING_PACKED_EVENT_FLAG_DISABLE will not be set. So we update
-> vring_used_event(&vq->split.vring) or vq->packed.vring.driver->off_wrap
-> every time we call virtqueue_get_buf_ctx. This will bring more interruptions.
-> 
-> To summarize:
-> 1) event_triggered was set to true in vring_interrupt()
-> 2) after this nothing will happen for virtqueue_disable_cb() so
->    VRING_AVAIL_F_NO_INTERRUPT is not set in avail_flags_shadow
-> 3) virtqueue_get_buf_ctx_split() will still think the cb is enabled
->    then it tries to publish new event
-> 
-> To fix, if event_triggered is set to true, do not update
-> vring_used_event(&vq->split.vring) or vq->packed.vring.driver->off_wrap
-> 
-> Tested with iperf:
-> iperf3 tcp stream:
-> vm1 -----------------> vm2
-> vm2 just receives tcp data stream from vm1, and sends the ack to vm1,
-> there are many tx interrupts in vm2.
-> but without event_triggered there are just a few tx interrupts.
-> 
-> Fixes: 8d622d21d248 ("virtio: fix up virtio_disable_cb")
-> Signed-off-by: Albert Huang <huangjie.albert@bytedance.com>
-> Message-Id: <20230321085953.24949-1-huangjie.albert@bytedance.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_ring.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index cbeeea1b0439..1c36fa477966 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -914,7 +914,8 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  	/* If we expect an interrupt for the next entry, tell host
->  	 * by writing event index and flush out the write before
->  	 * the read in the next get_buf call. */
-> -	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT))
-> +	if (unlikely(!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT) &&
-> +		     !vq->event_triggered))
->  		virtio_store_mb(vq->weak_barriers,
->  				&vring_used_event(&vq->split.vring),
->  				cpu_to_virtio16(_vq->vdev, vq->last_used_idx));
-> @@ -1744,7 +1745,8 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->  	 * by writing event index and flush out the write before
->  	 * the read in the next get_buf call.
->  	 */
-> -	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DESC)
-> +	if (unlikely(vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DESC &&
-> +		     !vq->event_triggered))
->  		virtio_store_mb(vq->weak_barriers,
->  				&vq->packed.vring.driver->off_wrap,
->  				cpu_to_le16(vq->last_used_idx));
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
