@@ -1,100 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9907AC74A5B
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9F75C77B6D
 	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 11:03:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 097E3818A2;
+	by smtp2.osuosl.org (Postfix) with ESMTP id 628EE41CFF;
 	Wed, 29 Mar 2023 11:03:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 097E3818A2
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=hp9Oqw5d
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 628EE41CFF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=PyXqtCFO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZMFm3oMvcgCs; Wed, 29 Mar 2023 11:03:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6F92681E2D;
-	Wed, 29 Mar 2023 11:03:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F92681E2D
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 92B1BC002F;
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vza5pa1dqi-I; Wed, 29 Mar 2023 11:03:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 84B7441CFE;
 	Wed, 29 Mar 2023 11:03:47 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1EA85C0037
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84B7441CFE
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 55169C0037;
+	Wed, 29 Mar 2023 11:03:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 156C4C002F
  for <virtualization@lists.linux-foundation.org>;
  Wed, 29 Mar 2023 11:03:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CD2CA61460
+ by smtp2.osuosl.org (Postfix) with ESMTP id CD3DA41CFE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 11:03:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CD2CA61460
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=daynix-com.20210112.gappssmtp.com
- header.i=@daynix-com.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=hp9Oqw5d
+ Wed, 29 Mar 2023 11:03:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CD3DA41CFE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RYa7DAKyQgPc
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id j-MZLgi-97IL
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 11:03:44 +0000 (UTC)
+ Wed, 29 Mar 2023 11:03:43 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7EEEA61464
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com
- [IPv6:2a00:1450:4864:20::52f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7EEEA61464
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AA37D41CF2
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com
+ [IPv6:2a00:1450:4864:20::52b])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id AA37D41CF2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 11:03:44 +0000 (UTC)
-Received: by mail-ed1-x52f.google.com with SMTP id y4so61600346edo.2
+ Wed, 29 Mar 2023 11:03:42 +0000 (UTC)
+Received: by mail-ed1-x52b.google.com with SMTP id h8so61518533ede.8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 04:03:44 -0700 (PDT)
+ Wed, 29 Mar 2023 04:03:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20210112.gappssmtp.com; s=20210112; t=1680087824;
+ d=daynix-com.20210112.gappssmtp.com; s=20210112; t=1680087821;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:from:to:cc:subject:date
  :message-id:reply-to;
- bh=gTcU5HqVU1XgtuJ2Y8sd/OBjaB0pp67CpHcRkiVabVQ=;
- b=hp9Oqw5dPokqfYz22NTNm5CHcmPFA2qdpKFsieBHsz4KO70+K4slt8EpuWfc6ep4lp
- TYCGSsvwp0m6/9lSJ9u4U+XtDTleePGuvm92TS3wFIPH0sKpaOR+VOuBOWyaBcxhIprl
- FARrFe2ntTy9ipfwq7TB8Aks2TMPoxAFMbsBI3niPkMH2onKdvwgO+mN4vfgYTP4Sk5s
- 560shzhQjKaKxTtm8+F4rijxkDlnGHGpR99TmIHlQ3334L8qfu1uZOGyBadXQSvoPu6v
- BsxD4OBg21M3czeMY3tXp5tf1EPM98Ho0kDC8lZY6x5niT/b/zLxAS7keWu0ZZTA+kz6
- 8moQ==
+ bh=sgkQXYn3YvfKra4NCcSBXfsEMksh5BTkjMQUOsqzQ+E=;
+ b=PyXqtCFO9sUJPCeSPkIEmRh8FWBqXOozOdxoBOtp13ZPwfu2XqgpcQHD9xXGxYH8nF
+ FdxSb6DoaLJEo+PNa/u7phzZ1sKHGiYH8RZgZ/BMDdtg6kLf3QJ1N6Bpmtdu+2eyDCU7
+ 88SI0rm1IFIcqZwPFlYZYgd4dacEUDmopzYRfR4sq7U+oHHBlIMB2uSP4KBctQ0lweF7
+ TPhYelCVdkqatgMfUDEik7jwHrbD95WYipLN1rwpRIB0up2diBsHISSMmGS6Po+YueYH
+ EWvIuaO9Gmyw+lVTRBvkxRCVSPEMg72Bvl3JTPNxj/JoPQclpSvVYCX3fv9Ia7EBcYuH
+ auYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680087824;
+ d=1e100.net; s=20210112; t=1680087821;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=gTcU5HqVU1XgtuJ2Y8sd/OBjaB0pp67CpHcRkiVabVQ=;
- b=MdCFVV03IY7C1bJrf5HHeOBJ1u6WqEqmZAG1XexQX30GlkN3rSGwG69ncDlMUr6zz/
- tvQQVAxHynVCwVjMBVo4KZDaRbybPIOkWKTk93ioVmsb1/fJ/Ce4s7uj2ngqwsFaFTGM
- zrOjf/+ququ7ut5w4t4J5Fz7nbwPXwBQM5r0ah5PSeIgjb+F/FVlfmknwmq9o75cMNOc
- yF3Oitkf5kUMcICEhy6dnZqLjToEJrLp5F8k4pCY6QrCYaaeZEaVtWwMOSWfWr27V1vJ
- Vid4j+Sfat01b8IOe71BRkmJ9cjClrRYVhVJlCGxDJCSxYPc9RVkhP0hIx9zdAQrsrbf
- H3eg==
-X-Gm-Message-State: AAQBX9eKmFV8526wnzcPnELJ7GZL3H2mO2DbL6iaXAXpFZcxz1HZl9ss
- UwJPsXLGQRgXun7YpOX1jaNxCQ==
-X-Google-Smtp-Source: AKy350Z+lk0YVQodaLqvLOoFXIYHXTVciDftd4mzJAORAhetfY/MF8nRkPvYHqDZI2pPUaUQRSSdsA==
-X-Received: by 2002:a17:906:4d8b:b0:92f:7c42:8631 with SMTP id
- s11-20020a1709064d8b00b0092f7c428631mr18787825eju.16.1680087824034; 
- Wed, 29 Mar 2023 04:03:44 -0700 (PDT)
+ bh=sgkQXYn3YvfKra4NCcSBXfsEMksh5BTkjMQUOsqzQ+E=;
+ b=cL6Xd5zNcb1yFjcc265gsAxlR3laPIVqSjQjLyjiHoiFNbAKTkJHW51TToISNNWggt
+ hJftAlh4vJ0s5ydIbEcVahevKfDknc8Fkvc6HA7mEHfK/4XixAEcAtFImjIAWd8daDNw
+ jplYzoOfcZKBtj3Z+AiU5P0TSSUXEqDcGa494KqdpkPPXH38rvJlJ2svy7xu5Je1D/tE
+ ggAAim6Tw1yt88pG+1TgW4QCicj/ZCme1JXv+FEVTFacgY7+r2JbRQPpm8GTBQa/tROb
+ 3AtbHVL7YikFHyuj9nIHIdktpZQkEVBC8qZ7JMy2kssEvLRsekLQh8ZqxxJITfct7FTA
+ UH1A==
+X-Gm-Message-State: AAQBX9dkNkXmJ+bqHXLFhJVc9oTw+hVH6+Ux9CcX//bWUuHLNimjZFbS
+ dda1WavrM8bt1y/QM3ggr2yO0Q==
+X-Google-Smtp-Source: AKy350YVv7Jjg2cwb1XC3RAht9uck1L9ofHTnZ3fV4u3BfIkFVj0v5m/3Zogk8uZKU5pxcu4H7XDZQ==
+X-Received: by 2002:a17:906:e0c5:b0:931:4f2c:4e83 with SMTP id
+ gl5-20020a170906e0c500b009314f2c4e83mr19049817ejb.63.1680087820834; 
+ Wed, 29 Mar 2023 04:03:40 -0700 (PDT)
 Received: from localhost.localdomain (178-133-100-41.mobile.vf-ua.net.
  [178.133.100.41]) by smtp.gmail.com with ESMTPSA id
- md12-20020a170906ae8c00b008e68d2c11d8sm16406975ejb.218.2023.03.29.04.03.42
+ md12-20020a170906ae8c00b008e68d2c11d8sm16406975ejb.218.2023.03.29.04.03.39
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 29 Mar 2023 04:03:43 -0700 (PDT)
+ Wed, 29 Mar 2023 04:03:40 -0700 (PDT)
 From: Andrew Melnychenko <andrew@daynix.com>
 To: davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
  pabeni@redhat.com, mst@redhat.com, jasowang@redhat.com,
  yoshfuji@linux-ipv6.org, dsahern@kernel.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 3/5] ebpf: Added declaration/initialization routines.
-Date: Wed, 29 Mar 2023 13:45:44 +0300
-Message-Id: <20230329104546.108016-4-andrew@daynix.com>
+Subject: [RFC PATCH 1/5] ebpf: Added eBPF initialization by fds and map update.
+Date: Wed, 29 Mar 2023 13:45:42 +0300
+Message-Id: <20230329104546.108016-2-andrew@daynix.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230329104546.108016-1-andrew@daynix.com>
 References: <20230329104546.108016-1-andrew@daynix.com>
@@ -116,131 +112,263 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Now, the binary objects may be retrieved by id/name.
-It would require for future qmp commands that may require specific
-eBPF blob.
+Changed eBPF map updates through mmaped array.
+Mmaped arrays provide direct access to map data.
+It should omit using bpf_map_update_elem() call,
+which may require capabilities that are not present.
 
 Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
 ---
- ebpf/ebpf.c      | 48 ++++++++++++++++++++++++++++++++++++++++++++++++
- ebpf/ebpf.h      | 25 +++++++++++++++++++++++++
- ebpf/ebpf_rss.c  |  4 ++++
- ebpf/meson.build |  1 +
- 4 files changed, 78 insertions(+)
- create mode 100644 ebpf/ebpf.c
- create mode 100644 ebpf/ebpf.h
+ ebpf/ebpf_rss-stub.c |   6 +++
+ ebpf/ebpf_rss.c      | 120 ++++++++++++++++++++++++++++++++++---------
+ ebpf/ebpf_rss.h      |  10 ++++
+ 3 files changed, 113 insertions(+), 23 deletions(-)
 
-diff --git a/ebpf/ebpf.c b/ebpf/ebpf.c
-new file mode 100644
-index 0000000000..86320d72f5
---- /dev/null
-+++ b/ebpf/ebpf.c
-@@ -0,0 +1,48 @@
-+/*
-+ * QEMU eBPF binary declaration routine.
-+ *
-+ * Developed by Daynix Computing LTD (http://www.daynix.com)
-+ *
-+ * Authors:
-+ *  Andrew Melnychenko <andrew@daynix.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or
-+ * later.  See the COPYING file in the top-level directory.
-+ */
-+
-+#include "qemu/osdep.h"
-+#include "qemu/queue.h"
-+#include "ebpf/ebpf.h"
-+
-+struct ElfBinaryDataEntry {
-+    const char *id;
-+    const void * (*fn)(size_t *);
-+
-+    QSLIST_ENTRY(ElfBinaryDataEntry) node;
-+};
-+
-+static QSLIST_HEAD(, ElfBinaryDataEntry) ebpf_elf_obj_list =
-+                                            QSLIST_HEAD_INITIALIZER();
-+
-+void ebpf_register_binary_data(const char *id, const void * (*fn)(size_t *))
+diff --git a/ebpf/ebpf_rss-stub.c b/ebpf/ebpf_rss-stub.c
+index e71e229190..8d7fae2ad9 100644
+--- a/ebpf/ebpf_rss-stub.c
++++ b/ebpf/ebpf_rss-stub.c
+@@ -28,6 +28,12 @@ bool ebpf_rss_load(struct EBPFRSSContext *ctx)
+     return false;
+ }
+ 
++bool ebpf_rss_load_fds(struct EBPFRSSContext *ctx, int program_fd,
++                       int config_fd, int toeplitz_fd, int table_fd)
 +{
-+    struct ElfBinaryDataEntry *data = NULL;
-+
-+    data = g_malloc0(sizeof(*data));
-+    data->fn = fn;
-+    data->id = id;
-+
-+    QSLIST_INSERT_HEAD(&ebpf_elf_obj_list, data, node);
++    return false;
 +}
 +
-+const void *ebpf_find_binary_by_id(const char *id, size_t *sz)
-+{
-+    struct ElfBinaryDataEntry *it = NULL;
-+    QSLIST_FOREACH(it, &ebpf_elf_obj_list, node) {
-+        if (strcmp(id, it->id) == 0) {
-+            return it->fn(sz);
-+        }
-+    }
-+
-+    return NULL;
-+}
-diff --git a/ebpf/ebpf.h b/ebpf/ebpf.h
-new file mode 100644
-index 0000000000..fd705cb73e
---- /dev/null
-+++ b/ebpf/ebpf.h
-@@ -0,0 +1,25 @@
-+/*
-+ * QEMU eBPF binary declaration routine.
-+ *
-+ * Developed by Daynix Computing LTD (http://www.daynix.com)
-+ *
-+ * Authors:
-+ *  Andrew Melnychenko <andrew@daynix.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2 or
-+ * later.  See the COPYING file in the top-level directory.
-+ */
-+
-+#ifndef EBPF_H
-+#define EBPF_H
-+
-+void ebpf_register_binary_data(const char *id, const void * (*fn)(size_t *));
-+const void *ebpf_find_binary_by_id(const char *id, size_t *sz);
-+
-+#define ebpf_binary_init(id, fn)                                           \
-+static void __attribute__((constructor)) ebpf_binary_init_ ## fn(void)     \
-+{                                                                          \
-+    ebpf_register_binary_data(id, fn);                                     \
-+}
-+
-+#endif /* EBPF_H */
+ bool ebpf_rss_set_all(struct EBPFRSSContext *ctx, struct EBPFRSSConfig *config,
+                       uint16_t *indirections_table, uint8_t *toeplitz_key)
+ {
 diff --git a/ebpf/ebpf_rss.c b/ebpf/ebpf_rss.c
-index 08015fecb1..b4038725f2 100644
+index cee658c158..08015fecb1 100644
 --- a/ebpf/ebpf_rss.c
 +++ b/ebpf/ebpf_rss.c
-@@ -21,6 +21,8 @@
- 
- #include "ebpf/ebpf_rss.h"
- #include "ebpf/rss.bpf.skeleton.h"
-+#include "ebpf/ebpf.h"
-+
- #include "trace.h"
- 
- void ebpf_rss_init(struct EBPFRSSContext *ctx)
-@@ -237,3 +239,5 @@ void ebpf_rss_unload(struct EBPFRSSContext *ctx)
-     ctx->obj = NULL;
-     ctx->program_fd = -1;
+@@ -27,19 +27,68 @@ void ebpf_rss_init(struct EBPFRSSContext *ctx)
+ {
+     if (ctx != NULL) {
+         ctx->obj = NULL;
++        ctx->program_fd = -1;
+     }
  }
+ 
+ bool ebpf_rss_is_loaded(struct EBPFRSSContext *ctx)
+ {
+-    return ctx != NULL && ctx->obj != NULL;
++    return ctx != NULL && (ctx->obj != NULL || ctx->program_fd != -1);
++}
 +
-+ebpf_binary_init("rss", rss_bpf__elf_bytes)
-diff --git a/ebpf/meson.build b/ebpf/meson.build
-index 2dd0fd8948..67c3f53aa9 100644
---- a/ebpf/meson.build
-+++ b/ebpf/meson.build
-@@ -1 +1,2 @@
-+softmmu_ss.add(files('ebpf.c'))
- softmmu_ss.add(when: libbpf, if_true: files('ebpf_rss.c'), if_false: files('ebpf_rss-stub.c'))
++static bool ebpf_rss_mmap(struct EBPFRSSContext *ctx)
++{
++    if (!ebpf_rss_is_loaded(ctx)) {
++        return false;
++    }
++
++    ctx->mmap_configuration = mmap(NULL, qemu_real_host_page_size(),
++                                   PROT_READ | PROT_WRITE, MAP_SHARED,
++                                   ctx->map_configuration, 0);
++    if (ctx->mmap_configuration == MAP_FAILED) {
++        trace_ebpf_error("eBPF RSS", "can not mmap eBPF configuration array");
++        return false;
++    }
++    ctx->mmap_toeplitz_key = mmap(NULL, qemu_real_host_page_size(),
++                                   PROT_READ | PROT_WRITE, MAP_SHARED,
++                                   ctx->map_toeplitz_key, 0);
++    if (ctx->mmap_toeplitz_key == MAP_FAILED) {
++        trace_ebpf_error("eBPF RSS", "can not mmap eBPF toeplitz key");
++        goto toeplitz_fail;
++    }
++    ctx->mmap_indirections_table = mmap(NULL, qemu_real_host_page_size(),
++                                   PROT_READ | PROT_WRITE, MAP_SHARED,
++                                   ctx->map_indirections_table, 0);
++    if (ctx->mmap_indirections_table == MAP_FAILED) {
++        trace_ebpf_error("eBPF RSS", "can not mmap eBPF indirection table");
++        goto indirection_fail;
++    }
++
++    return true;
++
++indirection_fail:
++    munmap(ctx->mmap_toeplitz_key, qemu_real_host_page_size());
++toeplitz_fail:
++    munmap(ctx->mmap_configuration, qemu_real_host_page_size());
++    return false;
++}
++
++static void ebpf_rss_munmap(struct EBPFRSSContext *ctx)
++{
++    if (!ebpf_rss_is_loaded(ctx)) {
++        return;
++    }
++
++    munmap(ctx->mmap_indirections_table, qemu_real_host_page_size());
++    munmap(ctx->mmap_toeplitz_key, qemu_real_host_page_size());
++    munmap(ctx->mmap_configuration, qemu_real_host_page_size());
+ }
+ 
+ bool ebpf_rss_load(struct EBPFRSSContext *ctx)
+ {
+     struct rss_bpf *rss_bpf_ctx;
+ 
+-    if (ctx == NULL) {
++    if (ctx == NULL || ebpf_rss_is_loaded(ctx)) {
+         return false;
+     }
+ 
+@@ -66,26 +115,51 @@ bool ebpf_rss_load(struct EBPFRSSContext *ctx)
+     ctx->map_toeplitz_key = bpf_map__fd(
+             rss_bpf_ctx->maps.tap_rss_map_toeplitz_key);
+ 
++    if (!ebpf_rss_mmap(ctx)) {
++        goto error;
++    }
++
+     return true;
+ error:
+     rss_bpf__destroy(rss_bpf_ctx);
+     ctx->obj = NULL;
++    ctx->program_fd = -1;
+ 
+     return false;
+ }
+ 
+-static bool ebpf_rss_set_config(struct EBPFRSSContext *ctx,
+-                                struct EBPFRSSConfig *config)
++bool ebpf_rss_load_fds(struct EBPFRSSContext *ctx, int program_fd,
++                       int config_fd, int toeplitz_fd, int table_fd)
+ {
+-    uint32_t map_key = 0;
++    if (ctx == NULL || ebpf_rss_is_loaded(ctx)) {
++        return false;
++    }
+ 
+-    if (!ebpf_rss_is_loaded(ctx)) {
++    if (program_fd < 0 || config_fd < 0 || toeplitz_fd < 0 || table_fd < 0) {
+         return false;
+     }
+-    if (bpf_map_update_elem(ctx->map_configuration,
+-                            &map_key, config, 0) < 0) {
++
++    ctx->program_fd = program_fd;
++    ctx->map_configuration = config_fd;
++    ctx->map_toeplitz_key = toeplitz_fd;
++    ctx->map_indirections_table = table_fd;
++
++    if (!ebpf_rss_mmap(ctx)) {
++        ctx->program_fd = -1;
+         return false;
+     }
++
++    return true;
++}
++
++static bool ebpf_rss_set_config(struct EBPFRSSContext *ctx,
++                                struct EBPFRSSConfig *config)
++{
++    if (!ebpf_rss_is_loaded(ctx)) {
++        return false;
++    }
++
++    memcpy(ctx->mmap_configuration, config, sizeof(*config));
+     return true;
+ }
+ 
+@@ -93,27 +167,19 @@ static bool ebpf_rss_set_indirections_table(struct EBPFRSSContext *ctx,
+                                             uint16_t *indirections_table,
+                                             size_t len)
+ {
+-    uint32_t i = 0;
+-
+     if (!ebpf_rss_is_loaded(ctx) || indirections_table == NULL ||
+        len > VIRTIO_NET_RSS_MAX_TABLE_LEN) {
+         return false;
+     }
+ 
+-    for (; i < len; ++i) {
+-        if (bpf_map_update_elem(ctx->map_indirections_table, &i,
+-                                indirections_table + i, 0) < 0) {
+-            return false;
+-        }
+-    }
++    memcpy(ctx->mmap_indirections_table, indirections_table,
++            sizeof(*indirections_table) * len);
+     return true;
+ }
+ 
+ static bool ebpf_rss_set_toepliz_key(struct EBPFRSSContext *ctx,
+                                      uint8_t *toeplitz_key)
+ {
+-    uint32_t map_key = 0;
+-
+     /* prepare toeplitz key */
+     uint8_t toe[VIRTIO_NET_RSS_MAX_KEY_SIZE] = {};
+ 
+@@ -123,10 +189,7 @@ static bool ebpf_rss_set_toepliz_key(struct EBPFRSSContext *ctx,
+     memcpy(toe, toeplitz_key, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+     *(uint32_t *)toe = ntohl(*(uint32_t *)toe);
+ 
+-    if (bpf_map_update_elem(ctx->map_toeplitz_key, &map_key, toe,
+-                            0) < 0) {
+-        return false;
+-    }
++    memcpy(ctx->mmap_toeplitz_key, toe, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+     return true;
+ }
+ 
+@@ -160,6 +223,17 @@ void ebpf_rss_unload(struct EBPFRSSContext *ctx)
+         return;
+     }
+ 
+-    rss_bpf__destroy(ctx->obj);
++    ebpf_rss_munmap(ctx);
++
++    if (ctx->obj) {
++        rss_bpf__destroy(ctx->obj);
++    } else {
++        close(ctx->program_fd);
++        close(ctx->map_configuration);
++        close(ctx->map_toeplitz_key);
++        close(ctx->map_indirections_table);
++    }
++
+     ctx->obj = NULL;
++    ctx->program_fd = -1;
+ }
+diff --git a/ebpf/ebpf_rss.h b/ebpf/ebpf_rss.h
+index bf3f2572c7..239242b0d2 100644
+--- a/ebpf/ebpf_rss.h
++++ b/ebpf/ebpf_rss.h
+@@ -14,12 +14,19 @@
+ #ifndef QEMU_EBPF_RSS_H
+ #define QEMU_EBPF_RSS_H
+ 
++#define EBPF_RSS_MAX_FDS 4
++
+ struct EBPFRSSContext {
+     void *obj;
+     int program_fd;
+     int map_configuration;
+     int map_toeplitz_key;
+     int map_indirections_table;
++
++    /* mapped eBPF maps for direct access to omit bpf_map_update_elem() */
++    void *mmap_configuration;
++    void *mmap_toeplitz_key;
++    void *mmap_indirections_table;
+ };
+ 
+ struct EBPFRSSConfig {
+@@ -36,6 +43,9 @@ bool ebpf_rss_is_loaded(struct EBPFRSSContext *ctx);
+ 
+ bool ebpf_rss_load(struct EBPFRSSContext *ctx);
+ 
++bool ebpf_rss_load_fds(struct EBPFRSSContext *ctx, int program_fd,
++                       int config_fd, int toeplitz_fd, int table_fd);
++
+ bool ebpf_rss_set_all(struct EBPFRSSContext *ctx, struct EBPFRSSConfig *config,
+                       uint16_t *indirections_table, uint8_t *toeplitz_key);
+ 
 -- 
 2.39.1
 
