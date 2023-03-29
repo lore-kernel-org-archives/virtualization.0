@@ -1,91 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BEFE0C761AF
-	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 15:23:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE298C761AF
+	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 16:03:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5145661503;
-	Wed, 29 Mar 2023 15:23:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5145661503
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ePKlvhRN
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9gQRQfJD6eQP; Wed, 29 Mar 2023 15:23:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 42B8F614FE;
-	Wed, 29 Mar 2023 15:23:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42B8F614FE
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BAFFC007A;
-	Wed, 29 Mar 2023 15:23:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EADABC002F
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 15:23:05 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3E4AE41B75
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 15:23:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3E4AE41B75
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3923E4096D;
+	Wed, 29 Mar 2023 16:03:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3923E4096D
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=ePKlvhRN
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jUrINhWn
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fAMROl2EcASc
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KiGqaqFIwpiA; Wed, 29 Mar 2023 16:03:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F92940074;
+	Wed, 29 Mar 2023 16:03:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F92940074
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 730D0C0036;
+	Wed, 29 Mar 2023 16:03:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 25FDCC002F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 15:23:01 +0000 (UTC)
+ Wed, 29 Mar 2023 16:03:29 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 015E541D55
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Mar 2023 16:03:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 015E541D55
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=jUrINhWn
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id i5HxKEqyb0_U
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Mar 2023 16:03:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 65E4241B4F
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 65E4241B4F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3BA3E4000B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3BA3E4000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 15:23:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1680103381; x=1711639381;
- h=date:from:to:cc:subject:message-id:mime-version:
- content-transfer-encoding;
- bh=ptksIPCBqJcaNVtPPwyP250IRCPyy9oaMGihhbuBLbg=;
- b=ePKlvhRNWFbIPO9lm0G7JgEJO7rXO4JPXAaZfXywle0BGjdr+WBnq40M
- /sRfRvszWMcSF5J5Zk/0aUtgZYy++MlyxQzo2i/1a+A6x31GSORmnlKEC
- zZS9Sc5bV53QSPIz0xiQ9BP0alLMutlZJNU70f/yG/hBquXrZwS/R3vLb
- E+MMqbZ4WfNKYMbuwIPK56Yvt3Tmcltn/iwciYuJGkkxAQa2u6N10ceuA
- aOHGKOIRItEn+WyZBYHw/g9kapnf2J9alkGP/qOadnA9h7QSwSbB3rBdz
- NN5Ak+ejbaWwJpGHPRHIuXzKuxbVZcoiDyTX77qJL8S1J8r6e68zFOogZ A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10664"; a="368679513"
-X-IronPort-AV: E=Sophos;i="5.98,301,1673942400"; d="scan'208";a="368679513"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
- by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 29 Mar 2023 08:22:01 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10664"; a="716912773"
-X-IronPort-AV: E=Sophos;i="5.98,301,1673942400"; d="scan'208";a="716912773"
-Received: from lkp-server01.sh.intel.com (HELO b613635ddfff) ([10.239.97.150])
- by orsmga001.jf.intel.com with ESMTP; 29 Mar 2023 08:21:57 -0700
-Received: from kbuild by b613635ddfff with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1phXca-000Jf0-1i;
- Wed, 29 Mar 2023 15:21:56 +0000
-Date: Wed, 29 Mar 2023 23:21:07 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [linux-next:master] BUILD REGRESSION
- 198925fae644b0099b66fac1d972721e6e563b17
-Message-ID: <64245763.70Rd23mcjZbCPFF8%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+ Wed, 29 Mar 2023 16:03:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1680105807;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=WhrreSkv0vZH0WLUdB+/3ln6MeZlFYYMu2CO+omtwhg=;
+ b=jUrINhWnZAt+gXZ7VAoE5LMje8y44LcxqnvCCteFhdtSyE7Nb12W5cyDYMO0tDp260HlRG
+ cDFbi99sy+oh41k+c2dwgpMyiFVb5ex3KhY6QNWoV0DWb0pyLOuQlG1FVTWaTmSoyIwz4y
+ BMqnX4ZDFKLcONwy+y4WUu119COP0bM=
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
+ [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-25-yQE3_4dMNpCYodadfi3StQ-1; Wed, 29 Mar 2023 12:03:26 -0400
+X-MC-Unique: yQE3_4dMNpCYodadfi3StQ-1
+Received: by mail-qt1-f199.google.com with SMTP id
+ n10-20020a05622a11ca00b003e4e30c6c98so7805114qtk.19
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Mar 2023 09:03:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1680105805;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=WhrreSkv0vZH0WLUdB+/3ln6MeZlFYYMu2CO+omtwhg=;
+ b=01ZXg/j+HVu1H0cwAVybGTtbiCs9Y1/LeQLjrGWZ7WB41qnyB9ZtdU6Swiq/CqhuX2
+ MDVxOQQLnxQgVPY1UdO/44/X+X3FdBkwmNkYqPpq+BVAnkptDsA231ClcSzfkMFpaRlf
+ alFFWLu1rXQYSQwXLtnqUHMrQspXtAnbn3sGlHdNzwSgnogIjSbuYH1t2C41L9YfNbnd
+ QIzmLEdsCeFC0iiTBDfYkCMx7TuNvf3Gd82m83jXVnsUDnYTzkdGNCPNAPiowpvQZ9Hq
+ rvkCcwnMgIO54LJdSPlm9GHar20Yu7x6mGNlvJHxkaGRYj+KzBw/FtIjH++LnvogYqi2
+ Roow==
+X-Gm-Message-State: AO0yUKUOGeL+Bxc9f3RpEilRwGOonJNpK1GWKu3GNvniissa86o+q/mm
+ Ki1JJJTR29Rigl2tZ5uOhU39WWHd309i6nXApSeDYUmTQP3XaJTZ1pY71VYAd58AknmlZj+jbWs
+ y/VRRi00CoKOjQAzrUZnhq1u/Zl168iuX/Ssb115+/SQ3SSgPNPNjcsqQN9GLMQK7ysOGpEsiWv
+ HtVZEasuniLM7S1GVIISvfvxwspA==
+X-Received: by 2002:ac8:58c3:0:b0:3e4:6329:448e with SMTP id
+ u3-20020ac858c3000000b003e46329448emr35810491qta.16.1680105805195; 
+ Wed, 29 Mar 2023 09:03:25 -0700 (PDT)
+X-Google-Smtp-Source: AK7set/FoJCjgeNDT4rElGSF+Zl8YAW9TnymsfzUzUHuClJUBQwdLVEZBocjmA0YXTyxGB7KC7JO9Q==
+X-Received: by 2002:ac8:58c3:0:b0:3e4:6329:448e with SMTP id
+ u3-20020ac858c3000000b003e46329448emr35810447qta.16.1680105804906; 
+ Wed, 29 Mar 2023 09:03:24 -0700 (PDT)
+Received: from step1.redhat.com (host-82-57-51-130.retail.telecomitalia.it.
+ [82.57.51.130]) by smtp.gmail.com with ESMTPSA id
+ d184-20020a3768c1000000b0074688c36facsm13206442qkc.56.2023.03.29.09.03.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 29 Mar 2023 09:03:24 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH] vdpa_sim_net: complete the initialization before register the
+ device
+Date: Wed, 29 Mar 2023 18:03:21 +0200
+Message-Id: <20230329160321.187176-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Cc: linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-wireless@vger.kernel.org, linux-mips@vger.kernel.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Linux Memory Management List <linux-mm@kvack.org>, linux-gpio@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-clk@vger.kernel.org,
- io-uring@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,261 +122,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: 198925fae644b0099b66fac1d972721e6e563b17  Add linux-next specific files for 20230329
+Initialization must be completed before calling _vdpa_register_device()
+since it can connect the device to the vDPA bus, so requests can arrive
+after that call.
 
-Error/Warning reports:
+So for example vdpasim_net_work(), which uses the net->*_stats variables,
+can be scheduled before they are initialized.
 
-https://lore.kernel.org/oe-kbuild-all/202303082135.NjdX1Bij-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202303161521.jbGbaFjJ-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202303291916.ovLFJk2i-lkp@intel.com
+Let's move _vdpa_register_device() to the end of vdpasim_net_dev_add()
+and add a comment to avoid future issues.
 
-Error/Warning: (recently discovered and may have been fixed)
+Fixes: 0899774cb360 ("vdpa_sim_net: vendor satistics")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
 
-drivers/base/power/domain.c:3090:23: error: 'struct dev_pm_info' has no member named 'runtime_error'
-drivers/base/power/domain.c:3092:28: error: 'struct dev_pm_info' has no member named 'disable_depth'
-drivers/base/power/domain.c:3094:28: error: 'struct dev_pm_info' has no member named 'runtime_status'
-drivers/base/power/domain.c:654:20: error: 'pm_wq' undeclared (first use in this function)
-drivers/base/power/domain.c:853:39: error: 'struct dev_pm_info' has no member named 'ignore_children'
-drivers/base/power/domain_governor.c:85:24: error: 'struct dev_pm_info' has no member named 'ignore_children'
-drivers/clk/clk-sp7021.c:316:8: warning: result of comparison of constant 18446744073709551615 with expression of type 'typeof (_Generic((_m), char: (unsigned char)0, unsigned char: (unsigned char)0, signed char: (unsigned char)0, unsigned short: (unsigned short)0, short: (unsigned short)0, unsigned int: (unsigned int)0, int: (unsigned int)0, unsigned long: (unsigned long)0, long: (unsigned long)0, unsigned long long: (unsigned long long)0, long long: (unsigned long long)0, default: (_m)))' (aka 'unsigned int') is always false [-Wtautological-constant-out-of-range-compare]
-drivers/gpu/drm/amd/amdgpu/../display/dc/link/link_validation.c:351:13: warning: variable 'bw_needed' set but not used [-Wunused-but-set-variable]
-drivers/gpu/drm/amd/amdgpu/../display/dc/link/link_validation.c:352:25: warning: variable 'link' set but not used [-Wunused-but-set-variable]
-drivers/gpu/drm/amd/amdgpu/../pm/swsmu/smu13/smu_v13_0_6_ppt.c:309:17: sparse:    int
-drivers/gpu/drm/amd/amdgpu/../pm/swsmu/smu13/smu_v13_0_6_ppt.c:309:17: sparse:    void
-drivers/net/wireless/legacy/ray_cs.c:628:17: warning: 'strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+Notes:
+    I don't have a reproducer, but I became aware of this problem while
+    I was changing the buffer allocation.
+    
+    In the block device, as soon as the device is registered, the driver
+    sends several requests, and I guess this might happen for the net
+    device as well.
+    
+    Thanks,
+    Stefano
 
-Unverified Error/Warning (likely false positive, please contact us if interested):
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-drivers/pinctrl/pinctrl-mlxbf3.c:162:20: sparse: sparse: symbol 'mlxbf3_pmx_funcs' was not declared. Should it be static?
-drivers/soc/fsl/qe/tsa.c:140:26: sparse: sparse: incorrect type in argument 2 (different address spaces)
-drivers/soc/fsl/qe/tsa.c:140:9: sparse: sparse: incorrect type in argument 2 (different address spaces)
-drivers/soc/fsl/qe/tsa.c:150:16: sparse: sparse: incorrect type in argument 1 (different address spaces)
-drivers/soc/fsl/qe/tsa.c:150:27: sparse: sparse: incorrect type in argument 1 (different address spaces)
-drivers/soc/fsl/qe/tsa.c:189:26: sparse: sparse: dereference of noderef expression
-drivers/soc/fsl/qe/tsa.c:663:22: sparse: sparse: incorrect type in assignment (different address spaces)
-drivers/soc/fsl/qe/tsa.c:673:21: sparse: sparse: incorrect type in assignment (different address spaces)
-drivers/virtio/virtio_ring.c:2784:3: warning: Value stored to 'err' is never read [clang-analyzer-deadcode.DeadStores]
-drivers/watchdog/imx2_wdt.c:442:22: sparse: sparse: symbol 'imx_wdt' was not declared. Should it be static?
-drivers/watchdog/imx2_wdt.c:446:22: sparse: sparse: symbol 'imx_wdt_legacy' was not declared. Should it be static?
-include/linux/gpio/consumer.h: linux/err.h is included more than once.
-include/linux/gpio/driver.h: asm/bug.h is included more than once.
-io_uring/io_uring.c:432 io_prep_async_work() error: we previously assumed 'req->file' could be null (see line 425)
-io_uring/kbuf.c:221 __io_remove_buffers() warn: variable dereferenced before check 'bl->buf_ring' (see line 219)
-net/mac80211/mesh_pathtbl.c:616:24: warning: Value stored to 'cache' during its initialization is never read [clang-analyzer-deadcode.DeadStores]
-
-Error/Warning ids grouped by kconfigs:
-
-gcc_recent_errors
-|-- alpha-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|   `-- drivers-net-wireless-legacy-ray_cs.c:warning:strncpy-specified-bound-equals-destination-size
-|-- alpha-randconfig-r021-20230326
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- arc-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- arc-randconfig-r043-20230328
-|   |-- drivers-base-power-domain.c:error:pm_wq-undeclared-(first-use-in-this-function)
-|   |-- drivers-base-power-domain.c:error:struct-dev_pm_info-has-no-member-named-disable_depth
-|   |-- drivers-base-power-domain.c:error:struct-dev_pm_info-has-no-member-named-ignore_children
-|   |-- drivers-base-power-domain.c:error:struct-dev_pm_info-has-no-member-named-runtime_error
-|   |-- drivers-base-power-domain.c:error:struct-dev_pm_info-has-no-member-named-runtime_status
-|   `-- drivers-base-power-domain_governor.c:error:struct-dev_pm_info-has-no-member-named-ignore_children
-|-- arc-randconfig-s032-20230329
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-..-pm-swsmu-smu13-smu_v13_0_6_ppt.c:sparse:int
-|   |-- drivers-gpu-drm-amd-amdgpu-..-pm-swsmu-smu13-smu_v13_0_6_ppt.c:sparse:sparse:incompatible-types-in-conditional-expression-(different-base-types):
-|   |-- drivers-gpu-drm-amd-amdgpu-..-pm-swsmu-smu13-smu_v13_0_6_ppt.c:sparse:void
-|   |-- drivers-pinctrl-pinctrl-mlxbf3.c:sparse:sparse:symbol-mlxbf3_pmx_funcs-was-not-declared.-Should-it-be-static
-|   |-- drivers-soc-fsl-qe-tsa.c:sparse:sparse:dereference-of-noderef-expression
-|   |-- drivers-soc-fsl-qe-tsa.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-const-volatile-noderef-__iomem-addr-got-void-noderef-__iomem-addr
-|   |-- drivers-soc-fsl-qe-tsa.c:sparse:sparse:incorrect-type-in-argument-(different-address-spaces)-expected-void-volatile-noderef-__iomem-addr-got-void-noderef-__iomem-addr
-|   |-- drivers-soc-fsl-qe-tsa.c:sparse:sparse:incorrect-type-in-assignment-(different-address-spaces)-expected-void-noderef-si_ram-got-void-noderef-__iomem
-|   `-- drivers-soc-fsl-qe-tsa.c:sparse:sparse:incorrect-type-in-assignment-(different-address-spaces)-expected-void-noderef-si_regs-got-void-noderef-__iomem
-|-- arm-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- arm-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- arm64-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- arm64-randconfig-r031-20230327
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- csky-randconfig-s043-20230326
-|   `-- drivers-pinctrl-pinctrl-mlxbf3.c:sparse:sparse:symbol-mlxbf3_pmx_funcs-was-not-declared.-Should-it-be-static
-|-- i386-allyesconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|-- ia64-allmodconfig
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-bw_needed-set-but-not-used
-|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-link-link_validation.c:warning:variable-link-set-but-not-used
-|   `-- drivers-net-wireless-legacy-ray_cs.c:warning:strncpy-specified-bound-equals-destination-size
-clang_recent_errors
-|-- powerpc-randconfig-r036-20230326
-|   `-- drivers-clk-clk-sp7021.c:warning:result-of-comparison-of-constant-with-expression-of-type-typeof-(_Generic((_m)-char:(unsigned-char)-unsigned-char:(unsigned-char)-signed-char:(unsigned-char)-unsigned-
-`-- riscv-randconfig-c006-20230326
-    |-- drivers-virtio-virtio_ring.c:warning:Value-stored-to-err-is-never-read-clang-analyzer-deadcode.DeadStores
-    `-- net-mac80211-mesh_pathtbl.c:warning:Value-stored-to-cache-during-its-initialization-is-never-read-clang-analyzer-deadcode.DeadStores
-
-elapsed time: 722m
-
-configs tested: 142
-configs skipped: 11
-
-tested configs:
-alpha                            allyesconfig   gcc  
-alpha                               defconfig   gcc  
-alpha                randconfig-r021-20230326   gcc  
-alpha                randconfig-r024-20230327   gcc  
-alpha                randconfig-r032-20230327   gcc  
-arc                              allyesconfig   gcc  
-arc                                 defconfig   gcc  
-arc                  randconfig-r001-20230326   gcc  
-arc                  randconfig-r012-20230326   gcc  
-arc                  randconfig-r025-20230327   gcc  
-arc                  randconfig-r034-20230329   gcc  
-arc                  randconfig-r043-20230327   gcc  
-arc                  randconfig-r043-20230328   gcc  
-arc                  randconfig-r043-20230329   gcc  
-arm                              allmodconfig   gcc  
-arm                              allyesconfig   gcc  
-arm                                 defconfig   gcc  
-arm                  randconfig-r033-20230326   gcc  
-arm                  randconfig-r046-20230327   gcc  
-arm                  randconfig-r046-20230329   gcc  
-arm                             rpc_defconfig   gcc  
-arm                       spear13xx_defconfig   clang
-arm64                            allyesconfig   gcc  
-arm64                               defconfig   gcc  
-arm64                randconfig-r031-20230327   gcc  
-arm64                randconfig-r035-20230329   gcc  
-csky                                defconfig   gcc  
-hexagon              randconfig-r005-20230326   clang
-hexagon              randconfig-r013-20230327   clang
-hexagon              randconfig-r021-20230327   clang
-hexagon              randconfig-r023-20230327   clang
-hexagon              randconfig-r041-20230329   clang
-hexagon              randconfig-r045-20230327   clang
-hexagon              randconfig-r045-20230329   clang
-i386                             allyesconfig   gcc  
-i386                              debian-10.3   gcc  
-i386                                defconfig   gcc  
-i386                 randconfig-a001-20230327   gcc  
-i386                 randconfig-a002-20230327   gcc  
-i386                 randconfig-a003-20230327   gcc  
-i386                 randconfig-a004-20230327   gcc  
-i386                 randconfig-a005-20230327   gcc  
-i386                 randconfig-a006-20230327   gcc  
-i386                 randconfig-a011-20230327   clang
-i386                 randconfig-a012-20230327   clang
-i386                 randconfig-a013-20230327   clang
-i386                 randconfig-a014-20230327   clang
-i386                 randconfig-a015-20230327   clang
-i386                 randconfig-a016-20230327   clang
-ia64                             allmodconfig   gcc  
-ia64                                defconfig   gcc  
-ia64                 randconfig-r004-20230326   gcc  
-ia64                 randconfig-r031-20230326   gcc  
-loongarch                        allmodconfig   gcc  
-loongarch                         allnoconfig   gcc  
-loongarch                           defconfig   gcc  
-loongarch            randconfig-r012-20230327   gcc  
-loongarch            randconfig-r021-20230329   gcc  
-m68k                             allmodconfig   gcc  
-m68k         buildonly-randconfig-r002-20230329   gcc  
-m68k                                defconfig   gcc  
-m68k                 randconfig-r022-20230326   gcc  
-m68k                 randconfig-r035-20230327   gcc  
-microblaze           randconfig-r006-20230326   gcc  
-microblaze           randconfig-r016-20230327   gcc  
-microblaze           randconfig-r023-20230329   gcc  
-mips                             allmodconfig   gcc  
-mips                             allyesconfig   gcc  
-mips                 randconfig-r002-20230326   gcc  
-mips                 randconfig-r002-20230327   clang
-mips                 randconfig-r034-20230326   gcc  
-nios2        buildonly-randconfig-r003-20230329   gcc  
-nios2        buildonly-randconfig-r006-20230327   gcc  
-nios2                               defconfig   gcc  
-nios2                randconfig-r006-20230327   gcc  
-nios2                randconfig-r015-20230327   gcc  
-nios2                randconfig-r023-20230326   gcc  
-openrisc             randconfig-r032-20230329   gcc  
-parisc                              defconfig   gcc  
-parisc               randconfig-r001-20230327   gcc  
-parisc               randconfig-r022-20230329   gcc  
-parisc               randconfig-r025-20230329   gcc  
-parisc64                            defconfig   gcc  
-powerpc                          allmodconfig   gcc  
-powerpc                           allnoconfig   gcc  
-powerpc              randconfig-r034-20230327   gcc  
-powerpc              randconfig-r036-20230326   clang
-riscv                            allmodconfig   gcc  
-riscv                             allnoconfig   gcc  
-riscv                               defconfig   gcc  
-riscv                randconfig-r025-20230326   gcc  
-riscv                randconfig-r031-20230329   gcc  
-riscv                randconfig-r042-20230326   gcc  
-riscv                randconfig-r042-20230327   clang
-riscv                randconfig-r042-20230329   clang
-riscv                          rv32_defconfig   gcc  
-s390                             allmodconfig   gcc  
-s390                             allyesconfig   gcc  
-s390         buildonly-randconfig-r004-20230327   clang
-s390                                defconfig   gcc  
-s390                 randconfig-r015-20230326   gcc  
-s390                 randconfig-r026-20230329   clang
-s390                 randconfig-r044-20230328   gcc  
-s390                 randconfig-r044-20230329   clang
-sh                               allmodconfig   gcc  
-sh           buildonly-randconfig-r005-20230326   gcc  
-sh                            hp6xx_defconfig   gcc  
-sh                   randconfig-r011-20230327   gcc  
-sh                   randconfig-r024-20230329   gcc  
-sh                   randconfig-r026-20230326   gcc  
-sh                   randconfig-r032-20230326   gcc  
-sh                           se7724_defconfig   gcc  
-sparc                               defconfig   gcc  
-sparc                randconfig-r004-20230327   gcc  
-sparc                randconfig-r016-20230326   gcc  
-sparc                randconfig-r035-20230326   gcc  
-sparc                randconfig-r036-20230327   gcc  
-sparc64      buildonly-randconfig-r005-20230329   gcc  
-sparc64      buildonly-randconfig-r006-20230329   gcc  
-sparc64              randconfig-r005-20230327   gcc  
-sparc64              randconfig-r033-20230329   gcc  
-um                             i386_defconfig   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                            allnoconfig   gcc  
-x86_64                           allyesconfig   gcc  
-x86_64                              defconfig   gcc  
-x86_64                                  kexec   gcc  
-x86_64               randconfig-a001-20230327   gcc  
-x86_64               randconfig-a002-20230327   gcc  
-x86_64               randconfig-a003-20230327   gcc  
-x86_64               randconfig-a004-20230327   gcc  
-x86_64               randconfig-a005-20230327   gcc  
-x86_64               randconfig-a006-20230327   gcc  
-x86_64               randconfig-a011-20230327   clang
-x86_64               randconfig-a012-20230327   clang
-x86_64               randconfig-a013-20230327   clang
-x86_64               randconfig-a014-20230327   clang
-x86_64               randconfig-a015-20230327   clang
-x86_64               randconfig-a016-20230327   clang
-x86_64               randconfig-r003-20230327   gcc  
-x86_64               randconfig-r014-20230327   clang
-x86_64                               rhel-8.3   gcc  
-
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+index 862f405362de..dfe2ce341803 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+@@ -466,16 +466,21 @@ static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 
+ 	vdpasim_net_setup_config(simdev, config);
+ 
+-	ret = _vdpa_register_device(&simdev->vdpa, VDPASIM_NET_VQ_NUM);
+-	if (ret)
+-		goto reg_err;
+-
+ 	net = sim_to_net(simdev);
+ 
+ 	u64_stats_init(&net->tx_stats.syncp);
+ 	u64_stats_init(&net->rx_stats.syncp);
+ 	u64_stats_init(&net->cq_stats.syncp);
+ 
++	/*
++	 * Initialization must be completed before this call, since it can
++	 * connect the device to the vDPA bus, so requests can arrive after
++	 * this call.
++	 */
++	ret = _vdpa_register_device(&simdev->vdpa, VDPASIM_NET_VQ_NUM);
++	if (ret)
++		goto reg_err;
++
+ 	return 0;
+ 
+ reg_err:
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.39.2
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
