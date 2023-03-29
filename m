@@ -4,67 +4,60 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CA55C74A5B
-	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 07:27:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60CDBC761A6
+	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 09:27:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0AB18405FD;
-	Wed, 29 Mar 2023 07:27:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0AB18405FD
+	by smtp2.osuosl.org (Postfix) with ESMTP id D0CF340921;
+	Wed, 29 Mar 2023 09:27:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D0CF340921
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y9aJs2J4NiQE; Wed, 29 Mar 2023 07:27:44 +0000 (UTC)
+	with ESMTP id spfI0AuNaKct; Wed, 29 Mar 2023 09:27:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 83382403AA;
-	Wed, 29 Mar 2023 07:27:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 83382403AA
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4AE0C40915;
+	Wed, 29 Mar 2023 09:27:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4AE0C40915
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4BC26C0037;
-	Wed, 29 Mar 2023 07:27:43 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 932EDC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04230C0036;
+	Wed, 29 Mar 2023 09:27:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A156C002F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 07:27:41 +0000 (UTC)
+ Wed, 29 Mar 2023 09:27:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6E3C460EFE
+ by smtp4.osuosl.org (Postfix) with ESMTP id 51E45418AA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 07:27:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E3C460EFE
+ Wed, 29 Mar 2023 09:27:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 51E45418AA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZETx8uUg-49P
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id J9eM7EdvbBMA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 07:27:39 +0000 (UTC)
+ Wed, 29 Mar 2023 09:27:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D607760E77
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D607760E77
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6F9344088B
+Received: from out30-118.freemail.mail.aliyun.com
+ (out30-118.freemail.mail.aliyun.com [115.124.30.118])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6F9344088B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 07:27:37 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
+ Wed, 29 Mar 2023 09:27:29 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=5; SR=0;
- TI=SMTPD_---0VevwF9d_1680074851; 
+ TI=SMTPD_---0VewGWzq_1680082043; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VevwF9d_1680074851) by smtp.aliyun-inc.com;
- Wed, 29 Mar 2023 15:27:32 +0800
-Message-ID: <1680074823.805977-1-xuanzhuo@linux.alibaba.com>
+ fp:SMTPD_---0VewGWzq_1680082043) by smtp.aliyun-inc.com;
+ Wed, 29 Mar 2023 17:27:24 +0800
+Message-ID: <1680082024.6148505-2-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH v3] virtio_ring: interrupt disable flag updated to vq even
  with event_triggered is set
-Date: Wed, 29 Mar 2023 15:27:03 +0800
+Date: Wed, 29 Mar 2023 17:27:04 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Albert Huang <huangjie.albert@bytedance.com>
-References: <20230325105633.58592-1-huangjie.albert@bytedance.com>
- <ZCJNTBQLZeyLBKKB@codewreck.org>
- <CACGkMEt29t9CK2Muiuyb1s6p2AzgcMiD_z0NVFn1d+KEqBydug@mail.gmail.com>
- <CABKxMyPwuRb6p-oHxcQDhRtJv04=NDWvosNAp=epgvdrfCeveg@mail.gmail.com>
- <CACGkMEuukvjXBTDX2K9YLYmpHsqK96AiMK39gbm3+f_+kUydMQ@mail.gmail.com>
- <CABKxMyN0598wA6wHv5GkZC14znwp=OPo7u71_BizJfR+gUx4_w@mail.gmail.com>
- <20230329012908-mutt-send-email-mst@kernel.org>
- <20230329072135.44757-1-huangjie.albert@bytedance.com>
-In-Reply-To: <20230329072135.44757-1-huangjie.albert@bytedance.com>
+References: <20230329072841.45304-1-huangjie.albert@bytedance.com>
+In-Reply-To: <20230329072841.45304-1-huangjie.albert@bytedance.com>
 Cc: "huangjie.albert" <huangjie.albert@bytedance.com>,
  "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
@@ -85,11 +78,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Maybe one new thread is better.
-
-Thanks.
-
-On Wed, 29 Mar 2023 15:21:35 +0800, Albert Huang <huangjie.albert@bytedance.com> wrote:
+On Wed, 29 Mar 2023 15:28:41 +0800, Albert Huang <huangjie.albert@bytedance.com> wrote:
 > From: "huangjie.albert" <huangjie.albert@bytedance.com>
 >
 > in virtio_net, if we disable the napi_tx, when we triger a tx interrupt,
@@ -162,6 +151,12 @@ On Wed, 29 Mar 2023 15:21:35 +0800, Albert Huang <huangjie.albert@bytedance.com>
 >
 > -	if (vq->packed.event_flags_shadow != VRING_PACKED_EVENT_FLAG_DISABLE) {
 > +	if (!(vq->packed.event_flags_shadow & VRING_PACKED_EVENT_FLAG_DISABLE)) {
+
+This seems to be another problem.
+
+Thanks.
+
+
 >  		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
 > +
 > +		/*
