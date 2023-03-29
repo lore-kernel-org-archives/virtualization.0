@@ -1,92 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C76ADC6FD18
-	for <virtualization@archiver.kernel.org>; Tue, 28 Mar 2023 14:51:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00932C74A5B
+	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 05:21:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4DFDD408AE;
-	Tue, 28 Mar 2023 14:51:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4DFDD408AE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U3irXoSN
+	by smtp3.osuosl.org (Postfix) with ESMTP id 66BBF60BEF;
+	Wed, 29 Mar 2023 05:21:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 66BBF60BEF
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FUZXC4+2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id psqqxRV53QMT; Tue, 28 Mar 2023 14:51:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DCE9841792;
-	Tue, 28 Mar 2023 14:51:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCE9841792
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tNYKtKtas7zN; Wed, 29 Mar 2023 05:21:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CD68C60BE3;
+	Wed, 29 Mar 2023 05:21:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CD68C60BE3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B776DC0036;
-	Tue, 28 Mar 2023 14:51:57 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E940C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96F02C0037;
+	Wed, 29 Mar 2023 05:21:54 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 24C15C002F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 14:51:56 +0000 (UTC)
+ Wed, 29 Mar 2023 05:21:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3CE6782094
+ by smtp3.osuosl.org (Postfix) with ESMTP id 062B060BEF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 14:51:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3CE6782094
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=U3irXoSN
+ Wed, 29 Mar 2023 05:21:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 062B060BEF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I71c0p39RieS
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id w6xKSmtd82lB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 14:51:55 +0000 (UTC)
+ Wed, 29 Mar 2023 05:21:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C12581FBB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 70F7060BE3
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4C12581FBB
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 70F7060BE3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Mar 2023 14:51:55 +0000 (UTC)
+ Wed, 29 Mar 2023 05:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680015114;
+ s=mimecast20190719; t=1680067311;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0cR29LyY11JQFvMX2a2zTEiw5p1+i0O8ayeeXYSH/LE=;
- b=U3irXoSNvuV4KJv8XDA6uOFRVh5LXk4UGMNeu2j2i1gf+O+LgMjBMjojjRQ94lsCSATYeB
- Uowiwbs4GI3W1cj39tSfOZhfYKxtzPKZU6+29l6PZ8aU5OLUJfQ5VI3e/7KzMyp0IktGWb
- o4gOcPCk3J3p41UJ6EvrbuCZbjcBIBg=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-9-RPfPPF6wPLmSOhF3zAx9_w-1; Tue, 28 Mar 2023 10:51:48 -0400
-X-MC-Unique: RPfPPF6wPLmSOhF3zAx9_w-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
- [10.11.54.3])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 64D4685A5B1;
- Tue, 28 Mar 2023 14:51:47 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.24])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D51B51121330;
- Tue, 28 Mar 2023 14:51:46 +0000 (UTC)
-Date: Tue, 28 Mar 2023 10:51:45 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-Subject: Re: [virtio-dev] [PATCH 1/2] virtio-blk: migrate to the latest
- patchset version
-Message-ID: <20230328145145.GB1623159@fedora>
-References: <20230328022928.1003996-1-dmitry.fomichev@wdc.com>
- <20230328022928.1003996-2-dmitry.fomichev@wdc.com>
+ bh=OpGviQRkMdN9wce+9FcdKHJnUT5elcV+86MUr/viZsA=;
+ b=FUZXC4+22ugScg8ITD4C9envEqldQvHq3Q04AuHH92D7So8gOq/6e9PXVUpAr89x3wkHby
+ xRwo2HCN7TTi1QP9yYtKOhMo4vssFfX84wXp9OcLNziWQIAYdVsMzHZL0qjXr4D+X6SVSE
+ hwkepsef2Qu+bX28fTjdTHvt5u7cBG0=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-571-cjlfq4IhM6yjOPK0uu9zUg-1; Wed, 29 Mar 2023 01:21:47 -0400
+X-MC-Unique: cjlfq4IhM6yjOPK0uu9zUg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ l18-20020a05600c1d1200b003ef7b61e2fdso1483979wms.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Mar 2023 22:21:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1680067306;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=OpGviQRkMdN9wce+9FcdKHJnUT5elcV+86MUr/viZsA=;
+ b=Id4TAHeUU1jJOukXNVuRjmqr7SNRjNAIoI9CaBzhhkF1jgy0YeeL4GODCyMB1+E37G
+ 2CUVdTLL1bz0xj8B1Wr9fCnY7THKodgoYe1lFfEPtFjLfxCMRayeo36VXnyACNrL2ODe
+ N3dTQvNFyE2aMx+MSJGKQDtCbGR5J/isIg9FfEFjDIeq0fkZHC5mslxCW0BUA/LP48XL
+ ME2XdHe9hTp1rN0iM51BiZll59ESurUYekKeKQrPym3Pp8ynlNQ9tQCk8LQslTpofU26
+ NJWgVMmWIiI+v5KyVy36kc/La0BLh05ZZYEMkYAN2bc/UURox64X7zbdBoFYetAAhKwW
+ lp2g==
+X-Gm-Message-State: AO0yUKWJxD3MBgVboZP/Luj515ACl8XkFgQQXTf94+UywUpInmC3R/u3
+ 1l9mLhVXwLAbU6w5EJ0tBdXmf0t5QlKRruh1r+mlQVPQF3RJieab5CHh2TGslu3pkHTLcDpzN/k
+ wXsOtky8efzswDu/LZCN+JGHgZsUoVmHUWPct3dohRw==
+X-Received: by 2002:a7b:cd87:0:b0:3ee:4bd1:39ca with SMTP id
+ y7-20020a7bcd87000000b003ee4bd139camr14369620wmj.13.1680067306594; 
+ Tue, 28 Mar 2023 22:21:46 -0700 (PDT)
+X-Google-Smtp-Source: AK7set/tmTFTti71Jcmt7sCqKWDaOTmwRd2t6ytr8BVNSqDkPDfdxs7xKF1RNBRRGc20wi2FCQRbHw==
+X-Received: by 2002:a7b:cd87:0:b0:3ee:4bd1:39ca with SMTP id
+ y7-20020a7bcd87000000b003ee4bd139camr14369604wmj.13.1680067306240; 
+ Tue, 28 Mar 2023 22:21:46 -0700 (PDT)
+Received: from redhat.com ([2.52.18.165]) by smtp.gmail.com with ESMTPSA id
+ s2-20020a5d5102000000b002c71b4d476asm29084170wrt.106.2023.03.28.22.21.44
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 28 Mar 2023 22:21:45 -0700 (PDT)
+Date: Wed, 29 Mar 2023 01:21:42 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [External] Re: 9p regression (Was: [PATCH v2] virtio_ring: don't
+ update event idx on get_buf)
+Message-ID: <20230329012038-mutt-send-email-mst@kernel.org>
+References: <20230325105633.58592-1-huangjie.albert@bytedance.com>
+ <ZCJNTBQLZeyLBKKB@codewreck.org>
+ <CACGkMEt29t9CK2Muiuyb1s6p2AzgcMiD_z0NVFn1d+KEqBydug@mail.gmail.com>
+ <CABKxMyPwuRb6p-oHxcQDhRtJv04=NDWvosNAp=epgvdrfCeveg@mail.gmail.com>
+ <CACGkMEuukvjXBTDX2K9YLYmpHsqK96AiMK39gbm3+f_+kUydMQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20230328022928.1003996-2-dmitry.fomichev@wdc.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
-Cc: Jens Axboe <axboe@kernel.dk>, virtio-dev@lists.oasis-open.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Damien Le Moal <damien.lemoal@opensource.wdc.com>,
- Sam Li <faithilikerun@gmail.com>, virtualization@lists.linux-foundation.org,
- linux-block@vger.kernel.org
+In-Reply-To: <CACGkMEuukvjXBTDX2K9YLYmpHsqK96AiMK39gbm3+f_+kUydMQ@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: =?utf-8?B?6buE5p2w?= <huangjie.albert@bytedance.com>,
+ Christian Schoenebeck <linux_oss@crudebyte.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eric Van Hensbergen <ericvh@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>,
+ v9fs-developer@lists.sourceforge.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,88 +122,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3913616412420281891=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
---===============3913616412420281891==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="W+f9eOPTmKJwgc15"
-Content-Disposition: inline
-
-
---W+f9eOPTmKJwgc15
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Mar 27, 2023 at 10:29:27PM -0400, Dmitry Fomichev wrote:
-> The merged patch series to support zoned block devices in virtio-blk
-> is not the most up to date version. The merged patch can be found at
->=20
-> https://lore.kernel.org/linux-block/20221016034127.330942-3-dmitry.fomich=
-ev@wdc.com/
->=20
-> , but the latest and reviewed version is
->=20
-> https://lore.kernel.org/linux-block/20221110053952.3378990-3-dmitry.fomic=
-hev@wdc.com/
->=20
-> The differences between the two are mostly cleanups, but there is one
-> change that is very important in terms of compatibility with the
-> approved virtio-zbd specification.
->=20
-> Before it was approved, the OASIS virtio spec had a change in
-> VIRTIO_BLK_T_ZONE_APPEND request layout that is not reflected in the
-> current virtio-blk driver code. In the running code, the status is
-> the first byte of the in-header that is followed by some pad bytes
-> and the u64 that carries the sector at which the data has been written
-> to the zone back to the driver, aka the append sector.
->=20
-> This layout turned out to be problematic for implementing in QEMU and
-> the request status byte has been eventually made the last byte of the
-> in-header. The current code doesn't expect that and this causes the
-> append sector value always come as zero to the block layer. This needs
-> to be fixed ASAP.
->=20
-> Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dmitry Fomichev <dmitry.fomichev@wdc.com>
-> ---
->  drivers/block/virtio_blk.c      | 238 +++++++++++++++++++++-----------
->  include/uapi/linux/virtio_blk.h |  18 +--
->  2 files changed, 165 insertions(+), 91 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---W+f9eOPTmKJwgc15
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmQi/wEACgkQnKSrs4Gr
-c8imZggAhJA5G85LLc28etjnXDmkF7WtvrUc4MoHpgxVUys1SEaxhlmAsh+EIrd5
-oSIHcBTkAv6xkMA44ogTyq+Ewl0J4e8Ma46s+HE9Pn0XXuHpOZKeVxJxLvyYUkkS
-9RbxlExUCi68vdHy4JKqS8u+iisGRILKXCu06B5Ce3wD1o07kuvYlkZcOKyaJMUs
-1Z1ifmiTphIsUT7KHMJ13GsR1QhgBr0+1LH2uCTJu8faD3UGGTJHtH9r+wmFVKbt
-AKQ7DsQuhIUfreukTh4AOK1LOAjTgtNyf9mhkQl4js1KkKKoiedxmGqVV9RlHbZw
-WFTFCtcjbgVhBQi4SvLAlAgy0yC++g==
-=KqDZ
------END PGP SIGNATURE-----
-
---W+f9eOPTmKJwgc15--
-
-
---===============3913616412420281891==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3913616412420281891==--
-
+T24gVHVlLCBNYXIgMjgsIDIwMjMgYXQgMTE6Mzk6NTlBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiBUdWUsIE1hciAyOCwgMjAyMyBhdCAxMTowOeKAr0FNIOm7hOadsCA8aHVhbmdqaWUu
+YWxiZXJ0QGJ5dGVkYW5jZS5jb20+IHdyb3RlOgo+ID4KPiA+IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+IOS6jjIwMjPlubQz5pyIMjjml6XlkajkuowgMTA6NTnlhpnpgZPvvJoKPiA+
+ID4KPiA+ID4gT24gVHVlLCBNYXIgMjgsIDIwMjMgYXQgMTA6MTPigK9BTSBEb21pbmlxdWUgTWFy
+dGluZXQKPiA+ID4gPGFzbWFkZXVzQGNvZGV3cmVjay5vcmc+IHdyb3RlOgo+ID4gPiA+Cj4gPiA+
+ID4gSGkgTWljaGFlbCwgQWxiZXJ0LAo+ID4gPiA+Cj4gPiA+ID4gQWxiZXJ0IEh1YW5nIHdyb3Rl
+IG9uIFNhdCwgTWFyIDI1LCAyMDIzIGF0IDA2OjU2OjMzUE0gKzA4MDA6Cj4gPiA+ID4gPiBpbiB2
+aXJ0aW9fbmV0LCBpZiB3ZSBkaXNhYmxlIHRoZSBuYXBpX3R4LCB3aGVuIHdlIHRyaWdlciBhIHR4
+IGludGVycnVwdCwKPiA+ID4gPiA+IHRoZSB2cS0+ZXZlbnRfdHJpZ2dlcmVkIHdpbGwgYmUgc2V0
+IHRvIHRydWUuIEl0IHdpbGwgbm8gbG9uZ2VyIGJlIHNldCB0bwo+ID4gPiA+ID4gZmFsc2UuIFVu
+bGVzcyB3ZSBleHBsaWNpdGx5IGNhbGwgdmlydHF1ZXVlX2VuYWJsZV9jYl9kZWxheWVkIG9yCj4g
+PiA+ID4gPiB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmUuCj4gPiA+ID4KPiA+ID4gPiBUaGlz
+IHBhdGNoIChjb21taXRlZCBhcyAzNTM5NTc3MGY4MDMgKCJ2aXJ0aW9fcmluZzogZG9uJ3QgdXBk
+YXRlIGV2ZW50Cj4gPiA+ID4gaWR4IG9uIGdldF9idWYiKSBpbiBuZXh0LTIwMjMwMzI3IGFwcGFy
+ZW50bHkgYnJlYWtzIDlwLCBhcyByZXBvcnRlZCBieQo+ID4gPiA+IEx1aXMgaW4gaHR0cHM6Ly9s
+a21sLmtlcm5lbC5vcmcvci9aQ0krN1dnNU9jbFNsRThjQGJvbWJhZGlsLmluZnJhZGVhZC5vcmcK
+PiA+ID4gPgo+ID4gPiA+IEkndmUganVzdCBoaXQgaGFkIGEgbG9vayBhdCByZWNlbnQgcGF0Y2hl
+c1sxXSBhbmQgcmV2ZXJ0ZWQgdGhpcyB0byB0ZXN0Cj4gPiA+ID4gYW5kIEkgY2FuIG1vdW50IGFn
+YWluLCBzbyBJJ20gcHJldHR5IHN1cmUgdGhpcyBpcyB0aGUgY3VscHJpdCwgYnV0IEkKPiA+ID4g
+PiBkaWRuJ3QgbG9vayBhdCB0aGUgY29udGVudCBhdCBhbGwgeWV0IHNvIGNhbm5vdCBhZHZpc2Ug
+ZnVydGhlci4KPiA+ID4gPiBJdCBtaWdodCB2ZXJ5IHdlbGwgYmUgdGhhdCB3ZSBuZWVkIHNvbWUg
+ZXh0cmEgaGFuZGxpbmcgZm9yIDlwCj4gPiA+ID4gc3BlY2lmaWNhbGx5IHRoYXQgY2FuIGJlIGFk
+ZGVkIHNlcGFyYXRlbHkgaWYgcmVxdWlyZWQuCj4gPiA+ID4KPiA+ID4gPiBbMV0gZ2l0IGxvZyAw
+ZWM1N2NmYTcyMWZiZDM2YjRjNGMwZDljY2M1ZDc4YTc4ZjdmYTM1Li5IRUFEIGRyaXZlcnMvdmly
+dGlvLwo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiBUaGlzIGNhbiBiZSByZXByb2R1Y2VkIHdpdGgg
+YSBzaW1wbGUgbW91bnQsIHJ1biBxZW11IHdpdGggc29tZSAtdmlydGZzCj4gPiA+ID4gYXJndW1l
+bnQgYW5kIGBtb3VudCAtdCA5cCAtbyBkZWJ1Zz02NTUzNSB0YWcgbW91bnRwb2ludGAgd2lsbCBo
+YW5nIGFmdGVyCj4gPiA+ID4gdGhlc2UgbWVzc2FnZXM6Cj4gPiA+ID4gOXBuZXQ6IC0tIHA5X3Zp
+cnRpb19yZXF1ZXN0ICg4Myk6IDlwIGRlYnVnOiB2aXJ0aW8gcmVxdWVzdAo+ID4gPiA+IDlwbmV0
+OiAtLSBwOV92aXJ0aW9fcmVxdWVzdCAoODMpOiB2aXJ0aW8gcmVxdWVzdCBraWNrZWQKPiA+ID4g
+Pgo+ID4gPiA+IFNvIEkgc3VzcGVjdCB3ZSdyZSBqdXN0IG5vdCBnZXR0aW5nIGEgY2FsbGJhY2su
+Cj4gPiA+Cj4gPiA+IEkgdGhpbmsgc28uIFRoZSBwYXRjaCBhc3N1bWVzIHRoZSBkcml2ZXIgd2ls
+bCBjYWxsCj4gPiA+IHZpcnRxdWV1ZV9kaXNhYmxlL2VuYWJsZV9jYigpIHdoaWNoIGlzIG5vdCB0
+aGUgY2FzZSBvZiB0aGUgOXAgZHJpdmVyLgo+ID4gPgo+ID4gPiBTbyBhZnRlciB0aGUgZmlyc3Qg
+aW50ZXJydXB0LCBldmVudF90cmlnZ2VyZWQgd2lsbCBiZSBzZXQgdG8gdHJ1ZSBmb3JldmVyLgo+
+ID4gPgo+ID4gPiBUaGFua3MKPiA+ID4KPiA+Cj4gPiBIaTogV2FuZwo+ID4KPiA+IFllcywgIFRo
+aXMgcGF0Y2ggYXNzdW1lcyB0aGF0IGFsbCB2aXJ0aW8tcmVsYXRlZCBkcml2ZXJzIHdpbGwgY2Fs
+bAo+ID4gdmlydHF1ZXVlX2Rpc2FibGUvZW5hYmxlX2NiKCkuCj4gPiBUaGFuayB5b3UgZm9yIHJh
+aXNpbmcgdGhpcyBpc3N1ZS4KPiA+Cj4gPiBJdCBzZWVtcyB0aGF0IG5hcGlfdHggaXMgb25seSBy
+ZWxhdGVkIHRvIHZpcnR1ZV9uZXQuIEknbSB0aGlua2luZyBpZgo+ID4gd2UgbmVlZCB0byByZWZh
+Y3Rvcgo+ID4gbmFwaV90eCBpbnN0ZWFkIG9mIGltcGxlbWVudGluZyBpdCBpbnNpZGUgdmlydGlv
+X3JpbmcuCj4gCj4gV2UgY2FuIGhlYXIgZnJvbSBvdGhlcnMuCj4gCj4gSSB0aGluayBpdCdzIGJl
+dHRlciBub3QgdG8gd29ya2Fyb3VuZCB2aXJ0aW9fcmluZyBpc3N1ZXMgaW4gYSBzcGVjaWZpYwo+
+IGRyaXZlci4gSXQgbWlnaHQganVzdCBhZGQgbW9yZSBoYWNrcy4gV2Ugc2hvdWxkIGNvcnJlY3Rs
+eSBzZXQKPiBWUklOR19BVkFJTF9GX05PX0lOVEVSUlVQVCwKCkkgYW0gc3RpbGwgc3R1Y2sgdHJ5
+aW5nIHRvIHVuZGVyc3RhbmQgd2h5IHdlIGRvbid0IHNldCBpdC4KSG93IGRvZXMgZXZlbnRfdHJp
+Z2dlcmVkIGVuZCB1cCBnZXR0aW5nIHNldCB3aXRob3V0CmV2ZW50IGluZGV4IHN1cHBvcnQ/CgpU
+aGFua3MhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
