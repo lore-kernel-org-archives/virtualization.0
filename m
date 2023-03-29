@@ -1,103 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61D2EC74A5B
-	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 16:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6980DC74A5B
+	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 16:40:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DC3FB61516;
-	Wed, 29 Mar 2023 16:36:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC3FB61516
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cVI51Qot
+	by smtp4.osuosl.org (Postfix) with ESMTP id E49CC41EDA;
+	Wed, 29 Mar 2023 16:40:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E49CC41EDA
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HWZLCj2N
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ov0XtzVfH94X; Wed, 29 Mar 2023 16:36:55 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hEo_5PJQIGEJ; Wed, 29 Mar 2023 16:40:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7B161614B4;
-	Wed, 29 Mar 2023 16:36:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7B161614B4
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1645941ED3;
+	Wed, 29 Mar 2023 16:40:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1645941ED3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A50AC0037;
-	Wed, 29 Mar 2023 16:36:54 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8500FC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4704C0037;
+	Wed, 29 Mar 2023 16:40:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBE0BC002F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:36:52 +0000 (UTC)
+ Wed, 29 Mar 2023 16:40:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 535588417C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 876DF41ED6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:36:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 535588417C
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cVI51Qot
+ Wed, 29 Mar 2023 16:40:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 876DF41ED6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uAinYpuPw_8l
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z8Hdxc77O22F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:36:49 +0000 (UTC)
+ Wed, 29 Mar 2023 16:40:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 512928417A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 72FF041ED3
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 512928417A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 72FF041ED3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:36:49 +0000 (UTC)
+ Wed, 29 Mar 2023 16:40:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680107808;
+ s=mimecast20190719; t=1680108024;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ldMAeFakoVxongrnXNG07Qemx9ue6UmllaaxOMmybkQ=;
- b=cVI51QotQMAOPNVLuZiOThk8TSBmCRchz5J/ED5AZZF3kItdNiVI+h7eCdVaMIQDck+OUB
- MY/2GHIGjK9eaGXbkc80UHV1l4csrUSMFdZenCsKQ1cTnHRPj7fepRnNchId5OS8kErOZd
- tUL6QJipt4nOYKxALP1dljyQF+bArEY=
+ bh=b9R4dQgGGlVY8zkY31lqs8u3LNDE0nvPHRAHirYjox8=;
+ b=HWZLCj2NQCySXg2UxHohBfyZjkT8JpZK7ydNYDkyocqwyT2cMlSmP5XGiF8U9r3BGHmpNn
+ VB5SI8fdZg3iZ7QXlcZ1mvae2pku2FvXQNt0yPm5rB18QgaeGJJjQ3PoFDB3QQO7M1U5MZ
+ /IE9WubSe+J8iaE37W1Z2sfacaMM/0w=
 Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
  [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-353-KSu6TbhKOHO1OZoyQlM5Jg-1; Wed, 29 Mar 2023 12:36:46 -0400
-X-MC-Unique: KSu6TbhKOHO1OZoyQlM5Jg-1
+ us-mta-76-cJ4j8lFsNICGyPTG3Vss-A-1; Wed, 29 Mar 2023 12:40:22 -0400
+X-MC-Unique: cJ4j8lFsNICGyPTG3Vss-A-1
 Received: by mail-wr1-f69.google.com with SMTP id
- j17-20020adfb311000000b002d660153278so1683061wrd.20
+ u27-20020adfa19b000000b002d3b9266941so1653376wru.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 09:36:46 -0700 (PDT)
+ Wed, 29 Mar 2023 09:40:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680107806;
+ d=1e100.net; s=20210112; t=1680108021;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=ldMAeFakoVxongrnXNG07Qemx9ue6UmllaaxOMmybkQ=;
- b=JXTfoPZf1LmBjD9ym4sFHOkAbnJrzFJual1ikGtR4sb28zXNdQaIrWfJmZ2yf6frE+
- iYPJQYP+OTi7gMFOp5fM0OaPF7GQpENvymfhyXMIa+jx6WXwQ7//0+L8HjBJQvbSbXyY
- VmDtQQmdZStYOFvIk/upS3cgMo7vr/7B1mpE++O8AijGK+bmcS7fkKhFtGz4MF0una76
- hTQ1RaOMMYpr+2Ut+LimTamx1jIyrT2PIQlMrwIHQJLlWv1zaTi95K89f0h4sQgyxxbo
- 1+wl92n1HlFR4BLCxZeK4KetRtbC9Fkk6/IjLH5jtua3sf6gSz0z0iS+OJVuW9cVg311
- NduQ==
-X-Gm-Message-State: AAQBX9fGBOgy6HvYMYXbM889nk/advX1qE5eGhxZpFGDxUAYU9P4zjhY
- AGQFMDrMaKydN3BJC51VZl05zt3xgxbBcVankx6+dU3vit2w+4T1WO6mGwx4Ms6yh5EwkC/5BMP
- bBWRRqfCPdBh69n6s6MoR/d5+VcHF7YqOzd/iPGIOiw==
-X-Received: by 2002:adf:decf:0:b0:2cf:f30f:cc04 with SMTP id
- i15-20020adfdecf000000b002cff30fcc04mr14240679wrn.27.1680107805854; 
- Wed, 29 Mar 2023 09:36:45 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Z5BstaP0SIWlL7B+yT9cBx93Rz7ef9lbximjW91GJq3IF02TSPgsvVmlwSCFY8rhw/kJXS8w==
-X-Received: by 2002:adf:decf:0:b0:2cf:f30f:cc04 with SMTP id
- i15-20020adfdecf000000b002cff30fcc04mr14240665wrn.27.1680107805520; 
- Wed, 29 Mar 2023 09:36:45 -0700 (PDT)
+ bh=b9R4dQgGGlVY8zkY31lqs8u3LNDE0nvPHRAHirYjox8=;
+ b=30uf61ag2BMW/zVeTZsnDVbbvJDM1/pLkupPrFpEBcKhL++wAkV9skJLoMqNqJ3oPB
+ gnD7gbrZOoEYo7fpqr2PUVjEetm3OERkAYa7BZnRZ1mm106lZtJcjgoyWY+N8tfrcend
+ UZE+7pHPQNDxQ5qnHL037ql5lg187ynbTe5re+uhpXVhbE5tV4GvfzUUNCMqr5pORE7G
+ mP5a1ZchQVE52E2wOgdK/9H7KM17vDQR/1/KRqL5RART/GW2xfGhxWyqs2rPFAu2bEQQ
+ l53Ez8b839/EkstHUyzunHjpYym3i660DqIc4itqBZihsuzbwIQ6eeTuIs3bISeNgn8U
+ HG6A==
+X-Gm-Message-State: AAQBX9do1Zvr+OOG5Pj/vQpuoKYVt4wrAc8yet09HwRHWQM3sG2rUk7Y
+ H9iYos29HmXUQMTp4/MSl7A1GLVQcevkgbBzA4MZn1yFblvF0lcPVpZAGwkGuuKBrLGcONPybBt
+ 2fFtAPtckvNH5qoVc8CXZt2DNZ+1gLlccCQ6nIpNBcw==
+X-Received: by 2002:adf:d845:0:b0:2d1:a818:6c23 with SMTP id
+ k5-20020adfd845000000b002d1a8186c23mr17410925wrl.39.1680108021732; 
+ Wed, 29 Mar 2023 09:40:21 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bQ0LdVLiDEupFUiWeoiSdx+xdmLBgLdlDZ/ocnEGz4nkOZ/HhHR1pPL/wxyNwPMzwhHoc9ww==
+X-Received: by 2002:adf:d845:0:b0:2d1:a818:6c23 with SMTP id
+ k5-20020adfd845000000b002d1a8186c23mr17410911wrl.39.1680108021447; 
+ Wed, 29 Mar 2023 09:40:21 -0700 (PDT)
 Received: from redhat.com ([2.52.18.165]) by smtp.gmail.com with ESMTPSA id
- v7-20020a5d4b07000000b002c56af32e8csm30386163wrq.35.2023.03.29.09.36.44
+ a4-20020adffb84000000b002d322b9a7f5sm30550080wrr.88.2023.03.29.09.40.20
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 29 Mar 2023 09:36:45 -0700 (PDT)
-Date: Wed, 29 Mar 2023 12:36:41 -0400
+ Wed, 29 Mar 2023 09:40:21 -0700 (PDT)
+Date: Wed, 29 Mar 2023 12:40:17 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Albert Huang <huangjie.albert@bytedance.com>
 Subject: Re: [PATCH v4] virtio_ring: interrupt disable flag updated to vq
  even with event_triggered is set
-Message-ID: <20230329123444-mutt-send-email-mst@kernel.org>
+Message-ID: <20230329123959-mutt-send-email-mst@kernel.org>
 References: <20230329102300.61000-1-huangjie.albert@bytedance.com>
 MIME-Version: 1.0
 In-Reply-To: <20230329102300.61000-1-huangjie.albert@bytedance.com>
@@ -171,12 +168,7 @@ On Wed, Mar 29, 2023 at 06:23:00PM +0800, Albert Huang wrote:
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Patch is ok so I rewrote the commit log and applied.
-Please do not add signed-off-by tags by others -
-read up what this tag means.
-I also rewrote your Signed-off-by to have your name
-formatted same as in email - hope that is ok.
-
+Can you confirm you tested 9p and it still works fine?
 
 > ---
 >  drivers/virtio/virtio_ring.c | 22 ++++++++++++++++------
