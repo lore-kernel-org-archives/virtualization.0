@@ -1,111 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BE298C761AF
-	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 16:03:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0E8F5C74A5B
+	for <virtualization@archiver.kernel.org>; Wed, 29 Mar 2023 16:26:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3923E4096D;
-	Wed, 29 Mar 2023 16:03:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3923E4096D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jUrINhWn
+	by smtp3.osuosl.org (Postfix) with ESMTP id 769E361523;
+	Wed, 29 Mar 2023 16:26:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 769E361523
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=e4GM0FUN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KiGqaqFIwpiA; Wed, 29 Mar 2023 16:03:31 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 196BLj-713gd; Wed, 29 Mar 2023 16:26:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9F92940074;
-	Wed, 29 Mar 2023 16:03:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F92940074
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B214961464;
+	Wed, 29 Mar 2023 16:26:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B214961464
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 730D0C0036;
-	Wed, 29 Mar 2023 16:03:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25FDCC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 85369C0037;
+	Wed, 29 Mar 2023 16:26:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0647AC002F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:03:29 +0000 (UTC)
+ Wed, 29 Mar 2023 16:26:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 015E541D55
+ by smtp2.osuosl.org (Postfix) with ESMTP id C912641D3A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:03:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 015E541D55
+ Wed, 29 Mar 2023 16:26:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C912641D3A
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=jUrINhWn
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=e4GM0FUN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i5HxKEqyb0_U
+ with ESMTP id lOIezNvZyN2h
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:03:28 +0000 (UTC)
+ Wed, 29 Mar 2023 16:26:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3BA3E4000B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B148F4000B
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3BA3E4000B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B148F4000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 16:03:28 +0000 (UTC)
+ Wed, 29 Mar 2023 16:26:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680105807;
+ s=mimecast20190719; t=1680107177;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=WhrreSkv0vZH0WLUdB+/3ln6MeZlFYYMu2CO+omtwhg=;
- b=jUrINhWnZAt+gXZ7VAoE5LMje8y44LcxqnvCCteFhdtSyE7Nb12W5cyDYMO0tDp260HlRG
- cDFbi99sy+oh41k+c2dwgpMyiFVb5ex3KhY6QNWoV0DWb0pyLOuQlG1FVTWaTmSoyIwz4y
- BMqnX4ZDFKLcONwy+y4WUu119COP0bM=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ in-reply-to:in-reply-to:references:references;
+ bh=1QMeWDDRRF1UyQKkjOF9xaUDyLXaqabC3JIGztQRh24=;
+ b=e4GM0FUNw2fXCzdfamsubHZvDgzf0VZUVcEQRrJWXt31IXxxGh4GU3BcG5+BgpW+7jEA2J
+ 71CTP5qMwZl6FM/4juD4CYJQ37P5GMcN2dT0oiW8DcY2V0UBLzJsBlJ0bH4Or3oZXhCxjR
+ +ZFjIvpKKdiOiDKHYMQ3BrmFPCcQ4kE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-25-yQE3_4dMNpCYodadfi3StQ-1; Wed, 29 Mar 2023 12:03:26 -0400
-X-MC-Unique: yQE3_4dMNpCYodadfi3StQ-1
-Received: by mail-qt1-f199.google.com with SMTP id
- n10-20020a05622a11ca00b003e4e30c6c98so7805114qtk.19
+ us-mta-416-ScRA8CBNNsimG2WV3NzNAQ-1; Wed, 29 Mar 2023 12:26:15 -0400
+X-MC-Unique: ScRA8CBNNsimG2WV3NzNAQ-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ o37-20020a05600c512500b003edd119ec9eso8115383wms.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 09:03:26 -0700 (PDT)
+ Wed, 29 Mar 2023 09:26:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680105805;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=WhrreSkv0vZH0WLUdB+/3ln6MeZlFYYMu2CO+omtwhg=;
- b=01ZXg/j+HVu1H0cwAVybGTtbiCs9Y1/LeQLjrGWZ7WB41qnyB9ZtdU6Swiq/CqhuX2
- MDVxOQQLnxQgVPY1UdO/44/X+X3FdBkwmNkYqPpq+BVAnkptDsA231ClcSzfkMFpaRlf
- alFFWLu1rXQYSQwXLtnqUHMrQspXtAnbn3sGlHdNzwSgnogIjSbuYH1t2C41L9YfNbnd
- QIzmLEdsCeFC0iiTBDfYkCMx7TuNvf3Gd82m83jXVnsUDnYTzkdGNCPNAPiowpvQZ9Hq
- rvkCcwnMgIO54LJdSPlm9GHar20Yu7x6mGNlvJHxkaGRYj+KzBw/FtIjH++LnvogYqi2
- Roow==
-X-Gm-Message-State: AO0yUKUOGeL+Bxc9f3RpEilRwGOonJNpK1GWKu3GNvniissa86o+q/mm
- Ki1JJJTR29Rigl2tZ5uOhU39WWHd309i6nXApSeDYUmTQP3XaJTZ1pY71VYAd58AknmlZj+jbWs
- y/VRRi00CoKOjQAzrUZnhq1u/Zl168iuX/Ssb115+/SQ3SSgPNPNjcsqQN9GLMQK7ysOGpEsiWv
- HtVZEasuniLM7S1GVIISvfvxwspA==
-X-Received: by 2002:ac8:58c3:0:b0:3e4:6329:448e with SMTP id
- u3-20020ac858c3000000b003e46329448emr35810491qta.16.1680105805195; 
- Wed, 29 Mar 2023 09:03:25 -0700 (PDT)
-X-Google-Smtp-Source: AK7set/FoJCjgeNDT4rElGSF+Zl8YAW9TnymsfzUzUHuClJUBQwdLVEZBocjmA0YXTyxGB7KC7JO9Q==
-X-Received: by 2002:ac8:58c3:0:b0:3e4:6329:448e with SMTP id
- u3-20020ac858c3000000b003e46329448emr35810447qta.16.1680105804906; 
- Wed, 29 Mar 2023 09:03:24 -0700 (PDT)
-Received: from step1.redhat.com (host-82-57-51-130.retail.telecomitalia.it.
- [82.57.51.130]) by smtp.gmail.com with ESMTPSA id
- d184-20020a3768c1000000b0074688c36facsm13206442qkc.56.2023.03.29.09.03.23
+ d=1e100.net; s=20210112; t=1680107174;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=1QMeWDDRRF1UyQKkjOF9xaUDyLXaqabC3JIGztQRh24=;
+ b=FUtG9ogqbBxwg5UoKH9TsVfrcmUFmk7Kgrdj/ECnBHPVQI5zHM8569Qp5FJcsPVCbH
+ zm+CAXHoV/aZ6BUDXFU9Fv2EDB+WTOV2JRL6oPUQOlyLmwtHS98/pJ36MW5xqUP2jpw0
+ jqk+msIVuYYSQRHd+PPtHAEs/oGkIhLpmuqJe1b440i4lI2KgjuKNT8SyBuXHvKKwYVY
+ 4wCb9VrTe+It91Sa4Ci28ckYDOt2EAW+D8oicTWznwNqyvK9+pASPQZRnS71jvAs6HPi
+ kRSFKH6FlrUzGhEqPOZBjLW0Na66OIdqtoq1fyttSaDwJuts3eUHT11UdPcV0t/gpCYc
+ h7Vw==
+X-Gm-Message-State: AAQBX9dxWK2sWMPSTcEE4A9HR+ikBwyf5+Gore1+3MGXX+1GQiHdq3wU
+ l1Ge94lKczrguqNWPPlGfdBR+tBjURXI6RAOmm4LOgnvxFfXtMCYxajwdu4hRVUfgO3H/2UfLpB
+ qpnKC8NNwvcdj419+qMfMdy4sYrrplftPX7LSMQnMxQ==
+X-Received: by 2002:a7b:c006:0:b0:3ea:fc95:7bf with SMTP id
+ c6-20020a7bc006000000b003eafc9507bfmr10207780wmb.30.1680107174531; 
+ Wed, 29 Mar 2023 09:26:14 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZrR1tSknZVZ/c/aJTzooFZR2BKVt06DJ9es+d4wlckyD1UzYVce7RYEdvWTe1HUMX9eAtn8g==
+X-Received: by 2002:a7b:c006:0:b0:3ea:fc95:7bf with SMTP id
+ c6-20020a7bc006000000b003eafc9507bfmr10207761wmb.30.1680107174161; 
+ Wed, 29 Mar 2023 09:26:14 -0700 (PDT)
+Received: from redhat.com ([2.52.18.165]) by smtp.gmail.com with ESMTPSA id
+ s17-20020a05600c45d100b003ed51cdb94csm2886365wmo.26.2023.03.29.09.26.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 29 Mar 2023 09:03:24 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] vdpa_sim_net: complete the initialization before register the
- device
-Date: Wed, 29 Mar 2023 18:03:21 +0200
-Message-Id: <20230329160321.187176-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.39.2
+ Wed, 29 Mar 2023 09:26:13 -0700 (PDT)
+Date: Wed, 29 Mar 2023 12:26:10 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Albert Huang <huangjie.albert@bytedance.com>
+Subject: Re: [PATCH v3] virtio_ring: interrupt disable flag updated to vq
+ even with event_triggered is set
+Message-ID: <20230329121354-mutt-send-email-mst@kernel.org>
+References: <20230329012908-mutt-send-email-mst@kernel.org>
+ <20230329072135.44757-1-huangjie.albert@bytedance.com>
 MIME-Version: 1.0
+In-Reply-To: <20230329072135.44757-1-huangjie.albert@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Content-Disposition: inline
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,66 +122,141 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Initialization must be completed before calling _vdpa_register_device()
-since it can connect the device to the vDPA bus, so requests can arrive
-after that call.
+Ican't parse the subject at all. I think the subject from v2
+was fine - we are skipping event index updates on get buf.
+Or maybe go higher level and describe the effect of the patch:
 
-So for example vdpasim_net_work(), which uses the net->*_stats variables,
-can be scheduled before they are initialized.
+virtio_ring: reduce interrupt rate with event idx enabled
 
-Let's move _vdpa_register_device() to the end of vdpasim_net_dev_add()
-and add a comment to avoid future issues.
 
-Fixes: 0899774cb360 ("vdpa_sim_net: vendor satistics")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
+On Wed, Mar 29, 2023 at 03:21:35PM +0800, Albert Huang wrote:
+> From: "huangjie.albert" <huangjie.albert@bytedance.com>
+> 
+> in virtio_net, if we disable the napi_tx, when we triger a tx interrupt,
+> the vq->event_triggered will be set to true. It will no longer be set to
+> false.
 
-Notes:
-    I don't have a reproducer, but I became aware of this problem while
-    I was changing the buffer allocation.
-    
-    In the block device, as soon as the device is registered, the driver
-    sends several requests, and I guess this might happen for the net
-    device as well.
-    
-    Thanks,
-    Stefano
+this last sentence is redundant
 
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+> Unless we explicitly call virtqueue_enable_cb_delayed or
+> virtqueue_enable_cb_prepare.
+> 
+> If we disable the napi_tx, it will only be called when the tx ring
+> buffer is relatively small.
+> 
+> Because event_triggered is true. Therefore, VRING_AVAIL_F_NO_INTERRUPT or
+> VRING_PACKED_EVENT_FLAG_DISABLE will not be set. So we update
+> vring_used_event(&vq->split.vring) or vq->packed.vring.driver->off_wrap
+> every time we call virtqueue_get_buf_ctx.This bring more interruptions.
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-index 862f405362de..dfe2ce341803 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-@@ -466,16 +466,21 @@ static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+This will bring more interrupts. And pls add space after ".".
+
+> 
+> To summarize:
+> 1) event_triggered was set to true in vring_interrupt()
+> 2) after this nothing will happen for virtqueue_disable_cb() so
+>    VRING_AVAIL_F_NO_INTERRUPT is not set in avail_flags_shadow
+> 3) virtqueue_get_buf_ctx_split() will still think the cb is enabled
+>    then it tries to publish new event
+> 
+> To fix:
+> update VRING_AVAIL_F_NO_INTERRUPT or VRING_PACKED_EVENT_FLAG_DISABLE to vq
+> when we call virtqueue_disable_cb even the event_triggered is set to true.
+
+bad grammar here and way too much detail.  better:
+
+	make disable_cb set VRING_AVAIL_F_NO_INTERRUPT or
+	VRING_PACKED_EVENT_FLAG_DISABLE in flags shadow to make get_buf
+	correctly detect that callbacks are disabled.
+
+> 
+> Tested with iperf:
+> iperf3 tcp stream:
+> vm1 -----------------> vm2
+> vm2 just receives tcp data stream from vm1, and sends the ack to vm1,
+> there are many tx interrupts in vm2.
+> but without event_triggered there are just a few tx interrupts.
+>
+
+put changelog after --- please.
  
- 	vdpasim_net_setup_config(simdev, config);
- 
--	ret = _vdpa_register_device(&simdev->vdpa, VDPASIM_NET_VQ_NUM);
--	if (ret)
--		goto reg_err;
--
- 	net = sim_to_net(simdev);
- 
- 	u64_stats_init(&net->tx_stats.syncp);
- 	u64_stats_init(&net->rx_stats.syncp);
- 	u64_stats_init(&net->cq_stats.syncp);
- 
-+	/*
-+	 * Initialization must be completed before this call, since it can
-+	 * connect the device to the vDPA bus, so requests can arrive after
-+	 * this call.
-+	 */
-+	ret = _vdpa_register_device(&simdev->vdpa, VDPASIM_NET_VQ_NUM);
-+	if (ret)
-+		goto reg_err;
-+
- 	return 0;
- 
- reg_err:
--- 
-2.39.2
+> v2->v3:
+> -update the interrupt disable flag even with the event_triggered is set,
+> -instead of checking whether event_triggered is set in
+> -virtqueue_get_buf_ctx_{packed/split}, will cause the drivers  which have
+> -not called virtqueue_{enable/disable}_cb to miss notifications.
+> 
+> Fixes: 8d622d21d248 ("virtio: fix up virtio_disable_cb")
+> Signed-off-by: huangjie.albert <huangjie.albert@bytedance.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/virtio/virtio_ring.c | 24 +++++++++++++++++-------
+>  1 file changed, 17 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 307e139cb11d..ad74463a48ee 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -812,6 +812,14 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
+>  
+>  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+>  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+> +
+> +		/*
+> +		 * If device triggered an event already it won't trigger one again:
+> +		 * no need to disable.
+> +		 */
+> +		if (vq->event_triggered)
+> +			return;
+> +
+>  		if (vq->event)
+>  			/* TODO: this is a hack. Figure out a cleaner value to write. */
+>  			vring_used_event(&vq->split.vring) = 0x0;
+> @@ -1544,8 +1552,16 @@ static void virtqueue_disable_cb_packed(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	if (vq->packed.event_flags_shadow != VRING_PACKED_EVENT_FLAG_DISABLE) {
+> +	if (!(vq->packed.event_flags_shadow & VRING_PACKED_EVENT_FLAG_DISABLE)) {
+
+
+Why are you making this change? It's not great because it
+only works because VRING_PACKED_EVENT_FLAG_DISABLE happens
+to equal 0x1. does not the patch work with the original
+if (vq->packed.event_flags_shadow != VRING_PACKED_EVENT_FLAG_DISABLE)
+?
+
+Besides, if you are making unrelated changes commit log should
+describe them.
+
+>  		vq->packed.event_flags_shadow = VRING_PACKED_EVENT_FLAG_DISABLE;
+> +
+> +		/*
+> +		 * If device triggered an event already it won't trigger one again:
+> +		 * no need to disable.
+> +		 */
+> +		if (vq->event_triggered)
+> +			return;
+> +
+>  		vq->packed.vring.driver->flags =
+>  			cpu_to_le16(vq->packed.event_flags_shadow);
+>  	}
+> @@ -2063,12 +2079,6 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+>  {
+>  	struct vring_virtqueue *vq = to_vvq(_vq);
+>  
+> -	/* If device triggered an event already it won't trigger one again:
+> -	 * no need to disable.
+> -	 */
+> -	if (vq->event_triggered)
+> -		return;
+> -
+>  	if (vq->packed_ring)
+>  		virtqueue_disable_cb_packed(_vq);
+>  	else
+> -- 
+> 2.31.1
 
 _______________________________________________
 Virtualization mailing list
