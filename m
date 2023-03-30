@@ -1,111 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8EEFC74A5B
-	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 06:18:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86C12C6FD1D
+	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 06:44:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 360C084125;
-	Thu, 30 Mar 2023 06:18:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 360C084125
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gwX0tFhc
+	by smtp4.osuosl.org (Postfix) with ESMTP id A75AA41DE7;
+	Thu, 30 Mar 2023 06:44:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A75AA41DE7
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gFhtdNNC
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SCYhAtsMV78e; Thu, 30 Mar 2023 06:18:00 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rXDCvEdybCuI; Thu, 30 Mar 2023 06:44:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9D3FC84122;
-	Thu, 30 Mar 2023 06:17:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9D3FC84122
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9E6844096C;
+	Thu, 30 Mar 2023 06:44:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E6844096C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7198BC0036;
-	Thu, 30 Mar 2023 06:17:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4AA03C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F859C0036;
+	Thu, 30 Mar 2023 06:44:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CD55EC002F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:17:58 +0000 (UTC)
+ Thu, 30 Mar 2023 06:44:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1F86084125
+ by smtp4.osuosl.org (Postfix) with ESMTP id A03A641B9B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:17:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F86084125
+ Thu, 30 Mar 2023 06:44:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A03A641B9B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T1Z_QgtyX-jR
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7wz2GaXA1abF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:17:57 +0000 (UTC)
+ Thu, 30 Mar 2023 06:44:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2B6C84122
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B13D4096C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E2B6C84122
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2B13D4096C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:17:56 +0000 (UTC)
+ Thu, 30 Mar 2023 06:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680157075;
+ s=mimecast20190719; t=1680158691;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=6xBOVpWxCK25mn4qE7KBnQ/szJiPX1gzHnLt3zUuvz0=;
- b=gwX0tFhc0G+R1VRbGYua9xSz1XY/V9IxWlDXoZn4T5pOlHhIp6VjH51fdnbvHuYx9NaWbK
- lAKGg+AgCP4oWn27Dn30vjWIFunqJdmHgDBggiHVPsZO07g7Y+1XGuS0OpT//qlh/ZWeJ7
- J+6tCfADSE0si4zcUlRvWJoRPq86X4c=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=uOR4AABgXY6rT1UM0saCrM1Os02S42xCRn/OKU3aRlo=;
+ b=gFhtdNNCWBBXc3xbN6ie0tfBga1AfHAEYNfAUQRqEavOrEXJhN3pQ4meTMTiXsNLIUGCvF
+ iitwozocJoAFl/O8GsIncSCi5UqSCNWS+KVg57ydkbJTFpRMEvh4t4yRV2fVb2HvliliO/
+ c+FIEXjjvT93jwfi66pptR9E4PEmTOs=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-317-ygX0EUBJPFOIjYT9R1zcnQ-1; Thu, 30 Mar 2023 02:17:48 -0400
-X-MC-Unique: ygX0EUBJPFOIjYT9R1zcnQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- j27-20020a05600c1c1b00b003edd2023418so9868610wms.4
+ us-mta-222-3dRXWKeNOMuRnYXJPDCPrg-1; Thu, 30 Mar 2023 02:44:50 -0400
+X-MC-Unique: 3dRXWKeNOMuRnYXJPDCPrg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ e5-20020a05600c4e4500b003edc5824521so9929574wmq.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Mar 2023 23:17:48 -0700 (PDT)
+ Wed, 29 Mar 2023 23:44:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680157067;
+ d=1e100.net; s=20210112; t=1680158689;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=6xBOVpWxCK25mn4qE7KBnQ/szJiPX1gzHnLt3zUuvz0=;
- b=fMpaYdeTD731EQ3/vD2lGK0OzETX5bu/qupwJTmXfej5bkvtwg9N+TxUsoFV7Ykppj
- 4dQTH2CFOuvEGCunnthyczNWoXB1hXwLNB89zUXaYSdh/TM6v1pPkkoXoMfd5S+YNHn8
- f49QrsCgPYebffVfF91B4J+4OvLHLSpz66udoNIKJqtRDwWNAV8tCapkPX/Dc9T0/f2C
- e3USRXwZGwfCoMEh7iePxBf9zUHahxD/cGivEagkVq2qBeantLC8DiplXmQ9tqym171n
- NC8hcrdWCnMMTNQtyl/SxCPShAhFBnRkQ0K2Ljz1QouyKA/uz392srAgO0t9iClB91y7
- 4icw==
-X-Gm-Message-State: AAQBX9dRjVm6ckMk6mj8uy4v+GjW9u2V3c8pPyIHRGkaBCxGUeR57FeJ
- cgeheHRsiewIG6lwQyDMwZVRzZS2HkS2BLlHLOKSVtFJy9U+wuoEPXIfeEyquCzGC1imWg+I14B
- OHVL0lHLIFZhBSWvKkDdqDjF5jhzyvMR6XrJKZUjL6A==
-X-Received: by 2002:adf:e401:0:b0:2d4:896:a204 with SMTP id
- g1-20020adfe401000000b002d40896a204mr16043750wrm.60.1680157067616; 
- Wed, 29 Mar 2023 23:17:47 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZWrzkHbAP6BkiUUe9yyebCiunrV4M5BvT7N+wH2ZkjcjHW/6tNcTYFjDHgUDimgRCyWS3QsQ==
-X-Received: by 2002:adf:e401:0:b0:2d4:896:a204 with SMTP id
- g1-20020adfe401000000b002d40896a204mr16043735wrm.60.1680157067244; 
- Wed, 29 Mar 2023 23:17:47 -0700 (PDT)
+ bh=uOR4AABgXY6rT1UM0saCrM1Os02S42xCRn/OKU3aRlo=;
+ b=i97xAckhbhdEhpUREwO4EO6G6ArFd+UBNAqcUTdrpZxQ4FjnfDhtQ4taiK8PVxLXlg
+ cvLFdz0C9NsVK81fgUq29Y63etF6A6TK8aYtDqI1yccpMkbmjKuW9O1zVt2Sc0g3MesY
+ xOK35qAGhtUyoP9ydX5aVd73u3wUzqDmfWFp9fFdIyDCLyaIXji4uZxKpZFqtXWaylWu
+ EPzgG3DkGsbknSaMzkSEyUWwF9eSkLSWagrLFm7CAGL9+6Ay7SnvNQRM0kX+WQhik01x
+ zkSH5gq7W/dWdgIGzt9znaRC0BXieBraSuwhhr6FTVRb/JMcn6CS+UxCO5JtWjSRQhFM
+ H88w==
+X-Gm-Message-State: AAQBX9ce7Y6WEZOQAUOSY00dJ2pI6DpIdPdboAU9wbGI5+UOjEq/ca4S
+ RItWlTo3LXD5bspQgqR4YneWl7Nq9ziO8P/CATQ5T50Uj310P609hcc0enRgZtp6SfQfvhqwk2N
+ 6fMOH2Rcb8xA2oQyIUeHxT5doRVGp6pRfd4SrUx1GKw==
+X-Received: by 2002:a7b:c045:0:b0:3ef:6fee:8057 with SMTP id
+ u5-20020a7bc045000000b003ef6fee8057mr9121729wmc.25.1680158688799; 
+ Wed, 29 Mar 2023 23:44:48 -0700 (PDT)
+X-Google-Smtp-Source: AKy350b9YXLwf8YQAIK1wJbojYDvpMv6wMNdBsep+spzdVpXknozxcuIotMCTlq+T8/9wIqhpHiyXQ==
+X-Received: by 2002:a7b:c045:0:b0:3ef:6fee:8057 with SMTP id
+ u5-20020a7bc045000000b003ef6fee8057mr9121710wmc.25.1680158688488; 
+ Wed, 29 Mar 2023 23:44:48 -0700 (PDT)
 Received: from redhat.com ([2.52.159.107]) by smtp.gmail.com with ESMTPSA id
- p5-20020adfce05000000b002d64fcb362dsm26643606wrn.111.2023.03.29.23.17.45
+ f17-20020a05600c4e9100b003ede3f5c81fsm5062688wmq.41.2023.03.29.23.44.46
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 29 Mar 2023 23:17:46 -0700 (PDT)
-Date: Thu, 30 Mar 2023 02:17:43 -0400
+ Wed, 29 Mar 2023 23:44:47 -0700 (PDT)
+Date: Thu, 30 Mar 2023 02:44:44 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 00/16] virtio-net: split virtio-net.c
-Message-ID: <20230330015412-mutt-send-email-mst@kernel.org>
-References: <20230328092847.91643-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v3 3/4] virtio: fix up virtio_disable_cb
+Message-ID: <20230330024220-mutt-send-email-mst@kernel.org>
+References: <20210526082423.47837-1-mst@redhat.com>
+ <20210526082423.47837-4-mst@redhat.com>
+ <1680156457.5551112-5-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20230328092847.91643-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1680156457.5551112-5-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,106 +122,144 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 28, 2023 at 05:28:31PM +0800, Xuan Zhuo wrote:
-> Considering the complexity of virtio-net.c and the new features we want
-> to add, it is time to split virtio-net.c into multiple independent
-> module files.
+On Thu, Mar 30, 2023 at 02:07:37PM +0800, Xuan Zhuo wrote:
+> On Wed, 26 May 2021 04:24:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > virtio_disable_cb is currently a nop for split ring with event index.
+> > This is because it used to be always called from a callback when we know
+> > device won't trigger more events until we update the index.  However,
+> > now that we run with interrupts enabled a lot we also poll without a
+> > callback so that is different: disabling callbacks will help reduce the
+> > number of spurious interrupts.
+> > Further, if using event index with a packed ring, and if being called
+> > from a callback, we actually do disable interrupts which is unnecessary.
+> >
+> > Fix both issues by tracking whenever we get a callback. If that is
+> > the case disabling interrupts with event index can be a nop.
+> > If not the case disable interrupts. Note: with a split ring
+> > there's no explicit "no interrupts" value. For now we write
+> > a fixed value so our chance of triggering an interupt
+> > is 1/ring size. It's probably better to write something
+> > related to the last used index there to reduce the chance
+> > even further. For now I'm keeping it simple.
 > 
-> This is beneficial to the maintenance and adding new functions.
 > 
-> And AF_XDP support will be added later, then a separate xsk.c file will
-> be added.
+> Don't understand, is this patch necessary? For this patch set, we can do without
+> this patch.
 > 
-> This patchset split virtio-net.c into these parts:
+> So doest this patch optimize virtqueue_disable_cb() by reducing a modification of
+> vring_used_event(&vq-> split.vring)?
 > 
-> * virtnet.c:         virtio net device ops (napi, tx, rx, device ops, ...)
-> * virtnet_common.c:  virtio net common code
-> * virtnet_ethtool.c: virtio net ethtool callbacks
-> * virtnet_ctrl.c:    virtio net ctrl queue command APIs
-> * virtnet_virtio.c:  virtio net virtio callbacks/ops (driver register, virtio probe, virtio free, ...)
-> 
-> Please review.
+> Or I miss something.
 > 
 > Thanks.
 
+Before this patch virtqueue_disable_cb did nothing at all
+for the common case of event index enabled, so
+calling it from virtio net would not help matters.
 
-I don't feel this is an improvement as presented, will need more work
-to make code placement more logical.
+But the patch is from 2021, isn't it a bit too late to argue?
+If you have a cleanup or an optimization in mind, please
+post a patch.
 
-For example where do I find code to update rq stats?
-Rx data path should be virtnet.c?
-No it's in virtnet_ethtool.c because rq stats can be
-accessed by ethtool.
-A bunch of stuff seems to be in headers just because of technicalities.
-virtio common seems to be a dumping ground with no guiding principle at
-all.
-drivers/net/virtio/virtnet_virtio.c is weird with
-virt repeated three times in the path.
-
-These things only get murkier with time, at the point of reorg
-I would expect very logical placement, since
-without clear guiding rule finding where something is becomes harder but
-more importantly we'll now get endless heartburn about where does each new
-function go.
-
-
-The reorg is unfortunately not free - for example git log --follow will
-no longer easily match virtio because --follow works with exactly one
-path.  It's now also extra work to keep headers self-consistent.
-So it better be a big improvement to be worth it.
-
-
-
-
-> Xuan Zhuo (16):
->   virtio_net: add a separate directory for virtio-net
->   virtio_net: move struct to header file
->   virtio_net: add prefix to the struct inside header file
->   virtio_net: separating cpu-related funs
->   virtio_net: separate virtnet_ctrl_set_queues()
->   virtio_net: separate virtnet_ctrl_set_mac_address()
->   virtio_net: remove lock from virtnet_ack_link_announce()
->   virtio_net: separating the APIs of cq
->   virtio_net: introduce virtnet_rq_update_stats()
->   virtio_net: separating the funcs of ethtool
->   virtio_net: introduce virtnet_dev_rx_queue_group()
->   virtio_net: introduce virtnet_get_netdev()
->   virtio_net: prepare for virtio
->   virtio_net: move virtnet_[en/dis]able_delayed_refill to header file
->   virtio_net: add APIs to register/unregister virtio driver
->   virtio_net: separating the virtio code
-> 
->  MAINTAINERS                                   |    2 +-
->  drivers/net/Kconfig                           |    8 +-
->  drivers/net/Makefile                          |    2 +-
->  drivers/net/virtio/Kconfig                    |   11 +
->  drivers/net/virtio/Makefile                   |   10 +
->  .../net/{virtio_net.c => virtio/virtnet.c}    | 2368 ++---------------
->  drivers/net/virtio/virtnet.h                  |  213 ++
->  drivers/net/virtio/virtnet_common.c           |  138 +
->  drivers/net/virtio/virtnet_common.h           |   14 +
->  drivers/net/virtio/virtnet_ctrl.c             |  272 ++
->  drivers/net/virtio/virtnet_ctrl.h             |   45 +
->  drivers/net/virtio/virtnet_ethtool.c          |  578 ++++
->  drivers/net/virtio/virtnet_ethtool.h          |    8 +
->  drivers/net/virtio/virtnet_virtio.c           |  880 ++++++
->  drivers/net/virtio/virtnet_virtio.h           |    8 +
->  15 files changed, 2366 insertions(+), 2191 deletions(-)
->  create mode 100644 drivers/net/virtio/Kconfig
->  create mode 100644 drivers/net/virtio/Makefile
->  rename drivers/net/{virtio_net.c => virtio/virtnet.c} (50%)
->  create mode 100644 drivers/net/virtio/virtnet.h
->  create mode 100644 drivers/net/virtio/virtnet_common.c
->  create mode 100644 drivers/net/virtio/virtnet_common.h
->  create mode 100644 drivers/net/virtio/virtnet_ctrl.c
->  create mode 100644 drivers/net/virtio/virtnet_ctrl.h
->  create mode 100644 drivers/net/virtio/virtnet_ethtool.c
->  create mode 100644 drivers/net/virtio/virtnet_ethtool.h
->  create mode 100644 drivers/net/virtio/virtnet_virtio.c
->  create mode 100644 drivers/net/virtio/virtnet_virtio.h
-> 
-> --
-> 2.32.0.3.g01195cf9f
+> >
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 26 +++++++++++++++++++++++++-
+> >  1 file changed, 25 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 71e16b53e9c1..88f0b16b11b8 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -113,6 +113,9 @@ struct vring_virtqueue {
+> >  	/* Last used index we've seen. */
+> >  	u16 last_used_idx;
+> >
+> > +	/* Hint for event idx: already triggered no need to disable. */
+> > +	bool event_triggered;
+> > +
+> >  	union {
+> >  		/* Available for split ring */
+> >  		struct {
+> > @@ -739,7 +742,10 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
+> >
+> >  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
+> >  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
+> > -		if (!vq->event)
+> > +		if (vq->event)
+> > +			/* TODO: this is a hack. Figure out a cleaner value to write. */
+> > +			vring_used_event(&vq->split.vring) = 0x0;
+> > +		else
+> >  			vq->split.vring.avail->flags =
+> >  				cpu_to_virtio16(_vq->vdev,
+> >  						vq->split.avail_flags_shadow);
+> > @@ -1605,6 +1611,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+> >  	vq->weak_barriers = weak_barriers;
+> >  	vq->broken = false;
+> >  	vq->last_used_idx = 0;
+> > +	vq->event_triggered = false;
+> >  	vq->num_added = 0;
+> >  	vq->packed_ring = true;
+> >  	vq->use_dma_api = vring_use_dma_api(vdev);
+> > @@ -1919,6 +1926,12 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+> >  {
+> >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> >
+> > +	/* If device triggered an event already it won't trigger one again:
+> > +	 * no need to disable.
+> > +	 */
+> > +	if (vq->event_triggered)
+> > +		return;
+> > +
+> >  	if (vq->packed_ring)
+> >  		virtqueue_disable_cb_packed(_vq);
+> >  	else
+> > @@ -1942,6 +1955,9 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+> >  {
+> >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> >
+> > +	if (vq->event_triggered)
+> > +		vq->event_triggered = false;
+> > +
+> >  	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
+> >  				 virtqueue_enable_cb_prepare_split(_vq);
+> >  }
+> > @@ -2005,6 +2021,9 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+> >  {
+> >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> >
+> > +	if (vq->event_triggered)
+> > +		vq->event_triggered = false;
+> > +
+> >  	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
+> >  				 virtqueue_enable_cb_delayed_split(_vq);
+> >  }
+> > @@ -2044,6 +2063,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+> >  	if (unlikely(vq->broken))
+> >  		return IRQ_HANDLED;
+> >
+> > +	/* Just a hint for performance: so it's ok that this can be racy! */
+> > +	if (vq->event)
+> > +		vq->event_triggered = true;
+> > +
+> >  	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
+> >  	if (vq->vq.callback)
+> >  		vq->vq.callback(&vq->vq);
+> > @@ -2083,6 +2106,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> >  	vq->weak_barriers = weak_barriers;
+> >  	vq->broken = false;
+> >  	vq->last_used_idx = 0;
+> > +	vq->event_triggered = false;
+> >  	vq->num_added = 0;
+> >  	vq->use_dma_api = vring_use_dma_api(vdev);
+> >  #ifdef DEBUG
+> > --
+> > MST
+> >
+> > _______________________________________________
+> > Virtualization mailing list
+> > Virtualization@lists.linux-foundation.org
+> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 
 _______________________________________________
 Virtualization mailing list
