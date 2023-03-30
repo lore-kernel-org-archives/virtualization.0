@@ -1,113 +1,155 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58ACFC761A6
-	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 14:04:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E695AC761A6
+	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 15:35:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C98A884356;
-	Thu, 30 Mar 2023 14:04:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C98A884356
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cnFFvQVk
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5DE6260AE5;
+	Thu, 30 Mar 2023 15:35:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5DE6260AE5
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=vmware.com header.i=@vmware.com header.a=rsa-sha256 header.s=selector2 header.b=mInmLmWD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TZaFJ_da-tuy; Thu, 30 Mar 2023 14:04:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 29F5B83FA9;
-	Thu, 30 Mar 2023 14:04:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29F5B83FA9
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ewcoS-9UqqXM; Thu, 30 Mar 2023 15:35:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A45C360BC5;
+	Thu, 30 Mar 2023 15:35:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A45C360BC5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00243C0037;
-	Thu, 30 Mar 2023 14:04:13 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6736C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8630DC0037;
+	Thu, 30 Mar 2023 15:35:19 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65740C002F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 14:04:12 +0000 (UTC)
+ Thu, 30 Mar 2023 15:35:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A53E9842E1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 37CA660AF8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 14:04:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A53E9842E1
+ Thu, 30 Mar 2023 15:35:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 37CA660AF8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vMQDdfIsiJ5Y
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qPtnKGEbRCPS
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 14:04:11 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7794C840A8
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7794C840A8
+ Thu, 30 Mar 2023 15:35:17 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2D11960AE5
+Received: from MW2PR02CU002-vft-obe.outbound.protection.outlook.com
+ (mail-westus2azlp170130000.outbound.protection.outlook.com
+ [IPv6:2a01:111:f403:c004::])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2D11960AE5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 14:04:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680185050;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=tTBdaSwbBU7yvMf5yJjwPQAmSwIig1jMctqroIy2Uf0=;
- b=cnFFvQVkp98do7iie8CpIs6S/nQglUuF/kOBZoqpai/qNvxiG2XgtyhBRNCfoQDMjZPYxp
- NzDGDpSxGZh1z26m6Zvlo4bPqfLcZSowUeUw5ufyw+YQSvFptgyZuWVdkr42FCWNJGGFQC
- 0sRSV6lT9cjGCQHUsh93bHYX9JDrFFk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-626-7Bskrtq2NjiIHFdrU4Unag-1; Thu, 30 Mar 2023 10:04:08 -0400
-X-MC-Unique: 7Bskrtq2NjiIHFdrU4Unag-1
-Received: by mail-wm1-f70.google.com with SMTP id
- r11-20020a05600c458b00b003eea8d25f06so9880661wmo.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 07:04:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680185047;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=tTBdaSwbBU7yvMf5yJjwPQAmSwIig1jMctqroIy2Uf0=;
- b=6YxjXhHpz8QRQx+X1HngTCPbqxqbwkW1h+Y1zTDb4HvIlNz0kckbeCGQ5e+vqooN8u
- 7S74A6ovT2J3epSOUHzkXaKZM63ZDaKOVOwLW3wqfzEq8k3h0dssoM1x3M5IJSXHyPwT
- bSSiDFMY1nMw/w2Jnsg9QwWgQ+/zAKV7DO2AVHca/e7QqmsTF0E/Kg5eIJz79+awD/Fd
- gxTMw+GPKeGY8TXFziXW5XAFOSPCZXSCjELLBVtCkIC4RO9FbNnv4Y91WQEHIAMEEAC+
- U99VjlASGkfUWUcEYxBEi5Zr5gVIzxxXgBSGJSSiXXJ8Tez8MPU5viSF4rfjKBULAH91
- rPHw==
-X-Gm-Message-State: AAQBX9dWD37AZv+VxuODnMxI1m3VPqXjs3D97q61x8if6OAk5Gc8MPRe
- /mh5ZgON6PuV9zkYGjJdLDhtwcF0VX6Vn0PFqNo/GNp4+2REaHIc8Hy3S0TSMc5a8wmuP425GCS
- dFrIHvUkfom8Q9CWPBJBrr9xQSzakwt3KvCi7fib6JQ==
-X-Received: by 2002:adf:fd47:0:b0:2dc:cad4:87b9 with SMTP id
- h7-20020adffd47000000b002dccad487b9mr20764972wrs.68.1680185047554; 
- Thu, 30 Mar 2023 07:04:07 -0700 (PDT)
-X-Google-Smtp-Source: AKy350baz3ZKnOOUo2PwHSQ/hKwGrXzV97e3RmZVOT6SkIIWFbJS2PWUhgbo4anxuinm8NAuAgc/Ow==
-X-Received: by 2002:adf:fd47:0:b0:2dc:cad4:87b9 with SMTP id
- h7-20020adffd47000000b002dccad487b9mr20764942wrs.68.1680185047192; 
- Thu, 30 Mar 2023 07:04:07 -0700 (PDT)
-Received: from redhat.com ([2.52.159.107]) by smtp.gmail.com with ESMTPSA id
- e9-20020adffc49000000b002be5bdbe40csm32969834wrs.27.2023.03.30.07.04.05
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 30 Mar 2023 07:04:06 -0700 (PDT)
-Date: Thu, 30 Mar 2023 10:04:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v3 3/4] virtio: fix up virtio_disable_cb
-Message-ID: <20230330100219-mutt-send-email-mst@kernel.org>
-References: <20210526082423.47837-1-mst@redhat.com>
- <20210526082423.47837-4-mst@redhat.com>
- <1680156457.5551112-5-xuanzhuo@linux.alibaba.com>
- <20230330024220-mutt-send-email-mst@kernel.org>
- <1680159261.1588428-1-xuanzhuo@linux.alibaba.com>
+ Thu, 30 Mar 2023 15:35:16 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=WIKp9hyfIQS+1a4hLTAyjrbNYB16T13Q/JKPGH5nYhqKtQAFPbb/W3TyFmp9MCcIFrZhEiCpF/RgYu8cYm+AqFi1UrlEsHyzBUmwOG+BfroKeGgktOkmw1Trb9yk4cHxOU1CK4wwhY2lliaLfKDnSdQOzojtzHA1+U715qeFeUgR9tBWgF/O09H/jIrdBYQN959xpWtkAfVCKnWobAxD5kVG1YzwJG+wpTORWY0+SCm0lYtUulIdNXBme8+JKX56u8TliOTBXKlL+bvaOkp8e2JlDC8dYr+dZQrIgkj6jl70Hxtlx3WE7qS346d0um6tGIPCJZ7mEC26FHMWwtJ4ig==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MouLZf9ei+oMqmBiK9Q6uzI8EWuh0SHZ6LbkWv+XEVM=;
+ b=L5F+9D38qvCXdHWGQbXOsPU1xH3zUiHkhLUnOnzW/G546fM/Asjr662oPlSrXLoj6AsQ3TKOVDy7KCZzYBXQAxkvrqQ60hKbFlp5UqGtgddUK37JE5ioMMqwnw99ix2uaQ5zMCc0q8i+ngm+dZGuA9rYPnHWpj8WLsucLYww/VH4y6C7d1RD7btYN1PYPS/uKQDoSKs3lEXOizUIo48Xh8VmwV/6dEECd7aawyQd6v6qEo5+/bFF38lLOMAHKa62ubyiJbz2F05H9MQrZNFGDv2Pm9do6S8G2unImeZ5+jjligq///St1xpNzOBqTxKnfXX3mqHEVKm/Oq2uTzfu6w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MouLZf9ei+oMqmBiK9Q6uzI8EWuh0SHZ6LbkWv+XEVM=;
+ b=mInmLmWDdHYBit8AfqJxObpUxWPFtzSNxK2VzUl3VAX6K6V7CClYPIIgeuDOEPTLd9X7ZNqO6ZKjIJjhVX+HKX3Ahu4dWRMpAZzSW77Cok93gJe7KzcwALTwKXp9zo+kx+iCfY78S79ZNeiwItSmwCCrtffBs4sqmA+SZMn3jHU=
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com (2603:10b6:a02:88::12)
+ by SN6PR05MB4509.namprd05.prod.outlook.com (2603:10b6:805:2b::33)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6222.33; Thu, 30 Mar
+ 2023 15:35:13 +0000
+Received: from BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::8cb8:9578:d0c0:83d3]) by BYAPR05MB3960.namprd05.prod.outlook.com
+ ([fe80::8cb8:9578:d0c0:83d3%7]) with mapi id 15.20.6222.035; Thu, 30 Mar 2023
+ 15:35:12 +0000
+To: Stefano Garzarella <sgarzare@redhat.com>, Arseniy Krasnov
+ <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v2 2/3] vsock/vmci: convert VMCI error code to -ENOMEM
+Thread-Topic: [RFC PATCH v2 2/3] vsock/vmci: convert VMCI error code to -ENOMEM
+Thread-Index: AQHZYtbL7ZUSdfIRlkizlTLuphx4kK8S+uEAgAB504A=
+Date: Thu, 30 Mar 2023 15:35:12 +0000
+Message-ID: <554FE762-95AF-4D14-8BF8-BEC610937C77@vmware.com>
+References: <60abc0da-0412-6e25-eeb0-8e32e3ec21e7@sberdevices.ru>
+ <94d33849-d3c1-7468-72df-f87f897bafd2@sberdevices.ru>
+ <wzkkagpfxfi7nioixpcmz4uscxojilwhuj4joslwevkm25m6h7@z4yl33oe7wqu>
+In-Reply-To: <wzkkagpfxfi7nioixpcmz4uscxojilwhuj4joslwevkm25m6h7@z4yl33oe7wqu>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vmware.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR05MB3960:EE_|SN6PR05MB4509:EE_
+x-ms-office365-filtering-correlation-id: 9deaaaa9-056e-4a09-14e6-08db31345a5c
+x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: QfpFLJWkR1M4Ltvfo0eu0YIUDuu7N1rMmsRJ31sJfo5fB++pOAZSR/pWdhKsia9STIfdva7Jhjqe4aSdraReZFHQ55EhiZAKZj9Tkzg66oR/Dulu2TsFJkwVDmJ38/qmMLSTak5EyYBVUJnfz1zr4TQLbmTv3iWDhOC22UjB+l6GsYSRnypL6pJzY+zHBkP3/nPIbQRknUr1TWWpn49V1JgfCDcboe0VYh+uH7aLYjk0aPLf7BVaYa/gK4L0Ib4sg6RY3OKr1VAspL10Htmw+Ye8NWSwyPdbdAUFjxmHSSijFENFgGZX4mh15OsC08y4jVqyXCl19oycNlk7tFD7klqtbZYjSkylIrp/xb/ps2CjPz/VqX1zyfiphybxUO2ku1/7VkLyJbd5Db1IyWQg8uyLr0JJ33JpCOzzamD8h85Qaos158GV7olwxuwDDA3iuUusVo4HNJYPSadYKtrMaeOVPAXea9NVOl0t5j+zQqkqYxGf5K8tHd3IkLO6LPeNIEdMSu93ivxCvDQtypfAIzojWHMZqQrxlUBtME09FWtpli14DEr5n1E1kD4iIwgvqBc9ed8sts7tSglmA6lpDIwKdjzCvFM2sOhAX3iJVN0df6NdAzZlHhHzLj7K3SPE7Dh4tcH+CecscDTlUkdhgw==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR05MB3960.namprd05.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(4636009)(39860400002)(396003)(346002)(366004)(376002)(136003)(451199021)(8936002)(41300700001)(76116006)(6506007)(7416002)(5660300002)(110136005)(122000001)(38100700002)(86362001)(38070700005)(66476007)(36756003)(71200400001)(91956017)(66446008)(66946007)(8676002)(6486002)(6512007)(54906003)(66556008)(4326008)(316002)(478600001)(83380400001)(2616005)(33656002)(53546011)(107886003)(186003)(64756008)(2906002)(45980500001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?2fPWiubcTQFvCreHFJeLQxYm5ud5E7l10Gcabhe0kEnMowEhUVq2Q1/NvsVc?=
+ =?us-ascii?Q?Ugx0nf1YgZuwzldJ08Z4c+Wjv7mnFkYqdpv01Mkyk97guX84Pql1GiMUO7WU?=
+ =?us-ascii?Q?0z0bW8WApeHI2Rh6iP40RoPpDr/qAuYg7Z9m6ex1M/fb0emKLw9FPDTGuL3p?=
+ =?us-ascii?Q?ZXWTrMfsxplKp0MUIxV6+P1UfDX/rdVFS/aotpJ+r57gs/4VCofj2GQ8aFxz?=
+ =?us-ascii?Q?OPJohCoNpQ3pZ+ptUlOa6H9cYS7ZkzzN66BinsA1FCDnajPp3WUGIJyzDX+V?=
+ =?us-ascii?Q?kkZZyle76VDtj2PRpH6rc7U0ySz+M+HMeKx8zl52Mx4pEF4fEFI3tHajRKdl?=
+ =?us-ascii?Q?wOcb2bGXyjtzMYN1UpeAHZcehIq+HO0/D/Ok7RDIDXYVrDqVU1TwQDLE89ob?=
+ =?us-ascii?Q?2OvlXeKngfIraktqiZcSRhxmP0mqD4p+hwACZheYbxSUkJiSvvU12yG2kM1d?=
+ =?us-ascii?Q?lvUtMMJdSYSQR5Qm6c64nRtbpsDpko5/cxfkGeAPPSUOYsWoNQTgxQlxJWQ3?=
+ =?us-ascii?Q?zHzfpyT5Mo2YgLfBaEgmBmZ1juSMN1GUhETmd/eZB9SCIUgLB4oMr7fCBgWl?=
+ =?us-ascii?Q?sW+AIU8l6X5sHokYLbeanO9NJtoljdjOOYKpcRLLORoRsrxMSiRXrZSSVByZ?=
+ =?us-ascii?Q?o6epSKWofgy58LjsTHpN51jegPWrJHceJVx0MtRYCJe0ZdLQZbmQ8RRk+v80?=
+ =?us-ascii?Q?kgtLUANh3W1g/E3cn40CirlSDfdrELjqpTDCzD96Nphq49B+tTPRP2rdC2z2?=
+ =?us-ascii?Q?4DqdncEImpCorkRvleES00FXtsgwgWxnYWlE0r271uFqGGDHmKAqLPblCEbF?=
+ =?us-ascii?Q?PwelxskysmESYTG+ZHhS/ExMlH0eWTDj9KhcIj1w1plmG6ENODU6ucCZc5hg?=
+ =?us-ascii?Q?5TSn+XwHi0ROEXLBgekv4qwE5q09XVFWR/CSTfU6tzM8xxodwJko822/ESw0?=
+ =?us-ascii?Q?LmrymOWcQ5J4jyBxC9ZjquMxwEPIyB1hXwmystsF7ORtnoMxlBleL3a4tChh?=
+ =?us-ascii?Q?UZQlcKYuF4gb7eOxcjewF0XhAXmVrOctsrQBdyqTlVw8G+zK7rhaduPq7Uzw?=
+ =?us-ascii?Q?H+FH18zWlgG2tnK3ZwxMuaOGtwNQwtrgxhfdnim6i9TCUL5hu/iwBvFMmzLi?=
+ =?us-ascii?Q?SxafGCp0u1xVht5ozFpF4oXQHr0gLXfCR2NkYa3k5S/8+2bo6R2YoroM05fh?=
+ =?us-ascii?Q?8BciBPSsTZi2TdnWK8ngZOwEKZn/zrl2rNeigevzZLsg44wPFaSoyPBaxQNE?=
+ =?us-ascii?Q?TPRbLQve2AjL8GpwVxACOk3G06Ud8w9xrBrb9FpAGgDtu8N+Zgo7GyAIvEMD?=
+ =?us-ascii?Q?lQVWDWYmwMxczQsFgLhjkx8MdBc1TO52A3Ow1HImHZLVIqZOiVOtiuNDivM6?=
+ =?us-ascii?Q?Op3iTXgzTYtFpArOEUR3E7sg4O0tbCkfP2J1BqQI35JlMjhJPrTTM+YF101s?=
+ =?us-ascii?Q?XIPt39hyiaf5m5IwVa7S1lO2qnlb5hZI7dd87hfoDLuh9F7pLoxCSSOQ5bAr?=
+ =?us-ascii?Q?N4xo/Jaut2XKSCBg26uHlMh7y9j/GR4k8XWRkkVCRhsTRTuUuY8GFxIJwB3/?=
+ =?us-ascii?Q?b1MsOZuNvzpYKw+2a0TSwPg3MT4nDPJScRTCCvesbqUAI7DNAcFriTMlpILc?=
+ =?us-ascii?Q?fZTAQpGs59LxwgSdIvzedG6aycGLMWBW0gsDsgAybdNt?=
+Content-ID: <0757DC12ED527046A5FA535E775C5322@namprd05.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <1680159261.1588428-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
- David Miller <davem@davemloft.net>
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB3960.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9deaaaa9-056e-4a09-14e6-08db31345a5c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Mar 2023 15:35:12.6896 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: JefU7zpMhXU7JnCUCe0BPGFR2d9BwqA9P5ZlB89IP44dNfs6L8iRAfTvsRwJZVjnwJMamZAEnQuMbl4jxiDNxw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR05MB4509
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ Pv-drivers <Pv-drivers@vmware.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Krasnov Arseniy <oxffffaa@gmail.com>, Bryan Tan <bryantan@vmware.com>,
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ kernel <kernel@sberdevices.ru>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,177 +161,94 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Vishnu Dasa via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Vishnu Dasa <vdasa@vmware.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 30, 2023 at 02:54:21PM +0800, Xuan Zhuo wrote:
-> On Thu, 30 Mar 2023 02:44:44 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Mar 30, 2023 at 02:07:37PM +0800, Xuan Zhuo wrote:
-> > > On Wed, 26 May 2021 04:24:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > virtio_disable_cb is currently a nop for split ring with event index.
-> > > > This is because it used to be always called from a callback when we know
-> > > > device won't trigger more events until we update the index.  However,
-> > > > now that we run with interrupts enabled a lot we also poll without a
-> > > > callback so that is different: disabling callbacks will help reduce the
-> > > > number of spurious interrupts.
-> > > > Further, if using event index with a packed ring, and if being called
-> > > > from a callback, we actually do disable interrupts which is unnecessary.
-> > > >
-> > > > Fix both issues by tracking whenever we get a callback. If that is
-> > > > the case disabling interrupts with event index can be a nop.
-> > > > If not the case disable interrupts. Note: with a split ring
-> > > > there's no explicit "no interrupts" value. For now we write
-> > > > a fixed value so our chance of triggering an interupt
-> > > > is 1/ring size. It's probably better to write something
-> > > > related to the last used index there to reduce the chance
-> > > > even further. For now I'm keeping it simple.
-> > >
-> > >
-> > > Don't understand, is this patch necessary? For this patch set, we can do without
-> > > this patch.
-> > >
-> > > So doest this patch optimize virtqueue_disable_cb() by reducing a modification of
-> > > vring_used_event(&vq-> split.vring)?
-> > >
-> > > Or I miss something.
-> > >
-> > > Thanks.
-> >
-> > Before this patch virtqueue_disable_cb did nothing at all
-> > for the common case of event index enabled, so
-> > calling it from virtio net would not help matters.
-> 
-> I agree with these codes:
-> 
-> -		if (!vq->event)
-> +		if (vq->event)
-> +			/* TODO: this is a hack. Figure out a cleaner value to write. */
-> +			vring_used_event(&vq->split.vring) = 0x0;
-> +		else
-> 
-> 
-> I just don't understand event_triggered.
 
 
-The comment near it says it all:
-        /* Hint for event idx: already triggered no need to disable. */
-the write into event idx is potentially expensive since it can
-invalidate cache for another processor (depending on the CPU).
+> On Mar 30, 2023, at 1:19 AM, Stefano Garzarella <sgarzare@redhat.com> wrote:
+> 
+> !! External Email
+> 
+> On Thu, Mar 30, 2023 at 10:07:36AM +0300, Arseniy Krasnov wrote:
+>> This adds conversion of VMCI specific error code to general -ENOMEM. It
+>> is needed, because af_vsock.c passes error value returned from transport
+>> to the user.
+>> 
+>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>> ---
+>> net/vmw_vsock/vmci_transport.c | 19 ++++++++++++++++---
+>> 1 file changed, 16 insertions(+), 3 deletions(-)
+>> 
+>> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>> index 36eb16a40745..45de3e75597f 100644
+>> --- a/net/vmw_vsock/vmci_transport.c
+>> +++ b/net/vmw_vsock/vmci_transport.c
+>> @@ -1831,10 +1831,17 @@ static ssize_t vmci_transport_stream_dequeue(
+>>      size_t len,
+>>      int flags)
+>> {
+>> +      int err;
+> 
+> Please, use the same type returned by the function.
+> 
+>> +
+>>      if (flags & MSG_PEEK)
+>> -              return vmci_qpair_peekv(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +              err = vmci_qpair_peekv(vmci_trans(vsk)->qpair, msg, len, 0);
+>>      else
+>> -              return vmci_qpair_dequev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +              err = vmci_qpair_dequev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +
+>> +      if (err < 0)
+>> +              err = -ENOMEM;
+>> +
+>> +      return err;
+>> }
+>> 
+>> static ssize_t vmci_transport_stream_enqueue(
+>> @@ -1842,7 +1849,13 @@ static ssize_t vmci_transport_stream_enqueue(
+>>      struct msghdr *msg,
+>>      size_t len)
+>> {
+>> -      return vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +      int err;
+> 
+> Ditto.
+> 
+>> +
+>> +      err = vmci_qpair_enquev(vmci_trans(vsk)->qpair, msg, len, 0);
+>> +      if (err < 0)
+>> +              err = -ENOMEM;
+>> +
+>> +      return err;
+>> }
+> 
+> @Vishnu: should we backport the change for
+> vmci_transport_stream_enqueue() to stable branches?
+> 
+> In this case I would split this patch and I would send the
+> vmci_transport_stream_enqueue() change to the net branch including:
+> 
+> Fixes: c43170b7e157 ("vsock: return errors other than -ENOMEM to socket")
 
-> >
-> > But the patch is from 2021, isn't it a bit too late to argue?
-> > If you have a cleanup or an optimization in mind, please
-> > post a patch.
+Yes, good point.  It would be better to do it this way for correctness.
+
+Thanks,
+Vishnu
+
 > 
-> Sorry, I just have some problems, I don't oppose it. At least it can reduce the
-> modification of vring_used_event(&vq->split.vring). I think it is also beneficial.
-> 
-> Thanks very much.
+> Thanks,
+> Stefano
 > 
 > 
-> >
-> > > >
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > ---
-> > > >  drivers/virtio/virtio_ring.c | 26 +++++++++++++++++++++++++-
-> > > >  1 file changed, 25 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > index 71e16b53e9c1..88f0b16b11b8 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -113,6 +113,9 @@ struct vring_virtqueue {
-> > > >  	/* Last used index we've seen. */
-> > > >  	u16 last_used_idx;
-> > > >
-> > > > +	/* Hint for event idx: already triggered no need to disable. */
-> > > > +	bool event_triggered;
-> > > > +
-> > > >  	union {
-> > > >  		/* Available for split ring */
-> > > >  		struct {
-> > > > @@ -739,7 +742,10 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
-> > > >
-> > > >  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
-> > > >  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
-> > > > -		if (!vq->event)
-> > > > +		if (vq->event)
-> > > > +			/* TODO: this is a hack. Figure out a cleaner value to write. */
-> > > > +			vring_used_event(&vq->split.vring) = 0x0;
-> > > > +		else
-> > > >  			vq->split.vring.avail->flags =
-> > > >  				cpu_to_virtio16(_vq->vdev,
-> > > >  						vq->split.avail_flags_shadow);
-> > > > @@ -1605,6 +1611,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > > >  	vq->weak_barriers = weak_barriers;
-> > > >  	vq->broken = false;
-> > > >  	vq->last_used_idx = 0;
-> > > > +	vq->event_triggered = false;
-> > > >  	vq->num_added = 0;
-> > > >  	vq->packed_ring = true;
-> > > >  	vq->use_dma_api = vring_use_dma_api(vdev);
-> > > > @@ -1919,6 +1926,12 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
-> > > >  {
-> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > >
-> > > > +	/* If device triggered an event already it won't trigger one again:
-> > > > +	 * no need to disable.
-> > > > +	 */
-> > > > +	if (vq->event_triggered)
-> > > > +		return;
-> > > > +
-> > > >  	if (vq->packed_ring)
-> > > >  		virtqueue_disable_cb_packed(_vq);
-> > > >  	else
-> > > > @@ -1942,6 +1955,9 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
-> > > >  {
-> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > >
-> > > > +	if (vq->event_triggered)
-> > > > +		vq->event_triggered = false;
-> > > > +
-> > > >  	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
-> > > >  				 virtqueue_enable_cb_prepare_split(_vq);
-> > > >  }
-> > > > @@ -2005,6 +2021,9 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
-> > > >  {
-> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > >
-> > > > +	if (vq->event_triggered)
-> > > > +		vq->event_triggered = false;
-> > > > +
-> > > >  	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
-> > > >  				 virtqueue_enable_cb_delayed_split(_vq);
-> > > >  }
-> > > > @@ -2044,6 +2063,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > > >  	if (unlikely(vq->broken))
-> > > >  		return IRQ_HANDLED;
-> > > >
-> > > > +	/* Just a hint for performance: so it's ok that this can be racy! */
-> > > > +	if (vq->event)
-> > > > +		vq->event_triggered = true;
-> > > > +
-> > > >  	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
-> > > >  	if (vq->vq.callback)
-> > > >  		vq->vq.callback(&vq->vq);
-> > > > @@ -2083,6 +2106,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > > >  	vq->weak_barriers = weak_barriers;
-> > > >  	vq->broken = false;
-> > > >  	vq->last_used_idx = 0;
-> > > > +	vq->event_triggered = false;
-> > > >  	vq->num_added = 0;
-> > > >  	vq->use_dma_api = vring_use_dma_api(vdev);
-> > > >  #ifdef DEBUG
-> > > > --
-> > > > MST
-> > > >
-> > > > _______________________________________________
-> > > > Virtualization mailing list
-> > > > Virtualization@lists.linux-foundation.org
-> > > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> >
+> !! External Email: This email originated from outside of the organization. Do not click links or open attachments unless you recognize the sender.
+
 
 _______________________________________________
 Virtualization mailing list
