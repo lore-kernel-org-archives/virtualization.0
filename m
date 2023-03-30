@@ -4,63 +4,63 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1640BC74A5B
-	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 06:01:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF728C74A5B
+	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 06:05:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8F36C404AA;
-	Thu, 30 Mar 2023 06:01:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F36C404AA
+	by smtp2.osuosl.org (Postfix) with ESMTP id 532E441DD6;
+	Thu, 30 Mar 2023 06:05:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 532E441DD6
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qTzj4vu5OyPQ; Thu, 30 Mar 2023 06:01:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3B9A4404A1;
-	Thu, 30 Mar 2023 06:01:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3B9A4404A1
+	with ESMTP id zBCe42U21JLG; Thu, 30 Mar 2023 06:04:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D090A4010D;
+	Thu, 30 Mar 2023 06:04:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D090A4010D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D210C0037;
-	Thu, 30 Mar 2023 06:01:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 28252C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B7D5C0037;
+	Thu, 30 Mar 2023 06:04:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3A25C002F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:01:31 +0000 (UTC)
+ Thu, 30 Mar 2023 06:04:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0398D841B4
+ by smtp2.osuosl.org (Postfix) with ESMTP id B6715404A1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:01:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0398D841B4
+ Thu, 30 Mar 2023 06:04:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B6715404A1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1KMQhfnFr75p
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4sCHLJ95xwEa
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:01:29 +0000 (UTC)
+ Thu, 30 Mar 2023 06:04:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA0DB8419E
-Received: from out30-112.freemail.mail.aliyun.com
- (out30-112.freemail.mail.aliyun.com [115.124.30.112])
- by smtp1.osuosl.org (Postfix) with ESMTPS id EA0DB8419E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3F2034010D
+Received: from out30-98.freemail.mail.aliyun.com
+ (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3F2034010D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:01:28 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
+ Thu, 30 Mar 2023 06:04:54 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
- TI=SMTPD_---0VezSI9h_1680156082; 
+ TI=SMTPD_---0VezShXN_1680156287; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VezSI9h_1680156082) by smtp.aliyun-inc.com;
- Thu, 30 Mar 2023 14:01:23 +0800
-Message-ID: <1680156071.4256074-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 12/16] virtio_net: introduce virtnet_get_netdev()
-Date: Thu, 30 Mar 2023 14:01:11 +0800
+ fp:SMTPD_---0VezShXN_1680156287) by smtp.aliyun-inc.com;
+ Thu, 30 Mar 2023 14:04:47 +0800
+Message-ID: <1680156097.4586647-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH 02/16] virtio_net: move struct to header file
+Date: Thu, 30 Mar 2023 14:01:37 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: Jakub Kicinski <kuba@kernel.org>
 References: <20230328092847.91643-1-xuanzhuo@linux.alibaba.com>
- <20230328092847.91643-13-xuanzhuo@linux.alibaba.com>
- <20230329212203.3c3bf199@kernel.org>
-In-Reply-To: <20230329212203.3c3bf199@kernel.org>
+ <20230328092847.91643-3-xuanzhuo@linux.alibaba.com>
+ <20230329211826.0657f947@kernel.org>
+In-Reply-To: <20230329211826.0657f947@kernel.org>
 Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S.  Tsirkin" <mst@redhat.com>,
  netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
  Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
  Eric Dumazet <edumazet@google.com>, bpf@vger.kernel.org,
@@ -82,19 +82,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 29 Mar 2023 21:22:03 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> On Tue, 28 Mar 2023 17:28:43 +0800 Xuan Zhuo wrote:
-> > +const struct net_device_ops *virtnet_get_netdev(void)
-> > +{
-> > +	return &virtnet_netdev;
-> > +}
+On Wed, 29 Mar 2023 21:18:26 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Tue, 28 Mar 2023 17:28:33 +0800 Xuan Zhuo wrote:
+> > diff --git a/drivers/net/virtio/virtnet.h b/drivers/net/virtio/virtnet.h
+> > new file mode 100644
+> > index 000000000000..778a0e6af869
+> > --- /dev/null
+> > +++ b/drivers/net/virtio/virtnet.h
+> > @@ -0,0 +1,184 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +
+> > +#ifndef __VIRTNET_H__
+> > +#define __VIRTNET_H__
+> > +
+> > +#include <linux/ethtool.h>
+> > +#include <linux/average.h>
 >
-> Why not just make the virtnet_netdev symbol visible?
-> Many drivers do that.
+> I don't want to nit pick too much but this header is missing a lot of
+> includes / forward declarations. At the same time on a quick look I
+> didn't spot anything that'd require linux/ethtool.h
+
+Indeed, I only considered the compilation may pass before, and I didn't think
+about it from the perspective of an independent header file.
+
+Will fix.
+
 >
-> If you prefer the function maybe virtnet_get_ndos() would be a better
-> name for example? The current name sounds like it will get a... well..
-> a netdev. And it gets ops.
+> > diff --git a/drivers/net/virtio/virtnet.c b/drivers/net/virtio/virtnet.c
+> > index e2560b6f7980..5ca354e29483 100644
+> > --- a/drivers/net/virtio/virtnet.c
+> > +++ b/drivers/net/virtio/virtnet.c
+> > @@ -6,7 +6,6 @@
+> >  //#define DEBUG
+> >  #include <linux/netdevice.h>
+> >  #include <linux/etherdevice.h>
+> > -#include <linux/ethtool.h>
+> >  #include <linux/module.h>
+> >  #include <linux/virtio.h>
+> >  #include <linux/virtio_net.h>
+> > @@ -16,13 +15,14 @@
+> >  #include <linux/if_vlan.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/cpu.h>
+> > -#include <linux/average.h>
+> >  #include <linux/filter.h>
+> >  #include <linux/kernel.h>
+> >  #include <net/route.h>
+> >  #include <net/xdp.h>
+> >  #include <net/net_failover.h>
+>
+> And you shouldn't remove includes if the code needs them just because
+> they get pulled in indirectly.
 
 
 Will fix.
