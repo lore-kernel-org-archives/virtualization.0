@@ -1,69 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A299EC761AF
-	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 06:59:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2272DC77B6F
+	for <virtualization@archiver.kernel.org>; Thu, 30 Mar 2023 08:00:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0877E41DEA;
-	Thu, 30 Mar 2023 06:59:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0877E41DEA
+	by smtp3.osuosl.org (Postfix) with ESMTP id 88263615DD;
+	Thu, 30 Mar 2023 08:00:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 88263615DD
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gXtg943a
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f9dGCItPIzTc; Thu, 30 Mar 2023 06:59:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5318641DDD;
-	Thu, 30 Mar 2023 06:59:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5318641DDD
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QOf7ljQ9cj8g; Thu, 30 Mar 2023 08:00:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 07B2A615B5;
+	Thu, 30 Mar 2023 08:00:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 07B2A615B5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B047C0036;
-	Thu, 30 Mar 2023 06:59:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 06CC6C002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5C7CC0037;
+	Thu, 30 Mar 2023 08:00:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E58ECC002F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:59:41 +0000 (UTC)
+ Thu, 30 Mar 2023 08:00:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C394441DE2
+ by smtp4.osuosl.org (Postfix) with ESMTP id B2E2941E54
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:59:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C394441DE2
+ Thu, 30 Mar 2023 08:00:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B2E2941E54
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gXtg943a
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7lYncEXhTj6t
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id O_Oz2-ZzMOKO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:59:39 +0000 (UTC)
+ Thu, 30 Mar 2023 08:00:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E83D841DDD
-Received: from out30-113.freemail.mail.aliyun.com
- (out30-113.freemail.mail.aliyun.com [115.124.30.113])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E83D841DDD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F74841E30
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3F74841E30
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Mar 2023 06:59:38 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R351e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=8; SR=0;
- TI=SMTPD_---0VezVY5m_1680159573; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VezVY5m_1680159573) by smtp.aliyun-inc.com;
- Thu, 30 Mar 2023 14:59:34 +0800
-Message-ID: <1680159261.1588428-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v3 3/4] virtio: fix up virtio_disable_cb
-Date: Thu, 30 Mar 2023 14:54:21 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210526082423.47837-1-mst@redhat.com>
- <20210526082423.47837-4-mst@redhat.com>
- <1680156457.5551112-5-xuanzhuo@linux.alibaba.com>
- <20230330024220-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230330024220-mutt-send-email-mst@kernel.org>
-Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
- David Miller <davem@davemloft.net>
+ Thu, 30 Mar 2023 08:00:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1680163249;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=aKnf9talvaQpvRmivVJ+UtDT41SWYzLKCf+gopv+JXM=;
+ b=gXtg943aOM64Yk+q1Sn1teGIsR2o801CVaUZEvVVaQg4QmOt4dwVEPpfGBz67CWan/v+mw
+ LLXc12UW6dZiJUwUtxpEKtW76BiaT6PmTIOuqc/7kpKRcC8Pu1eFb5CpW4ReFL50L/AHN5
+ /RIT97wYzI4deg6omHaMXnf2lrSJ/Lc=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-78-mlDFQsF3NXS-DU6t6TXANg-1; Thu, 30 Mar 2023 04:00:46 -0400
+X-MC-Unique: mlDFQsF3NXS-DU6t6TXANg-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ dg8-20020a056214084800b005acc280bf19so7827299qvb.22
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 30 Mar 2023 01:00:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1680163246;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=aKnf9talvaQpvRmivVJ+UtDT41SWYzLKCf+gopv+JXM=;
+ b=8LC+oV+8yU5rnrZDIqd9PDSYfLmH8z4DiEF0ZTZ1aM5Q0rg+w1NUTSZRaEpEosMfXX
+ mVmHtWzNMNxx+1VEw2Pm7jFi2B6tAF7TdAtuamYOuQ6LuXUauiH4p5O/dDrFPtUe/jCN
+ yCI5rGh90lYtEXMyWQ7ut+mmgzNYZgVVcZzHMureBb0qRp0Z3yyCwDFPwImBrSGPvGN1
+ h8N4Ck3HIgx6Oi1vCFXzCoj+O2oy7RuIIc5vPxi+uKRTAmNBIAUahvxLKYoFJUl6SWSq
+ ajPnaAtEhftjYvZ2NHV0PrH9byfrhLkW6eZaWnQQRGUQx8L25anfEzBWSCTkWJRNN2D+
+ Ivbw==
+X-Gm-Message-State: AAQBX9dtH/4LrYa+NHf9/M5kr4j81nFaumxtxh3j9Gti2hplRmM9Zo2D
+ 7R/IeOmHNYMCbsikLzYyDuWXGjVXhN1C3s8B1ULdkfRZV602m5RF8Zyd/FImhFiyR1K7ukwH9tK
+ 9fh59+8tkElJW/9Q+zxLLrLq7dl0yYb6qdPjk4lNuYg==
+X-Received: by 2002:a05:6214:21a8:b0:5e0:3bbf:78c5 with SMTP id
+ t8-20020a05621421a800b005e03bbf78c5mr2381388qvc.37.1680163246451; 
+ Thu, 30 Mar 2023 01:00:46 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YFd/4+N/O9Q5uwc3AG+urPSvuo4JSxefwurWAaOedWAKnyL/UuyV9ifYC209uK3neiFHLf+g==
+X-Received: by 2002:a05:6214:21a8:b0:5e0:3bbf:78c5 with SMTP id
+ t8-20020a05621421a800b005e03bbf78c5mr2381363qvc.37.1680163246211; 
+ Thu, 30 Mar 2023 01:00:46 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-130.retail.telecomitalia.it.
+ [82.57.51.130]) by smtp.gmail.com with ESMTPSA id
+ l4-20020ad44244000000b005dd8b9345cesm5192472qvq.102.2023.03.30.01.00.43
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 30 Mar 2023 01:00:45 -0700 (PDT)
+Date: Thu, 30 Mar 2023 10:00:40 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH net v3] virtio/vsock: fix leaks due to missing skb owner
+Message-ID: <p6y6cwfywyi5apvn4cx5edob3n2zvyrmfvj6yss5szd24phgnt@gynsr43tsvan>
+References: <20230327-vsock-fix-leak-v3-1-292cfc257531@bytedance.com>
+MIME-Version: 1.0
+In-Reply-To: <20230327-vsock-fix-leak-v3-1-292cfc257531@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,171 +120,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, 30 Mar 2023 02:44:44 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Mar 30, 2023 at 02:07:37PM +0800, Xuan Zhuo wrote:
-> > On Wed, 26 May 2021 04:24:40 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > virtio_disable_cb is currently a nop for split ring with event index.
-> > > This is because it used to be always called from a callback when we know
-> > > device won't trigger more events until we update the index.  However,
-> > > now that we run with interrupts enabled a lot we also poll without a
-> > > callback so that is different: disabling callbacks will help reduce the
-> > > number of spurious interrupts.
-> > > Further, if using event index with a packed ring, and if being called
-> > > from a callback, we actually do disable interrupts which is unnecessary.
-> > >
-> > > Fix both issues by tracking whenever we get a callback. If that is
-> > > the case disabling interrupts with event index can be a nop.
-> > > If not the case disable interrupts. Note: with a split ring
-> > > there's no explicit "no interrupts" value. For now we write
-> > > a fixed value so our chance of triggering an interupt
-> > > is 1/ring size. It's probably better to write something
-> > > related to the last used index there to reduce the chance
-> > > even further. For now I'm keeping it simple.
-> >
-> >
-> > Don't understand, is this patch necessary? For this patch set, we can do without
-> > this patch.
-> >
-> > So doest this patch optimize virtqueue_disable_cb() by reducing a modification of
-> > vring_used_event(&vq-> split.vring)?
-> >
-> > Or I miss something.
-> >
-> > Thanks.
+On Wed, Mar 29, 2023 at 04:51:58PM +0000, Bobby Eshleman wrote:
+>This patch sets the skb owner in the recv and send path for virtio.
 >
-> Before this patch virtqueue_disable_cb did nothing at all
-> for the common case of event index enabled, so
-> calling it from virtio net would not help matters.
-
-I agree with these codes:
-
--		if (!vq->event)
-+		if (vq->event)
-+			/* TODO: this is a hack. Figure out a cleaner value to write. */
-+			vring_used_event(&vq->split.vring) = 0x0;
-+		else
-
-
-I just don't understand event_triggered.
-
+>For the send path, this solves the leak caused when
+>virtio_transport_purge_skbs() finds skb->sk is always NULL and therefore
+>never matches it with the current socket. Setting the owner upon
+>allocation fixes this.
 >
-> But the patch is from 2021, isn't it a bit too late to argue?
-> If you have a cleanup or an optimization in mind, please
-> post a patch.
-
-Sorry, I just have some problems, I don't oppose it. At least it can reduce the
-modification of vring_used_event(&vq->split.vring). I think it is also beneficial.
-
-Thanks very much.
-
-
+>For the recv path, this ensures correctness of accounting and also
+>correct transfer of ownership in vsock_loopback (when skbs are sent from
+>one socket and received by another).
 >
-> > >
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > ---
-> > >  drivers/virtio/virtio_ring.c | 26 +++++++++++++++++++++++++-
-> > >  1 file changed, 25 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index 71e16b53e9c1..88f0b16b11b8 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -113,6 +113,9 @@ struct vring_virtqueue {
-> > >  	/* Last used index we've seen. */
-> > >  	u16 last_used_idx;
-> > >
-> > > +	/* Hint for event idx: already triggered no need to disable. */
-> > > +	bool event_triggered;
-> > > +
-> > >  	union {
-> > >  		/* Available for split ring */
-> > >  		struct {
-> > > @@ -739,7 +742,10 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
-> > >
-> > >  	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
-> > >  		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
-> > > -		if (!vq->event)
-> > > +		if (vq->event)
-> > > +			/* TODO: this is a hack. Figure out a cleaner value to write. */
-> > > +			vring_used_event(&vq->split.vring) = 0x0;
-> > > +		else
-> > >  			vq->split.vring.avail->flags =
-> > >  				cpu_to_virtio16(_vq->vdev,
-> > >  						vq->split.avail_flags_shadow);
-> > > @@ -1605,6 +1611,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
-> > >  	vq->weak_barriers = weak_barriers;
-> > >  	vq->broken = false;
-> > >  	vq->last_used_idx = 0;
-> > > +	vq->event_triggered = false;
-> > >  	vq->num_added = 0;
-> > >  	vq->packed_ring = true;
-> > >  	vq->use_dma_api = vring_use_dma_api(vdev);
-> > > @@ -1919,6 +1926,12 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
-> > >  {
-> > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > >
-> > > +	/* If device triggered an event already it won't trigger one again:
-> > > +	 * no need to disable.
-> > > +	 */
-> > > +	if (vq->event_triggered)
-> > > +		return;
-> > > +
-> > >  	if (vq->packed_ring)
-> > >  		virtqueue_disable_cb_packed(_vq);
-> > >  	else
-> > > @@ -1942,6 +1955,9 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
-> > >  {
-> > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > >
-> > > +	if (vq->event_triggered)
-> > > +		vq->event_triggered = false;
-> > > +
-> > >  	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
-> > >  				 virtqueue_enable_cb_prepare_split(_vq);
-> > >  }
-> > > @@ -2005,6 +2021,9 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
-> > >  {
-> > >  	struct vring_virtqueue *vq = to_vvq(_vq);
-> > >
-> > > +	if (vq->event_triggered)
-> > > +		vq->event_triggered = false;
-> > > +
-> > >  	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
-> > >  				 virtqueue_enable_cb_delayed_split(_vq);
-> > >  }
-> > > @@ -2044,6 +2063,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
-> > >  	if (unlikely(vq->broken))
-> > >  		return IRQ_HANDLED;
-> > >
-> > > +	/* Just a hint for performance: so it's ok that this can be racy! */
-> > > +	if (vq->event)
-> > > +		vq->event_triggered = true;
-> > > +
-> > >  	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
-> > >  	if (vq->vq.callback)
-> > >  		vq->vq.callback(&vq->vq);
-> > > @@ -2083,6 +2106,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> > >  	vq->weak_barriers = weak_barriers;
-> > >  	vq->broken = false;
-> > >  	vq->last_used_idx = 0;
-> > > +	vq->event_triggered = false;
-> > >  	vq->num_added = 0;
-> > >  	vq->use_dma_api = vring_use_dma_api(vdev);
-> > >  #ifdef DEBUG
-> > > --
-> > > MST
-> > >
-> > > _______________________________________________
-> > > Virtualization mailing list
-> > > Virtualization@lists.linux-foundation.org
-> > > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>Fixes: 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")
+>Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+>Link: https://lore.kernel.org/all/ZCCbATwov4U+GBUv@pop-os.localdomain/
+>---
+>Changes in v3:
+>- virtio/vsock: use skb_set_owner_sk_safe() instead of
+>  skb_set_owner_{r,w}
+>- virtio/vsock: reject allocating/receiving skb if sk_refcnt==0 and WARN_ONCE
+>- Link to v2: https://lore.kernel.org/r/20230327-vsock-fix-leak-v2-1-f6619972dee0@bytedance.com
 >
+>Changes in v2:
+>- virtio/vsock: add skb_set_owner_r to recv_pkt()
+>- Link to v1: https://lore.kernel.org/r/20230327-vsock-fix-leak-v1-1-3fede367105f@bytedance.com
+>---
+> net/vmw_vsock/virtio_transport_common.c | 10 ++++++++++
+> 1 file changed, 10 insertions(+)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 957cdc01c8e8..c927dc302faa 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -94,6 +94,11 @@ virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *info,
+> 					 info->op,
+> 					 info->flags);
+>
+>+	if (info->vsk && !skb_set_owner_sk_safe(skb, sk_vsock(info->vsk))) {
+>+		WARN_ONCE(1, "failed to allocate skb on vsock socket with sk_refcnt == 0\n");
+>+		goto out;
+>+	}
+>+
+> 	return skb;
+>
+> out:
+>@@ -1294,6 +1299,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+> 		goto free_pkt;
+> 	}
+>
+>+	if (!skb_set_owner_sk_safe(skb, sk)) {
+>+		WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
+>+		goto free_pkt;
+>+	}
+>+
+
+LGTM!
+
+I would have put the condition inside WARN_ONCE() because I find it
+more readable (e.g. WARN_ONCE(!skb_set_owner_sk_safe(skb, sk), ...),
+but I don't have a strong opinion on that, so that's fine too:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Thanks,
+Stefano
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
