@@ -1,108 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17CC0C6FD18
-	for <virtualization@archiver.kernel.org>; Fri, 31 Mar 2023 07:13:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6EA64C6FD18
+	for <virtualization@archiver.kernel.org>; Fri, 31 Mar 2023 07:15:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4FEBF84482;
-	Fri, 31 Mar 2023 07:13:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4FEBF84482
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iilXVRBP
+	by smtp4.osuosl.org (Postfix) with ESMTP id 096AC4219D;
+	Fri, 31 Mar 2023 07:15:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 096AC4219D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ce5FqbD9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sn6pfUJn8M2E; Fri, 31 Mar 2023 07:13:07 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SVnIhtbgLz51; Fri, 31 Mar 2023 07:15:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CDDA284499;
-	Fri, 31 Mar 2023 07:13:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CDDA284499
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4BAF742099;
+	Fri, 31 Mar 2023 07:15:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4BAF742099
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D20DC0036;
-	Fri, 31 Mar 2023 07:13:06 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D75DAC002F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2502BC0036;
+	Fri, 31 Mar 2023 07:15:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 39024C002F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Mar 2023 07:13:05 +0000 (UTC)
+ Fri, 31 Mar 2023 07:15:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id AAFF840578
+ by smtp2.osuosl.org (Postfix) with ESMTP id 13F4E40578
  for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Mar 2023 07:13:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AAFF840578
+ Fri, 31 Mar 2023 07:15:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13F4E40578
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iilXVRBP
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ce5FqbD9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eyNa5QXVvQhY
+ with ESMTP id 2TnDlvLjOKah
  for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Mar 2023 07:13:05 +0000 (UTC)
+ Fri, 31 Mar 2023 07:15:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C8E07400F3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5EC77400F3
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C8E07400F3
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5EC77400F3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Mar 2023 07:13:04 +0000 (UTC)
+ Fri, 31 Mar 2023 07:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680246783;
+ s=mimecast20190719; t=1680246909;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pbj2AVGF1WXOqLTCXZnSczyZWz0UiEcYEZC2FxVEVpY=;
- b=iilXVRBPuMgbBzM0aZCpuIDuHlJ94DRSc3Osfrz2HqncVCQ2JADxk1OSZqMWTWg24OIyMm
- AcXFNKHOZmLXf+CjEY8Uexkt6ddxjQ41GrK60rvbMnebLL6oLub1t5OfgalayVujLTSSLE
- iOLdQdWxN/Soer7T2vQL8XgLpCZ89/w=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=KWMFK/padud2qL2Yu5nuVXmsRK2hLBvg6h75c5M7KFw=;
+ b=ce5FqbD973OR0uuL9me7U+UlE7kjD9jWV0CFfgp99sQd2jvtcqvTNNrCYmbnWJ0t8TUHJ3
+ xmrBvRGEvO13hjF7wIiWYpoRdcHLcSI/hpm21HSENmuhBZ30in5dEejTCaSgW0OM1bRRl6
+ 77lkcXdlS07F/lmygAW7Z8TMiXzjWeU=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-332-OFDBGeAnPj2v7ijsVuE2ZQ-1; Fri, 31 Mar 2023 03:13:02 -0400
-X-MC-Unique: OFDBGeAnPj2v7ijsVuE2ZQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- q13-20020a5085cd000000b004af50de0bcfso31007174edh.15
+ us-mta-653-AyKaYg0XOo26ZIvDu7wDOA-1; Fri, 31 Mar 2023 03:15:07 -0400
+X-MC-Unique: AyKaYg0XOo26ZIvDu7wDOA-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ x35-20020a50baa6000000b005021d1b1e9eso30751223ede.13
  for <virtualization@lists.linux-foundation.org>;
- Fri, 31 Mar 2023 00:13:02 -0700 (PDT)
+ Fri, 31 Mar 2023 00:15:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680246781;
+ d=1e100.net; s=20210112; t=1680246906;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=pbj2AVGF1WXOqLTCXZnSczyZWz0UiEcYEZC2FxVEVpY=;
- b=S1BdkYB6jt5tr2YLBZ/NWhxrA6V/+8gqczHmOdzqhUAsVCW9twcC4uNxlqOuBtnnPx
- b6jNRciCzLuYAvHGZD9einXCR7s7+weowFjgYNL27Fsy0NQYq7jVIb1ciDmMwvGAmhEM
- CCynaeaj/yUiroeXkZyu4XkPunqQCMJb7SgA6ALA/qZSQcp6yPHEiVodWBr3V3+AAou2
- qn0JXLinX9KDH+vnrcp2gVCfTTHKfsr5K5AqtdNSbpLjTFczy25v1o8MJFLgnqkBMuop
- Qa7AguHs/jBNjxgNN5zR2UEcmnuWljnD12g8qkHF0yJftFThGUDRSetVCl4N3LN0TYao
- TEnQ==
-X-Gm-Message-State: AAQBX9dlMhel7ix29DmgJu2wMmvF8WzTVW0hFsIHK7IX4ouG9otMaRkn
- siA4y4sLHRoBr2wwq2SczWqGWNxN2Mcn8K6h0xfllNkuTmhamsqQwnXvvNL9EObV1ct6s3hsEQV
- /1dbxF5rDf1WZsiMd8lQc5lkQfEzvupZcoL+C91H1QA==
-X-Received: by 2002:aa7:c786:0:b0:4fb:eda4:c093 with SMTP id
- n6-20020aa7c786000000b004fbeda4c093mr24871261eds.13.1680246781233; 
- Fri, 31 Mar 2023 00:13:01 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Y/r5+oajO+A5DGt7yB7jTmm7QBPI4K7mKeRbZE0bW0nNZD4Ae6DGvs+vyDmX8r4UvfHK6pig==
-X-Received: by 2002:aa7:c786:0:b0:4fb:eda4:c093 with SMTP id
- n6-20020aa7c786000000b004fbeda4c093mr24871241eds.13.1680246780883; 
- Fri, 31 Mar 2023 00:13:00 -0700 (PDT)
+ bh=KWMFK/padud2qL2Yu5nuVXmsRK2hLBvg6h75c5M7KFw=;
+ b=Alcydo2UhqscaRdAbgS6EkK/LQPwVqBh7aYhwjzTuf81uViGKk5stBwVxPkbW7eZ0m
+ JIKXR4gpTfqzSSfQtJmSe19d8fd0eJSTC0k/D6T52NCVSK9issVBGZZSfM+sN+IIvXVe
+ M6/mUx2q0xhAQSiQoypQl1gsXeT6wp0jOOWRfhuqw4VxqJhr4If9fsjuXWQq+oLSx1hD
+ a0xD7z/Bya9mT0OSO0j6k3s0yylQgxIU1p2/Mho5Q7JlZuVSXlWfykixzq7KvcWTt4oN
+ L3wJQ3LSxKxd/7MEkOyV6aXdiOFfBqeEhcK7QM6aQ6KWh6UBwRX4jCe2dpFAQDu6nQ9D
+ WLnw==
+X-Gm-Message-State: AAQBX9ccxisX/wjAmkUuXDHjZPGaVWKSBoILFu5fpqViI+TFOCch++QN
+ mjdVUfQJvBEEqueFAKo198Jb33d2cYvOfAKWCeU/idje+GjZ1Y0pZsyER+Jk3Cnh8p4EIGjczNt
+ ymFDEAeY9spk+nIpFCTDMcJkUwXCLToTbuPdBBVKufg==
+X-Received: by 2002:a17:907:6d83:b0:947:6ce9:705d with SMTP id
+ sb3-20020a1709076d8300b009476ce9705dmr5436212ejc.55.1680246906173; 
+ Fri, 31 Mar 2023 00:15:06 -0700 (PDT)
+X-Google-Smtp-Source: AKy350aZwogAdOwSVJvzr6Pjwq+TBHVkVowx29697Nam/rYpQ8g3Ha6PzoB/NgF8lkggQuyLgeScSw==
+X-Received: by 2002:a17:907:6d83:b0:947:6ce9:705d with SMTP id
+ sb3-20020a1709076d8300b009476ce9705dmr5436179ejc.55.1680246905861; 
+ Fri, 31 Mar 2023 00:15:05 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-130.retail.telecomitalia.it.
  [82.57.51.130]) by smtp.gmail.com with ESMTPSA id
- h27-20020a50cddb000000b004c19f1891fasm688400edj.59.2023.03.31.00.12.59
+ v13-20020a170906b00d00b009373f1b5c4esm649065ejy.161.2023.03.31.00.15.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 31 Mar 2023 00:13:00 -0700 (PDT)
-Date: Fri, 31 Mar 2023 09:12:58 +0200
+ Fri, 31 Mar 2023 00:15:05 -0700 (PDT)
+Date: Fri, 31 Mar 2023 09:15:03 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v3 2/4] vsock/vmci: convert VMCI error code to
- -ENOMEM on receive
-Message-ID: <7pypi573nxgwz7vrgd2cwcrtha4abijutlsgtnxrwcgaatdjbz@cwnq5dlurfhs>
-References: <4d34fac8-7170-5a3e-5043-42a9f7e4b5b3@sberdevices.ru>
- <9fd06ca5-ace9-251d-34af-aca4db9c3ee0@sberdevices.ru>
+Subject: Re: [RFC PATCH v3 1/4] vsock/vmci: convert VMCI error code to
+ -ENOMEM on send
+Message-ID: <rrapkoibcd6p33pmai2egr6isphvbx7rlu6hfj74gsmuih5p2o@kdilyljzs5bm>
+References: <dead4842-333a-015e-028b-302151336ff9@sberdevices.ru>
+ <a0915a9d-ba41-5a90-0e16-40c2315f0445@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <9fd06ca5-ace9-251d-34af-aca4db9c3ee0@sberdevices.ru>
+In-Reply-To: <a0915a9d-ba41-5a90-0e16-40c2315f0445@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -130,32 +130,22 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 30, 2023 at 11:18:36PM +0300, Arseniy Krasnov wrote:
+On Thu, Mar 30, 2023 at 11:12:44PM +0300, Arseniy Krasnov wrote:
+>This adds conversion of VMCI specific error code to general -ENOMEM. It
+>is needed, because af_vsock.c passes error value returned from transport
+>to the user, which does not expect to get VMCI_ERROR_* values.
 >
->
->On 30.03.2023 23:13, Arseniy Krasnov wrote:
->> This adds conversion of VMCI specific error code to general -ENOMEM. It
->> is needed, because af_vsock.c passes error value returned from transport
->> to the user, which does not expect to get VMCI_ERROR_* values.
->
->@Stefano, I have some doubts about this commit message, as it says "... af_vsock.c
->passes error value returned from transport to the user ...", but this
->behaviour is implemented only in the next patch. Is it ok, if both patches
->are in a single patchset?
+>Fixes: c43170b7e157 ("vsock: return errors other than -ENOMEM to socket")
+>Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>---
+> net/vmw_vsock/vmci_transport.c | 8 +++++++-
+> 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Yes indeed it is not clear. In my opinion we can do one of these 2
-things:
+The patch LGTM, but I suggest to extract this patch from the series and
+send it directly to the net tree, while other patches can be sent to
+net-next.
 
-1. Update the message, where we can say that this is a preparation patch
-    for the next changes where af_vsock.c will directly return transport
-    values to the user, so we need to return an errno.
-
-2. Merge this patch and patch 3 in a single patch.
-
-Both are fine for my point of view, take your choice ;-)
-
-Thanks,
-Stefano
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
