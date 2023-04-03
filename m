@@ -1,122 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DBE53C761A6
-	for <virtualization@archiver.kernel.org>; Mon,  3 Apr 2023 11:10:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8286C761A6
+	for <virtualization@archiver.kernel.org>; Mon,  3 Apr 2023 11:15:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4B466410D6;
-	Mon,  3 Apr 2023 11:10:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4B466410D6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ENrpWSQI
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zwS1WBLkD9u9; Mon,  3 Apr 2023 11:10:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 25F2B410D1;
-	Mon,  3 Apr 2023 11:10:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 25F2B410D1
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 01B49C0037;
-	Mon,  3 Apr 2023 11:10:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DB3C0C002F
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Apr 2023 11:10:32 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A8FC781E44
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Apr 2023 11:10:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A8FC781E44
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1B72681E6A;
+	Mon,  3 Apr 2023 11:15:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1B72681E6A
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ENrpWSQI
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aMb4y9+9
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Gf5jSVEAe8Uu; Mon,  3 Apr 2023 11:15:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BDF3681B52;
+	Mon,  3 Apr 2023 11:15:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BDF3681B52
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A034FC0037;
+	Mon,  3 Apr 2023 11:15:02 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B067C002F
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Apr 2023 11:15:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 38BEA81B52
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Apr 2023 11:15:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38BEA81B52
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7VmmO29Gqmo1
+ with ESMTP id bPMhuKaQdrsL
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Apr 2023 11:10:30 +0000 (UTC)
+ Mon,  3 Apr 2023 11:15:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 734F181E40
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 72C4881A81
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 734F181E40
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 72C4881A81
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Apr 2023 11:10:30 +0000 (UTC)
+ Mon,  3 Apr 2023 11:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680520229;
+ s=mimecast20190719; t=1680520499;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=2LyTXIwTIB/nVxYXSDDIz7jSdM+ZVkfbUtijN6RN/W0=;
- b=ENrpWSQIp5QBzLjSRhSRUr65+pz6JlALe/uq6hZohkKn5BrctWhrtrO4Ev8nVAtk0P5yen
- kH3kWhln7tcZn//QAEBsl8QlIqd4tS+lMd2rzPcyKyC4lW0Uq4+StBdu+8v+tRec7MuVa0
- ljx5WrXTLIIC57W+JZsGkkTiSjcCCIY=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=sl4rkdnr0o5W52X2aSuuGluJKvhKvYjxKheoSDXESvI=;
+ b=aMb4y9+9U7tz7jGwnQ2V+UYi8HldjPq741joxg8t1JLZdQyT5dDf11/o3B6FbtA6Qqr0n/
+ xutk8SuEPNJRxriuD4AE7ZR0qFjpyzvX640Kc+3KpLM1bKTS1kRTbBNOv2bAb7xy7noNvs
+ /FeFKlXVbRTsr0zXn1DVeTfToM83BtQ=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-425-6LGlDIp-NF6_mrHqUGqdRA-1; Mon, 03 Apr 2023 07:10:22 -0400
-X-MC-Unique: 6LGlDIp-NF6_mrHqUGqdRA-1
-Received: by mail-qv1-f71.google.com with SMTP id
- h7-20020a0cd807000000b005dd254e7babso12823520qvj.14
+ us-mta-407-xw5B3X6tOOCYlBXr3C6A8g-1; Mon, 03 Apr 2023 07:14:56 -0400
+X-MC-Unique: xw5B3X6tOOCYlBXr3C6A8g-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ a13-20020ae9e80d000000b0074a3e98f30dso971154qkg.6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 03 Apr 2023 04:10:22 -0700 (PDT)
+ Mon, 03 Apr 2023 04:14:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680520222;
+ d=1e100.net; s=20210112; t=1680520495;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=2LyTXIwTIB/nVxYXSDDIz7jSdM+ZVkfbUtijN6RN/W0=;
- b=yFsGi6oJd23GYRtRA+NMEmwbVEko+kziEY7eykpo4y1whShC8KPR/Yk0VzpyrbJKJ4
- QVPq56P7hy2g7xQXOM97BDU6RU3SBhhQXSfFLZM+r83JDva6JIl/z1IRAW90g/8VPBnu
- 6PVu5tD7DH0Z59ZR4I7Lfr7xoLyAAgHLGOqjQCgRM5IC0S52pEO4jhoadRBhIoXo3w46
- gzrzMpKbSEUwoX+QgxaJmG17NiliHopjbYW4deu+LIWJ4rApbOxxZzNxqQ81bxxUckdt
- IWtsVTiPmvY1wLnGWBF9AiCQwSSNiiPXAbdEnl/G0CRXVVhTw+T2DVkP0L1CcQdWJbBI
- EmxA==
-X-Gm-Message-State: AAQBX9euoQEKoyKdzhVSoZsoOMkbOxMQn2jwjM9A39Xew3ZLrGp5VzFM
- +a3PoSJIFKLtLLjQSHCiKRJ03bf8tZfeFZz+ST/tzpr11NEnR6UbiSuP0Hn7pi2ShKPh4+Jsacl
- znIFFZSQTYbWOFgyU8q7Vi4Ds3j4DvdYY/k9pxGKreA==
-X-Received: by 2002:a05:6214:20af:b0:5b7:fc3f:627c with SMTP id
- 15-20020a05621420af00b005b7fc3f627cmr56199453qvd.41.1680520222095; 
- Mon, 03 Apr 2023 04:10:22 -0700 (PDT)
-X-Google-Smtp-Source: AKy350anlnRjskidVzUxw4lC24jdLIo1HJimHkPD2ABe7fU37aXmhofK7QF06gaCIs48vZzsoFlAZQ==
-X-Received: by 2002:a05:6214:20af:b0:5b7:fc3f:627c with SMTP id
- 15-20020a05621420af00b005b7fc3f627cmr56199409qvd.41.1680520221837; 
- Mon, 03 Apr 2023 04:10:21 -0700 (PDT)
+ bh=sl4rkdnr0o5W52X2aSuuGluJKvhKvYjxKheoSDXESvI=;
+ b=hp0zHYX/p9NpYeeBsXPq3myKcyyzCLcdFP46yiuYQxvjspCi4OlgG0I08D/ksWkxFN
+ SnLy6LQtWHJGkrQ1HjLH3xQNRKO416XMZSNIomvrR/9UoSgoJPur4FZOW1/uIABUXyKt
+ 7h+k2SW4bTq1iqhxNO2oW7t6B4fWQGH2CjBHNMNEidJta8xrW7+Xf6qYw6DuUppYTbNM
+ gb7FdZTtSPPt8nEXdbJP6Y3jsTWW/IeXmyKunLb/6s8J4zDArgeA7QS1l6w8vqXCQVO9
+ sCocIWWpinTB2XJpQCEKRpupypgA2s2Kr2xa+O9zXlPKtBeQe5gdDHuiecKWGxcns7Xh
+ 3L6g==
+X-Gm-Message-State: AAQBX9cYIAYJjzTS7dq7iPSts4raPv8Nm+7kLXOnjw8dob5Nur9Isgvu
+ qe/242eQf+/qbeyMJkkbNvOtrD5FpbNXATxWgTt8wTJIbBNpIdJSgNn1hjnCVkgtDoTVqPE3QcT
+ iok6xVeJ/AsSK+Dj/GtujGqUSJrQP9BXLtatk/skWug==
+X-Received: by 2002:a05:622a:15ce:b0:3e6:3032:827b with SMTP id
+ d14-20020a05622a15ce00b003e63032827bmr25440150qty.7.1680520495546; 
+ Mon, 03 Apr 2023 04:14:55 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bdQmEU9WWUOrbzCJ+Bq0v8HXzqQQ+6ONbGa/DU8+jSLKW1/RzfPc/4ZJ/IS5EkzEjM/uHPCg==
+X-Received: by 2002:a05:622a:15ce:b0:3e6:3032:827b with SMTP id
+ d14-20020a05622a15ce00b003e63032827bmr25440112qty.7.1680520495295; 
+ Mon, 03 Apr 2023 04:14:55 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-130.retail.telecomitalia.it.
  [82.57.51.130]) by smtp.gmail.com with ESMTPSA id
- di15-20020ad458ef000000b005e13c17dcb8sm2536442qvb.79.2023.04.03.04.10.16
+ 136-20020a37058e000000b00747d211536dsm2688864qkf.107.2023.04.03.04.14.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 03 Apr 2023 04:10:21 -0700 (PDT)
-Date: Mon, 3 Apr 2023 13:10:14 +0200
+ Mon, 03 Apr 2023 04:14:54 -0700 (PDT)
+Date: Mon, 3 Apr 2023 13:14:49 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: John Fastabend <john.fastabend@gmail.com>
-Subject: Re: [PATCH net-next v4 0/3] Add support for sockmap to vsock.
-Message-ID: <u3azhe3tsae6c3h2hbhzypvcxbjsostqple3wkqtplvdhtadkf@5posaldst7ec>
-References: <20230327-vsock-sockmap-v4-0-c62b7cd92a85@bytedance.com>
- <6427838247d16_c503a2087e@john.notmuch>
+To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v4 1/3] vsock/vmci: convert VMCI error code to
+ -ENOMEM on receive
+Message-ID: <djxa4zzfqu463t6rw3plwegghwmem36rue3czs7ype2xn3f6b7@65ly3ebfkt6w>
+References: <5440aa51-8a6c-ac9f-9578-5bf9d66217a5@sberdevices.ru>
+ <fb3308c0-4a7a-a0b0-dbfd-92e50985600e@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <6427838247d16_c503a2087e@john.notmuch>
+In-Reply-To: <fb3308c0-4a7a-a0b0-dbfd-92e50985600e@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Song Liu <song@kernel.org>,
- Eric Dumazet <edumazet@google.com>, Stanislav Fomichev <sdf@google.com>,
- linux-kselftest@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
- Mykola Lysenko <mykolal@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>,
- Paolo Abeni <pabeni@redhat.com>, KP Singh <kpsingh@kernel.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Hao Luo <haoluo@google.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
- bpf@vger.kernel.org, Martin KaFai Lau <martin.lau@linux.dev>,
+Cc: Vishnu Dasa <vdasa@vmware.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ Bryan Tan <bryantan@vmware.com>, Eric Dumazet <edumazet@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -134,53 +127,49 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Mar 31, 2023 at 06:06:10PM -0700, John Fastabend wrote:
->Bobby Eshleman wrote:
->> We're testing usage of vsock as a way to redirect guest-local UDS
->> requests to the host and this patch series greatly improves the
->> performance of such a setup.
->>
->> Compared to copying packets via userspace, this improves throughput by
->> 121% in basic testing.
->>
->> Tested as follows.
->>
->> Setup: guest unix dgram sender -> guest vsock redirector -> host vsock
->>        server
->> Threads: 1
->> Payload: 64k
->> No sockmap:
->> - 76.3 MB/s
->> - The guest vsock redirector was
->>   "socat VSOCK-CONNECT:2:1234 UNIX-RECV:/path/to/sock"
->> Using sockmap (this patch):
->> - 168.8 MB/s (+121%)
->> - The guest redirector was a simple sockmap echo server,
->>   redirecting unix ingress to vsock 2:1234 egress.
->> - Same sender and server programs
->>
->> *Note: these numbers are from RFC v1
->>
->> Only the virtio transport has been tested. The loopback transport was
->> used in writing bpf/selftests, but not thoroughly tested otherwise.
->>
->> This series requires the skb patch.
+On Sun, Apr 02, 2023 at 09:15:49PM +0300, Arseniy Krasnov wrote:
+>This adds conversion of VMCI specific error code to general -ENOMEM. It
+>is preparation for the next patch, which changes af_vsock.c behaviour
+>on receive to pass value returned from transport to the user.
 >
->Appears reasonable to me although I didn't review internals of all
->the af_vsock stuff. I see it got merged great.
-
-Thanks for checking!
-
->
->One nit, I have a series coming shortly to pull the tests out of
->the sockmap_listen and into a sockmap_vsock because I don't think they
->belong in _listen but that is just a refactor.
->
+>Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+>---
+> net/vmw_vsock/vmci_transport.c | 11 +++++++++--
+> 1 file changed, 9 insertions(+), 2 deletions(-)
 
 LGTM!
 
-Thanks,
-Stefano
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+>diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+>index 36eb16a40745..a5375c97f5b0 100644
+>--- a/net/vmw_vsock/vmci_transport.c
+>+++ b/net/vmw_vsock/vmci_transport.c
+>@@ -1831,10 +1831,17 @@ static ssize_t vmci_transport_stream_dequeue(
+> 	size_t len,
+> 	int flags)
+> {
+>+	ssize_t err;
+>+
+> 	if (flags & MSG_PEEK)
+>-		return vmci_qpair_peekv(vmci_trans(vsk)->qpair, msg, len, 0);
+>+		err = vmci_qpair_peekv(vmci_trans(vsk)->qpair, msg, len, 0);
+> 	else
+>-		return vmci_qpair_dequev(vmci_trans(vsk)->qpair, msg, len, 0);
+>+		err = vmci_qpair_dequev(vmci_trans(vsk)->qpair, msg, len, 0);
+>+
+>+	if (err < 0)
+>+		err = -ENOMEM;
+>+
+>+	return err;
+> }
+>
+> static ssize_t vmci_transport_stream_enqueue(
+>-- 
+>2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
