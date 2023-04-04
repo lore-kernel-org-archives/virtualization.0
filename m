@@ -1,105 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3124C761A6
-	for <virtualization@archiver.kernel.org>; Tue,  4 Apr 2023 13:13:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52897C761A6
+	for <virtualization@archiver.kernel.org>; Tue,  4 Apr 2023 13:14:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7421F81285;
-	Tue,  4 Apr 2023 13:13:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7421F81285
+	by smtp2.osuosl.org (Postfix) with ESMTP id CBE7B4016F;
+	Tue,  4 Apr 2023 13:14:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CBE7B4016F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VWkmfrj1
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KYUClyuRQiRh; Tue,  4 Apr 2023 13:14:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 57C28403A7;
+	Tue,  4 Apr 2023 13:14:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 57C28403A7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 34A8FC0036;
+	Tue,  4 Apr 2023 13:14:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D2F9C002F
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Apr 2023 13:14:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 089A681766
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Apr 2023 13:14:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 089A681766
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TZi5rZ2i
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VWkmfrj1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ozdcO8o3AaGy; Tue,  4 Apr 2023 13:13:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 17856812D2;
-	Tue,  4 Apr 2023 13:13:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 17856812D2
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 01771C0036;
-	Tue,  4 Apr 2023 13:13:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 37C6CC002F
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r9phherCP5p0
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Apr 2023 13:13:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 03E4A404F7
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Apr 2023 13:13:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03E4A404F7
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=TZi5rZ2i
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2Q1fjNIs8Xld
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Apr 2023 13:13:37 +0000 (UTC)
+ Tue,  4 Apr 2023 13:14:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F1A6D404E9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4C96B8174F
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F1A6D404E9
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4C96B8174F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Apr 2023 13:13:36 +0000 (UTC)
+ Tue,  4 Apr 2023 13:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1680614016;
+ s=mimecast20190719; t=1680614040;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=MmE27wy0MmMLRHR3IF88SSg1j96JW0EiZjlHTqsz8dM=;
- b=TZi5rZ2itZzC/gF8EBJ3sSWvRdWonCuX4D4d/MHPntsfMcFN0G4mHY1TfakEIvqVkjLJUj
- dgdWkzYHfH8NB9AN4C6w5NNCC/XYtSwrwKvbDBc63zzZIsW9nroCBh6ua2vrqY1ztJ0EZe
- T9Nr3hbot0nlaY98QhqnYu4VoH5pCsM=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=4MlJ8boSBAN33TyWlK9MdNtuYbz66i2Pl/D7dBKo3iE=;
+ b=VWkmfrj1S+kJ3rExN+Wb4/Drv3FFYNnoekHz/4RgM+pXGGNc/EoosmmCvniVVRjphwoyoG
+ xbjvAl6LYRLZMfjB4t/X0INCjmLHwl0QnIzbsrt5e2oPP84dAk6wGLCzbr0M/86V7IEJe4
+ uZUtI+KW/tM/sqGbRFiWvUHta0pmNn8=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-dh41FW1eMCyG09jMvtPR_w-1; Tue, 04 Apr 2023 09:13:34 -0400
-X-MC-Unique: dh41FW1eMCyG09jMvtPR_w-1
-Received: by mail-qt1-f200.google.com with SMTP id
- t15-20020a05622a180f00b003e37dd114e3so22043967qtc.10
+ us-mta-119-eh38RdmjM1u1DGpl6ebYNw-1; Tue, 04 Apr 2023 09:13:59 -0400
+X-MC-Unique: eh38RdmjM1u1DGpl6ebYNw-1
+Received: by mail-qk1-f198.google.com with SMTP id
+ 195-20020a3705cc000000b00746a3ab9426so14640916qkf.20
  for <virtualization@lists.linux-foundation.org>;
- Tue, 04 Apr 2023 06:13:34 -0700 (PDT)
+ Tue, 04 Apr 2023 06:13:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1680614014;
+ d=1e100.net; s=20210112; t=1680614038;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=MmE27wy0MmMLRHR3IF88SSg1j96JW0EiZjlHTqsz8dM=;
- b=nhvpsUVWYefvXwtHeXh5KCErpsMWDe4FrBc3DMya8OBgXzWynFH0vIwlOIIs0Ac7eh
- 54zGNNgFSi8mt+4dFpDBqlJ9/yzPKTNEwCWQMDKRvGy2Q+ZbcMFKIgrzSLfMV9CaDsJO
- T+iZL/7njbGyzsZtA98VZua5224E02G0OcX85AHZNz1Ht0nbAcl8CKKK3hqA5O9WhqeD
- vBVIg/Rca20RPFZ+K1JbaOKY+oRQMpJraV/h/3N+jfEaSF7hHkaoXgc0+8SzVW837gH1
- zSrQWN1tmexV7PMXPkDxszNCr/RK6TBfrO55Dnl/AFTWENueXNjSRSGxTWF1lZlMJZEz
- JkjQ==
-X-Gm-Message-State: AAQBX9deSRWiM/wReawA7Y+91c9450s6QN0TxY2vBhUcZQmBsJ30zlQV
- aWh2OEezchYJzk6ceORlknpChkSnHcfcOnZ544iW/OjvLSFQR4PR0BHz6s1WZmsWa9VnZjj6Sy4
- WVE7Re7L87eKxF0k+MXDzt1BBYvgG8A2knnxuO89xTueD6w1VxeaeeLm+qt66KJA+SILYps6mJL
- X316nDkZsjg2VqrZteT4F/1OSEvA==
-X-Received: by 2002:a05:6214:240d:b0:5e0:63ec:5d7a with SMTP id
- fv13-20020a056214240d00b005e063ec5d7amr3896852qvb.46.1680614013990; 
- Tue, 04 Apr 2023 06:13:33 -0700 (PDT)
-X-Google-Smtp-Source: AKy350aKm0amVIapEM6Osx9+Rfg1SXxy+vCHEeGfHbCKzQgTZk0x83W/PRr71qSe/u0h5R9nDk3onw==
-X-Received: by 2002:a05:6214:240d:b0:5e0:63ec:5d7a with SMTP id
- fv13-20020a056214240d00b005e063ec5d7amr3896807qvb.46.1680614013667; 
- Tue, 04 Apr 2023 06:13:33 -0700 (PDT)
+ bh=4MlJ8boSBAN33TyWlK9MdNtuYbz66i2Pl/D7dBKo3iE=;
+ b=nCzqXsKZw/cy9x2p7ZMnl1P+rnPOpNAVmP5MiIHI1eEBS2sPmOyquojR/ebF/L1aqY
+ kqiTTr8Aq2UzWqeAIBHM30gdPK5j+okV7PdFRxjOAZroeUnLPNrs5H1gy8he5Ju9V9NN
+ y+YAvSzTjoeFCAaUdSXQvz2yH7xo46WVwaqpMp7MuuafA4UlwDtZHNKgIhMWHhEg0/da
+ QDZ0GIRaAENKLVPe/vI0GvnI+iKLI/UscmDCXuRk6FYT337GKcnb7/6mN+RnVHcOwbhL
+ 7Vv/6o429AP7+7K1dcYDmCBY+vqpFNfi8Qm9L71lbLO1WtLOne6T6HpuZlqOfZ393S4T
+ d04g==
+X-Gm-Message-State: AAQBX9fidtFzmbDUiDgaUtltownAiu0IUivX4MaA1foowXRXG4M8wEOA
+ I4E4a4BIEOalLe86yTGDSWVdtKdKfkw7KpcOWmWIItGG7cIXBriFnFgXSqzM21NWBrpRuBdsR4N
+ nJEuP1lP2XZ3BvmH7e259KxUdkPD27Ysnve0QhhoXm4GInzrZzVzesEBZM/ARqc+pIA0FQuVtQ+
+ tT7waVhdembHBmHyrSnnddErSFDg==
+X-Received: by 2002:a05:622a:452:b0:3e2:4280:bc5d with SMTP id
+ o18-20020a05622a045200b003e24280bc5dmr2577084qtx.23.1680614038489; 
+ Tue, 04 Apr 2023 06:13:58 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YCSJM7sVlkvzpoiu/gc9FXBYw+oU6Dc67qLTb9UimmcbBb5Gh6pKFgktvtOVRk6+HyH/s72g==
+X-Received: by 2002:a05:622a:452:b0:3e2:4280:bc5d with SMTP id
+ o18-20020a05622a045200b003e24280bc5dmr2577024qtx.23.1680614038001; 
+ Tue, 04 Apr 2023 06:13:58 -0700 (PDT)
 Received: from step1.redhat.com (host-82-53-134-157.retail.telecomitalia.it.
  [82.53.134.157]) by smtp.gmail.com with ESMTPSA id
- mk14-20020a056214580e00b005dd8b9345e8sm3367788qvb.128.2023.04.04.06.13.30
+ z5-20020ac87105000000b003e64303bd2dsm2841837qto.63.2023.04.04.06.13.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 04 Apr 2023 06:13:32 -0700 (PDT)
+ Tue, 04 Apr 2023 06:13:57 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v5 1/9] vdpa: add bind_mm/unbind_mm callbacks
-Date: Tue,  4 Apr 2023 15:13:18 +0200
-Message-Id: <20230404131326.44403-2-sgarzare@redhat.com>
+Subject: [PATCH v5 2/9] vhost-vdpa: use bind_mm/unbind_mm device callbacks
+Date: Tue,  4 Apr 2023 15:13:19 +0200
+Message-Id: <20230404131326.44403-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230404131326.44403-1-sgarzare@redhat.com>
 References: <20230404131326.44403-1-sgarzare@redhat.com>
@@ -125,52 +125,89 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-These new optional callbacks is used to bind/unbind the device to
-a specific address space so the vDPA framework can use VA when
-these callbacks are implemented.
+When the user call VHOST_SET_OWNER ioctl and the vDPA device
+has `use_va` set to true, let's call the bind_mm callback.
+In this way we can bind the device to the user address space
+and directly use the user VA.
 
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+The unbind_mm callback is called during the release after
+stopping the device.
+
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
 
 Notes:
+    v4:
+    - added new switch after vhost_dev_ioctl() [Jason]
+    v3:
+    - added `case VHOST_SET_OWNER` in vhost_vdpa_unlocked_ioctl() [Jason]
     v2:
-    - removed `struct task_struct *owner` param (unused for now, maybe
-      useful to support cgroups) [Jason]
-    - add unbind_mm callback [Jason]
+    - call the new unbind_mm callback during the release [Jason]
+    - avoid to call bind_mm callback after the reset, since the device
+      is not detaching it now during the reset
 
- include/linux/vdpa.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/vhost/vdpa.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 43f59ef10cc9..369c21394284 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -290,6 +290,14 @@ struct vdpa_map_file {
-  *				@vdev: vdpa device
-  *				@idx: virtqueue index
-  *				Returns pointer to structure device or error (NULL)
-+ * @bind_mm:			Bind the device to a specific address space
-+ *				so the vDPA framework can use VA when this
-+ *				callback is implemented. (optional)
-+ *				@vdev: vdpa device
-+ *				@mm: address space to bind
-+ * @unbind_mm:			Unbind the device from the address space
-+ *				bound using the bind_mm callback. (optional)
-+ *				@vdev: vdpa device
-  * @free:			Free resources that belongs to vDPA (optional)
-  *				@vdev: vdpa device
-  */
-@@ -351,6 +359,8 @@ struct vdpa_config_ops {
- 	int (*set_group_asid)(struct vdpa_device *vdev, unsigned int group,
- 			      unsigned int asid);
- 	struct device *(*get_vq_dma_dev)(struct vdpa_device *vdev, u16 idx);
-+	int (*bind_mm)(struct vdpa_device *vdev, struct mm_struct *mm);
-+	void (*unbind_mm)(struct vdpa_device *vdev);
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 7be9d9d8f01c..3824c249612f 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -219,6 +219,28 @@ static int vhost_vdpa_reset(struct vhost_vdpa *v)
+ 	return vdpa_reset(vdpa);
+ }
  
- 	/* Free device resources */
- 	void (*free)(struct vdpa_device *vdev);
++static long vhost_vdpa_bind_mm(struct vhost_vdpa *v)
++{
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
++
++	if (!vdpa->use_va || !ops->bind_mm)
++		return 0;
++
++	return ops->bind_mm(vdpa, v->vdev.mm);
++}
++
++static void vhost_vdpa_unbind_mm(struct vhost_vdpa *v)
++{
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
++
++	if (!vdpa->use_va || !ops->unbind_mm)
++		return;
++
++	ops->unbind_mm(vdpa);
++}
++
+ static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+@@ -716,6 +738,17 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+ 		break;
+ 	}
+ 
++	if (r)
++		goto out;
++
++	switch (cmd) {
++	case VHOST_SET_OWNER:
++		r = vhost_vdpa_bind_mm(v);
++		if (r)
++			vhost_dev_reset_owner(d, NULL);
++		break;
++	}
++out:
+ 	mutex_unlock(&d->mutex);
+ 	return r;
+ }
+@@ -1287,6 +1320,7 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+ 	vhost_vdpa_clean_irq(v);
+ 	vhost_vdpa_reset(v);
+ 	vhost_dev_stop(&v->vdev);
++	vhost_vdpa_unbind_mm(v);
+ 	vhost_vdpa_config_put(v);
+ 	vhost_vdpa_cleanup(v);
+ 	mutex_unlock(&d->mutex);
 -- 
 2.39.2
 
