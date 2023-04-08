@@ -1,82 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADC06C76196
-	for <virtualization@archiver.kernel.org>; Fri,  7 Apr 2023 23:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53799C7619A
+	for <virtualization@archiver.kernel.org>; Sat,  8 Apr 2023 06:37:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2E5DA616A7;
-	Fri,  7 Apr 2023 23:36:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E5DA616A7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=mBwiG5b5
+	by smtp4.osuosl.org (Postfix) with ESMTP id B9355420F5;
+	Sat,  8 Apr 2023 06:37:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B9355420F5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cSQzBI2d
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7KVMnAnfMgbz; Fri,  7 Apr 2023 23:36:56 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id modEs5T18fnp; Sat,  8 Apr 2023 06:37:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 94F146168D;
-	Fri,  7 Apr 2023 23:36:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 94F146168D
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9054042092;
+	Sat,  8 Apr 2023 06:37:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9054042092
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A52FC0036;
-	Fri,  7 Apr 2023 23:36:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0138FC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 606B0C0037;
+	Sat,  8 Apr 2023 06:37:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F3BAC002A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Apr 2023 23:36:53 +0000 (UTC)
+ Sat,  8 Apr 2023 06:37:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BD1408469B
+ by smtp1.osuosl.org (Postfix) with ESMTP id 62A4784601
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Apr 2023 23:36:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD1408469B
+ Sat,  8 Apr 2023 06:37:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 62A4784601
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com
- header.a=rsa-sha256 header.s=mail header.b=mBwiG5b5
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=cSQzBI2d
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lax9Jui6PGOc
+ with ESMTP id y6UdehNbijqh
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Apr 2023 23:36:52 +0000 (UTC)
+ Sat,  8 Apr 2023 06:37:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11B818461A
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 11B818461A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C00EC845FE
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C00EC845FE
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Apr 2023 23:36:51 +0000 (UTC)
-Received: from [IPv6:2804:14d:72b4:8284:32a8:8167:f815:2895] (unknown
- [IPv6:2804:14d:72b4:8284:32a8:8167:f815:2895])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest
- SHA256) (No client certificate requested)
- (Authenticated sender: dwlsalmeida)
- by madras.collabora.co.uk (Postfix) with ESMTPSA id 6C54B6603133;
- Sat,  8 Apr 2023 00:36:48 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
- s=mail; t=1680910610;
- bh=U92h6mBorkK2GfO57Y3hQxwoW1sYUwbwLA36Ut5C1Po=;
- h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
- b=mBwiG5b5MVsT1PirCzrJr2STC4IIeHt1bhofLwHTCr/kvUCMvCDpcQGlw1PlvrbH8
- EgBMjRKPPx7+ViGjF2UfdApetygAq2YEiDu8ZmnfAovOS4frAise1umLMZHxwzEiKe
- 0GGiAmjfKvzgYmp8Rff3scuTrB3VoNeOZ+S2LN0rabAHOL9kiBtAkSiHCvU3jLEoay
- n6AtxJMhhdeOI9kyswCfbuKsoRgGLcxkwUkR40UDyrL40V9l/Brs3vEGlH3s5CBxsm
- TX3Flg16U0lFFutLi6/JDnhgNwqs/TvWxTP0xbSl2L5tcLuDmcyECEstGM5oIQt3NK
- n+fVGlrwH0FqQ==
-Message-ID: <f8b738940f2502e582acb59229d419825c9a1ffb.camel@collabora.com>
-Subject: Re: [PATCH v2 2/2] rust: virtio: add virtio support
-To: Wedson Almeida Filho <wedsonaf@gmail.com>
-Date: Fri, 07 Apr 2023 20:36:35 -0300
-In-Reply-To: <CANeycqoh+ePXODJ57UT1UdhHDgzDXr=KoQEo7HiSDJDHha2dsQ@mail.gmail.com>
-References: <20230405201416.395840-1-daniel.almeida@collabora.com>
- <20230405201416.395840-3-daniel.almeida@collabora.com>
- <CANeycqoh+ePXODJ57UT1UdhHDgzDXr=KoQEo7HiSDJDHha2dsQ@mail.gmail.com>
-User-Agent: Evolution 3.46.4 
+ Sat,  8 Apr 2023 06:37:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1680935864;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=uLbvCzrYyWJ4Cauc3NPpnqlpzEGzzAiyEy8g6jX+TGo=;
+ b=cSQzBI2dObtA4eik19fOwQWUmuBP6vKyz+GF4bD8MiGAqJQ56iJlDQ3DBgKccrdJ8C7q6t
+ UwrxqViJzPE+cgNjpE8+LdpAnkFSYMH6GpWItX3Pmbv6feEoaeCYqzs46NNgIx7JAydqOX
+ R465CNK7JbgRBcoNpi7hqMeo9UYl1wY=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-549-c_y_qEo0NxC11FhGt-XFvg-1; Sat, 08 Apr 2023 02:37:43 -0400
+X-MC-Unique: c_y_qEo0NxC11FhGt-XFvg-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ n9-20020a05600c4f8900b003ee21220fccso233973wmq.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 07 Apr 2023 23:37:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1680935862;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=uLbvCzrYyWJ4Cauc3NPpnqlpzEGzzAiyEy8g6jX+TGo=;
+ b=Bj3ffm9qdTmxaNiUPMrvTH8TOduDAdM3SEnfUcBrxLqGeLrEFY2ld+gcFKcaebTQ5p
+ LBAH8QT6osLP5buadM4TPbaRQQP7bopijX8DNBYpcO6N3t9woq4n1pxXRtxYK9nsmTiW
+ E22H98MJwNtAdn+GYHkoCCl5244Qd3ZlDvrbrK0BZYMNCuCxZxc9rAgHvvAjiApBwFKK
+ NEriohD44vpwHtX+EuGvH0uhmlJPQeZwlp40X8OgPYluor6BcKyDp7j5a4rI/Tt/W8f8
+ y2qvOlnWJJwEmjUM+i6ipnkiMRAZatDVlnu3oIqIipUf4Wp/en5J80p6l2sNnHghYwrt
+ yeAw==
+X-Gm-Message-State: AAQBX9eNSN5tDHzXZUL1U1XsF7avzuO7sOBIahGboe14tqQHAqk+tclA
+ UPAovWYrDISK0eqbop1MhSz0qnRvgG6UiesTIRo1yJV4DPaNxVrgAninuYK8emFjSlI2XjNubDx
+ OKr35PTiDZA+yWWb2XlJbizcnZreIyEzMBEMnaiH8oA==
+X-Received: by 2002:a5d:4304:0:b0:2ef:b8ae:8791 with SMTP id
+ h4-20020a5d4304000000b002efb8ae8791mr887704wrq.10.1680935862313; 
+ Fri, 07 Apr 2023 23:37:42 -0700 (PDT)
+X-Google-Smtp-Source: AKy350auZ+DyjvsiHrrEQ1j44eoMZdb3oVVMF4qUh1LqP7D5b0yW5K3yTbkC+l6CocxuC4/g/8900g==
+X-Received: by 2002:a5d:4304:0:b0:2ef:b8ae:8791 with SMTP id
+ h4-20020a5d4304000000b002efb8ae8791mr887695wrq.10.1680935861993; 
+ Fri, 07 Apr 2023 23:37:41 -0700 (PDT)
+Received: from redhat.com ([2.52.20.155]) by smtp.gmail.com with ESMTPSA id
+ d1-20020a5d6441000000b002c573778432sm6187411wrw.102.2023.04.07.23.37.39
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 07 Apr 2023 23:37:41 -0700 (PDT)
+Date: Sat, 8 Apr 2023 02:37:37 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>
+Subject: Re: [PATCH] virtio-vdpa: add VIRTIO_F_NOTIFICATION_DATA feature
+ support
+Message-ID: <20230408023544-mutt-send-email-mst@kernel.org>
+References: <20230402081034.1021886-1-alvaro.karsz@solid-run.com>
 MIME-Version: 1.0
-Cc: ojeda@kernel.org, linux-kernel@vger.kernel.org,
- rust-for-linux@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20230402081034.1021886-1-alvaro.karsz@solid-run.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: eperezma@redhat.com, viktor@daynix.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,61 +117,120 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Daniel Almeida via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Daniel Almeida <daniel.almeida@collabora.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SGkgV2Vkc29uLCBNYXJ0aW4sCgpGaXJzdCBvZiBhbGwsIHRoYW5rcyBmb3IgdGhlIHJldmlldy4K
-Cgo+ID4gK8KgwqDCoCAvLy8gVmlydElPIGRyaXZlciByZW1vdmUuCj4gPiArwqDCoMKgIC8vLwo+
-ID4gK8KgwqDCoCAvLy8gQ2FsbGVkIHdoZW4gYSB2aXJ0aW8gZGV2aWNlIGlzIHJlbW92ZWQuCj4g
-PiArwqDCoMKgIC8vLyBJbXBsZW1lbnRlcnMgc2hvdWxkIHByZXBhcmUgdGhlIGRldmljZSBmb3Ig
-Y29tcGxldGUKPiA+IHJlbW92YWwgaGVyZS4KPiA+ICvCoMKgwqAgLy8vCj4gPiArwqDCoMKgIC8v
-LyBJbiBwYXJ0aWN1bGFyLCBpbXBsZW1lbnRlcnMgbXVzdCBlbnN1cmUgbm8gYnVmZmVycyBhcmUK
-PiA+IGxlZnQgb3ZlciBpbiB0aGUKPiA+ICvCoMKgwqAgLy8vIHZpcnRxdWV1ZXMgaW4gdXNlIGJ5
-IGNhbGxpbmcgW2B2aXJ0cXVldWU6OmdldF9idWYoKWBdCj4gPiB1bnRpbCBgTm9uZWAgaXMKPiA+
-ICvCoMKgwqAgLy8vIHJldHVybmVkLgo+IAo+IFdoYXQgaGFwcGVucyBpZiBpbXBsZW1lbnRlcnMg
-ZG9uJ3QgZG8gdGhpcz8KPiAKPiBJZiB0aGlzIGlzIGEgc2FmZXR5IHJlcXVpcmVtZW50LCB3ZSBu
-ZWVkIHRvIGZpbmQgYSBkaWZmZXJlbnQgd2F5IHRvCj4gZW5mb3JjZSBpdC4KPiAKPiA+IAoKVGhp
-cyBpcyB0aGUgd29yc3QgcGFydCBvZiB0aGlzIHBhdGNoIGJ5IGZhciwgdW5mb3J0dW5hdGVseS4g
-SWYgb25lCmRvZXNuJ3QgZG8gdGhpcywgdGhlbiBzL2hlIHdpbGwgbGVhayB0aGUgYGRhdGFgIGZp
-ZWxkIHBhc3NlZCBpbiB0aHJvdWdoCmludG9fZm9yZWlnbigpIGhlcmU6CgoKCj4gKyAgICAgICAg
-Ly8gU0FGRVRZOiBgc2VsZi5wdHJgIGlzIHZhbGlkIGFzIHBlciB0aGUgdHlwZSBpbnZhcmlhbnQu
-Cj4gKyAgICAgICAgbGV0IHJlcyA9IHVuc2FmZSB7Cj4gKyAgICAgICAgICAgIGJpbmRpbmdzOjp2
-aXJ0cXVldWVfYWRkX3NncygKPiArICAgICAgICAgICAgICAgIHNlbGYucHRyLAo+ICsgICAgICAg
-ICAgICAgICAgc2dzLmFzX211dF9wdHIoKSwKPiArICAgICAgICAgICAgICAgIG51bV9vdXQgYXMg
-dTMyLAo+ICsgICAgICAgICAgICAgICAgbnVtX2luIGFzIHUzMiwKPiArICAgICAgICAgICAgICAg
-IGRhdGEuaW50b19mb3JlaWduKCkgYXMgXywKPiArICAgICAgICAgICAgICAgIGdmcCwKPiArICAg
-ICAgICAgICAgKQo+ICsgICAgICAgIH07Cj4gKwoKTm90ZSB0aGUgY29tbWVudCBoZXJlOgoKCj4g
-KyAgICAgICAgICAgIC8vIFNBRkVUWTogaWYgdGhlcmUgaXMgYSBidWZmZXIgdG9rZW4sIGl0IGNh
-bWUgZnJvbQo+ICsgICAgICAgICAgICAvLyBgaW50b19mb3JlaWduKClgIGFzIGNhbGxlZCBpbiBg
-YWRkX3NncygpYC4KPiArICAgICAgICAgICAgPFQ6OlByaXZhdGVEYXRhIGFzIEZvcmVpZ25Pd25h
-YmxlPjo6ZnJvbV9mb3JlaWduKGJ1ZikKCgpUbyBiZSBob25lc3QsIEkgdHJpZWQgY29taW5nIHVw
-IHdpdGggc29tZXRoaW5nIGNsZXZlciB0byBzb2x2ZSB0aGlzLApidXQgY291bGRuJ3QuIElkZWFs
-bHkgdGhpcyBzaG91bGQgaGFwcGVuIHdoZW4gdGhpcyBmdW5jdGlvbiBpcyBjYWxsZWQ6Cgo+ICsg
-ICAgZXh0ZXJuICJDIiBmbiByZW1vdmVfY2FsbGJhY2sodmlydGlvX2RldmljZTogKm11dApiaW5k
-aW5nczo6dmlydGlvX2RldmljZSkgewoKCkJ1dCBJIGRpZCBub3QgZmluZCBhIHdheSB0byBpdGVy
-YXRlIG92ZXIgdGhlIHRoZSBgdnFzYCBtZW1iZXIgZnJvbSB0aGUKUnVzdCBzaWRlLCBpLmUuOgoK
-YGBgCgpzdHJ1Y3QgdmlydGlvX2RldmljZSB7CglpbnQgaW5kZXg7Cglib29sIGZhaWxlZDsKCWJv
-b2wgY29uZmlnX2VuYWJsZWQ7Cglib29sIGNvbmZpZ19jaGFuZ2VfcGVuZGluZzsKCXNwaW5sb2Nr
-X3QgY29uZmlnX2xvY2s7CglzcGlubG9ja190IHZxc19saXN0X2xvY2s7IC8qIFByb3RlY3RzIFZR
-cyBsaXN0IGFjY2VzcyAqLwoJc3RydWN0IGRldmljZSBkZXY7CglzdHJ1Y3QgdmlydGlvX2Rldmlj
-ZV9pZCBpZDsKCWNvbnN0IHN0cnVjdCB2aXJ0aW9fY29uZmlnX29wcyAqY29uZmlnOwoJY29uc3Qg
-c3RydWN0IHZyaW5naF9jb25maWdfb3BzICp2cmluZ2hfY29uZmlnOwoJc3RydWN0IGxpc3RfaGVh
-ZCB2cXM7IDwtLS0tLS0tLS0tLS0tLS0tLS0KYGBgCgpJcyB0aGVyZSBhbnkgd3JhcHBlcnMgb3Zl
-ciBsaXN0X2Zvcl9lYWNoX2VudHJ5KCksIGV0YywgdG8gYmUgdXNlZCBmcm9tClJ1c3Q/IElmIHNv
-LCBJIGNvdWxkIG5vdCBmaW5kIHRoZW0uCgpEb2luZyB0aGlzIGNsZWFudXAgZnJvbSBWaXJ0cXVl
-dWU6OkRyb3AoKSBpcyBub3QgYW4gb3B0aW9uIGVpdGhlcjoKc2luY2Ugd2Ugd3JhcCBvdmVyIGEg
-cG9pbnRlciBvd25lZCBieSB0aGUga2VybmVsLCB0aGVyZSdzIG5vIGd1YXJhbnRlZQp0aGF0IHRo
-ZSBhY3R1YWwgdmlydHF1ZXVlIGlzIGdvaW5nIGF3YXkgd2hlbiBkcm9wIGlzIGNhbGxlZCBvbiB0
-aGUKd3JhcHBlci4gSW4gZmFjdCwgdGhpcyBpcyBuZXZlciB0aGUgY2FzZSwgYXMgdmlydHF1ZXVl
-cyBhcmUgZGVsZXRlZAp0aHJvdWdoIHRoaXMgY2FsbDoKCgo+ICt2b2lkIHJ1c3RfaGVscGVyX3Zp
-cnRpb19kZWxfdnFzKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICt7Cj4gKyAgICAgICB2
-ZGV2LT5jb25maWctPmRlbF92cXModmRldik7Cj4gK30KPiArCgoKClN1Z2dlc3Rpb25zIHdlbGNv
-bWUsCgotLSBEYW5pZWwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sun, Apr 02, 2023 at 11:10:34AM +0300, Alvaro Karsz wrote:
+> Add VIRTIO_F_NOTIFICATION_DATA support for vDPA transport.
+> If this feature is negotiated, the driver passes extra data when kicking
+> a virtqueue.
+> 
+> A device that offers this feature needs to implement the
+> kick_vq_with_data callback.
+> 
+> kick_vq_with_data receives the vDPA device and data.
+> data includes the vqn, next_off and next_wrap for packed virtqueues.
+> 
+> This patch follows a patch [1] by Viktor Prutyanov which adds support
+> for the MMIO, channel I/O and modern PCI transports.
+> 
+> This patch needs to be applied on top of Viktor's patch.
+> 
+> [1] https://lore.kernel.org/lkml/20230324195029.2410503-1-viktor@daynix.com/
+> 
+> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
+
+Hmm so I conclude that drivers without kick_vq_with_data
+should not accept VIRTIO_F_NOTIFICATION_DATA then?
+
+
+> ---
+>  drivers/virtio/virtio_vdpa.c | 20 ++++++++++++++++++--
+>  include/linux/vdpa.h         |  6 ++++++
+>  2 files changed, 24 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index d7f5af62dda..bdaf30f7fbf 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -112,6 +112,17 @@ static bool virtio_vdpa_notify(struct virtqueue *vq)
+>  	return true;
+>  }
+>  
+> +static bool virtio_vdpa_notify_with_data(struct virtqueue *vq)
+> +{
+> +	struct vdpa_device *vdpa = vd_get_vdpa(vq->vdev);
+> +	const struct vdpa_config_ops *ops = vdpa->config;
+> +	u32 data = vring_notification_data(vq);
+> +
+> +	ops->kick_vq_with_data(vdpa, data);
+> +
+> +	return true;
+> +}
+> +
+>  static irqreturn_t virtio_vdpa_config_cb(void *private)
+>  {
+>  	struct virtio_vdpa_device *vd_dev = private;
+> @@ -138,6 +149,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>  	struct device *dma_dev;
+>  	const struct vdpa_config_ops *ops = vdpa->config;
+>  	struct virtio_vdpa_vq_info *info;
+> +	bool (*notify)(struct virtqueue *vq);
+>  	struct vdpa_callback cb;
+>  	struct virtqueue *vq;
+>  	u64 desc_addr, driver_addr, device_addr;
+> @@ -154,6 +166,11 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>  	if (index >= vdpa->nvqs)
+>  		return ERR_PTR(-ENOENT);
+>  
+> +	if (__virtio_test_bit(vdev, VIRTIO_F_NOTIFICATION_DATA))
+> +		notify = virtio_vdpa_notify_with_data;
+> +	else
+> +		notify = virtio_vdpa_notify;
+> +
+>  	/* Queue shouldn't already be set up. */
+>  	if (ops->get_vq_ready(vdpa, index))
+>  		return ERR_PTR(-ENOENT);
+> @@ -183,8 +200,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>  		dma_dev = vdpa_get_dma_dev(vdpa);
+>  	vq = vring_create_virtqueue_dma(index, max_num, align, vdev,
+>  					true, may_reduce_num, ctx,
+> -					virtio_vdpa_notify, callback,
+> -					name, dma_dev);
+> +					notify, callback, name, dma_dev);
+>  	if (!vq) {
+>  		err = -ENOMEM;
+>  		goto error_new_virtqueue;
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index 43f59ef10cc..a83bb0501c5 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -143,6 +143,11 @@ struct vdpa_map_file {
+>   * @kick_vq:			Kick the virtqueue
+>   *				@vdev: vdpa device
+>   *				@idx: virtqueue index
+> + * @kick_vq_with_data:		Kick the virtqueue and supply extra data
+> + *				(only if VIRTIO_F_NOTIFICATION_DATA is negotiated)
+> + *				@vdev: vdpa device
+> + *				@data: includes vqn, next_off and next_wrap for
+> + *				packed virtqueues
+>   * @set_vq_cb:			Set the interrupt callback function for
+>   *				a virtqueue
+>   *				@vdev: vdpa device
+> @@ -300,6 +305,7 @@ struct vdpa_config_ops {
+>  			      u64 device_area);
+>  	void (*set_vq_num)(struct vdpa_device *vdev, u16 idx, u32 num);
+>  	void (*kick_vq)(struct vdpa_device *vdev, u16 idx);
+> +	void (*kick_vq_with_data)(struct vdpa_device *vdev, u32 data);
+>  	void (*set_vq_cb)(struct vdpa_device *vdev, u16 idx,
+>  			  struct vdpa_callback *cb);
+>  	void (*set_vq_ready)(struct vdpa_device *vdev, u16 idx, bool ready);
+> -- 
+> 2.34.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
