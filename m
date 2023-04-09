@@ -4,84 +4,84 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA369C761A6
-	for <virtualization@archiver.kernel.org>; Sun,  9 Apr 2023 09:10:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0911CC77B6C
+	for <virtualization@archiver.kernel.org>; Sun,  9 Apr 2023 09:10:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5F3E660FB2;
-	Sun,  9 Apr 2023 09:10:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5F3E660FB2
+	by smtp3.osuosl.org (Postfix) with ESMTP id B2E7560F91;
+	Sun,  9 Apr 2023 09:10:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B2E7560F91
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=AMMa4x9Q
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=ChTIvgnZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8gdozFzAKXYI; Sun,  9 Apr 2023 09:10:50 +0000 (UTC)
+	with ESMTP id WKgQ35PF6rxe; Sun,  9 Apr 2023 09:10:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B0DBB60AB9;
-	Sun,  9 Apr 2023 09:10:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B0DBB60AB9
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8663A60FA5;
+	Sun,  9 Apr 2023 09:10:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8663A60FA5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89315C0037;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C0402C008A;
 	Sun,  9 Apr 2023 09:10:49 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CDCE9C002A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30AAEC002A
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Apr 2023 09:10:46 +0000 (UTC)
+ Sun,  9 Apr 2023 09:10:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 96901822DD
+ by smtp1.osuosl.org (Postfix) with ESMTP id AE78382303
  for <virtualization@lists.linux-foundation.org>;
  Sun,  9 Apr 2023 09:10:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 96901822DD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE78382303
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com
  header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256
- header.s=selector1-solidrn-onmicrosoft-com header.b=AMMa4x9Q
+ header.s=selector1-solidrn-onmicrosoft-com header.b=ChTIvgnZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0GmamrIfBrhT
+ with ESMTP id FkGD599-g2bK
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Apr 2023 09:10:45 +0000 (UTC)
+ Sun,  9 Apr 2023 09:10:44 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB594822F8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 26D63822EA
 Received: from EUR04-DB3-obe.outbound.protection.outlook.com
  (mail-db3eur04on0622.outbound.protection.outlook.com
  [IPv6:2a01:111:f400:fe0c::622])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CB594822F8
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 26D63822EA
  for <virtualization@lists.linux-foundation.org>;
  Sun,  9 Apr 2023 09:10:44 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=C6e5dAKthlPRU3/dvdSecBvXFUFLdU1JljXcItzFy/Q1H82nZ1kjMPhApSKPqs+yr9j3CJXE6o/xcVHlYsMJyY43H45aspeXtoqMO2n1Zmt5x1PBmGwijcY98V2bwNtu5eO49JVOC+2Q8BvXIsw7IoEl+VsVXzvTBohzDmzmarfiBAON5fv4PUXbCMgg/RR5W551m3ZtSaDQqk5TQIRAt3c9Nn83jiB2VQxFvB0oWJqXlO5huW7e9FlDo2tdBIZFY/w5n06LwY4xOQmix9QtvCi4mT89t0K1qGpNCqRjOMuOMjvUbmY18maIbHWDHp9cTvpBrFUTgm5Q/x/7NbVFvQ==
+ b=RFzfEnj1U0WmcsRhnNbPj3J0hD99xJWBH5eb6OFnnhm/m/Mx0XVxzYSysqumT3of7EyOqhttJvMitzlERbpyrqJ0ymr8/UgO240swwTfMO+3Ume2dYkYCRn0JfLyWiO7S8ZYRA9W7GpubUa6ZUjA6LoUvri+PgY3Z3gXUzkx26+vNfLbo/lf4qxQB2xVs6aAsZrmb/LKbWGrBu988sZC+Tnxf0Qkn9sJqN8t/9rVFcMIqBCJ76K+HHUTn8Ku5fxn+qTT4V81tfmkdkkAaOvHLVWnUZDk2kiTTERfp4n5rA+nn2oTDXaAPAXZ3DOxHNDk3vj+YfKsABmbwEz8Dznwlw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gnT7bLmoMsT6ZKGYbp/6uJJDBLJYpNI/iT5CFmVra1E=;
- b=NlDUVBze4lk5FzjrVkxYzGqDcqmSrmeDdFdqmuhKn4EQGvH/7VYT8N7UdRh7h/T9lcfB4R8ZG0g1Qdtad8QrN4keSuZYSuIMBxs3EEijKmWxbylE+ER7XRd08BtnmuaUS2l9zOmaXFMsC28g+fB1IPlEzvGytfXDJWOjtkBsyzNFs1fFrpRG1ptgEDXn8q7NPAdXNrn+9he+2EntwjPfkMk2MCjOYqXUlrd1igl4NTU1vkVh2QQ3QROh9X2QqDbCJOX/Vk+Iob+DaoKpzd9cNKHQXauHLRnyDHqLJCUxXz2Dql9dmGq2HTqGAsFYKdIn4SL+BlFMnKoyjoJXVZfjSg==
+ bh=wiACfJmNsQ1N9rHBpnGDogWvOa0C1YIn9JpUruDHru4=;
+ b=Xx+zE/aMAveohmbICt6yKkr/312prbvXqIS3Hyoarq4TNG+Crt4zDIjKcL/Yb6TeRCBt1AEHyuN8bNwnY5bzCJ2P4/m0EQ6Zb4+xW2P+QI8eBJ8yD0X7x8QZDEm1RA4y0SpYEGgt2IkiqdqWhJAI9ywIUKc1sx5YD8VjO1OAiJRin6+7aXWa1eCSqPRBBk+NETeF2xocoSQ8v5tAHwY9YCGJajhugJD+U6Ie0QDVhMkxy0xdH8cwipaLzU2U1Fo1+I9S/NJTzrJeMyFXNTkLO9M+WdwqvABfFp4NwQxaAEJniBnhdWGQ/sUVcj2PRIwZhKJBRVh0i8QZxy3zoGBT5g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=solid-run.com; dmarc=pass action=none
  header.from=solid-run.com; dkim=pass header.d=solid-run.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=gnT7bLmoMsT6ZKGYbp/6uJJDBLJYpNI/iT5CFmVra1E=;
- b=AMMa4x9Q6Sv8zvOyDsXbYB0rc5zj+DGJqoUN5o3L+1ux2yfY38Hx1U+zXATJ3tj32N/z2xehAiAmNxCkisUbXlGh8uaFG4W/T9coLC6qgAfgoKccbFZ5ViLTHPUWn8ciSxMsKpXJn0LMzwZedjELYBuemIugeXrPqhs/xSz/7ck=
+ bh=wiACfJmNsQ1N9rHBpnGDogWvOa0C1YIn9JpUruDHru4=;
+ b=ChTIvgnZMz7qG2Is/RsYjg9tus7nmXw79MDZ9ktfidDLcv2XF5pbl1ZdMwWLGZYFL8AONpO+krNu0Jutvzz1wbuj6PxSf4kJx51vjFzCm6YaYjQMz2RgTzndqTyiwR/ncSKOHrcJr9QTSGbVamX6p4Y+PQZaVC4Hwz28LxoIqgI=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=solid-run.com;
 Received: from AM0PR04MB4723.eurprd04.prod.outlook.com (2603:10a6:208:c0::20)
  by PA4PR04MB9485.eurprd04.prod.outlook.com (2603:10a6:102:27d::18)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6277.34; Sun, 9 Apr
- 2023 09:10:42 +0000
+ 2023 09:10:40 +0000
 Received: from AM0PR04MB4723.eurprd04.prod.outlook.com
  ([fe80::54c9:6706:9dc6:d977]) by AM0PR04MB4723.eurprd04.prod.outlook.com
  ([fe80::54c9:6706:9dc6:d977%5]) with mapi id 15.20.6277.038; Sun, 9 Apr 2023
- 09:10:42 +0000
+ 09:10:40 +0000
 From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
-Subject: [PATCH v2 2/2] vdpa/snet: support the suspend vDPA callback
-Date: Sun,  9 Apr 2023 12:10:24 +0300
-Message-Id: <20230409091024.3437405-3-alvaro.karsz@solid-run.com>
+Subject: [PATCH v2 1/2] vdpa/snet: support getting and setting VQ state
+Date: Sun,  9 Apr 2023 12:10:23 +0300
+Message-Id: <20230409091024.3437405-2-alvaro.karsz@solid-run.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230409091024.3437405-1-alvaro.karsz@solid-run.com>
 References: <20230409091024.3437405-1-alvaro.karsz@solid-run.com>
@@ -91,53 +91,53 @@ X-ClientProxiedBy: ZR0P278CA0133.CHEP278.PROD.OUTLOOK.COM
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: AM0PR04MB4723:EE_|PA4PR04MB9485:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4e7ef4fd-5d10-4ca1-a994-08db38da4b49
+X-MS-Office365-Filtering-Correlation-Id: 1a429226-a58a-438a-33ac-08db38da4a0a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HRdKsCjCkJaWGIBog7GOcXag6gR8bxBoZHOKjLLvcAb77klwghQKElfSi0MBqSbh1xP7cipluXe0z8gkZa7lRkbvumZumfEzRT1X7mhgcOy4FjXzpH//Kai8sP2EZ3iwUiTYAV3c39HrtcUny3c1jB6YztLa59Jq8Y3XN2g9gmYKpXFJNoOu4kJeD/OeWr/MLIU9Zqw6KWbN5MOl1Qgq1BtqYkvOdoFU4ieq3ds6TT1QJBy1As/ecBZXawxT5tplcVeLXF9rUAsBz7pJrVOda8XmHfptvC6CguBttBHhGvXsvkcaqNITcrBbrzahqoBxiFGWcHN92OK0lzcMmugyXSOX+0Ov/SgbpdSug1cqiqxTKPWCac/dF2z/u6HQt/7YPypZyX+SPYcD/DHdKzXBuedBKdhSNMZIj59g4a2XLidaaYQWODrGdqxgaRUpYulyJZG5nZClo7+KEndwsLYUgjKpjwEgVsngR3oZ7PBmLpFW1vMvQPIBgleZpmSf9rJDmB862T2j3H+ojHI+Fl4JUaHHH2KSj9NzVG40/vZAHZIfj4LVeoLwj2NHeVPvIj3HyJZO9OZHzOKMYMNeo1Xpec9pm2maikCjsLefG6oQIQ5vKGmcGjwyXfdkyvfHk49m
+X-Microsoft-Antispam-Message-Info: 07LOkrGm0D9MqWC1ThxGpnU9ZbAWIVFbdq10/vjs0KHc/Tgvo4l7S6asdu1Jdz4CfnaOwu8iTJizfJ7f5rgZy337U34WoGqgW7O7po6zXG1Pr3IpbcwUZi+/HjyjmwnoAoGk8NfkF9RKwtD7ebSSkdcOuOW/BfStyHlg0DtHGvOjdbohA9L5A+J36BUcOdIShnmizaBMCQYpBS7jUPWSriMIzahbOHxaUIFzpYXRUe2xn42k7YoIiuMQGV8jIg+18nBRk0afL4Djm2McG1201uCAR079SB1HWfMOjSc5pBsP6eQcqv7ygP9tWoLq5h8uDbvSuMHSQORzTQQFAOze7Y0f4jp37k5IRLGpM3KSaOI/rCBtLc0IEP5ZZjDbC9WSTFrj0c4Q0d54T4jiK3Ayy5VmiffCJ52upLGoZlCWdSM0cOphy9FGButbCQ9m8aGdOf/1FQlAqIiXxIPIO1+H8KqiJODezTTNiQMDztMySf8Mrth12xJopPg37PGv4N+bKiElj/Air560ClG6iypRxoWTl08MlaSDznVSEtAvybx/Mpf/myue6VJ196DuNrjcN3vNtfpERqMy/IV4cZOMDosjJQ7Duv0UkLIlYx8fCS5b0DJTah11ZkIN/v2Avqky
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:AM0PR04MB4723.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(366004)(39830400003)(376002)(396003)(136003)(346002)(451199021)(8936002)(83380400001)(2616005)(186003)(6486002)(52116002)(6666004)(1076003)(26005)(6506007)(6512007)(107886003)(478600001)(15650500001)(44832011)(5660300002)(2906002)(38100700002)(36756003)(38350700002)(66946007)(4326008)(41300700001)(66556008)(66476007)(8676002)(86362001)(316002);
+ SFS:(13230028)(366004)(39830400003)(376002)(396003)(136003)(346002)(451199021)(8936002)(83380400001)(2616005)(186003)(6486002)(52116002)(6666004)(1076003)(26005)(6506007)(6512007)(107886003)(478600001)(30864003)(44832011)(5660300002)(2906002)(38100700002)(36756003)(38350700002)(66946007)(4326008)(41300700001)(66556008)(66476007)(8676002)(86362001)(316002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?MBIV40fDXxTCv6gwb+5R94SUV+ZyyztPD7nw/G/RM8sLevJBft2T9jgKnPgh?=
- =?us-ascii?Q?45tIe1FWJ8BmUqBgqljE9NU5IUbDd9MYufzFGa5RT/WvG08se+vRTIXyxIRm?=
- =?us-ascii?Q?tXH557H6tPgA3d2zXqnEVpm8/lsUfwZMhsaQMYn5FmWB+PpMq+eSWklG9D+B?=
- =?us-ascii?Q?VwVGT55VeRUwzgVT/tSPxO16yzuNv5j93ng9utcas3XAzX4FkGAhxNtHMR7H?=
- =?us-ascii?Q?uYz5f98pUVfXex8TI78ow3hyblEaOunEBYccjzbpne/rzwgkAjEEDEDpgaSy?=
- =?us-ascii?Q?+iNZLFRa/xCVBooNqUn7FC8igRI5tU2HRpHnto54q0+R59KDGbtsUJViqWIK?=
- =?us-ascii?Q?WbCrdSN3pfduaQzLReetZ0OZdc5aX/GIxhVl1/zJNMfhn3ICDvhb+4o+/J0G?=
- =?us-ascii?Q?EnfcWqj3xAzUQU0UvcB37goAPbV9AXsgEQm1CNJrBytXLCyVZpC7NeHGtooE?=
- =?us-ascii?Q?oZ1ilPUI/YwFDdO8T0+VpHVtfHBi07jxGiPwwqTE5QwbN68Ctq8DaArqTEFM?=
- =?us-ascii?Q?dG4tiDPNFehlt56jAXS720mHfE2FGfIIUMZ8CjhAbkVwqwhck2jze+vGSI8E?=
- =?us-ascii?Q?hXfddWQ6GGegpVYrL/Y4iXjZ8mmh7XQlu6Rmzw1o0gF2/DN1jEgV0CsGqcHq?=
- =?us-ascii?Q?HG3An4uNZ4htXclM+sL4DN+EdiuLkRAi3l8qVSbNLsmSXm/Z60iHpahQy6tK?=
- =?us-ascii?Q?4dbQSY30N51LwU24FzFUp1nZ6duYBcd/JhGNY2AvA5nPJi6DfIH2xyHQxGv7?=
- =?us-ascii?Q?OA0ww31SpPoqWz3vwCW3TawyBnJkU88lQYjSfiM4av1WByuRepIRpbRnYPSg?=
- =?us-ascii?Q?9hNRCXOqKALCTq/DUJSt2EpdEU2EiHTdQI6PPCcYY1gnOGvUNMsIENLER6XT?=
- =?us-ascii?Q?kthjnmj6GvJcG0qKwK4hYVtD9wIiMOdmO/Aosm6oJ1C0cG9RgApLs2+sBAZ5?=
- =?us-ascii?Q?ow9DmxpsjPpMHH159c0GGBfzXbbD5MRFjdTjesoVj/QDkfwQ/8lfKfrd+7SI?=
- =?us-ascii?Q?DyT1/WRijxZr0nJXK2G/frY7FaoEr1L5PNphxIxGBnmpbYsrNy+FHrZINXip?=
- =?us-ascii?Q?04lShJJBM3C1OUTpQYhDj8OL5EjrxJZiD8v32t7dL59f6TXxjAffnH6Iap8R?=
- =?us-ascii?Q?5oTjcOwM8IAtkNmT9MhOFXS9y4R5Qk7wYgKDqJdiWtR76K5m5PeRusJZoJoZ?=
- =?us-ascii?Q?venISLp3PpalQP4Ie6hNRnZ+sb/T/mVNUlQUghO2DaV4rbf+yMRALWAo+N0x?=
- =?us-ascii?Q?GESNUoOajhyjN+tO2mYYeRu+1Z1bMz1XiYK7eGDiXwUkGOYe7DikWDoBQ4L2?=
- =?us-ascii?Q?tXHL9u8ar0FJWexDM7QyKurUe54/ftN77tzwW+F4PxnvYJTh5GW0Tp5kF+ol?=
- =?us-ascii?Q?RV1O6OE/43/sX3ZPsewaH9zx0koWk3ZEZpuVi+WrTdhw8XuMq1cpmBZYwJoJ?=
- =?us-ascii?Q?O/RFLZG5PRpl/6N0jh0a9AosHJGMz9/IeoE4FVnJvSjDImwv2pjuuZHFISR4?=
- =?us-ascii?Q?RGkYxZI6TUw40o6+J6QKkz7yo419RlApwaY2PfdYyKoyY8UMB+kgOoTCd1JJ?=
- =?us-ascii?Q?HP1w6uqVbJUtDrqLuaWJoq2lrUiNN2CLH/yqclQ7ugdeGLcrFLBZlana7rtJ?=
- =?us-ascii?Q?Gg=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?z5w4acZ0XRjHUIquaJDry9/gCICSdlQyPQ7NijGWWFAUwu0+x9FQK0DC3O/B?=
+ =?us-ascii?Q?ES4qgOyQjpNszLnTvXJd4v3j87Td0PcTDyCwto1n/Mgv8F6VeKrDbHQnXYyh?=
+ =?us-ascii?Q?v3YHH6QTltX7AS3Xo8zvss44huA9dXk2rVJI8I8G04qqlQDR9rmjuWSfd/n1?=
+ =?us-ascii?Q?JVkG1Up1MtVo4+Ab0ka0QMt5QLyg0PFSOM8iCbNWN5AVWc94Y5mpqNnDvDoI?=
+ =?us-ascii?Q?ZnBPWOvgngcQx2Udju8bNbqAKAN/ZYWnJwf9S22QnvIsRwLtYloeRjs2OYSr?=
+ =?us-ascii?Q?LryWtAghp6rcrUolJ2MITWCY+oxqA62aBVpX64vayixC5tlpHp++1ZLo6TMC?=
+ =?us-ascii?Q?njEAjbgZzPch6TqWguEAPB0931lX6bkXSu67dNo2cXfcUErLXyk4f+f0SsCg?=
+ =?us-ascii?Q?TGlmRuJDqpzZtGNMrRcJ+PYFo0JLgp6IyjNft2pLPWwbsKSzW1LHiXtVgT5p?=
+ =?us-ascii?Q?HE2A+vM1VuhduI5+coOZk20bMMJOuZwuMknjuqm9tgNeZTm19gHakAog36j4?=
+ =?us-ascii?Q?QnIWUily9K9EFhi77fEaUmVpmFmQkfSXWPrBAP6ATozKiCKDe23vEXQV+O84?=
+ =?us-ascii?Q?rTM+6Swx+nF2rLx2qC0oBESW1GpLpBLhVFCQYbnonuj3D8R4lrcekrcj4u2M?=
+ =?us-ascii?Q?QNpN57DsEeFYguVqW2ayFgHdNuCMB0JuS7iwLUqh93SLKOS1dsUvysICwcD5?=
+ =?us-ascii?Q?YQ6OWzOuerZ/tAeSe6SNjgqKA4mZGXg1kYu/h4jRjNprIK59m2PGFQXOlit9?=
+ =?us-ascii?Q?Bb9rwZ7R3GX2LVPyafjv+UwJaxl0nwwWyvW5kU6q4A9C1s290F2dksuSvaa4?=
+ =?us-ascii?Q?sA/2zq9iX/873s2GuxKmEEoTORWtQK3KoyFe0k1FP2njwZ4Lajr8G2cL8zHb?=
+ =?us-ascii?Q?8sgI4KZce3vGVRDkN03egonk2yGY9jDGL3ApZLZ4kePT0KmFtAXLmWWVmzAm?=
+ =?us-ascii?Q?Kx+bAGqsV8YbaiePkBgSP66A4suLzuoywP8vAEC6JyRobu+m0e6X5AkxpR90?=
+ =?us-ascii?Q?vr2SyI93Wbi8iRvMWpn8MxpPdk2fju/HteLom3QpqYmMHrYM4BsKRCE41Q2B?=
+ =?us-ascii?Q?6agft9/jUNY22SBM6ntzuocGIS+gP0xKwqhOxzr+ozClIfDYhWDs2sCCFPS8?=
+ =?us-ascii?Q?38eRyrdX4m8G5eXvyWi6C87BG1KaBagog00/FIxJ/vLW5aoBn9Px1y8k6423?=
+ =?us-ascii?Q?l/a0y4EmP1jLseV9/MY+sHy/yjzjn3h6J2S3QNkYzzxfdC54xoYv+6bUKsrj?=
+ =?us-ascii?Q?Cy8QE1uE93Lha2b0lLhPZ4ZCmxn/OFYTJWwIowALFLq4Cr29tS5bbp9r8Yba?=
+ =?us-ascii?Q?HKBnc3bIyAMWvcUdJ9IAUCWVGm189eiEERFyHuaZPzd3FWcX0y/4Q6weCSE9?=
+ =?us-ascii?Q?ra4Gy6PNiaubYJPIeqLBnxmLJG+49Ox1DRmBjw8CT2/TmmpeTQGTXQbNIoPN?=
+ =?us-ascii?Q?qB631c73ztr7Eow3MpcESyGql+VXYYaUZ2B97eRaNEg6/3fauze2yLzymI5V?=
+ =?us-ascii?Q?1kuKumODg3kSLV+BOdZEID2ysMoUUZ28pgH4LoH3h8AKwCl2fvketb95Hyas?=
+ =?us-ascii?Q?1SNpivB575QQEUE7Flv8uw0wtMURhq4aqAlnQvVkKiOS+V3UkgiIqyS+ODJY?=
+ =?us-ascii?Q?BQ=3D=3D?=
 X-OriginatorOrg: solid-run.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4e7ef4fd-5d10-4ca1-a994-08db38da4b49
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1a429226-a58a-438a-33ac-08db38da4a0a
 X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB4723.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Apr 2023 09:10:42.1744 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Apr 2023 09:10:40.1324 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: a4a8aaf3-fd27-4e27-add2-604707ce5b82
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 0cQWT32HVkA6uwE3IqdJECXszumDX+bD1SVCMvc1yro6wXKkCJX6Qfsrt5ptjZ+WS88Jwlbat6Q4pQZp391evNnZi+RmZ24njufZ0K7yNnI=
+X-MS-Exchange-CrossTenant-UserPrincipalName: /rMxRE/A/In+tBGAC2e/7h/GoDLhatO1y4nJM6teTgBWNTy+FHxgIXzw8qCqENDUmOpeYoEt4mn2gbYT0uJjCHDNnjlG8Ep/83ggMa+NrU8=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB9485
 Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -156,80 +156,656 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When suspend is called, the driver sends a suspend command to the DPU
-through the control mechanism.
+This patch adds the get_vq_state and set_vq_state vDPA callbacks.
+
+In order to get the VQ state, the state needs to be read from the DPU.
+In order to allow that, the old messaging mechanism is replaced with a new,
+flexible control mechanism.
+This mechanism allows to read data from the DPU.
+
+The mechanism can be used if the negotiated config version is 2 or
+higher.
+
+If the new mechanism is used when the config version is 1, it will call
+snet_send_ctrl_msg_old, which is config 1 compatible.
 
 Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
 ---
- drivers/vdpa/solidrun/snet_ctrl.c |  6 ++++++
- drivers/vdpa/solidrun/snet_main.c | 15 +++++++++++++++
- drivers/vdpa/solidrun/snet_vdpa.h |  1 +
- 3 files changed, 22 insertions(+)
+ drivers/vdpa/solidrun/Makefile     |   1 +
+ drivers/vdpa/solidrun/snet_ctrl.c  | 316 +++++++++++++++++++++++++++++
+ drivers/vdpa/solidrun/snet_hwmon.c |   2 +-
+ drivers/vdpa/solidrun/snet_main.c  | 111 ++++------
+ drivers/vdpa/solidrun/snet_vdpa.h  |  17 +-
+ 5 files changed, 376 insertions(+), 71 deletions(-)
+ create mode 100644 drivers/vdpa/solidrun/snet_ctrl.c
 
+diff --git a/drivers/vdpa/solidrun/Makefile b/drivers/vdpa/solidrun/Makefile
+index c0aa3415bf7..9116252cd5f 100644
+--- a/drivers/vdpa/solidrun/Makefile
++++ b/drivers/vdpa/solidrun/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-$(CONFIG_SNET_VDPA) += snet_vdpa.o
+ snet_vdpa-$(CONFIG_SNET_VDPA) += snet_main.o
++snet_vdpa-$(CONFIG_SNET_VDPA) += snet_ctrl.o
+ ifdef CONFIG_HWMON
+ snet_vdpa-$(CONFIG_SNET_VDPA) += snet_hwmon.o
+ endif
 diff --git a/drivers/vdpa/solidrun/snet_ctrl.c b/drivers/vdpa/solidrun/snet_ctrl.c
-index 01e746ba7ac..4e808ec9ad0 100644
---- a/drivers/vdpa/solidrun/snet_ctrl.c
+new file mode 100644
+index 00000000000..01e746ba7ac
+--- /dev/null
 +++ b/drivers/vdpa/solidrun/snet_ctrl.c
-@@ -15,6 +15,7 @@
- enum snet_ctrl_opcodes {
- 	SNET_CTRL_OP_DESTROY = 1,
- 	SNET_CTRL_OP_READ_VQ_STATE,
-+	SNET_CTRL_OP_SUSPEND,
- };
- 
- #define SNET_CTRL_TIMEOUT	        2000000
-@@ -314,3 +315,8 @@ int snet_read_vq_state(struct snet *snet, u16 idx, struct vdpa_vq_state *state)
- 	return snet_ctrl_read_from_dpu(snet, SNET_CTRL_OP_READ_VQ_STATE, idx, state,
- 				       sizeof(*state));
- }
+@@ -0,0 +1,316 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * SolidRun DPU driver for control plane
++ *
++ * Copyright (C) 2022-2023 SolidRun
++ *
++ * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
++ *
++ */
 +
-+int snet_suspend_dev(struct snet *snet)
++#include <linux/iopoll.h>
++
++#include "snet_vdpa.h"
++
++enum snet_ctrl_opcodes {
++	SNET_CTRL_OP_DESTROY = 1,
++	SNET_CTRL_OP_READ_VQ_STATE,
++};
++
++#define SNET_CTRL_TIMEOUT	        2000000
++
++#define SNET_CTRL_DATA_SIZE_MASK	0x0000FFFF
++#define SNET_CTRL_IN_PROCESS_MASK	0x00010000
++#define SNET_CTRL_CHUNK_RDY_MASK	0x00020000
++#define SNET_CTRL_ERROR_MASK		0x0FFC0000
++
++#define SNET_VAL_TO_ERR(val)		(-(((val) & SNET_CTRL_ERROR_MASK) >> 18))
++#define SNET_EMPTY_CTRL(val)		(((val) & SNET_CTRL_ERROR_MASK) || \
++						!((val) & SNET_CTRL_IN_PROCESS_MASK))
++#define SNET_DATA_READY(val)		((val) & (SNET_CTRL_ERROR_MASK | SNET_CTRL_CHUNK_RDY_MASK))
++
++/* Control register used to read data from the DPU */
++struct snet_ctrl_reg_ctrl {
++	/* Chunk size in 4B words */
++	u16 data_size;
++	/* We are in the middle of a command */
++	u16 in_process:1;
++	/* A data chunk is ready and can be consumed */
++	u16 chunk_ready:1;
++	/* Error code */
++	u16 error:10;
++	/* Saved for future usage */
++	u16 rsvd:4;
++};
++
++/* Opcode register */
++struct snet_ctrl_reg_op {
++	u16 opcode;
++	/* Only if VQ index is relevant for the command */
++	u16 vq_idx;
++};
++
++struct snet_ctrl_regs {
++	struct snet_ctrl_reg_op op;
++	struct snet_ctrl_reg_ctrl ctrl;
++	u32 rsvd;
++	u32 data[];
++};
++
++static struct snet_ctrl_regs __iomem *snet_get_ctrl(struct snet *snet)
 +{
-+	return snet_send_ctrl_msg(snet, SNET_CTRL_OP_SUSPEND, 0);
++	return snet->bar + snet->psnet->cfg.ctrl_off;
 +}
-diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
-index daeb69d00ed..96830e58211 100644
---- a/drivers/vdpa/solidrun/snet_main.c
-+++ b/drivers/vdpa/solidrun/snet_main.c
-@@ -483,6 +483,20 @@ static void snet_set_config(struct vdpa_device *vdev, unsigned int offset,
- 		iowrite8(*buf_ptr++, cfg_ptr + i);
- }
- 
-+static int snet_suspend(struct vdpa_device *vdev)
++
++static int snet_wait_for_empty_ctrl(struct snet_ctrl_regs __iomem *regs)
 +{
-+	struct snet *snet = vdpa_to_snet(vdev);
++	u32 val;
++
++	return readx_poll_timeout(ioread32, &regs->ctrl, val, SNET_EMPTY_CTRL(val), 10,
++				  SNET_CTRL_TIMEOUT);
++}
++
++static int snet_wait_for_empty_op(struct snet_ctrl_regs __iomem *regs)
++{
++	u32 val;
++
++	return readx_poll_timeout(ioread32, &regs->op, val, !val, 10, SNET_CTRL_TIMEOUT);
++}
++
++static int snet_wait_for_data(struct snet_ctrl_regs __iomem *regs)
++{
++	u32 val;
++
++	return readx_poll_timeout(ioread32, &regs->ctrl, val, SNET_DATA_READY(val), 10,
++				  SNET_CTRL_TIMEOUT);
++}
++
++static u32 snet_read32_word(struct snet_ctrl_regs __iomem *ctrl_regs, u16 word_idx)
++{
++	return ioread32(&ctrl_regs->data[word_idx]);
++}
++
++static u32 snet_read_ctrl(struct snet_ctrl_regs __iomem *ctrl_regs)
++{
++	return ioread32(&ctrl_regs->ctrl);
++}
++
++static void snet_write_ctrl(struct snet_ctrl_regs __iomem *ctrl_regs, u32 val)
++{
++	iowrite32(val, &ctrl_regs->ctrl);
++}
++
++static void snet_write_op(struct snet_ctrl_regs __iomem *ctrl_regs, u32 val)
++{
++	iowrite32(val, &ctrl_regs->op);
++}
++
++static int snet_wait_for_dpu_completion(struct snet_ctrl_regs __iomem *ctrl_regs)
++{
++	/* Wait until the DPU finishes completely.
++	 * It will clear the opcode register.
++	 */
++	return snet_wait_for_empty_op(ctrl_regs);
++}
++
++/* Reading ctrl from the DPU:
++ * buf_size must be 4B aligned
++ *
++ * Steps:
++ *
++ * (1) Verify that the DPU is not in the middle of another operation by
++ *     reading the in_process and error bits in the control register.
++ * (2) Write the request opcode and the VQ idx in the opcode register
++ *     and write the buffer size in the control register.
++ * (3) Start readind chunks of data, chunk_ready bit indicates that a
++ *     data chunk is available, we signal that we read the data by clearing the bit.
++ * (4) Detect that the transfer is completed when the in_process bit
++ *     in the control register is cleared or when the an error appears.
++ */
++static int snet_ctrl_read_from_dpu(struct snet *snet, u16 opcode, u16 vq_idx, void *buffer,
++				   u32 buf_size)
++{
++	struct pci_dev *pdev = snet->pdev;
++	struct snet_ctrl_regs __iomem *regs = snet_get_ctrl(snet);
++	u32 *bfr_ptr = (u32 *)buffer;
++	u32 val;
++	u16 buf_words;
 +	int ret;
++	u16 words, i, tot_words = 0;
 +
-+	ret = snet_suspend_dev(snet);
++	/* Supported for config 2+ */
++	if (!SNET_CFG_VER(snet, 2))
++		return -EOPNOTSUPP;
++
++	if (!IS_ALIGNED(buf_size, 4))
++		return -EINVAL;
++
++	mutex_lock(&snet->ctrl_lock);
++
++	buf_words = buf_size / 4;
++
++	/* Make sure control register is empty */
++	ret = snet_wait_for_empty_ctrl(regs);
++	if (ret) {
++		SNET_WARN(pdev, "Timeout waiting for previous control data to be consumed\n");
++		goto exit;
++	}
++
++	/* Overwrite the control register with the new buffer size (in 4B words) */
++	snet_write_ctrl(regs, buf_words);
++
++	/* Write opcode and VQ idx */
++	val = opcode | (vq_idx << 16);
++	snet_write_op(regs, val);
++
++	while (buf_words != tot_words) {
++		ret = snet_wait_for_data(regs);
++		if (ret) {
++			SNET_WARN(pdev, "Timeout waiting for control data\n");
++			goto exit;
++		}
++
++		val = snet_read_ctrl(regs);
++
++		/* Error? */
++		if (val & SNET_CTRL_ERROR_MASK) {
++			ret = SNET_VAL_TO_ERR(val);
++			SNET_WARN(pdev, "Error while reading control data from DPU, err %d\n", ret);
++			goto exit;
++		}
++
++		words = min_t(u16, val & SNET_CTRL_DATA_SIZE_MASK, buf_words - tot_words);
++
++		for (i = 0; i < words; i++) {
++			*bfr_ptr = snet_read32_word(regs, i);
++			bfr_ptr++;
++		}
++
++		tot_words += words;
++
++		/* Is the job completed? */
++		if (!(val & SNET_CTRL_IN_PROCESS_MASK))
++			break;
++
++		/* Clear the chunk ready bit and continue */
++		val &= ~SNET_CTRL_CHUNK_RDY_MASK;
++		snet_write_ctrl(regs, val);
++	}
++
++	ret = snet_wait_for_dpu_completion(regs);
 +	if (ret)
-+		SNET_ERR(snet->pdev, "SNET[%u] suspend failed, err: %d\n", snet->sid, ret);
-+	else
-+		SNET_DBG(snet->pdev, "Suspend SNET[%u] device\n", snet->sid);
++		SNET_WARN(pdev, "Timeout waiting for the DPU to complete a control command\n");
 +
++exit:
++	mutex_unlock(&snet->ctrl_lock);
 +	return ret;
 +}
 +
- static const struct vdpa_config_ops snet_config_ops = {
- 	.set_vq_address         = snet_set_vq_address,
- 	.set_vq_num             = snet_set_vq_num,
-@@ -508,6 +522,7 @@ static const struct vdpa_config_ops snet_config_ops = {
- 	.set_status             = snet_set_status,
- 	.get_config             = snet_get_config,
- 	.set_config             = snet_set_config,
-+	.suspend		= snet_suspend,
- };
++/* Send a control message to the DPU using the old mechanism
++ * used with config version 1.
++ */
++static int snet_send_ctrl_msg_old(struct snet *snet, u32 opcode)
++{
++	struct pci_dev *pdev = snet->pdev;
++	struct snet_ctrl_regs __iomem *regs = snet_get_ctrl(snet);
++	int ret;
++
++	mutex_lock(&snet->ctrl_lock);
++
++	/* Old mechanism uses just 1 register, the opcode register.
++	 * Make sure that the opcode register is empty, and that the DPU isn't
++	 * processing an old message.
++	 */
++	ret = snet_wait_for_empty_op(regs);
++	if (ret) {
++		SNET_WARN(pdev, "Timeout waiting for previous control message to be ACKed\n");
++		goto exit;
++	}
++
++	/* Write the message */
++	snet_write_op(regs, opcode);
++
++	/* DPU ACKs the message by clearing the opcode register */
++	ret = snet_wait_for_empty_op(regs);
++	if (ret)
++		SNET_WARN(pdev, "Timeout waiting for a control message to be ACKed\n");
++
++exit:
++	mutex_unlock(&snet->ctrl_lock);
++	return ret;
++}
++
++/* Send a control message to the DPU.
++ * A control message is a message without payload.
++ */
++static int snet_send_ctrl_msg(struct snet *snet, u16 opcode, u16 vq_idx)
++{
++	struct pci_dev *pdev = snet->pdev;
++	struct snet_ctrl_regs __iomem *regs = snet_get_ctrl(snet);
++	u32 val;
++	int ret;
++
++	/* If config version is not 2+, use the old mechanism */
++	if (!SNET_CFG_VER(snet, 2))
++		return snet_send_ctrl_msg_old(snet, opcode);
++
++	mutex_lock(&snet->ctrl_lock);
++
++	/* Make sure control register is empty */
++	ret = snet_wait_for_empty_ctrl(regs);
++	if (ret) {
++		SNET_WARN(pdev, "Timeout waiting for previous control data to be consumed\n");
++		goto exit;
++	}
++
++	/* Clear the control register - clear the error code if previous control operation failed */
++	snet_write_ctrl(regs, 0);
++
++	/* Write opcode and VQ idx */
++	val = opcode | (vq_idx << 16);
++	snet_write_op(regs, val);
++
++	/* The DPU ACKs control messages by setting the chunk ready bit
++	 * without data.
++	 */
++	ret = snet_wait_for_data(regs);
++	if (ret) {
++		SNET_WARN(pdev, "Timeout waiting for control message to be ACKed\n");
++		goto exit;
++	}
++
++	/* Check for errors */
++	val = snet_read_ctrl(regs);
++	ret = SNET_VAL_TO_ERR(val);
++
++	/* Clear the chunk ready bit */
++	val &= ~SNET_CTRL_CHUNK_RDY_MASK;
++	snet_write_ctrl(regs, val);
++
++	ret = snet_wait_for_dpu_completion(regs);
++	if (ret)
++		SNET_WARN(pdev, "Timeout waiting for DPU to complete a control command, err %d\n",
++			  ret);
++
++exit:
++	mutex_unlock(&snet->ctrl_lock);
++	return ret;
++}
++
++void snet_ctrl_clear(struct snet *snet)
++{
++	struct snet_ctrl_regs __iomem *regs = snet_get_ctrl(snet);
++
++	snet_write_op(regs, 0);
++}
++
++int snet_destroy_dev(struct snet *snet)
++{
++	return snet_send_ctrl_msg(snet, SNET_CTRL_OP_DESTROY, 0);
++}
++
++int snet_read_vq_state(struct snet *snet, u16 idx, struct vdpa_vq_state *state)
++{
++	return snet_ctrl_read_from_dpu(snet, SNET_CTRL_OP_READ_VQ_STATE, idx, state,
++				       sizeof(*state));
++}
+diff --git a/drivers/vdpa/solidrun/snet_hwmon.c b/drivers/vdpa/solidrun/snet_hwmon.c
+index e695e36ff75..42c87387a0f 100644
+--- a/drivers/vdpa/solidrun/snet_hwmon.c
++++ b/drivers/vdpa/solidrun/snet_hwmon.c
+@@ -2,7 +2,7 @@
+ /*
+  * SolidRun DPU driver for control plane
+  *
+- * Copyright (C) 2022 SolidRun
++ * Copyright (C) 2022-2023 SolidRun
+  *
+  * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
+  *
+diff --git a/drivers/vdpa/solidrun/snet_main.c b/drivers/vdpa/solidrun/snet_main.c
+index 68de727398e..daeb69d00ed 100644
+--- a/drivers/vdpa/solidrun/snet_main.c
++++ b/drivers/vdpa/solidrun/snet_main.c
+@@ -2,7 +2,7 @@
+ /*
+  * SolidRun DPU driver for control plane
+  *
+- * Copyright (C) 2022 SolidRun
++ * Copyright (C) 2022-2023 SolidRun
+  *
+  * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
+  *
+@@ -16,14 +16,12 @@
+ /* SNET signature */
+ #define SNET_SIGNATURE          0xD0D06363
+ /* Max. config version that we can work with */
+-#define SNET_CFG_VERSION        0x1
++#define SNET_CFG_VERSION        0x2
+ /* Queue align */
+ #define SNET_QUEUE_ALIGNMENT    PAGE_SIZE
+ /* Kick value to notify that new data is available */
+ #define SNET_KICK_VAL           0x1
+ #define SNET_CONFIG_OFF         0x0
+-/* ACK timeout for a message */
+-#define SNET_ACK_TIMEOUT	2000000
+ /* How long we are willing to wait for a SNET device */
+ #define SNET_DETECT_TIMEOUT	5000000
+ /* How long should we wait for the DPU to read our config */
+@@ -32,56 +30,11 @@
+ #define SNET_GENERAL_CFG_LEN	36
+ #define SNET_GENERAL_CFG_VQ_LEN	40
  
- static int psnet_open_pf_bar(struct pci_dev *pdev, struct psnet *psnet)
+-enum snet_msg {
+-	SNET_MSG_DESTROY = 1,
+-};
+-
+ static struct snet *vdpa_to_snet(struct vdpa_device *vdpa)
+ {
+ 	return container_of(vdpa, struct snet, vdpa);
+ }
+ 
+-static int snet_wait_for_msg_ack(struct snet *snet)
+-{
+-	struct pci_dev *pdev = snet->pdev;
+-	int ret;
+-	u32 val;
+-
+-	/* The DPU will clear the messages offset once messages
+-	 * are processed.
+-	 */
+-	ret = readx_poll_timeout(ioread32, snet->bar + snet->psnet->cfg.msg_off,
+-				 val, !val, 10, SNET_ACK_TIMEOUT);
+-	if (ret)
+-		SNET_WARN(pdev, "Timeout waiting for message ACK\n");
+-
+-	return ret;
+-}
+-
+-/* Sends a message to the DPU.
+- * If blocking is set, the function will return once the
+- * message was processed by the DPU (or timeout).
+- */
+-static int snet_send_msg(struct snet *snet, u32 msg, bool blocking)
+-{
+-	int ret = 0;
+-
+-	/* Make sure the DPU acked last message before issuing a new one */
+-	ret = snet_wait_for_msg_ack(snet);
+-	if (ret)
+-		return ret;
+-
+-	/* Write the message */
+-	snet_write32(snet, snet->psnet->cfg.msg_off, msg);
+-
+-	if (blocking)
+-		ret = snet_wait_for_msg_ack(snet);
+-	else /* If non-blocking, flush the write by issuing a read */
+-		snet_read32(snet, snet->psnet->cfg.msg_off);
+-
+-	return ret;
+-}
+-
+ static irqreturn_t snet_cfg_irq_hndlr(int irq, void *data)
+ {
+ 	struct snet *snet = data;
+@@ -181,33 +134,48 @@ static bool snet_get_vq_ready(struct vdpa_device *vdev, u16 idx)
+ 	return snet->vqs[idx]->ready;
+ }
+ 
+-static int snet_set_vq_state(struct vdpa_device *vdev, u16 idx, const struct vdpa_vq_state *state)
++static bool snet_vq_state_is_initial(struct snet *snet, const struct vdpa_vq_state *state)
+ {
+-	struct snet *snet = vdpa_to_snet(vdev);
+-	/* Setting the VQ state is not supported.
+-	 * If the asked state is the same as the initial one
+-	 * we can ignore it.
+-	 */
+ 	if (SNET_HAS_FEATURE(snet, VIRTIO_F_RING_PACKED)) {
+ 		const struct vdpa_vq_state_packed *p = &state->packed;
+ 
+ 		if (p->last_avail_counter == 1 && p->last_used_counter == 1 &&
+ 		    p->last_avail_idx == 0 && p->last_used_idx == 0)
+-			return 0;
++			return true;
+ 	} else {
+ 		const struct vdpa_vq_state_split *s = &state->split;
+ 
+ 		if (s->avail_index == 0)
+-			return 0;
++			return true;
++	}
++
++	return false;
++}
++
++static int snet_set_vq_state(struct vdpa_device *vdev, u16 idx, const struct vdpa_vq_state *state)
++{
++	struct snet *snet = vdpa_to_snet(vdev);
++
++	/* We can set any state for config version 2+ */
++	if (SNET_CFG_VER(snet, 2)) {
++		memcpy(&snet->vqs[idx]->inital_state, state, sizeof(*state));
++		return 0;
+ 	}
+ 
++	/* Older config - we can't set the VQ state.
++	 * Return 0 only if this is the initial state we use in the DPU.
++	 */
++	if (snet_vq_state_is_initial(snet, state))
++		return 0;
++
+ 	return -EOPNOTSUPP;
+ }
+ 
+ static int snet_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa_vq_state *state)
+ {
+-	/* Not supported */
+-	return -EOPNOTSUPP;
++	struct snet *snet = vdpa_to_snet(vdev);
++
++	return snet_read_vq_state(snet, idx, state);
+ }
+ 
+ static int snet_get_vq_irq(struct vdpa_device *vdev, u16 idx)
+@@ -232,9 +200,9 @@ static int snet_reset_dev(struct snet *snet)
+ 	if (!snet->status)
+ 		return 0;
+ 
+-	/* If DPU started, send a destroy message */
++	/* If DPU started, destroy it */
+ 	if (snet->status & VIRTIO_CONFIG_S_DRIVER_OK)
+-		ret = snet_send_msg(snet, SNET_MSG_DESTROY, true);
++		ret = snet_destroy_dev(snet);
+ 
+ 	/* Clear VQs */
+ 	for (i = 0; i < snet->cfg->vq_num; i++) {
+@@ -258,7 +226,7 @@ static int snet_reset_dev(struct snet *snet)
+ 	snet->dpu_ready = false;
+ 
+ 	if (ret)
+-		SNET_WARN(pdev, "Incomplete reset to SNET[%u] device\n", snet->sid);
++		SNET_WARN(pdev, "Incomplete reset to SNET[%u] device, err: %d\n", snet->sid, ret);
+ 	else
+ 		SNET_DBG(pdev, "Reset SNET[%u] device\n", snet->sid);
+ 
+@@ -356,7 +324,7 @@ static int snet_write_conf(struct snet *snet)
+ 	 * |             DESC AREA                |
+ 	 * |            DEVICE AREA               |
+ 	 * |            DRIVER AREA               |
+-	 * |             RESERVED                 |
++	 * |    VQ STATE (CFG 2+)     |   RSVD    |
+ 	 *
+ 	 * Magic number should be written last, this is the DPU indication that the data is ready
+ 	 */
+@@ -391,12 +359,15 @@ static int snet_write_conf(struct snet *snet)
+ 		off += 8;
+ 		snet_write64(snet, off, snet->vqs[i]->driver_area);
+ 		off += 8;
++		/* Write VQ state if config version is 2+ */
++		if (SNET_CFG_VER(snet, 2))
++			snet_write32(snet, off, *(u32 *)&snet->vqs[i]->inital_state);
++		off += 4;
++
+ 		/* Ignore reserved */
+-		off += 8;
++		off += 4;
+ 	}
+ 
+-	/* Clear snet messages address for this device */
+-	snet_write32(snet, snet->psnet->cfg.msg_off, 0);
+ 	/* Write magic number - data is ready */
+ 	snet_write32(snet, snet->psnet->cfg.host_cfg_off, SNET_SIGNATURE);
+ 
+@@ -697,7 +668,7 @@ static int psnet_read_cfg(struct pci_dev *pdev, struct psnet *psnet)
+ 	off += 4;
+ 	cfg->hwmon_off = psnet_read32(psnet, off);
+ 	off += 4;
+-	cfg->msg_off = psnet_read32(psnet, off);
++	cfg->ctrl_off = psnet_read32(psnet, off);
+ 	off += 4;
+ 	cfg->flags = psnet_read32(psnet, off);
+ 	off += 4;
+@@ -997,6 +968,9 @@ static int snet_vdpa_probe_vf(struct pci_dev *pdev)
+ 		goto free_irqs;
+ 	}
+ 
++	/* Init control mutex */
++	mutex_init(&snet->ctrl_lock);
++
+ 	/* Save pci device pointer */
+ 	snet->pdev = pdev;
+ 	snet->psnet = psnet;
+@@ -1013,6 +987,9 @@ static int snet_vdpa_probe_vf(struct pci_dev *pdev)
+ 	/* Create a VirtIO config pointer */
+ 	snet->cfg->virtio_cfg = snet->bar + snet->psnet->cfg.virtio_cfg_off;
+ 
++	/* Clear control registers */
++	snet_ctrl_clear(snet);
++
+ 	pci_set_master(pdev);
+ 	pci_set_drvdata(pdev, snet);
+ 
 diff --git a/drivers/vdpa/solidrun/snet_vdpa.h b/drivers/vdpa/solidrun/snet_vdpa.h
-index a4213e97cfc..6dbb95fe2b7 100644
+index b7f34169053..a4213e97cfc 100644
 --- a/drivers/vdpa/solidrun/snet_vdpa.h
 +++ b/drivers/vdpa/solidrun/snet_vdpa.h
-@@ -201,5 +201,6 @@ void psnet_create_hwmon(struct pci_dev *pdev);
- void snet_ctrl_clear(struct snet *snet);
- int snet_destroy_dev(struct snet *snet);
- int snet_read_vq_state(struct snet *snet, u16 idx, struct vdpa_vq_state *state);
-+int snet_suspend_dev(struct snet *snet);
+@@ -2,7 +2,7 @@
+ /*
+  * SolidRun DPU driver for control plane
+  *
+- * Copyright (C) 2022 SolidRun
++ * Copyright (C) 2022-2023 SolidRun
+  *
+  * Author: Alvaro Karsz <alvaro.karsz@solid-run.com>
+  *
+@@ -20,10 +20,15 @@
+ #define SNET_INFO(pdev, fmt, ...) dev_info(&(pdev)->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
+ #define SNET_DBG(pdev, fmt, ...) dev_dbg(&(pdev)->dev, "%s"fmt, "snet_vdpa: ", ##__VA_ARGS__)
+ #define SNET_HAS_FEATURE(s, f) ((s)->negotiated_features & BIT_ULL(f))
++/* Check if negotiated config version is at least @ver */
++#define SNET_CFG_VER(snet, ver) ((snet)->psnet->negotiated_cfg_ver >= (ver))
++
+ /* VQ struct */
+ struct snet_vq {
+ 	/* VQ callback */
+ 	struct vdpa_callback cb;
++	/* VQ initial state */
++	struct vdpa_vq_state inital_state;
+ 	/* desc base address */
+ 	u64 desc_area;
+ 	/* device base address */
+@@ -51,6 +56,8 @@ struct snet {
+ 	struct vdpa_device vdpa;
+ 	/* Config callback */
+ 	struct vdpa_callback cb;
++	/* To lock the control mechanism */
++	struct mutex ctrl_lock;
+ 	/* array of virqueues */
+ 	struct snet_vq **vqs;
+ 	/* Used features */
+@@ -117,8 +124,8 @@ struct snet_cfg {
+ 	u32 kick_off;
+ 	/* Offset in PCI BAR for HW monitoring */
+ 	u32 hwmon_off;
+-	/* Offset in PCI BAR for SNET messages */
+-	u32 msg_off;
++	/* Offset in PCI BAR for Control mechanism */
++	u32 ctrl_off;
+ 	/* Config general flags - enum snet_cfg_flags */
+ 	u32 flags;
+ 	/* Reserved for future usage */
+@@ -191,4 +198,8 @@ static inline void snet_write64(struct snet *snet, u32 off, u64 val)
+ void psnet_create_hwmon(struct pci_dev *pdev);
+ #endif
  
++void snet_ctrl_clear(struct snet *snet);
++int snet_destroy_dev(struct snet *snet);
++int snet_read_vq_state(struct snet *snet, u16 idx, struct vdpa_vq_state *state);
++
  #endif //_SNET_VDPA_H_
 -- 
 2.34.1
