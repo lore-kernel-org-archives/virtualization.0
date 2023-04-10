@@ -4,108 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95D0DC76196
-	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 10:56:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E80ACC76196
+	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 10:58:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1D3B8610EA;
-	Mon, 10 Apr 2023 10:56:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D3B8610EA
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6EF74610E7;
+	Mon, 10 Apr 2023 10:58:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6EF74610E7
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256 header.s=20210112 header.b=NY9rrM2W
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aXcycqtu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id W4N4H_Cz31s0; Mon, 10 Apr 2023 10:56:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4E22760ACA;
-	Mon, 10 Apr 2023 10:56:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E22760ACA
+	with ESMTP id ONvE_Yxfg8oa; Mon, 10 Apr 2023 10:58:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B72E760ACA;
+	Mon, 10 Apr 2023 10:58:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B72E760ACA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D034C0036;
-	Mon, 10 Apr 2023 10:56:22 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17040C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FE22C0036;
+	Mon, 10 Apr 2023 10:58:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9FBD3C002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 10:56:20 +0000 (UTC)
+ Mon, 10 Apr 2023 10:58:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DFEFC409AD
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7480B80C0E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 10:56:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DFEFC409AD
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=igel-co-jp.20210112.gappssmtp.com
- header.i=@igel-co-jp.20210112.gappssmtp.com header.a=rsa-sha256
- header.s=20210112 header.b=NY9rrM2W
+ Mon, 10 Apr 2023 10:58:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7480B80C0E
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aXcycqtu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qn7vFdiRsf_T
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jkfifAjofWh1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 10:56:18 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEAAE400D3
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com
- [IPv6:2607:f8b0:4864:20::436])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DEAAE400D3
+ Mon, 10 Apr 2023 10:58:30 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 441B480C08
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 441B480C08
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 10:56:17 +0000 (UTC)
-Received: by mail-pf1-x436.google.com with SMTP id
- d2e1a72fcca58-6323e36064aso500766b3a.1
+ Mon, 10 Apr 2023 10:58:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1681124309;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=glOAAMls6WC16IZVydxUU2GkS2QJLlWvNTuOfRiQfL8=;
+ b=aXcycqtu4JK4OmP9vdbAduF3rcKyL1o0HNwcegLnB2mZoGmUuYDY/4XnlwfJ9WAj0B8yOP
+ iebl5kkO+QC1u56S8AovrannVUInQqSltMQ9tHE06C6HVE/hADT/GcksnHAZxeeJ2NKAIU
+ orr/O734MwUHy8wEge3AI7xGnKSEXII=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-juiARHdlNi2ahvzXzZk7vw-1; Mon, 10 Apr 2023 06:58:28 -0400
+X-MC-Unique: juiARHdlNi2ahvzXzZk7vw-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ r4-20020adfa144000000b002db44581302so573216wrr.7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 03:56:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=igel-co-jp.20210112.gappssmtp.com; s=20210112; t=1681124177;
- h=content-transfer-encoding:in-reply-to:references:cc:to:from
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=kUfYBMfNg0SmC86dn/fX5bWORs6cZUYHg91rhQn2QYM=;
- b=NY9rrM2WqjnhPe5auMnkJCTfiUe8zdxsNyUTjnmfZsN0G+rXISnMe2IP7OsZctLnLe
- YFdDteT3xd3ow+4c57SOE4Qq6MpxH7e/xV96fuy6qO5X5tk1PaW4ZCgzPCLALIXuM69C
- Nse0dLyuKfMscFlouF83z7WmDLL8FP55MnuirOXdBk1NaL4Zc30uZkB1vgsalevvGW8v
- hqRSxadVW3y2FTwI1+4E679pGyPaCdZOjOTmpShYHoUaPSfjHF8IibTiRfl39xc2Xask
- k6fj9due2CuUr5nbzo2/q95SriiepbkwQVhZfCzVwMaDz1osf5S2OMHmLjFAEzqhChbQ
- Vjlg==
+ Mon, 10 Apr 2023 03:58:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1681124177;
- h=content-transfer-encoding:in-reply-to:references:cc:to:from
- :content-language:subject:user-agent:mime-version:date:message-id
+ d=1e100.net; s=20210112; t=1681124307;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=kUfYBMfNg0SmC86dn/fX5bWORs6cZUYHg91rhQn2QYM=;
- b=fkQasSKC8DxaEQN4v8F7w4G0cyzfd/GbSXPzBZauReO+pCfeRS5c2sBPH5pNC8EIRk
- ooPrd5jNWW/nSiN986EjHsut4FObMr28EvRePIbu9ASVr3rajFn+kFiFPIn63ypO6lkQ
- ouT7vTidTMtyleaDYkYCyB9ZXHDvTMzDwESyzJvV+GESpbGuN6XVwuYMt/sNv2qMfjZJ
- WlB7mBYKgQBVoYgfT1NZWNEdwXzPranyT0AjElRzvALZ5wVYmCbX5s57KI3aX4ifih2W
- FMJaknCy5QthbOM8P7LUqzQGNWOFpf9vD9sU5BK+C+L0g2BxqazmG6PyrtwT16lX5sMc
- EMXA==
-X-Gm-Message-State: AAQBX9ery6FY5hFXZ87NfXwfVJXaHmnBRfO9ibHeYSfhNc3+HAyXeZ2e
- TEdaMRi0dOuEm2/kcf4nGP6rgg==
-X-Google-Smtp-Source: AKy350bFJfjMDeTrfzeTBW9bSfARNeu5n7yZBzOfGNll/E4rYYyfS5lmYSbNejLk8E9JFoeDCA9IlA==
-X-Received: by 2002:a62:1d8e:0:b0:626:166f:6db1 with SMTP id
- d136-20020a621d8e000000b00626166f6db1mr10098940pfd.13.1681124177282; 
- Mon, 10 Apr 2023 03:56:17 -0700 (PDT)
-Received: from [10.16.161.199] (napt.igel.co.jp. [219.106.231.132])
- by smtp.gmail.com with ESMTPSA id
- w5-20020aa78585000000b006348cb791f4sm3357460pfn.192.2023.04.10.03.56.14
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 10 Apr 2023 03:56:16 -0700 (PDT)
-Message-ID: <a7332e82-27f6-8acd-2ff2-498eb66ea6e7@igel.co.jp>
-Date: Mon, 10 Apr 2023 19:56:13 +0900
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
+ bh=glOAAMls6WC16IZVydxUU2GkS2QJLlWvNTuOfRiQfL8=;
+ b=0RxotQMI8RUG3TVwFXQAX1L1lsU3LHxeo6Wv1QkGEN1NHaaCBsiN2cJB08oNKplmdg
+ xVLmmP3wPAZM13xLVkgvrsmJdo6bKc7/yvccY78Csl92Ys2YLTcr6bLpj1qoM7/lZl+G
+ KHZau/EfTFoHVkszkO/9WSy48uT3Z1UL3lKPXcGijrmpP6iEaXuCob17FziB/xZ7M7j2
+ vDZ2sq+Ry4lyUrj5UUezrhe7aXxRc3vkHEPkn60jRKUUORN5AERAcsZb/+cs++n8+6YP
+ DDHu12uGdmtKD1DluFO3Nwog6CJQLgN9O/NjPwlZSBI0AwqBx40JI3suvNT/ioKjY21D
+ e2cg==
+X-Gm-Message-State: AAQBX9ekBMfGI0In22bv9NkvWVg8dTMcxpWeByJYksGhHmeghAwuOtaz
+ rY+uPxg93jKoVFQjQ0ZXKU3qsMx2/ExKjlayklZdkqWwa9nJ/USkCYhtvJKlrncMTd7mz1wTi0x
+ CUnlZKdB0gOs5YrnQNy+VbDrftNuFmGK593FBMoCSlA==
+X-Received: by 2002:a5d:464b:0:b0:2f2:4790:fccc with SMTP id
+ j11-20020a5d464b000000b002f24790fcccmr1018181wrs.46.1681124306904; 
+ Mon, 10 Apr 2023 03:58:26 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bd4fswTngv9D8LVrb2rgueB7iNvpSrMfQhv6Yla9+QGzfcDApE0HVt8YaNSvpM/0ua8VPkHg==
+X-Received: by 2002:a5d:464b:0:b0:2f2:4790:fccc with SMTP id
+ j11-20020a5d464b000000b002f24790fcccmr1018171wrs.46.1681124306593; 
+ Mon, 10 Apr 2023 03:58:26 -0700 (PDT)
+Received: from redhat.com ([2.52.31.213]) by smtp.gmail.com with ESMTPSA id
+ n5-20020adfe345000000b002efb139ce72sm8423812wrj.36.2023.04.10.03.58.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 10 Apr 2023 03:58:26 -0700 (PDT)
+Date: Mon, 10 Apr 2023 06:58:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Shunsuke Mie <mie@igel.co.jp>
 Subject: Re: [PATCH] tools/virtio: fix build caused by virtio_ring changes
-Content-Language: en-US
-From: Shunsuke Mie <mie@igel.co.jp>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Message-ID: <20230410064435-mutt-send-email-mst@kernel.org>
 References: <20230410092419.302932-1-mie@igel.co.jp>
  <20230410054259-mutt-send-email-mst@kernel.org>
  <cd2619b1-5d0b-1e7e-12bd-bcb9dcb5c533@igel.co.jp>
-In-Reply-To: <cd2619b1-5d0b-1e7e-12bd-bcb9dcb5c533@igel.co.jp>
+ <a7332e82-27f6-8acd-2ff2-498eb66ea6e7@igel.co.jp>
+MIME-Version: 1.0
+In-Reply-To: <a7332e82-27f6-8acd-2ff2-498eb66ea6e7@igel.co.jp>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
  "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
  virtualization@lists.linux-foundation.org,
- =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
  Sakari Ailus <sakari.ailus@linux.intel.com>,
  Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -119,104 +125,192 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjMvMDQvMTAgMTk6MDAsIFNodW5zdWtlIE1pZSB3cm90ZToKPgo+IE9uIDIwMjMvMDQv
-MTAgMTg6NDYsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4gT24gTW9uLCBBcHIgMTAsIDIw
-MjMgYXQgMDY6MjQ6MTlQTSArMDkwMCwgU2h1bnN1a2UgTWllIHdyb3RlOgo+Pj4gRml4IHRoZSBi
-dWlsZCBkZXBlbmRlbmN5IGZvciB2aXJ0aW9fdGVzdC4gdmlydGlvX3JpbmcgcmVxdWlyZXMKPj4+
-IGNvbnRhaW5lcl9vZl9jb25zdCgpIGFuZCBzdHJ1Y2UgZGV2aWNlLgo+Pj4KPj4+IFNpZ25lZC1v
-ZmYtYnk6IFNodW5zdWtlIE1pZSA8bWllQGlnZWwuY28uanA+Cj4+PiAtLS0KPj4+IMKgIHRvb2xz
-L2luY2x1ZGUvbGludXgvY29udGFpbmVyX29mLmggfCAzNiAKPj4+ICsrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKwo+Pj4gwqAgdG9vbHMvdmlydGlvL2xpbnV4L2NvbXBpbGVyLmjCoMKgwqDC
-oMKgIHzCoCAzICsrKwo+Pj4gwqAgdG9vbHMvdmlydGlvL2xpbnV4L2tlcm5lbC5owqDCoMKgwqDC
-oMKgwqAgfMKgIDUgKy0tLS0KPj4+IMKgIHRvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUuaMKgwqDC
-oMKgwqDCoMKgIHzCoCAxICsKPj4+IMKgIDQgZmlsZXMgY2hhbmdlZCwgNDEgaW5zZXJ0aW9ucygr
-KSwgNCBkZWxldGlvbnMoLSkKPj4+IMKgIGNyZWF0ZSBtb2RlIDEwMDY0NCB0b29scy9pbmNsdWRl
-L2xpbnV4L2NvbnRhaW5lcl9vZi5oCj4+Pgo+Pj4gZGlmZiAtLWdpdCBhL3Rvb2xzL2luY2x1ZGUv
-bGludXgvY29udGFpbmVyX29mLmggCj4+PiBiL3Rvb2xzL2luY2x1ZGUvbGludXgvY29udGFpbmVy
-X29mLmgKPj4+IG5ldyBmaWxlIG1vZGUgMTAwNjQ0Cj4+PiBpbmRleCAwMDAwMDAwMDAwMDAuLjA2
-ZTI5M2I3Y2ZkYQo+Pj4gLS0tIC9kZXYvbnVsbAo+Pj4gKysrIGIvdG9vbHMvaW5jbHVkZS9saW51
-eC9jb250YWluZXJfb2YuaAo+Pj4gQEAgLTAsMCArMSwzNiBAQAo+Pj4gKy8qIFNQRFgtTGljZW5z
-ZS1JZGVudGlmaWVyOiBHUEwtMi4wICovCj4+PiArI2lmbmRlZiBfTElOVVhfQ09OVEFJTkVSX09G
-X0gKPj4+ICsjZGVmaW5lIF9MSU5VWF9DT05UQUlORVJfT0ZfSAo+Pj4gKwo+Pj4gKyNpbmNsdWRl
-IDxsaW51eC9idWlsZF9idWcuaD4KPj4+ICsjaW5jbHVkZSA8bGludXgvc3RkZGVmLmg+Cj4+PiAr
-Cj4+PiArLyoqCj4+PiArICogY29udGFpbmVyX29mIC0gY2FzdCBhIG1lbWJlciBvZiBhIHN0cnVj
-dHVyZSBvdXQgdG8gdGhlIAo+Pj4gY29udGFpbmluZyBzdHJ1Y3R1cmUKPj4+ICsgKiBAcHRyOsKg
-wqDCoCB0aGUgcG9pbnRlciB0byB0aGUgbWVtYmVyLgo+Pj4gKyAqIEB0eXBlOsKgwqDCoCB0aGUg
-dHlwZSBvZiB0aGUgY29udGFpbmVyIHN0cnVjdCB0aGlzIGlzIGVtYmVkZGVkIGluLgo+Pj4gKyAq
-IEBtZW1iZXI6wqDCoMKgIHRoZSBuYW1lIG9mIHRoZSBtZW1iZXIgd2l0aGluIHRoZSBzdHJ1Y3Qu
-Cj4+PiArICoKPj4+ICsgKiBXQVJOSU5HOiBhbnkgY29uc3QgcXVhbGlmaWVyIG9mIEBwdHIgaXMg
-bG9zdC4KPj4+ICsgKi8KPj4+ICsjZGVmaW5lIGNvbnRhaW5lcl9vZihwdHIsIHR5cGUsIG1lbWJl
-cikgKHvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXAo+Pj4gK8KgwqDCoCB2b2lkICpf
-X21wdHIgPSAodm9pZCAqKShwdHIpO8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIFwKPj4+ICvCoMKgwqAgc3RhdGljX2Fzc2VydChfX3NhbWVfdHlwZSgqKHB0ciksICgodHlw
-ZSAqKTApLT5tZW1iZXIpIHx8wqDCoMKgIFwKPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCBfX3NhbWVfdHlwZSgqKHB0ciksIHZvaWQpLMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXAo+Pj4g
-K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJwb2ludGVyIHR5cGUgbWlzbWF0Y2ggaW4gY29u
-dGFpbmVyX29mKCkiKTsgXAo+Pj4gK8KgwqDCoCAoKHR5cGUgKikoX19tcHRyIC0gb2Zmc2V0b2Yo
-dHlwZSwgbWVtYmVyKSkpOyB9KQo+Pj4gKwo+Pj4gKy8qKgo+Pj4gKyAqIGNvbnRhaW5lcl9vZl9j
-b25zdCAtIGNhc3QgYSBtZW1iZXIgb2YgYSBzdHJ1Y3R1cmUgb3V0IHRvIHRoZSAKPj4+IGNvbnRh
-aW5pbmcKPj4+ICsgKsKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgc3RydWN0dXJlIGFuZCBwcmVzZXJ2
-ZSB0aGUgY29uc3QtbmVzcyBvZiB0aGUgcG9pbnRlcgo+Pj4gKyAqIEBwdHI6wqDCoMKgwqDCoMKg
-wqAgdGhlIHBvaW50ZXIgdG8gdGhlIG1lbWJlcgo+Pj4gKyAqIEB0eXBlOsKgwqDCoMKgwqDCoMKg
-IHRoZSB0eXBlIG9mIHRoZSBjb250YWluZXIgc3RydWN0IHRoaXMgaXMgZW1iZWRkZWQgaW4uCj4+
-PiArICogQG1lbWJlcjrCoMKgwqDCoMKgwqDCoCB0aGUgbmFtZSBvZiB0aGUgbWVtYmVyIHdpdGhp
-biB0aGUgc3RydWN0Lgo+Pj4gKyAqLwo+Pj4gKyNkZWZpbmUgY29udGFpbmVyX29mX2NvbnN0KHB0
-ciwgdHlwZSwgbWVtYmVyKSBcCj4+PiArwqDCoMKgIF9HZW5lcmljKHB0cizCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXAo+Pj4gK8KgwqDCoMKg
-wqDCoMKgIGNvbnN0IHR5cGVvZigqKHB0cikpICo6ICgoY29uc3QgdHlwZSAqKWNvbnRhaW5lcl9v
-ZihwdHIsIAo+Pj4gdHlwZSwgbWVtYmVyKSksXAo+Pj4gK8KgwqDCoMKgwqDCoMKgIGRlZmF1bHQ6
-ICgodHlwZSAqKWNvbnRhaW5lcl9vZihwdHIsIHR5cGUsIG1lbWJlcikpIFwKPj4+ICvCoMKgwqAg
-KQo+Pj4gKwo+Pj4gKyNlbmRpZsKgwqDCoCAvKiBfTElOVVhfQ09OVEFJTkVSX09GX0ggKi8KPj4K
-Pj4gUGxlYXNlIGp1c3QgZG8KPj4gI2luY2x1ZGUgIi4uLy4uLy4uL2luY2x1ZGUvbGludXgvY29u
-dGFpbmVyX29mLmgiCj4+IGluc3RlYWQuCj4gT2tleSwgSSdsbCBkbyB0aGF0Lgo+Pgo+Pgo+Pj4g
-ZGlmZiAtLWdpdCBhL3Rvb2xzL3ZpcnRpby9saW51eC9jb21waWxlci5oIAo+Pj4gYi90b29scy92
-aXJ0aW8vbGludXgvY29tcGlsZXIuaAo+Pj4gaW5kZXggMmM1MWJjY2I5N2JiLi5hYzI3YjNlYTZl
-NjcgMTAwNjQ0Cj4+PiAtLS0gYS90b29scy92aXJ0aW8vbGludXgvY29tcGlsZXIuaAo+Pj4gKysr
-IGIvdG9vbHMvdmlydGlvL2xpbnV4L2NvbXBpbGVyLmgKPj4+IEBAIC04LDQgKzgsNyBAQAo+Pj4g
-wqAgI2RlZmluZSBSRUFEX09OQ0UodmFyKSAoKigodm9sYXRpbGUgdHlwZW9mKHZhcikgKikoJih2
-YXIpKSkpCj4+PiDCoCDCoCAjZGVmaW5lIF9fYWxpZ25lZCh4KSBfX2F0dHJpYnV0ZSgoX19hbGln
-bmVkX18oeCkpKQo+Pj4gKwo+Pj4gKyNkZWZpbmUgX19zYW1lX3R5cGUoYSwgYikgX19idWlsdGlu
-X3R5cGVzX2NvbXBhdGlibGVfcCh0eXBlb2YoYSksIAo+Pj4gdHlwZW9mKGIpKQo+Pj4gKwo+Pj4g
-wqAgI2VuZGlmCj4+ICNpbmNsdWRlICIuLi8uLi8uLi9pbmNsdWRlL2xpbnV4L2NvbXBpbGVyX3R5
-cGVzLmgiIGluc3RlYWQ/Cj4gSSdsbCB0cnkgaXQuCj4+PiBkaWZmIC0tZ2l0IGEvdG9vbHMvdmly
-dGlvL2xpbnV4L2tlcm5lbC5oIGIvdG9vbHMvdmlydGlvL2xpbnV4L2tlcm5lbC5oCj4+PiBpbmRl
-eCA4Yjg3NzE2NzkzM2QuLjNjZDIwY2I5MjY0OSAxMDA2NDQKPj4+IC0tLSBhL3Rvb2xzL3ZpcnRp
-by9saW51eC9rZXJuZWwuaAo+Pj4gKysrIGIvdG9vbHMvdmlydGlvL2xpbnV4L2tlcm5lbC5oCj4+
-PiBAQCAtMTAsNiArMTAsNyBAQAo+Pj4gwqAgI2luY2x1ZGUgPHN0ZGFyZy5oPgo+Pj4gwqAgwqAg
-I2luY2x1ZGUgPGxpbnV4L2NvbXBpbGVyLmg+Cj4+PiArI2luY2x1ZGUgPGxpbnV4L2NvbnRhaW5l
-cl9vZi5oPgo+Pj4gwqAgI2luY2x1ZGUgPGxpbnV4L2xvZzIuaD4KPj4+IMKgICNpbmNsdWRlIDxs
-aW51eC90eXBlcy5oPgo+Pj4gwqAgI2luY2x1ZGUgPGxpbnV4L292ZXJmbG93Lmg+Cj4+PiBAQCAt
-MTA3LDEwICsxMDgsNiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgZnJlZV9wYWdlKHVuc2lnbmVkIGxv
-bmcgYWRkcikKPj4+IMKgwqDCoMKgwqAgZnJlZSgodm9pZCAqKWFkZHIpOwo+Pj4gwqAgfQo+Pj4g
-wqAgLSNkZWZpbmUgY29udGFpbmVyX29mKHB0ciwgdHlwZSwgbWVtYmVyKSAoe8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgXAo+Pj4gLcKgwqDCoCBjb25zdCB0eXBlb2YoICgodHlwZSAqKTApLT5tZW1i
-ZXIgKSAqX19tcHRyID0gKHB0cik7wqDCoMKgIFwKPj4+IC3CoMKgwqAgKHR5cGUgKikoIChjaGFy
-ICopX19tcHRyIC0gb2Zmc2V0b2YodHlwZSxtZW1iZXIpICk7fSkKPj4+IC0KPj4+IMKgICMgaWZu
-ZGVmIGxpa2VseQo+Pj4gwqAgI8KgIGRlZmluZSBsaWtlbHkoeCnCoMKgwqAgKF9fYnVpbHRpbl9l
-eHBlY3QoISEoeCksIDEpKQo+Pj4gwqAgIyBlbmRpZgo+Pj4gZGlmZiAtLWdpdCBhL3Rvb2xzL3Zp
-cnRpby9saW51eC9tb2R1bGUuaCBiL3Rvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUuaAo+Pj4gaW5k
-ZXggOWRmYTk2ZmVhMmIyLi5lMmU3OTFkYmQxMDQgMTAwNjQ0Cj4+PiAtLS0gYS90b29scy92aXJ0
-aW8vbGludXgvbW9kdWxlLmgKPj4+ICsrKyBiL3Rvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUuaAo+
-Pj4gQEAgLTUsMyArNSw0IEBACj4+PiDCoMKgwqDCoMKgIHN0YXRpYyBfX2F0dHJpYnV0ZV9fKCh1
-bnVzZWQpKSBjb25zdCBjaGFyIAo+Pj4gKl9fTU9EVUxFX0xJQ0VOU0VfbmFtZSA9IFwKPj4+IMKg
-wqDCoMKgwqDCoMKgwqDCoCBfX01PRFVMRV9MSUNFTlNFX3ZhbHVlCj4+PiDCoCArc3RydWN0IGRl
-dmljZTsKPj4KPj4gSXQncyBub3QgdGhlcmUgaW4gaW5jbHVkZS9saW51eC9tb2R1bGUgLSBwbHMg
-cHV0IGl0IGluIHRoZQo+PiBzYW1lIGhlcmUgd2hlcmUgaXQgaXMgZm9yIGxpbnV4Lgo+IEkgdW5k
-ZXJzdG9vZC4gSSdsbCBhZGQgc29tZSBmaWxlcyB0aGF0IGhhcyB0aGUgZGVmaW5pdGlvbi4KCklu
-IHZyaW5naC5jLCAnc3RydWN0IGRldmljZScgaXMgdXNlZCBpbiB2aXJ0aW9fcmluZy5oLiBVcG9u
-IAppbnZlc3RpZ2F0aW5nIHRoZSBwcmVwcm9jZXNzZWQgZmlsZSwgaXQgd2FzCgpkaXNjb3ZlcmVk
-IHRoYXQgJ3N0cnVjdCBkZXZpY2UnIGlzIGRlZmluZWQgaW4gYml0bWFwLmgsIHdoaWNoIGlzIApp
-bmNsdWRlZCBmcm9tIGFyY2hpdGVjdHVyZS1zcGVjaWZpYyBoZWFkZXJzLgoKT24geDg2LCB0aGUg
-bmVzdGluZyBpbmNsdWRlcwoKJ2xpbnV4L21vZHVsZS5oJyAtPiAuLi4gLT4gJ2FyY2gveDg2L2lu
-Y2x1ZGUvYXNtL21zci5oJyAtPiAKJ2FyY2gveDg2L2luY2x1ZGUvYXNtL2NwdW1hc2suaCcgLT4g
-J2xpbnV4L2NwdW1hc2suaCcgLT4gJ2xpbnV4L2JpdG1hcC5oJy4KCkNvdWxkIHlvdSBhZHZpc2Ug
-b24gdGhlIGFwcHJvcHJpYXRlIHdheSB0byBpbmNsdWRlIHRoaXMgZmlsZT8KCj4+PiAtLSAKPj4+
-IDIuMjUuMQo+Cj4gQmVzdCByZWdhcmRzLAo+Cj4gU2h1bnN1a2UuCj4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Apr 10, 2023 at 07:56:13PM +0900, Shunsuke Mie wrote:
+> =
+
+> On 2023/04/10 19:00, Shunsuke Mie wrote:
+> > =
+
+> > On 2023/04/10 18:46, Michael S. Tsirkin wrote:
+> > > On Mon, Apr 10, 2023 at 06:24:19PM +0900, Shunsuke Mie wrote:
+> > > > Fix the build dependency for virtio_test. virtio_ring requires
+> > > > container_of_const() and struce device.
+> > > > =
+
+> > > > Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+> > > > ---
+> > > > =A0 tools/include/linux/container_of.h | 36
+> > > > ++++++++++++++++++++++++++++++
+> > > > =A0 tools/virtio/linux/compiler.h=A0=A0=A0=A0=A0 |=A0 3 +++
+> > > > =A0 tools/virtio/linux/kernel.h=A0=A0=A0=A0=A0=A0=A0 |=A0 5 +----
+> > > > =A0 tools/virtio/linux/module.h=A0=A0=A0=A0=A0=A0=A0 |=A0 1 +
+> > > > =A0 4 files changed, 41 insertions(+), 4 deletions(-)
+> > > > =A0 create mode 100644 tools/include/linux/container_of.h
+> > > > =
+
+> > > > diff --git a/tools/include/linux/container_of.h
+> > > > b/tools/include/linux/container_of.h
+> > > > new file mode 100644
+> > > > index 000000000000..06e293b7cfda
+> > > > --- /dev/null
+> > > > +++ b/tools/include/linux/container_of.h
+> > > > @@ -0,0 +1,36 @@
+> > > > +/* SPDX-License-Identifier: GPL-2.0 */
+> > > > +#ifndef _LINUX_CONTAINER_OF_H
+> > > > +#define _LINUX_CONTAINER_OF_H
+> > > > +
+> > > > +#include <linux/build_bug.h>
+> > > > +#include <linux/stddef.h>
+> > > > +
+> > > > +/**
+> > > > + * container_of - cast a member of a structure out to the
+> > > > containing structure
+> > > > + * @ptr:=A0=A0=A0 the pointer to the member.
+> > > > + * @type:=A0=A0=A0 the type of the container struct this is embedd=
+ed in.
+> > > > + * @member:=A0=A0=A0 the name of the member within the struct.
+> > > > + *
+> > > > + * WARNING: any const qualifier of @ptr is lost.
+> > > > + */
+> > > > +#define container_of(ptr, type, member) ({=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0 \
+> > > > +=A0=A0=A0 void *__mptr =3D (void *)(ptr);=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 \
+> > > > +=A0=A0=A0 static_assert(__same_type(*(ptr), ((type *)0)->member) |=
+|=A0=A0=A0 \
+> > > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 __same_type(*(ptr), void),=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 \
+> > > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 "pointer type mismatch in =
+container_of()"); \
+> > > > +=A0=A0=A0 ((type *)(__mptr - offsetof(type, member))); })
+> > > > +
+> > > > +/**
+> > > > + * container_of_const - cast a member of a structure out to the
+> > > > containing
+> > > > + *=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 structure and preserve the con=
+st-ness of the pointer
+> > > > + * @ptr:=A0=A0=A0=A0=A0=A0=A0 the pointer to the member
+> > > > + * @type:=A0=A0=A0=A0=A0=A0=A0 the type of the container struct th=
+is is embedded in.
+> > > > + * @member:=A0=A0=A0=A0=A0=A0=A0 the name of the member within the=
+ struct.
+> > > > + */
+> > > > +#define container_of_const(ptr, type, member) \
+> > > > +=A0=A0=A0 _Generic(ptr,=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 \
+> > > > +=A0=A0=A0=A0=A0=A0=A0 const typeof(*(ptr)) *: ((const type
+> > > > *)container_of(ptr, type, member)),\
+> > > > +=A0=A0=A0=A0=A0=A0=A0 default: ((type *)container_of(ptr, type, me=
+mber)) \
+> > > > +=A0=A0=A0 )
+> > > > +
+> > > > +#endif=A0=A0=A0 /* _LINUX_CONTAINER_OF_H */
+> > > =
+
+> > > Please just do
+> > > #include "../../../include/linux/container_of.h"
+> > > instead.
+> > Okey, I'll do that.
+> > > =
+
+> > > =
+
+> > > > diff --git a/tools/virtio/linux/compiler.h
+> > > > b/tools/virtio/linux/compiler.h
+> > > > index 2c51bccb97bb..ac27b3ea6e67 100644
+> > > > --- a/tools/virtio/linux/compiler.h
+> > > > +++ b/tools/virtio/linux/compiler.h
+> > > > @@ -8,4 +8,7 @@
+> > > > =A0 #define READ_ONCE(var) (*((volatile typeof(var) *)(&(var))))
+> > > > =A0 =A0 #define __aligned(x) __attribute((__aligned__(x)))
+> > > > +
+> > > > +#define __same_type(a, b)
+> > > > __builtin_types_compatible_p(typeof(a), typeof(b))
+> > > > +
+> > > > =A0 #endif
+> > > #include "../../../include/linux/compiler_types.h" instead?
+> > I'll try it.
+> > > > diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kerne=
+l.h
+> > > > index 8b877167933d..3cd20cb92649 100644
+> > > > --- a/tools/virtio/linux/kernel.h
+> > > > +++ b/tools/virtio/linux/kernel.h
+> > > > @@ -10,6 +10,7 @@
+> > > > =A0 #include <stdarg.h>
+> > > > =A0 =A0 #include <linux/compiler.h>
+> > > > +#include <linux/container_of.h>
+> > > > =A0 #include <linux/log2.h>
+> > > > =A0 #include <linux/types.h>
+> > > > =A0 #include <linux/overflow.h>
+> > > > @@ -107,10 +108,6 @@ static inline void free_page(unsigned long add=
+r)
+> > > > =A0=A0=A0=A0=A0 free((void *)addr);
+> > > > =A0 }
+> > > > =A0 -#define container_of(ptr, type, member) ({=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0 \
+> > > > -=A0=A0=A0 const typeof( ((type *)0)->member ) *__mptr =3D (ptr);=
+=A0=A0=A0 \
+> > > > -=A0=A0=A0 (type *)( (char *)__mptr - offsetof(type,member) );})
+> > > > -
+> > > > =A0 # ifndef likely
+> > > > =A0 #=A0 define likely(x)=A0=A0=A0 (__builtin_expect(!!(x), 1))
+> > > > =A0 # endif
+> > > > diff --git a/tools/virtio/linux/module.h b/tools/virtio/linux/modul=
+e.h
+> > > > index 9dfa96fea2b2..e2e791dbd104 100644
+> > > > --- a/tools/virtio/linux/module.h
+> > > > +++ b/tools/virtio/linux/module.h
+> > > > @@ -5,3 +5,4 @@
+> > > > =A0=A0=A0=A0=A0 static __attribute__((unused)) const char
+> > > > *__MODULE_LICENSE_name =3D \
+> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0 __MODULE_LICENSE_value
+> > > > =A0 +struct device;
+> > > =
+
+> > > It's not there in include/linux/module - pls put it in the
+> > > same here where it is for linux.
+> > I understood. I'll add some files that has the definition.
+> =
+
+> In vringh.c, 'struct device' is used in virtio_ring.h. Upon investigating
+> the preprocessed file, it was
+> =
+
+> discovered that 'struct device' is defined in bitmap.h, which is included
+> from architecture-specific headers.
+> =
+
+> On x86, the nesting includes
+> =
+
+> 'linux/module.h' -> ... -> 'arch/x86/include/asm/msr.h' ->
+> 'arch/x86/include/asm/cpumask.h' -> 'linux/cpumask.h' -> 'linux/bitmap.h'.
+> =
+
+> Could you advise on the appropriate way to include this file?
+
+Let's just add struct device; in virtio_ring.h, make it
+self-sufficient.
+
+
+> > > > -- =
+
+> > > > 2.25.1
+> > =
+
+> > Best regards,
+> > =
+
+> > Shunsuke.
+> > =
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
