@@ -4,79 +4,112 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5A66FC76196
-	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 18:40:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00486C76196
+	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 19:14:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C86336101E;
-	Mon, 10 Apr 2023 18:40:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C86336101E
+	by smtp3.osuosl.org (Postfix) with ESMTP id 874A760F2E;
+	Mon, 10 Apr 2023 19:14:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 874A760F2E
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=D1v1HtL/
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P/F8ehYu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YTWyIQ8R8WGg; Mon, 10 Apr 2023 18:40:44 +0000 (UTC)
+	with ESMTP id gU0_PSkqKt1h; Mon, 10 Apr 2023 19:14:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3CDCE60B70;
-	Mon, 10 Apr 2023 18:40:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3CDCE60B70
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DA6A460E92;
+	Mon, 10 Apr 2023 19:14:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA6A460E92
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D6ECC0036;
-	Mon, 10 Apr 2023 18:40:43 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C56ABC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B23B7C0037;
+	Mon, 10 Apr 2023 19:14:35 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 262CEC002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 18:40:41 +0000 (UTC)
+ Mon, 10 Apr 2023 19:14:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 918D760E71
+ by smtp1.osuosl.org (Postfix) with ESMTP id 010DC81E48
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 18:40:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 918D760E71
+ Mon, 10 Apr 2023 19:14:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 010DC81E48
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=P/F8ehYu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id f-nUJAbU8z2X
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r8jD5ASXGLn5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 18:40:40 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DF42460B70
-Received: from dfw.source.kernel.org (dfw.source.kernel.org
- [IPv6:2604:1380:4641:c500::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DF42460B70
+ Mon, 10 Apr 2023 19:14:33 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 987BF81E44
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 987BF81E44
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 18:40:39 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id C74B060FE9;
- Mon, 10 Apr 2023 18:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A647C433D2;
- Mon, 10 Apr 2023 18:40:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1681152038;
- bh=CEumz/eTP+jhMBEKqKdxMNZV4N36XqtpwtVfHVW/X10=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=D1v1HtL/Wi1mNHXkHrp00OaWyjInAa/gwzaylMhwUSREq64rDgN1HHTnRWYDNptBF
- 1Neu/xkVQu6TPjERkV5ASRz/hraMMlcK62khJEPMvE7/i7USlsuCXbB8/ZDsET84My
- GQ8xPxhVBuEgBrFgwnjALPgYI1D8EAI4afo1SpTc=
-Date: Mon, 10 Apr 2023 20:40:34 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] tools/virtio: fix build caused by virtio_ring
- changes
-Message-ID: <2023041055-provided-antiquely-bbdb@gregkh>
-References: <20230410112845.337212-1-mie@igel.co.jp>
- <20230410112845.337212-2-mie@igel.co.jp>
- <20230410080014-mutt-send-email-mst@kernel.org>
+ Mon, 10 Apr 2023 19:14:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1681154071;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=V929y0DuvK7xtChWhUBw/eFqjVuZ3zFTuJadDMK7r9I=;
+ b=P/F8ehYuVXRwObVrKbBbr3dH1EXhyKwBNPktBGkwtXLJtwgfXidlqEPvKFBfgIdtLbW/Eb
+ GXl8EHfVzPwrbb/hMtY+ZOu4dGQjtn8V5FToeLqh68mMDySUfys85sMPs9BUhP/3k9AbIh
+ CaBXucsMT7mehQcErbBjEHpNodqh8MU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-397-XEdCmjcUPLKyL0066fVu5w-1; Mon, 10 Apr 2023 15:14:30 -0400
+X-MC-Unique: XEdCmjcUPLKyL0066fVu5w-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ t8-20020a05600c450800b003ee6dbceb81so1050824wmo.5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Apr 2023 12:14:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112; t=1681154069;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=V929y0DuvK7xtChWhUBw/eFqjVuZ3zFTuJadDMK7r9I=;
+ b=GzdUusp9Nr62a7oIIYt3wv1CqqJ4CLq1qNG+J8xC0G14RFp6CmsC2KYr3ePAyhv5sU
+ k5LfuSSAVmm9vHMGoI6zM50rcJvmOd0vDhY7WOLpNc/WGNwYnE94izxsAWEByJziaHTw
+ omgdJ7Wx2ZfFcMLmgqUfuFhXQTbfau/khVSTLtP8uYGJV1+MMs4CoacQjTQISDVMqUW9
+ DAr7fr16vK5JxR6DnL7Nh8w1RT7bU+ClVPWRGE3mjwxHBGffjKvVndUeXboUDn/GGQaX
+ SYZIoFa0nbpstsQjq4kqXL/SEY0zLBqQXaqRe8rrmB1wIVIUWqE395q+dp2rgT728b2X
+ t3Cg==
+X-Gm-Message-State: AAQBX9eaEu9fVFMqJbKfQb2wToqqf7EnXdce9kClFPBRuZdYacEuagi0
+ HVO/QCNsp54yyt0lfi0TySCqTF72CelF4rDshAgqlunSIJ5OrjryDIq2x1fmdVqbzXeoP1oGdVi
+ XWxWYjsUmBLtHy1I+oFSXMrC8bnHyuCJyOZUMk3qA6g==
+X-Received: by 2002:a5d:494c:0:b0:2c7:6bb:fb7a with SMTP id
+ r12-20020a5d494c000000b002c706bbfb7amr6847043wrs.54.1681154069154; 
+ Mon, 10 Apr 2023 12:14:29 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZB01v4hRzyu7pDWRWnh2OLlh5MZFbKYbk/7NuN3PZ2CE4+XympLGJoeAWb/QCYhp3Tn3l29w==
+X-Received: by 2002:a5d:494c:0:b0:2c7:6bb:fb7a with SMTP id
+ r12-20020a5d494c000000b002c706bbfb7amr6847028wrs.54.1681154068798; 
+ Mon, 10 Apr 2023 12:14:28 -0700 (PDT)
+Received: from redhat.com ([2.52.10.80]) by smtp.gmail.com with ESMTPSA id
+ e10-20020adfdbca000000b002ceac2ccc4asm12473201wrj.23.2023.04.10.12.14.26
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 10 Apr 2023 12:14:28 -0700 (PDT)
+Date: Mon, 10 Apr 2023 15:14:24 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: Re: [PATCH] vdpa: solidrun: constify pointers to hwmon_channel_info
+Message-ID: <20230410151317-mutt-send-email-mst@kernel.org>
+References: <20230407150130.79917-1-krzysztof.kozlowski@linaro.org>
+ <0395eff6-694e-1a2f-de78-8cb9d7b129a7@roeck-us.net>
+ <20230410055634-mutt-send-email-mst@kernel.org>
+ <2facc7cd-81fa-b8b7-6974-217392906578@roeck-us.net>
+ <a6e07080-0c0d-0461-52a2-768d60af53c3@linaro.org>
 MIME-Version: 1.0
+In-Reply-To: <a6e07080-0c0d-0461-52a2-768d60af53c3@linaro.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230410080014-mutt-send-email-mst@kernel.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, linux-kernel@vger.kernel.org,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
- Shunsuke Mie <mie@igel.co.jp>, Sakari Ailus <sakari.ailus@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-hwmon@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Guenter Roeck <linux@roeck-us.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,135 +126,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 10, 2023 at 08:00:33AM -0400, Michael S. Tsirkin wrote:
-> On Mon, Apr 10, 2023 at 08:28:45PM +0900, Shunsuke Mie wrote:
-> > Fix the build dependency for virtio_test. The virtio_ring that is used from
-> > the test requires container_of_const(). Change to use container_of.h kernel
-> > header directly and adapt related codes.
+On Mon, Apr 10, 2023 at 06:48:12PM +0200, Krzysztof Kozlowski wrote:
+> On 10/04/2023 16:03, Guenter Roeck wrote:
+> > On 4/10/23 02:56, Michael S. Tsirkin wrote:
+> >> On Fri, Apr 07, 2023 at 04:08:30PM -0700, Guenter Roeck wrote:
+> >>> On 4/7/23 08:01, Krzysztof Kozlowski wrote:
+> >>>> Statically allocated array of pointed to hwmon_channel_info can be made
+> >>>> const for safety.
+> >>>>
+> >>>> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> >>>>
+> >>>> ---
+> >>>>
+> >>>> This depends on hwmon core patch:
+> >>>> https://lore.kernel.org/all/20230406203103.3011503-2-krzysztof.kozlowski@linaro.org/
+> >>>>
+> >>>> Therefore I propose this should also go via hwmon tree.
+> >>>
+> >>> I am not going to apply patches for 10+ subsystems through the hwmon tree.
+> >>> This can only result in chaos. The dependent patch is available at
+> >>>
+> >>> git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon-const
+> >>
+> >> Doesn't it cause build errors or warnings there?
+> >>
 > > 
-> > Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+> > Are you saying that "hwmon: constify pointers to hwmon_channel_info" applied on its own
+> > on top of v6.3-rc5 (as done in above branch) causes build errors or warnings ?
+> > I have not seen any such reports, and I don't immediately see why that would be
+> > the case. Please elaborate.
 > 
-> This is only for next right? That's where container_of_const
-> things are I think ...
-
-container_of_const() is in 6.2.
-
-
+> My tree and patches are extensively tested by kbuild and there was no
+> warning reported (when the above patch is applied with above dependency).
 > 
-> > ---
-> >  tools/include/linux/types.h   |  1 -
-> >  tools/virtio/linux/compiler.h |  2 ++
-> >  tools/virtio/linux/kernel.h   |  5 +----
-> >  tools/virtio/linux/module.h   |  1 -
-> >  tools/virtio/linux/uaccess.h  | 11 ++---------
-> >  5 files changed, 5 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/tools/include/linux/types.h b/tools/include/linux/types.h
-> > index 051fdeaf2670..f1896b70a8e5 100644
-> > --- a/tools/include/linux/types.h
-> > +++ b/tools/include/linux/types.h
-> > @@ -49,7 +49,6 @@ typedef __s8  s8;
-> >  #endif
-> >  
-> >  #define __force
-> > -#define __user
+> Best regards,
+> Krzysztof
 
-Why is this needed?
+I don't know, I assumed the vdpa patch fixes build. If not,
+I think we can just wait with the vdpa patch until after
+the hwmon one is upstream.
 
-> >  #define __must_check
-> >  #define __cold
-> >  
-> > diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-> > index 2c51bccb97bb..1f3a15b954b9 100644
-> > --- a/tools/virtio/linux/compiler.h
-> > +++ b/tools/virtio/linux/compiler.h
-> > @@ -2,6 +2,8 @@
-> >  #ifndef LINUX_COMPILER_H
-> >  #define LINUX_COMPILER_H
-> >  
-> > +#include "../../../include/linux/compiler_types.h"
-
-While I understand your need to not want to duplicate code, what in the
-world is this doing?  Why not use the in-kernel compiler.h instead?  Why
-are you copying loads of .h files into tools/virtio/?  What is this for
-and why not just use the real files so you don't have to even attempt to
-try to keep things in sync (hint, they will always be out of sync.)
-
-> > +
-> >  #define WRITE_ONCE(var, val) \
-> >  	(*((volatile typeof(val) *)(&(var))) = (val))
-> >  
-> > diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-> > index 8b877167933d..6702008f7f5c 100644
-> > --- a/tools/virtio/linux/kernel.h
-> > +++ b/tools/virtio/linux/kernel.h
-> > @@ -10,6 +10,7 @@
-> >  #include <stdarg.h>
-> >  
-> >  #include <linux/compiler.h>
-> > +#include "../../../include/linux/container_of.h"
-
-Either do this for all .h files, or not, don't pick and choose.
+Thanks!
 
 
+-- 
+MST
 
-> >  #include <linux/log2.h>
-> >  #include <linux/types.h>
-> >  #include <linux/overflow.h>
-> > @@ -107,10 +108,6 @@ static inline void free_page(unsigned long addr)
-> >  	free((void *)addr);
-> >  }
-> >  
-> > -#define container_of(ptr, type, member) ({			\
-> > -	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
-> > -	(type *)( (char *)__mptr - offsetof(type,member) );})
-> > -
-> >  # ifndef likely
-> >  #  define likely(x)	(__builtin_expect(!!(x), 1))
-> >  # endif
-> > diff --git a/tools/virtio/linux/module.h b/tools/virtio/linux/module.h
-> > index 9dfa96fea2b2..5cf39167d47a 100644
-> > --- a/tools/virtio/linux/module.h
-> > +++ b/tools/virtio/linux/module.h
-> > @@ -4,4 +4,3 @@
-> >  #define MODULE_LICENSE(__MODULE_LICENSE_value) \
-> >  	static __attribute__((unused)) const char *__MODULE_LICENSE_name = \
-> >  		__MODULE_LICENSE_value
-> > -
-
-This change has nothing to do with what you said was happening in this
-patch :(
-
-Please be more careful.
-
-> > diff --git a/tools/virtio/linux/uaccess.h b/tools/virtio/linux/uaccess.h
-> > index 991dfb263998..cde2c344b260 100644
-> > --- a/tools/virtio/linux/uaccess.h
-> > +++ b/tools/virtio/linux/uaccess.h
-> > @@ -6,15 +6,10 @@
-> >  
-> >  extern void *__user_addr_min, *__user_addr_max;
-> >  
-> > -static inline void __chk_user_ptr(const volatile void *p, size_t size)
-> > -{
-> > -	assert(p >= __user_addr_min && p + size <= __user_addr_max);
-> > -}
-> > -
-
-What does this function have to do with container_of()?
-
-
-> >  #define put_user(x, ptr)					\
-> >  ({								\
-> >  	typeof(ptr) __pu_ptr = (ptr);				\
-> > -	__chk_user_ptr(__pu_ptr, sizeof(*__pu_ptr));		\
-> > +	__chk_user_ptr(__pu_ptr);		\
-
-Why are you trying to duplicate in-kernel .h files?
-
-This all doesn't look ok, sorry.
-
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
