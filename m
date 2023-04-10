@@ -1,111 +1,67 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C40CC77B61
-	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 02:02:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43FA2C77B61
+	for <virtualization@archiver.kernel.org>; Mon, 10 Apr 2023 03:48:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 608E6415EC;
-	Mon, 10 Apr 2023 02:02:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 608E6415EC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UT9vJbEU
+	by smtp1.osuosl.org (Postfix) with ESMTP id A4CC981DFA;
+	Mon, 10 Apr 2023 03:48:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A4CC981DFA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KZoezNjSoALB; Mon, 10 Apr 2023 02:02:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D7F5C415ED;
-	Mon, 10 Apr 2023 02:02:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D7F5C415ED
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8BvHnjwWT4AR; Mon, 10 Apr 2023 03:48:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D9F0881DFC;
+	Mon, 10 Apr 2023 03:48:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D9F0881DFC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DBDEC0037;
-	Mon, 10 Apr 2023 02:02:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E30AC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 90337C0036;
+	Mon, 10 Apr 2023 03:48:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 37597C002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 02:02:52 +0000 (UTC)
+ Mon, 10 Apr 2023 03:48:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 410E560B98
+ by smtp2.osuosl.org (Postfix) with ESMTP id EF000405AE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 02:02:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 410E560B98
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=UT9vJbEU
+ Mon, 10 Apr 2023 03:48:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EF000405AE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gfUfI0EHPd0g
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ASEV6XVTn9N7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 02:02:51 +0000 (UTC)
+ Mon, 10 Apr 2023 03:48:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E1A9760B8B
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E1A9760B8B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D3366400D9
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D3366400D9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 02:02:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681092170;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=ImSHuJlpEIjrEssBinZR75/TQT8HbQYOXg6FF6R5D+8=;
- b=UT9vJbEUwipBnvZG2f6DxYSsKtk6GE049Fowi9cmMaf9PgIbpeLBlvCK4zvKVF1QoPsDL1
- yZjh22MU9Or5tLj9r1+/O095tA/SxgQGw2n1YGa5oWXi8H/biAN66j1K3MBkko+jRhSTtP
- P8QmqoB4DJW9A0BBPIEqWK0pz3kn6Wo=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-634-1Vha2Q-9P8Cynta-vCWbfw-1; Sun, 09 Apr 2023 22:02:48 -0400
-X-MC-Unique: 1Vha2Q-9P8Cynta-vCWbfw-1
-Received: by mail-oi1-f198.google.com with SMTP id
- r4-20020a056808210400b003897356756bso7718771oiw.13
- for <virtualization@lists.linux-foundation.org>;
- Sun, 09 Apr 2023 19:02:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1681092168; x=1683684168;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=ImSHuJlpEIjrEssBinZR75/TQT8HbQYOXg6FF6R5D+8=;
- b=052zhZRgy5vTb3sgHefCzOLVaPYemoU0NJgr4aFPc5dKBcqkO5pu7pp+h+Uz6Lu3Cs
- PEShYGEhmqHyF/IO7lWIUyQiq6chd/x7oYyZ5kRubq1Yk1/AM5uiGRxKyKv1fv0rZ712
- TSuVlP3uzlMUSTcn1a85L+dtHyeRsN+QZWu+D4Dn/hdLTlMuND4idMGRnfFIHf1XiY7z
- lY6XSVVVzT79yRkWr3LfdblD7BYQmo72zRrX8vC4D8WRMAlmUNQlP42inIeswdeKUweP
- AYnFCyD0mkg8WXpzVSeP/PRRlNtbGCOVT6Ytg2nhscGRS1i28Eccv6EPl02rk5Xfgunw
- oRgQ==
-X-Gm-Message-State: AAQBX9dtWP984tV0fyPSI4wvJlhxmwoqx0fMSMgTiDDUASCwkmwjYTl/
- Fmn3sNOD0urkRyooM989v1nnwjga/26tS297pDOgK/ApqRgaWnkq1r7WmOGZdlHYkFo+cnRVDPY
- gUrxcxjSu6M1g4eGvUz4Xpfv7xuWvhsb+hbMXwDMMaGDCpQcbDztuSLnizg==
-X-Received: by 2002:a05:6808:3307:b0:383:fef9:6cac with SMTP id
- ca7-20020a056808330700b00383fef96cacmr2401936oib.9.1681092167908; 
- Sun, 09 Apr 2023 19:02:47 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Z2Xxwqlr7XdtgUN8zvDFcvkGXVFHc7jXJ5OtPIGPHf6k/vTQGWIAksT3kRHP54m0jQeZ4l5Nun6l6hcnMpyuY=
-X-Received: by 2002:a05:6808:3307:b0:383:fef9:6cac with SMTP id
- ca7-20020a056808330700b00383fef96cacmr2401928oib.9.1681092167584; Sun, 09 Apr
- 2023 19:02:47 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230403162039.18932-1-elic@nvidia.com>
- <20230403162039.18932-2-elic@nvidia.com>
- <3754b094-d3aa-3f9f-f6e9-2add2e44aae9@redhat.com>
- <c12e67e9-2757-b1e3-93ae-f05df3774d03@nvidia.com>
- <fd2c22a3-a9f3-b9a7-3669-a8ef5b0e0f3c@nvidia.com>
-In-Reply-To: <fd2c22a3-a9f3-b9a7-3669-a8ef5b0e0f3c@nvidia.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 10 Apr 2023 10:02:36 +0800
-Message-ID: <CACGkMEsC9ue55EN9=1OETWYDZmro+YvYWDtV2AQHzvcuTrMdyA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] vdpa/mlx5: Support interrupt bypassing
-To: Eli Cohen <elic@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: parav@mellanox.com, mst@redhat.com,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- Saeed Mahameed <saeedm@nvidia.com>
+ Mon, 10 Apr 2023 03:48:36 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=4; SR=0;
+ TI=SMTPD_---0Vff-Z3R_1681098509; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vff-Z3R_1681098509) by smtp.aliyun-inc.com;
+ Mon, 10 Apr 2023 11:48:30 +0800
+Message-ID: <1681097397.338332-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v6 08/11] virtio_ring: introduce virtqueue_dma_dev()
+Date: Mon, 10 Apr 2023 11:29:57 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20230327040536.48338-1-xuanzhuo@linux.alibaba.com>
+ <20230327040536.48338-9-xuanzhuo@linux.alibaba.com>
+ <73a24f95-b779-44ac-be28-45b35d1bf540@roeck-us.net>
+ <20230407064634-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230407064634-mutt-send-email-mst@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,267 +73,233 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBBcHIgNCwgMjAyMyBhdCA5OjMw4oCvUE0gRWxpIENvaGVuIDxlbGljQG52aWRpYS5j
-b20+IHdyb3RlOgo+Cj4KPiBPbiAwNC8wNC8yMDIzIDEwOjA0LCBFbGkgQ29oZW4gd3JvdGU6Cj4g
-Pgo+ID4gT24gMDQvMDQvMjAyMyA1OjI0LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4+Cj4gPj4g5Zyo
-IDIwMjMvNC80IDAwOjIwLCBFbGkgQ29oZW4g5YaZ6YGTOgo+ID4+PiBBZGQgc3VwcG9ydCBmb3Ig
-Z2VuZXJhdGlvbiBvZiBpbnRlcnJ1cHRzIGZyb20gdGhlIGRldmljZSBkaXJlY3RseSB0bwo+ID4+
-PiB0aGUKPiA+Pj4gVk0gdG8gdGhlIFZDUFUgdGh1cyBhdm9pZGluZyB0aGUgb3ZlcmhlYWQgb24g
-dGhlIGhvc3QgQ1BVLgo+ID4+Pgo+ID4+PiBXaGVuIHN1cHBvcnRlZCwgdGhlIGRyaXZlciB3aWxs
-IGF0dGVtcHQgdG8gYWxsb2NhdGUgdmVjdG9ycyBmb3IgZWFjaAo+ID4+PiBkYXRhIHZpcnRxdWV1
-ZS4gSWYgYSB2ZWN0b3IgZm9yIGEgdmlydHF1ZXVlIGNhbm5vdCBiZSBwcm92aWRlZCBpdCB3aWxs
-Cj4gPj4+IHVzZSB0aGUgUVAgbW9kZSB3aGVyZSBub3RpZmljYXRpb25zIGdvIHRocm91Z2ggdGhl
-IGRyaXZlci4KPiA+Pj4KPiA+Pj4gSW4gYWRkaXRpb24sIHdlIGFkZCBhIHNodXRkb3duIGNhbGxi
-YWNrIHRvIG1ha2Ugc3VyZSBhbGxvY2F0ZWQKPiA+Pj4gaW50ZXJydXB0cyBhcmUgcmVsZWFzZWQg
-aW4gY2FzZSBvZiBzaHV0ZG93biB0byBhbGxvdyBjbGVhbiBzaHV0ZG93bi4KPiA+Pj4KPiA+Pj4g
-U2lnbmVkLW9mZi1ieTogRWxpIENvaGVuIDxlbGljQG52aWRpYS5jb20+Cj4gPj4+IFNpZ25lZC1v
-ZmYtYnk6IFNhZWVkIE1haGFtZWVkIDxzYWVlZG1AbnZpZGlhLmNvbT4KPiA+Pj4gLS0tCj4gPj4+
-ICAgZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jIHwgMTM5Cj4gPj4+ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKystLQo+ID4+PiAgIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1
-X3ZuZXQuaCB8ICAxNCArKysKPiA+Pj4gICAyIGZpbGVzIGNoYW5nZWQsIDE0NCBpbnNlcnRpb25z
-KCspLCA5IGRlbGV0aW9ucygtKQo+ID4+Pgo+ID4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBh
-L21seDUvbmV0L21seDVfdm5ldC5jCj4gPj4+IGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVf
-dm5ldC5jCj4gPj4+IGluZGV4IDUyMDY0NmFlN2ZhMC4uMjE1YTQ2Y2Y4YTk4IDEwMDY0NAo+ID4+
-PiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiA+Pj4gKysrIGIvZHJp
-dmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCj4gPj4+IEBAIC04Myw2ICs4Myw3IEBAIHN0
-cnVjdCBtbHg1X3ZxX3Jlc3RvcmVfaW5mbyB7Cj4gPj4+ICAgICAgIHU2NCBkcml2ZXJfYWRkcjsK
-PiA+Pj4gICAgICAgdTE2IGF2YWlsX2luZGV4Owo+ID4+PiAgICAgICB1MTYgdXNlZF9pbmRleDsK
-PiA+Pj4gKyAgICBzdHJ1Y3QgbXNpX21hcCBtYXA7Cj4gPj4+ICAgICAgIGJvb2wgcmVhZHk7Cj4g
-Pj4+ICAgICAgIGJvb2wgcmVzdG9yZTsKPiA+Pj4gICB9Owo+ID4+PiBAQCAtMTE4LDYgKzExOSw3
-IEBAIHN0cnVjdCBtbHg1X3ZkcGFfdmlydHF1ZXVlIHsKPiA+Pj4gICAgICAgdTE2IGF2YWlsX2lk
-eDsKPiA+Pj4gICAgICAgdTE2IHVzZWRfaWR4Owo+ID4+PiAgICAgICBpbnQgZndfc3RhdGU7Cj4g
-Pj4+ICsgICAgc3RydWN0IG1zaV9tYXAgbWFwOwo+ID4+Cj4gPj4KPiA+PiBKdXN0IHNwb3QgdGhh
-dCB0aGlzIHN0cnVjdHVyZSBpcyBkZWZpbmVkIGluIG1seDVfdm5ldC5jIGJ1dCBpdCdzCj4gPj4g
-bm90aGluZyBuZXQgc3BlY2lmaWMuIEkgdGhpbmsgaXQncyBiZXR0ZXIgdG8gbW92ZSBpdCB3aXRo
-IHRoZQo+ID4+IGludGVycnVwdCBieXBhc3NpbmcgbG9naWMgaGVyZSB0byBjb3JlLyAod2UgY2Fu
-IGRvIGl0IGluIHRoZSBmdXR1cmUpLgo+ID4gUmlnaHQuCj4gPj4KPiA+Pgo+ID4+PiAgICAgICAg
-IC8qIGtlZXAgbGFzdCBpbiB0aGUgc3RydWN0ICovCj4gPj4+ICAgICAgIHN0cnVjdCBtbHg1X3Zx
-X3Jlc3RvcmVfaW5mbyByaTsKPiA+Pj4gQEAgLTc5Miw2ICs3OTQsMTMgQEAgc3RhdGljIGJvb2wg
-Y291bnRlcnNfc3VwcG9ydGVkKGNvbnN0IHN0cnVjdAo+ID4+PiBtbHg1X3ZkcGFfZGV2ICptdmRl
-dikKPiA+Pj4gICAgICAgICAgICAgIEJJVF9VTEwoTUxYNV9PQkpfVFlQRV9WSVJUSU9fUV9DT1VO
-VEVSUyk7Cj4gPj4+ICAgfQo+ID4+PiAgICtzdGF0aWMgYm9vbCBtc2l4X21vZGVfc3VwcG9ydGVk
-KHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldikKPiA+Pj4gK3sKPiA+Pj4gKyAgICByZXR1cm4g
-KE1MWDVfQ0FQX0RFVl9WRFBBX0VNVUxBVElPTihtdmRldi0+bWRldiwgZXZlbnRfbW9kZSkgJgo+
-ID4+PiArICAgICAgICAoMSA8PCBNTFg1X1ZJUlRJT19RX0VWRU5UX01PREVfTVNJWF9NT0RFKSAm
-Jgo+ID4+PiArICAgICAgICBwY2lfbXNpeF9jYW5fYWxsb2NfZHluKG12ZGV2LT5tZGV2LT5wZGV2
-KSk7Cj4gPj4+ICt9Cj4gPj4+ICsKPiA+Pj4gICBzdGF0aWMgaW50IGNyZWF0ZV92aXJ0cXVldWUo
-c3RydWN0IG1seDVfdmRwYV9uZXQgKm5kZXYsIHN0cnVjdAo+ID4+PiBtbHg1X3ZkcGFfdmlydHF1
-ZXVlICptdnEpCj4gPj4+ICAgewo+ID4+PiAgICAgICBpbnQgaW5sZW4gPSBNTFg1X1NUX1NaX0JZ
-VEVTKGNyZWF0ZV92aXJ0aW9fbmV0X3FfaW4pOwo+ID4+PiBAQCAtODI5LDkgKzgzOCwxNSBAQCBz
-dGF0aWMgaW50IGNyZWF0ZV92aXJ0cXVldWUoc3RydWN0Cj4gPj4+IG1seDVfdmRwYV9uZXQgKm5k
-ZXYsIHN0cnVjdCBtbHg1X3ZkcGFfdmlydHF1ZQo+ID4+PiAgICAgICBpZiAodnFfaXNfdHgobXZx
-LT5pbmRleCkpCj4gPj4+ICAgICAgICAgICBNTFg1X1NFVCh2aXJ0aW9fbmV0X3Ffb2JqZWN0LCBv
-YmpfY29udGV4dCwgdGlzbl9vcl9xcG4sCj4gPj4+IG5kZXYtPnJlcy50aXNuKTsKPiA+Pj4gICAt
-ICAgIE1MWDVfU0VUKHZpcnRpb19xLCB2cV9jdHgsIGV2ZW50X21vZGUsCj4gPj4+IE1MWDVfVklS
-VElPX1FfRVZFTlRfTU9ERV9RUF9NT0RFKTsKPiA+Pj4gKyAgICBpZiAobXZxLT5tYXAudmlycSkg
-ewo+ID4+PiArICAgICAgICBNTFg1X1NFVCh2aXJ0aW9fcSwgdnFfY3R4LCBldmVudF9tb2RlLAo+
-ID4+PiBNTFg1X1ZJUlRJT19RX0VWRU5UX01PREVfTVNJWF9NT0RFKTsKPiA+Pj4gKyAgICAgICAg
-TUxYNV9TRVQodmlydGlvX3EsIHZxX2N0eCwgZXZlbnRfcXBuX29yX21zaXgsIG12cS0+bWFwLmlu
-ZGV4KTsKPiA+Pj4gKyAgICB9IGVsc2Ugewo+ID4+PiArICAgICAgICBNTFg1X1NFVCh2aXJ0aW9f
-cSwgdnFfY3R4LCBldmVudF9tb2RlLAo+ID4+PiBNTFg1X1ZJUlRJT19RX0VWRU5UX01PREVfUVBf
-TU9ERSk7Cj4gPj4+ICsgICAgICAgIE1MWDVfU0VUKHZpcnRpb19xLCB2cV9jdHgsIGV2ZW50X3Fw
-bl9vcl9tc2l4LAo+ID4+PiBtdnEtPmZ3cXAubXFwLnFwbik7Cj4gPj4+ICsgICAgfQo+ID4+PiAr
-Cj4gPj4+ICAgICAgIE1MWDVfU0VUKHZpcnRpb19xLCB2cV9jdHgsIHF1ZXVlX2luZGV4LCBtdnEt
-PmluZGV4KTsKPiA+Pj4gLSAgICBNTFg1X1NFVCh2aXJ0aW9fcSwgdnFfY3R4LCBldmVudF9xcG5f
-b3JfbXNpeCwgbXZxLT5md3FwLm1xcC5xcG4pOwo+ID4+PiAgICAgICBNTFg1X1NFVCh2aXJ0aW9f
-cSwgdnFfY3R4LCBxdWV1ZV9zaXplLCBtdnEtPm51bV9lbnQpOwo+ID4+PiAgICAgICBNTFg1X1NF
-VCh2aXJ0aW9fcSwgdnFfY3R4LCB2aXJ0aW9fdmVyc2lvbl8xXzAsCj4gPj4+ICAgICAgICAgICAg
-ISEobmRldi0+bXZkZXYuYWN0dWFsX2ZlYXR1cmVzICYKPiA+Pj4gQklUX1VMTChWSVJUSU9fRl9W
-RVJTSU9OXzEpKSk7Cj4gPj4+IEBAIC0xMTc0LDYgKzExODksMzIgQEAgc3RhdGljIHZvaWQgY291
-bnRlcl9zZXRfZGVhbGxvYyhzdHJ1Y3QKPiA+Pj4gbWx4NV92ZHBhX25ldCAqbmRldiwgc3RydWN0
-IG1seDVfdmRwYV92aXIKPiA+Pj4gICAgICAgICAgIG1seDVfdmRwYV93YXJuKCZuZGV2LT5tdmRl
-diwgImRlYWxsb2MgY291bnRlciBzZXQgMHgleFxuIiwKPiA+Pj4gbXZxLT5jb3VudGVyX3NldF9p
-ZCk7Cj4gPj4+ICAgfQo+ID4+PiAgICtzdGF0aWMgdm9pZCBhbGxvY192ZWN0b3Ioc3RydWN0IG1s
-eDVfdmRwYV9uZXQgKm5kZXYsCj4gPj4+ICsgICAgICAgICAgICAgc3RydWN0IG1seDVfdmRwYV92
-aXJ0cXVldWUgKm12cSkKPiA+Pj4gK3sKPiA+Pj4gKyAgICBzdHJ1Y3QgbWx4NV92ZHBhX2lycV9w
-b29sICppcnFwID0gJm5kZXYtPmlycXA7Cj4gPj4+ICsgICAgaW50IGk7Cj4gPj4+ICsKPiA+Pj4g
-KyAgICBmb3IgKGkgPSAwOyBpIDwgaXJxcC0+bnVtX2VudDsgaSsrKSB7Cj4gPj4+ICsgICAgICAg
-IGlmICghaXJxcC0+ZW50cmllc1tpXS51c2Vjb3VudCkgewo+ID4+PiArICAgICAgICAgICAgaXJx
-cC0+ZW50cmllc1tpXS51c2Vjb3VudCsrOwo+ID4+Cj4gPj4KPiA+PiBJZiB3ZSBjYW4ndCBnZXQg
-YSB1c2VyY291bnQgd2hpY2ggaXMgZ3JlYXRlciB0aGFuIDEsIGl0IG1pZ2h0IGJlCj4gPj4gYmV0
-dGVyIHRvIHVzZSBib29sZWFuIGluc3RlYWQuCj4gPiBXaWxsIGZpeC4KPiA+Pgo+ID4+Cj4gPj4+
-ICsgICAgICAgICAgICBtdnEtPm1hcCA9IGlycXAtPmVudHJpZXNbaV0ubWFwOwo+ID4+PiArICAg
-ICAgICAgICAgcmV0dXJuOwo+ID4+PiArICAgICAgICB9Cj4gPj4+ICsgICAgfQo+ID4+PiArfQo+
-ID4+PiArCj4gPj4+ICtzdGF0aWMgdm9pZCBkZWFsbG9jX3ZlY3RvcihzdHJ1Y3QgbWx4NV92ZHBh
-X25ldCAqbmRldiwKPiA+Pj4gKyAgICAgICAgICAgICAgIHN0cnVjdCBtbHg1X3ZkcGFfdmlydHF1
-ZXVlICptdnEpCj4gPj4+ICt7Cj4gPj4+ICsgICAgc3RydWN0IG1seDVfdmRwYV9pcnFfcG9vbCAq
-aXJxcCA9ICZuZGV2LT5pcnFwOwo+ID4+PiArICAgIGludCBpOwo+ID4+PiArCj4gPj4+ICsgICAg
-Zm9yIChpID0gMDsgaSA8IGlycXAtPm51bV9lbnQ7IGkrKykKPiA+Pj4gKyAgICAgICAgaWYgKG12
-cS0+bWFwLnZpcnEgPT0gaXJxcC0+ZW50cmllc1tpXS5tYXAudmlycSkKPiA+Pj4gKyAgICAgICAg
-ICAgIGlycXAtPmVudHJpZXNbaV0udXNlY291bnQtLTsKPiA+Pj4gK30KPiA+Pj4gKwo+ID4+PiAg
-IHN0YXRpYyBpbnQgc2V0dXBfdnEoc3RydWN0IG1seDVfdmRwYV9uZXQgKm5kZXYsIHN0cnVjdAo+
-ID4+PiBtbHg1X3ZkcGFfdmlydHF1ZXVlICptdnEpCj4gPj4+ICAgewo+ID4+PiAgICAgICB1MTYg
-aWR4ID0gbXZxLT5pbmRleDsKPiA+Pj4gQEAgLTEyMDMsMjcgKzEyNDQsMzEgQEAgc3RhdGljIGlu
-dCBzZXR1cF92cShzdHJ1Y3QgbWx4NV92ZHBhX25ldAo+ID4+PiAqbmRldiwgc3RydWN0IG1seDVf
-dmRwYV92aXJ0cXVldWUgKm12cSkKPiA+Pj4gICAgICAgICBlcnIgPSBjb3VudGVyX3NldF9hbGxv
-YyhuZGV2LCBtdnEpOwo+ID4+PiAgICAgICBpZiAoZXJyKQo+ID4+PiAtICAgICAgICBnb3RvIGVy
-cl9jb3VudGVyOwo+ID4+PiArICAgICAgICBnb3RvIGVycl9jb25uZWN0Owo+ID4+PiAgICsgICAg
-YWxsb2NfdmVjdG9yKG5kZXYsIG12cSk7Cj4gPj4+ICAgICAgIGVyciA9IGNyZWF0ZV92aXJ0cXVl
-dWUobmRldiwgbXZxKTsKPiA+Pj4gICAgICAgaWYgKGVycikKPiA+Pj4gLSAgICAgICAgZ290byBl
-cnJfY29ubmVjdDsKPiA+Pj4gKyAgICAgICAgZ290byBlcnJfdnE7Cj4gPj4+ICAgICAgICAgaWYg
-KG12cS0+cmVhZHkpIHsKPiA+Pj4gICAgICAgICAgIGVyciA9IG1vZGlmeV92aXJ0cXVldWUobmRl
-diwgbXZxLAo+ID4+PiBNTFg1X1ZJUlRJT19ORVRfUV9PQkpFQ1RfU1RBVEVfUkRZKTsKPiA+Pj4g
-ICAgICAgICAgIGlmIChlcnIpIHsKPiA+Pj4gICAgICAgICAgICAgICBtbHg1X3ZkcGFfd2Fybigm
-bmRldi0+bXZkZXYsICJmYWlsZWQgdG8gbW9kaWZ5IHRvCj4gPj4+IHJlYWR5IHZxIGlkeCAlZCgl
-ZClcbiIsCj4gPj4+ICAgICAgICAgICAgICAgICAgICAgICAgICBpZHgsIGVycik7Cj4gPj4+IC0g
-ICAgICAgICAgICBnb3RvIGVycl9jb25uZWN0Owo+ID4+PiArICAgICAgICAgICAgZ290byBlcnJf
-bW9kaWZ5Owo+ID4+PiAgICAgICAgICAgfQo+ID4+PiAgICAgICB9Cj4gPj4+ICAgICAgICAgbXZx
-LT5pbml0aWFsaXplZCA9IHRydWU7Cj4gPj4+ICAgICAgIHJldHVybiAwOwo+ID4+PiAgIC1lcnJf
-Y29ubmVjdDoKPiA+Pj4gK2Vycl9tb2RpZnk6Cj4gPj4+ICsgICAgZGVzdHJveV92aXJ0cXVldWUo
-bmRldiwgbXZxKTsKPiA+Pj4gK2Vycl92cToKPiA+Pj4gKyAgICBkZWFsbG9jX3ZlY3RvcihuZGV2
-LCBtdnEpOwo+ID4+PiAgICAgICBjb3VudGVyX3NldF9kZWFsbG9jKG5kZXYsIG12cSk7Cj4gPj4+
-IC1lcnJfY291bnRlcjoKPiA+Pj4gK2Vycl9jb25uZWN0Ogo+ID4+PiAgICAgICBxcF9kZXN0cm95
-KG5kZXYsICZtdnEtPnZxcXApOwo+ID4+PiAgIGVycl92cXFwOgo+ID4+PiAgICAgICBxcF9kZXN0
-cm95KG5kZXYsICZtdnEtPmZ3cXApOwo+ID4+PiBAQCAtMTI2Nyw2ICsxMzEyLDcgQEAgc3RhdGlj
-IHZvaWQgdGVhcmRvd25fdnEoc3RydWN0IG1seDVfdmRwYV9uZXQKPiA+Pj4gKm5kZXYsIHN0cnVj
-dCBtbHg1X3ZkcGFfdmlydHF1ZXVlICoKPiA+Pj4gICAgICAgICAgIHJldHVybjsKPiA+Pj4gICAg
-ICAgICBzdXNwZW5kX3ZxKG5kZXYsIG12cSk7Cj4gPj4+ICsgICAgZGVhbGxvY192ZWN0b3IobmRl
-diwgbXZxKTsKPiA+Pj4gICAgICAgZGVzdHJveV92aXJ0cXVldWUobmRldiwgbXZxKTsKPiA+Pj4g
-ICAgICAgY291bnRlcl9zZXRfZGVhbGxvYyhuZGV2LCBtdnEpOwo+ID4+PiAgICAgICBxcF9kZXN0
-cm95KG5kZXYsICZtdnEtPnZxcXApOwo+ID4+PiBAQCAtMjM3NCw2ICsyNDIwLDcgQEAgc3RhdGlj
-IGludCBzYXZlX2NoYW5uZWxfaW5mbyhzdHJ1Y3QKPiA+Pj4gbWx4NV92ZHBhX25ldCAqbmRldiwg
-c3RydWN0IG1seDVfdmRwYV92aXJ0cXUKPiA+Pj4gICAgICAgcmktPmRlc2NfYWRkciA9IG12cS0+
-ZGVzY19hZGRyOwo+ID4+PiAgICAgICByaS0+ZGV2aWNlX2FkZHIgPSBtdnEtPmRldmljZV9hZGRy
-Owo+ID4+PiAgICAgICByaS0+ZHJpdmVyX2FkZHIgPSBtdnEtPmRyaXZlcl9hZGRyOwo+ID4+PiAr
-ICAgIHJpLT5tYXAgPSBtdnEtPm1hcDsKPiA+Pj4gICAgICAgcmktPnJlc3RvcmUgPSB0cnVlOwo+
-ID4+PiAgICAgICByZXR1cm4gMDsKPiA+Pj4gICB9Cj4gPj4+IEBAIC0yNDE4LDYgKzI0NjUsNyBA
-QCBzdGF0aWMgdm9pZCByZXN0b3JlX2NoYW5uZWxzX2luZm8oc3RydWN0Cj4gPj4+IG1seDVfdmRw
-YV9uZXQgKm5kZXYpCj4gPj4+ICAgICAgICAgICBtdnEtPmRlc2NfYWRkciA9IHJpLT5kZXNjX2Fk
-ZHI7Cj4gPj4+ICAgICAgICAgICBtdnEtPmRldmljZV9hZGRyID0gcmktPmRldmljZV9hZGRyOwo+
-ID4+PiAgICAgICAgICAgbXZxLT5kcml2ZXJfYWRkciA9IHJpLT5kcml2ZXJfYWRkcjsKPiA+Pj4g
-KyAgICAgICAgbXZxLT5tYXAgPSByaS0+bWFwOwo+ID4+PiAgICAgICB9Cj4gPj4+ICAgfQo+ID4+
-PiAgIEBAIC0yNjkzLDYgKzI3NDEsMjIgQEAgc3RhdGljIHN0cnVjdCBkZXZpY2UKPiA+Pj4gKm1s
-eDVfZ2V0X3ZxX2RtYV9kZXYoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1MTYgaWR4KQo+ID4+
-PiAgICAgICByZXR1cm4gbXZkZXYtPnZkZXYuZG1hX2RldjsKPiA+Pj4gICB9Cj4gPj4+ICAgK3N0
-YXRpYyB2b2lkIGZyZWVfaXJxcyhzdHJ1Y3QgbWx4NV92ZHBhX25ldCAqbmRldikKPiA+Pj4gK3sK
-PiA+Pj4gKyAgICBzdHJ1Y3QgbWx4NV92ZHBhX2lycV9wb29sX2VudHJ5ICplbnQ7Cj4gPj4+ICsg
-ICAgaW50IGk7Cj4gPj4+ICsKPiA+Pj4gKyAgICBpZiAoIW1zaXhfbW9kZV9zdXBwb3J0ZWQoJm5k
-ZXYtPm12ZGV2KSkKPiA+Pj4gKyAgICAgICAgcmV0dXJuOwo+ID4+PiArCj4gPj4+ICsgICAgZm9y
-IChpID0gbmRldi0+aXJxcC5udW1fZW50IC0gMTsgaSA+PSAwOyBpLS0pIHsKPiA+Pj4gKyAgICAg
-ICAgZW50ID0gbmRldi0+aXJxcC5lbnRyaWVzICsgaTsKPiA+Pj4gKyAgICAgICAgbWx4NV9tc2l4
-X2ZyZWUobmRldi0+bXZkZXYubWRldiwgZW50LT5tYXApOwo+ID4+PiArICAgICAgICBuZGV2LT5p
-cnFwLm51bV9lbnQtLTsKPiA+Pj4gKyAgICB9Cj4gPj4+ICsgICAga2ZyZWUobmRldi0+aXJxcC5l
-bnRyaWVzKTsKPiA+Pj4gK30KPiA+Pj4gKwo+ID4+PiAgIHN0YXRpYyB2b2lkIG1seDVfdmRwYV9m
-cmVlKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldikKPiA+Pj4gICB7Cj4gPj4+ICAgICAgIHN0cnVj
-dCBtbHg1X3ZkcGFfZGV2ICptdmRldiA9IHRvX212ZGV2KHZkZXYpOwo+ID4+PiBAQCAtMjcwOCw2
-ICsyNzcyLDcgQEAgc3RhdGljIHZvaWQgbWx4NV92ZHBhX2ZyZWUoc3RydWN0IHZkcGFfZGV2aWNl
-Cj4gPj4+ICp2ZGV2KQo+ID4+PiAgICAgICAgICAgbWx4NV9tcGZzX2RlbF9tYWMocGZtZGV2LCBu
-ZGV2LT5jb25maWcubWFjKTsKPiA+Pj4gICAgICAgfQo+ID4+PiAgICAgICBtbHg1X3ZkcGFfZnJl
-ZV9yZXNvdXJjZXMoJm5kZXYtPm12ZGV2KTsKPiA+Pj4gKyAgICBmcmVlX2lycXMobmRldik7Cj4g
-Pj4+ICAgICAgIGtmcmVlKG5kZXYtPmV2ZW50X2Nicyk7Cj4gPj4+ICAgICAgIGtmcmVlKG5kZXYt
-PnZxcyk7Cj4gPj4+ICAgfQo+ID4+PiBAQCAtMjczNiw5ICsyODAxLDIzIEBAIHN0YXRpYyBzdHJ1
-Y3QgdmRwYV9ub3RpZmljYXRpb25fYXJlYQo+ID4+PiBtbHg1X2dldF92cV9ub3RpZmljYXRpb24o
-c3RydWN0IHZkcGFfZGV2aWNlCj4gPj4+ICAgICAgIHJldHVybiByZXQ7Cj4gPj4+ICAgfQo+ID4+
-PiAgIC1zdGF0aWMgaW50IG1seDVfZ2V0X3ZxX2lycShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkdiwg
-dTE2IGlkeCkKPiA+Pj4gK3N0YXRpYyBpbnQgbWx4NV9nZXRfdnFfaXJxKHN0cnVjdCB2ZHBhX2Rl
-dmljZSAqdmRldiwgdTE2IGlkeCkKPiA+Pj4gICB7Cj4gPj4+IC0gICAgcmV0dXJuIC1FT1BOT1RT
-VVBQOwo+ID4+PiArICAgIHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiA9IHRvX212ZGV2KHZk
-ZXYpOwo+ID4+PiArICAgIHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2ID0gdG9fbWx4NV92ZHBh
-X25kZXYobXZkZXYpOwo+ID4+PiArICAgIHN0cnVjdCBtbHg1X3ZkcGFfdmlydHF1ZXVlICptdnE7
-Cj4gPj4+ICsKPiA+Pj4gKyAgICBpZiAoIWlzX2luZGV4X3ZhbGlkKG12ZGV2LCBpZHgpKQo+ID4+
-PiArICAgICAgICByZXR1cm4gLUVJTlZBTDsKPiA+Pj4gKwo+ID4+PiArICAgIGlmIChpc19jdHJs
-X3ZxX2lkeChtdmRldiwgaWR4KSkKPiA+Pj4gKyAgICAgICAgcmV0dXJuIC1FT1BOT1RTVVBQOwo+
-ID4+PiArCj4gPj4+ICsgICAgbXZxID0gJm5kZXYtPnZxc1tpZHhdOwo+ID4+PiArICAgIGlmICgh
-bXZxLT5tYXAudmlycSkKPiA+Pj4gKyAgICAgICAgcmV0dXJuIC1FT1BOT1RTVVBQOwo+ID4+PiAr
-Cj4gPj4+ICsgICAgcmV0dXJuIG12cS0+bWFwLnZpcnE7Cj4gPj4+ICAgfQo+ID4+PiAgICAgc3Rh
-dGljIHU2NCBtbHg1X3ZkcGFfZ2V0X2RyaXZlcl9mZWF0dXJlcyhzdHJ1Y3QgdmRwYV9kZXZpY2Ug
-KnZkZXYpCj4gPj4+IEBAIC0zMDk1LDYgKzMxNzQsMzUgQEAgc3RhdGljIGludCBjb25maWdfZnVu
-Y19tdHUoc3RydWN0Cj4gPj4+IG1seDVfY29yZV9kZXYgKm1kZXYsIHUxNiBtdHUpCj4gPj4+ICAg
-ICAgIHJldHVybiBlcnI7Cj4gPj4+ICAgfQo+ID4+PiAgICtzdGF0aWMgaXJxcmV0dXJuX3QgaW50
-X2hhbmRsZXIoaW50IGlycSwgdm9pZCAqbmgpCj4gPj4+ICt7Cj4gPj4+ICsgICAgcmV0dXJuIElS
-UV9IQU5ETEVEOwo+ID4+Cj4gPj4KPiA+PiBJJ20gbm90IHN1cmUgSSBnZXQgdGhlIG1lYW5pbmcg
-b2YgdGhlIGlycSBoYW5kbGVyLiBOb3RlIHRoYXQgZXZlbiBpZgo+ID4+IHdlIHN1cHBvcnQgZ2V0
-X3ZxX2lycSgpIGl0IGRvZXMgbm90IG1lYW5zIHRoZSBwb3N0ZWQgaW50ZXJydXB0IGNhbgo+ID4+
-IHdvcmsgZm9yIGVhY2ggaW50ZXJydXB0LiBJdCB3b3JrIG9ubHkgaWYgc2V2ZXJhbCBjb25kaXRp
-b25zIGFyZSBtZXQKPiA+PiAoZm9yIGV4YW1wbGUgdGhlIFZDUFUgaXMgcnVubmluZykuCj4gPgo+
-ID4gTm90IHN1cmUgSSBnZXQgaXQuIENhbiB5b3UgYmUgZXhwbGljaXQgd2hhdCBuZWVkcyB0byBi
-ZSBkb25lIHRvIG1ha2UKPiA+IHN1cmUgdGhlIGludGVycnVwdHMgd2lsbCBnbyB0aHJvdWdoIGRp
-cmVjdGx5IHRvIHRoZSB2Q1BVPwo+ID4KPiA+Pgo+ID4+IFNvIGlmIHRoaXMgaXMgdGhlIGZhbGxi
-YWNrIGlycSBoYW5kbGVyIHdoZW4gd2UgY2FuIGRvIHBvc3QgaW50ZXJydXB0LAo+ID4+IHNob3Vs
-ZCB3ZSB0cmlnZ2VyIHRoZSB2aXJ0cXVldWUgY2FsbGJhY2sgaGVyZT8KPiA+Cj4gPiBJdCdzIG5v
-dCBhIGZhbGxiYWNrLiBJIHNob3VsZCByZW1vdmUgaXQgY29tcGxldGVseS4KPgo+IEFjdHVhbGx5
-IGl0IGNhbid0IGJlIHJlbW92ZWQuIElmIHdlIGRvIHJlbW92ZSBpdCwgd2Ugd2lsbCBmYWlsCj4g
-cmVxdWVzdF9pcnEoKSBkdWUgdG8gdGhpcyBjb2RlIGZyb20gcmVxdWVzdF90aHJlYWRlZF9pcnEo
-KToKPgo+ICAgICAgICAgIGlmICghaGFuZGxlcikgewo+ICAgICAgICAgICAgICAgICAgaWYgKCF0
-aHJlYWRfZm4pCj4gICAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOwo+Cj4g
-ICAgICAgICAgICAgICAgICBoYW5kbGVyID0gaXJxX2RlZmF1bHRfcHJpbWFyeV9oYW5kbGVyOwo+
-ICAgICAgICAgIH0KPgo+IElmIG5vIGVycm9ycyB3ZXJlIGVuY291bnRlcmVkLCB3ZSBkb24ndCBl
-eHBlY3QgdGhlIGhhbmRsZXJzIHRvIGV2ZXIgYmUKPiBjYWxsZWQgc2luY2UgdGhlIGludGVycnVw
-dHMgZ28gZGlyZWN0bHkgdG8gdGhlIGd1ZXN0IHZDUFUuCgpTbyB0aGUgcXVlc3Rpb24gaXMgd2hh
-dCBoYXBwZW5zIGlmIHRoZSBzZXR1cCBkb2Vzbid0IHN1cHBvcnQgUEkuIEl0Cmxvb2tzIHRvIG1l
-IHdlIGNhbiByZWFjaCB0aGlzIGhhbmRsZXIuCgpUaGFua3MKCj4KPiBTbyBJIGFtIHRoaW5raW5n
-LCBtYXliZSBJIHNob3VsZCBqdXN0IHB1dCBhIFdBUk5fT05DRSBpbiB0aGUgaGFuZGxlci4KPgo+
-IEkgYW0gYWxzbyB0YWtpbmcgdGhlIG9wcG9ydHVuaXR5IHRvIHNheSB0aGF0IEkgd2lsbCBiZSBv
-biB2YWNhdGlvbiB0aWxsCj4gTWFyY2ggMTMgc28gSSB3b24ndCBiZSBhYmxlIHRvIHJlc3BvbmQg
-dG8gZW1haWxzLgo+Cj4gPgo+ID4+Cj4gPj4KPiA+Pj4gK30KPiA+Pj4gKwo+ID4+PiArc3RhdGlj
-IHZvaWQgYWxsb2NhdGVfaXJxcyhzdHJ1Y3QgbWx4NV92ZHBhX25ldCAqbmRldikKPiA+Pj4gK3sK
-PiA+Pj4gKyAgICBzdHJ1Y3QgbWx4NV92ZHBhX2lycV9wb29sX2VudHJ5ICplbnQ7Cj4gPj4+ICsg
-ICAgaW50IGk7Cj4gPj4+ICsKPiA+Pj4gKyAgICBpZiAoIW1zaXhfbW9kZV9zdXBwb3J0ZWQoJm5k
-ZXYtPm12ZGV2KSkKPiA+Pj4gKyAgICAgICAgcmV0dXJuOwo+ID4+PiArCj4gPj4+ICsgICAgbmRl
-di0+aXJxcC5lbnRyaWVzID0ga2NhbGxvYyhuZGV2LT5tdmRldi5tYXhfdnFzLAo+ID4+PiBzaXpl
-b2YoKm5kZXYtPmlycXAuZW50cmllcyksIEdGUF9LRVJORUwpOwo+ID4+PiArICAgIGlmICghbmRl
-di0+aXJxcC5lbnRyaWVzKQo+ID4+PiArICAgICAgICByZXR1cm47Cj4gPj4+ICsKPiA+Pj4gKyAg
-ICBmb3IgKGkgPSAwOyBpIDwgbmRldi0+bXZkZXYubWF4X3ZxczsgaSsrKSB7Cj4gPj4+ICsgICAg
-ICAgIGVudCA9IG5kZXYtPmlycXAuZW50cmllcyArIGk7Cj4gPj4+ICsgICAgICAgIHNucHJpbnRm
-KGVudC0+bmFtZSwgTUxYNV9WRFBBX0lSUV9OQU1FX0xFTiwgIiVzLXZxLSVkIiwKPiA+Pj4gKyAg
-ICAgICAgICAgICBkZXZfbmFtZSgmbmRldi0+bXZkZXYudmRldi5kZXYpLCBpKTsKPiA+Pj4gKyAg
-ICAgICAgZW50LT5tYXAgPSBtbHg1X21zaXhfYWxsb2MobmRldi0+bXZkZXYubWRldiwgaW50X2hh
-bmRsZXIsCj4gPj4+IE5VTEwsIGVudC0+bmFtZSk7Cj4gPj4+ICsgICAgICAgIGlmICghZW50LT5t
-YXAudmlycSkKPiA+Pj4gKyAgICAgICAgICAgIHJldHVybjsKPiA+Pj4gKwo+ID4+PiArICAgICAg
-ICBuZGV2LT5pcnFwLm51bV9lbnQrKzsKPiA+Pj4gKyAgICB9Cj4gPj4+ICt9Cj4gPj4+ICsKPiA+
-Pj4gICBzdGF0aWMgaW50IG1seDVfdmRwYV9kZXZfYWRkKHN0cnVjdCB2ZHBhX21nbXRfZGV2ICp2
-X21kZXYsIGNvbnN0Cj4gPj4+IGNoYXIgKm5hbWUsCj4gPj4+ICAgICAgICAgICAgICAgICAgICBj
-b25zdCBzdHJ1Y3QgdmRwYV9kZXZfc2V0X2NvbmZpZyAqYWRkX2NvbmZpZykKPiA+Pj4gICB7Cj4g
-Pj4+IEBAIC0zMTcxLDYgKzMyNzksNyBAQCBzdGF0aWMgaW50IG1seDVfdmRwYV9kZXZfYWRkKHN0
-cnVjdAo+ID4+PiB2ZHBhX21nbXRfZGV2ICp2X21kZXYsIGNvbnN0IGNoYXIgKm5hbWUsCj4gPj4+
-ICAgICAgIH0KPiA+Pj4gICAgICAgICBpbml0X212cXMobmRldik7Cj4gPj4+ICsgICAgYWxsb2Nh
-dGVfaXJxcyhuZGV2KTsKPiA+Pj4gICAgICAgaW5pdF9yd3NlbSgmbmRldi0+cmVzbG9jayk7Cj4g
-Pj4+ICAgICAgIGNvbmZpZyA9ICZuZGV2LT5jb25maWc7Cj4gPj4+ICAgQEAgLTMzNTgsNiArMzQ2
-NywxNyBAQCBzdGF0aWMgdm9pZCBtbHg1dl9yZW1vdmUoc3RydWN0Cj4gPj4+IGF1eGlsaWFyeV9k
-ZXZpY2UgKmFkZXYpCj4gPj4+ICAgICAgIGtmcmVlKG1ndGRldik7Cj4gPj4+ICAgfQo+ID4+PiAg
-ICtzdGF0aWMgdm9pZCBtbHg1dl9zaHV0ZG93bihzdHJ1Y3QgYXV4aWxpYXJ5X2RldmljZSAqYXV4
-ZGV2KQo+ID4+PiArewo+ID4+PiArICAgIHN0cnVjdCBtbHg1X3ZkcGFfbWdtdGRldiAqbWd0ZGV2
-Owo+ID4+PiArICAgIHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2Owo+ID4+PiArCj4gPj4+ICsg
-ICAgbWd0ZGV2ID0gYXV4aWxpYXJ5X2dldF9kcnZkYXRhKGF1eGRldik7Cj4gPj4+ICsgICAgbmRl
-diA9IG1ndGRldi0+bmRldjsKPiA+Pj4gKwo+ID4+PiArICAgIGZyZWVfaXJxcyhuZGV2KTsKPiA+
-Pj4gK30KPiA+Pj4gKwo+ID4+PiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3QgYXV4aWxpYXJ5X2Rldmlj
-ZV9pZCBtbHg1dl9pZF90YWJsZVtdID0gewo+ID4+PiAgICAgICB7IC5uYW1lID0gTUxYNV9BREVW
-X05BTUUgIi52bmV0IiwgfSwKPiA+Pj4gICAgICAge30sCj4gPj4+IEBAIC0zMzY5LDYgKzM0ODks
-NyBAQCBzdGF0aWMgc3RydWN0IGF1eGlsaWFyeV9kcml2ZXIgbWx4NXZfZHJpdmVyID0gewo+ID4+
-PiAgICAgICAubmFtZSA9ICJ2bmV0IiwKPiA+Pj4gICAgICAgLnByb2JlID0gbWx4NXZfcHJvYmUs
-Cj4gPj4+ICAgICAgIC5yZW1vdmUgPSBtbHg1dl9yZW1vdmUsCj4gPj4+ICsgICAgLnNodXRkb3du
-ID0gbWx4NXZfc2h1dGRvd24sCj4gPj4KPiA+Pgo+ID4+IFNvIHdlIGFsbG9jYXRlIHRoZSBpcnEg
-ZHVyaW5nIGRldl9hZGQsIGl0IHNlZW1zIGNsZWFuZXIgaWYgd2UgZG8gdGhhdAo+ID4+IGluIHRo
-ZSBkZXZfZGVsLgo+ID4gTm90IHN1cmUgd2hhdCB5b3UgbWVhbiBoZXJlLiBZb3UncmUgc2F5aW5n
-IEkgc2hvdWxkIG5vdCBjYWxsCj4gPiBmcmVlX2lycXMoKSBpbiBtbHg1dl9zaHV0ZG93bigpCj4g
-Pj4KPiA+PiBOb3RlIHRoYXQgbWx4NXZfcmVtb3ZlIHdpbGwgY2FsbCB2ZHBhX21nbXRkZXZfdW5y
-ZWdpc3RlcigpIHdoaWNoIHdpbGwKPiA+PiBjYWxsIGRldl9kZWwuCj4gPj4KPiA+PiBUaGFua3MK
-PiA+Pgo+ID4+Cj4gPj4+ICAgICAgIC5pZF90YWJsZSA9IG1seDV2X2lkX3RhYmxlLAo+ID4+PiAg
-IH07Cj4gPj4+ICAgZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQu
-aAo+ID4+PiBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuaAo+ID4+PiBpbmRleCBj
-OTBhODllMWRlNGQuLmU1MDYzYjMxMGQzYyAxMDA2NDQKPiA+Pj4gLS0tIGEvZHJpdmVycy92ZHBh
-L21seDUvbmV0L21seDVfdm5ldC5oCj4gPj4+ICsrKyBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9t
-bHg1X3ZuZXQuaAo+ID4+PiBAQCAtMjYsNiArMjYsMTkgQEAgc3RhdGljIGlubGluZSB1MTYga2V5
-MnZpZCh1NjQga2V5KQo+ID4+PiAgICAgICByZXR1cm4gKHUxNikoa2V5ID4+IDQ4KSAmIDB4ZmZm
-Owo+ID4+PiAgIH0KPiA+Pj4gICArI2RlZmluZSBNTFg1X1ZEUEFfSVJRX05BTUVfTEVOIDMyCj4g
-Pj4+ICsKPiA+Pj4gK3N0cnVjdCBtbHg1X3ZkcGFfaXJxX3Bvb2xfZW50cnkgewo+ID4+PiArICAg
-IHN0cnVjdCBtc2lfbWFwIG1hcDsKPiA+Pj4gKyAgICBpbnQgdXNlY291bnQ7Cj4gPj4+ICsgICAg
-Y2hhciBuYW1lW01MWDVfVkRQQV9JUlFfTkFNRV9MRU5dOwo+ID4+PiArfTsKPiA+Pj4gKwo+ID4+
-PiArc3RydWN0IG1seDVfdmRwYV9pcnFfcG9vbCB7Cj4gPj4+ICsgICAgaW50IG51bV9lbnQ7Cj4g
-Pj4+ICsgICAgc3RydWN0IG1seDVfdmRwYV9pcnFfcG9vbF9lbnRyeSAqZW50cmllczsKPiA+Pj4g
-K307Cj4gPj4+ICsKPiA+Pj4gICBzdHJ1Y3QgbWx4NV92ZHBhX25ldCB7Cj4gPj4+ICAgICAgIHN0
-cnVjdCBtbHg1X3ZkcGFfZGV2IG12ZGV2Owo+ID4+PiAgICAgICBzdHJ1Y3QgbWx4NV92ZHBhX25l
-dF9yZXNvdXJjZXMgcmVzOwo+ID4+PiBAQCAtNDksNiArNjIsNyBAQCBzdHJ1Y3QgbWx4NV92ZHBh
-X25ldCB7Cj4gPj4+ICAgICAgIHN0cnVjdCB2ZHBhX2NhbGxiYWNrIGNvbmZpZ19jYjsKPiA+Pj4g
-ICAgICAgc3RydWN0IG1seDVfdmRwYV93cV9lbnQgY3ZxX2VudDsKPiA+Pj4gICAgICAgc3RydWN0
-IGhsaXN0X2hlYWQgbWFjdmxhbl9oYXNoW01MWDVWX01BQ1ZMQU5fU0laRV07Cj4gPj4+ICsgICAg
-c3RydWN0IG1seDVfdmRwYV9pcnFfcG9vbCBpcnFwOwo+ID4+PiAgICAgICBzdHJ1Y3QgZGVudHJ5
-ICpkZWJ1Z2ZzOwo+ID4+PiAgIH07Cj4gPj4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
-emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
-ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, 7 Apr 2023 07:02:34 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Apr 06, 2023 at 10:20:09AM -0700, Guenter Roeck wrote:
+> > Hi,
+> >
+> > On Mon, Mar 27, 2023 at 12:05:33PM +0800, Xuan Zhuo wrote:
+> > > Added virtqueue_dma_dev() to get DMA device for virtio. Then the
+> > > caller can do dma operation in advance. The purpose is to keep memory
+> > > mapped across multiple add/get buf operations.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > Acked-by: Jason Wang <jasowang@redhat.com>
+> >
+> > On sparc64, this patch results in
+> >
+> > [    4.364643] Unable to handle kernel NULL pointer dereference
+> > [    4.365157] tsk->{mm,active_mm}->context = 0000000000000000
+> > [    4.365394] tsk->{mm,active_mm}->pgd = fffff80000402000
+> > [    4.365611]               \|/ ____ \|/
+> > [    4.365611]               "@'/ .. \`@"
+> > [    4.365611]               /_| \__/ |_\
+> > [    4.365611]                  \__U_/
+> > [    4.366165] swapper/0(1): Oops [#1]
+> > [    4.366630] CPU: 0 PID: 1 Comm: swapper/0 Tainted: G                 N 6.3.0-rc5-next-20230405 #1
+> > [    4.367121] TSTATE: 0000004411001606 TPC: 00000000004375c0 TNPC: 00000000004375c4 Y: 00000002    Tainted: G                 N
+> > [    4.367548] TPC: <dma_4u_supported+0x20/0x40>
+> > [    4.368111] g0: 0000000000000000 g1: 0000000001a93a50 g2: 0000000000000000 g3: 0000000001a96170
+> > [    4.368439] g4: fffff8000416e9a0 g5: fffff8001dc98000 g6: fffff80004170000 g7: 0000000000000005
+> > [    4.368769] o0: 0000000000000000 o1: ffffffffffffffff o2: 0000000000000001 o3: fffff800040b78d8
+> > [    4.369095] o4: 0000000000000000 o5: 0000000000000000 sp: fffff80004172d51 ret_pc: 00000000004375ac
+> > [    4.369934] RPC: <dma_4u_supported+0xc/0x40>
+> > [    4.370160] l0: 0000000000000002 l1: 0000000000000002 l2: 0000000000000000 l3: 00000000ffffffff
+> > [    4.370493] l4: 0000000000000001 l5: 000000000119d2b0 l6: fffff8000416e9a0 l7: 00000000018df000
+> > [    4.370820] i0: 0000000000000001 i1: ffffffffffffffff i2: fffff80004657758 i3: 000000000125ac00
+> > [    4.371145] i4: 0000000002362400 i5: 0000000000000000 i6: fffff80004172e01 i7: 000000000050e288
+> > [    4.371473] I7: <dma_set_mask+0x28/0x80>
+> > [    4.371683] Call Trace:
+> > [    4.371864] [<000000000050e288>] dma_set_mask+0x28/0x80
+> > [    4.372123] [<0000000000a83234>] virtio_dev_probe+0x14/0x400
+> > [    4.372348] [<0000000000ac7a18>] really_probe+0xb8/0x340
+> > [    4.372555] [<0000000000ac7d64>] driver_probe_device+0x24/0x120
+> > [    4.372794] [<0000000000ac8010>] __driver_attach+0x90/0x1a0
+> > [    4.373012] [<0000000000ac5b4c>] bus_for_each_dev+0x4c/0xa0
+> > [    4.373226] [<0000000000ac6d80>] bus_add_driver+0x140/0x1e0
+> > [    4.373440] [<0000000000ac8d94>] driver_register+0x74/0x120
+> > [    4.373653] [<0000000001b2a690>] virtio_net_driver_init+0x74/0xa8
+> > [    4.373886] [<0000000000427ee0>] do_one_initcall+0x60/0x340
+> > [    4.374099] [<0000000001b02f50>] kernel_init_freeable+0x1bc/0x228
+> > [    4.374330] [<0000000000f37264>] kernel_init+0x18/0x134
+> > [    4.374534] [<00000000004060e8>] ret_from_fork+0x1c/0x2c
+> > [    4.374738] [<0000000000000000>] 0x0
+> > [    4.374981] Disabling lock debugging due to kernel taint
+> > [    4.375237] Caller[000000000050e288]: dma_set_mask+0x28/0x80
+> > [    4.375477] Caller[0000000000a83234]: virtio_dev_probe+0x14/0x400
+> > [    4.375704] Caller[0000000000ac7a18]: really_probe+0xb8/0x340
+> > [    4.375916] Caller[0000000000ac7d64]: driver_probe_device+0x24/0x120
+> > [    4.376146] Caller[0000000000ac8010]: __driver_attach+0x90/0x1a0
+> > [    4.376365] Caller[0000000000ac5b4c]: bus_for_each_dev+0x4c/0xa0
+> > [    4.376583] Caller[0000000000ac6d80]: bus_add_driver+0x140/0x1e0
+> > [    4.376805] Caller[0000000000ac8d94]: driver_register+0x74/0x120
+> > [    4.377025] Caller[0000000001b2a690]: virtio_net_driver_init+0x74/0xa8
+> > [    4.377262] Caller[0000000000427ee0]: do_one_initcall+0x60/0x340
+> > [    4.377480] Caller[0000000001b02f50]: kernel_init_freeable+0x1bc/0x228
+> > [    4.377721] Caller[0000000000f37264]: kernel_init+0x18/0x134
+> > [    4.377930] Caller[00000000004060e8]: ret_from_fork+0x1c/0x2c
+> > [    4.378140] Caller[0000000000000000]: 0x0
+> > [    4.378309] Instruction DUMP:
+> > [    4.378339]  80a22000
+> > [    4.378556]  12400006
+> > [    4.378654]  b0102001
+> > [    4.378746] <c2076658>
+> > [    4.378838]  b0102000
+> > [    4.378930]  80a04019
+> > [    4.379022]  b1653001
+> > [    4.379115]  81cfe008
+> > [    4.379507]  913a2000
+> > [    4.379617]
+> > [    4.380504] Kernel panic - not syncing: Attempted to kill init! exitcode=0x00000009
+> >
+> > Reverting it fixes the problem. Bisect log attached.
+> >
+> > The reason is that dma_supported() calls dma_4u_supported(), which
+> > expects that dev->archdata.iommu has been initialized. However,
+> > this is not the case for the virtio device. Result is a null pointer
+> > dereference in dma_4u_supported().
+> >
+> > static int dma_4u_supported(struct device *dev, u64 device_mask)
+> > {
+> >         struct iommu *iommu = dev->archdata.iommu;
+> >
+> >         if (ali_sound_dma_hack(dev, device_mask))
+> >                 return 1;
+> >
+> >         if (device_mask < iommu->dma_addr_mask)
+> > 	                  ^^^^^^^^^^^^^^^^^^^^ Crash location
+> >                 return 0;
+> >         return 1;
+> > }
+> >
+> > Guenter
+>
+> This is from the unconditional call to dma_set_mask_and_coherent, right?
+
+Maybe not.
+
+The problem is that the dma_4u_supported() will be called in dma_supported().
+The premise of this function is that IOMMU has been initialized.
+
+We hope to turn virtio dev into a direct dma device by dev->ops is null.
+
+The first step in DMA frame is obtaining ops. In many cases, get_arch_dma_ops()
+returns null. When ops is null, dma frame will use direct dma.
+
+static inline const struct dma_map_ops *get_dma_ops(struct device *dev)
+{
+	if (dev->dma_ops)
+		return dev->dma_ops;
+	return get_arch_dma_ops();
+}
+
+But rethink, this is unreliable. Some platforms have returned their own ops,
+including X86.
+
+Because the priority of dev->dma_ops is higher than get_arch_dma_ops(), we
+should not let dev->dma_ops be null. We should define a set of dma_ops to
+actively implement direct dMA.
+
+
+>
+> Xuan Zhuo, I feel there should an explanation in the commit log
+> about making this unconditional call. Why are you making it
+> in probe?
+>
+> I note that different virtio transports handle this differently.
+> And looking at this more I feel this should maybe be reverted for now:
+>
+> Your patch does:
+>
+> @@ -243,6 +244,11 @@ static int virtio_dev_probe(struct device *_d)
+>         u64 driver_features;
+>         u64 driver_features_legacy;
+>
+> +       _d->dma_mask = &_d->coherent_dma_mask;
+> +       err = dma_set_mask_and_coherent(_d, DMA_BIT_MASK(64));
+> +       if (err)
+> +               return err;
+> +
+>         /* We have a driver! */
+>
+>
+> but for example virtio PCI has a 32 bit fallback.
+>
+> For example Virtio legacy also can't access 64 bit addresses at all,
+> so it does:
+>
+>         rc = dma_set_mask(&pci_dev->dev, DMA_BIT_MASK(64));
+
+dma_set_mask() will also call dma_supported().
+
+
+>         if (rc) {
+>                 rc = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(32));
+>         } else {
+>                 /*
+>                  * The virtio ring base address is expressed as a 32-bit PFN,
+>                  * with a page size of 1 << VIRTIO_PCI_QUEUE_ADDR_SHIFT.
+>                  */
+>                 dma_set_coherent_mask(&pci_dev->dev,
+>                                 DMA_BIT_MASK(32 + VIRTIO_PCI_QUEUE_ADDR_SHIFT));
+>         }
+>
+>
+> mmio tries a fallback to 32 bit if 64 bit fails which does not make
+> sense to me, but maybe I am wrong.
+>
+>
+
+These physical devices have IOMMU, so it is normal, but Virtio Dev does not have
+any physical IOMMU, so there are problems. I borrow from VDPA. So I think
+there are similar problems with VDPA.
+
+
+Thanks.
+
+
+>
+>
+>
+>
+> > ---
+> > # bad: [8417c8f5007bf4567ccffda850a3157c7d905f67] Add linux-next specific files for 20230405
+> > # good: [7e364e56293bb98cae1b55fd835f5991c4e96e7d] Linux 6.3-rc5
+> > git bisect start 'HEAD' 'v6.3-rc5'
+> > # good: [699c146eb5a03458f29e94cfde4d7dd7a36deeb4] Merge branch 'master' of git://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
+> > git bisect good 699c146eb5a03458f29e94cfde4d7dd7a36deeb4
+> > # good: [efe74e6476a9f04263288009910f07a26597386f] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux-dt.git
+> > git bisect good efe74e6476a9f04263288009910f07a26597386f
+> > # good: [24be607eedb226c1627973190a0b65cab39440b9] Merge branch 'char-misc-next' of git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+> > git bisect good 24be607eedb226c1627973190a0b65cab39440b9
+> > # good: [5213285e3f212cf266c085c1c11041adda2bc63f] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/mkp/scsi.git
+> > git bisect good 5213285e3f212cf266c085c1c11041adda2bc63f
+> > # bad: [e8f5d7e1787104da5977773ba5b3e1d502fdb9e3] Merge branch 'for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/thierry.reding/linux-pwm.git
+> > git bisect bad e8f5d7e1787104da5977773ba5b3e1d502fdb9e3
+> > # bad: [c08b5ad3300122790cef1bf7c1f51c554c778e4d] Merge branch 'gpio/for-next' of git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
+> > git bisect bad c08b5ad3300122790cef1bf7c1f51c554c778e4d
+> > # good: [4ea0c97776bf8c63805eb0f8182d9c20072219d9] gpiolib: Check array_info for NULL only once in gpiod_get_array()
+> > git bisect good 4ea0c97776bf8c63805eb0f8182d9c20072219d9
+> > # good: [b8e4bb0f05bef8334e689618c75cfed122f3a292] vdpa_sim: use kthread worker
+> > git bisect good b8e4bb0f05bef8334e689618c75cfed122f3a292
+> > # bad: [ac1fa106f52a3ea2d2718a0de7d532d3d6c03e4e] Merge branch 'linux-next' of git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
+> > git bisect bad ac1fa106f52a3ea2d2718a0de7d532d3d6c03e4e
+> > # good: [56c8cf37fb0800ad66c926eb3d044e50691afa6e] virtio_ring: packed: separate dma codes
+> > git bisect good 56c8cf37fb0800ad66c926eb3d044e50691afa6e
+> > # good: [f19986b93ab7aa23f76dedf9fd8657f865324f78] virtio_ring: update document for virtqueue_add_*
+> > git bisect good f19986b93ab7aa23f76dedf9fd8657f865324f78
+> > # bad: [60602b367dc928e2b3d6c1f21df5d05f90e37fa3] virtio_ring: correct the expression of the description of virtqueue_resize()
+> > git bisect bad 60602b367dc928e2b3d6c1f21df5d05f90e37fa3
+> > # bad: [3a06353479111e1c9e072825bb0d0730e3a0f4e7] virtio_ring: introduce virtqueue_dma_dev()
+> > git bisect bad 3a06353479111e1c9e072825bb0d0730e3a0f4e7
+> > # first bad commit: [3a06353479111e1c9e072825bb0d0730e3a0f4e7] virtio_ring: introduce virtqueue_dma_dev()
+>
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
