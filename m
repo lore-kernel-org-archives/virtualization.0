@@ -1,121 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1C95FC7619A
-	for <virtualization@archiver.kernel.org>; Tue, 11 Apr 2023 06:38:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7079FC7619A
+	for <virtualization@archiver.kernel.org>; Tue, 11 Apr 2023 06:39:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A52CE81E53;
-	Tue, 11 Apr 2023 06:38:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A52CE81E53
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T3UgJh22
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0E9E64014B;
+	Tue, 11 Apr 2023 06:39:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0E9E64014B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=flgEFjPd
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SIjEOiDHdQLb; Tue, 11 Apr 2023 06:38:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2891781E83;
-	Tue, 11 Apr 2023 06:38:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2891781E83
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AFil77q2nTsz; Tue, 11 Apr 2023 06:39:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 955054017A;
+	Tue, 11 Apr 2023 06:39:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 955054017A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04B56C0037;
-	Tue, 11 Apr 2023 06:38:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F1DCC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7BEBDC0037;
+	Tue, 11 Apr 2023 06:39:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3ED2C002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Apr 2023 06:38:04 +0000 (UTC)
+ Tue, 11 Apr 2023 06:39:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5BC5A410B5
+ by smtp3.osuosl.org (Postfix) with ESMTP id BF67160EA6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Apr 2023 06:38:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5BC5A410B5
-Authentication-Results: smtp4.osuosl.org;
+ Tue, 11 Apr 2023 06:39:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF67160EA6
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=T3UgJh22
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=flgEFjPd
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eZICKxBS4A44
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id no10GhDU972M
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Apr 2023 06:38:03 +0000 (UTC)
+ Tue, 11 Apr 2023 06:39:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4AF80410B2
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC3D160B0E
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4AF80410B2
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CC3D160B0E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Apr 2023 06:38:03 +0000 (UTC)
+ Tue, 11 Apr 2023 06:39:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681195082;
+ s=mimecast20190719; t=1681195189;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=eKDcI1gvQ3K+wzH4N+4hPHJptgLgRNp4guou9vuTChs=;
- b=T3UgJh22Rhd7mBY5qk5fL+OyaXc6NDYG7aMg0aZr0qyAVPt9/T3hFJA7fELeRbIqYLDaEx
- 1Wx5EdSIiBsXBqeAcbXzVHg09Nj+eNYOcfJJA5YLgZZ5KStxdIJeMYR1ub//qcQxrqtc1k
- zdIVuFKTuDdzr7s5oHQVW2Nj7LAZTSg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=bmgGEYzkVZaUbgzmMbzoh5F6gwzYR6Zn8qNHV7angps=;
+ b=flgEFjPdue/bw4yFAYuuZ5kdCzVMB4x4oxZcm67IE83aZ5+Y4TkDNUPh28wy5Y87Qppd52
+ R5Z59zLcTs4QkKj55dxIOwhVC2j/77Mo+I9SajoBZcLwFU/Ft20UwKF2FIgyCIRvNjgo/U
+ 4ffKPWhwHsYhR5BbKq3vTqgF/KR6G68=
+Received: from mail-oa1-f70.google.com (mail-oa1-f70.google.com
+ [209.85.160.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-128-XK0xwigMPpmnpQil-G_AUw-1; Tue, 11 Apr 2023 02:38:00 -0400
-X-MC-Unique: XK0xwigMPpmnpQil-G_AUw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- k4-20020a05600c1c8400b003f08ed470c2so656945wms.1
+ us-mta-57-r8nwP4QRPHCmO0Lb3zbPpw-1; Tue, 11 Apr 2023 02:39:46 -0400
+X-MC-Unique: r8nwP4QRPHCmO0Lb3zbPpw-1
+Received: by mail-oa1-f70.google.com with SMTP id
+ 586e51a60fabf-1840d4e9758so5702054fac.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Apr 2023 23:38:00 -0700 (PDT)
+ Mon, 10 Apr 2023 23:39:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112; t=1681195079;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=eKDcI1gvQ3K+wzH4N+4hPHJptgLgRNp4guou9vuTChs=;
- b=VfQUSc3Dy8P/19OUnwAxYFKVM6cT03OQ45E5/V1YjLifwfWfsLvKdoULxvxPzurumQ
- LchAXfw4O5qu8KOs6MzW5lV3cM0UEvsyeUHkPFjjFpXQJcjOl1ssYmwAIjWwgSJg6XHb
- GDvIQvhit7lb0xWzjpw1kLGCt1P/Og2cEDMRHrwZVLR9Efq4FWq0Bj0/AnvC7HqAALb0
- gWOjpYVqP/LOUTHvqj06ebVRT6gczGPG8B4XCVrgk+GUcYve7T66XKRe+Al+5p+IBTBo
- AoUIgO4gYosUO9THqbmxSGELJNj9GvoMW4emU2T3xLSScNSZ64GyyuG75UkT2GA92qI+
- fifw==
-X-Gm-Message-State: AAQBX9f0qEieUszzYjkGpfYbURMykvD4k4g0KHEzpwfm4rrQ7Full3Ac
- M21muCGQ+xTAS5Jznqu5DrPkxRBI0C+RyzchnBJ4Hn5zlgpOAGZ6M4ZhfKrPIV9pQNJip2VAueL
- EnbeZBMAel7znKPVG+B3iJd7Sk+I242sbvKIT5eya2Q==
-X-Received: by 2002:a05:600c:21c8:b0:3ed:bc83:3745 with SMTP id
- x8-20020a05600c21c800b003edbc833745mr8213664wmj.25.1681195079717; 
- Mon, 10 Apr 2023 23:37:59 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YXNewQyOu43+eG068hYZmpbH+ChoY9dkJCHQTitIMFv54+uzJLrVQF3Nod5Uvn4pUYmyhunw==
-X-Received: by 2002:a05:600c:21c8:b0:3ed:bc83:3745 with SMTP id
- x8-20020a05600c21c800b003edbc833745mr8213650wmj.25.1681195079399; 
- Mon, 10 Apr 2023 23:37:59 -0700 (PDT)
-Received: from redhat.com ([2.52.10.80]) by smtp.gmail.com with ESMTPSA id
- p15-20020a1c740f000000b003edc11c2ecbsm15990461wmc.4.2023.04.10.23.37.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 10 Apr 2023 23:37:58 -0700 (PDT)
-Date: Tue, 11 Apr 2023 02:37:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Shunsuke Mie <mie@igel.co.jp>
-Subject: Re: [PATCH v2 2/2] tools/virtio: fix build caused by virtio_ring
- changes
-Message-ID: <20230411023026-mutt-send-email-mst@kernel.org>
-References: <20230410112845.337212-1-mie@igel.co.jp>
- <20230410112845.337212-2-mie@igel.co.jp>
- <20230410080014-mutt-send-email-mst@kernel.org>
- <2023041055-provided-antiquely-bbdb@gregkh>
- <20230410154035-mutt-send-email-mst@kernel.org>
- <de392fbd-3ffd-466d-cc7f-32f55c03227f@igel.co.jp>
+ d=1e100.net; s=20210112; t=1681195186; x=1683787186;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=bmgGEYzkVZaUbgzmMbzoh5F6gwzYR6Zn8qNHV7angps=;
+ b=oQifej28JC/9XWOVylR8ja935okFI5VX7OZ0NGe5EHYVSfMNSEAZa/HHAy3fU9bPZs
+ hscOJEYo8EOeouf70lxM7XoAqOiBZk26tcwhDVFaKqZPV5XcMX8Hua7UT+n1lbxQUjZ7
+ 3Ba+l9BpZhhuhc/YxSa5+Z/pT5UTrIWx5NGkP2a1pNnTISiLpSPNcfHe5VWS1Bz2+oy7
+ P6ATfYwidkjT8GclOIuVWJi383Eo6BgSWvcThINJDcSs127pV26dPcx9vMIDF09Y3TgW
+ iwSDfqy9luCcqnK7BBTKFPZ1fKkbd48pJzneazmyrU5X8QtCjeyiWTgggCe49JcceRAC
+ ZRgw==
+X-Gm-Message-State: AAQBX9f3nrG+wWSMJgMdKl8P522FtQimBlmrmxoa7lF6MGWvVo7OeLop
+ jOOjC2W3D564vlsCcUNl2ldvfhEdQlyz7QjDYvdKzcsAAmZS8ld4Yb7K6Eo/HJVTz8H36GlmunJ
+ PO2G2z1ewV+k8ChiVqFGEE4HtYHrwnTs55+DJSl4d1dFGTtKaRJu6fmjstA==
+X-Received: by 2002:a54:4108:0:b0:389:86c3:b1fb with SMTP id
+ l8-20020a544108000000b0038986c3b1fbmr1861477oic.9.1681195185870; 
+ Mon, 10 Apr 2023 23:39:45 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZEuZdp/C/o7wvVXcAKKH0TG5seFsikb2lfTlxMLNcl5IJsjXU5OmKoZpXD/zEuzPQwxMhpCJdcfqdotgxeon8=
+X-Received: by 2002:a54:4108:0:b0:389:86c3:b1fb with SMTP id
+ l8-20020a544108000000b0038986c3b1fbmr1861473oic.9.1681195185664; Mon, 10 Apr
+ 2023 23:39:45 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <de392fbd-3ffd-466d-cc7f-32f55c03227f@igel.co.jp>
+References: <20230411013833.1305-1-angus.chen@jaguarmicro.com>
+ <CACGkMEscqtaTpCed_f2cfknO4--mXCyp33u1CmZwNEZxyf=ifQ@mail.gmail.com>
+ <TY2PR06MB3424BACFA8B6CB463C12E31E859A9@TY2PR06MB3424.apcprd06.prod.outlook.com>
+In-Reply-To: <TY2PR06MB3424BACFA8B6CB463C12E31E859A9@TY2PR06MB3424.apcprd06.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 11 Apr 2023 14:39:34 +0800
+Message-ID: <CACGkMEuOK+XqSa93a7+ki25yjVWSzfSzd5nsqMUo8sH1=B9hRg@mail.gmail.com>
+Subject: Re: [PATCH] virtio_pci: Wait for legacy device to be reset
+To: Angus Chen <angus.chen@jaguarmicro.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
- Sakari Ailus <sakari.ailus@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "mst@redhat.com" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,86 +116,63 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Apr 11, 2023 at 12:25:39PM +0900, Shunsuke Mie wrote:
-> 
-> On 2023/04/11 4:44, Michael S. Tsirkin wrote:
-> > On Mon, Apr 10, 2023 at 08:40:34PM +0200, Greg Kroah-Hartman wrote:
-> > > On Mon, Apr 10, 2023 at 08:00:33AM -0400, Michael S. Tsirkin wrote:
-> > > > On Mon, Apr 10, 2023 at 08:28:45PM +0900, Shunsuke Mie wrote:
-> > > > > Fix the build dependency for virtio_test. The virtio_ring that is used from
-> > > > > the test requires container_of_const(). Change to use container_of.h kernel
-> > > > > header directly and adapt related codes.
-> > > > > 
-> > > > > Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
-> > > > This is only for next right? That's where container_of_const
-> > > > things are I think ...
-> > > container_of_const() is in 6.2.
-> > 
-> > Absolutely but the patch switching virtio to that is not there.
-> > 
-> > 
-> > > > > ---
-> > > > >   tools/include/linux/types.h   |  1 -
-> > > > >   tools/virtio/linux/compiler.h |  2 ++
-> > > > >   tools/virtio/linux/kernel.h   |  5 +----
-> > > > >   tools/virtio/linux/module.h   |  1 -
-> > > > >   tools/virtio/linux/uaccess.h  | 11 ++---------
-> > > > >   5 files changed, 5 insertions(+), 15 deletions(-)
-> > > > > 
-> > > > > diff --git a/tools/include/linux/types.h b/tools/include/linux/types.h
-> > > > > index 051fdeaf2670..f1896b70a8e5 100644
-> > > > > --- a/tools/include/linux/types.h
-> > > > > +++ b/tools/include/linux/types.h
-> > > > > @@ -49,7 +49,6 @@ typedef __s8  s8;
-> > > > >   #endif
-> > > > >   #define __force
-> > > > > -#define __user
-> > > Why is this needed?
-> > > 
-> > > > >   #define __must_check
-> > > > >   #define __cold
-> > > > > diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-> > > > > index 2c51bccb97bb..1f3a15b954b9 100644
-> > > > > --- a/tools/virtio/linux/compiler.h
-> > > > > +++ b/tools/virtio/linux/compiler.h
-> > > > > @@ -2,6 +2,8 @@
-> > > > >   #ifndef LINUX_COMPILER_H
-> > > > >   #define LINUX_COMPILER_H
-> > > > > +#include "../../../include/linux/compiler_types.h"
-> > > While I understand your need to not want to duplicate code, what in the
-> > > world is this doing?  Why not use the in-kernel compiler.h instead?  Why
-> > > are you copying loads of .h files into tools/virtio/?  What is this for
-> > > and why not just use the real files so you don't have to even attempt to
-> > > try to keep things in sync (hint, they will always be out of sync.)
-> > Because it's doing a very weird hack: building some kernel
-> > code into a userspace binary, used for just for testing.
-> > This is all not part of kernel build intentionally, no
-> > one is supposed to use this binary in production, but
-> > it was helpful in finding bugs in virtio core in the past
-> > so I keep it around.
-> Would it be possible to switch to in-kernel tests, such as KUnit? If it's
-> possible, we could use the kernel headers and implementations as they are,
-> and we could address the concerns that Greg raised I think.
-> 
-> 
-> Best regards,
-> 
-> Shunsuke
-
-I think your patch is fine as is. Using kunit is certainly possible,
-but won't be a small project. tools/virtio was always a quick
-hack to help experiment quickly, so I'm not worried by it being
-broken often - whoever wants to play with it next, fixes it up.
-
--- 
-MST
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBBcHIgMTEsIDIwMjMgYXQgMjozNuKAr1BNIEFuZ3VzIENoZW4gPGFuZ3VzLmNoZW5A
+amFndWFybWljcm8uY29tPiB3cm90ZToKPgo+IEhpLgo+Cj4gPiAtLS0tLU9yaWdpbmFsIE1lc3Nh
+Z2UtLS0tLQo+ID4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+IFNl
+bnQ6IFR1ZXNkYXksIEFwcmlsIDExLCAyMDIzIDE6MjQgUE0KPiA+IFRvOiBBbmd1cyBDaGVuIDxh
+bmd1cy5jaGVuQGphZ3Vhcm1pY3JvLmNvbT4KPiA+IENjOiBtc3RAcmVkaGF0LmNvbTsgdmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmc7Cj4gPiBsaW51eC1rZXJuZWxAdmdl
+ci5rZXJuZWwub3JnCj4gPiBTdWJqZWN0OiBSZTogW1BBVENIXSB2aXJ0aW9fcGNpOiBXYWl0IGZv
+ciBsZWdhY3kgZGV2aWNlIHRvIGJlIHJlc2V0Cj4gPgo+ID4gT24gVHVlLCBBcHIgMTEsIDIwMjMg
+YXQgOTozOeKAr0FNIEFuZ3VzIENoZW4gPGFuZ3VzLmNoZW5AamFndWFybWljcm8uY29tPgo+ID4g
+d3JvdGU6Cj4gPiA+Cj4gPiA+IFdlIHJlYWQgdGhlIHN0YXR1cyBvZiBkZXZpY2UgYWZ0ZXIgcmVz
+ZXQsCj4gPiA+IEl0IGlzIG5vdCBndWFyYW50ZWVkIHRoYXQgdGhlIGRldmljZSBiZSByZXNldGVk
+IHN1Y2Nlc3NmdWxseS4KPiA+ID4gV2UgY2FuIHVzZSBhIHdoaWxlIGxvb3AgdG8gbWFrZSBzdXJl
+IHRoYXQsbGlrZSB0aGUgbW9kZXJuIGRldmljZSBkaWQuCj4gPiA+IFRoZSBzcGVjIGlzIG5vdCBy
+ZXF1ZXN0IGl0ICxidXQgaXQgd29yay4KPiA+Cj4gPiBUaGUgb25seSBjb25jZXJuIGlzIGlmIGl0
+J3MgdG9vIGxhdGUgdG8gZG8gdGhpcy4KPiA+Cj4gPiBCdHcsIGFueSByZWFzb24geW91IHdhbnQg
+dG8gaGF2ZSBhIGxlZ2FjeSBoYXJkd2FyZSBpbXBsZW1lbnRhdGlvbi4gSXQKPiA+IHdpbGwgYmUg
+dmVyeSB0cmlja3kgdG8gd29yayBjb3JyZWN0bHkuCj4gICBFbixJIGZvdW5kIHRoaXMgaW4gdGhl
+IHJlYWwgcHJvZHVjdGlvbiBlbnZpcm9ubWVudCBzb21lIHRpbWVzIGFib3V0IG9uZSB5ZWFyIGFn
+by4KPiBhbmQgSSBmaXggdGhpcyBvdXQgb2YgdHJlZS5vdXIgdmlydGlvIGNhcmQgaGFkIGJlZW4g
+c29sZCBhYm91dCB0aG91c2FuZHMgLgo+Cj4gICBOb3csd2UgY3JlYXRlZCBhIG5ldyBjYXJkLCBp
+dCBzdXBwb3J0IHZpcnRpbyAwLjk1LDEuMCwxLjEgZXRjLgo+ICAgQW5kIHdlIHVzZSB0aGlzIGhv
+c3QgdmRwYSsgbGVnYWN5IHZpcnRpbyBpbiB2bSB0byBob3QgbWlncmF0aW9uLHdlIGZvdW5kIHRo
+YXQgdGhlCj4gICBMZWdhY3kgbW9kZWwgb2Z0ZW4gZ2V0IHRoZSBtaWRkbGUgc3RhdGUgdmFsdWUg
+YWZ0ZXIgcmVzZXQgYW5kIHByb2JlIGFnYWluLgo+ICAgVGhlIFNvYyBpcyBTaW11bGF0ZWQgYnkg
+ZnBnYSB3aGljaCBpcyBydW4gc2xvd2VyIHRoYW4gdGhlIGhvc3Qsc28gdGhlIHNhbWUgYnVnCj4g
+ICBJcyBmb3VuZCBtb3JlIGZyZXF1ZW50bHkgd2hlbiB0aGUgaG9zdCB1c2UgdGhlIG90aGVyIGtl
+cm5lbCBsaWtlIHVidW50dSBvciBjZW50b3M4Lgo+Cj4gICBTbyB3ZSBob3BlIHdlIGNhbiBmaXgg
+dGhpcyBieSB1cHN0cmVhbSAuCgpJIHRoaW5rIHlvdSBjYW4gZG8gbWVkaWF0aW9uIGluIHlvdXIg
+aHlwZXJ2aXNvci4KCldoZW4gdHJhcHBpbmcgc2V0X3N0YXR1cygpLCB0aGUgaHlwZXJ2aXNvciB3
+aWxsIG5vdCByZXR1cm4gdW50aWwgaXQKcmVhZHMgMCBmcm9tIHRoZSBoYXJkd2FyZT8KClRoYW5r
+cwoKPiA+Cj4gPiBUaGFua3MKPiA+Cj4gPiA+Cj4gPiA+IFNpZ25lZC1vZmYtYnk6IEFuZ3VzIENo
+ZW4gPGFuZ3VzLmNoZW5AamFndWFybWljcm8uY29tPgo+ID4gPiAtLS0KPiA+ID4gIGRyaXZlcnMv
+dmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMgfCA0ICsrKy0KPiA+ID4gIDEgZmlsZSBjaGFuZ2Vk
+LCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+ID4KPiA+ID4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fcGNpX2xlZ2FjeS5jCj4gPiA+IGluZGV4IDIyNTdmMWIzZDhhZS4uZjJkMjQxNTYzZTRmIDEw
+MDY0NAo+ID4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2xlZ2FjeS5jCj4gPiA+
+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMKPiA+ID4gQEAgLTE0LDYg
+KzE0LDcgQEAKPiA+ID4gICAqICBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+
+ID4gPiAgICovCj4gPiA+Cj4gPiA+ICsjaW5jbHVkZSA8bGludXgvZGVsYXkuaD4KPiA+ID4gICNp
+bmNsdWRlICJsaW51eC92aXJ0aW9fcGNpX2xlZ2FjeS5oIgo+ID4gPiAgI2luY2x1ZGUgInZpcnRp
+b19wY2lfY29tbW9uLmgiCj4gPiA+Cj4gPiA+IEBAIC05Nyw3ICs5OCw4IEBAIHN0YXRpYyB2b2lk
+IHZwX3Jlc2V0KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gPiAgICAgICAgIHZwX2xl
+Z2FjeV9zZXRfc3RhdHVzKCZ2cF9kZXYtPmxkZXYsIDApOwo+ID4gPiAgICAgICAgIC8qIEZsdXNo
+IG91dCB0aGUgc3RhdHVzIHdyaXRlLCBhbmQgZmx1c2ggaW4gZGV2aWNlIHdyaXRlcywKPiA+ID4g
+ICAgICAgICAgKiBpbmNsdWRpbmcgTVNpLVggaW50ZXJydXB0cywgaWYgYW55LiAqLwo+ID4gPiAt
+ICAgICAgIHZwX2xlZ2FjeV9nZXRfc3RhdHVzKCZ2cF9kZXYtPmxkZXYpOwo+ID4gPiArICAgICAg
+IHdoaWxlICh2cF9sZWdhY3lfZ2V0X3N0YXR1cygmdnBfZGV2LT5sZGV2KSkKPiA+ID4gKyAgICAg
+ICAgICAgICAgIG1zbGVlcCgxKTsKPiA+ID4gICAgICAgICAvKiBGbHVzaCBwZW5kaW5nIFZRL2Nv
+bmZpZ3VyYXRpb24gY2FsbGJhY2tzLiAqLwo+ID4gPiAgICAgICAgIHZwX3N5bmNocm9uaXplX3Zl
+Y3RvcnModmRldik7Cj4gPiA+ICB9Cj4gPiA+IC0tCj4gPiA+IDIuMjUuMQo+ID4gPgo+CgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
