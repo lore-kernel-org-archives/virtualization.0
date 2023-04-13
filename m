@@ -1,120 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52C01C77B61
-	for <virtualization@archiver.kernel.org>; Thu, 13 Apr 2023 13:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 728F5C77B6E
+	for <virtualization@archiver.kernel.org>; Thu, 13 Apr 2023 16:25:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BB53341ED4;
-	Thu, 13 Apr 2023 13:39:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB53341ED4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HeT7W7jE
+	by smtp1.osuosl.org (Postfix) with ESMTP id F2E7A840FD;
+	Thu, 13 Apr 2023 16:25:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F2E7A840FD
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P5LM2TYV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id U6pPc9Falh_r; Thu, 13 Apr 2023 13:39:11 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Pxht4n4KCotM; Thu, 13 Apr 2023 16:25:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ECCC9418E9;
-	Thu, 13 Apr 2023 13:39:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ECCC9418E9
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 51B9D840F3;
+	Thu, 13 Apr 2023 16:25:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 51B9D840F3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C1C2AC0036;
-	Thu, 13 Apr 2023 13:39:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7426FC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 247EAC0037;
+	Thu, 13 Apr 2023 16:25:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D367FC002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 13:39:09 +0000 (UTC)
+ Thu, 13 Apr 2023 16:25:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4EC3060BE3
+ by smtp2.osuosl.org (Postfix) with ESMTP id B5195429BB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 13:39:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4EC3060BE3
-Authentication-Results: smtp3.osuosl.org;
+ Thu, 13 Apr 2023 16:25:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B5195429BB
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HeT7W7jE
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=P5LM2TYV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mKEaUKQkiSwZ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LacYWw5q0Jya
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 13:39:08 +0000 (UTC)
+ Thu, 13 Apr 2023 16:25:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A05660B55
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 184ED405D3
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7A05660B55
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 184ED405D3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 13:39:08 +0000 (UTC)
+ Thu, 13 Apr 2023 16:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681393147;
- h=from:from:reply-to:reply-to:subject:subject:date:date:
- message-id:message-id:to:to:cc:cc:mime-version:mime-version:
- content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
+ s=mimecast20190719; t=1681403149;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=nLTEnlNnryDeu3bY+Efaxs2tlXR/HklE3XK0i2rSPDc=;
- b=HeT7W7jEKeV43tlbCzGj2EOC33R1NRcAJoqL/cgZMnr798qcgTDXjd3WJaLsAC3tXBkgfG
- n8340xvTTyH1Lh2mkmPkB/l2H9ZQevW2SJTPqduwWTshvbw7WUkg5uffzNKRh7qFwjHXTo
- 23ZzmwhWa0vQ0hJJMZNe6U+HxGG+kFw=
-Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com
- [209.85.160.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QzP5Sz/J0tccGFdHhbGs5sOUHhnm1xuab76oclPkBc0=;
+ b=P5LM2TYVRiDQdOLCemZBH5QnCPtivUvE5M1WpBIo9/M6PnnnLA5GxGYwM/eP16HR0K94SA
+ QxTkTA2SYoKRd+cfWTZutxD5phgVoKAIYPpzjpvXetCUVT6lz++fp7wCJKr1nKVsLeXTbV
+ //am39SlSlUAx6DmeRBNztxMKMx+NvE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-662-n4OD2xDYNKGfsltfnOGvXg-1; Thu, 13 Apr 2023 09:39:05 -0400
-X-MC-Unique: n4OD2xDYNKGfsltfnOGvXg-1
-Received: by mail-qt1-f199.google.com with SMTP id
- y5-20020a05622a004500b003e3979be6abso10832063qtw.12
+ us-mta-605-XNq-fahtO42_dFJTZjyb1Q-1; Thu, 13 Apr 2023 12:25:48 -0400
+X-MC-Unique: XNq-fahtO42_dFJTZjyb1Q-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ t30-20020adfa2de000000b002f575ad4a7cso728571wra.12
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 06:39:05 -0700 (PDT)
+ Thu, 13 Apr 2023 09:25:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681393145; x=1683985145;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:reply-to:user-agent:mime-version:date
- :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=nLTEnlNnryDeu3bY+Efaxs2tlXR/HklE3XK0i2rSPDc=;
- b=i0qpcNN/uWqUu1sBxlz7f1fAxEle0Kl8yNTHTD+lMZ2qKVYPaPQJ6HKqTNZwR2/Hqb
- 598fhxmFshXlqsnvhGAnoSyrP4zYb+ZCf6qG7rXom+egdRQYjeC12F04jjwVrEfXOpgQ
- VGFQZd2MwD0wvo4aZUZc+mZu30JywKs1oX+e5fi+os4+jiiKCHZtEKIVfImv9F7gsCoH
- 70oI1ivUiJVSUnsJN0PMpe/ZclBlg+05rP/pVv/kgIUvBZA4n0xWZOejI2OqiepZ3bEK
- VS16NDpX5UPPjHnhchFLTC0CPdcmHaXdu18rcYRe1Z9H1fz6uqyNSL65U3jiVtdBuP/w
- V6wg==
-X-Gm-Message-State: AAQBX9d+1nmOlCA2BDrLMAv+zjLuzdCUcfUqY2VYNoGoFot+YFmmDyKq
- 2o3mm92j4YRCp/uVl1qADgtKvjxBi95nfoj2k9X1pe+x8KMlK1zOenvmZjKyNQoxMomJd+ObjM+
- qVacrZA1FAqoxjEzOg4gaF83wZQs9QC+oFyRxgVAMaw==
-X-Received: by 2002:a05:6214:4110:b0:5e9:8487:3978 with SMTP id
- kc16-20020a056214411000b005e984873978mr2957214qvb.41.1681393145331; 
- Thu, 13 Apr 2023 06:39:05 -0700 (PDT)
-X-Google-Smtp-Source: AKy350ZdVtpFtu0/c0su+y8jonHkVOioE5JF2htAL3D+ZJEQBGs2mlBkESWx6V18SUs3Dkk06xuIRA==
-X-Received: by 2002:a05:6214:4110:b0:5e9:8487:3978 with SMTP id
- kc16-20020a056214411000b005e984873978mr2957192qvb.41.1681393145012; 
- Thu, 13 Apr 2023 06:39:05 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874?
- ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+ d=1e100.net; s=20221208; t=1681403147; x=1683995147;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=QzP5Sz/J0tccGFdHhbGs5sOUHhnm1xuab76oclPkBc0=;
+ b=HRkMj7Bex+AzzIgEq1hzQuMx+JUbd5Q8h6vCsq/5MeVIk5a9Z58x5cxj8eQ6FqjFyA
+ bkdNSkh9Q/bLQW1FYOexZwIPcmLUHmEt704acg1iVptlJBs9SqOt7WQR4h3l0YigbaS3
+ RRRXYxNBKB1d8HpgOHON8vbtkD2VZqtZWssPkrdSsC0SQ/iB23yQR4mrFq6E+DxE+RUa
+ H98rEMxp7GfXiJA/hJWl5NN1pn4fc4Jho3onxatqJl3aIa60pu9T5NVwywAGqXTuV0aU
+ mSzUGyTXr+gm5zAASz0fPgtZMroal6xOK7X1ruu/WhM4nmSPAYVcPe3Olt0axDSG7yEK
+ MQVQ==
+X-Gm-Message-State: AAQBX9caBhE9457tHVqtuDdCkz9L4e7mSfxTRn1Jz5tXrZcCLhNfl1c5
+ wUUlsrDcxueESndPci5zin2ITcWJE/MFQniAmYZKjqZ6USMHFcE3w0Q1x1NLUsZk3NnHEERo4Mw
+ hs01EJuvCdcpgUVlTrMvGvEbfUEnvPkomTTCRBFVuFg==
+X-Received: by 2002:a5d:4405:0:b0:2f0:2dbd:dc3f with SMTP id
+ z5-20020a5d4405000000b002f02dbddc3fmr2133720wrq.43.1681403146968; 
+ Thu, 13 Apr 2023 09:25:46 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YakkiXnmsXJr1wAXgIivtlifVtfsJyDI97sZ1EviUV7E6q3QirS5z2K5iJFaxhGOyNCnBQkg==
+X-Received: by 2002:a5d:4405:0:b0:2f0:2dbd:dc3f with SMTP id
+ z5-20020a5d4405000000b002f02dbddc3fmr2133696wrq.43.1681403146604; 
+ Thu, 13 Apr 2023 09:25:46 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:742d:fd00:c847:221d:9254:f7ce])
  by smtp.gmail.com with ESMTPSA id
- y5-20020a0ce805000000b005eedb5cebd1sm424923qvn.130.2023.04.13.06.39.03
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 13 Apr 2023 06:39:04 -0700 (PDT)
-Message-ID: <9a765411-00ad-307e-9ca2-f6a7defba9cc@redhat.com>
-Date: Thu, 13 Apr 2023 15:39:01 +0200
+ k1-20020a056000004100b002f5925c7cabsm1597332wrx.75.2023.04.13.09.25.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 13 Apr 2023 09:25:46 -0700 (PDT)
+Date: Thu, 13 Apr 2023 12:25:43 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next V2 1/2] virtio-net: convert rx mode setting to
+ use workqueue
+Message-ID: <20230413121525-mutt-send-email-mst@kernel.org>
+References: <20230413064027.13267-1-jasowang@redhat.com>
+ <20230413064027.13267-2-jasowang@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.0
-Subject: Re: virtio-iommu hotplug issue
-To: Akihiko Odaki <akihiko.odaki@daynix.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>
-References: <15bf1b00-3aa0-973a-3a86-3fa5c4d41d2c@daynix.com>
- <20230413104041.GA3295191@myrica>
- <c6fb5a06-aa7e-91f9-7001-f456b2769595@daynix.com>
-From: Eric Auger <eric.auger@redhat.com>
-In-Reply-To: <c6fb5a06-aa7e-91f9-7001-f456b2769595@daynix.com>
+In-Reply-To: <20230413064027.13267-2-jasowang@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
+ pabeni@redhat.com, david.marchand@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,78 +121,200 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: eric.auger@redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SGksCgpPbiA0LzEzLzIzIDEzOjAxLCBBa2loaWtvIE9kYWtpIHdyb3RlOgo+IE9uIDIwMjMvMDQv
-MTMgMTk6NDAsIEplYW4tUGhpbGlwcGUgQnJ1Y2tlciB3cm90ZToKPj4gSGVsbG8sCj4+Cj4+IE9u
-IFRodSwgQXByIDEzLCAyMDIzIGF0IDAxOjQ5OjQzUE0gKzA5MDAsIEFraWhpa28gT2Rha2kgd3Jv
-dGU6Cj4+PiBIaSwKPj4+Cj4+PiBSZWNlbnRseSBJIGVuY291bnRlcmVkIGEgcHJvYmxlbSB3aXRo
-IHRoZSBjb21iaW5hdGlvbiBvZiBMaW51eCdzCj4+PiB2aXJ0aW8taW9tbXUgZHJpdmVyIGFuZCBR
-RU1VIHdoZW4gYSBTUi1JT1YgdmlydHVhbCBmdW5jdGlvbiBnZXRzCj4+PiBkaXNhYmxlZC4KPj4+
-IEknZCBsaWtlIHRvIGFzayB5b3Ugd2hhdCBraW5kIG9mIHNvbHV0aW9uIGlzIGFwcHJvcHJpYXRl
-IGhlcmUgYW5kCj4+PiBpbXBsZW1lbnQKPj4+IHRoZSBzb2x1dGlvbiBpZiBwb3NzaWJsZS4KPj4+
-Cj4+PiBBIFBDSWUgZGV2aWNlIGltcGxlbWVudGluZyB0aGUgU1ItSU9WIHNwZWNpZmljYXRpb24g
-ZXhwb3J0cyBhIHZpcnR1YWwKPj4+IGZ1bmN0aW9uLCBhbmQgdGhlIGd1ZXN0IGNhbiBlbmFibGUg
-b3IgZGlzYWJsZSBpdCBhdCBydW50aW1lIGJ5Cj4+PiB3cml0aW5nIHRvIGEKPj4+IGNvbmZpZ3Vy
-YXRpb24gcmVnaXN0ZXIuIFRoaXMgZWZmZWN0aXZlbHkgbG9va3MgbGlrZSBhIFBDSSBkZXZpY2Ug
-aXMKPj4+IGhvdHBsdWdnZWQgZm9yIHRoZSBndWVzdC4KPj4KPj4gSnVzdCBzbyBJIHVuZGVyc3Rh
-bmQgdGhpcyBiZXR0ZXI6IHRoZSBndWVzdCBnZXRzIGEgd2hvbGUgUENJZSBkZXZpY2UgUEYKPj4g
-dGhhdCBpbXBsZW1lbnRzIFNSLUlPViwgYW5kIHNvIHRoZSBndWVzdCBjYW4gZHluYW1pY2FsbHkg
-Y3JlYXRlIFZGcz/CoAo+PiBPdXQKPj4gb2YgY3VyaW9zaXR5LCBpcyB0aGF0IGEgaGFyZHdhcmUg
-ZGV2aWNlIGFzc2lnbmVkIHRvIHRoZSBndWVzdCB3aXRoIFZGSU8sCj4+IG9yIGEgZGV2aWNlIGVt
-dWxhdGVkIGJ5IFFFTVU/Cj4KPiBZZXMsIHRoYXQncyByaWdodC4gVGhlIGd1ZXN0IGNhbiBkeW5h
-bWljYWxseSBjcmVhdGUgYW5kIGRlbGV0ZSBWRnMuCj4gVGhlIGRldmljZSBpcyBlbXVsYXRlZCBi
-eSBRRU1VOiBpZ2IsIGFuIEludGVsIE5JQyByZWNlbnRseSBhZGRlZCB0bwo+IFFFTVUgYW5kIHBy
-b2plY3RlZCB0byBiZSByZWxlYXNlZCBhcyBwYXJ0IG9mIFFFTVUgOC4wLgpGcm9tIGJlbG93IGRl
-c2NyaXB0aW9uIEluIHVuZGVyc3RhbmQgeW91IHRoZW4gYmluZCB0aGlzIGVtdWxhdGVkIGRldmlj
-ZQp0byBWRklPIG9uIGd1ZXN0LCBjb3JyZWN0Pwo+Cj4+Cj4+PiBJbiBzdWNoIGEgY2FzZSwgdGhl
-IGtlcm5lbCBhc3N1bWVzIHRoZSBlbmRwb2ludCBpcwo+Pj4gZGV0YWNoZWQgZnJvbSB0aGUgdmly
-dGlvLWlvbW11IGRvbWFpbiwgYnV0IFFFTVUgYWN0dWFsbHkgZG9lcyBub3QKPj4+IGRldGFjaCBp
-dC4KVGhlIFFFTVUgdmlydGlvLWlvbW11IGRldmljZSBleGVjdXRlcyBjb21tYW5kcyBmcm9tIHRo
-ZSB2aXJ0aW8taW9tbXUKZHJpdmVyIGFuZCBteSB1bmRlcnN0YW5kaW5nIGlzIHRoZSBWRklPIGlu
-ZnJhIGlzIG5vdCBpbiB0cm91YmxlIGhlcmUuIEFzCnN1Z2dlc3RlZCBieSBKZWFuLCBhIGRldGFj
-aCBjb21tYW5kIHByb2JhYmx5IGlzIG1pc3NlZC4KPj4+Cj4+PiBUaGlzIGluY29uc2lzdGVudCB2
-aWV3IG9mIHRoZSByZW1vdmVkIGRldmljZSBzb21ldGltZXMgcHJldmVudHMgdGhlCj4+PiBWTSBm
-cm9tCj4+PiBjb3JyZWN0bHkgcGVyZm9ybWluZyB0aGUgZm9sbG93aW5nIHByb2NlZHVyZSwgZm9y
-IGV4YW1wbGU6Cj4+PiAxLiBFbmFibGUgYSBWRi4KPj4+IDIuIERpc2FibGUgdGhlIFZGLgo+Pj4g
-My4gT3BlbiBhIHZmaW8gY29udGFpbmVyLgo+Pj4gNC4gT3BlbiB0aGUgZ3JvdXAgd2hpY2ggdGhl
-IFBGIGJlbG9uZ3MgdG8uCj4+PiA1LiBBZGQgdGhlIGdyb3VwIHRvIHRoZSB2ZmlvIGNvbnRhaW5l
-ci4KPj4+IDYuIE1hcCBzb21lIG1lbW9yeSByZWdpb24uCj4+PiA3LiBDbG9zZSB0aGUgZ3JvdXAu
-Cj4+PiA4LiBDbG9zZSB0aGUgdmZpbyBjb250YWluZXIuCj4+PiA5LiBSZXBlYXQgMy04Cj4+Pgo+
-Pj4gV2hlbiB0aGUgVkYgZ2V0cyBkaXNhYmxlZCwgdGhlIGtlcm5lbCBhc3N1bWVzIHRoZSBlbmRw
-b2ludCBpcwo+Pj4gZGV0YWNoZWQgZnJvbQo+Pj4gdGhlIElPTU1VIGRvbWFpbiwgYnV0IFFFTVUg
-YWN0dWFsbHkgZG9lc24ndCBkZXRhY2ggaXQuIExhdGVyLCB0aGUKPj4+IGRvbWFpbgo+Pj4gd2ls
-bCBiZSByZXVzZWQgaW4gc3RlcCAzLTguCj4+Pgo+Pj4gSW4gc3RlcCA3LCB0aGUgUEYgd2lsbCBi
-ZSBkZXRhY2hlZCwgYW5kIHRoZSBrZXJuZWwgdGhpbmtzIHRoZXJlIGlzIG5vCj4+PiBlbmRwb2lu
-dCBhdHRhY2hlZCBhbmQgdGhlIG1hcHBpbmcgdGhlIGRvbWFpbiBob2xkcyBpcyBjbGVhcmVkLCBi
-dXQKPj4+IHRoZSBWRgo+Pj4gZW5kcG9pbnQgaXMgc3RpbGwgYXR0YWNoZWQgYW5kIHRoZSBtYXBw
-aW5nIGlzIGtlcHQgaW50YWN0Lgo+Pj4KPj4+IEluIHN0ZXAgOSwgdGhlIHNhbWUgZG9tYWluIHdp
-bGwgYmUgcmV1c2VkIGFnYWluLCBhbmQgdGhlIGtlcm5lbAo+Pj4gcmVxdWVzdHMgdG8KPj4+IGNy
-ZWF0ZSBhIG5ldyBtYXBwaW5nLCBidXQgaXQgd2lsbCBjb25mbGljdCB3aXRoIHRoZSBleGlzdGlu
-ZyBtYXBwaW5nCj4+PiBhbmQKPj4+IHJlc3VsdCBpbiAtRUlOVkFMLgo+Pj4KPj4+IFRoaXMgcHJv
-YmxlbSBjYW4gYmUgZml4ZWQgYnkgZWl0aGVyIG9mOgo+Pj4gLSByZXF1ZXN0aW5nIHRoZSBkZXRh
-Y2htZW50IG9mIHRoZSBlbmRwb2ludCBmcm9tIHRoZSBndWVzdCB3aGVuIHRoZSBQQ0kKPj4+IGRl
-dmljZSBpcyB1bnBsdWdnZWQgKHRoZSBWRiBpcyBkaXNhYmxlZCkKPj4KPj4gWWVzLCBJIHRoaW5r
-IHRoaXMgaXMgYW4gaXNzdWUgaW4gdGhlIHZpcnRpby1pb21tdSBkcml2ZXIsIHdoaWNoCj4+IHNo
-b3VsZCBiZQo+PiBzZW5kaW5nIGEgREVUQUNIIHJlcXVlc3Qgd2hlbiB0aGUgVkYgaXMgZGlzYWJs
-ZWQsIGxpa2VseSBmcm9tCj4+IHZpb21tdV9yZWxlYXNlX2RldmljZSgpLiBJJ2xsIHdvcmsgb24g
-YSBmaXggdW5sZXNzIHlvdSB3b3VsZCBsaWtlIHRvCj4+IGRvIGl0Cj4KPiBJdCB3aWxsIGJlIG5p
-Y2UgaWYgeW91IHByZXBhcmUgYSBmaXguIEkgd2lsbCB0ZXN0IHlvdXIgcGF0Y2ggd2l0aCBteQo+
-IHdvcmtsb2FkIGlmIHlvdSBzaGFyZSBpdCB3aXRoIG1lLgoKSSBjYW4gaGVscCB0ZXN0aW5nIHRv
-bwoKVGhhbmtzCgpFcmljCj4KPiBSZWdhcmRzLAo+IEFraWhpa28gT2Rha2kKPgo+Pgo+Pj4gLSBk
-ZXRlY3RpbmcgdGhhdCB0aGUgUENJIGRldmljZSBpcyBnb25lIGFuZCBhdXRvbWF0aWNhbGx5IGRl
-dGFjaCBpdCBvbgo+Pj4gUUVNVS1zaWRlLgo+Pj4KPj4+IEl0IGlzIG5vdCBjb21wbGV0ZWx5IGNs
-ZWFyIGZvciBtZSB3aGljaCBzb2x1dGlvbiBpcyBtb3JlIGFwcHJvcHJpYXRlCj4+PiBhcyB0aGUK
-Pj4+IHZpcnRpby1pb21tdSBzcGVjaWZpY2F0aW9uIGlzIHdyaXR0ZW4gaW4gYSB3YXkgaW5kZXBl
-bmRlbnQgb2YgdGhlCj4+PiBlbmRwb2ludAo+Pj4gbWVjaGFuaXNtIGFuZCBkb2VzIG5vdCBzYXkg
-d2hhdCBzaG91bGQgYmUgZG9uZSB3aGVuIGEgUENJIGRldmljZSBpcwo+Pj4gdW5wbHVnZ2VkLgo+
-Pgo+PiBZZXMsIEknbSBub3Qgc3VyZSBpdCdzIGluIHNjb3BlIGZvciB0aGUgc3BlY2lmaWNhdGlv
-biwgaXQncyBtb3JlIGFib3V0Cj4+IHNvZnR3YXJlIGd1aWRhbmNlCj4+Cj4+IFRoYW5rcywKPj4g
-SmVhbgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Apr 13, 2023 at 02:40:26PM +0800, Jason Wang wrote:
+> This patch convert rx mode setting to be done in a workqueue, this is
+> a must for allow to sleep when waiting for the cvq command to
+> response since current code is executed under addr spin lock.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+
+I don't like this frankly. This means that setting RX mode which would
+previously be reliable, now becomes unreliable.
+- first of all configuration is no longer immediate
+  and there is no way for driver to find out when
+  it actually took effect
+- second, if device fails command, this is also not
+  propagated to driver, again no way for driver to find out 
+
+VDUSE needs to be fixed to do tricks to fix this
+without breaking normal drivers.
+
+
+> ---
+> Changes since V1:
+> - use RTNL to synchronize rx mode worker
+> ---
+>  drivers/net/virtio_net.c | 55 +++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 52 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index e2560b6f7980..2e56bbf86894 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -265,6 +265,12 @@ struct virtnet_info {
+>  	/* Work struct for config space updates */
+>  	struct work_struct config_work;
+>  
+> +	/* Work struct for config rx mode */
+> +	struct work_struct rx_mode_work;
+> +
+> +	/* Is rx mode work enabled? */
+> +	bool rx_mode_work_enabled;
+> +
+>  	/* Does the affinity hint is set for virtqueues? */
+>  	bool affinity_hint_set;
+>  
+> @@ -388,6 +394,20 @@ static void disable_delayed_refill(struct virtnet_info *vi)
+>  	spin_unlock_bh(&vi->refill_lock);
+>  }
+>  
+> +static void enable_rx_mode_work(struct virtnet_info *vi)
+> +{
+> +	rtnl_lock();
+> +	vi->rx_mode_work_enabled = true;
+> +	rtnl_unlock();
+> +}
+> +
+> +static void disable_rx_mode_work(struct virtnet_info *vi)
+> +{
+> +	rtnl_lock();
+> +	vi->rx_mode_work_enabled = false;
+> +	rtnl_unlock();
+> +}
+> +
+>  static void virtqueue_napi_schedule(struct napi_struct *napi,
+>  				    struct virtqueue *vq)
+>  {
+> @@ -2310,9 +2330,11 @@ static int virtnet_close(struct net_device *dev)
+>  	return 0;
+>  }
+>  
+> -static void virtnet_set_rx_mode(struct net_device *dev)
+> +static void virtnet_rx_mode_work(struct work_struct *work)
+>  {
+> -	struct virtnet_info *vi = netdev_priv(dev);
+> +	struct virtnet_info *vi =
+> +		container_of(work, struct virtnet_info, rx_mode_work);
+> +	struct net_device *dev = vi->dev;
+>  	struct scatterlist sg[2];
+>  	struct virtio_net_ctrl_mac *mac_data;
+>  	struct netdev_hw_addr *ha;
+> @@ -2325,6 +2347,8 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+>  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
+>  		return;
+>  
+> +	rtnl_lock();
+> +
+>  	vi->ctrl->promisc = ((dev->flags & IFF_PROMISC) != 0);
+>  	vi->ctrl->allmulti = ((dev->flags & IFF_ALLMULTI) != 0);
+>  
+> @@ -2342,14 +2366,19 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+>  		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+>  			 vi->ctrl->allmulti ? "en" : "dis");
+>  
+> +	netif_addr_lock_bh(dev);
+> +
+>  	uc_count = netdev_uc_count(dev);
+>  	mc_count = netdev_mc_count(dev);
+>  	/* MAC filter - use one buffer for both lists */
+>  	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
+>  		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
+>  	mac_data = buf;
+> -	if (!buf)
+> +	if (!buf) {
+> +		netif_addr_unlock_bh(dev);
+> +		rtnl_unlock();
+>  		return;
+> +	}
+>  
+>  	sg_init_table(sg, 2);
+>  
+> @@ -2370,6 +2399,8 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+>  	netdev_for_each_mc_addr(ha, dev)
+>  		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
+>  
+> +	netif_addr_unlock_bh(dev);
+> +
+>  	sg_set_buf(&sg[1], mac_data,
+>  		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
+>  
+> @@ -2377,9 +2408,19 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+>  				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
+>  		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
+>  
+> +	rtnl_unlock();
+> +
+>  	kfree(buf);
+>  }
+>  
+> +static void virtnet_set_rx_mode(struct net_device *dev)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +
+> +	if (vi->rx_mode_work_enabled)
+> +		schedule_work(&vi->rx_mode_work);
+> +}
+> +
+>  static int virtnet_vlan_rx_add_vid(struct net_device *dev,
+>  				   __be16 proto, u16 vid)
+>  {
+> @@ -3150,6 +3191,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+>  
+>  	/* Make sure no work handler is accessing the device */
+>  	flush_work(&vi->config_work);
+> +	disable_rx_mode_work(vi);
+> +	flush_work(&vi->rx_mode_work);
+>  
+>  	netif_tx_lock_bh(vi->dev);
+>  	netif_device_detach(vi->dev);
+
+So now configuration is not propagated to device.
+Won't device later wake up in wrong state?
+
+
+> @@ -3172,6 +3215,7 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+>  	virtio_device_ready(vdev);
+>  
+>  	enable_delayed_refill(vi);
+> +	enable_rx_mode_work(vi);
+>  
+>  	if (netif_running(vi->dev)) {
+>  		err = virtnet_open(vi->dev);
+> @@ -3969,6 +4013,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	vdev->priv = vi;
+>  
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+> +	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+>  	spin_lock_init(&vi->refill_lock);
+>  
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
+> @@ -4077,6 +4122,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (vi->has_rss || vi->has_rss_hash_report)
+>  		virtnet_init_default_rss(vi);
+>  
+> +	enable_rx_mode_work(vi);
+> +
+>  	/* serialize netdev register + virtio_device_ready() with ndo_open() */
+>  	rtnl_lock();
+>  
+> @@ -4174,6 +4221,8 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  
+>  	/* Make sure no work handler is accessing the device. */
+>  	flush_work(&vi->config_work);
+> +	disable_rx_mode_work(vi);
+> +	flush_work(&vi->rx_mode_work);
+>  
+>  	unregister_netdev(vi->dev);
+>  
+> -- 
+> 2.25.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
