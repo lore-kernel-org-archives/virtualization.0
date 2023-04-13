@@ -1,92 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 789F0C7619A
-	for <virtualization@archiver.kernel.org>; Wed, 12 Apr 2023 11:55:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3FEB9C77B6C
+	for <virtualization@archiver.kernel.org>; Thu, 13 Apr 2023 06:40:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E778741E27;
-	Wed, 12 Apr 2023 11:55:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E778741E27
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=NX92vPxj
+	by smtp2.osuosl.org (Postfix) with ESMTP id A301040146;
+	Thu, 13 Apr 2023 06:40:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A301040146
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YPfiK20M
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KVVAlfAva-np; Wed, 12 Apr 2023 11:55:02 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0xNMtz7Ye_PD; Thu, 13 Apr 2023 06:40:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 25EFF408DD;
-	Wed, 12 Apr 2023 11:55:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 25EFF408DD
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1F0DA40C82;
+	Thu, 13 Apr 2023 06:40:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F0DA40C82
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B21DEC0037;
-	Wed, 12 Apr 2023 11:55:01 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D4A94C0037;
+	Thu, 13 Apr 2023 06:40:46 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93C0EC002A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0224EC002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Apr 2023 11:55:00 +0000 (UTC)
+ Thu, 13 Apr 2023 06:40:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 685568233D
+ by smtp1.osuosl.org (Postfix) with ESMTP id CAD5083D1D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Apr 2023 11:55:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 685568233D
+ Thu, 13 Apr 2023 06:40:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CAD5083D1D
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20210309 header.b=NX92vPxj
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YPfiK20M
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HGg1MzXgyEaT
+ with ESMTP id Df7IzFF1qL8o
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Apr 2023 11:54:59 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B4918230B
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:3::133])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0B4918230B
+ Thu, 13 Apr 2023 06:40:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 78E6883E5B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 78E6883E5B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Apr 2023 11:54:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
- :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=E7jhS3JdgTZerJzluPFl2gDl/bk0jtiuw7jd95fOsqA=; b=NX92vPxjegipd9/4yjbvyWlS5t
- F0fuje4fySpqTcwaWUrLIrS+DTyW7UO9YtPA95SJxfJYxQkhmFN2fe68X36L0qihse5B0//31O5U1
- CIHOnRWcEcgAq2h3hf01hUvJqT8G7r9fvcaZHLcaYMkaPX2AixKV9CgXkxJqSNobz/zDsDymm9jan
- RR0YyvpWgaHxVdI3c3f+lGUQl4c0xOi42XhLu/DyJGFgEtVnU8mMkLUZmi9IeqanEHu1kWdXFK7Hg
- YZO829eSldlJdLx6piWQyvT0eNiaj8K4BDxTM28BCzJlSnV8essY0x7mF6P4ACbQqPxcEYLsGkmEC
- 3LB0gtiA==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat
- Linux)) id 1pmZ3u-002yMb-1J; Wed, 12 Apr 2023 11:54:54 +0000
-Date: Wed, 12 Apr 2023 04:54:54 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v6 08/11] virtio_ring: introduce virtqueue_dma_dev()
-Message-ID: <ZDacDi/THFo0UIfu@infradead.org>
-References: <CACGkMEvLLbGTuF1sVSse1RBssvsTR40+P5eBzYkrYnqF7EO3Jw@mail.gmail.com>
- <ZDQq0pDVkr8TvoTM@infradead.org>
- <1681178179.2350223-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEskNEwD0_AZgoDLS2RBv9cpbH5u1q01=cDuawV0NbhK_w@mail.gmail.com>
- <ZDTUn6TUqzrF06mr@infradead.org>
- <CACGkMEtD0BLBXv7S-TLY-Y483_Lx4UskLyPmEC2wyGa8VE_R6w@mail.gmail.com>
- <1681193477.0633929-1-xuanzhuo@linux.alibaba.com>
- <ZDT8S6Q9mzNa5dRh@infradead.org>
- <1681194480.146465-3-xuanzhuo@linux.alibaba.com>
- <1681265026.6082013-1-xuanzhuo@linux.alibaba.com>
+ Thu, 13 Apr 2023 06:40:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1681368042;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=poCHwQPZfHA/cky6cZa5Q/phSPW/9HqD6ZSWHiw/xOY=;
+ b=YPfiK20M9lFRUiDi3p1tKVfASIFYB4QR/elCSB9keCmUp/7qnioOs9Ta6QOFmqpXscfRGz
+ HwsYhAXSHz5ULdbmzAp6DFMs56BB6uDwXxQtl5Scka6GMJ8YwVVfWcLLQPznzBysQpf9Uf
+ oIg3vros/krw25Lg9sZiLvcuzaTlh34=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-643-SR5elh1kPmmD-MDY5VVb8A-1; Thu, 13 Apr 2023 02:40:36 -0400
+X-MC-Unique: SR5elh1kPmmD-MDY5VVb8A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 025223C025B3;
+ Thu, 13 Apr 2023 06:40:36 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-12-72.pek2.redhat.com [10.72.12.72])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5707640C6E70;
+ Thu, 13 Apr 2023 06:40:29 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH net-next V2 0/2] virtio-net: don't busy poll for cvq command
+Date: Thu, 13 Apr 2023 14:40:25 +0800
+Message-Id: <20230413064027.13267-1-jasowang@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1681265026.6082013-1-xuanzhuo@linux.alibaba.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- bombadil.infradead.org. See http://www.infradead.org/rpr.html
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>,
- =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
- Magnus Karlsson <magnus.karlsson@intel.com>,
- Guenter Roeck <linux@roeck-us.net>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ edumazet@google.com, maxime.coquelin@redhat.com, kuba@kernel.org,
+ pabeni@redhat.com, david.marchand@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,43 +99,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Apr 12, 2023 at 10:03:46AM +0800, Xuan Zhuo wrote:
-> We discusses this question last at [1]. We planned to pass one device to xsk.
-> Then xsk can use the DMA API on this device. The device can be one hw
-> device(such as PCI, mmio) or virtio device. If it is one hw device, no problem.
+Hi all:
 
-What do you mean with one here?  A virtio device should never be baken
-by more than one hardware device.
+The code used to busy poll for cvq command which turns out to have
+several side effects:
 
-> If it is one virtio device, then we expect that DMA API on that will return
-> direct dma map, because the dma_ops of the virtio device is NULL. But on some
-> platform such as sparc64 or some case of x86, the arch has own dma_ops. So we
-> wrong.
+1) infinite poll for buggy devices
+2) bad interaction with scheduler
 
-No, you can't expect a device to use any particular dma ops.  Most
-platforms support either the direct mapping or some form of IOMMU.
+So this series tries to use sleep instead of busy polling. In this
+version, I take a step back: the hardening part is not implemented and
+leave for future investigation. We use to aggree to use interruptible
+sleep but it doesn't work for a general workqueue.
 
-But for virtio thinks are even more complicated - unless
-VIRTIO_F_ACCESS_PLATFORM is set (which really must be set for all
-real hardware devices for them to work), the DMA API isn't even used
-at all.  That means the virtual platform (i.e.g qemu) does DMA based
-on physical addresses and virtio ignores all the plaform DMA setup.
+Please review.
 
-> And as the discuss of this thread, we cannot get direct dma address from
-> virtio device by DMA API. So, we need xsk to expose the DMA ops to the
-> virtio-net driver when virtio core can not use the DMA API.
-> 
-> All the processing of dma inside xsk:
-> 1. map/unmap at enable/disable
-> 2. dma sync
+Thanks
 
-For the VIRTIO_F_ACCESS_PLATFORM you can just use the DMA API like
-any other device, but this really should be done inside virtio instead
-of an upper layer.
+Changes since V1:
+- use RTNL to synchronize rx mode worker
+- use completion for simplicity
+- don't try to harden CVQ command
 
-For the !VIRTIO_F_ACCESS_PLATFORM case there is no need to sync,
-and the dma mapping is a simple virt_to_phys or page_to_phys, so
-there's no real need to premap to start with.
+Changes since RFC:
+
+- switch to use BAD_RING in virtio_break_device()
+- check virtqueue_is_broken() after being woken up
+- use more_used() instead of virtqueue_get_buf() to allow caller to
+  get buffers afterwards
+  - break the virtio-net device when timeout
+  - get buffer manually since the virtio core check more_used() instead
+
+Jason Wang (2):
+  virtio-net: convert rx mode setting to use workqueue
+  virtio-net: sleep instead of busy waiting for cvq command
+
+ drivers/net/virtio_net.c | 76 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 66 insertions(+), 10 deletions(-)
+
+-- 
+2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
