@@ -1,114 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BF9AC77B61
-	for <virtualization@archiver.kernel.org>; Thu, 13 Apr 2023 09:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3D425C77B6C
+	for <virtualization@archiver.kernel.org>; Thu, 13 Apr 2023 10:40:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2422641F64;
-	Thu, 13 Apr 2023 09:14:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2422641F64
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ICcPmDg7
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id l9DQtHI1Lf-J; Thu, 13 Apr 2023 09:14:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6190241DF3;
-	Thu, 13 Apr 2023 09:14:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6190241DF3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 17FB6C0036;
-	Thu, 13 Apr 2023 09:14:15 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93336C002A
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 09:14:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6DA1260D78
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 09:14:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6DA1260D78
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9B6AF61381;
+	Thu, 13 Apr 2023 10:40:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9B6AF61381
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ICcPmDg7
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=vgr124Bo
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IH3i6BV6Ctau
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UBfwjkpPgQ6j; Thu, 13 Apr 2023 10:40:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F09F661140;
+	Thu, 13 Apr 2023 10:40:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F09F661140
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2690C0037;
+	Thu, 13 Apr 2023 10:40:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ADD9FC002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 09:14:12 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A6AB560ABB
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A6AB560ABB
+ Thu, 13 Apr 2023 10:40:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 749D3417D7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 09:14:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681377251;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=dyzRm431VL1Fbej5RMckdPouF+WGu3yZlZlqm5Jr8zA=;
- b=ICcPmDg7rcYwuNJ8Hh9oS3zUfWcCq/9tQRTZzu6Hva/ToAqYuTTOaHQgdLUKvbHFsz02XL
- W7QLPiS2YM1tB7uvWa+z8pQoRdsN+kyw2VvyqZjeBG3t9oclCWBhfDVnycwYIqi1DqPGGe
- PSU2/5M8bWzFlMxNGhEP4S7MC7u0Xe4=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-456-8RMq-z5mP-WUFpdI7uBIpQ-1; Thu, 13 Apr 2023 05:14:07 -0400
-X-MC-Unique: 8RMq-z5mP-WUFpdI7uBIpQ-1
-Received: by mail-qk1-f197.google.com with SMTP id
- d184-20020a37b4c1000000b007467c5d3abeso7191877qkf.19
+ Thu, 13 Apr 2023 10:40:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 749D3417D7
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=vgr124Bo
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mBF28zI2weXA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Apr 2023 02:14:07 -0700 (PDT)
+ Thu, 13 Apr 2023 10:40:47 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE0D141DF1
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com
+ [IPv6:2a00:1450:4864:20::430])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DE0D141DF1
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Apr 2023 10:40:46 +0000 (UTC)
+Received: by mail-wr1-x430.google.com with SMTP id v27so4529308wra.13
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Apr 2023 03:40:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linaro.org; s=google; t=1681382445; x=1683974445;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=Wt8QYWYgXcWDb0H4PzSCSB86AxQEfmL5GXKTxvwufWc=;
+ b=vgr124BoHwdFxO+8XR7kdg8rVvjTn0NVgvqh2IRic5l3kYQUOHhoQTaVNENat3MtFT
+ m04F+OZzwB9jdXFcnIsy4aWQ3aKr0ztkHTOY6lQZ0EIMXvg5dVLnUFVklSWIiXyUg4so
+ TPyVIYoQ1qePdYzwdUatim3ab6+GMl+0NJj8xfSvKLwJQnSK51k2RUJ7jcnHU8E/hRB/
+ BKNyh1LoGZg8FGwx9Hl1BU7tjqrmd6G8BpbRurNdgS7Iv9KFU3t9Z9C/31kJSRwapfUb
+ Cgvxo+ND0LV1gCZDa3V6SUHKfqXrfdHaqn3DoKaK9742YoxMJDoe4T2PQI3CKdzzH6ru
+ 7PvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681377247; x=1683969247;
+ d=1e100.net; s=20221208; t=1681382445; x=1683974445;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=dyzRm431VL1Fbej5RMckdPouF+WGu3yZlZlqm5Jr8zA=;
- b=iTS+T/5Kq/zaUb5Ynnd4tPhVF1IavMMRCIo5t42XGa18dw5+kctilLv9mI7Y89jS7o
- bgM/OVNjHqlhUfQgSpZekMGVdDae/sJPWfwYbAPYAGKRta+c0weJIP1LkdXMsxoEadlz
- UHVqAC3wnWtIhIXMNUmUUBPrj4ovrRGFfzZrE4V2/LQdtt9cBLDGo2nCWaNKXWPc8yI5
- geUI4/DcbxqoeEItIyx4nfKb+fPBrqz8eUgpn7VSgo13YpQZ5yfyT0eksgn+6WMQo4fW
- Rn+ri/EqlfsBChRSlnMNeO0FvrcTYikhDg5V6fFag/HXWZNFRNF0KIEnvDNKH+4fMAoR
- UOeA==
-X-Gm-Message-State: AAQBX9eaT7kwX4Y48ipcePvKx7IxcMGB8IX1hHkEbgkMe5IwnkZB0Foe
- 2EleJKEnAEsmcH9rBjuVH9zJs/s768ojPG1f4ObE7v/89SZjGVd3Ciu4WHq7ZYXQm0qqda6IDlR
- lMYFONrKGnEx0ygTi5sgu8PPZNbJM0jgEOoHusYeS3Q==
-X-Received: by 2002:ac8:7e95:0:b0:3e3:8e55:1e64 with SMTP id
- w21-20020ac87e95000000b003e38e551e64mr2377952qtj.14.1681377247476; 
- Thu, 13 Apr 2023 02:14:07 -0700 (PDT)
-X-Google-Smtp-Source: AKy350YIU+TgyV60nszZOUUj8q3myAkq179cnjkKyv9e28PXemEbrxintxbe43QqEzW46gKSh3J/rw==
-X-Received: by 2002:ac8:7e95:0:b0:3e3:8e55:1e64 with SMTP id
- w21-20020ac87e95000000b003e38e551e64mr2377935qtj.14.1681377247280; 
- Thu, 13 Apr 2023 02:14:07 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-134-157.retail.telecomitalia.it.
- [82.53.134.157]) by smtp.gmail.com with ESMTPSA id
- l22-20020ac81496000000b003e4c6b2cc35sm359795qtj.24.2023.04.13.02.14.04
+ bh=Wt8QYWYgXcWDb0H4PzSCSB86AxQEfmL5GXKTxvwufWc=;
+ b=RVSFFA+z8HnXcERTTomKHxUhQUhDwYlixx/nK8eddi3rkM8u8yfS6yeqiDUx29Ly/G
+ WEoYhODLB0t/+4e9+JGFJXoM3haKXkuO44OL6XSVzur935nuDhuC5zQNn0W5zDsRrljS
+ j0iFBJzkYlltrP7AUGdf+1fyktNbXvTSVHjO6pSVT8iE7SNR28KG46/vx+5uU7V+o2xT
+ Ad/1xCx/2xVUnWKYtkU49FAFL0IhnnGEpep8JfdO1vD8B2z46UeaItcawILMVeJPgVYp
+ sO/98uY+cpjJe74RYvPFFXm4n+Ro+vm4nVTrY41mycSUizbs5IJxzJamblfGdJLmNT7C
+ p35A==
+X-Gm-Message-State: AAQBX9dwcm0VNC5Xg4FlREskFf40Q8ERvM1qvyOu2ywtoCmwARtBJemr
+ 9cZzXxPYD4B7KR4gSvxKgDBtzw==
+X-Google-Smtp-Source: AKy350ZKTDVRuGJL5YYI5HJoiDXvklp7EVihRfgojTs66okpvLm6QBr1zfRfZkA+Oait71i9Hok2BQ==
+X-Received: by 2002:adf:e352:0:b0:2ef:b1bd:786 with SMTP id
+ n18-20020adfe352000000b002efb1bd0786mr1002307wrj.13.1681382444786; 
+ Thu, 13 Apr 2023 03:40:44 -0700 (PDT)
+Received: from myrica ([5.69.146.176]) by smtp.gmail.com with ESMTPSA id
+ z1-20020a5d4d01000000b002e5f6f8fc4fsm990119wrt.100.2023.04.13.03.40.44
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Apr 2023 02:14:06 -0700 (PDT)
-Date: Thu, 13 Apr 2023 11:14:01 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1] vsock/loopback: don't disable irqs for queue access
-Message-ID: <m6zafomiasxi7fdlejxqebvq5lkjwo3wvpkc7xa6tzfa7ywfy6@bswd76cx772g>
-References: <b6dd26b3-97d7-ef8e-d8f8-a0e728fa2b02@sberdevices.ru>
+ Thu, 13 Apr 2023 03:40:44 -0700 (PDT)
+Date: Thu, 13 Apr 2023 11:40:41 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Subject: Re: virtio-iommu hotplug issue
+Message-ID: <20230413104041.GA3295191@myrica>
+References: <15bf1b00-3aa0-973a-3a86-3fa5c4d41d2c@daynix.com>
 MIME-Version: 1.0
-In-Reply-To: <b6dd26b3-97d7-ef8e-d8f8-a0e728fa2b02@sberdevices.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, oxffffaa@gmail.com, kernel@sberdevices.ru,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <15bf1b00-3aa0-973a-3a86-3fa5c4d41d2c@daynix.com>
+Cc: qemu-devel@nongnu.org, Eric Auger <eric.auger@redhat.com>,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ virtio-dev@lists.oasis-open.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,52 +107,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Apr 09, 2023 at 10:17:51PM +0300, Arseniy Krasnov wrote:
->This replaces 'skb_queue_tail()' with 'virtio_vsock_skb_queue_tail()'.
->The first one uses 'spin_lock_irqsave()', second uses 'spin_lock_bh()'.
->There is no need to disable interrupts in the loopback transport as
->there is no access to the queue with skbs from interrupt context. Both
->virtio and vhost transports work in the same way.
+Hello,
 
-Yep, this is a good point!
+On Thu, Apr 13, 2023 at 01:49:43PM +0900, Akihiko Odaki wrote:
+> Hi,
+> 
+> Recently I encountered a problem with the combination of Linux's
+> virtio-iommu driver and QEMU when a SR-IOV virtual function gets disabled.
+> I'd like to ask you what kind of solution is appropriate here and implement
+> the solution if possible.
+> 
+> A PCIe device implementing the SR-IOV specification exports a virtual
+> function, and the guest can enable or disable it at runtime by writing to a
+> configuration register. This effectively looks like a PCI device is
+> hotplugged for the guest.
 
->
->Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->---
-> net/vmw_vsock/vsock_loopback.c | 3 +--
-> 1 file changed, 1 insertion(+), 2 deletions(-)
+Just so I understand this better: the guest gets a whole PCIe device PF
+that implements SR-IOV, and so the guest can dynamically create VFs?  Out
+of curiosity, is that a hardware device assigned to the guest with VFIO,
+or a device emulated by QEMU?
 
-LGTM! (net-next material)
+> In such a case, the kernel assumes the endpoint is
+> detached from the virtio-iommu domain, but QEMU actually does not detach it.
+> 
+> This inconsistent view of the removed device sometimes prevents the VM from
+> correctly performing the following procedure, for example:
+> 1. Enable a VF.
+> 2. Disable the VF.
+> 3. Open a vfio container.
+> 4. Open the group which the PF belongs to.
+> 5. Add the group to the vfio container.
+> 6. Map some memory region.
+> 7. Close the group.
+> 8. Close the vfio container.
+> 9. Repeat 3-8
+> 
+> When the VF gets disabled, the kernel assumes the endpoint is detached from
+> the IOMMU domain, but QEMU actually doesn't detach it. Later, the domain
+> will be reused in step 3-8.
+> 
+> In step 7, the PF will be detached, and the kernel thinks there is no
+> endpoint attached and the mapping the domain holds is cleared, but the VF
+> endpoint is still attached and the mapping is kept intact.
+> 
+> In step 9, the same domain will be reused again, and the kernel requests to
+> create a new mapping, but it will conflict with the existing mapping and
+> result in -EINVAL.
+> 
+> This problem can be fixed by either of:
+> - requesting the detachment of the endpoint from the guest when the PCI
+> device is unplugged (the VF is disabled)
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Yes, I think this is an issue in the virtio-iommu driver, which should be
+sending a DETACH request when the VF is disabled, likely from
+viommu_release_device(). I'll work on a fix unless you would like to do it
+
+> - detecting that the PCI device is gone and automatically detach it on
+> QEMU-side.
+> 
+> It is not completely clear for me which solution is more appropriate as the
+> virtio-iommu specification is written in a way independent of the endpoint
+> mechanism and does not say what should be done when a PCI device is
+> unplugged.
+
+Yes, I'm not sure it's in scope for the specification, it's more about
+software guidance
 
 Thanks,
-Stefano
-
->
->diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
->index e3afc0c866f5..5c6360df1f31 100644
->--- a/net/vmw_vsock/vsock_loopback.c
->+++ b/net/vmw_vsock/vsock_loopback.c
->@@ -31,8 +31,7 @@ static int vsock_loopback_send_pkt(struct sk_buff *skb)
-> 	struct vsock_loopback *vsock = &the_vsock_loopback;
-> 	int len = skb->len;
->
->-	skb_queue_tail(&vsock->pkt_queue, skb);
->-
->+	virtio_vsock_skb_queue_tail(&vsock->pkt_queue, skb);
-> 	queue_work(vsock->workqueue, &vsock->pkt_work);
->
-> 	return len;
->-- 
->2.25.1
->
-
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
