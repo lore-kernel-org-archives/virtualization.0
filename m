@@ -1,97 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93436C77B72
-	for <virtualization@archiver.kernel.org>; Fri, 14 Apr 2023 12:39:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3FD9C77B72
+	for <virtualization@archiver.kernel.org>; Fri, 14 Apr 2023 12:39:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 16151405FC;
-	Fri, 14 Apr 2023 12:39:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 16151405FC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=sX9xudie
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yzBxUqXcsYSJ; Fri, 14 Apr 2023 12:39:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8F4AE40439;
-	Fri, 14 Apr 2023 12:39:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F4AE40439
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 66938C0036;
-	Fri, 14 Apr 2023 12:39:19 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D5FBC002A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Apr 2023 12:39:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 082996FF0D
- for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Apr 2023 12:39:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 082996FF0D
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0ADEC6FF0C;
+	Fri, 14 Apr 2023 12:39:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0ADEC6FF0C
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com
- header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256
- header.s=20221208 header.b=sX9xudie
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=EPdWogGf
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ahLv-r8x_MrF; Fri, 14 Apr 2023 12:39:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C25F76FF0D;
+	Fri, 14 Apr 2023 12:39:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C25F76FF0D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D16DC0036;
+	Fri, 14 Apr 2023 12:39:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9BF67C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 14 Apr 2023 12:39:19 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 77B066FF0D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 14 Apr 2023 12:39:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 77B066FF0D
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aYNbVKDaAOkk
+ with ESMTP id 3CC-KfoVNnFa
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Apr 2023 12:39:13 +0000 (UTC)
+ Fri, 14 Apr 2023 12:39:18 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A24276FF0C
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com
- [IPv6:2607:f8b0:4864:20::102a])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A24276FF0C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F7416FF0C
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com
+ [IPv6:2607:f8b0:4864:20::102d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1F7416FF0C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Apr 2023 12:39:13 +0000 (UTC)
-Received: by mail-pj1-x102a.google.com with SMTP id v9so23527319pjk.0
+ Fri, 14 Apr 2023 12:39:18 +0000 (UTC)
+Received: by mail-pj1-x102d.google.com with SMTP id
+ hg14-20020a17090b300e00b002471efa7a8fso4796412pjb.0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 Apr 2023 05:39:13 -0700 (PDT)
+ Fri, 14 Apr 2023 05:39:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=igel-co-jp.20221208.gappssmtp.com; s=20221208; t=1681475952; x=1684067952;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=6HYNyUUEorOF+isbH7MLUIuEp6e49eMyp3D2Mh/QBec=;
- b=sX9xudieMQAT6uk2HyEujcuXLPGCVhLkbBS1MEggluyv2/BWsKTprUIhVNVt6ta/eD
- d98sadGF1z6Q/jfpnFqkVPTHYZbJI2PTpdLqsBjTS7+cCgAdc/8BOQHqNNqHPuJr6K89
- 87mCXFZ5OFk1G0Jl7vPpBXS5iv9eOBQMlapv1bOtbl1ZPPBN/KZ/TRyvmmbjUZWP/MRM
- ytMhjPizvYkw5flS0uc35OUOggApRHBcgNjjhj1zHv+91dP05JQx/leVr7yL4zJaZQlt
- fUjct8dYbxDSu67+/cDb8jqZBQTwXnEGzsPNa4WogomhoENfUXiaDEPgIRaNfJ3nTQww
- BkGw==
+ d=igel-co-jp.20221208.gappssmtp.com; s=20221208; t=1681475957; x=1684067957;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=r3NQNzImpl7v9ZsQ1lWCxb6S+hYC5oLdUBv6JvMjGuE=;
+ b=EPdWogGf/Az3KsP0yPBGLfyncklpreuAVN4wgKKeyX9jVIyz49Saw3GnDSFwulOlYF
+ pDwEqN0crmcrN2w17a66pt0HZ9SxY7XGBb5nG9hpCr03S+KfMMhUiRVCAEluya6YmUui
+ E/irnFcAfpnutuJSbx1WuQJpcXvOmEBMCtQv38Yfq7YDyI9DU/VQhLJD3vCrIe/optbN
+ k6K34FNgbqJTAHwggn15OLh+2nWXythhirkaq7DR0QvLbJHt+V4SdPPmzJHJ7SkSDJN8
+ VnU8+NCvdbq0lePOkIxkH6LFI+QC3OyPYZe4X3TqWEVdZhttBSZdd157RddQpGk7U/0q
+ 0ANA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681475952; x=1684067952;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=6HYNyUUEorOF+isbH7MLUIuEp6e49eMyp3D2Mh/QBec=;
- b=Q84mornNnUG9f7drMCQ851mpmJ62IzLgZ13o+BbURaDIn2mwEmzRqkGWGE6ZMzyAik
- gShzc9iOm2A5qSBZBbqFJnP/oyAcDVsi2EGMPAS90IwVWY7CYx9UD28pneHXvdy+Lf9q
- BDkDFiYZ0I8k7GxRcH5nXBJB7JCsIPdS0SdtiqMp+g3keKZ01JwhXNQmh9456oP/qItz
- V+60QK1P7SJAwAiQTdoEY19UABun9WVQRP52pXH/0Hk2E5M9lA1fspQsmxmNJzb0wLas
- OSLB7HCZRcwfKimwxwAKuKP3W5Nid9TucQC3quaGwJOc409f0d+WVjYYGey2pMWN1pRP
- u9ug==
-X-Gm-Message-State: AAQBX9e5XFrIfR5/tfG4Cm/AmQBuqsDux4qFmkjaSdxpXkfHP0hyOTJo
- O7sxNw+NN+wRAelSI/KpM519+g==
-X-Google-Smtp-Source: AKy350YpGxzPLIwor8+DKH5UMTOv8E83Zu2LeKHX4c7FkRKlCbIlCR8cBym6UhA2y6HclkSFaFD8Zg==
-X-Received: by 2002:a17:903:24d:b0:1a6:4a25:c7f7 with SMTP id
- j13-20020a170903024d00b001a64a25c7f7mr2653035plh.6.1681475952405; 
- Fri, 14 Apr 2023 05:39:12 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1681475957; x=1684067957;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=r3NQNzImpl7v9ZsQ1lWCxb6S+hYC5oLdUBv6JvMjGuE=;
+ b=SngaBt/++EmnHXqfifJNc3ITBtixQz9YdSw6SkjyALwbaVixB5bL4IQ/lIuEPUWowj
+ RCNfoV2O8pixQitkCu1fDECBuVQw0LY6A4F+OHPgRfJNyZ5FiD4jWo08hiCwHPpw7iPB
+ 6aSBs2JOFhVYKPazW9/vcAvEzELK4INQkTEARyQ6+Rov2MmhoNm0evJHzuPLhuQS66sT
+ VVlcJLO8INS2h4lFUZC4CmGINbm2UTpTmwJHvrkGyq5kJhK29sawKT2+F8ebX3TO8dgY
+ yrpzwFqoOT9yH0vaVhiRmEQwKEUKR2Ss0orINzuK7QSOrj7s0Di8ZFX+KWaFxzBB3FCB
+ 1idQ==
+X-Gm-Message-State: AAQBX9f/J2tdh9bZuoUCw/iZ6uEOz/XpeHtqVeAXXs3U8FGRpzwcIh8P
+ VeDI4LbD2JscM5W95KLTGN2mGA==
+X-Google-Smtp-Source: AKy350ZowWWUvq7RUMpkAPX+2sPQlC9MpUlP6TgrvPjutz5vDLhMZoKq8l+apqjdfQkRnQe5cfXSxA==
+X-Received: by 2002:a17:902:db10:b0:1a6:494c:f723 with SMTP id
+ m16-20020a170902db1000b001a6494cf723mr2905237plx.54.1681475957271; 
+ Fri, 14 Apr 2023 05:39:17 -0700 (PDT)
 Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
  by smtp.gmail.com with ESMTPSA id
- v21-20020a1709028d9500b001a527761c31sm3015366plo.79.2023.04.14.05.39.08
+ v21-20020a1709028d9500b001a527761c31sm3015366plo.79.2023.04.14.05.39.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 14 Apr 2023 05:39:12 -0700 (PDT)
+ Fri, 14 Apr 2023 05:39:16 -0700 (PDT)
 From: Shunsuke Mie <mie@igel.co.jp>
 To: Lorenzo Pieralisi <lpieralisi@kernel.org>
-Subject: [RFC PATCH 0/3] Introduce a PCIe endpoint virtio console
-Date: Fri, 14 Apr 2023 21:39:00 +0900
-Message-Id: <20230414123903.896914-1-mie@igel.co.jp>
+Subject: [RFC PATCH 1/3] PCI: endpoint: introduce a helper to implement pci ep
+ virtio function
+Date: Fri, 14 Apr 2023 21:39:01 +0900
+Message-Id: <20230414123903.896914-2-mie@igel.co.jp>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230414123903.896914-1-mie@igel.co.jp>
+References: <20230414123903.896914-1-mie@igel.co.jp>
 MIME-Version: 1.0
 Cc: Kishon Vijay Abraham I <kishon@kernel.org>,
  =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
@@ -112,78 +113,713 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-UENJZSBlbmRwb2ludCBmcmFtZXdvcmsgcHJvdmlkZXMgQVBJcyB0byBpbXBsZW1lbnQgUENJZSBl
-bmRwb2ludCBmdW5jdGlvbi4KVGhpcyBmcmFtZXdvcmsgYWxsb3dzIGRlZmluaW5nIHZhcmlvdXMg
-UENJZSBlbmRwb2ludCBmdW5jdGlvbiBiZWhhdmlvcnMgaW4Kc29mdHdhcmUuIFRoaXMgcGF0Y2gg
-ZXh0ZW5kIHRoZSBmcmFtZXdvcmsgZm9yIHZpcnRpbyBwY2kgZGV2aWNlLiBUaGUKdmlydGlvIGlz
-IGRlZmluZWQgdG8gY29tbXVuaWNhdGUgZ3Vlc3Qgb24gdmlydHVhbCBtYWNoaW5lIGFuZCBob3N0
-IHNpZGUuCkFkdmFudGFnZSBvZiB0aGUgdmlydGlvIGlzIHRoZSBlZmZpY2llbmN5IG9mIGRhdGEg
-dHJhbnNmZXIgYW5kIHRoZSBjb25jaXNlbmVzcwpvZiBpbXBsZW1lbnRhdGlvbiBkZXZpY2UgdXNp
-bmcgc29mdHdhcmUuIEl0IGFsc28gYmUgYXBwbGllZCB0byBQQ0llCmVuZHBvaW50IGZ1bmN0aW9u
-LgoKV2UgZGVzaWduZWQgYW5kIGltcGxlbWVudGVkIGEgUENJZSBFUCB2aXJ0aW8gY29uc29sZSBm
-dW5jdGlvbiBkcml2ZXIgdXNpbmcKdGhlIGV4dGVuZGVkIFBDSWUgZW5kcG9pbnQgZnJhbWV3b3Jr
-IGZvciB2aXJ0aW8uIEl0IGNhbiBiZSBjb21tdW5pY2F0ZQpob3N0IGFuZCBlbmRwb2ludCBvdmVy
-IHZpcnRpbyBhcyBjb25zb2xlLgoKQW4gYXJjaGl0ZWN0dXJlIG9mIHRoZSBmdW5jdGlvbiBkcml2
-ZXIgaXMgZm9sbG93aW5nOgoKIOKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
-gOKUkCAgICAgICAgIOKUjOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUrOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKU
-gOKUgOKUgOKUkAog4pSCdmlydGlvICAgICAg4pSCICAgICAgICAg4pSCICAgICAgICAgICAgICAg
-ICAgICAgIOKUgnZpcnRpbyAgICAgIOKUggog4pSCY29uc29sZSBkcnYg4pSCICAgICAgICAg4pSc
-4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQICAgICAg4pSC
-Y29uc29sZSBkcnYg4pSCCiDilJzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDi
-lKQgICAgICAgICDilIIodmlydGlvIGNvbnNvbGXilIIgICAgICDilJzilIDilIDilIDilIDilIDi
-lIDilIDilIDilIDilIDilIDilIDilKQKIOKUgiB2aXJ0aW8gYnVzIOKUgiAgICAgICAgIOKUgiBk
-ZXZpY2UpICAgICAgIOKUguKXhOKUgOKUgOKUgOKUgOKWuuKUgiB2aXJ0aW8gYnVzIOKUggog4pSc
-4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSkICAgICAgICAg4pScLS0tLS0t
-LS0tLS0tLS0t4pSkICAgICAg4pSU4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA
-4pSkCiDilIIgICAgICAgICAgICDilIIgICAgICAgICDilIIgcGNpIGVwIHZpcnRpbyDilIIgICAg
-ICAgICAgICAgICAgICAg4pSCCiDilIIgIHBjaSBidXMgICDilIIgICAgICAgICDilIIgIGNvbnNv
-bGUgZHJ2ICDilIIgICAgICAgICAgICAgICAgICAg4pSCCiDilIIgICAgICAgICAgICDilIIgIHBj
-aWUgICDilJzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilKQg
-ICAgICAgICAgICAgICAgICAg4pSCCiDilIIgICAgICAgICAgICDilIIg4peE4pSA4pSA4pSA4pSA
-4pSA4pa6IOKUgiAgcGNpIGVwIEJ1cyAgIOKUgiAgICAgICAgICAgICAgICAgICDilIIKIOKUlOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmCAgICAgICAgIOKUlOKUgOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUtOKUgOKUgOKUgOKUgOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogICBQQ0llIFJvb3Qg
-ICAgICAgICAgICAgIFBDSWUgRW5kcG9pbnQKCkludHJvZHVjZWQgZHJpdmVyIGlzIGBwY2kgZXAg
-dmlydGlvIGNvbnNvbGUgZHJ2YCBpbiB0aGUgZmlndXJlLiBJdCB3b3JrcwphcyBlcCBmdW5jdGlv
-biBmb3IgUENJZSByb290IGFuZCB2aXJ0dWFsIHZpcnRpbyBjb25zb2xlIGRldmljZSBmb3IgUENJ
-ZQplbmRwb2ludC4gRWFjaCBzaWRlIG9mIHZpcnRpbyBjb25zb2xlIGRyaXZlciBoYXMgdmlydHF1
-ZXVlLCBhbmQKaW50cm9kdWNlZCBkcml2ZXIgdHJhbnNmZXJzIGRhdGEgb24gdGhlIHZpcnRxdWV1
-ZSB0byBlYWNoIG90aGVyLiBBIGRhdGEKb24gcm9vdCB0eCBxdWV1ZSBpcyB0cmFuc2ZlcmVkIHRv
-IGVuZHBvaW50IHJ4IHF1ZXVlIGFuZCB2aWNlIHZlcnNhLgoKVGhpcyBwYXRjaHNldCBpcyBkZXBl
-bmQgZm9sbHdpbmcgcGF0Y2hlcyB3aGljaCBhcmUgdW5kZXIgZGlzY3Vzc2lvbi4KCi0gW1JGQyBQ
-QVRDSCAwLzNdIERlYWwgd2l0aCBhbGlnbm1lbnQgcmVzdHJpY3Rpb24gb24gRVAgc2lkZQpsaW5r
-OiBodHRwczovL2xvcmUua2VybmVsLm9yZy9saW51eC1wY2kvMjAyMzAxMTMwOTAzNTAuMTEwMzQ5
-NC0xLW1pZUBpZ2VsLmNvLmpwLwotIFtSRkMgUEFUQ0ggdjIgMC83XSBJbnRyb2R1Y2UgYSB2cmlu
-Z2ggYWNjZXNzb3IgZm9yIElPIG1lbW9yeQpsaW5rOiBodHRwczovL2xvcmUua2VybmVsLm9yZy92
-aXJ0dWFsaXphdGlvbi8yMDIzMDIwMjA5MDkzNC41NDk1NTYtMS1taWVAaWdlbC5jby5qcC8KCkZp
-cnN0IG9mIHRoaXMgcGF0Y2hzZXQgaXMgaW50cm9kdWNlIGEgaGVscGVyIGZ1bmN0aW9uIHRvIHJl
-YWxpemUgcGNpCnZpcnRpbyBmdW5jdGlvbiB1c2luZyBQQ0llIGVuZHBvaW50IGZyYW1ld29yay4g
-VGhlIHNlY29uZCBvbmUgaXMgYWRkaW5nCmEgbWlzc2luZyBkZWZpbml0aW9uIGZvciB2aXJ0aW8g
-cGNpIGhlYWRlci4gVGhlIGxhc3Qgb25lIGlzIGZvciBQQ0llCmVuZHBvaW50IHZpcnRpbyBjb25z
-b2xlIGRyaXZlci4KClRoaXMgaXMgdGVzdGVkIG9uIGxpbnV4LTIwMjMwNDA2IGFuZCBSQ2FyIFM0
-IGJvYXJkIGFzIFBDSWUgZW5kcG9pbnQuCgpTaHVuc3VrZSBNaWUgKDMpOgogIFBDSTogZW5kcG9p
-bnQ6IGludHJvZHVjZSBhIGhlbHBlciB0byBpbXBsZW1lbnQgcGNpIGVwIHZpcnRpbyBmdW5jdGlv
-bgogIHZpcnRpb19wY2k6IGFkZCBhIGRlZmluaXRpb24gb2YgcXVldWUgZmxhZyBpbiBJU1IKICBQ
-Q0k6IGVuZHBvaW50OiBBZGQgRVAgZnVuY3Rpb24gZHJpdmVyIHRvIHByb3ZpZGUgdmlydGlvLWNv
-bnNvbGUKICAgIGZ1bmN0aW9uYWxpdHkKCiBkcml2ZXJzL3BjaS9lbmRwb2ludC9mdW5jdGlvbnMv
-S2NvbmZpZyAgICAgICAgfCAgMTkgKwogZHJpdmVycy9wY2kvZW5kcG9pbnQvZnVuY3Rpb25zL01h
-a2VmaWxlICAgICAgIHwgICAyICsKIGRyaXZlcnMvcGNpL2VuZHBvaW50L2Z1bmN0aW9ucy9wY2kt
-ZXBmLXZjb24uYyB8IDU1NCArKysrKysrKysrKysrKysrKysKIC4uLi9wY2kvZW5kcG9pbnQvZnVu
-Y3Rpb25zL3BjaS1lcGYtdmlydGlvLmMgICB8IDQ2OSArKysrKysrKysrKysrKysKIC4uLi9wY2kv
-ZW5kcG9pbnQvZnVuY3Rpb25zL3BjaS1lcGYtdmlydGlvLmggICB8IDEyMyArKysrCiBpbmNsdWRl
-L3VhcGkvbGludXgvdmlydGlvX3BjaS5oICAgICAgICAgICAgICAgfCAgIDMgKwogNiBmaWxlcyBj
-aGFuZ2VkLCAxMTcwIGluc2VydGlvbnMoKykKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3Bj
-aS9lbmRwb2ludC9mdW5jdGlvbnMvcGNpLWVwZi12Y29uLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBk
-cml2ZXJzL3BjaS9lbmRwb2ludC9mdW5jdGlvbnMvcGNpLWVwZi12aXJ0aW8uYwogY3JlYXRlIG1v
-ZGUgMTAwNjQ0IGRyaXZlcnMvcGNpL2VuZHBvaW50L2Z1bmN0aW9ucy9wY2ktZXBmLXZpcnRpby5o
-CgotLSAKMi4yNS4xCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+The Linux PCIe Endpoint framework supports to implement PCIe endpoint
+functions using a PCIe controller operating in endpoint mode.
+It is possble to realize the behavior of PCIe device, such as virtio PCI
+device. This patch introduces a setof helper functions and data structures
+to implement a PCIe endpoint function that behaves as a virtio device.
+
+Those functions enable the implementation PCIe endpoint function that
+comply with the virtio lecacy specification. Because modern virtio
+specifications require devices to implement custom PCIe capabilities, which
+are not currently supported by either PCIe controllers/drivers or the PCIe
+endpoint framework.
+
+The helper functions work with the new struct epf_virtio, which is
+initialized and finalized using the following functions:
+
+- int epf_virtio_init();
+- void epf_virtio_final()
+
+Once initialized, the PCIe configuration space can be read and written
+using the following functions:
+
+- epf_virtio_cfg_{read,write}#size()
+- epf_virtio_cfg_{set,clear}#size()
+- epf_virtio_cfg_memcpy_toio()
+
+The size is supported 8, 16 and 32bits. The content of configuration space
+varies depending on the type of virtio device.
+
+After the setup, launch the kernel thread for negotiation with host virtio
+drivers and detection virtqueue notifications with the function:
+
+- epf_virtio_launch_bgtask()
+
+Also there are functions to shutdown and reset the kthread.
+
+- epf_virtio_terminate_bgtask()
+- epf_virtio_terminate_reset()
+
+Data transfer function is also provide.
+
+- epf_virtio_vrh_memcpy()
+
+This function copy data indicated descriptor of PCIe host and endpoint
+virtqueue to each other. The virtqueue manage as vringh and copy direction
+is specified by enum epf_virtio_copy_dir, which is defined as
+follows:
+This function copies data between the PCIe host and endpoint virtqueues.
+The each virtqueues are managed using vringh, and the copy direction is
+specified by an enum called epf_virtio_copy_dir, which is defined as
+follows:
+
+enum epf_virtio_copy_dir {
+	   EPF_VIRTIO_COPY_DIR_FROM_DEV,
+	   EPF_VIRTIO_COPY_DIR_TO_DEV,
+};
+
+While this patch provides functions for negotiating with host drivers and
+copying data, each PCIe function driver must impl ement operations that
+depend on each specific device, such as network, block, etc.
+
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+---
+ drivers/pci/endpoint/functions/Kconfig        |   7 +
+ drivers/pci/endpoint/functions/Makefile       |   1 +
+ .../pci/endpoint/functions/pci-epf-virtio.c   | 469 ++++++++++++++++++
+ .../pci/endpoint/functions/pci-epf-virtio.h   | 123 +++++
+ 4 files changed, 600 insertions(+)
+ create mode 100644 drivers/pci/endpoint/functions/pci-epf-virtio.c
+ create mode 100644 drivers/pci/endpoint/functions/pci-epf-virtio.h
+
+diff --git a/drivers/pci/endpoint/functions/Kconfig b/drivers/pci/endpoint/functions/Kconfig
+index 9fd560886871..cf16d33c9585 100644
+--- a/drivers/pci/endpoint/functions/Kconfig
++++ b/drivers/pci/endpoint/functions/Kconfig
+@@ -37,3 +37,10 @@ config PCI_EPF_VNTB
+ 	  between PCI Root Port and PCIe Endpoint.
+ 
+ 	  If in doubt, say "N" to disable Endpoint NTB driver.
++
++config PCI_EPF_VIRTIO
++	tristate
++	depends on PCI_ENDPOINT
++	select VHOST_IOMEM
++	help
++	  Helpers to implement PCI virtio Endpoint function
+diff --git a/drivers/pci/endpoint/functions/Makefile b/drivers/pci/endpoint/functions/Makefile
+index 5c13001deaba..a96f127ce900 100644
+--- a/drivers/pci/endpoint/functions/Makefile
++++ b/drivers/pci/endpoint/functions/Makefile
+@@ -6,3 +6,4 @@
+ obj-$(CONFIG_PCI_EPF_TEST)		+= pci-epf-test.o
+ obj-$(CONFIG_PCI_EPF_NTB)		+= pci-epf-ntb.o
+ obj-$(CONFIG_PCI_EPF_VNTB) 		+= pci-epf-vntb.o
++obj-$(CONFIG_PCI_EPF_VIRTIO)		+= pci-epf-virtio.o
+diff --git a/drivers/pci/endpoint/functions/pci-epf-virtio.c b/drivers/pci/endpoint/functions/pci-epf-virtio.c
+new file mode 100644
+index 000000000000..bb3de01563de
+--- /dev/null
++++ b/drivers/pci/endpoint/functions/pci-epf-virtio.c
+@@ -0,0 +1,469 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Helpers to implement PCIe virtio EP function.
++ */
++#include <linux/virtio_pci.h>
++#include <linux/virtio_config.h>
++#include <linux/kthread.h>
++
++#include "pci-epf-virtio.h"
++
++static void epf_virtio_unmap_vq(struct pci_epf *epf, void __iomem *vq_virt,
++				phys_addr_t vq_phys, unsigned int num)
++{
++	size_t vq_size = vring_size(num, VIRTIO_PCI_VRING_ALIGN);
++
++	pci_epc_unmap_addr(epf->epc, epf->func_no, epf->vfunc_no, vq_phys,
++			   vq_virt, vq_size);
++	pci_epc_mem_free_addr(epf->epc, vq_phys, vq_virt, vq_size);
++}
++
++static void __iomem *epf_virtio_map_vq(struct pci_epf *epf,
++				       phys_addr_t vq_pci_addr,
++				       unsigned int num, phys_addr_t *vq_phys)
++{
++	int err;
++	size_t vq_size;
++	void __iomem *vq_virt;
++
++	vq_size = vring_size(num, VIRTIO_PCI_VRING_ALIGN);
++
++	vq_virt = pci_epc_map_addr(epf->epc, epf->func_no, epf->vfunc_no,
++				   vq_pci_addr, vq_phys, vq_size);
++	if (IS_ERR(vq_virt)) {
++		pr_err("Failed to map virtuqueue to local");
++		goto err_free;
++	}
++
++	return vq_virt;
++
++err_free:
++	pci_epc_mem_free_addr(epf->epc, *vq_phys, vq_virt, vq_size);
++
++	return ERR_PTR(err);
++}
++
++static void epf_virtio_free_vringh(struct pci_epf *epf, struct epf_vringh *evrh)
++{
++	epf_virtio_unmap_vq(epf, evrh->virt, evrh->phys, evrh->num);
++	kfree(evrh);
++}
++
++static struct epf_vringh *epf_virtio_alloc_vringh(struct pci_epf *epf,
++						  u64 features,
++						  phys_addr_t pci_addr,
++						  unsigned int num)
++{
++	int err;
++	struct vring vring;
++	struct epf_vringh *evrh;
++
++	evrh = kmalloc(sizeof(*evrh), GFP_KERNEL);
++	if (!evrh) {
++		err = -ENOMEM;
++		goto err_unmap_vq;
++	}
++
++	evrh->num = num;
++
++	evrh->virt = epf_virtio_map_vq(epf, pci_addr, num, &evrh->phys);
++	if (IS_ERR(evrh->virt))
++		return evrh->virt;
++
++	vring_init(&vring, num, evrh->virt, VIRTIO_PCI_VRING_ALIGN);
++
++	err = vringh_init_iomem(&evrh->vrh, features, num, false, GFP_KERNEL,
++				vring.desc, vring.avail, vring.used);
++	if (err)
++		goto err_free_epf_vq;
++
++	return evrh;
++
++err_free_epf_vq:
++	kfree(evrh);
++
++err_unmap_vq:
++	epf_virtio_unmap_vq(epf, evrh->virt, evrh->phys, evrh->num);
++
++	return ERR_PTR(err);
++}
++
++#define VIRTIO_PCI_LEGACY_CFG_BAR 0
++
++static void __iomem *epf_virtio_alloc_bar(struct pci_epf *epf, size_t size)
++{
++	struct pci_epf_bar *config_bar = &epf->bar[VIRTIO_PCI_LEGACY_CFG_BAR];
++	const struct pci_epc_features *features;
++	void __iomem *bar;
++	int err;
++
++	features = pci_epc_get_features(epf->epc, epf->func_no, epf->vfunc_no);
++	if (!features) {
++		pr_debug("Failed to get PCI EPC features\n");
++		return ERR_PTR(-EOPNOTSUPP);
++	}
++
++	if (features->reserved_bar & BIT(VIRTIO_PCI_LEGACY_CFG_BAR)) {
++		pr_debug("Cannot use the PCI BAR for legacy virtio pci\n");
++		return ERR_PTR(-EOPNOTSUPP);
++	}
++
++	if (features->bar_fixed_size[VIRTIO_PCI_LEGACY_CFG_BAR]) {
++		if (size >
++		    features->bar_fixed_size[VIRTIO_PCI_LEGACY_CFG_BAR]) {
++			pr_debug("PCI BAR size is not enough\n");
++			return ERR_PTR(-ENOMEM);
++		}
++	}
++
++	bar = pci_epf_alloc_space(epf, size, VIRTIO_PCI_LEGACY_CFG_BAR,
++				  features->align, PRIMARY_INTERFACE);
++	if (!bar) {
++		pr_debug("Failed to allocate virtio-net config memory\n");
++		return ERR_PTR(-ENOMEM);
++	}
++
++	config_bar->flags |= PCI_BASE_ADDRESS_MEM_TYPE_64;
++	err = pci_epc_set_bar(epf->epc, epf->func_no, epf->vfunc_no,
++			      config_bar);
++	if (err) {
++		pr_debug("Failed to set PCI BAR");
++		goto err_free_space;
++	}
++
++	return bar;
++
++err_free_space:
++
++	pci_epf_free_space(epf, bar, VIRTIO_PCI_LEGACY_CFG_BAR,
++			   PRIMARY_INTERFACE);
++
++	return ERR_PTR(err);
++}
++
++static void epf_virtio_free_bar(struct pci_epf *epf, void __iomem *bar)
++{
++	struct pci_epf_bar *config_bar = &epf->bar[VIRTIO_PCI_LEGACY_CFG_BAR];
++
++	pci_epc_clear_bar(epf->epc, epf->func_no, epf->vfunc_no, config_bar);
++	pci_epf_free_space(epf, bar, VIRTIO_PCI_LEGACY_CFG_BAR,
++			   PRIMARY_INTERFACE);
++}
++
++static void epf_virtio_init_bar(struct epf_virtio *evio, void __iomem *bar)
++{
++	evio->bar = bar;
++
++	epf_virtio_cfg_write32(evio, VIRTIO_PCI_HOST_FEATURES, evio->features);
++	epf_virtio_cfg_write16(evio, VIRTIO_PCI_ISR, VIRTIO_PCI_ISR_QUEUE);
++	epf_virtio_cfg_write16(evio, VIRTIO_PCI_QUEUE_NUM, evio->vqlen);
++	epf_virtio_cfg_write16(evio, VIRTIO_PCI_QUEUE_NOTIFY, evio->nvq);
++	epf_virtio_cfg_write8(evio, VIRTIO_PCI_STATUS, 0);
++}
++
++/**
++ * epf_virtio_init - initialize struct epf_virtio and setup BAR for virtio
++ * @evio: struct epf_virtio to initialize.
++ * @hdr: pci configuration space to show remote host.
++ * @bar_size: pci BAR size it depends on the virtio device type.
++ *
++ * Returns zero or a negative error.
++ */
++int epf_virtio_init(struct epf_virtio *evio, struct pci_epf_header *hdr,
++		    size_t bar_size)
++{
++	struct pci_epf *epf = evio->epf;
++	void __iomem *bar;
++	int err;
++
++	err = pci_epc_write_header(epf->epc, epf->func_no, epf->vfunc_no, hdr);
++	if (err)
++		return err;
++
++	bar = epf_virtio_alloc_bar(epf, bar_size);
++	if (IS_ERR(bar))
++		return PTR_ERR(bar);
++
++	epf_virtio_init_bar(evio, bar);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(epf_virtio_init);
++
++/**
++ * epf_virtio_final - finalize struct epf_virtio. it frees bar and memories
++ * @evio: struct epf_virtio to finalize.
++ */
++void epf_virtio_final(struct epf_virtio *evio)
++{
++	epf_virtio_free_bar(evio->epf, evio->bar);
++
++	for (int i = 0; i < evio->nvq; i++)
++		epf_virtio_free_vringh(evio->epf, evio->vrhs[i]);
++
++	kfree(evio->vrhs);
++}
++EXPORT_SYMBOL_GPL(epf_virtio_final);
++
++static int epf_virtio_negotiate_vq(struct epf_virtio *evio)
++{
++	u32 pfn;
++	u16 sel;
++	int i = 0;
++	struct _pair {
++		u32 pfn;
++		u16 sel;
++	} *tmp;
++	int err = 0;
++	size_t nvq = evio->nvq;
++
++	tmp = kmalloc_array(nvq, sizeof(tmp[0]), GFP_KERNEL);
++	if (!tmp)
++		return -ENOMEM;
++
++	/*
++	 * PCIe EP framework has no capability to hook access PCI BAR space from
++	 * remote host driver, so poll the specific register, queue pfn to detect
++	 * the writing from the driver.
++	 *
++	 * This implementation assumes that the address of each virtqueue is
++	 * written only once.
++	 */
++	for (i = 0; i < nvq; i++) {
++		while (!(pfn = epf_virtio_cfg_read32(evio,
++						     VIRTIO_PCI_QUEUE_PFN)) &&
++		       evio->running)
++			;
++
++		sel = epf_virtio_cfg_read16(evio, VIRTIO_PCI_QUEUE_SEL);
++
++		epf_virtio_cfg_write32(evio, VIRTIO_PCI_QUEUE_PFN, 0);
++
++		tmp[i].pfn = pfn;
++		tmp[i].sel = sel;
++	}
++
++	if (!evio->running)
++		goto err_out;
++
++	evio->vrhs = kmalloc_array(nvq, sizeof(evio->vrhs[0]), GFP_KERNEL);
++	if (!evio->vrhs) {
++		err = -ENOMEM;
++		goto err_out;
++	}
++
++	for (i = 0; i < nvq; i++) {
++		phys_addr_t pci = tmp[i].pfn << VIRTIO_PCI_QUEUE_ADDR_SHIFT;
++
++		evio->vrhs[i] = epf_virtio_alloc_vringh(
++			evio->epf, evio->features, pci, evio->vqlen);
++		if (IS_ERR(evio->vrhs[i])) {
++			err = PTR_ERR(evio->vrhs[i]);
++			goto err_free_evrhs;
++		}
++	}
++
++	kfree(tmp);
++
++	return 0;
++
++err_free_evrhs:
++	for (i -= 1; i > 0; i--)
++		epf_virtio_free_vringh(evio->epf, evio->vrhs[i]);
++
++	kfree(evio->vrhs);
++
++err_out:
++	kfree(tmp);
++
++	return err;
++}
++
++static void epf_virtio_monitor_qnotify(struct epf_virtio *evio)
++{
++	const u16 qn_default = evio->nvq;
++	u16 tmp;
++
++	/* Since there is no way to synchronize between the host and EP functions,
++	 * it is possible to miss multiple notifications.
++	 */
++	while (evio->running) {
++		tmp = epf_virtio_cfg_read16(evio, VIRTIO_PCI_QUEUE_NOTIFY);
++		if (tmp == qn_default)
++			continue;
++
++		epf_virtio_cfg_write16(evio, VIRTIO_PCI_QUEUE_NOTIFY,
++				       qn_default);
++
++		evio->qn_callback(evio->qn_param);
++	}
++}
++
++static int epf_virtio_bgtask(void *param)
++{
++	struct epf_virtio *evio = param;
++	int err;
++
++	err = epf_virtio_negotiate_vq(evio);
++	if (err < 0) {
++		pr_err("failed to negoticate configs with driver\n");
++		return err;
++	}
++
++	while (!(epf_virtio_cfg_read8(evio, VIRTIO_PCI_STATUS) &
++		 VIRTIO_CONFIG_S_DRIVER_OK) &&
++	       evio->running)
++		;
++
++	if (evio->ic_callback && evio->running)
++		evio->ic_callback(evio->ic_param);
++
++	epf_virtio_monitor_qnotify(evio);
++
++	return 0;
++}
++
++/**
++ * epf_virtio_launch_bgtask - spawn a kthread that emulates virtio device
++ * operations.
++ * @evio: It should be initialized prior with epf_virtio_init().
++ *
++ * Returns zero or a negative error.
++ */
++int epf_virtio_launch_bgtask(struct epf_virtio *evio)
++{
++	evio->bgtask = kthread_create(epf_virtio_bgtask, evio,
++				      "pci-epf-virtio/bgtask");
++	if (IS_ERR(evio->bgtask))
++		return PTR_ERR(evio->bgtask);
++
++	evio->running = true;
++
++	sched_set_fifo(evio->bgtask);
++	wake_up_process(evio->bgtask);
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(epf_virtio_launch_bgtask);
++
++/**
++ * epf_virtio_terminate_bgtask - shutdown a device emulation kthread.
++ * @evio: struct epf_virtio it already launched bgtask.
++ */
++void epf_virtio_terminate_bgtask(struct epf_virtio *evio)
++{
++	evio->running = false;
++
++	kthread_stop(evio->bgtask);
++}
++EXPORT_SYMBOL_GPL(epf_virtio_terminate_bgtask);
++
++/**
++ * epf_virtio_reset - reset virtio status
++ * @evio: struct epf_virtio to reset
++ *
++ * Returns zero or a negative error.
++ */
++int epf_virtio_reset(struct epf_virtio *evio)
++{
++	epf_virtio_terminate_bgtask(evio);
++	epf_virtio_init_bar(evio, evio->bar);
++
++	return epf_virtio_launch_bgtask(evio);
++}
++EXPORT_SYMBOL_GPL(epf_virtio_reset);
++
++/**
++ * epf_virtio_vrh_memcpy - copy a data with CPU between remote and local vring.
++ * @evio: struct epf_virtio
++ * @svrh: vringh for source virtqueue.
++ * @siov: iovec to store buffer info for source virtqueue
++ * @dvrh: vringh for destination virtqueue.
++ * @diov: iovec to store buffer info for destination virtqueue
++ * @dir: direction of the copy.
++ *
++ * Returns zero, one or a negative.
++ * 0: there is no data in src virtio ring.
++ * 1: success to transfer data.
++ * negative: errors.
++ */
++int epf_virtio_vrh_memcpy(struct epf_virtio *evio, struct vringh *svrh,
++			  struct vringh_kiov *siov, struct vringh *dvrh,
++			  struct vringh_kiov *diov,
++			  enum epf_virtio_copy_dir dir)
++{
++	int err;
++	u16 shead, dhead;
++	size_t slen, dlen, total_len;
++	void *svirt, *dvirt;
++	phys_addr_t sbase, dbase, phys;
++	struct pci_epf *epf = evio->epf;
++
++	err = vringh_getdesc(svrh, siov, NULL, &shead);
++	if (err <= 0) {
++		if (err < 0)
++			pr_err("s err %d\n", err);
++		return err;
++	}
++
++	err = vringh_getdesc(dvrh, NULL, diov, &dhead);
++	if (err <= 0) {
++		if (err < 0)
++			pr_err("d err %d\n", err);
++		return err;
++	}
++
++	total_len = vringh_kiov_length(siov);
++
++	for (; siov->i < siov->used; siov->i++, diov->i++) {
++		slen = siov->iov[siov->i].iov_len;
++		sbase = (u64)siov->iov[siov->i].iov_base;
++		dlen = diov->iov[diov->i].iov_len;
++		dbase = (u64)diov->iov[diov->i].iov_base;
++
++		if (dlen < slen) {
++			pr_err("no space %ld < %ld\n", dlen, slen);
++			return -ENOSPC;
++		}
++
++		if (dir == EPF_VIRTIO_COPY_DIR_FROM_DEV) {
++			svirt = pci_epc_map_addr(epf->epc, epf->func_no,
++						 epf->vfunc_no, sbase, &phys,
++						 slen);
++			if (IS_ERR(svirt)) {
++				pr_err("pci_epc_map_addr s %ld\n",
++				       PTR_ERR(svirt));
++				return PTR_ERR(svirt);
++			}
++
++			dvirt = phys_to_virt(dbase);
++			memcpy_fromio(dvirt, svirt, slen);
++
++			pci_epc_unmap_addr(epf->epc, epf->func_no,
++					   epf->vfunc_no, phys, svirt, slen);
++		} else {
++			svirt = phys_to_virt(sbase);
++			dvirt = pci_epc_map_addr(epf->epc, epf->func_no,
++						 epf->vfunc_no, dbase, &phys,
++						 dlen);
++			if (IS_ERR(dvirt)) {
++				pr_err("pci_epc_map_addr d %ld\n",
++				       PTR_ERR(dvirt));
++				return PTR_ERR(dvirt);
++			}
++
++			memcpy_toio(dvirt, svirt, slen);
++
++			pci_epc_unmap_addr(epf->epc, epf->func_no,
++					   epf->vfunc_no, phys, dvirt, dlen);
++		}
++	}
++
++	vringh_complete(svrh, shead, total_len);
++	vringh_complete(dvrh, dhead, total_len);
++
++	return 1;
++}
++EXPORT_SYMBOL_GPL(epf_virtio_vrh_memcpy);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/pci/endpoint/functions/pci-epf-virtio.h b/drivers/pci/endpoint/functions/pci-epf-virtio.h
+new file mode 100644
+index 000000000000..162029f6da70
+--- /dev/null
++++ b/drivers/pci/endpoint/functions/pci-epf-virtio.h
+@@ -0,0 +1,123 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __PCI_EPF_VIRTIO_H__
++#define __PCI_EPF_VIRTIO_H__
++
++#include <linux/pci-epf.h>
++#include <linux/pci-epc.h>
++#include <linux/vringh.h>
++
++struct epf_vringh {
++	struct vringh vrh;
++	void __iomem *virt;
++	phys_addr_t phys;
++	unsigned int num;
++};
++
++struct epf_virtio {
++	/* Base PCI endpoint function */
++	struct pci_epf *epf;
++
++	/* Virtio parameters */
++	u64 features;
++	size_t bar_size;
++	size_t nvq;
++	size_t vqlen;
++
++	/* struct to access virtqueue on remote host */
++	struct epf_vringh **vrhs;
++
++	/* struct for thread to emulate virtio device */
++	struct task_struct *bgtask;
++
++	/* Virtual address of pci configuration space */
++	void __iomem *bar;
++
++	/* Callback function and parameter for queue notifcation
++	 * Note: PCI EP function cannot detect qnotify accurately, therefore this
++	 * callback function should check all of virtqueue's changes.
++	 */
++	void (*qn_callback)(void *param);
++	void *qn_param;
++
++	/* Callback function and parameter for initialize complete */
++	void (*ic_callback)(void *param);
++	void *ic_param;
++
++	bool running;
++};
++
++#define DEFINE_EPF_VIRTIO_CFG_READ(size)                 \
++	static inline u##size epf_virtio_cfg_read##size( \
++		struct epf_virtio *evio, size_t offset)  \
++	{                                                \
++		void __iomem *base = evio->bar + offset; \
++		return ioread##size(base);               \
++	}
++
++DEFINE_EPF_VIRTIO_CFG_READ(8)
++DEFINE_EPF_VIRTIO_CFG_READ(16)
++DEFINE_EPF_VIRTIO_CFG_READ(32)
++
++#define DEFINE_EPF_VIRTIO_CFG_WRITE(size)                              \
++	static inline void epf_virtio_cfg_write##size(                 \
++		struct epf_virtio *evio, size_t offset, u##size value) \
++	{                                                              \
++		void __iomem *base = evio->bar + offset;               \
++		iowrite##size(value, base);                            \
++	}
++
++DEFINE_EPF_VIRTIO_CFG_WRITE(8);
++DEFINE_EPF_VIRTIO_CFG_WRITE(16);
++DEFINE_EPF_VIRTIO_CFG_WRITE(32);
++
++#define DEFINE_EPF_VIRTIO_CFG_SET(size)                                \
++	static inline void epf_virtio_cfg_set##size(                   \
++		struct epf_virtio *evio, size_t offset, u##size value) \
++	{                                                              \
++		void __iomem *base = evio->bar + offset;               \
++		iowrite##size(ioread##size(base) | value, base);       \
++	}
++
++DEFINE_EPF_VIRTIO_CFG_SET(8)
++DEFINE_EPF_VIRTIO_CFG_SET(16)
++DEFINE_EPF_VIRTIO_CFG_SET(32)
++
++#define DEFINE_EPF_VIRTIO_CFG_CLEAR(size)                              \
++	static inline void epf_virtio_cfg_clear##size(                 \
++		struct epf_virtio *evio, size_t offset, u##size value) \
++	{                                                              \
++		void __iomem *base = evio->bar + offset;               \
++		iowrite##size(ioread##size(base) & ~value, base);      \
++	}
++
++DEFINE_EPF_VIRTIO_CFG_CLEAR(8)
++DEFINE_EPF_VIRTIO_CFG_CLEAR(16)
++DEFINE_EPF_VIRTIO_CFG_CLEAR(32)
++
++static inline void epf_virtio_cfg_memcpy_toio(struct epf_virtio *evio,
++					      size_t offset, void *buf,
++					      size_t len)
++{
++	void __iomem *base = evio->bar + offset;
++
++	memcpy_toio(base, buf, len);
++}
++
++int epf_virtio_init(struct epf_virtio *evio, struct pci_epf_header *hdr,
++		    size_t bar_size);
++void epf_virtio_final(struct epf_virtio *evio);
++int epf_virtio_launch_bgtask(struct epf_virtio *evio);
++void epf_virtio_terminate_bgtask(struct epf_virtio *evio);
++int epf_virtio_reset(struct epf_virtio *evio);
++
++enum epf_virtio_copy_dir {
++	EPF_VIRTIO_COPY_DIR_FROM_DEV,
++	EPF_VIRTIO_COPY_DIR_TO_DEV,
++};
++
++int epf_virtio_vrh_memcpy(struct epf_virtio *evio, struct vringh *svrh,
++			  struct vringh_kiov *siov, struct vringh *dvrh,
++			  struct vringh_kiov *diov,
++			  enum epf_virtio_copy_dir dir);
++
++#endif /* __PCI_EPF_VIRTIO_H__ */
+-- 
+2.25.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
