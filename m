@@ -1,113 +1,147 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72C48C77B70
-	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 06:41:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04568C77B70
+	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 06:43:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 08CD560F51;
-	Mon, 17 Apr 2023 06:41:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 08CD560F51
+	by smtp2.osuosl.org (Postfix) with ESMTP id 857D140603;
+	Mon, 17 Apr 2023 06:43:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 857D140603
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=iTrdDzdB
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w1g0gQ45JWHe; Mon, 17 Apr 2023 06:43:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 167D1402C3;
+	Mon, 17 Apr 2023 06:43:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 167D1402C3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2565C0037;
+	Mon, 17 Apr 2023 06:43:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 214B2C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Apr 2023 06:43:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6283F60F49
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Apr 2023 06:43:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6283F60F49
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YuETFynO
+ dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com
+ header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector1-solidrn-onmicrosoft-com header.b=iTrdDzdB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hKBZAOOZ3FNh; Mon, 17 Apr 2023 06:41:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 95F6F60A9B;
-	Mon, 17 Apr 2023 06:41:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 95F6F60A9B
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 780B6C0037;
-	Mon, 17 Apr 2023 06:41:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C56D4C002A
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LONOHLDGQIGf
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 06:41:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AA11682215
+ Mon, 17 Apr 2023 06:43:43 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17A1B60A5F
+Received: from EUR02-DB5-obe.outbound.protection.outlook.com
+ (mail-db5eur02on20603.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe12::603])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 17A1B60A5F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 06:41:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA11682215
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=YuETFynO
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ARISqh9wegLS
- for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 06:41:14 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 87D8282214
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 87D8282214
- for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 06:41:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681713673;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=OxKMHMF5ij1bxNLeFZRcL6SeBcLJINT9bFcDHFvcGBQ=;
- b=YuETFynOezCctj1CJlHYhFR+u8Gtev3GqeiR4y5+NBR8qP9E3DPA4HBtcAIyNzhvt4sDLc
- kVVfYzhcOUvBNMtBVOY2BcM6VhjQ7bc3f3xvBEmtceifg98HEa3AKCm6ygU2JY+y0VuO19
- roQOQ21fzHzFbHc1bga78lJrY93CVNk=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-16-CSr3L_1kN_al52m-xEcyXg-1; Mon, 17 Apr 2023 02:41:12 -0400
-X-MC-Unique: CSr3L_1kN_al52m-xEcyXg-1
-Received: by mail-qv1-f69.google.com with SMTP id
- q5-20020ad44025000000b005ef45791eb5so5421123qvp.19
- for <virtualization@lists.linux-foundation.org>;
- Sun, 16 Apr 2023 23:41:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681713671; x=1684305671;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=OxKMHMF5ij1bxNLeFZRcL6SeBcLJINT9bFcDHFvcGBQ=;
- b=deTbeCZqlh7YjMXYtAFJcbn476RJ7GEV08KqFtHyxzZa3o4ByW5Xt8xZG4xstFTXGi
- a03PlhrldhPwpf0xxtrkOX6lYyecOa84jZH3mJUQgLufK0EJSRouF0jG5Iw9Wgf58QuE
- 9mG86CCukaH9uOBX9bKBqmnJvAAph7BAUNJHsYmQRqgu7m5nU14LMxyzOWD975xkAL+W
- lCotcfmZn8JbUXdXSHOeoU6apBKo4Y4lGYErKdwTRxyIc2xV7UfcCsKJTvlHRw9OGPty
- JeKxoAvDwpKi61XIpSwI76yOAyTNWAWk5MLFjmrctXVgARQOfESVw6Q91C5+p8JSQwdA
- whlQ==
-X-Gm-Message-State: AAQBX9cCS6JmEXqBwoo03zIwOIQ1LjOOUzYU5AJs1Coz6sMu9PJ/QK45
- wOL8rPuo0XOI6p08LfQ4TfEtrCxGsvW05ei0JkYg29a7s1rPYyVFJq9dF7KEF65zv4Hu4+wONkS
- b4yknKHJfyN+d2CxK1/eW2rd2qMWuTWAIiFu8Sj6TgQGtM10SQsYr
-X-Received: by 2002:a05:622a:144:b0:3e3:9036:8d7b with SMTP id
- v4-20020a05622a014400b003e390368d7bmr23144627qtw.24.1681713671547; 
- Sun, 16 Apr 2023 23:41:11 -0700 (PDT)
-X-Google-Smtp-Source: AKy350awUisy2QmOytI/7wHAUSKfUVvRV0PC8LxBgH9zz1azFDxXLfpwgedyZCjCtr2bsDRdI6Gagw==
-X-Received: by 2002:a05:622a:144:b0:3e3:9036:8d7b with SMTP id
- v4-20020a05622a014400b003e390368d7bmr23144611qtw.24.1681713671291; 
- Sun, 16 Apr 2023 23:41:11 -0700 (PDT)
-Received: from redhat.com ([185.199.103.251]) by smtp.gmail.com with ESMTPSA id
- bi8-20020a05620a318800b007456b51ee13sm1898249qkb.16.2023.04.16.23.41.08
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 16 Apr 2023 23:41:10 -0700 (PDT)
-Date: Mon, 17 Apr 2023 02:41:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alvaro Karsz <alvaro.karsz@solid-run.com>
+ Mon, 17 Apr 2023 06:43:42 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lSaLm1mwvJ4twTWT1cAlTutR4krqDakEx/F5aEEFy4UPBJW/U0v/bLEroILyKCq6qfRe79UwLcjPk53zA+HexoFxdTa5oHFyAWIWVVNUeUqO8qTgKLlTHUJaXrT4Cur8LYvSxyzniFYJi9WZ7+k9vjDWpLE6ga+G1yJJVtoQqW3kILfk+Xb9v4LM3CDi0QA1r5AAuP90TGh7SK2EnUvw0RHxR5wwO40gu0Mm+id/7aKjwfMgoWbazdOvamcfRBcjI5Z49lAsktjN78yqPyFMRWDL0pRhg2oKqNHljWyrAmbofBf6i0r7h1kTJv1h8sIKNXd3wcrSifp+HzFDJYx4Fw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=4G+Kp1TGckcVkEBCgt5mBIdtxaN9uAuPw1NF7VQTi+o=;
+ b=G8F4oSEYFcpMUaaWjRvy7tiDHiXRIcElZY9TaQTulTLx9wWaJhuaVvAvKl2Tc3qX+1zf5q+W6ndvbVNUlL7x/BHmVrF8rARh/lDxJkutel5qXwv8JUEN3DWCzQK2K/EiTNBZ3GVRghDtWIk4maSegMwGlcWplDY5SgA+hmA0UyiFHU6P1lzxiDUcW7tAmx28S/GhdKwwMVqE+MBloIWgBB9yucxA5kpldnso0fMXB+9fRo3Xh44TVS7QgbXyaDaRkYRvEGn3J4DfPrYEWxywDKzoRu1wY2FZmzwXnVd0nec8rUWIB5UDrC063ZfCPtfjQcnhcc5zQQkCMOX/mqPiiQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=solid-run.com; dmarc=pass action=none
+ header.from=solid-run.com; dkim=pass header.d=solid-run.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=4G+Kp1TGckcVkEBCgt5mBIdtxaN9uAuPw1NF7VQTi+o=;
+ b=iTrdDzdB9dl2N7KscB0yqxdGHRZio944xfLIASLttfx6sHMv16tpRQe6i9U9VLp+9BRY2uUm2idLReXX4scWcwom7ip/IEu3LdVlf/zS9ZmHjZgOvYhdgqxaSsTnyMryAC3+Gt1ZynsWCichjlW4qJ8S6IszCddskn+qFwfAejU=
+Received: from AM0PR04MB4723.eurprd04.prod.outlook.com (2603:10a6:208:c0::20)
+ by AM9PR04MB8384.eurprd04.prod.outlook.com (2603:10a6:20b:3e8::12)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Mon, 17 Apr
+ 2023 06:43:39 +0000
+Received: from AM0PR04MB4723.eurprd04.prod.outlook.com
+ ([fe80::54c9:6706:9dc6:d977]) by AM0PR04MB4723.eurprd04.prod.outlook.com
+ ([fe80::54c9:6706:9dc6:d977%5]) with mapi id 15.20.6298.030; Mon, 17 Apr 2023
+ 06:43:39 +0000
+From: Alvaro Karsz <alvaro.karsz@solid-run.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net] virtio-net: reject small vring sizes
-Message-ID: <20230417023911-mutt-send-email-mst@kernel.org>
+Thread-Topic: [PATCH net] virtio-net: reject small vring sizes
+Thread-Index: AQHZcDeGnH5xR2OGlkuo4s6jvhNMC68uZkiAgACnyXQ=
+Date: Mon, 17 Apr 2023 06:43:39 +0000
+Message-ID: <AM0PR04MB4723F658DCBF66632A74592BD49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
 References: <20230416074607.292616-1-alvaro.karsz@solid-run.com>
- <AM0PR04MB4723C6E99A217F51973710F5D49F9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230416164453-mutt-send-email-mst@kernel.org>
- <CACGkMEvFhVyWb5+ET_akPvnjUq04+ZbJC8o_GtNBWqSMGNum8A@mail.gmail.com>
- <20230417021725-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723B8489F8F9AE547393697D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+ <20230416163751-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230416163751-mutt-send-email-mst@kernel.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-GB
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=solid-run.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: AM0PR04MB4723:EE_|AM9PR04MB8384:EE_
+x-ms-office365-filtering-correlation-id: 45d9d39b-c80e-42a2-614f-08db3f0f13fd
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 6U2EK3Zt3l+ZmdxvwobjWWpuFslz7OQMQwAKh2QMyRrgr+5Rv+RL+5LL0ut8rSY8YgZ7dTMXK1jV7vPMs9F6LRufHKrRsn0HEzQTw3eZnI5AliazMYnz5Rd+KfmJb/lH7IGhbVMDfpDh3TpMECP1tuPvfXzohqaEoter86J5D8Wua9oTwfnh6AQOU8qgbuoAWeVMJ6JivXcWa17MSLUh8V4iv+V+MLw8DJnUaZsvJ8N8JJbyJYdHXTd9q8GzGuvgVddgME7ZZ4s0mk88YiWVnHDF8StjqNnvLQD+wtETQ5okvA5Pi1aXT9hnfktr0QGEz3bdY2GTHMqZH+fFLDA+aEZWghZ4Y4ckqN6y6MLdtRx7IIo4zzmgawFRFRQ8l1QD1XasBbJgd0pVq8Pk/KMrOq60mjEtG4a14JZEFVfKYWj72eAWyiMWyzVPp/CAC1F7WwwTryuxl7zee3v6HG3NmemW7ZQ7XScZJ9t3NLbaFneE25ctgXGaA8G8YpJv9nwqeqlf/NlUQawAIXVVUGV2T7AkvjDg5wYVtGaLOSawGMtZmM8CFwLag+C0WwWK6ZtGwg+U8XcOK/CsH1H2Ni8RPz7O7AvmQCGGfu2e5t5gtwQCL4c7tdJiqSfXzFt5TQzH
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:AM0PR04MB4723.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(376002)(366004)(396003)(136003)(39840400004)(346002)(451199021)(54906003)(55016003)(7696005)(71200400001)(478600001)(41300700001)(316002)(83380400001)(91956017)(6916009)(4326008)(64756008)(66556008)(186003)(66446008)(26005)(6506007)(9686003)(66946007)(66476007)(76116006)(52536014)(5660300002)(44832011)(4744005)(2906002)(8936002)(8676002)(38100700002)(38070700005)(122000001)(33656002)(86362001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?eGLgcah2P17N2gPSRDkenlAVbbFVk4LbiDqhswLHb+ta5FBGMaofeY4hZL?=
+ =?iso-8859-1?Q?5PrFmv0GBwGF9Ws9mnTMoWFvvPr52u0My36QRjotEjgnyUD2M0WrnEU6dU?=
+ =?iso-8859-1?Q?wOwkAmaTRheBAGrXiP6idyMMVqFKXHMwdPvdLYp97RED4k5dZgebZEKL8G?=
+ =?iso-8859-1?Q?G8zwxVQTdxPwu21MX5ZTWJ8ha1Bid/6UIzFmk8ZJXItTcIiHqXcSA+ho12?=
+ =?iso-8859-1?Q?YTomNSbpUahLPkOKWvwfnGGrQv3sUc7bTU6JyEz5g7c/mEJT0dZQmd7KmJ?=
+ =?iso-8859-1?Q?u1KYxqYtgCggndn0XgynTcturJKfXSjejwrqlA3RUPednkUTi0+lz7MygK?=
+ =?iso-8859-1?Q?oec4h8qdx/kTZ8rrQDjH9K/0+L5EDnuoJeAzGj5TnIA4BGvXvt6gBTACvr?=
+ =?iso-8859-1?Q?E7Q5h067IvO1umPp5n/xSd7shIEjJssS54rPS1OrxFUKHWGLYwrts30kGp?=
+ =?iso-8859-1?Q?aRqRSPtoC7cBsDOm/ESq3QbyAOfcj4Nv+Y/ea4MJKvYJXF9o8RL+ZuVtcW?=
+ =?iso-8859-1?Q?/ay8DxWDIJiwQ6cF3C0ab2QcBplpK0tx8znV/RSZ2vEscHwcRkVh/7q9VT?=
+ =?iso-8859-1?Q?FgckciVtDKE63xhpXPp0Tx0DGuAq5Ja5QAmkTHwSWy/GGylk6U1ntpLgVP?=
+ =?iso-8859-1?Q?z9YLFWXGhYE9ia7b5Bx3dfK+ErSZ3aKDEWp6QK2epQ+3CVsFLyt8Ab4gE1?=
+ =?iso-8859-1?Q?ZuqHxLZ0pqQrzlVfbul5AExULkIhuO245vQR+ntibUZSGTV3Gz7w73TGA8?=
+ =?iso-8859-1?Q?9p7vZ7XiUbVWY78m7x8CAPfuTX1O69LWz/CjoKaA/5Xx4f8j9bYn2kWocB?=
+ =?iso-8859-1?Q?G+jq6uD/sYIw9uhfqvlSZg1cI/sRMxZVfUxPYXzQdjCYZD2JwUothG67az?=
+ =?iso-8859-1?Q?T4w/C/lrnQbWe9btZ/Jb9EzIaMeFqniZ0Wi0GvFYpuDA26ubGZcfD3mOyy?=
+ =?iso-8859-1?Q?x9INQfniDhg52wjNMpfsmZcexIHlbL3l3bszb74lTQH4pF6SanzuOM6998?=
+ =?iso-8859-1?Q?xiIu7EzYZ9jRexiOqcmcJhGmZD5TLvSWE3hBL/CH9OnHDGKZJ+zJThvvuU?=
+ =?iso-8859-1?Q?d3Uv6Bm2T35NXyJ7/f00hNA7LPrTH30GuJQRMmtfQxjL7vl1lbqMY1ih4D?=
+ =?iso-8859-1?Q?OwCqz/QwyTo4BAGapLn0PMKD4Wng7i1aRXGgF1bJLxyVzSBxwUb9GP+Twg?=
+ =?iso-8859-1?Q?1rQ6T01moPxKaOhjwdqWa2hEl8jKxaodMXulwov1qQH03rVBFh7+gMuL+b?=
+ =?iso-8859-1?Q?B1o4Av3sGQHnGv4Z09RNKyIMFvEOw7xsgDBVIY0NIMxM+G7zCIKVQfBfIH?=
+ =?iso-8859-1?Q?fZ1EIPagKAgtEbyT9MR4p0SA8c4QC/fsAiecvP94V6ZgVlUcGjbxDy2pTg?=
+ =?iso-8859-1?Q?YIVNdKCMvZAUpzUmrNwWvVGX90vBEBbdRC8zzayNrVJ9elzEsRTmRRUjiP?=
+ =?iso-8859-1?Q?hKq94WPIRH1VLaHK3dJ/pLXMSbj76sDwBWUV8/AdPIuLXboPau5dD2pmmW?=
+ =?iso-8859-1?Q?2RDDTq+f65ara3V7lcqOCpPxtWy6uXP9JFHSFADA4zAJlZq9AA8fFBv2Tw?=
+ =?iso-8859-1?Q?rAde5qK4ZwpjB4MIAcrXAh8V5PcoTc0piUXCeEfPYHjNbkMJ2QhakDRvsp?=
+ =?iso-8859-1?Q?DggCBA03k0M6EFAAnR1U0LQR51bvINrdFI?=
 MIME-Version: 1.0
-In-Reply-To: <AM0PR04MB4723B8489F8F9AE547393697D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+X-OriginatorOrg: solid-run.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB4723.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 45d9d39b-c80e-42a2-614f-08db3f0f13fd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2023 06:43:39.5130 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a4a8aaf3-fd27-4e27-add2-604707ce5b82
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: ps2K2I6HP3ns+vAFHFun3tLpGQOhATn0I2zG6JAU0gThC0ep4hIS2sRHk3XU4wtAbN4KEyKgdmLA5AtvOCINYMT+EdZYGF+lTOG5eccwF70=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR04MB8384
 Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
@@ -131,26 +165,14 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 17, 2023 at 06:38:43AM +0000, Alvaro Karsz wrote:
-> > Actually, I think that all you need to do is disable NETIF_F_SG,
-> > and things will work, no?
+> > +static int virtnet_validate_vqs(struct virtnet_info *vi)
+> > +{
+> > +     u32 i, min_size = roundup_pow_of_two(MAX_SKB_FRAGS + 2);
 > 
-> I think that this is not so simple, if I understand correctly, by disabling NETIF_F_SG we will never receive a chained skbs to transmit, but we still have more functionality to address, for example:
-> * The TX timeouts.
+> why power of two?
 
-I don't get it. With a linear skb we can transmit it as long as there's
-space for 2 entries in the vq: header and data. What's the source of the
-timeouts?
-
-> * Guest GSO/big MTU (without VIRTIO_NET_F_MRG_RXBUF?), we can't chain page size buffers anymore.
-
-I think we can.  mergeable_min_buf_len will just be large.
-
-
-> > Alvaro, can you try?
-> 
-> It won't matter at the moment, we'll get TX timeout after the first tx packet, we need to address this part as well.
-
+The ring size is always a power of 2, so checking against MAX_SKB_FRAGS + 2 or against roundup_pow_of_two will result in the same, and I think that printing the warning with the actual min value is more helpful.
+I can check the condition against MAX_SKB_FRAGS + 2, and print the rounded value in case of an error.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
