@@ -4,91 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 48A6AC77B61
-	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 02:20:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 802A6C77B61
+	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 02:20:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D3E6A8217B;
-	Mon, 17 Apr 2023 02:20:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D3E6A8217B
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2C14E822BF;
+	Mon, 17 Apr 2023 02:20:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2C14E822BF
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=W+kitkj4
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=gzd7vt8C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SCUBE8qf536b; Mon, 17 Apr 2023 02:20:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5B44982171;
-	Mon, 17 Apr 2023 02:20:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5B44982171
+	with ESMTP id qvqxjehwWvgF; Mon, 17 Apr 2023 02:20:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9C76B822A8;
+	Mon, 17 Apr 2023 02:20:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9C76B822A8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3EDB3C0036;
-	Mon, 17 Apr 2023 02:20:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C951C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79323C0036;
+	Mon, 17 Apr 2023 02:20:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 451B9C002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 02:20:52 +0000 (UTC)
+ Mon, 17 Apr 2023 02:20:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 506CE82174
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1E42D418E3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 02:20:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 506CE82174
+ Mon, 17 Apr 2023 02:20:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1E42D418E3
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=igel-co-jp.20221208.gappssmtp.com
+ header.i=@igel-co-jp.20221208.gappssmtp.com header.a=rsa-sha256
+ header.s=20221208 header.b=gzd7vt8C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S7HzJ4roL7ZD
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id It1m3jr9Zc-s
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 02:20:51 +0000 (UTC)
+ Mon, 17 Apr 2023 02:20:55 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8FCA782171
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
- [IPv6:2607:f8b0:4864:20::633])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8FCA782171
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EB1F64190F
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com
+ [IPv6:2607:f8b0:4864:20::102a])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EB1F64190F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 02:20:51 +0000 (UTC)
-Received: by mail-pl1-x633.google.com with SMTP id p8so24162365plk.9
+ Mon, 17 Apr 2023 02:20:54 +0000 (UTC)
+Received: by mail-pj1-x102a.google.com with SMTP id
+ k36-20020a17090a4ca700b0024770df9897so3237840pjh.4
  for <virtualization@lists.linux-foundation.org>;
- Sun, 16 Apr 2023 19:20:51 -0700 (PDT)
+ Sun, 16 Apr 2023 19:20:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=igel-co-jp.20221208.gappssmtp.com; s=20221208; t=1681698051; x=1684290051;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=zPGr4aLtxvia+ORk+JW6CZQQWfXiix2/yFnvH7YElHY=;
- b=W+kitkj4748KMfkxzVGrcTOmUMYc6GuI5qwaIjw/ez2iMpOp3wzBgCqUNRZMK+qjcb
- BbIY8QEASuYUGBfa9DpedYy0I7LxVeD+MKQbRFXsWwAhKpKwx8eUqTexwbc5mYPFMPD4
- /72izdGZyYzRwKmRN8y1YLdoSVJkog1r86CNCqveOWQ1yyvY4G5NR4++PNGU8wMrnFSC
- Bqh2/3spNiN8seFwQHVoqDVLvWU5WbnBxF8IqDm0FgitAbKfx7VdoGsJ94L4wFrfNr2K
- 5hlbiSRFGOGpgBkf7FicQFZAwwbkFMlADZNrmHhAd8T+Tw8A6B+EWt3Yy4RE7QBsN8mg
- z51A==
+ d=igel-co-jp.20221208.gappssmtp.com; s=20221208; t=1681698054; x=1684290054;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=tHvjQtUaREpSNyWBXjrmpBHAA+Syp+wBJ3S8TK4rHhQ=;
+ b=gzd7vt8CRFhl98tPP49VyB5QhIOFyk9OiW0U77waZv3q+sOEbugYPjOn/2iUXm0J9k
+ 1D5Gl2oUiWxGUgQvVeJL87XGL8ty19ACOYM96FoUlVmfkijsGOt8ZQvXd/IrYy2aAEZs
+ RilTj1yls3LrbdYlne7PkVMKt29zbfFYL2YcYLeZ+NG03PPlLhd+gOd7rfgVYj3tUUo1
+ U48f/4sql08oEcqAPUAz3Nf2T+jn5RYDLfItg5xyHfbUGZEAQF3qkP4ozcEVAVZYfQ4A
+ q3nYU/NllkG0YuHZQMuTAVIDNgcIGrKxCd4LhkgMbO1zPkV0lao/fl10wx3kgHYs5ilP
+ i4Rg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681698051; x=1684290051;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=zPGr4aLtxvia+ORk+JW6CZQQWfXiix2/yFnvH7YElHY=;
- b=diIJDspMLh4gn9siYLqVsYxsx4BQmeYDvGd1nFeox4T3syT9QlurzczXHeJ8VsSg/K
- 5DpIfbPR75Kk2VpJGgI+E4HjGK2uO3U419I8o7BOpKaH1NqBZzUKVHazPE+IHd5ndBx4
- jActG0jrxoA6WF6Fa+m07bWxtY3oN64LBUtf+B7vlBLE9zH4Mr8G+uRBaks5Nl9d9Vfa
- N47s9CLh9x5XunJnj+uObCoFHpsbnrcd3HmLbsU5AxGNKHlQNNLOIyysmMMJkxFk9oX+
- +GJr4hru0r59+Nkw3vea15IwWtn0pMTuUHv/y3g9g+7mE5enIUJHlw1LGOhS+O8gbRxS
- 7M3A==
-X-Gm-Message-State: AAQBX9eZmL26QD25++kbNi7lVLpqCBQurVrH/7Woi2t70PgGPSS4RMYB
- 0Qj+WNEMTtzqSGyh+Qh2n6t4LQ==
-X-Google-Smtp-Source: AKy350bs2v5u3uc7g/iYBOl/6g6nM1K60PDxVnsFlqWctrcBKq1BsqKUpM0oxvj+C1lEWPBFV4KybA==
-X-Received: by 2002:a17:902:e305:b0:1a6:370c:ce79 with SMTP id
- q5-20020a170902e30500b001a6370cce79mr9051838plc.22.1681698050696; 
- Sun, 16 Apr 2023 19:20:50 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1681698054; x=1684290054;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=tHvjQtUaREpSNyWBXjrmpBHAA+Syp+wBJ3S8TK4rHhQ=;
+ b=CwB5qnmRHt9xfzoIDK5KEljTuN0n6NsyjyBM3LMri36FzRYGbL/UuCYh0pVRTBcTUP
+ Iz0xuXJ0Fpd9Su1CtR+o605V+kVIwe9uy1MaBpndqhAEUrw2+F2e9BQt3CosKnCzixgm
+ a4bEDiApiMLbd6x35496kcksAXorM09aj+gc0OAulG8eTIGm427auQ4YqvCPVmx0BGod
+ NgmZjpy9XJOfvsRDpil0B3HUxe3Y21R+wSfWAXjRAU33vm9TxcJNSSAfmaoTABfpaPEg
+ SKhDHNLZeSHDUxMUYzQsTEXmkrT4m0CHv7ZgGypzZQQ+FHMYs+yv6CN+zz0V+cKElGV8
+ WRmw==
+X-Gm-Message-State: AAQBX9dpIwtkL305zMjnYHLDfjgsPfWs4myzmDK7BxEmkFKyiI/1+2n4
+ lYjw2kcu4j7/RVblbn3EvekyUw==
+X-Google-Smtp-Source: AKy350aUg/+byQRor+Xmx6jST3kydOARIy/gQeW6fnd1F/PWGpwEXFO2dl8KlBBtOUb75i/bl/lLTw==
+X-Received: by 2002:a17:902:d40c:b0:1a6:712c:24c5 with SMTP id
+ b12-20020a170902d40c00b001a6712c24c5mr9035249ple.69.1681698053769; 
+ Sun, 16 Apr 2023 19:20:53 -0700 (PDT)
 Received: from tyrell.hq.igel.co.jp (napt.igel.co.jp. [219.106.231.132])
  by smtp.gmail.com with ESMTPSA id
- f4-20020a170902e98400b001a68986a3d8sm6195243plb.24.2023.04.16.19.20.47
+ f4-20020a170902e98400b001a68986a3d8sm6195243plb.24.2023.04.16.19.20.50
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 16 Apr 2023 19:20:50 -0700 (PDT)
+ Sun, 16 Apr 2023 19:20:53 -0700 (PDT)
 From: Shunsuke Mie <mie@igel.co.jp>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3 RESEND 1/2] virtio_ring: add a struct device forward
- declaration
-Date: Mon, 17 Apr 2023 11:20:36 +0900
-Message-Id: <20230417022037.917668-1-mie@igel.co.jp>
+Subject: [PATCH v3 RESEND 2/2] tools/virtio: fix build caused by virtio_ring
+ changes
+Date: Mon, 17 Apr 2023 11:20:37 +0900
+Message-Id: <20230417022037.917668-2-mie@igel.co.jp>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230417022037.917668-1-mie@igel.co.jp>
+References: <20230417022037.917668-1-mie@igel.co.jp>
 MIME-Version: 1.0
 Cc: "Rafael J. Wysocki" <rafael@kernel.org>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
@@ -113,30 +121,122 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The virtio_ring header file uses the struct device without a forward
-declaration.
+Fix the build dependency for virtio_test. The virtio_ring that is used from
+the test requires container_of_const(). Change to use container_of.h kernel
+header directly and adapt related codes.
 
 Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
 ---
-Changes from v2: https://lore.kernel.org/virtualization/20230410074929-mutt-send-email-mst@kernel.org/
-- Fix a typo of commit title
+Changes from v2: https://lore.kernel.org/virtualization/20230410112845.337212-2-mie@igel.co.jp/
+- Remove an unnecessary change
+- Correct indentations
+- Retrieve the __user definition to prevent any unintended side effects
 
+ tools/include/linux/types.h   |  5 +++++
+ tools/virtio/linux/compiler.h |  2 ++
+ tools/virtio/linux/kernel.h   |  5 +----
+ tools/virtio/linux/uaccess.h  | 11 ++---------
+ 4 files changed, 10 insertions(+), 13 deletions(-)
 
- include/linux/virtio_ring.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 8b95b69ef694..77a9c2f52919 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -58,6 +58,7 @@ do { \
+diff --git a/tools/include/linux/types.h b/tools/include/linux/types.h
+index 051fdeaf2670..8519386acd23 100644
+--- a/tools/include/linux/types.h
++++ b/tools/include/linux/types.h
+@@ -49,7 +49,12 @@ typedef __s8  s8;
+ #endif
  
- struct virtio_device;
- struct virtqueue;
-+struct device;
+ #define __force
++/* This is defined in linux/compiler_types.h and is left for backward
++ * compatibility.
++ */
++#ifndef __user
+ #define __user
++#endif
+ #define __must_check
+ #define __cold
  
- /*
-  * Creates a virtqueue and allocates the descriptor ring.  If
+diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
+index 2c51bccb97bb..1f3a15b954b9 100644
+--- a/tools/virtio/linux/compiler.h
++++ b/tools/virtio/linux/compiler.h
+@@ -2,6 +2,8 @@
+ #ifndef LINUX_COMPILER_H
+ #define LINUX_COMPILER_H
+ 
++#include "../../../include/linux/compiler_types.h"
++
+ #define WRITE_ONCE(var, val) \
+ 	(*((volatile typeof(val) *)(&(var))) = (val))
+ 
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 8b877167933d..6702008f7f5c 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -10,6 +10,7 @@
+ #include <stdarg.h>
+ 
+ #include <linux/compiler.h>
++#include "../../../include/linux/container_of.h"
+ #include <linux/log2.h>
+ #include <linux/types.h>
+ #include <linux/overflow.h>
+@@ -107,10 +108,6 @@ static inline void free_page(unsigned long addr)
+ 	free((void *)addr);
+ }
+ 
+-#define container_of(ptr, type, member) ({			\
+-	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+-	(type *)( (char *)__mptr - offsetof(type,member) );})
+-
+ # ifndef likely
+ #  define likely(x)	(__builtin_expect(!!(x), 1))
+ # endif
+diff --git a/tools/virtio/linux/uaccess.h b/tools/virtio/linux/uaccess.h
+index 991dfb263998..f13828e0c409 100644
+--- a/tools/virtio/linux/uaccess.h
++++ b/tools/virtio/linux/uaccess.h
+@@ -6,15 +6,10 @@
+ 
+ extern void *__user_addr_min, *__user_addr_max;
+ 
+-static inline void __chk_user_ptr(const volatile void *p, size_t size)
+-{
+-	assert(p >= __user_addr_min && p + size <= __user_addr_max);
+-}
+-
+ #define put_user(x, ptr)					\
+ ({								\
+ 	typeof(ptr) __pu_ptr = (ptr);				\
+-	__chk_user_ptr(__pu_ptr, sizeof(*__pu_ptr));		\
++	__chk_user_ptr(__pu_ptr);				\
+ 	WRITE_ONCE(*(__pu_ptr), x);				\
+ 	0;							\
+ })
+@@ -22,7 +17,7 @@ static inline void __chk_user_ptr(const volatile void *p, size_t size)
+ #define get_user(x, ptr)					\
+ ({								\
+ 	typeof(ptr) __pu_ptr = (ptr);				\
+-	__chk_user_ptr(__pu_ptr, sizeof(*__pu_ptr));		\
++	__chk_user_ptr(__pu_ptr);				\
+ 	x = READ_ONCE(*(__pu_ptr));				\
+ 	0;							\
+ })
+@@ -37,7 +32,6 @@ static void volatile_memcpy(volatile char *to, const volatile char *from,
+ static inline int copy_from_user(void *to, const void __user volatile *from,
+ 				 unsigned long n)
+ {
+-	__chk_user_ptr(from, n);
+ 	volatile_memcpy(to, from, n);
+ 	return 0;
+ }
+@@ -45,7 +39,6 @@ static inline int copy_from_user(void *to, const void __user volatile *from,
+ static inline int copy_to_user(void __user volatile *to, const void *from,
+ 			       unsigned long n)
+ {
+-	__chk_user_ptr(to, n);
+ 	volatile_memcpy(to, from, n);
+ 	return 0;
+ }
 -- 
 2.25.1
 
