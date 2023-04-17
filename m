@@ -1,102 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD6ACC77B72
-	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 11:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AA627C77B72
+	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 11:27:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 231F040120;
-	Mon, 17 Apr 2023 11:27:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 231F040120
+	by smtp1.osuosl.org (Postfix) with ESMTP id 52097821DE;
+	Mon, 17 Apr 2023 11:27:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52097821DE
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ycq7eY+p
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9azFlI9TC-IS; Mon, 17 Apr 2023 11:27:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E18B5821C8;
+	Mon, 17 Apr 2023 11:27:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E18B5821C8
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BCC40C0036;
+	Mon, 17 Apr 2023 11:27:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0524AC002A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Apr 2023 11:27:49 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id D543C41C9C
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Apr 2023 11:27:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D543C41C9C
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hFiaAihM
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ycq7eY+p
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pgRcZYXAIifF; Mon, 17 Apr 2023 11:27:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A4DD541C9C;
-	Mon, 17 Apr 2023 11:27:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4DD541C9C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7B495C0036;
-	Mon, 17 Apr 2023 11:27:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 75FE1C002A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f5PUY2ZN3Enj
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 11:27:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4CE9E41A32
- for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 11:27:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4CE9E41A32
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=hFiaAihM
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lPneXLNQEz36
- for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 11:27:15 +0000 (UTC)
+ Mon, 17 Apr 2023 11:27:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D0DD541733
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CE5B34059E
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D0DD541733
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CE5B34059E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 11:27:14 +0000 (UTC)
+ Mon, 17 Apr 2023 11:27:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681730833;
+ s=mimecast20190719; t=1681730866;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=TakqrvAJlKM6wiZoFm1scUeo6puPcY/Vv/vobqZt7aI=;
- b=hFiaAihMKJLwuKv1rg1UwQVhukP8XoYXVhBy8CchQ4pEYSzUzYSEAeo+CXoWxNJUUNkjTU
- 5vL3bDqL4rQI5ywaTXjsp8heKAAwVINEZ1GdtmqqKVrIlGfkLe2lRoUv48NdLGOr2e148m
- DrAU728yy3aDiMmo9NJkNxp4Z9uV4eU=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=woEoe/ky/ifPFd2nOkW6u9KXRL4g1n/b16ZE7mnnnfw=;
+ b=Ycq7eY+pzqI4BHjpb/rm6S0tjkxpZz46Ah0RnQkeqgWM/nbkNBR8cmxTIcc2q3F6pGBFix
+ oNdmRfp0ZkKFQAp1QJB6K+JzwxTLFJR6T6eOjvTJ2FtMq+eH3nP/pgJbv5xtqOYQw3IAoV
+ RTemk1yRZGcrxbx/ywwDETAMkaSi4z0=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-157-zawcc3w3MeiQu5Lap0s5aQ-1; Mon, 17 Apr 2023 07:27:12 -0400
-X-MC-Unique: zawcc3w3MeiQu5Lap0s5aQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- z34-20020a509e25000000b00504ed11e0c5so8509014ede.1
+ us-mta-464-Z4nO1eM8MXSQrryvF4ygrg-1; Mon, 17 Apr 2023 07:27:45 -0400
+X-MC-Unique: Z4nO1eM8MXSQrryvF4ygrg-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ hh16-20020a170906a95000b00948f41a40d3so10458579ejb.8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 04:27:12 -0700 (PDT)
+ Mon, 17 Apr 2023 04:27:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681730831; x=1684322831;
+ d=1e100.net; s=20221208; t=1681730864; x=1684322864;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=TakqrvAJlKM6wiZoFm1scUeo6puPcY/Vv/vobqZt7aI=;
- b=OVlJ0YlNFgms9VqlsbuVtBdBTz7Hrwf2iny/ITCgIMohtnuW5W7dDruQK7jDwkfn5u
- ifk0ZrjsjVBYHQ/inoWyRTNeI7SyjPn6mRxsHaIdwBv+arnyW7Lqm+E7zLghQq5s8xFj
- 8l/+1Y7oeLsGxC3wJJ57vcA7P2DoSyS7AcufEOCNifKIaMPP9v3gTmInWcG3wxvolA1a
- K8mM8yShYRZKDiDvSOeXZT6D4iWyGp9uaHq8NEAmECCWwf+rS+3TN3OA7FUZqCux3oh7
- R58K7ltsVJtdHgfvC07o07YvyIRmTTF+wZMCqI1U1HsoKHijpTqscE1Uii+7S7vgf+5e
- HXWQ==
-X-Gm-Message-State: AAQBX9cmAQW86zZWFvNpihWelk/EpBC0uc9Dt2ML/Rcw+Bi6tnMh8B4o
- UjzKY2bUdjGA5/ew1lnuzKl9RiCNHMLjAbKes+OVWkeAXu0tvUqHBkg/u2dNg9tTW57a3fjLlW0
- uxiQ2xLbEBfcW6HN1+rCABOVNVjOpWNi3Y8Rbwhp0OGxPbkRps25t
-X-Received: by 2002:a17:907:3f24:b0:94f:19b5:bafd with SMTP id
- hq36-20020a1709073f2400b0094f19b5bafdmr8164268ejc.42.1681730831486; 
- Mon, 17 Apr 2023 04:27:11 -0700 (PDT)
-X-Google-Smtp-Source: AKy350Y+VbVdaHOeL3zOqx80keaqOXBl5K/My/94PrNn4obN635T0dEcyBjYK4oYkgmAlB9nmaD/3w==
-X-Received: by 2002:a17:907:3f24:b0:94f:19b5:bafd with SMTP id
- hq36-20020a1709073f2400b0094f19b5bafdmr8164255ejc.42.1681730831168; 
- Mon, 17 Apr 2023 04:27:11 -0700 (PDT)
+ bh=woEoe/ky/ifPFd2nOkW6u9KXRL4g1n/b16ZE7mnnnfw=;
+ b=e2pXtC+Y0r85gGufM5yQ/xoWf9Z+GIOnyOEXzqxdgbzNWqVaQZlKfzR99ItwnbaR9M
+ bU7IQDMh2nt8iK4eIWmCK0V7zXIiICUIt05o8qpBZjhDE7zm2+ifQo0ayRwzARh0VNsj
+ v94sgL9YujmOQRHTDMyeqnXeJKcw2rC/4bKwG85Cq/NbHnTiiaFyuHmZzryJuQKPV8+t
+ NEXpjN9cYVrk8UVIA1EqBw/HruoPPr2EO+waqIWjFf3hfCKwFEB5QyH8ieILAP/F19Tt
+ YWE4OqJ6+IYkhEFe2S8Fh2aOBhfVJx3PcsWBDlOP90mDMxBQmIkpeMXOITneexeUX3Bi
+ 3JHw==
+X-Gm-Message-State: AAQBX9cQzHbOM/Rct4awCLqw9MTxhLxxnf+QDljAMUJpK/qNj/OK5HhQ
+ Mb/LnewcRacV+L79DqNphlrXF8DZe+zjrX9wHQviCk9g+TOKW2eLSJwUUSNw7UtnvoWvNRMAkrz
+ Qh40tHHOYuXp+4iATAeLG0/ZybV7EfPnyylDcBefwmckaLhLAoBcX
+X-Received: by 2002:a17:906:4708:b0:94f:764e:e311 with SMTP id
+ y8-20020a170906470800b0094f764ee311mr2617446ejq.16.1681730863821; 
+ Mon, 17 Apr 2023 04:27:43 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bBHEvHsHtOzn3UoScLbvY5NOPRLGLimoDvhFKE8ZblaVCkikRe5l8cPMrRGIOSzi5RMNTr3A==
+X-Received: by 2002:a17:906:4708:b0:94f:764e:e311 with SMTP id
+ y8-20020a170906470800b0094f764ee311mr2617425ejq.16.1681730863462; 
+ Mon, 17 Apr 2023 04:27:43 -0700 (PDT)
 Received: from redhat.com ([2.52.136.129]) by smtp.gmail.com with ESMTPSA id
- gn42-20020a1709070d2a00b00930525d89e2sm6504418ejc.89.2023.04.17.04.27.08
+ og4-20020a1709071dc400b0094f158ebfc8sm3641388ejc.166.2023.04.17.04.27.41
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 17 Apr 2023 04:27:10 -0700 (PDT)
-Date: Mon, 17 Apr 2023 07:27:06 -0400
+ Mon, 17 Apr 2023 04:27:42 -0700 (PDT)
+Date: Mon, 17 Apr 2023 07:27:39 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eli Cohen <elic@nvidia.com>
 Subject: Re: [PATCH v5] vdpa/mlx5: Avoid losing link state updates
-Message-ID: <20230417072656-mutt-send-email-mst@kernel.org>
+Message-ID: <20230417072729-mutt-send-email-mst@kernel.org>
 References: <20230417110343.138319-1-elic@nvidia.com>
 MIME-Version: 1.0
 In-Reply-To: <20230417110343.138319-1-elic@nvidia.com>
@@ -136,10 +136,10 @@ On Mon, Apr 17, 2023 at 02:03:43PM +0300, Eli Cohen wrote:
 > Acked-by: Jason Wang <jasowang@redhat.com>
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 > Message-Id: <20230404073347.40847-1-elic@nvidia.com>
-
-What is this? Should not be there.
-
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+this should not be there either.
+
 > ---
 >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 203 +++++++++++++++++-------------
 >  1 file changed, 114 insertions(+), 89 deletions(-)
