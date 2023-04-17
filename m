@@ -1,150 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 056FAC77B72
-	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 07:08:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D9C05C77B72
+	for <virtualization@archiver.kernel.org>; Mon, 17 Apr 2023 07:10:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2246060F97;
-	Mon, 17 Apr 2023 07:08:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2246060F97
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=chXEOa6G
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5056441B31;
+	Mon, 17 Apr 2023 07:10:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5056441B31
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fvtATLfR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id USnRP4JDhPAq; Mon, 17 Apr 2023 07:08:07 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qGAalJmh1MuN; Mon, 17 Apr 2023 07:10:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C707560E27;
-	Mon, 17 Apr 2023 07:08:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C707560E27
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 523A341A49;
+	Mon, 17 Apr 2023 07:10:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 523A341A49
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E417C0036;
-	Mon, 17 Apr 2023 07:08:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E38EBC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F11FC0036;
+	Mon, 17 Apr 2023 07:10:43 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EA4D3C002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 07:08:05 +0000 (UTC)
+ Mon, 17 Apr 2023 07:10:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A7C9C60F5F
+ by smtp1.osuosl.org (Postfix) with ESMTP id BF46082239
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 07:08:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A7C9C60F5F
+ Mon, 17 Apr 2023 07:10:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BF46082239
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=fvtATLfR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7VculbvZs-ts
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xBlKSM0XvfpQ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 07:08:04 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E5DA60E27
-Received: from EUR01-VE1-obe.outbound.protection.outlook.com
- (mail-ve1eur01on061f.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe1f::61f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3E5DA60E27
+ Mon, 17 Apr 2023 07:10:41 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F4066821E9
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id F4066821E9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Apr 2023 07:08:04 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MdpCwg8T5JOHLrmlB9WLT4xWE7SaJW0LQdlTrg97JuhUfLw10t5+h+U+BYS2bMPyqIe8UZZNFcAKwQlyurl0rQH7pg5IW3o5w7YQwwjqFqVRO+1GyCYYZaWOzqPXRbbpxNbgapJ5uZ+ijM2QDSxBmoqFJgHQmk4Y7zQae5KoFkHo5LBdtSfH/9aigFeJ+RaCpom8XkIL3psV2XysZkIaZvc1azja2d0RejwkkdHRgtaowpj9si3k/nREIEIErrXUoIxXaK/DuL+dipoULyXK74SUMp46MJLUDBRiFvJG4N/JEfLM2NHcA57YXgN6PLLPXZRQn2RVdQQJl2D+J5/maA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HP4HHPjudtDJJRDSIlVKQpQnTKqMXeceN6ctsBzDL3o=;
- b=ZmfqjRnFNK8qHqre9nXWKN8U/xmIqqZZhDU/iPXk1kfB7mHg+PU6LuylYj4zRRjM62rGf9AAfXgpVkOxtqSVtiOJVPKB/jDoXNDQK4wtbttEYoCnH+0iGx2wKfI96J/PQSIZ660azEgOE7Dj/USbHTu2kpOAvDvLvyvRf74B+xrIpOCtwwrQaOUkF2X8Z1t+X82sVWDyte9b1gbGW5LINypKRnIGgXHvrq5Mq+tE4Vp86bSB7Bb6MwdFGRfbyh4iHPoFAGvmQAzuWtKMYAV7h+Q9cO5fWSkoS8KWyVGk+5j8d8y+wr4+npgPt9lU5rzjbI39iGOdLAiO1od3uUfbYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=solid-run.com; dmarc=pass action=none
- header.from=solid-run.com; dkim=pass header.d=solid-run.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HP4HHPjudtDJJRDSIlVKQpQnTKqMXeceN6ctsBzDL3o=;
- b=chXEOa6GqDR3eDUk7qmhrdCrcPctFPOBqcoFnd4aynr3hEhDxW93LnvHYyO3AEWDJXjogwlF93s2Ko7zZwYHLD+UM4T8xGWXvI4OfcEmVkW5t86F4CHnoEUJZ2/S6EK8qp1h3DszrFOv1j6Z1P19KR1EIDhDsSmsd5S+h8aMKXw=
-Received: from AM0PR04MB4723.eurprd04.prod.outlook.com (2603:10a6:208:c0::20)
- by DB9PR04MB9308.eurprd04.prod.outlook.com (2603:10a6:10:36c::13)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Mon, 17 Apr
- 2023 07:08:00 +0000
-Received: from AM0PR04MB4723.eurprd04.prod.outlook.com
- ([fe80::54c9:6706:9dc6:d977]) by AM0PR04MB4723.eurprd04.prod.outlook.com
- ([fe80::54c9:6706:9dc6:d977%5]) with mapi id 15.20.6298.030; Mon, 17 Apr 2023
- 07:08:00 +0000
-From: Alvaro Karsz <alvaro.karsz@solid-run.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+ Mon, 17 Apr 2023 07:10:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1681715439;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=khZ23ut9tSZy0CNwgidrOfEO75uvb5JIpDX8+Rd9+Ts=;
+ b=fvtATLfR1G93TG8ZkskbSoiDwmJ+BMabCnY2CbK2LYWDqy1NxySiCyPj5q+od2XYPc2CQb
+ 9X/LTVnCJAyfEGu+ax9ZF0fHNQa2B2e75gLwg7TlpYCtXFBUy66G6Ja2Bcibf/FD13K12G
+ Bhnh/ypcnGGjIn7jNfoG63J4wpjt3fg=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-232-gBDiKHt6Mta72XxXZzomFg-1; Mon, 17 Apr 2023 03:10:38 -0400
+X-MC-Unique: gBDiKHt6Mta72XxXZzomFg-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ s14-20020a05621412ce00b005e839e5891bso12080165qvv.17
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 Apr 2023 00:10:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1681715437; x=1684307437;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=khZ23ut9tSZy0CNwgidrOfEO75uvb5JIpDX8+Rd9+Ts=;
+ b=KyIfhlYdqbql1dteFsrx5PU026P6HlEIQ6tEab+SokMh8jHo4YVUOICPuoxyqnHFI6
+ 3Z+7Dcs2PUXof35fxz26ziHnzmg4n8YrWNKWNVlyaznLWqWPZ0n0feTjeofXxh8Y+KXQ
+ Tmy8/2pHbmBrbNllkF8hZvJMB1uG//lmCagFVNCivHGCynKEJGqctUs9g9WudKcNjG4j
+ SY3rt3PU55vAxEUF4d/UiM5AbRg/B3fgR8IHtqmT+Sli92ctbV6kMr/F9TzNUAQpjuNZ
+ COHXkVOiCPQlT6h/akatEh/we+LAaVoSFKrpoMRWk5hqFt0+wYMfE3zWB/h11M5xUJnx
+ CtvQ==
+X-Gm-Message-State: AAQBX9dsbD5FksQ4/g04xeZDaDPu4ZloNCngI6FbDEKmnxzabbRtWKbm
+ 0PslK34KF6vb1I7BUuxvL1kGISe6uIOn2MvcdPF9LCLOpmcH01htOuM9Ui4ravilT9mklyptnB9
+ LGUqY6um63KxqHz4MxerIMqsdreNUuJFr9sfSNDHqFg==
+X-Received: by 2002:ac8:5705:0:b0:3e1:18cc:7fb0 with SMTP id
+ 5-20020ac85705000000b003e118cc7fb0mr19873679qtw.41.1681715437549; 
+ Mon, 17 Apr 2023 00:10:37 -0700 (PDT)
+X-Google-Smtp-Source: AKy350ZZNAN+4+EZys8WaUUUa9OgEdVXOuEUlcNT1Oqqqd2RWhLnDZZTLPDbDA7IGY19/AulMU52SA==
+X-Received: by 2002:ac8:5705:0:b0:3e1:18cc:7fb0 with SMTP id
+ 5-20020ac85705000000b003e118cc7fb0mr19873659qtw.41.1681715437280; 
+ Mon, 17 Apr 2023 00:10:37 -0700 (PDT)
+Received: from redhat.com ([185.199.103.251]) by smtp.gmail.com with ESMTPSA id
+ p15-20020a05622a00cf00b003ecf475286csm1559676qtw.39.2023.04.17.00.10.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 17 Apr 2023 00:10:36 -0700 (PDT)
+Date: Mon, 17 Apr 2023 03:10:29 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alvaro Karsz <alvaro.karsz@solid-run.com>
 Subject: Re: [PATCH net] virtio-net: reject small vring sizes
-Thread-Topic: [PATCH net] virtio-net: reject small vring sizes
-Thread-Index: AQHZcDeGnH5xR2OGlkuo4s6jvhNMC68uIjT9gABGFgCAAG90AIAAMSwAgAABjzCAAAUmAIAABbXA
-Date: Mon, 17 Apr 2023 07:07:59 +0000
-Message-ID: <AM0PR04MB4723EB7A5E42A090F63EEC11D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+Message-ID: <20230417030713-mutt-send-email-mst@kernel.org>
 References: <20230416074607.292616-1-alvaro.karsz@solid-run.com>
  <AM0PR04MB4723C6E99A217F51973710F5D49F9@AM0PR04MB4723.eurprd04.prod.outlook.com>
  <20230416164453-mutt-send-email-mst@kernel.org>
  <CACGkMEvFhVyWb5+ET_akPvnjUq04+ZbJC8o_GtNBWqSMGNum8A@mail.gmail.com>
  <20230417021725-mutt-send-email-mst@kernel.org>
  <AM0PR04MB4723B8489F8F9AE547393697D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <1681713856.1928573-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1681713856.1928573-2-xuanzhuo@linux.alibaba.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-GB
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=solid-run.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AM0PR04MB4723:EE_|DB9PR04MB9308:EE_
-x-ms-office365-filtering-correlation-id: 5feb852a-e461-45c0-de7a-08db3f127a75
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: T6Ker1CT1WfJYmBy3ZSCJShIkWLCyM3iq7iFx20S5HDa/aYwlFbClZEavvZg+tpb6ZKjCR2+dehxffncIDhKu8zV93w8x1HBTTL5x1/RnG9ma4iw3zmXXOr36zqbJ10P9+oBaMEWsh2gHhTTWwiZ3fMxvIg0k8fBpMADf/P5f6tmKBrjxyfASgQdyTvAp2Cb2fEKcPTc5qSDYcsrOvifWz+waPaepWjFatVFiGLJdBVNJqjxFGpvD2a1dqjtA3G4hNpMPhQIrQWOB7YKllJXHU1S6HcsyF83GHA9y1cm4lZ7upSzzmIV7FTnifwV1CfYmEHY8oOP8mtuE+bblQUdxizMP5Re4NguGsrdOjsN9ncPl/OXtF65awuc1N1/8QY604wLr4Gq/+TGJ5yMA0U+NtyKH76JMJ/6B7zl1dI5AQ3w3D7EyM5UKfHT7fTlTm+ay1hYVbGeicNECWDKEA4Kr8IDzIPpJgyLQ2r03h3R9nWqjSJa4qdF1Cji1HxCSu9dAtVAP0jscqh/GWHvdd2JWFqKFBjEm2H6YJm00sQPddBUDqk2ey6n5XoGF04QAGtfejamLlR/RAlJ5NdFD5vXSRX+DrPhZxaCmiJAivRTHuqE+b7ya8IBPQeaeCpq1yaz
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:AM0PR04MB4723.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(136003)(366004)(346002)(39840400004)(376002)(396003)(451199021)(86362001)(64756008)(9686003)(38070700005)(26005)(6506007)(33656002)(186003)(4744005)(2906002)(44832011)(7416002)(7696005)(52536014)(5660300002)(38100700002)(71200400001)(8936002)(66899021)(8676002)(478600001)(54906003)(122000001)(41300700001)(316002)(76116006)(66946007)(66556008)(66446008)(55016003)(66476007)(6916009)(4326008)(91956017);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?MOnfyusohgK9YVDvwkyE0a//3uxaQPRu/yx4n2Ri/+8M9kuflhJqj4lBr6?=
- =?iso-8859-1?Q?UjlzBJIUHuhZ5JuWFeuIywRv4ezLan1MaUqhIBNZc3BAdZWgobhdCE+Dg2?=
- =?iso-8859-1?Q?PTnldgbSFM1ezAGRtIYS8FSbEvyR8Qr1+E9eSNIeraYtxTnaML7on45uCK?=
- =?iso-8859-1?Q?RQRAha2Zthne+vkSTmiwDUPLKFQY/PfU/2mxLYP+1Ce0B/pt+SjqKtTcdq?=
- =?iso-8859-1?Q?j/zazasyDXYPYwAIP+kFrFnSqzmamWd71NMARNguOredqarJLVbUZh356O?=
- =?iso-8859-1?Q?jDsv0I0amHVs79yyW1Y1TWJJOhMF7Hfe5DF4kFXXyzMmaI3LKB4ItoyI6m?=
- =?iso-8859-1?Q?S4pRhpbL2SI4L/blKxiAadow9VLgLGGvQzu1ZVsVPU0+NnjV/VkR4jQ1hG?=
- =?iso-8859-1?Q?RW2hU+XfTKBgzTye+HgIBwMBOtwG5JFsJUhtZBxzFuwN4tbk5w0IfXObXu?=
- =?iso-8859-1?Q?Wyg0QKwHOhX6XJVbv08JwHnOrOL7mq3vCXoiyqn1xg24l2kiczuuzLZ+fZ?=
- =?iso-8859-1?Q?aeuIAzGvcPGxky88cvtqDU6xxw1lOPATV5j30sEI6CsOY5l2qFtbMBbi3B?=
- =?iso-8859-1?Q?L/9vkqu0pvJfHbJQwOtlSZVZSsO6oNoOiLKdfee3XviRUeO1PyLz1Rv5C3?=
- =?iso-8859-1?Q?72+Y7BA9nrpyKvKHdwTnmvt5H+PmzH2YAz2hZlKOzL43ZNM5D/z7InG/rQ?=
- =?iso-8859-1?Q?kgni8wGd9MRWMyqc8mrEpne83T1Z9JYIj1c/ntDVarSL0qP2JcUXcoHESj?=
- =?iso-8859-1?Q?9hfbNnYz6kUI9tZiw2wQ7KBVMkXRDFqXtPS6WJdC90hpNhBjNDgWzefAJL?=
- =?iso-8859-1?Q?A1OMEYfSpPQ06ch3wjU141f9tRSv/ljhMNyJjk2bQiJiy2/doek4b7TIrA?=
- =?iso-8859-1?Q?+CK79i4i/ce4xCTC/jihwqAT2JkC5nakERTWZ71RpULHgvBgRin0KMDy4z?=
- =?iso-8859-1?Q?FxqtTc39muEYwDjgmV1wVHEwo2n3vw3pzVvck932KCYMKScmJHeXNCRlhN?=
- =?iso-8859-1?Q?zRTsBu3E1hzWuo/Ht3ODMIazg/QsTp1jIF99i3oGY9fkFgVmM+qRj1zwQb?=
- =?iso-8859-1?Q?dJNinAmOan7ext4oS4KWKX1M+yNlPfNRgTqIBXCq1HXpli3GMLdJ46NjxZ?=
- =?iso-8859-1?Q?6PzFJ9mp49MQhRRH01YqEbnCpnSS+s3G9VBDsbJiSSQm/8NcDxIeGqpb+f?=
- =?iso-8859-1?Q?xLuojIp5IJX+0kow0KDr/XiKRYH0hC0IUnUcnqVMCOHrJ5QUNG/dmtV/6w?=
- =?iso-8859-1?Q?8zViD5dVNMf/qzjMwT4EjOPeJoPX3lQCwD0MnjOfV/u6327fBK/8ssWfPo?=
- =?iso-8859-1?Q?Jm2WJ3ayN/hXaCrRUeTHXL4zUGEifL7d9XjVkS9ylanhnMhzErdCjr7o+8?=
- =?iso-8859-1?Q?SgLep+3+Ze1KMCGkqJIK/9ZaPPYxUI04I+dbVs+Mt8iVeUi5OjbP5aXtqw?=
- =?iso-8859-1?Q?RgHvoGxV+57PhNj8lhaYohEistUWuCjfOUgMQKk84P+kX2alNrY00GD64y?=
- =?iso-8859-1?Q?/K8vP+tfFGEpOQYTYjFs/5UZE8g9b5BNHUduQZhaRda3cO2EZVeIKOv7WL?=
- =?iso-8859-1?Q?Gjjnrupz+sCR9Qr3wNSpkuHsKf/EcXtcSu/VIdiGFh6a/RlXFjfmYTwys5?=
- =?iso-8859-1?Q?T23HfGvP6yokFZNOBhD86ytIk8mjjlgYCg?=
+ <20230417023911-mutt-send-email-mst@kernel.org>
+ <AM0PR04MB47237BFB8BB3A3606CE6A408D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
-X-OriginatorOrg: solid-run.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB4723.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5feb852a-e461-45c0-de7a-08db3f127a75
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Apr 2023 07:07:59.8992 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a4a8aaf3-fd27-4e27-add2-604707ce5b82
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mcNUvDCKsYD1IRz/N7Dct8Qljpe6CAa08ZGaMnlv6qxLhO8h84iCZx31+XCHzqvcKJFQOIiBDC4Z3tDnn3swq3nwHxgmH9OaubiXY1PAiI8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB9308
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+In-Reply-To: <AM0PR04MB47237BFB8BB3A3606CE6A408D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
@@ -167,19 +133,44 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> Why tx timeout without frags?
-
-Please see my response to Michael.
-
-> > * Guest GSO/big MTU (without VIRTIO_NET_F_MRG_RXBUF?), we can't chain page size buffers anymore.
+On Mon, Apr 17, 2023 at 07:03:52AM +0000, Alvaro Karsz wrote:
+> > > > Actually, I think that all you need to do is disable NETIF_F_SG,
+> > > > and things will work, no?
+> > >
+> > > I think that this is not so simple, if I understand correctly, by disabling NETIF_F_SG we will never receive a chained skbs to transmit, but we still have more functionality to address, for example:
+> > > * The TX timeouts.
+> > 
+> > I don't get it. With a linear skb we can transmit it as long as there's
+> > space for 2 entries in the vq: header and data. What's the source of the
+> > timeouts?
+> > 
 > 
+> I'm not saying that this is not possible, I meant that we need more changes to virtio-net.
+> The source of the timeouts is from the current implementation of virtnet_poll_tx.
 > 
-> Or, we disable the GUEST_GSO, HOST_GSO......
-> 
-And disable VIRTIO_NET_F_MTU, quoting the spec:
-"A driver SHOULD negotiate VIRTIO_NET_F_MTU if the device offers it."
+> if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+> 	netif_tx_wake_queue(txq);
 
-We can find a way around using buffers bigger than a page size like Michael implied.
+Oh right. So this should check NETIF_F_SG then.
+BTW both ring size and s/g can be tweaked by ethtool, also
+needs handling.
+
+
+> 
+> > > * Guest GSO/big MTU (without VIRTIO_NET_F_MRG_RXBUF?), we can't chain page size buffers anymore.
+> > 
+> > I think we can.  mergeable_min_buf_len will just be large.
+> > 
+> 
+> I meant that we can't just by clearing NETIF_F_SG, we'll need to change virtio-net a little bit more, for example, the virtnet_set_big_packets function.
+> 
+
+Right - for RX, big_packets_num_skbfrags ignores ring size and that's
+probably a bug if mtu is very large.
+
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
