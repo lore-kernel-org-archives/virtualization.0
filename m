@@ -1,61 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A1149C77B7E
-	for <virtualization@archiver.kernel.org>; Tue, 18 Apr 2023 06:53:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 66E66C77B7C
+	for <virtualization@archiver.kernel.org>; Tue, 18 Apr 2023 06:53:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1C77540CA5;
+	by smtp3.osuosl.org (Postfix) with ESMTP id EE97460737;
 	Tue, 18 Apr 2023 06:53:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C77540CA5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EE97460737
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3PdaApXOcuMs; Tue, 18 Apr 2023 06:53:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8CCF440C12;
-	Tue, 18 Apr 2023 06:53:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CCF440C12
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RzFQtcJcb3Wb; Tue, 18 Apr 2023 06:53:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 815F460739;
+	Tue, 18 Apr 2023 06:53:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 815F460739
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 475C3C0037;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E6D0C008B;
 	Tue, 18 Apr 2023 06:53:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 30782C002A
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65CF0C002A
  for <virtualization@lists.linux-foundation.org>;
  Tue, 18 Apr 2023 06:53:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id F29CE817EB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3F3FC408D5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 18 Apr 2023 06:53:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3F3FC408D5
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BQN3X6aGLipm
  for <virtualization@lists.linux-foundation.org>;
  Tue, 18 Apr 2023 06:53:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F29CE817EB
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kRfxkmZ_OeW2
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B22F1408A3
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B22F1408A3
  for <virtualization@lists.linux-foundation.org>;
  Tue, 18 Apr 2023 06:53:34 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 20B97817D3
-Received: from out30-111.freemail.mail.aliyun.com
- (out30-111.freemail.mail.aliyun.com [115.124.30.111])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 20B97817D3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Apr 2023 06:53:33 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
- TI=SMTPD_---0VgOIH1e_1681800807; 
+ TI=SMTPD_---0VgOIH2U_1681800808; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VgOIH1e_1681800807) by smtp.aliyun-inc.com;
- Tue, 18 Apr 2023 14:53:28 +0800
+ fp:SMTPD_---0VgOIH2U_1681800808) by smtp.aliyun-inc.com;
+ Tue, 18 Apr 2023 14:53:29 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next v2 00/14] virtio_net: refactor xdp codes
-Date: Tue, 18 Apr 2023 14:53:13 +0800
-Message-Id: <20230418065327.72281-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v2 01/14] virtio_net: mergeable xdp: put old page
+ immediately
+Date: Tue, 18 Apr 2023 14:53:14 +0800
+Message-Id: <20230418065327.72281-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20230418065327.72281-1-xuanzhuo@linux.alibaba.com>
+References: <20230418065327.72281-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 X-Git-Hash: d931ac25730a
 Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
@@ -80,50 +83,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Due to historical reasons, the implementation of XDP in virtio-net is relatively
-chaotic. For example, the processing of XDP actions has two copies of similar
-code. Such as page, xdp_page processing, etc.
+In the xdp implementation of virtio-net mergeable, it always checks
+whether two page is used and a page is selected to release. This is
+complicated for the processing of action, and be careful.
 
-The purpose of this patch set is to refactor these code. Reduce the difficulty
-of subsequent maintenance. Subsequent developers will not introduce new bugs
-because of some complex logical relationships.
+In the entire process, we have such principles:
+* If xdp_page is used (PASS, TX, Redirect), then we release the old
+  page.
+* If it is a drop case, we will release two. The old page obtained from
+  buf is release inside err_xdp, and xdp_page needs be relased by us.
 
-In addition, the supporting to AF_XDP that I want to submit later will also need
-to reuse the logic of XDP, such as the processing of actions, I don't want to
-introduce a new similar code. In this way, I can reuse these codes in the
-future.
+But in fact, when we allocate a new page, we can release the old page
+immediately. Then just one is using, we just need to release the new
+page for drop case. On the drop path, err_xdp will release the variable
+"page", so we only need to let "page" point to the new xdp_page in
+advance.
 
-Please review.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-Thanks.
-
-v2:
-    1. re-split to make review more convenient
-
-v1:
-    1. fix some variables are uninitialized
-
-Xuan Zhuo (14):
-  virtio_net: mergeable xdp: put old page immediately
-  virtio_net: introduce mergeable_xdp_prepare()
-  virtio_net: optimize mergeable_xdp_prepare()
-  virtio_net: introduce virtnet_xdp_handler() to seprate the logic of
-    run xdp
-  virtio_net: introduce xdp res enums
-  virtio_net: separate the logic of freeing xdp shinfo
-  virtio_net: separate the logic of freeing the rest mergeable buf
-  virtio_net: auto release xdp shinfo
-  virtio_net: introduce receive_mergeable_xdp()
-  virtio_net: merge: remove skip_xdp
-  virtio_net: introduce receive_small_xdp()
-  virtio_net: small: optimize code
-  virtio_net: small: optimize code
-  virtio_net: small: remove skip_xdp
-
- drivers/net/virtio_net.c | 625 +++++++++++++++++++++++----------------
- 1 file changed, 362 insertions(+), 263 deletions(-)
-
---
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index e2560b6f7980..42435e762d72 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1245,6 +1245,9 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			if (!xdp_page)
+ 				goto err_xdp;
+ 			offset = VIRTIO_XDP_HEADROOM;
++
++			put_page(page);
++			page = xdp_page;
+ 		} else if (unlikely(headroom < virtnet_get_headroom(vi))) {
+ 			xdp_room = SKB_DATA_ALIGN(VIRTIO_XDP_HEADROOM +
+ 						  sizeof(struct skb_shared_info));
+@@ -1259,11 +1262,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			       page_address(page) + offset, len);
+ 			frame_sz = PAGE_SIZE;
+ 			offset = VIRTIO_XDP_HEADROOM;
+-		} else {
+-			xdp_page = page;
++
++			put_page(page);
++			page = xdp_page;
+ 		}
+ 
+-		data = page_address(xdp_page) + offset;
++		data = page_address(page) + offset;
+ 		err = virtnet_build_xdp_buff_mrg(dev, vi, rq, &xdp, data, len, frame_sz,
+ 						 &num_buf, &xdp_frags_truesz, stats);
+ 		if (unlikely(err))
+@@ -1278,8 +1282,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			if (unlikely(!head_skb))
+ 				goto err_xdp_frags;
+ 
+-			if (unlikely(xdp_page != page))
+-				put_page(page);
+ 			rcu_read_unlock();
+ 			return head_skb;
+ 		case XDP_TX:
+@@ -1297,8 +1299,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 				goto err_xdp_frags;
+ 			}
+ 			*xdp_xmit |= VIRTIO_XDP_TX;
+-			if (unlikely(xdp_page != page))
+-				put_page(page);
+ 			rcu_read_unlock();
+ 			goto xdp_xmit;
+ 		case XDP_REDIRECT:
+@@ -1307,8 +1307,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			if (err)
+ 				goto err_xdp_frags;
+ 			*xdp_xmit |= VIRTIO_XDP_REDIR;
+-			if (unlikely(xdp_page != page))
+-				put_page(page);
+ 			rcu_read_unlock();
+ 			goto xdp_xmit;
+ 		default:
+@@ -1321,9 +1319,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 			goto err_xdp_frags;
+ 		}
+ err_xdp_frags:
+-		if (unlikely(xdp_page != page))
+-			__free_pages(xdp_page, 0);
+-
+ 		if (xdp_buff_has_frags(&xdp)) {
+ 			shinfo = xdp_get_shared_info_from_buff(&xdp);
+ 			for (i = 0; i < shinfo->nr_frags; i++) {
+-- 
 2.32.0.3.g01195cf9f
 
 _______________________________________________
