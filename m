@@ -1,99 +1,81 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BD52AC77B73
-	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 05:17:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04EF1C77B73
+	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 06:19:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 48F7E60EFD;
-	Wed, 19 Apr 2023 05:17:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 48F7E60EFD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=GZsS8wOz
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7200181E95;
+	Wed, 19 Apr 2023 06:19:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7200181E95
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vLJE-j5jiGtw; Wed, 19 Apr 2023 05:17:16 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jmcryvt0wHgZ; Wed, 19 Apr 2023 06:19:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9946860C25;
-	Wed, 19 Apr 2023 05:17:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9946860C25
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CB75781EC0;
+	Wed, 19 Apr 2023 06:19:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB75781EC0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 71AC8C007A;
-	Wed, 19 Apr 2023 05:17:15 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 97E5FC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4CAACC0037;
+	Wed, 19 Apr 2023 06:19:08 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1F650C002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 05:17:13 +0000 (UTC)
+ Wed, 19 Apr 2023 06:19:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6B2A3408D5
+ by smtp4.osuosl.org (Postfix) with ESMTP id ECA1C41D9E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 05:17:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B2A3408D5
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20210309 header.b=GZsS8wOz
+ Wed, 19 Apr 2023 06:19:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ECA1C41D9E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yONInhmV32ve
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pGNLfr-qldmv
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 05:17:12 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CE6DE4010C
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:3::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CE6DE4010C
+ Wed, 19 Apr 2023 06:19:05 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32F8F415FA
+Received: from out30-111.freemail.mail.aliyun.com
+ (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 32F8F415FA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 05:17:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
- :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=3TYzjVAO8lFOigoxzvnuNLGE5Ej5y2RKbRN7nPAZnQc=; b=GZsS8wOzLRu165JMIeJQWnqCrJ
- cFugFrh3LbSdfvJz1Z3udGZWBk+BVAZOz/zaz3027PrNh7I7H8vtfpmNDUwzp+Dek7cHaGoXRxlg+
- N2vaKfChTbLEndgPdUy55MG7J48x/9JAdhttQ+YlYP5EIe57jWyFZPkVSsBR3YbZU1MMoAi1viRiJ
- qMXnObMVXkIrqVmv7Dz8s+TWjJ0T6a0/YA2l9Q+WlIXS4cma2t2zwYmGcC1VB3rxY5dDB2IB/iG31
- o3oeOAJ1e2SBbb++bbW7afi+MeVPZpH/idmWCOwbxgG7ppHdtDxUyY66DaY9ifrVbfFFgZxmPxlbd
- 4uQUixrw==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat
- Linux)) id 1pp0BZ-0045Qx-0m; Wed, 19 Apr 2023 05:16:53 +0000
-Date: Tue, 18 Apr 2023 22:16:53 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next] xsk: introduce xsk_dma_ops
-Message-ID: <ZD95RY9PjVRi7qz3@infradead.org>
-References: <ZDzKAD2SNe1q/XA6@infradead.org>
- <1681711081.378984-2-xuanzhuo@linux.alibaba.com>
- <20230417115610.7763a87c@kernel.org>
- <20230417115753.7fb64b68@kernel.org>
- <CACGkMEtPNPXFThHt4aNm4g-fC1DqTLcDnB_iBWb9-cAOHMYV_A@mail.gmail.com>
- <20230417181950.5db68526@kernel.org>
- <1681784379.909136-2-xuanzhuo@linux.alibaba.com>
- <20230417195400.482cfe75@kernel.org>
- <ZD4kMOym15pFcjq+@infradead.org>
- <20230417231947.3972f1a8@kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230417231947.3972f1a8@kernel.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- bombadil.infradead.org. See http://www.infradead.org/rpr.html
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Daniel Borkmann <daniel@iogearbox.net>,
- John Fastabend <john.fastabend@gmail.com>,
- Christoph Hellwig <hch@infradead.org>, Paolo Abeni <pabeni@redhat.com>,
- Guenter Roeck <linux@roeck-us.net>,
- Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Jonathan Lemon <jonathan.lemon@gmail.com>,
- Magnus Karlsson <magnus.karlsson@intel.com>, Jens Axboe <axboe@kernel.dk>,
- netdev@vger.kernel.org, =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bpf@vger.kernel.org,
- Linus Torvalds <torvalds@linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>
+ Wed, 19 Apr 2023 06:19:04 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R601e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=4; SR=0;
+ TI=SMTPD_---0VgTZ6PR_1681885138; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VgTZ6PR_1681885138) by smtp.aliyun-inc.com;
+ Wed, 19 Apr 2023 14:18:59 +0800
+Message-ID: <1681885001.8717456-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v6 08/11] virtio_ring: introduce virtqueue_dma_dev()
+Date: Wed, 19 Apr 2023 14:16:41 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Christoph Hellwig <hch@infradead.org>
+References: <20230327040536.48338-1-xuanzhuo@linux.alibaba.com>
+ <20230327040536.48338-9-xuanzhuo@linux.alibaba.com>
+ <73a24f95-b779-44ac-be28-45b35d1bf540@roeck-us.net>
+ <20230407064634-mutt-send-email-mst@kernel.org>
+ <1681097397.338332-4-xuanzhuo@linux.alibaba.com>
+ <CACGkMEvLLbGTuF1sVSse1RBssvsTR40+P5eBzYkrYnqF7EO3Jw@mail.gmail.com>
+ <ZDQq0pDVkr8TvoTM@infradead.org>
+ <1681178179.2350223-1-xuanzhuo@linux.alibaba.com>
+ <ZDTTXCPaW8D1nW4C@infradead.org>
+ <1681194222.3822775-2-xuanzhuo@linux.alibaba.com>
+ <ZDT+hc2XsqbVifjL@infradead.org>
+ <1681194809.9329011-4-xuanzhuo@linux.alibaba.com>
+ <ZDUCDeYLqAwQVJe7@infradead.org>
+ <1681197823.3277218-8-xuanzhuo@linux.alibaba.com>
+ <ZDVPkw/AoNwlJ2tl@infradead.org>
+ <1681798732.0641289-1-xuanzhuo@linux.alibaba.com>
+ <ZD93q4C5DkBK4lTI@infradead.org>
+In-Reply-To: <ZD93q4C5DkBK4lTI@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Guenter Roeck <linux@roeck-us.net>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,46 +87,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 17, 2023 at 11:19:47PM -0700, Jakub Kicinski wrote:
-> > You can't just do dma mapping outside the driver, because there are
-> > drivers that do not require DMA mapping at all.  virtio is an example,
-> > but all the classic s390 drivers and some other odd virtualization
-> > ones are others.
-> 
-> What bus are the classic s390 on (in terms of the device model)?
+On Tue, 18 Apr 2023 22:10:03 -0700, Christoph Hellwig <hch@infradead.org> wrote:
+> On Tue, Apr 18, 2023 at 02:18:52PM +0800, Xuan Zhuo wrote:
+> > Sorry, rethink about this, I think we maybe misunderstand something.
+> >
+> > First of all, let me give you a brief introduce of virtio device and pci device.
+> > If I make mistake, please point out.
+> >
+> >
+> > First, when one virtio pci device is probed, then the virtio pci driver will be
+> > called. Then we got one pci_device.
+>
+> Yes.
+>
+> > Then virtio_pci_probe will alloc one new device, and register it to virtio bus
+> > by register_virtio_device().
+> >
+> >
+> > So here we have two device: pci-device and virtio-device.
+>
+> Yes.
+>
+> > If we call DMA API inside virtio, we use the pci-device. The virtio-device is
+> > not used for DMA API.
+>
+> Exactly.
+>
+> > Now we want to use the virtio-device to do direct dma. The virtio-device
+> > is created by virtio_pci_probe() of virtio pci driver. And register to virtio
+> > bus. So no firmware and not iommu and the bus is virtio bus, why we can not
+> > change the dma_ops of virtio-device?
+>
+> Because firmware doesn't know about your virtio-device.  It is just a
+> made up Linux concept, and the IOMMU and firmware tables for it don't
+> know about it.  DMA must only ever be done on actual physical
+> (including "physical" devices emulated by a hypervisor) devices, not
+> on devices made up by Linux.
 
-I think most of them are based on struct ccw_device, but I'll let the
-s390 maintainers fill in.
 
-Another interesting case that isn't really relevant for your networking
-guys, but that caused as problems is RDMA.  For hardware RDMA devices
-it wants the ULPs to DMA map, but it turns out we have various software
-drivers that map to network drivers that do their own DMA mapping
-at a much lower layer and after potentially splitting packets or
-even mangling them.
+It's clear for me.
 
-> 
-> > > I don't think it's reasonable to be bubbling up custom per-subsystem
-> > > DMA ops into all of them for the sake of virtio.  
-> > 
-> > dma addresses and thus dma mappings are completely driver specific.
-> > Upper layers have no business looking at them.
-> 
-> Damn, that's unfortunate. Thinking aloud -- that means that if we want 
-> to continue to pull memory management out of networking drivers to
-> improve it for all, cross-optimize with the rest of the stack and
-> allow various upcoming forms of zero copy -- then we need to add an
-> equivalent of dma_ops and DMA API locally in networking?
-
-Can you explain what the actual use case is?
-
-From the original patchset I suspect it is dma mapping something very
-long term and then maybe doing syncs on it as needed?
+Thanks.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
