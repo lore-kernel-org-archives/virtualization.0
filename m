@@ -1,121 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1E9B8C6FD18
-	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 10:00:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80F6BC6FD18
+	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 13:42:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 92AE7429DF;
-	Wed, 19 Apr 2023 10:00:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 92AE7429DF
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QI0NcmW4
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0BC62605BA;
+	Wed, 19 Apr 2023 13:42:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0BC62605BA
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dYChdTTBfwc3; Wed, 19 Apr 2023 13:42:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9D938605D8;
+	Wed, 19 Apr 2023 13:42:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D938605D8
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7585AC0037;
+	Wed, 19 Apr 2023 13:42:01 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 01FB0C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 19 Apr 2023 13:42:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id DDBDB40439
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 19 Apr 2023 13:41:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DDBDB40439
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1Sil2KvQXvqQ; Wed, 19 Apr 2023 10:00:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E8FEB41D65;
-	Wed, 19 Apr 2023 10:00:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8FEB41D65
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B2BA5C0037;
-	Wed, 19 Apr 2023 10:00:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AC471C002A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2H2FyfQy302i
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 10:00:32 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 79CFD82017
- for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 10:00:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 79CFD82017
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QI0NcmW4
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id F9dLAhU2Lp-z
- for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 10:00:31 +0000 (UTC)
+ Wed, 19 Apr 2023 13:41:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6E4A281F59
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6E4A281F59
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 644F5400F1
+Received: from out30-110.freemail.mail.aliyun.com
+ (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 644F5400F1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 10:00:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1681898430;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XQ6sCjmuWnVFb8UpDGaTI+MOdoOd+qfctALNM5m0k+g=;
- b=QI0NcmW4+z2PZcHNNvoFmxdbJdRGqIrYGzulwKk5xmwQFOFP73akBhtOzagIlcSMawn7Yd
- +rLdpiJTUqVhYoaYACtjCkYCk1qd4tbhyHIcKe77pofGRyxAxOh+z9qgmbfsg9r87hX/wl
- nXrPJdiz7VFSGMFN7mrMmM1s2asDZq8=
-Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
- [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-615--hljqnksP0qNT-iTFEpABA-1; Wed, 19 Apr 2023 06:00:28 -0400
-X-MC-Unique: -hljqnksP0qNT-iTFEpABA-1
-Received: by mail-qv1-f70.google.com with SMTP id
- h6-20020a0cd806000000b005a33510e95aso13902811qvj.16
- for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 03:00:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1681898425; x=1684490425;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=XQ6sCjmuWnVFb8UpDGaTI+MOdoOd+qfctALNM5m0k+g=;
- b=ZKXfvw3wEgIkksdFdbM7kj6+3wX1Rycq4j6Lk1Pnm3SLTcXMlF9VNSzGLtHH9ZGlIA
- gAcYRD3xkSSuNPUkhELqTDB9FtwcId4lvi/hYJ4xRSoag50r15a5ZdfpJRqy2eIJdkQC
- tP2hUdlDbwUJoGXgpSLxsTHsAdnOjQeDqrwXczpLEK+AdSEXrRkUnNgFb0KmFB0DSpyy
- XnvZquRP2CESA2j42TRT/5egPQINO+xadFM/7eF07V/X8FgI7o1eulbk3sv3sTLByJ/D
- h0V0l+ofcjwAr9lmD5SJQrpR+tkWLwtb/djWcvkZWmupb7W5cY+Ou9b72s4euyhDCmZ/
- xfCg==
-X-Gm-Message-State: AAQBX9eGAvSwCHJcA+J7sbsz5bAXAagmx3D7qGCpbCkBfTOZOq87LX/z
- wcZB31+5QeF2iLvf/NaMFsstUHEWgqGTIbecf2re7wduK3Oo7T+5vYC79m5+bF4HJQP7iT/PH4/
- XABWOH9c61KBeoZNdzOd0b8eZU99nyKswcQic2gLiLw==
-X-Received: by 2002:a05:622a:44e:b0:3ef:437e:c828 with SMTP id
- o14-20020a05622a044e00b003ef437ec828mr1647529qtx.54.1681898424518; 
- Wed, 19 Apr 2023 03:00:24 -0700 (PDT)
-X-Google-Smtp-Source: AKy350bx/DlObVliHPvUfPOoqrhYKHpZuPyTlGGGIslCUKrTunefbYRtBDLkw2QCfpHp8ro/QNbCag==
-X-Received: by 2002:a05:622a:44e:b0:3ef:437e:c828 with SMTP id
- o14-20020a05622a044e00b003ef437ec828mr1647485qtx.54.1681898424062; 
- Wed, 19 Apr 2023 03:00:24 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-134-157.retail.telecomitalia.it.
- [82.53.134.157]) by smtp.gmail.com with ESMTPSA id
- bq16-20020a05620a469000b007484d284cdasm4564029qkb.93.2023.04.19.03.00.19
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 19 Apr 2023 03:00:23 -0700 (PDT)
-Date: Wed, 19 Apr 2023 12:00:17 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: Re: [PATCH RFC net-next v2 0/4] virtio/vsock: support datagrams
-Message-ID: <r6oxanmhwlonb7lcrrowpitlgobivzp7pcwk7snqvfnzudi6pb@4rnio5wef3qu>
-References: <20230413-b4-vsock-dgram-v2-0-079cc7cee62e@bytedance.com>
- <ZDk2kOVnUvyLMLKE@bullseye>
-MIME-Version: 1.0
-In-Reply-To: <ZDk2kOVnUvyLMLKE@bullseye>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-hyperv@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
- Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Wed, 19 Apr 2023 13:41:56 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=24; SR=0;
+ TI=SMTPD_---0VgVGQZB_1681911709; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VgVGQZB_1681911709) by smtp.aliyun-inc.com;
+ Wed, 19 Apr 2023 21:41:50 +0800
+Message-ID: <1681911643.4417202-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next] xsk: introduce xsk_dma_ops
+Date: Wed, 19 Apr 2023 21:40:43 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Alexander Lobakin <aleksander.lobakin@intel.com>
+References: <20230417032750.7086-1-xuanzhuo@linux.alibaba.com>
+ <ZDzKAD2SNe1q/XA6@infradead.org>
+ <1681711081.378984-2-xuanzhuo@linux.alibaba.com>
+ <20230417115610.7763a87c@kernel.org>
+ <20230417115753.7fb64b68@kernel.org>
+ <CACGkMEtPNPXFThHt4aNm4g-fC1DqTLcDnB_iBWb9-cAOHMYV_A@mail.gmail.com>
+ <20230417181950.5db68526@kernel.org>
+ <1681784379.909136-2-xuanzhuo@linux.alibaba.com>
+ <20230417195400.482cfe75@kernel.org>
+ <ZD4kMOym15pFcjq+@infradead.org>
+ <20230417231947.3972f1a8@kernel.org>
+ <ZD95RY9PjVRi7qz3@infradead.org>
+ <d18eea7a-a71c-8de0-bde3-7ab000a77539@intel.com>
+In-Reply-To: <d18eea7a-a71c-8de0-bde3-7ab000a77539@intel.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
  virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
- Bryan Tan <bryantan@vmware.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Haiyang Zhang <haiyangz@microsoft.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Vishnu Dasa <vdasa@vmware.com>,
- Jiang Wang <jiang.wang@bytedance.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+ Daniel Borkmann <daniel@iogearbox.net>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Christoph Hellwig <hch@infradead.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Guenter Roeck <linux@roeck-us.net>,
+ Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Jonathan Lemon <jonathan.lemon@gmail.com>,
+ Magnus Karlsson <magnus.karlsson@intel.com>, Jens Axboe <axboe@kernel.dk>,
+ netdev@vger.kernel.org, =?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bpf@vger.kernel.org,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,113 +94,85 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Bobby,
-
-On Fri, Apr 14, 2023 at 11:18:40AM +0000, Bobby Eshleman wrote:
->CC'ing Cong.
+On Wed, 19 Apr 2023 15:14:48 +0200, Alexander Lobakin <aleksander.lobakin@intel.com> wrote:
+> From: Christoph Hellwig <hch@infradead.org>
+> Date: Tue, 18 Apr 2023 22:16:53 -0700
 >
->On Fri, Apr 14, 2023 at 12:25:56AM +0000, Bobby Eshleman wrote:
->> Hey all!
->>
->> This series introduces support for datagrams to virtio/vsock.
+> > On Mon, Apr 17, 2023 at 11:19:47PM -0700, Jakub Kicinski wrote:
+> >>> You can't just do dma mapping outside the driver, because there are
+> >>> drivers that do not require DMA mapping at all.  virtio is an example,
+> >>> but all the classic s390 drivers and some other odd virtualization
+> >>> ones are others.
+> >>
+> >> What bus are the classic s390 on (in terms of the device model)?
+> >
+> > I think most of them are based on struct ccw_device, but I'll let the
+> > s390 maintainers fill in.
+> >
+> > Another interesting case that isn't really relevant for your networking
+> > guys, but that caused as problems is RDMA.  For hardware RDMA devices
+> > it wants the ULPs to DMA map, but it turns out we have various software
+> > drivers that map to network drivers that do their own DMA mapping
+> > at a much lower layer and after potentially splitting packets or
+> > even mangling them.
+> >
+> >>
+> >>>> I don't think it's reasonable to be bubbling up custom per-subsystem
+> >>>> DMA ops into all of them for the sake of virtio.
+> >>>
+> >>> dma addresses and thus dma mappings are completely driver specific.
+> >>> Upper layers have no business looking at them.
+>
+> Here it's not an "upper layer". XSk core doesn't look at them or pass
+> them between several drivers. It maps DMA solely via the struct device
+> passed from the driver and then just gets-sets addresses for this driver
+> only. Just like Page Pool does for regular Rx buffers. This got moved to
+> the XSk core to not repeat the same code pattern in each driver.
+>
+> >>
+> >> Damn, that's unfortunate. Thinking aloud -- that means that if we want
+> >> to continue to pull memory management out of networking drivers to
+> >> improve it for all, cross-optimize with the rest of the stack and
+> >> allow various upcoming forms of zero copy -- then we need to add an
+> >> equivalent of dma_ops and DMA API locally in networking?
+>
+> Managing DMA addresses is totally fine as long as you don't try to pass
+> mapped addresses between different drivers :D Page Pool already does
+> that and I don't see a problem in that in general.
+>
+> >
+> > Can you explain what the actual use case is?
+> >
+> >>From the original patchset I suspect it is dma mapping something very
+> > long term and then maybe doing syncs on it as needed?
+>
+> As I mentioned, XSk provides some handy wrappers to map DMA for drivers.
+> Previously, XSk was supported by real hardware drivers only, but here
+> the developer tries to add support to virtio-net. I suspect he needs to
+> use DMA mapping functions different from which the regular driver use.
+> So this is far from dma_map_ops, the author picked wrong name :D
 
-Great! Thanks for restarting this work!
 
->>
->> It is a spin-off (and smaller version) of this series from the summer:
->>   https://lore.kernel.org/all/cover.1660362668.git.bobby.eshleman@bytedance.com/
->>
->> Please note that this is an RFC and should not be merged until
->> associated changes are made to the virtio specification, which will
->> follow after discussion from this series.
->>
->> This series first supports datagrams in a basic form for virtio, and
->> then optimizes the sendpath for all transports.
->>
->> The result is a very fast datagram communication protocol that
->> outperforms even UDP on multi-queue virtio-net w/ vhost on a variety
->> of multi-threaded workload samples.
->>
->> For those that are curious, some summary data comparing UDP and VSOCK
->> DGRAM (N=5):
->>
->> 	vCPUS: 16
->> 	virtio-net queues: 16
->> 	payload size: 4KB
->> 	Setup: bare metal + vm (non-nested)
->>
->> 	UDP: 287.59 MB/s
->> 	VSOCK DGRAM: 509.2 MB/s
->>
->> Some notes about the implementation...
->>
->> This datagram implementation forces datagrams to self-throttle according
->> to the threshold set by sk_sndbuf. It behaves similar to the credits
->> used by streams in its effect on throughput and memory consumption, but
->> it is not influenced by the receiving socket as credits are.
+Yes, dma_ops caused some misunderstandings, which is indeed a wrong name.
 
-So, sk_sndbuf influece the sender and sk_rcvbuf the receiver, right?
+Thanks.
 
-We should check if VMCI behaves the same.
 
->>
->> The device drops packets silently. There is room for improvement by
->> building into the device and driver some intelligence around how to
->> reduce frequency of kicking the virtqueue when packet loss is high. I
->> think there is a good discussion to be had on this.
-
-Can you elaborate a bit here?
-
-Do you mean some mechanism to report to the sender that a destination
-(cid, port) is full so the packet will be dropped?
-
-Can we adapt the credit mechanism?
-
->>
->> In this series I am also proposing that fairness be reexamined as an
->> issue separate from datagrams, which differs from my previous series
->> that coupled these issues. After further testing and reflection on the
->> design, I do not believe that these need to be coupled and I do not
->> believe this implementation introduces additional unfairness or
->> exacerbates pre-existing unfairness.
-
-I see.
-
->>
->> I attempted to characterize vsock fairness by using a pool of processes
->> to stress test the shared resources while measuring the performance of a
->> lone stream socket. Given unfair preference for datagrams, we would
->> assume that a lone stream socket would degrade much more when a pool of
->> datagram sockets was stressing the system than when a pool of stream
->> sockets are stressing the system. The result, however, showed no
->> significant difference between the degradation of throughput of the lone
->> stream socket when using a pool of datagrams to stress the queue over
->> using a pool of streams. The absolute difference in throughput actually
->> favored datagrams as interfering least as the mean difference was +16%
->> compared to using streams to stress test (N=7), but it was not
->> statistically significant. Workloads were matched for payload size and
->> buffer size (to approximate memory consumption) and process count, and
->> stress workloads were configured to start before and last long after the
->> lifetime of the "lone" stream socket flow to ensure that competing flows
->> were continuously hot.
->>
->> Given the above data, I propose that vsock fairness be addressed
->> independent of datagrams and to defer its implementation to a future
->> series.
-
-Makes sense to me.
-
-I left some preliminary comments, anyway now it seems reasonable to use
-the same virtqueues, so we can go head with the spec proposal.
-
-Thanks,
-Stefano
-
+> And correct, for XSk we map one big piece of memory only once and then
+> reuse it for buffers, no inflight map/unmap on hotpath (only syncs when
+> needed). So this mapping is longterm and is stored in XSk core structure
+> assigned to the driver which this mapping was done for.
+> I think Jakub thinks of something similar, but for the "regular" Rx/Tx,
+> not only XDP sockets :)
+>
+> Thanks,
+> Olek
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
