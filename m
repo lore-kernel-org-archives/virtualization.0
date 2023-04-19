@@ -1,75 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F56AC77B7E
-	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 13:43:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E2C4C77B73
+	for <virtualization@archiver.kernel.org>; Wed, 19 Apr 2023 13:43:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BEA3E60634;
-	Wed, 19 Apr 2023 13:43:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BEA3E60634
+	by smtp2.osuosl.org (Postfix) with ESMTP id C8DA040439;
+	Wed, 19 Apr 2023 13:43:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C8DA040439
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E/Z1giyb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MgmqIGZrpL2o; Wed, 19 Apr 2023 13:43:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F38E76059F;
-	Wed, 19 Apr 2023 13:43:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F38E76059F
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fx0ikD79bpi4; Wed, 19 Apr 2023 13:43:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 52F6242A4B;
+	Wed, 19 Apr 2023 13:43:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 52F6242A4B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6803C0037;
-	Wed, 19 Apr 2023 13:43:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F26DFC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C2ADC0037;
+	Wed, 19 Apr 2023 13:43:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BD533C002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 13:43:25 +0000 (UTC)
+ Wed, 19 Apr 2023 13:43:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id CDAF783BE9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8B6F342A4B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 13:43:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CDAF783BE9
+ Wed, 19 Apr 2023 13:43:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8B6F342A4B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UK5_8mlv2wqv
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GYGhck3rShO3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 13:43:24 +0000 (UTC)
+ Wed, 19 Apr 2023 13:43:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 36A9F81FAD
-Received: from out30-118.freemail.mail.aliyun.com
- (out30-118.freemail.mail.aliyun.com [115.124.30.118])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 36A9F81FAD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8123D40439
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8123D40439
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Apr 2023 13:43:23 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R161e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=21; SR=0;
- TI=SMTPD_---0VgVBGnO_1681911795; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VgVBGnO_1681911795) by smtp.aliyun-inc.com;
- Wed, 19 Apr 2023 21:43:16 +0800
-Message-ID: <1681911760.8853464-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next] xsk: introduce xsk_dma_ops
-Date: Wed, 19 Apr 2023 21:42:40 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Alexander Lobakin <aleksander.lobakin@intel.com>
-References: <20230417032750.7086-1-xuanzhuo@linux.alibaba.com>
- <88d5a2f6-af43-c3f9-615d-701ef01d923d@intel.com>
-In-Reply-To: <88d5a2f6-af43-c3f9-615d-701ef01d923d@intel.com>
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Eric Dumazet <edumazet@google.com>, Alexei Starovoitov <ast@kernel.org>,
- Christoph Hellwig <hch@infradead.org>,
- =?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
- Guenter Roeck <linux@roeck-us.net>, Jonathan Lemon <jonathan.lemon@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+ Wed, 19 Apr 2023 13:43:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1681911833;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=MK0UGxGV6JsBO8AYL7soTcS9wXMNV0whUDQXJnSnGMA=;
+ b=E/Z1giyboWmWIUuHyi0+9SARPUavcONUdUx+9/04iV80Lr9ZQg2TLCdUxFhBagYRvReJcB
+ BuQv+ppZQTKgNLT3UivSK+iX9hS8jRE2xiopMEWS+tyTw3jm5FaPMVFdf2kAZp+aLnEKS/
+ +XEUC5z7GfETTB32Rr/VfCacp3SRJo4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-612-4rw8mCRpPNme_IUbRr3wmA-1; Wed, 19 Apr 2023 09:43:50 -0400
+X-MC-Unique: 4rw8mCRpPNme_IUbRr3wmA-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CC1B2101A554;
+ Wed, 19 Apr 2023 13:43:49 +0000 (UTC)
+Received: from max-t490s.redhat.com (unknown [10.39.208.29])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id BDAB6492B04;
+ Wed, 19 Apr 2023 13:43:47 +0000 (UTC)
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+To: xieyongji@bytedance.com, jasowang@redhat.com, mst@redhat.com,
+ david.marchand@redhat.com
+Subject: [RFC 0/2] vduse: add support for networking devices
+Date: Wed, 19 Apr 2023 15:43:27 +0200
+Message-Id: <20230419134329.346825-1-maxime.coquelin@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+Cc: xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ eperezma@redhat.com, Maxime Coquelin <maxime.coquelin@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,97 +90,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 19 Apr 2023 15:22:39 +0200, Alexander Lobakin <aleksander.lobakin@intel.com> wrote:
-> From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Date: Mon, 17 Apr 2023 11:27:50 +0800
->
-> > The purpose of this patch is to allow driver pass the own dma_ops to
-> > xsk.
-> >
-> > This is to cope with the scene of virtio-net. If virtio does not have
-> > VIRTIO_F_ACCESS_PLATFORM, then virtio cannot use DMA API. In this case,
-> > XSK cannot use DMA API directly to achieve DMA address. Based on this
-> > scene, we must let XSK support driver to use the driver's dma_ops.
-> >
-> > On the other hand, the implementation of XSK as a highlevel code
-> > should put the underlying operation of DMA to the driver layer.
-> > The driver layer determines the implementation of the final DMA. XSK
-> > should not make such assumptions. Everything will be simplified if DMA
-> > is done at the driver level.
-> >
-> > More is here:
-> >     https://lore.kernel.org/virtualization/1681265026.6082013-1-xuanzhuo@linux.alibaba.com/
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
-> [...]
->
-> >  struct xsk_buff_pool {
-> >  	/* Members only used in the control path first. */
-> >  	struct device *dev;
-> > @@ -85,6 +102,7 @@ struct xsk_buff_pool {
-> >  	 * sockets share a single cq when the same netdev and queue id is shared.
-> >  	 */
-> >  	spinlock_t cq_lock;
-> > +	struct xsk_dma_ops dma_ops;
->
-> Why full struct, not a const pointer? You'll have indirect calls either
-> way, copying the full struct won't reclaim you much performance.
->
-> >  	struct xdp_buff_xsk *free_heads[];
-> >  };
-> >
->
-> [...]
->
-> > @@ -424,18 +426,29 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
-> >  		return 0;
-> >  	}
-> >
-> > +	if (!dma_ops) {
-> > +		pool->dma_ops.map_page = dma_map_page_attrs;
-> > +		pool->dma_ops.mapping_error = dma_mapping_error;
-> > +		pool->dma_ops.need_sync = dma_need_sync;
-> > +		pool->dma_ops.sync_single_range_for_device = dma_sync_single_range_for_device;
-> > +		pool->dma_ops.sync_single_range_for_cpu = dma_sync_single_range_for_cpu;
-> > +		dma_ops = &pool->dma_ops;
-> > +	} else {
-> > +		pool->dma_ops = *dma_ops;
-> > +	}
->
-> If DMA syncs are not needed on your x86_64 DMA-coherent system, it
-> doesn't mean we all don't need it. Instead of filling pointers with
-> "default" callbacks, you could instead avoid indirect calls at all when
-> no custom DMA ops are specified. Pls see how for example Christoph did
-> that for direct DMA. It would cost only one if-else for case without
-> custom DMA ops here instead of an indirect call each time.
->
-> (I *could* suggest using INDIRECT_CALL_WRAPPER(), but I won't, since
->  it's more expensive than direct checking and I feel like it's more
->  appropriate to check directly here)
+This small series enables virtio-net device type in VDUSE.
+With it, basic operation have been tested, both with
+virtio-vdpa and vhost-vdpa using DPDK Vhost library series
+adding VDUSE support [0] using split rings layout.
 
-OK, I will fix it in next version.
+Control queue support (and so multiqueue) has also been
+tested, but require a Kernel series from Jason Wang
+relaxing control queue polling [1] to function reliably.
 
-Thanks.
+Other than that, we have identified a few gaps:
 
+1. Reconnection:
+ a. VDUSE_VQ_GET_INFO ioctl() returns always 0 for avail
+    index, even after the virtqueue has already been
+    processed. Is that expected? I have tried instead to
+    get the driver's avail index directly from the avail
+    ring, but it does not seem reliable as I sometimes get
+    "id %u is not a head!\n" warnings. Also such solution
+    would not be possible with packed ring, as we need to
+    know the wrap counters values.
 
+ b. Missing IOCTLs: it would be handy to have new IOCTLs to
+    query Virtio device status, and retrieve the config
+    space set at VDUSE_CREATE_DEV time.
 
+2. VDUSE application as non-root:
+  We need to run the VDUSE application as non-root. There
+  is some race between the time the UDEV rule is applied
+  and the time the device starts being used. Discussing
+  with Jason, he suggested we may have a VDUSE daemon run
+  as root that would create the VDUSE device, manages its
+  rights and then pass its file descriptor to the VDUSE
+  app. However, with current IOCTLs, it means the VDUSE
+  daemon would need to know several information that
+  belongs to the VDUSE app implementing the device such
+  as supported Virtio features, config space, etc...
+  If we go that route, maybe we should have a control
+  IOCTL to create the device which would just pass the
+  device type. Then another device IOCTL to perform the
+  initialization. Would that make sense?
 
->
-> > +
-> >  	dma_map = xp_create_dma_map(dev, pool->netdev, nr_pages, pool->umem);
-> >  	if (!dma_map)
-> >  		return -ENOMEM;
-> [...]
->
-> Thanks,
-> Olek
+3. Coredump:
+  In order to be able to perform post-mortem analysis, DPDK
+  Vhost library marks pages used for vrings and descriptors
+  buffers as MADV_DODUMP using madvise(). However with
+  VDUSE it fails with -EINVAL. My understanding is that we
+  set VM_DONTEXPAND flag to the VMAs and madvise's
+  MADV_DODUMP fails if it is present. I'm not sure to
+  understand why madvise would prevent MADV_DODUMP if
+  VM_DONTEXPAND is set. Any thoughts?
+
+[0]: https://patchwork.dpdk.org/project/dpdk/list/?series=27594&state=%2A&archive=both
+[1]: https://lore.kernel.org/lkml/CACGkMEtgrxN3PPwsDo4oOsnsSLJfEmBEZ0WvjGRr3whU+QasUg@mail.gmail.com/T/
+
+Maxime Coquelin (2):
+  vduse: validate block features only with block devices
+  vduse: enable Virtio-net device type
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+-- 
+2.39.2
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
