@@ -4,88 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2037C77B72
-	for <virtualization@archiver.kernel.org>; Thu, 20 Apr 2023 09:17:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6EC4C77B78
+	for <virtualization@archiver.kernel.org>; Thu, 20 Apr 2023 09:19:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7E08B84190;
-	Thu, 20 Apr 2023 09:17:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7E08B84190
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jg8ldA4b
+	by smtp1.osuosl.org (Postfix) with ESMTP id 44A0583C7C;
+	Thu, 20 Apr 2023 09:19:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44A0583C7C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lB9aFl2g1qJC; Thu, 20 Apr 2023 09:17:24 +0000 (UTC)
+	with ESMTP id gmYGOoFhlAl3; Thu, 20 Apr 2023 09:19:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 095B283EC2;
-	Thu, 20 Apr 2023 09:17:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 095B283EC2
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BF6DD82176;
+	Thu, 20 Apr 2023 09:19:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BF6DD82176
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D23C4C0036;
-	Thu, 20 Apr 2023 09:17:23 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5E9F1C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6FA59C0036;
+	Thu, 20 Apr 2023 09:19:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C6FCC002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Apr 2023 09:17:22 +0000 (UTC)
+ Thu, 20 Apr 2023 09:19:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3128342715
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6A63340320
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Apr 2023 09:17:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3128342715
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=jg8ldA4b
+ Thu, 20 Apr 2023 09:19:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A63340320
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4oYQ4VTniale
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uAQ41g-puWUy
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Apr 2023 09:17:20 +0000 (UTC)
+ Thu, 20 Apr 2023 09:19:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0D6DA40965
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0D6DA40965
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA43F400BA
+Received: from out30-124.freemail.mail.aliyun.com
+ (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id BA43F400BA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Apr 2023 09:17:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1681982239; x=1713518239;
- h=message-id:date:mime-version:subject:from:to:cc:
- references:in-reply-to:content-transfer-encoding;
- bh=0USKz9BxYKjlUDhRhk7pWrbGaUowBGgrtqOljgJPAgo=;
- b=jg8ldA4bfafXo3RznrwqddGOPXoSoGVzl5lmCUi2tRtYTpKR7COhc6Ix
- qsODVcoyFccAX97eXGHL0ZvGQadFSkrwSHsKv8djNso0kGVijJVOx0lwv
- jUOoq91wXMXWqjsYsf4uqiRmAIiH6sJT5rmP3p87x+rav1b/0AWGkzA+u
- V9lGkDXODCa0qpk512fVgx4JEgiMdu3JhRKlggXNJy4Pn/QfvYBxBvnF+
- ypFoG60hwfg3ntDdDKDJ0R9gm02sMxqkKPUYD5e3SWGI+QWtbMA8lIwLX
- jng1e8s2GBHxnJ4fXFG4FvtSKdj9ymR7CjI/OYADm0me0EGpYuWTIoOyF Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10685"; a="431960450"
-X-IronPort-AV: E=Sophos;i="5.99,212,1677571200"; d="scan'208";a="431960450"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 20 Apr 2023 02:17:18 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10685"; a="722304056"
-X-IronPort-AV: E=Sophos;i="5.99,212,1677571200"; d="scan'208";a="722304056"
-Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.254.215.23])
- ([10.254.215.23])
- by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 20 Apr 2023 02:17:18 -0700
-Message-ID: <c939205a-adc3-75eb-de16-617d6d001e18@intel.com>
-Date: Thu, 20 Apr 2023 17:17:15 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.10.0
-Subject: Re: [PATCH 0/5] vDPA/ifcvf: implement immediate initialization
- mechanism
-Content-Language: en-US
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230331204854.20082-1-lingshan.zhu@intel.com>
- <CACGkMEstNJ1TJtTApniJLyN872gF9ZpAbj3hEKUw6yX3ZpPiFg@mail.gmail.com>
- <cf384aed-7ac4-02af-c2b5-b66c03a86aa9@intel.com>
-In-Reply-To: <cf384aed-7ac4-02af-c2b5-b66c03a86aa9@intel.com>
-Cc: virtualization@lists.linux-foundation.org
+ Thu, 20 Apr 2023 09:19:30 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R481e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=23; SR=0;
+ TI=SMTPD_---0VgYNbDy_1681982363; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VgYNbDy_1681982363) by smtp.aliyun-inc.com;
+ Thu, 20 Apr 2023 17:19:24 +0800
+Message-ID: <1681981908.9700203-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next] xsk: introduce xsk_dma_ops
+Date: Thu, 20 Apr 2023 17:11:48 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Christoph Hellwig <hch@infradead.org>
+References: <20230417032750.7086-1-xuanzhuo@linux.alibaba.com>
+ <ZDzKAD2SNe1q/XA6@infradead.org>
+ <1681711081.378984-2-xuanzhuo@linux.alibaba.com>
+ <20230417115610.7763a87c@kernel.org>
+ <20230417115753.7fb64b68@kernel.org>
+ <CACGkMEtPNPXFThHt4aNm4g-fC1DqTLcDnB_iBWb9-cAOHMYV_A@mail.gmail.com>
+ <20230417181950.5db68526@kernel.org>
+ <1681784379.909136-2-xuanzhuo@linux.alibaba.com>
+ <20230417195400.482cfe75@kernel.org>
+ <ZD4kMOym15pFcjq+@infradead.org>
+ <20230417231947.3972f1a8@kernel.org>
+ <ZD95RY9PjVRi7qz3@infradead.org>
+ <20230419094506.2658b73f@kernel.org>
+ <ZEDZaitjcX+egzvf@infradead.org>
+In-Reply-To: <ZEDZaitjcX+egzvf@infradead.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Christoph Hellwig <hch@infradead.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Guenter Roeck <linux@roeck-us.net>,
+ Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Jonathan Lemon <jonathan.lemon@gmail.com>,
+ Magnus Karlsson <magnus.karlsson@intel.com>, Jens Axboe <axboe@kernel.dk>,
+ netdev@vger.kernel.org, =?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, bpf@vger.kernel.org,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,48 +95,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiA0LzMvMjAyMyA2OjEwIFBNLCBaaHUsIExpbmdzaGFuIHdyb3RlOgo+Cj4KPiBPbiA0LzMv
-MjAyMyAxOjI4IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBPbiBGcmksIE1hciAzMSwgMjAyMyBh
-dCA4OjQ54oCvUE0gWmh1IExpbmdzaGFuIDxsaW5nc2hhbi56aHVAaW50ZWwuY29tPiAKPj4gd3Jv
-dGU6Cj4+PiBGb3JtZXJseSwgaWZjdmYgZHJpdmVyIGhhcyBpbXBsZW1lbnRlZCBhIGxhenktaW5p
-dGlhbGl6YXRpb24gbWVjaGFuaXNtCj4+PiBmb3IgdGhlIHZpcnRxdWV1ZXMgYW5kIG90aGVyIGNv
-bmZpZyBzcGFjZSBjb250ZW50cywKPj4+IGl0IHdvdWxkIHN0b3JlIGFsbCBjb25maWd1cmF0aW9u
-cyB0aGF0IHBhc3NlZCBkb3duIGZyb20gdGhlIHVzZXJzcGFjZSwKPj4+IHRoZW4gbG9hZCB0aGVt
-IHRvIHRoZSBkZXZpY2UgY29uZmlnIHNwYWNlIHVwb24gRFJJVkVSX09LLgo+Pj4KPj4+IFRoaXMg
-Y2FuIG5vdCBzZXJ2ZSBsaXZlIG1pZ3JhdGlvbiwgc28gdGhpcyBzZXJpZXMgaW1wbGVtZW50IGFu
-Cj4+PiBpbW1lZGlhdGUgaW5pdGlhbGl6YXRpb24gbWVjaGFuaXNtLCB3aGljaCBtZWFucyByYXRo
-ZXIgdGhhbiB0aGUKPj4+IGZvcm1lciBzdG9yZS1sb2FkIHByb2Nlc3MsIHRoZSB2aXJ0aW8gb3Bl
-cmF0aW9ucyBsaWtlIHZxIG9wcwo+Pj4gd291bGQgdGFrZSBpbW1lZGlhdGUgYWN0aW9ucyBieSBh
-Y2Nlc3MgdGhlIHZpcnRpbyByZWdpc3RlcnMuCj4+IElzIHRoZXJlIGFueSBjaGFuY2UgdGhhdCBp
-ZmN2ZiBjYW4gdXNlIHZpcnRpb19wY2lfbW9kZXJuX2RldiBsaWJyYXJ5Pwo+Pgo+PiBUaGVuIHdl
-IGRvbid0IG5lZWQgdG8gZHVwbGljYXRlIHRoZSBjb2Rlcy4KPj4KPj4gTm90ZSB0aGF0IHBkc192
-ZHBhIHdpbGwgYmUgdGhlIHNlY29uZCB1c2VyIGZvciB2aXJ0aW9fcGNpX21vZGVybl9kZXYKPj4g
-bGlicmFyeSAoYW5kIHRoZSBmaXJzdCB2RFBBIHBhcmVudCB0byB1c2UgdGhhdCBsaWJyYXJ5KS4K
-PiBZZXMgSSBhZ3JlZSB0aGlzIGxpYnJhcnkgY2FuIGhlbHAgYSBsb3QgZm9yIGEgc3RhbmRhcmQg
-dmlydGlvIHBjaSBkZXZpY2UuCj4gQnV0IHRoaXMgY2hhbmdlIHdvdWxkIGJlIGh1Z2UsIGl0cyBs
-aWtlIHJlcXVpcmUgdG8gY2hhbmdlIGV2ZXJ5IGxpbmUgb2YKPiB0aGUgZHJpdmVyLiBGb3IgZXhh
-bXBsZSBjdXJyZW50IGRyaXZlciBmdW5jdGlvbnMgd29yayBvbiB0aGUgYWRhcHRlciBhbmQKPiBp
-ZmN2Zl9odywgaWYgd2Ugd2FudHMgdG8gcmV1c2UgdGhlIGxpYiwgd2UgbmVlZCB0aGUgZHJpdmVy
-IHdvcmsgb24gCj4gc3RydWN0IHZpcnRpb19wY2lfbW9kZXJuX2RldmljZS4KPiBBbG1vc3QgbmVl
-ZCB0byByZS13cml0ZSB0aGUgZHJpdmVyLgo+Cj4gQ2FuIHdlIHBsYW4gdGhpcyBodWdlIGNoYW5n
-ZSBpbiBmb2xsb3dpbmcgc2VyaWVzPwpwaW5nCj4KPiBUaGFua3MsCj4gWmh1IExpbmdzaGFuCj4+
-Cj4+IFRoYW5rcwo+Pgo+Pj4gVGhpcyBzZXJpZXMgYWxzbyBpbXBsZW1lbnQgaXJxIHN5bmNocm9u
-aXphdGlvbiBpbiB0aGUgcmVzZXQKPj4+IHJvdXRpbmUKPj4+Cj4+PiBaaHUgTGluZ3NoYW4gKDUp
-Ogo+Pj4gwqDCoCB2aXJ0IHF1ZXVlIG9wcyB0YWtlIGltbWVkaWF0ZSBhY3Rpb25zCj4+PiDCoMKg
-IGdldF9kcml2ZXJfZmVhdHVyZXMgZnJvbSB2aXJpdG8gcmVnaXN0ZXJzCj4+PiDCoMKgIHJldGly
-ZSBpZmN2Zl9zdGFydF9kYXRhcGF0aCBhbmQgaWZjdmZfYWRkX3N0YXR1cwo+Pj4gwqDCoCBzeW5j
-aHJvbml6ZSBpcnFzIGluIHRoZSByZXNldCByb3V0aW5lCj4+PiDCoMKgIGEgdmVuZG9yIGRyaXZl
-ciBzaG91bGQgbm90IHNldCBfQ09ORklHX1NfRkFJTEVECj4+Pgo+Pj4gwqAgZHJpdmVycy92ZHBh
-L2lmY3ZmL2lmY3ZmX2Jhc2UuYyB8IDE2MiAKPj4+ICsrKysrKysrKysrKysrKysrKystLS0tLS0t
-LS0tLS0tCj4+PiDCoCBkcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5oIHzCoCAxNiArKy0t
-Cj4+PiDCoCBkcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jIHzCoCA5NyArKysrLS0tLS0t
-LS0tLS0tLS0tCj4+PiDCoCAzIGZpbGVzIGNoYW5nZWQsIDEyMiBpbnNlcnRpb25zKCspLCAxNTMg
-ZGVsZXRpb25zKC0pCj4+Pgo+Pj4gLS0gCj4+PiAyLjM5LjEKPj4+Cj4KCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, 19 Apr 2023 23:19:22 -0700, Christoph Hellwig <hch@infradead.org> wrote:
+> On Wed, Apr 19, 2023 at 09:45:06AM -0700, Jakub Kicinski wrote:
+> > > Can you explain what the actual use case is?
+> > >
+> > > From the original patchset I suspect it is dma mapping something very
+> > > long term and then maybe doing syncs on it as needed?
+> >
+> > In this case yes, pinned user memory, it gets sliced up into MTU sized
+> > chunks, fed into an Rx queue of a device, and user can see packets
+> > without any copies.
+>
+> How long is the life time of these mappings?  Because dma_map_*
+> assumes a temporary mapping and not one that is pinned bascically
+> forever.
+>
+> > Quite similar use case #2 is upcoming io_uring / "direct placement"
+> > patches (former from Meta, latter for Google) which will try to receive
+> > just the TCP data into pinned user memory.
+>
+> I don't think we can just long term pin user memory here.  E.g. for
+> confidential computing cases we can't even ever do DMA straight to
+> userspace.  I had that conversation with Meta's block folks who
+> want to do something similar with io_uring and the only option is an
+> an allocator for memory that is known DMAable, e.g. through dma-bufs.
+>
+> You guys really all need to get together and come up with a scheme
+> that actually works instead of piling these hacks over hacks.
+
+I think that cases Jakub mentioned are new requirements. From the perspective of
+implementation, compared to this patch I submitted, if the DMA API can be
+expanded, compatible with some special hardware, I think it is a good solution.
+
+I know that the current design of DMA API only supports some physical hardware,
+but can it be modified or expanded?
+
+Still the previous idea, can we add a new ops (not dma_ops) in device? After the
+driver configuration, so that the DMA API can be compatible with some special
+hardware?
+
+
+Thanks.
+
+
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
