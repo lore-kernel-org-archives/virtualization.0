@@ -1,63 +1,126 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F56DC7618E
-	for <virtualization@archiver.kernel.org>; Fri, 21 Apr 2023 16:36:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 16846C7618E
+	for <virtualization@archiver.kernel.org>; Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C871342905;
-	Fri, 21 Apr 2023 16:36:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C871342905
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7D732417D4;
+	Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7D732417D4
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=P59qhYht
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XUztwLJazfLZ; Fri, 21 Apr 2023 16:36:41 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Vm7So43fmE0p; Fri, 21 Apr 2023 19:57:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B4B92428F0;
-	Fri, 21 Apr 2023 16:36:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B4B92428F0
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E564540A17;
+	Fri, 21 Apr 2023 19:57:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E564540A17
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 87659C0036;
-	Fri, 21 Apr 2023 16:36:40 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0079EC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5AC8C007A;
+	Fri, 21 Apr 2023 19:57:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4B0B3C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 16:36:38 +0000 (UTC)
+ Fri, 21 Apr 2023 19:57:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C717B428F2
+ by smtp1.osuosl.org (Postfix) with ESMTP id CE614843CF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 16:36:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C717B428F2
+ Fri, 21 Apr 2023 19:56:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CE614843CF
+Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=P59qhYht
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P-d4XKBzq_gn
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fREi5x7AywOD
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 16:36:36 +0000 (UTC)
-X-Greylist: delayed 00:27:17 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 876E4428F0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 876E4428F0
+ Fri, 21 Apr 2023 19:56:59 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B3FF884348
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam04on2062e.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8c::62e])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B3FF884348
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 16:36:36 +0000 (UTC)
-Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
- helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
- (envelope-from <cisti@saisti.eu>) id 1ppsaX-00058o-AR
- for virtualization@lists.linux-foundation.org; Fri, 21 Apr 2023 18:22:17 +0300
-From: "MICRADS-23" <marialemos72@gmail.com>
-Subject: =?utf-8?B?TUlDUkFEU8K0MjM=?= - The 2023 Multidisciplinary
- International Conference of Research Applied to Defense and Security |
- Deadline: May 14 | Bogota, Colombia
-To: virtualization@lists.linux-foundation.org
+ Fri, 21 Apr 2023 19:56:58 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Im60+VbpOvDg6vA1yXxy9oRH52YsEidFsX3WUstSvl8nJTJy08RILxaQdPuoPn8pgrOkmMLtRVS8ZM6+DFGLvrsIIonGEyryjPrjoZSPBWZ46cRDmvQsgwXSxWb1YVGH2LAuZuyEkke9WW3CE0LRZlPs+KPPvtV67U0KbB8aWYaRgH648/baELAlaxpvy3jEdqtaTrf4IxP6Anq+NbC04vsOKylV8hVzumvL/0yhKJPMXjvy+6XAyqqwjU3WprmAvwf1hMY5jDDTiZKPxXsTYcoBYiKbibABRONKH5pQZ5PreS9zWF2PBKkInq2aGQaGk0z2mSImRB6edKniShbljg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RxalENrGp6gr/e0GmBYBL2lH7huz3kNQPRLWsz2AaKg=;
+ b=k0JKXQDmxlmy67fRfs9S2OnWjFEQSMwIOAVqd5hBiXDQ8/GToZpck2XJxRwHusw99+D33FtBDdODyghRJ+mJ2tCdwrSPfknRImnIBMMU3YrFXsFYLup7kRoQYgAn2c6TyHDZN0Wxe6KT7+EtntkGhOCKavtERtLIP4KieVlKa6Q1iEBb4i5gR7STFl6kA5+yiYfY+e/Q8pybgyoyl79ucVkeogXf0P/5XhBgV8+oyWQCzBspY+OByV5g62qTTFlHKIdJNTMJUT1x7S7H2h19Znw9uprfp20ZtbSiiThuFX5JpgoliD33hywdFunwInFb24gnTDQzOv/LscOWteOguQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RxalENrGp6gr/e0GmBYBL2lH7huz3kNQPRLWsz2AaKg=;
+ b=P59qhYhttlzTA3hu0aaBxu5cps/iD5FJ9S4hRmpnBS+5g7Gspo+UTHjxgBiJPk9bS9yCLJw9Hg7HNfJke11VQJ9lAxvRrgLnZ4TO/4W3ChG2WF7MLvsxEhU+DNCv0+pPujjQJRU3KmZxvK28LejfOaKhrRGalUcJoi6qeq+KVEE=
+Received: from DM6PR08CA0017.namprd08.prod.outlook.com (2603:10b6:5:80::30) by
+ BL3PR12MB6449.namprd12.prod.outlook.com (2603:10b6:208:3b8::6) with
+ Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6319.22; Fri, 21 Apr 2023 19:56:55 +0000
+Received: from DM6NAM11FT105.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:80:cafe::f7) by DM6PR08CA0017.outlook.office365.com
+ (2603:10b6:5:80::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.24 via Frontend
+ Transport; Fri, 21 Apr 2023 19:56:55 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DM6NAM11FT105.mail.protection.outlook.com (10.13.173.164) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6319.26 via Frontend Transport; Fri, 21 Apr 2023 19:56:55 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 21 Apr
+ 2023 14:56:54 -0500
+To: <jasowang@redhat.com>, <mst@redhat.com>,
+ <virtualization@lists.linux-foundation.org>
+Subject: [PATCH 0/3] vhost_vdpa: better PACKED support
+Date: Fri, 21 Apr 2023 12:56:38 -0700
+Message-ID: <20230421195641.391-1-shannon.nelson@amd.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Date: Fri, 21 Apr 2023 16:22:16 +0100
-Message-ID: <13380746391500@gmail-com>
-X-Antivirus: AVG (VPS 230421-2, 21/4/2023), Outbound message
-X-Antivirus-Status: Clean
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT105:EE_|BL3PR12MB6449:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8e565c3d-78de-4f9f-3f9c-08db42a28f26
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: nxDT0Or8eGqYRYqsElr7ZlKFetcA9zQ9YAIGFo+VjoS2gOGYzX4XxxmNSKSEn+i03NYtXsHrcik5PuMgfWGyg2B6JJxfl1fP7NFbG/FTDqP1thFdZSWK+Gchw2fM3xpASzl9U+RyVcYFymmoAiSnca4F+tArYbQW6CqJTDkj3UXgEJ1EZcKScXHgattnuLvzEihFBUhvJJCWZsKxWQgnLPdu5LvUHcs/is8e6UMpSjD3QoelMe37nsQvRH4xzSVS/yZRhofvXhNjvbe6cYOKe3CffcYfsLcblFFc9Yewgg4WFRbqAv36+6tUCWEHuuoL5A+UHuIZG/TDwEq92O8JRXpwwrfB/96dmGhx2+AlQnNAkeGqxAHJLAO/9O9BQpmf1ZPflBAk3S8QGbINDLNGuuEfARmBhe9RRbopNx6BiwQ0WGJZPs7Pi0JxdIlqddaqGVryvqsCeuK6stErscjxwOlEfr78tieRS8ipT2uZCOnNOQ5rxcuVgnFDhcoLy/lmrVLinf65NBiqbN15s/ZSRHxw456uZqtM7lgtK/VXO5A/JaS2FGRzqI49ijTcioPBvTI29Qj+qhJp+HBgMVZeutAjwm/fP9NzJEIhMhBHOcYMN/RKlRA7s/wSW6C+oiKF5mSDyk8X7Gk7zBT9oYV+52Mw6jKXIdwt4vpaQbK/9BoFIlxU2a8McibqTMpnoNGBYuvUCVj1aBniNuaOp5wfUG49+FKAjRPGeGiA4T6b/SU=
+X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
+ SFS:(13230028)(4636009)(346002)(396003)(39860400002)(376002)(136003)(451199021)(40470700004)(46966006)(36840700001)(4326008)(70586007)(110136005)(316002)(54906003)(70206006)(36756003)(1076003)(16526019)(36860700001)(26005)(336012)(2616005)(47076005)(426003)(83380400001)(186003)(356005)(81166007)(40480700001)(5660300002)(8676002)(41300700001)(82310400005)(478600001)(2906002)(6666004)(8936002)(82740400003)(40460700003)(86362001)(4744005)(44832011)(36900700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2023 19:56:55.6059 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e565c3d-78de-4f9f-3f9c-08db42a28f26
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
+ Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT105.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL3PR12MB6449
+Cc: drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -69,375 +132,33 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: micradsmail@gmail.com
-Content-Type: multipart/mixed; boundary="===============6664351909738596591=="
+From: Shannon Nelson via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Shannon Nelson <shannon.nelson@amd.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+While testing our vDPA driver with QEMU we found that vhost_vdpa seems to
+be missing some support for PACKED VQs.  Adding these helped us get further
+in our testing.  The first patch makes sure that the vhost_vdpa vqs are given
+the feature flags, as done in other vhost variants.  The second and third 
+patches use the feature flags to properly format and pass set/get_vq requests.
 
---===============6664351909738596591==
-Content-Type: multipart/alternative; charset=utf-8; boundary="0Ama84LCUDvX4BTlMaKVNv=_3W9skFzj56"
+Shannon Nelson (3):
+  vhost_vdpa: tell vqs about the negotiated
+  vhost: support PACKED when setting-getting vring_base
+  vhost_vdpa: support PACKED when setting-getting vring_base
 
-This is a multi-part message in MIME format
-
---0Ama84LCUDvX4BTlMaKVNv=_3W9skFzj56
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
----------------------------------------------------------------------------=
--------------------------------------------------
-
-MICRADS=C2=B423 - The 2023 Multidisciplinary International Conference of Re=
-search Applied to Defense and Security
-
-6-8 July 2023, Bogota, Colombia
-
-http://www.micrads.org <http://www.micrads.org/>
-
----------------------------------------------------------------------------=
--------------------------------------------------
-
-
-
-
-
-Scope
-
-MICRADS=C2=B423 - The 2023 Multidisciplinary International Conference of Re=
-search Applied to Defense and Security, to be held at Graduate School of th=
-e Colombian Air Force <https://www.epfac.edu.co/en>, in Bogot=C3=A1 <https:=
-//en.wikipedia.org/wiki/Bogot%C3%A1>, Colombia <https://en.wikipedia.org/wi=
-ki/Colombia>, 6-8 July 2023, is an international forum for researchers and =
-practitioners to present and discuss the most recent innovations, trends, r=
-esults, experiences and concerns in the several perspectives of Defense and=
- Security.
-
-We are pleased to invite you to submit your papers to MICRADS=C2=B423. They=
- can be written in English, Spanish or Portuguese. All submissions will be =
-reviewed on the basis of relevance, originality, importance and clarity.
-
- 
-
-Topics
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
- 
-
-Area A: Systems, Communication and Defense
-
-A1) Information and Communication Technology in Education
-A2) Simulation and computer vision in military applications
-A3) Analysis and Signal Processing
-A4) Cybersecurity and Cyberdefense
-A5) Computer Networks, Mobility and Pervasive Systems
-
-  
-
-Area B: Strategy and political-administrative vision in Defense
-
-B1) Air, Space and Maritime Security and Protection
-B2) Strategy, Geopolitics and Oceanopolitics
-B3) Administration, economics and logistics applied to Defense
-B4) Leadership and e-leadership
-B5) Military marketing
-B6) Health informatics in military applications
-B7) Ethics in the context of military operations
-B8) Operational law (DICA and DD. HH.)
-B9) Air, space and cyberspace power
-B10) Legislation on Cybersecurity and Cyberdefense
-
- 
-
-Area C: Engineering and technologies applied to Defense
-
-C1) Wearable Technology and Assistance Devices
-C2) Military Naval Engineering
-C3) Weapons and Combat Systems
-C4) Chemical, Biological and Nuclear Defense
-C5) Defense Engineering (General)
-C6) Energy efficiency
-C7) Artificial Intelligence and Machine Learning
-C8) Unmanned platforms
-
-  
-
-Submission and Decision
-
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of Smart Innovation, Systems and Technologies series (see Instru=
-ctions for Authors at Springer Website <https://www.springer.com/us/authors=
--editors/conference-proceedings/conference-proceedings-guidelines>), must n=
-ot have been published before, not be under review for any other conference=
- or publication and not include any information leading to the authors=E2=
-=80=99 identification. Therefore, the authors=E2=80=99 names, affiliations =
-and e-mails should not be included in the version for evaluation by the Sci=
-entific Committee. This information should only be included in the camera-r=
-eady version, saved in Word or Latex format and also in PDF format. These f=
-iles must be accompanied by the Consent to Publish form <http://www.micrads=
-=2Eorg/consent.docx> filled out, in a ZIP file, and uploaded at the confere=
-nce management system.
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI <http://www.risti.xyz/> - Revista Ib=C3=
-=A9rica de Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instruc=
-tions/template for authors in Spanish <http://www.micrads.org/formato-es.do=
-c> or Portuguese <http://www.micrads.org/formato-pt.doc>), must not have be=
-en published before, not be under review for any other conference or public=
-ation and not include any information leading to the authors=E2=80=99 ident=
-ification. Therefore, the authors=E2=80=99 names, affiliations and e-mails =
-should not be included in the version for evaluation by the Scientific Comm=
-ittee. This information should only be included in the camera-ready version=
-, saved in Word. These file must be uploaded at the conference management s=
-ystem in a ZIP file.
-
-All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at leas=
-t two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can includes Work Sessions where these posters=
- are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-Publication and Indexing
-
-To ensure that an accepted paper is published, at least one of the authors =
-must be fully registered by the 10 of June 2023, and the paper must comply =
-with the suggested layout and page-limit (until 12 pages, but never inferio=
-r to 10 pages). Additionally, all recommended changes must be addressed by =
-the authors before they submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers can be written in English, Spanish or Portuguese. Accepted and regis=
-tered papers written in English will be published in Proceedings by Springe=
-r, in a book of its SIST series, and will be submitted for indexing by WoS,=
- SCOPUS, EI-Compendex, SpringerLink, and Google Scholar. 
-
-Papers written in Spanish or Portuguese and registered will be published in=
- a Special Issue of RISTI and will be submitted for indexation by SCOPUS, a=
-mong others.
-
- 
-
-Important Dates
-
-Paper Submission: May 14, 2023.
-
-Notification of Acceptance: May 31, 2023.
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: June 10, 2023.
-
-Camera-ready Submission: June 10, 2023.
-
-
-
-
-MICRADS'23 Website: http://www.micrads.org <http://www.micrads.org>
-
- 
-
-MICRADS'23 Team
-
-http://www.micrads.org <http://www.micrads.org/>
-
+ drivers/vhost/vdpa.c  | 32 ++++++++++++++++++++++++++++----
+ drivers/vhost/vhost.c | 18 +++++++++++++-----
+ 2 files changed, 41 insertions(+), 9 deletions(-)
 
 -- 
-This email has been checked for viruses by AVG antivirus software.
-www.avg.com
---0Ama84LCUDvX4BTlMaKVNv=_3W9skFzj56
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>--------------------------------------------------------------------=
---------------------------------------------------------<br id=3D"isPasted"=
- /><br /><strong>MICRADS&acute;23 - The 2023 Multidisciplinary Internationa=
-l Conference of Research Applied to Defense and Security</strong><br /><br =
-/>6-8 July 2023, Bogota, Colombia<br /><br /><a href=3D"http://www.micrads.=
-org/" target=3D"_blank" data-fr-linked=3D"true">http://www.micrads.org</a><=
-br /><br />----------------------------------------------------------------=
-------------------------------------------------------------<br /><br /><br=
- /><br /></p>
-    <p id=3D"isPasted"><strong>Scope</strong></p>
-    <p style=3D"text-align: justify">MICRADS&acute;23 - The 2023 Multidisci=
-plinary International Conference of Research Applied to Defense and Securit=
-y, to be held at <a title=3D"Graduate School of the Colombian Air Force" hr=
-ef=3D"https://www.epfac.edu.co/en" rel=3D"noopener" target=3D"_blank"><stro=
-ng>Graduate School of the Colombian Air Force</strong></a>, in <strong><a t=
-itle=3D"Bogot=C3=A1" href=3D"https://en.wikipedia.org/wiki/Bogot%C3%A1" rel=
-=3D"noopener noreferrer" target=3D"_blank">Bogot&aacute;</a></strong>, <str=
-ong><a title=3D"Colombia" href=3D"https://en.wikipedia.org/wiki/Colombia" r=
-el=3D"noopener noreferrer" target=3D"_blank">Colombia</a></strong>, 6-8 Jul=
-y 2023, is an international forum for researchers and practitioners to pres=
-ent and discuss the most recent innovations, trends, results, experiences a=
-nd concerns in the several perspectives of Defense and Security.</p>
-    <p style=3D"text-align: justify">We are pleased to invite you to submit=
- your papers to MICRADS&acute;23. They can be written in English, Spanish o=
-r Portuguese. All submissions will be reviewed on the basis of relevance, o=
-riginality, importance and clarity.</p>
-    <p>&nbsp;</p>
-    <p><strong>Topics</strong></p>
-    <p>Submitted papers should be related with one or more of the main them=
-es proposed for the Conference:</p>
-    <p>&nbsp;</p>
-    <p><strong>Area A: Systems, Communication and Defense</strong><br /><br=
- />A1) Information and Communication Technology in Education<br />A2) Simul=
-ation and computer vision in military applications<br />A3) Analysis and Si=
-gnal Processing<br />A4) Cybersecurity and Cyberdefense<br />A5) Computer N=
-etworks, Mobility and Pervasive Systems</p>
-    <p>&nbsp;&nbsp;</p>
-    <p><strong>Area B: Strategy and political-administrative vision in Defe=
-nse</strong><br /><br />B1) Air, Space and Maritime Security and Protection=
-<br />B2) Strategy, Geopolitics and Oceanopolitics<br />B3) Administration,=
- economics and logistics applied to Defense<br />B4) Leadership and e-leade=
-rship<br />B5) Military marketing<br />B6) Health informatics in military a=
-pplications<br />B7) Ethics in the context of military operations<br />B8) =
-Operational law (DICA and DD. HH.)<br />B9) Air, space and cyberspace power=
-<br />B10) Legislation on Cybersecurity and Cyberdefense</p>
-    <p>&nbsp;</p>
-    <p><strong>Area C: Engineering and technologies applied to Defense</str=
-ong><br /><br />C1) Wearable Technology and Assistance Devices<br />C2) Mil=
-itary Naval Engineering<br />C3) Weapons and Combat Systems<br />C4) Chemic=
-al, Biological and Nuclear Defense<br />C5) Defense Engineering (General)<b=
-r />C6) Energy efficiency<br />C7) Artificial Intelligence and Machine Lear=
-ning<br />C8) Unmanned platforms</p>
-    <p>&nbsp;&nbsp;</p>
-    <p><strong>Submission and Decision</strong></p>
-    <p style=3D"text-align: justify">Submitted papers written in English (u=
-ntil 10-page limit) must comply with the format of Smart Innovation, System=
-s and Technologies series (see <strong><a href=3D"https://www.springer.com/=
-us/authors-editors/conference-proceedings/conference-proceedings-guidelines=
-" rel=3D"noopener noreferrer" target=3D"_blank">Instructions for Authors at=
- Springer Website</a></strong>), must not have been published before, not b=
-e under review for any other conference or publication and not include any =
-information leading to the authors&rsquo; identification. Therefore, the au=
-thors&rsquo; names, affiliations and e-mails should not be included in the =
-version for evaluation by the Scientific Committee. This information should=
- only be included in the camera-ready version, saved in Word or Latex forma=
-t and also in PDF format. <span lang=3D"en">These files must be accompanied=
- by the <strong><a href=3D"http://www.micrads.org/consent.docx" rel=3D"noop=
-ener noreferrer" target=3D"_blank">Consent to Publish form</a></strong> fil=
-led out,&nbsp;</span><span lang=3D"en">in a ZIP file, and uploaded at the c=
-onference management system.</span></p>
-    <p style=3D"text-align: justify"><span lang=3D"en">Submitted papers wri=
-tten in Spanish or Portuguese (until 15-page limit) must comply with the fo=
-rmat of <strong><a href=3D"http://www.risti.xyz/" rel=3D"noopener noreferre=
-r" target=3D"_blank">RISTI</a></strong> - Revista Ib&eacute;rica de Sistema=
-s e Tecnologias de Informa&ccedil;&atilde;o (download instructions/template=
- for authors in <strong><a href=3D"http://www.micrads.org/formato-es.doc" r=
-el=3D"noopener noreferrer" target=3D"_blank">Spanish</a></strong> or <stron=
-g><a href=3D"http://www.micrads.org/formato-pt.doc" rel=3D"noopener norefer=
-rer" target=3D"_blank">Portuguese</a></strong>), must not have been publish=
-ed before, not be under review for any other conference or publication and =
-not include any information leading to the authors&rsquo; identification. T=
-herefore, the authors&rsquo; names, affiliations and e-mails should not be =
-included in the version for evaluation by the Scientific Committee. This in=
-formation should only be included in the camera-ready version, saved in Wor=
-d. <span lang=3D"en">These file must be&nbsp;</span><span lang=3D"en">uploa=
-ded at the conference management system in a ZIP file.</span></span></p>
-    <p style=3D"text-align: justify">All papers will be subjected to a &ldq=
-uo;blind review&rdquo; by at least two members of the Scientific Committee.=
-</p>
-    <p style=3D"text-align: justify">Based on Scientific Committee evaluati=
-on, a paper can be rejected or accepted by the Conference Chairs. In the la=
-ter case, it can be accepted as paper or poster.</p>
-    <p style=3D"text-align: justify">The authors of papers accepted as post=
-ers must build and print a poster to be exhibited during the Conference. Th=
-is poster must follow an A1 or A2 vertical format. The Conference can inclu=
-des Work Sessions where these posters are presented and orally discussed, w=
-ith a 7 minute limit per poster.</p>
-    <p style=3D"text-align: justify">The authors of accepted papers will ha=
-ve 15 minutes to present their work in a Conference Work Session; approxima=
-tely 5 minutes of discussion will follow each presentation.</p>
-    <p style=3D"text-align: justify">&nbsp;</p>
-    <p style=3D"text-align: justify"><strong>Publication and Indexing</stro=
-ng></p>
-    <p style=3D"text-align: justify">To ensure that an accepted paper is pu=
-blished, at least one of the authors must be fully registered by the 10 of =
-June 2023, and the paper must comply with the suggested layout and page-lim=
-it (until 12 pages, but never inferior to 10 pages). Additionally, all reco=
-mmended changes must be addressed by the authors before they submit the cam=
-era-ready version.</p>
-    <p style=3D"text-align: justify">No more than one paper per registratio=
-n will be published. An extra fee must be paid for publication of additiona=
-l papers, with a maximum of one additional paper per registration. One regi=
-stration permits only the participation of one author in the conference.</p=
->
-    <p style=3D"text-align: justify"><span lang=3D"EN-US">Papers can be wri=
-tten in English, Spanish or Portuguese. Accepted and registered papers writ=
-ten in English will be published in Proceedings by Springer, in a book of i=
-ts SIST series, and will be submitted for indexing by WoS, SCOPUS, EI-Compe=
-ndex, SpringerLink, and Google Scholar</span>.&nbsp;</p>
-    <p style=3D"text-align: justify">Papers written in Spanish or Portugues=
-e and registered will be published in a Special Issue of RISTI and will be =
-submitted for indexation by SCOPUS, among others.</p>
-    <p style=3D"text-align: justify">&nbsp;</p>
-    <p><strong>Important Dates</strong></p>
-    <p>Paper Submission: May 14, 2023.</p>
-    <p>Notification of Acceptance: May 31, 2023.</p>
-    <p>Payment of Registration, to ensure the inclusion of an accepted pape=
-r in the conference proceedings: June 10, 2023.</p>
-    <p>Camera-ready Submission: June 10, 2023.</p>
-    <p><br /></p>
-    <p><strong>MICRADS'23 Website</strong>: <a href=3D"http://www.micrads.o=
-rg" target=3D"_blank" data-fr-linked=3D"true">http://www.micrads.org</a></p=
->
-    <p>&nbsp;</p>
-    <p><strong>MICRADS'23 Team</strong></p>
-    <p><a href=3D"http://www.micrads.org/" target=3D"_blank" data-fr-linked=
-=3D"true">http://www.micrads.org</a></p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
-rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
-px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
-ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
-_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
-lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
-dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
- 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
--serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
-_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
-=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
-2" width=3D"1" height=3D"1"> </a></div></body>
-</html>
-
---0Ama84LCUDvX4BTlMaKVNv=_3W9skFzj56--
-
-
---===============6664351909738596591==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+2.17.1
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6664351909738596591==--
-
