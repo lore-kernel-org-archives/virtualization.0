@@ -1,77 +1,77 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7A406C77B76
-	for <virtualization@archiver.kernel.org>; Fri, 21 Apr 2023 19:57:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C79DAC77B78
+	for <virtualization@archiver.kernel.org>; Fri, 21 Apr 2023 19:57:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CE44A70023;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 44F0884348;
+	Fri, 21 Apr 2023 19:57:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44F0884348
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=zwfTcMZ+
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1sIvI-imaBhw; Fri, 21 Apr 2023 19:57:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AEFA2843D3;
 	Fri, 21 Apr 2023 19:57:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CE44A70023
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=0xNzCH+l
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AEFA2843D3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9154CC008F;
+	Fri, 21 Apr 2023 19:57:03 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9E485C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7529A7001C
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7529A7001C
+Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=zwfTcMZ+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SUdS3W9pSdKd; Fri, 21 Apr 2023 19:57:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 36D8D60B00;
-	Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 36D8D60B00
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0DD7CC007A;
-	Fri, 21 Apr 2023 19:57:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 92169C002A
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id z-9itXD2TC_N
  for <virtualization@lists.linux-foundation.org>;
  Fri, 21 Apr 2023 19:57:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1973B41746
- for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 19:57:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1973B41746
-Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=0xNzCH+l
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ppzhIGlbXZ6X
- for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 19:57:00 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B500405B7
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam12on20613.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5a::613])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6B500405B7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9746460E0D
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam04on20612.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8d::612])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9746460E0D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Apr 2023 19:57:00 +0000 (UTC)
+ Fri, 21 Apr 2023 19:57:01 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=koHzzU30vBYJmXo49NvuKCf6FNxrdZxothx723dPsjGDHzkKf2bPPsZuXf2ORC6rnXE4uBZQ7dNdYdqmPHEsfQpjGmSuzpx3QZSYAeEDuWjrONsh0bm3c8qzflNbUqIkEQ8lOMv47kQgW3Fx/gOZQWQyHMChvQg+u5+E0Bx6E4zJYNmmmkp6/ItMCmWGMhteriGuEEWTwwqKivtXG1tNvYjfwu3oZSA7KDYgZW+3/w5Ue5JN4UepB0N+jUekVJd3qX+8MVQPPzYedRB/QzBx6uOx3zgN6sqPGblF7dPRdkjsBhHjt84OotJ9qehEmdwWGlhpeXGnuJ4MPPYlpMpfOA==
+ b=lKn/5B5Zf1wlY2JEuXgws0HF4i8Lr9x0T8bDpX0l0aMo2khC+pPSh2Z6YADe3ep7975vn4dYudvhynBeTctO5EAiDqtTSaCHyYuj1fdVzo6QVu+DQBNsHus/4fPgwTFK2OFaTDsmqC7jxzwCgBiZuyC9AAuqPJ/RzQM8xxGUXUplmBcKmtlUgIVIHyyvtsTgRXmy9gJAhdsmmCyncGb1vnlNyPVUJE8Xq/gtKrIcy7lA1sQYnTmnRpYa2VllsY/S5b2QosZfTjmMWEipstsfEPF1XLk/rQgFli47C+T6EgW0b830Zuurql1EFVz4pexxFTK6aZ3+/aVtkjNJNPGN6A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nciF+6hKTFQDn4d2x6/S390efJ/1KvWzPt08zcXvlyM=;
- b=jDnyC0xowkBC6uNAXIcmayNj3h6rjwKbIid3yh09YrDq2Xdk6pEMLoEmK/lbBRlP6/WGkcVyG498uayshk4GJIdZOR+mI4x7NwTbiEkaaxUqvuhD9DUqn8JeTyoTR5UjTxROksenDIRwhnBGLQOrsKsbN2qugWvN0lvszZT7kzOfcZtcavEUGDbE8mHnw+n3DYMUl4rFr2X9CRhVqYHLcCu0tck/3CYfGI4WxHA9mYuwEpNvT6ye4gpazLT05GogBEdOHFmpMlgwq2ZZ2ZF6kCxqf6t1zp8K2Y0Ex9LZUb//KBEb8FkpKPKETaDzxm3ruiXgpJThqntjmOvI7pYqag==
+ bh=LwlP/0aNRzwpA4zxgvJUobb7af1y91HH5ZEoy/+nVTg=;
+ b=GZi324OL1CzlBQTtwt/2S8s3MYCB4p0+I+9qtvC0RIh9XV8YHvgIF1G1FTrTHHa/9djRAf0SKT4p6yukoSdkOaON1wSl1fPby5ToGFueZCXtdlCj+SakTOOHcP+VQOP8rOzTbI0xWIuL0onfXb8LPEDwI1eTiZFmHEP64KJu7BTHIiMRKeaKTcUYLibDaib2iXgCetSn12XDOpz4CheCEw23abNieqlb9mMrF3UY5TQzUcYHcw2qltrv1LGMIfhhsplN64BwrQmMf5cm5q8U/Dlf6e+gb21gCFX6uAtmGgYV4XwoUdghrhWB1Pbps7x0KHmI7eL4JBxn+PLEFL7kEQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nciF+6hKTFQDn4d2x6/S390efJ/1KvWzPt08zcXvlyM=;
- b=0xNzCH+l0VE0E4flvDBrjF8jItJ+oIUdHOqBhfzfXz5n3c9dgCdStnld/pR5KIsnc5HyPfsuF8bybJrFloA19vYLhfvfNSSVFkbLi5g/2l9dnyqPVzi3FMVcP+OnpRV858yF6Gt10VMXXGQyQSdNtTZUkj9u9zh7HqmqH/8+Hpw=
-Received: from DM6PR07CA0118.namprd07.prod.outlook.com (2603:10b6:5:330::31)
- by PH8PR12MB8432.namprd12.prod.outlook.com (2603:10b6:510:25b::11) with
+ bh=LwlP/0aNRzwpA4zxgvJUobb7af1y91HH5ZEoy/+nVTg=;
+ b=zwfTcMZ+YZ8h4FCxzii8Mp4wx7lq114O7sRiUtPNoDfzCUCcBk8/oEgaxOPd90YgkJXHDz8Fn77rxCDs2hxnjwI3pW667CnfPl+DxiF2PQc668EXOub1UnpA31y3eIsYSmLbJfwqWsNGP3r96PzGw9cS8Q/gz61z0+T5eSrxxhk=
+Received: from DM6PR07CA0117.namprd07.prod.outlook.com (2603:10b6:5:330::32)
+ by DM4PR12MB6207.namprd12.prod.outlook.com (2603:10b6:8:a6::10) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.22; Fri, 21 Apr
  2023 19:56:57 +0000
 Received: from DM6NAM11FT098.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:330:cafe::a5) by DM6PR07CA0118.outlook.office365.com
- (2603:10b6:5:330::31) with Microsoft SMTP Server (version=TLS1_2,
+ (2603:10b6:5:330:cafe::93) by DM6PR07CA0117.outlook.office365.com
+ (2603:10b6:5:330::32) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.25 via Frontend
  Transport; Fri, 21 Apr 2023 19:56:57 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
@@ -90,9 +90,9 @@ Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
  2023 14:56:56 -0500
 To: <jasowang@redhat.com>, <mst@redhat.com>,
  <virtualization@lists.linux-foundation.org>
-Subject: [PATCH 2/3] vhost: support PACKED when setting-getting vring_base
-Date: Fri, 21 Apr 2023 12:56:40 -0700
-Message-ID: <20230421195641.391-3-shannon.nelson@amd.com>
+Subject: [PATCH 3/3] vhost_vdpa: support PACKED when setting-getting vring_base
+Date: Fri, 21 Apr 2023 12:56:41 -0700
+Message-ID: <20230421195641.391-4-shannon.nelson@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230421195641.391-1-shannon.nelson@amd.com>
 References: <20230421195641.391-1-shannon.nelson@amd.com>
@@ -102,26 +102,26 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT098:EE_|PH8PR12MB8432:EE_
-X-MS-Office365-Filtering-Correlation-Id: 925f0835-0b89-4820-7e67-08db42a29005
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT098:EE_|DM4PR12MB6207:EE_
+X-MS-Office365-Filtering-Correlation-Id: b9eec500-7a4a-488f-c84b-08db42a29051
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: e1uRICcTwl9N4q3bLG9I8iikwfmdf3NEv2gAupoOUtN5oIN1rTMnFbMaFpR+WJCKDp3ktyOjas9Csauq8DUsGVGq8bn7tfj2bayFlg2xAbkApUlptJT8dYHDirUzgTozm2w0BmVErwWdLIWKPap6uB+VciA9XJeYDCy8VuNphAF6urbu7I/96ZCOPlD2jfGPzJaXXQfsr78lbJdmyE8e838JL5NNovnJ5bT7Ubgub5vknKsxG1RM0+J3X8h+kraBpLKLQ97jZO29ZFfxdV3UoEy++9gFzkLK7JcKXHTtSyffhdc63JpNxhVtwU58ntgmF7jK4DBGmFM7QS/oB9Y4f2V5sWXa1omKUJHVRhNweUgzNNeJjPruT/pe7ave08Fezbh3syXh4iGVbW37dgXYnJYjyAUa202uoLEj1wOiP82NTQcJ17+FnY1+T2C4gXOX0ofsrQ4wVGVqSZUYviq0awcir4qK5xRUSHDx6jPFwSUrZgovA2d8zYNbtLZVf3YTWZT6/4/K5dXwZCaDAYQ1FdsgeS9v1cPVPbpjrdbGaiHBPJyHatQ5uMv7R8T6DyncbBoREGyv5KONinNZlhgxuQmsnJWDn5IY2Bxj+ToHRhwrGC7Ku9H83d653C9aWM81PfU91/toVbv6l6Ry0O2BKIXhZMk+S67TybaG8QNGXY2kwSHksgUWGUqqIYvCyAA4eq7B+BU4yerZRsFChoHsiHiErxwBpOiwYL+eOvMWIBg=
+X-Microsoft-Antispam-Message-Info: Efyz482rr7JHrJf8YnUI+fgA8vyNBHusp+iorkD98pje6ea3jKJwy8TnfX6g0cU2nBWQcHQGYsJbjJRtjdMG7yfIJUhq8fOsFYhjJISivPl66nhK9Vv3mN6YcuGwVSWE3VAuGYNfv3nT+zgWVTr7Se5/t4AAvA/bDcZlhMWhM0uhJMLg4uB2jTT57HWTukTkdaBjSa9dOhQvUNCRQzwkWO+ptXk7KpuPngen8/c9hPKLsC5v37vkJTCvexBGdagCDWymsndilA0vdymZB3qXsOPvjKgNcXxuHShSd1WiKtuw7fYRPTmSwIoVVrrgiEcJEPGajxz0iLmxD3jgRkvkeM2WKNS9RVJtd6mzX4eZBLJpCTOBxix7W+KKR63UXGCekM8PkvlNNjxj1Q0x5JhJE2k9AG/wlbqbflv8R6/QkrFY8LIaNCMfVZA45INJv4fJMWU7szsTzDm32ivFa9ZR333xDYS5Xgzz8d3OFtfDnqO+52Yvwe8AspcADkTDcvP3kQJugVYJk6oSWRy9G65sFdFx1im9eTqOHHm161q4tKrS3TpwB5+anwxq4DK3Aso5mU/etLmajb6o3/GIh9FwgGyDKJJH+yKi8FeFzitEMxSOZKEWS4Wv4vxltoKwZrT4TZVcrElvuw8sWIFE8VnsglY9NcqKaAO8F2hYYR1IhZW1+6aK2ABaLJ4+a9V/7FllPJkjSH5zaGwF8MVHU9SPAC4jpBNoJIaW/4Ut6+lIRUw=
 X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(136003)(376002)(346002)(39860400002)(396003)(451199021)(46966006)(36840700001)(40470700004)(47076005)(356005)(16526019)(40480700001)(6666004)(54906003)(36756003)(8676002)(8936002)(81166007)(26005)(1076003)(82740400003)(41300700001)(2906002)(186003)(36860700001)(5660300002)(336012)(44832011)(426003)(83380400001)(2616005)(316002)(4326008)(70206006)(70586007)(40460700003)(478600001)(82310400005)(110136005)(86362001)(36900700001);
+ SFS:(13230028)(4636009)(136003)(346002)(396003)(376002)(39860400002)(451199021)(46966006)(36840700001)(40470700004)(478600001)(54906003)(110136005)(426003)(83380400001)(40480700001)(36860700001)(2616005)(1076003)(47076005)(36756003)(26005)(16526019)(356005)(186003)(82740400003)(86362001)(81166007)(82310400005)(336012)(40460700003)(6666004)(8936002)(316002)(8676002)(41300700001)(4326008)(70586007)(70206006)(5660300002)(2906002)(44832011)(36900700001);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2023 19:56:57.0690 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 925f0835-0b89-4820-7e67-08db42a29005
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Apr 2023 19:56:57.5689 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b9eec500-7a4a-488f-c84b-08db42a29051
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
  Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT098.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB8432
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6207
 Cc: drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -147,44 +147,46 @@ getting the vring base.
 
 Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
 ---
- drivers/vhost/vhost.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/vhost/vdpa.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index f11bdbe4c2c5..f64efda48f21 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1633,17 +1633,25 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- 			r = -EFAULT;
- 			break;
- 		}
--		if (s.num > 0xffff) {
--			r = -EINVAL;
--			break;
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 599b8cc238c7..2543ae9d5939 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -585,7 +585,12 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 		if (r)
+ 			return r;
+ 
+-		vq->last_avail_idx = vq_state.split.avail_index;
 +		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
-+			vq->last_avail_idx = s.num & 0xffff;
-+			vq->last_used_idx = (s.num >> 16) & 0xffff;
++			vq->last_avail_idx = vq_state.packed.last_avail_idx;
++			vq->last_used_idx = vq_state.packed.last_used_idx;
 +		} else {
-+			if (s.num > 0xffff) {
-+				r = -EINVAL;
-+				break;
-+			}
-+			vq->last_avail_idx = s.num;
- 		}
--		vq->last_avail_idx = s.num;
- 		/* Forget the cached index value. */
- 		vq->avail_idx = vq->last_avail_idx;
++			vq->last_avail_idx = vq_state.split.avail_index;
++		}
  		break;
- 	case VHOST_GET_VRING_BASE:
- 		s.index = idx;
--		s.num = vq->last_avail_idx;
-+		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED))
-+			s.num = (u32)vq->last_avail_idx | ((u32)vq->last_used_idx << 16);
-+		else
-+			s.num = vq->last_avail_idx;
- 		if (copy_to_user(argp, &s, sizeof s))
- 			r = -EFAULT;
+ 	}
+ 
+@@ -603,9 +608,15 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
  		break;
+ 
+ 	case VHOST_SET_VRING_BASE:
+-		vq_state.split.avail_index = vq->last_avail_idx;
+-		if (ops->set_vq_state(vdpa, idx, &vq_state))
+-			r = -EINVAL;
++		if (vhost_has_feature(vq, VIRTIO_F_RING_PACKED)) {
++			vq_state.packed.last_avail_idx = vq->last_avail_idx & 0x7fff;
++			vq_state.packed.last_avail_counter = !!(vq->last_avail_idx & 0x8000);
++			vq_state.packed.last_used_idx = vq->last_used_idx & 0x7fff;
++			vq_state.packed.last_used_counter = !!(vq->last_used_idx & 0x8000);
++		} else {
++			vq_state.split.avail_index = vq->last_avail_idx;
++		}
++		r = ops->set_vq_state(vdpa, idx, &vq_state);
+ 		break;
+ 
+ 	case VHOST_SET_VRING_CALL:
 -- 
 2.17.1
 
