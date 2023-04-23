@@ -1,75 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2D936C77B76
-	for <virtualization@archiver.kernel.org>; Sun, 23 Apr 2023 06:26:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3DA3CC77B76
+	for <virtualization@archiver.kernel.org>; Sun, 23 Apr 2023 06:30:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 887FA821A6;
-	Sun, 23 Apr 2023 06:25:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 887FA821A6
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hY03l1y8yCC0; Sun, 23 Apr 2023 06:25:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BD445820E7;
-	Sun, 23 Apr 2023 06:25:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD445820E7
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9F1F5C0037;
-	Sun, 23 Apr 2023 06:25:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51AEFC002A
- for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 06:25:56 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2A6E1417C0
- for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 06:25:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A6E1417C0
+	by smtp4.osuosl.org (Postfix) with ESMTP id BDF5C40964;
+	Sun, 23 Apr 2023 06:30:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BDF5C40964
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5awgqF0BCmFo
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dHHVPQcoZyOQ; Sun, 23 Apr 2023 06:30:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 94D6140946;
+	Sun, 23 Apr 2023 06:30:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 94D6140946
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 65324C0037;
+	Sun, 23 Apr 2023 06:30:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 457E1C002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 06:25:54 +0000 (UTC)
+ Sun, 23 Apr 2023 06:30:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 15D3360AE1
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 23 Apr 2023 06:30:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 15D3360AE1
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FcRhzbjrj9VO
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 23 Apr 2023 06:30:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5CD724170E
-Received: from out30-98.freemail.mail.aliyun.com
- (out30-98.freemail.mail.aliyun.com [115.124.30.98])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5CD724170E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 84D0F60ACA
+Received: from out30-101.freemail.mail.aliyun.com
+ (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 84D0F60ACA
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 06:25:52 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=20; SR=0;
- TI=SMTPD_---0VgicXij_1682231146; 
+ Sun, 23 Apr 2023 06:30:34 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
+ TI=SMTPD_---0VgibSUz_1682231427; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VgicXij_1682231146) by smtp.aliyun-inc.com;
- Sun, 23 Apr 2023 14:25:46 +0800
+ fp:SMTPD_---0VgibSUz_1682231427) by smtp.aliyun-inc.com;
+ Sun, 23 Apr 2023 14:30:28 +0800
+Message-ID: <1682231227.393101-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 05/14] virtio_net: introduce xdp res enums
+Date: Sun, 23 Apr 2023 14:27:07 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH net-next v1] xsk: introduce xsk_dma_cbs
-Date: Sun, 23 Apr 2023 14:25:45 +0800
-Message-Id: <20230423062546.96880-1-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-MIME-Version: 1.0
-X-Git-Hash: 01b328918880
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
+To: Jason Wang <jasowang@redhat.com>
+References: <20230418065327.72281-1-xuanzhuo@linux.alibaba.com>
+ <20230418065327.72281-6-xuanzhuo@linux.alibaba.com>
+ <20230421025931-mutt-send-email-mst@kernel.org>
+ <1682061840.4864874-1-xuanzhuo@linux.alibaba.com>
+ <20230421075119-mutt-send-email-mst@kernel.org>
+ <1682215068.3012342-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEs866j3pwWp6S-tJrMa0b0z5r7TmDO6iRKYO_n1FXTXGg@mail.gmail.com>
+In-Reply-To: <CACGkMEs866j3pwWp6S-tJrMa0b0z5r7TmDO6iRKYO_n1FXTXGg@mail.gmail.com>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
  Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- John Fastabend <john.fastabend@gmail.com>,
- =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
- Alexei Starovoitov <ast@kernel.org>, Christoph Hellwig <hch@infradead.org>,
- Eric Dumazet <edumazet@google.com>, Guenter Roeck <linux@roeck-us.net>,
- Jonathan Lemon <jonathan.lemon@gmail.com>, Jakub Kicinski <kuba@kernel.org>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
  bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,258 +81,164 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The purpose of this patch is to allow driver pass the own dma callbacks
-to xsk.
-
-This is to cope with the scene of virtio-net. If virtio does not have
-VIRTIO_F_ACCESS_PLATFORM, then virtio cannot use DMA API. In this case,
-xsk cannot use DMA API directly to achieve DMA address. Based on this
-scene, we must let xsk support driver to use the driver's dma callbacks.
-
-More is here:
-    https://lore.kernel.org/virtualization/1681265026.6082013-1-xuanzhuo@linux.alibaba.com/
-    https://lore.kernel.org/all/20230421065059.1bc78133@kernel.org
-
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- include/net/xdp_sock_drv.h  | 20 ++++++++++-
- include/net/xsk_buff_pool.h | 19 ++++++++++
- net/xdp/xsk_buff_pool.c     | 71 +++++++++++++++++++++++++++----------
- 3 files changed, 90 insertions(+), 20 deletions(-)
-
-diff --git a/include/net/xdp_sock_drv.h b/include/net/xdp_sock_drv.h
-index 9c0d860609ba..8b5284b272e4 100644
---- a/include/net/xdp_sock_drv.h
-+++ b/include/net/xdp_sock_drv.h
-@@ -67,7 +67,17 @@ static inline int xsk_pool_dma_map(struct xsk_buff_pool *pool,
- {
- 	struct xdp_umem *umem = pool->umem;
- 
--	return xp_dma_map(pool, dev, attrs, umem->pgs, umem->npgs);
-+	return xp_dma_map(pool, dev, NULL, attrs, umem->pgs, umem->npgs);
-+}
-+
-+static inline int xsk_pool_dma_map_with_cbs(struct xsk_buff_pool *pool,
-+					    struct device *dev,
-+					    struct xsk_dma_cbs *dma_cbs,
-+					    unsigned long attrs)
-+{
-+	struct xdp_umem *umem = pool->umem;
-+
-+	return xp_dma_map(pool, dev, dma_cbs, attrs, umem->pgs, umem->npgs);
- }
- 
- static inline dma_addr_t xsk_buff_xdp_get_dma(struct xdp_buff *xdp)
-@@ -226,6 +236,14 @@ static inline int xsk_pool_dma_map(struct xsk_buff_pool *pool,
- 	return 0;
- }
- 
-+static inline int xsk_pool_dma_map_with_cbs(struct xsk_buff_pool *pool,
-+					    struct device *dev,
-+					    struct xsk_dma_cbs *dma_cbs,
-+					    unsigned long attrs)
-+{
-+	return 0;
-+}
-+
- static inline dma_addr_t xsk_buff_xdp_get_dma(struct xdp_buff *xdp)
- {
- 	return 0;
-diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
-index 3e952e569418..2de88be9188b 100644
---- a/include/net/xsk_buff_pool.h
-+++ b/include/net/xsk_buff_pool.h
-@@ -43,6 +43,23 @@ struct xsk_dma_map {
- 	bool dma_need_sync;
- };
- 
-+struct xsk_dma_cbs {
-+	dma_addr_t (*map_page)(struct device *dev, struct page *page,
-+			       size_t offset, size_t size,
-+			       enum dma_data_direction dir, unsigned long attrs);
-+	void (*unmap_page)(struct device *dev, dma_addr_t addr,
-+			   size_t size, enum dma_data_direction dir,
-+			   unsigned long attrs);
-+	int (*mapping_error)(struct device *dev, dma_addr_t addr);
-+	bool (*need_sync)(struct device *dev, dma_addr_t addr);
-+	void (*sync_single_range_for_cpu)(struct device *dev, dma_addr_t addr,
-+					  size_t offset, size_t size,
-+					  enum dma_data_direction dir);
-+	void (*sync_single_range_for_device)(struct device *dev, dma_addr_t addr,
-+					     size_t offset, size_t size,
-+					     enum dma_data_direction dir);
-+};
-+
- struct xsk_buff_pool {
- 	/* Members only used in the control path first. */
- 	struct device *dev;
-@@ -85,6 +102,7 @@ struct xsk_buff_pool {
- 	 * sockets share a single cq when the same netdev and queue id is shared.
- 	 */
- 	spinlock_t cq_lock;
-+	struct xsk_dma_cbs *dma_cbs;
- 	struct xdp_buff_xsk *free_heads[];
- };
- 
-@@ -131,6 +149,7 @@ static inline void xp_init_xskb_dma(struct xdp_buff_xsk *xskb, struct xsk_buff_p
- /* AF_XDP ZC drivers, via xdp_sock_buff.h */
- void xp_set_rxq_info(struct xsk_buff_pool *pool, struct xdp_rxq_info *rxq);
- int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
-+	       struct xsk_dma_cbs *dma_cbs,
- 	       unsigned long attrs, struct page **pages, u32 nr_pages);
- void xp_dma_unmap(struct xsk_buff_pool *pool, unsigned long attrs);
- struct xdp_buff *xp_alloc(struct xsk_buff_pool *pool);
-diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
-index b2df1e0f8153..e7e6c91f6e51 100644
---- a/net/xdp/xsk_buff_pool.c
-+++ b/net/xdp/xsk_buff_pool.c
-@@ -328,7 +328,8 @@ static void xp_destroy_dma_map(struct xsk_dma_map *dma_map)
- 	kfree(dma_map);
- }
- 
--static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
-+static void __xp_dma_unmap(struct xsk_dma_map *dma_map,
-+			   struct xsk_dma_cbs *dma_cbs, unsigned long attrs)
- {
- 	dma_addr_t *dma;
- 	u32 i;
-@@ -337,8 +338,12 @@ static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
- 		dma = &dma_map->dma_pages[i];
- 		if (*dma) {
- 			*dma &= ~XSK_NEXT_PG_CONTIG_MASK;
--			dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
--					     DMA_BIDIRECTIONAL, attrs);
-+			if (unlikely(dma_cbs))
-+				dma_cbs->unmap_page(dma_map->dev, *dma, PAGE_SIZE,
-+						    DMA_BIDIRECTIONAL, attrs);
-+			else
-+				dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
-+						     DMA_BIDIRECTIONAL, attrs);
- 			*dma = 0;
- 		}
- 	}
-@@ -362,7 +367,7 @@ void xp_dma_unmap(struct xsk_buff_pool *pool, unsigned long attrs)
- 	if (!refcount_dec_and_test(&dma_map->users))
- 		return;
- 
--	__xp_dma_unmap(dma_map, attrs);
-+	__xp_dma_unmap(dma_map, pool->dma_cbs, attrs);
- 	kvfree(pool->dma_pages);
- 	pool->dma_pages_cnt = 0;
- 	pool->dev = NULL;
-@@ -407,6 +412,7 @@ static int xp_init_dma_info(struct xsk_buff_pool *pool, struct xsk_dma_map *dma_
- }
- 
- int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
-+	       struct xsk_dma_cbs *dma_cbs,
- 	       unsigned long attrs, struct page **pages, u32 nr_pages)
- {
- 	struct xsk_dma_map *dma_map;
-@@ -424,19 +430,32 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
- 		return 0;
- 	}
- 
-+	pool->dma_cbs = dma_cbs;
-+
- 	dma_map = xp_create_dma_map(dev, pool->netdev, nr_pages, pool->umem);
- 	if (!dma_map)
- 		return -ENOMEM;
- 
- 	for (i = 0; i < dma_map->dma_pages_cnt; i++) {
--		dma = dma_map_page_attrs(dev, pages[i], 0, PAGE_SIZE,
--					 DMA_BIDIRECTIONAL, attrs);
--		if (dma_mapping_error(dev, dma)) {
--			__xp_dma_unmap(dma_map, attrs);
--			return -ENOMEM;
-+		if (likely(!dma_cbs)) {
-+			dma = dma_map_page_attrs(dev, pages[i], 0, PAGE_SIZE,
-+						 DMA_BIDIRECTIONAL, attrs);
-+			if (dma_mapping_error(dev, dma)) {
-+				__xp_dma_unmap(dma_map, dma_cbs, attrs);
-+				return -ENOMEM;
-+			}
-+			if (dma_need_sync(dev, dma))
-+				dma_map->dma_need_sync = true;
-+		} else {
-+			dma = dma_cbs->map_page(dev, pages[i], 0, PAGE_SIZE,
-+						DMA_BIDIRECTIONAL, attrs);
-+			if (dma_cbs->mapping_error(dev, dma)) {
-+				__xp_dma_unmap(dma_map, dma_cbs, attrs);
-+				return -ENOMEM;
-+			}
-+			if (dma_cbs->need_sync(dev, dma))
-+				dma_map->dma_need_sync = true;
- 		}
--		if (dma_need_sync(dev, dma))
--			dma_map->dma_need_sync = true;
- 		dma_map->dma_pages[i] = dma;
- 	}
- 
-@@ -445,7 +464,7 @@ int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
- 
- 	err = xp_init_dma_info(pool, dma_map);
- 	if (err) {
--		__xp_dma_unmap(dma_map, attrs);
-+		__xp_dma_unmap(dma_map, dma_cbs, attrs);
- 		return err;
- 	}
- 
-@@ -532,9 +551,14 @@ struct xdp_buff *xp_alloc(struct xsk_buff_pool *pool)
- 	xskb->xdp.data_meta = xskb->xdp.data;
- 
- 	if (pool->dma_need_sync) {
--		dma_sync_single_range_for_device(pool->dev, xskb->dma, 0,
--						 pool->frame_len,
--						 DMA_BIDIRECTIONAL);
-+		if (unlikely(pool->dma_cbs))
-+			pool->dma_cbs->sync_single_range_for_device(pool->dev, xskb->dma, 0,
-+								    pool->frame_len,
-+								    DMA_BIDIRECTIONAL);
-+		else
-+			dma_sync_single_range_for_device(pool->dev, xskb->dma, 0,
-+							 pool->frame_len,
-+							 DMA_BIDIRECTIONAL);
- 	}
- 	return &xskb->xdp;
- }
-@@ -670,15 +694,24 @@ EXPORT_SYMBOL(xp_raw_get_dma);
- 
- void xp_dma_sync_for_cpu_slow(struct xdp_buff_xsk *xskb)
- {
--	dma_sync_single_range_for_cpu(xskb->pool->dev, xskb->dma, 0,
--				      xskb->pool->frame_len, DMA_BIDIRECTIONAL);
-+	if (unlikely(xskb->pool->dma_cbs))
-+		xskb->pool->dma_cbs->sync_single_range_for_cpu(xskb->pool->dev, xskb->dma, 0,
-+							       xskb->pool->frame_len,
-+							       DMA_BIDIRECTIONAL);
-+	else
-+		dma_sync_single_range_for_cpu(xskb->pool->dev, xskb->dma, 0,
-+					      xskb->pool->frame_len, DMA_BIDIRECTIONAL);
- }
- EXPORT_SYMBOL(xp_dma_sync_for_cpu_slow);
- 
- void xp_dma_sync_for_device_slow(struct xsk_buff_pool *pool, dma_addr_t dma,
- 				 size_t size)
- {
--	dma_sync_single_range_for_device(pool->dev, dma, 0,
--					 size, DMA_BIDIRECTIONAL);
-+	if (unlikely(pool->dma_cbs))
-+		pool->dma_cbs->sync_single_range_for_device(pool->dev, dma, 0,
-+							    size, DMA_BIDIRECTIONAL);
-+	else
-+		dma_sync_single_range_for_device(pool->dev, dma, 0,
-+						 size, DMA_BIDIRECTIONAL);
- }
- EXPORT_SYMBOL(xp_dma_sync_for_device_slow);
--- 
-2.32.0.3.g01195cf9f
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU3VuLCAyMyBBcHIgMjAyMyAxMzoyODowNyArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
+cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gU3VuLCBBcHIgMjMsIDIwMjMgYXQgMTA6MDXigK9BTSBY
+dWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBG
+cmksIDIxIEFwciAyMDIzIDA3OjU0OjExIC0wNDAwLCAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0
+QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiBPbiBGcmksIEFwciAyMSwgMjAyMyBhdCAwMzoyNDow
+MFBNICswODAwLCBYdWFuIFpodW8gd3JvdGU6Cj4gPiA+ID4gT24gRnJpLCAyMSBBcHIgMjAyMyAw
+MzowMDoxNSAtMDQwMCwgIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cm90
+ZToKPiA+ID4gPiA+IE9uIFR1ZSwgQXByIDE4LCAyMDIzIGF0IDAyOjUzOjE4UE0gKzA4MDAsIFh1
+YW4gWmh1byB3cm90ZToKPiA+ID4gPiA+ID4gdmlydG5ldF94ZHBfaGFuZGxlcigpIGlzIHRvIHBy
+b2Nlc3MgYWxsIHRoZSBsb2dpYyByZWxhdGVkIHRvIFhEUC4gVGhlCj4gPiA+ID4gPiA+IGNhbGxl
+ciBvbmx5IG5lZWRzIHRvIGNhcmUgYWJvdXQgaG93IHRvIGRlYWwgd2l0aCB0aGUgYnVmLiBTbyB0
+aGlzIGNvbW1pdAo+ID4gPiA+ID4gPiBpbnRyb2R1Y2VzIG5ldyBlbnVtczoKPiA+ID4gPiA+ID4K
+PiA+ID4gPiA+ID4gMS4gVklSVE5FVF9YRFBfUkVTX1BBU1M6IG1ha2Ugc2tiIGJ5IHRoZSBidWYK
+PiA+ID4gPiA+ID4gMi4gVklSVE5FVF9YRFBfUkVTX0RST1A6IHhkcCByZXR1cm4gZHJvcCBhY3Rp
+b24gb3Igc29tZSBlcnJvciwgY2FsbGVyCj4gPiA+ID4gPiA+ICAgIHNob3VsZCByZWxlYXNlIHRo
+ZSBidWYKPiA+ID4gPiA+ID4gMy4gVklSVE5FVF9YRFBfUkVTX0NPTlNVTUVEOiB4ZHAgY29uc3Vt
+ZWQgdGhlIGJ1ZiwgdGhlIGNhbGxlciBkb2Vzbm90IHRvCj4gPiA+ID4gPiA+ICAgIGRvIGFueXRo
+aW5nCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFh1YW4gWmh1byA8eHVh
+bnpodW9AbGludXguYWxpYmFiYS5jb20+Cj4gPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPiA+IEkg
+YW0gbm90IGV4Y2l0ZWQgYWJvdXQgdXNpbmcgdmlydGlvIHNwZWNpZmljIGVudW1zIHRoZW4gdHJh
+bnNsYXRpbmcKPiA+ID4gPiA+IHRvIHN0YW5kYXJkIG9uZXMuCj4gPiA+ID4KPiA+ID4gPgo+ID4g
+PiA+IE15IGZhdWx0LCBteSBleHByZXNzaW9uIGlzIG5vdCB2ZXJ5IGNvbXBsZXRlLgo+ID4gPiA+
+Cj4gPiA+ID4gVGhpcyBpcyBub3QgYSByZXBsYWNlbWVudCwgYnV0IGp1c3Qgd2FudCB0byBzYXks
+IHRoZXJlIGFyZSBvbmx5IHRocmVlIGNhc2VzIG9mCj4gPiA+ID4gdmlydG5ldF94ZHBfaGFuZGxl
+ci4gQ2FsbGVyIG9ubHkgbmVlZHMgdG8gaGFuZGxlIHRoaXMgdGhyZWUgY2FzZXMuIEluc3RlYWQK
+PiA+ID4gPiBvZiBwYXlpbmcgYXR0ZW50aW9uIHRvIHRoZSBkZXRhaWxlZCByZXR1cm4gcmVzdWx0
+cyBvZiBYRFAuCj4gPiA+ID4KPiA+ID4gPiBJbiBhZGRpdGlvbiwgdmlydG5ldF94ZHBfaGFuZGxl
+ciByZXR1cm5zIFhEUF9UWCwgYnV0IGluIGZhY3QsIHRoZSB3b3JrIG9mIFhEUF9UWAo+ID4gPiA+
+IGlzIGFscmVhZHkgZG9uZSBpbiBWaXJ0bmV0X3hkcF9oYW5kbGVyLiBDYWxsZXIgZG9lcyBub3Qg
+bmVlZCB0byBkbyBhbnl0aGluZyBmb3IKPiA+ID4gPiBYRFBfVFgsIGdpdmluZyBwZW9wbGUgYSBm
+ZWVsaW5nLCBYRFBfVFggZG9lcyBub3QgbmVlZCB0byBiZSBwcm9jZXNzZWQuIEkgdGhpbmsKPiA+
+ID4gPiBpdCBpcyBub3QgZ29vZC4KPiA+ID4gPgo+ID4gPiA+IFRoYW5rcy4KPiA+ID4KPiA+ID4g
+SSBkb24ndCByZWFsbHkgZ2V0IGl0LCBzb3JyeS4gSWYgaXQncyBwb3NzaWJsZSB0byBzdGljayB0
+bwo+ID4gPiBYRFAgcmV0dXJuIGNvZGVzLCB0aGF0IGlzIHByZWZlcmFibGUuCj4gPgo+ID4gQWx0
+aG91Z2gsIEkgc3RpbGwgdGhpbmsgdGhhdCBpdCB3b3VsZCBiZSBiZXR0ZXIgdG8gdXNlIFZJUlRO
+RVRfWERQX1JFU18qLCBhbmQKPiA+IG90aGVyIGRyaXZlcnMgZGlkIHRoZSBzYW1lIHRoaW5nLiBJ
+ZiB5b3Ugc3RpbGwgaW5zaXN0LCBJIGNhbiByZW1vdmUgdGhpcyBjb21taXQuCj4gPgo+Cj4gSSBz
+ZWNvbmQgZm9yIHN0aWNraW5nIHRvIFhEUCByZXR1cm4gY29kZXMuCj4KPiAoU2luY2UgSSBkaWRu
+J3QgcmVhbGx5IGdldCB3aGF0J3Mgd3Jvbmcgd2l0aCB0aGF0KS4KCgpPSy4gSWYgbm9ib2R5IGhh
+cyBvdGhlciBhZHZpY2UgSSB3aWxsIHJlbW92ZSB0aGlzIGNvbW1pdCBpbiBuZXh0IHZlcmlvbi4K
+ClRoYW5rcy4KCgo+Cj4gVGhhbmtzCj4KPiA+IEluIGFkZGl0aW9uLCBJIHRoaW5rIHNxdWFzaGlu
+ZyB0aGlzIHBhdGNoIHRvIHRoZSBwcmV2aW91cyBwYXRjaCBtYXkgYmUgbW9yZQo+ID4gc3VpdGFi
+bGUuIEp1c3QgbGlrZSBJIGRvbmUgaW4gbGFzdCBwYXRjaHNldC4gQEphc29uCj4gPgo+ID4gQmVj
+YXVzZSB3aGF0IEkgd2FudCB0byBleHByZXNzIGlzIHRoYXQgdmlydG5ldF94ZHBfaGFuZGxlcigp
+IGhhcyBvbmx5IHRocmVlCj4gPiBraW5kcyBvZiByZXR1cm5zLCBjYWxsZXIgZG9lcyBub3QgbmVl
+ZCB0byBwYXkgYXR0ZW50aW9uIHRvIHRoZSBkZXRhaWxzIG9mIFhEUAo+ID4gcmV0dXJucy4KPiA+
+Cj4gPiBUaGFua3MuCj4gPgo+ID4KPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
+PiA+ID4gPiAtLS0KPiA+ID4gPiA+ID4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDQyICsr
+KysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0KPiA+ID4gPiA+ID4gIDEgZmls
+ZSBjaGFuZ2VkLCAyNyBpbnNlcnRpb25zKCspLCAxNSBkZWxldGlvbnMoLSkKPiA+ID4gPiA+ID4K
+PiA+ID4gPiA+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZl
+cnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+ID4gPiBpbmRleCAwZmE2NGMzMTRlYTcuLjRkZmRj
+MjExZDM1NSAxMDA2NDQKPiA+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
+Cj4gPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+ID4gPiBA
+QCAtMzAxLDYgKzMwMSwxNSBAQCBzdHJ1Y3QgcGFkZGVkX3ZuZXRfaGRyIHsKPiA+ID4gPiA+ID4g
+ICAgICAgICBjaGFyIHBhZGRpbmdbMTJdOwo+ID4gPiA+ID4gPiAgfTsKPiA+ID4gPiA+ID4KPiA+
+ID4gPiA+ID4gK2VudW0gewo+ID4gPiA+ID4gPiArICAgICAgIC8qIHhkcCBwYXNzICovCj4gPiA+
+ID4gPiA+ICsgICAgICAgVklSVE5FVF9YRFBfUkVTX1BBU1MsCj4gPiA+ID4gPiA+ICsgICAgICAg
+LyogZHJvcCBwYWNrZXQuIHRoZSBjYWxsZXIgbmVlZHMgdG8gcmVsZWFzZSB0aGUgcGFnZS4gKi8K
+PiA+ID4gPiA+ID4gKyAgICAgICBWSVJUTkVUX1hEUF9SRVNfRFJPUCwKPiA+ID4gPiA+ID4gKyAg
+ICAgICAvKiBwYWNrZXQgaXMgY29uc3VtZWQgYnkgeGRwLiB0aGUgY2FsbGVyIG5lZWRzIHRvIGRv
+IG5vdGhpbmcuICovCj4gPiA+ID4gPiA+ICsgICAgICAgVklSVE5FVF9YRFBfUkVTX0NPTlNVTUVE
+LAo+ID4gPiA+ID4gPiArfTsKPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiAgc3RhdGljIHZvaWQg
+dmlydG5ldF9ycV9mcmVlX3VudXNlZF9idWYoc3RydWN0IHZpcnRxdWV1ZSAqdnEsIHZvaWQgKmJ1
+Zik7Cj4gPiA+ID4gPiA+ICBzdGF0aWMgdm9pZCB2aXJ0bmV0X3NxX2ZyZWVfdW51c2VkX2J1Zihz
+dHJ1Y3QgdmlydHF1ZXVlICp2cSwgdm9pZCAqYnVmKTsKPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4g
+QEAgLTgwMywxNCArODEyLDE0IEBAIHN0YXRpYyBpbnQgdmlydG5ldF94ZHBfaGFuZGxlcihzdHJ1
+Y3QgYnBmX3Byb2cgKnhkcF9wcm9nLCBzdHJ1Y3QgeGRwX2J1ZmYgKnhkcCwKPiA+ID4gPiA+ID4K
+PiA+ID4gPiA+ID4gICAgICAgICBzd2l0Y2ggKGFjdCkgewo+ID4gPiA+ID4gPiAgICAgICAgIGNh
+c2UgWERQX1BBU1M6Cj4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICByZXR1cm4gYWN0Owo+ID4g
+PiA+ID4gPiArICAgICAgICAgICAgICAgcmV0dXJuIFZJUlRORVRfWERQX1JFU19QQVNTOwo+ID4g
+PiA+ID4gPgo+ID4gPiA+ID4gPiAgICAgICAgIGNhc2UgWERQX1RYOgo+ID4gPiA+ID4gPiAgICAg
+ICAgICAgICAgICAgc3RhdHMtPnhkcF90eCsrOwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAg
+eGRwZiA9IHhkcF9jb252ZXJ0X2J1ZmZfdG9fZnJhbWUoeGRwKTsKPiA+ID4gPiA+ID4gICAgICAg
+ICAgICAgICAgIGlmICh1bmxpa2VseSgheGRwZikpIHsKPiA+ID4gPiA+ID4gICAgICAgICAgICAg
+ICAgICAgICAgICAgbmV0ZGV2X2RiZyhkZXYsICJjb252ZXJ0IGJ1ZmYgdG8gZnJhbWUgZmFpbGVk
+IGZvciB4ZHBcbiIpOwo+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4g
+WERQX0RST1A7Cj4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBWSVJU
+TkVUX1hEUF9SRVNfRFJPUDsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIH0KPiA+ID4gPiA+
+ID4KPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIGVyciA9IHZpcnRuZXRfeGRwX3htaXQoZGV2
+LCAxLCAmeGRwZiwgMCk7Cj4gPiA+ID4gPiA+IEBAIC04MTgsMTkgKzgyNywyMCBAQCBzdGF0aWMg
+aW50IHZpcnRuZXRfeGRwX2hhbmRsZXIoc3RydWN0IGJwZl9wcm9nICp4ZHBfcHJvZywgc3RydWN0
+IHhkcF9idWZmICp4ZHAsCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHhkcF9y
+ZXR1cm5fZnJhbWVfcnhfbmFwaSh4ZHBmKTsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIH0g
+ZWxzZSBpZiAodW5saWtlbHkoZXJyIDwgMCkpIHsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAg
+ICAgICAgICAgdHJhY2VfeGRwX2V4Y2VwdGlvbihkZXYsIHhkcF9wcm9nLCBhY3QpOwo+ID4gPiA+
+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gWERQX0RST1A7Cj4gPiA+ID4gPiA+
+ICsgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBWSVJUTkVUX1hEUF9SRVNfRFJPUDsKPiA+
+ID4gPiA+ID4gICAgICAgICAgICAgICAgIH0KPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiAgICAg
+ICAgICAgICAgICAgKnhkcF94bWl0IHw9IFZJUlRJT19YRFBfVFg7Cj4gPiA+ID4gPiA+IC0gICAg
+ICAgICAgICAgICByZXR1cm4gYWN0Owo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgcmV0dXJu
+IFZJUlRORVRfWERQX1JFU19DT05TVU1FRDsKPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgICAg
+ICBjYXNlIFhEUF9SRURJUkVDVDoKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIHN0YXRzLT54
+ZHBfcmVkaXJlY3RzKys7Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICBlcnIgPSB4ZHBfZG9f
+cmVkaXJlY3QoZGV2LCB4ZHAsIHhkcF9wcm9nKTsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAg
+IGlmIChlcnIpCj4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAgIHJldHVybiBYRFBf
+RFJPUDsKPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIFZJUlRORVRf
+WERQX1JFU19EUk9QOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgKnhk
+cF94bWl0IHw9IFZJUlRJT19YRFBfUkVESVI7Cj4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICBy
+ZXR1cm4gYWN0Owo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgcmV0dXJuIFZJUlRORVRfWERQ
+X1JFU19DT05TVU1FRDsKPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gICAgICAgICBkZWZhdWx0Ogo+
+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgYnBmX3dhcm5faW52YWxpZF94ZHBfYWN0aW9uKGRl
+diwgeGRwX3Byb2csIGFjdCk7Cj4gPiA+ID4gPiA+IEBAIC04MzksNyArODQ5LDcgQEAgc3RhdGlj
+IGludCB2aXJ0bmV0X3hkcF9oYW5kbGVyKHN0cnVjdCBicGZfcHJvZyAqeGRwX3Byb2csIHN0cnVj
+dCB4ZHBfYnVmZiAqeGRwLAo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgdHJhY2VfeGRwX2V4
+Y2VwdGlvbihkZXYsIHhkcF9wcm9nLCBhY3QpOwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAg
+ZmFsbHRocm91Z2g7Cj4gPiA+ID4gPiA+ICAgICAgICAgY2FzZSBYRFBfRFJPUDoKPiA+ID4gPiA+
+ID4gLSAgICAgICAgICAgICAgIHJldHVybiBYRFBfRFJPUDsKPiA+ID4gPiA+ID4gKyAgICAgICAg
+ICAgICAgIHJldHVybiBWSVJUTkVUX1hEUF9SRVNfRFJPUDsKPiA+ID4gPiA+ID4gICAgICAgICB9
+Cj4gPiA+ID4gPiA+ICB9Cj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IEBAIC05ODcsMTcgKzk5Nywx
+OCBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfc21hbGwoc3RydWN0IG5ldF9kZXZp
+Y2UgKmRldiwKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIGFjdCA9IHZpcnRuZXRfeGRwX2hh
+bmRsZXIoeGRwX3Byb2csICZ4ZHAsIGRldiwgeGRwX3htaXQsIHN0YXRzKTsKPiA+ID4gPiA+ID4K
+PiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIHN3aXRjaCAoYWN0KSB7Cj4gPiA+ID4gPiA+IC0g
+ICAgICAgICAgICAgICBjYXNlIFhEUF9QQVNTOgo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAg
+Y2FzZSBWSVJUTkVUX1hEUF9SRVNfUEFTUzoKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAg
+ICAgICAgLyogUmVjYWxjdWxhdGUgbGVuZ3RoIGluIGNhc2UgYnBmIHByb2dyYW0gY2hhbmdlZCBp
+dCAqLwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBkZWx0YSA9IG9yaWdfZGF0
+YSAtIHhkcC5kYXRhOwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBsZW4gPSB4
+ZHAuZGF0YV9lbmQgLSB4ZHAuZGF0YTsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAg
+ICAgbWV0YXNpemUgPSB4ZHAuZGF0YSAtIHhkcC5kYXRhX21ldGE7Cj4gPiA+ID4gPiA+ICAgICAg
+ICAgICAgICAgICAgICAgICAgIGJyZWFrOwo+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgY2Fz
+ZSBYRFBfVFg6Cj4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICBjYXNlIFhEUF9SRURJUkVDVDoK
+PiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgY2FzZSBWSVJUTkVUX1hE
+UF9SRVNfQ09OU1VNRUQ6Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHJjdV9y
+ZWFkX3VubG9jaygpOwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIHhk
+cF94bWl0Owo+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgZGVmYXVsdDoKPiA+ID4gPiA+ID4g
+Kwo+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgY2FzZSBWSVJUTkVUX1hEUF9SRVNfRFJPUDoK
+PiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgZ290byBlcnJfeGRwOwo+ID4gPiA+
+ID4gPiAgICAgICAgICAgICAgICAgfQo+ID4gPiA+ID4gPiAgICAgICAgIH0KPiA+ID4gPiA+ID4g
+QEAgLTEzMjQsMTggKzEzMzUsMTkgQEAgc3RhdGljIHN0cnVjdCBza19idWZmICpyZWNlaXZlX21l
+cmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gPiA+ID4gPiAgICAgICAgICAgICAg
+ICAgYWN0ID0gdmlydG5ldF94ZHBfaGFuZGxlcih4ZHBfcHJvZywgJnhkcCwgZGV2LCB4ZHBfeG1p
+dCwgc3RhdHMpOwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgc3dpdGNo
+IChhY3QpIHsKPiA+ID4gPiA+ID4gLSAgICAgICAgICAgICAgIGNhc2UgWERQX1BBU1M6Cj4gPiA+
+ID4gPiA+ICsgICAgICAgICAgICAgICBjYXNlIFZJUlRORVRfWERQX1JFU19QQVNTOgo+ID4gPiA+
+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBoZWFkX3NrYiA9IGJ1aWxkX3NrYl9mcm9tX3hk
+cF9idWZmKGRldiwgdmksICZ4ZHAsIHhkcF9mcmFnc190cnVlc3opOwo+ID4gPiA+ID4gPiAgICAg
+ICAgICAgICAgICAgICAgICAgICBpZiAodW5saWtlbHkoIWhlYWRfc2tiKSkKPiA+ID4gPiA+ID4g
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycl94ZHBfZnJhZ3M7Cj4gPiA+
+ID4gPiA+Cj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHJjdV9yZWFkX3VubG9j
+aygpOwo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm4gaGVhZF9za2I7
+Cj4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICBjYXNlIFhEUF9UWDoKPiA+ID4gPiA+ID4gLSAg
+ICAgICAgICAgICAgIGNhc2UgWERQX1JFRElSRUNUOgo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+
+ICsgICAgICAgICAgICAgICBjYXNlIFZJUlRORVRfWERQX1JFU19DT05TVU1FRDoKPiA+ID4gPiA+
+ID4gICAgICAgICAgICAgICAgICAgICAgICAgcmN1X3JlYWRfdW5sb2NrKCk7Cj4gPiA+ID4gPiA+
+ICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8geGRwX3htaXQ7Cj4gPiA+ID4gPiA+IC0gICAg
+ICAgICAgICAgICBkZWZhdWx0Ogo+ID4gPiA+ID4gPiArCj4gPiA+ID4gPiA+ICsgICAgICAgICAg
+ICAgICBjYXNlIFZJUlRORVRfWERQX1JFU19EUk9QOgo+ID4gPiA+ID4gPiAgICAgICAgICAgICAg
+ICAgICAgICAgICBicmVhazsKPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIH0KPiA+ID4gPiA+
+ID4gIGVycl94ZHBfZnJhZ3M6Cj4gPiA+ID4gPiA+IC0tCj4gPiA+ID4gPiA+IDIuMzIuMC4zLmcw
+MTE5NWNmOWYKPiA+ID4gPiA+Cj4gPiA+Cj4gPgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
