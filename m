@@ -1,125 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C03D8C77B76
-	for <virtualization@archiver.kernel.org>; Sun, 23 Apr 2023 07:19:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E85EC77B7F
+	for <virtualization@archiver.kernel.org>; Sun, 23 Apr 2023 07:21:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3259882033;
-	Sun, 23 Apr 2023 07:19:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3259882033
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BayY7Jgw
+	by smtp2.osuosl.org (Postfix) with ESMTP id DAEAC409D6;
+	Sun, 23 Apr 2023 07:21:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DAEAC409D6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xBw-BC3wDRyQ; Sun, 23 Apr 2023 07:19:26 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KmxI-3bMKILQ; Sun, 23 Apr 2023 07:21:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C68B282036;
-	Sun, 23 Apr 2023 07:19:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C68B282036
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3706F405BE;
+	Sun, 23 Apr 2023 07:21:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3706F405BE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9BB5DC0037;
-	Sun, 23 Apr 2023 07:19:25 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 041DFC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D4BCC0037;
+	Sun, 23 Apr 2023 07:21:24 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A7891C002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 07:19:25 +0000 (UTC)
+ Sun, 23 Apr 2023 07:21:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C35E0418AB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8095041B4C
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 07:19:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C35E0418AB
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=BayY7Jgw
+ Sun, 23 Apr 2023 07:21:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8095041B4C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id p8mT-YpPFeOd
+ with ESMTP id TjYm_frVV6Sz
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 07:19:24 +0000 (UTC)
+ Sun, 23 Apr 2023 07:21:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D052C40277
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D052C40277
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F195E41A42
+Received: from out30-98.freemail.mail.aliyun.com
+ (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F195E41A42
  for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 07:19:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1682234362;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=nOfk5KVt03Kw/nxPJuFXIUc7M+oFb5UuYNKx4WZp95g=;
- b=BayY7JgwPUKoTnFHruRBrkOD49yx/0BNTo5kuPOwnef+ecOQI7Zs18AxRe4q+X9RCNDWwe
- P1+ObnC6vjR6TW9xRzAVABEoJJzCoE45iIKtSZaxwxBs62LqHQVrMj5kw3KoJ6X1mBU3cF
- 2aeQJ0bfBNv/pRyV/gUPR+NtXwoHkFw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-218-fldjShHZNy6SsDj5-CrsQg-1; Sun, 23 Apr 2023 03:19:20 -0400
-X-MC-Unique: fldjShHZNy6SsDj5-CrsQg-1
-Received: by mail-wm1-f70.google.com with SMTP id
- 5b1f17b1804b1-3f16f50aeb5so11516615e9.3
- for <virtualization@lists.linux-foundation.org>;
- Sun, 23 Apr 2023 00:19:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1682234359; x=1684826359;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=nOfk5KVt03Kw/nxPJuFXIUc7M+oFb5UuYNKx4WZp95g=;
- b=FmjlAu1fdFff6AyDx+ec2X8StH7fezKF9Qr29O0EzebYW+lf81n73E619tOOjSvo1Z
- eOeFEwrQ/mxF8aM7OqpOt4vQFcxiAUV8vOmBbLtQuQrJxKnfwbOibts15ZAbqzMqHNqy
- Jw2/tHFKVu6J1Ob9qQAceI9pD8eJ0YqaZV/jusoj7W0HGhq1ObAkWfV8Yicw9CDkh9/k
- z+/3dvu8BL83IAQwt6WLEnt8si5VY9qyj/PjeIEQBZR4FaZTt8CUpLdkLb8BCGr7kTAL
- NHU2FZU9w33GCEOrCP+tZWs/JlDNqRqj9rz6iRKXautZf50vH37SgWU7/6xh+a/uIx4t
- xASA==
-X-Gm-Message-State: AAQBX9cy9mj+Gejua13Toy0FFeKT9uRCh604jKUHzlyO4nrxzcfdXrHm
- cxBCrlBJDIvT+A6uPAu76Jl3N5AipXbswuUIK1o+ebRWG8CA0QqUBc8JXigTOpYl5w+rcVY+RUW
- CT82mBdTqUZNxXX9kjdY5gfINSe+zajHWzT3yezCwbg==
-X-Received: by 2002:a1c:790e:0:b0:3f1:7288:1912 with SMTP id
- l14-20020a1c790e000000b003f172881912mr5053870wme.33.1682234359573; 
- Sun, 23 Apr 2023 00:19:19 -0700 (PDT)
-X-Google-Smtp-Source: AKy350al0K0IJpL8RrXHGcCmLxmGOjejEQPiJFsouPKi82zaCtJVKp95uN3hEitLPfT62TTH3eSRFw==
-X-Received: by 2002:a1c:790e:0:b0:3f1:7288:1912 with SMTP id
- l14-20020a1c790e000000b003f172881912mr5053855wme.33.1682234359214; 
- Sun, 23 Apr 2023 00:19:19 -0700 (PDT)
-Received: from redhat.com ([2.55.61.39]) by smtp.gmail.com with ESMTPSA id
- z4-20020a05600c0a0400b003ef4cd057f5sm12633650wmp.4.2023.04.23.00.19.17
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 23 Apr 2023 00:19:18 -0700 (PDT)
-Date: Sun, 23 Apr 2023 03:19:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [PATCH net] virtio-net: reject small vring sizes
-Message-ID: <20230423031308-mutt-send-email-mst@kernel.org>
-References: <20230417023911-mutt-send-email-mst@kernel.org>
- <AM0PR04MB47237BFB8BB3A3606CE6A408D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230417030713-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723F3E6AE381AEC36D1AEFED49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230417051816-mutt-send-email-mst@kernel.org>
- <AM0PR04MB47237705695AFD873DEE4530D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230417073830-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723FA4F0FFEBD25903E3344D49C9@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230417075645-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723FA90465186B5A8A5C001D4669@AM0PR04MB4723.eurprd04.prod.outlook.com>
-MIME-Version: 1.0
-In-Reply-To: <AM0PR04MB4723FA90465186B5A8A5C001D4669@AM0PR04MB4723.eurprd04.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "edumazet@google.com" <edumazet@google.com>,
- "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>
+ Sun, 23 Apr 2023 07:21:19 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R701e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=21; SR=0;
+ TI=SMTPD_---0Vgirrj0_1682234472; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vgirrj0_1682234472) by smtp.aliyun-inc.com;
+ Sun, 23 Apr 2023 15:21:14 +0800
+Message-ID: <1682233116.3679233-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v1] xsk: introduce xsk_dma_cbs
+Date: Sun, 23 Apr 2023 14:58:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Greg KH <gregkh@linuxfoundation.org>
+References: <20230423062546.96880-1-xuanzhuo@linux.alibaba.com>
+ <ZETUAMqKc8iLhTk3@kroah.com>
+In-Reply-To: <ZETUAMqKc8iLhTk3@kroah.com>
+Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Eric Dumazet <edumazet@google.com>, Alexei Starovoitov <ast@kernel.org>,
+ Christoph Hellwig <hch@infradead.org>,
+ =?utf-8?b?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
+ Guenter Roeck <linux@roeck-us.net>, Jonathan Lemon <jonathan.lemon@gmail.com>,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Magnus Karlsson <magnus.karlsson@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,48 +81,213 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU3VuLCBBcHIgMjMsIDIwMjMgYXQgMDY6NTE6NDZBTSArMDAwMCwgQWx2YXJvIEthcnN6IHdy
-b3RlOgo+ID4gWWVzIHRoYXQgbWFrZXMgc2Vuc2UsIGl0J3MgYXJjaGl0ZXR1cmFsLiBXZSBjYW4g
-ZGlzYWJsZSBjdHJsIHZxIHRob3VnaC4KPiAKPiBUaGUgcHJvYmxlbSBoZXJlIGlzIHRoYXQgd2Ug
-a25vdyB0aGUgdnJpbmcgc2l6ZSBhZnRlciBjYWxsaW5nIHZpcnRuZXRfZmluZF92cXMsIHNvIHRo
-ZSBudW1iZXIgb2YgVlFzIGFscmVhZHkgaW5jbHVkZXMgdGhlIGNvbnRyb2wgVlEuCj4gCj4gQWN0
-dWFsbHksIG1hbnkgdmFyaWFibGVzL3NldHRpbmdzIHRoYXQgYXJlIGluaXRpYWxpemVkIGJlZm9y
-ZSB3ZSBjYWxsIHZpcnRuZXRfZmluZF92cXMgbWF5IG5lZWQgbW9kaWZpY2F0aW9ucyBpZiB3ZSB1
-c2Ugc21hbGwgdnJpbmdzLgo+IEZvciBleGFtcGxlIGhhc19yc3NfaGFzaF9yZXBvcnQsIGhhc19y
-c3MsIGhkcl9sZW4gZXRjLi4KPiAKPiBXZSBjb3VsZCBoYXZlIGEgZml4dXAgZnVuY3Rpb24gdG8g
-Zml4IGV2ZXJ5dGhpbmcgYWZ0ZXIgd2UgZGlzY292ZXIgdGhhdCB3ZSBhcmUgdXNpbmcgc21hbGwg
-dnJpbmdzLCBidXQsIGhvbmVzdGx5LCBJIHRoaW5rIHRoYXQgdGhpcyB3aWxsIGJlIGhhcmQgdG8g
-bWFpbnRhaW4gaW4gdGhlIGZ1dHVyZSwgYW5kIEkgZG9uJ3QgbGlrZSB0aGlzIGFwcHJvYWNoIG11
-Y2guCj4gCj4gVGhlIGlkZWFsIHRoaW5nIHdpbGwgYmUgdG8gZGlzY292ZXIgaWYgd2UgdXNlIHNt
-YWxsIHZyaW5ncyBpbiBwcm9iZSdzIGJlZ2lubmluZy4KPiAKPiBJJ20gbG9va2luZyBmb3IgYSB3
-YXkgYXQgdGhlIG1vbWVudC4KCkhtbS4gSSB3YXMgd3JvbmcuIFRoZXJlIGlzIG5vIHdheSB0byBk
-aXNhYmxlIENWUSBmZWF0dXJlIGJpdC4KCjEuIFJlc2V0IHRoZSBkZXZpY2UuCjIuIFNldCB0aGUg
-QUNLTk9XTEVER0Ugc3RhdHVzIGJpdDogdGhlIGd1ZXN0IE9TIGhhcyBub3RpY2UgdGhlIGRldmlj
-ZS4KMy4gU2V0IHRoZSBEUklWRVIgc3RhdHVzIGJpdDogdGhlIGd1ZXN0IE9TIGtub3dzIGhvdyB0
-byBkcml2ZSB0aGUgZGV2aWNlLgo0LiBSZWFkIGRldmljZSBmZWF0dXJlIGJpdHMsIGFuZCB3cml0
-ZSB0aGUgc3Vic2V0IG9mIGZlYXR1cmUgYml0cyB1bmRlcnN0b29kIGJ5IHRoZSBPUyBhbmQgZHJp
-dmVyIHRvIHRoZQpkZXZpY2UuIER1cmluZyB0aGlzIHN0ZXAgdGhlIGRyaXZlciBNQVkgcmVhZCAo
-YnV0IE1VU1QgTk9UIHdyaXRlKSB0aGUgZGV2aWNlLXNwZWNpZmljIGNvbmZpZ3VyYXRpb24KZmll
-bGRzIHRvIGNoZWNrIHRoYXQgaXQgY2FuIHN1cHBvcnQgdGhlIGRldmljZSBiZWZvcmUgYWNjZXB0
-aW5nIGl0Lgo1LiBTZXQgdGhlIEZFQVRVUkVTX09LIHN0YXR1cyBiaXQuIFRoZSBkcml2ZXIgTVVT
-VCBOT1QgYWNjZXB0IG5ldyBmZWF0dXJlIGJpdHMgYWZ0ZXIgdGhpcyBzdGVwLgo2LiBSZS1yZWFk
-IGRldmljZSBzdGF0dXMgdG8gZW5zdXJlIHRoZSBGRUFUVVJFU19PSyBiaXQgaXMgc3RpbGwgc2V0
-OiBvdGhlcndpc2UsIHRoZSBkZXZpY2UgZG9lcyBub3QKc3VwcG9ydCBvdXIgc3Vic2V0IG9mIGZl
-YXR1cmVzIGFuZCB0aGUgZGV2aWNlIGlzIHVudXNhYmxlLgo3LiBQZXJmb3JtIGRldmljZS1zcGVj
-aWZpYyBzZXR1cCwgaW5jbHVkaW5nIGRpc2NvdmVyeSBvZiB2aXJ0cXVldWVzIGZvciB0aGUgZGV2
-aWNlLCBvcHRpb25hbCBwZXItYnVzIHNldHVwLApyZWFkaW5nIGFuZCBwb3NzaWJseSB3cml0aW5n
-IHRoZSBkZXZpY2XigJlzIHZpcnRpbyBjb25maWd1cmF0aW9uIHNwYWNlLCBhbmQgcG9wdWxhdGlv
-biBvZiB2aXJ0cXVldWVzLgo4LiBTZXQgdGhlIERSSVZFUl9PSyBzdGF0dXMgYml0LiBBdCB0aGlz
-IHBvaW50IHRoZSBkZXZpY2UgaXMg4oCcbGl2ZeKAnS4KCgpTbyBmZWF0dXJlcyBhcmUgY29uZmly
-bWVkIGJlZm9yZSBmaW5kIHZxcy4KClRoZSByZXN0IG9mIHN0dWZmIGNhbiBwcm9iYWJseSBqdXN0
-IGJlIG1vdmVkIHRvIGFmdGVyIGZpbmRfdnFzIHdpdGhvdXQKbXVjaCBwYWluLgoKU28gaWYgY3Zx
-IGlzIHRvbyBzbWFsbCB3ZSBjYW4gZWl0aGVyCi0gcHJvYmUgYnV0IGF2b2lkIHVzaW5nIGN2cQpv
-cgotIGZhaWwgcHJvYmUKCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Sun, 23 Apr 2023 08:45:20 +0200, Greg KH <gregkh@linuxfoundation.org> wrote:
+> On Sun, Apr 23, 2023 at 02:25:45PM +0800, Xuan Zhuo wrote:
+> > The purpose of this patch is to allow driver pass the own dma callbacks
+> > to xsk.
+> >
+> > This is to cope with the scene of virtio-net. If virtio does not have
+> > VIRTIO_F_ACCESS_PLATFORM, then virtio cannot use DMA API. In this case,
+> > xsk cannot use DMA API directly to achieve DMA address. Based on this
+> > scene, we must let xsk support driver to use the driver's dma callbacks.
+>
+> Why does virtio need to use dma?  That seems to go against the overall
+> goal of virtio's new security restrictions that are being proposed
+> (where they do NOT want it to use dma as it is not secure).
+
+Sorry, I don't know that, could you give me one link?
+
+But now, virtio-net/virtio will use dma api, when the feature VIRTIO_F_ACCESS_PLATFORM
+is got. If no VIRTIO_F_ACCESS_PLATFORM, the virtio(virtio-net) will not use DMA
+API.
+
+>
+> And why is virtio special here?
+
+The problem is that xsk always get dma by DMA APIs, but sometimes the
+virtio-net can not work with DMA APIs.
+
+> If you have access to a device, it
+> should have all of the needed dma hooks already set up based on the
+> bus it is on.  Or is the issue you don't have a real bus set up?  If so,
+> why not fix that?
+
+We tried, but that seams we can not.
+More:
+   https://lore.kernel.org/virtualization/1681265026.6082013-1-xuanzhuo@linux.alibaba.com/
+
+>
+> > More is here:
+> >     https://lore.kernel.org/virtualization/1681265026.6082013-1-xuanzhuo@linux.alibaba.com/
+> >     https://lore.kernel.org/all/20230421065059.1bc78133@kernel.org
+>
+> Am I missing the user of this new api?  Don't you need to submit that at
+> the same time so we can at least see if this new api works properly?
+
+The user will is the virtio-net with supporting to AF_XDP.
+
+That is a huge patch set. Some is in virtio core, some is in net-dev.
+An earlier version was [1] with some differences but not much.
+
+	[1] http://lore.kernel.org/all/20230202110058.130695-1-xuanzhuo@linux.alibaba.com
+
+I tried to split to multi patch-set.
+
+Currently I plan to have several parts like this:
+
+1. virtio core support premapped-dma, vq reset, expose dma device (virtio vhost branch)
+2. virtio-net: refactor xdp (netdev branch)
+3. virtio-net: support af-xdp (netdev branch)
+
+But now, #1 is block by this dma question.
+
+So, I want to complete this patch first.
+
+>
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  include/net/xdp_sock_drv.h  | 20 ++++++++++-
+> >  include/net/xsk_buff_pool.h | 19 ++++++++++
+> >  net/xdp/xsk_buff_pool.c     | 71 +++++++++++++++++++++++++++----------
+> >  3 files changed, 90 insertions(+), 20 deletions(-)
+> >
+> > diff --git a/include/net/xdp_sock_drv.h b/include/net/xdp_sock_drv.h
+> > index 9c0d860609ba..8b5284b272e4 100644
+> > --- a/include/net/xdp_sock_drv.h
+> > +++ b/include/net/xdp_sock_drv.h
+> > @@ -67,7 +67,17 @@ static inline int xsk_pool_dma_map(struct xsk_buff_pool *pool,
+> >  {
+> >  	struct xdp_umem *umem = pool->umem;
+> >
+> > -	return xp_dma_map(pool, dev, attrs, umem->pgs, umem->npgs);
+> > +	return xp_dma_map(pool, dev, NULL, attrs, umem->pgs, umem->npgs);
+> > +}
+> > +
+> > +static inline int xsk_pool_dma_map_with_cbs(struct xsk_buff_pool *pool,
+> > +					    struct device *dev,
+> > +					    struct xsk_dma_cbs *dma_cbs,
+> > +					    unsigned long attrs)
+> > +{
+> > +	struct xdp_umem *umem = pool->umem;
+> > +
+> > +	return xp_dma_map(pool, dev, dma_cbs, attrs, umem->pgs, umem->npgs);
+> >  }
+> >
+> >  static inline dma_addr_t xsk_buff_xdp_get_dma(struct xdp_buff *xdp)
+> > @@ -226,6 +236,14 @@ static inline int xsk_pool_dma_map(struct xsk_buff_pool *pool,
+> >  	return 0;
+> >  }
+> >
+> > +static inline int xsk_pool_dma_map_with_cbs(struct xsk_buff_pool *pool,
+> > +					    struct device *dev,
+> > +					    struct xsk_dma_cbs *dma_cbs,
+> > +					    unsigned long attrs)
+> > +{
+> > +	return 0;
+> > +}
+> > +
+> >  static inline dma_addr_t xsk_buff_xdp_get_dma(struct xdp_buff *xdp)
+> >  {
+> >  	return 0;
+> > diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
+> > index 3e952e569418..2de88be9188b 100644
+> > --- a/include/net/xsk_buff_pool.h
+> > +++ b/include/net/xsk_buff_pool.h
+> > @@ -43,6 +43,23 @@ struct xsk_dma_map {
+> >  	bool dma_need_sync;
+> >  };
+> >
+> > +struct xsk_dma_cbs {
+> > +	dma_addr_t (*map_page)(struct device *dev, struct page *page,
+>
+> Why are you working on a "raw" struct device here and everywhere else?
+> Are you sure that is ok?  What is it needed for?
+
+I copy this from DMA APIs. For virtio that is not needed. But is there any
+problems?
+
+
+>
+> > +			       size_t offset, size_t size,
+> > +			       enum dma_data_direction dir, unsigned long attrs);
+> > +	void (*unmap_page)(struct device *dev, dma_addr_t addr,
+> > +			   size_t size, enum dma_data_direction dir,
+> > +			   unsigned long attrs);
+> > +	int (*mapping_error)(struct device *dev, dma_addr_t addr);
+> > +	bool (*need_sync)(struct device *dev, dma_addr_t addr);
+> > +	void (*sync_single_range_for_cpu)(struct device *dev, dma_addr_t addr,
+> > +					  size_t offset, size_t size,
+> > +					  enum dma_data_direction dir);
+> > +	void (*sync_single_range_for_device)(struct device *dev, dma_addr_t addr,
+> > +					     size_t offset, size_t size,
+> > +					     enum dma_data_direction dir);
+> > +};
+>
+> No documentation for any of these callbacks?  Please use kerneldoc so we
+> at least have a clue as to what they should be doing.
+>
+> > +
+> >  struct xsk_buff_pool {
+> >  	/* Members only used in the control path first. */
+> >  	struct device *dev;
+> > @@ -85,6 +102,7 @@ struct xsk_buff_pool {
+> >  	 * sockets share a single cq when the same netdev and queue id is shared.
+> >  	 */
+> >  	spinlock_t cq_lock;
+> > +	struct xsk_dma_cbs *dma_cbs;
+> >  	struct xdp_buff_xsk *free_heads[];
+> >  };
+> >
+> > @@ -131,6 +149,7 @@ static inline void xp_init_xskb_dma(struct xdp_buff_xsk *xskb, struct xsk_buff_p
+> >  /* AF_XDP ZC drivers, via xdp_sock_buff.h */
+> >  void xp_set_rxq_info(struct xsk_buff_pool *pool, struct xdp_rxq_info *rxq);
+> >  int xp_dma_map(struct xsk_buff_pool *pool, struct device *dev,
+> > +	       struct xsk_dma_cbs *dma_cbs,
+> >  	       unsigned long attrs, struct page **pages, u32 nr_pages);
+> >  void xp_dma_unmap(struct xsk_buff_pool *pool, unsigned long attrs);
+> >  struct xdp_buff *xp_alloc(struct xsk_buff_pool *pool);
+> > diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+> > index b2df1e0f8153..e7e6c91f6e51 100644
+> > --- a/net/xdp/xsk_buff_pool.c
+> > +++ b/net/xdp/xsk_buff_pool.c
+> > @@ -328,7 +328,8 @@ static void xp_destroy_dma_map(struct xsk_dma_map *dma_map)
+> >  	kfree(dma_map);
+> >  }
+> >
+> > -static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
+> > +static void __xp_dma_unmap(struct xsk_dma_map *dma_map,
+> > +			   struct xsk_dma_cbs *dma_cbs, unsigned long attrs)
+> >  {
+> >  	dma_addr_t *dma;
+> >  	u32 i;
+> > @@ -337,8 +338,12 @@ static void __xp_dma_unmap(struct xsk_dma_map *dma_map, unsigned long attrs)
+> >  		dma = &dma_map->dma_pages[i];
+> >  		if (*dma) {
+> >  			*dma &= ~XSK_NEXT_PG_CONTIG_MASK;
+> > -			dma_unmap_page_attrs(dma_map->dev, *dma, PAGE_SIZE,
+> > -					     DMA_BIDIRECTIONAL, attrs);
+> > +			if (unlikely(dma_cbs))
+>
+> If you can not measure the use of likely/unlikely in a benchmark, then
+> you should never use it as the compiler and CPU will work better without
+> it (and will work better over time as hardware and compiler change).
+
+Because in most cases the dma_cbs is null for xsk. So I use the 'unlikely'.
+
+Thanks.
+
+
+>
+> thanks,
+>
+> greg k-h
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
