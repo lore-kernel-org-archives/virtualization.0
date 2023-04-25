@@ -1,120 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29774C6FD18
-	for <virtualization@archiver.kernel.org>; Tue, 25 Apr 2023 12:40:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D1508C77B61
+	for <virtualization@archiver.kernel.org>; Tue, 25 Apr 2023 12:45:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A36A940297;
-	Tue, 25 Apr 2023 12:40:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A36A940297
+	by smtp4.osuosl.org (Postfix) with ESMTP id 66CB24020C;
+	Tue, 25 Apr 2023 12:45:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 66CB24020C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CgCU3XBo
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FlQtz1jjETaU; Tue, 25 Apr 2023 12:45:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 63E06400FC;
+	Tue, 25 Apr 2023 12:45:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63E06400FC
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 38395C0036;
+	Tue, 25 Apr 2023 12:45:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4506FC002A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Apr 2023 12:45:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0C2EB405F4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Apr 2023 12:45:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0C2EB405F4
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eVaJ450i
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=CgCU3XBo
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FYgBYld6j2im; Tue, 25 Apr 2023 12:40:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 063A840529;
-	Tue, 25 Apr 2023 12:40:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 063A840529
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF94DC0036;
-	Tue, 25 Apr 2023 12:40:33 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D9CFC002A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Evc5RmKZ-sXv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Apr 2023 12:40:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id EBEC360FFA
- for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Apr 2023 12:40:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EBEC360FFA
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=eVaJ450i
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jsSdMguPQWXj
- for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Apr 2023 12:40:31 +0000 (UTC)
+ Tue, 25 Apr 2023 12:45:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 92BEC60FF6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 22D4440529
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 92BEC60FF6
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 22D4440529
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Apr 2023 12:40:31 +0000 (UTC)
+ Tue, 25 Apr 2023 12:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1682426430;
+ s=mimecast20190719; t=1682426732;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=sym5/GwpOgOUNUvBOB0eNgCCMsyqEVQvUPUwFKzQhvg=;
- b=eVaJ450ikDoQBjtgIDzIzV/9KEOuHnBmcQCAxgqcI6IZG+9BsqzGlZ0//PqFYmrAmw/ohI
- eU5BJ5SvbDO5lBDmrPhr8VUjaLvdIztUH6ftgk1xSMehwfxKpRChI78VprX+L4iahVhk05
- 5TJSkQaCYQul11dZOgHXSacArYgOC4w=
+ bh=krc+SiJhBUwO2ug/XwTx3KTJqkkR2CFS+eg5Dz5ylJc=;
+ b=CgCU3XBoShcQmruR1d+CCdinhapd2mFzXbwbRt1A5MY8MPKF44WNeUxRfe8+bqHwoILl3t
+ 1bD1g21OURwsQHaq4J94ud9fYTXHijNlSga0ZBgPTdqjnFSDqmG6pzSOfnd0Gnc+vlSdFI
+ 3JGMO23C+ZQPMuw1lyyaNawXWuTVHMo=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-116--VZxav7lMT2FPeDYcSlbZQ-1; Tue, 25 Apr 2023 08:40:27 -0400
-X-MC-Unique: -VZxav7lMT2FPeDYcSlbZQ-1
+ us-mta-433-uo2_MMGLPnC03MLzAWGY3Q-1; Tue, 25 Apr 2023 08:45:30 -0400
+X-MC-Unique: uo2_MMGLPnC03MLzAWGY3Q-1
 Received: by mail-wm1-f70.google.com with SMTP id
- 5b1f17b1804b1-3f18b63229bso57856925e9.0
+ 5b1f17b1804b1-3f1912ed0daso17396635e9.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Apr 2023 05:40:26 -0700 (PDT)
+ Tue, 25 Apr 2023 05:45:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1682426426; x=1685018426;
+ d=1e100.net; s=20221208; t=1682426728; x=1685018728;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=sym5/GwpOgOUNUvBOB0eNgCCMsyqEVQvUPUwFKzQhvg=;
- b=CVRcBYBFL4/UYdlzjYgy7jStBPhV6YWFAHuRDUrCNDJlf2Gt2bmnH+Zb3KlwA7Fvyq
- 9NB+QAfstYxtKhCw8aoppitcc2dcCwUlxMUHTcYtnRosUaHRPBAxxDUP8dzOWVpU5FmE
- seMXLBczkAKWkjoDLWSLMZ16FMjswiAKrZe8NbOuFyarbYbruv6sgNlf+jPvpVodXExD
- uiWHhsenUa5YRK5qaIIvzgIpn1pnnVNfciKH/GOUpkjwA71c2VsrCPP8BadBuiALDuYp
- AgyLjBpCvrUZJUQlVr8Uf5bTHRFtH5WyxWZT/apYA+W0ZjhtYudArRT5x7ZVpaPkPPHg
- sbUg==
-X-Gm-Message-State: AAQBX9fpFv8kKflL+YFTt6Z4Rb4/90K3kSNppgQwzQehUbjA2lHQCcfh
- P4Gva9hlhiRcfF0HUoQXvifudvS5NJdXHVFOjqawfejZgSz3RA3AH+CQXbGHY0wuDyFHjW3gEIo
- mfKl7zrnST3EeUAcD5mC/g/rtUOBMyVk66iC/M3TKhQ==
-X-Received: by 2002:a05:600c:5114:b0:3f1:6fb4:5645 with SMTP id
- o20-20020a05600c511400b003f16fb45645mr10951661wms.1.1682426425937; 
- Tue, 25 Apr 2023 05:40:25 -0700 (PDT)
-X-Google-Smtp-Source: AKy350aOcJZaWAP2XurK0YcB78/MVzB3a4SbfPQ9/T3FHEIHFqS0/3AKC/hoI8zwh6WihM8FUfKAKg==
-X-Received: by 2002:a05:600c:5114:b0:3f1:6fb4:5645 with SMTP id
- o20-20020a05600c511400b003f16fb45645mr10951645wms.1.1682426425610; 
- Tue, 25 Apr 2023 05:40:25 -0700 (PDT)
-Received: from redhat.com ([2.55.61.39]) by smtp.gmail.com with ESMTPSA id
- o10-20020a05600c510a00b003ee443bf0c7sm18298331wms.16.2023.04.25.05.40.23
+ bh=krc+SiJhBUwO2ug/XwTx3KTJqkkR2CFS+eg5Dz5ylJc=;
+ b=PJlAu97QZXULw6OMQC2plBuK08Hex1wcAKQoo8FY/FZhYGB6gsNGz68KvVPEvArSe1
+ y4iytbgXL2llJxg6Nblju7Esd4YlnOkwN16H8LQx3CRBSXxRiV5PG36JMtKLZCxO3wUL
+ wD6bOGQxIXGziDqCMW6GqJIfsSBbG3dwLq2IbYy6DO7EHpK9aoESeo3ORanru/yEx9r+
+ 6MpKr2gqfwAUecCU+7iNP7Hp2Cvm8ZvfS4VUo7uA5gn23vx/0PYyPqiy7S2AZJcukhCo
+ wrVYS/XXpWzTWsU083aVAdtdL+hPt3xlM+VoB+aiaQOiSg62APEh7kkUyny9VfFKxk2Q
+ XWpw==
+X-Gm-Message-State: AAQBX9eYtKDiGcwJ69OtXedDbA1sJ6R+Zc6LunwTIQcAm5DOXqND9uVZ
+ j2YHzrfJMJSmMYaySXOojM5OmPIyDftXkrmgSUtylyC93rmClhpkDJk6dKYBBQNBvhOQO+prKR4
+ UHFHEOjgTOvdmG4MxiZYhT9+pH0o5PwppmwbnpWU+OA==
+X-Received: by 2002:a05:600c:2214:b0:3f1:987b:7a28 with SMTP id
+ z20-20020a05600c221400b003f1987b7a28mr7195378wml.29.1682426728235; 
+ Tue, 25 Apr 2023 05:45:28 -0700 (PDT)
+X-Google-Smtp-Source: AKy350bIPgn166ZA/wJ8PFmg9nFmKKBjNCYwRGQ/sI+aE3t+loxoVTTzjiSf9BdLyfiT4aA9pr1zIA==
+X-Received: by 2002:a05:600c:2214:b0:3f1:987b:7a28 with SMTP id
+ z20-20020a05600c221400b003f1987b7a28mr7195359wml.29.1682426727867; 
+ Tue, 25 Apr 2023 05:45:27 -0700 (PDT)
+Received: from redhat.com ([2.55.17.255]) by smtp.gmail.com with ESMTPSA id
+ o2-20020a05600c4fc200b003f1738e64c0sm18301465wmq.20.2023.04.25.05.45.25
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 25 Apr 2023 05:40:25 -0700 (PDT)
-Date: Tue, 25 Apr 2023 08:40:21 -0400
+ Tue, 25 Apr 2023 05:45:27 -0700 (PDT)
+Date: Tue, 25 Apr 2023 08:45:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v7 00/11] virtio core prepares for AF_XDP
-Message-ID: <20230425083947-mutt-send-email-mst@kernel.org>
-References: <20230425073613.8839-1-xuanzhuo@linux.alibaba.com>
- <20230425034700-mutt-send-email-mst@kernel.org>
- <1682409903.8734658-2-xuanzhuo@linux.alibaba.com>
- <20230425041246-mutt-send-email-mst@kernel.org>
- <1682410913.3294404-4-xuanzhuo@linux.alibaba.com>
+To: Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: Re: [PATCH] can: virtio-can: cleanups
+Message-ID: <20230425084503-mutt-send-email-mst@kernel.org>
+References: <20230424-modular-rebate-e54ac16374c8-mkl@pengutronix.de>
+ <20230424170901-mutt-send-email-mst@kernel.org>
+ <20230425-oxidizing-blandness-ca9cc2cf114e-mkl@pengutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <1682410913.3294404-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230425-oxidizing-blandness-ca9cc2cf114e-mkl@pengutronix.de>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>,
- Alexander Lobakin <aleksander.lobakin@intel.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: virtio-dev@lists.oasis-open.org, Paolo Abeni <pabeni@redhat.com>,
+ Mikhail Golubev-Ciuchea <Mikhail.Golubev-Ciuchea@opensynergy.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-can@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+ Harald Mommer <harald.mommer@opensynergy.com>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ "David S . Miller" <davem@davemloft.net>,
+ Wolfgang Grandegger <wg@grandegger.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,66 +129,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Apr 25, 2023 at 04:21:53PM +0800, Xuan Zhuo wrote:
-> On Tue, 25 Apr 2023 04:13:09 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Tue, Apr 25, 2023 at 04:05:03PM +0800, Xuan Zhuo wrote:
-> > > On Tue, 25 Apr 2023 03:51:47 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Tue, Apr 25, 2023 at 03:36:02PM +0800, Xuan Zhuo wrote:
-> > > > > ## About DMA APIs
-> > > > >
-> > > > > Now, virtio may can not work with DMA APIs when virtio features do not have
-> > > > > VIRTIO_F_ACCESS_PLATFORM.
-> > > > >
-> > > > > 1. I tried to let DMA APIs return phy address by virtio-device. But DMA APIs just
-> > > > >    work with the "real" devices.
-> > > > > 2. I tried to let xsk support callballs to get phy address from virtio-net
-> > > > >    driver as the dma address. But the maintainers of xsk may want to use dma-buf
-> > > > >    to replace the DMA APIs. I think that may be a larger effort. We will wait
-> > > > >    too long.
-> > > > >
-> > > > > So rethinking this, firstly, we can support premapped-dma only for devices with
-> > > > > VIRTIO_F_ACCESS_PLATFORM. In the case of af-xdp, if the users want to use it,
-> > > > > they have to update the device to support VIRTIO_F_RING_RESET, and they can also
-> > > > > enable the device's VIRTIO_F_ACCESS_PLATFORM feature by the way.
-> > > >
-> > > > I don't understand this last sentence. If you think ring
-> > > > reset can change device features then the answer is no, it can't.
-> > >
-> > >
-> > > Sorry, I should remove "by the way".
-> > >
-> > >
-> > > >
-> > > > If you are saying device has to set VIRTIO_F_ACCESS_PLATFORM to
-> > > > benefit from this work, that's fine at least as a first approach.
-> > > > Note that setting VIRTIO_F_ACCESS_PLATFORM breaks old guests
-> > > > (it's a secirity boundary), e.g. it is not available for
-> > > > transitional devices.
-> > > > So to support transitional devices, we might want to find another way to
-> > > > address this down the road,
-> > >
-> > > Maybe dma-buf is a way. I'll look into it, especially some practice on xsk.
-> > >
-> > > > but as a first step, I agree just going with
-> > > > DMA is fine.
-> > >
-> > >
-> > > Thanks.
-> >
-> > Pls do make sure to disable the feature when !VIRTIO_F_ACCESS_PLATFORM
-> > though.
+On Tue, Apr 25, 2023 at 11:17:20AM +0200, Marc Kleine-Budde wrote:
+> On 24.04.2023 17:09:23, Michael S. Tsirkin wrote:
+> > On Mon, Apr 24, 2023 at 09:47:58PM +0200, Marc Kleine-Budde wrote:
+> > > Address the topics raised in
+> > > 
+> > > https://lore.kernel.org/20230424-footwear-daily-9339bd0ec428-mkl@pengutronix.de
+> > > 
+> > > Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> > 
+> > given base patch is rfc this should be too?
 > 
-> If you refer to the implementation inside virtio-net, this feature will depend
-> on the return of virtqueue_dma_dev().
+> This is an incremental patch that fixes the topics I raised in the
+> review of "[RFC PATCH v2] can: virtio: Initial virtio CAN driver.", see
+> linked discussion thread.
 > 
-> But virtqueue_dma_dev() depends "use_dma_api". When xen_domain() is true and
-> !VIRTIO_F_ACCESS_PLATFORM, the "use_dma_api" is true.
-> 
-> So what kind of situation do you mean?
-> 
-> Thanks.
+> regards,
+> Marc
 
-E.g. a legacy device.
+and that's fine, just pls put RFC in the subject.
 
 -- 
 MST
