@@ -1,155 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 15146C77B73
-	for <virtualization@archiver.kernel.org>; Wed, 26 Apr 2023 02:42:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8FBBC77B73
+	for <virtualization@archiver.kernel.org>; Wed, 26 Apr 2023 03:09:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 84EFF40BB1;
-	Wed, 26 Apr 2023 02:42:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84EFF40BB1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=A/39SF/k
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3BDA760B45;
+	Wed, 26 Apr 2023 03:09:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3BDA760B45
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RU5FJUV9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zZeCjoVth-XY; Wed, 26 Apr 2023 02:42:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C3A89400B8;
-	Wed, 26 Apr 2023 02:42:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3A89400B8
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id H69N1i8DzeM2; Wed, 26 Apr 2023 03:09:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BF57060A8C;
+	Wed, 26 Apr 2023 03:09:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF57060A8C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 97AFAC0036;
-	Wed, 26 Apr 2023 02:42:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B055CC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A37A0C0036;
+	Wed, 26 Apr 2023 03:09:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 556DCC002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Apr 2023 02:42:09 +0000 (UTC)
+ Wed, 26 Apr 2023 03:09:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 60EE18213F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2323B813CA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Apr 2023 02:42:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 60EE18213F
-Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=A/39SF/k
+ Wed, 26 Apr 2023 03:09:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2323B813CA
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RU5FJUV9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uspqUp8ZHxXY
+ with ESMTP id EkjLdkOcTHYx
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Apr 2023 02:42:07 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3A83181397
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam12on20605.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5b::605])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3A83181397
+ Wed, 26 Apr 2023 03:09:13 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3D939813BB
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3D939813BB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Apr 2023 02:42:07 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IaL+PJ282vRJ45Yar8Av3jsVZ5KlzQJZJeAW5WQRsv4E96awmTrwFBDDSqjRJ/22NK1hXi7ohu9aftlHVbBHF85l1lhccQwcqAb2jwaxlA1l+l4NbTv8EGiGKo6jhUvQ5yuA0S/jFeRDhvKV4CYIRmiby4znWvBxMm/zqbspPFBiD04KTW18LPDAuiKDSgz11uyLyGh3xRYdT5HHVLSEccNUwfXUyhLykINuJaMUhGJSdr+8MbOORf3Rz/J5JUswGfEPio1gsDomHWM4jK1vUFwwUvJIG+841SHoFP88oEsEbMRyU879z1d310PpIolKJAGmzLo9p2+8m2hL79wLoQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tkoboV2iWumUkgBOL5Djw97+wvmnuPcY5F1nRtVOnvc=;
- b=RToOAEbVE/n9f8/SypLUejsZ+QNHKEpcOh6ub7GCFPquIM0o3il/8SBoQfig77GMDvC318lLWCGXjYqwCjhp+LMea4A/jhx5TCFD33zTvRUbcfWwyndIyjTtFrPII+T+Bh6pnrIwEUGXaHF7/sqEzfGHcFSsOpek6XJ/i4dv9KrJabCVWhjtU8VGMeYUCavPVPHOhAHq4xpqYG52m4rdGgs07G092vk+wgSDgs4ECqSxiiUyycZzu6QY1iG1Ws74o9LWnvEeEgocoTQ2BwMfXFu5LuT6pLev/JxpBNZp++aTPlN0Yo5g1IdGKM1v3az0n4Qguy+moWAOM/GPAaSXkA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tkoboV2iWumUkgBOL5Djw97+wvmnuPcY5F1nRtVOnvc=;
- b=A/39SF/kM2xuNStZlk4iSK96H0+AHR3wwBL8We72Xa51EQOHmk57lF8bI99rY8m/prCLCGEzdstrdkEE3wuvdYWiE9WL5USQF53WY3A4Rf2dW4yywJwm2jXMv13kz1PemoF8RXe/d7ZBUWWdFBQ8G/r9JOGHh4UFApeJT3Txt4o=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY5PR12MB6573.namprd12.prod.outlook.com (2603:10b6:930:43::21)
- by BL1PR12MB5206.namprd12.prod.outlook.com (2603:10b6:208:31c::5)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6319.34; Wed, 26 Apr
- 2023 02:42:03 +0000
-Received: from CY5PR12MB6573.namprd12.prod.outlook.com
- ([fe80::f1d6:fc33:2d4e:d370]) by CY5PR12MB6573.namprd12.prod.outlook.com
- ([fe80::f1d6:fc33:2d4e:d370%8]) with mapi id 15.20.6319.034; Wed, 26 Apr 2023
- 02:42:02 +0000
-Message-ID: <0ecb64f2-cabc-bd54-43f2-01da4a71cbb1@amd.com>
-Date: Tue, 25 Apr 2023 19:41:59 -0700
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.10.0
-Subject: Re: [PATCH v4 virtio 01/10] virtio: allow caller to override device
- id and DMA mask
-Content-Language: en-US
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20230425212602.1157-1-shannon.nelson@amd.com>
- <20230425212602.1157-2-shannon.nelson@amd.com>
- <1682474997.6771185-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1682474997.6771185-1-xuanzhuo@linux.alibaba.com>
-X-ClientProxiedBy: BY5PR17CA0006.namprd17.prod.outlook.com
- (2603:10b6:a03:1b8::19) To CY5PR12MB6573.namprd12.prod.outlook.com
- (2603:10b6:930:43::21)
+ Wed, 26 Apr 2023 03:09:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1682478552;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=yC58K9sqZSRjBF39DoGELeoNDDbSNW/7to9J6fPLARI=;
+ b=RU5FJUV9fTRCzZrfIXGGaQs+XvmsM5JMIguL3AJsUI++Eh8LVrjCQ8MiwzKGsKAlue+fbL
+ 7fgZvJ2DF/gzhnxpQKiDgCLzFgqO5R8q8eVWgt6UnYvdffWqeU3ihwXr15JRSXDAc7rxNB
+ kKQDLwek/z0KtOXpulXUNx8y3Whob1k=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-tzBj648xMnK7ko9ywR2euQ-1; Tue, 25 Apr 2023 23:09:04 -0400
+X-MC-Unique: tzBj648xMnK7ko9ywR2euQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ 2adb3069b0e04-4f002e0e590so396381e87.3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 25 Apr 2023 20:09:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1682478543; x=1685070543;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=yC58K9sqZSRjBF39DoGELeoNDDbSNW/7to9J6fPLARI=;
+ b=TJMzZYHyTN7sOrr+iqfHgDlSC+kzh9bgLMq3IimsFLXEO+uKXwDOnJVafFp4IIYER6
+ 4FgvvWgxPiR/MmAoUUJhPkY+p5gf5DOeiU196vYOeCVayyi40/qwg9OVM67CDcPdnT20
+ VmiqBubOAoh4azjikI5Wig4GgCurnv/DmJgCpMsoIMdN6iEQqD/AX+Hh3CS+Yj7PKdwK
+ jBEXmk1U0/kzkCl7SL+wGx5LvF673iEgFYS31HJMvE/7w6ouTSmdQlDVSoI+cIgWVCYF
+ +lin8uq7BYISk3/VD8NFpwvpsa9KsSuAXLNmT3mlhwS3r8NiGK95CzPEruy16Hw7lyUe
+ s7Sg==
+X-Gm-Message-State: AAQBX9diYlXK1YgdO478h/du1YtfDwFfTySsaaFyZ1FAe+hZmv/I2ZLI
+ +cAtcqBn56eNuxc3HQuHXsBrOY3+9EVRG6fwrxZjcEynQvpjRG18MB+0JWXlX1mFPU58cbNS5/Q
+ XucLix80cIzsyuQS+uJeHuEFkP63avtr4OXk2ixKPftr71n/ckrnU1oCfpg==
+X-Received: by 2002:ac2:547b:0:b0:4ea:f6d7:2293 with SMTP id
+ e27-20020ac2547b000000b004eaf6d72293mr5058732lfn.55.1682478543474; 
+ Tue, 25 Apr 2023 20:09:03 -0700 (PDT)
+X-Google-Smtp-Source: AKy350YLKXQgMI4TomiMy24A9d3HGABaVrLz6kQAc86xRDvq09NKcWSpfa35XnVK8ze1llkooOmFmnatlEV6y1zF/Y8=
+X-Received: by 2002:ac2:547b:0:b0:4ea:f6d7:2293 with SMTP id
+ e27-20020ac2547b000000b004eaf6d72293mr5058718lfn.55.1682478543190; Tue, 25
+ Apr 2023 20:09:03 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6573:EE_|BL1PR12MB5206:EE_
-X-MS-Office365-Filtering-Correlation-Id: dd5fa743-6f37-4322-702f-08db45ffd0e0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 3FxluN25GTVrv+JC3kOv+yfxEFq7rz0oCxDMTQvkMD+gD6duXZqC+mIkznxMABNFpL3NPpjR/17zYHGfrNOPAq1mGMaDNFd3Tg/uGS0IsgiSiM7kSK9ISAzvCoN7ye9LwHj5XAcm4zYCvGjjyLihQGI3Ks/yRPPuM/1+pKU70r6+QJilp4xHYekDZol+9jaT9+Y6uCKzvJ9VuQJ7XqojEPVnmFO2ATVxq+7TsVYJCuH7RwlcIYlJGzq/qZQyQsnTrOxFTtyQFyt30+BtxEQKUIFWDPlnEFAsDF69GHk3U4x8io5OMcTiSX2hdy7XBKIKscuECYAiVQFS5XYvIwKiQLlKf1aMeIq1jEdxGizuLAjFHtM2gA1Ykk/1uKw/mXC0XdNAQFzZdQCu84z/YQxIMYZ8DJDEK5/i+VyznyaGQNsIHJuFwQjJ7oDp5YPGvTaIf5Djp3FSJNucU9qb2w+0m2c0e4e52/S+I8lTYg896loC049JMqtukINTMGF68zal90r2PDkwK3WEUkEiCiSTq3TrlgCMNlxxBxi0nF8RrtixY1+ajuEuvKnrwkskXFo2U3SoJ0I/C+M68IBBdL7PlOg+BCo/Kwe24T3XySiukFYuUnYw67x23Nhsa5z9lOyYEsR33ziV0zA03tBzhemO+RECONXwqQLnccziZc/NY8fSQL1ia4TISs5f7JR+W+tcS/cD83b46T+5/bFuDRBwUg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6573.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(4636009)(376002)(366004)(136003)(346002)(39860400002)(396003)(451199021)(66556008)(86362001)(83380400001)(26005)(186003)(6506007)(6512007)(53546011)(2616005)(36756003)(31696002)(38100700002)(44832011)(6916009)(316002)(8936002)(5660300002)(8676002)(4326008)(41300700001)(6486002)(6666004)(66476007)(66946007)(478600001)(31686004)(2906002)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SURzOW9MK2xFQXRiM3BGWlZodFVkNWNlMlFyUkl5bHlkaURIMmRDcTk0QVcz?=
- =?utf-8?B?S1lCcTRPZzJHamczTVRxOHZ0YkVyK3RkTU5qdjREN3o0RTdtTStOK1VqZ09U?=
- =?utf-8?B?MnZyRXp3WEZjaXJpM3JKaU9NUXhoenloYSswMkJON1FQTUdxbisvWUdLVHRT?=
- =?utf-8?B?NDRaNHN6TEdBRmdBWnM2QmVuOWhPelBueVl2TENiSS9zQVNuei9nUmJySmQ5?=
- =?utf-8?B?VHE5aGVQYnhHQ3VFc2ZkWHZtVnRCVmsvMHhzajVYNCtEVTRnNlhnZVNTczMy?=
- =?utf-8?B?bmlhSlRkK1lySnA0Q3ZPNUdBRmRqdzAxSFoxUnNSUmlvVXlwWkRiR29aOGtR?=
- =?utf-8?B?ZnZJL3duUU93QTZ5RjhZQ1dmUHM1YWR5Y0ZOT1pua3ZJcHNpSFhDdEtHWE5i?=
- =?utf-8?B?OGx3N2E1Rnp5aC9HTldiWDl2dlFKdTlPQlZIRjBIZlhKVSt5VFJSRlM2cXZh?=
- =?utf-8?B?blVRbnF0Y0lPTDlsQU1JV0ZPSHN0TllQZWJqc0FnZHlGSzlUaWJZV2drRWt4?=
- =?utf-8?B?YWlUeGlCWnFOaFJjQU9nM0paR2pETG5va0UrR0N4S0VONVRzMnR1cHdFeGM3?=
- =?utf-8?B?SWpVRXE1c2s5NmRKbjB5cGcwUVIzeVA4N2srZCtBWUdaOWNmR1VTMHA3YUNu?=
- =?utf-8?B?eDRDNnYrMlNrUU1uZjdGSHBMYmtLZCtLKzR2bmMzRzhQcGRtaGdSeSs5M2o0?=
- =?utf-8?B?V3ZBWGVSWC9qWElTdmpNWHd0aXE0N1hRVXB0MlFEMFJCY1N0TUcvVjNuaXBB?=
- =?utf-8?B?cFZBYkt6eEtEQWZUTDdLYkRycmlKK2ZFWFdDdS9Uc1F2Njh6QjQzT1lodUlL?=
- =?utf-8?B?a3JFbm9iaGxGMk9TaWhKdXBIc0F0K2pySDFhbHdrbFdNUTFRMzJSREdYc3JY?=
- =?utf-8?B?T0QwL2p2NFp4UVNIelZqZGNZWVFGb3J1L1J6NUhjSThYeWkrbXQ4WWlWQ1p0?=
- =?utf-8?B?MG5zaW5wZjk3NXFsaFUrZHZORm9weGRCVWFVdTQ4NTRZSStuQktVcDBZZ0Fr?=
- =?utf-8?B?bjd3aGpTVzhiendtKzR0S3FjUUlxNUc1dXZaTlo3SHdGRG9DMVFJcldjVjN0?=
- =?utf-8?B?SkdqenQyaHp0NTA1MDMyUTFkYjZwMEVidEJZUFhBU1MwUUVaQW14WlVWV3py?=
- =?utf-8?B?V3Evem1rdUdSWWIwVEVtc0xkbkUySXRaWFBsdFdzR0JLWldlWG5XQ0hqbDJX?=
- =?utf-8?B?UlNrM1RwMFJQOHBDd1lUbmZuNDBzZmVsbDdPK2ZXOVpDM0ZJcmcwRXBIM29N?=
- =?utf-8?B?cFpsbXo5WVZYbWIzZlViZWpFd0RIMWIwTXRsWUQxVVN1Nzk5NmpUL1BTdDE4?=
- =?utf-8?B?alIyZVhPczVwOVJVN09KRzlkcFByL2huSFlXK0REWFI4NnRTRk1kMlR4VUlT?=
- =?utf-8?B?M3YyRXRFUUdQOVVIQk5ySW93YWRvYlo0RklnanFuOGpiY04zMm90Q0wvUjlD?=
- =?utf-8?B?d0VLNWFKWFJXb1RBWkM5c0ROdmRKQm1PdlVIQkU1ajBHTVpMMHdCOCt0SGxs?=
- =?utf-8?B?UjdLRW9jSmNNdXRrUDhUUzVXUitNbndCQkVLM2dCT2dtNlRhNXVYdVc5QTBG?=
- =?utf-8?B?UUtJYTJQc2FTcTQyRUtzMlRCMjNxYjFjZzFQdGtnemFtUWtBS2ZWNyt1N3Uy?=
- =?utf-8?B?Um9Hby9jMzNYcldjTkhZd2h3V3RSYS96Y0RSbXNXQ2RlaFJqc2UvWUVtSU1i?=
- =?utf-8?B?d2hobUJSVld0TFBZN0hzZDRnMThmWUZoc3F6SDJOSmVrOHFDS2xwa2JqOTdy?=
- =?utf-8?B?amlJZDJ0WGM4Tk51bks4Ym41VEQ4VWxZVThDcS93SVBaTTBlc1k2VEVyOVo3?=
- =?utf-8?B?NlEvTzlBZEh0VkhndDlVRWZNZ1FMbTBtS0Q4R2RsYkd5aXRPRFFEdUpRT1RV?=
- =?utf-8?B?a2NVR3JaTUFHbjNVZCtMenREWjQ1eTBCV0RiY2pqbW53ajhSdEhCZ1B2V1pU?=
- =?utf-8?B?V3JHWEpCdXFhTUNHb0IxMFlIV3ZzOEpwYVZqdlU0Vm5ESXZ3OGQ2UGwwVGs5?=
- =?utf-8?B?S1RGV09oOUpOR1hTUWx0dDlWdFhmcUhuRWVnOUJlKzBJeVhneE5UaFVOYUhi?=
- =?utf-8?B?N3BlTlExbmNISVAwS0JNUlRDQkJWeUxTQlNWRjU3UkNNSG4rckdBRE9LVXFF?=
- =?utf-8?Q?LFYA211ZtGuU/KEo9+rqL9T0L?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dd5fa743-6f37-4322-702f-08db45ffd0e0
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6573.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Apr 2023 02:42:02.8065 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: XtJrYK1Y8totUMGXcTUWO/RP9kA0AdeQ78hKGkC9JAD+GJhb7TZofHNM3s9aVdEb6EKkdGhZ+8KPYd4893xTqA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5206
-Cc: brett.creeley@amd.com, mst@redhat.com, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, drivers@pensando.io
+References: <20230423105736.56918-1-xuanzhuo@linux.alibaba.com>
+ <20230423105736.56918-13-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230423105736.56918-13-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 26 Apr 2023 11:08:52 +0800
+Message-ID: <CACGkMEtC8WECH054KRs-uPeZiCv_PMUX4++9eUNffrB0Pboycw@mail.gmail.com>
+Subject: Re: [PATCH net-next v3 12/15] virtio_net: small: optimize code
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -161,136 +118,46 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Shannon Nelson via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Shannon Nelson <shannon.nelson@amd.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 4/25/23 7:09 PM, Xuan Zhuo wrote:
-> 
-> On Tue, 25 Apr 2023 14:25:53 -0700, Shannon Nelson <shannon.nelson@amd.com> wrote:
->> To add a bit of flexibility with various virtio based devices, allow
->> the caller to specify a different device id and DMA mask.  This adds
->> fields to struct virtio_pci_modern_device to specify an override device
->> id check and a DMA mask.
->>
->> int (*device_id_check)(struct pci_dev *pdev);
->>        If defined by the driver, this function will be called to check
->>        that the PCI device is the vendor's expected device, and will
->>        return the found device id to be stored in mdev->id.device.
->>        This allows vendors with alternative vendor device ids to use
->>        this library on their own device BAR.
->>
->> u64 dma_mask;
->>        If defined by the driver, this mask will be used in a call to
->>        dma_set_mask_and_coherent() instead of the traditional
->>        DMA_BIT_MASK(64).  This allows limiting the DMA space on
->>        vendor devices with address limitations.
->>
->> Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
->> ---
->>   drivers/virtio/virtio_pci_modern_dev.c | 37 +++++++++++++++++---------
->>   include/linux/virtio_pci_modern.h      |  6 +++++
->>   2 files changed, 31 insertions(+), 12 deletions(-)
->>
->> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
->> index 869cb46bef96..1f2db76e8f91 100644
->> --- a/drivers/virtio/virtio_pci_modern_dev.c
->> +++ b/drivers/virtio/virtio_pci_modern_dev.c
->> @@ -218,21 +218,29 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->>        int err, common, isr, notify, device;
->>        u32 notify_length;
->>        u32 notify_offset;
->> +     int devid;
->>
->>        check_offsets();
->>
->> -     /* We only own devices >= 0x1000 and <= 0x107f: leave the rest. */
->> -     if (pci_dev->device < 0x1000 || pci_dev->device > 0x107f)
->> -             return -ENODEV;
->> -
->> -     if (pci_dev->device < 0x1040) {
->> -             /* Transitional devices: use the PCI subsystem device id as
->> -              * virtio device id, same as legacy driver always did.
->> -              */
->> -             mdev->id.device = pci_dev->subsystem_device;
->> +     if (mdev->device_id_check) {
->> +             devid = mdev->device_id_check(pci_dev);
->> +             if (devid < 0)
->> +                     return devid;
-> 
-> I would want to know is there any other reason to return the errno?
-> How about return -ENODEV directly?
-
-Because if device_id_check() is returning an errno, it is trying to 
-communicate some information about what went wrong, and I really get 
-annoyed when an intermediate layer stomps on the value and makes that 
-potentially useful information disappear.
-
-sln
-
-> 
-> Thanks.
-> 
-> 
->> +             mdev->id.device = devid;
->>        } else {
->> -             /* Modern devices: simply use PCI device id, but start from 0x1040. */
->> -             mdev->id.device = pci_dev->device - 0x1040;
->> +             /* We only own devices >= 0x1000 and <= 0x107f: leave the rest. */
->> +             if (pci_dev->device < 0x1000 || pci_dev->device > 0x107f)
->> +                     return -ENODEV;
->> +
->> +             if (pci_dev->device < 0x1040) {
->> +                     /* Transitional devices: use the PCI subsystem device id as
->> +                      * virtio device id, same as legacy driver always did.
->> +                      */
->> +                     mdev->id.device = pci_dev->subsystem_device;
->> +             } else {
->> +                     /* Modern devices: simply use PCI device id, but start from 0x1040. */
->> +                     mdev->id.device = pci_dev->device - 0x1040;
->> +             }
->>        }
->>        mdev->id.vendor = pci_dev->subsystem_vendor;
->>
->> @@ -260,7 +268,12 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->>                return -EINVAL;
->>        }
->>
->> -     err = dma_set_mask_and_coherent(&pci_dev->dev, DMA_BIT_MASK(64));
->> +     if (mdev->dma_mask)
->> +             err = dma_set_mask_and_coherent(&pci_dev->dev,
->> +                                             mdev->dma_mask);
->> +     else
->> +             err = dma_set_mask_and_coherent(&pci_dev->dev,
->> +                                             DMA_BIT_MASK(64));
->>        if (err)
->>                err = dma_set_mask_and_coherent(&pci_dev->dev,
->>                                                DMA_BIT_MASK(32));
->> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
->> index c4eeb79b0139..067ac1d789bc 100644
->> --- a/include/linux/virtio_pci_modern.h
->> +++ b/include/linux/virtio_pci_modern.h
->> @@ -38,6 +38,12 @@ struct virtio_pci_modern_device {
->>        int modern_bars;
->>
->>        struct virtio_device_id id;
->> +
->> +     /* optional check for vendor virtio device, returns dev_id or -ERRNO */
->> +     int (*device_id_check)(struct pci_dev *pdev);
->> +
->> +     /* optional mask for devices with limited DMA space */
->> +     u64 dma_mask;
->>   };
->>
->>   /*
->> --
->> 2.17.1
->>
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU3VuLCBBcHIgMjMsIDIwMjMgYXQgNjo1OOKAr1BNIFh1YW4gWmh1byA8eHVhbnpodW9AbGlu
+dXguYWxpYmFiYS5jb20+IHdyb3RlOgo+Cj4gQXZvaWQgdGhlIHByb2JsZW0gdGhhdCBzb21lIHZh
+cmlhYmxlcyhoZWFkcm9vbSBhbmQgc28gb24pIHdpbGwgcmVwZWF0Cj4gdGhlIGNhbGN1bGF0aW9u
+IHdoZW4gcHJvY2VzcyB4ZHAuCj4KPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVv
+QGxpbnV4LmFsaWJhYmEuY29tPgoKTml0OiBJIHRoaW5rIHdlIG5lZWQgdG8gdHdlYWsgdGhlIHRp
+dGxlLCBpdCdzIGJldHRlciB0byBzYXkgd2hhdCBpcwpvcHRpbWl6ZWQuIChBbmQgaXQgd291bGQg
+YmUgYmV0dGVyIHRvIHR3ZWFrIHRoZSB0aXRsZSBvZiBwYXRjaCAxMSBhcwp3ZWxsKQoKQWNrZWQt
+Ynk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cgo+IC0tLQo+ICBkcml2ZXJzL25l
+dC92aXJ0aW9fbmV0LmMgfCAxMiArKysrKysrKy0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDggaW5z
+ZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92
+aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA1YmMzZGNhMGY2
+MGMuLjYwMWMwZTdmYzMyYiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMK
+PiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBAQCAtMTAzMSwxMSArMTAzMSwxMCBA
+QCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfc21hbGwoc3RydWN0IG5ldF9kZXZpY2Ug
+KmRldiwKPiAgICAgICAgIHN0cnVjdCBza19idWZmICpza2I7Cj4gICAgICAgICBzdHJ1Y3QgYnBm
+X3Byb2cgKnhkcF9wcm9nOwo+ICAgICAgICAgdW5zaWduZWQgaW50IHhkcF9oZWFkcm9vbSA9ICh1
+bnNpZ25lZCBsb25nKWN0eDsKPiAtICAgICAgIHVuc2lnbmVkIGludCBoZWFkZXJfb2Zmc2V0ID0g
+VklSVE5FVF9SWF9QQUQgKyB4ZHBfaGVhZHJvb207Cj4gLSAgICAgICB1bnNpZ25lZCBpbnQgaGVh
+ZHJvb20gPSB2aS0+aGRyX2xlbiArIGhlYWRlcl9vZmZzZXQ7Cj4gLSAgICAgICB1bnNpZ25lZCBp
+bnQgYnVmbGVuID0gU0tCX0RBVEFfQUxJR04oR09PRF9QQUNLRVRfTEVOICsgaGVhZHJvb20pICsK
+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICBTS0JfREFUQV9BTElHTihzaXplb2Yoc3Ry
+dWN0IHNrYl9zaGFyZWRfaW5mbykpOwo+ICAgICAgICAgc3RydWN0IHBhZ2UgKnBhZ2UgPSB2aXJ0
+X3RvX2hlYWRfcGFnZShidWYpOwo+ICsgICAgICAgdW5zaWduZWQgaW50IGhlYWRlcl9vZmZzZXQ7
+Cj4gKyAgICAgICB1bnNpZ25lZCBpbnQgaGVhZHJvb207Cj4gKyAgICAgICB1bnNpZ25lZCBpbnQg
+YnVmbGVuOwo+Cj4gICAgICAgICBsZW4gLT0gdmktPmhkcl9sZW47Cj4gICAgICAgICBzdGF0cy0+
+Ynl0ZXMgKz0gbGVuOwo+IEBAIC0xMDYzLDYgKzEwNjIsMTEgQEAgc3RhdGljIHN0cnVjdCBza19i
+dWZmICpyZWNlaXZlX3NtYWxsKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gICAgICAgICByY3Vf
+cmVhZF91bmxvY2soKTsKPgo+ICBza2lwX3hkcDoKPiArICAgICAgIGhlYWRlcl9vZmZzZXQgPSBW
+SVJUTkVUX1JYX1BBRCArIHhkcF9oZWFkcm9vbTsKPiArICAgICAgIGhlYWRyb29tID0gdmktPmhk
+cl9sZW4gKyBoZWFkZXJfb2Zmc2V0Owo+ICsgICAgICAgYnVmbGVuID0gU0tCX0RBVEFfQUxJR04o
+R09PRF9QQUNLRVRfTEVOICsgaGVhZHJvb20pICsKPiArICAgICAgICAgICAgICAgU0tCX0RBVEFf
+QUxJR04oc2l6ZW9mKHN0cnVjdCBza2Jfc2hhcmVkX2luZm8pKTsKPiArCj4gICAgICAgICBza2Ig
+PSBidWlsZF9za2IoYnVmLCBidWZsZW4pOwo+ICAgICAgICAgaWYgKCFza2IpCj4gICAgICAgICAg
+ICAgICAgIGdvdG8gZXJyOwo+IC0tCj4gMi4zMi4wLjMuZzAxMTk1Y2Y5Zgo+CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
