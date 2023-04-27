@@ -1,83 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C709EC7EE21
-	for <virtualization@archiver.kernel.org>; Thu, 27 Apr 2023 18:09:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4C4CC77B61
+	for <virtualization@archiver.kernel.org>; Thu, 27 Apr 2023 18:28:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6F14941DD8;
-	Thu, 27 Apr 2023 18:09:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6F14941DD8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=dZx9rn78
+	by smtp4.osuosl.org (Postfix) with ESMTP id 491A5408D3;
+	Thu, 27 Apr 2023 18:28:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 491A5408D3
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=WK3+Z2QS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w3snCV4VPGoE; Thu, 27 Apr 2023 18:09:13 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kgJAY4CnNtYG; Thu, 27 Apr 2023 18:28:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B67D1405DB;
-	Thu, 27 Apr 2023 18:09:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B67D1405DB
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0F4864034F;
+	Thu, 27 Apr 2023 18:28:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0F4864034F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 77EC9C0036;
-	Thu, 27 Apr 2023 18:09:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3B871C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D16ECC0037;
+	Thu, 27 Apr 2023 18:28:17 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DEC3BC002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Apr 2023 18:09:11 +0000 (UTC)
+ Thu, 27 Apr 2023 18:28:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 090BE40639
+ by smtp4.osuosl.org (Postfix) with ESMTP id B6F384034F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Apr 2023 18:09:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 090BE40639
+ Thu, 27 Apr 2023 18:28:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6F384034F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FsJRlhESW5Zw
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CpaNoABxOJW8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Apr 2023 18:09:10 +0000 (UTC)
+ Thu, 27 Apr 2023 18:28:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C474405DB
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1C474405DB
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8586D40345
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 8586D40345
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Apr 2023 18:09:10 +0000 (UTC)
+ Thu, 27 Apr 2023 18:28:15 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 0D22D63EE7;
- Thu, 27 Apr 2023 18:09:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C4A5C433D2;
- Thu, 27 Apr 2023 18:09:08 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTPS id B28BB63E9A;
+ Thu, 27 Apr 2023 18:28:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4625C4339E;
+ Thu, 27 Apr 2023 18:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1682618948;
- bh=QBydXWhrxQNK3CFJbJDwWowfRxr+Zi+M4F7Gcl55S/k=;
+ s=k20201202; t=1682620094;
+ bh=eBxG5p4VvkS1hruiYxFut4TnMP2p0AGA9ZCpb2a/S9Q=;
  h=Date:From:To:Cc:Subject:In-Reply-To:From;
- b=dZx9rn78ovZWadDWRrpeXNPkOUvJazxFz83IgAuJk82x4ouLrBB70Wk4gWvIHt3Tg
- 0/LiXVmF7Ev+EZ5kNnYjWg8qxTXqCudJFYnrhV3BdH3Xn8zd9yv+wzrRQf4ixqr/gA
- TyoXmX2i8pfKvINeXCwMP4EfVA40ZQg+mtMbgBlOn1ksvpXqSzlzrWYVMEA/7bKKfU
- XL8AB1tuk2ZUeezDSBlMbM4+QwCQ3z+LddGkewnOY3arrpEg5hP5zXuuxBocL3Jpdr
- USiDtdYlWL4igPY0VjljLBOPulu8ORWnAuHNrea1tWqB/ktQui0IvyOLSYbtMXFbpU
- LUToGs7f43mXQ==
-Date: Thu, 27 Apr 2023 13:09:06 -0500
+ b=WK3+Z2QSIuyTRUnMXUba2OgVayK15hLaggwO9SU5drY4T1Gapbkeuga4bWm1QbLDI
+ Y1k7HWzRDC94zvufNaMVWZrB1SZbfGNVOdIA6nHrD8J8CNAIe3FTQ7LaMGallRv1AU
+ HJpfaOAArIjc+zAiBASBwB3Jd2bSw42N/esM4PIJ9eQBKuGOCLt6GHyGitZD3vMOfd
+ D1JtafxEmzhi9FKIO/rRwjQNLDH2hxVFfOReSlRDIgSGwW1IGusKZ5IAPLftQ7CvJJ
+ 5aYwx7UOjSR/TRns1R5RDnHSF1CXZDvaJw15o6lRJPiRvoVXm1Wc/YJpLc+hfrgfzl
+ 86A8rh3EOWonw==
+Date: Thu, 27 Apr 2023 13:28:12 -0500
 From: Bjorn Helgaas <helgaas@kernel.org>
 To: Shunsuke Mie <mie@igel.co.jp>
-Subject: Re: [RFC PATCH v2 3/3] PCI: endpoint: Add EP function driver to
- provide virtio-console functionality
-Message-ID: <20230427180906.GA261441@bhelgaas>
+Subject: Re: [RFC PATCH v2 1/3] PCI: endpoint: introduce a helper to
+ implement pci ep virtio function
+Message-ID: <20230427182812.GA262399@bhelgaas>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230427104428.862643-4-mie@igel.co.jp>
+In-Reply-To: <20230427104428.862643-2-mie@igel.co.jp>
 Cc: Kishon Vijay Abraham I <kishon@kernel.org>,
  Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
- Randy Dunlap <rdunlap@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-pci@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Manivannan Sadhasivam <mani@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>, Frank Li <Frank.Li@nxp.com>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Ren Zhijie <renzhijie2@huawei.com>, Jon Mason <jdmason@kudzu.us>,
- Bjorn Helgaas <bhelgaas@google.com>
+ Ren Zhijie <renzhijie2@huawei.com>, Manivannan Sadhasivam <mani@kernel.org>,
+ Jon Mason <jdmason@kudzu.us>, Bjorn Helgaas <bhelgaas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,118 +90,151 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-UmFuZG9tIHR5cG9zIGFuZCB0cml2aWFsIHRoaW5ncy4gIE5vIG5lZWQgdG8gcmVwb3N0IHVudGls
-IHNvbWVib2R5CmRvZXMgYSBtb3JlIHN1YnN0YW50aXZlIHJldmlldy4KCk9uIFRodSwgQXByIDI3
-LCAyMDIzIGF0IDA3OjQ0OjI4UE0gKzA5MDAsIFNodW5zdWtlIE1pZSB3cm90ZToKPiBBZGQgYSBu
-ZXcgUENJZSBlbmRwb2ludCBmdW5jdGlvbiBkcml2ZXIgdGhhdCB3b3JrcyBhcyBhIHBjaSB2aXJ0
-aW8tY29uc29sZQo+IGRldmljZS4gVGhlIGNvbnNvbGUgY29ubmVjdCB0byBlbmRwb2ludCBzaWRl
-IGNvbnNvbGUuIEl0IGVuYWJsZXMgdG8KPiBjb21tdW5pY2F0ZSBQQ0llIGhvc3QgYW5kIGVuZHBv
-aW50LgoKcy9wY2kvUENJLwoKPiBBcmNoaXRlY3R1cmUgaXMgZm9sbG93aW5nOgo+IAo+ICDilIzi
-lIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAgICAgICAgICDilIzilIDilIDi
-lIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDi
-lIDilKzilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilJAKPiAg4pSCdmlydGlv
-ZSAgICAg4pSCICAgICAgICAg4pSCICAgICAgICAgICAgICAgICAgICAgIOKUgnZpcnRpbyAgICAg
-IOKUggo+ICDilIJjb25zb2xlIGRydiDilIIgICAgICAgICDilJzilIDilIDilIDilIDilIDilIDi
-lIDilIDilIDilIDilIDilIDilIDilIDilIDilJAgICAgICDilIJjb25zb2xlIGRydiDilIIKPiAg
-4pSc4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSkICAgICAgICAg4pSCKHZp
-cnRpbyBjb25zb2xl4pSCICAgICAg4pSc4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA
-4pSA4pSkCj4gIOKUgiB2aXJ0aW8gYnVzIOKUgiAgICAgICAgIOKUgiBkZXZpY2UpICAgICAgIOKU
-guKXhOKUgOKUgOKUgOKUgOKWuuKUgiB2aXJ0aW8gYnVzIOKUggo+ICDilJzilIDilIDilIDilIDi
-lIDilIDilIDilIDilIDilIDilIDilIDilKQgICAgICAgICDilJwtLS0tLS0tLS0tLS0tLS3ilKQg
-ICAgICDilJTilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilKQKPiAg4pSCICAg
-ICAgICAgICAg4pSCICAgICAgICAg4pSCIHBjaSBlcCB2aXJ0aW8g4pSCICAgICAgICAgICAgICAg
-ICAgIOKUggo+ICDilIIgIHBjaSBidXMgICDilIIgICAgICAgICDilIIgIGNvbnNvbGUgZHJ2ICDi
-lIIgICAgICAgICAgICAgICAgICAg4pSCCj4gIOKUgiAgICAgICAgICAgIOKUgiAgcGNpZSAgIOKU
-nOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUpCAgICAgICAg
-ICAgICAgICAgICDilIIKPiAg4pSCICAgICAgICAgICAg4pSCIOKXhOKUgOKUgOKUgOKUgOKUgOKW
-uiDilIIgIHBjaSBlcCBCdXMgICDilIIgICAgICAgICAgICAgICAgICAg4pSCCj4gIOKUlOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmCAgICAgICAgIOKUlOKUgOKUgOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUtOKUgOKUgOKUgOKUgOKUgOKUgOKU
-gOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAo+ICAgIFBDSWUgUm9vdCAg
-ICAgICAgICAgICAgUENJZSBFbmRwb2ludAoKcy92aXJ0aW9lL3ZpcnRpby8Kcy9wY2kvUENJLwpz
-L3BjaWUvUENJZS8Kcy9lcC9FUC8KCj4gK2NvbmZpZyBQQ0lfRVBGX1ZDT04KPiArCXRyaXN0YXRl
-ICJQQ0kgRW5kcG9pbnQgdmlyaXRvLWNvbnNvbGUgZHJpdmVyIgoKcy92aXJpdG8vdmlydGlvLwoK
-PiArCWRlcGVuZHMgb24gUENJX0VORFBPSU5UCj4gKwlzZWxlY3QgVkhPU1RfUklORwo+ICsJc2Vs
-ZWN0IFBDSV9FUEZfVklSVElPCj4gKwloZWxwCj4gKwkgIFBDSWUgRW5kcG9pbnQgdmlydGlvLWNv
-bnNvbGUgZnVuY3Rpb24gaW1wbGVtZW50YXRpbm8uIFRoaXMgbW9kdWxlCj4gKwkgIGVuYWJsZXMg
-dG8gc2hvdyB0aGUgdmlydGlvLWNvbnNvbGUgYXMgcGNpIGRldmljZSB0byBQQ0llIGhvc3Qgc2lk
-ZSwgYW5kCj4gKwkgIGFub3RoZXIgdmlydHVhbCB2aXJ0aW8tY29uc29sZSBkZXZpY2UgcmVnaXN0
-ZXJzIHRvIGVuZHBvaW50IHN5c3RlbS4KPiArCSAgVGhvc2UgZGV2aWNlcyBhcmUgY29ubmVjdGVk
-IHZpcnR1YWxseSBhbmQgY2FuIGNvbW11bmljYXRlIGVhY2ggb3RoZXIuCgpzL2ltcGxlbWVudGF0
-aW5vL2ltcGxlbWVudGF0aW9uLwpzL3BjaS9QQ0kvCnMvY2FuIGNvbW11bmljYXRlL2NhbiBjb21t
-dW5pY2F0ZSB3aXRoLwoKPiArICogUENJIEVuZHBvaW50IGZ1bmN0aW9uIGRyaXZlciB0byBpbXBs
-aW1lbnQgdmlydGlvLWNvbnNvbGUgZGV2aWNlCj4gKyAqIGZ1bmN0aW9uYWxpdHkuCgpzL2ltcGxp
-bWVudC9pbXBsZW1lbnQvCgo+ICtzdGF0aWMgaW50IHZpcnRpb19xdWV1ZV9zaXplID0gMHgxMDA7
-Cj4gK21vZHVsZV9wYXJhbSh2aXJ0aW9fcXVldWVfc2l6ZSwgaW50LCAwNDQ0KTsKPiArTU9EVUxF
-X1BBUk1fREVTQyh2aXJ0aW9fcXVldWVfc2l6ZSwgIkEgbGVuZ3RoIG9mIHZpcnRxdWV1ZSIpOwoK
-V2hlbiBhbmQgd2h5IHdvdWxkIHVzZXJzIG5lZWQgdGhpcyBwYXJhbWV0ZXI/ICBXaGVyZSBpcyBp
-dCBkb2N1bWVudGVkPwoKPiArCS8qIFRvIGFjY2VzcyB2aXJ0cXVldXMgb2YgbG9jYWwgaG9zdCBk
-cml2ZXIgKi8KCnMvdmlydHF1ZXVzL3ZpcnRxdWV1ZXMvCgo+ICsJLyogVG8gc2hvdyBhIHN0YXR1
-cyB3aGV0aGVyIHRoaXMgZHJpdmVyIGlzIHJlYWR5IGFuZCB0aGUgcmVtb3RlIGlzIGNvbm5lY3Rl
-ZCAqLwoKTWFrZSB0aGlzIGZpdCBpbiA4MCBjb2x1bW5zLgoKPiArCS8qIFRoaXMgaXMgYSBtaW5p
-bXVtIGltcGxlbWVudGF0aW9uLiBEb2Vzbid0IHN1cHBvcnQgYW55IGZlYXR1cmVzIG9mCj4gKwkg
-KiB2aXJ0aW8gY29uc29sZS4gSXQgbWVhbnMgZHJpdmVyIGFuZCBkZXZpY2UgdXNlIGp1c3QgMiB2
-aXJ0dXF1ZSBmb3IgdHgKPiArCSAqIGFuZCByeC4KPiArCSAqLwoKVXNlIGNvbW1vbiBtdWx0aS1s
-aW5lIGNvbW1lbnQgc3R5bGU6CgogIC8qCiAgICogVGhpcyBpcyAuLi4KICAgKi8KCnMvdmlydHVx
-dWUvdmlydHF1ZXVlcy8KCj4gK3N0YXRpYyB2b2lkIGVwZl92Y29uX3JhaXNlX2lycV9oYW5kbGVy
-KHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiArewo+ICsJc3RydWN0IGVwZl92Y29uICp2Y29u
-ID0KPiArCQljb250YWluZXJfb2Yod29yaywgc3RydWN0IGVwZl92Y29uLCByYWlzZV9pcnFfd29y
-ayk7CgpSZXdyYXAuCgo+ICtzdGF0aWMgaW50IGVwZl92Y29uX3NldHVwX2NvbW1vbihzdHJ1Y3Qg
-ZXBmX3Zjb24gKnZjb24pCj4gK3sKPiArCXZjb24tPmZlYXR1cmVzID0gMDsKPiArCXZjb24tPmNv
-bm5lY3RlZCA9IGZhbHNlOwo+ICsKPiArCXZjb24tPnRhc2tfd3EgPQo+ICsJCWFsbG9jX3dvcmtx
-dWV1ZSgicGNpLWVwZi12Y29uL3Rhc2std3EiLAoKTG9va3MgbGlrZSB0aGlzIHdvdWxkIGZpdCBv
-biB0aGUgcHJldmlvdXMgbGluZT8KCj4gKwkJCQlXUV9NRU1fUkVDTEFJTSB8IFdRX0hJR0hQUkkg
-fCBXUV9VTkJPVU5ELCAwKTsKCj4gK3N0YXRpYyB2b2lkIGVwZl92Y29uX2luaXRpYWxpemVfY29t
-cGxldGUodm9pZCAqcGFyYW0pCj4gK3sKPiArCXN0cnVjdCBlcGZfdmNvbiAqdmNvbiA9IHBhcmFt
-Owo+ICsKPiArCXByX2RlYnVnKCJSZW1vdGUgaG9zdCBoYXMgY29ubmVjdGVkXG4iKTsKCklzIHRo
-ZXJlIGFueSBkZXZpY2UgaW5mbyB5b3UgY291bGQgaW5jbHVkZSBoZXJlLCBlLmcuLCB3aXRoIGRl
-dl9kYmcoKT8KSXQncyBuaWNlIGlmIHVzZXJzIGhhdmUgYSBsaXR0bGUgY29udGV4dC4KCj4gK3N0
-YXRpYyBpbnQgZXBmX3Zjb25fc2V0dXBfZXBfZnVuYyhzdHJ1Y3QgZXBmX3Zjb24gKnZjb24sIHN0
-cnVjdCBwY2lfZXBmICplcGYpCj4gK3sKPiArCWludCBlcnI7Cj4gKwlzdHJ1Y3QgZXBmX3ZpcnRp
-byAqZXZpbyA9ICZ2Y29uLT5ldmlvOwo+ICsJdW5zaWduZWQgaW50IG52cSA9IGVwZl92Y29uX2dl
-dF9udnEodmNvbik7Cj4gKwo+ICsJdmNvbi0+cmRldl9pb3ZzID0KPiArCQlrbWFsbG9jX2FycmF5
-KG52cSwgc2l6ZW9mKHZjb24tPnJkZXZfaW92c1swXSksIEdGUF9LRVJORUwpOwoKTW92ZSB0aGUg
-ZnVuY3Rpb24gbmFtZSBhbmQgYXMgbWFueSBwYXJhbWV0ZXJzIGFzIGZpdCBpbiA4MCBjb2x1bW5z
-IHRvCnRoZSBwcmV2aW91cyBsaW5lIHRvIG1hdGNoIHByZXZhaWxpbmcgc3R5bGUuCgo+ICsJLyog
-VGhlcmUgaXMgbm8gY29uZmlnIGZvciB2aXJ0aW8gY29uc29sZSBiZWNhdXNlIHRoaXMgY29uc29s
-ZSBkZXZpY2UKPiArCSAqIGRvZXNuJ3QgYW55IHN1cHBvcnQgZmVhdHVyZXMKPiArCSAqLwoKTXVs
-dGktbGluZSBjb21tZW50IHN0eWxlLgoKcy9kb2Vzbid0IGFueSBzdXBwb3J0L2RvZXNuJ3Qgc3Vw
-cG9ydCBhbnkvPyAgSXMgdGhhdCB3aGF0IHlvdSBtZWFuPwoKPiArCS8qIERvIG5vdGhpbmcgYmVj
-YXVzZSB0aGlzIGNvbnNvbGUgZGV2aWNlIGRvZXNuJ3QgYW55IHN1cHBvcnQgZmVhdHVyZXMgKi8K
-ClNhbWUuCgo+ICtzdGF0aWMgdm9pZCBlcGZfdmNvbl92ZGV2X3NldF9zdGF0dXMoc3RydWN0IHZp
-cnRpb19kZXZpY2UgKnZkZXYsIHU4IHN0YXR1cykKPiArewo+ICsJaWYgKHN0YXR1cyAmIFZJUlRJ
-T19DT05GSUdfU19GQUlMRUQpCj4gKwkJcHJfZGVidWcoImRyaXZlciBmYWlsZWQgdG8gc2V0dXAg
-dGhpcyBkZXZpY2VcbiIpOwoKZGV2X2RiZygpIGlmIHBvc3NpYmxlLgoKPiArCQllcnIgPSB2cmlu
-Z2hfaW5pdF9rZXJuKCZ2Y29uLT52ZGV2X3ZyaHNbaV0sIHZjb24tPmZlYXR1cmVzLAo+ICsJCQkJ
-ICAgICAgIHZpcnRpb19xdWV1ZV9zaXplLCBmYWxzZSwgdnJpbmctPmRlc2MsCj4gKwkJCQkgICAg
-ICAgdnJpbmctPmF2YWlsLCB2cmluZy0+dXNlZCk7Cj4gKwkJaWYgKGVycikgewo+ICsJCQlwcl9l
-cnIoImZhaWxlZCB0byBpbml0IHZyaW5naCBmb3IgdnJpbmcgJWRcbiIsIGkpOwoKZGV2X2Vycigp
-IGlmIHBvc3NpYmxlLgoKPiArc3RhdGljIGludCBlcGZfdmNvbl9zZXR1cF92ZGV2KHN0cnVjdCBl
-cGZfdmNvbiAqdmNvbiwgc3RydWN0IGRldmljZSAqcGFyZW50KQo+ICt7Cj4gKwlpbnQgZXJyOwo+
-ICsJc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSAmdmNvbi0+dmRldjsKPiArCWNvbnN0IHVu
-c2lnbmVkIGludCBudnEgPSBlcGZfdmNvbl9nZXRfbnZxKHZjb24pOwo+ICsKPiArCXZjb24tPnZk
-ZXZfdnJocyA9Cj4gKwkJa21hbGxvY19hcnJheShudnEsIHNpemVvZih2Y29uLT52ZGV2X3ZyaHNb
-MF0pLCBHRlBfS0VSTkVMKTsKClJld3JhcC4KCj4gKwl2Y29uLT52ZGV2X2lvdnMgPQo+ICsJCWtt
-YWxsb2NfYXJyYXkobnZxLCBzaXplb2YodmNvbi0+dmRldl9pb3ZzWzBdKSwgR0ZQX0tFUk5FTCk7
-CgpSZXdyYXAuCgo+ICsJdmNvbi0+dmRldl92cXMgPQo+ICsJCWttYWxsb2NfYXJyYXkobnZxLCBz
-aXplb2YodmNvbi0+dmRldl92cmhzWzBdKSwgR0ZQX0tFUk5FTCk7CgpSZXdyYXAuCgo+ICtzdGF0
-aWMgdm9pZCBlcGZfdmNvbl9jbGVhbnVwX3ZkZXYoc3RydWN0IGVwZl92Y29uICp2Y29uKQo+ICt7
-Cj4gKwl1bnJlZ2lzdGVyX3ZpcnRpb19kZXZpY2UoJnZjb24tPnZkZXYpOwo+ICsJLyogQ2xlYW51
-cCBzdHJ1Y3QgdmlydGlvX2RldmljZSB0aGF0IGhhcyBrb2JqZWN0LCBvdGhlcndpc2UgZXJyb3Ig
-b2NjdXJlcyB3aGVuCj4gKwkgKiByZXJlZ2lzdGVyIHRoZSB2aXJ0aW8gZGV2aWNlLgo+ICsJICov
-CgpNdWx0aS1saW5lIHN0eWxlIGFuZCByZXdyYXAgdG8gZml0IGluIDgwIGNvbHVtbnMuCgo+ICtz
-dGF0aWMgaW50IF9faW5pdCBlcGZfdmNvbl9pbml0KHZvaWQpCj4gK3sKPiArCWludCBlcnI7Cj4g
-Kwo+ICsJZXJyID0gcGNpX2VwZl9yZWdpc3Rlcl9kcml2ZXIoJmVwZl92Y29uX2Rydik7Cj4gKwlp
-ZiAoZXJyKQo+ICsJCXByX2VycigiRmFpbGVkIHRvIHJlZ2lzdGVyIFBDSSBFUCB2aXJ0aW8tY29u
-c29sZSBmdW5jdGlvblxuIik7CgpkZXZfZXJyKCkgaWYgcG9zc2libGUgKGRvZXNuJ3QgbG9vayBs
-aWtlIGl0ICppcyogcG9zc2libGUpLgoKTG9va3MgbGlrZSB0aGlzIHJlZ2lzdGVycyBhICpkcml2
-ZXIqLCBzbyBtYXliZSBjaGFuZ2UgdGhlIG1lc3NhZ2UgZnJvbQoiZnVuY3Rpb24iIHRvICJkcml2
-ZXIiPwoKQmpvcm4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Simple typos, don't repost until there's more substantive feedback.
+
+On Thu, Apr 27, 2023 at 07:44:26PM +0900, Shunsuke Mie wrote:
+> The Linux PCIe Endpoint framework supports to implement PCIe endpoint
+> functions using a PCIe controller operating in endpoint mode.
+> It is possble to realize the behavior of PCIe device, such as virtio PCI
+> device. This patch introduces a setof helper functions and data structures
+> to implement a PCIe endpoint function that behaves as a virtio device.
+
+s/possble/possible/
+s/setof/set of/
+
+> Those functions enable the implementation PCIe endpoint function that
+> comply with the virtio lecacy specification. Because modern virtio
+> specifications require devices to implement custom PCIe capabilities, which
+> are not currently supported by either PCIe controllers/drivers or the PCIe
+> endpoint framework.
+
+s/implementation PCIe endpoint function/implementation of PCIe endpoint functions/
+s/lecacy/legacy/ (What does "legacy" mean?  Is there a spec for this?)
+
+I guess "legacy virtio" devices need not implement custom PCIe
+capabilities, but "modern virtio" devices must implement them?
+
+Capitalize "Endpoint framework" consistently; sometimes it's
+"Endpoint", other times it's "endpoint".
+
+> While this patch provides functions for negotiating with host drivers and
+> copying data, each PCIe function driver must impl ement operations that
+> depend on each specific device, such as network, block, etc.
+
+s/impl ement/implement/
+
+> +#include <linux/virtio_pci.h>
+> +#include <linux/virtio_config.h>
+> +#include <linux/kthread.h>
+
+Typically the header includes would be alphabetized if possible.
+
+> +	vq_virt = pci_epc_map_addr(epf->epc, epf->func_no, epf->vfunc_no,
+> +				   vq_pci_addr, vq_phys, vq_size);
+> +	if (IS_ERR(vq_virt)) {
+> +		pr_err("Failed to map virtuqueue to local");
+
+s/virtuqueue/virtqueue/
+
+I know you probably don't have any way to use dev_err(), but this
+message really needs some context, like a driver name and instance or
+something.
+
+> +#define VIRTIO_PCI_LEGACY_CFG_BAR 0
+
+What makes this a "legacy cfg BAR"?  Is there some spec that covers
+virtio BAR usage?
+
+> + * epf_virtio_init - initialize struct epf_virtio and setup BAR for virtio
+> + * @evio: struct epf_virtio to initialize.
+> + * @hdr: pci configuration space to show remote host.
+> + * @bar_size: pci BAR size it depends on the virtio device type.
+
+s/pci/PCI/ (there were also a few more instances above in messages or
+comments)
+
+> + * epf_virtio_final - finalize struct epf_virtio. it frees bar and memories
+> + * @evio: struct epf_virtio to finalize.
+
+s/bar/BAR/
+
+> +static void epf_virtio_monitor_qnotify(struct epf_virtio *evio)
+> +{
+> +	const u16 qn_default = evio->nvq;
+> +	u16 tmp;
+> +
+> +	/* Since there is no way to synchronize between the host and EP functions,
+> +	 * it is possible to miss multiple notifications.
+
+Multi-line comment style.
+
+> +	err = epf_virtio_negotiate_vq(evio);
+> +	if (err < 0) {
+> +		pr_err("failed to negoticate configs with driver\n");
+
+s/negoticate/negotiate/
+
+> + * epf_virtio_reset - reset virtio status
+
+Some of the function descriptions end with a period (".") and others
+don't.  Please figure out what the most common style is and use that
+consistently.
+
+> +			dst = pci_epc_map_addr(epf->epc, epf->func_no,
+> +					       epf->vfunc_no, dbase, &phys,
+> +					       slen);
+> +			if (IS_ERR(dst)) {
+> +				pr_err("failed to map pci mmoery spact to local\n");
+
+s/pci/PCI/
+s/mmoery/memory/
+s/spact/space/ ?
+
+Also below.
+
+IIRC some previous messages started with a capital letter.  Please
+make them all consistent.
+
+> +		if (dir == DMA_MEM_TO_DEV) {
+> +			pci_epc_unmap_addr(epf->epc, epf->func_no,
+> +					   epf->vfunc_no, phys, dst, slen);
+> +		} else {
+> +			pci_epc_unmap_addr(epf->epc, epf->func_no,
+> +					   epf->vfunc_no, phys, src, slen);
+> +		}
+> +	}
+> +
+> +	return 1;
+
+I guess this function returns either a negative error code or the
+value 1?  That seems sort of weird (I think "negative error code or
+*zero* is more typical), but maybe you're following some convention?
+
+> +#include <linux/pci-epf.h>
+> +#include <linux/pci-epc.h>
+> +#include <linux/vringh.h>
+> +#include <linux/dmaengine.h>
+
+Alpha order if possible
+
+> +	/* Virtual address of pci configuration space */
+
+s/pci/PCI/
+
+> +	/* Callback function and parameter for queue notifcation
+> +	 * Note: PCI EP function cannot detect qnotify accurately, therefore this
+> +	 * callback function should check all of virtqueue's changes.
+> +	 */
+
+Multi-line comment style.
+
+Bjorn
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
