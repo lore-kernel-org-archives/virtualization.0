@@ -1,113 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FB41C77B60
-	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 13:56:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29C9AC77B60
+	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 16:31:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0EC05429F5;
-	Fri, 28 Apr 2023 13:56:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0EC05429F5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=lgHWYmqQ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vqD2q8o3-GOV; Fri, 28 Apr 2023 13:56:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 751CC40469;
-	Fri, 28 Apr 2023 13:56:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 751CC40469
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A707C0037;
-	Fri, 28 Apr 2023 13:56:47 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A7AC3C002A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 13:56:46 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7B1F461167
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 13:56:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7B1F461167
+	by smtp3.osuosl.org (Postfix) with ESMTP id 949266FED4;
+	Fri, 28 Apr 2023 16:31:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 949266FED4
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
- header.a=rsa-sha256 header.s=20221208 header.b=lgHWYmqQ
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=FTVEYR5H
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0I8cO6ICwUz5
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ziKkMKpL98SB; Fri, 28 Apr 2023 16:31:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 22F1560B65;
+	Fri, 28 Apr 2023 16:31:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 22F1560B65
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08892C0036;
+	Fri, 28 Apr 2023 16:31:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E37EC002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 13:56:45 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B705560AFB
-Received: from mail-qv1-xf2f.google.com (mail-qv1-xf2f.google.com
- [IPv6:2607:f8b0:4864:20::f2f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B705560AFB
+ Fri, 28 Apr 2023 16:31:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2846540533
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 13:56:45 +0000 (UTC)
-Received: by mail-qv1-xf2f.google.com with SMTP id
- 6a1803df08f44-5ef524eaca1so92996d6.0
+ Fri, 28 Apr 2023 16:31:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2846540533
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=FTVEYR5H
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3gG_WSxiWlvs
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 06:56:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20221208; t=1682690204; x=1685282204;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
- :message-id:reply-to;
- bh=/lZNOvuxZAzbjpYfchXeKaB+I7zPF9dkZAdqgkYv8Ho=;
- b=lgHWYmqQiDhDj11Lqd4DHHsZ4s8tQii9QwdSJf9Mm0ETXBwwGu99pR+740afudCkZi
- VVlJ6WYsnq9YXogiw4AKu3hP5+e0E8K+QKe1u8GOL5rPcTSmxLEzJRi/U7eK2SXeBpe/
- CcdSN/lLEbkxU2xzYYGiBSRuBZG4mJP0FxDcQV8iJap4nCHkoUHUNlOCAdlUAwkXuov9
- aC2gqjSjY8BijoQCjUvwPFbUmJqdrhmvZQoveb8Fc5kMIEZGrf332OItmHkV+8nFswMY
- +yq4CnfFEvJ0dFl36FR1WdqAzIR3mNG7QCEc3qpeON3iNmN/97CMrXJub8kmX+WDtlyo
- ETew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1682690204; x=1685282204;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
- :cc:subject:date:message-id:reply-to;
- bh=/lZNOvuxZAzbjpYfchXeKaB+I7zPF9dkZAdqgkYv8Ho=;
- b=lkE3DyjSR/qqQjdGHCww75/LlsxPW6kv2JdnbjKJRxbLYgYtK4HE1wpJo0a2OJzt1B
- tlgbo0JUjx/zOeE1MdogOL3dYInUAC8DKXI+TFJ3UpJoy5q2NOZY2DlSMOVS4nvrI8nA
- +rgmvQ3HcEAPkQWxki/y65K2qTNcv3AqBjWxV67hPD8y9ukbTUv6QAc+ah+F+FtiX0/o
- aXek90z+mkxU6u4jGg4XgxUwQrT6/TbJrZahdf9JSZc77sscextVl2gmrFQhLn7dapCx
- mHyw4m4m0xJZpq5Xs37zyjnGBFfUdFd8I7o7my+QMeZMVKTadS0uXb9M1EclHRxWM6PQ
- pVyg==
-X-Gm-Message-State: AC+VfDygW/Jcyq73e7X4aoBCt0a8ZNYhOZNDlI5SjsNBXdb4EF0uevfe
- 28foOCsepFpj7Fe/v1N+pII=
-X-Google-Smtp-Source: ACHHUZ6QPJNVSm7jJadTHqMP+cKkemRtJOCp+cou04qzwfFy0MgdI7ZsI9Ut9x1fI+DHsxjLb2ZM0g==
-X-Received: by 2002:a05:6214:2244:b0:5ef:5e1b:a369 with SMTP id
- c4-20020a056214224400b005ef5e1ba369mr10143325qvc.13.1682690204526; 
- Fri, 28 Apr 2023 06:56:44 -0700 (PDT)
-Received: from localhost (172.174.245.35.bc.googleusercontent.com.
- [35.245.174.172]) by smtp.gmail.com with ESMTPSA id
- m14-20020a0c9d0e000000b0061665028dc2sm1843262qvf.28.2023.04.28.06.56.43
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 28 Apr 2023 06:56:44 -0700 (PDT)
-Date: Fri, 28 Apr 2023 09:56:43 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Qi Zheng <zhengqi.arch@bytedance.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Message-ID: <644bd09bca7e5_29e48c29469@willemb.c.googlers.com.notmuch>
-In-Reply-To: <32eb2826-6322-2f3e-9c48-7fd9afc33615@bytedance.com>
-References: <20230427043433.2594960-1-wangwenliang.1995@bytedance.com>
- <1682576442.2203932-1-xuanzhuo@linux.alibaba.com>
- <252ee222-f918-426e-68ef-b3710a60662e@bytedance.com>
- <1682579624.5395834-1-xuanzhuo@linux.alibaba.com>
- <20230427041206-mutt-send-email-mst@kernel.org>
- <1682583225.3180113-2-xuanzhuo@linux.alibaba.com>
- <20230427042259-mutt-send-email-mst@kernel.org>
- <32eb2826-6322-2f3e-9c48-7fd9afc33615@bytedance.com>
-Subject: Re: [PATCH] virtio_net: suppress cpu stall when free_unused_bufs
-Mime-Version: 1.0
-Cc: pabeni@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, Wenliang Wang <wangwenliang.1995@bytedance.com>,
- davem@davemloft.net
+ Fri, 28 Apr 2023 16:31:37 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C21AB400B9
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C21AB400B9
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Apr 2023 16:31:36 +0000 (UTC)
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 33SF3pJs013966; Fri, 28 Apr 2023 16:31:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2023-03-30; bh=LbRG2wydDSxjX1ixTgj57Utu1ty0LbZUNt+2VutbgGo=;
+ b=FTVEYR5HFaMgS3UoyJpcFmO33Lnb3uTi0MFl9nrBMMknSYXCre+0FthyLvgbucZiV9iV
+ +5NZvEDCzEc6JKd8RSo5ecAtcSnq49eskVVdVlthgrCjolCJ753KMiXYFIy5VfUOanFl
+ XQRkCnc1s7MtO8urLG7DE5VvtIzqrw/F7duOw+EgeN8FoAI/LGIb+k5Vi9Yq/k2YgdI3
+ w91k4V06B7/rBNskW7Ny2PozcxUXGW164WkvJWTqxrOCAYo5UC3Z36YVFCwZ1MWvxzhH
+ 7H6+OeWHdyOriW87p62Kd39dqwdD5Uk9ZYIiTmVsrHLEUaQWNI6cwCb9BXe6j1ioY7Ei eg== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3q460dekku-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 28 Apr 2023 16:31:35 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 33SFsWbV020469; Fri, 28 Apr 2023 16:31:34 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3q461h8m8h-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 28 Apr 2023 16:31:34 +0000
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33SGVYPX023567;
+ Fri, 28 Apr 2023 16:31:34 GMT
+Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-109-59.vpn.oracle.com
+ [10.154.109.59])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
+ 3q461h8m7j-1; Fri, 28 Apr 2023 16:31:34 +0000
+From: Mike Christie <michael.christie@oracle.com>
+To: virtualization@lists.linux-foundation.org, mst@redhat.com,
+ sgarzare@redhat.com, jasowang@redhat.com, stefanha@redhat.com
+Subject: [PATCH 01/14] vhost: add vhost_worker pointer to vhost_virtqueue
+Date: Fri, 28 Apr 2023 11:31:18 -0500
+Message-Id: <20230428163131.92777-1-michael.christie@oracle.com>
+X-Mailer: git-send-email 2.39.2
+MIME-Version: 1.0
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
+ definitions=2023-04-28_04,2023-04-27_01,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ suspectscore=0
+ malwarescore=0 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2303200000 definitions=main-2304280133
+X-Proofpoint-GUID: zLX7JY6OUpCqJ1kKr3pcBuD-hiYT40m0
+X-Proofpoint-ORIG-GUID: zLX7JY6OUpCqJ1kKr3pcBuD-hiYT40m0
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,75 +116,107 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Qi Zheng wrote:
-> 
-> 
-> On 2023/4/27 16:23, Michael S. Tsirkin wrote:
-> > On Thu, Apr 27, 2023 at 04:13:45PM +0800, Xuan Zhuo wrote:
-> >> On Thu, 27 Apr 2023 04:12:44 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >>> On Thu, Apr 27, 2023 at 03:13:44PM +0800, Xuan Zhuo wrote:
-> >>>> On Thu, 27 Apr 2023 15:02:26 +0800, Wenliang Wang <wangwenliang.1995@bytedance.com> wrote:
-> >>>>>
-> >>>>>
-> >>>>> On 4/27/23 2:20 PM, Xuan Zhuo wrote:
-> >>>>>> On Thu, 27 Apr 2023 12:34:33 +0800, Wenliang Wang <wangwenliang.1995@bytedance.com> wrote:
-> >>>>>>> For multi-queue and large rx-ring-size use case, the following error
-> >>>>>>
-> >>>>>> Cound you give we one number for example?
-> >>>>>
-> >>>>> 128 queues and 16K queue_size is typical.
-> >>>>>
-> >>>>>>
-> >>>>>>> occurred when free_unused_bufs:
-> >>>>>>> rcu: INFO: rcu_sched self-detected stall on CPU.
-> >>>>>>>
-> >>>>>>> Signed-off-by: Wenliang Wang <wangwenliang.1995@bytedance.com>
-> >>>>>>> ---
-> >>>>>>>    drivers/net/virtio_net.c | 1 +
-> >>>>>>>    1 file changed, 1 insertion(+)
-> >>>>>>>
-> >>>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >>>>>>> index ea1bd4bb326d..21d8382fd2c7 100644
-> >>>>>>> --- a/drivers/net/virtio_net.c
-> >>>>>>> +++ b/drivers/net/virtio_net.c
-> >>>>>>> @@ -3565,6 +3565,7 @@ static void free_unused_bufs(struct virtnet_info *vi)
-> >>>>>>>    		struct virtqueue *vq = vi->rq[i].vq;
-> >>>>>>>    		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
-> >>>>>>>    			virtnet_rq_free_unused_buf(vq, buf);
-> >>>>>>> +		schedule();
-> >>>>>>
-> >>>>>> Just for rq?
-> >>>>>>
-> >>>>>> Do we need to do the same thing for sq?
-> >>>>> Rq buffers are pre-allocated, take seconds to free rq unused buffers.
-> >>>>>
-> >>>>> Sq unused buffers are much less, so do the same for sq is optional.
-> >>>>
-> >>>> I got.
-> >>>>
-> >>>> I think we should look for a way, compatible with the less queues or the smaller
-> >>>> rings. Calling schedule() directly may be not a good way.
-> >>>>
-> >>>> Thanks.
-> >>>
-> >>> Why isn't it a good way?
-> >>
-> >> For the small ring, I don't think it is a good way, maybe we only deal with one
-> >> buf, then call schedule().
-> >>
-> >> We can call the schedule() after processing a certain number of buffers,
-> >> or check need_resched () first.
-> >>
-> >> Thanks.
-> > 
-> > 
-> > Wenliang, does
-> >              if (need_resched())
-> >                      schedule();
-> 
-> Can we just use cond_resched()?
+This patchset allows userspace to map vqs to different workers. This
+patch adds a worker pointer to the vq so we can store that info.
 
-I believe that is preferred. But v2 still calls schedule directly.
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 24 +++++++++++++-----------
+ drivers/vhost/vhost.h |  1 +
+ 2 files changed, 14 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 10bf35a3db6e..7a8eef246e1f 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -486,6 +486,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 		vq->log = NULL;
+ 		vq->indirect = NULL;
+ 		vq->heads = NULL;
++		vq->worker = NULL;
+ 		vq->dev = dev;
+ 		mutex_init(&vq->mutex);
+ 		vhost_vq_reset(dev, vq);
+@@ -554,16 +555,15 @@ static void vhost_worker_free(struct vhost_dev *dev)
+ 	kfree(worker);
+ }
+ 
+-static int vhost_worker_create(struct vhost_dev *dev)
++static struct vhost_worker *vhost_worker_create(struct vhost_dev *dev)
+ {
+ 	struct vhost_worker *worker;
+ 	struct vhost_task *vtsk;
+ 	char name[TASK_COMM_LEN];
+-	int ret;
+ 
+ 	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
+ 	if (!worker)
+-		return -ENOMEM;
++		return NULL;
+ 
+ 	dev->worker = worker;
+ 	worker->kcov_handle = kcov_common_handle();
+@@ -571,25 +571,24 @@ static int vhost_worker_create(struct vhost_dev *dev)
+ 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
+ 
+ 	vtsk = vhost_task_create(vhost_worker, worker, name);
+-	if (!vtsk) {
+-		ret = -ENOMEM;
++	if (!vtsk)
+ 		goto free_worker;
+-	}
+ 
+ 	worker->vtsk = vtsk;
+ 	vhost_task_start(vtsk);
+-	return 0;
++	return worker;
+ 
+ free_worker:
+ 	kfree(worker);
+ 	dev->worker = NULL;
+-	return ret;
++	return NULL;
+ }
+ 
+ /* Caller should have device mutex */
+ long vhost_dev_set_owner(struct vhost_dev *dev)
+ {
+-	int err;
++	struct vhost_worker *worker;
++	int err, i;
+ 
+ 	/* Is there an owner already? */
+ 	if (vhost_dev_has_owner(dev)) {
+@@ -600,9 +599,12 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
+ 	vhost_attach_mm(dev);
+ 
+ 	if (dev->use_worker) {
+-		err = vhost_worker_create(dev);
+-		if (err)
++		worker = vhost_worker_create(dev);
++		if (!worker)
+ 			goto err_worker;
++
++		for (i = 0; i < dev->nvqs; i++)
++			dev->vqs[i]->worker = worker;
+ 	}
+ 
+ 	err = vhost_dev_alloc_iovecs(dev);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 0308638cdeee..e72b665ba3a5 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -74,6 +74,7 @@ struct vhost_vring_call {
+ /* The virtqueue structure describes a queue attached to a device. */
+ struct vhost_virtqueue {
+ 	struct vhost_dev *dev;
++	struct vhost_worker *worker;
+ 
+ 	/* The actual ring of buffers. */
+ 	struct mutex mutex;
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
