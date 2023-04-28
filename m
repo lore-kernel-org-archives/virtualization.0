@@ -4,113 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EFF73C77B73
-	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 01:08:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EFF92C77B61
+	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 01:09:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5D12C41DC2;
-	Fri, 28 Apr 2023 01:08:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5D12C41DC2
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7F07B41DF0;
+	Fri, 28 Apr 2023 01:09:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7F07B41DF0
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iRTW9oQ6
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DZXSTqNJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3R3YTWlRMU2J; Fri, 28 Apr 2023 01:08:48 +0000 (UTC)
+	with ESMTP id ZuPyh9AxtjMO; Fri, 28 Apr 2023 01:09:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8FE4C405A4;
-	Fri, 28 Apr 2023 01:08:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8FE4C405A4
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C637B41DAA;
+	Fri, 28 Apr 2023 01:09:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C637B41DAA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56153C0036;
-	Fri, 28 Apr 2023 01:08:47 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 580ADC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9F784C0036;
+	Fri, 28 Apr 2023 01:09:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 67C0CC002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 01:08:45 +0000 (UTC)
+ Fri, 28 Apr 2023 01:09:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2BDDF61114
+ by smtp1.osuosl.org (Postfix) with ESMTP id 33FCC83C8A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 01:08:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2BDDF61114
-Authentication-Results: smtp3.osuosl.org;
+ Fri, 28 Apr 2023 01:09:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 33FCC83C8A
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iRTW9oQ6
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DZXSTqNJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 93xtG2nbZL8F
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7Mj0GKdupssf
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 01:08:43 +0000 (UTC)
+ Fri, 28 Apr 2023 01:09:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F2A660A84
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 846D383B1E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9F2A660A84
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 846D383B1E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 01:08:43 +0000 (UTC)
+ Fri, 28 Apr 2023 01:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1682644122;
+ s=mimecast20190719; t=1682644167;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SIlO9U65Fa78/bYD7F0pTgvbn+G5S4dqydIF9IQsHyM=;
- b=iRTW9oQ6mjvxqclW3tyUDT+FdWHPlWNxtR2m+DxRZzlUZjqP5CVImtz+pyb24vZeJ6AMDf
- xIymKbRVcdQA4GqhNMcY7v8NhsvbLMAm7qfSt4LLqn9kJwi9AQokrstI4pyIGaswukbqpo
- WUtQiQ6yD6Qy0LEhTkgFgXotK7bUKfY=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=vDlMjQQs9oNd1rM1Ie1hZYk7Gu1+pdqFqGgkpF/yxbI=;
+ b=DZXSTqNJUsv5wdNWTswQJp8aSfoleaQ1eesrm+5RhO88YzlGH42G8Kp14HtdLvdlwYzbGH
+ 8z61Fy+1GcXpw/KVjBCg64rgRhMKypuT0No7DL/6GB0oUA7BLpMeQCpD5gVjv+0w0nnjQ8
+ JZ45FkegG6wMxTCKWCAv8njwKrFK/i0=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-651-a8cGrluzNTy9JoiT4FFHjQ-1; Thu, 27 Apr 2023 21:08:31 -0400
-X-MC-Unique: a8cGrluzNTy9JoiT4FFHjQ-1
-Received: by mail-wr1-f70.google.com with SMTP id
- ffacd0b85a97d-2ffee43dac5so3394986f8f.2
+ us-mta-175-YukIjdzZOV6YviFe62bqwA-1; Thu, 27 Apr 2023 21:09:25 -0400
+X-MC-Unique: YukIjdzZOV6YviFe62bqwA-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ ffacd0b85a97d-2ff4bc7a770so5162502f8f.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Apr 2023 18:08:31 -0700 (PDT)
+ Thu, 27 Apr 2023 18:09:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1682644110; x=1685236110;
+ d=1e100.net; s=20221208; t=1682644164; x=1685236164;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=SIlO9U65Fa78/bYD7F0pTgvbn+G5S4dqydIF9IQsHyM=;
- b=jj61c8BUkxTA91i8FnKporFKPwLKxkJGhbeXdBhI1D3dlVrS6CGnAcTk6OT/DOd/BY
- d9zIB4lV5soPI4nLy+SEsYRCw/gXyNuKbzV/sPXJUn8jS9P3MWdFl24i8qwzk+tRbQGR
- 1HUTfBEifYEh/YvXNL0ADj0XEx1ebB+utEy+MHZNWtDIQNq5Covncnt/+c2OZgbdWPLx
- VIzgdYjHcmLvU5ZAwGpaoMN4Bz5a/Ntnn4Gf0gWrc+8hJ/JQRcrRx/+n7sZmXaw6jzQY
- vJFRzX9TIoB4/sbfj5+s8P0BbmKXM+gegUYpY2A6EGTBZKxaxGG3gvaqgW5cw2+b0zj8
- Ev6Q==
-X-Gm-Message-State: AC+VfDzwH0CnJrG8akMpP5DFMDk1hGbW/cRjMs70nGkejCujm9kQpdKj
- 1Xn/ykvV0bcCjv9KCeMmXGpQPgJdIwHbwcQBPSq0QDBb0I9t1hzUbkiG2wJI5pGzCebRTvYGhJr
- y6asHsAtD1pi71T2BZahg8NtH0wHOnVAu8JhdZwMKGQ==
-X-Received: by 2002:a05:6000:12c8:b0:303:a2e4:e652 with SMTP id
- l8-20020a05600012c800b00303a2e4e652mr2432529wrx.14.1682644110297; 
- Thu, 27 Apr 2023 18:08:30 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ43yyZywMx1CB2ADiJh65tjfwD1uFSRC7hVGQKqY+xMXE6kvoExBkKUH0cVOJuari+LUhVLcQ==
-X-Received: by 2002:a05:6000:12c8:b0:303:a2e4:e652 with SMTP id
- l8-20020a05600012c800b00303a2e4e652mr2432520wrx.14.1682644110024; 
- Thu, 27 Apr 2023 18:08:30 -0700 (PDT)
+ bh=vDlMjQQs9oNd1rM1Ie1hZYk7Gu1+pdqFqGgkpF/yxbI=;
+ b=hsg6UDOil00W00d1wGrfLovV/p9RLZysU4wOJP6sAPj1ZNz+5Ih79H/GtKT7rynPQs
+ 84hMtXZC8hqUs7Xxh8YtTRxGRCcmoNQ5oZO/xAFOTwvEo9IsMa4nuhTwR2oKhUIzy0tr
+ WJ8qoF9BhdFHI06Pzpnw39tuvbbDReBVKWh2H+QGloF3oNefp52THaV0LuI0IlnuMVhc
+ 1O54iuXemLC8mstd0hSsa+FeGYYG0d02JyQ4sth9K1iQ3yUjUuZfdKBjX/37vbm/waEU
+ zNY0PUsWQEHiXaX0NnkgNB7TeScN8H2mGcIlvkfngv1xU6u18Pvn6qRHtyab4TRLnHcK
+ JGyw==
+X-Gm-Message-State: AC+VfDyED027qD3yVfU+MLihCrq3UsoY8zPF77sV0LKl7/PDwAKn0z/+
+ 2LV9mxsBcqnoH64pJ9aVRE87bmY73BzjvTjtQQSy57HgDdVYq0zFPDK40hFnMci7Pq9Q7QmglK+
+ SAz7xWSe/veL/ao+Hl3+f+uNh3OjXkJ00jOAHnEHmfg==
+X-Received: by 2002:adf:dd90:0:b0:304:b967:956f with SMTP id
+ x16-20020adfdd90000000b00304b967956fmr706843wrl.8.1682644164583; 
+ Thu, 27 Apr 2023 18:09:24 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4fv40ETH5op2sNv7xlB+MUhzP96QeT1eiO1SHh4pfOCErUxvz9m5RaLdAL6HtipgJ+xEF8MA==
+X-Received: by 2002:adf:dd90:0:b0:304:b967:956f with SMTP id
+ x16-20020adfdd90000000b00304b967956fmr706834wrl.8.1682644164304; 
+ Thu, 27 Apr 2023 18:09:24 -0700 (PDT)
 Received: from redhat.com ([2.52.19.183]) by smtp.gmail.com with ESMTPSA id
- t24-20020a1c7718000000b003f3195be0a0sm3088178wmi.31.2023.04.27.18.08.27
+ e22-20020a5d5956000000b003012030a0c6sm19719410wri.18.2023.04.27.18.09.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 27 Apr 2023 18:08:29 -0700 (PDT)
-Date: Thu, 27 Apr 2023 21:08:25 -0400
+ Thu, 27 Apr 2023 18:09:23 -0700 (PDT)
+Date: Thu, 27 Apr 2023 21:09:20 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v4 12/15] virtio_net: small: avoid double
- counting in xdp scenarios
-Message-ID: <20230427210802-mutt-send-email-mst@kernel.org>
-References: <20230427030534.115066-1-xuanzhuo@linux.alibaba.com>
- <20230427030534.115066-13-xuanzhuo@linux.alibaba.com>
+To: Wenliang Wang <wangwenliang.1995@bytedance.com>
+Subject: Re: [PATCH v2] virtio_net: suppress cpu stall when free_unused_bufs
+Message-ID: <20230427210851-mutt-send-email-mst@kernel.org>
+References: <1682585517.595783-3-xuanzhuo@linux.alibaba.com>
+ <20230427104618.3297348-1-wangwenliang.1995@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <20230427030534.115066-13-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230427104618.3297348-1-wangwenliang.1995@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,54 +123,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Apr 27, 2023 at 11:05:31AM +0800, Xuan Zhuo wrote:
-> Avoid the problem that some variables(headroom and so on) will repeat
-> the calculation when process xdp.
+On Thu, Apr 27, 2023 at 06:46:18PM +0800, Wenliang Wang wrote:
+> For multi-queue and large ring-size use case, the following error
+> occurred when free_unused_bufs:
+> rcu: INFO: rcu_sched self-detected stall on CPU.
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Wenliang Wang <wangwenliang.1995@bytedance.com>
 
-
-this is "code duplication" not "double counting".
-
+pls send vN+1 as a new thread not as a reply in existing thread of vN.
 
 > ---
->  drivers/net/virtio_net.c | 12 ++++++++----
->  1 file changed, 8 insertions(+), 4 deletions(-)
+> v2:
+> -add need_resched check.
+> -apply same logic to sq.
+> ---
+>  drivers/net/virtio_net.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index b8ec642899c9..f832ab8a3e6e 100644
+> index ea1bd4bb326d..573558b69a60 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -1027,11 +1027,10 @@ static struct sk_buff *receive_small(struct net_device *dev,
->  	struct sk_buff *skb;
->  	struct bpf_prog *xdp_prog;
->  	unsigned int xdp_headroom = (unsigned long)ctx;
-> -	unsigned int header_offset = VIRTNET_RX_PAD + xdp_headroom;
-> -	unsigned int headroom = vi->hdr_len + header_offset;
-> -	unsigned int buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
-> -			      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->  	struct page *page = virt_to_head_page(buf);
-> +	unsigned int header_offset;
-> +	unsigned int headroom;
-> +	unsigned int buflen;
+> @@ -3559,12 +3559,16 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>  		struct virtqueue *vq = vi->sq[i].vq;
+>  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+>  			virtnet_sq_free_unused_buf(vq, buf);
+> +		if (need_resched())
+> +			schedule();
+>  	}
 >  
->  	len -= vi->hdr_len;
->  	stats->bytes += len;
-> @@ -1059,6 +1058,11 @@ static struct sk_buff *receive_small(struct net_device *dev,
->  	rcu_read_unlock();
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		struct virtqueue *vq = vi->rq[i].vq;
+>  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+>  			virtnet_rq_free_unused_buf(vq, buf);
+> +		if (need_resched())
+> +			schedule();
+>  	}
+>  }
 >  
->  skip_xdp:
-> +	header_offset = VIRTNET_RX_PAD + xdp_headroom;
-> +	headroom = vi->hdr_len + header_offset;
-> +	buflen = SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
-> +		SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> +
->  	skb = build_skb(buf, buflen);
->  	if (!skb)
->  		goto err;
 > -- 
-> 2.32.0.3.g01195cf9f
+> 2.20.1
 
 _______________________________________________
 Virtualization mailing list
