@@ -4,88 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21A22C77B60
-	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 16:31:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4069CC7EE21
+	for <virtualization@archiver.kernel.org>; Fri, 28 Apr 2023 16:31:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B26C86FED9;
-	Fri, 28 Apr 2023 16:31:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B26C86FED9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3F55C6FEE7;
+	Fri, 28 Apr 2023 16:31:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F55C6FEE7
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=VhAUyvYS
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=pkG+/ucq
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s_wvj2B6Amat; Fri, 28 Apr 2023 16:31:49 +0000 (UTC)
+	with ESMTP id MnNGQp5NFWEf; Fri, 28 Apr 2023 16:31:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1FB226FEDD;
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D0EE56FEE3;
 	Fri, 28 Apr 2023 16:31:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1FB226FEDD
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D0EE56FEE3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BF34C008F;
-	Fri, 28 Apr 2023 16:31:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 00FF7C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9B52C007C;
+	Fri, 28 Apr 2023 16:31:49 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5A4B2C008C
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Apr 2023 16:31:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2348E42890
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 28 Apr 2023 16:31:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2348E42890
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=pkG+/ucq
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id c5oM-Uf1mlg1
  for <virtualization@lists.linux-foundation.org>;
  Fri, 28 Apr 2023 16:31:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C24076FEDC
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 16:31:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C24076FEDC
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3TWA0GINqbea
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 16:31:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA8E26FED6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 51CA34289D
 Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
  [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DA8E26FED6
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 51CA34289D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 Apr 2023 16:31:45 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+ Fri, 28 Apr 2023 16:31:47 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
  by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 33SF4E3v009381; Fri, 28 Apr 2023 16:31:45 GMT
+ 33SF4GUx004440; Fri, 28 Apr 2023 16:31:46 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=corp-2023-03-30;
- bh=5Zc7jlRNjpC03i0YKWt5hiBqTQt31gqP/cZgBiOe76Q=;
- b=VhAUyvYSIN79oO/QqF5TMRiIkr99a4Y68EXWS7kga9AHZrlHPNggPV8qycH04iEu4Tpb
- Lbmtjblh2XeNeBhYawTFN7sgSTWIKr1nyLYJpuXOWqaokyJ/hB3spFLBUnnug3PpQUaR
- l59IkEutlCT8fbsWDvnN/Jq/YR9oE0CUiVfNctOcMacOU8vXooEJC5tzHv6ogdeNFSn8
- xJlkwFVVgWb4uiuXFE6tDmVAT5s2BcAl7IFcfSl+YrRR+bvb3mK/SxSI9paZOKMszqP9
- m/7utpGeW7iuG8ytSJLz6hSof8zlTgPqXWErdx1mP4VPoeX/JsPYVXwPAu7xnQeeCpX5 zg== 
+ bh=D4/MA0SuX0ACRCSrtE5WRSLq72R+JnfAvohlpxi+hYk=;
+ b=pkG+/ucqbFt0uD4EwocTyEzzxqCS1Gs2/gkV2frWn3a4J5obnTvYmjQYpxiSsLybrM0F
+ CvFnKOPeMtmtEvmMMZq/S1eV8zSfcf+8mS5ct1G0QP0IhsM+oronJSfVCQRINVBRTDp6
+ xugX40Bz+F6emWBWouC7CkxxvNFXlr6F4qu4lk9lORZgfBGU7qWwp07rbDvGBLO+WmXQ
+ CGQxmGh0EgRRLNNkbLXr3CypnzDExSBjLnsamMnYhX8MEyQbe9RyklCIgZPiBxVMYScU
+ LvEXUKWyb39SJ/gXh9zDG67xVDgEom/qu5VuCmrK844U/SgUeTDqte8OQKiPGXvBjrMh vg== 
 Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
  (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3q484uxsc4-1
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3q47faxpq9-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 28 Apr 2023 16:31:45 +0000
+ Fri, 28 Apr 2023 16:31:46 +0000
 Received: from pps.filterd
  (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
  by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 33SG4CZ0020330; Fri, 28 Apr 2023 16:31:43 GMT
+ with ESMTP id 33SFvVnF020354; Fri, 28 Apr 2023 16:31:45 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
  by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3q461h8mdx-1
+ 3q461h8mek-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 28 Apr 2023 16:31:43 +0000
+ Fri, 28 Apr 2023 16:31:45 +0000
 Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
  (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33SGVYPj023567;
- Fri, 28 Apr 2023 16:31:43 GMT
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 33SGVYPl023567;
+ Fri, 28 Apr 2023 16:31:44 GMT
 Received: from mnchrist-mac.us.oracle.com (dhcp-10-154-109-59.vpn.oracle.com
  [10.154.109.59])
  by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
- 3q461h8m7j-7; Fri, 28 Apr 2023 16:31:43 +0000
+ 3q461h8m7j-8; Fri, 28 Apr 2023 16:31:44 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: virtualization@lists.linux-foundation.org, mst@redhat.com,
  sgarzare@redhat.com, jasowang@redhat.com, stefanha@redhat.com
-Subject: [PATCH 07/14] vhost_scsi: make SCSI cmd completion per vq
-Date: Fri, 28 Apr 2023 11:31:24 -0500
-Message-Id: <20230428163131.92777-7-michael.christie@oracle.com>
+Subject: [PATCH 08/14] vhost_scsi: convert to vhost_vq_work_queue
+Date: Fri, 28 Apr 2023 11:31:25 -0500
+Message-Id: <20230428163131.92777-8-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230428163131.92777-1-michael.christie@oracle.com>
 References: <20230428163131.92777-1-michael.christie@oracle.com>
@@ -98,8 +101,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
  malwarescore=0 mlxscore=0 spamscore=0 adultscore=0 phishscore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2303200000 definitions=main-2304280133
-X-Proofpoint-GUID: 20ipdumpOK-jCPHlk91VVMtbVHRGepQl
-X-Proofpoint-ORIG-GUID: 20ipdumpOK-jCPHlk91VVMtbVHRGepQl
+X-Proofpoint-ORIG-GUID: VxzZJzErAJG9xaPxnNr2xSAkdeCw7_JV
+X-Proofpoint-GUID: VxzZJzErAJG9xaPxnNr2xSAkdeCw7_JV
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,178 +119,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch separates the scsi cmd completion code paths so we can complete
-cmds based on their vq instead of having all cmds complete on the same
-worker/CPU. This will be useful with the next patches that allow us to
-create mulitple worker threads and bind them to different vqs, so we can
-have completions running on different threads/CPUs.
+Convert from vhost_work_queue to vhost_vq_work_queue.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 ---
- drivers/vhost/scsi.c | 56 ++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 30 deletions(-)
+ drivers/vhost/scsi.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index bb10fa4bb4f6..a77c53bb035a 100644
+index a77c53bb035a..1668009bd489 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -167,6 +167,7 @@ MODULE_PARM_DESC(max_io_vqs, "Set the max number of IO virtqueues a vhost scsi d
+@@ -353,8 +353,9 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ 	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB) {
+ 		struct vhost_scsi_tmf *tmf = container_of(se_cmd,
+ 					struct vhost_scsi_tmf, se_cmd);
++		struct vhost_virtqueue *vq = &tmf->svq->vq;
  
- struct vhost_scsi_virtqueue {
- 	struct vhost_virtqueue vq;
-+	struct vhost_scsi *vs;
- 	/*
- 	 * Reference counting for inflight reqs, used for flush operation. At
- 	 * each time, one reference tracks new commands submitted, while we
-@@ -181,6 +182,9 @@ struct vhost_scsi_virtqueue {
- 	struct vhost_scsi_cmd *scsi_cmds;
- 	struct sbitmap scsi_tags;
- 	int max_cmds;
-+
-+	struct vhost_work completion_work;
-+	struct llist_head completion_list;
- };
- 
- struct vhost_scsi {
-@@ -190,12 +194,8 @@ struct vhost_scsi {
- 
- 	struct vhost_dev dev;
- 	struct vhost_scsi_virtqueue *vqs;
--	unsigned long *compl_bitmap;
- 	struct vhost_scsi_inflight **old_inflight;
- 
--	struct vhost_work vs_completion_work; /* cmd completion work item */
--	struct llist_head vs_completion_list; /* cmd completion queue */
--
- 	struct vhost_work vs_event_work; /* evt injection work item */
- 	struct llist_head vs_event_list; /* evt injection queue */
- 
-@@ -358,10 +358,11 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+-		vhost_work_queue(&tmf->vhost->dev, &tmf->vwork);
++		vhost_vq_work_queue(vq, &tmf->vwork);
  	} else {
  		struct vhost_scsi_cmd *cmd = container_of(se_cmd,
  					struct vhost_scsi_cmd, tvc_se_cmd);
--		struct vhost_scsi *vs = cmd->tvc_vhost;
-+		struct vhost_scsi_virtqueue *svq =  container_of(cmd->tvc_vq,
-+					struct vhost_scsi_virtqueue, vq);
- 
--		llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
--		vhost_work_queue(&vs->dev, &vs->vs_completion_work);
-+		llist_add(&cmd->tvc_completion_list, &svq->completion_list);
-+		vhost_vq_work_queue(&svq->vq, &svq->completion_work);
- 	}
+@@ -1332,11 +1333,9 @@ static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
  }
  
-@@ -509,17 +510,17 @@ static void vhost_scsi_evt_work(struct vhost_work *work)
-  */
- static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ static void
+-vhost_scsi_send_evt(struct vhost_scsi *vs,
+-		   struct vhost_scsi_tpg *tpg,
+-		   struct se_lun *lun,
+-		   u32 event,
+-		   u32 reason)
++vhost_scsi_send_evt(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
++		    struct vhost_scsi_tpg *tpg, struct se_lun *lun,
++		    u32 event, u32 reason)
  {
--	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
--					vs_completion_work);
-+	struct vhost_scsi_virtqueue *svq = container_of(work,
-+				struct vhost_scsi_virtqueue, completion_work);
- 	struct virtio_scsi_cmd_resp v_rsp;
- 	struct vhost_scsi_cmd *cmd, *t;
- 	struct llist_node *llnode;
- 	struct se_cmd *se_cmd;
- 	struct iov_iter iov_iter;
--	int ret, vq;
-+	bool signal = false;
-+	int ret;
+ 	struct vhost_scsi_evt *evt;
  
--	bitmap_zero(vs->compl_bitmap, vs->dev.nvqs);
--	llnode = llist_del_all(&vs->vs_completion_list);
-+	llnode = llist_del_all(&svq->completion_list);
- 	llist_for_each_entry_safe(cmd, t, llnode, tvc_completion_list) {
- 		se_cmd = &cmd->tvc_se_cmd;
- 
-@@ -539,21 +540,17 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 			      cmd->tvc_in_iovs, sizeof(v_rsp));
- 		ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
- 		if (likely(ret == sizeof(v_rsp))) {
--			struct vhost_scsi_virtqueue *q;
-+			signal = true;
-+
- 			vhost_add_used(cmd->tvc_vq, cmd->tvc_vq_desc, 0);
--			q = container_of(cmd->tvc_vq, struct vhost_scsi_virtqueue, vq);
--			vq = q - vs->vqs;
--			__set_bit(vq, vs->compl_bitmap);
- 		} else
- 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
- 
- 		vhost_scsi_release_cmd_res(se_cmd);
+@@ -1358,7 +1357,7 @@ vhost_scsi_send_evt(struct vhost_scsi *vs,
  	}
  
--	vq = -1;
--	while ((vq = find_next_bit(vs->compl_bitmap, vs->dev.nvqs, vq + 1))
--		< vs->dev.nvqs)
--		vhost_signal(&vs->dev, &vs->vqs[vq].vq);
-+	if (signal)
-+		vhost_signal(&svq->vs->dev, &svq->vq);
+ 	llist_add(&evt->list, &vs->vs_event_list);
+-	vhost_work_queue(&vs->dev, &vs->vs_event_work);
++	vhost_vq_work_queue(vq, &vs->vs_event_work);
  }
  
- static struct vhost_scsi_cmd *
-@@ -1770,6 +1767,7 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+ static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
+@@ -1372,7 +1371,8 @@ static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
+ 		goto out;
  
- static int vhost_scsi_open(struct inode *inode, struct file *f)
- {
-+	struct vhost_scsi_virtqueue *svq;
- 	struct vhost_scsi *vs;
- 	struct vhost_virtqueue **vqs;
- 	int r = -ENOMEM, i, nvqs = vhost_scsi_max_io_vqs;
-@@ -1788,10 +1786,6 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	}
- 	nvqs += VHOST_SCSI_VQ_IO;
- 
--	vs->compl_bitmap = bitmap_alloc(nvqs, GFP_KERNEL);
--	if (!vs->compl_bitmap)
--		goto err_compl_bitmap;
--
- 	vs->old_inflight = kmalloc_array(nvqs, sizeof(*vs->old_inflight),
- 					 GFP_KERNEL | __GFP_ZERO);
- 	if (!vs->old_inflight)
-@@ -1806,7 +1800,6 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	if (!vqs)
- 		goto err_local_vqs;
- 
--	vhost_work_init(&vs->vs_completion_work, vhost_scsi_complete_cmd_work);
- 	vhost_work_init(&vs->vs_event_work, vhost_scsi_evt_work);
- 
- 	vs->vs_events_nr = 0;
-@@ -1817,8 +1810,14 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	vs->vqs[VHOST_SCSI_VQ_CTL].vq.handle_kick = vhost_scsi_ctl_handle_kick;
- 	vs->vqs[VHOST_SCSI_VQ_EVT].vq.handle_kick = vhost_scsi_evt_handle_kick;
- 	for (i = VHOST_SCSI_VQ_IO; i < nvqs; i++) {
--		vqs[i] = &vs->vqs[i].vq;
--		vs->vqs[i].vq.handle_kick = vhost_scsi_handle_kick;
-+		svq = &vs->vqs[i];
-+
-+		vqs[i] = &svq->vq;
-+		svq->vs = vs;
-+		init_llist_head(&svq->completion_list);
-+		vhost_work_init(&svq->completion_work,
-+				vhost_scsi_complete_cmd_work);
-+		svq->vq.handle_kick = vhost_scsi_handle_kick;
- 	}
- 	vhost_dev_init(&vs->dev, vqs, nvqs, UIO_MAXIOV,
- 		       VHOST_SCSI_WEIGHT, 0, true, NULL);
-@@ -1833,8 +1832,6 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- err_vqs:
- 	kfree(vs->old_inflight);
- err_inflight:
--	bitmap_free(vs->compl_bitmap);
--err_compl_bitmap:
- 	kvfree(vs);
- err_vs:
- 	return r;
-@@ -1854,7 +1851,6 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
- 	kfree(vs->dev.vqs);
- 	kfree(vs->vqs);
- 	kfree(vs->old_inflight);
--	bitmap_free(vs->compl_bitmap);
- 	kvfree(vs);
- 	return 0;
+ 	if (vs->vs_events_missed)
+-		vhost_scsi_send_evt(vs, NULL, NULL, VIRTIO_SCSI_T_NO_EVENT, 0);
++		vhost_scsi_send_evt(vs, vq, NULL, NULL, VIRTIO_SCSI_T_NO_EVENT,
++				    0);
+ out:
+ 	mutex_unlock(&vq->mutex);
  }
+@@ -1991,7 +1991,7 @@ vhost_scsi_do_plug(struct vhost_scsi_tpg *tpg,
+ 		goto unlock;
+ 
+ 	if (vhost_has_feature(vq, VIRTIO_SCSI_F_HOTPLUG))
+-		vhost_scsi_send_evt(vs, tpg, lun,
++		vhost_scsi_send_evt(vs, vq, tpg, lun,
+ 				   VIRTIO_SCSI_T_TRANSPORT_RESET, reason);
+ unlock:
+ 	mutex_unlock(&vq->mutex);
 -- 
 2.25.1
 
