@@ -1,107 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 957FAC77B60
-	for <virtualization@archiver.kernel.org>; Sun, 30 Apr 2023 14:05:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25816C77B73
+	for <virtualization@archiver.kernel.org>; Sun, 30 Apr 2023 14:06:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 13FE060AB5;
-	Sun, 30 Apr 2023 14:05:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 13FE060AB5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tebme2ve
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9967C418F5;
+	Sun, 30 Apr 2023 14:06:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9967C418F5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XYw/CfNo
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KlBkUArRi3ot; Sun, 30 Apr 2023 14:05:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4DF4C60741;
-	Sun, 30 Apr 2023 14:05:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4DF4C60741
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id icoj0sdq6QqO; Sun, 30 Apr 2023 14:06:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BFA62418E4;
+	Sun, 30 Apr 2023 14:06:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BFA62418E4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2FF06C0036;
-	Sun, 30 Apr 2023 14:05:23 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A3FC6C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B86EC0036;
+	Sun, 30 Apr 2023 14:06:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EAF1DC002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 14:05:21 +0000 (UTC)
+ Sun, 30 Apr 2023 14:06:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 715FD81FE3
+ by smtp4.osuosl.org (Postfix) with ESMTP id C3833418F5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 14:05:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 715FD81FE3
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tebme2ve
+ Sun, 30 Apr 2023 14:06:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C3833418F5
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ckNjq-j3SsvC
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9UtX3Wb8Qtcu
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 14:05:20 +0000 (UTC)
+ Sun, 30 Apr 2023 14:06:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5B1EA81FD8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7B469418E4
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5B1EA81FD8
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7B469418E4
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 14:05:20 +0000 (UTC)
+ Sun, 30 Apr 2023 14:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1682863519;
+ s=mimecast20190719; t=1682863607;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=mp3jACiwxoY5N/0Brk2jQcRGmxIELN2blO1EhxFhJ3c=;
- b=Tebme2ve2APmiojqwcjF2T21+TcXhG78YGudqnyOMWbGiCn/CNNXzjfFeM//lSIUal+iVv
- 3ss3+lzzgmJ85W5VQ/Q4n+AkoDGC0jkUIRDhCRHroWpxI/WUmqzK9Zjh9+eSUscacyXRx0
- PDu/jLw0LKT+FWKsR/VMt/xXGbxu0Xg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/qFwCkDXym+BO05vYF8vpXsanmPn3ffsSFSPl68Sv4Y=;
+ b=XYw/CfNoqOxY6vkppd0il0Dg99SI+v1J3/1YUCsofcPnctsnzDTfg0zjMxTl24yWBBYyCG
+ kwvbA+q/RINZcGSoSKduOiKttzO6O5DOcjbkW7LDa3eOLN4ESamfNOUXjemZtBXiPOOklF
+ 6CGduUcJ987g9tDn74UbMfjLNFf84vw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-207-TxCMx9fLMUihHoe28MFuQQ-1; Sun, 30 Apr 2023 10:05:17 -0400
-X-MC-Unique: TxCMx9fLMUihHoe28MFuQQ-1
-Received: by mail-wr1-f71.google.com with SMTP id
- ffacd0b85a97d-306281812d6so242087f8f.2
+ us-mta-388-HwpdNuOyNrWJxYu10qD_fA-1; Sun, 30 Apr 2023 10:06:45 -0400
+X-MC-Unique: HwpdNuOyNrWJxYu10qD_fA-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ 5b1f17b1804b1-3f315735edeso68216675e9.1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 07:05:17 -0700 (PDT)
+ Sun, 30 Apr 2023 07:06:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1682863516; x=1685455516;
+ d=1e100.net; s=20221208; t=1682863604; x=1685455604;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=mp3jACiwxoY5N/0Brk2jQcRGmxIELN2blO1EhxFhJ3c=;
- b=ZJNdzyWF/rGz7hGn+Am4cJk95apeBoShJtx19J0IKb9QEQInwK1npFLQ9rmaRrHVyR
- OYx9Vg8HwEmiWljx4R3RTFMWjpqFGepjdtuyjKCB7YK/X5ngoYOHhpXM946J7VflaYLD
- xRhUWSnVbraYo0wVkvnnPjnFhQABSCIiTxh1ZbIdzAQvXQwORBUdBiQLwW08/r6raCac
- icYSsWP56aIALcRQEzVwVVZLn1rSW9zuKinhrtYa9snmONPlifw3Xvl6GmibMO56CowY
- JkigMJCBFlBJX1+afLIipvyTTABCPd1ADgqRGoWrimxy5EqIahjkMAvBGd40gAjPXVMt
- Mzrg==
-X-Gm-Message-State: AC+VfDz5EC3HYEe3bBLUa0Pq3XBg5YOzSxLeMvmvq4lWdIJAZDYpBDw1
- WOXeE54bzpPPG3vqfV4hKogADZR38+6Q23DPy9Mg2kTc0Y9sN1Ar3HqR+7emxsI0Y0H6Sj95rz4
- x/RVqL6kTVaM8VJfyLkzhJAW9TbPD75nwKersmfSUuw==
-X-Received: by 2002:a5d:6dca:0:b0:306:29b6:b389 with SMTP id
- d10-20020a5d6dca000000b0030629b6b389mr1598363wrz.64.1682863516540; 
- Sun, 30 Apr 2023 07:05:16 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7qJnEP/dZeQKFHQE3+kznXVt6V2fOEt2VXg9BwyAJoQelyowluTXLgbdw67YKCAyWybkxF5w==
-X-Received: by 2002:a5d:6dca:0:b0:306:29b6:b389 with SMTP id
- d10-20020a5d6dca000000b0030629b6b389mr1598347wrz.64.1682863516134; 
- Sun, 30 Apr 2023 07:05:16 -0700 (PDT)
+ bh=/qFwCkDXym+BO05vYF8vpXsanmPn3ffsSFSPl68Sv4Y=;
+ b=g+QX4g70KHky/F0ax158G+9swFkQr/6Yr3awAtoP7DAyxaDsTqPAFgAoAggjnzNk7e
+ PpIxUrPccFhUm9jObt80rxEdm/Gve/JZ8BZefnxi5MLp23hUWk5BRxgnjJiZfsw3tV2r
+ ZEZK0eNHVArcWpieymzp524tbtDxdHxpxVz8Xs7qe1VqngPPqfHgWyHfHvpCrg83IyNo
+ VN/312ouiPF3cpEde3LGLYA3MKAUD+Ft3PpE4DlFLnchf2gpDQLGp4/k2EL24AEThhnl
+ jptQJrlHvDQ/6iv95TIPMhxh7OgHlpb+NRjTK9rmHjhjHoGHpvHrsd0a8yGiwLBbifHn
+ h7kA==
+X-Gm-Message-State: AC+VfDxensZFJeIYPqgl22HYPm8NnZIX+yz3a7AB0xrNDLPp67afyhEz
+ k/cJItNovQ6NpsuK25lft+RWNMQi0hhFhU26szPbtvVurs9KbV96JKV2pc++b3/5QCYoArTcWf1
+ D/XiuJ/idIT9oM5WUhXH7pYFXd+GJY3aOvyPOR+yBbA==
+X-Received: by 2002:a7b:c7c4:0:b0:3f1:6f57:6fd1 with SMTP id
+ z4-20020a7bc7c4000000b003f16f576fd1mr8450911wmk.9.1682863604674; 
+ Sun, 30 Apr 2023 07:06:44 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ49qr4fnugfdl0poBdeno2pyYNH1DJqISB5JrW9YRnjnc+eSzsu886AyGUm1JWAYtIvaYCRKA==
+X-Received: by 2002:a7b:c7c4:0:b0:3f1:6f57:6fd1 with SMTP id
+ z4-20020a7bc7c4000000b003f16f576fd1mr8450897wmk.9.1682863604398; 
+ Sun, 30 Apr 2023 07:06:44 -0700 (PDT)
 Received: from redhat.com ([2.52.139.131]) by smtp.gmail.com with ESMTPSA id
- b2-20020adff902000000b00304aba2cfcbsm9629042wrr.7.2023.04.30.07.05.14
+ z23-20020a7bc7d7000000b003f1751016desm29757833wmk.28.2023.04.30.07.06.41
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 30 Apr 2023 07:05:15 -0700 (PDT)
-Date: Sun, 30 Apr 2023 10:05:12 -0400
+ Sun, 30 Apr 2023 07:06:43 -0700 (PDT)
+Date: Sun, 30 Apr 2023 10:06:39 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [RFC PATCH net 2/3] virtio-net: allow usage of vrings smaller
- than MAX_SKB_FRAGS + 2
-Message-ID: <20230430093009-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC PATCH net 0/3] virtio-net: allow usage of small vrings
+Message-ID: <20230430100535-mutt-send-email-mst@kernel.org>
 References: <20230430131518.2708471-1-alvaro.karsz@solid-run.com>
- <20230430131518.2708471-3-alvaro.karsz@solid-run.com>
 MIME-Version: 1.0
-In-Reply-To: <20230430131518.2708471-3-alvaro.karsz@solid-run.com>
+In-Reply-To: <20230430131518.2708471-1-alvaro.karsz@solid-run.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -124,296 +119,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Apr 30, 2023 at 04:15:17PM +0300, Alvaro Karsz wrote:
-> At the moment, if a network device uses vrings with less than
+On Sun, Apr 30, 2023 at 04:15:15PM +0300, Alvaro Karsz wrote:
+> At the moment, if a virtio network device uses vrings with less than
 > MAX_SKB_FRAGS + 2 entries, the device won't be functional.
 > 
 > The following condition vq->num_free >= 2 + MAX_SKB_FRAGS will always
 > evaluate to false, leading to TX timeouts.
 > 
-> This patch introduces a new variable, single_pkt_max_descs, that holds
-> the max number of descriptors we may need to handle a single packet.
+> This patchset attempts this fix this bug, and to allow small rings down
+> to 4 entries.
+> The first patch introduces a new mechanism in virtio core - it allows to
+> block features in probe time.
 > 
-> This patch also detects the small vring during probe, blocks some
-> features that can't be used with small vrings, and fails probe,
-> leading to a reset and features re-negotiation.
+> If a virtio drivers blocks features and fails probe, virtio core will
+> reset the device, re-negotiate the features and probe again.
 > 
-> Features that can't be used with small vrings:
-> GRO features (VIRTIO_NET_F_GUEST_*):
-> When we use small vrings, we may not have enough entries in the ring to
-> chain page size buffers and form a 64K buffer.
-> So we may need to allocate 64k of continuous memory, which may be too
-> much when the system is stressed.
+> This is needed since some virtio net features are not supported with
+> small rings.
 > 
-> This patch also fixes the MTU size in small vring cases to be up to the
-> default one, 1500B.
-
-and then it should clear VIRTIO_NET_F_MTU?
-
-> Signed-off-by: Alvaro Karsz <alvaro.karsz@solid-run.com>
-
-
-
-
-> ---
->  drivers/net/virtio_net.c | 149 +++++++++++++++++++++++++++++++++++++--
->  1 file changed, 144 insertions(+), 5 deletions(-)
+> This patchset follows a discussion in the mailing list [1].
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 8d8038538fc..b4441d63890 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -103,6 +103,8 @@ struct virtnet_rq_stats {
->  #define VIRTNET_SQ_STAT(m)	offsetof(struct virtnet_sq_stats, m)
->  #define VIRTNET_RQ_STAT(m)	offsetof(struct virtnet_rq_stats, m)
->  
-> +#define IS_SMALL_VRING(size)	((size) < MAX_SKB_FRAGS + 2)
-> +
->  static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
->  	{ "packets",		VIRTNET_SQ_STAT(packets) },
->  	{ "bytes",		VIRTNET_SQ_STAT(bytes) },
-> @@ -268,6 +270,12 @@ struct virtnet_info {
->  	/* Does the affinity hint is set for virtqueues? */
->  	bool affinity_hint_set;
->  
-> +	/* How many ring descriptors we may need to transmit a single packet */
-> +	u16 single_pkt_max_descs;
-> +
-> +	/* Do we have virtqueues with small vrings? */
-> +	bool svring;
-> +
->  	/* CPU hotplug instances for online & dead */
->  	struct hlist_node node;
->  	struct hlist_node node_dead;
+> This fixes only part of the bug, rings with less than 4 entries won't
+> work.
 
-worth checking that all these layout changes don't push useful things to
-a different cache line. can you add that analysis?
+Why the difference?
 
-I see confusiong here wrt whether some rings are "small"? all of them?
-some rx rings? some tx rings? names should make it clear.
-also do we really need bool svring? can't we just check single_pkt_max_descs
-all the time?
+> My intention is to split the effort and fix the RING_SIZE < 4 case in a
+> follow up patchset.
+> 
+> Maybe we should fail probe if RING_SIZE < 4 until the follow up patchset?
 
-> @@ -455,6 +463,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->  	unsigned int copy, hdr_len, hdr_padded_len;
->  	struct page *page_to_free = NULL;
->  	int tailroom, shinfo_size;
-> +	u16 max_frags = MAX_SKB_FRAGS;
->  	char *p, *hdr_p, *buf;
->  
->  	p = page_address(page) + offset;
-> @@ -520,7 +529,10 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->  	 * tries to receive more than is possible. This is usually
->  	 * the case of a broken device.
->  	 */
-> -	if (unlikely(len > MAX_SKB_FRAGS * PAGE_SIZE)) {
-> +	if (unlikely(vi->svring))
-> +		max_frags = 1;
-> +
-> +	if (unlikely(len > max_frags * PAGE_SIZE)) {
->  		net_dbg_ratelimited("%s: too much data\n", skb->dev->name);
->  		dev_kfree_skb(skb);
->  		return NULL;
-> @@ -612,7 +624,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
->  	 * Since most packets only take 1 or 2 ring slots, stopping the queue
->  	 * early means 16 slots are typically wasted.
->  	 */
-> -	if (sq->vq->num_free < 2+MAX_SKB_FRAGS) {
-> +	if (sq->vq->num_free < vi->single_pkt_max_descs) {
->  		netif_stop_subqueue(dev, qnum);
->  		if (use_napi) {
->  			if (unlikely(!virtqueue_enable_cb_delayed(sq->vq)))
-> @@ -620,7 +632,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
->  		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
->  			/* More just got used, free them then recheck. */
->  			free_old_xmit_skbs(sq, false);
-> -			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
-> +			if (sq->vq->num_free >= vi->single_pkt_max_descs) {
->  				netif_start_subqueue(dev, qnum);
->  				virtqueue_disable_cb(sq->vq);
->  			}
-> @@ -1108,6 +1120,10 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
->  		return 0;
->  
->  	if (*num_buf > 1) {
-> +		/* Small vring - can't be more than 1 buffer */
-> +		if (unlikely(vi->svring))
-> +			return -EINVAL;
-> +
->  		/* If we want to build multi-buffer xdp, we need
->  		 * to specify that the flags of xdp_buff have the
->  		 * XDP_FLAGS_HAS_FRAG bit.
-> @@ -1828,7 +1844,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
->  			free_old_xmit_skbs(sq, true);
->  		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
->  
-> -		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> +		if (sq->vq->num_free >= vi->single_pkt_max_descs)
->  			netif_tx_wake_queue(txq);
->  
->  		__netif_tx_unlock(txq);
-> @@ -1919,7 +1935,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
->  	virtqueue_disable_cb(sq->vq);
->  	free_old_xmit_skbs(sq, true);
->  
-> -	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-> +	if (sq->vq->num_free >= vi->single_pkt_max_descs)
->  		netif_tx_wake_queue(txq);
->  
->  	opaque = virtqueue_enable_cb_prepare(sq->vq);
-> @@ -3862,6 +3878,15 @@ static bool virtnet_check_guest_gso(const struct virtnet_info *vi)
->  		virtio_has_feature(vi->vdev, VIRTIO_NET_F_GUEST_USO6));
->  }
->  
-> +static bool virtnet_check_host_gso(const struct virtnet_info *vi)
-> +{
-> +	return virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_TSO4) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_TSO6) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_ECN) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_UFO) ||
-> +		virtio_has_feature(vi->vdev, VIRTIO_NET_F_HOST_USO);
-> +}
-> +
->  static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
->  {
->  	bool guest_gso = virtnet_check_guest_gso(vi);
-> @@ -3876,6 +3901,112 @@ static void virtnet_set_big_packets(struct virtnet_info *vi, const int mtu)
->  	}
->  }
->  
-> +static u16 virtnet_calc_max_descs(struct virtnet_info *vi)
-> +{
-> +	if (vi->svring) {
-> +		if (virtnet_check_host_gso(vi))
-> +			return 4; /* 1 fragment + linear part + virtio header + GSO header */
-> +		else
-> +			return 3; /* 1 fragment + linear part + virtio header */
-> +	} else {
-> +		return MAX_SKB_FRAGS + 2;
-> +	}
-> +}
-> +
-> +static bool virtnet_uses_svring(struct virtnet_info *vi)
-> +{
-> +	u32 i;
-> +
-> +	/* If a transmit/receive virtqueue is small,
-> +	 * we cannot handle fragmented packets.
-> +	 */
-> +	for (i = 0; i < vi->max_queue_pairs; i++) {
-> +		if (IS_SMALL_VRING(virtqueue_get_vring_size(vi->sq[i].vq)) ||
-> +		    IS_SMALL_VRING(virtqueue_get_vring_size(vi->rq[i].vq)))
-> +			return true;
-> +	}
-> +
-> +	return false;
-> +}
+I'd keep current behaviour.
 
-I see even if only some rings are too small we force everything to use
-small ones. Wouldn't it be better to just disable small ones in this
-case? That would not need a reset.
-
-
-> +
-> +/* Function returns the number of features it blocked */
-
-We don't need the # though. Make it bool?
-
-> +static int virtnet_block_svring_unsupported(struct virtio_device *vdev)
-> +{
-> +	int cnt = 0;
-> +	/* Block Virtio guest GRO features.
-> +	 * Asking Linux to allocate 64k of continuous memory is too much,
-> +	 * specially when the system is stressed.
-> +	 *
-> +	 * If VIRTIO_NET_F_MRG_RXBUF is negotiated we can allcoate smaller
-> +	 * buffers, but since the ring is small, the buffers can be quite big.
-> +	 *
-> +	 */
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_TSO4);
-> +		cnt++;
-> +	}
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_TSO6);
-> +		cnt++;
-> +	}
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_ECN);
-> +		cnt++;
-> +	}
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_UFO);
-> +		cnt++;
-> +	}
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO4)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_USO4);
-> +		cnt++;
-> +	}
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_USO6)) {
-> +		virtio_block_feature(vdev, VIRTIO_NET_F_GUEST_USO6);
-> +		cnt++;
-> +	}
-> +
-> +	return cnt;
-> +}
-> +
-> +static int virtnet_fixup_svring(struct virtnet_info *vi)
-> +{
-> +	int i;
-> +	/* Do we use small vrings?
-> +	 * If not, nothing we need to do.
-> +	 */
-> +	vi->svring = virtnet_uses_svring(vi);
-> +	if (!vi->svring)
-> +		return 0;
-> +
-> +	/* Some features can't be used with small vrings.
-> +	 * Block those and return an error.
-> +	 * This will trigger a reprobe without the blocked
-> +	 * features.
-> +	 */
-> +	if (virtnet_block_svring_unsupported(vi->vdev))
-> +		return -EOPNOTSUPP;
-> +
-> +	/* Disable NETIF_F_SG */
-> +	vi->dev->hw_features &= ~NETIF_F_SG;
-> +
-> +	/* Don't use MTU bigger than default */
-> +	if (vi->dev->max_mtu > ETH_DATA_LEN)
-> +		vi->dev->max_mtu = ETH_DATA_LEN;
-> +	if (vi->dev->mtu > ETH_DATA_LEN)
-> +		vi->dev->mtu = ETH_DATA_LEN;
-> +
-> +	/* Don't use big packets */
-> +	vi->big_packets = false;
-> +	vi->big_packets_num_skbfrags = 1;
-> +
-> +	/* Fix min_buf_len for receive virtqueues */
-> +	for (i = 0; i < vi->max_queue_pairs; i++)
-> +		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-> +
-> +	return 0;
-> +}
-> +
->  static int virtnet_probe(struct virtio_device *vdev)
->  {
->  	int i, err = -ENOMEM;
-> @@ -4061,6 +4192,14 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	if (err)
->  		goto free;
->  
-> +	/* Do required fixups in case we are using small vrings */
-> +	err = virtnet_fixup_svring(vi);
-> +	if (err)
-> +		goto free_vqs;
-> +
-> +	/* Calculate the max. number of descriptors we may need to transmit a single packet */
-> +	vi->single_pkt_max_descs = virtnet_calc_max_descs(vi);
-> +
->  #ifdef CONFIG_SYSFS
->  	if (vi->mergeable_rx_bufs)
->  		dev->sysfs_rx_queue_group = &virtio_net_mrg_rx_group;
+> I tested the patchset with SNET DPU (drivers/vdpa/solidrun), with packed
+> and split VQs, with rings down to 4 entries, with and without
+> VIRTIO_NET_F_MRG_RXBUF, with big MTUs.
+> 
+> I would appreciate more testing.
+> Xuan: I wasn't able to test XDP with my setup, maybe you can help with
+> that?
+> 
+> [1] https://lore.kernel.org/lkml/20230416074607.292616-1-alvaro.karsz@solid-run.com/
+> 
+> Alvaro Karsz (3):
+>   virtio: re-negotiate features if probe fails and features are blocked
+>   virtio-net: allow usage of vrings smaller than MAX_SKB_FRAGS + 2
+>   virtio-net: block ethtool from converting a ring to a small ring
+> 
+>  drivers/net/virtio_net.c | 161 +++++++++++++++++++++++++++++++++++++--
+>  drivers/virtio/virtio.c  |  73 +++++++++++++-----
+>  include/linux/virtio.h   |   3 +
+>  3 files changed, 212 insertions(+), 25 deletions(-)
+> 
 > -- 
 > 2.34.1
 
