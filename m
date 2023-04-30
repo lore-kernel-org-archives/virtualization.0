@@ -1,92 +1,88 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1971AC77B7C
-	for <virtualization@archiver.kernel.org>; Sun, 30 Apr 2023 18:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 68FC5C77B7C
+	for <virtualization@archiver.kernel.org>; Sun, 30 Apr 2023 18:54:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7FFC2404FC;
-	Sun, 30 Apr 2023 18:18:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7FFC2404FC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=rlKgwVP7
+	by smtp3.osuosl.org (Postfix) with ESMTP id D344E607CA;
+	Sun, 30 Apr 2023 18:54:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D344E607CA
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256 header.s=selector1-solidrn-onmicrosoft-com header.b=frV4ec4V
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qnqS-qql3GLa; Sun, 30 Apr 2023 18:18:35 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xD44pdfWeTQj; Sun, 30 Apr 2023 18:54:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 2A2D8404D1;
-	Sun, 30 Apr 2023 18:18:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2A2D8404D1
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4E2AB605B1;
+	Sun, 30 Apr 2023 18:54:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E2AB605B1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 03BE4C0036;
-	Sun, 30 Apr 2023 18:18:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D723CC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A8D4C0036;
+	Sun, 30 Apr 2023 18:54:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C1F51C002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 18:18:32 +0000 (UTC)
+ Sun, 30 Apr 2023 18:54:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9E85480EA4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9BD9E606C6
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 18:18:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9E85480EA4
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com
- header.i=@solidrn.onmicrosoft.com header.a=rsa-sha256
- header.s=selector1-solidrn-onmicrosoft-com header.b=rlKgwVP7
+ Sun, 30 Apr 2023 18:54:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9BD9E606C6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OeDPYLw4j8WO
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mSIxYARTqziV
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 18:18:32 +0000 (UTC)
+ Sun, 30 Apr 2023 18:54:13 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CA32580E41
-Received: from EUR04-VI1-obe.outbound.protection.outlook.com
- (mail-vi1eur04on060b.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe0e::60b])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CA32580E41
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EB5DD605B1
+Received: from EUR04-HE1-obe.outbound.protection.outlook.com
+ (mail-he1eur04on061a.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe0d::61a])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EB5DD605B1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 Apr 2023 18:18:31 +0000 (UTC)
+ Sun, 30 Apr 2023 18:54:12 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cCWaxPnUmioPZiYZI/YYFk0YWZ5onqx7VBxF9/DgU0ieqB8MUPGyTkMFAWfiWCyf7m5K8UzLvKrIBcH4FOVia1dHghYo4Ft78t1rj92jBs67EvpfwvuwT+d4N13C9KSCCU+YeNPR+sP+qz014aVgjObdxIe17QdDjpk6mCnnG1k8Urg2x8sbuBLEa+T+8cCQsXgqSnJnIyRIN0RTehQWuBoaFNuvT5c5fM256qWpHHQYIwMtAt215E4cR7rWtNw7pi8fgIsPWc0QokPVcwLCPBgJhfSIv9capDjwI2obdK6FniUIoxpr9h7VmamIANmVDsfGsJTF+Fbn2CmZaWoXfw==
+ b=efX+6vpuZiNjCMw4pSciRB2Cb3u5kQolK7bCG36ldj8pSsv7Gzu9dlid+WPEpL5R9TPxClPna2LDBIQqWeYLT8wBmjXX3hSrPuzAgUSH+NoOuGP680fYtK43cKh6UJBvlRh1p4+dfABKS6gpL1ObTTvXZCdQlh9DSfO+Uu7hzI0gBnKYFfD5i8kVYA7cnGuBSLkDP5/OqW4ei+e/qBhGmrvJrB30DDwCHSUBtEwKZHbRG93ynjb4eJn+ElEx3NkVTg//m915/MV7a0YxJPHt9kobqOiKl22OfNkz8AWkewEa8wevLFp9hRFAVX/kFJ1yrHOBhV9UZyAJ8xiiosE6fw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CxOhW3pYZI74m933wIIwuNIHyEmdorE9jVAM1F6UWdY=;
- b=U22/CbubJYtjViNt4xaoVjQmn3ZGPYaDVrJp3BDhAXzMrZVzr7KjrFVBePWGSHQsK058WgN+gKJak4+mf7/66ODKNXrAwYRlFz3frOaJEv17cmCjp3IosYlFrXU2Wo2ODrisd5RVsSzYIzm5hnBPjzcAEcQdRRlTsWn43LDxTAruvOpIpkAFgdnN3RwEb9CTh64AQ5u4MVqGE2eX29aTvaZj5lfxXYLkibEAg1mXr43RI23uOONCdpY+9F9mCs5YX7+Av1zT6Qbm5rMXOcno7/xLG6DwuSDaLzuU+ID5/kQH6KWN0TT86aOtXM3rL93sfpNWCc7YNCg8vx6mx6e91A==
+ bh=wjyI3Ec6hBAgKPVbHgM1feHYm8VrJlo6KUshV39oG9A=;
+ b=AQKZ/GhutXm4D/hO16w9XL1YAQYAO+YW/hp0+NBnYojjY3govnyKnPhg6mwFIxe5XooJ4nptv12A3+W19KMevBciEgize+fDXsb7HmYh0n37Y920C96u4Y4JSFvouTmgCp6BbokR53KqqU9RK8e244HExAUKt2cH5Cl52RtPEF30wW486Kj6OE6BhjM/kKE9J+l1658GyB8SJp86jWrkgR+F4z9n/AV/q3U/FXNeANyfkhDzzDukopdgVWAn4E8nf3oVVd3q87IQdstOKOMSXZLU3VCnZOKlcTZF4e/DngzXkf/3IDrfdCxdhZckyKlxwgMjkbGdnRcLncnS9Qm5rw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=solid-run.com; dmarc=pass action=none
  header.from=solid-run.com; dkim=pass header.d=solid-run.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CxOhW3pYZI74m933wIIwuNIHyEmdorE9jVAM1F6UWdY=;
- b=rlKgwVP78c6LWpGi6sHCHLfLEb/oVqfjcTZX7Ff1c0efHDB5uID7Of/cjiUDXxb7gPfQmGYo209ny6kXxlm366OSBUfhxvvEukMuTFboFUywK7qbfv1v/Z5h/1wsMInXz+jzvlUtK7xxnqFyGbcmN1IFBxCFgSoYua2Noyv5S+8=
-Received: from AM0PR04MB4723.eurprd04.prod.outlook.com (2603:10a6:208:c0::20)
- by PAXPR04MB8797.eurprd04.prod.outlook.com (2603:10a6:102:20c::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.30; Sun, 30 Apr
- 2023 18:18:25 +0000
-Received: from AM0PR04MB4723.eurprd04.prod.outlook.com
- ([fe80::a5ea:bc1c:6fa6:8106]) by AM0PR04MB4723.eurprd04.prod.outlook.com
- ([fe80::a5ea:bc1c:6fa6:8106%5]) with mapi id 15.20.6340.026; Sun, 30 Apr 2023
- 18:18:25 +0000
+ bh=wjyI3Ec6hBAgKPVbHgM1feHYm8VrJlo6KUshV39oG9A=;
+ b=frV4ec4VXT9yfd2RXAF+tSqbl2P8PngjwfMZ2c7SYD175Gm1ctDcSuYtnkEIv5us8vICMagEscnDqKmmCSKjuAFMuCtK0h4Hya7IfhDt3dHeiMgWPyZvIFYNe7z8rnt+bnzVWuoQyDQlurR391+Xnn5zD5GuSSsHEj+Nko6yyVA=
+Received: from AM6PR04MB4725.eurprd04.prod.outlook.com (2603:10a6:20b:7::14)
+ by DB9PR04MB9646.eurprd04.prod.outlook.com (2603:10a6:10:30a::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.29; Sun, 30 Apr
+ 2023 18:54:08 +0000
+Received: from AM6PR04MB4725.eurprd04.prod.outlook.com
+ ([fe80::2d9e:92b4:e92e:9e5a]) by AM6PR04MB4725.eurprd04.prod.outlook.com
+ ([fe80::2d9e:92b4:e92e:9e5a%6]) with mapi id 15.20.6340.028; Sun, 30 Apr 2023
+ 18:54:08 +0000
 From: Alvaro Karsz <alvaro.karsz@solid-run.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH net 1/3] virtio: re-negotiate features if probe fails
- and features are blocked
-Thread-Topic: [RFC PATCH net 1/3] virtio: re-negotiate features if probe fails
- and features are blocked
-Thread-Index: AQHZe2XWXCxBWFWtXE6IKtn3GaLogq9D2DEAgABQpw0=
-Date: Sun, 30 Apr 2023 18:18:25 +0000
-Message-ID: <AM0PR04MB4723E4FB8898BF5464822C02D4699@AM0PR04MB4723.eurprd04.prod.outlook.com>
+Subject: Re: [RFC PATCH net 2/3] virtio-net: allow usage of vrings smaller
+ than MAX_SKB_FRAGS + 2
+Thread-Topic: [RFC PATCH net 2/3] virtio-net: allow usage of vrings smaller
+ than MAX_SKB_FRAGS + 2
+Thread-Index: AQHZe2XXxDQ9u/7pQUe+LxobnBX4G69D4sMAgABG2xQ=
+Date: Sun, 30 Apr 2023 18:54:08 +0000
+Message-ID: <AM0PR04MB4723043772ACAF516D6BFA79D4699@AM0PR04MB4723.eurprd04.prod.outlook.com>
 References: <20230430131518.2708471-1-alvaro.karsz@solid-run.com>
- <20230430131518.2708471-2-alvaro.karsz@solid-run.com>
- <20230430092142-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230430092142-mutt-send-email-mst@kernel.org>
+ <20230430131518.2708471-3-alvaro.karsz@solid-run.com>
+ <20230430093009-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230430093009-mutt-send-email-mst@kernel.org>
 Accept-Language: en-GB, en-US
 Content-Language: en-GB
 X-MS-Has-Attach: 
@@ -95,58 +91,58 @@ msip_labels:
 authentication-results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=solid-run.com;
 x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: AM0PR04MB4723:EE_|PAXPR04MB8797:EE_
-x-ms-office365-filtering-correlation-id: 4fed4089-9de2-4685-abdf-08db49a74a24
+x-ms-traffictypediagnostic: AM6PR04MB4725:EE_|DB9PR04MB9646:EE_
+x-ms-office365-filtering-correlation-id: 97e80c4e-fc15-4602-3163-08db49ac478a
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: D190/A+4n/ngP2X5prPaW0F0WkfLy2JjiX3fiyRfzCHuXXhV/XyGBeTcBDk9WCJ+4gQ1XvUT8qsfKjRAiZKYsKSXOIOkeLegKGwEecVIm8BCxBBBmDwRoA5VsuthS/vF6hJseo1O+kIv6asWFXZOHGDQsSE0ILXNLyX7neEt7S3iDOCsD1tNedyuNhcCKoVwBH5ZWon6qMmwUMQvsVCwJ8VxRUDB+PKE4WfemYZGF/4M4x9X3kPAIQY3+mJbdTXyifSAQGfvb6pheTAOM1zwQ4J8Ia4oyFCY811/PNOdhh6uPlrl+DwvHWX6mEJ8YAO7sG7aaplGUNbm9qYG44jZCc4hkU18zSoM2k8eaeZeIDCzLiVXW73a5wjXcPp9vAHVND42DLIHordiM4fssAPoKRUt8JiYy5KCNCgzCysv3XHg5SsHe3uj0PHFrWiOp3VKIwde9oOI/cO1hZlQqShZTDftO107N3wAz0YXtrF506l+Xzt35hEwQXzwprPwWpmM7dnC00evdrAtbS09V/Cg6DgIjr/rnvTzDvKmbhvBciFfc7rjPPjFAU2uA9s5FYJ9zh6xWfqRETM1Uyj9keKxsBAK7m59rZwwhY/XrvrvaO05ttJDnjbSQmffYh5+nLBN
+x-microsoft-antispam-message-info: xZ/Hy5ScHhnx7N/dk0+wfDW8pGo8zzzI+3RPnKtY7evb4h/yoEQjxyKzh7MjHT/g7j8+fWYeu4EKi/WMKJHHj965Afu84Qe2GMVmdKhc0wrMhjUYhb4KtjsH+YRFFQt0GONKeuc/XgRI0cO6nUWrFzPlzORjUL7IilnYi+6H2DnTIGCPtEVDYo8W4tI16yvEwXTcvyf0OuBTHKpsIWWFGCxE2481ee1j7EjcG3wpsjn/eoOIurERaChKjCaufBeT5xpEy8nm+8eWDNeIaZWDO0UKuglxtMgIhTy8Ef+VYQkCuQCuCGQXVdzeyvhyEhhaYBX11iAczJavq1UT78Or7NQa8it5r96Lew6TL7zDM4WFgi6fvz31nlz2zS/UsNn1uf9RQ4wgm9Fh8ZEDZEoYPEvQXvJwOZw9xXrzMhLTrgukpybQ9VOAr019wbSfBaXuK/05FO/pKVUqXeuJTh+cp55crBxZ2kyQAG1q+KR/XFXK3hvWsltdUtdYY+bx+qyXFfIFOvIL+WApuTJMy7oxbs4XjS5qkXRdqFBxSYDfWN+0csBUHm7G88d9xi8Nk10jVY/yDLIMrCg/jNENWLYVYcpiXkWZngGuN+HirCESbwU=
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:AM0PR04MB4723.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(39840400004)(366004)(346002)(136003)(376002)(396003)(451199021)(2906002)(478600001)(41300700001)(316002)(4326008)(6916009)(66476007)(66556008)(66946007)(76116006)(66446008)(64756008)(91956017)(55016003)(15650500001)(5660300002)(44832011)(52536014)(54906003)(8676002)(8936002)(7416002)(38070700005)(38100700002)(122000001)(9686003)(6506007)(83380400001)(71200400001)(86362001)(7696005)(186003)(33656002);
+ IPV:NLI; SFV:NSPM; H:AM6PR04MB4725.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(346002)(136003)(396003)(366004)(376002)(39840400004)(451199021)(54906003)(66899021)(71200400001)(478600001)(2906002)(52536014)(44832011)(5660300002)(7416002)(66446008)(316002)(64756008)(4326008)(91956017)(6916009)(66476007)(76116006)(66556008)(66946007)(8936002)(41300700001)(8676002)(86362001)(83380400001)(122000001)(38100700002)(38070700005)(33656002)(966005)(6486002)(186003)(6512007)(9686003)(6506007);
  DIR:OUT; SFP:1101; 
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?TlyJx4KcM8g0f4flm+E8AToqXDj7+Zpu1KruiaRGMuBNBrwUpmT0Bn7HG+?=
- =?iso-8859-1?Q?DjJjb9QShToMrFWbMyWkHXP+2U36aReSJjKEWpi6o66m5sYS4E9ddzMEXC?=
- =?iso-8859-1?Q?I4kfd3C0dRf268AEaxbdA9Zct000DBr0wVmeCxmLdjKpALbPN0r2BzuXJY?=
- =?iso-8859-1?Q?wfSWyWlTt6n1DsY5C0J63gaO5aTdaZWc0qFkRItf1rTQvWzMz8W2PeCBYd?=
- =?iso-8859-1?Q?CZcIj5EOP35OrbYDuYJ0ThRgX2sdhIlwHJJ1VEiqf3KPnDenBhLwciB22X?=
- =?iso-8859-1?Q?Um5e5lYaE550VuexPEvK888//jgrqT9mLTAo72M+T+pX0uQbc/72TJLRoz?=
- =?iso-8859-1?Q?RTiNfAZOEbJihUOaopZJcDrQJE9YRMocSm3x5yXJRQpQbGpgw83iHwvX+B?=
- =?iso-8859-1?Q?Rc0I45ApgMmedyMMH0kgcF6ZkbfcZDr/Ev9bQDAUbTki9cLGCxan2p52At?=
- =?iso-8859-1?Q?55YERa/X0unKN5obg8ZT5dagYzr/Ne8f2GtXaIlpL5Tlmhuh9DOcyiiXkM?=
- =?iso-8859-1?Q?aavn4LTE1YKxoTTCeSx/jwALgZo8+RbxiMrqwtrKuC3DM9rrOpaCfX9BK4?=
- =?iso-8859-1?Q?Qc8Wtb8ffhoUy8LvYdTPppIIGeinYwq+vNMw5YmeqBBpzP9UoXuod6W5AV?=
- =?iso-8859-1?Q?JUfRqU/dlIPWy7z2FRMjjECnmBVnfSckPvngeZ1BSM4P69i8YX2uNdYsIi?=
- =?iso-8859-1?Q?sGtgJ1h2UeiI2WmrUeZA3Axu1FUKH5tNrmWvJWYMZhvKwLb2DoA4I2JPXC?=
- =?iso-8859-1?Q?IKOBcvfCH1pp22CbTZd9xeiOgGK1pj6xei6SyAbAO+EQEcI45KECYkvpXV?=
- =?iso-8859-1?Q?uFteIXlOcutCtvdAzViSENhgYTKsuNkT24J+YKwJQbsWXLBws3XiF7/4EH?=
- =?iso-8859-1?Q?EHdGRNGI99eOv9RHlvqHLdpetVYO25l/uQNIO8LZCDgSMTen4ageQS2sb/?=
- =?iso-8859-1?Q?E32C/9mtQ44LytRHM4xewZfkY/bL98rrEYiGzDaspL8f3ZSizPjMs3O3df?=
- =?iso-8859-1?Q?61r3X2WeiBPxTYX3RJafp3x9E+TuVijlxWIbZeIN0FHQ1evSF1g6BQlUrd?=
- =?iso-8859-1?Q?JtJRZEp2YFBzv5iqnDoJrlQP9yQrlacN0spD7P6T0ErrASDIKX4kLnhnKA?=
- =?iso-8859-1?Q?9urNqTSpM4hQEFA5Xc0B+RyTXXPeO2jZX10hs2SdCQwUwp2EBjybLDvnAT?=
- =?iso-8859-1?Q?Qt/dYxUn3VZ/C5nJnQSiLFRQCqwe51HuOvyYgkTAmpa+ZePifp5OURwcE+?=
- =?iso-8859-1?Q?PApTfckF8zv3wOco9cLyFfxGkKsKNh3KN5qr66CjGEZ0LWX1FM+TmXXT1e?=
- =?iso-8859-1?Q?NDGfiPL8GY4GXSH3jPbEchrdb1r270IOx3MNEiW++q+F5ICdt/badvHMfo?=
- =?iso-8859-1?Q?GaR7tJ3JhiGVaiwyY52f4Bq32sdWBqpYJ1hIeM11AAEZDtfKDT3BoK27wk?=
- =?iso-8859-1?Q?af0MjHaOprOnDHh16VicqdUxPH6x9J+/6+Bkd+BQKDAv+pwisKt6qfSrjO?=
- =?iso-8859-1?Q?92IeJyJA3MTBJQRImkpI21BmTTio5WwlG83bo1ohzXhJ9u8FdTeI9sqpx9?=
- =?iso-8859-1?Q?MS8MTgJwmaWrLjbtpHxosoWJuCJz1oC/4OWSnPktLqS2akgCF86T/vUB0n?=
- =?iso-8859-1?Q?a3xNhXJtAxN3B9oTIZacugcgQ0rcLkYAD0RFIxBR5Kzo3LhyZg2XPygXkG?=
- =?iso-8859-1?Q?p6JvO195e4ryXR27YSkJTkIlyKMhVgoAvlWBVw3hpLc7+YAEjv7GEPu91K?=
- =?iso-8859-1?Q?HQMg=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?jY7R0o9QD+O2ILUVGWiUInIjmuqa8LzMdjuBuykthAGrWeexAMiP4Oa1rY?=
+ =?iso-8859-1?Q?MQTXYDNwWqo/oJjHMR0f26zEJrwV00yTS8SGMsji+D4yCSurhLSTD1+ueW?=
+ =?iso-8859-1?Q?qMCc0kNuFehMwqR01rPuDI+JgMH0HZTt2ZTrhoJ30z9oc4SyfKgFfaZ7UY?=
+ =?iso-8859-1?Q?cqrP1+uZXb0g4S1qbD6JMS/jLxpvCAoX0TyvtOr3J5B9j2/vj6x6FDRQWY?=
+ =?iso-8859-1?Q?cdkL4aeLKtFNWMIg3oghZk3pvY8FMMRkwiEiQBbXR4vd10fEWGE++wM1iG?=
+ =?iso-8859-1?Q?SN9/yIJP3KvlXTvJ66MXKirZTSSQCYdBqvz5vGimBGLxrFjJS7Q+uASULx?=
+ =?iso-8859-1?Q?ePSkc7gK58/XqCB+iwu7xCuLkp8l9E0YBpVABW0CKyp1LMtN7FGUQfkhjA?=
+ =?iso-8859-1?Q?nnwllz+RSQ+f6MCngjZLjJsS9YFBO78IvOz6yPunGGK8dAwoaj3QoXGiNL?=
+ =?iso-8859-1?Q?XPA+JEZhg71h/zUBBZ2XGxGJLA3Z22ylNGIglhNnAZoLCvnE7hCFtQZ5/I?=
+ =?iso-8859-1?Q?zNFul/VIMmstzx9hzuezb6FWTGE0S9VgX7LoG/TncKMAYedgkyqU+E1wFp?=
+ =?iso-8859-1?Q?XmKRLBTEc9KFyJt6qVrTolK+7IPOSIJZJbnKqAVc1upLZ1tzWRSPTHfQ0J?=
+ =?iso-8859-1?Q?++aKfKiQ4Zzc91DzvuX2KttrJjxK8WKuHSeM872sKildnpSC7jGrgJuZgm?=
+ =?iso-8859-1?Q?UuF4/bhzppw0QJ4TWQRXe1mokYsrCRiXaHvS8DMPWAYSLapJkQT9xVZORZ?=
+ =?iso-8859-1?Q?g8vnBFkK7ISYrxDKCRXWpIuEBN9KuD7RV8IOO1J+5GlNLbUZzYKjNHaUTn?=
+ =?iso-8859-1?Q?CkWyeSNJQJTeKWhjoOF/YoHCrgnizyLiC8/vRkpnxik2rNQbVuIWc67XPF?=
+ =?iso-8859-1?Q?1afhjI1P1IhpyTxXjlv+628PMENIyISmgjFFAn8MqNLS0KFEhXBdMwRUHD?=
+ =?iso-8859-1?Q?/XUvt+X8bQ0BWTVIExqr8TCyhyippTO5Lgt2AeMytezybKqrK8vHZO0XTG?=
+ =?iso-8859-1?Q?40hk8eNlAtFEvnF/bMA92eJI+LZwfTAsJ0mSrejj/0DAYmJheAATZNjGQN?=
+ =?iso-8859-1?Q?b6kwCSNPJ8lbq0itGXAqq9t+OGL5dlLsW+MZ3j8hluFIwSk7GdYWrdxQxo?=
+ =?iso-8859-1?Q?9caqFBPnWdQLM0S+U3nK6sAHv8IG0tJO4ckG4FZZ1rhxuDVb5PQt3AIIe+?=
+ =?iso-8859-1?Q?IaelfX0JgPcDOjDObm9GhRQ9SdS8AkK/+BbrVzcyJPH+pLcpsY+YhG83bN?=
+ =?iso-8859-1?Q?FIBvjJCPOKFHJWHayCzGwhAQQEM1B+0ca5EEVdfrsGTDVJawzrfoA0mu0g?=
+ =?iso-8859-1?Q?WvP77+XzKb2TDQGYOtXu2jfJdTQmnKYCNhk/wB1H7w3drGAhOHJpEtgxax?=
+ =?iso-8859-1?Q?dGqsBUutR7znH5GCEQmEado492bup19OaIcQLSE0kNLKtTUUbZElgOstGF?=
+ =?iso-8859-1?Q?QVSJRaFDJ16t2aHzflqX3C9tq3Sa/Iz9ylzZjOak6DXmYkTyxz6JjiE5YV?=
+ =?iso-8859-1?Q?l96Iexkc+MaVXAO0PVrilNCuNKxOuBpBi9Ptf9Vi12oohTQ0hBOzWGI+bH?=
+ =?iso-8859-1?Q?ehGTCCUxEgn4ymhJ1SdwWGbssCgao3AbP7id3KyA61Gmw0lTyE/y1/FAva?=
+ =?iso-8859-1?Q?bX3OEFUP6eL6NYqH7ldU2ldCfvbsVzk3w2PkawTaiVvZNS8t2IRdbZAhKm?=
+ =?iso-8859-1?Q?lC+YJhf+nk2TqIqslhlYF3On1pljTw1AmmFTKeKFyUR0wZ/XuH1SpKxhEM?=
+ =?iso-8859-1?Q?OpZg=3D=3D?=
 MIME-Version: 1.0
 X-OriginatorOrg: solid-run.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB4723.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4fed4089-9de2-4685-abdf-08db49a74a24
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Apr 2023 18:18:25.4748 (UTC)
+X-MS-Exchange-CrossTenant-AuthSource: AM6PR04MB4725.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 97e80c4e-fc15-4602-3163-08db49ac478a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 Apr 2023 18:54:08.5882 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: a4a8aaf3-fd27-4e27-add2-604707ce5b82
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: XaSOswya2QIAwt4yhFRpWK1G60Nd8gQJX3iADK1XxvNigGY/qlfFZ3ZHsobANUBSg4ZtbEbzwduGuBRdF0lBTdGpypj0pVu4lmQik6LA1Us=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB8797
+X-MS-Exchange-CrossTenant-userprincipalname: OH3SK30hSfxU0QCb/XBaKpdB4I+lyqeHIUSUpMUeCoVuqyi8a5mci5zv48rOjeyWNxO6h5i5AwiX/vS53jKyx8FIkACfKUGfLf2hQp43y3M=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR04MB9646
 Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
  "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
@@ -171,55 +167,116 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> > +void virtio_block_feature(struct virtio_device *dev, unsigned int f)
+> > At the moment, if a network device uses vrings with less than
+> > MAX_SKB_FRAGS + 2 entries, the device won't be functional.
+> >
+> > The following condition vq->num_free >= 2 + MAX_SKB_FRAGS will always
+> > evaluate to false, leading to TX timeouts.
+> >
+> > This patch introduces a new variable, single_pkt_max_descs, that holds
+> > the max number of descriptors we may need to handle a single packet.
+> >
+> > This patch also detects the small vring during probe, blocks some
+> > features that can't be used with small vrings, and fails probe,
+> > leading to a reset and features re-negotiation.
+> >
+> > Features that can't be used with small vrings:
+> > GRO features (VIRTIO_NET_F_GUEST_*):
+> > When we use small vrings, we may not have enough entries in the ring to
+> > chain page size buffers and form a 64K buffer.
+> > So we may need to allocate 64k of continuous memory, which may be too
+> > much when the system is stressed.
+> >
+> > This patch also fixes the MTU size in small vring cases to be up to the
+> > default one, 1500B.
+> 
+> and then it should clear VIRTIO_NET_F_MTU?
+> 
+
+Following [1], I was thinking to accept the feature and a let the device figure out that it can't transmit a big packet, since the RX buffers are not big enough (without VIRTIO_NET_F_MRG_RXBUF).
+But, I think that we may need to block the MTU feature after all.
+Quoting the spec:
+
+A driver SHOULD negotiate VIRTIO_NET_F_MTU if the device offers it.
+If the driver negotiates VIRTIO_NET_F_MTU, it MUST supply enough receive buffers to receive at least one receive packet of size mtu (plus low level ethernet header length) with gso_type NONE or ECN.
+
+So, if VIRTIO_NET_F_MTU is negotiated, we MUST supply enough receive buffers.
+So I think that blocking VIRTIO_NET_F_MTU  should be the way to go, If mtu > 1500.
+
+[1] https://lore.kernel.org/lkml/20230417031052-mutt-send-email-mst@kernel.org/
+
+> > +     /* How many ring descriptors we may need to transmit a single packet */
+> > +     u16 single_pkt_max_descs;
+> > +
+> > +     /* Do we have virtqueues with small vrings? */
+> > +     bool svring;
+> > +
+> >       /* CPU hotplug instances for online & dead */
+> >       struct hlist_node node;
+> >       struct hlist_node node_dead;
+> 
+> worth checking that all these layout changes don't push useful things to
+> a different cache line. can you add that analysis?
+> 
+
+Good point.
+I think that we can just move these to the bottom of the struct.
+
+> 
+> I see confusiong here wrt whether some rings are "small"? all of them?
+> some rx rings? some tx rings? names should make it clear.
+
+The small vring is a device attribute, not a vq attribute. It blocks features, which affects the entire device.
+Maybe we can call it "small vring mode".
+
+> also do we really need bool svring? can't we just check single_pkt_max_descs
+> all the time?
+> 
+
+We can work without the bool, we could always check if single_pkt_max_descs != MAX_SKB_FRAGS + 2.
+It doesn't really matter to me, I was thinking it may be more readable this way.
+
+> > +static bool virtnet_uses_svring(struct virtnet_info *vi)
 > > +{
-> > +     BUG_ON(f >= 64);
-> > +     dev->blocked_features |= (1ULL << f);
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtio_block_feature);
+> > +     u32 i;
 > > +
-> 
-> Let's add documentation please. Also pls call it __virtio_block_feature
-> since it has to be used in a special way - specifically only during
-> probe.
-> 
-
-Ok.
-
-> > +     /* Store blocked features and attempt to negotiate features & probe.
-> > +      * If the probe fails, we check if the driver has blocked any new features.
-> > +      * If it has, we reset the device and try again with the new features.
+> > +     /* If a transmit/receive virtqueue is small,
+> > +      * we cannot handle fragmented packets.
 > > +      */
-> > +     while (renegotiate) {
-> > +             blocked_features = dev->blocked_features;
-> > +             err = virtio_negotiate_features(dev);
-> > +             if (err)
-> > +                     break;
+> > +     for (i = 0; i < vi->max_queue_pairs; i++) {
+> > +             if (IS_SMALL_VRING(virtqueue_get_vring_size(vi->sq[i].vq)) ||
+> > +                 IS_SMALL_VRING(virtqueue_get_vring_size(vi->rq[i].vq)))
+> > +                     return true;
+> > +     }
 > > +
-> > +             err = drv->probe(dev);
+> > +     return false;
+> > +}
 > 
-> 
-> there's no way to driver to clear blocked features, but
-> just in case, I'd add BUG_ON to check.
-> 
-
-Ok.
-
-> >   * @features: the features supported by both driver and device.
-> > + * @blocked_features: the features blocked by the driver that can't be negotiated.
-> >   * @priv: private pointer for the driver's use.
-> >   */
-> >  struct virtio_device {
-> > @@ -124,6 +125,7 @@ struct virtio_device {
-> >       const struct vringh_config_ops *vringh_config;
-> >       struct list_head vqs;
-> >       u64 features;
-> > +     u64 blocked_features;
-> 
-> add comment here too, explain purpose and rules of use
+> I see even if only some rings are too small we force everything to use
+> small ones. Wouldn't it be better to just disable small ones in this
+> case? That would not need a reset.
 > 
 
-Ok.
+I'm not sure. It may complicate things.
+
+What if all TX vqs are small?
+What if all RX vqs are small?
+What if we end up with an unbalanced number of TX vqs and RX vqs? is this allowed by the spec?
+What if we end up disabling the RX default vq (receiveq1)?
+
+I guess we could do it, after checking some conditions.
+Maybe we can do it in a follow up patch?
+Do you think it's important for it to be included since day 1?
+
+I think that the question is: what's more important, to use all the vqs while blocking some features, or to use part of the vqs without blocking features?
+
+> > +
+> > +/* Function returns the number of features it blocked */
+> 
+> We don't need the # though. Make it bool?
+> 
+
+Sure.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
