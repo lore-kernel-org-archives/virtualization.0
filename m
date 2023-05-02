@@ -4,155 +4,112 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9ED0FC77B61
-	for <virtualization@archiver.kernel.org>; Mon,  1 May 2023 16:53:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 105CBC77B7E
+	for <virtualization@archiver.kernel.org>; Tue,  2 May 2023 09:05:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1C223613DA;
-	Mon,  1 May 2023 16:53:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1C223613DA
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8C96D6135C;
+	Tue,  2 May 2023 09:05:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C96D6135C
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=tKMWbIwf
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=a9bnO0mg
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Il5u0BcxRUcd; Mon,  1 May 2023 16:53:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 81063613D8;
-	Mon,  1 May 2023 16:53:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 81063613D8
+	with ESMTP id PdLbnbUyBMV3; Tue,  2 May 2023 09:05:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 19B4E61149;
+	Tue,  2 May 2023 09:05:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 19B4E61149
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C1B9C0037;
-	Mon,  1 May 2023 16:53:18 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC6F0C0036;
+	Tue,  2 May 2023 09:05:49 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25C21C002A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 690ECC002A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 May 2023 16:53:17 +0000 (UTC)
+ Tue,  2 May 2023 09:05:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7A2B240224
+ by smtp4.osuosl.org (Postfix) with ESMTP id 41A9441484
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 May 2023 16:53:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7A2B240224
-Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=tKMWbIwf
+ Tue,  2 May 2023 09:05:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 41A9441484
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=a9bnO0mg
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eUpoL3aZlmv1
+ with ESMTP id VhpSWjtayuBs
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 May 2023 16:53:15 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5766840200
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on20601.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eae::601])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5766840200
+ Tue,  2 May 2023 09:05:46 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 289EE414C4
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 289EE414C4
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 May 2023 16:53:15 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=cWM8EklwVFBmmodN4Hx8Hp0kYKaMwv09nHgd5mCR5A2msGyPTWHo2yjFia5NT3jAz+rNiJ7/P584Pua3Kb47Uno07O9TY3YbV+l+0qhUmeHHPc2q+jjynkOvxKmieykpU9Ma8OTMHJhgcC/7wZvoo3+6gKbDgO4tUxjev5XYMl9Ds9tth4v5E6DfVIjrdU/rCWjrAfmDD3JcMXC8kloqrdkb8qJ8m5R6V1chPz1/gMx3Bd9OR4Rfh69o3tovosfNqUEHplXObEIl1KopElu5UC04xDrl+p2EJRe8Jw1wuuC5Pg1+cwlmUMIWcOgJmIr2Qa/xpu30ZUH5CrebJpaMaw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ck/2UnB3753Yo8oJWeC3dA5/WzD23VIgbs5udTQOTGk=;
- b=a/vdYVr8e75MB+i7/I/NDDP1LBUjZLY1DngBKY9DsKQpVU8z4W4FUhYfI9nDo56iPUFzU2/Ic8su2GcrO6Y+ZjPzVYOT6H6Pop8QccET9KJHY3EFopw5EWwgugWbwlKhcuWDB4NINxFU48ISyG0GzIcx11OORO/JWO3fK4m+Me2qx7kf0jxA7QqV538KQqtLQ52ExoKlE5v/WXbHOrA0uwHsjHfZ+sKydA2N2fSy2nZqQ8/oPLUh4I1hX3Nei7jM9ADfTJFfrfwuqZptKmGx69gj//C9dj+MxJXc9gv7BJD0zkn9iZtq/4/m74AbQRohP6jSdkC13MxCVGoEAbhmfQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ck/2UnB3753Yo8oJWeC3dA5/WzD23VIgbs5udTQOTGk=;
- b=tKMWbIwfkuHrvw6RBhMGxRJfOBam7MQPXD6pVS4M34rWbDxQCiZcFaVW67VJni9qL88EBv1zG8931fB4rdgBtxCletxg1VnVUHjMEgtU+fHE7hzYe/0sxiS33XiEwDiiuOmmYEcJJCY8Pq3uQ/8Ve77edswcFDdOO1C4nqb+Vmyq4udfCzxEhBJQD5olUsOEY/z7nB8rrZEIFnDoWgY9RJ8S+Kw5WeE2UBCYKPfV9Z/kSVRNW0aQBFnViTtRqOkgbYOT0jdQe7uhXAet3/aZSEY39rexClsPUuiHHuy6w4Ph3v0FLcA0GdbEOgLLfkrzjcvHm8nR2KsHHlAAZo8TRw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
- by LV2PR12MB6013.namprd12.prod.outlook.com (2603:10b6:408:171::13)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.24; Mon, 1 May
- 2023 16:53:12 +0000
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::a7a3:1d9d:1fa:5136]) by CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::a7a3:1d9d:1fa:5136%8]) with mapi id 15.20.6340.030; Mon, 1 May 2023
- 16:53:12 +0000
-Message-ID: <7f50c3e4-f377-3adf-e4ba-35c323d0a50e@nvidia.com>
-Date: Mon, 1 May 2023 12:53:07 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
-Subject: Re: [PATCH net v1 2/2] virtio_net: Close queue pairs using helper
- function
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230428224346.68211-1-feliu@nvidia.com>
- <ZE+0RsBYDTgnauOX@corigine.com>
- <9dba94bb-3e40-6809-3f5a-cbb0ae19c5b7@nvidia.com>
- <20230501101231-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230501101231-mutt-send-email-mst@kernel.org>
-X-ClientProxiedBy: SN7P220CA0017.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:806:123::22) To CY5PR12MB6201.namprd12.prod.outlook.com
- (2603:10b6:930:26::16)
+ Tue,  2 May 2023 09:05:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1683018345;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=sBiSDi663ZNsStzgA6GdXFh74+Kd66TffhftU9nPlhU=;
+ b=a9bnO0mg/Q1sO5J2FxNo2O54xdVDeIW91Ueepskr/xo8UypCr8Of/U7fal1kLlZSgQDsIt
+ ZK2oXifsPHsegi+zP86tNtuWzfAIFnEvub62Q50Pfw0Na1nFepPDBeTaSGaooT+RCgIi2f
+ bXI5s0O6mkXRrhvWremv8UNqZxJQzzE=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-575-3t3O3YviOwK9jJNgcjeMBA-1; Tue, 02 May 2023 05:05:43 -0400
+X-MC-Unique: 3t3O3YviOwK9jJNgcjeMBA-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ 5b1f17b1804b1-3f173b5962dso1663275e9.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 02 May 2023 02:05:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1683018342; x=1685610342;
+ h=mime-version:user-agent:content-transfer-encoding:references
+ :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=f0C+/AMlCSZv9AQrfgdKXuPAa+4+MUJG4w0wWq0+U44=;
+ b=ADzOBXgoLYKr+/B6+Bhq2UJp+B+HkQJ/ImP27kptnyCsYiCYDDYdYgw8neYVvT67tv
+ Lvu6JIHusknfRGey+fFkZJTJ7sFeQJoEpwBEqtfJ8yQ+I0rPTPQTuu90/m3NrNalLb9H
+ UAjf0vEwdfFCM57z5XrolWh9ggApgWqJSwllrCdDpBvbP8mTHx2FYIa1P2snHQigJMvm
+ VqEk71DMcEce+bg0WZ8jaf+pxmyMtbxGYns4m00Qk36Zv5I0QN6soRWiMChcJ7i1tkNe
+ YRclL/XIUarMfc/kP+kpkTyxKaBGA6AJqgzTCM85pd2qWB49w5xqnB2OQQ3xOAFELt9s
+ 8CgQ==
+X-Gm-Message-State: AC+VfDwzbFYEX3WtkepY1/C2iXRd/u8w2d68SLR/XuDjhIEJ6+Ly0mOu
+ onSCF37Xt1Anndg8cbej9BekM10N5BfZrBRDvi3MBByOeSoyH+wiDmJH9rKtyKzijQhHrSHjZhm
+ SXdNXYc6ZYm4nOgH4Fvp3/6bwMjoHhcy0lBkCY7jlNw==
+X-Received: by 2002:adf:fccd:0:b0:2e4:c9ac:c492 with SMTP id
+ f13-20020adffccd000000b002e4c9acc492mr1293380wrs.1.1683018342788; 
+ Tue, 02 May 2023 02:05:42 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4rjtYdoyKyhcXOhmiGl12IvQfl4xRWKrtn/zid6aStQkUznSnb92UaWiUzP5pZgPUG9N/gkA==
+X-Received: by 2002:adf:fccd:0:b0:2e4:c9ac:c492 with SMTP id
+ f13-20020adffccd000000b002e4c9acc492mr1293354wrs.1.1683018342311; 
+ Tue, 02 May 2023 02:05:42 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-253-104.dyn.eolo.it.
+ [146.241.253.104]) by smtp.gmail.com with ESMTPSA id
+ bl13-20020adfe24d000000b003062d3daf79sm4895245wrb.107.2023.05.02.02.05.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 02 May 2023 02:05:41 -0700 (PDT)
+Message-ID: <d05564fd4fc47ed212be2c02be4d7c05167fa2b3.camel@redhat.com>
+Subject: Re: [PATCH v3] virtio_net: suppress cpu stall when free_unused_bufs
+From: Paolo Abeni <pabeni@redhat.com>
+To: Wenliang Wang <wangwenliang.1995@bytedance.com>, mst@redhat.com, 
+ jasowang@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org,  zhengqi.arch@bytedance.com,
+ willemdebruijn.kernel@gmail.com
+Date: Tue, 02 May 2023 11:05:40 +0200
+In-Reply-To: <1682783278-12819-1-git-send-email-wangwenliang.1995@bytedance.com>
+References: <1682783278-12819-1-git-send-email-wangwenliang.1995@bytedance.com>
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|LV2PR12MB6013:EE_
-X-MS-Office365-Filtering-Correlation-Id: f06db849-88dc-4b83-c51d-08db4a648caa
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: JxqWHjzFRlq+JzoEdHq0VADbT8oWvxiiAy43PpR960aOT0P16liPpAVQ2RclPexhtAYNVDKduvRKvDFSwLqvfD/59WoS2eWT/3kziEpK8EbcW3PWD8PEd7kHfu7GfMG0RxqoWPY3eqzO7uTRMGxHd0cG9M8Z3YE7WkDC122XUvyuOaUsqbRL4gvKoFXGvRsHp66UJU3O7ohEfhHvll+MphFv8V743HFoCkIaPcp4ygokGH3ZtcgSSF1j+HKj4xTihKAVYDLoijbPz7ENsIGsqh614/MLvZrQl5sqDcS4rYJ4vZcJPsmvFnzUqOWzWz3gyc+qpPxW8nuFq2X9I42tguUeobpA837YB16Gtga8CK/Vb2ffgBagYn7QitjXZxYRtY9A+eQxafSIQh0TPN8vfLywJD/e6PeqX+TyhFqpxGaK9n97oCK2EA9SmPE9XKuVAY6aj5VpJZiHQGKQFDdQOiCRfvR0fs8OPgHuN1LXx7WSnKvpD68nGHsfk4KWJDat/qNW2bi1UhaMlVX0JRs3gcrzAs2l5N2BNc6o3leg1GsxqbOpvsUrBbkn+s/wE1BUiyYcHTcLpo6B4r/fN69qgMph6lTa0Iw53jMzio3PHP+LKmEGxCW0lX9J62KFdrFg3TAbk+4QuOcu5uYh0cz6Mg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(4636009)(376002)(136003)(366004)(39850400004)(346002)(396003)(451199021)(6666004)(107886003)(6512007)(38100700002)(26005)(6486002)(6506007)(2616005)(186003)(36756003)(8936002)(2906002)(66946007)(66476007)(8676002)(66556008)(478600001)(86362001)(31696002)(5660300002)(54906003)(6916009)(316002)(41300700001)(31686004)(4326008)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?YWg4T1dMZ0VmQ3FXUjN2U3Roc0tjaXRkS3hYY3B6eEpya3R1Z25lRDd5K2Np?=
- =?utf-8?B?a3NNcWs0TFE0VEdpMHVINnNVMnJMWmNxTERYaFlpZDZJcVRYY2hmYnI0STVh?=
- =?utf-8?B?dDJLQjRQUW5TelM0OEIvYVF2eTRlbllndmo3eHlWNFozRGdmcE1FYy9lQ21Z?=
- =?utf-8?B?dnZCRkNFRmpqV3FPQjM4eTZBSnArMElpbFlaMjM2NFMzRW43VXl4Tjk0aWRS?=
- =?utf-8?B?VnBKVUxxaHZVREF2ZjlxdlNpNEZjTnVscFpNanc3OXRCcGpVbitmaW1kZGFG?=
- =?utf-8?B?MHJFSS8rMElJWTNCNjFtb2Nzd0VyaVQweHlLOExIOGxlSzJyZEo5V2N1eWJi?=
- =?utf-8?B?enFVL2FHanlFYVQ3Yk5uaTZuUjllU21qT0NJUFpyeGVnZWtFVGRhVlU4Wlo2?=
- =?utf-8?B?MFplR0RLZ0JXZ05IdkxFaXF1OVZidHhCTnNtTnVkaEpmdndLbXltWlRiM29Y?=
- =?utf-8?B?VDBrSHQvaHFwVW5YdGt1WGIrUVhYV1cyQno0WEdoYmNQL0pCNHg1eGppd294?=
- =?utf-8?B?R3pnVUw2ZmtKVis4OFRGVTN1L1BvV3VhbHRVeVhMYnMwNUw1RitMODhTNGZI?=
- =?utf-8?B?TU1NbUNUcHFtRHZ2K21kLzhDaGNiRFo5ZEd4Tk5vSS8raEFXaDJ1TUp3VytN?=
- =?utf-8?B?aVRJTFlIRTd0ajlZWHRDcFBDTkp3Z0tkYmFhTCs2REtXaDJraGNMbU5DK0Zr?=
- =?utf-8?B?d2NpdXg4N0lEdWtFZ1RtdzNMZGlUZGlPMVJ6NHBDc0VvRytMcU4wSytBUUYy?=
- =?utf-8?B?WERvSEluMjROUXBVSzA1YnA0aUpsdFowb2JHUnYrNTVhcWpXR00xUUxmK0x0?=
- =?utf-8?B?WTRyVFQ0U09LUlJPbndkaWpvK0h3UGh2ajY2SWc4TXFwWFJQOVU4YmRRMm5y?=
- =?utf-8?B?YUhKemJtK05ldzZHWGFDbWxza2hhMDlhMk96OG9aQzVtTkIxS0xITzNMbmtT?=
- =?utf-8?B?c3dJalNOZUFJWmZ4RWxXVlZBNGsrb3RHTzIwcG1HL1JFd2pnTVlwVjlydnRk?=
- =?utf-8?B?RUlHUS9IUEdqTWJSaUpUQm1kcSthQldmeEM4clhScUtCelNrU29OelFOWWNq?=
- =?utf-8?B?cXJZM2Nwa1N5cHlWNXd2TGxXa2R3NlppQ0liQ0ZoblBveXZDc2VVY2VwRTdQ?=
- =?utf-8?B?ZnRyaCtLT2dDNk5QaUszUm5ITytoSTlXV0hTNlNxUDk3Vi9uT1NGMC9CbVFk?=
- =?utf-8?B?UFk1VHFjYmp3UVdGUndxdHNaQ3BWUmNxVk15cmJBZmtKK05ycW1vdk9SdXhU?=
- =?utf-8?B?UEF3dkIzTmh5alpic1Z2VEg3YWllYzdCWG9wODRwRHRudXk5N2JXQ09aN29a?=
- =?utf-8?B?YTVmT05tRk04ZlpRVjN5dnpEOGhqL2tqVDB2b045Q3lTLzVta1hUWmhKVnJ4?=
- =?utf-8?B?Q2srRlp4UGtET05CVmw2T2JxZE1pbG5UWnovazhWSEVkTG91b2Nsb2Q5b2RI?=
- =?utf-8?B?emVCeFBSdHBjTkUrNUZjdkRXWUtCK1ZEZUdTRng0RzI1MWVTNThaTXRjWGJF?=
- =?utf-8?B?YlZEMjMzbkt4Y21zc3VudGtwZDdBeDNxeHBtVXdWSXUxNjM5SW9Zd21lWEFB?=
- =?utf-8?B?NkpRVnEzSGxqRUlpbm5ocXFLTG9DTkFxYStrTzJpNXdIbHkyR0p0bE1WaUUw?=
- =?utf-8?B?bDFObmlyL1JjaGp4dWZPeW5aS2NCU09kQUdTMko1M2dQK1RyOTNxVDkyUDU3?=
- =?utf-8?B?ZEY3NzUxNkl4QU9nM1NOd2ZmSmRUcVU4Mnl3amxQZjJDcWtBL1htajA1aEZr?=
- =?utf-8?B?ajEzQUpTM0h2Qld1d3RWRVp6VFdCbitjQzVWem1maDBFTHpONGdsQkw2SEh6?=
- =?utf-8?B?QXVsY0c2d0ZBQXU3Y1JSZzFMRmxQR1kxNWhBemJpcjhCN1dtSVJ6SWRRWS9D?=
- =?utf-8?B?cnpqL3g5Q0tzNUhMNStGU2dubVplT0ZsSCtIeU40dDE2K2tFbHNtR0tJSjMv?=
- =?utf-8?B?V0FleUFTYTRTbEt4ekI5VERkV1IxbEYxM3lGK2hpeStvNFhTTUJEMkJHZ1Bk?=
- =?utf-8?B?UURheWtqWFdyaDRzQWFUeWkxRGtSbzVNYW4ybWNJY2w1RVF0QnVKS0VqWTVw?=
- =?utf-8?B?MENrK05UZWh0aTNqcjl0WFpxTG15QThZWEwwUEp6MHQwU3NLL1BRZzV5Yk5T?=
- =?utf-8?Q?20G57lA44jFL2/zZn7Evxh7wf?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f06db849-88dc-4b83-c51d-08db4a648caa
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 May 2023 16:53:12.2580 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Eo+366i21Vpc5ZO8rptJvpsRVsrWBi8bsBi8DErNai7DL7KGZy6GN+iigJoPal6DYGbBTNmQgei5ToISZpncIQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB6013
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Simon Horman <simon.horman@corigine.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- William Tu <witu@nvidia.com>, bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -164,51 +121,56 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Feng Liu <feliu@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Sat, 2023-04-29 at 23:47 +0800, Wenliang Wang wrote:
+> For multi-queue and large ring-size use case, the following error
+> occurred when free_unused_bufs:
+> rcu: INFO: rcu_sched self-detected stall on CPU.
+> 
+> Signed-off-by: Wenliang Wang <wangwenliang.1995@bytedance.com>
 
+Net next is currently closed, but this patch could arguably land on the
+net tree - assuming Micheal agrees.
 
-On 2023-05-01 a.m.10:14, Michael S. Tsirkin wrote:
-> External email: Use caution opening links or attachments
+In that case you should include a suitable Fixes tag - reposting a new
+version.
+
+> ---
+> v2:
+> -add need_resched check.
+> -apply same logic to sq.
+> v3:
+> -use cond_resched instead.
+> ---
+>  drivers/net/virtio_net.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> 
-> On Mon, May 01, 2023 at 09:58:18AM -0400, Feng Liu wrote:
->>
->>
->> On 2023-05-01 a.m.8:44, Simon Horman wrote:
->>> External email: Use caution opening links or attachments
->>>
->>>
->>> On Fri, Apr 28, 2023 at 06:43:46PM -0400, Feng Liu wrote:
->>>> Use newly introduced helper function that exactly does the same of
->>>> closing the queue pairs.
->>>>
->>>> Signed-off-by: Feng Liu <feliu@nvidia.com>
->>>> Reviewed-by: William Tu <witu@nvidia.com>
->>>> Reviewed-by: Parav Pandit <parav@nvidia.com>
->>>
->>> I guess this was put in a separate patch to 1/2, as it's more
->>> net-next material, as opposed to 1/2 which seems to be net material.
->>> FWIIW, I'd lean to putting 1/2 in net. And holding this one for net-next.
->>>
->>> That aside, this looks good to me.
->>>
->>> Reviewed-by: Simon Horman <simon.horman@corigine.com>
->>
->> Will do, thanks Simon
-> 
-> Nah, I think you should just squash these two patches together.
-> It's early in the merge window.
-> 
-> --
-> MST
-> 
-OK, will do , thx
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index ea1bd4bb326d..744bdc8a1abd 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3559,12 +3559,14 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>  		struct virtqueue *vq = vi->sq[i].vq;
+>  		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+>  			virtnet_sq_free_unused_buf(vq, buf);
+> +		cond_resched();
+
+Note that on v1 Xuan Zhuo suggested to do the above check only every a
+low fixed number of buffer. I think the current code is a better
+option, as the need_resched() check is very cheap and the overall code
+simpler.
+
+In any case, when submitting a new revision, please explicitly CC
+whoever gave feedback on previous ones.
+
+Thanks,
+
+Paolo
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
