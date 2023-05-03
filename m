@@ -1,161 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 78829C77B78
-	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 15:00:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB437C77B75
+	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 15:57:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E041540901;
-	Wed,  3 May 2023 15:00:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E041540901
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=UDkh79F2
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3F4FF41D04;
+	Wed,  3 May 2023 15:57:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3F4FF41D04
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VnDtV3Ii
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6Q1b1aX60A7r; Wed,  3 May 2023 15:00:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3EFA940908;
-	Wed,  3 May 2023 15:00:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3EFA940908
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 291dQ2guXF27; Wed,  3 May 2023 15:57:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 977D340518;
+	Wed,  3 May 2023 15:57:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 977D340518
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E647C0037;
-	Wed,  3 May 2023 15:00:37 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B55FC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6FD3BC0036;
+	Wed,  3 May 2023 15:57:27 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A19D6C002A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 15:00:35 +0000 (UTC)
+ Wed,  3 May 2023 15:57:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0161681DE9
+ by smtp3.osuosl.org (Postfix) with ESMTP id 691D56152D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 15:00:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0161681DE9
-Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=UDkh79F2
+ Wed,  3 May 2023 15:57:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 691D56152D
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VnDtV3Ii
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qxxHvAcXi20I
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Rk0SzSSFqg7x
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 15:00:33 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7566581D5F
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam12on20610.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5a::610])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7566581D5F
+ Wed,  3 May 2023 15:57:25 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C29460DED
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8C29460DED
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 15:00:33 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NggceEvxQhh1xRFs3nfuVSxvUkFvBvv3pOTWL8RBZMlb5RlVqExKdyEBDhGf1a5hIbwt2mabqb/OZ7cOHHofZdNs2HYXvz+IzNZl+9x6LSZp5bsAzfGfkaKYNZ3gsinQluBOFZBGh5rb7eAKk22goSu6DAc6enexWZGMZeZbm8xfJV2kRQZVZmu1575ryTORmfd9xjQYC5ZlSpJvzCBjh+9yEqyaKH6ioES4dUWkwZ8wfiIwUJadGHkiWGZhuA5IcbIwjo3xuj5kQYtsxTxuN0Hdk6mHkby+eIJGPt4AFjrQ7LIhL5lQ+1gCxDaoVFb8oxtk3eYhJEGetcvsuFhZVA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=M9nXqdqYMcYrK/yplpC6fNvvdxium6IdSAbnQ1QFWjA=;
- b=JPKY3BF2xnlS/EpXi4BngNhenO2rlGeIB925jkmwEcUlCxVL/uown5LKde9FhCh3WSmK3GqkRM1W+zzHS6CtHC06fb+HSanbfP3Yc/a98Uf8Q8BE3zLMQd+Zfw5pzZAljvTvySjlVFbiKOktxU8+HsdWVyXcGhATnI+OmIlYA7FZZrzAOc4RV5xXtQjoCsiiyS8xINqkhojf8ZtVkeZw2qCiBpASLeqQpuqGXrxnrRVTRD6NjT9vg5QhsyFXP0OZde4euDlpZLwnxDaV5syxy5sR/CUxifRaEN7nER/vfJbJackJeTvQt+bn6md0lu4xeOVlzXzevpKM1cHA6L7YCA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=M9nXqdqYMcYrK/yplpC6fNvvdxium6IdSAbnQ1QFWjA=;
- b=UDkh79F278dO6oCdbJadnpOU8CZBBH69y2miRonTCDNSZx2foMWTWb6mXrjwl7VCvuXSFmtiaJwLiysQWsLTS4AUA42Oas1baFy1y/qIZxiPMu47UlKEXbihvvYoCU3mavmu5zQypgKc1pbW0jZw2EUAvdBUDmbOVLrtJUaBj76xMkwH8rxwOrLV/CISkbEaztL06btArZ13+fVVCloNLDX5zhNBysY186OFQ5WMMXBqv19MYcjj1s+tMUqZ1hw+OY9n2czNIwV6VYOL9KMieISjF6gL+THKo05qyD58l7p/bIjjPRcBQL2p8BBpNXb7DS4o/VSZLHKdP2JppjNWOQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
- by MW3PR12MB4538.namprd12.prod.outlook.com (2603:10b6:303:55::15)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.31; Wed, 3 May
- 2023 15:00:30 +0000
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::a7a3:1d9d:1fa:5136]) by CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::a7a3:1d9d:1fa:5136%6]) with mapi id 15.20.6363.020; Wed, 3 May 2023
- 15:00:30 +0000
-Message-ID: <482f00d4-d3f0-da85-93e3-a4a2e5597e12@nvidia.com>
-Date: Wed, 3 May 2023 11:00:25 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
-Subject: Re: [PATCH net v3] virtio_net: Fix error unwinding of XDP
- initialization
-To: Parav Pandit <parav@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "bpf@vger.kernel.org" <bpf@vger.kernel.org>
-References: <20230503003525.48590-1-feliu@nvidia.com>
- <PH0PR12MB54816403B23CE6D0AF2FD035DC6C9@PH0PR12MB5481.namprd12.prod.outlook.com>
-In-Reply-To: <PH0PR12MB54816403B23CE6D0AF2FD035DC6C9@PH0PR12MB5481.namprd12.prod.outlook.com>
-X-ClientProxiedBy: SJ0PR13CA0222.namprd13.prod.outlook.com
- (2603:10b6:a03:2c1::17) To CY5PR12MB6201.namprd12.prod.outlook.com
- (2603:10b6:930:26::16)
+ Wed,  3 May 2023 15:57:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1683129444;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EsRGaMSxZjGqbf3q0iORiAelbSECfaHX9TLV8VF714c=;
+ b=VnDtV3Iiv/P+pA+TkrIioldI0a0VmRaCRxHnsmDmaW64bIaeDUJFVAUXRZUYg15lIEjLEF
+ RJW0SKwE46pvgO1J9oSjt/aXYDBU8Hqbf8v6F9L7pdKH1p5TDXbfz2SaDsyn5/hBAlWuaH
+ Ce/+N2ZDGdSqyXCz+fAdd+Xj0V8yKuw=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-192-Y74Qo4mXOkq_L3_B2qHs3Q-1; Wed, 03 May 2023 11:57:20 -0400
+X-MC-Unique: Y74Qo4mXOkq_L3_B2qHs3Q-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 053FB18E5372;
+ Wed,  3 May 2023 15:57:20 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.0])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 770804020962;
+ Wed,  3 May 2023 15:57:19 +0000 (UTC)
+Date: Wed, 3 May 2023 09:39:13 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: Re: [Patch net] vsock: improve tap delivery accuracy
+Message-ID: <20230503133913.GF757667@fedora>
+References: <20230502174404.668749-1-xiyou.wangcong@gmail.com>
+ <20230502201418.GG535070@fedora> <ZDt+PDtKlxrwUPnc@bullseye>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|MW3PR12MB4538:EE_
-X-MS-Office365-Filtering-Correlation-Id: 388416ab-4002-4626-7f60-08db4be72309
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Vn46b0+jRY4njEtlkvp4NBucaHJW/Aw3eASiM9Pf6eNwEtOiHIRTdwIW1a4fZTy5JUtrZJRVcVHvX8D82RcVPmkLZe+YEstSYxkHq7GX7jjXmgJ1bpeLbRnmrkfCoJl9aj9MGFNEe5USDDn+2jFi5z67lIUBaLKdaLFdPIZHEWxO/2jz8EOtZ5sQEEh4fis59wJwA0ES8k/I0O+ludj0zRn2Ri9GfDGdrSAFW7VnfdASV1zcc5mKtPymCFHhUhna9pb6p9CTzB75LXLjrP/O5s0twkQ1WyR62tGjLUKcm6AzsviaLxpq+bsvqED+MYXu3yDUOa/GWDMj9QgzAvZ1qDu0jMnERc1tjrz4+5ZSbjEuVkA4lIOV3cL1PToJ3l4vPywgr0WCmJIep2DnP55FkwmYwAwL2Ru+tcDR+stAjF22tgqVtjZHo+OAqDGC/Pt7lDzXv1WU3wRzTjiaNvWT2BA2DtIoZeEqwaimlgJnMMtOdc/9B4+N+2eCOINAB8wsYIDwK9Wr6sG5TgkuR/nrDkw2+4CnsAOEb+0xBPMphETkckLMcCLsNtAq2kI6uGsO/3NkTsgmaanCgd70JXt07/6vaTp/zzF7pxHfG2VlF9S31QCfcttkdkNFY8CUMU3OQKLzRUcGsvXXkugZvT1jmw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(4636009)(39860400002)(366004)(376002)(346002)(136003)(396003)(451199021)(31686004)(5660300002)(41300700001)(4744005)(2906002)(2616005)(8676002)(8936002)(316002)(6666004)(6486002)(38100700002)(66556008)(66476007)(4326008)(31696002)(86362001)(54906003)(478600001)(110136005)(36756003)(26005)(186003)(6512007)(66946007)(6506007)(107886003)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?TExQeFJILzhtYk5rSWNubnk2djV1ZFFqb1dtTVZtUUVCVU5aS3ZzM2dHaC92?=
- =?utf-8?B?UlY2ek00VGdoZUNIODNaYjBFSkZsWGJYUWU5Nm14MVg0UW5FTTJIQWo0K2Ex?=
- =?utf-8?B?MFR6VFg0VDMwN3RyOFM4VFcvaEo4bldBTjkzbENHM3hOTFZZbmpSWGt5Rkxu?=
- =?utf-8?B?UkJpRzM1RzcvSDRjeHl1ZTVCVmZubkNreTEwQ3FQUk1HanIraUpCT09XRlhy?=
- =?utf-8?B?WTUxbU04ZWkySC9xZ2NrNXNMQjJBZVg5MmUxa2hteDFNRXFPYVQza2VIbTU4?=
- =?utf-8?B?YjJQS0s4emE4aUdJV0hrQnltNHZJeGxqZ2FGcDRYeURseVdwTHYrUTZyMjJp?=
- =?utf-8?B?TTVuSFpZR3lHYUF3M3ZXNFliUUxrQnpodGkwSWFuM0NlUy9xZWFkQ2RzbTFV?=
- =?utf-8?B?S1ZVb2hxVk5BMnhPdWQxcncvR1B3a0UyY2ZHMmJXeEc1cVdpTVNySDd3dVFa?=
- =?utf-8?B?ejRqb1RIa2FGYXI4SHpuMzMvcFRzanlMZU1McFlDS1dUaGlBRFg4R094UkdZ?=
- =?utf-8?B?UlFsVmw3MlI1YytTTWdVZmp5Vmd1cWdYd0sveEtTZnFtMlRmK3lVcWd3QWw2?=
- =?utf-8?B?L2djKzJld25TVW9EQmVZcUNHc1JHVnMzcklnNDh0Tkx0Q0ZmSzZnZzFETnpt?=
- =?utf-8?B?VTFNbWE0dUpJYU5qSmJBaU1rVmNQaUEyQkdQUnN0Q0V3a1RZblpzRlY3cnFO?=
- =?utf-8?B?N2RuZEZ4c2dscy9xdVZLWHo1TDk4UW5WaWgrSGdHeCthYnVkZW9xaGExUmFj?=
- =?utf-8?B?RCtGK1Y4U3RGeG95RUtuSGRXYVE0L3A2VG4vZzF4WXJwT09PRmppK2NKMWE1?=
- =?utf-8?B?ZFAySytDeGRjeXpDRFZhWUIvVkF4MnlVM1k4K08vY2J4WUZhQzNyTkpldHFF?=
- =?utf-8?B?NGZ6TTN6dGZoSzdDVFkxeXlDRXZGNE1jWjNwY1VpNkNUR3lOeUtwWTg1eGJ1?=
- =?utf-8?B?UnNCR01oN2dhMEk0cUNtb3dHM3VCVE9YRGtFd0VaMVNwdFJuTFpMalQzdFo3?=
- =?utf-8?B?Ympma1hJMHgra3p3NzVyUENISWM3SmQ2QjJQOGJ1eTM4cUZpclFRNGVpWFQ0?=
- =?utf-8?B?OTNreU5uUVBtY3VyS1hyd1NvdENFbFF0UnpQc3BTZDZDTWNNbXhWVkE2YUg0?=
- =?utf-8?B?OFluaE4wSkRFNmRtY0JLeXpEbThsUFU5N3pqT2YrZzE3NDNQWUt6amRBMVk3?=
- =?utf-8?B?OUhCQm1EYlVoRTVGR0pqeEc3ekNiMk80WjZVbXYvemp1Z0hDb1RzRlYwd3ZS?=
- =?utf-8?B?VVNQd0NDVEVqcXNRZFllZ2JteXdxYVBMUTZLQ21ndkFqN3h6UjRTV1M4NGdH?=
- =?utf-8?B?YXlJRWNPRXpENEJJTytnUzA5eDBQMmRzNTlrc2JWdTdvbG5BVVBQTzJ0NDVU?=
- =?utf-8?B?c0JBVWh1eHpEeFFmUnprbmI0L2hVdENCcGR3SWFJTi9sZ0ZsSitNN0tuVHd2?=
- =?utf-8?B?eHN0YUNGQW5ROXN3U2VZK3A4MGdhaVc4b1J4NmE2YkFMU28vdHI2Y2ltQm5B?=
- =?utf-8?B?d1V5Z2lHUkhaZERPZUsrVEg2S3NYc25SeDc5bFQxanFOS2g1ajhVU3NVTitB?=
- =?utf-8?B?RlE3ZXAvL1V5NFVsdWtLeTFWcXpYMVh3dnVHNzhEVHJpdEo4cGJZR21DVk43?=
- =?utf-8?B?N25yWHRrKytCbHVyeDBwM1k1NHo2WUpDVWtHTWxVVWZ6M2hBVjFXZU9nUlZz?=
- =?utf-8?B?K3E3TGdNWkJXNGRoTlRLVkw1RllPS09YelRyQ3NWUnk0TFJJeVB4Y3orLy8v?=
- =?utf-8?B?a3B6QmlOMWRaY3l6SjRwTzJwbkJjdmkyYXB6SENkYTlJMENHSUV4aXVHQ3cx?=
- =?utf-8?B?NlFxNkhBYWl0SWVsUUpoR052OExXSWs3c0tRUGRVb2pWQTBxcnJzcTN1SlNa?=
- =?utf-8?B?YUhxbUtCeXduQiswOUc1bkh1a0sxZkRqeFRaMFlwZGV2cnVVUS94UGhMeVlC?=
- =?utf-8?B?clhyaW9OTGViUzkwK09FZ2tucjE0dkdzSzd6WU1CNndhTnYzN0RkZ09WcGJ0?=
- =?utf-8?B?cXpENE5WNk1WdVh3ZWNqdUhlaTEzc0ZGaWhReEdRQ2F3ZExaYXNubTFtR0pz?=
- =?utf-8?B?eGJhSmFwSlJNVnVOWFloSGNyeCtCZ1hENmtFMmNKaGxFNkF5UXdsV1plUmEv?=
- =?utf-8?Q?+JW3mQayz9gDILXH4A6pvX1bo?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 388416ab-4002-4626-7f60-08db4be72309
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 15:00:30.1887 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Mor5W2bqxhBZ+EYVCE28fzU8hQYuQqJHRxdHbW/heAK+BCeSqxeGix7+GG09//fG6t1OId+MsRonUatYxwOgFQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4538
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Simon Horman <simon.horman@corigine.com>, Bodong Wang <bodong@nvidia.com>,
- William Tu <witu@nvidia.com>
+In-Reply-To: <ZDt+PDtKlxrwUPnc@bullseye>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: Cong Wang <cong.wang@bytedance.com>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Cong Wang <xiyou.wangcong@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -167,38 +96,135 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Feng Liu <feliu@nvidia.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============3350013028654118561=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
+--===============3350013028654118561==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="g/fPiS3p8CdrynfS"
+Content-Disposition: inline
 
-On 2023-05-02 p.m.11:14, Parav Pandit wrote:
-> 
->> From: Feng Liu <feliu@nvidia.com>
->> Sent: Tuesday, May 2, 2023 8:35 PM
-> 
->> Issue: 3383038
-> Remove this internal garbage.
-> 
->> Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
->> Signed-off-by: Feng Liu <feliu@nvidia.com>
->> Reviewed-by: William Tu <witu@nvidia.com>
->> Reviewed-by: Parav Pandit <parav@nvidia.com>
->> Reviewed-by: Simon Horman <simon.horman@corigine.com>
->> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
->> Change-Id: Ib4c6a97cb7b837cfa484c593dd43a435c47ea68f
-> Remove this internal garbage.
-> Please run a local script not to forward the above garbage in upstream patches.
-> 
-> You are missing the changelog from v0->v1->v2->v3.
-> Please add and resend with above things removed and with changelog.
-ok
+
+--g/fPiS3p8CdrynfS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Apr 16, 2023 at 04:49:00AM +0000, Bobby Eshleman wrote:
+> On Tue, May 02, 2023 at 04:14:18PM -0400, Stefan Hajnoczi wrote:
+> > On Tue, May 02, 2023 at 10:44:04AM -0700, Cong Wang wrote:
+> > > From: Cong Wang <cong.wang@bytedance.com>
+> > >=20
+> > > When virtqueue_add_sgs() fails, the skb is put back to send queue,
+> > > we should not deliver the copy to tap device in this case. So we
+> > > need to move virtio_transport_deliver_tap_pkt() down after all
+> > > possible failures.
+> > >=20
+> > > Fixes: 82dfb540aeb2 ("VSOCK: Add virtio vsock vsockmon hooks")
+> > > Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> > > Cc: Stefano Garzarella <sgarzare@redhat.com>
+> > > Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> > > Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+> > > ---
+> > >  net/vmw_vsock/virtio_transport.c | 5 ++---
+> > >  1 file changed, 2 insertions(+), 3 deletions(-)
+> > >=20
+> > > diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_=
+transport.c
+> > > index e95df847176b..055678628c07 100644
+> > > --- a/net/vmw_vsock/virtio_transport.c
+> > > +++ b/net/vmw_vsock/virtio_transport.c
+> > > @@ -109,9 +109,6 @@ virtio_transport_send_pkt_work(struct work_struct=
+ *work)
+> > >  		if (!skb)
+> > >  			break;
+> > > =20
+> > > -		virtio_transport_deliver_tap_pkt(skb);
+> > > -		reply =3D virtio_vsock_skb_reply(skb);
+> > > -
+> > >  		sg_init_one(&hdr, virtio_vsock_hdr(skb), sizeof(*virtio_vsock_hdr(=
+skb)));
+> > >  		sgs[out_sg++] =3D &hdr;
+> > >  		if (skb->len > 0) {
+> > > @@ -128,6 +125,8 @@ virtio_transport_send_pkt_work(struct work_struct=
+ *work)
+> > >  			break;
+> > >  		}
+> > > =20
+> > > +		virtio_transport_deliver_tap_pkt(skb);
+> > > +		reply =3D virtio_vsock_skb_reply(skb);
+> >=20
+> > I don't remember the reason for the ordering, but I'm pretty sure it was
+> > deliberate. Probably because the payload buffers could be freed as soon
+> > as virtqueue_add_sgs() is called.
+> >=20
+> > If that's no longer true with Bobby's skbuff code, then maybe it's safe
+> > to monitor packets after they have been sent.
+> >=20
+> > Stefan
+>=20
+> Hey Stefan,
+>=20
+> Unfortunately, skbuff doesn't change that behavior.
+>=20
+> If I understand correctly, the problem flow you are describing
+> would be something like this:
+>=20
+> Thread 0 			Thread 1
+> guest:virtqueue_add_sgs()[@send_pkt_work]
+>=20
+> 				host:vhost_vq_get_desc()[@handle_tx_kick]
+> 				host:vhost_add_used()
+> 				host:vhost_signal()
+> 				guest:virtqueue_get_buf()[@tx_work]
+> 				guest:consume_skb()
+>=20
+> guest:deliver_tap_pkt()[@send_pkt_work]
+> ^ use-after-free
+>=20
+> Which I guess is possible because the receiver can consume the new
+> scatterlist during the processing kicked off for a previous batch?
+> (doesn't have to wait for the subsequent kick)
+
+Yes, drivers must assume that the device completes request before
+virtqueue_add_sgs() returns. For example, the device is allowed to poll
+the virtqueue memory and may see the new descriptors immediately.
+
+I haven't audited the current vsock code path to determine whether it's
+possible to reach consume_skb() before deliver_tap_pkt() returns, so I
+can't say whether it's safe or not.
+
+Stefan
+
+--g/fPiS3p8CdrynfS
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmRSZAEACgkQnKSrs4Gr
+c8jkvQgAmVX4WzYQDdtxMkSMB4j8ozN7cpcaVR90gu/OuPUKIV8FhCpymBqzgaWO
+igJ5x5l1PsTrEB7b644n/bz4SUPOYJiekJeLOGCw22PIwowWVkG0zvvkJMVxLvCG
+JdnOYVeoTHYn74n5GHn19eEj8DaPn/451P5zQh5f3AX7ZF4PFhDe6UdZN8iexfZ2
+X+sbT+m61lc65n8Chkmd0yBrsDXKKgPDr5EtsSiyD+gUabYhQGrnnzxBk0lt8WbB
+C985ZeXbxybJLduNHrSJBSA532rCNP2p4UJiHETArnIhuh+ynsxPOy46WGuKaJKh
+xCf3AAd2UkLp1SRmpjL7WZmozD0aBA==
+=gU1d
+-----END PGP SIGNATURE-----
+
+--g/fPiS3p8CdrynfS--
+
+
+--===============3350013028654118561==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3350013028654118561==--
+
