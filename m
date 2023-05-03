@@ -1,79 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAD90C7EE29
-	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 18:13:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A64E4C77B75
+	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 18:13:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2B8C341893;
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4F1BB40201;
+	Wed,  3 May 2023 18:13:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4F1BB40201
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=trMfP3B4
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id eQF7VlMuTHj9; Wed,  3 May 2023 18:13:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 930E341D2D;
 	Wed,  3 May 2023 18:13:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B8C341893
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=alhEM1BG
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cWgh2EC-HCHk; Wed,  3 May 2023 18:13:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 927FB418B3;
-	Wed,  3 May 2023 18:13:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 927FB418B3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 930E341D2D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B7B3AC008C;
-	Wed,  3 May 2023 18:13:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 95AFCC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 59D03C008C;
+	Wed,  3 May 2023 18:13:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 50F40C0037
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:02 +0000 (UTC)
+ Wed,  3 May 2023 18:13:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7099C60E32
+ by smtp1.osuosl.org (Postfix) with ESMTP id E1B6183C87
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7099C60E32
-Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ Wed,  3 May 2023 18:13:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1B6183C87
+Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
  unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=alhEM1BG
+ header.s=selector1 header.b=trMfP3B4
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1CIZNU4Y8ZyI
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id feansabaidaL
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:01 +0000 (UTC)
+ Wed,  3 May 2023 18:13:05 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2407960BE8
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com
- (mail-bn1nam02on20615.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eb2::615])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2407960BE8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D36AB82044
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on20620.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5b::620])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D36AB82044
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:01 +0000 (UTC)
+ Wed,  3 May 2023 18:13:04 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZYxUFb/J4vi9DVAldDjmeKf6+pIdl5E4FEcI9lo6G7WUDxHDNLL+ZBO7/rs/AJl09qDN6hmUHtV4llqOe1qF5+Fz2R5I6L1GxDTbWeMB4b0fh5+SGnX1UD6H+dizZV5mDHx4CPG/LrkZnL+ciuWjB/Xw6KdpuNrCs3CC4GRvalBijNmIScxnlUmfWZhAQSV+phpMOPhPKVblhm6gyPxxaUUuCQqz7biuVtD72MxWAyCDPF0OYqqLNkJQaXhqDWfpD6ZEnRlBgCrp+UKtkfieT7+dBMm6h5YLXCHdTzeQeFs9ICK6n8SM27+RAYcohiaBRjGPBOhK3DasNFekLeyUgA==
+ b=WCyM0gVaegX+MiX7ToI+EmBtpdZyoswtkr8ZVsn0RRpfPga+b7XaMmyOfLRPdWFryNbZsEp14f9NQVMnjidOHibQU8J0wSnjyTn+G2LNFRjgwbL4qSa3dzjzr22mcgMBl0CJ82ceRh+I6OXxP0Gor/2nEbGw7v+Cy4P5ACCrRliYkJ/gMacKgAZb7A7xjeETUQbvWQwhLiXydu/sSY4JsAPOjcrOKl/71RRtsL7WffSQuSlWmdPPzUm/u6VEUcH6h5KNRPmz027ExIjc3VFyWva2G9WzfjsQ6moQILIhAdjNeFouoj3OAnAANtsVUfhW5HcNt58ITxVgdHD5iXpDGg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=suNY/GftPPz1DzbwYNWvMeaPVMo8XMf35wnbP9bws9c=;
- b=Cgie8wMnI2JjqK0hHFUyA7Spfgfdkrbzhd7j29/OleGH7mCDVoFw9xVayF/6Sf8zZxwiGYoLpNAof2S7yh1yZ7VRixc+ZBRMBTSYu9ahqPMrgL/6bR4WR5oOHuTj4zucpOG0LBiiZa2OD8xNUeYJjVKK6IG+BOZ645hsnOg7W18ek73KRQi8+3Hm5qUwV4R6S+rZQn+PQXiiGel2SEQAodRjoXH/JSp/KzYXLvHtkSUOwz85Dx8xs9xexIBSSGgE+tNzEHcjuL12pfkt2elPnVhTDnkStrZy1r/RGB+jWaYKFBrSrL70SFM32+/WUasiR2D2YdeTgqYcLE8ShrjcbA==
+ bh=hO1OVx/y4DC3hfqDreSo0ry+yyEDQnOq9eb9/2WQ+PA=;
+ b=ABXij3kOiXOL4fPKCTaVVjgWcNaJmvlJoIj+g1WAY2KNhhyliV+cCKZsEUAUjIZlXLqx7VJjome7Jsf8yXOK8WDQM0Ua6fYl68iycfrGFrKKtZXrZYSaLLPnEaaE5Wd+mdZMd0r/uiO8ZNiRUBWldiyRer9K7Y1WyoyXi0KZD7/3bC/UbkzmbD/XqdUq6h9lYbWWVmAJjqFRmjEIiFJa3kg+dwOXJwJM+UZZO2iCWizfjetrFeFCXDD20xaMugZIwxqnzczjlsCtmtvQ4bd79RswG/U6DhvD5LnJrZFYgCgWqwgZ3B/u8nzHrzFBefkmW+zeQ8T2/WK1jz2TmtVTdg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=suNY/GftPPz1DzbwYNWvMeaPVMo8XMf35wnbP9bws9c=;
- b=alhEM1BG3rfqL9sr5L4g1xI4UGY9B1pzeXhxC+v42KwXOxMwVCJNvkdbrwzgSIvxMnHVYLvsu14T9So7bqMbDkk6IF3G+HuaAnBfFyxI2oGeeNPjKgy9zgnNHPMpuHU/qpGYVa/KhKLcvE8fgBUcOc7k1qd3S+MfA+N9hpzJ9Do=
-Received: from DM6PR08CA0042.namprd08.prod.outlook.com (2603:10b6:5:1e0::16)
- by SN7PR12MB6910.namprd12.prod.outlook.com (2603:10b6:806:262::21) with
+ bh=hO1OVx/y4DC3hfqDreSo0ry+yyEDQnOq9eb9/2WQ+PA=;
+ b=trMfP3B4mnp2psf1wElnO2moVwGrqhiSb8RiSUXDFit0mrUNdyAk6tXxA9NcEVbXX/1oga77HDLjQgEmBr24qQwLpjptW88RPCdSWjqJimluqlWIipVBfFFjG20WHyQpSckXUJo8b4WRcqJ4URUmR+pnODG91FR02ne7Nffh3lg=
+Received: from DM6PR03CA0068.namprd03.prod.outlook.com (2603:10b6:5:100::45)
+ by CY8PR12MB8194.namprd12.prod.outlook.com (2603:10b6:930:76::5) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.31; Wed, 3 May
- 2023 18:12:57 +0000
-Received: from DM6NAM11FT094.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:1e0:cafe::2f) by DM6PR08CA0042.outlook.office365.com
- (2603:10b6:5:1e0::16) with Microsoft SMTP Server (version=TLS1_2,
+ 2023 18:13:01 +0000
+Received: from DM6NAM11FT109.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:100:cafe::9) by DM6PR03CA0068.outlook.office365.com
+ (2603:10b6:5:100::45) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6363.22 via Frontend
- Transport; Wed, 3 May 2023 18:12:57 +0000
+ Transport; Wed, 3 May 2023 18:13:01 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -81,46 +81,49 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT094.mail.protection.outlook.com (10.13.172.195) with Microsoft SMTP
+ DM6NAM11FT109.mail.protection.outlook.com (10.13.173.178) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6363.22 via Frontend Transport; Wed, 3 May 2023 18:12:57 +0000
+ 15.20.6363.22 via Frontend Transport; Wed, 3 May 2023 18:13:01 +0000
 Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 3 May
- 2023 13:12:56 -0500
+ 2023 13:12:59 -0500
 To: <jasowang@redhat.com>, <mst@redhat.com>,
  <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
  <brett.creeley@amd.com>, <netdev@vger.kernel.org>
-Subject: [PATCH v5 virtio 00/11] pds_vdpa driver
-Date: Wed, 3 May 2023 11:12:29 -0700
-Message-ID: <20230503181240.14009-1-shannon.nelson@amd.com>
+Subject: [PATCH v5 virtio 03/11] pds_vdpa: Add new vDPA driver for
+ AMD/Pensando DSC
+Date: Wed, 3 May 2023 11:12:32 -0700
+Message-ID: <20230503181240.14009-4-shannon.nelson@amd.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230503181240.14009-1-shannon.nelson@amd.com>
+References: <20230503181240.14009-1-shannon.nelson@amd.com>
 MIME-Version: 1.0
 X-Originating-IP: [10.180.168.240]
 X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT094:EE_|SN7PR12MB6910:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4fcabe6d-0e26-4f66-8ca9-08db4c0205ea
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT109:EE_|CY8PR12MB8194:EE_
+X-MS-Office365-Filtering-Correlation-Id: 35633cb6-fe7f-4be3-f58e-08db4c02080b
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ito+9uxR4yilc5MT0np7nVkyW39IL3ASxdAIFYZrwiy5onCJl4+vf+3qNFhLkCR+t6n8nWAYDKIbL6vucDHlS4n5Bhe8TkuLqiHrcr9ZIPa3yy52BgFwgLwyScYjHf8BlXx4bBf7w48vxTXgpqXIg5CQJ6kB62e0q7L+PwIPHC3Ldwmfdz6oOLf8aDJ0pcQBpzI7F08Fad9VELpLr1fzZy4+UhdGvS8HN96eRAKnSrJa9Y1b6TViAoW+2LnALhax445riZ1RGUDmFtQBTOKuOFU8kNjb3Keern/0kQDcnzqH65TwMFDOcZjubQhdXWRVu1NUOzCUs1gjUHis8bWQ8eEh4Ia8KiR1rdd9xoXsZZwiw6iSV3OqNU1TYRllBpyBY7PT+/c5EH30uBPTqU2mZvn8kRNgn3NM+ewB3ykZdqbCNvQwjm+DhAVTMHZ0X3MiCCyos+dOLZ4c5eieg9QxUq8fiksAdLBJtSg/f/ppCSBEtYQaOk2Dx6at52TUvUkw0VkgzfimJO0MQfYYvxNQgHkzx2dNG6w5FoOfic3cYHdFYBAIU2uMs8VXXHIYqILPchCw6e0YmWhADwgvl2U5BhR30EtOiZqBMfcmfhFS53C0bB30G5Mp71bGfG7nysEZCOc2prtkYZiXRmLPmsjl8eXnhH0wHB8cxW1TZa5OkrYJZu1teUZIBiyY3ZD/2Bpz6kRjxscrNecg6hURzyfp8HuNeUpOqviDTwn8yuV0qFn40Lv8NGEuvqOSxMSoiZy/Bb5aXCMQh+wMBOzRlWwHAw==
+X-Microsoft-Antispam-Message-Info: HUmdQnASLFwfRticZlfBuRIx+hqUZM3htTyNGNfEJ1hJGGfzqmgHQuC7T0LGnfMmjjkKPM7fzwYhH54Qeco0qUMb6BURhYHafcybFtiJcOB0zhRc0wZto2ypnMiBm71LltLV2mB7D7+gx9+4QiDKNprdlHg6YcbWDVYSUsJf7Wg4p5CMj3gxKFkHhjbuS5uLRl2Kw7NJEcEOcGYIaUuXoulrqZA2qEKEWsGzag0J/dMLO4+q6PtrewvQBGu9n7pBEbC8/L4tr5UhQRvRxfmOcCZZyB2A6Ovh/ZSQvV2k5S9GmJMVETsOftQ2WPQPqrG5t572gOtRRc7uPatxYa51Aca6hg3TnSxR4uLO0aZqa9Voo8IkDcLeqerFGzEhPLLfonKiH6zkKgAKfelWHT0g8K8S5IQvXyIQr8acGjBNILGl4uTDnHoY6ciQO4sBFEStpkJ0HbVUxwX91YGJysIZI2c/YTtHsdoVFGTYDHuyCkDGFScSinyG3IySLrd1tT7WHUegEn+M7i7Dx5p6zqk4wzx7VxKldfGrhZSq/MMWf6ocNTQdzptsNvySB+eV7z4Mligljt8Jfo2sVAqfZQgv7RvaoZIrXZ21MR12BXz7Z1LaONGA/eIZAO6XgVO5GzolQTOljqRnUK7O7uZCQ+1qNdvceZf2KanKXDMDC1r8gjIbMSDN5EXa3YR7H3XzBzI66HUPWmbh5OQsGRRkZ8sA7aDBVnVaYDB57jvyh+Y+bxE=
 X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(136003)(396003)(346002)(39860400002)(376002)(451199021)(40470700004)(46966006)(36840700001)(478600001)(110136005)(8676002)(5660300002)(8936002)(2906002)(4326008)(316002)(70586007)(70206006)(54906003)(44832011)(41300700001)(6666004)(16526019)(966005)(82740400003)(26005)(83380400001)(1076003)(40460700003)(36860700001)(2616005)(426003)(36756003)(336012)(186003)(40480700001)(86362001)(82310400005)(356005)(81166007)(47076005)(36900700001);
+ SFS:(13230028)(4636009)(39860400002)(346002)(136003)(376002)(396003)(451199021)(36840700001)(40470700004)(46966006)(40460700003)(86362001)(8936002)(8676002)(4326008)(41300700001)(70206006)(70586007)(81166007)(316002)(82740400003)(356005)(5660300002)(44832011)(40480700001)(2906002)(16526019)(186003)(1076003)(26005)(36860700001)(6666004)(47076005)(426003)(83380400001)(336012)(36756003)(82310400005)(54906003)(110136005)(2616005)(478600001)(36900700001);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 18:12:57.5179 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4fcabe6d-0e26-4f66-8ca9-08db4c0205ea
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 18:13:01.0923 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 35633cb6-fe7f-4be3-f58e-08db4c02080b
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
  Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT094.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT109.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6910
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB8194
 Cc: simon.horman@corigine.com, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -141,121 +144,226 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patchset implements a new module for the AMD/Pensando DSC that
-supports vDPA services on PDS Core VF devices.  This code is based on
-and depends on include files from the pds_core driver described here[0].
-The pds_core driver creates the auxiliary_bus devices that this module
-connects to, and this creates vdpa devices for use by the vdpa module.
+This is the initial auxiliary driver framework for a new vDPA
+device driver, an auxiliary_bus client of the pds_core driver.
+The pds_core driver supplies the PCI services for the VF device
+and for accessing the adminq in the PF device.
 
-The first version of this driver was a part of the original pds_core RFC
-[1] but has since been reworked to pull out the PCI driver and to make
-better use of the virtio and virtio_net configuration spaces made available
-by the DSC's PCI configuration.  As the device development has progressed,
-the ability to rely on the virtio config spaces has grown.
+This patch adds the very basics of registering for the auxiliary
+device and setting up debugfs entries.
 
-This patchset includes a modification to the existing vp_modern_probe()
-which implements overrides for the PCI device id check and the DMA mask.
-These are intended to be used with vendor vDPA devices that implement
-enough of the virtio config space to be used directly, but don't use the
-virtio device id.
-
-To use this module, enable the VFs and turn on the vDPA services in the
-pds_core PF, then use the 'vdpa' utility to create devices for use by
-virtio_vdpa or vhost_vdpa:
-   echo 1 > /sys/bus/pci/drivers/pds_core/$PF_BDF/sriov_numvfs
-   devlink dev param set pci/$PF_BDF name enable_vnet value true cmode runtime
-   PDS_VDPA_MGMT=`vdpa mgmtdev show | grep vDPA | head -1 | cut -d: -f1`
-   vdpa dev add name vdpa1 mgmtdev $PDS_VDPA_MGMT mac 00:11:22:33:44:55
-
-[0] Link: https://lore.kernel.org/netdev/20230322185626.38758-1-shannon.nelson@amd.com/
-[1] Link: https://lore.kernel.org/netdev/20221118225656.48309-1-snelson@pensando.io/
-
-Changes:
- v5:
- - split dma_mask and device_id_check() into separate patches
- - simplify use of dma_mask into a single line change
- - changed test of VIRTIO_F_RING_PACKED to use BIT_ULL()
-
- v4:
-Link: https://lore.kernel.org/virtualization/20230425212602.1157-1-shannon.nelson@amd.com/
- - rename device_id_check_override() to device_id_check()
- - make device_id_check() return the device_id found and checked
- - removed pds_vdpa.h, put its adminq changes into pds_adminq.h
- - added a patch to separate out the adminq changes
- - added a patch to move an adminq enum from pds_common.h to pds_adminq.h
- - moved adminq calls for get/set_vq_state into cmds.c
- - limit max_vqs by number of msix available
- - don't increment nintrs for CVQ, it should already be covered from max_vqs
- - pds_core API related rework following pds_core inclusion to net-next
- - use non-debugfs method to find PF pci address in pds_vdpa.rst instructions
-
- v3:
-Link: https://lore.kernel.org/netdev/20230330192313.62018-1-shannon.nelson@amd.com/
- - added a patch to modify vp_modern_probe() such that specific device id and
-   DMA mask overrides can be used
- - add pds_vdpa.rst into index file
- - dev_dbg instead of dev_err on most of the adminq commands
- - rework use of pds_vdpa_cmd_reset() and pds_vdpa_init_hw() for better
-   firmware setup in start-stop-start scenarios
- - removed unused pds_vdpa_cmd_set_features(), we can rely on vp_modern_set_features()
- - remove unused hw_qtype and hw_qindex from pds_vdpa_vq_info
- - reworked debugfs print_feature_bits to also print unknown bits
- - changed use of PAGE_SIZE to local PDS_PAGE_SIZE to keep with FW layout needs
-   without regard to kernel PAGE_SIZE configuration
-
- v2:
-https://lore.kernel.org/netdev/20230309013046.23523-1-shannon.nelson@amd.com/
- - removed PCI driver code
- - replaced home-grown event listener with notifier
- - replaced many adminq uses with direct virtio_net config access
- - reworked irqs to follow virtio layout
- - removed local_mac_bit logic
- - replaced uses of devm_ interfaces as suggested in pds_core reviews
- - updated copyright strings to reflect the new owner
-
-Shannon Nelson (11):
-  virtio: allow caller to override device id in vp_modern
-  virtio: allow caller to override device DMA mask in vp_modern
-  pds_vdpa: Add new vDPA driver for AMD/Pensando DSC
-  pds_vdpa: move enum from common to adminq header
-  pds_vdpa: new adminq entries
-  pds_vdpa: get vdpa management info
-  pds_vdpa: virtio bar setup for vdpa
-  pds_vdpa: add vdpa config client commands
-  pds_vdpa: add support for vdpa and vdpamgmt interfaces
-  pds_vdpa: subscribe to the pds_core events
-  pds_vdpa: pds_vdps.rst and Kconfig
-
- .../device_drivers/ethernet/amd/pds_vdpa.rst  |  85 +++
- .../device_drivers/ethernet/index.rst         |   1 +
- MAINTAINERS                                   |   4 +
- drivers/vdpa/Kconfig                          |   8 +
- drivers/vdpa/Makefile                         |   1 +
- drivers/vdpa/pds/Makefile                     |  10 +
- drivers/vdpa/pds/aux_drv.c                    | 140 ++++
- drivers/vdpa/pds/aux_drv.h                    |  26 +
- drivers/vdpa/pds/cmds.c                       | 207 +++++
- drivers/vdpa/pds/cmds.h                       |  20 +
- drivers/vdpa/pds/debugfs.c                    | 287 +++++++
- drivers/vdpa/pds/debugfs.h                    |  17 +
- drivers/vdpa/pds/vdpa_dev.c                   | 704 ++++++++++++++++++
- drivers/vdpa/pds/vdpa_dev.h                   |  47 ++
- drivers/virtio/virtio_pci_modern_dev.c        |  33 +-
- include/linux/pds/pds_adminq.h                | 287 +++++++
- include/linux/pds/pds_common.h                |  21 +-
- include/linux/virtio_pci_modern.h             |   6 +
- 18 files changed, 1872 insertions(+), 32 deletions(-)
- create mode 100644 Documentation/networking/device_drivers/ethernet/amd/pds_vdpa.rst
+Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/Makefile          |  1 +
+ drivers/vdpa/pds/Makefile      |  8 ++++
+ drivers/vdpa/pds/aux_drv.c     | 83 ++++++++++++++++++++++++++++++++++
+ drivers/vdpa/pds/aux_drv.h     | 15 ++++++
+ drivers/vdpa/pds/debugfs.c     | 25 ++++++++++
+ drivers/vdpa/pds/debugfs.h     | 12 +++++
+ include/linux/pds/pds_common.h |  2 +
+ 7 files changed, 146 insertions(+)
  create mode 100644 drivers/vdpa/pds/Makefile
  create mode 100644 drivers/vdpa/pds/aux_drv.c
  create mode 100644 drivers/vdpa/pds/aux_drv.h
- create mode 100644 drivers/vdpa/pds/cmds.c
- create mode 100644 drivers/vdpa/pds/cmds.h
  create mode 100644 drivers/vdpa/pds/debugfs.c
  create mode 100644 drivers/vdpa/pds/debugfs.h
- create mode 100644 drivers/vdpa/pds/vdpa_dev.c
- create mode 100644 drivers/vdpa/pds/vdpa_dev.h
 
+diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile
+index 59396ff2a318..8f53c6f3cca7 100644
+--- a/drivers/vdpa/Makefile
++++ b/drivers/vdpa/Makefile
+@@ -7,3 +7,4 @@ obj-$(CONFIG_MLX5_VDPA) += mlx5/
+ obj-$(CONFIG_VP_VDPA)    += virtio_pci/
+ obj-$(CONFIG_ALIBABA_ENI_VDPA) += alibaba/
+ obj-$(CONFIG_SNET_VDPA) += solidrun/
++obj-$(CONFIG_PDS_VDPA) += pds/
+diff --git a/drivers/vdpa/pds/Makefile b/drivers/vdpa/pds/Makefile
+new file mode 100644
+index 000000000000..a9cd2f450ae1
+--- /dev/null
++++ b/drivers/vdpa/pds/Makefile
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: GPL-2.0-only
++# Copyright(c) 2023 Advanced Micro Devices, Inc
++
++obj-$(CONFIG_PDS_VDPA) := pds_vdpa.o
++
++pds_vdpa-y := aux_drv.o
++
++pds_vdpa-$(CONFIG_DEBUG_FS) += debugfs.o
+diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
+new file mode 100644
+index 000000000000..e4a0ad61ea22
+--- /dev/null
++++ b/drivers/vdpa/pds/aux_drv.c
+@@ -0,0 +1,83 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright(c) 2023 Advanced Micro Devices, Inc */
++
++#include <linux/auxiliary_bus.h>
++#include <linux/pci.h>
++
++#include <linux/pds/pds_common.h>
++#include <linux/pds/pds_core_if.h>
++#include <linux/pds/pds_adminq.h>
++#include <linux/pds/pds_auxbus.h>
++
++#include "aux_drv.h"
++#include "debugfs.h"
++
++static const struct auxiliary_device_id pds_vdpa_id_table[] = {
++	{ .name = PDS_VDPA_DEV_NAME, },
++	{},
++};
++
++static int pds_vdpa_probe(struct auxiliary_device *aux_dev,
++			  const struct auxiliary_device_id *id)
++
++{
++	struct pds_auxiliary_dev *padev =
++		container_of(aux_dev, struct pds_auxiliary_dev, aux_dev);
++	struct pds_vdpa_aux *vdpa_aux;
++
++	vdpa_aux = kzalloc(sizeof(*vdpa_aux), GFP_KERNEL);
++	if (!vdpa_aux)
++		return -ENOMEM;
++
++	vdpa_aux->padev = padev;
++	auxiliary_set_drvdata(aux_dev, vdpa_aux);
++
++	return 0;
++}
++
++static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
++{
++	struct pds_vdpa_aux *vdpa_aux = auxiliary_get_drvdata(aux_dev);
++	struct device *dev = &aux_dev->dev;
++
++	kfree(vdpa_aux);
++	auxiliary_set_drvdata(aux_dev, NULL);
++
++	dev_info(dev, "Removed\n");
++}
++
++static struct auxiliary_driver pds_vdpa_driver = {
++	.name = PDS_DEV_TYPE_VDPA_STR,
++	.probe = pds_vdpa_probe,
++	.remove = pds_vdpa_remove,
++	.id_table = pds_vdpa_id_table,
++};
++
++static void __exit pds_vdpa_cleanup(void)
++{
++	auxiliary_driver_unregister(&pds_vdpa_driver);
++
++	pds_vdpa_debugfs_destroy();
++}
++module_exit(pds_vdpa_cleanup);
++
++static int __init pds_vdpa_init(void)
++{
++	int err;
++
++	pds_vdpa_debugfs_create();
++
++	err = auxiliary_driver_register(&pds_vdpa_driver);
++	if (err) {
++		pr_err("%s: aux driver register failed: %pe\n",
++		       PDS_VDPA_DRV_NAME, ERR_PTR(err));
++		pds_vdpa_debugfs_destroy();
++	}
++
++	return err;
++}
++module_init(pds_vdpa_init);
++
++MODULE_DESCRIPTION(PDS_VDPA_DRV_DESCRIPTION);
++MODULE_AUTHOR("Advanced Micro Devices, Inc");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/vdpa/pds/aux_drv.h b/drivers/vdpa/pds/aux_drv.h
+new file mode 100644
+index 000000000000..f1e99359424e
+--- /dev/null
++++ b/drivers/vdpa/pds/aux_drv.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/* Copyright(c) 2023 Advanced Micro Devices, Inc */
++
++#ifndef _AUX_DRV_H_
++#define _AUX_DRV_H_
++
++#define PDS_VDPA_DRV_DESCRIPTION    "AMD/Pensando vDPA VF Device Driver"
++#define PDS_VDPA_DRV_NAME           KBUILD_MODNAME
++
++struct pds_vdpa_aux {
++	struct pds_auxiliary_dev *padev;
++
++	struct dentry *dentry;
++};
++#endif /* _AUX_DRV_H_ */
+diff --git a/drivers/vdpa/pds/debugfs.c b/drivers/vdpa/pds/debugfs.c
+new file mode 100644
+index 000000000000..5be22fb7a76a
+--- /dev/null
++++ b/drivers/vdpa/pds/debugfs.c
+@@ -0,0 +1,25 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright(c) 2023 Advanced Micro Devices, Inc */
++
++#include <linux/pci.h>
++
++#include <linux/pds/pds_common.h>
++#include <linux/pds/pds_core_if.h>
++#include <linux/pds/pds_adminq.h>
++#include <linux/pds/pds_auxbus.h>
++
++#include "aux_drv.h"
++#include "debugfs.h"
++
++static struct dentry *dbfs_dir;
++
++void pds_vdpa_debugfs_create(void)
++{
++	dbfs_dir = debugfs_create_dir(PDS_VDPA_DRV_NAME, NULL);
++}
++
++void pds_vdpa_debugfs_destroy(void)
++{
++	debugfs_remove_recursive(dbfs_dir);
++	dbfs_dir = NULL;
++}
+diff --git a/drivers/vdpa/pds/debugfs.h b/drivers/vdpa/pds/debugfs.h
+new file mode 100644
+index 000000000000..658849591a99
+--- /dev/null
++++ b/drivers/vdpa/pds/debugfs.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/* Copyright(c) 2023 Advanced Micro Devices, Inc */
++
++#ifndef _PDS_VDPA_DEBUGFS_H_
++#define _PDS_VDPA_DEBUGFS_H_
++
++#include <linux/debugfs.h>
++
++void pds_vdpa_debugfs_create(void);
++void pds_vdpa_debugfs_destroy(void);
++
++#endif /* _PDS_VDPA_DEBUGFS_H_ */
+diff --git a/include/linux/pds/pds_common.h b/include/linux/pds/pds_common.h
+index 060331486d50..2a0d1669cfd0 100644
+--- a/include/linux/pds/pds_common.h
++++ b/include/linux/pds/pds_common.h
+@@ -39,6 +39,8 @@ enum pds_core_vif_types {
+ #define PDS_DEV_TYPE_RDMA_STR	"RDMA"
+ #define PDS_DEV_TYPE_LM_STR	"LM"
+ 
++#define PDS_VDPA_DEV_NAME	PDS_CORE_DRV_NAME "." PDS_DEV_TYPE_VDPA_STR
++
+ #define PDS_CORE_IFNAMSIZ		16
+ 
+ /**
 -- 
 2.17.1
 
