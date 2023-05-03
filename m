@@ -4,76 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1614BC7EE26
-	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 18:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04909C77B75
+	for <virtualization@archiver.kernel.org>; Wed,  3 May 2023 18:13:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B427A61559;
-	Wed,  3 May 2023 18:13:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B427A61559
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9E7736155F;
+	Wed,  3 May 2023 18:13:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E7736155F
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=dXmAvWtF
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=MgBvVO0e
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j6heYQi4QZ3K; Wed,  3 May 2023 18:13:13 +0000 (UTC)
+	with ESMTP id ljOmFH33UYr7; Wed,  3 May 2023 18:13:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7CD0B6155F;
-	Wed,  3 May 2023 18:13:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7CD0B6155F
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0C4B661563;
+	Wed,  3 May 2023 18:13:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0C4B661563
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 516F8C0037;
-	Wed,  3 May 2023 18:13:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 11D42C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0456EC008C;
+	Wed,  3 May 2023 18:13:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46118C008B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:11 +0000 (UTC)
+ Wed,  3 May 2023 18:13:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3ED0C40A00
+ by smtp1.osuosl.org (Postfix) with ESMTP id 21A9781F71
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3ED0C40A00
-Authentication-Results: smtp4.osuosl.org; dkim=pass (1024-bit key,
+ Wed,  3 May 2023 18:13:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21A9781F71
+Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
  unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=dXmAvWtF
+ header.s=selector1 header.b=MgBvVO0e
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IpbwtrqKV_gl
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GDKpYZjfqcMu
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:08 +0000 (UTC)
+ Wed,  3 May 2023 18:13:12 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 089104004E
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on2061b.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8c::61b])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 089104004E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21E1E82044
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10on20612.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8a::612])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 21E1E82044
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 May 2023 18:13:07 +0000 (UTC)
+ Wed,  3 May 2023 18:13:12 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KaDBLbUTDesvq9xyy5luGIWm1M7V7vRuCKm7A2p7J+2wbad23dfPZ8N9jumC1v6ofQjOB1V4mbN4l3V1CX7zSB7grA2j8vqedr3F075DRFdG9tjMXda2dyBJ9ALMudiYn7WJuGoerJbEZl5ADCQA6Ko4v6UITXNW2IhKi4zyJWVzsVAY/Rh7LXoHqejxF2tNTy87zsvrPvHN33AJgeqexMOq+hzihrH+JbtAw8tJmAII2ZOWe2OEfy/L/Afr/SxQOJkT8suPnDHOfH9SuZaHlP39kTYIAhS4u6mCE/G9fqhFXiDg1Z3iDqerzztXu4Uy9otgSt4mSKA4QsmU9cAtgw==
+ b=NOhH4Ngd/C+U/XoausJQ+tdQ/Il4M60GwhpYAOP74cVBjWvbK6NbmwsxwSx7UMToVgjoNJBeNF6LPdZwqoLFKlcr0V5F6va+qIeqFomiiKkneRT8/J6hTma/bFI0iTSALmbQj9R7nOKer0HR7Hchy2TGC11elmk+oJ+K3IAfTpVzL8yekyC60vhR3pdoqRQVIUCqfIq6Go1D0XyjrtKZ9QzFAJev1IRiNdHIfJ1IB7A2s7EzV0uFlHg++TOVp5AX9/rrepbFLaqu+1WEHg0Ric/3YKkfyMBswyNRkB5zHWvl8+4SY0lnc/YQRBLjJ5KCbUomv6YLkD8J/02hnfwFow==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DN/EFBNnTn1tJG4ExFgRBsBrlQ6ASc8w4qK7iE7P2Qk=;
- b=dANhZB6uJ2Fm+tTjOee2eAjh+LcKw+cfs0oQg6A8cvLVEKHvGf8tPx5Dl+xFPy6lct0c1kbcGvAXewkEntlB2APt76+dJD7JgcAx8L2fFeifZlO4TI90qLfE1TD8VxHFYeIMo3ReOwAL7xbKKPvZg3tmFpNtAj8O4jGHLbcnDRlvOs/hUlZgcWcEZ1ptqcNWYHmP39hm7hPno+/7ALRhNYTVrjoL33hjHywLDT5xeR6n427COOfj2/KhZEUp0ncKX9PiHe0eKz+gsDCHwNDSWa3In2csek4S2BqBfJBZodnEBdflu3OiUXjd9qYa2zXOlSFC5lBVTQgOTnPcdG5uEw==
+ bh=f1gIveVpiQV5ZSSgZln6UEHlyprFWoCfTQPmmOKNSLk=;
+ b=az9b3yxQIPaIKQR5yr0MLiKQt+fn1HgviOymSNAKUDInBjpf1rIsuDdUk98IqLKumM1B1VrPsvpvdFsiUngILL8wObLDYEyTpFTRurNQMV8TRGFWFUlt08aKobgi67mi4a6Khpzi2N8bkIs9acU3F5cuhxwy0hego2/zxqYNU/EFXUATM1FxOPXlB15uQXIzOXCThchlrkFLcZD3qIXshdCZZmivsyto1dCOEd8Cojn/GbP84YU+HMgSY6zaSChUab25p6X5y+jZzKIw7k4bFKTWyN87/RQzmlUU7sOK+nASg3Rw4sleGFQLbpi5HSgeSULMdNVPc6Fxx87T/m5wxg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DN/EFBNnTn1tJG4ExFgRBsBrlQ6ASc8w4qK7iE7P2Qk=;
- b=dXmAvWtFwxPX7xEODxo+AtgbChayOwbX+NGABvzAKf+It1noTSNAHGTLlUuSfKrxyLB/z9jPEKqnVC16JmvVtTuoJWg8OrZVTrJnAAP/oKhG7fJsG+t1flRsoQs0PUO2nJ+CYfyCarUfVqFaJAEA5W80HU2DdnytkJRFnNhpi9Q=
-Received: from DM6PR03CA0044.namprd03.prod.outlook.com (2603:10b6:5:100::21)
- by SJ2PR12MB8159.namprd12.prod.outlook.com (2603:10b6:a03:4f9::15) with
+ bh=f1gIveVpiQV5ZSSgZln6UEHlyprFWoCfTQPmmOKNSLk=;
+ b=MgBvVO0ewvCvsuZcFUva5+9aA8i+5XPNDDRZUwYnjj3ui3IyYOTtXySW1h20ZpQDXHbEhpSaTfO/pYBfmsob9m/jEjMuCpMA2wD3X7kZFQeqYlRQ2cgJy6VamepmdJgFutcfhmVCw/91X0OONAssRswVL7vC5erTfC2xeT2B6sw=
+Received: from DS7PR03CA0131.namprd03.prod.outlook.com (2603:10b6:5:3b4::16)
+ by DM6PR12MB4188.namprd12.prod.outlook.com (2603:10b6:5:215::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6363.22; Wed, 3 May
- 2023 18:13:04 +0000
-Received: from DM6NAM11FT109.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:100:cafe::5c) by DM6PR03CA0044.outlook.office365.com
- (2603:10b6:5:100::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6340.31; Wed, 3 May
+ 2023 18:13:08 +0000
+Received: from DM6NAM11FT107.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3b4:cafe::a) by DS7PR03CA0131.outlook.office365.com
+ (2603:10b6:5:3b4::16) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6363.22 via Frontend
- Transport; Wed, 3 May 2023 18:13:04 +0000
+ Transport; Wed, 3 May 2023 18:13:08 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -81,19 +81,19 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT109.mail.protection.outlook.com (10.13.173.178) with Microsoft SMTP
+ DM6NAM11FT107.mail.protection.outlook.com (10.13.172.142) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6363.22 via Frontend Transport; Wed, 3 May 2023 18:13:04 +0000
+ 15.20.6363.22 via Frontend Transport; Wed, 3 May 2023 18:13:08 +0000
 Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 3 May
- 2023 13:13:01 -0500
+ 2023 13:13:07 -0500
 To: <jasowang@redhat.com>, <mst@redhat.com>,
  <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
  <brett.creeley@amd.com>, <netdev@vger.kernel.org>
-Subject: [PATCH v5 virtio 05/11] pds_vdpa: new adminq entries
-Date: Wed, 3 May 2023 11:12:34 -0700
-Message-ID: <20230503181240.14009-6-shannon.nelson@amd.com>
+Subject: [PATCH v5 virtio 10/11] pds_vdpa: subscribe to the pds_core events
+Date: Wed, 3 May 2023 11:12:39 -0700
+Message-ID: <20230503181240.14009-11-shannon.nelson@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230503181240.14009-1-shannon.nelson@amd.com>
 References: <20230503181240.14009-1-shannon.nelson@amd.com>
@@ -103,26 +103,26 @@ X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT109:EE_|SJ2PR12MB8159:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9fbe130c-a2a5-4a85-4f74-08db4c0209d3
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT107:EE_|DM6PR12MB4188:EE_
+X-MS-Office365-Filtering-Correlation-Id: e2fe56de-a335-4e7b-9d41-08db4c020c9a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cB+CWiTiaYFNETeX75trxYoecS8Kp93uMJx9UCTHMohZ42uNmG5SfF39g4qCzABaoQXvn8G9claeczXlp97fTG7GIHb7+DTZi9QuZ8I8Zz4JJhUPqzWtvlch0jWM6/lcYX0laUM0Geqhoh6FFP/EeiYqu2SjmRhBbFiQ9AkAZau2qCaMseRgSf3/IgG8rzLGM1Qm+vpb9IU7I4SA2D/8x0gk+t1Ln4lQ/oHnPU6CtBEDLgUbTZpPI8+WWvZlCU1v4kCzZKG2ZlSCXOCJvvyz9ViI1tTnGXLCqWKUU5e+OCxtNx+8BqLMEvMZtYvfUS2mhkk8HZuNdmlkigGPVRgkeR2+6VrwvL8KaEYBsB1sHyITtwOy1TU/9HaVAEtMNPBG+NXMOSgwDrCg+7Qttqs1LIRPGtPLYpTN4zEEtWCfPHJFtPmm4U7qUARHNBX/13NIFUd15HVaQbGu/ojBT98C1Fjfh9PlmX0rxm3nd4H1ANb9559g7enmXYf4nMO2mT6K+kotrew3wjwc0qgoqTf/tf6qe0Mwq9Bo5i1AWz9LevR2biR973RXIEs/OYarnjqzChzcURgApRZQJECwGuyiv8nvdF0xag8d/gTeWdWaXRHL90rZP9Kziz6JR5881ReHsGsznwZaoibhhPvMwkGiau0PgpH0r4gX33ko8RCWdyXUlgWOUpFyaLKv+eNdKaSPWeEAnDthY+9u0gOxWy/OCaVyiYp9j2HBjWH9nwUyye0=
+X-Microsoft-Antispam-Message-Info: vdLKHlkwvZz1cSN8mXlfO1kSXLPTHT4FR2yn7puYiuhov5jp+71HVXDlAnWoL2eVb231sP7NGgxCjiogxW2gNj+9gmdQIX3EXi7BpfI4avPmvTzMGKZBm54eHppzACtxZgwxBREC44Jnsa8HtjvT5SkDfye+FMIGlVg83DhH1Q1Dbxu9ai3RaJBjFY/qwOvCKhsWIR7oKIWFpOfZxDkHRLT62nefT9w+/E85+BhA5lgaYKiHaN2NjlvbFXT5syx8CP0L2REI7Ch/wntujYu6wGTF8K5BLhGIrcu8Iu+IxRO1jKt5yu0ZxrFV7cW1PNDxmJSg3ltiZUrohN8LzreS0dTPKazkl7P5JWsMWZhwy69svk3g1uGor9/y1YwL3RKJwIJ6DLEw4xij0YaEUt9Ulf/OYWezmeZqB6oEHAnx++gjvvdKXFJAlGqOdZqsPAiT7z1OKqaIbLrM8PYeU4VFAJBRCkKnvZcDYuymQ9QLWPtpX5sFTIPd8gVASWaRbbPh1IUYmpEyE9DqNuPIAu7nhprxtH6lfostrMdaDaIPATCnspB08MEWVk5V/+A77L3QW3xd3Zr29oShvT0ySQs3z71Rdj8J12rvyGWUu3MboAnAkEM5lbhAgbh2NJkExZ3Ihle5xPjr5nEoa+Ac759SLip7DDHOjv59uRw1MCOy8aJPE2R4gQpLJc5LF6zKR7xx/ALlhGeNlUDxR5wcluBoJqoomqQKyLCQX+EY3iEEQtw=
 X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(39860400002)(346002)(136003)(376002)(396003)(451199021)(36840700001)(46966006)(40470700004)(41300700001)(478600001)(70586007)(4326008)(70206006)(316002)(40480700001)(6666004)(110136005)(54906003)(8936002)(44832011)(40460700003)(86362001)(82310400005)(26005)(5660300002)(1076003)(36860700001)(2906002)(8676002)(2616005)(336012)(426003)(47076005)(83380400001)(186003)(82740400003)(81166007)(356005)(36756003)(16526019)(36900700001);
+ SFS:(13230028)(4636009)(136003)(376002)(396003)(39860400002)(346002)(451199021)(46966006)(40470700004)(36840700001)(44832011)(2616005)(36756003)(41300700001)(6666004)(86362001)(40480700001)(316002)(47076005)(4326008)(83380400001)(426003)(36860700001)(70586007)(70206006)(336012)(82310400005)(40460700003)(478600001)(16526019)(2906002)(5660300002)(356005)(81166007)(110136005)(54906003)(82740400003)(186003)(8676002)(8936002)(1076003)(26005)(36900700001);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 18:13:04.0764 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9fbe130c-a2a5-4a85-4f74-08db4c0209d3
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 May 2023 18:13:08.7380 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e2fe56de-a335-4e7b-9d41-08db4c020c9a
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
  Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT109.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT107.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8159
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4188
 Cc: simon.horman@corigine.com, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -143,304 +143,136 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add new adminq definitions in support for vDPA operations.
+Register for the pds_core's notification events, primarily to
+find out when the FW has been reset so we can pass this on
+back up the chain.
 
 Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
 ---
- include/linux/pds/pds_adminq.h | 266 +++++++++++++++++++++++++++++++++
- 1 file changed, 266 insertions(+)
+ drivers/vdpa/pds/vdpa_dev.c | 68 ++++++++++++++++++++++++++++++++++++-
+ drivers/vdpa/pds/vdpa_dev.h |  1 +
+ 2 files changed, 68 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/pds/pds_adminq.h b/include/linux/pds/pds_adminq.h
-index 61b0a8634e1a..c66ead725434 100644
---- a/include/linux/pds/pds_adminq.h
-+++ b/include/linux/pds/pds_adminq.h
-@@ -605,6 +605,257 @@ struct pds_core_q_init_comp {
- 	u8     color;
+diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+index 9970657cdb3d..377eefc2fa1e 100644
+--- a/drivers/vdpa/pds/vdpa_dev.c
++++ b/drivers/vdpa/pds/vdpa_dev.c
+@@ -21,6 +21,61 @@ static struct pds_vdpa_device *vdpa_to_pdsv(struct vdpa_device *vdpa_dev)
+ 	return container_of(vdpa_dev, struct pds_vdpa_device, vdpa_dev);
+ }
+ 
++static int pds_vdpa_notify_handler(struct notifier_block *nb,
++				   unsigned long ecode,
++				   void *data)
++{
++	struct pds_vdpa_device *pdsv = container_of(nb, struct pds_vdpa_device, nb);
++	struct device *dev = &pdsv->vdpa_aux->padev->aux_dev.dev;
++
++	dev_dbg(dev, "%s: event code %lu\n", __func__, ecode);
++
++	/* Give the upper layers a hint that something interesting
++	 * may have happened.  It seems that the only thing this
++	 * triggers in the virtio-net drivers above us is a check
++	 * of link status.
++	 *
++	 * We don't set the NEEDS_RESET flag for EVENT_RESET
++	 * because we're likely going through a recovery or
++	 * fw_update and will be back up and running soon.
++	 */
++	if (ecode == PDS_EVENT_RESET || ecode == PDS_EVENT_LINK_CHANGE) {
++		if (pdsv->config_cb.callback)
++			pdsv->config_cb.callback(pdsv->config_cb.private);
++	}
++
++	return 0;
++}
++
++static int pds_vdpa_register_event_handler(struct pds_vdpa_device *pdsv)
++{
++	struct device *dev = &pdsv->vdpa_aux->padev->aux_dev.dev;
++	struct notifier_block *nb = &pdsv->nb;
++	int err;
++
++	if (!nb->notifier_call) {
++		nb->notifier_call = pds_vdpa_notify_handler;
++		err = pdsc_register_notify(nb);
++		if (err) {
++			nb->notifier_call = NULL;
++			dev_err(dev, "failed to register pds event handler: %ps\n",
++				ERR_PTR(err));
++			return -EINVAL;
++		}
++		dev_dbg(dev, "pds event handler registered\n");
++	}
++
++	return 0;
++}
++
++static void pds_vdpa_unregister_event_handler(struct pds_vdpa_device *pdsv)
++{
++	if (pdsv->nb.notifier_call) {
++		pdsc_unregister_notify(&pdsv->nb);
++		pdsv->nb.notifier_call = NULL;
++	}
++}
++
+ static int pds_vdpa_set_vq_address(struct vdpa_device *vdpa_dev, u16 qid,
+ 				   u64 desc_addr, u64 driver_addr, u64 device_addr)
+ {
+@@ -522,6 +577,12 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 
+ 	pdsv->vdpa_dev.mdev = &vdpa_aux->vdpa_mdev;
+ 
++	err = pds_vdpa_register_event_handler(pdsv);
++	if (err) {
++		dev_err(dev, "Failed to register for PDS events: %pe\n", ERR_PTR(err));
++		goto err_unmap;
++	}
++
+ 	/* We use the _vdpa_register_device() call rather than the
+ 	 * vdpa_register_device() to avoid a deadlock because our
+ 	 * dev_add() is called with the vdpa_dev_lock already set
+@@ -530,13 +591,15 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	err = _vdpa_register_device(&pdsv->vdpa_dev, pdsv->num_vqs);
+ 	if (err) {
+ 		dev_err(dev, "Failed to register to vDPA bus: %pe\n", ERR_PTR(err));
+-		goto err_unmap;
++		goto err_unevent;
+ 	}
+ 
+ 	pds_vdpa_debugfs_add_vdpadev(vdpa_aux);
+ 
+ 	return 0;
+ 
++err_unevent:
++	pds_vdpa_unregister_event_handler(pdsv);
+ err_unmap:
+ 	put_device(&pdsv->vdpa_dev.dev);
+ 	vdpa_aux->pdsv = NULL;
+@@ -546,8 +609,11 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ static void pds_vdpa_dev_del(struct vdpa_mgmt_dev *mdev,
+ 			     struct vdpa_device *vdpa_dev)
+ {
++	struct pds_vdpa_device *pdsv = vdpa_to_pdsv(vdpa_dev);
+ 	struct pds_vdpa_aux *vdpa_aux;
+ 
++	pds_vdpa_unregister_event_handler(pdsv);
++
+ 	vdpa_aux = container_of(mdev, struct pds_vdpa_aux, vdpa_mdev);
+ 	_vdpa_unregister_device(vdpa_dev);
+ 
+diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+index a21596f438c1..1650a2b08845 100644
+--- a/drivers/vdpa/pds/vdpa_dev.h
++++ b/drivers/vdpa/pds/vdpa_dev.h
+@@ -40,6 +40,7 @@ struct pds_vdpa_device {
+ 	u8 vdpa_index;			/* rsvd for future subdevice use */
+ 	u8 num_vqs;			/* num vqs in use */
+ 	struct vdpa_callback config_cb;
++	struct notifier_block nb;
  };
  
-+/*
-+ * enum pds_vdpa_cmd_opcode - vDPA Device commands
-+ */
-+enum pds_vdpa_cmd_opcode {
-+	PDS_VDPA_CMD_INIT		= 48,
-+	PDS_VDPA_CMD_IDENT		= 49,
-+	PDS_VDPA_CMD_RESET		= 51,
-+	PDS_VDPA_CMD_VQ_RESET		= 52,
-+	PDS_VDPA_CMD_VQ_INIT		= 53,
-+	PDS_VDPA_CMD_STATUS_UPDATE	= 54,
-+	PDS_VDPA_CMD_SET_FEATURES	= 55,
-+	PDS_VDPA_CMD_SET_ATTR		= 56,
-+	PDS_VDPA_CMD_VQ_SET_STATE	= 57,
-+	PDS_VDPA_CMD_VQ_GET_STATE	= 58,
-+};
-+
-+/**
-+ * struct pds_vdpa_cmd - generic command
-+ * @opcode:	Opcode
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ */
-+struct pds_vdpa_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+};
-+
-+/**
-+ * struct pds_vdpa_init_cmd - INIT command
-+ * @opcode:	Opcode PDS_VDPA_CMD_INIT
-+ * @vdpa_index: Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ */
-+struct pds_vdpa_init_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+};
-+
-+/**
-+ * struct pds_vdpa_ident - vDPA identification data
-+ * @hw_features:	vDPA features supported by device
-+ * @max_vqs:		max queues available (2 queues for a single queuepair)
-+ * @max_qlen:		log(2) of maximum number of descriptors
-+ * @min_qlen:		log(2) of minimum number of descriptors
-+ *
-+ * This struct is used in a DMA block that is set up for the PDS_VDPA_CMD_IDENT
-+ * transaction.  Set up the DMA block and send the address in the IDENT cmd
-+ * data, the DSC will write the ident information, then we can remove the DMA
-+ * block after reading the answer.  If the completion status is 0, then there
-+ * is valid information, else there was an error and the data should be invalid.
-+ */
-+struct pds_vdpa_ident {
-+	__le64 hw_features;
-+	__le16 max_vqs;
-+	__le16 max_qlen;
-+	__le16 min_qlen;
-+};
-+
-+/**
-+ * struct pds_vdpa_ident_cmd - IDENT command
-+ * @opcode:	Opcode PDS_VDPA_CMD_IDENT
-+ * @rsvd:       Word boundary padding
-+ * @vf_id:	VF id
-+ * @len:	length of ident info DMA space
-+ * @ident_pa:	address for DMA of ident info (struct pds_vdpa_ident)
-+ *			only used for this transaction, then forgotten by DSC
-+ */
-+struct pds_vdpa_ident_cmd {
-+	u8     opcode;
-+	u8     rsvd;
-+	__le16 vf_id;
-+	__le32 len;
-+	__le64 ident_pa;
-+};
-+
-+/**
-+ * struct pds_vdpa_status_cmd - STATUS_UPDATE command
-+ * @opcode:	Opcode PDS_VDPA_CMD_STATUS_UPDATE
-+ * @vdpa_index: Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @status:	new status bits
-+ */
-+struct pds_vdpa_status_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	u8     status;
-+};
-+
-+/**
-+ * enum pds_vdpa_attr - List of VDPA device attributes
-+ * @PDS_VDPA_ATTR_MAC:          MAC address
-+ * @PDS_VDPA_ATTR_MAX_VQ_PAIRS: Max virtqueue pairs
-+ */
-+enum pds_vdpa_attr {
-+	PDS_VDPA_ATTR_MAC          = 1,
-+	PDS_VDPA_ATTR_MAX_VQ_PAIRS = 2,
-+};
-+
-+/**
-+ * struct pds_vdpa_setattr_cmd - SET_ATTR command
-+ * @opcode:		Opcode PDS_VDPA_CMD_SET_ATTR
-+ * @vdpa_index:		Index for vdpa subdevice
-+ * @vf_id:		VF id
-+ * @attr:		attribute to be changed (enum pds_vdpa_attr)
-+ * @pad:		Word boundary padding
-+ * @mac:		new mac address to be assigned as vdpa device address
-+ * @max_vq_pairs:	new limit of virtqueue pairs
-+ */
-+struct pds_vdpa_setattr_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	u8     attr;
-+	u8     pad[3];
-+	union {
-+		u8 mac[6];
-+		__le16 max_vq_pairs;
-+	} __packed;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_init_cmd - queue init command
-+ * @opcode: Opcode PDS_VDPA_CMD_VQ_INIT
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @qid:	Queue id (bit0 clear = rx, bit0 set = tx, qid=N is ctrlq)
-+ * @len:	log(2) of max descriptor count
-+ * @desc_addr:	DMA address of descriptor area
-+ * @avail_addr:	DMA address of available descriptors (aka driver area)
-+ * @used_addr:	DMA address of used descriptors (aka device area)
-+ * @intr_index:	interrupt index
-+ */
-+struct pds_vdpa_vq_init_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	__le16 qid;
-+	__le16 len;
-+	__le64 desc_addr;
-+	__le64 avail_addr;
-+	__le64 used_addr;
-+	__le16 intr_index;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_init_comp - queue init completion
-+ * @status:	Status of the command (enum pds_core_status_code)
-+ * @hw_qtype:	HW queue type, used in doorbell selection
-+ * @hw_qindex:	HW queue index, used in doorbell selection
-+ * @rsvd:	Word boundary padding
-+ * @color:	Color bit
-+ */
-+struct pds_vdpa_vq_init_comp {
-+	u8     status;
-+	u8     hw_qtype;
-+	__le16 hw_qindex;
-+	u8     rsvd[11];
-+	u8     color;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_reset_cmd - queue reset command
-+ * @opcode:	Opcode PDS_VDPA_CMD_VQ_RESET
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @qid:	Queue id
-+ */
-+struct pds_vdpa_vq_reset_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	__le16 qid;
-+};
-+
-+/**
-+ * struct pds_vdpa_set_features_cmd - set hw features
-+ * @opcode: Opcode PDS_VDPA_CMD_SET_FEATURES
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @rsvd:       Word boundary padding
-+ * @features:	Feature bit mask
-+ */
-+struct pds_vdpa_set_features_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	__le32 rsvd;
-+	__le64 features;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_set_state_cmd - set vq state
-+ * @opcode:	Opcode PDS_VDPA_CMD_VQ_SET_STATE
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @qid:	Queue id
-+ * @avail:	Device avail index.
-+ * @used:	Device used index.
-+ *
-+ * If the virtqueue uses packed descriptor format, then the avail and used
-+ * index must have a wrap count.  The bits should be arranged like the upper
-+ * 16 bits in the device available notification data: 15 bit index, 1 bit wrap.
-+ */
-+struct pds_vdpa_vq_set_state_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	__le16 qid;
-+	__le16 avail;
-+	__le16 used;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_get_state_cmd - get vq state
-+ * @opcode:	Opcode PDS_VDPA_CMD_VQ_GET_STATE
-+ * @vdpa_index:	Index for vdpa subdevice
-+ * @vf_id:	VF id
-+ * @qid:	Queue id
-+ */
-+struct pds_vdpa_vq_get_state_cmd {
-+	u8     opcode;
-+	u8     vdpa_index;
-+	__le16 vf_id;
-+	__le16 qid;
-+};
-+
-+/**
-+ * struct pds_vdpa_vq_get_state_comp - get vq state completion
-+ * @status:	Status of the command (enum pds_core_status_code)
-+ * @rsvd0:      Word boundary padding
-+ * @avail:	Device avail index.
-+ * @used:	Device used index.
-+ * @rsvd:       Word boundary padding
-+ * @color:	Color bit
-+ *
-+ * If the virtqueue uses packed descriptor format, then the avail and used
-+ * index will have a wrap count.  The bits will be arranged like the "next"
-+ * part of device available notification data: 15 bit index, 1 bit wrap.
-+ */
-+struct pds_vdpa_vq_get_state_comp {
-+	u8     status;
-+	u8     rsvd0;
-+	__le16 avail;
-+	__le16 used;
-+	u8     rsvd[9];
-+	u8     color;
-+};
-+
- union pds_core_adminq_cmd {
- 	u8     opcode;
- 	u8     bytes[64];
-@@ -621,6 +872,18 @@ union pds_core_adminq_cmd {
- 
- 	struct pds_core_q_identify_cmd    q_ident;
- 	struct pds_core_q_init_cmd        q_init;
-+
-+	struct pds_vdpa_cmd		  vdpa;
-+	struct pds_vdpa_init_cmd	  vdpa_init;
-+	struct pds_vdpa_ident_cmd	  vdpa_ident;
-+	struct pds_vdpa_status_cmd	  vdpa_status;
-+	struct pds_vdpa_setattr_cmd	  vdpa_setattr;
-+	struct pds_vdpa_set_features_cmd  vdpa_set_features;
-+	struct pds_vdpa_vq_init_cmd	  vdpa_vq_init;
-+	struct pds_vdpa_vq_reset_cmd	  vdpa_vq_reset;
-+	struct pds_vdpa_vq_set_state_cmd  vdpa_vq_set_state;
-+	struct pds_vdpa_vq_get_state_cmd  vdpa_vq_get_state;
-+
- };
- 
- union pds_core_adminq_comp {
-@@ -642,6 +905,9 @@ union pds_core_adminq_comp {
- 
- 	struct pds_core_q_identify_comp   q_ident;
- 	struct pds_core_q_init_comp       q_init;
-+
-+	struct pds_vdpa_vq_init_comp	  vdpa_vq_init;
-+	struct pds_vdpa_vq_get_state_comp vdpa_vq_get_state;
- };
- 
- #ifndef __CHECKER__
+ int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
 -- 
 2.17.1
 
