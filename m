@@ -1,106 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 945E4C7EE22
-	for <virtualization@archiver.kernel.org>; Thu,  4 May 2023 08:22:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A3E12C7EE21
+	for <virtualization@archiver.kernel.org>; Thu,  4 May 2023 10:39:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1999683F03;
-	Thu,  4 May 2023 08:22:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1999683F03
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=EBd+NTux
+	by smtp3.osuosl.org (Postfix) with ESMTP id 32B7060B22;
+	Thu,  4 May 2023 10:39:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 32B7060B22
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=h/WC9bsI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LxXmF5yLqqwf; Thu,  4 May 2023 08:22:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5567C83AF5;
-	Thu,  4 May 2023 08:21:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5567C83AF5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LC1wcJGLrQ9N; Thu,  4 May 2023 10:39:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 97E9B60B3B;
+	Thu,  4 May 2023 10:39:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 97E9B60B3B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 310A6C0037;
-	Thu,  4 May 2023 08:21:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 832FBC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 677D9C0036;
+	Thu,  4 May 2023 10:39:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06BFCC002A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 May 2023 08:21:57 +0000 (UTC)
+ Thu,  4 May 2023 10:39:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5039A83AFC
+ by smtp3.osuosl.org (Postfix) with ESMTP id C87C660B3B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 May 2023 08:21:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5039A83AFC
+ Thu,  4 May 2023 10:39:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C87C660B3B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GtcVvqvt6vQx
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nnPriJXduT99
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 May 2023 08:21:56 +0000 (UTC)
+ Thu,  4 May 2023 10:39:19 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC53D83AF5
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com
- [IPv6:2a00:1450:4864:20::233])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CC53D83AF5
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BBB2060B22
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com
+ [IPv6:2a00:1450:4864:20::230])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BBB2060B22
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 May 2023 08:21:55 +0000 (UTC)
-Received: by mail-lj1-x233.google.com with SMTP id
- 38308e7fff4ca-2ac80ed7f26so1375261fa.1
+ Thu,  4 May 2023 10:39:18 +0000 (UTC)
+Received: by mail-lj1-x230.google.com with SMTP id
+ 38308e7fff4ca-2ac78bb48eeso3852951fa.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 04 May 2023 01:21:55 -0700 (PDT)
+ Thu, 04 May 2023 03:39:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20221208; t=1683188514; x=1685780514;
+ d=gmail.com; s=20221208; t=1683196756; x=1685788756;
  h=mime-version:references:in-reply-to:message-id:subject:cc:to:from
  :date:from:to:cc:subject:date:message-id:reply-to;
- bh=/IFoudUwMeQJ57cBexYXGLexmZWNO4FcrthqWKMIDJc=;
- b=EBd+NTuxZBOnuASL1WcfHbzHpvc6+aYlbfCgxLki1QF3MTCjNN1mmqowUv/PLlOS2f
- vc508tg3YKExyeM9xTBc7l8U2KYbrb0h8LFEwxh6oz98R0btL7uaQg4d3MXtRQ7QXc0U
- +pEnO7ZsjpsOuOxvyATevMhhZcupC5/JvHueZCR9woHLc8X5lel/LMRWOdTmRwkqmqUf
- mqJEaz9Ef11HIwY323wZX/8VfC3WyRDdjE69df04gN2UGSPzbsdV5f5reHy50ikX5wRW
- TzdymgC8TKfn0rYu1ZyQMynH7AYChUE5p9ijP3jDAn2olvxkJsfJBlX8AnUoaTnwBwOs
- kjDw==
+ bh=I8cy10TD23BLiLlfGPG7Cx1kjtU5cY0ZvS7C4oKT/pw=;
+ b=h/WC9bsIDNhXfE4cBGKdONkvL8j3FuZ+LIKlbUE/Fw/TL7LWRGFeA7+1jOBPeeTWjC
+ p2mfRLcjbvnrYAbMyRMn8EfIrEZE5+a8j4/BeBqoFutI3/mHFflZ+EwdzYtnYn6GvWAp
+ bPUoVBVgx9A0T6lJU5SK4AaL617FJQjrmtw4u53vZS4fz15YGCxegKUPxOcroxWYuxtB
+ 6B8WiF8Sz3cFcR4id1NhHDvr88GrA2KcW941R8V+UjU0rnE/5w0aDa23bSUC/FtuPovw
+ frQzLlqgl2WCLudQRozM4TtuWpQ7i+tfLK9Rz9A3Q4JeJd2NXj7oJ6OAuOMTEMmJwxhh
+ qGBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1683188514; x=1685780514;
+ d=1e100.net; s=20221208; t=1683196756; x=1685788756;
  h=mime-version:references:in-reply-to:message-id:subject:cc:to:from
  :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=/IFoudUwMeQJ57cBexYXGLexmZWNO4FcrthqWKMIDJc=;
- b=MC7XzPek7qL/muHztRGC1bxog9+BVMFR24Ing6vECPojSFjh2//cgptsh/PYONPC9H
- 6rnwwfkut/wTMT3auusOzl4qz8Jl7HQQBr2HrnpyJ8302MF52bDRUNUy87YgiU9jOEYe
- /Cxn2YRP20R+nQnYkaI4syScylwbmCrlJo9AS3bF3x3wGQOqDDnu1Uu0JFf3LL0Tuz7j
- 0fTjbIqAVtyeIg/t4dH21RqT3wvLlfYZOqxSr22x7lCizKmS0ihpfu1qidXn7h+CpqXd
- dF+XE0ao2mSSChGzmcj232o8qM6mm6l9viCccNlw/hwWKGWAQNOvfU8e93u9RA8VOk0O
- ulyQ==
-X-Gm-Message-State: AC+VfDwassAelx1XRAS/PAn0+Txh3SO0v3cul22oidsaV55oLlA1Jx3n
- hz3VEvRpZIoWJO94zQc06cA=
-X-Google-Smtp-Source: ACHHUZ54HpilL5HofAMl/x1wsQdsdfjXDzNvpcka0T/gp2c1tBOsAB0UrAuxMyAy36Pb3L/C/gceEQ==
-X-Received: by 2002:a2e:9881:0:b0:29f:58c6:986e with SMTP id
- b1-20020a2e9881000000b0029f58c6986emr619815ljj.52.1683188513322; 
- Thu, 04 May 2023 01:21:53 -0700 (PDT)
+ bh=I8cy10TD23BLiLlfGPG7Cx1kjtU5cY0ZvS7C4oKT/pw=;
+ b=BWwRRuw/KypjKaVbpGZedE7v9nny8t3gBgSmXNgHav30rTxkQ5DaAAK7uGgkk/WU+U
+ wJqcdIfIIKjgt8UxVg6E/r+87PSIDdET3/aa5nhl9JjJQVNj9P9fWZwwAXO9m9syuWK+
+ aHRKoka3+O/c524PAugnoj/ATDinHQRm2uZZabGkvmnTReDjFI7sfy/o3jcDcLR9SbEv
+ hp5TLjUC3slUKlsnNqEm1aJ2yNkEwJS4jFQ5NzAZbVEIfqHyeTuf1NpmrAsT9Z+j3Oa+
+ NKkXmjRe+TkqLVHT216lc2f7MGCQ2Ss42qebAavVVrZm1rd1ixXQQO92WB7/CNMiU9Hl
+ pm3Q==
+X-Gm-Message-State: AC+VfDzxFu9yYQlLVzb1UHB5EtXM4ZPNJUqNA748EHDJbixd3wfFUtdg
+ kuyXfJfVLRhqpebNQR2Z5qg=
+X-Google-Smtp-Source: ACHHUZ63JYRRIjOWE/UJE3a2S7oNalHCss8wmWBdY5Pf1RyHzSjjoQCnGEjVircjnZeeAkiqJ9Zb0w==
+X-Received: by 2002:a2e:97c3:0:b0:2a8:d32e:e6bd with SMTP id
+ m3-20020a2e97c3000000b002a8d32ee6bdmr833683ljj.21.1683196756288; 
+ Thu, 04 May 2023 03:39:16 -0700 (PDT)
 Received: from eldfell ([194.136.85.206]) by smtp.gmail.com with ESMTPSA id
- y6-20020a2e95c6000000b002a77ab1d73dsm1872985ljh.96.2023.05.04.01.21.52
+ j15-20020a2e800f000000b00294692d8645sm6564927ljg.17.2023.05.04.03.39.15
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 04 May 2023 01:21:52 -0700 (PDT)
-Date: Thu, 4 May 2023 11:21:42 +0300
+ Thu, 04 May 2023 03:39:15 -0700 (PDT)
+Date: Thu, 4 May 2023 13:39:04 +0300
 From: Pekka Paalanen <ppaalanen@gmail.com>
 To: Zack Rusin <zackr@vmware.com>
 Subject: Re: [PATCH v2 1/8] drm: Disable the cursor plane on atomic contexts
  with virtualized drivers
-Message-ID: <20230504112142.054e4c9a@eldfell>
-In-Reply-To: <00621684a619329ba758f4a7212a591121633198.camel@vmware.com>
+Message-ID: <20230504133904.4ad3011c@eldfell>
+In-Reply-To: <17cc969e9f13fab112827e154495eca28c4bd2b6.camel@vmware.com>
 References: <20220712033246.1148476-1-zack@kde.org>
  <20220712033246.1148476-2-zack@kde.org>
  <YvPfedG/uLQNFG7e@phenom.ffwll.local>
  <87lei7xemy.fsf@minerva.mail-host-address-is-not-set>
  <0dd2fa763aa0e659c8cbae94f283d8101450082a.camel@vmware.com>
- <20230503105415.62aa7a8d@eldfell>
- <00621684a619329ba758f4a7212a591121633198.camel@vmware.com>
+ <87y1m5x3bt.fsf@minerva.mail-host-address-is-not-set>
+ <17cc969e9f13fab112827e154495eca28c4bd2b6.camel@vmware.com>
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.24; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Cc: "daniel@ffwll.ch" <daniel@ffwll.ch>, "jadahl@gmail.com" <jadahl@gmail.com>,
+Cc: "daniel@ffwll.ch" <daniel@ffwll.ch>,
  "hdegoede@redhat.com" <hdegoede@redhat.com>,
  "airlied@linux.ie" <airlied@linux.ie>,
- "contact@emersion.fr" <contact@emersion.fr>,
  "belmouss@redhat.com" <belmouss@redhat.com>,
  "javierm@redhat.com" <javierm@redhat.com>,
  "stable@vger.kernel.org" <stable@vger.kernel.org>,
@@ -113,7 +112,8 @@ Cc: "daniel@ffwll.ch" <daniel@ffwll.ch>, "jadahl@gmail.com" <jadahl@gmail.com>,
  "airlied@redhat.com" <airlied@redhat.com>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- Maaz Mombasawala <mombasawalam@vmware.com>
+ Maaz Mombasawala <mombasawalam@vmware.com>,
+ "jadahl@gmail.com" <jadahl@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,119 +125,28 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0858611418387005416=="
+Content-Type: multipart/mixed; boundary="===============8161189739908797716=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============0858611418387005416==
-Content-Type: multipart/signed; boundary="Sig_/WF6CuV3BN9g3x.Wlie/vKwf";
+--===============8161189739908797716==
+Content-Type: multipart/signed; boundary="Sig_/fSX23B7nk8XUDBx03oqMhN_";
  protocol="application/pgp-signature"; micalg=pgp-sha256
 
---Sig_/WF6CuV3BN9g3x.Wlie/vKwf
-Content-Type: text/plain; charset=UTF-8
+--Sig_/fSX23B7nk8XUDBx03oqMhN_
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, 4 May 2023 01:43:51 +0000
+On Thu, 4 May 2023 01:50:25 +0000
 Zack Rusin <zackr@vmware.com> wrote:
 
-> On Wed, 2023-05-03 at 10:54 +0300, Pekka Paalanen wrote:
-> > On Wed, 3 May 2023 03:35:29 +0000
-> > Zack Rusin <zackr@vmware.com> wrote:
+> On Wed, 2023-05-03 at 09:48 +0200, Javier Martinez Canillas wrote:
+> > Zack Rusin <zackr@vmware.com> writes:
 > >  =20
 > > > On Tue, 2023-05-02 at 11:32 +0200, Javier Martinez Canillas wrote: =20
-> > > > !! External Email
-> > > >=20
-> > > > Daniel Vetter <daniel@ffwll.ch> writes:
-> > > > =C2=A0  =20
-> > > > > On Mon, Jul 11, 2022 at 11:32:39PM -0400, Zack Rusin wrote:=C2=A0=
-  =20
-> > > > > > From: Zack Rusin <zackr@vmware.com>
-> > > > > >=20
-> > > > > > Cursor planes on virtualized drivers have special meaning and r=
-equire
-> > > > > > that the clients handle them in specific ways, e.g. the cursor =
-plane
-> > > > > > should react to the mouse movement the way a mouse cursor would=
- be
-> > > > > > expected to and the client is required to set hotspot propertie=
-s on it
-> > > > > > in order for the mouse events to be routed correctly.
-> > > > > >=20
-> > > > > > This breaks the contract as specified by the "universal planes"=
-. Fix it
-> > > > > > by disabling the cursor planes on virtualized drivers while add=
-ing
-> > > > > > a foundation on top of which it's possible to special case mous=
-e cursor
-> > > > > > planes for clients that want it.
-> > > > > >=20
-> > > > > > Disabling the cursor planes makes some kms compositors which we=
-re broken,
-> > > > > > e.g. Weston, fallback to software cursor which works fine or at=
- least
-> > > > > > better than currently while having no effect on others, e.g. gn=
-ome-shell
-> > > > > > or kwin, which put virtualized drivers on a deny-list when runn=
-ing in
-> > > > > > atomic context to make them fallback to legacy kms and avoid th=
-is issue.
-> > > > > >=20
-> > > > > > Signed-off-by: Zack Rusin <zackr@vmware.com>
-> > > > > > Fixes: 681e7ec73044 ("drm: Allow userspace to ask for universal=
- plane list
-> > > > > > (v2)")=C2=A0  =20
-> > > >=20
-> > > > [...]
-> > > > =C2=A0  =20
-> > > > > > diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
-> > > > > > index f6159acb8856..c4cd7fc350d9 100644
-> > > > > > --- a/include/drm/drm_drv.h
-> > > > > > +++ b/include/drm/drm_drv.h
-> > > > > > @@ -94,6 +94,16 @@ enum drm_driver_feature {
-> > > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 * synchronization of command sub=
-mission.
-> > > > > > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 */
-> > > > > > =C2=A0=C2=A0=C2=A0=C2=A0 DRIVER_SYNCOBJ_TIMELINE=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =3D BIT(6),
-> > > > > > +=C2=A0=C2=A0=C2=A0 /**
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * @DRIVER_VIRTUAL:
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 *
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * Driver is running on top of virtual=
- hardware. The most significant
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * implication of this is a requiremen=
-t of special handling of the
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * cursor plane (e.g. cursor plane has=
- to actually track the mouse
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * cursor and the clients are required=
- to set hotspot in order for
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 * the cursor planes to work correctly=
-).
-> > > > > > +=C2=A0=C2=A0=C2=A0=C2=A0 */
-> > > > > > +=C2=A0=C2=A0=C2=A0 DRIVER_VIRTUAL=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
- =3D BIT(7),=C2=A0  =20
-> > > > >=20
-> > > > > I think the naming here is unfortunate, because people will vonde=
-r why
-> > > > > e.g. vkms doesn't set this, and then add it, and confuse stuff co=
-mpletely.
-> > > > >=20
-> > > > > Also it feels a bit wrong to put this onto the driver, when reall=
-y it's a
-> > > > > cursor flag. I guess you can make it some kind of flag in the drm=
-_plane
-> > > > > structure, or a new plane type, but putting it there instead of i=
-nto the
-> > > > > "random pile of midlayer-mistake driver flags" would be a lot bet=
-ter.
-> > > > >=20
-> > > > > Otherwise I think the series looks roughly how I'd expect it to l=
-ook.
-> > > > > -Daniel
-> > > > > =C2=A0  =20
-> > > >=20
+
 > > > > AFAICT this is the only remaining thing to be addressed for this se=
-ries ?=C2=A0  =20
+ries ? =20
 > > >=20
 > > > No, there was more. tbh I haven't had the time to think about whether=
  the above
@@ -260,158 +169,93 @@ ay uglier
 > > > cleaner in the kernel but they all require significant changes to use=
 rspace,
 > > > that go
-> > > way beyond "attach hotspot info to this plane". =20
-> >  =20
-> > > I'd like to avoid approaches that
+> > > way beyond "attach hotspot info to this plane". I'd like to avoid app=
+roaches
+> > > that
 > > > mean running with atomic kms requires completely separate paths for v=
 irtualized
-> > > drivers because no one will ever support and maintain it. =20
+> > > drivers because no one will ever support and maintain it.
+> > >=20
+> > > It's not a trivial thing because it's fundamentally hard to untangle =
+the fact
+> > > the
+> > > virtualized drivers have been advertising universal plane support wit=
+hout ever
+> > > supporting universal planes. Especially because most new userspace in=
+ general
+> > > checks
+> > > for "universal planes" to expose atomic kms paths.
+> > >  =20
 > >=20
-> > Hi Zack,
+> > After some discussion on the #dri-devel, your approach makes sense and =
+the
+> > only contention point is the name of the driver feature flag name. The =
+one
+> > you are using (DRIVER_VIRTUAL) seems to be too broad and generic (the f=
+act
+> > that vkms won't set and is a virtual driver as well, is a good example).
 > >=20
-> > you'd like to avoid that, but fundamentally that really is what has to
-> > happen in userspace for *nested* KMS drivers (VKMS is a virtual driver
-> > but not part of the interest group here) to reach optimality.
-> >=20
-> > It really is a different path. I see no way around that. But if you
-> > accept that fact, then you could possibly gain a lot more benefits by
-> > asking userspace to handle nested KMS drivers differently. What those
-> > benefits are exactly I'm not sure, but I have a feeling there should be
-> > some, where the knowledge of running on a nested KMS driver allows for
-> > better decisions that are not possible if the nested KMS driver just
-> > pretends to be like any other KMS hardware driver. =20
+> > Maybe something like DRIVER_CURSOR_HOTSPOT or DRIVER_CURSOR_COMMANDEERI=
+NG
+> > would be more accurate and self explanatory ? =20
 >=20
-> I'm not quite sure I buy the "virtualized drivers return immediately from=
- a flip and
-> require two extra integers on the cursor plane, so there's no possible wa=
-y drm api
-> could handle that" argument because it seems rather flimsy. If the premis=
-e is that
-> the paravirtualized drivers are so different that drm uapi can not handle=
- them then
-> why would they stay in drm? What's the benefit if they'll have their own =
-uapi and
-> their own interfaces?
+> Sure, or even more verbose DRIVER_NEEDS_CURSOR_PLANE_HOTSPOT, but it soun=
+ds like
+> Pekka doesn't agree with this approach. As I mentioned in my response to =
+him, I'd be
+> happy with any approach that gets paravirtualized drivers working with at=
+omic kms,
+> but atm I don't have enough time to be creating a new kernel subsystem or=
+ a new set
+> of uapi's for paravirtualized drivers and then porting mutter/kwin to tho=
+se.
 
-Hi Zack,
+It seems I have not been clear enough, apologies. Once more, in short:
 
-I never implied to go that far as you make it sound here.
+Zack, I'm worried about this statement from you (copied from above):
 
-I only pointed out that there definitely are behavioral differences
-that userspace MUST acknowledge and handle. The cursor plane being
-special is just the start.
+> > > I'd like to avoid approaches that mean running with atomic kms
+> > > requires completely separate paths for virtualized drivers
+> > > because no one will ever support and maintain it.
 
-It does not invalidate the whole existing KMS UAPI, but *if* you aim
-for optimal performance, you cannot ignore the differences or paper
-over them either.
+It feels like you are intentionally limiting your own design options
+for the fear of "no one will ever support it". I'm worried that over
+the coming years, that will lead to a hard to use, hard to maintain
+patchwork of vague or undocumented or just too many little UAPI details.
 
-This NOT a NAK to this patch series in any way!
-
-> I'd flip the argument and say you'd be a lot happier if you accepted that=
- universal
-> planes aren't really universal no matter what. If weston puts a spreadshe=
-et app in a
-> cursor plane presumably users would be concerned that their mouse cursor =
-disappears
-> when they enter the spreadsheet app and responding to their concerns with=
- "it's
-> cool, the planes are universal" wouldn't quite work. Something needs to s=
-pecial case
-> cursor plane no matter what. Anyway, I think we went through this argumen=
-t of what
-> exactly "universal" refers to and whatever the definition of it is why I =
-don't see
-> why two extra integers on cursor planes violates any part of it so I'll l=
-et it go.=C2=A0
-
-If you say so.
-
-But then you need userspace to set those two integers. The concept of
-those two integers does not even exist without explicit care in
-userspace. You are already letting go of your goal to not need special
-case code or changes in userspace like you said in (copied from above):
-
-> > > I'd like to avoid approaches that
-> > > mean running with atomic kms requires completely separate paths for v=
-irtualized
-> > > drivers because no one will ever support and maintain it. =20
-
-You want to make cursor planes special and not universal, which means
-userspace needs special code to use them at all. That's a separate code
-path. That is good! That is the way to get more performance through
-better userspace decisions.
-
-> I have nothing against any of those solutions - from creating whole new k=
-ms uapi for
-> paravirtualized drivers, through creating a new subsystem for paravirtual=
-ized
-> drivers. I just have no interest in implementing those myself right now b=
-ut if
-> someone implemented mutter/kwin code on top of either a new subsystem for
-> paravirtualized drivers or implemented atomic kms on top of some new api'=
-s for them,
-> we'll be sure to port vmwgfx to that.=20
-
-Again, I said half a meter, but you are jumping a mile.
-
-I think you are seeing my comments as NAKs towards everything you try
-to do. That's not my intention, and I cannot NAK anything anyway. I am
-only pointing out that you seem too fixed to these details to see the
-rest of the problems that hinder performance of nested KMS drivers.
-
-See for example
-https://gitlab.freedesktop.org/wayland/weston/-/issues/514
-
-It's a nested KMS use case with qemu (would vmwgfx be any different?),
-where the goal is to have zero-copy direct scanout from guest
-application through guest KMS planes, qemu, host Weston onto host KMS
-planes. The direct scanout works, but due to the UAPI design I
-explained in my previous email, the only way to make that actually run
-at ~full framerate is to very carefully manually tune the timings of
-both guest and host Weston instance.
-
-If you deem the cost of gaining that performance too high, that's fine.
-
-However, I do absolutely believe, that if you wanted it, any Wayland
-compositor project that aims to be in any way a performant general
-purpose compositor for desktops or more would be willing to follow you
-in using new UAPI that would make life better with nested KMS drivers.
-You just have to ask, instead of assume that userspace won't hear you.
-After all, working better is in their interest as well.
-
-I *am* trying to push you forward, not stop you.
-
-Sorry, I'll try to keep quiet from now on since I don't have any stakes
-here.
+Please, don't limit your designs. There are good reasons why nested KMS
+drivers behave fundamentally differently to most KMS hardware drivers.
+Userspace that does not or cannot take that into account is unavoidably
+crippled.
 
 
 Thanks,
 pq
 
---Sig_/WF6CuV3BN9g3x.Wlie/vKwf
+--Sig_/fSX23B7nk8XUDBx03oqMhN_
 Content-Type: application/pgp-signature
 Content-Description: OpenPGP digital signature
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmRTaxYACgkQI1/ltBGq
-qqc3BBAAqD+lOm+2QLjIxHH8DKOskrQFneGAjryiHbtzCBctzojL4QSFC8yZqyxV
-lqYWEejOlSjoNMvATHY3AfVYydH4PSvbOe4aTJgN6g0FVLlH04bWkqjwHIcdqBfG
-nLlOQXpEadlD1jn2+Z4lO9wgmBR017SarMFmrHgsqF3RwLeyK8jeO1cVBKcuLsYm
-QuO2QFRuURLxkAu/rzBSYRCrdFGnpkhKI6CTF5PaW6wsY2YHtBj9XuTsiVi8xml4
-M53MegwmGrRHoro/2Kn+J7kl8VFcGQ+cD41R2mW6uHC5JcdRyKdN8+tYdPeuzH4q
-EBMsTlEcIFKLRKPVCEFlKGOXf/B8rvSTzeldgALDknMlYfJiJr7C0ToRMM9yysk5
-4PcbOn/vMCc8jPGOZk30V3lIMV5szVx401kHK8PSJz4mby3+U04APw+CmYoRofEL
-s3NlaezFM3YeGPo4MM4LL0ilDdxWmhZJE5CfPorWrVDggiMr7y4Ch9f6Kb6yvSlN
-/izdobEeX6pgf3qfgU+M6a20Mm/oFJL8tBuMJR1T1MdufeoxaIYklvfy1SDVdC8t
-qnr9l9diii9Rfh2nteaJ4IVNur6vadnkEi7pwNFiuw7unAk/dj2qLkb7BZ09pXnw
-OzkLy6gsF4s9s4v1eLXfpa1LrhwIQ7CfA+paYow4sEeGjpzD/do=
-=0O42
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmRTi0gACgkQI1/ltBGq
+qqediRAAk0pncI/uXJYfQjhsOa7tB6Ix+d5Y3iIRT1aD3+kt2fGVGlRXhHYamy6f
+/R8z/yrSfr3md4rpsf73HWdpQJYC33FDFhOnJ5pYaUaIhTw9sqdCNlqdsHOppWVx
+kWWjKB4obarFgjxLZAxAxJ75IUpj1luPqLCfnvwOpwGgCoB1dv+JLZAjN4mj5Oxj
+c+nqemTqhZhzX8PpBL4gCiTBkdhF+4gc9F73NHfDb6T8ws7jgXDQ9ePuJY31EKpq
++RY5Z0KyH+PBvIOhsYcirez3QBkCc1losZz3FBB6DwiXchI7jnRfpNtRvDrNvlwv
+rA6DGnjAu8buoPh16Or2EKjESAPq9dJL1tFpYCgFD2Ud8VTLYFuV8h7wHXrOnbvj
+Jx33L0OL8jlRTwQaUiywNQFUqNF3nK++ogfBU/zzQzzU/RWP6CVJGSiqtbfoyHI2
+4kk2fUSt2obvOswJX2XHiWyTHSudgpLzP528HDqFelLRa4B5UAg+QVzBc9j4U/5S
+NOZjKTIfTX+zQ4R9vhrvMSuEReQ6mcEo63tEaoioF3wPcxeogSY7HdoJE5syAWsS
+gqKV/b+fVk46q5tDZ9bqW874qQmPAupgrhwWenITrSXF1UULQ64hwyT0CL44MJXw
+xxnPS9Cqlvk9KsA1u7uUtLDlk3hP8reuUJyzMxDqY3G5yWeKZ5o=
+=fN1I
 -----END PGP SIGNATURE-----
 
---Sig_/WF6CuV3BN9g3x.Wlie/vKwf--
+--Sig_/fSX23B7nk8XUDBx03oqMhN_--
 
---===============0858611418387005416==
+--===============8161189739908797716==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -421,4 +265,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0858611418387005416==--
+--===============8161189739908797716==--
