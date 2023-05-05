@@ -1,106 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A90EDC77B7D
-	for <virtualization@archiver.kernel.org>; Fri,  5 May 2023 06:45:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25A2CC77B75
+	for <virtualization@archiver.kernel.org>; Fri,  5 May 2023 14:59:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3996F840CE;
-	Fri,  5 May 2023 06:45:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3996F840CE
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XApaVaYh
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YRWvwB14X85Y; Fri,  5 May 2023 06:45:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B2AC58401B;
-	Fri,  5 May 2023 06:45:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B2AC58401B
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 977CDC0037;
-	Fri,  5 May 2023 06:45:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CDB90C002A
- for <virtualization@lists.linux-foundation.org>;
- Fri,  5 May 2023 06:45:44 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A72A441F8D
- for <virtualization@lists.linux-foundation.org>;
- Fri,  5 May 2023 06:45:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A72A441F8D
+	by smtp4.osuosl.org (Postfix) with ESMTP id 948CE4006C;
+	Fri,  5 May 2023 14:59:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 948CE4006C
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=XApaVaYh
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Xdpu0TN5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mPMe1ZS2nRdF
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id k5-dCPrLGrxK; Fri,  5 May 2023 14:59:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D8091400A6;
+	Fri,  5 May 2023 14:59:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8091400A6
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A219DC0037;
+	Fri,  5 May 2023 14:59:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5BD1FC002A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 May 2023 06:45:43 +0000 (UTC)
+ Fri,  5 May 2023 14:59:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 35D1C40492
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  5 May 2023 14:59:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 35D1C40492
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Xdpu0TN5
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hnT-GT9CvBBz
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  5 May 2023 14:59:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B834D41F8B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A1064012B
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B834D41F8B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6A1064012B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 May 2023 06:45:43 +0000 (UTC)
+ Fri,  5 May 2023 14:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1683269142;
+ s=mimecast20190719; t=1683298784;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=tKpAY5tib+SQpvOchvtEiIJtmEfRPK050PpqPwR0jHc=;
- b=XApaVaYhFFSj0aDxsb91UmXPsNa9bPzmfMraB6LF5bFaIrihGBcYGC2cowToau6bISyTMg
- ironTNdNf2qSF4jK/D4yModgtr2NDRn+7e68AMpPycl9P7g2+qBy0AXud6gf90X+2cg7fK
- 3u+H88bR7YA2TeulahJgcTliwh/cWpI=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=rBXNgO7aRryOo3aOK63YAEnZA6K4XoikS9SxHfhUh30=;
+ b=Xdpu0TN5wUDqy1TFcaxWXsjJYrGZYlHWi+hj8K+e+VIY+DYuxSeFX0kLq5yWau31tcBkEF
+ cS40AdKe38QfsHDqy+iqI9lAoJa52kf2tz8DKaxxpVmHiq09EY7sf1fYZ9rR0zYlBbu+/n
+ o7OctNrG5uWmKpJaEN2HA9ndcyK90CY=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-209-p6GfDGwCMLO7T7Fu0EFEbg-1; Fri, 05 May 2023 02:45:41 -0400
-X-MC-Unique: p6GfDGwCMLO7T7Fu0EFEbg-1
-Received: by mail-lf1-f69.google.com with SMTP id
- 2adb3069b0e04-4edc7ab63ccso738642e87.3
+ us-mta-546-dBZema-UM3uu-MvpFprOzQ-1; Fri, 05 May 2023 10:59:42 -0400
+X-MC-Unique: dBZema-UM3uu-MvpFprOzQ-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ 4fb4d7f45d1cf-50bc6c6b9dbso13148734a12.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 04 May 2023 23:45:40 -0700 (PDT)
+ Fri, 05 May 2023 07:59:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1683269140; x=1685861140;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=tKpAY5tib+SQpvOchvtEiIJtmEfRPK050PpqPwR0jHc=;
- b=NDZLMVcuPlW48Ix9X3xjX6omNYk9KzdsNCbTCeL9eJzv5LZ1g84pJ45Iz/jBc+K3xh
- XMHn7afLtdWGarbuZDsiC4hmCo33KSfa3IllirL3/Z1eSQn1p0UBxjGu6lHCP6d0MXm1
- ciHekE2/EpM0eoSQEO2thXbSCrjwNgHKjtJnrcSq+Uc6JcoQcn7NkvopywlHxwJ965GL
- eiDzh9D0++QT0dmbFnGCzeqmdWWzeceSTkRyHS/U7VnHbbAUKUBvg4hRdCQbLD+q10w1
- cT7lKTvfs1lKL+Hi9UvlBbSXO9g83VRTPXx6o88HXxxD3lJYAK7p+UjEnvE4kVop39Pk
- FuMg==
-X-Gm-Message-State: AC+VfDwKvpjHPzXOma08TfMb4O5Ji+liA8uKymwnsw9mguaC8xyO9S12
- ClHwZTAJ13G03Zri1yUmINSDBk8nyf180ocmqQKT0BkMic5bXjBydp/hCpo7CFNrjVui7L4mME6
- D7hO6YSmb83DUDFlEAcij0zqmTXnty8C7RieDjIdLB82ooa1PwE9+RLU3LQ==
-X-Received: by 2002:ac2:442a:0:b0:4dd:afd7:8f1 with SMTP id
- w10-20020ac2442a000000b004ddafd708f1mr243039lfl.52.1683269139921; 
- Thu, 04 May 2023 23:45:39 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5P/6Ery2ecRIgtV5T5zf4Jc/nCqTDngMKXH4mXgZ7mTAePFoMVTxdzE82a2WU80aozee42X8+tx+80IrXPk0s=
-X-Received: by 2002:ac2:442a:0:b0:4dd:afd7:8f1 with SMTP id
- w10-20020ac2442a000000b004ddafd708f1mr243034lfl.52.1683269139638; Thu, 04 May
- 2023 23:45:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <202305051424047152799@zte.com.cn>
-In-Reply-To: <202305051424047152799@zte.com.cn>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 5 May 2023 14:45:28 +0800
-Message-ID: <CACGkMEsmf3PgxmhgRCsPZe7fRWHDXQ=TtYu5Tgx1=_Ymyvi-pA@mail.gmail.com>
+ d=1e100.net; s=20221208; t=1683298781; x=1685890781;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=rBXNgO7aRryOo3aOK63YAEnZA6K4XoikS9SxHfhUh30=;
+ b=KGJ6/8SRkwUaQ/ZN8bVSnZeArwMzjKDd7ibN6NVAwbU2fQCOs+rD+hY3wKloeL32I/
+ y4B+56O9mWLuXcmrWMV6s1SBvXHBMt/QAM9p46rQl0tw29H1xccEjHd/Ely8FJGZOjbP
+ bLnHAc9t549D0tXHNOQOej1XU2fNo9YaaB1Rb0x+P03VL98+q7BguqQNFBGQUpDlMB0u
+ oOE8xxCnYy0qwewGYXPTVpKRp3GshUPYm7eIml1FTx88/zJWEQjYRYPSf96DOH5cveuK
+ c61uDK46yf4s8TOYeAQxTKUUjWAvur1q0QZQGD31jpo+mdD2KtoL9Os51/0Nw62wXoj6
+ Rpvw==
+X-Gm-Message-State: AC+VfDzioY5wUUI7BCFyufCU7UkvyHrf22Qqf3NTxlnzJ3ee2SlOsIDu
+ QqWbjOzGu+PtCv+5rcal2dPfoHgEYcTT/Y9EWHq5xl0J7niZmXDvDrZKbAy7sOdtQcq9r0sJyAk
+ kWnN3z3EDVLzVLnS2miQed+zum65E6n1VvmpvNEEeSg==
+X-Received: by 2002:aa7:ccc6:0:b0:50b:dfe2:91 with SMTP id
+ y6-20020aa7ccc6000000b0050bdfe20091mr1904395edt.7.1683298781576; 
+ Fri, 05 May 2023 07:59:41 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ41nBmpMVnXW7PKFZ8ZB30pUuvlx01dx8IxPbfnWfLUCXzpn0UbIn+XfcKAeqyn2xG3hPxzGw==
+X-Received: by 2002:aa7:ccc6:0:b0:50b:dfe2:91 with SMTP id
+ y6-20020aa7ccc6000000b0050bdfe20091mr1904374edt.7.1683298781292; 
+ Fri, 05 May 2023 07:59:41 -0700 (PDT)
+Received: from redhat.com ([77.137.193.128]) by smtp.gmail.com with ESMTPSA id
+ h20-20020aa7c614000000b00501d73cfc86sm3024677edq.9.2023.05.05.07.59.39
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 05 May 2023 07:59:40 -0700 (PDT)
+Date: Fri, 5 May 2023 10:59:37 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: ye xingchen <yexingchen116@gmail.com>
 Subject: Re: [PATCH] vhost_net: Use fdget() and fdput()
-To: ye.xingchen@zte.com.cn
+Message-ID: <20230505105811-mutt-send-email-mst@kernel.org>
+References: <CACGkMEsmf3PgxmhgRCsPZe7fRWHDXQ=TtYu5Tgx1=_Ymyvi-pA@mail.gmail.com>
+ <20230505084155.63839-1-ye.xingchen@zte.com.cn>
+MIME-Version: 1.0
+In-Reply-To: <20230505084155.63839-1-ye.xingchen@zte.com.cn>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, ye.xingchen@zte.com.cn, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,33 +117,73 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBNYXkgNSwgMjAyMyBhdCAyOjI04oCvUE0gPHllLnhpbmdjaGVuQHp0ZS5jb20uY24+
-IHdyb3RlOgo+Cj4gRnJvbTogWWUgWGluZ2NoZW4gPHllLnhpbmdjaGVuQHp0ZS5jb20uY24+Cj4K
-PiBjb252ZXJ0IHRoZSBmZ2V0KCkvZnB1dCgpIHVzZXMgdG8gZmRnZXQoKS9mZHB1dCgpLgoKV2hh
-dCdzIHRoZSBhZHZhbnRhZ2VzIG9mIHRoaXM/CgpUaGFua3MKCj4KPiBTaWduZWQtb2ZmLWJ5OiBZ
-ZSBYaW5nY2hlbiA8eWUueGluZ2NoZW5AenRlLmNvbS5jbj4KPiAtLS0KPiAgZHJpdmVycy92aG9z
-dC9uZXQuYyB8IDEwICsrKysrLS0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygr
-KSwgNSBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L25ldC5jIGIv
-ZHJpdmVycy92aG9zdC9uZXQuYwo+IGluZGV4IGFlMjI3MzE5NmIwYy4uNWIzZmU0ODA1MTgyIDEw
-MDY0NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvbmV0LmMKPiArKysgYi9kcml2ZXJzL3Zob3N0L25l
-dC5jCj4gQEAgLTE0NjYsMTcgKzE0NjYsMTcgQEAgc3RhdGljIHN0cnVjdCBwdHJfcmluZyAqZ2V0
-X3RhcF9wdHJfcmluZyhzdHJ1Y3QgZmlsZSAqZmlsZSkKPgo+ICBzdGF0aWMgc3RydWN0IHNvY2tl
-dCAqZ2V0X3RhcF9zb2NrZXQoaW50IGZkKQo+ICB7Cj4gLSAgICAgICBzdHJ1Y3QgZmlsZSAqZmls
-ZSA9IGZnZXQoZmQpOwo+ICsgICAgICAgc3RydWN0IGZkIGYgPSBmZGdldChmZCk7Cj4gICAgICAg
-ICBzdHJ1Y3Qgc29ja2V0ICpzb2NrOwo+Cj4gLSAgICAgICBpZiAoIWZpbGUpCj4gKyAgICAgICBp
-ZiAoIWYuZmlsZSkKPiAgICAgICAgICAgICAgICAgcmV0dXJuIEVSUl9QVFIoLUVCQURGKTsKPiAt
-ICAgICAgIHNvY2sgPSB0dW5fZ2V0X3NvY2tldChmaWxlKTsKPiArICAgICAgIHNvY2sgPSB0dW5f
-Z2V0X3NvY2tldChmLmZpbGUpOwo+ICAgICAgICAgaWYgKCFJU19FUlIoc29jaykpCj4gICAgICAg
-ICAgICAgICAgIHJldHVybiBzb2NrOwo+IC0gICAgICAgc29jayA9IHRhcF9nZXRfc29ja2V0KGZp
-bGUpOwo+ICsgICAgICAgc29jayA9IHRhcF9nZXRfc29ja2V0KGYuZmlsZSk7Cj4gICAgICAgICBp
-ZiAoSVNfRVJSKHNvY2spKQo+IC0gICAgICAgICAgICAgICBmcHV0KGZpbGUpOwo+ICsgICAgICAg
-ICAgICAgICBmZHB1dChmKTsKPiAgICAgICAgIHJldHVybiBzb2NrOwo+ICB9Cj4KPiAtLQo+IDIu
-MjUuMQo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, May 05, 2023 at 04:41:55PM +0800, ye xingchen wrote:
+> >>
+> >> From: Ye Xingchen <ye.xingchen@zte.com.cn>
+> >>
+> >> convert the fget()/fput() uses to fdget()/fdput().
+> >What's the advantages of this?
+> >
+> >Thanks
+> >>
+> >> Signed-off-by: Ye Xingchen <ye.xingchen@zte.com.cn>
+> >> ---
+> >>  drivers/vhost/net.c | 10 +++++-----
+> >>  1 file changed, 5 insertions(+), 5 deletions(-)
+> >>
+> >> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> >> index ae2273196b0c..5b3fe4805182 100644
+> >> --- a/drivers/vhost/net.c
+> >> +++ b/drivers/vhost/net.c
+> >> @@ -1466,17 +1466,17 @@ static struct ptr_ring *get_tap_ptr_ring(struct file *file)
+> >>
+> >>  static struct socket *get_tap_socket(int fd)
+> >>  {
+> >> -       struct file *file = fget(fd);
+> >> +       struct fd f = fdget(fd);
+> >>         struct socket *sock;
+> >>
+> >> -       if (!file)
+> >> +       if (!f.file)
+> >>                 return ERR_PTR(-EBADF);
+> >> -       sock = tun_get_socket(file);
+> >> +       sock = tun_get_socket(f.file);
+> >>         if (!IS_ERR(sock))
+> >>                 return sock;
+> >> -       sock = tap_get_socket(file);
+> >> +       sock = tap_get_socket(f.file);
+> >>         if (IS_ERR(sock))
+> >> -               fput(file);
+> >> +               fdput(f);
+> >>         return sock;
+> >>  }
+> >>
+> >> --
+> >> 2.25.1
+> >>
+> fdget requires an integer type file descriptor as its parameter, 
+> and fget requires a pointer to the file structure as its parameter.
+
+In which kernel?
+
+include/linux/file.h:extern struct file *fget(unsigned int fd);
+
+
+> By using the fdget function, the socket object, can be quickly 
+> obtained from the process's file descriptor table without 
+> the need to obtain the file descriptor first before passing it 
+> as a parameter to the fget function. This reduces unnecessary 
+> operations, improves system efficiency and performance.
+> 
+> Best Regards
+> Ye
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
