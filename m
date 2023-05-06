@@ -4,65 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 767CDC77B75
-	for <virtualization@archiver.kernel.org>; Sat,  6 May 2023 02:08:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 89AD9C77B7D
+	for <virtualization@archiver.kernel.org>; Sat,  6 May 2023 02:35:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DBD894063B;
-	Sat,  6 May 2023 02:08:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DBD894063B
+	by smtp2.osuosl.org (Postfix) with ESMTP id DC863405F8;
+	Sat,  6 May 2023 02:35:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DC863405F8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NeS2IRv2RKYU; Sat,  6 May 2023 02:08:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6998E400D8;
-	Sat,  6 May 2023 02:08:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6998E400D8
+	with ESMTP id 6Znb2-lx2w7G; Sat,  6 May 2023 02:35:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6894F400D8;
+	Sat,  6 May 2023 02:35:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6894F400D8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 40EC0C0036;
-	Sat,  6 May 2023 02:08:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3F2B0C0037;
+	Sat,  6 May 2023 02:35:44 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F94EC002A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 45F48C002A
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 May 2023 02:08:05 +0000 (UTC)
+ Sat,  6 May 2023 02:35:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 53B67405F8
+ by smtp2.osuosl.org (Postfix) with ESMTP id 10779401E1
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 May 2023 02:08:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53B67405F8
+ Sat,  6 May 2023 02:35:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 10779401E1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PrQMnNWIO_PU
+ with ESMTP id DbHBbn5hQrcr
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 May 2023 02:08:04 +0000 (UTC)
+ Sat,  6 May 2023 02:35:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5FE7400D8
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A5FE7400D8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 085CD400D8
+Received: from out30-98.freemail.mail.aliyun.com
+ (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 085CD400D8
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 May 2023 02:08:03 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=12; SR=0;
- TI=SMTPD_---0VhrSoEj_1683338876; 
+ Sat,  6 May 2023 02:35:39 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R391e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=11; SR=0;
+ TI=SMTPD_---0VhrT5Eo_1683340534; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VhrSoEj_1683338876) by smtp.aliyun-inc.com;
- Sat, 06 May 2023 10:07:57 +0800
-Message-ID: <1683338663.2120674-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v4] virtio_net: suppress cpu stall when free_unused_bufs
-Date: Sat, 6 May 2023 10:04:23 +0800
+ fp:SMTPD_---0VhrT5Eo_1683340534) by smtp.aliyun-inc.com;
+ Sat, 06 May 2023 10:35:34 +0800
+Message-ID: <1683340417.612963-3-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v3] virtio_net: Fix error unwinding of XDP
+ initialization
+Date: Sat, 6 May 2023 10:33:37 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <1683167226-7012-1-git-send-email-wangwenliang.1995@bytedance.com>
- <CACGkMEs_4kUzc6iSBWvhZA1+U70Pp0o+WhE0aQnC-5pECW7QXA@mail.gmail.com>
-In-Reply-To: <CACGkMEs_4kUzc6iSBWvhZA1+U70Pp0o+WhE0aQnC-5pECW7QXA@mail.gmail.com>
-Cc: willemdebruijn.kernel@gmail.com,
- Wenliang Wang <wangwenliang.1995@bytedance.com>, mst@redhat.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- zhengqi.arch@bytedance.com, virtualization@lists.linux-foundation.org,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+To: Feng Liu <feliu@nvidia.com>
+References: <20230503003525.48590-1-feliu@nvidia.com>
+In-Reply-To: <20230503003525.48590-1-feliu@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+ Simon Horman <simon.horman@corigine.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, William Tu <witu@nvidia.com>,
+ netdev@vger.kernel.org, Bodong Wang <bodong@nvidia.com>, bpf@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,43 +74,114 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCA1IE1heSAyMDIzIDExOjI4OjI1ICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKPiBPbiBUaHUsIE1heSA0LCAyMDIzIGF0IDEwOjI34oCvQU0gV2Vu
-bGlhbmcgV2FuZwo+IDx3YW5nd2VubGlhbmcuMTk5NUBieXRlZGFuY2UuY29tPiB3cm90ZToKPiA+
-Cj4gPiBGb3IgbXVsdGktcXVldWUgYW5kIGxhcmdlIHJpbmctc2l6ZSB1c2UgY2FzZSwgdGhlIGZv
-bGxvd2luZyBlcnJvcgo+ID4gb2NjdXJyZWQgd2hlbiBmcmVlX3VudXNlZF9idWZzOgo+ID4gcmN1
-OiBJTkZPOiByY3Vfc2NoZWQgc2VsZi1kZXRlY3RlZCBzdGFsbCBvbiBDUFUuCj4gPgo+ID4gRml4
-ZXM6IDk4NmE0ZjRkNDUyZCAoInZpcnRpb19uZXQ6IG11bHRpcXVldWUgc3VwcG9ydCIpCj4gPiBT
-aWduZWQtb2ZmLWJ5OiBXZW5saWFuZyBXYW5nIDx3YW5nd2VubGlhbmcuMTk5NUBieXRlZGFuY2Uu
-Y29tPgo+ID4gLS0tCj4gPiB2MjoKPiA+IC1hZGQgbmVlZF9yZXNjaGVkIGNoZWNrLgo+ID4gLWFw
-cGx5IHNhbWUgbG9naWMgdG8gc3EuCj4gPiB2MzoKPiA+IC11c2UgY29uZF9yZXNjaGVkIGluc3Rl
-YWQuCj4gPiB2NDoKPiA+IC1hZGQgZml4ZXMgdGFnCj4gPiAtLS0KPiA+ICBkcml2ZXJzL25ldC92
-aXJ0aW9fbmV0LmMgfCAyICsrCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQo+
-ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiA+IGluZGV4IDhkODAzODUzOGZjNC4uYTEyYWUyNmRiMGUyIDEwMDY0
-NAo+ID4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiArKysgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKPiA+IEBAIC0zNTYwLDEyICszNTYwLDE0IEBAIHN0YXRpYyB2b2lkIGZy
-ZWVfdW51c2VkX2J1ZnMoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkpCj4gPiAgICAgICAgICAgICAg
-ICAgc3RydWN0IHZpcnRxdWV1ZSAqdnEgPSB2aS0+c3FbaV0udnE7Cj4gPiAgICAgICAgICAgICAg
-ICAgd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYodnEpKSAhPSBOVUxM
-KQo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgdmlydG5ldF9zcV9mcmVlX3VudXNlZF9idWYo
-dnEsIGJ1Zik7Cj4gPiArICAgICAgICAgICAgICAgY29uZF9yZXNjaGVkKCk7Cj4KPiBEb2VzIHRo
-aXMgcmVhbGx5IGFkZHJlc3MgdGhlIGNhc2Ugd2hlbiB0aGUgdmlydHF1ZXVlIGlzIHZlcnkgbGFy
-Z2U/CgpZZXMsIEkgYWxzbyBoYXZlIHRoaXMgcXVlc3Rpb24uIEkgdGhpbmsgY29uZF9yZXNjaGVk
-KCkgc2hvdWxkIGJlIGNhbGxlZCBldmVyeQp0aW1lIGEgY2VydGFpbiBudW1iZXIgb2YgYnVmZmVy
-cyBhcmUgcHJvY2Vzc2VkLgoKVGhhbmtzLgoKPgo+IFRoYW5rcwo+Cj4gPiAgICAgICAgIH0KPiA+
-Cj4gPiAgICAgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKyspIHsK
-PiA+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmlydHF1ZXVlICp2cSA9IHZpLT5ycVtpXS52cTsK
-PiA+ICAgICAgICAgICAgICAgICB3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2Vk
-X2J1Zih2cSkpICE9IE5VTEwpCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICB2aXJ0bmV0X3Jx
-X2ZyZWVfdW51c2VkX2J1Zih2cSwgYnVmKTsKPiA+ICsgICAgICAgICAgICAgICBjb25kX3Jlc2No
-ZWQoKTsKPiA+ICAgICAgICAgfQo+ID4gIH0KPiA+Cj4gPiAtLQo+ID4gMi4yMC4xCj4gPgo+Cl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Tue, 2 May 2023 20:35:25 -0400, Feng Liu <feliu@nvidia.com> wrote:
+> When initializing XDP in virtnet_open(), some rq xdp initialization
+> may hit an error causing net device open failed. However, previous
+> rqs have already initialized XDP and enabled NAPI, which is not the
+> expected behavior. Need to roll back the previous rq initialization
+> to avoid leaks in error unwinding of init code.
+>
+> Also extract a helper function of disable queue pairs, and use newly
+> introduced helper function in error unwinding and virtnet_close;
+>
+> Issue: 3383038
+> Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
+> Signed-off-by: Feng Liu <feliu@nvidia.com>
+> Reviewed-by: William Tu <witu@nvidia.com>
+> Reviewed-by: Parav Pandit <parav@nvidia.com>
+> Reviewed-by: Simon Horman <simon.horman@corigine.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Change-Id: Ib4c6a97cb7b837cfa484c593dd43a435c47ea68f
+> ---
+>  drivers/net/virtio_net.c | 30 ++++++++++++++++++++----------
+>  1 file changed, 20 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 8d8038538fc4..3737cf120cb7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1868,6 +1868,13 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	return received;
+>  }
+>
+> +static void virtnet_disable_qp(struct virtnet_info *vi, int qp_index)
+> +{
+> +	virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+> +	napi_disable(&vi->rq[qp_index].napi);
+> +	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> +}
+> +
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -1883,20 +1890,26 @@ static int virtnet_open(struct net_device *dev)
+>
+>  		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i, vi->rq[i].napi.napi_id);
+>  		if (err < 0)
+> -			return err;
+> +			goto err_xdp_info_reg;
+>
+>  		err = xdp_rxq_info_reg_mem_model(&vi->rq[i].xdp_rxq,
+>  						 MEM_TYPE_PAGE_SHARED, NULL);
+> -		if (err < 0) {
+> -			xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+> -			return err;
+> -		}
+> +		if (err < 0)
+> +			goto err_xdp_reg_mem_model;
+>
+>  		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+>  		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
+>  	}
+>
+>  	return 0;
+> +
+> +err_xdp_reg_mem_model:
+> +	xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+> +err_xdp_info_reg:
+> +	for (i = i - 1; i >= 0; i--)
+> +		virtnet_disable_qp(vi, i);
+
+
+I would to know should we handle for these:
+
+	disable_delayed_refill(vi);
+	cancel_delayed_work_sync(&vi->refill);
+
+
+Maybe we should call virtnet_close() with "i" directly.
+
+Thanks.
+
+
+> +
+> +	return err;
+>  }
+>
+>  static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+> @@ -2305,11 +2318,8 @@ static int virtnet_close(struct net_device *dev)
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+>
+> -	for (i = 0; i < vi->max_queue_pairs; i++) {
+> -		virtnet_napi_tx_disable(&vi->sq[i].napi);
+> -		napi_disable(&vi->rq[i].napi);
+> -		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+> -	}
+> +	for (i = 0; i < vi->max_queue_pairs; i++)
+> +		virtnet_disable_qp(vi, i);
+>
+>  	return 0;
+>  }
+> --
+> 2.37.1 (Apple Git-137.1)
+>
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
