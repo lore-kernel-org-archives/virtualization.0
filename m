@@ -1,115 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C1C43C77B75
-	for <virtualization@archiver.kernel.org>; Tue,  9 May 2023 03:14:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A161BC77B7C
+	for <virtualization@archiver.kernel.org>; Tue,  9 May 2023 04:43:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2F19342A91;
-	Tue,  9 May 2023 03:14:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2F19342A91
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8436641F46;
+	Tue,  9 May 2023 04:42:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8436641F46
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RLbafM62
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6vo4TtXjavaO; Tue,  9 May 2023 04:42:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9C03141E69;
+	Tue,  9 May 2023 04:42:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9C03141E69
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DAEBC0036;
+	Tue,  9 May 2023 04:42:56 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64222C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 May 2023 04:42:55 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2C3DE41D4D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 May 2023 04:42:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C3DE41D4D
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cMFDnp88
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=RLbafM62
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AxU6wEvaJQrs; Tue,  9 May 2023 03:14:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 52D6641DB5;
-	Tue,  9 May 2023 03:14:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 52D6641DB5
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3741DC0037;
-	Tue,  9 May 2023 03:14:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D1CE9C002A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8mxZluMGeO_1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 May 2023 03:14:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A648E61638
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 May 2023 03:14:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A648E61638
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cMFDnp88
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K19OjWX60Nbm
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 May 2023 03:14:48 +0000 (UTC)
+ Tue,  9 May 2023 04:42:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5A58561485
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 48C13403AA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5A58561485
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 48C13403AA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 May 2023 03:14:48 +0000 (UTC)
+ Tue,  9 May 2023 04:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1683602087;
+ s=mimecast20190719; t=1683607371;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Ld87/slb6DhEyhzdo2ZLKHyFwRbfschMCykFI8qBdcQ=;
- b=cMFDnp88//rdXvR///7ig47EbRCG08A5bhVje0vv5AuEax8GPsOBtjYdw92u4dc6wos67+
- yXoz4JqrZ61pj8mLVT8FrcvCju9zj+3Wktt6m/sH0sBxvzGxx5ElXJKCjNm0Jvb6Hn/7Im
- SVvXzTBvvvdtKGNU5vUycgAIWQ5UAu4=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=W7lkveXXMx28z2hQQkgi6XifNwekRx4w5U94EsCpzfo=;
+ b=RLbafM62OckbkZ2sQxijDifkWh6JlIEU12aMwnVK8yauG/4Hs2HjBNXFLw/f4T//S9kkLW
+ yAZLr3GzMbGR6Kt6bkJzTrTd3mlPIumY+6yUpGtjI5wS4f8vEpcTVQXGzN+0+JMYx2isTS
+ r7kM5f6JunsMRS0HyX7yYABgGtmxTNY=
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
+ [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-hWgjZ6mYPIicVBTI0Lv3jw-1; Mon, 08 May 2023 23:14:43 -0400
-X-MC-Unique: hWgjZ6mYPIicVBTI0Lv3jw-1
-Received: by mail-lf1-f70.google.com with SMTP id
- 2adb3069b0e04-4edb90ccaadso2902732e87.3
+ us-mta-175-P-yv56iTMBe0_O47sgn_jg-1; Tue, 09 May 2023 00:42:48 -0400
+X-MC-Unique: P-yv56iTMBe0_O47sgn_jg-1
+Received: by mail-qk1-f198.google.com with SMTP id
+ af79cd13be357-7577727a00eso744713685a.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 08 May 2023 20:14:43 -0700 (PDT)
+ Mon, 08 May 2023 21:42:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1683602082; x=1686194082;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=Ld87/slb6DhEyhzdo2ZLKHyFwRbfschMCykFI8qBdcQ=;
- b=ONC/8qG9b0exsMuM+5/JcHLxZ8YTuZ4yEV4Wl6mDqlDy8OPpKmFvP3h8mSAGlnoBCM
- XWmAsSQYVtNsDZ/GgXV0BZElKUyLzpvEDKa+Gzofw9bmRCkVeyQWB6VYHlEfbPd0jrTs
- ljp9pOlkU1q8DzRKU+wTx2Z/OYbiarHssk3oYwCsmmPwJUvSK+dGlcH/ds6ynipyGHuX
- hhRM26w5ZXgxBCik4Lgf+ydBGLXjzajgDcjOZA16wFHW852JrkVIhxoXvBB+7QV7dET2
- GJRxSt/352l8hjoZjZP8pDlc2ZY33bTyFzIEQdgkGsLgaPXcXMTc6Fzh6q2TSqKOOlFD
- y/HQ==
-X-Gm-Message-State: AC+VfDwZnAOEEjtYRhLUrqXH1DCzSOJ1CIGfg3xYTwglVFymu5+7qPzk
- Ziz9Zq6+e/NjWAV04RyFUWXaPA0AP2MiSfW2iTvHI3tqJsMS3U44Chiz56o43W4J/p9yrPBfQrQ
- H6/8+ItF72aUeaweXleHdxt8GgZLhI1xDY+G/B4BrSHxcQSY84kKcV340Yw==
-X-Received: by 2002:a2e:b709:0:b0:2a7:b0b4:4fa with SMTP id
- j9-20020a2eb709000000b002a7b0b404famr347556ljo.12.1683602082260; 
- Mon, 08 May 2023 20:14:42 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ79eiCfzLyk9Oyqt17OGFinhWOXT+nm7R+MDoGAfwhOe5u+yBG9Ddqg3s68GG6hamkZC0LkhQFQeQghV6pd5tQ=
-X-Received: by 2002:a2e:b709:0:b0:2a7:b0b4:4fa with SMTP id
- j9-20020a2eb709000000b002a7b0b404famr347548ljo.12.1683602081962; Mon, 08 May
- 2023 20:14:41 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1683607368; x=1686199368;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=W7lkveXXMx28z2hQQkgi6XifNwekRx4w5U94EsCpzfo=;
+ b=WaPa0Qz3O8PGaliNBrKhVq7GR+Mr+4/sJxdAxIqfkMVxGYNYxUokQBr6t5EJFiLYUj
+ I3mEf1yh5R7CYdMeI7Q5nMU/L4MzlGzH9xrI//jHm3hTmfTp6EdUKhm4t9+elZFWCoDy
+ VA1mpQhdZ/CdpWhwuyNlTADRVcaiTenaaOvDmcQ3iFVkxjL0V+AfK5a0dUn0NsT8Qqag
+ stUdT0G80cV8F5wAyODfZnfDiSKNWq/pmmmrrRRbymyttW8iSJ4OSz7lJGKQE7GMR3FZ
+ hUJLBaI+YK1MUPj1t3XRhxX2ccPAu61c3B37uRcux1M5COVdqC+DbwdK55jDVUDnXPG+
+ TjSg==
+X-Gm-Message-State: AC+VfDx9JcWIjyd0j3qMiESr3tOZIR1m2rLVbrp6QMlwIH3PtqAPMaev
+ BneK/FI7fEgNIgqCpTeN+McF18WhPRZW+QqjApkkSv7Enn5Zl8+j4Lyll1w9vvsF542Oc+7l50W
+ O/azedBVYF/Tbw86pRDWwdLdHqrNULVy1s5sGrnLjpA==
+X-Received: by 2002:a05:6214:408:b0:5dd:b986:b44 with SMTP id
+ z8-20020a056214040800b005ddb9860b44mr22544258qvx.6.1683607368246; 
+ Mon, 08 May 2023 21:42:48 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6j3iab8C9dTm3YoE+9qDG5jkVMfm91YDSkfYW2q1isW0mgFLBflIC9pEd53x+/Sn1pYDGxFw==
+X-Received: by 2002:a05:6214:408:b0:5dd:b986:b44 with SMTP id
+ z8-20020a056214040800b005ddb9860b44mr22544245qvx.6.1683607367963; 
+ Mon, 08 May 2023 21:42:47 -0700 (PDT)
+Received: from redhat.com ([185.187.243.118]) by smtp.gmail.com with ESMTPSA id
+ r3-20020a0ce283000000b005dd8b9345aesm492559qvl.70.2023.05.08.21.42.43
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 08 May 2023 21:42:47 -0700 (PDT)
+Date: Tue, 9 May 2023 00:42:39 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Feng Liu <feliu@nvidia.com>
+Subject: Re: [PATCH net v4] virtio_net: Fix error unwinding of XDP
+ initialization
+Message-ID: <20230509004010-mutt-send-email-mst@kernel.org>
+References: <20230508222708.68281-1-feliu@nvidia.com>
 MIME-Version: 1.0
-References: <1683167226-7012-1-git-send-email-wangwenliang.1995@bytedance.com>
- <CACGkMEs_4kUzc6iSBWvhZA1+U70Pp0o+WhE0aQnC-5pECW7QXA@mail.gmail.com>
- <20230507093328-mutt-send-email-mst@kernel.org>
- <2b5cf90a-efa8-52a7-9277-77722622c128@redhat.com>
- <20230508020717-mutt-send-email-mst@kernel.org>
- <CACGkMEuQdy8xi=eD4v7-UNQ12xOUdnuyQ73vvC6vdGXUfeasug@mail.gmail.com>
- <20230508024433-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230508024433-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 9 May 2023 11:14:30 +0800
-Message-ID: <CACGkMEuYcR21_k0hyisWzTVHG4+a3Y=ym101Z5P8TSWyNkHWxA@mail.gmail.com>
-Subject: Re: [PATCH v4] virtio_net: suppress cpu stall when free_unused_bufs
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20230508222708.68281-1-feliu@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: xuanzhuo@linux.alibaba.com, willemdebruijn.kernel@gmail.com,
- Wenliang Wang <wangwenliang.1995@bytedance.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, zhengqi.arch@bytedance.com,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+Content-Disposition: inline
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org,
+ Jiri Pirko <jiri@nvidia.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Simon Horman <simon.horman@corigine.com>, Bodong Wang <bodong@nvidia.com>,
+ bpf@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,64 +120,147 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBNYXkgOCwgMjAyMyBhdCAyOjQ34oCvUE0gTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiBNb24sIE1heSAwOCwgMjAyMyBhdCAwMjoxMzo0MlBN
-ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gT24gTW9uLCBNYXkgOCwgMjAyMyBhdCAyOjA4
-4oCvUE0gTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+Cj4g
-PiA+IE9uIE1vbiwgTWF5IDA4LCAyMDIzIGF0IDExOjEyOjAzQU0gKzA4MDAsIEphc29uIFdhbmcg
-d3JvdGU6Cj4gPiA+ID4KPiA+ID4gPiDlnKggMjAyMy81LzcgMjE6MzQsIE1pY2hhZWwgUy4gVHNp
-cmtpbiDlhpnpgZM6Cj4gPiA+ID4gPiBPbiBGcmksIE1heSAwNSwgMjAyMyBhdCAxMToyODoyNUFN
-ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPiA+ID4gPiBPbiBUaHUsIE1heSA0LCAyMDIz
-IGF0IDEwOjI34oCvQU0gV2VubGlhbmcgV2FuZwo+ID4gPiA+ID4gPiA8d2FuZ3dlbmxpYW5nLjE5
-OTVAYnl0ZWRhbmNlLmNvbT4gd3JvdGU6Cj4gPiA+ID4gPiA+ID4gRm9yIG11bHRpLXF1ZXVlIGFu
-ZCBsYXJnZSByaW5nLXNpemUgdXNlIGNhc2UsIHRoZSBmb2xsb3dpbmcgZXJyb3IKPiA+ID4gPiA+
-ID4gPiBvY2N1cnJlZCB3aGVuIGZyZWVfdW51c2VkX2J1ZnM6Cj4gPiA+ID4gPiA+ID4gcmN1OiBJ
-TkZPOiByY3Vfc2NoZWQgc2VsZi1kZXRlY3RlZCBzdGFsbCBvbiBDUFUuCj4gPiA+ID4gPiA+ID4K
-PiA+ID4gPiA+ID4gPiBGaXhlczogOTg2YTRmNGQ0NTJkICgidmlydGlvX25ldDogbXVsdGlxdWV1
-ZSBzdXBwb3J0IikKPiA+ID4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBXZW5saWFuZyBXYW5nIDx3
-YW5nd2VubGlhbmcuMTk5NUBieXRlZGFuY2UuY29tPgo+ID4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+
-ID4gPiA+IHYyOgo+ID4gPiA+ID4gPiA+IC1hZGQgbmVlZF9yZXNjaGVkIGNoZWNrLgo+ID4gPiA+
-ID4gPiA+IC1hcHBseSBzYW1lIGxvZ2ljIHRvIHNxLgo+ID4gPiA+ID4gPiA+IHYzOgo+ID4gPiA+
-ID4gPiA+IC11c2UgY29uZF9yZXNjaGVkIGluc3RlYWQuCj4gPiA+ID4gPiA+ID4gdjQ6Cj4gPiA+
-ID4gPiA+ID4gLWFkZCBmaXhlcyB0YWcKPiA+ID4gPiA+ID4gPiAtLS0KPiA+ID4gPiA+ID4gPiAg
-IGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDIgKysKPiA+ID4gPiA+ID4gPiAgIDEgZmlsZSBj
-aGFuZ2VkLCAyIGluc2VydGlvbnMoKykKPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IGRpZmYg
-LS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0
-LmMKPiA+ID4gPiA+ID4gPiBpbmRleCA4ZDgwMzg1MzhmYzQuLmExMmFlMjZkYjBlMiAxMDA2NDQK
-PiA+ID4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+ID4g
-PiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ID4gPiA+ID4gPiBAQCAtMzU2MCwx
-MiArMzU2MCwxNCBAQCBzdGF0aWMgdm9pZCBmcmVlX3VudXNlZF9idWZzKHN0cnVjdCB2aXJ0bmV0
-X2luZm8gKnZpKQo+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgc3RydWN0IHZpcnRxdWV1
-ZSAqdnEgPSB2aS0+c3FbaV0udnE7Cj4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICB3aGls
-ZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zih2cSkpICE9IE5VTEwpCj4gPiA+
-ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgIHZpcnRuZXRfc3FfZnJlZV91bnVzZWRf
-YnVmKHZxLCBidWYpOwo+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICBjb25kX3Jlc2NoZWQo
-KTsKPiA+ID4gPiA+ID4gRG9lcyB0aGlzIHJlYWxseSBhZGRyZXNzIHRoZSBjYXNlIHdoZW4gdGhl
-IHZpcnRxdWV1ZSBpcyB2ZXJ5IGxhcmdlPwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBUaGFua3MK
-PiA+ID4gPiA+Cj4gPiA+ID4gPiBpdCBkb2VzIGluIHRoYXQgYSB2ZXJ5IGxhcmdlIHF1ZXVlIGlz
-IHN0aWxsIGp1c3QgNjRrIGluIHNpemUuCj4gPiA+ID4gPiB3ZSBtaWdodCBob3dldmVyIGhhdmUg
-NjRrIG9mIHRoZXNlIHF1ZXVlcy4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gT2ssIGJ1dCB3ZSBo
-YXZlIG90aGVyIHNpbWlsYXIgbG9vcHMgZXNwZWNpYWxseSB0aGUgcmVmaWxsLCBJIHRoaW5rIHdl
-IG1heQo+ID4gPiA+IG5lZWQgY29uZF9yZXNjaGVkKCkgdGhlcmUgYXMgd2VsbC4KPiA+ID4gPgo+
-ID4gPiA+IFRoYW5rcwo+ID4gPiA+Cj4gPiA+Cj4gPiA+IFJlZmlsbCBpcyBhbHJlYWR5IHBlciB2
-cSBpc24ndCBpdD8KPiA+Cj4gPiBOb3QgZm9yIHRoZSByZWZpbGxfd29yaygpLgo+ID4KPiA+IFRo
-YW5rcwo+Cj4gR29vZCBwb2ludCwgcmVmaWxsX3dvcmsgcHJvYmFibHkgbmVlZHMgY29uZF9yZXNj
-aGVkLCB0b28uCj4gQW5kIEkgZ3Vlc3MgdmlydG5ldF9vcGVuPwoKWWVzLCBsZXQgbWUgZHJhZnQg
-YSBwYXRjaC4KClRoYW5rcwoKPgo+Cj4gPiA+Cj4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+
-ICAgICAgICAgIH0KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ICAgICAgICAgIGZvciAoaSA9
-IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKyspIHsKPiA+ID4gPiA+ID4gPiAgICAgICAg
-ICAgICAgICAgIHN0cnVjdCB2aXJ0cXVldWUgKnZxID0gdmktPnJxW2ldLnZxOwo+ID4gPiA+ID4g
-PiA+ICAgICAgICAgICAgICAgICAgd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNl
-ZF9idWYodnEpKSAhPSBOVUxMKQo+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICB2aXJ0bmV0X3JxX2ZyZWVfdW51c2VkX2J1Zih2cSwgYnVmKTsKPiA+ID4gPiA+ID4gPiArICAg
-ICAgICAgICAgICAgY29uZF9yZXNjaGVkKCk7Cj4gPiA+ID4gPiA+ID4gICAgICAgICAgfQo+ID4g
-PiA+ID4gPiA+ICAgfQo+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gLS0KPiA+ID4gPiA+ID4g
-PiAyLjIwLjEKPiA+ID4gPiA+ID4gPgo+ID4gPgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, May 08, 2023 at 06:27:08PM -0400, Feng Liu wrote:
+> When initializing XDP in virtnet_open(), some rq xdp initialization
+> may hit an error causing net device open failed. However, previous
+> rqs have already initialized XDP and enabled NAPI, which is not the
+> expected behavior. Need to roll back the previous rq initialization
+> to avoid leaks in error unwinding of init code.
+> 
+> Also extract helper functions of disable and enable queue pairs.
+> Use newly introduced disable helper function in error unwinding and
+> virtnet_close. Use enable helper function in virtnet_open.
+> 
+> Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
+> Signed-off-by: Feng Liu <feliu@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> ---
+> 
+> v3 -> v4
+> feedbacks from Jiri Pirko
+> - Add symmetric helper function virtnet_enable_qp to enable queues.
+> - Error handle:  cleanup current queue pair in virtnet_enable_qp,
+>   and complete the reset queue pairs cleanup in virtnet_open.
+> - Fix coding style.
+> feedbacks from Parav Pandit
+> - Remove redundant debug message and white space.
+> 
+> v2 -> v3
+> feedbacks from Michael S. Tsirkin
+> - Remove redundant comment.
+> 
+> v1 -> v2
+> feedbacks from Michael S. Tsirkin
+> - squash two patches together.
+> 
+> ---
+>  drivers/net/virtio_net.c | 58 ++++++++++++++++++++++++++++------------
+>  1 file changed, 41 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 8d8038538fc4..df7c08048fa7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1868,6 +1868,38 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	return received;
+>  }
+>  
+> +static void virtnet_disable_qp(struct virtnet_info *vi, int qp_index)
+
+
+I am guessing _qp stands for queue pair? Let's call it
+virtnet_disable_queue_pair please, consistently with max_queue_pairs.
+
+> +{
+> +	virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+> +	napi_disable(&vi->rq[qp_index].napi);
+> +	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> +}
+> +
+> +static int virtnet_enable_qp(struct virtnet_info *vi, int qp_index)
+
+Similarly, virtnet_enable_queue_pair
+
+> +{
+> +	struct net_device *dev = vi->dev;
+> +	int err;
+> +
+> +	err = xdp_rxq_info_reg(&vi->rq[qp_index].xdp_rxq, dev, qp_index,
+> +			       vi->rq[qp_index].napi.napi_id);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> +					 MEM_TYPE_PAGE_SHARED, NULL);
+> +	if (err < 0)
+> +		goto err_xdp_reg_mem_model;
+> +
+> +	virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+> +	virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+> +
+> +	return 0;
+> +
+> +err_xdp_reg_mem_model:
+> +	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> +	return err;
+> +}
+> +
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -1881,22 +1913,17 @@ static int virtnet_open(struct net_device *dev)
+>  			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+>  				schedule_delayed_work(&vi->refill, 0);
+>  
+> -		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i, vi->rq[i].napi.napi_id);
+> +		err = virtnet_enable_qp(vi, i);
+>  		if (err < 0)
+> -			return err;
+> -
+> -		err = xdp_rxq_info_reg_mem_model(&vi->rq[i].xdp_rxq,
+> -						 MEM_TYPE_PAGE_SHARED, NULL);
+> -		if (err < 0) {
+> -			xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+> -			return err;
+> -		}
+> -
+> -		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+> -		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
+> +			goto err_enable_qp;
+>  	}
+>  
+>  	return 0;
+> +
+> +err_enable_qp:
+> +	for (i--; i >= 0; i--)
+> +		virtnet_disable_qp(vi, i);
+> +	return err;
+>  }
+>  
+>  static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+> @@ -2305,11 +2332,8 @@ static int virtnet_close(struct net_device *dev)
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++) {
+> -		virtnet_napi_tx_disable(&vi->sq[i].napi);
+> -		napi_disable(&vi->rq[i].napi);
+> -		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+> -	}
+> +	for (i = 0; i < vi->max_queue_pairs; i++)
+> +		virtnet_disable_qp(vi, i);
+>  
+>  	return 0;
+>  }
+> -- 
+> 2.37.1 (Apple Git-137.1)
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
