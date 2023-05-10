@@ -1,120 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 242ECC77B7D
-	for <virtualization@archiver.kernel.org>; Wed, 10 May 2023 05:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1DCF7C77B7C
+	for <virtualization@archiver.kernel.org>; Wed, 10 May 2023 07:54:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 85194845DF;
-	Wed, 10 May 2023 05:33:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85194845DF
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8FA6060F25;
+	Wed, 10 May 2023 07:54:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8FA6060F25
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=YaMHHRBq
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Ht15-cE9N84D; Wed, 10 May 2023 07:54:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AE3EF60B88;
+	Wed, 10 May 2023 07:54:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AE3EF60B88
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79C3CC0036;
+	Wed, 10 May 2023 07:54:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B4F32C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 May 2023 07:54:18 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7D75F83EFB
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 May 2023 07:54:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7D75F83EFB
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BSx6gP9M
+ dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com
+ header.a=rsa-sha256 header.s=google header.b=YaMHHRBq
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kE3WyBpjglIR; Wed, 10 May 2023 05:33:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DF3E4845C5;
-	Wed, 10 May 2023 05:33:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DF3E4845C5
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 983BEC0036;
-	Wed, 10 May 2023 05:33:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 216B6C002A
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NPnLXigOmrky
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 May 2023 05:33:10 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E72BF4018F
+ Wed, 10 May 2023 07:54:16 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 43E1183EC5
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com
+ [IPv6:2607:f8b0:4864:20::436])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 43E1183EC5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 May 2023 05:33:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E72BF4018F
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=BSx6gP9M
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zsJ4kjt-h5vM
+ Wed, 10 May 2023 07:54:15 +0000 (UTC)
+Received: by mail-pf1-x436.google.com with SMTP id
+ d2e1a72fcca58-643995a47f7so6936819b3a.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 May 2023 05:33:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9DD5D40186
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9DD5D40186
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 May 2023 05:33:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1683696782;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=CfR3pdTnrmVcxjx1/XCpuBAbDSlJT7L6QiQpFvOxED0=;
- b=BSx6gP9MiDLr9IJcrQvxP7BF3YI4CsJveJSJpa2ybBHspYUUCXUmD7kDjg0nr7U8G48NRN
- EVxdZAmcEIZBeuCSq9pXlYXuGtdDTuxj8E8A56v/C6nWpyivQXQ0wPiQxB3x594zZnoAcl
- 8p3GAyE6+4zIYMusqy0nkefkpwfRLRI=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-446-sYeHmlBcNoeHfI-sBbHPdw-1; Wed, 10 May 2023 01:33:01 -0400
-X-MC-Unique: sYeHmlBcNoeHfI-sBbHPdw-1
-Received: by mail-ed1-f70.google.com with SMTP id
- 4fb4d7f45d1cf-50d89279d95so10743790a12.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 09 May 2023 22:33:00 -0700 (PDT)
+ Wed, 10 May 2023 00:54:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance.com; s=google; t=1683705255; x=1686297255;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=7q73aRqorgOcknsCbwBW7p8VJg521sVWQzKmYQBnQok=;
+ b=YaMHHRBqvYEppbP9MhGxOEuJqH2pwde8SRyoa9tntc1oCxq7iQ+Z6jHQMWQYyNlUfH
+ acHzXMBdBmDaGfkjxdZqZiPQ7pbULH3tV+0JoESt2YQwhC8zYB7D5Xwe4bACkbG2bclf
+ /rT4+JaAmlIp6K0OIBrat5TkqefvnGjDJqukWbvwLS5bcVnHPKyeI5YT7ABfF62erQdn
+ nWlEjz9O6NZXFpihkgfzuoRn3Xt3fXCgElkkEF3h/TsiDUM8HiY+FU+EgK+1CVIdES9S
+ QMg3JS7uzAdPFvOljFxfybx/ATIqXO272WGC/amB1cKOm1OFS+kfJtIsxhgd7bHx2ASZ
+ /Ssw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1683696780; x=1686288780;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
+ d=1e100.net; s=20221208; t=1683705255; x=1686297255;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:user-agent:mime-version:date:message-id
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=CfR3pdTnrmVcxjx1/XCpuBAbDSlJT7L6QiQpFvOxED0=;
- b=HGnlBVKdnZfSyoUrBKNuqRnBoCXS4vBMbeXRt7385W84Z7er5F8OAufZajeY4leS/f
- QB3qDUorTLoDtCYV8WIKOeFSb4N7cax7d/4z0mZxMgJWaTz7idWWE/EbYV3xDrQ1glJR
- rZgOA/KV8m3ECdLCMR7mCagvv7XjY3dViAXyO8t6Un0doOVbLaD38XjSASr58H25FYs3
- 4+YwuzSUqLVRicgiBUIqLgiblGYnZI/xHi+2g1DZoGmPqaCdYDCFOy8vM2qHCUvth5Nm
- dxLpKScLS+zN1f0dOJkJCpPOFTIFW5sOlowktiE47EruvFhBhhJNTRC5RNkfpW1/J1Ct
- ETyQ==
-X-Gm-Message-State: AC+VfDwC8ixxhZcfhBENUdwL9/s7sdqN0vGB1X8sflrYFAewhCj3tIB6
- Mdg0uaaOpXrJBETb3+bjBuBqCryZ/n7iv3Nb50/X6mlsWdS9+qdOZZD12osw5bhURdwOITYupbV
- RgZsuvNB1sFpb3dQeb8l3cSjj/b9WZA2cHuPyP4YtOA==
-X-Received: by 2002:a05:6402:3587:b0:50c:1603:654 with SMTP id
- y7-20020a056402358700b0050c16030654mr14748677edc.16.1683696779949; 
- Tue, 09 May 2023 22:32:59 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6V4Bg09XaNc7Uq/10va+cr/YvgkAVnRjG5KK8NmISXyPQ+XKlfBDvcGuJ6+QR7dyAWLxXywg==
-X-Received: by 2002:a05:6402:3587:b0:50c:1603:654 with SMTP id
- y7-20020a056402358700b0050c16030654mr14748657edc.16.1683696779652; 
- Tue, 09 May 2023 22:32:59 -0700 (PDT)
-Received: from redhat.com ([176.119.195.36]) by smtp.gmail.com with ESMTPSA id
- sa40-20020a1709076d2800b00965d4b2bd4csm2230865ejc.141.2023.05.09.22.32.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 May 2023 22:32:58 -0700 (PDT)
-Date: Wed, 10 May 2023 01:32:53 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next V2 1/2] virtio-net: convert rx mode setting to
- use workqueue
-Message-ID: <20230510012951-mutt-send-email-mst@kernel.org>
-References: <20230413064027.13267-1-jasowang@redhat.com>
- <20230413064027.13267-2-jasowang@redhat.com>
- <20230413121525-mutt-send-email-mst@kernel.org>
- <CACGkMEunn1Z3n8yjVaWLqdV502yjaCBSAb_LO4KsB0nuxXmV8A@mail.gmail.com>
- <20230414031947-mutt-send-email-mst@kernel.org>
- <CACGkMEtutGn0CoJhoPHbzPuqoCLb4OCT6a_vB_WPV=MhwY0DXg@mail.gmail.com>
+ bh=7q73aRqorgOcknsCbwBW7p8VJg521sVWQzKmYQBnQok=;
+ b=Jc5ZsXiurtvkbZTPqDThCMUwas5MFWVlfHasySX0PPdvDVU74UIvC8qfjQ5N8FGbEZ
+ z2UNx8+TMzRI4C1+/t82Av3wRoxlAmSeuyDue6EPB2oosLGHDJgE0VHvL7Jlq9xiQ9lX
+ 84gTblaFzEbsrukdXK/CKqHdURlMd3FaY/2AZYcqogjqeqyJ70TA3nL+tHo10AZ5sUvx
+ OZtJPZf6o9Et21+ljJTxHQKOD6J9+r/dXV9NKWaJYgxQbwHyZp7FbqVSlOSFHhUyE9Ym
+ UZAYPWwrkVoaAEnTuz0znpvgy/O/Jdsdcf2NN9SSFT9tCgRqSl9syXGTKIzTjk09UMeu
+ kCAg==
+X-Gm-Message-State: AC+VfDxLP+6UHwSZlwHHX3x+eBpVEGlW7GFvdjSvac1XXtfaaLQHP2zh
+ M1FfiR3zfqzFuo2ZQ9Q8ejwejA==
+X-Google-Smtp-Source: ACHHUZ7S5mZ25pzyjyTGOW2qmzisuZigWqCxJk/tR7QPbGt6SrtGod5RsiwLeeIB3fwbCOD6tTafnw==
+X-Received: by 2002:a05:6a20:918c:b0:100:28e0:6854 with SMTP id
+ v12-20020a056a20918c00b0010028e06854mr14651943pzd.45.1683705255396; 
+ Wed, 10 May 2023 00:54:15 -0700 (PDT)
+Received: from [10.3.43.196] ([61.213.176.6]) by smtp.gmail.com with ESMTPSA id
+ 17-20020aa79251000000b006468222af91sm2986619pfp.48.2023.05.10.00.54.12
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 10 May 2023 00:54:14 -0700 (PDT)
+Message-ID: <8254f1bb-dfd0-5ff0-651f-7f664bca65ba@bytedance.com>
+Date: Wed, 10 May 2023 15:52:13 +0800
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEtutGn0CoJhoPHbzPuqoCLb4OCT6a_vB_WPV=MhwY0DXg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, netdev <netdev@vger.kernel.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, edumazet@google.com, maxime.coquelin@redhat.com,
- kuba@kernel.org, pabeni@redhat.com, david.marchand@redhat.com,
- davem@davemloft.net
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Subject: Re: Re: [PATCH] virtio_ring: use u32 for virtio_max_dma_size
+Content-Language: en-US
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20230510025437.377807-1-pizhenwei@bytedance.com>
+ <1683689214.9647853-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1683689214.9647853-1-xuanzhuo@linux.alibaba.com>
+Cc: Joerg Roedel <jroedel@suse.de>, mst@redhat.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,50 +110,106 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: zhenwei pi via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: zhenwei pi <pizhenwei@bytedance.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBBcHIgMTcsIDIwMjMgYXQgMTE6NDA6NThBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBPbiBGcmksIEFwciAxNCwgMjAyMyBhdCAzOjIx4oCvUE0gTWljaGFlbCBTLiBUc2lya2lu
-IDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPgo+ID4gT24gRnJpLCBBcHIgMTQsIDIwMjMgYXQg
-MDE6MDQ6MTVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+ID4gRm9yZ2V0IHRvIGNjIG5l
-dGRldiwgYWRkaW5nLgo+ID4gPgo+ID4gPiBPbiBGcmksIEFwciAxNCwgMjAyMyBhdCAxMjoyNeKA
-r0FNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+Cj4g
-PiA+ID4gT24gVGh1LCBBcHIgMTMsIDIwMjMgYXQgMDI6NDA6MjZQTSArMDgwMCwgSmFzb24gV2Fu
-ZyB3cm90ZToKPiA+ID4gPiA+IFRoaXMgcGF0Y2ggY29udmVydCByeCBtb2RlIHNldHRpbmcgdG8g
-YmUgZG9uZSBpbiBhIHdvcmtxdWV1ZSwgdGhpcyBpcwo+ID4gPiA+ID4gYSBtdXN0IGZvciBhbGxv
-dyB0byBzbGVlcCB3aGVuIHdhaXRpbmcgZm9yIHRoZSBjdnEgY29tbWFuZCB0bwo+ID4gPiA+ID4g
-cmVzcG9uc2Ugc2luY2UgY3VycmVudCBjb2RlIGlzIGV4ZWN1dGVkIHVuZGVyIGFkZHIgc3BpbiBs
-b2NrLgo+ID4gPiA+ID4KPiA+ID4gPiA+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+Cj4gPiA+ID4KPiA+ID4gPiBJIGRvbid0IGxpa2UgdGhpcyBmcmFua2x5
-LiBUaGlzIG1lYW5zIHRoYXQgc2V0dGluZyBSWCBtb2RlIHdoaWNoIHdvdWxkCj4gPiA+ID4gcHJl
-dmlvdXNseSBiZSByZWxpYWJsZSwgbm93IGJlY29tZXMgdW5yZWxpYWJsZS4KPiA+ID4KPiA+ID4g
-SXQgaXMgInVucmVsaWFibGUiIGJ5IGRlc2lnbjoKPiA+ID4KPiA+ID4gICAgICAgdm9pZCAgICAg
-ICAgICAgICAgICAgICAgKCpuZG9fc2V0X3J4X21vZGUpKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYp
-Owo+ID4gPgo+ID4gPiA+IC0gZmlyc3Qgb2YgYWxsIGNvbmZpZ3VyYXRpb24gaXMgbm8gbG9uZ2Vy
-IGltbWVkaWF0ZQo+ID4gPgo+ID4gPiBJcyBpbW1lZGlhdGUgYSBoYXJkIHJlcXVpcmVtZW50PyBJ
-IGNhbiBzZWUgYSB3b3JrcXVldWUgaXMgdXNlZCBhdCBsZWFzdDoKPiA+ID4KPiA+ID4gbWx4NWUs
-IGlwb2liLCBlZngsIC4uLgo+ID4gPgo+ID4gPiA+ICAgYW5kIHRoZXJlIGlzIG5vIHdheSBmb3Ig
-ZHJpdmVyIHRvIGZpbmQgb3V0IHdoZW4KPiA+ID4gPiAgIGl0IGFjdHVhbGx5IHRvb2sgZWZmZWN0
-Cj4gPiA+Cj4gPiA+IEJ1dCB3ZSBrbm93IHJ4IG1vZGUgaXMgYmVzdCBlZmZvcnQgZS5nIGl0IGRv
-ZXNuJ3Qgc3VwcG9ydCB2aG9zdCBhbmQgd2UKPiA+ID4gc3Vydml2ZSBmcm9tIHRoaXMgZm9yIHll
-YXJzLgo+ID4gPgo+ID4gPiA+IC0gc2Vjb25kLCBpZiBkZXZpY2UgZmFpbHMgY29tbWFuZCwgdGhp
-cyBpcyBhbHNvIG5vdAo+ID4gPiA+ICAgcHJvcGFnYXRlZCB0byBkcml2ZXIsIGFnYWluIG5vIHdh
-eSBmb3IgZHJpdmVyIHRvIGZpbmQgb3V0Cj4gPiA+ID4KPiA+ID4gPiBWRFVTRSBuZWVkcyB0byBi
-ZSBmaXhlZCB0byBkbyB0cmlja3MgdG8gZml4IHRoaXMKPiA+ID4gPiB3aXRob3V0IGJyZWFraW5n
-IG5vcm1hbCBkcml2ZXJzLgo+ID4gPgo+ID4gPiBJdCdzIG5vdCBzcGVjaWZpYyB0byBWRFVTRS4g
-Rm9yIGV4YW1wbGUsIHdoZW4gdXNpbmcgdmlydGlvLW5ldCBpbiB0aGUKPiA+ID4gVVAgZW52aXJv
-bm1lbnQgd2l0aCBhbnkgc29mdHdhcmUgY3ZxIChsaWtlIG1seDUgdmlhIHZEUEEgb3IgY21hCj4g
-PiA+IHRyYW5zcG9ydCkuCj4gPiA+Cj4gPiA+IFRoYW5rcwo+ID4KPiA+IEhtbS4gQ2FuIHdlIGRp
-ZmZlcmVudGlhdGUgYmV0d2VlbiB0aGVzZSB1c2UtY2FzZXM/Cj4gCj4gSXQgZG9lc24ndCBsb29r
-IGVhc3kgc2luY2Ugd2UgYXJlIGRyaXZlcnMgZm9yIHZpcnRpbyBidXMuIFVuZGVybGF5ZXIKPiBk
-ZXRhaWxzIHdlcmUgaGlkZGVuIGZyb20gdmlydGlvLW5ldC4KPiAKPiBPciBkbyB5b3UgaGF2ZSBh
-bnkgaWRlYXMgb24gdGhpcz8KPiAKPiBUaGFua3MKCkkgZG9uJ3Qga25vdywgcGFzcyBzb21lIGtp
-bmQgb2YgZmxhZyBpbiBzdHJ1Y3QgdmlydHF1ZXVlPwoJImJvb2wgc2xvdzsgLyogVGhpcyB2cSBj
-YW4gYmUgdmVyeSBzbG93IHNvbWV0aW1lcy4gRG9uJ3Qgd2FpdCBmb3IgaXQhICovIgoKPwoKLS0g
-Ck1TVAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 5/10/23 11:26, Xuan Zhuo wrote:
+> On Wed, 10 May 2023 10:54:37 +0800, zhenwei pi <pizhenwei@bytedance.com> wrote:
+>> Both split ring and packed ring use 32bits to describe the length of
+>> a descriptor: see struct vring_desc and struct vring_packed_desc.
+>> This means the max segment size supported by virtio is U32_MAX.
+>>
+>> An example of virtio_max_dma_size in virtio_blk.c:
+>>    u32 v, max_size;
+>>
+>>    max_size = virtio_max_dma_size(vdev);  -> implicit convert
+>>    err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
+>>                               struct virtio_blk_config, size_max, &v);
+>>    max_size = min(max_size, v);
+>>
+>> There is a risk during implicit convert here, once virtio_max_dma_size
+>> returns 4G, max_size becomes 0.
+>>
+>> Fixes: e6d6dd6c875e ("virtio: Introduce virtio_max_dma_size()")
+>> Cc: Joerg Roedel <jroedel@suse.de>
+>> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
+>> ---
+>>   drivers/virtio/virtio_ring.c | 12 ++++++++----
+>>   include/linux/virtio.h       |  2 +-
+>>   2 files changed, 9 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> index c5310eaf8b46..55cfecf030a1 100644
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -289,12 +289,16 @@ static bool vring_use_dma_api(const struct virtio_device *vdev)
+>>   	return false;
+>>   }
+>>
+>> -size_t virtio_max_dma_size(const struct virtio_device *vdev)
+>> +u32 virtio_max_dma_size(const struct virtio_device *vdev)
+> 
+> 
+> LGTM
+> 
+> But, should we change the parameter to vq, then use the dma_dev?
+> 
+> @Jason
+> 
+> Thanks.
+> 
+
+The max DMA size is a attribute of a virtio device rather than any VQ, 
+so I guess virtio_max_dma_size(const struct virtio_device *vdev) is clear.
+
+On the other hand, if changing the parameter to vq, we need select a VQ, 
+then the question is:
+1, which VQ to select? VQ0 or a random one? this leads confusing.
+2, The virtio spec defines: Each device can have zero or more virtqueues
+
+
+> 
+>>   {
+>> -	size_t max_segment_size = SIZE_MAX;
+>> +	u32 max_segment_size = U32_MAX;
+>>
+>> -	if (vring_use_dma_api(vdev))
+>> -		max_segment_size = dma_max_mapping_size(vdev->dev.parent);
+>> +	if (vring_use_dma_api(vdev)) {
+>> +		size_t max_dma_size = dma_max_mapping_size(vdev->dev.parent);
+>> +
+>> +		if (max_dma_size < max_segment_size)
+>> +			max_segment_size = max_dma_size;
+>> +	}
+>>
+>>   	return max_segment_size;
+>>   }
+>> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+>> index b93238db94e3..1a605f408329 100644
+>> --- a/include/linux/virtio.h
+>> +++ b/include/linux/virtio.h
+>> @@ -147,7 +147,7 @@ int virtio_device_restore(struct virtio_device *dev);
+>>   #endif
+>>   void virtio_reset_device(struct virtio_device *dev);
+>>
+>> -size_t virtio_max_dma_size(const struct virtio_device *vdev);
+>> +u32 virtio_max_dma_size(const struct virtio_device *vdev);
+>>
+>>   #define virtio_device_for_each_vq(vdev, vq) \
+>>   	list_for_each_entry(vq, &vdev->vqs, list)
+>> --
+>> 2.20.1
+>>
+
+-- 
+zhenwei pi
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
