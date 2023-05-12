@@ -4,104 +4,160 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7B64C77B7C
-	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 11:55:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F2FEC77B75
+	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 12:51:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1900441F69;
-	Fri, 12 May 2023 11:55:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1900441F69
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2C84042A44;
+	Fri, 12 May 2023 12:51:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C84042A44
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=KhnXpEvv
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Emi53xVv
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6qkfTKhfzfC6; Fri, 12 May 2023 11:55:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3521141F7E;
-	Fri, 12 May 2023 11:55:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3521141F7E
+	with ESMTP id umV5RLhDzEZC; Fri, 12 May 2023 12:51:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2CCC642A2B;
+	Fri, 12 May 2023 12:51:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2CCC642A2B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 049F9C0037;
-	Fri, 12 May 2023 11:55:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F513C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D503C0036;
+	Fri, 12 May 2023 12:51:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 21428C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 11:55:55 +0000 (UTC)
+ Fri, 12 May 2023 12:51:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 53775841DC
+ by smtp3.osuosl.org (Postfix) with ESMTP id DC10B60B51
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 11:55:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53775841DC
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com
- header.a=rsa-sha256 header.s=google header.b=KhnXpEvv
+ Fri, 12 May 2023 12:51:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC10B60B51
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=Emi53xVv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w0qwn1qu4OkY
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hJzISZS-Lwuu
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 11:55:54 +0000 (UTC)
+ Fri, 12 May 2023 12:51:25 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2AAB1841D6
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com
- [IPv6:2607:f8b0:4864:20::436])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2AAB1841D6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1E74260B3F
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com
+ (mail-bn1nam02on2062b.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eb2::62b])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1E74260B3F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 11:55:53 +0000 (UTC)
-Received: by mail-pf1-x436.google.com with SMTP id
- d2e1a72fcca58-6439b410679so6497408b3a.0
- for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 04:55:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance.com; s=google; t=1683892553; x=1686484553;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=5Gba+mHkqBgGHJ7UuOU7TI0XxLnFfu08zX8z0165YJw=;
- b=KhnXpEvva702ZnXXycpET18s/LyE1iJoZ4lWJ6dXCdOhkZtxT49LD5pbsZYttO+idc
- wW4JKJWlqOwGBoX1Ixm91stGEwh2CxxEaQEjSjh/lRP+/FIVHe/cbOGuHE+9v0v03Z3g
- r6bOGV8pYRiD1cqrL3UCE43/ilmFIcrgBaXzlIG84qZpeApxm1sLNN8mWncXEIq7Mh1c
- lEYfoSco7n8L9qE/A3+cGge6idxsYZYNWM7s2y8uYgGXws81s0+DQ0/nrzaYR4bVcmVp
- kgWrrnYsWe4PMsxeNtAO5SNWvGe4AhRzNje7MJ6DvnM32dauVC173AJ+C4aYhv+me9de
- Hl4A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1683892553; x=1686484553;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=5Gba+mHkqBgGHJ7UuOU7TI0XxLnFfu08zX8z0165YJw=;
- b=DogWjq80MJgXaU5nFVOQVBCxx/g6GlXggnV+MlzEHioxBIcPv1J3MO6d8nxJChiIrT
- ofI3qaLjahPxtnhCcYmlWxv5ffor03tb9H6Tg10+dZntOXTlHUCJrDaSLCIpgCcuAeNc
- +870NDrVsBuc3viI+yKB+T/EvCPWMJMED/JrdcshhXELEQXGL2qHLkQpyUnxFOFutlE5
- yttQOGOvllQA/SRQkl0J5PGIsLoZEpQ/MLaJHMTSlB0MRD+5fCEwg6CuULBLswVSJyK3
- in5iEuPmT+V5fRiR+SDGLIPKY8E58NTrIROJGaa3Dx1IjaNU3tbu17C1pv4VCkuKxwtV
- DufA==
-X-Gm-Message-State: AC+VfDxb8rosrE2Pvwnh+6naHnKw7wpqKZBEytgmszTwq3hje4yWLsv3
- cxcGdXsuNhcvR3eyFUcSGzizoQ==
-X-Google-Smtp-Source: ACHHUZ42poTV7OM0UC4TNtwYuyGOfPkqr2Bfl5BYoC/qBqr6/rmRKckeMKAQi+M5ii8DeCfOqO0xcg==
-X-Received: by 2002:a05:6a00:1a06:b0:63b:8423:9e31 with SMTP id
- g6-20020a056a001a0600b0063b84239e31mr30050836pfv.11.1683892553385; 
- Fri, 12 May 2023 04:55:53 -0700 (PDT)
-Received: from [10.3.43.196] ([61.213.176.7]) by smtp.gmail.com with ESMTPSA id
- j11-20020a62e90b000000b00571cdbd0771sm6874751pfh.102.2023.05.12.04.55.50
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 12 May 2023 04:55:52 -0700 (PDT)
-Message-ID: <59b38f07-73c2-07c2-ef2d-660445f593e1@bytedance.com>
-Date: Fri, 12 May 2023 19:53:50 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: Re: Re: [PATCH 1/2] virtio: abstract virtqueue related methods
+ Fri, 12 May 2023 12:51:25 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DAiNYQyO8KxAf6P7marpUJMcMVFEFXRRb2pJJzABeAj5p6+hNAxLBhAee1luKr+0FFUfE4tFpnflNZxH6CD6pxJRdG1esxuknaK+WdDc6N0rfhv4HwFEoS7X6F5kUCqu/F5L9YQWfHN7AjaRHU7B5iR/thGrEc0YcHO6ZfI/8GqblkybfSzPMFEnbr8mG/rAEQXwZ6eEAA64VoV3kkaQHKr7ax5AqoIFVGjfMAhuZ3BJ6JVPSANMumunMiK+dhDFC6rHCg8CVZmftAqZFlqsG5UlQ81rVsHYm5qPU24qtyj66L0x7Pc0JoOITAZSb783VhS+YGuLdQB8ihKODvW9Yg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VyWMMyU8ME7xOd3KWIdC95Nt3Z88rQ2NQ/uMU/lCwoc=;
+ b=IHkE2Rlv/miQhPLUFSIJEyi+ng6iX14EZyCAI0FsP3v6iMCPawhVGqyA6FLeURulpGKsrN/TOxcQ4FUGp4UmFRwkCIrK2ltiKFKGvNcbpU2bafvcS6zZEojudG6uG0dJnvPSODnTpK+Bxp+OfWwWANaJN9bwDUhoNVcfpNNudswl0rPxudh48duRlk7WdV8wrNOKgEsG6xqwtEvLW6bsk2lX+KmBETIfk/0jDQiTjNQgAARBimqysUi46d+7FNMufI8QyeDn8vMpmJUBl6TJI0E5tnZdEzasyILcly0swin43wpyBzUgKC3HhLQE00UKJJ72HPy2MczJ8wWFLp+cSw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VyWMMyU8ME7xOd3KWIdC95Nt3Z88rQ2NQ/uMU/lCwoc=;
+ b=Emi53xVvt5hGKzgzAlRQCuFvJCRJOWRnx/Zz20enteJw+E0iNBaxG12DrDGZlsmZmibx4D8+kqiqPkv69r2VJ9rvvVIlrrLeTKX+aNXVHymi3ILwjNRQ6j/q8rRQLFple1ijaKGHTvZ7f1dBo2k85NE32roIG/AbJOJ/itNNWD0tnPhbWx1itFm+cayMo+wa7z8hcWKsXGCake1J2Bh1Wmd8yzfiaNrvCn+W1jt6p0pkwOPKOW4MH+q4DdlDIlCCkpuv6wRGSGY4I34YzIKlo1nRjMdAjal/tYnaJhAXo7lhuc9mbsmihPIZpM59r1mxFySFMXY12zOICu9ifjGCsQ==
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
+ by IA1PR12MB8517.namprd12.prod.outlook.com (2603:10b6:208:449::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.22; Fri, 12 May
+ 2023 12:51:22 +0000
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::9e8a:eef5:eb8a:4a02]) by DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::9e8a:eef5:eb8a:4a02%6]) with mapi id 15.20.6387.024; Fri, 12 May 2023
+ 12:51:21 +0000
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: Feng Liu <feliu@nvidia.com>, "mst@redhat.com" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-vdpa: Fix unchecked call to NULL set_vq_affinity
+Thread-Topic: [PATCH] virtio-vdpa: Fix unchecked call to NULL set_vq_affinity
+Thread-Index: AQHZfo9/nZP06ML0wECcAFMaORWcJ69KWRYAgAAcyYCADC3pgA==
+Date: Fri, 12 May 2023 12:51:21 +0000
+Message-ID: <8e1f076cb09560ee2bcda2092c0de10a701ba00b.camel@nvidia.com>
+References: <20230504135053.2283816-1-dtatulea@nvidia.com>
+ <26ee2c04-7844-14fe-5cba-fe30172f075f@nvidia.com>
+ <20230504145110-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230504145110-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
 Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230512094618.433707-1-pizhenwei@bytedance.com>
- <20230512094618.433707-2-pizhenwei@bytedance.com>
- <20230512064305-mutt-send-email-mst@kernel.org>
- <37a5e7dc-160d-51d2-7631-196ad9e21da7@bytedance.com>
- <20230512072819-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230512072819-mutt-send-email-mst@kernel.org>
-Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.48.1 (3.48.1-1.fc38) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|IA1PR12MB8517:EE_
+x-ms-office365-filtering-correlation-id: 28aee20f-e32a-4aab-5bee-08db52e79671
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 63LSuP1Mn7aiU2rpl0slt++wge1PI84I9Z5e/XBfCz7iB5i60GjHFTm5KLhtY8tJWVSE59CtXcV7a0snj6bqRKO7hWKmgezHzlHXA8Qzy+bEbiaiPJaKWqOzpY1jJCn8eVYy4zusHH4jZZpxMJnxXuInThm/xSGj4GcOlUYqTkLMmM/6AJN2srk2x0Y6cPU+RbTsIG8x1nSqcCvPG47A4lSKIcoXLyd2iiGuLQP7E9n69hssSeQFTs6cQ42kaJF0CLQQu6GqWpY0QtOfluGjcMw9itQcznSi93c6Ct/x6deqeJk2okIaGTKUajx3+WJLXfN7Qu1MO54mKhGFsXKrBU45sbk0sVxpFjKHcT/9/7+pkOTcUG1ogESx5Rx4fwYpZFaIW5oLrb6YWATw5anVwQpTJdQxxlBpuIjUNlQ9tPE4hVErU6QiTXZuu7cZHvcU84ceJbyJ6ua5D9O6gIIt+Bbs741JMWyrAGGJaSi/TlDdeqlTGwZxNTZ8Yn/AU1gUEf4+hifAc9yTdBO0Lct4y130qc6IrBZCjVzQCMgdccl4nkELWemywlanGUtGy/aiQchOEGh48Oe3aLa/zfuQAVHT3x6ydnt3j9Lz36nUgezvd/aOS1vwROe7GUaXnVlj
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DM6PR12MB5565.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(4636009)(39860400002)(346002)(366004)(396003)(376002)(136003)(451199021)(41300700001)(66446008)(64756008)(66556008)(91956017)(66476007)(76116006)(66946007)(6506007)(6512007)(4326008)(71200400001)(6486002)(110136005)(54906003)(478600001)(316002)(8936002)(8676002)(5660300002)(38070700005)(86362001)(2616005)(83380400001)(2906002)(186003)(38100700002)(122000001)(36756003);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?TFIwWnp0aFdYUmZVWUxxU1MvWVBwNnhUdVlwQjAxajFGNldmK2NpZkV6aWRG?=
+ =?utf-8?B?TEY0VkpGMTBJM2g4ekNDdXRISk43elRoamxPWmxrZTJmeVVYME50dHBQdm12?=
+ =?utf-8?B?aVhDaU1nUWdaT2dib0JCQmxSOVNnamRIdFRxeHFuWDFrSm9aNmZQeW5kV1ds?=
+ =?utf-8?B?ODdDRGgzR05GZEk2V055USs0d0R3RWxVZmtnWWJsQzVaU045bDRhZExrTjhR?=
+ =?utf-8?B?V0x3M05SV0xIRVVvZG4xTFJBVFNOOU1aOXV0SzdTSjRmdG90RXdaNW96WWdW?=
+ =?utf-8?B?RXBKQjRYekJkQTFHSTJGMitxdVVISEw1UnpJc201dWFzVTFObFVtWmV2QTBw?=
+ =?utf-8?B?ZFpXREZxYU9YYWlIV3d5bkQ5RlNGZDNUNGJ6b1pBL1JHTkZ1SC8rdnRCK0l4?=
+ =?utf-8?B?K1JFVWZacUZXV0t4OFlvTEF2cG9nWFNqNFc2Rjdxd0IyQzVTalR6ZFVRc2VN?=
+ =?utf-8?B?RVpUY29zZVEzOU1SUjJSZmdtOGU5NnpabWZlTXVsRzdqM1gzdjV5bWxTemNR?=
+ =?utf-8?B?Y3ErUnM1a3JtNElkdEhtczNHQ0ErVld4K05ZT1lVL3lhQXo0dDJWUS82OW0w?=
+ =?utf-8?B?MXlObzIvNEYrODY1YzF2S2pjY0pKY2NoaEZZZUpYV203UnJmRktseS8wVEpW?=
+ =?utf-8?B?U0NnQzJTODMyU2I5QUVqSy8wNmdtUGFRU3paM2Q0dFVtVlZjN1BZQjVUOW4y?=
+ =?utf-8?B?Qk1VcXp4S0pRazBZdUwwTWtDc2ozZnRpdW1aNXhvNXRTd3lDODhLZTlCcHNK?=
+ =?utf-8?B?eXpYbkZMcXNueExrUVhvUmllckxrNFI2OU81dmM5bTAwRU9hQUhUT0ZuRER4?=
+ =?utf-8?B?WjJiL3lTdm9KSkFBQVlxRmdZNXBmb1F2TkRVZE44d2tDMml5ZVNFRW9iWkxa?=
+ =?utf-8?B?TjBpcXo4Rzl4QWthb1FqdGx5d3o1UDNXWnhscGhabG1xQUdlUTZOeEFVUXl3?=
+ =?utf-8?B?cDJpK1NuTjVyVTJNUUxxUk43VGw2TUdQNVYyeTRpSklYNTA1R25aa1RreStt?=
+ =?utf-8?B?aHI5RzZtb1M4bWpxelYzb0luT3VZZVBqelF1b3VoZ3BBeXVzYnFnejhsc2Jm?=
+ =?utf-8?B?NUJRV0hTRnhNbUcwZHVWNzBaV2dpcnFWTWJOVHJmZ2R3UzVCUnNSRmJaQStI?=
+ =?utf-8?B?cUM3dEYvMkM3NllybEpBNjdMSCtlM1BDa1JXV2kxRVMyelg1YkxpQWszSmhN?=
+ =?utf-8?B?SWU3M0E5d0gzem1rZjhyTUdqbEZEQ1c4cDY2d2lPa2RoUzFOM245R3licmdm?=
+ =?utf-8?B?dnRZK0RyUlo3cXBiRjNmVnAwK1QzYkJKQWUrMmxwUlBLa2kxSVFkQXM0K3ND?=
+ =?utf-8?B?dlFzMmtkOHlnYzZDN0FrcEg2TWRxVkZCVEhzc1krN1dzTjRHNVBSZXR0VmYx?=
+ =?utf-8?B?K0VjVy85VitjbTAycHlCVTg3Q2JIUU1WRVppQmNWcW5zaGdsRGI4bGgrMGY4?=
+ =?utf-8?B?WWVYellpMHBhaFMrb0k5dWJjUUVpUmt5WWNzeHZhUWI0YmUvRWd3djVQNW52?=
+ =?utf-8?B?bkMrUmZJYUN3dGxBenpEUTk3aTIxWERLZTBoMzJOWi9nNURTVzR4NnMzODZG?=
+ =?utf-8?B?bkZab2o4ZzVqV2MyelNpd0l6aFdRdmhzQTNzQytVSXQ0TzhIaUVtWnhBRVZD?=
+ =?utf-8?B?RlllakIxdFAxNklSOUtOMk1HZS9vajF2OTRUQ0pTajVJbGxsSWdjTXJVRGNZ?=
+ =?utf-8?B?NUFhblhTTHVobmZSSkpTTlo3WlFPYi9zZ24zSWFLOXI3SVdvaGxIUnhha214?=
+ =?utf-8?B?cDUzd1pxV2NrenZOb0ViUy81eTVLN013R3VRVU9UZk1yeUk1Q0J1T093VEM0?=
+ =?utf-8?B?TER6UjJvc3F6MEl1RDAvQ1pvbzBDSURkbmtkVVRKelIwbnZUN1U2VUcrNGRi?=
+ =?utf-8?B?d1ArRitneUR1bGJZQWpnL1pmMEpPRjlkdmRtWjJobERpQnBNaGFzbXVlVUFE?=
+ =?utf-8?B?UkxpVmxYd014bmMrY2Z1eHNoeHdCWWpmS2p5bEhYb0RkZnNlRC8xekVvdlZ0?=
+ =?utf-8?B?WU9WbTZFbFp1R3VNbDdUcS9nN1QwM3d5ZlN3elY3QjZGeFlzSnd0S3A4RXgr?=
+ =?utf-8?B?TlhUbE5zL0JsdWpFekMyQkI1MW5zbm82a1dIeFE3SDJNUlp5dC9MUU9UVTZh?=
+ =?utf-8?B?VzJBYW5CaXRPRENVbGNZU1RxdFo4cm9BV3FUMFpOUWRTdkVKQllQUXJZSncz?=
+ =?utf-8?Q?Mo6e4MmrJmBvp/lYpDkIa1nYmc6kMKJEEL7hIeoj2eBF?=
+Content-ID: <D99850CFE4B4024692D6D6C499BA338C@namprd12.prod.outlook.com>
+MIME-Version: 1.0
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 28aee20f-e32a-4aab-5bee-08db52e79671
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 May 2023 12:51:21.7991 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: VXW25WpJ5mf1S6PYjaCqvLkyDNhGe9wTfOjra84NgF4zteIu0UXXCqhIVTTSv+6dFO1ZYpM6FkLCaYhEBTNCrg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8517
+Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "xieyongji@bytedance.com" <xieyongji@bytedance.com>,
+ Gal Pressman <gal@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,170 +169,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: zhenwei pi via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: zhenwei pi <pizhenwei@bytedance.com>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 5/12/23 19:35, Michael S. Tsirkin wrote:
-> On Fri, May 12, 2023 at 07:09:40PM +0800, zhenwei pi wrote:
->> On 5/12/23 18:46, Michael S. Tsirkin wrote:
->>> On Fri, May 12, 2023 at 05:46:17PM +0800, zhenwei pi wrote:
->>>> There is already a virtqueue abstract structure in virtio subsystem
->>>> (see struct virtqueue in include/linux/virtio.h), however the vring
->>>> based virtqueue is used only in the past years, the virtqueue related
->>>> methods mix much with vring(just look like the codes, virtqueue_xxx
->>>> functions are implemented in virtio_ring.c).
->>>>
->>>> Abstract virtqueue related methods(see struct virtqueue_ops), and
->>>> separate virtqueue_xxx symbols from vring. This allows a non-vring
->>>> based transport in the future. With this change, the following symbols
->>>> are exported from virtio.ko instead of virtio_ring.ko:
->>>>     virtqueue_add_sgs
->>>>     virtqueue_add_outbuf
->>>>     virtqueue_add_inbuf
->>>>     virtqueue_add_inbuf_ctx
->>>>     virtqueue_kick_prepare
->>>>     virtqueue_notify
->>>>     virtqueue_kick
->>>>     virtqueue_enable_cb_prepare
->>>>     virtqueue_enable_cb
->>>>     virtqueue_enable_cb_delayed
->>>>     virtqueue_disable_cb
->>>>     virtqueue_poll
->>>>     virtqueue_get_buf_ctx
->>>>     virtqueue_get_buf
->>>>     virtqueue_detach_unused_buf
->>>>     virtqueue_get_vring_size
->>>>     virtqueue_resize
->>>>     virtqueue_is_broken
->>>>     virtio_break_device
->>>>     __virtio_unbreak_device
->>>>
->>>> Cc: Stefan Hajnoczi <stefanha@redhat.com>
->>>> Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
->>>> ---
->>>>    drivers/virtio/virtio.c      | 362 +++++++++++++++++++++++++++++++++++
->>>>    drivers/virtio/virtio_ring.c | 282 +++++----------------------
->>>>    include/linux/virtio.h       |  29 +++
->>>>    3 files changed, 443 insertions(+), 230 deletions(-)
->>>>
->>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>>> index 3893dc29eb26..8d8715a10f26 100644
->>>> --- a/drivers/virtio/virtio.c
->>>> +++ b/drivers/virtio/virtio.c
->>>> @@ -553,6 +553,368 @@ int virtio_device_restore(struct virtio_device *dev)
->>>>    EXPORT_SYMBOL_GPL(virtio_device_restore);
->>>>    #endif
->>>> +/**
->>>> + * virtqueue_add_sgs - expose buffers to other end
->>>> + * @vq: the struct virtqueue we're talking about.
->>>> + * @sgs: array of terminated scatterlists.
->>>> + * @out_sgs: the number of scatterlists readable by other side
->>>> + * @in_sgs: the number of scatterlists which are writable (after readable ones)
->>>> + * @data: the token identifying the buffer.
->>>> + * @gfp: how to do memory allocations (if necessary).
->>>> + *
->>>> + * Caller must ensure we don't call this with other virtqueue operations
->>>> + * at the same time (except where noted).
->>>> + *
->>>> + * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
->>>> + */
->>>> +int virtqueue_add_sgs(struct virtqueue *vq, struct scatterlist *sgs[],
->>>> +		      unsigned int out_sgs, unsigned int in_sgs,
->>>> +		      void *data, gfp_t gfp)
->>>> +{
->>>> +	unsigned int i, total_sg = 0;
->>>> +
->>>> +	/* Count them first. */
->>>> +	for (i = 0; i < out_sgs + in_sgs; i++) {
->>>> +		struct scatterlist *sg;
->>>> +
->>>> +		for (sg = sgs[i]; sg; sg = sg_next(sg))
->>>> +			total_sg++;
->>>> +	}
->>>> +	return vq->ops->add_sgs(vq, sgs, total_sg, out_sgs, in_sgs,
->>>> +				data, NULL, gfp);
->>>> +}
->>>> +EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
->>>
->>>
->>> Hmm this kind of indirection on data path is going to be costly
->>> performance-wise especially when retpolines are in place.
->>>
->>> Any data on this?
->>>
->>
->> Hi,
->>
->> 1, What about moving these functions into virtio.h and declare them as
->> static inline?
-> 
-> This will do nothing to remove indirection.
-> 
->> 2, what about moving method fields into struct virtqueue?
-> 
-> This gets rid of one level of indirection but the big problem
-> is indirect function call due to retpolines, this remains.
-> 
-> 
->> Then we have struct like:
->> struct virtqueue {
->> 	struct list_head list;
->> 	...
->> 	void *priv;
->>
->> 	/* virtqueue specific operations */
->>          int (*add_sgs)(struct virtqueue *vq, struct scatterlist *sgs[],
->>                         unsigned int total_sg,
->>                         unsigned int out_sgs, unsigned int in_sgs,
->>                         void *data, void *ctx, gfp_t gfp);
->> 	...
->> }
->>
->> and functions like:
->> static inline int virtqueue_add_sgs(...)
->> {
->>          unsigned int i, total_sg = 0;
->>
->>          /* Count them first. */
->>          for (i = 0; i < out_sgs + in_sgs; i++) {
->>                  struct scatterlist *sg;
->>
->>                  for (sg = sgs[i]; sg; sg = sg_next(sg))
->>                          total_sg++;
->>          }
->>          return vq->add_sgs(vq, sgs, total_sg, out_sgs, in_sgs,
->>                             data, NULL, gfp);
->> }
-> 
-> Maybe a flag in vq:
-> 	bool abstract; /* use ops to add/get bufs and kick */
-> and then
-> 	if (unlikely(vq->abstract))
-> 		 return vq->ops->add_sgs(vq, sgs, total_sg, out_sgs, in_sgs,
-> 				    	 data, NULL, gfp);
-> 
-> transport then just sets the ops if it wants abstract vqs,
-> and core then skips the vring.
-> 
-> 
->> If [1] is acceptable, we can also reduce changes in patch 'tools/virtio:
->> implement virtqueue in test'.
-> 
-> Yea that one shouldn't be there.
-> 
->> -- 
->> zhenwei pi
-> 
-
-OK, I'll try and send a next version a few days later. Thanks!
-
--- 
-zhenwei pi
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCAyMDIzLTA1LTA0IGF0IDE0OjUxIC0wNDAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
+dGU6DQo+IE9uIFRodSwgTWF5IDA0LCAyMDIzIGF0IDAxOjA4OjU0UE0gLTA0MDAsIEZlbmcgTGl1
+IHdyb3RlOg0KPiA+IA0KPiA+IA0KPiA+IE9uIDIwMjMtMDUtMDQgYS5tLjk6NTAsIERyYWdvcyBU
+YXR1bGVhIHdyb3RlOg0KPiA+ID4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcg
+bGlua3Mgb3IgYXR0YWNobWVudHMNCj4gPiA+IA0KPiA+ID4gDQo+ID4gPiBUaGUgcmVmZXJlbmNl
+ZCBwYXRjaCBjYWxscyBzZXRfdnFfYWZmaW5pdHkgd2l0aG91dCBjaGVja2luZyBpZiB0aGUgb3Ag
+aXMNCj4gPiA+IHZhbGlkLiBUaGlzIHBhdGNoIGFkZHMgdGhlIGNoZWNrLg0KPiA+ID4gDQo+ID4g
+PiBGaXhlczogM2RhZDU2ODIzYjUzICgidmlydGlvLXZkcGE6IFN1cHBvcnQgaW50ZXJydXB0IGFm
+ZmluaXR5IHNwcmVhZGluZw0KPiA+ID4gbWVjaGFuaXNtIikNCj4gPiA+IFJldmlld2VkLWJ5OiBH
+YWwgUHJlc3NtYW4gPGdhbEBudmlkaWEuY29tPg0KPiA+ID4gU2lnbmVkLW9mZi1ieTogRHJhZ29z
+IFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5jb20+DQo+ID4gPiAtLS0NCj4gPiA+IMKgIGRyaXZl
+cnMvdmlydGlvL3ZpcnRpb192ZHBhLmMgfCA0ICsrKy0NCj4gPiA+IMKgIDEgZmlsZSBjaGFuZ2Vk
+LCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gPiA+IA0KPiA+ID4gZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb192ZHBhLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+dmRwYS5jDQo+ID4gPiBpbmRleCBlYjZhZWU4YzA2YjIuLjk4OWUyZDcxODRjZSAxMDA2NDQNCj4g
+PiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb192ZHBhLmMNCj4gPiA+ICsrKyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb192ZHBhLmMNCj4gPiA+IEBAIC0zODUsNyArMzg1LDkgQEAgc3RhdGlj
+IGludCB2aXJ0aW9fdmRwYV9maW5kX3ZxcyhzdHJ1Y3QgdmlydGlvX2RldmljZQ0KPiA+ID4gKnZk
+ZXYsIHVuc2lnbmVkIGludCBudnFzLA0KPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVyciA9IFBUUl9FUlIodnFzW2ldKTsNCj4gPiA+IMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIGVycl9zZXR1
+cF92cTsNCj4gPiA+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIH0NCj4gPiA+IC3C
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wcy0+c2V0X3ZxX2FmZmluaXR5KHZkcGEsIGks
+ICZtYXNrc1tpXSk7DQo+ID4gPiArDQo+ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCBpZiAob3BzLT5zZXRfdnFfYWZmaW5pdHkpDQo+ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgb3BzLT5zZXRfdnFfYWZmaW5pdHkodmRwYSwgaSwgJm1h
+c2tzW2ldKTsNCj4gPiBpZiBvcHMtPnNldF92cV9hZmZpbml0eSBpcyBOVUxMLCBzaG91bGQgZ2l2
+ZSBhbiBlcnJvciBjb2RlIHRvIGVyciwgYW5kDQo+ID4gcmV0dXJuIGVycg0KPiANCj4gR2l2ZW4g
+d2UgaWdub3JlIHJldHVybiBjb2RlLCBoYXJkbHkgc2VlbXMgbGlrZSBhIGNyaXRpY2FsIHRoaW5n
+IHRvIGRvLg0KPiBJcyBpdCByZWFsbHkgaW1wb3J0YW50PyBhZmZpbml0eSBpcyBhbiBvcHRpbWl6
+YXRpb24gaXNuJ3QgaXQ/DQo+IA0KPiA+ID4gDQpzZXRfdnFfYWZmaW5pdHkgaXMgb3B0aW9uYWwg
+c28gaXQncyBub3QgYW4gZXJyb3IgaWYgdGhlIG9wIGlzIG5vdCBpbXBsZW1lbnRlZC4NCg0KSXMg
+dGhlcmUgYW55dGhpbmcgZWxzZSB0aGF0IG5lZWRzIHRvIGJlIGRvbmUgZm9yIHRoaXMgZml4Pw0K
+DQpUaGFua3MsDQpEcmFnb3MNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
