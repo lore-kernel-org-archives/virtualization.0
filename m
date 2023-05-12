@@ -1,157 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F2FEC77B75
-	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 12:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 190C9C77B75
+	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 13:30:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2C84042A44;
-	Fri, 12 May 2023 12:51:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C84042A44
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Emi53xVv
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5641F409F3;
+	Fri, 12 May 2023 13:30:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5641F409F3
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V6rntGoG
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id umV5RLhDzEZC; Fri, 12 May 2023 12:51:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2CCC642A2B;
-	Fri, 12 May 2023 12:51:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2CCC642A2B
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FxgUEJlAZcH1; Fri, 12 May 2023 13:30:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E66964050C;
+	Fri, 12 May 2023 13:30:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E66964050C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D503C0036;
-	Fri, 12 May 2023 12:51:36 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 21428C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B1976C0036;
+	Fri, 12 May 2023 13:30:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18740C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 12:51:30 +0000 (UTC)
+ Fri, 12 May 2023 13:30:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DC10B60B51
+ by smtp2.osuosl.org (Postfix) with ESMTP id D9EB6405B8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 12:51:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DC10B60B51
-Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=Emi53xVv
+ Fri, 12 May 2023 13:30:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D9EB6405B8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hJzISZS-Lwuu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tRY6tJFXmK1s
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 12:51:25 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1E74260B3F
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com
- (mail-bn1nam02on2062b.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eb2::62b])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1E74260B3F
+ Fri, 12 May 2023 13:30:20 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EDB6F4050C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EDB6F4050C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 12:51:25 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DAiNYQyO8KxAf6P7marpUJMcMVFEFXRRb2pJJzABeAj5p6+hNAxLBhAee1luKr+0FFUfE4tFpnflNZxH6CD6pxJRdG1esxuknaK+WdDc6N0rfhv4HwFEoS7X6F5kUCqu/F5L9YQWfHN7AjaRHU7B5iR/thGrEc0YcHO6ZfI/8GqblkybfSzPMFEnbr8mG/rAEQXwZ6eEAA64VoV3kkaQHKr7ax5AqoIFVGjfMAhuZ3BJ6JVPSANMumunMiK+dhDFC6rHCg8CVZmftAqZFlqsG5UlQ81rVsHYm5qPU24qtyj66L0x7Pc0JoOITAZSb783VhS+YGuLdQB8ihKODvW9Yg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VyWMMyU8ME7xOd3KWIdC95Nt3Z88rQ2NQ/uMU/lCwoc=;
- b=IHkE2Rlv/miQhPLUFSIJEyi+ng6iX14EZyCAI0FsP3v6iMCPawhVGqyA6FLeURulpGKsrN/TOxcQ4FUGp4UmFRwkCIrK2ltiKFKGvNcbpU2bafvcS6zZEojudG6uG0dJnvPSODnTpK+Bxp+OfWwWANaJN9bwDUhoNVcfpNNudswl0rPxudh48duRlk7WdV8wrNOKgEsG6xqwtEvLW6bsk2lX+KmBETIfk/0jDQiTjNQgAARBimqysUi46d+7FNMufI8QyeDn8vMpmJUBl6TJI0E5tnZdEzasyILcly0swin43wpyBzUgKC3HhLQE00UKJJ72HPy2MczJ8wWFLp+cSw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VyWMMyU8ME7xOd3KWIdC95Nt3Z88rQ2NQ/uMU/lCwoc=;
- b=Emi53xVvt5hGKzgzAlRQCuFvJCRJOWRnx/Zz20enteJw+E0iNBaxG12DrDGZlsmZmibx4D8+kqiqPkv69r2VJ9rvvVIlrrLeTKX+aNXVHymi3ILwjNRQ6j/q8rRQLFple1ijaKGHTvZ7f1dBo2k85NE32roIG/AbJOJ/itNNWD0tnPhbWx1itFm+cayMo+wa7z8hcWKsXGCake1J2Bh1Wmd8yzfiaNrvCn+W1jt6p0pkwOPKOW4MH+q4DdlDIlCCkpuv6wRGSGY4I34YzIKlo1nRjMdAjal/tYnaJhAXo7lhuc9mbsmihPIZpM59r1mxFySFMXY12zOICu9ifjGCsQ==
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
- by IA1PR12MB8517.namprd12.prod.outlook.com (2603:10b6:208:449::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.22; Fri, 12 May
- 2023 12:51:22 +0000
-Received: from DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::9e8a:eef5:eb8a:4a02]) by DM6PR12MB5565.namprd12.prod.outlook.com
- ([fe80::9e8a:eef5:eb8a:4a02%6]) with mapi id 15.20.6387.024; Fri, 12 May 2023
- 12:51:21 +0000
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: Feng Liu <feliu@nvidia.com>, "mst@redhat.com" <mst@redhat.com>
+ Fri, 12 May 2023 13:30:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1683898218;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Ukyw32JRJGiabHOmgdKRXIVOrAFdfaiaSm7mhvRcLR8=;
+ b=V6rntGoGxNP381ref2EzFixMhySjXqx7pA8FscemTfOJJf0ocXLFVd7nyVaFzFJ9Gc4Smp
+ xkyofQuIgSxvpxN03+NT0VY/elj57w0ugNdYhC5/RWO3ByGhhavATxiuWk+e9KH7GguZwH
+ RzzVSXVcgjcP4Z7r0qNu3B5VM6P5SDA=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-274-2_SI9lZEMQWF6pHAFThZdQ-1; Fri, 12 May 2023 09:30:17 -0400
+X-MC-Unique: 2_SI9lZEMQWF6pHAFThZdQ-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ 5b1f17b1804b1-3f420742d40so26062665e9.2
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 May 2023 06:30:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1683898216; x=1686490216;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=Ukyw32JRJGiabHOmgdKRXIVOrAFdfaiaSm7mhvRcLR8=;
+ b=Ke8CZ439g4Vf5abTHnd2cixF4lHJGhruyvQJa0Pf3PEv5r6/9kVymlc2FUYkLbuRGC
+ JG20pP2kJNdU8dAxJfzUV3kAhgaxZZXwfnXIhifi059APHD+LDDht4BNs55auf9K6/xA
+ uHNuel0MUFZEr6LT3bOpq/UmiRV0eDFycfB3lw+sQMDuYjb71dii73KRXa+IsKnviM+D
+ WJRnbbmvCIVJxlvaJ1HDDZpmgWDBJXuRKBz+MMIMUdCsLanZaYb/v2rZj3xguEjmpFM3
+ puf4REl65y42rg5V5PjFGJtW0gcFmFNMzxihBXSBgxG0zLoGlGf7PMC1jQgIlV/DG12X
+ lMig==
+X-Gm-Message-State: AC+VfDyjdukNupkwf5n9Yp0Qzwm4FuC7dagosObOfioY4s1BG7fmZ977
+ NOol3aUafdFJuP3HA2c0/QI4fI2EDWhT5iSGfDaexbH6gYA4u8Yb4K9JU3H7l9/276KJcyymJND
+ obCsVYhldFUbJmd5v1WbWX24Q99HVe7oym0kSau4YHA==
+X-Received: by 2002:adf:ee49:0:b0:306:2701:5346 with SMTP id
+ w9-20020adfee49000000b0030627015346mr18528766wro.39.1683898215932; 
+ Fri, 12 May 2023 06:30:15 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4F10zBx+Lys1LHJzFIqbci4nxbtSgAdy2EOozucQR2jHZDFL9MLbYUg4Mew1HRJ6TnFGHMEQ==
+X-Received: by 2002:adf:ee49:0:b0:306:2701:5346 with SMTP id
+ w9-20020adfee49000000b0030627015346mr18528743wro.39.1683898215596; 
+ Fri, 12 May 2023 06:30:15 -0700 (PDT)
+Received: from redhat.com ([31.187.78.61]) by smtp.gmail.com with ESMTPSA id
+ c22-20020a7bc016000000b003f4e3ed9912sm6660077wmb.46.2023.05.12.06.30.13
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 12 May 2023 06:30:14 -0700 (PDT)
+Date: Fri, 12 May 2023 09:30:11 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Dragos Tatulea <dtatulea@nvidia.com>
 Subject: Re: [PATCH] virtio-vdpa: Fix unchecked call to NULL set_vq_affinity
-Thread-Topic: [PATCH] virtio-vdpa: Fix unchecked call to NULL set_vq_affinity
-Thread-Index: AQHZfo9/nZP06ML0wECcAFMaORWcJ69KWRYAgAAcyYCADC3pgA==
-Date: Fri, 12 May 2023 12:51:21 +0000
-Message-ID: <8e1f076cb09560ee2bcda2092c0de10a701ba00b.camel@nvidia.com>
+Message-ID: <20230512093000-mutt-send-email-mst@kernel.org>
 References: <20230504135053.2283816-1-dtatulea@nvidia.com>
  <26ee2c04-7844-14fe-5cba-fe30172f075f@nvidia.com>
  <20230504145110-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230504145110-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-user-agent: Evolution 3.48.1 (3.48.1-1.fc38) 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|IA1PR12MB8517:EE_
-x-ms-office365-filtering-correlation-id: 28aee20f-e32a-4aab-5bee-08db52e79671
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 63LSuP1Mn7aiU2rpl0slt++wge1PI84I9Z5e/XBfCz7iB5i60GjHFTm5KLhtY8tJWVSE59CtXcV7a0snj6bqRKO7hWKmgezHzlHXA8Qzy+bEbiaiPJaKWqOzpY1jJCn8eVYy4zusHH4jZZpxMJnxXuInThm/xSGj4GcOlUYqTkLMmM/6AJN2srk2x0Y6cPU+RbTsIG8x1nSqcCvPG47A4lSKIcoXLyd2iiGuLQP7E9n69hssSeQFTs6cQ42kaJF0CLQQu6GqWpY0QtOfluGjcMw9itQcznSi93c6Ct/x6deqeJk2okIaGTKUajx3+WJLXfN7Qu1MO54mKhGFsXKrBU45sbk0sVxpFjKHcT/9/7+pkOTcUG1ogESx5Rx4fwYpZFaIW5oLrb6YWATw5anVwQpTJdQxxlBpuIjUNlQ9tPE4hVErU6QiTXZuu7cZHvcU84ceJbyJ6ua5D9O6gIIt+Bbs741JMWyrAGGJaSi/TlDdeqlTGwZxNTZ8Yn/AU1gUEf4+hifAc9yTdBO0Lct4y130qc6IrBZCjVzQCMgdccl4nkELWemywlanGUtGy/aiQchOEGh48Oe3aLa/zfuQAVHT3x6ydnt3j9Lz36nUgezvd/aOS1vwROe7GUaXnVlj
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM6PR12MB5565.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(4636009)(39860400002)(346002)(366004)(396003)(376002)(136003)(451199021)(41300700001)(66446008)(64756008)(66556008)(91956017)(66476007)(76116006)(66946007)(6506007)(6512007)(4326008)(71200400001)(6486002)(110136005)(54906003)(478600001)(316002)(8936002)(8676002)(5660300002)(38070700005)(86362001)(2616005)(83380400001)(2906002)(186003)(38100700002)(122000001)(36756003);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?TFIwWnp0aFdYUmZVWUxxU1MvWVBwNnhUdVlwQjAxajFGNldmK2NpZkV6aWRG?=
- =?utf-8?B?TEY0VkpGMTBJM2g4ekNDdXRISk43elRoamxPWmxrZTJmeVVYME50dHBQdm12?=
- =?utf-8?B?aVhDaU1nUWdaT2dib0JCQmxSOVNnamRIdFRxeHFuWDFrSm9aNmZQeW5kV1ds?=
- =?utf-8?B?ODdDRGgzR05GZEk2V055USs0d0R3RWxVZmtnWWJsQzVaU045bDRhZExrTjhR?=
- =?utf-8?B?V0x3M05SV0xIRVVvZG4xTFJBVFNOOU1aOXV0SzdTSjRmdG90RXdaNW96WWdW?=
- =?utf-8?B?RXBKQjRYekJkQTFHSTJGMitxdVVISEw1UnpJc201dWFzVTFObFVtWmV2QTBw?=
- =?utf-8?B?ZFpXREZxYU9YYWlIV3d5bkQ5RlNGZDNUNGJ6b1pBL1JHTkZ1SC8rdnRCK0l4?=
- =?utf-8?B?K1JFVWZacUZXV0t4OFlvTEF2cG9nWFNqNFc2Rjdxd0IyQzVTalR6ZFVRc2VN?=
- =?utf-8?B?RVpUY29zZVEzOU1SUjJSZmdtOGU5NnpabWZlTXVsRzdqM1gzdjV5bWxTemNR?=
- =?utf-8?B?Y3ErUnM1a3JtNElkdEhtczNHQ0ErVld4K05ZT1lVL3lhQXo0dDJWUS82OW0w?=
- =?utf-8?B?MXlObzIvNEYrODY1YzF2S2pjY0pKY2NoaEZZZUpYV203UnJmRktseS8wVEpW?=
- =?utf-8?B?U0NnQzJTODMyU2I5QUVqSy8wNmdtUGFRU3paM2Q0dFVtVlZjN1BZQjVUOW4y?=
- =?utf-8?B?Qk1VcXp4S0pRazBZdUwwTWtDc2ozZnRpdW1aNXhvNXRTd3lDODhLZTlCcHNK?=
- =?utf-8?B?eXpYbkZMcXNueExrUVhvUmllckxrNFI2OU81dmM5bTAwRU9hQUhUT0ZuRER4?=
- =?utf-8?B?WjJiL3lTdm9KSkFBQVlxRmdZNXBmb1F2TkRVZE44d2tDMml5ZVNFRW9iWkxa?=
- =?utf-8?B?TjBpcXo4Rzl4QWthb1FqdGx5d3o1UDNXWnhscGhabG1xQUdlUTZOeEFVUXl3?=
- =?utf-8?B?cDJpK1NuTjVyVTJNUUxxUk43VGw2TUdQNVYyeTRpSklYNTA1R25aa1RreStt?=
- =?utf-8?B?aHI5RzZtb1M4bWpxelYzb0luT3VZZVBqelF1b3VoZ3BBeXVzYnFnejhsc2Jm?=
- =?utf-8?B?NUJRV0hTRnhNbUcwZHVWNzBaV2dpcnFWTWJOVHJmZ2R3UzVCUnNSRmJaQStI?=
- =?utf-8?B?cUM3dEYvMkM3NllybEpBNjdMSCtlM1BDa1JXV2kxRVMyelg1YkxpQWszSmhN?=
- =?utf-8?B?SWU3M0E5d0gzem1rZjhyTUdqbEZEQ1c4cDY2d2lPa2RoUzFOM245R3licmdm?=
- =?utf-8?B?dnRZK0RyUlo3cXBiRjNmVnAwK1QzYkJKQWUrMmxwUlBLa2kxSVFkQXM0K3ND?=
- =?utf-8?B?dlFzMmtkOHlnYzZDN0FrcEg2TWRxVkZCVEhzc1krN1dzTjRHNVBSZXR0VmYx?=
- =?utf-8?B?K0VjVy85VitjbTAycHlCVTg3Q2JIUU1WRVppQmNWcW5zaGdsRGI4bGgrMGY4?=
- =?utf-8?B?WWVYellpMHBhaFMrb0k5dWJjUUVpUmt5WWNzeHZhUWI0YmUvRWd3djVQNW52?=
- =?utf-8?B?bkMrUmZJYUN3dGxBenpEUTk3aTIxWERLZTBoMzJOWi9nNURTVzR4NnMzODZG?=
- =?utf-8?B?bkZab2o4ZzVqV2MyelNpd0l6aFdRdmhzQTNzQytVSXQ0TzhIaUVtWnhBRVZD?=
- =?utf-8?B?RlllakIxdFAxNklSOUtOMk1HZS9vajF2OTRUQ0pTajVJbGxsSWdjTXJVRGNZ?=
- =?utf-8?B?NUFhblhTTHVobmZSSkpTTlo3WlFPYi9zZ24zSWFLOXI3SVdvaGxIUnhha214?=
- =?utf-8?B?cDUzd1pxV2NrenZOb0ViUy81eTVLN013R3VRVU9UZk1yeUk1Q0J1T093VEM0?=
- =?utf-8?B?TER6UjJvc3F6MEl1RDAvQ1pvbzBDSURkbmtkVVRKelIwbnZUN1U2VUcrNGRi?=
- =?utf-8?B?d1ArRitneUR1bGJZQWpnL1pmMEpPRjlkdmRtWjJobERpQnBNaGFzbXVlVUFE?=
- =?utf-8?B?UkxpVmxYd014bmMrY2Z1eHNoeHdCWWpmS2p5bEhYb0RkZnNlRC8xekVvdlZ0?=
- =?utf-8?B?WU9WbTZFbFp1R3VNbDdUcS9nN1QwM3d5ZlN3elY3QjZGeFlzSnd0S3A4RXgr?=
- =?utf-8?B?TlhUbE5zL0JsdWpFekMyQkI1MW5zbm82a1dIeFE3SDJNUlp5dC9MUU9UVTZh?=
- =?utf-8?B?VzJBYW5CaXRPRENVbGNZU1RxdFo4cm9BV3FUMFpOUWRTdkVKQllQUXJZSncz?=
- =?utf-8?Q?Mo6e4MmrJmBvp/lYpDkIa1nYmc6kMKJEEL7hIeoj2eBF?=
-Content-ID: <D99850CFE4B4024692D6D6C499BA338C@namprd12.prod.outlook.com>
+ <8e1f076cb09560ee2bcda2092c0de10a701ba00b.camel@nvidia.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 28aee20f-e32a-4aab-5bee-08db52e79671
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 May 2023 12:51:21.7991 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: VXW25WpJ5mf1S6PYjaCqvLkyDNhGe9wTfOjra84NgF4zteIu0UXXCqhIVTTSv+6dFO1ZYpM6FkLCaYhEBTNCrg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8517
+In-Reply-To: <8e1f076cb09560ee2bcda2092c0de10a701ba00b.camel@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
@@ -169,45 +121,84 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCAyMDIzLTA1LTA0IGF0IDE0OjUxIC0wNDAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
-dGU6DQo+IE9uIFRodSwgTWF5IDA0LCAyMDIzIGF0IDAxOjA4OjU0UE0gLTA0MDAsIEZlbmcgTGl1
-IHdyb3RlOg0KPiA+IA0KPiA+IA0KPiA+IE9uIDIwMjMtMDUtMDQgYS5tLjk6NTAsIERyYWdvcyBU
-YXR1bGVhIHdyb3RlOg0KPiA+ID4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcg
-bGlua3Mgb3IgYXR0YWNobWVudHMNCj4gPiA+IA0KPiA+ID4gDQo+ID4gPiBUaGUgcmVmZXJlbmNl
-ZCBwYXRjaCBjYWxscyBzZXRfdnFfYWZmaW5pdHkgd2l0aG91dCBjaGVja2luZyBpZiB0aGUgb3Ag
-aXMNCj4gPiA+IHZhbGlkLiBUaGlzIHBhdGNoIGFkZHMgdGhlIGNoZWNrLg0KPiA+ID4gDQo+ID4g
-PiBGaXhlczogM2RhZDU2ODIzYjUzICgidmlydGlvLXZkcGE6IFN1cHBvcnQgaW50ZXJydXB0IGFm
-ZmluaXR5IHNwcmVhZGluZw0KPiA+ID4gbWVjaGFuaXNtIikNCj4gPiA+IFJldmlld2VkLWJ5OiBH
-YWwgUHJlc3NtYW4gPGdhbEBudmlkaWEuY29tPg0KPiA+ID4gU2lnbmVkLW9mZi1ieTogRHJhZ29z
-IFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5jb20+DQo+ID4gPiAtLS0NCj4gPiA+IMKgIGRyaXZl
-cnMvdmlydGlvL3ZpcnRpb192ZHBhLmMgfCA0ICsrKy0NCj4gPiA+IMKgIDEgZmlsZSBjaGFuZ2Vk
-LCAzIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gPiA+IA0KPiA+ID4gZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb192ZHBhLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
-dmRwYS5jDQo+ID4gPiBpbmRleCBlYjZhZWU4YzA2YjIuLjk4OWUyZDcxODRjZSAxMDA2NDQNCj4g
-PiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb192ZHBhLmMNCj4gPiA+ICsrKyBiL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb192ZHBhLmMNCj4gPiA+IEBAIC0zODUsNyArMzg1LDkgQEAgc3RhdGlj
-IGludCB2aXJ0aW9fdmRwYV9maW5kX3ZxcyhzdHJ1Y3QgdmlydGlvX2RldmljZQ0KPiA+ID4gKnZk
-ZXYsIHVuc2lnbmVkIGludCBudnFzLA0KPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVyciA9IFBUUl9FUlIodnFzW2ldKTsNCj4gPiA+IMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIGVycl9zZXR1
-cF92cTsNCj4gPiA+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIH0NCj4gPiA+IC3C
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wcy0+c2V0X3ZxX2FmZmluaXR5KHZkcGEsIGks
-ICZtYXNrc1tpXSk7DQo+ID4gPiArDQo+ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oCBpZiAob3BzLT5zZXRfdnFfYWZmaW5pdHkpDQo+ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgb3BzLT5zZXRfdnFfYWZmaW5pdHkodmRwYSwgaSwgJm1h
-c2tzW2ldKTsNCj4gPiBpZiBvcHMtPnNldF92cV9hZmZpbml0eSBpcyBOVUxMLCBzaG91bGQgZ2l2
-ZSBhbiBlcnJvciBjb2RlIHRvIGVyciwgYW5kDQo+ID4gcmV0dXJuIGVycg0KPiANCj4gR2l2ZW4g
-d2UgaWdub3JlIHJldHVybiBjb2RlLCBoYXJkbHkgc2VlbXMgbGlrZSBhIGNyaXRpY2FsIHRoaW5n
-IHRvIGRvLg0KPiBJcyBpdCByZWFsbHkgaW1wb3J0YW50PyBhZmZpbml0eSBpcyBhbiBvcHRpbWl6
-YXRpb24gaXNuJ3QgaXQ/DQo+IA0KPiA+ID4gDQpzZXRfdnFfYWZmaW5pdHkgaXMgb3B0aW9uYWwg
-c28gaXQncyBub3QgYW4gZXJyb3IgaWYgdGhlIG9wIGlzIG5vdCBpbXBsZW1lbnRlZC4NCg0KSXMg
-dGhlcmUgYW55dGhpbmcgZWxzZSB0aGF0IG5lZWRzIHRvIGJlIGRvbmUgZm9yIHRoaXMgZml4Pw0K
-DQpUaGFua3MsDQpEcmFnb3MNCg0KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, May 12, 2023 at 12:51:21PM +0000, Dragos Tatulea wrote:
+> On Thu, 2023-05-04 at 14:51 -0400, Michael S. Tsirkin wrote:
+> > On Thu, May 04, 2023 at 01:08:54PM -0400, Feng Liu wrote:
+> > > =
+
+> > > =
+
+> > > On 2023-05-04 a.m.9:50, Dragos Tatulea wrote:
+> > > > External email: Use caution opening links or attachments
+> > > > =
+
+> > > > =
+
+> > > > The referenced patch calls set_vq_affinity without checking if the =
+op is
+> > > > valid. This patch adds the check.
+> > > > =
+
+> > > > Fixes: 3dad56823b53 ("virtio-vdpa: Support interrupt affinity sprea=
+ding
+> > > > mechanism")
+> > > > Reviewed-by: Gal Pressman <gal@nvidia.com>
+> > > > Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+> > > > ---
+> > > > =A0 drivers/virtio/virtio_vdpa.c | 4 +++-
+> > > > =A0 1 file changed, 3 insertions(+), 1 deletion(-)
+> > > > =
+
+> > > > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_v=
+dpa.c
+> > > > index eb6aee8c06b2..989e2d7184ce 100644
+> > > > --- a/drivers/virtio/virtio_vdpa.c
+> > > > +++ b/drivers/virtio/virtio_vdpa.c
+> > > > @@ -385,7 +385,9 @@ static int virtio_vdpa_find_vqs(struct virtio_d=
+evice
+> > > > *vdev, unsigned int nvqs,
+> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0 err =3D PTR_ERR(vqs[i]);
+> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0 goto err_setup_vq;
+> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
+> > > > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ops->set_vq_affinity(vd=
+pa, i, &masks[i]);
+> > > > +
+> > > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (ops->set_vq_affinit=
+y)
+> > > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ ops->set_vq_affinity(vdpa, i, &masks[i]);
+> > > if ops->set_vq_affinity is NULL, should give an error code to err, and
+> > > return err
+> > =
+
+> > Given we ignore return code, hardly seems like a critical thing to do.
+> > Is it really important? affinity is an optimization isn't it?
+> > =
+
+> > > > =
+
+> set_vq_affinity is optional so it's not an error if the op is not impleme=
+nted.
+> =
+
+> Is there anything else that needs to be done for this fix?
+> =
+
+> Thanks,
+> Dragos
+> =
+
+
+no, it's queued already.
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
