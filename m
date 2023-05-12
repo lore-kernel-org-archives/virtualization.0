@@ -4,84 +4,119 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39AFEC77B7F
-	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 16:41:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34235C77B7F
+	for <virtualization@archiver.kernel.org>; Fri, 12 May 2023 16:43:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AE6104186E;
-	Fri, 12 May 2023 16:40:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AE6104186E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dAQXIO/W
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8611A41989;
+	Fri, 12 May 2023 16:43:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8611A41989
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j6poR03UD0kI; Fri, 12 May 2023 16:40:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BB12A41BB0;
-	Fri, 12 May 2023 16:40:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB12A41BB0
+	with ESMTP id qyKbqpDoUFe2; Fri, 12 May 2023 16:43:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C026C41885;
+	Fri, 12 May 2023 16:43:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C026C41885
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A1558C0037;
-	Fri, 12 May 2023 16:40:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78D9FC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 19AB7C0037;
+	Fri, 12 May 2023 16:43:08 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8E7D0C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 16:40:56 +0000 (UTC)
+ Fri, 12 May 2023 16:43:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5208C41BB0
+ by smtp1.osuosl.org (Postfix) with ESMTP id 53815846E0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 16:40:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5208C41BB0
+ Fri, 12 May 2023 16:42:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53815846E0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qpqNje5Itoxf
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9LCz3q2rcKh5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 16:40:55 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E462541B99
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E462541B99
+ Fri, 12 May 2023 16:42:45 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6026184697
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam04on20600.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8d::600])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6026184697
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 May 2023 16:40:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1683909654; x=1715445654;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=PJPVmTdRe4u56JmuEI8g5qgJZK5eGcMCwwuUoq3b64k=;
- b=dAQXIO/WMqRq7lzdV82Pkrz+9AmyfAYHlm8BUf7Rn9TitxVNxeodRIJb
- GYwjPO3ugdzwnKrhkE+4hANPd+cKFyKPJtTyGHaJ/s6DalX8jvAxyh8+6
- rO4YioFHzq6AJz1YfXf9ts254c7Uckh4ZS500OaFKw+SQ21GTLIfY+PWO
- 3CA4c7YYB1LkQ9w66f92Y1MffStBXsvHlmsx/vlpRBajtGtIQIAiZ5GjK
- J5XUeAEkVIecLrZyHr06Y5WU6GLCSOYfxCA6YspcSUlUKXT0lJCiVUY5r
- rICyfT5A0+PW7HlPky5CcBp6ounW7taPR0dwTm/G/OgyenV2j+hjzQ6VM w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="353965521"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; d="scan'208";a="353965521"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 May 2023 09:40:54 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10708"; a="824416404"
-X-IronPort-AV: E=Sophos;i="5.99,269,1677571200"; d="scan'208";a="824416404"
-Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
- by orsmga004.jf.intel.com with ESMTP; 12 May 2023 09:40:51 -0700
-Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1pxVp4-0004yS-3B;
- Fri, 12 May 2023 16:40:50 +0000
-Date: Sat, 13 May 2023 00:40:49 +0800
-From: kernel test robot <lkp@intel.com>
-To: zhenwei pi <pizhenwei@bytedance.com>, stefanha@redhat.com,
- mst@redhat.com, jasowang@redhat.com
-Subject: Re: [PATCH 1/2] virtio: abstract virtqueue related methods
-Message-ID: <202305130012.LQ2KTO5C-lkp@intel.com>
-References: <20230512094618.433707-2-pizhenwei@bytedance.com>
+ Fri, 12 May 2023 16:42:35 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QUb2PwbDH8tBQfdcbkRe3QLdojZ9Q4xhIQ6QwixsVNo/1/YKxK8f5vblOgeyZv5kliysMEIttDaNru87oEwAqo6ySa3TvQ3jKLpQ123xPr9hqOb236gwnKJwjPALesF+eOUSucIHesOrIq5vAwWJVnplaU0u1zF00CozjCqjXdNfbBiuQNjaPpcvuITGRncESA5a2iLjPlqR63Tq4nqvVQt5Gv4aJKqN/RPNlma5lrwDk5Sk694/Yd5lfpnKNXalQH+1BeRMRbRaQ62aWhnM2wC5mJqnZ/rViBmeUtjnbbNMUALRcQrqyBPonXKZLS5MXpkd5TSwYf1BgZLdc44D1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=CGkPv1ctrZW9CN0lt+rts3somr25zx/uF5ZLD3356wY=;
+ b=dTjxm4c63oJZ4C6OPL6u3jwspEp3f6wB003nuZ2Q8dLEktUUcaToB9Kg0PvoZAa+NV6mruuUxEXDoEr94m5w+c90rOn/YtM8507lPo8hJt74mmtcpuLrGuQjgvZ+mLvNBq44lYCTBJfeXwvHMMKX3EzxBcXweoKseWL9L4lOjMe4iRmmcAwvDKsFgHvSaI4J5rb18pL3uq2sawmgb0OehWvQ4QkoHG5H+AfZ9194jh3cZdsgUYNqFMQLma7fOtgGf8Mm6H9SDECYnOQPA3yNUUcXM4xIK2SttpYe6VpAWyveNCxKDp7xKc2Df+2E0YePiPxsto7S8MFJvCadYBJxAg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=temperror (sender ip
+ is 165.204.84.17) smtp.rcpttodomain=kernel.org
+ smtp.mailfrom=amd.com; 
+ dmarc=temperror action=none header.from=amd.com; dkim=none (message not
+ signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=CGkPv1ctrZW9CN0lt+rts3somr25zx/uF5ZLD3356wY=;
+ b=HSNQFHWto+sDOFEik4NkrzCHcHFDDXs7zuLQzUiSvcwXQPaRHC7usQ47AZp1zX5frSAHdSQ0hSmVOqNjO76YmVDxrMBaWCZQW3OT9c4JouIryGAkqh+EUeZ/AYloH/HbaktPs/TolwFQuCcAi2zL9b1jtKSY81mZ/G6GVSiJxZ8=
+Received: from BN0PR02CA0053.namprd02.prod.outlook.com (2603:10b6:408:e5::28)
+ by MN2PR12MB4550.namprd12.prod.outlook.com (2603:10b6:208:24e::12)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.23; Fri, 12 May
+ 2023 16:42:27 +0000
+Received: from BN8NAM11FT083.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:e5:cafe::7d) by BN0PR02CA0053.outlook.office365.com
+ (2603:10b6:408:e5::28) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.24 via Frontend
+ Transport; Fri, 12 May 2023 16:42:27 +0000
+X-MS-Exchange-Authentication-Results: spf=temperror (sender IP is
+ 165.204.84.17) smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=temperror action=none header.from=amd.com;
+Received-SPF: TempError (protection.outlook.com: error in processing during
+ lookup of amd.com: DNS Timeout)
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN8NAM11FT083.mail.protection.outlook.com (10.13.177.75) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6387.24 via Frontend Transport; Fri, 12 May 2023 16:42:26 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 12 May
+ 2023 11:42:24 -0500
+From: Shannon Nelson <shannon.nelson@amd.com>
+To: <dsahern@kernel.org>
+Subject: [PATCH] vdpa: consume device_features parameter
+Date: Fri, 12 May 2023 09:41:45 -0700
+Message-ID: <29db10bca7e5ef6b1137282292660fc337a4323a.1683907102.git.allen.hubbe@amd.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230512094618.433707-2-pizhenwei@bytedance.com>
-Cc: xuanzhuo@linux.alibaba.com, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, zhenwei pi <pizhenwei@bytedance.com>,
- oe-kbuild-all@lists.linux.dev
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT083:EE_|MN2PR12MB4550:EE_
+X-MS-Office365-Filtering-Correlation-Id: 69057f1b-49d8-4878-b849-08db5307de34
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: p7b3qB/7UtH+QPmL0Wubq/9fQtKa97WIr9rzqRhcS9rFF8zL3kFGMz5eABJSdZXEdyKzDewFMlFZUbjEJVYjCkxH11MtJvtYgjNW67QpVVutNUswPFb7Y193PGoEI108ly6ZzWzloQbXF/hsLaBaDVItdP2pGcYm9a09leEgslC6m8ekgee299sOMZcBCooprRh/WwV4Bk6kVLAAc+8+hguGe+HZ3Q1YwclETH9J2y+GXsDSgxiurpMTaVCzZfLIfYUgO0xcBq269XSjfnU9ZCrdE7EMVoXLsS9O+jvoBIueXo0homxHJ5uGRTVZMoSxDl+WutPRp1hi8INmNj9x9T74ZgALCym4EfP/X2mEWm3GH7IDO2MtE2MX/BbAF9I6b7U3iSrdpY4J1cmIz+1QiJfqEIg5vPZac9PY+3N9vKXP34J+vwQgtWAfyw5mWgqvnA1bV4biC/EhTCprIxs52+nMwvdf5ZbA0B+NKvlMhoWcQ9sWbKayuLQSmPz0I6vv0CL8JcRDRiL/k6p3JPVEm7C2f+MAUDfDIsutMa48AKZ+HUz8oYzTgggSEyEPVdobu6DPiWx7XttYHcUPtSI2UUSdVNjnRAjSYee8S8zqsYMAhhI89CO0DiGjNUpZMVvNFq9Ew9PoVK/br0qnnAs6aKNkptfEHrNqJH8WV0N2z74ZwthZpNKXrCQ9XRhhKwbNvaVeRY5JkCclduD+SHap2z/0A8ceOJBC2VOrcV4e/zlmfDrXUzf7F3ti2r2vPEbFvGR+pzkLgBDHiZh3bYJydQ==
+X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
+ SFS:(13230028)(4636009)(346002)(376002)(39860400002)(136003)(396003)(451199021)(36840700001)(40470700004)(46966006)(81166007)(356005)(41300700001)(6666004)(82310400005)(4326008)(6916009)(36756003)(316002)(4744005)(2906002)(70586007)(54906003)(86362001)(40480700001)(70206006)(478600001)(82740400003)(40460700003)(47076005)(44832011)(426003)(2616005)(336012)(36860700001)(63370400001)(63350400001)(5660300002)(26005)(8676002)(16526019)(8936002)(186003)(36900700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2023 16:42:26.0461 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 69057f1b-49d8-4878-b849-08db5307de34
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
+ Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT083.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4550
+Cc: mst@redhat.com, allen.hubbe@amd.com, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,69 +133,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi zhenwei,
+From: Allen Hubbe <allen.hubbe@amd.com>
 
-kernel test robot noticed the following build errors:
+Consume the parameter to device_features when parsing command line
+options.  Otherwise the parameter may be used again as an option name.
 
-[auto build test ERROR on mst-vhost/linux-next]
-[also build test ERROR on linus/master v6.4-rc1 next-20230512]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+ # vdpa dev add ... device_features 0xdeadbeef mac 00:11:22:33:44:55
+ Unknown option "0xdeadbeef"
 
-url:    https://github.com/intel-lab-lkp/linux/commits/zhenwei-pi/virtio-abstract-virtqueue-related-methods/20230512-174928
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-patch link:    https://lore.kernel.org/r/20230512094618.433707-2-pizhenwei%40bytedance.com
-patch subject: [PATCH 1/2] virtio: abstract virtqueue related methods
-config: loongarch-allyesconfig (https://download.01.org/0day-ci/archive/20230513/202305130012.LQ2KTO5C-lkp@intel.com/config)
-compiler: loongarch64-linux-gcc (GCC) 12.1.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/372bc1a0371968752fe0f5ec6e81edee6f9c44dd
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review zhenwei-pi/virtio-abstract-virtqueue-related-methods/20230512-174928
-        git checkout 372bc1a0371968752fe0f5ec6e81edee6f9c44dd
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=loongarch olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 make.cross W=1 O=build_dir ARCH=loongarch SHELL=/bin/bash drivers/
+Fixes: a4442ce58ebb ("vdpa: allow provisioning device features")
+Signed-off-by: Allen Hubbe <allen.hubbe@amd.com>
+Reviewed-by: Shannon Nelson <shannon.nelson@amd.com>
+---
+ vdpa/vdpa.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Link: https://lore.kernel.org/oe-kbuild-all/202305130012.LQ2KTO5C-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/virtio/virtio.c: In function 'virtio_break_device':
->> drivers/virtio/virtio.c:893:24: error: 'struct virtqueue_ops' has no member named '__builtin_loongarch_break'
-     893 |                 vq->ops->__break(vq);
-         |                        ^~
-
-
-vim +893 drivers/virtio/virtio.c
-
-   882	
-   883	/*
-   884	 * This should prevent the device from being used, allowing drivers to
-   885	 * recover.  You may need to grab appropriate locks to flush.
-   886	 */
-   887	void virtio_break_device(struct virtio_device *dev)
-   888	{
-   889		struct virtqueue *vq;
-   890	
-   891		spin_lock(&dev->vqs_list_lock);
-   892		list_for_each_entry(vq, &dev->vqs, list) {
- > 893			vq->ops->__break(vq);
-   894		}
-   895		spin_unlock(&dev->vqs_list_lock);
-   896	}
-   897	EXPORT_SYMBOL_GPL(virtio_break_device);
-   898	
-
+diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
+index 27647d73d498..8a2fca8647b6 100644
+--- a/vdpa/vdpa.c
++++ b/vdpa/vdpa.c
+@@ -353,6 +353,8 @@ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
+ 						&opts->device_features);
+ 			if (err)
+ 				return err;
++
++			NEXT_ARG_FWD();
+ 			o_found |= VDPA_OPT_VDEV_FEATURES;
+ 		} else {
+ 			fprintf(stderr, "Unknown option \"%s\"\n", *argv);
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.17.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
