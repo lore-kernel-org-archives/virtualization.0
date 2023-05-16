@@ -1,100 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72ADCC7EE24
-	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 17:14:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 41055C77B7A
+	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 17:56:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E7E388204C;
-	Tue, 16 May 2023 17:14:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E7E388204C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Z/LgNkTG;
-	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=bBlhoq+O
+	by smtp4.osuosl.org (Postfix) with ESMTP id A4AB741F3F;
+	Tue, 16 May 2023 17:56:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A4AB741F3F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm3 header.b=tjSVD2GD;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm1 header.b=ciFx69qJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RmsyieqpF4YL; Tue, 16 May 2023 17:14:04 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NSTCbZogHDXE; Tue, 16 May 2023 17:56:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5EA7A82035;
-	Tue, 16 May 2023 17:14:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EA7A82035
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 77E6541F30;
+	Tue, 16 May 2023 17:56:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77E6541F30
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 340C7C0037;
-	Tue, 16 May 2023 17:14:03 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1128DC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4BCDBC0037;
+	Tue, 16 May 2023 17:56:13 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4F26BC002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:14:02 +0000 (UTC)
+ Tue, 16 May 2023 17:56:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D8EE98204C
+ by smtp2.osuosl.org (Postfix) with ESMTP id 06FDA405B0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:14:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D8EE98204C
+ Tue, 16 May 2023 17:56:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 06FDA405B0
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de
+ header.a=rsa-sha256 header.s=fm3 header.b=tjSVD2GD; 
+ dkim=pass (2048-bit key,
+ unprotected) header.d=messagingengine.com header.i=@messagingengine.com
+ header.a=rsa-sha256 header.s=fm1 header.b=ciFx69qJ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3eVThRf9-vo9
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vfjYhKMPmjC8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:13:59 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8984782035
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8984782035
+ Tue, 16 May 2023 17:56:11 +0000 (UTC)
+X-Greylist: delayed 00:08:28 by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9CB2C401B7
+Received: from new4-smtp.messagingengine.com (new4-smtp.messagingengine.com
+ [66.111.4.230])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9CB2C401B7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:13:59 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id D37C621F00;
- Tue, 16 May 2023 17:13:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1684257236; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ZouM6U98x38wXW9MRAtu8fqxzfXzsAxCRP1ZwPobA+s=;
- b=Z/LgNkTGQIIdzsGT1Vk/3fXEzO95wk9CEWI0zjDaQMLknNwwhG5RNp0FXFoPJl2Z2pkP/S
- YI3WbUMyPL1U13sK6BPZ2FiSLXTCuE0rlRMm8EnmN6XQ+66nZkK5PyVR8aqeZfeJwds4+W
- XJ2b/hfS2w3bqUXlUdK25vNVaJ/D4UE=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1684257236;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ZouM6U98x38wXW9MRAtu8fqxzfXzsAxCRP1ZwPobA+s=;
- b=bBlhoq+OSNGpvFmv+es7DgjFLnRufV9RJrC58hwLBaMC8yr8f+Hkh95D0uD7k6SVV/pS6I
- aOva+qziF3gzNBAA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 525CE138F9;
- Tue, 16 May 2023 17:13:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id iDZVEtS5Y2QgNwAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Tue, 16 May 2023 17:13:56 +0000
-Message-ID: <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
-Date: Tue, 16 May 2023 19:13:55 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.1
-Subject: Re: [PATCH v4 07/41] drm: handle HAS_IOPORT dependencies
-Content-Language: en-US
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
- Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>
+ Tue, 16 May 2023 17:56:10 +0000 (UTC)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+ by mailnew.nyi.internal (Postfix) with ESMTP id 9F99D581012;
+ Tue, 16 May 2023 13:47:39 -0400 (EDT)
+Received: from imap51 ([10.202.2.101])
+ by compute6.internal (MEProxy); Tue, 16 May 2023 13:47:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+ :cc:content-type:content-type:date:date:from:from:in-reply-to
+ :in-reply-to:message-id:mime-version:references:reply-to:sender
+ :subject:subject:to:to; s=fm3; t=1684259259; x=1684266459; bh=7R
+ Tlb4yPLwyEbMekf/kZ3q59ewoUpiiohu1ETmUvaCM=; b=tjSVD2GDDI6vJ83hu2
+ J0wG8DQCFOFbtD4wryKKIsm8NrKyYWw9AxEpnAygm+AGD4nEF+j2mlJ4DdXq8T7f
+ 5QNxCwjCLFwN4LQVkqurLDF0jW1A9Zzz9wuP8KmJ+dOKMC7ySN2l+XD2DB+vAURd
+ 6HwY0kPm0vBIX61vZDEmsG6v4odA+Wveqknzg8HJe84D9+Q/i7EzXkxjhIOGsu4K
+ Bn3sr+SEQpMQKfLLbdVTMEAMgMrfED9RHqZwlTkKYfdLgHhBCfQNds8ESPs0wA5+
+ 2AzSXtwnhzkb+RBCBVRlsb6shv5c3exsHtDbboEghfnX3UvEDusXCS9pSl0ALX42
+ +Xyg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+ messagingengine.com; h=cc:cc:content-type:content-type:date:date
+ :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+ :message-id:mime-version:references:reply-to:sender:subject
+ :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+ :x-sasl-enc; s=fm1; t=1684259259; x=1684266459; bh=7RTlb4yPLwyEb
+ Mekf/kZ3q59ewoUpiiohu1ETmUvaCM=; b=ciFx69qJrZA7yv8A1zotpocAWV1mM
+ DnUP6xkiq9u2k7Phst28yF9pOYB+p24imZJrUwwQF6DaQRUyeCdMCHTN6yVxU/vW
+ Zix27X67pchamsczOqs7J0fQmHu0V5swPms3kpa35adfR5aXURViqtvoRoUWTY5a
+ VGrXwUFJRCfHN/YuNMUZDl9wn8yBTKr7VBmb16uia+BCMsXDlQJp7yj7UMvHEfiR
+ Ebny8zc51oZx4GRbyjokzwqbrXLiBKtObXTWrW3CD5SJCpHHNRnP+f9Dsand+SZT
+ dzhYqpvdJUL8oVoDvA2y4v+/D77Af1UZoXejTAWumnmNa1AN9KFpUQmtQ==
+X-ME-Sender: <xms:usFjZCA3j9sz5nEwWZIq3UmHGzVX3xq8hC-A-CyhlzVMMgSHRPetnQ>
+ <xme:usFjZMhU9wDkNkUa9Ko0jRxG-mz1cmyQTN0VunBG3IHeRNAXPCCPbQ8JGk1HmTj-P
+ f3ZVSWUacwY2BBQoXA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeehledgudduiecutefuodetggdotefrod
+ ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+ necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+ enucfjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdet
+ rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
+ htthgvrhhnpeevveeggeffjeeuieduheefhfehgfdujeetjeelueejjeffueeiudefveff
+ hffhffenucffohhmrghinhepsghoohhtlhhinhdrtghomhenucevlhhushhtvghrufhiii
+ gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggv
+X-ME-Proxy: <xmx:u8FjZFkhOy80RxQ2BWUV-rzLx8Zo0OByuLOXpQ4jyTEMZULNY_5y-w>
+ <xmx:u8FjZAyVEm27DrMzOgnM0JctyZqlH4gGlGXk57isUu1T4RYHJk6Jhg>
+ <xmx:u8FjZHQCJi6yyLlJWVSjFUgZE57E9obBOYfWMJ-aSBO-TYSVuDEPwA>
+ <xmx:u8FjZIQ8wbnEjbEjDbQYJgfmKy2oTUwCRajab8gsJFAROe09ddfnLQ>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+ id E6956B60086; Tue, 16 May 2023 13:47:38 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-431-g1d6a3ebb56-fm-20230511.001-g1d6a3ebb
+Mime-Version: 1.0
+Message-Id: <0d6d0620-ab14-47ba-90cd-5bce317ac1eb@app.fastmail.com>
+In-Reply-To: <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
 References: <20230516110038.2413224-1-schnelle@linux.ibm.com>
  <20230516110038.2413224-8-schnelle@linux.ibm.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <20230516110038.2413224-8-schnelle@linux.ibm.com>
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+ <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
+Date: Tue, 16 May 2023 19:47:18 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Thomas Zimmermann" <tzimmermann@suse.de>,
+ "Niklas Schnelle" <schnelle@linux.ibm.com>,
+ "Dave Airlie" <airlied@redhat.com>, "Gerd Hoffmann" <kraxel@redhat.com>,
+ "Dave Airlie" <airlied@gmail.com>, "Daniel Vetter" <daniel@ffwll.ch>
+Subject: Re: [PATCH v4 07/41] drm: handle HAS_IOPORT dependencies
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, Arnd Bergmann <arnd@kernel.org>,
  Geert Uytterhoeven <geert@linux-m68k.org>, Albert Ou <aou@eecs.berkeley.edu>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
+ "Rafael J . Wysocki" <rafael@kernel.org>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+ =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
  linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
  Alan Stern <stern@rowland.harvard.edu>,
@@ -112,163 +135,47 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7198784109436057818=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7198784109436057818==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------QLCjstKEr7xwMcJ2f9iBbsPo"
+On Tue, May 16, 2023, at 19:13, Thomas Zimmermann wrote:
+>
+> Am 16.05.23 um 13:00 schrieb Niklas Schnelle:
+>> In a future patch HAS_IOPORT=n will result in inb()/outb() and friends
+>> not being declared. We thus need to add HAS_IOPORT as dependency for
+>> those drivers using them. In the bochs driver there is optional MMIO
+>> support detected at runtime, warn if this isn't taken when
+>> HAS_IOPORT is not defined.
+>> 
+>> There is also a direct and hard coded use in cirrus.c which according to
+>> the comment is only necessary during resume.  Let's just skip this as
+>> for example s390 which doesn't have I/O port support also doesen't
+>> support suspend/resume.
+>> 
+>> Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+>> Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>> ---
+>> Note: The HAS_IOPORT Kconfig option was added in v6.4-rc1 so
+>>        per-subsystem patches may be applied independently
+>> 
+>>   drivers/gpu/drm/qxl/Kconfig   |  1 +
+>>   drivers/gpu/drm/tiny/bochs.c  | 17 +++++++++++++++++
+>>   drivers/gpu/drm/tiny/cirrus.c |  2 ++
+>
+> There are more invocations in gma500. See[1]
+>
+> [1] 
+> https://elixir.bootlin.com/linux/v6.3/source/drivers/gpu/drm/gma500/cdv_device.c#L30
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------QLCjstKEr7xwMcJ2f9iBbsPo
-Content-Type: multipart/mixed; boundary="------------hmIwqHb0OrnDKh0jewsGeijn";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
- Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>
-Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
- Albert Ou <aou@eecs.berkeley.edu>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Paul Walmsley <paul.walmsley@sifive.com>, linux-pci@vger.kernel.org,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org,
- Alan Stern <stern@rowland.harvard.edu>, spice-devel@lists.freedesktop.org,
- =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Palmer Dabbelt <palmer@dabbelt.com>
-Message-ID: <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
-Subject: Re: [PATCH v4 07/41] drm: handle HAS_IOPORT dependencies
-References: <20230516110038.2413224-1-schnelle@linux.ibm.com>
- <20230516110038.2413224-8-schnelle@linux.ibm.com>
-In-Reply-To: <20230516110038.2413224-8-schnelle@linux.ibm.com>
+GMA500 already has "depends on X86", so I don't think
+any changes are needed there -- x86 is already highly dependent
+on I/O ports for a number of reasons.
 
---------------hmIwqHb0OrnDKh0jewsGeijn
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
-
-SGkNCg0KQW0gMTYuMDUuMjMgdW0gMTM6MDAgc2NocmllYiBOaWtsYXMgU2NobmVsbGU6DQo+
-IEluIGEgZnV0dXJlIHBhdGNoIEhBU19JT1BPUlQ9biB3aWxsIHJlc3VsdCBpbiBpbmIoKS9v
-dXRiKCkgYW5kIGZyaWVuZHMNCj4gbm90IGJlaW5nIGRlY2xhcmVkLiBXZSB0aHVzIG5lZWQg
-dG8gYWRkIEhBU19JT1BPUlQgYXMgZGVwZW5kZW5jeSBmb3INCj4gdGhvc2UgZHJpdmVycyB1
-c2luZyB0aGVtLiBJbiB0aGUgYm9jaHMgZHJpdmVyIHRoZXJlIGlzIG9wdGlvbmFsIE1NSU8N
-Cj4gc3VwcG9ydCBkZXRlY3RlZCBhdCBydW50aW1lLCB3YXJuIGlmIHRoaXMgaXNuJ3QgdGFr
-ZW4gd2hlbg0KPiBIQVNfSU9QT1JUIGlzIG5vdCBkZWZpbmVkLg0KPiANCj4gVGhlcmUgaXMg
-YWxzbyBhIGRpcmVjdCBhbmQgaGFyZCBjb2RlZCB1c2UgaW4gY2lycnVzLmMgd2hpY2ggYWNj
-b3JkaW5nIHRvDQo+IHRoZSBjb21tZW50IGlzIG9ubHkgbmVjZXNzYXJ5IGR1cmluZyByZXN1
-bWUuICBMZXQncyBqdXN0IHNraXAgdGhpcyBhcw0KPiBmb3IgZXhhbXBsZSBzMzkwIHdoaWNo
-IGRvZXNuJ3QgaGF2ZSBJL08gcG9ydCBzdXBwb3J0IGFsc28gZG9lc2VuJ3QNCj4gc3VwcG9y
-dCBzdXNwZW5kL3Jlc3VtZS4NCj4gDQo+IENvLWRldmVsb3BlZC1ieTogQXJuZCBCZXJnbWFu
-biA8YXJuZEBrZXJuZWwub3JnPg0KPiBTaWduZWQtb2ZmLWJ5OiBBcm5kIEJlcmdtYW5uIDxh
-cm5kQGtlcm5lbC5vcmc+DQo+IFNpZ25lZC1vZmYtYnk6IE5pa2xhcyBTY2huZWxsZSA8c2No
-bmVsbGVAbGludXguaWJtLmNvbT4NCj4gLS0tDQo+IE5vdGU6IFRoZSBIQVNfSU9QT1JUIEtj
-b25maWcgb3B0aW9uIHdhcyBhZGRlZCBpbiB2Ni40LXJjMSBzbw0KPiAgICAgICAgcGVyLXN1
-YnN5c3RlbSBwYXRjaGVzIG1heSBiZSBhcHBsaWVkIGluZGVwZW5kZW50bHkNCj4gDQo+ICAg
-ZHJpdmVycy9ncHUvZHJtL3F4bC9LY29uZmlnICAgfCAgMSArDQo+ICAgZHJpdmVycy9ncHUv
-ZHJtL3RpbnkvYm9jaHMuYyAgfCAxNyArKysrKysrKysrKysrKysrKw0KPiAgIGRyaXZlcnMv
-Z3B1L2RybS90aW55L2NpcnJ1cy5jIHwgIDIgKysNCg0KVGhlcmUgYXJlIG1vcmUgaW52b2Nh
-dGlvbnMgaW4gZ21hNTAwLiBTZWVbMV0NCg0KWzFdIA0KaHR0cHM6Ly9lbGl4aXIuYm9vdGxp
-bi5jb20vbGludXgvdjYuMy9zb3VyY2UvZHJpdmVycy9ncHUvZHJtL2dtYTUwMC9jZHZfZGV2
-aWNlLmMjTDMwDQoNCj4gICAzIGZpbGVzIGNoYW5nZWQsIDIwIGluc2VydGlvbnMoKykNCj4g
-DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcXhsL0tjb25maWcgYi9kcml2ZXJz
-L2dwdS9kcm0vcXhsL0tjb25maWcNCj4gaW5kZXggY2EzZjUxYzJhOGZlLi5kMGUwZDQ0MGM4
-ZDkgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9xeGwvS2NvbmZpZw0KPiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vcXhsL0tjb25maWcNCj4gQEAgLTIsNiArMiw3IEBADQo+ICAg
-Y29uZmlnIERSTV9RWEwNCj4gICAJdHJpc3RhdGUgIlFYTCB2aXJ0dWFsIEdQVSINCj4gICAJ
-ZGVwZW5kcyBvbiBEUk0gJiYgUENJICYmIE1NVQ0KPiArCWRlcGVuZHMgb24gSEFTX0lPUE9S
-VA0KPiAgIAlzZWxlY3QgRFJNX0tNU19IRUxQRVINCj4gICAJc2VsZWN0IERSTV9UVE0NCj4g
-ICAJc2VsZWN0IERSTV9UVE1fSEVMUEVSDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9k
-cm0vdGlueS9ib2Nocy5jIGIvZHJpdmVycy9ncHUvZHJtL3RpbnkvYm9jaHMuYw0KPiBpbmRl
-eCBkMjU0Njc5YTEzNmUuLjM3MTAzMzk0MDdjYyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9n
-cHUvZHJtL3RpbnkvYm9jaHMuYw0KPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vdGlueS9ib2No
-cy5jDQo+IEBAIC0yLDYgKzIsNyBAQA0KPiAgIA0KPiAgICNpbmNsdWRlIDxsaW51eC9tb2R1
-bGUuaD4NCj4gICAjaW5jbHVkZSA8bGludXgvcGNpLmg+DQo+ICsjaW5jbHVkZSA8YXNtL2J1
-Zy5oPg0KDQo8bGludXgvYnVnLmg+IHBsZWFzZS4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMN
-Cg0KPiAgIA0KPiAgICNpbmNsdWRlIDxkcm0vZHJtX2FwZXJ0dXJlLmg+DQo+ICAgI2luY2x1
-ZGUgPGRybS9kcm1fYXRvbWljX2hlbHBlci5oPg0KPiBAQCAtMTA1LDcgKzEwNiw5IEBAIHN0
-YXRpYyB2b2lkIGJvY2hzX3ZnYV93cml0ZWIoc3RydWN0IGJvY2hzX2RldmljZSAqYm9jaHMs
-IHUxNiBpb3BvcnQsIHU4IHZhbCkNCj4gICANCj4gICAJCXdyaXRlYih2YWwsIGJvY2hzLT5t
-bWlvICsgb2Zmc2V0KTsNCj4gICAJfSBlbHNlIHsNCj4gKyNpZmRlZiBDT05GSUdfSEFTX0lP
-UE9SVA0KPiAgIAkJb3V0Yih2YWwsIGlvcG9ydCk7DQo+ICsjZW5kaWYNCj4gICAJfQ0KPiAg
-IH0NCj4gICANCj4gQEAgLTExOSw3ICsxMjIsMTEgQEAgc3RhdGljIHU4IGJvY2hzX3ZnYV9y
-ZWFkYihzdHJ1Y3QgYm9jaHNfZGV2aWNlICpib2NocywgdTE2IGlvcG9ydCkNCj4gICANCj4g
-ICAJCXJldHVybiByZWFkYihib2Nocy0+bW1pbyArIG9mZnNldCk7DQo+ICAgCX0gZWxzZSB7
-DQo+ICsjaWZkZWYgQ09ORklHX0hBU19JT1BPUlQNCj4gICAJCXJldHVybiBpbmIoaW9wb3J0
-KTsNCj4gKyNlbHNlDQo+ICsJCXJldHVybiAweGZmOw0KPiArI2VuZGlmDQo+ICAgCX0NCj4g
-ICB9DQo+ICAgDQo+IEBAIC0xMzIsOCArMTM5LDEyIEBAIHN0YXRpYyB1MTYgYm9jaHNfZGlz
-cGlfcmVhZChzdHJ1Y3QgYm9jaHNfZGV2aWNlICpib2NocywgdTE2IHJlZykNCj4gICANCj4g
-ICAJCXJldCA9IHJlYWR3KGJvY2hzLT5tbWlvICsgb2Zmc2V0KTsNCj4gICAJfSBlbHNlIHsN
-Cj4gKyNpZmRlZiBDT05GSUdfSEFTX0lPUE9SVA0KPiAgIAkJb3V0dyhyZWcsIFZCRV9ESVNQ
-SV9JT1BPUlRfSU5ERVgpOw0KPiAgIAkJcmV0ID0gaW53KFZCRV9ESVNQSV9JT1BPUlRfREFU
-QSk7DQo+ICsjZWxzZQ0KPiArCQlyZXQgPSAweGZmZmY7DQo+ICsjZW5kaWYNCj4gICAJfQ0K
-PiAgIAlyZXR1cm4gcmV0Ow0KPiAgIH0NCj4gQEAgLTE0NSw4ICsxNTYsMTAgQEAgc3RhdGlj
-IHZvaWQgYm9jaHNfZGlzcGlfd3JpdGUoc3RydWN0IGJvY2hzX2RldmljZSAqYm9jaHMsIHUx
-NiByZWcsIHUxNiB2YWwpDQo+ICAgDQo+ICAgCQl3cml0ZXcodmFsLCBib2Nocy0+bW1pbyAr
-IG9mZnNldCk7DQo+ICAgCX0gZWxzZSB7DQo+ICsjaWZkZWYgQ09ORklHX0hBU19JT1BPUlQN
-Cj4gICAJCW91dHcocmVnLCBWQkVfRElTUElfSU9QT1JUX0lOREVYKTsNCj4gICAJCW91dHco
-dmFsLCBWQkVfRElTUElfSU9QT1JUX0RBVEEpOw0KPiArI2VuZGlmDQo+ICAgCX0NCj4gICB9
-DQo+ICAgDQo+IEBAIC0yMjksNiArMjQyLDEwIEBAIHN0YXRpYyBpbnQgYm9jaHNfaHdfaW5p
-dChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2KQ0KPiAgIAkJCXJldHVybiAtRU5PTUVNOw0KPiAg
-IAkJfQ0KPiAgIAl9IGVsc2Ugew0KPiArCQlpZiAoIUlTX0VOQUJMRUQoQ09ORklHX0hBU19J
-T1BPUlQpKSB7DQo+ICsJCQlEUk1fRVJST1IoIkkvTyBwb3J0cyBhcmUgbm90IHN1cHBvcnRl
-ZFxuIik7DQo+ICsJCQlyZXR1cm4gLUVJTzsNCj4gKwkJfQ0KPiAgIAkJaW9hZGRyID0gVkJF
-X0RJU1BJX0lPUE9SVF9JTkRFWDsNCj4gICAJCWlvc2l6ZSA9IDI7DQo+ICAgCQlpZiAoIXJl
-cXVlc3RfcmVnaW9uKGlvYWRkciwgaW9zaXplLCAiYm9jaHMtZHJtIikpIHsNCj4gZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jIGIvZHJpdmVycy9ncHUvZHJt
-L3RpbnkvY2lycnVzLmMNCj4gaW5kZXggNTk0YmM0NzI4NjJmLi5jNjVmZWEwNDliYzcgMTAw
-NjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jDQo+ICsrKyBiL2Ry
-aXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jDQo+IEBAIC01MDgsOCArNTA4LDEwIEBAIHN0
-YXRpYyB2b2lkIGNpcnJ1c19jcnRjX2hlbHBlcl9hdG9taWNfZW5hYmxlKHN0cnVjdCBkcm1f
-Y3J0YyAqY3J0YywNCj4gICANCj4gICAJY2lycnVzX21vZGVfc2V0KGNpcnJ1cywgJmNydGNf
-c3RhdGUtPm1vZGUpOw0KPiAgIA0KPiArI2lmZGVmIENPTkZJR19IQVNfSU9QT1JUDQo+ICAg
-CS8qIFVuYmxhbmsgKG5lZWRlZCBvbiBTMyByZXN1bWUsIHZnYWJpb3MgZG9lc24ndCBkbyBp
-dCB0aGVuKSAqLw0KPiAgIAlvdXRiKFZHQV9BUl9FTkFCTEVfRElTUExBWSwgVkdBX0FUVF9X
-KTsNCj4gKyNlbmRpZg0KPiAgIA0KPiAgIAlkcm1fZGV2X2V4aXQoaWR4KTsNCj4gICB9DQoN
-Ci0tIA0KVGhvbWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNV
-U0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KRnJhbmtlbnN0cmFzc2UgMTQ2
-LCA5MDQ2MSBOdWVybmJlcmcsIEdlcm1hbnkNCkdGOiBJdm8gVG90ZXYsIEFuZHJldyBNeWVy
-cywgQW5kcmV3IE1jRG9uYWxkLCBCb3VkaWVuIE1vZXJtYW4NCkhSQiAzNjgwOSAoQUcgTnVl
-cm5iZXJnKQ0K
-
---------------hmIwqHb0OrnDKh0jewsGeijn--
-
---------------QLCjstKEr7xwMcJ2f9iBbsPo
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmRjudMFAwAAAAAACgkQlh/E3EQov+D4
-ihAAnhzlqkL1KYuEQYrYyEGypHC7kvHol+IJuCFLdP8ve6fc2LUV1GzqXQRZSS8+1+6GYtKPI3nL
-zOD7BVzIdFLsJom9FN6xldv8iYqoPIGl94dRBHrscmYCI1gR/ppXIayXZQt2pLt5jlnu1km9Asqf
-rDousPBh8H2QWqb9ES9XbIi7O1b7GWJtnruheYZwRlXQMiHNEwU15NWUEjqGMAXs45cvFoOMVpLD
-UGX6BC7OCq1tGGd5a3ileVY5Y1/lEksv2qZmiWqbExz7WcjkewbnKkfn6v5X0Qdu3L2N3b/59eBU
-r4Peilj63EjwC5fhsQb6xNqeU+YRWepbW/6VH7J03RtB1LL2L6UIgVyErJ3Og8juMK2d3VA6/zBl
-ciZlYTN7OWxCD4rlg/35rjSEV5nbRn4Foev2BfilRPIzt7t7lEMrGmtcyxF4mXT6jeFSw7r/Lwlk
-K3wjb01bVhCq8JQnyCN17vrimbvwnhPBciLU1cL7NUGIIAKJ5QPZ3xmYDfPXzkVtrD1IQgiJuiH0
-pJipxojSl+T0aWZEB9dyxyp2MaKN1rVgt2SiiRYsBW1w5vPGJxQmfSaZjLv8X8ZwhqkG/+u+ZDoT
-WD3Anxjx5bFzwm9TOaZLcptGYzdCM9If2Ee8T/uNaYnuKPp3tupecYed9r8si9rCbCRlXoEIUc1/
-QlU=
-=yF6t
------END PGP SIGNATURE-----
-
---------------QLCjstKEr7xwMcJ2f9iBbsPo--
-
---===============7198784109436057818==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+     Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7198784109436057818==--
