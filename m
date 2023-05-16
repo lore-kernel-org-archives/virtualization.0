@@ -1,93 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AFD16C77B7F
-	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 17:07:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72ADCC7EE24
+	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 17:14:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1D1636114B;
-	Tue, 16 May 2023 17:07:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D1636114B
+	by smtp1.osuosl.org (Postfix) with ESMTP id E7E388204C;
+	Tue, 16 May 2023 17:14:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E7E388204C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Z/LgNkTG;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=bBlhoq+O
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QHItLCNtNnE3; Tue, 16 May 2023 17:07:45 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RmsyieqpF4YL; Tue, 16 May 2023 17:14:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8819261119;
-	Tue, 16 May 2023 17:07:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8819261119
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5EA7A82035;
+	Tue, 16 May 2023 17:14:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EA7A82035
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D133C0037;
-	Tue, 16 May 2023 17:07:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EE12BC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 340C7C0037;
+	Tue, 16 May 2023 17:14:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1128DC002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:07:43 +0000 (UTC)
+ Tue, 16 May 2023 17:14:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B7FBF40514
+ by smtp1.osuosl.org (Postfix) with ESMTP id D8EE98204C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:07:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B7FBF40514
+ Tue, 16 May 2023 17:14:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D8EE98204C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3ob72TYRg5KH
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3eVThRf9-vo9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:07:42 +0000 (UTC)
-X-Greylist: delayed 01:10:43 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EDD8D400E5
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EDD8D400E5
+ Tue, 16 May 2023 17:13:59 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8984782035
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8984782035
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 17:07:41 +0000 (UTC)
-Received: from in02.mta.xmission.com ([166.70.13.52]:50950)
- by out03.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1pyx2l-0025sd-8t; Tue, 16 May 2023 09:56:55 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:40674
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in02.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1pyx2j-006GOt-S4; Tue, 16 May 2023 09:56:54 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-References: <20230202232517.8695-1-michael.christie@oracle.com>
- <20230202232517.8695-9-michael.christie@oracle.com>
- <aba6cca4-e66c-768f-375c-b38c8ba5e8a8@6wind.com>
- <CAHk-=wgadfsCnKHLON7op=Qs5t3w3PVz5ZDbvbKsfb=yBg=yjQ@mail.gmail.com>
- <78c5e150-26cf-7724-74ee-4a0b16b944b1@oracle.com>
- <48842e92-835e-bc3f-7118-48b8f415f532@leemhuis.info>
- <CAHk-=wicXCNR1bBioaAiBqEDgv-CoQD9z2RsM2VOTPzkK0xr8g@mail.gmail.com>
- <20230515-vollrausch-liebgeworden-2765f3ca3540@brauner>
- <CAHk-=wgXJ5VS1iBkfsG=HDjsyhn5XYDKt5xhQcNuz-e7VKyg8A@mail.gmail.com>
- <122b597e-a5fa-daf7-27bb-6f04fa98d496@oracle.com>
- <CAHk-=wgTpRDwS+F0Gd6+bM+TEh+x4Aiz8EBDTnTm3Q4TFdWOww@mail.gmail.com>
-Date: Tue, 16 May 2023 10:56:45 -0500
-In-Reply-To: <CAHk-=wgTpRDwS+F0Gd6+bM+TEh+x4Aiz8EBDTnTm3Q4TFdWOww@mail.gmail.com>
- (Linus Torvalds's message of "Mon, 15 May 2023 15:54:49 -0700")
-Message-ID: <87cz30s20y.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+ Tue, 16 May 2023 17:13:59 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id D37C621F00;
+ Tue, 16 May 2023 17:13:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1684257236; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=ZouM6U98x38wXW9MRAtu8fqxzfXzsAxCRP1ZwPobA+s=;
+ b=Z/LgNkTGQIIdzsGT1Vk/3fXEzO95wk9CEWI0zjDaQMLknNwwhG5RNp0FXFoPJl2Z2pkP/S
+ YI3WbUMyPL1U13sK6BPZ2FiSLXTCuE0rlRMm8EnmN6XQ+66nZkK5PyVR8aqeZfeJwds4+W
+ XJ2b/hfS2w3bqUXlUdK25vNVaJ/D4UE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1684257236;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=ZouM6U98x38wXW9MRAtu8fqxzfXzsAxCRP1ZwPobA+s=;
+ b=bBlhoq+OSNGpvFmv+es7DgjFLnRufV9RJrC58hwLBaMC8yr8f+Hkh95D0uD7k6SVV/pS6I
+ aOva+qziF3gzNBAA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 525CE138F9;
+ Tue, 16 May 2023 17:13:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id iDZVEtS5Y2QgNwAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Tue, 16 May 2023 17:13:56 +0000
+Message-ID: <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
+Date: Tue, 16 May 2023 19:13:55 +0200
 MIME-Version: 1.0
-X-XM-SPF: eid=1pyx2j-006GOt-S4; ; ;
- mid=<87cz30s20y.fsf@email.froward.int.ebiederm.org>; ; ;
- hst=in02.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
- ; ; spf=pass
-X-XM-AID: U2FsdGVkX1/VfBwRPfud8jr0vc2IuGNU4bzbZFMEkfc=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH v11 8/8] vhost: use vhost_tasks for worker threads
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
-Cc: Jens Axboe <axboe@kernel.dk>, Christian Brauner <brauner@kernel.org>,
- Linux kernel regressions list <regressions@lists.linux.dev>, mst@redhat.com,
- linux-kernel@vger.kernel.org, konrad.wilk@oracle.com,
- Oleg Nesterov <oleg@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>,
- hch@infradead.org, stefanha@redhat.com, nicolas.dichtel@6wind.com,
- virtualization@lists.linux-foundation.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.1
+Subject: Re: [PATCH v4 07/41] drm: handle HAS_IOPORT dependencies
+Content-Language: en-US
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+ Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>
+References: <20230516110038.2413224-1-schnelle@linux.ibm.com>
+ <20230516110038.2413224-8-schnelle@linux.ibm.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20230516110038.2413224-8-schnelle@linux.ibm.com>
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Albert Ou <aou@eecs.berkeley.edu>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+ linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Alan Stern <stern@rowland.harvard.edu>,
+ Paul Walmsley <paul.walmsley@sifive.com>, Bjorn Helgaas <bhelgaas@google.com>,
+ spice-devel@lists.freedesktop.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,64 +112,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============7198784109436057818=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-TGludXMgVG9ydmFsZHMgPHRvcnZhbGRzQGxpbnV4LWZvdW5kYXRpb24ub3JnPiB3cml0ZXM6Cgo+
-IE9uIE1vbiwgTWF5IDE1LCAyMDIzIGF0IDM6MjPigK9QTSBNaWtlIENocmlzdGllCj4gPG1pY2hh
-ZWwuY2hyaXN0aWVAb3JhY2xlLmNvbT4gd3JvdGU6Cj4+Cj4+IFRoZSB2aG9zdCBsYXllciByZWFs
-bHkgZG9lc24ndCB3YW50IGFueSBzaWduYWxzIGFuZCB3YW50cyB0byB3b3JrIGxpa2Uga3RocmVh
-ZHMKPj4gZm9yIHRoYXQgY2FzZS4gVG8gbWFrZSBpdCByZWFsbHkgc2ltcGxlIGNhbiB3ZSBkbyBz
-b21ldGhpbmcgbGlrZSB0aGlzIHdoZXJlIGl0Cj4+IHNlcGFyYXRlcyB1c2VyIGFuZCBpbyB3b3Jr
-ZXIgYmVoYXZpb3Igd2hlcmUgdGhlIG1ham9yIGRpZmYgaXMgaG93IHRoZXkgaGFuZGxlCj4+IHNp
-Z25hbHMgYW5kIGV4aXQuIEkgYWxzbyBpbmNsdWRlZCBhIGZpeCBmb3IgdGhlIGZyZWV6ZSBjYXNl
-Ogo+Cj4gSSBkb24ndCBsb3ZlIHRoZSBTSUdLSUxMIHNwZWNpYWwgY2FzZSwgYnV0IEkgYWxzbyBk
-b24ndCBmaW5kIHRoaXMKPiBkZWVwbHkgb2ZmZW5zaXZlLiBTbyBpZiB0aGlzIGlzIHdoYXQgaXQg
-dGFrZXMsIEknbSBvayB3aXRoIGl0Lgo+Cj4gSSB3b25kZXIgaWYgd2UgY291bGQgbWFrZSB0aGF0
-IHNwZWNpYWwgY2FzZSBzaW1wbHkgY2hlY2sgZm9yICJpcwo+IFNJR0tJTEwgYmxvY2tlZCIgaW5z
-dGVhZD8gTm8gbm9ybWFsIGNhc2Ugd2lsbCBjYXVzZSB0aGF0LCBhbmQgaXQgbWVhbnMKPiB0aGF0
-IGEgUEZfVVNFUl9XT1JLRVIgdGhyZWFkIGNvdWxkIGRlY2lkZSBwZXItdGhyZWFkIHdoYXQgaXQg
-d2FudHMgdG8KPiBkbyB3cnQgU0lHS0lMTC4KCkEga2VybmVsIHRocmVhZCBjYW4gYmxvY2sgU0lH
-S0lMTCBhbmQgdGhhdCBpcyBzdXBwb3J0ZWQuCgpGb3IgYSB0aHJlYWQgdGhhdCBpcyBwYXJ0IG9m
-IGEgcHJvY2VzcyB5b3UgY2FuJ3QgYmxvY2sgU0lHS0lMTCB3aGVuIHRoZQp0YXNrIGlzIHBhcnQg
-b2YgYSB1c2VyIG1vZGUgcHJvY2Vzcy4KClRoZXJlIGlzIHRoaXMgYml0IGluIGNvbXBsZXRlX3Np
-Z25hbCB3aGVuIFNJR0tJTEwgaXMgZGVsaXZlcmVkIHRvIGFueQp0aHJlYWQgaW4gdGhlIHByb2Nl
-c3MuCgoKCQkJLyoKCQkJICogU3RhcnQgYSBncm91cCBleGl0IGFuZCB3YWtlIGV2ZXJ5Ym9keSB1
-cC4KCQkJICogVGhpcyB3YXkgd2UgZG9uJ3QgaGF2ZSBvdGhlciB0aHJlYWRzCgkJCSAqIHJ1bm5p
-bmcgYW5kIGRvaW5nIHRoaW5ncyBhZnRlciBhIHNsb3dlcgoJCQkgKiB0aHJlYWQgaGFzIHRoZSBm
-YXRhbCBzaWduYWwgcGVuZGluZy4KCQkJICovCgkJCXNpZ25hbC0+ZmxhZ3MgPSBTSUdOQUxfR1JP
-VVBfRVhJVDsKCQkJc2lnbmFsLT5ncm91cF9leGl0X2NvZGUgPSBzaWc7CgkJCXNpZ25hbC0+Z3Jv
-dXBfc3RvcF9jb3VudCA9IDA7CgkJCXQgPSBwOwoJCQlkbyB7CgkJCQl0YXNrX2NsZWFyX2pvYmN0
-bF9wZW5kaW5nKHQsIEpPQkNUTF9QRU5ESU5HX01BU0spOwoJCQkJc2lnYWRkc2V0KCZ0LT5wZW5k
-aW5nLnNpZ25hbCwgU0lHS0lMTCk7CgkJCQlzaWduYWxfd2FrZV91cCh0LCAxKTsKCQkJfSB3aGls
-ZV9lYWNoX3RocmVhZChwLCB0KTsKCkZvciBjbGFyaXR5IHRoYXQgc2lnYWRkc2V0KCZ0LT5wZW5k
-aW5nLnNpZ25hbCwgU0lHS0lMTCk7ICBSZWFsbHkgaXNuJ3QKc2V0dGluZyBTSUdLSUxMIHBlbmRp
-bmcsIGl0IGlzIHBhcnQgb2YgdGhlIHNob3J0IGNpcmN1aXQgZGVsaXZlcnkgbG9naWMsCmFuZCB0
-aGF0IHNpZ2FkZHNldChTSUdLSUxMKSBpcyBqdXN0IHNldHRpbmcgYSBmbGFnIHRvIHRlbGwgdGhl
-IHByb2Nlc3MKaXQgbmVlZHMgdG8gZGllLgoKClRoZSBpbXBvcnRhbnQgcGFydCBvZiB0aGF0IGNv
-ZGUgaXMgdGhhdCBTSUdOQUxfR1JPVVBfRVhJVCBnZXRzIHNldC4KVGhhdCBpbmRpY2F0ZXMgdGhl
-IGVudGlyZSBwcm9jZXNzIGlzIGJlaW5nIHRvcm4gZG93bi4KCldoZXJlIHRoaXMgYmVjb21lcyBp
-bXBvcnRhbnQgaXMgZXhpdF9ub3RpZnkgYW5kIHJlbGVhc2VfdGFzayB3b3JrCnRvZ2V0aGVyIHRv
-IGVuc3VyZSB0aGF0IHRoZSBmaXJzdCB0aHJlYWQgaW4gdGhlIHByb2Nlc3MgKGEgdXNlciBzcGFj
-ZQp0aHJlYWQgdGhhdCBjYW4gbm90IGJsb2NrIFNJR0tJTEwpIHdpbGwgbm90IHNlbmQgU0lHQ0hM
-RCB0byBpdCdzIHBhcmVudApwcm9jZXNzIHVudGlsIGV2ZXJ5IHRocmVhZCBpbiB0aGUgcHJvY2Vz
-cyBoYXMgZXhpdGVkLgoKVGhlIGRlbGF5X2dyb3VwX2xlYWRlciBsb2dpYyBpbiB3YWl0X2NvbnNp
-ZGVyX3Rhc2sgcGFydCBvZiB3YWl0KDIpIGhhcwp0aGUgc2FtZSBsb2dpYy4KCkhhdmluZyBiZWVu
-IHRocm91Z2ggdGhpcyB3aXRoIGlvX3VyaW5nIHRoZSB0aHJlYWRzIHJlYWxseSBuZWVkIHRvIGNh
-bGwKZ2V0X3NpZ25hbCB0byBoYW5kbGUgdGhhdCBjYXNlLgoKClRoaXMgaXMgcHJldHR5IG11Y2gg
-d2h5IEkgc2FpZCBhdCB0aGUgb3V0c2V0IHlvdSB0aGV5IG5lZWRlZCB0byBkZWNpZGVkCmlmIHRo
-ZXkgd2VyZSBnb2luZyB0byBpbXBsZW1lbnQgYSB0aHJlYWQgb3IgaWYgdGhleSB3ZXJlIGdvaW5n
-IHRvIGJlIGEKcHJvY2Vzcy4gIENoYW5naW5nIHRoZSBkZWNpc2lvbiB0byBiZSBhIHRocmVhZCBm
-cm9tIGEgcHJvY2VzcyBpcyBmaW5lCmJ1dCBpbiB0aGF0IGNhc2UgdGhlIHZob3N0IGxvZ2ljIG5l
-ZWRzIHRvIGFjdCBsaWtlIGEgcHJvY2VzcywganVzdApsaWtlIGlvX3VyaW5nIGRvZXMuCgoKPiBD
-aHJpc3RpYW4/IEFuZCBJIGd1ZXNzIHdlIHNob3VsZCBDYzogT2xlZyB0b28sIHNpbmNlIHRoZSBz
-aWduYWwgcGFydHMKPiBhcmUgYW4gYXJlYSBoZSdzIGZhbWlsaWFyIHdpdGggYW5kIGhhcyB3b3Jr
-ZWQgb24uLiBFcmljIEJpZWRlcm1hbiBoYXMKPiBhbHJlYWR5IGJlZW4gb24gdGhlIGxpc3QgYW5k
-IGhhcyBhbHNvIGJlZW4gaW52b2x2ZWQKCj4KPiBPbGVnOiBzZWUKPgo+ICAgaHR0cHM6Ly9sb3Jl
-Lmtlcm5lbC5vcmcvbGttbC8xMjJiNTk3ZS1hNWZhLWRhZjctMjdiYi02ZjA0ZmE5OGQ0OTZAb3Jh
-Y2xlLmNvbS8KPgo+IGZvciB0aGUgY29udGV4dCBoZXJlLgoKRXJpYwoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============7198784109436057818==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------QLCjstKEr7xwMcJ2f9iBbsPo"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------QLCjstKEr7xwMcJ2f9iBbsPo
+Content-Type: multipart/mixed; boundary="------------hmIwqHb0OrnDKh0jewsGeijn";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+ Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: linux-arch@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
+ Albert Ou <aou@eecs.berkeley.edu>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Paul Walmsley <paul.walmsley@sifive.com>, linux-pci@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ Alan Stern <stern@rowland.harvard.edu>, spice-devel@lists.freedesktop.org,
+ =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+ Bjorn Helgaas <bhelgaas@google.com>,
+ Geert Uytterhoeven <geert@linux-m68k.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>
+Message-ID: <f5c92eb1-83af-4f99-71f5-b7a3e8be1d13@suse.de>
+Subject: Re: [PATCH v4 07/41] drm: handle HAS_IOPORT dependencies
+References: <20230516110038.2413224-1-schnelle@linux.ibm.com>
+ <20230516110038.2413224-8-schnelle@linux.ibm.com>
+In-Reply-To: <20230516110038.2413224-8-schnelle@linux.ibm.com>
+
+--------------hmIwqHb0OrnDKh0jewsGeijn
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+SGkNCg0KQW0gMTYuMDUuMjMgdW0gMTM6MDAgc2NocmllYiBOaWtsYXMgU2NobmVsbGU6DQo+
+IEluIGEgZnV0dXJlIHBhdGNoIEhBU19JT1BPUlQ9biB3aWxsIHJlc3VsdCBpbiBpbmIoKS9v
+dXRiKCkgYW5kIGZyaWVuZHMNCj4gbm90IGJlaW5nIGRlY2xhcmVkLiBXZSB0aHVzIG5lZWQg
+dG8gYWRkIEhBU19JT1BPUlQgYXMgZGVwZW5kZW5jeSBmb3INCj4gdGhvc2UgZHJpdmVycyB1
+c2luZyB0aGVtLiBJbiB0aGUgYm9jaHMgZHJpdmVyIHRoZXJlIGlzIG9wdGlvbmFsIE1NSU8N
+Cj4gc3VwcG9ydCBkZXRlY3RlZCBhdCBydW50aW1lLCB3YXJuIGlmIHRoaXMgaXNuJ3QgdGFr
+ZW4gd2hlbg0KPiBIQVNfSU9QT1JUIGlzIG5vdCBkZWZpbmVkLg0KPiANCj4gVGhlcmUgaXMg
+YWxzbyBhIGRpcmVjdCBhbmQgaGFyZCBjb2RlZCB1c2UgaW4gY2lycnVzLmMgd2hpY2ggYWNj
+b3JkaW5nIHRvDQo+IHRoZSBjb21tZW50IGlzIG9ubHkgbmVjZXNzYXJ5IGR1cmluZyByZXN1
+bWUuICBMZXQncyBqdXN0IHNraXAgdGhpcyBhcw0KPiBmb3IgZXhhbXBsZSBzMzkwIHdoaWNo
+IGRvZXNuJ3QgaGF2ZSBJL08gcG9ydCBzdXBwb3J0IGFsc28gZG9lc2VuJ3QNCj4gc3VwcG9y
+dCBzdXNwZW5kL3Jlc3VtZS4NCj4gDQo+IENvLWRldmVsb3BlZC1ieTogQXJuZCBCZXJnbWFu
+biA8YXJuZEBrZXJuZWwub3JnPg0KPiBTaWduZWQtb2ZmLWJ5OiBBcm5kIEJlcmdtYW5uIDxh
+cm5kQGtlcm5lbC5vcmc+DQo+IFNpZ25lZC1vZmYtYnk6IE5pa2xhcyBTY2huZWxsZSA8c2No
+bmVsbGVAbGludXguaWJtLmNvbT4NCj4gLS0tDQo+IE5vdGU6IFRoZSBIQVNfSU9QT1JUIEtj
+b25maWcgb3B0aW9uIHdhcyBhZGRlZCBpbiB2Ni40LXJjMSBzbw0KPiAgICAgICAgcGVyLXN1
+YnN5c3RlbSBwYXRjaGVzIG1heSBiZSBhcHBsaWVkIGluZGVwZW5kZW50bHkNCj4gDQo+ICAg
+ZHJpdmVycy9ncHUvZHJtL3F4bC9LY29uZmlnICAgfCAgMSArDQo+ICAgZHJpdmVycy9ncHUv
+ZHJtL3RpbnkvYm9jaHMuYyAgfCAxNyArKysrKysrKysrKysrKysrKw0KPiAgIGRyaXZlcnMv
+Z3B1L2RybS90aW55L2NpcnJ1cy5jIHwgIDIgKysNCg0KVGhlcmUgYXJlIG1vcmUgaW52b2Nh
+dGlvbnMgaW4gZ21hNTAwLiBTZWVbMV0NCg0KWzFdIA0KaHR0cHM6Ly9lbGl4aXIuYm9vdGxp
+bi5jb20vbGludXgvdjYuMy9zb3VyY2UvZHJpdmVycy9ncHUvZHJtL2dtYTUwMC9jZHZfZGV2
+aWNlLmMjTDMwDQoNCj4gICAzIGZpbGVzIGNoYW5nZWQsIDIwIGluc2VydGlvbnMoKykNCj4g
+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vcXhsL0tjb25maWcgYi9kcml2ZXJz
+L2dwdS9kcm0vcXhsL0tjb25maWcNCj4gaW5kZXggY2EzZjUxYzJhOGZlLi5kMGUwZDQ0MGM4
+ZDkgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9xeGwvS2NvbmZpZw0KPiArKysg
+Yi9kcml2ZXJzL2dwdS9kcm0vcXhsL0tjb25maWcNCj4gQEAgLTIsNiArMiw3IEBADQo+ICAg
+Y29uZmlnIERSTV9RWEwNCj4gICAJdHJpc3RhdGUgIlFYTCB2aXJ0dWFsIEdQVSINCj4gICAJ
+ZGVwZW5kcyBvbiBEUk0gJiYgUENJICYmIE1NVQ0KPiArCWRlcGVuZHMgb24gSEFTX0lPUE9S
+VA0KPiAgIAlzZWxlY3QgRFJNX0tNU19IRUxQRVINCj4gICAJc2VsZWN0IERSTV9UVE0NCj4g
+ICAJc2VsZWN0IERSTV9UVE1fSEVMUEVSDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9k
+cm0vdGlueS9ib2Nocy5jIGIvZHJpdmVycy9ncHUvZHJtL3RpbnkvYm9jaHMuYw0KPiBpbmRl
+eCBkMjU0Njc5YTEzNmUuLjM3MTAzMzk0MDdjYyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9n
+cHUvZHJtL3RpbnkvYm9jaHMuYw0KPiArKysgYi9kcml2ZXJzL2dwdS9kcm0vdGlueS9ib2No
+cy5jDQo+IEBAIC0yLDYgKzIsNyBAQA0KPiAgIA0KPiAgICNpbmNsdWRlIDxsaW51eC9tb2R1
+bGUuaD4NCj4gICAjaW5jbHVkZSA8bGludXgvcGNpLmg+DQo+ICsjaW5jbHVkZSA8YXNtL2J1
+Zy5oPg0KDQo8bGludXgvYnVnLmg+IHBsZWFzZS4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMN
+Cg0KPiAgIA0KPiAgICNpbmNsdWRlIDxkcm0vZHJtX2FwZXJ0dXJlLmg+DQo+ICAgI2luY2x1
+ZGUgPGRybS9kcm1fYXRvbWljX2hlbHBlci5oPg0KPiBAQCAtMTA1LDcgKzEwNiw5IEBAIHN0
+YXRpYyB2b2lkIGJvY2hzX3ZnYV93cml0ZWIoc3RydWN0IGJvY2hzX2RldmljZSAqYm9jaHMs
+IHUxNiBpb3BvcnQsIHU4IHZhbCkNCj4gICANCj4gICAJCXdyaXRlYih2YWwsIGJvY2hzLT5t
+bWlvICsgb2Zmc2V0KTsNCj4gICAJfSBlbHNlIHsNCj4gKyNpZmRlZiBDT05GSUdfSEFTX0lP
+UE9SVA0KPiAgIAkJb3V0Yih2YWwsIGlvcG9ydCk7DQo+ICsjZW5kaWYNCj4gICAJfQ0KPiAg
+IH0NCj4gICANCj4gQEAgLTExOSw3ICsxMjIsMTEgQEAgc3RhdGljIHU4IGJvY2hzX3ZnYV9y
+ZWFkYihzdHJ1Y3QgYm9jaHNfZGV2aWNlICpib2NocywgdTE2IGlvcG9ydCkNCj4gICANCj4g
+ICAJCXJldHVybiByZWFkYihib2Nocy0+bW1pbyArIG9mZnNldCk7DQo+ICAgCX0gZWxzZSB7
+DQo+ICsjaWZkZWYgQ09ORklHX0hBU19JT1BPUlQNCj4gICAJCXJldHVybiBpbmIoaW9wb3J0
+KTsNCj4gKyNlbHNlDQo+ICsJCXJldHVybiAweGZmOw0KPiArI2VuZGlmDQo+ICAgCX0NCj4g
+ICB9DQo+ICAgDQo+IEBAIC0xMzIsOCArMTM5LDEyIEBAIHN0YXRpYyB1MTYgYm9jaHNfZGlz
+cGlfcmVhZChzdHJ1Y3QgYm9jaHNfZGV2aWNlICpib2NocywgdTE2IHJlZykNCj4gICANCj4g
+ICAJCXJldCA9IHJlYWR3KGJvY2hzLT5tbWlvICsgb2Zmc2V0KTsNCj4gICAJfSBlbHNlIHsN
+Cj4gKyNpZmRlZiBDT05GSUdfSEFTX0lPUE9SVA0KPiAgIAkJb3V0dyhyZWcsIFZCRV9ESVNQ
+SV9JT1BPUlRfSU5ERVgpOw0KPiAgIAkJcmV0ID0gaW53KFZCRV9ESVNQSV9JT1BPUlRfREFU
+QSk7DQo+ICsjZWxzZQ0KPiArCQlyZXQgPSAweGZmZmY7DQo+ICsjZW5kaWYNCj4gICAJfQ0K
+PiAgIAlyZXR1cm4gcmV0Ow0KPiAgIH0NCj4gQEAgLTE0NSw4ICsxNTYsMTAgQEAgc3RhdGlj
+IHZvaWQgYm9jaHNfZGlzcGlfd3JpdGUoc3RydWN0IGJvY2hzX2RldmljZSAqYm9jaHMsIHUx
+NiByZWcsIHUxNiB2YWwpDQo+ICAgDQo+ICAgCQl3cml0ZXcodmFsLCBib2Nocy0+bW1pbyAr
+IG9mZnNldCk7DQo+ICAgCX0gZWxzZSB7DQo+ICsjaWZkZWYgQ09ORklHX0hBU19JT1BPUlQN
+Cj4gICAJCW91dHcocmVnLCBWQkVfRElTUElfSU9QT1JUX0lOREVYKTsNCj4gICAJCW91dHco
+dmFsLCBWQkVfRElTUElfSU9QT1JUX0RBVEEpOw0KPiArI2VuZGlmDQo+ICAgCX0NCj4gICB9
+DQo+ICAgDQo+IEBAIC0yMjksNiArMjQyLDEwIEBAIHN0YXRpYyBpbnQgYm9jaHNfaHdfaW5p
+dChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2KQ0KPiAgIAkJCXJldHVybiAtRU5PTUVNOw0KPiAg
+IAkJfQ0KPiAgIAl9IGVsc2Ugew0KPiArCQlpZiAoIUlTX0VOQUJMRUQoQ09ORklHX0hBU19J
+T1BPUlQpKSB7DQo+ICsJCQlEUk1fRVJST1IoIkkvTyBwb3J0cyBhcmUgbm90IHN1cHBvcnRl
+ZFxuIik7DQo+ICsJCQlyZXR1cm4gLUVJTzsNCj4gKwkJfQ0KPiAgIAkJaW9hZGRyID0gVkJF
+X0RJU1BJX0lPUE9SVF9JTkRFWDsNCj4gICAJCWlvc2l6ZSA9IDI7DQo+ICAgCQlpZiAoIXJl
+cXVlc3RfcmVnaW9uKGlvYWRkciwgaW9zaXplLCAiYm9jaHMtZHJtIikpIHsNCj4gZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jIGIvZHJpdmVycy9ncHUvZHJt
+L3RpbnkvY2lycnVzLmMNCj4gaW5kZXggNTk0YmM0NzI4NjJmLi5jNjVmZWEwNDliYzcgMTAw
+NjQ0DQo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jDQo+ICsrKyBiL2Ry
+aXZlcnMvZ3B1L2RybS90aW55L2NpcnJ1cy5jDQo+IEBAIC01MDgsOCArNTA4LDEwIEBAIHN0
+YXRpYyB2b2lkIGNpcnJ1c19jcnRjX2hlbHBlcl9hdG9taWNfZW5hYmxlKHN0cnVjdCBkcm1f
+Y3J0YyAqY3J0YywNCj4gICANCj4gICAJY2lycnVzX21vZGVfc2V0KGNpcnJ1cywgJmNydGNf
+c3RhdGUtPm1vZGUpOw0KPiAgIA0KPiArI2lmZGVmIENPTkZJR19IQVNfSU9QT1JUDQo+ICAg
+CS8qIFVuYmxhbmsgKG5lZWRlZCBvbiBTMyByZXN1bWUsIHZnYWJpb3MgZG9lc24ndCBkbyBp
+dCB0aGVuKSAqLw0KPiAgIAlvdXRiKFZHQV9BUl9FTkFCTEVfRElTUExBWSwgVkdBX0FUVF9X
+KTsNCj4gKyNlbmRpZg0KPiAgIA0KPiAgIAlkcm1fZGV2X2V4aXQoaWR4KTsNCj4gICB9DQoN
+Ci0tIA0KVGhvbWFzIFppbW1lcm1hbm4NCkdyYXBoaWNzIERyaXZlciBEZXZlbG9wZXINClNV
+U0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSA0KRnJhbmtlbnN0cmFzc2UgMTQ2
+LCA5MDQ2MSBOdWVybmJlcmcsIEdlcm1hbnkNCkdGOiBJdm8gVG90ZXYsIEFuZHJldyBNeWVy
+cywgQW5kcmV3IE1jRG9uYWxkLCBCb3VkaWVuIE1vZXJtYW4NCkhSQiAzNjgwOSAoQUcgTnVl
+cm5iZXJnKQ0K
+
+--------------hmIwqHb0OrnDKh0jewsGeijn--
+
+--------------QLCjstKEr7xwMcJ2f9iBbsPo
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmRjudMFAwAAAAAACgkQlh/E3EQov+D4
+ihAAnhzlqkL1KYuEQYrYyEGypHC7kvHol+IJuCFLdP8ve6fc2LUV1GzqXQRZSS8+1+6GYtKPI3nL
+zOD7BVzIdFLsJom9FN6xldv8iYqoPIGl94dRBHrscmYCI1gR/ppXIayXZQt2pLt5jlnu1km9Asqf
+rDousPBh8H2QWqb9ES9XbIi7O1b7GWJtnruheYZwRlXQMiHNEwU15NWUEjqGMAXs45cvFoOMVpLD
+UGX6BC7OCq1tGGd5a3ileVY5Y1/lEksv2qZmiWqbExz7WcjkewbnKkfn6v5X0Qdu3L2N3b/59eBU
+r4Peilj63EjwC5fhsQb6xNqeU+YRWepbW/6VH7J03RtB1LL2L6UIgVyErJ3Og8juMK2d3VA6/zBl
+ciZlYTN7OWxCD4rlg/35rjSEV5nbRn4Foev2BfilRPIzt7t7lEMrGmtcyxF4mXT6jeFSw7r/Lwlk
+K3wjb01bVhCq8JQnyCN17vrimbvwnhPBciLU1cL7NUGIIAKJ5QPZ3xmYDfPXzkVtrD1IQgiJuiH0
+pJipxojSl+T0aWZEB9dyxyp2MaKN1rVgt2SiiRYsBW1w5vPGJxQmfSaZjLv8X8ZwhqkG/+u+ZDoT
+WD3Anxjx5bFzwm9TOaZLcptGYzdCM9If2Ee8T/uNaYnuKPp3tupecYed9r8si9rCbCRlXoEIUc1/
+QlU=
+=yF6t
+-----END PGP SIGNATURE-----
+
+--------------QLCjstKEr7xwMcJ2f9iBbsPo--
+
+--===============7198784109436057818==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7198784109436057818==--
