@@ -1,79 +1,79 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CE10C7EE2C
-	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 02:56:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0A3EC77B7D
+	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 02:56:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E8C5241452;
-	Tue, 16 May 2023 02:56:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8C5241452
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=kfObty4z
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0674084064;
+	Tue, 16 May 2023 02:56:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0674084064
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=5qjKNvA+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K5U7xibZM1nG; Tue, 16 May 2023 02:55:59 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Wsbfmi3JXF1x; Tue, 16 May 2023 02:56:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B41CA41DE3;
-	Tue, 16 May 2023 02:55:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B41CA41DE3
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2DAA784167;
+	Tue, 16 May 2023 02:55:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2DAA784167
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EFDDC0095;
-	Tue, 16 May 2023 02:55:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A119FC0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3546C007E;
+	Tue, 16 May 2023 02:55:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65175C0096
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 02:55:55 +0000 (UTC)
+ Tue, 16 May 2023 02:55:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6D18F41C59
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2CF09615DC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 May 2023 02:55:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2CF09615DC
+Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=5qjKNvA+
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 09t65kbmYIDw
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 May 2023 02:55:56 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EA015615E2
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam04on20617.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8d::617])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EA015615E2
  for <virtualization@lists.linux-foundation.org>;
  Tue, 16 May 2023 02:55:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6D18F41C59
-Authentication-Results: smtp4.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=kfObty4z
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mPriyxwKPz6S
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 02:55:54 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E5EF41BDF
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam12on20600.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5a::600])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0E5EF41BDF
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 02:55:53 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZgZFVyxzPmdUdbLyzRQdC9XI7SsEjXsgivO7AQXeGmEu0vyKr015+LsuLWmET9m6meJlYUPGn+lSi7ipw6aI9eF9Jkrsl0Ng2o9fshGTpxAwPiwbKfeRIr/LhZk/7GfUEw1nIF4xZqUQEnOeKOIP2aO2+U98Qr5CW2WH5qfs/Etck8BL8ikvcZgSJTXVto+EGGV0UQ1CvwjZJ7VakhLpXvZs+LVPg2w5Xp5t6wdFhE8DNNi5ZVj0HbTYwuUj4tHiuaIQWXiGMwZdJVTmuuZ5YHY6kmk8s7HnSNocEU8aYJ/Wwqkl8mL0OWckmZZvlpefoaikamWsAKcpzQJ11Db/7A==
+ b=kSuyv+xf4p5xEaqc4ndaotqabGCrgd9DLfe27hcNWaI7wraJwsDhD1jXjbuayC2ybNc/KirsUOaRT7X30UJAofz0nEymCSJu58dxQAoDNmkCv8JvIiOZHjmD55kCkjiIyVcwzw7GHPUfQ6pE5u+ld4UygQXJK/VwkSb8dkBHyozz001Qb5IUBTt5kezxreOmJeeRobnoxgcsOsOJC8MfsKf92UoSyHXQs2CUjHqek2By0oF0SaZBTWFBaSyKnmLx6w9ITdSHXEaXKI0oLCrl33Rdn6e+cJgI/mZKjNpB/qtWG/Emy2VvqNbJuFmxwgMRVXuymkSN5MTm1eBIdZ7i4w==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J7pl08gsZAq6M5LfC/8SmQl1rwIMMSjRMfx5i814uyA=;
- b=Y4YK5jnKWLePBHKccUAUwRRZpLhmtxuZg49Ulx0VtPRyOccQCx7+8G5dSNxmbv8p8YEGPONsz7BCZhi24aQN1ME1EqIu/eXbDwG57nj6U1rPFpAcJF5eS47gwowtrpVT0wv9k0Y3GC1XamZbPA7obnIlK8/YwNvtAo6OyilWV+tD7fjFmSeY2Hn9hDlEqukRdwOsSw7zovzDGJhmudXw9c4sWsfca/uEiaxZOsI+hlY/Fb3i0PPXTUWeiMFj/XS6LWLyv55O2WsgeyWYHKs4aBplr/b91kOKgk8ZGyqMO+FVqrrJw051bmK20jEkMhhD9GMjppg1DOxMjf3hfwkbsw==
+ bh=2cMQJdmdzsxJ2kM66vHCHLSEYBcgp+6lYO1eq3z2SsU=;
+ b=gKtDsJMNBd/4oANw2rVRU+r583J+hCHsw6QOhWLhb+M0CCj44ZEZJpvJ1gljSXXkMmxsYmUScaMIXQwAa+kHrjftJnd/cS3rYZpPSj2vW4QtJnvvP9TA3xd2+DzOzXrZjWw8BnSiLsI/7gYPlxntvqdQSpWhEcwQcOfzlHRjj4mIIwSLRSDj2M5PadkIOo2HWm53Ox3xZ2EAj/vKavC4uypsRtkLMaqJtz69I4ecADH89GjZGD8CrMtC+ylybAJHS7Sc3OOAWq/N8eAUJVsW/xusysrJS5+i6IjF4weKb9gb+73mv2cUI4ETQJiyA085NXlup1t/j+n2KryvKEYpjA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J7pl08gsZAq6M5LfC/8SmQl1rwIMMSjRMfx5i814uyA=;
- b=kfObty4zp89IRJCy693bFLwed7CTDIEXHHZbdlOA5NQx9eB8JESNtYgvE/VxBgySPINVEKxHrbhRhdyyxOTiRUFKLlDDChRotHFFshCwbepaHxhFae9nmU6jxgyADuVhg2XvppruP/K2PbbYNiIhhCvqJBDxHSfpAR6W/XSTt3A=
-Received: from SJ0PR03CA0008.namprd03.prod.outlook.com (2603:10b6:a03:33a::13)
- by MW4PR12MB7144.namprd12.prod.outlook.com (2603:10b6:303:21b::17)
+ bh=2cMQJdmdzsxJ2kM66vHCHLSEYBcgp+6lYO1eq3z2SsU=;
+ b=5qjKNvA+6jbleAfsWo/cb+roCBAfML+gFLStfik32vfxnqhlIco0jj7RSsh9YNu9UrzLNDQ0YguDyZB8jM8AQw0n54nf+2BRVYs0xdCWNniCeTJvNvR1mbuyxJS7SBa/FH68XR3MuLKx/d3cdm1FP9szSTkCKx+v2JHTmlyNDto=
+Received: from SJ0PR03CA0027.namprd03.prod.outlook.com (2603:10b6:a03:33a::32)
+ by SJ0PR12MB7458.namprd12.prod.outlook.com (2603:10b6:a03:48d::13)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.30; Tue, 16 May
- 2023 02:55:49 +0000
+ 2023 02:55:51 +0000
 Received: from DM6NAM11FT096.eop-nam11.prod.protection.outlook.com
- (2603:10b6:a03:33a:cafe::4e) by SJ0PR03CA0008.outlook.office365.com
- (2603:10b6:a03:33a::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.33 via Frontend
- Transport; Tue, 16 May 2023 02:55:49 +0000
+ (2603:10b6:a03:33a:cafe::48) by SJ0PR03CA0027.outlook.office365.com
+ (2603:10b6:a03:33a::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.30 via Frontend
+ Transport; Tue, 16 May 2023 02:55:51 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -83,17 +83,17 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  DM6NAM11FT096.mail.protection.outlook.com (10.13.173.145) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6411.15 via Frontend Transport; Tue, 16 May 2023 02:55:49 +0000
+ 15.20.6411.15 via Frontend Transport; Tue, 16 May 2023 02:55:50 +0000
 Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Mon, 15 May
- 2023 21:55:47 -0500
+ 2023 21:55:49 -0500
 To: <jasowang@redhat.com>, <mst@redhat.com>,
  <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
  <brett.creeley@amd.com>, <netdev@vger.kernel.org>
-Subject: [PATCH v6 virtio 06/11] pds_vdpa: get vdpa management info
-Date: Mon, 15 May 2023 19:55:16 -0700
-Message-ID: <20230516025521.43352-7-shannon.nelson@amd.com>
+Subject: [PATCH v6 virtio 08/11] pds_vdpa: add vdpa config client commands
+Date: Mon, 15 May 2023 19:55:18 -0700
+Message-ID: <20230516025521.43352-9-shannon.nelson@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230516025521.43352-1-shannon.nelson@amd.com>
 References: <20230516025521.43352-1-shannon.nelson@amd.com>
@@ -103,26 +103,26 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT096:EE_|MW4PR12MB7144:EE_
-X-MS-Office365-Filtering-Correlation-Id: ae8b918b-c13a-4d77-b856-08db55b90df5
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT096:EE_|SJ0PR12MB7458:EE_
+X-MS-Office365-Filtering-Correlation-Id: 919d2657-e996-4b2e-f85b-08db55b90edc
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IoCzjQEH4gov4tP1DkTidjJwmM1UZsGtYliOZmB7zk+SuogSYtFK7kVHtQGILoEii3AHM/YrHU8iupUzbj4F80a1LxKLklaZ9vfHLbJ6WNemxwyyY+AH73LJ6kqJVIegwZ4BBImQvd45uvQynScqaCRPBMIKyMetb4gL7KrwA7t4Zb2IGMTO44Ch645fotSruHSpjOIH3xBDrNFVJkylb7AtPejVTrFhhhjSb7GJXQL4Ea6LwxQBei5XSiiSXRWt8EcIkVW9WJ9GFclscckM+5cE0D5nPKcnhQ7S0WQPOqu6yFHuoud/sO6hH0LRSFjCPriQPWbgix4vnC6+u+RJoaM1OM2cQtNmPoZK+0vgdzO2YOFAqHTOLLU2DBJmhBNfZYIK11GbxOt4FrIFD2REC751ltaogtA/u4C7n7c9LS04e4oPT0Q/R0kZ/9ZJ1MsjSAUWUGkDNgIrCBzkQT6JOjzy4OB/zNOCyZQyc+HhRarpCz4yeiyX8i7rn8fLXLfslfWNb1pLAtrJGCDLg7vDOs3msrtT/RIHjpp44q1EGmjgvcPdCLnC8Ad96ug4y2XbzlvXbKEWRSss+Yc46uj5NKGfZ6PZ9P7q23/qVlzfwhEDLHUeDwqaYn+7H7vsQCE7GcBoozf5X/SezGQVFxy1gB6CpCtZ5PmzUwXaOyD4Iq+EpVfuGOcIkZBRABEq5vrOZGvhClIAQpNItQODMwuB2T2x4Y3FomlgyenlvtW4e9xM7DV/cu2X6IWJCwa1mPk93gIai9BDgq3kfKhhXqH2bw==
+X-Microsoft-Antispam-Message-Info: GX8hvOeqI2Gg9Z028BYbA8hpUBhjISI2CF7/lFV8JBT1c+bpllicoYK7O+X8kdzq7FeUU4tBWub3mUH2cidm3Pog8g5kaPCivHeBij1wb+AY34SGg42rEAh5q98hHddEklhWn996/KOAyYCMaR9FIUyWPaArn2xFBeTDcaWt8LZKMX7+jYWSd8IMIVB9Sm+WeyRqEy6Kpela5noY/pFn8WANpM60rUsy/utLr81CoBCZ38dkUSBQCtOAuFz10KWnl0a8ZX1PyWY9KfBByw9OsXFhoSrnUkwNqKv/hCjEdKGD/ZimUdlSCwaoBluMlqLQl8tdbjIv7AriKa8RTmSdA4b3GgArGybgn6q7BhLtByz+Re2pzqsDpwSfOs5iiOVbC9wPu/Et8MGqqgBAdzcSkjt4nCEe9ktygCxmOEXPG6V6kl3PNiujbSSeNt4MqTydDtOVvtrbmo2QTyZm++B2bAV4hpflBD+A0jDB2ZM6e7IIfC48y2RGCUoeZSGoneL7TZ70wF5K81umEBOgk2KZQljF/sHoL1EFVVcznHzNBxN1MREceCMKKaRenP8tzl52+nFhuER3k0wddQ9Lqzcr4mmlCrQC6JVo9C0Oy/uaFJLlyEtjv6/iYnbksTjKWO64wro9KU3je0UJ5/mG4WVfto+iC0BGycHOVUFxtoHImHzE9NttZGFjZYc1gR6QdPWM0QgL9nR6QW4isH+R4CoSwq0LyA4dCRkbGar5Mn7oBOctRtOrBOmYtIbcA9lodWkCGOzMblqm9MtmFa8e1llGoA==
 X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(39860400002)(136003)(376002)(396003)(346002)(451199021)(36840700001)(40470700004)(46966006)(478600001)(110136005)(70586007)(70206006)(6666004)(36756003)(54906003)(316002)(4326008)(86362001)(40460700003)(82310400005)(36860700001)(426003)(1076003)(82740400003)(186003)(47076005)(336012)(81166007)(356005)(26005)(2616005)(5660300002)(41300700001)(2906002)(44832011)(8936002)(8676002)(16526019)(83380400001)(40480700001)(36900700001);
+ SFS:(13230028)(4636009)(136003)(376002)(346002)(396003)(39860400002)(451199021)(40470700004)(36840700001)(46966006)(6666004)(36756003)(4326008)(47076005)(478600001)(54906003)(110136005)(316002)(70206006)(70586007)(81166007)(356005)(5660300002)(2616005)(41300700001)(426003)(83380400001)(336012)(36860700001)(82740400003)(16526019)(8676002)(1076003)(26005)(8936002)(44832011)(186003)(40460700003)(2906002)(86362001)(40480700001)(82310400005)(36900700001);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 02:55:49.3793 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: ae8b918b-c13a-4d77-b856-08db55b90df5
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 02:55:50.8949 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 919d2657-e996-4b2e-f85b-08db55b90edc
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
  Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT096.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7144
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB7458
 Cc: simon.horman@corigine.com, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -143,135 +143,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Find the vDPA management information from the DSC in order to
-advertise it to the vdpa subsystem.
+These are the adminq commands that will be needed for
+setting up and using the vDPA device.  There are a number
+of commands defined in the FW's API, but by making use of
+the FW's virtio BAR we only need a few of these commands
+for vDPA support.
 
 Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vdpa/pds/Makefile   |   3 +-
- drivers/vdpa/pds/aux_drv.c  |  17 ++++++
- drivers/vdpa/pds/aux_drv.h  |   7 +++
- drivers/vdpa/pds/debugfs.c  |   1 +
- drivers/vdpa/pds/vdpa_dev.c | 108 ++++++++++++++++++++++++++++++++++++
- drivers/vdpa/pds/vdpa_dev.h |  15 +++++
- 6 files changed, 150 insertions(+), 1 deletion(-)
- create mode 100644 drivers/vdpa/pds/vdpa_dev.c
- create mode 100644 drivers/vdpa/pds/vdpa_dev.h
+ drivers/vdpa/pds/Makefile   |   1 +
+ drivers/vdpa/pds/cmds.c     | 185 ++++++++++++++++++++++++++++++++++++
+ drivers/vdpa/pds/cmds.h     |  18 ++++
+ drivers/vdpa/pds/vdpa_dev.h |  33 ++++++-
+ 4 files changed, 236 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/vdpa/pds/cmds.c
+ create mode 100644 drivers/vdpa/pds/cmds.h
 
 diff --git a/drivers/vdpa/pds/Makefile b/drivers/vdpa/pds/Makefile
-index a9cd2f450ae1..13b50394ec64 100644
+index 13b50394ec64..2e22418e3ab3 100644
 --- a/drivers/vdpa/pds/Makefile
 +++ b/drivers/vdpa/pds/Makefile
-@@ -3,6 +3,7 @@
- 
+@@ -4,6 +4,7 @@
  obj-$(CONFIG_PDS_VDPA) := pds_vdpa.o
  
--pds_vdpa-y := aux_drv.o
-+pds_vdpa-y := aux_drv.o \
-+	      vdpa_dev.o
+ pds_vdpa-y := aux_drv.o \
++	      cmds.o \
+ 	      vdpa_dev.o
  
  pds_vdpa-$(CONFIG_DEBUG_FS) += debugfs.o
-diff --git a/drivers/vdpa/pds/aux_drv.c b/drivers/vdpa/pds/aux_drv.c
-index e4a0ad61ea22..aa748cf55d2b 100644
---- a/drivers/vdpa/pds/aux_drv.c
-+++ b/drivers/vdpa/pds/aux_drv.c
-@@ -3,6 +3,7 @@
- 
- #include <linux/auxiliary_bus.h>
- #include <linux/pci.h>
-+#include <linux/vdpa.h>
- 
- #include <linux/pds/pds_common.h>
- #include <linux/pds/pds_core_if.h>
-@@ -11,6 +12,7 @@
- 
- #include "aux_drv.h"
- #include "debugfs.h"
-+#include "vdpa_dev.h"
- 
- static const struct auxiliary_device_id pds_vdpa_id_table[] = {
- 	{ .name = PDS_VDPA_DEV_NAME, },
-@@ -24,15 +26,28 @@ static int pds_vdpa_probe(struct auxiliary_device *aux_dev,
- 	struct pds_auxiliary_dev *padev =
- 		container_of(aux_dev, struct pds_auxiliary_dev, aux_dev);
- 	struct pds_vdpa_aux *vdpa_aux;
-+	int err;
- 
- 	vdpa_aux = kzalloc(sizeof(*vdpa_aux), GFP_KERNEL);
- 	if (!vdpa_aux)
- 		return -ENOMEM;
- 
- 	vdpa_aux->padev = padev;
-+	vdpa_aux->vf_id = pci_iov_vf_id(padev->vf_pdev);
- 	auxiliary_set_drvdata(aux_dev, vdpa_aux);
- 
-+	/* Get device ident info and set up the vdpa_mgmt_dev */
-+	err = pds_vdpa_get_mgmt_info(vdpa_aux);
-+	if (err)
-+		goto err_free_mem;
-+
- 	return 0;
-+
-+err_free_mem:
-+	kfree(vdpa_aux);
-+	auxiliary_set_drvdata(aux_dev, NULL);
-+
-+	return err;
- }
- 
- static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
-@@ -40,6 +55,8 @@ static void pds_vdpa_remove(struct auxiliary_device *aux_dev)
- 	struct pds_vdpa_aux *vdpa_aux = auxiliary_get_drvdata(aux_dev);
- 	struct device *dev = &aux_dev->dev;
- 
-+	pci_free_irq_vectors(vdpa_aux->padev->vf_pdev);
-+
- 	kfree(vdpa_aux);
- 	auxiliary_set_drvdata(aux_dev, NULL);
- 
-diff --git a/drivers/vdpa/pds/aux_drv.h b/drivers/vdpa/pds/aux_drv.h
-index f1e99359424e..dcec782e79eb 100644
---- a/drivers/vdpa/pds/aux_drv.h
-+++ b/drivers/vdpa/pds/aux_drv.h
-@@ -10,6 +10,13 @@
- struct pds_vdpa_aux {
- 	struct pds_auxiliary_dev *padev;
- 
-+	struct vdpa_mgmt_dev vdpa_mdev;
-+
-+	struct pds_vdpa_ident ident;
-+
-+	int vf_id;
- 	struct dentry *dentry;
-+
-+	int nintrs;
- };
- #endif /* _AUX_DRV_H_ */
-diff --git a/drivers/vdpa/pds/debugfs.c b/drivers/vdpa/pds/debugfs.c
-index 5be22fb7a76a..d91dceb07380 100644
---- a/drivers/vdpa/pds/debugfs.c
-+++ b/drivers/vdpa/pds/debugfs.c
-@@ -2,6 +2,7 @@
- /* Copyright(c) 2023 Advanced Micro Devices, Inc */
- 
- #include <linux/pci.h>
-+#include <linux/vdpa.h>
- 
- #include <linux/pds/pds_common.h>
- #include <linux/pds/pds_core_if.h>
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+diff --git a/drivers/vdpa/pds/cmds.c b/drivers/vdpa/pds/cmds.c
 new file mode 100644
-index 000000000000..0f0f0ab8b811
+index 000000000000..80863a41c3cd
 --- /dev/null
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -0,0 +1,108 @@
++++ b/drivers/vdpa/pds/cmds.c
+@@ -0,0 +1,185 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/* Copyright(c) 2023 Advanced Micro Devices, Inc */
 +
-+#include <linux/pci.h>
 +#include <linux/vdpa.h>
-+#include <uapi/linux/vdpa.h>
++#include <linux/virtio_pci_modern.h>
 +
 +#include <linux/pds/pds_common.h>
 +#include <linux/pds/pds_core_if.h>
@@ -280,121 +191,250 @@ index 000000000000..0f0f0ab8b811
 +
 +#include "vdpa_dev.h"
 +#include "aux_drv.h"
++#include "cmds.h"
 +
-+static struct virtio_device_id pds_vdpa_id_table[] = {
-+	{VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID},
-+	{0},
-+};
-+
-+static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
-+			    const struct vdpa_dev_set_config *add_config)
++int pds_vdpa_init_hw(struct pds_vdpa_device *pdsv)
 +{
-+	return -EOPNOTSUPP;
-+}
-+
-+static void pds_vdpa_dev_del(struct vdpa_mgmt_dev *mdev,
-+			     struct vdpa_device *vdpa_dev)
-+{
-+}
-+
-+static const struct vdpa_mgmtdev_ops pds_vdpa_mgmt_dev_ops = {
-+	.dev_add = pds_vdpa_dev_add,
-+	.dev_del = pds_vdpa_dev_del
-+};
-+
-+int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux)
-+{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
 +	union pds_core_adminq_cmd cmd = {
-+		.vdpa_ident.opcode = PDS_VDPA_CMD_IDENT,
-+		.vdpa_ident.vf_id = cpu_to_le16(vdpa_aux->vf_id),
++		.vdpa_init.opcode = PDS_VDPA_CMD_INIT,
++		.vdpa_init.vdpa_index = pdsv->vdpa_index,
++		.vdpa_init.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
 +	};
 +	union pds_core_adminq_comp comp = {};
-+	struct vdpa_mgmt_dev *mgmt;
-+	struct pci_dev *pf_pdev;
-+	struct device *pf_dev;
-+	struct pci_dev *pdev;
-+	dma_addr_t ident_pa;
-+	struct device *dev;
-+	u16 dev_intrs;
-+	u16 max_vqs;
 +	int err;
 +
-+	dev = &vdpa_aux->padev->aux_dev.dev;
-+	pdev = vdpa_aux->padev->vf_pdev;
-+	mgmt = &vdpa_aux->vdpa_mdev;
-+
-+	/* Get resource info through the PF's adminq.  It is a block of info,
-+	 * so we need to map some memory for PF to make available to the
-+	 * firmware for writing the data.
-+	 */
-+	pf_pdev = pci_physfn(vdpa_aux->padev->vf_pdev);
-+	pf_dev = &pf_pdev->dev;
-+	ident_pa = dma_map_single(pf_dev, &vdpa_aux->ident,
-+				  sizeof(vdpa_aux->ident), DMA_FROM_DEVICE);
-+	if (dma_mapping_error(pf_dev, ident_pa)) {
-+		dev_err(dev, "Failed to map ident space\n");
-+		return -ENOMEM;
-+	}
-+
-+	cmd.vdpa_ident.ident_pa = cpu_to_le64(ident_pa);
-+	cmd.vdpa_ident.len = cpu_to_le32(sizeof(vdpa_aux->ident));
-+	err = pds_client_adminq_cmd(vdpa_aux->padev, &cmd,
-+				    sizeof(cmd.vdpa_ident), &comp, 0);
-+	dma_unmap_single(pf_dev, ident_pa,
-+			 sizeof(vdpa_aux->ident), DMA_FROM_DEVICE);
-+	if (err) {
-+		dev_err(dev, "Failed to ident hw, status %d: %pe\n",
++	/* Initialize the vdpa/virtio device */
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_init),
++				    &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to init hw, status %d: %pe\n",
 +			comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_reset(struct pds_vdpa_device *pdsv)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa.opcode = PDS_VDPA_CMD_RESET,
++		.vdpa.vdpa_index = pdsv->vdpa_index,
++		.vdpa.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa), &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to reset hw, status %d: %pe\n",
++			comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_set_status(struct pds_vdpa_device *pdsv, u8 status)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa_status.opcode = PDS_VDPA_CMD_STATUS_UPDATE,
++		.vdpa_status.vdpa_index = pdsv->vdpa_index,
++		.vdpa_status.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++		.vdpa_status.status = status,
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_status), &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to set status to %#x, error status %d: %pe\n",
++			status, comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_set_mac(struct pds_vdpa_device *pdsv, u8 *mac)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa_setattr.opcode = PDS_VDPA_CMD_SET_ATTR,
++		.vdpa_setattr.vdpa_index = pdsv->vdpa_index,
++		.vdpa_setattr.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++		.vdpa_setattr.attr = PDS_VDPA_ATTR_MAC,
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	ether_addr_copy(cmd.vdpa_setattr.mac, mac);
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_setattr),
++				    &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to set mac address %pM, status %d: %pe\n",
++			mac, comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_set_max_vq_pairs(struct pds_vdpa_device *pdsv, u16 max_vqp)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa_setattr.opcode = PDS_VDPA_CMD_SET_ATTR,
++		.vdpa_setattr.vdpa_index = pdsv->vdpa_index,
++		.vdpa_setattr.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++		.vdpa_setattr.attr = PDS_VDPA_ATTR_MAX_VQ_PAIRS,
++		.vdpa_setattr.max_vq_pairs = cpu_to_le16(max_vqp),
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_setattr),
++				    &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to set max vq pairs %u, status %d: %pe\n",
++			max_vqp, comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_init_vq(struct pds_vdpa_device *pdsv, u16 qid, u16 invert_idx,
++			 struct pds_vdpa_vq_info *vq_info)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa_vq_init.opcode = PDS_VDPA_CMD_VQ_INIT,
++		.vdpa_vq_init.vdpa_index = pdsv->vdpa_index,
++		.vdpa_vq_init.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++		.vdpa_vq_init.qid = cpu_to_le16(qid),
++		.vdpa_vq_init.len = cpu_to_le16(ilog2(vq_info->q_len)),
++		.vdpa_vq_init.desc_addr = cpu_to_le64(vq_info->desc_addr),
++		.vdpa_vq_init.avail_addr = cpu_to_le64(vq_info->avail_addr),
++		.vdpa_vq_init.used_addr = cpu_to_le64(vq_info->used_addr),
++		.vdpa_vq_init.intr_index = cpu_to_le16(qid),
++		.vdpa_vq_init.avail_index = cpu_to_le16(vq_info->avail_idx ^ invert_idx),
++		.vdpa_vq_init.used_index = cpu_to_le16(vq_info->used_idx ^ invert_idx),
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	dev_dbg(dev, "%s: qid %d len %d desc_addr %#llx avail_addr %#llx used_addr %#llx\n",
++		__func__, qid, ilog2(vq_info->q_len),
++		vq_info->desc_addr, vq_info->avail_addr, vq_info->used_addr);
++
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_vq_init),
++				    &comp, 0);
++	if (err)
++		dev_dbg(dev, "Failed to init vq %d, status %d: %pe\n",
++			qid, comp.status, ERR_PTR(err));
++
++	return err;
++}
++
++int pds_vdpa_cmd_reset_vq(struct pds_vdpa_device *pdsv, u16 qid, u16 invert_idx,
++			  struct pds_vdpa_vq_info *vq_info)
++{
++	struct pds_auxiliary_dev *padev = pdsv->vdpa_aux->padev;
++	struct device *dev = &padev->aux_dev.dev;
++	union pds_core_adminq_cmd cmd = {
++		.vdpa_vq_reset.opcode = PDS_VDPA_CMD_VQ_RESET,
++		.vdpa_vq_reset.vdpa_index = pdsv->vdpa_index,
++		.vdpa_vq_reset.vf_id = cpu_to_le16(pdsv->vdpa_aux->vf_id),
++		.vdpa_vq_reset.qid = cpu_to_le16(qid),
++	};
++	union pds_core_adminq_comp comp = {};
++	int err;
++
++	err = pds_client_adminq_cmd(padev, &cmd, sizeof(cmd.vdpa_vq_reset),
++				    &comp, 0);
++	if (err) {
++		dev_dbg(dev, "Failed to reset vq %d, status %d: %pe\n",
++			qid, comp.status, ERR_PTR(err));
 +		return err;
 +	}
 +
-+	max_vqs = le16_to_cpu(vdpa_aux->ident.max_vqs);
-+	dev_intrs = pci_msix_vec_count(pdev);
-+	dev_dbg(dev, "ident.max_vqs %d dev_intrs %d\n", max_vqs, dev_intrs);
-+
-+	max_vqs = min_t(u16, dev_intrs, max_vqs);
-+	mgmt->max_supported_vqs = min_t(u16, PDS_VDPA_MAX_QUEUES, max_vqs);
-+	vdpa_aux->nintrs = mgmt->max_supported_vqs;
-+
-+	mgmt->ops = &pds_vdpa_mgmt_dev_ops;
-+	mgmt->id_table = pds_vdpa_id_table;
-+	mgmt->device = dev;
-+	mgmt->supported_features = le64_to_cpu(vdpa_aux->ident.hw_features);
-+	mgmt->config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
-+	mgmt->config_attr_mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP);
-+
-+	err = pci_alloc_irq_vectors(pdev, vdpa_aux->nintrs, vdpa_aux->nintrs,
-+				    PCI_IRQ_MSIX);
-+	if (err < 0) {
-+		dev_err(dev, "Couldn't get %d msix vectors: %pe\n",
-+			vdpa_aux->nintrs, ERR_PTR(err));
-+		return err;
-+	}
-+	vdpa_aux->nintrs = err;
++	vq_info->avail_idx = le16_to_cpu(comp.vdpa_vq_reset.avail_index) ^ invert_idx;
++	vq_info->used_idx = le16_to_cpu(comp.vdpa_vq_reset.used_index) ^ invert_idx;
 +
 +	return 0;
 +}
-diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+diff --git a/drivers/vdpa/pds/cmds.h b/drivers/vdpa/pds/cmds.h
 new file mode 100644
-index 000000000000..97fab833a0aa
+index 000000000000..e24d85cb8f1c
 --- /dev/null
-+++ b/drivers/vdpa/pds/vdpa_dev.h
-@@ -0,0 +1,15 @@
++++ b/drivers/vdpa/pds/cmds.h
+@@ -0,0 +1,18 @@
 +/* SPDX-License-Identifier: GPL-2.0-only */
 +/* Copyright(c) 2023 Advanced Micro Devices, Inc */
 +
-+#ifndef _VDPA_DEV_H_
-+#define _VDPA_DEV_H_
++#ifndef _VDPA_CMDS_H_
++#define _VDPA_CMDS_H_
 +
-+#define PDS_VDPA_MAX_QUEUES	65
++int pds_vdpa_init_hw(struct pds_vdpa_device *pdsv);
 +
-+struct pds_vdpa_device {
-+	struct vdpa_device vdpa_dev;
-+	struct pds_vdpa_aux *vdpa_aux;
++int pds_vdpa_cmd_reset(struct pds_vdpa_device *pdsv);
++int pds_vdpa_cmd_set_status(struct pds_vdpa_device *pdsv, u8 status);
++int pds_vdpa_cmd_set_mac(struct pds_vdpa_device *pdsv, u8 *mac);
++int pds_vdpa_cmd_set_max_vq_pairs(struct pds_vdpa_device *pdsv, u16 max_vqp);
++int pds_vdpa_cmd_init_vq(struct pds_vdpa_device *pdsv, u16 qid, u16 invert_idx,
++			 struct pds_vdpa_vq_info *vq_info);
++int pds_vdpa_cmd_reset_vq(struct pds_vdpa_device *pdsv, u16 qid, u16 invert_idx,
++			  struct pds_vdpa_vq_info *vq_info);
++int pds_vdpa_cmd_set_features(struct pds_vdpa_device *pdsv, u64 features);
++#endif /* _VDPA_CMDS_H_ */
+diff --git a/drivers/vdpa/pds/vdpa_dev.h b/drivers/vdpa/pds/vdpa_dev.h
+index 97fab833a0aa..a21596f438c1 100644
+--- a/drivers/vdpa/pds/vdpa_dev.h
++++ b/drivers/vdpa/pds/vdpa_dev.h
+@@ -4,11 +4,42 @@
+ #ifndef _VDPA_DEV_H_
+ #define _VDPA_DEV_H_
+ 
+-#define PDS_VDPA_MAX_QUEUES	65
++#include <linux/pci.h>
++#include <linux/vdpa.h>
++
++struct pds_vdpa_vq_info {
++	bool ready;
++	u64 desc_addr;
++	u64 avail_addr;
++	u64 used_addr;
++	u32 q_len;
++	u16 qid;
++	int irq;
++	char irq_name[32];
++
++	void __iomem *notify;
++	dma_addr_t notify_pa;
++
++	u64 doorbell;
++	u16 avail_idx;
++	u16 used_idx;
+ 
++	struct vdpa_callback event_cb;
++	struct pds_vdpa_device *pdsv;
 +};
 +
-+int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
-+#endif /* _VDPA_DEV_H_ */
++#define PDS_VDPA_MAX_QUEUES	65
++#define PDS_VDPA_MAX_QLEN	32768
+ struct pds_vdpa_device {
+ 	struct vdpa_device vdpa_dev;
+ 	struct pds_vdpa_aux *vdpa_aux;
++
++	struct pds_vdpa_vq_info vqs[PDS_VDPA_MAX_QUEUES];
++	u64 req_features;		/* features requested by vdpa */
++	u64 actual_features;		/* features negotiated and in use */
++	u8 vdpa_index;			/* rsvd for future subdevice use */
++	u8 num_vqs;			/* num vqs in use */
++	struct vdpa_callback config_cb;
+ };
+ 
+ int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux);
 -- 
 2.17.1
 
