@@ -1,156 +1,155 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3135C77B7F
-	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 16:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10F8BC77B7F
+	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 16:39:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7537180F22;
-	Tue, 16 May 2023 16:38:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7537180F22
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=D7yhdJ2W
+	by smtp2.osuosl.org (Postfix) with ESMTP id 928494014B;
+	Tue, 16 May 2023 16:39:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 928494014B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=EoFTp32Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8zLAVZE2sIP5; Tue, 16 May 2023 16:38:45 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OJFGoOmwekAA; Tue, 16 May 2023 16:39:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C381D80A6D;
-	Tue, 16 May 2023 16:38:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C381D80A6D
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 24A3940514;
+	Tue, 16 May 2023 16:39:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24A3940514
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A4F8BC0036;
-	Tue, 16 May 2023 16:38:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4EE7BC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0049BC0036;
+	Tue, 16 May 2023 16:39:51 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7620DC002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 16:38:43 +0000 (UTC)
+ Tue, 16 May 2023 16:39:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 29A6161110
+ by smtp4.osuosl.org (Postfix) with ESMTP id 33ABD414DE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 16:38:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 29A6161110
-Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ Tue, 16 May 2023 16:39:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 33ABD414DE
+Authentication-Results: smtp4.osuosl.org; dkim=pass (1024-bit key,
  unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=D7yhdJ2W
+ header.s=selector1 header.b=EoFTp32Q
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CwO5OxxNzY1B
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SppYNySxBAqx
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 16:38:42 +0000 (UTC)
+ Tue, 16 May 2023 16:39:48 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A673F60DA0
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam12on20600.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5b::600])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A673F60DA0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3C258414D1
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2062b.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eaa::62b])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3C258414D1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 16:38:41 +0000 (UTC)
+ Tue, 16 May 2023 16:39:47 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=G1OfVPBFTKxowqcpyltRuhOb3H/OCgNHOq2pqROBG8Vf+Ki3ekaY27nT19HVU2wm9sneFvzj0ONc+K/bCGtXDUoASMORY2b2GmFGXfOs+p1bx4/e+wT6/r3iM4pqlli3KYEPCLweUbr1dVist0svoaFj+2OWIeqEbqEL4lfLwP3tFbCY4LD2LFkQK+Km6UsnZyRxqzUTlJLK6tTyrJNtYm7ZlXQLTCbP2pJPWo/IoYv+yneIxCbgV10vipM9KQ3S/QhNGiMQMQts986Ybs15L3QsrX5r0ZYNhMWRqJWWmy9c+Dtbktjm16U+V1gpHDVNL4wYhu1tanEDGYHBm+Ga4A==
+ b=kHnJy/aCgNzxNX707a7v19MJe3qNdQSoC49YHQ87PoEC/evmV7uaS2hSsDI3LdQI/N7MQygfnmaxCRSW9885wwVbxcDk+DQKwtRNdc0RnzkQZG2vtRG01nxQqa3ZZ/MsnxQ6XpSlCWXXkW4c3WTl85A1FNRkhELXVZfbzfnxKvkZts+sV7K+3GtDzD4Mj5EO7I2JTrQUT/J2fmVOT1J2LnDt8t8InYiKmTlh+nXhgkxxD7aP2VGZk3r+QsoJUZEZNSuCy0dc36ZDRwXrKw6Xgb5rmzkMuy14W4tY9c7Izf6DVfYDKXtOrPdMUaeIl0ByvJiVNjBAtha2chSrBvmwtw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ldi34/4cWsX80hniFkZ5Z9upM7J22cMbJ0lnZMi4e7Q=;
- b=g/KA97VfOvRaL6SXUNnD19nEfjYEKoFm2bIzIpFGJWG1fAKIa76R5J1jc3GAwdOXlf0P+hbOavJM+sWKCQh49TYNDDJPI2pZ1S5kjoSMsZj67Netnx5Mnz0NtqdM8ATkok+oi7DJsQki52TYuXzG0P4WsY5HMIoeDr8lKMO3pAcHsDz9mdJSWByECfHEOeOxPEZBYbFUZnXH+wb0oVEGW1+4gnEIWIWtefEdT2hQshWNL0AOw+j7UnWtWFktEfoGgmw59gYAUsl4d3x+j0ErUxixvAwJcZYeQfnkdmgofWs86xkXCXajDYa6vBs1IJZBw0exK1GmB7nYnyIO9Hx3Cg==
+ bh=2k+P3RrwyLjGCuJMgHcm8Il2pge3xBCMJtvswSkhx0Q=;
+ b=eW0XcmMcLfSUJd3FFD+H5iKMatOQyqdfMhqW1X7dFc32qFCwvT8o9KYcx/5EWgLns7dUBpYqwMsuNVDzzD5OBQteITVKN1xQW2oVteQNdhARHCVef9OtqgYb/HWyUTsJYBStyNYvyy0ez2JWmwr6vigJuPgtM/IYf7UHKESvZ5Hfxvj2AwWuXGOM7YYIsbVhhAt+HuyGgmffBdy+a9tg9elksoqoIlZuyOeQrFnVrhzSJ8N279l73n5sfXfYiehaMx6So0wzURAju659eX1CUtghhI35/Kw2CiYCPi1X26FYatSGittMYXMo/fVeb0hffQpc/2csj95Yg+1h0W8Q2g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
  header.d=amd.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ldi34/4cWsX80hniFkZ5Z9upM7J22cMbJ0lnZMi4e7Q=;
- b=D7yhdJ2W3vI9EXei/pdW0iCWDE6AKjUEkkTl/XiEarhRWw1xvbIBWQYUWXTv6U+kRbFodR3hU5KZMuBkaWn49ThIJJZpoc3786rqsAQXW8/AVBw+8NhI45ehYyMvicrezorsqq4rr5WtsHaD6dumMJ5XkBLubvCfR4CXzwzpi5A=
+ bh=2k+P3RrwyLjGCuJMgHcm8Il2pge3xBCMJtvswSkhx0Q=;
+ b=EoFTp32Q7oYGoazJ0g9zvpLGfz89XmnZrRWSyYxgxlb/a3hIP3C0gJJKfYtQJ9ZF0nuV2kfovHs4RPDcbUhDe93B3zMW/5AqliNeW1Jq5j2+ZJ4fo7nPJKsR8fG+7bR7xS5N2r+DrFdynd6gaKkmqfL5kiW/NoF/KSjSNC9it4k=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=amd.com;
 Received: from DS0PR12MB6583.namprd12.prod.outlook.com (2603:10b6:8:d1::12) by
- CH3PR12MB8186.namprd12.prod.outlook.com (2603:10b6:610:129::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.33; Tue, 16 May
- 2023 16:38:38 +0000
+ DS0PR12MB7605.namprd12.prod.outlook.com (2603:10b6:8:13d::15) with
+ Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6387.30; Tue, 16 May 2023 16:39:44 +0000
 Received: from DS0PR12MB6583.namprd12.prod.outlook.com
  ([fe80::fc3e:a5b4:7568:82bc]) by DS0PR12MB6583.namprd12.prod.outlook.com
  ([fe80::fc3e:a5b4:7568:82bc%5]) with mapi id 15.20.6387.030; Tue, 16 May 2023
- 16:38:38 +0000
-Message-ID: <913aa1eb-2af2-cce9-29b0-d872b1986ac5@amd.com>
-Date: Tue, 16 May 2023 09:38:34 -0700
+ 16:39:44 +0000
+Message-ID: <98bcc38a-2cee-3bba-3ba6-5b414e816c49@amd.com>
+Date: Tue, 16 May 2023 09:39:40 -0700
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
  Gecko/20100101 Thunderbird/102.10.1
-Subject: Re: [PATCH v6 virtio 04/11] pds_vdpa: move enum from common to adminq
- header
+Subject: Re: [PATCH v6 virtio 09/11] pds_vdpa: add support for vdpa and
+ vdpamgmt interfaces
 Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Simon Horman <simon.horman@corigine.com>
 References: <20230516025521.43352-1-shannon.nelson@amd.com>
- <20230516025521.43352-5-shannon.nelson@amd.com>
- <20230516020938-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230516020938-mutt-send-email-mst@kernel.org>
-X-ClientProxiedBy: SJ0PR03CA0178.namprd03.prod.outlook.com
- (2603:10b6:a03:338::33) To DS0PR12MB6583.namprd12.prod.outlook.com
+ <20230516025521.43352-10-shannon.nelson@amd.com>
+ <ZGNcZHUAC21S+uSK@corigine.com>
+In-Reply-To: <ZGNcZHUAC21S+uSK@corigine.com>
+X-ClientProxiedBy: SJ0PR03CA0162.namprd03.prod.outlook.com
+ (2603:10b6:a03:338::17) To DS0PR12MB6583.namprd12.prod.outlook.com
  (2603:10b6:8:d1::12)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|CH3PR12MB8186:EE_
-X-MS-Office365-Filtering-Correlation-Id: c8157b64-7179-43d4-301e-08db562bffb6
+X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|DS0PR12MB7605:EE_
+X-MS-Office365-Filtering-Correlation-Id: ffa6b999-c1fc-474a-b7e1-08db562c2727
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: JjFZn6deOTpMt1Flc93AIUGToj/QZ2G9l2ejUz0lAVWeauZW1LjP6CONxFwg01H28tBXSyavva1PXrHITPOrs/1m8AntbTPfL5R+AhN5ZsiLy6FPbeHvcl143+HdLQyfuzaK1cZW7vOZ4XvJcqqp0h+qrUqkfk9yAVNv602s0G8sE78ZsNLYKRohgw9f9QoKDGUlFXmrlUkO8PV9dke1+whHSQ4Eq2dvn16d+LVtY9jpeV2AtDmlQ0kgLIcs1HEWrgVrcBDLwK/3w0LjRtCmbkjVR7c3pTHABQX9aQr5STb5Ax9JJ1tImLmuT5bx70WBqNoAV+F06LC1+cA4+ilB5SFg2wHjHZ6sZxXybuc/dMhbgpsZmexOGKUOb4MxrXabs7LeheU/wnhB2zrCNerASgAU/7VvGFiCD4d9v88rkKxAzc8ShiZCVlkKQEvfC/qF2X51nI13CiVNUNorPKhLTi+UpWPOql64nc3eOnDcRRlD5Lfr0MlnOWEds5d9YLaVFsXQtWOygyLxp4VdZqzUbpbveNhJ8wa8LMg0TIOrB2id1GWExWmOAu9h8x6QRZ08Kcjre5ERY60qQ7aOcFayFAs+C2zLehmHaTLFCgGtnCNOg+o9pFURCnuGxCBn64m8Y3ESjf0T9wsLfTunh+9PGQ==
+X-Microsoft-Antispam-Message-Info: 1EKYsoV1fQvE6PBGwRqQF48hkrd/G2DkTNWxDIEQ+kaKBSjWdQzAGMqrH92WZZlvcOoRQ2HUbVclQlxPiN5qIVblsa3a6+0tIXTnNUxXDRAP1qtzEDpDX+NYYQTURfR5CpYvcXQhzbAzK0hQtfZrSgr17bshRP3N+s2J275bb5x4A+LrmmZJvUHII5OThZgDrugqI2Mb3wbnPxQUj/tEVyFgNuDYrW6X2rFDC5xy4CSKDm+JHlTgBYUNXqUsIB9IBd2g3amzcd20yyuzl/cLiFwJ5uJAmGqVVcilxOk6vnc8/rhxxGevXXpBoGguzZEG/eRgL1Q9YwcvJEqYy7jshanZiauYwHQEqZstkkKdEbZt3CKAwXQ7QEzoQeeclsP6Jg5R8Bixeg261ebexZTgNQPVH82LzOVV20IFgu5dozA/ZoJYkJBji8FpSSLsJqwyNrsMfWlvT8x/CUQW1TY8JI5qVXwOC7IpM5MHmE571bKgAT301YGL/yfRle/N7BTeTa4nfLwfQ3XMP7Il+CITrR/PXefUgTuiOHlPSDK8dajycNVemfV4XH46hon8lnsDopaMPLT0lCvcfrQ1JMG4vQoRUux6aOvo1x+k4ayZdGCFUkkzAHDlnDcy0/Jj02Mv0Olj7vO1dkHKDavjLSBU6A==
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:DS0PR12MB6583.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(4636009)(376002)(136003)(346002)(396003)(366004)(39860400002)(451199021)(31686004)(66556008)(4326008)(66476007)(478600001)(66946007)(6916009)(316002)(31696002)(36756003)(86362001)(26005)(83380400001)(53546011)(6506007)(6512007)(186003)(6486002)(2616005)(41300700001)(8676002)(44832011)(5660300002)(2906002)(6666004)(8936002)(38100700002)(45980500001)(43740500002);
+ SFS:(13230028)(4636009)(366004)(376002)(136003)(39860400002)(346002)(396003)(451199021)(66946007)(66556008)(66476007)(41300700001)(4326008)(31686004)(6916009)(6666004)(6486002)(6512007)(6506007)(26005)(38100700002)(316002)(2616005)(44832011)(5660300002)(8936002)(83380400001)(2906002)(8676002)(478600001)(86362001)(31696002)(66899021)(53546011)(186003)(36756003)(43740500002)(45980500001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?b3lOZHZXS09sZDFHZ3l2WjY5OHNUZmpPblBsRi9kQTB5aHZVZ08ySWRYem5L?=
- =?utf-8?B?Q1dEVUp1RktUSjkyS3M0T0NtSm5DUHhuUzlEOEVPVGRKc21JZmJlMjJzK1NB?=
- =?utf-8?B?dk9HeHZ3SjFQS0RXVXV4bzFRQ3hiU3d6VUVDaVdXOXZzWkFtaXY2MmZTYTd2?=
- =?utf-8?B?WVZtQ1FDbnlIS21BRU5iZWNwMnJxK1h1UTdMa0Q4S3hNMkp6TEhWM3dobDdZ?=
- =?utf-8?B?TVo3VWNJZ3UydnFZYzhQUlNtWkpsdHdsMFNzQmFEN1hCVHRBdU82eE5VZUNS?=
- =?utf-8?B?Q1R0UUQwZ2s5MEwrMnhGZjM5ZCtuKzEzMng2OGFzdWVvU2FaM1h2eXU4UVZY?=
- =?utf-8?B?WlBYOXhrTjI5b2JxaWhVbmxDUGlpWVplcjZtQXVzSGQxd2dYZkRvRVRndkUy?=
- =?utf-8?B?MEEwckNycEE2Njd1bzV2RTg5WXIwSXlMS1J4dmtXcUpJVCtVVzRienNmbGtl?=
- =?utf-8?B?YlIyb1hMdWNPVlF2bG90QVdzM1FZREU5WW5yNUpDOHFLaTVhRmpDRWFDbENt?=
- =?utf-8?B?SnBMMDR6WkVNV3JwTUhZOG0vSXNaZUZOMUZ3VEJQZjY5OExMTWxCcVBCblpl?=
- =?utf-8?B?WWNLVWljUUQxcDllOTJ2ZGd6WnVMREEzRGpYYUFROG1RSEovOFVuTnhhYXRh?=
- =?utf-8?B?bGRQSTlTQTBOaUVpTWsyMkFOc2hHRnhTOVBnQlFwbHFwYVV2SEtlZnM3amNr?=
- =?utf-8?B?MDJVRWdCVWVEbzhsRWgvelRLWXZuK3JFbVZQMFZ1eXVaZzk0eFZQZVpKMkZV?=
- =?utf-8?B?bnFGRlVBdStHSDJyMUNvNjZOSFI0VVc4bWhmY2NkclBxZzZXeGhHcHA3REpa?=
- =?utf-8?B?UUM4N0E4NW1OQWZFelZJUHZDcUNrZ3B2dG1lTzg4eEx1bW1xVlUyd0xjekVU?=
- =?utf-8?B?MDQ5Qms3bzRMQ1JodW01ZmNQenZRcmZOZXF1QjJiSkhkK2IyMWQ1dkUxdmxn?=
- =?utf-8?B?eU1VWkRFMStTWFRNQTV2amN3enJZVUhYeHdwdThpQkhXc09nWTRrZkl2RXd3?=
- =?utf-8?B?RGtkMStXL1QrSWpqdEY4OXZkdFFqdUhkK2hSUHBCNkRLTlVvRFFhYUVaRUQ4?=
- =?utf-8?B?dHFpQ2l2Q05vUUtLOFMvZ01TbGkxOFYvSk9UMFRjeU15dldUaHhyZU15VXVH?=
- =?utf-8?B?ZENDdnA1YUJiSmpOSlF1cVVSM0pycjE2cmN3eUJXR2lWbkJtRC9GbCtCMkRY?=
- =?utf-8?B?VU1vL3JBbTQ3VTR3SDROSHJkMStJZ1RzOWJmMzJBbldDMEdIN1pvNXlNRFZQ?=
- =?utf-8?B?eU81N1hTc1ZYcTFLQUNsUzBDM3g2UDBKdzdFNUdJalFLS0FxbXppV3RZbjdP?=
- =?utf-8?B?NS9FRzBQbmxaaDdXRzN0T1IrWGQyUmpCdFhqbmRWVHhtdG5kQXpQYk5mdFJr?=
- =?utf-8?B?VStUR1c2NmZmSlJodDlBbExmRmRqbEtBZUlkdWlmaHdrb2xLUk9aMk1FWmkw?=
- =?utf-8?B?NmNjWXpoZ1JTb1NJcmx4LzRDbi9zNEtLZFg1cEtkZENQWmdVcU1SbkF0L3dM?=
- =?utf-8?B?aHh6YXdrUEE5YW5Qd25OYndOckxGWTVGMU9ydHNIbFBTVGdmYmNYRnM5UkV0?=
- =?utf-8?B?R3lOcVNhVzhseGlFa1FkM1ZiOTF4dll2WXEvS01jUVFzamY0cGdaN2p1d3F3?=
- =?utf-8?B?ZVg4K2krOEREODhXN3BVZXNvazB5eE52cE1sWWFTTVBMWk5tY0pVOEhpQzFB?=
- =?utf-8?B?T21kbm1zZysrZDdacU95OVZhNmpTYmZveUpEQzEwMWhzZU1JQkxSbUlDM3NU?=
- =?utf-8?B?alU4eURRN2UrU1RHU3F4dUZJd01NR2RQaWM2eXpqOEZhNTV2OEVpSStwVnEz?=
- =?utf-8?B?SHhlNnBqUTM0ZGUza2ZiN0g5OXBsY0hFQVl4SWQ0cTV4eCtwYzFmOC9qVVQv?=
- =?utf-8?B?RElOYjdlZkpVU0kyakY3TVVwL2dVOW8yUGJ3azRVeVBjNVh6SzNWUnYwakNm?=
- =?utf-8?B?cFowaE52dFZYcUYrVUxIMzhSNFBRVDYrb09MaDBkWDd3d3JRSmJoRzRhS0li?=
- =?utf-8?B?eS9hZTFVQWE0MWxDZHJvQUwvU3IwU0NONml3WTd4WGpRaUlEOHNOUFE1Zkdr?=
- =?utf-8?B?UVlVVUM3MHhkTUtyVFYyTm9JMjVGdkVSTDV1QnNJbkpDRVowWFVkdkY5RHh4?=
- =?utf-8?Q?LNHx7uxsDDzTcbD+taREqqoU6?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?eGtDbHg3cGJ1R0ZuNFZzK2duMWUxK2xZeGZaSXUxR2lHNFFvdFFkUG9oejhD?=
+ =?utf-8?B?bWZwRlgrMXd5VEFvUHZ0QTNtWFZINUZRV0p3dHZTZlN6VjNneHVZSVRJcGVj?=
+ =?utf-8?B?K2p1NHJMbGgxZTA2Sm1neWM4VFRJZHJNakxVK0dJRXc3WmVoSG1FQ1JTS2FN?=
+ =?utf-8?B?NkFiQldwWGtIYlN1YzgxdjZNODFvL1RxQ0RWMXZMdlBaRG83Y1ZyVS9rNHh4?=
+ =?utf-8?B?b3llUFhkeU1GSTV5NEYrOFpBZ2d2RFEzamtmNTdWUFFFYzlRZ3hnbDI0TGxH?=
+ =?utf-8?B?cG8zU2pqTk1maHJUc1QxSWxMNmhyTTM4ZS9EeHZ3bnd3WlMyRE41cjZCN0Qv?=
+ =?utf-8?B?OWQ3T2VsV1dhUjVGUzdtYjdVZ2NqcjlDRVFoMU45TUU3dFlWWTZwTEJHRDFO?=
+ =?utf-8?B?cjJZZmxja3c4WTVmZndsTlhHc2l6dGtLczM5Y0hBTUJBMko1VXZDUVlpRDIy?=
+ =?utf-8?B?T1JsVWRqRm5Xc2JWR1pMT0Z0VW84ZHNrWDgrTVFmb1N0U3plRjJldndkeWdH?=
+ =?utf-8?B?cWFJaE90SHc1UWs4NHVjS0F2SzIvZ284Lzhibk5RRHdhcm5mTW0vTG9RbDlx?=
+ =?utf-8?B?ZS9VcmdrOXdSbU0wZ3ZFcm02T0dZUnJoRk5CQ0JaOElaRHk0Z1VhRVZSb0xY?=
+ =?utf-8?B?SS82VWFMNnFtMmlxcmlLRkpnQWxjUWl0dkR0THhrSnprTzZvei9tQURsT3VE?=
+ =?utf-8?B?eTZHK0cydi9zN3FiV2gyQmFrSTk3OEtRUW9oc2RDUDBDOU91UHVEcnhIcGVN?=
+ =?utf-8?B?STJ0OUFNbDI5RVhBR0syWjVKU2dZSitRZElMRkhSbHl1RlhzMFpJRzBRd3Vp?=
+ =?utf-8?B?SnIwb3cvcDJzcVFpd3c5eXlsRVg3c0thc2cyYXgvYWo5WGlCWHRNQmxKYjcr?=
+ =?utf-8?B?b3RleGYxVkJuUUxzZGxKMXR1Njh2MzNaNW55QmVud0pKaEVlK3k2S0xHRU9t?=
+ =?utf-8?B?UkhiQ2dBMm8yM3ZFRE56Zm5WdXE2NW8yRXdLM3l4dHhpblBLakFHclZXaWF0?=
+ =?utf-8?B?ME0yMWg0MVlnY2xuNHcvbFJFMUIrMFN4SVQ0ZmU2NkY0M3lrdGRLSHNUM3d5?=
+ =?utf-8?B?aXpTTlc2WE03aXV6c0NST29ucTZjV3Z5MjBnSE9pK1FwaWtCc3ViMHdZQzJK?=
+ =?utf-8?B?b0YvRlNUY2IwaCtxUS9oaGNrL0w1WDd3aTZFa2hiQ3JnZldQRnBwZUx1UzRP?=
+ =?utf-8?B?cnVrWWRBZHBtN0pSUFpYMkhIdmliajdhc2VYQXcxVFF1SStTQWhtbTVobGJq?=
+ =?utf-8?B?V2xTdWx1cVFRVnV6elhYVGpuU0RNUmlsaTQ4Umk4bmkxZzlCWEVmUm1paTBx?=
+ =?utf-8?B?UmFSUkRURXZBSmlpZ1pBa2IwbC8xamVmVmN5NGdnY0YwMHdBQXNuaDNGOVpR?=
+ =?utf-8?B?cWd6RTFJcjlvWUt6NFh6ODlJbW5kMkNoQ2Y0ak5OVEVzeGEycE9qaStwdnIz?=
+ =?utf-8?B?amNLd2VQOFkvSjc4N1lDZ2pGRkUwMU9scE5EczUwa1pYOEVsald6RHJxdXUx?=
+ =?utf-8?B?SSs1Q2dnZ0hrY2ROSUJTSjcxbVAwMWlLNlRDazNqR3YydmJmUWdYcVFmR3Iv?=
+ =?utf-8?B?U2JTUHJmVGh4L2pXTWFkYitNaTR3TE9PWTZ2MlpnZ0JlaFVzWHB5TC96dXlJ?=
+ =?utf-8?B?VlBqNWxKb0pVWjBKQWZqdW9FckJUMVk5RnN1WUl1elZYRDF0WHBiUXozQzU5?=
+ =?utf-8?B?eDVNOVQ0akpteXh4a1JnbWJYdENTeW9FY3VwK2pDWGwxUGhHR3RGNk5VUTE3?=
+ =?utf-8?B?Rlo3a0FFMmNRUFJDL3lmbERldWJnUXYrcUhXcm4vN2lrbkZCVVJqZGptbytp?=
+ =?utf-8?B?dXVrZFpJZnp5RW5ONDdhZzJ2NVZCZmlJZlk1RmFxbFllQjNLSE5PbnUxUHRL?=
+ =?utf-8?B?Wk8yRjQ0Zjk5OS9ob2h5aEh0YjFYV1lmSmpjZzh3Qmp0STU3RStzTnB1OWVP?=
+ =?utf-8?B?WmJrY3I1cUwrYlhORVQ3Q3JiQ3FzRXdUSzl6bXZ0UzFGbG5ScXRRaTJVaTZu?=
+ =?utf-8?B?REtSSGx4bDlDUDNhTjBuTTlEb1BKUjdXM051amQxRHU1WFh4TmhCWXhzaFVx?=
+ =?utf-8?B?YWJvYVFSR0MyM0dmaHBkSWZ6TmR6TUw4UlNkYklWSUNobzg1TjJQS1gvUHhs?=
+ =?utf-8?Q?bI7lQ9kFxoDvDSeDbQZifAoV+?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c8157b64-7179-43d4-301e-08db562bffb6
+X-MS-Exchange-CrossTenant-Network-Message-Id: ffa6b999-c1fc-474a-b7e1-08db562c2727
 X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6583.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 16:38:37.8381 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 16:39:44.0159 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Csb0+KIawhE4o53X9oJpbxuI9tXm7ggJ6cw3zjsXN4A3f6zGTCBCH8H5e7bAyPr/ByK7jPV8aQmxn3ejQ5+uwA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8186
-Cc: brett.creeley@amd.com, simon.horman@corigine.com,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- drivers@pensando.io
+X-MS-Exchange-CrossTenant-UserPrincipalName: FN3N8QvSJjATa4anH7/31/X1wvZLCp81txW7dxG4p0QInjV2z2LMzcG0aWACkcBvV4Qulv1UUGWg3ak1Ig7FPQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7605
+Cc: brett.creeley@amd.com, mst@redhat.com, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -170,117 +169,96 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 5/15/23 11:12 PM, Michael S. Tsirkin wrote:
-> On Mon, May 15, 2023 at 07:55:14PM -0700, Shannon Nelson wrote:
->> The pds_core_logical_qtype enum and IFNAMSIZ are not needed
->> in the common PDS header, only needed when working with the
->> adminq, so move them to the adminq header.
->>
->> Note: This patch might conflict with pds_vfio patches that are
->>        in review, depending on which patchset gets pulled first.
+On 5/16/23 3:35 AM, Simon Horman wrote:
+> 
+> On Mon, May 15, 2023 at 07:55:19PM -0700, Shannon Nelson wrote:
+>> This is the vDPA device support, where we advertise that we can
+>> support the virtio queues and deal with the configuration work
+>> through the pds_core's adminq.
 >>
 >> Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
 >> Acked-by: Jason Wang <jasowang@redhat.com>
 > 
-> It's a bit weird to add code in one patch then move it
-> in another. Why not start with it in the final location?
-
-Yes, and I usually try to catch those things before they go out :-).  In 
-this case the chunk we're moving was added in the pds_core patchset a 
-few weeks ago, and since then we have realized it would be better to be 
-localized to the adminq header.  Perhaps this would have been clearer if 
-this patch came first?
-
+> ...
 > 
-> More importantly, the use of adminq terminology here
-> is a going to be somewhat confusing with the unrelated
-> admin virtqueue just having landed in the virtio spec.
-> Is this terminology coming from some hardware spec?
+>> @@ -21,12 +479,156 @@ static struct virtio_device_id pds_vdpa_id_table[] = {
+>>   static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>>                            const struct vdpa_dev_set_config *add_config)
+>>   {
+>> -     return -EOPNOTSUPP;
+>> +     struct pds_vdpa_aux *vdpa_aux;
+>> +     struct pds_vdpa_device *pdsv;
+>> +     struct vdpa_mgmt_dev *mgmt;
+>> +     u16 fw_max_vqs, vq_pairs;
+>> +     struct device *dma_dev;
+>> +     struct pci_dev *pdev;
+>> +     struct device *dev;
+>> +     u8 mac[ETH_ALEN];
+>> +     int err;
+>> +     int i;
+>> +
+>> +     vdpa_aux = container_of(mdev, struct pds_vdpa_aux, vdpa_mdev);
+>> +     dev = &vdpa_aux->padev->aux_dev.dev;
+>> +     mgmt = &vdpa_aux->vdpa_mdev;
+>> +
+>> +     if (vdpa_aux->pdsv) {
+>> +             dev_warn(dev, "Multiple vDPA devices on a VF is not supported.\n");
+>> +             return -EOPNOTSUPP;
+>> +     }
+>> +
+>> +     pdsv = vdpa_alloc_device(struct pds_vdpa_device, vdpa_dev,
+>> +                              dev, &pds_vdpa_ops, 1, 1, name, false);
+>> +     if (IS_ERR(pdsv)) {
+>> +             dev_err(dev, "Failed to allocate vDPA structure: %pe\n", pdsv);
+>> +             return PTR_ERR(pdsv);
+>> +     }
+>> +
+>> +     vdpa_aux->pdsv = pdsv;
+>> +     pdsv->vdpa_aux = vdpa_aux;
+>> +
+>> +     pdev = vdpa_aux->padev->vf_pdev;
+>> +     dma_dev = &pdev->dev;
+>> +     pdsv->vdpa_dev.dma_dev = dma_dev;
+>> +
+>> +     pdsv->supported_features = mgmt->supported_features;
+>> +
+> 
+>> +     if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
+>> +             u64 unsupp_features =
+>> +                     add_config->device_features & ~mgmt->supported_features;
+>> +
+>> +             if (unsupp_features) {
+>> +                     dev_err(dev, "Unsupported features: %#llx\n", unsupp_features);
+>> +                     goto err_unmap;
+> 
+> Hi Shannon,
+> 
+> clang-16 W=1 reports that
+> err_unmap will return err
+> but err is uninitialised here.
 
-This firmware adminq through the PCI interface is similar to how several 
-other network drivers have an adminq for more complex conversations with 
-the FW.  Yes, I can see how having both this device adminq and the 
-virtio admin VQ in one place could be confusing, and we'll need to be 
-sure to be clear in the difference.  This is part of why we put most of 
-the adminq cmd code in its own cmd.c file, away from the virtio/vdpa 
-handling in vdpa_dev.c.
+Clearly I need to expand my toolset.
 
-Thanks,
+Good catch - thanks.
+
 sln
 
+
 > 
->> ---
->>   include/linux/pds/pds_adminq.h | 21 +++++++++++++++++++++
->>   include/linux/pds/pds_common.h | 21 ---------------------
->>   2 files changed, 21 insertions(+), 21 deletions(-)
->>
->> diff --git a/include/linux/pds/pds_adminq.h b/include/linux/pds/pds_adminq.h
->> index 98a60ce87b92..61b0a8634e1a 100644
->> --- a/include/linux/pds/pds_adminq.h
->> +++ b/include/linux/pds/pds_adminq.h
->> @@ -222,6 +222,27 @@ enum pds_core_lif_type {
->>        PDS_CORE_LIF_TYPE_DEFAULT = 0,
->>   };
->>
->> +#define PDS_CORE_IFNAMSIZ            16
+>> +             }
 >> +
->> +/**
->> + * enum pds_core_logical_qtype - Logical Queue Types
->> + * @PDS_CORE_QTYPE_ADMINQ:    Administrative Queue
->> + * @PDS_CORE_QTYPE_NOTIFYQ:   Notify Queue
->> + * @PDS_CORE_QTYPE_RXQ:       Receive Queue
->> + * @PDS_CORE_QTYPE_TXQ:       Transmit Queue
->> + * @PDS_CORE_QTYPE_EQ:        Event Queue
->> + * @PDS_CORE_QTYPE_MAX:       Max queue type supported
->> + */
->> +enum pds_core_logical_qtype {
->> +     PDS_CORE_QTYPE_ADMINQ  = 0,
->> +     PDS_CORE_QTYPE_NOTIFYQ = 1,
->> +     PDS_CORE_QTYPE_RXQ     = 2,
->> +     PDS_CORE_QTYPE_TXQ     = 3,
->> +     PDS_CORE_QTYPE_EQ      = 4,
->> +
->> +     PDS_CORE_QTYPE_MAX     = 16   /* don't change - used in struct size */
->> +};
->> +
->>   /**
->>    * union pds_core_lif_config - LIF configuration
->>    * @state:       LIF state (enum pds_core_lif_state)
->> diff --git a/include/linux/pds/pds_common.h b/include/linux/pds/pds_common.h
->> index 2a0d1669cfd0..435c8e8161c2 100644
->> --- a/include/linux/pds/pds_common.h
->> +++ b/include/linux/pds/pds_common.h
->> @@ -41,27 +41,6 @@ enum pds_core_vif_types {
->>
->>   #define PDS_VDPA_DEV_NAME    PDS_CORE_DRV_NAME "." PDS_DEV_TYPE_VDPA_STR
->>
->> -#define PDS_CORE_IFNAMSIZ            16
->> -
->> -/**
->> - * enum pds_core_logical_qtype - Logical Queue Types
->> - * @PDS_CORE_QTYPE_ADMINQ:    Administrative Queue
->> - * @PDS_CORE_QTYPE_NOTIFYQ:   Notify Queue
->> - * @PDS_CORE_QTYPE_RXQ:       Receive Queue
->> - * @PDS_CORE_QTYPE_TXQ:       Transmit Queue
->> - * @PDS_CORE_QTYPE_EQ:        Event Queue
->> - * @PDS_CORE_QTYPE_MAX:       Max queue type supported
->> - */
->> -enum pds_core_logical_qtype {
->> -     PDS_CORE_QTYPE_ADMINQ  = 0,
->> -     PDS_CORE_QTYPE_NOTIFYQ = 1,
->> -     PDS_CORE_QTYPE_RXQ     = 2,
->> -     PDS_CORE_QTYPE_TXQ     = 3,
->> -     PDS_CORE_QTYPE_EQ      = 4,
->> -
->> -     PDS_CORE_QTYPE_MAX     = 16   /* don't change - used in struct size */
->> -};
->> -
->>   int pdsc_register_notify(struct notifier_block *nb);
->>   void pdsc_unregister_notify(struct notifier_block *nb);
->>   void *pdsc_get_pf_struct(struct pci_dev *vf_pdev);
->> --
->> 2.17.1
+>> +             pdsv->supported_features = add_config->device_features;
+>> +     }
 > 
+> ...
+> 
+>> +err_unmap:
+>> +     put_device(&pdsv->vdpa_dev.dev);
+>> +     vdpa_aux->pdsv = NULL;
+>> +     return err;
+>>   }
+> 
+> ...
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
