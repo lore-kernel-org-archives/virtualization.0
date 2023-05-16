@@ -1,105 +1,134 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD8A9C77B75
-	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 13:40:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E806EC77B7A
+	for <virtualization@archiver.kernel.org>; Tue, 16 May 2023 13:55:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3F9DF60F83;
-	Tue, 16 May 2023 13:40:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F9DF60F83
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E87Pii9a
+	by smtp4.osuosl.org (Postfix) with ESMTP id 65CEC41A42;
+	Tue, 16 May 2023 13:55:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 65CEC41A42
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=HFHubtDY
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6YnEUyyOHwuM; Tue, 16 May 2023 13:55:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 571734191A;
+	Tue, 16 May 2023 13:55:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 571734191A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A87EC0037;
+	Tue, 16 May 2023 13:55:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E28DCC002A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 May 2023 13:55:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9DEDE60A82
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 May 2023 13:55:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9DEDE60A82
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=HFHubtDY
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XJTxTp8_OsRO; Tue, 16 May 2023 13:40:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C8876605B0;
-	Tue, 16 May 2023 13:40:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C8876605B0
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AA0CBC0037;
-	Tue, 16 May 2023 13:40:31 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46EA2C0037
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YnKqqNSVHzJE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 13:40:30 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 21C8D4054B
+ Tue, 16 May 2023 13:55:11 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC01461615
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12on20602.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5a::602])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id AC01461615
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 13:40:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 21C8D4054B
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=E87Pii9a
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gw1RmdmhRCPK
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 13:40:29 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4589B400CB
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4589B400CB
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 13:40:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1684244427;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XmVZa6rWHxSlUUKvwO4ykn0iGDBDGTKqwvGiklVx1pE=;
- b=E87Pii9aDAyLFgl4TvWSOFHNq+xE3wUoBlTtDYs9umAdhRPqFm1/VP1pXs+ZbdD08DkHeD
- K5gQ2WCFhxUVjODvjYtGJxen38g3iCyBJR5afRCKDbtQ0tDmNkOCceJX/oqLNtJj1Zvr41
- opOJ69XRGl8wm8xIhqA3yCEnb2ieDLM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-515-dIddS3M_Mu2_jKYn5PS7Nw-1; Tue, 16 May 2023 09:40:24 -0400
-X-MC-Unique: dIddS3M_Mu2_jKYn5PS7Nw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 76AC680B2BB;
- Tue, 16 May 2023 13:40:22 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.45.226.147])
- by smtp.corp.redhat.com (Postfix) with SMTP id D57D82166B31;
- Tue, 16 May 2023 13:40:17 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
- oleg@redhat.com; Tue, 16 May 2023 15:40:08 +0200 (CEST)
-Date: Tue, 16 May 2023 15:40:03 +0200
-From: Oleg Nesterov <oleg@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH v11 8/8] vhost: use vhost_tasks for worker threads
-Message-ID: <20230516134002.GB28890@redhat.com>
-References: <aba6cca4-e66c-768f-375c-b38c8ba5e8a8@6wind.com>
- <CAHk-=wgadfsCnKHLON7op=Qs5t3w3PVz5ZDbvbKsfb=yBg=yjQ@mail.gmail.com>
- <78c5e150-26cf-7724-74ee-4a0b16b944b1@oracle.com>
- <48842e92-835e-bc3f-7118-48b8f415f532@leemhuis.info>
- <CAHk-=wicXCNR1bBioaAiBqEDgv-CoQD9z2RsM2VOTPzkK0xr8g@mail.gmail.com>
- <20230515-vollrausch-liebgeworden-2765f3ca3540@brauner>
- <CAHk-=wgXJ5VS1iBkfsG=HDjsyhn5XYDKt5xhQcNuz-e7VKyg8A@mail.gmail.com>
- <122b597e-a5fa-daf7-27bb-6f04fa98d496@oracle.com>
- <CAHk-=wgTpRDwS+F0Gd6+bM+TEh+x4Aiz8EBDTnTm3Q4TFdWOww@mail.gmail.com>
- <8bfb7d1d-f7d0-94ca-4777-e31a2003027a@oracle.com>
+ Tue, 16 May 2023 13:55:11 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mNPQMbRvjp3sqHLZT9o6w3Ubwa4CjqkWZBbejX60kjYEntDDTK2l34c60lOoDHy0ZMvPYcqMGpzEXZAL+9EWZYq7uim736V9kCowq5HFv/rhk0pigrmOKgDxpHU8g7n4DguBHf1S5M2nsmw9B326s0ZOBZwlwfbAho66ZOI4JUGQT9wtBJXjdvJ7F90Zh89y7Xvo6/7yCKaTd6EhYmohsu/i2ZVsUYNClcbfCZbixVuERxfhIuIJdCqcz/3SCuhFSUvS2r7ary+rkrEo3qDYIwi4e6d+aR266RauG5Gh2bsugGlqRbNmWF6J457VPJMXXcJRRGTjuCvd2tPz79bk0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=F5JW2Mhi40zgUhuTvwACpEkGADKW8YatpqyhR23tZwQ=;
+ b=btBpwDWcpvKiq0FGTT4KeFZFmWW+aXasZZt7Tf3JiUvKb88V++nRuXeX7GWwp5ltJ8xesOATBI9pHLSjah2KaxI7xKZFgWVjY8hqMturoZ2EQyVMrMnV1v8D6xet25NEb1WBC+ZUMNAZjqYPFp5mZT3ubfff0azz+ESUre+5LrpufIRsgVH0PjPeqvRzm/snTQalztoPrrkmpgOfX0SCZeQ+srF8rw0vJZreWYDmnXbqaCmAJUP7BUD1aV7IwvbfY8/7nayx1arFkopM6SzPZWd0VeRaFVMzBzhdx/vEXvQ73oCrTphL83Oa/e/LZ8BkyO3wspDpkSHyeK3tBZXcGQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=lists.linux-foundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=reject sp=reject pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=F5JW2Mhi40zgUhuTvwACpEkGADKW8YatpqyhR23tZwQ=;
+ b=HFHubtDYEFMc8HPdPspxzRg0/ULhckHhRAB9R8NNOlI8/q3AfHGpiZLmGXi7yiSnLelKHUm4CLiqebRi9KnrRhLmoHnTR6SlmAvMAmRZTPzCHVBV7ixGN/4AN2B/jtb51XShoF//KTb9GyIB/mbjIIRdJZQijVgWIPZd4s+1wa2YqZZ6KJT/iootin5CHZN9MVKubECWgaQOWcq9VMiwiOsFfWqsn7k2grCq3/txIrf3p1Uv2j+P/7Ix3VfNHWutkIO2B5x/QASZ0SCrdOi7I1tCWjkvx81VNInJv8Q5j7D3pNFooWlVPKQ5svrrDn1mYuIZEHLCZYGTdciHS2Y0/w==
+Received: from MW4PR04CA0172.namprd04.prod.outlook.com (2603:10b6:303:85::27)
+ by BL0PR12MB4931.namprd12.prod.outlook.com (2603:10b6:208:17e::15)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.33; Tue, 16 May
+ 2023 13:55:09 +0000
+Received: from CO1NAM11FT044.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:85:cafe::e8) by MW4PR04CA0172.outlook.office365.com
+ (2603:10b6:303:85::27) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.33 via Frontend
+ Transport; Tue, 16 May 2023 13:55:08 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ CO1NAM11FT044.mail.protection.outlook.com (10.13.175.188) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6411.16 via Frontend Transport; Tue, 16 May 2023 13:55:07 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 16 May 2023
+ 06:54:56 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Tue, 16 May
+ 2023 06:54:55 -0700
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com (10.129.68.10)
+ with Microsoft SMTP Server id 15.2.986.37 via Frontend Transport;
+ Tue, 16 May 2023 06:54:54 -0700
+To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>
+Subject: [PATCH v1] virtio_pci: Optimize virtio_pci_device structure size
+Date: Tue, 16 May 2023 09:54:46 -0400
+Message-ID: <20230516135446.16266-1-feliu@nvidia.com>
+X-Mailer: git-send-email 2.37.1 (Apple Git-137.1)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <8bfb7d1d-f7d0-94ca-4777-e31a2003027a@oracle.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-Cc: Jens Axboe <axboe@kernel.dk>, Christian Brauner <brauner@kernel.org>,
- Linux kernel regressions list <regressions@lists.linux.dev>, mst@redhat.com,
- linux-kernel@vger.kernel.org, konrad.wilk@oracle.com,
- Thorsten Leemhuis <linux@leemhuis.info>,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- ebiederm@xmission.com, stefanha@redhat.com, nicolas.dichtel@6wind.com,
- Linus Torvalds <torvalds@linux-foundation.org>
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT044:EE_|BL0PR12MB4931:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2f96c80f-6b1a-44da-b5c9-08db561528aa
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: gBK/EMsCUHssBdjFpdXK8li7uRTlvyhoD+I2eggtgz8aYmxL6LPe2zK9CaWl8blN6rBQYRVpJI0aMTZ5TMmx9gneP2E/0+AosOdpB7SYAU1WRuo5pZfKFKVEN2AjycCzGgmrZgRG4HN/Qq/8I8P7pW4DfPdhJG6kSp65O8HLkMt89zy2X85PUHL4tJsssObR0UceG85ZAys3kjR+Vc72MkRMUZ3qjTblBRliy+1/rWpZxV2z+YG7TKUidhfrknTkems1CG4BEMPFJgZ4j+ZLOFjz9dRLeqkNJ7TkeJrelqpwshL1bgLDqzmdwMxjysSxD31NeaqxgRStnt3YTln4YKkgUSuBiOAvsAF0vHHPpIQoy1f31zOlVoqlWce+e8jt6MoblmH7AqxfXWVh9q1ie4589UJkRCXATJpXvZ2A7NMVQUdK9MfLTN+cFlnS7utQ2l8BjOfT/egzCFHu9fVtgtXTgqe9gjKYmO/HXij+SUdXUFUaNM9IsEX6qOCWork/dE0IAQEH7LT4SJrw5UP4UXxvOyfLJtHVKEUxvwI9Wo8+pQ6GDG6b9iTHSzilDnn67pxXHIchDyofXPCF1APFjKG5lXjZMo/nq4GCvGsMVlss5XZBuPBrG06ET4jKUBfhtujGOQynQ5be5hkH1AtxVFjPEoZjB4wRags5mjo1c33SEQOJDvZ6CYBgazOWEp1hWaR46VMZZPjPra8xHRb3qcIh54KzxTfUxFKU4V4AkyKUIaIZH/9RRniYEh74iW+2j5VcqINJujkjVvQbpMurGg==
+X-Forefront-Antispam-Report: CIP:216.228.117.161; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge2.nvidia.com; CAT:NONE;
+ SFS:(13230028)(4636009)(39860400002)(346002)(396003)(376002)(136003)(451199021)(40470700004)(36840700001)(46966006)(36756003)(86362001)(7696005)(110136005)(54906003)(316002)(4326008)(70206006)(70586007)(478600001)(40480700001)(82310400005)(5660300002)(8936002)(2906002)(8676002)(6666004)(41300700001)(7636003)(82740400003)(356005)(36860700001)(336012)(186003)(2616005)(426003)(1076003)(26005)(107886003)(83380400001)(47076005)(66899021)(40460700003)(21314003);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 May 2023 13:55:07.8072 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2f96c80f-6b1a-44da-b5c9-08db561528aa
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.161];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT044.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4931
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Jiri Pirko <jiri@nvidia.com>,
+ Bodong Wang <bodong@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,28 +140,73 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: Feng Liu <feliu@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 05/15, Mike Christie wrote:
->
-> --- a/kernel/vhost_task.c
-> +++ b/kernel/vhost_task.c
-> @@ -75,13 +75,13 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
->  				     const char *name)
->  {
->  	struct kernel_clone_args args = {
-> -		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM,
-> +		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM |
-> +				  CLONE_THREAD | CLONE_SIGHAND,
+Improve the size of the virtio_pci_device structure, which is commonly
+used to represent a virtio PCI device. A given virtio PCI device can
+either of legacy type or modern type, with the
+struct virtio_pci_legacy_device occupying 32 bytes and the
+struct virtio_pci_modern_device occupying 88 bytes. Make them a union,
+thereby save 32 bytes of memory as shown by the pahole tool. This
+improvement is particularly beneficial when dealing with numerous
+devices, as it helps conserve memory resources.
 
-I am looking at 6/8 on https://lore.kernel.org/lkml/ ...
+Before the modification, pahole tool reported the following:
+struct virtio_pci_device {
+[...]
+        struct virtio_pci_legacy_device ldev;            /*   824    32 */
+        /* --- cacheline 13 boundary (832 bytes) was 24 bytes ago --- */
+        struct virtio_pci_modern_device mdev;            /*   856    88 */
 
-with this change kernel_wait4() in vhost_task_stop() won't work?
+        /* XXX last struct has 4 bytes of padding */
+[...]
+        /* size: 1056, cachelines: 17, members: 19 */
+[...]
+};
 
-Oleg.
+After the modification, pahole tool reported the following:
+struct virtio_pci_device {
+[...]
+        union {
+                struct virtio_pci_legacy_device ldev;    /*   824    32 */
+                struct virtio_pci_modern_device mdev;    /*   824    88 */
+        };                                               /*   824    88 */
+[...]
+	/* size: 1024, cachelines: 16, members: 18 */
+[...]
+};
+
+Signed-off-by: Feng Liu <feliu@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+---
+ drivers/virtio/virtio_pci_common.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+index 23112d84218f..4b773bd7c58c 100644
+--- a/drivers/virtio/virtio_pci_common.h
++++ b/drivers/virtio/virtio_pci_common.h
+@@ -45,9 +45,10 @@ struct virtio_pci_vq_info {
+ struct virtio_pci_device {
+ 	struct virtio_device vdev;
+ 	struct pci_dev *pci_dev;
+-	struct virtio_pci_legacy_device ldev;
+-	struct virtio_pci_modern_device mdev;
+-
++	union {
++		struct virtio_pci_legacy_device ldev;
++		struct virtio_pci_modern_device mdev;
++	};
+ 	bool is_legacy;
+ 
+ 	/* Where to read and clear interrupt */
+-- 
+2.37.1 (Apple Git-137.1)
 
 _______________________________________________
 Virtualization mailing list
