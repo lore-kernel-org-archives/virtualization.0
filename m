@@ -4,104 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E184C77B7A
-	for <virtualization@archiver.kernel.org>; Wed, 17 May 2023 08:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE72AC77B7F
+	for <virtualization@archiver.kernel.org>; Wed, 17 May 2023 10:13:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D45DD841EC;
-	Wed, 17 May 2023 08:38:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D45DD841EC
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3C7FC820ED;
+	Wed, 17 May 2023 10:13:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3C7FC820ED
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.a=rsa-sha256 header.s=google header.b=TtyWNefn
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jBHB2kr7
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KKxlZFJTc-US; Wed, 17 May 2023 08:38:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5C2B584131;
-	Wed, 17 May 2023 08:38:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5C2B584131
+	with ESMTP id ZJXIqcxbAlKa; Wed, 17 May 2023 10:13:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B41481E67;
+	Wed, 17 May 2023 10:13:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9B41481E67
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31AFEC0037;
-	Wed, 17 May 2023 08:38:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 894C7C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 72446C0037;
+	Wed, 17 May 2023 10:13:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B548C002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 08:38:02 +0000 (UTC)
+ Wed, 17 May 2023 10:13:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4EC91400C8
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6008D60E65
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 08:38:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EC91400C8
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com
- header.a=rsa-sha256 header.s=google header.b=TtyWNefn
+ Wed, 17 May 2023 10:13:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6008D60E65
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=jBHB2kr7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tPv-dUQRsLGm
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Y3gX46578WVO
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 08:38:01 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1635640124
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com
- [IPv6:2607:f8b0:4864:20::1034])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1635640124
+ Wed, 17 May 2023 10:13:27 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C18FB60E51
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C18FB60E51
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 08:38:00 +0000 (UTC)
-Received: by mail-pj1-x1034.google.com with SMTP id
- 98e67ed59e1d1-24e14a24c9dso493712a91.0
+ Wed, 17 May 2023 10:13:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1684318405;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=I2wx/HsJhUUdqsz7R5qMuiWwVG1FuENAd62XK76/qS8=;
+ b=jBHB2kr7ujd9dBQWoXyd2YhhgsbPfmqs9Pb7NX+x/l+NNCmCxKTtX7OIGeWhfWdmJik4Ar
+ +PaPptjSyNPmpTLdmxj5p3OFsTms80oKpJhE9mcB6+uf/0IsapvvzTiA7SnIt4y4W8dTA5
+ obywxjkXHvAmYYFXIfjsUdDyGKdBfnk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-380-3YPI-PwkMaWxGagFcSjAXQ-1; Wed, 17 May 2023 06:13:24 -0400
+X-MC-Unique: 3YPI-PwkMaWxGagFcSjAXQ-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ 5b1f17b1804b1-3f33f8ffa37so2208925e9.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 01:38:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance.com; s=google; t=1684312680; x=1686904680;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :from:to:cc:subject:date:message-id:reply-to;
- bh=/lS0VerKT/K5L5+mTBdB0d9Ml3aR+Xdun4CK+Oz2SxI=;
- b=TtyWNefnV49cwEOlKU8y2jD+mhN5zLQYPxbCTrObAYp/C192RW6uoewbVjaYQfg9yo
- i/yxj0UcotS7dAZ0cUxJpju9r9PSoW8N9SK9Qs6tAdHjtgYdO4hOoYb8eXdLhgtB/TkG
- I3TCiKLegp9VJ/F/+oLMaD3/7k3UUIliS1Wqm4UXeMOrD0ZMhZDF3ADvAn03ktJ9BQ81
- sbkq+yAqCmih3F0vxoOzpI4TYB3rtnCPrjAlbrhO7G8fxrmNRBDRB/1opljUYn6lCakP
- aVc8fi+PXGDb/FM9anQX24DlH/AO7MDJh20Pa4vKQHkP2EbLHAnB5RuC7EzAOMHLNSRy
- Sp9g==
+ Wed, 17 May 2023 03:13:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1684312680; x=1686904680;
- h=content-transfer-encoding:in-reply-to:from:references:cc:to
- :content-language:subject:user-agent:mime-version:date:message-id
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=/lS0VerKT/K5L5+mTBdB0d9Ml3aR+Xdun4CK+Oz2SxI=;
- b=foEHpJ+2LBGFbUljqG2kosZOpy1oW7U1BKUxyMI+7NtPNBDABkJtM4oNRnflufH3Zp
- ohnf1kerkXhY3d5ww7AWsVPnlN50TfjBCddfVYQ0tgBW/tw8WNNVoMB/g5G1uJiJkN1i
- B+nTtx5YWDMVajZGJsVpWl630+dZZR/CtDMYEi4G8aO4VpsuamDi/q8lJT37jl73Ti15
- 5jqQDpijpBg5JroC956mgN/BcQf38N6ytDJOJ2TGXt4XJaipUXdj2zDSu6rcW9fxmrYg
- VfwdtB3j8hpHIfDHvxV8b27jO99hvbmbOUBIl1/jcY9/a5tGr5JRevqg2hviVsXDkwW2
- VIlg==
-X-Gm-Message-State: AC+VfDw7Ev2qO2zwHi+Gzp5MkVa1Hs8/ogReqIuI07yLVvRYyNie3Jqi
- UgcslVHJzs7LvvkEKYsNOZ5MCw==
-X-Google-Smtp-Source: ACHHUZ4BAUBHc0m+lbjNIyl3j50KkdyimAn6S9D1Z8XxzconpCTqA/x2z83kBTjmPp49D30NwUggRg==
-X-Received: by 2002:a17:90a:dd88:b0:252:e7e2:fefe with SMTP id
- l8-20020a17090add8800b00252e7e2fefemr11945883pjv.2.1684312680236; 
- Wed, 17 May 2023 01:38:00 -0700 (PDT)
-Received: from [10.3.43.196] ([61.213.176.7]) by smtp.gmail.com with ESMTPSA id
- f24-20020a17090ace1800b002405d3bbe42sm1030351pju.0.2023.05.17.01.37.57
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 17 May 2023 01:37:59 -0700 (PDT)
-Message-ID: <cc9f3aea-b8bc-f312-41bb-3fd68083aa99@bytedance.com>
-Date: Wed, 17 May 2023 16:35:55 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: Re: [PATCH v2 1/2] virtio: abstract virtqueue related methods
-Content-Language: en-US
-To: Christoph Hellwig <hch@infradead.org>
+ d=1e100.net; s=20221208; t=1684318403; x=1686910403;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=I2wx/HsJhUUdqsz7R5qMuiWwVG1FuENAd62XK76/qS8=;
+ b=TAktXAKokth3mQU4vN5pYAh3KgKGrQc2eGVrSG5XZkTWVcvJ1pVbHC2Zwx4hwkwNjQ
+ +Y5Yb2LCKy8QldwTA4ouuom2PpmeZEUpCMwJcUa7qpfxWLy5p5dAAqweiG+30gBIe0rs
+ mgcBY1DDmP8jnpp3JxTEAoBmVmTCK2MGr8+IrM5dKj7Jgqjia6OL6zphMSQL/Ss418Y5
+ JncAMwnwHJ+HYld1jYkazL/1WF2Sy/mG3YanYlP1bx2yYjyZdViJHIWfLvGHEcyCb1Ql
+ yCTlpi3gXyfxA2QJPzvHmstIjHU8iJksZdaQpn+Ko2vgE1f4/Q37ScyhMkwrIyw21Aak
+ hC9g==
+X-Gm-Message-State: AC+VfDwZXfucnkfXLUb2NRvcIQVwOW/Mot7cnO5oZ6+8qfGxINfBwhHh
+ IDOSBL5QAioX/mTRAAalocOzqq7UTWxGWfLY90MnOs+l1KMiK7nFDhJ1QAgYuh1teG+0X76OjVB
+ lc1VT7pSOzzzgD3brHe0Khlw3EBBlMuMKevBsuUkjMQ==
+X-Received: by 2002:a7b:c846:0:b0:3f5:1980:ad43 with SMTP id
+ c6-20020a7bc846000000b003f51980ad43mr2663452wml.31.1684318403019; 
+ Wed, 17 May 2023 03:13:23 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ73+Ow9A8iGZ2I7XMdEwZHisBEr3+oOaglzf/0hAGadudfZm+Nhadvv93jmpnbpOJYRyatYsA==
+X-Received: by 2002:a7b:c846:0:b0:3f5:1980:ad43 with SMTP id
+ c6-20020a7bc846000000b003f51980ad43mr2663436wml.31.1684318402615; 
+ Wed, 17 May 2023 03:13:22 -0700 (PDT)
+Received: from redhat.com ([2.52.6.43]) by smtp.gmail.com with ESMTPSA id
+ f21-20020a7bcc15000000b003f31d44f0cbsm1765534wmh.29.2023.05.17.03.13.20
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 17 May 2023 03:13:21 -0700 (PDT)
+Date: Wed, 17 May 2023 06:13:17 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: Re: Re: Re: [PATCH v2 0/2] virtio: abstract virtqueue related
+ methods
+Message-ID: <20230517061152-mutt-send-email-mst@kernel.org>
 References: <20230517025424.601141-1-pizhenwei@bytedance.com>
- <20230517025424.601141-2-pizhenwei@bytedance.com>
- <ZGSEq197W8VvOWCc@infradead.org>
- <9e4702f2-5473-2139-3858-ae58817bc7b5@bytedance.com>
- <ZGSGQWqbtdwGXurf@infradead.org>
-In-Reply-To: <ZGSGQWqbtdwGXurf@infradead.org>
-Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, stefanha@redhat.com
+ <20230516234444-mutt-send-email-mst@kernel.org>
+ <8f3ca136-0276-49ca-d703-715c83cff557@bytedance.com>
+ <20230516235541-mutt-send-email-mst@kernel.org>
+ <949dd4db-89ea-4331-5fa7-700f96874ab3@bytedance.com>
+ <20230517020947-mutt-send-email-mst@kernel.org>
+ <b0b69e9d-da8a-791b-545f-c521dc752b88@bytedance.com>
+MIME-Version: 1.0
+In-Reply-To: <b0b69e9d-da8a-791b-545f-c521dc752b88@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,67 +123,137 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: zhenwei pi via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: zhenwei pi <pizhenwei@bytedance.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-On 5/17/23 15:46, Christoph Hellwig wrote:
-> On Wed, May 17, 2023 at 03:43:03PM +0800, zhenwei pi wrote:
->> I have a plan to introduce 'Virtio Over Fabrics'(TCP&RDMA) as Virtio
->> transport, as mentioned in cover letter of this series:
->> 3 weeks ago, I posted a proposal 'Virtio Over Fabrics':
->> https://lists.oasis-open.org/archives/virtio-comment/202304/msg00442.html
+On Wed, May 17, 2023 at 02:21:09PM +0800, zhenwei pi wrote:
+> On 5/17/23 14:10, Michael S. Tsirkin wrote:
+> > On Wed, May 17, 2023 at 12:58:10PM +0800, zhenwei pi wrote:
+> > > On 5/17/23 11:57, Michael S. Tsirkin wrote:
+> > > > On Wed, May 17, 2023 at 11:51:03AM +0800, zhenwei pi wrote:
+> > > > > 
+> > > > > 
+> > > > > On 5/17/23 11:46, Michael S. Tsirkin wrote:
+> > > > > > On Wed, May 17, 2023 at 10:54:22AM +0800, zhenwei pi wrote:
+> > > > > > > v1 -> v2:
+> > > > > > > - Suggested by MST, use fast path for vring based performance
+> > > > > > > sensitive API.
+> > > > > > > - Reduce changes in tools/virtio.
+> > > > > > > 
+> > > > > > > Add test result(no obvious change):
+> > > > > > > Before:
+> > > > > > > time ./vringh_test --parallel
+> > > > > > > Using CPUS 0 and 191
+> > > > > > > Guest: notified 10036893, pinged 68278
+> > > > > > > Host: notified 68278, pinged 3093532
+> > > > > > > 
+> > > > > > > real	0m14.463s
+> > > > > > > user	0m6.437s
+> > > > > > > sys	0m8.010s
+> > > > > > > 
+> > > > > > > After:
+> > > > > > > time ./vringh_test --parallel
+> > > > > > > Using CPUS 0 and 191
+> > > > > > > Guest: notified 10036709, pinged 68347
+> > > > > > > Host: notified 68347, pinged 3085292
+> > > > > > > 
+> > > > > > > real	0m14.196s
+> > > > > > > user	0m6.289s
+> > > > > > > sys	0m7.885s
+> > > > > > > 
+> > > > > > > v1:
+> > > > > > > Hi,
+> > > > > > > 
+> > > > > > > 3 weeks ago, I posted a proposal 'Virtio Over Fabrics':
+> > > > > > > https://lists.oasis-open.org/archives/virtio-comment/202304/msg00442.html
+> > > > > > > 
+> > > > > > > Jason and Stefan pointed out that a non-vring based virtqueue has a
+> > > > > > > chance to overwrite virtqueue instead of using vring virtqueue.
+> > > > > > > 
+> > > > > > > Then I try to abstract virtqueue related methods in this series, the
+> > > > > > > details changes see the comment of patch 'virtio: abstract virtqueue related methods'.
+> > > > > > > 
+> > > > > > > Something is still remained:
+> > > > > > > - __virtqueue_break/__virtqueue_unbreak is supposed to use by internal
+> > > > > > >      virtio core, I'd like to rename them to vring_virtqueue_break
+> > > > > > >      /vring_virtqueue_unbreak. Is this reasonable?
+> > > > > > 
+> > > > > > Why? These just set a flag?
+> > > > > > 
+> > > > > 
+> > > > > Rename '__virtqueue_break' to 'vring_virtqueue_break', to make symbols
+> > > > > exported from virtio_ring.ko have unified prefix 'vring_virtqueue_xxx'.
+> > > > 
+> > > > I just do not see why you need these callbacks at all.
+> > > > 
+> > > 
+> > > I use these callbacks for break/unbreak device like:
+> > > static inline void virtio_break_device(struct virtio_device *dev)
+> > > {
+> > > 	struct virtqueue *vq;
+> > > 
+> > > 	spin_lock(&dev->vqs_list_lock);
+> > > 	list_for_each_entry(vq, &dev->vqs, list) {
+> > > 		vq->__break(vq);
+> > > 	}
+> > > 	spin_unlock(&dev->vqs_list_lock);
+> > > }
+> > 
+> > why do this? backend knows they are broken.
+> > 
 > 
-> Just don't do it.  Please define your own protocols over RDMA or TCP
-> for exactly the operations you need (for many they will already exist)
-> instead of piggyg backing on virtio and making everyone else pay the
-> price.
+> I grep 'virtio_break_device' in the latest code:
+> arch/um/drivers/virtio_uml.c:1147:	virtio_break_device(&vu_dev->vdev);
+> arch/um/drivers/virtio_uml.c:1285:	virtio_break_device(&vu_dev->vdev);
+> drivers/crypto/virtio/virtio_crypto_core.c:269:	
+> virtio_break_device(vcrypto->vdev);
+> drivers/s390/virtio/virtio_ccw.c:1251:			virtio_break_device(&vcdev->vdev);
+> drivers/s390/virtio/virtio_ccw.c:1268:		virtio_break_device(&vcdev->vdev);
+> drivers/firmware/arm_scmi/virtio.c:489:
+> virtio_break_device(vioch->vqueue->vdev);
+> drivers/char/virtio_console.c:1956:	virtio_break_device(vdev);
 > 
+> Some virtio drivers use 'virtio_break_device'...
 
-Hi
+You should read the code and understand what it does,
+not just grep things and make assumptions.
+What virtio_break_device does is stop linux from sending
+new requests.
 
-1, `virtqueue_add_inbuf` in current version:
-static inline int virtqueue_add_inbuf(struct virtqueue *vq,
-                                       struct scatterlist *sg,
-                                       unsigned int num,
-                                       void *data,
-                                       gfp_t gfp)
-{
-         if (likely(!vq->abstract))
-                 return vring_virtqueue_add_sgs(vq, &sg, num, 0, 1, 
-data, NULL, gfp);
 
-         return vq->add_sgs(vq, &sg, num, 0, 1, data, NULL, gfp);
-}
+> > > > > > > - virtqueue_get_desc_addr/virtqueue_get_avail_addr/virtqueue_get_used_addr
+> > > > > > >      /virtqueue_get_vring is vring specific, I'd like to rename them like
+> > > > > > >      vring_virtqueue_get_desc_addr. Is this reasonable?
+> > > > > > > - there are still some functions in virtio_ring.c with prefix *virtqueue*,
+> > > > > > >      for example 'virtqueue_add_split', just keep it or rename it to
+> > > > > > >      'vring_virtqueue_add_split'?
+> > > > > > > zhenwei pi (2):
+> > > > > > >      virtio: abstract virtqueue related methods
+> > > > > > >      tools/virtio: implement virtqueue in test
+> > > > > > > 
+> > > > > > >     drivers/virtio/virtio_ring.c | 285 +++++-----------------
+> > > > > > >     include/linux/virtio.h       | 441 +++++++++++++++++++++++++++++++----
+> > > > > > >     include/linux/virtio_ring.h  |  26 +++
+> > > > > > >     tools/virtio/linux/virtio.h  | 355 +++++++++++++++++++++++++---
+> > > > > > >     4 files changed, 807 insertions(+), 300 deletions(-)
+> > > > > > > 
+> > > > > > > -- 
+> > > > > > > 2.20.1
+> > > > > > 
+> > > > > 
+> > > > > -- 
+> > > > > zhenwei pi
+> > > > 
+> > > 
+> > > -- 
+> > > zhenwei pi
+> > 
+> 
+> -- 
+> zhenwei pi
 
-And disassemble 'virtinput_queue_evtbuf':
-static void virtinput_queue_evtbuf(struct virtio_input *vi,
-                                    struct virtio_input_event *evtbuf)
-{
-         struct scatterlist sg[1];
-
-         sg_init_one(sg, evtbuf, sizeof(*evtbuf));
-         virtqueue_add_inbuf(vi->evt, sg, 1, evtbuf, GFP_ATOMIC);
-}
-
-I notice that two instructions are newly added for vring like:
-  24d:   80 78 35 00             cmpb   $0x0,0x35(%rax)
-  251:   75 3f                   jne    292
-
-Is it an expensive price...
-
-2, Storage/FS specific remote protocol is quite popular, otherwise I'm 
-not familiar with other device protocols. For example, I need a remote 
-crypto device to accelerate HTTPS ... With Virtio Over Fabrics, I have a 
-chance to attach a virtio-crypto device to do this work.
-
--- 
-zhenwei pi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
