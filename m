@@ -1,108 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2F1C6C77B7D
-	for <virtualization@archiver.kernel.org>; Wed, 17 May 2023 05:57:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7294CC77B75
+	for <virtualization@archiver.kernel.org>; Wed, 17 May 2023 06:10:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B72486FE86;
-	Wed, 17 May 2023 05:57:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B72486FE86
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=D4W6A+YG
+	by smtp2.osuosl.org (Postfix) with ESMTP id 002A140122;
+	Wed, 17 May 2023 06:10:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 002A140122
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ONcWDIdI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4zYM-bJc8k22; Wed, 17 May 2023 05:57:37 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id luovjcKua-SN; Wed, 17 May 2023 06:10:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4CE576FE77;
-	Wed, 17 May 2023 05:57:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4CE576FE77
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DEE4A40101;
+	Wed, 17 May 2023 06:10:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEE4A40101
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27F4AC0037;
-	Wed, 17 May 2023 05:57:36 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 28452C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ACBEFC0036;
+	Wed, 17 May 2023 06:10:28 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D46BBC002A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 05:57:35 +0000 (UTC)
+ Wed, 17 May 2023 06:10:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 00B37420A6
+ by smtp1.osuosl.org (Postfix) with ESMTP id B527981E96
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 05:57:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 00B37420A6
-Authentication-Results: smtp4.osuosl.org;
+ Wed, 17 May 2023 06:10:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B527981E96
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=D4W6A+YG
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ONcWDIdI
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id X9NI9n9I_voU
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NoGTF-jY-kkN
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 05:57:34 +0000 (UTC)
+ Wed, 17 May 2023 06:10:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F8134209D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A318A81E85
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1F8134209D
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A318A81E85
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 May 2023 05:57:33 +0000 (UTC)
+ Wed, 17 May 2023 06:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1684303052;
+ s=mimecast20190719; t=1684303825;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=w+qfUPr0uKNy+sb2n0bJkiBPdjAbSKuNDFcmJ6hILOM=;
- b=D4W6A+YGDTw3e3dCgJpzyPq24G0isFgkTEjlG+8xslBc32kZeJW6ntoEMkqiS8/M6uQOYs
- g3UawQpI0Ju0+UVtPb12pt/IHwUiIn7lKgSD/MRsq+ATAdHx1EtUfa9vd/zTGpiXpTv2xw
- jS/ytikcTPR7b/GWyGXa1LTYZx0pjxQ=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=7k7pF0B18nkLr+NjCb47Ij0PMr/KmJbhEjNycbRjuVg=;
+ b=ONcWDIdIwTvjX/gGnHHHmQ3ik5DBeEnFDnMVjUJi/LCaBoEe1t12jtp/ksgK4JInB3O2h9
+ J/dhGayK82iB6LUMDX8knqdycboe4PnUjpEweePBjpo3Mbv9wEQ7tzQQTz1q1VXfhSCmCh
+ ipx89wXNGbL7jtLjNgjt3hcmESrWbEs=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-646-O6RhN5TqP4Cfn11wY3_IPg-1; Wed, 17 May 2023 01:57:31 -0400
-X-MC-Unique: O6RhN5TqP4Cfn11wY3_IPg-1
-Received: by mail-lf1-f70.google.com with SMTP id
- 2adb3069b0e04-4edbdd8268bso276787e87.2
+ us-mta-320-qFxMav4aPXWZe65pQryaEg-1; Wed, 17 May 2023 02:10:24 -0400
+X-MC-Unique: qFxMav4aPXWZe65pQryaEg-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ ffacd0b85a97d-30635d18e55so108642f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 May 2023 22:57:31 -0700 (PDT)
+ Tue, 16 May 2023 23:10:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1684303050; x=1686895050;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=w+qfUPr0uKNy+sb2n0bJkiBPdjAbSKuNDFcmJ6hILOM=;
- b=ZsDTevcuQYWg90Nj6yhLLODjYySQ0vOwTDs/A1JEnnIQOwrvHzWuQyUIkq33UUK2S/
- RkE2dXsozsQmwPlFuRh/A4C1mo42F95g7YWo5iFqZOoEPFhh6BxzAMQCk85Zy7geBVoL
- E9uYoH6bif82MBny0O6ucx09RhcTHqmiK4WICBIgBMZhJ0eKzIdTemUGHFejOz3DhUfH
- q0YwkeFRnklgGLiyaQnnZQwWz2bwT1y1lGIZxU74XMSKxlICOQvjdtwricDvkno3v4iJ
- WHN5xas4NQmMObQKXVskB4AAd7RLoxu5HmwxRnv70OOJe1dfxvLvmaW1SopG0BjOuueR
- JRWw==
-X-Gm-Message-State: AC+VfDy2zAJb5L+XhFVc7iodLWPewtQ+LkIwJtgOwCf+iAPaHDpJaXfV
- qu077XSg8F8vEODOqBM6bg/cE5IjotUip5eHZjRm5CpUVuzhsKlyg41PFyjNzKNKXLMiINVnZ8Q
- +fQqafKXryQQRDFLIWYlFwba7KdluWtbQdyT4NFbkgi10oP6WlTwcjgi0bA==
-X-Received: by 2002:ac2:48a7:0:b0:4ed:bfcf:3109 with SMTP id
- u7-20020ac248a7000000b004edbfcf3109mr7522455lfg.56.1684303050260; 
- Tue, 16 May 2023 22:57:30 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4ljgjund9d0mLXFRAK8YCXSNJ/xM9q4oHcAJsFnVKMrNlFDXUWPH93HOgXxpZrLm3DBx3i14I2expvGHz3AfU=
-X-Received: by 2002:ac2:48a7:0:b0:4ed:bfcf:3109 with SMTP id
- u7-20020ac248a7000000b004edbfcf3109mr7522452lfg.56.1684303049974; Tue, 16 May
- 2023 22:57:29 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1684303823; x=1686895823;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=7k7pF0B18nkLr+NjCb47Ij0PMr/KmJbhEjNycbRjuVg=;
+ b=ZcjXspyI4OKgvmFziuDlSAnlZzDcPsyQ8s7Ub4eqnnlTxruLGgNI6xqXb63UXOL5xK
+ xiixltfWaCbwjZJRucnuYxqy+S0mjnAbwppsw5m7l0CH02ogYV6t+4pIhYTQE9bWJCq4
+ rLHvvbgtZlh9PqH/Z7hY/7rjer4hVfs8Gii+YBpTC48n1ujbLIwOMTGag+zv3X5lCDmp
+ 2pmQ09OogdUfH4M482/5NWPYvjr32qeyfmM2/vRwdWmuBdDAAK3GbLZGmhUJVCgaqggb
+ pfX1Fojb0/6Tc+7XJwMhLXmA4v6PcO+j+gYaFiKDGCLTwTXDAvYzKk4gftD2cNNTBgTq
+ gg5A==
+X-Gm-Message-State: AC+VfDyKVrcpzxEjg96mh+WK9oE2/x5jxMh9QlBZjAu1MMFq8SC4lpYn
+ W+30zJMSEPvPdvdFiNEKensc7I9cIaqDgTZU9+NtJ0StQPC7AJUYSDrcJ3xNQVVAnOj0y82qwnE
+ uvB5U0d4lXRUhQrahqPz6MmlMSC+EhKSVF4y2Vf+kEQ==
+X-Received: by 2002:a5d:58da:0:b0:307:7d1a:2100 with SMTP id
+ o26-20020a5d58da000000b003077d1a2100mr29946143wrf.22.1684303823013; 
+ Tue, 16 May 2023 23:10:23 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4bkIb2CjCg5ouxlAmzd4JzhURgicC1Ja4DMt3QZaJJ7w/7hrm1Do1sRnRF24r+3WNhaqvboQ==
+X-Received: by 2002:a5d:58da:0:b0:307:7d1a:2100 with SMTP id
+ o26-20020a5d58da000000b003077d1a2100mr29946126wrf.22.1684303822707; 
+ Tue, 16 May 2023 23:10:22 -0700 (PDT)
+Received: from redhat.com ([2.52.6.43]) by smtp.gmail.com with ESMTPSA id
+ y18-20020a5d4ad2000000b003012030a0c6sm1708138wrs.18.2023.05.16.23.10.20
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 16 May 2023 23:10:21 -0700 (PDT)
+Date: Wed, 17 May 2023 02:10:18 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: zhenwei pi <pizhenwei@bytedance.com>
+Subject: Re: Re: Re: [PATCH v2 0/2] virtio: abstract virtqueue related methods
+Message-ID: <20230517020947-mutt-send-email-mst@kernel.org>
+References: <20230517025424.601141-1-pizhenwei@bytedance.com>
+ <20230516234444-mutt-send-email-mst@kernel.org>
+ <8f3ca136-0276-49ca-d703-715c83cff557@bytedance.com>
+ <20230516235541-mutt-send-email-mst@kernel.org>
+ <949dd4db-89ea-4331-5fa7-700f96874ab3@bytedance.com>
 MIME-Version: 1.0
-References: <20230511175451.282096-1-krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230511175451.282096-1-krzysztof.kozlowski@linaro.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 17 May 2023 13:57:19 +0800
-Message-ID: <CACGkMEsbhMSqVrXZtm_ynHFVsaX4jRt+9sAN7yLCE4kjy3jZhg@mail.gmail.com>
-Subject: Re: [RESEND PATCH] vdpa: solidrun: constify pointers to
- hwmon_channel_info
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <949dd4db-89ea-4331-5fa7-700f96874ab3@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,34 +120,112 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBNYXkgMTIsIDIwMjMgYXQgMTo1NOKAr0FNIEtyenlzenRvZiBLb3psb3dza2kKPGty
-enlzenRvZi5rb3psb3dza2lAbGluYXJvLm9yZz4gd3JvdGU6Cj4KPiBTdGF0aWNhbGx5IGFsbG9j
-YXRlZCBhcnJheSBvZiBwb2ludGVycyB0byBod21vbl9jaGFubmVsX2luZm8gY2FuIGJlIG1hZGUK
-PiBjb25zdCBmb3Igc2FmZXR5Lgo+Cj4gQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
-QHJlZGhhdC5jb20+Cj4gUmV2aWV3ZWQtYnk6IEFsdmFybyBLYXJzeiA8YWx2YXJvLmthcnN6QHNv
-bGlkLXJ1bi5jb20+Cj4gU2lnbmVkLW9mZi1ieTogS3J6eXN6dG9mIEtvemxvd3NraSA8a3J6eXN6
-dG9mLmtvemxvd3NraUBsaW5hcm8ub3JnPgoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5n
-QHJlZGhhdC5jb20+CgpUaGFua3MKCj4gLS0tCj4gIGRyaXZlcnMvdmRwYS9zb2xpZHJ1bi9zbmV0
-X2h3bW9uLmMgfCAyICstCj4gIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxl
-dGlvbigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9zb2xpZHJ1bi9zbmV0X2h3bW9u
-LmMgYi9kcml2ZXJzL3ZkcGEvc29saWRydW4vc25ldF9od21vbi5jCj4gaW5kZXggNDJjODczODdh
-MGYxLi5hZjUzMWEzMzkwODIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL3NvbGlkcnVuL3Nu
-ZXRfaHdtb24uYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS9zb2xpZHJ1bi9zbmV0X2h3bW9uLmMKPiBA
-QCAtMTU5LDcgKzE1OSw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaHdtb25fb3BzIHNuZXRfaHdt
-b25fb3BzID0gewo+ICAgICAgICAgLnJlYWRfc3RyaW5nID0gc25ldF9od21vbl9yZWFkX3N0cmlu
-Zwo+ICB9Owo+Cj4gLXN0YXRpYyBjb25zdCBzdHJ1Y3QgaHdtb25fY2hhbm5lbF9pbmZvICpzbmV0
-X2h3bW9uX2luZm9bXSA9IHsKPiArc3RhdGljIGNvbnN0IHN0cnVjdCBod21vbl9jaGFubmVsX2lu
-Zm8gKiBjb25zdCBzbmV0X2h3bW9uX2luZm9bXSA9IHsKPiAgICAgICAgIEhXTU9OX0NIQU5ORUxf
-SU5GTyh0ZW1wLCBIV01PTl9UX0lOUFVUIHwgSFdNT05fVF9NQVggfCBIV01PTl9UX0NSSVQgfCBI
-V01PTl9UX0xBQkVMLAo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIEhXTU9OX1RfSU5QVVQg
-fCBIV01PTl9UX0NSSVQgfCBIV01PTl9UX0xBQkVMKSwKPiAgICAgICAgIEhXTU9OX0NIQU5ORUxf
-SU5GTyhwb3dlciwgSFdNT05fUF9JTlBVVCB8IEhXTU9OX1BfTEFCRUwpLAo+IC0tCj4gMi4zNC4x
-Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On Wed, May 17, 2023 at 12:58:10PM +0800, zhenwei pi wrote:
+> On 5/17/23 11:57, Michael S. Tsirkin wrote:
+> > On Wed, May 17, 2023 at 11:51:03AM +0800, zhenwei pi wrote:
+> > > 
+> > > 
+> > > On 5/17/23 11:46, Michael S. Tsirkin wrote:
+> > > > On Wed, May 17, 2023 at 10:54:22AM +0800, zhenwei pi wrote:
+> > > > > v1 -> v2:
+> > > > > - Suggested by MST, use fast path for vring based performance
+> > > > > sensitive API.
+> > > > > - Reduce changes in tools/virtio.
+> > > > > 
+> > > > > Add test result(no obvious change):
+> > > > > Before:
+> > > > > time ./vringh_test --parallel
+> > > > > Using CPUS 0 and 191
+> > > > > Guest: notified 10036893, pinged 68278
+> > > > > Host: notified 68278, pinged 3093532
+> > > > > 
+> > > > > real	0m14.463s
+> > > > > user	0m6.437s
+> > > > > sys	0m8.010s
+> > > > > 
+> > > > > After:
+> > > > > time ./vringh_test --parallel
+> > > > > Using CPUS 0 and 191
+> > > > > Guest: notified 10036709, pinged 68347
+> > > > > Host: notified 68347, pinged 3085292
+> > > > > 
+> > > > > real	0m14.196s
+> > > > > user	0m6.289s
+> > > > > sys	0m7.885s
+> > > > > 
+> > > > > v1:
+> > > > > Hi,
+> > > > > 
+> > > > > 3 weeks ago, I posted a proposal 'Virtio Over Fabrics':
+> > > > > https://lists.oasis-open.org/archives/virtio-comment/202304/msg00442.html
+> > > > > 
+> > > > > Jason and Stefan pointed out that a non-vring based virtqueue has a
+> > > > > chance to overwrite virtqueue instead of using vring virtqueue.
+> > > > > 
+> > > > > Then I try to abstract virtqueue related methods in this series, the
+> > > > > details changes see the comment of patch 'virtio: abstract virtqueue related methods'.
+> > > > > 
+> > > > > Something is still remained:
+> > > > > - __virtqueue_break/__virtqueue_unbreak is supposed to use by internal
+> > > > >     virtio core, I'd like to rename them to vring_virtqueue_break
+> > > > >     /vring_virtqueue_unbreak. Is this reasonable?
+> > > > 
+> > > > Why? These just set a flag?
+> > > > 
+> > > 
+> > > Rename '__virtqueue_break' to 'vring_virtqueue_break', to make symbols
+> > > exported from virtio_ring.ko have unified prefix 'vring_virtqueue_xxx'.
+> > 
+> > I just do not see why you need these callbacks at all.
+> > 
+> 
+> I use these callbacks for break/unbreak device like:
+> static inline void virtio_break_device(struct virtio_device *dev)
+> {
+> 	struct virtqueue *vq;
+> 
+> 	spin_lock(&dev->vqs_list_lock);
+> 	list_for_each_entry(vq, &dev->vqs, list) {
+> 		vq->__break(vq);
+> 	}
+> 	spin_unlock(&dev->vqs_list_lock);
+> }
+
+why do this? backend knows they are broken.
+
+> > > > > - virtqueue_get_desc_addr/virtqueue_get_avail_addr/virtqueue_get_used_addr
+> > > > >     /virtqueue_get_vring is vring specific, I'd like to rename them like
+> > > > >     vring_virtqueue_get_desc_addr. Is this reasonable?
+> > > > > - there are still some functions in virtio_ring.c with prefix *virtqueue*,
+> > > > >     for example 'virtqueue_add_split', just keep it or rename it to
+> > > > >     'vring_virtqueue_add_split'?
+> > > > > zhenwei pi (2):
+> > > > >     virtio: abstract virtqueue related methods
+> > > > >     tools/virtio: implement virtqueue in test
+> > > > > 
+> > > > >    drivers/virtio/virtio_ring.c | 285 +++++-----------------
+> > > > >    include/linux/virtio.h       | 441 +++++++++++++++++++++++++++++++----
+> > > > >    include/linux/virtio_ring.h  |  26 +++
+> > > > >    tools/virtio/linux/virtio.h  | 355 +++++++++++++++++++++++++---
+> > > > >    4 files changed, 807 insertions(+), 300 deletions(-)
+> > > > > 
+> > > > > -- 
+> > > > > 2.20.1
+> > > > 
+> > > 
+> > > -- 
+> > > zhenwei pi
+> > 
+> 
+> -- 
+> zhenwei pi
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
