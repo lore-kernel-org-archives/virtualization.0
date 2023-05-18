@@ -1,104 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53C7AC77B7D
-	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 13:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23EC8C77B7D
+	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 14:01:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CEC9D4291E;
-	Thu, 18 May 2023 13:56:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEC9D4291E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=As/izmzG
+	by smtp2.osuosl.org (Postfix) with ESMTP id 892DD42B30;
+	Thu, 18 May 2023 14:01:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 892DD42B30
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gv2C+v/Y
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UBP8iSbPyctk; Thu, 18 May 2023 13:56:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0660842903;
-	Thu, 18 May 2023 13:56:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0660842903
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zmK8Bvfrw1vc; Thu, 18 May 2023 14:01:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BC11E42B1B;
+	Thu, 18 May 2023 14:01:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BC11E42B1B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BDA02C0035;
-	Thu, 18 May 2023 13:56:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8970CC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 98D4FC0035;
+	Thu, 18 May 2023 14:01:07 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 95423C002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 13:56:40 +0000 (UTC)
+ Thu, 18 May 2023 14:01:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6418A8445B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 62714608A5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 13:56:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6418A8445B
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
- header.a=rsa-sha256 header.s=google header.b=As/izmzG
+ Thu, 18 May 2023 14:01:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62714608A5
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gv2C+v/Y
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RfpiiiFaWuyJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KeWl5qIsXuQL
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 13:56:38 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7318984457
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com
- [IPv6:2a00:1450:4864:20::32d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7318984457
+ Thu, 18 May 2023 14:01:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E651160783
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E651160783
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 13:56:37 +0000 (UTC)
-Received: by mail-wm1-x32d.google.com with SMTP id
- 5b1f17b1804b1-3f420618d5bso13506895e9.1
+ Thu, 18 May 2023 14:01:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1684418460;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=OqoT1ooiwuLnfzzgibH0FBhUwM4Y+miV1PDEA23wRik=;
+ b=gv2C+v/Y2FdFKAqTjjVV+9eOpOsVZ88cbjd3IUZg8Bd0Mx1DGIFDvirU3BoFSV6RNZFL1z
+ BEN+MclBx8XINczXR/J2mw90B/VFVIvskPllkkysJlPOg1ogpx85FD017tq7TX7ppikltB
+ FKClb63AOY0k0Qshl/OZx3ZzYj45v6U=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-383-oEEj5LJQNuqPQ1QkNr1EKw-1; Thu, 18 May 2023 10:00:59 -0400
+X-MC-Unique: oEEj5LJQNuqPQ1QkNr1EKw-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ 2adb3069b0e04-4f37c82f185so1374101e87.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 06:56:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linaro.org; s=google; t=1684418195; x=1687010195;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=MPzdKdRGQGElWUYovOVhZT8DMwrnx0aSVXCHunf9t6E=;
- b=As/izmzGYSC0uCCOTiNEMEWQHttyHnw/qT5g27C1MUAraum18e9vbbIcd1uBWgx6vC
- cO4wX5OzcnWDndLe9aLvteTZlEcVRzSaBWfOBfjKJfXCaNsbz/9zq7jBbMgnfadwAgGg
- qT2dOdGDo2r3+fmCM5Y6rYMdWd2JrFAZcfOUzNENAGmpnB7yaKulsK3dHXZn+GSSIRim
- Hl4qgHSj7jRacXc9ZvmoDC2ciE0DvQA80mdVGQTyLNjgx3W8Losc8znXsUCxzTfYMK4E
- 71BtjV124+dqVQ5yO1QXKPPVW/5Pvyif9WNzbXPsRArmCwsFaQYsM8C3BxAD9ep22EXT
- Ow0Q==
+ Thu, 18 May 2023 07:00:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1684418195; x=1687010195;
+ d=1e100.net; s=20221208; t=1684418457; x=1687010457;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=MPzdKdRGQGElWUYovOVhZT8DMwrnx0aSVXCHunf9t6E=;
- b=B4W62kaHbyRJ1a/Qk9DbS4rpd7cQqYCglYMbFatKMgi9zoV2bIgpOn/m3przDwcC0h
- sG42ysPbVJSM1cti20xcZQgIPuFnzTNA3Gl5ee5E30K2DV4d9jJ+hiBiyQnPb43qyAbe
- GLPTG8q6NyKbuPoE0Q2FMVGmwqFMcKFuZh3LT57uH6V8x0LUIsXn2mBVfLElBgZSiVye
- FrLKcuu+zqno38AyI8lWPZJHe9BrGTzVrMwm1T5Xj9rLddoNLLyqWnTbAM+qbTGlGb5Z
- B5gBsQiby5KlBtXr65iDOntN25021P2bAn5yD6tbSOijTOMzGSkNMCYELEercBpxINB0
- D8wQ==
-X-Gm-Message-State: AC+VfDyn55u6DZBDF96myyYrgxNMb5ZfzCBIogWqKudgNGx+mnKPqfdF
- Z5LRqFYjZ+2VI6fODx29yLmzHw==
-X-Google-Smtp-Source: ACHHUZ4KO5bq7EE1YgvTlu5at/kRF7zYw/DEuhR+gKplRgcp8q22BfKN7YzXPz82nsxzB+jpDTJn0w==
-X-Received: by 2002:a05:600c:364c:b0:3f4:2267:10cf with SMTP id
- y12-20020a05600c364c00b003f4226710cfmr1548896wmq.32.1684418195586; 
- Thu, 18 May 2023 06:56:35 -0700 (PDT)
-Received: from myrica (5750a5b3.skybroadband.com. [87.80.165.179])
+ bh=OqoT1ooiwuLnfzzgibH0FBhUwM4Y+miV1PDEA23wRik=;
+ b=epDxeE7e7Bht9GnRXzD6MQ8ZQ4W02IMRl6SrroOH+DK/bC9+BEqvCs3IGgScF5yPlq
+ g4x6DFFTjBtu97WfITLwhmjelhcOm3cOh1r7ZZ/IPdXazvwXQDXj3hWIQOncGpNQ0+SQ
+ 7P9IEVpz4EdqqEEgCFO3BCxRAkhvOWauc8FQIABlBUVrJY2U6FyLG/S+jkTl3fAAH8hS
+ 0E8GpJ7BaXmiq7VjJhNNHIWHpmoZEnXwL2uQrbi3h1n7pw/guxgcCkVulOpy5k05QpZu
+ 6bwwDwSx6FWqARBofkOKAvjRsOSHpMPtrOqIOb2I/KlT2dqo0OZ9p+vH8X/lvlcOG8a3
+ KOAQ==
+X-Gm-Message-State: AC+VfDx6fibkvKQKc18Ics/JiDBo/6znJ2jZKGUteO0JqmyWiy941lxZ
+ 7J2pGKhCgAo33rIY77ktLqcZYF5fxvhEYcXsL3pxSwMhJXgnlEWPjLkjDlTPmPTJ5la4YjUi/zd
+ C8+0CkP6zF0DNm9/szYkLm2UBrWBp7Jt2n/7HBVE7/w==
+X-Received: by 2002:a05:6512:38d1:b0:4f3:7a8c:d46c with SMTP id
+ p17-20020a05651238d100b004f37a8cd46cmr1173631lft.66.1684418457678; 
+ Thu, 18 May 2023 07:00:57 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ7Abdv0LZtEhZjOfwdOw5QMtS6LhlvQJIsG6dCBq1tcpgeX/m9kQrOnS4xHur6uGOTsP5Li/Q==
+X-Received: by 2002:a05:6512:38d1:b0:4f3:7a8c:d46c with SMTP id
+ p17-20020a05651238d100b004f37a8cd46cmr1173625lft.66.1684418457238; 
+ Thu, 18 May 2023 07:00:57 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:175:3e4d:6703:27b9:6f74:5282])
  by smtp.gmail.com with ESMTPSA id
- p4-20020a05600c204400b003f0aefcc457sm5554965wmg.45.2023.05.18.06.56.34
+ a29-20020a056512021d00b004f3940f21dasm252843lfo.301.2023.05.18.07.00.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 18 May 2023 06:56:35 -0700 (PDT)
-Date: Thu, 18 May 2023 14:56:38 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH] iommu/virtio: Detach domain on endpoint release
-Message-ID: <20230518135638.GB2587493@myrica>
-References: <20230414150744.562456-1-jean-philippe@linaro.org>
- <20230510081157.GA3326511@myrica> <ZGT+44a6RYZ999kz@nvidia.com>
+ Thu, 18 May 2023 07:00:56 -0700 (PDT)
+Date: Thu, 18 May 2023 10:00:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v9 10/12] virtio_ring: correct the expression of
+ the description of virtqueue_resize()
+Message-ID: <20230518082612-mutt-send-email-mst@kernel.org>
+References: <20230517022249.20790-1-xuanzhuo@linux.alibaba.com>
+ <20230517022249.20790-11-xuanzhuo@linux.alibaba.com>
+ <1684411970.7875407-2-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
+In-Reply-To: <1684411970.7875407-2-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <ZGT+44a6RYZ999kz@nvidia.com>
-Cc: akihiko.odaki@daynix.com, will@kernel.org, joro@8bytes.org,
- virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
- iommu@lists.linux.dev, robin.murphy@arm.com
+Cc: Christoph Hellwig <hch@infradead.org>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,74 +125,51 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 17, 2023 at 01:20:51PM -0300, Jason Gunthorpe wrote:
-> On Wed, May 10, 2023 at 09:11:57AM +0100, Jean-Philippe Brucker wrote:
+On Thu, May 18, 2023 at 08:12:50PM +0800, Xuan Zhuo wrote:
+> On Wed, 17 May 2023 10:22:47 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > Modify the "useless" to a more accurate "unused".
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
 > 
-> > > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> > > index 5b8fe9bfa9a5..3d3d4462359e 100644
-> > > --- a/drivers/iommu/virtio-iommu.c
-> > > +++ b/drivers/iommu/virtio-iommu.c
-> > > @@ -788,6 +788,28 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
-> > >  	return 0;
-> > >  }
-> > >  
-> > > +static void viommu_detach_dev(struct viommu_endpoint *vdev)
-> > > +{
-> > > +	int i;
-> > > +	struct virtio_iommu_req_detach req;
-> > > +	struct viommu_domain *vdomain = vdev->vdomain;
-> > > +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(vdev->dev);
-> > > +
-> > > +	if (!vdomain)
-> > > +		return;
-> > > +
-> > > +	req = (struct virtio_iommu_req_detach) {
-> > > +		.head.type	= VIRTIO_IOMMU_T_DETACH,
-> > > +		.domain		= cpu_to_le32(vdomain->id),
-> > > +	};
-> > > +
-> > > +	for (i = 0; i < fwspec->num_ids; i++) {
-> > > +		req.endpoint = cpu_to_le32(fwspec->ids[i]);
-> > > +		WARN_ON(viommu_send_req_sync(vdev->viommu, &req, sizeof(req)));
-> > > +	}
-> > > +	vdev->vdomain = NULL;
 > 
-> Not for this patch, but something to work on..
+> Hi Michael,
 > 
-> I assume detach disconnects the container on the VFIO side and puts it
-> into a BLOCKED state?
+> Currently, we have to discuss a few cases regarding dma-premapped. Can you
+> merge the three patches behind this (including this one)? These have nothing to
+> do with dma-premapped.
+> 
+> Should I post a new patch set separately?
+> 
+> Thanks.
 
-At the moment that depends on the VMM boot-bypass policy: if virtio-iommu
-is booted with global-bypass set, then detaching will go back to an
-identity-mapped container, not a BLOCKED state. If the global-bypass bit
-is clear, then it does go back to a BLOCKED state. However QEMU has a
-default policy of boot-bypass (because that allows booting a firmware or
-OS that doesn't have the IOMMU drivers).
 
-The driver can clear the global-bypass bit to change this behavior, but at
-the moment we just follow the VMM boot policy.
+Please do.
 
 > 
-> Can you wrapper this into a BLOCKED domain like we are moving drivers
-> toward, and then attach the blocked domain instead of introducing this
-> special case?
-
-Yes, I think the way the virtio-iommu driver should implement BLOCKED
-domains is initially clearing the global-bypass bit, and then issuing
-DETACH requests when the core asks to attach a BLOCKED domain. This has
-the same effect as issuing an ATTACH request with an empty domain, but
-requires fewer resources in the VMM.
-
-Thanks,
-Jean
-
 > 
-> I've been thinking about having some core code support to do fairly
-> common pattern of 'parking' the iommu at some well defined translation
-> mode, BLOCKED in this case.
 > 
-> Thanks,
-> Jason
+> > ---
+> >  drivers/virtio/virtio_ring.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 42730c4ecdc5..c90160d2d280 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -2734,7 +2734,7 @@ EXPORT_SYMBOL_GPL(vring_create_virtqueue_dma);
+> >   * virtqueue_resize - resize the vring of vq
+> >   * @_vq: the struct virtqueue we're talking about.
+> >   * @num: new ring num
+> > - * @recycle: callback for recycle the useless buffer
+> > + * @recycle: callback to recycle unused buffers
+> >   *
+> >   * When it is really necessary to create a new vring, it will set the current vq
+> >   * into the reset state. Then call the passed callback to recycle the buffer
+> > --
+> > 2.32.0.3.g01195cf9f
+> >
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
