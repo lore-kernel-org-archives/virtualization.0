@@ -1,228 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5ADC1C77B7A
-	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 16:42:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1928EC77B7A
+	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 16:49:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D23A38440A;
-	Thu, 18 May 2023 16:42:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D23A38440A
+	by smtp3.osuosl.org (Postfix) with ESMTP id 90AC461441;
+	Thu, 18 May 2023 16:49:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90AC461441
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=jkffKmiv
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FmIFD123V9ey; Thu, 18 May 2023 16:49:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F242161416;
+	Thu, 18 May 2023 16:49:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F242161416
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CEF9DC0036;
+	Thu, 18 May 2023 16:49:39 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 91EC7C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 May 2023 16:49:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6019D81E7B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 May 2023 16:49:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6019D81E7B
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=yVcfNuYW;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=I1a9W2HX
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=jkffKmiv
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id h1l_e5M2LSXX; Thu, 18 May 2023 16:42:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6C51A843F4;
-	Thu, 18 May 2023 16:42:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6C51A843F4
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 478BAC0036;
-	Thu, 18 May 2023 16:42:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 925A7C002A
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MzY5ovoQVcmQ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:42:31 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5C2414276E
+ Thu, 18 May 2023 16:49:37 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB4FA81E60
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com
+ [IPv6:2a00:1450:4864:20::42f])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AB4FA81E60
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:42:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C2414276E
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=yVcfNuYW; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=I1a9W2HX
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0Yr-_itrcp18
+ Thu, 18 May 2023 16:49:36 +0000 (UTC)
+Received: by mail-wr1-x42f.google.com with SMTP id
+ ffacd0b85a97d-3093d10442aso1518305f8f.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:42:30 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 23DC042761
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 23DC042761
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:42:29 +0000 (UTC)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 34IFDQ0I026231; Thu, 18 May 2023 16:42:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-03-30;
- bh=iGSEzdKR5YUvYgufiY1035JA0J2v0Gr6+bf9OIRp3B4=;
- b=yVcfNuYWBPnTx9fKRLt5ziPQhKild1A8xXurZQ592Mxdq6Wt2fKZGffpBKTEu+mfPXAi
- sV3aEB/5iGxBENAljmoD4JFy29krT2O3HNtxJdvdBIlByQTmQqN1CqUSGRD91uoM2Gjj
- vjKf/WgM6CcwPDjUkjmuXP+3nHlF1Q/W1Y8WCbn91sJzoqlrBDbhQAWZ7mWgim3otWtj
- 870kNrnU7pdI3CSd1VzqygxXY+YfnT4ISnNoOhpVsh01Fa9pGISbPJHQuSLGej2Ek9J5
- 3+j9s9ReNC5BY4n3yigFP3vuMjvV8o2Ajd96VStFnD4BCoxWVdgXTpUb2ENWXZZqqVEo OQ== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qmxfc347n-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 18 May 2023 16:42:18 +0000
-Received: from pps.filterd
- (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 34IFR39s004154; Thu, 18 May 2023 16:42:17 GMT
-Received: from nam02-dm3-obe.outbound.protection.outlook.com
- (mail-dm3nam02lp2040.outbound.protection.outlook.com [104.47.56.40])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3qj10dacrf-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 18 May 2023 16:42:17 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZFXGgBQ3iS3QQti4RwW4UOb0tZN5GketYWXkvTtx5VzFyot76tWHR8jdhusfVG7EjkNdJJYqHvTUu1Ll2Yognw50CmxAVu/DKWn1LHNhCoNCyw0ZWT4R1+R0XypeXq7w9gZkt0SauaHtw9Mz7XmDzhAgMBzJamoC7xNZ1P4NE7ZNXUQVvIblvy7UjhJ45Pqtm5jxM8vba8vzaZTj2zX5Z9WU2Fh74JVZ6GMI95z/LbdZEygUWIDsro9yRC6pTiOYFBcXzdT70D9Wtbeaq3P7QOkxrDLgtge5ot4K8s/2jGBCSc/CtLCBm1KfYgzK6rSOY7rT17RxOMV6ZLRt6Fg8YA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iGSEzdKR5YUvYgufiY1035JA0J2v0Gr6+bf9OIRp3B4=;
- b=egeaQLiiJzhSphqUMHdnZBkF7JpfJ2F6ee9XxecVFxeThkmxzHezjUlo/VefI9qcLNmhZKfaMKQYkUziB+L94SFT2Q5aGGSTob8V1CDVh9T4Ns7U+nM7WqNu8MzTYqWE3iS7Qbu7LTE63NuxkJPyaiZUQhLNUMF5rUrgcPZg+4sGwfKHu84YNI6NkJaIWDRVK3fHbPj/E7rcMHcsR6AQc+tfLbzfQhz6Mbv8sYOyII5CDFtsVvPEwcenlNMApPUeLZHa7K10sZB9Iuml8sqQM6enwM51GBErfDHFzNrbp6nR+KEOJZvKkNvANotX/qX5TReDaPg4tTLQY9djpVixfA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+ Thu, 18 May 2023 09:49:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iGSEzdKR5YUvYgufiY1035JA0J2v0Gr6+bf9OIRp3B4=;
- b=I1a9W2HXsodINSZw06HolE2PQfGHOzMlcS1rBOOiLCqotRjNOBC0EjJzD3bj0k2vaNwj1YXi2UKsuR6RPBUEuETfpGaQw7hotNVyvYoq97/CLUg2ytefn3fZVFkQK7vhAlmvqjTmPbOXwCOZM0fdba2BAVyFNTMRJPA2hsZdzh4=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by IA1PR10MB7539.namprd10.prod.outlook.com (2603:10b6:208:448::13)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.17; Thu, 18 May
- 2023 16:42:14 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::13d6:c3f3:2447:6559]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::13d6:c3f3:2447:6559%5]) with mapi id 15.20.6411.017; Thu, 18 May 2023
- 16:42:14 +0000
-Message-ID: <05236dee-59b7-f394-db3d-cbb4d4163ce8@oracle.com>
-Date: Thu, 18 May 2023 11:42:12 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.1
-Subject: Re: [RFC PATCH 1/8] signal: Dequeue SIGKILL even if
- SIGNAL_GROUP_EXIT/group_exec_task is set
-Content-Language: en-US
-To: Oleg Nesterov <oleg@redhat.com>
-References: <20230518000920.191583-1-michael.christie@oracle.com>
- <20230518000920.191583-2-michael.christie@oracle.com>
- <87ednei9is.fsf@email.froward.int.ebiederm.org>
- <ab7d07ba-5dc3-95c0-aa7c-c2575d03f429@oracle.com>
- <20230518162508.GB20779@redhat.com>
-From: Mike Christie <michael.christie@oracle.com>
-In-Reply-To: <20230518162508.GB20779@redhat.com>
-X-ClientProxiedBy: DS7PR05CA0003.namprd05.prod.outlook.com
- (2603:10b6:5:3b9::8) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+ d=linaro.org; s=google; t=1684428574; x=1687020574;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=AM8DwTmosLNfh4+dWykqnnp3+AvL+dO94NEcMeQYDFQ=;
+ b=jkffKmivCJNFzoQ6z0jsuQ5OnNUV5s7hDGPvgf502x3D56V4OZ9auOZcWvEUFF+cu5
+ 8Bqzvq5wySx+SiLdeLdGNJYKOBq6L0BhG3Vb3hSZFZP79+k9eN4YkE5U92VREm7o8lWw
+ yWmJrf52yWPr5YCVg18BLi0hjqS/8Im/oTiO5W7fBVOEvoYqljLM76wz9skAAJIwBM9V
+ /2W2q/uS8iNZ+qjIDhvjh9AhHmm9zozY4c5x3z7RX0p4vZahyMTXon2PTgKkZQG7lGW1
+ LQpd7pxqDlGbUgLIviL4Z+/DvvS2tburMNKQ/CYy70SEk8A9NdQWEZYhujMuahMAQiyz
+ 9StQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1684428574; x=1687020574;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=AM8DwTmosLNfh4+dWykqnnp3+AvL+dO94NEcMeQYDFQ=;
+ b=cND9dCVLLMgS0U+Z8Qwabh/hCsmng0Q7b0ReRp9IWGbanmvT27tPnWchOnplHm0wxL
+ 073lPVwdbRSg6vy2bVFhd3o1vAWiNjVtMyoV+LRpm8L1+O1D9IVVQyGTd+VcLz+6qZ74
+ PgEnN/5kdeg9tLQ8pd9XiNySZWW0k4dbzoOPL2Bmvve4OtrQKgeoCxichHAZGkec2jld
+ 2g/aSi7M5kuvsRlbjzVNBcu8aO+aUoO9kiu74OhvIp4TDJjTn6GHKYXM416aKl2C8TPf
+ k+zOnBjcP/KX3hRYRlblcnpS/4y2Wq8PQIES2F57QBzQ3+9+qFOljNw7bzaMTpb8JLLG
+ gKmQ==
+X-Gm-Message-State: AC+VfDzKnMh8ZaFy1Q7meq3D3R4RmQo5k3reevB9L6HUh/XpsLseLL0x
+ El6HaDurAiQmSNr/dhEr2lRIig==
+X-Google-Smtp-Source: ACHHUZ7/wGIKmYno/qEiN1QV7YGyBQN5K4Nr3OQzJ53R0OvyhypPiOw2/5mRgNMSCEwVBuOW1B6WKA==
+X-Received: by 2002:a5d:4041:0:b0:309:732:86df with SMTP id
+ w1-20020a5d4041000000b00309073286dfmr1915516wrp.58.1684428574676; 
+ Thu, 18 May 2023 09:49:34 -0700 (PDT)
+Received: from myrica (5750a5b3.skybroadband.com. [87.80.165.179])
+ by smtp.gmail.com with ESMTPSA id
+ e2-20020adfe382000000b00304832cd960sm2726216wrm.10.2023.05.18.09.49.34
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 18 May 2023 09:49:34 -0700 (PDT)
+Date: Thu, 18 May 2023 17:49:37 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH] iommu/virtio: Detach domain on endpoint release
+Message-ID: <20230518164937.GA2934820@myrica>
+References: <20230414150744.562456-1-jean-philippe@linaro.org>
+ <20230510081157.GA3326511@myrica> <ZGT+44a6RYZ999kz@nvidia.com>
+ <20230518135638.GB2587493@myrica> <ZGYvMDbkBN+2UgzG@nvidia.com>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|IA1PR10MB7539:EE_
-X-MS-Office365-Filtering-Correlation-Id: f44eb4ac-7586-4035-640b-08db57bed5b0
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: D1yytgmmkDjGyU121EVRUlPkpgBErQGgTdJKngP/huiVCZzIgHj2lqHkFwemuRoBdWJWkNTyZ5zmd/JsNzR9Y4DcXp4gCrWDH8hpALSiPluNqnK4dxHZ1MX9ktuS40Aps7T63XWjApC1oGbiRbZE3Dfdi/h8jVf/lWYY0fwEYX1afvr1SIrnhcv+pO9F2i9Hl/glLmQltXt/j7uIewznavyRsgwQjR0B4M4qeR0m194vWlIYWR2l4wQBq8/RkWR+ZQ0JpGjTBGXrD8lAB0LrmHCYXThQYWTuRALSlf2baLLNZHr92f7+1hmv07i7iQJ2bQzvkGpICZKIndP3jEbkEXAhGdeR3Z1Rt/PYa3EcMEUilpi0Hrphmsc4wkpxw0xsmR1Ik6ufGztlED9sgniXoidwRnt8+vUPTpMFiWrnt0g9LQzk2oOiVbxfCRyHAwCVlsvy+VqYuPCu1/O7H49d0W4Ii2fJa0HRzENLOElqof7Q8CKYD8+jnzyONBo/DRyc9Yd8N6mfUTXvX39x/lzZcWxwPI86SZJcaBlHhF1T7Qu1yPaLuF1GcR2YE4paIF2qQkB4OjNQUzF61q4tDUl8xHTH6KEixEO7Es93Kn7HbvkFl1HnEFmTaA7m7oJZvAg81r10vNa1xr46QYa31nbiXQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(376002)(366004)(346002)(39860400002)(136003)(396003)(451199021)(66476007)(66946007)(66556008)(31686004)(478600001)(53546011)(316002)(4326008)(6486002)(36756003)(41300700001)(5660300002)(6916009)(26005)(186003)(8676002)(8936002)(6506007)(6512007)(7416002)(4744005)(2616005)(2906002)(38100700002)(31696002)(86362001)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?blNlUGt4eFcya3A3L3RSZEIraU51NENMK0JwS0dSVEpyMEx5N2NTcTlUOStW?=
- =?utf-8?B?d1NCTWcvSjFCYXkxeTZDS3V5OUkrWHJjRXovS2ZaalhOUGZ6bHZBZm93b2lT?=
- =?utf-8?B?Ylg4K0plU3Y4WEQ0SUtoaTk3dmVHY3ovZzFlRkhsLzQvMCs1clFBSWlSUCtQ?=
- =?utf-8?B?aVJ0SXJnMjBVb25YeEN0MEl5MVpjTXdLd1R0MnhqcGdOQk0yUkRQeFJLeEpn?=
- =?utf-8?B?d2N3dXNkbGY4SFNDeVRzRzBKcGd1UythdzdSQW1oZURWTkRSZzl6bTJoSjNs?=
- =?utf-8?B?NHppc2tzSEF6blFEUUhPdmduSVZ1Z1ZFelRBRDNjZzJ0WURRM0tubFhSTXdK?=
- =?utf-8?B?OHNMaEJ2ZjRjb2p2RzBkMWsxNUJ3dkJ2ZSt6ZUkyOTJaUGZBTXRjVURmVko4?=
- =?utf-8?B?ZUtlbFZYVmhTK0wzRVJxVXBXMVRCTVN6SFhtTHZGQ0N0RlIyanhOMXJCSHBO?=
- =?utf-8?B?NDB6TXhVNFo0aHc4enVFakxYOERHQnRlVGlCSlRBRUI1elVuR1lOS2tPUW9k?=
- =?utf-8?B?Z002M2xLaHlETzQ0UVdRQjNXNTJDcWxFT0YvVC9RUVJId3dEZmNKTWpNTWxZ?=
- =?utf-8?B?Z0I3YzFJQjQyUUEvWTNOazVMUXR4R3UvUnBNTzl5d3FFWUIrZmM5eTQ5Tnd5?=
- =?utf-8?B?V1Q0QVRCbTliQXl4NHdrd21LZ1Z3di9BM2FjQVVWMzVnRnAwSWhBU2p1WXRp?=
- =?utf-8?B?a1paTVdkcVlZcVgwdGJ0K2twS3BJUkpDL0Fyb1BCMUlvWkdTYUQ2VTNNMGJn?=
- =?utf-8?B?bU9pdWtmSUVlT2ZFdXRtMkp4N1JURmd0cWt4WUgzdTZ5OGhwai81V3VmNTZX?=
- =?utf-8?B?QUI0NTl5OE1tLzBwcXFCTUdOM04rcE9HR1JOT1N5QmJpUWRBTUpMRklETjZG?=
- =?utf-8?B?VFhyQURpSnNWWG9HR3BHejd4MVNPQXlUZXRnTmU4RVhDVXFYT3Z1QnVBZkpv?=
- =?utf-8?B?TWd6bjYrbXg5dlcwNEV6SVlGZU9YT1FxR3doVWdNemRtSlFJMWdzd2IrcERX?=
- =?utf-8?B?bWFYbTFvemR0TFBWNVNWQ21GMnpJTnFUMVhaMWZESGxWQ1o2OHZDeVlKdFFM?=
- =?utf-8?B?MHF3dW9HZk41Mk9jVEx4TWtZNS9rSDdncTFHNlpOK2hJQWdWYXF0Y1ZIVzdr?=
- =?utf-8?B?SWpkQmVrZlp6WGFHSWVmMHBxaDd0WlM1M1FuUEFUdTd1MWpLT29seVB1WE5z?=
- =?utf-8?B?eFJOWkhWNFdpNFR5Q0xMV20xSGFHSnljWGdhUGViNGhHbzdYRitLeWVOQU05?=
- =?utf-8?B?Mm5td3J4eXhHK0l6L2RqWFVyTC8wTG1DNSt1eVFBS3EyNmRKYTdNSFZ0am9X?=
- =?utf-8?B?TWptd0U5UFpZSkpNMFBjTVAxZFpJQXRHZWJuT09ubGdNTVpRdlUwNFRMeXVT?=
- =?utf-8?B?UVRrUEtIU0ZOQjhFekFGU3NZanpyYmp6NGJEczRzajhXNk9jRmlNQ3BDL24y?=
- =?utf-8?B?ZFhrbWUzRzJpc2lDRHNYMkovSkoyaVJhU3B3UG9nWTFYMUQ0OStablFzaDZl?=
- =?utf-8?B?Y1JFYXhwM0l1RmsvQTh0TG5sU01GTTJsODIrem1Kb0wxOUtFS2RKL2t6bHE2?=
- =?utf-8?B?djByc0tKNXdWVW1zbHlMbEV6dWpNVDBoaDdGL096WXQzSkRUOFM2aHZrbVNm?=
- =?utf-8?B?YkVoQVRuZDNmekRyV3psdWkzWFgxa0NUcGxBUDVBakMvQ0xKT0d6WkI1bzVW?=
- =?utf-8?B?RlB1TlpBUXA2YjhvQUpIV2F0bE1PdW1wRkM1eGJIL1hEUXpWTHBkeFJDNTJr?=
- =?utf-8?B?VlZuWkxvNDhpcXk1Vk9xaUJvcGx4KzFrdEU1ZnJNenBBejBPeHlxcG8vOHNm?=
- =?utf-8?B?RGpoTlR5YVc2OTlTY0E1Wnl3cXAwTi9PZFdvemZFYng4V1l0ZGRZcDBlUkI0?=
- =?utf-8?B?dkJpbXM0MXdWVTdSMy9iSVYxZUNwaThiNEtMdXBrUE9rT1BqMFp0QWNJQTdY?=
- =?utf-8?B?M1IyUXVoWEh1dUNhUUxrV1k1MHNlOHRPVlZ0bWozMFRHeE1pQXJzbXFDYnhY?=
- =?utf-8?B?Vm9WV2hpbHFaZjY2RWI1aW9kUjFPaWNCekRXMnNKNm0ydWtGTldVV0hTNzQy?=
- =?utf-8?B?d2huYjFzRnhLbUdFVE1ZN0FUM21qRnozVHl6T1dkMmlJd2c0SjRVYSsvVmVR?=
- =?utf-8?B?R0JxaStod2g5bnBlVkZaUmR1K2pEWjIveE1CcDd1UFJuNDUrUTVGcHlTblBm?=
- =?utf-8?B?ZUE9PQ==?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?bmo3RU9wbjg5N2lJNTcwZ215QXFFZjNxR3ZCTHdjV010ZmhFZnN6Mmc1UUM3?=
- =?utf-8?B?c0x6ODl0bTFLYmJsb1VQS0x6ZE01L2VtWXhDQXZYSy9qNWJvdmNNYWdPVzU4?=
- =?utf-8?B?TFlnelIrOEIyTFE0d2dDRHRWWWxieCtjSHdIa0MxOVJmZ3JlZmxXUmllWmtX?=
- =?utf-8?B?Q0ROV0lrK0dyTyt5WnJwUTg3QnQyUkorRTNDZnVuOUduUzZvMnQyZms4TlFx?=
- =?utf-8?B?Sm43SjhDZEdQYnByMjJQbVVIbGZxVWNtSlRCQS91NWxxR3BxVWdiNTIzdTYr?=
- =?utf-8?B?OWpzT3FQK0I3RXhidEN1UURObDNzZVdPejRqSzY5KzNBWkxuYVRYMDl2emlR?=
- =?utf-8?B?OTBqK1lUZUtzWUU4OHVuVTY1SFFleGozV0dlZjRFZnpOdXJ5SWVWcEMwR0d6?=
- =?utf-8?B?d0E2RVRSbVhEaXFjMS9IZVJON1I5VUYvRGZKODNuZ09aTEYyS1kyWTJ2K3hj?=
- =?utf-8?B?NXZrZGVabGZ6Y2JYbG5IU3ZOeVVNUVV3bTRvekswVFgxNzlLeWp5aGUvOEFl?=
- =?utf-8?B?YTNnZ2J6UzluUjZQMGVCTUdCalpJWFpLVHhGczRPdUdOUDFTd0Z4MzhJOGtU?=
- =?utf-8?B?K3NBaTJKN2N1QkJIRmE4a1lFU3FKQVRUVVNyUEpmS01FSHl6cnpxTldneXRn?=
- =?utf-8?B?SGxndkFZeHVWTlo1a2JXbWRrWXhGMjM5Y3ZOSXFFOS9jYW9VYmlWRVNhOHBo?=
- =?utf-8?B?SUYxcndkZEpzS3BTRDJFbjY4TkxaRnRLWnk5dElrM0k5Wk9lZlh3MVJoWUhr?=
- =?utf-8?B?UE41WVJTc0w4LzdkeVloNDJOd0xqNXdyYVFNQTFXT1EydW1OeUtyTzVQZ3lr?=
- =?utf-8?B?RTB6MEkrYTFIM3NBUWpmWVU0b3BnR0lsVGY3MVl6K2dPQ0VZRDZYcmlMeG10?=
- =?utf-8?B?OS9jUFZjYWoyUXFzeVFHK3NoM3hwV0RqK0M1SWRRb2kwRzkyU1ZTQ29RSllt?=
- =?utf-8?B?UlR2bkNHSFlmNlc0WXRtaHo4dGpMcHlZbUNoZkpBVlB1Mjl6b0xteFJZQUhY?=
- =?utf-8?B?UHNKV1NyendSUkcxZ3MyLzFtR3RSMCtWZHhoaUNrNWpzMHVkeUtGKzlEUU0y?=
- =?utf-8?B?S3FZb1RnclJYT2VxbU5IU09OWWpENmFrek96bThVYWhFZTZvV1FMT1poaFAy?=
- =?utf-8?B?enhaaWVqRS9IeE8rc2hnc1h5cmd6cGVqWDZ6SmtQc1NEd3Nvak1OY1dwV0VY?=
- =?utf-8?B?b2N4cGtBb3pOTkVSMDJUNm5mM05VUWhCV2Zkc3F3SmRGZ1VNbk8xd2xNb1NQ?=
- =?utf-8?B?R0ozenJoTGk1TWo3L0JnaEQwTGpyWkVnY1JEbnFvZGh0Mkw0Q2FCQmx3Ti9F?=
- =?utf-8?B?RlpGTCtZckhoNHBHRStqWlNWTlJIMXF5MVFCMUFtTURZdTl4UTBzSWx5dEZP?=
- =?utf-8?B?OEMrU0JiM0ljMmF1TW1rWlVFV1NpQWF5ZVNkUGhDMVdqb0hBTWlTOXZ0Wks5?=
- =?utf-8?Q?rnzdIShk?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f44eb4ac-7586-4035-640b-08db57bed5b0
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2023 16:42:14.6540 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Gk5zQEEjBkA30+qpjiacrqY1UKPtG7KXTRo3B5z+U+qMbpEOYRLaI1TiTd42LEkZD/h2P7lt7bB2EtXo+e6pLwnwsMjTaMJgBefJq54Bsoc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR10MB7539
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
- definitions=2023-05-18_13,2023-05-17_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- spamscore=0
- mlxlogscore=861 malwarescore=0 bulkscore=0 adultscore=0 phishscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2304280000 definitions=main-2305180135
-X-Proofpoint-GUID: j8eTdZ2ndcTUidJD7dU6jAfTyLz-1HOV
-X-Proofpoint-ORIG-GUID: j8eTdZ2ndcTUidJD7dU6jAfTyLz-1HOV
-Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
- linux-kernel@vger.kernel.org, linux@leemhuis.info,
- "Eric W. Biederman" <ebiederm@xmission.com>, stefanha@redhat.com,
- nicolas.dichtel@6wind.com, virtualization@lists.linux-foundation.org,
- torvalds@linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <ZGYvMDbkBN+2UgzG@nvidia.com>
+Cc: akihiko.odaki@daynix.com, will@kernel.org, joro@8bytes.org,
+ virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
+ iommu@lists.linux.dev, robin.murphy@arm.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -239,42 +116,56 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 5/18/23 11:25 AM, Oleg Nesterov wrote:
-> I too do not understand the 1st change in this patch ...
+On Thu, May 18, 2023 at 10:59:12AM -0300, Jason Gunthorpe wrote:
+> On Thu, May 18, 2023 at 02:56:38PM +0100, Jean-Philippe Brucker wrote:
+> > > Can you wrapper this into a BLOCKED domain like we are moving drivers
+> > > toward, and then attach the blocked domain instead of introducing this
+> > > special case?
+> > 
+> > Yes, I think the way the virtio-iommu driver should implement BLOCKED
+> > domains is initially clearing the global-bypass bit, and then issuing
+> > DETACH requests when the core asks to attach a BLOCKED domain. This has
+> > the same effect as issuing an ATTACH request with an empty domain, but
+> > requires fewer resources in the VMM.
 > 
-> On 05/18, Mike Christie wrote:
->>
->> In the other patches we do:
->>
->> if (get_signal(ksig))
->> 	start_exit_cleanup_by_stopping_newIO()
->> 	flush running IO()
->> 	exit()
->>
->> But to do the flush running IO() part of this I need to wait for it so
->> that's why I wanted to be able to dequeue the SIGKILL and clear the
->> TIF_SIGPENDING bit.
-> 
-> But get_signal() will do what you need, dequeue SIGKILL and clear SIGPENDING ?
-> 
-> 	if ((signal->flags & SIGNAL_GROUP_EXIT) ||
-> 	     signal->group_exec_task) {
-> 		clear_siginfo(&ksig->info);
-> 		ksig->info.si_signo = signr = SIGKILL;
-> 		sigdelset(&current->pending.signal, SIGKILL);
-> 
-> this "dequeues" SIGKILL,
-> 
-> 		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-> 			&sighand->action[SIGKILL - 1]);
-> 		recalc_sigpending();
-> 
-> this clears TIF_SIGPENDING.
-> 
+> Does that exclude identity though?
 
-I see what you guys meant. TIF_SIGPENDING isn't getting cleared.
-I'll dig into why.
+No, identity attaches a domain with the ATTACH_F_BYPASS flag (or an
+identity-mapped domain if the feature is missing), it doesn't rely on
+global-bypass.
 
+> 
+> It seems like the protocol should not have an implicit operation like
+> this, the desired translation mode should always be made
+> explicit.
+
+I probably misunderstood your plan for BLOCKED. This particular patch is
+about removing devices from the machine, for example PCIe hot-unplug. So I
+thought you were suggesting the core will at some point attach a BLOCKED
+domain to a device being removed, in order to block translation while the
+device is being removed and while a new one is being plugged in with the
+same RID. For that case I think DETACH, rather than ATTACH an empty
+domain, makes more sense. Otherwise with the same reasoning we'd need to
+attach all 4 billion endpoint IDs to an empty domain at boot which isn't
+feasible. In addition I don't think we'll want to force the VMMs to keep
+endpoint ID state internally after destroying devices, though that does
+need to be specified one way or another.
+
+If BLOCKED is only for transient states, for example while a struct device
+is not bound to a driver, then attaching an empty domain works and is
+simpler to implement. Probably the best is to implement BLOCKED this way
+and still call DETACH in the release_device() op.
+
+In any case, it shouldn't make a difference to the core. I'll see which
+one is better for the VMMs.
+
+Thanks,
+Jean
+
+> Having a boot time default makes sense, but there is little
+> reason for an OS to go back to the boot time default...
+> 
+> Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
