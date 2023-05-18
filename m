@@ -1,109 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4E5E3C7EE2C
-	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 00:09:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E0CD0C77B75
+	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 00:09:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CB9426FF41;
-	Thu, 18 May 2023 00:09:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB9426FF41
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=KoreWqtZ;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=lS1/HL4+
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w-M11EO3T4_v; Thu, 18 May 2023 00:09:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 661AC6FF42;
-	Thu, 18 May 2023 00:09:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 661AC6FF42
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DC681C0089;
-	Thu, 18 May 2023 00:09:44 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B834C0094
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 00:09:43 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3B10082050
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 00:09:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3B10082050
+	by smtp1.osuosl.org (Postfix) with ESMTP id 83CFF8409A;
+	Thu, 18 May 2023 00:09:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 83CFF8409A
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=KoreWqtZ; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=lS1/HL4+
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=geEHUYYL;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=Rmf58F86
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zz2mRrLZ0msO
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hBngdiFug2L2; Thu, 18 May 2023 00:09:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1462B8419D;
+	Thu, 18 May 2023 00:09:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1462B8419D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF8C8C0036;
+	Thu, 18 May 2023 00:09:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D0436C002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 00:09:40 +0000 (UTC)
+ Thu, 18 May 2023 00:09:47 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 395AB427BB
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 May 2023 00:09:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 395AB427BB
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=geEHUYYL; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=Rmf58F86
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Xgcht6r6AVhF
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 18 May 2023 00:09:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7DEAE82047
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 48D20427B8
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7DEAE82047
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 48D20427B8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 00:09:40 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ Thu, 18 May 2023 00:09:46 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
  by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 34HIGmu7024476; Thu, 18 May 2023 00:09:28 GMT
+ 34HIGsu3002441; Thu, 18 May 2023 00:09:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2023-03-30; bh=jwFiNCCgUL0VI3Ycq4EQVA93drqmxGxVRfjEFaK27dg=;
- b=KoreWqtZBFpkll4A4wlcCOJ6TGFFkVOg6rWLajfI7XKuoaMHoai0TvvO3xVEtRxK2at0
- ekuUPM6Ve/leeSFyVcOja/Ced60TsfAIxFaUmdADzWeyxtlMATZ3LlIDk78OeqA+AGZD
- KsSN0ymJjz87ZcsLq6P4Tx6aPCwPPF/I1HrqPHpt3ZzrwEZABcpmFE/IOyWYl2EtPaHw
- h7MHbxv1+pNk+7u4gOr7SIrua9cOTiX9kWUn4uM4f0RsgpN2lP2IbTJQQJ/lzxSDxRDV
- W1Tdys6qDesSNSsn7/hBhzqOoz+5vnYzuUpLy553rO26duES4z8kOANTtV706xKoQWfy 6w== 
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qmxwphcu0-1
+ s=corp-2023-03-30; bh=65NAKhAZazjSXDH16xLwiVEclPupW8833e1/Sa9H//w=;
+ b=geEHUYYLqi68ghCM4ofmVN27LmhDF2SHkMEbZoNFIfwJjbmB+CkxYwDUQYgKWf3TTLwP
+ dsn8DfDM2yiYrZQtKGobkb2GfgWSD/CSYt6u3bQP4zRTLuaXxG5Dr7jZr/0nzfinuM+u
+ 1cSWzlRr1ygqOuRcZ/x40M/hBtZKmfuP45Ae0m+NnUoG6CRasWIdSQXiD2V7nfJEHBJe
+ SsKdF8ycMHRo2Ho9fFcyW2ExlhjG+2lA1ZKnBRUh7t2K+ToU9KximvCCwR3/MlyjsGyR
+ wyRk/n0bG5usuZXqTDh+l7sOtEPEKGLBEUNYkz6zPFyY0e/w7u94nUpD1wnNBRqduO2+ bg== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qmxps1drh-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 18 May 2023 00:09:28 +0000
+ Thu, 18 May 2023 00:09:37 +0000
 Received: from pps.filterd
- (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 34HLRZr3036369; Thu, 18 May 2023 00:09:27 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2172.outbound.protection.outlook.com [104.47.56.172])
- by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3qmm033xjp-1
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 34HMFhSG032130; Thu, 18 May 2023 00:09:36 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11lp2169.outbound.protection.outlook.com [104.47.57.169])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3qj10c4kxy-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 18 May 2023 00:09:27 +0000
+ Thu, 18 May 2023 00:09:36 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dbWwarojPJ5i4lMU1j91byMZFGqN0eGQielT6TVDDAnGns3JhNK+63G3n3SrIhVSNEIO+bLHeJfyzttCpYo9DmReQbGcV0Lyozo0IgxEzeGkeBF+0f9IpH+zxF2d1lYlQIUKYbK0aS6OdQcUh/l8LzJdl9hMvIhZFYw/CboFwrVSffdfQ/CB9UX8X0KQVJeqmaS+j6+HSTkrO7QKB5nNUFG/qQG7AqZ1rmGA7NL+7OIJM2nrZl6UZrnEdRzZBaiX9Hb+K/lzPnFWCpsBAQzlqUFYcb7/ViX9T53RDavdOuA/B9l9ZF+phD5LgspXjtAopFlQynNGxX6TBm8utOjnSw==
+ b=iTIQiAvrB2Im+ZY1Z9msBLCHHPiP7Fse+vqXYgnCMFZNeQRzPtSAQprWSYaWRI1P9CFST/B014MvBBeZ2QBOKnnxl0avsxw2gbUF/bMiA7DwEfUVJFWeyGdEaWehEjJ+UEGy1YDQSWoNFMSmHUOlZFifI67liyFInj1cy9VHHn3R9+dbQDD+zR7Dd2cO/IevfLvHLX1b02mNl3LpeDgIfpodOpwSjHCCfKfuFolj23ey7U4n/ebEOA2LlyGjgnuhkwcUvqrK6inr28+u9t+iQ285clyhtPjkHzuGnQ6Y7Lc1L9JTIs7Jmtqe6X87x78cMbVyEKV6EgqnATT0fjeKTg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=jwFiNCCgUL0VI3Ycq4EQVA93drqmxGxVRfjEFaK27dg=;
- b=Of8HorSw0egy3DSJmGOPrhGrNb5QoFLjWtIbtP4st8+pEw/aEg2a2ysw6wEw+l87jLuSyjWcqk8LrIE+hvLU/JfXr5Li/88q1hBBO3Ix7/LOy2Bx3lNw58J7Q/69+vSmX1aVXSAmx2tCv3B1Sokzyzjmez1I3xRb8AP0K4Wz8l6HK9eq04IAru4OFCj3t2pq2B5Hy9KzHT2F9h//s/BOQCA13Ffle+QVzquNUoVd+d2cH2gJx+a1BUJgbD/AjfI6E+fi3jyDgWsYjjUG3ZfuXeb2NWRcfhYSo36ygLinpaiSaz4+V8P2Du3aEyJAdYjpbmLXmIUBpO29hJysG/+dgQ==
+ bh=65NAKhAZazjSXDH16xLwiVEclPupW8833e1/Sa9H//w=;
+ b=WaEJ5+96VhiTEbhiXRkhE0/ibIFrOkzZ38IgnRryTyY6sPQeBhaWPjtQPAurZPG+M/BT1FiJiet16nMcl+p2ThMm8PWn06EKSVPQdY8WrpYsNyjlxdJSax2+8Lh7fb/k/1qT1FTM5FmHh4yw6CIuPGcenuxkfiw99N4drLiprdjV2JILP6ySG52bgQtmCE4rv0aOMmfzqYyLyFM5QJaFPv76krpD/HWLunumhnK8wmUfpQz0RpsQfPLrcss65SNqU3p3NBAPjp7tUdeZRshQIltRIjyvjmI+fdU8eI/Wlg5S7+cS03wISr5DV68H4OSQm78URpmfeNoftLw36kWwzw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=jwFiNCCgUL0VI3Ycq4EQVA93drqmxGxVRfjEFaK27dg=;
- b=lS1/HL4+OS47xEbTPxTEZSdHiY0bQDui7JlLjLkfPx6p9/NKbQK4vFSGFfeMxwvWtDM85swEJ7jK7uxGuPfUfe85TvxQh/8MA2fZKiwto/nJb2SictBGSIshzN7wsGa3Qv0+i329F4eFNwZjAJ+u6DcLtdPK9jt6bT+x2ZsxFp8=
+ bh=65NAKhAZazjSXDH16xLwiVEclPupW8833e1/Sa9H//w=;
+ b=Rmf58F86nNpzSa5sZ0PGqHYBhXzPD0Js28O92nYtDvQccLq2q8dlf+byDnnXVaGiHU+sLaBX5itMYBzq75LDihISFVZ+O8IsPL/l3FR0TgEkdhCj+/82tyi6sbUmBhyyU3ZhwlE1SYzKnlgZTkMon5ZjmhDUbNilP3aWwoDXN6o=
 Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by BLAPR10MB5332.namprd10.prod.outlook.com (2603:10b6:208:30d::14)
+ by BLAPR10MB5156.namprd10.prod.outlook.com (2603:10b6:208:321::24)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.19; Thu, 18 May
- 2023 00:09:25 +0000
+ 2023 00:09:34 +0000
 Received: from CY8PR10MB7243.namprd10.prod.outlook.com
  ([fe80::13d6:c3f3:2447:6559]) by CY8PR10MB7243.namprd10.prod.outlook.com
  ([fe80::13d6:c3f3:2447:6559%5]) with mapi id 15.20.6411.017; Thu, 18 May 2023
- 00:09:24 +0000
+ 00:09:34 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: oleg@redhat.com, linux@leemhuis.info, nicolas.dichtel@6wind.com,
  axboe@kernel.dk, ebiederm@xmission.com, torvalds@linux-foundation.org,
@@ -111,97 +111,96 @@ To: oleg@redhat.com, linux@leemhuis.info, nicolas.dichtel@6wind.com,
  virtualization@lists.linux-foundation.org, mst@redhat.com,
  sgarzare@redhat.com, jasowang@redhat.com, stefanha@redhat.com,
  brauner@kernel.org
-Subject: [RFC PATCH 1/8] signal: Dequeue SIGKILL even if
- SIGNAL_GROUP_EXIT/group_exec_task is set
-Date: Wed, 17 May 2023 19:09:13 -0500
-Message-Id: <20230518000920.191583-2-michael.christie@oracle.com>
+Subject: [RFC PATCH 7/8] vhost-net: Add callback to stop and wait on works
+Date: Wed, 17 May 2023 19:09:19 -0500
+Message-Id: <20230518000920.191583-8-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230518000920.191583-1-michael.christie@oracle.com>
 References: <20230518000920.191583-1-michael.christie@oracle.com>
-X-ClientProxiedBy: DS7PR03CA0310.namprd03.prod.outlook.com (2603:10b6:8:2b::9)
- To CY8PR10MB7243.namprd10.prod.outlook.com
+X-ClientProxiedBy: DM6PR14CA0042.namprd14.prod.outlook.com
+ (2603:10b6:5:18f::19) To CY8PR10MB7243.namprd10.prod.outlook.com
  (2603:10b6:930:7c::10)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|BLAPR10MB5332:EE_
-X-MS-Office365-Filtering-Correlation-Id: 57b0065c-cba0-4b43-8051-08db57342357
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|BLAPR10MB5156:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4d327fbc-f245-4cda-d749-08db5734290a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: x54PGkkDBZgxavPH8wccnbci4bUHgawyfnUVjVZbbcKWSW1QXLtZPo5Os5vyaCIBebZN9VmJ0rD7aQ+v0XBjkbnEIGtEp4MO50MHdSnLvjvES03zwcptQVTsmjIYxb5Gdq18mCDH7+YYt4kkushRelvtAe9Q/6Ow5dtsjWjjU1ovY9WjJhGRFAUrEkGK5wXFwvs8nxSy9srjJBDgexd6FEPoJ9LxjioClb9Etm8F0BBWbYfEUWJ/zKPLbAikcDM3TlC1OJ+zGbNuPtjSkuuTu8v0LpwpCAHPug1zA7P8dwtFLDyT1bTkeZmP8EsPCreOHVMLFtm5B/0pDkAhDwIsca5+f52im0rcbMKsKU8GeuPZQ42uOLp7jnY/PG6diV89mf+h6g+WBKEB48dIZGWNFN4L6ZJxtMncb2gHIWKIdxnHVkxTkrj2un6/uRZGhjjPCP7WNJuQrLoHTi4aBWdI/c0DQn1s9jUCRG7mgV5eC9PClCjsF+BWE0eAkpyxvaK3xvx+fMtTGoQ3xM01v0mQo7NwzoWvr5Ti/JnPiM481+GKQZYPgbf2RNwaq5shJb5Bgs4W4Tx8uDSnI8p41XhGILK9R3+fdm+0nnmd6zjrsfI=
+X-Microsoft-Antispam-Message-Info: Ii2PCUsu9zc9pzmstZdlau4MYT69vNlUAS1F1Br+qaGjQENFRqu1MZV3gB3AoiWLVk9sEmQWOQhTNefJ9c0ezI8TjIBAXGd78o8W2XTgtqbPUURCbCZAYfX1svgbsdGZRu7HhQji+CLpJsmYLqWz7iDSV/CK6qNiWJgXUh5xsR9cvtjhCF8FrRYDFbMSAPo4dufeUwOaGMX+weC97GKAHqMtPwn4fP+j4XAiyl8vPSrqqhOyqB3l73nFEKODDRAyCJ+SAkePAXqlqKsgzJetPi+F+fUzSP48J9jAl9hk6RctBY2aeY/t7I3yYbdeguMpLyWjVTvxaPWVJQlLauHVuPirGKnCIbZAajexrVrpj0/fx8aJl0w1RYTEUHq0GNAT5szvnfFr7A+hQ1naOt+8QyBjepPiC5hSPB4dgfnRUFPgZ8Kh80k+Upy90OeSG40DAA8PQGshRE0ANTMj5vdi3TtgX15aYirupU7Isj4Uxw8L8XexYYCFRxbpGof6RJWflyRExjTVGSq5Sx4lKsn+q212D41vyzzeZlvlzFBzRIKdlignrWV5lOlTRQrfXTT+ZwLCnsHrYa702GTzed52zcFKljEBSS4gXFKi5dYrvdQ=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(39860400002)(396003)(366004)(376002)(346002)(136003)(451199021)(4326008)(6666004)(6486002)(107886003)(478600001)(66946007)(66556008)(66476007)(316002)(66899021)(41300700001)(5660300002)(186003)(1076003)(8676002)(8936002)(26005)(7416002)(6512007)(6506007)(36756003)(83380400001)(2616005)(2906002)(38100700002)(921005)(86362001);
+ SFS:(13230028)(396003)(39860400002)(346002)(376002)(136003)(366004)(451199021)(41300700001)(66946007)(66556008)(66476007)(8676002)(4326008)(921005)(8936002)(7416002)(38100700002)(5660300002)(86362001)(6512007)(26005)(1076003)(6506007)(186003)(6486002)(6666004)(107886003)(36756003)(316002)(2616005)(83380400001)(2906002)(478600001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Qa38ueTRsm54Mqe1ENHqxqrD9LGTTRBKe/GymDGFORU7lIFbqir7Dy7r7qrC?=
- =?us-ascii?Q?QcVyBUCyqMAdcLNEWNp01xKr3etj1oGUC5ThpwB4YiKBcVlMn+pjnBIiCPZG?=
- =?us-ascii?Q?FrckrDI2NCRe+pRcM5aEOJGt3ED2r3YI3hx0MD1l3pE+F9rOvRZ8kvAeMlGn?=
- =?us-ascii?Q?r2C01t4ZASDtxmMBvKFZlcfcGtIQf3pmXFVsdGb/URYwJfoRY/rR5gMjA5mz?=
- =?us-ascii?Q?Y3IwWTCKe/+DJGzRkOg/fslfSerWDibGRMfhR0rR2hz/Ug/ELfJKrbO5W0ak?=
- =?us-ascii?Q?Q4HTD3Zq2LUGwan2WxW6ohri1iH3/0M1ORxFunS6LoankTIifM8GzEeEOBzY?=
- =?us-ascii?Q?i9G9m5Pniku1b8NVS4e2c7c5mpWn8VDetrtOv3aWEUsS0hLR4PvmZQKOy9Bm?=
- =?us-ascii?Q?ijeroy+ATZvVPm4GG9tmkF1TrSqCmbcW0m4SsPR4P1dHnKxVzaCBVIw5o8nf?=
- =?us-ascii?Q?8Mqs8wkdmQMKyclKgDa/vEVI8IRcVTSMr+HHpAq14eghHVP0kqF44VV45lQu?=
- =?us-ascii?Q?zEzt53tUx9HierZQG76c1mvfI/3O/L43gt+Hy9faGQCkx5ou1c2qHr6+mx+f?=
- =?us-ascii?Q?lZGCtkaivZfVNVXRTsqMYNn0opGzrSjlTyc5RAWNWDgUweA21DK1dcXm9dSj?=
- =?us-ascii?Q?fO2vQxCOV7gTIXJ1DeFs5ZXrzYj/GkQ4WoisLB6jKawFkWGiwt9/HU/dVyFo?=
- =?us-ascii?Q?cFSaLwt05CshWk/00JsnvbuEE0Omh/186E1ERb0/aALZ6KI9X+weER3ycQEz?=
- =?us-ascii?Q?xtKKeuWNj/6JYYx0X+d2KAi/a6EoylhZXtf1NFxs4K4i0cYN95VckKHIEQUs?=
- =?us-ascii?Q?fG95JGMw7lpaH6MlL+NtaX5hiegI9czbjvp7pUD/9W50lS3iovIbrgouLlrL?=
- =?us-ascii?Q?Xec/9dCYaGHHkatPmuMnUT0h6pe9T0UbJVw/j3OFLEuqHSFo+kSzfBYm+5XM?=
- =?us-ascii?Q?8eYN8oKYptLHlkhwC0rxCAvrr9gk8plqAI8A+3SG0gBhMyivxdM+zHh2MjIo?=
- =?us-ascii?Q?AmXLQZgBmy510NzM+afn+PaNNzYdIXXnbBP2FWQiuw3VXuf0sBnWWmrR2Bq7?=
- =?us-ascii?Q?0YdqZOMN8lJBAgYsYKfqRlhdwmFAf1WedHNd7EMylt4O7Ro9IK1fxnu/h+Z9?=
- =?us-ascii?Q?S2CPBt5v3JD4orOuPNkN85DYzI5UIjaXDqBPAj4OFvxHDCLK7AdtQkMbuTTm?=
- =?us-ascii?Q?Nl/F9Ud6VL4OL9G0eAcXhC4oKMMuHEo5G7RfYoGtOX4dIlO9gS0RlDgQVcw3?=
- =?us-ascii?Q?mXKM5FbhseOv4b1m4i/FKycoMiiWQ33/5hUBkBpaJiqY5DvuMz7qgyNz20Fz?=
- =?us-ascii?Q?IfDqlFDUnGpbcudVBW0B7F0RiQXQ2eI62NomZ0OnBBZNXVAGEe6zXb597YGF?=
- =?us-ascii?Q?DtZc8T/e0jxRiZZXpeav6siWt5XPInVKL5RfuQc7BSKAal+TuFglKt9Wjtoa?=
- =?us-ascii?Q?w/iL4ssZbz6kBh2t+PMbjxxtahC1yBjgTIHsXqN1jGsnbjOe4gOss6tUJ2cF?=
- =?us-ascii?Q?pdd3bQL0+NFZG1C1HjOLmeqpH4VxJjWH8+tOlvNYCwf8tTU0pC2FrtLItJSK?=
- =?us-ascii?Q?HieX6G4I8MeeRFzD5TGMch+rFiqJqixuz7NKJgThPfu8widrAH8opKmcn2FZ?=
- =?us-ascii?Q?5A=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LcwC5F4i0aL4EmT/ROgrfC7BDquSOquXnplUQo2VLJIsQb5zZ3zlpQ6oaxtb?=
+ =?us-ascii?Q?Ry/MnshQDkVJOTTmsIKANPkJWuTwyUpWSsMAPs4WzFu/aBDBRYJ7UY6rHO54?=
+ =?us-ascii?Q?FeMabRSzudo5yFTSQ+a0fvwckw/JcezU6Oa0u58YRmdxtp65Y6rnUfqtJ9v4?=
+ =?us-ascii?Q?lQi52ne8ilLXEus68LI09vl6Bx+Zn7Pz4pMNrVgZ09vj4cagTtUZInnwAGL8?=
+ =?us-ascii?Q?s9lTP3FEsOHQrWXfpTBHcsGcSlkQl47o+Lr+IVsqaCycx5EPoKPfJVCxyQTm?=
+ =?us-ascii?Q?UzJ1RaIGYX8EXqp6snwUQqc7LcPdfUMFh/VOSUDbWo+zOd9Lsv5VsZO65Qpw?=
+ =?us-ascii?Q?+G1h+V2eRiEvmSuaZ7rbkbu9XpM4frE/rqcJEgqU3/ibqdJWauEzUBSDyFqy?=
+ =?us-ascii?Q?7D0igmWJ6Mej2dz/iSB5tXkxtv8sPurWr79yi7+jBd6a/wKSDC+eaGNjoBKO?=
+ =?us-ascii?Q?Hc9KaVX4DMtDYAW04egbe5U398V4Kc1lygD+yqxq9gi4vOdok6ilShMQk1iP?=
+ =?us-ascii?Q?3+6MyJvf2Arr/PZm5N39C3KJZTzl40R9/GQbNxf4YsGq0Mi4y3I0KQm9KJeo?=
+ =?us-ascii?Q?vYSBVgoMx7UqOtPc52T3FJeMVegsoV7GD/tJ+McuYSM95+CNqAwScW9/FXbH?=
+ =?us-ascii?Q?S29crRzDzJgcm22JqGCBlavKB8LQvkMpUNWJ8Zvuv87hU4gYZpxcda30kukP?=
+ =?us-ascii?Q?7E6NQO9Hg3UobrXYAWENMjlM3kjMPQ+UP/3d//IW9xgXvQKFVjSsA6DIyMvg?=
+ =?us-ascii?Q?M8NkdijEoPKKNmhiHemgbwBKyTK1UGT4HCZR8yjIUcsFZWim9YNU2Vmz0iwk?=
+ =?us-ascii?Q?Uo0PgHHmgUyIa0phLpozK6+5iiYEjpLtR3HKtmFSy37O7guYGLIYvxPoh7zq?=
+ =?us-ascii?Q?6qCH7NIi+P/4oBlTJ2cAITmN0wkdhe+EG3LSX5UUHojD1EI6iWLJdntvqi/0?=
+ =?us-ascii?Q?ax3KClTvt75Wq6UAnqiR6Fhgo2CUDaEa84fX0WKP9JrURm0hTAJ3STJ4XXMp?=
+ =?us-ascii?Q?ir/E4DIXJi1NBPPjmnot8nOHqvq9Y/QwSoBteAi2E/H66SOV9nv0NWHKH12c?=
+ =?us-ascii?Q?EzBbZLKUoNN5VNiM0Cywb5L7Dreoh9vXSN1O91Wo7p+LBRk0ymk5rgjghBvm?=
+ =?us-ascii?Q?bx7doMuVCqDmSoqC06G4JXAeJIsxixVhs/BnKb8Y/imLTDleV7i5NomlvI+H?=
+ =?us-ascii?Q?cqaiB7XH4S177a0ED2gABlpyLWx/ROq5l3VTlyl53VQiQnwSfDk5WjlnoB9f?=
+ =?us-ascii?Q?E2sUtra9laipu4Y44sHqi8wzkxVR/TDCrRJSXMB8/+R1galql4UGf+DQMiEi?=
+ =?us-ascii?Q?d6M6Is+BJWAmbnF0BDOH2emVJ8wJHqT9otBvlJRFBd6KXgph0GmeyZzDnsLE?=
+ =?us-ascii?Q?qNXQbIdcrCXL/2WlIgmy5E4eWiBmjz5eJW0qyfkhAXOgAf4ENa+dukWtaMud?=
+ =?us-ascii?Q?HSfXg+bTPqnkWA/VVtpGQtOAkgKCDGkDooD6Yrci3bTy0vU4dJBIkyI9qjkP?=
+ =?us-ascii?Q?90FLrrCk0+X3+68NH45cj7wmTY9TTAoeVVec0AG0nWNXVEAc/ZzKTbq7s+F6?=
+ =?us-ascii?Q?UdPhKJ7SPIdDyoZ4hJ4t5nJ/mRpGVtHFL2GUIT3F8tNV9AY1csjo8Zwe7RgG?=
+ =?us-ascii?Q?zQ=3D=3D?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?us-ascii?Q?oYUN+Np6cgf2jSRuqas5duvT0Ybt/4dFNZC87uknYVushpAUfIGFf6j84gPI?=
- =?us-ascii?Q?MRjztRUMlAo8ZUMhnTjmNHHe1v1JiG/SfQNN/ipCA+wWUUZIY6Onu7gnDc/A?=
- =?us-ascii?Q?diCRKuDJ2ZZBBzzZv3ooEvS/5RuqkWJYXB9BsqCBDUcbddd1DGK0wdt4aN5B?=
- =?us-ascii?Q?xjb9xPulRv75xklbrpQE0ox/vENzmMvYeTslfHcWdoHluHkPw/nzByFADETI?=
- =?us-ascii?Q?/Z8VAEBLLLqh/xP2WEPc1g5HPSgRxiLA+TThc7vRYX5nYt6tqd2Jqpohujlb?=
- =?us-ascii?Q?ZKvtoQAK2poZDcaJ3DxVHYdirTZjTVSDoGiQa2/YzMgI5d+3m54zrlA99hmX?=
- =?us-ascii?Q?ok5xOlp+6sfAO1V6X01NEKhhMtwH+0IJTeBRGVuaW93t3seQOy6XovDYyji0?=
- =?us-ascii?Q?cfh8po9RR1iZIlbQonSbWuv+bH20NJM9T4CP0xOMvSryMnXqW2KQp7hS/ILD?=
- =?us-ascii?Q?uVwnI1C1tqTqpAP3FX87XK7mE8II9Ktw8GsAurMT/iNXONH1F3m6lmOsvz2w?=
- =?us-ascii?Q?7ISX7ymx5gyCa9lac+R3WrPkCY9bk0PZWmqAaqD886WHAJ1rloFKAiJc9xwr?=
- =?us-ascii?Q?KURviNhtNuVO7M1GC3BmUXHUQ6DfS3GDWbdjX0AKrqM2ZSBg2ZxttTKhM2Xo?=
- =?us-ascii?Q?dp+pJJdVb3sUvY3g5N3BHJWdIB1PwvTH8V+/FDnhwuDnGg5lZOFwibeJ/cJU?=
- =?us-ascii?Q?WOdiEEfalR1cq/WWFvFm8r04m9RsT8ZjDL/q6w6pBl5uL1bZ7biX9MBOUUc7?=
- =?us-ascii?Q?U/ioPFaXoluhQ5y0dQ5EFz+1ehPoVGdAbugx1lntSaAOhcw+qdGfUduilMfN?=
- =?us-ascii?Q?RZ0nei83SHvo8wcsVw5CDPFK2HfGWxsuyDkS9CD/229+fkgqT8jfc/0RH59x?=
- =?us-ascii?Q?Xk46TZYQArJprRKKkOM6Q6KF8J7gPXQ+c93R3KKN7ggvZGz7P08Z2niIOtDx?=
- =?us-ascii?Q?kSgFsbiOzzO7Sh35e62WaAlKVJPDVKatyf94NtXM8Upl2nuZIMchgIGGpHaT?=
- =?us-ascii?Q?E8GEyjBMTtv35er0/8+LVsIZxEikP5uWE6Wy8EI2PI3OUungcs77ONd3oVyG?=
- =?us-ascii?Q?dAZrbtBe?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?us-ascii?Q?holUjMP8kuZThqZvh61WyAT+eFAwm18LO8e92cIU7t55CBOsDG8z7YCwW/lY?=
+ =?us-ascii?Q?DqYlgoyuKpGEkJ+8VdldvHqk4ueXVyW9K3TndBMBaeKt8Nkx0lEDD9thCAL0?=
+ =?us-ascii?Q?+wjnSLmGzoquEN8QFkbXLOmDHi9ClVq3DUKiGnjol73YQXjhOfDjEfqFZoHO?=
+ =?us-ascii?Q?omelwSRKc9/ZLJN/YL5woicGtJUMcSs0oDVZ8K8Rw5oWMoBUnICAenFrcAXR?=
+ =?us-ascii?Q?rmgcWfJjjeB+VhhlgGzUuaJneCLTgz6sRNTUZhY3uG1llLNbn4VvKY8p5QTP?=
+ =?us-ascii?Q?GLMy5hsQ0WRdqkiN9xKXj9M/9hVgZz+D7CxG0g7HSj14hyKlLUzB42KpHn/v?=
+ =?us-ascii?Q?9iqFe1i0+DeB6Nkrtl6v6TZcCUxZGvmwCabO+ClXpF9F3Gas4lAdK1z+7q5e?=
+ =?us-ascii?Q?Wqlh0+59QycKfHaSguK2vKj003T6AjNhsgbWEHoFVOixUpPxsXdaM0vHzvIo?=
+ =?us-ascii?Q?elVdwN8wyAoTmQwbhz+EARL8rklecTHDsGgtKLfiGIdsKciKsNiPvnCirhOx?=
+ =?us-ascii?Q?O+d4MMwhSf0L0Z+PydqiCNGNSWHBPUkz/TRDuiY3/wduNUawbrObpjpug9i+?=
+ =?us-ascii?Q?hC856XdLqgtNOlbI38Fv60BBtB4l7Fsk0qV+gDbgfO5JxZgTGEkUaSTQT9ew?=
+ =?us-ascii?Q?uLljnA9dIi8U54Uz6IZlRS+CNfAZjTe4eaHJE/fMT7tJWy4aCbGE6TOC2pnm?=
+ =?us-ascii?Q?pzEoSs88bxrv3WVjyjKlLMpQ3U+mPjeexm5c0tb/I6bCjx4SdubD/Usv5kbJ?=
+ =?us-ascii?Q?uU7HJFDN0NNMAl1TGuL4FpPnN2PNjVZDig5X58qUYKHBaRaOwmZIDCtkosjI?=
+ =?us-ascii?Q?F4rt8hdupeSYF5Oz4f0XHYMoRyxvBZowZuEtv+XCQhe9ot2Z0FG1ackuc8A8?=
+ =?us-ascii?Q?AR8iASMNkHIsBOn0S1Kkg1CYUqkyOWnwQBmSJ3vSSWWmwSXy83ihU7gEBaj1?=
+ =?us-ascii?Q?qfc8XXir7mngv0rdq1lqpxpUQavNONmw5X/B8qZKWnAc5neAyVEchLwi4R02?=
+ =?us-ascii?Q?pXv41YuN4b7C6pDt4GGuXgZBunHywWcA8ZYs5EysRTqA+9QlLXHKNolI20b6?=
+ =?us-ascii?Q?+0ifsfh4?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 57b0065c-cba0-4b43-8051-08db57342357
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4d327fbc-f245-4cda-d749-08db5734290a
 X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2023 00:09:24.7279 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2023 00:09:34.2766 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pFp3NYFitGmj0TQgVW9WSR3ryz7CJh9sKRwusIJwmxGifnavZcK8c821+6EmUjHccMZFgjdOifGxrLI6rexpNb/cESNLNOOq/J2eTqjts9k=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5332
+X-MS-Exchange-CrossTenant-UserPrincipalName: Qco2dMTyGfy3Q4E1sH0GaJmj8r3k9pRgpgENYt4NAA/hCEU+mmY/xX3ySAhfSHqJ5VVjQG5KfkBRlA4GgIGf2GWD7uEnxjrdAM+UezqRDxk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR10MB5156
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-05-17_04,2023-05-17_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
  adultscore=0
- malwarescore=0 bulkscore=0 spamscore=0 phishscore=0 mlxlogscore=999
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ malwarescore=0 mlxscore=0 spamscore=0 bulkscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2304280000 definitions=main-2305170199
-X-Proofpoint-GUID: 9afjv7DnKXY1bngethUvki5SIqEcxoDH
-X-Proofpoint-ORIG-GUID: 9afjv7DnKXY1bngethUvki5SIqEcxoDH
+X-Proofpoint-GUID: 8arPQ2tNYsJCjPTQ4ZsiCXWBUkGyFKIP
+X-Proofpoint-ORIG-GUID: 8arPQ2tNYsJCjPTQ4ZsiCXWBUkGyFKIP
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -218,78 +217,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This has us deqeue SIGKILL even if SIGNAL_GROUP_EXIT/group_exec_task is
-set when we are dealing with PF_USER_WORKER tasks.
-
-When a vhost_task gets a SIGKILL, we could have outstanding IO in flight.
-We can easily stop new work/IO from being queued to the vhost_task, but
-for IO that's already been sent to something like the block layer we
-need to wait for the response then process it. These type of IO
-completions use the vhost_task to process the completion so we can't
-exit immediately.
-
-We need to handle wait for then handle those completions from the
-vhost_task, but when we have a SIGKLL pending, functions like
-schedule() return immediately so we can't wait like normal. Functions
-like vhost_worker() degrade to just a while(1); loop.
-
-This patch has get_signal drop down to the normal code path when
-SIGNAL_GROUP_EXIT/group_exec_task is set so the caller can still detect
-there is a SIGKILL but still perform some blocking cleanup.
-
-Note that in that chunk I'm now bypassing that does:
-
-sigdelset(&current->pending.signal, SIGKILL);
-
-we look to be ok, because in the places we set SIGNAL_GROUP_EXIT/
-group_exec_task we are already doing that on the threads in the
-group.
+This moves the net code we use to stop new works from being queued
+and wait on running works to a helper which is used by the vhost layer
+when the vhost_task is being killed by a SIGKILL.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 ---
- kernel/signal.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/vhost/net.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 8f6330f0e9ca..ae4972eea5db 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2705,9 +2705,18 @@ bool get_signal(struct ksignal *ksig)
- 		struct k_sigaction *ka;
- 		enum pid_type type;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 90c25127b3f8..f8a5527b15ba 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1325,9 +1325,9 @@ static void vhost_net_flush(struct vhost_net *n)
+ 	}
+ }
  
--		/* Has this task already been marked for death? */
--		if ((signal->flags & SIGNAL_GROUP_EXIT) ||
--		     signal->group_exec_task) {
-+		/*
-+		 * Has this task already been marked for death?
-+		 *
-+		 * If this is a PF_USER_WORKER then the task may need to do
-+		 * extra work that requires waiting on running work, so we want
-+		 * to dequeue the signal below and tell the caller its time to
-+		 * start its exit procedure. When the work has completed then
-+		 * the task will exit.
-+		 */
-+		if (!(current->flags & PF_USER_WORKER) &&
-+		    ((signal->flags & SIGNAL_GROUP_EXIT) ||
-+		     signal->group_exec_task)) {
- 			clear_siginfo(&ksig->info);
- 			ksig->info.si_signo = signr = SIGKILL;
- 			sigdelset(&current->pending.signal, SIGKILL);
-@@ -2861,11 +2870,11 @@ bool get_signal(struct ksignal *ksig)
- 		}
+-static int vhost_net_release(struct inode *inode, struct file *f)
++static void vhost_net_stop_dev_work(struct vhost_dev *dev)
+ {
+-	struct vhost_net *n = f->private_data;
++	struct vhost_net *n = container_of(dev, struct vhost_net, dev);
+ 	struct socket *tx_sock;
+ 	struct socket *rx_sock;
  
- 		/*
--		 * PF_IO_WORKER threads will catch and exit on fatal signals
-+		 * PF_USER_WORKER threads will catch and exit on fatal signals
- 		 * themselves. They have cleanup that must be performed, so
- 		 * we cannot call do_exit() on their behalf.
- 		 */
--		if (current->flags & PF_IO_WORKER)
-+		if (current->flags & PF_USER_WORKER)
- 			goto out;
+@@ -1345,6 +1345,13 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+ 	/* We do an extra flush before freeing memory,
+ 	 * since jobs can re-queue themselves. */
+ 	vhost_net_flush(n);
++}
++
++static int vhost_net_release(struct inode *inode, struct file *f)
++{
++	struct vhost_net *n = f->private_data;
++
++	vhost_dev_stop_work(&n->dev);
+ 	kfree(n->vqs[VHOST_NET_VQ_RX].rxq.queue);
+ 	kfree(n->vqs[VHOST_NET_VQ_TX].xdp);
+ 	kfree(n->dev.vqs);
+@@ -1409,7 +1416,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
+ 		       UIO_MAXIOV + VHOST_NET_BATCH,
+ 		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT, true,
+-		       NULL, NULL);
++		       NULL, vhost_net_stop_dev_work);
  
- 		/*
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev);
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev);
 -- 
 2.25.1
 
