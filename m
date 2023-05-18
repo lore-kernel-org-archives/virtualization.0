@@ -1,105 +1,100 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1928EC77B7A
-	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 16:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADC90C77B7A
+	for <virtualization@archiver.kernel.org>; Thu, 18 May 2023 17:04:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 90AC461441;
-	Thu, 18 May 2023 16:49:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 90AC461441
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=jkffKmiv
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1483441553;
+	Thu, 18 May 2023 17:04:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1483441553
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z4vsiFUS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FmIFD123V9ey; Thu, 18 May 2023 16:49:40 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b4ZpfSMJPAm2; Thu, 18 May 2023 17:04:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F242161416;
-	Thu, 18 May 2023 16:49:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F242161416
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1E37C4094C;
+	Thu, 18 May 2023 17:04:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1E37C4094C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CEF9DC0036;
-	Thu, 18 May 2023 16:49:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 91EC7C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D05FDC0036;
+	Thu, 18 May 2023 17:04:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C45F9C002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:49:38 +0000 (UTC)
+ Thu, 18 May 2023 17:04:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6019D81E7B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9B8A941C66
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:49:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6019D81E7B
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
- header.a=rsa-sha256 header.s=google header.b=jkffKmiv
+ Thu, 18 May 2023 17:04:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9B8A941C66
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Z4vsiFUS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MzY5ovoQVcmQ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QgDNWcNzm6FI
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:49:37 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB4FA81E60
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com
- [IPv6:2a00:1450:4864:20::42f])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AB4FA81E60
+ Thu, 18 May 2023 17:04:25 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E7402409F9
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E7402409F9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 16:49:36 +0000 (UTC)
-Received: by mail-wr1-x42f.google.com with SMTP id
- ffacd0b85a97d-3093d10442aso1518305f8f.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 09:49:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linaro.org; s=google; t=1684428574; x=1687020574;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=AM8DwTmosLNfh4+dWykqnnp3+AvL+dO94NEcMeQYDFQ=;
- b=jkffKmivCJNFzoQ6z0jsuQ5OnNUV5s7hDGPvgf502x3D56V4OZ9auOZcWvEUFF+cu5
- 8Bqzvq5wySx+SiLdeLdGNJYKOBq6L0BhG3Vb3hSZFZP79+k9eN4YkE5U92VREm7o8lWw
- yWmJrf52yWPr5YCVg18BLi0hjqS/8Im/oTiO5W7fBVOEvoYqljLM76wz9skAAJIwBM9V
- /2W2q/uS8iNZ+qjIDhvjh9AhHmm9zozY4c5x3z7RX0p4vZahyMTXon2PTgKkZQG7lGW1
- LQpd7pxqDlGbUgLIviL4Z+/DvvS2tburMNKQ/CYy70SEk8A9NdQWEZYhujMuahMAQiyz
- 9StQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1684428574; x=1687020574;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=AM8DwTmosLNfh4+dWykqnnp3+AvL+dO94NEcMeQYDFQ=;
- b=cND9dCVLLMgS0U+Z8Qwabh/hCsmng0Q7b0ReRp9IWGbanmvT27tPnWchOnplHm0wxL
- 073lPVwdbRSg6vy2bVFhd3o1vAWiNjVtMyoV+LRpm8L1+O1D9IVVQyGTd+VcLz+6qZ74
- PgEnN/5kdeg9tLQ8pd9XiNySZWW0k4dbzoOPL2Bmvve4OtrQKgeoCxichHAZGkec2jld
- 2g/aSi7M5kuvsRlbjzVNBcu8aO+aUoO9kiu74OhvIp4TDJjTn6GHKYXM416aKl2C8TPf
- k+zOnBjcP/KX3hRYRlblcnpS/4y2Wq8PQIES2F57QBzQ3+9+qFOljNw7bzaMTpb8JLLG
- gKmQ==
-X-Gm-Message-State: AC+VfDzKnMh8ZaFy1Q7meq3D3R4RmQo5k3reevB9L6HUh/XpsLseLL0x
- El6HaDurAiQmSNr/dhEr2lRIig==
-X-Google-Smtp-Source: ACHHUZ7/wGIKmYno/qEiN1QV7YGyBQN5K4Nr3OQzJ53R0OvyhypPiOw2/5mRgNMSCEwVBuOW1B6WKA==
-X-Received: by 2002:a5d:4041:0:b0:309:732:86df with SMTP id
- w1-20020a5d4041000000b00309073286dfmr1915516wrp.58.1684428574676; 
- Thu, 18 May 2023 09:49:34 -0700 (PDT)
-Received: from myrica (5750a5b3.skybroadband.com. [87.80.165.179])
- by smtp.gmail.com with ESMTPSA id
- e2-20020adfe382000000b00304832cd960sm2726216wrm.10.2023.05.18.09.49.34
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 18 May 2023 09:49:34 -0700 (PDT)
-Date: Thu, 18 May 2023 17:49:37 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH] iommu/virtio: Detach domain on endpoint release
-Message-ID: <20230518164937.GA2934820@myrica>
-References: <20230414150744.562456-1-jean-philippe@linaro.org>
- <20230510081157.GA3326511@myrica> <ZGT+44a6RYZ999kz@nvidia.com>
- <20230518135638.GB2587493@myrica> <ZGYvMDbkBN+2UgzG@nvidia.com>
+ Thu, 18 May 2023 17:04:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1684429463;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=pZ7Kv25n2l/rgGBMQe8NyD9v4RBua/FQCAYmOFizbRM=;
+ b=Z4vsiFUSG9gfh09i/6uDv/3kAvSl+LVNIK58l3QfWjqudCy8/dSry3VdKZBnl81dMmHW1J
+ 9NXjSAf7/Q91x15x5xuhN7IDUdoYlrznXMDNVAuAD1zpZ93AuDC9k+QMtmC/vPXCghS0zr
+ N73zbmH5C5LBquxnrr8Y680UIfBf1j8=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-367-oX24YEzFMHeZcFcVgyOA3A-1; Thu, 18 May 2023 13:04:20 -0400
+X-MC-Unique: oX24YEzFMHeZcFcVgyOA3A-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.1])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 865E73806633;
+ Thu, 18 May 2023 17:04:18 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.45.224.20])
+ by smtp.corp.redhat.com (Postfix) with SMTP id 4FC7440C2063;
+ Thu, 18 May 2023 17:04:15 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+ oleg@redhat.com; Thu, 18 May 2023 19:04:04 +0200 (CEST)
+Date: Thu, 18 May 2023 19:04:00 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [RFC PATCH 1/8] signal: Dequeue SIGKILL even if
+ SIGNAL_GROUP_EXIT/group_exec_task is set
+Message-ID: <20230518170359.GC20779@redhat.com>
+References: <20230518000920.191583-1-michael.christie@oracle.com>
+ <20230518000920.191583-2-michael.christie@oracle.com>
+ <87ednei9is.fsf@email.froward.int.ebiederm.org>
+ <ab7d07ba-5dc3-95c0-aa7c-c2575d03f429@oracle.com>
+ <20230518162508.GB20779@redhat.com>
+ <05236dee-59b7-f394-db3d-cbb4d4163ce8@oracle.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <ZGYvMDbkBN+2UgzG@nvidia.com>
-Cc: akihiko.odaki@daynix.com, will@kernel.org, joro@8bytes.org,
- virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
- iommu@lists.linux.dev, robin.murphy@arm.com
+In-Reply-To: <05236dee-59b7-f394-db3d-cbb4d4163ce8@oracle.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
+ linux-kernel@vger.kernel.org, linux@leemhuis.info,
+ "Eric W. Biederman" <ebiederm@xmission.com>, stefanha@redhat.com,
+ nicolas.dichtel@6wind.com, virtualization@lists.linux-foundation.org,
+ torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,56 +111,64 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 18, 2023 at 10:59:12AM -0300, Jason Gunthorpe wrote:
-> On Thu, May 18, 2023 at 02:56:38PM +0100, Jean-Philippe Brucker wrote:
-> > > Can you wrapper this into a BLOCKED domain like we are moving drivers
-> > > toward, and then attach the blocked domain instead of introducing this
-> > > special case?
-> > 
-> > Yes, I think the way the virtio-iommu driver should implement BLOCKED
-> > domains is initially clearing the global-bypass bit, and then issuing
-> > DETACH requests when the core asks to attach a BLOCKED domain. This has
-> > the same effect as issuing an ATTACH request with an empty domain, but
-> > requires fewer resources in the VMM.
-> 
-> Does that exclude identity though?
+On 05/18, Mike Christie wrote:
+>
+> On 5/18/23 11:25 AM, Oleg Nesterov wrote:
+> > I too do not understand the 1st change in this patch ...
+> >
+> > On 05/18, Mike Christie wrote:
+> >>
+> >> In the other patches we do:
+> >>
+> >> if (get_signal(ksig))
+> >> 	start_exit_cleanup_by_stopping_newIO()
+> >> 	flush running IO()
+> >> 	exit()
+> >>
+> >> But to do the flush running IO() part of this I need to wait for it so
+> >> that's why I wanted to be able to dequeue the SIGKILL and clear the
+> >> TIF_SIGPENDING bit.
+> >
+> > But get_signal() will do what you need, dequeue SIGKILL and clear SIGPENDING ?
+> >
+> > 	if ((signal->flags & SIGNAL_GROUP_EXIT) ||
+> > 	     signal->group_exec_task) {
+> > 		clear_siginfo(&ksig->info);
+> > 		ksig->info.si_signo = signr = SIGKILL;
+> > 		sigdelset(&current->pending.signal, SIGKILL);
+> >
+> > this "dequeues" SIGKILL,
 
-No, identity attaches a domain with the ATTACH_F_BYPASS flag (or an
-identity-mapped domain if the feature is missing), it doesn't rely on
-global-bypass.
+OOPS. this doesn't remove SIGKILL from current->signal->shared_pending
 
-> 
-> It seems like the protocol should not have an implicit operation like
-> this, the desired translation mode should always be made
-> explicit.
+> >
+> > 		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
+> > 			&sighand->action[SIGKILL - 1]);
+> > 		recalc_sigpending();
+> >
+> > this clears TIF_SIGPENDING.
 
-I probably misunderstood your plan for BLOCKED. This particular patch is
-about removing devices from the machine, for example PCIe hot-unplug. So I
-thought you were suggesting the core will at some point attach a BLOCKED
-domain to a device being removed, in order to block translation while the
-device is being removed and while a new one is being plugged in with the
-same RID. For that case I think DETACH, rather than ATTACH an empty
-domain, makes more sense. Otherwise with the same reasoning we'd need to
-attach all 4 billion endpoint IDs to an empty domain at boot which isn't
-feasible. In addition I don't think we'll want to force the VMMs to keep
-endpoint ID state internally after destroying devices, though that does
-need to be specified one way or another.
+No, I was wrong, recalc_sigpending() won't clear TIF_SIGPENDING if
+SIGKILL is in signal->shared_pending
 
-If BLOCKED is only for transient states, for example while a struct device
-is not bound to a driver, then attaching an empty domain works and is
-simpler to implement. Probably the best is to implement BLOCKED this way
-and still call DETACH in the release_device() op.
+> I see what you guys meant. TIF_SIGPENDING isn't getting cleared.
+> I'll dig into why.
 
-In any case, it shouldn't make a difference to the core. I'll see which
-one is better for the VMMs.
+See above, sorry for confusion.
 
-Thanks,
-Jean
 
-> Having a boot time default makes sense, but there is little
-> reason for an OS to go back to the boot time default...
-> 
-> Jason
+
+And again, there is another problem with SIGSTOP. To simplify, suppose
+a PF_IO_WORKER thread does something like
+
+	while (signal_pending(current))
+		get_signal(...);
+
+this will loop forever if (SIGNAL_GROUP_EXIT || group_exec_task) and
+SIGSTOP is pending.
+
+Oleg.
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
