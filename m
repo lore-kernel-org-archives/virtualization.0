@@ -1,130 +1,130 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BD45CC77B75
-	for <virtualization@archiver.kernel.org>; Fri, 19 May 2023 12:09:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9705DC77B75
+	for <virtualization@archiver.kernel.org>; Fri, 19 May 2023 21:56:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3252141605;
-	Fri, 19 May 2023 12:09:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3252141605
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de header.a=rsa-sha256 header.s=fm3 header.b=Q0MlMmxT;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=messagingengine.com header.i=@messagingengine.com header.a=rsa-sha256 header.s=fm1 header.b=rt1BNYex
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1623B426A4;
+	Fri, 19 May 2023 21:56:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1623B426A4
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=kWpXi6kb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ssh8jZ4KrPUd; Fri, 19 May 2023 12:09:37 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b_y6sW2vbPkW; Fri, 19 May 2023 21:56:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0B0D440C1B;
-	Fri, 19 May 2023 12:09:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0B0D440C1B
+	by smtp4.osuosl.org (Postfix) with ESMTPS id F31E742465;
+	Fri, 19 May 2023 21:56:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F31E742465
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6FF2C0035;
-	Fri, 19 May 2023 12:09:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D253CC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C57E0C0036;
+	Fri, 19 May 2023 21:56:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5F40C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 12:09:35 +0000 (UTC)
+ Fri, 19 May 2023 21:56:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AC9948300C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 466B560D78
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 12:09:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AC9948300C
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key, unprotected) header.d=arndb.de header.i=@arndb.de
- header.a=rsa-sha256 header.s=fm3 header.b=Q0MlMmxT; 
- dkim=pass (2048-bit key,
- unprotected) header.d=messagingengine.com header.i=@messagingengine.com
- header.a=rsa-sha256 header.s=fm1 header.b=rt1BNYex
+ Fri, 19 May 2023 21:56:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 466B560D78
+Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=kWpXi6kb
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0yoQcck_FnYo
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GszydmqQGPNm
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 12:09:35 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B67E183004
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com
- [66.111.4.25])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B67E183004
+ Fri, 19 May 2023 21:56:53 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2EAB360D5F
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on20609.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e88::609])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2EAB360D5F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 12:09:34 +0000 (UTC)
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
- by mailout.nyi.internal (Postfix) with ESMTP id AC3AD5C0208;
- Fri, 19 May 2023 08:09:33 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
- by compute6.internal (MEProxy); Fri, 19 May 2023 08:09:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
- :cc:content-type:content-type:date:date:from:from:in-reply-to
- :in-reply-to:message-id:mime-version:references:reply-to:sender
- :subject:subject:to:to; s=fm3; t=1684498173; x=1684584573; bh=Mx
- aybIo+rxpirmU88Zvah8XfxfWvwDtpl+cNoSkys6I=; b=Q0MlMmxTzyw4pVVcJT
- vRqaslXkNToR2VaA4IHp2uzwMBULCK8c/Sxfynl9jnpFU5Oeb/24g73/8G2VcEMe
- GHJz37cuzeUD0J8zSy96C0q06yH5b0NYLYhaWn1Gw0LDYgl3zuB8ruBcheCitHnb
- oEz9J2qJ4iS/mhfdVw1BhrWZyZbuaN92Wd4Ns1DOvhwXE0dZEf387chWc1qNPvA7
- H6LeV3AEaLZ3wIAIievFk9VXl4/o5oNpipBDcCmKN05sLL2BwTEPCmjK2IV/OmoV
- ehq/Hcy4ULr/4ilyo7AGGTveSq5qN9w/6o90ZYcpQhCvG1Fc5t2twZRNORTKjrk+
- i6Vg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
- messagingengine.com; h=cc:cc:content-type:content-type:date:date
- :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
- :message-id:mime-version:references:reply-to:sender:subject
- :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
- :x-sasl-enc; s=fm1; t=1684498173; x=1684584573; bh=MxaybIo+rxpir
- mU88Zvah8XfxfWvwDtpl+cNoSkys6I=; b=rt1BNYexiUNroHAALgEkYqfePno/6
- XwxxgFiiA/Wbfk6hTu/XlsXLpj2AHFEuRDmj8gEVhc6SQdZ+PpfN5LOu72VUeQ9+
- y6HkzIq9c2aK8wyOuJTxVTj9nErufpZ5PcVxle9HXA9TfrFSnW+uaPpPlyO2Ceid
- Nq2uMrvdwvogH385uqOMUcv+nw9gADpplGLQQvcHLwSkeghzTZwikd2RghzmIra5
- kT91kkOSEcJ3Cm2ptafQldBC85kh7Ch2Nsk9MatlA38qTzcYrL6g4GF9GsbeeEAL
- pjztTxP5cRHtNfbhFK7i7HyixdZzM2u3vpo0Ij/FyoEjhsgGDuAN+0LPw==
-X-ME-Sender: <xms:_GZnZJnWZB2IyypOr_yRnE0D3CvKXbEq05w1xtt0PEPHojUtrJ9MMQ>
- <xme:_GZnZE3xvucdo-tfM8QW2EAJZB2cLg5FK-b55YHFAak6yQxPgdokQkFRcuORdo1-b
- j0iVbQuppIa6aIaKBA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrfeeihedggeelucetufdoteggodetrfdotf
- fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
- uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
- cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
- nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
- htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
- teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
- hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:_GZnZPpDdGmXZCCb7m59J49-q5TnDSqQBwV6B31eJLU3NxqW9Mifmg>
- <xmx:_GZnZJn57hY2WDzP4ha-F1l54B-WWf1X7xyQqCE9g3bQ7QrrPpXeig>
- <xmx:_GZnZH2AT3tC_hFcIMFDqo84dtlpJ0mh489IMmq_BtxdyO71BrapSA>
- <xmx:_WZnZLLmQYCUSB-Wfx2NvnHGRoXma16YUbBHKSLs0RdQMpJEHg4p2w>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
- id 147E1B6008D; Fri, 19 May 2023 08:09:31 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-431-g1d6a3ebb56-fm-20230511.001-g1d6a3ebb
-Mime-Version: 1.0
-Message-Id: <9aaed1c3-9a7d-4348-b15f-2bb9be654bef@app.fastmail.com>
-In-Reply-To: <a78d9dcd-0bc1-7e98-a8f1-e5d6cd0c09a3@intel.com>
-References: <20230516193549.544673-1-arnd@kernel.org>
- <a78d9dcd-0bc1-7e98-a8f1-e5d6cd0c09a3@intel.com>
-Date: Fri, 19 May 2023 14:09:11 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Dave Hansen" <dave.hansen@intel.com>, "Arnd Bergmann" <arnd@kernel.org>, 
- x86@kernel.org
-Subject: Re: [PATCH 00/20] x86: address -Wmissing-prototype warnings
-Cc: Mark Rutland <mark.rutland@arm.com>,
- "Rafael J . Wysocki" <rafael@kernel.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, linux-pci@vger.kernel.org,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner <tglx@linutronix.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Darren Hart <dvhart@infradead.org>,
- linux-trace-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
- Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
- Andy Lutomirski <luto@kernel.org>, xen-devel@lists.xenproject.org,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- platform-driver-x86@vger.kernel.org, Juergen Gross <jgross@suse.com>,
- linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
- Andy Shevchenko <andy@infradead.org>
+ Fri, 19 May 2023 21:56:53 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=XjFT+7GTpqB1Hp97KdzFhCgFdb45G6dsQ8FqvpCBLwwc7bqS4u+EGDHCk9Zf62baj6owvhWLfwlr2f+R/iHd1tVCEMHm1HxivNvLVJPFpnbjWkl4vu3STLVhMtbnsmVQb/BmAPh2CzcuCksMk6F2XaVWQ1CUvIuoDQliY5pOe9Y7L8MsIQgxt1JM/bHypioJ51gHrfDZ3+diX7duE3Mmab8o/yX8IIq4oyvOK6jqlopqu/IDsXAezudfdlZsSsKZjsfUuDtZuDTruWub4tx2cQnHda3nFv+FPJ6rH5IKMwe7nRo+2NKWP0MYl/S5UPTnHjcPKgR+hlYGuEaVzgY5hg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=nDIXo4UNsCDm56zbBLhiWWii7G2lJjFG3pskVzCWRQQ=;
+ b=P6WkOy6wuP9JgkMAkpoSir7r9jEqsViRZxR5M3chrPHS9zLmYp32+XgFtvXEHNf5kQwhXy7Jw3vDwA4qc+S7u0Jq4p/R8C6X+Jw5zg3lEivx0a8yiUBvrHlfa+BrTRWQ2UuG/THQgCxol9V7Goak0hggPy5naio9IMmLw1CBzAterVE9TyYLEkNtLghXO/wpgSgSSUKAwpC1M+uDPsXaeL2IAwqUz+NXgkNBfvsg7aKSQJ7TOajHFw9rulEWxf6fJ3A4l08TdYE6vAn5O6FKFL0KIl+KUK3cA7DUNWPxk63b09CeePGjLcnWiw0Z7GAJUS6FVDtat1ODwG5uEQcDjA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=nDIXo4UNsCDm56zbBLhiWWii7G2lJjFG3pskVzCWRQQ=;
+ b=kWpXi6kb84tTP4rjd9V1AQMcWoO5RQdQZrglYeR9hlcXMSt+KWC9cEIVFjwb/M4TsKAPmPVUKxt6JERHeawAnSb5GHkHEvMQcygZY4HyM/qysnv6EcN9onC+E5NQkhlNmWsLJGdWISdvs6opFkS6HAFNgCMK2KFgLbsOiFrIHfE=
+Received: from BN8PR04CA0052.namprd04.prod.outlook.com (2603:10b6:408:d4::26)
+ by IA1PR12MB6555.namprd12.prod.outlook.com (2603:10b6:208:3a1::20)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.21; Fri, 19 May
+ 2023 21:56:50 +0000
+Received: from BN8NAM11FT012.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:d4:cafe::8d) by BN8PR04CA0052.outlook.office365.com
+ (2603:10b6:408:d4::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6411.21 via Frontend
+ Transport; Fri, 19 May 2023 21:56:50 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ BN8NAM11FT012.mail.protection.outlook.com (10.13.177.55) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6411.21 via Frontend Transport; Fri, 19 May 2023 21:56:50 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Fri, 19 May
+ 2023 16:56:49 -0500
+To: <jasowang@redhat.com>, <mst@redhat.com>,
+ <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
+ <brett.creeley@amd.com>, <netdev@vger.kernel.org>
+Subject: [PATCH v7 virtio 01/11] virtio: allow caller to override device id in
+ vp_modern
+Date: Fri, 19 May 2023 14:56:22 -0700
+Message-ID: <20230519215632.12343-2-shannon.nelson@amd.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20230519215632.12343-1-shannon.nelson@amd.com>
+References: <20230519215632.12343-1-shannon.nelson@amd.com>
+MIME-Version: 1.0
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8NAM11FT012:EE_|IA1PR12MB6555:EE_
+X-MS-Office365-Filtering-Correlation-Id: 95c562f9-9062-4fc7-ce1f-08db58b3f339
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Qr+ZR1fcPDugQVCxG+hng59980ZlmFcQAlxKr+fku8Avc7UaKWKFV2+SwJ47giF01ipyTaP2l02mzSCwwbqJv5FDsbQYMSNvF3bX4v7ZDS9WjB7MsS4MZbXkBmzp/FennTVf4FVFjopaiM/EDrqVLX11dSQBMs3kKCp6B6ZWjcmWK3Ro/tX/EznQL3dexinurrGgwP3tHinU7oHUfkQrW5GBq8Zqx6w9qwrLr+sxwn+JFCGzgxLGkHStGLwXC7zX6sOL8U1fp57RG2HYL501vgDCZmI9QVsZoEaFHi1vi06m2daCMtUJvbQ7JWrrUex3gKaL0CDgQZjGudbGrCqP3i6J+1dg02QkaahjMo9vD4yUmq+vxg7pS8PHg5nFnjECn4i1+kU+wtbXL/PzCdqKKjEg8QgdEd0JwuhDbx4iyNMUwlZEXQdxBMo2frBLyvt1A2PvGr+iH4dn4LJejjC5AsXLp7bj7aUALV9/BHy4KkVU7Jt89PqQAGK80JZExVpEBf9Vtz+JcaehQol0qv0exhl+MT+tILSjc39isjoh6eYBMR2Uxa5yWOm6xp6TwbCObmpVhZHD2jA0F3FfkyNEe3Fs/hUSBmLTgRsEen4ax3Er3iOAjUmtP1feUAGyGu2alVGfq+8N5uJ8CU2YnhO3q2/+YuhMl4rmnwXEzJ+Xc+DZazki38/x2+k8oaTf+pPwRfnnVEHN4RIea10kqMlsHvLMQOUYBUI9VBcL87Kqds1FRq4erN8rRMdw15cJC4SaTgJ7sPdaYjNqR2mWB11+JA==
+X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
+ SFS:(13230028)(4636009)(376002)(136003)(39860400002)(396003)(346002)(451199021)(40470700004)(36840700001)(46966006)(40460700003)(70586007)(70206006)(478600001)(4326008)(110136005)(54906003)(316002)(86362001)(36756003)(83380400001)(47076005)(426003)(16526019)(26005)(2616005)(336012)(1076003)(186003)(36860700001)(5660300002)(44832011)(8676002)(8936002)(2906002)(6666004)(82310400005)(40480700001)(41300700001)(81166007)(356005)(82740400003)(36900700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 May 2023 21:56:50.5474 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 95c562f9-9062-4fc7-ce1f-08db58b3f339
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
+ Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT012.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6555
+Cc: simon.horman@corigine.com, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -136,34 +136,95 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Shannon Nelson via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Shannon Nelson <shannon.nelson@amd.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 18, 2023, at 23:56, Dave Hansen wrote:
-> On 5/16/23 12:35, Arnd Bergmann wrote:
->> 
->> All of the warnings have to be addressed in some form before the warning
->> can be enabled by default.
->
-> I picked up the ones that were blatantly obvious, but left out 03, 04,
-> 10, 12 and 19 for the moment.
+To add a bit of vendor flexibility with various virtio based devices,
+allow the caller to check for a different device id.  This adds a function
+pointer field to struct virtio_pci_modern_device to specify an override
+device id check.  If defined by the driver, this function will be called
+to check that the PCI device is the vendor's expected device, and will
+return the found device id to be stored in mdev->id.device.  This allows
+vendors with alternative vendor device ids to use this library on their
+own device BAR.
 
-Ok, thanks!
+Note: A lot of the diff in this is simply indenting the existing code
+into an else block.
 
-I've already sent a fixed version of patch 10, let me know if you
-need anything else for the other ones.
+Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/virtio/virtio_pci_modern_dev.c | 30 ++++++++++++++++----------
+ include/linux/virtio_pci_modern.h      |  3 +++
+ 2 files changed, 22 insertions(+), 11 deletions(-)
 
-> BTW, I think the i386 allyesconfig is getting pretty lightly tested
-> these days.  I think you and I hit the same mlx4 __bad_copy_from()
-> compile issue.
+diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+index 869cb46bef96..9b2d6614de67 100644
+--- a/drivers/virtio/virtio_pci_modern_dev.c
++++ b/drivers/virtio/virtio_pci_modern_dev.c
+@@ -218,21 +218,29 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
+ 	int err, common, isr, notify, device;
+ 	u32 notify_length;
+ 	u32 notify_offset;
++	int devid;
+ 
+ 	check_offsets();
+ 
+-	/* We only own devices >= 0x1000 and <= 0x107f: leave the rest. */
+-	if (pci_dev->device < 0x1000 || pci_dev->device > 0x107f)
+-		return -ENODEV;
+-
+-	if (pci_dev->device < 0x1040) {
+-		/* Transitional devices: use the PCI subsystem device id as
+-		 * virtio device id, same as legacy driver always did.
+-		 */
+-		mdev->id.device = pci_dev->subsystem_device;
++	if (mdev->device_id_check) {
++		devid = mdev->device_id_check(pci_dev);
++		if (devid < 0)
++			return devid;
++		mdev->id.device = devid;
+ 	} else {
+-		/* Modern devices: simply use PCI device id, but start from 0x1040. */
+-		mdev->id.device = pci_dev->device - 0x1040;
++		/* We only own devices >= 0x1000 and <= 0x107f: leave the rest. */
++		if (pci_dev->device < 0x1000 || pci_dev->device > 0x107f)
++			return -ENODEV;
++
++		if (pci_dev->device < 0x1040) {
++			/* Transitional devices: use the PCI subsystem device id as
++			 * virtio device id, same as legacy driver always did.
++			 */
++			mdev->id.device = pci_dev->subsystem_device;
++		} else {
++			/* Modern devices: simply use PCI device id, but start from 0x1040. */
++			mdev->id.device = pci_dev->device - 0x1040;
++		}
+ 	}
+ 	mdev->id.vendor = pci_dev->subsystem_vendor;
+ 
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index c4eeb79b0139..e7b1db1dd0bb 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -38,6 +38,9 @@ struct virtio_pci_modern_device {
+ 	int modern_bars;
+ 
+ 	struct virtio_device_id id;
++
++	/* optional check for vendor virtio device, returns dev_id or -ERRNO */
++	int (*device_id_check)(struct pci_dev *pdev);
+ };
+ 
+ /*
+-- 
+2.17.1
 
-I did all my testing on randconfig builds, so I probably caught a lot
-of the more obscure corner cases, but it doesn't always hit everything
-that is in allyesconfig/allmodconfig.
-
-       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
