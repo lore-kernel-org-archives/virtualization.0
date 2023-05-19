@@ -4,116 +4,87 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5887DC77B75
-	for <virtualization@archiver.kernel.org>; Fri, 19 May 2023 03:40:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 61B2FC77B7F
+	for <virtualization@archiver.kernel.org>; Fri, 19 May 2023 04:16:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B7FB640497;
-	Fri, 19 May 2023 03:40:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B7FB640497
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OEZqNMHW
+	by smtp2.osuosl.org (Postfix) with ESMTP id DDA9E42BF1;
+	Fri, 19 May 2023 04:16:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DDA9E42BF1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OXjavAVDFjeW; Fri, 19 May 2023 03:40:08 +0000 (UTC)
+	with ESMTP id IfwpvpXH50KS; Fri, 19 May 2023 04:16:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8AD504000B;
-	Fri, 19 May 2023 03:40:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8AD504000B
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DEEF34031E;
+	Fri, 19 May 2023 04:16:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEEF34031E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D53BC0035;
-	Fri, 19 May 2023 03:40:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0F5A3C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A61C5C0036;
+	Fri, 19 May 2023 04:16:45 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B78F7C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 03:40:06 +0000 (UTC)
+ Fri, 19 May 2023 04:16:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DD943842C4
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7E3464032C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 03:40:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD943842C4
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OEZqNMHW
+ Fri, 19 May 2023 04:16:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7E3464032C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C5GHJ9OScxXO
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Xs6GJ1Cwah9n
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 03:40:04 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8B85A8427B
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8B85A8427B
+ Fri, 19 May 2023 04:16:42 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C8584031E
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C8584031E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 May 2023 03:40:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1684467603;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=f1BsD2YlZygN6pbBS/GY62l/DzOmTW9VjTJXsS7ZgyQ=;
- b=OEZqNMHWNm7zEYaH53njes38R1FuUkL9hfBPz2dwn+ssTMIRGlhZZJaj3Zd3ENlKzLPhcr
- ZaXmJ5CmyR9TpJk0lf2eeG0b0leDjkgj59PDDhmSUy70K5sFmjCR1meUBUfMbhcAw6GmQ/
- 6G27E9x63WmYgiSiaOsPMykFQUNnz4E=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-ryb8yEYmMnCYMNPzc7jB8A-1; Thu, 18 May 2023 23:40:01 -0400
-X-MC-Unique: ryb8yEYmMnCYMNPzc7jB8A-1
-Received: by mail-lj1-f199.google.com with SMTP id
- 38308e7fff4ca-2af25454023so583961fa.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 May 2023 20:40:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1684467600; x=1687059600;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=f1BsD2YlZygN6pbBS/GY62l/DzOmTW9VjTJXsS7ZgyQ=;
- b=OLDxUYVWjzC29rsUwbeFhlo1FDyZ/JiPGfDt6XmuBnP/CCXvw77DSgcjV4mTGolk0F
- 5orI0GY14kevn8XWTMbwKB25RAH8wfAThVL9VEeHo8To1fL8huQYOXFL7lM9XezRDD5J
- 2Eo0zvbqMj/UdWgKdLsk6xQ60UwkE74DhGsijnr3zEd+VMpuPWY90LYoG8kfAK/td5MV
- mRojBEu9t2l5LxbYBB5RW35gWappZ6iGL3ey6ML915ErXDnbck6D79tyfLpV6nkNBOA3
- Cy6m6GHOvaPLaRf/yLt6HVq7G9R8nFok3WINjvvUqlPYLZrbwJhml0QHwkUndOUcGK4s
- IU7w==
-X-Gm-Message-State: AC+VfDy5NEZqurHl51j3uSaDP3riD6bjSWEyNRhFbHZV6u4ikMLwYE08
- yhCB3BPYvqpjUHLKi64Xxi1aGT7pQeWcTDzpQ0dyd692FXbiGTna6zC4sC68pUCf7f7suJa93Gx
- KjOFBtEV5NeuZERZWRO80q1eBryJQ16YOvGPWyij7sp9lH6KoXuFfuODzaw==
-X-Received: by 2002:a2e:2c16:0:b0:2af:160d:8897 with SMTP id
- s22-20020a2e2c16000000b002af160d8897mr165571ljs.26.1684467600114; 
- Thu, 18 May 2023 20:40:00 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5NIRhXEmx+QQe2lubsQz90bd5dJoJoUP8lRJQm+CJyqIvlkvR/RIYarHdqmwBw6iFiLKF9BBYXCTmuRrSKttA=
-X-Received: by 2002:a2e:2c16:0:b0:2af:160d:8897 with SMTP id
- s22-20020a2e2c16000000b002af160d8897mr165567ljs.26.1684467599713; Thu, 18 May
- 2023 20:39:59 -0700 (PDT)
+ Fri, 19 May 2023 04:16:41 +0000 (UTC)
+Received: from in02.mta.xmission.com ([166.70.13.52]:59472)
+ by out02.mta.xmission.com with esmtps (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1pzrXj-00FxBE-N6; Thu, 18 May 2023 22:16:39 -0600
+Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:37718
+ helo=email.froward.int.ebiederm.org.xmission.com)
+ by in02.mta.xmission.com with esmtpsa (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1pzrXi-00EQER-3G; Thu, 18 May 2023 22:16:39 -0600
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Mike Christie <michael.christie@oracle.com>
+References: <20230518000920.191583-1-michael.christie@oracle.com>
+ <20230518000920.191583-2-michael.christie@oracle.com>
+ <87ednei9is.fsf@email.froward.int.ebiederm.org>
+ <ab7d07ba-5dc3-95c0-aa7c-c2575d03f429@oracle.com>
+ <20230518162508.GB20779@redhat.com>
+ <05236dee-59b7-f394-db3d-cbb4d4163ce8@oracle.com>
+ <20230518170359.GC20779@redhat.com>
+ <875y8ph4tj.fsf@email.froward.int.ebiederm.org>
+ <677200bd-4cd7-e0a5-eab0-46ee29128281@oracle.com>
+Date: Thu, 18 May 2023 23:16:08 -0500
+In-Reply-To: <677200bd-4cd7-e0a5-eab0-46ee29128281@oracle.com> (Mike
+ Christie's message of "Thu, 18 May 2023 17:57:55 -0500")
+Message-ID: <874jo9c5x3.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20230517022249.20790-1-xuanzhuo@linux.alibaba.com>
- <20230517022249.20790-6-xuanzhuo@linux.alibaba.com>
- <CACGkMEu7+kDPiWmULXW_saW6pb5yF=gnqXRkSWcYbZCiJmszHQ@mail.gmail.com>
- <20230518030701-mutt-send-email-mst@kernel.org>
- <1684395232.2129312-1-xuanzhuo@linux.alibaba.com>
- <20230518041446-mutt-send-email-mst@kernel.org>
- <CACGkMEso-pDo_sDN_nCR95WSOh32wtUQAfWLy69tOyXr7EA9_g@mail.gmail.com>
- <1684401243.4437356-2-xuanzhuo@linux.alibaba.com>
- <20230518054517-mutt-send-email-mst@kernel.org>
- <1684412534.2385268-4-xuanzhuo@linux.alibaba.com>
- <20230518131206-mutt-send-email-mst@kernel.org>
- <1684466841.466316-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1684466841.466316-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 19 May 2023 11:39:48 +0800
-Message-ID: <CACGkMEu22wMk=9gDYCEAxq5Lj01vjVt2DdrThNQPWjXdTvgU3A@mail.gmail.com>
-Subject: Re: [PATCH vhost v9 05/12] virtio_ring: split: virtqueue_add_split()
- support premapped
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Christoph Hellwig <hch@infradead.org>,
- virtualization@lists.linux-foundation.org,
- "Michael S. Tsirkin" <mst@redhat.com>
+X-XM-SPF: eid=1pzrXi-00EQER-3G; ; ;
+ mid=<874jo9c5x3.fsf@email.froward.int.ebiederm.org>; ; ;
+ hst=in02.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
+ ; ; spf=pass
+X-XM-AID: U2FsdGVkX1/x0CI0UrqN2n4txao5LhERKR6d4vbOTlQ=
+X-SA-Exim-Connect-IP: 68.110.29.46
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [RFC PATCH 1/8] signal: Dequeue SIGKILL even if
+ SIGNAL_GROUP_EXIT/group_exec_task is set
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
+ linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+ stefanha@redhat.com, linux@leemhuis.info, nicolas.dichtel@6wind.com,
+ virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,296 +96,407 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBNYXkgMTksIDIwMjMgYXQgMTE6MzPigK9BTSBYdWFuIFpodW8gPHh1YW56aHVvQGxp
-bnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPgo+IE9uIFRodSwgMTggTWF5IDIwMjMgMTM6MTI6NDkg
-LTA0MDAsICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiBP
-biBUaHUsIE1heSAxOCwgMjAyMyBhdCAwODoyMjoxNFBNICswODAwLCBYdWFuIFpodW8gd3JvdGU6
-Cj4gPiA+IE9uIFRodSwgMTggTWF5IDIwMjMgMDU6NDk6NDYgLTA0MDAsICJNaWNoYWVsIFMuIFRz
-aXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+ID4gT24gVGh1LCBNYXkgMTgsIDIw
-MjMgYXQgMDU6MTQ6MDNQTSArMDgwMCwgWHVhbiBaaHVvIHdyb3RlOgo+ID4gPiA+ID4gT24gVGh1
-LCAxOCBNYXkgMjAyMyAxNjo1NzozNyArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
-LmNvbT4gd3JvdGU6Cj4gPiA+ID4gPiA+IE9uIFRodSwgTWF5IDE4LCAyMDIzIGF0IDQ6MjnigK9Q
-TSBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+ID4gPiA+ID4g
-Pgo+ID4gPiA+ID4gPiA+IE9uIFRodSwgTWF5IDE4LCAyMDIzIGF0IDAzOjMzOjUyUE0gKzA4MDAs
-IFh1YW4gWmh1byB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IE9uIFRodSwgMTggTWF5IDIwMjMgMDM6
-MTE6MjUgLTA0MDAsICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNvbT4gd3JvdGU6
-Cj4gPiA+ID4gPiA+ID4gPiA+IE9uIFRodSwgTWF5IDE4LCAyMDIzIGF0IDAyOjUxOjU3UE0gKzA4
-MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiA+ID4gT24gV2VkLCBNYXkgMTcs
-IDIwMjMgYXQgMTA6MjPigK9BTSBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29t
-PiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiB2aXJ0
-cXVldWVfYWRkX3NwbGl0KCkgb25seSBzdXBwb3J0cyB2aXJ0dWFsIGFkZHJlc3NlcywgZG1hIGlz
-IGNvbXBsZXRlZAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gaW4gdmlydHF1ZXVlX2FkZF9zcGxpdCgp
-Lgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IEluIHNvbWUgc2Nl
-bmFyaW9zIChzdWNoIGFzIHRoZSBBRl9YRFAgc2NlbmFyaW8pLCB0aGUgbWVtb3J5IGlzIGFsbG9j
-YXRlZAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gYW5kIERNQSBpcyBjb21wbGV0ZWQgaW4gYWR2YW5j
-ZSwgc28gaXQgaXMgbmVjZXNzYXJ5IGZvciB1cyB0byBzdXBwb3J0Cj4gPiA+ID4gPiA+ID4gPiA+
-ID4gPiBwYXNzaW5nIHRoZSBETUEgYWRkcmVzcyB0byB2aXJ0cXVldWVfYWRkX3NwbGl0KCkuCj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gUmVjb3JkIHRoaXMgaW5m
-b3JtYXRpb24gaW4gZGVzY19zdGF0ZSwgd2UgY2FuIHNraXAgdW5tYXAgYmFzZWQgb24gdGhpcwo+
-ID4gPiA+ID4gPiA+ID4gPiA+ID4gd2hlbiBleGVjdXRpbmcgZG1hIHVubWFwLgo+ID4gPiA+ID4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gSSB3b3VsZCBhbHNvIHN1Z2dlc3QgZG9jdW1l
-bnRpbmcgd2h5IGEgcGVyIGRlc2NyaXB0b3IgbWV0YWRhdGEgaXMKPiA+ID4gPiA+ID4gPiA+ID4g
-PiBuZWVkZWQgaW5zdGVhZCBvZiBhIHBlciB2aXJ0cXVldWUgb25lLgo+ID4gPiA+ID4gPiA+ID4g
-Pgo+ID4gPiA+ID4gPiA+ID4gPiBJIHRoaW5rIHdlIGNvdWxkIG1ha2UgaXQgcGVyIHZpcnRxdWV1
-ZS4gVGhhdCB3b3VsZCBtZWFuIGFsbCBjb2RlIGluCj4gPiA+ID4gPiA+ID4gPiA+IHZpcnRpbyBu
-ZXQgd291bGQgaGF2ZSB0byBjaGFuZ2UgdG8gZG8gZG1hIG1hcHBpbmcgaXRzZWxmIGluc3RlYWQg
-b2YKPiA+ID4gPiA+ID4gPiA+ID4gcmVseWluZyBvbiB2aXJ0aW8gY29yZSB0aG91Z2guICBXaGlj
-aCBpcyBtYXliZSBhIGdvb2QgaWRlYT8gRGVmaW5pdGVseSBhCj4gPiA+ID4gPiA+ID4gPiA+IHZl
-cnkgaW50cnVzaXZlIGNoYW5nZSB0aG91Z2gsIHdpbGwgbmVlZCBhIGxvdCBvZiBwZXJmb3JtYW5j
-ZSB0ZXN0aW5nCj4gPiA+ID4gPiA+ID4gPiA+IHRvIG1ha2Ugc3VyZSB3ZSBkb24ndCBicmVhayBh
-bnl0aGluZy4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBJbiBmYWN0LCB3ZSBoYXZl
-IHRyaWVkIHRoaXMgaWRlYS4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBUaGUgcHJv
-YmxlbSBpcyB0aGUgZGV0YWNoIGFuZCB1bm1hcC4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+
-ID4gPiBXZSBuZWVkIHRvIGdldCBhbGwgRE1BIEFkZHJlc3NlcyBmcm9tIHZpcnRpby1yaW5nIHRv
-IHVubWFwLiBDdXJyZW50bHksIGl0IGRvZXMKPiA+ID4gPiA+ID4gPiA+IG5vdCBzdXBwb3J0IHRv
-IHJldHVybiB0aGUgRE1BIEFkZHJlc3MsIGFuZCBmb3IgU0tCLCB3ZSBuZWVkIHRvIGdldCBtdWx0
-aXBsZSBETUEKPiA+ID4gPiA+ID4gPiA+IEFkZHJlc3NlcyBhdCBvbmUgdGltZS4KPiA+ID4gPiA+
-ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBUaGlzIG5lZWQgdG8gbW9kaWZ5IHRoZSBsb2dpYyBvZiBW
-aXJ0aW8tUmluZyBkZXRhY2guIEJlc2lkZXMgdGhpcywgSSBhbHNvIGFncmVlCj4gPiA+ID4gPiA+
-ID4gPiB3aXRoIHRoaXMgaWRlYS4KPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiBUaGFu
-a3MuCj4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiBXZWxsIHlvdSBjYW4gaGF2ZSBhIHZlcnNp
-b24gb2YgZ2V0X2J1ZiB0aGF0IHJldHVybnMgdGhlbSAuLi4gYnV0Cj4gPiA+ID4gPiA+ID4gaXQg
-aXMgbm90IGNsZWFyIHRvIG1lIGFsbCB0aGlzIGlzIHdvcnRoIGl0IHVubGVzcyB5b3Ugd2FudAo+
-ID4gPiA+ID4gPiA+IHRvIGRvIHVuc2FmZSB0cmlja3MgbGlrZSBsZWF2aW5nIHRoZW0gbWFwcGVk
-Lgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiBTb21lIGhpZ2ggc3BlZWQgTklDIGRyaXZlcnMgdXNl
-IHRoaXMgdHJpY2sgZm9yIGJldHRlciBwZXJmb3JtYW5jZS4KPiA+ID4gPiA+Cj4gPiA+ID4gPgo+
-ID4gPiA+ID4gSW50ZXJlc3RpbmcsIHRoaXMgaXMgdGhlIGZpcnN0IHRpbWUgSSBrbm93IHRoaXMu
-IElzIHRoZXJlIGFueSBwcm9ibGVtPwo+ID4gPiA+Cj4gPiA+ID4gZGVwZW5kcyAtIGlmIHlvdSBh
-cmUgcmVseWluZyBvbiB0aGUgSU9NTVUgdGhlbiB5ZXMgLSBtYWxpY2lvdXMgaGFyZHdhcmUKPiA+
-ID4gPiBjYW4gc3RlYWwgZ3Vlc3Qgc2VjcmV0cyBvciBjb3JydXB0IG1lbW9yeSBzaW5jZSBpdCdz
-IGEgaGFjayBub3QgcHJvcGVybHkKPiA+ID4gPiBpbnRlZ3JhdGVkIHdpdGggbGludXggYW5kIHRo
-ZXJlJ3Mgbm8gcmVhbCBjb250cm9sIHByZXZlbnRpbmcgbGludXggZnJvbQo+ID4gPiA+IHJldXNp
-bmcgdGhpcyBtZW1vcnkgZm9yIHNvbWV0aGluZyB1bnJlbGF0ZWQuCj4gPiA+ID4gSWYgaW5zdGVh
-ZCB5b3UgYXJlIHVzaW5nIHNvbWV0aGluZyBsaWtlIGJvdW5jZSBidWZmZXJzIHRoZW4gbm8sIGJ1
-dCBPVE9ICj4gPiA+ID4gYm91bmNlIGJ1ZmZlcnMgYXJlIGFscmVhZHkgZXhwZW5zaXZlIHNvIHlv
-dSBtaWdodCBub3Qgc2VlIGEgbG90Cj4gPiA+ID4gb2YgYmVuZWZpdC4KPiA+ID4gPgo+ID4gPiA+
-ID4gU28sIGlzIHRoYXQgdmlydGlvLW5ldCBtYXN0ZXIgdGhlIG9wZXJhdGlvbiBvZiBkbWEgYnkg
-aXRzZWxmIHRoZSByaWdodCB3YXk/Cj4gPiA+ID4gPgo+ID4gPiA+ID4gVGhhbmtzCj4gPiA+ID4K
-PiA+ID4gPiBJIGFtIGZpbmUgd2l0aCB0aGUgYXBwcm9hY2ggdGFrZW4gZm9yIG5vdy4gQW5kIGxv
-b2sgYXQgcmVkdWNpbmcKPiA+ID4gPiBjb3N0IG9mIGRtYSBtYXAvdW5tYXAgbGF0ZXIuCj4gPiA+
-Cj4gPiA+IFdlbGwsIHNvIGZhciwgd2UgaGF2ZSBkaXNjdXNzZWQgdmFyaW91cyBzaXR1YXRpb25z
-LCBpbiBvcmRlciB0byBvbiB0aGUgc2FtZQo+ID4gPiBwYWdlLiBMZXQncyBzdW1tYXJpemUuCj4g
-PiA+Cj4gPiA+IDEuIHByZW1hcHBlZCBmb3IgcHJlLXZpcnRxdWV1ZQo+ID4gPgo+ID4gPiAgICBX
-ZSBkb24ndCBhbHdheXMgbmVlZCB0byBjaGVjayBwcmVtbWFwcGVkLCBhbmQgd2UgY2FuIHRyeSB0
-byBtZXJnZSB0aGUKPiA+ID4gICAgcHJlbWFwcGVkIGZsYWcgd2l0aCB1c2VfZG1hX2FwaSBzbyB0
-aGF0IHdlIGRvIG5vdCBuZWVkIHRvIGNoZWNrIG1vcmUgZmxhZ3MuCj4gPiA+Cj4gPiA+ICAgIFdl
-IGNhbiBzd2l0Y2ggcHJlbWFwcGVkIHdoZW4gdnEgcmVzZXQsIHNvIEkgZG9uJ3QgdGhpbmsgd2Ug
-aGF2ZSB0byBvcGVuIGl0IGJ5Cj4gPiA+ICAgIGRlZmF1bHQuIEFuZCB3aGVuIHN1cHBvcnRpbmcg
-YWYteGRwLCB0aGVyZSBtdXN0IGRvIHZxIHJlc2V0Lgo+ID4KPiA+IFNvdW5kcyBhdHRyYWN0aXZl
-IGJ1dCBJIGRpZG4ndCByZWFsaXplIEFGX1hEUCBibG9ja3MgcmVndWxhciB4ZHAuCj4KPiBTb3Jy
-eSwgSSBkbyBub3QgdW5kZXJzdGFuZCB5b3VyIG1lYW4uCj4KPiBBRl9YRFAgZGVwZW5kcyBvbiBY
-RFAgd2hlbiBpdCBydW5zLCBhbmQgYm90aCBtdXN0IGJlIGJvdW5kIHRvIHRoZSBuaWMgYXQgdGhl
-Cj4gc2FtZSB0aW1lIHRvIHdvcmsgbm9ybWFsbHkuIFRoZSBkYXRhIHBhY2tldCBpcyByZWRpcmVj
-dGVkIGJ5IHhkcCB0byBhZi14ZHAuCj4KPiBTaW5jZSBhZi14ZHAgbmVlZHMgdG8gcmVmaWxsIHZx
-LCB3ZSBuZWVkIHRvIHJlc2V0IHZxIHRvIHJlbGVhc2UgdGhlIGJ1ZmZlciB0aGF0Cj4gaGFzIGJl
-ZW4gZmlsbGVkIGludG8gdnEuCj4KPiBNeSBpZGVhIGlzIHRoYXQgd2UgY2FuIHR1cm4gb24gdGhl
-IHByZW1tYXBwZWQgZnVuY3Rpb24gd2hpbGUgZXhlY3V0aW5nIHZxIHJlc2V0LgoKVGhhdCBzaG91
-bGQgYmUgZmluZSwgYW5kIGl0IGhlbHBzIHRvIGF2b2lkIHBlciBkZXNjcmlwdG9yIG1ldGFkYXRh
-LgoKVGhhbmtzCgo+Cj4gVGhhbmtzLgo+Cj4KPiA+IElzIHRoYXQgdHJ1ZT8KPiA+Cj4gPiA+IDIu
-IHByZW1hcHBlZCBmb3IgcHJlLWRlc2Moc3RhdGUpCj4gPiA+ICAgICAqIHNhdmUgdGhlIGZsYWcg
-aW5zaWRlIHRoZSBleHRyYS0+ZmxhZ3MKPiA+ID4KPiA+ID4gT0ssIGxldCBtZSBrbm93IHlvdSB3
-YW50IHdoaWNoIG9uZS4KPiA+ID4KPiA+ID4gSWYgSSBtaXNzIHNvbWV0aGluZywgcGxlYXNlIHBv
-aW50IG91dC4KPiA+ID4KPiA+ID4gVGhhbmtzCj4gPiA+Cj4gPiA+Cj4gPiA+Cj4gPiA+Cj4gPiA+
-Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IEkn
-ZCBsZWF2ZSB0aGF0Cj4gPiA+ID4gPiA+ID4gZm9yIGFub3RoZXIgZGF5IG1heWJlLgo+ID4gPiA+
-ID4gPiA+Cj4gPiA+ID4gPiA+ID4gRm9yIG1hcmtpbmcgZGVzYyBhcyBwcmVtYXBwZWQgSSB0aGlu
-ayB3ZSBjYW4gdXNlIGEgYml0IGZyb20KPiA+ID4gPiA+ID4gPiBkZXNjX2V4dHJhLT5mbGFncywg
-ZWl0aGVyIHJldXNpbmcgb25lIG9mIE5FWFQsQVZBSUwsVVNFRCwgb3Igc3RlYWxpbmcKPiA+ID4g
-PiA+ID4gPiBhbm90aGVyIG9uZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gUHJvYmFibHkuCj4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+IFRoYW5rcwo+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+Cj4g
-PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+
-ID4KPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4K
-PiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5
-OiBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPgo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gLS0tCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jp
-bmcuYyB8IDM4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLQo+ID4gPiA+ID4g
-PiA+ID4gPiA+ID4gIDEgZmlsZSBjaGFuZ2VkLCAyOSBpbnNlcnRpb25zKCspLCA5IGRlbGV0aW9u
-cygtKQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGRpZmYgLS1n
-aXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gaW5kZXggZTJmYzUwYzA1YmVjLi5iZDVlODRh
-ZmFiMzcgMTAwNjQ0Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fcmluZy5jCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBAQCAtNzAsNiArNzAsNyBAQAo+ID4g
-PiA+ID4gPiA+ID4gPiA+ID4gIHN0cnVjdCB2cmluZ19kZXNjX3N0YXRlX3NwbGl0IHsKPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+ICAgICAgICAgdm9pZCAqZGF0YTsgICAgICAgICAgICAgICAgICAgICAv
-KiBEYXRhIGZvciBjYWxsYmFjay4gKi8KPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgc3Ry
-dWN0IHZyaW5nX2Rlc2MgKmluZGlyX2Rlc2M7ICAvKiBJbmRpcmVjdCBkZXNjcmlwdG9yLCBpZiBh
-bnkuICovCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgIGJvb2wgcHJlbWFwcGVkOyAgICAg
-ICAgICAgICAgICAgLyogRE1BIG1hcHBpbmcgaXMgZG9uZSBieSBkcml2ZXIuICovCj4gPiA+ID4g
-PiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPiBHb2luZyBiYWNrIHRvIHRoZSBvcmlnaW5h
-bCBkaXNjdXNzaW9uIGFyb3VuZCB3aGVyZSB0aGlzIHNob3VsZCBiZQo+ID4gPiA+ID4gPiA+ID4g
-PiA+IHBsYWNlZC4gSSB3b25kZXIgaWYgd2UgY2FuIGZpbmQgYSBjb21tb24gcGxhY2UgdG8gc3Rv
-cmUgdGhpcyBzaW5jZSBpdAo+ID4gPiA+ID4gPiA+ID4gPiA+IGhhcyBub3RoaW5nIHJlbGF0ZWQg
-dG8gdmlydHF1ZXVlIGxheW91dC4gTWF5YmUgZGVzY19leHRyYT8gQW5kIGl0Cj4gPiA+ID4gPiA+
-ID4gPiA+ID4gd291bGQgYmUgZXZlbiBiZXR0ZXIgaWYgd2UgY2FuIGF2b2lkIHN0cmVzc2luZyB0
-aGUgY2FjaGUgbGlrZSBhYm92ZS4KPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gIH07Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gIHN0
-cnVjdCB2cmluZ19kZXNjX3N0YXRlX3BhY2tlZCB7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBAQCAt
-MzU2LDggKzM1NywxNCBAQCBzdGF0aWMgc3RydWN0IGRldmljZSAqdnJpbmdfZG1hX2Rldihjb25z
-dCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSkKPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+
-ID4gPiA+ID4gPiA+ID4gPiAgLyogTWFwIG9uZSBzZyBlbnRyeS4gKi8KPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+ICBzdGF0aWMgaW50IHZyaW5nX21hcF9vbmVfc2coY29uc3Qgc3RydWN0IHZyaW5nX3Zp
-cnRxdWV1ZSAqdnEsIHN0cnVjdCBzY2F0dGVybGlzdCAqc2csCj4gPiA+ID4gPiA+ID4gPiA+ID4g
-PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgZW51bSBkbWFfZGF0YV9kaXJlY3Rpb24gZGly
-ZWN0aW9uLCBzdGF0aWMgZG1hX2FkZHJfdCAqYWRkcikKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgICAgICBlbnVtIGRtYV9kYXRhX2RpcmVjdGlvbiBkaXJlY3Rp
-b24sCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgYm9v
-bCBwcmVtYXBwZWQsIGRtYV9hZGRyX3QgKmFkZHIpCj4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4g
-PiA+ID4gPiA+ID4gPiBoYXZpbmcgdGhpbmdzIGxpa2U6Cj4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+
-ID4gPiA+ID4gPiA+ID4gPiBpbnQgZnVuYyhib29sIGRvKQo+ID4gPiA+ID4gPiA+ID4gPiA+IHsK
-PiA+ID4gPiA+ID4gPiA+ID4gPiBpZiAoIWRvKQo+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICByZXR1
-cm47Cj4gPiA+ID4gPiA+ID4gPiA+ID4gfQo+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+
-ID4gPiA+ID4gaXMgYSBoaW50IHRoYXQgdGhlIGNoZWNrIG5lZWRzIHRvIGJlIGRvbmUgYnkgdGhl
-IGNhbGxlcj8KPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+IEFuZCB0aGlz
-IGNoYW5nZSBzaG91bGQgd29yayBmb3IgYm90aCBwYWNrZWQgYW5kIHNwbGl0LiBJIHRoaW5rIHdl
-IG5lZWQKPiA+ID4gPiA+ID4gPiA+ID4gPiB0byBzcXVhc2ggdGhlIHBhY2tlZCBjaGFuZ2VzIGhl
-cmUuCj4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPiBMb29raW5nIGF0IGhv
-dyBwYWNrZWQgdmlydHF1ZXVlIHVzZXMgdGhpcyBpbiB0aGlzIHBhdGNoLCBJIGRvbid0IHRoaW5r
-Cj4gPiA+ID4gPiA+ID4gPiA+ID4gdGhpcyBwYXRjaCBjYW4gZXZlbiBiZSBidWlsdC4gSSB3aWxs
-IHdhaXQgZm9yIGEgbmV3IHZlcnNpb24gYW5kCj4gPiA+ID4gPiA+ID4gPiA+ID4gY29udGludWUg
-dGhlIHJldmlldyBmcm9tIHRoZXJlLgo+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4g
-PiA+ID4gVGhhbmtzCj4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4g
-PiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgewo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gKyAgICAgICBpZiAocHJlbWFwcGVkKSB7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAg
-ICAgICAgICAgICAgKmFkZHIgPSBzZ19kbWFfYWRkcmVzcyhzZyk7Cj4gPiA+ID4gPiA+ID4gPiA+
-ID4gPiArICAgICAgICAgICAgICAgcmV0dXJuIDA7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAg
-ICAgIH0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAg
-ICAgaWYgKCF2cS0+dXNlX2RtYV9hcGkpIHsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAg
-ICAgICAgICAvKgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAqIElmIERN
-QSBpcyBub3QgdXNlZCwgS01TQU4gZG9lc24ndCBrbm93IHRoYXQgdGhlIHNjYXR0ZXJsaXN0Cj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiBAQCAtNDQ1LDcgKzQ1Miw3IEBAIHN0YXRpYyB2b2lkIHZyaW5n
-X3VubWFwX29uZV9zcGxpdF9pbmRpcmVjdChjb25zdCBzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2
-cSwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICB9Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+
-ID4gPiA+ID4gPiA+ID4gIHN0YXRpYyB1bnNpZ25lZCBpbnQgdnJpbmdfdW5tYXBfb25lX3NwbGl0
-KGNvbnN0IHN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxLAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-LSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgaW50IGkp
-Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB1bnNpZ25lZCBpbnQgaSwgYm9vbCBwcmVtYXBwZWQpCj4gPiA+ID4gPiA+ID4gPiA+
-ID4gPiAgewo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICBzdHJ1Y3QgdnJpbmdfZGVzY19l
-eHRyYSAqZXh0cmEgPSB2cS0+c3BsaXQuZGVzY19leHRyYTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+
-ICAgICAgICAgdTE2IGZsYWdzOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gQEAgLTQ2Miw2ICs0Njks
-OSBAQCBzdGF0aWMgdW5zaWduZWQgaW50IHZyaW5nX3VubWFwX29uZV9zcGxpdChjb25zdCBzdHJ1
-Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIChmbGFncyAmIFZSSU5HX0RFU0NfRl9XUklURSkgPwo+ID4g
-PiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRE1BX0ZS
-T01fREVWSUNFIDogRE1BX1RPX0RFVklDRSk7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAg
-IH0gZWxzZSB7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgaWYgKHByZW1h
-cHBlZCkKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGdvdG8g
-b3V0Owo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAg
-ICAgICAgICAgIGRtYV91bm1hcF9wYWdlKHZyaW5nX2RtYV9kZXYodnEpLAo+ID4gPiA+ID4gPiA+
-ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGV4dHJhW2ldLmFkZHIsCj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXh0cmFb
-aV0ubGVuLAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gQEAgLTUzMiw2ICs1NDIsNyBAQCBzdGF0aWMg
-aW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0cnVjdCB2aXJ0cXVldWUgKl92cSwKPiA+
-ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-dW5zaWduZWQgaW50IGluX3NncywKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCAqZGF0YSwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCAqY3R4LAo+ID4gPiA+
-ID4gPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBib29s
-IHByZW1hcHBlZCwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgZ2ZwX3QgZ2ZwKQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gIHsKPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+ICAgICAgICAgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEgPSB0b192
-dnEoX3ZxKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IEBAIC01OTUsNyArNjA2LDcgQEAgc3RhdGlj
-IGlubGluZSBpbnQgdmlydHF1ZXVlX2FkZF9zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsgc2c7
-IHNnID0gc2dfbmV4dChzZykpIHsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-ICAgICAgICAgIGRtYV9hZGRyX3QgYWRkcjsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4g
-PiA+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgICBpZiAodnJpbmdfbWFwX29uZV9z
-Zyh2cSwgc2csIERNQV9UT19ERVZJQ0UsICZhZGRyKSkKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgIGlmICh2cmluZ19tYXBfb25lX3NnKHZxLCBzZywgRE1BX1RP
-X0RFVklDRSwgcHJlbWFwcGVkLCAmYWRkcikpCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gdW5tYXBfcmVsZWFzZTsKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBw
-cmV2ID0gaTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IEBAIC02MTEsNyArNjIyLDcgQEAgc3RhdGlj
-IGlubGluZSBpbnQgdmlydHF1ZXVlX2FkZF9zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgZm9yIChzZyA9IHNnc1tuXTsgc2c7
-IHNnID0gc2dfbmV4dChzZykpIHsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-ICAgICAgICAgIGRtYV9hZGRyX3QgYWRkcjsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4g
-PiA+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgICBpZiAodnJpbmdfbWFwX29uZV9z
-Zyh2cSwgc2csIERNQV9GUk9NX0RFVklDRSwgJmFkZHIpKQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-KyAgICAgICAgICAgICAgICAgICAgICAgaWYgKHZyaW5nX21hcF9vbmVfc2codnEsIHNnLCBETUFf
-RlJPTV9ERVZJQ0UsIHByZW1hcHBlZCwgJmFkZHIpKQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBnb3RvIHVubWFwX3JlbGVhc2U7Cj4gPiA+ID4g
-PiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAg
-ICAgcHJldiA9IGk7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBAQCAtNjU3LDYgKzY2OCw3IEBAIHN0
-YXRpYyBpbmxpbmUgaW50IHZpcnRxdWV1ZV9hZGRfc3BsaXQoc3RydWN0IHZpcnRxdWV1ZSAqX3Zx
-LAo+ID4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgLyog
-U3RvcmUgdG9rZW4gYW5kIGluZGlyZWN0IGJ1ZmZlciBzdGF0ZS4gKi8KPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+ICAgICAgICAgdnEtPnNwbGl0LmRlc2Nfc3RhdGVbaGVhZF0uZGF0YSA9IGRhdGE7Cj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgIHZxLT5zcGxpdC5kZXNjX3N0YXRlW2hlYWRdLnBy
-ZW1hcHBlZCA9IHByZW1hcHBlZDsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgaWYgKGlu
-ZGlyZWN0KQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIHZxLT5zcGxpdC5k
-ZXNjX3N0YXRlW2hlYWRdLmluZGlyX2Rlc2MgPSBkZXNjOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-ICAgICAgICBlbHNlCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBAQCAtNjg2LDYgKzY5OCwxNCBAQCBz
-dGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0cnVjdCB2aXJ0cXVldWUgKl92
-cSwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgcmV0dXJuIDA7Cj4gPiA+ID4gPiA+ID4g
-PiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gIHVubWFwX3JlbGVhc2U6Cj4gPiA+ID4gPiA+
-ID4gPiA+ID4gPiArICAgICAgIGlmIChwcmVtYXBwZWQpIHsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+
-ICsgICAgICAgICAgICAgICBpZiAoaW5kaXJlY3QpCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAg
-ICAgICAgICAgICAgICAgICAgICBrZnJlZShkZXNjKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsK
-PiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICBFTkRfVVNFKHZxKTsKPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICByZXR1cm4gLUVOT01FTTsKPiA+ID4gPiA+
-ID4gPiA+ID4gPiA+ICsgICAgICAgfQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKwo+ID4gPiA+ID4g
-PiA+ID4gPiA+ID4gICAgICAgICBlcnJfaWR4ID0gaTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgIGlmIChpbmRpcmVjdCkKPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+IEBAIC03MDAsNyArNzIwLDcgQEAgc3RhdGljIGlubGluZSBpbnQgdmlydHF1ZXVlX2Fk
-ZF9zcGxpdChzdHJ1Y3QgdmlydHF1ZXVlICpfdnEsCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAg
-ICAgICAgICAgICAgICAgICAgICB2cmluZ191bm1hcF9vbmVfc3BsaXRfaW5kaXJlY3QodnEsICZk
-ZXNjW2ldKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGkg
-PSB2aXJ0aW8xNl90b19jcHUoX3ZxLT52ZGV2LCBkZXNjW2ldLm5leHQpOwo+ID4gPiA+ID4gPiA+
-ID4gPiA+ID4gICAgICAgICAgICAgICAgIH0gZWxzZQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gLSAg
-ICAgICAgICAgICAgICAgICAgICAgaSA9IHZyaW5nX3VubWFwX29uZV9zcGxpdCh2cSwgaSk7Cj4g
-PiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICBpID0gdnJpbmdfdW5t
-YXBfb25lX3NwbGl0KHZxLCBpLCBmYWxzZSk7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAg
-IH0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgIGlm
-IChpbmRpcmVjdCkKPiA+ID4gPiA+ID4gPiA+ID4gPiA+IEBAIC03NTcsMTIgKzc3NywxMiBAQCBz
-dGF0aWMgdm9pZCBkZXRhY2hfYnVmX3NwbGl0KHN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxLCB1
-bnNpZ25lZCBpbnQgaGVhZCwKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgaSA9IGhlYWQ7
-Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICB3aGls
-ZSAodnEtPnNwbGl0LnZyaW5nLmRlc2NbaV0uZmxhZ3MgJiBuZXh0ZmxhZykgewo+ID4gPiA+ID4g
-PiA+ID4gPiA+ID4gLSAgICAgICAgICAgICAgIHZyaW5nX3VubWFwX29uZV9zcGxpdCh2cSwgaSk7
-Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiArICAgICAgICAgICAgICAgdnJpbmdfdW5tYXBfb25lX3Nw
-bGl0KHZxLCBpLCBzdGF0ZS0+cHJlbWFwcGVkKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAg
-ICAgICAgICAgICBpID0gdnEtPnNwbGl0LmRlc2NfZXh0cmFbaV0ubmV4dDsKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+ICAgICAgICAgICAgICAgICB2cS0+dnEubnVtX2ZyZWUrKzsKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+ICAgICAgICAgfQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+IC0gICAgICAgdnJpbmdfdW5tYXBfb25lX3NwbGl0KHZxLCBpKTsKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+ICsgICAgICAgdnJpbmdfdW5tYXBfb25lX3NwbGl0KHZxLCBpLCBzdGF0ZS0+cHJl
-bWFwcGVkKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAgdnEtPnNwbGl0LmRlc2NfZXh0
-cmFbaV0ubmV4dCA9IHZxLT5mcmVlX2hlYWQ7Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAg
-IHZxLT5mcmVlX2hlYWQgPSBoZWFkOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IEBAIC03ODMsNyArODAzLDcgQEAgc3RhdGljIHZvaWQgZGV0YWNoX2J1Zl9zcGxp
-dChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwgdW5zaWduZWQgaW50IGhlYWQsCj4gPiA+ID4g
-PiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFZSSU5HX0RFU0Nf
-Rl9JTkRJUkVDVCkpOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgIEJVR19P
-TihsZW4gPT0gMCB8fCBsZW4gJSBzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpKTsKPiA+ID4gPiA+
-ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAtICAgICAgICAgICAgICAgaWYgKHZx
-LT51c2VfZG1hX2FwaSkgewo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICAgIGlm
-ICh2cS0+dXNlX2RtYV9hcGkgJiYgIXN0YXRlLT5wcmVtYXBwZWQpIHsKPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGZvciAoaiA9IDA7IGogPCBsZW4gLyBzaXpl
-b2Yoc3RydWN0IHZyaW5nX2Rlc2MpOyBqKyspCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHZyaW5nX3VubWFwX29uZV9zcGxpdF9pbmRpcmVjdCh2
-cSwgJmluZGlyX2Rlc2Nbal0pOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAg
-IH0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IEBAIC0yMTQzLDcgKzIxNjMsNyBAQCBzdGF0aWMgaW5s
-aW5lIGludCB2aXJ0cXVldWVfYWRkKHN0cnVjdCB2aXJ0cXVldWUgKl92cSwKPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+ICAgICAgICAgcmV0dXJuIHZxLT5wYWNrZWRfcmluZyA/IHZpcnRxdWV1ZV9hZGRf
-cGFja2VkKF92cSwgc2dzLCB0b3RhbF9zZywKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRfc2dzLCBpbl9zZ3MsIGRhdGEsIGN0
-eCwgZ2ZwKSA6Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB2aXJ0cXVldWVfYWRkX3NwbGl0KF92cSwgc2dzLCB0b3RhbF9zZywKPiA+ID4gPiA+
-ID4gPiA+ID4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRf
-c2dzLCBpbl9zZ3MsIGRhdGEsIGN0eCwgZ2ZwKTsKPiA+ID4gPiA+ID4gPiA+ID4gPiA+ICsgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvdXRfc2dzLCBpbl9zZ3MsIGRhdGEs
-IGN0eCwgcHJlbWFwcGVkLCBnZnApOwo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gIH0KPiA+ID4gPiA+
-ID4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+ID4gPiA+ID4gPiAgLyoqCj4gPiA+ID4gPiA+ID4gPiA+
-ID4gPiAtLQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gMi4zMi4wLjMuZzAxMTk1Y2Y5Zgo+ID4gPiA+
-ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4g
-Pgo+ID4gPiA+Cj4gPgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Mike Christie <michael.christie@oracle.com> writes:
+
+> On 5/18/23 1:28 PM, Eric W. Biederman wrote:
+>> Still the big issue seems to be the way get_signal is connected into
+>> these threads so that it keeps getting called.  Calling get_signal after
+>> a fatal signal has been returned happens nowhere else and even if we fix
+>> it today it is likely to lead to bugs in the future because whoever is
+>> testing and updating the code is unlikely they have a vhost test case
+>> the care about.
+>> 
+>> diff --git a/kernel/signal.c b/kernel/signal.c
+>> index 8f6330f0e9ca..4d54718cad36 100644
+>> --- a/kernel/signal.c
+>> +++ b/kernel/signal.c
+>> @@ -181,7 +181,9 @@ void recalc_sigpending_and_wake(struct task_struct *t)
+>>  
+>>  void recalc_sigpending(void)
+>>  {
+>> -       if (!recalc_sigpending_tsk(current) && !freezing(current))
+>> +       if ((!recalc_sigpending_tsk(current) && !freezing(current)) ||
+>> +           ((current->signal->flags & SIGNAL_GROUP_EXIT) &&
+>> +                   !__fatal_signal_pending(current)))
+>>                 clear_thread_flag(TIF_SIGPENDING);
+>>  
+>>  }
+>> @@ -1043,6 +1045,13 @@ static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
+>>                  * This signal will be fatal to the whole group.
+>>                  */
+>>                 if (!sig_kernel_coredump(sig)) {
+>> +                       /*
+>> +                        * The signal is being short circuit delivered
+>> +                        * don't it pending.
+>> +                        */
+>> +                       if (type != PIDTYPE_PID) {
+>> +                               sigdelset(&t->signal->shared_pending,  sig);
+>> +
+>>                         /*
+>>                          * Start a group exit and wake everybody up.
+>>                          * This way we don't have other threads
+>> 
+>
+> If I change up your patch so the last part is moved down a bit to when we set t
+> like this:
+>
+> diff --git a/kernel/signal.c b/kernel/signal.c
+> index 0ac48c96ab04..c976a80650db 100644
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -181,9 +181,10 @@ void recalc_sigpending_and_wake(struct task_struct *t)
+>  
+>  void recalc_sigpending(void)
+>  {
+> -	if (!recalc_sigpending_tsk(current) && !freezing(current))
+> +	if ((!recalc_sigpending_tsk(current) && !freezing(current)) ||
+> +	    ((current->signal->flags & SIGNAL_GROUP_EXIT) &&
+> +	     !__fatal_signal_pending(current)))
+>  		clear_thread_flag(TIF_SIGPENDING);
+> -
+Can we get rid of this suggestion to recalc_sigpending.  The more I look
+at it the more I am convinced it is not safe.  In particular I believe
+it is incompatible with dump_interrupted() in fs/coredump.c
+
+The code in fs/coredump.c is the closest code we have to what you are
+trying to do with vhost_worker after the session is killed.  It also
+struggles with TIF_SIGPENDING getting set. 
+>  }
+>  EXPORT_SYMBOL(recalc_sigpending);
+>  
+> @@ -1053,6 +1054,17 @@ static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
+>  			signal->group_exit_code = sig;
+>  			signal->group_stop_count = 0;
+>  			t = p;
+> +			/*
+> +			 * The signal is being short circuit delivered
+> +			 * don't it pending.
+> +			 */
+> +			if (type != PIDTYPE_PID) {
+> +				struct sigpending *pending;
+> +
+> +				pending = &t->signal->shared_pending;
+> +				sigdelset(&pending->signal, sig);
+> +			}
+> +
+>  			do {
+>  				task_clear_jobctl_pending(t, JOBCTL_PENDING_MASK);
+>  				sigaddset(&t->pending.signal, SIGKILL);
+>
+>
+> Then get_signal() works like how Oleg mentioned it should earlier.
+
+I am puzzled it makes a difference as t->signal and p->signal should
+point to the same thing, and in fact the code would more clearly read
+sigdelset(&signal->shared_pending, sig);
+
+But all of that seems minor.
+
+> For vhost I just need the code below which is just Linus's patch plus a call
+> to get_signal() in vhost_worker() and the PF_IO_WORKER->PF_USER_WORKER change.
+>
+> Note that when we get SIGKILL, the vhost file_operations->release function is called via
+>
+>             do_exit -> exit_files -> put_files_struct -> close_files
+>
+> and so the vhost release function starts to flush IO and stop the worker/vhost
+> task. In vhost_worker() then we just handle those last completions for already
+> running IO. When  the vhost release function detects they are done it does
+> vhost_task_stop() and vhost_worker() returns and then vhost_task_fn() does do_exit().
+> So we don't return immediately when get_signal() returns non-zero.
+>
+> So it works, but it sounds like you don't like vhost relying on the behavior,
+> and it's non standard to use get_signal() like we are. So I'm not sure how we
+> want to proceed.
+
+Let me clarify my concern.
+
+Your code modifies get_signal as:
+ 		/*
+-		 * PF_IO_WORKER threads will catch and exit on fatal signals
++		 * PF_USER_WORKER threads will catch and exit on fatal signals
+ 		 * themselves. They have cleanup that must be performed, so
+ 		 * we cannot call do_exit() on their behalf.
+ 		 */
+-		if (current->flags & PF_IO_WORKER)
++		if (current->flags & PF_USER_WORKER)
+ 			goto out;
+ 		/*
+ 		 * Death signals, no core dump.
+ 		 */
+ 		do_group_exit(ksig->info.si_signo);
+ 		/* NOTREACHED */
+
+Which means by modifying get_signal you are logically deleting the
+do_group_exit from get_signal.  As far as that goes that is a perfectly
+reasonable change.  The problem is you wind up calling get_signal again
+after that.  That does not make sense.
+
+I would suggest doing something like:
+
+ static int vhost_worker(void *data)
+ {
+ 	struct vhost_worker *worker = data;
+ 	struct vhost_work *work, *work_next;
+ 	struct llist_node *node;
+        bool dead = false;
+ 
+ 	for (;;) {
+ 		/* mb paired w/ kthread_stop */
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 
+ 		if (vhost_task_should_stop(worker->vtsk)) {
+ 			__set_current_state(TASK_RUNNING);
+ 			break;
+ 		}
+ 
++		if (!dead && signal_pending()) {
++			dead = get_signal();
++                       if (dead) {
++				/*
++			 	* When the process exits we kick off a work to
++			 	* run the driver's helper to stop new work and
++			 	* handle completions. When they are done they will
++			 	* call vhost_task_stop to tell us to exit.
++			 	*/
++				schedule_work(&dev->destroy_worker);
++				clear_thread_flag(TIF_SIGPENDING);
++			}
++		}
++
+ 		node = llist_del_all(&worker->work_list);
+ 		if (!node)
+ 			schedule();
+
+ 		node = llist_reverse_order(node);
+ 		/* make sure flag is seen after deletion */
+ 		smp_wmb();
+ 		llist_for_each_entry_safe(work, work_next, node, node) {
+ 			clear_bit(VHOST_WORK_QUEUED, &work->flags);
+ 			__set_current_state(TASK_RUNNING);
+ 			kcov_remote_start_common(worker->kcov_handle);
+ 			work->fn(work);
+ 			kcov_remote_stop();
+ 			cond_resched();
+ 		}
+ 	}
+ 
+ 	return 0;
+ }
+
+
+The idea is two fold.
+1) Call get_signal every time through the loop to handle SIGSTOP (to the
+   process).
+2) Don't call get_signal after you know the process is exiting.
+
+With a single call to get_signal (once the process is dead) I don't
+see any fundamental problems with your approach.  It is doing pretty
+much what fs/coredump.c is trying to do.
+
+*Grumble*  fs/coredump.c also struggles with TIF_SIGPENDING.  But at
+least you won't be alone.
+
+
+> Maybe the safest is to revert:
+>
+> commit 6e890c5d5021ca7e69bbe203fde42447874d9a82
+> Author: Mike Christie <michael.christie@oracle.com>
+> Date:   Fri Mar 10 16:03:32 2023 -0600
+>
+>     vhost: use vhost_tasks for worker threads
+>
+> and retry this for the next kernel when we can do proper testing and more
+> code review?
+
+I can see wisdom in that.  It is always nice when you don't have
+to scramble to get the code to do what you want.
+
+
+What is the diff below?  It does not appear to a revert diff.
+
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index a92af08e7864..1ba9e068b2ab 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -349,8 +349,16 @@ static int vhost_worker(void *data)
+>  		}
+>  
+>  		node = llist_del_all(&worker->work_list);
+> -		if (!node)
+> +		if (!node) {
+>  			schedule();
+> +			/*
+> +			 * When we get a SIGKILL our release function will
+> +			 * be called. That will stop new IOs from being queued
+> +			 * and check for outstanding cmd responses. It will then
+> +			 * call vhost_task_stop to exit us.
+> +			 */
+> +			vhost_task_get_signal();
+> +		}
+>  
+>  		node = llist_reverse_order(node);
+>  		/* make sure flag is seen after deletion */
+> diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
+> index 537cbf9a2ade..249a5ece9def 100644
+> --- a/include/linux/sched/task.h
+> +++ b/include/linux/sched/task.h
+> @@ -29,7 +29,7 @@ struct kernel_clone_args {
+>  	u32 io_thread:1;
+>  	u32 user_worker:1;
+>  	u32 no_files:1;
+> -	u32 ignore_signals:1;
+> +	u32 block_signals:1;
+>  	unsigned long stack;
+>  	unsigned long stack_size;
+>  	unsigned long tls;
+> diff --git a/include/linux/sched/vhost_task.h b/include/linux/sched/vhost_task.h
+> index 6123c10b99cf..79bf0ed4ded0 100644
+> --- a/include/linux/sched/vhost_task.h
+> +++ b/include/linux/sched/vhost_task.h
+> @@ -19,5 +19,6 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
+>  void vhost_task_start(struct vhost_task *vtsk);
+>  void vhost_task_stop(struct vhost_task *vtsk);
+>  bool vhost_task_should_stop(struct vhost_task *vtsk);
+> +void vhost_task_get_signal(void);
+>  
+>  #endif
+> diff --git a/kernel/fork.c b/kernel/fork.c
+> index ed4e01daccaa..9e04ab5c3946 100644
+> --- a/kernel/fork.c
+> +++ b/kernel/fork.c
+> @@ -2338,14 +2338,10 @@ __latent_entropy struct task_struct *copy_process(
+>  		p->flags |= PF_KTHREAD;
+>  	if (args->user_worker)
+>  		p->flags |= PF_USER_WORKER;
+> -	if (args->io_thread) {
+> -		/*
+> -		 * Mark us an IO worker, and block any signal that isn't
+> -		 * fatal or STOP
+> -		 */
+> +	if (args->io_thread)
+>  		p->flags |= PF_IO_WORKER;
+> +	if (args->block_signals)
+>  		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
+> -	}
+>  
+>  	if (args->name)
+>  		strscpy_pad(p->comm, args->name, sizeof(p->comm));
+> @@ -2517,9 +2513,6 @@ __latent_entropy struct task_struct *copy_process(
+>  	if (retval)
+>  		goto bad_fork_cleanup_io;
+>  
+> -	if (args->ignore_signals)
+> -		ignore_signals(p);
+> -
+>  	stackleak_task_init(p);
+>  
+>  	if (pid != &init_struct_pid) {
+> @@ -2861,6 +2854,7 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
+>  		.fn_arg		= arg,
+>  		.io_thread	= 1,
+>  		.user_worker	= 1,
+> +		.block_signals	= 1,
+>  	};
+>  
+>  	return copy_process(NULL, 0, node, &args);
+> diff --git a/kernel/signal.c b/kernel/signal.c
+> index 8f6330f0e9ca..0ac48c96ab04 100644
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -2861,11 +2861,11 @@ bool get_signal(struct ksignal *ksig)
+>  		}
+>  
+>  		/*
+> -		 * PF_IO_WORKER threads will catch and exit on fatal signals
+> +		 * PF_USER_WORKER threads will catch and exit on fatal signals
+>  		 * themselves. They have cleanup that must be performed, so
+>  		 * we cannot call do_exit() on their behalf.
+>  		 */
+> -		if (current->flags & PF_IO_WORKER)
+> +		if (current->flags & PF_USER_WORKER)
+>  			goto out;
+>  
+>  		/*
+> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+> index b7cbd66f889e..82467f450f0d 100644
+> --- a/kernel/vhost_task.c
+> +++ b/kernel/vhost_task.c
+> @@ -31,22 +31,13 @@ static int vhost_task_fn(void *data)
+>   */
+>  void vhost_task_stop(struct vhost_task *vtsk)
+>  {
+> -	pid_t pid = vtsk->task->pid;
+> -
+>  	set_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
+>  	wake_up_process(vtsk->task);
+>  	/*
+>  	 * Make sure vhost_task_fn is no longer accessing the vhost_task before
+> -	 * freeing it below. If userspace crashed or exited without closing,
+> -	 * then the vhost_task->task could already be marked dead so
+> -	 * kernel_wait will return early.
+> +	 * freeing it below.
+>  	 */
+>  	wait_for_completion(&vtsk->exited);
+> -	/*
+> -	 * If we are just closing/removing a device and the parent process is
+> -	 * not exiting then reap the task.
+> -	 */
+> -	kernel_wait4(pid, NULL, __WCLONE, NULL);
+>  	kfree(vtsk);
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_task_stop);
+> @@ -61,6 +52,25 @@ bool vhost_task_should_stop(struct vhost_task *vtsk)
+>  }
+>  EXPORT_SYMBOL_GPL(vhost_task_should_stop);
+>  
+> +/**
+> + * vhost_task_get_signal - Check if there are pending signals
+> + *
+> + * This checks if there are signals and will handle freezes requests. For
+> + * SIGKILL, out file_operations->release is already being called when we
+> + * see the signal, so we let release call vhost_task_stop to tell the
+> + * vhost_task to exit when it's done using the task.
+> + */
+> +void vhost_task_get_signal(void)
+> +{
+> +	struct ksignal ksig;
+> +
+> +	if (!signal_pending(current))
+> +		return;
+> +
+> +	get_signal(&ksig);
+> +}
+> +EXPORT_SYMBOL_GPL(vhost_task_get_signal);
+> +
+>  /**
+>   * vhost_task_create - create a copy of a process to be used by the kernel
+>   * @fn: thread stack
+> @@ -75,13 +85,14 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
+>  				     const char *name)
+>  {
+>  	struct kernel_clone_args args = {
+> -		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM,
+> +		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM |
+> +				  CLONE_THREAD | CLONE_SIGHAND,
+>  		.exit_signal	= 0,
+>  		.fn		= vhost_task_fn,
+>  		.name		= name,
+>  		.user_worker	= 1,
+>  		.no_files	= 1,
+> -		.ignore_signals	= 1,
+> +		.block_signals	= 1,
+>  	};
+>  	struct vhost_task *vtsk;
+>  	struct task_struct *tsk;
+
+Eric
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
