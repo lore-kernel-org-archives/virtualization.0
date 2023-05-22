@@ -4,99 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B93CC7EE29
-	for <virtualization@archiver.kernel.org>; Mon, 22 May 2023 13:14:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB262C7EE26
+	for <virtualization@archiver.kernel.org>; Mon, 22 May 2023 13:31:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ED3718227E;
-	Mon, 22 May 2023 13:14:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED3718227E
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6309F83B23;
+	Mon, 22 May 2023 13:31:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6309F83B23
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iS0U34WW
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J1NHnuhu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6kFY7Pu2zrfa; Mon, 22 May 2023 13:14:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 858D182266;
-	Mon, 22 May 2023 13:14:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 858D182266
+	with ESMTP id 0cIMfUEm8aH6; Mon, 22 May 2023 13:31:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D6C7883B36;
+	Mon, 22 May 2023 13:31:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D6C7883B36
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 695B0C0035;
-	Mon, 22 May 2023 13:14:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7FAD5C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B2467C0035;
+	Mon, 22 May 2023 13:31:10 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 72BC3C002A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 May 2023 13:14:19 +0000 (UTC)
+ Mon, 22 May 2023 13:31:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4D2B941875
+ by smtp3.osuosl.org (Postfix) with ESMTP id 380906143D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 May 2023 13:14:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4D2B941875
-Authentication-Results: smtp4.osuosl.org;
+ Mon, 22 May 2023 13:31:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 380906143D
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iS0U34WW
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=J1NHnuhu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 07ciYh0_AP6h
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rENxITTsvsvE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 May 2023 13:14:18 +0000 (UTC)
+ Mon, 22 May 2023 13:31:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7D35441864
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59B6F6136C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7D35441864
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 59B6F6136C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 May 2023 13:14:18 +0000 (UTC)
+ Mon, 22 May 2023 13:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1684761257;
+ s=mimecast20190719; t=1684762263;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=fJa+GKU9edCanEPVCfWeFwI5Lsvvl9efoskVffi2Y6Y=;
- b=iS0U34WWfa8H6G849ziV6YgYZmC1dPfnmLW5wK+Ul8Ypz1X/uXtCa6Fz3mIKCjMVqJSbsh
- 122NZtQFxlLx7PSpKcVzRNvz8dzYw/8Hnh1CV3nogjqaBdXwoTtfeoTuOZryWQfAZZ2mo9
- GDIDGk3u6v6xBXkezGskzTNOt6EgZq4=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=eVGdestM+Cnm6kFHfPIOnEQEMlw4AVJx205w2cJUeL0=;
+ b=J1NHnuhuBwAbK1SGMAEhHRWMP+/G2ve9txZgPqmyXuNCwlaMOTUKR+qsLJhD7EqM9K3Yw/
+ yduEWTK9/QbHejLhHIcuHctaqyb5CyDkPWoFiGb2y3k1bIoWhuk8lFs4Y0P20CAeTdE4pS
+ hOFjqhVG5BSlxgcahwCptgc8RzZS1Ho=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-671-DQ9PCLdCNdyTrKjd0AyNjA-1; Mon, 22 May 2023 09:14:14 -0400
-X-MC-Unique: DQ9PCLdCNdyTrKjd0AyNjA-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
- [10.11.54.9])
+ us-mta-266--2m89qsxNIu92Vw5yGFyfg-1; Mon, 22 May 2023 09:30:59 -0400
+X-MC-Unique: -2m89qsxNIu92Vw5yGFyfg-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CAB7E3C11A24;
- Mon, 22 May 2023 13:14:12 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.139])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 53260401026;
- Mon, 22 May 2023 13:14:12 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id D7FEB1800606; Mon, 22 May 2023 15:14:10 +0200 (CEST)
-Date: Mon, 22 May 2023 15:14:10 +0200
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v5 09/44] drm: handle HAS_IOPORT dependencies
-Message-ID: <vng4tcbkdieuvlmiu36drat5t3lwzufthylcgv3qzfrodphhq3@sjxcuan5q6h6>
-References: <20230522105049.1467313-1-schnelle@linux.ibm.com>
- <20230522105049.1467313-10-schnelle@linux.ibm.com>
- <2043cea3-7553-ee9d-4aaa-6f1d22ac4d87@suse.de>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 11301800BFF;
+ Mon, 22 May 2023 13:30:59 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.45.224.202])
+ by smtp.corp.redhat.com (Postfix) with SMTP id 2ABD240D1B60;
+ Mon, 22 May 2023 13:30:55 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+ oleg@redhat.com; Mon, 22 May 2023 15:30:42 +0200 (CEST)
+Date: Mon, 22 May 2023 15:30:39 +0200
+From: Oleg Nesterov <oleg@redhat.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC PATCH 1/8] signal: Dequeue SIGKILL even if
+ SIGNAL_GROUP_EXIT/group_exec_task is set
+Message-ID: <20230522133038.GB22159@redhat.com>
+References: <20230518000920.191583-1-michael.christie@oracle.com>
+ <20230518000920.191583-2-michael.christie@oracle.com>
+ <87ednei9is.fsf@email.froward.int.ebiederm.org>
+ <ab7d07ba-5dc3-95c0-aa7c-c2575d03f429@oracle.com>
+ <20230518162508.GB20779@redhat.com>
+ <05236dee-59b7-f394-db3d-cbb4d4163ce8@oracle.com>
+ <20230518170359.GC20779@redhat.com>
+ <875y8ph4tj.fsf@email.froward.int.ebiederm.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <2043cea3-7553-ee9d-4aaa-6f1d22ac4d87@suse.de>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, linux-pci@vger.kernel.org,
- Paul Walmsley <paul.walmsley@sifive.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>,
- David Airlie <airlied@gmail.com>, linux-arch@vger.kernel.org,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
- Alan Stern <stern@rowland.harvard.edu>, Albert Ou <aou@eecs.berkeley.edu>,
- Arnd Bergmann <arnd@arndb.de>, Niklas Schnelle <schnelle@linux.ibm.com>,
- spice-devel@lists.freedesktop.org, Bjorn Helgaas <bhelgaas@google.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
- Palmer Dabbelt <palmer@dabbelt.com>, Daniel Vetter <daniel@ffwll.ch>
+In-Reply-To: <875y8ph4tj.fsf@email.froward.int.ebiederm.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com, linux@leemhuis.info,
+ linux-kernel@vger.kernel.org, stefanha@redhat.com, nicolas.dichtel@6wind.com,
+ virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,26 +111,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-  Hi,
+On 05/18, Eric W. Biederman wrote:
+>
+>  void recalc_sigpending(void)
+>  {
+> -       if (!recalc_sigpending_tsk(current) && !freezing(current))
+> +       if ((!recalc_sigpending_tsk(current) && !freezing(current)) ||
+> +           ((current->signal->flags & SIGNAL_GROUP_EXIT) &&
+> +                   !__fatal_signal_pending(current)))
+>                 clear_thread_flag(TIF_SIGPENDING);
+>  
+>  }
+> @@ -1043,6 +1045,13 @@ static void complete_signal(int sig, struct task_struct *p, enum pid_type type)
+>                  * This signal will be fatal to the whole group.
+>                  */
+>                 if (!sig_kernel_coredump(sig)) {
+> +                       /*
+> +                        * The signal is being short circuit delivered
+> +                        * don't it pending.
+> +                        */
+> +                       if (type != PIDTYPE_PID) {
+> +                               sigdelset(&t->signal->shared_pending,  sig);
+> +
+>                         /*
+>                          * Start a group exit and wake everybody up.
+>                          * This way we don't have other threads
 
-> > There is also a direct and hard coded use in cirrus.c which according to
-> > the comment is only necessary during resume.  Let's just skip this as
-> > for example s390 which doesn't have I/O port support also doesen't
-> > support suspend/resume.
-> 
-> I think we should consider making cirrus depend on HAS_IOPORT. The driver is
-> only for qemu's cirrus emulation, which IIRC can only be enabled for i586.
+Eric, sorry. I fail to understand this patch.
 
-Agree.  cirrus is x86 only (both i386 / x86_64 though).  Just require
-HAS_IOPORT and be done with it.
+How can it help? And whom?
 
-> And it has all been deprecated long ago.
+Perhaps we can discuss it in the context of the new series from Mike?
 
-The fact that cirrus used to be the qemu default for many years is
-pretty much the only reason it is still somewhat relevant today ...
-
-take care,
-  Gerd
+Oleg.
 
 _______________________________________________
 Virtualization mailing list
