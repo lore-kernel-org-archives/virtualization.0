@@ -1,84 +1,224 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FBA1C7EE23
-	for <virtualization@archiver.kernel.org>; Tue, 23 May 2023 15:40:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EBFF4C7EE26
+	for <virtualization@archiver.kernel.org>; Tue, 23 May 2023 15:48:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7A19D41F03;
-	Tue, 23 May 2023 15:40:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7A19D41F03
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rWv4nUussToZ; Tue, 23 May 2023 15:40:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B8FD941EDB;
-	Tue, 23 May 2023 15:40:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B8FD941EDB
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FFCAC0036;
-	Tue, 23 May 2023 15:40:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C1D67C002A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 23 May 2023 15:40:08 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8F80582F99
- for <virtualization@lists.linux-foundation.org>;
- Tue, 23 May 2023 15:40:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F80582F99
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7156281EE3;
+	Tue, 23 May 2023 15:48:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7156281EE3
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=p+gw8enn;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=Ii/LGjtk
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lksQk9l3v0gr
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zZJN16x77Y7g; Tue, 23 May 2023 15:48:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ED43D81EAC;
+	Tue, 23 May 2023 15:48:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED43D81EAC
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D0380C0036;
+	Tue, 23 May 2023 15:48:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E403DC002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 May 2023 15:40:06 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 72E488211E
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 72E488211E
+ Tue, 23 May 2023 15:48:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id BCADE60FB6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 May 2023 15:40:06 +0000 (UTC)
-Received: from in01.mta.xmission.com ([166.70.13.51]:34724)
- by out01.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q1U7I-003qxd-SS; Tue, 23 May 2023 09:40:05 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:41738
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in01.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q1U7H-007qRy-L3; Tue, 23 May 2023 09:40:04 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+ Tue, 23 May 2023 15:48:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BCADE60FB6
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=p+gw8enn; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=Ii/LGjtk
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7PGqMrkogR5M
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 May 2023 15:48:38 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3336C60F98
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 3336C60F98
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 May 2023 15:48:36 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 34NFSkjx013467; Tue, 23 May 2023 15:48:25 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-03-30;
+ bh=gmXOQdl2SOunsaSfI6TpKtQMku70+v4F00JH2b12tFY=;
+ b=p+gw8enng6sQeH8bs/9ZlniWrie83yWHxPxpJ9Wq02ymXT2khFOibr7092fjlGXjvxNN
+ 5m3lUdBMA3z2NJJFuxLBMARVRyY9dgmN4iGiNMxAIRiMm4rCmETX2A1A9JXKdbJIaueR
+ sNKer9iyfmdO1JaZYXWcW0+fvlJKYXi1yBGgv+zFWczoooAUT/ALAGr4SWo8aFlHNu51
+ OBEdm4IvJp4JbyFRZoqOdNxBEiaJqZ8Jy+vM/TX4a3ZppnC98uv0uhUAHAuRG7RczV5k
+ 5b1gEy1Xs5l3Qf8BrjAUIZMnTTBdAD6XqdWmb/cePRjqVJBtwD2HchNa4XuUrJZgpmin kw== 
+Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qpp3qnfuf-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 23 May 2023 15:48:24 +0000
+Received: from pps.filterd
+ (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 34NFhMjU015775; Tue, 23 May 2023 15:48:24 GMT
+Received: from nam11-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11lp2175.outbound.protection.outlook.com [104.47.57.175])
+ by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3qqk6jh67a-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 23 May 2023 15:48:23 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Q03ogrDEC8z5x9j/BpaTnfX2/rImiyfjmQGvyRU5p1fOliz+hhoKFbhpPlc3YDjGQYbT/FuidQ0bEF/4pwtCuozFfE6cvUTK83xlwr4J1yuUfWOqNq0BR54Qv+yOU9LdipuHdTD7wnVzPIMK8xHjhOPFy7+KgmqAZ7yUb3lTTN8MruXs39OAXp3xvE5U8oaztpOmW4A5zuCCmINbrivmeyx3PS7bUT3jbolj9fAIuaRGGtDOpC1XxvGRV5V30+jvEOYjZnVZIsmm9pFNJbJT0SEnOe15ceBwCZwcnwfgRYSMQPCRhX9T5jo+1yIsMov6EGMtnOP6sIFivRT+o2ZEgA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gmXOQdl2SOunsaSfI6TpKtQMku70+v4F00JH2b12tFY=;
+ b=i0Z8NBBBlK4kosqP/Brg15hXTsGc3BOchtm3n/ntW0J9zG4bfaa14VfwnYPINMpDnA5fqqtROqSZMkfKvuhVpUCkDlHgqjW4wJV/XArcEerjyc567ZX3qcoM8EJEDNeptiEBfO0VQhC+IDa3AiboFm0ALi2ozl+ETr/EOaKDSxvpNBaQCohnhIFkmEsSiYDxB5waYeF9QejnFL02OANixYWEhzTN/tY7kUUdfE4maW3QiTZesALYyDuweWV151taT2i00qamprzALg3IdS6EpvmrBXadFEw9FJ4DYIXbZ8lcn5kpM4hJGfe+GJUVJV3cV1QRpUzoDoPrW1KLc8JNDw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=gmXOQdl2SOunsaSfI6TpKtQMku70+v4F00JH2b12tFY=;
+ b=Ii/LGjtkrkTdd1yDRKt1YE6BMGYAdPfn9sY+F5whwDzipn5+ViYQU+6Sl1CF1WCTMvdql/EMP/HeeOzftY/xA3QtBqu6tUUHMzIwuLrVPBFFsgyeU5YgW5P1CWNVKaYYxUfYu5NZwxECyoZoo6sTSVQZZa1YD7bUZZfwEB1yv0Q=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by IA0PR10MB7372.namprd10.prod.outlook.com (2603:10b6:208:40f::19)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.30; Tue, 23 May
+ 2023 15:48:21 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559%5]) with mapi id 15.20.6411.028; Tue, 23 May 2023
+ 15:48:21 +0000
+Message-ID: <8892c180-204c-f6d8-a166-fdf5c938488b@oracle.com>
+Date: Tue, 23 May 2023 10:48:19 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.1
+Subject: Re: [PATCH 3/3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
+ regression
+Content-Language: en-US
 To: "Michael S. Tsirkin" <mst@redhat.com>
 References: <20230522025124.5863-1-michael.christie@oracle.com>
  <20230522025124.5863-4-michael.christie@oracle.com>
  <20230522153852-mutt-send-email-mst@kernel.org>
-Date: Tue, 23 May 2023 10:39:56 -0500
-In-Reply-To: <20230522153852-mutt-send-email-mst@kernel.org> (Michael
- S. Tsirkin's message of "Mon, 22 May 2023 15:40:48 -0400")
-Message-ID: <87cz2r83ar.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <20230522153852-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: DM6PR01CA0025.prod.exchangelabs.com (2603:10b6:5:296::30)
+ To CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
 MIME-Version: 1.0
-X-XM-SPF: eid=1q1U7H-007qRy-L3; ; ;
- mid=<87cz2r83ar.fsf@email.froward.int.ebiederm.org>; ; ;
- hst=in01.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
- ; ; spf=pass
-X-XM-AID: U2FsdGVkX19NgfMb/ImKg6q5N6Tu8xjjRvYEjWNx4d8=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 3/3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
- regression
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|IA0PR10MB7372:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9b7cf8a5-10bd-427f-0183-08db5ba5226f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: IBPE6mU/epMbSazedSYgHNQS/RdlQ7b/hCGB1WjuSkjAMkqNNnGZ0g9mxCdpfya5kdEnMzGRULPCUDzw5W0jPJXb1pSXHS+AaUKlGKdWH34klLF/809oPdbOD5NNEQnf9FZ1VkEn3hwk9OCYexazVsMuTpUHT53NDc3HK8LFB77EH9pB1mAkqmKJV48lPRlCyAKSWWENlQ09S47iP/DUja/JE/G8KP5xdtSB5EeSDOtwM+94kc/3XTuSOuhzZb828VR5vbnkL5YeW1Nf1ciqLLiSp6OWkeghOQxrYa31D6A9Xy0TleK+rHp446NwqdyWFEaANf6zDdCRzC6sm5pYFwPQXowFVV1VCCz2C20r5bvPDJzaqrX31kJ6fGpn5oKVpJmdPvhYT4MIcIvW+Kkd6DlXoqGxdDfSHGZY+lE7I9Y4ecZ6TYBuH4PucV00H8eyYBDhtCsYAVoDFGG9DRz9hduL7iAtZ804TLqU5gXpHK+TMMztWZZpm037uHR90YQ95ZpXtsvz5lcdlZOX5rDRdlu/6baDBlciP/ok/d6a5Du8S04HDD7JWDpcsJuGiKAPmft/llcZVnGDGO62aGJb/zLPlOJF5dmVE626M34tWrHidlJqjuxoUM5ZZj6Cm92E74b47eyLs85/G5Jo9/zN3A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(376002)(366004)(39860400002)(396003)(136003)(346002)(451199021)(478600001)(4326008)(6916009)(66476007)(66946007)(66556008)(31686004)(38100700002)(316002)(31696002)(41300700001)(6486002)(86362001)(2616005)(5660300002)(4744005)(2906002)(8936002)(8676002)(6506007)(6512007)(26005)(53546011)(36756003)(7416002)(186003)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UVBtMFg5NVgxOW8zNWtncmNHeUh3NWhlVUprTExVV1dkb1pCazI0Rmx3UE1j?=
+ =?utf-8?B?NGNVWFJNS0xMcUVHeDZiNkt4bG4xeUc4RGJjOTZ2NGNFNDFLcENrdmh4aUR2?=
+ =?utf-8?B?WVJoQXlhTmtuYXdvT3cyREgxYUNVV3JHY1FYendheHQ4SkV3aVZVcFNGSVJE?=
+ =?utf-8?B?Y3ZJWHZPN1o5a3N1NzBjd1VPcFRPWEY5RDY0NUpMNFdqeEFCeVdHMzdibDFr?=
+ =?utf-8?B?ZEl5eGV2dWJ4bExSY0VSbkRzNlNSLzNrdTJTYWd6R1VZTTRDSkw0R2hkVzQx?=
+ =?utf-8?B?N2cyZExkS3ljMkl2WU5JQXVMQ01RYjJ4R3FwUnhFQXZYNDNMNUtYV2lGLytO?=
+ =?utf-8?B?Vmc0L05Kc2VFVUx2TUEyOGw2bjc4T3RUL083aVRYNUdaZHpLTTY0R3haT1o1?=
+ =?utf-8?B?T0lsMGx5OVhrbW1Vdlc5M1NsQ1pwTlpJYTRCWFhGeExKcFgxVXNQOXdGelZR?=
+ =?utf-8?B?VmNOZTJxWWFNYk5iak4rNmFDdUF0QzRrb1dhNXNCU1NFVVdrb1BGVjl4WU5R?=
+ =?utf-8?B?RlNMNnA1YlVmWTlLTmZ6M2U1cDA1WG5wWXpGY05ETkIxUlJMbTFoTWJoUFIw?=
+ =?utf-8?B?azNuVWpFaVMvZDhzaExCcmdvQXJzY0Y2cXdXWDc1KzhDNGRaYWZZWElWN2l3?=
+ =?utf-8?B?ZFFsT295VEhGaW5QOWlXS01oU2lJT0MvYlkzSnQvdUx1Qkt4M2QxSTA1N2dL?=
+ =?utf-8?B?d2FlR3huczdiVHpjazlwcS9jM3RwaW5xcnhmVTRkQ1pMZE5vYVhYVlZlNlRM?=
+ =?utf-8?B?K1h1MlZrc0RlRFJKSlpIcE51cVp6bmdXdFNzbTJpSm52MnY1NDlNTHRiMnRi?=
+ =?utf-8?B?bGRxQWFEN3U2R3lwdEZuelFpOE9pZUtYLzNUQUlQVkNCRldEQ0dxYjhIemVs?=
+ =?utf-8?B?RlEzN0ZiVmE2bWtlZUdNeDAyZU5oeHJieFd4MlFhMVZqYXFPVDN5N2FHZG9V?=
+ =?utf-8?B?bGlZcUZNbERKTWM1dHF2RGFMbjB3VlNWRmRpaDh6TkRaVmVOd3BSSXhHblVI?=
+ =?utf-8?B?QWgwY3lGRU1LVGNrL2NWeDM2TElNSDZTN3U5RENuRXRaMXdleHRQL0JDOTcv?=
+ =?utf-8?B?YVMrdksvVTJSa1FFMlNPeFh1NUg3YTJJUUpsaDY1MDYyZWZFVnRTU1FnbTU2?=
+ =?utf-8?B?OVBrdTJsLzVYZ0Nsb2p4c3BpUHJXaTR0ejlEV25EL3cxNmxHd1BXUVBvRU9l?=
+ =?utf-8?B?ajBWQmlRR1BkbGg4VVNVd3h5QlZPejhCbnoyMjdzSlhnODRwNmZmZFgxWVl4?=
+ =?utf-8?B?N092TXcyTytMY3lPTWRsbXJiY0RMb3U1dE5oRUs3eldOOWxEUFpjNVRFWVlq?=
+ =?utf-8?B?Znd5dmVUb3NSYXpDQkpsYS94WW9YZVFUdGlRSGs0Lzc4dSt1WlF2QW5wOVcx?=
+ =?utf-8?B?amNWaHNOdUtMTm5wRlhnbUpteUViNlJadVIwQitoYU4xYkNZZGU0dFZJd3Ry?=
+ =?utf-8?B?MDRmc1pPMWpvRjVURG0rbUN0akZmQVF6aVJmTFlCSUZGMXE0bU1mMlMwZHF1?=
+ =?utf-8?B?UzZvYVo2emNIS2YxRVE3SnpDc09rR2pYNjZKU2FTREdSS3pGRzdHdC92UDc3?=
+ =?utf-8?B?bnJJRUhRbjBYRXBMVCttYm81bFBHRVpCczdQZmc3azYycXlZYThUOE5RdHh6?=
+ =?utf-8?B?bDIvREhxQkcwN3l1RG1CYkRSS3g1cm1MMjFLZExabCt1Tm01R2lrT2NTNHVk?=
+ =?utf-8?B?Tmw5cVpEdVdab25hOTV5WnpNcXdRaUtoaFora0kwN0lKMnp4YjFiYXYzQks4?=
+ =?utf-8?B?cmhxc1JGZTk1bkFpTVhZckxpdThKNU12VC9oM1lHK2VhZklGSmM0eWdCMWFs?=
+ =?utf-8?B?ZVBibDgyVGF4V21QeGE0aHVvdDJZTUExTllhdFo3Vms3UUthTWlTZG5RcEJK?=
+ =?utf-8?B?WVhLR0xaMklmWmhlVkRRYXhJbytDY01jVG5XVUJUN3VvVHAwcUxMVDNLRmhI?=
+ =?utf-8?B?dGdlUFArV1JrZGtJeC8wbXVkMzhxT1FvNUhCRXJVMGQvU1ZYcUtiWWxGa1Zw?=
+ =?utf-8?B?L1JwOVNNQzVwZlBDaE9veGlxaGtiYUhVTUNUR2pDNWQ5RmlTTngvRTlMQXoz?=
+ =?utf-8?B?dC81OGZFa2JlMXA3Qmk1TFR0bEdoaU1uYWJBaHRmdXhYeWY4SlpYQlBLcC9I?=
+ =?utf-8?B?a2JCbWpTOU1md1hoR1pTTmU3ZzFRbGVuc2dQTlRYclFhWUx5SkZwTjhsT1NV?=
+ =?utf-8?B?SHc9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?bTc5c29Fd0VLWnAzd0FoYnNjd0FJQW43eXlia0pxOE1mWHIxQ1MwNkg4aElS?=
+ =?utf-8?B?eDV1cXNVenpmM3dsUitrZkxCYmFKS1JLYlZLWm9SdnFucHpHUHErM2trQ1ZO?=
+ =?utf-8?B?eTFXdjJ5YWkrZks3VUJmVUdOOTFTWnJ4ZFIwcmthcjRZclRkNGhmTSs3ckJ0?=
+ =?utf-8?B?MExnbU9vUksrVEJGSXR4d1J0d2N0Mi9MOURQSGt5YlZ4ZjBYcTNhSFR5V3hi?=
+ =?utf-8?B?eVY3ditNajk5NmlQdjhQR2FLNnVwcjYzTzI0Sk1lT3d4aElCS1ZPcW1GaU5F?=
+ =?utf-8?B?dFpadUtKa0xnTGpQNUFpUWRFRUplZjlaaTQ2RDlwa3E5SFd2bTZycUl2N3Uz?=
+ =?utf-8?B?N20rV1k4UGtYVWFWYVZicURZVXU3N0ozV1N4NEE5WFpYVWdvZ0NGZVU0c3BU?=
+ =?utf-8?B?b01HRXI0TGttSXFJYnZMN2c5NFVPMUo2bVZQQngwTjhpeThtbHUrQzJ5djVW?=
+ =?utf-8?B?M0pJOGtwOUNrVUtJMDlXY01EVkNldDFwcDZkK2tnT1pDTlFvdGgxY2RYckt0?=
+ =?utf-8?B?Z21ORjVocVNhMmpZaUFFUEVrNWYyS1YxMkNEbzVqNjk2MFIwY2hlQ3dBV0V6?=
+ =?utf-8?B?MkdkaGdFT0JTcFBQWk8zdHRqN3pyNUY4TmFBb1hRTlBSeC9TWHJJWEUydllM?=
+ =?utf-8?B?UDNxREJxZmxjSElrSUNGRmZzS1ROK2pjSTR1ck9ybTF0VWsvWXZ5djhmWjFr?=
+ =?utf-8?B?THY2bjBtWGVjWGt3K2hrZFVOQ1dyL090RjZhR1NneXpIZnlSNDAyZndRU2Mx?=
+ =?utf-8?B?QzhlM3NyaUViQ3lOVDhKNCs0TzcweUxETFJGQU11NnJCbi9KOThDUVZacDFv?=
+ =?utf-8?B?L3JuV3FHTHc3V2V5cEZzY0VSWTdXRVVZTDFTdm5zMjRQeUpuR29KK3YwNTg5?=
+ =?utf-8?B?bE5ycloyTnpJTGZZci90OG9qU0xoZkgzU0RKdHNWakVwdFhvc0hGSkpya3hE?=
+ =?utf-8?B?djdxcS8yZGZwYVNpbGZFQ2hXTHF5MmRIcW9yNHRDeDdzUmZkZmU2cVZjYXN5?=
+ =?utf-8?B?MlRHNW1WeVN4bTNycTNZRHRRQUh0Z1VqSWFaelZCRHBacjJZYlN5V1JsSy9o?=
+ =?utf-8?B?RkRWNzBRNVdMUXErZ1NGVDNrVUpTbFdNeGsrKzlWTnFGeERrS1U0bFlJcUJB?=
+ =?utf-8?B?MDNlWUNxTHp1UGFNdVF2cFRqMC9FbGt1SDZkOG4vY3FEME9sS2lVNy9QWExr?=
+ =?utf-8?B?bFNyYVZWRFgxSFpDYzZTa044VUNKYWNEb2tjL0wxd1pDQm9lYXBqbG9NcDBy?=
+ =?utf-8?B?b0dNd1lMaW51VHV4U0k2QVB4Nm1iTkpRbit5bVVEdnA0MU93K1d0RDUwS1FD?=
+ =?utf-8?B?SzdQZGlNQzROSFdjQSs5WkUvU2hZUzN3TzU5aGJucmlYU0NtY0J1bWZGS3JM?=
+ =?utf-8?B?bjErbVRpOW1JUUI5LzZ0Um5VaDIySGN6VC93bG5QQS9TcGtadzcwZkw3dERG?=
+ =?utf-8?Q?fy8XTyfM?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9b7cf8a5-10bd-427f-0183-08db5ba5226f
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 May 2023 15:48:21.0268 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: rqWDl/umEba28gcmU5LW/fuVboM8PhVszp6DB47//rm7F+S/z/IXo+mzkauyKCdmuh9iXHSEum7JTUzdHbVjV1q6y9R6OrWCweq1EKScflE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR10MB7372
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-05-23_10,2023-05-23_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
+ malwarescore=0 bulkscore=0
+ mlxlogscore=949 mlxscore=0 adultscore=0 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2305230125
+X-Proofpoint-GUID: Og87taKYkGycKWjYv2HPZqhLQZ0roxAy
+X-Proofpoint-ORIG-GUID: Og87taKYkGycKWjYv2HPZqhLQZ0roxAy
 Cc: axboe@kernel.dk, brauner@kernel.org, linux-kernel@vger.kernel.org,
- oleg@redhat.com, linux@leemhuis.info, stefanha@redhat.com,
- nicolas.dichtel@6wind.com, virtualization@lists.linux-foundation.org,
- torvalds@linux-foundation.org
+ oleg@redhat.com, linux@leemhuis.info, ebiederm@xmission.com,
+ stefanha@redhat.com, nicolas.dichtel@6wind.com,
+ virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,89 +235,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-
-> On Sun, May 21, 2023 at 09:51:24PM -0500, Mike Christie wrote:
->> When switching from kthreads to vhost_tasks two bugs were added:
->> 1. The vhost worker tasks's now show up as processes so scripts doing ps
->> or ps a would not incorrectly detect the vhost task as another process.
->> 2. kthreads disabled freeze by setting PF_NOFREEZE, but vhost tasks's
->> didn't disable or add support for them.
->> 
->> To fix both bugs, this switches the vhost task to be thread in the
->> process that does the VHOST_SET_OWNER ioctl, and has vhost_worker call
->> get_signal to support SIGKILL/SIGSTOP and freeze signals. Note that
->> SIGKILL/STOP support is required because CLONE_THREAD requires
->> CLONE_SIGHAND which requires those 2 signals to be suppported.
->> 
->> This a modified version of patch originally written by Linus which
->> handles his review comment to himself to rename ignore_signals to
->> block_signals to better represent what it now does. And it includes a
->> change to vhost_worker() to support SIGSTOP/KILL and freeze, and it
->> drops the wait use per Oleg's review comment that it's no longer needed
->> when using CLONE_THREAD.
->> 
->> Fixes: 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
->> Signed-off-by: Mike Christie <michael.christie@oracle.com>
->> ---
->>  drivers/vhost/vhost.c      | 17 ++++++++++++++++-
->>  include/linux/sched/task.h |  2 +-
->>  kernel/fork.c              | 12 +++---------
->>  kernel/signal.c            |  1 +
->>  kernel/vhost_task.c        | 16 ++++------------
->>  5 files changed, 25 insertions(+), 23 deletions(-)
->> 
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index a92af08e7864..bf83e9340e40 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -338,6 +338,7 @@ static int vhost_worker(void *data)
->>  	struct vhost_worker *worker = data;
->>  	struct vhost_work *work, *work_next;
->>  	struct llist_node *node;
->> +	bool dead = false;
+On 5/22/23 2:40 PM, Michael S. Tsirkin wrote:
+>>  	return copy_process(NULL, 0, node, &args);
+>> diff --git a/kernel/signal.c b/kernel/signal.c
+>> index 8050fe23c732..a0f00a078cbb 100644
+>> --- a/kernel/signal.c
+>> +++ b/kernel/signal.c
+>> @@ -2891,6 +2891,7 @@ bool get_signal(struct ksignal *ksig)
 >>  
->>  	for (;;) {
->>  		/* mb paired w/ kthread_stop */
->> @@ -349,8 +350,22 @@ static int vhost_worker(void *data)
->>  		}
->>  
->>  		node = llist_del_all(&worker->work_list);
->> -		if (!node)
->> +		if (!node) {
->>  			schedule();
->> +			/*
->> +			 * When we get a SIGKILL our release function will
->> +			 * be called. That will stop new IOs from being queued
->> +			 * and check for outstanding cmd responses. It will then
->> +			 * call vhost_task_stop to tell us to return and exit.
->> +			 */
->> +			if (!dead && signal_pending(current)) {
->> +				struct ksignal ksig;
->> +
->> +				dead = get_signal(&ksig);
->> +				if (dead)
->> +					clear_thread_flag(TIF_SIGPENDING);
->
->
-> Does get_signal actually return true only on SIGKILL then?
+>>  	return ksig->sig > 0;
+>>  }
+>> +EXPORT_SYMBOL_GPL(get_signal);
+> 
+> If you are exporting this, could you add documentation please?
+> 
 
-get_signal returns the signal that was dequeued, or 0 if no signal was
-dequeued.
+Ok.
 
-For these threads that block all but SIGSTOP and SIGKILL get_signal
-should properly never return any signal.  As SIGSTOP and SIGKILL are
-handled internally to get_signal.
 
-However get_signal was modified to have a special case for io_uring
-and now the vhost code so that extra cleanup can be performed, before
-do_exit is called on the thread.  That special case causes get_signal
-to return when with the value of SIGKILL when the process exits.
-
-The process can exit with do_group_exit aka exit(2) or any fatal signal
-not just SIGKILL, and get_signal on these threads will return.
-
-Eric
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
