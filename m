@@ -1,102 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 037D1C77B7A
-	for <virtualization@archiver.kernel.org>; Thu, 25 May 2023 07:45:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 420E5C77B7A
+	for <virtualization@archiver.kernel.org>; Thu, 25 May 2023 07:46:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7AC5F83A82;
-	Thu, 25 May 2023 07:45:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7AC5F83A82
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eRvdO5tw
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HzE-DZ9XFvYh; Thu, 25 May 2023 07:45:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2302583A5C;
-	Thu, 25 May 2023 07:45:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2302583A5C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EEC99C0035;
-	Thu, 25 May 2023 07:45:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F096FC002A
- for <virtualization@lists.linux-foundation.org>;
- Thu, 25 May 2023 07:45:25 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id CAC8542A48
- for <virtualization@lists.linux-foundation.org>;
- Thu, 25 May 2023 07:45:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CAC8542A48
+	by smtp2.osuosl.org (Postfix) with ESMTP id B8E3F42A81;
+	Thu, 25 May 2023 07:46:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B8E3F42A81
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=eRvdO5tw
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=axrwksA8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7_bHYsZb1Mlq
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3TLzB4acpbNn; Thu, 25 May 2023 07:46:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 567D641524;
+	Thu, 25 May 2023 07:46:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 567D641524
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 336C1C0035;
+	Thu, 25 May 2023 07:46:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2E41C002A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 May 2023 07:45:25 +0000 (UTC)
+ Thu, 25 May 2023 07:45:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 80AB083AAE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 25 May 2023 07:45:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 80AB083AAE
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=axrwksA8
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r_Hzzu76Cy7k
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 25 May 2023 07:45:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2D7594015A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D339683A5C
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2D7594015A
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D339683A5C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 May 2023 07:45:25 +0000 (UTC)
+ Thu, 25 May 2023 07:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685000724;
+ s=mimecast20190719; t=1685000756;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=moqm2xMtvs1QXIlu4uTeryrCfPMIkNPE51IfYtbbbXc=;
- b=eRvdO5twmhV7fLf8r82TH11k5aLsV/LpxyjUw8foeaL+41+LuOm/c9rvVseq72dON/QCP9
- qV2pkNJTn0Jt2zswnO7oCfy8X4rhFjx7XZmgcnQct2Fsu1e0DuPqDXlsUs+4rsfYHxPYWl
- NRW+hYBqD0wFOThbFSaW1T+hM48+X88=
-Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
- [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Hxihn5MvJp1k9amFLZx8DIAvEjfASYEqP9tbQw550jY=;
+ b=axrwksA8vNl6i+/dps4mmtqw1LhXjGxuxlDR3uMI25d0KEoI2k4rOoLfR0W6PgKxanCBVF
+ 4PCGujNUDAqfQcBzwTErzCCie7TJrJrAOZ1GzMTqTP4UDZbEZNrrJcSvFvtH5np0/2RnGn
+ bmPXxJRBEAOMeB3i0uI6LPJGGFNQtNY=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-617-YlbPd0nYOCW4Iwh1wEuWvw-1; Thu, 25 May 2023 03:45:23 -0400
-X-MC-Unique: YlbPd0nYOCW4Iwh1wEuWvw-1
-Received: by mail-qv1-f72.google.com with SMTP id
- 6a1803df08f44-6238c3bf768so11113446d6.0
+ us-mta-73-_cxGRyxuM7KhbPvZx_vobA-1; Thu, 25 May 2023 03:45:54 -0400
+X-MC-Unique: _cxGRyxuM7KhbPvZx_vobA-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ d75a77b69052e-3f4deee3ec6so11995871cf.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 May 2023 00:45:23 -0700 (PDT)
+ Thu, 25 May 2023 00:45:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685000722; x=1687592722;
+ d=1e100.net; s=20221208; t=1685000754; x=1687592754;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=moqm2xMtvs1QXIlu4uTeryrCfPMIkNPE51IfYtbbbXc=;
- b=dnJ916Va22Lqb2oX/tR+bFJfONCdkGgfD1yWyIMfnjB6q3UIAnaOqayt/v0L/zskqi
- uI+1Bdz1I3JHP5kQI3IPJobLooR3Kzz5l4hThI6kYJ5+DMLygsXA/IduU5NDV0aZQqIm
- W/sSgiz673Jdk+/ODqOqKnhPihcaeIY625+El7/enkvrdeBHIBsQD9MXS5SVGM7LGAzS
- WKx5K0Gd2HDWy2wENaf/6exxQqpwRAyHHXkoqJAnpKYQlwss65GlRuetBKH3mvTa85Cc
- aGDCjEw0pZIITB+zeq2zbwJStrQxLFFIf2Td2DVTaLmIX3VHz7MFgYzcGaMNwxY+JBOp
- lj5A==
-X-Gm-Message-State: AC+VfDxJmnGwVIlpK5HK75laguSkN3hiWrHiLyaB9l6jif6W2ott8GqJ
- vkFk/AKgXPtleo941MvThwJSVDGi5dsCPUlF4SJTE5O9GvUkgMMGn5CiPA4vhSvd0plOP1KtkZv
- fsLs09b9CjzdJLa1oWc28PFA9ds2imx1rhlOOadERWd9trojiFpPt
-X-Received: by 2002:a05:6214:5013:b0:5ef:56e4:f629 with SMTP id
- jo19-20020a056214501300b005ef56e4f629mr514382qvb.38.1685000722333; 
- Thu, 25 May 2023 00:45:22 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6HCJKGlMVKZnjVIAhyXmrhUFUNU35N4whAygVzlGeR13jXaM1sA9iXGP6ukgCNVa86jNz5fg==
-X-Received: by 2002:a05:6214:5013:b0:5ef:56e4:f629 with SMTP id
- jo19-20020a056214501300b005ef56e4f629mr514372qvb.38.1685000722072; 
- Thu, 25 May 2023 00:45:22 -0700 (PDT)
+ bh=Hxihn5MvJp1k9amFLZx8DIAvEjfASYEqP9tbQw550jY=;
+ b=aM9f/pR4xYD8HJyVrrs34QNl0AOgZGaj3X+DM1WgimTGOxtClGKHXez/fvxk7WJKKF
+ GZbiCff92RkWrqFbvJ/goVPoofhsATgpIGIyF7wklc7/RRTuYR5+HqlYOlOg0gWtDYLh
+ h9tuTHm8WcUEeo+0jnV/BmD2mAvKBsWOtoK9ECYeLZpAr7HYxL/0M/aMUcw5lmtKXskn
+ nBhwGqmlcfSo0VNZegeDtzekaMjdesHSxrZPAl6CZow5dlN52GEBfx0Gt7S/A/+QwYhP
+ Ci0M3obGXGwF3z5PLadnmOzu4c+ybPzlVYw/3oOy+FzzLiNZEog+sCgn5RIqSyMwZLgJ
+ HIYQ==
+X-Gm-Message-State: AC+VfDwvtb2dxaSr73IN236+DBS/XbYauHq4Jrm+GdmIOpiJUg3BE8oP
+ +MNiFAixnXZ6odLI24VM2fkunMZ4ZM2DFnKOxHwNvhpAs5xXG2Zfe0DWuoXOigEIxNfc39DhBFs
+ d5w09e3wKvtBrJGRKPfx13PskkWy3sudqOgsVUvN3cQ==
+X-Received: by 2002:ac8:7e86:0:b0:3f6:9473:7799 with SMTP id
+ w6-20020ac87e86000000b003f694737799mr28852603qtj.55.1685000754506; 
+ Thu, 25 May 2023 00:45:54 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ79HwPB3ChFKJ7SuFGYhJbVkKZLWrv+0vEbTM6L29n+LMt7qKoBZHFzUSxiE+6oG07CCgQQxA==
+X-Received: by 2002:ac8:7e86:0:b0:3f6:9473:7799 with SMTP id
+ w6-20020ac87e86000000b003f694737799mr28852596qtj.55.1685000754187; 
+ Thu, 25 May 2023 00:45:54 -0700 (PDT)
 Received: from redhat.com ([191.101.160.247]) by smtp.gmail.com with ESMTPSA id
- l16-20020ad44250000000b0061b698e2acesm234148qvq.18.2023.05.25.00.45.19
+ z1-20020ac87ca1000000b003f517e1fed2sm216383qtv.15.2023.05.25.00.45.51
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 25 May 2023 00:45:21 -0700 (PDT)
-Date: Thu, 25 May 2023 03:45:17 -0400
+ Thu, 25 May 2023 00:45:53 -0700 (PDT)
+Date: Thu, 25 May 2023 03:45:48 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Rong Tao <rtoax@foxmail.com>
 Subject: Re: [PATCH] tools/virtio: Add .gitignore to ringtest
-Message-ID: <20230525034503-mutt-send-email-mst@kernel.org>
+Message-ID: <20230525034526-mutt-send-email-mst@kernel.org>
 References: <tencent_C8F0F579940491D14055C82FABE812478505@qq.com>
 MIME-Version: 1.0
 In-Reply-To: <tencent_C8F0F579940491D14055C82FABE812478505@qq.com>
@@ -123,13 +123,13 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+
+Subject should be "for ringtest" not "to ringtest".
+
 On Wed, May 24, 2023 at 08:36:12PM +0800, Rong Tao wrote:
 > From: Rong Tao <rongtao@cestc.cn>
 > 
 > Ignore executions for ringtest.
-
-I think you mean "executables".
-
 > 
 > Signed-off-by: Rong Tao <rongtao@cestc.cn>
 > ---
