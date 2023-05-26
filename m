@@ -1,109 +1,165 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C537EC7EE23
-	for <virtualization@archiver.kernel.org>; Fri, 26 May 2023 07:06:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD815C7EE2F
+	for <virtualization@archiver.kernel.org>; Fri, 26 May 2023 07:27:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 42D4042C87;
-	Fri, 26 May 2023 07:06:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 42D4042C87
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvE3Du6B
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bf5OpQfR_C0G; Fri, 26 May 2023 07:06:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A7FB840158;
-	Fri, 26 May 2023 07:06:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A7FB840158
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 79BF5C0036;
-	Fri, 26 May 2023 07:06:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76FACC002A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 07:06:49 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 423C742894
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 07:06:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 423C742894
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7818E4282F;
+	Fri, 26 May 2023 07:27:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7818E4282F
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvE3Du6B
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=e1xK9Uqh
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tXPkRmcCRyhn
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iMYWImmKQ1PD; Fri, 26 May 2023 07:27:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 047AD4282E;
+	Fri, 26 May 2023 07:27:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 047AD4282E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA473C0035;
+	Fri, 26 May 2023 07:27:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 827DCC002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 07:06:47 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D60EC4288E
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D60EC4288E
+ Fri, 26 May 2023 07:27:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5C2476F4F4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 07:06:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685084805;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=wBejMg+s8pn89tl0WoGSR+vknKwo5Dacmjq+sP5U8E0=;
- b=YvE3Du6BSq4tsu7IKCr4OJIJOT1xt2Bwg8rYb/3Qd7vvTxipIJvA3Cv0slKp8eX4UVi5PZ
- 0yayOCdnEMihEGI5Y6PyUvZcVdQPajnDvwLZI+lEkuZhsOsaKTSNPWiLuTrI5n3h16COeq
- Bd3K+KZ2KXeFV4yCt5utXCnSzprcs8c=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-57-z0Kj3LHENWq7JPMS6oDZfw-1; Fri, 26 May 2023 03:06:42 -0400
-X-MC-Unique: z0Kj3LHENWq7JPMS6oDZfw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- 38308e7fff4ca-2af570dc8daso1650001fa.2
+ Fri, 26 May 2023 07:27:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5C2476F4F4
+Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=e1xK9Uqh
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id M3F0FEisV6PW
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 00:06:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685084801; x=1687676801;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=wBejMg+s8pn89tl0WoGSR+vknKwo5Dacmjq+sP5U8E0=;
- b=VoFkLCklKMXqHGbDEPQZuqjO6JEtvEMoK2dlRmU15i72nMDnwdNdO2to4pz7CgtEFb
- 3WauWZEedyMgKKUluJZmEdJS62Sd5Pt0DlNYwNR7gGMznuSPGzHzLOvYyimIGG6KuDpM
- 9oZznpMwPpqAjB8uZP4XWQRwSpSyT5jpbovI43Rj2Dsx2zGbxwgQS7OQMuLL47DHIkp5
- l7UPHuGhvFHL69sbCa8nqvBRjW959n1AJFX+3ViUC5IQ/VRAojkZgaegar1bDjimT98b
- 6CAujOxEqq+Vwgq3YGwRFDwC7otmxdF8flz9UIDeE13w+vS725dVeZHf3u6tl2L2+X2y
- LV0g==
-X-Gm-Message-State: AC+VfDxYWgKJtlrkyUnfhkOTz9snJrLTuINPV2jK6BHdQ5Ct9+2l3MxM
- dOAQ/B1NyGWc9snTmqU2Baf3pNAM1453ApXr0rYYgOGM9f7NFMo8/1KoJeaKw+sr4n68RW+ORY+
- PNSIIPCdKl+dxlF+Zbn/OrTIkDfW4sL9M3t3yz6ebp/T3qU9tsONVi94Hnw==
-X-Received: by 2002:a2e:7817:0:b0:2ac:8c5e:e151 with SMTP id
- t23-20020a2e7817000000b002ac8c5ee151mr451667ljc.31.1685084801107; 
- Fri, 26 May 2023 00:06:41 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6sHDrHvdUXjE/f4RLyIFJiZ9+BIhhYVMPihHPnwvEGGl1gTbFH1d/Kkjl1jRuizOa84yxiFWZP2XxBPAfuKMg=
-X-Received: by 2002:a2e:7817:0:b0:2ac:8c5e:e151 with SMTP id
- t23-20020a2e7817000000b002ac8c5ee151mr451649ljc.31.1685084800799; Fri, 26 May
- 2023 00:06:40 -0700 (PDT)
+ Fri, 26 May 2023 07:27:38 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A3DF36F4EB
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10on20615.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8a::615])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A3DF36F4EB
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 26 May 2023 07:27:37 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aYv+db9IVNJduRE6Y0eJbLOqOtpmESvj9wCvCONA0Er9rh1DpgEolEGpEdnwVHL+oWkrdULh1VnMWeNN3FnB0UhF1HO5qfMwQXNwwI+wcryJtc/kg+6tpvPHdcWAPPMDZINtcQXuBeblx7HkgaevXI5rTsu44iAl/GSVFaBS/90wzV3V6dxLR7YQ6sjWOPkeifoVxOzfbaPZsUstD1APySYxel9/zssyT7YrPZ8RWxIfyY0ZaDciy1ykYIXpSpwF9zVm1wLH9wFx/uUIAr9LYOcHB1T4SWhJDh3eg36if1hXJTRLExpCE3tSg6o/sMsbAnD/x7bTfOMprIJg6a07Mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=qlqCrwIS9z+twgOjkjcWlXPoO26XC6+w2JI/l8UDRRY=;
+ b=HNj9zQshwu8y//0KPQhruMarHdxawPDtHaWm5al+t873fOYNuc3qy7om0qysu0Xe2DvgLttf2Y9cBg4kZZjsBspjE504Do5cpD30BqmH6pACdt0L0I4phvyMFuyMQnZBdmkw8okmQxSnv3J4q+QDClakb7PTG4HCp3lZiftkqgeOzr8xsULfomno/7rUe4FT9xDwAerB6DKIPsqswTx9Ra8Myf8tZultyNOYYFECuS6W4MazjumhENvtaqnBYHJ3e484y1okfYFuZg7u6YRjbEZ4G6Ex5gkOdKYga/BMqFimXDomx+mU3BToJ1P/A+Lb5aygIdkzttGz2YuMDTwpvQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qlqCrwIS9z+twgOjkjcWlXPoO26XC6+w2JI/l8UDRRY=;
+ b=e1xK9Uqh+k1tAfdq0964bwPLsuedDJLeQiCkbsZUxBSYGRBNMoNx0PrsQfNb77zZDsPx1svnHEa/J1o6o1eMyjqWkA1K4AVYBNt3Hc+Trc+O29G2oSPLtA0mFagkl2MpBaX+oIQU0VaFYvTdzNkUpSkFCH1pZ4E2gPqe34LMqXc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
+ by DM4PR12MB6615.namprd12.prod.outlook.com (2603:10b6:8:8d::9) with
+ Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6433.15; Fri, 26 May 2023 07:27:32 +0000
+Received: from BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::e566:9ca5:28e0:a42b]) by BN8PR12MB3587.namprd12.prod.outlook.com
+ ([fe80::e566:9ca5:28e0:a42b%4]) with mapi id 15.20.6433.018; Fri, 26 May 2023
+ 07:27:32 +0000
+Message-ID: <5b5c7b06-ef99-d275-3693-b2e3d114cac9@amd.com>
+Date: Fri, 26 May 2023 09:27:24 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH] drm: Remove unnecessary (void*) conversions
+Content-Language: en-US
+To: Su Hui <suhui@nfschina.com>, Harry Wentland <harry.wentland@amd.com>,
+ Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+ Alex Deucher <alexander.deucher@amd.com>, Xinhui.Pan@amd.com,
+ airlied@gmail.com, daniel@ffwll.ch, evan.quan@amd.com,
+ l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk,
+ christian.gmeiner@gmail.com, bskeggs@redhat.com, kherbst@redhat.com,
+ lyude@redhat.com, tomba@kernel.org, emma@anholt.net, airlied@redhat.com,
+ kraxel@redhat.com, abrodkin@synopsys.com, ray.huang@amd.com,
+ gurchetansingh@chromium.org, olvaffe@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, sumit.semwal@linaro.org
+References: <20230526033225.1310824-1-suhui@nfschina.com>
+In-Reply-To: <20230526033225.1310824-1-suhui@nfschina.com>
+X-ClientProxiedBy: FR3P281CA0186.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:a4::13) To BN8PR12MB3587.namprd12.prod.outlook.com
+ (2603:10b6:408:43::13)
 MIME-Version: 1.0
-References: <20230526054621.18371-1-liangchen.linux@gmail.com>
- <20230526054621.18371-5-liangchen.linux@gmail.com>
-In-Reply-To: <20230526054621.18371-5-liangchen.linux@gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 26 May 2023 15:06:29 +0800
-Message-ID: <CACGkMEsrr-3ArBgCksq=c60+5fZ-Xc-i653ix_vdr2f7c7wYfg@mail.gmail.com>
-Subject: Re: [PATCH net-next 5/5] virtio_net: Implement DMA pre-handler
-To: Liang Chen <liangchen.linux@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|DM4PR12MB6615:EE_
+X-MS-Office365-Filtering-Correlation-Id: 91c78d7a-0db9-491f-92b8-08db5dbaab28
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: cntyKeaf0LUylv9dUiN4pVghtl3sjFllDigJFxLpMJdopBTXH/yxZFBfyo3Gub47ZeIplFgjeYbj3mMTZcMzoTw98+qjC0g+fTl54Q2pGLdUOUnSS/ss05Rtt2vP44V5F2x0KaPgQarZN3FK4Tn53TDzNS0iUE/Tls3AlCJ9E3w/wwbu+PQh9N02IF/Ja234FLJxUOL7fnNKeiQwB8rbaU7Cs0qxbEq7Xl9nwskA9f5YaDLG4gfAcKgB83+wxN19v7al60FZBkXslno/2OvUQgWW7z9r9dxEK64omcD7pwB+0N62StpVyOE22xE8LfzsLNzE+Q+UdHNbBsMXildt99COaalliRNhUSHryd8rci509LEqtkxGCazCeQ2nR4nXyZceg66pLW+Sv6keVrCT0yATtP8ADFodc7eadpGx2LCOardnTsIRFXvLZ1cj/lI8jV9yy7h1CS84aN1hX9kHCOw+/VoVsFzBltnSJt4+f4Zzhkzmun9S6tb4SedPy20EUPPfNyWrDMzHJGKxClPjBwJNnawBQ6OGji0zHLKppowlR/LPZqDs6NiXwhYmLQiU2eb9rfw4dAerqwGaxX9hM0iXqHvgSW1nqQGQwubNfqpH3jK7bltKRb541vlaaNj+oORkkDbWk1z0obU5p3Zu+yetaTiHkBSjlWLOw0WzjqY=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(4636009)(376002)(346002)(396003)(39860400002)(366004)(136003)(451199021)(4326008)(7416002)(36756003)(8676002)(5660300002)(8936002)(66556008)(66946007)(66476007)(316002)(478600001)(31686004)(110136005)(6486002)(41300700001)(6666004)(38100700002)(921005)(2906002)(6512007)(186003)(30864003)(83380400001)(6506007)(2616005)(31696002)(86362001)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZU9tMzNpbyt2Q2ZOR094UTQ5bThzdmhXaVVrOW51c2UrSFRHQ0pOYm1DM3h5?=
+ =?utf-8?B?MU5QUjJYcHNJZkRLcm56bERRNC9td3JiMlRjbG9ETGFZYjZLemFJanEwUG9U?=
+ =?utf-8?B?cktWOXA4a1J5RVNSQmNkZ0t0eHZqM0QwZ29ENWwrbmVYMzh0VGxhSVYyOFBW?=
+ =?utf-8?B?U2FqVEpna1RoNDhnUGdOcUdreHZaRlpBdEJrK2hQc1JpMTNQMFVXWlBoSmdV?=
+ =?utf-8?B?VkNPVHY0QmE5WlFKQUxtODdnVWNQMmdEZGNKTUFSb0pqUVFUcEwrN2Z6WEZj?=
+ =?utf-8?B?bmd5L1FvbHBlajREaWhlL0krSVNtSXdnSEpYeWxkeXBINXIvREQxMGlITHEz?=
+ =?utf-8?B?Qzh0NTg4VHNuZU1RY01BNDBFTlFxOVJLeDFDdjZWWHJ0b25CSFArUkdUeU9h?=
+ =?utf-8?B?M01hUnZnVkQwTkhKeSs4L1gyZ2NIVUZlbTBZYUg5WG9TdnJ3MFZxNlVFTHhv?=
+ =?utf-8?B?czVEdlJBT0dFNU5SaHFqV1V2MGh2Vnd5QmJKclVoRXdtRVM1R1cremY0RXdF?=
+ =?utf-8?B?ZDhRek5IUzQ0ak5md1lqY3JjMzVlbmtwWlFmczRuZENlUXRJRE1SQlk0VUZI?=
+ =?utf-8?B?K2IzRldEWmRONTdTQjE0VXFjVUQxa1kyckExVFAydnhiWjQrUTBRTGZNdlpW?=
+ =?utf-8?B?Nkt6UlUrd2sybDRjanU1NmtwQlBHSW10UEZma21OYnhmV2w4dDhqMmF1M04r?=
+ =?utf-8?B?TTg5cVYzUzNMODM0cytGakhoY1ZDc3FQbFRiOVN5NjRkOXl1ZURhdGV2ZlhC?=
+ =?utf-8?B?d21pWjI4Z1o3NzZTOWVSMGtHZDlXVDNoMXdtNzQyZldjR0pOTVV1YTFZN3E5?=
+ =?utf-8?B?ajRJV1NndEd5N3psNk9rUFgrRHBtZ2JoUmJkOSt1bVVJSU5qUmVYaGhlVGY4?=
+ =?utf-8?B?ZEhTRC9GM1NOSjNncG15UzN1Qi9GRjM0L1RubGRvdXE1M2hrTndEdVFDK2w0?=
+ =?utf-8?B?TzhBYXJWWHBjRFRXaDNhcXN0OC9OMnFjLzY1K0crOEpkNTRWQTNhUTVxaFYz?=
+ =?utf-8?B?elF0WFU3REEvZlhlQ0dJdzg5RWlpT3Y0bnpCSVVvWnR1S0xzcUNWRFZCRklH?=
+ =?utf-8?B?Ni9mTjdOQ1hISzh2MnI4cFMvOHdWanNCd1R1VnhDS0JHM0JKeHI0djVyeVhh?=
+ =?utf-8?B?cHR5ajFjMXkzd04rV1MzVGNCQnhhQ0h2WlVKK2d6ZldpQTNMT1k5RVN5VDR3?=
+ =?utf-8?B?SGsyV1BHV3JPVVk4RmtMNU55cUZYRVVGMktYVUY4eDd1Z2RDMHlUT3k5MDlm?=
+ =?utf-8?B?SW4vTmh5cTVaMnppbGdPWXEzYzVxdUxhb1NOdHdFQSttNUY3Vi83amR1bGFr?=
+ =?utf-8?B?Z3R6UTlwSWxVZGRLZWpWM1B1UWovK2t3VFVEdng4ai9vbmhUR0Y4bG9Qc25v?=
+ =?utf-8?B?QWdjQUdNSE11dXZrNXFlRUk0Sk1tbFc4NU9maFZ5V3ZON2xYT3BDSGJhcjhT?=
+ =?utf-8?B?bFpyMHUzSDh0ajRxVXJudlR6eUFnczNSOEVSRGpzMkpDTmRsL2dienF3OVFQ?=
+ =?utf-8?B?T1poenN1K1JCRWs2Nmd3ZDhXa3QwUDhIV0doMUhKSU8reDhvMDNBeVdiZGdz?=
+ =?utf-8?B?T2lFRHhqSmxSbHRZWThpc2xjOXpwcWlNTWttcm5yVmlVVU9Vb3NJTkRRaVNJ?=
+ =?utf-8?B?S2oyRGNtcis4T1lBTUFxT0ttUStRN2Z5VkN4ZktsdzhOaXBDNEsrb08rWkJE?=
+ =?utf-8?B?SmJZQlIxWXNGbHFpdWZpUFF4ZmNXWmM5TzdQZWg4b1UxbWM5NTg3Q0NMek9n?=
+ =?utf-8?B?QXhTTktHR3RhdklpazdrUm5aTGFrZmRKbEZOeE1wVjg1N0JYNVZ6eDNVRkp0?=
+ =?utf-8?B?SGh6N3RkeWJaYXREbWFzTFRUNHFkZk9ROXdkL3F2M1dHY3gzZUIvQ1BDak9B?=
+ =?utf-8?B?UXppSCtONmtUeDNSYzA3MUFOZENlb3RLeU1qekRXdndCdXdKOXRzVXNnZ2JW?=
+ =?utf-8?B?TnN0R1VwWjZiNmZXYXZFdHdzNlhUdlFDREZ4bHM0WTlseEhBUFpteTNlS0Q2?=
+ =?utf-8?B?NlQ4T1EzaWtmSmNWZVBjTFZCc1kwV0lxOEZneXVvcklIVUlKSjd6RHRNamVO?=
+ =?utf-8?B?TnBmYzRSeHIyR3JBd3pjY2hQNDAwTVhuM0xXNEJwTlk3cjZ0dW95QmpIUXlS?=
+ =?utf-8?B?bHhtRFVXVUQ3RE5lbE9YZVBNM1R5TlpPL2tJRU5qK2FPUzFWTzlvZ0ZVenZT?=
+ =?utf-8?Q?Tns36qVVX5qwUwl5/eDi2zujO/UfuihOvOrh+Kbo16ls?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 91c78d7a-0db9-491f-92b8-08db5dbaab28
+X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2023 07:27:32.2476 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: l8jyQr1zHk7Y5ehS67v5Ju8wlz/8amvecN3eo4KVd1O85TLDdXh8nvkG+VVjyWcD
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6615
+Cc: nouveau@lists.freedesktop.org, kernel-janitors@vger.kernel.org,
+ etnaviv@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
+ amd-gfx@lists.freedesktop.org, spice-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,91 +171,263 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBNYXkgMjYsIDIwMjMgYXQgMTo0N+KAr1BNIExpYW5nIENoZW4gPGxpYW5nY2hlbi5s
-aW51eEBnbWFpbC5jb20+IHdyb3RlOgo+Cj4gQWRkaW5nIGEgRE1BIHByZS1oYW5kbGVyIHRoYXQg
-dXRpbGl6ZXMgcGFnZSBwb29sIGZvciBtYW5hZ2luZyBETUEgbWFwcGluZ3MuCj4gV2hlbiBJT01N
-VSBpcyBlbmFibGVkLCB0dXJuaW5nIG9uIHRoZSBwYWdlX3Bvb2xfZG1hX21hcCBtb2R1bGUgcGFy
-YW1ldGVyIHRvCj4gc2VsZWN0IHBhZ2UgcG9vbCBmb3IgRE1BIG1hcHBpbmcgbWFuYWdlbWVudCBn
-aXZlcyBhIHNpZ25pZmljYW50IHJlZHVjdGlvbgo+IGluIHRoZSBvdmVyaGVhZCBjYXVzZWQgYnkg
-RE1BIG1hcHBpbmdzLgo+Cj4gSW4gdGVzdGluZyBlbnZpcm9ubWVudHMgd2l0aCBhIHNpbmdsZSBj
-b3JlIHZtIGFuZCBxZW11IGVtdWxhdGVkIElPTU1VLAo+IHNpZ25pZmljYW50IHBlcmZvcm1hbmNl
-IGltcHJvdmVtZW50cyBjYW4gYmUgb2JzZXJ2ZWQ6Cj4gICBVcHN0cmVhbSBjb2RlYmFzZTogMS43
-NiBHYml0cy9zZWMKPiAgIFVwc3RyZWFtIGNvZGViYXNlIHdpdGggcGFnZSBwb29sIGZyYWdtZW50
-YXRpb24gc3VwcG9ydDogMS44MSBHYml0cy9zZWMKPiAgIFVwc3RyZWFtIGNvZGViYXNlIHdpdGgg
-cGFnZSBwb29sIGZyYWdtZW50YXRpb24gYW5kIERNQSBzdXBwb3J0OiAxOS4zCj4gICBHYml0cy9z
-ZWMKPgo+IFNpZ25lZC1vZmYtYnk6IExpYW5nIENoZW4gPGxpYW5nY2hlbi5saW51eEBnbWFpbC5j
-b20+Cj4gLS0tCj4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDU1ICsrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysKPiAgMSBmaWxlIGNoYW5nZWQsIDU1IGluc2VydGlv
-bnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJz
-L25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCBhYzQwYjhjNjZjNTkuLjczY2M0ZjlmZTRmYSAxMDA2
-NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92
-aXJ0aW9fbmV0LmMKPiBAQCAtMjIsNiArMjIsNyBAQAo+ICAjaW5jbHVkZSA8bmV0L3JvdXRlLmg+
-Cj4gICNpbmNsdWRlIDxuZXQveGRwLmg+Cj4gICNpbmNsdWRlIDxuZXQvbmV0X2ZhaWxvdmVyLmg+
-Cj4gKyNpbmNsdWRlIDxsaW51eC9pb21tdS5oPgo+Cj4gIHN0YXRpYyBpbnQgbmFwaV93ZWlnaHQg
-PSBOQVBJX1BPTExfV0VJR0hUOwo+ICBtb2R1bGVfcGFyYW0obmFwaV93ZWlnaHQsIGludCwgMDQ0
-NCk7Cj4gQEAgLTMzLDggKzM0LDEwIEBAIG1vZHVsZV9wYXJhbShuYXBpX3R4LCBib29sLCAwNjQ0
-KTsKPgo+ICBzdGF0aWMgYm9vbCBwYWdlX3Bvb2xfZW5hYmxlZDsKPiAgc3RhdGljIGJvb2wgcGFn
-ZV9wb29sX2ZyYWc7Cj4gK3N0YXRpYyBib29sIHBhZ2VfcG9vbF9kbWFfbWFwOwo+ICBtb2R1bGVf
-cGFyYW0ocGFnZV9wb29sX2VuYWJsZWQsIGJvb2wsIDA0MDApOwo+ICBtb2R1bGVfcGFyYW0ocGFn
-ZV9wb29sX2ZyYWcsIGJvb2wsIDA0MDApOwo+ICttb2R1bGVfcGFyYW0ocGFnZV9wb29sX2RtYV9t
-YXAsIGJvb2wsIDA0MDApOwo+Cj4gIC8qIEZJWE1FOiBNVFUgaW4gY29uZmlnLiAqLwo+ICAjZGVm
-aW5lIEdPT0RfUEFDS0VUX0xFTiAoRVRIX0hMRU4gKyBWTEFOX0hMRU4gKyBFVEhfREFUQV9MRU4p
-Cj4gQEAgLTM4MzAsNiArMzgzMyw0OSBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X2RlbF92cXMoc3Ry
-dWN0IHZpcnRuZXRfaW5mbyAqdmkpCj4gICAgICAgICB2aXJ0bmV0X2ZyZWVfcXVldWVzKHZpKTsK
-PiAgfQo+Cj4gK3N0YXRpYyBkbWFfYWRkcl90IHZpcnRuZXRfcHBfZG1hX21hcF9wYWdlKHN0cnVj
-dCBkZXZpY2UgKmRldiwgc3RydWN0IHBhZ2UgKnBhZ2UsCj4gKyAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgbG9uZyBvZmZzZXQsIHNpemVfdCBzaXplLAo+
-ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVudW0gZG1hX2RhdGFf
-ZGlyZWN0aW9uIGRpciwgdW5zaWduZWQgbG9uZyBhdHRycykKPiArewo+ICsgICAgICAgc3RydWN0
-IHBhZ2UgKmhlYWRfcGFnZTsKPiArCj4gKyAgICAgICBpZiAoZGlyICE9IERNQV9GUk9NX0RFVklD
-RSkKPiArICAgICAgICAgICAgICAgcmV0dXJuIDA7Cj4gKwo+ICsgICAgICAgaGVhZF9wYWdlID0g
-Y29tcG91bmRfaGVhZChwYWdlKTsKPiArICAgICAgIHJldHVybiBwYWdlX3Bvb2xfZ2V0X2RtYV9h
-ZGRyKGhlYWRfcGFnZSkKPiArICAgICAgICAgICAgICAgKyAocGFnZSAtIGhlYWRfcGFnZSkgKiBQ
-QUdFX1NJWkUKPiArICAgICAgICAgICAgICAgKyBvZmZzZXQ7CgpTbyBpdCdzIG5vdCBhIG1hcCwg
-aXQgaXMganVzdCBhIHF1ZXJ5IGZyb20gdGhlIGRtYSBhZGRyZXNzIGZyb20gdGhlIHBvb2wuCgo+
-ICt9Cj4gKwo+ICtzdGF0aWMgYm9vbCB2aXJ0bmV0X3BwX2RtYV91bm1hcF9wYWdlKHN0cnVjdCBk
-ZXZpY2UgKmRldiwgZG1hX2FkZHJfdCBkbWFfaGFuZGxlLAo+ICsgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgc2l6ZV90IHNpemUsIGVudW0gZG1hX2RhdGFfZGlyZWN0aW9uIGRp
-ciwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGxvbmcg
-YXR0cnMpCj4gK3sKPiArICAgICAgIHBoeXNfYWRkcl90IHBoeXM7Cj4gKwo+ICsgICAgICAgLyog
-SGFuZGxlIG9ubHkgdGhlIFJYIGRpcmVjdGlvbiwgYW5kIHN5bmMgdGhlIERNQSBtZW1vcnkgb25s
-eSBpZiBpdCdzIG5vdAo+ICsgICAgICAgICogYSBETUEgY29oZXJlbnQgYXJjaGl0ZWN0dXJlLgo+
-ICsgICAgICAgICovCj4gKyAgICAgICBpZiAoZGlyICE9IERNQV9GUk9NX0RFVklDRSkKPiArICAg
-ICAgICAgICAgICAgcmV0dXJuIGZhbHNlOwo+ICsKPiArICAgICAgIGlmIChkZXZfaXNfZG1hX2Nv
-aGVyZW50KGRldikpCj4gKyAgICAgICAgICAgICAgIHJldHVybiB0cnVlOwo+ICsKPiArICAgICAg
-IHBoeXMgPSBpb21tdV9pb3ZhX3RvX3BoeXMoaW9tbXVfZ2V0X2RtYV9kb21haW4oZGV2KSwgZG1h
-X2hhbmRsZSk7CgpUaGlzIHdvdWxkIGJlIHNvbWVob3cgc2xvdy4gSWYgd2UgdHJhY2sgdGhlIG1h
-cHBpbmcgYnkgZHJpdmVyLCBpdAp3b3VsZCBiZSBtdWNoIGZhc3Rlci4KCk1vcmUgY291bGQgYmUg
-c2VlbiBoZXJlOgoKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL3BpcGVybWFpbC92
-aXJ0dWFsaXphdGlvbi8yMDIzLU1heS8wNjY3NzguaHRtbAoKVGhhbmtzCgo+ICsgICAgICAgaWYg
-KFdBUk5fT04oIXBoeXMpKQo+ICsgICAgICAgICAgICAgICByZXR1cm4gZmFsc2U7Cj4gKwo+ICsg
-ICAgICAgYXJjaF9zeW5jX2RtYV9mb3JfY3B1KHBoeXMsIHNpemUsIGRpcik7Cj4gKyAgICAgICBy
-ZXR1cm4gdHJ1ZTsKPiArfQo+ICsKPiArc3RhdGljIHN0cnVjdCB2aXJ0cXVldWVfcHJlX2RtYV9v
-cHMgdmlydG5ldF9wcF9wcmVfZG1hX29wcyA9IHsKPiArICAgICAgIC5tYXBfcGFnZSA9IHZpcnRu
-ZXRfcHBfZG1hX21hcF9wYWdlLAo+ICsgICAgICAgLnVubWFwX3BhZ2UgPSB2aXJ0bmV0X3BwX2Rt
-YV91bm1hcF9wYWdlLAo+ICt9Owo+ICsKPiAgc3RhdGljIHZvaWQgdmlydG5ldF9hbGxvY19wYWdl
-X3Bvb2woc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxKQo+ICB7Cj4gICAgICAgICBzdHJ1Y3Qgdmly
-dGlvX2RldmljZSAqdmRldiA9IHJxLT52cS0+dmRldjsKPiBAQCAtMzg0NSw2ICszODkxLDE1IEBA
-IHN0YXRpYyB2b2lkIHZpcnRuZXRfYWxsb2NfcGFnZV9wb29sKHN0cnVjdCByZWNlaXZlX3F1ZXVl
-ICpycSkKPiAgICAgICAgIGlmIChwYWdlX3Bvb2xfZnJhZykKPiAgICAgICAgICAgICAgICAgcHBf
-cGFyYW1zLmZsYWdzIHw9IFBQX0ZMQUdfUEFHRV9GUkFHOwo+Cj4gKyAgICAgICAvKiBDb25zaWRl
-ciB1c2luZyBwYWdlIHBvb2wgRE1BIHN1cHBvcnQgb25seSB3aGVuIERNQSBBUEkgaXMgdXNlZC4g
-Ki8KPiArICAgICAgIGlmICh2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX0ZfQUNDRVNT
-X1BMQVRGT1JNKSAmJgo+ICsgICAgICAgICAgIHBhZ2VfcG9vbF9kbWFfbWFwKSB7Cj4gKyAgICAg
-ICAgICAgICAgIHBwX3BhcmFtcy5mbGFncyB8PSBQUF9GTEFHX0RNQV9NQVAgfCBQUF9GTEFHX0RN
-QV9TWU5DX0RFVjsKPiArICAgICAgICAgICAgICAgcHBfcGFyYW1zLmRtYV9kaXIgPSBETUFfRlJP
-TV9ERVZJQ0U7Cj4gKyAgICAgICAgICAgICAgIHBwX3BhcmFtcy5tYXhfbGVuID0gUEFHRV9TSVpF
-IDw8IHBwX3BhcmFtcy5vcmRlcjsKPiArICAgICAgICAgICAgICAgdmlydHF1ZXVlX3JlZ2lzdGVy
-X3ByZV9kbWFfb3BzKHJxLT52cSwgJnZpcnRuZXRfcHBfcHJlX2RtYV9vcHMpOwo+ICsgICAgICAg
-fQo+ICsKPiAgICAgICAgIHJxLT5wYWdlX3Bvb2wgPSBwYWdlX3Bvb2xfY3JlYXRlKCZwcF9wYXJh
-bXMpOwo+ICAgICAgICAgaWYgKElTX0VSUihycS0+cGFnZV9wb29sKSkgewo+ICAgICAgICAgICAg
-ICAgICBkZXZfd2FybigmdmRldi0+ZGV2LCAicGFnZSBwb29sIGNyZWF0aW9uIGZhaWxlZDogJWxk
-XG4iLAo+IC0tCj4gMi4zMS4xCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Am 26.05.23 um 05:32 schrieb Su Hui:
+> Pointer variables of (void*) type do not require type cast.
+
+Please split that up by subsystem/driver. Taking it through the misc 
+tree might just cause merge conflicts.
+
+Christian.
+
+>
+> Signed-off-by: Su Hui <suhui@nfschina.com>
+> ---
+>   drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c | 2 +-
+>   drivers/gpu/drm/amd/pm/amdgpu_pm.c                        | 2 +-
+>   drivers/gpu/drm/etnaviv/etnaviv_drv.c                     | 4 ++--
+>   drivers/gpu/drm/nouveau/nouveau_debugfs.c                 | 2 +-
+>   drivers/gpu/drm/omapdrm/omap_debugfs.c                    | 6 +++---
+>   drivers/gpu/drm/pl111/pl111_debugfs.c                     | 2 +-
+>   drivers/gpu/drm/qxl/qxl_debugfs.c                         | 4 ++--
+>   drivers/gpu/drm/tiny/arcpgu.c                             | 2 +-
+>   drivers/gpu/drm/ttm/ttm_resource.c                        | 3 +--
+>   drivers/gpu/drm/virtio/virtgpu_debugfs.c                  | 6 +++---
+>   drivers/gpu/drm/vmwgfx/ttm_object.c                       | 5 ++---
+>   drivers/gpu/drm/vmwgfx/vmwgfx_gem.c                       | 2 +-
+>   12 files changed, 19 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+> index 827fcb4fb3b3..8a2c39927167 100644
+> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+> @@ -3312,7 +3312,7 @@ static ssize_t dtn_log_write(
+>   
+>   static int mst_topo_show(struct seq_file *m, void *unused)
+>   {
+> -	struct amdgpu_device *adev = (struct amdgpu_device *)m->private;
+> +	struct amdgpu_device *adev = m->private;
+>   	struct drm_device *dev = adev_to_drm(adev);
+>   	struct drm_connector *connector;
+>   	struct drm_connector_list_iter conn_iter;
+> diff --git a/drivers/gpu/drm/amd/pm/amdgpu_pm.c b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+> index 58c2246918fd..e6c870bd307b 100644
+> --- a/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+> +++ b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+> @@ -3671,7 +3671,7 @@ static void amdgpu_parse_cg_state(struct seq_file *m, u64 flags)
+>   
+>   static int amdgpu_debugfs_pm_info_show(struct seq_file *m, void *unused)
+>   {
+> -	struct amdgpu_device *adev = (struct amdgpu_device *)m->private;
+> +	struct amdgpu_device *adev = m->private;
+>   	struct drm_device *dev = adev_to_drm(adev);
+>   	u64 flags = 0;
+>   	int r;
+> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+> index 31a7f59ccb49..dd57f7164e9a 100644
+> --- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+> +++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+> @@ -198,7 +198,7 @@ static int etnaviv_ring_show(struct etnaviv_gpu *gpu, struct seq_file *m)
+>   
+>   static int show_unlocked(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	int (*show)(struct drm_device *dev, struct seq_file *m) =
+>   			node->info_ent->data;
+> @@ -208,7 +208,7 @@ static int show_unlocked(struct seq_file *m, void *arg)
+>   
+>   static int show_each_gpu(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	struct etnaviv_drm_private *priv = dev->dev_private;
+>   	struct etnaviv_gpu *gpu;
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_debugfs.c b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+> index 2a36d1ca8fda..96b59d5d68ed 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_debugfs.c
+> @@ -37,7 +37,7 @@
+>   static int
+>   nouveau_debugfs_vbios_image(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct nouveau_drm *drm = nouveau_drm(node->minor->dev);
+>   	int i;
+>   
+> diff --git a/drivers/gpu/drm/omapdrm/omap_debugfs.c b/drivers/gpu/drm/omapdrm/omap_debugfs.c
+> index a3d470468e5b..a94ce502e152 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_debugfs.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_debugfs.c
+> @@ -19,7 +19,7 @@
+>   
+>   static int gem_show(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	struct omap_drm_private *priv = dev->dev_private;
+>   
+> @@ -33,7 +33,7 @@ static int gem_show(struct seq_file *m, void *arg)
+>   
+>   static int mm_show(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	struct drm_printer p = drm_seq_file_printer(m);
+>   
+> @@ -45,7 +45,7 @@ static int mm_show(struct seq_file *m, void *arg)
+>   #ifdef CONFIG_DRM_FBDEV_EMULATION
+>   static int fb_show(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	struct drm_fb_helper *helper = dev->fb_helper;
+>   	struct drm_framebuffer *fb;
+> diff --git a/drivers/gpu/drm/pl111/pl111_debugfs.c b/drivers/gpu/drm/pl111/pl111_debugfs.c
+> index 6744fa16f464..4df03ec5d368 100644
+> --- a/drivers/gpu/drm/pl111/pl111_debugfs.c
+> +++ b/drivers/gpu/drm/pl111/pl111_debugfs.c
+> @@ -32,7 +32,7 @@ static const struct {
+>   
+>   static int pl111_debugfs_regs(struct seq_file *m, void *unused)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *)m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *dev = node->minor->dev;
+>   	struct pl111_drm_dev_private *priv = dev->dev_private;
+>   	int i;
+> diff --git a/drivers/gpu/drm/qxl/qxl_debugfs.c b/drivers/gpu/drm/qxl/qxl_debugfs.c
+> index 2d9ed3b94574..5b4fe3049529 100644
+> --- a/drivers/gpu/drm/qxl/qxl_debugfs.c
+> +++ b/drivers/gpu/drm/qxl/qxl_debugfs.c
+> @@ -38,7 +38,7 @@
+>   static int
+>   qxl_debugfs_irq_received(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct qxl_device *qdev = to_qxl(node->minor->dev);
+>   
+>   	seq_printf(m, "%d\n", atomic_read(&qdev->irq_received));
+> @@ -52,7 +52,7 @@ qxl_debugfs_irq_received(struct seq_file *m, void *data)
+>   static int
+>   qxl_debugfs_buffers_info(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct qxl_device *qdev = to_qxl(node->minor->dev);
+>   	struct qxl_bo *bo;
+>   
+> diff --git a/drivers/gpu/drm/tiny/arcpgu.c b/drivers/gpu/drm/tiny/arcpgu.c
+> index e5b10e41554a..09f728355aba 100644
+> --- a/drivers/gpu/drm/tiny/arcpgu.c
+> +++ b/drivers/gpu/drm/tiny/arcpgu.c
+> @@ -338,7 +338,7 @@ static int arcpgu_unload(struct drm_device *drm)
+>   #ifdef CONFIG_DEBUG_FS
+>   static int arcpgu_show_pxlclock(struct seq_file *m, void *arg)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *)m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct drm_device *drm = node->minor->dev;
+>   	struct arcpgu_drm_private *arcpgu = dev_to_arcpgu(drm);
+>   	unsigned long clkrate = clk_get_rate(arcpgu->clk);
+> diff --git a/drivers/gpu/drm/ttm/ttm_resource.c b/drivers/gpu/drm/ttm/ttm_resource.c
+> index 7333f7a87a2f..540faabcf8a4 100644
+> --- a/drivers/gpu/drm/ttm/ttm_resource.c
+> +++ b/drivers/gpu/drm/ttm/ttm_resource.c
+> @@ -727,9 +727,8 @@ ttm_kmap_iter_linear_io_fini(struct ttm_kmap_iter_linear_io *iter_io,
+>   
+>   static int ttm_resource_manager_show(struct seq_file *m, void *unused)
+>   {
+> -	struct ttm_resource_manager *man =
+> -		(struct ttm_resource_manager *)m->private;
+>   	struct drm_printer p = drm_seq_file_printer(m);
+> +	struct ttm_resource_manager *man = m->private;
+>   	ttm_resource_manager_debug(man, &p);
+>   	return 0;
+>   }
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+> index 853dd9aa397e..577691af9707 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+> @@ -43,7 +43,7 @@ static void virtio_gpu_add_int(struct seq_file *m, const char *name, int value)
+>   
+>   static int virtio_gpu_features(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *)m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
+>   
+>   	virtio_gpu_add_bool(m, "virgl", vgdev->has_virgl_3d);
+> @@ -68,7 +68,7 @@ static int virtio_gpu_features(struct seq_file *m, void *data)
+>   static int
+>   virtio_gpu_debugfs_irq_info(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *) m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
+>   
+>   	seq_printf(m, "fence %llu %lld\n",
+> @@ -80,7 +80,7 @@ virtio_gpu_debugfs_irq_info(struct seq_file *m, void *data)
+>   static int
+>   virtio_gpu_debugfs_host_visible_mm(struct seq_file *m, void *data)
+>   {
+> -	struct drm_info_node *node = (struct drm_info_node *)m->private;
+> +	struct drm_info_node *node = m->private;
+>   	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
+>   	struct drm_printer p;
+>   
+> diff --git a/drivers/gpu/drm/vmwgfx/ttm_object.c b/drivers/gpu/drm/vmwgfx/ttm_object.c
+> index ddf8373c1d77..e9e3cc8f5b49 100644
+> --- a/drivers/gpu/drm/vmwgfx/ttm_object.c
+> +++ b/drivers/gpu/drm/vmwgfx/ttm_object.c
+> @@ -513,8 +513,7 @@ static void ttm_prime_refcount_release(struct ttm_base_object **p_base)
+>    */
+>   static void ttm_prime_dmabuf_release(struct dma_buf *dma_buf)
+>   {
+> -	struct ttm_prime_object *prime =
+> -		(struct ttm_prime_object *) dma_buf->priv;
+> +	struct ttm_prime_object *prime = dma_buf->priv;
+>   	struct ttm_base_object *base = &prime->base;
+>   	struct ttm_object_device *tdev = base->tfile->tdev;
+>   
+> @@ -554,7 +553,7 @@ int ttm_prime_fd_to_handle(struct ttm_object_file *tfile,
+>   	if (dma_buf->ops != &tdev->ops)
+>   		return -ENOSYS;
+>   
+> -	prime = (struct ttm_prime_object *) dma_buf->priv;
+> +	prime = dma_buf->priv;
+>   	base = &prime->base;
+>   	*handle = base->handle;
+>   	ret = ttm_ref_object_add(tfile, base, NULL, false);
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> index c0da89e16e6f..3267a4e61382 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> @@ -220,7 +220,7 @@ static void vmw_bo_print_info(int id, struct vmw_bo *bo, struct seq_file *m)
+>   
+>   static int vmw_debugfs_gem_info_show(struct seq_file *m, void *unused)
+>   {
+> -	struct vmw_private *vdev = (struct vmw_private *)m->private;
+> +	struct vmw_private *vdev = m->private;
+>   	struct drm_device *dev = &vdev->drm;
+>   	struct drm_file *file;
+>   	int r;
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
