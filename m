@@ -1,86 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7AE5C7EE2C
-	for <virtualization@archiver.kernel.org>; Fri, 26 May 2023 17:34:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E966C77B7A
+	for <virtualization@archiver.kernel.org>; Fri, 26 May 2023 17:44:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 14A024295D;
-	Fri, 26 May 2023 17:34:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 14A024295D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TeIMMXzD
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ivB68k6WjO0L; Fri, 26 May 2023 17:34:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 22EE542746;
-	Fri, 26 May 2023 17:34:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22EE542746
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F104DC0035;
-	Fri, 26 May 2023 17:34:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7D7C2C002A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:34:46 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5873C42EDB
- for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:34:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5873C42EDB
+	by smtp2.osuosl.org (Postfix) with ESMTP id AFBB242EE3;
+	Fri, 26 May 2023 17:44:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFBB242EE3
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=TeIMMXzD
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=iumDFVZi
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w2vxdSvxfqLo; Fri, 26 May 2023 17:44:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3622A42EE6;
+	Fri, 26 May 2023 17:44:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3622A42EE6
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0825BC0035;
+	Fri, 26 May 2023 17:44:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8EC22C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 26 May 2023 17:44:45 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 557BA42EE3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 26 May 2023 17:44:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 557BA42EE3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IXEONaiPvKd6
+ with ESMTP id VLkcjaxA321x
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:34:45 +0000 (UTC)
+ Fri, 26 May 2023 17:44:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33DD040A95
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 33DD040A95
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5E9BE42EDB
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5E9BE42EDB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:34:44 +0000 (UTC)
+ Fri, 26 May 2023 17:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1685122485; x=1716658485;
+ t=1685123084; x=1716659084;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=aBPytJReVH8Ulrvcrruu/P0Ev+N0fGdkCGCZ+F2RSsI=;
- b=TeIMMXzDIeAFlgKt8s1sw2gAaSw48/TTDvJqlkkcKxBtFZI687eVty4E
- xDfBVLHkY7r5Xzb0SUSzpmcy4XHqh/agU96NQ31QyYSuKBcwRTZXkBpFF
- D5BqKtBkMHZBvFiNi8Hc9EaS4d4BU2ahW9gKzgfAo3cPRjuOAUXycIX94
- aAXHySecpAHwHtiPEbKjekICZfIi2I8UiyXHrFwsR69GayeePjArfmJ36
- xP1FgQQxlXzAGvGnMGP+gI+UftwTPVzrwbDiTwHztY1GDpmavHjr84jtv
- wYZ9MLNVKt3Q9pV22lIvmkUaN47VaYbkP/CdlpRX2QyaH27TzK8PoFfOK A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="354273874"
-X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="354273874"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
- by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 26 May 2023 10:34:43 -0700
+ bh=x5pHN9VZUDdP2TLxPCWhN/t1BZUONMIrFg5l5cvTays=;
+ b=iumDFVZi7C80j6evW6iF0RKqad73FursD70v3leNkSM9R/swmRsZtacA
+ GI59VxuTAHyVoKzWWueAiltYGwmSooOapOedX4iDqdBMmb9KlgyVIfi86
+ AuxWod5EHeZkaL+lyVM4AkAWEssL2tiZS1zm7SNTRpRvTdGn83q91fvWO
+ bmqBp+Mf3uVsZVdGbWo2KH4kC32ei3BtUAqMrYg8libwgRpQ+1eBpsc4j
+ r91k5ksf1SK9myYf6v3iOIsGasbpfx2ORxTJKP7adTp5CBdfcm6h3n7lK
+ 511WjJFydYB/XIMHCCnR/yaROsSn/A3Tjw0ZMVwL67TGC7pdZ4K8k+UlX Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="417745388"
+X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="417745388"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+ by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 26 May 2023 10:44:43 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="879610852"
-X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="879610852"
+X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="775163669"
+X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="775163669"
 Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
- by orsmga005.jf.intel.com with ESMTP; 26 May 2023 10:34:40 -0700
+ by fmsmga004.fm.intel.com with ESMTP; 26 May 2023 10:44:40 -0700
 Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1q2bKp-000JVc-2N;
- Fri, 26 May 2023 17:34:39 +0000
-Date: Sat, 27 May 2023 01:34:01 +0800
+ (envelope-from <lkp@intel.com>) id 1q2bUV-000JVq-2o;
+ Fri, 26 May 2023 17:44:39 +0000
+Date: Sat, 27 May 2023 01:44:27 +0800
 From: kernel test robot <lkp@intel.com>
 To: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com, mst@redhat.com
-Subject: Re: [PATCH net-next 5/5] virtio_net: Implement DMA pre-handler
-Message-ID: <202305270110.TbNSDh0Z-lkp@intel.com>
-References: <20230526054621.18371-5-liangchen.linux@gmail.com>
+Subject: Re: [PATCH net-next 3/5] virtio_net: Add page pool fragmentation
+ support
+Message-ID: <202305270116.TJ31IjNL-lkp@intel.com>
+References: <20230526054621.18371-3-liangchen.linux@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230526054621.18371-5-liangchen.linux@gmail.com>
+In-Reply-To: <20230526054621.18371-3-liangchen.linux@gmail.com>
 Cc: xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
  virtualization@lists.linux-foundation.org, edumazet@google.com,
@@ -110,30 +108,37 @@ kernel test robot noticed the following build errors:
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
 base:   net-next/main
-patch link:    https://lore.kernel.org/r/20230526054621.18371-5-liangchen.linux%40gmail.com
-patch subject: [PATCH net-next 5/5] virtio_net: Implement DMA pre-handler
-config: m68k-allmodconfig (https://download.01.org/0day-ci/archive/20230527/202305270110.TbNSDh0Z-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 12.1.0
+patch link:    https://lore.kernel.org/r/20230526054621.18371-3-liangchen.linux%40gmail.com
+patch subject: [PATCH net-next 3/5] virtio_net: Add page pool fragmentation support
+config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20230527/202305270116.TJ31IjNL-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
 reproduce (this is a W=1 build):
-        mkdir -p ~/bin
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/intel-lab-lkp/linux/commit/e968bb5cacd30b672d0ccf705a24f1a792ff45aa
+        # https://github.com/intel-lab-lkp/linux/commit/dda0469e059354b61192e1d25b77c57351346282
         git remote add linux-review https://github.com/intel-lab-lkp/linux
         git fetch --no-tags linux-review Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
-        git checkout e968bb5cacd30b672d0ccf705a24f1a792ff45aa
+        git checkout dda0469e059354b61192e1d25b77c57351346282
         # save the config file
         mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 ~/bin/make.cross W=1 O=build_dir ARCH=m68k olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.1.0 ~/bin/make.cross W=1 O=build_dir ARCH=m68k SHELL=/bin/bash
+        make W=1 O=build_dir ARCH=x86_64 olddefconfig
+        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
 
 If you fix the issue, kindly add following tag where applicable
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202305270110.TbNSDh0Z-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202305270116.TJ31IjNL-lkp@intel.com/
 
-All errors (new ones prefixed by >>, old ones prefixed by <<):
+All errors (new ones prefixed by >>):
 
->> ERROR: modpost: "iommu_get_dma_domain" [drivers/net/virtio_net.ko] undefined!
+   ld: vmlinux.o: in function `virtnet_find_vqs':
+   virtio_net.c:(.text+0x901fd2): undefined reference to `page_pool_create'
+   ld: vmlinux.o: in function `add_recvbuf_mergeable.isra.0':
+   virtio_net.c:(.text+0x905662): undefined reference to `page_pool_alloc_pages'
+>> ld: virtio_net.c:(.text+0x905715): undefined reference to `page_pool_alloc_frag'
+   ld: vmlinux.o: in function `xdp_linearize_page':
+   virtio_net.c:(.text+0x906c50): undefined reference to `page_pool_alloc_pages'
+   ld: virtio_net.c:(.text+0x906e33): undefined reference to `page_pool_alloc_frag'
+   ld: vmlinux.o: in function `mergeable_xdp_get_buf.isra.0':
+>> virtio_net.c:(.text+0x90740e): undefined reference to `page_pool_alloc_frag'
+>> ld: virtio_net.c:(.text+0x90750b): undefined reference to `page_pool_alloc_pages'
 
 -- 
 0-DAY CI Kernel Test Service
