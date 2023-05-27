@@ -1,89 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3E966C77B7A
-	for <virtualization@archiver.kernel.org>; Fri, 26 May 2023 17:44:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D173AC77B73
+	for <virtualization@archiver.kernel.org>; Sat, 27 May 2023 09:49:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AFBB242EE3;
-	Fri, 26 May 2023 17:44:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFBB242EE3
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=iumDFVZi
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2BAF8429CF;
+	Sat, 27 May 2023 09:49:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BAF8429CF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w2vxdSvxfqLo; Fri, 26 May 2023 17:44:47 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pceD_HsP0JWN; Sat, 27 May 2023 09:49:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3622A42EE6;
-	Fri, 26 May 2023 17:44:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3622A42EE6
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2386E429CA;
+	Sat, 27 May 2023 09:49:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2386E429CA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0825BC0035;
-	Fri, 26 May 2023 17:44:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8EC22C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC8F9C0036;
+	Sat, 27 May 2023 09:49:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 77B70C002A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:44:45 +0000 (UTC)
+ Sat, 27 May 2023 09:49:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 557BA42EE3
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5099A60E72
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:44:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 557BA42EE3
+ Sat, 27 May 2023 09:49:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5099A60E72
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VLkcjaxA321x
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NxGZ8XsMsTi8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:44:44 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5E9BE42EDB
-Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5E9BE42EDB
+ Sat, 27 May 2023 09:49:52 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7783E60B65
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7783E60B65
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 May 2023 17:44:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1685123084; x=1716659084;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=x5pHN9VZUDdP2TLxPCWhN/t1BZUONMIrFg5l5cvTays=;
- b=iumDFVZi7C80j6evW6iF0RKqad73FursD70v3leNkSM9R/swmRsZtacA
- GI59VxuTAHyVoKzWWueAiltYGwmSooOapOedX4iDqdBMmb9KlgyVIfi86
- AuxWod5EHeZkaL+lyVM4AkAWEssL2tiZS1zm7SNTRpRvTdGn83q91fvWO
- bmqBp+Mf3uVsZVdGbWo2KH4kC32ei3BtUAqMrYg8libwgRpQ+1eBpsc4j
- r91k5ksf1SK9myYf6v3iOIsGasbpfx2ORxTJKP7adTp5CBdfcm6h3n7lK
- 511WjJFydYB/XIMHCCnR/yaROsSn/A3Tjw0ZMVwL67TGC7pdZ4K8k+UlX Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="417745388"
-X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="417745388"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 26 May 2023 10:44:43 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10722"; a="775163669"
-X-IronPort-AV: E=Sophos;i="6.00,194,1681196400"; d="scan'208";a="775163669"
-Received: from lkp-server01.sh.intel.com (HELO dea6d5a4f140) ([10.239.97.150])
- by fmsmga004.fm.intel.com with ESMTP; 26 May 2023 10:44:40 -0700
-Received: from kbuild by dea6d5a4f140 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1q2bUV-000JVq-2o;
- Fri, 26 May 2023 17:44:39 +0000
-Date: Sat, 27 May 2023 01:44:27 +0800
-From: kernel test robot <lkp@intel.com>
-To: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com, mst@redhat.com
-Subject: Re: [PATCH net-next 3/5] virtio_net: Add page pool fragmentation
- support
-Message-ID: <202305270116.TJ31IjNL-lkp@intel.com>
-References: <20230526054621.18371-3-liangchen.linux@gmail.com>
+ Sat, 27 May 2023 09:49:52 +0000 (UTC)
+Received: from in02.mta.xmission.com ([166.70.13.52]:33906)
+ by out02.mta.xmission.com with esmtps (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1q2qYX-00CTNs-QC; Sat, 27 May 2023 03:49:49 -0600
+Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:50246
+ helo=email.froward.int.ebiederm.org.xmission.com)
+ by in02.mta.xmission.com with esmtpsa (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1q2qYW-002KXI-8F; Sat, 27 May 2023 03:49:49 -0600
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+References: <20230522025124.5863-1-michael.christie@oracle.com>
+ <20230522025124.5863-4-michael.christie@oracle.com>
+ <20230522123029.GA22159@redhat.com>
+ <cfca7764-d210-6df9-e182-2c093101c6cf@oracle.com>
+ <20230522174757.GC22159@redhat.com> <20230523121506.GA6562@redhat.com>
+ <87bkib6nxr.fsf@email.froward.int.ebiederm.org>
+ <20230524141022.GA19091@redhat.com>
+ <87ttw1zt4i.fsf@email.froward.int.ebiederm.org>
+ <20230525115512.GA9229@redhat.com>
+ <87y1lcxwcj.fsf@email.froward.int.ebiederm.org>
+ <CAHk-=wj4DS=2F5mW+K2P7cVqrsuGd3rKE_2k2BqnnPeeYhUCvg@mail.gmail.com>
+Date: Sat, 27 May 2023 04:49:19 -0500
+In-Reply-To: <CAHk-=wj4DS=2F5mW+K2P7cVqrsuGd3rKE_2k2BqnnPeeYhUCvg@mail.gmail.com>
+ (Linus Torvalds's message of "Thu, 25 May 2023 09:20:19 -0700")
+Message-ID: <87cz2mrtnk.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230526054621.18371-3-liangchen.linux@gmail.com>
-Cc: xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- oe-kbuild-all@lists.linux.dev, kuba@kernel.org, pabeni@redhat.com,
- davem@davemloft.net
+X-XM-SPF: eid=1q2qYW-002KXI-8F; ; ;
+ mid=<87cz2mrtnk.fsf@email.froward.int.ebiederm.org>; ; ;
+ hst=in02.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
+ ; ; spf=pass
+X-XM-AID: U2FsdGVkX18QenzTYil61g5nAIUyy0kOBdxjsMy5svs=
+X-SA-Exim-Connect-IP: 68.110.29.46
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 3/3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
+ regression
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
+ linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
+ stefanha@redhat.com, linux@leemhuis.info, nicolas.dichtel@6wind.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,49 +103,106 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Liang,
+Linus Torvalds <torvalds@linux-foundation.org> writes:
 
-kernel test robot noticed the following build errors:
+> So I'd really like to finish this. Even if we end up with a hack or
+> two in signal handling that we can hopefully fix up later by having
+> vhost fix up some of its current assumptions.
 
-[auto build test ERROR on net-next/main]
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
-base:   net-next/main
-patch link:    https://lore.kernel.org/r/20230526054621.18371-3-liangchen.linux%40gmail.com
-patch subject: [PATCH net-next 3/5] virtio_net: Add page pool fragmentation support
-config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20230527/202305270116.TJ31IjNL-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
-reproduce (this is a W=1 build):
-        # https://github.com/intel-lab-lkp/linux/commit/dda0469e059354b61192e1d25b77c57351346282
-        git remote add linux-review https://github.com/intel-lab-lkp/linux
-        git fetch --no-tags linux-review Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
-        git checkout dda0469e059354b61192e1d25b77c57351346282
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        make W=1 O=build_dir ARCH=x86_64 olddefconfig
-        make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
+The real sticky widget for me is how to handle one of these processes
+coredumping.  It really looks like it will result in a reliable hang.
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202305270116.TJ31IjNL-lkp@intel.com/
+Limiting ourselves to changes that will only affect vhost, all I can
+see would be allowing the vhost_worker thread to exit as soon as
+get_signal reports the process is exiting.  Then vhost_dev_flush
+would need to process the pending work.
 
-All errors (new ones prefixed by >>):
+Something like this:
 
-   ld: vmlinux.o: in function `virtnet_find_vqs':
-   virtio_net.c:(.text+0x901fd2): undefined reference to `page_pool_create'
-   ld: vmlinux.o: in function `add_recvbuf_mergeable.isra.0':
-   virtio_net.c:(.text+0x905662): undefined reference to `page_pool_alloc_pages'
->> ld: virtio_net.c:(.text+0x905715): undefined reference to `page_pool_alloc_frag'
-   ld: vmlinux.o: in function `xdp_linearize_page':
-   virtio_net.c:(.text+0x906c50): undefined reference to `page_pool_alloc_pages'
-   ld: virtio_net.c:(.text+0x906e33): undefined reference to `page_pool_alloc_frag'
-   ld: vmlinux.o: in function `mergeable_xdp_get_buf.isra.0':
->> virtio_net.c:(.text+0x90740e): undefined reference to `page_pool_alloc_frag'
->> ld: virtio_net.c:(.text+0x90750b): undefined reference to `page_pool_alloc_pages'
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index a92af08e7864..fb5ebc50c553 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -234,14 +234,31 @@ EXPORT_SYMBOL_GPL(vhost_poll_stop);
+ void vhost_dev_flush(struct vhost_dev *dev)
+ {
+ 	struct vhost_flush_struct flush;
++	struct vhost_worker *worker = dev->worker;
++	struct llist_node *node, *head;
++
++	if (!worker)
++		return;
++
++	init_completion(&flush.wait_event);
++	vhost_work_init(&flush.work, vhost_flush_work);
+ 
+-	if (dev->worker) {
+-		init_completion(&flush.wait_event);
+-		vhost_work_init(&flush.work, vhost_flush_work);
++	vhost_work_queue(dev, &flush.work);
+ 
+-		vhost_work_queue(dev, &flush.work);
+-		wait_for_completion(&flush.wait_event);
++	/* Either vhost_worker runs the pending work or we do */
++	node = llist_del_all(&worker->work_list);
++	if (node) {
++		node = llist_reverse_order(node);
++		/* make sure flag is seen after deletion */
++		smp_wmb();
++		llist_for_each_entry_safe(work, work_next, node, node) {
++			clear_bit(VHOST_WORK_QUEUED, &work->flags);
++			work->fn(work);
++			cond_resched();
++		}
+ 	}
++
++	wait_for_completion(&flush.wait_event);
+ }
+ EXPORT_SYMBOL_GPL(vhost_dev_flush);
+ 
+@@ -338,6 +355,7 @@ static int vhost_worker(void *data)
+ 	struct vhost_worker *worker = data;
+ 	struct vhost_work *work, *work_next;
+ 	struct llist_node *node;
++	struct ksignal ksig;
+ 
+ 	for (;;) {
+ 		/* mb paired w/ kthread_stop */
+@@ -348,6 +366,9 @@ static int vhost_worker(void *data)
+ 			break;
+ 		}
+ 
++		if (get_signal(&ksig))
++			break;
++
+ 		node = llist_del_all(&worker->work_list);
+ 		if (!node)
+ 			schedule();
+diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
+index b7cbd66f889e..613d52f01c07 100644
+--- a/kernel/vhost_task.c
++++ b/kernel/vhost_task.c
+@@ -47,6 +47,7 @@ void vhost_task_stop(struct vhost_task *vtsk)
+ 	 * not exiting then reap the task.
+ 	 */
+ 	kernel_wait4(pid, NULL, __WCLONE, NULL);
++	put_task_struct(vtsk->task);
+ 	kfree(vtsk);
+ }
+ EXPORT_SYMBOL_GPL(vhost_task_stop);
+@@ -101,7 +102,7 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
+ 		return NULL;
+ 	}
+ 
+-	vtsk->task = tsk;
++	vtsk->task = get_task_struct(tsk);
+ 	return vtsk;
+ }
+ EXPORT_SYMBOL_GPL(vhost_task_create);
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Eric
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
