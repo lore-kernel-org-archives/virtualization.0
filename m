@@ -1,114 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB735C77B7E
-	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 06:25:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AD010C77B7E
+	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 06:27:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3743F83BEB;
-	Sun, 28 May 2023 06:25:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3743F83BEB
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yde5E0i+
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3336C41E0D;
+	Sun, 28 May 2023 06:27:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3336C41E0D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VoAnEOLv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uAo9BWsRzyRK; Sun, 28 May 2023 06:25:33 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MEs_IkpPnzFY; Sun, 28 May 2023 06:27:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7184283C02;
-	Sun, 28 May 2023 06:25:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7184283C02
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 432F741DD3;
+	Sun, 28 May 2023 06:27:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 432F741DD3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 383EAC0036;
-	Sun, 28 May 2023 06:25:32 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F9F0C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AD367C0036;
+	Sun, 28 May 2023 06:27:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFE7FC002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 06:25:31 +0000 (UTC)
+ Sun, 28 May 2023 06:27:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3B128402E6
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8C76A60B58
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 06:25:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3B128402E6
-Authentication-Results: smtp2.osuosl.org;
+ Sun, 28 May 2023 06:27:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C76A60B58
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Yde5E0i+
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=VoAnEOLv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hSL8igwxgJOj
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id i2fcpGzd03LN
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 06:25:30 +0000 (UTC)
+ Sun, 28 May 2023 06:27:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 38E50400D0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6FE8660B51
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 38E50400D0
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6FE8660B51
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 06:25:29 +0000 (UTC)
+ Sun, 28 May 2023 06:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685255128;
+ s=mimecast20190719; t=1685255245;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=GHipMSXfUIdhSOH+8qGLOxioNKl7RNvsZumZazeEfOg=;
- b=Yde5E0i+AZLcpf8okGjZ6nJA8bCQFxUMxuXr/yir8ByT8M1jharWyAxmlyZlS051t3mala
- p2fIVL5HXAM63DrMWtrbeQGGQ7DmyxvdROnPUnvy06l7/9ud27GkHKLAkndwpsCe/kQBiC
- eQiMtJH7QDNaDyJggAB0VBsh0/XYukY=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Qd1HsDPoIQCA1W8M9wRkc4OBlzVkt6/Jqm85Xt985zA=;
+ b=VoAnEOLvwQPpXS7B1WHtXlhuhwwb8FtoIkCfqONequm3c0nt43u38jndYC3IzGvBzZddwI
+ PK6vwicUSxnFkmcECyV6RKj+R0SbDdzShYT/AKvVoDCzDGjiKOQIOCpXJ78N909NUlBYHV
+ 8P9YwER4v8rKONczqqfAw0gJc4cqyaU=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-581-7zHwTCxgOA25M-CuSuAp_g-1; Sun, 28 May 2023 02:25:27 -0400
-X-MC-Unique: 7zHwTCxgOA25M-CuSuAp_g-1
-Received: by mail-wr1-f70.google.com with SMTP id
- ffacd0b85a97d-30940b01998so737530f8f.3
+ us-mta-306-gfm4Pka-NdS_1_wp866OYA-1; Sun, 28 May 2023 02:27:23 -0400
+X-MC-Unique: gfm4Pka-NdS_1_wp866OYA-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ ffacd0b85a97d-2f2981b8364so1259748f8f.1
  for <virtualization@lists.linux-foundation.org>;
- Sat, 27 May 2023 23:25:27 -0700 (PDT)
+ Sat, 27 May 2023 23:27:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685255126; x=1687847126;
+ d=1e100.net; s=20221208; t=1685255242; x=1687847242;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=GHipMSXfUIdhSOH+8qGLOxioNKl7RNvsZumZazeEfOg=;
- b=TjjV5PWR60mgtlmZ8wSLlKPiZwCjdwZXUnFAX/QtMTfxDRS+tucPjMr3N0wrc6GjyO
- KId0ZjWPHiUj9CKd3eShLM/qpWBsjy7Qlb63XkVi3TdHbkWwKD2Mssm7LWk9qUJlgHW5
- XrBzMVuABWoserebbUuYEPaIk+RBX8qBs9TCIpILmORn3qJTJVIFklYGyip7Rf+6dJ9M
- rE6FRIzf9Hb4h4/G5sNBZfJ2v1inv2GTydulSWfzMojPKiHHG8UgB2o9OaSmgH+HzUoA
- FSHUKGynnxVDETqb506oZK8JaaFzrJjpgaU3aR0xSrIV+ai/Ikmg8nSZXDeXkzJmEAG0
- QJ/w==
-X-Gm-Message-State: AC+VfDyS9+tP35O7LMq8qnUVzWwDq/cqzyBJO2OWHqfBhpUcgvjPBHX4
- fLzX4KSAAP4c0jUA+YOMVDjgSXbfXzqoy8GiW3n9FMMLShyKVcUZ90RHkxB/+3hv99QACXC9fLf
- ftCBzkoGMUjnum17BpnZGIDoO6jWVO96oKRR6CgDm9w==
-X-Received: by 2002:a5d:6690:0:b0:30a:e542:c5c9 with SMTP id
- l16-20020a5d6690000000b0030ae542c5c9mr3915875wru.24.1685255126197; 
- Sat, 27 May 2023 23:25:26 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4zXf8FKRnuiMacq3JFo2VMQNt26z0deMI/xaaBhsgbJfThXFXDGW6PlXgF+aQ6SUOij8zjog==
-X-Received: by 2002:a5d:6690:0:b0:30a:e542:c5c9 with SMTP id
- l16-20020a5d6690000000b0030ae542c5c9mr3915862wru.24.1685255125858; 
- Sat, 27 May 2023 23:25:25 -0700 (PDT)
+ bh=Qd1HsDPoIQCA1W8M9wRkc4OBlzVkt6/Jqm85Xt985zA=;
+ b=ezFZHMVKbx+RLZJAeSWfxQKRdRB1qoPD/3xxT44SSUdSpa8JTdxQteMHh0Szs5NCAg
+ WzXoA91UPWmSFGaurfbFmEFQJub8QqOzXZdTGRnLs77mNqlj+WshaSieAYYiRqmherCU
+ mChXkor4TwcZH0iWvrOFZaOtdMfRGQKMI8Jj8Qjj8aaTgXkEOnB4lFQQ5koPEDwLaObl
+ Ne9dF6bO7LGPu02fnpY6T0W8M9PVq4ukdGkLShiUD1bJBhfDefDRykzmDHW153kv2iu0
+ pE9yG9d/XRIFV8xWWWxkF4TRYPshqFp+vu5e8xOe6zBjpx6USvm4RgHm7ywF3vCIdgL8
+ yyDw==
+X-Gm-Message-State: AC+VfDwWIfkCB4FNLxypjabg8G+j43tJkTuQ2FNfNyOqVuVGWvyp5ACm
+ UN/7d9HCZ1jUvgWBsz7LREXYPMmqdDXcRJXzzSauDQwMb9Auc0LMeibhRIv6UZU6Um0EVXebwkd
+ 7CJxKs1d+Gq14rodHyASVXqi8GcuyHgD3ZhJD9y3+CA==
+X-Received: by 2002:a5d:4746:0:b0:307:a36b:e7b1 with SMTP id
+ o6-20020a5d4746000000b00307a36be7b1mr6251110wrs.5.1685255242762; 
+ Sat, 27 May 2023 23:27:22 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ45TZmWQVMRhP5RvxBOirJj2cEFa5HQb7lqFSHk19mNXmZUM8pT5LmgfgqJSeZVjSeHHK6LuA==
+X-Received: by 2002:a5d:4746:0:b0:307:a36b:e7b1 with SMTP id
+ o6-20020a5d4746000000b00307a36be7b1mr6251097wrs.5.1685255242491; 
+ Sat, 27 May 2023 23:27:22 -0700 (PDT)
 Received: from redhat.com ([2.52.146.27]) by smtp.gmail.com with ESMTPSA id
- u10-20020a5d514a000000b00307b5376b2csm9843188wrt.90.2023.05.27.23.25.23
+ q1-20020a1ce901000000b003f423dfc686sm10083677wmc.45.2023.05.27.23.27.19
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 27 May 2023 23:25:25 -0700 (PDT)
-Date: Sun, 28 May 2023 02:25:21 -0400
+ Sat, 27 May 2023 23:27:21 -0700 (PDT)
+Date: Sun, 28 May 2023 02:27:17 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Liang Chen <liangchen.linux@gmail.com>
-Subject: Re: [PATCH net-next 3/5] virtio_net: Add page pool fragmentation
- support
-Message-ID: <20230528022057-mutt-send-email-mst@kernel.org>
-References: <20230526054621.18371-1-liangchen.linux@gmail.com>
- <20230526054621.18371-3-liangchen.linux@gmail.com>
+To: kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH net-next 2/5] virtio_net: Add page_pool support to
+ improve performance
+Message-ID: <20230528022658-mutt-send-email-mst@kernel.org>
+References: <20230526054621.18371-2-liangchen.linux@gmail.com>
+ <202305262334.GiFQ3wpG-lkp@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20230526054621.18371-3-liangchen.linux@gmail.com>
+In-Reply-To: <202305262334.GiFQ3wpG-lkp@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org,
+Cc: xuanzhuo@linux.alibaba.com, oe-kbuild-all@lists.linux.dev,
  linux-kernel@vger.kernel.org, alexander.duyck@gmail.com,
  virtualization@lists.linux-foundation.org, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
+ netdev@vger.kernel.org, kuba@kernel.org, pabeni@redhat.com,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,221 +126,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 26, 2023 at 01:46:19PM +0800, Liang Chen wrote:
-> To further enhance performance, implement page pool fragmentation
-> support and introduce a module parameter to enable or disable it.
+On Sat, May 27, 2023 at 12:11:25AM +0800, kernel test robot wrote:
+> Hi Liang,
 > 
-> In single-core vm testing environments, there is an additional performance
-> gain observed in the normal path compared to the one packet per page
-> approach.
->   Upstream codebase: 47.5 Gbits/sec
->   Upstream codebase with page pool: 50.2 Gbits/sec
->   Upstream codebase with page pool fragmentation support: 52.3 Gbits/sec
+> kernel test robot noticed the following build errors:
 > 
-> There is also some performance gain for XDP cpumap.
->   Upstream codebase: 1.38 Gbits/sec
->   Upstream codebase with page pool: 9.74 Gbits/sec
->   Upstream codebase with page pool fragmentation: 10.3 Gbits/sec
+> [auto build test ERROR on net-next/main]
 > 
-> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
-
-I think it's called fragmenting not fragmentation.
-
-
-> ---
->  drivers/net/virtio_net.c | 72 ++++++++++++++++++++++++++++++----------
->  1 file changed, 55 insertions(+), 17 deletions(-)
+> url:    https://github.com/intel-lab-lkp/linux/commits/Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
+> base:   net-next/main
+> patch link:    https://lore.kernel.org/r/20230526054621.18371-2-liangchen.linux%40gmail.com
+> patch subject: [PATCH net-next 2/5] virtio_net: Add page_pool support to improve performance
+> config: x86_64-defconfig (https://download.01.org/0day-ci/archive/20230526/202305262334.GiFQ3wpG-lkp@intel.com/config)
+> compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
+> reproduce (this is a W=1 build):
+>         # https://github.com/intel-lab-lkp/linux/commit/bfba563f43bba37181d8502cb2e566c32f96ec9e
+>         git remote add linux-review https://github.com/intel-lab-lkp/linux
+>         git fetch --no-tags linux-review Liang-Chen/virtio_net-Add-page_pool-support-to-improve-performance/20230526-135805
+>         git checkout bfba563f43bba37181d8502cb2e566c32f96ec9e
+>         # save the config file
+>         mkdir build_dir && cp config build_dir/.config
+>         make W=1 O=build_dir ARCH=x86_64 olddefconfig
+>         make W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 99c0ca0c1781..ac40b8c66c59 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -32,7 +32,9 @@ module_param(gso, bool, 0444);
->  module_param(napi_tx, bool, 0644);
->  
->  static bool page_pool_enabled;
-> +static bool page_pool_frag;
->  module_param(page_pool_enabled, bool, 0400);
-> +module_param(page_pool_frag, bool, 0400);
->  
->  /* FIXME: MTU in config. */
->  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
-
-So here again same questions.
-
--when is this a net perf gain when does it have no effect?
--can be on by default
-- can we get rid of the extra modes?
+> If you fix the issue, kindly add following tag where applicable
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202305262334.GiFQ3wpG-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    ld: vmlinux.o: in function `virtnet_find_vqs':
+> >> virtio_net.c:(.text+0x901fb5): undefined reference to `page_pool_create'
+>    ld: vmlinux.o: in function `add_recvbuf_mergeable.isra.0':
+> >> virtio_net.c:(.text+0x905618): undefined reference to `page_pool_alloc_pages'
+>    ld: vmlinux.o: in function `xdp_linearize_page':
+>    virtio_net.c:(.text+0x906b6b): undefined reference to `page_pool_alloc_pages'
+>    ld: vmlinux.o: in function `mergeable_xdp_get_buf.isra.0':
+>    virtio_net.c:(.text+0x90728f): undefined reference to `page_pool_alloc_pages'
 
 
-> @@ -909,23 +911,32 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
->  				       struct page *p,
->  				       int offset,
->  				       int page_off,
-> -				       unsigned int *len)
-> +				       unsigned int *len,
-> +					   unsigned int *pp_frag_offset)
->  {
->  	int tailroom = SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->  	struct page *page;
-> +	unsigned int pp_frag_offset_val;
->  
->  	if (page_off + *len + tailroom > PAGE_SIZE)
->  		return NULL;
->  
->  	if (rq->page_pool)
-> -		page = page_pool_dev_alloc_pages(rq->page_pool);
-> +		if (rq->page_pool->p.flags & PP_FLAG_PAGE_FRAG)
-> +			page = page_pool_dev_alloc_frag(rq->page_pool, pp_frag_offset,
-> +							PAGE_SIZE);
-> +		else
-> +			page = page_pool_dev_alloc_pages(rq->page_pool);
->  	else
->  		page = alloc_page(GFP_ATOMIC);
->  
->  	if (!page)
->  		return NULL;
->  
-> -	memcpy(page_address(page) + page_off, page_address(p) + offset, *len);
-> +	pp_frag_offset_val = pp_frag_offset ? *pp_frag_offset : 0;
-> +
-> +	memcpy(page_address(page) + page_off + pp_frag_offset_val,
-> +	       page_address(p) + offset, *len);
->  	page_off += *len;
->  
->  	while (--*num_buf) {
-> @@ -948,7 +959,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
->  			goto err_buf;
->  		}
->  
-> -		memcpy(page_address(page) + page_off,
-> +		memcpy(page_address(page) + page_off + pp_frag_offset_val,
->  		       page_address(p) + off, buflen);
->  		page_off += buflen;
->  		virtnet_put_page(rq, p);
-> @@ -1029,7 +1040,7 @@ static struct sk_buff *receive_small_xdp(struct net_device *dev,
->  			SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
->  		xdp_page = xdp_linearize_page(rq, &num_buf, page,
->  					      offset, header_offset,
-> -					      &tlen);
-> +					      &tlen, NULL);
->  		if (!xdp_page)
->  			goto err_xdp;
->  
-> @@ -1323,6 +1334,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
->  	unsigned int headroom = mergeable_ctx_to_headroom(ctx);
->  	struct page *xdp_page;
->  	unsigned int xdp_room;
-> +	unsigned int page_frag_offset = 0;
->  
->  	/* Transient failure which in theory could occur if
->  	 * in-flight packets from before XDP was enabled reach
-> @@ -1356,7 +1368,8 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
->  		xdp_page = xdp_linearize_page(rq, num_buf,
->  					      *page, offset,
->  					      VIRTIO_XDP_HEADROOM,
-> -					      len);
-> +					      len,
-> +						  &page_frag_offset);
->  		if (!xdp_page)
->  			return NULL;
->  	} else {
-> @@ -1366,14 +1379,19 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
->  			return NULL;
->  
->  		if (rq->page_pool)
-> -			xdp_page = page_pool_dev_alloc_pages(rq->page_pool);
-> +			if (rq->page_pool->p.flags & PP_FLAG_PAGE_FRAG)
-> +				xdp_page = page_pool_dev_alloc_frag(rq->page_pool,
-> +								    &page_frag_offset, PAGE_SIZE);
-> +			else
-> +				xdp_page = page_pool_dev_alloc_pages(rq->page_pool);
->  		else
->  			xdp_page = alloc_page(GFP_ATOMIC);
-> +
->  		if (!xdp_page)
->  			return NULL;
->  
-> -		memcpy(page_address(xdp_page) + VIRTIO_XDP_HEADROOM,
-> -		       page_address(*page) + offset, *len);
-> +		memcpy(page_address(xdp_page) + VIRTIO_XDP_HEADROOM +
-> +				page_frag_offset, page_address(*page) + offset, *len);
->  	}
->  
->  	*frame_sz = PAGE_SIZE;
-> @@ -1382,7 +1400,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
->  
->  	*page = xdp_page;
->  
-> -	return page_address(*page) + VIRTIO_XDP_HEADROOM;
-> +	return page_address(*page) + VIRTIO_XDP_HEADROOM + page_frag_offset;
->  }
->  
->  static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
-> @@ -1762,6 +1780,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
->  	void *ctx;
->  	int err;
->  	unsigned int len, hole;
-> +	unsigned int pp_frag_offset;
->  
->  	/* Extra tailroom is needed to satisfy XDP's assumption. This
->  	 * means rx frags coalescing won't work, but consider we've
-> @@ -1769,13 +1788,29 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
->  	 */
->  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
->  	if (rq->page_pool) {
-> -		struct page *page;
-> +		if (rq->page_pool->p.flags & PP_FLAG_PAGE_FRAG) {
-> +			if (unlikely(!page_pool_dev_alloc_frag(rq->page_pool,
-> +							       &pp_frag_offset, len + room)))
-> +				return -ENOMEM;
-> +			buf = (char *)page_address(rq->page_pool->frag_page) +
-> +				pp_frag_offset;
-> +			buf += headroom; /* advance address leaving hole at front of pkt */
-> +			hole = (PAGE_SIZE << rq->page_pool->p.order)
-> +				- rq->page_pool->frag_offset;
-> +			if (hole < len + room) {
-> +				if (!headroom)
-> +					len += hole;
-> +				rq->page_pool->frag_offset += hole;
-> +			}
-> +		} else {
-> +			struct page *page;
->  
-> -		page = page_pool_dev_alloc_pages(rq->page_pool);
-> -		if (unlikely(!page))
-> -			return -ENOMEM;
-> -		buf = (char *)page_address(page);
-> -		buf += headroom; /* advance address leaving hole at front of pkt */
-> +			page = page_pool_dev_alloc_pages(rq->page_pool);
-> +			if (unlikely(!page))
-> +				return -ENOMEM;
-> +			buf = (char *)page_address(page);
-> +			buf += headroom; /* advance address leaving hole at front of pkt */
-> +		}
->  	} else {
->  		if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
->  			return -ENOMEM;
-> @@ -3800,13 +3835,16 @@ static void virtnet_alloc_page_pool(struct receive_queue *rq)
->  	struct virtio_device *vdev = rq->vq->vdev;
->  
->  	struct page_pool_params pp_params = {
-> -		.order = 0,
-> +		.order = page_pool_frag ? SKB_FRAG_PAGE_ORDER : 0,
->  		.pool_size = rq->vq->num_max,
->  		.nid = dev_to_node(vdev->dev.parent),
->  		.dev = vdev->dev.parent,
->  		.offset = 0,
->  	};
->  
-> +	if (page_pool_frag)
-> +		pp_params.flags |= PP_FLAG_PAGE_FRAG;
-> +
->  	rq->page_pool = page_pool_create(&pp_params);
->  	if (IS_ERR(rq->page_pool)) {
->  		dev_warn(&vdev->dev, "page pool creation failed: %ld\n",
+you need to tweak Kconfig to select PAGE_POOL I think.
+
 > -- 
-> 2.31.1
+> 0-DAY CI Kernel Test Service
+> https://github.com/intel/lkp-tests/wiki
 
 _______________________________________________
 Virtualization mailing list
