@@ -1,126 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4102AC77B7E
-	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 01:21:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38013C77B7C
+	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 01:41:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A77EB60BE0;
-	Sun, 28 May 2023 01:21:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A77EB60BE0
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google header.b=HHbEpz/j
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8BBFD41E99;
+	Sun, 28 May 2023 01:41:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8BBFD41E99
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UefOzCJlt1Ni; Sun, 28 May 2023 01:41:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9101C41EA3;
+	Sun, 28 May 2023 01:41:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9101C41EA3
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4353FC0036;
+	Sun, 28 May 2023 01:41:43 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0D6B7C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 28 May 2023 01:41:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id D206B60BBA
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 28 May 2023 01:41:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D206B60BBA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Wk-uNNtfVw4h; Sun, 28 May 2023 01:21:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2976C60BF4;
-	Sun, 28 May 2023 01:21:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2976C60BF4
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E2C72C0036;
-	Sun, 28 May 2023 01:21:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17CB5C002A
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ERJhbq2aBXJi
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 01:21:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id CCADD401D2
+ Sun, 28 May 2023 01:41:39 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 48CB860BA7
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 48CB860BA7
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 01:21:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CCADD401D2
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=linux-foundation.org
- header.i=@linux-foundation.org header.a=rsa-sha256 header.s=google
- header.b=HHbEpz/j
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vmeGdM_JxyOq
- for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 01:21:24 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 743CB4013B
-Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com
- [IPv6:2a00:1450:4864:20::633])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 743CB4013B
- for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 01:21:24 +0000 (UTC)
-Received: by mail-ej1-x633.google.com with SMTP id
- a640c23a62f3a-96f6e83e12fso326254366b.1
- for <virtualization@lists.linux-foundation.org>;
- Sat, 27 May 2023 18:21:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linux-foundation.org; s=google; t=1685236882; x=1687828882;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:from:to:cc:subject:date
- :message-id:reply-to;
- bh=XwTMqNXJxZngfAiFWVhcJnTq6nmvJ33/9Fzz5GiyWWk=;
- b=HHbEpz/jAmDwfuSaARci7RvfCravshRPBIdiwt/tkOEUavTfRyH3qJJpR06h2YRKpF
- abH2xai5w4zSo93xD/9QD1b+zDekAa51egLJ7sCBm+8XWJhntAM3kmlSLTfPYooH6W4b
- s8J3Zhxl2GFGDtq4R0Asiq1H7dl2jdWt3rDLY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685236882; x=1687828882;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=XwTMqNXJxZngfAiFWVhcJnTq6nmvJ33/9Fzz5GiyWWk=;
- b=aUfcSrX7CbqKCd1OthX5+/g8OvhZHbTCATJt5645LHtwAtj58XK0yMTPDjGec1Zh9y
- bhDLCAtvcCpL3CUXfsrFtvf7pcPsBgsgbwwROpH8usxer/UBQJKZ37dK+CYtmGCQQtZc
- WTPFmg+cammucT4VCZqE6gTniD/4JLz+NOSeyRIZrFjdBNCyejZlBLaIPy50JVuTE0QR
- InsRhB22ZPrxeLtj8Ybhh+zHzGCP7NyVOfKgedzaiW80Bvf2svZke4QfM24s1Keu4q+d
- 3hD1FoKUTe4gi89FX1FOgLIUA9Vl2wJwXHWqUMYvXjsuo20Nz/EoFzIxLiqQyGZ3IiZa
- 75CQ==
-X-Gm-Message-State: AC+VfDz5Jo22eg/MWfmDfF64GF5+OZJQq+XewtzKVIQ0+1IsBrMRNi5k
- q1ah602fbBeMlYXvxfnCU4I7tFM5LBoxY3fDi7/yJqf+H4k=
-X-Google-Smtp-Source: ACHHUZ5MF2G4Hmf/5ZAfMg1M47OThNa6ikhQ1Wru3g4don6h63Ar/DW0c8OcIE/Plnst2q7IPUj9gw==
-X-Received: by 2002:a17:907:7208:b0:971:9364:f8cd with SMTP id
- dr8-20020a170907720800b009719364f8cdmr6138577ejc.44.1685236882224; 
- Sat, 27 May 2023 18:21:22 -0700 (PDT)
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com.
- [209.85.218.54]) by smtp.gmail.com with ESMTPSA id
- v15-20020a170906338f00b009663cf5dc3bsm4033084eja.53.2023.05.27.18.21.20
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sat, 27 May 2023 18:21:21 -0700 (PDT)
-Received: by mail-ej1-f54.google.com with SMTP id
- a640c23a62f3a-96f8d485ef3so326863166b.0
- for <virtualization@lists.linux-foundation.org>;
- Sat, 27 May 2023 18:21:20 -0700 (PDT)
-X-Received: by 2002:a17:907:2682:b0:96a:440b:d5c8 with SMTP id
- bn2-20020a170907268200b0096a440bd5c8mr5866751ejc.59.1685236880680; Sat, 27
- May 2023 18:21:20 -0700 (PDT)
-MIME-Version: 1.0
+ Sun, 28 May 2023 01:41:39 +0000 (UTC)
+Received: from in02.mta.xmission.com ([166.70.13.52]:38252)
+ by out03.mta.xmission.com with esmtps (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1q35Pd-004hje-8d; Sat, 27 May 2023 19:41:37 -0600
+Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:55318
+ helo=email.froward.int.ebiederm.org.xmission.com)
+ by in02.mta.xmission.com with esmtpsa (TLS1.3) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
+ (envelope-from <ebiederm@xmission.com>)
+ id 1q35Pb-003vjS-Tg; Sat, 27 May 2023 19:41:36 -0600
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Mike Christie <michael.christie@oracle.com>
 References: <20230522025124.5863-1-michael.christie@oracle.com>
  <20230522025124.5863-4-michael.christie@oracle.com>
  <20230522123029.GA22159@redhat.com>
  <cfca7764-d210-6df9-e182-2c093101c6cf@oracle.com>
- <20230522174757.GC22159@redhat.com>
- <20230523121506.GA6562@redhat.com>
- <87bkib6nxr.fsf@email.froward.int.ebiederm.org>
- <20230524141022.GA19091@redhat.com>
- <87ttw1zt4i.fsf@email.froward.int.ebiederm.org>
- <20230525115512.GA9229@redhat.com>
- <87y1lcxwcj.fsf@email.froward.int.ebiederm.org>
- <CAHk-=wj4DS=2F5mW+K2P7cVqrsuGd3rKE_2k2BqnnPeeYhUCvg@mail.gmail.com>
- <87cz2mrtnk.fsf@email.froward.int.ebiederm.org>
- <CAHk-=whsi9JFP-okH3jXHrA8rh8bMuuSt6ZgkmPwiDMAn437qA@mail.gmail.com>
- <87mt1pmezu.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <87mt1pmezu.fsf@email.froward.int.ebiederm.org>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sat, 27 May 2023 18:21:03 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wjkLs3PU+MaF67TBQpUcZZEhoc9MB0iXYamb7FDPH6mOw@mail.gmail.com>
-Message-ID: <CAHk-=wjkLs3PU+MaF67TBQpUcZZEhoc9MB0iXYamb7FDPH6mOw@mail.gmail.com>
-Subject: Re: [PATCH 3/3] fork,
- vhost: Use CLONE_THREAD to fix freezer/ps regression
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+ <20230522174757.GC22159@redhat.com> <20230523121506.GA6562@redhat.com>
+ <c6e9a5db-798f-fa40-5ae2-a41f2d8ebab5@oracle.com>
+Date: Sat, 27 May 2023 20:41:29 -0500
+In-Reply-To: <c6e9a5db-798f-fa40-5ae2-a41f2d8ebab5@oracle.com> (Mike
+ Christie's message of "Thu, 25 May 2023 11:15:59 -0500")
+Message-ID: <87a5xpkzau.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+MIME-Version: 1.0
+X-XM-SPF: eid=1q35Pb-003vjS-Tg; ; ;
+ mid=<87a5xpkzau.fsf@email.froward.int.ebiederm.org>; ; ;
+ hst=in02.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
+ ; ; spf=pass
+X-XM-AID: U2FsdGVkX1+V2Qg3ULEu3+aeUbHP6A32iBYl7ldKMoo=
+X-SA-Exim-Connect-IP: 68.110.29.46
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH 3/3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
+ regression
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
  linux-kernel@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
  stefanha@redhat.com, linux@leemhuis.info, nicolas.dichtel@6wind.com,
- virtualization@lists.linux-foundation.org
+ virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,19 +93,41 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU2F0LCBNYXkgMjcsIDIwMjMgYXQgNjoxN+KAr1BNIEVyaWMgVy4gQmllZGVybWFuIDxlYmll
-ZGVybUB4bWlzc2lvbi5jb20+IHdyb3RlOgo+Cj4gSXQgc2VlbXMgbGlrZSBhIGdvb2QgYXBwcm9h
-Y2ggZm9yIGluY2x1ZGluZyBpbiB0aGUgLXJjIHNlcmllcy4KPiBJIHRoaW5rIHRoZSBjaGFuZ2Ug
-c2hvdWxkIGxvb2sgbW9yZSBsaWtlIG15IGNoYW5nZSBiZWxvdy4KCkkgaGF2ZSBubyBvYmplY3Rp
-b25zLiBNeSBwYXRjaCB3YXMgYSBmYWlybHkgImhhY2sgYW5kIHNsYXNoIiB0aGluZyB0bwpqdXN0
-IGRpc2Fzc29jaWF0ZSB0aGUgSU8gd29ya2VycyBlbnRpcmVseSBmcm9tIHRoZSBjb3JlIGR1bXBp
-bmcuIFlvdXJzCnNlZW1zIHRvIGJlIHNsaWdodGx5IG1vcmUgc3VyZ2ljYWwuCgogICAgICAgICAg
-ICAgICAgICBMaW51cwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Mike Christie <michael.christie@oracle.com> writes:
+
+> On 5/23/23 7:15 AM, Oleg Nesterov wrote:
+>> 
+>> Now the main question. Whatever we do, SIGKILL/SIGSTOP/etc can come right
+>> before we call work->fn(). Is it "safe" to run this callback with
+>> signal_pending() or fatal_signal_pending() ?
+>
+> The questions before this one I'll leave for the core vhost devs since
+> they know best.
+
+Let me ask a clarifying question:
+
+Is it only the call to schedule() in vhost_worker that you are worried
+about not sleeping if signal_pending() or fatal_signal_pending()?
+
+Is there concern that the worker functions aka "work->fn()" will also
+have killable or interruptible sleeps that also will misbehave.
+
+We can handle schedule() in vhost_worker without problem.
+
+If a worker function has interruptible or killable sleeps that will turn
+into busy waits or worse not sleeping long enough that seems like a
+problem.  There is no way to guarantee that the outer loop of
+vhost_worker will protect the worker functions from signal_pending()
+or fatal_signal_pending() becoming true.
+
+
+Eric
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
