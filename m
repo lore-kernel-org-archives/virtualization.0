@@ -4,107 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D021DC7EE2C
-	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 07:57:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2BAD1C77B7C
+	for <virtualization@archiver.kernel.org>; Sun, 28 May 2023 11:28:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 35F8060ECA;
-	Sun, 28 May 2023 07:57:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 35F8060ECA
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9CA1260AA0;
+	Sun, 28 May 2023 11:28:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9CA1260AA0
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OIjRjM9X
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SuSNC3jp
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gzFiIOcDWF1x; Sun, 28 May 2023 07:57:16 +0000 (UTC)
+	with ESMTP id TzT5ALLwGjbg; Sun, 28 May 2023 11:28:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 55D8460E91;
-	Sun, 28 May 2023 07:57:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 55D8460E91
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 19BCC60A88;
+	Sun, 28 May 2023 11:28:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 19BCC60A88
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3458FC0035;
-	Sun, 28 May 2023 07:57:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27AACC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E75E7C0035;
+	Sun, 28 May 2023 11:28:34 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B3810C002A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 07:57:14 +0000 (UTC)
+ Sun, 28 May 2023 11:28:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id EB8FB41E09
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7A97840111
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 07:57:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EB8FB41E09
-Authentication-Results: smtp4.osuosl.org;
+ Sun, 28 May 2023 11:28:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7A97840111
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OIjRjM9X
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SuSNC3jp
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mHgz9pOGiP6E
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DRVOJ1wxqT-9
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 07:57:07 +0000 (UTC)
+ Sun, 28 May 2023 11:28:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37D4041DE3
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 10D73400D3
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 37D4041DE3
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 10D73400D3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 07:57:07 +0000 (UTC)
+ Sun, 28 May 2023 11:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685260625;
+ s=mimecast20190719; t=1685273310;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=CyBcNco0Gge4gbJKk143iR4E9OyphOPro7TAZfxT0Hc=;
- b=OIjRjM9X+cPhEUzJW/EwmQv7OVPyaeG5j51v4RkLls6cxrZvLyBwpcyLBh04Y7kgZWbWWv
- JoJlCQj094bI9pIVMwBLlg9QIKUbPuc4Ux4juQ15b+WBLYQ7oI6rVEoJWDCXaLK+f6IzFx
- n4jNeAwjayWJN41/UpM7fwAsMIrSJHU=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pH6KcqHfCBWuGTuVfMKCDSPJ3g9Xa501cWIRrEMo/I4=;
+ b=SuSNC3jpTvwGT3Bc4hr2AZjw0P1K5TNP0BsDSIB672+8cLPHIE1HXu1W5jeOOxo905Q2Nt
+ qAL0M2gSlWR4lNOJPYehroZlqIvVPdfxM+Pz6E8Vd/engeYvWma12ZUmXg2T5j9YMNlTI6
+ P+0WSgIFRtyUvtb+eg9Ge2a1IRz3CHo=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-21-H4l-pa1DMS-zjjalhm3XbA-1; Sun, 28 May 2023 03:57:04 -0400
-X-MC-Unique: H4l-pa1DMS-zjjalhm3XbA-1
-Received: by mail-wr1-f72.google.com with SMTP id
- ffacd0b85a97d-2f2981b8364so1283350f8f.1
+ us-mta-25-Kji5CUBaPriFKViuyVHN7g-1; Sun, 28 May 2023 07:28:29 -0400
+X-MC-Unique: Kji5CUBaPriFKViuyVHN7g-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ 5b1f17b1804b1-3f5fa06debcso15458675e9.0
  for <virtualization@lists.linux-foundation.org>;
- Sun, 28 May 2023 00:57:04 -0700 (PDT)
+ Sun, 28 May 2023 04:28:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685260623; x=1687852623;
+ d=1e100.net; s=20221208; t=1685273308; x=1687865308;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=CyBcNco0Gge4gbJKk143iR4E9OyphOPro7TAZfxT0Hc=;
- b=LTdfin/biRHgm/cAca0/hiJAaQaqT0Z901QLEjD8d7ZEVw5kLXcJNhTrS5iS4AdoiU
- 5sgLKzm0gyNbY1/WTc9DXD+z0uHEYPTU/ssYD10TtztvMjI43tWR/hk2PzhLlV/DNONb
- YMig+PQRJxav9JzpuuLu2dnP8N0IOBMnK3bpRPoOOm60xkyqxeOBoquMeMRWtsTqLOuQ
- NFDjWQprjlJWQ32AJIcZUN20RQ+kYuYGOfCwms20G4FlvYPLTdG2mm5I0+faGNFEVvwP
- xtA+ikHuAcx3C6Q/OKVnVmtS5Z42RAsaBkL+mopd6u/FSCEzjkGJuUOVRj0VRDYkCDgl
- RWsw==
-X-Gm-Message-State: AC+VfDwuV60mqD8THoIT9HIlEK9d78PhzeJo+QwSMJHDzNc2oE2hR2dq
- PWPLq2MByEjoTfyj60CnonsxNpUw/LJG657SPArLFbGH30H4/8hUi8cphlmKDt0KAUp6IxhRDm3
- LCAvOWQUe/TA6f78G0U5z6XU1YAqF+7ZN+ckVf9GoUA==
-X-Received: by 2002:adf:e792:0:b0:2ef:b4a9:202f with SMTP id
- n18-20020adfe792000000b002efb4a9202fmr7016234wrm.69.1685260623374; 
- Sun, 28 May 2023 00:57:03 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ767ZoQH/pG0ey6X7gF0Jmfrk6DqK79WVQkChFfUtJV6MOsypliJHSsmkZygA+OLw1Cb5+jbw==
-X-Received: by 2002:adf:e792:0:b0:2ef:b4a9:202f with SMTP id
- n18-20020adfe792000000b002efb4a9202fmr7016219wrm.69.1685260622976; 
- Sun, 28 May 2023 00:57:02 -0700 (PDT)
+ bh=pH6KcqHfCBWuGTuVfMKCDSPJ3g9Xa501cWIRrEMo/I4=;
+ b=OgYNHc3wkebJ+X5pbI7UWpByWH/JEokZRMj9VBDPcOccSDVXHSzgw7msqmlb03qg91
+ q+LPzlFHOBv0iQLnQq3MHf+BMJkbHn4pagNtuv18iU/pFXoafsP+KjljvruyZ0R8ZXHx
+ lHTDVycAgzZ7Jl6Mf0RVcSpqk5z2AJ/qCSUOKfnyYxR74MPpjVUoC8ocuoVohsUZVIaU
+ B4q60TsGckyF3NntB1V7nXnbF88DAgt5mPvzvr9go840zWI25qm8MwhqhqglvfZTHnQ/
+ eftBGqXfoxmbMZ+I99ETm14Z97ki83OMkyNthBpc8YDPYPuOX1Xgcen9wryAHeD2fvPE
+ EqSg==
+X-Gm-Message-State: AC+VfDyrFTxf1kAspJpVuON4teuHHhsbiJipDQjQaY1gTpAGlMWVaAPx
+ KDHycIZmSQw/M+7unUIUkldxO0hpBVL71OkdrkYflTfT8rWROeuIaq8Xo3SpDByw60JBoM6egb2
+ Sxp9GzNOBe9xvWcJcN2vrokYAV6WdThMHBXHhX7xO+g==
+X-Received: by 2002:a05:600c:2056:b0:3f6:906:1195 with SMTP id
+ p22-20020a05600c205600b003f609061195mr5855736wmg.35.1685273308235; 
+ Sun, 28 May 2023 04:28:28 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ7M5zyoUzwa+zSGDpmPvYYOQVCJ72Fpu1o8WWS/XTZSiyeYpqkMXcm/5iERmLuk0Hv+mhDyEQ==
+X-Received: by 2002:a05:600c:2056:b0:3f6:906:1195 with SMTP id
+ p22-20020a05600c205600b003f609061195mr5855730wmg.35.1685273307956; 
+ Sun, 28 May 2023 04:28:27 -0700 (PDT)
 Received: from redhat.com ([2.52.146.27]) by smtp.gmail.com with ESMTPSA id
- j13-20020a5d604d000000b00306344eaebfsm10100637wrt.28.2023.05.28.00.57.01
+ 10-20020a05600c228a00b003f42461ac75sm14403001wmf.12.2023.05.28.04.28.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 28 May 2023 00:57:02 -0700 (PDT)
-Date: Sun, 28 May 2023 03:56:59 -0400
+ Sun, 28 May 2023 04:28:27 -0700 (PDT)
+Date: Sun, 28 May 2023 07:28:24 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_ring: validate used buffer length
-Message-ID: <20230528033037-mutt-send-email-mst@kernel.org>
-References: <20230526063041.18359-1-jasowang@redhat.com>
+To: Zhu Lingshan <lingshan.zhu@intel.com>
+Subject: Re: [RFC] virtio-net: support modern-transtional devices
+Message-ID: <20230528071851-mutt-send-email-mst@kernel.org>
+References: <20230526181542.364412-1-lingshan.zhu@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20230526063041.18359-1-jasowang@redhat.com>
+In-Reply-To: <20230526181542.364412-1-lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,266 +120,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 26, 2023 at 02:30:41PM +0800, Jason Wang wrote:
-> This patch validate
-
-validates
-
-> the used buffer length provided by the device
-> before trying to use it.
-
-before returning it to caller
-
-> This is done by remembering the in buffer
-> length in a dedicated array during virtqueue_add(), then we can fail
-> the virtqueue_get_buf() when we find the device is trying to give us a
-> used buffer length which is greater than we stored before.
-
-than what we stored
-
+On Sat, May 27, 2023 at 02:15:42AM +0800, Zhu Lingshan wrote:
+> Current virtio-net only probes a device with VIRITO_ID_NET == 1.
 > 
-> This validation is disable
-
-disabled
-
-> by default via module parameter to unbreak
-> some existing devices since some legacy devices are known to report
-> buggy used length.
+> For a modern-transtional virtio-net device which has a transtional
+> device id 0x1000 and acts as a modern device, current virtio-pci
+> modern driver will assign the sub-device-id to its mdev->id.device,
+> which may not be 0x1, this sub-device-id is up to the vendor.
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> That means virtio-net driver doesn't probe a modern-transitonal
+> virtio-net with a sub-device-id other than 0x1, which is a bug.
 
-First I'm not merging this without more data about
-what is known to be broken and what is known to work well
-in the commit log. And how exactly do things work if used length
-is wrong?
-Second what's wrong with dma_desc_extra that we already maintain?
-Third motivation - it's part and parcel of the hardening effort yes?
-I'd like to know the fate of VIRTIO_HARDEN_NOTIFICATION before
-we do more hardening. If it's irrevocably broken let's rip it out?
+No, the bug is in the device. Legacy linux drivers always looked at
+sub device id (other OSes might differ). So it makes no sense
+for a transitional device to have sub-device-id other than 0x1.
+Don't have time to look at spec but I think you will find it there.
 
 
+> Other types of devices also have similar issues, like virito-blk.
+> 
+> I propose to fix this problem of modern-transitonal device
+> whith this solution, all in the modern code path:
+> 1) assign the device id to mdev->id.device
+> 2) add transitional device ids in the virtio-net(and others) probe table.
+> 
+> Comments are welcome!
+> 
+> Thanks!
+> 
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 > ---
-> Changes since V4:
-> - drop the flat for driver to suppress the check
-> - validation is disabled by default
-> - don't do validation for legacy device
-> - rebase and support virtqueue resize
-> ---
->  drivers/virtio/virtio_ring.c | 75 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 75 insertions(+)
+>  drivers/net/virtio_net.c               | 1 +
+>  drivers/virtio/virtio_pci_modern_dev.c | 2 +-
+>  2 files changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 143f380baa1c..5b151605aaf8 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -15,6 +15,9 @@
->  #include <linux/spinlock.h>
->  #include <xen/xen.h>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 56ca1d270304..6b45d8602a6b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -4250,6 +4250,7 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
 >  
-> +static bool force_used_validation = false;
-> +module_param(force_used_validation, bool, 0444);
-> +
->  #ifdef DEBUG
->  /* For development, we want to crash whenever the ring is screwed. */
->  #define BAD_RING(_vq, fmt, args...)				\
-> @@ -105,6 +108,9 @@ struct vring_virtqueue_split {
->  	struct vring_desc_state_split *desc_state;
->  	struct vring_desc_extra *desc_extra;
+>  static struct virtio_device_id id_table[] = {
+>  	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
+> +	{ VIRTIO_TRANS_ID_NET, VIRTIO_DEV_ANY_ID },
+>  	{ 0 },
+>  };
 >  
-> +	/* Maximum in buffer length, NULL means no used validation */
-> +	u32 *buflen;
-> +
->  	/* DMA address and size information */
->  	dma_addr_t queue_dma_addr;
->  	size_t queue_size_in_bytes;
-> @@ -145,6 +151,9 @@ struct vring_virtqueue_packed {
->  	struct vring_desc_state_packed *desc_state;
->  	struct vring_desc_extra *desc_extra;
->  
-> +	/* Maximum in buffer length, NULL means no used validation */
-> +	u32 *buflen;
-> +
->  	/* DMA address and size information */
->  	dma_addr_t ring_dma_addr;
->  	dma_addr_t driver_event_dma_addr;
-> @@ -552,6 +561,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  	unsigned int i, n, avail, descs_used, prev, err_idx;
->  	int head;
->  	bool indirect;
-> +	u32 buflen = 0;
->  
->  	START_USE(vq);
->  
-> @@ -635,6 +645,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  						     VRING_DESC_F_NEXT |
->  						     VRING_DESC_F_WRITE,
->  						     indirect);
-> +			buflen += sg->length;
->  		}
->  	}
->  	/* Last one doesn't continue. */
-> @@ -675,6 +686,10 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
->  	else
->  		vq->split.desc_state[head].indir_desc = ctx;
->  
-> +	/* Store in buffer length if necessary */
-> +	if (vq->split.buflen)
-> +		vq->split.buflen[head] = buflen;
-> +
->  	/* Put entry in available array (but don't update avail->idx until they
->  	 * do sync). */
->  	avail = vq->split.avail_idx_shadow & (vq->split.vring.num - 1);
-> @@ -861,6 +876,11 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  		BAD_RING(vq, "id %u is not a head!\n", i);
->  		return NULL;
->  	}
-> +	if (vq->split.buflen && unlikely(*len > vq->split.buflen[i])) {
-> +		BAD_RING(vq, "used len %d is larger than max in buffer len %u\n",
-> +			*len, vq->split.buflen[i]);
-> +		return NULL;
-> +	}
->  
->  	/* detach_buf_split clears data, so grab it now. */
->  	ret = vq->split.desc_state[i].data;
-> @@ -1085,10 +1105,25 @@ static void vring_free_split(struct vring_virtqueue_split *vring_split,
->  			 vring_split->queue_dma_addr,
->  			 dma_dev);
->  
-> +	kfree(vring_split->buflen);
->  	kfree(vring_split->desc_state);
->  	kfree(vring_split->desc_extra);
->  }
->  
-> +static bool vring_needs_used_validation(const struct virtio_device *vdev)
-> +{
-> +	/*
-> +	 * Several legacy devices are known to produce buggy used
-> +	 * length. In order to let driver work, we won't validate used
-> +	 * buffer length in this case.
-> +	 */
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-> +		return false;
-> +	if (force_used_validation)
-> +		return true;
-> +	return false;
-> +}
-> +
->  static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
->  				   struct virtio_device *vdev,
->  				   u32 num,
-> @@ -1137,7 +1172,19 @@ static int vring_alloc_queue_split(struct vring_virtqueue_split *vring_split,
->  	vring_split->vring_align = vring_align;
->  	vring_split->may_reduce_num = may_reduce_num;
->  
-> +	if (vring_needs_used_validation(vdev)) {
-> +		vring_split->buflen =
-> +			kmalloc_array(num, sizeof(*vring_split->buflen),
-> +				      GFP_KERNEL);
-> +		if (!vring_split->buflen)
-> +			goto err_buflen;
-> +	}
-> +
->  	return 0;
-> +
-> +err_buflen:
-> +	vring_free_split(vring_split, vdev, dma_dev);
-> +	return -ENOMEM;
->  }
->  
->  static struct virtqueue *vring_create_virtqueue_split(
-> @@ -1297,6 +1344,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  	unsigned int i, n, err_idx;
->  	u16 head, id;
->  	dma_addr_t addr;
-> +	u32 buflen = 0;
->  
->  	head = vq->packed.next_avail_idx;
->  	desc = alloc_indirect_packed(total_sg, gfp);
-> @@ -1325,6 +1373,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  			desc[i].addr = cpu_to_le64(addr);
->  			desc[i].len = cpu_to_le32(sg->length);
->  			i++;
-> +			if (n >= out_sgs)
-> +				buflen += sg->length;
->  		}
->  	}
->  
-> @@ -1379,6 +1429,10 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->  	vq->packed.desc_state[id].last = id;
->  	vq->packed.desc_state[id].premapped = premapped;
->  
-> +	/* Store in buffer length if necessary */
-> +	if (vq->packed.buflen)
-> +		vq->packed.buflen[id] = buflen;
-> +
->  	vq->num_added += 1;
->  
->  	pr_debug("Added buffer head %i to %p\n", head, vq);
-> @@ -1416,6 +1470,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->  	__le16 head_flags, flags;
->  	u16 head, id, prev, curr, avail_used_flags;
->  	int err;
-> +	u32 buflen = 0;
->  
->  	START_USE(vq);
->  
-> @@ -1498,6 +1553,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->  					1 << VRING_PACKED_DESC_F_AVAIL |
->  					1 << VRING_PACKED_DESC_F_USED;
->  			}
-> +			if (n >= out_sgs)
-> +				buflen += sg->length;
->  		}
->  	}
->  
-> @@ -1518,6 +1575,10 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->  	vq->packed.desc_state[id].last = prev;
->  	vq->packed.desc_state[id].premapped = premapped;
->  
-> +	/* Store in buffer length if necessary */
-> +	if (vq->packed.buflen)
-> +		vq->packed.buflen[id] = buflen;
-> +
->  	/*
->  	 * A driver MUST NOT make the first descriptor in the list
->  	 * available before all subsequent descriptors comprising
-> @@ -1718,6 +1779,11 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
->  		BAD_RING(vq, "id %u is not a head!\n", id);
->  		return NULL;
->  	}
-> +	if (vq->packed.buflen && unlikely(*len > vq->packed.buflen[id])) {
-> +		BAD_RING(vq, "used len %d is larger than max in buffer len %u\n",
-> +			*len, vq->packed.buflen[id]);
-> +		return NULL;
-> +	}
->  
->  	/* detach_buf_packed clears data, so grab it now. */
->  	ret = vq->packed.desc_state[id].data;
-> @@ -1937,6 +2003,7 @@ static void vring_free_packed(struct vring_virtqueue_packed *vring_packed,
->  				 vring_packed->device_event_dma_addr,
->  				 dma_dev);
->  
-> +	kfree(vring_packed->buflen);
->  	kfree(vring_packed->desc_state);
->  	kfree(vring_packed->desc_extra);
->  }
-> @@ -1988,6 +2055,14 @@ static int vring_alloc_queue_packed(struct vring_virtqueue_packed *vring_packed,
->  
->  	vring_packed->vring.num = num;
->  
-> +	if (vring_needs_used_validation(vdev)) {
-> +		vring_packed->buflen =
-> +			kmalloc_array(num, sizeof(*vring_packed->buflen),
-> +				      GFP_KERNEL);
-> +		if (!vring_packed->buflen)
-> +			goto err;
-> +	}
-> +
->  	return 0;
->  
->  err:
+> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> index 869cb46bef96..80846e1195ce 100644
+> --- a/drivers/virtio/virtio_pci_modern_dev.c
+> +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> @@ -229,7 +229,7 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
+>  		/* Transitional devices: use the PCI subsystem device id as
+>  		 * virtio device id, same as legacy driver always did.
+>  		 */
+> -		mdev->id.device = pci_dev->subsystem_device;
+> +		mdev->id.device = pci_dev->device;
+>  	} else {
+>  		/* Modern devices: simply use PCI device id, but start from 0x1040. */
+>  		mdev->id.device = pci_dev->device - 0x1040;
 > -- 
-> 2.25.1
+> 2.39.1
 
 _______________________________________________
 Virtualization mailing list
