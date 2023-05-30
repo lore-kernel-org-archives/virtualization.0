@@ -1,111 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9E679C7EE23
-	for <virtualization@archiver.kernel.org>; Tue, 30 May 2023 16:12:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E19DC77B7A
+	for <virtualization@archiver.kernel.org>; Tue, 30 May 2023 16:17:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 19C2F4026A;
-	Tue, 30 May 2023 16:12:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 19C2F4026A
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0F84A60BFE;
+	Tue, 30 May 2023 16:17:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0F84A60BFE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dvgYvcBL
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id f00fSRnztAux; Tue, 30 May 2023 16:17:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 702BF60ADC;
+	Tue, 30 May 2023 16:17:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 702BF60ADC
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 519C8C0037;
+	Tue, 30 May 2023 16:17:15 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89FF9C002A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 May 2023 16:17:13 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5FB8141795
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 May 2023 16:17:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5FB8141795
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci9AJsPS
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dvgYvcBL
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uBbc3DZnw0NQ; Tue, 30 May 2023 16:12:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B344F40531;
-	Tue, 30 May 2023 16:12:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B344F40531
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89502C0037;
-	Tue, 30 May 2023 16:12:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07A39C002A
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YNYrqV7BMApT
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 16:12:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C8CD283CC0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 16:12:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C8CD283CC0
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ci9AJsPS
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uOc-Kpdn3GhG
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 16:12:08 +0000 (UTC)
+ Tue, 30 May 2023 16:17:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0AF2681F5E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A849B400C5
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0AF2681F5E
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A849B400C5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 16:12:07 +0000 (UTC)
+ Tue, 30 May 2023 16:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685463127;
+ s=mimecast20190719; t=1685463431;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=elhjqE3fNBnQQxlIlFk7OLjzO9acLMNW6reIgAraQ64=;
- b=Ci9AJsPSDojXpcUFoTmTZjG2Ib/e4BgRkO5MpMIEyeNBISIshYyH64tB6IXvot1MctM7wr
- dk4BXGRQSxR0dCosHXE6ShPk0xlm/3wD12OoSZSN2fQ5QOKE14FkIQ7GbzQQFMFoauD6Q5
- HvXSx9mXBJug2cwJAb1oVFbuhmAAwCQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=PXXxKnRvMOF+CPjYfKEygZupqtBPL6uEzDsFClnEJ3U=;
+ b=dvgYvcBLbTGFSyjk5z8hb7BwSPwXD2ZtVHYQDxemzQLVmu/GLve97kyR63B1uYprT9SEaS
+ ZsyoTm/JZfKFYjAD3Q8Dtrddp2TjzjOIyeWGbZIGwk3sMl6PUmgApQsBZ2DyIWte9OFNDQ
+ a8q7caySfQNfn1hpokUJAFFns/DJk2c=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-MMR7Oy_pOFGEijk_9M8CAA-1; Tue, 30 May 2023 12:12:03 -0400
-X-MC-Unique: MMR7Oy_pOFGEijk_9M8CAA-1
-Received: by mail-wr1-f70.google.com with SMTP id
- ffacd0b85a97d-30af00323b0so798853f8f.2
+ us-mta-54-NfsMd6ODP_KxSz4ssbpUDw-1; Tue, 30 May 2023 12:17:07 -0400
+X-MC-Unique: NfsMd6ODP_KxSz4ssbpUDw-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ 5b1f17b1804b1-3f6fa001cedso14136735e9.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 09:12:03 -0700 (PDT)
+ Tue, 30 May 2023 09:17:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685463122; x=1688055122;
+ d=1e100.net; s=20221208; t=1685463426; x=1688055426;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=elhjqE3fNBnQQxlIlFk7OLjzO9acLMNW6reIgAraQ64=;
- b=UWe81skagij95eYZ61Xlw/BJINZ8tFvpq5o2fc1GwDSEOir1ctqrZbHbgi13e4vFCn
- KT6GB96H0UWyVsVH4dHmdgZhJ9J4+QTio/3M1PwzdS3dumwhxvG8Mcjgn8lkJPKzLuvD
- R5tz83+tq3z1/xu2WP5DwPurm6ebVQR4BuMsfbbIMfJP6mJRisE2UNKrjfmHYxwemaOE
- ziKwYjJs6W8wbbbpKKosBv9UAWirMHvuTzNy5rl9t36HGWRz6iX2QGPoxjlx0VY1qfH4
- xl/YYiTqXhpGPEI/wJFc+mi+H+YMiCLi/Ua+6u+DwUAitxwiVSwOpqRs6h2d+iuB8NvN
- ZvhQ==
-X-Gm-Message-State: AC+VfDznS4Haxry7w7yZSo9Olk9DdFnbfEsH4kp/p4OWo/jya1D+eva2
- iUBnUHXJG2zg8fYkGgr1ocHjlfAYEAVOc8lCWR8J0lkx/5Jd0G0e5gGeHZBCb2KUJAVCaLyycib
- oR4HfrCPhuHlwvZlmbDYzbXx2nzDR0D19XT9p8Dn7qw==
-X-Received: by 2002:a5d:5909:0:b0:309:4e64:7a28 with SMTP id
- v9-20020a5d5909000000b003094e647a28mr2029562wrd.49.1685463122245; 
- Tue, 30 May 2023 09:12:02 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ76yj+cHMYLKtEr2159YgsXI3xWTpZbjGYKy+isWK8mqhybl41e+higOqGxCzQ6/lC2tHLEZQ==
-X-Received: by 2002:a5d:5909:0:b0:309:4e64:7a28 with SMTP id
- v9-20020a5d5909000000b003094e647a28mr2029549wrd.49.1685463121984; 
- Tue, 30 May 2023 09:12:01 -0700 (PDT)
+ bh=PXXxKnRvMOF+CPjYfKEygZupqtBPL6uEzDsFClnEJ3U=;
+ b=G5WbVvkrxyCEy876EhsLpb5UBDOD3je3ss+UCeDRb5Oxq5CkkpRc+bOp+P1wVSl/Z6
+ mgZSwh5NbgHiSPg9kWYXZG684DblRCIfoKyyXGdR3kPHbDYaqpoaSTNZL0oAKJsC2MIA
+ ppWlqkX95sXYUUQAeGIcg3KH9ANm51jCCexNRAAhHg5aeSLcSZSiyiiUf76HgiLgnE0i
+ h0FSnqkisHIylYx5wmE7jilwofAwdtOi2qP1LGHMTmIezj3fl44n8FmA11bz65te8YWD
+ JuhS18Sqx7X98dhhDsHRjXuR2qFtfhBfnMnnpXl8zG6JyKnrHIKNu09immyPZgVY1e+G
+ 5W6Q==
+X-Gm-Message-State: AC+VfDwrCjWGs1V98t94/pVMXAlWMsxeYpvP1fosGcbLe7bBn0gSL9To
+ JerBhZ6VFgvm6yesXnr1TzV7zlNXXRdotHkocWv8i6k009el+aL1t0khQQBysYBIfbZUnHi3+9x
+ KAVdsg3QkaEy3hPRnNyQAGXvCG2DMZ9ls1qBzxY6UPw==
+X-Received: by 2002:a05:600c:3787:b0:3f6:1e6:d5a2 with SMTP id
+ o7-20020a05600c378700b003f601e6d5a2mr1912247wmr.4.1685463426375; 
+ Tue, 30 May 2023 09:17:06 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6JJkBsRON0rkAHj+JwffsCltg3bPYMz+mQckZWzt5fCsTTE3DG9uwIij60afTolUjor/lsmQ==
+X-Received: by 2002:a05:600c:3787:b0:3f6:1e6:d5a2 with SMTP id
+ o7-20020a05600c378700b003f601e6d5a2mr1912237wmr.4.1685463426114; 
+ Tue, 30 May 2023 09:17:06 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-12-25-16.business.telecomitalia.it.
  [87.12.25.16]) by smtp.gmail.com with ESMTPSA id
- l9-20020adfe589000000b00307c8d6b4a0sm3781887wrm.26.2023.05.30.09.12.00
+ f10-20020a7bc8ca000000b003f42ceb3bf4sm17673875wml.32.2023.05.30.09.17.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 30 May 2023 09:12:01 -0700 (PDT)
-Date: Tue, 30 May 2023 18:11:58 +0200
+ Tue, 30 May 2023 09:17:05 -0700 (PDT)
+Date: Tue, 30 May 2023 18:17:00 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Mike Christie <michael.christie@oracle.com>
 Subject: Re: [syzbot] [kvm?] [net?] [virt?] general protection fault in
  vhost_work_queue
-Message-ID: <4opfq7hcowqwmz2hzpfcu3icx3z6ce4vmn6pkaeeqxnclgvjd6@x7lyji2owgae>
+Message-ID: <6p7pi6mf3db3gp3xqarap4uzrgwlzqiz7wgg5kn2ep7hvrw5pg@wxowhbw4e7w7>
 References: <0000000000001777f605fce42c5f@google.com>
  <20230530072310-mutt-send-email-mst@kernel.org>
  <CAGxU2F7O7ef3mdvNXtiC0VtWiS2DMnoiGwSR=Z6SWbzqcrBF-g@mail.gmail.com>
- <85836a9b-b30a-bdb6-d058-1f7c17d8e48e@oracle.com>
- <c87f0768-027b-c192-1baf-05273aac382b@oracle.com>
+ <CAGxU2F7HK5KRggiY7xnKHeXFRXJmqcKbjf3JnXC3mbmn9xqRtw@mail.gmail.com>
+ <e4589879-1139-22cc-854f-fed22cc18693@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <c87f0768-027b-c192-1baf-05273aac382b@oracle.com>
+In-Reply-To: <e4589879-1139-22cc-854f-fed22cc18693@oracle.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -130,44 +130,45 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, May 30, 2023 at 11:01:11AM -0500, Mike Christie wrote:
->On 5/30/23 10:58 AM, Mike Christie wrote:
->> On 5/30/23 8:44 AM, Stefano Garzarella wrote:
->>>
->>> From a first glance, it looks like an issue when we call vhost_work_queue().
->>> @Mike, does that ring any bells since you recently looked at that code?
->>
->> I see the bug. needed to have set the dev->worker after setting worker->vtsk
-
-Yes, I came to the same conclusion (see my email sent at the same time
-:-).
-
->> like below:
->>
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index a92af08e7864..7bd95984a501 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -564,7 +564,6 @@ static int vhost_worker_create(struct vhost_dev *dev)
->>  	if (!worker)
->>  		return -ENOMEM;
->>
->> -	dev->worker = worker;
->>  	worker->kcov_handle = kcov_common_handle();
->>  	init_llist_head(&worker->work_list);
->>  	snprintf(name, sizeof(name), "vhost-%d", current->pid);
->> @@ -576,6 +575,7 @@ static int vhost_worker_create(struct vhost_dev *dev)
->>  	}
->>
->>  	worker->vtsk = vtsk;
+On Tue, May 30, 2023 at 11:09:09AM -0500, Mike Christie wrote:
+>On 5/30/23 11:00 AM, Stefano Garzarella wrote:
+>> I think it is partially related to commit 6e890c5d5021 ("vhost: use
+>> vhost_tasks for worker threads") and commit 1a5f8090c6de ("vhost: move
+>> worker thread fields to new struct"). Maybe that commits just
+>> highlighted the issue and it was already existing.
 >
->Shoot, oh wait, I think I needed a smp_wmb to always make sure worker->vtask
->is set before dev->worker or vhost_work_queue could still end up seeing
->dev->worker set before worker->vtsk right?
+>See my mail about the crash. Agree with your analysis about worker->vtsk
+>not being set yet. It's a bug from my commit where I should have not set
+>it so early or I should be checking for
+>
+>if (dev->worker && worker->vtsk)
+>
+>instead of
+>
+>if (dev->worker)
 
-But should we pair smp_wmb() with an smp_rmb() wherever we check 
-dev->worker?
+Yes, though, in my opinion the problem may persist depending on how the
+instructions are reordered.
+
+Should we protect dev->worker() with an RCU to be safe?
+
+>
+>One question about the behavior before my commit though and what we want in
+>the end going forward. Before that patch we would just drop work if
+>vhost_work_queue was called before VHOST_SET_OWNER. Was that correct/expected?
+
+I think so, since we ask the guest to call VHOST_SET_OWNER, before any
+other command.
+
+>
+>The call to vhost_work_queue in vhost_vsock_start was only seeing the
+>works queued after VHOST_SET_OWNER. Did you want works queued before that?
+>
+
+Yes, for example if an application in the host has tried to connect and
+is waiting for a timeout, we already have work queued up to flush as
+soon as we start the device. (See commit 0b841030625c ("vhost: vsock:
+kick send_pkt worker once device is started")).
 
 Thanks,
 Stefano
