@@ -1,121 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 183ADC7EE24
-	for <virtualization@archiver.kernel.org>; Tue, 30 May 2023 23:16:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD15CC77B7A
+	for <virtualization@archiver.kernel.org>; Wed, 31 May 2023 00:33:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 93EEC821A2;
-	Tue, 30 May 2023 23:16:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93EEC821A2
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=A6P9MRUq
+	by smtp3.osuosl.org (Postfix) with ESMTP id 50972607B0;
+	Wed, 31 May 2023 00:33:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 50972607B0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=NSprOvAN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ib9HrtVkThMw; Tue, 30 May 2023 23:16:16 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Im7fjFAHQd95; Wed, 31 May 2023 00:33:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F20CB821A5;
-	Tue, 30 May 2023 23:16:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F20CB821A5
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A396A60615;
+	Wed, 31 May 2023 00:33:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A396A60615
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C3C75C0035;
-	Tue, 30 May 2023 23:16:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D9A2BC002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68445C0037;
+	Wed, 31 May 2023 00:33:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 59FD7C002A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 23:16:13 +0000 (UTC)
+ Wed, 31 May 2023 00:33:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id AB45E4171B
+ by smtp4.osuosl.org (Postfix) with ESMTP id 34235408CC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 23:16:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AB45E4171B
+ Wed, 31 May 2023 00:33:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 34235408CC
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org
- header.a=rsa-sha256 header.s=google header.b=A6P9MRUq
+ dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
+ header.a=rsa-sha256 header.s=google header.b=NSprOvAN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id l4qT_xIDlI6N
+ with ESMTP id VW_vlfkekXxP
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 23:16:11 +0000 (UTC)
+ Wed, 31 May 2023 00:33:36 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7C14241612
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com
- [IPv6:2607:f8b0:4864:20::42d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7C14241612
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CA1C9408B1
+Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com
+ [IPv6:2607:f8b0:4864:20::831])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CA1C9408B1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 23:16:11 +0000 (UTC)
-Received: by mail-pf1-x42d.google.com with SMTP id
- d2e1a72fcca58-64d1a0d640cso3842688b3a.1
+ Wed, 31 May 2023 00:33:35 +0000 (UTC)
+Received: by mail-qt1-x831.google.com with SMTP id
+ d75a77b69052e-3f8115ca685so25003171cf.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 May 2023 16:16:11 -0700 (PDT)
+ Tue, 30 May 2023 17:33:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=chromium.org; s=google; t=1685488571; x=1688080571;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date:from:to
- :cc:subject:date:message-id:reply-to;
- bh=q6wOdCsvPcfL1AGuKhq7si1i+l1tB9VGHRhgBuI4hFQ=;
- b=A6P9MRUqWxltKJ9Zgwok7DSDRoOxoww2FWlF6WQO1tYgoM5+Hi0Ez2oEaQQjsD1m8R
- d4fRiNfemEoHsLbKtPfU643qi1eTaIaRbZTrXG8PIKxDT7zOE/fxQqSHWBsVd7zxgsD9
- 9LmT/yPeVeEdIlXyQ0jganlgblNgnS7PESvrk=
+ d=ziepe.ca; s=google; t=1685493214; x=1688085214;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=YxfeX6CjU1T6VFT6WQGkkGRNUy8IJFRL+Q8oTwikiYE=;
+ b=NSprOvANr8rmmNMRfGUGQhrlbjOY3VNneKCREemdYMFsq+wZseIXs4cVn2cfctqTC4
+ l/Fex2UztpB64Sv6bVKzNW2Qn0dqqb5NbD1cJWjIOn75Zk0NXfpMON7ItM9ydFy5Ew5U
+ s1hUijdnCq5qu7Zs5EJmJe13GN3xQ65TBxqudO3SU+vn3Sqj6RrsWVsk2oCYcnPG3p84
+ jQDN28rHXrMKZ637sGrN6F/CCcU4XEcphoJElhcnaXxrFBaFj8p/dlxWO0sR9zCxF7Dn
+ z3eQ+08mRG3B2cvqFNdTFZputqdjR8OXMmJun0qCmRxWBxzTeKu07oZNguwRyhjTnf+2
+ ghdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685488571; x=1688080571;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=q6wOdCsvPcfL1AGuKhq7si1i+l1tB9VGHRhgBuI4hFQ=;
- b=ZzHgItj/JXIUU0FTYEVidZ5NgkMqySfMEwCxkHBKovT049ASfBRUt8ZBEQUu3rJphi
- jMBMpIj1wFi80g8KZqgtv8H4DXGc+6Q+E0DQX07ycyO9QukJoaM3tBtoIN9BQ5YcuD1E
- as7kP39258amUZN903kG+FVt4nzswd4veKPrvJlm0LJbTNPYPPpTiLFYkY3SOXgfuY1d
- oifsjB6iXsgvy8+AxhzpGjzzdGSwYhGhE6gu/UX1gJiZ7iwnzje/MGpUxPbvfURPMbrr
- w7ArR6eWK53qUsynF7q74JIi+pja55bR9IN8JOnAqUXa4pqMeDcMTGYZ2Ex4wFwexwoV
- 2m0Q==
-X-Gm-Message-State: AC+VfDx4WfnMhKLCG1O/ZGf+ojLv9WEdGcKUhf9Wk5rQhps1UlqKRNhw
- iP9Q4wj+Nyjk/O2vkSD3PYdIvQ==
-X-Google-Smtp-Source: ACHHUZ5vUXK2I/pfuTav0TBfWy3DDrvFJsd+7uESTSUanu+Vl50RByVZpLds9PiU8F5GGbjiErQYOQ==
-X-Received: by 2002:a05:6a00:10c4:b0:646:663a:9d60 with SMTP id
- d4-20020a056a0010c400b00646663a9d60mr4308038pfu.10.1685488570875; 
- Tue, 30 May 2023 16:16:10 -0700 (PDT)
-Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net.
- [198.0.35.241]) by smtp.gmail.com with ESMTPSA id
- v22-20020aa78516000000b0063d3d776910sm2123773pfn.138.2023.05.30.16.16.10
+ d=1e100.net; s=20221208; t=1685493214; x=1688085214;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=YxfeX6CjU1T6VFT6WQGkkGRNUy8IJFRL+Q8oTwikiYE=;
+ b=NIN68PW4d3vHctXx4Nq4iuy6Xi+PEon8FVZ4mIfecQ1xm5VQYz+qJer1aCgFNaqXwz
+ DfFZl/AryBS91oSWqMjduwE7Cqm1Qk1I7lSm4LJfCbEc0Isbwb7MJ01TWHQevY/jHH3Q
+ 12DNbbKpnIDTt0GdMBG44ZAiWSwAtB7l3YbkcRE6VrVT8GyMFgdZ2L9+dtyUEAT8ato3
+ b87WAni+j8ey5ZplTGRZWOTMDWPbD4B+ljWYTGNGcBvdDpHIPMPZQjljjxlL6TnSa5Bf
+ 8x4TA8xvLwxkZodJ7N4uDE6T5ReqbQzeWYoiL+Z37tfOXNAJfKuBDUfyJE9Ir/iOuHND
+ 210Q==
+X-Gm-Message-State: AC+VfDxUH98hLOK9EG5e09H6UC8kDKHvSfvl4sxseJdFLcNsQaeb+Wgx
+ 0LRBHIr7wqbCNGb4gzzwkZ5Srw==
+X-Google-Smtp-Source: ACHHUZ76cGYRoxD2nR+OVC7+AsKBaaMRBv2OxrvCIPruwBslaqJO8TAA8q2yEjn3iVhl/m095jOZyA==
+X-Received: by 2002:a05:622a:198f:b0:3f6:c52e:21bc with SMTP id
+ u15-20020a05622a198f00b003f6c52e21bcmr4111272qtc.19.1685493214434; 
+ Tue, 30 May 2023 17:33:34 -0700 (PDT)
+Received: from ziepe.ca ([206.223.160.26]) by smtp.gmail.com with ESMTPSA id
+ ff27-20020a05622a4d9b00b003f6bbd7863csm5256617qtb.86.2023.05.30.17.33.33
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 30 May 2023 16:16:10 -0700 (PDT)
-Date: Tue, 30 May 2023 16:16:09 -0700
-From: Kees Cook <keescook@chromium.org>
-To: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
-Subject: Re: [PATCH v1 5/9] KVM: x86: Add new hypercall to lock control
- registers
-Message-ID: <202305301614.BF8D80D3D5@keescook>
-References: <20230505152046.6575-1-mic@digikod.net>
- <20230505152046.6575-6-mic@digikod.net>
- <ZFlllHjntehpthma@liuwe-devbox-debian-v2>
- <901ff104-215c-8e81-fbae-5ecd8fa94449@digikod.net>
+ Tue, 30 May 2023 17:33:33 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+ (envelope-from <jgg@ziepe.ca>) id 1q49mO-000kYe-OG;
+ Tue, 30 May 2023 21:33:32 -0300
+Date: Tue, 30 May 2023 21:33:32 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Subject: Re: [RFC PATCHES 00/17] IOMMUFD: Deliver IO page faults to user space
+Message-ID: <ZHaV3GwYXCvfNUBn@ziepe.ca>
+References: <20230530053724.232765-1-baolu.lu@linux.intel.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <901ff104-215c-8e81-fbae-5ecd8fa94449@digikod.net>
-Cc: linux-hyperv@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
- kvm@vger.kernel.org, =?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- John Andersen <john.s.andersen@intel.com>, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org, linux-hardening@vger.kernel.org,
- "H . Peter Anvin" <hpa@zytor.com>, Will Deacon <will@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Wei Liu <wei.liu@kernel.org>,
- Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>, x86@kernel.org,
- James Morris <jamorris@linux.microsoft.com>,
- "Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>,
- Marian Rotariu <marian.c.rotariu@gmail.com>, Ingo Molnar <mingo@redhat.com>,
- xen-devel@lists.xenproject.org, Forrest Yuan Yu <yuanyu@google.com>,
- dev@lists.cloudhypervisor.org, Thara Gopinath <tgopinath@microsoft.com>,
- =?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
- Borislav Petkov <bp@alien8.de>, Paolo Bonzini <pbonzini@redhat.com>,
- Zahra Tarkhani <ztarkhani@microsoft.com>,
- Sean Christopherson <seanjc@google.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, Alexander Graf <graf@amazon.com>,
- Rick Edgecombe <rick.p.edgecombe@intel.com>
+In-Reply-To: <20230530053724.232765-1-baolu.lu@linux.intel.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Yi Liu <yi.l.liu@intel.com>, Will Deacon <will@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
+ linux-kselftest@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,77 +114,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 29, 2023 at 06:48:03PM +0200, Micka=EBl Sala=FCn wrote:
-> =
+On Tue, May 30, 2023 at 01:37:07PM +0800, Lu Baolu wrote:
+> Hi folks,
+> 
+> This series implements the functionality of delivering IO page faults to
+> user space through the IOMMUFD framework. The use case is nested
+> translation, where modern IOMMU hardware supports two-stage translation
+> tables. The second-stage translation table is managed by the host VMM
+> while the first-stage translation table is owned by the user space.
+> Hence, any IO page fault that occurs on the first-stage page table
+> should be delivered to the user space and handled there. The user space
+> should respond the page fault handling result to the device top-down
+> through the IOMMUFD response uAPI.
+> 
+> User space indicates its capablity of handling IO page faults by setting
+> a user HWPT allocation flag IOMMU_HWPT_ALLOC_FLAGS_IOPF_CAPABLE. IOMMUFD
+> will then setup its infrastructure for page fault delivery. Together
+> with the iopf-capable flag, user space should also provide an eventfd
+> where it will listen on any down-top page fault messages.
+> 
+> On a successful return of the allocation of iopf-capable HWPT, a fault
+> fd will be returned. User space can open and read fault messages from it
+> once the eventfd is signaled.
 
-> On 08/05/2023 23:11, Wei Liu wrote:
-> > On Fri, May 05, 2023 at 05:20:42PM +0200, Micka=EBl Sala=FCn wrote:
-> > > This enables guests to lock their CR0 and CR4 registers with a subset=
- of
-> > > X86_CR0_WP, X86_CR4_SMEP, X86_CR4_SMAP, X86_CR4_UMIP, X86_CR4_FSGSBASE
-> > > and X86_CR4_CET flags.
-> > > =
+This is a performance path so we really need to think about this more,
+polling on an eventfd and then reading a different fd is not a good
+design.
 
-> > > The new KVM_HC_LOCK_CR_UPDATE hypercall takes two arguments.  The fir=
-st
-> > > is to identify the control register, and the second is a bit mask to
-> > > pin (i.e. mark as read-only).
-> > > =
+What I would like is to have a design from the start that fits into
+io_uring, so we can have pre-posted 'recvs' in io_uring that just get
+completed at high speed when PRIs come in.
 
-> > > These register flags should already be pinned by Linux guests, but on=
-ce
-> > > compromised, this self-protection mechanism could be disabled, which =
-is
-> > > not the case with this dedicated hypercall.
-> > > =
+This suggests that the PRI should be delivered via read() on a single
+FD and pollability on the single FD without any eventfd.
 
-> > > Cc: Borislav Petkov <bp@alien8.de>
-> > > Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> > > Cc: H. Peter Anvin <hpa@zytor.com>
-> > > Cc: Ingo Molnar <mingo@redhat.com>
-> > > Cc: Kees Cook <keescook@chromium.org>
-> > > Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > > Cc: Sean Christopherson <seanjc@google.com>
-> > > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > > Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-> > > Cc: Wanpeng Li <wanpengli@tencent.com>
-> > > Signed-off-by: Micka=EBl Sala=FCn <mic@digikod.net>
-> > > Link: https://lore.kernel.org/r/20230505152046.6575-6-mic@digikod.net
-> > [...]
-> > >   	hw_cr4 =3D (cr4_read_shadow() & X86_CR4_MCE) | (cr4 & ~X86_CR4_MCE=
-);
-> > >   	if (is_unrestricted_guest(vcpu))
-> > > diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> > > index ffab64d08de3..a529455359ac 100644
-> > > --- a/arch/x86/kvm/x86.c
-> > > +++ b/arch/x86/kvm/x86.c
-> > > @@ -7927,11 +7927,77 @@ static unsigned long emulator_get_cr(struct x=
-86_emulate_ctxt *ctxt, int cr)
-> > >   	return value;
-> > >   }
-> > > +#ifdef CONFIG_HEKI
-> > > +
-> > > +extern unsigned long cr4_pinned_mask;
-> > > +
-> > =
+> Besides the overall design, I'd like to hear comments about below
+> designs:
+> 
+> - The IOMMUFD fault message format. It is very similar to that in
+>   uapi/linux/iommu which has been discussed before and partially used by
+>   the IOMMU SVA implementation. I'd like to get more comments on the
+>   format when it comes to IOMMUFD.
 
-> > Can this be moved to a header file?
-> =
+We have to have the same discussion as always, does a generic fault
+message format make any sense here?
 
-> Yep, but I'm not sure which one. Any preference Kees?
+PRI seems more likely that it would but it needs a big carefull cross
+vendor check out.
 
-Uh, er, I was never expecting that mask to be non-static. ;) To that
-end, how about putting it in arch/x86/kvm/x86.h ?
-
--- =
-
-Kees Cook
+Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
