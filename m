@@ -1,116 +1,224 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D20FC77B7E
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jun 2023 14:49:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAAB8C7EE2A
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jun 2023 16:11:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D792842535;
-	Thu,  1 Jun 2023 14:49:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D792842535
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gootzen.net header.i=@gootzen.net header.a=rsa-sha256 header.s=aw2020113001 header.b=nSq1pOY3
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Fbr89RbWAAvr; Thu,  1 Jun 2023 14:49:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AA1EE4252C;
-	Thu,  1 Jun 2023 14:49:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AA1EE4252C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 81B9BC0037;
-	Thu,  1 Jun 2023 14:49:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4083DC0029
- for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 14:49:17 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1421560FC9
- for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 14:49:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1421560FC9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 34DEF6135E;
+	Thu,  1 Jun 2023 16:11:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34DEF6135E
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=gootzen.net header.i=@gootzen.net
- header.a=rsa-sha256 header.s=aw2020113001 header.b=nSq1pOY3
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=0dGP5EVF;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=S33QLx9j
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7qx_ilMmeCJZ; Thu,  1 Jun 2023 16:11:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AA9D760B1F;
+	Thu,  1 Jun 2023 16:11:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AA9D760B1F
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C46AC0037;
+	Thu,  1 Jun 2023 16:11:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF4F7C0029
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  1 Jun 2023 16:11:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C157F6135E
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  1 Jun 2023 16:11:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C157F6135E
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Zi_ScsbFfN1W
+ with ESMTP id 6YwB6g8GChlP
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 14:49:13 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 27AE8613A3
-Received: from arg-plspam-c1n2.mailshover.nl (arg-plspam-c1n2.mailshover.nl
- [145.131.15.42])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 27AE8613A3
+ Thu,  1 Jun 2023 16:11:23 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BA44B60B1F
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BA44B60B1F
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 14:49:12 +0000 (UTC)
-Received: from gw.mailshover.nl ([2001:678:76c:1:3996::58]
- helo=arg-plsmtp-c1n2.argewebhosting.nl)
- by arg-plspam-c1n2.mailshover.nl with esmtp (Exim 4.92)
- (envelope-from <peter-jan@gootzen.net>)
- id 1q4jbw-00BsmT-Cx; Thu, 01 Jun 2023 16:49:09 +0200
-Received: from [192.168.83.229] (77-63-74-5.mobile.kpn.net [77.63.74.5])
- (Authenticated sender: peter-jan@gootzen.net)
- by arg-plsmtp-c1n2.argewebhosting.nl (Postfix) with ESMTPA id BC891205E4D0;
- Thu,  1 Jun 2023 16:49:07 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 arg-plsmtp-c1n2.argewebhosting.nl
- BC891205E4D0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gootzen.net;
- s=aw2020113001; t=1685630947;
- bh=SRoS/Iynd9JW8GnCelXRVWY7tukErst3VzmD3Q2Oes0=;
- h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
- b=nSq1pOY3wd30cAo0n6lIAjxgxgMssW1+fjbTgNCHoHbbfJG7fTonEWCXPwLogJgvw
- Je+ZfK/Ckz3AMU1coRi/V7CVkoZoNcW3Mvll7iqokahsleMNEpTprGIbKcNKhorJV1
- OKbFNFS/7PAXX+YrxIo9hpV5RDpS+QPAdLjjjwdQzwoDELvFuQBPAUrP2YpX5kjw7n
- /qr9Tw8vTuXa2THmXaP2ejh0CYY/YpBp8nqmMNM7+aag1ji4aFqvuGp9Xt0wxuzm5v
- 95llI9rBQGIRSB/yN6FDyP3njuqxvlR+Bs7uQKtaXMD0BG7ssAsevZI3gWQYTowyNZ
- ORu7uD3crazlQ==
-Message-ID: <07667704-3409-3ad8-6944-b485369e5022@gootzen.net>
-Date: Thu, 1 Jun 2023 16:49:06 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.11.0
-Subject: Re: [PATCH V2] virtio-fs: Improved request latencies when Virtio
- queue is full
+ Thu,  1 Jun 2023 16:11:22 +0000 (UTC)
+Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 351E46tt030617; Thu, 1 Jun 2023 16:10:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-03-30;
+ bh=RtwBzr/iKfHvXce0VIFmH/gyvi3nig12Zy8/f1O36eE=;
+ b=0dGP5EVFvyvddaZfV/0Tqi64+mSfPXYlRECgkubqUG8bPP6P3W4bPkWvHiVwxDiTQhQY
+ sy/rXV34qev0E040abk7/4fJp7WCvg37B2vUbjUa9U2spPfAABKQVnhJ3I+r7SeaV1U8
+ rq90qeJB7A2FxX4IgMD26GqYma0d27zdoINLWNf7k8jJg87o3DPzO3BF+wO+5DHOfgeh
+ 9rKorJdVEHyRylltKBP1VpMkwL0ZRpUGDCWDxbBu+B0qPG1DoP4gJwoxWmkvlz1+hLEC
+ 1s3/0OrO7t2ex6QGFfk2gvQQ//SZ/FFBYccNHr8jMKqrydHx6olhBb5dl4CJX6W/RYE0 aw== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qvhmes5uf-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 01 Jun 2023 16:10:57 +0000
+Received: from pps.filterd
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 351FTCXV014719; Thu, 1 Jun 2023 16:10:56 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com
+ (mail-bn1nam02lp2042.outbound.protection.outlook.com [104.47.51.42])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3qu8a7dd4u-2
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 01 Jun 2023 16:10:56 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=irJ8DgGiZ1L++iJQM2I81UlQmPskONxIo3tPLoDLbY457zuWWszsgxrxYyg1gBUE+K8xcWrR6MAreVYMfcZHrz/PajoolvDn0Y68MxSiEW7dwVtMw4jgiOqibGBhHfViKLZtxOj3x0YWEIXMhgb/06im0XFKSjqeyKtnXSIGkfc2xYHPw37C9ahupPjQbNWfV29ilsslmTlIiZ7I3be+VjnQaPMxBiE/XBkPfX/nusXm9NVX83/W0iWlxDx6GixIuLrH8UqCk+v79KA+Je9L2xMGljeJqzRS0URwHWalbrRH/oT/3NfCT6/d6kVY03UwrS85oonmpcPyCwQCPCI34A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=RtwBzr/iKfHvXce0VIFmH/gyvi3nig12Zy8/f1O36eE=;
+ b=HT2m+0NMdkqHnpLqHAghsvX2y0uns+OworfTg7r/EnEfWumgv1xOygmjXbV3bUsDQ2AQSjTtexEtAwHwe2gPdZtL1DZrIPZQMSQuL56XApAY3se77xCCl76mJWG/vKCaLIwZwz+vRnH034Oo0T745yTRcVqH8O/6NEDjHpOpy9SqaMlPmFw3OCl0PcnzTM7Xud9IpzzuAKSDbMd798V0m9jv9MWiyGX1dMuIETVyCVDXo2dvKw1PkUR9kKBxA3uhFzEjpUXi3zjUEk1+9ozaHvbJMRhFIDVSvyeBdJnNIYYuLIIRdd+3PBuA54lLmKkPPf74NYiXkUSUxVVOchht4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RtwBzr/iKfHvXce0VIFmH/gyvi3nig12Zy8/f1O36eE=;
+ b=S33QLx9jxi8uefn/mWjjjDIC4zvnG0iafoSk8uQ/wrFBqA35aB63kaBks3NM6wkKaELGdIlk+IlLyZlSXKYe9zA0YPvldUsTg75/d61RB7stoU66mR9bk1uOS5BCouy+X5nFw1m2dqRyEmOiCp7drMJlEkTwU8jTo0TGpcjR+rE=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by SJ0PR10MB7691.namprd10.prod.outlook.com (2603:10b6:a03:51a::9)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6433.23; Thu, 1 Jun
+ 2023 16:10:54 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559%5]) with mapi id 15.20.6433.024; Thu, 1 Jun 2023
+ 16:10:54 +0000
+Message-ID: <2ccdf297-0998-d1a8-5a66-0abdc6e37c1b@oracle.com>
+Date: Thu, 1 Jun 2023 11:10:50 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.2
+Subject: Re: [RFC PATCH 0/8] vhost_tasks: Use CLONE_THREAD/SIGHAND
 Content-Language: en-US
-To: Stefan Hajnoczi <stefanha@redhat.com>, Vivek Goyal <vgoyal@redhat.com>
-References: <20230531171031.1424338-1-peter-jan@gootzen.net>
- <ZHedgNu89LoiW4sZ@redhat.com>
- <02ad6a48-6db7-fab5-721e-2d940d4a664a@gootzen.net>
- <ZHey45k+V8sP2F6l@redhat.com> <20230601140850.GF1538357@fedora>
-In-Reply-To: <20230601140850.GF1538357@fedora>
-X-Originating-IP: 2001:678:76c:1:3996::58
-X-SpamExperts-Domain: out.mailshover.nl
-X-SpamExperts-Username: 2001:678:76c:1:3996::58
-Authentication-Results: mailshover.nl; auth=pass
- smtp.auth=2001:678:76c:1:3996::58@out.mailshover.nl
-X-SpamExperts-Outgoing-Class: unsure
-X-SpamExperts-Outgoing-Evidence: Combined (0.50)
-X-Recommended-Action: accept
-X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT90jVzTLJt3vj6cAu5S4eQ0PUtbdvnXkggZ
- 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5xzOoHxWscew68UvLJqW/V1opzyoDuAP4C0aaz3STa5zA+i
- +LgxjoYkXCbk6qYg3TLiBCq0YCJmjpNMbRTU3wgrC0Y3u/qphs34dTesYrpa6tiW8BKfyIS6EHTV
- hG8std+lEPHKAzuJoUDzV774tvkniFloh3x3CR4Jb2gWRrpPKG0sS4NT/S7hraIXwgzzV4aouJYi
- QWxaMB85XLIGw32ggM1FjTV5UXzaWZFiY/IuWRLx/Du65BKz/oEcyvz1uhV1UWVvvdkzh9/Seh7h
- SLJU1ktV7ekmGpxaAJ/k28IIq/fPjylt/HZ8k1j7Ut/7PLZ4sHptmj4KtYP0wWf5ni5f7Ogv5mRk
- S/8bWrZGatZmbSSp6wqBiWgCUvpQC7hp792Kjeyl92hTDJK+4O0vOmkQc1UkGqjsciyILerEw8FX
- FnC9J8Tfx0FDPUDJU5K58QZrH/iEgzfzmnMXBIwMoePog2OkM5zMbrn2rUwXJSugd8VmzzAQ6gJW
- hVbNViZCOWKRNtlfJySsZ2eS9qGTagUdlCnL4IjEaJi/Te03jgZkrrEp5+1QCuHCTUw0ggLUf54P
- bqpDL7OvFc18bWQRihVmn+UCB3F67PeP7Iep2w5lJ/gPneWh5kublaxZVQoA47wpOMQJvQ/Ck3ii
- U+4DQAj3DhYpgwxEDQuH7GNpv2Hu1lWbvKBSWz9JL+ncH+8owBXh81G7jrpdN7mVSzj08dE/Vqh+
- p1fAN4lz32ween1ENfns9RKYgRr/zO6Pq7dkcZCRq3oTg7MWD+ZQoaUmN03jRfRyWTWs40tiYHh/
- OVIkQNEvdUolNl0YNdMUajomuQYN/2oiLQnPnhxk6tgp0mibbPhjo3exrvNYlwUjtixib2avL+YD
- c2YHUzAZPzd03lfeLwwWMKXDYWRmRiEAGsmgDO7nA7k6cOyQxjQhps+jdFz1pRXWhjh9fdbl44I0
- Df3UANye5mij+Mqql8NZoGGE1H07YtaUHC2h22rHSV+m0L6jX0Is2t8eEL3ZqG06ZzoMifa29zXh
- hznXry6IqJnerLfiFNb0FFyRjT8NmcTq0ZsK3TexxWxyube0LJjGSj+jnQa75Jum1feMIVfUDmU/
- w0m9OyPDekvkd3BNWiTFSFOlxsY77ASAZB1sLAji3Opi4pBglvBqtTQxJduSkSzRv5CQHId5vY1x
- DTpc1F/nsvY4ocfmWv3Fe9Iziczdq+A=
-X-Report-Abuse-To: spam@arg-plspam-c1n0.mailshover.nl
-Cc: miklos@szeredi.hu, virtualization@lists.linux-foundation.org
+To: Christian Brauner <brauner@kernel.org>,
+ Thorsten Leemhuis <linux@leemhuis.info>,
+ Linus Torvalds <torvalds@linux-foundation.org>
+References: <20230519-vormittag-dschungel-83607e9d2255@brauner>
+ <ab8c9f95-c9e9-de04-4e28-78163a32da80@leemhuis.info>
+ <20230601-herzallerliebst-dschungel-4515db351a0c@brauner>
+From: Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <20230601-herzallerliebst-dschungel-4515db351a0c@brauner>
+X-ClientProxiedBy: DM6PR17CA0022.namprd17.prod.outlook.com
+ (2603:10b6:5:1b3::35) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|SJ0PR10MB7691:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4373a65b-c45b-48b2-94ad-08db62bac68f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SlcxUm+IKOZARjc8PZydaHAJYeXQ72y+MFDNfBLYBfoEpbqtT3rZcBBVeILXrUsRIEuiMAcpv+S+CdW8+G/1wAUAEalQROH9yMdyoJm8PS5N29mjZYfDSNWt3YTXKkVb1yYkFc7GHdRnr2KDX+RgVNE9jzMLoKRzBaDzxXurMI5WIGi/f5pC0+JdzGZ/4xlssoGBQ0oQSbXt3vupzmtfPS0SAurlR4HK6+wikzyDFZiIS5Wea4NMrSsdwXKySgxmwFCeSFoxOJVO8ZQ8pvdPg7hghlcUW9cc7dbppF0AbuhqCGy7yqEX4enAN+UArX7m93QIoyQ0YjSU01ZK3k5MPXvtj9dgirhZ5ulYj5JW2ZpEqmzZOVEkPbaQZolgAK41wzGsukj2IHHWgeTlHTv8mv3pMGYWzyXeGHIcV1akVqcUTfyFNGIztPjQk+k73rI8W38/sgfdRIj5eHDfH1Ze8HVLs4ugSCO7fWWV2+hhtx7k2DrnncG81+9wxX8tKwlHpLHWMdiHCFbinBeXbVBpmtweW8HqWw3t7KazkShM23nyCywGzD5ICfMP+iPJPNqir95HA6knRJycIsSnixCKRAcyBi5nW5yIn6ystyoSTqboSWBQ3IsNgtx145pGRLGdZMTKyadgRGUL3K6HIMzR6A==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(376002)(346002)(136003)(396003)(39860400002)(366004)(451199021)(478600001)(8936002)(110136005)(4326008)(41300700001)(8676002)(86362001)(5660300002)(6666004)(6486002)(316002)(66946007)(7416002)(107886003)(31686004)(53546011)(66476007)(6512007)(6506007)(66556008)(26005)(31696002)(186003)(83380400001)(2906002)(2616005)(36756003)(38100700002)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UDdSU2FhWU85dzJVZnNtWEc5U3E1N29vemh1UWhMMWs0Y0ZOMEJQQ1V1QURq?=
+ =?utf-8?B?MFdpaFAxaXE4NGJOcnAzNVhJTHRwUy9hWmtmSGVkN1pSdFovRysvcGRHek5Y?=
+ =?utf-8?B?SWtSakpDaVpDckZ2bXNPemJkWkxvSHI1bEF3WXVmT3RXdk9NL1NRZW1Kd21q?=
+ =?utf-8?B?R1NBQzg3Tm1aSUpyRUtNUm8vQUluei9RZkdpNmlTRFgvS2lldldKSWxKTGYw?=
+ =?utf-8?B?Yy9jUEcxaWsyNFI2MnZ6dHBsdVVld2tja2pyNlVKOGRpZ1k1UTl4VnNCL3cx?=
+ =?utf-8?B?SE1kNDdnZjVoTmYrd1U5eFJURERDUnhkMG9oekVNc3o4N3BiV2RLTWEvM3E1?=
+ =?utf-8?B?RkswOXdDUndzang1d0lnTmI0dS9TL0tGWEViZ0dVb1NlWklXU1JCTUluYjcy?=
+ =?utf-8?B?R3hpQno2VVdSbkpkd1QxSTk2anF1bFZVMDB6RzAvTEJKNnVXY3JuNk5WZzZQ?=
+ =?utf-8?B?RjQwa3BTbGhvT2pxY296cDNTT2lLb0dPcVVrL1ZSTXdNNEdsUTRXdTlzL0VK?=
+ =?utf-8?B?T3JKSkl5WDBKSkpMeXZyWGlNZ3hvTnczeUl1SFk5VFFBLyt2ZkhIRVowRDh2?=
+ =?utf-8?B?d1lraVZDNFBkOFpxdTh5emJCbmJBQ1RpR2RORWVkRW1NY3prcmRBYkhST3Yy?=
+ =?utf-8?B?YS9WQkdKc1BQMnU1aW9VN29rMmVpRDk0aHk1L2F1Y1JsOWJLNTdpT0RiTmhM?=
+ =?utf-8?B?NHZ3MEtyRnQ0elVwTEF5MVZNZGFBeDIvL2NZeEdmc1FOQkt5UlFzUVIxWHJC?=
+ =?utf-8?B?TmpiSUlVOG0zVjZpMTJpQzVTTTY1bVErNWJsSEtHaHRic1MrcU5aVG1YTzls?=
+ =?utf-8?B?Yy9ldTNGWEdXZkFpM2ROQTU5UU4rS3kySlU4blV6amlIVXdpakRjaW5nSGdK?=
+ =?utf-8?B?cGszTnJTcnV3UDRQdXBLU1c4V25sdVRaQ0hlK01uZVNlaC9UckJIVFBqdzg0?=
+ =?utf-8?B?TGExUG9vbEY4dGFMb3B6OWk4R2IyOEtVV3k4a085Z2xDY0dudWM2QlduM2pM?=
+ =?utf-8?B?ZG5qL2pNRm1YRTlOQ3JxNVpvNmNiNWdEdngxRkFJVmJRVXFFRk51UVNZZEE4?=
+ =?utf-8?B?N3pUeTJFMFBxVjYxSEtzZWZhQ09JcmEyU0dJY1ZiWTdqM0RNd0U2cjNqQ3Ux?=
+ =?utf-8?B?VU52MHFIaml3SnZkRXBlVGFjM1hsUjRvY3hSbU1iTlllR0RYZkcwcG5oeHBX?=
+ =?utf-8?B?Qk1ZbnZPemVQSmI4VUhNRXh2ZE1vM1NEN3F3ZTdSZkJLbU5LTzZpb0NTanIw?=
+ =?utf-8?B?MmJwV01xVzZHb08yekU5TnJ3TEFDZVpvaEJaUUNYYnpxZ2ZsWkhjNWNqd2pJ?=
+ =?utf-8?B?Vm5MWmQyL1o0MnVzUVRNSk5KZ2FVbERsRmhwdkM3N3RXemE0Z1EwRExIYnMw?=
+ =?utf-8?B?U0laUWp2V1VxZU5pOHJZOEJHT2JKd1E0dDhyb0ZBUExMYnMrZDE0R2duMFU2?=
+ =?utf-8?B?emVFV2xhcmw0b0xIa2FiSDJlSHRDQjA2Q2tzNDVOdlFtMTV1K1c1SGNPY3A4?=
+ =?utf-8?B?Mm1oTWhQbm5wNDBReFNpU25iWU90LzdmRTV1bHBKdVE1R0RVd1RldG84M2Uy?=
+ =?utf-8?B?RlMwbE1UWkI0R01Ndm5TSkNCZFFlMmVhQlZ6dTY4ejU3c0RNbE9EZ2NNYm1R?=
+ =?utf-8?B?WEt4NkMxREdwdjZXdTA4VkxWcXJEUUFVbk4ySEhIeHhCbHYwdldZSHNrLzJQ?=
+ =?utf-8?B?NURNK1NSTVNCdStsWlQ0ZW1FdlRNSUNrUDJxemRJdGNMUHdJWmNMTnAyek9E?=
+ =?utf-8?B?QllxR1BjNERqRDh1RG5ZR2NxamU4TmZIVEdXR3BPQVNYemdhT1BxanNBc2s1?=
+ =?utf-8?B?M1doNHJVd21jd0l4b2NnNjNsekxIaGU4ZGZoTVhwQ0hlc2sxZ056Tzg0V0pB?=
+ =?utf-8?B?Q1ZsWEVocWI3UEhqSWN1Qnh1ZUlxRUo1WDR4cUdDM0E2dWRYaXF3ZTZ2d3pR?=
+ =?utf-8?B?UE1HSWVtamRHNVUxSHJMYlAzemtVUC82QnVPZmV1aW1TWEZKSlZQeTI5cll5?=
+ =?utf-8?B?VThpWndYc09mb1FlRUtjV2pKWVZ2cmRMTysvYXpzWkdtRzBOdkVKM2FOYUNO?=
+ =?utf-8?B?aXE3VUVoOXVCeHJEZHVkM1ZqNTlqaG9YeWhBNnRJd0Q5bkZ5WUNZbWJyNC9S?=
+ =?utf-8?B?OXpVWXNQMnAxMlNaczVOWEcvcEdjd2pDNTVCWUJvMDAwZGFSYTNWUWZBdE1F?=
+ =?utf-8?B?RlE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?dWlWZ0ZlT1E0d0FLZWY2RDMyVm5Rd3V2UWVrTjhvL3dPUDc3a2lXNmgrSXVL?=
+ =?utf-8?B?M0VrKzV2WnZLd1NNM3JSWTB5cU0xcUJWK1ZKR3RQZlFpZytRb0ViOFRtc3Vy?=
+ =?utf-8?B?bHRoNFRsbi9Zb3JBWkM0YzVHMXlscjdPTkpDVVJzbmpQQTcvVHF2OHRIM1RW?=
+ =?utf-8?B?Y3MzbTFiRS9IemxpRjJ3WEl1WFZvZENjRFlrcjlDN2h0TERQVlNGak1PS3gw?=
+ =?utf-8?B?MkQrR0QvTzNiQnF0cjAvRTd0WUw4T3d4ajFtWkx6djR5MXJLVlUrYVIrd2VK?=
+ =?utf-8?B?V2h2bU9mMm5XY2FPMmpxdVh0M0dzMnBNN3VzR0VRYk11MXlRdEFKejY0V2lz?=
+ =?utf-8?B?YkowcGMzMVBJOGI3ODVWVFdpc2ZYaC9pMWp3YzFsT01uTTRiSEFJS0xBR1pZ?=
+ =?utf-8?B?TEh5RUNMUFEySUM0N0RhcUFRV05nSk02b1JJd25lSFNpbmNlUmJsRStJWXg1?=
+ =?utf-8?B?eTY4ZE9YT0lGaG9Cd2RUV3hvV2YvYlpuc0ZLSGY2SEplcnJwSGpHZ0d6L0xn?=
+ =?utf-8?B?RmsyRmpjN0h6WWNoS0J0S3ZMS1l6Slpackx4a0c1VHMwYnlMU1hOWEdxWUU4?=
+ =?utf-8?B?NmozdVpndVprMGNUUkJEcWZ3UVJEdHcraWhhaitrN2lIWTVrTDVScjU1TldR?=
+ =?utf-8?B?WmNWb0JLNHRMVDU0WFBGNGJNalZMclpjKzhzdmJKWEg0K2ZqQkYwNWFVMjVP?=
+ =?utf-8?B?RGtxQ3dRalhMSzlnVHE5aUZIaWV6dlRIbGttREdGeVlqOHVwbnNDK05YSE11?=
+ =?utf-8?B?SWlnb3JJTG5MNVFrdjhoVUNsOHdHb2QyQTVURFZnSVUrRmxON3hGUFE5ek1k?=
+ =?utf-8?B?QUcxd2tQVEFtbThwTHJsN2JWRFFjTUpMR2NDSG9DekJtS0k1QngrK1EzcHFS?=
+ =?utf-8?B?OEY0L3FLSFBkL0JackN0UU5mY2FHUjhtYUxpdjBNTnVMOU1lTURJcDVDWkQ3?=
+ =?utf-8?B?MEdiN05KZjFqdmZxYXlQaVh4MUVpQXlFV00zKzEwdjFmN1huQUVjQjhqZTlT?=
+ =?utf-8?B?VWtnM1pjaEhBeG9sTWZ3NXBpcGNIWGJUY0ZhMmxGN0lwOTlPeHpBdnhaS01I?=
+ =?utf-8?B?dStVYjdhZmJVWW1YSndXQUJUb0ZselJRdVNDaUxTODRRQldHQUhiT1U4QTQy?=
+ =?utf-8?B?UEVtWHFtVk1wNjVsbjVWaDZ6dXhKRG04aXQxMTAvbVprZVhxWER3dHRxb280?=
+ =?utf-8?B?ZUxjcEwyREx6ell5ZVBZSzZ2aFZ0V25NQWRyVnlXY0ZzQ05YSjlVa0djQUxH?=
+ =?utf-8?B?T2NxRS82OTBlMGVDU0ZkMys3d2NSY3YrYVcxdXB0QXh6TzNzcjZtM25NYXgx?=
+ =?utf-8?B?NDdmdHowYmtybVhPMlFUMm12c2RFVS8wWDdueGc5SVFBcTZ5Rnd1cnJjNWd5?=
+ =?utf-8?B?QUJpYW1JOHlFL29MaU1TVkRob2QxMmpCSlhtcE1UTmFQWTFkR0NHNDdydm5R?=
+ =?utf-8?B?bkxZajJ5Z1NadWJNWXA3NVhyNWQxaVYwWFpUNXZqQ1lxelNmVVoyNnpuUU5i?=
+ =?utf-8?B?ejRUT0ZPZ0sxUk9GcnJtcWlJR0VpcWFQVDZuaW50aTFPTFY2cUlsYUR3RVdY?=
+ =?utf-8?B?WXhhQT09?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4373a65b-c45b-48b2-94ad-08db62bac68f
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jun 2023 16:10:53.9328 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: O3cpzMdj5lJ/IJDarrBDoAL0hKFO8yYB6u3a+rTKLaG4vH1L1mp+/L885MQLd7qC42p8AnHjQIpyEItUs+cFedkURFWp630Wjk3vwhWAN14=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB7691
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-01_08,2023-05-31_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ adultscore=0 spamscore=0
+ phishscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2306010140
+X-Proofpoint-ORIG-GUID: hS4XglQpkapDkPyPNgFGuML9ritvmoIs
+X-Proofpoint-GUID: hS4XglQpkapDkPyPNgFGuML9ritvmoIs
+Cc: axboe@kernel.dk,
+ Linux kernel regressions list <regressions@lists.linux.dev>, mst@redhat.com,
+ konrad.wilk@oracle.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, hch@infradead.org,
+ ebiederm@xmission.com, stefanha@redhat.com, oleg@redhat.com,
+ nicolas.dichtel@6wind.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,125 +230,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Peter-Jan Gootzen via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Peter-Jan Gootzen <peter-jan@gootzen.net>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 01/06/2023 16:08, Stefan Hajnoczi wrote:
-> On Wed, May 31, 2023 at 04:49:39PM -0400, Vivek Goyal wrote:
->> On Wed, May 31, 2023 at 10:34:15PM +0200, Peter-Jan Gootzen wrote:
->>> On 31/05/2023 21:18, Vivek Goyal wrote:
->>>> On Wed, May 31, 2023 at 07:10:32PM +0200, Peter-Jan Gootzen wrote:
->>>>> When the Virtio queue is full, a work item is scheduled
->>>>> to execute in 1ms that retries adding the request to the queue.
->>>>> This is a large amount of time on the scale on which a
->>>>> virtio-fs device can operate. When using a DPU this is around
->>>>> 40us baseline without going to a remote server (4k, QD=1).
->>>>> This patch queues requests when the Virtio queue is full,
->>>>> and when a completed request is taken off, immediately fills
->>>>> it back up with queued requests.
->>>>>
->>>>> This reduces the 99.9th percentile latencies in our tests by
->>>>> 60x and slightly increases the overall throughput, when using a
->>>>> queue depth 2x the size of the Virtio queue size, with a
->>>>> DPU-powered virtio-fs device.
->>>>>
->>>>> Signed-off-by: Peter-Jan Gootzen <peter-jan@gootzen.net>
->>>>> ---
->>>>> V1 -> V2: Not scheduling dispatch work anymore when not needed
->>>>> and changed delayed_work structs to work_struct structs
->>>>>
->>>>>  fs/fuse/virtio_fs.c | 32 +++++++++++++++++---------------
->>>>>  1 file changed, 17 insertions(+), 15 deletions(-)
->>>>>
->>>>> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
->>>>> index 4d8d4f16c727..a676297db09b 100644
->>>>> --- a/fs/fuse/virtio_fs.c
->>>>> +++ b/fs/fuse/virtio_fs.c
->>>>> @@ -45,7 +45,7 @@ struct virtio_fs_vq {
->>>>>  	struct work_struct done_work;
->>>>>  	struct list_head queued_reqs;
->>>>>  	struct list_head end_reqs;	/* End these requests */
->>>>> -	struct delayed_work dispatch_work;
->>>>> +	struct work_struct dispatch_work;
->>>>>  	struct fuse_dev *fud;
->>>>>  	bool connected;
->>>>>  	long in_flight;
->>>>> @@ -202,7 +202,7 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
->>>>>  	}
->>>>>  
->>>>>  	flush_work(&fsvq->done_work);
->>>>> -	flush_delayed_work(&fsvq->dispatch_work);
->>>>> +	flush_work(&fsvq->dispatch_work);
->>>>>  }
->>>>>  
->>>>>  static void virtio_fs_drain_all_queues_locked(struct virtio_fs *fs)
->>>>> @@ -346,6 +346,9 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
->>>>>  			dec_in_flight_req(fsvq);
->>>>>  		}
->>>>>  	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
->>>>> +
->>>>> +	if (!list_empty(&fsvq->queued_reqs))
->>>>> +		schedule_work(&fsvq->dispatch_work);
->>>>>  	spin_unlock(&fsvq->lock);
->>>>>  }
->>>>>  
->>>>> @@ -353,7 +356,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->>>>>  {
->>>>>  	struct fuse_req *req;
->>>>>  	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
->>>>> -						 dispatch_work.work);
->>>>> +						 dispatch_work);
->>>>>  	int ret;
->>>>>  
->>>>>  	pr_debug("virtio-fs: worker %s called.\n", __func__);
->>>>> @@ -388,8 +391,6 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->>>>>  			if (ret == -ENOMEM || ret == -ENOSPC) {
->>>>>  				spin_lock(&fsvq->lock);
->>>>>  				list_add_tail(&req->list, &fsvq->queued_reqs);
->>>>> -				schedule_delayed_work(&fsvq->dispatch_work,
->>>>> -						      msecs_to_jiffies(1));
+On 6/1/23 5:47 AM, Christian Brauner wrote:
+> On Thu, Jun 01, 2023 at 09:58:38AM +0200, Thorsten Leemhuis wrote:
+>> On 19.05.23 14:15, Christian Brauner wrote:
+>>> On Thu, May 18, 2023 at 10:25:11AM +0200, Christian Brauner wrote:
+>>>> On Wed, May 17, 2023 at 07:09:12PM -0500, Mike Christie wrote:
+>>>>> This patch allows the vhost and vhost_task code to use CLONE_THREAD,
+>>>>> CLONE_SIGHAND and CLONE_FILES. It's a RFC because I didn't do all the
+>>>>> normal testing, haven't coverted vsock and vdpa, and I know you guys
+>>>>> will not like the first patch. However, I think it better shows what
+>>>> Just to summarize the core idea behind my proposal is that no signal
+>>>> handling changes are needed unless there's a bug in the current way
+>>>> io_uring workers already work. All that should be needed is
+>>>> s/PF_IO_WORKER/PF_USER_WORKER/ in signal.c.
+>> [...]
+>>>> So it feels like this should be achievable by adding a callback to
+>>>> struct vhost_worker that get's called when vhost_worker() gets SIGKILL
+>>>> and that all the users of vhost workers are forced to implement.
 >>>>
->>>> Virtqueue being full is only one of the reasons for failure to queue
->>>> the request. What if virtqueue is empty but we could not queue the
->>>> request because lack of memory (-ENOMEM). In that case we will queue
->>>> the request and it might not be dispatched because there is no completion.
->>>> (Assume there is no further new request coming). That means deadlock?
+>>>> Yes, it is more work but I think that's the right thing to do and not to
+>>>> complicate our signal handling.
 >>>>
->>>> Thanks
->>>> Vivek
->>>>
->>>
->>> Good catch that will deadlock.
->>>
->>> Is default kernel behavior to indefinitely retry a file system
->>> request until memory is available?
->>
->> As of now that seems to be the behavior. I think I had copied this
->> code from another driver. 
->>
->> But I guess one can argue that if memory is not available, then
->> return -ENOMEM to user space instead of retrying in kernel.
->>
->> Stefan, Miklos, WDYT?
+>>>> Worst case if this can't be done fast enough we'll have to revert the
+>>>> vhost parts. I think the user worker parts are mostly sane and are
+>>> As mentioned, if we can't settle this cleanly before -rc4 we should
+>>> revert the vhost parts unless Linus wants to have it earlier.
+>> Meanwhile -rc5 is just a few days away and there are still a lot of
+>> discussions in the patch-set proposed to address the issues[1]. Which is
+>> kinda great (albeit also why I haven't given it a spin yet), but on the
+>> other hand makes we wonder:
+> You might've missed it in the thread but it seems everyone is currently
+> operating under the assumption that the preferred way is to fix this is
+> rather than revert. See the mail in [1]:
 > 
-> My understanding is that file system syscalls may return ENOMEM, so this
-> is okay.
+> "So I'd really like to finish this. Even if we end up with a hack or
+> two in signal handling that we can hopefully fix up later by having
+> vhost fix up some of its current assumptions."
 > 
-> Stefan
+> which is why no revert was send for -rc4. And there's a temporary fix we
+> seem to have converged on.
+> 
+> @Mike, do you want to prepare an updated version of the temporary fix.
+> If @Linus prefers to just apply it directly he can just grab it from the
+> list rather than delaying it. Make sure to grab a Co-developed-by line
+> on this, @Mike.
 
-Then I propose only handling -ENOSPC as a special case and letting all
-other errors go through to userspace.
-
-Noob Linux contributor question: how often should I send in a new revision of
-the patch? Should I wait for more comments or send in a V3 with that fix now?
-
-Best,
-Peter-Jan
+Yes, I'll send it within a couple hours.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
