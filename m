@@ -1,104 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A269CC77B7E
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jun 2023 07:43:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA66BC7EE23
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jun 2023 07:47:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1A43F41BA2;
-	Thu,  1 Jun 2023 07:43:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1A43F41BA2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=W33fsJRy
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id krKo9fx8Il0T; Thu,  1 Jun 2023 07:43:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 439E541BB3;
-	Thu,  1 Jun 2023 07:43:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 439E541BB3
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10505C007A;
-	Thu,  1 Jun 2023 07:43:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84076C0029
- for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 07:43:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5F651405A7
- for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 07:43:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5F651405A7
+	by smtp2.osuosl.org (Postfix) with ESMTP id 65AD240A93;
+	Thu,  1 Jun 2023 07:47:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 65AD240A93
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=W33fsJRy
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CgGko6px
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GDwGC_DOdoHK
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BQnOy2b8ETf8; Thu,  1 Jun 2023 07:47:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id D6E16402E0;
+	Thu,  1 Jun 2023 07:47:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D6E16402E0
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AEADEC007A;
+	Thu,  1 Jun 2023 07:47:55 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7F212C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 07:43:44 +0000 (UTC)
+ Thu,  1 Jun 2023 07:47:54 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 52FE28213A
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  1 Jun 2023 07:47:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52FE28213A
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=CgGko6px
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0IUe45QG1JHx
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  1 Jun 2023 07:47:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84ED0402E0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 746E88210F
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 84ED0402E0
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 746E88210F
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jun 2023 07:43:44 +0000 (UTC)
+ Thu,  1 Jun 2023 07:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685605423;
+ s=mimecast20190719; t=1685605672;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=kvJ0J/2Ad97d0Y3oIleyJnXlsfA2gT2V2y9NzKFld6k=;
- b=W33fsJRyfQFpaZvvCI3q98ntjxaqCffNyvLEViNombKeJ3G4iydrHk41kddWcH3YWajEAt
- 0tNjud6y2jYzA+zl5VM+C+t2ptvnT6jSuZQ8pngLKt92GUMmQ0SBEuOXsr76OTxwMUUE8x
- 56qLnOos1Gc2/4IcCb/cJrjaTtU1aJw=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-184-qCUySRT8PqyLHtBT12q-rA-1; Thu, 01 Jun 2023 03:43:40 -0400
-X-MC-Unique: qCUySRT8PqyLHtBT12q-rA-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 56EA885A5BB;
- Thu,  1 Jun 2023 07:43:39 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.45.226.135])
- by smtp.corp.redhat.com (Postfix) with SMTP id 5C07B2166B25;
- Thu,  1 Jun 2023 07:43:36 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
- oleg@redhat.com; Thu,  1 Jun 2023 09:43:20 +0200 (CEST)
-Date: Thu, 1 Jun 2023 09:43:16 +0200
-From: Oleg Nesterov <oleg@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 3/3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
- regression
-Message-ID: <20230601074315.GA13133@redhat.com>
-References: <20230522025124.5863-4-michael.christie@oracle.com>
- <20230522123029.GA22159@redhat.com>
- <cfca7764-d210-6df9-e182-2c093101c6cf@oracle.com>
- <20230522174757.GC22159@redhat.com>
- <20230523121506.GA6562@redhat.com>
- <26c87be0-8e19-d677-a51b-e6821e6f7ae4@redhat.com>
- <20230531072449.GA25046@redhat.com>
- <CACGkMEv2kB9J1qGYkGkywk1YHV2gU2fMr7qx4vEv9L5f6qL5mg@mail.gmail.com>
- <20230531091432.GB25046@redhat.com>
- <CACGkMEvNrC5gc4ppp0QG-SNSbs_snrqwPkNBotffRRDJA1VJjQ@mail.gmail.com>
+ bh=LJY0ffzy9d7zjgW/HEvqIO2dS8yVBrmwr6J73PuSOuU=;
+ b=CgGko6pxX5vQUtwvveXVGwMkmHEdL/1TxFwGQGOQTVaJM3XcLWQ3rr+Oa/5vLiRh9IvZTZ
+ Av/mqrbLDZ5AQCXEKSgx12paf/pxL1kPDEiC3C+KwIfjJI2cpmSIQtPeQKuVErI4y/OT83
+ IRBcmFWtPJs90iQU7c1h1G/rs1Lsd0g=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-365-jAbCG4zROxOqMtMqwIxJkA-1; Thu, 01 Jun 2023 03:47:51 -0400
+X-MC-Unique: jAbCG4zROxOqMtMqwIxJkA-1
+Received: by mail-lj1-f199.google.com with SMTP id
+ 38308e7fff4ca-2af225e5b70so3984801fa.1
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 01 Jun 2023 00:47:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1685605670; x=1688197670;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=LJY0ffzy9d7zjgW/HEvqIO2dS8yVBrmwr6J73PuSOuU=;
+ b=B3niLp9wvaoCOHDlUYULJGPGdtzaS7WaVMRK3gsPFaWw7ukTqU8GN6Q2KTp5Nn8ljp
+ qjj7ejLcaZQhCwWXazhFV//+uKHQ225q3toClbJ3kJ4uiJPXW982TpVZXvAxUHOjvJ4n
+ 18dbaXw+aQtAtNkNkolvOJrb0A7jqQgMeTQLDlTdblZzkqKHveoGAyWfESNzr2PuwCaY
+ 5cjzc9itD4DRkTvm3rVaLEKjJktqowrItYxCO5Nu+GXoyqNdBCj+kEAyeBwKWHdK8qPb
+ QIZyh6ejmsmSTpj5nZFzlXkzI+BjEz45z2h7TFJVcuvObmrvMREg1yUKXibhBPU3gays
+ UZBw==
+X-Gm-Message-State: AC+VfDxk9vcN5RFNT/O9xF7EYM7UKQ6/1vJUC+QUF4nfmCjIZU4LVOzY
+ dfqNeIL+LO0A+p3gHLWlHCHAGp9KOK0z066dEwIk1Fe1PayCaJoqlKb8OJ/poENIqpkT/TxTLLx
+ PYDaGZszVPXKNljS+mbt3EhBLArYJvIwDOr0D+WyDYQ==
+X-Received: by 2002:a2e:8782:0:b0:2ad:8c4a:ef7e with SMTP id
+ n2-20020a2e8782000000b002ad8c4aef7emr4339349lji.43.1685605670001; 
+ Thu, 01 Jun 2023 00:47:50 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6n6txE71tIS8COu2Dmzs3VgI+CjTKwcsBTD8jJe3gHKSoIl+5OkJ1upYUs7A36ArMnP+FMZA==
+X-Received: by 2002:a2e:8782:0:b0:2ad:8c4a:ef7e with SMTP id
+ n2-20020a2e8782000000b002ad8c4aef7emr4339335lji.43.1685605669610; 
+ Thu, 01 Jun 2023 00:47:49 -0700 (PDT)
+Received: from sgarzare-redhat ([134.0.3.103])
+ by smtp.gmail.com with ESMTPSA id
+ k12-20020a056402048c00b00514c4350243sm1763867edv.56.2023.06.01.00.47.47
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 01 Jun 2023 00:47:48 -0700 (PDT)
+Date: Thu, 1 Jun 2023 09:47:45 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [syzbot] [kvm?] [net?] [virt?] general protection fault in
+ vhost_work_queue
+Message-ID: <7vk2uizpmf4fi54tmmopnbwwb7fs2xg6vae6ynrcvs26hjmshb@hpjzu4jfj35i>
+References: <0000000000001777f605fce42c5f@google.com>
+ <20230530072310-mutt-send-email-mst@kernel.org>
+ <CAGxU2F7O7ef3mdvNXtiC0VtWiS2DMnoiGwSR=Z6SWbzqcrBF-g@mail.gmail.com>
+ <CAGxU2F7HK5KRggiY7xnKHeXFRXJmqcKbjf3JnXC3mbmn9xqRtw@mail.gmail.com>
+ <e4589879-1139-22cc-854f-fed22cc18693@oracle.com>
+ <6p7pi6mf3db3gp3xqarap4uzrgwlzqiz7wgg5kn2ep7hvrw5pg@wxowhbw4e7w7>
+ <035e3423-c003-3de9-0805-2091b9efb45d@oracle.com>
+ <CAGxU2F5oTLY_weLixRKMQVqmjpDG_09yL6tS2rF8mwJ7K+xP0Q@mail.gmail.com>
+ <43f67549-fe4d-e3ca-fbb0-33bea6e2b534@oracle.com>
+ <bbe697b6-dd9e-5a8d-21c5-315ab59f0456@oracle.com>
 MIME-Version: 1.0
+In-Reply-To: <bbe697b6-dd9e-5a8d-21c5-315ab59f0456@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CACGkMEvNrC5gc4ppp0QG-SNSbs_snrqwPkNBotffRRDJA1VJjQ@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
-Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com, linux@leemhuis.info,
- linux-kernel@vger.kernel.org, ebiederm@xmission.com, stefanha@redhat.com,
- nicolas.dichtel@6wind.com, virtualization@lists.linux-foundation.org,
- torvalds@linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+ linux-kernel@vger.kernel.org,
+ syzbot <syzbot+d0d442c22fa8db45ff0e@syzkaller.appspotmail.com>,
+ stefanha@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,83 +130,168 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMDYvMDEsIEphc29uIFdhbmcgd3JvdGU6Cj4KPiBPbiBXZWQsIE1heSAzMSwgMjAyMyBhdCA1
-OjE04oCvUE0gT2xlZyBOZXN0ZXJvdiA8b2xlZ0ByZWRoYXQuY29tPiB3cm90ZToKPiA+Cj4gPiA+
-ID4gSSBkb24ndCB1bmRlcnN0YW5kIHlvdS4gT0ssIHRvIHNpbXBsaWZ5LCBzdXBwb3NlIHdlIGhh
-dmUgMiBnbG9iYWwgdmFycwo+ID4gPiA+Cj4gPiA+ID4gICAgICAgICB2b2lkICpQVFIgPSBzb21l
-dGhpbmdfbm9uX251bGw7Cj4gPiA+ID4gICAgICAgICB1bnNpZ25lZCBsb25nIEZMQUdTID0gLTF1
-bDsKPiA+ID4gPgo+ID4gPiA+IE5vdyBJIHRoaW5rIHRoaXMgY29kZQo+ID4gPiA+Cj4gPiA+ID4g
-ICAgICAgICBDUFVfMCAgICAgICAgICAgICAgICAgICAgICAgICAgIENQVV8xCj4gPiA+ID4KPiA+
-ID4gPiAgICAgICAgIHZvaWQgKnB0ciA9IFBUUjsgICAgICAgICAgICAgICAgaWYgKCF0ZXN0X2Fu
-ZF9zZXRfYml0KDAsIEZMQUdTKSkKPiA+ID4gPiAgICAgICAgIGNsZWFyX2JpdCgwLCBGTEFHUyk7
-ICAgICAgICAgICAgICAgICAgICBQVFIgPSBOVUxMOwo+ID4gPiA+ICAgICAgICAgQlVHX09OKCFw
-dHIpOwo+ID4gPiA+Cj4gPiA+ID4gaXMgcmFjeSBhbmQgY2FuIGhpdCB0aGUgQlVHX09OKCFwdHIp
-Lgo+ID4gPgo+ID4gPiBUaGlzIHNlZW1zIGRpZmZlcmVudCB0byB0aGUgYWJvdmUgY2FzZT8KPiA+
-Cj4gPiBub3Qgc3VyZSwKPiA+Cj4gPiA+IEFuZCB5b3UgY2FuIGhpdCBCVUdfT04gd2l0aAo+ID4g
-PiB0aGUgZm9sbG93aW5nIGV4ZWN1dGlvbiBzZXF1ZW5jZToKPiA+ID4KPiA+ID4gW2NwdSAwXSBj
-bGVhcl9iaXQoMCwgRkxBR1MpOwo+ID4gPiBbY3B1IDFdIGlmICghdGVzdF9hbmRfc2V0X2JpdCgw
-LCBGTEFHUykpCj4gPiA+IFtjcHUgMV0gUFRSID0gTlVMTDsKPiA+ID4gW2NwdSAwXSBCVUdfT04o
-IXB0cikKPiA+Cj4gPiBJIGRvbid0IHVuZGVyc3RhbmQgdGhpcyBwYXJ0Li4uIHllcywgd2UgY2Fu
-IGhpdCB0aGlzIEJVR19PTigpIHdpdGhvdXQgbWIgaW4KPiA+IGJldHdlZW4sIHRoaXMgaXMgd2hh
-dCBJIHRyaWVkIHRvIHNheS4KPgo+IEkgbWF5IG1pc3Mgc29tZXRoaW5nLAoKT3IgbWUuLi4gbm90
-ZSB0aGF0IENQVV8wIGxvYWRzIHRoZSBnbG9iYWwgIlBUUiIgaW50byB0aGUgbG9jYWwgInB0ciIg
-YmVmb3JlIGNsZWFyX2JpdC4KU2luY2UgeW91IGhhdmUgbWVudGlvbmVkIHRoZSBwcm9ncmFtIG9y
-ZGVyOiB5ZXMgdGhpcyBsYWNrcyBSRUFEX09OQ0UoKSBvciBiYXJyaWVyKCksCmJ1dCB0aGUgc2Ft
-ZSBpcyB0cnVlIGZvciB0aGUgY29kZSBpbiB2aG9zdF93b3JrZXIoKS4gU28gSSBzdGlsbCBkb24n
-dCB1bmRlcnN0YW5kLgoKPiBidXQgdGhlIGFib3ZlIGlzIHRoZSBzZXF1ZW5jZSB0aGF0IGlzIGV4
-ZWN1dGVkCj4gYnkgdGhlIHByb2Nlc3NvciAoZm9yIGVhY2ggQ1BVLCBpdCdzIGp1c3QgdGhlIHBy
-b2dyYW0gb3JkZXIpLiBTbyB3aGVyZQo+IGRvIHlvdSBleHBlY3QgdG8gcGxhY2UgYW4gbWIgY2Fu
-IGhlbHA/CgpiZWZvcmUgY2xlYXJfYml0OgoKCUNQVV8wCgoJdm9pZCAqcHRyID0gUFRSOwoJbWIo
-KTsJCQkvLyBpbXBsaWVzIGNvbXBpbGVyIGJhcnJpZXIgYXMgd2VsbAoJY2xlYXJfYml0KDAsIEZM
-QUdTKTsKCUJVR19PTighcHRyKTsKCmp1c3QgaW4gY2FzZS4uLiBtYigpIGluIHRoZSBjb2RlIGFi
-b3ZlIGlzIG9ubHkgZm9yIGlsbHVzdHJhdGlvbiwgd2UgY2FuIHVzZQpzbXBfbWJfX2JlZm9yZV9h
-dG9taWMoKSArIGNsZWFyX2JpdCgpLiBPciBqdXN0IGNsZWFyX2JpdF91bmxvY2soKSwgaWl1YyB0
-aGUKb25lLXdheSBiYXJyaWVyIGlzIGZpbmUgaW4gdGhpcyBjYXNlLgoKCj4gPiA+IEluIHZob3N0
-IGNvZGUsIHRoZXJlJ3MgYSBjb25kaXRpb24gYmVmb3JlIHRoZSBjbGVhcl9iaXQoKSB3aGljaCBz
-aXRzCj4gPiA+IGluc2lkZSBsbGlzdF9mb3JfZWFjaF9lbnRyeV9zYWZlKCk6Cj4gPiA+Cj4gPiA+
-ICNkZWZpbmUgbGxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZShwb3MsIG4sIG5vZGUsIG1lbWJlcikg
-ICAgICAgICAgICAgICAgICAgICAgICBcCj4gPiA+ICAgICAgICAgZm9yIChwb3MgPSBsbGlzdF9l
-bnRyeSgobm9kZSksIHR5cGVvZigqcG9zKSwgbWVtYmVyKTsgICAgICAgICAgICAgICAgICBcCj4g
-PiA+ICAgICAgICAgICAgICBtZW1iZXJfYWRkcmVzc19pc19ub25udWxsKHBvcywgbWVtYmVyKSAm
-JiAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gPiA+ICAgICAgICAgICAgICAgICAobiA9IGxs
-aXN0X2VudHJ5KHBvcy0+bWVtYmVyLm5leHQsIHR5cGVvZigqbiksIG1lbWJlciksIHRydWUpOyBc
-Cj4gPiA+ICAgICAgICAgICAgICBwb3MgPSBuKQo+ID4gPgo+ID4gPiBUaGUgY2xlYXJfYml0KCkg
-aXMgYSBzdG9yZSB3aGljaCBpcyBub3Qgc3BlY3VsYXRlZCwgc28gdGhlcmUncyBhCj4gPiA+IGNv
-bnRyb2wgZGVwZW5kZW5jeSwgdGhlIHN0b3JlIGNhbid0IGJlIGV4ZWN1dGVkIHVudGlsIHRoZSBj
-b25kaXRpb24KPiA+ID4gZXhwcmVzc2lvbiBpcyBldmFsdWF0ZWQgd2hpY2ggcmVxdWlyZXMgcG9z
-LT5tZW1iZXIubmV4dAo+ID4gPiAod29yay0+bm9kZS5uZXh0KSB0byBiZSBsb2FkZWQuCj4gPgo+
-ID4gQnV0IGxsaXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUoKSBkb2Vzbid0IGNoZWNrICJuIiwgSSBt
-ZWFuLCBpdCBpcyBub3QgdGhhdCB3ZSBoYXZlCj4gPiBzb21ldGhpbmcgbGlrZQo+ID4KPiA+ICAg
-ICAgICAgbiA9IGxsaXN0X2VudHJ5KC4uLik7Cj4gPiAgICAgICAgIGlmIChuKQo+ID4gICAgICAg
-ICAgICAgICAgIGNsZWFyX2JpdCguLi4pOwo+ID4KPiA+IHNvIEkgZG8gbm90IHNlZSBob3cgY2Fu
-IHdlIHJlbHkgb24gdGhlIGxvYWQtc3RvcmUgY29udHJvbCBkZXBlbmRlbmN5Lgo+Cj4gSnVzdCB0
-byBtYWtlIHN1cmUgd2UgYXJlIG9uIHRoZSBzYW1lIHBhZ2UsIHRoZSBjb25kaXRpb24gZXhwcmVz
-c2lvbiBpcwo+Cj4gbWVtYmVyX2FkZHJlc3NfaXNfbm9ubnVsbChwb3MsIG1lbWJlcikgJiYgKG4g
-PQo+IGxsaXN0X2VudHJ5KHBvcy0+bWVtYmVyLm5leHQsIHR5cGVvZigqbiksIG1lbWJlciksIHRy
-dWUpCj4KPiBTbyBpdCdzIHNvbWV0aGluZyBsaWtlOgo+Cj4gaWYgKHdvcmstPm5vZGUgJiYgKHdv
-cmtfbmV4dCA9IHdvcmstPm5vZGUtPm5leHQsIHRydWUpKQo+ICAgICBjbGVhcl9iaXQoJndvcmst
-PmZsYWdzKTsKPgo+IFNvIHR3byBsb2FkcyBmcm9tIGJvdGggd29yay0+bm9kZSBhbmQgd29yay0+
-bm9kZS0+bmV4dCwgYW5kIHRoZXJlJ3MgYQo+IHN0b3JlIHdoaWNoIGlzIGNsZWFyX2JpdCwgdGhl
-biBpdCdzIGEgbG9hZC1zdG9yZSBjb250cm9sIGRlcGVuZGVuY2llcz8KCkkgZ3Vlc3MgeW91IG1p
-c3NlZCB0aGUgY29tbWEgZXhwcmVzc2lvbi4uLiBMZXQgbWUgcmV3cml0ZSB5b3VyIHBzZXVkby1j
-b2RlCmFib3ZlLCBpdCBpcyBlcXVpdmFsZW50IHRvCgoJaWYgKHdvcmstPm5vZGUpIHsKCQlpZiAo
-KHdvcmtfbmV4dCA9IHdvcmstPm5vZGUtPm5leHQsIHRydWUpKQoJCQljbGVhcl9iaXQoJndvcmst
-PmZsYWdzKTsKCX0KCmFub3RoZXIgcmV3cml0ZToKCQoJaWYgKHdvcmstPm5vZGUpIHsKCQl3b3Jr
-X25leHQgPSB3b3JrLT5ub2RlLT5uZXh0OwoJCWlmICgod29yaywgdHJ1ZSkpCgkJCWNsZWFyX2Jp
-dCgmd29yay0+ZmxhZ3MpOwoJfQoKYW5kIHRoZSBmaW5hbCByZXdyaXRlOgoKCWlmICh3b3JrLT5u
-b2RlKSB7CgkJd29ya19uZXh0ID0gd29yay0+bm9kZS0+bmV4dDsKCQlpZiAodHJ1ZSkKCQkJY2xl
-YXJfYml0KCZ3b3JrLT5mbGFncyk7Cgl9CgpzbyBhZ2FpbiwgSSBkbyBub3Qgc2VlIHRoZSBsb2Fk
-LXN0b3JlIGNvbnRyb2wgZGVwZW5kZW5jeS4gTm90IHRvIG1lbnRpb24gdGhpcwpjb2RlIGxhY2tz
-IFJFQURfT05DRSgpLgoKCklmIHdlIGhhZCBzb21ldGhpbmcgbGlrZQoKCWlmICh3b3JrLT5ub2Rl
-KSB7CgkJd29ya19uZXh0ID0gUkVBRF9PTkNFKHdvcmstPm5vZGUtPm5leHQpOwoJCWlmICh3b3Jr
-X25leHQpCgkJCWNsZWFyX2JpdCgmd29yay0+ZmxhZ3MpOwoJfQoKaW5zdGVhZCwgdGhlbiB5ZXMs
-IHdlIGNvdWxkIHJlbHkgb24gdGhlIExPQUQtU1RPUkUgZGVwZW5kZW5jeS4KCk9sZWcuCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Wed, May 31, 2023 at 11:27:12AM -0500, Mike Christie wrote:
+>On 5/31/23 10:15 AM, Mike Christie wrote:
+>>>> rcu would work for your case and for what Jason had requested.
+>>> Yeah, so you already have some patches?
+>>>
+>>> Do you want to send it to solve this problem?
+>>>
+>> Yeah, I'll break them out and send them later today when I can retest
+>> rebased patches.
+>>
+>
+>Just one question. Do you core vhost developers consider RCU more complex
+>or switching to READ_ONCE/WRITE_ONCE? I am asking because for this immediate
+>regression fix we could just switch to the latter like below to just fix
+>the crash if we think that is more simple.
+>
+>I think RCU is just a little more complex/invasive because it will have the
+>extra synchronize_rcu calls.
+
+Yes, you may be right, in this case we should just need
+READ_ONCE/WRITE_ONCE if dev->worker is no longer a pointer.
+
+>
+>
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index a92af08e7864..03fd47a22a73 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
+>@@ -235,7 +235,7 @@ void vhost_dev_flush(struct vhost_dev *dev)
+> {
+> 	struct vhost_flush_struct flush;
+>
+>-	if (dev->worker) {
+>+	if (READ_ONCE(dev->worker.vtsk)) {
+> 		init_completion(&flush.wait_event);
+> 		vhost_work_init(&flush.work, vhost_flush_work);
+>
+>@@ -247,7 +247,9 @@ EXPORT_SYMBOL_GPL(vhost_dev_flush);
+>
+> void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+> {
+>-	if (!dev->worker)
+>+	struct vhost_task *vtsk = READ_ONCE(dev->worker.vtsk);
+>+
+>+	if (!vtsk)
+> 		return;
+>
+> 	if (!test_and_set_bit(VHOST_WORK_QUEUED, &work->flags)) {
+>@@ -255,8 +257,8 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+> 		 * sure it was not in the list.
+> 		 * test_and_set_bit() implies a memory barrier.
+> 		 */
+>-		llist_add(&work->node, &dev->worker->work_list);
+>-		wake_up_process(dev->worker->vtsk->task);
+>+		llist_add(&work->node, &dev->worker.work_list);
+>+		wake_up_process(vtsk->task);
+> 	}
+> }
+> EXPORT_SYMBOL_GPL(vhost_work_queue);
+>@@ -264,7 +266,7 @@ EXPORT_SYMBOL_GPL(vhost_work_queue);
+> /* A lockless hint for busy polling code to exit the loop */
+> bool vhost_has_work(struct vhost_dev *dev)
+> {
+>-	return dev->worker && !llist_empty(&dev->worker->work_list);
+>+	return !llist_empty(&dev->worker.work_list);
+> }
+> EXPORT_SYMBOL_GPL(vhost_has_work);
+>
+>@@ -468,7 +470,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+> 	dev->umem = NULL;
+> 	dev->iotlb = NULL;
+> 	dev->mm = NULL;
+>-	dev->worker = NULL;
+>+	memset(&dev->worker, 0, sizeof(dev->worker));
+> 	dev->iov_limit = iov_limit;
+> 	dev->weight = weight;
+> 	dev->byte_weight = byte_weight;
+>@@ -542,46 +544,38 @@ static void vhost_detach_mm(struct vhost_dev *dev)
+>
+> static void vhost_worker_free(struct vhost_dev *dev)
+> {
+>-	struct vhost_worker *worker = dev->worker;
+>+	struct vhost_task *vtsk = READ_ONCE(dev->worker.vtsk);
+>
+>-	if (!worker)
+>+	if (!vtsk)
+> 		return;
+>
+>-	dev->worker = NULL;
+>-	WARN_ON(!llist_empty(&worker->work_list));
+>-	vhost_task_stop(worker->vtsk);
+>-	kfree(worker);
+>+	vhost_task_stop(vtsk);
+>+	WARN_ON(!llist_empty(&dev->worker.work_list));
+>+	WRITE_ONCE(dev->worker.vtsk, NULL);
+
+The patch LGTM, I just wonder if we should set dev->worker to zero here,
+but maybe we don't need to.
+
+Thanks,
+Stefano
+
+> }
+>
+> static int vhost_worker_create(struct vhost_dev *dev)
+> {
+>-	struct vhost_worker *worker;
+> 	struct vhost_task *vtsk;
+> 	char name[TASK_COMM_LEN];
+> 	int ret;
+>
+>-	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
+>-	if (!worker)
+>-		return -ENOMEM;
+>-
+>-	dev->worker = worker;
+>-	worker->kcov_handle = kcov_common_handle();
+>-	init_llist_head(&worker->work_list);
+>+	dev->worker.kcov_handle = kcov_common_handle();
+>+	init_llist_head(&dev->worker.work_list);
+> 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
+>
+>-	vtsk = vhost_task_create(vhost_worker, worker, name);
+>+	vtsk = vhost_task_create(vhost_worker, &dev->worker, name);
+> 	if (!vtsk) {
+> 		ret = -ENOMEM;
+> 		goto free_worker;
+> 	}
+>
+>-	worker->vtsk = vtsk;
+>+	WRITE_ONCE(dev->worker.vtsk, vtsk);
+> 	vhost_task_start(vtsk);
+> 	return 0;
+>
+> free_worker:
+>-	kfree(worker);
+>-	dev->worker = NULL;
+>+	WRITE_ONCE(dev->worker.vtsk, NULL);
+> 	return ret;
+> }
+>
+>diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>index 0308638cdeee..305ec8593d46 100644
+>--- a/drivers/vhost/vhost.h
+>+++ b/drivers/vhost/vhost.h
+>@@ -154,7 +154,7 @@ struct vhost_dev {
+> 	struct vhost_virtqueue **vqs;
+> 	int nvqs;
+> 	struct eventfd_ctx *log_ctx;
+>-	struct vhost_worker *worker;
+>+	struct vhost_worker worker;
+> 	struct vhost_iotlb *umem;
+> 	struct vhost_iotlb *iotlb;
+> 	spinlock_t iotlb_lock;
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
