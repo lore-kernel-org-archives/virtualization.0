@@ -1,109 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80FD3C77B7A
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:29:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 090FEC77B7A
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:30:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E456F41793;
-	Fri,  2 Jun 2023 11:29:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E456F41793
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=M9CGJRPT
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7900B42732;
+	Fri,  2 Jun 2023 11:30:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7900B42732
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQ8VKrQ7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8xOBIBfzopuD; Fri,  2 Jun 2023 11:29:21 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id b_tfFw8fsUk0; Fri,  2 Jun 2023 11:30:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 57C3C408C0;
-	Fri,  2 Jun 2023 11:29:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 57C3C408C0
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C5C0442696;
+	Fri,  2 Jun 2023 11:30:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5C0442696
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30D78C0037;
-	Fri,  2 Jun 2023 11:29:20 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E1A01C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 989BEC0037;
+	Fri,  2 Jun 2023 11:30:42 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 772C6C0029
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:29:18 +0000 (UTC)
+ Fri,  2 Jun 2023 11:30:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BBB1A615EF
+ by smtp1.osuosl.org (Postfix) with ESMTP id 51A2C84448
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:29:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BBB1A615EF
-Authentication-Results: smtp3.osuosl.org;
+ Fri,  2 Jun 2023 11:30:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 51A2C84448
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=M9CGJRPT
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQ8VKrQ7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id f-wT8dAkHg_e
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vUDwXPc3fjld
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:29:18 +0000 (UTC)
+ Fri,  2 Jun 2023 11:30:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BE021615EC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A7F184442
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BE021615EC
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9A7F184442
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:29:17 +0000 (UTC)
+ Fri,  2 Jun 2023 11:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685705356;
+ s=mimecast20190719; t=1685705439;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=m5O5N0TyyMY0AmUwL9aXlrKkbB93l6CptL3vOxA2D70=;
- b=M9CGJRPTslASNmFjROMQKVWjz1sUK90wiNyuoBsKcmnZ5cHirs6+uBpKXXwJKfwaoWuOzR
- 3Rina7yT4AorXNY48sVPHrFYgs+KlV+ai/aY1YW6knXWlJ9mvXI3EvJfqf9zi9KUi6crwd
- XeIXRyr1fFVG6hS4lGjRwH58Ica0Hsw=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=F00vpVMdWa9TR3+Nam4tbq5OQWssX8hYIk9OI5cMqFY=;
+ b=NQ8VKrQ7SJtR4wo8UZYL/+D7ikqSD7BuQr3TdDmSHCiBCoGOpMfoZGTsnjegtgUVxpcYYb
+ a/vP5qQKEnmyBgYnM0JNB3QZZGvVh/0j9nY9nsimK7qLu1KcNhfznp2dhnaNVbPtv0T0jT
+ Gmb6DS2fHnn0Mu8aRDfpOWQHH+gAhRE=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-367-W8ZIFJIBPiS8lgohe5e58w-1; Fri, 02 Jun 2023 07:29:15 -0400
-X-MC-Unique: W8ZIFJIBPiS8lgohe5e58w-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-3f613f5d290so32630265e9.2
+ us-mta-52-czLmDdSTMWWpBN60Eor54w-1; Fri, 02 Jun 2023 07:30:38 -0400
+X-MC-Unique: czLmDdSTMWWpBN60Eor54w-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ ffacd0b85a97d-30c3ad3238bso912905f8f.0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 02 Jun 2023 04:29:15 -0700 (PDT)
+ Fri, 02 Jun 2023 04:30:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685705354; x=1688297354;
+ d=1e100.net; s=20221208; t=1685705437; x=1688297437;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=m5O5N0TyyMY0AmUwL9aXlrKkbB93l6CptL3vOxA2D70=;
- b=S76fNR4ld8/66gAl7UstM7ahr9y8SBWzbkMREwfufcyWn9qpr4kTUwJf9/CGLyKmyh
- xNdQ1yZ9QtQ/hoR6Dzxqk2aXZpRqYbQT4SjYxQcXkmM0LDP+yIzkV3b0fz6IJpwp0/Vz
- 2h0KQL2U+w9htcPgiKrZ700danHrUXCEtXM3R9WqjJ8t0E2yWLxpkLBjYnuQ7Y9m6DC0
- IiALzKbSaH8qgMOr5yZkR7CzTFgSIbo5XQz973iI9AAUNuvdq7yJJUblZ1mY2RiL6vSI
- 4OttEFx4LEje62y5DExKhew5lbyGSSRW7vfIK5y2ip3m9yvUhLlkWcm+U06k8kfeaYT/
- E1Ig==
-X-Gm-Message-State: AC+VfDwdvKTESu55G5k6+QahTn1AMF0UKuTdPWZ2fJClNayWIqOq/5aI
- 07PsgFMmmuKLH3D+XqrREc+8hzlsgdoLQa6x532KWdivtuRPMmBlFq61Q3FvY4rFdlcsxcgTHvy
- SGusdCqHwOjqvn/1Jm+1zKTvjKkWkxawGeIPxhJM1Ng==
-X-Received: by 2002:a7b:c40e:0:b0:3f6:692:5607 with SMTP id
- k14-20020a7bc40e000000b003f606925607mr1556939wmi.40.1685705354399; 
- Fri, 02 Jun 2023 04:29:14 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4dcPqFDvHV3ct60ARjBBFoyUN3UqVLOgErABUb/MJcY8uYWEWljv/fngcidmqyYie7j4vLsQ==
-X-Received: by 2002:a7b:c40e:0:b0:3f6:692:5607 with SMTP id
- k14-20020a7bc40e000000b003f606925607mr1556931wmi.40.1685705354099; 
- Fri, 02 Jun 2023 04:29:14 -0700 (PDT)
+ bh=F00vpVMdWa9TR3+Nam4tbq5OQWssX8hYIk9OI5cMqFY=;
+ b=POZjM23JXe9zbPz2e4ukZWFg55ODn8J6mro6Z8eKV9kS8HOPM0R+aj2uYUVqCgEXaq
+ DGrGHSOYJnPb04CHcsvPZvYIUQU98/cVSZkM5zgP7oZGwMr1iz12Dm7kWGYhsmAx7eNh
+ QLk4bOqN018KAhggD6tCazFAve7bW19DVvUOvRcUmaAY3/7Xfy/fMo8u3pqoWxodijmm
+ erjrYGvKYlmzX2oy8PCvGwFFY/9gOMxPHBSESzO7bQigFwsC3jlOSjvNcVmb8XzFajRu
+ Vwcb0tJj2Bz3vs3DBmVIhUfEfHetTIjhKM5Y4juOrf86+jGQqk5sbfE4ECGCSrQh6lXZ
+ yWiA==
+X-Gm-Message-State: AC+VfDwFLgux6CRdAOcMwpiF8eTQWI9NrahP1F8OreHJmCEQFKHynvaG
+ X5lrF8bldcf742mU9zK9gUR+Tg1Y+AUYrVcHvhrzUUmxAFOSKI9lvqoTXFMf7h+R4VIkadhJSoR
+ muB03i1zZAvL/XQqWp7rLRdskVbRZdlnVM0F4zTM4RA==
+X-Received: by 2002:a05:6000:1141:b0:307:7f38:37f with SMTP id
+ d1-20020a056000114100b003077f38037fmr3299570wrx.66.1685705437012; 
+ Fri, 02 Jun 2023 04:30:37 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ51q8bGzTk7RTQC1JX4flfHvzngWe3LU5wYEXOankGsD1jwSofiDuWc4F6Hnz+ZttjZWbaCmQ==
+X-Received: by 2002:a05:6000:1141:b0:307:7f38:37f with SMTP id
+ d1-20020a056000114100b003077f38037fmr3299553wrx.66.1685705436723; 
+ Fri, 02 Jun 2023 04:30:36 -0700 (PDT)
 Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
- b14-20020a5d40ce000000b002e5ff05765esm1441961wrq.73.2023.06.02.04.29.12
+ z9-20020a5d4c89000000b002fe96f0b3acsm1439241wrs.63.2023.06.02.04.30.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 02 Jun 2023 04:29:13 -0700 (PDT)
-Date: Fri, 2 Jun 2023 07:29:10 -0400
+ Fri, 02 Jun 2023 04:30:36 -0700 (PDT)
+Date: Fri, 2 Jun 2023 07:30:32 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [RFC PATCH net 0/3] virtio-net: allow usage of small vrings
-Message-ID: <20230602072138-mutt-send-email-mst@kernel.org>
+Subject: Re: [RFC PATCH net 2/3] virtio-net: allow usage of vrings smaller
+ than MAX_SKB_FRAGS + 2
+Message-ID: <20230602072957-mutt-send-email-mst@kernel.org>
 References: <20230430131518.2708471-1-alvaro.karsz@solid-run.com>
- <20230430100535-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723C479C388266434DE415ED4699@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230501062107-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723E9A0AED11B60360D27C2D46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+ <20230430131518.2708471-3-alvaro.karsz@solid-run.com>
+ <20230430093009-mutt-send-email-mst@kernel.org>
+ <AM0PR04MB4723043772ACAF516D6BFA79D4699@AM0PR04MB4723.eurprd04.prod.outlook.com>
+ <20230501061401-mutt-send-email-mst@kernel.org>
+ <AM0PR04MB4723AA2ABCE91928BE735DEBD46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <AM0PR04MB4723E9A0AED11B60360D27C2D46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+In-Reply-To: <AM0PR04MB4723AA2ABCE91928BE735DEBD46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -131,114 +133,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 01, 2023 at 11:41:44AM +0000, Alvaro Karsz wrote:
-> > > > Why the difference?
-> > > >
-> > >
-> > > Because the RING_SIZE < 4 case requires much more adjustments.
-> > >
-> > > * We may need to squeeze the virtio header into the headroom.
-> > > * We may need to squeeze the GSO header into the headroom, or block the features.
+On Mon, May 01, 2023 at 11:59:42AM +0000, Alvaro Karsz wrote:
+> > First up to 4k should not be a problem. Even jumbo frames e.g. 9k
+> > is highly likely to succeed. And a probe time which is often boot
+> > even 64k isn't a problem ...
 > > 
-> > We alread do this though no?
-> > I think we'll need to tweak hard_header_len to guarantee it's there
-> > as opposed to needed_headroom ...
+> > Hmm. We could allocate large buffers at probe time. Reuse them and
+> > copy data over.
 > > 
-> > > * At the moment, without NETIF_F_SG, we can receive a skb with 2 segments, we may need to reduce it to 1.
-> > 
-> > You are saying clearing NETIF_F_SG does not guarantee a linear skb?
+> > IOW reusing  GOOD_COPY_LEN flow for this case.  Not yet sure how I feel
+> > about this. OTOH it removes the need for the whole feature blocking
+> > approach, does it not?
+> > WDYT?
 > > 
 > 
-> I don't know..
-> I'm not sure what is the cause, but using this patchset, without any host GSO feature, I can get a chain of 3 descriptors.
-> Posing an example of a 4 entries ring during iperf3, acting as a client:
-> (TX descriptors)
+> It could work..
 > 
-> len=86       flags 0x1         addr 0xf738d000
-> len=1448   flags 0x0         addr 0xf738d800
-> len=86       flags 0x8081   addr 0xf738e000
-> len=1184,   flags 0x8081  addr 0xf738e800
-> len=264     flags 0x8080   addr 0xf738f000
-> len=86       flags 0x8081   addr 0xf738f800
-> len=1448   flags 0x0         addr 0xf7390000
-> len=86       flags 0x1         addr 0xf7390800
-> len=1448   flags 0x0         addr 0xf7391000
-> len=86       flags 0x1         addr 0xf716a800
-> len=1448   flags 0x8080   addr 0xf716b000
-> len=86       flags 0x8081   addr 0xf7391800
-> len=1448   flags 0x8080   addr 0xf7392000
-> 
-> We got a chain of 3 in here.
-> This happens often.
-> 
-> Now, when negotiating host GSO features, I can get up to 4:
-> 
-> len=86       flags 0x1         addr 0xf71fc800
-> len=21328 flags 0x1         addr 0xf6e00800
-> len=32768 flags 0x8081   addr 0xf6e06000
-> len=11064 flags 0x8080   addr 0xf6e0e000
-> len=86       flags 0x8081   addr 0xf738b000
-> len=1         flags 0x8080   addr 0xf738b800
-> len=86       flags 0x1         addr 0xf738c000
-> len=21704 flags 0x1         addr 0xf738c800
-> len=32768 flags 0x1         addr 0xf7392000
-> len=10688 flags 0x0         addr 0xf739a000
-> len=86       flags 0x8081   addr 0xf739d000
-> len=22080 flags 0x8081   addr 0xf739d800
-> len=32768 flags 0x8081   addr 0xf73a3000
-> len=10312 flags 0x8080   addr 0xf73ab000
-> 
-> TBH, I thought that this behaviour was expected until you mentioned it,
-> This is why virtnet_calc_max_descs returns 3 if no host_gso feature is negotiated, and 4 otherwise.
-> I was thinking that we may need to use another skb to hold the TSO template (for headers generation)...
-> 
-> Any ideas?
+> In order to remove completely the feature blocking approach, we'll need to let the control commands fail (as you mentioned in the other patch).
+> I'm not sure I like it, it means many warnings from virtnet..
+> And it means accepting features that we know for sure that are not going to work.
+>
 
-Something's wrong with the code apparently. Want to try sticking
-printk's in the driver to see what is going on?
-
-Documentation/networking/netdev-features.rst says:
-	Those features say that ndo_start_xmit can handle fragmented skbs:
-	NETIF_F_SG --- paged skbs (skb_shinfo()->frags), NETIF_F_FRAGLIST ---
-	chained skbs (skb->next/prev list).
-
-
-of course we can always linearize if we want to ...
-
-
-> > > * We may need to change all the control commands, so class,  command and command specific data will fit in a single segment.
-> > > * We may need to disable the control command and all the features depending on it.
-> > 
-> > well if we don't commands just fail as we can't add them right?
-> > no corruption or stalls ...
-> > 
-> > > * We may need to disable NAPI?
-> > 
-> > hmm why napi?
-> > 
-> 
-> I'm not sure if it's required to disable it, but I'm not sure what's the point having napi if the ring size is 1..
-> Will it work?
-
-Not much point in it but it's simpler to just keep things consistent.
-
-> > > There may be more changes..
-> > >
-> > > I was thinking that it may be easier to start with the easier case RING_SIZE >= 4, make sure everything is working fine, then send a follow up patchset with the required adjustments for RING_SIZE < 4.
-> > 
-> > 
-> > it's ok but I'm just trying to figure out where does 4 come from.
-> > 
-> 
-> I guess this part was not clear, sorry..
-> In case of split vqs, we have ring size 2 before 4.
-> And as you saw, we still get chains of 3 when NETIF_F_SG is off (Which I thought was expected).
-> 
-
-Worth figuring out where do these come from.
+Well they will work yes? just with an extra copy.
 
 -- 
-MST
+MST 
 
 _______________________________________________
 Virtualization mailing list
