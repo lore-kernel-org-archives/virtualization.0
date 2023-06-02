@@ -4,119 +4,116 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 090FEC77B7A
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:30:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07EEDC7EE29
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:36:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7900B42732;
-	Fri,  2 Jun 2023 11:30:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7900B42732
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5607A42734;
+	Fri,  2 Jun 2023 11:36:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5607A42734
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQ8VKrQ7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SoMJ3Ewr
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id b_tfFw8fsUk0; Fri,  2 Jun 2023 11:30:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C5C0442696;
-	Fri,  2 Jun 2023 11:30:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C5C0442696
+	with ESMTP id Vm6YrPyLt_-v; Fri,  2 Jun 2023 11:36:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AB1BB42715;
+	Fri,  2 Jun 2023 11:36:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AB1BB42715
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 989BEC0037;
-	Fri,  2 Jun 2023 11:30:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8313CC0037;
+	Fri,  2 Jun 2023 11:36:35 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 772C6C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3BA0AC0029
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:30:41 +0000 (UTC)
+ Fri,  2 Jun 2023 11:36:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 51A2C84448
+ by smtp1.osuosl.org (Postfix) with ESMTP id 08EDE8440B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:30:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 51A2C84448
+ Fri,  2 Jun 2023 11:36:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 08EDE8440B
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NQ8VKrQ7
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=SoMJ3Ewr
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vUDwXPc3fjld
+ with ESMTP id SAoW5lMavCuY
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:30:40 +0000 (UTC)
+ Fri,  2 Jun 2023 11:36:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9A7F184442
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 63F67843FC
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9A7F184442
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 63F67843FC
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:30:40 +0000 (UTC)
+ Fri,  2 Jun 2023 11:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685705439;
+ s=mimecast20190719; t=1685705792;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=F00vpVMdWa9TR3+Nam4tbq5OQWssX8hYIk9OI5cMqFY=;
- b=NQ8VKrQ7SJtR4wo8UZYL/+D7ikqSD7BuQr3TdDmSHCiBCoGOpMfoZGTsnjegtgUVxpcYYb
- a/vP5qQKEnmyBgYnM0JNB3QZZGvVh/0j9nY9nsimK7qLu1KcNhfznp2dhnaNVbPtv0T0jT
- Gmb6DS2fHnn0Mu8aRDfpOWQHH+gAhRE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LVUyDjwNsYOpveCHZodIRDVco+r4PlkF8jWKJl0C0LU=;
+ b=SoMJ3Ewros1LSqX+QM5HsWR9roFT2n/gWPKUPEy47PPrXVvhpS6bRCpUHby/xYDSKGfT9S
+ lxrrefQUVmKTqou1oslyMAm035rYTgXlq65UGycUdeVWzFE8XzDwsq3lX/1ernLIsm5pks
+ 0pw9LbSjH4Vw9QBHvPObQ99YoW2phSI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-52-czLmDdSTMWWpBN60Eor54w-1; Fri, 02 Jun 2023 07:30:38 -0400
-X-MC-Unique: czLmDdSTMWWpBN60Eor54w-1
-Received: by mail-wr1-f69.google.com with SMTP id
- ffacd0b85a97d-30c3ad3238bso912905f8f.0
+ us-mta-224-v7qrxCTWOzeS1kWSkaPTCA-1; Fri, 02 Jun 2023 07:36:31 -0400
+X-MC-Unique: v7qrxCTWOzeS1kWSkaPTCA-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ ffacd0b85a97d-30ae8a5006dso2454041f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 02 Jun 2023 04:30:37 -0700 (PDT)
+ Fri, 02 Jun 2023 04:36:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685705437; x=1688297437;
+ d=1e100.net; s=20221208; t=1685705790; x=1688297790;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=F00vpVMdWa9TR3+Nam4tbq5OQWssX8hYIk9OI5cMqFY=;
- b=POZjM23JXe9zbPz2e4ukZWFg55ODn8J6mro6Z8eKV9kS8HOPM0R+aj2uYUVqCgEXaq
- DGrGHSOYJnPb04CHcsvPZvYIUQU98/cVSZkM5zgP7oZGwMr1iz12Dm7kWGYhsmAx7eNh
- QLk4bOqN018KAhggD6tCazFAve7bW19DVvUOvRcUmaAY3/7Xfy/fMo8u3pqoWxodijmm
- erjrYGvKYlmzX2oy8PCvGwFFY/9gOMxPHBSESzO7bQigFwsC3jlOSjvNcVmb8XzFajRu
- Vwcb0tJj2Bz3vs3DBmVIhUfEfHetTIjhKM5Y4juOrf86+jGQqk5sbfE4ECGCSrQh6lXZ
- yWiA==
-X-Gm-Message-State: AC+VfDwFLgux6CRdAOcMwpiF8eTQWI9NrahP1F8OreHJmCEQFKHynvaG
- X5lrF8bldcf742mU9zK9gUR+Tg1Y+AUYrVcHvhrzUUmxAFOSKI9lvqoTXFMf7h+R4VIkadhJSoR
- muB03i1zZAvL/XQqWp7rLRdskVbRZdlnVM0F4zTM4RA==
-X-Received: by 2002:a05:6000:1141:b0:307:7f38:37f with SMTP id
- d1-20020a056000114100b003077f38037fmr3299570wrx.66.1685705437012; 
- Fri, 02 Jun 2023 04:30:37 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ51q8bGzTk7RTQC1JX4flfHvzngWe3LU5wYEXOankGsD1jwSofiDuWc4F6Hnz+ZttjZWbaCmQ==
-X-Received: by 2002:a05:6000:1141:b0:307:7f38:37f with SMTP id
- d1-20020a056000114100b003077f38037fmr3299553wrx.66.1685705436723; 
- Fri, 02 Jun 2023 04:30:36 -0700 (PDT)
-Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
- z9-20020a5d4c89000000b002fe96f0b3acsm1439241wrs.63.2023.06.02.04.30.34
+ bh=LVUyDjwNsYOpveCHZodIRDVco+r4PlkF8jWKJl0C0LU=;
+ b=i8WOanNTJBossxG90ttH1bgtYBdbU8ZYmpnvXrw2Vmta31vp2aMCan7yMsvCICP0VL
+ baL4t95EBT9eX0XaIXHd2V6tscQ6MtBU7mgIRvk4ZCDVA4jzmOQ4QG5sv2mgG1S89x+I
+ n3Tii8uy2tXbFEZmSwViEVOSHDIij54uP7FipSTErcgAe/cJStxbbL/xyOMR6kvDioz+
+ tk1J1hTPAtYjVpqx37wrh2WA8vIbPCvM1cprTD2j4NMVDy2BiTxj75/hW7Jpj2oP5AdS
+ HZK8TOWgEd0asuYz5vRBFZdfUUBKTCCqNGAqY23zElxRH7kl1gOHwNAbO240A7YcO9ra
+ RULA==
+X-Gm-Message-State: AC+VfDxKUodMrEpVSyMAot7V6vTfaT1dBDX/vYQcUfAtAf4FVvvKHHV6
+ Y5A4qoUDjapbj0ARe1C/g3nltju0EnNTjthOTDnCGVZ3Hy6csIAvefDBbUyKU3/a4suxoAVaK0l
+ IqNXTjn/NYGQafBBzOKWAcGpAcy/ixgAKghgJtcbedA==
+X-Received: by 2002:adf:f8d2:0:b0:30a:f3f6:2712 with SMTP id
+ f18-20020adff8d2000000b0030af3f62712mr4398549wrq.60.1685705789921; 
+ Fri, 02 Jun 2023 04:36:29 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ7NPqBJbj8hKWaRbe1r+J02QAvPyCor1V6v0wGD3J4hqwQYAbETIkEwdGMoetOm326DtLN0rQ==
+X-Received: by 2002:adf:f8d2:0:b0:30a:f3f6:2712 with SMTP id
+ f18-20020adff8d2000000b0030af3f62712mr4398539wrq.60.1685705789667; 
+ Fri, 02 Jun 2023 04:36:29 -0700 (PDT)
+Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
+ c18-20020adfe752000000b0030af20aaa3fsm1436100wrn.71.2023.06.02.04.36.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 02 Jun 2023 04:30:36 -0700 (PDT)
-Date: Fri, 2 Jun 2023 07:30:32 -0400
+ Fri, 02 Jun 2023 04:36:29 -0700 (PDT)
+Date: Fri, 2 Jun 2023 07:36:26 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alvaro Karsz <alvaro.karsz@solid-run.com>
-Subject: Re: [RFC PATCH net 2/3] virtio-net: allow usage of vrings smaller
- than MAX_SKB_FRAGS + 2
-Message-ID: <20230602072957-mutt-send-email-mst@kernel.org>
-References: <20230430131518.2708471-1-alvaro.karsz@solid-run.com>
- <20230430131518.2708471-3-alvaro.karsz@solid-run.com>
- <20230430093009-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723043772ACAF516D6BFA79D4699@AM0PR04MB4723.eurprd04.prod.outlook.com>
- <20230501061401-mutt-send-email-mst@kernel.org>
- <AM0PR04MB4723AA2ABCE91928BE735DEBD46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2 2/3] vhost: support PACKED when setting-getting
+ vring_base
+Message-ID: <20230602073559-mutt-send-email-mst@kernel.org>
+References: <20230424225031.18947-1-shannon.nelson@amd.com>
+ <20230424225031.18947-3-shannon.nelson@amd.com>
+ <ogzrlfid7jwfzgk42zffegaq4xhdsrpi6vu22333ub4bkmvpc3@3pa2eyzub3jn>
+ <58f93ced-2f2b-dba1-b8a3-96bdb755d54e@amd.com>
+ <q6cmfha36sdkgflwwd3pr4sw7rgajag4ahgjbpfjrr76w4o2b6@3yc7zs5u65s4>
+ <dcfb15e6-a4c9-cb91-becd-a1e56e14d340@amd.com>
+ <CACGkMEsNo4O0uAdO5koXgYbgQLoOWp81KNjsaZYSuQ7YzjvPbA@mail.gmail.com>
+ <CAGxU2F4kwnGq41q99nx879Y4Br=0aeZsf2bjx2ZqpOc93G_gDQ@mail.gmail.com>
+ <CACGkMEsi0Vu21ZX2WZuEWNKQ4KTGA1iNb6+8SHeCb+Penqxr8g@mail.gmail.com>
+ <CAGxU2F63yQuc-eefSkEKZKZUxpnS4myGhNP2Bkj+QQk01Pi_yg@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <AM0PR04MB4723AA2ABCE91928BE735DEBD46E9@AM0PR04MB4723.eurprd04.prod.outlook.com>
+In-Reply-To: <CAGxU2F63yQuc-eefSkEKZKZUxpnS4myGhNP2Bkj+QQk01Pi_yg@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "edumazet@google.com" <edumazet@google.com>,
- "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>
+Cc: virtualization@lists.linux-foundation.org, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,31 +130,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, May 01, 2023 at 11:59:42AM +0000, Alvaro Karsz wrote:
-> > First up to 4k should not be a problem. Even jumbo frames e.g. 9k
-> > is highly likely to succeed. And a probe time which is often boot
-> > even 64k isn't a problem ...
-> > 
-> > Hmm. We could allocate large buffers at probe time. Reuse them and
-> > copy data over.
-> > 
-> > IOW reusing  GOOD_COPY_LEN flow for this case.  Not yet sure how I feel
-> > about this. OTOH it removes the need for the whole feature blocking
-> > approach, does it not?
-> > WDYT?
-> > 
+On Thu, May 18, 2023 at 09:34:25AM +0200, Stefano Garzarella wrote:
+> I think we should do one of these things, though:
+> - mask VIRTIO_F_RING_PACKED in the stable kernels when
+> VHOST_GET_FEAETURES is called
+> - backport this patch on all stable kernels that support vhost-vdpa
 > 
-> It could work..
+> Maybe the last one makes more sense.
 > 
-> In order to remove completely the feature blocking approach, we'll need to let the control commands fail (as you mentioned in the other patch).
-> I'm not sure I like it, it means many warnings from virtnet..
-> And it means accepting features that we know for sure that are not going to work.
->
+> Thanks,
+> Stefano
 
-Well they will work yes? just with an extra copy.
+OK which patches do you want to go to stable exactly?
+
 
 -- 
-MST 
+MST
 
 _______________________________________________
 Virtualization mailing list
