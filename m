@@ -1,113 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81D6DC7EE24
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:00:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5FA41C77B7A
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jun 2023 11:15:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F246C42700;
-	Fri,  2 Jun 2023 11:00:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F246C42700
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fxlmWQZR
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uxg6JFqstM5k; Fri,  2 Jun 2023 11:00:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B6763426EE;
-	Fri,  2 Jun 2023 11:00:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6763426EE
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 92494C007A;
-	Fri,  2 Jun 2023 11:00:13 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA990C0029
- for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:00:11 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B79C68442E
- for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:00:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B79C68442E
+	by smtp1.osuosl.org (Postfix) with ESMTP id CD05D843E3;
+	Fri,  2 Jun 2023 11:15:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD05D843E3
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=fxlmWQZR
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lj4Iqpv3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ADqPYuppD1hG
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2ErYM6i84ADD; Fri,  2 Jun 2023 11:15:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6BBCF84288;
+	Fri,  2 Jun 2023 11:15:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6BBCF84288
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4717FC0037;
+	Fri,  2 Jun 2023 11:15:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F591C0029
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:00:07 +0000 (UTC)
+ Fri,  2 Jun 2023 11:15:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D544C42734
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  2 Jun 2023 11:15:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D544C42734
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Lj4Iqpv3
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id idXKHdBvSJM3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  2 Jun 2023 11:15:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 996C484429
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 61B354272D
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 996C484429
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 61B354272D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jun 2023 11:00:07 +0000 (UTC)
+ Fri,  2 Jun 2023 11:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685703606;
+ s=mimecast20190719; t=1685704533;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=0BT6WpvGnmKoOwXdJdOKLvUUoq9vXWPy+fxEo1qghHI=;
- b=fxlmWQZRFxgStikirWUsY+GaDj1J7HkM5jD7J1XQz3kKeKtmmio0OsnzRbvOfOjQJqwgZZ
- nOo/aMWxJG/VJRn+qhvTWIpL16KhoGvZOJTOmDEgj13EWhCEJEuRh+lHufFtgv9y8DcSHj
- nppETI6UvOUmjJt0H1JfLoTAR5DP5dM=
+ bh=imQ8hkrYLqR8ckCqlA+Lim20RdkOae7FAIksRB3MKCQ=;
+ b=Lj4Iqpv37dBE4eLoM5bFWcviYP55erk9QemEqtd2L/WxjMvU8WqHz6OoG0WGhQLiN6sL70
+ PgMOA4ObvgqVyQ5ydhLDFUbNrpuRaPUeCa38efAOowuVDIHEyJjTQr5VBGXqjn6kgx2Gws
+ v7JQGc2j20HwgZG7eoJPF842dC394hA=
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
  [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-594-8TY3I5thOV6VtqKNY9GcVg-1; Fri, 02 Jun 2023 07:00:05 -0400
-X-MC-Unique: 8TY3I5thOV6VtqKNY9GcVg-1
+ us-mta-413-kJmES0NzPU-lk4JnEaApvg-1; Fri, 02 Jun 2023 07:15:31 -0400
+X-MC-Unique: kJmES0NzPU-lk4JnEaApvg-1
 Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-3f6069f764bso32698685e9.0
+ 5b1f17b1804b1-3f6f2f18ecbso11058105e9.0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 02 Jun 2023 04:00:04 -0700 (PDT)
+ Fri, 02 Jun 2023 04:15:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685703604; x=1688295604;
+ d=1e100.net; s=20221208; t=1685704531; x=1688296531;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=0BT6WpvGnmKoOwXdJdOKLvUUoq9vXWPy+fxEo1qghHI=;
- b=eySrFVbhuAMYAQsJoQ8o0uQVsAXddGgohjbynVoFBJvMwTimDO1o6QDJFJPrKMU/dQ
- hluhJdODO6nYYTdvutSuxRbN/gMJMWmJPw/GPKSg/mxMYSVkOfZhQAeCSZ/rgxinIQ6p
- RqKBJYbJOylK2QzdvQwEW2GaaKu60Sy4J3pB15IMwUkU5U5OQB4Jg0GXOW78s5xi1MGV
- uSgwyfLTz/rvKKOlhG/4tDxMkV0xv7jJlHjVQVhZcT88nWWQAEX5nOxG/X0/CymLV2ox
- Om2qNgFvKFJgoBqQZW1cPVIjw0HI6Xn8bSnkvwIrQqXGwEgAjgeYWQqqibunwmLEQGQ+
- n8Kw==
-X-Gm-Message-State: AC+VfDzTGbi5gALDYgMyGQux+3xeDrurOPX4XYd0WCvpuq+yB99g8YNT
- EzjZWY53CgHovBCXo3L1AsLt8UQose6Y8OU7gDogNZfSVkejl6PhyRJdvjE4pzC/f1aNcYxTwBT
- trzDqP2BOiMOQ+8V+3i7j/SF692K0YgSjd/D0rojw2Q==
-X-Received: by 2002:a05:600c:c2:b0:3f5:fbd0:94ab with SMTP id
- u2-20020a05600c00c200b003f5fbd094abmr1838396wmm.3.1685703603947; 
- Fri, 02 Jun 2023 04:00:03 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6dCMn2oAPJ0MMC3LQYmxajH/Hc8VdwaxV63HUajKCCpIdm/B47SM02Gd70ZSGLlr3K+wCLzA==
-X-Received: by 2002:a05:600c:c2:b0:3f5:fbd0:94ab with SMTP id
- u2-20020a05600c00c200b003f5fbd094abmr1838378wmm.3.1685703603492; 
- Fri, 02 Jun 2023 04:00:03 -0700 (PDT)
-Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
- k7-20020a05600c0b4700b003f4f89bc48dsm5144311wmr.15.2023.06.02.04.00.00
+ bh=imQ8hkrYLqR8ckCqlA+Lim20RdkOae7FAIksRB3MKCQ=;
+ b=M4dXuMvvi6EMLrDJnIPUolrFJgG0YxC6eXmIh1EHqJSh6LouI0/68/Mg72NGnKx58g
+ 4bj7PaZtbsH601/sZcChj9gCxkqWW5eXRmQxz7CLdVf+DdvF1NfTsZQihHzZQEzI/M/6
+ uEHjPx2YjMLuN1Y8JyIiIByWRXX9lfObOkvHpUfBKAIPEwRBkVVLBjGSPcJZwCTEq878
+ MEuVSDH+5LIXImJAyASAbd8U/1lRSPAVtBprictd/efmJ3/0Ssy1yZ8R0Z1v5lWbW+XE
+ mtpiKTC5GCTah7ih5Dh1TzRBiywmChaWnp4JDXdbtaf5GjG2E0jyoYEzCDmaB4r9prV0
+ Oa/g==
+X-Gm-Message-State: AC+VfDzkfgcU6nlFDfCne46FVcpiX2zsoFpEFpmnCWrI0WOZU4038N94
+ paWXknUFf29baYRGI9thc1cOsOprSlhehjb8xrIyJn19mtXudqh4oH3/XaZGe9jhGuXIcce/mSc
+ fVAIxIBX72VetMNvFlVVVR1bIyyHRZxYIWQOKy4diKw==
+X-Received: by 2002:a7b:c841:0:b0:3f7:26f8:f9c3 with SMTP id
+ c1-20020a7bc841000000b003f726f8f9c3mr1064699wml.5.1685704530892; 
+ Fri, 02 Jun 2023 04:15:30 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6UWcaTAnKc4xQxzU4UjZxKiFiySGLh197x+LFMig+w4H4npT0uQes1m4bOREHyF9AKJ4OAiw==
+X-Received: by 2002:a7b:c841:0:b0:3f7:26f8:f9c3 with SMTP id
+ c1-20020a7bc841000000b003f726f8f9c3mr1064685wml.5.1685704530633; 
+ Fri, 02 Jun 2023 04:15:30 -0700 (PDT)
+Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
+ w11-20020a1cf60b000000b003f423f5b659sm1630095wmc.10.2023.06.02.04.15.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 02 Jun 2023 04:00:02 -0700 (PDT)
-Date: Fri, 2 Jun 2023 06:59:58 -0400
+ Fri, 02 Jun 2023 04:15:29 -0700 (PDT)
+Date: Fri, 2 Jun 2023 07:15:26 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH v4 1/1] vringh: IOMEM support
-Message-ID: <20230602065929-mutt-send-email-mst@kernel.org>
-References: <20230602055211.309960-2-mie@igel.co.jp>
- <202306021725.3otSfXPF-lkp@intel.com>
+To: Ross Zwisler <zwisler@chromium.org>
+Subject: Re: [PATCH v2 5/6] tools/virtio: use canonical ftrace path
+Message-ID: <20230602071517-mutt-send-email-mst@kernel.org>
+References: <20230215223350.2658616-1-zwisler@google.com>
+ <20230215223350.2658616-6-zwisler@google.com>
 MIME-Version: 1.0
-In-Reply-To: <202306021725.3otSfXPF-lkp@intel.com>
+In-Reply-To: <20230215223350.2658616-6-zwisler@google.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
- Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Shunsuke Mie <mie@igel.co.jp>,
- oe-kbuild-all@lists.linux.dev
+Cc: Ross Zwisler <zwisler@google.com>, linux-kernel@vger.kernel.org,
+ Steven Rostedt <rostedt@goodmis.org>,
+ virtualization@lists.linux-foundation.org, linux-trace-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,241 +123,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 02, 2023 at 05:56:12PM +0800, kernel test robot wrote:
-> Hi Shunsuke,
+On Wed, Feb 15, 2023 at 03:33:49PM -0700, Ross Zwisler wrote:
+> The canonical location for the tracefs filesystem is at /sys/kernel/tracing.
 > 
-> kernel test robot noticed the following build warnings:
+> But, from Documentation/trace/ftrace.rst:
 > 
-> [auto build test WARNING on mst-vhost/linux-next]
-> [also build test WARNING on linus/master horms-ipvs/master v6.4-rc4 next-20230602]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+>   Before 4.1, all ftrace tracing control files were within the debugfs
+>   file system, which is typically located at /sys/kernel/debug/tracing.
+>   For backward compatibility, when mounting the debugfs file system,
+>   the tracefs file system will be automatically mounted at:
 > 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Shunsuke-Mie/vringh-IOMEM-support/20230602-135351
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-> patch link:    https://lore.kernel.org/r/20230602055211.309960-2-mie%40igel.co.jp
-> patch subject: [PATCH v4 1/1] vringh: IOMEM support
-> config: alpha-allyesconfig (https://download.01.org/0day-ci/archive/20230602/202306021725.3otSfXPF-lkp@intel.com/config)
-> compiler: alpha-linux-gcc (GCC) 12.3.0
-> reproduce (this is a W=1 build):
->         mkdir -p ~/bin
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://github.com/intel-lab-lkp/linux/commit/de2a1f5220c32e953400f225aba6bd294a8d41b8
->         git remote add linux-review https://github.com/intel-lab-lkp/linux
->         git fetch --no-tags linux-review Shunsuke-Mie/vringh-IOMEM-support/20230602-135351
->         git checkout de2a1f5220c32e953400f225aba6bd294a8d41b8
->         # save the config file
->         mkdir build_dir && cp config build_dir/.config
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=alpha olddefconfig
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=alpha SHELL=/bin/bash drivers/
+>   /sys/kernel/debug/tracing
 > 
-> If you fix the issue, kindly add following tag where applicable
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202306021725.3otSfXPF-lkp@intel.com/
+> A few spots in tools/virtio still refer to this older debugfs
+> path, so let's update them to avoid confusion.
 > 
-> All warnings (new ones prefixed by >>):
-> 
-> >> drivers/vhost/vringh.c:1661:5: warning: no previous prototype for 'vringh_init_iomem' [-Wmissing-prototypes]
->     1661 | int vringh_init_iomem(struct vringh *vrh, u64 features, unsigned int num,
->          |     ^~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1683:5: warning: no previous prototype for 'vringh_getdesc_iomem' [-Wmissing-prototypes]
->     1683 | int vringh_getdesc_iomem(struct vringh *vrh, struct vringh_kiov *riov,
->          |     ^~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1714:9: warning: no previous prototype for 'vringh_iov_pull_iomem' [-Wmissing-prototypes]
->     1714 | ssize_t vringh_iov_pull_iomem(struct vringh *vrh, struct vringh_kiov *riov,
->          |         ^~~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1729:9: warning: no previous prototype for 'vringh_iov_push_iomem' [-Wmissing-prototypes]
->     1729 | ssize_t vringh_iov_push_iomem(struct vringh *vrh, struct vringh_kiov *wiov,
->          |         ^~~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1744:6: warning: no previous prototype for 'vringh_abandon_iomem' [-Wmissing-prototypes]
->     1744 | void vringh_abandon_iomem(struct vringh *vrh, unsigned int num)
->          |      ^~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1759:5: warning: no previous prototype for 'vringh_complete_iomem' [-Wmissing-prototypes]
->     1759 | int vringh_complete_iomem(struct vringh *vrh, u16 head, u32 len)
->          |     ^~~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1777:6: warning: no previous prototype for 'vringh_notify_enable_iomem' [-Wmissing-prototypes]
->     1777 | bool vringh_notify_enable_iomem(struct vringh *vrh)
->          |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1790:6: warning: no previous prototype for 'vringh_notify_disable_iomem' [-Wmissing-prototypes]
->     1790 | void vringh_notify_disable_iomem(struct vringh *vrh)
->          |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >> drivers/vhost/vringh.c:1802:5: warning: no previous prototype for 'vringh_need_notify_iomem' [-Wmissing-prototypes]
->     1802 | int vringh_need_notify_iomem(struct vringh *vrh)
->          |     ^~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> 
-> vim +/vringh_init_iomem +1661 drivers/vhost/vringh.c
+> Signed-off-by: Ross Zwisler <zwisler@google.com>
 
+queued this too. thanks!
 
-You probably should put the relevant code within ifdef.
-
->   1647	
->   1648	/**
->   1649	 * vringh_init_iomem - initialize a vringh for a vring on io-memory.
->   1650	 * @vrh: the vringh to initialize.
->   1651	 * @features: the feature bits for this ring.
->   1652	 * @num: the number of elements.
->   1653	 * @weak_barriers: true if we only need memory barriers, not I/O.
->   1654	 * @desc: the userspace descriptor pointer.
->   1655	 * @avail: the userspace avail pointer.
->   1656	 * @used: the userspace used pointer.
->   1657	 *
->   1658	 * Returns an error if num is invalid: you should check pointers
->   1659	 * yourself!
->   1660	 */
-> > 1661	int vringh_init_iomem(struct vringh *vrh, u64 features, unsigned int num,
->   1662			      bool weak_barriers, struct vring_desc *desc,
->   1663			      struct vring_avail *avail, struct vring_used *used)
->   1664	{
->   1665		return vringh_init_kern(vrh, features, num, weak_barriers, desc, avail,
->   1666					used);
->   1667	}
->   1668	EXPORT_SYMBOL(vringh_init_iomem);
->   1669	
->   1670	/**
->   1671	 * vringh_getdesc_iomem - get next available descriptor from vring on io-memory.
->   1672	 * @vrh: the vring on io-memory.
->   1673	 * @riov: where to put the readable descriptors (or NULL)
->   1674	 * @wiov: where to put the writable descriptors (or NULL)
->   1675	 * @head: head index we received, for passing to vringh_complete_iomem().
->   1676	 * @gfp: flags for allocating larger riov/wiov.
->   1677	 *
->   1678	 * Returns 0 if there was no descriptor, 1 if there was, or -errno.
->   1679	 *
->   1680	 * There some notes, and those are same with vringh_getdesc_kern(). Please see
->   1681	 * it.
->   1682	 */
-> > 1683	int vringh_getdesc_iomem(struct vringh *vrh, struct vringh_kiov *riov,
->   1684				 struct vringh_kiov *wiov, u16 *head, gfp_t gfp)
->   1685	{
->   1686		int err;
->   1687	
->   1688		err = __vringh_get_head(vrh, getu16_iomem, &vrh->last_avail_idx);
->   1689		if (err < 0)
->   1690			return err;
->   1691	
->   1692		/* Empty... */
->   1693		if (err == vrh->vring.num)
->   1694			return 0;
->   1695	
->   1696		*head = err;
->   1697		err = __vringh_iov(vrh, *head, riov, wiov, no_range_check, NULL, gfp,
->   1698				   copydesc_iomem);
->   1699		if (err)
->   1700			return err;
->   1701	
->   1702		return 1;
->   1703	}
->   1704	EXPORT_SYMBOL(vringh_getdesc_iomem);
->   1705	
->   1706	/**
->   1707	 * vringh_iov_pull_iomem - copy bytes from vring_iov.
->   1708	 * @riov: the riov as passed to vringh_getdesc_iomem() (updated as we consume)
->   1709	 * @dst: the place to copy.
->   1710	 * @len: the maximum length to copy.
->   1711	 *
->   1712	 * Returns the bytes copied <= len or a negative errno.
->   1713	 */
-> > 1714	ssize_t vringh_iov_pull_iomem(struct vringh *vrh, struct vringh_kiov *riov,
->   1715				      void *dst, size_t len)
->   1716	{
->   1717		return vringh_iov_xfer(vrh, riov, dst, len, xfer_from_iomem);
->   1718	}
->   1719	EXPORT_SYMBOL(vringh_iov_pull_iomem);
->   1720	
->   1721	/**
->   1722	 * vringh_iov_push_iomem - copy bytes into vring_iov.
->   1723	 * @wiov: the wiov as passed to vringh_getdesc_iomem() (updated as we consume)
->   1724	 * @src: the place to copy from.
->   1725	 * @len: the maximum length to copy.
->   1726	 *
->   1727	 * Returns the bytes copied <= len or a negative errno.
->   1728	 */
-> > 1729	ssize_t vringh_iov_push_iomem(struct vringh *vrh, struct vringh_kiov *wiov,
->   1730				      const void *src, size_t len)
->   1731	{
->   1732		return vringh_iov_xfer(vrh, wiov, (void *)src, len, xfer_to_iomem);
->   1733	}
->   1734	EXPORT_SYMBOL(vringh_iov_push_iomem);
->   1735	
->   1736	/**
->   1737	 * vringh_abandon_iomem - we've decided not to handle the descriptor(s).
->   1738	 * @vrh: the vring.
->   1739	 * @num: the number of descriptors to put back (ie. num
->   1740	 *	 vringh_getdesc_iomem() to undo).
->   1741	 *
->   1742	 * The next vringh_get_kern() will return the old descriptor(s) again.
->   1743	 */
-> > 1744	void vringh_abandon_iomem(struct vringh *vrh, unsigned int num)
->   1745	{
->   1746		vringh_abandon_kern(vrh, num);
->   1747	}
->   1748	EXPORT_SYMBOL(vringh_abandon_iomem);
->   1749	
->   1750	/**
->   1751	 * vringh_complete_iomem - we've finished with descriptor, publish it.
->   1752	 * @vrh: the vring.
->   1753	 * @head: the head as filled in by vringh_getdesc_iomem().
->   1754	 * @len: the length of data we have written.
->   1755	 *
->   1756	 * You should check vringh_need_notify_iomem() after one or more calls
->   1757	 * to this function.
->   1758	 */
-> > 1759	int vringh_complete_iomem(struct vringh *vrh, u16 head, u32 len)
->   1760	{
->   1761		struct vring_used_elem used;
->   1762	
->   1763		used.id = cpu_to_vringh32(vrh, head);
->   1764		used.len = cpu_to_vringh32(vrh, len);
->   1765	
->   1766		return __vringh_complete(vrh, &used, 1, putu16_iomem, putused_iomem);
->   1767	}
->   1768	EXPORT_SYMBOL(vringh_complete_iomem);
->   1769	
->   1770	/**
->   1771	 * vringh_notify_enable_iomem - we want to know if something changes.
->   1772	 * @vrh: the vring.
->   1773	 *
->   1774	 * This always enables notifications, but returns false if there are
->   1775	 * now more buffers available in the vring.
->   1776	 */
-> > 1777	bool vringh_notify_enable_iomem(struct vringh *vrh)
->   1778	{
->   1779		return __vringh_notify_enable(vrh, getu16_iomem, putu16_iomem);
->   1780	}
->   1781	EXPORT_SYMBOL(vringh_notify_enable_iomem);
->   1782	
->   1783	/**
->   1784	 * vringh_notify_disable_iomem - don't tell us if something changes.
->   1785	 * @vrh: the vring.
->   1786	 *
->   1787	 * This is our normal running state: we disable and then only enable when
->   1788	 * we're going to sleep.
->   1789	 */
-> > 1790	void vringh_notify_disable_iomem(struct vringh *vrh)
->   1791	{
->   1792		__vringh_notify_disable(vrh, putu16_iomem);
->   1793	}
->   1794	EXPORT_SYMBOL(vringh_notify_disable_iomem);
->   1795	
->   1796	/**
->   1797	 * vringh_need_notify_iomem - must we tell the other side about used buffers?
->   1798	 * @vrh: the vring we've called vringh_complete_iomem() on.
->   1799	 *
->   1800	 * Returns -errno or 0 if we don't need to tell the other side, 1 if we do.
->   1801	 */
-> > 1802	int vringh_need_notify_iomem(struct vringh *vrh)
->   1803	{
->   1804		return __vringh_need_notify(vrh, getu16_iomem);
->   1805	}
->   1806	EXPORT_SYMBOL(vringh_need_notify_iomem);
->   1807	
+> ---
+>  tools/virtio/virtio-trace/README        |  2 +-
+>  tools/virtio/virtio-trace/trace-agent.c | 12 ++++++++----
+>  2 files changed, 9 insertions(+), 5 deletions(-)
 > 
+> diff --git a/tools/virtio/virtio-trace/README b/tools/virtio/virtio-trace/README
+> index b64845b823ab..cea29a2a4c0a 100644
+> --- a/tools/virtio/virtio-trace/README
+> +++ b/tools/virtio/virtio-trace/README
+> @@ -95,7 +95,7 @@ Run
+>  
+>  1) Enable ftrace in the guest
+>   <Example>
+> -	# echo 1 > /sys/kernel/debug/tracing/events/sched/enable
+> +	# echo 1 > /sys/kernel/tracing/events/sched/enable
+>  
+>  2) Run trace agent in the guest
+>   This agent must be operated as root.
+> diff --git a/tools/virtio/virtio-trace/trace-agent.c b/tools/virtio/virtio-trace/trace-agent.c
+> index cdfe77c2b4c8..7e2d9bbf0b84 100644
+> --- a/tools/virtio/virtio-trace/trace-agent.c
+> +++ b/tools/virtio/virtio-trace/trace-agent.c
+> @@ -18,8 +18,9 @@
+>  #define PIPE_DEF_BUFS		16
+>  #define PIPE_MIN_SIZE		(PAGE_SIZE*PIPE_DEF_BUFS)
+>  #define PIPE_MAX_SIZE		(1024*1024)
+> -#define READ_PATH_FMT	\
+> -		"/sys/kernel/debug/tracing/per_cpu/cpu%d/trace_pipe_raw"
+> +#define TRACEFS 		"/sys/kernel/tracing"
+> +#define DEBUGFS 		"/sys/kernel/debug/tracing"
+> +#define READ_PATH_FMT		"%s/per_cpu/cpu%d/trace_pipe_raw"
+>  #define WRITE_PATH_FMT		"/dev/virtio-ports/trace-path-cpu%d"
+>  #define CTL_PATH		"/dev/virtio-ports/agent-ctl-path"
+>  
+> @@ -120,9 +121,12 @@ static const char *make_path(int cpu_num, bool this_is_write_path)
+>  	if (this_is_write_path)
+>  		/* write(output) path */
+>  		ret = snprintf(buf, PATH_MAX, WRITE_PATH_FMT, cpu_num);
+> -	else
+> +	else {
+>  		/* read(input) path */
+> -		ret = snprintf(buf, PATH_MAX, READ_PATH_FMT, cpu_num);
+> +		ret = snprintf(buf, PATH_MAX, READ_PATH_FMT, TRACEFS, cpu_num);
+> +		if (ret > 0 && access(buf, F_OK) != 0)
+> +			ret = snprintf(buf, PATH_MAX, READ_PATH_FMT, DEBUGFS, cpu_num);
+> +	}
+>  
+>  	if (ret <= 0) {
+>  		pr_err("Failed to generate %s path(CPU#%d):%d\n",
 > -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
+> 2.39.1.637.g21b0678d19-goog
 
 _______________________________________________
 Virtualization mailing list
