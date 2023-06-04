@@ -1,82 +1,226 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A449C77B73
-	for <virtualization@archiver.kernel.org>; Sat,  3 Jun 2023 04:16:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2850C77B73
+	for <virtualization@archiver.kernel.org>; Sun,  4 Jun 2023 03:28:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1229B60F97;
-	Sat,  3 Jun 2023 04:16:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1229B60F97
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3219B41BD5;
+	Sun,  4 Jun 2023 03:28:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3219B41BD5
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=xbzJP6sd;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=bJJdqAPF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id h2ts_1KiAXv5; Sat,  3 Jun 2023 04:16:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 23A7360F10;
-	Sat,  3 Jun 2023 04:16:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 23A7360F10
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1PZvbGCSaUs9; Sun,  4 Jun 2023 03:28:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 03A7441B71;
+	Sun,  4 Jun 2023 03:28:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03A7441B71
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 01A70C007A;
-	Sat,  3 Jun 2023 04:16:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAAA5C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C8AA4C007A;
+	Sun,  4 Jun 2023 03:28:45 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AA63FC0029
  for <virtualization@lists.linux-foundation.org>;
- Sat,  3 Jun 2023 04:16:12 +0000 (UTC)
+ Sun,  4 Jun 2023 03:28:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 71AF160F90
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7C2F460EE3
  for <virtualization@lists.linux-foundation.org>;
- Sat,  3 Jun 2023 04:16:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 71AF160F90
+ Sun,  4 Jun 2023 03:28:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7C2F460EE3
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=xbzJP6sd; 
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
+ header.s=selector2-oracle-onmicrosoft-com header.b=bJJdqAPF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BOyNlWntZl13
+ with ESMTP id 5NmOV2DZOK3A
  for <virtualization@lists.linux-foundation.org>;
- Sat,  3 Jun 2023 04:16:11 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 426E460F10
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 426E460F10
+ Sun,  4 Jun 2023 03:28:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4A07860EA6
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4A07860EA6
  for <virtualization@lists.linux-foundation.org>;
- Sat,  3 Jun 2023 04:16:10 +0000 (UTC)
-Received: from in01.mta.xmission.com ([166.70.13.51]:49232)
- by out03.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q5IgR-0006Na-G1; Fri, 02 Jun 2023 22:16:07 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:38754
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in01.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q5IgP-006nGf-O9; Fri, 02 Jun 2023 22:16:07 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Oleg Nesterov <oleg@redhat.com>
+ Sun,  4 Jun 2023 03:28:43 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 35434gZQ028418; Sun, 4 Jun 2023 03:28:31 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2023-03-30;
+ bh=wiftoDOoFlHJUblTMeg67u25cHOK/tsD75l6CaecKvQ=;
+ b=xbzJP6sdgZKjPQ4Bsw5BHCKNIbll0bhY9H3gfuuWeLvREemAU9yEnTIque6CX0xQQZ8b
+ ruDDSkCv4mQ7/vWw5IZUteYeCct+jHlnILB2dX5Y7TTSC+7mbSOcOwtMKKTrIBGEb7Zd
+ XAerOwc8YPlRJqc+hAwxaiTqCxa4tDOgVmvjp8i5d/c6pPl2J1/wUG2vb4K4JQcxkON4
+ UKTX2BxpdmRaazZr3DjTO7rjOFh9kUsv+Iphzf0Jx4/EDE4LretZSc/YIa6m1EKWg+tq
+ WaKiEgU3UBIh2tu6d5ejYU+wkxCB4IQDnAO+Pqrpmc1t2+S48d9IsEQaXEvGzyWS2zxZ Qg== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
+ (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3qyx5eh08u-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 04 Jun 2023 03:28:30 +0000
+Received: from pps.filterd
+ (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 3540ccAa035263; Sun, 4 Jun 2023 03:28:29 GMT
+Received: from nam11-bn8-obe.outbound.protection.outlook.com
+ (mail-bn8nam11lp2169.outbound.protection.outlook.com [104.47.58.169])
+ by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3qyuy86hrv-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 04 Jun 2023 03:28:29 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CAPQAPaltzWZzKogvxdK38jLtgR0K2aojWU75m5LSMvOqdtpEVSrIpWJQNRZ4H2eYgyaQCprXrCZAr5cJYTts3ZwBjyE0lOqQbhLQYP3SffEPptXFh5JCsJJQSWqTKdNtHkqb5izYXLHZZ7pI9eGJB+D1B/Cnv5xYipx+TJvs5aVCGwTLPbTlq35z45zB9hgAutOjKdvtWN6rL+9lOKUX7TIck3pZ7jvj7yiuCyrmZaHARNNEKIrrrNZG94Rv3/zmNq+O/pvdzFKh2g3HeOziRNFJjnJNa3bEWGgaV4PRXKRn24eieSBtegPX6acPhQWdHPYQw5LQG/TiwgWMk6x4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wiftoDOoFlHJUblTMeg67u25cHOK/tsD75l6CaecKvQ=;
+ b=FsBHUW+c/whak3A3xhlcsDLNER8osNmft3PivgsgS5xUekwFP4e1HL/ZRgQBxSnPEyFRDYnTZSE9ZeS5L52GECS82h2fw10Al8/I3nmKULfOf1dhN8udo3WfwGQB16RThsdBPQ3Q+XecKD4PmAe0Mj12OFwLnplketL2W2zCbi00X0MFIgtBiP6aIb1/m9fbq9P5hNcv7hYtN7YPLcjzuxvbVe3orjZx0RZenLrS29ebNIXIBuhARD6SM60UFLwhMsHevXambscWevj1t75oM3iv/lBUbR4shD4uLtiTrQHipGTWRJB9Qp2nN14Yx8pALDMIhB1UJZxQg/NJrOkoaQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wiftoDOoFlHJUblTMeg67u25cHOK/tsD75l6CaecKvQ=;
+ b=bJJdqAPFhxPgVl0W6Xc2UpguTyW0wYp5JRjzIFtZYRM6VJcN6ka78STvAiuNek3JGMJ9ICIzVAZ/wjcwn5hVVqttK+uQXaD+kI3U63U27zwa7eyDfBi5qIWCJJOVvwEsCbC54rl/W1lkxUK1FMGJYBY7AiBWvvSWbtC/oAxvm38=
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
+ by PH0PR10MB4520.namprd10.prod.outlook.com (2603:10b6:510:43::14)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6455.28; Sun, 4 Jun
+ 2023 03:28:27 +0000
+Received: from CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559]) by CY8PR10MB7243.namprd10.prod.outlook.com
+ ([fe80::13d6:c3f3:2447:6559%5]) with mapi id 15.20.6455.028; Sun, 4 Jun 2023
+ 03:28:27 +0000
+Message-ID: <ae250076-7d55-c407-1066-86b37014c69c@oracle.com>
+Date: Sat, 3 Jun 2023 22:28:23 -0500
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.11.0
+Subject: Re: [CFT][PATCH v3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
+ regression
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Oleg Nesterov <oleg@redhat.com>
 References: <20230601183232.8384-1-michael.christie@oracle.com>
  <20230602192254.GD555@redhat.com>
-Date: Fri, 02 Jun 2023 23:15:57 -0500
-In-Reply-To: <20230602192254.GD555@redhat.com> (Oleg Nesterov's message of
- "Fri, 2 Jun 2023 21:22:55 +0200")
-Message-ID: <87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+ <87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>
+Content-Language: en-US
+From: michael.christie@oracle.com
+In-Reply-To: <87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>
+X-ClientProxiedBy: DS7PR06CA0051.namprd06.prod.outlook.com
+ (2603:10b6:8:54::21) To CY8PR10MB7243.namprd10.prod.outlook.com
+ (2603:10b6:930:7c::10)
 MIME-Version: 1.0
-X-XM-SPF: eid=1q5IgP-006nGf-O9; ; ;
- mid=<87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>; ; ;
- hst=in01.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
- ; ; spf=pass
-X-XM-AID: U2FsdGVkX19yufjB2ZfpITwLNnmQrZZ68OnWeHNOYdM=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: [CFT][PATCH v3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
- regression
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
-Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com, linux@leemhuis.info,
- linux-kernel@vger.kernel.org, stefanha@redhat.com, nicolas.dichtel@6wind.com,
- virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|PH0PR10MB4520:EE_
+X-MS-Office365-Filtering-Correlation-Id: 73df279f-09b8-4c48-f11d-08db64abc25e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: GiGCVHiT9kfMAH7x/83GvVbCDbdgX3WG4ZQt9JuUbz+kZEvg9xpUOJWSt/Ggwpp75Yv6MFVUQLbBEce2IvB17rTWC69P+ZuJqOIEgeXrmlfOnRbZH2cZPHI14qEv9TP41jaxtMZQeLUeST0plgimOlAeMpIkaUyJRnk/caqrBPRtdSfkvhCAUT6laGmRi+H3eh9d+2RoAPM1UHm3vGFGZWocmKnh5ONoSGKU83oYOa25bmJq+3RmBoUq4bJjWBPTyLE29xyFSGG9K9CuFuFy9k+h1Ifn+L0FRnAgy3cR/3uBw9BpURaVNvm7BnIi+byvOKVsa8QuBjDJZ7Ti381TWooV24E6GRh1fFqq9lOqjZIoFoXSaV5xRBKCcw8nnCxzEp/aeZw4rbcauPUXWQw8gYNX6twwoDxuKhXMeP7V2/KturWZu0CyoB/7lLo5Lh/GW5nUzcavCriQsLH17HbL1j67pXxDn6MAOSSgKsMx+7kkfWc3CkqLKcEpR1nIpzzysOgAjP6ugU4XDm+7jdfUQfVNLU2kE3lusYzVOFqP54wic4TVtgBsDAIR+bZnIO0D/ESvahg5czK+3vxnrb3tK8guGyudrd6s5GU364q0yfRjOytZujsIRibTAD7UDYqU
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(366004)(39860400002)(136003)(346002)(376002)(396003)(451199021)(53546011)(316002)(8936002)(8676002)(66556008)(6512007)(66476007)(41300700001)(478600001)(38100700002)(4326008)(9686003)(5660300002)(26005)(6506007)(66946007)(31686004)(7416002)(186003)(83380400001)(110136005)(36756003)(2906002)(6486002)(6666004)(2616005)(31696002)(86362001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MHpZcVBrOEhZQzFBalJxYTE5WVBNQ0RoYkNJd1hJZ2tyN2tUUDV2SEYyWU9L?=
+ =?utf-8?B?U1VXblNONkdsaW1mbnNnTzhyOHBxYzdWSnpuTzhYaGRKRmM4UUxJT2JrZDNT?=
+ =?utf-8?B?RzFxT3g0S0RpVElnNThtTkJJRmNnNldRTW0vUVhoazcwMjY3VW9LSXh1V1RN?=
+ =?utf-8?B?S1l6cGRGM0IxbEZtdm5XSXhORXJuY0ptZm9KTjd5a2tnMTBSSmtyMlRkaW5P?=
+ =?utf-8?B?STd5NkdoaHVXQWVIUzlXSzhEekVaM1dZSXVRUHdXWFlwU2dVZUxTVnhqUUdC?=
+ =?utf-8?B?d3IwYUtORHdEMm55S014dzdVa3g1UVYvUFdqNjU4TEZxK0JrNGtYMXJhNExK?=
+ =?utf-8?B?L0N1aFBLNFZIQVdKeWNGcmlXY2liL24zRm94ZE5pekVYMWZjc0VEUCswSmpa?=
+ =?utf-8?B?Tk5vQlBXMDYzUWJDZjE0UkpUN01nbmd3SG9LQTJVZlJYRk83R0F3Y05hSVRR?=
+ =?utf-8?B?RFNuU0UrNmtIWURURHVTa2dYRXZnQUYrWUEycnlqVUtSN2RDZTN3SEgwcEdF?=
+ =?utf-8?B?d1RLajFBeVFBeTlMVTdxcDB3MVVnc0pYa1NpZE1yUERxK1NTbTloalB2TVBx?=
+ =?utf-8?B?V3hlZUc1dkdOUml3dytZcHY0T050bzR4TnNSbkJxOWc5NU0zck5PZmtXa2hI?=
+ =?utf-8?B?YUo1YzF1MUVUa0t1ZC81Mk9QVko3ZVFrcW40VFV0QzRuUzlkVDVFSHRqZldQ?=
+ =?utf-8?B?cDhUOTh5K0VYelBBOVFsVW1YblJKOTVIVWV4NTRmM2Nuc0lTQVAzT28reFNz?=
+ =?utf-8?B?bFNINjJ1VmpvMnM2REg2bWVyS0w5MHVmeXdxZnRrRkFnTXZ2VytTcTNJZTRk?=
+ =?utf-8?B?UkMrdEdQM0lEdVZqMmVyUVcvcWtmdTVISUVCelFzQ0pJUzdhdkFjaUhRWkpH?=
+ =?utf-8?B?RnlkVCtxeDlnUVdXc1YxWkg0MURudTh5OG1UQjE4emkwS05ZV1hwMnFTT0t4?=
+ =?utf-8?B?cGNFU3dncG5XL2FhdG1saFhSRmNNWi81R0hwU2dXMjFhSTd1elZRWlgwVzJZ?=
+ =?utf-8?B?ZU12Y0hlb2ZtYVJoQkFuYnMxYTM0TXJ2d3VvREtmdzdkcmJPcytLbi95MVZo?=
+ =?utf-8?B?Ny8xaW1TNHE1K0o4NWhaMGplekVydXFaWnJlUXZFenJ5UXpQN3RzL0VpNWZo?=
+ =?utf-8?B?M2tkck14ZEFWcnNiMkppWE1hNXF1RnJMTEpXMTF5T1BJOXlZQnYrMUV5L1o2?=
+ =?utf-8?B?dEo0RHI0RlRtNzJrV2ZBRUE0SmZFSlczUVFHS2pQak9TVXExanJ5dmNOS2lm?=
+ =?utf-8?B?QU5tcjNtMlQ1STdycXBnbjVaR0RwMEI0bVZhL1VReUlLMGJMbUIzeWg2b29n?=
+ =?utf-8?B?aGdPcGhRdEhjTVl2NXJSQXJOY3cwSHNTV2xFREJJbDFtVHZydG5HMkR5Q2xq?=
+ =?utf-8?B?SFhjTk55MHF3VjlCWkhFTFZIZ2h2WGxpcDJOOHUybkhTdGdDT0xRMEFrTUtY?=
+ =?utf-8?B?MEZsK3kxSkdsY2lRNkE0ZUsxZ2VSMnRBWGxMUTl0MTZrUG5rM0ZCc0ZmeHhC?=
+ =?utf-8?B?RldHK2dmcHd3Rnh3bVFrVGZ6OURXeVR4UVY4YjBhUU1RaVRUNUpHQk1CMGQ2?=
+ =?utf-8?B?TmxoRlJwUU1HQnZOVHRGMC9kQmxmRndZaDI4ZTgzSjJSZnpUYkY0dXRzcUF4?=
+ =?utf-8?B?aVJGTGVnT2hVeVZOU2duYlJjNDc1TVhmaVA5Z2gzSEJyMVpma0IvV3pzRGRY?=
+ =?utf-8?B?YXg1SnIvWlEwVk9WNmV5WWIxTHJZQzVBZkcwNGRDYU9qR0JObVYraHpQdTM5?=
+ =?utf-8?B?a3V2OU5xTlZmSCtxZSt6d0VKUjIwKzM5cVQ5S3FkQ0xUbWNBdHk2UXh4amVx?=
+ =?utf-8?B?QXFHQlc0K2JxSmJZSEZsNmRXWWFDNW9PeFpmQkxBbC9Tb1pmYU5XeVRQcGp5?=
+ =?utf-8?B?aGJ0MGcyellNMFp4ZVErOUE3L0pOTFFaWmNlcWNHT1liZmUrc2RZMGw4M2dY?=
+ =?utf-8?B?RjRjNUhtNitETHNtWjdFdEg2RS9sRXcxTWVCNzgzZ0lOeEx2bGh3NW0wSGx2?=
+ =?utf-8?B?ZjlJQ285UWV1NWJUR3l6WDBMYUFGVFp3NTlwOEVpcTZ4QU12bk00ZXBvbDB4?=
+ =?utf-8?B?MDBTcTZnbzBpaDFrSktTVWlld1ROcGNBRzMxU0ROSnM5WisvMjI4RnQ0MDVu?=
+ =?utf-8?B?cndpSjZZMzMzRmYyNjJpR3hpbEQ5elJ0UXhWbUZCUUZnaHgvTDYvWjZBdjF1?=
+ =?utf-8?B?MEE9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?Y0M0Y0xuNE1RSzVOZStweGhWcWlPTGVLaU0wUGpSZVlqZHB5RlhSdVdIZ05i?=
+ =?utf-8?B?UTIzREJrRDlHR1ZrakZNZjZ6QTNOTEtNQU02WTdTQ2FDM3FNb2Z4N3V6dmJD?=
+ =?utf-8?B?dndtSVNMSEpwNzRIQWNSOG1VY0V2VEc1S3NoMzhuMkNZSmxDQW94WnVuS1Bv?=
+ =?utf-8?B?MzRBd3JlNFhrbytqdUpmK2Mza2M5SXRsY0gzSXZrYkFRVVVWTE5ycG5FUVZm?=
+ =?utf-8?B?MHM2ejZ4NXdOY2R1V0J4TEFsMFdUbzlnQ0hSN2hwRXZlb3B5OWJySjBKbDE2?=
+ =?utf-8?B?RWJGYzF0VXJXT29hY05FUnIzY0ZJUXJ6bjlBU1dPTUUzYittVVUxS2NsMlQ5?=
+ =?utf-8?B?TEVFUFpjK0RsditWOTZZbGRweGFBcGhvbHpGWTFnZDZ2ZnJlQW8wMlJUcGNx?=
+ =?utf-8?B?Yk1lcjVEV1Z5WVJHWW5UQjNLaVpnY2xzMWVWcGJhL3daWmg1dUZhUC9mOGZy?=
+ =?utf-8?B?U1V5NTcvTENHMS9Eb1dZMGwwQWlqOGx6N1RaWi8zc0lXalFZK1p5dVZSTGlN?=
+ =?utf-8?B?cEVuWEtTemtUT1NXeWJCK1d1RDVkdG9HZ3pMbUFLWXkxZ0d3RVM3a3N5Y3Zv?=
+ =?utf-8?B?UmFrOHJCV0FHSkFOeHFna0VOSmttQkZWcVpsT0thY1QrMVpxTzJDTDZmcjhw?=
+ =?utf-8?B?bEtPbk9FU1VaRjlOYlhXbTFmcTBCK3dxamRURmhvbGRFbmoxb1l5RFVkY3lX?=
+ =?utf-8?B?ejBRYXdMd3RkOGtUZm9MOENHNmRNUEg3QmErUkwzcklsdW00bDJyNDgrL1BB?=
+ =?utf-8?B?Vlh1SlQ5NEEwemExMFF2aW5hek8xN1Z6NjB5ajIzT0I3WGtTcTNoanhyQTdF?=
+ =?utf-8?B?Z0FHMHFsS3dWcm96YUJsVkMrbmxWc1daOFBETEQzZGtqdDh5OVRsVWtKdjZH?=
+ =?utf-8?B?S2ljT1pJRDY2MnFpam5LcGxFbkZVc0RmTk4wNXRhMndOUTg3cHNJRDU2aHpl?=
+ =?utf-8?B?d1hJNzFPbStBWUJCNVpBelpXSlJiREZFK1AvT0dhRVVOT1Y4WFhwWDdadDUv?=
+ =?utf-8?B?NTNQWEJqOUp3SzRVUnUxSTVmVVBuZUVmUmpmY1E0M1pNSEdnZlBLbVBQUXJZ?=
+ =?utf-8?B?cHBQUEM5SWE5dXJxdmM1bEJpOXFZREZ2NloxTmFzOXJPVlp0S0dNYzNrbm11?=
+ =?utf-8?B?cmNKY3hSMTVTMlhrWTZFSmxVWWNKWG9qd2UvODU3NVFobzVOOE5sTE80cDJt?=
+ =?utf-8?B?dEM2d2UwQWJUZ1ErZzVpYnBMMlRCYUo0Z3d5c0RpakUwMnl1VUVkU2lsRGNL?=
+ =?utf-8?B?VkI5SE9OR3B4SkI5RWI1S1ZIYWVGaVJPVmZnMFpBUEZMQmdZNG9SSTBlRGZI?=
+ =?utf-8?B?N0VoZjlzaHdHZkpWamJMbU9SU29VTlBxbzlnUG03c0piM0pjYkVUeXJtTlVU?=
+ =?utf-8?B?ZlV5dGxibWJRNXQ1SGp5aU8vbjFiZkdMblNwQ1lTNWY4eGJtcVAvS0VsQzlp?=
+ =?utf-8?Q?JpWMECwg?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 73df279f-09b8-4c48-f11d-08db64abc25e
+X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jun 2023 03:28:27.0027 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Hk0KE5tSTD/0YpnBZgOZZI+3MU1VjBItUrocvokumOWVHt2r0WrzKXLVZ1TuBPov+b+7WJEhe7qKSsoeLWXu0XewfvDbPNqDTMlAoHyWZzg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB4520
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.573,FMLib:17.11.176.26
+ definitions=2023-06-03_08,2023-06-02_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ phishscore=0 mlxscore=0
+ adultscore=0 bulkscore=0 mlxlogscore=945 suspectscore=0 malwarescore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2304280000
+ definitions=main-2306040030
+X-Proofpoint-ORIG-GUID: vpSKbUpZK7dM-BVRSK85rapz1XaCH3RB
+X-Proofpoint-GUID: vpSKbUpZK7dM-BVRSK85rapz1XaCH3RB
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com,
+ linux-kernel@vger.kernel.org, linux@leemhuis.info,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com,
+ nicolas.dichtel@6wind.com, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,437 +237,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On 6/2/23 11:15 PM, Eric W. Biederman wrote:
+> 
+> This fixes the ordering issue in vhost_task_fn so that get_signal
+> should not work.
+> 
+> This patch is a gamble that during process exit or de_thread in exec
+> work will not be commonly queued from other threads.
+> 
+> If this gamble turns out to be false the existing WARN_ON in
+> vhost_worker_free will fire.
+> 
+> Can folks test this and let us know if the WARN_ON fires?
 
-When switching from kthreads to vhost_tasks two bugs were added:
-1. The vhost worker tasks's now show up as processes so scripts doing
-ps or ps a would not incorrectly detect the vhost task as another
-process.  2. kthreads disabled freeze by setting PF_NOFREEZE, but
-vhost tasks's didn't disable or add support for them.
+I don't hit the WARN_ONs but probably not for the reason you are thinking
+of. We are hung like:
 
-To fix both bugs, this switches the vhost task to be thread in the
-process that does the VHOST_SET_OWNER ioctl, and has vhost_worker call
-get_signal to support SIGKILL/SIGSTOP and freeze signals. Note that
-SIGKILL/STOP support is required because CLONE_THREAD requires
-CLONE_SIGHAND which requires those 2 signals to be suppported.
+Jun 03 22:25:23 ol4 kernel: Call Trace:
+Jun 03 22:25:23 ol4 kernel:  <TASK>
+Jun 03 22:25:23 ol4 kernel:  __schedule+0x334/0xac0
+Jun 03 22:25:23 ol4 kernel:  ? wait_for_completion+0x86/0x150
+Jun 03 22:25:23 ol4 kernel:  schedule+0x5a/0xd0
+Jun 03 22:25:23 ol4 kernel:  schedule_timeout+0x240/0x2a0
+Jun 03 22:25:23 ol4 kernel:  ? __wake_up_klogd.part.0+0x3c/0x60
+Jun 03 22:25:23 ol4 kernel:  ? vprintk_emit+0x104/0x270
+Jun 03 22:25:23 ol4 kernel:  ? wait_for_completion+0x86/0x150
+Jun 03 22:25:23 ol4 kernel:  wait_for_completion+0xb0/0x150
+Jun 03 22:25:23 ol4 kernel:  vhost_scsi_flush+0xc2/0xf0 [vhost_scsi]
+Jun 03 22:25:23 ol4 kernel:  vhost_scsi_clear_endpoint+0x16f/0x240 [vhost_scsi]
+Jun 03 22:25:23 ol4 kernel:  vhost_scsi_release+0x7d/0xf0 [vhost_scsi]
+Jun 03 22:25:23 ol4 kernel:  __fput+0xa2/0x270
+Jun 03 22:25:23 ol4 kernel:  task_work_run+0x56/0xa0
+Jun 03 22:25:23 ol4 kernel:  do_exit+0x337/0xb40
+Jun 03 22:25:23 ol4 kernel:  ? __remove_hrtimer+0x39/0x70
+Jun 03 22:25:23 ol4 kernel:  do_group_exit+0x30/0x90
+Jun 03 22:25:23 ol4 kernel:  get_signal+0x9cd/0x9f0
+Jun 03 22:25:23 ol4 kernel:  ? kvm_arch_vcpu_put+0x12b/0x170 [kvm]
+Jun 03 22:25:23 ol4 kernel:  ? vcpu_put+0x1e/0x50 [kvm]
+Jun 03 22:25:23 ol4 kernel:  ? kvm_arch_vcpu_ioctl_run+0x193/0x4e0 [kvm]
+Jun 03 22:25:23 ol4 kernel:  arch_do_signal_or_restart+0x2a/0x260
+Jun 03 22:25:23 ol4 kernel:  exit_to_user_mode_prepare+0xdd/0x120
+Jun 03 22:25:23 ol4 kernel:  syscall_exit_to_user_mode+0x1d/0x40
+Jun 03 22:25:23 ol4 kernel:  do_syscall_64+0x48/0x90
+Jun 03 22:25:23 ol4 kernel:  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+Jun 03 22:25:23 ol4 kernel: RIP: 0033:0x7f2d004df50b
 
-This is a modified version of the patch written by Mike Christie
-<michael.christie@oracle.com> which was a modified version of patch
-originally written by Linus.
 
-Much of what depended upon PF_IO_WORKER now depends on PF_USER_WORKER.
-Including ignoring signals, setting up the register state, and having
-get_signal return instead of calling do_group_exit.
+The problem is that as part of the flush the drivers/vhost/scsi.c code
+will wait for outstanding commands, because we can't free the device and
+it's resources before the commands complete or we will hit the accessing
+freed memory bug.
 
-Tidied up the vhost_task abstraction so that the definition of
-vhost_task only needs to be visible inside of vhost_task.c.  Making
-it easier to review the code and tell what needs to be done where.
-As part of this the main loop has been moved from vhost_worker into
-vhost_task_fn.  vhost_worker now returns true if work was done.
+We got hung because the patch had us now do:
 
-The main loop has been updated to call get_signal which handles
-SIGSTOP, freezing, and collects the message that tells the thread to
-exit as part of process exit.  This collection clears
-__fatal_signal_pending.
+vhost_dev_flush() -> vhost_task_flush() 
 
-The vhost tasks when it has been asked to exit runs until it has
-no more work pending and then exits instead of sleeping.
+and that saw VHOST_TASK_FLAGS_STOP was set and the exited completion has
+completed. However, the scsi code is still waiting on commands in vhost_scsi_flush.
+The cmds wanted to use the vhost_task task to complete and couldn't since the task
+has exited.
 
-Causing the other threads to stop feeding the vhost worker work and
-having the vhost worker stop when it runs out of work should be enough
-to avoid hangs in coredump rendezvous and when killing threads in a
-multi-threaded exec.
+To handle those types of issues above, it's a lot more code. We would add
+some rcu in vhost_work_queue to handle the worker being freed from under us.
+Then add a callback similar to what I did on one of the past patchsets that
+stops the drivers. Then modify scsi, so in the callback it also sets some
+bits so the completion paths just do a fast failing that doesn't try to
+queue the completion to the vhost_task.
 
-The vhost thread is no longer guaranteed to be the last thread to
-exit.  Which means it is possible a work item to be submitted after
-the vhost work thread has exited.  If that happens the work item will
-leak and vhost_worker_free will warn about the situtation.
-
-Fixes: 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
-Co-developed-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
----
-
-This fixes the ordering issue in vhost_task_fn so that get_signal
-should not work.
-
-This patch is a gamble that during process exit or de_thread in exec
-work will not be commonly queued from other threads.
-
-If this gamble turns out to be false the existing WARN_ON in
-vhost_worker_free will fire.
-
-Can folks test this and let us know if the WARN_ON fires?
-
-Thank you.
-
- arch/x86/include/asm/fpu/sched.h |  2 +-
- arch/x86/kernel/fpu/context.h    |  2 +-
- arch/x86/kernel/fpu/core.c       |  2 +-
- drivers/vhost/vhost.c            | 24 +++-----
- include/linux/sched/task.h       |  1 -
- include/linux/sched/vhost_task.h | 16 ++----
- kernel/fork.c                    | 13 ++---
- kernel/signal.c                  |  4 +-
- kernel/vhost_task.c              | 99 ++++++++++++++++++++++----------
- 9 files changed, 91 insertions(+), 72 deletions(-)
-
-diff --git a/arch/x86/include/asm/fpu/sched.h b/arch/x86/include/asm/fpu/sched.h
-index c2d6cd78ed0c..78fcde7b1f07 100644
---- a/arch/x86/include/asm/fpu/sched.h
-+++ b/arch/x86/include/asm/fpu/sched.h
-@@ -39,7 +39,7 @@ extern void fpu_flush_thread(void);
- static inline void switch_fpu_prepare(struct fpu *old_fpu, int cpu)
- {
- 	if (cpu_feature_enabled(X86_FEATURE_FPU) &&
--	    !(current->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-+	    !(current->flags & (PF_KTHREAD | PF_USER_WORKER))) {
- 		save_fpregs_to_fpstate(old_fpu);
- 		/*
- 		 * The save operation preserved register state, so the
-diff --git a/arch/x86/kernel/fpu/context.h b/arch/x86/kernel/fpu/context.h
-index 9fcfa5c4dad7..af5cbdd9bd29 100644
---- a/arch/x86/kernel/fpu/context.h
-+++ b/arch/x86/kernel/fpu/context.h
-@@ -57,7 +57,7 @@ static inline void fpregs_restore_userregs(void)
- 	struct fpu *fpu = &current->thread.fpu;
- 	int cpu = smp_processor_id();
- 
--	if (WARN_ON_ONCE(current->flags & (PF_KTHREAD | PF_IO_WORKER)))
-+	if (WARN_ON_ONCE(current->flags & (PF_KTHREAD | PF_USER_WORKER)))
- 		return;
- 
- 	if (!fpregs_state_valid(fpu, cpu)) {
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index caf33486dc5e..1015af1ae562 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -426,7 +426,7 @@ void kernel_fpu_begin_mask(unsigned int kfpu_mask)
- 
- 	this_cpu_write(in_kernel_fpu, true);
- 
--	if (!(current->flags & (PF_KTHREAD | PF_IO_WORKER)) &&
-+	if (!(current->flags & (PF_KTHREAD | PF_USER_WORKER)) &&
- 	    !test_thread_flag(TIF_NEED_FPU_LOAD)) {
- 		set_thread_flag(TIF_NEED_FPU_LOAD);
- 		save_fpregs_to_fpstate(&current->thread.fpu);
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index a92af08e7864..85948f40ddfe 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -236,6 +236,9 @@ void vhost_dev_flush(struct vhost_dev *dev)
- 	struct vhost_flush_struct flush;
- 
- 	if (dev->worker) {
-+		if (vhost_task_flush(dev->worker->vtsk))
-+			return;
-+
- 		init_completion(&flush.wait_event);
- 		vhost_work_init(&flush.work, vhost_flush_work);
- 
-@@ -256,7 +259,7 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
- 		 * test_and_set_bit() implies a memory barrier.
- 		 */
- 		llist_add(&work->node, &dev->worker->work_list);
--		wake_up_process(dev->worker->vtsk->task);
-+		vhost_task_wake(dev->worker->vtsk);
- 	}
- }
- EXPORT_SYMBOL_GPL(vhost_work_queue);
-@@ -333,25 +336,14 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	__vhost_vq_meta_reset(vq);
- }
- 
--static int vhost_worker(void *data)
-+static bool vhost_worker(void *data)
- {
- 	struct vhost_worker *worker = data;
- 	struct vhost_work *work, *work_next;
- 	struct llist_node *node;
- 
--	for (;;) {
--		/* mb paired w/ kthread_stop */
--		set_current_state(TASK_INTERRUPTIBLE);
--
--		if (vhost_task_should_stop(worker->vtsk)) {
--			__set_current_state(TASK_RUNNING);
--			break;
--		}
--
--		node = llist_del_all(&worker->work_list);
--		if (!node)
--			schedule();
--
-+	node = llist_del_all(&worker->work_list);
-+	if (node) {
- 		node = llist_reverse_order(node);
- 		/* make sure flag is seen after deletion */
- 		smp_wmb();
-@@ -365,7 +357,7 @@ static int vhost_worker(void *data)
- 		}
- 	}
- 
--	return 0;
-+	return !!node;
- }
- 
- static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index 537cbf9a2ade..e0f5ac90a228 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -29,7 +29,6 @@ struct kernel_clone_args {
- 	u32 io_thread:1;
- 	u32 user_worker:1;
- 	u32 no_files:1;
--	u32 ignore_signals:1;
- 	unsigned long stack;
- 	unsigned long stack_size;
- 	unsigned long tls;
-diff --git a/include/linux/sched/vhost_task.h b/include/linux/sched/vhost_task.h
-index 6123c10b99cf..f8cd7ba3ad04 100644
---- a/include/linux/sched/vhost_task.h
-+++ b/include/linux/sched/vhost_task.h
-@@ -2,22 +2,14 @@
- #ifndef _LINUX_VHOST_TASK_H
- #define _LINUX_VHOST_TASK_H
- 
--#include <linux/completion.h>
- 
--struct task_struct;
-+struct vhost_task;
- 
--struct vhost_task {
--	int (*fn)(void *data);
--	void *data;
--	struct completion exited;
--	unsigned long flags;
--	struct task_struct *task;
--};
--
--struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
-+struct vhost_task *vhost_task_create(bool (*fn)(void *), void *arg,
- 				     const char *name);
- void vhost_task_start(struct vhost_task *vtsk);
- void vhost_task_stop(struct vhost_task *vtsk);
--bool vhost_task_should_stop(struct vhost_task *vtsk);
-+void vhost_task_wake(struct vhost_task *vtsk);
-+bool vhost_task_flush(struct vhost_task *vtsk);
- 
- #endif
-diff --git a/kernel/fork.c b/kernel/fork.c
-index ed4e01daccaa..81cba91f30bb 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -2336,16 +2336,16 @@ __latent_entropy struct task_struct *copy_process(
- 	p->flags &= ~PF_KTHREAD;
- 	if (args->kthread)
- 		p->flags |= PF_KTHREAD;
--	if (args->user_worker)
--		p->flags |= PF_USER_WORKER;
--	if (args->io_thread) {
-+	if (args->user_worker) {
- 		/*
--		 * Mark us an IO worker, and block any signal that isn't
-+		 * Mark us a user worker, and block any signal that isn't
- 		 * fatal or STOP
- 		 */
--		p->flags |= PF_IO_WORKER;
-+		p->flags |= PF_USER_WORKER;
- 		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
- 	}
-+	if (args->io_thread)
-+		p->flags |= PF_IO_WORKER;
- 
- 	if (args->name)
- 		strscpy_pad(p->comm, args->name, sizeof(p->comm));
-@@ -2517,9 +2517,6 @@ __latent_entropy struct task_struct *copy_process(
- 	if (retval)
- 		goto bad_fork_cleanup_io;
- 
--	if (args->ignore_signals)
--		ignore_signals(p);
--
- 	stackleak_task_init(p);
- 
- 	if (pid != &init_struct_pid) {
-diff --git a/kernel/signal.c b/kernel/signal.c
-index 8f6330f0e9ca..0ac48c96ab04 100644
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2861,11 +2861,11 @@ bool get_signal(struct ksignal *ksig)
- 		}
- 
- 		/*
--		 * PF_IO_WORKER threads will catch and exit on fatal signals
-+		 * PF_USER_WORKER threads will catch and exit on fatal signals
- 		 * themselves. They have cleanup that must be performed, so
- 		 * we cannot call do_exit() on their behalf.
- 		 */
--		if (current->flags & PF_IO_WORKER)
-+		if (current->flags & PF_USER_WORKER)
- 			goto out;
- 
- 		/*
-diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-index b7cbd66f889e..a82c45cb014d 100644
---- a/kernel/vhost_task.c
-+++ b/kernel/vhost_task.c
-@@ -12,58 +12,97 @@ enum vhost_task_flags {
- 	VHOST_TASK_FLAGS_STOP,
- };
- 
-+struct vhost_task {
-+	bool (*fn)(void *data);
-+	void *data;
-+	struct completion exited;
-+	unsigned long flags;
-+	struct task_struct *task;
-+};
-+
- static int vhost_task_fn(void *data)
- {
- 	struct vhost_task *vtsk = data;
--	int ret;
-+	bool dead = false;
-+
-+	for (;;) {
-+		bool did_work;
-+
-+		if (!dead && signal_pending(current)) {
-+			struct ksignal ksig;
-+			/*
-+			 * Calling get_signal can block in SIGSTOP,
-+			 * and the freezer.  Or it can clear
-+			 * fatal_signal_pending and return non-zero.
-+			 */
-+			dead = get_signal(&ksig);
-+			if (dead)
-+				set_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
-+		}
-+
-+		/* mb paired w/ kthread_stop */
-+		set_current_state(TASK_INTERRUPTIBLE);
-+
-+		did_work = vtsk->fn(vtsk->data);
-+		if (!did_work) {
-+			if (test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
-+				__set_current_state(TASK_RUNNING);
-+				break;
-+			}
-+			schedule();
-+		}
-+	}
- 
--	ret = vtsk->fn(vtsk->data);
--	complete(&vtsk->exited);
--	do_exit(ret);
-+	complete_all(&vtsk->exited);
-+	do_exit(0);
- }
- 
-+/**
-+ * vhost_task_wake - wakeup the vhost_task
-+ * @vtsk: vhost_task to wake
-+ *
-+ * wake up the vhost_task worker thread
-+ */
-+void vhost_task_wake(struct vhost_task *vtsk)
-+{
-+	wake_up_process(vtsk->task);
-+}
-+EXPORT_SYMBOL_GPL(vhost_task_wake);
-+
- /**
-  * vhost_task_stop - stop a vhost_task
-  * @vtsk: vhost_task to stop
-  *
-- * Callers must call vhost_task_should_stop and return from their worker
-- * function when it returns true;
-+ * vhost_task_fn ensures the worker thread exits after
-+ * VHOST_TASK_FLAGS_SOP becomes true.
-  */
- void vhost_task_stop(struct vhost_task *vtsk)
- {
--	pid_t pid = vtsk->task->pid;
--
- 	set_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
--	wake_up_process(vtsk->task);
-+	vhost_task_wake(vtsk);
- 	/*
- 	 * Make sure vhost_task_fn is no longer accessing the vhost_task before
--	 * freeing it below. If userspace crashed or exited without closing,
--	 * then the vhost_task->task could already be marked dead so
--	 * kernel_wait will return early.
-+	 * freeing it below.
- 	 */
- 	wait_for_completion(&vtsk->exited);
--	/*
--	 * If we are just closing/removing a device and the parent process is
--	 * not exiting then reap the task.
--	 */
--	kernel_wait4(pid, NULL, __WCLONE, NULL);
-+	put_task_struct(vtsk->task);
- 	kfree(vtsk);
- }
- EXPORT_SYMBOL_GPL(vhost_task_stop);
- 
--/**
-- * vhost_task_should_stop - should the vhost task return from the work function
-- * @vtsk: vhost_task to stop
-- */
--bool vhost_task_should_stop(struct vhost_task *vtsk)
-+bool vhost_task_flush(struct vhost_task *vtsk)
- {
--	return test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags);
-+	if (!test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags))
-+		return false;
-+
-+	wait_for_completion(&vtsk->exited);
-+	return true;
- }
--EXPORT_SYMBOL_GPL(vhost_task_should_stop);
-+EXPORT_SYMBOL_GPL(vhost_task_flush);
- 
- /**
-- * vhost_task_create - create a copy of a process to be used by the kernel
-- * @fn: thread stack
-+ * vhost_task_create - create a copy of a task to be used by the kernel
-+ * @fn: vhost worker function
-  * @arg: data to be passed to fn
-  * @name: the thread's name
-  *
-@@ -71,17 +110,17 @@ EXPORT_SYMBOL_GPL(vhost_task_should_stop);
-  * failure. The returned task is inactive, and the caller must fire it up
-  * through vhost_task_start().
-  */
--struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
-+struct vhost_task *vhost_task_create(bool (*fn)(void *), void *arg,
- 				     const char *name)
- {
- 	struct kernel_clone_args args = {
--		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM,
-+		.flags		= CLONE_FS | CLONE_UNTRACED | CLONE_VM |
-+				  CLONE_THREAD | CLONE_SIGHAND,
- 		.exit_signal	= 0,
- 		.fn		= vhost_task_fn,
- 		.name		= name,
- 		.user_worker	= 1,
- 		.no_files	= 1,
--		.ignore_signals	= 1,
- 	};
- 	struct vhost_task *vtsk;
- 	struct task_struct *tsk;
-@@ -101,7 +140,7 @@ struct vhost_task *vhost_task_create(int (*fn)(void *), void *arg,
- 		return NULL;
- 	}
- 
--	vtsk->task = tsk;
-+	vtsk->task = get_task_struct(tsk);
- 	return vtsk;
- }
- EXPORT_SYMBOL_GPL(vhost_task_create);
--- 
-2.35.3
+If we want to go that route, I can get it done in more like a 6.6 time frame.
 
 _______________________________________________
 Virtualization mailing list
