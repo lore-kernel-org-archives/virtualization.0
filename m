@@ -1,106 +1,120 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 11890C7EE2A
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 06:54:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B88BC7EE24
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 08:17:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 76E3740320;
-	Mon,  5 Jun 2023 06:54:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 76E3740320
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=b9m6ZSsa
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TBslEs0Zs2Ei; Mon,  5 Jun 2023 06:54:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0E788401B7;
-	Mon,  5 Jun 2023 06:54:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0E788401B7
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D53AEC007A;
-	Mon,  5 Jun 2023 06:54:16 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B7316C0029
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 06:54:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7E49D60C03
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 06:54:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E49D60C03
+	by smtp3.osuosl.org (Postfix) with ESMTP id 827E660DE5;
+	Mon,  5 Jun 2023 08:17:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 827E660DE5
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=b9m6ZSsa
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h78vZjrb
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id V-IQxTxqmOPs
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6Q0vXqJLnkFN; Mon,  5 Jun 2023 08:17:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 12A8E60C03;
+	Mon,  5 Jun 2023 08:17:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 12A8E60C03
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EA07EC007A;
+	Mon,  5 Jun 2023 08:17:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 39788C0029
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 06:54:12 +0000 (UTC)
+ Mon,  5 Jun 2023 08:17:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 007414051F
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jun 2023 08:17:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 007414051F
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=h78vZjrb
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0w0C4X-5ge06
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jun 2023 08:17:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A738607E1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C563403AA
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7A738607E1
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C563403AA
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 06:54:12 +0000 (UTC)
+ Mon,  5 Jun 2023 08:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685948051;
+ s=mimecast20190719; t=1685953049;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=v1eByadmqvsX2J2miV72HS9egA3wTa1Y2KNjCsvenxw=;
- b=b9m6ZSsaI7sSWrBqV4cu6d95NOc+STB2Yu9iMVw0bwO22s7wZ7sLSkf7LHp1fmUTusXfKS
- loRE4SwZTXVBATpRIXq2RU7J0gxxfuT9lwxE473ejgGJ+jwLqEf3DdDb0MjBHuE9QtDPAu
- QQZ5DZ+mBZlT8+yPUun9vFwqmgIo8kg=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=WTa5uBKoWlBL4OKjdUilTsvXazsAa+Thz3GpkiKSHlc=;
+ b=h78vZjrbp73JZ7i7PMLEGd8dv1DXCjwkbcRGBDhmAqeNTLlefPdxpQhRYr2jynw60dUKSo
+ +o0Mbj3xAFChSxzd4OPQ/G1zUMT1HGhA1ZLA1LZyNRb5ARDrdpOJsYwWwKEWFzqQknxc/D
+ zpCJJ7RVRU3sgI7v4qr/VMRsfuDydpY=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-659-1H0hE5v1PKCdF_Eg8hpByg-1; Mon, 05 Jun 2023 02:54:10 -0400
-X-MC-Unique: 1H0hE5v1PKCdF_Eg8hpByg-1
-Received: by mail-lj1-f198.google.com with SMTP id
- 38308e7fff4ca-2b1b1693338so17809181fa.3
+ us-mta-362-HvvlMbXRPZWUttHCn5kVXg-1; Mon, 05 Jun 2023 04:17:28 -0400
+X-MC-Unique: HvvlMbXRPZWUttHCn5kVXg-1
+Received: by mail-qt1-f197.google.com with SMTP id
+ d75a77b69052e-3f7f713eeb0so71380661cf.1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 04 Jun 2023 23:54:09 -0700 (PDT)
+ Mon, 05 Jun 2023 01:17:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685948048; x=1688540048;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=v1eByadmqvsX2J2miV72HS9egA3wTa1Y2KNjCsvenxw=;
- b=L8fc7iB9TvmM9QJxnUnj/JUtv9dJO1IMd19xFbv0bgjW0FbG6OcjEwGsGI6Rg6joGJ
- nfUwXgfughU5l8R8VRr/KvB2hPvDY8RhqsC76BENydSXx/4zBxeHskPb36AX3ser3yai
- nFGuaFfFU8/v/EBNBjZg4K1EBzDoMFajarQtLGcwH52PAsTRE73N2x080s/8ESjKY0vs
- /DobRTZIe+cP7kZT4RwP3949hZ5WrZk609R4AM4u4bzf6bQxNttV1jQAozjtiMkU9ZWs
- 3NGJW1C+BLI1N5yflemi6yP6FOHrJzCWertM2ved9sctGMROR6GLZOB2vIqfGFh/m+qn
- jM2A==
-X-Gm-Message-State: AC+VfDylw0d5a9CLQSKiGEBWOU9RYw+3o3Bgnyo9DcJoLZtMmzFenIqT
- Kh2WzAu3bPgDZKNTbhsPYy3iZCQqD1w+ybwtO2uSOJ5D97ZOq+GgklUDgSlZ/k6B+3rUFOJFFXu
- wxK/gcekYtQdirZS2EI6FU8F1p5dde2Dg3zO64LxX+tu374x+NRcHMPqhMw==
-X-Received: by 2002:a2e:905a:0:b0:2ac:e6d4:2c02 with SMTP id
- n26-20020a2e905a000000b002ace6d42c02mr3499647ljg.27.1685948048424; 
- Sun, 04 Jun 2023 23:54:08 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ48B68vKH+UhC6uQbr9ssQ3tolVqqyHzXPOSXBU/O7tK34p9Ijx3KRGRbj7qB3LR40jH1nWx4TQQyeKgoLevKA=
-X-Received: by 2002:a2e:905a:0:b0:2ac:e6d4:2c02 with SMTP id
- n26-20020a2e905a000000b002ace6d42c02mr3499639ljg.27.1685948048113; Sun, 04
- Jun 2023 23:54:08 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1685953048; x=1688545048;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=WTa5uBKoWlBL4OKjdUilTsvXazsAa+Thz3GpkiKSHlc=;
+ b=HJ45Tq37bQ1NTLiQKAT9FAL8gL4oUQy+Vb+J0jiwzDxDzGxICy7Fjbs2O6csy5lWdW
+ uvqKtMWDJ/9QniEEMIJv+9Rr/O9uXqawLp/+vDEYs9sZdnslXvjx9qQYecaZMziw2mDw
+ Ch44dYWKLZqd8ho8bDSgx7pXmdadX55n/C0q8YdozdHwX8BNo9zaXDyqDIYWdYsOY6/i
+ AQ+1romVIw3pmR7lMpJ6HgpF8F19WmLwCp54PTWfsGkfXITkI+7AwI4Xcpq/BbkpOJOF
+ z5rWrFLgLStvj32dEQ18U8f/FORH5wQSn5JIAAK5WLe7WzIzZDqjr378OheE+DD0JDa6
+ Y9pA==
+X-Gm-Message-State: AC+VfDwcb0i28DYG8tuommnSJ68qgm+0M8W/1A5MC8Z6YkC9q0/NAd+W
+ M2QfI9w1I2k2xVeFojXI3gbMmdrG5WovaGMV7yn+pzc/UMfdX7yUeNMeMIBmMFeAssT+fJjpZ2m
+ m+NiKm3xGBrFlTDtRYS38OjEcZY6YCeoL4KBm6upvJw==
+X-Received: by 2002:ad4:5dc6:0:b0:625:aa49:c345 with SMTP id
+ m6-20020ad45dc6000000b00625aa49c345mr5626878qvh.57.1685953048213; 
+ Mon, 05 Jun 2023 01:17:28 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5Ck6zccCkV6ZHcKm+GbVvGixKzHQxHzfmaEMOom+EzRulvwz867ReHd8wvmYTqyz8Sgzr03Q==
+X-Received: by 2002:ad4:5dc6:0:b0:625:aa49:c345 with SMTP id
+ m6-20020ad45dc6000000b00625aa49c345mr5626870qvh.57.1685953047990; 
+ Mon, 05 Jun 2023 01:17:27 -0700 (PDT)
+Received: from sgarzare-redhat ([5.77.94.106])
+ by smtp.gmail.com with ESMTPSA id
+ bu17-20020ad455f1000000b00623819de804sm4410683qvb.127.2023.06.05.01.17.25
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 05 Jun 2023 01:17:27 -0700 (PDT)
+Date: Mon, 5 Jun 2023 10:17:22 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 2/3] vhost: support PACKED when setting-getting
+ vring_base
+Message-ID: <z52qxx5mhw7pzgvafn6qgxpwz4dt2l7aetfqtkjf2qql7npnan@tpo3cvbcwnjj>
+References: <20230424225031.18947-3-shannon.nelson@amd.com>
+ <ogzrlfid7jwfzgk42zffegaq4xhdsrpi6vu22333ub4bkmvpc3@3pa2eyzub3jn>
+ <58f93ced-2f2b-dba1-b8a3-96bdb755d54e@amd.com>
+ <q6cmfha36sdkgflwwd3pr4sw7rgajag4ahgjbpfjrr76w4o2b6@3yc7zs5u65s4>
+ <dcfb15e6-a4c9-cb91-becd-a1e56e14d340@amd.com>
+ <CACGkMEsNo4O0uAdO5koXgYbgQLoOWp81KNjsaZYSuQ7YzjvPbA@mail.gmail.com>
+ <CAGxU2F4kwnGq41q99nx879Y4Br=0aeZsf2bjx2ZqpOc93G_gDQ@mail.gmail.com>
+ <CACGkMEsi0Vu21ZX2WZuEWNKQ4KTGA1iNb6+8SHeCb+Penqxr8g@mail.gmail.com>
+ <CAGxU2F63yQuc-eefSkEKZKZUxpnS4myGhNP2Bkj+QQk01Pi_yg@mail.gmail.com>
+ <20230602073559-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <20230602073442.1765-1-angus.chen@jaguarmicro.com>
-In-Reply-To: <20230602073442.1765-1-angus.chen@jaguarmicro.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 5 Jun 2023 14:53:56 +0800
-Message-ID: <CACGkMEtCr-LGVH9QJRaMJ2VF3fyDX2zEVwOSJtb-gB_VtSTV2A@mail.gmail.com>
-Subject: Re: [PATCH] vp_vdpa: Check queue number of vdpa device from add_config
-To: Angus Chen <angus.chen@jaguarmicro.com>
+In-Reply-To: <20230602073559-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- mst@redhat.com
+Content-Disposition: inline
+Cc: virtualization@lists.linux-foundation.org, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,48 +126,51 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKdW4gMiwgMjAyMyBhdCAzOjM14oCvUE0gQW5ndXMgQ2hlbiA8YW5ndXMuY2hlbkBq
-YWd1YXJtaWNyby5jb20+IHdyb3RlOgo+Cj4gV2hlbiBhZGQgdmlydGlvX3BjaSB2ZHBhIGRldmlj
-ZSxjaGVjayB0aGUgdnFzIG51bWJlciBvZiBkZXZpY2UgY2FwCj4gYW5kIG1heF92cV9wYWlycyBm
-cm9tIGFkZF9jb25maWcuCj4KPiBTaWduZWQtb2ZmLWJ5OiBBbmd1cyBDaGVuIDxhbmd1cy5jaGVu
-QGphZ3Vhcm1pY3JvLmNvbT4KPiAtLS0KPiAgZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRw
-YS5jIHwgMTEgKysrKysrKysrLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwg
-MiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92
-cF92ZHBhLmMgYi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMKPiBpbmRleCAyODEy
-ODdmYWU4OWYuLjRiZjFhYjYzN2QzMiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmlydGlv
-X3BjaS92cF92ZHBhLmMKPiArKysgYi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMK
-PiBAQCAtNDc4LDcgKzQ3OCw3IEBAIHN0YXRpYyBpbnQgdnBfdmRwYV9kZXZfYWRkKHN0cnVjdCB2
-ZHBhX21nbXRfZGV2ICp2X21kZXYsIGNvbnN0IGNoYXIgKm5hbWUsCj4gICAgICAgICBzdHJ1Y3Qg
-ZGV2aWNlICpkZXYgPSAmcGRldi0+ZGV2Owo+ICAgICAgICAgc3RydWN0IHZwX3ZkcGEgKnZwX3Zk
-cGEgPSBOVUxMOwo+ICAgICAgICAgdTY0IGRldmljZV9mZWF0dXJlczsKPiAtICAgICAgIGludCBy
-ZXQsIGk7Cj4gKyAgICAgICBpbnQgcmV0LCBpLCBxdWV1ZXM7Cj4KPiAgICAgICAgIHZwX3ZkcGEg
-PSB2ZHBhX2FsbG9jX2RldmljZShzdHJ1Y3QgdnBfdmRwYSwgdmRwYSwKPiAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBkZXYsICZ2cF92ZHBhX29wcywgMSwgMSwgbmFtZSwgZmFs
-c2UpOwo+IEBAIC00OTEsNyArNDkxLDE0IEBAIHN0YXRpYyBpbnQgdnBfdmRwYV9kZXZfYWRkKHN0
-cnVjdCB2ZHBhX21nbXRfZGV2ICp2X21kZXYsIGNvbnN0IGNoYXIgKm5hbWUsCj4gICAgICAgICB2
-cF92ZHBhX21ndGRldi0+dnBfdmRwYSA9IHZwX3ZkcGE7Cj4KPiAgICAgICAgIHZwX3ZkcGEtPnZk
-cGEuZG1hX2RldiA9ICZwZGV2LT5kZXY7Cj4gLSAgICAgICB2cF92ZHBhLT5xdWV1ZXMgPSB2cF9t
-b2Rlcm5fZ2V0X251bV9xdWV1ZXMobWRldik7Cj4gKyAgICAgICBxdWV1ZXMgPSB2cF9tb2Rlcm5f
-Z2V0X251bV9xdWV1ZXMobWRldik7Cj4gKyAgICAgICBpZiAoYWRkX2NvbmZpZy0+bWFzayAmIEJJ
-VF9VTEwoVkRQQV9BVFRSX0RFVl9ORVRfQ0ZHX01BWF9WUVApKSB7Cj4gKyAgICAgICAgICAgICAg
-IGlmIChhZGRfY29uZmlnLT5uZXQubWF4X3ZxX3BhaXJzID4gcXVldWVzIC8gMikKPiArICAgICAg
-ICAgICAgICAgICAgICAgICByZXR1cm4gLUVJTlZBTDsKPiArICAgICAgICAgICAgICAgcXVldWVz
-ID0gbWluX3QodTMyLCBxdWV1ZXMsIDIgKiBhZGRfY29uZmlnLT5uZXQubWF4X3ZxX3BhaXJzKTsK
-Ckxvb2tzIGxpa2UgeW91IHdhbnQgdG8gbWVkaWF0ZSB0aGUgbWF4X3ZxcCBoZXJlLCBidXQgd2hh
-dCBoYXBwZW5zOgoKMSkgaGFyd2FyZSBoYXZlIDQgcXVldWUgcGFyaXMKMikgdnBfdmRwYSBjYXAg
-aXQgaW50byAyIHF1ZXVlIHBhaXJzCjMpIGd1ZXN0IG1heSBzdGlsbCB0cnkgdG8gZW5hYmxlIDQg
-cXVldWUgcGFyaXMKCkZvciAzKSwgdGhlIGtlcm5lbCBuZWVkcyB0byBtZWRpYXRlIHRoZSBjb250
-cm9sIHZpcnRxdWV1ZSB3aGljaCBzZWVtcyBub3QgZWFzeS4KCkhvdyBhYm91dCBzaW1wbHkgc3Rh
-cnRpbmcgZnJvbSBmYWlsaW5nIGlmIHRoZSBwcm92aXNpb25lZCAjcXAgaXMgbm90CmVxdWFsIHRv
-IHRoZSBvbmUgdGhhdCBoYXJkd2FyZSBoYXM/CgpUaGFua3MKCj4gKyAgICAgICB9Cj4gKwo+ICsg
-ICAgICAgdnBfdmRwYS0+cXVldWVzID0gcXVldWVzOwo+ICAgICAgICAgdnBfdmRwYS0+bWRldiA9
-IG1kZXY7Cj4KPiAgICAgICAgIGRldmljZV9mZWF0dXJlcyA9IHZwX21vZGVybl9nZXRfZmVhdHVy
-ZXMobWRldik7Cj4gLS0KPiAyLjI1LjEKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Jun 02, 2023 at 07:36:26AM -0400, Michael S. Tsirkin wrote:
+>On Thu, May 18, 2023 at 09:34:25AM +0200, Stefano Garzarella wrote:
+>> I think we should do one of these things, though:
+>> - mask VIRTIO_F_RING_PACKED in the stable kernels when
+>> VHOST_GET_FEAETURES is called
+>> - backport this patch on all stable kernels that support vhost-vdpa
+>>
+>> Maybe the last one makes more sense.
+>>
+>> Thanks,
+>> Stefano
+>
+>OK which patches do you want to go to stable exactly?
+
+Initially I was thinking this entire series, but I think it's too
+risky, so on second thoughtwhat do you think about this:
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 8c1aefc865f0..ac2152135b23 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -397,6 +397,12 @@ static long vhost_vdpa_get_features(struct vhost_vdpa *v, u64 __user *featurep)
+
+         features = ops->get_device_features(vdpa);
+
++       /*
++        * IOCTLs (eg. VHOST_GET_VRING_BASE, VHOST_SET_VRING_BASE) don't support
++        * packed virtqueue well yet, so let's filter the feature for now.
++        */
++       features &= ~BIT_ULL(VIRTIO_F_RING_PACKED);
++
+         if (copy_to_user(featurep, &features, sizeof(features)))
+                 return -EFAULT;
+
+I can send the patch ASAP and we can apply it before this series.
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
