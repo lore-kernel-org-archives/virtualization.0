@@ -1,93 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DC135C77B73
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 20:34:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29CD2C7EE24
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 21:45:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 79A686073E;
-	Mon,  5 Jun 2023 20:34:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 79A686073E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ibKhaRQZ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id o0BN1veoGldy; Mon,  5 Jun 2023 20:34:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D4A57605DB;
-	Mon,  5 Jun 2023 20:34:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D4A57605DB
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7273C0037;
-	Mon,  5 Jun 2023 20:34:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 026FBC0029
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 20:34:14 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DE15E814BB
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 20:34:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE15E814BB
+	by smtp1.osuosl.org (Postfix) with ESMTP id 92BFF813EF;
+	Mon,  5 Jun 2023 21:45:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 92BFF813EF
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ibKhaRQZ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PC2MjuDJ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Xko9PdyfZncw; Mon,  5 Jun 2023 21:45:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0DAEC813E9;
+	Mon,  5 Jun 2023 21:45:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0DAEC813E9
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CF2C5C007A;
+	Mon,  5 Jun 2023 21:45:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9C6CC0029
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jun 2023 21:45:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id ADD13813EF
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jun 2023 21:45:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ADD13813EF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id adWmylMhXrAt
+ with ESMTP id f1BnDOYqiLdE
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 20:34:13 +0000 (UTC)
+ Mon,  5 Jun 2023 21:44:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D665981774
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4B9AF813E9
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D665981774
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4B9AF813E9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 20:34:12 +0000 (UTC)
+ Mon,  5 Jun 2023 21:44:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685997251;
+ s=mimecast20190719; t=1686001497;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=B1aUzpMPNmlfrjcGhUkfuNr3whmW6qOECBZUIISypic=;
- b=ibKhaRQZogvkZyUyzSjkoYmFjrrMvdf2cj84fb3Cf8ea7+N5DL5zLpljhrUk45YuzpMakv
- 5D3ewAdNrtsGrKagbdfWWpaZ2BW8OpEC1ghoLNWWTlRa94kZDrMcBkQAmmdMkhZjpB5GMy
- 8pkFX504Rm6xy84TO05X7k0AIP+51Ng=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-357-eUWr7QALPyOWonMfkdpjaQ-1; Mon, 05 Jun 2023 16:34:08 -0400
-X-MC-Unique: eUWr7QALPyOWonMfkdpjaQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
- [10.11.54.3])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3F54D800BFF;
- Mon,  5 Jun 2023 20:34:08 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.22.32.117])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 1EDD81121314;
- Mon,  5 Jun 2023 20:34:08 +0000 (UTC)
-Received: by fedora.redhat.com (Postfix, from userid 1000)
- id BC70A16FE2C; Mon,  5 Jun 2023 16:34:07 -0400 (EDT)
-Date: Mon, 5 Jun 2023 16:34:07 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Peter-Jan Gootzen <peter-jan@gootzen.net>
-Subject: Re: [PATCH V3] virtio-fs: Improved request latencies when Virtio
- queue is full
-Message-ID: <ZH5Gv13svYAe6u42@redhat.com>
-References: <20230602133224.1445655-1-peter-jan@gootzen.net>
+ bh=WpKIMI7QM/wVRTxo2f7IQpPSM5zVOF2jBBbDgfwLd/0=;
+ b=PC2MjuDJ0X6p3EDliUsdGz0RXtNxmjXIsgwnCob7+pNm5RNfwi9wzNNEO71mVksSeibCj7
+ DYVRjUgqTTwz2afGclyxYWrmkk9rU1aH0HayCqJMY4PGaOPXJMVdpHywweK4Pdu+wJri2g
+ XIN45RnlgNp4TA9v8mCEN4or6OctXJs=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-90-gleLJJDyMuilzLsS8oRggA-1; Mon, 05 Jun 2023 17:44:56 -0400
+X-MC-Unique: gleLJJDyMuilzLsS8oRggA-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ 5b1f17b1804b1-3f6038dc351so22932335e9.3
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 05 Jun 2023 14:44:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1686001495; x=1688593495;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=WpKIMI7QM/wVRTxo2f7IQpPSM5zVOF2jBBbDgfwLd/0=;
+ b=H+U05wphd4rhFAmV1K31m28x+AVRI1ot0heABfkImhnTu/9O2i/yQsShbydezpFdX+
+ FLIdYiLJXRZ3vUnVojKEG3t2/UUIIcB0+cyTEIcqfjlPzTkazDk/SCgBvRmba99E8wWq
+ NCGq/9LbysDEUoTS1fbmuALpaslNRrZDU7LcNojOHEf7MPjnNIzHET7LcAjuOJgBpqYa
+ pwjemRzaRQ13PnozRqN5GHVu+sm9grna7O6b2o4FcKeFfWzCPdi5G0Zajjqanmhh3tRG
+ 6qZQvQ0+0YZycC6R6caZjaDqaAiiXFGXyIkdrRyAVfLOaUd8Rh//iVvDtYBSuCrfCCxT
+ iVYg==
+X-Gm-Message-State: AC+VfDzksHBS8BGpCTwZZwa/UJs5cqud3cfjqQxiMQ3oZk88QTU1hV5X
+ R2JJzKfXdE2JcA/crBVyvum2i9BbGYTLanNADg1xRc6Hvae14RFOzKjE9tQy9pdArmJgO1NNH1w
+ ZbqeGuyNPc5IGkTePuHBDBII0b0+AgaWx4pYl3f1QSg==
+X-Received: by 2002:a7b:c40f:0:b0:3f7:5e08:7a04 with SMTP id
+ k15-20020a7bc40f000000b003f75e087a04mr324442wmi.25.1686001495373; 
+ Mon, 05 Jun 2023 14:44:55 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4u8Ic/y4eCXxAW8Bpwr/2TMDw54kNLZMenywFlEZSHsc+nxVJwRBB1hWlaJzPhaz3ai/scQA==
+X-Received: by 2002:a7b:c40f:0:b0:3f7:5e08:7a04 with SMTP id
+ k15-20020a7bc40f000000b003f75e087a04mr324432wmi.25.1686001495049; 
+ Mon, 05 Jun 2023 14:44:55 -0700 (PDT)
+Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
+ b14-20020a5d40ce000000b002e5ff05765esm10931997wrq.73.2023.06.05.14.44.52
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 05 Jun 2023 14:44:54 -0700 (PDT)
+Date: Mon, 5 Jun 2023 17:44:50 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vhost-vdpa: filter VIRTIO_F_RING_PACKED feature
+Message-ID: <20230605173958-mutt-send-email-mst@kernel.org>
+References: <20230605110644.151211-1-sgarzare@redhat.com>
+ <20230605084104-mutt-send-email-mst@kernel.org>
+ <24fjdwp44hovz3d3qkzftmvjie45er3g3boac7aezpvzbwvuol@lmo47ydvnqau>
+ <20230605085840-mutt-send-email-mst@kernel.org>
+ <gi2hngx3ndsgz5d2rpqjywdmou5vxhd7xgi5z2lbachr7yoos4@kpifz37oz2et>
+ <20230605095404-mutt-send-email-mst@kernel.org>
+ <32ejjuvhvcicv7wjuetkv34qtlpa657n4zlow4eq3fsi2twozk@iqnd2t5tw2an>
 MIME-Version: 1.0
-In-Reply-To: <20230602133224.1445655-1-peter-jan@gootzen.net>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+In-Reply-To: <32ejjuvhvcicv7wjuetkv34qtlpa657n4zlow4eq3fsi2twozk@iqnd2t5tw2an>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: miklos@szeredi.hu, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,205 +126,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 02, 2023 at 03:32:26PM +0200, Peter-Jan Gootzen wrote:
-> When the Virtio queue is full, a work item is scheduled
-> to execute in 1ms that retries adding the request to the queue.
-> This is a large amount of time on the scale on which a
-> virtio-fs device can operate. When using a DPU this is around
-> 40us baseline without going to a remote server (4k, QD=1).
-> This patch queues requests when the Virtio queue is full,
-> and when a completed request is taken off, immediately fills
-> it back up with queued requests.
+On Mon, Jun 05, 2023 at 04:56:37PM +0200, Stefano Garzarella wrote:
+> On Mon, Jun 05, 2023 at 09:54:57AM -0400, Michael S. Tsirkin wrote:
+> > On Mon, Jun 05, 2023 at 03:30:35PM +0200, Stefano Garzarella wrote:
+> > > On Mon, Jun 05, 2023 at 09:00:25AM -0400, Michael S. Tsirkin wrote:
+> > > > On Mon, Jun 05, 2023 at 02:54:20PM +0200, Stefano Garzarella wrote:
+> > > > > On Mon, Jun 05, 2023 at 08:41:54AM -0400, Michael S. Tsirkin wrote:
+> > > > > > On Mon, Jun 05, 2023 at 01:06:44PM +0200, Stefano Garzarella wrote:
+> > > > > > > vhost-vdpa IOCTLs (eg. VHOST_GET_VRING_BASE, VHOST_SET_VRING_BASE)
+> > > > > > > don't support packed virtqueue well yet, so let's filter the
+> > > > > > > VIRTIO_F_RING_PACKED feature for now in vhost_vdpa_get_features().
+> > > > > > >
+> > > > > > > This way, even if the device supports it, we don't risk it being
+> > > > > > > negotiated, then the VMM is unable to set the vring state properly.
+> > > > > > >
+> > > > > > > Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+> > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > > > > > > ---
+> > > > > > >
+> > > > > > > Notes:
+> > > > > > >     This patch should be applied before the "[PATCH v2 0/3] vhost_vdpa:
+> > > > > > >     better PACKED support" series [1] and backported in stable branches.
+> > > > > > >
+> > > > > > >     We can revert it when we are sure that everything is working with
+> > > > > > >     packed virtqueues.
+> > > > > > >
+> > > > > > >     Thanks,
+> > > > > > >     Stefano
+> > > > > > >
+> > > > > > >     [1] https://lore.kernel.org/virtualization/20230424225031.18947-1-shannon.nelson@amd.com/
+> > > > > >
+> > > > > > I'm a bit lost here. So why am I merging "better PACKED support" then?
+> > > > >
+> > > > > To really support packed virtqueue with vhost-vdpa, at that point we would
+> > > > > also have to revert this patch.
+> > > > >
+> > > > > I wasn't sure if you wanted to queue the series for this merge window.
+> > > > > In that case do you think it is better to send this patch only for stable
+> > > > > branches?
+> > > > > > Does this patch make them a NOP?
+> > > > >
+> > > > > Yep, after applying the "better PACKED support" series and being
+> > > > > sure that
+> > > > > the IOCTLs of vhost-vdpa support packed virtqueue, we should revert this
+> > > > > patch.
+> > > > >
+> > > > > Let me know if you prefer a different approach.
+> > > > >
+> > > > > I'm concerned that QEMU uses vhost-vdpa IOCTLs thinking that the kernel
+> > > > > interprets them the right way, when it does not.
+> > > > >
+> > > > > Thanks,
+> > > > > Stefano
+> > > > >
+> > > >
+> > > > If this fixes a bug can you add Fixes tags to each of them? Then it's ok
+> > > > to merge in this window. Probably easier than the elaborate
+> > > > mask/unmask dance.
+> > > 
+> > > CCing Shannon (the original author of the "better PACKED support"
+> > > series).
+> > > 
+> > > IIUC Shannon is going to send a v3 of that series to fix the
+> > > documentation, so Shannon can you also add the Fixes tags?
+> > > 
+> > > Thanks,
+> > > Stefano
+> > 
+> > Well this is in my tree already. Just reply with
+> > Fixes: <>
+> > to each and I will add these tags.
 > 
-> This reduces the 99.9th percentile latencies in our tests by
-> 60x and slightly increases the overall throughput, when using a
-> queue depth 2x the size of the Virtio queue size, with a
-> DPU-powered virtio-fs device.
+> I tried, but it is not easy since we added the support for packed virtqueue
+> in vdpa and vhost incrementally.
 > 
-> Furthermore, the virtio-fs driver now also always lets -ENOMEM
-> errors go to userspace instead of retrying the request in the
-> driver.
+> Initially I was thinking of adding the same tag used here:
 > 
-> Signed-off-by: Peter-Jan Gootzen <peter-jan@gootzen.net>
-> ---
-> V3: Fixed requests falling into the void when -ENOMEM and no new
-> incoming requests. Virtio-fs now always lets -ENOMEM bubble up to
-> userspace. Also made queue full condition more explicit with
-> -ENOSPC in `send_forget_request`.
-> V2: Not scheduling dispatch work anymore when not needed
-> and changed delayed_work structs to work_struct structs
+> Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
 > 
->  fs/fuse/virtio_fs.c | 46 ++++++++++++++++++++++-----------------------
->  1 file changed, 23 insertions(+), 23 deletions(-)
+> Then I discovered that vq_state wasn't there, so I was thinking of
 > 
-> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> index 4d8d4f16c727..3a3231ddb9e7 100644
-> --- a/fs/fuse/virtio_fs.c
-> +++ b/fs/fuse/virtio_fs.c
-> @@ -45,7 +45,7 @@ struct virtio_fs_vq {
->  	struct work_struct done_work;
->  	struct list_head queued_reqs;
->  	struct list_head end_reqs;	/* End these requests */
-> -	struct delayed_work dispatch_work;
-> +	struct work_struct dispatch_work;
->  	struct fuse_dev *fud;
->  	bool connected;
->  	long in_flight;
-> @@ -202,7 +202,7 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
->  	}
->  
->  	flush_work(&fsvq->done_work);
-> -	flush_delayed_work(&fsvq->dispatch_work);
-> +	flush_work(&fsvq->dispatch_work);
->  }
->  
->  static void virtio_fs_drain_all_queues_locked(struct virtio_fs *fs)
-> @@ -346,6 +346,9 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
->  			dec_in_flight_req(fsvq);
->  		}
->  	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
-> +
-> +	if (!list_empty(&fsvq->queued_reqs))
-> +		schedule_work(&fsvq->dispatch_work);
->  	spin_unlock(&fsvq->lock);
->  }
->  
-> @@ -353,7 +356,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  {
->  	struct fuse_req *req;
->  	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
-> -						 dispatch_work.work);
-> +						 dispatch_work);
->  	int ret;
->  
->  	pr_debug("virtio-fs: worker %s called.\n", __func__);
-> @@ -385,11 +388,9 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  
->  		ret = virtio_fs_enqueue_req(fsvq, req, true);
->  		if (ret < 0) {
-> -			if (ret == -ENOMEM || ret == -ENOSPC) {
-> +			if (ret == -ENOSPC) {
+> Fixes: 530a5678bc00 ("vdpa: support packed virtqueue for set/get_vq_state()")
+> 
+> So we would have to backport quite a few patches into the stable branches.
+> I don't know if it's worth it...
+> 
+> I still think it is better to disable packed in the stable branches,
+> otherwise I have to make a list of all the patches we need.
+> 
+> Any other ideas?
+> 
+> Thanks,
+> Stefano
 
-I think this change should be a separate patch with proper justification.
-This change has nothing to do with reducing the latency of submitting
-the queued request.
+OK so. You want me to apply this one now, and fixes in the next
+kernel?
 
-Thanks
-Vivek
-
->  				spin_lock(&fsvq->lock);
->  				list_add_tail(&req->list, &fsvq->queued_reqs);
-> -				schedule_delayed_work(&fsvq->dispatch_work,
-> -						      msecs_to_jiffies(1));
->  				spin_unlock(&fsvq->lock);
->  				return;
->  			}
-> @@ -405,8 +406,8 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
->  }
->  
->  /*
-> - * Returns 1 if queue is full and sender should wait a bit before sending
-> - * next request, 0 otherwise.
-> + * Returns 0 if request has been successfully sent, otherwise -ENOSPC
-> + * when the queue is full.
->   */
->  static int send_forget_request(struct virtio_fs_vq *fsvq,
->  			       struct virtio_fs_forget *forget,
-> @@ -432,16 +433,12 @@ static int send_forget_request(struct virtio_fs_vq *fsvq,
->  
->  	ret = virtqueue_add_outbuf(vq, &sg, 1, forget, GFP_ATOMIC);
->  	if (ret < 0) {
-> -		if (ret == -ENOMEM || ret == -ENOSPC) {
-> +		if (ret == -ENOSPC) {
->  			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
->  				 ret);
->  			list_add_tail(&forget->list, &fsvq->queued_reqs);
-> -			schedule_delayed_work(&fsvq->dispatch_work,
-> -					      msecs_to_jiffies(1));
->  			if (!in_flight)
->  				inc_in_flight_req(fsvq);
-> -			/* Queue is full */
-> -			ret = 1;
->  		} else {
->  			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Dropping it.\n",
->  				 ret);
-> @@ -469,7 +466,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
->  {
->  	struct virtio_fs_forget *forget;
->  	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
-> -						 dispatch_work.work);
-> +						 dispatch_work);
->  	pr_debug("virtio-fs: worker %s called.\n", __func__);
->  	while (1) {
->  		spin_lock(&fsvq->lock);
-> @@ -482,7 +479,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
->  
->  		list_del(&forget->list);
->  		spin_unlock(&fsvq->lock);
-> -		if (send_forget_request(fsvq, forget, true))
-> +		if (send_forget_request(fsvq, forget, true) == -ENOSPC)
->  			return;
->  	}
->  }
-> @@ -647,6 +644,11 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
->  			virtio_fs_request_complete(req, fsvq);
->  		}
->  	}
-> +
-> +	spin_lock(&fsvq->lock);
-> +	if (!list_empty(&fsvq->queued_reqs))
-> +		schedule_work(&fsvq->dispatch_work);
-> +	spin_unlock(&fsvq->lock);
->  }
->  
->  /* Virtqueue interrupt handler */
-> @@ -670,12 +672,12 @@ static void virtio_fs_init_vq(struct virtio_fs_vq *fsvq, char *name,
->  
->  	if (vq_type == VQ_REQUEST) {
->  		INIT_WORK(&fsvq->done_work, virtio_fs_requests_done_work);
-> -		INIT_DELAYED_WORK(&fsvq->dispatch_work,
-> -				  virtio_fs_request_dispatch_work);
-> +		INIT_WORK(&fsvq->dispatch_work,
-> +			  virtio_fs_request_dispatch_work);
->  	} else {
->  		INIT_WORK(&fsvq->done_work, virtio_fs_hiprio_done_work);
-> -		INIT_DELAYED_WORK(&fsvq->dispatch_work,
-> -				  virtio_fs_hiprio_dispatch_work);
-> +		INIT_WORK(&fsvq->dispatch_work,
-> +			  virtio_fs_hiprio_dispatch_work);
->  	}
->  }
->  
-> @@ -1246,7 +1248,7 @@ __releases(fiq->lock)
->  	fsvq = &fs->vqs[queue_id];
->  	ret = virtio_fs_enqueue_req(fsvq, req, false);
->  	if (ret < 0) {
-> -		if (ret == -ENOMEM || ret == -ENOSPC) {
-> +		if (ret == -ENOSPC) {
->  			/*
->  			 * Virtqueue full. Retry submission from worker
->  			 * context as we might be holding fc->bg_lock.
-> @@ -1254,8 +1256,6 @@ __releases(fiq->lock)
->  			spin_lock(&fsvq->lock);
->  			list_add_tail(&req->list, &fsvq->queued_reqs);
->  			inc_in_flight_req(fsvq);
-> -			schedule_delayed_work(&fsvq->dispatch_work,
-> -						msecs_to_jiffies(1));
->  			spin_unlock(&fsvq->lock);
->  			return;
->  		}
-> @@ -1265,7 +1265,7 @@ __releases(fiq->lock)
->  		/* Can't end request in submission context. Use a worker */
->  		spin_lock(&fsvq->lock);
->  		list_add_tail(&req->list, &fsvq->end_reqs);
-> -		schedule_delayed_work(&fsvq->dispatch_work, 0);
-> +		schedule_work(&fsvq->dispatch_work);
->  		spin_unlock(&fsvq->lock);
->  		return;
->  	}
-> -- 
-> 2.34.1
-> 
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
