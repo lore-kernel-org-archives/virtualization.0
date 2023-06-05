@@ -1,109 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5E058C7EE2A
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 05:39:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A335AC7EE2A
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 05:44:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B95D641525;
-	Mon,  5 Jun 2023 05:39:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B95D641525
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=efbtQ5aa
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1800140360;
+	Mon,  5 Jun 2023 05:44:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1800140360
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fGFQpBRR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UhU7V2uUa7pF; Mon,  5 Jun 2023 05:39:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C7E7A414E0;
-	Mon,  5 Jun 2023 05:39:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7E7A414E0
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WPFFvJ0DCLgV; Mon,  5 Jun 2023 05:44:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A7CCC40114;
+	Mon,  5 Jun 2023 05:44:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A7CCC40114
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8ACE7C0037;
-	Mon,  5 Jun 2023 05:39:00 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6917EC0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FCBBC0037;
+	Mon,  5 Jun 2023 05:44:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38AB4C0029
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 05:38:59 +0000 (UTC)
+ Mon,  5 Jun 2023 05:44:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 310CF81ECD
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0C81D40360
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 05:38:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 310CF81ECD
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=efbtQ5aa
+ Mon,  5 Jun 2023 05:44:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0C81D40360
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KhRRN_pDric9
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1TgLGdSWHqCX
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 05:38:57 +0000 (UTC)
+ Mon,  5 Jun 2023 05:44:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7C3DF81E14
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A58240114
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7C3DF81E14
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4A58240114
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 05:38:57 +0000 (UTC)
+ Mon,  5 Jun 2023 05:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685943535;
+ s=mimecast20190719; t=1685943876;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=WRJJH0OW2J50d9NADx5u5KL1sSbMX6qrZ3gY09U8zZ0=;
- b=efbtQ5aajEeGDRw2BAHfh0j+yxztUecmL1MOztGfN8qJZ95Ttv15ZbW0oJw9sffSHfQwQ7
- PkWOuJCyrf1zRQo42QNgG6yQqCHeXbyahEpCRytREYZmZo9B5ZXW+DKHBYjSXvgHeD8+Hp
- qVR2wAmH8GQPhWjP42fURwxbXTSWZks=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=/ejXk37OnpgBfntpQO2hBNILL2g4QMjhCiXN34MbvEk=;
+ b=fGFQpBRRMc40C8fWbp/Nrv4DsdtHxKzD4SEaxGaMphPyxjZMJnxgZNoBWMR4jE2FEfTD6b
+ fA3eKHFWdsf0rYddOWY60d+M+xnW8HeIduBpgtjxURdOCaZfq80SWSHjWyRmv/UF0W1Xoh
+ CWVW8WYSk8yRDqF2S90dsTMCa6JGpVA=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-670-8XUj80jkM_G8GXQVVKlnlQ-1; Mon, 05 Jun 2023 01:38:54 -0400
-X-MC-Unique: 8XUj80jkM_G8GXQVVKlnlQ-1
-Received: by mail-wr1-f72.google.com with SMTP id
- ffacd0b85a97d-30e3ee8a42eso289634f8f.1
+ us-mta-607-Xg8FRWD6MDWhb_h4f2FPAg-1; Mon, 05 Jun 2023 01:44:33 -0400
+X-MC-Unique: Xg8FRWD6MDWhb_h4f2FPAg-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ ffacd0b85a97d-30c2b38bf87so2386497f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 04 Jun 2023 22:38:54 -0700 (PDT)
+ Sun, 04 Jun 2023 22:44:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685943533; x=1688535533;
+ d=1e100.net; s=20221208; t=1685943873; x=1688535873;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=WRJJH0OW2J50d9NADx5u5KL1sSbMX6qrZ3gY09U8zZ0=;
- b=NW3llqURpbV/kibkVS3R4IYBcEyGS0vGiesznq67H/8ERPbW337RCCMIi+lu5nG9Ic
- 5b7yIRPQkY9MA2XamF7qggvuqCA4aWQcgIhZVyDhaeJli4HdR83K8xNy5+GXa/wIeUDX
- IexuYVPKmipaY0J2J0jaakLHqz7P905icc15X3y9SZk6hte+FLMzFcQFB0B+lAejaF0O
- p7c3ipVvIzERc6Y1FIjXQjo6Y/Frk0uCp8mNLdiDtwXRlllF2eaxhjWvsx/pBB8wbUFu
- HFzFKriN4/KLsjYiTc2B7+hcvbOEU3LqiCco7SnI59MirZw5AEljZNVtgoHeVZEjueYz
- KCsg==
-X-Gm-Message-State: AC+VfDxZOoB53UiVho+Jf8rDU2CYqbmrBPNSEHwKpX9kZfmzr2C1gok+
- XGfCqcQiFfUNt71cBsjAo6wqpNHESJzQe3qUtQ/ZkbZO7VHKnEfC5toAMU+KkS7D01jbxh39nq9
- OB8qXdbUNeGKp9DkXm2AG7KUxehDHi8/S1VbkuoGJnw==
-X-Received: by 2002:a5d:6b86:0:b0:30a:b4e1:a89c with SMTP id
- n6-20020a5d6b86000000b0030ab4e1a89cmr3896121wrx.66.1685943533204; 
- Sun, 04 Jun 2023 22:38:53 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7bhQbx+cGVISzu+LTDpd2WoPYUQfudCiV0v4tPmO0GTljBr2mjJBinEUeuco5jPdn8SzBrbQ==
-X-Received: by 2002:a5d:6b86:0:b0:30a:b4e1:a89c with SMTP id
- n6-20020a5d6b86000000b0030ab4e1a89cmr3896101wrx.66.1685943532831; 
- Sun, 04 Jun 2023 22:38:52 -0700 (PDT)
+ bh=/ejXk37OnpgBfntpQO2hBNILL2g4QMjhCiXN34MbvEk=;
+ b=WcLYcRroAZHiO1S4KAh0TF0/S7jNTSqmE+QcAGp6rOOuBUK72kXC4gW1u6egBsHD4u
+ UW7maErEvFdg+OSUwGKtV+8tpcRwdngTlwpI3lPqgFFJkoRiFZy1+GTTPU9xqi94Ev+1
+ yp38z78c7ew6U17lQe/n2vTzgO7q+H4lOpXnf7Y32G9xg1UKTRSTKNlvradTFJzpY0s4
+ ce6kkqYNqLSSb7CUGBV++FqC1dF7qnMW/5iKrNKqCNEV+R8CeQoVvG4X0DXlD75mqImg
+ 4fFESrPkxA2IxftZbfWarX76vVPXU2lsePO3hfViMJvR7Gx8L9/jE0G1j0Cu1Jr/G4L9
+ f5bw==
+X-Gm-Message-State: AC+VfDz1FEtpVjtkDegkVa06f9JwKY6Ys1IPiyoAe2AVkliB+RP4DXqD
+ w/gYFrz1mzH+h2Ar4RBuIOiIhdmgdjoMxR7HHIrjewDUQVoVigDYQLP/QSHSBWGUj+3YcDlhhCV
+ esrgoRWJjiHlljnKP10TyeWn9baioJKoZcmeRtlbEgA==
+X-Received: by 2002:adf:f687:0:b0:30a:e5e3:ea66 with SMTP id
+ v7-20020adff687000000b0030ae5e3ea66mr4818797wrp.14.1685943872852; 
+ Sun, 04 Jun 2023 22:44:32 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5PHhVf9POTk1AmuouTd4HghcP4O8qLZ+32oStK2OroFPJBE288EDHshOL1o8Lb2YOXPb2Bvg==
+X-Received: by 2002:adf:f687:0:b0:30a:e5e3:ea66 with SMTP id
+ v7-20020adff687000000b0030ae5e3ea66mr4818781wrp.14.1685943872612; 
+ Sun, 04 Jun 2023 22:44:32 -0700 (PDT)
 Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
- m10-20020adfe94a000000b0030c6751a49dsm8552160wrn.115.2023.06.04.22.38.50
+ o4-20020a05600c378400b003f195d540d9sm13048625wmr.14.2023.06.04.22.44.30
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 04 Jun 2023 22:38:52 -0700 (PDT)
-Date: Mon, 5 Jun 2023 01:38:48 -0400
+ Sun, 04 Jun 2023 22:44:31 -0700 (PDT)
+Date: Mon, 5 Jun 2023 01:44:28 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v10 07/10] virtio_ring: introduce helpers for
- premapped
-Message-ID: <20230605013658-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH vhost v10 10/10] virtio_net: support dma premapped
+Message-ID: <20230605014154-mutt-send-email-mst@kernel.org>
 References: <20230602092206.50108-1-xuanzhuo@linux.alibaba.com>
- <20230602092206.50108-8-xuanzhuo@linux.alibaba.com>
- <20230604094122-mutt-send-email-mst@kernel.org>
- <1685930811.137484-1-xuanzhuo@linux.alibaba.com>
+ <20230602092206.50108-11-xuanzhuo@linux.alibaba.com>
+ <20230602233152.4d9b9ba4@kernel.org>
+ <1685931044.5893385-2-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <1685930811.137484-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1685931044.5893385-2-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -129,214 +125,32 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 05, 2023 at 10:06:51AM +0800, Xuan Zhuo wrote:
-> On Sun, 4 Jun 2023 09:45:14 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Fri, Jun 02, 2023 at 05:22:03PM +0800, Xuan Zhuo wrote:
-> > > This patch introduces three helpers for premapped mode.
-> > >
-> > > * virtqueue_get_buf_premapped
-> > > * virtqueue_detach_unused_buf_premapped
-> > >
-> > > The above helpers work like the non-premapped funcs. But a cursor is
-> > > passed.
-> > >
-> > > virtqueue_detach is used to get the dma info of the last buf by
-> > >   cursor.
+On Mon, Jun 05, 2023 at 10:10:44AM +0800, Xuan Zhuo wrote:
+> On Fri, 2 Jun 2023 23:31:52 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> > On Fri,  2 Jun 2023 17:22:06 +0800 Xuan Zhuo wrote:
+> > >  drivers/net/virtio_net.c | 163 +++++++++++++++++++++++++++++++++------
 > >
-> > This isn't very clear from the description but virtqueue_detach is
-> > also introduced by this patch as opposed to being used.
-> >
-> >
-> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > ---
-> > >  drivers/virtio/virtio_ring.c | 83 ++++++++++++++++++++++++++++++++++++
-> > >  include/linux/virtio.h       | 10 +++++
-> > >  2 files changed, 93 insertions(+)
-> > >
-> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > index cbc22daae7e1..6771b9661798 100644
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -2555,6 +2555,66 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
-> > >  	return virtqueue_get_buf_ctx(_vq, len, NULL);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_get_buf);
-> > > +
-> > > +/**
-> > > + * virtqueue_get_buf_premapped - get the next used buffer
-> > > + * @_vq: the struct virtqueue we're talking about.
-> > > + * @len: the length written into the buffer
-> > > + * @ctx: extra context for the token
-> > > + * @cursor: detach cursor
-> > > + *
-> > > + * If the device wrote data into the buffer, @len will be set to the
-> > > + * amount written.  This means you don't need to clear the buffer
-> > > + * beforehand to ensure there's no data leakage in the case of short
-> > > + * writes.
-> > > + *
-> > > + * Caller must ensure we don't call this with other virtqueue
-> > > + * operations at the same time (except where noted).
-> > > + *
-> > > + * This is used for the premapped vq. The cursor is passed by the dirver, that
-> > > + * is used for virtqueue_detach. That will be initialized by virtio core
-> > > + * internally.
-> > > + *
-> > > + * Returns NULL if there are no used buffers, or the "data" token
-> > > + * handed to virtqueue_add_*().
-> > > + */
-> > > +void *virtqueue_get_buf_premapped(struct virtqueue *_vq, unsigned int *len,
-> > > +				  void **ctx,
-> > > +				  struct virtqueue_detach_cursor *cursor)
-> > > +{
-> > > +	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > +
-> > > +	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(_vq, len, ctx, cursor) :
-> > > +				 virtqueue_get_buf_ctx_split(_vq, len, ctx, cursor);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(virtqueue_get_buf_premapped);
-> > > +
-> > > +/**
-> > > + * virtqueue_detach - get the dma info of last buf
-> >
-> > detach what from what then?
-> > I am guessing this is not the only thing this function does?
-> > sounds like a bad name for a function.
-> 
-> Let me think of a good name
-> 
-> >
-> > > + * @_vq: the struct virtqueue we're talking about.
-> > > + * @cursor: detach cursor
-> > > + * @addr: the dma address
-> >
-> > what address?  it's the 1st time you mention an address ...
-> 
-> Will fix.
+> > ack for this going via the vhost tree, FWIW, but you'll potentially
+> > need to wait for the merge window to move forward with the actual
+> > af xdp patches, in this case.
 > 
 > 
-> >
-> > > + * @len: the length of the dma address
-> > > + * @dir: the direction of the dma address
-> > > + *
-> > > + * This is used for the premapped vq. The cursor is initialized by
-> > > + * virtqueue_get_buf_premapped or virtqueue_detach_unused_buf_premapped.
-> > > + *
-> > > + * Returns:
-> > > + * -EAGAIN: there are more dma info, this function should be called more.
-> >
-> > here too, pls don't return -EAGAIN not in an error case.
-> > something like "1" will do.
+> My current plan is to let virtio support premapped dma first, and then implement
+> virtio-net to support af-xdp zerocopy.
 > 
-> While I agree with you, -EAGAIN seems to be a commonly used method.
-
-Where is it used like this? A typical use is e.g. in read(2):
-
-      EAGAIN The file descriptor fd refers to a file other than a socket and has been marked nonblocking (O_NONBLOCK), and  the  read
-              would block.  See open(2) for further details on the O_NONBLOCK flag.
-
-a better analog here is read filling up all its buffer, in which
-case it returns the # of bytes returned.
-
-
-> How about we
-> return EAGAIN instead of -EAGAIN ?
+> This will indeed involve two branches. But most of the implementations in this
+> patch are virtio code, so I think it would be more appropriate to commit to
+> vhost. Do you have any good ideas?
+> 
 > 
 > Thanks.
-> 
-> 
-> 
-> >
-> > > + * -EINVAL: the process is done, should not call this function
-> > > + * 0: no more dma info
-> > > + */
-> > > +int virtqueue_detach(struct virtqueue *_vq, struct virtqueue_detach_cursor *cursor,
-> > > +		     dma_addr_t *addr, u32 *len, enum dma_data_direction *dir)
-> > > +{
-> > > +	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > +
-> > > +	return vq->packed_ring ? virtqueue_detach_packed(_vq, cursor, addr, len, dir) :
-> > > +				 virtqueue_detach_split(_vq, cursor, addr, len, dir);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(virtqueue_detach);
-> > > +
-> > >  /**
-> > >   * virtqueue_disable_cb - disable callbacks
-> > >   * @_vq: the struct virtqueue we're talking about.
-> > > @@ -2682,6 +2742,29 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
-> > >
-> > > +/**
-> > > + * virtqueue_detach_unused_buf_premapped - detach first unused buffer
-> > > + * @_vq: the struct virtqueue we're talking about.
-> > > + * @cursor: detach cursor
-> > > + *
-> > > + * This is used for the premapped vq. The cursor is passed by the dirver, that
-> > > + * is used for virtqueue_detach. That will be initialized by virtio core
-> > > + * internally.
-> > > + *
-> > > + * Returns NULL or the "data" token handed to virtqueue_add_*().
-> > > + * This is not valid on an active queue; it is useful for device
-> > > + * shutdown or the reset queue.
-> > > + */
-> > > +void *virtqueue_detach_unused_buf_premapped(struct virtqueue *_vq,
-> > > +					    struct virtqueue_detach_cursor *cursor)
-> > > +{
-> > > +	struct vring_virtqueue *vq = to_vvq(_vq);
-> > > +
-> > > +	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq, cursor) :
-> > > +				 virtqueue_detach_unused_buf_split(_vq, cursor);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf_premapped);
-> > > +
-> > >  static inline bool more_used(const struct vring_virtqueue *vq)
-> > >  {
-> > >  	return vq->packed_ring ? more_used_packed(vq) : more_used_split(vq);
-> > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > > index 7f137c7a9034..0a11c5b32fe5 100644
-> > > --- a/include/linux/virtio.h
-> > > +++ b/include/linux/virtio.h
-> > > @@ -3,6 +3,7 @@
-> > >  #define _LINUX_VIRTIO_H
-> > >  /* Everything a virtio driver needs to work with any particular virtio
-> > >   * implementation. */
-> > > +#include <linux/dma-mapping.h>
-> > >  #include <linux/types.h>
-> > >  #include <linux/scatterlist.h>
-> > >  #include <linux/spinlock.h>
-> > > @@ -88,6 +89,10 @@ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
-> > >  void *virtqueue_get_buf_ctx(struct virtqueue *vq, unsigned int *len,
-> > >  			    void **ctx);
-> > >
-> > > +void *virtqueue_get_buf_premapped(struct virtqueue *_vq, unsigned int *len,
-> > > +				  void **ctx,
-> > > +				  struct virtqueue_detach_cursor *cursor);
-> > > +
-> > >  void virtqueue_disable_cb(struct virtqueue *vq);
-> > >
-> > >  bool virtqueue_enable_cb(struct virtqueue *vq);
-> > > @@ -101,6 +106,8 @@ bool virtqueue_poll(struct virtqueue *vq, unsigned);
-> > >  bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
-> > >
-> > >  void *virtqueue_detach_unused_buf(struct virtqueue *vq);
-> > > +void *virtqueue_detach_unused_buf_premapped(struct virtqueue *_vq,
-> > > +					    struct virtqueue_detach_cursor *cursor);
-> > >
-> > >  unsigned int virtqueue_get_vring_size(const struct virtqueue *vq);
-> > >
-> > > @@ -114,6 +121,9 @@ dma_addr_t virtqueue_get_used_addr(const struct virtqueue *vq);
-> > >  int virtqueue_resize(struct virtqueue *vq, u32 num,
-> > >  		     void (*recycle)(struct virtqueue *vq, void *buf));
-> > >
-> > > +int virtqueue_detach(struct virtqueue *_vq, struct virtqueue_detach_cursor *cursor,
-> > > +		     dma_addr_t *addr, u32 *len, enum dma_data_direction *dir);
-> > > +
-> > >  /**
-> > >   * struct virtio_device - representation of a device using virtio
-> > >   * @index: unique position on the virtio bus
-> > > --
-> > > 2.32.0.3.g01195cf9f
-> >
+
+Are you still making changes to net core? DMA core? If it's only
+virtio-net then I can probably merge all of it - just a couple of
+bugfixes there so far, it shouldn't cause complex conflicts.
+
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
