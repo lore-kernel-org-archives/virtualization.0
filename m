@@ -4,117 +4,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B88BC7EE24
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 08:17:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25C19C7EE24
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jun 2023 08:23:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 827E660DE5;
-	Mon,  5 Jun 2023 08:17:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 827E660DE5
+	by smtp3.osuosl.org (Postfix) with ESMTP id 96F4C60804;
+	Mon,  5 Jun 2023 08:23:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 96F4C60804
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=h78vZjrb
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EP468ZgP
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6Q0vXqJLnkFN; Mon,  5 Jun 2023 08:17:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 12A8E60C03;
-	Mon,  5 Jun 2023 08:17:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 12A8E60C03
+	with ESMTP id 2mzVEUTseQjG; Mon,  5 Jun 2023 08:23:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0DA8D60BBE;
+	Mon,  5 Jun 2023 08:23:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0DA8D60BBE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EA07EC007A;
-	Mon,  5 Jun 2023 08:17:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA833C007A;
+	Mon,  5 Jun 2023 08:23:24 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39788C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 803FCC0029
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 08:17:32 +0000 (UTC)
+ Mon,  5 Jun 2023 08:23:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 007414051F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 47B6A403AA
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 08:17:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 007414051F
+ Mon,  5 Jun 2023 08:23:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47B6A403AA
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=h78vZjrb
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=EP468ZgP
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0w0C4X-5ge06
+ with ESMTP id KyDzXUFYCzr9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 08:17:31 +0000 (UTC)
+ Mon,  5 Jun 2023 08:23:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C563403AA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CD3740158
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4C563403AA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8CD3740158
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jun 2023 08:17:31 +0000 (UTC)
+ Mon,  5 Jun 2023 08:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1685953049;
+ s=mimecast20190719; t=1685953401;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=WTa5uBKoWlBL4OKjdUilTsvXazsAa+Thz3GpkiKSHlc=;
- b=h78vZjrbp73JZ7i7PMLEGd8dv1DXCjwkbcRGBDhmAqeNTLlefPdxpQhRYr2jynw60dUKSo
- +o0Mbj3xAFChSxzd4OPQ/G1zUMT1HGhA1ZLA1LZyNRb5ARDrdpOJsYwWwKEWFzqQknxc/D
- zpCJJ7RVRU3sgI7v4qr/VMRsfuDydpY=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=86ZFh5GA/RExUbbWyiQyYGG1RAfzp4GnwzXEclA8Onk=;
+ b=EP468ZgPl7/58+tN0Fpe0PkBKZtgkHCT+NQEKLhX3Y2w5nbTKq6DE7IAidLo06SRWwvivY
+ CocpdhpvqN6imKoo/Eyuv/JG+/D2rvtzliS0yC4gi7oqyOUi9CIb7zWH1ZZ2U1kH0SGyHE
+ uLiboD8bb+x4Bt0RrFKkcNh2+LNQS7E=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-362-HvvlMbXRPZWUttHCn5kVXg-1; Mon, 05 Jun 2023 04:17:28 -0400
-X-MC-Unique: HvvlMbXRPZWUttHCn5kVXg-1
-Received: by mail-qt1-f197.google.com with SMTP id
- d75a77b69052e-3f7f713eeb0so71380661cf.1
+ us-mta-297-Z2WgYvMRNRCcE0FYyhiQng-1; Mon, 05 Jun 2023 04:23:19 -0400
+X-MC-Unique: Z2WgYvMRNRCcE0FYyhiQng-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 5b1f17b1804b1-3f613f5d290so79563205e9.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 05 Jun 2023 01:17:28 -0700 (PDT)
+ Mon, 05 Jun 2023 01:23:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1685953048; x=1688545048;
+ d=1e100.net; s=20221208; t=1685953398; x=1688545398;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=WTa5uBKoWlBL4OKjdUilTsvXazsAa+Thz3GpkiKSHlc=;
- b=HJ45Tq37bQ1NTLiQKAT9FAL8gL4oUQy+Vb+J0jiwzDxDzGxICy7Fjbs2O6csy5lWdW
- uvqKtMWDJ/9QniEEMIJv+9Rr/O9uXqawLp/+vDEYs9sZdnslXvjx9qQYecaZMziw2mDw
- Ch44dYWKLZqd8ho8bDSgx7pXmdadX55n/C0q8YdozdHwX8BNo9zaXDyqDIYWdYsOY6/i
- AQ+1romVIw3pmR7lMpJ6HgpF8F19WmLwCp54PTWfsGkfXITkI+7AwI4Xcpq/BbkpOJOF
- z5rWrFLgLStvj32dEQ18U8f/FORH5wQSn5JIAAK5WLe7WzIzZDqjr378OheE+DD0JDa6
- Y9pA==
-X-Gm-Message-State: AC+VfDwcb0i28DYG8tuommnSJ68qgm+0M8W/1A5MC8Z6YkC9q0/NAd+W
- M2QfI9w1I2k2xVeFojXI3gbMmdrG5WovaGMV7yn+pzc/UMfdX7yUeNMeMIBmMFeAssT+fJjpZ2m
- m+NiKm3xGBrFlTDtRYS38OjEcZY6YCeoL4KBm6upvJw==
-X-Received: by 2002:ad4:5dc6:0:b0:625:aa49:c345 with SMTP id
- m6-20020ad45dc6000000b00625aa49c345mr5626878qvh.57.1685953048213; 
- Mon, 05 Jun 2023 01:17:28 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5Ck6zccCkV6ZHcKm+GbVvGixKzHQxHzfmaEMOom+EzRulvwz867ReHd8wvmYTqyz8Sgzr03Q==
-X-Received: by 2002:ad4:5dc6:0:b0:625:aa49:c345 with SMTP id
- m6-20020ad45dc6000000b00625aa49c345mr5626870qvh.57.1685953047990; 
- Mon, 05 Jun 2023 01:17:27 -0700 (PDT)
+ bh=86ZFh5GA/RExUbbWyiQyYGG1RAfzp4GnwzXEclA8Onk=;
+ b=CLV8K7mmTIGZRlioix1RXL6B+Kf/BOrRsie8H+G9/YF/W/D0x7u1nxuHneJveMr3Qw
+ b6cw8hzkSfX0Mna8VCxA7nV39Xh+i4XGucZDgEwpSLUzsl240iah4JHXY7vrBpQ2yAIo
+ rM12+aeKNIkOFMSakz/vgUBl0QEnjeuH+R+nfAbDX+IpzYZgS5roH3+RYly7dTUSbCvM
+ 6QW+BE5ndEshOEZRBiDs3iD1/3iRLAlTKxhqAhWA2z+DUKHdOiZ/9yNE+gBtJ7i2Aw73
+ /+AxNMheAboURC2ZI9jDO5zrnikUwd1bgtka2DCUeeLKAYkVe7a1qHqr0JTuku+q6kgF
+ XkHw==
+X-Gm-Message-State: AC+VfDwqRrIv8lMN+E1ybMbABDjvLl7umW7YHAffoOmthe643cpVbh8R
+ /J6NvrkUBwvuUKDJKvBm1cDzZbKdyum+0FTMYEyOHcTCszvHMgCcAcqq5ZOmxTWAwvauaAMkFIK
+ LNda020DBlAzF3b2RSYX3AskGxTk/vf8u4TovX3smmg==
+X-Received: by 2002:a1c:4b07:0:b0:3f7:e58b:5898 with SMTP id
+ y7-20020a1c4b07000000b003f7e58b5898mr882441wma.33.1685953398472; 
+ Mon, 05 Jun 2023 01:23:18 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6hVUnkxH+oJQ5oRiCoXFpO2zFIJ+WKZK6BlZQOQyvptTL7dZg8WRGJTwHG8y88m8Yq1Ixktg==
+X-Received: by 2002:a1c:4b07:0:b0:3f7:e58b:5898 with SMTP id
+ y7-20020a1c4b07000000b003f7e58b5898mr882423wma.33.1685953398180; 
+ Mon, 05 Jun 2023 01:23:18 -0700 (PDT)
 Received: from sgarzare-redhat ([5.77.94.106])
  by smtp.gmail.com with ESMTPSA id
- bu17-20020ad455f1000000b00623819de804sm4410683qvb.127.2023.06.05.01.17.25
+ d24-20020a1c7318000000b003f18b942338sm10015504wmb.3.2023.06.05.01.23.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 05 Jun 2023 01:17:27 -0700 (PDT)
-Date: Mon, 5 Jun 2023 10:17:22 +0200
+ Mon, 05 Jun 2023 01:23:17 -0700 (PDT)
+Date: Mon, 5 Jun 2023 10:23:14 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/3] vhost: support PACKED when setting-getting
- vring_base
-Message-ID: <z52qxx5mhw7pzgvafn6qgxpwz4dt2l7aetfqtkjf2qql7npnan@tpo3cvbcwnjj>
-References: <20230424225031.18947-3-shannon.nelson@amd.com>
- <ogzrlfid7jwfzgk42zffegaq4xhdsrpi6vu22333ub4bkmvpc3@3pa2eyzub3jn>
- <58f93ced-2f2b-dba1-b8a3-96bdb755d54e@amd.com>
- <q6cmfha36sdkgflwwd3pr4sw7rgajag4ahgjbpfjrr76w4o2b6@3yc7zs5u65s4>
- <dcfb15e6-a4c9-cb91-becd-a1e56e14d340@amd.com>
- <CACGkMEsNo4O0uAdO5koXgYbgQLoOWp81KNjsaZYSuQ7YzjvPbA@mail.gmail.com>
- <CAGxU2F4kwnGq41q99nx879Y4Br=0aeZsf2bjx2ZqpOc93G_gDQ@mail.gmail.com>
- <CACGkMEsi0Vu21ZX2WZuEWNKQ4KTGA1iNb6+8SHeCb+Penqxr8g@mail.gmail.com>
- <CAGxU2F63yQuc-eefSkEKZKZUxpnS4myGhNP2Bkj+QQk01Pi_yg@mail.gmail.com>
- <20230602073559-mutt-send-email-mst@kernel.org>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: Re: [PATCH net] virtio/vsock: fix sock refcnt bug on owner set failure
+Message-ID: <nn4zy6aop35ljmf4vg6nelxwo45abvv7rvit62abjvd3eypwpz@kgiusizdyigd>
+References: <20230531-b4-vsock-fix-refcnt-v1-1-0ed7b697cca5@bytedance.com>
+ <35xlmp65lxd4eoal2oy3lwyjxd3v22aeo2nbuyknc4372eljct@vkilkppadayd>
+ <ZHbAgkvSHEiQlFs6@bullseye>
 MIME-Version: 1.0
-In-Reply-To: <20230602073559-mutt-send-email-mst@kernel.org>
+In-Reply-To: <ZHbAgkvSHEiQlFs6@bullseye>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, drivers@pensando.io
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,41 +127,48 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 02, 2023 at 07:36:26AM -0400, Michael S. Tsirkin wrote:
->On Thu, May 18, 2023 at 09:34:25AM +0200, Stefano Garzarella wrote:
->> I think we should do one of these things, though:
->> - mask VIRTIO_F_RING_PACKED in the stable kernels when
->> VHOST_GET_FEAETURES is called
->> - backport this patch on all stable kernels that support vhost-vdpa
+On Wed, May 31, 2023 at 03:35:30AM +0000, Bobby Eshleman wrote:
+>On Thu, Jun 01, 2023 at 09:58:47AM +0200, Stefano Garzarella wrote:
+>> On Wed, May 31, 2023 at 07:47:32PM +0000, Bobby Eshleman wrote:
+>> > Previous to setting the owner the socket is found via
+>> > vsock_find_connected_socket(), which returns sk after a call to
+>> > sock_hold().
+>> >
+>> > If setting the owner fails, then sock_put() needs to be called.
+>> >
+>> > Fixes: f9d2b1e146e0 ("virtio/vsock: fix leaks due to missing skb owner")
+>> > Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>> > ---
+>> > net/vmw_vsock/virtio_transport_common.c | 1 +
+>> > 1 file changed, 1 insertion(+)
+>> >
+>> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> > index b769fc258931..f01cd6adc5cb 100644
+>> > --- a/net/vmw_vsock/virtio_transport_common.c
+>> > +++ b/net/vmw_vsock/virtio_transport_common.c
+>> > @@ -1343,6 +1343,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>> >
+>> > 	if (!skb_set_owner_sk_safe(skb, sk)) {
+>> > 		WARN_ONCE(1, "receiving vsock socket has sk_refcnt == 0\n");
+>> > +		sock_put(sk);
 >>
->> Maybe the last one makes more sense.
+>> Did you have any warning, issue here?
 >>
->> Thanks,
->> Stefano
+>> IIUC skb_set_owner_sk_safe() can return false only if the ref counter
+>> is 0, so calling a sock_put() on it should have no effect except to
+>> produce a warning.
+>>
 >
->OK which patches do you want to go to stable exactly?
+>Oh yeah, you're totally right. I did not recall how
+>skb_set_owner_sk_safe() worked internally and thought I'd introduced an
+>uneven hold/put count with that prior patch when reading through the
+>code again. I haven't seen any live issue, just misread the code.
+>
+>Sorry about that, feel free to ignore this patch.
 
-Initially I was thinking this entire series, but I think it's too
-risky, so on second thoughtwhat do you think about this:
+No problem ;-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 8c1aefc865f0..ac2152135b23 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -397,6 +397,12 @@ static long vhost_vdpa_get_features(struct vhost_vdpa *v, u64 __user *featurep)
-
-         features = ops->get_device_features(vdpa);
-
-+       /*
-+        * IOCTLs (eg. VHOST_GET_VRING_BASE, VHOST_SET_VRING_BASE) don't support
-+        * packed virtqueue well yet, so let's filter the feature for now.
-+        */
-+       features &= ~BIT_ULL(VIRTIO_F_RING_PACKED);
-+
-         if (copy_to_user(featurep, &features, sizeof(features)))
-                 return -EFAULT;
-
-I can send the patch ASAP and we can apply it before this series.
+Maybe we should add a comment on it.
 
 Thanks,
 Stefano
