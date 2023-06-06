@@ -1,72 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26A3DC77B73
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jun 2023 02:14:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2BDC4C7EE24
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jun 2023 08:30:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A5B264063C;
-	Tue,  6 Jun 2023 02:14:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5B264063C
+	by smtp4.osuosl.org (Postfix) with ESMTP id 832F340A05;
+	Tue,  6 Jun 2023 08:30:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 832F340A05
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SujLjYm0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id etgC_c3YHoCC; Tue,  6 Jun 2023 02:14:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4B59E40227;
-	Tue,  6 Jun 2023 02:14:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B59E40227
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CLH6kcp3Mh8g; Tue,  6 Jun 2023 08:30:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A63E34090E;
+	Tue,  6 Jun 2023 08:30:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A63E34090E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1DAC0C0037;
-	Tue,  6 Jun 2023 02:14:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27CDFC0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7CDA4C007A;
+	Tue,  6 Jun 2023 08:30:10 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 94ECFC0029
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jun 2023 02:14:16 +0000 (UTC)
+ Tue,  6 Jun 2023 08:30:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 025A360F9A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5F6CF409FA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jun 2023 02:14:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 025A360F9A
+ Tue,  6 Jun 2023 08:30:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5F6CF409FA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h_VEYgo5_oet
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id joFHbSNSjzVc
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jun 2023 02:14:14 +0000 (UTC)
+ Tue,  6 Jun 2023 08:30:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4B5E460E61
-Received: from out30-111.freemail.mail.aliyun.com
- (out30-111.freemail.mail.aliyun.com [115.124.30.111])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4B5E460E61
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EA3964090E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EA3964090E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jun 2023 02:14:13 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R771e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
- TI=SMTPD_---0VkUHd8d_1686017647; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VkUHd8d_1686017647) by smtp.aliyun-inc.com;
- Tue, 06 Jun 2023 10:14:08 +0800
-Message-ID: <1686017511.351475-4-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v10 10/10] virtio_net: support dma premapped
-Date: Tue, 6 Jun 2023 10:11:51 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230602092206.50108-1-xuanzhuo@linux.alibaba.com>
- <20230602092206.50108-11-xuanzhuo@linux.alibaba.com>
- <20230602233152.4d9b9ba4@kernel.org>
- <1685931044.5893385-2-xuanzhuo@linux.alibaba.com>
- <20230605014154-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230605014154-mutt-send-email-mst@kernel.org>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Tue,  6 Jun 2023 08:30:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1686040205;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=lM2mS3A3zk3o/TK+dZncVPidMr9a4SjCD0isQDm9YqI=;
+ b=SujLjYm0bxuhN6XKONVg59SR620SvqlJ0JFlyYTXmknI7OpaChaZD75ryHZKp18VBNVMUs
+ FS4loW3DZNgyggZHJtwsXYg/U2gx+W55hmJ1nKypwZv+JBiWJsCHPrH8G0/l3HV4rm/77Q
+ pOaGvqmqTiccXzwufeJXXjihOENyBpI=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-65-RKuw1aHCNeq4qYNj6h-cEg-1; Tue, 06 Jun 2023 04:30:04 -0400
+X-MC-Unique: RKuw1aHCNeq4qYNj6h-cEg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ 5b1f17b1804b1-3f7e7cfcae4so9084465e9.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 06 Jun 2023 01:30:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1686040203; x=1688632203;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=lM2mS3A3zk3o/TK+dZncVPidMr9a4SjCD0isQDm9YqI=;
+ b=TvIx6CtTFit7oN3dwYbU5amS7Bx6iFWRF+ajZanM8cuCMjUl2/D1I9NaxmgCP4zmOd
+ 7pqlbe3A2uIWL5/8Wn5JmjatrgO++QYUzYPC3aePzj2pXGu6BtMfpXhHOT9VKY36/QAs
+ nrF77xCq2bhPCOmxQ6JZkbhluMB3u5cgONaPMpUGEqd/IKCJIJASKUmuS4BGuzCe7jvA
+ otCU6udWU8f+B48HRdQRDEYIzLjKYgB1JOwDeKTEeBx/YHK1GJoGuoVyrl+n3qJrcL8B
+ qotJip94/1RBVpdxUSIOCUapzvH3dqSnol1wLR/t/KNJ1P4ekPFnN84BV9e0sdDUJN15
+ o76Q==
+X-Gm-Message-State: AC+VfDy01tDdaQhJba1tfJYmg5PQVVX6t+oz+c/JWYrXEWfC+IF0NXEh
+ 71hyT0OegIm0crcO408LTlcfSA7zuW8Wb7GeTtgttZR56pmI9edd3Ra2ESMRlm0srv5jLHGEi74
+ z80GBWaLwarClJ+ongVbC01OP8dMjPZm6rQneT2AZLg==
+X-Received: by 2002:a05:600c:218b:b0:3f7:39ed:c9a4 with SMTP id
+ e11-20020a05600c218b00b003f739edc9a4mr1718500wme.30.1686040203302; 
+ Tue, 06 Jun 2023 01:30:03 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4wzn5kTFHCj7kpNMtHXKZMzbAwhIp+5L6K4sup6x8HZTdlr5Lt/2XPeXnEL6/uX9ypoH2r+w==
+X-Received: by 2002:a05:600c:218b:b0:3f7:39ed:c9a4 with SMTP id
+ e11-20020a05600c218b00b003f739edc9a4mr1718474wme.30.1686040202996; 
+ Tue, 06 Jun 2023 01:30:02 -0700 (PDT)
+Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
+ n16-20020a1c7210000000b003f736e28cd6sm7884431wmc.4.2023.06.06.01.30.00
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 06 Jun 2023 01:30:02 -0700 (PDT)
+Date: Tue, 6 Jun 2023 04:29:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Brett Creeley <brett.creeley@amd.com>
+Subject: Re: [PATCH net] virtio_net: use control_buf for coalesce params
+Message-ID: <20230606042942-mutt-send-email-mst@kernel.org>
+References: <20230605195925.51625-1-brett.creeley@amd.com>
+MIME-Version: 1.0
+In-Reply-To: <20230605195925.51625-1-brett.creeley@amd.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: xuanzhuo@linux.alibaba.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ allen.hubbe@amd.com, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,48 +115,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 5 Jun 2023 01:44:28 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Mon, Jun 05, 2023 at 10:10:44AM +0800, Xuan Zhuo wrote:
-> > On Fri, 2 Jun 2023 23:31:52 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
-> > > On Fri,  2 Jun 2023 17:22:06 +0800 Xuan Zhuo wrote:
-> > > >  drivers/net/virtio_net.c | 163 +++++++++++++++++++++++++++++++++------
-> > >
-> > > ack for this going via the vhost tree, FWIW, but you'll potentially
-> > > need to wait for the merge window to move forward with the actual
-> > > af xdp patches, in this case.
-> >
-> >
-> > My current plan is to let virtio support premapped dma first, and then implement
-> > virtio-net to support af-xdp zerocopy.
-> >
-> > This will indeed involve two branches. But most of the implementations in this
-> > patch are virtio code, so I think it would be more appropriate to commit to
-> > vhost. Do you have any good ideas?
-> >
-> >
-> > Thanks.
->
-> Are you still making changes to net core? DMA core? If it's only
-> virtio-net then I can probably merge all of it - just a couple of
-> bugfixes there so far, it shouldn't cause complex conflicts.
-
-Just one small change to net core. no dma core.
-
-I will try to fix this problem.
-
-Thanks.
+On Mon, Jun 05, 2023 at 12:59:25PM -0700, Brett Creeley wrote:
+> Commit 699b045a8e43 ("net: virtio_net: notifications coalescing
+> support") added coalescing command support for virtio_net. However,
+> the coalesce commands are using buffers on the stack, which is causing
+> the device to see DMA errors. There should also be a complaint from
+> check_for_stack() in debug_dma_map_xyz(). Fix this by adding and using
+> coalesce params from the control_buf struct, which aligns with other
+> commands.
+> 
+> Fixes: 699b045a8e43 ("net: virtio_net: notifications coalescing support")
+> Reviewed-by: Shannon Nelson <shannon.nelson@amd.com>
+> Signed-off-by: Allen Hubbe <allen.hubbe@amd.com>
+> Signed-off-by: Brett Creeley <brett.creeley@amd.com>
 
 
->
-> --
-> MST
->
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+stable material too.
+
+> ---
+>  drivers/net/virtio_net.c | 16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 56ca1d270304..486b5849033d 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -205,6 +205,8 @@ struct control_buf {
+>  	__virtio16 vid;
+>  	__virtio64 offloads;
+>  	struct virtio_net_ctrl_rss rss;
+> +	struct virtio_net_ctrl_coal_tx coal_tx;
+> +	struct virtio_net_ctrl_coal_rx coal_rx;
+>  };
+>  
+>  struct virtnet_info {
+> @@ -2934,12 +2936,10 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
+>  				       struct ethtool_coalesce *ec)
+>  {
+>  	struct scatterlist sgs_tx, sgs_rx;
+> -	struct virtio_net_ctrl_coal_tx coal_tx;
+> -	struct virtio_net_ctrl_coal_rx coal_rx;
+>  
+> -	coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> -	coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> -	sg_init_one(&sgs_tx, &coal_tx, sizeof(coal_tx));
+> +	vi->ctrl->coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
+> +	vi->ctrl->coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
+> +	sg_init_one(&sgs_tx, &vi->ctrl->coal_tx, sizeof(vi->ctrl->coal_tx));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>  				  VIRTIO_NET_CTRL_NOTF_COAL_TX_SET,
+> @@ -2950,9 +2950,9 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
+>  	vi->tx_usecs = ec->tx_coalesce_usecs;
+>  	vi->tx_max_packets = ec->tx_max_coalesced_frames;
+>  
+> -	coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> -	coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> -	sg_init_one(&sgs_rx, &coal_rx, sizeof(coal_rx));
+> +	vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+> +	vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+> +	sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+>  
+>  	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>  				  VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+> -- 
+> 2.17.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
