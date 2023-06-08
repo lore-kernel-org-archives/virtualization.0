@@ -1,115 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 962D4C7EE29
-	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 18:04:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3AA2CC7EE2E
+	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 18:35:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1E6734206D;
-	Thu,  8 Jun 2023 18:04:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1E6734206D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c/Xx1Pb4
+	by smtp2.osuosl.org (Postfix) with ESMTP id A627E401CC;
+	Thu,  8 Jun 2023 18:35:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A627E401CC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hwQbDVor
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ecwgsoyU9rBG; Thu,  8 Jun 2023 18:04:46 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id c3_DgPenRTGZ; Thu,  8 Jun 2023 18:35:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D079D41FE1;
-	Thu,  8 Jun 2023 18:04:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D079D41FE1
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9E3B2417D5;
+	Thu,  8 Jun 2023 18:35:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E3B2417D5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AEE5CC007A;
-	Thu,  8 Jun 2023 18:04:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 77859C0037;
+	Thu,  8 Jun 2023 18:35:15 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08299C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CADFEC0029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 18:04:45 +0000 (UTC)
+ Thu,  8 Jun 2023 18:35:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D55D64206D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8E4EF42029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 18:04:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D55D64206D
+ Thu,  8 Jun 2023 18:35:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8E4EF42029
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hwQbDVor
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5DB2nTHxYCmv
+ with ESMTP id oGCcxAXj9UOh
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 18:04:43 +0000 (UTC)
+ Thu,  8 Jun 2023 18:35:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B55B041FE1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CA3F842025
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B55B041FE1
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CA3F842025
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 18:04:42 +0000 (UTC)
+ Thu,  8 Jun 2023 18:35:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1686247481;
+ s=mimecast20190719; t=1686249310;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=2V4P6kTkBUFeZZcuUFI0t5gfsCSMHu4aVkHeopJwkoA=;
- b=c/Xx1Pb45+xqeqDTn8IgXNDHu40XzKOnHDSeyCjl7q2u8cz4g/r1IG+hMQCYwBHTJRftFq
- a0LNuCGUiq0uX6wo8o70l3InymY7PlEcnjmuTcE9hqDGg68R85e2ZmZA2ZU1L8Kgg9US/l
- Ww8gpswy+2ok/w+JpnKj+GSRTUxrUa4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=a2bQcHG+zKEW1dxMHjPekLRCcGESsdy0BSM0jY0k8Cc=;
+ b=hwQbDVor8XKgG0xx9aQDhZP8Df6yB4shQMbuQLYMpled/0iEBo6ijoCCrmB3evySB6GqTL
+ w7QYs6YI3m/v8qsHLPzyJ/DBxPS2soBbTkKWWXMvdwXyTzLLlcqhApZd1kMBzpWTLldegc
+ ciXYxS2oT/jtZH16MDKsUDSKqg9FkLo=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-304-y2tt5MqQPligf2y45EFGpw-1; Thu, 08 Jun 2023 14:04:40 -0400
-X-MC-Unique: y2tt5MqQPligf2y45EFGpw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-3f7ef2456dfso4047295e9.1
+ us-mta-303-JyPu3deaN4-_uk3VMQ1R5g-1; Thu, 08 Jun 2023 14:35:09 -0400
+X-MC-Unique: JyPu3deaN4-_uk3VMQ1R5g-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ ffacd0b85a97d-30c5d31b567so420865f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Jun 2023 11:04:39 -0700 (PDT)
+ Thu, 08 Jun 2023 11:35:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1686247477; x=1688839477;
+ d=1e100.net; s=20221208; t=1686249308; x=1688841308;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=2V4P6kTkBUFeZZcuUFI0t5gfsCSMHu4aVkHeopJwkoA=;
- b=EVc9dz0reTfmoAif1Bh1nAPGtG8yZ5Tp4sn50ScPiAE3z9j+SeEwrSFjhvF93VLNj4
- jaXKNQ1/9KKQaTi1XyNvKVLwZeYtEAc+jNK7aGVRDRtrZkhneH1s1UBY8YUzdiIZaAqb
- DZCHyKAZ2V7Z5YGuWkxnbFIb25wCzwntlpIROx/06X9oRZONZt6RYVGPPfQq4XZYITMB
- MTX2Co1rezeem7X70V5JDrb5oMei7Ays6j9IYIcoOgWvdfDt3qnoZdPnpLgTUwzQQvKh
- DSgr1HPbA7mDCUAZDQugItXShiCH+tq4r5HrrFfCnCNsjJENkSfuGDJ8sOVf64X4TqYK
- luTw==
-X-Gm-Message-State: AC+VfDwdHF1mV2RxwRb9N6N4P3sB6btDuBzZEmjYfpYmrKj6MZ1icv8V
- 8B5v+fqCCFiVFO2TMXgOzSYUoCxs7BybqkpXcTz8TeSuQt4bkSr2n3IcVYvXLRdqqgP3DmIO/nP
- xWGbXEtWQSFgtvzEiOljok0Y8cmUNnD+/ts9w6D0ZbQ==
-X-Received: by 2002:adf:dc52:0:b0:30a:e5da:272d with SMTP id
- m18-20020adfdc52000000b0030ae5da272dmr6453801wrj.0.1686247477696; 
- Thu, 08 Jun 2023 11:04:37 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ52cXpF8MAZAe4gFdhkA2EPvUBra7Hh9ccT9UVfyClq15kQ6yJheJv5yMU+SgarVISLR0kucg==
-X-Received: by 2002:adf:dc52:0:b0:30a:e5da:272d with SMTP id
- m18-20020adfdc52000000b0030ae5da272dmr6453790wrj.0.1686247477342; 
- Thu, 08 Jun 2023 11:04:37 -0700 (PDT)
+ bh=a2bQcHG+zKEW1dxMHjPekLRCcGESsdy0BSM0jY0k8Cc=;
+ b=DOX1/D5rd4ZHo4VpmtP1vvPIOAWYT27vMFxRVufmACl/PPRC0BZ6C9KMWSTGskm0+Y
+ V2C+cZ31RLGcwB3kO0JxKbcA0noqx3+fWx4ctAVmo+nrxrIGRPbdM9T+xLpnjOUCopb8
+ Tm4Q5NXBI+eL1fjhYpJL1/rnlk1U/+GvGUzpVRDgNoWjZ38xNc7RtAnF8DQolT0Gc3MR
+ QaK6H8Kbis8wOV7ZbdR7e+c28XpyqC+OXTdvnwHmj9wo7Bxfj62XuRKFFaHExq0DzN3J
+ gyylwjGIyTuU0QKex6aka8sXscnXo0vv5kqt3m8M+FXsVNTt8zlvdUwFYXfyhdcI5FQC
+ +3Bg==
+X-Gm-Message-State: AC+VfDzG763895WUQpM5PO+6omob8Upccr2/SAK0LjVWQT4Yo4BkjWr5
+ gyONvJSrXE1D4jfxS+hyHPjflMuaxOnrYM0lSESF4a1INe65Z3Mq2ftmUXfH5A4kPJxbRxiaUxb
+ Biwv3FqTMeQLrzNIx2kWoW+IzKrX1NrtMUN3RzR93Bg==
+X-Received: by 2002:a5d:408b:0:b0:30a:e675:7e92 with SMTP id
+ o11-20020a5d408b000000b0030ae6757e92mr6996784wrp.24.1686249307974; 
+ Thu, 08 Jun 2023 11:35:07 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ7ebde3/2zvOHcahGfGkNtXLeveVr4UNWK45EvEkw55IL0kPC4bYFpc4NDrXh0K7WqjuxGaMQ==
+X-Received: by 2002:a5d:408b:0:b0:30a:e675:7e92 with SMTP id
+ o11-20020a5d408b000000b0030ae6757e92mr6996773wrp.24.1686249307738; 
+ Thu, 08 Jun 2023 11:35:07 -0700 (PDT)
 Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
- x15-20020a5d650f000000b0030adfa48e1esm2219957wru.29.2023.06.08.11.04.35
+ t18-20020adfeb92000000b003093a412310sm2249080wrn.92.2023.06.08.11.35.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 08 Jun 2023 11:04:36 -0700 (PDT)
-Date: Thu, 8 Jun 2023 14:04:33 -0400
+ Thu, 08 Jun 2023 11:35:07 -0700 (PDT)
+Date: Thu, 8 Jun 2023 14:35:03 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Suwan Kim <suwan.kim027@gmail.com>
-Subject: Re: virtio-blk: support completion batching for the IRQ path - failure
-Message-ID: <20230608140341-mutt-send-email-mst@kernel.org>
-References: <BN9PR11MB53545DD1516BFA0FB23F95458353A@BN9PR11MB5354.namprd11.prod.outlook.com>
- <CAFNWusa7goyDs1HaMVYDvvXT7ePfB7cAQt3EewT+t=-kKNf5eg@mail.gmail.com>
- <BN9PR11MB535433DFB3A1CFAD097C13278353A@BN9PR11MB5354.namprd11.prod.outlook.com>
- <BN9PR11MB53545EDF64FC43EF8854D0628350A@BN9PR11MB5354.namprd11.prod.outlook.com>
- <CAFNWusbOKhZtVBRu88Ebo3=Cv9rdsX2aAf6_5hfnge=iryR3DQ@mail.gmail.com>
- <20230608104537-mutt-send-email-mst@kernel.org>
- <CAFNWusZZbFD+RLeJdno3vT6BAguq3jDB2EX8H8z5vPBE5sp54g@mail.gmail.com>
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Subject: Re: [PATCH] vdpa/mlx5: Support interrupt bypassing
+Message-ID: <20230608143457-mutt-send-email-mst@kernel.org>
+References: <20230607190007.290505-1-dtatulea@nvidia.com>
+ <118eac3c96665e3eac3397eef127606200f4aa50.camel@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <CAFNWusZZbFD+RLeJdno3vT6BAguq3jDB2EX8H8z5vPBE5sp54g@mail.gmail.com>
+In-Reply-To: <118eac3c96665e3eac3397eef127606200f4aa50.camel@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
- Jens Axboe <axboe@kernel.dk>, "Roberts, Martin" <martin.roberts@intel.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Eli Cohen <elic@nvidia.com>,
+ Saeed Mahameed <saeedm@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,224 +121,478 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKdW4gMDksIDIwMjMgYXQgMTI6MTI6MTZBTSArMDkwMCwgU3V3YW4gS2ltIHdyb3Rl
-Ogo+IE9uIFRodSwgSnVuIDgsIDIwMjMgYXQgMTE6NDbigK9QTSBNaWNoYWVsIFMuIFRzaXJraW4g
-PG1zdEByZWRoYXQuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBUaHUsIEp1biAwOCwgMjAyMyBhdCAx
-MTowNzoyMVBNICswOTAwLCBTdXdhbiBLaW0gd3JvdGU6Cj4gPiA+IE9uIFRodSwgSnVuIDgsIDIw
-MjMgYXQgNzoxNuKAr1BNIFJvYmVydHMsIE1hcnRpbiA8bWFydGluLnJvYmVydHNAaW50ZWwuY29t
-PiB3cm90ZToKPiA+ID4gPgo+ID4gPiA+IFRoZSBycV9hZmZpbml0eSBjaGFuZ2UgZG9lcyBub3Qg
-cmVzb2x2ZSB0aGUgaXNzdWU7IGp1c3QgcmVkdWNlcyBpdHMgb2NjdXJyZW5jZSByYXRlOyBJIGFt
-IHN0aWxsIHNlZWluZyBoYW5ncyB3aXRoIGl0IHNldCB0byAyLgo+ID4gPiA+Cj4gPiA+ID4gTWFy
-dGluCj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gRnJvbTogUm9iZXJ0cywgTWFydGlu
-Cj4gPiA+ID4gU2VudDogV2VkbmVzZGF5LCBKdW5lIDcsIDIwMjMgMzo0NiBQTQo+ID4gPiA+IFRv
-OiBTdXdhbiBLaW0gPHN1d2FuLmtpbTAyN0BnbWFpbC5jb20+Cj4gPiA+ID4gQ2M6IG1zdEByZWRo
-YXQuY29tOyB2aXJ0dWFsaXphdGlvbiA8dmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmc+OyBsaW51eC1ibG9ja0B2Z2VyLmtlcm5lbC5vcmcKPiA+ID4gPiBTdWJqZWN0OiBS
-RTogdmlydGlvLWJsazogc3VwcG9ydCBjb21wbGV0aW9uIGJhdGNoaW5nIGZvciB0aGUgSVJRIHBh
-dGggLSBmYWlsdXJlCj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gSXQgaXMgdGhlIGNo
-YW5nZSBpbmRpY2F0ZWQgdGhhdCBicmVha3MgaXQgLSBjaGFuZ2luZyB0aGUgSVJRIGhhbmRsaW5n
-IHRvIGJhdGNoaW5nLgo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4KPiA+
-ID4gPgo+ID4gPiA+Cj4gPiA+ID4gRnJvbSByZXBvcnRzIHN1Y2ggYXMsCj4gPiA+ID4KPiA+ID4g
-PiBbUEFUQ0ggMS8xXSBibGstbXE6IGFkZGVkIGNhc2UgZm9yIGNwdSBvZmZsaW5lIGR1cmluZyBz
-ZW5kX2lwaSBpbiBycV9jb21wbGV0ZSAoa2VybmVsLm9yZykKPiA+ID4gaHR0cHM6Ly9sb3JlLmtl
-cm5lbC5vcmcvbGttbC8yMDIyMDkyOTAzMzQyOC4yNTk0OC0xLW1qMDEyMy5sZWVAc2Ftc3VuZy5j
-b20vVC8KPiA+ID4gPgo+ID4gPiA+IFtSRkNdIGJsay1tcTogRG9uJ3QgSVBJIHJlcXVlc3RzIG9u
-IFBSRUVNUFRfUlQgLSBQYXRjaHdvcmsgKGxpbmFyby5vcmcpCj4gPiA+IGh0dHBzOi8vcGF0Y2hl
-cy5saW5hcm8ub3JnL3Byb2plY3QvbGludXgtcnQtdXNlcnMvcGF0Y2gvMjAyMDEwMjMxMTA0MDAu
-YngzdXpzYjd4eTVqdHNlYUBsaW51dHJvbml4LmRlLwo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPgo+
-ID4gPiA+IEnigJltIHRoaW5raW5nIHRoZSBpc3N1ZSBoYXMgc29tZXRoaW5nIHRvIGRvIHdpdGgg
-d2hpY2ggQ1BVIHRoZSBJUlEgaXMgcnVubmluZyBvbi4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiBTbywgSSBzZXQsCj4gPiA+ID4KPiA+ID4gPiAjIGVjaG8gMiA+IC9zeXMvYmxvY2sv
-dmRhL3F1ZXVlL3JxX2FmZmluaXR5Cj4gPiA+ID4KPiA+ID4gPiAjIGVjaG8gMiA+IC9zeXMvYmxv
-Y2svdmRiL3F1ZXVlL3JxX2FmZmluaXR5Cj4gPiA+ID4KPiA+ID4gPiDigKYKPiA+ID4gPgo+ID4g
-PiA+ICMgZWNobyAyID4gL3N5cy9ibG9jay92ZHAvcXVldWUvcnFfYWZmaW5pdHkKPiA+ID4gPgo+
-ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gYW5kIHRoZSBzeXN0ZW0gKHJ1
-bm5pbmcgMTYgZGlza3MsIDQgcXVldWVzL2Rpc2spIGhhcyBub3QgeWV0IGh1bmcgKHJ1bm5pbmcg
-T0sgZm9yIHNldmVyYWwgaG91cnMp4oCmCj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4g
-TWFydGluCj4gPiA+ID4KPiA+ID4KPiA+ID4gSGkgTWFydGluLAo+ID4gPgo+ID4gPiBCb3RoIGNv
-ZGVzIChvcmlnaW5hbCBjb2RlIGFuZCB5b3VyIHNpbXBsZSBwYXRoKSBleGVjdXRlCj4gPiA+IGJs
-a19tcV9jb21wbGV0ZV9zZW5kX2lwaSgpCj4gPiA+IGF0IGJsa19tcV9jb21wbGV0ZV9yZXF1ZXN0
-X3JlbW90ZSgpLiBTbyBtYXliZSBtaXNzaW5nIHJlcXVlc3QgY29tcGxldGlvbgo+ID4gPiBvbiBv
-dGhlciB2Q1BVIGlzIG5vdCB0aGUgY2F1c2UuLi4KPiA+ID4KPiA+ID4gVGhlIGRpZmZlcmVuY2Ug
-YmV0d2VlbiB0aGUgb3JpZ2luYWwgY29kZSBhbmQgeW91ciBzaW1wbGUgcGF0aCBpcyB0aGF0Cj4g
-PiA+IHRoZSBvcmlnaW5hbCBjb2RlIGNhbGxzIGJsa19tcV9lbmRfcmVxdWVzdF9iYXRjaCgpIGF0
-IHZpcnRibGtfZG9uZSgpCj4gPiA+IHRvIHByb2Nlc3MgcmVxdWVzdCBhdCBibG9jayBsYXllcgo+
-ID4gPiBhbmQgeW91ciBjb2RlIGNhbGxzIGJsa19tcV9lbmRfcmVxdWVzdCgpIGF0IHZpcnRibGtf
-ZG9uZSgpIHRvIGRvIHNhbWUgdGhpbmcuCj4gPiA+Cj4gPiA+IFRoZSBvcmlnaW5hbCBjb2RlIDoK
-PiA+ID4gdmlydGJsa19oYW5kbGVfcmVxKCkgZmlyc3QgY29sbGVjdHMgYWxsIHJlcXVlc3RzIGZy
-b20gdmlydHF1ZXVlIGluIHdoaWxlIGxvb3AKPiA+ID4gYW5kIHBhc3MgaXQgdG8gYmxrX21xX2Vu
-ZF9yZXF1ZXN0X2JhdGNoKCkgYXQgb25jZQo+ID4gPgo+ID4gPiBZb3VyIHNpbXBsZSBwYXRoOgo+
-ID4gPiB2aXJ0YmxrX2hhbmRsZV9yZXEoKSBnZXQgc2luZ2xlIHJlcXVlc3QgZnJvbSB2aXJ0cXVl
-dWUgYW5kIHBhc3MgaXQgdG8KPiA+ID4gYmxrX21xX2VuZF9yZXF1ZXN0KCkgYW5kIGRvIGl0IGFn
-YWluIGluIHdoaWxlIGxvb3AgdW50aWwgdGhlcmUgaW4gbm8gcmVxdWVzdAo+ID4gPiBpbiB2aXJ0
-cXVldWUKPiA+ID4KPiA+ID4KPiA+ID4gSSB0aGluayB3ZSBuZWVkIHRvIGZvY3VzIG9uIHRoZSBk
-aWZmZXJlbmNlIGJldHdlZW4gYmxrX21xX2VuZF9yZXF1ZXN0KCkKPiA+ID4gYW5kIGJsa19tcV9l
-bmRfcmVxdWVzdF9iYXRjaCgpCj4gPiA+Cj4gPiA+IFJlZ2FyZHMsCj4gPiA+IFN1d2FuIEtpbQo+
-ID4gPgo+ID4KPiA+IFllcyBidXQgbGludXggcmVsZWFzZSBpcyBpbW1pbmVudCBhbmQgcmVncmVz
-c2lvbnMgYXJlIGJhZC4KPiA+IFdoYXQgZG8geW91IHN1Z2dlc3QgZm9yIG5vdz8gSWYgdGhlcmUn
-cyBubyBiZXR0ZXIgaWRlYQo+ID4gSSdsbCBzZW5kIGEgcmV2ZXJ0IHBhdGNoIGFuZCB3ZSdsbCBz
-ZWUgaW4gdGhlIG5leHQgbGludXggdmVyc2lvbi4KPiA+Cj4gPgo+IAo+IEl0IGlzIGJldHRlciB0
-byByZXZlcnQgdGhpcyBjb21taXQuIEkgaGF2ZSBubyBnb29kIGlkZWEgdG8gZGVidWcgaXQgZm9y
-IG5vdy4KPiBJIHdpbGwgdHJ5IHRvIHJlcHJvZHVjZSBpdCBpbiBteSBtYWNoaW5lLgo+IAo+IFJl
-Z2FyZHMsCj4gU3V3YW4gS2ltCgoKQ2FuIHlvdSBwb3N0IGEgcmV2ZXJ0IHBsZWFzZT8gQW5kIE1h
-cnRpbiBjYW4gdGVzdCBhbmQgY29uZmlybQp0aGF0IHJlc29sdmVzIHRoZSBpc3N1ZSBmb3IgaGlt
-LgoKPiA+ID4KPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0KPiA+ID4gPiBGcm9tOiBTdXdhbiBLaW0gPHN1d2FuLmtpbTAyN0BnbWFpbC5jb20+
-Cj4gPiA+ID4gU2VudDogV2VkbmVzZGF5LCBKdW5lIDcsIDIwMjMgMzoyMSBQTQo+ID4gPiA+IFRv
-OiBSb2JlcnRzLCBNYXJ0aW4gPG1hcnRpbi5yb2JlcnRzQGludGVsLmNvbT4KPiA+ID4gPiBDYzog
-bXN0QHJlZGhhdC5jb207IHZpcnR1YWxpemF0aW9uIDx2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZz47IGxpbnV4LWJsb2NrQHZnZXIua2VybmVsLm9yZwo+ID4gPiA+IFN1
-YmplY3Q6IFJlOiB2aXJ0aW8tYmxrOiBzdXBwb3J0IGNvbXBsZXRpb24gYmF0Y2hpbmcgZm9yIHRo
-ZSBJUlEgcGF0aCAtIGZhaWx1cmUKPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiBPbiBX
-ZWQsIEp1biA3LCAyMDIzIGF0IDY6MTTigK9QTSBSb2JlcnRzLCBNYXJ0aW4gPG1hcnRpbi5yb2Jl
-cnRzQGludGVsLmNvbT4gd3JvdGU6Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+
-IFJlOiB2aXJ0aW8tYmxrOiBzdXBwb3J0IGNvbXBsZXRpb24gYmF0Y2hpbmcgZm9yIHRoZSBJUlEg
-cGF0aCDCtyB0b3J2YWxkcy9saW51eEAwN2I2NzlmIMK3IEdpdEh1Ygo+ID4gPiA+Cj4gPiA+ID4g
-Pgo+ID4gPiA+Cj4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBTdXdhbiBLaW0gc3V3YW4ua2ltMDI3
-QGdtYWlsLmNvbQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBTaWduZWQtb2Zm
-LWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gbXN0QHJlZGhhdC5jb20KPiA+ID4gPgo+ID4gPiA+ID4K
-PiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+
-ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gVGhpcyBjaGFuZ2UgYXBwZWFycyB0byBo
-YXZlIGJyb2tlbiB0aGluZ3PigKYKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4g
-V2Ugbm93IHNlZSBhcHBsaWNhdGlvbnMgaGFuZ2luZyBkdXJpbmcgZGlzayBhY2Nlc3Nlcy4KPiA+
-ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gZS5nLgo+ID4gPiA+Cj4gPiA+ID4gPgo+
-ID4gPiA+Cj4gPiA+ID4gPiBtdWx0aS1wb3J0IHZpcnRpby1ibGsgZGV2aWNlIHJ1bm5pbmcgaW4g
-aC93IChGUEdBKQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBIb3N0IHJ1bm5p
-bmcgYSBzaW1wbGUg4oCYZmlv4oCYIHRlc3QuCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+
-ID4gPiA+IFtnbG9iYWxdCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IHRocmVh
-ZD0xCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IGRpcmVjdD0xCj4gPiA+ID4K
-PiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IGlvZW5naW5lPWxpYmFpbwo+ID4gPiA+Cj4gPiA+
-ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBub3JhbmRvbW1hcD0xCj4gPiA+ID4KPiA+ID4gPiA+Cj4g
-PiA+ID4KPiA+ID4gPiA+IGdyb3VwX3JlcG9ydGluZz0xCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+
-ID4KPiA+ID4gPiA+IGJzPTRLCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IHJ3
-PXJlYWQKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gaW9kZXB0aD0xMjgKPiA+
-ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gcnVudGltZT0xCj4gPiA+ID4KPiA+ID4g
-PiA+Cj4gPiA+ID4KPiA+ID4gPiA+IG51bWpvYnM9NAo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+
-Cj4gPiA+ID4gPiB0aW1lX2Jhc2VkCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+
-IFtqb2IwXQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBmaWxlbmFtZT0vZGV2
-L3ZkYQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBbam9iMV0KPiA+ID4gPgo+
-ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gZmlsZW5hbWU9L2Rldi92ZGIKPiA+ID4gPgo+ID4g
-PiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gW2pvYjJdCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiA+IGZpbGVuYW1lPS9kZXYvdmRjCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+
-ID4gPiA+IC4uLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBbam9iMTVdCj4g
-PiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IGZpbGVuYW1lPS9kZXYvdmRwCj4gPiA+
-ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiA+IGkuZS4gMTYgZGlza3M7IDQgcXVldWVzIHBlciBkaXNrOyBzaW1wbGUgYnVyc3Qg
-b2YgNEtCIHJlYWRzCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IFRoaXMgaXMg
-cmVwZWF0ZWRseSBydW4gaW4gYSBsb29wLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+
-ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBBZnRlciBhIGZldywgbm9y
-bWFsbHkgPDEwIHNlY29uZHMsIGZpbyBoYW5ncy4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+
-ID4gPiA+ID4gV2l0aCA2NCBxdWV1ZXMgKDE2IGRpc2tzKSwgZmFpbHVyZSBvY2N1cnMgd2l0aGlu
-IGEgZmV3IHNlY29uZHM7IHdpdGggOCBxdWV1ZXMgKDIgZGlza3MpIGl0IG1heSB0YWtlIH5ob3Vy
-IGJlZm9yZSBoYW5naW5nLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBMYXN0
-IG1lc3NhZ2U6Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IGZpby0zLjE5Cj4g
-PiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IFN0YXJ0aW5nIDggdGhyZWFkcwo+ID4g
-PiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBKb2JzOiAxIChmPTEpOiBbXyg3KSxSKDEp
-XVs2OC4zJV1bZXRhIDAzaDoxMW06MDZzXQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+
-ID4gPiBJIHRoaW5rIHRoaXMgbWVhbnMgYXQgdGhlIGVuZCBvZiB0aGUgcnVuIDEgcXVldWUgd2Fz
-IGxlZnQgaW5jb21wbGV0ZS4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+
-ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4g4oCYZGlza3N0YXRz4oCZIChydW4gd2hp
-bGUgZmlvIGlzIGh1bmcpIHNob3dzIG5vIG91dHN0YW5kaW5nIHRyYW5zYWN0aW9ucy4KPiA+ID4g
-Pgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gZS5nLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
-PiA+Cj4gPiA+ID4gPiAkIGNhdCAvcHJvYy9kaXNrc3RhdHMKPiA+ID4gPgo+ID4gPiA+ID4KPiA+
-ID4gPgo+ID4gPiA+ID4gLi4uCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IDI1
-MiAgICAgICAwIHZkYSAxODQzMTQwMDcxIDAgMTQ3NDUxMjA1NjggNzEyNTY4NjQ1IDAgMCAwIDAg
-MCAzMTE3OTQ3IDcxMjU2ODY0NSAwIDAgMCAwIDAgMAo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+
-Cj4gPiA+ID4gPiAyNTIgICAgICAxNiB2ZGIgMTgxNjI5MTUxMSAwIDE0NTMwMzMyMDg4IDcwNDkw
-NTYyMyAwIDAgMCAwIDAgMzExNzcxMSA3MDQ5MDU2MjMgMCAwIDAgMCAwIDAKPiA+ID4gPgo+ID4g
-PiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gLi4uCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+
-ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IE90aGVyIHN0YXRzIChp
-biB0aGUgaC93LCBhbmQgYWRkZWQgdG8gdGhlIHZpcnRpby1ibGsgZHJpdmVyIChbYV12aXJ0aW9f
-cXVldWVfcnEoKSwgW2JddmlydGJsa19oYW5kbGVfcmVxKCksIFtjXXZpcnRibGtfcmVxdWVzdF9k
-b25lKCkpIGFsbCBhZ3JlZSwgYW5kIHNob3cgZXZlcnkgcmVxdWVzdCBoYWQgYSBjb21wbGV0aW9u
-LCBhbmQgdGhhdCB2aXJ0YmxrX3JlcXVlc3RfZG9uZSgpIG5ldmVyIGdldHMgY2FsbGVkLgo+ID4g
-PiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBlLmcuCj4gPiA+ID4KPiA+ID4gPiA+Cj4g
-PiA+ID4KPiA+ID4gPiA+IFBGPSAwICAgICAgICAgICAgICAgICAgICAgICAgIHZxPTAgICAgICAg
-ICAgIDEgICAgICAgICAgIDIgICAgICAgICAgIDMKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+
-ID4gPiA+ID4gW2FdcmVxdWVzdF9jb3VudCAgICAgLSAgIDgzOTQxNjU5MCAgIDgxMzE0ODkxNiAg
-IDEwNTU4NjE3OSAgICA4NDk4ODEyMwo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4g
-PiBbYl1jb21wbGV0aW9uMV9jb3VudCAtICAgODM5NDE2NTkwICAgODEzMTQ4OTE2ICAgMTA1NTg2
-MTc5ICAgIDg0OTg4MTIzCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IFtjXWNv
-bXBsZXRpb24yX2NvdW50IC0gICAgICAgICAgIDAgICAgICAgICAgIDAgICAgICAgICAgIDAgICAg
-ICAgICAgIDAKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4g
-PiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gUEY9IDEgICAgICAgICAgICAgICAgICAgICAgICAgdnE9
-MCAgICAgICAgICAgMSAgICAgICAgICAgMiAgICAgICAgICAgMwo+ID4gPiA+Cj4gPiA+ID4gPgo+
-ID4gPiA+Cj4gPiA+ID4gPiBbYV1yZXF1ZXN0X2NvdW50ICAgICAtICAgODIzMzM1ODg3ICAgODEy
-NTE2MTQwICAgMTA0NTgyNjcyICAgIDc1ODU2NTQ5Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiA+IFtiXWNvbXBsZXRpb24xX2NvdW50IC0gICA4MjMzMzU4ODcgICA4MTI1MTYxNDAg
-ICAxMDQ1ODI2NzIgICAgNzU4NTY1NDkKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+
-ID4gW2NdY29tcGxldGlvbjJfY291bnQgLSAgICAgICAgICAgMCAgICAgICAgICAgMCAgICAgICAg
-ICAgMCAgICAgICAgICAgMAo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
-PiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBpLmUuIHRoZSBpc3N1ZSBpcyBhZnRlciB0
-aGUgdmlydGlvLWJsayBkcml2ZXIuCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+
-Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4g
-PiA+ID4KPiA+ID4gPiA+IFRoaXMgY2hhbmdlIHdhcyBpbnRyb2R1Y2VkIGluIGtlcm5lbCA2LjMu
-MC4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gSSBhbSBzZWVpbmcgdGhpcyB1
-c2luZyA2LjMuMy4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gSWYgSSBydW4g
-d2l0aCBhbiBlYXJsaWVyIGtlcm5lbCAoNS4xNSksIGl0IGRvZXMgbm90IG9jY3VyLgo+ID4gPiA+
-Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiBJZiBJIG1ha2UgYSBzaW1wbGUgcGF0Y2ggdG8g
-dGhlIDYuMy4zIHZpcnRpby1ibGsgZHJpdmVyLCB0byBza2lwIHRoZSBibGtfbXFfYWRkX3RvX2Jh
-dGNoKCljYWxsLCBpdCBkb2VzIG5vdCBmYWlsLgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4g
-PiA+ID4gPiBlLmcuCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IGtlcm5lbCA1
-LjE1IOKAkyB0aGlzIGlzIE9LCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IHZp
-cnRpb19ibGsuYyx2aXJ0YmxrX2RvbmUoKSBbaXJxIGhhbmRsZXJdCj4gPiA+ID4KPiA+ID4gPiA+
-Cj4gPiA+ID4KPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgaWYgKGxpa2VseSghYmxrX3Nob3Vs
-ZF9mYWtlX3RpbWVvdXQocmVxLT5xKSkpIHsKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4g
-PiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICBibGtfbXFfY29tcGxldGVfcmVxdWVzdChy
-ZXEpOwo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAg
-IH0KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4K
-PiA+ID4gPgo+ID4gPiA+ID4ga2VybmVsIDYuMy4zIOKAkyB0aGlzIGZhaWxzCj4gPiA+ID4KPiA+
-ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IHZpcnRpb19ibGsuYyx2aXJ0YmxrX2hhbmRsZV9yZXEo
-KSBbaXJxIGhhbmRsZXJdCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+ICAgICAg
-ICAgICAgICAgICAgaWYgKGxpa2VseSghYmxrX3Nob3VsZF9mYWtlX3RpbWVvdXQocmVxLT5xKSkp
-IHsKPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICBpZiAoIWJsa19tcV9jb21wbGV0ZV9yZXF1ZXN0X3JlbW90ZShyZXEpKSB7Cj4gPiA+
-ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBpZiAoIWJsa19tcV9hZGRfdG9fYmF0Y2gocmVxLCBpb2IsIHZpcnRibGtfdmJyX3N0
-YXR1cyh2YnIpLCB2aXJ0YmxrX2NvbXBsZXRlX2JhdGNoKSkgewo+ID4gPiA+Cj4gPiA+ID4gPgo+
-ID4gPiA+Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgdmlydGJsa19yZXF1ZXN0X2RvbmUocmVxKTsgICAgLy90aGlzIG5ldmVyIGdldHMgY2FsbGVk
-Li4uIHNvIGJsa19tcV9hZGRfdG9fYmF0Y2goKSBtdXN0IGFsd2F5cyBzdWNjZWVkCj4gPiA+ID4K
-PiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgfQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIH0KPiA+ID4gPgo+ID4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+ID4gICAgICAg
-ICAgICAgICAgICB9Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IElmIEkgZG8sIGtlcm5lbCA2LjMuMyDigJMgdGhp
-cyBpcyBPSwo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiB2aXJ0aW9fYmxrLmMs
-dmlydGJsa19oYW5kbGVfcmVxKCkgW2lycSBoYW5kbGVyXQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
-PiA+Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAgIGlmIChsaWtlbHkoIWJsa19zaG91bGRfZmFr
-ZV90aW1lb3V0KHJlcS0+cSkpKSB7Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYgKCFibGtfbXFfY29tcGxldGVfcmVxdWVzdF9y
-ZW1vdGUocmVxKSkgewo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZpcnRibGtfcmVxdWVzdF9kb25lKHJlcSk7IC8v
-Zm9yY2UgdGhpcyBoZXJlLi4uCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBpZiAoIWJsa19tcV9hZGRfdG9fYmF0Y2go
-cmVxLCBpb2IsIHZpcnRibGtfdmJyX3N0YXR1cyh2YnIpLCB2aXJ0YmxrX2NvbXBsZXRlX2JhdGNo
-KSkgewo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgdmlydGJsa19yZXF1ZXN0X2RvbmUocmVxKTsgICAg
-Ly90aGlzIG5ldmVyIGdldHMgY2FsbGVkLi4uIHNvIGJsa19tcV9hZGRfdG9fYmF0Y2goKSBtdXN0
-IGFsd2F5cyBzdWNjZWVkCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfQo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+
-Cj4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgIH0KPiA+ID4gPgo+ID4gPiA+ID4K
-PiA+ID4gPgo+ID4gPiA+ID4gICAgICAgICAgICAgICAgICB9Cj4gPiA+ID4KPiA+ID4gPiA+Cj4g
-PiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+
-ID4KPiA+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiA+IFBlcmhhcHMgeW91IG1pZ2h0IGxpa2UgdG8g
-Zml4L3Rlc3QvcmV2ZXJ0IHRoaXMgY2hhbmdl4oCmCj4gPiA+ID4KPiA+ID4gPiA+Cj4gPiA+ID4K
-PiA+ID4gPiA+IE1hcnRpbgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4gPgo+ID4g
-PiA+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+IEhpIE1hcnRpbiwKPiA+ID4gPgo+ID4gPiA+Cj4g
-PiA+ID4KPiA+ID4gPiBUaGVyZSBhcmUgbWFueSBjaGFuZ2VzIGJldHdlZW4gNi4zLjAgYW5kIDYu
-My4zLgo+ID4gPiA+Cj4gPiA+ID4gQ291bGQgeW91IHRyeSB0byBmaW5kIGEgY29tbWl0IHdoaWNo
-IHRyaWdnZXJzIHRoZSBpbyBoYW5nPwo+ID4gPiA+Cj4gPiA+ID4gSXMgaXQgb2sgd2l0aCA2LjMu
-MCBrZXJuZWwgb3Igd2l0aCByZXZlcnRpbmcKPiA+ID4gPgo+ID4gPiA+ICJ2aXJ0aW8tYmxrOiBz
-dXBwb3J0IGNvbXBsZXRpb24gYmF0Y2hpbmcgZm9yIHRoZSBJUlEgcGF0aCIgY29tbWl0Pwo+ID4g
-PiA+Cj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+IFdlIG5lZWQgdG8gY29uZmlybSB3aGljaCBjb21t
-aXQgaXMgY2F1c2luZyB0aGUgZXJyb3IuCj4gPiA+ID4KPiA+ID4gPgo+ID4gPiA+Cj4gPiA+ID4g
-UmVnYXJkcywKPiA+ID4gPgo+ID4gPiA+IFN1d2FuIEtpbQo+ID4KCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jun 08, 2023 at 04:25:55PM +0000, Dragos Tatulea wrote:
+> On Wed, 2023-06-07 at 22:00 +0300, Dragos Tatulea via Virtualization wrot=
+e:
+> > From: Eli Cohen <elic@nvidia.com>
+> > =
+
+> > Add support for generation of interrupts from the device directly to the
+> > VM to the VCPU thus avoiding the overhead on the host CPU.
+> > =
+
+> > When supported, the driver will attempt to allocate vectors for each
+> > data virtqueue. If a vector for a virtqueue cannot be provided it will
+> > use the QP mode where notifications go through the driver.
+> > =
+
+> > In addition, we add a shutdown callback to make sure allocated
+> > interrupts are released in case of shutdown to allow clean shutdown.
+> > =
+
+> > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+> > =
+
+> Just realized that this patch should have been marked as a v3. Let me kno=
+w if I
+> should resend it.
+
+no need.
+
+> > ---
+> > =A0drivers/vdpa/mlx5/net/mlx5_vnet.c | 165 ++++++++++++++++++++++++++++=
+--
+> > =A0drivers/vdpa/mlx5/net/mlx5_vnet.h |=A0 15 +++
+> > =A02 files changed, 171 insertions(+), 9 deletions(-)
+> > =
+
+> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > index 279ac6a558d2..9138ef2fb2c8 100644
+> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > @@ -83,6 +83,7 @@ struct mlx5_vq_restore_info {
+> > =A0=A0=A0=A0=A0=A0=A0=A0u64 driver_addr;
+> > =A0=A0=A0=A0=A0=A0=A0=A0u16 avail_index;
+> > =A0=A0=A0=A0=A0=A0=A0=A0u16 used_index;
+> > +=A0=A0=A0=A0=A0=A0=A0struct msi_map map;
+> > =A0=A0=A0=A0=A0=A0=A0=A0bool ready;
+> > =A0=A0=A0=A0=A0=A0=A0=A0bool restore;
+> > =A0};
+> > @@ -118,6 +119,7 @@ struct mlx5_vdpa_virtqueue {
+> > =A0=A0=A0=A0=A0=A0=A0=A0u16 avail_idx;
+> > =A0=A0=A0=A0=A0=A0=A0=A0u16 used_idx;
+> > =A0=A0=A0=A0=A0=A0=A0=A0int fw_state;
+> > +=A0=A0=A0=A0=A0=A0=A0struct msi_map map;
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0/* keep last in the struct */
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mlx5_vq_restore_info ri;
+> > @@ -808,6 +810,13 @@ static bool counters_supported(const struct mlx5_v=
+dpa_dev
+> > *mvdev)
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 BIT_ULL(MLX5_OBJ_TYPE_VIRTIO=
+_Q_COUNTERS);
+> > =A0}
+> > =A0
+> > +static bool msix_mode_supported(struct mlx5_vdpa_dev *mvdev)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0return MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, e=
+vent_mode) &
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0(1 << MLX5_VIRTIO_Q_EVENT=
+_MODE_MSIX_MODE) &&
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0pci_msix_can_alloc_dyn(mv=
+dev->mdev->pdev);
+> > +}
+> > +
+> > =A0static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct
+> > mlx5_vdpa_virtqueue *mvq)
+> > =A0{
+> > =A0=A0=A0=A0=A0=A0=A0=A0int inlen =3D MLX5_ST_SZ_BYTES(create_virtio_ne=
+t_q_in);
+> > @@ -849,9 +858,15 @@ static int create_virtqueue(struct mlx5_vdpa_net *=
+ndev,
+> > struct mlx5_vdpa_virtque
+> > =A0=A0=A0=A0=A0=A0=A0=A0if (vq_is_tx(mvq->index))
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_net_q_o=
+bject, obj_context, tisn_or_qpn, ndev-
+> > >res.tisn);
+> > =A0
+> > -=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx, event_mode,
+> > MLX5_VIRTIO_Q_EVENT_MODE_QP_MODE);
+> > +=A0=A0=A0=A0=A0=A0=A0if (mvq->map.virq) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx=
+, event_mode,
+> > MLX5_VIRTIO_Q_EVENT_MODE_MSIX_MODE);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx=
+, event_qpn_or_msix, mvq->map.index);
+> > +=A0=A0=A0=A0=A0=A0=A0} else {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx=
+, event_mode,
+> > MLX5_VIRTIO_Q_EVENT_MODE_QP_MODE);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx=
+, event_qpn_or_msix, mvq-
+> > >fwqp.mqp.qpn);
+> > +=A0=A0=A0=A0=A0=A0=A0}
+> > +
+> > =A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx, queue_index, mvq->in=
+dex);
+> > -=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx, event_qpn_or_msix, mvq=
+->fwqp.mqp.qpn);
+> > =A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx, queue_size, mvq->num=
+_ent);
+> > =A0=A0=A0=A0=A0=A0=A0=A0MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0,
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 !!(ndev->mvdev.actual_=
+features &
+> > BIT_ULL(VIRTIO_F_VERSION_1)));
+> > @@ -1194,6 +1209,56 @@ static void counter_set_dealloc(struct mlx5_vdpa=
+_net
+> > *ndev, struct mlx5_vdpa_vir
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mlx5_vdpa_warn(&ndev->m=
+vdev, "dealloc counter set 0x%x\n",
+> > mvq->counter_set_id);
+> > =A0}
+> > =A0
+> > +static irqreturn_t mlx5_vdpa_int_handler(int irq, void *priv)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct vdpa_callback *cb =3D priv;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (cb->callback)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return cb->callback(cb->p=
+rivate);
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0return IRQ_HANDLED;
+> > +}
+> > +
+> > +static void alloc_vector(struct mlx5_vdpa_net *ndev,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
+struct mlx5_vdpa_virtqueue *mvq)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool *irqp =3D &ndev->irqp;
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool_entry *ent;
+> > +=A0=A0=A0=A0=A0=A0=A0int err;
+> > +=A0=A0=A0=A0=A0=A0=A0int i;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0for (i =3D 0; i < irqp->num_ent; i++) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ent =3D &irqp->entries[i];
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (!ent->used) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0s=
+nprintf(ent->name, MLX5_VDPA_IRQ_NAME_LEN, "%s-vq-
+> > %d",
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0 dev_name(&ndev->mvdev.vdev.dev), mvq->index);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0e=
+nt->dev_id =3D &ndev->event_cbs[mvq->index];
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0e=
+rr =3D request_irq(ent->map.virq,
+> > mlx5_vdpa_int_handler, 0,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ent->name, ent->dev_id);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0i=
+f (err)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0e=
+nt->used =3D true;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0m=
+vq->map =3D ent->map;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
+eturn;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
+> > +=A0=A0=A0=A0=A0=A0=A0}
+> > +}
+> > +
+> > +static void dealloc_vector(struct mlx5_vdpa_net *ndev,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0 struct mlx5_vdpa_virtqueue *mvq)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool *irqp =3D &ndev->irqp;
+> > +=A0=A0=A0=A0=A0=A0=A0int i;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0for (i =3D 0; i < irqp->num_ent; i++)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (mvq->map.virq =3D=3D =
+irqp->entries[i].map.virq) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0f=
+ree_irq(mvq->map.virq, irqp->entries[i].dev_id);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0i=
+rqp->entries[i].used =3D false;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
+eturn;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
+> > +}
+> > +
+> > =A0static int setup_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_vir=
+tqueue
+> > *mvq)
+> > =A0{
+> > =A0=A0=A0=A0=A0=A0=A0=A0u16 idx =3D mvq->index;
+> > @@ -1223,27 +1288,31 @@ static int setup_vq(struct mlx5_vdpa_net *ndev,=
+ struct
+> > mlx5_vdpa_virtqueue *mvq)
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0err =3D counter_set_alloc(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0if (err)
+> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err_counter;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err_connect;
+> > =A0
+> > +=A0=A0=A0=A0=A0=A0=A0alloc_vector(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0err =3D create_virtqueue(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0if (err)
+> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err_connect;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto err_vq;
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0if (mvq->ready) {
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0err =3D modify_virtqueu=
+e(ndev, mvq,
+> > MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (err) {
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0mlx5_vdpa_warn(&ndev->mvdev, "failed to modify to
+> > ready vq idx %d(%d)\n",
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 idx, err);
+> > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0g=
+oto err_connect;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0g=
+oto err_modify;
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0}
+> > =A0=A0=A0=A0=A0=A0=A0=A0}
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0mvq->initialized =3D true;
+> > =A0=A0=A0=A0=A0=A0=A0=A0return 0;
+> > =A0
+> > -err_connect:
+> > +err_modify:
+> > +=A0=A0=A0=A0=A0=A0=A0destroy_virtqueue(ndev, mvq);
+> > +err_vq:
+> > +=A0=A0=A0=A0=A0=A0=A0dealloc_vector(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0counter_set_dealloc(ndev, mvq);
+> > -err_counter:
+> > +err_connect:
+> > =A0=A0=A0=A0=A0=A0=A0=A0qp_destroy(ndev, &mvq->vqqp);
+> > =A0err_vqqp:
+> > =A0=A0=A0=A0=A0=A0=A0=A0qp_destroy(ndev, &mvq->fwqp);
+> > @@ -1288,6 +1357,7 @@ static void teardown_vq(struct mlx5_vdpa_net *nde=
+v,
+> > struct mlx5_vdpa_virtqueue *
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0suspend_vq(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0destroy_virtqueue(ndev, mvq);
+> > +=A0=A0=A0=A0=A0=A0=A0dealloc_vector(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0counter_set_dealloc(ndev, mvq);
+> > =A0=A0=A0=A0=A0=A0=A0=A0qp_destroy(ndev, &mvq->vqqp);
+> > =A0=A0=A0=A0=A0=A0=A0=A0qp_destroy(ndev, &mvq->fwqp);
+> > @@ -2505,6 +2575,7 @@ static int save_channel_info(struct mlx5_vdpa_net=
+ *ndev,
+> > struct mlx5_vdpa_virtqu
+> > =A0=A0=A0=A0=A0=A0=A0=A0ri->desc_addr =3D mvq->desc_addr;
+> > =A0=A0=A0=A0=A0=A0=A0=A0ri->device_addr =3D mvq->device_addr;
+> > =A0=A0=A0=A0=A0=A0=A0=A0ri->driver_addr =3D mvq->driver_addr;
+> > +=A0=A0=A0=A0=A0=A0=A0ri->map =3D mvq->map;
+> > =A0=A0=A0=A0=A0=A0=A0=A0ri->restore =3D true;
+> > =A0=A0=A0=A0=A0=A0=A0=A0return 0;
+> > =A0}
+> > @@ -2549,6 +2620,7 @@ static void restore_channels_info(struct mlx5_vdp=
+a_net
+> > *ndev)
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mvq->desc_addr =3D ri->=
+desc_addr;
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mvq->device_addr =3D ri=
+->device_addr;
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mvq->driver_addr =3D ri=
+->driver_addr;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mvq->map =3D ri->map;
+> > =A0=A0=A0=A0=A0=A0=A0=A0}
+> > =A0}
+> > =A0
+> > @@ -2833,6 +2905,25 @@ static struct device *mlx5_get_vq_dma_dev(struct
+> > vdpa_device *vdev, u16 idx)
+> > =A0=A0=A0=A0=A0=A0=A0=A0return mvdev->vdev.dma_dev;
+> > =A0}
+> > =A0
+> > +static void free_irqs(struct mlx5_vdpa_net *ndev)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool_entry *ent;
+> > +=A0=A0=A0=A0=A0=A0=A0int i;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (!msix_mode_supported(&ndev->mvdev))
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (!ndev->irqp.entries)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0for (i =3D ndev->irqp.num_ent - 1; i >=3D 0; i--)=
+ {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ent =3D ndev->irqp.entrie=
+s + i;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (ent->map.virq)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0p=
+ci_msix_free_irq(ndev->mvdev.mdev->pdev, ent->map);
+> > +=A0=A0=A0=A0=A0=A0=A0}
+> > +=A0=A0=A0=A0=A0=A0=A0kfree(ndev->irqp.entries);
+> > +}
+> > +
+> > =A0static void mlx5_vdpa_free(struct vdpa_device *vdev)
+> > =A0{
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
+> > @@ -2848,6 +2939,7 @@ static void mlx5_vdpa_free(struct vdpa_device *vd=
+ev)
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0mlx5_mpfs_del_mac(pfmde=
+v, ndev->config.mac);
+> > =A0=A0=A0=A0=A0=A0=A0=A0}
+> > =A0=A0=A0=A0=A0=A0=A0=A0mlx5_vdpa_free_resources(&ndev->mvdev);
+> > +=A0=A0=A0=A0=A0=A0=A0free_irqs(ndev);
+> > =A0=A0=A0=A0=A0=A0=A0=A0kfree(ndev->event_cbs);
+> > =A0=A0=A0=A0=A0=A0=A0=A0kfree(ndev->vqs);
+> > =A0}
+> > @@ -2876,9 +2968,23 @@ static struct vdpa_notification_area
+> > mlx5_get_vq_notification(struct vdpa_device
+> > =A0=A0=A0=A0=A0=A0=A0=A0return ret;
+> > =A0}
+> > =A0
+> > -static int mlx5_get_vq_irq(struct vdpa_device *vdv, u16 idx)
+> > +static int mlx5_get_vq_irq(struct vdpa_device *vdev, u16 idx)
+> > =A0{
+> > -=A0=A0=A0=A0=A0=A0=A0return -EOPNOTSUPP;
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_dev *mvdev =3D to_mvdev(vdev);
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_net *ndev =3D to_mlx5_vdpa_ndev(=
+mvdev);
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_virtqueue *mvq;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (!is_index_valid(mvdev, idx))
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EINVAL;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (is_ctrl_vq_idx(mvdev, idx))
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EOPNOTSUPP;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0mvq =3D &ndev->vqs[idx];
+> > +=A0=A0=A0=A0=A0=A0=A0if (!mvq->map.virq)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return -EOPNOTSUPP;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0return mvq->map.virq;
+> > =A0}
+> > =A0
+> > =A0static u64 mlx5_vdpa_get_driver_features(struct vdpa_device *vdev)
+> > @@ -3155,6 +3261,34 @@ static int config_func_mtu(struct mlx5_core_dev =
+*mdev,
+> > u16 mtu)
+> > =A0=A0=A0=A0=A0=A0=A0=A0return err;
+> > =A0}
+> > =A0
+> > +static void allocate_irqs(struct mlx5_vdpa_net *ndev)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool_entry *ent;
+> > +=A0=A0=A0=A0=A0=A0=A0int i;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (!msix_mode_supported(&ndev->mvdev))
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0if (!ndev->mvdev.mdev->pdev)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0ndev->irqp.entries =3D kcalloc(ndev->mvdev.max_vq=
+s, sizeof(*ndev-
+> > >irqp.entries), GFP_KERNEL);
+> > +=A0=A0=A0=A0=A0=A0=A0if (!ndev->irqp.entries)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0return;
+> > +
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0for (i =3D 0; i < ndev->mvdev.max_vqs; i++) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ent =3D ndev->irqp.entrie=
+s + i;
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0snprintf(ent->name, MLX5_=
+VDPA_IRQ_NAME_LEN, "%s-vq-%d",
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
+dev_name(&ndev->mvdev.vdev.dev), i);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ent->map =3D pci_msix_all=
+oc_irq_at(ndev->mvdev.mdev->pdev,
+> > MSI_ANY_INDEX, NULL);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0if (!ent->map.virq)
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0r=
+eturn;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0ndev->irqp.num_ent++;
+> > +=A0=A0=A0=A0=A0=A0=A0}
+> > +}
+> > +
+> > =A0static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const cha=
+r *name,
+> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0 const struct vdpa_dev_set_config *add_config)
+> > =A0{
+> > @@ -3233,6 +3367,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev
+> > *v_mdev, const char *name,
+> > =A0=A0=A0=A0=A0=A0=A0=A0}
+> > =A0
+> > =A0=A0=A0=A0=A0=A0=A0=A0init_mvqs(ndev);
+> > +=A0=A0=A0=A0=A0=A0=A0allocate_irqs(ndev);
+> > =A0=A0=A0=A0=A0=A0=A0=A0init_rwsem(&ndev->reslock);
+> > =A0=A0=A0=A0=A0=A0=A0=A0config =3D &ndev->config;
+> > =A0
+> > @@ -3413,6 +3548,17 @@ static void mlx5v_remove(struct auxiliary_device=
+ *adev)
+> > =A0=A0=A0=A0=A0=A0=A0=A0kfree(mgtdev);
+> > =A0}
+> > =A0
+> > +static void mlx5v_shutdown(struct auxiliary_device *auxdev)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_mgmtdev *mgtdev;
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_net *ndev;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0mgtdev =3D auxiliary_get_drvdata(auxdev);
+> > +=A0=A0=A0=A0=A0=A0=A0ndev =3D mgtdev->ndev;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0free_irqs(ndev);
+> > +}
+> > +
+> > =A0static const struct auxiliary_device_id mlx5v_id_table[] =3D {
+> > =A0=A0=A0=A0=A0=A0=A0=A0{ .name =3D MLX5_ADEV_NAME ".vnet", },
+> > =A0=A0=A0=A0=A0=A0=A0=A0{},
+> > @@ -3424,6 +3570,7 @@ static struct auxiliary_driver mlx5v_driver =3D {
+> > =A0=A0=A0=A0=A0=A0=A0=A0.name =3D "vnet",
+> > =A0=A0=A0=A0=A0=A0=A0=A0.probe =3D mlx5v_probe,
+> > =A0=A0=A0=A0=A0=A0=A0=A0.remove =3D mlx5v_remove,
+> > +=A0=A0=A0=A0=A0=A0=A0.shutdown =3D mlx5v_shutdown,
+> > =A0=A0=A0=A0=A0=A0=A0=A0.id_table =3D mlx5v_id_table,
+> > =A0};
+> > =A0
+> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> > b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> > index c90a89e1de4d..36c44d9fdd16 100644
+> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
+> > @@ -26,6 +26,20 @@ static inline u16 key2vid(u64 key)
+> > =A0=A0=A0=A0=A0=A0=A0=A0return (u16)(key >> 48) & 0xfff;
+> > =A0}
+> > =A0
+> > +#define MLX5_VDPA_IRQ_NAME_LEN 32
+> > +
+> > +struct mlx5_vdpa_irq_pool_entry {
+> > +=A0=A0=A0=A0=A0=A0=A0struct msi_map map;
+> > +=A0=A0=A0=A0=A0=A0=A0bool used;
+> > +=A0=A0=A0=A0=A0=A0=A0char name[MLX5_VDPA_IRQ_NAME_LEN];
+> > +=A0=A0=A0=A0=A0=A0=A0void *dev_id;
+> > +};
+> > +
+> > +struct mlx5_vdpa_irq_pool {
+> > +=A0=A0=A0=A0=A0=A0=A0int num_ent;
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool_entry *entries;
+> > +};
+> > +
+> > =A0struct mlx5_vdpa_net {
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_dev mvdev;
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_net_resources res;
+> > @@ -49,6 +63,7 @@ struct mlx5_vdpa_net {
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct vdpa_callback config_cb;
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_wq_ent cvq_ent;
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct hlist_head macvlan_hash[MLX5V_MACVLAN_SI=
+ZE];
+> > +=A0=A0=A0=A0=A0=A0=A0struct mlx5_vdpa_irq_pool irqp;
+> > =A0=A0=A0=A0=A0=A0=A0=A0struct dentry *debugfs;
+> > =A0};
+> > =A0
+> =
+
+> =
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
