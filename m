@@ -1,88 +1,119 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B83AC7EE23
-	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 14:04:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23AA3C7EE23
+	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 14:23:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2B21C4062E;
-	Thu,  8 Jun 2023 14:04:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B21C4062E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=riVVnT3i
+	by smtp2.osuosl.org (Postfix) with ESMTP id AAA4A40283;
+	Thu,  8 Jun 2023 14:23:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AAA4A40283
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AwPSY0ux
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IbPBsbbXVvHx; Thu,  8 Jun 2023 14:03:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BC5FF40360;
-	Thu,  8 Jun 2023 14:03:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BC5FF40360
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hMj1xE3D0W2p; Thu,  8 Jun 2023 14:23:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 03BA3401CA;
+	Thu,  8 Jun 2023 14:23:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 03BA3401CA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 967C8C007A;
-	Thu,  8 Jun 2023 14:03:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BD6EC0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE6B1C0037;
+	Thu,  8 Jun 2023 14:23:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E56A6C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 14:03:57 +0000 (UTC)
+ Thu,  8 Jun 2023 14:23:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E77E24038C
+ by smtp2.osuosl.org (Postfix) with ESMTP id BFB2040283
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 14:03:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E77E24038C
+ Thu,  8 Jun 2023 14:23:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BFB2040283
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id H1OPCQVW6LKv
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gORa6JHqdL0c
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 14:03:55 +0000 (UTC)
+ Thu,  8 Jun 2023 14:23:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEC5740382
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CEC5740382
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F38B401CA
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9F38B401CA
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 14:03:54 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 030EF21A5D;
- Thu,  8 Jun 2023 14:03:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1686233033; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
+ Thu,  8 Jun 2023 14:23:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1686234209;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=d4HV/xf79hfIb0lE8ZRxRu7yelHkayNDcx7I3duan64=;
- b=riVVnT3i0SsLPjZ1NK2YcaXRNjBBTcltZTL/KKIK8rJVncCBgQwm9DdvHNFPra8yO+nUXo
- tyt6pK7Ef7V85MzUXwqFPOSVZM2bbbF41WRyUcJq3dNiu7veeWZliWe9utq9i4DuzCG2o5
- JFAlw4C/z42a8tL+/5opeTzmKKjVUt0=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9E5AA138E6;
- Thu,  8 Jun 2023 14:03:52 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 409PJcjfgWRhbwAAMHmgww
- (envelope-from <jgross@suse.com>); Thu, 08 Jun 2023 14:03:52 +0000
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 3/3] x86/paravirt: switch mixed paravirt/alternative calls
- to alternative_2
-Date: Thu,  8 Jun 2023 16:03:33 +0200
-Message-Id: <20230608140333.4083-4-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230608140333.4083-1-jgross@suse.com>
-References: <20230608140333.4083-1-jgross@suse.com>
+ bh=Ylaz4EsLWG8gT+tyBhiFM3PeWqHKsVLZz02Gzuw52i8=;
+ b=AwPSY0uxKrLG5Jz8/ZWgiI56f80sR6oTEaZaI7cB7AvwKILNFV0N7BaOZU0F6b3HKv7p1Y
+ r91U1xVfpCPMEm7MHLo9iu/LYuGjEjlHndqHaZLkAERAprUazXVBpdPqmF2xmk7ihJmoTy
+ jDnPybOXlONr9BOaf5PQXRGbb+hgaas=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-439-x-0-Kb0_MzyMH6Ek4sZ6WA-1; Thu, 08 Jun 2023 10:23:27 -0400
+X-MC-Unique: x-0-Kb0_MzyMH6Ek4sZ6WA-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ ffacd0b85a97d-30af6a5b6b0so313003f8f.0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 08 Jun 2023 07:23:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1686234206; x=1688826206;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=Ylaz4EsLWG8gT+tyBhiFM3PeWqHKsVLZz02Gzuw52i8=;
+ b=KIyW/Ny3AVMQjSX/ndYwDdk2nN3tZbSROYiblOKXerlniA0PeqGzdSiJrtXOazSPu7
+ YyG3pp6Xee9mtNAAnVCjzFaWfbAlLAXoshewgM1r+RMaktT0K1UuNc4nCqzuekiPct2G
+ isUSF07dljkJKpByJbZRY1zMpi420HdWqf6RzUoOAJtsATjQ20/UvqbD1VeMXtDBODZ+
+ 5XG06T6pS4HKBAuF5zBJZ1wsZ9lIJQ7UBzro5cBBaqnUMBroO7NrypfuL0QaeDjUlXHp
+ vet144gNpjlCsQL2xOtS7a8RNd5HiZs2jayvgxXBhJ69wSLxJgrmT5TZlo7V5gSw77N3
+ lNcQ==
+X-Gm-Message-State: AC+VfDwiiHDxtwekQ09C5yBZOekX5QQ8nvuVsU+ui6Tj2Ey4D3Xz8EzK
+ UN5GvRCVfEHiefQH6f67eBePBARuNAnTk9Lhj5a2jrVdn9fX+mUtL/pjXz2tP+vCMPoBtMDbpcs
+ xDKsGM31tVPhF7Z2YGO+8xTXnwz1BGccDcdKueSjCYw==
+X-Received: by 2002:adf:dfc1:0:b0:30e:4886:3533 with SMTP id
+ q1-20020adfdfc1000000b0030e48863533mr7800346wrn.34.1686234206023; 
+ Thu, 08 Jun 2023 07:23:26 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6c9mr4sGROJv3wpcDBq+xuHW3beEKuX1wsKDRXlb1F7uOxTNYgZiIdVFsqG1xx2NOA7F1/fA==
+X-Received: by 2002:adf:dfc1:0:b0:30e:4886:3533 with SMTP id
+ q1-20020adfdfc1000000b0030e48863533mr7800329wrn.34.1686234205650; 
+ Thu, 08 Jun 2023 07:23:25 -0700 (PDT)
+Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
+ 26-20020a05600c021a00b003f7f475c3c7sm2175514wmi.8.2023.06.08.07.23.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 08 Jun 2023 07:23:25 -0700 (PDT)
+Date: Thu, 8 Jun 2023 10:23:21 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost-vdpa: filter VIRTIO_F_RING_PACKED feature
+Message-ID: <20230608102259-mutt-send-email-mst@kernel.org>
+References: <20230606085643-mutt-send-email-mst@kernel.org>
+ <CAGxU2F7fkgL-HpZdj=5ZEGNWcESCHQpgRAYQA3W2sPZaoEpNyQ@mail.gmail.com>
+ <20230607054246-mutt-send-email-mst@kernel.org>
+ <CACGkMEuUapKvUYiJiLwtsN+x941jafDKS9tuSkiNrvkrrSmQkg@mail.gmail.com>
+ <20230608020111-mutt-send-email-mst@kernel.org>
+ <CACGkMEt4=3BRVNX38AD+mJU8v3bmqO-CdNj5NkFP-SSvsuy2Hg@mail.gmail.com>
+ <5giudxjp6siucr4l3i4tggrh2dpqiqhhihmdd34w3mq2pm5dlo@mrqpbwckpxai>
+ <CACGkMEtqn1dbrQZn3i-W_7sVikY4sQjwLRC5xAhMnyqkc3jwOw@mail.gmail.com>
+ <lw3nmkdszqo6jjtneyp4kjlmutooozz7xj2fqyxgh4v2ralptc@vkimgnbfafvi>
+ <CACGkMEt1yRV9qOLBqtQQmJA_UoRLCpznT=Gvd5D51Uaz2jakHA@mail.gmail.com>
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <CACGkMEt1yRV9qOLBqtQQmJA_UoRLCpznT=Gvd5D51Uaz2jakHA@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,529 +125,93 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Instead of stacking alternative and paravirt patching, use the new
-ALT_FLAG_CALL flag to switch those mixed calls to pure alternative
-handling.
-
-This eliminates the need to be careful regarding the sequence of
-alternative and paravirt patching.
-
-For call depth tracking callthunks_setup() needs to be adapted to patch
-calls at alternative patching sites instead of paravirt calls.
-
-Remove the no longer needed paravirt patching and related code.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/include/asm/alternative.h    |  5 ++-
- arch/x86/include/asm/paravirt.h       | 27 +++--------
- arch/x86/include/asm/paravirt_types.h | 64 ++++-----------------------
- arch/x86/include/asm/text-patching.h  | 12 -----
- arch/x86/kernel/alternative.c         | 52 +---------------------
- arch/x86/kernel/callthunks.c          | 17 ++++---
- arch/x86/kernel/module.c              | 20 +++------
- arch/x86/kernel/paravirt.c            | 30 -------------
- arch/x86/kernel/vmlinux.lds.S         | 13 ------
- arch/x86/tools/relocs.c               |  2 +-
- 10 files changed, 34 insertions(+), 208 deletions(-)
-
-diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
-index 8e0871c1631a..b44028ec6850 100644
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -89,6 +89,8 @@ struct alt_instr {
- 	u8  replacementlen;	/* length of new instruction */
- } __packed;
- 
-+extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
-+
- /*
-  * Debug flag that can be tested to see whether alternative
-  * instructions were patched in already:
-@@ -104,11 +106,10 @@ extern void apply_fineibt(s32 *start_retpoline, s32 *end_retpoine,
- 			  s32 *start_cfi, s32 *end_cfi);
- 
- struct module;
--struct paravirt_patch_site;
- 
- struct callthunk_sites {
- 	s32				*call_start, *call_end;
--	struct paravirt_patch_site	*pv_start, *pv_end;
-+	struct alt_instr		*alt_start, *alt_end;
- };
- 
- #ifdef CONFIG_CALL_THUNKS
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 3474dac4607d..f510031c54ca 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -730,35 +730,20 @@ extern void default_banner(void);
- 
- #else  /* __ASSEMBLY__ */
- 
--#define _PVSITE(ptype, ops, word, algn)		\
--771:;						\
--	ops;					\
--772:;						\
--	.pushsection .parainstructions,"a";	\
--	 .align	algn;				\
--	 word 771b;				\
--	 .byte ptype;				\
--	 .byte 772b-771b;			\
--	 _ASM_ALIGN;				\
--	.popsection
--
--
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
-+#ifdef CONFIG_DEBUG_ENTRY
- 
--#define PARA_PATCH(off)		((off) / 8)
--#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
- #define PARA_INDIRECT(addr)	*addr(%rip)
- 
--#ifdef CONFIG_DEBUG_ENTRY
- .macro PARA_IRQ_save_fl
--	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),
--		  ANNOTATE_RETPOLINE_SAFE;
--		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);)
-+	ANNOTATE_RETPOLINE_SAFE;
-+	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
- .endm
- 
--#define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
--				    ALT_NOT(X86_FEATURE_XENPV)
-+#define SAVE_FLAGS	ALTERNATIVE_2 "PARA_IRQ_save_fl;", ALT_CALL_INSTR, \
-+				      ALT_CALL_ALWAYS, "pushf; pop %rax;", \
-+				      ALT_NOT(X86_FEATURE_XENPV)
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index fe58f1882e9c..c4465fed8204 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -3,13 +3,6 @@
- #define _ASM_X86_PARAVIRT_TYPES_H
- 
- #ifndef __ASSEMBLY__
--/* These all sit in the .parainstructions section to tell us what to patch. */
--struct paravirt_patch_site {
--	u8 *instr;		/* original instructions */
--	u8 type;		/* type of this instruction */
--	u8 len;			/* length of original instruction */
--};
--
- /* Lazy mode for batching updates / context switch */
- enum paravirt_lazy_mode {
- 	PARAVIRT_LAZY_NONE,
-@@ -257,43 +250,11 @@ struct paravirt_patch_template {
- extern struct pv_info pv_info;
- extern struct paravirt_patch_template pv_ops;
- 
--#define PARAVIRT_PATCH(x)					\
--	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
--
--#define paravirt_type(op)				\
--	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
--	[paravirt_opptr] "m" (pv_ops.op)
--/*
-- * Generate some code, and mark it as patchable by the
-- * apply_paravirt() alternate instruction patcher.
-- */
--#define _paravirt_alt(insn_string, type)		\
--	"771:\n\t" insn_string "\n" "772:\n"		\
--	".pushsection .parainstructions,\"a\"\n"	\
--	_ASM_ALIGN "\n"					\
--	_ASM_PTR " 771b\n"				\
--	"  .byte " type "\n"				\
--	"  .byte 772b-771b\n"				\
--	_ASM_ALIGN "\n"					\
--	".popsection\n"
--
--/* Generate patchable code, with the default asm parameters. */
--#define paravirt_alt(insn_string)					\
--	_paravirt_alt(insn_string, "%c[paravirt_typenum]")
--
--/* Simple instruction patching code. */
--#define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
--
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr, unsigned int len);
-+#define paravirt_ptr(op)	[paravirt_opptr] "m" (pv_ops.op)
- 
- int paravirt_disable_iospace(void);
- 
--/*
-- * This generates an indirect call based on the operation type number.
-- * The type number, computed in PARAVIRT_PATCH, is derived from the
-- * offset into the paravirt_patch_template structure, and can therefore be
-- * freely converted back into a structure offset.
-- */
-+/* This generates an indirect call based on the operation type number. */
- #define PARAVIRT_CALL					\
- 	ANNOTATE_RETPOLINE_SAFE				\
- 	"call *%[paravirt_opptr];"
-@@ -326,12 +287,6 @@ int paravirt_disable_iospace(void);
-  * However, x86_64 also has to clobber all caller saved registers, which
-  * unfortunately, are quite a bit (r8 - r11)
-  *
-- * The call instruction itself is marked by placing its start address
-- * and size into the .parainstructions section, so that
-- * apply_paravirt() in arch/i386/kernel/alternative.c can do the
-- * appropriate patching under the control of the backend pv_init_ops
-- * implementation.
-- *
-  * Unfortunately there's no way to get gcc to generate the args setup
-  * for the call, and then allow the call itself to be generated by an
-  * inline asm.  Because of this, we must do the complete arg setup and
-@@ -435,9 +390,10 @@ int paravirt_disable_iospace(void);
- 	({								\
- 		PVOP_CALL_ARGS;						\
- 		PVOP_TEST_NULL(op);					\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
-+		asm volatile(ALTERNATIVE(PARAVIRT_CALL, ALT_CALL_INSTR,	\
-+				ALT_CALL_ALWAYS)			\
- 			     : call_clbr, ASM_CALL_CONSTRAINT		\
--			     : paravirt_type(op),			\
-+			     : paravirt_ptr(op),			\
- 			       ##__VA_ARGS__				\
- 			     : "memory", "cc" extra_clbr);		\
- 		ret;							\
-@@ -448,10 +404,11 @@ int paravirt_disable_iospace(void);
- 	({								\
- 		PVOP_CALL_ARGS;						\
- 		PVOP_TEST_NULL(op);					\
--		asm volatile(ALTERNATIVE(paravirt_alt(PARAVIRT_CALL),	\
--					 alt, cond)			\
-+		asm volatile(ALTERNATIVE_2(PARAVIRT_CALL,		\
-+				 ALT_CALL_INSTR, ALT_CALL_ALWAYS,	\
-+				 alt, cond)				\
- 			     : call_clbr, ASM_CALL_CONSTRAINT		\
--			     : paravirt_type(op),			\
-+			     : paravirt_ptr(op),			\
- 			       ##__VA_ARGS__				\
- 			     : "memory", "cc" extra_clbr);		\
- 		ret;							\
-@@ -568,9 +525,6 @@ unsigned long pv_native_read_cr2(void);
- 
- #define paravirt_nop	((void *)x86_nop)
- 
--extern struct paravirt_patch_site __parainstructions[],
--	__parainstructions_end[];
--
- #endif	/* __ASSEMBLY__ */
- #endif  /* CONFIG_PARAVIRT */
- #endif	/* _ASM_X86_PARAVIRT_TYPES_H */
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index 29832c338cdc..0b70653a98c1 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -6,18 +6,6 @@
- #include <linux/stddef.h>
- #include <asm/ptrace.h>
- 
--struct paravirt_patch_site;
--#ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch_site *start,
--		    struct paravirt_patch_site *end);
--#else
--static inline void apply_paravirt(struct paravirt_patch_site *start,
--				  struct paravirt_patch_site *end)
--{}
--#define __parainstructions	NULL
--#define __parainstructions_end	NULL
--#endif
--
- /*
-  * Currently, the max observed size in the kernel code is
-  * JUMP_LABEL_NOP_SIZE/RELATIVEJUMP_SIZE, which are 5.
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index f0371304c1b5..58e9fadc30d6 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -118,7 +118,6 @@ extern s32 __retpoline_sites[], __retpoline_sites_end[];
- extern s32 __return_sites[], __return_sites_end[];
- extern s32 __cfi_sites[], __cfi_sites_end[];
- extern s32 __ibt_endbr_seal[], __ibt_endbr_seal_end[];
--extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
- extern s32 __smp_locks[], __smp_locks_end[];
- void text_poke_early(void *addr, const void *opcode, size_t len);
- 
-@@ -1265,32 +1264,6 @@ int alternatives_text_reserved(void *start, void *end)
- }
- #endif /* CONFIG_SMP */
- 
--#ifdef CONFIG_PARAVIRT
--void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
--				     struct paravirt_patch_site *end)
--{
--	struct paravirt_patch_site *p;
--	char insn_buff[MAX_PATCH_LEN];
--
--	for (p = start; p < end; p++) {
--		unsigned int used;
--
--		BUG_ON(p->len > MAX_PATCH_LEN);
--		/* prep the buffer with the original instructions */
--		memcpy(insn_buff, p->instr, p->len);
--		used = paravirt_patch(p->type, insn_buff, (unsigned long)p->instr, p->len);
--
--		BUG_ON(used > p->len);
--
--		/* Pad the rest with nops */
--		add_nops(insn_buff + used, p->len - used);
--		text_poke_early(p->instr, insn_buff, p->len);
--	}
--}
--extern struct paravirt_patch_site __start_parainstructions[],
--	__stop_parainstructions[];
--#endif	/* CONFIG_PARAVIRT */
--
- /*
-  * Self-test for the INT3 based CALL emulation code.
-  *
-@@ -1396,28 +1369,11 @@ void __init alternative_instructions(void)
- 	 */
- 
- 	/*
--	 * Paravirt patching and alternative patching can be combined to
--	 * replace a function call with a short direct code sequence (e.g.
--	 * by setting a constant return value instead of doing that in an
--	 * external function).
--	 * In order to make this work the following sequence is required:
--	 * 1. set (artificial) features depending on used paravirt
--	 *    functions which can later influence alternative patching
--	 * 2. apply paravirt patching (generally replacing an indirect
--	 *    function call with a direct one)
--	 * 3. apply alternative patching (e.g. replacing a direct function
--	 *    call with a custom code sequence)
--	 * Doing paravirt patching after alternative patching would clobber
--	 * the optimization of the custom code with a function call again.
-+	 * Make sure to set (artificial) features depending on used paravirt
-+	 * functions which can later influence alternative patching.
- 	 */
- 	paravirt_set_cap();
- 
--	/*
--	 * First patch paravirt functions, such that we overwrite the indirect
--	 * call with the direct call.
--	 */
--	apply_paravirt(__parainstructions, __parainstructions_end);
--
- 	__apply_fineibt(__retpoline_sites, __retpoline_sites_end,
- 			__cfi_sites, __cfi_sites_end, true);
- 
-@@ -1428,10 +1384,6 @@ void __init alternative_instructions(void)
- 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
- 	apply_returns(__return_sites, __return_sites_end);
- 
--	/*
--	 * Then patch alternatives, such that those paravirt calls that are in
--	 * alternatives can be overwritten by their immediate fragments.
--	 */
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
- 	/*
-diff --git a/arch/x86/kernel/callthunks.c b/arch/x86/kernel/callthunks.c
-index 22ab13966427..2c1673410f3e 100644
---- a/arch/x86/kernel/callthunks.c
-+++ b/arch/x86/kernel/callthunks.c
-@@ -238,14 +238,13 @@ patch_call_sites(s32 *start, s32 *end, const struct core_text *ct)
- }
- 
- static __init_or_module void
--patch_paravirt_call_sites(struct paravirt_patch_site *start,
--			  struct paravirt_patch_site *end,
--			  const struct core_text *ct)
-+patch_alt_call_sites(struct alt_instr *start, struct alt_instr *end,
-+		     const struct core_text *ct)
- {
--	struct paravirt_patch_site *p;
-+	struct alt_instr *a;
- 
--	for (p = start; p < end; p++)
--		patch_call(p->instr, ct);
-+	for (a = start; a < end; a++)
-+		patch_call((u8 *)&a->instr_offset + a->instr_offset, ct);
- }
- 
- static __init_or_module void
-@@ -253,7 +252,7 @@ callthunks_setup(struct callthunk_sites *cs, const struct core_text *ct)
- {
- 	prdbg("Patching call sites %s\n", ct->name);
- 	patch_call_sites(cs->call_start, cs->call_end, ct);
--	patch_paravirt_call_sites(cs->pv_start, cs->pv_end, ct);
-+	patch_alt_call_sites(cs->alt_start, cs->alt_end, ct);
- 	prdbg("Patching call sites done%s\n", ct->name);
- }
- 
-@@ -262,8 +261,8 @@ void __init callthunks_patch_builtin_calls(void)
- 	struct callthunk_sites cs = {
- 		.call_start	= __call_sites,
- 		.call_end	= __call_sites_end,
--		.pv_start	= __parainstructions,
--		.pv_end		= __parainstructions_end
-+		.alt_start	= __alt_instructions,
-+		.alt_end	= __alt_instructions_end
- 	};
- 
- 	if (!cpu_feature_enabled(X86_FEATURE_CALL_DEPTH))
-diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index b05f62ee2344..ec58ffd1c840 100644
---- a/arch/x86/kernel/module.c
-+++ b/arch/x86/kernel/module.c
-@@ -276,7 +276,7 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		    struct module *me)
- {
- 	const Elf_Shdr *s, *alt = NULL, *locks = NULL,
--		*para = NULL, *orc = NULL, *orc_ip = NULL,
-+		*orc = NULL, *orc_ip = NULL,
- 		*retpolines = NULL, *returns = NULL, *ibt_endbr = NULL,
- 		*calls = NULL, *cfi = NULL;
- 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
-@@ -286,8 +286,6 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			alt = s;
- 		if (!strcmp(".smp_locks", secstrings + s->sh_name))
- 			locks = s;
--		if (!strcmp(".parainstructions", secstrings + s->sh_name))
--			para = s;
- 		if (!strcmp(".orc_unwind", secstrings + s->sh_name))
- 			orc = s;
- 		if (!strcmp(".orc_unwind_ip", secstrings + s->sh_name))
-@@ -304,14 +302,6 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			ibt_endbr = s;
- 	}
- 
--	/*
--	 * See alternative_instructions() for the ordering rules between the
--	 * various patching types.
--	 */
--	if (para) {
--		void *pseg = (void *)para->sh_addr;
--		apply_paravirt(pseg, pseg + para->sh_size);
--	}
- 	if (retpolines || cfi) {
- 		void *rseg = NULL, *cseg = NULL;
- 		unsigned int rsize = 0, csize = 0;
-@@ -341,7 +331,7 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		void *aseg = (void *)alt->sh_addr;
- 		apply_alternatives(aseg, aseg + alt->sh_size);
- 	}
--	if (calls || para) {
-+	if (calls || alt) {
- 		struct callthunk_sites cs = {};
- 
- 		if (calls) {
-@@ -349,9 +339,9 @@ int module_finalize(const Elf_Ehdr *hdr,
- 			cs.call_end = (void *)calls->sh_addr + calls->sh_size;
- 		}
- 
--		if (para) {
--			cs.pv_start = (void *)para->sh_addr;
--			cs.pv_end = (void *)para->sh_addr + para->sh_size;
-+		if (alt) {
-+			cs.alt_start = (void *)alt->sh_addr;
-+			cs.alt_end = (void *)alt->sh_addr + alt->sh_size;
- 		}
- 
- 		callthunks_patch_module_calls(&cs, me);
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index dfad56679f88..1ef889110919 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -43,14 +43,6 @@ void __init default_banner(void)
- 	       pv_info.name);
- }
- 
--static unsigned paravirt_patch_call(void *insn_buff, const void *target,
--				    unsigned long addr, unsigned len)
--{
--	__text_gen_insn(insn_buff, CALL_INSN_OPCODE,
--			(void *)addr, target, CALL_INSN_SIZE);
--	return CALL_INSN_SIZE;
--}
--
- #ifdef CONFIG_PARAVIRT_XXL
- DEFINE_ASM_FUNC(_paravirt_ident_64, "mov %rdi, %rax", .text);
- DEFINE_ASM_FUNC(pv_native_save_fl, "pushf; pop %rax", .noinstr.text);
-@@ -67,28 +59,6 @@ void __init native_pv_lock_init(void)
- 		static_branch_disable(&virt_spin_lock_key);
- }
- 
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr,
--			    unsigned int len)
--{
--	/*
--	 * Neat trick to map patch type back to the call within the
--	 * corresponding structure.
--	 */
--	void *opfunc = *((void **)&pv_ops + type);
--	unsigned ret;
--
--	if (opfunc == NULL)
--		/* If there's no function, patch it with x86_BUG() */
--		ret = paravirt_patch_call(insn_buff, x86_BUG, addr, len);
--	else if (opfunc == x86_nop)
--		ret = 0;
--	else
--		/* Otherwise call the function. */
--		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
--
--	return ret;
--}
--
- struct static_key paravirt_steal_enabled;
- struct static_key paravirt_steal_rq_enabled;
- 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 25f155205770..5159d80bee38 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -258,19 +258,6 @@ SECTIONS
- 	}
- #endif
- 
--	/*
--	 * start address and size of operations which during runtime
--	 * can be patched with virtualization friendly instructions or
--	 * baremetal native ones. Think page table operations.
--	 * Details in paravirt_types.h
--	 */
--	. = ALIGN(8);
--	.parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
--		__parainstructions = .;
--		*(.parainstructions)
--		__parainstructions_end = .;
--	}
--
- #ifdef CONFIG_RETPOLINE
- 	/*
- 	 * List of instructions that call/jmp/jcc to retpoline thunks
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index d30949e25ebd..a3bae2b24626 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -66,7 +66,7 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
- 	[S_REL] =
- 	"^(__init_(begin|end)|"
- 	"__x86_cpu_dev_(start|end)|"
--	"(__parainstructions|__alt_instructions)(_end)?|"
-+	"__alt_instructions(_end)?|"
- 	"(__iommu_table|__apicdrivers|__smp_locks)(_end)?|"
- 	"__(start|end)_pci_.*|"
- #if CONFIG_FW_LOADER
--- 
-2.35.3
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBKdW4gMDgsIDIwMjMgYXQgMDU6Mjk6NThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiBPbiBUaHUsIEp1biA4LCAyMDIzIGF0IDU6MjHigK9QTSBTdGVmYW5vIEdhcnphcmVsbGEg
+PHNnYXJ6YXJlQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIFRodSwgSnVuIDA4LCAyMDIz
+IGF0IDA1OjAwOjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+T24gVGh1LCBKdW4g
+OCwgMjAyMyBhdCA0OjAw4oCvUE0gU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2FyemFyZUByZWRoYXQu
+Y29tPiB3cm90ZToKPiA+ID4+Cj4gPiA+PiBPbiBUaHUsIEp1biAwOCwgMjAyMyBhdCAwMzo0Njow
+MFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gPj4KPiA+ID4+IFsuLi5dCj4gPiA+Pgo+
+ID4gPj4gPj4gPiA+ID4gPiBJIGhhdmUgYSBxdWVzdGlvbiB0aG91Z2gsIHdoYXQgaWYgZG93biB0
+aGUgcm9hZCB0aGVyZQo+ID4gPj4gPj4gPiA+ID4gPiBpcyBhIG5ldyBmZWF0dXJlIHRoYXQgbmVl
+ZHMgbW9yZSBjaGFuZ2VzPyBJdCB3aWxsIGJlCj4gPiA+PiA+PiA+ID4gPiA+IGJyb2tlbiB0b28g
+anVzdCBsaWtlIFBBQ0tFRCBubz8KPiA+ID4+ID4+ID4gPiA+ID4gU2hvdWxkbid0IHZkcGEgaGF2
+ZSBhbiBhbGxvd2xpc3Qgb2YgZmVhdHVyZXMgaXQga25vd3MgaG93Cj4gPiA+PiA+PiA+ID4gPiA+
+IHRvIHN1cHBvcnQ/Cj4gPiA+PiA+PiA+ID4gPgo+ID4gPj4gPj4gPiA+ID4gSXQgbG9va3MgbGlr
+ZSB3ZSBoYWQgaXQsIGJ1dCB3ZSB0b29rIGl0IG91dCAoYnkgdGhlIHdheSwgd2Ugd2VyZQo+ID4g
+Pj4gPj4gPiA+ID4gZW5hYmxpbmcgcGFja2VkIGV2ZW4gdGhvdWdoIHdlIGRpZG4ndCBzdXBwb3J0
+IGl0KToKPiA+ID4+ID4+ID4gPiA+IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51
+eC9rZXJuZWwvZ2l0L3RvcnZhbGRzL2xpbnV4LmdpdC9jb21taXQvP2lkPTYyMzRmODA1NzRkNzU2
+OTQ0NGQ4NzE4MzU1ZmEyODM4ZTkyYjE1OGIKPiA+ID4+ID4+ID4gPiA+Cj4gPiA+PiA+PiA+ID4g
+PiBUaGUgb25seSBwcm9ibGVtIEkgc2VlIGlzIHRoYXQgZm9yIGVhY2ggbmV3IGZlYXR1cmUgd2Ug
+aGF2ZSB0byBtb2RpZnkKPiA+ID4+ID4+ID4gPiA+IHRoZSBrZXJuZWwuCj4gPiA+PiA+PiA+ID4g
+PiBDb3VsZCB3ZSBoYXZlIG5ldyBmZWF0dXJlcyB0aGF0IGRvbid0IHJlcXVpcmUgaGFuZGxpbmcg
+Ynkgdmhvc3QtdmRwYT8KPiA+ID4+ID4+ID4gPiA+Cj4gPiA+PiA+PiA+ID4gPiBUaGFua3MsCj4g
+PiA+PiA+PiA+ID4gPiBTdGVmYW5vCj4gPiA+PiA+PiA+ID4KPiA+ID4+ID4+ID4gPiBKYXNvbiB3
+aGF0IGRvIHlvdSBzYXkgdG8gcmV2ZXJ0aW5nIHRoaXM/Cj4gPiA+PiA+PiA+Cj4gPiA+PiA+PiA+
+IEkgbWF5IG1pc3Mgc29tZXRoaW5nIGJ1dCBJIGRvbid0IHNlZSBhbnkgcHJvYmxlbSB3aXRoIHZE
+UEEgY29yZS4KPiA+ID4+ID4+ID4KPiA+ID4+ID4+ID4gSXQncyB0aGUgZHV0eSBvZiB0aGUgcGFy
+ZW50cyB0byBhZHZlcnRpc2UgdGhlIGZlYXR1cmVzIGl0IGhhcy4gRm9yIGV4YW1wbGUsCj4gPiA+
+PiA+PiA+Cj4gPiA+PiA+PiA+IDEpIElmIHNvbWUga2VybmVsIHZlcnNpb24gdGhhdCBpcyBwYWNr
+ZWQgaXMgbm90IHN1cHBvcnRlZCB2aWEKPiA+ID4+ID4+ID4gc2V0X3ZxX3N0YXRlLCBwYXJlbnRz
+IHNob3VsZCBub3QgYWR2ZXJ0aXNlIFBBQ0tFRCBmZWF0dXJlcyBpbiB0aGlzCj4gPiA+PiA+PiA+
+IGNhc2UuCj4gPiA+PiA+PiA+IDIpIElmIHRoZSBrZXJuZWwgaGFzIHN1cHBvcnQgcGFja2VkIHNl
+dF92cV9zdGF0ZSgpLCBidXQgaXQncyBlbXVsYXRlZAo+ID4gPj4gPj4gPiBjdnEgZG9lc24ndCBz
+dXBwb3J0LCBwYXJlbnRzIHNob3VsZCBub3QgYWR2ZXJ0aXNlIFBBQ0tFRCBhcyB3ZWxsCj4gPiA+
+PiA+PiA+Cj4gPiA+PiA+PiA+IElmIGEgcGFyZW50IHZpb2xhdGVzIHRoZSBhYm92ZSAyLCBpdCBs
+b29rcyBsaWtlIGEgYnVnIG9mIHRoZSBwYXJlbnRzLgo+ID4gPj4gPj4gPgo+ID4gPj4gPj4gPiBU
+aGFua3MKPiA+ID4+ID4+Cj4gPiA+PiA+PiBZZXMgYnV0IHdoYXQgYWJvdXQgdmhvc3RfdmRwYT8g
+VGFsa2luZyBhYm91dCB0aGF0IG5vdCB0aGUgY29yZS4KPiA+ID4+ID4KPiA+ID4+ID5Ob3Qgc3Vy
+ZSBpdCdzIGEgZ29vZCBpZGVhIHRvIHdvcmthcm91bmQgcGFyZW50IGJ1Z3MgdmlhIHZob3N0LXZE
+UEEuCj4gPiA+Pgo+ID4gPj4gU29ycnksIEknbSBnZXR0aW5nIGxvc3QuLi4KPiA+ID4+IFdlIHdl
+cmUgdGFsa2luZyBhYm91dCB0aGUgZmFjdCB0aGF0IHZob3N0LXZkcGEgZG9lc24ndCBoYW5kbGUK
+PiA+ID4+IFNFVF9WUklOR19CQVNFL0dFVF9WUklOR19CQVNFIGlvY3RscyB3ZWxsIGZvciBwYWNr
+ZWQgdmlydHF1ZXVlIGJlZm9yZQo+ID4gPj4gdGhhdCBzZXJpZXMgWzFdLCBubz8KPiA+ID4+Cj4g
+PiA+PiBUaGUgcGFyZW50cyBzZWVtIG9rYXksIGJ1dCBtYXliZSBJIG1pc3NlZCBhIGZldyB0aGlu
+Z3MuCj4gPiA+Pgo+ID4gPj4gWzFdIGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL3ZpcnR1YWxpemF0
+aW9uLzIwMjMwNDI0MjI1MDMxLjE4OTQ3LTEtc2hhbm5vbi5uZWxzb25AYW1kLmNvbS8KPiA+ID4K
+PiA+ID5ZZXMsIG1vcmUgYmVsb3cuCj4gPiA+Cj4gPiA+Pgo+ID4gPj4gPgo+ID4gPj4gPj4gU2hv
+dWxkIHRoYXQgbm90IGhhdmUgYSB3aGl0ZWxpc3Qgb2YgZmVhdHVyZXMKPiA+ID4+ID4+IHNpbmNl
+IGl0IGludGVycHJldHMgaW9jdGxzIGRpZmZlcmVudGx5IGRlcGVuZGluZyBvbiB0aGlzPwo+ID4g
+Pj4gPgo+ID4gPj4gPklmIHRoZXJlJ3MgYSBidWcsIGl0IG1pZ2h0IG9ubHkgbWF0dGVyIHRoZSBm
+b2xsb3dpbmcgc2V0dXA6Cj4gPiA+PiA+Cj4gPiA+PiA+U0VUX1ZSSU5HX0JBU0UvR0VUX1ZSSU5H
+X0JBU0UgKyBWRFVTRS4KPiA+ID4+ID4KPiA+ID4+ID5UaGlzIHNlZW1zIHRvIGJlIGJyb2tlbiBz
+aW5jZSBWRFVTRSB3YXMgaW50cm9kdWNlZC4gSWYgd2UgcmVhbGx5IHdhbnQKPiA+ID4+ID50byBi
+YWNrcG9ydCBzb21ldGhpbmcsIGl0IGNvdWxkIGJlIGEgZml4IHRvIGZpbHRlciBvdXQgUEFDS0VE
+IGluCj4gPiA+PiA+VkRVU0U/Cj4gPiA+Pgo+ID4gPj4gbW1tIGl0IGRvZXNuJ3Qgc2VlbSB0byBi
+ZSBhIHByb2JsZW0gaW4gVkRVU0UsIGJ1dCBpbiB2aG9zdC12ZHBhLgo+ID4gPj4gSSB0aGluayBW
+RFVTRSB3b3JrcyBmaW5lIHdpdGggcGFja2VkIHZpcnRxdWV1ZSB1c2luZyB2aXJ0aW8tdmRwYQo+
+ID4gPj4gKEkgaGF2ZW4ndCB0cmllZCksIHNvIHdoeSBzaG91bGQgd2UgZmlsdGVyIFBBQ0tFRCBp
+biBWRFVTRT8KPiA+ID4KPiA+ID5JIGRvbid0IHRoaW5rIHdlIG5lZWQgYW55IGZpbHRlcmluZyBz
+aW5jZToKPiA+ID4KPiA+ID5QQUNLRUQgZmVhdHVyZXMgaGFzIGJlZW4gYWR2ZXJ0aXNlZCB0byB1
+c2Vyc3BhY2UgdmlhIHVBUEkgc2luY2UKPiA+ID42MjM0ZjgwNTc0ZDc1Njk0NDRkODcxODM1NWZh
+MjgzOGU5MmIxNThiLiBPbmNlIHdlIHJlbGF4IGluIHVBUEksIGl0Cj4gPiA+d291bGQgYmUgdmVy
+eSBoYXJkIHRvIHJlc3RyaWN0IGl0IGFnYWluLiBGb3IgdGhlIHVzZXJzcGFjZSB0aGF0IHRyaWVz
+Cj4gPiA+dG8gbmVnb3RpYXRlIFBBQ0tFRDoKPiA+ID4KPiA+ID4xKSBpZiBpdCBkb2Vzbid0IHVz
+ZSBTRVRfVlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRSwgZXZlcnl0aGluZyB3b3JrcyB3ZWxsCj4g
+PiA+MikgaWYgaXQgdXNlcyBTRVRfVlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRS4gaXQgbWlnaHQg
+ZmFpbCBvciBicmVhayBzaWxlbnRseQo+ID4gPgo+ID4gPklmIHdlIGJhY2twb3J0IHRoZSBmaXhl
+cyB0byAtc3RhYmxlLCB3ZSBtYXkgYnJlYWsgdGhlIGFwcGxpY2F0aW9uIGF0Cj4gPiA+bGVhc3Qg
+aW4gdGhlIGNhc2UgMSkuCj4gPgo+ID4gT2theSwgSSBzZWUgbm93LCB0aGFua3MgZm9yIHRoZSBk
+ZXRhaWxzIQo+ID4KPiA+IE1heWJlIGluc3RlYWQgb2YgImJyZWFrIHNpbGVudGx5Iiwgd2UgY2Fu
+IHJldHVybiBhbiBleHBsaWNpdCBlcnJvciBmb3IKPiA+IFNFVF9WUklOR19CQVNFL0dFVF9WUklO
+R19CQVNFIGluIHN0YWJsZSBicmFuY2hlcy4KPiA+IEJ1dCBpZiB0aGVyZSBhcmUgbm90IG1hbnkg
+Y2FzZXMsIHdlIGNhbiBsZWF2ZSBpdCBsaWtlIHRoYXQuCj4gCj4gQSBzZWNvbmQgdGhvdWdodCwg
+aWYgd2UgbmVlZCB0byBkbyBzb21ldGhpbmcgZm9yIHN0YWJsZS4gaXMgaXQgYmV0dGVyCj4gaWYg
+d2UganVzdCBiYWNrcG9ydCBTaGFubm9uJ3Mgc2VyaWVzIHRvIHN0YWJsZT8KPiAKPiA+Cj4gPiBJ
+IHdhcyBqdXN0IGNvbmNlcm5lZCBhYm91dCBob3cgZG9lcyB0aGUgdXNlciBzcGFjZSB1bmRlcnN0
+YW5kIHRoYXQgaXQKPiA+IGNhbiB1c2UgU0VUX1ZSSU5HX0JBU0UvR0VUX1ZSSU5HX0JBU0UgZm9y
+IFBBQ0tFRCB2aXJ0cXVldWVzIGluIGEgZ2l2ZW4KPiA+IGtlcm5lbCBvciBub3QuCj4gCj4gTXkg
+dW5kZXJzdGFuZGluZyBpcyB0aGF0IGlmIHBhY2tlZCBpcyBhZHZlcnRpc2VkLCB0aGUgYXBwbGlj
+YXRpb24KPiBzaG91bGQgYXNzdW1lIFNFVC9HRVRfVlJJTkdfQkFTRSB3b3JrLgo+IAo+IFRoYW5r
+cwoKCkxldCBtZSBhc2sgeW91IHRoaXMuIFRoaXMgaXMgYSBidWdmaXggeWVzPyBXaGF0IGlzIHRo
+ZSBhcHByb3ByaWF0ZSBGaXhlcwp0YWc/Cgo+ID4KPiA+IFRoYW5rcywKPiA+IFN0ZWZhbm8KPiA+
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
