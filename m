@@ -4,107 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C4B1C7EE25
-	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 19:45:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0D131C7EE29
+	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 21:47:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F181242025;
-	Thu,  8 Jun 2023 19:45:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F181242025
+	by smtp4.osuosl.org (Postfix) with ESMTP id 57E5142444;
+	Thu,  8 Jun 2023 21:47:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57E5142444
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UIF3Fy67
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HJoM2K2B
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MiQZK2ppkGQs; Thu,  8 Jun 2023 19:45:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0591042054;
-	Thu,  8 Jun 2023 19:45:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0591042054
+	with ESMTP id V0F1B6jOV-AX; Thu,  8 Jun 2023 21:47:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 359F542439;
+	Thu,  8 Jun 2023 21:47:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 359F542439
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B3902C007A;
-	Thu,  8 Jun 2023 19:45:08 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 94CC9C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D335C007A;
+	Thu,  8 Jun 2023 21:47:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B881C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 19:45:07 +0000 (UTC)
+ Thu,  8 Jun 2023 21:47:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 73F5B611C6
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4F27C42444
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 19:45:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 73F5B611C6
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=UIF3Fy67
+ Thu,  8 Jun 2023 21:47:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4F27C42444
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nViJjXAYasTR
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DRf-bwkIn-1v
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 19:45:06 +0000 (UTC)
+ Thu,  8 Jun 2023 21:47:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 786D761553
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B57F842439
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 786D761553
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B57F842439
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 19:45:06 +0000 (UTC)
+ Thu,  8 Jun 2023 21:47:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1686253505;
+ s=mimecast20190719; t=1686260841;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=JmF/x59Qx/JvKg/Xn0EqjpftmVd313DRoIAQfS/rxFs=;
- b=UIF3Fy6724G+vtn3IBRWjXwce4/N2WIQbI3QjobH2nMi13KheEG6UR/awh1ZejRaLfECAv
- qmZiBEZ+Qien/de2zId5yYKlVKXqsSa30Te65v0rEqMJf75x7m33/VCR+bBwYcpxC+MhPa
- M+TIzOdyL+vPvn3QAD6qUJF7JLkzJAs=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=3M2thlA3iIdihiFPMBCL4mQEMmIBWZIL+21nRfiIlP4=;
+ b=HJoM2K2BqNekmF7xb1a/51MOMY9NI1OzWFpdzEfQBKABIkxpV3RvcVJjhChrYFm86pFprt
+ Qzg89xoRyBcOR1/wQkLC+ojTYadr6ocfjSXVXRpy6MyYkSQtauXCm2vD2cxSLCPSUgQvea
+ Xe9jGWPrSeOEG3W0ihcbiAwGFw8Mhy8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-vYPrqJW5MEmv2QOVntxATA-1; Thu, 08 Jun 2023 15:45:02 -0400
-X-MC-Unique: vYPrqJW5MEmv2QOVntxATA-1
-Received: by mail-ej1-f70.google.com with SMTP id
- a640c23a62f3a-94a341efd9aso119664866b.0
+ us-mta-127-c260wfhTNdmGYgZ_teCF7A-1; Thu, 08 Jun 2023 17:47:20 -0400
+X-MC-Unique: c260wfhTNdmGYgZ_teCF7A-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ ffacd0b85a97d-30e6153f0eeso528770f8f.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Jun 2023 12:45:02 -0700 (PDT)
+ Thu, 08 Jun 2023 14:47:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1686253501; x=1688845501;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=JmF/x59Qx/JvKg/Xn0EqjpftmVd313DRoIAQfS/rxFs=;
- b=BMlHBtDnIhGC2A4LCfbtvHzzitYkvFg2mv+RqOyMZX3ehnnLYR5utKVuaePtyXuVpB
- XpT4clowrL+3YBpBp+8qkDe3vRxzuIAMBTbqLcG1ceQY2Ghz27O3Q5OMim8ezbdVwBZL
- pcQS0E0jlnDMg9TZ8vFdx4wChnqNVE+wl5HQokP2FvECRDhWOUQ1Rd/Ahg2HpnQLz3v+
- ZHMpajYKU6pyGFv+P0+c+sqyIRXu8OcqddwmxU/enklPdLlnG1wkEFzWa7oPF0hx09R1
- H7uI7RFgbuEKjsDVdxmqgdq/jb9Mu20SlK+oCHLNTWEDPr75McWOL0EGOzdxlgim6sao
- F2kw==
-X-Gm-Message-State: AC+VfDwMIUmnO9InibDmIb7S/euSuqSW4rh0iGL3EL11Cx9UAAIZaf/k
- J7SQbWLz2Hozt1r0vnw8qs/sZrsBjD4whPX7rExfai6zUvKFcAZdHkvzMAtHshJdV2eluu6MDa8
- zY3+tIoRqN9qZQ2/KFf/DqCYw5GPodzcDq/cKLJmPjw==
-X-Received: by 2002:a17:907:6ea1:b0:969:bac4:8e22 with SMTP id
- sh33-20020a1709076ea100b00969bac48e22mr190957ejc.26.1686253501284; 
- Thu, 08 Jun 2023 12:45:01 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ638uv4/Vr+tj9RPa/sHzhVcwrauzcttV3G6j2YKZTAjolaDA5VYvQTw6KbxvqJuZQOjZ3t1g==
-X-Received: by 2002:a17:907:6ea1:b0:969:bac4:8e22 with SMTP id
- sh33-20020a1709076ea100b00969bac48e22mr190943ejc.26.1686253501017; 
- Thu, 08 Jun 2023 12:45:01 -0700 (PDT)
-Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
- 17-20020a05600c235100b003f7f475c3c7sm534780wmq.8.2023.06.08.12.44.59
+ d=1e100.net; s=20221208; t=1686260838; x=1688852838;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=3M2thlA3iIdihiFPMBCL4mQEMmIBWZIL+21nRfiIlP4=;
+ b=aU+a8FRS7ryrduzd2Gn59JPxJM4f16jgFZBTTnzUF0HtAc9XyiyOTzGiqQYtw6ejoq
+ JzChWuRgiMCet92jPFDIdj6xNxs+CSDDExjIJnMJPaHOYXD73ZdP9vF+qpQaW6H8xBPH
+ LN9sXT96CxcW/wglsQoKZs0vfEEs4AR96fXQ5FWWzNPE/VgMKrPj2LDaYi/mE77olAfO
+ UoyXHUxFMhsd0E0WtfxehTlqcj+gTLAd3R6OW6PApedEAypQFf9TJ/tn2A4GHGfOkoc3
+ h/iGH0HtuBdJ/TbvUF5g9D553/mDFFVBz96AzA4ZxD5Fc1+cy3R4QlnBOi5GrPVMKkHR
+ /mPA==
+X-Gm-Message-State: AC+VfDw0hNjOuT4JhYkMAkIa2DgDwTqZQB383axIMtuPmiq4PXwcVyeZ
+ 9N7JmA93il8+7CZ1kE974tmIooJuIr9VsrVJXWxpgCtsiqcnQgasJXAZbI8Kjd8KQMjJOz7ok/v
+ CaVAW1xb4Brgwbl8gwEAWlKItpaSa8Qw1S54o9cY1AA==
+X-Received: by 2002:adf:fac2:0:b0:30a:e097:7b5a with SMTP id
+ a2-20020adffac2000000b0030ae0977b5amr6721262wrs.36.1686260838513; 
+ Thu, 08 Jun 2023 14:47:18 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5eFOE0kLRozXykE8KF61JY4eAUIrE8J14zHBrjaDn2pvUk/XZ8caYZQve+exKvQQDYsmmXmA==
+X-Received: by 2002:adf:fac2:0:b0:30a:e097:7b5a with SMTP id
+ a2-20020adffac2000000b0030ae0977b5amr6721251wrs.36.1686260838141; 
+ Thu, 08 Jun 2023 14:47:18 -0700 (PDT)
+Received: from redhat.com ([2.55.41.2]) by smtp.gmail.com with ESMTPSA id
+ s1-20020a5d4ec1000000b002c70ce264bfsm2615372wrv.76.2023.06.08.14.47.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 08 Jun 2023 12:45:00 -0700 (PDT)
-Date: Thu, 8 Jun 2023 15:44:56 -0400
+ Thu, 08 Jun 2023 14:47:17 -0700 (PDT)
+Date: Thu, 8 Jun 2023 17:47:15 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Angus Chen <angus.chen@jaguarmicro.com>
-Subject: Re: [PATCH v2] vdpa/vp_vdpa: Check queue number of vdpa device from
- add_config
-Message-ID: <20230608154400-mutt-send-email-mst@kernel.org>
-References: <20230608090124.1807-1-angus.chen@jaguarmicro.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Revert "virtio-blk: support completion batching for the IRQ
+ path"
+Message-ID: <9443f7273fbba6e62f89e54cbb2a70d2c93ed8e9.1686260774.git.mst@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20230608090124.1807-1-angus.chen@jaguarmicro.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Roberts, Martin" <martin.roberts@intel.com>,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Suwan Kim <suwan.kim027@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,89 +120,237 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 08, 2023 at 05:01:24PM +0800, Angus Chen wrote:
-> When add virtio_pci vdpa device,check the vqs number of device cap
-> and max_vq_pairs from add_config.
-> Simply starting from failing if the provisioned #qp is not
-> equal to the one that hardware has.
-> 
-> Signed-off-by: Angus Chen <angus.chen@jaguarmicro.com>
+This reverts commit 07b679f70d73483930e8d3c293942416d9cd5c13.
 
-I am not sure about this one. How does userspace know
-which values are legal?
+This change appears to have broken things...
+We now see applications hanging during disk accesses.
+e.g.
+multi-port virtio-blk device running in h/w (FPGA)
+Host running a simple 'fio' test.
+[global]
+thread=1
+direct=1
+ioengine=libaio
+norandommap=1
+group_reporting=1
+bs=4K
+rw=read
+iodepth=128
+runtime=1
+numjobs=4
+time_based
+[job0]
+filename=/dev/vda
+[job1]
+filename=/dev/vdb
+[job2]
+filename=/dev/vdc
+...
+[job15]
+filename=/dev/vdp
 
-If there's no way then maybe we should just cap the value
-to what device can support but otherwise keep the device
-working.
+i.e. 16 disks; 4 queues per disk; simple burst of 4KB reads
+This is repeatedly run in a loop.
 
-> ---
-> v1: Use max_vqs from add_config
-> v2: Just return fail if max_vqs from add_config is not same as device
-> 	cap. Suggested by jason.
-> 
->  drivers/vdpa/virtio_pci/vp_vdpa.c | 35 ++++++++++++++++++-------------
->  1 file changed, 21 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> index 281287fae89f..c1fb6963da12 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> @@ -480,32 +480,39 @@ static int vp_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->  	u64 device_features;
->  	int ret, i;
->  
-> -	vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
-> -				    dev, &vp_vdpa_ops, 1, 1, name, false);
-> -
-> -	if (IS_ERR(vp_vdpa)) {
-> -		dev_err(dev, "vp_vdpa: Failed to allocate vDPA structure\n");
-> -		return PTR_ERR(vp_vdpa);
-> +	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP)) {
-> +		if (add_config->net.max_vq_pairs != (v_mdev->max_supported_vqs / 2)) {
-> +			dev_err(&pdev->dev, "max vqs 0x%x should be equal to 0x%x which device has\n",
-> +				add_config->net.max_vq_pairs*2, v_mdev->max_supported_vqs);
-> +			return -EINVAL;
-> +		}
->  	}
->  
-> -	vp_vdpa_mgtdev->vp_vdpa = vp_vdpa;
-> -
-> -	vp_vdpa->vdpa.dma_dev = &pdev->dev;
-> -	vp_vdpa->queues = vp_modern_get_num_queues(mdev);
-> -	vp_vdpa->mdev = mdev;
-> -
->  	device_features = vp_modern_get_features(mdev);
->  	if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_FEATURES)) {
->  		if (add_config->device_features & ~device_features) {
-> -			ret = -EINVAL;
->  			dev_err(&pdev->dev, "Try to provision features "
->  				"that are not supported by the device: "
->  				"device_features 0x%llx provisioned 0x%llx\n",
->  				device_features, add_config->device_features);
-> -			goto err;
-> +			return -EINVAL;
->  		}
->  		device_features = add_config->device_features;
->  	}
-> +
-> +	vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
-> +				    dev, &vp_vdpa_ops, 1, 1, name, false);
-> +
-> +	if (IS_ERR(vp_vdpa)) {
-> +		dev_err(dev, "vp_vdpa: Failed to allocate vDPA structure\n");
-> +		return PTR_ERR(vp_vdpa);
-> +	}
-> +
-> +	vp_vdpa_mgtdev->vp_vdpa = vp_vdpa;
-> +
-> +	vp_vdpa->vdpa.dma_dev = &pdev->dev;
-> +	vp_vdpa->queues = v_mdev->max_supported_vqs;
-> +	vp_vdpa->mdev = mdev;
->  	vp_vdpa->device_features = device_features;
->  
->  	ret = devm_add_action_or_reset(dev, vp_vdpa_free_irq_vectors, pdev);
-> -- 
-> 2.25.1
+After a few, normally <10 seconds, fio hangs.
+With 64 queues (16 disks), failure occurs within a few seconds; with 8 queues (2 disks) it may take ~hour before hanging.
+Last message:
+fio-3.19
+Starting 8 threads
+Jobs: 1 (f=1): [_(7),R(1)][68.3%][eta 03h:11m:06s]
+I think this means at the end of the run 1 queue was left incomplete.
+
+'diskstats' (run while fio is hung) shows no outstanding transactions.
+e.g.
+$ cat /proc/diskstats
+...
+252       0 vda 1843140071 0 14745120568 712568645 0 0 0 0 0 3117947 712568645 0 0 0 0 0 0
+252      16 vdb 1816291511 0 14530332088 704905623 0 0 0 0 0 3117711 704905623 0 0 0 0 0 0
+...
+
+Other stats (in the h/w, and added to the virtio-blk driver ([a]virtio_queue_rq(), [b]virtblk_handle_req(), [c]virtblk_request_done()) all agree, and show every request had a completion, and that virtblk_request_done() never gets called.
+e.g.
+PF= 0                         vq=0           1           2           3
+[a]request_count     -   839416590   813148916   105586179    84988123
+[b]completion1_count -   839416590   813148916   105586179    84988123
+[c]completion2_count -           0           0           0           0
+
+PF= 1                         vq=0           1           2           3
+[a]request_count     -   823335887   812516140   104582672    75856549
+[b]completion1_count -   823335887   812516140   104582672    75856549
+[c]completion2_count -           0           0           0           0
+
+i.e. the issue is after the virtio-blk driver.
+
+This change was introduced in kernel 6.3.0.
+I am seeing this using 6.3.3.
+If I run with an earlier kernel (5.15), it does not occur.
+If I make a simple patch to the 6.3.3 virtio-blk driver, to skip the blk_mq_add_to_batch()call, it does not fail.
+e.g.
+kernel 5.15 - this is OK
+virtio_blk.c,virtblk_done() [irq handler]
+                 if (likely(!blk_should_fake_timeout(req->q))) {
+                          blk_mq_complete_request(req);
+                 }
+
+kernel 6.3.3 - this fails
+virtio_blk.c,virtblk_handle_req() [irq handler]
+                 if (likely(!blk_should_fake_timeout(req->q))) {
+                          if (!blk_mq_complete_request_remote(req)) {
+                                  if (!blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr), virtblk_complete_batch)) {
+                                           virtblk_request_done(req);    //this never gets called... so blk_mq_add_to_batch() must always succeed
+                                   }
+                          }
+                 }
+
+If I do, kernel 6.3.3 - this is OK
+virtio_blk.c,virtblk_handle_req() [irq handler]
+                 if (likely(!blk_should_fake_timeout(req->q))) {
+                          if (!blk_mq_complete_request_remote(req)) {
+                                   virtblk_request_done(req); //force this here...
+                                  if (!blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr), virtblk_complete_batch)) {
+                                           virtblk_request_done(req);    //this never gets called... so blk_mq_add_to_batch() must always succeed
+                                   }
+                          }
+                 }
+
+Perhaps you might like to fix/test/revert this change...
+Martin
+
+Reported-by: "Roberts, Martin" <martin.roberts@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Completely untested.
+Martin can you pls test and report whether this fixes the problem?
+Thanks!
+
+ drivers/block/virtio_blk.c | 82 +++++++++++++++++---------------------
+ 1 file changed, 37 insertions(+), 45 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2b918e28acaa..c1e65b4d8071 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -348,63 +348,33 @@ static inline void virtblk_request_done(struct request *req)
+ 	blk_mq_end_request(req, status);
+ }
+ 
+-static void virtblk_complete_batch(struct io_comp_batch *iob)
+-{
+-	struct request *req;
+-
+-	rq_list_for_each(&iob->req_list, req) {
+-		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
+-		virtblk_cleanup_cmd(req);
+-	}
+-	blk_mq_end_request_batch(iob);
+-}
+-
+-static int virtblk_handle_req(struct virtio_blk_vq *vq,
+-			      struct io_comp_batch *iob)
+-{
+-	struct virtblk_req *vbr;
+-	int req_done = 0;
+-	unsigned int len;
+-
+-	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
+-		struct request *req = blk_mq_rq_from_pdu(vbr);
+-
+-		if (likely(!blk_should_fake_timeout(req->q)) &&
+-		    !blk_mq_complete_request_remote(req) &&
+-		    !blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr),
+-					 virtblk_complete_batch))
+-			virtblk_request_done(req);
+-		req_done++;
+-	}
+-
+-	return req_done;
+-}
+-
+ static void virtblk_done(struct virtqueue *vq)
+ {
+ 	struct virtio_blk *vblk = vq->vdev->priv;
+-	struct virtio_blk_vq *vblk_vq = &vblk->vqs[vq->index];
+-	int req_done = 0;
++	bool req_done = false;
++	int qid = vq->index;
++	struct virtblk_req *vbr;
+ 	unsigned long flags;
+-	DEFINE_IO_COMP_BATCH(iob);
++	unsigned int len;
+ 
+-	spin_lock_irqsave(&vblk_vq->lock, flags);
++	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
+ 	do {
+ 		virtqueue_disable_cb(vq);
+-		req_done += virtblk_handle_req(vblk_vq, &iob);
++		while ((vbr = virtqueue_get_buf(vblk->vqs[qid].vq, &len)) != NULL) {
++			struct request *req = blk_mq_rq_from_pdu(vbr);
+ 
++			if (likely(!blk_should_fake_timeout(req->q)))
++				blk_mq_complete_request(req);
++			req_done = true;
++		}
+ 		if (unlikely(virtqueue_is_broken(vq)))
+ 			break;
+ 	} while (!virtqueue_enable_cb(vq));
+ 
+-	if (req_done) {
+-		if (!rq_list_empty(iob.req_list))
+-			iob.complete(&iob);
+-
+-		/* In case queue is stopped waiting for more buffers. */
++	/* In case queue is stopped waiting for more buffers. */
++	if (req_done)
+ 		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
+-	}
+-	spin_unlock_irqrestore(&vblk_vq->lock, flags);
++	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+ }
+ 
+ static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
+@@ -1283,15 +1253,37 @@ static void virtblk_map_queues(struct blk_mq_tag_set *set)
+ 	}
+ }
+ 
++static void virtblk_complete_batch(struct io_comp_batch *iob)
++{
++	struct request *req;
++
++	rq_list_for_each(&iob->req_list, req) {
++		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
++		virtblk_cleanup_cmd(req);
++	}
++	blk_mq_end_request_batch(iob);
++}
++
+ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
+ {
+ 	struct virtio_blk *vblk = hctx->queue->queuedata;
+ 	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
++	struct virtblk_req *vbr;
+ 	unsigned long flags;
++	unsigned int len;
+ 	int found = 0;
+ 
+ 	spin_lock_irqsave(&vq->lock, flags);
+-	found = virtblk_handle_req(vq, iob);
++
++	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
++		struct request *req = blk_mq_rq_from_pdu(vbr);
++
++		found++;
++		if (!blk_mq_complete_request_remote(req) &&
++		    !blk_mq_add_to_batch(req, iob, vbr->status,
++						virtblk_complete_batch))
++			virtblk_request_done(req);
++	}
+ 
+ 	if (found)
+ 		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
