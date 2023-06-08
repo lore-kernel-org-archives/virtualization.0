@@ -4,110 +4,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55579C7EE25
-	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 08:39:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A094C7EE25
+	for <virtualization@archiver.kernel.org>; Thu,  8 Jun 2023 09:00:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C62AF83A45;
-	Thu,  8 Jun 2023 08:39:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C62AF83A45
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0E0E8839A4;
+	Thu,  8 Jun 2023 09:00:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E0E8839A4
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HC+c/oFs
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QyK6Wq2Z
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xtmVkqlzM82z; Thu,  8 Jun 2023 08:39:55 +0000 (UTC)
+	with ESMTP id tUlzWh1E7BT9; Thu,  8 Jun 2023 09:00:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E9FB383A42;
-	Thu,  8 Jun 2023 08:39:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E9FB383A42
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E18C83521;
+	Thu,  8 Jun 2023 09:00:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E18C83521
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AF045C0037;
-	Thu,  8 Jun 2023 08:39:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 63F91C0037;
+	Thu,  8 Jun 2023 09:00:18 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A106FC0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 13569C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 08:39:53 +0000 (UTC)
+ Thu,  8 Jun 2023 09:00:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 73ED961095
+ by smtp3.osuosl.org (Postfix) with ESMTP id D47ED613E7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 08:39:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 73ED961095
+ Thu,  8 Jun 2023 09:00:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D47ED613E7
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=HC+c/oFs
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=QyK6Wq2Z
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WYEjLdiMmKFw
+ with ESMTP id XCXg2iEht7lx
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 08:39:51 +0000 (UTC)
+ Thu,  8 Jun 2023 09:00:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3B16E60B57
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF02160AD6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3B16E60B57
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BF02160AD6
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Jun 2023 08:39:51 +0000 (UTC)
+ Thu,  8 Jun 2023 09:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1686213590;
+ s=mimecast20190719; t=1686214814;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=swwCKTRn6c8GkV2wh6jw5Zsdy55spmnNctiOyPdbsG0=;
- b=HC+c/oFso9fIjY8SMwh6rwdEU1IMUEhyQErZuT7QFdZ+E+UTg/0UiqyF+L7zn2aj33LFJV
- bEUBGKY6KyamZDxFyYn8uHXsxzoqhLE5sqD4bOuo2s3MKjwTJJByboIQ9fhxp3F7L5TCo2
- qVQ/dpmtqbPMTkDc+7OlPOFVUzDp4qw=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=mzyYfOnKsXJhWqka2GXPTRk+SfXQjoxgzRvBZSqF8t0=;
+ b=QyK6Wq2ZiINiVLxIFJGNOVxTMs8hN/xD7RNi7LumkB5hAnHl8qSWpb96eLM8TgCJLGZ/nv
+ 0RYDp1QpJSrah0UXwI8q0J0U5ctp+LtmK3fUIbEFpe4QeovEA1g5DvtlGPC2E/bm/LzPsD
+ p3hiyvWYhO4qDOWWjqRz/11Kr9/AUaE=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-527-LC9PQ2ljOMuXuVXx47EUGQ-1; Thu, 08 Jun 2023 04:39:48 -0400
-X-MC-Unique: LC9PQ2ljOMuXuVXx47EUGQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-3f7e8c24a92so1209625e9.0
+ us-mta-49-XcEP5zOoPrCANXFt7n7yVg-1; Thu, 08 Jun 2023 05:00:13 -0400
+X-MC-Unique: XcEP5zOoPrCANXFt7n7yVg-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ 38308e7fff4ca-2b1a69f1442so1834031fa.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Jun 2023 01:39:48 -0700 (PDT)
+ Thu, 08 Jun 2023 02:00:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1686213587; x=1688805587;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=swwCKTRn6c8GkV2wh6jw5Zsdy55spmnNctiOyPdbsG0=;
- b=Jc5TVNopWP9A8vJr0BX3N4ZJF+fwS1inXWn2e8D/XKOUTer4BmnA2HdSEiBOhCDAFI
- mcaW+DAZIaqw+p7ycUKKru7e02XaljdC+QD2gcG/t1DZY1y8a9/lKjl7fNHsvGW1Ipem
- Y5tovO5tXiFwwfYe8ANS2rXPS+PVsqkV1roVtB+Stc95c0iBvPGwP4nGDblhvoxgyZR4
- V2nypkJ4UvaGtZYXV2GXoZZfe5vohNMIbMk3gU/78xCMV7sOS/UymCzVlwOmlRhD85a8
- lW2/lWvqxoSPm2yhRNLVAu29NFk/Bqo83K0lEhFEMAgsN4AuzHstzfohB0ockKLdA95h
- aG9A==
-X-Gm-Message-State: AC+VfDwUc+a6F1LDLzefFqXQlvFGmojUDP43X4EgXcjODm0rhoCDJp7J
- C/t1x6zbPqyBfbB/L3h1AFtdrJ1R55KKe76hCanQN19e47gvWFuv5OPa71rwhIIFJZIYmsjkpoY
- 4EpYXXIyQiNpxDd7cEAT3t9XNucCHS+C78B2RwQeBbQ==
-X-Received: by 2002:a05:600c:251:b0:3f4:f4d1:5c28 with SMTP id
- 17-20020a05600c025100b003f4f4d15c28mr803447wmj.24.1686213587731; 
- Thu, 08 Jun 2023 01:39:47 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4wMvl9fjnCw3EL/CXx+7u90XGnlgYAomwinkA4VMkOvLEa7kN17vZ1VjexM+Un510s0mabnQ==
-X-Received: by 2002:a05:600c:251:b0:3f4:f4d1:5c28 with SMTP id
- 17-20020a05600c025100b003f4f4d15c28mr803438wmj.24.1686213587437; 
- Thu, 08 Jun 2023 01:39:47 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-111.business.telecomitalia.it.
- [87.12.25.111]) by smtp.gmail.com with ESMTPSA id
- f10-20020a7bcd0a000000b003f195d540d9sm4519246wmj.14.2023.06.08.01.39.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 08 Jun 2023 01:39:46 -0700 (PDT)
-Date: Thu, 8 Jun 2023 10:39:41 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 1/2] vhost: Fix crash during early
- vhost_transport_send_pkt calls
-Message-ID: <somiozlfylajqwmtyaaihbsilahf7nb2irq2q2sy2dahxiy4yv@xznv7bpg677x>
-References: <20230607192338.6041-1-michael.christie@oracle.com>
- <20230607192338.6041-2-michael.christie@oracle.com>
+ d=1e100.net; s=20221208; t=1686214811; x=1688806811;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=mzyYfOnKsXJhWqka2GXPTRk+SfXQjoxgzRvBZSqF8t0=;
+ b=OEEyl+egbv2qOlAqocijfh6oYKtxvqw7amfzxDEDZxdqEiSAJscxt7DVeLCTRaANCW
+ v0uGZB79hXjX2DcAEpTb4DbrdSw9Bmz/QaJ8kApst+Q2PpT1jxCaPUYjlGbOmiFkco8x
+ keV/2bzgl3IUyYWuCYzIR6khiwj9vN80CcsZzvbe1GwiyPbM/OKEnB4CMhbTNqoPisxs
+ /luemDEHa9qq9LPlwdCqfSg1anPwdIqzikjL4gQwUbo6tfo21z6+Tg36q5fla7VXnOm4
+ O+6t3nDWYI6kYrPgWXnO+cM3MznY6xYWbpnAPISgWTF7kuZITegyQZQ1g5KbPh0lZVKM
+ 5nPg==
+X-Gm-Message-State: AC+VfDz4kVrYt5uTOGxwpIHHBFug6Qj2yOYEtxuazj+l6TMAKZpQ/23e
+ WUeakT1zu5oPnVFuY9my3Wu1vNUFwstznX7xfwtDkiOO4Nx3JvVNq293e/E9sX71E557lHbeslL
+ TcKLNPbjZEWKGL3h+K948C2IoGq4ua018Vz94zlFr9PDXKn1e6rK/ZI5Vkw==
+X-Received: by 2002:a2e:9d92:0:b0:2b1:d5d0:f164 with SMTP id
+ c18-20020a2e9d92000000b002b1d5d0f164mr2990817ljj.13.1686214811727; 
+ Thu, 08 Jun 2023 02:00:11 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ42dp9oFqMNjmtk9ygZJuGKFls2xB2ZcerVr0s54Zb6HoT4b2b1dnhsynIrpNgW2uczqKVvzmVSMmlHN19CWwE=
+X-Received: by 2002:a2e:9d92:0:b0:2b1:d5d0:f164 with SMTP id
+ c18-20020a2e9d92000000b002b1d5d0f164mr2990804ljj.13.1686214811397; Thu, 08
+ Jun 2023 02:00:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20230607192338.6041-2-michael.christie@oracle.com>
+References: <gi2hngx3ndsgz5d2rpqjywdmou5vxhd7xgi5z2lbachr7yoos4@kpifz37oz2et>
+ <20230605095404-mutt-send-email-mst@kernel.org>
+ <32ejjuvhvcicv7wjuetkv34qtlpa657n4zlow4eq3fsi2twozk@iqnd2t5tw2an>
+ <CACGkMEu3PqQ99UoKF5NHgVADD3q=BF6jhLiyumeT4S1QCqN1tw@mail.gmail.com>
+ <20230606085643-mutt-send-email-mst@kernel.org>
+ <CAGxU2F7fkgL-HpZdj=5ZEGNWcESCHQpgRAYQA3W2sPZaoEpNyQ@mail.gmail.com>
+ <20230607054246-mutt-send-email-mst@kernel.org>
+ <CACGkMEuUapKvUYiJiLwtsN+x941jafDKS9tuSkiNrvkrrSmQkg@mail.gmail.com>
+ <20230608020111-mutt-send-email-mst@kernel.org>
+ <CACGkMEt4=3BRVNX38AD+mJU8v3bmqO-CdNj5NkFP-SSvsuy2Hg@mail.gmail.com>
+ <5giudxjp6siucr4l3i4tggrh2dpqiqhhihmdd34w3mq2pm5dlo@mrqpbwckpxai>
+In-Reply-To: <5giudxjp6siucr4l3i4tggrh2dpqiqhhihmdd34w3mq2pm5dlo@mrqpbwckpxai>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 8 Jun 2023 17:00:00 +0800
+Message-ID: <CACGkMEtqn1dbrQZn3i-W_7sVikY4sQjwLRC5xAhMnyqkc3jwOw@mail.gmail.com>
+Subject: Re: [PATCH] vhost-vdpa: filter VIRTIO_F_RING_PACKED feature
+To: Stefano Garzarella <sgarzare@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org, stefanha@redhat.com,
- mst@redhat.com
+Cc: kvm@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,183 +124,69 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 07, 2023 at 02:23:37PM -0500, Mike Christie wrote:
->If userspace does VHOST_VSOCK_SET_GUEST_CID before VHOST_SET_OWNER we
->can race where:
->1. thread0 calls vhost_transport_send_pkt -> vhost_work_queue
->2. thread1 does VHOST_SET_OWNER which calls vhost_worker_create.
->3. vhost_worker_create will set the dev->worker pointer before setting
->the worker->vtsk pointer.
->4. thread0's vhost_work_queue will see the dev->worker pointer is
->set and try to call vhost_task_wake using not yet set worker->vtsk
->pointer.
->5. We then crash since vtsk is NULL.
->
->Before commit 6e890c5d5021 ("vhost: use vhost_tasks for worker
->threads"), we only had the worker pointer so we could just check it to
->see if VHOST_SET_OWNER has been done. After that commit we have the
->vhost_worker and vhost_task pointer, so we can now hit the bug above.
->
->This patch embeds the vhost_worker in the vhost_dev and moves the work
->list initialization back to vhost_dev_init, so we can just check the
->worker.vtsk pointer to check if VHOST_SET_OWNER has been done like
->before.
->
-
-We should add:
-
-Reported-by: syzbot+d0d442c22fa8db45ff0e@syzkaller.appspotmail.com
-
-Michael, can it be added when apply?
-
->Fixes: 6e890c5d5021 ("vhost: use vhost_tasks for worker threads")
->Signed-off-by: Mike Christie <michael.christie@oracle.com>
->---
-> drivers/vhost/vhost.c | 50 +++++++++++++++----------------------------
-> drivers/vhost/vhost.h |  2 +-
-> 2 files changed, 18 insertions(+), 34 deletions(-)
->
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index 074273020849..7a9f93eae225 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -235,7 +235,7 @@ void vhost_dev_flush(struct vhost_dev *dev)
-> {
-> 	struct vhost_flush_struct flush;
->
->-	if (dev->worker) {
->+	if (dev->worker.vtsk) {
-> 		init_completion(&flush.wait_event);
-> 		vhost_work_init(&flush.work, vhost_flush_work);
->
->@@ -247,7 +247,7 @@ EXPORT_SYMBOL_GPL(vhost_dev_flush);
->
-> void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
-> {
->-	if (!dev->worker)
->+	if (!dev->worker.vtsk)
-> 		return;
->
-> 	if (!test_and_set_bit(VHOST_WORK_QUEUED, &work->flags)) {
->@@ -255,8 +255,8 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
-> 		 * sure it was not in the list.
-> 		 * test_and_set_bit() implies a memory barrier.
-> 		 */
->-		llist_add(&work->node, &dev->worker->work_list);
->-		vhost_task_wake(dev->worker->vtsk);
->+		llist_add(&work->node, &dev->worker.work_list);
->+		vhost_task_wake(dev->worker.vtsk);
-> 	}
-> }
-> EXPORT_SYMBOL_GPL(vhost_work_queue);
->@@ -264,7 +264,7 @@ EXPORT_SYMBOL_GPL(vhost_work_queue);
-> /* A lockless hint for busy polling code to exit the loop */
-> bool vhost_has_work(struct vhost_dev *dev)
-> {
->-	return dev->worker && !llist_empty(&dev->worker->work_list);
->+	return !llist_empty(&dev->worker.work_list);
-> }
-> EXPORT_SYMBOL_GPL(vhost_has_work);
->
->@@ -456,7 +456,8 @@ void vhost_dev_init(struct vhost_dev *dev,
-> 	dev->umem = NULL;
-> 	dev->iotlb = NULL;
-> 	dev->mm = NULL;
->-	dev->worker = NULL;
->+	memset(&dev->worker, 0, sizeof(dev->worker));
->+	init_llist_head(&dev->worker.work_list);
-> 	dev->iov_limit = iov_limit;
-> 	dev->weight = weight;
-> 	dev->byte_weight = byte_weight;
->@@ -530,47 +531,30 @@ static void vhost_detach_mm(struct vhost_dev *dev)
->
-> static void vhost_worker_free(struct vhost_dev *dev)
-> {
->-	struct vhost_worker *worker = dev->worker;
->-
->-	if (!worker)
->+	if (!dev->worker.vtsk)
-> 		return;
->
->-	dev->worker = NULL;
->-	WARN_ON(!llist_empty(&worker->work_list));
->-	vhost_task_stop(worker->vtsk);
->-	kfree(worker);
->+	WARN_ON(!llist_empty(&dev->worker.work_list));
->+	vhost_task_stop(dev->worker.vtsk);
->+	dev->worker.kcov_handle = 0;
->+	dev->worker.vtsk = NULL;
-> }
->
-> static int vhost_worker_create(struct vhost_dev *dev)
-> {
->-	struct vhost_worker *worker;
-> 	struct vhost_task *vtsk;
-> 	char name[TASK_COMM_LEN];
->-	int ret;
->-
->-	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
->-	if (!worker)
->-		return -ENOMEM;
->
->-	dev->worker = worker;
->-	worker->kcov_handle = kcov_common_handle();
->-	init_llist_head(&worker->work_list);
-> 	snprintf(name, sizeof(name), "vhost-%d", current->pid);
->
->-	vtsk = vhost_task_create(vhost_worker, worker, name);
->-	if (!vtsk) {
->-		ret = -ENOMEM;
->-		goto free_worker;
->-	}
->+	vtsk = vhost_task_create(vhost_worker, &dev->worker, name);
->+	if (!vtsk)
->+		return -ENOMEM;
->
->-	worker->vtsk = vtsk;
->+	dev->worker.kcov_handle = kcov_common_handle();
->+	dev->worker.vtsk = vtsk;
-
-Okay, I think we are safe for now for the problem I highlighted in v1:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks,
-Stefano
-
-> 	vhost_task_start(vtsk);
-> 	return 0;
->-
->-free_worker:
->-	kfree(worker);
->-	dev->worker = NULL;
->-	return ret;
-> }
->
-> /* Caller should have device mutex */
->diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
->index 0308638cdeee..305ec8593d46 100644
->--- a/drivers/vhost/vhost.h
->+++ b/drivers/vhost/vhost.h
->@@ -154,7 +154,7 @@ struct vhost_dev {
-> 	struct vhost_virtqueue **vqs;
-> 	int nvqs;
-> 	struct eventfd_ctx *log_ctx;
->-	struct vhost_worker *worker;
->+	struct vhost_worker worker;
-> 	struct vhost_iotlb *umem;
-> 	struct vhost_iotlb *iotlb;
-> 	spinlock_t iotlb_lock;
->-- 
->2.25.1
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBKdW4gOCwgMjAyMyBhdCA0OjAw4oCvUE0gU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2Fy
+emFyZUByZWRoYXQuY29tPiB3cm90ZToKPgo+IE9uIFRodSwgSnVuIDA4LCAyMDIzIGF0IDAzOjQ2
+OjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4KPiBbLi4uXQo+Cj4gPj4gPiA+ID4gPiBJ
+IGhhdmUgYSBxdWVzdGlvbiB0aG91Z2gsIHdoYXQgaWYgZG93biB0aGUgcm9hZCB0aGVyZQo+ID4+
+ID4gPiA+ID4gaXMgYSBuZXcgZmVhdHVyZSB0aGF0IG5lZWRzIG1vcmUgY2hhbmdlcz8gSXQgd2ls
+bCBiZQo+ID4+ID4gPiA+ID4gYnJva2VuIHRvbyBqdXN0IGxpa2UgUEFDS0VEIG5vPwo+ID4+ID4g
+PiA+ID4gU2hvdWxkbid0IHZkcGEgaGF2ZSBhbiBhbGxvd2xpc3Qgb2YgZmVhdHVyZXMgaXQga25v
+d3MgaG93Cj4gPj4gPiA+ID4gPiB0byBzdXBwb3J0Pwo+ID4+ID4gPiA+Cj4gPj4gPiA+ID4gSXQg
+bG9va3MgbGlrZSB3ZSBoYWQgaXQsIGJ1dCB3ZSB0b29rIGl0IG91dCAoYnkgdGhlIHdheSwgd2Ug
+d2VyZQo+ID4+ID4gPiA+IGVuYWJsaW5nIHBhY2tlZCBldmVuIHRob3VnaCB3ZSBkaWRuJ3Qgc3Vw
+cG9ydCBpdCk6Cj4gPj4gPiA+ID4gaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4
+L2tlcm5lbC9naXQvdG9ydmFsZHMvbGludXguZ2l0L2NvbW1pdC8/aWQ9NjIzNGY4MDU3NGQ3NTY5
+NDQ0ZDg3MTgzNTVmYTI4MzhlOTJiMTU4Ygo+ID4+ID4gPiA+Cj4gPj4gPiA+ID4gVGhlIG9ubHkg
+cHJvYmxlbSBJIHNlZSBpcyB0aGF0IGZvciBlYWNoIG5ldyBmZWF0dXJlIHdlIGhhdmUgdG8gbW9k
+aWZ5Cj4gPj4gPiA+ID4gdGhlIGtlcm5lbC4KPiA+PiA+ID4gPiBDb3VsZCB3ZSBoYXZlIG5ldyBm
+ZWF0dXJlcyB0aGF0IGRvbid0IHJlcXVpcmUgaGFuZGxpbmcgYnkgdmhvc3QtdmRwYT8KPiA+PiA+
+ID4gPgo+ID4+ID4gPiA+IFRoYW5rcywKPiA+PiA+ID4gPiBTdGVmYW5vCj4gPj4gPiA+Cj4gPj4g
+PiA+IEphc29uIHdoYXQgZG8geW91IHNheSB0byByZXZlcnRpbmcgdGhpcz8KPiA+PiA+Cj4gPj4g
+PiBJIG1heSBtaXNzIHNvbWV0aGluZyBidXQgSSBkb24ndCBzZWUgYW55IHByb2JsZW0gd2l0aCB2
+RFBBIGNvcmUuCj4gPj4gPgo+ID4+ID4gSXQncyB0aGUgZHV0eSBvZiB0aGUgcGFyZW50cyB0byBh
+ZHZlcnRpc2UgdGhlIGZlYXR1cmVzIGl0IGhhcy4gRm9yIGV4YW1wbGUsCj4gPj4gPgo+ID4+ID4g
+MSkgSWYgc29tZSBrZXJuZWwgdmVyc2lvbiB0aGF0IGlzIHBhY2tlZCBpcyBub3Qgc3VwcG9ydGVk
+IHZpYQo+ID4+ID4gc2V0X3ZxX3N0YXRlLCBwYXJlbnRzIHNob3VsZCBub3QgYWR2ZXJ0aXNlIFBB
+Q0tFRCBmZWF0dXJlcyBpbiB0aGlzCj4gPj4gPiBjYXNlLgo+ID4+ID4gMikgSWYgdGhlIGtlcm5l
+bCBoYXMgc3VwcG9ydCBwYWNrZWQgc2V0X3ZxX3N0YXRlKCksIGJ1dCBpdCdzIGVtdWxhdGVkCj4g
+Pj4gPiBjdnEgZG9lc24ndCBzdXBwb3J0LCBwYXJlbnRzIHNob3VsZCBub3QgYWR2ZXJ0aXNlIFBB
+Q0tFRCBhcyB3ZWxsCj4gPj4gPgo+ID4+ID4gSWYgYSBwYXJlbnQgdmlvbGF0ZXMgdGhlIGFib3Zl
+IDIsIGl0IGxvb2tzIGxpa2UgYSBidWcgb2YgdGhlIHBhcmVudHMuCj4gPj4gPgo+ID4+ID4gVGhh
+bmtzCj4gPj4KPiA+PiBZZXMgYnV0IHdoYXQgYWJvdXQgdmhvc3RfdmRwYT8gVGFsa2luZyBhYm91
+dCB0aGF0IG5vdCB0aGUgY29yZS4KPiA+Cj4gPk5vdCBzdXJlIGl0J3MgYSBnb29kIGlkZWEgdG8g
+d29ya2Fyb3VuZCBwYXJlbnQgYnVncyB2aWEgdmhvc3QtdkRQQS4KPgo+IFNvcnJ5LCBJJ20gZ2V0
+dGluZyBsb3N0Li4uCj4gV2Ugd2VyZSB0YWxraW5nIGFib3V0IHRoZSBmYWN0IHRoYXQgdmhvc3Qt
+dmRwYSBkb2Vzbid0IGhhbmRsZQo+IFNFVF9WUklOR19CQVNFL0dFVF9WUklOR19CQVNFIGlvY3Rs
+cyB3ZWxsIGZvciBwYWNrZWQgdmlydHF1ZXVlIGJlZm9yZQo+IHRoYXQgc2VyaWVzIFsxXSwgbm8/
+Cj4KPiBUaGUgcGFyZW50cyBzZWVtIG9rYXksIGJ1dCBtYXliZSBJIG1pc3NlZCBhIGZldyB0aGlu
+Z3MuCj4KPiBbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvdmlydHVhbGl6YXRpb24vMjAyMzA0
+MjQyMjUwMzEuMTg5NDctMS1zaGFubm9uLm5lbHNvbkBhbWQuY29tLwoKWWVzLCBtb3JlIGJlbG93
+LgoKPgo+ID4KPiA+PiBTaG91bGQgdGhhdCBub3QgaGF2ZSBhIHdoaXRlbGlzdCBvZiBmZWF0dXJl
+cwo+ID4+IHNpbmNlIGl0IGludGVycHJldHMgaW9jdGxzIGRpZmZlcmVudGx5IGRlcGVuZGluZyBv
+biB0aGlzPwo+ID4KPiA+SWYgdGhlcmUncyBhIGJ1ZywgaXQgbWlnaHQgb25seSBtYXR0ZXIgdGhl
+IGZvbGxvd2luZyBzZXR1cDoKPiA+Cj4gPlNFVF9WUklOR19CQVNFL0dFVF9WUklOR19CQVNFICsg
+VkRVU0UuCj4gPgo+ID5UaGlzIHNlZW1zIHRvIGJlIGJyb2tlbiBzaW5jZSBWRFVTRSB3YXMgaW50
+cm9kdWNlZC4gSWYgd2UgcmVhbGx5IHdhbnQKPiA+dG8gYmFja3BvcnQgc29tZXRoaW5nLCBpdCBj
+b3VsZCBiZSBhIGZpeCB0byBmaWx0ZXIgb3V0IFBBQ0tFRCBpbgo+ID5WRFVTRT8KPgo+IG1tbSBp
+dCBkb2Vzbid0IHNlZW0gdG8gYmUgYSBwcm9ibGVtIGluIFZEVVNFLCBidXQgaW4gdmhvc3QtdmRw
+YS4KPiBJIHRoaW5rIFZEVVNFIHdvcmtzIGZpbmUgd2l0aCBwYWNrZWQgdmlydHF1ZXVlIHVzaW5n
+IHZpcnRpby12ZHBhCj4gKEkgaGF2ZW4ndCB0cmllZCksIHNvIHdoeSBzaG91bGQgd2UgZmlsdGVy
+IFBBQ0tFRCBpbiBWRFVTRT8KCkkgZG9uJ3QgdGhpbmsgd2UgbmVlZCBhbnkgZmlsdGVyaW5nIHNp
+bmNlOgoKUEFDS0VEIGZlYXR1cmVzIGhhcyBiZWVuIGFkdmVydGlzZWQgdG8gdXNlcnNwYWNlIHZp
+YSB1QVBJIHNpbmNlCjYyMzRmODA1NzRkNzU2OTQ0NGQ4NzE4MzU1ZmEyODM4ZTkyYjE1OGIuIE9u
+Y2Ugd2UgcmVsYXggaW4gdUFQSSwgaXQKd291bGQgYmUgdmVyeSBoYXJkIHRvIHJlc3RyaWN0IGl0
+IGFnYWluLiBGb3IgdGhlIHVzZXJzcGFjZSB0aGF0IHRyaWVzCnRvIG5lZ290aWF0ZSBQQUNLRUQ6
+CgoxKSBpZiBpdCBkb2Vzbid0IHVzZSBTRVRfVlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRSwgZXZl
+cnl0aGluZyB3b3JrcyB3ZWxsCjIpIGlmIGl0IHVzZXMgU0VUX1ZSSU5HX0JBU0UvR0VUX1ZSSU5H
+X0JBU0UuIGl0IG1pZ2h0IGZhaWwgb3IgYnJlYWsgc2lsZW50bHkKCklmIHdlIGJhY2twb3J0IHRo
+ZSBmaXhlcyB0byAtc3RhYmxlLCB3ZSBtYXkgYnJlYWsgdGhlIGFwcGxpY2F0aW9uIGF0CmxlYXN0
+IGluIHRoZSBjYXNlIDEpLgoKVGhhbmtzCgo+Cj4gVGhhbmtzLAo+IFN0ZWZhbm8KPgoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
