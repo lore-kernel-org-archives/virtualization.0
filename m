@@ -1,112 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 84AD3C7EE2E
-	for <virtualization@archiver.kernel.org>; Fri,  9 Jun 2023 07:27:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39863C7EE25
+	for <virtualization@archiver.kernel.org>; Fri,  9 Jun 2023 07:37:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F28B142446;
-	Fri,  9 Jun 2023 07:27:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F28B142446
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=U2z4NExu
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J966ouJgB_y7; Fri,  9 Jun 2023 07:27:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BDEBC42439;
-	Fri,  9 Jun 2023 07:27:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BDEBC42439
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 950F6C0037;
-	Fri,  9 Jun 2023 07:27:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAF30C0029
- for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Jun 2023 07:27:35 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7705A40AB0
- for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Jun 2023 07:27:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7705A40AB0
+	by smtp2.osuosl.org (Postfix) with ESMTP id BA58040189;
+	Fri,  9 Jun 2023 07:37:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA58040189
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=U2z4NExu
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OnhqCBym
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HCtFIT00kXhy
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iprxFqRv976A; Fri,  9 Jun 2023 07:37:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1C242402DC;
+	Fri,  9 Jun 2023 07:37:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C242402DC
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5ED7C0037;
+	Fri,  9 Jun 2023 07:37:21 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 43747C0029
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Jun 2023 07:27:34 +0000 (UTC)
+ Fri,  9 Jun 2023 07:37:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 17F0761566
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  9 Jun 2023 07:37:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 17F0761566
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=OnhqCBym
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pWqcyERVnHli
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  9 Jun 2023 07:37:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D002D40189
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D939361564
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D002D40189
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D939361564
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Jun 2023 07:27:33 +0000 (UTC)
+ Fri,  9 Jun 2023 07:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1686295652;
+ s=mimecast20190719; t=1686296238;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=k8uL9RB2TZeMZAUxmhUna0m1Gfo0R9DVnwUW3ywqZ+c=;
- b=U2z4NExughLjD9cNlVAtDc5bq8IaA9fkdPfnIXYDUFK9tiwIApHOzw1nUGq5Pnw0GN7pYK
- 1K8IUP0gxqpdBfa/hk9nVJo7tcc3xrFSEc69j170gkRe+2wO6rmYE0IkrxkokHq/Zt/BYh
- iKTHDxbuGSZo44NZTzoSPnn3Mjt0UNg=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=bYfLgsVFNCZ8nRyAtdqv5Pzu6gYjvla7lXAg7Aj2Y+s=;
+ b=OnhqCBymOShT6mrRhsbBNdUscX6jlm0WjT882anBdBNRFMjQaG46L+MLd+2hjnfR8yOvq7
+ Up+XgvJRuh/zitui8eTOVIlp1PohX7DWtJPv/Y5ZvAIMEAFUrvQmvXFsSVX/hT2BTM8Id9
+ l0AKCTmgZTmctbS/zhQAHC3q3fhlMow=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-550-zT2PEZP5MxuckhR9s0hrQA-1; Fri, 09 Jun 2023 03:27:31 -0400
-X-MC-Unique: zT2PEZP5MxuckhR9s0hrQA-1
-Received: by mail-wm1-f72.google.com with SMTP id
- 5b1f17b1804b1-3f7eb414fcbso6696765e9.2
+ us-mta-655-_eRjnb0MN9aACwOkmvJ9Pw-1; Fri, 09 Jun 2023 03:37:17 -0400
+X-MC-Unique: _eRjnb0MN9aACwOkmvJ9Pw-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ 4fb4d7f45d1cf-51664cca8dcso1706832a12.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 09 Jun 2023 00:27:31 -0700 (PDT)
+ Fri, 09 Jun 2023 00:37:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1686295648; x=1688887648;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ d=1e100.net; s=20221208; t=1686296236; x=1688888236;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=k8uL9RB2TZeMZAUxmhUna0m1Gfo0R9DVnwUW3ywqZ+c=;
- b=Y9YL0Pk6XhrgHLywnTmCllfeGjOp9dLY5B+eaSJzXYJwVdA+LjVOW0CcovZLQGnGqO
- cOgKeQ6gNmAvfPNq6JhN+LgTrI9uv3mj64FSjSONMQUsnKV9vVTZzCLb+3rqxE4GWdAl
- hIuv14DuhMglScWT/SHKmCYCr9pBuw/1x60d2b9QsC03bVFuvQZirJxNCzyFPWl1kLSY
- IoljcM3DHO6T1ItMhHD7KfqDPE5iHGiJqyjq7fr0lZVPgj4u3dbalSavDShpVWBLZ7eH
- Dpun6puNyWoeLYXcef9WL8mknIox6RyAcRYOMM8e9q6qLvkiwiuHkvT2YUSYlWFKyYwK
- pmXg==
-X-Gm-Message-State: AC+VfDzlDeCC2QNbhGz6BgHWNcROkcWuDlxfxxwfz5R3JVS/CNRaoxzX
- UnYKMwxw+ROCeUpQpqEVrrolG32dESmzAd+KUTz2htxFc+NroZ9t88vqyFhY5Q1T3Xg9AvNSTHJ
- zdvRYRAiXxn6VABS0RkR0zMxXqEYANWE6FDpa78h9FA==
-X-Received: by 2002:a1c:4b09:0:b0:3f7:f2a1:482f with SMTP id
- y9-20020a1c4b09000000b003f7f2a1482fmr230018wma.11.1686295648235; 
- Fri, 09 Jun 2023 00:27:28 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4QrxmXCtI9za5XfR+IvU75+9yMq+VNOhenv+q0gG491TweVM4s+/FuocFYUmW+BenHFGmOXg==
-X-Received: by 2002:a1c:4b09:0:b0:3f7:f2a1:482f with SMTP id
- y9-20020a1c4b09000000b003f7f2a1482fmr230008wma.11.1686295647923; 
- Fri, 09 Jun 2023 00:27:27 -0700 (PDT)
-Received: from redhat.com ([2.55.4.169]) by smtp.gmail.com with ESMTPSA id
- x17-20020a1c7c11000000b003f809461162sm103677wmc.16.2023.06.09.00.27.25
+ bh=bYfLgsVFNCZ8nRyAtdqv5Pzu6gYjvla7lXAg7Aj2Y+s=;
+ b=EFYvdmefoyhIZ7X4jltz7IdiJOxbnko8+YvdC4epFQo5IkJqXWsKaWkchq2vRawzI+
+ CYRjoktNYyBgSzEK8FdzfHoOhBuwOAQQCh1HNqg3FzNJ0wTk7Zd8tZBzEEaoSqgaKVAp
+ W2PwBm60lJOh57qc3kgVJ0TBvf5rFu3l/Yiyr+FbuPz3RcCVGzt4Cu+z8ll9MAq3x3WN
+ kwGz0T5a5uIK/c1gklX351E2RC9jYb4Irc/DAlKVlRPLlMqQjpZnF1wjcorOv7HC+PxQ
+ H9GoVKfrIckGPtvsTs7K2AwnKttjKH+QpalX8zhTRs/ix32orpgVPVXiWXrLOWF3Q2zI
+ P33Q==
+X-Gm-Message-State: AC+VfDyR26/Ee8J/ndJwthmtVrLbqIE+MVv16fAcM34fZnImTl2yMJcv
+ o5cUrX0Zst1yHZxAYLRTie8OIlsvmBKi9AgTfP4meHARRb2JmtQGDuVQOB7nAO7X2dBDNMPLyC7
+ fqTO/68n7h4uAfG4qdexWjK773rYgUavTC0Os+0Na9w==
+X-Received: by 2002:a17:907:7ba9:b0:978:62c1:6b4b with SMTP id
+ ne41-20020a1709077ba900b0097862c16b4bmr1270366ejc.61.1686296236528; 
+ Fri, 09 Jun 2023 00:37:16 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ78zAqU5nBkhqiiGWgfNgN+8MZicyBWov8iB0bm42uQl0fbHbGsJwIj+9uJE05ls1/Y70zGGw==
+X-Received: by 2002:a17:907:7ba9:b0:978:62c1:6b4b with SMTP id
+ ne41-20020a1709077ba900b0097862c16b4bmr1270345ejc.61.1686296236130; 
+ Fri, 09 Jun 2023 00:37:16 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-12-25-111.business.telecomitalia.it.
+ [87.12.25.111]) by smtp.gmail.com with ESMTPSA id
+ v7-20020a1709063bc700b00965b5540ad7sm967116ejf.17.2023.06.09.00.37.15
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 09 Jun 2023 00:27:27 -0700 (PDT)
-Date: Fri, 9 Jun 2023 03:27:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2] Revert "virtio-blk: support completion batching for the
- IRQ path"
-Message-ID: <336455b4f630f329380a8f53ee8cad3868764d5c.1686295549.git.mst@redhat.com>
+ Fri, 09 Jun 2023 00:37:15 -0700 (PDT)
+Date: Fri, 9 Jun 2023 09:37:12 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost-vdpa: filter VIRTIO_F_RING_PACKED feature
+Message-ID: <of6exzv2q6eculovjesz3mf4jxjxqfy27gz3jmihsnu6ummdux@k2zdfafgawla>
+References: <CAGxU2F7fkgL-HpZdj=5ZEGNWcESCHQpgRAYQA3W2sPZaoEpNyQ@mail.gmail.com>
+ <20230607054246-mutt-send-email-mst@kernel.org>
+ <CACGkMEuUapKvUYiJiLwtsN+x941jafDKS9tuSkiNrvkrrSmQkg@mail.gmail.com>
+ <20230608020111-mutt-send-email-mst@kernel.org>
+ <CACGkMEt4=3BRVNX38AD+mJU8v3bmqO-CdNj5NkFP-SSvsuy2Hg@mail.gmail.com>
+ <5giudxjp6siucr4l3i4tggrh2dpqiqhhihmdd34w3mq2pm5dlo@mrqpbwckpxai>
+ <CACGkMEtqn1dbrQZn3i-W_7sVikY4sQjwLRC5xAhMnyqkc3jwOw@mail.gmail.com>
+ <lw3nmkdszqo6jjtneyp4kjlmutooozz7xj2fqyxgh4v2ralptc@vkimgnbfafvi>
+ <CACGkMEt1yRV9qOLBqtQQmJA_UoRLCpznT=Gvd5D51Uaz2jakHA@mail.gmail.com>
+ <20230608102259-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
+In-Reply-To: <20230608102259-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- kernel test robot <lkp@intel.com>, "Roberts,
- Martin" <martin.roberts@intel.com>, virtualization@lists.linux-foundation.org,
- linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Suwan Kim <suwan.kim027@gmail.com>
+Cc: kvm@vger.kernel.org, Tiwei Bie <tiwei.bie@intel.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,254 +129,100 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This reverts commit 07b679f70d73483930e8d3c293942416d9cd5c13.
-
-This change appears to have broken things...
-We now see applications hanging during disk accesses.
-e.g.
-multi-port virtio-blk device running in h/w (FPGA)
-Host running a simple 'fio' test.
-[global]
-thread=1
-direct=1
-ioengine=libaio
-norandommap=1
-group_reporting=1
-bs=4K
-rw=read
-iodepth=128
-runtime=1
-numjobs=4
-time_based
-[job0]
-filename=/dev/vda
-[job1]
-filename=/dev/vdb
-[job2]
-filename=/dev/vdc
-...
-[job15]
-filename=/dev/vdp
-
-i.e. 16 disks; 4 queues per disk; simple burst of 4KB reads
-This is repeatedly run in a loop.
-
-After a few, normally <10 seconds, fio hangs.
-With 64 queues (16 disks), failure occurs within a few seconds; with 8 queues (2 disks) it may take ~hour before hanging.
-Last message:
-fio-3.19
-Starting 8 threads
-Jobs: 1 (f=1): [_(7),R(1)][68.3%][eta 03h:11m:06s]
-I think this means at the end of the run 1 queue was left incomplete.
-
-'diskstats' (run while fio is hung) shows no outstanding transactions.
-e.g.
-$ cat /proc/diskstats
-...
-252       0 vda 1843140071 0 14745120568 712568645 0 0 0 0 0 3117947 712568645 0 0 0 0 0 0
-252      16 vdb 1816291511 0 14530332088 704905623 0 0 0 0 0 3117711 704905623 0 0 0 0 0 0
-...
-
-Other stats (in the h/w, and added to the virtio-blk driver ([a]virtio_queue_rq(), [b]virtblk_handle_req(), [c]virtblk_request_done()) all agree, and show every request had a completion, and that virtblk_request_done() never gets called.
-e.g.
-PF= 0                         vq=0           1           2           3
-[a]request_count     -   839416590   813148916   105586179    84988123
-[b]completion1_count -   839416590   813148916   105586179    84988123
-[c]completion2_count -           0           0           0           0
-
-PF= 1                         vq=0           1           2           3
-[a]request_count     -   823335887   812516140   104582672    75856549
-[b]completion1_count -   823335887   812516140   104582672    75856549
-[c]completion2_count -           0           0           0           0
-
-i.e. the issue is after the virtio-blk driver.
-
-This change was introduced in kernel 6.3.0.
-I am seeing this using 6.3.3.
-If I run with an earlier kernel (5.15), it does not occur.
-If I make a simple patch to the 6.3.3 virtio-blk driver, to skip the blk_mq_add_to_batch()call, it does not fail.
-e.g.
-kernel 5.15 - this is OK
-virtio_blk.c,virtblk_done() [irq handler]
-                 if (likely(!blk_should_fake_timeout(req->q))) {
-                          blk_mq_complete_request(req);
-                 }
-
-kernel 6.3.3 - this fails
-virtio_blk.c,virtblk_handle_req() [irq handler]
-                 if (likely(!blk_should_fake_timeout(req->q))) {
-                          if (!blk_mq_complete_request_remote(req)) {
-                                  if (!blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr), virtblk_complete_batch)) {
-                                           virtblk_request_done(req);    //this never gets called... so blk_mq_add_to_batch() must always succeed
-                                   }
-                          }
-                 }
-
-If I do, kernel 6.3.3 - this is OK
-virtio_blk.c,virtblk_handle_req() [irq handler]
-                 if (likely(!blk_should_fake_timeout(req->q))) {
-                          if (!blk_mq_complete_request_remote(req)) {
-                                   virtblk_request_done(req); //force this here...
-                                  if (!blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr), virtblk_complete_batch)) {
-                                           virtblk_request_done(req);    //this never gets called... so blk_mq_add_to_batch() must always succeed
-                                   }
-                          }
-                 }
-
-Perhaps you might like to fix/test/revert this change...
-Martin
-
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202306090826.C1fZmdMe-lkp@intel.com/
-Cc: Suwan Kim <suwan.kim027@gmail.com>
-Reported-by: "Roberts, Martin" <martin.roberts@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-Since v1:
-	fix build error
-
-Still completely untested as I'm traveling.
-Martin, Suwan, could you please test and report?
-Suwan if you have a better revert in mind pls post and
-I will be happy to drop this.
-
-Thanks!
-
-
- drivers/block/virtio_blk.c | 82 +++++++++++++++++---------------------
- 1 file changed, 37 insertions(+), 45 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2b918e28acaa..b47358da92a2 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -348,63 +348,33 @@ static inline void virtblk_request_done(struct request *req)
- 	blk_mq_end_request(req, status);
- }
- 
--static void virtblk_complete_batch(struct io_comp_batch *iob)
--{
--	struct request *req;
--
--	rq_list_for_each(&iob->req_list, req) {
--		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
--		virtblk_cleanup_cmd(req);
--	}
--	blk_mq_end_request_batch(iob);
--}
--
--static int virtblk_handle_req(struct virtio_blk_vq *vq,
--			      struct io_comp_batch *iob)
--{
--	struct virtblk_req *vbr;
--	int req_done = 0;
--	unsigned int len;
--
--	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
--		struct request *req = blk_mq_rq_from_pdu(vbr);
--
--		if (likely(!blk_should_fake_timeout(req->q)) &&
--		    !blk_mq_complete_request_remote(req) &&
--		    !blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr),
--					 virtblk_complete_batch))
--			virtblk_request_done(req);
--		req_done++;
--	}
--
--	return req_done;
--}
--
- static void virtblk_done(struct virtqueue *vq)
- {
- 	struct virtio_blk *vblk = vq->vdev->priv;
--	struct virtio_blk_vq *vblk_vq = &vblk->vqs[vq->index];
--	int req_done = 0;
-+	bool req_done = false;
-+	int qid = vq->index;
-+	struct virtblk_req *vbr;
- 	unsigned long flags;
--	DEFINE_IO_COMP_BATCH(iob);
-+	unsigned int len;
- 
--	spin_lock_irqsave(&vblk_vq->lock, flags);
-+	spin_lock_irqsave(&vblk->vqs[qid].lock, flags);
- 	do {
- 		virtqueue_disable_cb(vq);
--		req_done += virtblk_handle_req(vblk_vq, &iob);
-+		while ((vbr = virtqueue_get_buf(vblk->vqs[qid].vq, &len)) != NULL) {
-+			struct request *req = blk_mq_rq_from_pdu(vbr);
- 
-+			if (likely(!blk_should_fake_timeout(req->q)))
-+				blk_mq_complete_request(req);
-+			req_done = true;
-+		}
- 		if (unlikely(virtqueue_is_broken(vq)))
- 			break;
- 	} while (!virtqueue_enable_cb(vq));
- 
--	if (req_done) {
--		if (!rq_list_empty(iob.req_list))
--			iob.complete(&iob);
--
--		/* In case queue is stopped waiting for more buffers. */
-+	/* In case queue is stopped waiting for more buffers. */
-+	if (req_done)
- 		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
--	}
--	spin_unlock_irqrestore(&vblk_vq->lock, flags);
-+	spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
- }
- 
- static void virtio_commit_rqs(struct blk_mq_hw_ctx *hctx)
-@@ -1283,15 +1253,37 @@ static void virtblk_map_queues(struct blk_mq_tag_set *set)
- 	}
- }
- 
-+static void virtblk_complete_batch(struct io_comp_batch *iob)
-+{
-+	struct request *req;
-+
-+	rq_list_for_each(&iob->req_list, req) {
-+		virtblk_unmap_data(req, blk_mq_rq_to_pdu(req));
-+		virtblk_cleanup_cmd(req);
-+	}
-+	blk_mq_end_request_batch(iob);
-+}
-+
- static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
- {
- 	struct virtio_blk *vblk = hctx->queue->queuedata;
- 	struct virtio_blk_vq *vq = get_virtio_blk_vq(hctx);
-+	struct virtblk_req *vbr;
- 	unsigned long flags;
-+	unsigned int len;
- 	int found = 0;
- 
- 	spin_lock_irqsave(&vq->lock, flags);
--	found = virtblk_handle_req(vq, iob);
-+
-+	while ((vbr = virtqueue_get_buf(vq->vq, &len)) != NULL) {
-+		struct request *req = blk_mq_rq_from_pdu(vbr);
-+
-+		found++;
-+		if (!blk_mq_complete_request_remote(req) &&
-+		    !blk_mq_add_to_batch(req, iob, virtblk_vbr_status(vbr),
-+						virtblk_complete_batch))
-+			virtblk_request_done(req);
-+	}
- 
- 	if (found)
- 		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
--- 
-MST
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBKdW4gMDgsIDIwMjMgYXQgMTA6MjM6MjFBTSAtMDQwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+T24gVGh1LCBKdW4gMDgsIDIwMjMgYXQgMDU6Mjk6NThQTSArMDgwMCwgSmFz
+b24gV2FuZyB3cm90ZToKPj4gT24gVGh1LCBKdW4gOCwgMjAyMyBhdCA1OjIx4oCvUE0gU3RlZmFu
+byBHYXJ6YXJlbGxhIDxzZ2FyemFyZUByZWRoYXQuY29tPiB3cm90ZToKPj4gPgo+PiA+IE9uIFRo
+dSwgSnVuIDA4LCAyMDIzIGF0IDA1OjAwOjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
+ID4gPk9uIFRodSwgSnVuIDgsIDIwMjMgYXQgNDowMOKAr1BNIFN0ZWZhbm8gR2FyemFyZWxsYSA8
+c2dhcnphcmVAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+ID4gPj4KPj4gPiA+PiBPbiBUaHUsIEp1biAw
+OCwgMjAyMyBhdCAwMzo0NjowMFBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiA+ID4+Cj4+
+ID4gPj4gWy4uLl0KPj4gPiA+Pgo+PiA+ID4+ID4+ID4gPiA+ID4gSSBoYXZlIGEgcXVlc3Rpb24g
+dGhvdWdoLCB3aGF0IGlmIGRvd24gdGhlIHJvYWQgdGhlcmUKPj4gPiA+PiA+PiA+ID4gPiA+IGlz
+IGEgbmV3IGZlYXR1cmUgdGhhdCBuZWVkcyBtb3JlIGNoYW5nZXM/IEl0IHdpbGwgYmUKPj4gPiA+
+PiA+PiA+ID4gPiA+IGJyb2tlbiB0b28ganVzdCBsaWtlIFBBQ0tFRCBubz8KPj4gPiA+PiA+PiA+
+ID4gPiA+IFNob3VsZG4ndCB2ZHBhIGhhdmUgYW4gYWxsb3dsaXN0IG9mIGZlYXR1cmVzIGl0IGtu
+b3dzIGhvdwo+PiA+ID4+ID4+ID4gPiA+ID4gdG8gc3VwcG9ydD8KPj4gPiA+PiA+PiA+ID4gPgo+
+PiA+ID4+ID4+ID4gPiA+IEl0IGxvb2tzIGxpa2Ugd2UgaGFkIGl0LCBidXQgd2UgdG9vayBpdCBv
+dXQgKGJ5IHRoZSB3YXksIHdlIHdlcmUKPj4gPiA+PiA+PiA+ID4gPiBlbmFibGluZyBwYWNrZWQg
+ZXZlbiB0aG91Z2ggd2UgZGlkbid0IHN1cHBvcnQgaXQpOgo+PiA+ID4+ID4+ID4gPiA+IGh0dHBz
+Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3RvcnZhbGRzL2xpbnV4
+LmdpdC9jb21taXQvP2lkPTYyMzRmODA1NzRkNzU2OTQ0NGQ4NzE4MzU1ZmEyODM4ZTkyYjE1OGIK
+Pj4gPiA+PiA+PiA+ID4gPgo+PiA+ID4+ID4+ID4gPiA+IFRoZSBvbmx5IHByb2JsZW0gSSBzZWUg
+aXMgdGhhdCBmb3IgZWFjaCBuZXcgZmVhdHVyZSB3ZSBoYXZlIHRvIG1vZGlmeQo+PiA+ID4+ID4+
+ID4gPiA+IHRoZSBrZXJuZWwuCj4+ID4gPj4gPj4gPiA+ID4gQ291bGQgd2UgaGF2ZSBuZXcgZmVh
+dHVyZXMgdGhhdCBkb24ndCByZXF1aXJlIGhhbmRsaW5nIGJ5IHZob3N0LXZkcGE/Cj4+ID4gPj4g
+Pj4gPiA+ID4KPj4gPiA+PiA+PiA+ID4gPiBUaGFua3MsCj4+ID4gPj4gPj4gPiA+ID4gU3RlZmFu
+bwo+PiA+ID4+ID4+ID4gPgo+PiA+ID4+ID4+ID4gPiBKYXNvbiB3aGF0IGRvIHlvdSBzYXkgdG8g
+cmV2ZXJ0aW5nIHRoaXM/Cj4+ID4gPj4gPj4gPgo+PiA+ID4+ID4+ID4gSSBtYXkgbWlzcyBzb21l
+dGhpbmcgYnV0IEkgZG9uJ3Qgc2VlIGFueSBwcm9ibGVtIHdpdGggdkRQQSBjb3JlLgo+PiA+ID4+
+ID4+ID4KPj4gPiA+PiA+PiA+IEl0J3MgdGhlIGR1dHkgb2YgdGhlIHBhcmVudHMgdG8gYWR2ZXJ0
+aXNlIHRoZSBmZWF0dXJlcyBpdCBoYXMuIEZvciBleGFtcGxlLAo+PiA+ID4+ID4+ID4KPj4gPiA+
+PiA+PiA+IDEpIElmIHNvbWUga2VybmVsIHZlcnNpb24gdGhhdCBpcyBwYWNrZWQgaXMgbm90IHN1
+cHBvcnRlZCB2aWEKPj4gPiA+PiA+PiA+IHNldF92cV9zdGF0ZSwgcGFyZW50cyBzaG91bGQgbm90
+IGFkdmVydGlzZSBQQUNLRUQgZmVhdHVyZXMgaW4gdGhpcwo+PiA+ID4+ID4+ID4gY2FzZS4KPj4g
+PiA+PiA+PiA+IDIpIElmIHRoZSBrZXJuZWwgaGFzIHN1cHBvcnQgcGFja2VkIHNldF92cV9zdGF0
+ZSgpLCBidXQgaXQncyBlbXVsYXRlZAo+PiA+ID4+ID4+ID4gY3ZxIGRvZXNuJ3Qgc3VwcG9ydCwg
+cGFyZW50cyBzaG91bGQgbm90IGFkdmVydGlzZSBQQUNLRUQgYXMgd2VsbAo+PiA+ID4+ID4+ID4K
+Pj4gPiA+PiA+PiA+IElmIGEgcGFyZW50IHZpb2xhdGVzIHRoZSBhYm92ZSAyLCBpdCBsb29rcyBs
+aWtlIGEgYnVnIG9mIHRoZSBwYXJlbnRzLgo+PiA+ID4+ID4+ID4KPj4gPiA+PiA+PiA+IFRoYW5r
+cwo+PiA+ID4+ID4+Cj4+ID4gPj4gPj4gWWVzIGJ1dCB3aGF0IGFib3V0IHZob3N0X3ZkcGE/IFRh
+bGtpbmcgYWJvdXQgdGhhdCBub3QgdGhlIGNvcmUuCj4+ID4gPj4gPgo+PiA+ID4+ID5Ob3Qgc3Vy
+ZSBpdCdzIGEgZ29vZCBpZGVhIHRvIHdvcmthcm91bmQgcGFyZW50IGJ1Z3MgdmlhIHZob3N0LXZE
+UEEuCj4+ID4gPj4KPj4gPiA+PiBTb3JyeSwgSSdtIGdldHRpbmcgbG9zdC4uLgo+PiA+ID4+IFdl
+IHdlcmUgdGFsa2luZyBhYm91dCB0aGUgZmFjdCB0aGF0IHZob3N0LXZkcGEgZG9lc24ndCBoYW5k
+bGUKPj4gPiA+PiBTRVRfVlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRSBpb2N0bHMgd2VsbCBmb3Ig
+cGFja2VkIHZpcnRxdWV1ZSBiZWZvcmUKPj4gPiA+PiB0aGF0IHNlcmllcyBbMV0sIG5vPwo+PiA+
+ID4+Cj4+ID4gPj4gVGhlIHBhcmVudHMgc2VlbSBva2F5LCBidXQgbWF5YmUgSSBtaXNzZWQgYSBm
+ZXcgdGhpbmdzLgo+PiA+ID4+Cj4+ID4gPj4gWzFdIGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL3Zp
+cnR1YWxpemF0aW9uLzIwMjMwNDI0MjI1MDMxLjE4OTQ3LTEtc2hhbm5vbi5uZWxzb25AYW1kLmNv
+bS8KPj4gPiA+Cj4+ID4gPlllcywgbW9yZSBiZWxvdy4KPj4gPiA+Cj4+ID4gPj4KPj4gPiA+PiA+
+Cj4+ID4gPj4gPj4gU2hvdWxkIHRoYXQgbm90IGhhdmUgYSB3aGl0ZWxpc3Qgb2YgZmVhdHVyZXMK
+Pj4gPiA+PiA+PiBzaW5jZSBpdCBpbnRlcnByZXRzIGlvY3RscyBkaWZmZXJlbnRseSBkZXBlbmRp
+bmcgb24gdGhpcz8KPj4gPiA+PiA+Cj4+ID4gPj4gPklmIHRoZXJlJ3MgYSBidWcsIGl0IG1pZ2h0
+IG9ubHkgbWF0dGVyIHRoZSBmb2xsb3dpbmcgc2V0dXA6Cj4+ID4gPj4gPgo+PiA+ID4+ID5TRVRf
+VlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRSArIFZEVVNFLgo+PiA+ID4+ID4KPj4gPiA+PiA+VGhp
+cyBzZWVtcyB0byBiZSBicm9rZW4gc2luY2UgVkRVU0Ugd2FzIGludHJvZHVjZWQuIElmIHdlIHJl
+YWxseSB3YW50Cj4+ID4gPj4gPnRvIGJhY2twb3J0IHNvbWV0aGluZywgaXQgY291bGQgYmUgYSBm
+aXggdG8gZmlsdGVyIG91dCBQQUNLRUQgaW4KPj4gPiA+PiA+VkRVU0U/Cj4+ID4gPj4KPj4gPiA+
+PiBtbW0gaXQgZG9lc24ndCBzZWVtIHRvIGJlIGEgcHJvYmxlbSBpbiBWRFVTRSwgYnV0IGluIHZo
+b3N0LXZkcGEuCj4+ID4gPj4gSSB0aGluayBWRFVTRSB3b3JrcyBmaW5lIHdpdGggcGFja2VkIHZp
+cnRxdWV1ZSB1c2luZyB2aXJ0aW8tdmRwYQo+PiA+ID4+IChJIGhhdmVuJ3QgdHJpZWQpLCBzbyB3
+aHkgc2hvdWxkIHdlIGZpbHRlciBQQUNLRUQgaW4gVkRVU0U/Cj4+ID4gPgo+PiA+ID5JIGRvbid0
+IHRoaW5rIHdlIG5lZWQgYW55IGZpbHRlcmluZyBzaW5jZToKPj4gPiA+Cj4+ID4gPlBBQ0tFRCBm
+ZWF0dXJlcyBoYXMgYmVlbiBhZHZlcnRpc2VkIHRvIHVzZXJzcGFjZSB2aWEgdUFQSSBzaW5jZQo+
+PiA+ID42MjM0ZjgwNTc0ZDc1Njk0NDRkODcxODM1NWZhMjgzOGU5MmIxNThiLiBPbmNlIHdlIHJl
+bGF4IGluIHVBUEksIGl0Cj4+ID4gPndvdWxkIGJlIHZlcnkgaGFyZCB0byByZXN0cmljdCBpdCBh
+Z2Fpbi4gRm9yIHRoZSB1c2Vyc3BhY2UgdGhhdCB0cmllcwo+PiA+ID50byBuZWdvdGlhdGUgUEFD
+S0VEOgo+PiA+ID4KPj4gPiA+MSkgaWYgaXQgZG9lc24ndCB1c2UgU0VUX1ZSSU5HX0JBU0UvR0VU
+X1ZSSU5HX0JBU0UsIGV2ZXJ5dGhpbmcgd29ya3Mgd2VsbAo+PiA+ID4yKSBpZiBpdCB1c2VzIFNF
+VF9WUklOR19CQVNFL0dFVF9WUklOR19CQVNFLiBpdCBtaWdodCBmYWlsIG9yIGJyZWFrIHNpbGVu
+dGx5Cj4+ID4gPgo+PiA+ID5JZiB3ZSBiYWNrcG9ydCB0aGUgZml4ZXMgdG8gLXN0YWJsZSwgd2Ug
+bWF5IGJyZWFrIHRoZSBhcHBsaWNhdGlvbiBhdAo+PiA+ID5sZWFzdCBpbiB0aGUgY2FzZSAxKS4K
+Pj4gPgo+PiA+IE9rYXksIEkgc2VlIG5vdywgdGhhbmtzIGZvciB0aGUgZGV0YWlscyEKPj4gPgo+
+PiA+IE1heWJlIGluc3RlYWQgb2YgImJyZWFrIHNpbGVudGx5Iiwgd2UgY2FuIHJldHVybiBhbiBl
+eHBsaWNpdCBlcnJvciBmb3IKPj4gPiBTRVRfVlJJTkdfQkFTRS9HRVRfVlJJTkdfQkFTRSBpbiBz
+dGFibGUgYnJhbmNoZXMuCj4+ID4gQnV0IGlmIHRoZXJlIGFyZSBub3QgbWFueSBjYXNlcywgd2Ug
+Y2FuIGxlYXZlIGl0IGxpa2UgdGhhdC4KPj4KPj4gQSBzZWNvbmQgdGhvdWdodCwgaWYgd2UgbmVl
+ZCB0byBkbyBzb21ldGhpbmcgZm9yIHN0YWJsZS4gaXMgaXQgYmV0dGVyCj4+IGlmIHdlIGp1c3Qg
+YmFja3BvcnQgU2hhbm5vbidzIHNlcmllcyB0byBzdGFibGU/Cj4+Cj4+ID4KPj4gPiBJIHdhcyBq
+dXN0IGNvbmNlcm5lZCBhYm91dCBob3cgZG9lcyB0aGUgdXNlciBzcGFjZSB1bmRlcnN0YW5kIHRo
+YXQgaXQKPj4gPiBjYW4gdXNlIFNFVF9WUklOR19CQVNFL0dFVF9WUklOR19CQVNFIGZvciBQQUNL
+RUQgdmlydHF1ZXVlcyBpbiBhIGdpdmVuCj4+ID4ga2VybmVsIG9yIG5vdC4KPj4KPj4gTXkgdW5k
+ZXJzdGFuZGluZyBpcyB0aGF0IGlmIHBhY2tlZCBpcyBhZHZlcnRpc2VkLCB0aGUgYXBwbGljYXRp
+b24KPj4gc2hvdWxkIGFzc3VtZSBTRVQvR0VUX1ZSSU5HX0JBU0Ugd29yay4KPj4KPj4gVGhhbmtz
+Cj4KPgo+TGV0IG1lIGFzayB5b3UgdGhpcy4gVGhpcyBpcyBhIGJ1Z2ZpeCB5ZXM/IFdoYXQgaXMg
+dGhlIGFwcHJvcHJpYXRlIEZpeGVzCj50YWc/CgpJIHdvdWxkIHNheToKCkZpeGVzOiA0YzhjZjMx
+ODg1ZjYgKCJ2aG9zdDogaW50cm9kdWNlIHZEUEEtYmFzZWQgYmFja2VuZCIpCgpiZWNhdXNlIHdl
+IGhhZCBhbiBhbGxvdyBsaXN0IGFuZCBlbmFibGVkIFBBQ0tFRCBleHBsaWNpdGx5LgoKSSdtIG5v
+dCBzdXJlIGlmIHRoZSBwYXJlbnRzIGF0IHRoYXQgdGltZSBzdXBwb3J0ZWQgUEFDS0VELCBidXQK
+bWF5YmUgaXQgZG9lc24ndCBtYXR0ZXIgc2luY2Ugd2UgYXJlIHRhbGtpbmcgYWJvdXQgdGhlIGNv
+ZGUgaW4Kdmhvc3QtdmRwYS4KClRoYW5rcywKU3RlZmFubwoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
