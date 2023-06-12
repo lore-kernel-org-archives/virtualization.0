@@ -1,89 +1,90 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B7820C7EE2E
-	for <virtualization@archiver.kernel.org>; Sun, 11 Jun 2023 20:27:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7606DC8300C
+	for <virtualization@archiver.kernel.org>; Mon, 12 Jun 2023 05:27:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1C3B4821D7;
-	Sun, 11 Jun 2023 20:27:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C3B4821D7
+	by smtp2.osuosl.org (Postfix) with ESMTP id D87E540352;
+	Mon, 12 Jun 2023 05:27:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D87E540352
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=Ypj3sVWE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 30_W4rKejWpB; Sun, 11 Jun 2023 20:27:53 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A3U-tYGaGyz1; Mon, 12 Jun 2023 05:27:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AFD8B821C3;
-	Sun, 11 Jun 2023 20:27:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AFD8B821C3
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 47BEC400A6;
+	Mon, 12 Jun 2023 05:27:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 47BEC400A6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7ED76C007A;
-	Sun, 11 Jun 2023 20:27:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D498C0037;
+	Mon, 12 Jun 2023 05:27:36 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EE9A8C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 93E34C0029
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Jun 2023 20:27:50 +0000 (UTC)
+ Mon, 12 Jun 2023 05:27:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B5738821C3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 59FB88212C
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Jun 2023 20:27:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5738821C3
+ Mon, 12 Jun 2023 05:27:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59FB88212C
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=Ypj3sVWE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WojPx0-Vr-pl
+ with ESMTP id yuS67hAfQZWf
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Jun 2023 20:27:48 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B57DD821B5
-Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B57DD821B5
+ Mon, 12 Jun 2023 05:27:33 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8A05682127
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8A05682127
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Jun 2023 20:27:48 +0000 (UTC)
-Received: from in02.mta.xmission.com ([166.70.13.52]:32866)
- by out03.mta.xmission.com with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q8Rf7-00FsPF-6p; Sun, 11 Jun 2023 14:27:45 -0600
-Received: from ip68-110-29-46.om.om.cox.net ([68.110.29.46]:57338
- helo=email.froward.int.ebiederm.org.xmission.com)
- by in02.mta.xmission.com with esmtpsa (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <ebiederm@xmission.com>)
- id 1q8Rf5-00Dwr8-Ub; Sun, 11 Jun 2023 14:27:44 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Oleg Nesterov <oleg@redhat.com>
-References: <20230601183232.8384-1-michael.christie@oracle.com>
- <20230602192254.GD555@redhat.com>
- <87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>
- <ae250076-7d55-c407-1066-86b37014c69c@oracle.com>
- <20230605151037.GE32275@redhat.com>
- <03c07f48-8922-f563-560c-f0d4cc3e1279@oracle.com>
- <20230606121643.GD7542@redhat.com>
- <39f5913c-e658-e476-0378-62236bb4ed49@oracle.com>
- <20230606193907.GB18866@redhat.com>
-Date: Sun, 11 Jun 2023 15:27:37 -0500
-In-Reply-To: <20230606193907.GB18866@redhat.com> (Oleg Nesterov's message of
- "Tue, 6 Jun 2023 21:39:07 +0200")
-Message-ID: <87o7llycau.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
+ Mon, 12 Jun 2023 05:27:33 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id A9872203E0;
+ Mon, 12 Jun 2023 05:27:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1686547650; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=F2nQeuKIoTdQ46edr+Fv7GnCIbjUUdRzQs4BphAaLS8=;
+ b=Ypj3sVWE5GUj/P/XiR8Vl+kqMTD+M73Kq3ri3awbjF9zaCEonk5tXuhz6JMp4bzGIYdZmv
+ IwNdp5ZogNAEsD3gQo7rMB9sPuavF9VTkljDpJ6Fiq0NejwcG8gQ9ckOfwtgIXAW+X8VYv
+ Cxv8sOlqJ9xSMjcSvZL+eZzjxY6Dl8I=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5E94B1357F;
+ Mon, 12 Jun 2023 05:27:30 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id CaO0FcKshmTUOwAAMHmgww
+ (envelope-from <jgross@suse.com>); Mon, 12 Jun 2023 05:27:30 +0000
+Message-ID: <2dc52f2c-1fd0-8f89-1975-92f7c1de6b16@suse.com>
+Date: Mon, 12 Jun 2023 07:27:29 +0200
 MIME-Version: 1.0
-X-XM-SPF: eid=1q8Rf5-00Dwr8-Ub; ; ;
- mid=<87o7llycau.fsf@email.froward.int.ebiederm.org>; ; ;
- hst=in02.mta.xmission.com; ; ; ip=68.110.29.46; ; ; frm=ebiederm@xmission.com;
- ; ; spf=pass
-X-XM-AID: U2FsdGVkX18l/LHrg7YOf3qY6kN95CS3gXrqGb0gCq8=
-X-SA-Exim-Connect-IP: 68.110.29.46
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [CFT][PATCH v3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
- regression
-X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
-X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
-Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com, linux@leemhuis.info,
- linux-kernel@vger.kernel.org, stefanha@redhat.com, nicolas.dichtel@6wind.com,
- virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH] Documentation: virt: clean up paravirt_ops doc.
+Content-Language: en-US
+To: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+References: <20230610054310.6242-1-rdunlap@infradead.org>
+In-Reply-To: <20230610054310.6242-1-rdunlap@infradead.org>
+Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>, x86@kernel.org,
+ Luis Chamberlain <mcgrof@kernel.org>,
+ virtualization@lists.linux-foundation.org, Ajay Kaher <akaher@vmware.com>,
+ Alexey Makhalov <amakhalov@vmware.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,62 +96,146 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============1124188248069750465=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Oleg Nesterov <oleg@redhat.com> writes:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============1124188248069750465==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------zzULCniiyy6MvmFef0FAqdJJ"
 
-> On 06/06, Mike Christie wrote:
->>
->> On 6/6/23 7:16 AM, Oleg Nesterov wrote:
->> > On 06/05, Mike Christie wrote:
->> >
->> >> So it works like if we were using a kthread still:
->> >>
->> >> 1. Userapce thread0 opens /dev/vhost-$something.
->> >> 2. thread0 does VHOST_SET_OWNER ioctl. This calls vhost_task_create() to
->> >> create the task_struct which runs the vhost_worker() function which handles
->> >> the work->fns.
->> >> 3. If userspace now does a SIGKILL or just exits without doing a close() on
->> >> /dev/vhost-$something, then when thread0 does exit_files() that will do the
->> >> fput that does vhost-$something's file_operations->release.
->> >
->> > So, at least in this simple case vhost_worker() can just exit after SIGKILL,
->> > and thread0 can flush the outstanding commands when it calls vhost_dev_flush()
->> > rather than wait for vhost_worker().
->> >
->> > Right?
->>
->> With the current code, the answer is no. We would hang like I mentioned here:
->>
->> https://lore.kernel.org/lkml/ae250076-7d55-c407-1066-86b37014c69c@oracle.com/
->
-> If only I could fully understand this email ;)
->
-> Could you spell to explain why this can't work (again, in this simple case) ?
->
-> My current (and I know, very poor) understanding is that .release() should
-> roughly do the following:
->
-> 	1. Ensure that vhost_work_queue() can't add the new callbacks
->
-> 	2. Call vhost_dev_flush() to ensure that worker->work_list is empty
->
-> 	3. Call vhost_task_stop()
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------zzULCniiyy6MvmFef0FAqdJJ
+Content-Type: multipart/mixed; boundary="------------eFxpLWZGQJEETj9Y4rExBOg0";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org
+Cc: Ajay Kaher <akaher@vmware.com>, Alexey Makhalov <amakhalov@vmware.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ virtualization@lists.linux-foundation.org, x86@kernel.org,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Luke Nowakowski-Krijger <lnowakow@eng.ucsd.edu>,
+ Luis Chamberlain <mcgrof@kernel.org>
+Message-ID: <2dc52f2c-1fd0-8f89-1975-92f7c1de6b16@suse.com>
+Subject: Re: [PATCH] Documentation: virt: clean up paravirt_ops doc.
+References: <20230610054310.6242-1-rdunlap@infradead.org>
+In-Reply-To: <20230610054310.6242-1-rdunlap@infradead.org>
 
+--------------eFxpLWZGQJEETj9Y4rExBOg0
+Content-Type: multipart/mixed; boundary="------------zCIFB6ELLfs4RSJyCfzkh0Px"
 
-At least in the case of exec by the time the final fput happens
-from close_on_exec the task has already changed it's mm.  So the
-conditions are wrong to run the work queue items.
+--------------zCIFB6ELLfs4RSJyCfzkh0Px
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-For close(2) and SIGKILL perhaps, but definitely not in the case of
-exec.
+T24gMTAuMDYuMjMgMDc6NDMsIFJhbmR5IER1bmxhcCB3cm90ZToNCj4gQ2xhcmlmeSBsYW5n
+dWFnZS4gQ2xlYW4gdXAgZ3JhbW1hci4gSHlwaGVuYXRlIHNvbWUgd29yZHMuDQo+IA0KPiBD
+aGFuZ2UgImxvdy1vcHMiIHRvICJsb3ctbGV2ZWwiIHNpbmNlICJsb3ctb3BzIiBpc24ndCBk
+ZWZpbmVkIG9yIGV2ZW4NCj4gbWVudGlvbmVkIGFueXdoZXJlIGVsc2UgaW4gdGhlIGtlcm5l
+bCBzb3VyY2UgdHJlZS4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IFJhbmR5IER1bmxhcCA8cmR1
+bmxhcEBpbmZyYWRlYWQub3JnPg0KPiBDYzogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2Uu
+Y29tPg0KPiBDYzogQWpheSBLYWhlciA8YWthaGVyQHZtd2FyZS5jb20+DQo+IENjOiBBbGV4
+ZXkgTWFraGFsb3YgPGFtYWtoYWxvdkB2bXdhcmUuY29tPg0KPiBDYzogVk13YXJlIFBWLURy
+aXZlcnMgUmV2aWV3ZXJzIDxwdi1kcml2ZXJzQHZtd2FyZS5jb20+DQo+IENjOiB2aXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZw0KPiBDYzogeDg2QGtlcm5lbC5v
+cmcNCj4gQ2M6IFBhb2xvIEJvbnppbmkgPHBib256aW5pQHJlZGhhdC5jb20+DQo+IENjOiAi
+THVrZSBOb3dha293c2tpLUtyaWpnZXIiIDxsbm93YWtvd0BlbmcudWNzZC5lZHU+DQo+IENj
+OiBMdWlzIENoYW1iZXJsYWluIDxtY2dyb2ZAa2VybmVsLm9yZz4NCg0KQWNrZWQtYnk6IEp1
+ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT4NCg0KDQpKdWVyZ2VuDQoNCg==
+--------------zCIFB6ELLfs4RSJyCfzkh0Px
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-Eric
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------zCIFB6ELLfs4RSJyCfzkh0Px--
+
+--------------eFxpLWZGQJEETj9Y4rExBOg0--
+
+--------------zzULCniiyy6MvmFef0FAqdJJ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmSGrMEFAwAAAAAACgkQsN6d1ii/Ey/a
+8gf/THOimDQMxgVh677LMnxJFF+v7hy0y5tFGmYfCe2vaUX+4CzkecYDFRXgGHxhVZ3loeOMe6Dj
+GRPTUvtx+UBXVz2yTrAL0gJxOteWtBunH0c6A994DVHDa1FkUkw72QL/XJz9p2ep39uF8zSxPqIQ
+sq7UNG56UE3yTqKGi16vpC1jZPfBur2KixJSvvfvtJS8mb81aWAh4siOoqtLrWkpZUon8KUzNRHT
+xJnQqxTr/88JOY9B/t3CxZ4NV9eT+kerYPCFMiRWmdNT9NYIqJAD4CQ6yVqtVv7QR5kp2ZC1mXUW
+NVxBdvOVajwGYzM1xgT78lMbvceJyeKY9a/KBEK6aw==
+=Eum5
+-----END PGP SIGNATURE-----
+
+--------------zzULCniiyy6MvmFef0FAqdJJ--
+
+--===============1124188248069750465==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1124188248069750465==--
