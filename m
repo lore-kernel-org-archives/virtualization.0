@@ -1,103 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00720EB64DB
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jun 2023 15:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 156A6EB64DB
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jun 2023 17:08:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 60ED441C4D;
-	Wed, 14 Jun 2023 15:03:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 60ED441C4D
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GoEszbyv
+	by smtp1.osuosl.org (Postfix) with ESMTP id 82F0481432;
+	Wed, 14 Jun 2023 17:08:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 82F0481432
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WbhWByDr
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kz7fDDDOIPGR; Wed, 14 Jun 2023 15:03:09 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ssl4Wci3zWUM; Wed, 14 Jun 2023 17:08:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BA6CA400EE;
-	Wed, 14 Jun 2023 15:03:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BA6CA400EE
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 04DCC81409;
+	Wed, 14 Jun 2023 17:08:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04DCC81409
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6419AC0037;
-	Wed, 14 Jun 2023 15:03:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AD072C007A;
+	Wed, 14 Jun 2023 17:08:44 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0C791C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE8E0C0029
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jun 2023 15:03:07 +0000 (UTC)
+ Wed, 14 Jun 2023 17:08:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CB85F60B98
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8AC4D60BA7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jun 2023 15:03:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB85F60B98
+ Wed, 14 Jun 2023 17:08:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8AC4D60BA7
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=GoEszbyv
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=WbhWByDr
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pT0Jm_jLZD91
+ with ESMTP id FitSKEasZWbT
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jun 2023 15:03:06 +0000 (UTC)
+ Wed, 14 Jun 2023 17:08:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1230861321
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 52983607E3
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1230861321
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 52983607E3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jun 2023 15:03:05 +0000 (UTC)
+ Wed, 14 Jun 2023 17:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1686754984;
+ s=mimecast20190719; t=1686762521;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=StBjlzC+K1w2JzS0mxfSPzu6vQtFOd/XKwJV6KORDbk=;
- b=GoEszbyvz7xOVR6kA/1w9EMtM4Z1wP9YkUhC1d0rdbUaZmCaLRQinkUkMqZcSNgWVFXy5C
- y1YGtwTLs9Qejl3Glrp1kBuQ60t+Mf9Cxw1bFNYtSd415ktGDtZwV9XDSgYlEoaly5X5wC
- GSFxqDozXTR8KskrSFgOKCB01hnQrn4=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-540-PRDaHF1PO1iQi4mjTgKrEQ-1; Wed, 14 Jun 2023 11:03:03 -0400
-X-MC-Unique: PRDaHF1PO1iQi4mjTgKrEQ-1
-Received: by mail-qk1-f200.google.com with SMTP id
- af79cd13be357-75d4d5eda29so169563385a.1
- for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jun 2023 08:03:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1686754982; x=1689346982;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=StBjlzC+K1w2JzS0mxfSPzu6vQtFOd/XKwJV6KORDbk=;
- b=dmjlPCdl4p+9H/AcuPzaxgshQnCBCSnx958V85HslXg6T39CI8ayvSXpWNjNAGWvV/
- QhdXheoCXNhga3ccZKj6fW/ZvA57Sm6TrahycIOvuXM8SfCVcr6Ghtovqvz6rHodwiRI
- DeQGRqv4vIOEWo4uTmjzmadxnz2si1qnkZjWFxfZem4vCu8hxhmtbsjmdbRSN458HIuC
- pm0fCwDzJ+jOxiTMfcsyfgVmGhZUDm9aAOSiFRtoewN+oYfg0pLSezgnOQcHyYTftlze
- Xgt7vMHt1lqQGMAd5ZUQz8xZTDrXFpxJHQEBYKjwJHSE17gak+KHyOw4RXlcCL/+pknp
- pexA==
-X-Gm-Message-State: AC+VfDxfZiyRbBvAlxyHdJX1+EaKy40WJdd8PcA3vngSWlv3WZUwMb0j
- sgxDr+JX+tjpibpljDsGXgNIJxfVQrkQSQHrT7zLEQcTTOpsCo4tpwW2jGLdz77cm0+Xqzlfdm+
- qMymefBsRPujuyaID69Gq2kCMAMy6Evh8rxvReCEhNQ==
-X-Received: by 2002:a37:b97:0:b0:75f:3d6:8166 with SMTP id
- 145-20020a370b97000000b0075f03d68166mr1526840qkl.18.1686754982706; 
- Wed, 14 Jun 2023 08:03:02 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4XDQaV76PDXC2pJoOhzFD6+vh+s9cTgaUdn5cYBrmPYPQaLYjT+qo9PTIrwiabwmcUXAsuIA==
-X-Received: by 2002:a37:b97:0:b0:75f:3d6:8166 with SMTP id
- 145-20020a370b97000000b0075f03d68166mr1526815qkl.18.1686754982463; 
- Wed, 14 Jun 2023 08:03:02 -0700 (PDT)
-Received: from redhat.com ([172.58.139.140]) by smtp.gmail.com with ESMTPSA id
- o23-20020a05620a15d700b0075cdad9648dsm4364920qkm.25.2023.06.14.08.02.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 14 Jun 2023 08:03:01 -0700 (PDT)
-Date: Wed, 14 Jun 2023 11:02:53 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+ bh=Cm7QnVX+1Peb/lxYvy314RNV95pm5UqmDVNYkqh6DVM=;
+ b=WbhWByDrEVOdsqfgqNZisI0Qq3Z8rrviKqwT1awf8rKOcZYF2wmj+L0WOr3b6p23DjMBdq
+ 1eTT6WQwFj1GCEyf3A+XkfPCFBIaYRlV6YnyAcYG5THSH+FCfGfq0vwqgE+71OG8N+wn/T
+ zLS5gd7GZVjYRxDzoZ6c1WzHeSf/kxw=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-372-XwCezD4iNx-HxUG8D2T_EQ-1; Wed, 14 Jun 2023 13:08:36 -0400
+X-MC-Unique: XwCezD4iNx-HxUG8D2T_EQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 11DCB3C0D842;
+ Wed, 14 Jun 2023 17:08:36 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.45.224.56])
+ by smtp.corp.redhat.com (Postfix) with SMTP id 199032166B25;
+ Wed, 14 Jun 2023 17:08:31 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+ oleg@redhat.com; Wed, 14 Jun 2023 19:08:10 +0200 (CEST)
+Date: Wed, 14 Jun 2023 19:08:04 +0200
+From: Oleg Nesterov <oleg@redhat.com>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: Can vhost translate to io_uring?
-Message-ID: <20230614103152-mutt-send-email-mst@kernel.org>
-References: <20230602192254.GD555@redhat.com>
+Subject: Re: [CFT][PATCH v3] fork, vhost: Use CLONE_THREAD to fix freezer/ps
+ regression
+Message-ID: <20230614170803.GA18850@redhat.com>
+References: <20230601183232.8384-1-michael.christie@oracle.com>
+ <20230602192254.GD555@redhat.com>
  <87r0qt18qq.fsf_-_@email.froward.int.ebiederm.org>
  <ae250076-7d55-c407-1066-86b37014c69c@oracle.com>
  <20230605151037.GE32275@redhat.com>
@@ -105,17 +88,15 @@ References: <20230602192254.GD555@redhat.com>
  <20230606121643.GD7542@redhat.com>
  <39f5913c-e658-e476-0378-62236bb4ed49@oracle.com>
  <20230606193907.GB18866@redhat.com>
- <cfbf1a0d-5d62-366f-f32f-6c63b151489e@oracle.com>
- <87mt12oa25.fsf_-_@email.froward.int.ebiederm.org>
+ <87o7llycau.fsf@email.froward.int.ebiederm.org>
 MIME-Version: 1.0
-In-Reply-To: <87mt12oa25.fsf_-_@email.froward.int.ebiederm.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, brauner@kernel.org, linux-kernel@vger.kernel.org,
- Oleg Nesterov <oleg@redhat.com>, linux@leemhuis.info, stefanha@redhat.com,
- nicolas.dichtel@6wind.com, virtualization@lists.linux-foundation.org,
- torvalds@linux-foundation.org
+In-Reply-To: <87o7llycau.fsf@email.froward.int.ebiederm.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Cc: axboe@kernel.dk, brauner@kernel.org, mst@redhat.com, linux@leemhuis.info,
+ linux-kernel@vger.kernel.org, stefanha@redhat.com, nicolas.dichtel@6wind.com,
+ virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,15 +113,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 14, 2023 at 01:02:58AM -0500, Eric W. Biederman wrote:
-> At a quick glance it looks like io_uring already supports the
-> functionality that vhost supports (which I think is networking and
-> scsi).
+On 06/11, Eric W. Biederman wrote:
+>
+> Oleg Nesterov <oleg@redhat.com> writes:
+>
+> > Could you spell to explain why this can't work (again, in this simple case) ?
+> >
+> > My current (and I know, very poor) understanding is that .release() should
+> > roughly do the following:
+> >
+> > 	1. Ensure that vhost_work_queue() can't add the new callbacks
+> >
+> > 	2. Call vhost_dev_flush() to ensure that worker->work_list is empty
+> >
+> > 	3. Call vhost_task_stop()
+>
+> At least in the case of exec by the time the final fput happens
+> from close_on_exec the task has already changed it's mm.
 
-There's vsock too.
+Of course you are right.
 
--- 
-MST
+But can't resist, please note that I only meant "this simple case" which
+doesn't include exec/etc.
+
+Nevermind. As Mike explains there are more problems even in this particular
+"simple" case, and I am not surprised.
+
+Sorry for noise,
+
+Oleg.
 
 _______________________________________________
 Virtualization mailing list
