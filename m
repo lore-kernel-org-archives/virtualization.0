@@ -1,85 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6D97EEB64DB
-	for <virtualization@archiver.kernel.org>; Tue, 20 Jun 2023 14:38:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD9F5EB64D7
+	for <virtualization@archiver.kernel.org>; Tue, 20 Jun 2023 14:58:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D6C5060675;
-	Tue, 20 Jun 2023 14:38:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6C5060675
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=1/VVDyNP
+	by smtp2.osuosl.org (Postfix) with ESMTP id 520D841701;
+	Tue, 20 Jun 2023 14:58:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 520D841701
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=G3DILaIj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mtACOccdg2mH; Tue, 20 Jun 2023 14:38:20 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u5JtJrtHwBqk; Tue, 20 Jun 2023 14:58:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6BF77606AA;
-	Tue, 20 Jun 2023 14:38:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6BF77606AA
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C2291402F4;
+	Tue, 20 Jun 2023 14:58:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C2291402F4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 299FEC007A;
-	Tue, 20 Jun 2023 14:38:19 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AE72AC0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 78469C007A;
+	Tue, 20 Jun 2023 14:58:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9AB74C0029
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jun 2023 14:38:17 +0000 (UTC)
+ Tue, 20 Jun 2023 14:58:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7AF3E6132E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 743BC401F3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jun 2023 14:38:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7AF3E6132E
+ Tue, 20 Jun 2023 14:58:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 743BC401F3
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=G3DILaIj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QR8IzCd3Alti
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cS73RFwMr5t3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jun 2023 14:38:16 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0BC860BCC
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A0BC860BCC
+ Tue, 20 Jun 2023 14:58:11 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 45EB94015E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 45EB94015E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jun 2023 14:38:16 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits))
+ Tue, 20 Jun 2023 14:58:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687273090;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=096kfvQCNbO3jjvPJlb61wpL4gpNse4m8jbz5dQcH+U=;
+ b=G3DILaIjYHb+Tnc5Pca2c9IlkoHV8B1zEu8QpK4LfclT2xdQPXqm6hdGjz5/GmSibD2HbD
+ Cj5GDXG/eecoNv6SIOBebvbJk6T1JrsDXo3P51VgWtySfFRNJlTcNdEHnF3+tIF1Nntx9C
+ 9TvgL6NI4HtEzL6gvpoiORQA79lXOII=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-246-cetdja7_MNaYUIl_PdTHIQ-1; Tue, 20 Jun 2023 10:58:01 -0400
+X-MC-Unique: cetdja7_MNaYUIl_PdTHIQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id C9F0E612CF;
- Tue, 20 Jun 2023 14:38:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A7E2C433C9;
- Tue, 20 Jun 2023 14:38:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1687271895;
- bh=PAixi759Cz1x+tiJzMc3suOwGcDgCCsJLx/WttsdMWc=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=1/VVDyNPTy6shHFXNSyLza0tEw+ynXaKDdMVpC6amPiWtuJnqDJBoB4JMvwC/YQ2+
- w8Xtdsc1KhRZsZi2y7msPOArg762c6WPHih7R9DgCoe13wWWGWNbc0CxlZvTDTVot5
- r/A9C1JKzIBSzdIYBP77KaCXWYfT4eQpYrlgvqXc=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 7/9] virtio_console: make port class a static const structure
-Date: Tue, 20 Jun 2023 16:37:58 +0200
-Message-ID: <20230620143751.578239-16-gregkh@linuxfoundation.org>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230620143751.578239-10-gregkh@linuxfoundation.org>
-References: <20230620143751.578239-10-gregkh@linuxfoundation.org>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D63E710665CD;
+ Tue, 20 Jun 2023 14:54:49 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.4])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id D321E40C6CD2;
+ Tue, 20 Jun 2023 14:54:46 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH net-next v3 18/18] net: Kill MSG_SENDPAGE_NOTLAST
+Date: Tue, 20 Jun 2023 15:53:37 +0100
+Message-ID: <20230620145338.1300897-19-dhowells@redhat.com>
+In-Reply-To: <20230620145338.1300897-1-dhowells@redhat.com>
+References: <20230620145338.1300897-1-dhowells@redhat.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3508;
- i=gregkh@linuxfoundation.org; h=from:subject;
- bh=nRhWIu09KBDqvQssi6osu1p4RellAMun0YZOyYbob5w=;
- b=owGbwMvMwCRo6H6F97bub03G02pJDCkTdx4wjtUKP3DdcUau9qOZotND0y2UwqzCIjZG8D/R/
- lgTUX6pI5aFQZCJQVZMkeXLNp6j+ysOKXoZ2p6GmcPKBDKEgYtTACZyKJdhvn/LtuVmYSmGPKqv
- znJs3T+Pg23RZ4b5+Z4m4We/c2obOEXz/K+WO7lbNfQaAA==
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp;
- fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- virtualization@lists.linux-foundation.org,
- Ivan Orlov <ivan.orlov0322@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
- Amit Shah <amit@kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: linux-doc@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>,
+ virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>,
+ linux-mm@kvack.org, Eric Dumazet <edumazet@google.com>,
+ linux-afs@lists.infradead.org,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, linux-x25@vger.kernel.org,
+ dccp@vger.kernel.org, linux-rdma@vger.kernel.org,
+ Matthew Wilcox <willy@infradead.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, linux-arm-msm@vger.kernel.org,
+ rds-devel@oss.oracle.com, linux-can@vger.kernel.org,
+ linux-hams@vger.kernel.org, mptcp@lists.linux.dev,
+ Jens Axboe <axboe@kernel.dk>, David Ahern <dsahern@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,111 +112,138 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Ivan Orlov <ivan.orlov0322@gmail.com>
+Now that ->sendpage() has been removed, MSG_SENDPAGE_NOTLAST can be cleaned
+up.  Things were converted to use MSG_MORE instead, but the protocol
+sendpage stubs still convert MSG_SENDPAGE_NOTLAST to MSG_MORE, which is now
+unnecessary.
 
-Now that the driver core allows for struct class to be in read-only
-memory, remove the class field of the ports_driver_data structure and
-create the port_class static class structure declared at build time
-which places it into read-only memory, instead of having it to be
-dynamically allocated at load time.
-
-Cc: Amit Shah <amit@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: virtualization@lists.linux-foundation.org
-Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ivan Orlov <ivan.orlov0322@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: bpf@vger.kernel.org
+cc: dccp@vger.kernel.org
+cc: linux-afs@lists.infradead.org
+cc: linux-arm-msm@vger.kernel.org
+cc: linux-can@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: linux-doc@vger.kernel.org
+cc: linux-hams@vger.kernel.org
+cc: linux-perf-users@vger.kernel.org
+cc: linux-rdma@vger.kernel.org
+cc: linux-sctp@vger.kernel.org
+cc: linux-wpan@vger.kernel.org
+cc: linux-x25@vger.kernel.org
+cc: mptcp@lists.linux.dev
+cc: netdev@vger.kernel.org
+cc: rds-devel@oss.oracle.com
+cc: tipc-discussion@lists.sourceforge.net
+cc: virtualization@lists.linux-foundation.org
 ---
- drivers/char/virtio_console.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b65c809a4e97..1f8da0a71ce9 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -40,9 +40,6 @@
-  * across multiple devices and multiple ports per device.
-  */
- struct ports_driver_data {
--	/* Used for registering chardevs */
--	struct class *class;
--
- 	/* Used for exporting per-port information to debugfs */
- 	struct dentry *debugfs_dir;
+Notes:
+    ver #3)
+     - tcp_bpf is now handled by an earlier patch.
+
+ include/linux/socket.h                         | 4 +---
+ net/tls/tls_device.c                           | 3 +--
+ net/tls/tls_main.c                             | 2 +-
+ net/tls/tls_sw.c                               | 2 +-
+ tools/perf/trace/beauty/include/linux/socket.h | 1 -
+ tools/perf/trace/beauty/msg_flags.c            | 3 ---
+ 6 files changed, 4 insertions(+), 11 deletions(-)
+
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 58204700018a..39b74d83c7c4 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -319,7 +319,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+@@ -341,8 +340,7 @@ struct ucred {
  
-@@ -55,6 +52,10 @@ struct ports_driver_data {
+ /* Flags to be cleared on entry by sendmsg and sendmmsg syscalls */
+ #define MSG_INTERNAL_SENDMSG_FLAGS \
+-	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_NOTLAST | \
+-	 MSG_SENDPAGE_DECRYPTED)
++	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_DECRYPTED)
  
- static struct ports_driver_data pdrvdata;
+ /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
+ #define SOL_IP		0
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 840ee06f1708..2021fe557e50 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -441,8 +441,7 @@ static int tls_push_data(struct sock *sk,
+ 	long timeo;
  
-+static const struct class port_class = {
-+	.name = "virtio-ports",
-+};
-+
- static DEFINE_SPINLOCK(pdrvdata_lock);
- static DECLARE_COMPLETION(early_console_added);
+ 	if (flags &
+-	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SENDPAGE_NOTLAST |
+-	      MSG_SPLICE_PAGES))
++	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SPLICE_PAGES))
+ 		return -EOPNOTSUPP;
  
-@@ -1399,7 +1400,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 			"Error %d adding cdev for port %u\n", err, id);
- 		goto free_cdev;
- 	}
--	port->dev = device_create(pdrvdata.class, &port->portdev->vdev->dev,
-+	port->dev = device_create(&port_class, &port->portdev->vdev->dev,
- 				  devt, port, "vport%up%u",
- 				  port->portdev->vdev->index, id);
- 	if (IS_ERR(port->dev)) {
-@@ -1465,7 +1466,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 
- free_inbufs:
- free_device:
--	device_destroy(pdrvdata.class, port->dev->devt);
-+	device_destroy(&port_class, port->dev->devt);
- free_cdev:
- 	cdev_del(port->cdev);
- free_port:
-@@ -1540,7 +1541,7 @@ static void unplug_port(struct port *port)
- 	port->portdev = NULL;
- 
- 	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
--	device_destroy(pdrvdata.class, port->dev->devt);
-+	device_destroy(&port_class, port->dev->devt);
- 	cdev_del(port->cdev);
- 
- 	debugfs_remove(port->debugfs_file);
-@@ -2244,12 +2245,9 @@ static int __init virtio_console_init(void)
+ 	if (unlikely(sk->sk_err))
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index d5ed4d47b16e..b6896126bb92 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -127,7 +127,7 @@ int tls_push_sg(struct sock *sk,
  {
- 	int err;
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = MSG_SENDPAGE_NOTLAST | MSG_SPLICE_PAGES | flags,
++		.msg_flags = MSG_SPLICE_PAGES | flags,
+ 	};
+ 	int ret = 0;
+ 	struct page *p;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 9b3aa89a4292..53f944e6d8ef 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1194,7 +1194,7 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
  
--	pdrvdata.class = class_create("virtio-ports");
--	if (IS_ERR(pdrvdata.class)) {
--		err = PTR_ERR(pdrvdata.class);
--		pr_err("Error %d creating virtio-ports class\n", err);
-+	err = class_register(&port_class);
-+	if (err)
- 		return err;
--	}
+ 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL |
+ 			       MSG_CMSG_COMPAT | MSG_SPLICE_PAGES |
+-			       MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
++			       MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
  
- 	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
- 	INIT_LIST_HEAD(&pdrvdata.consoles);
-@@ -2271,7 +2269,7 @@ static int __init virtio_console_init(void)
- 	unregister_virtio_driver(&virtio_console);
- free:
- 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
--	class_destroy(pdrvdata.class);
-+	class_unregister(&port_class);
- 	return err;
- }
- 
-@@ -2282,7 +2280,7 @@ static void __exit virtio_console_fini(void)
- 	unregister_virtio_driver(&virtio_console);
- 	unregister_virtio_driver(&virtio_rproc_serial);
- 
--	class_destroy(pdrvdata.class);
-+	class_unregister(&port_class);
- 	debugfs_remove_recursive(pdrvdata.debugfs_dir);
- }
- module_init(virtio_console_init);
--- 
-2.41.0
+ 	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
+diff --git a/tools/perf/trace/beauty/include/linux/socket.h b/tools/perf/trace/beauty/include/linux/socket.h
+index 13c3a237b9c9..3bef212a24d7 100644
+--- a/tools/perf/trace/beauty/include/linux/socket.h
++++ b/tools/perf/trace/beauty/include/linux/socket.h
+@@ -318,7 +318,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+diff --git a/tools/perf/trace/beauty/msg_flags.c b/tools/perf/trace/beauty/msg_flags.c
+index ea68db08b8e7..b5b580e5a77e 100644
+--- a/tools/perf/trace/beauty/msg_flags.c
++++ b/tools/perf/trace/beauty/msg_flags.c
+@@ -8,9 +8,6 @@
+ #ifndef MSG_WAITFORONE
+ #define MSG_WAITFORONE		   0x10000
+ #endif
+-#ifndef MSG_SENDPAGE_NOTLAST
+-#define MSG_SENDPAGE_NOTLAST	   0x20000
+-#endif
+ #ifndef MSG_FASTOPEN
+ #define MSG_FASTOPEN		0x20000000
+ #endif
 
 _______________________________________________
 Virtualization mailing list
