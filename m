@@ -1,111 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98F7EEB64DB
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jun 2023 12:58:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 15C6FEB64D8
+	for <virtualization@archiver.kernel.org>; Tue, 20 Jun 2023 10:33:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2768D60615;
-	Mon, 19 Jun 2023 12:58:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2768D60615
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=Dl0Yh3od
+	by smtp2.osuosl.org (Postfix) with ESMTP id 56F6C41681;
+	Tue, 20 Jun 2023 10:33:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 56F6C41681
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=eozkAryh;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=dgZp2ic0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C3srPPuedka8; Mon, 19 Jun 2023 12:58:23 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id T1k5e2mjEFbk; Tue, 20 Jun 2023 10:33:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8F11E605AC;
-	Mon, 19 Jun 2023 12:58:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F11E605AC
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5C673415DC;
+	Tue, 20 Jun 2023 10:33:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5C673415DC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61781C0037;
-	Mon, 19 Jun 2023 12:58:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C39F5C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 299FEC007A;
+	Tue, 20 Jun 2023 10:33:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 434FFC0029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jun 2023 12:58:20 +0000 (UTC)
+ Tue, 20 Jun 2023 10:33:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9EF658205A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 09EE540384
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jun 2023 12:58:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9EF658205A
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=Dl0Yh3od
+ Tue, 20 Jun 2023 10:33:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 09EE540384
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=eozkAryh; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=dgZp2ic0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZyTP3Ae-UEoO
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8xLjIxFACVWc
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jun 2023 12:58:20 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A644C82052
-Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com
- [IPv6:2607:f8b0:4864:20::f34])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A644C82052
+ Tue, 20 Jun 2023 10:33:48 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E5D9740353
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E5D9740353
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jun 2023 12:58:19 +0000 (UTC)
-Received: by mail-qv1-xf34.google.com with SMTP id
- 6a1803df08f44-62fec6068bbso30890886d6.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jun 2023 05:58:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1687179498; x=1689771498;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=2EN8SHZPulgVB2NMCjQeN+NgcQzF+fy6eDxvPwaTnFU=;
- b=Dl0Yh3odU6Ibx3U0XI9gO01djO1boB8jD1cQR3R0NpzgPt5gPq9kihHCbswEzs3OYd
- 03r5QSYG+lxEISoM2jRdnzGNx9ob6uaG61rTYKda/EyDE5OUeALFKJyKE6aRxEmqtMuT
- yq9zqGabHHd4TXbED/HDtpcORbbbp3Jla0hLbgo8RA4FwWaZ9I4u+bK3oDmxUf3qw4SE
- /6tHL/coP/TP6wYqZrSg+2tLJEV0+DPKoZNSpJOXcv047B3EDisC0wKL9JIHNiPJ4PL9
- fp3Es3PjT7hGqIIjPXQNJdzxvl5kP/uIXH9m3OZQg3WwYAGRQMJnyegfrhfSeGfNrXx4
- RuoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687179498; x=1689771498;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=2EN8SHZPulgVB2NMCjQeN+NgcQzF+fy6eDxvPwaTnFU=;
- b=XSrp30KNsP4ZhFKtvn5kpCuj3H8DmXdJyzNDAPAzCJi/JCJN8dX74ihamXjN2nUXjc
- bHB7GxJ2ofUcB+XGSdl0liNA/4Dn/nDHBVx81IVgzXtKqMEtQLuR/LKCjbq7UXUM+CBv
- LsxPC5L7Ow0wz3D/Glwl3udKax9BS4EQ39/PCHMaqT4k+4hB1ejHum0ZEs7Z8Q9mVzQ9
- gkj9XFSGrLKMK/Nl5mJTIz9W0/7Fd1kL5Ba18FRC8gbJoIAuqf+93ehoZ3/Pn+wEjG4s
- AQdlsJXbSmPRFbCRK4oOxcyiThsombSyfAy3roe4o7MEZ2ZaRGI4Y95EnEV2Y2PgWF7E
- e5BQ==
-X-Gm-Message-State: AC+VfDzVPvaAgZieQ0Fxm/KbfFJ5nxJBwf/qyLtR9YGp0O0oBWo59+rg
- vFUV7ICsehvu9LrDEm3wfyi3qQ==
-X-Google-Smtp-Source: ACHHUZ7aEQ33ZOLHiW7qLtXGbpVR5w4OkoPZd7ZxPgLEVetaPWz6ZAVebnx2vcET93MTDfFQnhj3cw==
-X-Received: by 2002:ad4:5cc8:0:b0:62f:fb4b:e28f with SMTP id
- iu8-20020ad45cc8000000b0062ffb4be28fmr12415239qvb.31.1687179498427; 
- Mon, 19 Jun 2023 05:58:18 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.68.25.194]) by smtp.gmail.com with ESMTPSA id
- l5-20020a0ce085000000b0062439f05b87sm10534957qvk.45.2023.06.19.05.58.17
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 19 Jun 2023 05:58:17 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qBESX-006pH5-Bv;
- Mon, 19 Jun 2023 09:58:17 -0300
-Date: Mon, 19 Jun 2023 09:58:17 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: Re: [RFC PATCHES 00/17] IOMMUFD: Deliver IO page faults to user space
-Message-ID: <ZJBQ6Qeg+C5wkhmw@ziepe.ca>
-References: <20230530053724.232765-1-baolu.lu@linux.intel.com>
- <20230616113232.GA84678@myrica>
+ Tue, 20 Jun 2023 10:33:47 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id E695E218E5;
+ Tue, 20 Jun 2023 10:33:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1687257224; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=YgOLJgi2fREmyUNpD7QXf421ecux7NS24N20XA+ST9g=;
+ b=eozkAryhR8ILRXyn9P9P4RBtfJWBg22C94x1X9/iX88wT00ty70sYrY/0xjRq36L3cyDrt
+ s/7QHGFNzWWMLH4VJObdbkcpfEV4dwdGt7WeLxaRi+y7ObTaX04xMIhmY+OqMF+uEmh+sZ
+ jxUwPJX+EZhIzssRfrUT81KU0DIkqSQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1687257224;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=YgOLJgi2fREmyUNpD7QXf421ecux7NS24N20XA+ST9g=;
+ b=dgZp2ic0WG84p2Ab5p4s0dZSrGkYnIMcYah+xMvkja+gt7HXJ8zKXBpJi0+o2YbcbHGcvt
+ Y6o76xpH/dzhwXDQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B0C0B1346D;
+ Tue, 20 Jun 2023 10:33:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id B14pKoiAkWQzXQAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Tue, 20 Jun 2023 10:33:44 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: airlied@redhat.com, kraxel@redhat.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com, daniel@ffwll.ch
+Subject: [PATCH] drm/virtgpu: Replace dev_private by helper function
+Date: Tue, 20 Jun 2023 12:33:28 +0200
+Message-ID: <20230620103343.910-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230616113232.GA84678@myrica>
-Cc: Yi Liu <yi.l.liu@intel.com>, Will Deacon <will@kernel.org>,
- Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
- Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
- linux-kselftest@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
- Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,34 +105,460 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 16, 2023 at 12:32:32PM +0100, Jean-Philippe Brucker wrote:
+Dereference struct drm_device.dev_private in the helper function
+do_virtio_gpu_device(). The dev_private field is deprecated and
+drivers are advised not ot use it. Encapsulating it in a helper
+function will help with a later removal. No functional changes.
 
-> We might need to revisit supporting stop markers: request that each device
-> driver declares whether their device uses stop markers on unbind() ("This
-> mechanism must indicate that a Stop Marker Message will be generated."
-> says the spec, but doesn't say if the function always uses one or the
-> other mechanism so it's per-unbind). Then we still have to synchronize
-> unbind() with the fault handler to deal with the pending stop marker,
-> which might have already gone through or be generated later.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/virtio/virtgpu_debugfs.c |  6 +++---
+ drivers/gpu/drm/virtio/virtgpu_display.c |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_drv.c     |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_drv.h     | 12 ++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_gem.c     |  8 ++++----
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c   | 18 +++++++++---------
+ drivers/gpu/drm/virtio/virtgpu_kms.c     |  8 ++++----
+ drivers/gpu/drm/virtio/virtgpu_object.c  |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_plane.c   |  8 ++++----
+ drivers/gpu/drm/virtio/virtgpu_prime.c   |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_submit.c  |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c      |  4 ++--
+ drivers/gpu/drm/virtio/virtgpu_vram.c    |  8 ++++----
+ 13 files changed, 51 insertions(+), 39 deletions(-)
 
-An explicit API to wait for the stop marker makes sense, with the
-expectation that well behaved devices will generate it and well
-behaved drivers will wait for it.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_debugfs.c b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+index 853dd9aa397eb..e768c6253db33 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_debugfs.c
++++ b/drivers/gpu/drm/virtio/virtgpu_debugfs.c
+@@ -44,7 +44,7 @@ static void virtio_gpu_add_int(struct seq_file *m, const char *name, int value)
+ static int virtio_gpu_features(struct seq_file *m, void *data)
+ {
+ 	struct drm_info_node *node = (struct drm_info_node *)m->private;
+-	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(node->minor->dev);
+ 
+ 	virtio_gpu_add_bool(m, "virgl", vgdev->has_virgl_3d);
+ 	virtio_gpu_add_bool(m, "edid", vgdev->has_edid);
+@@ -69,7 +69,7 @@ static int
+ virtio_gpu_debugfs_irq_info(struct seq_file *m, void *data)
+ {
+ 	struct drm_info_node *node = (struct drm_info_node *) m->private;
+-	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(node->minor->dev);
+ 
+ 	seq_printf(m, "fence %llu %lld\n",
+ 		   (u64)atomic64_read(&vgdev->fence_drv.last_fence_id),
+@@ -81,7 +81,7 @@ static int
+ virtio_gpu_debugfs_host_visible_mm(struct seq_file *m, void *data)
+ {
+ 	struct drm_info_node *node = (struct drm_info_node *)m->private;
+-	struct virtio_gpu_device *vgdev = node->minor->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(node->minor->dev);
+ 	struct drm_printer p;
+ 
+ 	if (!vgdev->has_host_visible) {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index ad924a8502e90..6cf143e06b003 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -86,7 +86,7 @@ virtio_gpu_framebuffer_init(struct drm_device *dev,
+ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ {
+ 	struct drm_device *dev = crtc->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+ 
+ 	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0,
+@@ -104,7 +104,7 @@ static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
+ 					   struct drm_atomic_state *state)
+ {
+ 	struct drm_device *dev = crtc->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+ 
+ 	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 91ace7a44f2a6..0e251c604049e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -125,7 +125,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ static void virtio_gpu_config_changed(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 
+ 	schedule_work(&vgdev->config_changed_work);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 4126c384286bf..d2f9a5862d6b7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -40,6 +40,7 @@
+ #include <drm/drm_gem.h>
+ #include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_ioctl.h>
++#include <drm/drm_print.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/virtgpu_drm.h>
+ 
+@@ -266,6 +267,17 @@ struct virtio_gpu_device {
+ 	spinlock_t host_visible_lock;
+ };
+ 
++static inline struct virtio_gpu_device *to_virtio_gpu_device(struct drm_device *dev)
++{
++	drm_WARN_ON_ONCE(dev, !dev->dev_private);
++
++	/*
++	 * TODO: Embed struct drm_device in struct virtio_gpu_device and
++	 *       upcast with container_of().
++	 */
++	return dev->dev_private;
++}
++
+ struct virtio_gpu_fpriv {
+ 	uint32_t ctx_id;
+ 	uint32_t context_init;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index 7db48d17ee3a8..6b1663a2c31eb 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -34,7 +34,7 @@ static int virtio_gpu_gem_create(struct drm_file *file,
+ 				 struct drm_gem_object **obj_p,
+ 				 uint32_t *handle_p)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_object *obj;
+ 	int ret;
+ 	u32 handle;
+@@ -64,7 +64,7 @@ int virtio_gpu_mode_dumb_create(struct drm_file *file_priv,
+ {
+ 	struct drm_gem_object *gobj;
+ 	struct virtio_gpu_object_params params = { 0 };
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	int ret;
+ 	uint32_t pitch;
+ 
+@@ -117,7 +117,7 @@ int virtio_gpu_mode_dumb_mmap(struct drm_file *file_priv,
+ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ 			       struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(obj->dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct virtio_gpu_object_array *objs;
+ 
+@@ -144,7 +144,7 @@ int virtio_gpu_gem_object_open(struct drm_gem_object *obj,
+ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+ 				 struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(obj->dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct virtio_gpu_object_array *objs;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index b24b11f25197d..aefcc7fb2e3e7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -54,7 +54,7 @@ static void virtio_gpu_create_context_locked(struct virtio_gpu_device *vgdev,
+ 
+ void virtio_gpu_create_context(struct drm_device *dev, struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 
+ 	mutex_lock(&vfpriv->context_lock);
+@@ -70,7 +70,7 @@ void virtio_gpu_create_context(struct drm_device *dev, struct drm_file *file)
+ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ 				struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct drm_virtgpu_map *virtio_gpu_map = data;
+ 
+ 	return virtio_gpu_mode_dumb_mmap(file, vgdev->ddev,
+@@ -81,7 +81,7 @@ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
+ 				     struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct drm_virtgpu_getparam *param = data;
+ 	int value;
+ 
+@@ -119,7 +119,7 @@ static int virtio_gpu_getparam_ioctl(struct drm_device *dev, void *data,
+ static int virtio_gpu_resource_create_ioctl(struct drm_device *dev, void *data,
+ 					    struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct drm_virtgpu_resource_create *rc = data;
+ 	struct virtio_gpu_fence *fence;
+ 	int ret;
+@@ -214,7 +214,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 					       void *data,
+ 					       struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct drm_virtgpu_3d_transfer_from_host *args = data;
+ 	struct virtio_gpu_object *bo;
+@@ -269,7 +269,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 					     struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct drm_virtgpu_3d_transfer_to_host *args = data;
+ 	struct virtio_gpu_object *bo;
+@@ -358,7 +358,7 @@ static int virtio_gpu_wait_ioctl(struct drm_device *dev, void *data,
+ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
+ 				void *data, struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct drm_virtgpu_get_caps *args = data;
+ 	unsigned size, host_caps_size;
+ 	int i;
+@@ -493,7 +493,7 @@ static int virtio_gpu_resource_create_blob_ioctl(struct drm_device *dev,
+ 	struct drm_gem_object *obj;
+ 	struct virtio_gpu_object *bo;
+ 	struct virtio_gpu_object_params params = { 0 };
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct drm_virtgpu_resource_create_blob *rc_blob = data;
+ 
+@@ -569,7 +569,7 @@ static int virtio_gpu_context_init_ioctl(struct drm_device *dev,
+ 	uint64_t valid_ring_mask;
+ 	size_t len;
+ 	struct drm_virtgpu_context_set_param *ctx_set_params = NULL;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	struct drm_virtgpu_context_init *args = data;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 5a3b5aaed1f36..ab8c0a6719ac7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -280,7 +280,7 @@ static void virtio_gpu_cleanup_cap_cache(struct virtio_gpu_device *vgdev)
+ 
+ void virtio_gpu_deinit(struct drm_device *dev)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 
+ 	flush_work(&vgdev->obj_free_work);
+ 	flush_work(&vgdev->ctrlq.dequeue_work);
+@@ -292,7 +292,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 
+ void virtio_gpu_release(struct drm_device *dev)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 
+ 	if (!vgdev)
+ 		return;
+@@ -307,7 +307,7 @@ void virtio_gpu_release(struct drm_device *dev)
+ 
+ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv;
+ 	int handle;
+ 
+@@ -335,7 +335,7 @@ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file)
+ 
+ void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 
+ 	if (!vgdev->has_virgl_3d)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index c7e74cf130221..d5613b74b0456 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -63,7 +63,7 @@ static void virtio_gpu_resource_id_put(struct virtio_gpu_device *vgdev, uint32_t
+ 
+ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+ {
+-	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(bo->base.base.dev);
+ 
+ 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
+ 	if (virtio_gpu_is_shmem(bo)) {
+@@ -86,7 +86,7 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+ static void virtio_gpu_free_object(struct drm_gem_object *obj)
+ {
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+-	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(bo->base.base.dev);
+ 
+ 	if (bo->created) {
+ 		virtio_gpu_cmd_unref_resource(vgdev, bo);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a2e045f3a0004..1f867af2555b1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -126,7 +126,7 @@ static void virtio_gpu_resource_flush(struct drm_plane *plane,
+ 				      uint32_t width, uint32_t height)
+ {
+ 	struct drm_device *dev = plane->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo;
+ 
+@@ -161,7 +161,7 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
+ 	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+ 									   plane);
+ 	struct drm_device *dev = plane->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_output *output = NULL;
+ 	struct virtio_gpu_object *bo;
+ 	struct drm_rect rect;
+@@ -235,7 +235,7 @@ static int virtio_gpu_plane_prepare_fb(struct drm_plane *plane,
+ 				       struct drm_plane_state *new_state)
+ {
+ 	struct drm_device *dev = plane->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo;
+ 
+@@ -278,7 +278,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state,
+ 									   plane);
+ 	struct drm_device *dev = plane->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_output *output = NULL;
+ 	struct virtio_gpu_framebuffer *vgfb;
+ 	struct virtio_gpu_object *bo = NULL;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index 44425f20d91aa..44e761dc4d79f 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -32,7 +32,7 @@ static int virtgpu_virtio_get_uuid(struct dma_buf *buf,
+ {
+ 	struct drm_gem_object *obj = buf->priv;
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+-	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(obj->dev);
+ 
+ 	wait_event(vgdev->resp_wq, bo->uuid_state != STATE_INITIALIZING);
+ 	if (bo->uuid_state != STATE_OK)
+@@ -106,7 +106,7 @@ struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
+ {
+ 	struct dma_buf *buf;
+ 	struct drm_device *dev = obj->dev;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+ 	int ret = 0;
+ 	bool blob = bo->host3d_blob || bo->guest_blob;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
+index cf3c04b16a7a8..5a599064aa265 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_submit.c
++++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
+@@ -162,7 +162,7 @@ static int virtio_gpu_init_submit(struct virtio_gpu_submit *submit,
+ 				  u64 fence_ctx, u32 ring_idx)
+ {
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fence *out_fence;
+ 	int err;
+ 
+@@ -251,7 +251,7 @@ static int virtio_gpu_lock_buflist(struct virtio_gpu_submit *submit)
+ int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 				struct drm_file *file)
+ {
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 	struct virtio_gpu_fpriv *vfpriv = file->driver_priv;
+ 	u64 fence_ctx = vgdev->fence_drv.context;
+ 	struct drm_virtgpu_execbuffer *exbuf = data;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index b1a00c0c25a70..7faa7f1a84005 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -56,7 +56,7 @@ static void convert_to_hw_box(struct virtio_gpu_box *dst,
+ void virtio_gpu_ctrl_ack(struct virtqueue *vq)
+ {
+ 	struct drm_device *dev = vq->vdev->priv;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 
+ 	schedule_work(&vgdev->ctrlq.dequeue_work);
+ }
+@@ -64,7 +64,7 @@ void virtio_gpu_ctrl_ack(struct virtqueue *vq)
+ void virtio_gpu_cursor_ack(struct virtqueue *vq)
+ {
+ 	struct drm_device *dev = vq->vdev->priv;
+-	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(dev);
+ 
+ 	schedule_work(&vgdev->cursorq.dequeue_work);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
+index 25df81c027837..c4a82f4da5a48 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vram.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+@@ -6,7 +6,7 @@
+ static void virtio_gpu_vram_free(struct drm_gem_object *obj)
+ {
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+-	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(obj->dev);
+ 	struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+ 	bool unmap;
+ 
+@@ -33,7 +33,7 @@ static int virtio_gpu_vram_mmap(struct drm_gem_object *obj,
+ 				struct vm_area_struct *vma)
+ {
+ 	int ret;
+-	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(obj->dev);
+ 	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
+ 	struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+ 	unsigned long vm_size = vma->vm_end - vma->vm_start;
+@@ -70,7 +70,7 @@ struct sg_table *virtio_gpu_vram_map_dma_buf(struct virtio_gpu_object *bo,
+ 					     struct device *dev,
+ 					     enum dma_data_direction dir)
+ {
+-	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(bo->base.base.dev);
+ 	struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+ 	struct sg_table *sgt;
+ 	dma_addr_t addr;
+@@ -143,7 +143,7 @@ static int virtio_gpu_vram_map(struct virtio_gpu_object *bo)
+ 	int ret;
+ 	uint64_t offset;
+ 	struct virtio_gpu_object_array *objs;
+-	struct virtio_gpu_device *vgdev = bo->base.base.dev->dev_private;
++	struct virtio_gpu_device *vgdev = to_virtio_gpu_device(bo->base.base.dev);
+ 	struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
+ 
+ 	if (!vgdev->has_host_visible)
+-- 
+2.41.0
 
-Things like VFIO should have a way to barrier/drain the PRI queue
-after issuing FLR. ie the VMM processing FLR should also barrier the
-real HW queues and flush them to VM visibility.
-
-> with stop markers, the host needs to flush the PRI queue when a PASID is
-> detached. I guess on Intel detaching the PASID goes through the host which
-> can flush the host queue. On Arm we'll probably need to flush the queue
-> when receiving a PASID cache invalidation, which the guest issues after
-> clearing a PASID table entry.
-
-We are trying to get ARM to a point where invalidations don't need to
-be trapped. It would be good to not rely on that anyplace.
-
-Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
