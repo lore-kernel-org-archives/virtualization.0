@@ -1,116 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2ED4CEB64D8
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 06:14:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5D8E0EB64D8
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 11:37:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A47A883AFA;
-	Thu, 22 Jun 2023 06:14:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A47A883AFA
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=eQlXRADa
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p1J0X8w967io; Thu, 22 Jun 2023 06:14:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1238683A73;
-	Thu, 22 Jun 2023 06:14:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1238683A73
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1DC7C0037;
-	Thu, 22 Jun 2023 06:14:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17A5CC0029
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 06:14:42 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id DD4CA41DC0
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 06:14:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DD4CA41DC0
+	by smtp4.osuosl.org (Postfix) with ESMTP id BC14441FAC;
+	Thu, 22 Jun 2023 11:37:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BC14441FAC
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=eQlXRADa
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Et4xGHTB
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RZQt-Ckz3GUn; Thu, 22 Jun 2023 11:37:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AD8E140953;
+	Thu, 22 Jun 2023 11:37:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD8E140953
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 71487C0037;
+	Thu, 22 Jun 2023 11:37:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9EAAC0029
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Jun 2023 11:37:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9F87241D8B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Jun 2023 11:37:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F87241D8B
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IwIrnmM9ApZ8
+ with ESMTP id jIKECGSBCYmq
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 06:14:40 +0000 (UTC)
+ Thu, 22 Jun 2023 11:37:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E02741C01
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 90C0E40953
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9E02741C01
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 90C0E40953
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 06:14:40 +0000 (UTC)
+ Thu, 22 Jun 2023 11:37:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687414479;
+ s=mimecast20190719; t=1687433838;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=6U7Jgyq5pY8OJlZBHmNv7DI17/H9KRKPjBl2RMWjLNY=;
- b=eQlXRADauHtV6adGbPVg3hhHZh6zV4Oak+znCLKYv4+HNT7a6g/JVXSeZdwEyASVFkrRsc
- DTyJuJUJuitnDHT8+wM8LTMw1g0g8CJDYPLTOC41f2ybMBgahA7oyKLp6HCM/RvCRcvVnA
- 3jI8tBZjDQblTeL3vmVnRSDZFZ/ZSu8=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=W7SKEzo0tiPtjA/r8jOe2vPyIc6DKSYtWpFv1BZVSgU=;
+ b=Et4xGHTBY5geu4WiDFyWr0DhpLyP73vfB026rF5OrfHiW8qUNFaOFrKwSjwBSDj2aZgIoq
+ BGCdl1o84fq5xeBW5HQFzrczWyldj9rC8hlJ+0mWs6HuVT9JzONXw7BlLrq5xjeS9H8+Vl
+ Nkr+wO/S6Q8010k1SpogzoXqoGnrcG0=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-487-olKpgxwZOZqsv2ILqRPkkg-1; Thu, 22 Jun 2023 02:14:37 -0400
-X-MC-Unique: olKpgxwZOZqsv2ILqRPkkg-1
-Received: by mail-ej1-f72.google.com with SMTP id
- a640c23a62f3a-987accb96dbso349455866b.2
+ us-mta-626-tULdWKhGPQ2-iUgoCMMeew-1; Thu, 22 Jun 2023 07:37:17 -0400
+X-MC-Unique: tULdWKhGPQ2-iUgoCMMeew-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ a640c23a62f3a-988e344bed9so328349366b.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jun 2023 23:14:37 -0700 (PDT)
+ Thu, 22 Jun 2023 04:37:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687414477; x=1690006477;
+ d=1e100.net; s=20221208; t=1687433836; x=1690025836;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=6U7Jgyq5pY8OJlZBHmNv7DI17/H9KRKPjBl2RMWjLNY=;
- b=e1qLK9CgabuMVXjegoMLaQd4SUWXLy3mzO4cWmCWrAtxCgVgVGcJW64PC/RVDnBIJ8
- AOEPEbe3rD2yG8xETBHhgQ26VfuabPmSGxSMXZWj8P8wA+gwoZ1uhk/LMvK6yAV308Fi
- dmKPOhbk6kbyKc2tW7UFcwAlZ6PWp7c4qktHT9Uw9RWpf4dmVs1G2l4VldxgNW5W1njp
- 0hEMS/T2QxxxPCdqZqkR4K33B5DcOL4JqJxUM8pNLPW0RjPRdh+VJQs2XpW6mViwCCPD
- r/fTYO0jpBWGSIAGd9ERKIBVw5OV6+uoP0eWLEyMpWLWlrhXJFqoF/RZ0G5Ndnq/WsHs
- pIrg==
-X-Gm-Message-State: AC+VfDxmwisMyD0yNjs9mYcEStex+y9PpJNH4NoTaJmFLpDdhZo+mCfM
- CdN8NpwW9P09k2Dn8Dd4uJnb6ALrqz4kyG0Gt0TTUYJSszj12Dq35RIy5AOqexZoxHR/In1TrDs
- n1UftiiBf9vFKLineZYL5DUWApvnbbJEfsn7PFGotIg==
-X-Received: by 2002:a17:907:1c07:b0:94f:956:b3f7 with SMTP id
- nc7-20020a1709071c0700b0094f0956b3f7mr18112703ejc.2.1687414476837; 
- Wed, 21 Jun 2023 23:14:36 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4kiHBugT6iJqkIz8a+U0lLXflhRfdcAKLD7sLp+R33WreQ6sCwEufnpAYyQ9KBgPCLpee+bA==
-X-Received: by 2002:a17:907:1c07:b0:94f:956:b3f7 with SMTP id
- nc7-20020a1709071c0700b0094f0956b3f7mr18112634ejc.2.1687414475008; 
- Wed, 21 Jun 2023 23:14:35 -0700 (PDT)
+ bh=W7SKEzo0tiPtjA/r8jOe2vPyIc6DKSYtWpFv1BZVSgU=;
+ b=aZGrSDQV76f9jxNgkUl9SwKQKxu2rUJpnNF4G/jDJSE4GyD512yi6tvq3UBcG428Rj
+ P9Bp7BNJIERZR8O0UXa/UW5hnrvuksMArF/dC5xVC0+ma7NBBgjZoAbHidP9qb0S5V+B
+ JN9hYFD9sxYc0RKNCU9rjZUtwL5GaL40VoNKz3JqS5U+cEohShz2P5HMsRln46wFm7Ik
+ Up8N59JdACX5D6b6ckY3U/jy2al7b3jvNayAMYIlYSLVp0hFLJi0BzX4xDWQx77Yache
+ PHrJqajgNxMRCp+kKOxTw5sOpKhMGN9rOtc6U7RNSySIswlzodIaMdymh6IcXalAHWJd
+ l4VA==
+X-Gm-Message-State: AC+VfDxpMwL7y8WpCqdGPN0HHGfkwZmXbYMh+MR5/uef8rPjICXLuWsH
+ SUMNh22HrDNaDJ2+Qm99r9fyxi7wibF5JZPSKKz3nh2gb5EPgsax5i+b7K2LBtvAfpapWsr/aTI
+ RyHXXkywrJJ0wMb3bddcbzxj24sKXyNcI3NH+gHkuxQ==
+X-Received: by 2002:a17:907:9810:b0:96f:bcea:df87 with SMTP id
+ ji16-20020a170907981000b0096fbceadf87mr18311951ejc.42.1687433836424; 
+ Thu, 22 Jun 2023 04:37:16 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5+6ZFEmHAogYeFG0AWvOJXQRz4NqoLSKP89l/++Hp1rS3Ll408wTBVz5tejEgoel33u4yaOA==
+X-Received: by 2002:a17:907:9810:b0:96f:bcea:df87 with SMTP id
+ ji16-20020a170907981000b0096fbceadf87mr18311937ejc.42.1687433836129; 
+ Thu, 22 Jun 2023 04:37:16 -0700 (PDT)
 Received: from redhat.com ([2.52.159.126]) by smtp.gmail.com with ESMTPSA id
- i7-20020a170906698700b009745417ca38sm4083600ejr.21.2023.06.21.23.14.32
+ l11-20020a170906644b00b00988956f244csm4586680ejn.6.2023.06.22.04.37.13
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 21 Jun 2023 23:14:34 -0700 (PDT)
-Date: Thu, 22 Jun 2023 02:14:30 -0400
+ Thu, 22 Jun 2023 04:37:15 -0700 (PDT)
+Date: Thu, 22 Jun 2023 07:37:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Edward Liaw <edliaw@google.com>
-Subject: Re: [PATCH v2] Revert "virtio-blk: support completion batching for
- the IRQ path"
-Message-ID: <20230622021322-mutt-send-email-mst@kernel.org>
-References: <336455b4f630f329380a8f53ee8cad3868764d5c.1686295549.git.mst@redhat.com>
- <ZJIuG9hyTYIIDbF5@google.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vhost-vdpa: filter VIRTIO_F_RING_PACKED feature
+Message-ID: <20230622073625-mutt-send-email-mst@kernel.org>
+References: <20230605110644.151211-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <ZJIuG9hyTYIIDbF5@google.com>
+In-Reply-To: <20230605110644.151211-1-sgarzare@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- kernel test robot <lkp@intel.com>, "Roberts,
- Martin" <martin.roberts@intel.com>, linux-kernel@vger.kernel.org,
- linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Suwan Kim <suwan.kim027@gmail.com>,
- virtualization@lists.linux-foundation.org
+Cc: Tiwei Bie <tiwei.bie@intel.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,96 +120,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 20, 2023 at 10:54:19PM +0000, Edward Liaw wrote:
-> On Fri, Jun 09, 2023 at 03:27:24AM -0400, Michael S. Tsirkin wrote:
-> > This reverts commit 07b679f70d73483930e8d3c293942416d9cd5c13.
-> This commit was also breaking kernel tests on a virtual Android device
-> (cuttlefish).  We were seeing hangups like:
+On Mon, Jun 05, 2023 at 01:06:44PM +0200, Stefano Garzarella wrote:
+> vhost-vdpa IOCTLs (eg. VHOST_GET_VRING_BASE, VHOST_SET_VRING_BASE)
+> don't support packed virtqueue well yet, so let's filter the
+> VIRTIO_F_RING_PACKED feature for now in vhost_vdpa_get_features().
 > 
-> [ 2889.910733] INFO: task kworker/u8:2:6312 blocked for more than 720 seconds.
-> [ 2889.910967]       Tainted: G           OE      6.2.0-mainline-g5c05cafa8df7-ab9969617 #1
-> [ 2889.911143] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> [ 2889.911389] task:kworker/u8:2    state:D stack:12160 pid:6312  ppid:2      flags:0x00004000
-> [ 2889.911567] Workqueue: writeback wb_workfn (flush-254:57)
-> [ 2889.911771] Call Trace:
-> [ 2889.911831]  <TASK>
-> [ 2889.911893]  __schedule+0x55f/0x880
-> [ 2889.912021]  schedule+0x6a/0xc0
-> [ 2889.912110]  schedule_timeout+0x58/0x1a0
-> [ 2889.912200]  wait_for_common+0xf7/0x1b0
-> [ 2889.912289]  wait_for_completion+0x1c/0x40
-> [ 2889.912377]  f2fs_issue_checkpoint+0x14c/0x210
-> [ 2889.912504]  f2fs_sync_fs+0x4c/0xb0
-> [ 2889.912597]  f2fs_balance_fs_bg+0x2f6/0x340
-> [ 2889.912736]  ? can_migrate_task+0x39/0x2b0
-> [ 2889.912872]  f2fs_write_node_pages+0x77/0x240
-> [ 2889.912989]  do_writepages+0xde/0x240
-> [ 2889.913094]  __writeback_single_inode+0x3f/0x360
-> [ 2889.913231]  writeback_sb_inodes+0x320/0x5f0
-> [ 2889.913349]  ? move_expired_inodes+0x58/0x210
-> [ 2889.913470]  __writeback_inodes_wb+0x97/0x100
-> [ 2889.913587]  wb_writeback+0x17e/0x390
-> [ 2889.913682]  wb_workfn+0x35f/0x500
-> [ 2889.913774]  process_one_work+0x1d9/0x3b0
-> [ 2889.913870]  worker_thread+0x251/0x410
-> [ 2889.913960]  kthread+0xeb/0x110
-> [ 2889.914052]  ? __cfi_worker_thread+0x10/0x10
-> [ 2889.914168]  ? __cfi_kthread+0x10/0x10
-> [ 2889.914257]  ret_from_fork+0x29/0x50
-> [ 2889.914364]  </TASK>
-> [ 2889.914565] INFO: task mkdir09:6425 blocked for more than 720 seconds.
-> [ 2889.916065]       Tainted: G           OE      6.2.0-mainline-g5c05cafa8df7-ab9969617 #1
-> [ 2889.916255] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> [ 2889.916450] task:mkdir09         state:D stack:13016 pid:6425  ppid:6423   flags:0x00004000
-> [ 2889.916656] Call Trace:
-> [ 2889.916900]  <TASK>
-> [ 2889.917004]  __schedule+0x55f/0x880
-> [ 2889.917129]  schedule+0x6a/0xc0
-> [ 2889.917273]  schedule_timeout+0x58/0x1a0
-> [ 2889.917425]  wait_for_common+0xf7/0x1b0
-> [ 2889.917535]  wait_for_completion+0x1c/0x40
-> [ 2889.917670]  f2fs_issue_checkpoint+0x14c/0x210
-> [ 2889.917844]  f2fs_sync_fs+0x4c/0xb0
-> [ 2889.917969]  f2fs_do_sync_file+0x3a8/0x8c0
-> [ 2889.918090]  ? mt_find+0xa0/0x1a0
-> [ 2889.918216]  f2fs_sync_file+0x2f/0x60
-> [ 2889.918310]  vfs_fsync_range+0x74/0x90
-> [ 2889.918567]  __se_sys_msync+0x176/0x270
-> [ 2889.918730]  __x64_sys_msync+0x1c/0x40
-> [ 2889.918873]  do_syscall_64+0x53/0xb0
-> [ 2889.918996]  entry_SYSCALL_64_after_hwframe+0x72/0xdc
-> [ 2889.919178] RIP: 0033:0x7540b08bcf47
-> [ 2889.919297] RSP: 002b:00007fff5fcbeea8 EFLAGS: 00000206 ORIG_RAX: 000000000000001a
-> [ 2889.919496] RAX: ffffffffffffffda RBX: 0000000000001000 RCX: 00007540b08bcf47
-> [ 2889.919828] RDX: 0000000000000004 RSI: 0000000000001000 RDI: 00007540b4ae7000
-> [ 2889.920227] RBP: 0000000000000000 R08: 721e0000010b0016 R09: 0000000000000003
-> [ 2889.920435] R10: 0000000000000100 R11: 0000000000000206 R12: 00005d2f95fd2f08
-> [ 2889.920793] R13: 00005d2f95fbc310 R14: 00007540b08e1bb8 R15: 00005d2f95fbc310
-> [ 2889.921072]  </TASK>
+> This way, even if the device supports it, we don't risk it being
+> negotiated, then the VMM is unable to set the vring state properly.
 > 
-> in random tests in the LTP (linux test project) test suite.
-> 
-> > ---
-> > 
-> > Since v1:
-> > 	fix build error
-> > 
-> > Still completely untested as I'm traveling.
-> > Martin, Suwan, could you please test and report?
-> > Suwan if you have a better revert in mind pls post and
-> > I will be happy to drop this.
-> > 
-> > Thanks!
-> > 
-> This revert appears to have resolved the test failures for me.
-> 
-> Tested-by: edliaw@google.com
+> Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Oh interesting, can you share how to reproduce the failures?
-Then maybe Suwan Kim can take a look at fixing up the patch.
+OK so for now I dropped this, we have a better fix upstream.
 
--- 
-MST
+> ---
+> 
+> Notes:
+>     This patch should be applied before the "[PATCH v2 0/3] vhost_vdpa:
+>     better PACKED support" series [1] and backported in stable branches.
+>     
+>     We can revert it when we are sure that everything is working with
+>     packed virtqueues.
+>     
+>     Thanks,
+>     Stefano
+>     
+>     [1] https://lore.kernel.org/virtualization/20230424225031.18947-1-shannon.nelson@amd.com/
+> 
+>  drivers/vhost/vdpa.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 8c1aefc865f0..ac2152135b23 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -397,6 +397,12 @@ static long vhost_vdpa_get_features(struct vhost_vdpa *v, u64 __user *featurep)
+>  
+>  	features = ops->get_device_features(vdpa);
+>  
+> +	/*
+> +	 * IOCTLs (eg. VHOST_GET_VRING_BASE, VHOST_SET_VRING_BASE) don't support
+> +	 * packed virtqueue well yet, so let's filter the feature for now.
+> +	 */
+> +	features &= ~BIT_ULL(VIRTIO_F_RING_PACKED);
+> +
+>  	if (copy_to_user(featurep, &features, sizeof(features)))
+>  		return -EFAULT;
+>  
+> 
+> base-commit: 9561de3a55bed6bdd44a12820ba81ec416e705a7
+> -- 
+> 2.40.1
 
 _______________________________________________
 Virtualization mailing list
