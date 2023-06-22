@@ -4,104 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04B2BEB64DB
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 15:26:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55679EB64D8
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 15:29:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 81FE84192D;
-	Thu, 22 Jun 2023 15:26:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 81FE84192D
+	by smtp2.osuosl.org (Postfix) with ESMTP id F071940643;
+	Thu, 22 Jun 2023 15:29:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F071940643
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JPs7h+8n
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g1YGZTQ2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KQOollac8jFw; Thu, 22 Jun 2023 15:26:19 +0000 (UTC)
+	with ESMTP id 62cbVFZKcpK5; Thu, 22 Jun 2023 15:29:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E0D8740296;
-	Thu, 22 Jun 2023 15:26:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E0D8740296
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6921540296;
+	Thu, 22 Jun 2023 15:29:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6921540296
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B1CF6C0037;
-	Thu, 22 Jun 2023 15:26:18 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DA0BC0037;
+	Thu, 22 Jun 2023 15:29:19 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C400C0029
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 79DC8C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:26:17 +0000 (UTC)
+ Thu, 22 Jun 2023 15:29:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 15AD0614DC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5443F60E22
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:26:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 15AD0614DC
+ Thu, 22 Jun 2023 15:29:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5443F60E22
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=JPs7h+8n
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=g1YGZTQ2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CVKerPARBrEE
+ with ESMTP id MbnhmBb8eFwQ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:26:16 +0000 (UTC)
+ Thu, 22 Jun 2023 15:29:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 40AE760B4C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D49960B3A
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 40AE760B4C
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9D49960B3A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:26:16 +0000 (UTC)
+ Thu, 22 Jun 2023 15:29:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687447575;
+ s=mimecast20190719; t=1687447756;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=s9naFD7gfaMNd05hAGGf5tsGc4tvi4lWlW620oNdE7s=;
- b=JPs7h+8nBFI2BD0GvJzGpgDAExR1ULuylEarCGfmf9TRgloCJYYbOZaJvtXg8Aq9NFAkme
- /a/rCY6a7uUMbfFX6kYxPieQBEtp9UzuG/VE4QYKtJedOPV0Cq+IJPvl/lJ5odPC3F50Tc
- /hSfCMFWGAUvl9ejjIzfEVthRx+Eumg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LHj7B9f0CgOb6vLBDwdZy7CybIY89mtFfpP8ghtMr90=;
+ b=g1YGZTQ2bnNNl4LPtYawqVPnuAHdN1imsIRwdbnaqfFhej4JTVY55fLjXxDyGSlfszihG+
+ AIVBvc2ASAr4d7rDkRN/pKwKUZppdS5GvLUv5JVz/u9SAZ996K7x8eRa2gCn6TLbSbLJVD
+ s+uSt6Ro4Z+IFYeRusJ+44cwQsHYui8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-552-k9Iera-kM62DHiB4tTl5yA-1; Thu, 22 Jun 2023 11:26:02 -0400
-X-MC-Unique: k9Iera-kM62DHiB4tTl5yA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-3f8fe1f1199so27676485e9.0
+ us-mta-450-hOjT8RLfObaO4Gg387AUOQ-1; Thu, 22 Jun 2023 11:29:15 -0400
+X-MC-Unique: hOjT8RLfObaO4Gg387AUOQ-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ ffacd0b85a97d-31273e0507dso2042929f8f.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 08:26:00 -0700 (PDT)
+ Thu, 22 Jun 2023 08:29:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687447559; x=1690039559;
+ d=1e100.net; s=20221208; t=1687447753; x=1690039753;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=s9naFD7gfaMNd05hAGGf5tsGc4tvi4lWlW620oNdE7s=;
- b=dhZSoApDCBoF1JZtq63sigVL6fPU85taVnZDxrHtBYkc6Av6LyNWeMY57FOgnG8DWT
- B+x5z+qLNdBsIadw4hslK6Y42DPRYm4GV5NRM+WuQXbITenpFIh4L9EzV+hNddphRKR3
- tbhT2auk1wobWZwVrOqsCckuJNHlLMFD3NBeZjR/oLAzT5CFiEpUb6bBS2Ix7bpnCC9A
- 1CTlFMg2+5lDMXRNhNggQZR1gBTmZR1qiGaWLYhr/BMr+mN3RTeA9HkvAJuLSOSH1tJ1
- v7JWYDkX/GGZPB+dbh1t5RcWYfq8DVwrNn2uBwTDOO1VRnrHJkzb47t9UgdbXfnRqfwR
- hPGA==
-X-Gm-Message-State: AC+VfDzjt6UyJS2IfCv+nz7ULQUO7dv6Gq8m11BYRRKs61277Kn6r3P5
- 7CklPk4EQ2Y7LI+XB09EAZ1NvzQ5pbP3uRevZKpBtOugzVsEuwPw2x1ogjuYpeAPKhcYlOMKNrK
- b0l++Zh2dsgwDaS+pS7QkQrtWB+/DYpKi6x2AV8QKOg==
-X-Received: by 2002:a7b:cb90:0:b0:3f9:c2f6:335 with SMTP id
- m16-20020a7bcb90000000b003f9c2f60335mr3570368wmi.36.1687447559670; 
- Thu, 22 Jun 2023 08:25:59 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5yc3YiqgFnTK1MzlExfaEms+r4U/DMqe75/V1PK4F+LuHCCZzMXuAmW0ik7zmWglpxBefjHA==
-X-Received: by 2002:a7b:cb90:0:b0:3f9:c2f6:335 with SMTP id
- m16-20020a7bcb90000000b003f9c2f60335mr3570346wmi.36.1687447559371; 
- Thu, 22 Jun 2023 08:25:59 -0700 (PDT)
+ bh=LHj7B9f0CgOb6vLBDwdZy7CybIY89mtFfpP8ghtMr90=;
+ b=G4g9fm/g4x4x10WHWYStt7CzJDvbJoibShdLZXrUbdUPfLFalYT8dZOUXtjmiM4qdB
+ XcfQbwOePKZyROZ+m4+kgNymougXSCK7CJIKNIPRW/zzr6+JXwyn70I6gDQdcLb/WdTi
+ YEqd6tmHc/WjZ6eYAy8I25tLpUdE3e++zNgpBq+aRf9hW9LmcInjnnfGF/J+0UQ2mU+j
+ 3FtNiKAjO4J2+LVbXRQdTGw1QoRUXu1MeKLATXjZT7NDqCrHbFJoSEIgX1uDBbGDSt3Y
+ OiFzqf06wa51VBzOeEK1AD2jlo8bTcGj3MZlw38Y6oBN6AAVF/fgw4FZIdnmMNW3vDJI
+ aV6g==
+X-Gm-Message-State: AC+VfDzxCIVxZQPGmJ/5ZPMCkgYKKI0rlo2aFA3Zm+G4ryrLf2bSJrNM
+ /FnpXpY+xpmUbm2AF/zxbmhGVdN8Bw07FNIyXydFDjKwoJtKOwrNxFoZ2sDueS0aClTzPeVBsSV
+ 17P2TiQ7PHia/O22WoTdqzfsx15wu4kMnyH1i6oozvA==
+X-Received: by 2002:a5d:4a45:0:b0:30f:b9a2:92c5 with SMTP id
+ v5-20020a5d4a45000000b0030fb9a292c5mr16230756wrs.49.1687447752863; 
+ Thu, 22 Jun 2023 08:29:12 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6wJek32JccOCrkY+bAzshAWmkfVijJZJwTebxPvorEXZQJ+vqataOybeRtTQvOfMVty8q+6Q==
+X-Received: by 2002:a5d:4a45:0:b0:30f:b9a2:92c5 with SMTP id
+ v5-20020a5d4a45000000b0030fb9a292c5mr16230739wrs.49.1687447752542; 
+ Thu, 22 Jun 2023 08:29:12 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
  [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
- n20-20020a1c7214000000b003f8d85b481esm19011755wmc.21.2023.06.22.08.25.57
+ p7-20020adff207000000b00307acec258esm7389420wro.3.2023.06.22.08.29.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Jun 2023 08:25:58 -0700 (PDT)
-Date: Thu, 22 Jun 2023 17:25:55 +0200
+ Thu, 22 Jun 2023 08:29:12 -0700 (PDT)
+Date: Thu, 22 Jun 2023 17:29:08 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Subject: Re: [PATCH RFC net-next v4 4/8] vsock: make vsock bind reusable
-Message-ID: <p2tgn3wczd3t3dodyicczetr2nqnqpwcadz6ql5hpvg2cd2dxa@phheksxhxfna>
+Subject: Re: [PATCH RFC net-next v4 5/8] virtio/vsock: add
+ VIRTIO_VSOCK_F_DGRAM feature bit
+Message-ID: <med476cdkdhkylddqa5wbhjpgyw2yiqfthvup2kics3zbb5vpb@ovzg57adewfw>
 References: <20230413-b4-vsock-dgram-v4-0-0cebbb2ae899@bytedance.com>
- <20230413-b4-vsock-dgram-v4-4-0cebbb2ae899@bytedance.com>
+ <20230413-b4-vsock-dgram-v4-5-0cebbb2ae899@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <20230413-b4-vsock-dgram-v4-4-0cebbb2ae899@bytedance.com>
+In-Reply-To: <20230413-b4-vsock-dgram-v4-5-0cebbb2ae899@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -115,8 +116,8 @@ Cc: linux-hyperv@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
  Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
  Haiyang Zhang <haiyangz@microsoft.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
- Vishnu Dasa <vdasa@vmware.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ Vishnu Dasa <vdasa@vmware.com>, Jiang Wang <jiang.wang@bytedance.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
  "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -134,116 +135,36 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jun 10, 2023 at 12:58:31AM +0000, Bobby Eshleman wrote:
->This commit makes the bind table management functions in vsock usable
->for different bind tables. For use by datagrams in a future patch.
+On Sat, Jun 10, 2023 at 12:58:32AM +0000, Bobby Eshleman wrote:
+>This commit adds a feature bit for virtio vsock to support datagrams.
 >
+>Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
 >Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
 >---
-> net/vmw_vsock/af_vsock.c | 33 ++++++++++++++++++++++++++-------
-> 1 file changed, 26 insertions(+), 7 deletions(-)
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index ef86765f3765..7a3ca4270446 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -230,11 +230,12 @@ static void __vsock_remove_connected(struct vsock_sock *vsk)
-> 	sock_put(&vsk->sk);
-> }
->
->-static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
->+struct sock *vsock_find_bound_socket_common(struct sockaddr_vm *addr,
->+					    struct list_head *bind_table)
-> {
-> 	struct vsock_sock *vsk;
->
->-	list_for_each_entry(vsk, vsock_bound_sockets(addr), bound_table) {
->+	list_for_each_entry(vsk, bind_table, bound_table) {
-> 		if (vsock_addr_equals_addr(addr, &vsk->local_addr))
-> 			return sk_vsock(vsk);
->
->@@ -247,6 +248,11 @@ static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
-> 	return NULL;
-> }
->
->+static struct sock *__vsock_find_bound_socket(struct sockaddr_vm *addr)
->+{
->+	return vsock_find_bound_socket_common(addr, vsock_bound_sockets(addr));
->+}
->+
-> static struct sock *__vsock_find_connected_socket(struct sockaddr_vm *src,
-> 						  struct sockaddr_vm *dst)
-> {
->@@ -646,12 +652,17 @@ static void vsock_pending_work(struct work_struct *work)
->
-> /**** SOCKET OPERATIONS ****/
->
->-static int __vsock_bind_connectible(struct vsock_sock *vsk,
->-				    struct sockaddr_vm *addr)
->+static int vsock_bind_common(struct vsock_sock *vsk,
->+			     struct sockaddr_vm *addr,
->+			     struct list_head *bind_table,
->+			     size_t table_size)
-> {
-> 	static u32 port;
-> 	struct sockaddr_vm new_addr;
->
->+	if (table_size < VSOCK_HASH_SIZE)
->+		return -1;
+> include/uapi/linux/virtio_vsock.h | 1 +
+> 1 file changed, 1 insertion(+)
 
-Why we need this check now?
+LGTM, but I'll give the R-b when we merge the virtio-spec.
 
->+
-> 	if (!port)
-> 		port = get_random_u32_above(LAST_RESERVED_PORT);
+Stefano
+
 >
->@@ -667,7 +678,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+>diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+>index 64738838bee5..9c25f267bbc0 100644
+>--- a/include/uapi/linux/virtio_vsock.h
+>+++ b/include/uapi/linux/virtio_vsock.h
+>@@ -40,6 +40,7 @@
 >
-> 			new_addr.svm_port = port++;
+> /* The feature bitmap for virtio vsock */
+> #define VIRTIO_VSOCK_F_SEQPACKET	1	/* SOCK_SEQPACKET supported */
+>+#define VIRTIO_VSOCK_F_DGRAM		3	/* SOCK_DGRAM supported */
 >
->-			if (!__vsock_find_bound_socket(&new_addr)) {
->+			if (!vsock_find_bound_socket_common(&new_addr,
->+							    &bind_table[VSOCK_HASH(addr)])) {
-> 				found = true;
-> 				break;
-> 			}
->@@ -684,7 +696,8 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> 			return -EACCES;
-> 		}
->
->-		if (__vsock_find_bound_socket(&new_addr))
->+		if (vsock_find_bound_socket_common(&new_addr,
->+						   &bind_table[VSOCK_HASH(addr)]))
-> 			return -EADDRINUSE;
-> 	}
->
->@@ -696,11 +709,17 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
-> 	 * by AF_UNIX.
-> 	 */
-> 	__vsock_remove_bound(vsk);
->-	__vsock_insert_bound(vsock_bound_sockets(&vsk->local_addr), vsk);
->+	__vsock_insert_bound(&bind_table[VSOCK_HASH(&vsk->local_addr)], vsk);
->
-> 	return 0;
-> }
->
->+static int __vsock_bind_connectible(struct vsock_sock *vsk,
->+				    struct sockaddr_vm *addr)
->+{
->+	return vsock_bind_common(vsk, addr, vsock_bind_table, VSOCK_HASH_SIZE + 1);
->+}
->+
-> static int __vsock_bind_dgram(struct vsock_sock *vsk,
-> 			      struct sockaddr_vm *addr)
-> {
+> struct virtio_vsock_config {
+> 	__le64 guest_cid;
 >
 >-- 
 >2.30.2
 >
-
-The rest seems okay to me, but I agree with Simon's suggestion.
-
-Stefano
 
 _______________________________________________
 Virtualization mailing list
