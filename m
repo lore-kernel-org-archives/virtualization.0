@@ -1,109 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 02327EB64DB
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 15:12:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5DCB3EB64D8
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 15:19:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8377161306;
-	Thu, 22 Jun 2023 15:12:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8377161306
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.cz header.i=@suse.cz header.a=rsa-sha256 header.s=susede2_rsa header.b=N9B19ELE;
-	dkim=fail reason="signature verification failed" header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=n5V8ZHTP
+	by smtp1.osuosl.org (Postfix) with ESMTP id CD6DB83C8F;
+	Thu, 22 Jun 2023 15:19:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD6DB83C8F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dmqY5nNe
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 69_TXJK39ijC; Thu, 22 Jun 2023 15:12:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id BF5406145C;
-	Thu, 22 Jun 2023 15:12:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF5406145C
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iFyZTKmfEifw; Thu, 22 Jun 2023 15:19:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D5F9E83C87;
+	Thu, 22 Jun 2023 15:19:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D5F9E83C87
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A10EAC007A;
-	Thu, 22 Jun 2023 15:12:09 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56FD1C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A9FFEC0037;
+	Thu, 22 Jun 2023 15:19:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5FB0C0029
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:12:08 +0000 (UTC)
+ Thu, 22 Jun 2023 15:19:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2B4544192B
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9F01742108
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:12:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2B4544192B
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz
- header.a=rsa-sha256 header.s=susede2_rsa header.b=N9B19ELE; 
- dkim=pass header.d=suse.cz header.i=@suse.cz header.a=ed25519-sha256
- header.s=susede2_ed25519 header.b=n5V8ZHTP
+ Thu, 22 Jun 2023 15:19:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9F01742108
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dmqY5nNe
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iTvMe3Jj2BF0
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MPYXQp-kpb18
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:12:05 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 054A640516
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 054A640516
+ Thu, 22 Jun 2023 15:19:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E7B9A42096
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E7B9A42096
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 15:12:04 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 05F651FDD2;
- Thu, 22 Jun 2023 15:12:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1687446723; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
+ Thu, 22 Jun 2023 15:19:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687447157;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=DxyEqnSQyZKokKZ2LU3qC8/yrgR0FWi1mwbmN5xCk9E=;
- b=N9B19ELEkGrxV0suLxXhGZQpBLV2Yb7u7uZXemMcT2Ad1Ns9qHJoy72l2ulfj/9tDqlLBb
- GVFwd6rBAVc5H15+Kb7yFySUdw5/Q+tDegqObQNCQUjja9lcvWjOK2f2isXuCAjrFX5YBO
- 5+wd+oOgRBQuiRPGEInEXCDzdjlKZqA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1687446723;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=DxyEqnSQyZKokKZ2LU3qC8/yrgR0FWi1mwbmN5xCk9E=;
- b=n5V8ZHTPzF9VGJZMIFTWsPNIcgfy7jzHlKJbRGMIHWOaWYvwD7wX3oB3QALl4YmQglroUj
- lTp+6+OznWDE/zCA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A96C013905;
- Thu, 22 Jun 2023 15:12:02 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id tmWdKMJklGScKwAAMHmgww
- (envelope-from <vbabka@suse.cz>); Thu, 22 Jun 2023 15:12:02 +0000
-Message-ID: <cf0d9b12-6491-bf23-b464-9d01e5781203@suse.cz>
-Date: Thu, 22 Jun 2023 17:12:02 +0200
+ bh=YAWCmrAmwCl1N7fCfizEGws+8a3F56UqQiaEh7J5B+E=;
+ b=dmqY5nNeKI2f93rHks+DgYGslLxI7OxoCovp2pg7vlBjaJoYpAned35eWBHRzdJvnBWebf
+ sW/zghqmWlmEHmz2TsN+4UbN4sQRLmpMzMhqdbJTqwgpSyJboW74clX68mXQVSlGONhKiO
+ ti6EnVM+5FeM8XPySACG8zVKLatpC7c=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-582-CqaiulXaPKqME93qeeWHVw-1; Thu, 22 Jun 2023 11:19:15 -0400
+X-MC-Unique: CqaiulXaPKqME93qeeWHVw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 5b1f17b1804b1-3f810b4903fso37367135e9.2
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Jun 2023 08:19:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1687447152; x=1690039152;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=YAWCmrAmwCl1N7fCfizEGws+8a3F56UqQiaEh7J5B+E=;
+ b=bHsCZ1IvFEt/dFgPmMpdecOkqPWH2abJboKJ9OZ/2kc21hnMw1myPMvxg+fFWT8Tzo
+ WGNynzqo8QvAuwQOvJayZ3R2mdwfWgPlw2WbAR3xwgZzHPmplloj6Y0wCom3uRPCdbJN
+ XGgMTQUjqeyLOW8J+IMYZY1GQHl8PdPCqOTEa+vPZBcx6XZBGpw0WiOyEhdDZqvNiV2A
+ aDGS20G8pf3ntIn7wOCIA7GU9X4y9ncBePohZDUytYX99+/Y4nZApTkyjv8IDHgLcozH
+ S7CKyUxn3XxlbO4Gz4RQRut4Sdu9nDOu3zzPflOkCiz+9EaAzVgxAmrxTwA4UtPEFoeA
+ QfLQ==
+X-Gm-Message-State: AC+VfDwqoQ0ragPacgRIVbsw7KMdepRrLgyvEozyKQnrnJLvjOlN4Jnb
+ FMj2vmL+0sVmNZXrP9H580CcWGc8pAbl2xIwiENXnMRrh4lhE3VRLrNY8tvYD/pt1nJ5y8P+HgX
+ JUTS0X+SXDlNPUxyK/2FoQilyGjOeVJjiwqXnrOULpw==
+X-Received: by 2002:a7b:cd16:0:b0:3f9:b119:e42b with SMTP id
+ f22-20020a7bcd16000000b003f9b119e42bmr9403370wmj.30.1687447152464; 
+ Thu, 22 Jun 2023 08:19:12 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4UtO+vdPl4TbSBFba6U7sn8uXDPfnnKtHGMCmuC/vX/EQ7I92imvaPRsCck5pPB0+FXg2gyA==
+X-Received: by 2002:a7b:cd16:0:b0:3f9:b119:e42b with SMTP id
+ f22-20020a7bcd16000000b003f9b119e42bmr9403350wmj.30.1687447152070; 
+ Thu, 22 Jun 2023 08:19:12 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
+ [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
+ f20-20020a1c6a14000000b003f8f884ebe5sm8051180wmc.2.2023.06.22.08.19.09
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 22 Jun 2023 08:19:11 -0700 (PDT)
+Date: Thu, 22 Jun 2023 17:19:08 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH RFC net-next v4 3/8] vsock: support multi-transport
+ datagrams
+Message-ID: <tngyeva5by3aldrhlixajjin2hqmcl6uruvuoed7hyrndlesfd@bbv7aphqye2q>
+References: <20230413-b4-vsock-dgram-v4-0-0cebbb2ae899@bytedance.com>
+ <20230413-b4-vsock-dgram-v4-3-0cebbb2ae899@bytedance.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH 24/29] mm: vmscan: make global slab shrink lockless
-Content-Language: en-US
-To: Qi Zheng <zhengqi.arch@bytedance.com>, akpm@linux-foundation.org,
- david@fromorbit.com, tkhai@ya.ru, roman.gushchin@linux.dev,
- djwong@kernel.org, brauner@kernel.org, paulmck@kernel.org, tytso@mit.edu
-References: <20230622085335.77010-1-zhengqi.arch@bytedance.com>
- <20230622085335.77010-25-zhengqi.arch@bytedance.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-In-Reply-To: <20230622085335.77010-25-zhengqi.arch@bytedance.com>
-Cc: linux-bcache@vger.kernel.org, linux-xfs@vger.kernel.org,
- linux-nfs@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-raid@vger.kernel.org, linux-mm@kvack.org, dm-devel@redhat.com,
- linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
- linux-btrfs@vger.kernel.org
+In-Reply-To: <20230413-b4-vsock-dgram-v4-3-0cebbb2ae899@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-hyperv@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Simon Horman <simon.horman@corigine.com>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Dan Carpenter <dan.carpenter@linaro.org>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
+ Vishnu Dasa <vdasa@vmware.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,261 +130,346 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 6/22/23 10:53, Qi Zheng wrote:
-> The shrinker_rwsem is a global read-write lock in
-> shrinkers subsystem, which protects most operations
-> such as slab shrink, registration and unregistration
-> of shrinkers, etc. This can easily cause problems in
-> the following cases.
-> 
-> 1) When the memory pressure is high and there are many
->    filesystems mounted or unmounted at the same time,
->    slab shrink will be affected (down_read_trylock()
->    failed).
-> 
->    Such as the real workload mentioned by Kirill Tkhai:
-> 
->    ```
->    One of the real workloads from my experience is start
->    of an overcommitted node containing many starting
->    containers after node crash (or many resuming containers
->    after reboot for kernel update). In these cases memory
->    pressure is huge, and the node goes round in long reclaim.
->    ```
-> 
-> 2) If a shrinker is blocked (such as the case mentioned
->    in [1]) and a writer comes in (such as mount a fs),
->    then this writer will be blocked and cause all
->    subsequent shrinker-related operations to be blocked.
-> 
-> Even if there is no competitor when shrinking slab, there
-> may still be a problem. If we have a long shrinker list
-> and we do not reclaim enough memory with each shrinker,
-> then the down_read_trylock() may be called with high
-> frequency. Because of the poor multicore scalability of
-> atomic operations, this can lead to a significant drop
-> in IPC (instructions per cycle).
-> 
-> We used to implement the lockless slab shrink with
-> SRCU [1], but then kernel test robot reported -88.8%
-> regression in stress-ng.ramfs.ops_per_sec test case [2],
-> so we reverted it [3].
-> 
-> This commit uses the refcount+RCU method [4] proposed by
-> by Dave Chinner to re-implement the lockless global slab
-> shrink. The memcg slab shrink is handled in the subsequent
-> patch.
-> 
-> Currently, the shrinker instances can be divided into
-> the following three types:
-> 
-> a) global shrinker instance statically defined in the kernel,
-> such as workingset_shadow_shrinker.
-> 
-> b) global shrinker instance statically defined in the kernel
-> modules, such as mmu_shrinker in x86.
-> 
-> c) shrinker instance embedded in other structures.
-> 
-> For case a, the memory of shrinker instance is never freed.
-> For case b, the memory of shrinker instance will be freed
-> after the module is unloaded. But we will call synchronize_rcu()
-> in free_module() to wait for RCU read-side critical section to
-> exit. For case c, the memory of shrinker instance will be
-> dynamically freed by calling kfree_rcu(). So we can use
-> rcu_read_{lock,unlock}() to ensure that the shrinker instance
-> is valid.
-> 
-> The shrinker::refcount mechanism ensures that the shrinker
-> instance will not be run again after unregistration. So the
-> structure that records the pointer of shrinker instance can be
-> safely freed without waiting for the RCU read-side critical
-> section.
-> 
-> In this way, while we implement the lockless slab shrink, we
-> don't need to be blocked in unregister_shrinker() to wait
-> RCU read-side critical section.
-> 
-> The following are the test results:
-> 
-> stress-ng --timeout 60 --times --verify --metrics-brief --ramfs 9 &
-> 
-> 1) Before applying this patchset:
-> 
->  setting to a 60 second run per stressor
->  dispatching hogs: 9 ramfs
->  stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
->                            (secs)    (secs)    (secs)   (real time) (usr+sys time)
->  ramfs            880623     60.02      7.71    226.93     14671.45        3753.09
->  ramfs:
->           1 System Management Interrupt
->  for a 60.03s run time:
->     5762.40s available CPU time
->        7.71s user time   (  0.13%)
->      226.93s system time (  3.94%)
->      234.64s total time  (  4.07%)
->  load average: 8.54 3.06 2.11
->  passed: 9: ramfs (9)
->  failed: 0
->  skipped: 0
->  successful run completed in 60.03s (1 min, 0.03 secs)
-> 
-> 2) After applying this patchset:
-> 
->  setting to a 60 second run per stressor
->  dispatching hogs: 9 ramfs
->  stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
->                            (secs)    (secs)    (secs)   (real time) (usr+sys time)
->  ramfs            847562     60.02      7.44    230.22     14120.66        3566.23
->  ramfs:
->           4 System Management Interrupts
->  for a 60.12s run time:
->     5771.95s available CPU time
->        7.44s user time   (  0.13%)
->      230.22s system time (  3.99%)
->      237.66s total time  (  4.12%)
->  load average: 8.18 2.43 0.84
->  passed: 9: ramfs (9)
->  failed: 0
->  skipped: 0
->  successful run completed in 60.12s (1 min, 0.12 secs)
-> 
-> We can see that the ops/s has hardly changed.
-> 
-> [1]. https://lore.kernel.org/lkml/20230313112819.38938-1-zhengqi.arch@bytedance.com/
-> [2]. https://lore.kernel.org/lkml/202305230837.db2c233f-yujie.liu@intel.com/
-> [3]. https://lore.kernel.org/all/20230609081518.3039120-1-qi.zheng@linux.dev/
-> [4]. https://lore.kernel.org/lkml/ZIJhou1d55d4H1s0@dread.disaster.area/
-> 
-> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> ---
->  include/linux/shrinker.h |  6 ++++++
->  mm/vmscan.c              | 33 ++++++++++++++-------------------
->  2 files changed, 20 insertions(+), 19 deletions(-)
-> 
-> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
-> index 7bfeb2f25246..b0c6c2df9db8 100644
-> --- a/include/linux/shrinker.h
-> +++ b/include/linux/shrinker.h
-> @@ -74,6 +74,7 @@ struct shrinker {
->  
->  	refcount_t refcount;
->  	struct completion completion_wait;
-> +	struct rcu_head rcu;
->  
->  	void *private_data;
->  
-> @@ -123,6 +124,11 @@ struct shrinker *shrinker_alloc_and_init(count_objects_cb count,
->  void shrinker_free(struct shrinker *shrinker);
->  void unregister_and_free_shrinker(struct shrinker *shrinker);
->  
-> +static inline bool shrinker_try_get(struct shrinker *shrinker)
-> +{
-> +	return refcount_inc_not_zero(&shrinker->refcount);
-> +}
-> +
->  static inline void shrinker_put(struct shrinker *shrinker)
->  {
->  	if (refcount_dec_and_test(&shrinker->refcount))
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index 6f9c4750effa..767569698946 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -57,6 +57,7 @@
->  #include <linux/khugepaged.h>
->  #include <linux/rculist_nulls.h>
->  #include <linux/random.h>
-> +#include <linux/rculist.h>
->  
->  #include <asm/tlbflush.h>
->  #include <asm/div64.h>
-> @@ -742,7 +743,7 @@ void register_shrinker_prepared(struct shrinker *shrinker)
->  	down_write(&shrinker_rwsem);
->  	refcount_set(&shrinker->refcount, 1);
->  	init_completion(&shrinker->completion_wait);
-> -	list_add_tail(&shrinker->list, &shrinker_list);
-> +	list_add_tail_rcu(&shrinker->list, &shrinker_list);
->  	shrinker->flags |= SHRINKER_REGISTERED;
->  	shrinker_debugfs_add(shrinker);
->  	up_write(&shrinker_rwsem);
-> @@ -800,7 +801,7 @@ void unregister_shrinker(struct shrinker *shrinker)
->  	wait_for_completion(&shrinker->completion_wait);
->  
->  	down_write(&shrinker_rwsem);
-> -	list_del(&shrinker->list);
-> +	list_del_rcu(&shrinker->list);
->  	shrinker->flags &= ~SHRINKER_REGISTERED;
->  	if (shrinker->flags & SHRINKER_MEMCG_AWARE)
->  		unregister_memcg_shrinker(shrinker);
-> @@ -845,7 +846,7 @@ EXPORT_SYMBOL(shrinker_free);
->  void unregister_and_free_shrinker(struct shrinker *shrinker)
->  {
->  	unregister_shrinker(shrinker);
-> -	kfree(shrinker);
-> +	kfree_rcu(shrinker, rcu);
->  }
->  EXPORT_SYMBOL(unregister_and_free_shrinker);
->  
-> @@ -1067,33 +1068,27 @@ static unsigned long shrink_slab(gfp_t gfp_mask, int nid,
->  	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
->  		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
->  
-> -	if (!down_read_trylock(&shrinker_rwsem))
-> -		goto out;
-> -
-> -	list_for_each_entry(shrinker, &shrinker_list, list) {
-> +	rcu_read_lock();
-> +	list_for_each_entry_rcu(shrinker, &shrinker_list, list) {
->  		struct shrink_control sc = {
->  			.gfp_mask = gfp_mask,
->  			.nid = nid,
->  			.memcg = memcg,
->  		};
->  
-> +		if (!shrinker_try_get(shrinker))
-> +			continue;
-> +		rcu_read_unlock();
+On Sat, Jun 10, 2023 at 12:58:30AM +0000, Bobby Eshleman wrote:
+>This patch adds support for multi-transport datagrams.
+>
+>This includes:
+>- Per-packet lookup of transports when using sendto(sockaddr_vm)
+>- Selecting H2G or G2H transport using VMADDR_FLAG_TO_HOST and CID in
+>  sockaddr_vm
+>
+>To preserve backwards compatibility with VMCI, some important changes
+>were made. The "transport_dgram" / VSOCK_TRANSPORT_F_DGRAM is changed to
+>be used for dgrams iff there is not yet a g2h or h2g transport that has
 
-I don't think you can do this unlock?
+s/iff/if
 
-> +
->  		ret = do_shrink_slab(&sc, shrinker, priority);
->  		if (ret == SHRINK_EMPTY)
->  			ret = 0;
->  		freed += ret;
-> -		/*
-> -		 * Bail out if someone want to register a new shrinker to
-> -		 * prevent the registration from being stalled for long periods
-> -		 * by parallel ongoing shrinking.
-> -		 */
-> -		if (rwsem_is_contended(&shrinker_rwsem)) {
-> -			freed = freed ? : 1;
-> -			break;
-> -		}
-> -	}
->  
-> -	up_read(&shrinker_rwsem);
-> -out:
-> +		rcu_read_lock();
+>been registered that can transmit the packet. If there is a g2h/h2g
+>transport for that remote address, then that transport will be used and
+>not "transport_dgram". This essentially makes "transport_dgram" a
+>fallback transport for when h2g/g2h has not yet gone online, which
+>appears to be the exact use case for VMCI.
+>
+>This design makes sense, because there is no reason that the
+>transport_{g2h,h2g} cannot also service datagrams, which makes the role
+>of transport_dgram difficult to understand outside of the VMCI context.
+>
+>The logic around "transport_dgram" had to be retained to prevent
+>breaking VMCI:
+>
+>1) VMCI datagrams appear to function outside of the h2g/g2h
+>   paradigm. When the vmci transport becomes online, it registers itself
+>   with the DGRAM feature, but not H2G/G2H. Only later when the
+>   transport has more information about its environment does it register
+>   H2G or G2H. In the case that a datagram socket becomes active
+>   after DGRAM registration but before G2H/H2G registration, the
+>   "transport_dgram" transport needs to be used.
 
-That new rcu_read_lock() won't help AFAIK, the whole
-list_for_each_entry_rcu() needs to be under the single rcu_read_lock() to be
-safe.
+IIRC we did this, because at that time only VMCI supported DGRAM. Now 
+that there are more transports, maybe DGRAM can follow the h2g/g2h 
+paradigm.
 
-IIUC this is why Dave in [4] suggests unifying shrink_slab() with
-shrink_slab_memcg(), as the latter doesn't iterate the list but uses IDR.
+>
+>2) VMCI seems to require special message be sent by the transport when a
+>   datagram socket calls bind(). Under the h2g/g2h model, the transport
+>   is selected using the remote_addr which is set by connect(). At
+>   bind time there is no remote_addr because often no connect() has been
+>   called yet: the transport is null. Therefore, with a null transport
+>   there doesn't seem to be any good way for a datagram socket a tell the
+>   VMCI transport that it has just had bind() called upon it.
 
-> +		shrinker_put(shrinker);
-> +	}
-> +	rcu_read_unlock();
->  	cond_resched();
->  	return freed;
->  }
+@Vishnu, @Bryan do you think we can avoid this in some way?
+
+>
+>Only transports with a special datagram fallback use-case such as VMCI
+>need to register VSOCK_TRANSPORT_F_DGRAM.
+
+Maybe we should rename it in VSOCK_TRANSPORT_F_DGRAM_FALLBACK or
+something like that.
+
+In any case, we definitely need to update the comment in 
+include/net/af_vsock.h on top of VSOCK_TRANSPORT_F_DGRAM mentioning
+this.
+
+>
+>Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>---
+> drivers/vhost/vsock.c                   |  1 -
+> include/linux/virtio_vsock.h            |  2 -
+> net/vmw_vsock/af_vsock.c                | 78 +++++++++++++++++++++++++--------
+> net/vmw_vsock/hyperv_transport.c        |  6 ---
+> net/vmw_vsock/virtio_transport.c        |  1 -
+> net/vmw_vsock/virtio_transport_common.c |  7 ---
+> net/vmw_vsock/vsock_loopback.c          |  1 -
+> 7 files changed, 60 insertions(+), 36 deletions(-)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index c8201c070b4b..8f0082da5e70 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -410,7 +410,6 @@ static struct virtio_transport vhost_transport = {
+> 		.cancel_pkt               = vhost_transport_cancel_pkt,
+>
+> 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+>-		.dgram_bind               = virtio_transport_dgram_bind,
+> 		.dgram_allow              = virtio_transport_dgram_allow,
+> 		.dgram_get_cid		  = virtio_transport_dgram_get_cid,
+> 		.dgram_get_port		  = virtio_transport_dgram_get_port,
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index 23521a318cf0..73afa09f4585 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -216,8 +216,6 @@ void virtio_transport_notify_buffer_size(struct vsock_sock *vsk, u64 *val);
+> u64 virtio_transport_stream_rcvhiwat(struct vsock_sock *vsk);
+> bool virtio_transport_stream_is_active(struct vsock_sock *vsk);
+> bool virtio_transport_stream_allow(u32 cid, u32 port);
+>-int virtio_transport_dgram_bind(struct vsock_sock *vsk,
+>-				struct sockaddr_vm *addr);
+> bool virtio_transport_dgram_allow(u32 cid, u32 port);
+> int virtio_transport_dgram_get_cid(struct sk_buff *skb, unsigned int *cid);
+> int virtio_transport_dgram_get_port(struct sk_buff *skb, unsigned int *port);
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index 74358f0b47fa..ef86765f3765 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -438,6 +438,18 @@ vsock_connectible_lookup_transport(unsigned int cid, __u8 flags)
+> 	return transport;
+> }
+>
+>+static const struct vsock_transport *
+>+vsock_dgram_lookup_transport(unsigned int cid, __u8 flags)
+>+{
+>+	const struct vsock_transport *transport;
+>+
+>+	transport = vsock_connectible_lookup_transport(cid, flags);
+>+	if (transport)
+>+		return transport;
+>+
+>+	return transport_dgram;
+>+}
+>+
+> /* Assign a transport to a socket and call the .init transport callback.
+>  *
+>  * Note: for connection oriented socket this must be called when vsk->remote_addr
+>@@ -474,7 +486,8 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+>
+> 	switch (sk->sk_type) {
+> 	case SOCK_DGRAM:
+>-		new_transport = transport_dgram;
+>+		new_transport = vsock_dgram_lookup_transport(remote_cid,
+>+							     remote_flags);
+> 		break;
+> 	case SOCK_STREAM:
+> 	case SOCK_SEQPACKET:
+>@@ -691,6 +704,9 @@ static int __vsock_bind_connectible(struct vsock_sock *vsk,
+> static int __vsock_bind_dgram(struct vsock_sock *vsk,
+> 			      struct sockaddr_vm *addr)
+> {
+>+	if (!vsk->transport || !vsk->transport->dgram_bind)
+>+		return -EINVAL;
+>+
+> 	return vsk->transport->dgram_bind(vsk, addr);
+> }
+>
+>@@ -1172,19 +1188,24 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+>
+> 	lock_sock(sk);
+>
+>-	transport = vsk->transport;
+>-
+>-	err = vsock_auto_bind(vsk);
+>-	if (err)
+>-		goto out;
+>-
+>-
+> 	/* If the provided message contains an address, use that.  Otherwise
+> 	 * fall back on the socket's remote handle (if it has been connected).
+> 	 */
+> 	if (msg->msg_name &&
+> 	    vsock_addr_cast(msg->msg_name, msg->msg_namelen,
+> 			    &remote_addr) == 0) {
+>+		transport = vsock_dgram_lookup_transport(remote_addr->svm_cid,
+>+							 remote_addr->svm_flags);
+>+		if (!transport) {
+>+			err = -EINVAL;
+>+			goto out;
+>+		}
+>+
+>+		if (!try_module_get(transport->module)) {
+>+			err = -ENODEV;
+>+			goto out;
+>+		}
+>+
+> 		/* Ensure this address is of the right type and is a valid
+> 		 * destination.
+> 		 */
+>@@ -1193,11 +1214,27 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+> 			remote_addr->svm_cid = transport->get_local_cid();
+>
+
+ From here ...
+
+> 		if (!vsock_addr_bound(remote_addr)) {
+>+			module_put(transport->module);
+>+			err = -EINVAL;
+>+			goto out;
+>+		}
+>+
+>+		if (!transport->dgram_allow(remote_addr->svm_cid,
+>+					    remote_addr->svm_port)) {
+>+			module_put(transport->module);
+> 			err = -EINVAL;
+> 			goto out;
+> 		}
+>+
+>+		err = transport->dgram_enqueue(vsk, remote_addr, msg, len);
+
+... to here, looks like duplicate code, can we get it out of the if 
+block?
+
+>+		module_put(transport->module);
+> 	} else if (sock->state == SS_CONNECTED) {
+> 		remote_addr = &vsk->remote_addr;
+>+		transport = vsk->transport;
+>+
+>+		err = vsock_auto_bind(vsk);
+>+		if (err)
+>+			goto out;
+>
+> 		if (remote_addr->svm_cid == VMADDR_CID_ANY)
+> 			remote_addr->svm_cid = transport->get_local_cid();
+>@@ -1205,23 +1242,23 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
+> 		/* XXX Should connect() or this function ensure remote_addr is
+> 		 * bound?
+> 		 */
+>-		if (!vsock_addr_bound(&vsk->remote_addr)) {
+>+		if (!vsock_addr_bound(remote_addr)) {
+> 			err = -EINVAL;
+> 			goto out;
+> 		}
+>-	} else {
+>-		err = -EINVAL;
+>-		goto out;
+>-	}
+>
+>-	if (!transport->dgram_allow(remote_addr->svm_cid,
+>-				    remote_addr->svm_port)) {
+>+		if (!transport->dgram_allow(remote_addr->svm_cid,
+>+					    remote_addr->svm_port)) {
+>+			err = -EINVAL;
+>+			goto out;
+>+		}
+>+
+>+		err = transport->dgram_enqueue(vsk, remote_addr, msg, len);
+>+	} else {
+> 		err = -EINVAL;
+> 		goto out;
+> 	}
+>
+>-	err = transport->dgram_enqueue(vsk, remote_addr, msg, len);
+>-
+> out:
+> 	release_sock(sk);
+> 	return err;
+>@@ -1255,13 +1292,18 @@ static int vsock_dgram_connect(struct socket *sock,
+> 	if (err)
+> 		goto out;
+>
+>+	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
+>+
+>+	err = vsock_assign_transport(vsk, NULL);
+>+	if (err)
+>+		goto out;
+>+
+> 	if (!vsk->transport->dgram_allow(remote_addr->svm_cid,
+> 					 remote_addr->svm_port)) {
+> 		err = -EINVAL;
+> 		goto out;
+> 	}
+>
+>-	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
+> 	sock->state = SS_CONNECTED;
+>
+> 	/* sock map disallows redirection of non-TCP sockets with sk_state !=
+>diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>index ff6e87e25fa0..c00bc5da769a 100644
+>--- a/net/vmw_vsock/hyperv_transport.c
+>+++ b/net/vmw_vsock/hyperv_transport.c
+>@@ -551,11 +551,6 @@ static void hvs_destruct(struct vsock_sock *vsk)
+> 	kfree(hvs);
+> }
+>
+>-static int hvs_dgram_bind(struct vsock_sock *vsk, struct sockaddr_vm *addr)
+>-{
+>-	return -EOPNOTSUPP;
+>-}
+>-
+> static int hvs_dgram_get_cid(struct sk_buff *skb, unsigned int *cid)
+> {
+> 	return -EOPNOTSUPP;
+>@@ -841,7 +836,6 @@ static struct vsock_transport hvs_transport = {
+> 	.connect                  = hvs_connect,
+> 	.shutdown                 = hvs_shutdown,
+>
+>-	.dgram_bind               = hvs_dgram_bind,
+> 	.dgram_get_cid		  = hvs_dgram_get_cid,
+> 	.dgram_get_port		  = hvs_dgram_get_port,
+> 	.dgram_get_length	  = hvs_dgram_get_length,
+>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>index 5763cdf13804..1b7843a7779a 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -428,7 +428,6 @@ static struct virtio_transport virtio_transport = {
+> 		.shutdown                 = virtio_transport_shutdown,
+> 		.cancel_pkt               = virtio_transport_cancel_pkt,
+>
+>-		.dgram_bind               = virtio_transport_dgram_bind,
+> 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+> 		.dgram_allow              = virtio_transport_dgram_allow,
+> 		.dgram_get_cid		  = virtio_transport_dgram_get_cid,
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index e6903c719964..d5a3c8efe84b 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -790,13 +790,6 @@ bool virtio_transport_stream_allow(u32 cid, u32 port)
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_stream_allow);
+>
+>-int virtio_transport_dgram_bind(struct vsock_sock *vsk,
+>-				struct sockaddr_vm *addr)
+>-{
+>-	return -EOPNOTSUPP;
+>-}
+>-EXPORT_SYMBOL_GPL(virtio_transport_dgram_bind);
+>-
+> int virtio_transport_dgram_get_cid(struct sk_buff *skb, unsigned int *cid)
+> {
+> 	return -EOPNOTSUPP;
+>diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+>index 2f3cabc79ee5..e9de45a26fbd 100644
+>--- a/net/vmw_vsock/vsock_loopback.c
+>+++ b/net/vmw_vsock/vsock_loopback.c
+>@@ -61,7 +61,6 @@ static struct virtio_transport loopback_transport = {
+> 		.shutdown                 = virtio_transport_shutdown,
+> 		.cancel_pkt               = vsock_loopback_cancel_pkt,
+>
+>-		.dgram_bind               = virtio_transport_dgram_bind,
+> 		.dgram_enqueue            = virtio_transport_dgram_enqueue,
+> 		.dgram_allow              = virtio_transport_dgram_allow,
+> 		.dgram_get_cid		  = virtio_transport_dgram_get_cid,
+>
+>-- 
+>2.30.2
+>
+
+The rest LGTM!
+
+Stefano
 
 _______________________________________________
 Virtualization mailing list
