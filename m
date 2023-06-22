@@ -1,107 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C90AEEB64DC
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 19:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 279A1EB64DD
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jun 2023 19:38:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 20282420E5;
-	Thu, 22 Jun 2023 19:36:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 20282420E5
+	by smtp2.osuosl.org (Postfix) with ESMTP id B3BB740B9C;
+	Thu, 22 Jun 2023 19:38:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B3BB740B9C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GrcoEnu/
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BjqTfrQI3_tC; Thu, 22 Jun 2023 19:38:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 249AA40BAA;
+	Thu, 22 Jun 2023 19:38:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 249AA40BAA
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 03A6BC0037;
+	Thu, 22 Jun 2023 19:38:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C42E6C0029
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Jun 2023 19:38:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9D742409B3
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 22 Jun 2023 19:38:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9D742409B3
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQhzlEbJ
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=GrcoEnu/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VkFkM80DOwbi; Thu, 22 Jun 2023 19:36:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D0B9C420A7;
-	Thu, 22 Jun 2023 19:36:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D0B9C420A7
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 91A01C0037;
-	Thu, 22 Jun 2023 19:36:53 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76556C0029
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2ZGWqIzierU3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 19:36:52 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4AC1683D0C
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 19:36:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4AC1683D0C
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQhzlEbJ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mJOghU8RIahh
- for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 19:36:51 +0000 (UTC)
+ Thu, 22 Jun 2023 19:38:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0733383CD8
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 745964098C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0733383CD8
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 745964098C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 19:36:50 +0000 (UTC)
+ Thu, 22 Jun 2023 19:38:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687462609;
+ s=mimecast20190719; t=1687462701;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Xomtdkpx+OSXN9zGfziQJLruZyJHAVV/laO4mRJwrJc=;
- b=gQhzlEbJUMiVx81DdQU7DjFR4hv7GCaRMkX77FqjtiH7HmBxVx6liYRVAJxTGM62zClEw3
- ElMPeGqIeb1h46h96z1As6+2NpkcYJCbhKy6MnbyaflVrestq0Tc1gc9FePpzfMlMnfBNB
- y3U25euiZNYXt2w/7YJrBHNXpftysc8=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=uf7v6utVhvB9SDThVRGOmHwhlWU7bpbJmJ9KRenSJLo=;
+ b=GrcoEnu/93mMrZlpSUCjg/N5q0w4E6C/qJaFBSYIaGk1zp91RIDWfTH5sLKm4AD4ZLEWK+
+ TbHTUyHggiQoqbKplnZ+eMGGpA3qIw31BRJasug7rtIeY9AKLhFrrtYgNRNhQ1wVzWM5Xt
+ 0Wm1vluEw+B20MEKURZiNoEJMY7WBMw=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-436-bPKS1dbgPKagrfp4rs9Wxw-1; Thu, 22 Jun 2023 15:36:47 -0400
-X-MC-Unique: bPKS1dbgPKagrfp4rs9Wxw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- 5b1f17b1804b1-3f7e7cfcae4so41314985e9.1
+ us-mta-511-loAzrIFVPL-2pTy0WCZoPQ-1; Thu, 22 Jun 2023 15:38:18 -0400
+X-MC-Unique: loAzrIFVPL-2pTy0WCZoPQ-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ a640c23a62f3a-9892495397cso241374366b.2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jun 2023 12:36:47 -0700 (PDT)
+ Thu, 22 Jun 2023 12:38:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687462606; x=1690054606;
+ d=1e100.net; s=20221208; t=1687462696; x=1690054696;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=Xomtdkpx+OSXN9zGfziQJLruZyJHAVV/laO4mRJwrJc=;
- b=kyamzbUEASKCGTHV5v68Q22YpPkOqv5ulVBlEpDPtyZykaJiZnq9Y4TLvJGrKnWOrP
- OT2HmpBUPepMeW/MnJ33OLC6TvwGXkXmjYRkPoNpXm3x19Tlz7w2+paxEJoLVvf6V0Pg
- rtw532ggq4Estt7oPb3Gwvd/ayP+V12YqIy+HcZ1/inh+DFb9C+KsD/4UTkEOFyNPrYU
- 9zJ3fTjZDBS0gaL1610U0/yIDEiNXLrU9K26+Pyrq7GauMUYKoIFF/JXTd7Tf8PUkSzW
- yr7FtBe+1yrcw5esr7L3fgyMM2GsRqqa9jbaWeCQk4hP3+f2LhVaP+h5cRW1qb8zMCyP
- I6wA==
-X-Gm-Message-State: AC+VfDyjuJw4QCRHXCPC7kH2QfqKAtkTBzDxCkcFnocNC6OU9hj41ZgA
- HgfuYdxX7pgvH7jFTWX79N+JFjM4DnjCM1J0MscoOdZu12bK0Xa38u1qVDlDiXBMFi9WsUeTVTn
- SkgdC6880LFZ18sYIEHYGgKIoUixlxi2QmuK0pQ3faA==
-X-Received: by 2002:a7b:cc8d:0:b0:3f7:3937:f5f2 with SMTP id
- p13-20020a7bcc8d000000b003f73937f5f2mr18244260wma.22.1687462606707; 
- Thu, 22 Jun 2023 12:36:46 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ6ffZmX/D2AmBX/0MjjySgMwN2Bt3XcGhIPrKbhVjFlueINY+ObTbza8dbbywFD++ptZXDnhw==
-X-Received: by 2002:a7b:cc8d:0:b0:3f7:3937:f5f2 with SMTP id
- p13-20020a7bcc8d000000b003f73937f5f2mr18244241wma.22.1687462606355; 
- Thu, 22 Jun 2023 12:36:46 -0700 (PDT)
+ bh=uf7v6utVhvB9SDThVRGOmHwhlWU7bpbJmJ9KRenSJLo=;
+ b=hk63exXCdn7z21LubeId0jbAUeBiVPqyjacYcovjROSj8xnsj/5yDo6BGPcAB6ChTD
+ msvNkuzzR9ainsoyfNl38WvH0FA7mnnhdkgtKNUp7PAsoNQUlgMKCWzr/IoAXod8/fn6
+ 3z0em4x8N9LehGRC/V6cwdnJeQapnskmrylR21c00yc7OT1UhwaMOBxjk1bujxPnxMaz
+ mJz6naGYezUe6zNFkgfmybbJWFsr9X9lw7CzKHNGKw4LtZaB/23xfuTTevWiIFUXeNrO
+ YrJwaGc02cpiZx9twrrptgoIbYz5sTBeyOzOGThb+uOFvSFdDgEMXS0wAvMNXKO9qNhb
+ PpjA==
+X-Gm-Message-State: AC+VfDwlhqqil9S7q8w8RZJW/ue4QP/lxxQym6Vq3W/sS8p8JvyZtnmY
+ hmPNxkkRzNa97axGKxlompjTP3c/83WTnBd4toF5mD7odatNebNEO/kYBs25/iL6tr+t2IDbDpw
+ kqmdR5GZvc2DglEuTxZ4+qFmltSe3Fb5qS6JdZTnMAA==
+X-Received: by 2002:a17:907:e87:b0:989:1cc5:24c with SMTP id
+ ho7-20020a1709070e8700b009891cc5024cmr8386394ejc.16.1687462695941; 
+ Thu, 22 Jun 2023 12:38:15 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5Tcekwjt1TlaynLe0SBmlVyxRwtPA1ExOLueATh4jy/8kBynHnMzbZSusq5Pw1XgWlW0F1Vw==
+X-Received: by 2002:a17:907:e87:b0:989:1cc5:24c with SMTP id
+ ho7-20020a1709070e8700b009891cc5024cmr8386370ejc.16.1687462695588; 
+ Thu, 22 Jun 2023 12:38:15 -0700 (PDT)
 Received: from redhat.com ([2.52.149.110]) by smtp.gmail.com with ESMTPSA id
- v14-20020a1cf70e000000b003f9b2c602c0sm291066wmh.37.2023.06.22.12.36.43
+ a14-20020a170906368e00b009829dc0f2a0sm5040174ejc.111.2023.06.22.12.38.13
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Jun 2023 12:36:45 -0700 (PDT)
-Date: Thu, 22 Jun 2023 15:36:41 -0400
+ Thu, 22 Jun 2023 12:38:15 -0700 (PDT)
+Date: Thu, 22 Jun 2023 15:38:11 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v10 05/10] virtio_ring: split-detach: support
- return dma info to driver
-Message-ID: <20230622153111-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH vhost v10 00/10] virtio core prepares for AF_XDP
+Message-ID: <20230622153730-mutt-send-email-mst@kernel.org>
 References: <20230602092206.50108-1-xuanzhuo@linux.alibaba.com>
- <20230602092206.50108-6-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20230602092206.50108-6-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <20230602092206.50108-1-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -127,247 +125,114 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 02, 2023 at 05:22:01PM +0800, Xuan Zhuo wrote:
-> Under the premapped mode, the driver needs to unmap the DMA address
-> after receiving the buffer. The virtio core records the DMA address,
-> so the driver needs a way to get the dma info from the virtio core.
+On Fri, Jun 02, 2023 at 05:21:56PM +0800, Xuan Zhuo wrote:
+> ## About DMA APIs
 > 
-> A straightforward approach is to pass an array to the virtio core when
-> calling virtqueue_get_buf(). However, it is not feasible when there are
-> multiple DMA addresses in the descriptor chain, and the array size is
-> unknown.
+> Now, virtio may can not work with DMA APIs when virtio features do not have
+> VIRTIO_F_ACCESS_PLATFORM.
 > 
-> To solve this problem, a helper be introduced. After calling
-> virtqueue_get_buf(), the driver can call the helper to
-> retrieve a dma info. If the helper function returns -EAGAIN, it means
-> that there are more DMA addresses to be processed, and the driver should
-> call the helper function again. To keep track of the current position in
-> the chain, a cursor must be passed to the helper function, which is
-> initialized by virtqueue_get_buf().
+> 1. I tried to let DMA APIs return phy address by virtio-device. But DMA APIs just
+>    work with the "real" devices.
+> 2. I tried to let xsk support callballs to get phy address from virtio-net
+>    driver as the dma address. But the maintainers of xsk may want to use dma-buf
+>    to replace the DMA APIs. I think that may be a larger effort. We will wait
+>    too long.
 > 
-> Some processes are done inside this helper, so this helper MUST be
-> called under the premapped mode.
+> So rethinking this, firstly, we can support premapped-dma only for devices with
+> VIRTIO_F_ACCESS_PLATFORM. In the case of af-xdp, if the users want to use it,
+> they have to update the device to support VIRTIO_F_RING_RESET, and they can also
+> enable the device's VIRTIO_F_ACCESS_PLATFORM feature.
 > 
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/virtio/virtio_ring.c | 118 ++++++++++++++++++++++++++++++++---
->  include/linux/virtio.h       |  11 ++++
->  2 files changed, 119 insertions(+), 10 deletions(-)
+> Thanks for the help from Christoph.
 > 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index dc109fbc05a5..cdc4349f6066 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -754,8 +754,95 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
->  	return needs_kick;
->  }
->  
-> -static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
-> -			     void **ctx)
-> +static void detach_cursor_init_split(struct vring_virtqueue *vq,
-> +				     struct virtqueue_detach_cursor *cursor, u16 head)
-> +{
-> +	struct vring_desc_extra *extra;
-> +
-> +	extra = &vq->split.desc_extra[head];
-> +
-> +	/* Clear data ptr. */
-> +	vq->split.desc_state[head].data = NULL;
-> +
-> +	cursor->head = head;
-> +	cursor->done = 0;
-> +
-> +	if (extra->flags & VRING_DESC_F_INDIRECT) {
-> +		cursor->num = extra->len / sizeof(struct vring_desc);
-> +		cursor->indirect = true;
-> +		cursor->pos = 0;
-> +
-> +		vring_unmap_one_split(vq, head);
-> +
-> +		extra->next = vq->free_head;
-> +
-> +		vq->free_head = head;
-> +
-> +		/* Plus final descriptor */
-> +		vq->vq.num_free++;
-> +
-> +	} else {
-> +		cursor->indirect = false;
-> +		cursor->pos = head;
-> +	}
-> +}
-> +
-> +static int virtqueue_detach_split(struct virtqueue *_vq, struct virtqueue_detach_cursor *cursor,
-> +				  dma_addr_t *addr, u32 *len, enum dma_data_direction *dir)
-> +{
+> =================
+> 
+> XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
+> copy feature of xsk (XDP socket) needs to be supported by the driver. The
+> performance of zero copy is very good.
+> 
+> ENV: Qemu with vhost.
+> 
+>                    vhost cpu | Guest APP CPU |Guest Softirq CPU | PPS
+> -----------------------------|---------------|------------------|------------
+> xmit by sockperf:     90%    |   100%        |                  |  318967
+> xmit by xsk:          100%   |   30%         |   33%            | 1192064
+> recv by sockperf:     100%   |   68%         |   100%           |  692288
+> recv by xsk:          100%   |   33%         |   43%            |  771670
+> 
+> Before achieving the function of Virtio-Net, we also have to let virtio core
+> support these features:
 
-I don't get it. This is generic split vq code? Why is it unconditionally
-wasting time with cursors etc? Poking at split.desc_extra when not
-necessary is also not really nice, will cause lots of cache misses.
+So by itself, this doesn't do this. But what effect does all this
+overhead have on performance?
 
-And it looks like we duplicated a bunch of logic?
-
-
-> +	struct vring_virtqueue *vq = to_vvq(_vq);
-> +	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-> +	int rc = -EAGAIN;
-> +
-> +	if (unlikely(cursor->done))
-> +		return -EINVAL;
-> +
-> +	if (!cursor->indirect) {
-> +		struct vring_desc_extra *extra;
-> +		unsigned int i;
-> +
-> +		i = cursor->pos;
-> +
-> +		extra = &vq->split.desc_extra[i];
-> +
-> +		if (vq->split.vring.desc[i].flags & nextflag) {
-> +			cursor->pos = extra->next;
-> +		} else {
-> +			extra->next = vq->free_head;
-> +			vq->free_head = cursor->head;
-> +			cursor->done = true;
-> +			rc = 0;
-> +		}
-> +
-> +		*addr = extra->addr;
-> +		*len = extra->len;
-> +		*dir = (extra->flags & VRING_DESC_F_WRITE) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
-> +
-> +		vq->vq.num_free++;
-> +
-> +	} else {
-> +		struct vring_desc *indir_desc, *desc;
-> +		u16 flags;
-> +
-> +		indir_desc = vq->split.desc_state[cursor->head].indir_desc;
-> +		desc = &indir_desc[cursor->pos];
-> +
-> +		flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
-> +		*addr = virtio64_to_cpu(vq->vq.vdev, desc->addr);
-> +		*len = virtio32_to_cpu(vq->vq.vdev, desc->len);
-> +		*dir = (flags & VRING_DESC_F_WRITE) ? DMA_FROM_DEVICE : DMA_TO_DEVICE;
-> +
-> +		if (++cursor->pos == cursor->num) {
-> +			kfree(indir_desc);
-> +			cursor->done = true;
-> +			return 0;
-> +		}
-> +	}
-> +
-> +	return rc;
-> +}
-> +
-> +static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head)
->  {
->  	unsigned int i, j;
->  	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
-> @@ -799,8 +886,6 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
->  
->  		kfree(indir_desc);
->  		vq->split.desc_state[head].indir_desc = NULL;
-> -	} else if (ctx) {
-> -		*ctx = vq->split.desc_state[head].indir_desc;
->  	}
->  }
->  
-> @@ -812,7 +897,8 @@ static bool more_used_split(const struct vring_virtqueue *vq)
->  
->  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  					 unsigned int *len,
-> -					 void **ctx)
-> +					 void **ctx,
-> +					 struct virtqueue_detach_cursor *cursor)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  	void *ret;
-> @@ -852,7 +938,15 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
->  
->  	/* detach_buf_split clears data, so grab it now. */
->  	ret = vq->split.desc_state[i].data;
-> -	detach_buf_split(vq, i, ctx);
-> +
-> +	if (!vq->indirect && ctx)
-> +		*ctx = vq->split.desc_state[i].indir_desc;
-> +
-> +	if (vq->premapped)
-> +		detach_cursor_init_split(vq, cursor, i);
-> +	else
-> +		detach_buf_split(vq, i);
-> +
->  	vq->last_used_idx++;
->  	/* If we expect an interrupt for the next entry, tell host
->  	 * by writing event index and flush out the write before
-> @@ -961,7 +1055,8 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
->  	return true;
->  }
->  
-> -static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
-> +static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq,
-> +					       struct virtqueue_detach_cursor *cursor)
->  {
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  	unsigned int i;
-> @@ -974,7 +1069,10 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
->  			continue;
->  		/* detach_buf_split clears data, so grab it now. */
->  		buf = vq->split.desc_state[i].data;
-> -		detach_buf_split(vq, i, NULL);
-> +		if (vq->premapped)
-> +			detach_cursor_init_split(vq, cursor, i);
-> +		else
-> +			detach_buf_split(vq, i);
->  		vq->split.avail_idx_shadow--;
->  		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
->  				vq->split.avail_idx_shadow);
-> @@ -2361,7 +2459,7 @@ void *virtqueue_get_buf_ctx(struct virtqueue *_vq, unsigned int *len,
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
->  	return vq->packed_ring ? virtqueue_get_buf_ctx_packed(_vq, len, ctx) :
-> -				 virtqueue_get_buf_ctx_split(_vq, len, ctx);
-> +				 virtqueue_get_buf_ctx_split(_vq, len, ctx, NULL);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_buf_ctx);
->  
-> @@ -2493,7 +2591,7 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
->  	struct vring_virtqueue *vq = to_vvq(_vq);
->  
->  	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) :
-> -				 virtqueue_detach_unused_buf_split(_vq);
-> +				 virtqueue_detach_unused_buf_split(_vq, NULL);
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
->  
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 1fc0e1023bd4..eb4a4e4329aa 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -38,6 +38,17 @@ struct virtqueue {
->  	void *priv;
->  };
->  
-> +struct virtqueue_detach_cursor {
-> +	unsigned indirect:1;
-> +	unsigned done:1;
-> +	unsigned hole:14;
-> +
-> +	/* for split head */
-> +	unsigned head:16;
-> +	unsigned num:16;
-> +	unsigned pos:16;
-> +};
-> +
-
-is cursor ever stored somewhere? If not don't use bitfields,
-they cause many gcc versions to generate atrocious code.
-
-
->  int virtqueue_add_outbuf(struct virtqueue *vq,
->  			 struct scatterlist sg[], unsigned int num,
->  			 void *data,
-> -- 
+> 1. virtio core support premapped
+> 2. virtio core support reset per-queue
+> 3. introduce DMA APIs to virtio core
+> 
+> Please review.
+> 
+> Thanks.
+> 
+> v10:
+>  1. support to set vq to premapped mode, then the vq just handles the premapped request.
+>  2. virtio-net support to do dma mapping in advance
+> 
+> v9:
+>  1. use flag to distinguish the premapped operations. no do judgment by sg.
+> 
+> v8:
+>  1. vring_sg_address: check by sg_page(sg) not dma_address. Because 0 is a valid dma address
+>  2. remove unused code from vring_map_one_sg()
+> 
+> v7:
+>  1. virtqueue_dma_dev() return NULL when virtio is without DMA API.
+> 
+> v6:
+>  1. change the size of the flags to u32.
+> 
+> v5:
+>  1. fix for error handler
+>  2. add flags to record internal dma mapping
+> 
+> v4:
+>  1. rename map_inter to dma_map_internal
+>  2. fix: Excess function parameter 'vq' description in 'virtqueue_dma_dev'
+> 
+> v3:
+>  1. add map_inter to struct desc state to reocrd whether virtio core do dma map
+> 
+> v2:
+>  1. based on sgs[0]->dma_address to judgment is premapped
+>  2. based on extra.addr to judgment to do unmap for no-indirect desc
+>  3. based on indir_desc to judgment to do unmap for indirect desc
+>  4. rename virtqueue_get_dma_dev to virtqueue_dma_dev
+> 
+> v1:
+>  1. expose dma device. NO introduce the api for dma and sync
+>  2. split some commit for review.
+> 
+> 
+> 
+> 
+> Xuan Zhuo (10):
+>   virtio_ring: put mapping error check in vring_map_one_sg
+>   virtio_ring: introduce virtqueue_set_premapped()
+>   virtio_ring: split: support add premapped buf
+>   virtio_ring: packed: support add premapped buf
+>   virtio_ring: split-detach: support return dma info to driver
+>   virtio_ring: packed-detach: support return dma info to driver
+>   virtio_ring: introduce helpers for premapped
+>   virtio_ring: introduce virtqueue_dma_dev()
+>   virtio_ring: introduce virtqueue_add_sg()
+>   virtio_net: support dma premapped
+> 
+>  drivers/net/virtio_net.c     | 163 ++++++++++--
+>  drivers/virtio/virtio_ring.c | 493 +++++++++++++++++++++++++++++++----
+>  include/linux/virtio.h       |  34 +++
+>  3 files changed, 612 insertions(+), 78 deletions(-)
+> 
+> --
 > 2.32.0.3.g01195cf9f
 
 _______________________________________________
