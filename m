@@ -4,114 +4,95 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1678CC001B0
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jun 2023 22:19:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 635B8EB64D7
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jun 2023 22:56:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7AD6541E6A;
-	Fri, 23 Jun 2023 22:19:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7AD6541E6A
+	by smtp4.osuosl.org (Postfix) with ESMTP id C7DA341FA1;
+	Fri, 23 Jun 2023 22:56:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7DA341FA1
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=lhK6GKfD
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LjUh8YvE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id S-iWoo9DC57l; Fri, 23 Jun 2023 22:19:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AC7E341DD8;
-	Fri, 23 Jun 2023 22:19:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC7E341DD8
+	with ESMTP id E2-hTZIICfLu; Fri, 23 Jun 2023 22:56:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E2ABF41FB3;
+	Fri, 23 Jun 2023 22:56:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2ABF41FB3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 861F2C0037;
-	Fri, 23 Jun 2023 22:19:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62548C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A32CCC0037;
+	Fri, 23 Jun 2023 22:56:16 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3CF59C0029
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 22:19:21 +0000 (UTC)
+ Fri, 23 Jun 2023 22:56:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2980881EE1
+ by smtp4.osuosl.org (Postfix) with ESMTP id EA4B041FB3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 22:19:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2980881EE1
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com
- header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256
- header.s=20221208 header.b=lhK6GKfD
+ Fri, 23 Jun 2023 22:56:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EA4B041FB3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BsTnvSxBM69n
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0iUjQjzQiQgu
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 22:19:20 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 633FF81EDB
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
- [IPv6:2607:f8b0:4864:20::42a])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 633FF81EDB
+ Fri, 23 Jun 2023 22:56:13 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 698B741F7B
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 698B741F7B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 22:19:20 +0000 (UTC)
-Received: by mail-pf1-x42a.google.com with SMTP id
- d2e1a72fcca58-668709767b1so779071b3a.2
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 15:19:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=fromorbit-com.20221208.gappssmtp.com; s=20221208; t=1687558760; x=1690150760;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=mD+HWl2aEG73j6Ak2J3eZjmDfUV1ZAzR4FiFGaQDP6g=;
- b=lhK6GKfDyI3S2QEkidlKI9Ek7fIdf8s37/5sqH0oYikZjcY7jput4UDyCpFr2NTdT8
- zVyRwANCpkSqZtLXi737KASfNRL8jzfb+T40RkB84q+J2KMVe792KQuGyG75zUe1uU9/
- y8KvlnU3EwX/2kXOOlbwtshnDERQlNsq270xMVedNytpu7Z+d6cUbBidgJ6X6DjHIzPN
- 7j8fd31lnOvF/aMkMY7bUu4o0IY8LUCtjYfDI1XbfU7cyMWriXOuApAvFBa9TAUUYDHZ
- fQEMipnVJ6GJpcYxmPtjY5bvv9Ob+7MwsmiucWVnjVO5xA+M617znVGuQZS0X5eWOQ0u
- zyUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687558760; x=1690150760;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=mD+HWl2aEG73j6Ak2J3eZjmDfUV1ZAzR4FiFGaQDP6g=;
- b=cyHmaTmVBJIvg9rxqdXWSA+dxEyQzZJalwGuYBiLdGqrT1lNinuQWIAccLqhUSJdyl
- VLV5dqbDxBOxQ3pt1b1NYIf6QtNmiT3LlG0V6zWDkeuFUkOoPho1/jK5xJdRJdKjfI7Q
- GI6U1vYay8Enkb4TDOlVOjl7WJpdVq+5tgCll0klGRPCFz01J/cWLS+rOaeJ8yG0Pqq+
- zhdMCzWEKx9/vxVhgVy2Fg4ggCmWk+YbeCzY2eGTaF/KQJjy5fZF2xnDNUrFb4AU1rnU
- pPS39dLnpxRjKruQtgRADZ78+5b2Q/ek7suuu5mWLB/l34d9mMSw/NB3DGjxID4Y27TB
- VBQg==
-X-Gm-Message-State: AC+VfDwzYLg9hCF0PuK3b0CCui9ZFg6ZKC+e6HGNWrmu1MfPIluteFFo
- SdP+oXy65dJNOON/q/P5/dgd7A==
-X-Google-Smtp-Source: ACHHUZ6Wu9ky21UYgtgHUmTHayjznwHVfcTzLH8QgkKVoWewOSRi12/4tLQSsphqEkidSt1h32qo3g==
-X-Received: by 2002:a05:6a20:4410:b0:121:7454:be2a with SMTP id
- ce16-20020a056a20441000b001217454be2amr17133223pzb.45.1687558759759; 
- Fri, 23 Jun 2023 15:19:19 -0700 (PDT)
-Received: from dread.disaster.area (pa49-186-94-37.pa.vic.optusnet.com.au.
- [49.186.94.37]) by smtp.gmail.com with ESMTPSA id
- b17-20020a170902b61100b001ab0672fc1fsm58552pls.105.2023.06.23.15.19.18
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Jun 2023 15:19:19 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
- (envelope-from <david@fromorbit.com>) id 1qCp7a-00FP7U-2k;
- Sat, 24 Jun 2023 08:19:14 +1000
-Date: Sat, 24 Jun 2023 08:19:14 +1000
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: Re: [PATCH 24/29] mm: vmscan: make global slab shrink lockless
-Message-ID: <ZJYaYv4pACmCaBoT@dread.disaster.area>
-References: <20230622085335.77010-1-zhengqi.arch@bytedance.com>
- <20230622085335.77010-25-zhengqi.arch@bytedance.com>
- <cf0d9b12-6491-bf23-b464-9d01e5781203@suse.cz>
- <ZJU708VIyJ/3StAX@dread.disaster.area>
- <a21047bb-3b87-a50a-94a7-f3fa4847bc08@bytedance.com>
+ Fri, 23 Jun 2023 22:56:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687560972;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=xQVg0pnXVfTxPUpA8yd29SmocczyZN6S+xS0BIA8ljI=;
+ b=LjUh8YvEjNgRuYhFHipmctUnHuLHh80KXWWObgLDIsL6sMlzIBuC8BBtrsTeRTTzjr/+xf
+ KmeGCULuqtHWQV8AnCvSj+jV+bPjUumCrqxtl2Ck7CaZAtB6i3CUcv2LJ+6gpLbDAsKFNT
+ 6XwEYCOQ9kH+bQ4oAP1BIz7tnpnCwiM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-392-ui08z6zkOsOzsb7oEUVtzw-1; Fri, 23 Jun 2023 18:56:05 -0400
+X-MC-Unique: ui08z6zkOsOzsb7oEUVtzw-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2C7B7185A78B;
+ Fri, 23 Jun 2023 22:56:04 +0000 (UTC)
+Received: from warthog.procyon.org.com (unknown [10.42.28.4])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 240AF492C13;
+ Fri, 23 Jun 2023 22:56:01 +0000 (UTC)
+From: David Howells <dhowells@redhat.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH net-next v5 16/16] net: Kill MSG_SENDPAGE_NOTLAST
+Date: Fri, 23 Jun 2023 23:55:13 +0100
+Message-ID: <20230623225513.2732256-17-dhowells@redhat.com>
+In-Reply-To: <20230623225513.2732256-1-dhowells@redhat.com>
+References: <20230623225513.2732256-1-dhowells@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <a21047bb-3b87-a50a-94a7-f3fa4847bc08@bytedance.com>
-Cc: djwong@kernel.org, roman.gushchin@linux.dev,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, dm-devel@redhat.com, linux-ext4@vger.kernel.org,
- paulmck@kernel.org, linux-arm-msm@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, linux-nfs@vger.kernel.org,
- linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org,
- Vlastimil Babka <vbabka@suse.cz>, brauner@kernel.org, tytso@mit.edu,
- linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
- linux-btrfs@vger.kernel.org, tkhai@ya.ru
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+Cc: linux-doc@vger.kernel.org, Alexander Duyck <alexander.duyck@gmail.com>,
+ virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>,
+ linux-mm@kvack.org, Eric Dumazet <edumazet@google.com>,
+ linux-afs@lists.infradead.org,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, linux-x25@vger.kernel.org,
+ dccp@vger.kernel.org, linux-rdma@vger.kernel.org,
+ Matthew Wilcox <willy@infradead.org>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, linux-arm-msm@vger.kernel.org,
+ rds-devel@oss.oracle.com, linux-can@vger.kernel.org,
+ linux-hams@vger.kernel.org, mptcp@lists.linux.dev,
+ Jens Axboe <axboe@kernel.dk>, David Ahern <dsahern@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
+ linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net,
+ linux-crypto@vger.kernel.org, bpf@vger.kernel.org, linux-wpan@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,49 +104,153 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Dave Chinner via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Dave Chinner <david@fromorbit.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 23, 2023 at 09:10:57PM +0800, Qi Zheng wrote:
-> On 2023/6/23 14:29, Dave Chinner wrote:
-> > On Thu, Jun 22, 2023 at 05:12:02PM +0200, Vlastimil Babka wrote:
-> > > On 6/22/23 10:53, Qi Zheng wrote:
-> > Yes, I suggested the IDR route because radix tree lookups under RCU
-> > with reference counted objects are a known safe pattern that we can
-> > easily confirm is correct or not.  Hence I suggested the unification
-> > + IDR route because it makes the life of reviewers so, so much
-> > easier...
-> 
-> In fact, I originally planned to try the unification + IDR method you
-> suggested at the beginning. But in the case of CONFIG_MEMCG disabled,
-> the struct mem_cgroup is not even defined, and root_mem_cgroup and
-> shrinker_info will not be allocated.  This required more code changes, so
-> I ended up keeping the shrinker_list and implementing the above pattern.
+Now that ->sendpage() has been removed, MSG_SENDPAGE_NOTLAST can be cleaned
+up.  Things were converted to use MSG_MORE instead, but the protocol
+sendpage stubs still convert MSG_SENDPAGE_NOTLAST to MSG_MORE, which is now
+unnecessary.
 
-Yes. Go back and read what I originally said needed to be done
-first. In the case of CONFIG_MEMCG=n, a dummy root memcg still needs
-to exist that holds all of the global shrinkers. Then shrink_slab()
-is only ever passed a memcg that should be iterated.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: "David S. Miller" <davem@davemloft.net>
+cc: Eric Dumazet <edumazet@google.com>
+cc: Jakub Kicinski <kuba@kernel.org>
+cc: Paolo Abeni <pabeni@redhat.com>
+cc: Jens Axboe <axboe@kernel.dk>
+cc: Matthew Wilcox <willy@infradead.org>
+cc: bpf@vger.kernel.org
+cc: dccp@vger.kernel.org
+cc: linux-afs@lists.infradead.org
+cc: linux-arm-msm@vger.kernel.org
+cc: linux-can@vger.kernel.org
+cc: linux-crypto@vger.kernel.org
+cc: linux-doc@vger.kernel.org
+cc: linux-hams@vger.kernel.org
+cc: linux-perf-users@vger.kernel.org
+cc: linux-rdma@vger.kernel.org
+cc: linux-sctp@vger.kernel.org
+cc: linux-wpan@vger.kernel.org
+cc: linux-x25@vger.kernel.org
+cc: mptcp@lists.linux.dev
+cc: netdev@vger.kernel.org
+cc: rds-devel@oss.oracle.com
+cc: tipc-discussion@lists.sourceforge.net
+cc: virtualization@lists.linux-foundation.org
+---
 
-Yes, it needs changes external to the shrinker code itself to be
-made to work. And even if memcg's are not enabled, we can still use
-the memcg structures to ensure a common abstraction is used for the
-shrinker tracking infrastructure....
+Notes:
+    ver #3)
+     - tcp_bpf is now handled by an earlier patch.
 
-> If the above pattern is not safe, I will go back to the unification +
-> IDR method.
+ include/linux/socket.h                         | 4 +---
+ net/tls/tls_device.c                           | 3 +--
+ net/tls/tls_main.c                             | 2 +-
+ net/tls/tls_sw.c                               | 2 +-
+ tools/perf/trace/beauty/include/linux/socket.h | 1 -
+ tools/perf/trace/beauty/msg_flags.c            | 5 +----
+ 6 files changed, 5 insertions(+), 12 deletions(-)
 
-And that is exactly how we got into this mess in the first place....
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 58204700018a..39b74d83c7c4 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -319,7 +319,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+@@ -341,8 +340,7 @@ struct ucred {
+ 
+ /* Flags to be cleared on entry by sendmsg and sendmmsg syscalls */
+ #define MSG_INTERNAL_SENDMSG_FLAGS \
+-	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_NOTLAST | \
+-	 MSG_SENDPAGE_DECRYPTED)
++	(MSG_SPLICE_PAGES | MSG_SENDPAGE_NOPOLICY | MSG_SENDPAGE_DECRYPTED)
+ 
+ /* Setsockoptions(2) level. Thanks to BSD these must match IPPROTO_xxx */
+ #define SOL_IP		0
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index 840ee06f1708..2021fe557e50 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -441,8 +441,7 @@ static int tls_push_data(struct sock *sk,
+ 	long timeo;
+ 
+ 	if (flags &
+-	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SENDPAGE_NOTLAST |
+-	      MSG_SPLICE_PAGES))
++	    ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL | MSG_SPLICE_PAGES))
+ 		return -EOPNOTSUPP;
+ 
+ 	if (unlikely(sk->sk_err))
+diff --git a/net/tls/tls_main.c b/net/tls/tls_main.c
+index d5ed4d47b16e..b6896126bb92 100644
+--- a/net/tls/tls_main.c
++++ b/net/tls/tls_main.c
+@@ -127,7 +127,7 @@ int tls_push_sg(struct sock *sk,
+ {
+ 	struct bio_vec bvec;
+ 	struct msghdr msg = {
+-		.msg_flags = MSG_SENDPAGE_NOTLAST | MSG_SPLICE_PAGES | flags,
++		.msg_flags = MSG_SPLICE_PAGES | flags,
+ 	};
+ 	int ret = 0;
+ 	struct page *p;
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 9b3aa89a4292..53f944e6d8ef 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1194,7 +1194,7 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 
+ 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL |
+ 			       MSG_CMSG_COMPAT | MSG_SPLICE_PAGES |
+-			       MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
++			       MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+ 	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
+diff --git a/tools/perf/trace/beauty/include/linux/socket.h b/tools/perf/trace/beauty/include/linux/socket.h
+index 13c3a237b9c9..3bef212a24d7 100644
+--- a/tools/perf/trace/beauty/include/linux/socket.h
++++ b/tools/perf/trace/beauty/include/linux/socket.h
+@@ -318,7 +318,6 @@ struct ucred {
+ #define MSG_MORE	0x8000	/* Sender will send more */
+ #define MSG_WAITFORONE	0x10000	/* recvmmsg(): block until 1+ packets avail */
+ #define MSG_SENDPAGE_NOPOLICY 0x10000 /* sendpage() internal : do no apply policy */
+-#define MSG_SENDPAGE_NOTLAST 0x20000 /* sendpage() internal : not the last page */
+ #define MSG_BATCH	0x40000 /* sendmmsg(): more messages coming */
+ #define MSG_EOF         MSG_FIN
+ #define MSG_NO_SHARED_FRAGS 0x80000 /* sendpage() internal : page frags are not shared */
+diff --git a/tools/perf/trace/beauty/msg_flags.c b/tools/perf/trace/beauty/msg_flags.c
+index ea68db08b8e7..5cdebd7ece7e 100644
+--- a/tools/perf/trace/beauty/msg_flags.c
++++ b/tools/perf/trace/beauty/msg_flags.c
+@@ -8,9 +8,6 @@
+ #ifndef MSG_WAITFORONE
+ #define MSG_WAITFORONE		   0x10000
+ #endif
+-#ifndef MSG_SENDPAGE_NOTLAST
+-#define MSG_SENDPAGE_NOTLAST	   0x20000
+-#endif
+ #ifndef MSG_FASTOPEN
+ #define MSG_FASTOPEN		0x20000000
+ #endif
+@@ -50,7 +47,7 @@ static size_t syscall_arg__scnprintf_msg_flags(char *bf, size_t size,
+ 	P_MSG_FLAG(NOSIGNAL);
+ 	P_MSG_FLAG(MORE);
+ 	P_MSG_FLAG(WAITFORONE);
+-	P_MSG_FLAG(SENDPAGE_NOTLAST);
++	P_MSG_FLAG(SPLICE_PAGES);
+ 	P_MSG_FLAG(FASTOPEN);
+ 	P_MSG_FLAG(CMSG_CLOEXEC);
+ #undef P_MSG_FLAG
 
--Dave
--- 
-Dave Chinner
-david@fromorbit.com
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
