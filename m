@@ -4,109 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2108AEB64D7
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jun 2023 13:50:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1678CC001B0
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jun 2023 22:19:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8B21841F1E;
-	Fri, 23 Jun 2023 13:50:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8B21841F1E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7AD6541E6A;
+	Fri, 23 Jun 2023 22:19:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7AD6541E6A
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=hAT1OlnZ
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=lhK6GKfD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id z2EToy53dzXK; Fri, 23 Jun 2023 13:50:14 +0000 (UTC)
+	with ESMTP id S-iWoo9DC57l; Fri, 23 Jun 2023 22:19:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C148F41F3E;
-	Fri, 23 Jun 2023 13:50:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C148F41F3E
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AC7E341DD8;
+	Fri, 23 Jun 2023 22:19:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AC7E341DD8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FCB8C007A;
-	Fri, 23 Jun 2023 13:50:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BCD62C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 861F2C0037;
+	Fri, 23 Jun 2023 22:19:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62548C0029
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 13:50:11 +0000 (UTC)
+ Fri, 23 Jun 2023 22:19:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 80D0F40494
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2980881EE1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 13:50:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 80D0F40494
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=hAT1OlnZ
+ Fri, 23 Jun 2023 22:19:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2980881EE1
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com
+ header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256
+ header.s=20221208 header.b=lhK6GKfD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 85RwzCst2E2G
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BsTnvSxBM69n
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 13:50:10 +0000 (UTC)
+ Fri, 23 Jun 2023 22:19:20 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9291940193
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com
- [IPv6:2607:f8b0:4864:20::52a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9291940193
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 633FF81EDB
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
+ [IPv6:2607:f8b0:4864:20::42a])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 633FF81EDB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 13:50:10 +0000 (UTC)
-Received: by mail-pg1-x52a.google.com with SMTP id
- 41be03b00d2f7-5533c545786so488259a12.1
+ Fri, 23 Jun 2023 22:19:20 +0000 (UTC)
+Received: by mail-pf1-x42a.google.com with SMTP id
+ d2e1a72fcca58-668709767b1so779071b3a.2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jun 2023 06:50:10 -0700 (PDT)
+ Fri, 23 Jun 2023 15:19:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1687528210; x=1690120210;
+ d=fromorbit-com.20221208.gappssmtp.com; s=20221208; t=1687558760; x=1690150760;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=T+1pIFBwxpLNL/VoMpzyTvuzZptHIhilPLYErQwUS8k=;
- b=hAT1OlnZCSwyNFydf13NvIycgXr5/iIfC6r8/nd0zLufzjnG76xScQ8fkAvjuDR9HA
- LKstTMkVB1IimZFBU+AILwUx2GaOikMy+PW2Eg7+k6BnlRwGKiPDbsTCp9VVgh0lD6bi
- 8QYBpzPAZyybBHinxa4YFTWPP0+n1bFlI15Wjv6yMRRcN1lRHOpBz63Iootsc/mjPBYf
- YMeoCsk0bHsnceZKYdKo46Nve3OJdWtoZevSnvjANuI1wSA0s6vRTB0FXzEE4I7M2vF+
- lGRMvxSZ4U+bjAWHupE09pIQBGQgCvCiABu5+zuXGjJLJXB75Ua+e9EoKOR+y1vzr1qk
- UKig==
+ bh=mD+HWl2aEG73j6Ak2J3eZjmDfUV1ZAzR4FiFGaQDP6g=;
+ b=lhK6GKfDyI3S2QEkidlKI9Ek7fIdf8s37/5sqH0oYikZjcY7jput4UDyCpFr2NTdT8
+ zVyRwANCpkSqZtLXi737KASfNRL8jzfb+T40RkB84q+J2KMVe792KQuGyG75zUe1uU9/
+ y8KvlnU3EwX/2kXOOlbwtshnDERQlNsq270xMVedNytpu7Z+d6cUbBidgJ6X6DjHIzPN
+ 7j8fd31lnOvF/aMkMY7bUu4o0IY8LUCtjYfDI1XbfU7cyMWriXOuApAvFBa9TAUUYDHZ
+ fQEMipnVJ6GJpcYxmPtjY5bvv9Ob+7MwsmiucWVnjVO5xA+M617znVGuQZS0X5eWOQ0u
+ zyUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687528210; x=1690120210;
+ d=1e100.net; s=20221208; t=1687558760; x=1690150760;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=T+1pIFBwxpLNL/VoMpzyTvuzZptHIhilPLYErQwUS8k=;
- b=f+2Cbdsturm7CLwq9Xyf5FXjRY9NN1ikR9dFgYsjcC0FxRSHil5iqdp0+ACJQSyQ4/
- TyBmf3tffoV0IPZhiKWvqqrrpueS8AhnLasVWkt1KzDmYQIy4kcbd0VfCD5O3YBH7B9b
- pzCyPam3rO6KSEp0ipAF9Vz+ObEl291chw2pL2091Lzk4Xr4O/QkL/T3l6EtVmh6Q3h6
- indu5FR+OPGdCvZR0JSuHl4NJkEA7XnhiaOeNdYTG34ezTZ1W5/RpJs80gGXjZalpU9+
- bh4SORfpjdwOnbXOB1DJdgNQsP21//MizzulXG77CcF2+M0MOp3FYOV7Wp+4xE6Rkk0s
- IUWw==
-X-Gm-Message-State: AC+VfDxc8O1qS1ELEccMQu2OuifCa4JOVZwe0UjtRPMITqw+93xRTWbz
- jZH7ic5qNlWKUKfqngrQrL2GXw==
-X-Google-Smtp-Source: ACHHUZ4GZmcSemtE667i1A/XCxE0H28ULkbHrmN2r73R4aAzspqKPCakvWEfvpegChi/MFwoMtwoWw==
-X-Received: by 2002:a17:90b:811:b0:25c:7d4:7cd with SMTP id
- bk17-20020a17090b081100b0025c07d407cdmr25932024pjb.24.1687528209792; 
- Fri, 23 Jun 2023 06:50:09 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.68.25.194]) by smtp.gmail.com with ESMTPSA id
- n59-20020a17090a2cc100b0025bdc3454c6sm1647744pjd.8.2023.06.23.06.50.08
+ bh=mD+HWl2aEG73j6Ak2J3eZjmDfUV1ZAzR4FiFGaQDP6g=;
+ b=cyHmaTmVBJIvg9rxqdXWSA+dxEyQzZJalwGuYBiLdGqrT1lNinuQWIAccLqhUSJdyl
+ VLV5dqbDxBOxQ3pt1b1NYIf6QtNmiT3LlG0V6zWDkeuFUkOoPho1/jK5xJdRJdKjfI7Q
+ GI6U1vYay8Enkb4TDOlVOjl7WJpdVq+5tgCll0klGRPCFz01J/cWLS+rOaeJ8yG0Pqq+
+ zhdMCzWEKx9/vxVhgVy2Fg4ggCmWk+YbeCzY2eGTaF/KQJjy5fZF2xnDNUrFb4AU1rnU
+ pPS39dLnpxRjKruQtgRADZ78+5b2Q/ek7suuu5mWLB/l34d9mMSw/NB3DGjxID4Y27TB
+ VBQg==
+X-Gm-Message-State: AC+VfDwzYLg9hCF0PuK3b0CCui9ZFg6ZKC+e6HGNWrmu1MfPIluteFFo
+ SdP+oXy65dJNOON/q/P5/dgd7A==
+X-Google-Smtp-Source: ACHHUZ6Wu9ky21UYgtgHUmTHayjznwHVfcTzLH8QgkKVoWewOSRi12/4tLQSsphqEkidSt1h32qo3g==
+X-Received: by 2002:a05:6a20:4410:b0:121:7454:be2a with SMTP id
+ ce16-20020a056a20441000b001217454be2amr17133223pzb.45.1687558759759; 
+ Fri, 23 Jun 2023 15:19:19 -0700 (PDT)
+Received: from dread.disaster.area (pa49-186-94-37.pa.vic.optusnet.com.au.
+ [49.186.94.37]) by smtp.gmail.com with ESMTPSA id
+ b17-20020a170902b61100b001ab0672fc1fsm58552pls.105.2023.06.23.15.19.18
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Jun 2023 06:50:09 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qChAt-007z7M-Gb;
- Fri, 23 Jun 2023 10:50:07 -0300
-Date: Fri, 23 Jun 2023 10:50:07 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
-Subject: Re: [RFC PATCHES 00/17] IOMMUFD: Deliver IO page faults to user space
-Message-ID: <ZJWjD1ajeem6pK3I@ziepe.ca>
-References: <20230530053724.232765-1-baolu.lu@linux.intel.com>
- <ZHaV3GwYXCvfNUBn@ziepe.ca>
- <a3c15dff-c165-57c7-16f6-072e251a9368@linux.intel.com>
+ Fri, 23 Jun 2023 15:19:19 -0700 (PDT)
+Received: from dave by dread.disaster.area with local (Exim 4.96)
+ (envelope-from <david@fromorbit.com>) id 1qCp7a-00FP7U-2k;
+ Sat, 24 Jun 2023 08:19:14 +1000
+Date: Sat, 24 Jun 2023 08:19:14 +1000
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Subject: Re: [PATCH 24/29] mm: vmscan: make global slab shrink lockless
+Message-ID: <ZJYaYv4pACmCaBoT@dread.disaster.area>
+References: <20230622085335.77010-1-zhengqi.arch@bytedance.com>
+ <20230622085335.77010-25-zhengqi.arch@bytedance.com>
+ <cf0d9b12-6491-bf23-b464-9d01e5781203@suse.cz>
+ <ZJU708VIyJ/3StAX@dread.disaster.area>
+ <a21047bb-3b87-a50a-94a7-f3fa4847bc08@bytedance.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <a3c15dff-c165-57c7-16f6-072e251a9368@linux.intel.com>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Yi Liu <yi.l.liu@intel.com>, Will Deacon <will@kernel.org>,
- Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
- Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
- linux-kselftest@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <a21047bb-3b87-a50a-94a7-f3fa4847bc08@bytedance.com>
+Cc: djwong@kernel.org, roman.gushchin@linux.dev,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, dm-devel@redhat.com, linux-ext4@vger.kernel.org,
+ paulmck@kernel.org, linux-arm-msm@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, linux-nfs@vger.kernel.org,
+ linux-raid@vger.kernel.org, linux-bcache@vger.kernel.org,
+ Vlastimil Babka <vbabka@suse.cz>, brauner@kernel.org, tytso@mit.edu,
+ linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
+ linux-btrfs@vger.kernel.org, tkhai@ya.ru
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,70 +123,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Dave Chinner via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Dave Chinner <david@fromorbit.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 23, 2023 at 02:18:38PM +0800, Baolu Lu wrote:
+On Fri, Jun 23, 2023 at 09:10:57PM +0800, Qi Zheng wrote:
+> On 2023/6/23 14:29, Dave Chinner wrote:
+> > On Thu, Jun 22, 2023 at 05:12:02PM +0200, Vlastimil Babka wrote:
+> > > On 6/22/23 10:53, Qi Zheng wrote:
+> > Yes, I suggested the IDR route because radix tree lookups under RCU
+> > with reference counted objects are a known safe pattern that we can
+> > easily confirm is correct or not.  Hence I suggested the unification
+> > + IDR route because it makes the life of reviewers so, so much
+> > easier...
+> 
+> In fact, I originally planned to try the unification + IDR method you
+> suggested at the beginning. But in the case of CONFIG_MEMCG disabled,
+> the struct mem_cgroup is not even defined, and root_mem_cgroup and
+> shrinker_info will not be allocated.  This required more code changes, so
+> I ended up keeping the shrinker_list and implementing the above pattern.
 
-> 	struct io_uring ring;
-> 
-> 	io_uring_setup(IOPF_ENTRIES, &ring);
-> 
-> 	while (1) {
-> 		struct io_uring_prep_read read;
-> 		struct io_uring_cqe *cqe;
-> 
-> 		read.fd = iopf_fd;
-> 		read.buf = malloc(IOPF_SIZE);
-> 		read.len = IOPF_SIZE;
-> 		read.flags = 0;
-> 
-> 		io_uring_prep_read(&ring, &read);
-> 		io_uring_submit(&ring);
-> 
-> 		// Wait for the read to complete
-> 		while ((cqe = io_uring_get_cqe(&ring)) != NULL) {
-> 			// Check if the read completed
-> 			if (cqe->res < 0)
-> 				break;
-> 
-> 			if (page_fault_read_completion(cqe)) {
-> 				// Get the fault data
-> 				void *data = cqe->buf;
-> 				size_t size = cqe->res;
-> 
-> 				// Handle the page fault
-> 				handle_page_fault(data);
-> 
-> 				// Respond the fault
-> 				struct io_uring_prep_write write;
-> 				write.fd = iopf_fd;
-> 				write.buf = malloc(IOPF_RESPONSE_SIZE);
-> 				write.len = IOPF_RESPONSE_SIZE;
-> 				write.flags = 0;
-> 
-> 				io_uring_prep_write(&ring, &write);
->             			io_uring_submit(&ring);
-> 			}
-> 
-> 			// Reap the cqe
-> 			io_uring_cqe_free(&ring, cqe);
-> 		}
-> 	}
-> 
-> Did I understand you correctly?
+Yes. Go back and read what I originally said needed to be done
+first. In the case of CONFIG_MEMCG=n, a dummy root memcg still needs
+to exist that holds all of the global shrinkers. Then shrink_slab()
+is only ever passed a memcg that should be iterated.
 
-Yes, basically this is the right idea. There are more complex ways to
-use the iouring that would be faster still.
+Yes, it needs changes external to the shrinker code itself to be
+made to work. And even if memcg's are not enabled, we can still use
+the memcg structures to ensure a common abstraction is used for the
+shrinker tracking infrastructure....
 
-And the kernel side can have support to speed it up as well.
+> If the above pattern is not safe, I will go back to the unification +
+> IDR method.
 
-I'm wondering if we should be pushing invalidations on io_uring as
-well?
+And that is exactly how we got into this mess in the first place....
 
-Jason
+-Dave
+-- 
+Dave Chinner
+david@fromorbit.com
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
