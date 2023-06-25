@@ -4,67 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 34CD9EB64DA
-	for <virtualization@archiver.kernel.org>; Sun, 25 Jun 2023 02:48:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 734CDEB64DC
+	for <virtualization@archiver.kernel.org>; Sun, 25 Jun 2023 07:09:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9A64F405EC;
-	Sun, 25 Jun 2023 02:48:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9A64F405EC
+	by smtp2.osuosl.org (Postfix) with ESMTP id EAA7E40154;
+	Sun, 25 Jun 2023 07:09:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EAA7E40154
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UWvrf0yX
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kpGRNJG5NcOZ; Sun, 25 Jun 2023 02:48:19 +0000 (UTC)
+	with ESMTP id nkK3OUW3xU09; Sun, 25 Jun 2023 07:09:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0FB61400F1;
-	Sun, 25 Jun 2023 02:48:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0FB61400F1
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9918C400D2;
+	Sun, 25 Jun 2023 07:09:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9918C400D2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DA9B6C007A;
-	Sun, 25 Jun 2023 02:48:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 14EF4C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BD6EC0037;
+	Sun, 25 Jun 2023 07:09:43 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7B391C0029
  for <virtualization@lists.linux-foundation.org>;
- Sun, 25 Jun 2023 02:48:18 +0000 (UTC)
+ Sun, 25 Jun 2023 07:09:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D195A405EC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4F19B81971
  for <virtualization@lists.linux-foundation.org>;
- Sun, 25 Jun 2023 02:48:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D195A405EC
+ Sun, 25 Jun 2023 07:09:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4F19B81971
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=UWvrf0yX
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ddocmpGkc8RC
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BmWZmh6xe1-p
  for <virtualization@lists.linux-foundation.org>;
- Sun, 25 Jun 2023 02:48:15 +0000 (UTC)
+ Sun, 25 Jun 2023 07:09:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5B4B4400F1
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5B4B4400F1
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44E82818EC
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 44E82818EC
  for <virtualization@lists.linux-foundation.org>;
- Sun, 25 Jun 2023 02:48:14 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=12; SR=0;
- TI=SMTPD_---0Vlqny7v_1687661286; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Vlqny7v_1687661286) by smtp.aliyun-inc.com;
- Sun, 25 Jun 2023 10:48:07 +0800
-Message-ID: <1687660989.9620886-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v10 10/10] virtio_net: support dma premapped
-Date: Sun, 25 Jun 2023 10:43:09 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230602092206.50108-1-xuanzhuo@linux.alibaba.com>
- <20230602092206.50108-11-xuanzhuo@linux.alibaba.com>
- <20230622081142-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230622081142-mutt-send-email-mst@kernel.org>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Sun, 25 Jun 2023 07:09:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687676979;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=YbYPIjkR3XyYE7RueUh8/3QvrSdR3D1Go2rsedUr3Z4=;
+ b=UWvrf0yXKSbWq+CydkcTEH1C+PyN5GIir5hj+XowQCKBb5rDLI4OyI190jIdmj5WPoS9Sc
+ jdSCe+FZ7nj/mZptFgF9+mIR8ehwwGg9Pk5KMHHumOQfmxQfxxy25I2GJYb4m5pNJm69or
+ C/fbcvGrsJu1L+6yH3eoFVNgUcDaESQ=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-533-3HwSaB5QO9Wg5Le-wEqjgg-1; Sun, 25 Jun 2023 03:09:38 -0400
+X-MC-Unique: 3HwSaB5QO9Wg5Le-wEqjgg-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ 2adb3069b0e04-4f8757ca7c6so1718899e87.0
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 25 Jun 2023 00:09:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1687676976; x=1690268976;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=YbYPIjkR3XyYE7RueUh8/3QvrSdR3D1Go2rsedUr3Z4=;
+ b=W/1FqJwl2zvm8y/73MP11JSE7vMrI1dTBnoeMsL0v3LN2Qoc6ugrl5VDUWPOIkMjFR
+ ky30UKpA6Tc6sdz9PoPxnh+GseY/WuBBG4JTYakI9kWtFhBMXIzbuM0JgHd2xuQrZw9E
+ uOmuf8R+z7mjN9iKfKM4zz/T86/xeqkyOC3W1dDEEMfGjGgpeNHpd1MxkdIf0bkAc5aF
+ fdE3KxYyFwISbslLki7GzxTXQzgxcOMUHJn+/a0ck8yP7fXEJJxQep2keOy65Es9C+7j
+ z7IEH8Puk9XIaRTLfEHjYfAkpfAZBlI/FjgqCC0fZmspCeJK8Y9oXykWzEN8QxQXhPDX
+ +TGw==
+X-Gm-Message-State: AC+VfDwe3IRuaHhBwmscSChhYTy2h8OdTpPowyP2Idiu+ykZTI/J/ACz
+ vsrIbekQKZgXq5q2nytabe3jwXE2b28lDA2bDEwvtt0yNPE0CMEvZfgWwF9P/SAuBtS6u/115FR
+ qFWtBiXARApj+ow5bp8x5FGVMSYJ3yQIUUIM7B83y3//y8LmBSDFdE/X+1w==
+X-Received: by 2002:a19:8c14:0:b0:4f8:7333:d1fd with SMTP id
+ o20-20020a198c14000000b004f87333d1fdmr11221952lfd.34.1687676976585; 
+ Sun, 25 Jun 2023 00:09:36 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4iCpsy8J97MsvZhIh4Vr0xVedBNb3evsSFHyVeolxdYqrf2lfu5rzZT1HgQUgv/7X0z5JP9Aoj9/QtPPgYvzM=
+X-Received: by 2002:a19:8c14:0:b0:4f8:7333:d1fd with SMTP id
+ o20-20020a198c14000000b004f87333d1fdmr11221945lfd.34.1687676976263; Sun, 25
+ Jun 2023 00:09:36 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230622204851.318125-1-maxime.coquelin@redhat.com>
+In-Reply-To: <20230622204851.318125-1-maxime.coquelin@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Sun, 25 Jun 2023 15:09:25 +0800
+Message-ID: <CACGkMEuEHroKkBa4ccRKAyPR6E1-5AtjjABXicAOuyJtkYO6sw@mail.gmail.com>
+Subject: Re: [PATCH v2] vduse: fix NULL pointer dereference
+To: Maxime Coquelin <maxime.coquelin@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, gregkh@linuxfoundation.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ xieyongji@bytedance.com, sheng.zhao@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,371 +113,84 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, 22 Jun 2023 08:15:03 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Jun 02, 2023 at 05:22:06PM +0800, Xuan Zhuo wrote:
-> > Introduce the module param "experiment_premapped" to enable the function
-> > that the virtio-net do dma mapping.
-> >
-> > If that is true, the vq of virtio-net is under the premapped mode.
-> > It just handle the sg with dma_address. And the driver must get the dma
-> > address of the buffer to unmap after get the buffer from virtio core.
-> >
-> > That will be useful when AF_XDP is enable, AF_XDP tx and the kernel packet
-> > xmit will share the tx queue, so the skb xmit must support the premapped
-> > mode.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->
->
-> I put this in next but I don't think this is going upstream
-> in its current form,
-
-I agree.
-
-> certainly not with the experiment_premapped mod config
-> that no one will know how to enable. If you want to experiment,
-> keep it in your private tree, experimenting on humans requires
-> an ethics board approval and consent forms :)
-
-^_^
-
-Maybe, this patchset should not include this patch,
-this patch should work with the patch that uses the premapped.
-
->
-> Spreading the "premapped" boolean all of the place is also
-> far from pretty, I wonder why we can't only specify it when adding.
-
-I guess you mean that we just use the "premapped" for the virtio api.
-
-I will try.
-
-Thanks.
-
-
->
-> > ---
-> >  drivers/net/virtio_net.c | 163 +++++++++++++++++++++++++++++++++------
-> >  1 file changed, 141 insertions(+), 22 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 2396c28c0122..5898212fcb3c 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -26,10 +26,11 @@
-> >  static int napi_weight = NAPI_POLL_WEIGHT;
-> >  module_param(napi_weight, int, 0444);
-> >
-> > -static bool csum = true, gso = true, napi_tx = true;
-> > +static bool csum = true, gso = true, napi_tx = true, experiment_premapped;
-> >  module_param(csum, bool, 0444);
-> >  module_param(gso, bool, 0444);
-> >  module_param(napi_tx, bool, 0644);
-> > +module_param(experiment_premapped, bool, 0644);
-> >
-> >  /* FIXME: MTU in config. */
-> >  #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
-> > @@ -142,6 +143,9 @@ struct send_queue {
-> >
-> >  	/* Record whether sq is in reset state. */
-> >  	bool reset;
-> > +
-> > +	/* The vq is premapped mode. */
-> > +	bool premapped;
-> >  };
-> >
-> >  /* Internal representation of a receive virtqueue */
-> > @@ -174,6 +178,9 @@ struct receive_queue {
-> >  	char name[16];
-> >
-> >  	struct xdp_rxq_info xdp_rxq;
-> > +
-> > +	/* The vq is premapped mode. */
-> > +	bool premapped;
-> >  };
-> >
-> >  /* This structure can contain rss message with maximum settings for indirection table and keysize
-> > @@ -546,6 +553,105 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-> >  	return skb;
-> >  }
-> >
-> > +static int virtnet_generic_unmap(struct virtqueue *vq, struct virtqueue_detach_cursor *cursor)
-> > +{
-> > +	enum dma_data_direction dir;
-> > +	dma_addr_t addr;
-> > +	u32 len;
-> > +	int err;
-> > +
-> > +	do {
-> > +		err = virtqueue_detach(vq, cursor, &addr, &len, &dir);
-> > +		if (!err || err == -EAGAIN)
-> > +			dma_unmap_page_attrs(virtqueue_dma_dev(vq), addr, len, dir, 0);
-> > +
-> > +	} while (err == -EAGAIN);
-> > +
-> > +	return err;
-> > +}
-> > +
-> > +static void *virtnet_detach_unused_buf(struct virtqueue *vq, bool premapped)
-> > +{
-> > +	struct virtqueue_detach_cursor cursor;
-> > +	void *buf;
-> > +
-> > +	if (!premapped)
-> > +		return virtqueue_detach_unused_buf(vq);
-> > +
-> > +	buf = virtqueue_detach_unused_buf_premapped(vq, &cursor);
-> > +	if (buf)
-> > +		virtnet_generic_unmap(vq, &cursor);
-> > +
-> > +	return buf;
-> > +}
-> > +
-> > +static void *virtnet_get_buf_ctx(struct virtqueue *vq, bool premapped, u32 *len, void **ctx)
-> > +{
-> > +	struct virtqueue_detach_cursor cursor;
-> > +	void *buf;
-> > +
-> > +	if (!premapped)
-> > +		return virtqueue_get_buf_ctx(vq, len, ctx);
-> > +
-> > +	buf = virtqueue_get_buf_premapped(vq, len, ctx, &cursor);
-> > +	if (buf)
-> > +		virtnet_generic_unmap(vq, &cursor);
-> > +
-> > +	return buf;
-> > +}
-> > +
-> > +#define virtnet_rq_get_buf(rq, plen, pctx) \
-> > +({ \
-> > +	typeof(rq) _rq = (rq); \
-> > +	virtnet_get_buf_ctx(_rq->vq, _rq->premapped, plen, pctx); \
-> > +})
-> > +
-> > +#define virtnet_sq_get_buf(sq, plen, pctx) \
-> > +({ \
-> > +	typeof(sq) _sq = (sq); \
-> > +	virtnet_get_buf_ctx(_sq->vq, _sq->premapped, plen, pctx); \
-> > +})
-> > +
-> > +static int virtnet_add_sg(struct virtqueue *vq, bool premapped,
-> > +			  struct scatterlist *sg, unsigned int num, bool out,
-> > +			  void *data, void *ctx, gfp_t gfp)
-> > +{
-> > +	enum dma_data_direction dir;
-> > +	struct device *dev;
-> > +	int err, ret;
-> > +
-> > +	if (!premapped)
-> > +		return virtqueue_add_sg(vq, sg, num, out, data, ctx, gfp);
-> > +
-> > +	dir = out ? DMA_TO_DEVICE : DMA_FROM_DEVICE;
-> > +	dev = virtqueue_dma_dev(vq);
-> > +
-> > +	ret = dma_map_sg_attrs(dev, sg, num, dir, 0);
-> > +	if (ret != num)
-> > +		goto err;
-> > +
-> > +	err = virtqueue_add_sg(vq, sg, num, out, data, ctx, gfp);
-> > +	if (err < 0)
-> > +		goto err;
-> > +
-> > +	return 0;
-> > +
-> > +err:
-> > +	dma_unmap_sg_attrs(dev, sg, num, dir, 0);
-> > +	return -ENOMEM;
-> > +}
-> > +
-> > +static int virtnet_add_outbuf(struct send_queue *sq, unsigned int num, void *data)
-> > +{
-> > +	return virtnet_add_sg(sq->vq, sq->premapped, sq->sg, num, true, data, NULL, GFP_ATOMIC);
-> > +}
-> > +
-> > +static int virtnet_add_inbuf(struct receive_queue *rq, unsigned int num, void *data,
-> > +			     void *ctx, gfp_t gfp)
-> > +{
-> > +	return virtnet_add_sg(rq->vq, rq->premapped, rq->sg, num, false, data, ctx, gfp);
-> > +}
-> > +
-> >  static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-> >  {
-> >  	unsigned int len;
-> > @@ -553,7 +659,7 @@ static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-> >  	unsigned int bytes = 0;
-> >  	void *ptr;
-> >
-> > -	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> > +	while ((ptr = virtnet_sq_get_buf(sq, &len, NULL)) != NULL) {
-> >  		if (likely(!is_xdp_frame(ptr))) {
-> >  			struct sk_buff *skb = ptr;
-> >
-> > @@ -667,8 +773,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> >  			    skb_frag_size(frag), skb_frag_off(frag));
-> >  	}
-> >
-> > -	err = virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
-> > -				   xdp_to_ptr(xdpf), GFP_ATOMIC);
-> > +	err = virtnet_add_outbuf(sq, nr_frags + 1, xdp_to_ptr(xdpf));
-> >  	if (unlikely(err))
-> >  		return -ENOSPC; /* Caller handle free/refcnt */
-> >
-> > @@ -744,7 +849,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >  	}
-> >
-> >  	/* Free up any pending old buffers before queueing new ones. */
-> > -	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
-> > +	while ((ptr = virtnet_sq_get_buf(sq, &len, NULL)) != NULL) {
-> >  		if (likely(is_xdp_frame(ptr))) {
-> >  			struct xdp_frame *frame = ptr_to_xdp(ptr);
-> >
-> > @@ -828,7 +933,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
-> >  		void *buf;
-> >  		int off;
-> >
-> > -		buf = virtqueue_get_buf(rq->vq, &buflen);
-> > +		buf = virtnet_rq_get_buf(rq, &buflen, NULL);
-> >  		if (unlikely(!buf))
-> >  			goto err_buf;
-> >
-> > @@ -1119,7 +1224,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
-> >  		return -EINVAL;
-> >
-> >  	while (--*num_buf > 0) {
-> > -		buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx);
-> > +		buf = virtnet_rq_get_buf(rq, &len, &ctx);
-> >  		if (unlikely(!buf)) {
-> >  			pr_debug("%s: rx error: %d buffers out of %d missing\n",
-> >  				 dev->name, *num_buf,
-> > @@ -1344,7 +1449,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >  	while (--num_buf) {
-> >  		int num_skb_frags;
-> >
-> > -		buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx);
-> > +		buf = virtnet_rq_get_buf(rq, &len, &ctx);
-> >  		if (unlikely(!buf)) {
-> >  			pr_debug("%s: rx error: %d buffers out of %d missing\n",
-> >  				 dev->name, num_buf,
-> > @@ -1407,7 +1512,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >  err_skb:
-> >  	put_page(page);
-> >  	while (num_buf-- > 1) {
-> > -		buf = virtqueue_get_buf(rq->vq, &len);
-> > +		buf = virtnet_rq_get_buf(rq, &len, NULL);
-> >  		if (unlikely(!buf)) {
-> >  			pr_debug("%s: rx error: %d buffers missing\n",
-> >  				 dev->name, num_buf);
-> > @@ -1534,7 +1639,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
-> >  	alloc_frag->offset += len;
-> >  	sg_init_one(rq->sg, buf + VIRTNET_RX_PAD + xdp_headroom,
-> >  		    vi->hdr_len + GOOD_PACKET_LEN);
-> > -	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
-> > +	err = virtnet_add_inbuf(rq, 1, buf, ctx, gfp);
-> >  	if (err < 0)
-> >  		put_page(virt_to_head_page(buf));
-> >  	return err;
-> > @@ -1581,8 +1686,8 @@ static int add_recvbuf_big(struct virtnet_info *vi, struct receive_queue *rq,
-> >
-> >  	/* chain first in list head */
-> >  	first->private = (unsigned long)list;
-> > -	err = virtqueue_add_inbuf(rq->vq, rq->sg, vi->big_packets_num_skbfrags + 2,
-> > -				  first, gfp);
-> > +	err = virtnet_add_inbuf(rq, vi->big_packets_num_skbfrags + 2,
-> > +				first, NULL, gfp);
-> >  	if (err < 0)
-> >  		give_pages(rq, first);
-> >
-> > @@ -1645,7 +1750,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
-> >
-> >  	sg_init_one(rq->sg, buf, len);
-> >  	ctx = mergeable_len_to_ctx(len + room, headroom);
-> > -	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
-> > +	err = virtnet_add_inbuf(rq, 1, buf, ctx, gfp);
-> >  	if (err < 0)
-> >  		put_page(virt_to_head_page(buf));
-> >
-> > @@ -1768,13 +1873,13 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
-> >  		void *ctx;
-> >
-> >  		while (stats.packets < budget &&
-> > -		       (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
-> > +		       (buf = virtnet_rq_get_buf(rq, &len, &ctx))) {
-> >  			receive_buf(vi, rq, buf, len, ctx, xdp_xmit, &stats);
-> >  			stats.packets++;
-> >  		}
-> >  	} else {
-> >  		while (stats.packets < budget &&
-> > -		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
-> > +		       (buf = virtnet_rq_get_buf(rq, &len, NULL)) != NULL) {
-> >  			receive_buf(vi, rq, buf, len, NULL, xdp_xmit, &stats);
-> >  			stats.packets++;
-> >  		}
-> > @@ -1984,7 +2089,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
-> >  			return num_sg;
-> >  		num_sg++;
-> >  	}
-> > -	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
-> > +	return virtnet_add_outbuf(sq, num_sg, skb);
-> >  }
-> >
-> >  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> > @@ -3552,15 +3657,17 @@ static void free_unused_bufs(struct virtnet_info *vi)
-> >  	int i;
-> >
-> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> > -		struct virtqueue *vq = vi->sq[i].vq;
-> > -		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
-> > -			virtnet_sq_free_unused_buf(vq, buf);
-> > +		struct send_queue *sq = &vi->sq[i];
-> > +
-> > +		while ((buf = virtnet_detach_unused_buf(sq->vq, sq->premapped)) != NULL)
-> > +			virtnet_sq_free_unused_buf(sq->vq, buf);
-> >  	}
-> >
-> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> > -		struct virtqueue *vq = vi->rq[i].vq;
-> > -		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
-> > -			virtnet_rq_free_unused_buf(vq, buf);
-> > +		struct receive_queue *rq = &vi->rq[i];
-> > +
-> > +		while ((buf = virtnet_detach_unused_buf(rq->vq, rq->premapped)) != NULL)
-> > +			virtnet_rq_free_unused_buf(rq->vq, buf);
-> >  	}
-> >  }
-> >
-> > @@ -3658,6 +3765,18 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
-> >  		vi->rq[i].vq = vqs[rxq2vq(i)];
-> >  		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
-> >  		vi->sq[i].vq = vqs[txq2vq(i)];
-> > +
-> > +		if (experiment_premapped) {
-> > +			if (!virtqueue_set_premapped(vi->rq[i].vq))
-> > +				vi->rq[i].premapped = true;
-> > +			else
-> > +				netdev_warn(vi->dev, "RXQ (%d) enable premapped failure.\n", i);
-> > +
-> > +			if (!virtqueue_set_premapped(vi->sq[i].vq))
-> > +				vi->sq[i].premapped = true;
-> > +			else
-> > +				netdev_warn(vi->dev, "TXQ (%d) enable premapped failure.\n", i);
-> > +		}
-> >  	}
-> >
-> >  	/* run here: ret == 0. */
-> > --
-> > 2.32.0.3.g01195cf9f
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBKdW4gMjMsIDIwMjMgYXQgNDo0OeKAr0FNIE1heGltZSBDb3F1ZWxpbgo8bWF4aW1l
+LmNvcXVlbGluQHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4gdmR1c2VfdmRwYV9zZXRfdnFfYWZmaW5p
+dHkgY2FsbGJhY2sgY2FuIGJlIGNhbGxlZAo+IHdpdGggTlVMTCB2YWx1ZSBhcyBjcHVfbWFzayB3
+aGVuIGRlbGV0aW5nIHRoZSB2ZHVzZQo+IGRldmljZS4KPgo+IFRoaXMgcGF0Y2ggcmVzZXRzIHZp
+cnRxdWV1ZSdzIElSUSBhZmZpbml0eSBtYXNrIHZhbHVlCj4gdG8gc2V0IGFsbCBDUFVzIGluc3Rl
+YWQgb2YgZGVyZWZlcmVuY2luZyBOVUxMIGNwdV9tYXNrLgo+Cj4gWyA0NzYwLjk1MjE0OV0gQlVH
+OiBrZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlLCBhZGRyZXNzOiAwMDAwMDAwMDAwMDAw
+MDAwCj4gWyA0NzYwLjk1OTExMF0gI1BGOiBzdXBlcnZpc29yIHJlYWQgYWNjZXNzIGluIGtlcm5l
+bCBtb2RlCj4gWyA0NzYwLjk2NDI0N10gI1BGOiBlcnJvcl9jb2RlKDB4MDAwMCkgLSBub3QtcHJl
+c2VudCBwYWdlCj4gWyA0NzYwLjk2OTM4NV0gUEdEIDAgUDREIDAKPiBbIDQ3NjAuOTcxOTI3XSBP
+b3BzOiAwMDAwIFsjMV0gUFJFRU1QVCBTTVAgUFRJCj4gWyA0NzYwLjk3NjExMl0gQ1BVOiAxMyBQ
+SUQ6IDIzNDYgQ29tbTogdmRwYSBOb3QgdGFpbnRlZCA2LjQuMC1yYzYrICM0Cj4gWyA0NzYwLjk4
+MjI5MV0gSGFyZHdhcmUgbmFtZTogRGVsbCBJbmMuIFBvd2VyRWRnZSBSNjQwLzBXMjNIOCwgQklP
+UyAyLjguMSAwNi8yNi8yMDIwCj4gWyA0NzYwLjk4OTc2OV0gUklQOiAwMDEwOm1lbWNweV9vcmln
+KzB4YzUvMHgxMzAKPiBbIDQ3NjAuOTk0MDQ5XSBDb2RlOiAxNiBmOCA0YyA4OSAwNyA0YyA4OSA0
+ZiAwOCA0YyA4OSA1NCAxNyBmMCA0YyA4OSA1YyAxNyBmOCBjMyBjYyBjYyBjYyBjYyA2NiA2NiAy
+ZSAwZiAxZiA4NCAwMCAwMCAwMCAwMCAwMCA2NiA5MCA4MyBmYSAwOCA3MiAxYiA8NGM+IDhiIDA2
+IDRjIDhiIDRjIDE2IGY4IDRjIDg5IDA3IDRjIDg5IDRjIDE3IGY4IGMzIGNjIGNjIGNjIGNjIDY2
+Cj4gWyA0NzYxLjAxMjc5M10gUlNQOiAwMDE4OmZmZmZiMWQ1NjVhYmI4MzAgRUZMQUdTOiAwMDAx
+MDI0Ngo+IFsgNDc2MS4wMTgwMjBdIFJBWDogZmZmZjlmNGJmNmIyNzg5OCBSQlg6IGZmZmY5ZjRi
+ZTIzOTY5YzAgUkNYOiBmZmZmOWY0YmNhZGY2NDAwCj4gWyA0NzYxLjAyNTE1Ml0gUkRYOiAwMDAw
+MDAwMDAwMDAwMDA4IFJTSTogMDAwMDAwMDAwMDAwMDAwMCBSREk6IGZmZmY5ZjRiZjZiMjc4OTgK
+PiBbIDQ3NjEuMDMyMjg2XSBSQlA6IDAwMDAwMDAwMDAwMDAwMDAgUjA4OiAwMDAwMDAwMDAwMDAw
+MDA4IFIwOTogMDAwMDAwMDAwMDAwMDAwMAo+IFsgNDc2MS4wMzk0MTZdIFIxMDogMDAwMDAwMDAw
+MDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAwMDA2MDAgUjEyOiAwMDAwMDAwMDAwMDAwMDAwCj4gWyA0
+NzYxLjA0NjU0OV0gUjEzOiAwMDAwMDAwMDAwMDAwMDAwIFIxNDogMDAwMDAwMDAwMDAwMDA4MCBS
+MTU6IGZmZmZiMWQ1NjVhYmJiMTAKPiBbIDQ3NjEuMDUzNjgwXSBGUzogIDAwMDA3ZjY0YzJlYzI3
+NDAoMDAwMCkgR1M6ZmZmZjlmNjM1Zjk4MDAwMCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAw
+Cj4gWyA0NzYxLjA2MTc2NV0gQ1M6ICAwMDEwIERTOiAwMDAwIEVTOiAwMDAwIENSMDogMDAwMDAw
+MDA4MDA1MDAzMwo+IFsgNDc2MS4wNjc1MTNdIENSMjogMDAwMDAwMDAwMDAwMDAwMCBDUjM6IDAw
+MDAwMDE4NzUyNzAwMDYgQ1I0OiAwMDAwMDAwMDAwNzcwNmUwCj4gWyA0NzYxLjA3NDY0NV0gRFIw
+OiAwMDAwMDAwMDAwMDAwMDAwIERSMTogMDAwMDAwMDAwMDAwMDAwMCBEUjI6IDAwMDAwMDAwMDAw
+MDAwMDAKPiBbIDQ3NjEuMDgxNzc1XSBEUjM6IDAwMDAwMDAwMDAwMDAwMDAgRFI2OiAwMDAwMDAw
+MGZmZmUwZmYwIERSNzogMDAwMDAwMDAwMDAwMDQwMAo+IFsgNDc2MS4wODg5MDldIFBLUlU6IDU1
+NTU1NTU0Cj4gWyA0NzYxLjA5MTYyMF0gQ2FsbCBUcmFjZToKPiBbIDQ3NjEuMDk0MDc0XSAgPFRB
+U0s+Cj4gWyA0NzYxLjA5NjE4MF0gID8gX19kaWUrMHgxZi8weDcwCj4gWyA0NzYxLjA5OTIzOF0g
+ID8gcGFnZV9mYXVsdF9vb3BzKzB4MTcxLzB4NGYwCj4gWyA0NzYxLjEwMzM0MF0gID8gZXhjX3Bh
+Z2VfZmF1bHQrMHg3Yi8weDE4MAo+IFsgNDc2MS4xMDcyNjVdICA/IGFzbV9leGNfcGFnZV9mYXVs
+dCsweDIyLzB4MzAKPiBbIDQ3NjEuMTExNDYwXSAgPyBtZW1jcHlfb3JpZysweGM1LzB4MTMwCj4g
+WyA0NzYxLjExNTEyNl0gIHZkdXNlX3ZkcGFfc2V0X3ZxX2FmZmluaXR5KzB4M2UvMHg1MCBbdmR1
+c2VdCj4gWyA0NzYxLjEyMDUzM10gIHZpcnRuZXRfY2xlYW5fYWZmaW5pdHkucGFydC4wKzB4M2Qv
+MHg5MCBbdmlydGlvX25ldF0KPiBbIDQ3NjEuMTI2NjM1XSAgcmVtb3ZlX3ZxX2NvbW1vbisweDFh
+NC8weDI1MCBbdmlydGlvX25ldF0KPiBbIDQ3NjEuMTMxNzgxXSAgdmlydG5ldF9yZW1vdmUrMHg1
+ZC8weDcwIFt2aXJ0aW9fbmV0XQo+IFsgNDc2MS4xMzY1ODBdICB2aXJ0aW9fZGV2X3JlbW92ZSsw
+eDNhLzB4OTAKPiBbIDQ3NjEuMTQwNTA5XSAgZGV2aWNlX3JlbGVhc2VfZHJpdmVyX2ludGVybmFs
+KzB4MTliLzB4MjAwCj4gWyA0NzYxLjE0NTc0Ml0gIGJ1c19yZW1vdmVfZGV2aWNlKzB4YzIvMHgx
+MzAKPiBbIDQ3NjEuMTQ5NzU1XSAgZGV2aWNlX2RlbCsweDE1OC8weDNlMAo+IFsgNDc2MS4xNTMy
+NDVdICA/IGtlcm5mc19maW5kX25zKzB4MzUvMHhjMAo+IFsgNDc2MS4xNTcwODZdICBkZXZpY2Vf
+dW5yZWdpc3RlcisweDEzLzB4NjAKPiBbIDQ3NjEuMTYxMDEwXSAgdW5yZWdpc3Rlcl92aXJ0aW9f
+ZGV2aWNlKzB4MTEvMHgyMAo+IFsgNDc2MS4xNjU1NDNdICBkZXZpY2VfcmVsZWFzZV9kcml2ZXJf
+aW50ZXJuYWwrMHgxOWIvMHgyMDAKPiBbIDQ3NjEuMTcwNzcwXSAgYnVzX3JlbW92ZV9kZXZpY2Ur
+MHhjMi8weDEzMAo+IFsgNDc2MS4xNzQ3ODJdICBkZXZpY2VfZGVsKzB4MTU4LzB4M2UwCj4gWyA0
+NzYxLjE3ODI3Nl0gID8gX19wZnhfdmRwYV9uYW1lX21hdGNoKzB4MTAvMHgxMCBbdmRwYV0KPiBb
+IDQ3NjEuMTgzMzM2XSAgZGV2aWNlX3VucmVnaXN0ZXIrMHgxMy8weDYwCj4gWyA0NzYxLjE4NzI2
+MF0gIHZkcGFfbmxfY21kX2Rldl9kZWxfc2V0X2RvaXQrMHg2My8weGUwIFt2ZHBhXQo+Cj4gRml4
+ZXM6IDI4ZjYyODhlYjYzZCAoInZkdXNlOiBTdXBwb3J0IHNldF92cV9hZmZpbml0eSBjYWxsYmFj
+ayIpCj4gQ2M6IHhpZXlvbmdqaUBieXRlZGFuY2UuY29tCj4KPiBTaWduZWQtb2ZmLWJ5OiBNYXhp
+bWUgQ29xdWVsaW4gPG1heGltZS5jb3F1ZWxpbkByZWRoYXQuY29tPgoKQWNrZWQtYnk6IEphc29u
+IFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+CgpUaGFua3MKCj4gLS0tCj4gIGRyaXZlcnMvdmRw
+YS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMgfCA2ICsrKysrLQo+ICAxIGZpbGUgY2hhbmdlZCwgNSBp
+bnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBh
+L3ZkcGFfdXNlci92ZHVzZV9kZXYuYyBiL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2
+LmMKPiBpbmRleCA1ZjVjMjE2NzRmZGMuLjBkODRlNmE5YzNjYyAxMDA2NDQKPiAtLS0gYS9kcml2
+ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jCj4gKysrIGIvZHJpdmVycy92ZHBhL3ZkcGFf
+dXNlci92ZHVzZV9kZXYuYwo+IEBAIC03MjYsNyArNzI2LDExIEBAIHN0YXRpYyBpbnQgdmR1c2Vf
+dmRwYV9zZXRfdnFfYWZmaW5pdHkoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1MTYgaWR4LAo+
+ICB7Cj4gICAgICAgICBzdHJ1Y3QgdmR1c2VfZGV2ICpkZXYgPSB2ZHBhX3RvX3ZkdXNlKHZkcGEp
+Owo+Cj4gLSAgICAgICBjcHVtYXNrX2NvcHkoJmRldi0+dnFzW2lkeF0tPmlycV9hZmZpbml0eSwg
+Y3B1X21hc2spOwo+ICsgICAgICAgaWYgKGNwdV9tYXNrKQo+ICsgICAgICAgICAgICAgICBjcHVt
+YXNrX2NvcHkoJmRldi0+dnFzW2lkeF0tPmlycV9hZmZpbml0eSwgY3B1X21hc2spOwo+ICsgICAg
+ICAgZWxzZQo+ICsgICAgICAgICAgICAgICBjcHVtYXNrX3NldGFsbCgmZGV2LT52cXNbaWR4XS0+
+aXJxX2FmZmluaXR5KTsKPiArCj4gICAgICAgICByZXR1cm4gMDsKPiAgfQo+Cj4gLS0KPiAyLjQx
+LjAKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
