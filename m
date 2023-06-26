@@ -4,107 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0174EB64DC
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 03:08:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51909EB64DA
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 07:15:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5D79940BD1;
-	Mon, 26 Jun 2023 03:08:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D79940BD1
+	by smtp2.osuosl.org (Postfix) with ESMTP id DCA0640CBF;
+	Mon, 26 Jun 2023 07:15:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCA0640CBF
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NuHZ434n
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iXFHdR/X
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BPSVD2hBTcf4; Mon, 26 Jun 2023 03:08:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C108D4012D;
-	Mon, 26 Jun 2023 03:08:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C108D4012D
+	with ESMTP id V0-pEe5Yr47G; Mon, 26 Jun 2023 07:15:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id F28CC40C1D;
+	Mon, 26 Jun 2023 07:15:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F28CC40C1D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9C1DEC0037;
-	Mon, 26 Jun 2023 03:08:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 242B0C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C25CDC0037;
+	Mon, 26 Jun 2023 07:15:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 248AEC0029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 03:08:32 +0000 (UTC)
+ Mon, 26 Jun 2023 07:15:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id F2AAE40424
+ by smtp2.osuosl.org (Postfix) with ESMTP id E634640C23
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 03:08:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F2AAE40424
+ Mon, 26 Jun 2023 07:15:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E634640C23
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nZK4y1BsxN6U
+ with ESMTP id OstYcAvckO_A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 03:08:31 +0000 (UTC)
+ Mon, 26 Jun 2023 07:15:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 12A274012D
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F3AE40C1D
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 12A274012D
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1F3AE40C1D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 03:08:30 +0000 (UTC)
+ Mon, 26 Jun 2023 07:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687748909;
+ s=mimecast20190719; t=1687763729;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=M+pWG1D7e/A+cYywe5zVuMMMFISdk9+OXc1rsWGkOHM=;
- b=NuHZ434nY1dO5l7dHzW2jri5CCF1MylNL81u5BxVxEhYT/0sfo7UY060CbzuQ33+OHlrKZ
- t4XO77dMabOe//xdoz/WGPYMFTVDEHzWch9es9FrZnN/D1vA1Ga7VtK+qgW/hvF70JtVUF
- IUpkAM5gmnsTR1bQryvG/yege4iRxb0=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=oRpAZ7Nti36ln6bLh1OetP04CWB4zN6419jS3K9TtVg=;
+ b=iXFHdR/Xz5xH4s8IagMU1C/ymfgeAwCew6qwmQcQOEI5LHbqLagzV0KW2/sL9hADwvdIFY
+ bx3jG067bdh0Jqo+uKGf602BuxOB752stduwxszIEpuSkYYUs4ysb+hAW8eZRQ4jnYqQun
+ 3vJTH6T5CCtuAa0GLOrckUW6+eFnOdI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-656-pgzLCAB-N_yE2dKdnlmNmA-1; Sun, 25 Jun 2023 23:08:28 -0400
-X-MC-Unique: pgzLCAB-N_yE2dKdnlmNmA-1
-Received: by mail-lf1-f72.google.com with SMTP id
- 2adb3069b0e04-4fb3f3a87d4so372414e87.1
+ us-mta-47-Ac1FHs9iNDiT0DqTLP_aqQ-1; Mon, 26 Jun 2023 03:15:27 -0400
+X-MC-Unique: Ac1FHs9iNDiT0DqTLP_aqQ-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ ffacd0b85a97d-313f376d2adso961858f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 25 Jun 2023 20:08:27 -0700 (PDT)
+ Mon, 26 Jun 2023 00:15:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687748906; x=1690340906;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=M+pWG1D7e/A+cYywe5zVuMMMFISdk9+OXc1rsWGkOHM=;
- b=TTEegnCf5uhLjj1pAHj7/XXy3PVoqe8Ydo/nHW/j+ODZQgkzi0yKTjBJASnC5z5zHa
- ++uD4XxWhUuD/Tj0Bbodf31kw9JEJWtjtqNNsK+aU5lsv4fZ5mrfxRwR7fiooKdy6EUf
- d1mdZZFFJn6ZIaH92bBJcy0VsjE2STEHtRIfHGFDd1ye3HMsXGJTU77BVrwEnh18ideW
- HCnPdBIjtiH358PQoUhrkrWXnPl2jw2yew3xWGr1U9ohyS4J7fvKcohmm+wpBJGKj+cx
- MCyzrxICWFy73Vd2g3t46KYBcLP+A/3YO/c9WclB/kkRhIe6sBqsrQshfg3tC4yZ2Kk5
- wPLw==
-X-Gm-Message-State: AC+VfDxifyWkJcXgtmBh4OhUDUgeTALQ4ai+xBKzeX6jGIXKaFal5QNh
- WKkdrIOTVybvre6zead/1oH+Vd/elquZNQBYh3DrJF6WJavLUl4sjOTFmmiI6uD/g0a52CLum2T
- roOQQGG4Iw3Q2TH1t4QhUBX18FPEsTth2CxRPQ5pbQIj1VDtccPZ4mIQbNg==
-X-Received: by 2002:a19:5f5d:0:b0:4f8:5e62:b94b with SMTP id
- a29-20020a195f5d000000b004f85e62b94bmr7989843lfj.9.1687748906741; 
- Sun, 25 Jun 2023 20:08:26 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5gAcONiUlVNLeF7Qu1J/UqNC75pdvtjmEEQ5QFLm5RQJMRkgS7gOiIiu3IidnT3bJ9UC8bqWPi+QRSmCToDlY=
-X-Received: by 2002:a19:5f5d:0:b0:4f8:5e62:b94b with SMTP id
- a29-20020a195f5d000000b004f85e62b94bmr7989838lfj.9.1687748906397; Sun, 25 Jun
- 2023 20:08:26 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1687763726; x=1690355726;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=oRpAZ7Nti36ln6bLh1OetP04CWB4zN6419jS3K9TtVg=;
+ b=dQ+TTccC5oEjZSd4SWw71OumFVq4f79YnMiYOfLH/uHWudkLhKYnhuMizd/YKglcZg
+ /HIDC8fzYiz9o5xsqpiTBNiLVSZAdagUGtpPlJYgFic3nTSq2LRIchXR8rarRNm1hrpq
+ PANzi8fChsXpeYTpD12u8Wj3cK0THJU1Z+sS4C1NDAVDeDywuYnCIGltwpqBFoQmsaYw
+ +DebZVtSUXtpIxzTuOS7LP1s5a8O+tvxwPWNgADCji+XK1AztqZLq6ksEpJWzxYpfTuI
+ Kkz7Xzqj6JDLMASeOxiDFDGjVkT4hqapgzssI3GR22TlYfLDMv6y3/BJhiAwHHHulujn
+ Ax5Q==
+X-Gm-Message-State: AC+VfDwIB3ZaU6gQhn4WYaFFnLgpVATJ13cuiU2swDQzM0z6NcLyoTAs
+ TqsmhExfUxRWDeFUl9go+Sykalv72yDSH3dVZe20IglPF3iGpQoJPVGSRc+SC3CrqOkZScrdDcm
+ sPULeVgM1cEzg9QMUl6RX9ROdOncRUmUtlJ2qidBy4w==
+X-Received: by 2002:a5d:63c5:0:b0:30d:673e:1547 with SMTP id
+ c5-20020a5d63c5000000b0030d673e1547mr31614812wrw.41.1687763726394; 
+ Mon, 26 Jun 2023 00:15:26 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ4IfQOVFgnyM9im+2Beb7wrvIRhCpIKB6kM8gY1Yc9KBzl/+EAkyeCECJFGYDJJTl85veKcRQ==
+X-Received: by 2002:a5d:63c5:0:b0:30d:673e:1547 with SMTP id
+ c5-20020a5d63c5000000b0030d673e1547mr31614793wrw.41.1687763726045; 
+ Mon, 26 Jun 2023 00:15:26 -0700 (PDT)
+Received: from redhat.com ([2.52.156.102]) by smtp.gmail.com with ESMTPSA id
+ m8-20020adffe48000000b002c71b4d476asm6416594wrs.106.2023.06.26.00.15.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 26 Jun 2023 00:15:25 -0700 (PDT)
+Date: Mon, 26 Jun 2023 03:15:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: syzbot <syzbot+8540db210d403f1aa214@syzkaller.appspotmail.com>
+Subject: Re: [syzbot] [net?] [virt?] [kvm?] KASAN: slab-use-after-free Read
+ in __vhost_vq_attach_worker
+Message-ID: <20230626031411-mutt-send-email-mst@kernel.org>
+References: <000000000000df3e3b05ff02fe20@google.com>
 MIME-Version: 1.0
-References: <20230608090124.1807-1-angus.chen@jaguarmicro.com>
- <CACGkMEtp6H1x301CynwDfsXCMOVt_mrVh9G7dUxVdDLdLBB8yg@mail.gmail.com>
- <TY2PR06MB34247A17ADD347D439EF84DA8526A@TY2PR06MB3424.apcprd06.prod.outlook.com>
- <CACGkMEuXfo3DRrAfrwFPfKaOTCkmJ7hxVw=JVP12mPBM8Ccp=A@mail.gmail.com>
- <TY2PR06MB3424EA4EADAE511ED3CB282C8526A@TY2PR06MB3424.apcprd06.prod.outlook.com>
-In-Reply-To: <TY2PR06MB3424EA4EADAE511ED3CB282C8526A@TY2PR06MB3424.apcprd06.prod.outlook.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 26 Jun 2023 11:08:15 +0800
-Message-ID: <CACGkMEuDKivK69Fky3y9UqC3VCk=e1f98QmkxNqVZcW1-PF4tw@mail.gmail.com>
-Subject: Re: [PATCH v2] vdpa/vp_vdpa: Check queue number of vdpa device from
- add_config
-To: Angus Chen <angus.chen@jaguarmicro.com>
-X-Mimecast-Spam-Score: 0
+In-Reply-To: <000000000000df3e3b05ff02fe20@google.com>
+X-Mimecast-Spam-Score: 1
 X-Mimecast-Originator: redhat.com
-Cc: "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "mst@redhat.com" <mst@redhat.com>
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
+ syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,117 +115,244 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBKdW4gMjYsIDIwMjMgYXQgMTE6MDLigK9BTSBBbmd1cyBDaGVuIDxhbmd1cy5jaGVu
-QGphZ3Vhcm1pY3JvLmNvbT4gd3JvdGU6Cj4KPgo+Cj4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2Ut
-LS0tLQo+ID4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiA+IFNlbnQ6
-IE1vbmRheSwgSnVuZSAyNiwgMjAyMyAxMDo1MSBBTQo+ID4gVG86IEFuZ3VzIENoZW4gPGFuZ3Vz
-LmNoZW5AamFndWFybWljcm8uY29tPgo+ID4gQ2M6IG1zdEByZWRoYXQuY29tOyB2aXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZzsKPiA+IGxpbnV4LWtlcm5lbEB2Z2VyLmtl
-cm5lbC5vcmcKPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjJdIHZkcGEvdnBfdmRwYTogQ2hlY2sg
-cXVldWUgbnVtYmVyIG9mIHZkcGEgZGV2aWNlIGZyb20KPiA+IGFkZF9jb25maWcKPiA+Cj4gPiBP
-biBNb24sIEp1biAyNiwgMjAyMyBhdCAxMDo0MuKAr0FNIEFuZ3VzIENoZW4gPGFuZ3VzLmNoZW5A
-amFndWFybWljcm8uY29tPgo+ID4gd3JvdGU6Cj4gPiA+Cj4gPiA+Cj4gPiA+IEhp77yMamFzb24u
-Cj4gPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0KPiA+ID4gPiBGcm9tOiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiA+IFNlbnQ6IE1vbmRheSwgSnVuZSAyNiwg
-MjAyMyAxMDozMCBBTQo+ID4gPiA+IFRvOiBBbmd1cyBDaGVuIDxhbmd1cy5jaGVuQGphZ3Vhcm1p
-Y3JvLmNvbT4KPiA+ID4gPiBDYzogbXN0QHJlZGhhdC5jb207IHZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnOwo+ID4gPiA+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5v
-cmcKPiA+ID4gPiBTdWJqZWN0OiBSZTogW1BBVENIIHYyXSB2ZHBhL3ZwX3ZkcGE6IENoZWNrIHF1
-ZXVlIG51bWJlciBvZiB2ZHBhIGRldmljZQo+ID4gZnJvbQo+ID4gPiA+IGFkZF9jb25maWcKPiA+
-ID4gPgo+ID4gPiA+IE9uIFRodSwgSnVuIDgsIDIwMjMgYXQgNTowMuKAr1BNIEFuZ3VzIENoZW4K
-PiA+IDxhbmd1cy5jaGVuQGphZ3Vhcm1pY3JvLmNvbT4KPiA+ID4gPiB3cm90ZToKPiA+ID4gPiA+
-Cj4gPiA+ID4gPiBXaGVuIGFkZCB2aXJ0aW9fcGNpIHZkcGEgZGV2aWNlLGNoZWNrIHRoZSB2cXMg
-bnVtYmVyIG9mIGRldmljZSBjYXAKPiA+ID4gPiA+IGFuZCBtYXhfdnFfcGFpcnMgZnJvbSBhZGRf
-Y29uZmlnLgo+ID4gPiA+ID4gU2ltcGx5IHN0YXJ0aW5nIGZyb20gZmFpbGluZyBpZiB0aGUgcHJv
-dmlzaW9uZWQgI3FwIGlzIG5vdAo+ID4gPiA+ID4gZXF1YWwgdG8gdGhlIG9uZSB0aGF0IGhhcmR3
-YXJlIGhhcy4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBBbmd1cyBDaGVuIDxh
-bmd1cy5jaGVuQGphZ3Vhcm1pY3JvLmNvbT4KPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gdjE6IFVz
-ZSBtYXhfdnFzIGZyb20gYWRkX2NvbmZpZwo+ID4gPiA+ID4gdjI6IEp1c3QgcmV0dXJuIGZhaWwg
-aWYgbWF4X3ZxcyBmcm9tIGFkZF9jb25maWcgaXMgbm90IHNhbWUgYXMgZGV2aWNlCj4gPiA+ID4g
-PiAgICAgICAgIGNhcC4gU3VnZ2VzdGVkIGJ5IGphc29uLgo+ID4gPiA+ID4KPiA+ID4gPiA+ICBk
-cml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMgfCAzNSArKysrKysrKysrKysrKysrKyst
-LS0tLS0tLS0tLS0tCj4gPiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKyks
-IDE0IGRlbGV0aW9ucygtKQo+ID4gPiA+ID4KPiA+ID4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMKPiA+ID4gPiBiL2RyaXZlcnMvdmRwYS92aXJ0aW9f
-cGNpL3ZwX3ZkcGEuYwo+ID4gPiA+ID4gaW5kZXggMjgxMjg3ZmFlODlmLi5jMWZiNjk2M2RhMTIg
-MTAwNjQ0Cj4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMK
-PiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmRwYS92aXJ0aW9fcGNpL3ZwX3ZkcGEuYwo+ID4gPiA+
-ID4gQEAgLTQ4MCwzMiArNDgwLDM5IEBAIHN0YXRpYyBpbnQgdnBfdmRwYV9kZXZfYWRkKHN0cnVj
-dAo+ID4gPiA+IHZkcGFfbWdtdF9kZXYgKnZfbWRldiwgY29uc3QgY2hhciAqbmFtZSwKPiA+ID4g
-PiA+ICAgICAgICAgdTY0IGRldmljZV9mZWF0dXJlczsKPiA+ID4gPiA+ICAgICAgICAgaW50IHJl
-dCwgaTsKPiA+ID4gPiA+Cj4gPiA+ID4gPiAtICAgICAgIHZwX3ZkcGEgPSB2ZHBhX2FsbG9jX2Rl
-dmljZShzdHJ1Y3QgdnBfdmRwYSwgdmRwYSwKPiA+ID4gPiA+IC0gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIGRldiwgJnZwX3ZkcGFfb3BzLCAxLCAxLAo+ID4gbmFtZSwKPiA+ID4g
-PiBmYWxzZSk7Cj4gPiA+ID4gPiAtCj4gPiA+ID4gPiAtICAgICAgIGlmIChJU19FUlIodnBfdmRw
-YSkpIHsKPiA+ID4gPiA+IC0gICAgICAgICAgICAgICBkZXZfZXJyKGRldiwgInZwX3ZkcGE6IEZh
-aWxlZCB0byBhbGxvY2F0ZSB2RFBBCj4gPiA+ID4gc3RydWN0dXJlXG4iKTsKPiA+ID4gPiA+IC0g
-ICAgICAgICAgICAgICByZXR1cm4gUFRSX0VSUih2cF92ZHBhKTsKPiA+ID4gPiA+ICsgICAgICAg
-aWYgKGFkZF9jb25maWctPm1hc2sgJgo+ID4gPiA+IEJJVF9VTEwoVkRQQV9BVFRSX0RFVl9ORVRf
-Q0ZHX01BWF9WUVApKSB7Cj4gPiA+ID4gPiArICAgICAgICAgICAgICAgaWYgKGFkZF9jb25maWct
-Pm5ldC5tYXhfdnFfcGFpcnMgIT0KPiA+ID4gPiAodl9tZGV2LT5tYXhfc3VwcG9ydGVkX3ZxcyAv
-IDIpKSB7Cj4gPiA+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5k
-ZXYsICJtYXggdnFzIDB4JXggc2hvdWxkCj4gPiBiZQo+ID4gPiA+IGVxdWFsIHRvIDB4JXggd2hp
-Y2ggZGV2aWNlIGhhc1xuIiwKPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgYWRkX2NvbmZpZy0+bmV0Lm1heF92cV9wYWlycyoyLAo+ID4gPiA+IHZfbWRldi0+bWF4X3N1
-cHBvcnRlZF92cXMpOwo+ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIC1F
-SU5WQUw7Cj4gPiA+ID4gPiArICAgICAgICAgICAgICAgfQo+ID4gPiA+ID4gICAgICAgICB9Cj4g
-PiA+ID4gPgo+ID4gPiA+ID4gLSAgICAgICB2cF92ZHBhX21ndGRldi0+dnBfdmRwYSA9IHZwX3Zk
-cGE7Cj4gPiA+ID4gPiAtCj4gPiA+ID4gPiAtICAgICAgIHZwX3ZkcGEtPnZkcGEuZG1hX2RldiA9
-ICZwZGV2LT5kZXY7Cj4gPiA+ID4gPiAtICAgICAgIHZwX3ZkcGEtPnF1ZXVlcyA9IHZwX21vZGVy
-bl9nZXRfbnVtX3F1ZXVlcyhtZGV2KTsKPiA+ID4gPiA+IC0gICAgICAgdnBfdmRwYS0+bWRldiA9
-IG1kZXY7Cj4gPiA+ID4gPiAtCj4gPiA+ID4gPiAgICAgICAgIGRldmljZV9mZWF0dXJlcyA9IHZw
-X21vZGVybl9nZXRfZmVhdHVyZXMobWRldik7Cj4gPiA+ID4gPiAgICAgICAgIGlmIChhZGRfY29u
-ZmlnLT5tYXNrICYgQklUX1VMTChWRFBBX0FUVFJfREVWX0ZFQVRVUkVTKSkKPiA+IHsKPiA+ID4g
-PiA+ICAgICAgICAgICAgICAgICBpZiAoYWRkX2NvbmZpZy0+ZGV2aWNlX2ZlYXR1cmVzICYgfmRl
-dmljZV9mZWF0dXJlcykgewo+ID4gPiA+ID4gLSAgICAgICAgICAgICAgICAgICAgICAgcmV0ID0g
-LUVJTlZBTDsKPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGRldl9lcnIoJnBkZXYt
-PmRldiwgIlRyeSB0byBwcm92aXNpb24KPiA+IGZlYXR1cmVzCj4gPiA+ID4gIgo+ID4gPiA+ID4g
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAidGhhdCBhcmUgbm90IHN1cHBvcnRlZCBi
-eSB0aGUKPiA+IGRldmljZToKPiA+ID4gPiAiCj4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICJkZXZpY2VfZmVhdHVyZXMgMHglbGx4Cj4gPiBwcm92aXNpb25lZAo+ID4g
-PiA+IDB4JWxseFxuIiwKPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ZGV2aWNlX2ZlYXR1cmVzLAo+ID4gPiA+IGFkZF9jb25maWctPmRldmljZV9mZWF0dXJlcyk7Cj4g
-PiA+ID4gPiAtICAgICAgICAgICAgICAgICAgICAgICBnb3RvIGVycjsKPiA+ID4gPiA+ICsgICAg
-ICAgICAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOwo+ID4gPiA+ID4gICAgICAgICAgICAg
-ICAgIH0KPiA+ID4gPiA+ICAgICAgICAgICAgICAgICBkZXZpY2VfZmVhdHVyZXMgPSBhZGRfY29u
-ZmlnLT5kZXZpY2VfZmVhdHVyZXM7Cj4gPiA+ID4gPiAgICAgICAgIH0KPiA+ID4gPiA+ICsKPiA+
-ID4gPiA+ICsgICAgICAgdnBfdmRwYSA9IHZkcGFfYWxsb2NfZGV2aWNlKHN0cnVjdCB2cF92ZHBh
-LCB2ZHBhLAo+ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2
-LCAmdnBfdmRwYV9vcHMsIDEsIDEsCj4gPiBuYW1lLAo+ID4gPiA+IGZhbHNlKTsKPiA+ID4gPiA+
-ICsKPiA+ID4gPiA+ICsgICAgICAgaWYgKElTX0VSUih2cF92ZHBhKSkgewo+ID4gPiA+ID4gKyAg
-ICAgICAgICAgICAgIGRldl9lcnIoZGV2LCAidnBfdmRwYTogRmFpbGVkIHRvIGFsbG9jYXRlIHZE
-UEEKPiA+ID4gPiBzdHJ1Y3R1cmVcbiIpOwo+ID4gPiA+ID4gKyAgICAgICAgICAgICAgIHJldHVy
-biBQVFJfRVJSKHZwX3ZkcGEpOwo+ID4gPiA+ID4gKyAgICAgICB9Cj4gPiA+ID4gPiArCj4gPiA+
-ID4gPiArICAgICAgIHZwX3ZkcGFfbWd0ZGV2LT52cF92ZHBhID0gdnBfdmRwYTsKPiA+ID4gPiA+
-ICsKPiA+ID4gPiA+ICsgICAgICAgdnBfdmRwYS0+dmRwYS5kbWFfZGV2ID0gJnBkZXYtPmRldjsK
-PiA+ID4gPiA+ICsgICAgICAgdnBfdmRwYS0+cXVldWVzID0gdl9tZGV2LT5tYXhfc3VwcG9ydGVk
-X3ZxczsKPiA+ID4gPgo+ID4gPiA+IFdoeSBib3RoZXIgd2l0aCB0aG9zZSBjaGFuZ2VzPwo+ID4g
-PiA+Cj4gPiA+ID4gICAgICAgICBtZ3RkZXYtPm1heF9zdXBwb3J0ZWRfdnFzID0KPiA+IHZwX21v
-ZGVybl9nZXRfbnVtX3F1ZXVlcyhtZGV2KTsKPiA+ID4gbWF4X3N1cHBvcnRlZF92cXMgd2lsbCBu
-b3QgYmUgY2hhbmdlZCwgc28gd2UgY2FuIGdldCBtYXhfc3VwcG9ydGVkX3Zxcwo+ID4gZnJvbSBt
-Z3RkZXYtPm1heF9zdXBwb3J0ZWRfdnFzLgo+ID4gPiBJZiB3ZSB1c2UgdnBfbW9kZXJuX2dldF9u
-dW1fcXVldWVzKG1kZXYpLGl0IHdpbGwgdXNlIHRscCB0byBjb21tdW5pY2F0ZQo+ID4gd2l0aCBk
-ZXZpY2UuCj4gPiA+IEl0IGp1c3QgcmVkdWNlIHNvbWUgdGxwIC4KPiA+Cj4gPiBPaywgYnV0Cj4g
-Pgo+ID4gMSkgSSB0aGluayB3ZSBkb24ndCBjYXJlIHRoZSBwZXJmb3JtYW5jZSBoZXJlCj4gPiAy
-KSBJZiB3ZSBkaWQsIGxldCdzIHVzZSBhIHNlcGFyYXRlIHBhdGNoIHRvIGRvIHRoYXQgYXMgYW4g
-b3B0aW1pemF0aW9uCj4gPgo+IFRoYW5rIHlvdS5BcyBtc3QgZGlkIG5vdCBzdXBwb3J0IHRoaXMg
-cGF0Y2ggc29tZSBkYXlzIGFnbyxzbyB0aGlzIHBhdGNoIHdpbGwgYmUgZHJvcHBlZC4KPiBJIHBs
-YW4gdG8gcHVzaCBhIGRlcGVuZGVudCBkcml2ZXIgb2Ygb3VyIHByb2R1Y3QgcmF0aGVyIHRoYW4g
-cmV1c2UgdnBfdmRwYS4KClRoYXQgd291bGQgYmUgZmluZS4gQnV0IHBsZWFzZSB0cnkgYmVzdCB0
-byByZXVzZSBtb2Rlcm4gdmlydGlvLXBjaSBsaWJyYXJ5LgoKPiBCeSB0aGUgd2F5ICxpZiBJIHdh
-bnQgdG8gYWRkIHNyaW92IHN1cHBvcnQgaW4gb3VyIHZkcGEgcGNpIGRyaXZlcix3b3VsZCBpdCBi
-ZSBhY2NlcHRlZCBvciBub3Q/CgpJIHRoaW5rIHRoZSBhbnN3ZXIgaXMgeWVzLgoKVGhhbmtzCgo+
-ID4gVGhhbmtzCj4gPgo+ID4gPiA+Cj4gPiA+ID4gVGhhbmtzCj4gPiA+ID4KPiA+ID4gPgo+ID4g
-PiA+ID4gKyAgICAgICB2cF92ZHBhLT5tZGV2ID0gbWRldjsKPiA+ID4gPiA+ICAgICAgICAgdnBf
-dmRwYS0+ZGV2aWNlX2ZlYXR1cmVzID0gZGV2aWNlX2ZlYXR1cmVzOwo+ID4gPiA+ID4KPiA+ID4g
-PiA+ICAgICAgICAgcmV0ID0gZGV2bV9hZGRfYWN0aW9uX29yX3Jlc2V0KGRldiwKPiA+IHZwX3Zk
-cGFfZnJlZV9pcnFfdmVjdG9ycywKPiA+ID4gPiBwZGV2KTsKPiA+ID4gPiA+IC0tCj4gPiA+ID4g
-PiAyLjI1LjEKPiA+ID4gPiA+Cj4gPiA+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Jun 26, 2023 at 12:06:54AM -0700, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    8d2be868b42c Add linux-next specific files for 20230623
+> git tree:       linux-next
+> console+strace: https://syzkaller.appspot.com/x/log.txt?x=12872950a80000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=d8ac8dd33677e8e0
+> dashboard link: https://syzkaller.appspot.com/bug?extid=8540db210d403f1aa214
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15c1b70f280000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=122ee4cb280000
+> 
+> Downloadable assets:
+> disk image: https://storage.googleapis.com/syzbot-assets/2a004483aca3/disk-8d2be868.raw.xz
+> vmlinux: https://storage.googleapis.com/syzbot-assets/5688cb13b277/vmlinux-8d2be868.xz
+> kernel image: https://storage.googleapis.com/syzbot-assets/76de0b63bc53/bzImage-8d2be868.xz
+> 
+> The issue was bisected to:
+> 
+> commit 21a18f4a51896fde11002165f0e7340f4131d6a0
+> Author: Mike Christie <michael.christie@oracle.com>
+> Date:   Tue Jun 13 01:32:46 2023 +0000
+> 
+>     vhost: allow userspace to create workers
+> 
+> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=130850bf280000
+> final oops:     https://syzkaller.appspot.com/x/report.txt?x=108850bf280000
+> console output: https://syzkaller.appspot.com/x/log.txt?x=170850bf280000
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+8540db210d403f1aa214@syzkaller.appspotmail.com
+> Fixes: 21a18f4a5189 ("vhost: allow userspace to create workers")
+
+Mike, would appreciate prompt attention to this as I am preparing
+a pull request for the merge window and need to make a
+decision on whether to include your userspace-controlled
+threading patchset.
+
+Thanks!
+
+
+> ==================================================================
+> BUG: KASAN: slab-use-after-free in __mutex_lock_common kernel/locking/mutex.c:582 [inline]
+> BUG: KASAN: slab-use-after-free in __mutex_lock+0x1029/0x1350 kernel/locking/mutex.c:747
+> Read of size 8 at addr ffff8880703fff68 by task syz-executor204/5105
+> 
+> CPU: 0 PID: 5105 Comm: syz-executor204 Not tainted 6.4.0-rc7-next-20230623-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 05/27/2023
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:88 [inline]
+>  dump_stack_lvl+0xd9/0x150 lib/dump_stack.c:106
+>  print_address_description.constprop.0+0x2c/0x3c0 mm/kasan/report.c:364
+>  print_report mm/kasan/report.c:475 [inline]
+>  kasan_report+0x11d/0x130 mm/kasan/report.c:588
+>  __mutex_lock_common kernel/locking/mutex.c:582 [inline]
+>  __mutex_lock+0x1029/0x1350 kernel/locking/mutex.c:747
+>  __vhost_vq_attach_worker+0xe7/0x390 drivers/vhost/vhost.c:678
+>  vhost_dev_set_owner+0x670/0xa60 drivers/vhost/vhost.c:892
+>  vhost_net_set_owner drivers/vhost/net.c:1687 [inline]
+>  vhost_net_ioctl+0x668/0x16a0 drivers/vhost/net.c:1737
+>  vfs_ioctl fs/ioctl.c:51 [inline]
+>  __do_sys_ioctl fs/ioctl.c:870 [inline]
+>  __se_sys_ioctl fs/ioctl.c:856 [inline]
+>  __x64_sys_ioctl+0x19d/0x210 fs/ioctl.c:856
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> RIP: 0033:0x7fe7a9715629
+> Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 21 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+> RSP: 002b:00007fe7a96ba208 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+> RAX: ffffffffffffffda RBX: 000000000000000b RCX: 00007fe7a9715629
+> RDX: 0000000000000000 RSI: 000000000000af01 RDI: 0000000000000003
+> RBP: 00007fe7a979e240 R08: 00007fe7a979e248 R09: 00007fe7a979e248
+> R10: 00007fe7a979e248 R11: 0000000000000246 R12: 00007fe7a979e24c
+> R13: 00007ffcfa04d48f R14: 00007fe7a96ba300 R15: 0000000000022000
+>  </TASK>
+> 
+> Allocated by task 5105:
+>  kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+>  kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+>  ____kasan_kmalloc mm/kasan/common.c:374 [inline]
+>  ____kasan_kmalloc mm/kasan/common.c:333 [inline]
+>  __kasan_kmalloc+0xa2/0xb0 mm/kasan/common.c:383
+>  kmalloc include/linux/slab.h:579 [inline]
+>  kzalloc include/linux/slab.h:700 [inline]
+>  vhost_worker_create+0x9c/0x320 drivers/vhost/vhost.c:627
+>  vhost_dev_set_owner+0x5b9/0xa60 drivers/vhost/vhost.c:885
+>  vhost_net_set_owner drivers/vhost/net.c:1687 [inline]
+>  vhost_net_ioctl+0x668/0x16a0 drivers/vhost/net.c:1737
+>  vfs_ioctl fs/ioctl.c:51 [inline]
+>  __do_sys_ioctl fs/ioctl.c:870 [inline]
+>  __se_sys_ioctl fs/ioctl.c:856 [inline]
+>  __x64_sys_ioctl+0x19d/0x210 fs/ioctl.c:856
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> 
+> Freed by task 5108:
+>  kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+>  kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+>  kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:521
+>  ____kasan_slab_free mm/kasan/common.c:236 [inline]
+>  ____kasan_slab_free+0x160/0x1c0 mm/kasan/common.c:200
+>  kasan_slab_free include/linux/kasan.h:164 [inline]
+>  slab_free_hook mm/slub.c:1792 [inline]
+>  slab_free_freelist_hook+0x8b/0x1c0 mm/slub.c:1818
+>  slab_free mm/slub.c:3801 [inline]
+>  __kmem_cache_free+0xb8/0x2d0 mm/slub.c:3814
+>  vhost_worker_destroy drivers/vhost/vhost.c:600 [inline]
+>  vhost_workers_free drivers/vhost/vhost.c:615 [inline]
+>  vhost_dev_cleanup+0x66b/0x850 drivers/vhost/vhost.c:991
+>  vhost_dev_reset_owner+0x25/0x160 drivers/vhost/vhost.c:923
+>  vhost_net_reset_owner drivers/vhost/net.c:1621 [inline]
+>  vhost_net_ioctl+0x807/0x16a0 drivers/vhost/net.c:1735
+>  vfs_ioctl fs/ioctl.c:51 [inline]
+>  __do_sys_ioctl fs/ioctl.c:870 [inline]
+>  __se_sys_ioctl fs/ioctl.c:856 [inline]
+>  __x64_sys_ioctl+0x19d/0x210 fs/ioctl.c:856
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> 
+> The buggy address belongs to the object at ffff8880703fff00
+>  which belongs to the cache kmalloc-cg-192 of size 192
+> The buggy address is located 104 bytes inside of
+>  freed 192-byte region [ffff8880703fff00, ffff8880703fffc0)
+> 
+> The buggy address belongs to the physical page:
+> page:ffffea0001c0ffc0 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x703ff
+> flags: 0xfff00000000200(slab|node=0|zone=1|lastcpupid=0x7ff)
+> page_type: 0xffffffff()
+> raw: 00fff00000000200 ffff88801284ddc0 dead000000000122 0000000000000000
+> raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
+> page dumped because: kasan: bad access detected
+> page_owner tracks the page as allocated
+> page last allocated via order 0, migratetype Unmovable, gfp_mask 0x16cc0(GFP_KERNEL|__GFP_NOWARN|__GFP_RETRY_MAYFAIL|__GFP_NORETRY), pid 5034, tgid 5034 (syz-executor204), ts 72916757418, free_ts 72797036103
+>  set_page_owner include/linux/page_owner.h:31 [inline]
+>  post_alloc_hook+0x2db/0x350 mm/page_alloc.c:1570
+>  prep_new_page mm/page_alloc.c:1577 [inline]
+>  get_page_from_freelist+0xfd9/0x2c40 mm/page_alloc.c:3257
+>  __alloc_pages+0x1cb/0x4a0 mm/page_alloc.c:4513
+>  alloc_pages+0x1aa/0x270 mm/mempolicy.c:2279
+>  alloc_slab_page mm/slub.c:1862 [inline]
+>  allocate_slab+0x25f/0x390 mm/slub.c:2009
+>  new_slab mm/slub.c:2062 [inline]
+>  ___slab_alloc+0xbc3/0x15d0 mm/slub.c:3215
+>  __slab_alloc.constprop.0+0x56/0xa0 mm/slub.c:3314
+>  __slab_alloc_node mm/slub.c:3367 [inline]
+>  slab_alloc_node mm/slub.c:3460 [inline]
+>  __kmem_cache_alloc_node+0x143/0x350 mm/slub.c:3509
+>  __do_kmalloc_node mm/slab_common.c:984 [inline]
+>  __kmalloc_node+0x51/0x1a0 mm/slab_common.c:992
+>  kmalloc_node include/linux/slab.h:599 [inline]
+>  kvmalloc_node+0xa2/0x1a0 mm/util.c:604
+>  kvmalloc include/linux/slab.h:717 [inline]
+>  kvzalloc include/linux/slab.h:725 [inline]
+>  netif_alloc_rx_queues net/core/dev.c:9847 [inline]
+>  alloc_netdev_mqs+0xbde/0x1270 net/core/dev.c:10660
+>  ieee80211_if_add+0x1b7/0x19d0 net/mac80211/iface.c:2099
+>  ieee80211_register_hw+0x37e5/0x40e0 net/mac80211/main.c:1407
+>  mac80211_hwsim_new_radio+0x26e6/0x4c70 drivers/net/wireless/virtual/mac80211_hwsim.c:5303
+>  hwsim_new_radio_nl+0xacf/0x1210 drivers/net/wireless/virtual/mac80211_hwsim.c:5983
+>  genl_family_rcv_msg_doit.isra.0+0x1e6/0x2d0 net/netlink/genetlink.c:970
+> page last free stack trace:
+>  reset_page_owner include/linux/page_owner.h:24 [inline]
+>  free_pages_prepare mm/page_alloc.c:1161 [inline]
+>  free_unref_page_prepare+0x62e/0xcb0 mm/page_alloc.c:2384
+>  free_unref_page+0x33/0x370 mm/page_alloc.c:2479
+>  __unfreeze_partials+0x1fe/0x220 mm/slub.c:2647
+>  qlink_free mm/kasan/quarantine.c:166 [inline]
+>  qlist_free_all+0x6a/0x170 mm/kasan/quarantine.c:185
+>  kasan_quarantine_reduce+0x195/0x220 mm/kasan/quarantine.c:292
+>  __kasan_slab_alloc+0x63/0x90 mm/kasan/common.c:305
+>  kasan_slab_alloc include/linux/kasan.h:188 [inline]
+>  slab_post_alloc_hook mm/slab.h:750 [inline]
+>  slab_alloc_node mm/slub.c:3470 [inline]
+>  __kmem_cache_alloc_node+0x1ce/0x350 mm/slub.c:3509
+>  __do_kmalloc_node mm/slab_common.c:984 [inline]
+>  __kmalloc_node+0x51/0x1a0 mm/slab_common.c:992
+>  kmalloc_node include/linux/slab.h:599 [inline]
+>  kvmalloc_node+0xa2/0x1a0 mm/util.c:604
+>  kvmalloc include/linux/slab.h:717 [inline]
+>  seq_buf_alloc fs/seq_file.c:38 [inline]
+>  seq_read_iter+0x7fb/0x12d0 fs/seq_file.c:210
+>  kernfs_fop_read_iter+0x4ce/0x690 fs/kernfs/file.c:279
+>  call_read_iter include/linux/fs.h:1865 [inline]
+>  new_sync_read fs/read_write.c:389 [inline]
+>  vfs_read+0x4a8/0x8d0 fs/read_write.c:470
+>  ksys_read+0x122/0x250 fs/read_write.c:613
+>  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+>  do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+> 
+> Memory state around the buggy address:
+>  ffff8880703ffe00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>  ffff8880703ffe80: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+> >ffff8880703fff00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+>                                                           ^
+>  ffff8880703fff80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+>  ffff888070400000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ==================================================================
+> 
+> 
+> ---
+> This report is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this issue. See:
+> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+> 
+> If the bug is already fixed, let syzbot know by replying with:
+> #syz fix: exact-commit-title
+> 
+> If you want syzbot to run the reproducer, reply with:
+> #syz test: git://repo/address.git branch-or-commit-hash
+> If you attach or paste a git patch, syzbot will apply it before testing.
+> 
+> If you want to change bug's subsystems, reply with:
+> #syz set subsystems: new-subsystem
+> (See the list of subsystem names on the web dashboard)
+> 
+> If the bug is a duplicate of another bug, reply with:
+> #syz dup: exact-subject-of-another-report
+> 
+> If you want to undo deduplication, reply with:
+> #syz undup
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
