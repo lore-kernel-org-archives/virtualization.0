@@ -1,113 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF208EB64D7
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 16:30:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 16143EB64D9
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 18:33:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 86770607AA;
-	Mon, 26 Jun 2023 16:30:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 86770607AA
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VoE+Za3q
+	by smtp2.osuosl.org (Postfix) with ESMTP id 678A8405F5;
+	Mon, 26 Jun 2023 18:33:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 678A8405F5
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=JVUAS6Mw
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AMV6IU_Jn6Aj; Mon, 26 Jun 2023 16:30:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1AC8860A71;
-	Mon, 26 Jun 2023 16:30:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1AC8860A71
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h2GByad08722; Mon, 26 Jun 2023 18:33:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E313A400C6;
+	Mon, 26 Jun 2023 18:33:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E313A400C6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C447BC007A;
-	Mon, 26 Jun 2023 16:30:33 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2288CC0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 69CA8C007A;
+	Mon, 26 Jun 2023 18:33:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B0611C0029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:30:33 +0000 (UTC)
+ Mon, 26 Jun 2023 18:33:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DDEBA60A71
+ by smtp2.osuosl.org (Postfix) with ESMTP id EF16740347
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:30:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DDEBA60A71
+ Mon, 26 Jun 2023 18:33:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EF16740347
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g4FSx4oTOgNM
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DusAaBe6YrOC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:30:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C371C607AA
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C371C607AA
+ Mon, 26 Jun 2023 18:33:20 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68F65400C6
+Received: from mail-vk1-xa2a.google.com (mail-vk1-xa2a.google.com
+ [IPv6:2607:f8b0:4864:20::a2a])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 68F65400C6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:30:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687797030;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=17WXujS/YadeWAnXnT2WRgIIGXFkn1Rmc4cmEtM2dPk=;
- b=VoE+Za3qGSjQJ79leomd7ZMys4WXxKNx7d1nC/ImTd4bnYBn4AB/9fETSSzOv1+1zafYjU
- Ea82B9V64Gx05Bd9CzWmniSHkYbcDMG4iHHTELlc7/d6V/Cep2GwUVBZCltgG1w2gCdv14
- w0DiZlcHVcVIm9Rje2MulRfmS3I78+Q=
-Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
- [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-172-f_KQj1hdOq-Fv5jXBgtVIg-1; Mon, 26 Jun 2023 12:30:29 -0400
-X-MC-Unique: f_KQj1hdOq-Fv5jXBgtVIg-1
-Received: by mail-qv1-f71.google.com with SMTP id
- 6a1803df08f44-635e3871cf9so9963946d6.1
+ Mon, 26 Jun 2023 18:33:20 +0000 (UTC)
+Received: by mail-vk1-xa2a.google.com with SMTP id
+ 71dfb90a1353d-4718aa39ee6so1000494e0c.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 09:30:28 -0700 (PDT)
+ Mon, 26 Jun 2023 11:33:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ziepe.ca; s=google; t=1687804399; x=1690396399;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=Llh4gIlToO5IIgOre9UJS/YUO0ldCTUXip1sWklWSMQ=;
+ b=JVUAS6Mwd4CGVgbTg2A/4nZBcOTwKzPyRt4TC3yOvNM2+tIbS6xPD0y0D61ppUoIqP
+ kZrkBWOA7Ql4ra0BfHP6nORKavSIwwHUciNKkQa/xmCuLHQQU0FKrjqNuDpFFUV2WhAs
+ bj0vBswCZ/jeImDakg37V6RL9mG+1bVuMZuVcmiIwOAR2fw7RzomjAA6nEM2czoRF5T3
+ UfxPt3ZwyqtBl2AfZC59Q6h21ylliaEpNdI5EVodei9o/wAyUMzWRcPPeO/chWAPw5Vz
+ /ewQOBhvCVgbaU8C2DAN4F+GwhoddBQvjmntOXBFEFx01mMP8Ky6gACQ9gm16ROU2eWf
+ tjRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687797028; x=1690389028;
+ d=1e100.net; s=20221208; t=1687804399; x=1690396399;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=17WXujS/YadeWAnXnT2WRgIIGXFkn1Rmc4cmEtM2dPk=;
- b=Yh4h1+v7LrlTRH/HVPtUtvsBO+b0JNRRJMus5EYlXkp38+aHwrqJ3DPgNOexk7uxe9
- MaFbEY2dLkvIQh19uRMZLMXs5IdtopihBColNFkoKZcwlMl+BPzNtrGosEI4HUegpqMV
- V64pHolCQjNlS+cREGi7NzX4+zl8ZTOXnkyEwM7KPyz+Y84LyYGDFVPNy4oYiSvfQ44Q
- 2hOoBCuMJDsPKwnemRCr37rOsnCPBwELZCOYg4u1Z/C4JFqc52ZWSGScRXNb3EuA3OBA
- 0zmrJY195rM8xkCXZU674aPdjmA7ncXDE75zEJ7XDSZ+60e+j2PR2EYEeH8+ydJ7hSjy
- U9LQ==
-X-Gm-Message-State: AC+VfDwZa2nhOsUINvsWeuucPxtlubFa1qbmeOoeSatjBIG3K3Qwo6LR
- ky0o10R0PzOpTDf9uDQoNLOhyoKFNUSm6JTMOhvnfpb9kX1x16wr+cLCChrnc7+u1rzx2PZnWgT
- HlrIiG8NpDliHgXRW5pGB/fUCULdBmT+YZn04PZbwgQ==
-X-Received: by 2002:a05:6214:1cc5:b0:62d:e8a2:4d36 with SMTP id
- g5-20020a0562141cc500b0062de8a24d36mr34309506qvd.61.1687797028067; 
- Mon, 26 Jun 2023 09:30:28 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7uBH00Gk/fKeQLrvD/GY47XvG7v3BCuca4UyzNoimZCXIfrb0LXztvOgJ/KifRuXdADW4Jbg==
-X-Received: by 2002:a05:6214:1cc5:b0:62d:e8a2:4d36 with SMTP id
- g5-20020a0562141cc500b0062de8a24d36mr34309488qvd.61.1687797027844; 
- Mon, 26 Jun 2023 09:30:27 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
- [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
- nd14-20020a056214420e00b006215d0bdf37sm3351810qvb.16.2023.06.26.09.30.25
+ bh=Llh4gIlToO5IIgOre9UJS/YUO0ldCTUXip1sWklWSMQ=;
+ b=lnEi4FcyBKBzY1pFEkB+uq63AE+CleAmut43I3qPxJ2DQsUu89mWKyuSS20jXkC5z9
+ btaVsAwEdwSpCAtI7pebujC0+gJXtCga5Za2gBfiUcnnpwCncxjtuRYawpA/t5RoyvhI
+ o81T+M2pz4ruTpnMRn88hTIhrRYWRcUktWiO/g0A49RaiR7NH/GvtutdL4PO6jhXp1Vq
+ oDp5PY1zO+Y5gDQwQPrN4Hngc42S2KU5h1NbcfgjvfvJo6sjRzShnb+djs7CI/76Y5Ze
+ 74brQOsiVpqZi2zMvZTXpkJZ+X8PHbGZvF3GaoaCUoOVAysRfe9FOdWL2sCdUncZGt5W
+ +9hg==
+X-Gm-Message-State: AC+VfDz8ffgRUoQTMb8Jj2UBWtnEUJeKLPMHTgCiX6LWLRkJCbNHe1dX
+ n4JmLGIy/qPowjXC/Xra0moAKw==
+X-Google-Smtp-Source: ACHHUZ71l/DblDrK7Oyn3lB5D1oIYfT7tQ+BssB+t+iwqPFJMSrWpCc/dst5XGo0zmyM+elBVv+q6Q==
+X-Received: by 2002:a1f:3fca:0:b0:471:5939:f4f2 with SMTP id
+ m193-20020a1f3fca000000b004715939f4f2mr9532857vka.8.1687804399118; 
+ Mon, 26 Jun 2023 11:33:19 -0700 (PDT)
+Received: from ziepe.ca
+ (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net.
+ [142.68.25.194]) by smtp.gmail.com with ESMTPSA id
+ z24-20020ac875d8000000b003fddd8e7bbasm3348807qtq.30.2023.06.26.11.33.18
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Jun 2023 09:30:27 -0700 (PDT)
-Date: Mon, 26 Jun 2023 18:30:23 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 0/4] virtio/vsock: some updates for MSG_PEEK flag
-Message-ID: <tmcj34lrgk7rxlnp4qvkpljwovowlz3wnosqboxssv6f6enr6u@qnf422n6lu6j>
-References: <20230618062451.79980-1-AVKrasnov@sberdevices.ru>
+ Mon, 26 Jun 2023 11:33:18 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+ (envelope-from <jgg@ziepe.ca>) id 1qDr1Z-008pJc-JP;
+ Mon, 26 Jun 2023 15:33:17 -0300
+Date: Mon, 26 Jun 2023 15:33:17 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Subject: Re: [RFC PATCHES 00/17] IOMMUFD: Deliver IO page faults to user space
+Message-ID: <ZJnZ7bEIZHsqmyAG@ziepe.ca>
+References: <20230530053724.232765-1-baolu.lu@linux.intel.com>
+ <ZHZFi28jRxeZMKK3@Asurada-Nvidia>
+ <a8ccbac8-c456-d116-24a2-7503ccbb720c@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20230618062451.79980-1-AVKrasnov@sberdevices.ru>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Eric Dumazet <edumazet@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <a8ccbac8-c456-d116-24a2-7503ccbb720c@linux.intel.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Yi Liu <yi.l.liu@intel.com>, Robin Murphy <robin.murphy@arm.com>,
+ Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
+ linux-kselftest@vger.kernel.org, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,57 +115,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Jun 18, 2023 at 09:24:47AM +0300, Arseniy Krasnov wrote:
->Hello,
->
->This patchset does several things around MSG_PEEK flag support. In
->general words it reworks MSG_PEEK test and adds support for this flag
->in SOCK_SEQPACKET logic. Here is per-patch description:
->
->1) This is cosmetic change for SOCK_STREAM implementation of MSG_PEEK:
->   1) I think there is no need of "safe" mode walk here as there is no
->      "unlink" of skbs inside loop (it is MSG_PEEK mode - we don't change
->      queue).
->   2) Nested while loop is removed: in case of MSG_PEEK we just walk
->      over skbs and copy data from each one. I guess this nested loop
->      even didn't behave as loop - it always executed just for single
->      iteration.
->
->2) This adds MSG_PEEK support for SOCK_SEQPACKET. It could be implemented
->   be reworking MSG_PEEK callback for SOCK_STREAM to support SOCK_SEQPACKET
->   also, but I think it will be more simple and clear from potential
->   bugs to implemented it as separate function thus not mixing logics
->   for both types of socket. So I've added it as dedicated function.
->
->3) This is reworked MSG_PEEK test for SOCK_STREAM. Previous version just
->   sent single byte, then tried to read it with MSG_PEEK flag, then read
->   it in normal way. New version is more complex: now sender uses buffer
->   instead of single byte and this buffer is initialized with random
->   values. Receiver tests several things:
->   1) Read empty socket with MSG_PEEK flag.
->   2) Read part of buffer with MSG_PEEK flag.
->   3) Read whole buffer with MSG_PEEK flag, then checks that it is same
->      as buffer from 2) (limited by size of buffer from 2) of course).
->   4) Read whole buffer without any flags, then checks that is is same
->      as buffer from 3).
->
->4) This is MSG_PEEK test for SOCK_SEQPACKET. It works in the same way
->   as for SOCK_STREAM, except it also checks combination of MSG_TRUNC
->   and MSG_PEEK.
->
->Head is:
->https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=d20dd0ea14072e8a90ff864b2c1603bd68920b4b
+On Sun, Jun 25, 2023 at 02:30:46PM +0800, Baolu Lu wrote:
 
-Nice cleanup, LGTM, but I'd like a comment from Bobby.
+> Agreed. We should avoid workqueue in sva iopf framework. Perhaps we
+> could go ahead with below code? It will be registered to device with
+> iommu_register_device_fault_handler() in IOMMU_DEV_FEAT_IOPF enabling
+> path. Un-registering in the disable path of cause.
 
-Thanks,
-Stefano
+This maze needs to be undone as well.
 
+It makes no sense that all the drivers are calling 
+
+ iommu_register_device_fault_handler(dev, iommu_queue_iopf, dev);
+
+The driver should RX a PRI fault and deliver it to some core code
+function, this looks like a good start:
+
+> static int io_pgfault_handler(struct iommu_fault *fault, void *cookie)
+> {
+>         ioasid_t pasid = fault->prm.pasid;
+>         struct device *dev = cookie;
+>         struct iommu_domain *domain;
+> 
+>         if (fault->type != IOMMU_FAULT_PAGE_REQ)
+>                 return -EOPNOTSUPP;
+> 
+>         if (fault->prm.flags & IOMMU_FAULT_PAGE_REQUEST_PASID_VALID)
+>                 domain = iommu_get_domain_for_dev_pasid(dev, pasid, 0);
+>         else
+>                 domain = iommu_get_domain_for_dev(dev);
+> 
+>         if (!domain || !domain->iopf_handler)
+>                 return -ENODEV;
+> 
+>         if (domain->type == IOMMU_DOMAIN_SVA)
+>                 return iommu_queue_iopf(fault, cookie);
+> 
+>         return domain->iopf_handler(fault, dev, domain->fault_data);
+
+Then we find the domain that owns the translation and invoke its
+domain->ops->iopf_handler()
+
+If the driver created a SVA domain then the op should point to some
+generic 'handle sva fault' function. There shouldn't be weird SVA
+stuff in the core code.
+
+The weird SVA stuff is really just a generic per-device workqueue
+dispatcher, so if we think that is valuable then it should be
+integrated into the iommu_domain (domain->ops->use_iopf_workqueue =
+true for instance). Then it could route the fault through the
+workqueue and still invoke domain->ops->iopf_handler.
+
+The word "SVA" should not appear in any of this.
+
+Not sure what iommu_register_device_fault_handler() has to do with all
+of this.. Setting up the dev_iommu stuff to allow for the workqueue
+should happen dynamically during domain attach, ideally in the core
+code before calling to the driver.
+
+Also, I can understand there is a need to turn on PRI support really
+early, and it can make sense to have some IOMMU_DEV_FEAT_IOPF/SVA to
+ask to turn it on.. But that should really only be needed if the HW
+cannot turn it on dynamically during domain attach of a PRI enabled
+domain.
+
+It needs cleaning up..
+
+Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
