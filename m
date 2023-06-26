@@ -1,104 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C1AEEB64D7
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 15:21:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 585FEEB64DA
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 15:24:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F06294011A;
-	Mon, 26 Jun 2023 15:21:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F06294011A
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cMz8ke4J
+	by smtp4.osuosl.org (Postfix) with ESMTP id D845B4093C;
+	Mon, 26 Jun 2023 15:24:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D845B4093C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EMJD1d0k
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qI8IQjQ-agAt; Mon, 26 Jun 2023 15:21:00 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Ftc5zBA5r8FH; Mon, 26 Jun 2023 15:24:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6AFB3402E0;
-	Mon, 26 Jun 2023 15:20:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6AFB3402E0
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1C94E40945;
+	Mon, 26 Jun 2023 15:24:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1C94E40945
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 44E40C0037;
-	Mon, 26 Jun 2023 15:20:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15D23C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E34E6C0037;
+	Mon, 26 Jun 2023 15:24:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6526BC0029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 15:20:58 +0000 (UTC)
+ Mon, 26 Jun 2023 15:24:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E496D402E0
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3EB3940945
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 15:20:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E496D402E0
+ Mon, 26 Jun 2023 15:24:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3EB3940945
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YGSRMisxT_1i
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kBVmV79flKri
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 15:20:57 +0000 (UTC)
+ Mon, 26 Jun 2023 15:24:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 085594011A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 364594093C
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 085594011A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 364594093C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 15:20:56 +0000 (UTC)
+ Mon, 26 Jun 2023 15:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687792855;
+ s=mimecast20190719; t=1687793061;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=HZvpxX10aYP99VlzwnMI/RQCwxTqEDpTN7KDyAKniNg=;
- b=cMz8ke4J0GDr+vL9cCbW4rYbMj3OYNNu/H22P5P3yMtyxeDEIhr6ODt9ozBRoLDWQC6R1g
- z7XP9YVdyEZgqRNd2hGd0/A5v8EtvrH/+mBnjPFJjAxBPqWrD2iVm8N7yHbZuvBTAA5g7o
- usVONZCjGAKey4uee2+tQuD6+1CXoWI=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=pNcIf8DGlU4ngflbaStrLY/OgH3ZgZfAt2j/tScjlPs=;
+ b=EMJD1d0kiJIFP239eocucgc83eHmiJHXrGzPkkqrddhHn5WwmfMHZ3PsYliEMe+ffmMNNR
+ zoJCQGZ/l33VNoQpIaQXGzDMYWRdPkFugmofEtoEe8K0JSkcgY9jDHLOy1oKCXyXtCugT/
+ sgvf2hMxAb4g7joz+qiPPO0yxSmvc20=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-215-93T40FPXOoKcqnyrpY6Q1w-1; Mon, 26 Jun 2023 11:20:54 -0400
-X-MC-Unique: 93T40FPXOoKcqnyrpY6Q1w-1
-Received: by mail-qv1-f69.google.com with SMTP id
- 6a1803df08f44-62ff6a6b4f4so35150466d6.0
+ us-mta-132-e7j2x4NpO6mSteMeWk8RNg-1; Mon, 26 Jun 2023 11:24:18 -0400
+X-MC-Unique: e7j2x4NpO6mSteMeWk8RNg-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ af79cd13be357-765986c0568so212687285a.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 08:20:54 -0700 (PDT)
+ Mon, 26 Jun 2023 08:24:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687792853; x=1690384853;
+ d=1e100.net; s=20221208; t=1687793052; x=1690385052;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=HZvpxX10aYP99VlzwnMI/RQCwxTqEDpTN7KDyAKniNg=;
- b=PGyi6ErSYChxWnDJ1VVaBIlSmq40dMWI/aRas4akZpUwbr9NpyIBzLQdjVEUf0IjJv
- s0g4FzBTv7E3Z4t+6olsaWP7Heaf+jPjioEgvTVQ+OEdpM4MudqWsSwxQ6bFZQGGjjM1
- dkWl+o0m3+yf0fX0X6VWawAJYlBudzbJk0KFsSN7/EdzLcV4QXo10T42kq4qdDpN0Ytt
- vjRGcU+fiHqnApM6BoKlQbqVR4OL63FZXTg5FB8cq33mVSppoCD029N4GDHEhT99rqU0
- jjfQXheg4QXvL8sO5xi1XYl8dqLiZk5sBECWXWFYOpUlUl19+WjJWm6/YzaRXOnD1EMW
- ZgIQ==
-X-Gm-Message-State: AC+VfDz2u/YUad8w3FIWmzrQQfjQ3t4Qbse9Xs+H6YTW/ODvQonLra6e
- 4cJK8S4mom/OxZfHHvaZi2DglLtfs7mL5XbW2qgoDkIQKjCCtibyh27MC25QhEuYm5SBXAJmkrv
- ocwL7+WYW96DbYg8ID5EkPEKwkmCkKH3ZvDOhTkXCbA==
-X-Received: by 2002:a05:6214:2486:b0:61a:c2bf:9f0b with SMTP id
- gi6-20020a056214248600b0061ac2bf9f0bmr29907869qvb.6.1687792853647; 
- Mon, 26 Jun 2023 08:20:53 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ79txX5PUlEMmKBylhJEDfi2jPBI2lzhF1I3Y4ASIeZLv/SSsCD6iAI5fZZMX/mtlnCf92x8w==
-X-Received: by 2002:a05:6214:2486:b0:61a:c2bf:9f0b with SMTP id
- gi6-20020a056214248600b0061ac2bf9f0bmr29907843qvb.6.1687792853402; 
- Mon, 26 Jun 2023 08:20:53 -0700 (PDT)
+ bh=pNcIf8DGlU4ngflbaStrLY/OgH3ZgZfAt2j/tScjlPs=;
+ b=Oeb394WAWrneYD7f+9Hp0mXfwvDENiNJ/e4CYMfMzsrbPSCYV4VPx77+X94HA9ghiT
+ Sdc7HdOytbFpe+dlHrKrrO9ETvFqRfcbU0QZwjnmCz+1TSQu8C1W+yha7V0JQpjnwEy2
+ ynOt1ZQfZ5qABU7oolZFcOObXF58osyOlMZj/SY2/c9uLIoRn8nRVZ+H/GFn+6cjmo+0
+ pHlr9UZJIUFcW/VB9IiPanKlOLXAS/LlhhnjzOdmhWZ47ESWptC5DxCoZHJcdOshgwkl
+ 6KCsAAZUjhU1GvtHbVJv6zxz8gwFdI3/XnQ0LekQjZlgVogvdH1tJ6zKkuTk54aqPv9G
+ uZ1Q==
+X-Gm-Message-State: AC+VfDyF4yMT24c0hFAZxMlsa1MXWvisqW8hWbqNLfD8tLDf1xH5chFb
+ Tmo9KDrTWTW4kA4kZwPuVUec2cm3Hg8MQj1HZ+dnyKCzXwWYJwQUjsyIVM0LoRTriIkUVg+Q5/7
+ s20fCYhCN3xDsS7q+FlqnLdZSgFOZHERoHOMTWj6rBg==
+X-Received: by 2002:a05:620a:880f:b0:75b:23a1:363d with SMTP id
+ qj15-20020a05620a880f00b0075b23a1363dmr20468179qkn.78.1687793052464; 
+ Mon, 26 Jun 2023 08:24:12 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ67krRALDwbYzxNGPfYizrvdl7LS+HU+avZAWHRkye9gBvomn4n/ypyeI8Y0aTbS2T5cmmDUw==
+X-Received: by 2002:a05:620a:880f:b0:75b:23a1:363d with SMTP id
+ qj15-20020a05620a880f00b0075b23a1363dmr20468165qkn.78.1687793052227; 
+ Mon, 26 Jun 2023 08:24:12 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
  [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
- i7-20020a056214030700b0062ff362d87fsm3199090qvu.105.2023.06.26.08.20.50
+ y24-20020a37e318000000b007579ea33cdesm2785460qki.62.2023.06.26.08.24.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Jun 2023 08:20:52 -0700 (PDT)
-Date: Mon, 26 Jun 2023 17:20:48 +0200
+ Mon, 26 Jun 2023 08:24:11 -0700 (PDT)
+Date: Mon, 26 Jun 2023 17:24:07 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v4 01/17] vsock/virtio: read data from non-linear skb
-Message-ID: <tlovtchnzv4sq2dd67jhxpx4eafpwsu6m7hey55xa2broon7i3@2vhzqzqwovfp>
+Subject: Re: [RFC PATCH v4 02/17] vhost/vsock: read data from non-linear skb
+Message-ID: <vpcrdclcic7oiuat4oapnkj54dolld6hh2wixe3fozlthyt2ni@omyjyem3uj3t>
 References: <20230603204939.1598818-1-AVKrasnov@sberdevices.ru>
- <20230603204939.1598818-2-AVKrasnov@sberdevices.ru>
+ <20230603204939.1598818-3-AVKrasnov@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <20230603204939.1598818-2-AVKrasnov@sberdevices.ru>
+In-Reply-To: <20230603204939.1598818-3-AVKrasnov@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -125,119 +125,70 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jun 03, 2023 at 11:49:23PM +0300, Arseniy Krasnov wrote:
->This is preparation patch for non-linear skbuff handling. It replaces
->direct calls of 'memcpy_to_msg()' with 'skb_copy_datagram_iter()'. Main
->advantage of the second one is that is can handle paged part of the skb
->by using 'kmap()' on each page, but if there are no pages in the skb,
->it behaves like simple copying to iov iterator. This patch also adds
->new field to the control block of skb - this value shows current offset
->in the skb to read next portion of data (it doesn't matter linear it or
->not). Idea is that 'skb_copy_datagram_iter()' handles both types of
->skb internally - it just needs an offset from which to copy data from
->the given skb. This offset is incremented on each read from skb. This
->approach allows to avoid special handling of non-linear skbs:
->1) We can't call 'skb_pull()' on it, because it updates 'data' pointer.
->2) We need to update 'data_len' also on each read from this skb.
+On Sat, Jun 03, 2023 at 11:49:24PM +0300, Arseniy Krasnov wrote:
+>This adds copying to guest's virtio buffers from non-linear skbs. Such
+>skbs are created by protocol layer when MSG_ZEROCOPY flags is used. It
+>changes call of 'copy_to_iter()' to 'skb_copy_datagram_iter()'. Second
+>function can read data from non-linear skb.
+>
+>See commit to 'net/vmw_vsock/virtio_transport_common.c' with the same
+>name for more details.
+
+I think it's okay if we report the same details here.
+
 >
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> include/linux/virtio_vsock.h            |  1 +
-> net/vmw_vsock/virtio_transport_common.c | 26 +++++++++++++++++--------
-> 2 files changed, 19 insertions(+), 8 deletions(-)
+> drivers/vhost/vsock.c | 12 +++++++-----
+> 1 file changed, 7 insertions(+), 5 deletions(-)
 >
->diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->index c58453699ee9..17dbb7176e37 100644
->--- a/include/linux/virtio_vsock.h
->+++ b/include/linux/virtio_vsock.h
->@@ -12,6 +12,7 @@
-> struct virtio_vsock_skb_cb {
-> 	bool reply;
-> 	bool tap_delivered;
->+	u32 frag_off;
-> };
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 6578db78f0ae..b254aa4b756a 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -156,7 +156,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		}
 >
-> #define VIRTIO_VSOCK_SKB_CB(skb) ((struct virtio_vsock_skb_cb *)((skb)->cb))
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index b769fc258931..5819a9cd4515 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -355,7 +355,7 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
-> 	spin_lock_bh(&vvs->rx_lock);
->
-> 	skb_queue_walk_safe(&vvs->rx_queue, skb,  tmp) {
->-		off = 0;
->+		off = VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
->
-> 		if (total == len)
-> 			break;
->@@ -370,7 +370,10 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
-> 			 */
-> 			spin_unlock_bh(&vvs->rx_lock);
->
->-			err = memcpy_to_msg(msg, skb->data + off, bytes);
->+			err = skb_copy_datagram_iter(skb, off,
->+						     &msg->msg_iter,
->+						     bytes);
->+
-> 			if (err)
-> 				goto out;
->
->@@ -414,24 +417,28 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
-> 		skb = skb_peek(&vvs->rx_queue);
->
-> 		bytes = len - total;
->-		if (bytes > skb->len)
->-			bytes = skb->len;
->+		if (bytes > skb->len - VIRTIO_VSOCK_SKB_CB(skb)->frag_off)
->+			bytes = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
+> 		iov_iter_init(&iov_iter, ITER_DEST, &vq->iov[out], in, iov_len);
+>-		payload_len = skb->len;
+>+		payload_len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
 
-What about storing `VIRTIO_VSOCK_SKB_CB(skb)->frag_off` in a variable?
-More for readability than optimization, which I hope the compiler
-already does on its own.
-
-The rest LGTM.
+Also here a variable should make the code more readable.
 
 Stefano
 
+> 		hdr = virtio_vsock_hdr(skb);
 >
-> 		/* sk_lock is held by caller so no one else can dequeue.
-> 		 * Unlock rx_lock since memcpy_to_msg() may sleep.
+> 		/* If the packet is greater than the space available in the
+>@@ -197,8 +197,10 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 			break;
+> 		}
+>
+>-		nbytes = copy_to_iter(skb->data, payload_len, &iov_iter);
+>-		if (nbytes != payload_len) {
+>+		if (skb_copy_datagram_iter(skb,
+>+					   VIRTIO_VSOCK_SKB_CB(skb)->frag_off,
+>+					   &iov_iter,
+>+					   payload_len)) {
+> 			kfree_skb(skb);
+> 			vq_err(vq, "Faulted on copying pkt buf\n");
+> 			break;
+>@@ -212,13 +214,13 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		vhost_add_used(vq, head, sizeof(*hdr) + payload_len);
+> 		added = true;
+>
+>-		skb_pull(skb, payload_len);
+>+		VIRTIO_VSOCK_SKB_CB(skb)->frag_off += payload_len;
+> 		total_len += payload_len;
+>
+> 		/* If we didn't send all the payload we can requeue the packet
+> 		 * to send it with the next available buffer.
 > 		 */
-> 		spin_unlock_bh(&vvs->rx_lock);
+>-		if (skb->len > 0) {
+>+		if (VIRTIO_VSOCK_SKB_CB(skb)->frag_off < skb->len) {
+> 			hdr->flags |= cpu_to_le32(flags_to_restore);
 >
->-		err = memcpy_to_msg(msg, skb->data, bytes);
->+		err = skb_copy_datagram_iter(skb,
->+					     VIRTIO_VSOCK_SKB_CB(skb)->frag_off,
->+					     &msg->msg_iter, bytes);
->+
-> 		if (err)
-> 			goto out;
->
-> 		spin_lock_bh(&vvs->rx_lock);
->
-> 		total += bytes;
->-		skb_pull(skb, bytes);
->
->-		if (skb->len == 0) {
->+		VIRTIO_VSOCK_SKB_CB(skb)->frag_off += bytes;
->+
->+		if (skb->len == VIRTIO_VSOCK_SKB_CB(skb)->frag_off) {
-> 			u32 pkt_len = le32_to_cpu(virtio_vsock_hdr(skb)->len);
->
-> 			virtio_transport_dec_rx_pkt(vvs, pkt_len);
->@@ -503,7 +510,10 @@ static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
-> 				 */
-> 				spin_unlock_bh(&vvs->rx_lock);
->
->-				err = memcpy_to_msg(msg, skb->data, bytes_to_copy);
->+				err = skb_copy_datagram_iter(skb, 0,
->+							     &msg->msg_iter,
->+							     bytes_to_copy);
->+
-> 				if (err) {
-> 					/* Copy of message failed. Rest of
-> 					 * fragments will be freed without copy.
+> 			/* We are queueing the same skb to handle
 >-- 
 >2.25.1
 >
