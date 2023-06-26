@@ -1,105 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88C4BEB64D7
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 16:11:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DCC8DEB64DA
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jun 2023 16:14:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1D2C661395;
-	Mon, 26 Jun 2023 16:11:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1D2C661395
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fB/I+2kM
+	by smtp4.osuosl.org (Postfix) with ESMTP id 706BD40960;
+	Mon, 26 Jun 2023 16:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 706BD40960
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=b16c2Rv9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id C3J918zdh8fu; Mon, 26 Jun 2023 16:11:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AC12261398;
-	Mon, 26 Jun 2023 16:11:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC12261398
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u2SLmS7-xQQt; Mon, 26 Jun 2023 16:14:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 57BF640948;
+	Mon, 26 Jun 2023 16:14:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 57BF640948
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 953DCC007A;
-	Mon, 26 Jun 2023 16:11:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 32B83C0029
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E395C007A;
+	Mon, 26 Jun 2023 16:14:22 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19D18C0029
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:11:26 +0000 (UTC)
+ Mon, 26 Jun 2023 16:14:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0036261395
+ by smtp2.osuosl.org (Postfix) with ESMTP id DCB01400EC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:11:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0036261395
+ Mon, 26 Jun 2023 16:14:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCB01400EC
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=b16c2Rv9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zG45-qZLQ8QU
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f9gyzdyrglHK
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:11:25 +0000 (UTC)
+ Mon, 26 Jun 2023 16:14:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2805B6137C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 30FF8404AF
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2805B6137C
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 30FF8404AF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 16:11:25 +0000 (UTC)
+ Mon, 26 Jun 2023 16:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687795884;
+ s=mimecast20190719; t=1687796058;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=YymWdEkHWhyai/v4Ncfq5HtLNdYJQriBatYjnpRoPBU=;
- b=fB/I+2kMbhfkgOGyezNBywBQnlSaxHuvQxVfmEYFE1b/o55mnkJ3d6q63j8x7JGOy+aO95
- BKnH+TjiLzY/QrYqCfZcehopBJTsKN24X3OzyQY0LX0Dk4NdLBcZERt8oEJvMTED3RtODE
- PrpAYsLST6TDrON2FzT8PU8KJciQvcI=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=lAvdeHjRiEhExMf/8PkhS/lqlgbR8Yp8qV2L+W5RPMM=;
+ b=b16c2Rv9kCAdt6Z4iEeBBpCohkilCNuwf9tj0W8B872mhpuZjd35NihhdbsbJURFxQd8Uy
+ lFeq0GeTFEupaUpGpDqh76CqVpk05H3lmZcCAWSThctN9leI9Af/cu00sA8inaphKpOX9O
+ AphRfmipxuKVA/3qqUgHfg5AHw8pjyA=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-591-BoqlcGG-Pp6d4XKj6Y8tmg-1; Mon, 26 Jun 2023 12:11:22 -0400
-X-MC-Unique: BoqlcGG-Pp6d4XKj6Y8tmg-1
-Received: by mail-qk1-f199.google.com with SMTP id
- af79cd13be357-7659cb9c3b3so142334685a.1
+ us-mta-91-O0kzjJBgMRWt9R3WXQC_8g-1; Mon, 26 Jun 2023 12:14:17 -0400
+X-MC-Unique: O0kzjJBgMRWt9R3WXQC_8g-1
+Received: by mail-qv1-f71.google.com with SMTP id
+ 6a1803df08f44-635e6c83cf0so7026646d6.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jun 2023 09:11:22 -0700 (PDT)
+ Mon, 26 Jun 2023 09:14:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687795881; x=1690387881;
+ d=1e100.net; s=20221208; t=1687796054; x=1690388054;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=YymWdEkHWhyai/v4Ncfq5HtLNdYJQriBatYjnpRoPBU=;
- b=Zdqv/GZFBWV6BNnUrRainQPnBgALGSvuB5d2g+uRb4myiVjmFLyszR8jdoa+pYfHGn
- 9XvHRTFSqTl7tAaAhdroPpJeObamlwZdEgZEeOT7uteEcUr6fosDADTbNf1wkyzZhIIf
- Da0J9M4RtSAtgyjFYhQs/RGeegtvVqfoxPeg2tM5CJYZ989KdTjhIcwL2H+twFjBBl23
- mkm7Kf54BPSIAD8KK1tcUarggeX/HhVrkRq9Qo2dFg3bQyveWW1j4D6f9eXQu7F0Lvhs
- vXxr6/uGugvsVSCSsD0HA3hl7tdqxb47KCab+U3hbaX3ofpRrzRuUfFgPSkkKWUz/2iC
- Egaw==
-X-Gm-Message-State: AC+VfDztc3v1lC24+Znyzw2soIf3pawziPBS76OsyKFemJL+E15nttjZ
- xTACgLZp+T3QPMEV8yRehzjTlNXxs1zVK21B5k+iM/dsC6dormpWWKae/uXUYzmVaiMpsCaVvF2
- 1PBjampMLqaji2hC2nP47GdIaRDN6EywtkveFfvUAxWWT15RX7A==
-X-Received: by 2002:a05:620a:4308:b0:765:619c:cca8 with SMTP id
- u8-20020a05620a430800b00765619ccca8mr8196732qko.16.1687795881649; 
- Mon, 26 Jun 2023 09:11:21 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ4OTPuoDBhm9NFpKvI1ovmDpK5uOGhA7usFuq/EJikHKcpNPEengaaoKEb0Pz/YsBCORIP4qQ==
-X-Received: by 2002:a05:620a:4308:b0:765:619c:cca8 with SMTP id
- u8-20020a05620a430800b00765619ccca8mr8196717qko.16.1687795881447; 
- Mon, 26 Jun 2023 09:11:21 -0700 (PDT)
+ bh=lAvdeHjRiEhExMf/8PkhS/lqlgbR8Yp8qV2L+W5RPMM=;
+ b=KPWHB7YkzyOM7GLnuQGYesy/wKU+1r0nOutuh15VvbHD18QEZGSUb5ByMADAd7payc
+ OFxjdZyZYULgew0jzlxihKJdwAXg4e+BEFfAx94BCQiA6VjB5z90N1yRTEpy7WsqqxYU
+ 27OPL/U7EPAIllmo2QjOru7IhiTFCyqk0v2q2oh5JdqnyQmNEm8VMuCvkgSBeazjyHL5
+ 8Q5EBusKXvBWrhiPBzFVLKUL/tWUvdGN6EzunCq7wm1pi2vaQMGdazHogsouY4N+ye/i
+ m4nAhkN412ES4qF9ITpM+YgZq9xcBwwaUaIWh0deRKOIm+WCtCxy/qjQcv0qyAz50I4j
+ eFfw==
+X-Gm-Message-State: AC+VfDx1ufmJM3wWjQjmENxgssW9qKrzEXxFy29p2Qln2VqOWLS9Nk+7
+ K6mXoS070VcjC1km6UjuS0QJs/qlr41j7FDjkzCmy7znpSY3g9fomL7ASLfB3/MSVLNrbg3Rtxk
+ qWeMxUlVZ+l0Iy2zlRZb5h8Q47TCfS1k6FHvU35jfrg==
+X-Received: by 2002:a05:6214:4015:b0:62d:d6e4:7ccf with SMTP id
+ kd21-20020a056214401500b0062dd6e47ccfmr31955495qvb.40.1687796054275; 
+ Mon, 26 Jun 2023 09:14:14 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6dcXj93WXuU6BFIJYyBOMHVPNnCeqXrPEQR3X/qVTsVAuQorwHM7WjdhifsJqsX7Lt2y/AjA==
+X-Received: by 2002:a05:6214:4015:b0:62d:d6e4:7ccf with SMTP id
+ kd21-20020a056214401500b0062dd6e47ccfmr31955480qvb.40.1687796054044; 
+ Mon, 26 Jun 2023 09:14:14 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
  [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
- y26-20020a37e31a000000b00765a7843382sm1252256qki.74.2023.06.26.09.11.18
+ lw15-20020a05621457cf00b00626161ea7a3sm3349930qvb.2.2023.06.26.09.14.11
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Jun 2023 09:11:20 -0700 (PDT)
-Date: Mon, 26 Jun 2023 18:11:16 +0200
+ Mon, 26 Jun 2023 09:14:13 -0700 (PDT)
+Date: Mon, 26 Jun 2023 18:14:09 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v4 11/17] vsock/virtio: support MSG_ZEROCOPY for
+Subject: Re: [RFC PATCH v4 12/17] vsock/loopback: support MSG_ZEROCOPY for
  transport
-Message-ID: <fvxvln7njntjflcwbw7ypzu7jybe2cwq5xedgjcxkkubuuayp7@bs3r3r5rvifw>
+Message-ID: <lex6l5suez7azhirt22lidndtjomkbagfbpvvi5p7c2t7klzas@4l2qly7at37c>
 References: <20230603204939.1598818-1-AVKrasnov@sberdevices.ru>
- <20230603204939.1598818-12-AVKrasnov@sberdevices.ru>
+ <20230603204939.1598818-13-AVKrasnov@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <20230603204939.1598818-12-AVKrasnov@sberdevices.ru>
+In-Reply-To: <20230603204939.1598818-13-AVKrasnov@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -126,42 +129,52 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jun 03, 2023 at 11:49:33PM +0300, Arseniy Krasnov wrote:
->Add 'msgzerocopy_allow()' callback for virtio transport.
+On Sat, Jun 03, 2023 at 11:49:34PM +0300, Arseniy Krasnov wrote:
+>Add 'msgzerocopy_allow()' callback for loopback transport.
 >
 >Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >---
-> net/vmw_vsock/virtio_transport.c | 7 +++++++
-> 1 file changed, 7 insertions(+)
+> net/vmw_vsock/vsock_loopback.c | 8 ++++++++
+> 1 file changed, 8 insertions(+)
 >
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index 6053d8341091..d9ffa16dda69 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -438,6 +438,11 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
-> 	queue_work(virtio_vsock_workqueue, &vsock->rx_work);
+>diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
+>index 5c6360df1f31..a2e4aeda2d92 100644
+>--- a/net/vmw_vsock/vsock_loopback.c
+>+++ b/net/vmw_vsock/vsock_loopback.c
+>@@ -47,6 +47,7 @@ static int vsock_loopback_cancel_pkt(struct vsock_sock *vsk)
 > }
 >
->+static bool virtio_transport_msgzerocopy_allow(void)
->+{
->+	return true;
->+}
->+
-> static bool virtio_transport_seqpacket_allow(u32 remote_cid);
+> static bool vsock_loopback_seqpacket_allow(u32 remote_cid);
+>+static bool vsock_loopback_msgzerocopy_allow(void);
+
+I don't know why we did this for `vsock_loopback_seqpacket_allow`, but
+can we just put the implementation here?
+
 >
-> static struct virtio_transport virtio_transport = {
->@@ -484,6 +489,8 @@ static struct virtio_transport virtio_transport = {
+> static struct virtio_transport loopback_transport = {
+> 	.transport = {
+>@@ -92,11 +93,18 @@ static struct virtio_transport loopback_transport = {
 > 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
 >
 > 		.read_skb = virtio_transport_read_skb,
 >+
->+		.msgzerocopy_allow        = virtio_transport_msgzerocopy_allow,
+>+		.msgzerocopy_allow        = vsock_loopback_msgzerocopy_allow,
 
-Ditto.
+Ditto the moving.
 
 > 	},
 >
-> 	.send_pkt = virtio_transport_send_pkt,
+> 	.send_pkt = vsock_loopback_send_pkt,
+> };
+>
+>+static bool vsock_loopback_msgzerocopy_allow(void)
+>+{
+>+	return true;
+>+}
+>+
+> static bool vsock_loopback_seqpacket_allow(u32 remote_cid)
+> {
+> 	return true;
 >-- 
 >2.25.1
 >
