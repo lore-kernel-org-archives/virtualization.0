@@ -1,104 +1,120 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 69C98EB64D9
-	for <virtualization@archiver.kernel.org>; Tue, 27 Jun 2023 12:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 88C52EB64DC
+	for <virtualization@archiver.kernel.org>; Tue, 27 Jun 2023 13:14:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E210840176;
-	Tue, 27 Jun 2023 12:01:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E210840176
+	by smtp4.osuosl.org (Postfix) with ESMTP id 001B241B46;
+	Tue, 27 Jun 2023 13:14:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 001B241B46
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=am4sD++9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UC0GItNxGrvB; Tue, 27 Jun 2023 12:01:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5E06E40122;
-	Tue, 27 Jun 2023 12:01:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5E06E40122
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tGB4Ac6hdk8R; Tue, 27 Jun 2023 13:14:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0438C401D3;
+	Tue, 27 Jun 2023 13:14:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0438C401D3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 23276C0072;
-	Tue, 27 Jun 2023 12:01:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AFA09C0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC864C007C;
+	Tue, 27 Jun 2023 13:14:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9846BC0037
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 12:01:51 +0000 (UTC)
+ Tue, 27 Jun 2023 13:14:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7A28941A49
+ by smtp4.osuosl.org (Postfix) with ESMTP id 705FD41697
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 12:01:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7A28941A49
+ Tue, 27 Jun 2023 13:14:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 705FD41697
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id O9WeKrJZxicO
+ with ESMTP id bWXLM0Yd7RHF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 12:01:50 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EB71C41A43
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com
- [209.85.128.170])
- by smtp4.osuosl.org (Postfix) with ESMTPS id EB71C41A43
+ Tue, 27 Jun 2023 13:14:48 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2E8A0401D3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2E8A0401D3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 12:01:49 +0000 (UTC)
-Received: by mail-yw1-f170.google.com with SMTP id
- 00721157ae682-57338656a8aso35452437b3.0
+ Tue, 27 Jun 2023 13:14:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1687871687;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=xr3MnWCaYQoh+mxzisQXAS9kK17MGURfaRMV8GgA6To=;
+ b=am4sD++9Grj/U2grbY5z3pw+9vounwHdnUqTUic2G0VjHVlAP3SOyg08NmbxzSimWEqlpT
+ 9b5GjpArZ5OTreDI2GdQ3Ec2HYXOeSQ4nZvYTkungILrHRcRUBH/uXnGt/Df9jaOkGq8Lo
+ AyepvA12PYd8H3MV9vim6JC/0ce/Dos=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-147-rLKuSTIePcSxF5QLMgPz6A-1; Tue, 27 Jun 2023 09:14:14 -0400
+X-MC-Unique: rLKuSTIePcSxF5QLMgPz6A-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 5b1f17b1804b1-3f9bef91aa4so29049605e9.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 05:01:49 -0700 (PDT)
+ Tue, 27 Jun 2023 06:14:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687867308; x=1690459308;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=UaDvMAxfFXfyEZM4SJAuMBnx36vSWVo7HcR7XHEqTMs=;
- b=Y0AR05W05uks1Gyh3b7v7J4J2RKvptMC4ak76R39lecBZKIiROVDYNlZ9Eo+bHyc4/
- MhA1T2/RaW5G5tinnpFQFZ4mCUOnr8fnbWqYQZ33/aYF/DvrNYYJhNpdrI0Fol4iexNN
- xL5SyYRviDvTvgfR285dB2nxi36O2CxPIOvZxi7n8Y87/Wn3D+fFRzNHINnlKSGJlepx
- 8QljBRil9a6dTbAHTdBq6thpSED1asS1NqSHOFCR+QvFqdj4P9jCieVYuw45gLeKU1gw
- lnTJZaN24JpqeRtxlPhIRobxBqi1Y9IPCafK/3R2Dy/7+kHFaLPLD1wV1SB8EzQCx1U9
- wsIQ==
-X-Gm-Message-State: AC+VfDy89vOmJRzzaFahYSeL8AgXCpn9uQ6k+UZ61Mw82qtwARRgj/aw
- Qj+2TR8dsOk/Y3GV9c/aYHLQjfmA2+mIn9+U
-X-Google-Smtp-Source: ACHHUZ4yuid35v+jd1r9UnGEcXgaW81JQEo4wiOZP5W/jFL9P0DPRFNpJjE/Jiap2s+cq5stpRxGTw==
-X-Received: by 2002:a81:7bd5:0:b0:565:9fc5:f0a1 with SMTP id
- w204-20020a817bd5000000b005659fc5f0a1mr27713282ywc.36.1687867308564; 
- Tue, 27 Jun 2023 05:01:48 -0700 (PDT)
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com.
- [209.85.219.170]) by smtp.gmail.com with ESMTPSA id
- h126-20020a0dde84000000b00576e5af0249sm514775ywe.20.2023.06.27.05.01.46
- for <virtualization@lists.linux-foundation.org>
+ d=1e100.net; s=20221208; t=1687871653; x=1690463653;
+ h=content-transfer-encoding:in-reply-to:subject:organization:from
+ :references:cc:to:content-language:user-agent:mime-version:date
+ :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=xr3MnWCaYQoh+mxzisQXAS9kK17MGURfaRMV8GgA6To=;
+ b=NUFV3K4mdS578xEGj06jLXXSuk+O643k79v1wPHBxkpX/Ob5O2w9g5YjqAQyQo0FDf
+ SmZkbGf3V7NPBEfSr4XG3FMEmzBwnHjRu+mNkvOKPjJW/jvbFDb/Jey8dUKHPMu9F/mg
+ QUTwTKSkNnyBX4yPL5zPPWeFI0dllZi78DqMu0SJx2gCQIDyZ8uROJhLD0qSpLQTprDR
+ I2rdQyCeTeCiTyMbEfRAwWBHrdKfIBXBne/82mA9/qD2RxmcpwjOaa1rG8E+3N7cPs7A
+ TT0p9PyjsV0ZZUEJisUr6BKEAmLC9RhNNjM++PS16YVP2sdHQtgDg3kHzNbCs+2lqNz6
+ 68eg==
+X-Gm-Message-State: AC+VfDz3z20uMWhAsi5hM2h77owkjOKjWVnTbua6CGLA32ZWocuINwIL
+ 2uG/tNtpnb3euufCTXbzoRVRhBG67yS69fLFGX+muUIime/j5r3jkTxQ0SmgFrlIAeSP6ZVH6QE
+ 5WHIqj2uppL9BKroLErIDUfZ/vBFu5eD1u/WZhv+BJw==
+X-Received: by 2002:a7b:c017:0:b0:3f7:aad8:4e05 with SMTP id
+ c23-20020a7bc017000000b003f7aad84e05mr25894506wmb.11.1687871653450; 
+ Tue, 27 Jun 2023 06:14:13 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6jPe2n9lCZVjh6G47APR7hQm7cv3dmFUt5cTIyprmkTo8/GF2dG+yghkrXAmZXtcjVtznmIQ==
+X-Received: by 2002:a7b:c017:0:b0:3f7:aad8:4e05 with SMTP id
+ c23-20020a7bc017000000b003f7aad84e05mr25894478wmb.11.1687871653032; 
+ Tue, 27 Jun 2023 06:14:13 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c737:4900:68b3:e93b:e07a:558b?
+ (p200300cbc737490068b3e93be07a558b.dip0.t-ipconnect.de.
+ [2003:cb:c737:4900:68b3:e93b:e07a:558b])
+ by smtp.gmail.com with ESMTPSA id
+ o11-20020a05600c378b00b003fa95f328afsm6173913wmr.29.2023.06.27.06.14.12
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 27 Jun 2023 05:01:47 -0700 (PDT)
-Received: by mail-yb1-f170.google.com with SMTP id
- 3f1490d57ef6-bff89873d34so2970234276.2
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 05:01:46 -0700 (PDT)
-X-Received: by 2002:a25:f802:0:b0:b9e:712f:4a17 with SMTP id
- u2-20020a25f802000000b00b9e712f4a17mr22534779ybd.6.1687867306425; Tue, 27 Jun
- 2023 05:01:46 -0700 (PDT)
+ Tue, 27 Jun 2023 06:14:12 -0700 (PDT)
+Message-ID: <74cbbdd3-5a05-25b1-3f81-2fd47e089ac3@redhat.com>
+Date: Tue, 27 Jun 2023 15:14:11 +0200
 MIME-Version: 1.0
-References: <20230416115237.798604-1-dmitry.osipenko@collabora.com>
- <20230416115237.798604-4-dmitry.osipenko@collabora.com>
- <CAMuHMdVrJsmQx8X-_Tnxir9W752Mdh8ye7ob2srtY+6HFDEMGw@mail.gmail.com>
- <0ca8034d-0377-26b9-51c8-8caff6c4174a@collabora.com>
- <CAMuHMdWfE=6xFsYFv=mCACpwZp45AiCzFxEB=suEFBhv9ry5aw@mail.gmail.com>
- <2f4d3e96-1e10-3662-bfc5-8c361a4c1366@collabora.com>
-In-Reply-To: <2f4d3e96-1e10-3662-bfc5-8c361a4c1366@collabora.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 27 Jun 2023 14:01:34 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdV924gJs1X1nMUbQ5LEbFe8hrrXgxxvgZ_dXf95O0bK5Q@mail.gmail.com>
-Message-ID: <CAMuHMdV924gJs1X1nMUbQ5LEbFe8hrrXgxxvgZ_dXf95O0bK5Q@mail.gmail.com>
-Subject: Re: [PATCH v6 3/3] drm/virtio: Support sync objects
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
- =?UTF-8?B?TWFyZWsgT2zFocOhaw==?= <maraeo@gmail.com>,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>, Rob Clark <robdclark@gmail.com>,
- Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@redhat.com>,
- kernel@collabora.com, virtualization@lists.linux-foundation.org,
- Chia-I Wu <olvaffe@gmail.com>, Emil Velikov <emil.velikov@collabora.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+To: Michal Hocko <mhocko@suse.com>
+References: <20230627112220.229240-1-david@redhat.com>
+ <20230627112220.229240-4-david@redhat.com> <ZJrYv0JIcrNyf2py@dhcp22.suse.cz>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v1 3/5] mm/memory_hotplug: make
+ offline_and_remove_memory() timeout instead of failing on fatal signals
+In-Reply-To: <ZJrYv0JIcrNyf2py@dhcp22.suse.cz>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, John Hubbard <jhubbard@nvidia.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
+ Oscar Salvador <osalvador@suse.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,57 +126,125 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SGkgRG1pdHJ5LAoKT24gTW9uLCBKdW4gMjYsIDIwMjMgYXQgNjoxMeKAr1BNIERtaXRyeSBPc2lw
-ZW5rbwo8ZG1pdHJ5Lm9zaXBlbmtvQGNvbGxhYm9yYS5jb20+IHdyb3RlOgo+IE9uIDYvMjUvMjMg
-MTg6MzYsIEdlZXJ0IFV5dHRlcmhvZXZlbiB3cm90ZToKPiA+IE9uIFN1biwgSnVuIDI1LCAyMDIz
-IGF0IDI6NDHigK9QTSBEbWl0cnkgT3NpcGVua28KPiA+IDxkbWl0cnkub3NpcGVua29AY29sbGFi
-b3JhLmNvbT4gd3JvdGU6Cj4gPj4gT24gNi8yNS8yMyAxMTo0NywgR2VlcnQgVXl0dGVyaG9ldmVu
-IHdyb3RlOgo+ID4+PiBPbiBTdW4sIEFwciAxNiwgMjAyMyBhdCAxOjU14oCvUE0gRG1pdHJ5IE9z
-aXBlbmtvCj4gPj4+IDxkbWl0cnkub3NpcGVua29AY29sbGFib3JhLmNvbT4gd3JvdGU6Cj4gPj4+
-PiBBZGQgc3luYyBvYmplY3QgRFJNIFVBUEkgc3VwcG9ydCB0byBWaXJ0SU8tR1BVIGRyaXZlci4g
-U3luYyBvYmplY3RzCj4gPj4+PiBzdXBwb3J0IGlzIG5lZWRlZCBieSBuYXRpdmUgY29udGV4dCBW
-aXJ0SU8tR1BVIE1lc2EgZHJpdmVycywgaXQgYWxzbyB3aWxsCj4gPj4+PiBiZSB1c2VkIGJ5IFZl
-bnVzIGFuZCBWaXJnbCBjb250ZXh0cy4KPiA+Pj4+Cj4gPj4+PiBSZXZpZXdlZC1ieTsgRW1pbCBW
-ZWxpa292IDxlbWlsLnZlbGlrb3ZAY29sbGFib3JhLmNvbT4KPiA+Pj4+IFNpZ25lZC1vZmYtYnk6
-IERtaXRyeSBPc2lwZW5rbyA8ZG1pdHJ5Lm9zaXBlbmtvQGNvbGxhYm9yYS5jb20+Cj4gPj4+Cj4g
-Pj4+IFRoYW5rcyBmb3IgeW91ciBwYXRjaCEKPiA+Pj4KPiA+Pj4+IC0tLSBhL2RyaXZlcnMvZ3B1
-L2RybS92aXJ0aW8vdmlydGdwdV9zdWJtaXQuYwo+ID4+Pj4gKysrIGIvZHJpdmVycy9ncHUvZHJt
-L3ZpcnRpby92aXJ0Z3B1X3N1Ym1pdC5jCj4gPj4+Cj4gPj4+PiArc3RhdGljIGludAo+ID4+Pj4g
-K3ZpcnRpb19ncHVfcGFyc2VfZGVwcyhzdHJ1Y3QgdmlydGlvX2dwdV9zdWJtaXQgKnN1Ym1pdCkK
-PiA+Pj4+ICt7Cj4gPj4+PiArICAgICAgIHN0cnVjdCBkcm1fdmlydGdwdV9leGVjYnVmZmVyICpl
-eGJ1ZiA9IHN1Ym1pdC0+ZXhidWY7Cj4gPj4+PiArICAgICAgIHN0cnVjdCBkcm1fdmlydGdwdV9l
-eGVjYnVmZmVyX3N5bmNvYmogc3luY29ial9kZXNjOwo+ID4+Pj4gKyAgICAgICBzaXplX3Qgc3lu
-Y29ial9zdHJpZGUgPSBleGJ1Zi0+c3luY29ial9zdHJpZGU7Cj4gPj4+PiArICAgICAgIHUzMiBu
-dW1faW5fc3luY29ianMgPSBleGJ1Zi0+bnVtX2luX3N5bmNvYmpzOwo+ID4+Pj4gKyAgICAgICBz
-dHJ1Y3QgZHJtX3N5bmNvYmogKipzeW5jb2JqczsKPiA+Pj4+ICsgICAgICAgaW50IHJldCA9IDAs
-IGk7Cj4gPj4+PiArCj4gPj4+PiArICAgICAgIGlmICghbnVtX2luX3N5bmNvYmpzKQo+ID4+Pj4g
-KyAgICAgICAgICAgICAgIHJldHVybiAwOwo+ID4+Pj4gKwo+ID4+Pj4gKyAgICAgICAvKgo+ID4+
-Pj4gKyAgICAgICAgKiBrdmFsbG9jIGF0IGZpcnN0IHRyaWVzIHRvIGFsbG9jYXRlIG1lbW9yeSB1
-c2luZyBrbWFsbG9jIGFuZAo+ID4+Pj4gKyAgICAgICAgKiBmYWxscyBiYWNrIHRvIHZtYWxsb2Mg
-b25seSBvbiBmYWlsdXJlLiBJdCBhbHNvIHVzZXMgR0ZQX05PV0FSTgo+ID4+Pgo+ID4+PiBHRlBf
-Tk9XQVJOIGRvZXMgbm90IGV4aXN0Lgo+ID4+Cj4gPj4gaHR0cHM6Ly9lbGl4aXIuYm9vdGxpbi5j
-b20vbGludXgvdjYuNC1yYzcvc291cmNlL2luY2x1ZGUvbGludXgvZ2ZwX3R5cGVzLmgjTDM4Cj4g
-Pgo+ID4gVGhhdCBsaW5lIGRlZmluZXMgIl9fR0ZQX05PV0FSTiIsIG5vdCAiR0ZQX05PV0FSTiIu
-Cj4gPiBDIGlzIGNhc2UtIGFuZCB1bmRlcnNjb3JlLXNlbnNpdGl2ZS4gYXMgaXMgImdpdCBncmVw
-IC13IiA7LSkKPgo+IFRoZSByZW1vdmFsIG9mIHVuZGVyc2NvcmVzIHdhcyBkb25lIGludGVudGlv
-bmFsbHkgZm9yIGltcHJvdmluZwo+IHJlYWRhYmlsaXR5IG9mIHRoZSBjb21tZW50CgpQbGVhc2Ug
-ZG9uJ3QgZG8gdGhhdCwgYXMgSU1ITyBpdCBhY3R1YWxseSBoYW1wZXJzIHJlYWRhYmlsaXR5Ogog
-IDEuIEZvciBzb21lIHh4eCwgYm90aCBHRlBfeHh4IGFuZCBfX0dGUF94eHggYXJlIGRlZmluZWQs
-CiAgICAgc28gaXQgZG9lcyBtYXR0ZXIgd2hpY2ggb25lIHlvdSBhcmUgcmVmZXJyaW5nIHRvLAog
-IDIuIEFmdGVyIGRyb3BwaW5nIHRoZSB1bmRlcnNjb3JlcywgImdpdCBncmVwIC13IiBjYW4gbm8g
-bG9uZ2VyIGZpbmQKICAgICB0aGUgZGVmaW5pdGlvbiwgbm9yIGl0cyB1c2Vycy4KClRoYW5rcyEK
-Ckdye29ldGplLGVldGluZ31zLAoKICAgICAgICAgICAgICAgICAgICAgICAgR2VlcnQKCi0tIApH
-ZWVydCBVeXR0ZXJob2V2ZW4gLS0gVGhlcmUncyBsb3RzIG9mIExpbnV4IGJleW9uZCBpYTMyIC0t
-IGdlZXJ0QGxpbnV4LW02OGsub3JnCgpJbiBwZXJzb25hbCBjb252ZXJzYXRpb25zIHdpdGggdGVj
-aG5pY2FsIHBlb3BsZSwgSSBjYWxsIG15c2VsZiBhIGhhY2tlci4gQnV0CndoZW4gSSdtIHRhbGtp
-bmcgdG8gam91cm5hbGlzdHMgSSBqdXN0IHNheSAicHJvZ3JhbW1lciIgb3Igc29tZXRoaW5nIGxp
-a2UgdGhhdC4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAtLSBMaW51cyBUb3J2YWxk
-cwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+On 27.06.23 14:40, Michal Hocko wrote:
+> On Tue 27-06-23 13:22:18, David Hildenbrand wrote:
+>> John Hubbard writes [1]:
+>>
+>>          Some device drivers add memory to the system via memory hotplug.
+>>          When the driver is unloaded, that memory is hot-unplugged.
+>>
+>>          However, memory hot unplug can fail. And these days, it fails a
+>>          little too easily, with respect to the above case. Specifically, if
+>>          a signal is pending on the process, hot unplug fails.
+>>
+>>          [...]
+>>
+>>          So in this case, other things (unmovable pages, un-splittable huge
+>>          pages) can also cause the above problem. However, those are
+>>          demonstrably less common than simply having a pending signal. I've
+>>          got bug reports from users who can trivially reproduce this by
+>>          killing their process with a "kill -9", for example.
+> 
+> This looks like a bug of the said driver no? If the tear down process is
+> killed it could very well happen right before offlining so you end up in
+> the very same state. Or what am I missing?
+
+IIUC (John can correct me if I am wrong):
+
+1) The process holds the device node open
+2) The process gets killed or quits
+3) As the process gets torn down, it closes the device node
+4) Closing the device node results in the driver removing the device and
+    calling offline_and_remove_memory()
+
+So it's not a "tear down process" that triggers that offlining_removal 
+somehow explicitly, it's just a side-product of it letting go of the 
+device node as the process gets torn down.
+
+>   
+>> Especially with ZONE_MOVABLE, offlining is supposed to work in most
+>> cases when offlining actually hotplugged (not boot) memory, and only fail
+>> in rare corner cases (e.g., some driver holds a reference to a page in
+>> ZONE_MOVABLE, turning it unmovable).
+>>
+>> In these corner cases we really don't want to be stuck forever in
+>> offline_and_remove_memory(). But in the general cases, we really want to
+>> do our best to make memory offlining succeed -- in a reasonable
+>> timeframe.
+>>
+>> Reliably failing in the described case when there is a fatal signal pending
+>> is sub-optimal. The pending signal check is mostly only relevant when user
+>> space explicitly triggers offlining of memory using sysfs device attributes
+>> ("state" or "online" attribute), but not when coming via
+>> offline_and_remove_memory().
+>>
+>> So let's use a timer instead and ignore fatal signals, because they are
+>> not really expressive for offline_and_remove_memory() users. Let's default
+>> to 30 seconds if no timeout was specified, and limit the timeout to 120
+>> seconds.
+> 
+> I really hate having timeouts back. They just proven to be hard to get
+> right and it is essentially a policy implemented in the kernel. They
+> simply do not belong to the kernel space IMHO.
+
+As much as I agree with you in terms of offlining triggered from user 
+space (e.g., write "state" or "online" attribute) where user-space is 
+actually in charge  and can do something reasonable (timeout, retry, 
+whatever), in these the offline_and_remove_memory() case it's the driver 
+that wants a best-effort memory offlining+removal.
+
+If it times out, virtio-mem will simply try another block or retry 
+later. Right now, it could get stuck forever in 
+offline_and_remove_memory(), which is obviously "not great". 
+Fortunately, for virtio-mem it's configurable and we use the 
+alloc_contig_range()-method for now as default.
+
+If it would time out for John's driver, we most certainly don't want to 
+be stuck in offline_and_remove_memory(), blocking device/driver 
+unloading (and even a reboot IIRC) possibly forever.
+
+
+I much rather have offline_and_remove_memory() indicate "timeout" to a 
+in-kernel user a bit earlier than getting stuck in there forever. The 
+timeout parameter allows for giving the in-kernel users a bit of 
+flexibility, which I showcases for virtio-mem that unplugs smaller 
+blocks and rather wants to fail fast and retry later.
+
+
+Sure, we could make the timeout configurable to optimize for some corner 
+cases, but that's not really what offline_and_remove_memory() users want 
+and I doubt anybody would fine-tune that: they want a best-effort 
+attempt. And that's IMHO not really a policy, it's an implementation 
+detail of these drivers.
+
+For example, the driver from John could simply never call 
+offline_and_remove_memory() and always require a reboot when wanting to 
+reuse a device. But that's definitely what users want.
+
+virtio-mem could simply never call offline_and_remove_memory() and 
+indicate "I don't support unplug of these online memory blocks". But 
+that's *definitely* not what users want.
+
+
+I'm very open for alternatives regarding offline_and_remove_memory(), so 
+far this was the only reasonable thing I could come up with that 
+actually achieves what we want for these users: not get stuck in there 
+forever but rather fail earlier than later.
+
+And most importantly, not somehow try to involve user space that isn't 
+even in charge of the offlining operation.
+
+-- 
+Cheers,
+
+David / dhildenb
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
