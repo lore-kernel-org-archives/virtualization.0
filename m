@@ -1,111 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DFECDEB64DC
-	for <virtualization@archiver.kernel.org>; Tue, 27 Jun 2023 07:48:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 357DFEB64D9
+	for <virtualization@archiver.kernel.org>; Tue, 27 Jun 2023 07:49:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4738B60F4E;
-	Tue, 27 Jun 2023 07:48:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4738B60F4E
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MaK30Nah
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q1JjNLcf7ejt; Tue, 27 Jun 2023 07:48:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9649160E02;
-	Tue, 27 Jun 2023 07:48:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9649160E02
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7B701C007C;
-	Tue, 27 Jun 2023 07:48:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 59EBEC0037
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 07:48:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 34E5782117
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 07:48:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 34E5782117
+	by smtp1.osuosl.org (Postfix) with ESMTP id BA78F814B3;
+	Tue, 27 Jun 2023 07:49:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BA78F814B3
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=MaK30Nah
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IXHj9lbM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PHNetj2zk1gA
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rKW4lw0QvT7c; Tue, 27 Jun 2023 07:49:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1C8E08149E;
+	Tue, 27 Jun 2023 07:49:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C8E08149E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD697C007C;
+	Tue, 27 Jun 2023 07:49:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 73993C0037
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 07:48:15 +0000 (UTC)
+ Tue, 27 Jun 2023 07:49:11 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4B58F416C9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 27 Jun 2023 07:49:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B58F416C9
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=IXHj9lbM
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id x8mE8RXcnFSX
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 27 Jun 2023 07:49:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E64CB8210A
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 80239400EF
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E64CB8210A
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 80239400EF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 07:48:14 +0000 (UTC)
+ Tue, 27 Jun 2023 07:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687852093;
+ s=mimecast20190719; t=1687852149;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=whaOhWVIaKHzUbZWclTPzFtnTVD/3jITld51dEdWQ0A=;
- b=MaK30NahsOXLpiw5LuaBIl0FvjQ3hcZBApEg0T+GxeU6Ap8qca17buBL2veYiJgVaCw1gs
- ATUU20Z6IjPcM0vhbj4cEh4+xB6/A80oJjfwgOYChlGQHVBjBKzs+n4SJhVMQ/vJ54H6fv
- cIPmLIxLfNfFGUZ6gKFeQJR38cYcci4=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QskuoK2+u8nib14YsmgjwegctAeH9ldt3GHDxrpov3o=;
+ b=IXHj9lbMHIKfCIlrIBdbVv+iN4Xv4caDG2nhK9xvhvwwCWZA1Jxh37cCgyXXTTucHzfRfT
+ Hj6Ag1mFHqbADpvnhb6v6WkxLvSnjWiYnZRyK/aIv6pT2GLlXeF8zPndyOtXNUexE3bpNp
+ Yh3Ush1oSiNcZRdjG8iCbzj6TgVUdvI=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-104-DPS8xZzYPReW0dzbKqECtA-1; Tue, 27 Jun 2023 03:48:11 -0400
-X-MC-Unique: DPS8xZzYPReW0dzbKqECtA-1
-Received: by mail-ej1-f71.google.com with SMTP id
- a640c23a62f3a-94f7a2b21fdso378411066b.2
+ us-mta-156-lMF7VBl9OB20fMzYMnDTIw-1; Tue, 27 Jun 2023 03:49:05 -0400
+X-MC-Unique: lMF7VBl9OB20fMzYMnDTIw-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ a640c23a62f3a-94a355c9028so270813966b.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jun 2023 00:48:11 -0700 (PDT)
+ Tue, 27 Jun 2023 00:49:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687852090; x=1690444090;
+ d=1e100.net; s=20221208; t=1687852144; x=1690444144;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=whaOhWVIaKHzUbZWclTPzFtnTVD/3jITld51dEdWQ0A=;
- b=Q/xeKdtajoPsSqRhrqxe162PqM0hgTcZK3u2Efb6gHzxvLm2eXQpyBGBQ0Tq9LNtPd
- Quy35QXqetC5kBgJDlb/H1hTh9RdA9r9yq6QzBMbBA9plPJ3JjxJ0VMdgJ1QZXGRJy3q
- qviiuaDT0OIsT93NEIrfo43LxqhwVcZYTuFyv0S7S823pPhAdjXRdKbWnj+q4JKYqSMm
- khYsHQFzoc3hFSKMl3XBAE/MZGTyfGk09vg7Tcrua+Hx0EoAi6TTmMaP2qxewXURwL0Y
- dBXliWxEDwzwVLiqm4hCxl6PelXM3QLTQpERAf/GgsYqWDJ2Ng5jXLmIaiY5VguGlDRW
- AaPQ==
-X-Gm-Message-State: AC+VfDwlxYhui41nxWeUKyJPcfgQTg9cu4RIMkwYWgcM3u2B4eMYRLzA
- 4H3oeCrAytFFb5wx7eR9V16vpvuXvbGubOGnhDVlu+y8aGzb9xhdgEQiiMadxOfdRIQrj9uZhhd
- hbFeI5qSb1EUHTGvTjBONqsaYCA7ItDUXu2SV6ZqI2Q==
-X-Received: by 2002:a17:906:da84:b0:988:f307:aea7 with SMTP id
- xh4-20020a170906da8400b00988f307aea7mr21595732ejb.7.1687852090424; 
- Tue, 27 Jun 2023 00:48:10 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5ob/ReyhK7BIZNcKDNmnYWuzv3zeM/wIdMcpgjlvuvypLCy8x/HUywv68r17c73ooOglaGQw==
-X-Received: by 2002:a17:906:da84:b0:988:f307:aea7 with SMTP id
- xh4-20020a170906da8400b00988f307aea7mr21595713ejb.7.1687852090093; 
- Tue, 27 Jun 2023 00:48:10 -0700 (PDT)
+ bh=QskuoK2+u8nib14YsmgjwegctAeH9ldt3GHDxrpov3o=;
+ b=cp/2r5ampvUfs1o+JgA8JhOybay0hHagRZq3I6dNJj/5scG7TpJwVo5YEWXXBUsY1J
+ hnQwO6o0DisS5+mUeSMV8B4P7UxCsGHhVp3rJXbo42nKb+/jQyvEIUwOkJtPBn+F++Nu
+ xavp+RgUI8+5PDUpbNYMAr7NTvl4HlQo7jmiGV3D2yDUIq/kRh4i2zDJu1zZ5iqPpOfW
+ 1LmikpLWKgoZrGm9EAkcae73vllusSTfbB4eKHfenr9bpFPR5X51+He77zkjjP/JusS4
+ R+TZ4leogqHtMflyEQXvkQwcMn2sMIQ62cHzvngMSk8yJFvZb4w/6slXd9FsW5nWOgjB
+ UcDg==
+X-Gm-Message-State: AC+VfDwLXwpJmaY+vgWK31LSu4wr/KNC7jwMvg4Pk128KeSWDHobxrRY
+ kINTh/Coyvk9kz00VwZYce+r0ms0vroMKcOupMvvQnRhTg1gplQ3fMjERDcWYFlG/C+XDdiNgqo
+ Ysb3HkIBs2fEtdLoyg9A/BSdonqs49iyFkqRLgWDRkA==
+X-Received: by 2002:a17:907:5c2:b0:974:55a2:cb0b with SMTP id
+ wg2-20020a17090705c200b0097455a2cb0bmr27377786ejb.55.1687852144698; 
+ Tue, 27 Jun 2023 00:49:04 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ5lPeO/qla5LYI8so4+wb692OOE9l0zoDT61iV17QvGS0n+RA4RN7JnC6UwGFHGHsZN1sj4ZQ==
+X-Received: by 2002:a17:907:5c2:b0:974:55a2:cb0b with SMTP id
+ wg2-20020a17090705c200b0097455a2cb0bmr27377778ejb.55.1687852144363; 
+ Tue, 27 Jun 2023 00:49:04 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-11-6-160.retail.telecomitalia.it.
  [87.11.6.160]) by smtp.gmail.com with ESMTPSA id
- s16-20020a170906355000b00991ba677d92sm2190941eja.84.2023.06.27.00.48.08
+ n5-20020a170906088500b0098963eb0c3dsm4208125eje.26.2023.06.27.00.49.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 27 Jun 2023 00:48:09 -0700 (PDT)
-Date: Tue, 27 Jun 2023 09:48:06 +0200
+ Tue, 27 Jun 2023 00:49:03 -0700 (PDT)
+Date: Tue, 27 Jun 2023 09:49:01 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
-Subject: Re: [RFC PATCH v1 2/4] virtio/vsock: support MSG_PEEK for
- SOCK_SEQPACKET
-Message-ID: <4pcexfrdtuisz53c4sb4pse4cyjw7zsuwtqsnnul23njo4ab5l@4jvdk6buxmj3>
-References: <20230618062451.79980-1-AVKrasnov@sberdevices.ru>
- <20230618062451.79980-3-AVKrasnov@sberdevices.ru>
- <yiy3kssoiyzs6ehnlo7g2xsb26zee5vih3jpgyc7i3dvfcyfpv@xvokxez3lzpo>
- <9553a82f-ce31-e2e0-ff62-8abd2a6b639b@sberdevices.ru>
+Subject: Re: [RFC PATCH v4 03/17] vsock/virtio: support to send non-linear skb
+Message-ID: <6g6rfqbfkmfn5or56v25xny6lyhixj6plmrnyg77hirz7dzzhn@jskeqmnbthhk>
+References: <20230603204939.1598818-1-AVKrasnov@sberdevices.ru>
+ <20230603204939.1598818-4-AVKrasnov@sberdevices.ru>
+ <3lg4apldxdrpbkgfa2o4wxe4qyayj2h7b2lfcw3q5a7u3hnofi@z2ifmmzt4xpc>
+ <0a89e51b-0f7f-b64b-c827-7c943d6f08a6@sberdevices.ru>
 MIME-Version: 1.0
-In-Reply-To: <9553a82f-ce31-e2e0-ff62-8abd2a6b639b@sberdevices.ru>
+In-Reply-To: <0a89e51b-0f7f-b64b-c827-7c943d6f08a6@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -132,102 +131,118 @@ Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jun 27, 2023 at 07:34:29AM +0300, Arseniy Krasnov wrote:
+On Tue, Jun 27, 2023 at 07:39:41AM +0300, Arseniy Krasnov wrote:
 >
 >
->On 26.06.2023 19:28, Stefano Garzarella wrote:
->> On Sun, Jun 18, 2023 at 09:24:49AM +0300, Arseniy Krasnov wrote:
->>> This adds support of MSG_PEEK flag for SOCK_SEQPACKET type of socket.
->>> Difference with SOCK_STREAM is that this callback returns either length
->>> of the message or error.
+>On 26.06.2023 18:36, Stefano Garzarella wrote:
+>> On Sat, Jun 03, 2023 at 11:49:25PM +0300, Arseniy Krasnov wrote:
+>>> For non-linear skb use its pages from fragment array as buffers in
+>>> virtio tx queue. These pages are already pinned by 'get_user_pages()'
+>>> during such skb creation.
 >>>
 >>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
 >>> ---
->>> net/vmw_vsock/virtio_transport_common.c | 63 +++++++++++++++++++++++--
->>> 1 file changed, 60 insertions(+), 3 deletions(-)
+>>> net/vmw_vsock/virtio_transport.c | 37 ++++++++++++++++++++++++++------
+>>> 1 file changed, 31 insertions(+), 6 deletions(-)
 >>>
->>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
-rtio_transport_common.c
->>> index 2ee40574c339..352d042b130b 100644
->>> --- a/net/vmw_vsock/virtio_transport_common.c
->>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>> @@ -460,6 +460,63 @@ virtio_transport_stream_do_dequeue(struct vsock_so=
-ck *vsk,
->>> =A0=A0=A0=A0return err;
->>> }
+>>> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tr=
+ansport.c
+>>> index e95df847176b..6053d8341091 100644
+>>> --- a/net/vmw_vsock/virtio_transport.c
+>>> +++ b/net/vmw_vsock/virtio_transport.c
+>>> @@ -100,7 +100,9 @@ virtio_transport_send_pkt_work(struct work_struct *=
+work)
+>>> =A0=A0=A0=A0vq =3D vsock->vqs[VSOCK_VQ_TX];
 >>>
->>> +static ssize_t
->>> +virtio_transport_seqpacket_do_peek(struct vsock_sock *vsk,
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struct msghdr *=
-msg)
->>> +{
->>> +=A0=A0=A0 struct virtio_vsock_sock *vvs =3D vsk->trans;
->>> +=A0=A0=A0 struct sk_buff *skb;
->>> +=A0=A0=A0 size_t total, len;
->>> +
->>> +=A0=A0=A0 spin_lock_bh(&vvs->rx_lock);
->>> +
->>> +=A0=A0=A0 if (!vvs->msg_count) {
->>> +=A0=A0=A0=A0=A0=A0=A0 spin_unlock_bh(&vvs->rx_lock);
->>> +=A0=A0=A0=A0=A0=A0=A0 return 0;
->>> +=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0 total =3D 0;
->>> +=A0=A0=A0 len =3D msg_data_left(msg);
->>> +
->>> +=A0=A0=A0 skb_queue_walk(&vvs->rx_queue, skb) {
->>> +=A0=A0=A0=A0=A0=A0=A0 struct virtio_vsock_hdr *hdr;
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 if (total < len) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 size_t bytes;
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 int err;
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 bytes =3D len - total;
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (bytes > skb->len)
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 bytes =3D skb->len;
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 spin_unlock_bh(&vvs->rx_lock);
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /* sk_lock is held by caller so no o=
-ne else can dequeue.
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * Unlock rx_lock since memcpy_to_=
-msg() may sleep.
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 */
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err =3D memcpy_to_msg(msg, skb->data=
-, bytes);
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (err)
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return err;
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 spin_lock_bh(&vvs->rx_lock);
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 total +=3D skb->len;
->>> +=A0=A0=A0=A0=A0=A0=A0 hdr =3D virtio_vsock_hdr(skb);
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_E=
-OM) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (le32_to_cpu(hdr->flags) & VIRTIO=
-_VSOCK_SEQ_EOR)
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 msg->msg_flags |=3D MSG_=
-EOR;
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 break;
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>> +=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0 spin_unlock_bh(&vvs->rx_lock);
->>> +
->>> +=A0=A0=A0 return total;
+>>> =A0=A0=A0=A0for (;;) {
+>>> -=A0=A0=A0=A0=A0=A0=A0 struct scatterlist hdr, buf, *sgs[2];
+>>> +=A0=A0=A0=A0=A0=A0=A0 /* +1 is for packet header. */
+>>> +=A0=A0=A0=A0=A0=A0=A0 struct scatterlist *sgs[MAX_SKB_FRAGS + 1];
+>>> +=A0=A0=A0=A0=A0=A0=A0 struct scatterlist bufs[MAX_SKB_FRAGS + 1];
+>>> =A0=A0=A0=A0=A0=A0=A0 int ret, in_sg =3D 0, out_sg =3D 0;
+>>> =A0=A0=A0=A0=A0=A0=A0 struct sk_buff *skb;
+>>> =A0=A0=A0=A0=A0=A0=A0 bool reply;
+>>> @@ -111,12 +113,35 @@ virtio_transport_send_pkt_work(struct work_struct=
+ *work)
+>>>
+>>> =A0=A0=A0=A0=A0=A0=A0 virtio_transport_deliver_tap_pkt(skb);
+>>> =A0=A0=A0=A0=A0=A0=A0 reply =3D virtio_vsock_skb_reply(skb);
+>>> +=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&bufs[0], virtio_vsock_hdr(skb), siz=
+eof(*virtio_vsock_hdr(skb)));
+>>> +=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg++] =3D &bufs[0];
 >>
->> Should we return the minimum between total and len?
+>> Can we use out_sg also to index bufs (here and in the rest of the code)?
+>>
+>> E.g.
+>>
+>> =A0=A0=A0=A0=A0=A0=A0 sg_init_one(&bufs[out_sg], ...)
+>> =A0=A0=A0=A0=A0=A0=A0 sgs[out_sg] =3D &bufs[out_sg];
+>> =A0=A0=A0=A0=A0=A0=A0 ++out_sg;
+>>
+>> =A0=A0=A0=A0=A0=A0=A0 ...
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (skb->len > 0) {
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&bufs[out_sg],=
+ skb->data, skb->len);
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg] =3D &bufs[out_=
+sg];
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ++out_sg;
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
+>>
+>> =A0=A0=A0=A0=A0=A0=A0 etc...
+>>
+>>> +
+>>
+>> For readability, I would move the smaller branch above:
+>>
+>> =A0=A0=A0=A0=A0=A0=A0 if (!skb_is_nonlinear(skb)) {
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 // small block
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ...
+>> =A0=A0=A0=A0=A0=A0=A0 } else {
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 // big block
+>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ...
+>> =A0=A0=A0=A0=A0=A0=A0 }
+>>
+>>> +=A0=A0=A0=A0=A0=A0=A0 if (skb_is_nonlinear(skb)) {
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struct skb_shared_info *si;
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 int i;
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 si =3D skb_shinfo(skb);
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 for (i =3D 0; i < si->nr_frags; i++)=
+ {
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 skb_frag_t *skb_frag =3D=
+ &si->frags[i];
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 void *va =3D page_to_vir=
+t(skb_frag->bv_page);
+>>> +
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /* We will use 'page_to_=
+virt()' for userspace page here,
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * because virtio laye=
+r will call 'virt_to_phys()' later
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * to fill buffer desc=
+riptor. We don't touch memory at
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * "virtual" address o=
+f this page.
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 */
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&bufs[i + 1],
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
+va + skb_frag->bv_offset,
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
+skb_frag->bv_len);
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg++] =3D &bufs[=
+i + 1];
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
+>>> +=A0=A0=A0=A0=A0=A0=A0 } else {
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (skb->len > 0) {
+>>
+>> Should we do the same check (skb->len > 0) for nonlinear skb as well?
+>> Or do the nonlinear ones necessarily have len > 0?
 >
->I guess no, because seqpacket dequeue callback always returns length of me=
-ssage,
->then, in af_vsock.c we return either number of bytes read or length of mes=
-sage
->depending on MSG_TRUNC flags.
+>Yes, non-linear skb always has 'data_len' > 0, e.g. such skbs always have =
+some
+>data in it.
 
-Right! We should always return the total lenght of the packet.
+Okay, makes sense ;-)
 
 Thanks,
 Stefano
@@ -236,33 +251,28 @@ Stefano
 >Thanks, Arseniy
 >
 >>
->> Thanks,
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&bufs[1], sk=
+b->data, skb->len);
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg++] =3D &bufs[=
+1];
+>>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
+>>>
+>> =A0=A0 ^
+>> Blank line that we can remove.
+>>
 >> Stefano
 >>
->>> +}
->>> +
->>> static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0 struct msghdr *msg,
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0 int flags)
->>> @@ -554,9 +611,9 @@ virtio_transport_seqpacket_dequeue(struct vsock_soc=
-k *vsk,
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 int flags)
->>> {
->>> =A0=A0=A0=A0if (flags & MSG_PEEK)
->>> -=A0=A0=A0=A0=A0=A0=A0 return -EOPNOTSUPP;
->>> -
->>> -=A0=A0=A0 return virtio_transport_seqpacket_do_dequeue(vsk, msg, flags=
-);
->>> +=A0=A0=A0=A0=A0=A0=A0 return virtio_transport_seqpacket_do_peek(vsk, m=
-sg);
->>> +=A0=A0=A0 else
->>> +=A0=A0=A0=A0=A0=A0=A0 return virtio_transport_seqpacket_do_dequeue(vsk=
-, msg, flags);
->>> }
->>> EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_dequeue);
+>>> -=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&hdr, virtio_vsock_hdr(skb), sizeof(=
+*virtio_vsock_hdr(skb)));
+>>> -=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg++] =3D &hdr;
+>>> -=A0=A0=A0=A0=A0=A0=A0 if (skb->len > 0) {
+>>> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sg_init_one(&buf, skb->data, skb->le=
+n);
+>>> -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 sgs[out_sg++] =3D &buf;
+>>> =A0=A0=A0=A0=A0=A0=A0 }
 >>>
+>>> =A0=A0=A0=A0=A0=A0=A0 ret =3D virtqueue_add_sgs(vq, sgs, out_sg, in_sg,=
+ skb, GFP_KERNEL);
 >>> --=A0
 >>> 2.25.1
 >>>
