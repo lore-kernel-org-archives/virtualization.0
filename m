@@ -1,105 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 39AEEEB64D7
-	for <virtualization@archiver.kernel.org>; Wed, 28 Jun 2023 08:13:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 161B9EB64D7
+	for <virtualization@archiver.kernel.org>; Wed, 28 Jun 2023 12:49:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BDA9460B3A;
-	Wed, 28 Jun 2023 08:13:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BDA9460B3A
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LfxrrgOG
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8AE5E403C4;
+	Wed, 28 Jun 2023 12:49:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8AE5E403C4
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=YkH3CQCp
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7_ttDk9bHAiV; Wed, 28 Jun 2023 08:13:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XeQwDPOwv6GX; Wed, 28 Jun 2023 12:49:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 68581605AF;
-	Wed, 28 Jun 2023 08:13:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 68581605AF
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1C69940223;
+	Wed, 28 Jun 2023 12:49:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C69940223
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4102AC007C;
-	Wed, 28 Jun 2023 08:13:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 743B6C0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E365BC007C;
+	Wed, 28 Jun 2023 12:49:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 57F61C0037
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jun 2023 08:13:31 +0000 (UTC)
+ Wed, 28 Jun 2023 12:49:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 410E9605E3
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1AA984094D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jun 2023 08:13:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 410E9605E3
+ Wed, 28 Jun 2023 12:49:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1AA984094D
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
+ header.a=rsa-sha256 header.s=google header.b=YkH3CQCp
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1oDFr-qgMPEy
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nDPAytQS1lVc
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jun 2023 08:13:30 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5F4BA605AF
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5F4BA605AF
+ Wed, 28 Jun 2023 12:49:34 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BCDB40145
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com
+ [IPv6:2607:f8b0:4864:20::72c])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2BCDB40145
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jun 2023 08:13:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1687940008;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=2B1ynmbT0UkVLiBLPkihB9uufQdZmbcV3Hls/wgSG4U=;
- b=LfxrrgOGscLRrWlh3vQaMxCGEOvURc+tDZJLPxfZ4FM6O9MpBxmO5xoq+PFERJl7WgB53A
- rq6cbxw4U6M2W54//opOKNZv7efZDB81CtawfURRf0/0I1/bJgXMaV48Obi4mo+6Y79vSl
- Zbl/cH+4kfBXPh8Hxl7CQN/BJ014Azg=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-70-jRC9XKNtNx21dHrfE8feDQ-1; Wed, 28 Jun 2023 04:13:27 -0400
-X-MC-Unique: jRC9XKNtNx21dHrfE8feDQ-1
-Received: by mail-lf1-f69.google.com with SMTP id
- 2adb3069b0e04-4fb913e8cddso375393e87.0
+ Wed, 28 Jun 2023 12:49:33 +0000 (UTC)
+Received: by mail-qk1-x72c.google.com with SMTP id
+ af79cd13be357-7659dc74da1so315215685a.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jun 2023 01:13:27 -0700 (PDT)
+ Wed, 28 Jun 2023 05:49:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ziepe.ca; s=google; t=1687956573; x=1690548573;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=jfOsXJab4slJjnxwoDTS70GHD4a6XTLVcr8PMnR6dnU=;
+ b=YkH3CQCpfgI7DsqXU/4gxSJnl/4Dx066SB/wOKx9jGovBXVNkQBpWrEiGpN14LRKGU
+ XJdhd7gGhYYd2s8IlI5dlCV4sELnIWiL8LaNznLp/7rtjVBvIvDWkFfBP1BlP3guCvuS
+ p8nBvCP6GX0qCxnAroaDo6uG9CstSg8xDAbARHcTTQu+CzYNQXPJD5dYMIcRagx5/XGl
+ p1L2WSGYR1JaI8+wmV+sB41Ur9L9jeH54uCsAXjrgdC1cEzSTeAtajjtMHM6lUKraVEi
+ FVicyhQPFGsP0rGMpltdkb2EwsYwRVpqjUG9sFmBfxBClAxh1Rq3zrKsK68ysEZeRw33
+ tEoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1687940006; x=1690532006;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=2B1ynmbT0UkVLiBLPkihB9uufQdZmbcV3Hls/wgSG4U=;
- b=ZFikqA4rS7S/bhW/4bJIo2sgQ/vsiZAVKtbWZcyUbvWjEFzsMfblWr/0xteBDQeLns
- yOV7FP1vGZnp/QtkTXr5Tt78fSVnZUiyvfjrkOsgwa4YE3dqATgtKZAbfjLIiISDDGPO
- +BEwmqv5VuU1ZNj/0iQByoIEsC3qXM551Kwh4b+syySZI1Cm82DKaeiWhB0a6FRkYlwj
- 1PEmy73dJry0krIIlPgiCdw+9L0eQXOV/hj3i4ZUx3Cpvicvzdwy7yih5BekQwjztpdU
- J6RM96/yRWqqJfqK7DXU+lVP8BJFIrR2Dyd2sMTrsWYIUYtcMPCvr3fQEa+qJzNYLR25
- ciWQ==
-X-Gm-Message-State: AC+VfDwIF87my5pzk7bZOBsgmDhGjai8kgSxGySagd8jOwZbIQOxGhpe
- V7fKs1HklKKYzSbK3HhtxCut1efrizWfDlIifHgSh6a9L8nsLEEbP7E+Uem+wMrbNAax8havA7c
- F+U91Pn9R4lvNfTWL4hXvtQ8lCoX9m1+j8vXXvVXQaOLOcxsNRswPP8/FGg==
-X-Received: by 2002:a2e:9943:0:b0:2b6:9909:79b6 with SMTP id
- r3-20020a2e9943000000b002b6990979b6mr6308004ljj.40.1687940006183; 
- Wed, 28 Jun 2023 01:13:26 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ5hUOUptmy1cz/bmc0SQBwJ16zCTf1sq+b8bGF74Opubi8l0hmlcMZJAcxolSBWuUoW13vUTOVfJelNLYP6OGc=
-X-Received: by 2002:a2e:9943:0:b0:2b6:9909:79b6 with SMTP id
- r3-20020a2e9943000000b002b6990979b6mr6307993ljj.40.1687940005910; Wed, 28 Jun
- 2023 01:13:25 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1687956573; x=1690548573;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=jfOsXJab4slJjnxwoDTS70GHD4a6XTLVcr8PMnR6dnU=;
+ b=jjJ+FNVGwVwYjv2yXTMK2/UtWRqiErRb2WSsWV2UErvO9Edqus1H4hERnmAnPCNf/A
+ iYUrm3KUphcBrUT73/AT8o4ytGFBOq8b/8mzXrWFeI7Rmm/XImKoIm4cGF5N65CNqJy9
+ AZHk/muasZXozvchpttGbYw0rzdlGdvqJulfKuG5d2ifcc/U7hFqv+QJVU+fNVN76CWX
+ w2gSOZKJgJUZVPcjmeEmsIKQEmPjfuc5LCpeO4DbhHCeEE8nAS2RrH0JCUXl0MawuTuY
+ SfDckt4YpvidhNJ8MUE4FJzsF+bRp02l4vXs/9YI//GA5BmvFoL79X1diUi4reKtsyKq
+ 3eUg==
+X-Gm-Message-State: AC+VfDydULBQF0izLzay5tPxBlJ5cLRWUObY5l6VpyT5PCVUXtKkqB2R
+ W2woak6lcdezYeECA9/89ZsY2Q==
+X-Google-Smtp-Source: ACHHUZ5VTYEuYZ18Yx3pf3BTkEN/W0B1f5+DHaQ0fxgwOjq0lP8R3ZMqT/sYgn+dLBdwLJd9PlzH/w==
+X-Received: by 2002:a05:6214:f08:b0:623:6b1a:c5f1 with SMTP id
+ gw8-20020a0562140f0800b006236b1ac5f1mr44056481qvb.4.1687956572852; 
+ Wed, 28 Jun 2023 05:49:32 -0700 (PDT)
+Received: from ziepe.ca
+ (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net.
+ [142.68.25.194]) by smtp.gmail.com with ESMTPSA id
+ d19-20020a05620a141300b007653a7977e6sm5003782qkj.97.2023.06.28.05.49.31
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 28 Jun 2023 05:49:32 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+ (envelope-from <jgg@ziepe.ca>) id 1qEUbz-009DhQ-F5;
+ Wed, 28 Jun 2023 09:49:31 -0300
+Date: Wed, 28 Jun 2023 09:49:31 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Baolu Lu <baolu.lu@linux.intel.com>
+Subject: Re: [RFC PATCHES 00/17] IOMMUFD: Deliver IO page faults to user space
+Message-ID: <ZJwsW3eFy0bMhkOt@ziepe.ca>
+References: <20230530053724.232765-1-baolu.lu@linux.intel.com>
+ <ZHZFi28jRxeZMKK3@Asurada-Nvidia>
+ <a8ccbac8-c456-d116-24a2-7503ccbb720c@linux.intel.com>
+ <ZJnZ7bEIZHsqmyAG@ziepe.ca>
+ <26b97776-7ce5-51f6-77b7-0ce837aa7cca@linux.intel.com>
 MIME-Version: 1.0
-References: <20230628065919.54042-1-lulu@redhat.com>
- <20230628065919.54042-5-lulu@redhat.com>
-In-Reply-To: <20230628065919.54042-5-lulu@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 28 Jun 2023 16:13:14 +0800
-Message-ID: <CACGkMEtN7pE4FK2-504JC3A1tcfPjy9QejJiTyvXD7nt49KLvA@mail.gmail.com>
-Subject: Re: [RFC 4/4] vduse: update the vq_info in ioctl
-To: Cindy Lu <lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- xieyongji@bytedance.com, maxime.coquelin@redhat.com
+Content-Disposition: inline
+In-Reply-To: <26b97776-7ce5-51f6-77b7-0ce837aa7cca@linux.intel.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Yi Liu <yi.l.liu@intel.com>, Robin Murphy <robin.murphy@arm.com>,
+ Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
+ linux-kselftest@vger.kernel.org, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,46 +120,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKdW4gMjgsIDIwMjMgYXQgMzowMOKAr1BNIENpbmR5IEx1IDxsdWx1QHJlZGhhdC5j
-b20+IHdyb3RlOgo+Cj4gRnJvbTogWW91ciBOYW1lIDx5b3VAZXhhbXBsZS5jb20+Cj4KPiBpbiBW
-RFVTRV9WUV9HRVRfSU5GTywgZHJpdmVyIHdpbGwgc3luYyB0aGUgbGFzdF9hdmFpbF9pZHgKPiB3
-aXRoIHJlY29ubmVjdCBpbmZvLCBJIGhhdmUgb2xueSB0ZXN0IHRoZSBzcGxpdCBtb2RlLCBzbwoK
-VHlwbywgc2hvdWxkIGJlICJvbmx5Ii4KCj4gb25seSB1c2UgdGhpcyBoZXJlLCB3aWxsIGFkZCBt
-b3JlIGluZm9ybWF0aW9uIGxhdGVyCj4KPiBTaWduZWQtb2ZmLWJ5OiBDaW5keSBMdSA8bHVsdUBy
-ZWRoYXQuY29tPgo+IC0tLQo+ICBkcml2ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jIHwg
-MTYgKysrKysrKysrKysrKysrKwo+ICAxIGZpbGUgY2hhbmdlZCwgMTYgaW5zZXJ0aW9ucygrKQo+
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMgYi9kcml2
-ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jCj4gaW5kZXggM2RmMTI1NmVjY2I0Li5iOGU0
-NTNlYWMwY2UgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL3ZkcGFfdXNlci92ZHVzZV9kZXYu
-Ywo+ICsrKyBiL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMKPiBAQCAtMTQxLDYg
-KzE0MSwxMSBAQCBzdGF0aWMgdTMyIGFsbG93ZWRfZGV2aWNlX2lkW10gPSB7Cj4gICAgICAgICBW
-SVJUSU9fSURfTkVULAo+ICB9Owo+Cj4gK3N0cnVjdCB2aG9zdF9yZWNvbm5lY3RfdnJpbmcgewo+
-ICsgICAgICAgdWludDE2X3QgbGFzdF9hdmFpbF9pZHg7Cj4gKyAgICAgICBib29sIGF2YWlsX3dy
-YXBfY291bnRlcjsKPiArfTsKClNob3VsZCB0aGlzIGJlbG9uZyB0byB1QVBJPwoKPiArCj4gIHN0
-YXRpYyBpbmxpbmUgc3RydWN0IHZkdXNlX2RldiAqdmRwYV90b192ZHVzZShzdHJ1Y3QgdmRwYV9k
-ZXZpY2UgKnZkcGEpCj4gIHsKPiAgICAgICAgIHN0cnVjdCB2ZHVzZV92ZHBhICp2ZGV2ID0gY29u
-dGFpbmVyX29mKHZkcGEsIHN0cnVjdCB2ZHVzZV92ZHBhLCB2ZHBhKTsKPiBAQCAtMTE3Niw2ICsx
-MTgxLDE3IEBAIHN0YXRpYyBsb25nIHZkdXNlX2Rldl9pb2N0bChzdHJ1Y3QgZmlsZSAqZmlsZSwg
-dW5zaWduZWQgaW50IGNtZCwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZxLT5z
-dGF0ZS5zcGxpdC5hdmFpbF9pbmRleDsKPgo+ICAgICAgICAgICAgICAgICB2cV9pbmZvLnJlYWR5
-ID0gdnEtPnJlYWR5Owo+ICsgICAgICAgICAgICAgICBzdHJ1Y3QgdmRwYV9yZWNvbm5lY3RfaW5m
-byAqYXJlYTsKPiArCj4gKyAgICAgICAgICAgICAgIGFyZWEgPSAmZGV2LT5yZWNvbm5lY3RfaW5m
-b1tpbmRleF07Cj4gKyAgICAgICAgICAgICAgIHN0cnVjdCB2aG9zdF9yZWNvbm5lY3RfdnJpbmcg
-KmxvZ19yZWNvbm5lY3Q7Cj4gKwo+ICsgICAgICAgICAgICAgICBsb2dfcmVjb25uZWN0ID0gKHN0
-cnVjdCB2aG9zdF9yZWNvbm5lY3RfdnJpbmcgKilhcmVhLT52YWRkcjsKCldoYXQgaWYgdXNlcnNw
-YWNlIGRvZXNuJ3QgZG8gbW1hcCgpPwoKVGhhbmtzCgo+ICsgICAgICAgICAgICAgICBpZiAobG9n
-X3JlY29ubmVjdC0+bGFzdF9hdmFpbF9pZHggIT0KPiArICAgICAgICAgICAgICAgICAgIHZxX2lu
-Zm8uc3BsaXQuYXZhaWxfaW5kZXgpIHsKPiArICAgICAgICAgICAgICAgICAgICAgICB2cV9pbmZv
-LnNwbGl0LmF2YWlsX2luZGV4ID0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGxv
-Z19yZWNvbm5lY3QtPmxhc3RfYXZhaWxfaWR4Owo+ICsgICAgICAgICAgICAgICB9Cj4KPiAgICAg
-ICAgICAgICAgICAgcmV0ID0gLUVGQVVMVDsKPiAgICAgICAgICAgICAgICAgaWYgKGNvcHlfdG9f
-dXNlcihhcmdwLCAmdnFfaW5mbywgc2l6ZW9mKHZxX2luZm8pKSkKPiAtLQo+IDIuMzQuMwo+Cgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+On Wed, Jun 28, 2023 at 10:00:56AM +0800, Baolu Lu wrote:
+> > If the driver created a SVA domain then the op should point to some
+> > generic 'handle sva fault' function. There shouldn't be weird SVA
+> > stuff in the core code.
+> > 
+> > The weird SVA stuff is really just a generic per-device workqueue
+> > dispatcher, so if we think that is valuable then it should be
+> > integrated into the iommu_domain (domain->ops->use_iopf_workqueue =
+> > true for instance). Then it could route the fault through the
+> > workqueue and still invoke domain->ops->iopf_handler.
+> > 
+> > The word "SVA" should not appear in any of this.
+> 
+> Yes. We should make it generic. The domain->use_iopf_workqueue flag
+> denotes that the page faults of a fault group should be put together and
+> then be handled and responded in a workqueue. Otherwise, the page fault
+> is dispatched to domain->iopf_handler directly.
+
+It might be better to have iopf_handler and
+iopf_handler_work function pointers to distinguish to two cases.
+
+> > Not sure what iommu_register_device_fault_handler() has to do with all
+> > of this.. Setting up the dev_iommu stuff to allow for the workqueue
+> > should happen dynamically during domain attach, ideally in the core
+> > code before calling to the driver.
+> 
+> There are two pointers under struct dev_iommu for fault handling.
+> 
+> /**
+>  * struct dev_iommu - Collection of per-device IOMMU data
+>  *
+>  * @fault_param: IOMMU detected device fault reporting data
+>  * @iopf_param:  I/O Page Fault queue and data
+> 
+> [...]
+> 
+> struct dev_iommu {
+>         struct mutex lock;
+>         struct iommu_fault_param        *fault_param;
+>         struct iopf_device_param        *iopf_param;
+> 
+> My understanding is that @fault_param is a place holder for generic
+> things, while @iopf_param is workqueue specific.
+
+Well, lets look
+
+struct iommu_fault_param {
+	iommu_dev_fault_handler_t handler;
+	void *data;
+
+These two make no sense now. handler is always iommu_queue_iopf. Given
+our domain centric design we want the function pointer in the domain,
+not in the device. So delete it.
+
+	struct list_head faults;
+	struct mutex lock;
+
+Queue of unhandled/unacked faults? Seems sort of reasonable
+
+> @iopf_param could be allocated on demand. (perhaps renaming it to a more
+> meaningful one?) It happens before a domain with use_iopf_workqueue flag
+> set attaches to a device. iopf_param keeps alive until device_release.
+
+Yes
+
+Do this for the iommu_fault_param as well, in fact, probably just put
+the two things together in one allocation and allocate if we attach a
+PRI using domain. I don't think we need to micro optimze further..
+ 
+Jason
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
