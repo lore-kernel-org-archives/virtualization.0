@@ -4,126 +4,80 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74CEEC0015E
-	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 00:36:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF37AEB64D9
+	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 02:37:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1EE8341E9E;
-	Fri, 30 Jun 2023 00:36:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1EE8341E9E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37E4941EB0;
+	Fri, 30 Jun 2023 02:37:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37E4941EB0
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=3WV0ZJoW
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=UDWTvT4O
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CVNMncf8_Fxd; Fri, 30 Jun 2023 00:36:55 +0000 (UTC)
+	with ESMTP id kF-a2h2C5q3v; Fri, 30 Jun 2023 02:37:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5091D41E40;
-	Fri, 30 Jun 2023 00:36:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5091D41E40
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 25FCA41E97;
+	Fri, 30 Jun 2023 02:37:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 25FCA41E97
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C189C0072;
-	Fri, 30 Jun 2023 00:36:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 112B3C0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DD695C0072;
+	Fri, 30 Jun 2023 02:37:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9094EC0037
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:53 +0000 (UTC)
+ Fri, 30 Jun 2023 02:37:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DEA154060E
+ by smtp1.osuosl.org (Postfix) with ESMTP id 570658328E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEA154060E
-Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=3WV0ZJoW
+ Fri, 30 Jun 2023 02:37:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 570658328E
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=UDWTvT4O
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kILn1dJVEYRD
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UYQHnWZu0QEq
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:52 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EA6A2405ED
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on20601.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eae::601])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EA6A2405ED
+ Fri, 30 Jun 2023 02:37:02 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EEE4482293
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id EEE4482293
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:51 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=nOKwovmS0+xD6x8XhSZPE8ZfDbY1xYI/lIU05Sx7aQG95lPSq4nS0DOb2yf7mxkGzD7AT0VohV0cMzbZPVWcfvJJK5XsT1TLZha2VMEUuqEOOEsDIycOxWhsswGNVkMmeANVOg3Yr0DBpi9+zXC3imGjg5NLErRlH88f8629h2+rvpWMQyBbGejyMvME5OAUGO6ufDgqPTHmpaGCR1w6QymhHjOPIYrZ5hOaynhzUeZD31mSJxHnyPBBxPqzhqt9WPvfv4y0/MJ9DBlGWYu1jJUPGxI1u8GxROnLO0f4BSlRJ1rAyUhYvLF9KzT/NeK1tHcp679cerm98hSU8aj2sg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J1T/q9YLCa0OJtcBUtJudBMIdx/2qVqHul7jew9IK3I=;
- b=DpnlzO6Tw+M4Qpj4QbdaXFVEWRQRixnMrmQR1/m15bz0fKA3qNrRIbfAFyk50Sus7Cl8bn7lk85GDt4aTPNVKwrguE3pqtyHtnSjvMHX1BYybl+fbYPjdGK+d4cCR81lOVDqKfgIoQb5EhzUplAj+yMju/eBDIK6WU1C8Ug4sEqPriPERlTLgpfpII91yYcSBL752M1zY2p5ZMPo+XwZ3tfwRliNgtF4gekG1UypbEbeVD2UBa9Du94gq6bq4ia3eW999Zbn8yjEgbJ2ZUAsWBZfR8x2fDUPgOJkQJI8Ka/OELnr0j6OXAlw2YJ8UltJk35fggDxYiHFpTHxhrolSA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J1T/q9YLCa0OJtcBUtJudBMIdx/2qVqHul7jew9IK3I=;
- b=3WV0ZJoW/Co5pkKKPYY2Xo/J3y2gocHtTzYD0+LvCGUglpCfevSQZbcffPxBuKMMJEdq5vNegfDLLuoQZG5xgVn5jJazBCPERZyIDrZtLLAaO6EEry7Q+6TKb40JJgqdEciChJ1d5Xu9u8i8J92rC0XsN14SHUA3WJAUCq6IiTQ=
-Received: from MW4PR03CA0265.namprd03.prod.outlook.com (2603:10b6:303:b4::30)
- by MW6PR12MB8834.namprd12.prod.outlook.com (2603:10b6:303:23c::21)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Fri, 30 Jun
- 2023 00:36:42 +0000
-Received: from CO1NAM11FT040.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:b4:cafe::86) by MW4PR03CA0265.outlook.office365.com
- (2603:10b6:303:b4::30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6544.22 via Frontend
- Transport; Fri, 30 Jun 2023 00:36:42 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CO1NAM11FT040.mail.protection.outlook.com (10.13.174.140) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6521.33 via Frontend Transport; Fri, 30 Jun 2023 00:36:42 +0000
-Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.23; Thu, 29 Jun
- 2023 19:36:40 -0500
-To: <jasowang@redhat.com>, <mst@redhat.com>,
- <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
- <brett.creeley@amd.com>, <netdev@vger.kernel.org>
-Subject: [PATCH virtio 3/4] pds_vdpa: clean and reset vqs entries
-Date: Thu, 29 Jun 2023 17:36:08 -0700
-Message-ID: <20230630003609.28527-4-shannon.nelson@amd.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230630003609.28527-1-shannon.nelson@amd.com>
-References: <20230630003609.28527-1-shannon.nelson@amd.com>
+ Fri, 30 Jun 2023 02:37:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1688092621; x=1719628621;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=zWpCqTgzd21E/AzUYtJScGd5IATiUO7gwCoJyMaK1LA=;
+ b=UDWTvT4OzAzeAy9SASN+6olU73D0cb9sPk/cBCFQ+ObbkWsZhC3kMIwF
+ /JD+9hsrK5zrF5yk+sCq18wAURxZ0DXFOqotdka4EBuXmCNqdvqTWJAfX
+ h4rlwy5coDgl9IZbUQbKOy6LhCuz4uNRlUWkrFF8+Fd54PJSPEK8W0VKN
+ 0oF4IA0R5/p6jan4lXXIEPC5PGb+NUe091ZBPC9RXawGKkifJTpS2QpsQ
+ +lwMRahVE0dF+klwLec8F1JQTW9QRK3rUGV+wV4IhsrHzV3nM2qjWhZVD
+ XtkvQ/hyEYRuS5KyO+MA5x478IRSwLxFC+Bh6Q6+t1o/mVc9ggMIf53w4 A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10756"; a="365776704"
+X-IronPort-AV: E=Sophos;i="6.01,169,1684825200"; d="scan'208";a="365776704"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+ by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 29 Jun 2023 19:37:01 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10756"; a="964215956"
+X-IronPort-AV: E=Sophos;i="6.01,169,1684825200"; d="scan'208";a="964215956"
+Received: from lingshan-icx.bj.intel.com ([10.240.192.125])
+ by fmsmga006.fm.intel.com with ESMTP; 29 Jun 2023 19:36:59 -0700
+From: Zhu Lingshan <lingshan.zhu@intel.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH] vp_vdpa: synchronize irq when free irq
+Date: Fri, 30 Jun 2023 18:36:56 +0800
+Message-Id: <20230630103656.345870-1-lingshan.zhu@intel.com>
+X-Mailer: git-send-email 2.39.3
 MIME-Version: 1.0
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT040:EE_|MW6PR12MB8834:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7c10d7ba-11ea-4fe9-746f-08db79021399
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: i7GluMEOWoLhkYda+vh+TuUkKY8huYALYOyIdXt7U6hSUlNtnsF+RUL3tzM//1Rm+I9ZfHrjT6+nWVRIaJ2fa3vTSNaFs/s6630JKfEgTa9WXwiKwPBtG810fioRhviNuqF5WLXgnPgwbO253o1dBRba9s0yuJNZej5RkVwKc+nEWQp9umU3x56tlS/XS4sk8VsCwLH84U6W7GJAv6cOHWH+/TjlcEAWHhz+qZv3bux22Z+cb4w4e8KP/2rI80VV/zmHimU1n4vAi8geOqLKAS8Pd1Gww5rSRd1EeNqoi5dT44KrrQzgXCj2QnFc4D82/p+vABcaeS+pQmM6RJZrYYpmJHfMxa31E0VqbH9hSjzj4VMFyRj4kTTC0EQL2D5Jt4ktX39Hm4GylDcqTLQNvMM+g2AFB69phBI34XuazpUl95rFKDez+L+3qvwfYCbapsabeCfQM+tqK/Mg7XSVNW3sYJ4fLf8ZYYQrMWvjaj8Rs3IV6XBu2PRMymSCClapiiOd+iV2mADF3AtHcx0czkxSftAWpmtb24dY4C4SnVAiHK4clFvNlEgdToRNbkcMDTu3f0XNwed3Ws8UFh8golhfl9OLDyf0eTGEOjXBTved8sTYnB+RXDmp+/R2jb2MFc9vCXlFm3bkYsKUW50LP0VlLZ9MzVJ6JKgGpyVHpSwPlJN3Z/JIoDJ3yqyDGc4jdCsR+AS0dsCERZkpeb5c9Nahd7JXXMcDqcvva8PgVcOeH19DLktcGkgy+mQadY6dXUzrt3oJsFc3h3/VsvIo0g==
-X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(346002)(376002)(136003)(396003)(39860400002)(451199021)(40470700004)(46966006)(36840700001)(16526019)(82310400005)(4326008)(36860700001)(47076005)(478600001)(336012)(6666004)(110136005)(83380400001)(26005)(356005)(186003)(1076003)(426003)(2906002)(2616005)(44832011)(70206006)(36756003)(82740400003)(81166007)(40480700001)(8676002)(70586007)(5660300002)(86362001)(8936002)(40460700003)(41300700001)(316002)(36900700001);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2023 00:36:42.7214 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c10d7ba-11ea-4fe9-746f-08db79021399
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
- Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT040.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8834
-Cc: drivers@pensando.io
+Cc: Cindy Lu <lulu@redhat.com>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -135,75 +89,41 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Shannon Nelson via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Shannon Nelson <shannon.nelson@amd.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Make sure that we initialize the vqs[] entries the same
-way both for initial setup and after a vq reset.
+This commits synchronizes irqs when free them
 
-Fixes: 151cc834f3dd ("pds_vdpa: add support for vdpa and vdpamgmt interfaces")
-Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
-Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+Tested-by: Cindy Lu <lulu@redhat.com>
 ---
- drivers/vdpa/pds/vdpa_dev.c | 24 +++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 5e761d625ef3..5e1046c9af3d 100644
---- a/drivers/vdpa/pds/vdpa_dev.c
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -429,6 +429,18 @@ static void pds_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index 281287fae89f..d8ee3e68cd2d 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -116,6 +116,7 @@ static void vp_vdpa_free_irq(struct vp_vdpa *vp_vdpa)
+ 	for (i = 0; i < vp_vdpa->queues; i++) {
+ 		if (vp_vdpa->vring[i].irq != VIRTIO_MSI_NO_VECTOR) {
+ 			vp_modern_queue_vector(mdev, i, VIRTIO_MSI_NO_VECTOR);
++			synchronize_irq(vp_vdpa->vring[i].irq);
+ 			devm_free_irq(&pdev->dev, vp_vdpa->vring[i].irq,
+ 				      &vp_vdpa->vring[i]);
+ 			vp_vdpa->vring[i].irq = VIRTIO_MSI_NO_VECTOR;
+@@ -124,6 +125,7 @@ static void vp_vdpa_free_irq(struct vp_vdpa *vp_vdpa)
+ 
+ 	if (vp_vdpa->config_irq != VIRTIO_MSI_NO_VECTOR) {
+ 		vp_modern_config_vector(mdev, VIRTIO_MSI_NO_VECTOR);
++		synchronize_irq(vp_vdpa->config_irq);
+ 		devm_free_irq(&pdev->dev, vp_vdpa->config_irq, vp_vdpa);
+ 		vp_vdpa->config_irq = VIRTIO_MSI_NO_VECTOR;
  	}
- }
- 
-+static void pds_vdpa_init_vqs_entry(struct pds_vdpa_device *pdsv, int qid)
-+{
-+	memset(&pdsv->vqs[qid], 0, sizeof(pdsv->vqs[0]));
-+	pdsv->vqs[qid].qid = qid;
-+	pdsv->vqs[qid].pdsv = pdsv;
-+	pdsv->vqs[qid].ready = false;
-+	pdsv->vqs[qid].irq = VIRTIO_MSI_NO_VECTOR;
-+	pdsv->vqs[qid].notify =
-+		vp_modern_map_vq_notify(&pdsv->vdpa_aux->vd_mdev,
-+					qid, &pdsv->vqs[qid].notify_pa);
-+}
-+
- static int pds_vdpa_reset(struct vdpa_device *vdpa_dev)
- {
- 	struct pds_vdpa_device *pdsv = vdpa_to_pdsv(vdpa_dev);
-@@ -451,8 +463,7 @@ static int pds_vdpa_reset(struct vdpa_device *vdpa_dev)
- 				dev_err(dev, "%s: reset_vq failed qid %d: %pe\n",
- 					__func__, i, ERR_PTR(err));
- 			pds_vdpa_release_irq(pdsv, i);
--			memset(&pdsv->vqs[i], 0, sizeof(pdsv->vqs[0]));
--			pdsv->vqs[i].ready = false;
-+			pds_vdpa_init_vqs_entry(pdsv, i);
- 		}
- 	}
- 
-@@ -640,13 +651,8 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
- 	}
- 	pds_vdpa_cmd_set_mac(pdsv, pdsv->mac);
- 
--	for (i = 0; i < pdsv->num_vqs; i++) {
--		pdsv->vqs[i].qid = i;
--		pdsv->vqs[i].pdsv = pdsv;
--		pdsv->vqs[i].irq = VIRTIO_MSI_NO_VECTOR;
--		pdsv->vqs[i].notify = vp_modern_map_vq_notify(&pdsv->vdpa_aux->vd_mdev,
--							      i, &pdsv->vqs[i].notify_pa);
--	}
-+	for (i = 0; i < pdsv->num_vqs; i++)
-+		pds_vdpa_init_vqs_entry(pdsv, i);
- 
- 	pdsv->vdpa_dev.mdev = &vdpa_aux->vdpa_mdev;
- 
 -- 
-2.17.1
+2.39.3
 
 _______________________________________________
 Virtualization mailing list
