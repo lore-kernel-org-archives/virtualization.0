@@ -1,103 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8914EB64D7
-	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 08:02:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91B99EB64D7
+	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 08:35:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 39B0B83518;
-	Fri, 30 Jun 2023 08:02:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39B0B83518
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WlMm6Tv5
+	by smtp2.osuosl.org (Postfix) with ESMTP id 02E08418F9;
+	Fri, 30 Jun 2023 08:35:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 02E08418F9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CHXIjeKV
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AnqJwDuyvhDm; Fri, 30 Jun 2023 08:02:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C1B4681FE0;
-	Fri, 30 Jun 2023 08:02:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1B4681FE0
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GVopF71NIWu3; Fri, 30 Jun 2023 08:35:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8A60240131;
+	Fri, 30 Jun 2023 08:35:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A60240131
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 86024C0072;
-	Fri, 30 Jun 2023 08:02:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04DB0C0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6320AC0072;
+	Fri, 30 Jun 2023 08:35:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFDB9C0037
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 08:02:38 +0000 (UTC)
+ Fri, 30 Jun 2023 08:35:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D390F81FEB
+ by smtp2.osuosl.org (Postfix) with ESMTP id 865C340154
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 08:02:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D390F81FEB
+ Fri, 30 Jun 2023 08:35:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 865C340154
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YTPCpWpBI6yZ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lG9bG1xvjKDv
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 08:02:37 +0000 (UTC)
+ Fri, 30 Jun 2023 08:35:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05AD281FE0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D8D4F40131
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 05AD281FE0
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D8D4F40131
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 08:02:36 +0000 (UTC)
+ Fri, 30 Jun 2023 08:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1688112156;
+ s=mimecast20190719; t=1688114113;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=bEA6Seiw1hdOM5JV2jPU02HAiyKo01nOt8ftgnD9214=;
- b=WlMm6Tv54qAqoCzA20CkO9vMJvt/2rPoRfRTUV2bFoxnBhk+8xhjh3e9v/fJYSoOl5ABH1
- wWRyIl8jfvzPKHNiXxETduLqQi9JD5Aj8iL3PzRuJOA4sCycbpQc/tq6EJpPKJXAJnEAHH
- LbBC5nfsOVP5WzK/ERzDmdBi2gtFgek=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=TnaOhNvtxh50U8yZd9VkBSSsjMY9dRb44ZcwWbWlcRU=;
+ b=CHXIjeKVmCEfW4Neik9fKpMUDMEOWEQWsUc5lKymGGF67J4JONawJtk+yZ1sg/YqJz9/J6
+ 8cI2xIVR3v/h5awWHFBxI4RUsKdhwbgMCJg/2/kaPQBUwAWJdPel66GCWYkG0UdNGQNXFn
+ OHK5vSmPdnQ3XHVwsnYupzYweTfQ9Z4=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-543-bpnO8Q7OO7mD479CUikApQ-1; Fri, 30 Jun 2023 04:02:34 -0400
-X-MC-Unique: bpnO8Q7OO7mD479CUikApQ-1
-Received: by mail-lj1-f198.google.com with SMTP id
- 38308e7fff4ca-2b6a47b59a5so17875681fa.3
+ us-mta-595-u32Q5vspNR-o-8asBl8SAw-1; Fri, 30 Jun 2023 04:34:13 -0400
+X-MC-Unique: u32Q5vspNR-o-8asBl8SAw-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 5b1f17b1804b1-3f81dda24d3so23458685e9.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 01:02:34 -0700 (PDT)
+ Fri, 30 Jun 2023 01:34:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1688112153; x=1690704153;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=bEA6Seiw1hdOM5JV2jPU02HAiyKo01nOt8ftgnD9214=;
- b=X618Nphy6mCnm5zQvzFarRU/1KEc3iuMWyStBwJ7YSSwGBQfqx0g9b9C2AqH142AQK
- hDbIGe2ZjyLf7gIEBOSXr8/qI5vEzn9t+R5mR31pgzMDQkA/C9yHZ7RBsOYbjP6mir25
- gWQN91wZr8oYHxfgQVqqeg2agUIMAMul2RbWST6lwbtLvJKxZXd+i6ZE+5kuT60kgbLO
- cNxKl71Z+HIWc3VOoc6KXeyVcs+fBmxMPff8W5vSrmFNij6g68BdriPdcRzOSCVQg7Zt
- ad/kfXAYtExpvxkPKkjN8WdceFQZe2sXEpGJVFNE5IKmtUsKc66C2JlPhF4FXvgr1KRS
- +GbA==
-X-Gm-Message-State: ABy/qLb1xIkOcQSgFWih21nKukhJr6Z7D8kPUmAECb+CTjUaEQjkq0PM
- JEf0Jc+cNtILPfOEA8yRnhqrNtb0LJYB9qpXPqq5bO1m7JEqpSW7C233yEvHlmgDajYuH79QU72
- S6MIM5364aCMmRPSN7u+UOLqFU0qpYvMbtdcWn5KHZMgWbqTqvxWGBZfYQg==
-X-Received: by 2002:a05:651c:231:b0:2b6:a057:8098 with SMTP id
- z17-20020a05651c023100b002b6a0578098mr1412890ljn.0.1688112153253; 
- Fri, 30 Jun 2023 01:02:33 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlGT88TJiZhJn/Ljx5RignUVdcoRW+uHj3ue4RBlYJq3byAtgh10LXjZ4dDeZ3YRMGakAbklUjbtNEXgZ8WcaXA=
-X-Received: by 2002:a05:651c:231:b0:2b6:a057:8098 with SMTP id
- z17-20020a05651c023100b002b6a0578098mr1412876ljn.0.1688112152978; Fri, 30 Jun
- 2023 01:02:32 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230630103656.345870-1-lingshan.zhu@intel.com>
-In-Reply-To: <20230630103656.345870-1-lingshan.zhu@intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 30 Jun 2023 16:02:22 +0800
-Message-ID: <CACGkMEteNC5vKe5QUyhPaiBAoEKHzyMKc2W5MpzbzeVWBe0qWQ@mail.gmail.com>
-Subject: Re: [PATCH] vp_vdpa: synchronize irq when free irq
+ d=1e100.net; s=20221208; t=1688114052; x=1690706052;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=TnaOhNvtxh50U8yZd9VkBSSsjMY9dRb44ZcwWbWlcRU=;
+ b=gUggC794yqrm/1pE605SUUtDEavgk499LsQvaINUeTy2KK2th8u6s8kEOLSnaNYDwX
+ mM/jGiBWmGZYjBdh60oiLtcNd9U+IJCfnIDgRA3+8awxV+4wXNn+K3wLH+0c/F+fdjpx
+ 93Zo9xCSNEMajTue0qJnvIAFSbh65sxCiDeEO+lPVSjPVm+x5hpck8KLiStbgIST+hGY
+ /yYBZWiQn9yqdxvs9yUCIM5fipM/reiIPntYsO9zueCw9R74V/2r/QQLKnsrvYteGiWJ
+ mWDSfuuJ3xP66l7WaTL1jVfefTt8Tk9jOKa737R85bNBoIYmfBozKdaRLYoOh/R9k7To
+ yDYw==
+X-Gm-Message-State: AC+VfDxBBbp9obrBHzOw4wxh6ur6fq4I5iFrza7w7fkUGjV16sJWS0n5
+ ht2gh8Vt8goY/PACZEasAK+vobTf43m35nOhqroIq7GQ40yY7iMwGlr2JyU1Ko7bq3iyoNYODtY
+ kBTiLzSuH15R3wzzX87mmqIfePAolkIMJYEIAMuWtkw==
+X-Received: by 2002:a7b:cd8e:0:b0:3fa:8aed:d57f with SMTP id
+ y14-20020a7bcd8e000000b003fa8aedd57fmr1714741wmj.24.1688114052467; 
+ Fri, 30 Jun 2023 01:34:12 -0700 (PDT)
+X-Google-Smtp-Source: ACHHUZ6rjC7KQu1QwHKrASacJdWaPZDMD1SUADNxMqW8XVs6LwTiOUh89h6kOAfgnx8Ur5YqXjLOnA==
+X-Received: by 2002:a7b:cd8e:0:b0:3fa:8aed:d57f with SMTP id
+ y14-20020a7bcd8e000000b003fa8aedd57fmr1714725wmj.24.1688114052172; 
+ Fri, 30 Jun 2023 01:34:12 -0700 (PDT)
+Received: from redhat.com ([2.52.154.169]) by smtp.gmail.com with ESMTPSA id
+ a20-20020a05600c225400b003fbb06af219sm6631296wmm.32.2023.06.30.01.34.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 30 Jun 2023 01:34:11 -0700 (PDT)
+Date: Fri, 30 Jun 2023 04:34:05 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Zhu Lingshan <lingshan.zhu@intel.com>
+Subject: Re: [PATCH] vp_vdpa: synchronize irq when free irq
+Message-ID: <20230630043342-mutt-send-email-mst@kernel.org>
+References: <20230630103656.345870-1-lingshan.zhu@intel.com>
+MIME-Version: 1.0
+In-Reply-To: <20230630103656.345870-1-lingshan.zhu@intel.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: virtualization@lists.linux-foundation.org, Cindy Lu <lulu@redhat.com>,
- mst@redhat.com
+Content-Disposition: inline
+Cc: Cindy Lu <lulu@redhat.com>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,41 +112,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKdW4gMzAsIDIwMjMgYXQgMTA6MzfigK9BTSBaaHUgTGluZ3NoYW4gPGxpbmdzaGFu
-LnpodUBpbnRlbC5jb20+IHdyb3RlOgo+Cj4gVGhpcyBjb21taXRzIHN5bmNocm9uaXplcyBpcnFz
-IHdoZW4gZnJlZSB0aGVtCgpOZWVkIHRvIGV4cGxhaW4gd2h5IGl0IGlzIG5lZWRlZC4KCj4KPiBT
-aWduZWQtb2ZmLWJ5OiBaaHUgTGluZ3NoYW4gPGxpbmdzaGFuLnpodUBpbnRlbC5jb20+Cj4gVGVz
-dGVkLWJ5OiBDaW5keSBMdSA8bHVsdUByZWRoYXQuY29tPgo+IC0tLQo+ICBkcml2ZXJzL3ZkcGEv
-dmlydGlvX3BjaS92cF92ZHBhLmMgfCAyICsrCj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlv
-bnMoKykKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMg
-Yi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMKPiBpbmRleCAyODEyODdmYWU4OWYu
-LmQ4ZWUzZTY4Y2QyZCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92
-ZHBhLmMKPiArKysgYi9kcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS92cF92ZHBhLmMKPiBAQCAtMTE2
-LDYgKzExNiw3IEBAIHN0YXRpYyB2b2lkIHZwX3ZkcGFfZnJlZV9pcnEoc3RydWN0IHZwX3ZkcGEg
-KnZwX3ZkcGEpCj4gICAgICAgICBmb3IgKGkgPSAwOyBpIDwgdnBfdmRwYS0+cXVldWVzOyBpKysp
-IHsKPiAgICAgICAgICAgICAgICAgaWYgKHZwX3ZkcGEtPnZyaW5nW2ldLmlycSAhPSBWSVJUSU9f
-TVNJX05PX1ZFQ1RPUikgewo+ICAgICAgICAgICAgICAgICAgICAgICAgIHZwX21vZGVybl9xdWV1
-ZV92ZWN0b3IobWRldiwgaSwgVklSVElPX01TSV9OT19WRUNUT1IpOwo+ICsgICAgICAgICAgICAg
-ICAgICAgICAgIHN5bmNocm9uaXplX2lycSh2cF92ZHBhLT52cmluZ1tpXS5pcnEpOwoKSW50ZXJl
-c3RpbmdseSwgd2UgZG9uJ3QgZG8gdGhpcyBpbiB2aXJ0aW9fcGNpX2NvbW1vbi5jIGFuZCB3ZSBv
-bmx5CnN5bmNocm9uaXplIGR1cmluZyByZXNldCB0aGVyZS4KCkFueSByZWFzb24gbWFrZXMgdnBf
-dmRwYSBkaWZmZXJlbnQ/CgpUaGFua3MKCj4gICAgICAgICAgICAgICAgICAgICAgICAgZGV2bV9m
-cmVlX2lycSgmcGRldi0+ZGV2LCB2cF92ZHBhLT52cmluZ1tpXS5pcnEsCj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAmdnBfdmRwYS0+dnJpbmdbaV0pOwo+ICAgICAgICAg
-ICAgICAgICAgICAgICAgIHZwX3ZkcGEtPnZyaW5nW2ldLmlycSA9IFZJUlRJT19NU0lfTk9fVkVD
-VE9SOwo+IEBAIC0xMjQsNiArMTI1LDcgQEAgc3RhdGljIHZvaWQgdnBfdmRwYV9mcmVlX2lycShz
-dHJ1Y3QgdnBfdmRwYSAqdnBfdmRwYSkKPgo+ICAgICAgICAgaWYgKHZwX3ZkcGEtPmNvbmZpZ19p
-cnEgIT0gVklSVElPX01TSV9OT19WRUNUT1IpIHsKPiAgICAgICAgICAgICAgICAgdnBfbW9kZXJu
-X2NvbmZpZ192ZWN0b3IobWRldiwgVklSVElPX01TSV9OT19WRUNUT1IpOwo+ICsgICAgICAgICAg
-ICAgICBzeW5jaHJvbml6ZV9pcnEodnBfdmRwYS0+Y29uZmlnX2lycSk7Cj4gICAgICAgICAgICAg
-ICAgIGRldm1fZnJlZV9pcnEoJnBkZXYtPmRldiwgdnBfdmRwYS0+Y29uZmlnX2lycSwgdnBfdmRw
-YSk7Cj4gICAgICAgICAgICAgICAgIHZwX3ZkcGEtPmNvbmZpZ19pcnEgPSBWSVJUSU9fTVNJX05P
-X1ZFQ1RPUjsKPiAgICAgICAgIH0KPiAtLQo+IDIuMzkuMwo+CgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Jun 30, 2023 at 06:36:56PM +0800, Zhu Lingshan wrote:
+> This commits synchronizes irqs when free them
+> 
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Tested-by: Cindy Lu <lulu@redhat.com>
+> ---
+>  drivers/vdpa/virtio_pci/vp_vdpa.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> index 281287fae89f..d8ee3e68cd2d 100644
+> --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
+> +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+> @@ -116,6 +116,7 @@ static void vp_vdpa_free_irq(struct vp_vdpa *vp_vdpa)
+>  	for (i = 0; i < vp_vdpa->queues; i++) {
+>  		if (vp_vdpa->vring[i].irq != VIRTIO_MSI_NO_VECTOR) {
+>  			vp_modern_queue_vector(mdev, i, VIRTIO_MSI_NO_VECTOR);
+> +			synchronize_irq(vp_vdpa->vring[i].irq);
+>  			devm_free_irq(&pdev->dev, vp_vdpa->vring[i].irq,
+>  				      &vp_vdpa->vring[i]);
+>  			vp_vdpa->vring[i].irq = VIRTIO_MSI_NO_VECTOR;
+> @@ -124,6 +125,7 @@ static void vp_vdpa_free_irq(struct vp_vdpa *vp_vdpa)
+>  
+>  	if (vp_vdpa->config_irq != VIRTIO_MSI_NO_VECTOR) {
+>  		vp_modern_config_vector(mdev, VIRTIO_MSI_NO_VECTOR);
+> +		synchronize_irq(vp_vdpa->config_irq);
+>  		devm_free_irq(&pdev->dev, vp_vdpa->config_irq, vp_vdpa);
+>  		vp_vdpa->config_irq = VIRTIO_MSI_NO_VECTOR;
+
+
+Weird, doesn't free_irq synchronize automatically?
+
+>  	}
+> -- 
+> 2.39.3
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
