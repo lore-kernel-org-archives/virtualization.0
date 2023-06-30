@@ -4,76 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C832FEB64DD
-	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 00:36:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 74CEEC0015E
+	for <virtualization@archiver.kernel.org>; Fri, 30 Jun 2023 00:36:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2889D41E62;
-	Fri, 30 Jun 2023 00:36:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2889D41E62
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1EE8341E9E;
+	Fri, 30 Jun 2023 00:36:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1EE8341E9E
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=5csq5/3E
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=3WV0ZJoW
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9_d6BHcFyePV; Fri, 30 Jun 2023 00:36:52 +0000 (UTC)
+	with ESMTP id CVNMncf8_Fxd; Fri, 30 Jun 2023 00:36:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3E08441E40;
-	Fri, 30 Jun 2023 00:36:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3E08441E40
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5091D41E40;
+	Fri, 30 Jun 2023 00:36:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5091D41E40
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EA38AC0DD8;
-	Fri, 30 Jun 2023 00:36:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15D53C0037
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C189C0072;
+	Fri, 30 Jun 2023 00:36:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 112B3C0037
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:49 +0000 (UTC)
+ Fri, 30 Jun 2023 00:36:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C1CC183367
+ by smtp2.osuosl.org (Postfix) with ESMTP id DEA154060E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C1CC183367
-Authentication-Results: smtp1.osuosl.org; dkim=pass (1024-bit key,
+ Fri, 30 Jun 2023 00:36:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DEA154060E
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
  unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=5csq5/3E
+ header.s=selector1 header.b=3WV0ZJoW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kkwjELmyx7yc
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kILn1dJVEYRD
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:47 +0000 (UTC)
+ Fri, 30 Jun 2023 00:36:52 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB76483330
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on20620.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eab::620])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AB76483330
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EA6A2405ED
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam11on20601.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eae::601])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EA6A2405ED
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jun 2023 00:36:47 +0000 (UTC)
+ Fri, 30 Jun 2023 00:36:51 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=SNGZyONClVY67CI6aiXaCaGGGSCJU9sdcfad+kVc0GqopRigp42/zXgjGC+W+qTbQ7tS+LyS0vCwm/f0mjhv16MFpk3cLCluUtZuiyen4ug12WU1WgDfNk2llXRrsixhy+3yi6ZkGinkJJ00g+ivavyq1IQI2m4dnhVfHor2RBGHxMfGbSexwMn7F7c98Ro0V6S5gJ07U7OhdQs62NgqW2dEHjGG+eMUbZzYxv9itUZWRd1EzCcxloltAKGVSB+ZsnxGGNCF3MARWnZ2Wn5WIJMQtXWZMsRFJkheFY9G5BsPORQUz27H69Y7zjwmDN9GQQnklXIq2fV3rI139Gk3sQ==
+ b=nOKwovmS0+xD6x8XhSZPE8ZfDbY1xYI/lIU05Sx7aQG95lPSq4nS0DOb2yf7mxkGzD7AT0VohV0cMzbZPVWcfvJJK5XsT1TLZha2VMEUuqEOOEsDIycOxWhsswGNVkMmeANVOg3Yr0DBpi9+zXC3imGjg5NLErRlH88f8629h2+rvpWMQyBbGejyMvME5OAUGO6ufDgqPTHmpaGCR1w6QymhHjOPIYrZ5hOaynhzUeZD31mSJxHnyPBBxPqzhqt9WPvfv4y0/MJ9DBlGWYu1jJUPGxI1u8GxROnLO0f4BSlRJ1rAyUhYvLF9KzT/NeK1tHcp679cerm98hSU8aj2sg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=kLekv9iUTh4QHuNZdGx32XzBN7KDA7YlrtIEG02xfmE=;
- b=KgLxXJZDcRYWKi4XTnnoJ9sgrkKmE+wXqRcI9GeFaF7GrgaNPoHS9YWOXacT41Z/cq2u+ZnTjxv9c2O7Coki/RxgvByBvk5SLjs2PjDuVOOmr/dA0N14UC/LO+GfpR5U4y3sUHztOXJwFHLLNkDhCTzaD1z7dxezHcn8JMFFSAZPVs+UKgZZawyA0Dy3uFkEAdG9SphT7LOEwt7ZcaYEkFBsRLBoh4fw4DR+WJ4Of5U383nSiILQ38Zhsm2nTBgfUm3ln5aWaNiTYK4KP5vlXGD6WhkHbuDEcmpAA1zEmN3Zh5R6czayBclqvOUK3/5msRCqkvWgQVvCwMVozAIxMg==
+ bh=J1T/q9YLCa0OJtcBUtJudBMIdx/2qVqHul7jew9IK3I=;
+ b=DpnlzO6Tw+M4Qpj4QbdaXFVEWRQRixnMrmQR1/m15bz0fKA3qNrRIbfAFyk50Sus7Cl8bn7lk85GDt4aTPNVKwrguE3pqtyHtnSjvMHX1BYybl+fbYPjdGK+d4cCR81lOVDqKfgIoQb5EhzUplAj+yMju/eBDIK6WU1C8Ug4sEqPriPERlTLgpfpII91yYcSBL752M1zY2p5ZMPo+XwZ3tfwRliNgtF4gekG1UypbEbeVD2UBa9Du94gq6bq4ia3eW999Zbn8yjEgbJ2ZUAsWBZfR8x2fDUPgOJkQJI8Ka/OELnr0j6OXAlw2YJ8UltJk35fggDxYiHFpTHxhrolSA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=kLekv9iUTh4QHuNZdGx32XzBN7KDA7YlrtIEG02xfmE=;
- b=5csq5/3EYqPFyY94oVs3qRfE/gbDwydnA80FwoGcwVuNpFtA7znlT5+PkJrjJ0TWsXLtJpJFPO1G44cN2Czlh1+looJEa3kK9a1EoMwItS1jupLd5ATk4MNqNjOOUGhFaeFaLiP9Yn3Ll1Q80GTSSeaylDeY9oIctRKSLcrX07M=
-Received: from MW4PR03CA0252.namprd03.prod.outlook.com (2603:10b6:303:b4::17)
- by CH0PR12MB5043.namprd12.prod.outlook.com (2603:10b6:610:e2::20)
+ bh=J1T/q9YLCa0OJtcBUtJudBMIdx/2qVqHul7jew9IK3I=;
+ b=3WV0ZJoW/Co5pkKKPYY2Xo/J3y2gocHtTzYD0+LvCGUglpCfevSQZbcffPxBuKMMJEdq5vNegfDLLuoQZG5xgVn5jJazBCPERZyIDrZtLLAaO6EEry7Q+6TKb40JJgqdEciChJ1d5Xu9u8i8J92rC0XsN14SHUA3WJAUCq6IiTQ=
+Received: from MW4PR03CA0265.namprd03.prod.outlook.com (2603:10b6:303:b4::30)
+ by MW6PR12MB8834.namprd12.prod.outlook.com (2603:10b6:303:23c::21)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6521.24; Fri, 30 Jun
- 2023 00:36:44 +0000
+ 2023 00:36:42 +0000
 Received: from CO1NAM11FT040.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:b4:cafe::8c) by MW4PR03CA0252.outlook.office365.com
- (2603:10b6:303:b4::17) with Microsoft SMTP Server (version=TLS1_2,
+ (2603:10b6:303:b4:cafe::86) by MW4PR03CA0265.outlook.office365.com
+ (2603:10b6:303:b4::30) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6544.22 via Frontend
- Transport; Fri, 30 Jun 2023 00:36:43 +0000
+ Transport; Fri, 30 Jun 2023 00:36:42 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -83,17 +83,17 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  CO1NAM11FT040.mail.protection.outlook.com (10.13.174.140) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6521.33 via Frontend Transport; Fri, 30 Jun 2023 00:36:43 +0000
+ 15.20.6521.33 via Frontend Transport; Fri, 30 Jun 2023 00:36:42 +0000
 Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.23; Thu, 29 Jun
- 2023 19:36:41 -0500
+ 2023 19:36:40 -0500
 To: <jasowang@redhat.com>, <mst@redhat.com>,
  <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
  <brett.creeley@amd.com>, <netdev@vger.kernel.org>
-Subject: [PATCH virtio 4/4] pds_vdpa: alloc irq vectors on DRIVER_OK
-Date: Thu, 29 Jun 2023 17:36:09 -0700
-Message-ID: <20230630003609.28527-5-shannon.nelson@amd.com>
+Subject: [PATCH virtio 3/4] pds_vdpa: clean and reset vqs entries
+Date: Thu, 29 Jun 2023 17:36:08 -0700
+Message-ID: <20230630003609.28527-4-shannon.nelson@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20230630003609.28527-1-shannon.nelson@amd.com>
 References: <20230630003609.28527-1-shannon.nelson@amd.com>
@@ -103,27 +103,27 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1NAM11FT040:EE_|CH0PR12MB5043:EE_
-X-MS-Office365-Filtering-Correlation-Id: 96dd5afb-b53d-4fd6-d2dd-08db790213d9
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT040:EE_|MW6PR12MB8834:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7c10d7ba-11ea-4fe9-746f-08db79021399
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: SeYNblKLLZL7QYPJvpG72gk/rb4fugMNrDYXTah6W7GDwfLF3LbLZEJrgaAMU5E7+nMOCrdun3XJMZvxQscW9HLZhoSJ6OZ4flRr1A00uPkFR3Q4s6UgLCmRA77WwVKRg7n0Ib6KfO36nDHn6S6Qt4a6cQHiTQifkjkcIeWbubfavDZxpnXvCLnNi7Sj4hB0BPMIfgAEfhP6JPaj8us9GYuh3oMnQjfab2tJtKpmLsv2O/7tcS+TH6CkkOIAPhP3Ev0k45/4F58g9+qvLQrY9M6l+q9sqYeYzd4rSYdmy69m9/cQRR81F5utrYZrQUbmU+HwO9GnKAFZ8gEGeCALYZuaMUlzdAmra2rFfxIzdFm3fz/+ABuCMvVkK3p7Tt1Ah4hKTadCCYYWR1QSQCZwyxV0dm/naoxDfSLf25ZpTdOTq8mYpashG8WlUT4l2fNJw/DjE9nZSzD9obbL+OwhNpTVzrg+6LCMGuWMKvnCFlXLfjOH6rhngB3FwfonRWchXQxrsWQyFRbz0bbeGY3p6Scef6g27kOtH2rRBWa1JtPOgUQftluEURNtm5mlLMnQdTYmDzyvY91Bmh7rk7msS+MSKDfOVRPh9Di1LCNedHqq9I2HT9R6krq10rxHWkG8PcYANzIrjD56dv9B04NG/scMSONptvxFHQtXOj4aHl7fMTSCUrG9nd/tHWfHM/PQaMjHV6FNyy2Y2PQ8AmwVpdj5scl98ROX3apftYXdZcrXXWpFiclVXo9eDHTUpfoOCSG78T+S8yTd3d79NfCx6A==
+X-Microsoft-Antispam-Message-Info: i7GluMEOWoLhkYda+vh+TuUkKY8huYALYOyIdXt7U6hSUlNtnsF+RUL3tzM//1Rm+I9ZfHrjT6+nWVRIaJ2fa3vTSNaFs/s6630JKfEgTa9WXwiKwPBtG810fioRhviNuqF5WLXgnPgwbO253o1dBRba9s0yuJNZej5RkVwKc+nEWQp9umU3x56tlS/XS4sk8VsCwLH84U6W7GJAv6cOHWH+/TjlcEAWHhz+qZv3bux22Z+cb4w4e8KP/2rI80VV/zmHimU1n4vAi8geOqLKAS8Pd1Gww5rSRd1EeNqoi5dT44KrrQzgXCj2QnFc4D82/p+vABcaeS+pQmM6RJZrYYpmJHfMxa31E0VqbH9hSjzj4VMFyRj4kTTC0EQL2D5Jt4ktX39Hm4GylDcqTLQNvMM+g2AFB69phBI34XuazpUl95rFKDez+L+3qvwfYCbapsabeCfQM+tqK/Mg7XSVNW3sYJ4fLf8ZYYQrMWvjaj8Rs3IV6XBu2PRMymSCClapiiOd+iV2mADF3AtHcx0czkxSftAWpmtb24dY4C4SnVAiHK4clFvNlEgdToRNbkcMDTu3f0XNwed3Ws8UFh8golhfl9OLDyf0eTGEOjXBTved8sTYnB+RXDmp+/R2jb2MFc9vCXlFm3bkYsKUW50LP0VlLZ9MzVJ6JKgGpyVHpSwPlJN3Z/JIoDJ3yqyDGc4jdCsR+AS0dsCERZkpeb5c9Nahd7JXXMcDqcvva8PgVcOeH19DLktcGkgy+mQadY6dXUzrt3oJsFc3h3/VsvIo0g==
 X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
- SFS:(13230028)(4636009)(396003)(376002)(346002)(136003)(39860400002)(451199021)(36840700001)(46966006)(40470700004)(8676002)(316002)(70206006)(8936002)(70586007)(186003)(426003)(41300700001)(16526019)(336012)(4326008)(1076003)(26005)(6666004)(2616005)(54906003)(110136005)(40460700003)(82310400005)(44832011)(5660300002)(2906002)(40480700001)(81166007)(478600001)(356005)(36756003)(86362001)(36860700001)(82740400003)(83380400001)(47076005)(36900700001);
+ SFS:(13230028)(4636009)(346002)(376002)(136003)(396003)(39860400002)(451199021)(40470700004)(46966006)(36840700001)(16526019)(82310400005)(4326008)(36860700001)(47076005)(478600001)(336012)(6666004)(110136005)(83380400001)(26005)(356005)(186003)(1076003)(426003)(2906002)(2616005)(44832011)(70206006)(36756003)(82740400003)(81166007)(40480700001)(8676002)(70586007)(5660300002)(86362001)(8936002)(40460700003)(41300700001)(316002)(36900700001);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2023 00:36:43.1432 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96dd5afb-b53d-4fd6-d2dd-08db790213d9
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Jun 2023 00:36:42.7214 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7c10d7ba-11ea-4fe9-746f-08db79021399
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
  Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT040.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5043
-Cc: Allen Hubbe <allen.hubbe@amd.com>, drivers@pensando.io
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8834
+Cc: drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -143,216 +143,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Allen Hubbe <allen.hubbe@amd.com>
-
-We were allocating irq vectors at the time the aux dev was probed,
-but that is before the PCI VF is assigned to a separate iommu domain
-by vhost_vdpa.  Because vhost_vdpa later changes the iommu domain the
-interrupts do not work.
-
-Instead, we can allocate the irq vectors later when we see DRIVER_OK and
-know that the reassignment of the PCI VF to an iommu domain has already
-happened.
+Make sure that we initialize the vqs[] entries the same
+way both for initial setup and after a vq reset.
 
 Fixes: 151cc834f3dd ("pds_vdpa: add support for vdpa and vdpamgmt interfaces")
-Signed-off-by: Allen Hubbe <allen.hubbe@amd.com>
 Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
 Reviewed-by: Brett Creeley <brett.creeley@amd.com>
 ---
- drivers/vdpa/pds/vdpa_dev.c | 110 ++++++++++++++++++++++++++----------
- 1 file changed, 81 insertions(+), 29 deletions(-)
+ drivers/vdpa/pds/vdpa_dev.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 5e1046c9af3d..6c337f7a0f06 100644
+index 5e761d625ef3..5e1046c9af3d 100644
 --- a/drivers/vdpa/pds/vdpa_dev.c
 +++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -126,11 +126,9 @@ static void pds_vdpa_release_irq(struct pds_vdpa_device *pdsv, int qid)
- static void pds_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16 qid, bool ready)
- {
- 	struct pds_vdpa_device *pdsv = vdpa_to_pdsv(vdpa_dev);
--	struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
- 	struct device *dev = &pdsv->vdpa_dev.dev;
- 	u64 driver_features;
- 	u16 invert_idx = 0;
--	int irq;
- 	int err;
- 
- 	dev_dbg(dev, "%s: qid %d ready %d => %d\n",
-@@ -143,19 +141,6 @@ static void pds_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16 qid, bool re
- 		invert_idx = PDS_VDPA_PACKED_INVERT_IDX;
- 
- 	if (ready) {
--		irq = pci_irq_vector(pdev, qid);
--		snprintf(pdsv->vqs[qid].irq_name, sizeof(pdsv->vqs[qid].irq_name),
--			 "vdpa-%s-%d", dev_name(dev), qid);
--
--		err = request_irq(irq, pds_vdpa_isr, 0,
--				  pdsv->vqs[qid].irq_name, &pdsv->vqs[qid]);
--		if (err) {
--			dev_err(dev, "%s: no irq for qid %d: %pe\n",
--				__func__, qid, ERR_PTR(err));
--			return;
--		}
--		pdsv->vqs[qid].irq = irq;
--
- 		/* Pass vq setup info to DSC using adminq to gather up and
- 		 * send all info at once so FW can do its full set up in
- 		 * one easy operation
-@@ -164,7 +149,6 @@ static void pds_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16 qid, bool re
- 		if (err) {
- 			dev_err(dev, "Failed to init vq %d: %pe\n",
- 				qid, ERR_PTR(err));
--			pds_vdpa_release_irq(pdsv, qid);
- 			ready = false;
- 		}
- 	} else {
-@@ -172,7 +156,6 @@ static void pds_vdpa_set_vq_ready(struct vdpa_device *vdpa_dev, u16 qid, bool re
- 		if (err)
- 			dev_err(dev, "%s: reset_vq failed qid %d: %pe\n",
- 				__func__, qid, ERR_PTR(err));
--		pds_vdpa_release_irq(pdsv, qid);
+@@ -429,6 +429,18 @@ static void pds_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
  	}
- 
- 	pdsv->vqs[qid].ready = ready;
-@@ -396,6 +379,72 @@ static u8 pds_vdpa_get_status(struct vdpa_device *vdpa_dev)
- 	return vp_modern_get_status(&pdsv->vdpa_aux->vd_mdev);
  }
  
-+static int pds_vdpa_request_irqs(struct pds_vdpa_device *pdsv)
++static void pds_vdpa_init_vqs_entry(struct pds_vdpa_device *pdsv, int qid)
 +{
-+	struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
-+	struct pds_vdpa_aux *vdpa_aux = pdsv->vdpa_aux;
-+	struct device *dev = &pdsv->vdpa_dev.dev;
-+	int max_vq, nintrs, qid, err;
-+
-+	max_vq = vdpa_aux->vdpa_mdev.max_supported_vqs;
-+
-+	nintrs = pci_alloc_irq_vectors(pdev, max_vq, max_vq, PCI_IRQ_MSIX);
-+	if (nintrs < 0) {
-+		dev_err(dev, "Couldn't get %d msix vectors: %pe\n",
-+			max_vq, ERR_PTR(nintrs));
-+		return nintrs;
-+	}
-+
-+	for (qid = 0; qid < pdsv->num_vqs; ++qid) {
-+		int irq = pci_irq_vector(pdev, qid);
-+
-+		snprintf(pdsv->vqs[qid].irq_name, sizeof(pdsv->vqs[qid].irq_name),
-+			 "vdpa-%s-%d", dev_name(dev), qid);
-+
-+		err = request_irq(irq, pds_vdpa_isr, 0,
-+				  pdsv->vqs[qid].irq_name,
-+				  &pdsv->vqs[qid]);
-+		if (err) {
-+			dev_err(dev, "%s: no irq for qid %d: %pe\n",
-+				__func__, qid, ERR_PTR(err));
-+			goto err_release;
-+		}
-+
-+		pdsv->vqs[qid].irq = irq;
-+	}
-+
-+	vdpa_aux->nintrs = nintrs;
-+
-+	return 0;
-+
-+err_release:
-+	while (qid--)
-+		pds_vdpa_release_irq(pdsv, qid);
-+
-+	pci_free_irq_vectors(pdev);
-+
-+	vdpa_aux->nintrs = 0;
-+
-+	return err;
++	memset(&pdsv->vqs[qid], 0, sizeof(pdsv->vqs[0]));
++	pdsv->vqs[qid].qid = qid;
++	pdsv->vqs[qid].pdsv = pdsv;
++	pdsv->vqs[qid].ready = false;
++	pdsv->vqs[qid].irq = VIRTIO_MSI_NO_VECTOR;
++	pdsv->vqs[qid].notify =
++		vp_modern_map_vq_notify(&pdsv->vdpa_aux->vd_mdev,
++					qid, &pdsv->vqs[qid].notify_pa);
 +}
 +
-+static void pds_vdpa_release_irqs(struct pds_vdpa_device *pdsv)
-+{
-+	struct pci_dev *pdev = pdsv->vdpa_aux->padev->vf_pdev;
-+	struct pds_vdpa_aux *vdpa_aux = pdsv->vdpa_aux;
-+	int qid;
-+
-+	if (!vdpa_aux->nintrs)
-+		return;
-+
-+	for (qid = 0; qid < pdsv->num_vqs; qid++)
-+		pds_vdpa_release_irq(pdsv, qid);
-+
-+	pci_free_irq_vectors(pdev);
-+
-+	vdpa_aux->nintrs = 0;
-+}
-+
- static void pds_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+ static int pds_vdpa_reset(struct vdpa_device *vdpa_dev)
  {
  	struct pds_vdpa_device *pdsv = vdpa_to_pdsv(vdpa_dev);
-@@ -406,6 +455,11 @@ static void pds_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
- 	old_status = pds_vdpa_get_status(vdpa_dev);
- 	dev_dbg(dev, "%s: old %#x new %#x\n", __func__, old_status, status);
- 
-+	if (status & ~old_status & VIRTIO_CONFIG_S_DRIVER_OK) {
-+		if (pds_vdpa_request_irqs(pdsv))
-+			status = old_status | VIRTIO_CONFIG_S_FAILED;
-+	}
-+
- 	pds_vdpa_cmd_set_status(pdsv, status);
- 
- 	/* Note: still working with FW on the need for this reset cmd */
-@@ -427,6 +481,9 @@ static void pds_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
- 							i, &pdsv->vqs[i].notify_pa);
- 		}
- 	}
-+
-+	if (old_status & ~status & VIRTIO_CONFIG_S_DRIVER_OK)
-+		pds_vdpa_release_irqs(pdsv);
- }
- 
- static void pds_vdpa_init_vqs_entry(struct pds_vdpa_device *pdsv, int qid)
-@@ -462,13 +519,17 @@ static int pds_vdpa_reset(struct vdpa_device *vdpa_dev)
- 			if (err)
+@@ -451,8 +463,7 @@ static int pds_vdpa_reset(struct vdpa_device *vdpa_dev)
  				dev_err(dev, "%s: reset_vq failed qid %d: %pe\n",
  					__func__, i, ERR_PTR(err));
--			pds_vdpa_release_irq(pdsv, i);
--			pds_vdpa_init_vqs_entry(pdsv, i);
+ 			pds_vdpa_release_irq(pdsv, i);
+-			memset(&pdsv->vqs[i], 0, sizeof(pdsv->vqs[0]));
+-			pdsv->vqs[i].ready = false;
++			pds_vdpa_init_vqs_entry(pdsv, i);
  		}
  	}
  
- 	pds_vdpa_set_status(vdpa_dev, 0);
+@@ -640,13 +651,8 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	}
+ 	pds_vdpa_cmd_set_mac(pdsv, pdsv->mac);
  
-+	if (status & VIRTIO_CONFIG_S_DRIVER_OK) {
-+		/* Reset the vq info */
-+		for (i = 0; i < pdsv->num_vqs && !err; i++)
-+			pds_vdpa_init_vqs_entry(pdsv, i);
-+	}
-+
- 	return 0;
- }
- 
-@@ -761,7 +822,7 @@ int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux)
- 
- 	max_vqs = min_t(u16, dev_intrs, max_vqs);
- 	mgmt->max_supported_vqs = min_t(u16, PDS_VDPA_MAX_QUEUES, max_vqs);
--	vdpa_aux->nintrs = mgmt->max_supported_vqs;
-+	vdpa_aux->nintrs = 0;
- 
- 	mgmt->ops = &pds_vdpa_mgmt_dev_ops;
- 	mgmt->id_table = pds_vdpa_id_table;
-@@ -775,14 +836,5 @@ int pds_vdpa_get_mgmt_info(struct pds_vdpa_aux *vdpa_aux)
- 	mgmt->config_attr_mask |= BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP);
- 	mgmt->config_attr_mask |= BIT_ULL(VDPA_ATTR_DEV_FEATURES);
- 
--	err = pci_alloc_irq_vectors(pdev, vdpa_aux->nintrs, vdpa_aux->nintrs,
--				    PCI_IRQ_MSIX);
--	if (err < 0) {
--		dev_err(dev, "Couldn't get %d msix vectors: %pe\n",
--			vdpa_aux->nintrs, ERR_PTR(err));
--		return err;
+-	for (i = 0; i < pdsv->num_vqs; i++) {
+-		pdsv->vqs[i].qid = i;
+-		pdsv->vqs[i].pdsv = pdsv;
+-		pdsv->vqs[i].irq = VIRTIO_MSI_NO_VECTOR;
+-		pdsv->vqs[i].notify = vp_modern_map_vq_notify(&pdsv->vdpa_aux->vd_mdev,
+-							      i, &pdsv->vqs[i].notify_pa);
 -	}
--	vdpa_aux->nintrs = err;
--
- 	return 0;
- }
++	for (i = 0; i < pdsv->num_vqs; i++)
++		pds_vdpa_init_vqs_entry(pdsv, i);
+ 
+ 	pdsv->vdpa_dev.mdev = &vdpa_aux->vdpa_mdev;
+ 
 -- 
 2.17.1
 
