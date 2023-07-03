@@ -4,107 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1884FEB64DD
-	for <virtualization@archiver.kernel.org>; Mon,  3 Jul 2023 16:33:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A166C001B0
+	for <virtualization@archiver.kernel.org>; Mon,  3 Jul 2023 19:24:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 918B582072;
-	Mon,  3 Jul 2023 16:33:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 918B582072
+	by smtp1.osuosl.org (Postfix) with ESMTP id DC79A819B4;
+	Mon,  3 Jul 2023 19:24:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DC79A819B4
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ccnhnC+u
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gootzen.net header.i=@gootzen.net header.a=rsa-sha256 header.s=aw2020113001 header.b=evOm1OT2
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wzCoc56m1wTs; Mon,  3 Jul 2023 16:33:11 +0000 (UTC)
+	with ESMTP id qwT3eCNN19Iu; Mon,  3 Jul 2023 19:24:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A1CF782064;
-	Mon,  3 Jul 2023 16:33:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A1CF782064
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2214481882;
+	Mon,  3 Jul 2023 19:24:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2214481882
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 78D0CC0072;
-	Mon,  3 Jul 2023 16:33:10 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E8FDCC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DAE4BC0071;
+	Mon,  3 Jul 2023 19:24:49 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6D42FC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Jul 2023 16:33:08 +0000 (UTC)
+ Mon,  3 Jul 2023 19:24:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id ACFAD40286
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3A7D840420
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Jul 2023 16:33:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ACFAD40286
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ccnhnC+u
+ Mon,  3 Jul 2023 19:24:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3A7D840420
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gootzen.net header.i=@gootzen.net
+ header.a=rsa-sha256 header.s=aw2020113001 header.b=evOm1OT2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Zj6Q9bx_eFpn
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0w7OtZ_U1YEG
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Jul 2023 16:33:06 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F3AE4003B
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1F3AE4003B
+ Mon,  3 Jul 2023 19:24:44 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D5026400CB
+Received: from arg-plspam-c1n1.mailshover.nl (arg-plspam-c1n1.mailshover.nl
+ [145.131.15.41])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D5026400CB
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Jul 2023 16:33:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1688401984;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=o9JfmV88VU7bKRr8QoDVSiiCtWQNwua/yZVv7UwouXs=;
- b=ccnhnC+uBCK6wJgvikMKWDVdu+2CIrjBQFfHJEk1q1hNkDgsMR3KO1TrkWh+bjYHi2qj+V
- WUGPllpp7+ZjavcUTmbmAfu0OyWNCO5TTnZ5vWyZVQkmiFUrlt8wVBt8YCpwp+OWtpE1i3
- 7qmSZFMuSvnO1GZG5cHIOSX5KjcPEqQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-592-pE2xA5WAMjuRaVe9COnuWg-1; Mon, 03 Jul 2023 12:33:01 -0400
-X-MC-Unique: pE2xA5WAMjuRaVe9COnuWg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-3fbaade0c71so29288665e9.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 03 Jul 2023 09:33:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1688401980; x=1690993980;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=o9JfmV88VU7bKRr8QoDVSiiCtWQNwua/yZVv7UwouXs=;
- b=hU4N2xWqhBqrq5gKu7Ddv0l7KYOeeRB7pVMkGCPPMZuK+TIlbLYb3mRbBGtA3U16z7
- tkv+m2voYEmkceCW70ki5n9NDocmVZeqCbH4yE/l0Io1u8ZGa58CeqClGaRi3vkYKdUM
- DlbVo9MAOlYEZcgkSs1SJ+yPAP3vQY9yQDrrBV7YLxYUM4W9t/2iE0JXg2jioh2QlL5y
- Re5J6ugHvMwtHR7C1aLaLGipE5OgRH7uMEc4QVowHGXdBsqH5dmsHGzGyyhvlvDQohwX
- pKmOZPibbL5EhdjvCuur0DsbBE4MR2pMas0yxb2oaT2nD5TJ7aEqV+pVUTbUOzvjzhha
- cbXA==
-X-Gm-Message-State: ABy/qLZV0B5AklyzeXEOXax3/Ol+YWETBsgsClOUq5gAwGOGRyNGgpmh
- J5YQt0VKujf9a4hLL4tz8Hji+h/F4W2KYj68WVTTXMDdWfn/yAJEARarR47Rc19/hMneLINbzB/
- ingNP9mcy8LGeywIZBF0lEYuH5hDeamypoHb+QEP9xg==
-X-Received: by 2002:a05:600c:204c:b0:3fb:c9f4:14f3 with SMTP id
- p12-20020a05600c204c00b003fbc9f414f3mr7664427wmg.2.1688401980561; 
- Mon, 03 Jul 2023 09:33:00 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlF3hFeAuV3dUEiLC0bwfsYkvJ+BICpkbXADsRD+NAYyFyEPyRSAlNMR3Fy4eKLuXU7LTEvA3A==
-X-Received: by 2002:a05:600c:204c:b0:3fb:c9f4:14f3 with SMTP id
- p12-20020a05600c204c00b003fbc9f414f3mr7664400wmg.2.1688401980209; 
- Mon, 03 Jul 2023 09:33:00 -0700 (PDT)
-Received: from redhat.com ([2.52.13.33]) by smtp.gmail.com with ESMTPSA id
- m6-20020a7bce06000000b003f733c1129fsm18646129wmc.33.2023.07.03.09.32.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 03 Jul 2023 09:32:59 -0700 (PDT)
-Date: Mon, 3 Jul 2023 12:32:56 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] virtio: features, fixes, cleanups
-Message-ID: <20230703123256-mutt-send-email-mst@kernel.org>
+ Mon,  3 Jul 2023 19:24:41 +0000 (UTC)
+Received: from gw.mailshover.nl ([2001:678:76c:1:3996::58]
+ helo=arg-plsmtp-c1n1.argewebhosting.nl)
+ by arg-plspam-c1n1.mailshover.nl with esmtp (Exim 4.92)
+ (envelope-from <peter-jan@gootzen.net>)
+ id 1qGPA5-005ChG-ER; Mon, 03 Jul 2023 21:24:38 +0200
+Received: from flex01.zurich.ibm.com (pat.zurich.ibm.com [195.176.20.45])
+ (Authenticated sender: peter-jan@gootzen.net)
+ by arg-plsmtp-c1n1.argewebhosting.nl (Postfix) with ESMTPA id EC60B20731A2;
+ Mon,  3 Jul 2023 21:24:36 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 arg-plsmtp-c1n1.argewebhosting.nl
+ EC60B20731A2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gootzen.net;
+ s=aw2020113001; t=1688412277;
+ bh=HwEKO7k0mQZlR0rlqgDVRgwpfKNWPl1+2SWbZCtt1LU=;
+ h=From:To:Cc:Subject:Date:From;
+ b=evOm1OT2Ex5h5wjc+DT8qgQ2R8OKrCgR3k2QA7nXFQNEj2EZPwJptl9CCdvv8468B
+ kKkFySUMlSjhMzZRr+UDR3uii5byvN/szpXLntAYWIJFmBH192vt4C5cTFB3lFl8OP
+ piGxhZdGfj0PfZxr09xcmjcIFMyjgdm6Yr/Qae16T7IGkkjKEnbfmz6uUqtZQLh8Yz
+ sr5IkDQn4t6iLFm9c2/4M/k3vJSNnpXOEKroQJKoXgWTNCl01EzTsYooPM8x9fciY7
+ 9ILnDC/WmAs7RnQTKO3Iz/PTFheDE+1gjwHUc4A7FYLb5ha3jUWz03vjnAAnyjdZOZ
+ MczOo4rMTDbhg==
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH V4] virtio-fs: Improved request latencies when Virtio queue is
+ full
+Date: Mon,  3 Jul 2023 21:14:59 +0200
+Message-Id: <20230703191457.1847740-1-peter-jan@gootzen.net>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: peng.fan@nxp.com, kvm@vger.kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, xieyongji@bytedance.com, linux-kernel@vger.kernel.org,
- xianting.tian@linux.alibaba.com, krzysztof.kozlowski@linaro.org,
- tianxianting.txt@alibaba-inc.com, horms@kernel.org, maxime.coquelin@redhat.com,
- elic@nvidia.com, virtualization@lists.linux-foundation.org, saeedm@nvidia.com
+X-Originating-IP: 2001:678:76c:1:3996::58
+X-SpamExperts-Domain: out.mailshover.nl
+X-SpamExperts-Username: 2001:678:76c:1:3996::58
+Authentication-Results: mailshover.nl; auth=pass
+ smtp.auth=2001:678:76c:1:3996::58@out.mailshover.nl
+X-SpamExperts-Outgoing-Class: unsure
+X-SpamExperts-Outgoing-Evidence: Combined (0.50)
+X-Recommended-Action: accept
+X-Filter-ID: Pt3MvcO5N4iKaDQ5O6lkdGlMVN6RH8bjRMzItlySaT90jVzTLJt3vj6cAu5S4eQ0PUtbdvnXkggZ
+ 3YnVId/Y5jcf0yeVQAvfjHznO7+bT5xzOoHxWscew68UvLJqW/V1opzyoDuAP4C0aaz3STa5zA+i
+ +LgxjoYkXCbk6qYg3TLiBCq0YCJmjpNMbRTU3wgrC0Y3u/qphs34dTesYrpa6tiW8BKfyIS6EHTV
+ hG8std+lEPHKAzuJoUDzV774tvkniFloh3x3CR4Jb2gWRrpPKOgtmufHeAaAMOAgSJ0r0OmouJYi
+ QWxaMB85XLIGw32ggM1FjTV5UXzaWZFiY/IuWRLx/Du65BKz/oEcyvz1uhV1UWVvvdkzh9/Seh7h
+ SLJU/jpU+HEu7P+MmVRDaSRl7/fPjylt/HZ8k1j7Ut/7PLb7521/uy4r4RP2U/suYnM07Ogv5mRk
+ S/8bWrZGatZmbSSp6wqBiWgCUvpQC7hp792Kjeyl92hTDJK+4O0vOmkQc1UkGqjsciyILerEw8FX
+ FnC9J8Tfx0FDPUDJU5K58QZrH/iEgzfzmnMXBIwMoePog2OkM5zMbrn2rUwXJSugd8VmzzAQ6gJW
+ hVbNViZCOWKRNtlfJySsZ2eS9qGTagUdlCnL4IjEaJi/Te03jgZkrrEp5+1QCuHCTUw0ggLUf54P
+ bqpDL7OvFc18bWQRihVmn+UCB3F67PeP7Iep2w5lJ/gPneWh5kublaxZVQoA47wpOMQJvQ/Ck3ii
+ U+4DQAj3DhYpgwxEDQuH7GNpv2Hu1lWbvKBSWz9JL+ncH+8owBXh81G7jrpdN7mVSzj08dE/+rZs
+ znzhce8qQDHibzsRn4GAzhxhCuY6rzElkl6kBCGRq3oTg7MWD+ZQoaUmN03jRfRyWTWs40tiYHh/
+ OVIkQNEvdUolNl0YNdMUajomuQYN/2oiLQnPnhxk6tgp0mibbPhjo3exrvNYlwUjtixib2avL+YD
+ c2YHUzAZPzd03ld+uhcl3Gs5gKqK3VAu3+DFOOi3DORNnsq5K5Vt5MJeblz1pRXWhjh9fdbl44I0
+ Df3UANye5mij+Mqql8NZoGGE1H07YtaUHC2h22rHSV+m0L6jX0Is2t8eEL3ZqG06ZzoMifa29zXh
+ hznXry6IqJne0pFEQgsi+0blRqBey5t6k5sK3TexxWxyube0LJjGSj+jnQa75Jum1feMIVfUDmU/
+ w0m9OyPDekvkd3BNWiTFSFOlxsY77ASAZB1sLAji3Opi4pBglvBqtTQxJduSkSzRv5CQHId5vY1x
+ DTpc1F/nsvY4ocfmWv3Fe9Iziczdq+A=
+X-Report-Abuse-To: spam@arg-plspam-c1n0.mailshover.nl
+Cc: stefanha@redhat.com, vgoyal@redhat.com, miklos@szeredi.hu
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,167 +115,159 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Peter-Jan Gootzen via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Peter-Jan Gootzen <peter-jan@gootzen.net>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Note: dropped some commits at the last moment, I did verify we get
-the same code in the end as what was in linux next for a while now.
+When the Virtio queue is full, a work item is scheduled
+to execute in 1ms that retries adding the request to the queue.
+This is a large amount of time on the scale on which a
+virtio-fs device can operate. When using a DPU this is around
+40us baseline without going to a remote server (4k, QD=1).
+This patch queues requests when the Virtio queue is full,
+and when a completed request is taken off, immediately fills
+it back up with queued requests.
 
-The following changes since commit 6995e2de6891c724bfeb2db33d7b87775f913ad1:
+This reduces the 99.9th percentile latencies in our tests by
+60x and slightly increases the overall throughput, when using a
+queue depth 2x the size of the Virtio queue size, with a
+DPU-powered virtio-fs device.
 
-  Linux 6.4 (2023-06-25 16:29:58 -0700)
+Signed-off-by: Peter-Jan Gootzen <peter-jan@gootzen.net>
+---
+V4: Removed return value on error changes to simplify patch,
+that should be changed in another patch.
+V3: Fixed requests falling into the void when -ENOMEM and no new
+incoming requests. Virtio-fs now always lets -ENOMEM bubble up to
+userspace. Also made queue full condition more explicit with
+-ENOSPC in `send_forget_request`.
+V2: Not scheduling dispatch work anymore when not needed
+and changed delayed_work structs to work_struct structs
 
-are available in the Git repository at:
+ fs/fuse/virtio_fs.c | 32 +++++++++++++++++---------------
+ 1 file changed, 17 insertions(+), 15 deletions(-)
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 9e396a2f434f829fb3b98a24bb8db5429320589d:
-
-  vhost: Make parameter name match of vhost_get_vq_desc() (2023-07-03 12:15:15 -0400)
-
-----------------------------------------------------------------
-virtio: features, fixes, cleanups
-
-resume support in vdpa/solidrun
-structure size optimizations in virtio_pci
-new pds_vdpa driver
-immediate initialization mechanism for vdpa/ifcvf
-interrupt bypass for vdpa/mlx5
-multiple worker support for vhost
-viirtio net in Intel F2000X-PL support for vdpa/ifcvf
-
-fixes, cleanups all over the place
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Alvaro Karsz (1):
-      vdpa/snet: implement the resume vDPA callback
-
-Dragos Tatulea (1):
-      virtio-vdpa: Fix unchecked call to NULL set_vq_affinity
-
-Eli Cohen (1):
-      vdpa/mlx5: Support interrupt bypassing
-
-Feng Liu (1):
-      virtio_pci: Optimize virtio_pci_device structure size
-
-Krzysztof Kozlowski (1):
-      vdpa: solidrun: constify pointers to hwmon_channel_info
-
-Maxime Coquelin (1):
-      vduse: fix NULL pointer dereference
-
-Mike Christie (17):
-      vhost: create worker at end of vhost_dev_set_owner
-      vhost: dynamically allocate vhost_worker
-      vhost: add vhost_worker pointer to vhost_virtqueue
-      vhost, vhost_net: add helper to check if vq has work
-      vhost: take worker or vq instead of dev for queueing
-      vhost: take worker or vq for flushing
-      vhost: convert poll work to be vq based
-      vhost_sock: convert to vhost_vq_work_queue
-      vhost_scsi: make SCSI cmd completion per vq
-      vhost_scsi: convert to vhost_vq_work_queue
-      vhost_scsi: flush IO vqs then send TMF rsp
-      vhost: remove vhost_work_queue
-      vhost: add helper to parse userspace vring state/file
-      vhost: replace single worker pointer with xarray
-      vhost: allow userspace to create workers
-      vhost_scsi: add support for worker ioctls
-      vhost: Allow worker switching while work is queueing
-
-Peng Fan (1):
-      tools/virtio: fix build break for aarch64
-
-Shannon Nelson (11):
-      virtio: allow caller to override device id in vp_modern
-      virtio: allow caller to override device DMA mask in vp_modern
-      pds_vdpa: Add new vDPA driver for AMD/Pensando DSC
-      pds_vdpa: move enum from common to adminq header
-      pds_vdpa: new adminq entries
-      pds_vdpa: get vdpa management info
-      pds_vdpa: virtio bar setup for vdpa
-      pds_vdpa: add vdpa config client commands
-      pds_vdpa: add support for vdpa and vdpamgmt interfaces
-      pds_vdpa: subscribe to the pds_core events
-      pds_vdpa: pds_vdps.rst and Kconfig
-
-Simon Horman (1):
-      virtio: Add missing documentation for structure fields
-
-Xianting Tian (4):
-      virtio-crypto: call scheduler when we free unused buffs
-      virtio-console: call scheduler when we free unused buffs
-      virtio_bt: call scheduler when we free unused buffs
-      vhost: Make parameter name match of vhost_get_vq_desc()
-
-Zhu Lingshan (8):
-      vDPA/ifcvf: virt queue ops take immediate actions
-      vDPA/ifcvf: get_driver_features from virtio registers
-      vDPA/ifcvf: retire ifcvf_start_datapath and ifcvf_add_status
-      vDPA/ifcvf: synchronize irqs in the reset routine
-      vDPA/ifcvf: a vendor driver should not set _CONFIG_S_FAILED
-      vDPA/ifcvf: dynamic allocate vq data stores
-      vDPA/ifcvf: detect and report max allowed vq size
-      vDPA/ifcvf: implement new accessors for vq_state
-
- .../device_drivers/ethernet/amd/pds_vdpa.rst       |  85 +++
- .../networking/device_drivers/ethernet/index.rst   |   1 +
- MAINTAINERS                                        |   4 +
- drivers/bluetooth/virtio_bt.c                      |   1 +
- drivers/char/virtio_console.c                      |   1 +
- drivers/crypto/virtio/virtio_crypto_core.c         |   1 +
- drivers/vdpa/Kconfig                               |  10 +
- drivers/vdpa/Makefile                              |   1 +
- drivers/vdpa/ifcvf/ifcvf_base.c                    | 215 +++---
- drivers/vdpa/ifcvf/ifcvf_base.h                    |  48 +-
- drivers/vdpa/ifcvf/ifcvf_main.c                    | 108 +--
- drivers/vdpa/mlx5/net/mlx5_vnet.c                  | 165 ++++-
- drivers/vdpa/mlx5/net/mlx5_vnet.h                  |  15 +
- drivers/vdpa/pds/Makefile                          |  10 +
- drivers/vdpa/pds/aux_drv.c                         | 140 ++++
- drivers/vdpa/pds/aux_drv.h                         |  26 +
- drivers/vdpa/pds/cmds.c                            | 185 +++++
- drivers/vdpa/pds/cmds.h                            |  18 +
- drivers/vdpa/pds/debugfs.c                         | 289 ++++++++
- drivers/vdpa/pds/debugfs.h                         |  17 +
- drivers/vdpa/pds/vdpa_dev.c                        | 769 +++++++++++++++++++++
- drivers/vdpa/pds/vdpa_dev.h                        |  49 ++
- drivers/vdpa/solidrun/snet_ctrl.c                  |   6 +
- drivers/vdpa/solidrun/snet_hwmon.c                 |   2 +-
- drivers/vdpa/solidrun/snet_main.c                  |  15 +
- drivers/vdpa/solidrun/snet_vdpa.h                  |   1 +
- drivers/vdpa/vdpa_user/vduse_dev.c                 |   6 +-
- drivers/vhost/net.c                                |   8 +-
- drivers/vhost/scsi.c                               | 103 +--
- drivers/vhost/vhost.c                              | 425 ++++++++++--
- drivers/vhost/vhost.h                              |  24 +-
- drivers/vhost/vsock.c                              |   4 +-
- drivers/virtio/virtio_pci_common.h                 |   7 +-
- drivers/virtio/virtio_pci_modern_dev.c             |  33 +-
- drivers/virtio/virtio_vdpa.c                       |   4 +-
- include/linux/pds/pds_adminq.h                     | 247 +++++++
- include/linux/pds/pds_common.h                     |  21 +-
- include/linux/virtio.h                             |   5 +-
- include/linux/virtio_pci_modern.h                  |   6 +
- include/uapi/linux/vhost.h                         |  31 +
- include/uapi/linux/vhost_types.h                   |  16 +
- tools/virtio/Makefile                              |  13 +-
- 42 files changed, 2777 insertions(+), 358 deletions(-)
- create mode 100644 Documentation/networking/device_drivers/ethernet/amd/pds_vdpa.rst
- create mode 100644 drivers/vdpa/pds/Makefile
- create mode 100644 drivers/vdpa/pds/aux_drv.c
- create mode 100644 drivers/vdpa/pds/aux_drv.h
- create mode 100644 drivers/vdpa/pds/cmds.c
- create mode 100644 drivers/vdpa/pds/cmds.h
- create mode 100644 drivers/vdpa/pds/debugfs.c
- create mode 100644 drivers/vdpa/pds/debugfs.h
- create mode 100644 drivers/vdpa/pds/vdpa_dev.c
- create mode 100644 drivers/vdpa/pds/vdpa_dev.h
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 4d8d4f16c727..a676297db09b 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -45,7 +45,7 @@ struct virtio_fs_vq {
+ 	struct work_struct done_work;
+ 	struct list_head queued_reqs;
+ 	struct list_head end_reqs;	/* End these requests */
+-	struct delayed_work dispatch_work;
++	struct work_struct dispatch_work;
+ 	struct fuse_dev *fud;
+ 	bool connected;
+ 	long in_flight;
+@@ -202,7 +202,7 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+ 	}
+ 
+ 	flush_work(&fsvq->done_work);
+-	flush_delayed_work(&fsvq->dispatch_work);
++	flush_work(&fsvq->dispatch_work);
+ }
+ 
+ static void virtio_fs_drain_all_queues_locked(struct virtio_fs *fs)
+@@ -346,6 +346,9 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
+ 			dec_in_flight_req(fsvq);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
++
++	if (!list_empty(&fsvq->queued_reqs))
++		schedule_work(&fsvq->dispatch_work);
+ 	spin_unlock(&fsvq->lock);
+ }
+ 
+@@ -353,7 +356,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+ {
+ 	struct fuse_req *req;
+ 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+-						 dispatch_work.work);
++						 dispatch_work);
+ 	int ret;
+ 
+ 	pr_debug("virtio-fs: worker %s called.\n", __func__);
+@@ -388,8 +391,6 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+ 			if (ret == -ENOMEM || ret == -ENOSPC) {
+ 				spin_lock(&fsvq->lock);
+ 				list_add_tail(&req->list, &fsvq->queued_reqs);
+-				schedule_delayed_work(&fsvq->dispatch_work,
+-						      msecs_to_jiffies(1));
+ 				spin_unlock(&fsvq->lock);
+ 				return;
+ 			}
+@@ -436,8 +437,6 @@ static int send_forget_request(struct virtio_fs_vq *fsvq,
+ 			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
+ 				 ret);
+ 			list_add_tail(&forget->list, &fsvq->queued_reqs);
+-			schedule_delayed_work(&fsvq->dispatch_work,
+-					      msecs_to_jiffies(1));
+ 			if (!in_flight)
+ 				inc_in_flight_req(fsvq);
+ 			/* Queue is full */
+@@ -469,7 +468,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+ {
+ 	struct virtio_fs_forget *forget;
+ 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+-						 dispatch_work.work);
++						 dispatch_work);
+ 	pr_debug("virtio-fs: worker %s called.\n", __func__);
+ 	while (1) {
+ 		spin_lock(&fsvq->lock);
+@@ -647,6 +646,11 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+ 			virtio_fs_request_complete(req, fsvq);
+ 		}
+ 	}
++
++	spin_lock(&fsvq->lock);
++	if (!list_empty(&fsvq->queued_reqs))
++		schedule_work(&fsvq->dispatch_work);
++	spin_unlock(&fsvq->lock);
+ }
+ 
+ /* Virtqueue interrupt handler */
+@@ -670,12 +674,12 @@ static void virtio_fs_init_vq(struct virtio_fs_vq *fsvq, char *name,
+ 
+ 	if (vq_type == VQ_REQUEST) {
+ 		INIT_WORK(&fsvq->done_work, virtio_fs_requests_done_work);
+-		INIT_DELAYED_WORK(&fsvq->dispatch_work,
+-				  virtio_fs_request_dispatch_work);
++		INIT_WORK(&fsvq->dispatch_work,
++			  virtio_fs_request_dispatch_work);
+ 	} else {
+ 		INIT_WORK(&fsvq->done_work, virtio_fs_hiprio_done_work);
+-		INIT_DELAYED_WORK(&fsvq->dispatch_work,
+-				  virtio_fs_hiprio_dispatch_work);
++		INIT_WORK(&fsvq->dispatch_work,
++			  virtio_fs_hiprio_dispatch_work);
+ 	}
+ }
+ 
+@@ -1254,8 +1258,6 @@ __releases(fiq->lock)
+ 			spin_lock(&fsvq->lock);
+ 			list_add_tail(&req->list, &fsvq->queued_reqs);
+ 			inc_in_flight_req(fsvq);
+-			schedule_delayed_work(&fsvq->dispatch_work,
+-						msecs_to_jiffies(1));
+ 			spin_unlock(&fsvq->lock);
+ 			return;
+ 		}
+@@ -1265,7 +1267,7 @@ __releases(fiq->lock)
+ 		/* Can't end request in submission context. Use a worker */
+ 		spin_lock(&fsvq->lock);
+ 		list_add_tail(&req->list, &fsvq->end_reqs);
+-		schedule_delayed_work(&fsvq->dispatch_work, 0);
++		schedule_work(&fsvq->dispatch_work);
+ 		spin_unlock(&fsvq->lock);
+ 		return;
+ 	}
+-- 
+2.34.1
 
 _______________________________________________
 Virtualization mailing list
