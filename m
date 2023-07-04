@@ -1,87 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CE3F3C001DB
-	for <virtualization@archiver.kernel.org>; Tue,  4 Jul 2023 17:23:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00457EB64D9
+	for <virtualization@archiver.kernel.org>; Tue,  4 Jul 2023 19:22:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3E48E60B31;
-	Tue,  4 Jul 2023 17:23:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E48E60B31
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=TWKXtrI+
+	by smtp2.osuosl.org (Postfix) with ESMTP id 662344058B;
+	Tue,  4 Jul 2023 19:22:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 662344058B
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F0J8e9rE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SC7dBCHsEpRr; Tue,  4 Jul 2023 17:23:10 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id i1JhjC6kFd9h; Tue,  4 Jul 2023 19:22:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5C85A60739;
-	Tue,  4 Jul 2023 17:23:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5C85A60739
+	by smtp2.osuosl.org (Postfix) with ESMTPS id DFB2B400E7;
+	Tue,  4 Jul 2023 19:22:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DFB2B400E7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36697C0072;
-	Tue,  4 Jul 2023 17:23:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E636AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AF454C0072;
+	Tue,  4 Jul 2023 19:22:45 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 61CA3C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jul 2023 17:23:07 +0000 (UTC)
+ Tue,  4 Jul 2023 19:22:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5059B400EF
+ by smtp4.osuosl.org (Postfix) with ESMTP id 275AB41061
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jul 2023 17:23:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5059B400EF
+ Tue,  4 Jul 2023 19:22:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 275AB41061
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=TWKXtrI+
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=F0J8e9rE
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dsdJevNK0x_C
+ with ESMTP id v2TorWPaO2lU
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jul 2023 17:23:05 +0000 (UTC)
+ Tue,  4 Jul 2023 19:22:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 69929408FF
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 69929408FF
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1CBE0409E3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1CBE0409E3
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Jul 2023 17:23:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1688491385; x=1720027385;
- h=date:from:to:cc:subject:message-id;
- bh=pn7pmITVLM7sFJDh3HU77nok6p6G73xphXt8S5mtBPA=;
- b=TWKXtrI+WzbUNA/ZkQBvVloN9SMhdRoYvdX6KUpy1LSeIL3o/5aoZcrO
- LW2+wPcBEcTYfl4kQhbJF0S44Vmc2J8aqwaZ64vP0fC8XBzjyLSD4qhR7
- j4x8aL8Cl8QwEkDXA9/e3853qdmTR/J4ooC1qy2JhCnP9DjkQDfx73sX3
- pht/IIvRkeRM4eTAsr+kEyElIy836otty2qyJbmTm9ezNWSOWWaw6Ia57
- fdJ/5ofQblEakEfrNXKx4ksyexx0/EEA00G58t1z6iKpOEaidHOrVUmAr
- B+fYlhYeVpnUCd8P5ug+YYAP1eKV4CoZPmc79ROiBWYF/5H1dFrL+sRgi w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10761"; a="365731475"
-X-IronPort-AV: E=Sophos;i="6.01,181,1684825200"; d="scan'208";a="365731475"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
- by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 04 Jul 2023 10:23:04 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10761"; a="748470953"
-X-IronPort-AV: E=Sophos;i="6.01,181,1684825200"; d="scan'208";a="748470953"
-Received: from lkp-server01.sh.intel.com (HELO 783282924a45) ([10.239.97.150])
- by orsmga008.jf.intel.com with ESMTP; 04 Jul 2023 10:23:01 -0700
-Received: from kbuild by 783282924a45 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1qGjjw-000IP9-3C;
- Tue, 04 Jul 2023 17:23:00 +0000
-Date: Wed, 05 Jul 2023 01:22:07 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Subject: [linux-next:master] BUILD REGRESSION
- 1c6f93977947dbba1fc4d250c4eb8a7d4cfdecf1
-Message-ID: <202307050151.c3vyrIHs-lkp@intel.com>
-User-Agent: s-nail v14.9.24
-Cc: kvm@vger.kernel.org, linux-bluetooth@vger.kernel.org,
- netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Linux Memory Management List <linux-mm@kvack.org>,
- linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
+ Tue,  4 Jul 2023 19:22:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1688498561;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=mFBR9aLLd+UbaMyLdyzrVxs4N2kaUNBTqCwcKCV+cF4=;
+ b=F0J8e9rEAa/Nw2FcpcaP1fJgqY8CCyrF+8xKkcDXU/Fjl95NYf/64RmSDsbkzkQtSECdbN
+ puOgu+W5cyoAMe9Ow3XlxdZp4+qxMVgui3eIn9CYzi+rsOBxsZ0NAwIspZs9WZn6MMvCUD
+ SJszzxAn4yeIjpNREkMcD16hzeEv8VM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-137-bNqzE_xcOrKocHm-YoH1Eg-1; Tue, 04 Jul 2023 15:22:38 -0400
+X-MC-Unique: bNqzE_xcOrKocHm-YoH1Eg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C620D800159;
+ Tue,  4 Jul 2023 19:22:37 +0000 (UTC)
+Received: from [10.39.208.32] (unknown [10.39.208.32])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id BD7DDF641E;
+ Tue,  4 Jul 2023 19:22:35 +0000 (UTC)
+Message-ID: <1f4ac369-75f8-f65d-6f31-9c4a5a2a357f@redhat.com>
+Date: Tue, 4 Jul 2023 21:22:34 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH v2 3/3] vduse: Temporarily disable control queue features
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20230704164045.39119-1-maxime.coquelin@redhat.com>
+ <20230704164045.39119-4-maxime.coquelin@redhat.com>
+ <20230704124245-mutt-send-email-mst@kernel.org>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+In-Reply-To: <20230704124245-mutt-send-email-mst@kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+Cc: xuanzhuo@linux.alibaba.com, lulu@redhat.com, eperezma@redhat.com,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ david.marchand@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,242 +101,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: 1c6f93977947dbba1fc4d250c4eb8a7d4cfdecf1  Add linux-next specific files for 20230704
 
-Error/Warning reports:
 
-https://lore.kernel.org/oe-kbuild-all/202306260401.qZlYQpV2-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202306301709.lvrxzyCj-lkp@intel.com
-https://lore.kernel.org/oe-kbuild-all/202306301756.x8dgyYnL-lkp@intel.com
+On 7/4/23 18:43, Michael S. Tsirkin wrote:
+> On Tue, Jul 04, 2023 at 06:40:45PM +0200, Maxime Coquelin wrote:
+>> Virtio-net driver control queue implementation is not safe
+>> when used with VDUSE. If the VDUSE application does not
+>> reply to control queue messages, it currently ends up
+>> hanging the kernel thread sending this command.
+>>
+>> Some work is on-going to make the control queue
+>> implementation robust with VDUSE. Until it is completed,
+>> let's disable control virtqueue and features that depend on
+>> it.
+>>
+>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+>> ---
+>>   drivers/vdpa/vdpa_user/vduse_dev.c | 21 +++++++++++++++++++++
+>>   1 file changed, 21 insertions(+)
+>>
+>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> index 1271c9796517..04367a53802b 100644
+>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> @@ -1778,6 +1778,25 @@ static struct attribute *vduse_dev_attrs[] = {
+>>   
+>>   ATTRIBUTE_GROUPS(vduse_dev);
+>>   
+>> +static void vduse_dev_features_fixup(struct vduse_dev_config *config)
+>> +{
+>> +	if (config->device_id == VIRTIO_ID_NET) {
+>> +		/*
+>> +		 * Temporarily disable control virtqueue and features that
+>> +		 * depend on it while CVQ is being made more robust for VDUSE.
+>> +		 */
+>> +		config->features &= ~((1ULL << VIRTIO_NET_F_CTRL_VQ) |
+>> +				(1ULL << VIRTIO_NET_F_CTRL_RX) |
+>> +				(1ULL << VIRTIO_NET_F_CTRL_VLAN) |
+>> +				(1ULL << VIRTIO_NET_F_GUEST_ANNOUNCE) |
+>> +				(1ULL << VIRTIO_NET_F_MQ) |
+>> +				(1ULL << VIRTIO_NET_F_CTRL_MAC_ADDR) |
+>> +				(1ULL << VIRTIO_NET_F_RSS) |
+>> +				(1ULL << VIRTIO_NET_F_HASH_REPORT) |
+>> +				(1ULL << VIRTIO_NET_F_NOTF_COAL));
+>> +	}
+>> +}
+>> +
+> 
+> 
+> This will never be exhaustive, we are adding new features.
+> Please add an allowlist with just legal ones instead.
 
-Error/Warning: (recently discovered and may have been fixed)
+Ok, got it!
+I'll post a new revision.
 
-drivers/bluetooth/btmtk.c:386:32: error: no member named 'dump' in 'struct hci_dev'
-drivers/bluetooth/btmtk.c:386:44: error: 'struct hci_dev' has no member named 'dump'
-drivers/char/mem.c:164:25: error: implicit declaration of function 'unxlate_dev_mem_ptr'; did you mean 'xlate_dev_mem_ptr'? [-Werror=implicit-function-declaration]
-drivers/mfd/max77541.c:176:18: warning: cast to smaller integer type 'enum max7754x_ids' from 'const void *' [-Wvoid-pointer-to-enum-cast]
-lib/kunit/executor_test.c:138:4: warning: cast from 'void (*)(const void *)' to 'kunit_action_t *' (aka 'void (*)(void *)') converts to incompatible function type [-Wcast-function-type-strict]
-lib/kunit/test.c:775:38: warning: cast from 'void (*)(const void *)' to 'kunit_action_t *' (aka 'void (*)(void *)') converts to incompatible function type [-Wcast-function-type-strict]
+Thanks,
+Maxime
 
-Unverified Error/Warning (likely false positive, please contact us if interested):
+> 
+> 
+>>   static int vduse_create_dev(struct vduse_dev_config *config,
+>>   			    void *config_buf, u64 api_version)
+>>   {
+>> @@ -1793,6 +1812,8 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+>>   	if (!dev)
+>>   		goto err;
+>>   
+>> +	vduse_dev_features_fixup(config);
+>> +
+>>   	dev->api_version = api_version;
+>>   	dev->device_features = config->features;
+>>   	dev->device_id = config->device_id;
+>> -- 
+>> 2.41.0
+> 
 
-drivers/vhost/vhost.c:1654 vhost_vring_ioctl() error: uninitialized symbol 'vq'.
-drivers/vhost/vhost.c:1685 vhost_vring_ioctl() error: uninitialized symbol 'idx'.
-drivers/vhost/vhost.c:763 vhost_worker_ioctl() error: uninitialized symbol 'vq'.
-drivers/vhost/vhost.c:774 vhost_worker_ioctl() error: uninitialized symbol 'idx'.
-{standard input}: Error: local label `"2" (instance number 9 of a fb label)' is not defined
-
-Error/Warning ids grouped by kconfigs:
-
-gcc_recent_errors
-|-- alpha-randconfig-r002-20230704
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|-- loongarch-randconfig-r022-20230704
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|-- m68k-randconfig-r016-20230704
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|-- microblaze-randconfig-r073-20230703
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|-- nios2-randconfig-r034-20230704
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|-- riscv-randconfig-m031-20230703
-|   |-- drivers-vhost-vhost.c-vhost_vring_ioctl()-error:uninitialized-symbol-idx-.
-|   |-- drivers-vhost-vhost.c-vhost_vring_ioctl()-error:uninitialized-symbol-vq-.
-|   |-- drivers-vhost-vhost.c-vhost_worker_ioctl()-error:uninitialized-symbol-idx-.
-|   `-- drivers-vhost-vhost.c-vhost_worker_ioctl()-error:uninitialized-symbol-vq-.
-|-- sh-allmodconfig
-|   |-- drivers-char-mem.c:error:implicit-declaration-of-function-unxlate_dev_mem_ptr
-|   `-- standard-input:Error:local-label-(instance-number-of-a-fb-label)-is-not-defined
-|-- sh-randconfig-r015-20230704
-|   |-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-|   `-- drivers-char-mem.c:error:implicit-declaration-of-function-unxlate_dev_mem_ptr
-|-- sh-sh7710voipgw_defconfig
-|   `-- drivers-char-mem.c:error:implicit-declaration-of-function-unxlate_dev_mem_ptr
-|-- sparc-randconfig-r005-20230704
-|   `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-`-- x86_64-buildonly-randconfig-r003-20230703
-    `-- drivers-bluetooth-btmtk.c:error:struct-hci_dev-has-no-member-named-dump
-clang_recent_errors
-|-- arm64-randconfig-r033-20230704
-|   `-- drivers-mfd-max77541.c:warning:cast-to-smaller-integer-type-enum-max7754x_ids-from-const-void
-|-- hexagon-randconfig-r041-20230703
-|   |-- drivers-bluetooth-btmtk.c:error:no-member-named-dump-in-struct-hci_dev
-|   |-- lib-kunit-executor_test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-|   `-- lib-kunit-test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-|-- hexagon-randconfig-r045-20230703
-|   |-- lib-kunit-executor_test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-|   `-- lib-kunit-test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-|-- i386-randconfig-i011-20230703
-|   `-- drivers-bluetooth-btmtk.c:error:no-member-named-dump-in-struct-hci_dev
-`-- s390-randconfig-r006-20230704
-    |-- lib-kunit-executor_test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-    `-- lib-kunit-test.c:warning:cast-from-void-(-)(const-void-)-to-kunit_action_t-(aka-void-(-)(void-)-)-converts-to-incompatible-function-type
-
-elapsed time: 734m
-
-configs tested: 148
-configs skipped: 9
-
-tested configs:
-alpha                            allyesconfig   gcc  
-alpha                               defconfig   gcc  
-alpha                randconfig-r002-20230704   gcc  
-alpha                randconfig-r003-20230704   gcc  
-alpha                randconfig-r004-20230704   gcc  
-alpha                randconfig-r023-20230703   gcc  
-alpha                randconfig-r035-20230704   gcc  
-arc                              alldefconfig   gcc  
-arc                              allyesconfig   gcc  
-arc                                 defconfig   gcc  
-arc                  randconfig-r021-20230704   gcc  
-arc                  randconfig-r043-20230703   gcc  
-arm                              allmodconfig   gcc  
-arm                              allyesconfig   gcc  
-arm                                 defconfig   gcc  
-arm                  randconfig-r002-20230704   gcc  
-arm                  randconfig-r014-20230704   clang
-arm                  randconfig-r026-20230703   gcc  
-arm                  randconfig-r032-20230704   gcc  
-arm                  randconfig-r046-20230703   gcc  
-arm                         s3c6400_defconfig   gcc  
-arm                         s5pv210_defconfig   clang
-arm                           u8500_defconfig   gcc  
-arm64                            allyesconfig   gcc  
-arm64                               defconfig   gcc  
-arm64                randconfig-r033-20230704   clang
-csky                             alldefconfig   gcc  
-csky                                defconfig   gcc  
-csky                 randconfig-r022-20230703   gcc  
-hexagon              randconfig-r033-20230704   clang
-hexagon              randconfig-r041-20230703   clang
-hexagon              randconfig-r045-20230703   clang
-i386                             allyesconfig   gcc  
-i386         buildonly-randconfig-r004-20230703   gcc  
-i386         buildonly-randconfig-r005-20230703   gcc  
-i386         buildonly-randconfig-r006-20230703   gcc  
-i386                              debian-10.3   gcc  
-i386                                defconfig   gcc  
-i386                 randconfig-i001-20230704   clang
-i386                 randconfig-i002-20230704   clang
-i386                 randconfig-i003-20230704   clang
-i386                 randconfig-i004-20230704   clang
-i386                 randconfig-i005-20230704   clang
-i386                 randconfig-i006-20230704   clang
-i386                 randconfig-i011-20230703   clang
-i386                 randconfig-i012-20230703   clang
-i386                 randconfig-i013-20230703   clang
-i386                 randconfig-i014-20230703   clang
-i386                 randconfig-i015-20230703   clang
-i386                 randconfig-i016-20230703   clang
-i386                 randconfig-r005-20230704   clang
-i386                 randconfig-r032-20230704   clang
-loongarch                        allmodconfig   gcc  
-loongarch                         allnoconfig   gcc  
-loongarch                           defconfig   gcc  
-loongarch            randconfig-r022-20230704   gcc  
-m68k                             allmodconfig   gcc  
-m68k                             allyesconfig   gcc  
-m68k                                defconfig   gcc  
-m68k                 randconfig-r016-20230704   gcc  
-microblaze           randconfig-r011-20230704   gcc  
-microblaze           randconfig-r015-20230704   gcc  
-microblaze           randconfig-r023-20230704   gcc  
-mips                             allmodconfig   gcc  
-mips                             allyesconfig   gcc  
-mips                           ci20_defconfig   gcc  
-mips                     decstation_defconfig   gcc  
-mips                 decstation_r4k_defconfig   gcc  
-mips                        maltaup_defconfig   clang
-mips                           mtx1_defconfig   clang
-mips                        qi_lb60_defconfig   clang
-mips                 randconfig-r013-20230704   clang
-mips                 randconfig-r031-20230704   gcc  
-nios2                               defconfig   gcc  
-nios2                randconfig-r004-20230704   gcc  
-nios2                randconfig-r006-20230704   gcc  
-nios2                randconfig-r012-20230704   gcc  
-nios2                randconfig-r034-20230704   gcc  
-openrisc                         alldefconfig   gcc  
-openrisc                  or1klitex_defconfig   gcc  
-openrisc             randconfig-r014-20230704   gcc  
-parisc                           allyesconfig   gcc  
-parisc                              defconfig   gcc  
-parisc               randconfig-r001-20230704   gcc  
-parisc               randconfig-r012-20230704   gcc  
-parisc64                            defconfig   gcc  
-powerpc                          allmodconfig   gcc  
-powerpc                           allnoconfig   gcc  
-powerpc                   microwatt_defconfig   clang
-powerpc              randconfig-r001-20230704   clang
-powerpc              randconfig-r011-20230704   gcc  
-powerpc                     tqm8560_defconfig   clang
-riscv                            allmodconfig   gcc  
-riscv                             allnoconfig   gcc  
-riscv                            allyesconfig   gcc  
-riscv                               defconfig   gcc  
-riscv                randconfig-r024-20230704   gcc  
-riscv                randconfig-r042-20230703   clang
-riscv                          rv32_defconfig   gcc  
-s390                 randconfig-r006-20230704   clang
-s390                 randconfig-r044-20230703   clang
-sh                               allmodconfig   gcc  
-sh                   randconfig-r015-20230704   gcc  
-sh                   randconfig-r026-20230704   gcc  
-sh                   rts7751r2dplus_defconfig   gcc  
-sh                          sdk7786_defconfig   gcc  
-sh                           se7750_defconfig   gcc  
-sh                     sh7710voipgw_defconfig   gcc  
-sh                             shx3_defconfig   gcc  
-sparc                            allyesconfig   gcc  
-sparc                               defconfig   gcc  
-sparc                randconfig-r005-20230704   gcc  
-sparc                randconfig-r036-20230704   gcc  
-sparc64                             defconfig   gcc  
-sparc64              randconfig-r016-20230704   gcc  
-sparc64              randconfig-r024-20230703   gcc  
-sparc64              randconfig-r035-20230704   gcc  
-um                               alldefconfig   gcc  
-um                               allmodconfig   clang
-um                                allnoconfig   clang
-um                               allyesconfig   clang
-um                                  defconfig   gcc  
-um                             i386_defconfig   gcc  
-um                   randconfig-r025-20230704   clang
-um                   randconfig-r031-20230704   gcc  
-um                   randconfig-r034-20230704   gcc  
-um                           x86_64_defconfig   gcc  
-x86_64                           allyesconfig   gcc  
-x86_64       buildonly-randconfig-r001-20230703   gcc  
-x86_64       buildonly-randconfig-r002-20230703   gcc  
-x86_64       buildonly-randconfig-r003-20230703   gcc  
-x86_64                              defconfig   gcc  
-x86_64                                  kexec   gcc  
-x86_64               randconfig-x001-20230703   clang
-x86_64               randconfig-x002-20230703   clang
-x86_64               randconfig-x003-20230703   clang
-x86_64               randconfig-x004-20230703   clang
-x86_64               randconfig-x005-20230703   clang
-x86_64               randconfig-x006-20230703   clang
-x86_64               randconfig-x011-20230703   gcc  
-x86_64               randconfig-x012-20230703   gcc  
-x86_64               randconfig-x013-20230703   gcc  
-x86_64               randconfig-x014-20230703   gcc  
-x86_64               randconfig-x015-20230703   gcc  
-x86_64               randconfig-x016-20230703   gcc  
-x86_64                          rhel-8.3-rust   clang
-x86_64                               rhel-8.3   gcc  
-xtensa                       common_defconfig   gcc  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
