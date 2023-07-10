@@ -1,107 +1,69 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ACC67EB64D9
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jul 2023 05:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2154EB64DA
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jul 2023 09:28:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EEFD7402F6;
-	Mon, 10 Jul 2023 05:52:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EEFD7402F6
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SNxSiZnn
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1A78F60670;
+	Mon, 10 Jul 2023 09:28:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1A78F60670
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id G_bey47-UWID; Mon, 10 Jul 2023 05:52:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bDmgh85K_Isf; Mon, 10 Jul 2023 09:28:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 740E2400CB;
-	Mon, 10 Jul 2023 05:52:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 740E2400CB
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BBDC960E41;
+	Mon, 10 Jul 2023 09:28:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BBDC960E41
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 42E86C0072;
-	Mon, 10 Jul 2023 05:52:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2E90EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 915D4C0071;
+	Mon, 10 Jul 2023 09:28:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9B017C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 05:52:28 +0000 (UTC)
+ Mon, 10 Jul 2023 09:27:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0E214400CB
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6881D81461
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 05:52:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0E214400CB
+ Mon, 10 Jul 2023 09:27:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6881D81461
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id p3txMm5KdW5T
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aatYJsg84BsO
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 05:52:27 +0000 (UTC)
+ Mon, 10 Jul 2023 09:27:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 54CFE402F6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 54CFE402F6
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1EB8781458
+Received: from out30-113.freemail.mail.aliyun.com
+ (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1EB8781458
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 05:52:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1688968345;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=2K52jyfMXQ896NNNb2VdJ1cCkY7IZeKXb4JhCxLXus4=;
- b=SNxSiZnnUfquI0gvJPH3WE9Bv8henUDhK+INhI+6JyRuH9I+ylGxn0l23PVsJ1CSKGdE8R
- wUyGs/T/ECTWFoeBjoJxTVJW9E4aDMf7ZLfV6ot8FT7OFikdlS75S/qbmFiCrPvnh8tN/p
- vYY1XBdtGPbaFhsIvK0PLlGdTjoXpbk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-158-duQCFlA1PZSRyJw7_pLcPQ-1; Mon, 10 Jul 2023 01:52:24 -0400
-X-MC-Unique: duQCFlA1PZSRyJw7_pLcPQ-1
-Received: by mail-wm1-f70.google.com with SMTP id
- 5b1f17b1804b1-3fbefe1b402so24242705e9.1
- for <virtualization@lists.linux-foundation.org>;
- Sun, 09 Jul 2023 22:52:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1688968343; x=1691560343;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=2K52jyfMXQ896NNNb2VdJ1cCkY7IZeKXb4JhCxLXus4=;
- b=NAlHpiZ+YVYAZTpO7Vi7fkDu155gFKg55MCtPYctFfJk6xXi8H4UVZ42qQ4110kl1m
- mWlyLnyx16W9ckxeNA2HFNKTlLeSeg/ox/aFzxrugz6pHapzQjgHDJ5xiKy3Vx80RxkP
- +QUUCdDotIdGvr71fix9Ah9o/xE2v7SSMnhnhCvK/OSR4UbKBhM+u5zYdjUrV+zwB+MG
- S043EI9bSRbYAvU/0afsuc3ZBpEmrksplp+W2WhRiFMGm28S86CesflX1Uh3vFWXx374
- nqr6lVY+7lZLkueVUQDQVY11p5r57yGpzZX5DStFXcMcNJriSUo8Aw8QR2HiCDC4FQMM
- iXmg==
-X-Gm-Message-State: ABy/qLaa4JWK/TOfDcQ0Toz28b1xs9/do91M2ogJbmOta2jvm/88fElO
- kJiOGH+kK39XRB+Pf1KRVGSLmQoDc1Eeicj4xoqH8ri4epUrH7UnDya6APcMsBljeZaNQisKF0o
- 3Ha8FsCwbUYDlMrYb5MHyvxP1vux2tDmU0itOjjCFRg==
-X-Received: by 2002:a05:600c:2313:b0:3fc:521:8492 with SMTP id
- 19-20020a05600c231300b003fc05218492mr5262418wmo.5.1688968342929; 
- Sun, 09 Jul 2023 22:52:22 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlEX0MBIPIVZb0Ml0+vup7VUgMycj1blZD7PFdfB9Im1EaU1Fa8yaiSZY7CKGQPrbwAQn1eEsQ==
-X-Received: by 2002:a05:600c:2313:b0:3fc:521:8492 with SMTP id
- 19-20020a05600c231300b003fc05218492mr5262405wmo.5.1688968342576; 
- Sun, 09 Jul 2023 22:52:22 -0700 (PDT)
-Received: from redhat.com ([2.52.3.112]) by smtp.gmail.com with ESMTPSA id
- i8-20020a5d5588000000b0030fa3567541sm10646951wrv.48.2023.07.09.22.52.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 09 Jul 2023 22:52:22 -0700 (PDT)
-Date: Mon, 10 Jul 2023 01:52:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH v2 0/2] vhost-scsi: Fix IO hangs when using windows
-Message-ID: <20230710015042-mutt-send-email-mst@kernel.org>
-References: <20230709202859.138387-1-michael.christie@oracle.com>
-MIME-Version: 1.0
-In-Reply-To: <20230709202859.138387-1-michael.christie@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org,
- target-devel@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com
+ Mon, 10 Jul 2023 09:27:54 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=19; SR=0;
+ TI=SMTPD_---0Vn0blpX_1688981263; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vn0blpX_1688981263) by smtp.aliyun-inc.com;
+ Mon, 10 Jul 2023 17:27:44 +0800
+Message-ID: <1688981109.6377137-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next V1 0/4] virtio_net: add per queue interrupt
+ coalescing support
+Date: Mon, 10 Jul 2023 17:25:09 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Gavin Li <gavinl@nvidia.com>
+References: <20230710092005.5062-1-gavinl@nvidia.com>
+In-Reply-To: <20230710092005.5062-1-gavinl@nvidia.com>
+Cc: xuanzhuo@linux.alibaba.com, ast@kernel.org, hawk@kernel.org,
+ daniel@iogearbox.net, mst@redhat.com, netdev@vger.kernel.org,
+ john.fastabend@gmail.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, edumazet@google.com,
+ Heng Qi <hengqi@linux.alibaba.com>, jiri@nvidia.com, kuba@kernel.org,
+ bpf@vger.kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,34 +75,81 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Jul 09, 2023 at 03:28:57PM -0500, Mike Christie wrote:
-> The following patches were made over Linus's tree and fix an issue
-> where windows guests will send iovecs with offset/lengths that result
-> in IOs that are not aligned to 512. The LIO layer will then send them
-> to Linux's FS/block layer but it requires 512 byte alignment, so
-> depending on the FS/block driver being used we will get IO errors or
-> hung IO.
-> 
-> The following patches have vhost-scsi detect when windows sends these
-> IOs and copy them to a bounce buffer. It then does some cleanup in
-> the related code.
+On Mon, 10 Jul 2023 12:20:01 +0300, Gavin Li <gavinl@nvidia.com> wrote:
+
+As far as I know, Heng Qi does that. I'm not sure, it's the same piece.
+
+cc @Heng Qi
+
+Thanks.
 
 
-Thanks, tagged!
-Mike, you are the main developer on vhost/scsi recently.
-Do you want to be listed in MAINTAINERS too?
-This implies you will be expected to review patches/bug reports
-though.
-
-Thanks,
--- 
-MST
-
+> Currently, coalescing parameters are grouped for all transmit and receive
+> virtqueues. This patch series add support to set or get the parameters for
+> a specified virtqueue.
+>
+> When the traffic between virtqueues is unbalanced, for example, one virtqueue
+> is busy and another virtqueue is idle, then it will be very useful to
+> control coalescing parameters at the virtqueue granularity.
+>
+> Example command:
+> $ ethtool -Q eth5 queue_mask 0x1 --coalesce tx-packets 10
+> Would set max_packets=10 to VQ 1.
+> $ ethtool -Q eth5 queue_mask 0x1 --coalesce rx-packets 10
+> Would set max_packets=10 to VQ 0.
+> $ ethtool -Q eth5 queue_mask 0x1 --show-coalesce
+>  Queue: 0
+>  Adaptive RX: off  TX: off
+>  stats-block-usecs: 0
+>  sample-interval: 0
+>  pkt-rate-low: 0
+>  pkt-rate-high: 0
+>
+>  rx-usecs: 222
+>  rx-frames: 0
+>  rx-usecs-irq: 0
+>  rx-frames-irq: 256
+>
+>  tx-usecs: 222
+>  tx-frames: 0
+>  tx-usecs-irq: 0
+>  tx-frames-irq: 256
+>
+>  rx-usecs-low: 0
+>  rx-frame-low: 0
+>  tx-usecs-low: 0
+>  tx-frame-low: 0
+>
+>  rx-usecs-high: 0
+>  rx-frame-high: 0
+>  tx-usecs-high: 0
+>  tx-frame-high: 0
+>
+> In this patch series:
+> Patch-1: Extract interrupt coalescing settings to a structure.
+> Patch-2: Extract get/set interrupt coalesce to a function.
+> Patch-3: Support per queue interrupt coalesce command.
+> Patch-4: Enable per queue interrupt coalesce feature.
+>
+> Gavin Li (4):
+>   virtio_net: extract interrupt coalescing settings to a structure
+>   virtio_net: extract get/set interrupt coalesce to a function
+>   virtio_net: support per queue interrupt coalesce command
+>   virtio_net: enable per queue interrupt coalesce feature
+>
+>  drivers/net/virtio_net.c        | 169 ++++++++++++++++++++++++++------
+>  include/uapi/linux/virtio_net.h |  14 +++
+>  2 files changed, 154 insertions(+), 29 deletions(-)
+>
+> --
+> 2.39.1
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
