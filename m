@@ -1,62 +1,62 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9AD4BEB64DA
-	for <virtualization@archiver.kernel.org>; Mon, 10 Jul 2023 19:19:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 629FFC0015E
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jul 2023 19:19:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1675361013;
-	Mon, 10 Jul 2023 19:19:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1675361013
+	by smtp4.osuosl.org (Postfix) with ESMTP id 057744154A;
+	Mon, 10 Jul 2023 19:19:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 057744154A
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MxKRdfczSJ4e; Mon, 10 Jul 2023 19:19:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0581F60769;
-	Mon, 10 Jul 2023 19:19:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0581F60769
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1KsnLt1Cm6rW; Mon, 10 Jul 2023 19:19:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3565A414CA;
+	Mon, 10 Jul 2023 19:19:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3565A414CA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D13F0C0071;
-	Mon, 10 Jul 2023 19:19:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61873C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AD32C0071;
+	Mon, 10 Jul 2023 19:19:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 42AD6C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 19:19:16 +0000 (UTC)
+ Mon, 10 Jul 2023 19:19:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2849A41505
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1C6CC414CA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 19:19:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2849A41505
+ Mon, 10 Jul 2023 19:19:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1C6CC414CA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZjVbH9TzwmDw
+ with ESMTP id hTVoSJGjgRKN
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 19:19:14 +0000 (UTC)
-X-Greylist: delayed 00:29:53 by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E9169414CA
+ Mon, 10 Jul 2023 19:19:16 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 252CD414FA
 Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
  [IPv6:2a03:f480:1:14::7d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E9169414CA
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 252CD414FA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Jul 2023 19:19:13 +0000 (UTC)
+ Mon, 10 Jul 2023 19:19:16 +0000 (UTC)
 Received: from [185.92.96.189] (helo=LAPTOP-EPOV2LRR)
  by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
- (envelope-from <icits@saisti.eu>) id 1qIueT-0001y6-9C
- for virtualization@lists.linux-foundation.org; Mon, 10 Jul 2023 20:26:21 +0300
+ (envelope-from <icits@saisti.eu>) id 1qIuc1-0001vX-P1
+ for virtualization@lists.linux-foundation.org; Mon, 10 Jul 2023 20:23:49 +0300
 From: "ICITS-24" <marialemos72@gmail.com>
 Subject: ICITS'24 - The 2024 International Conference on Information
  Technology & Systems |Temuco, Chile
 To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-Date: Mon, 10 Jul 2023 18:26:21 +0100
+Date: Mon, 10 Jul 2023 18:23:50 +0100
 Priority: urgent
 X-Priority: 1
 Importance: high
-Message-ID: <25676957212281@gmail-com>
+Message-ID: <768957060765@gmail-com>
 X-Antivirus: AVG (VPS 230710-6, 10/7/2023), Outbound message
 X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -71,18 +71,18 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============1054441997362055306=="
+Content-Type: multipart/mixed; boundary="===============2268322736322084314=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is a multi-part message in MIME format
 
---===============1054441997362055306==
-Content-Type: multipart/alternative; charset=utf-8; boundary="r=_5d0fjrjmF2Qejp1OKhTYtywHc5vtoZR"
+--===============2268322736322084314==
+Content-Type: multipart/alternative; charset=utf-8; boundary="1nxUS7dgEvcTTR51Rb14dnpL=_RgCD73nC"
 
 This is a multi-part message in MIME format
 
---r=_5d0fjrjmF2Qejp1OKhTYtywHc5vtoZR
+--1nxUS7dgEvcTTR51Rb14dnpL=_RgCD73nC
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -250,7 +250,7 @@ Website of ICITS'24: http://icits.me/ <https://mkt.saisti.eu/go/8-1-3a86e97=
 -- 
 This email has been checked for viruses by AVG antivirus software.
 www.avg.com
---r=_5d0fjrjmF2Qejp1OKhTYtywHc5vtoZR
+--1nxUS7dgEvcTTR51Rb14dnpL=_RgCD73nC
 Content-Type: text/html; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
@@ -567,10 +567,10 @@ _content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
 2" width=3D"1" height=3D"1"> </a></div></body>
 </html>
 
---r=_5d0fjrjmF2Qejp1OKhTYtywHc5vtoZR--
+--1nxUS7dgEvcTTR51Rb14dnpL=_RgCD73nC--
 
 
---===============1054441997362055306==
+--===============2268322736322084314==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -580,5 +580,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1054441997362055306==--
+--===============2268322736322084314==--
 
