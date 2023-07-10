@@ -1,186 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 24E59C001DF
-	for <virtualization@archiver.kernel.org>; Sun,  9 Jul 2023 20:29:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A2C66EB64DC
+	for <virtualization@archiver.kernel.org>; Mon, 10 Jul 2023 03:05:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8FBE28146A;
-	Sun,  9 Jul 2023 20:29:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8FBE28146A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=3FA2jcIr;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=f/nQcoeM
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0917F4098A;
+	Mon, 10 Jul 2023 03:05:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0917F4098A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=abgrwgOd
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KOL5aKuUwAN0; Sun,  9 Jul 2023 20:29:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B9F4581801;
-	Sun,  9 Jul 2023 20:29:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9F4581801
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 55OiFw1eTHzg; Mon, 10 Jul 2023 03:04:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D8A8840911;
+	Mon, 10 Jul 2023 03:04:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8A8840911
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D513BC0DD6;
-	Sun,  9 Jul 2023 20:29:15 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4AD2AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D234C0071;
+	Mon, 10 Jul 2023 03:04:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8EF59C0032
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jul 2023 20:29:14 +0000 (UTC)
+ Mon, 10 Jul 2023 03:04:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CB58D607F1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5407C40111
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jul 2023 20:29:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB58D607F1
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=3FA2jcIr; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=f/nQcoeM
+ Mon, 10 Jul 2023 03:04:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5407C40111
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=abgrwgOd
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id r88dJAI_v-AR
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Htd-zsk19uiR
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jul 2023 20:29:10 +0000 (UTC)
+ Mon, 10 Jul 2023 03:04:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B7AB960681
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B7AB960681
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C6D0400EA
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4C6D0400EA
  for <virtualization@lists.linux-foundation.org>;
- Sun,  9 Jul 2023 20:29:10 +0000 (UTC)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 369JnGZh009377; Sun, 9 Jul 2023 20:29:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : in-reply-to : references :
- content-transfer-encoding : content-type : mime-version;
- s=corp-2023-03-30; bh=iAbY5y7o82/70sJsy1uoPyr1tLG6IL64Fy0gZuvMIR4=;
- b=3FA2jcIr4ppqWg2yA44aWk+KJxXs/pynw05JCL8ZvSJ6Mm1mpn0Wr/FjgXS8VuB0x3Di
- ZOG3HDPX6xu7QVRm3WhJWfYt1t7GE9NEYiEEg013AOekPG58co8On7n7/K7Sk6FH1SMj
- EGOYya/2aARghZ+P7G6SovIeQ8uu0I94qrTJl4zMyOYy7zz/vz/4CDeRCJALa3vKO9Ix
- vWHukWWM4/w9sBGNumWFUaJb0LtY+a5UFbhGibd35d7enyr9morBKGtJAK/4CBHpbE9D
- Esh7QDrLp6C4kQ0nHfN4y423BQ8awWgrYLwDtZiSKvmYz8R2PWPlYZ7zSoKg6+D4tVcS eQ== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3rq0bu1dfk-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sun, 09 Jul 2023 20:29:09 +0000
-Received: from pps.filterd
- (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 369JpvKS006332; Sun, 9 Jul 2023 20:29:08 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com
- (mail-bn8nam12lp2173.outbound.protection.outlook.com [104.47.55.173])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3rpx88y1wp-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sun, 09 Jul 2023 20:29:08 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bdagiHF+lJUgwPVEon4YQgB0jTofLytrhu4c344uUxzOBXrZRCtiSuhs8l8JKJmzPSQl2LTckSKvQve8ndxr7ONhnQuAfW6cMgrrg2UegXYLY0bGHkhDH6pqlQdrwhflUHlKRarng5PlY3aJLTXpop5djmgS7zUm+YBOncTsFS6gKLfNV5uaRvDeTNi3J429stHm//ScCUYRfHxQiL9ILoH5CuJZUWLgI2UVOxZCwlWXmwsRyPbogtHi9Te3GNSxrTNjSm83IOe2a3MUgfEUlNX541qT0U3J/huEPfeoNc/QsdH/D6LZOfKO1Ff1g4L0yMHkLM4NdAvJ4FxZVHnQGg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=iAbY5y7o82/70sJsy1uoPyr1tLG6IL64Fy0gZuvMIR4=;
- b=UIvZ9Q/+6eal1CGHVmwjzyY1pfEW2ktTCsCyh7berdEc6LQPiUdcKIsgugMBzxUGgPS8KxxAW/1vtoy6HuuSiwCTI0fqJ6+KE3jNMGCZfbgySdKSUMMjvJGIwvsIYmj4fx/1lf8w6BXu+VI4X3lbNlyU/9F+M2gMeksPwFQq5XvQPtUAHRv9ih/2r7bW3K4FECvGToGCZXErobxNG3tfvRRwl3ac6bTmPccYnpTWJidGEkOwtq7A1odSip/MZOWvQrf7icQHAljG8e2JNz40MoKSv1A2+B0rDf6VdGcueyk0esLwSDPA3/SS40mB6pCNAMihyUARQAaGe2IfzkUUYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=iAbY5y7o82/70sJsy1uoPyr1tLG6IL64Fy0gZuvMIR4=;
- b=f/nQcoeM/6FE2Xe5vdF9l2oC11xe0A+uuhMFlprGnuoYm1S714ONMFr8gfKwTEcMYADLnCskMc8ZI8STbZVtjM1X7U/eMZI6Pu/BFq7qEG6Glz/Z/fLpmZcBu4pH/uYNc5YcPWCxki9WBOd7LAHcgexmMQeXFC2c/9pm1o45leQ=
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com (2603:10b6:930:7c::10)
- by IA1PR10MB5994.namprd10.prod.outlook.com (2603:10b6:208:3ee::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6565.30; Sun, 9 Jul
- 2023 20:29:05 +0000
-Received: from CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::f5ac:d576:d989:34fa]) by CY8PR10MB7243.namprd10.prod.outlook.com
- ([fe80::f5ac:d576:d989:34fa%4]) with mapi id 15.20.6565.028; Sun, 9 Jul 2023
- 20:29:04 +0000
-From: Mike Christie <michael.christie@oracle.com>
-To: target-devel@vger.kernel.org, linux-scsi@vger.kernel.org,
- stefanha@redhat.com, pbonzini@redhat.com, jasowang@redhat.com,
- mst@redhat.com, sgarzare@redhat.com,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 1/2] vhost-scsi: Fix alignment handling with windows
-Date: Sun,  9 Jul 2023 15:28:58 -0500
-Message-Id: <20230709202859.138387-2-michael.christie@oracle.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230709202859.138387-1-michael.christie@oracle.com>
-References: <20230709202859.138387-1-michael.christie@oracle.com>
-X-ClientProxiedBy: DM6PR03CA0089.namprd03.prod.outlook.com
- (2603:10b6:5:333::22) To CY8PR10MB7243.namprd10.prod.outlook.com
- (2603:10b6:930:7c::10)
+ Mon, 10 Jul 2023 03:04:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1688958292;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=hxjOs7/F2ykf+m07k9EWu1+E7xvxWLp6lvjndYFVYtE=;
+ b=abgrwgOd6Xs8xyihNDH5yiHBUACAjV2+4R0H+ts7LW0MoKpD2i9CG/h4Z78ouiLp1vKrmW
+ z3GO2OKdpuYz49mcEiy4XagCxCKokvZpO9dsKYAhrvgJYMTebEn5WBgpDEjLl8hEJZTUFm
+ 7DRevXXghVxpG99zYbVeqMg4bs0ghF8=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-91-s8WecjjqOhmM7ObfyciTVg-1; Sun, 09 Jul 2023 23:04:48 -0400
+X-MC-Unique: s8WecjjqOhmM7ObfyciTVg-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ 38308e7fff4ca-2b6f0527454so33476191fa.1
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 09 Jul 2023 20:04:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1688958287; x=1691550287;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=hxjOs7/F2ykf+m07k9EWu1+E7xvxWLp6lvjndYFVYtE=;
+ b=X7GthgBugFkeJNGOgW/eJAr94Opr1Xo6frux1dvMTEuhbATeCn84H26Ux8NtQoaMHV
+ mDK9qHQZtPROPU/PJlZB0445XwOoPEr8yjsegdOvCXGGGQxOCAnDg8J5K4IUo5bzgQgM
+ UxgW4i/q7l982mM/rKTmd3jhC/givn6Yuf7YihiARSC5eJBEto2oLABX2BQCS63CMjS9
+ +7uO7xrCX1jHrhkoF+9fGOiCOX2B0jW7ZsEZSfZUxy3Yk7cwgDwirP4zjU8Ti6zvH7eU
+ d7x939kjHwpkMLg22WrzJI3Hh5YtQTJ7eomzYNEIvYyrwUoO+Y3HP27JygAhHOsU0JyB
+ xqxQ==
+X-Gm-Message-State: ABy/qLa8B55+egKk0Y0taB8eM4JE6+gMWhfMRamBr5X/M2I/86jnagfT
+ NEC7/ihtU41Ts70C7E0LpsFBsDpmlbW0cyMbsZqyiM1TgeROkwqtxuKlb0h0v0nJ99s4SOiwGp6
+ RV9LQtfY0qylhG9WwvrVMDps0VRcjEpiC87jmHsJ3gjoSHlSZhikf1UsHCw==
+X-Received: by 2002:a2e:8611:0:b0:2b6:daa3:f0af with SMTP id
+ a17-20020a2e8611000000b002b6daa3f0afmr8680398lji.25.1688958287191; 
+ Sun, 09 Jul 2023 20:04:47 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlHEGVvoR8gVnhH73Hli5jfY/rNYMh3k0RWDca6Em62XjPIJAIwze5KX/2gY2cCAHHk0KtIToNvZe+bhl4Ac3v8=
+X-Received: by 2002:a2e:8611:0:b0:2b6:daa3:f0af with SMTP id
+ a17-20020a2e8611000000b002b6daa3f0afmr8680390lji.25.1688958286904; Sun, 09
+ Jul 2023 20:04:46 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY8PR10MB7243:EE_|IA1PR10MB5994:EE_
-X-MS-Office365-Filtering-Correlation-Id: f109e1cc-79d8-45ce-82de-08db80bb239c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: DCflljbeorcyji0Jtq5sHEgPVHi9vx/ymUZIFkR5IBKLA4mZO4ICror9UuvRk2DU36YOl+S+QXAUmgCHzyrXeE4NZSgjAhIywLn9uhx5Ypt5u09pNO0GDqyeky6gMdAd8ni37hutWVwLyf7LKLcYG9AWa3YyssnGYU4XFs4utUy3Nfo+/Zcwf+0a3F8eyfwfqy1gjXitxvX7pNSckktKpM6BRiJvhbNgiZH/561Sm3TuuGOdRwfwpsrDhVVvK8x2zhF8iXyZPjvYLq3re6dFYHFEWEfU7IEQiUUb7isLQeu/szLoarG9io7F6IbLAsOKaL1sxT64XQsK3CDUsQQd+AvZ4J5JWqNg9bYD3gtE2/p8/wr2ayo0ONRE748lgQ8gM1u7rx4QRb+gEHtLGSsTwIEUPLL+G2rHU6ddwmHIB9Fw/dBitkQuCdUjZoXe5DWIkFhs0UfnFQyqhvt1n8wL3juZkMDGXUDJnzLvqdXRoarI+w+XbPDKmnxwFIGz/Gjnfo8JizrZ1tdi9AkFq3P/4JVTiE1sCtoEQLdqyCg6xnk1JXkvGfVz0ap+iXXBDAQR
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY8PR10MB7243.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230028)(136003)(346002)(39860400002)(396003)(376002)(366004)(451199021)(86362001)(38100700002)(36756003)(6666004)(6486002)(107886003)(26005)(1076003)(6506007)(186003)(6512007)(2616005)(5660300002)(316002)(2906002)(66556008)(66946007)(478600001)(8676002)(8936002)(66476007)(83380400001)(4326008)(41300700001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Wp8TzV7pj8d2PSJAnaudrjvimXsERzbHyWy2U1zEiCCmtybIQVmCgIEenrYk?=
- =?us-ascii?Q?RYJEezYTvWvhEwp0UdA/dIhDtxOTwZWApigCLe5WT71osaYzdPq8TBmQ8gk5?=
- =?us-ascii?Q?nMAqeRrv3P9jHQf9yTDWXw/0jAfZPpEk4v5cO3HwNkDpyl5h0H0nm9Fv2xR1?=
- =?us-ascii?Q?+k+BNTQ7WolAQTzqSsVUt276OTZaCv0E03yeZQPALTnOK46yHiFd8Fx9lran?=
- =?us-ascii?Q?JlwqFmwYQF6iOmWi117VqUZW+e9p+FPx9AzK3JAa+D6E5HNJgCHtMIFetfxd?=
- =?us-ascii?Q?JFVC/eaAeJYk3O3zVo3cBBg7hn1wLdzzfDSHubd7YsX3FxN/Hf8cl1odR6AK?=
- =?us-ascii?Q?i0pSuVjIyA4/aAriAcfmNsGmcYipAbD3gMZcteJNouj3EfCffY+sr2o/EXem?=
- =?us-ascii?Q?mYvGEtrbTD0eKY8l5kU6qmMXGOCEbOGZI2i3eHupbJpsjlfyU8jnsnVLzBHm?=
- =?us-ascii?Q?QNAc6SEwcZ87kAiWvG8StxhhR9MlaB9qxGGLnnwxrnysZUdpGnQx5N9MkXT2?=
- =?us-ascii?Q?elzXTAoHMobyRc1gs3BF588+jrzBcT+YWGrQS5O25otBDR1st8DEWa2Ow5HT?=
- =?us-ascii?Q?YjhB1ZSnPRjJgyl+xYZZW0UqNRGV3W3AvzYIweVxVmseX7w3EukTh9K8hk27?=
- =?us-ascii?Q?G6YdFXAVUi7dfy5kI9WCvxu+LmB5aK+17zzWQZEb5u6TGu9o/9vLuAYj9Dl6?=
- =?us-ascii?Q?QwewSMz0Wp8PTCjin7AVPnzM1aVT75MWTi191yKNqp2Zgui1rRlIsIR+awVQ?=
- =?us-ascii?Q?pQ7ohVfNHalgcyfG2SakF+hLcEMS+e08X8fTyYsiNfF/h8fOncXwu5hEMprl?=
- =?us-ascii?Q?fWfPphzuOCtullgWuo2J65I5C1MrTmC99U0g1PVHbhZ36U/E4mT9c+a5rujY?=
- =?us-ascii?Q?V/bSGowpQadWNitaNIK5BFXEOSqVnYW/A/PEo20py9kzDuAynNQ0T6NtjMzK?=
- =?us-ascii?Q?ckPywWDnNkzVrfQSFLzuCL6wVn3A18jO8/FTaYAKk9p5PBHArdHJeQvTioRB?=
- =?us-ascii?Q?Ocn5CBQ4Im3XWdYJ5RqM1YAp+IQJnKkXshGIrrJ34ShY/a9xFcHVMrLwAA5F?=
- =?us-ascii?Q?Y9zb3Zskrrx/WElLmDkD8MDSGIQZG1zyhMybmJ8HPkRQygnR4MX7M60HqQ3A?=
- =?us-ascii?Q?COsEPcy2lHzFyW3Vkt7t9UQgEleCv0cCO9QoqEuEC4P1DfwVO7UKNdxmA7Ho?=
- =?us-ascii?Q?dM7E4nm00wF4PgVZAVLnC8EXJ56JwWtvmviqEv499qslFqOqK+BHA+GsTPl8?=
- =?us-ascii?Q?WDEnvd8UfNhd/cOjR60eL2LS4uLatAF2UR0HMHif3H9Ae1+4FieClKBqrPer?=
- =?us-ascii?Q?gPvl09mnwMhbeNgry3gx1WN5o4ituj30/27oHXhT8qMpfEkEhCdkL7nUrKpq?=
- =?us-ascii?Q?fHXC1jnS5Jrdnp4eoKeM47V3wcXTkRZBycxYOGXS7XFYEClbT6S4yOOxcYOD?=
- =?us-ascii?Q?pfVUYgJKxzc7Yyzh35/F7kmAy6GhtiLVKOc1CQ4H1RwCqzFswMv3CwuTAo8B?=
- =?us-ascii?Q?9j7lPtaz/Dde14q16/C4A4ugP5882k03PBVJFP33PrbroKf371uWmIbHZTFH?=
- =?us-ascii?Q?9z81+IZJeaYqnYWtjG3dASCwLpAvq3C5Y3djiSmh+drqkuBScUbFkhU4RARU?=
- =?us-ascii?Q?mg=3D=3D?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: gYrWDVeVnwLW2ptnOlnWU9g7xoJi1QsE+u/klKIKdqR7yjKB30EVGwSv2CrC68f1ViBo8orUl0wf8svog5u8gQTPERSoEojqKJLDpcVVtO6ADo1Vr5Uf6Bxk3QzuXgEst33BHSXjn6yZ09ShM7P8HbbdfmEubonk/xJAbNKtFqnmwnbFGJG9bPv3Q7K8n3TLuxL/p2eGn7MmPuX9a+7ITKyG+DsBl1lAQeBmZRvO7qsZKVR8UNrufdu3yns0gSC3kz1PvZNtbYRLF/IFyL1qu5mVQck8XRMTRSiWoNh2lLRNCLh2FZIVATUO51bEldY+gv4XJS+cHE7VCIYmCnZ65yEunEpXWNajhIN21N7AqWDZ7ADr24Yqu126HEsQNOujTvYjFyNsFapIvmvFY0nSiOhNKGb+uwLVdcMiMP1nQvV8pq1OCBOmPKGdympfBKfSvgqFq+XYbbRdhij236Z6U5OFq9zkLYIybOZQ58XKS52fSnwGwF3MwsC7w9eeQchQZx8d/jArxlykUZpBrmQ3JjPveGj9wW7U21uh39702M898MldvwgntDolCacqCIU/3dapNftacL5RCt2ep6TlmEqrztiU8GCJ0cT1VeP96fMJFWPnpEwfoqPxkxGlKgp0iGo8H1JMdFBd2xwie4m1TaMViBlVL7LM0FOkHl+7ek5PyFDtMse4HnXyU3siI7QbcpzGXqf3xoyGJ6rONMVY3W0kkZZ8RinHaB60IK/MHLvYhmN2+mn6hu54oLhZJVI7R8u3+3Oi1/jxbEqld337IyaZm4sh5HIhNnON2ImK6j0fiHPa70de+epoh86gLDDgNsaan5cJ0aiOla/05Us/gzzKpvTUfZmewTmAHyqh67k=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f109e1cc-79d8-45ce-82de-08db80bb239c
-X-MS-Exchange-CrossTenant-AuthSource: CY8PR10MB7243.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jul 2023 20:29:04.9086 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fKT4UOF5IezF6fY2+9H4PaA4v29slDLrOkMsu3WwuUsIpjSi5Ubl6xX03W3RbTSOUEvKtcTvUlEDtTUkMKFHHt83PArcU+AG/U8+lY5ZejA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR10MB5994
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-09_14,2023-07-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
- malwarescore=0 phishscore=0
- spamscore=0 mlxlogscore=999 suspectscore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2305260000
- definitions=main-2307090193
-X-Proofpoint-ORIG-GUID: zJTIETHOUd8FEGjQukDfEJoRl_q8FX1P
-X-Proofpoint-GUID: zJTIETHOUd8FEGjQukDfEJoRl_q8FX1P
+References: <20230630003609.28527-1-shannon.nelson@amd.com>
+ <20230630003609.28527-2-shannon.nelson@amd.com>
+ <CACGkMEthwPRtawkpJMZ5o+H=pOxGszaxOsmKuRH4LkPXrfzRoA@mail.gmail.com>
+ <92b6697b-4d33-457d-b9b5-ec16926cd9fa@amd.com>
+In-Reply-To: <92b6697b-4d33-457d-b9b5-ec16926cd9fa@amd.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 10 Jul 2023 11:04:36 +0800
+Message-ID: <CACGkMEtyJajf=xTmna66CbxxaYVXmeo5+dyw__wqrB=EwfdeqQ@mail.gmail.com>
+Subject: Re: [PATCH virtio 1/4] pds_vdpa: reset to vdpa specified mac
+To: Shannon Nelson <shannon.nelson@amd.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: brett.creeley@amd.com, mst@redhat.com, Allen Hubbe <allen.hubbe@amd.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -192,342 +116,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The linux block layer requires bios/requests to have lengths with a 512
-byte alignment. Some drivers/layers like dm-crypt and the directi IO code
-will test for it and just fail. Other drivers like SCSI just assume the
-requirement is met and will end up in infinte retry loops. The problem
-for drivers like SCSI is that it uses functions like blk_rq_cur_sectors
-and blk_rq_sectors which divide the request's length by 512. If there's
-lefovers then it just gets dropped. But other code in the block/scsi
-layer may use blk_rq_bytes/blk_rq_cur_bytes and end up thinking there is
-still data left and try to retry the cmd. We can then end up getting
-stuck in retry loops where part of the block/scsi thinks there is data
-left, but other parts think we want to do IOs of zero length.
-
-Linux will always check for alignment, but windows will not. When
-vhost-scsi then translates the iovec it gets from a windows guest to a
-scatterlist, we can end up with sg items where the sg->length is not
-divisible by 512 due to the misaligned offset:
-
-sg[0].offset = 255;
-sg[0].length = 3841;
-sg...
-sg[N].offset = 0;
-sg[N].length = 255;
-
-When the lio backends then convert the SG to bios or other iovecs, we
-end up sending them with the same misaligned values and can hit the
-issues above.
-
-This just has us drop down to allocating a temp page and copying the data
-when we detect a misaligned buffer and the IO is large enough that it
-will get split into multiple bad IOs.
-
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
----
- drivers/vhost/scsi.c | 186 +++++++++++++++++++++++++++++++++++++------
- 1 file changed, 161 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index c83f7f043470..324e4b3846fa 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -25,6 +25,8 @@
- #include <linux/fs.h>
- #include <linux/vmalloc.h>
- #include <linux/miscdevice.h>
-+#include <linux/blk_types.h>
-+#include <linux/bio.h>
- #include <asm/unaligned.h>
- #include <scsi/scsi_common.h>
- #include <scsi/scsi_proto.h>
-@@ -75,6 +77,9 @@ struct vhost_scsi_cmd {
- 	u32 tvc_prot_sgl_count;
- 	/* Saved unpacked SCSI LUN for vhost_scsi_target_queue_cmd() */
- 	u32 tvc_lun;
-+	u32 copied_iov:1;
-+	const void *saved_iter_addr;
-+	struct iov_iter saved_iter;
- 	/* Pointer to the SGL formatted memory from virtio-scsi */
- 	struct scatterlist *tvc_sgl;
- 	struct scatterlist *tvc_prot_sgl;
-@@ -328,8 +333,13 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
- 	int i;
- 
- 	if (tv_cmd->tvc_sgl_count) {
--		for (i = 0; i < tv_cmd->tvc_sgl_count; i++)
--			put_page(sg_page(&tv_cmd->tvc_sgl[i]));
-+		for (i = 0; i < tv_cmd->tvc_sgl_count; i++) {
-+			if (tv_cmd->copied_iov)
-+				__free_page(sg_page(&tv_cmd->tvc_sgl[i]));
-+			else
-+				put_page(sg_page(&tv_cmd->tvc_sgl[i]));
-+		}
-+		kfree(tv_cmd->saved_iter_addr);
- 	}
- 	if (tv_cmd->tvc_prot_sgl_count) {
- 		for (i = 0; i < tv_cmd->tvc_prot_sgl_count; i++)
-@@ -504,6 +514,28 @@ static void vhost_scsi_evt_work(struct vhost_work *work)
- 	mutex_unlock(&vq->mutex);
- }
- 
-+static int vhost_scsi_copy_sgl_to_iov(struct vhost_scsi_cmd *cmd)
-+{
-+	struct iov_iter *iter = &cmd->saved_iter;
-+	struct scatterlist *sg = cmd->tvc_sgl;
-+	struct page *page;
-+	size_t len;
-+	int i;
-+
-+	for (i = 0; i < cmd->tvc_sgl_count; i++) {
-+		page = sg_page(&sg[i]);
-+		len = sg[i].length;
-+
-+		if (copy_page_to_iter(page, 0, len, iter) != len) {
-+			pr_err("Could not copy data while handling misaligned cmd. Error %zu\n",
-+			       len);
-+			return -1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- /* Fill in status and signal that we are done processing this command
-  *
-  * This is scheduled in the vhost work queue so we are called with the owner
-@@ -527,15 +559,20 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 
- 		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
- 			cmd, se_cmd->residual_count, se_cmd->scsi_status);
--
- 		memset(&v_rsp, 0, sizeof(v_rsp));
--		v_rsp.resid = cpu_to_vhost32(cmd->tvc_vq, se_cmd->residual_count);
--		/* TODO is status_qualifier field needed? */
--		v_rsp.status = se_cmd->scsi_status;
--		v_rsp.sense_len = cpu_to_vhost32(cmd->tvc_vq,
--						 se_cmd->scsi_sense_length);
--		memcpy(v_rsp.sense, cmd->tvc_sense_buf,
--		       se_cmd->scsi_sense_length);
-+
-+		if (cmd->saved_iter_addr && vhost_scsi_copy_sgl_to_iov(cmd)) {
-+			v_rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
-+		} else {
-+			v_rsp.resid = cpu_to_vhost32(cmd->tvc_vq,
-+						     se_cmd->residual_count);
-+			/* TODO is status_qualifier field needed? */
-+			v_rsp.status = se_cmd->scsi_status;
-+			v_rsp.sense_len = cpu_to_vhost32(cmd->tvc_vq,
-+							 se_cmd->scsi_sense_length);
-+			memcpy(v_rsp.sense, cmd->tvc_sense_buf,
-+			       se_cmd->scsi_sense_length);
-+		}
- 
- 		iov_iter_init(&iov_iter, ITER_DEST, cmd->tvc_resp_iov,
- 			      cmd->tvc_in_iovs, sizeof(v_rsp));
-@@ -613,12 +650,12 @@ static int
- vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
- 		      struct iov_iter *iter,
- 		      struct scatterlist *sgl,
--		      bool write)
-+		      bool is_prot)
- {
- 	struct page **pages = cmd->tvc_upages;
- 	struct scatterlist *sg = sgl;
--	ssize_t bytes;
--	size_t offset;
-+	ssize_t bytes, mapped_bytes;
-+	size_t offset, mapped_offset;
- 	unsigned int npages = 0;
- 
- 	bytes = iov_iter_get_pages2(iter, pages, LONG_MAX,
-@@ -627,13 +664,53 @@ vhost_scsi_map_to_sgl(struct vhost_scsi_cmd *cmd,
- 	if (bytes <= 0)
- 		return bytes < 0 ? bytes : -EFAULT;
- 
-+	mapped_bytes = bytes;
-+	mapped_offset = offset;
-+
- 	while (bytes) {
- 		unsigned n = min_t(unsigned, PAGE_SIZE - offset, bytes);
-+		/*
-+		 * The block layer requires bios/requests to be a multiple of
-+		 * 512 bytes, but Windows can send us vecs that are misaligned.
-+		 * This can result in bios and later requests with misaligned
-+		 * sizes if we have to break up a cmd/scatterlist into multiple
-+		 * bios.
-+		 *
-+		 * We currently only break up a command into multiple bios if
-+		 * we hit the vec/seg limit, so check if our sgl_count is
-+		 * greater than the max and if a vec in the cmd has a
-+		 * misaligned offset/size.
-+		 */
-+		if (!is_prot &&
-+		    (offset & (SECTOR_SIZE - 1) || n & (SECTOR_SIZE - 1)) &&
-+		    cmd->tvc_sgl_count > BIO_MAX_VECS) {
-+			WARN_ONCE(true,
-+				  "vhost-scsi detected misaligned IO. Performance may be degraded.");
-+			goto revert_iter_get_pages;
-+		}
-+
- 		sg_set_page(sg++, pages[npages++], n, offset);
- 		bytes -= n;
- 		offset = 0;
- 	}
-+
- 	return npages;
-+
-+revert_iter_get_pages:
-+	iov_iter_revert(iter, mapped_bytes);
-+
-+	npages = 0;
-+	while (mapped_bytes) {
-+		unsigned int n = min_t(unsigned int, PAGE_SIZE - mapped_offset,
-+				       mapped_bytes);
-+
-+		put_page(pages[npages++]);
-+
-+		mapped_bytes -= n;
-+		mapped_offset = 0;
-+	}
-+
-+	return -EINVAL;
- }
- 
- static int
-@@ -657,25 +734,80 @@ vhost_scsi_calc_sgls(struct iov_iter *iter, size_t bytes, int max_sgls)
- }
- 
- static int
--vhost_scsi_iov_to_sgl(struct vhost_scsi_cmd *cmd, bool write,
--		      struct iov_iter *iter,
--		      struct scatterlist *sg, int sg_count)
-+vhost_scsi_copy_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
-+			   struct scatterlist *sg, int sg_count)
-+{
-+	size_t len = iov_iter_count(iter);
-+	unsigned int nbytes = 0;
-+	struct page *page;
-+	int i;
-+
-+	if (cmd->tvc_data_direction == DMA_FROM_DEVICE) {
-+		cmd->saved_iter_addr = dup_iter(&cmd->saved_iter, iter,
-+						GFP_KERNEL);
-+		if (!cmd->saved_iter_addr)
-+			return -ENOMEM;
-+	}
-+
-+	for (i = 0; i < sg_count; i++) {
-+		page = alloc_page(GFP_KERNEL);
-+		if (!page) {
-+			i--;
-+			goto err;
-+		}
-+
-+		nbytes = min_t(unsigned int, PAGE_SIZE, len);
-+		sg_set_page(&sg[i], page, nbytes, 0);
-+
-+		if (cmd->tvc_data_direction == DMA_TO_DEVICE &&
-+		    copy_page_from_iter(page, 0, nbytes, iter) != nbytes)
-+			goto err;
-+
-+		len -= nbytes;
-+	}
-+
-+	cmd->copied_iov = 1;
-+	return 0;
-+
-+err:
-+	pr_err("Could not read %u bytes while handling misaligned cmd\n",
-+	       nbytes);
-+
-+	for (; i >= 0; i--)
-+		__free_page(sg_page(&sg[i]));
-+	kfree(cmd->saved_iter_addr);
-+	return -ENOMEM;
-+}
-+
-+static int
-+vhost_scsi_iov_to_sgl(struct vhost_scsi_cmd *cmd, struct iov_iter *iter,
-+		      struct scatterlist *sg, int sg_count, bool is_prot)
- {
- 	struct scatterlist *p = sg;
-+	size_t revert_bytes;
- 	int ret;
- 
- 	while (iov_iter_count(iter)) {
--		ret = vhost_scsi_map_to_sgl(cmd, iter, sg, write);
-+		ret = vhost_scsi_map_to_sgl(cmd, iter, sg, is_prot);
- 		if (ret < 0) {
-+			revert_bytes = 0;
-+
- 			while (p < sg) {
--				struct page *page = sg_page(p++);
--				if (page)
-+				struct page *page = sg_page(p);
-+
-+				if (page) {
- 					put_page(page);
-+					revert_bytes += p->length;
-+				}
-+				p++;
- 			}
-+
-+			iov_iter_revert(iter, revert_bytes);
- 			return ret;
- 		}
- 		sg += ret;
- 	}
-+
- 	return 0;
- }
- 
-@@ -685,7 +817,6 @@ vhost_scsi_mapal(struct vhost_scsi_cmd *cmd,
- 		 size_t data_bytes, struct iov_iter *data_iter)
- {
- 	int sgl_count, ret;
--	bool write = (cmd->tvc_data_direction == DMA_FROM_DEVICE);
- 
- 	if (prot_bytes) {
- 		sgl_count = vhost_scsi_calc_sgls(prot_iter, prot_bytes,
-@@ -698,9 +829,8 @@ vhost_scsi_mapal(struct vhost_scsi_cmd *cmd,
- 		pr_debug("%s prot_sg %p prot_sgl_count %u\n", __func__,
- 			 cmd->tvc_prot_sgl, cmd->tvc_prot_sgl_count);
- 
--		ret = vhost_scsi_iov_to_sgl(cmd, write, prot_iter,
--					    cmd->tvc_prot_sgl,
--					    cmd->tvc_prot_sgl_count);
-+		ret = vhost_scsi_iov_to_sgl(cmd, prot_iter, cmd->tvc_prot_sgl,
-+					    cmd->tvc_prot_sgl_count, true);
- 		if (ret < 0) {
- 			cmd->tvc_prot_sgl_count = 0;
- 			return ret;
-@@ -716,8 +846,14 @@ vhost_scsi_mapal(struct vhost_scsi_cmd *cmd,
- 	pr_debug("%s data_sg %p data_sgl_count %u\n", __func__,
- 		  cmd->tvc_sgl, cmd->tvc_sgl_count);
- 
--	ret = vhost_scsi_iov_to_sgl(cmd, write, data_iter,
--				    cmd->tvc_sgl, cmd->tvc_sgl_count);
-+	ret = vhost_scsi_iov_to_sgl(cmd, data_iter, cmd->tvc_sgl,
-+				    cmd->tvc_sgl_count, false);
-+	if (ret == -EINVAL) {
-+		sg_init_table(cmd->tvc_sgl, cmd->tvc_sgl_count);
-+		ret = vhost_scsi_copy_iov_to_sgl(cmd, data_iter, cmd->tvc_sgl,
-+						 cmd->tvc_sgl_count);
-+	}
-+
- 	if (ret < 0) {
- 		cmd->tvc_sgl_count = 0;
- 		return ret;
--- 
-2.25.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU2F0LCBKdWwgOCwgMjAyMyBhdCA0OjEy4oCvQU0gU2hhbm5vbiBOZWxzb24gPHNoYW5ub24u
+bmVsc29uQGFtZC5jb20+IHdyb3RlOgo+Cj4KPgo+IE9uIDcvNy8yMyAxMjozMyBBTSwgSmFzb24g
+V2FuZyB3cm90ZToKPiA+IENhdXRpb246IFRoaXMgbWVzc2FnZSBvcmlnaW5hdGVkIGZyb20gYW4g
+RXh0ZXJuYWwgU291cmNlLiBVc2UgcHJvcGVyIGNhdXRpb24gd2hlbiBvcGVuaW5nIGF0dGFjaG1l
+bnRzLCBjbGlja2luZyBsaW5rcywgb3IgcmVzcG9uZGluZy4KPiA+Cj4gPgo+ID4gT24gRnJpLCBK
+dW4gMzAsIDIwMjMgYXQgODozNuKAr0FNIFNoYW5ub24gTmVsc29uIDxzaGFubm9uLm5lbHNvbkBh
+bWQuY29tPiB3cm90ZToKPiA+Pgo+ID4+IEZyb206IEFsbGVuIEh1YmJlIDxhbGxlbi5odWJiZUBh
+bWQuY29tPgo+ID4+Cj4gPj4gV2hlbiB0aGUgdmRwYSBkZXZpY2UgaXMgcmVzZXQsIGFsc28gcmVp
+bml0aWFsaXplIGl0IHdpdGggdGhlIG1hYyBhZGRyZXNzCj4gPj4gdGhhdCB3YXMgYXNzaWduZWQg
+d2hlbiB0aGUgZGV2aWNlIHdhcyBhZGRlZC4KPiA+Pgo+ID4+IEZpeGVzOiAxNTFjYzgzNGYzZGQg
+KCJwZHNfdmRwYTogYWRkIHN1cHBvcnQgZm9yIHZkcGEgYW5kIHZkcGFtZ210IGludGVyZmFjZXMi
+KQo+ID4+IFNpZ25lZC1vZmYtYnk6IEFsbGVuIEh1YmJlIDxhbGxlbi5odWJiZUBhbWQuY29tPgo+
+ID4+IFNpZ25lZC1vZmYtYnk6IFNoYW5ub24gTmVsc29uIDxzaGFubm9uLm5lbHNvbkBhbWQuY29t
+Pgo+ID4+IFJldmlld2VkLWJ5OiBCcmV0dCBDcmVlbGV5IDxicmV0dC5jcmVlbGV5QGFtZC5jb20+
+Cj4gPj4gLS0tCj4gPj4gICBkcml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmMgfCAxNiArKysrKysr
+Ky0tLS0tLS0tCj4gPj4gICBkcml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmggfCAgMSArCj4gPj4g
+ICAyIGZpbGVzIGNoYW5nZWQsIDkgaW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkKPiA+Pgo+
+ID4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmMgYi9kcml2ZXJzL3Zk
+cGEvcGRzL3ZkcGFfZGV2LmMKPiA+PiBpbmRleCA1MDcxYTRkNThmOGQuLmUyZTk5YmIwYmUyYiAx
+MDA2NDQKPiA+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmMKPiA+PiArKysgYi9k
+cml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmMKPiA+PiBAQCAtNDA5LDYgKzQwOSw4IEBAIHN0YXRp
+YyB2b2lkIHBkc192ZHBhX3NldF9zdGF0dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhX2Rldiwg
+dTggc3RhdHVzKQo+ID4+ICAgICAgICAgICAgICAgICAgICAgICAgICBwZHN2LT52cXNbaV0uYXZh
+aWxfaWR4ID0gMDsKPiA+PiAgICAgICAgICAgICAgICAgICAgICAgICAgcGRzdi0+dnFzW2ldLnVz
+ZWRfaWR4ID0gMDsKPiA+PiAgICAgICAgICAgICAgICAgIH0KPiA+PiArCj4gPj4gKyAgICAgICAg
+ICAgICAgIHBkc192ZHBhX2NtZF9zZXRfbWFjKHBkc3YsIHBkc3YtPm1hYyk7Cj4gPgo+ID4gU28g
+dGhpcyBpcyBub3QgbmVjZXNzYXJpbHkgY2FsbGVkIGR1cmluZyByZXNldC4gU28gSSB0aGluayB3
+ZSBuZWVkIHRvCj4gPiBtb3ZlIGl0IHRvIHBkc192ZHBhX3Jlc2V0KCk/Cj4KPiBwZHNfdmRwYV9y
+ZXNldCgpIGNhbGxzIHBkc192ZHBhX3NldF9zdGF0dXMoKSB3aXRoIGEgc3RhdHVzPTAsIHNvIHRo
+aXMgaXMKPiBhbHJlYWR5IGNvdmVyZWQuCgpZZXMsIGJ1dCBwZHNfdmRwYV9zZXRfc3RhdHVzKCkg
+d2lsbCBiZSBjYWxsZWQgd2hlbiBzdGF0dXMgaXMgbm90IHplcm8/CgpUaGFua3MKCj4KPiBzbG4K
+Pgo+ID4KPiA+IFRoZSByZXN0IGxvb2tzIGdvb2QuCj4gPgo+ID4gVGhhbmtzCj4gPgo+ID4+ICAg
+ICAgICAgIH0KPiA+Pgo+ID4+ICAgICAgICAgIGlmIChzdGF0dXMgJiB+b2xkX3N0YXR1cyAmIFZJ
+UlRJT19DT05GSUdfU19GRUFUVVJFU19PSykgewo+ID4+IEBAIC01MzIsNyArNTM0LDYgQEAgc3Rh
+dGljIGludCBwZHNfdmRwYV9kZXZfYWRkKHN0cnVjdCB2ZHBhX21nbXRfZGV2ICptZGV2LCBjb25z
+dCBjaGFyICpuYW1lLAo+ID4+ICAgICAgICAgIHN0cnVjdCBkZXZpY2UgKmRtYV9kZXY7Cj4gPj4g
+ICAgICAgICAgc3RydWN0IHBjaV9kZXYgKnBkZXY7Cj4gPj4gICAgICAgICAgc3RydWN0IGRldmlj
+ZSAqZGV2Owo+ID4+IC0gICAgICAgdTggbWFjW0VUSF9BTEVOXTsKPiA+PiAgICAgICAgICBpbnQg
+ZXJyOwo+ID4+ICAgICAgICAgIGludCBpOwo+ID4+Cj4gPj4gQEAgLTYxNywxOSArNjE4LDE4IEBA
+IHN0YXRpYyBpbnQgcGRzX3ZkcGFfZGV2X2FkZChzdHJ1Y3QgdmRwYV9tZ210X2RldiAqbWRldiwg
+Y29uc3QgY2hhciAqbmFtZSwKPiA+PiAgICAgICAgICAgKiBvciBzZXQgYSByYW5kb20gbWFjIGlm
+IGRlZmF1bHQgaXMgMDA6Li46MDAKPiA+PiAgICAgICAgICAgKi8KPiA+PiAgICAgICAgICBpZiAo
+YWRkX2NvbmZpZy0+bWFzayAmIEJJVF9VTEwoVkRQQV9BVFRSX0RFVl9ORVRfQ0ZHX01BQ0FERFIp
+KSB7Cj4gPj4gLSAgICAgICAgICAgICAgIGV0aGVyX2FkZHJfY29weShtYWMsIGFkZF9jb25maWct
+Pm5ldC5tYWMpOwo+ID4+IC0gICAgICAgICAgICAgICBwZHNfdmRwYV9jbWRfc2V0X21hYyhwZHN2
+LCBtYWMpOwo+ID4+ICsgICAgICAgICAgICAgICBldGhlcl9hZGRyX2NvcHkocGRzdi0+bWFjLCBh
+ZGRfY29uZmlnLT5uZXQubWFjKTsKPiA+PiAgICAgICAgICB9IGVsc2Ugewo+ID4+ICAgICAgICAg
+ICAgICAgICAgc3RydWN0IHZpcnRpb19uZXRfY29uZmlnIF9faW9tZW0gKnZjOwo+ID4+Cj4gPj4g
+ICAgICAgICAgICAgICAgICB2YyA9IHBkc3YtPnZkcGFfYXV4LT52ZF9tZGV2LmRldmljZTsKPiA+
+PiAtICAgICAgICAgICAgICAgbWVtY3B5X2Zyb21pbyhtYWMsIHZjLT5tYWMsIHNpemVvZihtYWMp
+KTsKPiA+PiAtICAgICAgICAgICAgICAgaWYgKGlzX3plcm9fZXRoZXJfYWRkcihtYWMpKSB7Cj4g
+Pj4gLSAgICAgICAgICAgICAgICAgICAgICAgZXRoX3JhbmRvbV9hZGRyKG1hYyk7Cj4gPj4gLSAg
+ICAgICAgICAgICAgICAgICAgICAgZGV2X2luZm8oZGV2LCAic2V0dGluZyByYW5kb20gbWFjICVw
+TVxuIiwgbWFjKTsKPiA+PiAtICAgICAgICAgICAgICAgICAgICAgICBwZHNfdmRwYV9jbWRfc2V0
+X21hYyhwZHN2LCBtYWMpOwo+ID4+ICsgICAgICAgICAgICAgICBtZW1jcHlfZnJvbWlvKHBkc3Yt
+Pm1hYywgdmMtPm1hYywgc2l6ZW9mKHBkc3YtPm1hYykpOwo+ID4+ICsgICAgICAgICAgICAgICBp
+ZiAoaXNfemVyb19ldGhlcl9hZGRyKHBkc3YtPm1hYykpIHsKPiA+PiArICAgICAgICAgICAgICAg
+ICAgICAgICBldGhfcmFuZG9tX2FkZHIocGRzdi0+bWFjKTsKPiA+PiArICAgICAgICAgICAgICAg
+ICAgICAgICBkZXZfaW5mbyhkZXYsICJzZXR0aW5nIHJhbmRvbSBtYWMgJXBNXG4iLCBwZHN2LT5t
+YWMpOwo+ID4+ICAgICAgICAgICAgICAgICAgfQo+ID4+ICAgICAgICAgIH0KPiA+PiArICAgICAg
+IHBkc192ZHBhX2NtZF9zZXRfbWFjKHBkc3YsIHBkc3YtPm1hYyk7Cj4gPj4KPiA+PiAgICAgICAg
+ICBmb3IgKGkgPSAwOyBpIDwgcGRzdi0+bnVtX3ZxczsgaSsrKSB7Cj4gPj4gICAgICAgICAgICAg
+ICAgICBwZHN2LT52cXNbaV0ucWlkID0gaTsKPiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBh
+L3Bkcy92ZHBhX2Rldi5oIGIvZHJpdmVycy92ZHBhL3Bkcy92ZHBhX2Rldi5oCj4gPj4gaW5kZXgg
+YTFiYzM3ZGU5NTM3Li5jZjAyZGYyODdmYzQgMTAwNjQ0Cj4gPj4gLS0tIGEvZHJpdmVycy92ZHBh
+L3Bkcy92ZHBhX2Rldi5oCj4gPj4gKysrIGIvZHJpdmVycy92ZHBhL3Bkcy92ZHBhX2Rldi5oCj4g
+Pj4gQEAgLTM5LDYgKzM5LDcgQEAgc3RydWN0IHBkc192ZHBhX2RldmljZSB7Cj4gPj4gICAgICAg
+ICAgdTY0IHJlcV9mZWF0dXJlczsgICAgICAgICAgICAgICAvKiBmZWF0dXJlcyByZXF1ZXN0ZWQg
+YnkgdmRwYSAqLwo+ID4+ICAgICAgICAgIHU4IHZkcGFfaW5kZXg7ICAgICAgICAgICAgICAgICAg
+LyogcnN2ZCBmb3IgZnV0dXJlIHN1YmRldmljZSB1c2UgKi8KPiA+PiAgICAgICAgICB1OCBudW1f
+dnFzOyAgICAgICAgICAgICAgICAgICAgIC8qIG51bSB2cXMgaW4gdXNlICovCj4gPj4gKyAgICAg
+ICB1OCBtYWNbRVRIX0FMRU5dOyAgICAgICAgICAgICAgIC8qIG1hYyBzZWxlY3RlZCB3aGVuIHRo
+ZSBkZXZpY2Ugd2FzIGFkZGVkICovCj4gPj4gICAgICAgICAgc3RydWN0IHZkcGFfY2FsbGJhY2sg
+Y29uZmlnX2NiOwo+ID4+ICAgICAgICAgIHN0cnVjdCBub3RpZmllcl9ibG9jayBuYjsKPiA+PiAg
+IH07Cj4gPj4gLS0KPiA+PiAyLjE3LjEKPiA+Pgo+ID4KPgoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
