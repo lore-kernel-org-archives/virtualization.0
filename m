@@ -1,70 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 52643EB64DD
-	for <virtualization@archiver.kernel.org>; Wed, 12 Jul 2023 09:42:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B244EB64D9
+	for <virtualization@archiver.kernel.org>; Wed, 12 Jul 2023 10:14:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C66E94026F;
-	Wed, 12 Jul 2023 09:42:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C66E94026F
+	by smtp1.osuosl.org (Postfix) with ESMTP id C710F81DEA;
+	Wed, 12 Jul 2023 10:14:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C710F81DEA
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BAIMWJgt
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uJ9IubZ0AzJp; Wed, 12 Jul 2023 09:42:11 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kwlTY6kVmn-H; Wed, 12 Jul 2023 10:14:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 274C840108;
-	Wed, 12 Jul 2023 09:42:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 274C840108
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5C30081DAB;
+	Wed, 12 Jul 2023 10:14:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5C30081DAB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 02660C0071;
-	Wed, 12 Jul 2023 09:42:11 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E0725C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 224BBC0072;
+	Wed, 12 Jul 2023 10:14:26 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 90DABC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jul 2023 09:42:09 +0000 (UTC)
+ Wed, 12 Jul 2023 10:14:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AD8636117A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5DD3A81DAB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jul 2023 09:42:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AD8636117A
+ Wed, 12 Jul 2023 10:14:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DD3A81DAB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UOVGr7hVmjqk
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id BBEoorqnnaFt
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jul 2023 09:42:07 +0000 (UTC)
+ Wed, 12 Jul 2023 10:14:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 09BB56117B
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 09BB56117B
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6BBDE81D7C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6BBDE81D7C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 Jul 2023 09:42:06 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=18; SR=0;
- TI=SMTPD_---0VnCXL6R_1689154918; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VnCXL6R_1689154918) by smtp.aliyun-inc.com;
- Wed, 12 Jul 2023 17:41:59 +0800
-Message-ID: <1689154785.322522-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next V1 3/4] virtio_net: support per queue interrupt
- coalesce command
-Date: Wed, 12 Jul 2023 17:39:45 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Gavin Li <gavinl@nvidia.com>
-References: <20230710092005.5062-1-gavinl@nvidia.com>
- <20230710092005.5062-4-gavinl@nvidia.com>
-In-Reply-To: <20230710092005.5062-4-gavinl@nvidia.com>
-Cc: xuanzhuo@linux.alibaba.com, ast@kernel.org, hawk@kernel.org,
- daniel@iogearbox.net, mst@redhat.com, netdev@vger.kernel.org,
- john.fastabend@gmail.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, edumazet@google.com,
- jiri@nvidia.com, kuba@kernel.org, bpf@vger.kernel.org, pabeni@redhat.com,
- davem@davemloft.net
+ Wed, 12 Jul 2023 10:14:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1689156862;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=D/4n1T4Di9dqAOFGS+inlBrET7BRHhbAxPcO28uG01Q=;
+ b=BAIMWJgtG6VEtRGX9d515J6gvBbxcl+tp9jvWt/PJ0jpMnXFGtzaKaZ4FvxK64A8Hi8a21
+ aiK+u01anSpdd+gZo5/Q1ZqLnQL87vdQOWVHf5P5xJtYXJVnXSAstQiMYPH0Vb8zF8PJ6p
+ 8+f8ZhH6012pbfZnEKZs2z/0bBFk5Ho=
+Received: from mail-qv1-f72.google.com (mail-qv1-f72.google.com
+ [209.85.219.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-241-5zipJN8bOAO3LLDNKojdxA-1; Wed, 12 Jul 2023 06:14:21 -0400
+X-MC-Unique: 5zipJN8bOAO3LLDNKojdxA-1
+Received: by mail-qv1-f72.google.com with SMTP id
+ 6a1803df08f44-635a4267cf5so64464676d6.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Jul 2023 03:14:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1689156860; x=1691748860;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=D/4n1T4Di9dqAOFGS+inlBrET7BRHhbAxPcO28uG01Q=;
+ b=NsckC2UGQyRe8OWPmoBxxQk4RsBt1TPMY0gSSrFpmPnW9gc/PHPtK4XHbtlsW6or4w
+ idK0X/Zc5aA/UCQdk+Fdl9SM6OIOX4mrtLZWyqeAFzUAMnqP+5b8fLsX3vxooa6Wl4uW
+ UNkJjXnaExdWlQjR2XaYolWz2UIwvm84zwb9SMA2ic179fgBNDgMTKMjnIy32LyqR0vi
+ 16fCZC+ntgSxafctKev7Emws5kvr5VlqIBH3nsh0lGpb8z/whTMswIjJtgzGqmvr+kmX
+ jsQdII3QYbGYqOkLfHGUG/97ITwqaDPZiA1X2STwsK1jUfNpz67VVvtfWGa99Vsqohfn
+ qzcg==
+X-Gm-Message-State: ABy/qLZ3vAjmVRomBEAXttzkqr3E94ivO7X7GjYtYNwVDOiD22ztAjvp
+ 2oFOyRidB1D5PgEocY+CvpGZPQH9By3NaW+a/UUnKLtFTTw5vCUhTePdWOyDONzYV7W4svWKz/A
+ 5ckCrdCKnOLx4bQmCl38gp0wedz2R/YNZruG+9J3SyA==
+X-Received: by 2002:ac8:5b0b:0:b0:403:9f48:7ce1 with SMTP id
+ m11-20020ac85b0b000000b004039f487ce1mr17970973qtw.53.1689156860695; 
+ Wed, 12 Jul 2023 03:14:20 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlHlxbb8j7LshAiGKZNfsSGwJ4zTSF2mOzrqRvKk5LzC+D2tYuiNcSmvHeC6WLXDnQaz2YIMjw==
+X-Received: by 2002:ac8:5b0b:0:b0:403:9f48:7ce1 with SMTP id
+ m11-20020ac85b0b000000b004039f487ce1mr17970952qtw.53.1689156860434; 
+ Wed, 12 Jul 2023 03:14:20 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-134-6.retail.telecomitalia.it.
+ [82.53.134.6]) by smtp.gmail.com with ESMTPSA id
+ c14-20020ac81e8e000000b0040331f93ee0sm2123644qtm.77.2023.07.12.03.14.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 12 Jul 2023 03:14:20 -0700 (PDT)
+Date: Wed, 12 Jul 2023 12:14:15 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] Revert "virtio-scsi: Send "REPORTED LUNS CHANGED" sense
+ data upon disk hotplug events"
+Message-ID: <bnitgwesvbjdkbrvnykltherzddi3zvms3ckd5yk3w4whdplu3@tv43e42wjl55>
+References: <20230705071523.15496-1-sgarzare@redhat.com>
+ <i3od362o6unuimlqna3aaedliaabauj6g545esg7txidd4s44e@bkx5des6zytx>
+ <765f14c5-a938-ebd9-6383-4fe3d5c812ca@oracle.com>
+ <10a3d00f-a3a2-91d1-0f94-9758cdc4b969@redhat.com>
+MIME-Version: 1.0
+In-Reply-To: <10a3d00f-a3a2-91d1-0f94-9758cdc4b969@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Fam Zheng <fam@euphon.net>, Thomas Huth <thuth@redhat.com>,
+ Mark Kanda <mark.kanda@oracle.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "James E.J. Bottomley" <jejb@linux.ibm.com>, qemu-stable@nongnu.org,
+ qemu-devel@nongnu.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,265 +123,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 10 Jul 2023 12:20:04 +0300, Gavin Li <gavinl@nvidia.com> wrote:
-> Add interrupt_coalesce config in send_queue and receive_queue to cache user
-> config.
+On Wed, Jul 12, 2023 at 10:06:56AM +0200, Paolo Bonzini wrote:
+>On 7/11/23 22:21, Mike Christie wrote:
+>>What was the issue you are seeing?
+>>
+>>Was it something like you get the UA. We retry then on one of the
+>>retries the sense is not setup correctly, so the scsi error handler
+>>runs? That fails and the device goes offline?
+>>
+>>If you turn on scsi debugging you would see:
+>>
+>>
+>>[  335.445922] sd 0:0:0:0: [sda] tag#15 Add. Sense: Reported luns data has changed
+>>[  335.445922] sd 0:0:0:0: [sda] tag#16 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445925] sd 0:0:0:0: [sda] tag#16 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445929] sd 0:0:0:0: [sda] tag#17 Done: FAILED Result: hostbyte=DID_OK driverbyte=DRIVER_OK cmd_age=0s
+>>[  335.445932] sd 0:0:0:0: [sda] tag#17 CDB: Write(10) 2a 00 00 db 4f c0 00 00 20 00
+>>[  335.445934] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445936] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445938] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445940] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445942] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.445945] sd 0:0:0:0: [sda] tag#17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>[  335.451447] scsi host0: scsi_eh_0: waking up 0/2/2
+>>[  335.451453] scsi host0: Total of 2 commands on 1 devices require eh work
+>>[  335.451457] sd 0:0:0:0: [sda] tag#16 scsi_eh_0: requesting sense
 >
-> Send per virtqueue interrupt moderation config to underline device in order
-> to have more efficient interrupt moderation and cpu utilization of guest
-> VM.
+>Does this log come from internal discussions within Oracle?
 >
-> Signed-off-by: Gavin Li <gavinl@nvidia.com>
-> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> ---
->  drivers/net/virtio_net.c        | 117 ++++++++++++++++++++++++++++----
->  include/uapi/linux/virtio_net.h |  14 ++++
->  2 files changed, 119 insertions(+), 12 deletions(-)
+>>I don't know the qemu scsi code well, but I scanned the code for my co-worker
+>>and my guess was commit 8cc5583abe6419e7faaebc9fbd109f34f4c850f2 had a race in it.
+>>
+>>How is locking done? when it is a bus level UA but there are multiple devices
+>>on the bus?
 >
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 802ed21453f5..333a38e1941f 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -144,6 +144,8 @@ struct send_queue {
->
->  	struct virtnet_sq_stats stats;
->
-> +	struct virtnet_interrupt_coalesce intr_coal;
-> +
->  	struct napi_struct napi;
->
->  	/* Record whether sq is in reset state. */
-> @@ -161,6 +163,8 @@ struct receive_queue {
->
->  	struct virtnet_rq_stats stats;
->
-> +	struct virtnet_interrupt_coalesce intr_coal;
-> +
->  	/* Chain pages by the private ptr. */
->  	struct page *pages;
->
-> @@ -3078,6 +3082,56 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
->  	return 0;
->  }
->
-> +static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
-> +					 u16 vqn, u32 max_usecs, u32 max_packets)
-> +{
-> +	struct virtio_net_ctrl_coal_vq coal_vq = {};
+>No locking should be necessary, the code is single threaded.  However, 
+>what can happen is that two consecutive calls to 
+>virtio_scsi_handle_cmd_req_prepare use the unit attention ReqOps, and 
+>then the second virtio_scsi_handle_cmd_req_submit finds no unit 
+>attention (see the loop in virtio_scsi_handle_cmd_vq).  That can 
+>definitely explain the log above.
 
-We should alloc this on the heap.
+Yes, this seems to be the case!
+Thank you both for the help!
 
-Thanks.
+Following Paolo's advice, I'm preparing a series for QEMU to solve the
+problem!
 
+Stefano
 
-> +	struct scatterlist sgs;
-> +
-> +	coal_vq.vqn = cpu_to_le16(vqn);
-> +	coal_vq.coal.max_usecs = cpu_to_le32(max_usecs);
-> +	coal_vq.coal.max_packets = cpu_to_le32(max_packets);
-> +	sg_init_one(&sgs, &coal_vq, sizeof(coal_vq));
-> +
-> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> +				  VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
-> +				  &sgs))
-> +		return -EINVAL;
-> +
-> +	return 0;
-> +}
-> +
-> +static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
-> +					  struct ethtool_coalesce *ec,
-> +					  u16 queue)
-> +{
-> +	int err;
-> +
-> +	if (ec->rx_coalesce_usecs || ec->rx_max_coalesced_frames) {
-> +		err = virtnet_send_ctrl_coal_vq_cmd(vi, rxq2vq(queue),
-> +						    ec->rx_coalesce_usecs,
-> +						    ec->rx_max_coalesced_frames);
-> +		if (err)
-> +			return err;
-> +		/* Save parameters */
-> +		vi->rq[queue].intr_coal.max_usecs = ec->rx_coalesce_usecs;
-> +		vi->rq[queue].intr_coal.max_packets = ec->rx_max_coalesced_frames;
-> +	}
-> +
-> +	if (ec->tx_coalesce_usecs || ec->tx_max_coalesced_frames) {
-> +		err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(queue),
-> +						    ec->tx_coalesce_usecs,
-> +						    ec->tx_max_coalesced_frames);
-> +		if (err)
-> +			return err;
-> +		/* Save parameters */
-> +		vi->sq[queue].intr_coal.max_usecs = ec->tx_coalesce_usecs;
-> +		vi->sq[queue].intr_coal.max_packets = ec->tx_max_coalesced_frames;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
->  {
->  	/* usecs coalescing is supported only if VIRTIO_NET_F_NOTF_COAL
-> @@ -3094,23 +3148,36 @@ static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
->  }
->
->  static int virtnet_set_coalesce_one(struct net_device *dev,
-> -				    struct ethtool_coalesce *ec)
-> +				    struct ethtool_coalesce *ec,
-> +				    bool per_queue,
-> +				    u32 queue)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> -	int ret, i, napi_weight;
-> +	int queue_count = per_queue ? 1 : vi->max_queue_pairs;
-> +	int queue_number = per_queue ? queue : 0;
->  	bool update_napi = false;
-> +	int ret, i, napi_weight;
-> +
-> +	if (queue >= vi->max_queue_pairs)
-> +		return -EINVAL;
->
->  	/* Can't change NAPI weight if the link is up */
->  	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
-> -	if (napi_weight ^ vi->sq[0].napi.weight) {
-> -		if (dev->flags & IFF_UP)
-> -			return -EBUSY;
-> -		else
-> +	for (i = queue_number; i < queue_count; i++) {
-> +		if (napi_weight ^ vi->sq[i].napi.weight) {
-> +			if (dev->flags & IFF_UP)
-> +				return -EBUSY;
-> +
->  			update_napi = true;
-> +			queue_number = i;
-> +			break;
-> +		}
->  	}
->
-> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
-> +	if (!per_queue && virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
->  		ret = virtnet_send_notf_coal_cmds(vi, ec);
-> +	else if (per_queue && virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-> +		ret = virtnet_send_notf_coal_vq_cmds(vi, ec, queue);
->  	else
->  		ret = virtnet_coal_params_supported(ec);
->
-> @@ -3118,7 +3185,7 @@ static int virtnet_set_coalesce_one(struct net_device *dev,
->  		return ret;
->
->  	if (update_napi) {
-> -		for (i = 0; i < vi->max_queue_pairs; i++)
-> +		for (i = queue_number; i < queue_count; i++)
->  			vi->sq[i].napi.weight = napi_weight;
->  	}
->
-> @@ -3130,19 +3197,29 @@ static int virtnet_set_coalesce(struct net_device *dev,
->  				struct kernel_ethtool_coalesce *kernel_coal,
->  				struct netlink_ext_ack *extack)
->  {
-> -	return virtnet_set_coalesce_one(dev, ec);
-> +	return virtnet_set_coalesce_one(dev, ec, false, 0);
->  }
->
->  static int virtnet_get_coalesce_one(struct net_device *dev,
-> -				    struct ethtool_coalesce *ec)
-> +				    struct ethtool_coalesce *ec,
-> +				    bool per_queue,
-> +				    u32 queue)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->
-> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
-> +	if (queue >= vi->max_queue_pairs)
-> +		return -EINVAL;
-> +
-> +	if (!per_queue && virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL)) {
->  		ec->rx_coalesce_usecs = vi->intr_coal_rx.max_usecs;
->  		ec->tx_coalesce_usecs = vi->intr_coal_tx.max_usecs;
->  		ec->tx_max_coalesced_frames = vi->intr_coal_tx.max_packets;
->  		ec->rx_max_coalesced_frames = vi->intr_coal_rx.max_packets;
-> +	} else if (per_queue && virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
-> +		ec->rx_coalesce_usecs = vi->rq[queue].intr_coal.max_usecs;
-> +		ec->tx_coalesce_usecs = vi->sq[queue].intr_coal.max_usecs;
-> +		ec->tx_max_coalesced_frames = vi->sq[queue].intr_coal.max_packets;
-> +		ec->rx_max_coalesced_frames = vi->rq[queue].intr_coal.max_packets;
->  	} else {
->  		ec->rx_max_coalesced_frames = 1;
->
-> @@ -3158,7 +3235,21 @@ static int virtnet_get_coalesce(struct net_device *dev,
->  				struct kernel_ethtool_coalesce *kernel_coal,
->  				struct netlink_ext_ack *extack)
->  {
-> -	return virtnet_get_coalesce_one(dev, ec);
-> +	return virtnet_get_coalesce_one(dev, ec, false, 0);
-> +}
-> +
-> +static int virtnet_set_per_queue_coalesce(struct net_device *dev,
-> +					  u32 queue,
-> +					  struct ethtool_coalesce *ec)
-> +{
-> +	return virtnet_set_coalesce_one(dev, ec, true, queue);
-> +}
-> +
-> +static int virtnet_get_per_queue_coalesce(struct net_device *dev,
-> +					  u32 queue,
-> +					  struct ethtool_coalesce *ec)
-> +{
-> +	return virtnet_get_coalesce_one(dev, ec, true, queue);
->  }
->
->  static void virtnet_init_settings(struct net_device *dev)
-> @@ -3291,6 +3382,8 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
->  	.set_link_ksettings = virtnet_set_link_ksettings,
->  	.set_coalesce = virtnet_set_coalesce,
->  	.get_coalesce = virtnet_get_coalesce,
-> +	.set_per_queue_coalesce = virtnet_set_per_queue_coalesce,
-> +	.get_per_queue_coalesce = virtnet_get_per_queue_coalesce,
->  	.get_rxfh_key_size = virtnet_get_rxfh_key_size,
->  	.get_rxfh_indir_size = virtnet_get_rxfh_indir_size,
->  	.get_rxfh = virtnet_get_rxfh,
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index 12c1c9699935..cc65ef0f3c3e 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -56,6 +56,7 @@
->  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
->  					 * Steering */
->  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
-> +#define VIRTIO_NET_F_VQ_NOTF_COAL 52	/* Device supports virtqueue notification coalescing */
->  #define VIRTIO_NET_F_NOTF_COAL	53	/* Device supports notifications coalescing */
->  #define VIRTIO_NET_F_GUEST_USO4	54	/* Guest can handle USOv4 in. */
->  #define VIRTIO_NET_F_GUEST_USO6	55	/* Guest can handle USOv6 in. */
-> @@ -391,5 +392,18 @@ struct virtio_net_ctrl_coal_rx {
->  };
->
->  #define VIRTIO_NET_CTRL_NOTF_COAL_RX_SET		1
-> +#define VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET		2
-> +#define VIRTIO_NET_CTRL_NOTF_COAL_VQ_GET		3
-> +
-> +struct virtio_net_ctrl_coal {
-> +	__le32 max_packets;
-> +	__le32 max_usecs;
-> +};
-> +
-> +struct  virtio_net_ctrl_coal_vq {
-> +	__le16 vqn;
-> +	__le16 reserved;
-> +	struct virtio_net_ctrl_coal coal;
-> +};
->
->  #endif /* _UAPI_LINUX_VIRTIO_NET_H */
-> --
-> 2.39.1
->
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
