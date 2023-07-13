@@ -4,104 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 797E4C0015E
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:52:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07A4EC00528
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:52:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E6F8E42088;
-	Thu, 13 Jul 2023 14:52:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E6F8E42088
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8456142089;
+	Thu, 13 Jul 2023 14:52:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8456142089
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iqQewhQY
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ed/otZgv
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HSADlNJHQL0S; Thu, 13 Jul 2023 14:52:12 +0000 (UTC)
+	with ESMTP id 9FtW-2MMwDPG; Thu, 13 Jul 2023 14:52:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2F5AB42080;
-	Thu, 13 Jul 2023 14:52:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2F5AB42080
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A6B484207D;
+	Thu, 13 Jul 2023 14:52:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6B484207D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 121E9C0071;
-	Thu, 13 Jul 2023 14:52:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20EBAC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7452AC0071;
+	Thu, 13 Jul 2023 14:52:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2C18C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:11 +0000 (UTC)
+ Thu, 13 Jul 2023 14:52:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E18DA613B4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7FD45613B4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E18DA613B4
+ Thu, 13 Jul 2023 14:52:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7FD45613B4
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iqQewhQY
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=ed/otZgv
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eP-nlh23_Xvj
+ with ESMTP id X9C6ULTmnLmA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:10 +0000 (UTC)
+ Thu, 13 Jul 2023 14:52:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 27E2C613C7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0A93B6139F
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 27E2C613C7
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0A93B6139F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:10 +0000 (UTC)
+ Thu, 13 Jul 2023 14:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689259928;
+ s=mimecast20190719; t=1689259971;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=5E6F9ats4BLmlQpCisZt6wT8CnApvl7BR9/00bgFE+o=;
- b=iqQewhQYWuyGG5NmheYFNcFwDNuvgKxpM1gcahmssW+mVSmgl15qre01edEuMdkTifKPAq
- sdgNX+TbyeFRirdpOXuXwvrEi4QoVhYQ0NROsGRHQ1skkXMgLvloMBkbrDt9E14tb8cKra
- 0vaNF7PY5fImUO5X1+xBYzd8t8lk4TE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=a2zCtBlVMSfdNhn49F5fvGTfds6ip8Yk0SLr5SlzCTc=;
+ b=ed/otZgvy/UyyX9Q+zmgkKF0WMj4VvaSOiQOuSpM/jZxh2mgeb2Bq0GTiSWg6Wp6Jxf1/+
+ eVPsS78e7H/pGP1jFNz8vrCD76WKdNSHOCvjaI/b2eEZFm0V/AXmasoyJ3obL0F4MAO/IP
+ wT7LniqQ5Y7bexPpFahoFIifjOFaXzs=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-571-M0PoO5ZWP5277DolMHAhDw-1; Thu, 13 Jul 2023 10:52:05 -0400
-X-MC-Unique: M0PoO5ZWP5277DolMHAhDw-1
-Received: by mail-wr1-f72.google.com with SMTP id
- ffacd0b85a97d-31444df0fafso464272f8f.2
+ us-mta-662-JRbfjf4bMRqxqfOd3SapRg-1; Thu, 13 Jul 2023 10:52:49 -0400
+X-MC-Unique: JRbfjf4bMRqxqfOd3SapRg-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ ffacd0b85a97d-31429e93f26so585023f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:52:05 -0700 (PDT)
+ Thu, 13 Jul 2023 07:52:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689259924; x=1691851924;
+ d=1e100.net; s=20221208; t=1689259968; x=1691851968;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=5E6F9ats4BLmlQpCisZt6wT8CnApvl7BR9/00bgFE+o=;
- b=ODe5XVO4eK/ESLOedPvAnQx/Xj47L30tcq2WWtF7tVo+H56j4cCeuZfZImWeHfv9bt
- mmzwvNCZuXhbQObi62KCT4MgRjFeOnLWavXEMfQzb+qnU8xIaTGN2rynifCeeE3Mq+mS
- o0BOCdCJJPoDjausvKxMyvTrHjq7EVa+Norg9vAhA0epBLVV22IWUbxls16dVHRVKKnc
- pbtRzWw18tYicXNtnZp2WRZ4dUQ51Y+8jzbvynzFNskgv2UN9NBq7HT9mTxStJZqXBZ+
- wLWcUKokkgtv1VQfqAhfJfI48OF93MV18j32xSPu5JJdMhmua0113bXmUbp+UWkAWMWq
- dBrA==
-X-Gm-Message-State: ABy/qLb7N+fDzL9/RsU1ehGQw47FQ0TVh++/8nB5xx0u0ukkClFOBF3G
- PJx3NYPno58NpFM6jb4ASeJpSk2YWz+x98yfPmmVOdNp9tmb3Lf8nEKEToeMUFrWIsN1kfDpooz
- 451BYSj5JSsx3QySUfRCJWkigLBVbEsVcuTW0syjxUg==
-X-Received: by 2002:a5d:4e8d:0:b0:314:ca7:f30b with SMTP id
- e13-20020a5d4e8d000000b003140ca7f30bmr1958303wru.54.1689259924770; 
- Thu, 13 Jul 2023 07:52:04 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlFRuSHTNPf9qN+kahsoUR/nmIalfm3YfEdwlFil6U+7gTdTpuIDAdjWTT/+bCM2yDuYWb+3kQ==
-X-Received: by 2002:a5d:4e8d:0:b0:314:ca7:f30b with SMTP id
- e13-20020a5d4e8d000000b003140ca7f30bmr1958277wru.54.1689259924514; 
- Thu, 13 Jul 2023 07:52:04 -0700 (PDT)
+ bh=a2zCtBlVMSfdNhn49F5fvGTfds6ip8Yk0SLr5SlzCTc=;
+ b=ieO1Dtjh+tU/XOJH8PQEL3gOTYdSwU5AR1fDt5IHf9oC3NTmaiGmnUXwXN28w+ij9N
+ xoBHNgXOyHbZzXsk8FEWX5piLhhnqmntCHAs6TuFiRW7vuGbGc0L7JJxeDtJE1RHFJSo
+ iJf2Cvy8nDIPBUh9bkhqE36jyLYoNNJIPK07ZB9CaQS6RUdJ7k+fI12KSdAI+1jusiF6
+ gNLH+jPgpynnYW0gAc+aYDGLY6fZGTa0KFVBWt/poFgLsjN178kB44eKr5SsnXJL7Xwy
+ y6ia+kZewsHnSqUNGRQdQOXAEcIC01si6pVqum9OvEk+s0NF2dK9C8wnOmiLyAj9p8IX
+ bjJg==
+X-Gm-Message-State: ABy/qLbf1I3XohEkcJnkT9c+AJ7Do/wYSBObZIgf1AZSm77O6YDGyRdR
+ 0m5tXTE4fYoAR4GqLbyKQ1qbZ2ijlad/V4oNccwcqm/m7mhI0vwulAeTHL1lLG0YyXzVSsfHwCt
+ k2gHe7EnkMbr8c+W5DkcxSuksMO4kGQJf7I+LlyHI4Q==
+X-Received: by 2002:adf:f802:0:b0:314:3503:15ac with SMTP id
+ s2-20020adff802000000b00314350315acmr1739356wrp.10.1689259968669; 
+ Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlHIe9bIwU8uwonGb/X776+z7KNCl4G7bhOiTrPif1cQEJqDIP/Vb7HU5xOiBtQ+0jRV7Mj+VA==
+X-Received: by 2002:adf:f802:0:b0:314:3503:15ac with SMTP id
+ s2-20020adff802000000b00314350315acmr1739345wrp.10.1689259968500; 
+ Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
 Received: from redhat.com ([2.52.158.233]) by smtp.gmail.com with ESMTPSA id
- s15-20020adff80f000000b00313f9a0c521sm8253520wrp.107.2023.07.13.07.52.02
+ s14-20020adfea8e000000b00301a351a8d6sm8230571wrm.84.2023.07.13.07.52.46
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Jul 2023 07:52:04 -0700 (PDT)
-Date: Thu, 13 Jul 2023 10:51:59 -0400
+ Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
+Date: Thu, 13 Jul 2023 10:52:44 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
-Message-ID: <20230713104805-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH vhost v11 03/10] virtio_ring: introduce
+ virtqueue_set_premapped()
+Message-ID: <20230713105230-mutt-send-email-mst@kernel.org>
 References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
- <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
- <ZK/cxNHzI23I6efc@infradead.org>
+ <20230710034237.12391-4-xuanzhuo@linux.alibaba.com>
+ <ZK/cpSceLMovhmfR@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <ZK/cxNHzI23I6efc@infradead.org>
+In-Reply-To: <ZK/cpSceLMovhmfR@infradead.org>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -128,15 +129,19 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 13, 2023 at 04:15:16AM -0700, Christoph Hellwig wrote:
-> On Mon, Jul 10, 2023 at 11:42:32AM +0800, Xuan Zhuo wrote:
-> > Added virtqueue_dma_dev() to get DMA device for virtio. Then the
-> > caller can do dma operation in advance. The purpose is to keep memory
-> > mapped across multiple add/get buf operations.
+On Thu, Jul 13, 2023 at 04:14:45AM -0700, Christoph Hellwig wrote:
+> On Mon, Jul 10, 2023 at 11:42:30AM +0800, Xuan Zhuo wrote:
+> > This helper allows the driver change the dma mode to premapped mode.
+> > Under the premapped mode, the virtio core do not do dma mapping
+> > internally.
+> > 
+> > This just work when the use_dma_api is true. If the use_dma_api is false,
+> > the dma options is not through the DMA APIs, that is not the standard
+> > way of the linux kernel.
 > 
-> This is just poking holes into the abstraction..
+> I have a hard time parsing this.
 
-More specifically?
+Me too unfortunately.
 
 -- 
 MST
