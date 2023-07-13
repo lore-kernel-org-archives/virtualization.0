@@ -4,70 +4,108 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81DDBC001DD
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 05:47:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9274EB64DD
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 05:56:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EF08E6128E;
-	Thu, 13 Jul 2023 05:47:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF08E6128E
+	by smtp3.osuosl.org (Postfix) with ESMTP id 815C761294;
+	Thu, 13 Jul 2023 05:56:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 815C761294
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PCQ0heY3
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Eu9amKPNJPUh; Thu, 13 Jul 2023 05:47:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4973E60FDF;
-	Thu, 13 Jul 2023 05:47:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4973E60FDF
+	with ESMTP id XT8K65PaFI18; Thu, 13 Jul 2023 05:56:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id B28B961283;
+	Thu, 13 Jul 2023 05:56:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B28B961283
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 085B0C0072;
-	Thu, 13 Jul 2023 05:47:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DB58C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 27166C0072;
+	Thu, 13 Jul 2023 05:56:08 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11F0BC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 05:47:32 +0000 (UTC)
+ Thu, 13 Jul 2023 05:56:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D554383BB1
+ by smtp4.osuosl.org (Postfix) with ESMTP id D882E41F8A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 05:47:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D554383BB1
+ Thu, 13 Jul 2023 05:56:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D882E41F8A
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=PCQ0heY3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5OgKOSCvbPwE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kVOVWeGJEdpm
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 05:47:30 +0000 (UTC)
+ Thu, 13 Jul 2023 05:56:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CCE4283BB0
-Received: from out30-100.freemail.mail.aliyun.com
- (out30-100.freemail.mail.aliyun.com [115.124.30.100])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CCE4283BB0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 197E241F88
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 197E241F88
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 05:47:29 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VnFltKF_1689227242; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VnFltKF_1689227242) by smtp.aliyun-inc.com;
- Thu, 13 Jul 2023 13:47:23 +0800
-Message-ID: <1689227123.7112546-2-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v11 06/10] virtio_ring: skip unmap for premapped
-Date: Thu, 13 Jul 2023 13:45:23 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
- <20230710034237.12391-7-xuanzhuo@linux.alibaba.com>
- <CACGkMEtb_wYyXLU6kAaC2Ju2d4K=J+YbytUCMvKcNtPF+BvpJw@mail.gmail.com>
- <1689220976.8908284-1-xuanzhuo@linux.alibaba.com>
- <CACGkMEtt8Po5saxdEQDK_RkML3UK4LKRp3B4owyoLQQYXHt+oA@mail.gmail.com>
-In-Reply-To: <CACGkMEtt8Po5saxdEQDK_RkML3UK4LKRp3B4owyoLQQYXHt+oA@mail.gmail.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Thu, 13 Jul 2023 05:56:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1689227759;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=ngbNAZZQiprEAyvFcGE0XT586TsZFa74GGFlMXFae48=;
+ b=PCQ0heY3iuj1Tw8Y8yexmIVfrCxMYOYfPXmWQzXlYV1rnfhYZ9aVU5Md3uogzHN6Iq9t0q
+ zj6fojuCjIVMuYLadzxGJvQ8NaUgwxA28AmAjEiwPuImE9nh5Jf7lX/3uoQbsHPwmj9zhE
+ KvpPJNbqpaTjiuzm8i41ZW9XL8UAyK4=
+Received: from mail-oa1-f71.google.com (mail-oa1-f71.google.com
+ [209.85.160.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-270-_17T2vdoPFGs89aiUvE5ug-1; Thu, 13 Jul 2023 01:55:58 -0400
+X-MC-Unique: _17T2vdoPFGs89aiUvE5ug-1
+Received: by mail-oa1-f71.google.com with SMTP id
+ 586e51a60fabf-1b434c31877so574852fac.0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 12 Jul 2023 22:55:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1689227757; x=1691819757;
+ h=cc:to:subject:message-id:date:from:in-reply-to:references
+ :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=ngbNAZZQiprEAyvFcGE0XT586TsZFa74GGFlMXFae48=;
+ b=VpH1jZNYveCaQ7G+dmU/WHLd0mMkwjwQ3k9Ogmokm3pVWQXkCMJOREirnRTxcXdgtD
+ pzcaB6ttiRR67TsgpyJ21T4/FoPccFPkeAjWVgfybgA6MLnZ0h63le8aaiK3mjAq7elY
+ sch0udCuOSJS1dviIK++lg5r+2VyM++IXx68tl4Vnqm+C7G+R9WEkvqL3p+hWCepMjNs
+ e+KSyMuZ9vX5bL6iqSFUaZIhQgHmzFGcNNb6F5AcB55AP2pNUeDO5vVAnzcKLba+IOp4
+ wPBOyNpM862s5P4UISYZhDpUPfLndWu3g4uz9+hzwc2n1f8uFPcQJ6oPynueFJ9Gs5rj
+ g0Dg==
+X-Gm-Message-State: ABy/qLbD2fp5iOmZ0H3DnvVIdU/eu/raHIEoJykRhGA0GODZhX01J/9s
+ PMkUn6tt3UxvLAqujZVwo0bWT/oZeaszbRhCTD5f1BrKgOSVhyjK2XAt+1oOGLUq9Jgtt9JWlcT
+ C7Ug1Zh9wo3aBKRCw1lvz1TzqUyYYC8spvICNIeODavisJze3ZVfNhdECIQ==
+X-Received: by 2002:a05:6870:4727:b0:1b0:89e4:e260 with SMTP id
+ b39-20020a056870472700b001b089e4e260mr1006709oaq.19.1689227757280; 
+ Wed, 12 Jul 2023 22:55:57 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlG8mdfmf7ZY4BdCvWxe4slTDltUCs8eQ+eV5VlnbjuSSTBZD8OfrLJBcW04z/fl4gwZR1Cs0e5tTbv5oWTTLvA=
+X-Received: by 2002:a05:6870:4727:b0:1b0:89e4:e260 with SMTP id
+ b39-20020a056870472700b001b089e4e260mr1006697oaq.19.1689227757034; Wed, 12
+ Jul 2023 22:55:57 -0700 (PDT)
+MIME-Version: 1.0
+References: <20230709202859.138387-1-michael.christie@oracle.com>
+ <20230711183438.GA154686@fedora>
+ <6b53b833-3c71-2bd9-8fd8-757ecda75c53@oracle.com>
+ <20230712142656.GB215287@fedora>
+ <41d2d3aa-b537-686a-f2b4-1e0a861cebc8@oracle.com>
+In-Reply-To: <41d2d3aa-b537-686a-f2b4-1e0a861cebc8@oracle.com>
+From: Vadim Rozenfeld <vrozenfe@redhat.com>
+Date: Thu, 13 Jul 2023 15:55:45 +1000
+Message-ID: <CAKiOO4taKxW+QEveJA-3ovM04gkx0dBN0M_gEAAR9nb_bA-2uA@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] vhost-scsi: Fix IO hangs when using windows
+To: Mike Christie <michael.christie@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: linux-scsi@vger.kernel.org, mdean@redhat.com, mst@redhat.com,
+ yvugenfi@redhat.com, virtualization@lists.linux-foundation.org,
+ target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -79,177 +117,229 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8319448980366475323=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCAxMyBKdWwgMjAyMyAxMjoyMToyNiArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gVGh1LCBKdWwgMTMsIDIwMjMgYXQgMTI6MDbigK9QTSBY
-dWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4gPiBPbiBU
-aHUsIDEzIEp1bCAyMDIzIDExOjUwOjU3ICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPiA+ID4gT24gTW9uLCBKdWwgMTAsIDIwMjMgYXQgMTE6NDLigK9BTSBY
-dWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+ID4gPgo+ID4g
-PiA+IE5vdyB3ZSBhZGQgYSBjYXNlIHdoZXJlIHdlIHNraXAgZG1hIHVubWFwLCB0aGUgdnEtPnBy
-ZW1hcHBlZCBpcyB0cnVlLgo+ID4gPiA+Cj4gPiA+ID4gV2UgY2FuJ3QganVzdCByZWx5IG9uIHVz
-ZV9kbWFfYXBpIHRvIGRldGVybWluZSB3aGV0aGVyIHRvIHNraXAgdGhlIGRtYQo+ID4gPiA+IG9w
-ZXJhdGlvbi4gRm9yIGNvbnZlbmllbmNlLCBJIGludHJvZHVjZWQgdGhlICJkb191bm1hcCIuIEJ5
-IGRlZmF1bHQsIGl0Cj4gPiA+ID4gaXMgdGhlIHNhbWUgYXMgdXNlX2RtYV9hcGkuIElmIHRoZSBk
-cml2ZXIgaXMgY29uZmlndXJlZCB3aXRoIHByZW1hcHBlZCwKPiA+ID4gPiB0aGVuIGRvX3VubWFw
-IGlzIGZhbHNlLgo+ID4gPiA+Cj4gPiA+ID4gU28gYXMgbG9uZyBhcyBkb191bm1hcCBpcyBmYWxz
-ZSwgZm9yIGFkZHIgb2YgZGVzYywgd2Ugc2hvdWxkIHNraXAgZG1hCj4gPiA+ID4gdW5tYXAgb3Bl
-cmF0aW9uLgo+ID4gPiA+Cj4gPiA+ID4gU2lnbmVkLW9mZi1ieTogWHVhbiBaaHVvIDx4dWFuemh1
-b0BsaW51eC5hbGliYWJhLmNvbT4KPiA+ID4gPiAtLS0KPiA+ID4gPiAgZHJpdmVycy92aXJ0aW8v
-dmlydGlvX3JpbmcuYyB8IDQyICsrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLQo+
-ID4gPiA+ICAxIGZpbGUgY2hhbmdlZCwgMjggaW5zZXJ0aW9ucygrKSwgMTQgZGVsZXRpb25zKC0p
-Cj4gPiA+ID4KPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
-YyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ID4gPiBpbmRleCAxZmIyYzZkY2E5
-ZWEuLjEwZWUzYjdjZTU3MSAxMDA2NDQKPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jCj4gPiA+ID4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4g
-PiA+IEBAIC0xNzUsNiArMTc1LDExIEBAIHN0cnVjdCB2cmluZ192aXJ0cXVldWUgewo+ID4gPiA+
-ICAgICAgICAgLyogRG8gRE1BIG1hcHBpbmcgYnkgZHJpdmVyICovCj4gPiA+ID4gICAgICAgICBi
-b29sIHByZW1hcHBlZDsKPiA+ID4gPgo+ID4gPiA+ICsgICAgICAgLyogRG8gdW5tYXAgb3Igbm90
-IGZvciBkZXNjLiBKdXN0IHdoZW4gcHJlbWFwcGVkIGlzIEZhbHNlIGFuZAo+ID4gPiA+ICsgICAg
-ICAgICogdXNlX2RtYV9hcGkgaXMgdHJ1ZSwgdGhpcyBpcyB0cnVlLgo+ID4gPiA+ICsgICAgICAg
-ICovCj4gPiA+ID4gKyAgICAgICBib29sIGRvX3VubWFwOwo+ID4gPiA+ICsKPiA+ID4gPiAgICAg
-ICAgIC8qIEhlYWQgb2YgZnJlZSBidWZmZXIgbGlzdC4gKi8KPiA+ID4gPiAgICAgICAgIHVuc2ln
-bmVkIGludCBmcmVlX2hlYWQ7Cj4gPiA+ID4gICAgICAgICAvKiBOdW1iZXIgd2UndmUgYWRkZWQg
-c2luY2UgbGFzdCBzeW5jLiAqLwo+ID4gPiA+IEBAIC00NDAsNyArNDQ1LDcgQEAgc3RhdGljIHZv
-aWQgdnJpbmdfdW5tYXBfb25lX3NwbGl0X2luZGlyZWN0KGNvbnN0IHN0cnVjdCB2cmluZ192aXJ0
-cXVldWUgKnZxLAo+ID4gPiA+ICB7Cj4gPiA+ID4gICAgICAgICB1MTYgZmxhZ3M7Cj4gPiA+ID4K
-PiA+ID4gPiAtICAgICAgIGlmICghdnEtPnVzZV9kbWFfYXBpKQo+ID4gPiA+ICsgICAgICAgaWYg
-KCF2cS0+ZG9fdW5tYXApCj4gPiA+ID4gICAgICAgICAgICAgICAgIHJldHVybjsKPiA+ID4gPgo+
-ID4gPiA+ICAgICAgICAgZmxhZ3MgPSB2aXJ0aW8xNl90b19jcHUodnEtPnZxLnZkZXYsIGRlc2Mt
-PmZsYWdzKTsKPiA+ID4gPiBAQCAtNDU4LDE4ICs0NjMsMjEgQEAgc3RhdGljIHVuc2lnbmVkIGlu
-dCB2cmluZ191bm1hcF9vbmVfc3BsaXQoY29uc3Qgc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEs
-Cj4gPiA+ID4gICAgICAgICBzdHJ1Y3QgdnJpbmdfZGVzY19leHRyYSAqZXh0cmEgPSB2cS0+c3Bs
-aXQuZGVzY19leHRyYTsKPiA+ID4gPiAgICAgICAgIHUxNiBmbGFnczsKPiA+ID4gPgo+ID4gPiA+
-IC0gICAgICAgaWYgKCF2cS0+dXNlX2RtYV9hcGkpCj4gPiA+ID4gLSAgICAgICAgICAgICAgIGdv
-dG8gb3V0Owo+ID4gPiA+IC0KPiA+ID4gPiAgICAgICAgIGZsYWdzID0gZXh0cmFbaV0uZmxhZ3M7
-Cj4gPiA+ID4KPiA+ID4gPiAgICAgICAgIGlmIChmbGFncyAmIFZSSU5HX0RFU0NfRl9JTkRJUkVD
-VCkgewo+ID4gPiA+ICsgICAgICAgICAgICAgICBpZiAoIXZxLT51c2VfZG1hX2FwaSkKPiA+ID4g
-PiArICAgICAgICAgICAgICAgICAgICAgICBnb3RvIG91dDsKPiA+ID4gPiArCj4gPiA+ID4gICAg
-ICAgICAgICAgICAgIGRtYV91bm1hcF9zaW5nbGUodnJpbmdfZG1hX2Rldih2cSksCj4gPiA+ID4g
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXh0cmFbaV0uYWRkciwKPiA+ID4gPiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBleHRyYVtpXS5sZW4sCj4gPiA+ID4gICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGZsYWdzICYgVlJJTkdfREVTQ19GX1dSSVRF
-KSA/Cj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRE1BX0ZST01fREVW
-SUNFIDogRE1BX1RPX0RFVklDRSk7Cj4gPiA+ID4gICAgICAgICB9IGVsc2Ugewo+ID4gPiA+ICsg
-ICAgICAgICAgICAgICBpZiAoIXZxLT5kb191bm1hcCkKPiA+ID4gPiArICAgICAgICAgICAgICAg
-ICAgICAgICBnb3RvIG91dDsKPiA+ID4gPiArCj4gPiA+ID4gICAgICAgICAgICAgICAgIGRtYV91
-bm1hcF9wYWdlKHZyaW5nX2RtYV9kZXYodnEpLAo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBleHRyYVtpXS5hZGRyLAo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBleHRyYVtpXS5sZW4sCj4gPiA+ID4gQEAgLTYzNSw3ICs2NDMsNyBAQCBzdGF0aWMg
-aW5saW5lIGludCB2aXJ0cXVldWVfYWRkX3NwbGl0KHN0cnVjdCB2aXJ0cXVldWUgKl92cSwKPiA+
-ID4gPiAgICAgICAgIH0KPiA+ID4gPiAgICAgICAgIC8qIExhc3Qgb25lIGRvZXNuJ3QgY29udGlu
-dWUuICovCj4gPiA+ID4gICAgICAgICBkZXNjW3ByZXZdLmZsYWdzICY9IGNwdV90b192aXJ0aW8x
-NihfdnEtPnZkZXYsIH5WUklOR19ERVNDX0ZfTkVYVCk7Cj4gPiA+ID4gLSAgICAgICBpZiAoIWlu
-ZGlyZWN0ICYmIHZxLT51c2VfZG1hX2FwaSkKPiA+ID4gPiArICAgICAgIGlmICghaW5kaXJlY3Qg
-JiYgdnEtPmRvX3VubWFwKQo+ID4gPiA+ICAgICAgICAgICAgICAgICB2cS0+c3BsaXQuZGVzY19l
-eHRyYVtwcmV2ICYgKHZxLT5zcGxpdC52cmluZy5udW0gLSAxKV0uZmxhZ3MgJj0KPiA+ID4gPiAg
-ICAgICAgICAgICAgICAgICAgICAgICB+VlJJTkdfREVTQ19GX05FWFQ7Cj4gPiA+ID4KPiA+ID4g
-PiBAQCAtNzk0LDcgKzgwMiw3IEBAIHN0YXRpYyB2b2lkIGRldGFjaF9idWZfc3BsaXQoc3RydWN0
-IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsIHVuc2lnbmVkIGludCBoZWFkLAo+ID4gPiA+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgVlJJTkdfREVTQ19GX0lORElSRUNUKSk7Cj4gPiA+ID4g
-ICAgICAgICAgICAgICAgIEJVR19PTihsZW4gPT0gMCB8fCBsZW4gJSBzaXplb2Yoc3RydWN0IHZy
-aW5nX2Rlc2MpKTsKPiA+ID4gPgo+ID4gPiA+IC0gICAgICAgICAgICAgICBpZiAodnEtPnVzZV9k
-bWFfYXBpKSB7Cj4gPiA+ID4gKyAgICAgICAgICAgICAgIGlmICh2cS0+ZG9fdW5tYXApIHsKPiA+
-ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICBmb3IgKGogPSAwOyBqIDwgbGVuIC8gc2l6ZW9m
-KHN0cnVjdCB2cmluZ19kZXNjKTsgaisrKQo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgdnJpbmdfdW5tYXBfb25lX3NwbGl0X2luZGlyZWN0KHZxLCAmaW5kaXJfZGVzY1tq
-XSk7Cj4gPiA+ID4gICAgICAgICAgICAgICAgIH0KPiA+ID4gPiBAQCAtMTIxNywxNyArMTIyNSwy
-MCBAQCBzdGF0aWMgdm9pZCB2cmluZ191bm1hcF9leHRyYV9wYWNrZWQoY29uc3Qgc3RydWN0IHZy
-aW5nX3ZpcnRxdWV1ZSAqdnEsCj4gPiA+ID4gIHsKPiA+ID4gPiAgICAgICAgIHUxNiBmbGFnczsK
-PiA+ID4gPgo+ID4gPiA+IC0gICAgICAgaWYgKCF2cS0+dXNlX2RtYV9hcGkpCj4gPiA+ID4gLSAg
-ICAgICAgICAgICAgIHJldHVybjsKPiA+ID4gPiAtCj4gPiA+ID4gICAgICAgICBmbGFncyA9IGV4
-dHJhLT5mbGFnczsKPiA+ID4gPgo+ID4gPiA+ICAgICAgICAgaWYgKGZsYWdzICYgVlJJTkdfREVT
-Q19GX0lORElSRUNUKSB7Cj4gPiA+ID4gKyAgICAgICAgICAgICAgIGlmICghdnEtPnVzZV9kbWFf
-YXBpKQo+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHJldHVybjsKPiA+ID4gPiArCj4g
-PiA+ID4gICAgICAgICAgICAgICAgIGRtYV91bm1hcF9zaW5nbGUodnJpbmdfZG1hX2Rldih2cSks
-Cj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZXh0cmEtPmFkZHIsIGV4
-dHJhLT5sZW4sCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGZsYWdz
-ICYgVlJJTkdfREVTQ19GX1dSSVRFKSA/Cj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgRE1BX0ZST01fREVWSUNFIDogRE1BX1RPX0RFVklDRSk7Cj4gPiA+ID4gICAgICAg
-ICB9IGVsc2Ugewo+ID4gPiA+ICsgICAgICAgICAgICAgICBpZiAoIXZxLT5kb191bm1hcCkKPiA+
-ID4gPiArICAgICAgICAgICAgICAgICAgICAgICByZXR1cm47Cj4gPiA+Cj4gPiA+IFRoaXMgc2Vl
-bXMgbm90IHN0cmFpZ2h0Zm9yd2FyZCB0aGFuOgo+ID4gPgo+ID4gPiBpZiAoIXZxLT51c2VfZG1h
-X2FwaSkKPiA+ID4gICAgIHJldHVybjsKPiA+ID4KPiA+ID4gaWYgKElORElSRUNUKSB7Cj4gPiA+
-IH0gZWxzZSBpZiAoIXZxLT5wcmVtYXBwZWQpIHsKPiA+ID4gfQo+ID4gPgo+ID4gPiA/Cj4gPgo+
-ID4KPiA+IE15IGxvZ2ljIGhlcmUgaXMgdGhhdCBmb3IgdGhlIHJlYWwgYnVmZmVyLCB3ZSB1c2Ug
-ZG9fdW5tYXAgdG8ganVkZ2UgdW5pZm9ybWx5Lgo+ID4gQW5kIGluZGlyZWN0IHN0aWxsIHVzZSB1
-c2VfZG1hX2FwaSB0byBqdWRnZS4KPiA+Cj4gPiBGcm9tIHRoaXMgcG9pbnQgb2YgdmlldywgaG93
-IGRvIHlvdSBmZWVsPwo+Cj4gV2UgY2FuIGhlYXIgZnJvbSBvdGhlcnMgYnV0IGEgc3RhdGUgbWFj
-aGluZSB3aXRoIHRocmVlIGJvb2xlYW5zIHNlZW1zCj4gbm90IGVhc3kgZm9yIG1lIHRvIHJlYWQu
-CgpZZXMsIEkgYWxzbyB0aGluayB0b28gbWFueSBib29sZWFucywgc28gSSBpbnRyb2R1Y2UgZG9f
-dW5tYXAsIHRoZW4KZm9yIHRoZSByZWFsIGJ1ZmZlcihub3QgdGhlIGluZGlyZWN0IGRlc2MgYXJy
-YXkpLCB3ZSBqdXN0IGNoZWNrIGRvX3VubWFwLgoKVGhhbmtzLgoKCj4KPiBUaGFua3MKPgo+ID4K
-PiA+IFRoYW5rcy4KPiA+Cj4gPgo+ID4gPgo+ID4gPiBUaGFua3MKPiA+ID4KPiA+ID4gPiArCj4g
-PiA+ID4gICAgICAgICAgICAgICAgIGRtYV91bm1hcF9wYWdlKHZyaW5nX2RtYV9kZXYodnEpLAo+
-ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBleHRyYS0+YWRkciwgZXh0cmEt
-PmxlbiwKPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKGZsYWdzICYgVlJJ
-TkdfREVTQ19GX1dSSVRFKSA/Cj4gPiA+ID4gQEAgLTEyNDAsNyArMTI1MSw3IEBAIHN0YXRpYyB2
-b2lkIHZyaW5nX3VubWFwX2Rlc2NfcGFja2VkKGNvbnN0IHN0cnVjdCB2cmluZ192aXJ0cXVldWUg
-KnZxLAo+ID4gPiA+ICB7Cj4gPiA+ID4gICAgICAgICB1MTYgZmxhZ3M7Cj4gPiA+ID4KPiA+ID4g
-PiAtICAgICAgIGlmICghdnEtPnVzZV9kbWFfYXBpKQo+ID4gPiA+ICsgICAgICAgaWYgKCF2cS0+
-ZG9fdW5tYXApCj4gPiA+ID4gICAgICAgICAgICAgICAgIHJldHVybjsKPiA+ID4gPgo+ID4gPiA+
-ICAgICAgICAgZmxhZ3MgPSBsZTE2X3RvX2NwdShkZXNjLT5mbGFncyk7Cj4gPiA+ID4gQEAgLTEz
-MjksNyArMTM0MCw3IEBAIHN0YXRpYyBpbnQgdmlydHF1ZXVlX2FkZF9pbmRpcmVjdF9wYWNrZWQo
-c3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsCj4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICBzaXplb2Yoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjKSk7Cj4gPiA+ID4gICAg
-ICAgICB2cS0+cGFja2VkLnZyaW5nLmRlc2NbaGVhZF0uaWQgPSBjcHVfdG9fbGUxNihpZCk7Cj4g
-PiA+ID4KPiA+ID4gPiAtICAgICAgIGlmICh2cS0+dXNlX2RtYV9hcGkpIHsKPiA+ID4gPiArICAg
-ICAgIGlmICh2cS0+ZG9fdW5tYXApIHsKPiA+ID4gPiAgICAgICAgICAgICAgICAgdnEtPnBhY2tl
-ZC5kZXNjX2V4dHJhW2lkXS5hZGRyID0gYWRkcjsKPiA+ID4gPiAgICAgICAgICAgICAgICAgdnEt
-PnBhY2tlZC5kZXNjX2V4dHJhW2lkXS5sZW4gPSB0b3RhbF9zZyAqCj4gPiA+ID4gICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBzaXplb2Yoc3RydWN0IHZyaW5nX3BhY2tlZF9kZXNjKTsK
-PiA+ID4gPiBAQCAtMTQ3MCw3ICsxNDgxLDcgQEAgc3RhdGljIGlubGluZSBpbnQgdmlydHF1ZXVl
-X2FkZF9wYWNrZWQoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxLAo+ID4gPiA+ICAgICAgICAgICAgICAg
-ICAgICAgICAgIGRlc2NbaV0ubGVuID0gY3B1X3RvX2xlMzIoc2ctPmxlbmd0aCk7Cj4gPiA+ID4g
-ICAgICAgICAgICAgICAgICAgICAgICAgZGVzY1tpXS5pZCA9IGNwdV90b19sZTE2KGlkKTsKPiA+
-ID4gPgo+ID4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAgIGlmICh1bmxpa2VseSh2cS0+dXNl
-X2RtYV9hcGkpKSB7Cj4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgaWYgKHVubGlrZWx5
-KHZxLT5kb191bm1hcCkpIHsKPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IHZxLT5wYWNrZWQuZGVzY19leHRyYVtjdXJyXS5hZGRyID0gYWRkcjsKPiA+ID4gPiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIHZxLT5wYWNrZWQuZGVzY19leHRyYVtjdXJyXS5sZW4g
-PSBzZy0+bGVuZ3RoOwo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdnEt
-PnBhY2tlZC5kZXNjX2V4dHJhW2N1cnJdLmZsYWdzID0KPiA+ID4gPiBAQCAtMTYwNCw3ICsxNjE1
-LDcgQEAgc3RhdGljIHZvaWQgZGV0YWNoX2J1Zl9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1
-ZSAqdnEsCj4gPiA+ID4gICAgICAgICB2cS0+ZnJlZV9oZWFkID0gaWQ7Cj4gPiA+ID4gICAgICAg
-ICB2cS0+dnEubnVtX2ZyZWUgKz0gc3RhdGUtPm51bTsKPiA+ID4gPgo+ID4gPiA+IC0gICAgICAg
-aWYgKHVubGlrZWx5KHZxLT51c2VfZG1hX2FwaSkpIHsKPiA+ID4gPiArICAgICAgIGlmICh1bmxp
-a2VseSh2cS0+ZG9fdW5tYXApKSB7Cj4gPiA+ID4gICAgICAgICAgICAgICAgIGN1cnIgPSBpZDsK
-PiA+ID4gPiAgICAgICAgICAgICAgICAgZm9yIChpID0gMDsgaSA8IHN0YXRlLT5udW07IGkrKykg
-ewo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHZyaW5nX3VubWFwX2V4dHJhX3BhY2tl
-ZCh2cSwKPiA+ID4gPiBAQCAtMTYyMSw3ICsxNjMyLDcgQEAgc3RhdGljIHZvaWQgZGV0YWNoX2J1
-Zl9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAqdnEsCj4gPiA+ID4gICAgICAgICAgICAg
-ICAgIGlmICghZGVzYykKPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgICByZXR1cm47Cj4g
-PiA+ID4KPiA+ID4gPiAtICAgICAgICAgICAgICAgaWYgKHZxLT51c2VfZG1hX2FwaSkgewo+ID4g
-PiA+ICsgICAgICAgICAgICAgICBpZiAodnEtPmRvX3VubWFwKSB7Cj4gPiA+ID4gICAgICAgICAg
-ICAgICAgICAgICAgICAgbGVuID0gdnEtPnBhY2tlZC5kZXNjX2V4dHJhW2lkXS5sZW47Cj4gPiA+
-ID4gICAgICAgICAgICAgICAgICAgICAgICAgZm9yIChpID0gMDsgaSA8IGxlbiAvIHNpemVvZihz
-dHJ1Y3QgdnJpbmdfcGFja2VkX2Rlc2MpOwo+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBpKyspCj4gPiA+ID4gQEAgLTIwODAsNiArMjA5MSw3IEBAIHN0YXRp
-YyBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVlX3BhY2tlZCgKPiA+ID4g
-PiAgICAgICAgIHZxLT5kbWFfZGV2ID0gZG1hX2RldjsKPiA+ID4gPiAgICAgICAgIHZxLT51c2Vf
-ZG1hX2FwaSA9IHZyaW5nX3VzZV9kbWFfYXBpKHZkZXYpOwo+ID4gPiA+ICAgICAgICAgdnEtPnBy
-ZW1hcHBlZCA9IGZhbHNlOwo+ID4gPiA+ICsgICAgICAgdnEtPmRvX3VubWFwID0gdnEtPnVzZV9k
-bWFfYXBpOwo+ID4gPiA+Cj4gPiA+ID4gICAgICAgICB2cS0+aW5kaXJlY3QgPSB2aXJ0aW9faGFz
-X2ZlYXR1cmUodmRldiwgVklSVElPX1JJTkdfRl9JTkRJUkVDVF9ERVNDKSAmJgo+ID4gPiA+ICAg
-ICAgICAgICAgICAgICAhY29udGV4dDsKPiA+ID4gPiBAQCAtMjU4Nyw2ICsyNTk5LDcgQEAgc3Rh
-dGljIHN0cnVjdCB2aXJ0cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSh1bnNpZ25lZCBpbnQg
-aW5kZXgsCj4gPiA+ID4gICAgICAgICB2cS0+ZG1hX2RldiA9IGRtYV9kZXY7Cj4gPiA+ID4gICAg
-ICAgICB2cS0+dXNlX2RtYV9hcGkgPSB2cmluZ191c2VfZG1hX2FwaSh2ZGV2KTsKPiA+ID4gPiAg
-ICAgICAgIHZxLT5wcmVtYXBwZWQgPSBmYWxzZTsKPiA+ID4gPiArICAgICAgIHZxLT5kb191bm1h
-cCA9IHZxLT51c2VfZG1hX2FwaTsKPiA+ID4gPgo+ID4gPiA+ICAgICAgICAgdnEtPmluZGlyZWN0
-ID0gdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19SSU5HX0ZfSU5ESVJFQ1RfREVTQykg
-JiYKPiA+ID4gPiAgICAgICAgICAgICAgICAgIWNvbnRleHQ7Cj4gPiA+ID4gQEAgLTI3NjUsNiAr
-Mjc3OCw3IEBAIGludCB2aXJ0cXVldWVfc2V0X3ByZW1hcHBlZChzdHJ1Y3QgdmlydHF1ZXVlICpf
-dnEpCj4gPiA+ID4gICAgICAgICAgICAgICAgIHJldHVybiAtRUlOVkFMOwo+ID4gPiA+Cj4gPiA+
-ID4gICAgICAgICB2cS0+cHJlbWFwcGVkID0gdHJ1ZTsKPiA+ID4gPiArICAgICAgIHZxLT5kb191
-bm1hcCA9IGZhbHNlOwo+ID4gPiA+Cj4gPiA+ID4gICAgICAgICByZXR1cm4gMDsKPiA+ID4gPiAg
-fQo+ID4gPiA+IC0tCj4gPiA+ID4gMi4zMi4wLjMuZzAxMTk1Y2Y5Zgo+ID4gPiA+Cj4gPiA+Cj4g
-Pgo+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+--===============8319448980366475323==
+Content-Type: multipart/alternative; boundary="000000000000673102060057fc8c"
+
+--000000000000673102060057fc8c
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Currently we use 4-byte alignmed (FILE_LONG_ALIGNMENT)  in both Windows
+virtio blk and scsi miniport drivers.
+It shouldn't be a problem to change it to 512 by setting AlignmentMask
+field of PORT_CONFIGURATION_INFORMATION structure
+(
+https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/storport/ns-=
+storport-_port_configuration_information
+)
+to FILE_512_BYTE_ALIGNMENT.
+I don't see any problem with changing the alignment parameter in our
+drivers. But it will take us some time to test it properly.
+
+Best regards,
+Vadim.
+
+On Thu, Jul 13, 2023 at 2:43=E2=80=AFAM Mike Christie <michael.christie@ora=
+cle.com>
+wrote:
+
+> On 7/12/23 9:26 AM, Stefan Hajnoczi wrote:
+> > On Tue, Jul 11, 2023 at 04:01:22PM -0500, Mike Christie wrote:
+> >> On 7/11/23 1:34 PM, Stefan Hajnoczi wrote:
+> >>> On Sun, Jul 09, 2023 at 03:28:57PM -0500, Mike Christie wrote:
+> >>>> The following patches were made over Linus's tree and fix an issue
+> >>>> where windows guests will send iovecs with offset/lengths that resul=
+t
+> >>>> in IOs that are not aligned to 512. The LIO layer will then send the=
+m
+> >>>> to Linux's FS/block layer but it requires 512 byte alignment, so
+> >>>> depending on the FS/block driver being used we will get IO errors or
+> >>>> hung IO.
+> >>>>
+> >>>> The following patches have vhost-scsi detect when windows sends thes=
+e
+> >>>> IOs and copy them to a bounce buffer. It then does some cleanup in
+> >>>> the related code.
+> >>>
+> >>> Hang on, virtio-scsi is a SCSI HBA and READs/WRITEs submitted must
+> >>> follow the usual constraints on SCSI block limits. Would Windows send
+> >>> mis-aligned I/O to a non-virtio-scsi SCSI HBA?
+> >>
+> >> It's like linux where you can config settings like that.
+> >>
+> >>>> Are you sure this is not a bug in the Windows guest driver where blo=
+ck
+> >>> limits are being misconfigured?
+> >>
+> >> From what our windows dev told us the guest drivers like here:
+> >>
+> >> https://github.com/virtio-win
+> >>
+> >> don't set the windows AlignmentMask to 512. They tried that and it
+> >> resulted in windows crash dump crashing because it doesn't like the
+> >> hard alignment requirement.
+> >>
+> >> We thought other apps would have trouble as well, so we tried to add
+> >> bounce buffer support to the windows driver, but I think people though=
+t
+> >> it was going to be uglier than this patch and in the normal alignment
+> >> case might also affect performance. There was some windows
+> driver/layering
+> >> and buffer/cmd details that I don't fully understand and took their wo=
+rd
+> >> for because I don't know a lot about windows.
+> >>
+> >> In the end we still have to add checks to vhost-scsi to protect agains=
+t
+> >> bad drivers, so we thought we might as well just add bounce buffer
+> support
+> >> to vhost-scsi.
+> >
+> > CCing virtio-win developers so they can confirm how the vioscsi driver
+> > is supposed to handle request alignment.
+> >
+> > My expectation is that the virtio-scsi device will fail mis-aligned I/O
+> > requests.
+>
+> I don't think you can just change the driver's behavior to fail now,
+> because apps send mis-aligned IO and its working as long as they have les=
+s
+> than 256 bio vecs.
+>
+> We see mis-aligned IOs during boot and also from random non window's apps=
+.
+> If we just start to fail then it would be a regression when the app no
+> longer works or the OS fails to start up.
+>
+>
+
+--000000000000673102060057fc8c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div di=
+r=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div>Currently we use 4-byte al=
+ignmed (<span style=3D"color:rgb(22,22,22);font-family:&quot;Segoe UI&quot;=
+,SegoeUI,&quot;Helvetica Neue&quot;,Helvetica,Arial,sans-serif;font-size:14=
+px">FILE_LONG_ALIGNMENT</span>)<span style=3D"color:rgb(22,22,22);font-fami=
+ly:&quot;Segoe UI&quot;,SegoeUI,&quot;Helvetica Neue&quot;,Helvetica,Arial,=
+sans-serif;font-size:14px">=C2=A0</span>=C2=A0in both Windows virtio blk an=
+d scsi miniport drivers.</div><div dir=3D"ltr">It shouldn&#39;t be a proble=
+m to change it to 512 by setting AlignmentMask field of PORT_CONFIGURATION_=
+INFORMATION structure</div><div dir=3D"ltr">( <a href=3D"https://learn.micr=
+osoft.com/en-us/windows-hardware/drivers/ddi/storport/ns-storport-_port_con=
+figuration_information">https://learn.microsoft.com/en-us/windows-hardware/=
+drivers/ddi/storport/ns-storport-_port_configuration_information</a> )</div=
+><div dir=3D"ltr">to FILE_512_BYTE_ALIGNMENT.=C2=A0</div><div dir=3D"ltr">I=
+ don&#39;t see any problem with changing the alignment parameter in our dri=
+vers. But it will take us some time to test it properly.</div><div><br></di=
+v><div>Best regards,</div><div>Vadim.</div></div></div></div></div></div></=
+div></div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_at=
+tr">On Thu, Jul 13, 2023 at 2:43=E2=80=AFAM Mike Christie &lt;<a href=3D"ma=
+ilto:michael.christie@oracle.com">michael.christie@oracle.com</a>&gt; wrote=
+:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.=
+8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On 7/12/23 9:2=
+6 AM, Stefan Hajnoczi wrote:<br>
+&gt; On Tue, Jul 11, 2023 at 04:01:22PM -0500, Mike Christie wrote:<br>
+&gt;&gt; On 7/11/23 1:34 PM, Stefan Hajnoczi wrote:<br>
+&gt;&gt;&gt; On Sun, Jul 09, 2023 at 03:28:57PM -0500, Mike Christie wrote:=
+<br>
+&gt;&gt;&gt;&gt; The following patches were made over Linus&#39;s tree and =
+fix an issue<br>
+&gt;&gt;&gt;&gt; where windows guests will send iovecs with offset/lengths =
+that result<br>
+&gt;&gt;&gt;&gt; in IOs that are not aligned to 512. The LIO layer will the=
+n send them<br>
+&gt;&gt;&gt;&gt; to Linux&#39;s FS/block layer but it requires 512 byte ali=
+gnment, so<br>
+&gt;&gt;&gt;&gt; depending on the FS/block driver being used we will get IO=
+ errors or<br>
+&gt;&gt;&gt;&gt; hung IO.<br>
+&gt;&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&gt; The following patches have vhost-scsi detect when windows =
+sends these<br>
+&gt;&gt;&gt;&gt; IOs and copy them to a bounce buffer. It then does some cl=
+eanup in<br>
+&gt;&gt;&gt;&gt; the related code.<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt; Hang on, virtio-scsi is a SCSI HBA and READs/WRITEs submitted =
+must<br>
+&gt;&gt;&gt; follow the usual constraints on SCSI block limits. Would Windo=
+ws send<br>
+&gt;&gt;&gt; mis-aligned I/O to a non-virtio-scsi SCSI HBA?<br>
+&gt;&gt;<br>
+&gt;&gt; It&#39;s like linux where you can config settings like that.<br>
+&gt;&gt;<br>
+&gt;&gt;&gt;&gt; Are you sure this is not a bug in the Windows guest driver=
+ where block<br>
+&gt;&gt;&gt; limits are being misconfigured?<br>
+&gt;&gt;<br>
+&gt;&gt; From what our windows dev told us the guest drivers like here:<br>
+&gt;&gt;<br>
+&gt;&gt; <a href=3D"https://github.com/virtio-win" rel=3D"noreferrer" targe=
+t=3D"_blank">https://github.com/virtio-win</a><br>
+&gt;&gt;<br>
+&gt;&gt; don&#39;t set the windows AlignmentMask to 512. They tried that an=
+d it<br>
+&gt;&gt; resulted in windows crash dump crashing because it doesn&#39;t lik=
+e the<br>
+&gt;&gt; hard alignment requirement.<br>
+&gt;&gt;<br>
+&gt;&gt; We thought other apps would have trouble as well, so we tried to a=
+dd<br>
+&gt;&gt; bounce buffer support to the windows driver, but I think people th=
+ought<br>
+&gt;&gt; it was going to be uglier than this patch and in the normal alignm=
+ent<br>
+&gt;&gt; case might also affect performance. There was some windows driver/=
+layering<br>
+&gt;&gt; and buffer/cmd details that I don&#39;t fully understand and took =
+their word<br>
+&gt;&gt; for because I don&#39;t know a lot about windows.<br>
+&gt;&gt;<br>
+&gt;&gt; In the end we still have to add checks to vhost-scsi to protect ag=
+ainst<br>
+&gt;&gt; bad drivers, so we thought we might as well just add bounce buffer=
+ support<br>
+&gt;&gt; to vhost-scsi.<br>
+&gt; <br>
+&gt; CCing virtio-win developers so they can confirm how the vioscsi driver=
+<br>
+&gt; is supposed to handle request alignment.<br>
+&gt; <br>
+&gt; My expectation is that the virtio-scsi device will fail mis-aligned I/=
+O<br>
+&gt; requests.<br>
+<br>
+I don&#39;t think you can just change the driver&#39;s behavior to fail now=
+,<br>
+because apps send mis-aligned IO and its working as long as they have less<=
+br>
+than 256 bio vecs.<br>
+<br>
+We see mis-aligned IOs during boot and also from random non window&#39;s ap=
+ps.<br>
+If we just start to fail then it would be a regression when the app no<br>
+longer works or the OS fails to start up.<br>
+<br>
+</blockquote></div>
+
+--000000000000673102060057fc8c--
+
+
+--===============8319448980366475323==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8319448980366475323==--
+
