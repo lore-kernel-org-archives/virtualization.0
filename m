@@ -1,72 +1,240 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1C756C001B0
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 07:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6E8DEC001DE
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 07:48:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9FE5960B65;
-	Thu, 13 Jul 2023 07:03:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9FE5960B65
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0166C414B6;
+	Thu, 13 Jul 2023 07:48:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0166C414B6
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=bfKVW45o;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=MPED7mOO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ab2JGrm3zyb5; Thu, 13 Jul 2023 07:03:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 970016128A;
-	Thu, 13 Jul 2023 07:02:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 970016128A
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DNCWe8sLYcX1; Thu, 13 Jul 2023 07:48:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5611240A85;
+	Thu, 13 Jul 2023 07:48:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5611240A85
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F25BC0071;
-	Thu, 13 Jul 2023 07:02:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 69ECBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 298CBC0072;
+	Thu, 13 Jul 2023 07:48:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06B4AC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:02:57 +0000 (UTC)
+ Thu, 13 Jul 2023 07:48:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3CFD183B8E
+ by smtp4.osuosl.org (Postfix) with ESMTP id D230241F83
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:02:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3CFD183B8E
+ Thu, 13 Jul 2023 07:48:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D230241F83
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=bfKVW45o; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=MPED7mOO
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YpzE9yB4qytS
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9zMOiGE9pMSO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:02:55 +0000 (UTC)
+ Thu, 13 Jul 2023 07:48:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2835383B3C
-Received: from out30-119.freemail.mail.aliyun.com
- (out30-119.freemail.mail.aliyun.com [115.124.30.119])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2835383B3C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D302F41F79
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D302F41F79
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:02:53 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VnG1N6O_1689231767; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VnG1N6O_1689231767) by smtp.aliyun-inc.com;
- Thu, 13 Jul 2023 15:02:48 +0800
-Message-ID: <1689231604.0892205-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v11 10/10] virtio_net: merge dma operation for one
- page
-Date: Thu, 13 Jul 2023 15:00:04 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
- <20230710034237.12391-11-xuanzhuo@linux.alibaba.com>
- <CACGkMEtoiHXese1sNJELeidmFc6nFR8rE1aA8MooaEKKUSw_eg@mail.gmail.com>
-In-Reply-To: <CACGkMEtoiHXese1sNJELeidmFc6nFR8rE1aA8MooaEKKUSw_eg@mail.gmail.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Thu, 13 Jul 2023 07:47:59 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 16DDF21EEB;
+ Thu, 13 Jul 2023 07:47:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1689234477; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fTLCbBj1jIj95Vk3OEVFypBv7EXItxDal76mePPiA+8=;
+ b=bfKVW45oDZYCmhcGzUIgQZ+XM2O+7qHiV9WC/mFCAEv40Hwgoiqqb7QSWK+9AKuXsYXNhb
+ od858kfvxXxuDodtErQhUaoiXGVvC9/MboortVZngZd62zSh1gqDEHN6Lb+y1Fx0oVo2UN
+ oE/CQhTubIOIM9rOtPUUjyLNImD3nNM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1689234477;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fTLCbBj1jIj95Vk3OEVFypBv7EXItxDal76mePPiA+8=;
+ b=MPED7mOOf308DxNlQAQz9alnKoic0rEySaUqggFL2dp8f6pCIMJ2vQ6x0QJzdoYH0chOHe
+ a0OZOdOtxBOs2mBQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E78B1133D6;
+ Thu, 13 Jul 2023 07:47:52 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id T3mGNyisr2TfFwAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Thu, 13 Jul 2023 07:47:52 +0000
+Message-ID: <955528fe-fd45-b8c1-8458-b3a7cd3dfbbb@suse.de>
+Date: Thu, 13 Jul 2023 09:47:51 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH RFC v1 00/52] drm/crtc: Rename struct drm_crtc::dev to
+ drm_dev
+Content-Language: en-US
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+ Jani Nikula <jani.nikula@intel.com>
+References: <20230712094702.1770121-1-u.kleine-koenig@pengutronix.de>
+ <87fs5tgpvv.fsf@intel.com> <20230712161025.22op3gtzgujrhytb@pengutronix.de>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20230712161025.22op3gtzgujrhytb@pengutronix.de>
+Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Xinliang Liu <xinliang.liu@linaro.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
+ Alexey Kodanev <aleksei.kodanev@bell-sw.com>, dri-devel@lists.freedesktop.org,
+ Vandita Kulkarni <vandita.kulkarni@intel.com>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ Marijn Suijten <marijn.suijten@somainline.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
+ Arun R Murthy <arun.r.murthy@intel.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Liu Shixin <liushixin2@huawei.com>, linux-samsung-soc@vger.kernel.org,
+ Samuel Holland <samuel@sholland.org>, Matt Roper <matthew.d.roper@intel.com>,
+ Wenjing Liu <wenjing.liu@amd.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+ Danilo Krummrich <dakr@redhat.com>, NXP Linux Team <linux-imx@nxp.com>,
+ spice-devel@lists.freedesktop.org,
+ Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>,
+ linux-sunxi@lists.linux.dev, Stylon Wang <stylon.wang@amd.com>,
+ Tim Huang <Tim.Huang@amd.com>, Suraj Kandpal <suraj.kandpal@intel.com>,
+ =?UTF-8?Q?Andr=c3=a9_Almeida?= <andrealmeid@igalia.com>,
+ Andi Shyti <andi.shyti@linux.intel.com>, Yifan Zhang <yifan1.zhang@amd.com>,
+ Leo Li <sunpeng.li@amd.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Lucas De Marchi <lucas.demarchi@intel.com>, Inki Dae <inki.dae@samsung.com>,
+ Hersen Wu <hersenxs.wu@amd.com>, Jessica Zhang <quic_jesszhan@quicinc.com>,
+ Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+ Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+ =?UTF-8?Q?=c5=81ukasz_Bartosik?= <lb@semihalf.com>,
+ Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
+ Andrew Jeffery <andrew@aj.id.au>, Seung-Woo Kim <sw0312.kim@samsung.com>,
+ =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, kernel@pengutronix.de,
+ Alex Deucher <alexander.deucher@amd.com>, freedreno@lists.freedesktop.org,
+ Claudiu Beznea <claudiu.beznea@microchip.com>, Zack Rusin <zackr@vmware.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ linux-aspeed@lists.ozlabs.org, nouveau@lists.freedesktop.org,
+ Mitul Golani <mitulkumar.ajitkumar.golani@intel.com>,
+ =?UTF-8?Q?Jos=c3=a9_Roberto_de_Souza?= <jose.souza@intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Yongqin Liu <yongqin.liu@linaro.org>,
+ Mario Limonciello <mario.limonciello@amd.com>, Fei Yang <fei.yang@intel.com>,
+ =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+ David Lechner <david@lechnology.com>,
+ Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+ "Jiri Slaby \(SUSE\)" <jirislaby@kernel.org>,
+ David Francis <David.Francis@amd.com>, Aaron Liu <aaron.liu@amd.com>,
+ Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+ Vinod Polimera <quic_vpolimer@quicinc.com>, linux-rockchip@lists.infradead.org,
+ Fangzhi Zuo <jerry.zuo@amd.com>, Aurabindo Pillai <aurabindo.pillai@amd.com>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Ben Skeggs <bskeggs@redhat.com>,
+ =?UTF-8?Q?Jouni_H=c3=b6gander?= <jouni.hogander@intel.com>,
+ Dave Airlie <airlied@redhat.com>, linux-mips@vger.kernel.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ linux-arm-msm@vger.kernel.org, Animesh Manna <animesh.manna@intel.com>,
+ linux-renesas-soc@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+ Chaitanya Kumar Borah <chaitanya.kumar.borah@intel.com>,
+ Biju Das <biju.das.jz@bp.renesas.com>, linux-amlogic@lists.infradead.org,
+ Evan Quan <evan.quan@amd.com>, Michal Simek <michal.simek@amd.com>,
+ linux-arm-kernel@lists.infradead.org, Sean Paul <sean@poorly.run>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+ Boris Brezillon <bbrezillon@kernel.org>, Chunyan Zhang <zhang.lyra@gmail.com>,
+ Qingqing Zhuo <qingqing.zhuo@amd.com>, Sandy Huang <hjc@rock-chips.com>,
+ Swati Sharma <swati2.sharma@intel.com>, John Stultz <jstultz@google.com>,
+ Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Drew Davenport <ddavenport@chromium.org>, Kevin Hilman <khilman@baylibre.com>,
+ Hawking Zhang <Hawking.Zhang@amd.com>,
+ Haneen Mohammed <hamohammed.sa@gmail.com>,
+ Anusha Srivatsa <anusha.srivatsa@intel.com>, Dan Carpenter <error27@gmail.com>,
+ Karol Herbst <kherbst@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ linux-hyperv@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+ Melissa Wen <melissa.srw@gmail.com>,
+ =?UTF-8?Q?Ma=c3=adra_Canal?= <mairacanal@riseup.net>,
+ Luca Coelho <luciano.coelho@intel.com>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Andrzej Hajda <andrzej.hajda@intel.com>, Likun Gao <Likun.Gao@amd.com>,
+ Sam Ravnborg <sam@ravnborg.org>, Alain Volmat <alain.volmat@foss.st.com>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Deepak Rawat <drawat.floss@gmail.com>, Chen-Yu Tsai <wens@csie.org>,
+ Joel Stanley <joel@jms.id.au>, Orson Zhai <orsonzhai@gmail.com>,
+ Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+ Harry Wentland <harry.wentland@amd.com>,
+ Sumit Semwal <sumit.semwal@linaro.org>, Alan Liu <haoping.liu@amd.com>,
+ Philip Yang <Philip.Yang@amd.com>, Lyude Paul <lyude@redhat.com>,
+ intel-gfx@lists.freedesktop.org, Alison Wang <alison.wang@nxp.com>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>,
+ Gustavo Sousa <gustavo.sousa@intel.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Mikko Perttunen <mperttunen@nvidia.com>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+ Tomi Valkeinen <tomba@kernel.org>, Deepak R Varma <drv@mailo.com>, "Pan,
+ Xinhui" <Xinhui.Pan@amd.com>, Chia-I Wu <olvaffe@gmail.com>,
+ Konrad Dybcio <konrad.dybcio@linaro.org>,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ Tian Tao <tiantao6@hisilicon.com>, Shawn Guo <shawnguo@kernel.org>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Khaled Almahallawy <khaled.almahallawy@intel.com>,
+ linux-stm32@st-md-mailman.stormreply.com, Emma Anholt <emma@anholt.net>,
+ Chun-Kuang Hu <chunkuang.hu@kernel.org>, Imre Deak <imre.deak@intel.com>,
+ Liviu Dudau <liviu.dudau@arm.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, Roman Li <roman.li@amd.com>,
+ Paul Cercueil <paul@crapouillou.net>, Rob Clark <robdclark@gmail.com>,
+ Hamza Mahfooz <hamza.mahfooz@amd.com>, David Airlie <airlied@gmail.com>,
+ Marek Vasut <marex@denx.de>, Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+ xen-devel@lists.xenproject.org, Guchun Chen <guchun.chen@amd.com>,
+ Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+ Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>,
+ Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+ Russell King <linux@armlinux.org.uk>, Uma Shankar <uma.shankar@intel.com>,
+ Mika Kahola <mika.kahola@intel.com>, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+ Srinivasan Shanmugam <srinivasan.shanmugam@amd.com>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Vinod Govindapillai <vinod.govindapillai@intel.com>,
+ linux-tegra@vger.kernel.org,
+ =?UTF-8?B?TWFyZWsgT2zFocOhaw==?= <marek.olsak@amd.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ =?UTF-8?Q?Joaqu=c3=adn_Ignacio_Aramend=c3=ada?= <samsagax@gmail.com>,
+ Melissa Wen <mwen@igalia.com>, Hans de Goede <hdegoede@redhat.com>,
+ linux-mediatek@lists.infradead.org, Fabio Estevam <festevam@gmail.com>,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ David Tadokoro <davidbtadokoro@usp.br>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>, amd-gfx@lists.freedesktop.org,
+ Jyri Sarha <jyri.sarha@iki.fi>, Yannick Fertre <yannick.fertre@foss.st.com>,
+ Nicolas Ferre <nicolas.ferre@microchip.com>,
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+ Philippe Cornu <philippe.cornu@foss.st.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Wayne Lin <Wayne.Lin@amd.com>, Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Nirmoy Das <nirmoy.das@intel.com>, Lang Yu <Lang.Yu@amd.com>,
+ Lucas Stach <l.stach@pengutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,295 +246,275 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============5091933363302977175=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCAxMyBKdWwgMjAyMyAxMjoyMDowMSArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4gT24gTW9uLCBKdWwgMTAsIDIwMjMgYXQgMTE6NDPigK9BTSBY
-dWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29tPiB3cm90ZToKPiA+Cj4KPiBJJ2Qg
-c3VnZ2VzdCB0byB0d2VhayB0aGUgdGl0bGUgbGlrZToKPgo+ICJtZXJnZSBkbWEgb3BlcmF0aW9u
-cyB3aGVuIHJlZmlsbGluZyBtZXJnZWFibGUgYnVmZmVycyIKPgo+ID4gQ3VycmVudGx5LCB0aGUg
-dmlydGlvIGNvcmUgd2lsbCBwZXJmb3JtIGEgZG1hIG9wZXJhdGlvbiBmb3IgZWFjaAo+ID4gb3Bl
-cmF0aW9uLgo+Cj4gImZvciBlYWNoIGJ1ZmZlciI/Cj4KPiA+IEFsdGhvdWdoLCB0aGUgc2FtZSBw
-YWdlIG1heSBiZSBvcGVyYXRlZCBtdWx0aXBsZSB0aW1lcy4KPiA+Cj4gPiBUaGUgZHJpdmVyIGRv
-ZXMgdGhlIGRtYSBvcGVyYXRpb24gYW5kIG1hbmFnZXMgdGhlIGRtYSBhZGRyZXNzIGJhc2VkIHRo
-ZQo+ID4gZmVhdHVyZSBwcmVtYXBwZWQgb2YgdmlydGlvIGNvcmUuCj4gPgo+ID4gVGhpcyB3YXks
-IHdlIGNhbiBwZXJmb3JtIG9ubHkgb25lIGRtYSBvcGVyYXRpb24gZm9yIHRoZSBzYW1lIHBhZ2Uu
-IEluCj4gPiB0aGUgY2FzZSBvZiBtdHUgMTUwMCwgdGhpcyBjYW4gcmVkdWNlIGEgbG90IG9mIGRt
-YSBvcGVyYXRpb25zLgo+ID4KPiA+IFRlc3RlZCBvbiBBbGl5dW4gZzcuNGxhcmdlIG1hY2hpbmUs
-IGluIHRoZSBjYXNlIG9mIGEgY3B1IDEwMCUsIHBwcwo+ID4gaW5jcmVhc2VkIGZyb20gMTg5Mzc2
-NiB0byAxOTAxMTA1LiBBbiBpbmNyZWFzZSBvZiAwLjQlLgo+Cj4gQnR3LCBpdCBsb29rcyB0byBt
-ZSB0aGUgY29kZSB0byBkZWFsIHdpdGggWERQX1RYL1JFRElSRUNUIGZvcgo+IGxpbmVhcml6ZWQg
-cGFnZXMgd2FzIG1pc3NlZC4KPgo+ID4KPiA+IFNpZ25lZC1vZmYtYnk6IFh1YW4gWmh1byA8eHVh
-bnpodW9AbGludXguYWxpYmFiYS5jb20+Cj4gPiAtLS0KPiA+ICBkcml2ZXJzL25ldC92aXJ0aW9f
-bmV0LmMgfCAyODMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tCj4gPiAg
-MSBmaWxlIGNoYW5nZWQsIDI2NyBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlvbnMoLSkKPiA+Cj4g
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmly
-dGlvX25ldC5jCj4gPiBpbmRleCA0ODZiNTg0OTAzM2QuLjRkZTg0NWQzNWJlZCAxMDA2NDQKPiA+
-IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gKysrIGIvZHJpdmVycy9uZXQvdmly
-dGlvX25ldC5jCj4gPiBAQCAtMTI2LDYgKzEyNiwyNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IHZp
-cnRuZXRfc3RhdF9kZXNjIHZpcnRuZXRfcnFfc3RhdHNfZGVzY1tdID0gewo+ID4gICNkZWZpbmUg
-VklSVE5FVF9TUV9TVEFUU19MRU4gICBBUlJBWV9TSVpFKHZpcnRuZXRfc3Ffc3RhdHNfZGVzYykK
-PiA+ICAjZGVmaW5lIFZJUlRORVRfUlFfU1RBVFNfTEVOICAgQVJSQVlfU0laRSh2aXJ0bmV0X3Jx
-X3N0YXRzX2Rlc2MpCj4gPgo+ID4gKy8qIFRoZSBidWZzIG9uIHRoZSBzYW1lIHBhZ2UgbWF5IHNo
-YXJlIHRoaXMgc3RydWN0LiAqLwo+ID4gK3N0cnVjdCB2aXJ0bmV0X3JxX2RtYSB7Cj4gPiArICAg
-ICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RtYSAqbmV4dDsKPiA+ICsKPiA+ICsgICAgICAgZG1hX2Fk
-ZHJfdCBhZGRyOwo+ID4gKwo+ID4gKyAgICAgICB2b2lkICpidWY7Cj4gPiArICAgICAgIHUzMiBs
-ZW47Cj4gPiArCj4gPiArICAgICAgIHUzMiByZWY7Cj4gPiArfTsKPiA+ICsKPiA+ICsvKiBSZWNv
-cmQgdGhlIGRtYSBhbmQgYnVmLiAqLwo+ID4gK3N0cnVjdCB2aXJ0bmV0X3JxX2RhdGEgewo+ID4g
-KyAgICAgICBzdHJ1Y3QgdmlydG5ldF9ycV9kYXRhICpuZXh0Owo+ID4gKwo+ID4gKyAgICAgICB2
-b2lkICpidWY7Cj4gPiArCj4gPiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RtYSAqZG1hOwo+
-ID4gK307Cj4gPiArCj4gPiAgLyogSW50ZXJuYWwgcmVwcmVzZW50YXRpb24gb2YgYSBzZW5kIHZp
-cnRxdWV1ZSAqLwo+ID4gIHN0cnVjdCBzZW5kX3F1ZXVlIHsKPiA+ICAgICAgICAgLyogVmlydHF1
-ZXVlIGFzc29jaWF0ZWQgd2l0aCB0aGlzIHNlbmQgX3F1ZXVlICovCj4gPiBAQCAtMTc1LDYgKzE5
-NiwxMyBAQCBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSB7Cj4gPiAgICAgICAgIGNoYXIgbmFtZVsxNl07
-Cj4gPgo+ID4gICAgICAgICBzdHJ1Y3QgeGRwX3J4cV9pbmZvIHhkcF9yeHE7Cj4gPiArCj4gPiAr
-ICAgICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RhdGEgKmRhdGFfYXJyYXk7Cj4gPiArICAgICAgIHN0
-cnVjdCB2aXJ0bmV0X3JxX2RhdGEgKmRhdGFfZnJlZTsKPiA+ICsKPiA+ICsgICAgICAgc3RydWN0
-IHZpcnRuZXRfcnFfZG1hICpkbWFfYXJyYXk7Cj4gPiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X3Jx
-X2RtYSAqZG1hX2ZyZWU7Cj4gPiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RtYSAqbGFzdF9k
-bWE7Cj4gPiAgfTsKPiA+Cj4gPiAgLyogVGhpcyBzdHJ1Y3R1cmUgY2FuIGNvbnRhaW4gcnNzIG1l
-c3NhZ2Ugd2l0aCBtYXhpbXVtIHNldHRpbmdzIGZvciBpbmRpcmVjdGlvbiB0YWJsZSBhbmQga2V5
-c2l6ZQo+ID4gQEAgLTU0OSw2ICs1NzcsMTc2IEBAIHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZiAqcGFn
-ZV90b19za2Ioc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksCj4gPiAgICAgICAgIHJldHVybiBza2I7
-Cj4gPiAgfQo+ID4KPiA+ICtzdGF0aWMgdm9pZCB2aXJ0bmV0X3JxX3VubWFwKHN0cnVjdCByZWNl
-aXZlX3F1ZXVlICpycSwgc3RydWN0IHZpcnRuZXRfcnFfZG1hICpkbWEpCj4gPiArewo+ID4gKyAg
-ICAgICBzdHJ1Y3QgZGV2aWNlICpkZXY7Cj4gPiArCj4gPiArICAgICAgIC0tZG1hLT5yZWY7Cj4g
-PiArCj4gPiArICAgICAgIGlmIChkbWEtPnJlZikKPiA+ICsgICAgICAgICAgICAgICByZXR1cm47
-Cj4gPiArCj4gPiArICAgICAgIGRldiA9IHZpcnRxdWV1ZV9kbWFfZGV2KHJxLT52cSk7Cj4gPiAr
-Cj4gPiArICAgICAgIGRtYV91bm1hcF9wYWdlKGRldiwgZG1hLT5hZGRyLCBkbWEtPmxlbiwgRE1B
-X0ZST01fREVWSUNFKTsKPiA+ICsKPiA+ICsgICAgICAgZG1hLT5uZXh0ID0gcnEtPmRtYV9mcmVl
-Owo+ID4gKyAgICAgICBycS0+ZG1hX2ZyZWUgPSBkbWE7Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRp
-YyB2b2lkICp2aXJ0bmV0X3JxX3JlY3ljbGVfZGF0YShzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEs
-Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHZpcnRuZXRf
-cnFfZGF0YSAqZGF0YSkKPiA+ICt7Cj4gPiArICAgICAgIHZvaWQgKmJ1ZjsKPiA+ICsKPiA+ICsg
-ICAgICAgYnVmID0gZGF0YS0+YnVmOwo+ID4gKwo+ID4gKyAgICAgICBkYXRhLT5uZXh0ID0gcnEt
-PmRhdGFfZnJlZTsKPiA+ICsgICAgICAgcnEtPmRhdGFfZnJlZSA9IGRhdGE7Cj4gPiArCj4gPiAr
-ICAgICAgIHJldHVybiBidWY7Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRpYyBzdHJ1Y3QgdmlydG5l
-dF9ycV9kYXRhICp2aXJ0bmV0X3JxX2dldF9kYXRhKHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSwK
-PiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZv
-aWQgKmJ1ZiwKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RtYSAqZG1hKQo+ID4gK3sKPiA+ICsgICAgICAgc3Ry
-dWN0IHZpcnRuZXRfcnFfZGF0YSAqZGF0YTsKPiA+ICsKPiA+ICsgICAgICAgZGF0YSA9IHJxLT5k
-YXRhX2ZyZWU7Cj4gPiArICAgICAgIHJxLT5kYXRhX2ZyZWUgPSBkYXRhLT5uZXh0Owo+ID4gKwo+
-ID4gKyAgICAgICBkYXRhLT5idWYgPSBidWY7Cj4gPiArICAgICAgIGRhdGEtPmRtYSA9IGRtYTsK
-PiA+ICsKPiA+ICsgICAgICAgcmV0dXJuIGRhdGE7Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRpYyB2
-b2lkICp2aXJ0bmV0X3JxX2dldF9idWYoc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLCB1MzIgKmxl
-biwgdm9pZCAqKmN0eCkKPiA+ICt7Cj4gPiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X3JxX2RhdGEg
-KmRhdGE7Cj4gPiArICAgICAgIHZvaWQgKmJ1ZjsKPiA+ICsKPiA+ICsgICAgICAgYnVmID0gdmly
-dHF1ZXVlX2dldF9idWZfY3R4KHJxLT52cSwgbGVuLCBjdHgpOwo+ID4gKyAgICAgICBpZiAoIWJ1
-ZiB8fCAhcnEtPmRhdGFfYXJyYXkpCj4gPiArICAgICAgICAgICAgICAgcmV0dXJuIGJ1ZjsKPiA+
-ICsKPiA+ICsgICAgICAgZGF0YSA9IGJ1ZjsKPiA+ICsKPiA+ICsgICAgICAgdmlydG5ldF9ycV91
-bm1hcChycSwgZGF0YS0+ZG1hKTsKPiA+ICsKPiA+ICsgICAgICAgcmV0dXJuIHZpcnRuZXRfcnFf
-cmVjeWNsZV9kYXRhKHJxLCBkYXRhKTsKPiA+ICt9Cj4gPiArCj4gPiArc3RhdGljIHZvaWQgKnZp
-cnRuZXRfcnFfZGV0YWNoX3VudXNlZF9idWYoc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxKQo+ID4g
-K3sKPiA+ICsgICAgICAgc3RydWN0IHZpcnRuZXRfcnFfZGF0YSAqZGF0YTsKPiA+ICsgICAgICAg
-dm9pZCAqYnVmOwo+ID4gKwo+ID4gKyAgICAgICBidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNl
-ZF9idWYocnEtPnZxKTsKPiA+ICsgICAgICAgaWYgKCFidWYgfHwgIXJxLT5kYXRhX2FycmF5KQo+
-ID4gKyAgICAgICAgICAgICAgIHJldHVybiBidWY7Cj4gPiArCj4gPiArICAgICAgIGRhdGEgPSBi
-dWY7Cj4gPiArCj4gPiArICAgICAgIHZpcnRuZXRfcnFfdW5tYXAocnEsIGRhdGEtPmRtYSk7Cj4g
-PiArCj4gPiArICAgICAgIHJldHVybiB2aXJ0bmV0X3JxX3JlY3ljbGVfZGF0YShycSwgZGF0YSk7
-Cj4gPiArfQo+ID4gKwo+ID4gK3N0YXRpYyBpbnQgdmlydG5ldF9ycV9tYXBfc2coc3RydWN0IHJl
-Y2VpdmVfcXVldWUgKnJxLCB2b2lkICpidWYsIHUzMiBsZW4pCj4gPiArewo+ID4gKyAgICAgICBz
-dHJ1Y3QgdmlydG5ldF9ycV9kbWEgKmRtYSA9IHJxLT5sYXN0X2RtYTsKPiA+ICsgICAgICAgc3Ry
-dWN0IGRldmljZSAqZGV2Owo+ID4gKyAgICAgICB1MzIgb2ZmLCBtYXBfbGVuOwo+ID4gKyAgICAg
-ICBkbWFfYWRkcl90IGFkZHI7Cj4gPiArICAgICAgIHZvaWQgKmVuZDsKPiA+ICsKPiA+ICsgICAg
-ICAgaWYgKGxpa2VseShkbWEpICYmIGJ1ZiA+PSBkbWEtPmJ1ZiAmJiAoYnVmICsgbGVuIDw9IGRt
-YS0+YnVmICsgZG1hLT5sZW4pKSB7Cj4gPiArICAgICAgICAgICAgICAgKytkbWEtPnJlZjsKPiA+
-ICsgICAgICAgICAgICAgICBhZGRyID0gZG1hLT5hZGRyICsgKGJ1ZiAtIGRtYS0+YnVmKTsKPiA+
-ICsgICAgICAgICAgICAgICBnb3RvIG9rOwo+ID4gKyAgICAgICB9Cj4gPiArCj4gPiArICAgICAg
-IGVuZCA9IGJ1ZiArIGxlbiAtIDE7Cj4gPiArICAgICAgIG9mZiA9IG9mZnNldF9pbl9wYWdlKGVu
-ZCk7Cj4gPiArICAgICAgIG1hcF9sZW4gPSBsZW4gKyBQQUdFX1NJWkUgLSBvZmY7Cj4KPiBUaGlz
-IGFzc3VtZXMgYSBQQUdFX1NJWkUgd2hpY2ggc2VlbXMgc3ViLW9wdGltYWwgYXMgcGFnZSBmcmFn
-IGNvdWxkIGJlCj4gbGFyZ2VyIHRoYW4gdGhpcy4KPgo+ID4gKwo+ID4gKyAgICAgICBkZXYgPSB2
-aXJ0cXVldWVfZG1hX2RldihycS0+dnEpOwo+ID4gKwo+ID4gKyAgICAgICBhZGRyID0gZG1hX21h
-cF9wYWdlX2F0dHJzKGRldiwgdmlydF90b19wYWdlKGJ1ZiksIG9mZnNldF9pbl9wYWdlKGJ1Ziks
-Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbWFwX2xlbiwgRE1BX0ZST01f
-REVWSUNFLCAwKTsKPiA+ICsgICAgICAgaWYgKGFkZHIgPT0gRE1BX01BUFBJTkdfRVJST1IpCj4g
-PiArICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9NRU07Cj4gPiArCj4gPiArICAgICAgIGRtYSA9
-IHJxLT5kbWFfZnJlZTsKPiA+ICsgICAgICAgcnEtPmRtYV9mcmVlID0gZG1hLT5uZXh0Owo+ID4g
-Kwo+ID4gKyAgICAgICBkbWEtPnJlZiA9IDE7Cj4gPiArICAgICAgIGRtYS0+YnVmID0gYnVmOwo+
-ID4gKyAgICAgICBkbWEtPmFkZHIgPSBhZGRyOwo+ID4gKyAgICAgICBkbWEtPmxlbiA9IG1hcF9s
-ZW47Cj4gPiArCj4gPiArICAgICAgIHJxLT5sYXN0X2RtYSA9IGRtYTsKPiA+ICsKPiA+ICtvazoK
-PiA+ICsgICAgICAgc2dfaW5pdF90YWJsZShycS0+c2csIDEpOwo+ID4gKyAgICAgICBycS0+c2db
-MF0uZG1hX2FkZHJlc3MgPSBhZGRyOwo+ID4gKyAgICAgICBycS0+c2dbMF0ubGVuZ3RoID0gbGVu
-Owo+ID4gKwo+ID4gKyAgICAgICByZXR1cm4gMDsKPiA+ICt9Cj4gPiArCj4gPiArc3RhdGljIGlu
-dCB2aXJ0bmV0X3JxX21lcmdlX21hcF9pbml0KHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ID4g
-K3sKPiA+ICsgICAgICAgc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxOwo+ID4gKyAgICAgICBpbnQg
-aSwgZXJyLCBqLCBudW07Cj4gPiArCj4gPiArICAgICAgIC8qIGRpc2FibGUgZm9yIGJpZyBtb2Rl
-ICovCj4gPiArICAgICAgIGlmICghdmktPm1lcmdlYWJsZV9yeF9idWZzICYmIHZpLT5iaWdfcGFj
-a2V0cykKPiA+ICsgICAgICAgICAgICAgICByZXR1cm4gMDsKPiA+ICsKPiA+ICsgICAgICAgZm9y
-IChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ID4gKyAgICAgICAgICAg
-ICAgIGVyciA9IHZpcnRxdWV1ZV9zZXRfcHJlbWFwcGVkKHZpLT5ycVtpXS52cSk7Cj4gPiArICAg
-ICAgICAgICAgICAgaWYgKGVycikKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGNvbnRpbnVl
-Owo+ID4gKwo+ID4gKyAgICAgICAgICAgICAgIHJxID0gJnZpLT5ycVtpXTsKPiA+ICsKPiA+ICsg
-ICAgICAgICAgICAgICBudW0gPSB2aXJ0cXVldWVfZ2V0X3ZyaW5nX3NpemUocnEtPnZxKTsKPiA+
-ICsKPiA+ICsgICAgICAgICAgICAgICBycS0+ZGF0YV9hcnJheSA9IGttYWxsb2NfYXJyYXkobnVt
-LCBzaXplb2YoKnJxLT5kYXRhX2FycmF5KSwgR0ZQX0tFUk5FTCk7Cj4gPiArICAgICAgICAgICAg
-ICAgaWYgKCFycS0+ZGF0YV9hcnJheSkKPgo+IENhbiB3ZSBhdm9pZCB0aG9zZSBhbGxvY2F0aW9u
-cyB3aGVuIHdlIGRvbid0IHVzZSB0aGUgRE1BIEFQST8KPgo+ID4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgZ290byBlcnI7Cj4gPiArCj4gPiArICAgICAgICAgICAgICAgcnEtPmRtYV9hcnJheSA9
-IGttYWxsb2NfYXJyYXkobnVtLCBzaXplb2YoKnJxLT5kbWFfYXJyYXkpLCBHRlBfS0VSTkVMKTsK
-PiA+ICsgICAgICAgICAgICAgICBpZiAoIXJxLT5kbWFfYXJyYXkpCj4gPiArICAgICAgICAgICAg
-ICAgICAgICAgICBnb3RvIGVycjsKPiA+ICsKPiA+ICsgICAgICAgICAgICAgICBmb3IgKGogPSAw
-OyBqIDwgbnVtOyArK2opIHsKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIHJxLT5kYXRhX2Fy
-cmF5W2pdLm5leHQgPSBycS0+ZGF0YV9mcmVlOwo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
-cnEtPmRhdGFfZnJlZSA9ICZycS0+ZGF0YV9hcnJheVtqXTsKPiA+ICsKPiA+ICsgICAgICAgICAg
-ICAgICAgICAgICAgIHJxLT5kbWFfYXJyYXlbal0ubmV4dCA9IHJxLT5kbWFfZnJlZTsKPiA+ICsg
-ICAgICAgICAgICAgICAgICAgICAgIHJxLT5kbWFfZnJlZSA9ICZycS0+ZG1hX2FycmF5W2pdOwo+
-ID4gKyAgICAgICAgICAgICAgIH0KPiA+ICsgICAgICAgfQo+ID4gKwo+ID4gKyAgICAgICByZXR1
-cm4gMDsKPiA+ICsKPiA+ICtlcnI6Cj4gPiArICAgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+bWF4
-X3F1ZXVlX3BhaXJzOyBpKyspIHsKPiA+ICsgICAgICAgICAgICAgICBzdHJ1Y3QgcmVjZWl2ZV9x
-dWV1ZSAqcnE7Cj4gPiArCj4gPiArICAgICAgICAgICAgICAgcnEgPSAmdmktPnJxW2ldOwo+ID4g
-Kwo+ID4gKyAgICAgICAgICAgICAgIGtmcmVlKHJxLT5kbWFfYXJyYXkpOwo+ID4gKyAgICAgICAg
-ICAgICAgIGtmcmVlKHJxLT5kYXRhX2FycmF5KTsKPiA+ICsgICAgICAgfQo+ID4gKwo+ID4gKyAg
-ICAgICByZXR1cm4gLUVOT01FTTsKPiA+ICt9Cj4gPiArCj4gPiAgc3RhdGljIHZvaWQgZnJlZV9v
-bGRfeG1pdF9za2JzKHN0cnVjdCBzZW5kX3F1ZXVlICpzcSwgYm9vbCBpbl9uYXBpKQo+ID4gIHsK
-PiA+ICAgICAgICAgdW5zaWduZWQgaW50IGxlbjsKPiA+IEBAIC04MzUsNyArMTAzMyw3IEBAIHN0
-YXRpYyBzdHJ1Y3QgcGFnZSAqeGRwX2xpbmVhcml6ZV9wYWdlKHN0cnVjdCByZWNlaXZlX3F1ZXVl
-ICpycSwKPiA+ICAgICAgICAgICAgICAgICB2b2lkICpidWY7Cj4gPiAgICAgICAgICAgICAgICAg
-aW50IG9mZjsKPiA+Cj4gPiAtICAgICAgICAgICAgICAgYnVmID0gdmlydHF1ZXVlX2dldF9idWYo
-cnEtPnZxLCAmYnVmbGVuKTsKPiA+ICsgICAgICAgICAgICAgICBidWYgPSB2aXJ0bmV0X3JxX2dl
-dF9idWYocnEsICZidWZsZW4sIE5VTEwpOwo+ID4gICAgICAgICAgICAgICAgIGlmICh1bmxpa2Vs
-eSghYnVmKSkKPiA+ICAgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gZXJyX2J1ZjsKPiA+Cj4g
-PiBAQCAtMTEyNiw3ICsxMzI0LDcgQEAgc3RhdGljIGludCB2aXJ0bmV0X2J1aWxkX3hkcF9idWZm
-X21yZyhzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ID4gICAgICAgICAgICAgICAgIHJldHVybiAt
-RUlOVkFMOwo+ID4KPiA+ICAgICAgICAgd2hpbGUgKC0tKm51bV9idWYgPiAwKSB7Cj4gPiAtICAg
-ICAgICAgICAgICAgYnVmID0gdmlydHF1ZXVlX2dldF9idWZfY3R4KHJxLT52cSwgJmxlbiwgJmN0
-eCk7Cj4gPiArICAgICAgICAgICAgICAgYnVmID0gdmlydG5ldF9ycV9nZXRfYnVmKHJxLCAmbGVu
-LCAmY3R4KTsKPiA+ICAgICAgICAgICAgICAgICBpZiAodW5saWtlbHkoIWJ1ZikpIHsKPiA+ICAg
-ICAgICAgICAgICAgICAgICAgICAgIHByX2RlYnVnKCIlczogcnggZXJyb3I6ICVkIGJ1ZmZlcnMg
-b3V0IG9mICVkIG1pc3NpbmdcbiIsCj4gPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICBkZXYtPm5hbWUsICpudW1fYnVmLAo+ID4gQEAgLTEzNTEsNyArMTU0OSw3IEBAIHN0YXRpYyBz
-dHJ1Y3Qgc2tfYnVmZiAqcmVjZWl2ZV9tZXJnZWFibGUoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwK
-PiA+ICAgICAgICAgd2hpbGUgKC0tbnVtX2J1Zikgewo+ID4gICAgICAgICAgICAgICAgIGludCBu
-dW1fc2tiX2ZyYWdzOwo+ID4KPiA+IC0gICAgICAgICAgICAgICBidWYgPSB2aXJ0cXVldWVfZ2V0
-X2J1Zl9jdHgocnEtPnZxLCAmbGVuLCAmY3R4KTsKPiA+ICsgICAgICAgICAgICAgICBidWYgPSB2
-aXJ0bmV0X3JxX2dldF9idWYocnEsICZsZW4sICZjdHgpOwo+ID4gICAgICAgICAgICAgICAgIGlm
-ICh1bmxpa2VseSghYnVmKSkgewo+ID4gICAgICAgICAgICAgICAgICAgICAgICAgcHJfZGVidWco
-IiVzOiByeCBlcnJvcjogJWQgYnVmZmVycyBvdXQgb2YgJWQgbWlzc2luZ1xuIiwKPiA+ICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGRldi0+bmFtZSwgbnVtX2J1ZiwKPiA+IEBAIC0x
-NDE0LDcgKzE2MTIsNyBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnJlY2VpdmVfbWVyZ2VhYmxl
-KHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gPiAgZXJyX3NrYjoKPiA+ICAgICAgICAgcHV0X3Bh
-Z2UocGFnZSk7Cj4gPiAgICAgICAgIHdoaWxlIChudW1fYnVmLS0gPiAxKSB7Cj4gPiAtICAgICAg
-ICAgICAgICAgYnVmID0gdmlydHF1ZXVlX2dldF9idWYocnEtPnZxLCAmbGVuKTsKPiA+ICsgICAg
-ICAgICAgICAgICBidWYgPSB2aXJ0bmV0X3JxX2dldF9idWYocnEsICZsZW4sIE5VTEwpOwo+ID4g
-ICAgICAgICAgICAgICAgIGlmICh1bmxpa2VseSghYnVmKSkgewo+ID4gICAgICAgICAgICAgICAg
-ICAgICAgICAgcHJfZGVidWcoIiVzOiByeCBlcnJvcjogJWQgYnVmZmVycyBtaXNzaW5nXG4iLAo+
-ID4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZGV2LT5uYW1lLCBudW1fYnVmKTsK
-PiA+IEBAIC0xNTI5LDYgKzE3MjcsNyBAQCBzdGF0aWMgaW50IGFkZF9yZWN2YnVmX3NtYWxsKHN0
-cnVjdCB2aXJ0bmV0X2luZm8gKnZpLCBzdHJ1Y3QgcmVjZWl2ZV9xdWV1ZSAqcnEsCj4gPiAgICAg
-ICAgIHVuc2lnbmVkIGludCB4ZHBfaGVhZHJvb20gPSB2aXJ0bmV0X2dldF9oZWFkcm9vbSh2aSk7
-Cj4gPiAgICAgICAgIHZvaWQgKmN0eCA9ICh2b2lkICopKHVuc2lnbmVkIGxvbmcpeGRwX2hlYWRy
-b29tOwo+ID4gICAgICAgICBpbnQgbGVuID0gdmktPmhkcl9sZW4gKyBWSVJUTkVUX1JYX1BBRCAr
-IEdPT0RfUEFDS0VUX0xFTiArIHhkcF9oZWFkcm9vbTsKPiA+ICsgICAgICAgc3RydWN0IHZpcnRu
-ZXRfcnFfZGF0YSAqZGF0YTsKPiA+ICAgICAgICAgaW50IGVycjsKPiA+Cj4gPiAgICAgICAgIGxl
-biA9IFNLQl9EQVRBX0FMSUdOKGxlbikgKwo+ID4gQEAgLTE1MzksMTEgKzE3MzgsMzQgQEAgc3Rh
-dGljIGludCBhZGRfcmVjdmJ1Zl9zbWFsbChzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwgc3RydWN0
-IHJlY2VpdmVfcXVldWUgKnJxLAo+ID4gICAgICAgICBidWYgPSAoY2hhciAqKXBhZ2VfYWRkcmVz
-cyhhbGxvY19mcmFnLT5wYWdlKSArIGFsbG9jX2ZyYWctPm9mZnNldDsKPiA+ICAgICAgICAgZ2V0
-X3BhZ2UoYWxsb2NfZnJhZy0+cGFnZSk7Cj4gPiAgICAgICAgIGFsbG9jX2ZyYWctPm9mZnNldCAr
-PSBsZW47Cj4gPiAtICAgICAgIHNnX2luaXRfb25lKHJxLT5zZywgYnVmICsgVklSVE5FVF9SWF9Q
-QUQgKyB4ZHBfaGVhZHJvb20sCj4gPiAtICAgICAgICAgICAgICAgICAgIHZpLT5oZHJfbGVuICsg
-R09PRF9QQUNLRVRfTEVOKTsKPiA+IC0gICAgICAgZXJyID0gdmlydHF1ZXVlX2FkZF9pbmJ1Zl9j
-dHgocnEtPnZxLCBycS0+c2csIDEsIGJ1ZiwgY3R4LCBnZnApOwo+ID4gKwo+ID4gKyAgICAgICBp
-ZiAocnEtPmRhdGFfYXJyYXkpIHsKPiA+ICsgICAgICAgICAgICAgICBlcnIgPSB2aXJ0bmV0X3Jx
-X21hcF9zZyhycSwgYnVmICsgVklSVE5FVF9SWF9QQUQgKyB4ZHBfaGVhZHJvb20sCj4gPiArICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmktPmhkcl9sZW4gKyBHT09EX1BB
-Q0tFVF9MRU4pOwo+Cj4gVGhhbmtzIHRvIHRoZSBjb21wb3VuZCBwYWdlLiBJIHdvbmRlciBpZiBl
-dmVyeXRoaW5nIGNvdWxkIGJlCj4gc2ltcGxpZmllZCBpZiB3ZSBqdXN0IHJldXNlIHBhZ2UtPnBy
-aXZhdGUgZm9yIHN0b3JpbmcgbWV0YWRhdGEgbGlrZQo+IGRtYSBhZGRyZXNzIGFuZCByZWZjbnQu
-IFRoZW4gd2UgZG9uJ3QgbmVlZCBleHRyYSBzdHVmZiBmb3IgdHJhY2tpbmcKPiBhbnkgb3RoZXIg
-dGhpbmc/CgpNYXliZSB3ZSBjYW4gdHJ5IGFsbG9jIG9uZSBzbWFsbCBidWZmZXIgZnJvbSB0aGUg
-cGFnZV9mcmFnIHRvIHN0b3JlIHRoZSBkbWEgaW5mbwp3aGVuIHBhZ2VfZnJhZy5vZmZzZXQgPT0g
-MC4KClRoYW5rcy4KCgo+Cj4gVGhhbmtzCj4KPgo+Cj4gPiArICAgICAgICAgICAgICAgaWYgKGVy
-cikKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGdvdG8gbWFwX2VycjsKPiA+ICsKPiA+ICsg
-ICAgICAgICAgICAgICBkYXRhID0gdmlydG5ldF9ycV9nZXRfZGF0YShycSwgYnVmLCBycS0+bGFz
-dF9kbWEpOwo+ID4gKyAgICAgICB9IGVsc2Ugewo+ID4gKyAgICAgICAgICAgICAgIHNnX2luaXRf
-b25lKHJxLT5zZywgYnVmICsgVklSVE5FVF9SWF9QQUQgKyB4ZHBfaGVhZHJvb20sCj4gPiArICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgdmktPmhkcl9sZW4gKyBHT09EX1BBQ0tFVF9MRU4pOwo+
-ID4gKyAgICAgICAgICAgICAgIGRhdGEgPSAodm9pZCAqKWJ1ZjsKPiA+ICsgICAgICAgfQo+ID4g
-Kwo+ID4gKyAgICAgICBlcnIgPSB2aXJ0cXVldWVfYWRkX2luYnVmX2N0eChycS0+dnEsIHJxLT5z
-ZywgMSwgZGF0YSwgY3R4LCBnZnApOwo+ID4gICAgICAgICBpZiAoZXJyIDwgMCkKPiA+IC0gICAg
-ICAgICAgICAgICBwdXRfcGFnZSh2aXJ0X3RvX2hlYWRfcGFnZShidWYpKTsKPiA+ICsgICAgICAg
-ICAgICAgICBnb3RvIGFkZF9lcnI7Cj4gPiArCj4gPiArICAgICAgIHJldHVybiBlcnI7Cj4gPiAr
-Cj4gPiArYWRkX2VycjoKPiA+ICsgICAgICAgaWYgKHJxLT5kYXRhX2FycmF5KSB7Cj4gPiArICAg
-ICAgICAgICAgICAgdmlydG5ldF9ycV91bm1hcChycSwgZGF0YS0+ZG1hKTsKPiA+ICsgICAgICAg
-ICAgICAgICB2aXJ0bmV0X3JxX3JlY3ljbGVfZGF0YShycSwgZGF0YSk7Cj4gPiArICAgICAgIH0K
-PiA+ICsKPiA+ICttYXBfZXJyOgo+ID4gKyAgICAgICBwdXRfcGFnZSh2aXJ0X3RvX2hlYWRfcGFn
-ZShidWYpKTsKPiA+ICAgICAgICAgcmV0dXJuIGVycjsKPiA+ICB9Cj4gPgo+ID4gQEAgLTE2MjAs
-NiArMTg0Miw3IEBAIHN0YXRpYyBpbnQgYWRkX3JlY3ZidWZfbWVyZ2VhYmxlKHN0cnVjdCB2aXJ0
-bmV0X2luZm8gKnZpLAo+ID4gICAgICAgICB1bnNpZ25lZCBpbnQgaGVhZHJvb20gPSB2aXJ0bmV0
-X2dldF9oZWFkcm9vbSh2aSk7Cj4gPiAgICAgICAgIHVuc2lnbmVkIGludCB0YWlscm9vbSA9IGhl
-YWRyb29tID8gc2l6ZW9mKHN0cnVjdCBza2Jfc2hhcmVkX2luZm8pIDogMDsKPiA+ICAgICAgICAg
-dW5zaWduZWQgaW50IHJvb20gPSBTS0JfREFUQV9BTElHTihoZWFkcm9vbSArIHRhaWxyb29tKTsK
-PiA+ICsgICAgICAgc3RydWN0IHZpcnRuZXRfcnFfZGF0YSAqZGF0YTsKPiA+ICAgICAgICAgY2hh
-ciAqYnVmOwo+ID4gICAgICAgICB2b2lkICpjdHg7Cj4gPiAgICAgICAgIGludCBlcnI7Cj4gPiBA
-QCAtMTY1MCwxMiArMTg3MywzMiBAQCBzdGF0aWMgaW50IGFkZF9yZWN2YnVmX21lcmdlYWJsZShz
-dHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPiA+ICAgICAgICAgICAgICAgICBhbGxvY19mcmFnLT5v
-ZmZzZXQgKz0gaG9sZTsKPiA+ICAgICAgICAgfQo+ID4KPiA+IC0gICAgICAgc2dfaW5pdF9vbmUo
-cnEtPnNnLCBidWYsIGxlbik7Cj4gPiArICAgICAgIGlmIChycS0+ZGF0YV9hcnJheSkgewo+ID4g
-KyAgICAgICAgICAgICAgIGVyciA9IHZpcnRuZXRfcnFfbWFwX3NnKHJxLCBidWYsIGxlbik7Cj4g
-PiArICAgICAgICAgICAgICAgaWYgKGVycikKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgIGdv
-dG8gbWFwX2VycjsKPiA+ICsKPiA+ICsgICAgICAgICAgICAgICBkYXRhID0gdmlydG5ldF9ycV9n
-ZXRfZGF0YShycSwgYnVmLCBycS0+bGFzdF9kbWEpOwo+ID4gKyAgICAgICB9IGVsc2Ugewo+ID4g
-KyAgICAgICAgICAgICAgIHNnX2luaXRfb25lKHJxLT5zZywgYnVmLCBsZW4pOwo+ID4gKyAgICAg
-ICAgICAgICAgIGRhdGEgPSAodm9pZCAqKWJ1ZjsKPiA+ICsgICAgICAgfQo+ID4gKwo+ID4gICAg
-ICAgICBjdHggPSBtZXJnZWFibGVfbGVuX3RvX2N0eChsZW4gKyByb29tLCBoZWFkcm9vbSk7Cj4g
-PiAtICAgICAgIGVyciA9IHZpcnRxdWV1ZV9hZGRfaW5idWZfY3R4KHJxLT52cSwgcnEtPnNnLCAx
-LCBidWYsIGN0eCwgZ2ZwKTsKPiA+ICsgICAgICAgZXJyID0gdmlydHF1ZXVlX2FkZF9pbmJ1Zl9j
-dHgocnEtPnZxLCBycS0+c2csIDEsIGRhdGEsIGN0eCwgZ2ZwKTsKPiA+ICAgICAgICAgaWYgKGVy
-ciA8IDApCj4gPiAtICAgICAgICAgICAgICAgcHV0X3BhZ2UodmlydF90b19oZWFkX3BhZ2UoYnVm
-KSk7Cj4gPiArICAgICAgICAgICAgICAgZ290byBhZGRfZXJyOwo+ID4gKwo+ID4gKyAgICAgICBy
-ZXR1cm4gMDsKPiA+ICsKPiA+ICthZGRfZXJyOgo+ID4gKyAgICAgICBpZiAocnEtPmRhdGFfYXJy
-YXkpIHsKPiA+ICsgICAgICAgICAgICAgICB2aXJ0bmV0X3JxX3VubWFwKHJxLCBkYXRhLT5kbWEp
-Owo+ID4gKyAgICAgICAgICAgICAgIHZpcnRuZXRfcnFfcmVjeWNsZV9kYXRhKHJxLCBkYXRhKTsK
-PiA+ICsgICAgICAgfQo+ID4KPiA+ICttYXBfZXJyOgo+ID4gKyAgICAgICBwdXRfcGFnZSh2aXJ0
-X3RvX2hlYWRfcGFnZShidWYpKTsKPiA+ICAgICAgICAgcmV0dXJuIGVycjsKPiA+ICB9Cj4gPgo+
-ID4gQEAgLTE3NzUsMTMgKzIwMTgsMTMgQEAgc3RhdGljIGludCB2aXJ0bmV0X3JlY2VpdmUoc3Ry
-dWN0IHJlY2VpdmVfcXVldWUgKnJxLCBpbnQgYnVkZ2V0LAo+ID4gICAgICAgICAgICAgICAgIHZv
-aWQgKmN0eDsKPiA+Cj4gPiAgICAgICAgICAgICAgICAgd2hpbGUgKHN0YXRzLnBhY2tldHMgPCBi
-dWRnZXQgJiYKPiA+IC0gICAgICAgICAgICAgICAgICAgICAgKGJ1ZiA9IHZpcnRxdWV1ZV9nZXRf
-YnVmX2N0eChycS0+dnEsICZsZW4sICZjdHgpKSkgewo+ID4gKyAgICAgICAgICAgICAgICAgICAg
-ICAoYnVmID0gdmlydG5ldF9ycV9nZXRfYnVmKHJxLCAmbGVuLCAmY3R4KSkpIHsKPiA+ICAgICAg
-ICAgICAgICAgICAgICAgICAgIHJlY2VpdmVfYnVmKHZpLCBycSwgYnVmLCBsZW4sIGN0eCwgeGRw
-X3htaXQsICZzdGF0cyk7Cj4gPiAgICAgICAgICAgICAgICAgICAgICAgICBzdGF0cy5wYWNrZXRz
-Kys7Cj4gPiAgICAgICAgICAgICAgICAgfQo+ID4gICAgICAgICB9IGVsc2Ugewo+ID4gICAgICAg
-ICAgICAgICAgIHdoaWxlIChzdGF0cy5wYWNrZXRzIDwgYnVkZ2V0ICYmCj4gPiAtICAgICAgICAg
-ICAgICAgICAgICAgIChidWYgPSB2aXJ0cXVldWVfZ2V0X2J1ZihycS0+dnEsICZsZW4pKSAhPSBO
-VUxMKSB7Cj4gPiArICAgICAgICAgICAgICAgICAgICAgIChidWYgPSB2aXJ0bmV0X3JxX2dldF9i
-dWYocnEsICZsZW4sIE5VTEwpKSAhPSBOVUxMKSB7Cj4gPiAgICAgICAgICAgICAgICAgICAgICAg
-ICByZWNlaXZlX2J1Zih2aSwgcnEsIGJ1ZiwgbGVuLCBOVUxMLCB4ZHBfeG1pdCwgJnN0YXRzKTsK
-PiA+ICAgICAgICAgICAgICAgICAgICAgICAgIHN0YXRzLnBhY2tldHMrKzsKPiA+ICAgICAgICAg
-ICAgICAgICB9Cj4gPiBAQCAtMzUxNCw2ICszNzU3LDkgQEAgc3RhdGljIHZvaWQgdmlydG5ldF9m
-cmVlX3F1ZXVlcyhzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSkKPiA+ICAgICAgICAgZm9yIChpID0g
-MDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkrKykgewo+ID4gICAgICAgICAgICAgICAgIF9f
-bmV0aWZfbmFwaV9kZWwoJnZpLT5ycVtpXS5uYXBpKTsKPiA+ICAgICAgICAgICAgICAgICBfX25l
-dGlmX25hcGlfZGVsKCZ2aS0+c3FbaV0ubmFwaSk7Cj4gPiArCj4gPiArICAgICAgICAgICAgICAg
-a2ZyZWUodmktPnJxW2ldLmRhdGFfYXJyYXkpOwo+ID4gKyAgICAgICAgICAgICAgIGtmcmVlKHZp
-LT5ycVtpXS5kbWFfYXJyYXkpOwo+ID4gICAgICAgICB9Cj4gPgo+ID4gICAgICAgICAvKiBXZSBj
-YWxsZWQgX19uZXRpZl9uYXBpX2RlbCgpLAo+ID4gQEAgLTM1OTEsOSArMzgzNywxMCBAQCBzdGF0
-aWMgdm9pZCBmcmVlX3VudXNlZF9idWZzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ID4gICAg
-ICAgICB9Cj4gPgo+ID4gICAgICAgICBmb3IgKGkgPSAwOyBpIDwgdmktPm1heF9xdWV1ZV9wYWly
-czsgaSsrKSB7Cj4gPiAtICAgICAgICAgICAgICAgc3RydWN0IHZpcnRxdWV1ZSAqdnEgPSB2aS0+
-cnFbaV0udnE7Cj4gPiAtICAgICAgICAgICAgICAgd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0
-YWNoX3VudXNlZF9idWYodnEpKSAhPSBOVUxMKQo+ID4gLSAgICAgICAgICAgICAgICAgICAgICAg
-dmlydG5ldF9ycV9mcmVlX3VudXNlZF9idWYodnEsIGJ1Zik7Cj4gPiArICAgICAgICAgICAgICAg
-c3RydWN0IHJlY2VpdmVfcXVldWUgKnJxID0gJnZpLT5ycVtpXTsKPiA+ICsKPiA+ICsgICAgICAg
-ICAgICAgICB3aGlsZSAoKGJ1ZiA9IHZpcnRuZXRfcnFfZGV0YWNoX3VudXNlZF9idWYocnEpKSAh
-PSBOVUxMKQo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgdmlydG5ldF9ycV9mcmVlX3VudXNl
-ZF9idWYocnEtPnZxLCBidWYpOwo+ID4gICAgICAgICAgICAgICAgIGNvbmRfcmVzY2hlZCgpOwo+
-ID4gICAgICAgICB9Cj4gPiAgfQo+ID4gQEAgLTM3NjcsNiArNDAxNCwxMCBAQCBzdGF0aWMgaW50
-IGluaXRfdnFzKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpKQo+ID4gICAgICAgICBpZiAocmV0KQo+
-ID4gICAgICAgICAgICAgICAgIGdvdG8gZXJyX2ZyZWU7Cj4gPgo+ID4gKyAgICAgICByZXQgPSB2
-aXJ0bmV0X3JxX21lcmdlX21hcF9pbml0KHZpKTsKPiA+ICsgICAgICAgaWYgKHJldCkKPiA+ICsg
-ICAgICAgICAgICAgICBnb3RvIGVycl9mcmVlOwo+ID4gKwo+ID4gICAgICAgICBjcHVzX3JlYWRf
-bG9jaygpOwo+ID4gICAgICAgICB2aXJ0bmV0X3NldF9hZmZpbml0eSh2aSk7Cj4gPiAgICAgICAg
-IGNwdXNfcmVhZF91bmxvY2soKTsKPiA+IC0tCj4gPiAyLjMyLjAuMy5nMDExOTVjZjlmCj4gPgo+
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============5091933363302977175==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------kFtFEiqeMKJZ4HgZ6qn0z8X0"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------kFtFEiqeMKJZ4HgZ6qn0z8X0
+Content-Type: multipart/mixed; boundary="------------hX0Y0L30m6F5STQTlkmw5Rlm";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
+ Jani Nikula <jani.nikula@intel.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ "Pan, Xinhui" <Xinhui.Pan@amd.com>, Harry Wentland <harry.wentland@amd.com>,
+ Leo Li <sunpeng.li@amd.com>, Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+ Hamza Mahfooz <hamza.mahfooz@amd.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Guchun Chen <guchun.chen@amd.com>,
+ Srinivasan Shanmugam <srinivasan.shanmugam@amd.com>,
+ Evan Quan <evan.quan@amd.com>, Likun Gao <Likun.Gao@amd.com>,
+ =?UTF-8?B?TWFyZWsgT2zFocOhaw==?= <marek.olsak@amd.com>,
+ David Francis <David.Francis@amd.com>, Hawking Zhang
+ <Hawking.Zhang@amd.com>, Lang Yu <Lang.Yu@amd.com>,
+ Philip Yang <Philip.Yang@amd.com>, Yifan Zhang <yifan1.zhang@amd.com>,
+ Tim Huang <Tim.Huang@amd.com>, Zack Rusin <zackr@vmware.com>,
+ Sam Ravnborg <sam@ravnborg.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ =?UTF-8?Q?Ma=c3=adra_Canal?= <mairacanal@riseup.net>,
+ =?UTF-8?Q?Andr=c3=a9_Almeida?= <andrealmeid@igalia.com>,
+ Qingqing Zhuo <qingqing.zhuo@amd.com>,
+ Aurabindo Pillai <aurabindo.pillai@amd.com>, Hersen Wu
+ <hersenxs.wu@amd.com>, Fangzhi Zuo <jerry.zuo@amd.com>,
+ Stylon Wang <stylon.wang@amd.com>, Alan Liu <haoping.liu@amd.com>,
+ Wayne Lin <Wayne.Lin@amd.com>, Aaron Liu <aaron.liu@amd.com>,
+ Melissa Wen <mwen@igalia.com>, Bhawanpreet Lakha
+ <Bhawanpreet.Lakha@amd.com>, David Tadokoro <davidbtadokoro@usp.br>,
+ Wenjing Liu <wenjing.liu@amd.com>,
+ Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Alexey Kodanev <aleksei.kodanev@bell-sw.com>, Roman Li <roman.li@amd.com>,
+ =?UTF-8?Q?Joaqu=c3=adn_Ignacio_Aramend=c3=ada?= <samsagax@gmail.com>,
+ Dave Airlie <airlied@redhat.com>, Russell King <linux@armlinux.org.uk>,
+ Liviu Dudau <liviu.dudau@arm.com>, Joel Stanley <joel@jms.id.au>,
+ Boris Brezillon <bbrezillon@kernel.org>,
+ Nicolas Ferre <nicolas.ferre@microchip.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Claudiu Beznea <claudiu.beznea@microchip.com>,
+ Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+ Stefan Agner <stefan@agner.ch>, Alison Wang <alison.wang@nxp.com>,
+ Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+ =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>,
+ Xinliang Liu <xinliang.liu@linaro.org>, Tian Tao <tiantao6@hisilicon.com>,
+ Danilo Krummrich <dakr@redhat.com>, Deepak Rawat <drawat.floss@gmail.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+ Lucas De Marchi <lucas.demarchi@intel.com>,
+ Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+ Andrzej Hajda <andrzej.hajda@intel.com>,
+ Matt Roper <matthew.d.roper@intel.com>,
+ Stanislav Lisovskiy <stanislav.lisovskiy@intel.com>,
+ Radhakrishna Sripada <radhakrishna.sripada@intel.com>,
+ Hans de Goede <hdegoede@redhat.com>, Luca Coelho <luciano.coelho@intel.com>,
+ Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>,
+ Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+ Vinod Govindapillai <vinod.govindapillai@intel.com>,
+ =?UTF-8?Q?=c5=81ukasz_Bartosik?= <lb@semihalf.com>,
+ Anusha Srivatsa <anusha.srivatsa@intel.com>,
+ Chaitanya Kumar Borah <chaitanya.kumar.borah@intel.com>,
+ Uma Shankar <uma.shankar@intel.com>, Imre Deak <imre.deak@intel.com>,
+ Mitul Golani <mitulkumar.ajitkumar.golani@intel.com>,
+ Swati Sharma <swati2.sharma@intel.com>,
+ =?UTF-8?Q?Jouni_H=c3=b6gander?= <jouni.hogander@intel.com>,
+ Mika Kahola <mika.kahola@intel.com>,
+ =?UTF-8?Q?Jos=c3=a9_Roberto_de_Souza?= <jose.souza@intel.com>,
+ Arun R Murthy <arun.r.murthy@intel.com>,
+ Gustavo Sousa <gustavo.sousa@intel.com>,
+ Khaled Almahallawy <khaled.almahallawy@intel.com>,
+ Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+ Andi Shyti <andi.shyti@linux.intel.com>, Nirmoy Das <nirmoy.das@intel.com>,
+ Fei Yang <fei.yang@intel.com>, Animesh Manna <animesh.manna@intel.com>,
+ Deepak R Varma <drv@mailo.com>, "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Vandita Kulkarni <vandita.kulkarni@intel.com>,
+ Suraj Kandpal <suraj.kandpal@intel.com>,
+ Drew Davenport <ddavenport@chromium.org>,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Philipp Zabel <p.zabel@pengutronix.de>, Dan Carpenter <error27@gmail.com>,
+ Paul Cercueil <paul@crapouillou.net>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Neil Armstrong <neil.armstrong@linaro.org>,
+ Kevin Hilman <khilman@baylibre.com>, Rob Clark <robdclark@gmail.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>,
+ Vinod Polimera <quic_vpolimer@quicinc.com>,
+ Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+ Konrad Dybcio <konrad.dybcio@linaro.org>,
+ Jessica Zhang <quic_jesszhan@quicinc.com>, Liu Shixin
+ <liushixin2@huawei.com>, Marek Vasut <marex@denx.de>,
+ Ben Skeggs <bskeggs@redhat.com>, Karol Herbst <kherbst@redhat.com>,
+ Lyude Paul <lyude@redhat.com>, Tomi Valkeinen <tomba@kernel.org>,
+ Emma Anholt <emma@anholt.net>, Gerd Hoffmann <kraxel@redhat.com>,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Biju Das <biju.das.jz@bp.renesas.com>, Sandy Huang <hjc@rock-chips.com>,
+ =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>,
+ Orson Zhai <orsonzhai@gmail.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>,
+ Alain Volmat <alain.volmat@foss.st.com>,
+ Yannick Fertre <yannick.fertre@foss.st.com>,
+ Raphael Gallais-Pou <raphael.gallais-pou@foss.st.com>,
+ Philippe Cornu <philippe.cornu@foss.st.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@foss.st.com>, Chen-Yu Tsai
+ <wens@csie.org>, Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Samuel Holland <samuel@sholland.org>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Mikko Perttunen <mperttunen@nvidia.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Jyri Sarha <jyri.sarha@iki.fi>,
+ David Lechner <david@lechnology.com>,
+ Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+ Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+ Melissa Wen <melissa.srw@gmail.com>,
+ Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+ Michal Simek <michal.simek@amd.com>,
+ Haneen Mohammed <hamohammed.sa@gmail.com>, linux-hyperv@vger.kernel.org,
+ linux-aspeed@lists.ozlabs.org, nouveau@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Yongqin Liu <yongqin.liu@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>,
+ Marijn Suijten <marijn.suijten@somainline.org>,
+ Fabio Estevam <festevam@gmail.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Jerome Brunet <jbrunet@baylibre.com>, linux-samsung-soc@vger.kernel.org,
+ amd-gfx@lists.freedesktop.org, linux-stm32@st-md-mailman.stormreply.com,
+ linux-rockchip@lists.infradead.org,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ NXP Linux Team <linux-imx@nxp.com>, spice-devel@lists.freedesktop.org,
+ linux-sunxi@lists.linux.dev,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, xen-devel@lists.xenproject.org,
+ linux-tegra@vger.kernel.org, linux-amlogic@lists.infradead.org,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Sean Paul <sean@poorly.run>,
+ linux-arm-kernel@lists.infradead.org,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Andrew Jeffery <andrew@aj.id.au>, linux-mips@vger.kernel.org,
+ Chia-I Wu <olvaffe@gmail.com>, linux-renesas-soc@vger.kernel.org,
+ kernel@pengutronix.de, John Stultz <jstultz@google.com>,
+ freedreno@lists.freedesktop.org, Lucas Stach <l.stach@pengutronix.de>
+Message-ID: <955528fe-fd45-b8c1-8458-b3a7cd3dfbbb@suse.de>
+Subject: Re: [PATCH RFC v1 00/52] drm/crtc: Rename struct drm_crtc::dev to
+ drm_dev
+References: <20230712094702.1770121-1-u.kleine-koenig@pengutronix.de>
+ <87fs5tgpvv.fsf@intel.com> <20230712161025.22op3gtzgujrhytb@pengutronix.de>
+In-Reply-To: <20230712161025.22op3gtzgujrhytb@pengutronix.de>
+
+--------------hX0Y0L30m6F5STQTlkmw5Rlm
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+SGkNCg0KQW0gMTIuMDcuMjMgdW0gMTg6MTAgc2NocmllYiBVd2UgS2xlaW5lLUvDtm5pZzoN
+Cj4gSGVsbG8gSmFuaSwNCj4gDQo+IE9uIFdlZCwgSnVsIDEyLCAyMDIzIGF0IDA1OjM0OjI4
+UE0gKzAzMDAsIEphbmkgTmlrdWxhIHdyb3RlOg0KPj4gT24gV2VkLCAxMiBKdWwgMjAyMywg
+VXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4gd3Jv
+dGU6DQo+Pj4gSGVsbG8sDQo+Pj4NCj4+PiB3aGlsZSBJIGRlYnVnZ2VkIGFuIGlzc3VlIGlu
+IHRoZSBpbXgtbGNkYyBkcml2ZXIgSSB3YXMgY29uc3RhbnRseQ0KPj4+IGlycml0YXRlZCBh
+Ym91dCBzdHJ1Y3QgZHJtX2RldmljZSBwb2ludGVyIHZhcmlhYmxlcyBiZWluZyBuYW1lZCAi
+ZGV2Ig0KPj4+IGJlY2F1c2Ugd2l0aCB0aGF0IG5hbWUgSSB1c3VhbGx5IGV4cGVjdCBhIHN0
+cnVjdCBkZXZpY2UgcG9pbnRlci4NCj4+Pg0KPj4+IEkgdGhpbmsgdGhlcmUgaXMgYSBiaWcg
+YmVuZWZpdCB3aGVuIHRoZXNlIGFyZSBhbGwgcmVuYW1lZCB0byAiZHJtX2RldiIuDQo+Pj4g
+SSBoYXZlIG5vIHN0cm9uZyBwcmVmZXJlbmNlIGhlcmUgdGhvdWdoLCBzbyAiZHJtZGV2IiBv
+ciAiZHJtIiBhcmUgZmluZQ0KPj4+IGZvciBtZSwgdG9vLiBMZXQgdGhlIGJpa2VzaGVkaW5n
+IGJlZ2luIQ0KPj4+DQo+Pj4gU29tZSBzdGF0aXN0aWNzOg0KPj4+DQo+Pj4gJCBnaXQgZ3Jl
+cCAtb2hFICdzdHJ1Y3QgZHJtX2RldmljZSAqXCogKlteICgpLDtdKicgdjYuNS1yYzEgfCBz
+b3J0IHwgdW5pcSAtYyB8IHNvcnQgLW4NCj4+PiAgICAgICAgMSBzdHJ1Y3QgZHJtX2Rldmlj
+ZSAqYWRldl90b19kcm0NCj4+PiAgICAgICAgMSBzdHJ1Y3QgZHJtX2RldmljZSAqZHJtXw0K
+Pj4+ICAgICAgICAxIHN0cnVjdCBkcm1fZGV2aWNlICAgICAgICAgICpkcm1fZGV2DQo+Pj4g
+ICAgICAgIDEgc3RydWN0IGRybV9kZXZpY2UgICAgICAgICpkcm1fZGV2DQo+Pj4gICAgICAg
+IDEgc3RydWN0IGRybV9kZXZpY2UgKnBkZXYNCj4+PiAgICAgICAgMSBzdHJ1Y3QgZHJtX2Rl
+dmljZSAqcmRldg0KPj4+ICAgICAgICAxIHN0cnVjdCBkcm1fZGV2aWNlICp2ZGV2DQo+Pj4g
+ICAgICAgIDIgc3RydWN0IGRybV9kZXZpY2UgKmRjc3NfZHJ2X2Rldl90b19kcm0NCj4+PiAg
+ICAgICAgMiBzdHJ1Y3QgZHJtX2RldmljZSAqKmRkZXYNCj4+PiAgICAgICAgMiBzdHJ1Y3Qg
+ZHJtX2RldmljZSAqZHJtX2Rldl9hbGxvYw0KPj4+ICAgICAgICAyIHN0cnVjdCBkcm1fZGV2
+aWNlICptb2NrDQo+Pj4gICAgICAgIDIgc3RydWN0IGRybV9kZXZpY2UgKnBfZGRldg0KPj4+
+ICAgICAgICA1IHN0cnVjdCBkcm1fZGV2aWNlICpkZXZpY2UNCj4+PiAgICAgICAgOSBzdHJ1
+Y3QgZHJtX2RldmljZSAqIGRldg0KPj4+ICAgICAgIDI1IHN0cnVjdCBkcm1fZGV2aWNlICpk
+DQo+Pj4gICAgICAgOTUgc3RydWN0IGRybV9kZXZpY2UgKg0KPj4+ICAgICAgMjE2IHN0cnVj
+dCBkcm1fZGV2aWNlICpkZGV2DQo+Pj4gICAgICAyMzQgc3RydWN0IGRybV9kZXZpY2UgKmRy
+bV9kZXYNCj4+PiAgICAgIDYxMSBzdHJ1Y3QgZHJtX2RldmljZSAqZHJtDQo+Pj4gICAgIDQx
+OTAgc3RydWN0IGRybV9kZXZpY2UgKmRldg0KPj4+DQo+Pj4gVGhpcyBzZXJpZXMgc3RhcnRz
+IHdpdGggcmVuYW1pbmcgc3RydWN0IGRybV9jcnRjOjpkZXYgdG8gZHJtX2Rldi4gSWYNCj4+
+PiBpdCdzIG5vdCBvbmx5IG1lIGFuZCBvdGhlcnMgbGlrZSB0aGUgcmVzdWx0IG9mIHRoaXMg
+ZWZmb3J0IGl0IHNob3VsZCBiZQ0KPj4+IGZvbGxvd2VkIHVwIGJ5IGFkYXB0aW5nIHRoZSBv
+dGhlciBzdHJ1Y3RzIGFuZCB0aGUgaW5kaXZpZHVhbCB1c2FnZXMgaW4NCj4+PiB0aGUgZGlm
+ZmVyZW50IGRyaXZlcnMuDQo+Pg0KPj4gSSB0aGluayB0aGlzIGlzIGFuIHVubmVjZXNzYXJ5
+IGNoYW5nZS4gSW4gZHJtLCBhIGRldiBpcyB1c3VhbGx5IGEgZHJtDQo+PiBkZXZpY2UsIGku
+ZS4gc3RydWN0IGRybV9kZXZpY2UgKi4NCj4gDQo+IFdlbGwsIHVubGVzcyBpdCdzIG5vdC4g
+UHJvbWluZW50bHkgdGhlcmUgaXMNCj4gDQo+IAlzdHJ1Y3QgZHJtX2RldmljZSB7DQo+IAkJ
+Li4uDQo+IAkJc3RydWN0IGRldmljZSAqZGV2Ow0KPiAJCS4uLg0KPiAJfTsNCg0KSmFuaSdz
+IHBvaW50IGlzIHRoYXQgaXQncyBvbmx5IGluY29udmVuaWVudCBhdCB0aGUgZmlyc3QgdGlt
+ZS4gRXZlcnlvbmUgDQpnZXRzIHVzZSB0byBpdC4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMN
+Cg0KPiANCj4gd2hpY2ggeWllbGRzIHF1aXRlIGEgZmV3IGNvZGUgbG9jYXRpb25zIHVzaW5n
+IGRldi0+ZGV2IHdoaWNoIGlzDQo+IElNSE8gdW5uZWNlc3NhcnkgaXJyaXRhdGluZzoNCj4g
+DQo+IAkkIGdpdCBncmVwICdcPGRldi0+ZGV2JyB2Ni41LXJjMSBkcml2ZXJzL2dwdS9kcm0g
+fCB3YyAtbA0KPiAJMTYzMw0KPiANCj4gQWxzbyB0aGUgZnVuY3Rpb25zIHRoYXQgZGVhbCB3
+aXRoIGJvdGggYSBzdHJ1Y3QgZGV2aWNlIGFuZCBhIHN0cnVjdA0KPiBkcm1fZGV2aWNlIG9m
+dGVuIHVzZSAiZGV2IiBmb3IgdGhlIHN0cnVjdCBkZXZpY2UgYW5kIHRoZW4gImRkZXYiIGZv
+cg0KPiB0aGUgZHJtX2RldmljZSAoc2VlIGZvciBleGFtcGxlIGFtZGdwdV9kZXZpY2VfZ2V0
+X3BjaWVfcmVwbGF5X2NvdW50KCkpLg0KPiANCj4+IElmIGZvbGtzIGluc2lzdCBvbiBmb2xs
+b3dpbmcgdGhyb3VnaCB3aXRoIHRoaXMgYW55d2F5LCBJJ20gZmlybWx5IGluIHRoZQ0KPj4g
+Y2FtcCB0aGUgbmFtZSBzaG91bGQgYmUgImRybSIgYW5kIG5vdGhpbmcgZWxzZS4NCj4gDQo+
+IFVwIHRvIG5vdyBwb3NpdGl2ZSBmZWVkYmFjayBpcyBpbiB0aGUgbWFqb3JpdHkuDQo+IA0K
+PiBCZXN0IHJlZ2FyZHMNCj4gVXdlDQo+IA0KDQotLSANClRob21hcyBaaW1tZXJtYW5uDQpH
+cmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9ucyBHZXJt
+YW55IEdtYkgNCkZyYW5rZW5zdHJhc3NlIDE0NiwgOTA0NjEgTnVlcm5iZXJnLCBHZXJtYW55
+DQpHRjogSXZvIFRvdGV2LCBBbmRyZXcgTXllcnMsIEFuZHJldyBNY0RvbmFsZCwgQm91ZGll
+biBNb2VybWFuDQpIUkIgMzY4MDkgKEFHIE51ZXJuYmVyZykNCg==
+
+--------------hX0Y0L30m6F5STQTlkmw5Rlm--
+
+--------------kFtFEiqeMKJZ4HgZ6qn0z8X0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmSvrCcFAwAAAAAACgkQlh/E3EQov+DJ
+PhAAr98ggA96Z2w3wyv8ofgp+UF6w/zMt4QW5UGdlEVnsbSsMsZvzn6wF08HFKbQtN5a9iBBnt+f
+5/tIfU2f76afG8WDSbUKW61ZnEu2EwZxLY207Vbeo7SD6US8W3NgaA+cs6nEccA1AHKPOU/uTPY5
+gRTqzdtti6+N+iz/aj5bcKRfBe5zkJj2TDVOg4VM2nMcOcnqdlBG6zxcOd0/7f822X2h5FHYvBcw
+WUfoBgp4CFBkpWLyeqVk9jQiMCZrwXiYsPo5X/YIqG46xhIfOvWDnjz8oaDzoT/gK/vXmAwUmqf8
+vHkvk7fn09fN0tUL4ErUqunJZ3PbPA20sm3kPFUp9/46XcnGYjD8HkdeV6c71IprSuqW8nPRKQ5a
+i41BoLZQ9LL7bPhGplpNEiUIMARvShWvgE7VmkSC8B1qDnKabHCwlbDmvBk7bpHG9RsvQWi24ubI
+DyVUFa2lyRHB7jA8y0aspgqorAzQ0EcrZMCJVXMkUg0NRU/uRqxFstG04a7HT872oOIEv6NmcHnK
+hSfYDTA6iDuTxmmErZ8/111b0zHL3jzBuYFuk7yCILHUrU7mIVpyoWBF8ANEOixG5oDraOC5T2D7
+CMTZtgFjeJ8M3Vw3T5cSe0q7eW4ZxS1m/qYVeVvZoYBwBXs/sQWTyQZe17comjBkKzAvWT/5rS/u
+eL0=
+=Tts0
+-----END PGP SIGNATURE-----
+
+--------------kFtFEiqeMKJZ4HgZ6qn0z8X0--
+
+--===============5091933363302977175==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5091933363302977175==--
