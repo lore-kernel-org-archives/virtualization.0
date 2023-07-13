@@ -4,111 +4,89 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2275AEB64DD
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 11:40:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2C7CCC001DD
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:04:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8F56542063;
-	Thu, 13 Jul 2023 11:40:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8F56542063
+	by smtp4.osuosl.org (Postfix) with ESMTP id 922FD41FFE;
+	Thu, 13 Jul 2023 14:04:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 922FD41FFE
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iP9hSc1U
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KcVRbbOQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hayR7X1DSQTP; Thu, 13 Jul 2023 11:40:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A19F04204D;
-	Thu, 13 Jul 2023 11:40:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A19F04204D
+	with ESMTP id hRwYKNG66RMB; Thu, 13 Jul 2023 14:04:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 94B8F41F4B;
+	Thu, 13 Jul 2023 14:04:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 94B8F41F4B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6DF8DC0072;
-	Thu, 13 Jul 2023 11:40:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DEC85C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C5ACC0071;
+	Thu, 13 Jul 2023 14:04:52 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EBA29C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 11:40:24 +0000 (UTC)
+ Thu, 13 Jul 2023 14:04:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B2F3C4170A
+ by smtp3.osuosl.org (Postfix) with ESMTP id C00206139B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 11:40:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B2F3C4170A
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 13 Jul 2023 14:04:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C00206139B
+Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=iP9hSc1U
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=KcVRbbOQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JbaKZOOSLih1
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8QmsbB8UL1oC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 11:40:24 +0000 (UTC)
+ Thu, 13 Jul 2023 14:04:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E138E400C7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9C93D61398
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E138E400C7
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9C93D61398
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 11:40:23 +0000 (UTC)
+ Thu, 13 Jul 2023 14:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689248422;
+ s=mimecast20190719; t=1689257088;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=guFh+wPFNIRuesCzeZY5yldfMavaJ0y5Zd0rOUtQc9o=;
- b=iP9hSc1ULDI7yiY/4xVEqrIQhN/vsFwx5NrkwF0VJBnciSVdioYuNi3Qxy2g2TvFRXwETh
- 4D4v+WK+iK2OwTgE4aTwdcFi1jt93EHF66YEpCYXzB+YGoUfkGj/37nniywnU3MWNdlLZ6
- hwliCIS+8pQxe+EPKkkKf4XbNWGZ9PA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-376-VHVzJ6HuNuSkgpzA8a2IiQ-1; Thu, 13 Jul 2023 07:40:18 -0400
-X-MC-Unique: VHVzJ6HuNuSkgpzA8a2IiQ-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-3fbfc766a78so3176595e9.3
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 04:40:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689248417; x=1691840417;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=guFh+wPFNIRuesCzeZY5yldfMavaJ0y5Zd0rOUtQc9o=;
- b=R2rVyzNWTEzNYkI6HWvEQlaJI1YvweY84Ab82/je+8NEZ3dU7ACOgv04+wIM0yi9D+
- wOWQizwwMDrwcdLAYKPKKZ+Q0USzUM/oyVm8KlWFRlYYvOu1D1PG0SVNrLRL+f6Hq3EM
- O/9wo2CrZqviJiGPj7bVxvdy3dlQyKV1F0Yb2ueVSezvPCCEHcb79my9/1V5AebK/2AZ
- 3nvrHPa3g7KqgfQituBdmfGW9l8ZV8cn40DFhDU2oMciKzO3UYbRsHcz4ZP3C4SrOBwT
- 2tUdC+pgc9428XZ4YTvkTBaMOLOqsCJqef55zEos4V1tYTkyQEnxvayBseR1ChSTI5za
- D7sQ==
-X-Gm-Message-State: ABy/qLY+sLh8iXnDyp8BuUS2Z7Pq2mqz9DtUFyopTlvDsgkS2Ldm/Zfy
- eHtg30MPAB4qI4GKMWsOZk2oeZQE69IshdOxcOAD9sLmXs+Tbxtf2Qz8pGJBPO/PiPs54XWNhy6
- nBIpOhbE0I0JS6hGZTNjMmMr/O2/hSES0Y9y7roehzA==
-X-Received: by 2002:a05:600c:240d:b0:3fb:b5dc:dab1 with SMTP id
- 13-20020a05600c240d00b003fbb5dcdab1mr1150134wmp.39.1689248417231; 
- Thu, 13 Jul 2023 04:40:17 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHd/eNeg4sLyvuXqL+tXWMQGEDTMZBr/VxoDrK+A9Qk8/hmWz5tdxZsKTFz4SAT52dsIuaXmA==
-X-Received: by 2002:a05:600c:240d:b0:3fb:b5dc:dab1 with SMTP id
- 13-20020a05600c240d00b003fbb5dcdab1mr1150120wmp.39.1689248416901; 
- Thu, 13 Jul 2023 04:40:16 -0700 (PDT)
-Received: from redhat.com ([2.52.158.233]) by smtp.gmail.com with ESMTPSA id
- v21-20020a7bcb55000000b003fba9db141esm18158573wmj.38.2023.07.13.04.40.14
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Jul 2023 04:40:16 -0700 (PDT)
-Date: Thu, 13 Jul 2023 07:40:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gavin Li <gavinl@nvidia.com>
-Subject: Re: [PATCH net-next V1 0/4] virtio_net: add per queue interrupt
- coalescing support
-Message-ID: <20230713074001-mutt-send-email-mst@kernel.org>
-References: <20230710092005.5062-1-gavinl@nvidia.com>
+ bh=kejpQ7yR2S84tXVx9SoQ/put9HkEfzWndejAhecD6PM=;
+ b=KcVRbbOQBxoRos4vqWybg5IessSFWFETPsd8g/YsKypoh76E/g3nTgOnkVWy4CHBdCEFwT
+ NNW384HeLNzMvTs35VF/yE/Ufqg4pIiS8ac7NHA5nazGzti0VvYqFpX+PJmS5L4g/rHSHW
+ y/9yUIgyAfL2SdKB8iaM4EojLXRJOKY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-85-Of-EHkPkNyemV-2SOmd0NA-1; Thu, 13 Jul 2023 10:04:08 -0400
+X-MC-Unique: Of-EHkPkNyemV-2SOmd0NA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.7])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8A59610504BB;
+ Thu, 13 Jul 2023 14:03:45 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.106])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id DAD4B1454142;
+ Thu, 13 Jul 2023 14:03:44 +0000 (UTC)
+Date: Thu, 13 Jul 2023 10:03:42 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH v2 0/2] vhost-scsi: Fix IO hangs when using windows
+Message-ID: <20230713140342.GA310002@fedora>
+References: <20230709202859.138387-1-michael.christie@oracle.com>
+ <20230711183438.GA154686@fedora>
+ <6b53b833-3c71-2bd9-8fd8-757ecda75c53@oracle.com>
+ <20230712142656.GB215287@fedora>
+ <41d2d3aa-b537-686a-f2b4-1e0a861cebc8@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20230710092005.5062-1-gavinl@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, hawk@kernel.org, daniel@iogearbox.net,
- netdev@vger.kernel.org, john.fastabend@gmail.com, ast@kernel.org,
- edumazet@google.com, jiri@nvidia.com, kuba@kernel.org, bpf@vger.kernel.org,
- pabeni@redhat.com, virtualization@lists.linux-foundation.org,
- davem@davemloft.net, linux-kernel@vger.kernel.org
+In-Reply-To: <41d2d3aa-b537-686a-f2b4-1e0a861cebc8@oracle.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Cc: linux-scsi@vger.kernel.org, mdean@redhat.com, mst@redhat.com,
+ yvugenfi@redhat.com, virtualization@lists.linux-foundation.org,
+ target-devel@vger.kernel.org, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,79 +98,126 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5103131378590172743=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 10, 2023 at 12:20:01PM +0300, Gavin Li wrote:
-> Currently, coalescing parameters are grouped for all transmit and receive
-> virtqueues. This patch series add support to set or get the parameters for
-> a specified virtqueue.
-> 
-> When the traffic between virtqueues is unbalanced, for example, one virtqueue
-> is busy and another virtqueue is idle, then it will be very useful to
-> control coalescing parameters at the virtqueue granularity.
 
-series:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+--===============5103131378590172743==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="PBejcH5agZqVo5Jy"
+Content-Disposition: inline
 
 
+--PBejcH5agZqVo5Jy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Example command:
-> $ ethtool -Q eth5 queue_mask 0x1 --coalesce tx-packets 10
-> Would set max_packets=10 to VQ 1.
-> $ ethtool -Q eth5 queue_mask 0x1 --coalesce rx-packets 10
-> Would set max_packets=10 to VQ 0.
-> $ ethtool -Q eth5 queue_mask 0x1 --show-coalesce
->  Queue: 0
->  Adaptive RX: off  TX: off
->  stats-block-usecs: 0
->  sample-interval: 0
->  pkt-rate-low: 0
->  pkt-rate-high: 0
-> 
->  rx-usecs: 222
->  rx-frames: 0
->  rx-usecs-irq: 0
->  rx-frames-irq: 256
-> 
->  tx-usecs: 222
->  tx-frames: 0
->  tx-usecs-irq: 0
->  tx-frames-irq: 256
-> 
->  rx-usecs-low: 0
->  rx-frame-low: 0
->  tx-usecs-low: 0
->  tx-frame-low: 0
-> 
->  rx-usecs-high: 0
->  rx-frame-high: 0
->  tx-usecs-high: 0
->  tx-frame-high: 0
-> 
-> In this patch series:
-> Patch-1: Extract interrupt coalescing settings to a structure.
-> Patch-2: Extract get/set interrupt coalesce to a function.
-> Patch-3: Support per queue interrupt coalesce command.
-> Patch-4: Enable per queue interrupt coalesce feature.
-> 
-> Gavin Li (4):
->   virtio_net: extract interrupt coalescing settings to a structure
->   virtio_net: extract get/set interrupt coalesce to a function
->   virtio_net: support per queue interrupt coalesce command
->   virtio_net: enable per queue interrupt coalesce feature
-> 
->  drivers/net/virtio_net.c        | 169 ++++++++++++++++++++++++++------
->  include/uapi/linux/virtio_net.h |  14 +++
->  2 files changed, 154 insertions(+), 29 deletions(-)
-> 
-> -- 
-> 2.39.1
+On Wed, Jul 12, 2023 at 11:05:11AM -0500, Mike Christie wrote:
+> On 7/12/23 9:26 AM, Stefan Hajnoczi wrote:
+> > On Tue, Jul 11, 2023 at 04:01:22PM -0500, Mike Christie wrote:
+> >> On 7/11/23 1:34 PM, Stefan Hajnoczi wrote:
+> >>> On Sun, Jul 09, 2023 at 03:28:57PM -0500, Mike Christie wrote:
+> >>>> The following patches were made over Linus's tree and fix an issue
+> >>>> where windows guests will send iovecs with offset/lengths that result
+> >>>> in IOs that are not aligned to 512. The LIO layer will then send them
+> >>>> to Linux's FS/block layer but it requires 512 byte alignment, so
+> >>>> depending on the FS/block driver being used we will get IO errors or
+> >>>> hung IO.
+> >>>>
+> >>>> The following patches have vhost-scsi detect when windows sends these
+> >>>> IOs and copy them to a bounce buffer. It then does some cleanup in
+> >>>> the related code.
+> >>>
+> >>> Hang on, virtio-scsi is a SCSI HBA and READs/WRITEs submitted must
+> >>> follow the usual constraints on SCSI block limits. Would Windows send
+> >>> mis-aligned I/O to a non-virtio-scsi SCSI HBA?
+> >>
+> >> It's like linux where you can config settings like that.
+> >>
+> >>>> Are you sure this is not a bug in the Windows guest driver where blo=
+ck
+> >>> limits are being misconfigured?
+> >>
+> >> From what our windows dev told us the guest drivers like here:
+> >>
+> >> https://github.com/virtio-win
+> >>
+> >> don't set the windows AlignmentMask to 512. They tried that and it
+> >> resulted in windows crash dump crashing because it doesn't like the
+> >> hard alignment requirement.
+> >>
+> >> We thought other apps would have trouble as well, so we tried to add
+> >> bounce buffer support to the windows driver, but I think people thought
+> >> it was going to be uglier than this patch and in the normal alignment
+> >> case might also affect performance. There was some windows driver/laye=
+ring
+> >> and buffer/cmd details that I don't fully understand and took their wo=
+rd
+> >> for because I don't know a lot about windows.
+> >>
+> >> In the end we still have to add checks to vhost-scsi to protect against
+> >> bad drivers, so we thought we might as well just add bounce buffer sup=
+port
+> >> to vhost-scsi.
+> >=20
+> > CCing virtio-win developers so they can confirm how the vioscsi driver
+> > is supposed to handle request alignment.
+> >=20
+> > My expectation is that the virtio-scsi device will fail mis-aligned I/O
+> > requests.
+>=20
+> I don't think you can just change the driver's behavior to fail now,
+> because apps send mis-aligned IO and its working as long as they have less
+> than 256 bio vecs.
+>=20
+> We see mis-aligned IOs during boot and also from random non window's apps.
+> If we just start to fail then it would be a regression when the app no
+> longer works or the OS fails to start up.
+
+I was wrong:
+
+The virtio-scsi specification contains no alignment requirements for I/O
+buffers. It is fine for the driver to submit iovecs with any memory
+alignment.
+
+The QEMU code allocates a bounce buffer if the iovecs submitted by the
+driver do not match the minimum alignment requirements on the host (e.g.
+O_DIRECT requirements).
+
+It makes sense that vhost_scsi needs to use a bounce buffer in cases
+where the underlying storage has stricter memory alignment requirements.
+
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--PBejcH5agZqVo5Jy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmSwBD4ACgkQnKSrs4Gr
+c8jZZQgAiXLRmCgucPEGc4bLM1Ch0HqdkBRqe6ST0FN95ffDCONwWSWLTfXfsJOy
+mvcn+aLKShsLgW+3Q/Iq7AyEAImiO7OWWTi1ZgltSSC5Gvxn6EPHLgXP0Lwmpwdh
+2vcrAXIQ48HbLAg/eE+4K6ORsH3+/cE1pI/5H4p64LH4Feca/KwHfW8d8KE24taZ
+A+bFSY8DcHGk8W6J25Fjx2gMYFXFMYZ5n5u3hVbse4syBwgRcJYM7Yq+Thmvvkoh
+tivsDiHLCccKrEZGudP/vlaLUdW35SLegSWjQWJuF6jYroAZEl/L7uU7Es02U72o
+tQ0MCYSZt8DMr6g4/EPmx02ZoJ/8ug==
+=P4dJ
+-----END PGP SIGNATURE-----
+
+--PBejcH5agZqVo5Jy--
+
+
+--===============5103131378590172743==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5103131378590172743==--
+
