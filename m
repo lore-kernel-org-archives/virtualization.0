@@ -1,87 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23AFAC0015E
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:56:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E2DABC001B0
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 15:03:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BF143613BF;
-	Thu, 13 Jul 2023 14:56:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF143613BF
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gNSwROuc
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7FAD04167B;
+	Thu, 13 Jul 2023 15:03:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7FAD04167B
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=V0ZZv4vL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lf8qqW7fEAft; Thu, 13 Jul 2023 14:56:11 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xEdTl0ITmZ5K; Thu, 13 Jul 2023 15:03:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 59503613B5;
-	Thu, 13 Jul 2023 14:56:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 59503613B5
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A87744089C;
+	Thu, 13 Jul 2023 15:03:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A87744089C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 34CD9C0071;
-	Thu, 13 Jul 2023 14:56:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8DFFAC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A522C0071;
+	Thu, 13 Jul 2023 15:03:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0C34CC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:56:08 +0000 (UTC)
+ Thu, 13 Jul 2023 15:03:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 161E9613B5
+ by smtp2.osuosl.org (Postfix) with ESMTP id C46B941760
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:56:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 161E9613B5
+ Thu, 13 Jul 2023 15:03:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C46B941760
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=V0ZZv4vL
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Kx0BJifHmJgY
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OLTirEvsSRHg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:56:07 +0000 (UTC)
+ Thu, 13 Jul 2023 15:03:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21C336139F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1DE7E4174E
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 21C336139F
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1DE7E4174E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:56:07 +0000 (UTC)
+ Thu, 13 Jul 2023 15:03:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689260166;
+ s=mimecast20190719; t=1689260595;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Bk+toP/Ed4qPpAgMLWeptgvuADn7go/7Jo6jlttF96s=;
- b=gNSwROucsZMlcoBwn+p2eERWuaXeVuw+ri+Gq2TpGXSI3q7kzYg33kF9tQXZx3K5T6J9dH
- NC/cKna0b6CNW7GLFa17Rt/WRrMgnBOuXgOfSbZTPPNWhXCER+4RI5KaUX8ddsaXfqsO0i
- IBJ94gFqHvglentirGpwYhLealUd3l4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-351-pEnhlwaAPsitRYud8qL9ig-1; Thu, 13 Jul 2023 10:56:02 -0400
-X-MC-Unique: pEnhlwaAPsitRYud8qL9ig-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
- [10.11.54.5])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 58A8086F122;
- Thu, 13 Jul 2023 14:56:02 +0000 (UTC)
-Received: from t14s.redhat.com (unknown [10.39.192.245])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 197A0F66CB;
- Thu, 13 Jul 2023 14:56:00 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 4/4] virtio-mem: check if the config changed before fake
- offlining memory
-Date: Thu, 13 Jul 2023 16:55:51 +0200
-Message-ID: <20230713145551.2824980-5-david@redhat.com>
-In-Reply-To: <20230713145551.2824980-1-david@redhat.com>
+ bh=cFIn1CK6FnjNQCiz1JGiV9ILeppGAa06PwBz7dUeBjo=;
+ b=V0ZZv4vLUkYAuiJxhjCOCMfJ0fd0Mt/zOOGoidB4UQOtsmeI8Va+/gx2GPXtQs8rxJDUwo
+ WOb+KSZ3NjlKDNqWO1NU/5bjo8YywMx70RZ3dOaWuzyPflEcJa/mwwyzgz88xUtrE3XWKD
+ YZ0BAtkH6p6+Zih4di2mbZBKpBZWWd4=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-79-nBjbqTMZNOCOO_A2G-nQZw-1; Thu, 13 Jul 2023 11:03:13 -0400
+X-MC-Unique: nBjbqTMZNOCOO_A2G-nQZw-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ ffacd0b85a97d-3141c6f4173so547021f8f.1
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jul 2023 08:03:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1689260592; x=1691852592;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=cFIn1CK6FnjNQCiz1JGiV9ILeppGAa06PwBz7dUeBjo=;
+ b=PH+fUsvI9R+wbEgCtFmzsV4unpAvXZe13DwYZ1A4u5CgYrBbzvHrWWNpXjuXgenrww
+ 5XiS683ZzQ2sDTlY7fS80F/wLkVsACUvE0mUGd4N/fGT9QtnbAMUV8tFhh/8QvdR5kEL
+ 4iBm7FrwoIQ4PcnFBaBguRn494a1orYdjFwY33Gv/J5e8hmVgwcGCr+qSwZcUMiNvcDF
+ PqQCYqWEjqK5/Fcjki+99jFKNdUht99ncDiJl7cO4cRuS6bdcHPVDaKUcPaoPy0U5IFA
+ lhpqiSHtsuCqYrRVWpwVOYSkJ6KME0q0ifNo/+7ZjgdSxuMfi/+qtcw+2unsTWu2hLM1
+ aNXQ==
+X-Gm-Message-State: ABy/qLZS9AFHtUH1ucn6Z3jf8ZocjPA07/1cv/MrzmduOZ5H+nTMZl2n
+ p8TZi90ajSjMAW6MuMTvmHNI6GDp2jTuoQTOujBLRdwyyhEOm+3LMryzqVwsQg1kLpyxRyd5XX8
+ JM2+GFPRfkHn7hdsEWTVBf4ye+LB5YsEtNhi2IPR9QQ==
+X-Received: by 2002:a5d:4990:0:b0:314:38e4:259f with SMTP id
+ r16-20020a5d4990000000b0031438e4259fmr1715195wrq.37.1689260592554; 
+ Thu, 13 Jul 2023 08:03:12 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlFaDnc8gCmS/iGE+xN/QIqC6uWksocY8EZzAU7Kes71J35fzl/XzIXfSkkw7EmyOclyba4XlQ==
+X-Received: by 2002:a5d:4990:0:b0:314:38e4:259f with SMTP id
+ r16-20020a5d4990000000b0031438e4259fmr1715172wrq.37.1689260592174; 
+ Thu, 13 Jul 2023 08:03:12 -0700 (PDT)
+Received: from redhat.com ([2.52.158.233]) by smtp.gmail.com with ESMTPSA id
+ w8-20020adfd4c8000000b003141e629cb6sm8119734wrk.101.2023.07.13.08.03.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 13 Jul 2023 08:03:11 -0700 (PDT)
+Date: Thu, 13 Jul 2023 11:03:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1 0/4] virtio-mem: memory unplug/offlining related
+ cleanups
+Message-ID: <20230713110235-mutt-send-email-mst@kernel.org>
 References: <20230713145551.2824980-1-david@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+In-Reply-To: <20230713145551.2824980-1-david@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,72 +122,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-If we repeatedly fail to fake offline memory to unplug it, we won't be
-sending any unplug requests to the device. However, we only check if the
-config changed when sending such (un)plug requests.
+On Thu, Jul 13, 2023 at 04:55:47PM +0200, David Hildenbrand wrote:
+> Some cleanups+optimizations primarily around offline_and_remove_memory().
+> 
+> Patch #1 drops the "unsafe unplug" feature where we might get stuck in
+> offline_and_remove_memory() forever.
+> 
+> Patch #2 handles unexpected errors from offline_and_remove_memory() a bit
+> nicer.
+> 
+> Patch #3 handles the case where offline_and_remove_memory() failed and
+> we want to retry later to remove a completely unplugged Linux memory
+> block, to not have them waste memory forever.
+> 
+> Patch #4 something I had lying around for longer, which reacts faster
+> on config changes when unplugging memory.
+> 
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-We could end up trying for a long time to unplug memory, even though
-the config changed already and we're not supposed to unplug memory
-anymore. For example, the hypervisor might detect a low-memory situation
-while unplugging memory and decide to replug some memory. Continuing
-trying to unplug memory in that case can be problematic.
+This looks like something that's reasonable to put in this linux, right?
+These are fixes even though they are for theoretical issues.
 
-So let's check on a more regular basis.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a5cf92e3e5af..fa5226c198cc 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -1189,7 +1189,8 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
-  * Try to allocate a range, marking pages fake-offline, effectively
-  * fake-offlining them.
-  */
--static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
-+static int virtio_mem_fake_offline(struct virtio_mem *vm, unsigned long pfn,
-+				   unsigned long nr_pages)
- {
- 	const bool is_movable = is_zone_movable_page(pfn_to_page(pfn));
- 	int rc, retry_count;
-@@ -1202,6 +1203,14 @@ static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
- 	 * some guarantees.
- 	 */
- 	for (retry_count = 0; retry_count < 5; retry_count++) {
-+		/*
-+		 * If the config changed, stop immediately and go back to the
-+		 * main loop: avoid trying to keep unplugging if the device
-+		 * might have decided to not remove any more memory.
-+		 */
-+		if (atomic_read(&vm->config_changed))
-+			return -EAGAIN;
-+
- 		rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
- 					GFP_KERNEL);
- 		if (rc == -ENOMEM)
-@@ -1951,7 +1960,7 @@ static int virtio_mem_sbm_unplug_sb_online(struct virtio_mem *vm,
- 	start_pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
- 			     sb_id * vm->sbm.sb_size);
- 
--	rc = virtio_mem_fake_offline(start_pfn, nr_pages);
-+	rc = virtio_mem_fake_offline(vm, start_pfn, nr_pages);
- 	if (rc)
- 		return rc;
- 
-@@ -2149,7 +2158,7 @@ static int virtio_mem_bbm_offline_remove_and_unplug_bb(struct virtio_mem *vm,
- 		if (!page)
- 			continue;
- 
--		rc = virtio_mem_fake_offline(pfn, PAGES_PER_SECTION);
-+		rc = virtio_mem_fake_offline(vm, pfn, PAGES_PER_SECTION);
- 		if (rc) {
- 			end_pfn = pfn;
- 			goto rollback;
--- 
-2.41.0
+> David Hildenbrand (4):
+>   virtio-mem: remove unsafe unplug in Big Block Mode (BBM)
+>   virtio-mem: convert most offline_and_remove_memory() errors to -EBUSY
+>   virtio-mem: keep retrying on offline_and_remove_memory() errors in Sub
+>     Block Mode (SBM)
+>   virtio-mem: check if the config changed before fake offlining memory
+> 
+>  drivers/virtio/virtio_mem.c | 168 ++++++++++++++++++++++++------------
+>  1 file changed, 112 insertions(+), 56 deletions(-)
+> 
+> 
+> base-commit: 3f01e9fed8454dcd89727016c3e5b2fbb8f8e50c
+> -- 
+> 2.41.0
 
 _______________________________________________
 Virtualization mailing list
