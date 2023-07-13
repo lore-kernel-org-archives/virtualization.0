@@ -1,118 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07A4EC00528
-	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:52:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5AB9BC001DE
+	for <virtualization@archiver.kernel.org>; Thu, 13 Jul 2023 14:56:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8456142089;
-	Thu, 13 Jul 2023 14:52:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8456142089
+	by smtp2.osuosl.org (Postfix) with ESMTP id EFB6641765;
+	Thu, 13 Jul 2023 14:56:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EFB6641765
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bxWKmXXM
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iqTtAuNpeIiC; Thu, 13 Jul 2023 14:56:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8A2A04175E;
+	Thu, 13 Jul 2023 14:56:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8A2A04175E
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5385EC0071;
+	Thu, 13 Jul 2023 14:56:04 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 39971C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jul 2023 14:56:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0526D4208C
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 13 Jul 2023 14:56:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0526D4208C
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ed/otZgv
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=bxWKmXXM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9FtW-2MMwDPG; Thu, 13 Jul 2023 14:52:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A6B484207D;
-	Thu, 13 Jul 2023 14:52:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6B484207D
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7452AC0071;
-	Thu, 13 Jul 2023 14:52:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2C18C0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DbQmrZysf9HU
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7FD45613B4
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7FD45613B4
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ed/otZgv
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id X9C6ULTmnLmA
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:52 +0000 (UTC)
+ Thu, 13 Jul 2023 14:56:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0A93B6139F
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 25A2C4208D
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0A93B6139F
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 25A2C4208D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 14:52:51 +0000 (UTC)
+ Thu, 13 Jul 2023 14:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689259971;
+ s=mimecast20190719; t=1689260160;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=a2zCtBlVMSfdNhn49F5fvGTfds6ip8Yk0SLr5SlzCTc=;
- b=ed/otZgvy/UyyX9Q+zmgkKF0WMj4VvaSOiQOuSpM/jZxh2mgeb2Bq0GTiSWg6Wp6Jxf1/+
- eVPsS78e7H/pGP1jFNz8vrCD76WKdNSHOCvjaI/b2eEZFm0V/AXmasoyJ3obL0F4MAO/IP
- wT7LniqQ5Y7bexPpFahoFIifjOFaXzs=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-662-JRbfjf4bMRqxqfOd3SapRg-1; Thu, 13 Jul 2023 10:52:49 -0400
-X-MC-Unique: JRbfjf4bMRqxqfOd3SapRg-1
-Received: by mail-wr1-f70.google.com with SMTP id
- ffacd0b85a97d-31429e93f26so585023f8f.2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 13 Jul 2023 07:52:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689259968; x=1691851968;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=a2zCtBlVMSfdNhn49F5fvGTfds6ip8Yk0SLr5SlzCTc=;
- b=ieO1Dtjh+tU/XOJH8PQEL3gOTYdSwU5AR1fDt5IHf9oC3NTmaiGmnUXwXN28w+ij9N
- xoBHNgXOyHbZzXsk8FEWX5piLhhnqmntCHAs6TuFiRW7vuGbGc0L7JJxeDtJE1RHFJSo
- iJf2Cvy8nDIPBUh9bkhqE36jyLYoNNJIPK07ZB9CaQS6RUdJ7k+fI12KSdAI+1jusiF6
- gNLH+jPgpynnYW0gAc+aYDGLY6fZGTa0KFVBWt/poFgLsjN178kB44eKr5SsnXJL7Xwy
- y6ia+kZewsHnSqUNGRQdQOXAEcIC01si6pVqum9OvEk+s0NF2dK9C8wnOmiLyAj9p8IX
- bjJg==
-X-Gm-Message-State: ABy/qLbf1I3XohEkcJnkT9c+AJ7Do/wYSBObZIgf1AZSm77O6YDGyRdR
- 0m5tXTE4fYoAR4GqLbyKQ1qbZ2ijlad/V4oNccwcqm/m7mhI0vwulAeTHL1lLG0YyXzVSsfHwCt
- k2gHe7EnkMbr8c+W5DkcxSuksMO4kGQJf7I+LlyHI4Q==
-X-Received: by 2002:adf:f802:0:b0:314:3503:15ac with SMTP id
- s2-20020adff802000000b00314350315acmr1739356wrp.10.1689259968669; 
- Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHIe9bIwU8uwonGb/X776+z7KNCl4G7bhOiTrPif1cQEJqDIP/Vb7HU5xOiBtQ+0jRV7Mj+VA==
-X-Received: by 2002:adf:f802:0:b0:314:3503:15ac with SMTP id
- s2-20020adff802000000b00314350315acmr1739345wrp.10.1689259968500; 
- Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
-Received: from redhat.com ([2.52.158.233]) by smtp.gmail.com with ESMTPSA id
- s14-20020adfea8e000000b00301a351a8d6sm8230571wrm.84.2023.07.13.07.52.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 Jul 2023 07:52:48 -0700 (PDT)
-Date: Thu, 13 Jul 2023 10:52:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH vhost v11 03/10] virtio_ring: introduce
- virtqueue_set_premapped()
-Message-ID: <20230713105230-mutt-send-email-mst@kernel.org>
-References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
- <20230710034237.12391-4-xuanzhuo@linux.alibaba.com>
- <ZK/cpSceLMovhmfR@infradead.org>
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=LptuTpvFDZBRRZm7T2FbpKgVlUR80XdDNd96fLSIzt8=;
+ b=bxWKmXXMZskCQVzOK3s2LVTIJXiDoalDgwR4jNFVQzx39iz9cL6yxEWPKkC38D6ELDHINl
+ Uem5ejeCyiTXT8RwYSb9oK05eEgoEPp5MhQqpYSpgMb4gaWJDCtWCfo9Zw31bdcyLzmAZW
+ 8s5Hw8Oyzx3Q/aj74qO6vcCc3xejcuw=
+Received: from mimecast-mx02.redhat.com (66.187.233.73 [66.187.233.73]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-327-UuHX7QVrOaKiCwlKvKf5PA-1; Thu, 13 Jul 2023 10:55:55 -0400
+X-MC-Unique: UuHX7QVrOaKiCwlKvKf5PA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 45E9E3C0F67B;
+ Thu, 13 Jul 2023 14:55:55 +0000 (UTC)
+Received: from t14s.redhat.com (unknown [10.39.192.245])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 20A28F66CB;
+ Thu, 13 Jul 2023 14:55:53 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/4] virtio-mem: memory unplug/offlining related cleanups
+Date: Thu, 13 Jul 2023 16:55:47 +0200
+Message-ID: <20230713145551.2824980-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <ZK/cpSceLMovhmfR@infradead.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,22 +97,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 13, 2023 at 04:14:45AM -0700, Christoph Hellwig wrote:
-> On Mon, Jul 10, 2023 at 11:42:30AM +0800, Xuan Zhuo wrote:
-> > This helper allows the driver change the dma mode to premapped mode.
-> > Under the premapped mode, the virtio core do not do dma mapping
-> > internally.
-> > 
-> > This just work when the use_dma_api is true. If the use_dma_api is false,
-> > the dma options is not through the DMA APIs, that is not the standard
-> > way of the linux kernel.
-> 
-> I have a hard time parsing this.
+Some cleanups+optimizations primarily around offline_and_remove_memory().
 
-Me too unfortunately.
+Patch #1 drops the "unsafe unplug" feature where we might get stuck in
+offline_and_remove_memory() forever.
 
+Patch #2 handles unexpected errors from offline_and_remove_memory() a bit
+nicer.
+
+Patch #3 handles the case where offline_and_remove_memory() failed and
+we want to retry later to remove a completely unplugged Linux memory
+block, to not have them waste memory forever.
+
+Patch #4 something I had lying around for longer, which reacts faster
+on config changes when unplugging memory.
+
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+
+David Hildenbrand (4):
+  virtio-mem: remove unsafe unplug in Big Block Mode (BBM)
+  virtio-mem: convert most offline_and_remove_memory() errors to -EBUSY
+  virtio-mem: keep retrying on offline_and_remove_memory() errors in Sub
+    Block Mode (SBM)
+  virtio-mem: check if the config changed before fake offlining memory
+
+ drivers/virtio/virtio_mem.c | 168 ++++++++++++++++++++++++------------
+ 1 file changed, 112 insertions(+), 56 deletions(-)
+
+
+base-commit: 3f01e9fed8454dcd89727016c3e5b2fbb8f8e50c
 -- 
-MST
+2.41.0
 
 _______________________________________________
 Virtualization mailing list
