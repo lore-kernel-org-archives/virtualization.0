@@ -4,104 +4,110 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B001EC001DF
-	for <virtualization@archiver.kernel.org>; Mon, 17 Jul 2023 22:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6A1C6EB64DC
+	for <virtualization@archiver.kernel.org>; Mon, 17 Jul 2023 22:52:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3A4258186E;
-	Mon, 17 Jul 2023 22:12:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3A4258186E
+	by smtp1.osuosl.org (Postfix) with ESMTP id BCEA881D3A;
+	Mon, 17 Jul 2023 22:52:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BCEA881D3A
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=Jk8Ffu+z
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WSU35uqK
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9AlOnt6eyk4F; Mon, 17 Jul 2023 22:12:23 +0000 (UTC)
+	with ESMTP id bQcJ21ILL9oj; Mon, 17 Jul 2023 22:52:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A1E7C8183D;
-	Mon, 17 Jul 2023 22:12:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A1E7C8183D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3C1E781D18;
+	Mon, 17 Jul 2023 22:52:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3C1E781D18
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7843BC0071;
-	Mon, 17 Jul 2023 22:12:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68328C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 16990C0071;
+	Mon, 17 Jul 2023 22:52:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F2984C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Jul 2023 22:12:21 +0000 (UTC)
+ Mon, 17 Jul 2023 22:52:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2E7D360F34
+ by smtp4.osuosl.org (Postfix) with ESMTP id B17BC40863
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Jul 2023 22:12:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E7D360F34
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=Jk8Ffu+z
+ Mon, 17 Jul 2023 22:52:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B17BC40863
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=WSU35uqK
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FruCB3JNSLLA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id elR_t3F2IYBu
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Jul 2023 22:12:20 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5EB3F60F29
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
- [IPv6:2607:f8b0:4864:20::433])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5EB3F60F29
+ Mon, 17 Jul 2023 22:52:10 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7E5BB40861
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7E5BB40861
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Jul 2023 22:12:20 +0000 (UTC)
-Received: by mail-pf1-x433.google.com with SMTP id
- d2e1a72fcca58-666ecb21f86so5098966b3a.3
+ Mon, 17 Jul 2023 22:52:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1689634329;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=8wy84DSSq8n2YYiK0mWellsvoswCFp/2kMAmdZ+UHHc=;
+ b=WSU35uqKWX5qXsL9Eqi4qqS9SCAvtRdUoP1pqlX2O/1cZK2gLwhVZqB5eExNH9bGJCaIvz
+ BDObKB9Pjgy9nnNWI0Mg64rgQFu1m48ni/wL21sFRtdMbxZw6ZsGTbH7RccOeY6fV1KDLB
+ hn5FNoggx6POG5Pi2hj0zNHisqxMXTQ=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-308-Xu2evVDSPn63GzDEi_D4oQ-1; Mon, 17 Jul 2023 18:52:07 -0400
+X-MC-Unique: Xu2evVDSPn63GzDEi_D4oQ-1
+Received: by mail-io1-f72.google.com with SMTP id
+ ca18e2360f4ac-786fa88a6f0so317984539f.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 17 Jul 2023 15:12:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1689631939; x=1692223939;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=nfZGdLayIsQ4EXLbarw1/OO0pNLBzQdwR1vEqsrzGII=;
- b=Jk8Ffu+zgnI1CsgL7PShvnMc/G0hm1hbh3TPz5Fbc34BI/VC6K+YvpO0Dtz1Q06LcE
- vf29m9vckcSQeAqUEVUy2hQg3wChzTMiZjPdUNSWsPB40TqlA/Z3Z90RDeI/5eGEIh5a
- oHIWxzri1XJMuhuB2UIvkNGwKQM8BtpRM8RbCOHyQCc7eetsY5S+VbcO2iAUIljyLIvn
- 7DgUtRFxxg3tnphZnCaerMskJ/OIgXT3e8pOBne6YWSI+yYb8YG43ww6ejPC+GReMaLK
- AQZU6DLVDF3nw8hq4CMA6FGa2JzmC2rObjfL+xz46TVHFpF838cUJw0/Qyn0hTY2P629
- 8fnA==
+ Mon, 17 Jul 2023 15:52:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689631939; x=1692223939;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=nfZGdLayIsQ4EXLbarw1/OO0pNLBzQdwR1vEqsrzGII=;
- b=S6MxpFyJsbUpnEiX7N9FllX+luRrLMw57uasTaY3+9EMHdIUpc5nLL4T2F52eGC9nI
- /TWn1FJdSpIvgq/dQPfzLw4lArpPvet5fda2+drLwFAwZLUfePfvDvB/1NG5lsPbbSJn
- RaYOivDvqr5EHBtsyaOkqUSmUCfOegMMpjhiblz3Aq+Pk1/tFUdyExtbNzl55MVZD2k6
- QLq5AVyvTo3kb/D39JuSwkSWqORzlg3IyjJFdQPZ8z6OVVnJL++qG6DLoiOP9T6PTe1D
- yRyUXjsxFYgbFTh0TPZMF3f0v8pzkMeILi3EANcOI2GvdtF9ANWlQVZCWmhNlR8oZs9k
- SgPg==
-X-Gm-Message-State: ABy/qLbGV2jLWu7ZwljPijWTkYBc3BzX3EzkstT2Lnnvt8QKkhMndhRg
- ECN77pfXrLdLt/OH6c6NVtqFug==
-X-Google-Smtp-Source: APBJJlGZQPlE97VCyl6VDpxaBgXkuk8Xeb/cb5kTAa5gNdx+KBrLI5Ve+dnBz8NdMBvhTebPf2Gh3g==
-X-Received: by 2002:a05:6a00:2307:b0:668:81c5:2f8a with SMTP id
- h7-20020a056a00230700b0066881c52f8amr19367164pfh.17.1689631939323; 
- Mon, 17 Jul 2023 15:12:19 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-68-25-194.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.68.25.194]) by smtp.gmail.com with ESMTPSA id
- q185-20020a632ac2000000b0055fedbf1938sm278952pgq.31.2023.07.17.15.12.17
+ d=1e100.net; s=20221208; t=1689634327; x=1692226327;
+ h=content-transfer-encoding:mime-version:organization:references
+ :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=8wy84DSSq8n2YYiK0mWellsvoswCFp/2kMAmdZ+UHHc=;
+ b=YGancGnbNVZ0IMSO+VFEiZ+8nBrJ6pNCLcjk67+ieCDxxwjUxFCMwrGfNT8QwfPQx4
+ ecyQv3ykh36inJhQNU6DFYkfVUmduDUru/p1lMkuhQSfKwapJzGwVj2k5oyasCouDmy6
+ JJoxD2S9QgEM6YP0Cfm85OGiE5OZHS8BO4oqo8YOPDTQe1/eGR6vSTSCnTFrpVe2vBDb
+ PbiM2XulE2Si8UZqHH6L+yrYXoUYLXt234PVnyJ+bJ19OlNey5Ld+qswB5SNFemrsrJ2
+ xFrNHG003uLMVkgpUu1UjT/g07MM5HeVH6gvRe3QvLUQ8ZXkvY3oM245euvxWo+osZHj
+ tA7g==
+X-Gm-Message-State: ABy/qLbDmUCSZJFzeqY5nG94fXK4Zu7vlnjXkRKqK4liw/hxpRZQ5Mth
+ e33doUWaBvwTEqR/ffK4xOObmqVV5GE+5xWer/9N3X5SGLOm/RsVgWDoToPZyYEQYdbfh142qss
+ wZa3OdfiMe/l4VzEHCsH9kp5KdlusahWzO9P/aMH9Gw==
+X-Received: by 2002:a92:c651:0:b0:347:693a:7300 with SMTP id
+ 17-20020a92c651000000b00347693a7300mr1012069ill.26.1689634327051; 
+ Mon, 17 Jul 2023 15:52:07 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlGlBYmCdY1EaUds5QDcX7E6PqePOm9wJTOwk2wgOBkeJp+9wxIVvWJlHjSTuTXhWw/m+atXtQ==
+X-Received: by 2002:a92:c651:0:b0:347:693a:7300 with SMTP id
+ 17-20020a92c651000000b00347693a7300mr1012015ill.26.1689634326829; 
+ Mon, 17 Jul 2023 15:52:06 -0700 (PDT)
+Received: from redhat.com ([38.15.36.239]) by smtp.gmail.com with ESMTPSA id
+ d10-20020a92ddca000000b00341c0710169sm242627ilr.46.2023.07.17.15.52.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 17 Jul 2023 15:12:18 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qLWS0-002PFZ-GX;
- Mon, 17 Jul 2023 19:12:16 -0300
-Date: Mon, 17 Jul 2023 19:12:16 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Alex Williamson <alex.williamson@redhat.com>
+ Mon, 17 Jul 2023 15:52:06 -0700 (PDT)
+Date: Mon, 17 Jul 2023 16:52:03 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
 Subject: Re: [PATCH 0/2] eventfd: simplify signal helpers
-Message-ID: <ZLW8wEzkhBxd0O0L@ziepe.ca>
+Message-ID: <20230717165203.4ee6b1e6.alex.williamson@redhat.com>
+In-Reply-To: <ZLW8wEzkhBxd0O0L@ziepe.ca>
 References: <20230630155936.3015595-1-jaz@semihalf.com>
  <20230714-gauner-unsolidarisch-fc51f96c61e8@brauner>
  <CAH76GKPF4BjJLrzLBW8k12ATaAGADeMYc2NQ9+j0KgRa0pomUw@mail.gmail.com>
  <20230717130831.0f18381a.alex.williamson@redhat.com>
+ <ZLW8wEzkhBxd0O0L@ziepe.ca>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230717130831.0f18381a.alex.williamson@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Cc: linux-aio@kvack.org, Muchun Song <muchun.song@linux.dev>,
  Tony Krowiak <akrowiak@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
  Paul Durrant <paul@xen.org>, Tom Rix <trix@redhat.com>,
@@ -134,8 +140,8 @@ Cc: linux-aio@kvack.org, Muchun Song <muchun.song@linux.dev>,
  Christian Brauner <brauner@kernel.org>, Grzegorz Jaszczyk <jaz@semihalf.com>,
  Oded Gabbay <ogabbay@kernel.org>, linux-usb@vger.kernel.org,
  Peter Oberparleiter <oberpar@linux.ibm.com>, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
+ linux-rdma@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>, "Michael S.
+ Tsirkin" <mst@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
  Johannes Weiner <hannes@cmpxchg.org>, linux-fsdevel@vger.kernel.org,
  Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
  linuxppc-dev@lists.ozlabs.org, Pavel Begunkov <asml.silence@gmail.com>
@@ -155,21 +161,32 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 17, 2023 at 01:08:31PM -0600, Alex Williamson wrote:
+On Mon, 17 Jul 2023 19:12:16 -0300
+Jason Gunthorpe <jgg@ziepe.ca> wrote:
 
-> What would that mechanism be?  We've been iterating on getting the
-> serialization and buffering correct, but I don't know of another means
-> that combines the notification with a value, so we'd likely end up with
-> an eventfd only for notification and a separate ring buffer for
-> notification values.
+> On Mon, Jul 17, 2023 at 01:08:31PM -0600, Alex Williamson wrote:
+> 
+> > What would that mechanism be?  We've been iterating on getting the
+> > serialization and buffering correct, but I don't know of another means
+> > that combines the notification with a value, so we'd likely end up with
+> > an eventfd only for notification and a separate ring buffer for
+> > notification values.  
+> 
+> All FDs do this. You just have to make a FD with custom
+> file_operations that does what this wants. The uAPI shouldn't be able
+> to tell if the FD is backing it with an eventfd or otherwise. Have the
+> kernel return the FD instead of accepting it. Follow the basic design
+> of eg mlx5vf_save_fops
 
-All FDs do this. You just have to make a FD with custom
-file_operations that does what this wants. The uAPI shouldn't be able
-to tell if the FD is backing it with an eventfd or otherwise. Have the
-kernel return the FD instead of accepting it. Follow the basic design
-of eg mlx5vf_save_fops
+Sure, userspace could poll on any fd and read a value from it, but at
+that point we're essentially duplicating a lot of what eventfd provides
+for a minor(?) semantic difference over how the counter value is
+interpreted.  Using an actual eventfd allows the ACPI notification to
+work as just another interrupt index within the existing vfio IRQ uAPI.
+Thanks,
 
-Jason
+Alex
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
