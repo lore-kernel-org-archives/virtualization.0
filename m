@@ -1,110 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D2E2AEB64DA
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jul 2023 10:33:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AABD8EB64DC
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jul 2023 13:49:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 072B240544;
-	Tue, 18 Jul 2023 10:33:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 072B240544
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cnLTzrud
+	by smtp1.osuosl.org (Postfix) with ESMTP id 26DAA813C5;
+	Tue, 18 Jul 2023 13:49:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 26DAA813C5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bNtz4/rE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Kh9mBzq04d8U; Tue, 18 Jul 2023 10:33:00 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Qu1x34Q3r2hD; Tue, 18 Jul 2023 13:49:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 325824050F;
-	Tue, 18 Jul 2023 10:32:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 325824050F
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8E6F281365;
+	Tue, 18 Jul 2023 13:49:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E6F281365
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9949C0072;
-	Tue, 18 Jul 2023 10:32:58 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6144AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BD47C0071;
+	Tue, 18 Jul 2023 13:49:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1543EC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 10:32:58 +0000 (UTC)
+ Tue, 18 Jul 2023 13:48:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 307EB60A67
+ by smtp1.osuosl.org (Postfix) with ESMTP id E47148136F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 10:32:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 307EB60A67
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=cnLTzrud
+ Tue, 18 Jul 2023 13:48:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E47148136F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hkAY1-wUNGjA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VfByEfoF6Axc
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 10:32:56 +0000 (UTC)
+ Tue, 18 Jul 2023 13:48:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B506C606F9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0326281365
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B506C606F9
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0326281365
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 10:32:56 +0000 (UTC)
+ Tue, 18 Jul 2023 13:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689676375;
+ s=mimecast20190719; t=1689688137;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=LJ9VjFOAX7KEpsqx+3rsCh7QB66sbTgBmRj0i8t7LUg=;
- b=cnLTzrudeYeQsBCnLZxLqMWpdR4XGyVqPXgFSIrI+OKtH6uzA0RyML63xU+67F0Tn+5q2T
- tB87+wFn03cL45XhP6jStcRkoQRGyVnLz1uqTMWiEqjKOto/JMRZNQq6zB+Ufgrr07VNbH
- SsqYqnIgOG3y9rSPJr6d/+FqIZI3ZFg=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=LLaxw2NzrWW+r009Dr4j7Rdw/NRY2OqVU5CYMXXm6+8=;
+ b=bNtz4/rE0HhTa5x4M1BpEmWkTfBRu9alR9G3ia7OoAOVcgcSrjry5Nqm9gx2ne+M/mqi7F
+ AN1HRcGTs1oiceYQSDxVwcppDxYVKxm9GtlffwhDprHKERXTaO9tZFbPyiin6qRTgz3Qwb
+ oo9wYHiZ30JzbbgnXFKYZ1MiKJhYCA0=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-392-GjnZjCSuNs2Q-QQEynbMWA-1; Tue, 18 Jul 2023 06:32:54 -0400
-X-MC-Unique: GjnZjCSuNs2Q-QQEynbMWA-1
-Received: by mail-yw1-f199.google.com with SMTP id
- 00721157ae682-56cf9a86277so52992747b3.3
+ us-mta-592-zhLnChgXNxG8ULu74Bo1bw-1; Tue, 18 Jul 2023 09:48:55 -0400
+X-MC-Unique: zhLnChgXNxG8ULu74Bo1bw-1
+Received: by mail-qk1-f197.google.com with SMTP id
+ af79cd13be357-765a632f342so663712185a.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 03:32:54 -0700 (PDT)
+ Tue, 18 Jul 2023 06:48:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689676373; x=1690281173;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=LJ9VjFOAX7KEpsqx+3rsCh7QB66sbTgBmRj0i8t7LUg=;
- b=FoPX7bb22M5ksAo9C6KEc0b+NHLFS2AWVHEitq/F7RPof2DmDOKo6JxXVXamP4L/Hp
- /76+lTLF0s7R3PJMFe60FOOjSs9C+nsdzq1/n35vzUeUDLQOM+/BONpOHI+kmdolA+Tu
- AC++q9opkiLjIf4O1diUqEwnVAM+kGwOuS8Nouu3lagRVCYnPC03jGgsid3Tdq0XJUrG
- pXGi5nW4RCFEuivoEdH5rRbYa4yGGU29euCVU2RbWooCedMvInnFHoOriJORz+fWnQXc
- lTGIxPRrMXk6CRCI1bvqXP2ZqFki1AHkjAcTsClbmiax/OqFMpRQ80Y54EX9vXwGHFfj
- yMFw==
-X-Gm-Message-State: ABy/qLYsRsP6DyxbhQA6HFDIjNZkeUgir3L3MWbwwjOUcBSFiLEKdlII
- tVd6j2mzKe22+vZvGDafpBg4Dq2dfZ5Il4E0z8uB2eg0GiIwRkksXcGiho4jZHNz+gSkFMmu1mt
- NCxQPKPZFGCGSatLkSNqjAp0BSN/PsFOiTmHKs7CHhrXpslFRaiABn6aG0g==
-X-Received: by 2002:a0d:d8c9:0:b0:56d:2490:7cde with SMTP id
- a192-20020a0dd8c9000000b0056d24907cdemr14789755ywe.50.1689676373083; 
- Tue, 18 Jul 2023 03:32:53 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHh8k3t3IqzzvYl1s7LPsoKr9b2R0bmumUYFEbPNxabAWjebYIVQ+sEo+6VeMyB0kSsryVx8PoR+hEwPIikfak=
-X-Received: by 2002:a0d:d8c9:0:b0:56d:2490:7cde with SMTP id
- a192-20020a0dd8c9000000b0056d24907cdemr14789740ywe.50.1689676372798; Tue, 18
- Jul 2023 03:32:52 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230418225638.1467969-1-peili.dev@gmail.com>
- <CAJaqyWebSowMMWh+HCjj7tmbA3Ey6C69T=SPA4k+6fd_-GjfoA@mail.gmail.com>
- <CACGkMEu0d0y82wo1p2g-ovbUTYJcVon0-t8fvgFQLokZmd7hDQ@mail.gmail.com>
-In-Reply-To: <CACGkMEu0d0y82wo1p2g-ovbUTYJcVon0-t8fvgFQLokZmd7hDQ@mail.gmail.com>
+ d=1e100.net; s=20221208; t=1689688135; x=1690292935;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=LLaxw2NzrWW+r009Dr4j7Rdw/NRY2OqVU5CYMXXm6+8=;
+ b=BpglcOjm0mMSJvxhIA4Xsb+uoSv8u3+s4iGcIGU9peoe2C/RSXQlFnDiduntQpDZyt
+ yhs/FJe/csw/UFHgvAlrSAhBv5PTHZm7PEostb43ILdU5rnXoxREW21DffcV4CKE7RcL
+ Vt6y8lx2lBUbgQvTHkq1feGjGrsJIQdL9Hkxh5F4y5k9kQ1ta0s9EA0UbfphAqpi1o/P
+ 2wAs+9JvhuzaOY3jwq8PN1TIA2hFIgdgLxV8agzf9ro+yZWtNlhWYBaTLgpG/DGwdnkz
+ zh4h8accZxDJl+NXR6Z4UPO+vUDQJceHvVr6UTi0ttu6FqLObefCmOUUAVDTTH7HcHCu
+ VoUg==
+X-Gm-Message-State: ABy/qLbN9oR3buajSxyJ4Bxi+bbo67a1MzXRJE3dw3HikxnxNQbJlL9R
+ wAis5ghTt6PVkdlN3kMVDjMe8KW6a50ZG0ZF9U/eBvs39EIBjV0ZPXaLqqhFzd2KAOtIOlFJ/Qr
+ AV+rhTsT+SLwIGB+gC5LgzSJy9zZaCi4N7o73lFYcPA==
+X-Received: by 2002:a05:620a:6785:b0:767:35bc:540a with SMTP id
+ rr5-20020a05620a678500b0076735bc540amr2159585qkn.17.1689688135505; 
+ Tue, 18 Jul 2023 06:48:55 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlG4MukNT5hzLYq1GhLxnnXJi0mdSCeXfoowDToROhwgmWHtxW1zaVxLyYJoJSQVYJMBJ6xHvQ==
+X-Received: by 2002:a05:620a:6785:b0:767:35bc:540a with SMTP id
+ rr5-20020a05620a678500b0076735bc540amr2159561qkn.17.1689688135249; 
+ Tue, 18 Jul 2023 06:48:55 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-94.retail.telecomitalia.it.
+ [79.46.200.94]) by smtp.gmail.com with ESMTPSA id
+ pe8-20020a05620a850800b00767502e8601sm606015qkn.35.2023.07.18.06.48.52
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 18 Jul 2023 06:48:54 -0700 (PDT)
+Date: Tue, 18 Jul 2023 15:48:50 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Tue, 18 Jul 2023 12:32:41 +0200
-Message-ID: <CAGxU2F4N+xAM0gRh2dHDLSujkJ4Ek--Hk+PoTHOsxe4k+GTrrA@mail.gmail.com>
-Subject: vdpa: use io_uring passthrough command for IOCTLs [was Re: [PATCH
- 1/2] Reduce vdpa initialization / startup overhead]
-To: Jason Wang <jasowang@redhat.com>, Michael Tsirkin <mst@redhat.com>, 
- Eugenio Perez Martin <eperezma@redhat.com>
+To: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Subject: Re: [PATCH net-next v1 1/4] vsock/virtio/vhost: read data from
+ non-linear skb
+Message-ID: <mhpoxo3jsoqp6tnmm2maa47tqlm3bd5sveo4n7aqnnvbh7ryjh@ur54eno5povg>
+References: <20230717210051.856388-1-AVKrasnov@sberdevices.ru>
+ <20230717210051.856388-2-AVKrasnov@sberdevices.ru>
+MIME-Version: 1.0
+In-Reply-To: <20230717210051.856388-2-AVKrasnov@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: peili.dev@gmail.com, qemu devel list <qemu-devel@nongnu.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>
+Content-Disposition: inline
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Eric Dumazet <edumazet@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,53 +121,185 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBBcHIgMjAsIDIwMjMgYXQgNjoyMOKAr0FNIEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Cj4gT24gV2VkLCBBcHIgMTksIDIwMjMgYXQgMTE6MzPigK9QTSBF
-dWdlbmlvIFBlcmV6IE1hcnRpbgo+IDxlcGVyZXptYUByZWRoYXQuY29tPiB3cm90ZToKPiA+Cj4g
-PiBPbiBXZWQsIEFwciAxOSwgMjAyMyBhdCAxMjo1NuKAr0FNIDxwZWlsaS5kZXZAZ21haWwuY29t
-PiB3cm90ZToKPiA+ID4KPiA+ID4gRnJvbTogUGVpIExpIDxwZWlsaS5kZXZAZ21haWwuY29tPgo+
-ID4gPgo+ID4gPiBDdXJyZW50bHksIHBhcnQgb2YgdGhlIHZkcGEgaW5pdGlhbGl6YXRpb24gLyBz
-dGFydHVwIHByb2Nlc3MKPiA+ID4gbmVlZHMgdG8gdHJpZ2dlciBtYW55IGlvY3RscyBwZXIgdnEs
-IHdoaWNoIGlzIHZlcnkgaW5lZmZpY2llbnQKPiA+ID4gYW5kIGNhdXNpbmcgdW5uZWNlc3Nhcnkg
-Y29udGV4dCBzd2l0Y2ggYmV0d2VlbiB1c2VyIG1vZGUgYW5kCj4gPiA+IGtlcm5lbCBtb2RlLgo+
-ID4gPgo+ID4gPiBUaGlzIHBhdGNoIGNyZWF0ZXMgYW4gYWRkaXRpb25hbCBpb2N0bCgpIGNvbW1h
-bmQsIG5hbWVseQo+ID4gPiBWSE9TVF9WRFBBX0dFVF9WUklOR19HUk9VUF9CQVRDSCwgdGhhdCB3
-aWxsIGJhdGNoaW5nCj4gPiA+IGNvbW1hbmRzIG9mIFZIT1NUX1ZEUEFfR0VUX1ZSSU5HX0dST1VQ
-IGludG8gYSBzaW5nbGUKPiA+ID4gaW9jdGwoKSBjYWxsLgo+Cj4gSSdkIGV4cGVjdCB0aGVyZSdz
-IGEga2VybmVsIHBhdGNoIGJ1dCBJIGRpZG4ndCBzZWUgdGhhdD8KPgo+IElmIHdlIHdhbnQgdG8g
-Z28gdGhpcyB3YXkuIFdoeSBzaW1wbHkgaGF2ZSBhIG1vcmUgZ2VuZXJpYyB3YXksIHRoYXQgaXMK
-PiBpbnRyb2R1Y2luZyBzb21ldGhpbmcgbGlrZToKPgo+IFZIT1NUX0NNRF9CQVRDSCB3aGljaCBk
-aWQgc29tZXRoaW5nIGxpa2UKPgo+IHN0cnVjdCB2aG9zdF9jbWRfYmF0Y2ggewo+ICAgICBpbnQg
-bmNtZHM7Cj4gICAgIHN0cnVjdCB2aG9zdF9pb2N0bHNbXTsKPiB9Owo+Cj4gVGhlbiB5b3UgY2Fu
-IGJhdGNoIG90aGVyIGlvY3RscyBvdGhlciB0aGFuIEdFVF9WUklOR19HUk9VUD8KPgoKSnVzdCBy
-ZXN0YXJ0aW5nIHRoaXMgZGlzY3Vzc2lvbiwgc2luY2UgSSByZWNlbnRseSB3b3JrZWQgbW9yZSB3
-aXRoCmlvX3VyaW5nIHBhc3N0aHJvdWdoIGNvbW1hbmRzIGFuZCBJIHRoaW5rIGl0IGNhbiBoZWxw
-IGhlcmUuCgpUaGUgTlZNZSBndXlzIGhhZCBhIHNpbWlsYXIgcHJvYmxlbSAoaW9jdGwgdG9vIHNs
-b3cgZm9yIHRoZWlyIHVzZQpjYXNlKVsxXVsyXSwgc28gdGhleSBkZXZlbG9wZWQgYSBuZXcgZmVh
-dHVyZSBpbiBpb191cmluZyB0aGF0CmJhc2ljYWxseSBhbGxvd3MgeW91IHRvIGRvIElPQ1RMcyBh
-c3luY2hyb25vdXNseSBhbmQgaW4gYmF0Y2hlcyB1c2luZwppb191cmluZy4KClRoZSBzYW1lIGZl
-YXR1cmUgaXMgYWxzbyB1c2VkIGJ5IHVibGsgWzNdIGFuZCBJIHJlY2VudGx5IHRhbGtlZCBhYm91
-dAp0aGlzIGF0IERldkNvbmYgd2l0aCBHZXJtYW4gWzRdLgoKQmFzaWNhbGx5LCB0aGVyZSdzIGEg
-bmV3IGNhbGxiYWNrIGluIGZvcHMgKHN0cnVjdCBmaWxlX29wZXJhdGlvbnMudXJpbmdfY21kKS4K
-SUlVQyBmb3IgTlZNZSAoZHJpdmVycy9udm1lL2hvc3QvaW9jdGwuYykgdGhleSB1c2VkIGV4YWN0
-bHkgdGhlIHNhbWUKdmFsdWVzIHVzZWQgZm9yIElPQ1RMcyBhbHNvIGZvciB0aGUgbmV3IHVyaW5n
-X2NtZCBjYWxsYmFjay4KCldlIGNvdWxkIGRvIHRoZSBzYW1lLiBUaGUgY2hhbmdlcyBpbiB0aGUg
-dmhvc3QtdmRwYSBrZXJuZWwgbW9kdWxlCnNob3VsZCBiZSBzaW1wbGUsIGFuZCB3ZSBjb3VsZCBz
-aGFyZSB0aGUgY29kZSBmb3IgaGFuZGxpbmcgaW9jdGwgYW5kCnVyaW5nX2NtZC4KVGhhdCB3YXkg
-YW55IG5ldyBjb21tYW5kIGNhbiBiZSBzdXBwb3J0ZWQgd2l0aCBib3RoIGZvciBjb21wYXRpYmls
-aXR5LgoKSW4gUUVNVSB0aGVuIHdlIGNhbiBzdGFydCB1c2luZyBpdCB0byBvcHRpbWl6ZSB0aGUg
-Y29udHJvbCBwYXRoLgoKV2hhdCBkbyB5b3UgdGhpbms/CgpJZiBpdCdzIGludGVyZXN0aW5nLCBJ
-IGNvdWxkIHRocm93IGRvd24gYW4gUkZDIHdpdGggdGhlIGNoYW5nZXMgb3IgaWYKYW55b25lIGlz
-IGludGVyZXN0ZWQgaW4gd29ya2luZyBvbiBpdCwgSSBjYW4gaGVscCB3aXRoIHRoZSBkZXRhaWxz
-LgoKVGhhbmtzLApTdGVmYW5vCgpbMV0gaHR0cHM6Ly9scGMuZXZlbnRzL2V2ZW50LzExL2NvbnRy
-aWJ1dGlvbnMvOTg5LwpbMl0gaHR0cHM6Ly9scGMuZXZlbnRzL2V2ZW50LzE2L2NvbnRyaWJ1dGlv
-bnMvMTM4Mi8KWzNdIGh0dHBzOi8vbHduLm5ldC9BcnRpY2xlcy85MDM4NTUvCls0XSBodHRwczov
-L3d3dy55b3V0dWJlLmNvbS93YXRjaD92PTZKcU5QaXJyZW9ZCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, Jul 18, 2023 at 12:00:48AM +0300, Arseniy Krasnov wrote:
+>This is preparation patch for MSG_ZEROCOPY support. It adds handling of
+>non-linear skbs by replacing direct calls of 'memcpy_to_msg()' with
+>'skb_copy_datagram_iter()'. Main advantage of the second one is that it
+>can handle paged part of the skb by using 'kmap()' on each page, but if
+>there are no pages in the skb, it behaves like simple copying to iov
+>iterator. This patch also adds new field to the control block of skb -
+>this value shows current offset in the skb to read next portion of data
+>(it doesn't matter linear it or not). Idea behind this field is that
+>'skb_copy_datagram_iter()' handles both types of skb internally - it
+>just needs an offset from which to copy data from the given skb. This
+>offset is incremented on each read from skb. This approach allows to
+>avoid special handling of non-linear skbs:
+>1) We can't call 'skb_pull()' on it, because it updates 'data' pointer.
+>2) We need to update 'data_len' also on each read from this skb.
+>
+>Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>---
+> Changelog:
+> v5(big patchset) -> v1:
+>  * Merge 'virtio_transport_common.c' and 'vhost/vsock.c' patches into
+>    this single patch.
+>  * Commit message update: grammar fix and remark that this patch is
+>    MSG_ZEROCOPY preparation.
+>  * Use 'min_t()' instead of comparison using '<>' operators.
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+> drivers/vhost/vsock.c                   | 14 ++++++++-----
+> include/linux/virtio_vsock.h            |  1 +
+> net/vmw_vsock/virtio_transport_common.c | 27 ++++++++++++++++---------
+> 3 files changed, 28 insertions(+), 14 deletions(-)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 817d377a3f36..8c917be32b5d 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -114,6 +114,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		struct sk_buff *skb;
+> 		unsigned out, in;
+> 		size_t nbytes;
+>+		u32 frag_off;
+> 		int head;
+>
+> 		skb = virtio_vsock_skb_dequeue(&vsock->send_pkt_queue);
+>@@ -156,7 +157,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		}
+>
+> 		iov_iter_init(&iov_iter, ITER_DEST, &vq->iov[out], in, iov_len);
+>-		payload_len = skb->len;
+>+		frag_off = VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
+>+		payload_len = skb->len - frag_off;
+> 		hdr = virtio_vsock_hdr(skb);
+>
+> 		/* If the packet is greater than the space available in the
+>@@ -197,8 +199,10 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 			break;
+> 		}
+>
+>-		nbytes = copy_to_iter(skb->data, payload_len, &iov_iter);
+>-		if (nbytes != payload_len) {
+>+		if (skb_copy_datagram_iter(skb,
+>+					   frag_off,
+>+					   &iov_iter,
+>+					   payload_len)) {
+> 			kfree_skb(skb);
+> 			vq_err(vq, "Faulted on copying pkt buf\n");
+> 			break;
+>@@ -212,13 +216,13 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		vhost_add_used(vq, head, sizeof(*hdr) + payload_len);
+> 		added = true;
+>
+>-		skb_pull(skb, payload_len);
+>+		VIRTIO_VSOCK_SKB_CB(skb)->frag_off += payload_len;
+> 		total_len += payload_len;
+>
+> 		/* If we didn't send all the payload we can requeue the packet
+> 		 * to send it with the next available buffer.
+> 		 */
+>-		if (skb->len > 0) {
+>+		if (VIRTIO_VSOCK_SKB_CB(skb)->frag_off < skb->len) {
+> 			hdr->flags |= cpu_to_le32(flags_to_restore);
+>
+> 			/* We are queueing the same skb to handle
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index c58453699ee9..17dbb7176e37 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -12,6 +12,7 @@
+> struct virtio_vsock_skb_cb {
+> 	bool reply;
+> 	bool tap_delivered;
+>+	u32 frag_off;
+> };
+>
+> #define VIRTIO_VSOCK_SKB_CB(skb) ((struct virtio_vsock_skb_cb *)((skb)->cb))
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index b769fc258931..1a376f808ae6 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -355,7 +355,7 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
+> 	spin_lock_bh(&vvs->rx_lock);
+>
+> 	skb_queue_walk_safe(&vvs->rx_queue, skb,  tmp) {
+>-		off = 0;
+>+		off = VIRTIO_VSOCK_SKB_CB(skb)->frag_off;
+>
+> 		if (total == len)
+> 			break;
+>@@ -370,7 +370,10 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
+> 			 */
+> 			spin_unlock_bh(&vvs->rx_lock);
+>
+>-			err = memcpy_to_msg(msg, skb->data + off, bytes);
+>+			err = skb_copy_datagram_iter(skb, off,
+>+						     &msg->msg_iter,
+>+						     bytes);
+>+
+> 			if (err)
+> 				goto out;
+>
+>@@ -413,25 +416,28 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+> 	while (total < len && !skb_queue_empty(&vvs->rx_queue)) {
+> 		skb = skb_peek(&vvs->rx_queue);
+>
+>-		bytes = len - total;
+>-		if (bytes > skb->len)
+>-			bytes = skb->len;
+>+		bytes = min_t(size_t, len - total,
+>+			      skb->len - VIRTIO_VSOCK_SKB_CB(skb)->frag_off);
+>
+> 		/* sk_lock is held by caller so no one else can dequeue.
+> 		 * Unlock rx_lock since memcpy_to_msg() may sleep.
+> 		 */
+> 		spin_unlock_bh(&vvs->rx_lock);
+>
+>-		err = memcpy_to_msg(msg, skb->data, bytes);
+>+		err = skb_copy_datagram_iter(skb,
+>+					     VIRTIO_VSOCK_SKB_CB(skb)->frag_off,
+>+					     &msg->msg_iter, bytes);
+>+
+> 		if (err)
+> 			goto out;
+>
+> 		spin_lock_bh(&vvs->rx_lock);
+>
+> 		total += bytes;
+>-		skb_pull(skb, bytes);
+>
+>-		if (skb->len == 0) {
+>+		VIRTIO_VSOCK_SKB_CB(skb)->frag_off += bytes;
+>+
+>+		if (skb->len == VIRTIO_VSOCK_SKB_CB(skb)->frag_off) {
+> 			u32 pkt_len = le32_to_cpu(virtio_vsock_hdr(skb)->len);
+>
+> 			virtio_transport_dec_rx_pkt(vvs, pkt_len);
+>@@ -503,7 +509,10 @@ static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
+> 				 */
+> 				spin_unlock_bh(&vvs->rx_lock);
+>
+>-				err = memcpy_to_msg(msg, skb->data, bytes_to_copy);
+>+				err = skb_copy_datagram_iter(skb, 0,
+>+							     &msg->msg_iter,
+>+							     bytes_to_copy);
+>+
+> 				if (err) {
+> 					/* Copy of message failed. Rest of
+> 					 * fragments will be freed without copy.
+>-- 
+>2.25.1
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
