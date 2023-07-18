@@ -1,144 +1,127 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ABDA3EB64DD
-	for <virtualization@archiver.kernel.org>; Tue, 18 Jul 2023 15:56:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58E32EB64DC
+	for <virtualization@archiver.kernel.org>; Tue, 18 Jul 2023 19:09:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 29B7E60BC2;
-	Tue, 18 Jul 2023 15:56:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 29B7E60BC2
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=bYsTsBY1
+	by smtp4.osuosl.org (Postfix) with ESMTP id A687841794;
+	Tue, 18 Jul 2023 19:09:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A687841794
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=YYSxPlMh
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K-tYRg-sQxUS; Tue, 18 Jul 2023 15:56:44 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zjWGCrILjA5U; Tue, 18 Jul 2023 19:09:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AFF8E60B5D;
-	Tue, 18 Jul 2023 15:56:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AFF8E60B5D
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6AF4341772;
+	Tue, 18 Jul 2023 19:09:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6AF4341772
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76310C0071;
-	Tue, 18 Jul 2023 15:56:43 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 623FBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41AFCC0071;
+	Tue, 18 Jul 2023 19:09:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A95AEC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 15:56:42 +0000 (UTC)
+ Tue, 18 Jul 2023 19:09:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4A7B781EF7
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7011840515
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 15:56:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A7B781EF7
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=bYsTsBY1
+ Tue, 18 Jul 2023 19:09:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7011840515
+Authentication-Results: smtp2.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=YYSxPlMh
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M7lLSZSIrkKJ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id n9ZsNPRvQQ_f
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 15:56:41 +0000 (UTC)
+ Tue, 18 Jul 2023 19:09:42 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 50AEA81ED4
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com
- [IPv6:2607:f8b0:4864:20::836])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 50AEA81ED4
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5664A4032A
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com
+ (mail-sn1nam02on20613.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7ea9::613])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5664A4032A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 15:56:41 +0000 (UTC)
-Received: by mail-qt1-x836.google.com with SMTP id
- d75a77b69052e-403b6b7c0f7so42262731cf.0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 18 Jul 2023 08:56:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1689695800; x=1692287800;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=Tjh+qVHNBsaCt+fpZytXbv4JtN2Kf+QfiKBiC+OQp3c=;
- b=bYsTsBY1ioUL9k8drjTPCTw/fEJ0EAlGX5g4owJLPMPxN2CHLKUwbHRdsGU8yNpkgq
- tSJhCUQojCe7iZMsDT/aY34J1oz2QHRzCjLM+KqEBEo9M8BD2KOp45IRPvgTMkckJ6dq
- H9fFQEgiHBZaevHiGZSqEfXqcoEtLjezHUCteBqtpUndGthYRfcrzEkhL4CGHaIFAcmx
- 6wdKboUdDaPeOVdQT0aOEr8C1+gySsRWrc1UqrjcLLXuhZDet2FHUgbuPzKGfDMScL/V
- K78x7SFpD7MaWzPqAIp0HWYQyARw7uG7tneLlNjtBlR/Fv5UIeG6Vm/K9G6rR6HJEl7q
- 8oNQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689695800; x=1692287800;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=Tjh+qVHNBsaCt+fpZytXbv4JtN2Kf+QfiKBiC+OQp3c=;
- b=VKdfnN7VwmuUFOFBtjoVeXrTdde1nhjOmVABvoPsySAhQh6dKt2a1eFfTD7STEFgsR
- R77RQGUeZ532zklb3tHkovEZ72Q+UrIFYDf5s9aOx7EQkSt1njqoLhTHlcUpg3cXGEj3
- nFpqH2KVepPHjXJSCx9tN7bBjOFQy0X+enl1unJQFrj5bL6+LEZcyarhFiYaXi0vFkTe
- daFQcHpazaKHzoo1abRKtYu/HrXHDCy28IS15U5Yy9T96h+mecPRyXNsf0H3RRVOOX2r
- WEN2PcrTRsRzgvvIq+2BJQ2iM4P/ng07mNRddmtL6iZ9C5eeIg7CI8SAyLKbpL3Yjl46
- 3fMg==
-X-Gm-Message-State: ABy/qLYCE2DvAxlbKORX/9SwmdzqcxiHOtRciJF+EaR5ekbHvkVFPTAt
- z+doxckCkPPYvzrS3pgOs9ZBWA==
-X-Google-Smtp-Source: APBJJlFA9677r6PhZxjwKlQ1fKWxhiNMVqP6N1YqyjTADbRS7wwnXs7xld1btAoYMOwt7mM3Vw+c9w==
-X-Received: by 2002:ac8:7dd0:0:b0:403:a814:ef4d with SMTP id
- c16-20020ac87dd0000000b00403a814ef4dmr21293071qte.49.1689695800050; 
- Tue, 18 Jul 2023 08:56:40 -0700 (PDT)
-Received: from ziepe.ca ([206.223.160.26]) by smtp.gmail.com with ESMTPSA id
- s21-20020ac87595000000b003e635f80e72sm727847qtq.48.2023.07.18.08.56.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 18 Jul 2023 08:56:39 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qLn42-002YJT-5I;
- Tue, 18 Jul 2023 12:56:38 -0300
-Date: Tue, 18 Jul 2023 12:56:38 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH 0/2] eventfd: simplify signal helpers
-Message-ID: <ZLa2NmwexoxPkS9a@ziepe.ca>
-References: <20230630155936.3015595-1-jaz@semihalf.com>
- <20230714-gauner-unsolidarisch-fc51f96c61e8@brauner>
- <CAH76GKPF4BjJLrzLBW8k12ATaAGADeMYc2NQ9+j0KgRa0pomUw@mail.gmail.com>
- <20230717130831.0f18381a.alex.williamson@redhat.com>
- <ZLW8wEzkhBxd0O0L@ziepe.ca>
- <20230717165203.4ee6b1e6.alex.williamson@redhat.com>
+ Tue, 18 Jul 2023 19:09:42 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TqvBsY/c0Gz4MwXn3MetyT7Y90gc8d8s9SNUF7nqR7GKSzJUVZ6g2doGpGyr3n+SnuY5lcMU7EAiIZ5OteKWBYeJbLUUfbF1ffKFZ4jEPdRBW78sVS2F0iecZyBfH4hvqMiHSUGR5FW6h8X8BMRD82hXkJ/DdsYaO/yxKcbt7mrdO/pbew9Ap0bnDj8SGqonMf3xESmNKa2nzv17fVSrQ6z19pCpLgJnAzBAcS1MvX9VvbkJBCAb0vHm0g1kVwViO60XFYnasKNDhGGRpUOjGFdc4T+23/w3LU3Ikxh8EuyuITXI2XjQ09wdqPG1xHHQnfEK/EIGxHOrbmHZgfM5gw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9dNZTb3OeiTLZa3ToEnzWZenVBSb6Y9VIKFbHM8m9oM=;
+ b=iSAHeopQCJjKdgZiQprETDtCrXB1Oh/ywNIJRNWnOM2isBLvbtg5S6jx3jGYDyi1krJtNtMomTY/3pAR/hgkqXp2XqT2qErao45AQ/tGOhMRfIia34vA5z2fWDPq7zx97ErrdJFqLh3Wd9JbdQmIuqwnYhXX9eTLhe/noe9sSikAS845OpRqvupFSsCJCJD9sI87a/YZZ9iggeXC9cG/bqwhoBd6GuUfwSz1YclkFJ0DxpnkG1zmZ1SGp79OkbAS8WDHa+v89KhRjUeNl1/iYGFF04KspaKRG+KvTzjlBDkJijfCuaAzNZuVo6wtUHyzPpHgEElUcMf3DOematF+pA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=davemloft.net smtp.mailfrom=amd.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=amd.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9dNZTb3OeiTLZa3ToEnzWZenVBSb6Y9VIKFbHM8m9oM=;
+ b=YYSxPlMh0pZ2uisGiEUI7L3jmfnlcioaK/4a1Q2Q6kwpOVZ/loeHS3k1/OCRb75y8TjbaSvyhz6jupwgKtAi5R+FWqapOh6nlaKJSjV3vEjzEjezxoz8jHCwzP+Xmm/CdeWkQFvJsANi1opVPDgaMvTyxoHKLyF0QVGOofUvD/g=
+Received: from MWH0EPF00056D05.namprd21.prod.outlook.com
+ (2603:10b6:30f:fff2:0:1:0:e) by IA1PR12MB8540.namprd12.prod.outlook.com
+ (2603:10b6:208:454::20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6609.23; Tue, 18 Jul
+ 2023 19:09:39 +0000
+Received: from CO1NAM11FT015.eop-nam11.prod.protection.outlook.com
+ (2a01:111:f400:7eab::209) by MWH0EPF00056D05.outlook.office365.com
+ (2603:1036:d20::b) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.8 via Frontend
+ Transport; Tue, 18 Jul 2023 19:09:38 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ CO1NAM11FT015.mail.protection.outlook.com (10.13.175.130) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6588.34 via Frontend Transport; Tue, 18 Jul 2023 19:09:37 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.23; Tue, 18 Jul
+ 2023 14:09:35 -0500
+To: <shannon.nelson@amd.com>, <davem@davemloft.net>, <netdev@vger.kernel.org>, 
+ <kuba@kernel.org>, <mst@redhat.com>, <jasowang@redhat.com>,
+ <virtualization@lists.linux-foundation.org>
+Subject: [PATCH RFC net] virtio-net: add timeout for virtnet_send_command()
+Date: Tue, 18 Jul 2023 12:09:20 -0700
+Message-ID: <20230718190920.53544-1-shannon.nelson@amd.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230717165203.4ee6b1e6.alex.williamson@redhat.com>
-Cc: linux-aio@kvack.org, Muchun Song <muchun.song@linux.dev>,
- Tony Krowiak <akrowiak@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>,
- Paul Durrant <paul@xen.org>, Tom Rix <trix@redhat.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, dri-devel@lists.freedesktop.org,
- Michal Hocko <mhocko@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
- linux-mm@kvack.org, Kirti Wankhede <kwankhede@nvidia.com>,
- netdev@vger.kernel.org, Vineeth Vijayan <vneethv@linux.ibm.com>,
- Diana Craciun <diana.craciun@oss.nxp.com>, Borislav Petkov <bp@alien8.de>,
- Alexander Gordeev <agordeev@linux.ibm.com>, Fei Li <fei1.li@intel.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Marcin Wojtas <mw@semihalf.com>,
- Arnd Bergmann <arnd@arndb.de>, Leon Romanovsky <leon@kernel.org>,
- Harald Freudenberger <freude@linux.ibm.com>, x86@kernel.org,
- Halil Pasic <pasic@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>,
- Moritz Fischer <mdf@kernel.org>, Frederic Barrat <fbarrat@linux.ibm.com>,
- Xu Yilun <yilun.xu@intel.com>, linux-fpga@vger.kernel.org,
- Zhi Wang <zhi.a.wang@intel.com>, Wu Hao <hao.wu@intel.com>,
- Jason Herne <jjherne@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Andrew Donnellan <ajd@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- linux-s390@vger.kernel.org, Dominik Behr <dbehr@chromium.org>,
- intel-gfx@lists.freedesktop.org, Sean Christopherson <seanjc@google.com>,
- Eric Auger <eric.auger@redhat.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Shakeel Butt <shakeelb@google.com>, kvm@vger.kernel.org,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, cgroups@vger.kernel.org,
- Thomas Gleixner <tglx@linutronix.de>,
- virtualization@lists.linux-foundation.org, intel-gvt-dev@lists.freedesktop.org,
- io-uring@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
- Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
- Christian Brauner <brauner@kernel.org>, Grzegorz Jaszczyk <jaz@semihalf.com>,
- Oded Gabbay <ogabbay@kernel.org>, linux-usb@vger.kernel.org,
- Peter Oberparleiter <oberpar@linux.ibm.com>, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, Benjamin LaHaise <bcrl@kvack.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Sven Schnelle <svens@linux.ibm.com>,
- Johannes Weiner <hannes@cmpxchg.org>, linux-fsdevel@vger.kernel.org,
- Paolo Bonzini <pbonzini@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
- linuxppc-dev@lists.ozlabs.org, Pavel Begunkov <asml.silence@gmail.com>
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1NAM11FT015:EE_|IA1PR12MB8540:EE_
+X-MS-Office365-Filtering-Correlation-Id: 632b315b-671b-40ed-8757-08db87c28834
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: LKsp7iSF/U/L3AToxHwqruHRRHfhgOXG4l14E0+3EVLvJd6yOCIxSplFgtteTvUFeRpUdDdQNH2CLbfCvc94pgUtVG9oFpdaseNvrQcHirm4L8FV19XGgFVCf0ixFZyNLUr0e1T9n6ztSacHiAjAL9PVrZz1RpY7x/sbVLVgPu4/x+oI1xPHOhCNsnXac6Vl16fK31AGb5eW2BpUJnim4YzlLkYD7DXfk8Adcpiw4/jUyRT+2p7hyU05by+UWKTU7Xo2Ty3I8Ai1n4R64CRYyJyzfz4QOxY2jz4MXHVldSU8PgPy3Nben+oaKTUnDO6bx2nUk9oh1Md9dIUbaMM5gK7kEXULF84REm7GGSVOpn8H2is91DfBHxxNmpF577qDaGbf26G9fuLFYMf1J7PCfuswHqSJK96fSap/EZ0GrNQ0xc8aaxiS+nQlfvYxZeBmEFuLI0srTuGnTJHE7l/c7tX3UdbyKAJAf8THfo0Hs9si5qZvz6GvaGefJ9uIlGqgCW+dtbLqRXgNQBE9d+ILhGCdoKjTIxw+yzmOLbKcn8In5gb8zUvL/Og9WLDhn+3wTIQJo8+VfCZNJBmDk9JnLaazd4EbA2fr/RTh1F7LFN8579MuwaGj5ZEOBf7yRp76Kgthx3eetpajt5yyVFX6gWhd92Y9gXr4BtGlHQT0z79sf272IDDsxFDeHrBVAAUKplPKFGtBWcAYQD1l4jc/Xhi/e98MLh9ictgLhC0V6BiYT+tcflnMPn06gxy8I+JcJ+GaA+/4MvCSJ9CUSNjP1A==
+X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
+ SFS:(13230028)(4636009)(39860400002)(396003)(376002)(346002)(136003)(82310400008)(451199021)(40470700004)(36840700001)(46966006)(2906002)(44832011)(8936002)(8676002)(4326008)(316002)(41300700001)(5660300002)(966005)(26005)(336012)(1076003)(36756003)(186003)(70586007)(70206006)(478600001)(6666004)(110136005)(16526019)(40460700003)(54906003)(83380400001)(47076005)(2616005)(426003)(36860700001)(82740400003)(81166007)(356005)(40480700001)(86362001)(36900700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jul 2023 19:09:37.9887 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 632b315b-671b-40ed-8757-08db87c28834
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
+ Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT015.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8540
+Cc: drivers@pensando.io, brett.creeley@amd.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -150,46 +133,67 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Shannon Nelson via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Shannon Nelson <shannon.nelson@amd.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 17, 2023 at 04:52:03PM -0600, Alex Williamson wrote:
-> On Mon, 17 Jul 2023 19:12:16 -0300
-> Jason Gunthorpe <jgg@ziepe.ca> wrote:
-> 
-> > On Mon, Jul 17, 2023 at 01:08:31PM -0600, Alex Williamson wrote:
-> > 
-> > > What would that mechanism be?  We've been iterating on getting the
-> > > serialization and buffering correct, but I don't know of another means
-> > > that combines the notification with a value, so we'd likely end up with
-> > > an eventfd only for notification and a separate ring buffer for
-> > > notification values.  
-> > 
-> > All FDs do this. You just have to make a FD with custom
-> > file_operations that does what this wants. The uAPI shouldn't be able
-> > to tell if the FD is backing it with an eventfd or otherwise. Have the
-> > kernel return the FD instead of accepting it. Follow the basic design
-> > of eg mlx5vf_save_fops
-> 
-> Sure, userspace could poll on any fd and read a value from it, but at
-> that point we're essentially duplicating a lot of what eventfd provides
-> for a minor(?) semantic difference over how the counter value is
-> interpreted.  Using an actual eventfd allows the ACPI notification to
-> work as just another interrupt index within the existing vfio IRQ
-> uAPI.
+When trying to talk to a device that has gone out to lunch, the
+virtnet_send_command() will sit and spin forever, causing a soft
+lockup and eventually crashing the kernel.  Add a limit to the
+spin and return false if we hit the timeout.  The 2 second time
+limit seems a bit arbitrary, but a reasonable place to start.
 
-Yes, duplicated, sort of, whatever the "ack" is to allow pushing a new
-value can be revised to run as part of the read.
+This is a little more brute force than Jason's suggestions in [1],
+but at least prevents the soft lockups and eventual kernel crash
+that we were seeing in testing.
 
-But I don't really view it as a minor difference. eventfd is a
-counter. It should not be abused otherwise, even if it can be made to
-work.
+[1]: https://lore.kernel.org/netdev/20230524081842.3060-1-jasowang@redhat.com/
 
-It really isn't an IRQ if it is pushing an async message w/data.
+Fixes: 2a41f71d3bd9 ("virtio_net: Add a virtqueue for outbound control commands")
+Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+---
+ drivers/net/virtio_net.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-Jason
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0db14f6b87d3..c3bf1c9f3244 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2264,6 +2264,8 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ {
+ 	struct scatterlist *sgs[4], hdr, stat;
+ 	unsigned out_num = 0, tmp;
++	unsigned long deadline;
++	bool timeout;
+ 	int ret;
+ 
+ 	/* Caller should know better */
+@@ -2297,11 +2299,16 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+ 	/* Spin for a response, the kick causes an ioport write, trapping
+ 	 * into the hypervisor, so the request should be handled immediately.
+ 	 */
++	deadline = jiffies + 2 * HZ;
++	timeout = false;
+ 	while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+-	       !virtqueue_is_broken(vi->cvq))
++	       !virtqueue_is_broken(vi->cvq) &&
++	       !timeout) {
+ 		cpu_relax();
++		timeout = time_after(jiffies, deadline);
++	}
+ 
+-	return vi->ctrl->status == VIRTIO_NET_OK;
++	return vi->ctrl->status == VIRTIO_NET_OK && !timeout;
+ }
+ 
+ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+-- 
+2.17.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
