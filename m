@@ -1,104 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3C92EB64DD
-	for <virtualization@archiver.kernel.org>; Thu, 20 Jul 2023 20:58:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 448A6EB64DD
+	for <virtualization@archiver.kernel.org>; Thu, 20 Jul 2023 21:03:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 002CA82B2F;
-	Thu, 20 Jul 2023 20:58:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 002CA82B2F
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RO3H2Z/R
+	by smtp2.osuosl.org (Postfix) with ESMTP id E50BE41723;
+	Thu, 20 Jul 2023 21:03:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E50BE41723
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LW52BvQT
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1Qn5rzcukh8P; Thu, 20 Jul 2023 20:58:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8F35282343;
-	Thu, 20 Jul 2023 20:58:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F35282343
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VmmXqxyf8uy4; Thu, 20 Jul 2023 21:03:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4D0984172C;
+	Thu, 20 Jul 2023 21:03:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4D0984172C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 666FCC0071;
-	Thu, 20 Jul 2023 20:58:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0C581C0071
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 137DDC0071;
+	Thu, 20 Jul 2023 21:03:13 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 193E9C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 20:58:35 +0000 (UTC)
+ Thu, 20 Jul 2023 21:03:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DEB608234B
+ by smtp2.osuosl.org (Postfix) with ESMTP id E675241731
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 20:58:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DEB608234B
+ Thu, 20 Jul 2023 21:03:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E675241731
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id O4pVAwO9OqxV
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7ASe1IBETJ3c
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 20:58:28 +0000 (UTC)
+ Thu, 20 Jul 2023 21:03:10 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 81C55820ED
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F362341733
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 20:58:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 81C55820ED
+ Thu, 20 Jul 2023 21:03:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F362341733
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689886707;
+ s=mimecast20190719; t=1689886989;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=4dqf8Jjm5t/QS+Vt8DTpJf/dAD7LQ0qakHIdy8mWAJw=;
- b=RO3H2Z/RUem8b7nhHy0BjzBFtHj8C5zxvI2waCg/Yi1a8TJHJO/xxE/sbUjoIePXJ+mDaV
- wY8aQDZ8UQwI/spjzHsY4Hp/l5h0UgwEdzqgMTF/U10NiuMbU2tBjR6ZNZwqNC86CFBYpP
- G1gu+GJ3OFNX95L1vcn3iv9hgLPMjlI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=QxbwNNsUJXE4WSdo9/9FQ7rzSbFKTC0HO55OeJQjfDA=;
+ b=LW52BvQTNkSQ8a+7oCTsL3qQ32QZB4Iy2vxH1a3Rfte2vqX9kKHhjn/MyfGLeBDcvZmYDt
+ hApSl5QD6XvJB5g53yS5Bvi6SuVcA2VCntoue92K5xfTF01g9BayxB1jXeJXqmOQpMRABx
+ KJvbWBv8Rdr2DNznerdVXznxBgqvgUw=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-28-SvNj0ZVJPcmImUrG69YhAg-1; Thu, 20 Jul 2023 16:58:24 -0400
-X-MC-Unique: SvNj0ZVJPcmImUrG69YhAg-1
-Received: by mail-wr1-f72.google.com with SMTP id
- ffacd0b85a97d-315a03cae87so1067887f8f.0
+ us-mta-356-IalJWEiUPNOBnR06_1UktQ-1; Thu, 20 Jul 2023 17:03:07 -0400
+X-MC-Unique: IalJWEiUPNOBnR06_1UktQ-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ 38308e7fff4ca-2b934194964so12814621fa.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 13:58:24 -0700 (PDT)
+ Thu, 20 Jul 2023 14:03:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689886703; x=1690491503;
+ d=1e100.net; s=20221208; t=1689886985; x=1690491785;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=4dqf8Jjm5t/QS+Vt8DTpJf/dAD7LQ0qakHIdy8mWAJw=;
- b=V6aDZpmYjzTYQIkoFqEvZRN9Nv7Fp9HhKhs8zX5BxZJRjkZSvZKkKd2ZsxjIfjXflL
- p1yvaKB4VWUiBn1tnqdzCJJ4HJcZUukES5kbN9OBRb+4iNkh5fmef0Spn+p9Z1KXnSI6
- PeCjuzTzGH7zO2fDGaMThb7XpPTnuEofZLt6AxumIJMET8rONBDAEiKJ5cMMzVy4bbcG
- bCl4rn3V9JN6R+o/qL8eqPCskYnMvazKXv1z1EJ+7LjfE7DyWst+xq8lVBuLgcqg0SP3
- UfB25z2vfho/6+yxt9M6Nij8+lbEvfgBP67ptelxdqZpFpJNc+rgnh1cO9TnWY1b4Bkl
- plMg==
-X-Gm-Message-State: ABy/qLaORM/9cWrpA3Ve3Qo6oKS98ChqjjOMIwfjysPb4Pw4QQ1RBSbZ
- zHvxyZjmDmjLSUHso2Xj7nLcF3Ua5Nm3zzspoOqzGK9Q7MYSFa/Y8Nva9QpZNkdoXSRDYFjtyK2
- qykrJm8iNoamCvMNwECr7e471xT2+TcmYL4qPpEai8A==
-X-Received: by 2002:adf:fc48:0:b0:314:77a:c2a6 with SMTP id
- e8-20020adffc48000000b00314077ac2a6mr24899wrs.25.1689886703220; 
- Thu, 20 Jul 2023 13:58:23 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlGGGVPES+OLvpID+VHOy6r8D1EwH01kkL+pN8O6wPgr+LrofdyHrBq3n7dIj/lcIXZPoNV3xA==
-X-Received: by 2002:adf:fc48:0:b0:314:77a:c2a6 with SMTP id
- e8-20020adffc48000000b00314077ac2a6mr24892wrs.25.1689886702902; 
- Thu, 20 Jul 2023 13:58:22 -0700 (PDT)
+ bh=QxbwNNsUJXE4WSdo9/9FQ7rzSbFKTC0HO55OeJQjfDA=;
+ b=O69KvAtwjhIx8zUPgfKyV8K9nqBc4/kvOgNYAY/ZO2DJ6BWKHr6+tg7pGxB3rwIwQZ
+ uF4E5+1mBwFhqNTQaiLm7tj/LJ/2Hs05r9pu8ait5/AbEvF8vkrdlTnmQm0P8rNrhWvn
+ EsEVAsPL1MmEUIwHICiWon71sfpJLbGr9B+0G/CayiouNST3qOFIMWfoLLD8P2M4wi2t
+ aP7hVeHC3X2Y4mZcL0HL8lfkczYdIFnDPZrBicXc1o6KVNtqUu/t0dy9spczd4P1AEjy
+ GZmeaLV/ruWt5Xdok/akwGnuLtNHdwW5OZnHYUDTAiE6GfZ6WGrVhlw/e3jO7xGYOV5M
+ wC/A==
+X-Gm-Message-State: ABy/qLaek+/tJHPKTJenU7QlW7lL+Mk5TZoynryyMCpBSTAnpOVTmZ/e
+ zSD7hiAo626L+h/GepgM8h9AFwI44YL5kT4GDJpP4TjMR9TltWw9wlrwhUq+UZwXJn9pz7m2PX1
+ eDql14hwh30XpsI4I28EUKyikfGubKQgKKAruBxIgQg==
+X-Received: by 2002:a2e:9dcf:0:b0:2b6:dbc5:5ca4 with SMTP id
+ x15-20020a2e9dcf000000b002b6dbc55ca4mr86339ljj.16.1689886985701; 
+ Thu, 20 Jul 2023 14:03:05 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlGkO9895VB0oEJzz7Mt1u7LjrPYNqoemBmNFeHR6tqktWs0kblZ6OrDWTCIs6FgX5K3EX736g==
+X-Received: by 2002:a2e:9dcf:0:b0:2b6:dbc5:5ca4 with SMTP id
+ x15-20020a2e9dcf000000b002b6dbc55ca4mr86325ljj.16.1689886985355; 
+ Thu, 20 Jul 2023 14:03:05 -0700 (PDT)
 Received: from redhat.com ([2.52.16.41]) by smtp.gmail.com with ESMTPSA id
- h9-20020a5d6889000000b0031432c2fb95sm2275327wru.88.2023.07.20.13.58.20
+ 9-20020a05600c248900b003fbb618f7adsm1982153wms.15.2023.07.20.14.03.00
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 20 Jul 2023 13:58:22 -0700 (PDT)
-Date: Thu, 20 Jul 2023 16:58:18 -0400
+ Thu, 20 Jul 2023 14:03:04 -0700 (PDT)
+Date: Thu, 20 Jul 2023 17:02:58 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Shannon Nelson <shannon.nelson@amd.com>
 Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
  command waiting loop
-Message-ID: <20230720164930-mutt-send-email-mst@kernel.org>
+Message-ID: <20230720170001-mutt-send-email-mst@kernel.org>
 References: <20230720083839.481487-1-jasowang@redhat.com>
  <20230720083839.481487-3-jasowang@redhat.com>
- <b949697e-319a-7cc1-84d8-1391713fa645@amd.com>
+ <e4eb0162-d303-b17c-a71d-ca3929380b31@amd.com>
 MIME-Version: 1.0
-In-Reply-To: <b949697e-319a-7cc1-84d8-1391713fa645@amd.com>
+In-Reply-To: <e4eb0162-d303-b17c-a71d-ca3929380b31@amd.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -122,7 +122,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 20, 2023 at 08:31:13AM -0700, Shannon Nelson wrote:
+On Thu, Jul 20, 2023 at 01:26:20PM -0700, Shannon Nelson wrote:
 > On 7/20/23 1:38 AM, Jason Wang wrote:
 > > 
 > > Adding cond_resched() to the command waiting loop for a better
@@ -131,6 +131,18 @@ On Thu, Jul 20, 2023 at 08:31:13AM -0700, Shannon Nelson wrote:
 > > not allowed on a device whose CVQ might be slow.
 > > 
 > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> This still leaves hung processes, but at least it doesn't pin the CPU any
+> more.  Thanks.
+> Reviewed-by: Shannon Nelson <shannon.nelson@amd.com>
+> 
+
+I'd like to see a full solution
+1- block until interrupt
+2- still handle surprise removal correctly by waking in that case
+
+
+
 > > ---
 > >   drivers/net/virtio_net.c | 4 +++-
 > >   1 file changed, 3 insertions(+), 1 deletion(-)
@@ -148,19 +160,6 @@ On Thu, Jul 20, 2023 at 08:31:13AM -0700, Shannon Nelson wrote:
 > > +               cond_resched();
 > >                  cpu_relax();
 > > +       }
-> 
-> The cover letter suggests that this addresses the infinite poll for buggy
-> devices, but I don't see how that is resolved here.  This should make it a
-> little nicer to the system, but it still is going to poll forever on a
-> device that has gone catatonic.  Is there a reason that I'm missing that we
-> don't have a polling limit here?
-> 
-> sln
-
-we don't know what the limit would be. but given it's a workqueue
-now, why does it still have to poll as opposed to blocking?
-
-
 > > 
 > >          return vi->ctrl->status == VIRTIO_NET_OK;
 > >   }
