@@ -4,108 +4,152 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B3B3EB64DA
-	for <virtualization@archiver.kernel.org>; Thu, 20 Jul 2023 13:06:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 489B0EB64DC
+	for <virtualization@archiver.kernel.org>; Thu, 20 Jul 2023 15:31:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 89B9240126;
-	Thu, 20 Jul 2023 13:06:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 89B9240126
+	by smtp2.osuosl.org (Postfix) with ESMTP id C6327416BD;
+	Thu, 20 Jul 2023 15:31:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C6327416BD
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SPY3aXcB
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=wO0Rt7CN
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EtdcWUCvy2b0; Thu, 20 Jul 2023 13:06:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C57C1400D9;
-	Thu, 20 Jul 2023 13:06:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C57C1400D9
+	with ESMTP id P46NeU2MxB6P; Thu, 20 Jul 2023 15:31:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 246D7416C3;
+	Thu, 20 Jul 2023 15:31:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 246D7416C3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57E59C0071;
-	Thu, 20 Jul 2023 13:06:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 05236C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E0607C0072;
+	Thu, 20 Jul 2023 15:31:24 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 94292C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 13:06:23 +0000 (UTC)
+ Thu, 20 Jul 2023 15:31:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BFEB961162
+ by smtp4.osuosl.org (Postfix) with ESMTP id EF84241C33
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 13:06:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BFEB961162
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=SPY3aXcB
+ Thu, 20 Jul 2023 15:31:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EF84241C33
+Authentication-Results: smtp4.osuosl.org; dkim=pass (1024-bit key,
+ unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
+ header.s=selector1 header.b=wO0Rt7CN
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OPoypgGS0s5d
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tR-q1SdoTG2t
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 13:06:21 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 943A860B0F
+ Thu, 20 Jul 2023 15:31:20 +0000 (UTC)
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam11on20600.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eae::600])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 51E7441C2B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 13:06:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 943A860B0F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1689858380;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=v6rTOLJG5GaCR/Syt3QSVmsmEmhVSwYUTFKI/e0y0Dg=;
- b=SPY3aXcBp/oYLosVSMAjOl/lbamctzn6UqGdfc5iEs+tljh17PC30//5UxUJfx7Ltq7yCE
- 7my0lnMYG6Xw4ahB/59ZLjQAuq18iAwVhAYveZec3/H65wYUX7YZVd7dyCbnmC4Tb5+ZCJ
- 6HQpU3AxhrlJikIrOC8MENupQsRmWfE=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-22-6JU__6ceM5SwJcLKbMIDag-1; Thu, 20 Jul 2023 09:06:19 -0400
-X-MC-Unique: 6JU__6ceM5SwJcLKbMIDag-1
-Received: by mail-wr1-f71.google.com with SMTP id
- ffacd0b85a97d-2f2981b8364so475143f8f.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Jul 2023 06:06:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1689858373; x=1690463173;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=v6rTOLJG5GaCR/Syt3QSVmsmEmhVSwYUTFKI/e0y0Dg=;
- b=McK8TmWqSllw91T7qK5Notedxa/r8YCxFzjmREka/tic1IkLumGjVIjPtGNgGdGyVm
- 6cglUgWBpFAJp+DPTsXx44POf8/sVwNbDSnYuBsazBvbZr34Ku3rm3hig0TptfodlVH9
- HUVu8oYE0+rpRz1N0/oWcIza6ZsEM3v8RpoojeeOAcHHuigrtJ5unWsaDrtoZfmO85LM
- QEjXMTm84g0MkSZSzGmllDOWv2vxGXNKB6dTPqq7TYcFYb3huogp3AuoArmUkj5U/wSr
- b1kjD3bJr//ATp88sW2V4BUpKYDNRdmDRFA4RG25QQ559tbuj3ZKkwQyGyoddQza23KY
- 60Nw==
-X-Gm-Message-State: ABy/qLZ+d9iG4sBanjGV/XEtnmRBBRXp+VRLxutrg2E4G1HfdGcdK1XZ
- imOUIQPuof+x/1wxFL6rMttpg3BmlW3sqKkjez7wYIKQL4TcbdTEt3sfjtwl5rwYQSRhBAD+VQa
- EKcF4v1zWSn2ooEtwiK197T0xN8GTWKVykccsjPvD8w==
-X-Received: by 2002:a5d:58ca:0:b0:315:9fb7:bd9 with SMTP id
- o10-20020a5d58ca000000b003159fb70bd9mr2202718wrf.69.1689858372896; 
- Thu, 20 Jul 2023 06:06:12 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHTgv95ZuZpJ+dS1+P8teYo17qW+QbhpAI5TLWY/ih9MRHnsEEtjG3hxKcAUvUNkKjRmXY92A==
-X-Received: by 2002:a5d:58ca:0:b0:315:9fb7:bd9 with SMTP id
- o10-20020a5d58ca000000b003159fb70bd9mr2202694wrf.69.1689858372498; 
- Thu, 20 Jul 2023 06:06:12 -0700 (PDT)
-Received: from redhat.com ([2.52.16.41]) by smtp.gmail.com with ESMTPSA id
- o5-20020a5d6845000000b0031435731dfasm1311009wrw.35.2023.07.20.06.06.10
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 20 Jul 2023 06:06:11 -0700 (PDT)
-Date: Thu, 20 Jul 2023 09:06:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH v11 8/8] vhost: use vhost_tasks for worker threads
-Message-ID: <20230720090415-mutt-send-email-mst@kernel.org>
-References: <20230202232517.8695-1-michael.christie@oracle.com>
- <20230202232517.8695-9-michael.christie@oracle.com>
+ Thu, 20 Jul 2023 15:31:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 51E7441C2B
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ACL2U6ttH/silbP8YMOMleM68SQYCTnYYE0FbNiHqYh+5kIRnGOJ9AamSzBUBue223cgbl6T3khEublX/zQe2kVE9xOMXaRVp1+QHOEJdzu1SbGEuY1pT8EtijALwLbb2sitqqwdyIK9krHuXoffT0FNgGJgG6MXg3pHxT5z04jk6VBYH4+CLdBQrRqpv90wvl8MET06rHQuPQpcshrJthZsiqQ/DpWN4w+c7cIS03rpChGTXd1+hOXuvbO7CUrmYX+pwHOxlqWMu6T+xJ0+N54M8W38DvxF8Ngd+M2mMfxRp7mXvt4ZnXqYfU+8cu6pP9poxY2ypRwnDRF1ow0big==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=n/iIcRKzljZTnndxDMQNNGl2MLSHJ0aui+qRbAwspLg=;
+ b=gvd4ypht+KXuQFbbKMXQumIlUG7Jcq33jLzNCbXkPpRc+x2mcwokrv4O0/ciVIiSMMDklpQZs4wmjES8QXR9ZTp3+bT/G0A0R3k9yujSuIBMZCeDzXIwJkSpG0MThaNvTdW/sa9/Bsn0r+96mFwoFmBmCHLq+Z5WF8FO/39b1dNRnBtLcJoit1zNOdzJ/aro9NbnWI+f/E7nBx8ebBGp9Y8iMacggKDRlCjzRGXbWcBWbCZh1o+4XV//boSUSzDAjXoX9g5KVaL+ApGFbhGUsh67R16QpQBu03pvRSCyBhEV/6gGjGgvDCPwHX/VHVk+tH3mTKP5BAGGv7tsZ0ehSw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n/iIcRKzljZTnndxDMQNNGl2MLSHJ0aui+qRbAwspLg=;
+ b=wO0Rt7CN1Q7qGEX5LYxKozBV+n8gaKXKQ+YMmOBSPnIbJv1G/p9UF5WvdHqF1ycWFzKWplXISvpecB6QOzAXUJ/w04AliJUK2eoJToRfMmxbmt40pGG1Q/wYTXS1Ccg1f2M/UOUSodxGK7LCpwqRdgRqebWU3UQDPlafPUEGuOw=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com (2603:10b6:8:d1::12) by
+ SJ2PR12MB9210.namprd12.prod.outlook.com (2603:10b6:a03:561::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.27; Thu, 20 Jul
+ 2023 15:31:17 +0000
+Received: from DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::bf76:da18:e4b4:746b]) by DS0PR12MB6583.namprd12.prod.outlook.com
+ ([fe80::bf76:da18:e4b4:746b%7]) with mapi id 15.20.6609.024; Thu, 20 Jul 2023
+ 15:31:17 +0000
+Message-ID: <b949697e-319a-7cc1-84d8-1391713fa645@amd.com>
+Date: Thu, 20 Jul 2023 08:31:13 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.12.0
+Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
+ command waiting loop
+Content-Language: en-US
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com,
+ xuanzhuo@linux.alibaba.com
+References: <20230720083839.481487-1-jasowang@redhat.com>
+ <20230720083839.481487-3-jasowang@redhat.com>
+In-Reply-To: <20230720083839.481487-3-jasowang@redhat.com>
+X-ClientProxiedBy: BYAPR07CA0031.namprd07.prod.outlook.com
+ (2603:10b6:a02:bc::44) To DS0PR12MB6583.namprd12.prod.outlook.com
+ (2603:10b6:8:d1::12)
 MIME-Version: 1.0
-In-Reply-To: <20230202232517.8695-9-michael.christie@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: brauner@kernel.org, konrad.wilk@oracle.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- ebiederm@xmission.com, stefanha@redhat.com, torvalds@linux-foundation.org
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR12MB6583:EE_|SJ2PR12MB9210:EE_
+X-MS-Office365-Filtering-Correlation-Id: db36a43b-c27e-4b3e-a194-08db89365c05
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: aUaGBNE67ha57Y09AAxLC0rqrzWzQhb3XJLxacr6WnlxkYXs9BwaRIdN6JcAvbHEUmoAov8O48o7ffKIb7cyV+s580vrU8L0Gm0f1ncwN2c3Dl3o9VxsXNqQc2Zj8z3JYbtwfLxLSXdj2iFvaLqcyz7iZbc9f5jxb5sdwIs8P7L7NPI2GyzhIJ3KwGWqQPBaASEJScgB6DMlDK2duNNxHDpiYdaRJK/tAg98ujoOn1B5O4j3JrwKDCZUIq5QW9Y8kSDwsn+h46Ga6glncuVSN7RgffeFVOL8ivh3X47b05HEeUwXO0zNGWP3BHyAQWRl9SxlBOQtizNpH1S6IY6Z89ZQl/qv6/F0/Tc4T1JSagw5Lfiryn8Ye+ijF08fMOYqB8h8Z04cQ5jQT1UtG0cEKOedg6XuM6ttR08vfpwvcnpeinfn3okqDz4h+FWNuA2Fe1YWqkL3LtgjY3B6xufZ5UtuIQ9ENI+vhQzIQ4Ln9O/49hxV40peNwOKFq3muo1uwWNIF/9Z/XJVQdyP3840uAlxZa5o69+27kcTQE9U3K62X2eQ6l1d8W7PU19Zj2/jzcLmVz36BYysGJmElqB9zelV3vnrrzPJ0MloQAErw1Z9AFGOsPCPJIjsNpymWyzt+7FH6ez/Z4PDy7F5Isochw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DS0PR12MB6583.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(4636009)(39860400002)(346002)(136003)(396003)(376002)(366004)(451199021)(2906002)(86362001)(38100700002)(31696002)(83380400001)(26005)(5660300002)(6512007)(186003)(53546011)(6506007)(2616005)(316002)(6666004)(44832011)(36756003)(8936002)(478600001)(41300700001)(6486002)(8676002)(4326008)(66946007)(66556008)(7416002)(66476007)(966005)(31686004)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SUloTUdBMVdJVExlcVN0bTMxbGdFS0hzc1BJN3FvL1l1bzR3US9ub3BmcWJm?=
+ =?utf-8?B?OE1ZUXYrSXA5T3h6SUpZVWU3bTNlbXpRcWpCWmhmZjNLazlmZEtiT3hlR2hi?=
+ =?utf-8?B?TUdQc2pyZ1VrTWtRMHdlcGp4Yi81NjgxS3JzSTJFRVZsZjB0R1ZyOWRmSHli?=
+ =?utf-8?B?TjRiZWJhVm9kcDVrdmpMSjZvZU9nNGJBZklaWVRxMHpkdGVoQzFZZ3V0SXF2?=
+ =?utf-8?B?UWI5VU80TFlCNU0zcWhpdmcwTTVaa3NrSS9NeXVPOG5hTlNZcFJBSmdWQ2o1?=
+ =?utf-8?B?ZTM4V3FSdDRBeFA1Tk1xQ1lSc2F2VkpCcTRqRVVaR0tnTksrcWZUZTRvTzZ5?=
+ =?utf-8?B?UVppNkpSSDAySWppSWhuNWhNWUNkalBFZDM3ZlpxbzRZZEd1eERlQUROZlE5?=
+ =?utf-8?B?NlJqNElKVkt5K3BOaVBzbGpIRGhYbXk4aVZZcmdSMnpJa3I5RWUwZGVyVXhD?=
+ =?utf-8?B?UGtlTnV2VDRUaksxVGJ1SC9raUlVQ3dBZHNDelVNSCsybnp3Nk9hNTRtRDUv?=
+ =?utf-8?B?RU9hcFgvQVZuamo1aUNLT1dGUWJ4MzhZODkrOE5QeTZDd1pLS2RuUHBMN285?=
+ =?utf-8?B?eXBrN3ZydVBuQlBRUXhpcytaT2Y5R0FwdjM1NFlkelBPVU5vRGZaWkl2a0JY?=
+ =?utf-8?B?d3VOeDBBS0RKUjBaVXNyekEwS01tRkpqd3pVbko3TUFPRlFqd0VjMDdWZjZM?=
+ =?utf-8?B?a1J4ZG5QM2dIeVFXS1hxYWN6NVZWeUJvR2hhNXZvUlE0Ri81TzV0ZWV4anEz?=
+ =?utf-8?B?SEk4RkxPT0dGZFpzVEdjMjBSbTNaeHZPRm9JMnZtS0VjSEFENnErOURTZ2Fw?=
+ =?utf-8?B?VW5uRnZzU09xN21FcS9KU3BZR3hCenp2SGdYRndzc3FXWU5SVis2U0NiV0Q5?=
+ =?utf-8?B?VEM4OHgrNXRZVjh0a2N0SUtIYys4WVpWZDBsMzZFdytSd2NVV1pFK1N1ZlVp?=
+ =?utf-8?B?OW5VK3VwRW1MR1o2U3pXcCs3VENsTHFVUTUzV3IxK0k4cnlEdmNZcm5FckJ6?=
+ =?utf-8?B?czlpS3JkaEdFZVY1Z1pYSkZaNWJUdjVsaG9ZdTd0K3IzOEpyQXhwWkJKQUcx?=
+ =?utf-8?B?QWZkTFpjOHYxUGRaTmVCSkp4L0VOSWVIb0RnN2hIYkFzQThwMHIvZ1I3cnc2?=
+ =?utf-8?B?NmJpajdBWVlxVG5ZNWV2eHNFY2o1ekUyRngvN0E0SUxtdzNkVnhhMnFPTDdj?=
+ =?utf-8?B?VnVWdklZYmdiS21rdkE1WUZldGF4am9NeXQ1b0c5bXBvOUtGekt4dkZSQWdM?=
+ =?utf-8?B?V3dFNnVxUmNiMVcvNk41MDNqUCtwRW9Qb09rVW9GcmtZb2htSFhvdVBxS2ZR?=
+ =?utf-8?B?WUFOaEhKblNFMUd0K2llLzFZVmVScUVBTTU5YzdnSTFTZnBFVHJtNzJ2aktn?=
+ =?utf-8?B?M1cxVG94SVZjUjVYY1U1a29MdG1jTU44V0pDVEdKWXp4NGROMlJxdXNibVdR?=
+ =?utf-8?B?SkNjZTd2NkFZRWEvQi9WYmtuVzlDTSt0enFPaXQzNHFzZUpETkhOUEJYV1Az?=
+ =?utf-8?B?VWVNL3NDa0lmdy93S05qVmFrUVZUY1RFd21JMlZ3bDE0d0RCMWUyeEFNNFpQ?=
+ =?utf-8?B?djJZbDFSTmpudDZVUkxIWm1RZDBGZktNSUd2TzdTMSs3ZDJjYzdpRFREdFBs?=
+ =?utf-8?B?dFdud2RqRkc5cU9SNzRWRU1wMytQckVJUHk5bFFJOURhZHNYZ2JKL3RpMmlV?=
+ =?utf-8?B?amZiV21pS3AvajU5M1J1UHVaa090NWE0RnpYQXpVcGRUK3lacHlGdVdUWS83?=
+ =?utf-8?B?Mm9rRzM3bEYzOUZqNlpIdUR5SE9tcW95dXBCNW04SE0xbGJUdkF4SHl2azl6?=
+ =?utf-8?B?bXlaRVFGcEdqT056cE04L3B6c2dXQVFwNXVEN3ZHazNya3B1Q1NFSzl0Nis2?=
+ =?utf-8?B?K1R1RFhsOG5CNk1iaU5zeE1MWnd0ODU1dXVIbFl3Z1hwdWxPaWRRMlJjVVo4?=
+ =?utf-8?B?S0dXbC9ma0Z1L2p5NnNXUmdtdTd6bE1TMnhrRGtkZlk3blZZRzR4TUkxMXNT?=
+ =?utf-8?B?dW1YcUFtSnBRU1ZtQ210WWtWNUhINjdVQ3VaMzE5Q3oxMEpqNUt6eVl0NHJW?=
+ =?utf-8?B?aGpxUUVyVFhJaUxDcVN3bVRqbDlVMWxoeTVTYXcyOUVZM0hjY2YwSzFtSGI2?=
+ =?utf-8?Q?xvNm0DTm/zTwDcdS4r40fkhKr?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: db36a43b-c27e-4b3e-a194-08db89365c05
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR12MB6583.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2023 15:31:16.9625 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GzaK6e7j3N/xq9aN0+7GumcA+cAEFPeElnjDyUQ/JvUI9kte4NRlec9rhI2XkOPTd7ZbxRiRSBLwuWSNvddgZg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9210
+Cc: pabeni@redhat.com, netdev@vger.kernel.org, maxime.coquelin@redhat.com,
+ linux-kernel@vger.kernel.org, edumazet@google.com, kuba@kernel.org,
+ virtualization@lists.linux-foundation.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,210 +161,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: Shannon Nelson via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Shannon Nelson <shannon.nelson@amd.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 02, 2023 at 05:25:17PM -0600, Mike Christie wrote:
-> For vhost workers we use the kthread API which inherit's its values from
-> and checks against the kthreadd thread. This results in the wrong RLIMITs
-> being checked, so while tools like libvirt try to control the number of
-> threads based on the nproc rlimit setting we can end up creating more
-> threads than the user wanted.
+On 7/20/23 1:38 AM, Jason Wang wrote:
 > 
-> This patch has us use the vhost_task helpers which will inherit its
-> values/checks from the thread that owns the device similar to if we did
-> a clone in userspace. The vhost threads will now be counted in the nproc
-> rlimits. And we get features like cgroups and mm sharing automatically,
-> so we can remove those calls.
+> Adding cond_resched() to the command waiting loop for a better
+> co-operation with the scheduler. This allows to give CPU a breath to
+> run other task(workqueue) instead of busy looping when preemption is
+> not allowed on a device whose CVQ might be slow.
 > 
-> Signed-off-by: Mike Christie <michael.christie@oracle.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-
-Hi Mike,
-So this seems to have caused a measureable regression in networking
-performance (about 30%). Take a look here, and there's a zip file
-with detailed measuraments attached:
-
-https://bugzilla.redhat.com/show_bug.cgi?id=2222603
-
-
-Could you take a look please?
-You can also ask reporter questions there assuming you
-have or can create a (free) account.
-
-
-
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->  drivers/vhost/vhost.c | 58 ++++++++-----------------------------------
->  drivers/vhost/vhost.h |  4 +--
->  2 files changed, 13 insertions(+), 49 deletions(-)
+>   drivers/net/virtio_net.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 74378d241f8d..d3c7c37b69a7 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -22,11 +22,11 @@
->  #include <linux/slab.h>
->  #include <linux/vmalloc.h>
->  #include <linux/kthread.h>
-> -#include <linux/cgroup.h>
->  #include <linux/module.h>
->  #include <linux/sort.h>
->  #include <linux/sched/mm.h>
->  #include <linux/sched/signal.h>
-> +#include <linux/sched/vhost_task.h>
->  #include <linux/interval_tree_generic.h>
->  #include <linux/nospec.h>
->  #include <linux/kcov.h>
-> @@ -256,7 +256,7 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
->  		 * test_and_set_bit() implies a memory barrier.
->  		 */
->  		llist_add(&work->node, &dev->worker->work_list);
-> -		wake_up_process(dev->worker->task);
-> +		wake_up_process(dev->worker->vtsk->task);
->  	}
->  }
->  EXPORT_SYMBOL_GPL(vhost_work_queue);
-> @@ -336,17 +336,14 @@ static void vhost_vq_reset(struct vhost_dev *dev,
->  static int vhost_worker(void *data)
->  {
->  	struct vhost_worker *worker = data;
-> -	struct vhost_dev *dev = worker->dev;
->  	struct vhost_work *work, *work_next;
->  	struct llist_node *node;
->  
-> -	kthread_use_mm(dev->mm);
-> -
->  	for (;;) {
->  		/* mb paired w/ kthread_stop */
->  		set_current_state(TASK_INTERRUPTIBLE);
->  
-> -		if (kthread_should_stop()) {
-> +		if (vhost_task_should_stop(worker->vtsk)) {
->  			__set_current_state(TASK_RUNNING);
->  			break;
->  		}
-> @@ -368,7 +365,7 @@ static int vhost_worker(void *data)
->  				schedule();
->  		}
->  	}
-> -	kthread_unuse_mm(dev->mm);
-> +
->  	return 0;
->  }
->  
-> @@ -509,31 +506,6 @@ long vhost_dev_check_owner(struct vhost_dev *dev)
->  }
->  EXPORT_SYMBOL_GPL(vhost_dev_check_owner);
->  
-> -struct vhost_attach_cgroups_struct {
-> -	struct vhost_work work;
-> -	struct task_struct *owner;
-> -	int ret;
-> -};
-> -
-> -static void vhost_attach_cgroups_work(struct vhost_work *work)
-> -{
-> -	struct vhost_attach_cgroups_struct *s;
-> -
-> -	s = container_of(work, struct vhost_attach_cgroups_struct, work);
-> -	s->ret = cgroup_attach_task_all(s->owner, current);
-> -}
-> -
-> -static int vhost_attach_cgroups(struct vhost_dev *dev)
-> -{
-> -	struct vhost_attach_cgroups_struct attach;
-> -
-> -	attach.owner = current;
-> -	vhost_work_init(&attach.work, vhost_attach_cgroups_work);
-> -	vhost_work_queue(dev, &attach.work);
-> -	vhost_dev_flush(dev);
-> -	return attach.ret;
-> -}
-> -
->  /* Caller should have device mutex */
->  bool vhost_dev_has_owner(struct vhost_dev *dev)
->  {
-> @@ -580,14 +552,14 @@ static void vhost_worker_free(struct vhost_dev *dev)
->  
->  	dev->worker = NULL;
->  	WARN_ON(!llist_empty(&worker->work_list));
-> -	kthread_stop(worker->task);
-> +	vhost_task_stop(worker->vtsk);
->  	kfree(worker);
->  }
->  
->  static int vhost_worker_create(struct vhost_dev *dev)
->  {
->  	struct vhost_worker *worker;
-> -	struct task_struct *task;
-> +	struct vhost_task *vtsk;
->  	int ret;
->  
->  	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
-> @@ -595,27 +567,19 @@ static int vhost_worker_create(struct vhost_dev *dev)
->  		return -ENOMEM;
->  
->  	dev->worker = worker;
-> -	worker->dev = dev;
->  	worker->kcov_handle = kcov_common_handle();
->  	init_llist_head(&worker->work_list);
->  
-> -	task = kthread_create(vhost_worker, worker, "vhost-%d", current->pid);
-> -	if (IS_ERR(task)) {
-> -		ret = PTR_ERR(task);
-> +	vtsk = vhost_task_create(vhost_worker, worker, NUMA_NO_NODE);
-> +	if (!vtsk) {
-> +		ret = -ENOMEM;
->  		goto free_worker;
->  	}
->  
-> -	worker->task = task;
-> -	wake_up_process(task); /* avoid contributing to loadavg */
-> -
-> -	ret = vhost_attach_cgroups(dev);
-> -	if (ret)
-> -		goto stop_worker;
-> -
-> +	worker->vtsk = vtsk;
-> +	vhost_task_start(vtsk, "vhost-%d", current->pid);
->  	return 0;
->  
-> -stop_worker:
-> -	kthread_stop(worker->task);
->  free_worker:
->  	kfree(worker);
->  	dev->worker = NULL;
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index 2f6beab93784..3af59c65025e 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -16,6 +16,7 @@
->  #include <linux/irqbypass.h>
->  
->  struct vhost_work;
-> +struct vhost_task;
->  typedef void (*vhost_work_fn_t)(struct vhost_work *work);
->  
->  #define VHOST_WORK_QUEUED 1
-> @@ -26,9 +27,8 @@ struct vhost_work {
->  };
->  
->  struct vhost_worker {
-> -	struct task_struct	*task;
-> +	struct vhost_task	*vtsk;
->  	struct llist_head	work_list;
-> -	struct vhost_dev	*dev;
->  	u64			kcov_handle;
->  };
->  
-> -- 
-> 2.25.1
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 9f3b1d6ac33d..e7533f29b219 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -2314,8 +2314,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>           * into the hypervisor, so the request should be handled immediately.
+>           */
+>          while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+> -              !virtqueue_is_broken(vi->cvq))
+> +              !virtqueue_is_broken(vi->cvq)) {
+> +               cond_resched();
+>                  cpu_relax();
+> +       }
 
+The cover letter suggests that this addresses the infinite poll for 
+buggy devices, but I don't see how that is resolved here.  This should 
+make it a little nicer to the system, but it still is going to poll 
+forever on a device that has gone catatonic.  Is there a reason that I'm 
+missing that we don't have a polling limit here?
+
+sln
+
+> 
+>          return vi->ctrl->status == VIRTIO_NET_OK;
+>   }
+> --
+> 2.39.3
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
