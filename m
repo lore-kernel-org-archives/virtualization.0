@@ -1,121 +1,134 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0F1F0C0015E
-	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 18:40:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81A89C04A94
+	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 18:51:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A2C3A83417;
-	Wed, 26 Jul 2023 18:40:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A2C3A83417
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d85sRr3e
+	by smtp3.osuosl.org (Postfix) with ESMTP id EF53B612B1;
+	Wed, 26 Jul 2023 18:51:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF53B612B1
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=dgxyj9A/
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SJA3Og6cnhA2; Wed, 26 Jul 2023 18:51:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5EA8B607E1;
+	Wed, 26 Jul 2023 18:51:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5EA8B607E1
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25502C0071;
+	Wed, 26 Jul 2023 18:51:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9A742C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Jul 2023 18:51:34 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 53BE982178
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Jul 2023 18:51:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 53BE982178
+Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=dgxyj9A/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yPGNkvEYIht7; Wed, 26 Jul 2023 18:40:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 037E383409;
-	Wed, 26 Jul 2023 18:40:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 037E383409
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CD2B5C0071;
-	Wed, 26 Jul 2023 18:40:39 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C60F6C0032
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id p61TgVC2f_2a
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:40:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9998140B78
+ Wed, 26 Jul 2023 18:51:33 +0000 (UTC)
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on20603.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e88::603])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 62DB481FDF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:40:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9998140B78
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=d85sRr3e
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h9fCDZulNWaC
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:40:37 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B23CF40185
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:40:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B23CF40185
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1690396836;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=hLRB+0VH4NUNA9S2GxQpRS/NrBaKH7At4oaqQkmEFHQ=;
- b=d85sRr3eCcv8YJg5PjvHcyYH8VKgNxO7zHr9bLBVHsa14Q7s/BqC55kPJmRHfBtsvUsWv5
- HoAJTlQHlS9XX2mB2P44BXNdpIee5keJQCOlZqrgzDcniPKNN+q70crwz+Art33Ev7qnVA
- 6xagMacFb1SILcOr01BOBUY/7EhaADg=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-600-v0uPlTkROVWjyf7mYnqzoQ-1; Wed, 26 Jul 2023 14:40:32 -0400
-X-MC-Unique: v0uPlTkROVWjyf7mYnqzoQ-1
-Received: by mail-lf1-f70.google.com with SMTP id
- 2adb3069b0e04-4fb89482c48so73833e87.3
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 11:40:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690396830; x=1691001630;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=hLRB+0VH4NUNA9S2GxQpRS/NrBaKH7At4oaqQkmEFHQ=;
- b=AC2BWOFswU+NsU7NYuI+tymToLqOGC6Zn3/hUe24WM3rCS8RKLPrcnWLY1GXhSmieG
- HJxp9sKABoGtCPNG5r0mXmMXBzR+adi0UDRLKHgPozEATMGBF2ku/deaEY6VAVsyg/mx
- vsb3dToKuL5FX33UXvZRkpn8TkmZW0Kd0Onf7BdSab0BCA5cPULeU9LLm3KBJ+ocD4/C
- HwfpllwhVnaMwsTtvJGzKalJ+BwkbIifHiZhD43ZZQm6hCywrmrpDSq0+tERJ9gn1SO2
- z+UesEoiQf1aejixwZaMeNRQQcm/1unrMvQwApGY/1Ph8ap4Q/q9IJ8lu3NZXpnQFtoC
- A6ug==
-X-Gm-Message-State: ABy/qLaxaWQMpMj0SX+CXRTUlK4Ci4QQ4W7/ivXZp+7g2UAAv/1xrrrz
- ek8GlMAMFerBDyWzwo2COK4DVnBYMVAiNUrBQyHcOwI1LXKDuSrinFccfqTmcGstPH9lGgC9O3z
- 4rvL8jw5K4AUw/F4hS08QLUYm+EHTyTSaCHJHdo7evg==
-X-Received: by 2002:a05:6512:3103:b0:4fd:d213:dfd0 with SMTP id
- n3-20020a056512310300b004fdd213dfd0mr20090lfb.11.1690396830368; 
- Wed, 26 Jul 2023 11:40:30 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlFfIFB6koq240oc65lATC1OG8dihM0yJR6Errj2gYzEcAeMZ8KdgTUnrOPiNp0AKGTRCUhLIw==
-X-Received: by 2002:a05:6512:3103:b0:4fd:d213:dfd0 with SMTP id
- n3-20020a056512310300b004fdd213dfd0mr20068lfb.11.1690396830026; 
- Wed, 26 Jul 2023 11:40:30 -0700 (PDT)
-Received: from redhat.com ([2.52.14.22]) by smtp.gmail.com with ESMTPSA id
- o26-20020aa7d3da000000b005222c160464sm4518711edr.72.2023.07.26.11.40.24
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 26 Jul 2023 11:40:27 -0700 (PDT)
-Date: Wed, 26 Jul 2023 14:40:22 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Subject: Re: [PATCH RFC net-next v5 11/14] vhost/vsock: implement datagram
- support
-Message-ID: <20230726143850-mutt-send-email-mst@kernel.org>
-References: <20230413-b4-vsock-dgram-v5-0-581bd37fdb26@bytedance.com>
- <20230413-b4-vsock-dgram-v5-11-581bd37fdb26@bytedance.com>
+ Wed, 26 Jul 2023 18:51:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 62DB481FDF
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T+pd5A4TY6XCvpsVqtqHyjH8YsYPPEHAIWvQfZJO0+sW+X4dWE/Y537T+woz83YV6k29IPfdK/2Znj5gUtJeAubb9vCtHO/FQDy64SnutPbQqrI8E2egrAWnbnrZN72y6213VqfPgd0JX3M90WgPZYiEb7o9wRHABUZIKcThL+88C/RDZz8PdZklE0lRjLIv8tJR1FJ0Q9YlprrpIXVddMbJu0Qyqw/u6cOvIGUF7mR6hi6DH3wA06Z0+rCGQdcoqtWXt/BhgtrEV2gu8oeO2HuuNbDmSYxEWmcupYhLwfz1ZP5OoXo0d5z6P5ZgRY1sPPwByky+vFPnAGPfPOF8lQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Qnk8lYQBhuGQXuEz6bBixqZoD7hFMU3Cc9st74+voDU=;
+ b=dVpBjuKnw4rKUg4xEi5+sGxKHsu0tEVansRYLu3P9UH2bKxHJTEHhNXa8p39uix35n9efwAK5Oyiy4zjsEYq+SMjVGwtsew8KwQrfix+n30zngxhyedRdM4mWnr8n4NsFqlK25zhaeAHSfaeOVYJzCpADg6EFDwg77deFFPOSNY4uou83vwS6HBzwEPlAdMd17HPiCIciGJtqhL9rNDBRX9wusPU0cMgUiBWKRWNgMdg3tKSe9S2XeOztw968pJ+NZI9jOQ3C3At3B+fV4u9UjGKheuC83zDcXZrDANcw+kEYb8we2KbTzMpRRkesJ87SUwknnXZVLMjUIRfu5UJMA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Qnk8lYQBhuGQXuEz6bBixqZoD7hFMU3Cc9st74+voDU=;
+ b=dgxyj9A/JXM/p36iWhkRwqJ7w5vFe6k+i44C6NbAPDlFWXg+Ayv+21VubjCYBAFb5CpgY9BDX91MhVcqGB9N44MqtYdcW3udEGzbM9oQcexb9WP0U8DuYB0K/3L6Jw+90o3f32tn/ts6hsY5jcMbgw2cqy2T69uNTNyCcxjeozxKSWjgPM8i5tU/pe6uWYXw4IZedJCxWaUs3MH/NLC3dFU05KzPz2UdZx/67hkxpI/a7aXXEyHDUwORgclgLmr3iY2h7bDqCkwsvI/tuQe7nqXUI5lEHu4RcuAVKUjyN6mrqsRm0OXt0YvCv6dy76hW/G5OmLYekxHBRq6CsbuCGg==
+Received: from DS7PR03CA0205.namprd03.prod.outlook.com (2603:10b6:5:3b6::30)
+ by CYXPR12MB9338.namprd12.prod.outlook.com (2603:10b6:930:e5::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.29; Wed, 26 Jul
+ 2023 18:51:30 +0000
+Received: from DM6NAM11FT055.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3b6:cafe::62) by DS7PR03CA0205.outlook.office365.com
+ (2603:10b6:5:3b6::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.29 via Frontend
+ Transport; Wed, 26 Jul 2023 18:51:30 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ DM6NAM11FT055.mail.protection.outlook.com (10.13.173.103) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6631.29 via Frontend Transport; Wed, 26 Jul 2023 18:51:30 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Wed, 26 Jul 2023
+ 11:51:15 -0700
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Wed, 26 Jul
+ 2023 11:51:15 -0700
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.986.37 via
+ Frontend Transport; Wed, 26 Jul 2023 11:51:12 -0700
+To: "Michael S . Tsirkin" <mst@redhat.com>, Lin Ma <linma@zju.edu.cn>, "Jason
+ Wang" <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "Parav
+ Pandit" <parav@nvidia.com>
+Subject: [PATCH v2 0/2] vdpa: Enable strict validation for netlink ops
+Date: Wed, 26 Jul 2023 21:49:42 +0300
+Message-ID: <20230726185104.12479-1-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-In-Reply-To: <20230413-b4-vsock-dgram-v5-11-581bd37fdb26@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-hyperv@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- kvm@vger.kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Simon Horman <simon.horman@corigine.com>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Dan Carpenter <dan.carpenter@linaro.org>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
- Vishnu Dasa <vdasa@vmware.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6NAM11FT055:EE_|CYXPR12MB9338:EE_
+X-MS-Office365-Filtering-Correlation-Id: d6209a8f-6a9f-4629-7f9a-08db8e095302
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vpkjj80YSovpF9mTLrCKLu+WhbGeopoppurnWrsXyQaWRrbP5Yk5aaHlgyPDhJFaLrMqAoj+QpCIbKwKYOgCon7h1i9boJbdGvuVKsJRoLv8b6FhOjskDsYZjB07I2pgkIG7hXp8A1IZN/1RkonzwyZeo/2N3ueUUY+dB3ue+9Wro01QT9+ZlRGuYL7sVxz1XD7lMWQAOh1bHjTiVxAW8xdsSG0pab2jjcSulfDVJpzKARb7sYi8GEsYsuwL37WMUx8LxYut+NVRddSJ6GiuzE8cVISMAnU8EzPxTCbsvhUVAd/D8/xdxezdrJaVni0RuUOjWsODT5d0cKkKfvKCVp/2csffxtQOAl/cHDop73fI/vQGyl+T/EyP/eeqixrJ7Liu00pOWeG/9A5U2nGaUc5EjQqCkMjiW3z0EtRNXRPoeZLXagNy7+SIohXqUiFEo/2GEU2H/jqws2cRqEIWWz1Gd/VUsFi+kuymDYBjmS5Rbf7fQz0UBGwVA0Lhn40JLelfcvpoH3F1PTo3zswZbl0jQReNSvvp3D9sjIydOySyCpPfC3uJbBZ/lcY9PAnwHYSYNGBHBxFroDW1jAkjYuMMRSygOmq//e88KCbeZsijAe6GUO7qBi1thkIWTLy4PDCFevACDcClSztFrJoh5b9DmmFSLpDc4GYl3k3TVYZJXFayEJFJ7yV5CtAnfG3GyksMrDB2+RPd6PsoMAsF42QnjllbpeFONBMk9YMvnKPhCbASel+xMP/50ZVrfpuDCBvEAP39nfRz3OhEaZg0UMnlGCNZIg39sHc29htBcUM=
+X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
+ SFS:(13230028)(4636009)(376002)(39860400002)(136003)(396003)(346002)(82310400008)(451199021)(36840700001)(40470700004)(46966006)(107886003)(40460700003)(426003)(47076005)(2616005)(186003)(336012)(1076003)(26005)(36860700001)(83380400001)(4326008)(70206006)(6636002)(316002)(8676002)(70586007)(8936002)(5660300002)(41300700001)(6666004)(966005)(4744005)(2906002)(478600001)(54906003)(110136005)(40480700001)(82740400003)(356005)(7636003)(36756003)(86362001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jul 2023 18:51:30.0173 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: d6209a8f-6a9f-4629-7f9a-08db8e095302
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT055.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYXPR12MB9338
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,186 +140,35 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Dragos Tatulea via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Dragos Tatulea <dtatulea@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 19, 2023 at 12:50:15AM +0000, Bobby Eshleman wrote:
-> This commit implements datagram support for vhost/vsock by teaching
-> vhost to use the common virtio transport datagram functions.
-> 
-> If the virtio RX buffer is too small, then the transmission is
-> abandoned, the packet dropped, and EHOSTUNREACH is added to the socket's
-> error queue.
-> 
-> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+The original patch from Lin Ma enables the vdpa driver to use validation
+netlink ops.
 
-EHOSTUNREACH?
+The second patch simply disables the validation skip which is no longer
+neccesary. Patchset started of from this discussion [0].
 
+[0] https://lore.kernel.org/virtualization/20230726074710-mutt-send-email-mst@kernel.org/T/#t
 
-> ---
->  drivers/vhost/vsock.c    | 62 +++++++++++++++++++++++++++++++++++++++++++++---
->  net/vmw_vsock/af_vsock.c |  5 +++-
->  2 files changed, 63 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index d5d6a3c3f273..da14260c6654 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -8,6 +8,7 @@
->   */
->  #include <linux/miscdevice.h>
->  #include <linux/atomic.h>
-> +#include <linux/errqueue.h>
->  #include <linux/module.h>
->  #include <linux/mutex.h>
->  #include <linux/vmalloc.h>
-> @@ -32,7 +33,8 @@
->  enum {
->  	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
->  			       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
-> -			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
-> +			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET) |
-> +			       (1ULL << VIRTIO_VSOCK_F_DGRAM)
->  };
->  
->  enum {
-> @@ -56,6 +58,7 @@ struct vhost_vsock {
->  	atomic_t queued_replies;
->  
->  	u32 guest_cid;
-> +	bool dgram_allow;
->  	bool seqpacket_allow;
->  };
->  
-> @@ -86,6 +89,32 @@ static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
->  	return NULL;
->  }
->  
-> +/* Claims ownership of the skb, do not free the skb after calling! */
-> +static void
-> +vhost_transport_error(struct sk_buff *skb, int err)
-> +{
-> +	struct sock_exterr_skb *serr;
-> +	struct sock *sk = skb->sk;
-> +	struct sk_buff *clone;
-> +
-> +	serr = SKB_EXT_ERR(skb);
-> +	memset(serr, 0, sizeof(*serr));
-> +	serr->ee.ee_errno = err;
-> +	serr->ee.ee_origin = SO_EE_ORIGIN_NONE;
-> +
-> +	clone = skb_clone(skb, GFP_KERNEL);
-> +	if (!clone)
-> +		return;
-> +
-> +	if (sock_queue_err_skb(sk, clone))
-> +		kfree_skb(clone);
-> +
-> +	sk->sk_err = err;
-> +	sk_error_report(sk);
-> +
-> +	kfree_skb(skb);
-> +}
-> +
->  static void
->  vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  			    struct vhost_virtqueue *vq)
-> @@ -160,9 +189,15 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  		hdr = virtio_vsock_hdr(skb);
->  
->  		/* If the packet is greater than the space available in the
-> -		 * buffer, we split it using multiple buffers.
-> +		 * buffer, we split it using multiple buffers for connectible
-> +		 * sockets and drop the packet for datagram sockets.
->  		 */
+v2: cc'ed stable
 
-won't this break things like recently proposed zerocopy?
-I think splitup has to be supported for all types.
+Dragos Tatulea (1):
+  vdpa: Enable strict validation for netlinks ops
 
+Lin Ma (1):
+  vdpa: Complement vdpa_nl_policy for nlattr length check
 
->  		if (payload_len > iov_len - sizeof(*hdr)) {
-> +			if (le16_to_cpu(hdr->type) == VIRTIO_VSOCK_TYPE_DGRAM) {
-> +				vhost_transport_error(skb, EHOSTUNREACH);
-> +				continue;
-> +			}
-> +
->  			payload_len = iov_len - sizeof(*hdr);
->  
->  			/* As we are copying pieces of large packet's buffer to
-> @@ -394,6 +429,7 @@ static bool vhost_vsock_more_replies(struct vhost_vsock *vsock)
->  	return val < vq->num;
->  }
->  
-> +static bool vhost_transport_dgram_allow(u32 cid, u32 port);
->  static bool vhost_transport_seqpacket_allow(u32 remote_cid);
->  
->  static struct virtio_transport vhost_transport = {
-> @@ -410,7 +446,8 @@ static struct virtio_transport vhost_transport = {
->  		.cancel_pkt               = vhost_transport_cancel_pkt,
->  
->  		.dgram_enqueue            = virtio_transport_dgram_enqueue,
-> -		.dgram_allow              = virtio_transport_dgram_allow,
-> +		.dgram_allow              = vhost_transport_dgram_allow,
-> +		.dgram_addr_init          = virtio_transport_dgram_addr_init,
->  
->  		.stream_enqueue           = virtio_transport_stream_enqueue,
->  		.stream_dequeue           = virtio_transport_stream_dequeue,
-> @@ -443,6 +480,22 @@ static struct virtio_transport vhost_transport = {
->  	.send_pkt = vhost_transport_send_pkt,
->  };
->  
-> +static bool vhost_transport_dgram_allow(u32 cid, u32 port)
-> +{
-> +	struct vhost_vsock *vsock;
-> +	bool dgram_allow = false;
-> +
-> +	rcu_read_lock();
-> +	vsock = vhost_vsock_get(cid);
-> +
-> +	if (vsock)
-> +		dgram_allow = vsock->dgram_allow;
-> +
-> +	rcu_read_unlock();
-> +
-> +	return dgram_allow;
-> +}
-> +
->  static bool vhost_transport_seqpacket_allow(u32 remote_cid)
->  {
->  	struct vhost_vsock *vsock;
-> @@ -799,6 +852,9 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
->  	if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
->  		vsock->seqpacket_allow = true;
->  
-> +	if (features & (1ULL << VIRTIO_VSOCK_F_DGRAM))
-> +		vsock->dgram_allow = true;
-> +
->  	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
->  		vq = &vsock->vqs[i];
->  		mutex_lock(&vq->mutex);
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index e73f3b2c52f1..449ed63ac2b0 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -1427,9 +1427,12 @@ int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
->  		return prot->recvmsg(sk, msg, len, flags, NULL);
->  #endif
->  
-> -	if (flags & MSG_OOB || flags & MSG_ERRQUEUE)
-> +	if (unlikely(flags & MSG_OOB))
->  		return -EOPNOTSUPP;
->  
-> +	if (unlikely(flags & MSG_ERRQUEUE))
-> +		return sock_recv_errqueue(sk, msg, len, SOL_VSOCK, 0);
-> +
->  	transport = vsk->transport;
->  
->  	/* Retrieve the head sk_buff from the socket's receive queue. */
-> 
-> -- 
-> 2.30.2
+ drivers/vdpa/vdpa.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+-- 
+2.41.0
 
 _______________________________________________
 Virtualization mailing list
