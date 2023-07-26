@@ -1,116 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD237C00528
-	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 08:08:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8EDD9C001DC
+	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 08:10:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 72F928146E;
-	Wed, 26 Jul 2023 08:08:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 72F928146E
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=3FtP6nyx
+	by smtp4.osuosl.org (Postfix) with ESMTP id DF75341BB9;
+	Wed, 26 Jul 2023 08:10:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DF75341BB9
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FlgmCr1S
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QFCBCxJPlbpj; Wed, 26 Jul 2023 08:08:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8127D8143A;
-	Wed, 26 Jul 2023 08:08:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8127D8143A
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QrWloJSR2ftu; Wed, 26 Jul 2023 08:10:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E52BF41BA5;
+	Wed, 26 Jul 2023 08:10:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E52BF41BA5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 58B33C0072;
-	Wed, 26 Jul 2023 08:08:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38AD0C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9C02C0072;
+	Wed, 26 Jul 2023 08:10:45 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F002EC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 08:08:56 +0000 (UTC)
+ Wed, 26 Jul 2023 08:10:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id F030860F7D
+ by smtp4.osuosl.org (Postfix) with ESMTP id B7D3E41BA8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 08:08:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F030860F7D
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com
- header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256
- header.s=20221208 header.b=3FtP6nyx
+ Wed, 26 Jul 2023 08:10:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B7D3E41BA8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FJoZVZEQURvv
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lbdCcvvnljKE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 08:08:54 +0000 (UTC)
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com
- [IPv6:2607:f8b0:4864:20::42a])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7C46160BCE
+ Wed, 26 Jul 2023 08:10:43 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5FC2641BA5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 08:08:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7C46160BCE
-Received: by mail-pf1-x42a.google.com with SMTP id
- d2e1a72fcca58-686b879f605so725874b3a.1
+ Wed, 26 Jul 2023 08:10:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5FC2641BA5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1690359042;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=vIQmnRJx6fA+ZHBN0PHWuZVp9Sdb0+7CsK7MphwWnok=;
+ b=FlgmCr1SYJtNqflhcc1WlvYHjbLjJ79OqZtOuDZ7O1ulA7FRiFaPyLNio9P8AXw7x7crQq
+ 2Br5i6Cc8JrwW7a+OIeLF53RHy3baTBCHSbHvcUBDrxzYSPzGa0EiLrpTxQirmjzTuoKtE
+ i1QtRN+8WW/zGnJlAh0Q0IUMNNAIbds=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-517-A6OoWe35OCuwoL_UXH8GYA-1; Wed, 26 Jul 2023 04:10:40 -0400
+X-MC-Unique: A6OoWe35OCuwoL_UXH8GYA-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ 38308e7fff4ca-2b95d92116dso58265721fa.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 01:08:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=fromorbit-com.20221208.gappssmtp.com; s=20221208; t=1690358934; x=1690963734;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=rPtpzUEslahCE2fhb6v9FLtKmqwh/pul7nSSkK8nPUc=;
- b=3FtP6nyx+rPcvJcblHl1Mu2LvC6NkDi8xEgEFylBPkAlQaYADspiGMJ27o0GgAuj9z
- McDVZgCUGviszUiy5R0bXahfbrRAfjxnAxmHNnPbaM1LXdSCHnASLGDwytdN0by6FDcI
- RpceDu/PcRlhyfyf4mYkuokxgwLuCVwRBZl0phBMBuXEmpOfHBU9f5yCZoh2dEO+7TTN
- DCOxQvb0O++5gEaT2a05V97Ei89pJv+cbAW7+SqulKGKTdXaXFuVtxE2YrWoJBaFXRhx
- fYB72/J5kZ33VcSsegtqBeEJQacLBG5vKC0M6tbbiCEw9x2oLmMOMSwg9ysSaFAgqAI5
- sgYQ==
+ Wed, 26 Jul 2023 01:10:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690358934; x=1690963734;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=rPtpzUEslahCE2fhb6v9FLtKmqwh/pul7nSSkK8nPUc=;
- b=HyZCYlxr/v4GDX1C4SqecJ4aC3Nl05gAE8fcphnp+T9hCllks5GSrqSPGhg+6C6Gxe
- 6i7uES0oTLzhoQII76ZFrwlTE2XAUgk9kF4QmhdryIgAXL1ipOWA4usAA4mtOLFtGNVz
- H5IDEjrMoq7kUwFdsoe2+OklxuEJA6V9JH4G9JWjrFSxsHQOzMSi0d755niV2WPbY9XK
- htN+HFEPyNC62F3X8NgmYq+F1E8u+Ak5D6WdJbnGCYQPVQ6vU9CJ525RqJUP57mWOyKc
- V6m9+i5TCQ7Xy7VibM/OZ5TmFZ68rVH/sHWdfxdIO+vsX/pbmO0RA/b/OwSKMRyavMqZ
- B8pA==
-X-Gm-Message-State: ABy/qLbLpukqrC+cHR93rnqSXQwOErzt6fiVN/2isXnnUHRdxVCcZGax
- WgIN6NFwmFlz/i2CHAu0+Roqrw==
-X-Google-Smtp-Source: APBJJlGxMb49Gcu6ThVo/6V+1HjCftCctRIBl06nDIbsd9lTZYFUn832db0oPfgPkp12tATT7U4xCA==
-X-Received: by 2002:a05:6a20:1058:b0:138:dbff:f52b with SMTP id
- gt24-20020a056a20105800b00138dbfff52bmr934336pzc.22.1690358933657; 
- Wed, 26 Jul 2023 01:08:53 -0700 (PDT)
-Received: from dread.disaster.area (pa49-186-119-116.pa.vic.optusnet.com.au.
- [49.186.119.116]) by smtp.gmail.com with ESMTPSA id
- w2-20020a170902e88200b001a24cded097sm12426907plg.236.2023.07.26.01.08.52
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 26 Jul 2023 01:08:53 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
- (envelope-from <david@fromorbit.com>) id 1qOZZi-00Afxb-0y;
- Wed, 26 Jul 2023 18:08:50 +1000
-Date: Wed, 26 Jul 2023 18:08:50 +1000
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: Re: [PATCH v2 44/47] mm: shrinker: make global slab shrink lockless
-Message-ID: <ZMDUkoIXUlTkCSYL@dread.disaster.area>
-References: <20230724094354.90817-1-zhengqi.arch@bytedance.com>
- <20230724094354.90817-45-zhengqi.arch@bytedance.com>
+ d=1e100.net; s=20221208; t=1690359039; x=1690963839;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=vIQmnRJx6fA+ZHBN0PHWuZVp9Sdb0+7CsK7MphwWnok=;
+ b=kBT+fEJ1gySO98SsLBmgVYr2A6um2OQ3i95irlMGzx5MEiOS9t0JH89O8BcYmd8UXC
+ PG2hR2PIdORIZsccyMFRPUtskJtDOsoII3X3BPt3Y+RnYzi+pnkYCZRTmEiIcp9oLa4D
+ Nhn1xtT+DPOeQYwt9Kqg5j5AAiXIjxCjGbVsHu6uKtMfY1LQi1S5XjaZRDRAT/HJfg75
+ PsMN+tst+EY3KMXzruJA4LEImOIfRZekrHZkbIVfqrq97QVruktM3QVEZAmxtTMYkxnK
+ Y3Adev0uE2pqTAY4SJORoyQcGK9Q2zlKToL3KIR9Y3fJQksnAsu67eu8b8LxxNczgIFK
+ 5Q2A==
+X-Gm-Message-State: ABy/qLa0V/qLWpmvpFKX5xvHLicOry9jHxq2VJ4wS6OJiSbe+3FbSfwo
+ 41wRJcyDxfWv5xoPLFlfArjBdH9HqULUKWNjzvu1ulYYxVoEF6YdcWeewCTVc1kinqFhD6U8OYO
+ 1tguLfU2ONmQM9XhYp8QxhxEcOC1f0iB4hR7rIt/M9u9737YxO7+Ikd3M+Q==
+X-Received: by 2002:a2e:9e59:0:b0:2b6:dc55:c3c7 with SMTP id
+ g25-20020a2e9e59000000b002b6dc55c3c7mr911751ljk.20.1690359038778; 
+ Wed, 26 Jul 2023 01:10:38 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlH2J6eDkvyL5wgPWBoRpCoDpbqnqbV8kra7gLITsk9AtdJfaRahtJihuW40lHshWnwyA4HLSmzXW1m3JkcLFqE=
+X-Received: by 2002:a2e:9e59:0:b0:2b6:dc55:c3c7 with SMTP id
+ g25-20020a2e9e59000000b002b6dc55c3c7mr911730ljk.20.1690359038417; Wed, 26 Jul
+ 2023 01:10:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230724094354.90817-45-zhengqi.arch@bytedance.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org,
- cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com,
- xen-devel@lists.xenproject.org, linux-ext4@vger.kernel.org, paulmck@kernel.org,
- linux-arm-msm@vger.kernel.org, linux-nfs@vger.kernel.org, rcu@vger.kernel.org,
- linux-bcache@vger.kernel.org, yujie.liu@intel.com, vbabka@suse.cz,
- linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu,
- gregkh@linuxfoundation.org, muchun.song@linux.dev,
- linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+References: <20230418225638.1467969-1-peili.dev@gmail.com>
+ <CAJaqyWebSowMMWh+HCjj7tmbA3Ey6C69T=SPA4k+6fd_-GjfoA@mail.gmail.com>
+ <CACGkMEu0d0y82wo1p2g-ovbUTYJcVon0-t8fvgFQLokZmd7hDQ@mail.gmail.com>
+ <CAGxU2F4N+xAM0gRh2dHDLSujkJ4Ek--Hk+PoTHOsxe4k+GTrrA@mail.gmail.com>
+In-Reply-To: <CAGxU2F4N+xAM0gRh2dHDLSujkJ4Ek--Hk+PoTHOsxe4k+GTrrA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 26 Jul 2023 16:10:27 +0800
+Message-ID: <CACGkMEtGXOC9TCp+YrBPaV14tVt_hxUcOzRe+EFW-1YV--6w3A@mail.gmail.com>
+Subject: Re: vdpa: use io_uring passthrough command for IOCTLs [was Re: [PATCH
+ 1/2] Reduce vdpa initialization / startup overhead]
+To: Stefano Garzarella <sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: peili.dev@gmail.com, Eugenio Perez Martin <eperezma@redhat.com>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ qemu devel list <qemu-devel@nongnu.org>, Michael Tsirkin <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,413 +113,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Dave Chinner via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Dave Chinner <david@fromorbit.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 24, 2023 at 05:43:51PM +0800, Qi Zheng wrote:
-> The shrinker_rwsem is a global read-write lock in shrinkers subsystem,
-> which protects most operations such as slab shrink, registration and
-> unregistration of shrinkers, etc. This can easily cause problems in the
-> following cases.
-> 
-> 1) When the memory pressure is high and there are many filesystems
->    mounted or unmounted at the same time, slab shrink will be affected
->    (down_read_trylock() failed).
-> 
->    Such as the real workload mentioned by Kirill Tkhai:
-> 
->    ```
->    One of the real workloads from my experience is start
->    of an overcommitted node containing many starting
->    containers after node crash (or many resuming containers
->    after reboot for kernel update). In these cases memory
->    pressure is huge, and the node goes round in long reclaim.
->    ```
-> 
-> 2) If a shrinker is blocked (such as the case mentioned
->    in [1]) and a writer comes in (such as mount a fs),
->    then this writer will be blocked and cause all
->    subsequent shrinker-related operations to be blocked.
-> 
-> Even if there is no competitor when shrinking slab, there may still be a
-> problem. The down_read_trylock() may become a perf hotspot with frequent
-> calls to shrink_slab(). Because of the poor multicore scalability of
-> atomic operations, this can lead to a significant drop in IPC
-> (instructions per cycle).
-> 
-> We used to implement the lockless slab shrink with SRCU [2], but then
-> kernel test robot reported -88.8% regression in
-> stress-ng.ramfs.ops_per_sec test case [3], so we reverted it [4].
-> 
-> This commit uses the refcount+RCU method [5] proposed by Dave Chinner
-> to re-implement the lockless global slab shrink. The memcg slab shrink is
-> handled in the subsequent patch.
-> 
-> For now, all shrinker instances are converted to dynamically allocated and
-> will be freed by kfree_rcu(). So we can use rcu_read_{lock,unlock}() to
-> ensure that the shrinker instance is valid.
-> 
-> And the shrinker instance will not be run again after unregistration. So
-> the structure that records the pointer of shrinker instance can be safely
-> freed without waiting for the RCU read-side critical section.
-> 
-> In this way, while we implement the lockless slab shrink, we don't need to
-> be blocked in unregister_shrinker().
-> 
-> The following are the test results:
-> 
-> stress-ng --timeout 60 --times --verify --metrics-brief --ramfs 9 &
-> 
-> 1) Before applying this patchset:
-> 
-> setting to a 60 second run per stressor
-> dispatching hogs: 9 ramfs
-> stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
->                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
-> ramfs            735238     60.00     12.37    363.70     12253.05        1955.08
-> for a 60.01s run time:
->    1440.27s available CPU time
->      12.36s user time   (  0.86%)
->     363.70s system time ( 25.25%)
->     376.06s total time  ( 26.11%)
-> load average: 10.79 4.47 1.69
-> passed: 9: ramfs (9)
-> failed: 0
-> skipped: 0
-> successful run completed in 60.01s (1 min, 0.01 secs)
-> 
-> 2) After applying this patchset:
-> 
-> setting to a 60 second run per stressor
-> dispatching hogs: 9 ramfs
-> stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s
->                           (secs)    (secs)    (secs)   (real time) (usr+sys time)
-> ramfs            746677     60.00     12.22    367.75     12443.70        1965.13
-> for a 60.01s run time:
->    1440.26s available CPU time
->      12.21s user time   (  0.85%)
->     367.75s system time ( 25.53%)
->     379.96s total time  ( 26.38%)
-> load average: 8.37 2.48 0.86
-> passed: 9: ramfs (9)
-> failed: 0
-> skipped: 0
-> successful run completed in 60.01s (1 min, 0.01 secs)
-> 
-> We can see that the ops/s has hardly changed.
-> 
-> [1]. https://lore.kernel.org/lkml/20191129214541.3110-1-ptikhomirov@virtuozzo.com/
-> [2]. https://lore.kernel.org/lkml/20230313112819.38938-1-zhengqi.arch@bytedance.com/
-> [3]. https://lore.kernel.org/lkml/202305230837.db2c233f-yujie.liu@intel.com/
-> [4]. https://lore.kernel.org/all/20230609081518.3039120-1-qi.zheng@linux.dev/
-> [5]. https://lore.kernel.org/lkml/ZIJhou1d55d4H1s0@dread.disaster.area/
-> 
-> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> ---
->  include/linux/shrinker.h | 19 +++++++---
->  mm/shrinker.c            | 75 ++++++++++++++++++++++++++--------------
->  mm/shrinker_debug.c      | 52 +++++++++++++++++++++-------
->  3 files changed, 104 insertions(+), 42 deletions(-)
-> 
-> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
-> index 36977a70bebb..335da93cccee 100644
-> --- a/include/linux/shrinker.h
-> +++ b/include/linux/shrinker.h
-> @@ -4,6 +4,7 @@
->  
->  #include <linux/atomic.h>
->  #include <linux/types.h>
-> +#include <linux/refcount.h>
->  
->  #define SHRINKER_UNIT_BITS	BITS_PER_LONG
->  
-> @@ -86,6 +87,10 @@ struct shrinker {
->  	long batch;	/* reclaim batch size, 0 = default */
->  	int seeks;	/* seeks to recreate an obj */
->  	unsigned flags;
-> +	bool registered;
-> +
-> +	refcount_t refcount;
-> +	struct rcu_head rcu;
->  
->  	void *private_data;
->  
-> @@ -106,14 +111,13 @@ struct shrinker {
->  #define DEFAULT_SEEKS 2 /* A good number if you don't know better. */
->  
->  /* Flags */
-> -#define SHRINKER_REGISTERED	(1 << 0)
-> -#define SHRINKER_NUMA_AWARE	(1 << 1)
-> -#define SHRINKER_MEMCG_AWARE	(1 << 2)
-> +#define SHRINKER_NUMA_AWARE	(1 << 0)
-> +#define SHRINKER_MEMCG_AWARE	(1 << 1)
->  /*
->   * It just makes sense when the shrinker is also MEMCG_AWARE for now,
->   * non-MEMCG_AWARE shrinker should not have this flag set.
->   */
-> -#define SHRINKER_NONSLAB	(1 << 3)
-> +#define SHRINKER_NONSLAB	(1 << 2)
->  
->  unsigned long shrink_slab(gfp_t gfp_mask, int nid, struct mem_cgroup *memcg,
->  			  int priority);
-> @@ -122,6 +126,13 @@ void shrinker_free_non_registered(struct shrinker *shrinker);
->  void shrinker_register(struct shrinker *shrinker);
->  void shrinker_unregister(struct shrinker *shrinker);
->  
-> +static inline bool shrinker_try_get(struct shrinker *shrinker)
-> +{
-> +	return READ_ONCE(shrinker->registered) &&
-> +	       refcount_inc_not_zero(&shrinker->refcount);
-> +}
-
-Why do we care about shrinker->registered here? If we don't set
-the refcount to 1 until we have fully initialised everything, then
-the shrinker code can key entirely off the reference count and
-none of the lookup code needs to care about whether the shrinker is
-registered or not.
-
-> +void shrinker_put(struct shrinker *shrinker);
-> +
->  #ifdef CONFIG_SHRINKER_DEBUG
->  extern int shrinker_debugfs_add(struct shrinker *shrinker);
->  extern struct dentry *shrinker_debugfs_detach(struct shrinker *shrinker,
-> diff --git a/mm/shrinker.c b/mm/shrinker.c
-> index 8a1fe844f1a4..8e3334749552 100644
-> --- a/mm/shrinker.c
-> +++ b/mm/shrinker.c
-> @@ -2,10 +2,13 @@
->  #include <linux/memcontrol.h>
->  #include <linux/rwsem.h>
->  #include <linux/shrinker.h>
-> +#include <linux/rculist.h>
-> +#include <linux/spinlock.h>
->  #include <trace/events/vmscan.h>
->  
->  LIST_HEAD(shrinker_list);
->  DECLARE_RWSEM(shrinker_rwsem);
-> +DEFINE_SPINLOCK(shrinker_lock);
->  
->  #ifdef CONFIG_MEMCG
->  static int shrinker_nr_max;
-> @@ -450,6 +453,18 @@ static unsigned long do_shrink_slab(struct shrink_control *shrinkctl,
->  	return freed;
->  }
->  
-> +void shrinker_put(struct shrinker *shrinker)
-> +{
-> +	if (refcount_dec_and_test(&shrinker->refcount)) {
-> +		spin_lock(&shrinker_lock);
-> +		list_del_rcu(&shrinker->list);
-> +		spin_unlock(&shrinker_lock);
-> +
-> +		kfree(shrinker->nr_deferred);
-> +		kfree_rcu(shrinker, rcu);
-> +	}
-> +}
-
-Urk, no.
-
-We want the shrinker_free() code to block waiting for the shrinker
-reference count to go to zero, because the shrinkers can reference
-structures that are associated with the path that is freeing the
-shrinker.
-
-i.e. we do not want to free the superblock of a filesystem whilst
-the shrinker is still running, but the way you've done this is that
-the shrinker can run whilst the structure that contains it has been
-torn down.
-
-This should use a completion, then it is always safe under
-rcu_read_lock().  This also gets rid of the shrinker_lock spin lock,
-which only exists because we can't take a blocking lock under
-rcu_read_lock(). i.e:
-
-
-void shrinker_put(struct shrinker *shrinker)
-{
-	if (refcount_dec_and_test(&shrinker->refcount))
-		complete(&shrinker->done);
-}
-
-void shrinker_free()
-{
-	.....
-	refcount_dec(&shrinker->refcount);
-	wait_for_completion(&shrinker->done);
-	/*
-	 * lookups on the shrinker will now all fail as refcount has
-	 * fallen to zero. We can now remove it from the lists and
-	 * free it.
-	 */
-	down_write(shrinker_rwsem);
-	list_del_rcu(&shrinker->list);
-	up_write(&shrinker_rwsem);
-	call_rcu(shrinker->rcu_head, shrinker_free_rcu_cb);
-}
-
-....
-
-> @@ -686,11 +711,14 @@ EXPORT_SYMBOL(shrinker_free_non_registered);
->  
->  void shrinker_register(struct shrinker *shrinker)
->  {
-> -	down_write(&shrinker_rwsem);
-> -	list_add_tail(&shrinker->list, &shrinker_list);
-> -	shrinker->flags |= SHRINKER_REGISTERED;
-> +	refcount_set(&shrinker->refcount, 1);
-> +
-> +	spin_lock(&shrinker_lock);
-> +	list_add_tail_rcu(&shrinker->list, &shrinker_list);
-> +	spin_unlock(&shrinker_lock);
-> +
->  	shrinker_debugfs_add(shrinker);
-> -	up_write(&shrinker_rwsem);
-> +	WRITE_ONCE(shrinker->registered, true);
->  }
->  EXPORT_SYMBOL(shrinker_register);
-
-This just looks wrong - you are trying to use WRITE_ONCE() as a
-release barrier to indicate that the shrinker is now set up fully.
-That's not necessary - the refcount is an atomic and along with the
-rcu locks they should provides all the barriers we need. i.e.
-
-void shrinker_register(struct shrinker *shrinker)
-{
-	down_write(&shrinker_rwsem);
-	list_add_tail_rcu(&shrinker->list, &shrinker_list);
-	shrinker->flags |= SHRINKER_REGISTERED;
-	shrinker_debugfs_add(shrinker);
-	up_write(&shrinker_rwsem);
-
-	/*
-	 * now the shrinker is fully set up, take the first
-	 * reference to it to indicate that lookup operations are
-	 * now allowed to use it via shrinker_try_get().
-	 */
-	refcount_set(&shrinker->refcount, 1);
-}
-
-> diff --git a/mm/shrinker_debug.c b/mm/shrinker_debug.c
-> index f1becfd45853..c5573066adbf 100644
-> --- a/mm/shrinker_debug.c
-> +++ b/mm/shrinker_debug.c
-> @@ -5,6 +5,7 @@
->  #include <linux/seq_file.h>
->  #include <linux/shrinker.h>
->  #include <linux/memcontrol.h>
-> +#include <linux/rculist.h>
->  
->  /* defined in vmscan.c */
->  extern struct rw_semaphore shrinker_rwsem;
-> @@ -161,17 +162,21 @@ int shrinker_debugfs_add(struct shrinker *shrinker)
->  {
->  	struct dentry *entry;
->  	char buf[128];
-> -	int id;
-> -
-> -	lockdep_assert_held(&shrinker_rwsem);
-> +	int id, ret = 0;
->  
->  	/* debugfs isn't initialized yet, add debugfs entries later. */
->  	if (!shrinker_debugfs_root)
->  		return 0;
->  
-> +	down_write(&shrinker_rwsem);
-> +	if (shrinker->debugfs_entry)
-> +		goto fail;
-> +
->  	id = ida_alloc(&shrinker_debugfs_ida, GFP_KERNEL);
-> -	if (id < 0)
-> -		return id;
-> +	if (id < 0) {
-> +		ret = id;
-> +		goto fail;
-> +	}
->  	shrinker->debugfs_id = id;
->  
->  	snprintf(buf, sizeof(buf), "%s-%d", shrinker->name, id);
-> @@ -180,7 +185,8 @@ int shrinker_debugfs_add(struct shrinker *shrinker)
->  	entry = debugfs_create_dir(buf, shrinker_debugfs_root);
->  	if (IS_ERR(entry)) {
->  		ida_free(&shrinker_debugfs_ida, id);
-> -		return PTR_ERR(entry);
-> +		ret = PTR_ERR(entry);
-> +		goto fail;
->  	}
->  	shrinker->debugfs_entry = entry;
->  
-> @@ -188,7 +194,10 @@ int shrinker_debugfs_add(struct shrinker *shrinker)
->  			    &shrinker_debugfs_count_fops);
->  	debugfs_create_file("scan", 0220, entry, shrinker,
->  			    &shrinker_debugfs_scan_fops);
-> -	return 0;
-> +
-> +fail:
-> +	up_write(&shrinker_rwsem);
-> +	return ret;
->  }
->  
->  int shrinker_debugfs_rename(struct shrinker *shrinker, const char *fmt, ...)
-> @@ -243,6 +252,11 @@ struct dentry *shrinker_debugfs_detach(struct shrinker *shrinker,
->  	shrinker->name = NULL;
->  
->  	*debugfs_id = entry ? shrinker->debugfs_id : -1;
-> +	/*
-> +	 * Ensure that shrinker->registered has been set to false before
-> +	 * shrinker->debugfs_entry is set to NULL.
-> +	 */
-> +	smp_wmb();
->  	shrinker->debugfs_entry = NULL;
->  
->  	return entry;
-> @@ -266,14 +280,26 @@ static int __init shrinker_debugfs_init(void)
->  	shrinker_debugfs_root = dentry;
->  
->  	/* Create debugfs entries for shrinkers registered at boot */
-> -	down_write(&shrinker_rwsem);
-> -	list_for_each_entry(shrinker, &shrinker_list, list)
-> +	rcu_read_lock();
-> +	list_for_each_entry_rcu(shrinker, &shrinker_list, list) {
-> +		if (!shrinker_try_get(shrinker))
-> +			continue;
-> +		rcu_read_unlock();
-> +
->  		if (!shrinker->debugfs_entry) {
-> -			ret = shrinker_debugfs_add(shrinker);
-> -			if (ret)
-> -				break;
-> +			/* Paired with smp_wmb() in shrinker_debugfs_detach() */
-> +			smp_rmb();
-> +			if (READ_ONCE(shrinker->registered))
-> +				ret = shrinker_debugfs_add(shrinker);
->  		}
-> -	up_write(&shrinker_rwsem);
-> +
-> +		rcu_read_lock();
-> +		shrinker_put(shrinker);
-> +
-> +		if (ret)
-> +			break;
-> +	}
-> +	rcu_read_unlock();
->  
->  	return ret;
->  }
-
-And all this churn and complexity can go away because the
-shrinker_rwsem is still used to protect shrinker_register()
-entirely....
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBKdWwgMTgsIDIwMjMgYXQgNjozMuKAr1BNIFN0ZWZhbm8gR2FyemFyZWxsYSA8c2dh
+cnphcmVAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiBUaHUsIEFwciAyMCwgMjAyMyBhdCA2OjIw
+4oCvQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPgo+ID4gT24g
+V2VkLCBBcHIgMTksIDIwMjMgYXQgMTE6MzPigK9QTSBFdWdlbmlvIFBlcmV6IE1hcnRpbgo+ID4g
+PGVwZXJlem1hQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPgo+ID4gPiBPbiBXZWQsIEFwciAxOSwg
+MjAyMyBhdCAxMjo1NuKAr0FNIDxwZWlsaS5kZXZAZ21haWwuY29tPiB3cm90ZToKPiA+ID4gPgo+
+ID4gPiA+IEZyb206IFBlaSBMaSA8cGVpbGkuZGV2QGdtYWlsLmNvbT4KPiA+ID4gPgo+ID4gPiA+
+IEN1cnJlbnRseSwgcGFydCBvZiB0aGUgdmRwYSBpbml0aWFsaXphdGlvbiAvIHN0YXJ0dXAgcHJv
+Y2Vzcwo+ID4gPiA+IG5lZWRzIHRvIHRyaWdnZXIgbWFueSBpb2N0bHMgcGVyIHZxLCB3aGljaCBp
+cyB2ZXJ5IGluZWZmaWNpZW50Cj4gPiA+ID4gYW5kIGNhdXNpbmcgdW5uZWNlc3NhcnkgY29udGV4
+dCBzd2l0Y2ggYmV0d2VlbiB1c2VyIG1vZGUgYW5kCj4gPiA+ID4ga2VybmVsIG1vZGUuCj4gPiA+
+ID4KPiA+ID4gPiBUaGlzIHBhdGNoIGNyZWF0ZXMgYW4gYWRkaXRpb25hbCBpb2N0bCgpIGNvbW1h
+bmQsIG5hbWVseQo+ID4gPiA+IFZIT1NUX1ZEUEFfR0VUX1ZSSU5HX0dST1VQX0JBVENILCB0aGF0
+IHdpbGwgYmF0Y2hpbmcKPiA+ID4gPiBjb21tYW5kcyBvZiBWSE9TVF9WRFBBX0dFVF9WUklOR19H
+Uk9VUCBpbnRvIGEgc2luZ2xlCj4gPiA+ID4gaW9jdGwoKSBjYWxsLgo+ID4KPiA+IEknZCBleHBl
+Y3QgdGhlcmUncyBhIGtlcm5lbCBwYXRjaCBidXQgSSBkaWRuJ3Qgc2VlIHRoYXQ/Cj4gPgo+ID4g
+SWYgd2Ugd2FudCB0byBnbyB0aGlzIHdheS4gV2h5IHNpbXBseSBoYXZlIGEgbW9yZSBnZW5lcmlj
+IHdheSwgdGhhdCBpcwo+ID4gaW50cm9kdWNpbmcgc29tZXRoaW5nIGxpa2U6Cj4gPgo+ID4gVkhP
+U1RfQ01EX0JBVENIIHdoaWNoIGRpZCBzb21ldGhpbmcgbGlrZQo+ID4KPiA+IHN0cnVjdCB2aG9z
+dF9jbWRfYmF0Y2ggewo+ID4gICAgIGludCBuY21kczsKPiA+ICAgICBzdHJ1Y3Qgdmhvc3RfaW9j
+dGxzW107Cj4gPiB9Owo+ID4KPiA+IFRoZW4geW91IGNhbiBiYXRjaCBvdGhlciBpb2N0bHMgb3Ro
+ZXIgdGhhbiBHRVRfVlJJTkdfR1JPVVA/Cj4gPgo+Cj4gSnVzdCByZXN0YXJ0aW5nIHRoaXMgZGlz
+Y3Vzc2lvbiwgc2luY2UgSSByZWNlbnRseSB3b3JrZWQgbW9yZSB3aXRoCj4gaW9fdXJpbmcgcGFz
+c3Rocm91Z2ggY29tbWFuZHMgYW5kIEkgdGhpbmsgaXQgY2FuIGhlbHAgaGVyZS4KPgo+IFRoZSBO
+Vk1lIGd1eXMgaGFkIGEgc2ltaWxhciBwcm9ibGVtIChpb2N0bCB0b28gc2xvdyBmb3IgdGhlaXIg
+dXNlCj4gY2FzZSlbMV1bMl0sIHNvIHRoZXkgZGV2ZWxvcGVkIGEgbmV3IGZlYXR1cmUgaW4gaW9f
+dXJpbmcgdGhhdAo+IGJhc2ljYWxseSBhbGxvd3MgeW91IHRvIGRvIElPQ1RMcyBhc3luY2hyb25v
+dXNseSBhbmQgaW4gYmF0Y2hlcyB1c2luZwo+IGlvX3VyaW5nLgo+Cj4gVGhlIHNhbWUgZmVhdHVy
+ZSBpcyBhbHNvIHVzZWQgYnkgdWJsayBbM10gYW5kIEkgcmVjZW50bHkgdGFsa2VkIGFib3V0Cj4g
+dGhpcyBhdCBEZXZDb25mIHdpdGggR2VybWFuIFs0XS4KPgo+IEJhc2ljYWxseSwgdGhlcmUncyBh
+IG5ldyBjYWxsYmFjayBpbiBmb3BzIChzdHJ1Y3QgZmlsZV9vcGVyYXRpb25zLnVyaW5nX2NtZCku
+Cj4gSUlVQyBmb3IgTlZNZSAoZHJpdmVycy9udm1lL2hvc3QvaW9jdGwuYykgdGhleSB1c2VkIGV4
+YWN0bHkgdGhlIHNhbWUKPiB2YWx1ZXMgdXNlZCBmb3IgSU9DVExzIGFsc28gZm9yIHRoZSBuZXcg
+dXJpbmdfY21kIGNhbGxiYWNrLgo+Cj4gV2UgY291bGQgZG8gdGhlIHNhbWUuIFRoZSBjaGFuZ2Vz
+IGluIHRoZSB2aG9zdC12ZHBhIGtlcm5lbCBtb2R1bGUKPiBzaG91bGQgYmUgc2ltcGxlLCBhbmQg
+d2UgY291bGQgc2hhcmUgdGhlIGNvZGUgZm9yIGhhbmRsaW5nIGlvY3RsIGFuZAo+IHVyaW5nX2Nt
+ZC4KPiBUaGF0IHdheSBhbnkgbmV3IGNvbW1hbmQgY2FuIGJlIHN1cHBvcnRlZCB3aXRoIGJvdGgg
+Zm9yIGNvbXBhdGliaWxpdHkuCj4KPiBJbiBRRU1VIHRoZW4gd2UgY2FuIHN0YXJ0IHVzaW5nIGl0
+IHRvIG9wdGltaXplIHRoZSBjb250cm9sIHBhdGguCj4KPiBXaGF0IGRvIHlvdSB0aGluaz8KClRo
+aXMgbG9va3MgaW50ZXJlc3RpbmcuCgo+Cj4gSWYgaXQncyBpbnRlcmVzdGluZywgSSBjb3VsZCB0
+aHJvdyBkb3duIGFuIFJGQyB3aXRoIHRoZSBjaGFuZ2VzIG9yIGlmCj4gYW55b25lIGlzIGludGVy
+ZXN0ZWQgaW4gd29ya2luZyBvbiBpdCwgSSBjYW4gaGVscCB3aXRoIHRoZSBkZXRhaWxzLgoKUGxl
+YXNlIGRvIHRoYXQuCgpUaGFua3MKCgo+Cj4gVGhhbmtzLAo+IFN0ZWZhbm8KPgo+IFsxXSBodHRw
+czovL2xwYy5ldmVudHMvZXZlbnQvMTEvY29udHJpYnV0aW9ucy85ODkvCj4gWzJdIGh0dHBzOi8v
+bHBjLmV2ZW50cy9ldmVudC8xNi9jb250cmlidXRpb25zLzEzODIvCj4gWzNdIGh0dHBzOi8vbHdu
+Lm5ldC9BcnRpY2xlcy85MDM4NTUvCj4gWzRdIGh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL3dhdGNo
+P3Y9NkpxTlBpcnJlb1kKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
