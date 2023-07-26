@@ -1,109 +1,118 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C9584C0015E
-	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 18:37:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55A37C001DF
+	for <virtualization@archiver.kernel.org>; Wed, 26 Jul 2023 18:38:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 72D9C6124C;
-	Wed, 26 Jul 2023 18:37:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72D9C6124C
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=frgcLyLF
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id S14vzD622DLc; Wed, 26 Jul 2023 18:37:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 25E8060F23;
-	Wed, 26 Jul 2023 18:37:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 25E8060F23
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DAAECC0071;
-	Wed, 26 Jul 2023 18:37:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04464C0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:37:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BECAE8366E
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:37:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BECAE8366E
+	by smtp1.osuosl.org (Postfix) with ESMTP id EB372837A4;
+	Wed, 26 Jul 2023 18:38:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EB372837A4
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=frgcLyLF
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=i0oJ/x71
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rAjp1hxTL981; Wed, 26 Jul 2023 18:38:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 85CF782F31;
+	Wed, 26 Jul 2023 18:38:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85CF782F31
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54CACC0071;
+	Wed, 26 Jul 2023 18:38:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DEB01C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Jul 2023 18:38:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B8C038366E
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 26 Jul 2023 18:38:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B8C038366E
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id D4erZtGIjKZc
+ with ESMTP id JCXlBN1OGFon
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:37:08 +0000 (UTC)
+ Wed, 26 Jul 2023 18:38:21 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E134982F31
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0A74982F31
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 18:37:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E134982F31
+ Wed, 26 Jul 2023 18:38:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0A74982F31
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1690396626;
+ s=mimecast20190719; t=1690396700;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=IIAg2CLp9xDuIJyXx/zxbXpSOXSxiP7iZoyT0IErBLI=;
- b=frgcLyLF83l4Brb6PiGToei9WF0C33sh0m0jFSWKx7ZAkOz+TZ75727zqF8ptZy4utaTWe
- 0mKoLHlYapHwxO01ThzwPLA9MzttdRkEnmgAskPKH79Lo5GSixOS65lkD1RuA25zbN5Qh2
- 7NgrN0iDybMpYzEGj2kxMf+HlhrB3Jk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=0ZkfxuuQUI6WS1OsCy4f4xk/TS/NLkS7ZKlAlhCGBD4=;
+ b=i0oJ/x71pY4hcc4ApJlqbN1g+GUDIS9Vg8iTAS/adzcXN0rx6T+QevqxWNtd4HwXrlfwin
+ BN7Aq0TOqiQukLTuANQ9mLCyreHgSJH8gfpc4sV1qdQir1s98eXE0YJTCJIMXsgFv9tKP1
+ KQaLFFR9LPbvOkkGyizM7GwJ1PxGkUo=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681--hUcDTBaM1qT3hR-fmlxzQ-1; Wed, 26 Jul 2023 14:37:05 -0400
-X-MC-Unique: -hUcDTBaM1qT3hR-fmlxzQ-1
-Received: by mail-wm1-f70.google.com with SMTP id
- 5b1f17b1804b1-3fbab56aac7so267825e9.1
+ us-mta-112-YArg2sObMw2T1FEpzYEzKA-1; Wed, 26 Jul 2023 14:38:17 -0400
+X-MC-Unique: YArg2sObMw2T1FEpzYEzKA-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ 38308e7fff4ca-2b6f0527454so457961fa.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Jul 2023 11:37:04 -0700 (PDT)
+ Wed, 26 Jul 2023 11:38:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690396624; x=1691001424;
+ d=1e100.net; s=20221208; t=1690396696; x=1691001496;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=IIAg2CLp9xDuIJyXx/zxbXpSOXSxiP7iZoyT0IErBLI=;
- b=ecmdBGi9gLe9YynwzWs0nXMGIMeSofYOvA+V7jtSoAxvUpgOi6G3l8rZicZPbuEN9g
- URiGWaTAMjrvBJPAa2lkmhN4ebaAEeI9uEGNQL5+Xw/szcq07nqbpGCr46uSWaHi1b3w
- JzMZr12Tdplv9a2+sjAEFELwXaqyHEi8/oamEh9JSXlBHwMPnErDT4B2wWXgoIIYou+s
- KpEWhK/j/K2pbWSXHC/tcHbyb/9E9ie7KP6DZkhAW8T81p3tyMILFl5lDD2PdKqRzzAZ
- nJMKDcQK6igqK9n74D7yIHq5ncd8H6teiDsDundoxcDW19AjaJtoS78ECLGwF+OClgWL
- 7a7A==
-X-Gm-Message-State: ABy/qLYrsEj7AjZs3G51qxtXz0m5AY74+3QAOnHWNCVyXZsQVCTCZ7oO
- tLxU3m+wATr6X4xzLogikX3st1jdYoLJiDyS/PNjsuCY7LXefqRPuoq4TsgXGZFyw097cXQz2cG
- uWrki4Wc1otDWhq9nGqBq0O5oSFR3KIFrHgyfpOOsUQ==
-X-Received: by 2002:a5d:65d1:0:b0:317:5ed4:d821 with SMTP id
- e17-20020a5d65d1000000b003175ed4d821mr2198621wrw.55.1690396623962; 
- Wed, 26 Jul 2023 11:37:03 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlEkeVse3g7BMmMqZZpW4iVmRF/VxccwoNYoG2x1Cq2HpC5/SgntUwQLeTxvRJYedmVt4ctsxA==
-X-Received: by 2002:a5d:65d1:0:b0:317:5ed4:d821 with SMTP id
- e17-20020a5d65d1000000b003175ed4d821mr2198606wrw.55.1690396623611; 
- Wed, 26 Jul 2023 11:37:03 -0700 (PDT)
+ bh=0ZkfxuuQUI6WS1OsCy4f4xk/TS/NLkS7ZKlAlhCGBD4=;
+ b=J2cKbQaSXiNYL2nc7DjBN0OmWasIUkxbqddxQ6fOcXDGzCj2QTq57Ca0KvxwHg2kwC
+ ZpY5thqZE+WNqGiv36EVKZpV+m/CfQ/Ak55JoWgUlbcc8/908ehkuZf4aWNoTaSbqet6
+ 419TpiFSB+cRu+COCTnfcWHjOWsI+6yvMn+d1svG88uoRT8qSs59X8yrSbSxVA6Y+2qF
+ 6/0FVnMGYJV9SI43xU78qGGT1+lFiveN6kufRmEv78qsQmGW829qlTKJv49r1a7qLmBx
+ SHYC1Ir/OYGv2XfLwn8aaq5d1LOZ2bx7CBW6d9EwxkQDnCy9TnBV1JvdIkEH+RxnFUkg
+ N6aA==
+X-Gm-Message-State: ABy/qLaZvTX2jYnTpVK7oSBvoecog3IxIujDdxCvnn0HhITJJSz1Gfs2
+ wuORqOlDLeEMcXym72yf4JsaeXWNV5FxyVDTIYix2OAkZhcmT5l/JhpzZ6KLmTu1CvUVw9dehJL
+ +Xo1SJ+i40Paa9CociugWTwdooRnvNR2Ag/c+O5MOGQ==
+X-Received: by 2002:a05:6512:32aa:b0:4fe:d9e:a47 with SMTP id
+ q10-20020a05651232aa00b004fe0d9e0a47mr2160158lfe.69.1690396696359; 
+ Wed, 26 Jul 2023 11:38:16 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlGrmEcx/kJue2Mk0wlq5n2w2uLYFHBteYJyc3Ij9fkV7DF4dbhcJqImI+mNTHeim2phb5ANfA==
+X-Received: by 2002:a05:6512:32aa:b0:4fe:d9e:a47 with SMTP id
+ q10-20020a05651232aa00b004fe0d9e0a47mr2160137lfe.69.1690396695997; 
+ Wed, 26 Jul 2023 11:38:15 -0700 (PDT)
 Received: from redhat.com ([2.52.14.22]) by smtp.gmail.com with ESMTPSA id
- s25-20020a056402165900b0052229d203a4sm4971784edx.36.2023.07.26.11.36.58
+ v2-20020a170906380200b0099b6becb107sm8669173ejc.95.2023.07.26.11.38.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 26 Jul 2023 11:37:01 -0700 (PDT)
-Date: Wed, 26 Jul 2023 14:36:55 -0400
+ Wed, 26 Jul 2023 11:38:14 -0700 (PDT)
+Date: Wed, 26 Jul 2023 14:38:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Subject: Re: [PATCH 0/2] vdpa: Enable strict validation for netlink ops
-Message-ID: <20230726143640-mutt-send-email-mst@kernel.org>
-References: <20230726183054.10761-1-dtatulea@nvidia.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH RFC net-next v5 10/14] virtio/vsock: add
+ VIRTIO_VSOCK_F_DGRAM feature bit
+Message-ID: <20230726143736-mutt-send-email-mst@kernel.org>
+References: <20230413-b4-vsock-dgram-v5-0-581bd37fdb26@bytedance.com>
+ <20230413-b4-vsock-dgram-v5-10-581bd37fdb26@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <20230726183054.10761-1-dtatulea@nvidia.com>
+In-Reply-To: <20230413-b4-vsock-dgram-v5-10-581bd37fdb26@bytedance.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Lin Ma <linma@zju.edu.cn>
+Cc: linux-hyperv@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ kvm@vger.kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Simon Horman <simon.horman@corigine.com>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Dan Carpenter <dan.carpenter@linaro.org>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Bryan Tan <bryantan@vmware.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Krasnov Arseniy <oxffffaa@gmail.com>,
+ Vishnu Dasa <vdasa@vmware.com>, Jiang Wang <jiang.wang@bytedance.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,28 +129,33 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 26, 2023 at 09:30:48PM +0300, Dragos Tatulea wrote:
-> The original patch from Lin Ma enables the vdpa driver to use validation
-> netlink ops.
+On Wed, Jul 19, 2023 at 12:50:14AM +0000, Bobby Eshleman wrote:
+> This commit adds a feature bit for virtio vsock to support datagrams.
 > 
-> The second patch simply disables the validation skip which is no longer
-> neccesary. Patchset started of from this discussion [0].
+> Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
+> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> ---
+>  include/uapi/linux/virtio_vsock.h | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> [0] https://lore.kernel.org/virtualization/20230726074710-mutt-send-email-mst@kernel.org/T/#t
+> diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+> index 331be28b1d30..27b4b2b8bf13 100644
+> --- a/include/uapi/linux/virtio_vsock.h
+> +++ b/include/uapi/linux/virtio_vsock.h
+> @@ -40,6 +40,7 @@
+>  
+>  /* The feature bitmap for virtio vsock */
+>  #define VIRTIO_VSOCK_F_SEQPACKET	1	/* SOCK_SEQPACKET supported */
+> +#define VIRTIO_VSOCK_F_DGRAM		3	/* SOCK_DGRAM supported */
+>  
+>  struct virtio_vsock_config {
+>  	__le64 guest_cid;
 
-Cc stable with at least 1/2 ?
+pls do not add interface without first getting it accepted in the
+virtio spec.
 
-> Dragos Tatulea (1):
->   vdpa: Enable strict validation for netlinks ops
-> 
-> Lin Ma (1):
->   vdpa: Complement vdpa_nl_policy for nlattr length check
-> 
->  drivers/vdpa/vdpa.c | 9 +++------
->  1 file changed, 3 insertions(+), 6 deletions(-)
-> 
 > -- 
-> 2.41.0
+> 2.30.2
 
 _______________________________________________
 Virtualization mailing list
