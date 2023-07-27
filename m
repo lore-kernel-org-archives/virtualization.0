@@ -1,118 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7FC8EC00528
-	for <virtualization@archiver.kernel.org>; Thu, 27 Jul 2023 09:46:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2D2EC001E0
+	for <virtualization@archiver.kernel.org>; Thu, 27 Jul 2023 13:28:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 15B956131A;
-	Thu, 27 Jul 2023 09:46:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 15B956131A
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YRPRoDTC
+	by smtp4.osuosl.org (Postfix) with ESMTP id 442714077D;
+	Thu, 27 Jul 2023 13:28:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 442714077D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=P7Z89AXR
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XmmogTrfYzBE; Thu, 27 Jul 2023 09:46:57 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AZnpZcwJwsq2; Thu, 27 Jul 2023 13:28:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9B2436131D;
-	Thu, 27 Jul 2023 09:46:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9B2436131D
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6316A4033B;
+	Thu, 27 Jul 2023 13:28:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6316A4033B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61695C0071;
-	Thu, 27 Jul 2023 09:46:56 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D8FEC0071;
+	Thu, 27 Jul 2023 13:28:47 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C32B8C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1B6D9C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jul 2023 09:46:54 +0000 (UTC)
+ Thu, 27 Jul 2023 13:28:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 96E406131D
+ by smtp3.osuosl.org (Postfix) with ESMTP id E333760E8F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jul 2023 09:46:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 96E406131D
+ Thu, 27 Jul 2023 13:28:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E333760E8F
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=P7Z89AXR
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uGhA40l2maQf
+ with ESMTP id sKeAeeuhdpao
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jul 2023 09:46:54 +0000 (UTC)
+ Thu, 27 Jul 2023 13:28:44 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DE0936131A
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id ED14360E4C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jul 2023 09:46:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE0936131A
+ Thu, 27 Jul 2023 13:28:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ED14360E4C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1690451212;
+ s=mimecast20190719; t=1690464522;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=9OkPmAayPDeHyXcIMrmOokqY8foYhEAqmOlnJq34vJA=;
- b=YRPRoDTCtwCBtgscYwKZLIKnueEXAMdhIisvEZFEnfAJpClJ6+BAafAloGnsE1Ds5CfxXG
- 3Xxv3tpD1ugl4byMtEw2LRe3hlcEczbnR6Freyflah3Fvlq56FoPzT04EB0h7WUhFxUnZf
- TYrs7qZ8Twe7VJGjQbYUf0VS52w5iYg=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=m2yLzDlyUcF2RuBnCSo3HYbKe/4NFt4IwHbmPIwMLXk=;
+ b=P7Z89AXRgL1/Du4I0HCDXsJgqE+0lBf1HFFhArDNIHphMaych3Tj189laYZ66n7KAQ+jd7
+ j9V4C6frQeWJolpHPxmLy1G6mSDVeOht1TCXoJ+vxmOZjml+z2hJwL+sde1o30WUD0kboy
+ Az0yYJXLQBWrrMadV6RdES7ExWQoDt4=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-681-ReGBins2Oe667tKoVSTdCg-1; Thu, 27 Jul 2023 05:46:51 -0400
-X-MC-Unique: ReGBins2Oe667tKoVSTdCg-1
-Received: by mail-ed1-f71.google.com with SMTP id
- 4fb4d7f45d1cf-52231d5eecdso459006a12.0
+ us-mta-592-W-rraSlEPGiVlitJVhnfXw-1; Thu, 27 Jul 2023 09:28:38 -0400
+X-MC-Unique: W-rraSlEPGiVlitJVhnfXw-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ af79cd13be357-767c4cc8d84so21627785a.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 27 Jul 2023 02:46:51 -0700 (PDT)
+ Thu, 27 Jul 2023 06:28:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690451210; x=1691056010;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=9OkPmAayPDeHyXcIMrmOokqY8foYhEAqmOlnJq34vJA=;
- b=kyFWLUYfCDZcTBuW76cv8NCTZ5OuEoTZ1jL/yKpA5NdbL7PAtD/COP7FCgaBtDMiNF
- j7kxsaLGY0vsuLYb4RMvQ6SU19+mRfZ4z/xNwncK8NoWJIiVywlABTBXegpDmXQ4fPw8
- PWgQoHo7OK6dHHf75BDVEsuMryCi/67jzbqC80wFdTUKf/lTfWonrRtgvoJgpDl+B/T1
- 5WaXU0o5gBdsZcmJxoG8gwGbs+rKyz9k1W+gmYH0xxS4rT14CQgakm9q5vGhlQ8gumpR
- LH5Tu2lrj0qsyPsMy/km8QUzrbhYUiooIj77ZQt8L7ktxe8//jwxzu6CwT+knoXEPdM7
- HICg==
-X-Gm-Message-State: ABy/qLZDiBYpgrjLEplmoRM9gBStET9JHt+2yN52KFNSP9g+FzxgudSt
- Lu6/1PmDaDHb5Y4ihgKc4PomKQ33twwRvkx8+lZ6k/F51Zkv2oNf+V0IsR5GJGez8sCBpiu6P21
- 1HxPd5eiXZ205ppdTBDru43Lcu99uq+JdxJq5wg6XJA==
-X-Received: by 2002:a05:6402:1489:b0:522:3b94:c6f8 with SMTP id
- e9-20020a056402148900b005223b94c6f8mr1250123edv.37.1690451210315; 
- Thu, 27 Jul 2023 02:46:50 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHpfTNLuZLnTtrO8TWZKOIkB4YOY++DfnrAeL6F4rjv9p1h9W8it7NG7YKv6G2vviq2+n3zxQ==
-X-Received: by 2002:a05:6402:1489:b0:522:3b94:c6f8 with SMTP id
- e9-20020a056402148900b005223b94c6f8mr1250106edv.37.1690451210017; 
- Thu, 27 Jul 2023 02:46:50 -0700 (PDT)
-Received: from redhat.com ([2.52.14.22]) by smtp.gmail.com with ESMTPSA id
- n10-20020aa7db4a000000b00522584bb58esm436315edt.24.2023.07.27.02.46.47
+ d=1e100.net; s=20221208; t=1690464517; x=1691069317;
+ h=mime-version:user-agent:content-transfer-encoding:references
+ :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=rRXsOUJMOHDEoSqPt6aYSJsJvljvQhH7ysfJpGE7U3I=;
+ b=aFo8yivedpvNdPveNTvLETLoZGcHImeGwbWtP6OnSbjzWPfVgttLaiTQtDozfVcmKL
+ dxRnuqna8rW8hwaBjI/FdIJVVSQxNcdrRs8C++GqnoTxYQ3dB8+Hd2PhWofwMBmpXqS1
+ MWCGCEPdFxAJadCnD3G42vNFp2ofPJsSeSTr+3HSbgBFnv75+JYacGDLcLpU6ttv8rAb
+ H3442Hip+BNQ5skZZfADPImHC7kIHgGokFQN6lw1MiKytcYB/kkGhHnQ35n1jJp6+F6j
+ LPtmGgTRNumziwundXTsirVynOC6mgXgYy96YJoqfBXq/YcwPIkf+6+FNFEjmBn01fUO
+ Pa6A==
+X-Gm-Message-State: ABy/qLZO6rZ/UsFkf2VIhZKlKIzSsfAPZxlQCNC7ZHCqpbnBCiYhX4iC
+ JGtLMZPsLzq7avaNrXHZp6XQ7G+X7HEVUsyqJq8y+q9SjatmCFPXHwODTbrAln6X2Zr1aRTLkci
+ Nfex3nqj5uGOepfzwLrzpE9Xbnqd/UtB7+uFq2gdbQw==
+X-Received: by 2002:a05:620a:318f:b0:765:a957:f526 with SMTP id
+ bi15-20020a05620a318f00b00765a957f526mr5530688qkb.3.1690464517504; 
+ Thu, 27 Jul 2023 06:28:37 -0700 (PDT)
+X-Google-Smtp-Source: APBJJlHSS1sj3ooFLxDH7GaJepQJ5naZSQaFVoxc5DBSu1lp42qGgOiczSwad8h1rf/0DMO/8MK1BQ==
+X-Received: by 2002:a05:620a:318f:b0:765:a957:f526 with SMTP id
+ bi15-20020a05620a318f00b00765a957f526mr5530665qkb.3.1690464517246; 
+ Thu, 27 Jul 2023 06:28:37 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-238-55.dyn.eolo.it.
+ [146.241.238.55]) by smtp.gmail.com with ESMTPSA id
+ b4-20020a05620a126400b00767dafbf282sm411683qkl.12.2023.07.27.06.28.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 27 Jul 2023 02:46:49 -0700 (PDT)
-Date: Thu, 27 Jul 2023 05:46:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
- command waiting loop
-Message-ID: <20230727054300-mutt-send-email-mst@kernel.org>
-References: <e3490755-35ac-89b4-b0fa-b63720a9a5c9@redhat.com>
- <CACGkMEv1B9xFE7-LrLQC3FbH6CxTZC+toHXoLHFvJWn6wgobrA@mail.gmail.com>
- <20230724025720-mutt-send-email-mst@kernel.org>
- <CACGkMEs7zTXk77h-v_ORhvbtQ4FgehY6w6xCfFeVTeCnzChYkw@mail.gmail.com>
- <20230725033506-mutt-send-email-mst@kernel.org>
- <CACGkMEuAHeA4SqFCzY2v0EFcL9J07msXgDO-jTAWVy6OXzs=hA@mail.gmail.com>
- <20230726073453-mutt-send-email-mst@kernel.org>
- <CACGkMEv+CYD3SqmWkay1qVaC8-FQTDpC05Y+3AkmQtJwLMLUjQ@mail.gmail.com>
- <20230727020930-mutt-send-email-mst@kernel.org>
- <CACGkMEuEFG-vT0xqddRAn2=V+4kayVG7NFVpB96vmecy0TLOWw@mail.gmail.com>
+ Thu, 27 Jul 2023 06:28:36 -0700 (PDT)
+Message-ID: <f5823996fffad2f3c1862917772c182df74c74e7.camel@redhat.com>
+Subject: Re: [PATCH net-next V4 2/3] virtio_net: support per queue interrupt
+ coalesce command
+From: Paolo Abeni <pabeni@redhat.com>
+To: Gavin Li <gavinl@nvidia.com>, mst@redhat.com, jasowang@redhat.com, 
+ xuanzhuo@linux.alibaba.com, davem@davemloft.net, edumazet@google.com, 
+ kuba@kernel.org, ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org, 
+ john.fastabend@gmail.com, jiri@nvidia.com, dtatulea@nvidia.com
+Date: Thu, 27 Jul 2023 15:28:32 +0200
+In-Reply-To: <20230725130709.58207-3-gavinl@nvidia.com>
+References: <20230725130709.58207-1-gavinl@nvidia.com>
+ <20230725130709.58207-3-gavinl@nvidia.com>
+User-Agent: Evolution 3.46.4 (3.46.4-1.fc37)
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEuEFG-vT0xqddRAn2=V+4kayVG7NFVpB96vmecy0TLOWw@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, edumazet@google.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Maxime Coquelin <maxime.coquelin@redhat.com>, kuba@kernel.org,
- pabeni@redhat.com, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, gavi@nvidia.com,
+ virtualization@lists.linux-foundation.org, Heng Qi <hengqi@linux.alibaba.com>,
+ bpf@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,40 +128,64 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 27, 2023 at 04:59:33PM +0800, Jason Wang wrote:
-> > They really shouldn't - any NIC that takes forever to
-> > program will create issues in the networking stack.
+On Tue, 2023-07-25 at 16:07 +0300, Gavin Li wrote:
+> Add interrupt_coalesce config in send_queue and receive_queue to cache user
+> config.
 > 
-> Unfortunately, it's not rare as the device/cvq could be implemented
-> via firmware or software.
-
-Currently that mean one either has sane firmware with a scheduler that
-can meet deadlines, or loses ability to report errors back.
-
-> > But if they do they can always set this flag too.
+> Send per virtqueue interrupt moderation config to underlying device in
+> order to have more efficient interrupt moderation and cpu utilization of
+> guest VM.
 > 
-> This may have false negatives and may confuse the management.
+> Additionally, address all the VQs when updating the global configuration,
+> as now the individual VQs configuration can diverge from the global
+> configuration.
 > 
-> Maybe we can extend the networking core to allow some device specific
-> configurations to be done with device specific lock without rtnl. For
-> example, split the set_channels to
-> 
-> pre_set_channels
-> set_channels
-> post_set_channels
-> 
-> The device specific part could be done in pre and post without a rtnl lock?
-> 
-> Thanks
+> Signed-off-by: Gavin Li <gavinl@nvidia.com>
+> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
+FTR, this patch is significantly different from the version previously
+acked/reviewed, I'm unsure if all the reviewers are ok with the new
+one.
 
-Would the benefit be that errors can be reported to userspace then?
-Then maybe.  I think you will have to show how this works for at least
-one card besides virtio.
+[...]
 
+>  static int virtnet_set_coalesce(struct net_device *dev,
+>  				struct ethtool_coalesce *ec,
+>  				struct kernel_ethtool_coalesce *kernel_coal,
+>  				struct netlink_ext_ack *extack)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> -	int ret, i, napi_weight;
+> +	int ret, queue_number, napi_weight;
+>  	bool update_napi = false;
+>  
+>  	/* Can't change NAPI weight if the link is up */
+>  	napi_weight = ec->tx_max_coalesced_frames ? NAPI_POLL_WEIGHT : 0;
+> -	if (napi_weight ^ vi->sq[0].napi.weight) {
+> -		if (dev->flags & IFF_UP)
+> -			return -EBUSY;
+> -		else
+> -			update_napi = true;
+> +	for (queue_number = 0; queue_number < vi->max_queue_pairs; queue_number++) {
+> +		ret = virtnet_should_update_vq_weight(dev->flags, napi_weight,
+> +						      vi->sq[queue_number].napi.weight,
+> +						      &update_napi);
+> +		if (ret)
+> +			return ret;
+> +
+> +		if (update_napi) {
+> +			/* All queues that belong to [queue_number, queue_count] will be
+> +			 * updated for the sake of simplicity, which might not be necessary
 
--- 
-MST
+It looks like the comment above still refers to the old code. Should
+be:
+	[queue_number, vi->max_queue_pairs]
+			
+Otherwise LGTM, thanks!
+
+Paolo
 
 _______________________________________________
 Virtualization mailing list
