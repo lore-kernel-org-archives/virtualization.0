@@ -1,112 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DF728C001DE
-	for <virtualization@archiver.kernel.org>; Mon, 31 Jul 2023 09:55:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8DD40C001DC
+	for <virtualization@archiver.kernel.org>; Mon, 31 Jul 2023 16:22:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6904C81638;
-	Mon, 31 Jul 2023 09:55:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6904C81638
+	by smtp2.osuosl.org (Postfix) with ESMTP id EA9E140105;
+	Mon, 31 Jul 2023 16:22:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EA9E140105
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.de header.i=@suse.de header.a=rsa-sha256 header.s=susede2_rsa header.b=Hv4hUdd8;
+	dkim=fail reason="signature verification failed" header.d=suse.de header.i=@suse.de header.a=ed25519-sha256 header.s=susede2_ed25519 header.b=wwSc7l6C
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uCng9ikdJpjW; Mon, 31 Jul 2023 16:22:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5DED4409E6;
+	Mon, 31 Jul 2023 16:22:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5DED4409E6
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 24D46C0072;
+	Mon, 31 Jul 2023 16:22:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D36DEC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 31 Jul 2023 16:22:34 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id A4C3481E7E
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 31 Jul 2023 16:22:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A4C3481E7E
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WyaUHIzC
+ dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de
+ header.a=rsa-sha256 header.s=susede2_rsa header.b=Hv4hUdd8; 
+ dkim=pass header.d=suse.de header.i=@suse.de header.a=ed25519-sha256
+ header.s=susede2_ed25519 header.b=wwSc7l6C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t_l0T5INDWyt; Mon, 31 Jul 2023 09:55:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 05806814AB;
-	Mon, 31 Jul 2023 09:55:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05806814AB
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6236C0071;
-	Mon, 31 Jul 2023 09:55:25 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5CA8C0032
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wcg7niL0uXWN
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 09:55:24 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 78AFE40975
+ Mon, 31 Jul 2023 16:22:33 +0000 (UTC)
+X-Greylist: delayed 415 seconds by postgrey-1.37 at util1.osuosl.org;
+ Mon, 31 Jul 2023 16:22:33 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AC53081E55
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AC53081E55
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 09:55:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78AFE40975
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=WyaUHIzC
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pPnEmgR-WgiZ
+ Mon, 31 Jul 2023 16:22:33 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id D4AD22216F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 09:55:19 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 379C540974
- for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 09:55:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 379C540974
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1690797315;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Mon, 31 Jul 2023 16:15:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1690820135; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=SQoMCvoY9z85LfglEVQlQxX/qlev/LvzY9LJJJIP4QE=;
- b=WyaUHIzCDiUAPdMTDzPcWfidMzyn8+8vh4CsiMBP5sbaZXl+3bG0fo5iu5Zz2tRceOGM7v
- wnn6q5LonwsClOG1XzEKQAplJmcoCORuvWGKSCY0PAtxHfyOdYE12/WepCCDPkg/4uLlNX
- cNYPND85hnIAPoKogfFMrJqgiloapZ4=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-321-5WikDSVwNDipE2zncbIXvg-1; Mon, 31 Jul 2023 05:55:13 -0400
-X-MC-Unique: 5WikDSVwNDipE2zncbIXvg-1
-Received: by mail-ed1-f69.google.com with SMTP id
- 4fb4d7f45d1cf-522aa493673so1543999a12.0
+ bh=wq+S+i/DgAUfNeyWvaFz1Jcgybqkj9izNmHb6ulL26w=;
+ b=Hv4hUdd8qPZOq8Vkdrf+XI4uE+WJMTAWIxgfW12Z/0FOiGiRQEPstVE60ksGymlOzkUMIk
+ h3kTCBs9JZ8iSIfXh1rIpCEoIg3xVSUR85qbCvy73bU3kYfx/nFoPLgL8EOHjSF3NfzEtP
+ C34fW2lRhpsx6oW1+Oe4NRUQmXbdchQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1690820135;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=wq+S+i/DgAUfNeyWvaFz1Jcgybqkj9izNmHb6ulL26w=;
+ b=wwSc7l6CYki36CsDb/VNLqw0fJPNnhnwuDviGbBqkjquM9Qac9p/2JJOWXCmKPjQKHDRuh
+ AlfNXF98uNv1NhDw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BAB4C1322C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 02:55:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690797312; x=1691402112;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=SQoMCvoY9z85LfglEVQlQxX/qlev/LvzY9LJJJIP4QE=;
- b=hToaTg2SUrEWh0tD6RK4XWmozpAhDtn5r7eoFCFBgjxAClNeVsqrCnb06fykqYRxXj
- UCF8cxWTNgQalyOsz/b45SWy8hzgwu1mLFdPVDpq0CzZyxFBiHqq74CpVWKWbV+bro2f
- ClxePoHZ4AM7Ht17bpknumbQgBtH1hz0lAqJNbevqjkKbX68OpdNZVXGuNx54wEXN3U6
- UnXlCpsBL7k9ELUI9MgqPzCrDpPvNInYgCgFKi8xmFRyVB4i3klvhzz6NCnZTJsHTh8u
- C/9sqiOPSLQM3bJ4NWz0gq6UnciFzja0l6hBkxdfCJIZuNyC6W+poL2wglBgiCGGe47K
- wWxw==
-X-Gm-Message-State: ABy/qLYIhPwpKZLOW9yewFuJhfV8AN1+nWmM5YWgbQtTXiIhIvAEetbh
- ajXyNQFKUUN+zqNl6bhV1CK+fkIZ4NqVT7JljFZTy1rkbVOsQIPV2CJkn5bn4fyy2PUogQZvX4g
- dPnq9V4L6Lo/y36o7AqX+SQjYUlWmXbiHeqaG6WsVcQ==
-X-Received: by 2002:aa7:c443:0:b0:522:55bf:21af with SMTP id
- n3-20020aa7c443000000b0052255bf21afmr7246381edr.7.1690797311991; 
- Mon, 31 Jul 2023 02:55:11 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlE58TsNYsn/mQvr3qBZ6RLFnKbCrKdzPm+vWtUuE+xxgcoyQK4b4Cl5YZ1mF+9BK4pUUO0zZg==
-X-Received: by 2002:aa7:c443:0:b0:522:55bf:21af with SMTP id
- n3-20020aa7c443000000b0052255bf21afmr7246363edr.7.1690797311630; 
- Mon, 31 Jul 2023 02:55:11 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-25-29.business.telecomitalia.it.
- [87.12.25.29]) by smtp.gmail.com with ESMTPSA id
- i23-20020aa7c717000000b0051bed21a635sm5234603edq.74.2023.07.31.02.55.10
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 31 Jul 2023 02:55:10 -0700 (PDT)
-Date: Mon, 31 Jul 2023 11:55:07 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Yue Haibing <yuehaibing@huawei.com>
-Subject: Re: [PATCH net-next] vsock: Remove unused function declarations
-Message-ID: <ftvs2ivhynszqi3ib3w4uccfx5ren5dgkjagoeuyasbjdd76ac@4rbyljp2xnof>
-References: <20230729122036.32988-1-yuehaibing@huawei.com>
+ Mon, 31 Jul 2023 16:15:35 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id GL+LLCfex2RIDgAAMHmgww
+ (envelope-from <hare@suse.de>)
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 31 Jul 2023 16:15:35 +0000
+Message-ID: <bca7e5ab-6e3a-c768-f850-609cf006e82c@suse.de>
+Date: Mon, 31 Jul 2023 18:15:35 +0200
 MIME-Version: 1.0
-In-Reply-To: <20230729122036.32988-1-yuehaibing@huawei.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: vdasa@vmware.com, pv-drivers@vmware.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- bryantan@vmware.com, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- davem@davemloft.net
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH] virtio: a new vcpu watchdog driver
+Content-Language: en-US
+To: virtualization@lists.linux-foundation.org
+References: <20230731012512.235085-1-zhanghao1@kylinos.cn>
+ <1690770650.9714553-1-xuanzhuo@linux.alibaba.com>
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <1690770650.9714553-1-xuanzhuo@linux.alibaba.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,49 +111,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Jul 29, 2023 at 08:20:36PM +0800, Yue Haibing wrote:
->These are never implemented since introduction in
->commit d021c344051a ("VSOCK: Introduce VM Sockets")
->
->Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
->---
-> net/vmw_vsock/vmci_transport.h | 3 ---
-> 1 file changed, 3 deletions(-)
-
-Good catch ;-)
-
-I'd used "vsock/vmci:" as a prefix in the title.
-
-With or without:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
->
->diff --git a/net/vmw_vsock/vmci_transport.h b/net/vmw_vsock/vmci_transport.h
->index b7b072194282..dbda3ababa14 100644
->--- a/net/vmw_vsock/vmci_transport.h
->+++ b/net/vmw_vsock/vmci_transport.h
->@@ -116,9 +116,6 @@ struct vmci_transport {
-> 	spinlock_t lock; /* protects sk. */
-> };
->
->-int vmci_transport_register(void);
->-void vmci_transport_unregister(void);
->-
-> int vmci_transport_send_wrote_bh(struct sockaddr_vm *dst,
-> 				 struct sockaddr_vm *src);
-> int vmci_transport_send_read_bh(struct sockaddr_vm *dst,
->-- 
->2.34.1
->
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gNy8zMS8yMyAwNDozMCwgWHVhbiBaaHVvIHdyb3RlOgo+IE9uIE1vbiwgMzEgSnVsIDIwMjMg
+MDk6MjU6MTIgKzA4MDAsICJ6aGFuZ2hhbzEiIDx6aGFuZ2hhbzFAa3lsaW5vcy5jbj4gd3JvdGU6
+Cj4+IEEgbmV3IHZpcnRpbyBwY2kgZHJpdmVyIGlzIGFkZGVkIGZvciBsaXN0ZW5pbmcgdG8gdmNw
+dXMKPj4gaW5zaWRlIGd1ZXN0LiBFYWNoIHZjcHUgY3JlYXRlcyBhIGNvcnJlc3BvbmRpbmcgdGhy
+ZWFkIHRvCj4+IHBlcmlvZGljYWxseSBzZW5kIGRhdGEgdG8gcWVtdSdzIGJhY2stZW5kIHdhdGNo
+ZG9nIGRldmljZS4KPj4gSWYgYSB2Q1BVIGlzIGluIHRoZSBzdGFsbCBzdGF0ZSwgZGF0YSBjYW5u
+b3QgYmUgc2VudCB0bwo+PiBiYWNrLWVuZCB2aXJ0aW8gZGV2aWNlLiBBcyBhIHJlc3VsdCwgdGhl
+IGJhY2stZW5kIGRldmljZQo+PiBjYW4gZGV0ZWN0IHRoYXQgdGhlIGd1ZXN0IGlzIGluIHRoZSBz
+dGFsbCBzdGF0ZS4KPj4KPj4gVGhlIGRyaXZlciBpcyBtYWlubHkgdXNlZCB3aXRoIHRoZSBiYWNr
+LWVuZCB3YXRjaGRvZyBkZXZpY2Ugb2YgcWVtdS4KPj4KPj4gVGhlIHFlbXUgYmFja2VuZCB3YXRj
+aGRvZyBkZXZpY2UgaXMgaW1wbGVtZW50ZWQgYXMgZm9sbG93Ogo+PiBodHRwczovL2xvcmUua2Vy
+bmVsLm9yZy9xZW11LWRldmVsLzIwMjMwNzA1MDgxODEzLjQxMTUyNi0xLXpoYW5naGFvMUBreWxp
+bm9zLmNuLwo+IAo+IAo+IEkgdGhpbmsgd2UgbmVlZCB0byBpbnRyb2R1Y2UgdGhpcyBuZXcgZGV2
+aWNlIHRvIHRoZSB2aXJ0aW8gc3BlYyBmaXJzdGx5Lgo+IApBbmQgd2hlbiBoYXZpbmcgYSB3YXRj
+aGRvZyBkcml2ZXJzOiBzaG91bGRuJ3QgeW91IHdhdGNoIHRoZSB2aXJ0aW8gcXVldWUgCl9pdHNl
+bGZfPyBUaGVyZSBpcyBubyBndWFyYW50ZWUgdGhhdCB0aGUgdmlydGlvIHF1ZXVlIG1ha2VzIGZv
+cndhcmQgCnByb2dyZXNzIC4uLgoKQ2hlZXJzLAoKSGFubmVzCi0tIApEci4gSGFubmVzIFJlaW5l
+Y2tlICAgICAgICAgICAgICAgIEtlcm5lbCBTdG9yYWdlIEFyY2hpdGVjdApoYXJlQHN1c2UuZGUg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICArNDkgOTExIDc0MDUzIDY4OApTVVNFIFNvZnR3
+YXJlIFNvbHV0aW9ucyBHbWJILCBNYXhmZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcKSFJCIDM2
+ODA5IChBRyBOw7xybmJlcmcpLCBHZXNjaMOkZnRzZsO8aHJlcjogSXZvIFRvdGV2LCBBbmRyZXcK
+TXllcnMsIEFuZHJldyBNY0RvbmFsZCwgTWFydGplIEJvdWRpZW4gTW9lcm1hbgoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
