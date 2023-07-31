@@ -4,60 +4,76 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76155EB64DD
-	for <virtualization@archiver.kernel.org>; Mon, 31 Jul 2023 02:32:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AA810EB64DD
+	for <virtualization@archiver.kernel.org>; Mon, 31 Jul 2023 02:46:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D05BD60B79;
-	Mon, 31 Jul 2023 02:32:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D05BD60B79
+	by smtp3.osuosl.org (Postfix) with ESMTP id 45CCC60F97;
+	Mon, 31 Jul 2023 02:46:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 45CCC60F97
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zBcF7fX_fsms; Mon, 31 Jul 2023 02:32:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id DE8A76101A;
-	Mon, 31 Jul 2023 02:32:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DE8A76101A
+	with ESMTP id tOGg1plCIk9i; Mon, 31 Jul 2023 02:46:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CC15560BAB;
+	Mon, 31 Jul 2023 02:46:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CC15560BAB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A17E6C0071;
-	Mon, 31 Jul 2023 02:32:26 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E162EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B3CDCC0071;
+	Mon, 31 Jul 2023 02:46:29 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7B712C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 02:32:24 +0000 (UTC)
+ Mon, 31 Jul 2023 02:46:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BC416819F3
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6283740590
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 02:32:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC416819F3
+ Mon, 31 Jul 2023 02:46:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6283740590
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XCqGow6fbThn
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 00FQqHWwuzVl
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 02:32:22 +0000 (UTC)
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 45938819D6
+ Mon, 31 Jul 2023 02:46:27 +0000 (UTC)
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 94EC740564
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Jul 2023 02:32:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 45938819D6
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=5; SR=0;
- TI=SMTPD_---0VoXLbkL_1690770734; 
+ Mon, 31 Jul 2023 02:46:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 94EC740564
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
+ TI=SMTPD_---0VoXLgUE_1690771579; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VoXLbkL_1690770734) by smtp.aliyun-inc.com;
- Mon, 31 Jul 2023 10:32:15 +0800
-Message-ID: <1690770650.9714553-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio: a new vcpu watchdog driver
-Date: Mon, 31 Jul 2023 10:30:50 +0800
+ fp:SMTPD_---0VoXLgUE_1690771579) by smtp.aliyun-inc.com;
+ Mon, 31 Jul 2023 10:46:20 +0800
+Message-ID: <1690770875.591743-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
+Date: Mon, 31 Jul 2023 10:34:35 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "zhanghao1" <zhanghao1@kylinos.cn>
-References: <20230731012512.235085-1-zhanghao1@kylinos.cn>
-In-Reply-To: <20230731012512.235085-1-zhanghao1@kylinos.cn>
-Cc: zhanghao1 <zhanghao1@kylinos.cn>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com
+To: Jakub Kicinski <kuba@kernel.org>
+References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
+ <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
+ <ZK/cxNHzI23I6efc@infradead.org>
+ <20230713104805-mutt-send-email-mst@kernel.org>
+ <ZLjSsmTfcpaL6H/I@infradead.org>
+ <20230720131928-mutt-send-email-mst@kernel.org>
+ <ZL6qPvd6X1CgUD4S@infradead.org>
+ <1690251228.3455179-1-xuanzhuo@linux.alibaba.com>
+ <20230725033321-mutt-send-email-mst@kernel.org>
+ <1690283243.4048996-1-xuanzhuo@linux.alibaba.com>
+ <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
+ <20230728080305.5fe3737c@kernel.org>
+In-Reply-To: <20230728080305.5fe3737c@kernel.org>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,372 +91,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 31 Jul 2023 09:25:12 +0800, "zhanghao1" <zhanghao1@kylinos.cn> wrote:
-> A new virtio pci driver is added for listening to vcpus
-> inside guest. Each vcpu creates a corresponding thread to
-> periodically send data to qemu's back-end watchdog device.
-> If a vCPU is in the stall state, data cannot be sent to
-> back-end virtio device. As a result, the back-end device
-> can detect that the guest is in the stall state.
+On Fri, 28 Jul 2023 08:03:05 -0700, Jakub Kicinski <kuba@kernel.org> wrote:
+> On Fri, 28 Jul 2023 14:02:33 +0800 Xuan Zhuo wrote:
+> > Hi guys, this topic is stuck again. How should I proceed with this work?
+> >
+> > Let me briefly summarize:
+> > 1. The problem with adding virtio_dma_{map, sync} api is that, for AF_XDP and
+> > the driver layer, we need to support these APIs. The current conclusion of
+> > AF_XDP is no.
+> >
+> > 2. Set dma_set_mask_and_coherent, then we can use DMA API uniformly inside
+> > driver. This idea seems to be inconsistent with the framework design of DMA. The
+> > conclusion is no.
+> >
+> > 3. We noticed that if the virtio device supports VIRTIO_F_ACCESS_PLATFORM, it
+> > uses DMA API. And this type of device is the future direction, so we only
+> > support DMA premapped for this type of virtio device. The problem with this
+> > solution is that virtqueue_dma_dev() only returns dev in some cases, because
+> > VIRTIO_F_ACCESS_PLATFORM is supported in such cases. Otherwise NULL is returned.
+> > This option is currently NO.
+> >
+> > So I'm wondering what should I do, from a DMA point of view, is there any
+> > solution in case of using DMA API?
 >
-> The driver is mainly used with the back-end watchdog device of qemu.
->
-> The qemu backend watchdog device is implemented as follow:
-> https://lore.kernel.org/qemu-devel/20230705081813.411526-1-zhanghao1@kylinos.cn/
+> I'd step back and ask you why do you want to use AF_XDP with virtio.
 
+Or do you mean virtio vs virtio-net?
+All I did with virtio was to get the virtio-net to support AF_XDP.
 
-I think we need to introduce this new device to the virtio spec firstly.
+> Instead of bifurcating one virtio instance into different queues
+
+That is not the key of our problem.
+
+Even though we have a device that only works with AF_XDP,
+it still has this DMA issues.
+
+I think the current way(v11, v12) is a good solution, the only problem is that
+if the device is old, we can not do dma with DMA APIs. Then we will not suppot
+AF_XDP. I don't think it matters. But Christoph was a little worried.
 
 Thanks.
 
 
->
-> Signed-off-by: zhanghao1 <zhanghao1@kylinos.cn>
-> ---
->  drivers/virtio/Kconfig                      |   9 +
->  drivers/virtio/Makefile                     |   1 +
->  drivers/virtio/virtio_vcpu_stall_detector.c | 299 ++++++++++++++++++++
->  3 files changed, 309 insertions(+)
->  create mode 100644 drivers/virtio/virtio_vcpu_stall_detector.c
->
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index 0a53a61231c2..869323e345a1 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -173,4 +173,13 @@ config VIRTIO_DMA_SHARED_BUFFER
->  	 This option adds a flavor of dma buffers that are backed by
->  	 virtio resources.
->
-> +config VIRTIO_VCPU_WATCHDOG
-> +	tristate "Virtio vcpu watchdog driver"
-> +	depends on VIRTIO_PCI
-> +	help
-> +	 When this driver is bound inside a KVM guest, it will
-> +	 periodically "pet" an PCI virtio watchdog device from each vCPU
-> +	 and allow the host to detect vCPU stalls.
-> +
-> +	 If you do not intend to run this kernel as a guest, say N.
->  endif # VIRTIO_MENU
-> diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-> index 8e98d24917cc..c7341f078a34 100644
-> --- a/drivers/virtio/Makefile
-> +++ b/drivers/virtio/Makefile
-> @@ -12,3 +12,4 @@ obj-$(CONFIG_VIRTIO_INPUT) += virtio_input.o
->  obj-$(CONFIG_VIRTIO_VDPA) += virtio_vdpa.o
->  obj-$(CONFIG_VIRTIO_MEM) += virtio_mem.o
->  obj-$(CONFIG_VIRTIO_DMA_SHARED_BUFFER) += virtio_dma_buf.o
-> +obj-$(CONFIG_VIRTIO_VCPU_WATCHDOG) += virtio_vcpu_stall_detector.o
-> diff --git a/drivers/virtio/virtio_vcpu_stall_detector.c b/drivers/virtio/virtio_vcpu_stall_detector.c
-> new file mode 100644
-> index 000000000000..58344ca528be
-> --- /dev/null
-> +++ b/drivers/virtio/virtio_vcpu_stall_detector.c
-> @@ -0,0 +1,299 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +//
-> +// VCPU stall detector.
-> +// Copyright (C) Kylin Software, 2023
-> +
-> +#include <linux/cpu.h>
-> +#include <linux/init.h>
-> +#include <linux/io.h>
-> +#include <linux/kernel.h>
-> +
-> +#include <linux/device.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/nmi.h>
-> +#include <uapi/linux/virtio_ids.h>
-> +#include <linux/virtio_config.h>
-> +#include <linux/param.h>
-> +#include <linux/percpu.h>
-> +#include <linux/slab.h>
-> +
-> +#define VCPU_STALL_REG_STATUS		(0x00)
-> +#define VCPU_STALL_REG_LOAD_CNT		(0x04)
-> +#define VCPU_STALL_REG_CURRENT_CNT	(0x08)
-> +#define VCPU_STALL_REG_CLOCK_FREQ_HZ	(0x0C)
-> +#define VCPU_STALL_REG_LEN		(0x10)
-> +#define VCPU_STALL_REG_TIMEOUT_SEC	(0x14)
-> +
-> +#define VCPU_STALL_DEFAULT_CLOCK_HZ	(10)
-> +#define VCPU_STALL_MAX_CLOCK_HZ		(100)
-> +#define VCPU_STALL_DEFAULT_TIMEOUT_SEC	(8)
-> +#define VCPU_STALL_MAX_TIMEOUT_SEC	(600)
-> +
-> +struct vcpu_stall_detect_config {
-> +	u32 clock_freq_hz;
-> +	u32 stall_timeout_sec;
-> +
-> +	enum cpuhp_state hp_online;
-> +};
-> +
-> +struct vcpu_stall_priv {
-> +	struct hrtimer vcpu_hrtimer;
-> +	struct virtio_device *vdev;
-> +	u32 cpu_id;
-> +};
-> +
-> +struct vcpu_stall {
-> +	struct vcpu_stall_priv *priv;
-> +	struct virtqueue *vq;
-> +	spinlock_t lock;
-> +	struct pet_event {
-> +		u32 cpu_id;
-> +		bool is_initialized;
-> +		u32 ticks;
-> +	} pet_event;
-> +};
-> +
-> +static const struct virtio_device_id vcpu_stall_id_table[] = {
-> +	{ VIRTIO_ID_WATCHDOG, VIRTIO_DEV_ANY_ID },
-> +	{ 0, },
-> +};
-> +
-> +/* The vcpu stall configuration structure which applies to all the CPUs */
-> +static struct vcpu_stall_detect_config vcpu_stall_config;
-> +static struct vcpu_stall *vcpu_stall;
-> +
-> +static struct vcpu_stall_priv __percpu *vcpu_stall_detectors;
-> +
-> +static enum hrtimer_restart
-> +vcpu_stall_detect_timer_fn(struct hrtimer *hrtimer)
-> +{
-> +	u32 ticks, ping_timeout_ms;
-> +	struct scatterlist sg;
-> +	int unused, err = 0;
-> +
-> +	struct vcpu_stall_priv *vcpu_stall_detector =
-> +		this_cpu_ptr(vcpu_stall->priv);
-> +
-> +	/* Reload the stall detector counter register every
-> +	 * `ping_timeout_ms` to prevent the virtual device
-> +	 * from decrementing it to 0. The virtual device decrements this
-> +	 * register at 'clock_freq_hz' frequency.
-> +	 */
-> +	ticks = vcpu_stall_config.clock_freq_hz *
-> +				vcpu_stall_config.stall_timeout_sec;
-> +
-> +	spin_lock(&vcpu_stall->lock);
-> +	while (virtqueue_get_buf(vcpu_stall->vq, &unused))
-> +		;
-> +	vcpu_stall->pet_event.ticks = cpu_to_virtio32(vcpu_stall_detector->vdev, ticks);
-> +	vcpu_stall->pet_event.is_initialized = true;
-> +	vcpu_stall->pet_event.cpu_id = vcpu_stall_detector->cpu_id;
-> +
-> +	sg_init_one(&sg, &vcpu_stall->pet_event, sizeof(vcpu_stall->pet_event));
-> +	err = virtqueue_add_outbuf(vcpu_stall->vq, &sg, 1, vcpu_stall, GFP_ATOMIC);
-> +	if (!err)
-> +		virtqueue_kick(vcpu_stall->vq);
-> +	else
-> +		pr_err("cpu:%d failed to add outbuf, err:%d\n", vcpu_stall_detector->cpu_id, err);
-> +
-> +	spin_unlock(&vcpu_stall->lock);
-> +
-> +	ping_timeout_ms = vcpu_stall_config.stall_timeout_sec *
-> +			  MSEC_PER_SEC / 2;
-> +	hrtimer_forward_now(hrtimer,
-> +			    ms_to_ktime(ping_timeout_ms));
-> +	return HRTIMER_RESTART;
-> +}
-> +
-> +static int start_stall_detector_cpu(unsigned int cpu)
-> +{
-> +	u32 ticks, ping_timeout_ms;
-> +	struct scatterlist sg;
-> +	struct hrtimer *vcpu_hrtimer;
-> +	int err = 0;
-> +
-> +	struct vcpu_stall_priv *vcpu_stall_detector =
-> +		this_cpu_ptr(vcpu_stall->priv);
-> +
-> +	vcpu_stall_detector->cpu_id = cpu;
-> +
-> +	vcpu_hrtimer = &vcpu_stall_detector->vcpu_hrtimer;
-> +
-> +	/* Compute the number of ticks required for the stall detector
-> +	 * counter register based on the internal clock frequency and the
-> +	 * timeout value given from the device tree.
-> +	 */
-> +	ticks = vcpu_stall_config.clock_freq_hz *
-> +		vcpu_stall_config.stall_timeout_sec;
-> +	vcpu_stall->pet_event.ticks = cpu_to_virtio32(vcpu_stall_detector->vdev, ticks);
-> +
-> +	/* Pet the stall detector at half of its expiration timeout
-> +	 * to prevent spurious resets.
-> +	 */
-> +	ping_timeout_ms = vcpu_stall_config.stall_timeout_sec *
-> +			  MSEC_PER_SEC / 2;
-> +
-> +	hrtimer_init(vcpu_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-> +	vcpu_hrtimer->function = vcpu_stall_detect_timer_fn;
-> +
-> +	vcpu_stall->pet_event.is_initialized = true;
-> +
-> +	spin_lock(&vcpu_stall->lock);
-> +	vcpu_stall->pet_event.cpu_id = cpu;
-> +	sg_init_one(&sg, &vcpu_stall->pet_event, sizeof(vcpu_stall->pet_event));
-> +	err = virtqueue_add_outbuf(vcpu_stall->vq, &sg, 1, vcpu_stall, GFP_ATOMIC);
-> +	if (!err)
-> +		virtqueue_kick(vcpu_stall->vq);
-> +
-> +	spin_unlock(&vcpu_stall->lock);
-> +
-> +	hrtimer_start(vcpu_hrtimer, ms_to_ktime(ping_timeout_ms),
-> +		      HRTIMER_MODE_REL_PINNED);
-> +	return err;
-> +}
-> +
-> +static int stop_stall_detector_cpu(unsigned int cpu)
-> +{
-> +	int err = 0;
-> +	struct scatterlist sg;
-> +
-> +	struct vcpu_stall_priv *vcpu_stall_detector =
-> +		per_cpu_ptr(vcpu_stall_detectors, cpu);
-> +
-> +	/* Disable the stall detector for the current CPU */
-> +	hrtimer_cancel(&vcpu_stall_detector->vcpu_hrtimer);
-> +	vcpu_stall->pet_event.is_initialized = false;
-> +	vcpu_stall->pet_event.cpu_id = cpu;
-> +
-> +	spin_lock(&vcpu_stall->lock);
-> +	sg_init_one(&sg, &vcpu_stall->pet_event, sizeof(vcpu_stall->pet_event));
-> +	err = virtqueue_add_outbuf(vcpu_stall->vq, &sg, 1, vcpu_stall, GFP_ATOMIC);
-> +	if (!err)
-> +		virtqueue_kick(vcpu_stall->vq);
-> +
-> +	spin_unlock(&vcpu_stall->lock);
-> +
-> +	return err;
-> +}
-> +
-> +static int vcpu_stall_detect_probe(struct virtio_device *vdev)
-> +{
-> +	int ret, cpu;
-> +	u32 clock_freq_hz = VCPU_STALL_DEFAULT_CLOCK_HZ;
-> +	u32 stall_timeout_sec = VCPU_STALL_DEFAULT_TIMEOUT_SEC;
-> +
-> +	vcpu_stall = kzalloc(sizeof(struct vcpu_stall), GFP_KERNEL);
-> +	if (!vcpu_stall) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +	vdev->priv = vcpu_stall;
-> +
-> +	vcpu_stall->priv = devm_alloc_percpu(&vdev->dev,
-> +					typeof(struct vcpu_stall_priv));
-> +	if (!vcpu_stall->priv) {
-> +		ret = -ENOMEM;
-> +		goto failed_priv;
-> +	}
-> +
-> +	for_each_possible_cpu(cpu) {
-> +		struct vcpu_stall_priv *priv;
-> +
-> +		priv = per_cpu_ptr(vcpu_stall->priv, cpu);
-> +		priv->vdev = vdev;
-> +	}
-> +
-> +	ret = virtio_cread_feature(vdev, VCPU_STALL_REG_CLOCK_FREQ_HZ,
-> +						struct vcpu_stall_detect_config, clock_freq_hz,
-> +						&clock_freq_hz);
-> +	if (ret || !clock_freq_hz) {
-> +		if (!(clock_freq_hz > 0 &&
-> +		      clock_freq_hz < VCPU_STALL_MAX_CLOCK_HZ)) {
-> +			dev_warn(&vdev->dev, "clk out of range\n");
-> +			clock_freq_hz = VCPU_STALL_DEFAULT_CLOCK_HZ;
-> +		}
-> +	}
-> +	ret = virtio_cread_feature(vdev, VCPU_STALL_REG_TIMEOUT_SEC,
-> +						struct vcpu_stall_detect_config, stall_timeout_sec,
-> +						&stall_timeout_sec);
-> +	if (ret || !stall_timeout_sec) {
-> +		if (!(stall_timeout_sec > 0 &&
-> +		      stall_timeout_sec < VCPU_STALL_MAX_TIMEOUT_SEC)) {
-> +			dev_warn(&vdev->dev, "stall timeout out of range\n");
-> +			stall_timeout_sec = VCPU_STALL_DEFAULT_TIMEOUT_SEC;
-> +		}
-> +	}
-> +
-> +	vcpu_stall_config = (struct vcpu_stall_detect_config) {
-> +		.clock_freq_hz		= clock_freq_hz,
-> +		.stall_timeout_sec	= stall_timeout_sec
-> +	};
-> +
-> +	/* find virtqueue for guest to send pet event to host */
-> +	vcpu_stall->vq = virtio_find_single_vq(vdev, NULL, "pet-event");
-> +	if (IS_ERR(vcpu_stall->vq)) {
-> +		dev_err(&vdev->dev, "failed to find vq\n");
-> +		goto failed_priv;
-> +	}
-> +
-> +	spin_lock_init(&vcpu_stall->lock);
-> +
-> +	ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN,
-> +				"virt/vcpu_stall_detector:online",
-> +				start_stall_detector_cpu,
-> +				stop_stall_detector_cpu);
-> +	if (ret < 0) {
-> +		dev_err(&vdev->dev, "failed to install cpu hotplug\n");
-> +		goto failed_priv;
-> +	}
-> +
-> +	vcpu_stall_config.hp_online = ret;
-> +	return 0;
-> +
-> +
-> +failed_priv:
-> +	kfree(vcpu_stall);
-> +err:
-> +	return ret;
-> +}
-> +
-> +static void vcpu_stall_detect_remove(struct virtio_device *vdev)
-> +{
-> +	int cpu;
-> +
-> +	cpuhp_remove_state(vcpu_stall_config.hp_online);
-> +
-> +	for_each_possible_cpu(cpu)
-> +		stop_stall_detector_cpu(cpu);
-> +}
-> +
-> +static unsigned int features_legacy[] = {
-> +	VCPU_STALL_REG_STATUS, VCPU_STALL_REG_LOAD_CNT, VCPU_STALL_REG_CURRENT_CNT,
-> +	VCPU_STALL_REG_CLOCK_FREQ_HZ, VCPU_STALL_REG_LEN, VCPU_STALL_REG_TIMEOUT_SEC
-> +};
-> +
-> +
-> +static unsigned int features[] = {
-> +	VCPU_STALL_REG_STATUS, VCPU_STALL_REG_LOAD_CNT, VCPU_STALL_REG_CURRENT_CNT,
-> +	VCPU_STALL_REG_CLOCK_FREQ_HZ, VCPU_STALL_REG_LEN, VCPU_STALL_REG_TIMEOUT_SEC
-> +};
-> +
-> +static struct virtio_driver vcpu_stall_detect_driver = {
-> +	.feature_table	= features,
-> +	.feature_table_size = ARRAY_SIZE(features),
-> +	.feature_table_legacy	= features_legacy,
-> +	.feature_table_size_legacy	= ARRAY_SIZE(features_legacy),
-> +	.driver.name	= KBUILD_MODNAME,
-> +	.driver.owner	= THIS_MODULE,
-> +	.id_table =	vcpu_stall_id_table,
-> +	.probe  = vcpu_stall_detect_probe,
-> +	.remove = vcpu_stall_detect_remove,
-> +};
-> +
-> +module_virtio_driver(vcpu_stall_detect_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_DEVICE_TABLE(virtio, vcpu_stall_id_table);
-> +MODULE_AUTHOR("zhanghao1 <zhanghao1@kylinos.cn>");
-> +MODULE_DESCRIPTION("VCPU stall detector");
-> --
-> 2.25.1
->
->
-> No virus found
-> 		Checked by Hillstone Network AntiVirus
+> why
+> not create a separate virtio instance?
+
+
+
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
