@@ -4,120 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2B1EAC00528
-	for <virtualization@archiver.kernel.org>; Tue,  1 Aug 2023 16:18:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 50A84C00528
+	for <virtualization@archiver.kernel.org>; Tue,  1 Aug 2023 17:49:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A0622404E9;
-	Tue,  1 Aug 2023 16:18:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0622404E9
+	by smtp4.osuosl.org (Postfix) with ESMTP id A90D7417E7;
+	Tue,  1 Aug 2023 17:49:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A90D7417E7
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c/4sNp7X
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=DbgE+L+a
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HH-vZ7woHtf7; Tue,  1 Aug 2023 16:18:00 +0000 (UTC)
+	with ESMTP id pqFGtj8afd4s; Tue,  1 Aug 2023 17:49:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 86A72402F8;
-	Tue,  1 Aug 2023 16:17:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 86A72402F8
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8338B40629;
+	Tue,  1 Aug 2023 17:49:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8338B40629
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 59EDAC0071;
-	Tue,  1 Aug 2023 16:17:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AF021C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1031BC0072;
+	Tue,  1 Aug 2023 17:49:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AEB1BC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Aug 2023 16:17:58 +0000 (UTC)
+ Tue,  1 Aug 2023 17:49:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8274840604
+ by smtp3.osuosl.org (Postfix) with ESMTP id 96F8460E3F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Aug 2023 16:17:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8274840604
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=c/4sNp7X
+ Tue,  1 Aug 2023 17:49:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 96F8460E3F
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=DbgE+L+a
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xNN5pTIoBWD3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Y6eA-5isUUF1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Aug 2023 16:17:56 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7BD5940A1E
+ Tue,  1 Aug 2023 17:49:35 +0000 (UTC)
+Received: from mgamail.intel.com (unknown [192.55.52.115])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8A95C60D73
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Aug 2023 16:17:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7BD5940A1E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1690906675;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=l5c5x2m4IYrem8PdNKSvmUfDJDtRMMxft9vUT5B0Fjk=;
- b=c/4sNp7XaCKMR2OwETuIHdCdtjnzmlVvFVWQlY9o7RIdCK5itzNaQVBe3Vl+hBmImmeME9
- fgSwkM/6OdR0P0RwAn4y2Z/JtaAAGjkwvReGL6U6aceaTqt55eY91NT4xOuBZ/fUwoXVJL
- tGDhxA4v6HoNch3QPHa5B5kIWj28i/Y=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-65-GAdcf6x8P5amwFIL0t1giw-1; Tue, 01 Aug 2023 12:17:53 -0400
-X-MC-Unique: GAdcf6x8P5amwFIL0t1giw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-3fd2209bde4so31387445e9.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 01 Aug 2023 09:17:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1690906672; x=1691511472;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=l5c5x2m4IYrem8PdNKSvmUfDJDtRMMxft9vUT5B0Fjk=;
- b=c2qMLWCgZblHt47glTZ1L5h18VzAVWoE8eikuWm/lpBK5BHVXarQrmqOefIycAdwQD
- gnbTIWmwMqaX6iGaHUucSxFJj/mB1yKXpqXMkBL+9Bn1e/eYBhUPFr2WF7oovQKmA3Qg
- /Vc2yx3NLY7r1T0Sk7WcVjTGIPIyODSyhSGEcTWjdJP5il67PrSIyrji+24g3TDiprEx
- InSAgsxD1k2WIiwh/mN9uRcgI+PCd4Di4Y4r7T4kS5iqJaXIoGdQEWXMTcxAKB3MWDDV
- KOPzkC1+biHGk8wfx84Si+GxeFzkgxBxYk1SiCydUI/CUKYwVYrUfAHD95tu+4Pu/1ZF
- Pwmw==
-X-Gm-Message-State: ABy/qLa5gGuDuv6IZlYUvB/Q2O83lmoTGUzvmjrTBHiXKeRYbQTjmuc6
- 7HiqhvjAVF0JrZrRl6yWHwfg61Pprsa985wIVVc5y2t32xOA/MexABcTeCL1ztNTsUSAuEmTM/P
- +RqJgHluNEph4ZB5hE9ye+UkahfxOpB44N6dCJ92mZw==
-X-Received: by 2002:a1c:f719:0:b0:3fe:188c:b684 with SMTP id
- v25-20020a1cf719000000b003fe188cb684mr2874895wmh.7.1690906672680; 
- Tue, 01 Aug 2023 09:17:52 -0700 (PDT)
-X-Google-Smtp-Source: APBJJlHzGaEDuesnxEFzI0n611DuR5a4DRd8NJaxHoq6B/0W1UuZ3GQSQuSUE+vdJPZJwfyXDPDA7Q==
-X-Received: by 2002:a1c:f719:0:b0:3fe:188c:b684 with SMTP id
- v25-20020a1cf719000000b003fe188cb684mr2874878wmh.7.1690906672372; 
- Tue, 01 Aug 2023 09:17:52 -0700 (PDT)
-Received: from redhat.com ([2.52.21.81]) by smtp.gmail.com with ESMTPSA id
- l27-20020a05600c1d1b00b003fe1b3e0852sm4530904wms.0.2023.08.01.09.17.49
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 01 Aug 2023 09:17:51 -0700 (PDT)
-Date: Tue, 1 Aug 2023 12:17:47 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
-Message-ID: <20230801121543-mutt-send-email-mst@kernel.org>
-References: <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
- <ZK/cxNHzI23I6efc@infradead.org>
- <20230713104805-mutt-send-email-mst@kernel.org>
- <ZLjSsmTfcpaL6H/I@infradead.org>
- <20230720131928-mutt-send-email-mst@kernel.org>
- <ZL6qPvd6X1CgUD4S@infradead.org>
- <1690251228.3455179-1-xuanzhuo@linux.alibaba.com>
- <20230725033321-mutt-send-email-mst@kernel.org>
- <1690283243.4048996-1-xuanzhuo@linux.alibaba.com>
- <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
-MIME-Version: 1.0
-In-Reply-To: <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Tue,  1 Aug 2023 17:49:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8A95C60D73
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1690912175; x=1722448175;
+ h=date:from:to:cc:subject:message-id;
+ bh=+hiKzgVIdfd4Ul1Hh9n+HHx4lcITo+xaMCT5DwRKcdI=;
+ b=DbgE+L+aSFuNbba4hCdg3L5E3LxJ7AuIkABL6fWSc+/V/pGv8kjpNi5/
+ tvKBl7zDI+YXNU2mX3UaG5HP3MnFQkn4wK+QS1G9kgPM2FdGfO+amDYxz
+ SyGYNZOICCs05rNl4qDLxNps4qYx9nxUZuKI6590ubxmdbNxguHv6jBwg
+ M/XReCa6aPMGaOr2Iqgy38iSrMG+hsWTdz/OGFo9vdWhO8UNIgSZIxGra
+ HuldsSwXAvARKqU+jXqr8VCs79AYI826xJbmZBSmXoq85kYVggxTvORXX
+ SFYwpEn7dTf6RtMrLzuDnfk0gH46pxzTIeQBNOr5bkSEQdAwPyFX4tbip g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10789"; a="369368298"
+X-IronPort-AV: E=Sophos;i="6.01,247,1684825200"; d="scan'208";a="369368298"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+ by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 01 Aug 2023 10:49:34 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10789"; a="794275606"
+X-IronPort-AV: E=Sophos;i="6.01,247,1684825200"; d="scan'208";a="794275606"
+Received: from lkp-server01.sh.intel.com (HELO d1ccc7e87e8f) ([10.239.97.150])
+ by fmsmga008.fm.intel.com with ESMTP; 01 Aug 2023 10:49:32 -0700
+Received: from kbuild by d1ccc7e87e8f with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1qQtUx-0000UD-2k;
+ Tue, 01 Aug 2023 17:49:31 +0000
+Date: Wed, 02 Aug 2023 01:49:16 +0800
+From: kernel test robot <lkp@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Subject: [linux-next:master] BUILD REGRESSION
+ a734662572708cf062e974f659ae50c24fc1ad17
+Message-ID: <202308020108.zBWJNwcE-lkp@intel.com>
+User-Agent: s-nail v14.9.24
+Cc: linux-arch@vger.kernel.org,
+ Linux Memory Management List <linux-mm@kvack.org>, linux-i2c@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,79 +91,206 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 28, 2023 at 02:02:33PM +0800, Xuan Zhuo wrote:
-> On Tue, 25 Jul 2023 19:07:23 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > On Tue, 25 Jul 2023 03:34:34 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Tue, Jul 25, 2023 at 10:13:48AM +0800, Xuan Zhuo wrote:
-> > > > On Mon, 24 Jul 2023 09:43:42 -0700, Christoph Hellwig <hch@infradead.org> wrote:
-> > > > > On Thu, Jul 20, 2023 at 01:21:07PM -0400, Michael S. Tsirkin wrote:
-> > > > > > Well I think we can add wrappers like virtio_dma_sync and so on.
-> > > > > > There are NOP for non-dma so passing the dma device is harmless.
-> > > > >
-> > > > > Yes, please.
-> > > >
-> > > >
-> > > > I am not sure I got this fully.
-> > > >
-> > > > Are you mean this:
-> > > > https://lore.kernel.org/all/20230214072704.126660-8-xuanzhuo@linux.alibaba.com/
-> > > > https://lore.kernel.org/all/20230214072704.126660-9-xuanzhuo@linux.alibaba.com/
-> > > >
-> > > > Then the driver must do dma operation(map and sync) by these virtio_dma_* APIs.
-> > > > No care the device is non-dma device or dma device.
-> > >
-> > > yes
-> > >
-> > > > Then the AF_XDP must use these virtio_dma_* APIs for virtio device.
-> > >
-> > > We'll worry about AF_XDP when the patch is posted.
-> >
-> > YES.
-> >
-> > We discussed it. They voted 'no'.
-> >
-> > http://lore.kernel.org/all/20230424082856.15c1e593@kernel.org
-> 
-> 
-> Hi guys, this topic is stuck again. How should I proceed with this work?
-> 
-> Let me briefly summarize:
-> 1. The problem with adding virtio_dma_{map, sync} api is that, for AF_XDP and
-> the driver layer, we need to support these APIs. The current conclusion of
-> AF_XDP is no.
-> 
-> 2. Set dma_set_mask_and_coherent, then we can use DMA API uniformly inside
-> driver. This idea seems to be inconsistent with the framework design of DMA. The
-> conclusion is no.
-> 
-> 3. We noticed that if the virtio device supports VIRTIO_F_ACCESS_PLATFORM, it
-> uses DMA API. And this type of device is the future direction, so we only
-> support DMA premapped for this type of virtio device. The problem with this
-> solution is that virtqueue_dma_dev() only returns dev in some cases, because
-> VIRTIO_F_ACCESS_PLATFORM is supported in such cases. Otherwise NULL is returned.
-> This option is currently NO.
-> 
-> So I'm wondering what should I do, from a DMA point of view, is there any
-> solution in case of using DMA API?
-> 
-> Thank you
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+branch HEAD: a734662572708cf062e974f659ae50c24fc1ad17  Add linux-next specific files for 20230801
 
+Error/Warning reports:
 
-I think it's ok at this point, Christoph just asked you
-to add wrappers for map/unmap for use in virtio code.
-Seems like a cosmetic change, shouldn't be hard.
-Otherwise I haven't seen significant comments.
+https://lore.kernel.org/oe-kbuild-all/202307251531.p8ZLFTMZ-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202308020154.Xrcb9bWT-lkp@intel.com
 
+Error/Warning: (recently discovered and may have been fixed)
 
-Christoph do I summarize what you are saying correctly?
+../lib/gcc/loongarch64-linux/12.3.0/plugin/include/config/loongarch/loongarch-opts.h:31:10: fatal error: loongarch-def.h: No such file or directory
+clang-16: error: unknown argument: '-msym32'
+drivers/i2c/busses/i2c-virtio.c:270:3: error: field designator 'freeze' does not refer to any field in type 'struct virtio_driver'
+drivers/i2c/busses/i2c-virtio.c:271:3: error: field designator 'restore' does not refer to any field in type 'struct virtio_driver'
+drivers/regulator/max77857-regulator.c:312:16: error: initializer element is not a compile-time constant
+include/asm-generic/io.h:1137:20: error: static declaration of 'ioport_map' follows non-static declaration
+include/asm-generic/io.h:1147:22: error: static declaration of 'ioport_unmap' follows non-static declaration
+include/asm-generic/io.h:636:15: error: redefinition of 'inb_p'
+include/asm-generic/io.h:644:15: error: redefinition of 'inw_p'
+include/asm-generic/io.h:652:15: error: redefinition of 'inl_p'
+include/asm-generic/io.h:660:16: error: redefinition of 'outb_p'
+include/asm-generic/io.h:668:16: error: redefinition of 'outw_p'
+include/asm-generic/io.h:676:16: error: redefinition of 'outl_p'
+include/asm-generic/io.h:689:14: error: redefinition of 'insb'
+include/asm-generic/io.h:697:14: error: redefinition of 'insw'
+include/asm-generic/io.h:705:14: error: redefinition of 'insl'
+include/asm-generic/io.h:713:15: error: redefinition of 'outsb'
+include/asm-generic/io.h:722:15: error: redefinition of 'outsw'
+include/asm-generic/io.h:731:15: error: redefinition of 'outsl'
+
+Unverified Error/Warning (likely false positive, please contact us if interested):
+
+sh4-linux-gcc: internal compiler error: Segmentation fault signal terminated program cc1
+{standard input}: Warning: end of file not at end of a line; newline inserted
+{standard input}:1095: Error: pcrel too far
+
+Error/Warning ids grouped by kconfigs:
+
+gcc_recent_errors
+|-- loongarch-allmodconfig
+|   `-- lib-gcc-loongarch64-linux-..-plugin-include-config-loongarch-loongarch-opts.h:fatal-error:loongarch-def.h:No-such-file-or-directory
+|-- sh-allmodconfig
+|   |-- sh4-linux-gcc:internal-compiler-error:Segmentation-fault-signal-terminated-program-cc1
+|   |-- standard-input:Error:pcrel-too-far
+|   `-- standard-input:Warning:end-of-file-not-at-end-of-a-line-newline-inserted
+`-- sh-randconfig-r023-20230731
+    |-- include-asm-generic-io.h:error:redefinition-of-inb_p
+    |-- include-asm-generic-io.h:error:redefinition-of-inl_p
+    |-- include-asm-generic-io.h:error:redefinition-of-insb
+    |-- include-asm-generic-io.h:error:redefinition-of-insl
+    |-- include-asm-generic-io.h:error:redefinition-of-insw
+    |-- include-asm-generic-io.h:error:redefinition-of-inw_p
+    |-- include-asm-generic-io.h:error:redefinition-of-outb_p
+    |-- include-asm-generic-io.h:error:redefinition-of-outl_p
+    |-- include-asm-generic-io.h:error:redefinition-of-outsb
+    |-- include-asm-generic-io.h:error:redefinition-of-outsl
+    |-- include-asm-generic-io.h:error:redefinition-of-outsw
+    |-- include-asm-generic-io.h:error:redefinition-of-outw_p
+    |-- include-asm-generic-io.h:error:static-declaration-of-ioport_map-follows-non-static-declaration
+    `-- include-asm-generic-io.h:error:static-declaration-of-ioport_unmap-follows-non-static-declaration
+clang_recent_errors
+|-- hexagon-allmodconfig
+|   |-- drivers-i2c-busses-i2c-virtio.c:error:field-designator-freeze-does-not-refer-to-any-field-in-type-struct-virtio_driver
+|   |-- drivers-i2c-busses-i2c-virtio.c:error:field-designator-restore-does-not-refer-to-any-field-in-type-struct-virtio_driver
+|   `-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
+|-- hexagon-randconfig-r015-20230731
+|   `-- drivers-regulator-max77857-regulator.c:error:initializer-element-is-not-a-compile-time-constant
+|-- i386-randconfig-i012-20230731
+|   |-- drivers-i2c-busses-i2c-virtio.c:error:field-designator-freeze-does-not-refer-to-any-field-in-type-struct-virtio_driver
+|   `-- drivers-i2c-busses-i2c-virtio.c:error:field-designator-restore-does-not-refer-to-any-field-in-type-struct-virtio_driver
+`-- mips-sb1250_swarm_defconfig
+    `-- clang:error:unknown-argument:msym32
+
+elapsed time: 725m
+
+configs tested: 111
+configs skipped: 5
+
+tested configs:
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+alpha                randconfig-r026-20230731   gcc  
+arc                              alldefconfig   gcc  
+arc                              allyesconfig   gcc  
+arc                                 defconfig   gcc  
+arc                  randconfig-r004-20230731   gcc  
+arc                  randconfig-r033-20230731   gcc  
+arc                  randconfig-r043-20230731   gcc  
+arm                              allmodconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                                 defconfig   gcc  
+arm                            mmp2_defconfig   clang
+arm                  randconfig-r046-20230731   gcc  
+arm64                            allyesconfig   gcc  
+arm64                               defconfig   gcc  
+arm64                randconfig-r003-20230731   gcc  
+arm64                randconfig-r021-20230731   clang
+csky                                defconfig   gcc  
+hexagon              randconfig-r001-20230731   clang
+hexagon              randconfig-r022-20230731   clang
+hexagon              randconfig-r041-20230731   clang
+hexagon              randconfig-r045-20230731   clang
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-r004-20230731   gcc  
+i386         buildonly-randconfig-r005-20230731   gcc  
+i386         buildonly-randconfig-r006-20230731   gcc  
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                 randconfig-i001-20230731   gcc  
+i386                 randconfig-i002-20230731   gcc  
+i386                 randconfig-i003-20230731   gcc  
+i386                 randconfig-i004-20230731   gcc  
+i386                 randconfig-i005-20230731   gcc  
+i386                 randconfig-i006-20230731   gcc  
+i386                 randconfig-i011-20230731   clang
+i386                 randconfig-i012-20230731   clang
+i386                 randconfig-i013-20230731   clang
+i386                 randconfig-i014-20230731   clang
+i386                 randconfig-i015-20230731   clang
+i386                 randconfig-i016-20230731   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+m68k                             allmodconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                 randconfig-r014-20230731   gcc  
+m68k                 randconfig-r025-20230731   gcc  
+microblaze           randconfig-r002-20230731   gcc  
+microblaze           randconfig-r023-20230731   gcc  
+mips                             allmodconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                      maltaaprp_defconfig   clang
+mips                   sb1250_swarm_defconfig   clang
+nios2                               defconfig   gcc  
+nios2                randconfig-r024-20230731   gcc  
+nios2                randconfig-r035-20230731   gcc  
+nios2                randconfig-r036-20230731   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc               randconfig-r006-20230731   gcc  
+parisc               randconfig-r031-20230731   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                randconfig-r013-20230731   clang
+riscv                randconfig-r042-20230731   clang
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                 randconfig-r034-20230731   gcc  
+s390                 randconfig-r044-20230731   clang
+sh                               allmodconfig   gcc  
+sh                        apsh4ad0a_defconfig   gcc  
+sparc                            allyesconfig   gcc  
+sparc                               defconfig   gcc  
+sparc                randconfig-r011-20230731   gcc  
+sparc                randconfig-r012-20230731   gcc  
+sparc64              randconfig-r015-20230731   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   clang
+um                                  defconfig   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64       buildonly-randconfig-r001-20230731   gcc  
+x86_64       buildonly-randconfig-r002-20230731   gcc  
+x86_64       buildonly-randconfig-r003-20230731   gcc  
+x86_64                              defconfig   gcc  
+x86_64                                  kexec   gcc  
+x86_64               randconfig-x001-20230731   clang
+x86_64               randconfig-x002-20230731   clang
+x86_64               randconfig-x003-20230731   clang
+x86_64               randconfig-x004-20230731   clang
+x86_64               randconfig-x005-20230731   clang
+x86_64               randconfig-x006-20230731   clang
+x86_64               randconfig-x011-20230731   gcc  
+x86_64               randconfig-x012-20230731   gcc  
+x86_64               randconfig-x013-20230731   gcc  
+x86_64               randconfig-x014-20230731   gcc  
+x86_64               randconfig-x015-20230731   gcc  
+x86_64               randconfig-x016-20230731   gcc  
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+
 -- 
-MST
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
