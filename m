@@ -1,59 +1,59 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8AC53EB64DD
-	for <virtualization@archiver.kernel.org>; Wed,  2 Aug 2023 01:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 58700EB64DD
+	for <virtualization@archiver.kernel.org>; Wed,  2 Aug 2023 01:53:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ECB6E81F96;
-	Wed,  2 Aug 2023 01:47:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ECB6E81F96
+	by smtp3.osuosl.org (Postfix) with ESMTP id D6B4060DFF;
+	Wed,  2 Aug 2023 01:53:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6B4060DFF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id szYSNBSTu-wC; Wed,  2 Aug 2023 01:47:50 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IM_43cokzK0X; Wed,  2 Aug 2023 01:53:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 45DBA80C31;
-	Wed,  2 Aug 2023 01:47:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 45DBA80C31
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4E52060F1E;
+	Wed,  2 Aug 2023 01:53:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E52060F1E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05137C0072;
-	Wed,  2 Aug 2023 01:47:49 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C2EABC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E103C0072;
+	Wed,  2 Aug 2023 01:53:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 29542C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 01:47:47 +0000 (UTC)
+ Wed,  2 Aug 2023 01:53:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8E85681871
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0A61380C06
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 01:47:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E85681871
+ Wed,  2 Aug 2023 01:53:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0A61380C06
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sgK5IEIFoe7J
+ with ESMTP id x3POeD5e3FWU
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 01:47:46 +0000 (UTC)
-Received: from out30-124.freemail.mail.aliyun.com
- (out30-124.freemail.mail.aliyun.com [115.124.30.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 98F9581F89
+ Wed,  2 Aug 2023 01:53:13 +0000 (UTC)
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 60D6780B8F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 01:47:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 98F9581F89
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R581e4; CH=green; DM=||false|;
+ Wed,  2 Aug 2023 01:53:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 60D6780B8F
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
  DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=15; SR=0;
- TI=SMTPD_---0VosmxL9_1690940857; 
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
+ TI=SMTPD_---0Vot-SFL_1690941185; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VosmxL9_1690940857) by smtp.aliyun-inc.com;
- Wed, 02 Aug 2023 09:47:38 +0800
-Message-ID: <1690940214.7564142-1-xuanzhuo@linux.alibaba.com>
+ fp:SMTPD_---0Vot-SFL_1690941185) by smtp.aliyun-inc.com;
+ Wed, 02 Aug 2023 09:53:06 +0800
+Message-ID: <1690940971.9409487-2-xuanzhuo@linux.alibaba.com>
 Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
-Date: Wed, 2 Aug 2023 09:36:54 +0800
+Date: Wed, 2 Aug 2023 09:49:31 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
  <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
  <ZK/cxNHzI23I6efc@infradead.org>
@@ -65,22 +65,15 @@ References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
  <20230725033321-mutt-send-email-mst@kernel.org>
  <1690283243.4048996-1-xuanzhuo@linux.alibaba.com>
  <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
- <20230728080305.5fe3737c@kernel.org>
- <CACGkMEs5uc=ct8BsJzV2SEJzAGXqCP__yxo-MBa6d6JzDG4YOg@mail.gmail.com>
- <20230731084651.16ec0a96@kernel.org>
- <1690855424.7821567-1-xuanzhuo@linux.alibaba.com>
- <20230731193606.25233ed9@kernel.org>
- <1690858650.8698683-2-xuanzhuo@linux.alibaba.com>
- <20230801084510.1c2460b9@kernel.org>
-In-Reply-To: <20230801084510.1c2460b9@kernel.org>
-Cc: Pavel Begunkov <asml.silence@gmail.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ <20230801121543-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230801121543-mutt-send-email-mst@kernel.org>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org,
  Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
- bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- "David S.  Miller" <davem@davemloft.net>
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,50 +86,91 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCAxIEF1ZyAyMDIzIDA4OjQ1OjEwIC0wNzAwLCBKYWt1YiBLaWNpbnNraSA8a3ViYUBr
-ZXJuZWwub3JnPiB3cm90ZToKPiBPbiBUdWUsIDEgQXVnIDIwMjMgMTA6NTc6MzAgKzA4MDAgWHVh
-biBaaHVvIHdyb3RlOgo+ID4gPiBZb3UgaGF2ZSB0aGlzIHdvcmtpbmcgYW5kIGJlbmNobWFya2Vk
-IG9yIHRoaXMgaXMganVzdCBhbmQgaWRlYT8KPiA+Cj4gPiBUaGlzIGlzIG5vdCBqdXN0IGFuIGlk
-ZWEuIEkgc2FpZCB0aGF0IGhhcyBiZWVuIHVzZWQgb24gbGFyZ2Ugc2NhbGUuCj4gPgo+ID4gVGhp
-cyBpcyB0aGUgbGlicmFyeSBmb3IgdGhlIEFQUCB0byB1c2UgdGhlIEFGX1hEUC4gV2UgaGFzIG9w
-ZW4gaXQuCj4gPiBodHRwczovL2dpdGVlLmNvbS9hbm9saXMvbGlieHVkcAo+ID4KPiA+IFRoaXMg
-aXMgdGhlIEFsaWJhYmEgdmVyc2lvbiBvZiB0aGUgbmdpbnguIFRoYXQgaGFzIGJlZW4gb3BlbmVk
-LCB0aGF0IHN1cHBvcnRlZAo+ID4gdG8gd29yayB3aXRoIHRoZSBsaWJyYXkgdG8gdXNlIEFGX1hE
-UC4KPiA+IGh0dHA6Ly90ZW5naW5lLnRhb2Jhby5vcmcvCj4gPgo+ID4gSSBzdXBwb3J0ZWQgdGhp
-cyBvbiBvdXIga2VybmVsIHJlbGVhc2UgQW5vbGlzL0FsaW51eC4KPgo+IEludGVyZXN0aW5nIQo+
-Cj4gPiBUaGUgd29yayB3YXMgZG9uZSBhYm91dCAyIHllYXJzIGFnby4gWW91IGtub3csIEkgcHVz
-aGVkIHRoZSBmaXJzdCB2ZXJzaW9uIHRvCj4gPiBlbmFibGUgQUZfWERQIG9uIHZpcnRpby1uZXQg
-YWJvdXQgdHdvIHllYXJzIGFnby4gSSBuZXZlciB0aG91Z2h0IHRoZSBqb2Igd291bGQKPiA+IGJl
-IHNvIGRpZmZpY3VsdC4KPgo+IE1lIG5laXRoZXIsIGJ1dCBpdCBpcyB3aGF0IGl0IGlzLgo+Cj4g
-PiBUaGUgbmljICh2aXJ0aW8tbmV0KSBvZiBBbGlZdW4gY2FuIHJlYWNoIDI0LDAwMCwwMDBQUFMu
-Cj4gPiBTbyBJIHRoaW5rIHRoZXJlIGlzIG5vIGRpZmZlcmVudCB3aXRoIHRoZSByZWFsIEhXIG9u
-IHRoZSBwZXJmb3JtYW5jZS4KPiA+Cj4gPiBXaXRoIHRoZSBBRl9YRFAsIHRoZSBVRFAgcHBzIGlz
-IHNldmVuIHRpbWVzIHRoYXQgb2YgdGhlIGtlcm5lbCB1ZHAgc3RhY2suCj4KPiBVRFAgcHBzIG9y
-IFFVSUMgcHBzPyBVRFAgd2l0aCBvciB3aXRob3V0IEdTTz8KClVEUCBQUFMgd2l0aG91dCBHU08u
-Cgo+Cj4gRG8geW91IGhhdmUgbWVhc3VyZW1lbnRzIG9mIGhvdyBtdWNoIGl0IHNhdmVzIGluIHJl
-YWwgd29ybGQgd29ya2xvYWRzPwo+IEknbSBhc2tpbmcgbW9zdGx5IG91dCBvZiBjdXJpb3NpdHks
-IG5vdCB0byBxdWVzdGlvbiB0aGUgdXNlIGNhc2UuCgpZRVPvvIx0aGUgcmVzdWx0IGlzIGFmZmVj
-dGVkIGJ5IHRoZSByZXF1ZXN0IHNpemUsIHdlIGNhbiByZWFjaCAxMC00MCUuClRoZSBzbWFsbGVy
-IHRoZSByZXF1ZXN0IHNpemUsIHRoZSBsb3dlciB0aGUgcmVzdWx0LgoKPgo+ID4gPiBXaGF0IGFi
-b3V0IGlvX3VyaW5nIHplcm8gY29weSB3LyBwcmUtcmVnaXN0ZXJlZCBidWZmZXJzLgo+ID4gPiBZ
-b3UnbGwgZ2V0IGNzdW0gb2ZmbG9hZCwgR1NPLCBhbGwgdGhlIG5vcm1hbCBwZXJmIGZlYXR1cmVz
-Lgo+ID4KPiA+IFdlIHRyaWVkIGlvLXVyaW5nLCBidXQgaXQgd2FzIG5vdCBzdWl0YWJsZSBmb3Ig
-b3VyIHNjZW5hcmlvLgo+ID4KPiA+IFllcywgbm93IHRoZSBBRl9YRFAgZG9lcyBub3Qgc3VwcG9y
-dCB0aGUgY3N1bSBvZmZsb2FkIGFuZCBHU08uCj4gPiBUaGlzIGlzIGluZGVlZCBhIHNtYWxsIHBy
-b2JsZW0uCj4KPiBDYW4geW91IHNheSBtb3JlIGFib3V0IGlvLXVyaW5nIHN1aXRhYmlsaXR5PyBJ
-dCBjYW4gZG8gemVybyBjb3B5Cj4gYW5kIHJlY2VudGx5LWlzaCBQYXZlbCBvcHRpbWl6ZWQgaXQg
-cXVpdGUgYSBiaXQuCgpGaXJzdCwgQUZfWERQIGlzIGFsc28gemVyby1jb3B5LiBXZSBhbHNvIHVz
-ZSBYRFAgZm9yIGEgZmV3IHRoaW5ncy4KCkFuZCB0aGlzIHdhcyBhbGwgYWJvdXQgdHdvIHllYXJz
-IGFnbywgc28gd2UgaGF2ZSB0byBzYXkgc29tZXRoaW5nIGFib3V0IGlvLXVyaW5nCnR3byB5ZWFy
-cyBhZ28uCgpBcyBmYXIgYXMgSSBrbm93LCBpby11cmluZyBzdGlsbCB1c2Uga2VybmVsIHVkcCBz
-dGFjaywgQUZfWERQIGNhbgpza2lwIGFsbCBrZXJuZWwgc3RhY2sgZGlyZWN0bHkgdG8gZHJpdmVy
-LgoKU28gaGVyZSwgaW8tcmluZyBkb2VzIG5vdCBoYXZlIHRvbyBtdWNoIGFkdmFudGFnZS4KClRo
-YW5rcy4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, 1 Aug 2023 12:17:47 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Fri, Jul 28, 2023 at 02:02:33PM +0800, Xuan Zhuo wrote:
+> > On Tue, 25 Jul 2023 19:07:23 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
+> > > On Tue, 25 Jul 2023 03:34:34 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > On Tue, Jul 25, 2023 at 10:13:48AM +0800, Xuan Zhuo wrote:
+> > > > > On Mon, 24 Jul 2023 09:43:42 -0700, Christoph Hellwig <hch@infradead.org> wrote:
+> > > > > > On Thu, Jul 20, 2023 at 01:21:07PM -0400, Michael S. Tsirkin wrote:
+> > > > > > > Well I think we can add wrappers like virtio_dma_sync and so on.
+> > > > > > > There are NOP for non-dma so passing the dma device is harmless.
+> > > > > >
+> > > > > > Yes, please.
+> > > > >
+> > > > >
+> > > > > I am not sure I got this fully.
+> > > > >
+> > > > > Are you mean this:
+> > > > > https://lore.kernel.org/all/20230214072704.126660-8-xuanzhuo@linux.alibaba.com/
+> > > > > https://lore.kernel.org/all/20230214072704.126660-9-xuanzhuo@linux.alibaba.com/
+> > > > >
+> > > > > Then the driver must do dma operation(map and sync) by these virtio_dma_* APIs.
+> > > > > No care the device is non-dma device or dma device.
+> > > >
+> > > > yes
+> > > >
+> > > > > Then the AF_XDP must use these virtio_dma_* APIs for virtio device.
+> > > >
+> > > > We'll worry about AF_XDP when the patch is posted.
+> > >
+> > > YES.
+> > >
+> > > We discussed it. They voted 'no'.
+> > >
+> > > http://lore.kernel.org/all/20230424082856.15c1e593@kernel.org
+> >
+> >
+> > Hi guys, this topic is stuck again. How should I proceed with this work?
+> >
+> > Let me briefly summarize:
+> > 1. The problem with adding virtio_dma_{map, sync} api is that, for AF_XDP and
+> > the driver layer, we need to support these APIs. The current conclusion of
+> > AF_XDP is no.
+> >
+> > 2. Set dma_set_mask_and_coherent, then we can use DMA API uniformly inside
+> > driver. This idea seems to be inconsistent with the framework design of DMA. The
+> > conclusion is no.
+> >
+> > 3. We noticed that if the virtio device supports VIRTIO_F_ACCESS_PLATFORM, it
+> > uses DMA API. And this type of device is the future direction, so we only
+> > support DMA premapped for this type of virtio device. The problem with this
+> > solution is that virtqueue_dma_dev() only returns dev in some cases, because
+> > VIRTIO_F_ACCESS_PLATFORM is supported in such cases. Otherwise NULL is returned.
+> > This option is currently NO.
+> >
+> > So I'm wondering what should I do, from a DMA point of view, is there any
+> > solution in case of using DMA API?
+> >
+> > Thank you
+>
+>
+> I think it's ok at this point, Christoph just asked you
+> to add wrappers for map/unmap for use in virtio code.
+> Seems like a cosmetic change, shouldn't be hard.
+
+Yes, that is not hard, I has this code.
+
+But, you mean that the wrappers is just used for the virtio driver code?
+And we also offer the  API virtqueue_dma_dev() at the same time?
+Then the driver will has two chooses to do DMA.
+
+Is that so?
+
+
+> Otherwise I haven't seen significant comments.
+>
+>
+> Christoph do I summarize what you are saying correctly?
+> --
+> MST
+>
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
