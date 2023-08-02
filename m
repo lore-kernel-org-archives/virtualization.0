@@ -1,134 +1,193 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7DAFC001DF
-	for <virtualization@archiver.kernel.org>; Wed,  2 Aug 2023 17:13:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 69ED8C04A94
+	for <virtualization@archiver.kernel.org>; Wed,  2 Aug 2023 19:54:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 322AD405C8;
-	Wed,  2 Aug 2023 17:13:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 322AD405C8
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=dcLxT6ie
+	by smtp3.osuosl.org (Postfix) with ESMTP id EE7C760B95;
+	Wed,  2 Aug 2023 19:54:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EE7C760B95
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=miLaGInM
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id neU43sMGBaNJ; Wed,  2 Aug 2023 17:13:25 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id if3g4Odf8f-c; Wed,  2 Aug 2023 19:54:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4592F4022A;
-	Wed,  2 Aug 2023 17:13:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4592F4022A
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1113C60AC4;
+	Wed,  2 Aug 2023 19:54:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1113C60AC4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2085CC0071;
-	Wed,  2 Aug 2023 17:13:24 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC8BBC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C00B6C0071;
+	Wed,  2 Aug 2023 19:54:55 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6194FC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 17:13:22 +0000 (UTC)
+ Wed,  2 Aug 2023 19:54:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C4D8040334
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2734940111
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 17:13:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C4D8040334
+ Wed,  2 Aug 2023 19:54:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2734940111
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=miLaGInM
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qHK1cpWqSmOo
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id g5imCQ8AlN4Z
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 17:13:21 +0000 (UTC)
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10on20627.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8a::627])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B6A474022A
+ Wed,  2 Aug 2023 19:54:51 +0000 (UTC)
+Received: from mgamail.intel.com (unknown [134.134.136.126])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3343840502
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Aug 2023 17:13:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B6A474022A
+ Wed,  2 Aug 2023 19:54:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3343840502
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1691006091; x=1722542091;
+ h=message-id:date:subject:to:cc:references:from:
+ in-reply-to:content-transfer-encoding:mime-version;
+ bh=UnjHuCfGxiS/vPkmDO5U29yqf/Pak1KEvCsEumnZoKQ=;
+ b=miLaGInM9VIPzSOUzhMWa/mUI3biRYaELfPiGEpz83Yhx/JEoK4XrGil
+ 1tyCbHGqNLIAc8RFsVf5wUIt3ooALm3AMi2pVQDLGB8qDDzMqij+3nd70
+ KrMfYJjH8Ao1g5+5bpuMgpYmyzOtZkspDtcWzFS7SVRXH65jLJFO1dv0k
+ IpN42j+q7nG8B8W6SFAQ6jiP/QNMffWh1vItkMgknfFMKYGN6/GFakKpi
+ Cx9deSZ2FaTocNFL4vJLdQ+JClddbFM0AjgHFW2wCl1M8HzSpbXMd6uUm
+ VR+qYxiLRv5jrvecunxBgzf+tOV9hMgX7GyKr5S9/dbb0bB+COJvEseL8 w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10790"; a="354598189"
+X-IronPort-AV: E=Sophos;i="6.01,249,1684825200"; d="scan'208";a="354598189"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Aug 2023 12:43:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10790"; a="903070647"
+X-IronPort-AV: E=Sophos;i="6.01,249,1684825200"; d="scan'208";a="903070647"
+Received: from orsmsx602.amr.corp.intel.com ([10.22.229.15])
+ by orsmga005.jf.intel.com with ESMTP; 02 Aug 2023 12:43:02 -0700
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX602.amr.corp.intel.com (10.22.229.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Wed, 2 Aug 2023 12:43:02 -0700
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Wed, 2 Aug 2023 12:43:01 -0700
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27 via Frontend Transport; Wed, 2 Aug 2023 12:43:01 -0700
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.102)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.27; Wed, 2 Aug 2023 12:43:01 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dttdudDqvQi2+hQJ3NaHb3YGylDNMZojjRe2U0NPXfIvG2qkANSrM4cbMC4RD2ZrimPa4b9CJtJhfJbn5v9s4GwMlaWJFGPE9E8D6uoD9tovU4N6qiaHMKO4xF/4aZMBGV82A8wYM3aV2wEOmddmDL7ymRSUPWsRmJnbq6WhLVATEKEg1eeqhQHynKNmD75PN5Ck6LWSFHoyYqA8HNvxbhDW+SMIIUuMzeREsuhK7M+TLowFjKHX3M/LgeSSzjUMONdpNWhboacnbKeUfwCNAZggdtdF2uOMWo6D0AGxRPOcju6InimzZKX5zHtagjteWteKIVB+yFl8rlQ3uIuGZw==
+ b=nUNygOl/iFgZzDK/FAPZ756ywlcclFmG7Egk5jzMUdFM+l3wK0DqnfFBRFratznZw6mfM3AvNb19TC0kn0vWaU9c9RYwpDYA2ZygxhetyDeWw5/frSW7jq0UPbXYIUZVfIneLcqxcfdGQscFXUCc4RTtMz+19hRSllAgzO9NyGl1PLh3NgxTglSDTTR/4dsJrZMLM2vNSQWgdeM45HUq+nqNtsVl5uN2wautD+5HGawd2MAXDclGF7J3gLmkfzyjP7bCc0X0C5x/DyM0yS9dqNn82c7xajNmdV+K4uQ72f7anyQ0VAzF4zyl4FHvVLy08moYbTHvJDuXVPhqSXwnpw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+UyKQTMFX1mut5/H2U/CfaadEbA4WrB66IyJaD16oIQ=;
- b=i+vd9N1fZ1EQsezdHymW+cek/BKhzeOZRTQurxApvnAbqJfT4msC1q7TiEjai2PEvw9XRV1eLiyomRaGcW1kaIIF1BrbpW1dUtvdXRzZ8+ZqwkrpYyJkL18UOmXff72cxsm7Q6YJLU7jy17H2eJ0AMGpyVqRDc0hZTlbmN7GR0iwsDDpNLyLV34srULRodmwb6KdFfc5AFW48VL2BhSpudmXViWm+U9sXh8Hf7N1H7LEiMZJRHirIUvIsCf1gki8TzpeqP8rLQvrdI5vaXSY1nJbHGHxiO++CsITodUR0eT/kC2rUmDoTNqSPo5EqxelDAFg+j4Y02+A59/s1virTA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+UyKQTMFX1mut5/H2U/CfaadEbA4WrB66IyJaD16oIQ=;
- b=dcLxT6iex1FoDKFrue6uu8T040Pt884AeBGzzd2BUFR3RaCpcGmQ5sH4+usmjW0G8Y3mUOvgSB5wRMO/iY4x26aqQcddXsSYRXnj/99tt7Gm/Heim41wTa9FuLTK6ojd3i/KqSxze+qloQHUAEJxT2H/E6ZiOOsGCFI+7jJkXmdRViOR/coovt97eWSF2u/1FU0/TAoJkywccnLvjZyHMuYvVIwjfnlTkWKEd6E28UVMIPwSfQAWz42WdVNzC0QRrp6me2e9vZsKrSKSJcl+FgNwX3QrSP3oCK270bQknNq5+SPhMM4gvZqqFvXiZ00kBlsCTruHo6nqk7k7IKd2qg==
-Received: from MW4P220CA0005.NAMP220.PROD.OUTLOOK.COM (2603:10b6:303:115::10)
- by BL1PR12MB5144.namprd12.prod.outlook.com (2603:10b6:208:316::6)
+ bh=pT5XdVE/szmz5qhCS7WLX4a1yvkRvDZIjW7rObylWaE=;
+ b=ogamZPgdY15g6EUDuCWmkeMfr/NWVgbz/19DGl/bXA22bLrZDB0phZHhy9i2YN8N+F4L1GFlXgPRFA2MkFA6TrEokLYpzGpebbokYtK7jYHK1C0ACb2PMHLRJrngrI3kgdHF5hJ4HMNaPz82wn3JEx0d208UZz7JUm/SZSwG5SO4vYuog/HpgEvmHXKACIaXR7HLRs4qjVV76l+oajYJlxeSsM4Dq8nsIemc15me/1O/KKLiGZIxKT1tMWY5HyuQ33si2G7ebbaAU62TnJQ3rCSXDwPQpbHus+14927INWMh6Qp7vbLaizGH9pRrESrtzz1JEDV61tFFFWwL1GYzcA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from IA1PR11MB7869.namprd11.prod.outlook.com (2603:10b6:208:3f6::7)
+ by CH3PR11MB8660.namprd11.prod.outlook.com (2603:10b6:610:1ce::13)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6652.19; Wed, 2 Aug
- 2023 17:13:18 +0000
-Received: from MWH0EPF000971E8.namprd02.prod.outlook.com
- (2603:10b6:303:115:cafe::b8) by MW4P220CA0005.outlook.office365.com
- (2603:10b6:303:115::10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6652.19 via Frontend
- Transport; Wed, 2 Aug 2023 17:13:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com;
- dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- MWH0EPF000971E8.mail.protection.outlook.com (10.167.243.68) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6652.19 via Frontend Transport; Wed, 2 Aug 2023 17:13:18 +0000
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Wed, 2 Aug 2023
- 10:13:05 -0700
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by rnnvmail203.nvidia.com
- (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Wed, 2 Aug 2023
- 10:13:04 -0700
-Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
- mail.nvidia.com (10.129.68.9) with Microsoft SMTP Server id 15.2.986.37 via
- Frontend Transport; Wed, 2 Aug 2023 10:13:03 -0700
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH 2/2] vdpa/mlx5: Delete control vq iotlb in destroy_mr only
- when necessary
-Date: Wed, 2 Aug 2023 20:12:20 +0300
-Message-ID: <20230802171231.11001-5-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230802171231.11001-1-dtatulea@nvidia.com>
-References: <20230802171231.11001-1-dtatulea@nvidia.com>
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6631.39; Wed, 2 Aug
+ 2023 19:42:58 +0000
+Received: from IA1PR11MB7869.namprd11.prod.outlook.com
+ ([fe80::12e4:637d:955d:a5f]) by IA1PR11MB7869.namprd11.prod.outlook.com
+ ([fe80::12e4:637d:955d:a5f%6]) with mapi id 15.20.6631.045; Wed, 2 Aug 2023
+ 19:42:58 +0000
+Message-ID: <ec094a06-e61b-0138-d258-d1952934f6b2@intel.com>
+Date: Wed, 2 Aug 2023 12:42:51 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.13.0
+Subject: Re: [PATCH bpf-next 2/3] net: move struct netdev_rx_queue out of
+ netdevice.h
+Content-Language: en-US
+To: Jakub Kicinski <kuba@kernel.org>, <ast@kernel.org>
+References: <20230802003246.2153774-1-kuba@kernel.org>
+ <20230802003246.2153774-3-kuba@kernel.org>
+From: "Nambiar, Amritha" <amritha.nambiar@intel.com>
+In-Reply-To: <20230802003246.2153774-3-kuba@kernel.org>
+X-ClientProxiedBy: MW4PR04CA0064.namprd04.prod.outlook.com
+ (2603:10b6:303:6b::9) To IA1PR11MB7869.namprd11.prod.outlook.com
+ (2603:10b6:208:3f6::7)
 MIME-Version: 1.0
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000971E8:EE_|BL1PR12MB5144:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0868c003-c92f-467d-cb1b-08db937bc43e
+X-MS-TrafficTypeDiagnostic: IA1PR11MB7869:EE_|CH3PR11MB8660:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2813ae22-e549-4327-e6a8-08db9390ac79
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cdONbFcQg/XDn/bSE8yzrOwELtztIb22l3ZbDOlzuDXq53xarGoMujSj/nHqWWXg/iFrAUAKZuMGNWqfC7OTBl2sw3VUwDjmFpBJf9Ao4+ajmw8J2GRoi+KA4OiSvsGskJ3VxSFuF2BYNj5YEcSmwl+DUNNdAXj5g8p8P0EGIBEJ4Gh3GSOeObrnzxNnrNkxKnndqgqpsnIaYZwzdWwOfnHEGwTDeqKs6/TrVv5Q/UISlITGwhtR6+HZAkZvXEcjqTduZXiebyZPxX+UcHY+yxPdQ6Y1XP2mydC8qfYGOiLXLPXOjnDe9rfKjqMu6+4yGYkyMrl6UxZcVJ73t0UkIOllXTk7EzByLEqWgW4ks7+zFOjtWvKDYlRK0IJzh4gyaZ7byTC5bcgOtA52oXk9BM0WUW2kSmFYZCybMxNFjdMtAlc88Qo0djSLAUTyMTSStXhKrEfJgZO7MDPoqZwOsZ/PXktTtwvYexGq0eP+IFrHKzOr8IKMtQqq3luZcHuKx3ykJ7MQ6GcCcGy1yUIb/NffXlQ8C2lFaNOKhQkAm/4bnCGcQtdJKlT1FdrL4mFCFXVoR+KiCfbbdvH91HXVIt2Fas6gLCdXYeI7dHxU2HzhrRmTsogaYU0xD6VafHyzoiGUHrE9663M9C/70yXAHiX7qLAXKpE1+o+ERXa09aNUXS2pI22HrGDOi9jE4QFbIJ/F0dPzMX68CYra/GFD+xb/gKip5YUMs7KeixYJl4Siz9sPCgMUObX8xFILmEFh
-X-Forefront-Antispam-Report: CIP:216.228.117.161; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge2.nvidia.com; CAT:NONE;
- SFS:(13230028)(4636009)(136003)(39860400002)(346002)(376002)(396003)(82310400008)(451199021)(46966006)(36840700001)(40470700004)(4326008)(40460700003)(426003)(66574015)(70206006)(70586007)(186003)(2616005)(356005)(7636003)(82740400003)(336012)(2906002)(26005)(1076003)(83380400001)(36860700001)(47076005)(54906003)(110136005)(40480700001)(86362001)(478600001)(36756003)(6666004)(41300700001)(8676002)(8936002)(5660300002)(316002);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Aug 2023 17:13:18.4204 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0868c003-c92f-467d-cb1b-08db937bc43e
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.161];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: MWH0EPF000971E8.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5144
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
- Gal Pressman <gal@nvidia.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+X-Microsoft-Antispam-Message-Info: ePWyCTvzjkL5IUJurR/QElKDUXiZvRaK0C9HvHdySjwq0qXvwzbO5H6wWS9F/xrobSLhiawmh+XqK3rGoj9OqyQo7BQ0ABs1sNc+WSD8S5aGh97D404tjdjvNjyzK0BIfRPrsEPXPKqkrUVMSaauW2wurUZCIfeU5oKXkusnaGnLr0bQcp789ZR8TZj6TF0aOmEGj1TQ/RcQ6i/zJZx7F8XfIVsC17vY56K1s5+0V5vyVITqs3KuiwrCdmcEKn2ZqSCxi64eDZa98xyS+rspWw6qwC5csh81PLjrikVG2A/Wxs3umn/24XFAkDM0KZ0QHM1Td0vJBzt9w/VqGfU+URro2qvRlb84Dj5zVeOQ/KFzHsem4YmUYl+kZEAaZk6CLKaA7imuEfCSR8WSF+G/Fn2S5uLmdNhvmuTJPLJmNRGGoym+7MINPUKEsvrILV9kGObi4gjZ7zalgLD11hJJl44cjZOuCBM0b+HiJxw904hskPYWgGM/preVK3ydxk0WtrmrHRVrgXOmi7C1SiXZLg3r8vqdDMrB35GhYjGU0C8n3JxHI0tjRqn5ExgOUSl7pwH09LbTFvB8HmVYLWLanokRz+//SmXEgYM0RsprT3g7DWVE+rCXrfexXHRjRVsrr11uvjGhWpmVtnKIIJQ4TQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:IA1PR11MB7869.namprd11.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230028)(366004)(39860400002)(376002)(346002)(396003)(136003)(451199021)(6512007)(6486002)(36756003)(53546011)(2616005)(26005)(6506007)(83380400001)(186003)(66946007)(66556008)(7416002)(41300700001)(82960400001)(86362001)(38100700002)(31696002)(66476007)(4326008)(5660300002)(8676002)(8936002)(316002)(31686004)(2906002)(6666004)(478600001)(43740500002)(45980500001);
+ DIR:OUT; SFP:1102; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?My9HclFKYTN0TW5HYTVLUThVcE9pQTBJbjJQTXhyOVpIRVJxK0srdVZNVkdj?=
+ =?utf-8?B?Tjhuam11UlBwUWc3TGw4TmpmM2pISlFnTi91SkdWMWlwK1NPZFpabE9xaVFR?=
+ =?utf-8?B?V2EyZllIUGpFSXFSeTFMTjBnZFczR3g5aktsZWFKWnRlcWVkSTNKUVRxY3Nn?=
+ =?utf-8?B?VCttMzlmOERXQWF6YllIM1JoUE9EdkU1Smh0dk1WLzNOR3cwWkh2STFRdFRP?=
+ =?utf-8?B?bHVmNlUxSWhXTjVrekFYcmhZTG9TaVUzK282NE56MlNiRTVQbHdEZWY0QzBJ?=
+ =?utf-8?B?amZDWCtja1BzQVBBWWhzK1lxaUdJMWZUTURQZnlKOVdHVDRuVk5adXQ3V0Zk?=
+ =?utf-8?B?ZE9CcnJhZ3g3Sk5LS01jT2JYdjVPNVdxMnpISUh1eUd6OFN4bkdlRmlLVk1S?=
+ =?utf-8?B?QzBiMng0L2VQR1MyRUhmOCsxWmYybWp5NWxQVFh4dk1iQ1UxUmpFanppdnpw?=
+ =?utf-8?B?bk95UkhDZG1mNzVqSHhkM2VPdFhHOVJJUWc3RG5ocFcyem9KamNKaFNHZ1Mz?=
+ =?utf-8?B?V0xXUTlOOWF6Y1VESXNaRmdDZmZzcnN2ajduYjYyOXJjd2JQYWQ4ajZqQjZE?=
+ =?utf-8?B?NGVoaFJneFM1cVdNbmk3Q21iSEI3LzBxRW9iOTdTcUtkYTBwdVRwWlM1ZHJs?=
+ =?utf-8?B?WG9xNDU2WnVGMUNXU094cStHUWppWjhscFk1L3B4VGszNDg5cUx1dVV0ZlFw?=
+ =?utf-8?B?em0vWEljbDJDd2ZVOEVBVzUwSENCZkVIekpQQ2o0aVhZMWJkSUxTTG0xTjdp?=
+ =?utf-8?B?Kzkyd2JwMG9VZ0FodWNMZnZ2NWpQT1BuSXYrSXhoWlFZMHZLUkExdkwxNnRY?=
+ =?utf-8?B?dmhBYUhqcWM5cG1KN2dFZEtneEhjYmlqZXFveXV1L1RybVJDcUlBSitGK3RN?=
+ =?utf-8?B?R2Q4VXZiaGNlZzZqWmdLREZtam9xaXY3UUlJbFF0QVJuUHZrTml3MXRXekJ3?=
+ =?utf-8?B?TzFVbVpkN24wMEFmWGJqb1RuMkwva1BoVENLbkU4TVJRMTBkSWZsV3JUeklT?=
+ =?utf-8?B?SFY2Rm52ZFZWMlU4a3ljLzNxazI3K1lob2JPRVl0QTZFNkU2T081NHBrZzNG?=
+ =?utf-8?B?VnRxODBVQ1RYVFFReDFVNWNjL3lBMEgzV2tMSlN4RWlHSnJWWnlmYmxNSTJM?=
+ =?utf-8?B?emxDYUlwVFhSKy85Qktkb3hlVXZxS0NTUWFrWWFpRUdnc3V5QmJPTVdzcEJF?=
+ =?utf-8?B?N1NYWmdBbVd6bTluc3VlS3lRRFM1cDErVVVyc1I2cUpPQjVMdGVkS3JwY1Rm?=
+ =?utf-8?B?bk5zak5qbWVmT0FEazFoVmU2TDhJRVJLZGcwTUg5QWNBZUdjZkdQeTB1dUND?=
+ =?utf-8?B?T3E4RlNLOVR2VkoyODRFLy9IUG1IaDdnR0E2MnhzZmhZUHdYK1RCaUdvZzIv?=
+ =?utf-8?B?ZGUvcmtKWWpadG1mUGNEd3pxRHdrQVorSTNyWVVUM3lHU3ZGZ2x6TERqaCs4?=
+ =?utf-8?B?aEI1eWFpdGlxcGk2alZlWmNIcjA1OVg0ck9yZTk2RERuUnBmK0xBK0xJbWtn?=
+ =?utf-8?B?ZkYyOWRwLzRRN3BodTNvN2trVTFxalF2SUUycTVWUkdxSGxjU0J5bFBuUlVQ?=
+ =?utf-8?B?U1ZuZDVUQmpTL2hvaWxCL251dVVrY0oyRW1JU0piaHBOaVkxV3pRUjZBS2FR?=
+ =?utf-8?B?K2FiQVExN3V3eVp2WkY5U0lTTXpXWko5cnN3SnRXVWp4TTNBWDhMYmxmWW0y?=
+ =?utf-8?B?L01KZ2hNZENQdFgxU0JhakRpZ05BUnhuVzBGb1VOUGR5WEt6RURMRDJTQjRs?=
+ =?utf-8?B?Z3ovaUdQei83OVVDOC9pWHE2cXVGczN3V2JtUVA3THFlL1lTVW0yWFpncGRi?=
+ =?utf-8?B?M0VYbGRqVmNzeTQ3YmdELytzOFRUTDZXME55aVBmL0dIRjNEZWswQmE3UXh5?=
+ =?utf-8?B?M09lT1kvb2cxS0lnWlN6eEhJK2oweTEwN3BhVUNnVDRFUWlhZ3lpRWN3U010?=
+ =?utf-8?B?bXEveUNBbTJTb2YwclZJOW1GYUoyZzIxRnNyQ1BsbGx0Q1crVVZHSUJkdXlw?=
+ =?utf-8?B?dW1IREdxRGthUUhIcms5WjNDNUFVb25RRURmYVc5Sk5VN0I5UzRxOFBtWjFj?=
+ =?utf-8?B?c1AwckQxbGQ3WnZuWHl6ZytoaExqTFhweXBscGsrTmFlQTFQUmx0am04V3Iv?=
+ =?utf-8?B?Q0pLQ2lMVXFsMmdmbkY5aEZXZGRlQzhSbWphbHBwS1lPVkttdmZ0NE4raFIy?=
+ =?utf-8?B?Smc9PQ==?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2813ae22-e549-4327-e6a8-08db9390ac79
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB7869.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Aug 2023 19:42:58.4385 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 1ZhZwWO3bkNixGXoP6W6ZEJEtm6W/wtF0hKdDCV+I/V9xbRC3kVQIM2Vddeu8Hsh7HVXihCDnbqzYNgxxe61W7Asc+C7VEUtxwSPkfW1fGQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR11MB8660
+X-OriginatorOrg: intel.com
+Cc: mst@redhat.com, kpsingh@kernel.org,
+ virtualization@lists.linux-foundation.org, song@kernel.org, sdf@google.com,
+ yonghong.song@linux.dev, wangyufen@huawei.com, xuanzhuo@linux.alibaba.com,
+ daniel@iogearbox.net, john.fastabend@gmail.com, andrii@kernel.org,
+ maciej.fijalkowski@intel.com, hawk@kernel.org, jonathan.lemon@gmail.com,
+ magnus.karlsson@intel.com, haoluo@google.com, netdev@vger.kernel.org,
+ aleksander.lobakin@intel.com, bjorn@kernel.org, jolsa@kernel.org,
+ gregkh@linuxfoundation.org, bpf@vger.kernel.org, martin.lau@linux.dev
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -140,62 +199,245 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Dragos Tatulea via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Dragos Tatulea <dtatulea@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-RnJvbTogRXVnZW5pbyBQw6lyZXogPGVwZXJlem1hQHJlZGhhdC5jb20+CgptbHg1X3ZkcGFfZGVz
-dHJveV9tciBjYW4gYmUgY2FsbGVkIGZyb20gLnNldF9tYXAgd2l0aCBkYXRhIEFTSUQgYWZ0ZXIK
-dGhlIGNvbnRyb2wgdmlydHF1ZXVlIEFTSUQgaW90bGIgaGFzIGJlZW4gcG9wdWxhdGVkLiBUaGUg
-Y29udHJvbCB2cQppb3RsYiBtdXN0IG5vdCBiZSBjbGVhcmVkLCBzaW5jZSBpdCB3aWxsIG5vdCBi
-ZSBwb3B1bGF0ZWQgYWdhaW4uCgpTbyBjYWxsIHRoZSBBU0lEIGF3YXJlIGRlc3Ryb3kgZnVuY3Rp
-b24gd2hpY2ggbWFrZXMgc3VyZSB0aGF0IHRoZQpyaWdodCB2cSByZXNvdXJjZSBpcyBkZXN0cm95
-ZWQuCgpGaXhlczogOGZjZDIwYzMwNzA0ICgidmRwYS9tbHg1OiBTdXBwb3J0IGRpZmZlcmVudCBh
-ZGRyZXNzIHNwYWNlcyBmb3IgY29udHJvbCBhbmQgZGF0YSIpClNpZ25lZC1vZmYtYnk6IEV1Z2Vu
-aW8gUMOpcmV6IDxlcGVyZXptYUByZWRoYXQuY29tPgpSZXZpZXdlZC1ieTogR2FsIFByZXNzbWFu
-IDxnYWxAbnZpZGlhLmNvbT4KLS0tCiBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21seDVfdmRwYS5o
-IHwgMSArCiBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMgICAgICAgIHwgMiArLQogZHJpdmVy
-cy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jICB8IDQgKystLQogMyBmaWxlcyBjaGFuZ2VkLCA0
-IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBh
-L21seDUvY29yZS9tbHg1X3ZkcGEuaCBiL2RyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbWx4NV92ZHBh
-LmgKaW5kZXggYTA0MjBiZTUwNTlmLi5iNTM0MjBlODc0YWMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMv
-dmRwYS9tbHg1L2NvcmUvbWx4NV92ZHBhLmgKKysrIGIvZHJpdmVycy92ZHBhL21seDUvY29yZS9t
-bHg1X3ZkcGEuaApAQCAtMTIyLDYgKzEyMiw3IEBAIGludCBtbHg1X3ZkcGFfaGFuZGxlX3NldF9t
-YXAoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCBzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvCiBp
-bnQgbWx4NV92ZHBhX2NyZWF0ZV9tcihzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYsIHN0cnVj
-dCB2aG9zdF9pb3RsYiAqaW90bGIsCiAJCQl1bnNpZ25lZCBpbnQgYXNpZCk7CiB2b2lkIG1seDVf
-dmRwYV9kZXN0cm95X21yKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldik7Cit2b2lkIG1seDVf
-dmRwYV9kZXN0cm95X21yX2FzaWQoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCB1bnNpZ25l
-ZCBpbnQgYXNpZCk7CiAKICNkZWZpbmUgbWx4NV92ZHBhX3dhcm4oX19kZXYsIGZvcm1hdCwgLi4u
-KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IFwKIAlkZXZfd2FybigoX19kZXYpLT5tZGV2LT5kZXZpY2UsICIlczolZDoocGlkICVkKSB3YXJu
-aW5nOiAiIGZvcm1hdCwgX19mdW5jX18sIF9fTElORV9fLCAgICAgXApkaWZmIC0tZ2l0IGEvZHJp
-dmVycy92ZHBhL21seDUvY29yZS9tci5jIGIvZHJpdmVycy92ZHBhL21seDUvY29yZS9tci5jCmlu
-ZGV4IDRhZTE0YTI0OGE0Yi4uNWExOTcxZmNkODdiIDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZkcGEv
-bWx4NS9jb3JlL21yLmMKKysrIGIvZHJpdmVycy92ZHBhL21seDUvY29yZS9tci5jCkBAIC01MTUs
-NyArNTE1LDcgQEAgc3RhdGljIHZvaWQgX21seDVfdmRwYV9kZXN0cm95X2R2cV9tcihzdHJ1Y3Qg
-bWx4NV92ZHBhX2RldiAqbXZkZXYsIHVuc2lnbmVkIGludAogCW1yLT5pbml0aWFsaXplZCA9IGZh
-bHNlOwogfQogCi1zdGF0aWMgdm9pZCBtbHg1X3ZkcGFfZGVzdHJveV9tcl9hc2lkKHN0cnVjdCBt
-bHg1X3ZkcGFfZGV2ICptdmRldiwgdW5zaWduZWQgaW50IGFzaWQpCit2b2lkIG1seDVfdmRwYV9k
-ZXN0cm95X21yX2FzaWQoc3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2LCB1bnNpZ25lZCBpbnQg
-YXNpZCkKIHsKIAlzdHJ1Y3QgbWx4NV92ZHBhX21yICptciA9ICZtdmRldi0+bXI7CiAKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyBiL2RyaXZlcnMvdmRwYS9t
-bHg1L25ldC9tbHg1X3ZuZXQuYwppbmRleCA5MTM4ZWYyZmIyYzguLjYxYzEwYmE1ZTNmNSAxMDA2
-NDQKLS0tIGEvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCisrKyBiL2RyaXZlcnMv
-dmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwpAQCAtMjYzNiw3ICsyNjM2LDcgQEAgc3RhdGljIGlu
-dCBtbHg1X3ZkcGFfY2hhbmdlX21hcChzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYsCiAJCWdv
-dG8gZXJyX21yOwogCiAJdGVhcmRvd25fZHJpdmVyKG5kZXYpOwotCW1seDVfdmRwYV9kZXN0cm95
-X21yKG12ZGV2KTsKKwltbHg1X3ZkcGFfZGVzdHJveV9tcl9hc2lkKG12ZGV2LCBhc2lkKTsKIAll
-cnIgPSBtbHg1X3ZkcGFfY3JlYXRlX21yKG12ZGV2LCBpb3RsYiwgYXNpZCk7CiAJaWYgKGVycikK
-IAkJZ290byBlcnJfbXI7CkBAIC0yNjUyLDcgKzI2NTIsNyBAQCBzdGF0aWMgaW50IG1seDVfdmRw
-YV9jaGFuZ2VfbWFwKHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiwKIAlyZXR1cm4gMDsKIAog
-ZXJyX3NldHVwOgotCW1seDVfdmRwYV9kZXN0cm95X21yKG12ZGV2KTsKKwltbHg1X3ZkcGFfZGVz
-dHJveV9tcl9hc2lkKG12ZGV2LCBhc2lkKTsKIGVycl9tcjoKIAlyZXR1cm4gZXJyOwogfQotLSAK
-Mi40MS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On 8/1/2023 5:32 PM, Jakub Kicinski wrote:
+> struct netdev_rx_queue is touched in only a few places
+> and having it defined in netdevice.h brings in the dependency
+> on xdp.h, because struct xdp_rxq_info gets embedded in
+> struct netdev_rx_queue.
+> 
+> In prep for removal of xdp.h from netdevice.h move all
+> the netdev_rx_queue stuff to a new header.
+> 
+> We could technically break the new header up to avoid
+> the sysfs.h include but it's so rarely included it
+> doesn't seem to be worth it at this point.
+> 
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+> ---
+> CC: mst@redhat.com
+> CC: jasowang@redhat.com
+> CC: xuanzhuo@linux.alibaba.com
+> CC: ast@kernel.org
+> CC: daniel@iogearbox.net
+> CC: andrii@kernel.org
+> CC: martin.lau@linux.dev
+> CC: song@kernel.org
+> CC: yonghong.song@linux.dev
+> CC: john.fastabend@gmail.com
+> CC: kpsingh@kernel.org
+> CC: sdf@google.com
+> CC: haoluo@google.com
+> CC: jolsa@kernel.org
+> CC: bjorn@kernel.org
+> CC: magnus.karlsson@intel.com
+> CC: maciej.fijalkowski@intel.com
+> CC: jonathan.lemon@gmail.com
+> CC: hawk@kernel.org
+> CC: gregkh@linuxfoundation.org
+> CC: wangyufen@huawei.com
+> CC: virtualization@lists.linux-foundation.org
+> CC: bpf@vger.kernel.org
+> ---
+>   drivers/net/virtio_net.c      |  1 +
+>   include/linux/netdevice.h     | 44 -----------------------------
+>   include/net/netdev_rx_queue.h | 53 +++++++++++++++++++++++++++++++++++
+>   net/bpf/test_run.c            |  1 +
+>   net/core/dev.c                |  1 +
+>   net/core/net-sysfs.c          |  1 +
+>   net/xdp/xsk.c                 |  1 +
+>   7 files changed, 58 insertions(+), 44 deletions(-)
+>   create mode 100644 include/net/netdev_rx_queue.h
+> 
+
+Reviewed-by: Amritha Nambiar <amritha.nambiar@intel.com>
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 0db14f6b87d3..5bcfd69333ea 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -22,6 +22,7 @@
+>   #include <net/route.h>
+>   #include <net/xdp.h>
+>   #include <net/net_failover.h>
+> +#include <net/netdev_rx_queue.h>
+>   
+>   static int napi_weight = NAPI_POLL_WEIGHT;
+>   module_param(napi_weight, int, 0444);
+> diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
+> index 3800d0479698..5563c8a210b5 100644
+> --- a/include/linux/netdevice.h
+> +++ b/include/linux/netdevice.h
+> @@ -782,32 +782,6 @@ bool rps_may_expire_flow(struct net_device *dev, u16 rxq_index, u32 flow_id,
+>   #endif
+>   #endif /* CONFIG_RPS */
+>   
+> -/* This structure contains an instance of an RX queue. */
+> -struct netdev_rx_queue {
+> -	struct xdp_rxq_info		xdp_rxq;
+> -#ifdef CONFIG_RPS
+> -	struct rps_map __rcu		*rps_map;
+> -	struct rps_dev_flow_table __rcu	*rps_flow_table;
+> -#endif
+> -	struct kobject			kobj;
+> -	struct net_device		*dev;
+> -	netdevice_tracker		dev_tracker;
+> -
+> -#ifdef CONFIG_XDP_SOCKETS
+> -	struct xsk_buff_pool            *pool;
+> -#endif
+> -} ____cacheline_aligned_in_smp;
+> -
+> -/*
+> - * RX queue sysfs structures and functions.
+> - */
+> -struct rx_queue_attribute {
+> -	struct attribute attr;
+> -	ssize_t (*show)(struct netdev_rx_queue *queue, char *buf);
+> -	ssize_t (*store)(struct netdev_rx_queue *queue,
+> -			 const char *buf, size_t len);
+> -};
+> -
+>   /* XPS map type and offset of the xps map within net_device->xps_maps[]. */
+>   enum xps_map_type {
+>   	XPS_CPUS = 0,
+> @@ -3828,24 +3802,6 @@ static inline int netif_set_real_num_rx_queues(struct net_device *dev,
+>   int netif_set_real_num_queues(struct net_device *dev,
+>   			      unsigned int txq, unsigned int rxq);
+>   
+> -static inline struct netdev_rx_queue *
+> -__netif_get_rx_queue(struct net_device *dev, unsigned int rxq)
+> -{
+> -	return dev->_rx + rxq;
+> -}
+> -
+> -#ifdef CONFIG_SYSFS
+> -static inline unsigned int get_netdev_rx_queue_index(
+> -		struct netdev_rx_queue *queue)
+> -{
+> -	struct net_device *dev = queue->dev;
+> -	int index = queue - dev->_rx;
+> -
+> -	BUG_ON(index >= dev->num_rx_queues);
+> -	return index;
+> -}
+> -#endif
+> -
+>   int netif_get_num_default_rss_queues(void);
+>   
+>   void dev_kfree_skb_irq_reason(struct sk_buff *skb, enum skb_drop_reason reason);
+> diff --git a/include/net/netdev_rx_queue.h b/include/net/netdev_rx_queue.h
+> new file mode 100644
+> index 000000000000..cdcafb30d437
+> --- /dev/null
+> +++ b/include/net/netdev_rx_queue.h
+> @@ -0,0 +1,53 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#ifndef _LINUX_NETDEV_RX_QUEUE_H
+> +#define _LINUX_NETDEV_RX_QUEUE_H
+> +
+> +#include <linux/kobject.h>
+> +#include <linux/netdevice.h>
+> +#include <linux/sysfs.h>
+> +#include <net/xdp.h>
+> +
+> +/* This structure contains an instance of an RX queue. */
+> +struct netdev_rx_queue {
+> +	struct xdp_rxq_info		xdp_rxq;
+> +#ifdef CONFIG_RPS
+> +	struct rps_map __rcu		*rps_map;
+> +	struct rps_dev_flow_table __rcu	*rps_flow_table;
+> +#endif
+> +	struct kobject			kobj;
+> +	struct net_device		*dev;
+> +	netdevice_tracker		dev_tracker;
+> +
+> +#ifdef CONFIG_XDP_SOCKETS
+> +	struct xsk_buff_pool            *pool;
+> +#endif
+> +} ____cacheline_aligned_in_smp;
+> +
+> +/*
+> + * RX queue sysfs structures and functions.
+> + */
+> +struct rx_queue_attribute {
+> +	struct attribute attr;
+> +	ssize_t (*show)(struct netdev_rx_queue *queue, char *buf);
+> +	ssize_t (*store)(struct netdev_rx_queue *queue,
+> +			 const char *buf, size_t len);
+> +};
+> +
+> +static inline struct netdev_rx_queue *
+> +__netif_get_rx_queue(struct net_device *dev, unsigned int rxq)
+> +{
+> +	return dev->_rx + rxq;
+> +}
+> +
+> +#ifdef CONFIG_SYSFS
+> +static inline unsigned int
+> +get_netdev_rx_queue_index(struct netdev_rx_queue *queue)
+> +{
+> +	struct net_device *dev = queue->dev;
+> +	int index = queue - dev->_rx;
+> +
+> +	BUG_ON(index >= dev->num_rx_queues);
+> +	return index;
+> +}
+> +#endif
+> +#endif
+> diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+> index 7d47f53f20c1..4ed68141d9a3 100644
+> --- a/net/bpf/test_run.c
+> +++ b/net/bpf/test_run.c
+> @@ -21,6 +21,7 @@
+>   #include <linux/sock_diag.h>
+>   #include <linux/netfilter.h>
+>   #include <net/xdp.h>
+> +#include <net/netdev_rx_queue.h>
+>   #include <net/netfilter/nf_bpf_link.h>
+>   
+>   #define CREATE_TRACE_POINTS
+> diff --git a/net/core/dev.c b/net/core/dev.c
+> index 8e7d0cb540cd..1fee2372b633 100644
+> --- a/net/core/dev.c
+> +++ b/net/core/dev.c
+> @@ -151,6 +151,7 @@
+>   #include <linux/pm_runtime.h>
+>   #include <linux/prandom.h>
+>   #include <linux/once_lite.h>
+> +#include <net/netdev_rx_queue.h>
+>   
+>   #include "dev.h"
+>   #include "net-sysfs.h"
+> diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
+> index 15e3f4606b5f..fccaa5bac0ed 100644
+> --- a/net/core/net-sysfs.c
+> +++ b/net/core/net-sysfs.c
+> @@ -23,6 +23,7 @@
+>   #include <linux/of.h>
+>   #include <linux/of_net.h>
+>   #include <linux/cpu.h>
+> +#include <net/netdev_rx_queue.h>
+>   
+>   #include "dev.h"
+>   #include "net-sysfs.h"
+> diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+> index 4f1e0599146e..82aaec1b079f 100644
+> --- a/net/xdp/xsk.c
+> +++ b/net/xdp/xsk.c
+> @@ -25,6 +25,7 @@
+>   #include <linux/vmalloc.h>
+>   #include <net/xdp_sock_drv.h>
+>   #include <net/busy_poll.h>
+> +#include <net/netdev_rx_queue.h>
+>   #include <net/xdp.h>
+>   
+>   #include "xsk_queue.h"
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
