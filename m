@@ -1,106 +1,113 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8299DC001DF
-	for <virtualization@archiver.kernel.org>; Thu,  3 Aug 2023 22:43:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 149AFC001DB
+	for <virtualization@archiver.kernel.org>; Fri,  4 Aug 2023 07:50:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DCBA2400D2;
-	Thu,  3 Aug 2023 22:43:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DCBA2400D2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=AdrcoKcY
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6DAC160F4D;
+	Fri,  4 Aug 2023 07:50:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6DAC160F4D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T/JKVneQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L0kX3rKcYZKJ; Thu,  3 Aug 2023 22:43:03 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SxcVs2_1JgJB; Fri,  4 Aug 2023 07:50:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 17EFC41F7F;
-	Thu,  3 Aug 2023 22:43:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 17EFC41F7F
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 0396760C16;
+	Fri,  4 Aug 2023 07:50:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0396760C16
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CFEC3C0071;
-	Thu,  3 Aug 2023 22:43:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C2D8EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C604CC0072;
+	Fri,  4 Aug 2023 07:50:20 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99B4AC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Aug 2023 22:43:01 +0000 (UTC)
+ Fri,  4 Aug 2023 07:50:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 890B741F2E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6C6EA400BB
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Aug 2023 22:43:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 890B741F2E
+ Fri,  4 Aug 2023 07:50:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6C6EA400BB
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=T/JKVneQ
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DlVmbd2BKhy8
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XQlnT47W8yEJ
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Aug 2023 22:43:00 +0000 (UTC)
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com
- [IPv6:2607:f8b0:4864:20::630])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 8BB7941F08
+ Fri,  4 Aug 2023 07:50:18 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B815840538
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Aug 2023 22:43:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8BB7941F08
-Received: by mail-pl1-x630.google.com with SMTP id
- d9443c01a7336-1bba04b9df3so12899005ad.0
+ Fri,  4 Aug 2023 07:50:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B815840538
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1691135417;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EJNCjBbUaxpHFi81g2fq9zXIhVcgdwCTwZCKF8pxHv8=;
+ b=T/JKVneQQzZ8Wh9vwHzjl/3XcodEoEvWW9SGVpU8UnDtb3m4K7DGmmjNY1U98+JOwHaaS4
+ 1P5pVPWwlGG1oUC29hiUwpv211tRT/mx7oy9KL6o+VAn7Ak/IiW3q27zUuM4qbzzjFG/XA
+ qMwSSTxSSmPJcoEtKv1zyc7JKrqzmdc=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-511-yutQkVZ2OjWu3RV8dwt0Uw-1; Fri, 04 Aug 2023 03:50:13 -0400
+X-MC-Unique: yutQkVZ2OjWu3RV8dwt0Uw-1
+Received: by mail-qv1-f71.google.com with SMTP id
+ 6a1803df08f44-63d41d15574so22557006d6.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 03 Aug 2023 15:43:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=chromium.org; s=google; t=1691102580; x=1691707380;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:date:subject:cc:to:from:from:to:cc:subject:date
- :message-id:reply-to;
- bh=INe5iUN8OqFkxldA5UUSZCvoiHbOkh93tbzwvbZM2yg=;
- b=AdrcoKcYKsDTC2sk5II1JfGBSGWxn+Mf/Sxnutk3q1l506vOr49iIj/50hD798HN7F
- b0OZc7JKWeDh12FhSjL1Xl4BHhP+B9RobN0klmBuKMhnefOK9+UFoMYitJo0B22Um2dY
- eJvU1iwgwiD/b9pJcn2WLq9Pd4MHq6mJciEdg=
+ Fri, 04 Aug 2023 00:50:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1691102580; x=1691707380;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=INe5iUN8OqFkxldA5UUSZCvoiHbOkh93tbzwvbZM2yg=;
- b=UlZN8A6PKdI4DNisjpOkA61bG2tXx5e/EWl80/K26y/PrX064cmcNZ3FLGWbWtGOyi
- CGd5Cf2B1aIEIBa8Zsx1pYWn+9IBQg7tcTC1o3CQd+Sesadt8JKgspqaRyd6idK2uV7C
- DnHCwwEu/6AakclzyHs+yRAlnd7MZh976oKtMAY9tPI6Y67kX/MssJYYb0osRlLlrfTw
- Pw4PeZW2+6R5pEZZ5RYmVSm/fSdVQPaREScrnk3JjgXi0lfPg33QTSoxtWGxaNs9jwfH
- +IFfClzhNe0/VQoLU9yoQqc770jutb7u6l4zYfxBz9UfEKvT97WVnBQhTYyLO1HCqwLm
- odpg==
-X-Gm-Message-State: AOJu0YwBO2eA5YYMnO0Z/cCnqSVjukrYldCWBwhLcd6K7u2WBrRnwVR/
- nVxdZ+nsJDHyhJL46er3Lw9p5g==
-X-Google-Smtp-Source: AGHT+IFvgcDqbfRdpydPq4ink9vQ3N7ScSsxcZoM/8xiqyVFgUTfakh0jjBFWkrGAUhq6+xeRCxMNQ==
-X-Received: by 2002:a17:903:2351:b0:1bb:a85c:23cc with SMTP id
- c17-20020a170903235100b001bba85c23ccmr141262plh.15.1691102579859; 
- Thu, 03 Aug 2023 15:42:59 -0700 (PDT)
-Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net.
- [198.0.35.241]) by smtp.gmail.com with ESMTPSA id
- p7-20020a170902bd0700b001bc2831e1a8sm355952pls.80.2023.08.03.15.42.58
+ d=1e100.net; s=20221208; t=1691135413; x=1691740213;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=EJNCjBbUaxpHFi81g2fq9zXIhVcgdwCTwZCKF8pxHv8=;
+ b=EnkbgsQxzuSFw4cAq1iedmTNlp2+TNQYcxH0WIUFxEBe/SWxv3T25poCstimoNrFwT
+ 8RSg01kkbzUmPT4wppE72LXilNtfgIILj8VWyH8Hp7O3CPVV5hqmV/nQZy2ZVbvtHsXG
+ +ghSEm4p1TapPeBFRPUqkcSITMl5Or9+a9NzAmxkN69uArBjgj/kHTwmYXvA6FpXH6Bw
+ XAzQjD66PFNXbIKzc9ZoaCXjYpUgZj/q2d8MAxI5jqW3lw6iiRqy3FbvWYyYDyWeLGYW
+ DUjxVo7xgIHJAw4hwtenR7raOYRvNkQXkDmjnwKa2iBHEAoTbMDM/3u9wSh03KKabQUA
+ 4IZg==
+X-Gm-Message-State: AOJu0Yzc1IAW+7UEfm1y7kcpKdsN1i070zB0Ex+2A2f1PmzBRcEEDkrk
+ beMILMJVSZpiQmof8Hfahu0yw/As1M5wuaUwXLg4pLAvrySZLgH37SqqhIJVwLuTucrm9HkVL9g
+ PlHjo2Q6LQEPvMcN3awwPO5WGdESfmNaO4CLZAajmdQ==
+X-Received: by 2002:a05:622a:651:b0:405:49e0:899f with SMTP id
+ a17-20020a05622a065100b0040549e0899fmr1604387qtb.39.1691135413413; 
+ Fri, 04 Aug 2023 00:50:13 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGdJhhhHo66q8mOj5/wTJahLgvxWofEBXXNIVMVbM5UXM0NqJORuYMOilvr66YHHR5o9ji0/w==
+X-Received: by 2002:a05:622a:651:b0:405:49e0:899f with SMTP id
+ a17-20020a05622a065100b0040549e0899fmr1604364qtb.39.1691135413153; 
+ Fri, 04 Aug 2023 00:50:13 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-57-51-214.retail.telecomitalia.it.
+ [82.57.51.214]) by smtp.gmail.com with ESMTPSA id
+ c24-20020ac80098000000b003f7fd3ce69fsm485256qtg.59.2023.08.04.00.50.10
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 03 Aug 2023 15:42:59 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-To: Juergen Gross <jgross@suse.com>,
-	Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH] x86/paravirt: Fix tlb_remove_table function callback
- prototype warning
-Date: Thu,  3 Aug 2023 15:42:49 -0700
-Message-Id: <169110256709.2294259.13111562642254330671.b4-ty@chromium.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230726231139.never.601-kees@kernel.org>
-References: <20230726231139.never.601-kees@kernel.org>
+ Fri, 04 Aug 2023 00:50:12 -0700 (PDT)
+Date: Fri, 4 Aug 2023 09:50:06 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Simon Horman <horms@kernel.org>
+Subject: Re: [PATCH -next] af_vsock: Remove unused declaration
+ vsock_release_pending()/vsock_init_tap()
+Message-ID: <xjs5cdmrcnsnzvbezd24lzvb4fgoofkyamvbxzbcwpetslhizc@seph4jwbpziv>
+References: <20230803134507.22660-1-yuehaibing@huawei.com>
+ <ZMwBFdw8BTno3dn2@kernel.org>
 MIME-Version: 1.0
-Cc: x86@kernel.org, kernel test robot <lkp@intel.com>,
- Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>, llvm@lists.linux.dev,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Nathan Chancellor <nathan@kernel.org>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Ajay Kaher <akaher@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, linux-hardening@vger.kernel.org,
- Sami Tolvanen <samitolvanen@google.com>,
- Alexey Makhalov <amakhalov@vmware.com>, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <ZMwBFdw8BTno3dn2@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: bobby.eshleman@bytedance.com, netdev@vger.kernel.org,
+ Yue Haibing <yuehaibing@huawei.com>, virtualization@lists.linux-foundation.org,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,32 +119,28 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 26 Jul 2023 16:11:43 -0700, Kees Cook wrote:
-> Under W=1, this warning is visible in Clang 16 and newer:
-> 
-> arch/x86/kernel/paravirt.c:337:4: warning: cast from 'void (*)(struct mmu_gather *, struct page *)' to 'void (*)(struct mmu_gather *, void *)' converts to incompatible function type [-Wcast-function-type-strict]
->                            (void (*)(struct mmu_gather *, void *))tlb_remove_page,
->                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> Add a direct wrapper instead, which will make this warning (and
-> potential KCFI failures) go away.
-> 
-> [...]
+On Thu, Aug 03, 2023 at 09:33:41PM +0200, Simon Horman wrote:
+>On Thu, Aug 03, 2023 at 09:45:07PM +0800, Yue Haibing wrote:
+>> Commit d021c344051a ("VSOCK: Introduce VM Sockets") declared but never implemented
+>> vsock_release_pending(). Also vsock_init_tap() never implemented since introduction
+>> in commit 531b374834c8 ("VSOCK: Add vsockmon tap functions").
+>>
+>> Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
+>
+>Hi Yue Haibing,
+>
+>FWIIW, I think this should be targeted at net-next.
 
-Applied to for-next/hardening, thanks!
+Yep, please send to net-next.
 
-[1/1] x86/paravirt: Fix tlb_remove_table function callback prototype warning
-      https://git.kernel.org/kees/c/fcce1c6cb156
+Looks good also to me:
 
-Take care,
-
--- 
-Kees Cook
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
