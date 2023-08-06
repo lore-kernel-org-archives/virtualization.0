@@ -1,63 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 12326C001DB
-	for <virtualization@archiver.kernel.org>; Sat,  5 Aug 2023 16:09:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CBF60C001DE
+	for <virtualization@archiver.kernel.org>; Sun,  6 Aug 2023 15:17:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 79118817A0;
-	Sat,  5 Aug 2023 16:09:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 79118817A0
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4E1A360A69;
+	Sun,  6 Aug 2023 15:17:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4E1A360A69
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dCwIKOi6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eUtK1Etarwnp; Sat,  5 Aug 2023 16:09:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5EFA0813AB;
-	Sat,  5 Aug 2023 16:09:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EFA0813AB
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8-4AnycYOvkc; Sun,  6 Aug 2023 15:17:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AD16E60608;
+	Sun,  6 Aug 2023 15:17:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AD16E60608
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C8F2C0072;
-	Sat,  5 Aug 2023 16:09:25 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AE452C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 84E18C0071;
+	Sun,  6 Aug 2023 15:17:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C82BC0032
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Aug 2023 16:09:23 +0000 (UTC)
+ Sun,  6 Aug 2023 15:17:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 88BD1813AB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 60E8340258
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Aug 2023 16:09:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 88BD1813AB
+ Sun,  6 Aug 2023 15:17:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 60E8340258
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=dCwIKOi6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id saXWsjaTukGI
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3LOKl_XjQWg5
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Aug 2023 16:09:21 +0000 (UTC)
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D240681431
+ Sun,  6 Aug 2023 15:17:49 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1B5D2409F2
  for <virtualization@lists.linux-foundation.org>;
- Sat,  5 Aug 2023 16:09:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D240681431
-Received: from [213.149.102.190] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpa (Exim 4.89)
- (envelope-from <icits@saisti.eu>) id 1qSJ8r-000256-M3
- for virtualization@lists.linux-foundation.org; Sat, 05 Aug 2023 18:24:33 +0300
-From: "ICITS-24" <marialemos72@gmail.com>
-Subject: ICITS'24 - The 2024 International Conference on Information
- Technology & Systems |Temuco, Chile
-To: virtualization@lists.linux-foundation.org
+ Sun,  6 Aug 2023 15:17:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1B5D2409F2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1691335067;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=jmKB9tnmoSW66PnBBOCrXWK1ePidGDAnxGSMu5crApw=;
+ b=dCwIKOi6roPJxSqUcHVHuUTE77CRU9R1fQI4zHN/SGnyaBOvdYFuenlZMOER3+UChPjH19
+ HbhlaHxTM57sii206bphuyHZfA1zHJRUrCdwAy6PvjzT1fpUU9HC/iCXoZWqgY0ux/7KIF
+ WI/xsg8qHc4a3zWDR8wcAn6pQuXHLpQ=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-326-1SoxKjUzMW6ry_98DG7KJw-1; Sun, 06 Aug 2023 11:17:46 -0400
+X-MC-Unique: 1SoxKjUzMW6ry_98DG7KJw-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ a640c23a62f3a-94a34d3e5ebso241919966b.3
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 06 Aug 2023 08:17:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1691335065; x=1691939865;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=jmKB9tnmoSW66PnBBOCrXWK1ePidGDAnxGSMu5crApw=;
+ b=goUPO4tJ1Pjs+suHY7NfGrCa3JN1ZbQbhVZYf9oOrdbe7xvX+XhYoxIJhzYwAeYXOP
+ KQiN6W6uhXJl1gQzldh8JC9D7vzeCgBliBWinUOziihd7VE0Zh6e4A9t2G3YrKznB2tL
+ X+KGRajLRyTj4n34XoXATJILw8GrlbaueMYs5qS+nuPamht0lXAJMf03azMcZFokPkNt
+ 86N5tQItUDIxeuPtJzLldTQrjcBJj9yykvwU1QcgDaLzLBofigcb7qCBegb47FMSppYP
+ SCHpXYpROHiAB2abcnX86xWrod1P9CsN4fzZcffrC9xsH20rGAsQi664zmWOGVsM1j81
+ quuA==
+X-Gm-Message-State: AOJu0Yz8BQ4DH2EhIRNgexlQ6kkCSyo3XhWV/xUiCpZF8aDmHYWkDx1Z
+ hpY8JxgAhUELDSM5q7lWvOhcAkxXkoEx9eShKzrbZa9x7xX2HsUUM2uCvdOTkue3ZzjuCt95oL5
+ lXYHFpopPI+m3R5ZotbXJC63SxdLMGIFuBZBhX+aonA==
+X-Received: by 2002:a17:907:2bca:b0:97d:2bcc:47d5 with SMTP id
+ gv10-20020a1709072bca00b0097d2bcc47d5mr6414193ejc.49.1691335064957; 
+ Sun, 06 Aug 2023 08:17:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGtapW82Hb1Zd8BBSQHwutyuDtCwq2yQg3/1rQjZzPMqZ9Z/8LbFdyhFBBVmpsYlocZxyvMvg==
+X-Received: by 2002:a17:907:2bca:b0:97d:2bcc:47d5 with SMTP id
+ gv10-20020a1709072bca00b0097d2bcc47d5mr6414173ejc.49.1691335064609; 
+ Sun, 06 Aug 2023 08:17:44 -0700 (PDT)
+Received: from redhat.com ([91.242.248.114]) by smtp.gmail.com with ESMTPSA id
+ bj10-20020a170906b04a00b0099bd6026f45sm4018477ejb.198.2023.08.06.08.10.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 06 Aug 2023 08:17:43 -0700 (PDT)
+Date: Sun, 6 Aug 2023 11:10:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Verma, Vishal L" <vishal.l.verma@intel.com>
+Subject: Re: [PATCH v4] virtio_pmem: add the missing REQ_OP_WRITE for flush bio
+Message-ID: <20230806110854-mutt-send-email-mst@kernel.org>
+References: <CAM9Jb+g5rrvmw8xCcwe3REK4x=RymrcqQ8cZavwWoWu7BH+8wA@mail.gmail.com>
+ <20230713135413.2946622-1-houtao@huaweicloud.com>
+ <CAM9Jb+jjg_By+A2F+HVBsHCMsVz1AEVWbBPtLTRTfOmtFao5hA@mail.gmail.com>
+ <47f9753353d07e3beb60b6254632d740682376f9.camel@intel.com>
 MIME-Version: 1.0
-Date: Sat, 5 Aug 2023 16:24:34 +0100
-Priority: urgent
-X-Priority: 1
-Importance: high
-Message-ID: <22784681929062@gmail-com>
-X-Antivirus: AVG (VPS 230804-6, 4/8/2023), Outbound message
-X-Antivirus-Status: Clean
+In-Reply-To: <47f9753353d07e3beb60b6254632d740682376f9.camel@intel.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "axboe@kernel.dk" <axboe@kernel.dk>,
+ "pankaj.gupta.linux@gmail.com" <pankaj.gupta.linux@gmail.com>, "Jiang,
+ Dave" <dave.jiang@intel.com>,
+ "houtao@huaweicloud.com" <houtao@huaweicloud.com>,
+ "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "hch@infradead.org" <hch@infradead.org>,
+ "nvdimm@lists.linux.dev" <nvdimm@lists.linux.dev>,
+ "houtao1@huawei.com" <houtao1@huawei.com>,
+ "pankaj.gupta@amd.com" <pankaj.gupta@amd.com>, "Williams,
+ Dan J" <dan.j.williams@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -69,515 +129,141 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============5091163242291909269=="
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+On Fri, Aug 04, 2023 at 09:03:20PM +0000, Verma, Vishal L wrote:
+> On Fri, 2023-08-04 at 20:39 +0200, Pankaj Gupta wrote:
+> > Gentle ping!
+> > =
 
---===============5091163242291909269==
-Content-Type: multipart/alternative; charset=utf-8; boundary="3BTTp20wOkcu5KCZWwRqBSt73=_FkK4LTy"
+> > Dan, Vishal for suggestion/review on this patch and request for merging.
+> > +Cc Michael for awareness, as virtio-pmem device is currently broken.
+> =
 
-This is a multi-part message in MIME format
+> Looks good to me,
+> =
 
---3BTTp20wOkcu5KCZWwRqBSt73=_FkK4LTy
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
+> =
 
-* SCIMago H-Index =3D 27 
-* Google Scholar H5-Index =3D 19 
-* Indexed in WoS, Scopus, DBLP, Google Scholar, etc. 
-
- 
-
-------------------------------   ------------------------------   ---------=
----------------------   -------------- 
-ICITS'24 - 7th Int. Conference on Information Technology & Systems 
-
-Universidad de La Frontera, Temuco, Chile | 24-26 January 2024
-
-http://icits.me <https://mkt.saisti.eu/go/8-1-3a86e9776cc4a45cc324bf2a00-44=
-33055-05e381537c73deqe2OOTeYtbke3ke5FZ> 
-
-------------------------------   ------------------------------   ---------=
----------------------   -------------- 
- 
-
-Scope 
-
-ICITS'24 - 7th International Conference on Information Technology & Systems=
-, to be held at Universidad de La Frontera, Temuco, Chile, between the 24th=
- and the 26th of January 2024, is an international forum for researchers an=
-d practitioners to present and discuss the most recent innovations, trends,=
- results, experiences and concerns in the several perspectives of Informati=
-on Technology & Systems.
-
-We are pleased to invite you to submit your original papers to ICITS'24. Th=
-ey can be written in English, Spanish or Portuguese. All submissions will b=
-e reviewed on the basis of relevance, originality, importance and clarity.
-
- 
-
-Topics 
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Media, Applied Technology and Communication (MATC).
-
- 
-
-Submission and Decision 
-
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of the Lecture Notes in Networks and Systems series (see Instruc=
-tions for Authors at Springer Website), must not have been published before=
-, not be under review for any other conference or publication and not inclu=
-de any information leading to the authors=E2=80=99 identification. Therefor=
-e, the authors=E2=80=99 names and affiliations should not be included in th=
-e version for evaluation by the Scientific Committee. This information shou=
-ld only be included in the camera-ready version, saved in Word or Latex for=
-mat and also in PDF format. These files must be accompanied by the Consent =
-to Publish form filled out, in a ZIP file, and uploaded at the conference m=
-anagement system.
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
-ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
- in Spanish or Portuguese), must not have been published before, not be und=
-er review for any other conference or publication and not include any infor=
-mation leading to the authors=E2=80=99 identification. Therefore, the autho=
-rs=E2=80=99 names and affiliations should not be included in the version fo=
-r evaluation by the Scientific Committee. This information should only be i=
-ncluded in the camera-ready version, saved in Word. These files must be upl=
-oaded at the conference management system in a ZIP file.
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can include Work Sessions where these posters =
-are presented and orally discussed, with a 7 minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
-
- 
-
-Publication and Indexing 
-
-Papers accepted as posters are not published; they are only exhibited, pres=
-ented and discussed during the conference.
-
-To ensure that a paper accepted as paper is published, at least one of the =
-authors must be fully registered by the 28th of October 2023, and the paper=
- must comply with the suggested layout and page-limit. Additionally, all re=
-commended changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
-tems series, will  be submitted for indexation by Scopus, WoS, DBLP, Google=
- Scholar, among others, and will be available in the SpringerLink Digital L=
-ibrary.
-
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI and will be submitted for indexation=
- by Scopus, among others.
-
- 
-
-Important Dates 
-
-Paper Submission: September 10, 2023
-
-Notification of Acceptance: October 17, 2023
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: October 28, 2023.
-
-Camera-ready Submission: October 28, 2023
-
- 
-
- 
-
-Website of ICITS'24: http://icits.me/ <https://mkt.saisti.eu/go/8-1-3a86e97=
-76cc4a45cc324bf2a00-4433055-05e381537c73deqe2OOTeYtbke3ke5FZ> 
-  
-
----
+> Dave, will you queue this for 6.6.
 
 
--- 
-This email has been checked for viruses by AVG antivirus software.
-www.avg.com
---3BTTp20wOkcu5KCZWwRqBSt73=_FkK4LTy
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><i>* SCIMago H-Index =3D 27</i> <br /><i>* Google Sc=
-holar H5-Index =3D 19</i> <br /><i>* Indexed in WoS, Scopus, DBLP, Google S=
-cholar, etc.</i> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;-------------- 
-    </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>ICITS'24 - 7th Int. Conference on Informatio=
-n Technology &amp; Systems</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Universidad de La Frontera, Temuco, Chile | 24-26 Ja=
-nuary 2024</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><a style=3D"text-decoration: underline; color: rgb(0=
-,174,218)" href=3D"https://mkt.saisti.eu/go/8-1-3a86e9776cc4a45cc324bf2a00-=
-4433055-05e381537c73deqe2OOTeYtbke3ke5FZ" target=3D"_blank" data-saferedire=
-cturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/8-1-3a86e9=
-776cc4a45cc324bf2a00-4433055-05e381537c73deqe2OOTeYtbke3ke5FZ&source=3Dgmai=
-l&ust=3D1688946011760000&usg=3DAOvVaw2OpWSpJErsp9sHH_xXeGSZ"><strong>http:/=
-/icits.me</strong></a> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;-------------- 
-    </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Scope</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">ICITS'24 - 7th International Conference on Informati=
-on Technology &amp; Systems, to be held at Universidad de La Frontera, Temu=
-co, Chile, between the 24th and the 26th of January 2024, is an internation=
-al forum for researchers and practitioners to present and discuss the most =
-recent innovations, trends, results, experiences and concerns in the severa=
-l perspectives of Information Technology &amp; Systems.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">We are pleased to invite you to submit your original=
- papers to ICITS'24. They can be written in English, Spanish or Portuguese.=
- All submissions will be reviewed on the basis of relevance, originality, i=
-mportance and clarity.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Topics</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Submitted papers should be related with one or more =
-of the main themes proposed for the Conference:</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">A) Information and Knowledge Management (IKM);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">B) Organizational Models and Information Systems (OM=
-IS);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">C) Software and Systems Modeling (SSM);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">D) Software Systems, Architectures, Applications and=
- Tools (SSAAT);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">E) Multimedia Systems and Applications (MSA);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">F) Computer Networks, Mobility and Pervasive Systems=
- (CNMPS);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">G) Intelligent and Decision Support Systems (IDSS);<=
-/p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">H) Big Data Analytics and Applications (BDAA);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">I) Human-Computer Interaction (HCI);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">J) Ethics, Computers and Security (ECS)</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">K) Health Informatics (HIS);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">L) Information Technologies in Education (ITE);</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">M) Media, Applied Technology and Communication (MATC=
-).</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Submission and Decision</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Submitted papers written in English (until 10-page l=
-imit) must comply with the format of the Lecture Notes in Networks and Syst=
-ems series (see Instructions for Authors at Springer Website), must not hav=
-e been published before, not be under review for any other conference or pu=
-blication and not include any information leading to the authors&rsquo; ide=
-ntification. Therefore, the authors&rsquo; names and affiliations should no=
-t be included in the version for evaluation by the Scientific Committee. Th=
-is information should only be included in the camera-ready version, saved i=
-n Word or Latex format and also in PDF format. These files must be accompan=
-ied by the Consent to Publish form filled out, in a ZIP file, and uploaded =
-at the conference management system.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Submitted papers written in Spanish or Portuguese (u=
-ntil 15-page limit) must comply with the format of RISTI - Revista Ib&eacut=
-e;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (download inst=
-ructions/template for authors in Spanish or Portuguese), must not have been=
- published before, not be under review for any other conference or publicat=
-ion and not include any information leading to the authors&rsquo; identific=
-ation. Therefore, the authors&rsquo; names and affiliations should not be i=
-ncluded in the version for evaluation by the Scientific Committee. This inf=
-ormation should only be included in the camera-ready version, saved in Word=
-=2E These files must be uploaded at the conference management system in a Z=
-IP file.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">All papers will be subjected to a &ldquo;double-blin=
-d review&rdquo; by at least two members of the Scientific Committee.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Based on Scientific Committee evaluation, a paper ca=
-n be rejected or accepted by the Conference Chairs. In the later case, it c=
-an be accepted as paper or poster.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">The authors of papers accepted as posters must build=
- and print a poster to be exhibited during the Conference. This poster must=
- follow an A1 or A2 vertical format. The Conference can include Work Sessio=
-ns where these posters are presented and orally discussed, with a 7 minute =
-limit per poster.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">The authors of accepted papers will have 15 minutes =
-to present their work in a Conference Work Session; approximately 5 minutes=
- of discussion will follow each presentation.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Publication and Indexing</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Papers accepted as posters are not published; they a=
-re only exhibited, presented and discussed during the conference.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">To ensure that a paper accepted as paper is publishe=
-d, at least one of the authors must be fully registered by the 28th of Octo=
-ber 2023, and the paper must comply with the suggested layout and page-limi=
-t. Additionally, all recommended changes must be addressed by the authors b=
-efore they submit the camera-ready version.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">No more than one paper per registration will be publ=
-ished. An extra fee must be paid for publication of additional papers, with=
- a maximum of one additional paper per registration. One registration permi=
-ts only the participation of one author in the conference.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Papers written in English and accepted and registere=
-d will be published in Proceedings by Springer, in a book of the Lecture No=
-tes in Networks and Systems series, will &nbsp;be submitted for indexation =
-by Scopus, WoS, DBLP, Google Scholar, among others, and will be available i=
-n the SpringerLink Digital Library.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Papers written in Spanish or Portuguese and accepted=
- and registered will be published in a Special Issue of RISTI and will be s=
-ubmitted for indexation by Scopus, among others.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Important Dates</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Paper Submission: September 10, 2023</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Notification of Acceptance: October 17, 2023</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Payment of Registration, to ensure the inclusion of =
-an accepted paper in the conference proceedings: October 28, 2023.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">Camera-ready Submission: October 28, 2023</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px"><strong>Website of ICITS'24</strong>: <a style=3D"te=
-xt-decoration: underline; color: rgb(0,174,218)" href=3D"https://mkt.saisti=
-=2Eeu/go/8-1-3a86e9776cc4a45cc324bf2a00-4433055-05e381537c73deqe2OOTeYtbke3=
-ke5FZ" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url=
-?q=3Dhttps://mkt.saisti.eu/go/8-1-3a86e9776cc4a45cc324bf2a00-4433055-05e381=
-537c73deqe2OOTeYtbke3ke5FZ&source=3Dgmail&ust=3D1688946011760000&usg=3DAOvV=
-aw2OpWSpJErsp9sHH_xXeGSZ">http://icits.me/</a> <br />&nbsp; </p>
-    <p style=3D"font-size: 16px; overflow: hidden; margin-bottom: 0px; font=
--family: Arial; margin-top: 0px; color: rgb(153,153,153); padding-bottom: 0=
-px; text-align: left; padding-top: 0px; padding-left: 0px; line-height: 150=
-%; padding-right: 0px">---</p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
-rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
-px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
-ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
-_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
-lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
-dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
- 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
--serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
-_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
-=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
-2" width=3D"1" height=3D"1"> </a></div></body>
-</html>
-
---3BTTp20wOkcu5KCZWwRqBSt73=_FkK4LTy--
+Generally if you expect me to merge a patch I should be CC'd.
 
 
---===============5091163242291909269==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > =
+
+> > Thanks,
+> > Pankaj
+> > =
+
+> > > From: Hou Tao <houtao1@huawei.com>
+> > > =
+
+> > > When doing mkfs.xfs on a pmem device, the following warning was
+> > > reported:
+> > > =
+
+> > > =A0------------[ cut here ]------------
+> > > =A0WARNING: CPU: 2 PID: 384 at block/blk-core.c:751 submit_bio_noacct
+> > > =A0Modules linked in:
+> > > =A0CPU: 2 PID: 384 Comm: mkfs.xfs Not tainted 6.4.0-rc7+ #154
+> > > =A0Hardware name: QEMU Standard PC (i440FX + PIIX, 1996)
+> > > =A0RIP: 0010:submit_bio_noacct+0x340/0x520
+> > > =A0......
+> > > =A0Call Trace:
+> > > =A0 <TASK>
+> > > =A0 ? submit_bio_noacct+0xd5/0x520
+> > > =A0 submit_bio+0x37/0x60
+> > > =A0 async_pmem_flush+0x79/0xa0
+> > > =A0 nvdimm_flush+0x17/0x40
+> > > =A0 pmem_submit_bio+0x370/0x390
+> > > =A0 __submit_bio+0xbc/0x190
+> > > =A0 submit_bio_noacct_nocheck+0x14d/0x370
+> > > =A0 submit_bio_noacct+0x1ef/0x520
+> > > =A0 submit_bio+0x55/0x60
+> > > =A0 submit_bio_wait+0x5a/0xc0
+> > > =A0 blkdev_issue_flush+0x44/0x60
+> > > =
+
+> > > The root cause is that submit_bio_noacct() needs bio_op() is either
+> > > WRITE or ZONE_APPEND for flush bio and async_pmem_flush() doesn't ass=
+ign
+> > > REQ_OP_WRITE when allocating flush bio, so submit_bio_noacct just fail
+> > > the flush bio.
+> > > =
+
+> > > Simply fix it by adding the missing REQ_OP_WRITE for flush bio. And we
+> > > could fix the flush order issue and do flush optimization later.
+> > > =
+
+> > > Cc: stable@vger.kernel.org=A0# 6.3+
+> > > Fixes: b4a6bb3a67aa ("block: add a sanity check for non-write flush/f=
+ua bios")
+> > > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > > Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+> > > Reviewed-by: Pankaj Gupta <pankaj.gupta@amd.com>
+> > > Tested-by: Pankaj Gupta <pankaj.gupta@amd.com>
+> > > Signed-off-by: Hou Tao <houtao1@huawei.com>
+> > > ---
+> > > v4:
+> > > =A0* add stable Cc
+> > > =A0* collect Rvb and Tested-by tags
+> > > =
+
+> > > v3: https://lore.kernel.org/linux-block/20230625022633.2753877-1-hout=
+ao@huaweicloud.com
+> > > =A0* adjust the overly long lines in both commit message and code
+> > > =
+
+> > > v2: https://lore.kernel.org/linux-block/20230621134340.878461-1-houta=
+o@huaweicloud.com
+> > > =A0* do a minimal fix first (Suggested by Christoph)
+> > > =
+
+> > > v1: https://lore.kernel.org/linux-block/ZJLpYMC8FgtZ0k2k@infradead.or=
+g/T/#t
+> > > =
+
+> > > =A0drivers/nvdimm/nd_virtio.c | 3 ++-
+> > > =A01 file changed, 2 insertions(+), 1 deletion(-)
+> > > =
+
+> > > diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
+> > > index c6a648fd8744..1f8c667c6f1e 100644
+> > > --- a/drivers/nvdimm/nd_virtio.c
+> > > +++ b/drivers/nvdimm/nd_virtio.c
+> > > @@ -105,7 +105,8 @@ int async_pmem_flush(struct nd_region *nd_region,=
+ struct bio *bio)
+> > > =A0=A0=A0=A0=A0=A0=A0=A0 * parent bio. Otherwise directly call nd_reg=
+ion flush.
+> > > =A0=A0=A0=A0=A0=A0=A0=A0 */
+> > > =A0=A0=A0=A0=A0=A0=A0 if (bio && bio->bi_iter.bi_sector !=3D -1) {
+> > > -=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struct bio *child =3D bio=
+_alloc(bio->bi_bdev, 0, REQ_PREFLUSH,
+> > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 struct bio *child =3D bio=
+_alloc(bio->bi_bdev, 0,
+> > > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 REQ_OP_W=
+RITE | REQ_PREFLUSH,
+> > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 GFP_ATOM=
+IC);
+> > > =
+
+> > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (!child)
+> > > --
+> > > 2.29.2
+> > > =
+
+> =
+
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5091163242291909269==--
-
