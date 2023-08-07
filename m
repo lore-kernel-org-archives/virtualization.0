@@ -4,77 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60069C00528
-	for <virtualization@archiver.kernel.org>; Mon,  7 Aug 2023 06:15:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 393B4C41513
+	for <virtualization@archiver.kernel.org>; Mon,  7 Aug 2023 12:55:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D63CA410B2;
-	Mon,  7 Aug 2023 06:15:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D63CA410B2
+	by smtp4.osuosl.org (Postfix) with ESMTP id 92F9D41517;
+	Mon,  7 Aug 2023 12:55:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 92F9D41517
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RF2d-X_a-QmQ; Mon,  7 Aug 2023 06:15:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 05F4D4098C;
-	Mon,  7 Aug 2023 06:15:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05F4D4098C
+	with ESMTP id DncwuEqrjRYX; Mon,  7 Aug 2023 12:55:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A0E5B402CC;
+	Mon,  7 Aug 2023 12:55:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A0E5B402CC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CE992C0072;
-	Mon,  7 Aug 2023 06:15:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A52D1C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6706CC0071;
+	Mon,  7 Aug 2023 12:55:42 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2F971C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Aug 2023 06:15:09 +0000 (UTC)
+ Mon,  7 Aug 2023 12:55:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 798A68121F
+ by smtp4.osuosl.org (Postfix) with ESMTP id EF26C402E1
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Aug 2023 06:15:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 798A68121F
+ Mon,  7 Aug 2023 12:55:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EF26C402E1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eCP8mVpkgM9m
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wnP9GNWIkyub
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Aug 2023 06:15:08 +0000 (UTC)
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0EB41809DD
+ Mon,  7 Aug 2023 12:55:39 +0000 (UTC)
+X-Greylist: delayed 356 seconds by postgrey-1.37 at util1.osuosl.org;
+ Mon, 07 Aug 2023 12:55:39 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A3EF940961
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp4.osuosl.org (Postfix) with ESMTP id A3EF940961
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Aug 2023 06:15:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0EB41809DD
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0Vp9Kq12_1691388895; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Vp9Kq12_1691388895) by smtp.aliyun-inc.com;
- Mon, 07 Aug 2023 14:14:56 +0800
-Message-ID: <1691388845.9121156-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
-Date: Mon, 7 Aug 2023 14:14:05 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Christoph Hellwig <hch@infradead.org>
-References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
- <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
- <ZK/cxNHzI23I6efc@infradead.org>
- <20230713104805-mutt-send-email-mst@kernel.org>
- <ZLjSsmTfcpaL6H/I@infradead.org>
- <20230720131928-mutt-send-email-mst@kernel.org>
- <ZL6qPvd6X1CgUD4S@infradead.org>
- <1690251228.3455179-1-xuanzhuo@linux.alibaba.com>
- <20230725033321-mutt-send-email-mst@kernel.org>
- <1690283243.4048996-1-xuanzhuo@linux.alibaba.com>
- <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
- <20230801121543-mutt-send-email-mst@kernel.org>
- <1690940971.9409487-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1690940971.9409487-2-xuanzhuo@linux.alibaba.com>
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+ Mon,  7 Aug 2023 12:55:39 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 76FA41FB;
+ Mon,  7 Aug 2023 05:50:25 -0700 (PDT)
+Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3B8523F64C;
+ Mon,  7 Aug 2023 05:49:40 -0700 (PDT)
+Message-ID: <3c387223-eb0e-a8af-b9de-20235d7337fa@arm.com>
+Date: Mon, 7 Aug 2023 13:49:35 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH] iommu: Explicitly include correct DT includes
+Content-Language: en-GB
+To: Rob Herring <robh@kernel.org>, Will Deacon <will@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, Rob Clark <robdclark@gmail.com>,
+ Orson Zhai <orsonzhai@gmail.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>,
+ Thierry Reding <thierry.reding@gmail.com>, Krishna Reddy
+ <vdumpa@nvidia.com>, Jonathan Hunter <jonathanh@nvidia.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>
+References: <20230714174640.4058404-1-robh@kernel.org>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20230714174640.4058404-1-robh@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux.dev, linux-tegra@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,98 +81,131 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 2 Aug 2023 09:49:31 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> On Tue, 1 Aug 2023 12:17:47 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Fri, Jul 28, 2023 at 02:02:33PM +0800, Xuan Zhuo wrote:
-> > > On Tue, 25 Jul 2023 19:07:23 +0800, Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> > > > On Tue, 25 Jul 2023 03:34:34 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > On Tue, Jul 25, 2023 at 10:13:48AM +0800, Xuan Zhuo wrote:
-> > > > > > On Mon, 24 Jul 2023 09:43:42 -0700, Christoph Hellwig <hch@infradead.org> wrote:
-> > > > > > > On Thu, Jul 20, 2023 at 01:21:07PM -0400, Michael S. Tsirkin wrote:
-> > > > > > > > Well I think we can add wrappers like virtio_dma_sync and so on.
-> > > > > > > > There are NOP for non-dma so passing the dma device is harmless.
-> > > > > > >
-> > > > > > > Yes, please.
-> > > > > >
-> > > > > >
-> > > > > > I am not sure I got this fully.
-> > > > > >
-> > > > > > Are you mean this:
-> > > > > > https://lore.kernel.org/all/20230214072704.126660-8-xuanzhuo@linux.alibaba.com/
-> > > > > > https://lore.kernel.org/all/20230214072704.126660-9-xuanzhuo@linux.alibaba.com/
-> > > > > >
-> > > > > > Then the driver must do dma operation(map and sync) by these virtio_dma_* APIs.
-> > > > > > No care the device is non-dma device or dma device.
-> > > > >
-> > > > > yes
-> > > > >
-> > > > > > Then the AF_XDP must use these virtio_dma_* APIs for virtio device.
-> > > > >
-> > > > > We'll worry about AF_XDP when the patch is posted.
-> > > >
-> > > > YES.
-> > > >
-> > > > We discussed it. They voted 'no'.
-> > > >
-> > > > http://lore.kernel.org/all/20230424082856.15c1e593@kernel.org
-> > >
-> > >
-> > > Hi guys, this topic is stuck again. How should I proceed with this work?
-> > >
-> > > Let me briefly summarize:
-> > > 1. The problem with adding virtio_dma_{map, sync} api is that, for AF_XDP and
-> > > the driver layer, we need to support these APIs. The current conclusion of
-> > > AF_XDP is no.
-> > >
-> > > 2. Set dma_set_mask_and_coherent, then we can use DMA API uniformly inside
-> > > driver. This idea seems to be inconsistent with the framework design of DMA. The
-> > > conclusion is no.
-> > >
-> > > 3. We noticed that if the virtio device supports VIRTIO_F_ACCESS_PLATFORM, it
-> > > uses DMA API. And this type of device is the future direction, so we only
-> > > support DMA premapped for this type of virtio device. The problem with this
-> > > solution is that virtqueue_dma_dev() only returns dev in some cases, because
-> > > VIRTIO_F_ACCESS_PLATFORM is supported in such cases. Otherwise NULL is returned.
-> > > This option is currently NO.
-> > >
-> > > So I'm wondering what should I do, from a DMA point of view, is there any
-> > > solution in case of using DMA API?
-> > >
-> > > Thank you
-> >
-> >
-> > I think it's ok at this point, Christoph just asked you
-> > to add wrappers for map/unmap for use in virtio code.
-> > Seems like a cosmetic change, shouldn't be hard.
->
-> Yes, that is not hard, I has this code.
->
-> But, you mean that the wrappers is just used for the virtio driver code?
-> And we also offer the  API virtqueue_dma_dev() at the same time?
-> Then the driver will has two chooses to do DMA.
->
-> Is that so?
+On 14/07/2023 6:46 pm, Rob Herring wrote:
+> The DT of_device.h and of_platform.h date back to the separate
+> of_platform_bus_type before it as merged into the regular platform bus.
+> As part of that merge prepping Arm DT support 13 years ago, they
+> "temporarily" include each other. They also include platform_device.h
+> and of.h. As a result, there's a pretty much random mix of those include
+> files used throughout the tree. In order to detangle these headers and
+> replace the implicit includes with struct declarations, users need to
+> explicitly include the correct includes.
 
-Ping.
+Thanks Rob; FWIW,
 
-Thanks
+Acked-by: Robin Murphy <robin.murphy@arm.com>
 
->
->
-> > Otherwise I haven't seen significant comments.
-> >
-> >
-> > Christoph do I summarize what you are saying correctly?
-> > --
-> > MST
-> >
->
+I guess you're hoping for Joerg to pick this up? However I wouldn't 
+foresee any major conflicts if you do need to take it through the OF tree.
+
+Cheers,
+Robin.
+
+> Signed-off-by: Rob Herring <robh@kernel.org>
+> ---
+>   drivers/iommu/arm/arm-smmu/arm-smmu-qcom-debug.c | 2 +-
+>   drivers/iommu/arm/arm-smmu/arm-smmu.c            | 1 -
+>   drivers/iommu/arm/arm-smmu/qcom_iommu.c          | 3 +--
+>   drivers/iommu/ipmmu-vmsa.c                       | 1 -
+>   drivers/iommu/sprd-iommu.c                       | 1 +
+>   drivers/iommu/tegra-smmu.c                       | 2 +-
+>   drivers/iommu/virtio-iommu.c                     | 2 +-
+>   7 files changed, 5 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom-debug.c b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom-debug.c
+> index b5b14108e086..bb89d49adf8d 100644
+> --- a/drivers/iommu/arm/arm-smmu/arm-smmu-qcom-debug.c
+> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu-qcom-debug.c
+> @@ -3,7 +3,7 @@
+>    * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+>    */
+>   
+> -#include <linux/of_device.h>
+> +#include <linux/device.h>
+>   #include <linux/firmware/qcom/qcom_scm.h>
+>   #include <linux/ratelimit.h>
+>   
+> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> index a86acd76c1df..d6d1a2a55cc0 100644
+> --- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> @@ -29,7 +29,6 @@
+>   #include <linux/module.h>
+>   #include <linux/of.h>
+>   #include <linux/of_address.h>
+> -#include <linux/of_device.h>
+>   #include <linux/pci.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/pm_runtime.h>
+> diff --git a/drivers/iommu/arm/arm-smmu/qcom_iommu.c b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+> index a503ed758ec3..cc3f68a3516c 100644
+> --- a/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+> +++ b/drivers/iommu/arm/arm-smmu/qcom_iommu.c
+> @@ -22,8 +22,7 @@
+>   #include <linux/init.h>
+>   #include <linux/mutex.h>
+>   #include <linux/of.h>
+> -#include <linux/of_address.h>
+> -#include <linux/of_device.h>
+> +#include <linux/of_platform.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/pm.h>
+>   #include <linux/pm_runtime.h>
+> diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+> index 9f64c5c9f5b9..0aeedd3e1494 100644
+> --- a/drivers/iommu/ipmmu-vmsa.c
+> +++ b/drivers/iommu/ipmmu-vmsa.c
+> @@ -17,7 +17,6 @@
+>   #include <linux/io-pgtable.h>
+>   #include <linux/iommu.h>
+>   #include <linux/of.h>
+> -#include <linux/of_device.h>
+>   #include <linux/of_platform.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/sizes.h>
+> diff --git a/drivers/iommu/sprd-iommu.c b/drivers/iommu/sprd-iommu.c
+> index 39e34fdeccda..51144c232474 100644
+> --- a/drivers/iommu/sprd-iommu.c
+> +++ b/drivers/iommu/sprd-iommu.c
+> @@ -14,6 +14,7 @@
+>   #include <linux/mfd/syscon.h>
+>   #include <linux/module.h>
+>   #include <linux/of_platform.h>
+> +#include <linux/platform_device.h>
+>   #include <linux/regmap.h>
+>   #include <linux/slab.h>
+>   
+> diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+> index 1cbf063ccf14..e445f80d0226 100644
+> --- a/drivers/iommu/tegra-smmu.c
+> +++ b/drivers/iommu/tegra-smmu.c
+> @@ -9,7 +9,7 @@
+>   #include <linux/iommu.h>
+>   #include <linux/kernel.h>
+>   #include <linux/of.h>
+> -#include <linux/of_device.h>
+> +#include <linux/of_platform.h>
+>   #include <linux/pci.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/slab.h>
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 3551ed057774..17dcd826f5c2 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -13,7 +13,7 @@
+>   #include <linux/interval_tree.h>
+>   #include <linux/iommu.h>
+>   #include <linux/module.h>
+> -#include <linux/of_platform.h>
+> +#include <linux/of.h>
+>   #include <linux/pci.h>
+>   #include <linux/virtio.h>
+>   #include <linux/virtio_config.h>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
