@@ -1,117 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 18EF7C001B0
-	for <virtualization@archiver.kernel.org>; Tue,  8 Aug 2023 02:24:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6BE21C001DB
+	for <virtualization@archiver.kernel.org>; Tue,  8 Aug 2023 02:26:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9CA5D8194A;
-	Tue,  8 Aug 2023 02:24:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9CA5D8194A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256 header.s=20221208 header.b=E8R/sNcx
+	by smtp2.osuosl.org (Postfix) with ESMTP id EDF3E404E9;
+	Tue,  8 Aug 2023 02:26:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EDF3E404E9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DAWrkLw/
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6yRNvtTpYMcK; Tue,  8 Aug 2023 02:24:17 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mQ-q16KZy0rH; Tue,  8 Aug 2023 02:26:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0B14181330;
-	Tue,  8 Aug 2023 02:24:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B14181330
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7B87940350;
+	Tue,  8 Aug 2023 02:26:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7B87940350
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D7DB9C0071;
-	Tue,  8 Aug 2023 02:24:16 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45056C0071;
+	Tue,  8 Aug 2023 02:26:24 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0F1DFC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A42D7C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Aug 2023 02:24:16 +0000 (UTC)
+ Tue,  8 Aug 2023 02:26:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CA9F760BC5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7E9A960BF5
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Aug 2023 02:24:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CA9F760BC5
+ Tue,  8 Aug 2023 02:26:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7E9A960BF5
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=fromorbit-com.20221208.gappssmtp.com
- header.i=@fromorbit-com.20221208.gappssmtp.com header.a=rsa-sha256
- header.s=20221208 header.b=E8R/sNcx
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DAWrkLw/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6jwKzrOU4zYI
+ with ESMTP id j2UF3yb_VdPG
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Aug 2023 02:24:14 +0000 (UTC)
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com
- [IPv6:2607:f8b0:4864:20::62d])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8C7F560B57
+ Tue,  8 Aug 2023 02:26:20 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8B1CC60BC5
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Aug 2023 02:24:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C7F560B57
-Received: by mail-pl1-x62d.google.com with SMTP id
- d9443c01a7336-1b9c5e07c1bso46334775ad.2
+ Tue,  8 Aug 2023 02:26:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8B1CC60BC5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1691461579;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=S3bPtKkgi1i397NDq9plny0QBkcNq3/yfnepW49dbsU=;
+ b=DAWrkLw/OfWnLYJmhHuELtqTbaOEbGbqgdvQ/22hj7Fopw55EjKQKZxJtvliCll7QFMRV2
+ It2GUi09GNeP5lTNdHVioxZGQod/e2Mj/AxTyQcZWrt634qNgVFp9wmQj/O/Lv/R8cTnJA
+ A5yYsKJzH1ORd9rn9PmhyMgPJA2KnAQ=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-137-974vhH9nPKC-tJjV5q9-GA-1; Mon, 07 Aug 2023 22:26:18 -0400
+X-MC-Unique: 974vhH9nPKC-tJjV5q9-GA-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ 38308e7fff4ca-2ba1949656bso39268771fa.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 07 Aug 2023 19:24:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=fromorbit-com.20221208.gappssmtp.com; s=20221208; t=1691461454; x=1692066254;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=HUGk8Gm4qWKcvYyYW1oMdtOdnxgdWZtLrf0WmvG8aOg=;
- b=E8R/sNcxrOK1IUnWWdPxuHAURfzEKsQXFvPF/8WoYIocyBzrOF6C/15wk0bBTyq8fp
- w+9skh2POsCjChG96SdxCE1ukUJoo7U6iUCJoOHux3qHabiPQt2q8GYhzVnnqh4Ia8gf
- otMrpF/u+4+6GZvnjfH9iZQVLX7oYyO80eB3aSg/65gqSdDxQ6TBQ0eTbg/7hck8CRIR
- N2poqJrxPUv+xHM8+kwldwyyrpY8ClA2gjcNqxK3I6Rjaxj3f+CIGTw2aTNSrwyrBhAC
- fS1NWvmq7XKVFcVROA15iTu7BqzTlMOOgRsfusR61dD9uCRFfNfvH5SixHmdTB0ZZ2at
- NUZw==
+ Mon, 07 Aug 2023 19:26:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1691461454; x=1692066254;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=HUGk8Gm4qWKcvYyYW1oMdtOdnxgdWZtLrf0WmvG8aOg=;
- b=Nm0eyFfgUakDZsLUjJ60UvSyhPYRvqhgZvkcoxZ5yPfoi9IeaBvM/QSadUIYA+UydL
- umGShgtSL/4MiLr/yyh+6MqPJEGzkEoDNQ2s6J832/YRss6xDv3wu6frFKTfmiUDeXyQ
- foUVaWiRO/LzMM/ZMqcNjUzy6C23jUhb65RdqZvTOoIyjWFJprwMVS2g30vEIjoWwwVM
- IKq+bKEm1oA1wMIuFCfAGKcLWzEAihjHv6IR8qGkWKIxq6/Rd3+O5d0CzEqs6DBaloo5
- SMfPFjarXV7Gc/ygVGqccyy+QMoZa29dXB4WDlZXC78xQMeaA3AANrATKCKmOY58v7p2
- Txag==
-X-Gm-Message-State: AOJu0YzIodfYugf9rJLh5SAUnPMkYAiXSpxDiN1yCRAziYNz/a2h2GOz
- N7k1KvE3ow5Z/LvWt9326bEI+Q==
-X-Google-Smtp-Source: AGHT+IEzrDGpXyLCXRNBmZGxK80nBmbnZ3Zc29NdEkVzSJ3QNXEJvOFh13D52+77LsVxnWz7HKqTHA==
-X-Received: by 2002:a17:902:8692:b0:1b9:d307:c1df with SMTP id
- g18-20020a170902869200b001b9d307c1dfmr10722096plo.17.1691461453690; 
- Mon, 07 Aug 2023 19:24:13 -0700 (PDT)
-Received: from dread.disaster.area (pa49-180-166-213.pa.nsw.optusnet.com.au.
- [49.180.166.213]) by smtp.gmail.com with ESMTPSA id
- h17-20020a170902f55100b001b864add154sm7583543plf.154.2023.08.07.19.24.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 07 Aug 2023 19:24:13 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
- (envelope-from <david@fromorbit.com>) id 1qTCOH-002Wjl-2u;
- Tue, 08 Aug 2023 12:24:09 +1000
-Date: Tue, 8 Aug 2023 12:24:09 +1000
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: Re: [PATCH v4 45/48] mm: shrinker: make global slab shrink lockless
-Message-ID: <ZNGnSbiPN0lDLpSW@dread.disaster.area>
-References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
- <20230807110936.21819-46-zhengqi.arch@bytedance.com>
+ d=1e100.net; s=20221208; t=1691461576; x=1692066376;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=S3bPtKkgi1i397NDq9plny0QBkcNq3/yfnepW49dbsU=;
+ b=iIosxHzbkQG7Ssu1ysRE2bLMxUX+26EIKW2oWhqr7aGaqZO9QsViUnKbmDDMIZ0sa1
+ OuS6C3pqwy/Jpr+iJGKzNfUuHOSgW1msylsUJNd+IFQhsUx35Ht2LUYBx+gwcMSkharL
+ DiT0oUrbHl8hmawF41Dpa4A9FKmrXZTZDtpqvTLnEfYN6/XBm/CwGnYO8U7gEoLbId9h
+ I/VuV6ocQd7/3/1+FobkHPrnrnjA6UBInYtRjRhqIuD9KWMvpLATZoEwPmsVNipnRr0N
+ j+ka8j42Sx/CpWSBIkp5GtE7sLUwemLDEZkGSFi3AaTqSik/R4jEdBvJRzOPtd361W9v
+ vBQA==
+X-Gm-Message-State: AOJu0Yyhg16LjZ2OTY2kz65zqwKOw6Q6a/mgsQaSs45sSD7mjry3roMS
+ 3v+Ub9l/5Gz65zFKajlJH3NhR1wZrpB+/pfkyQ3nqtkFBKsF5IJHgIseiIxHK4ZrPTKui2vvjsa
+ 9x3SjKb9rSCAH0I/djKED+4F4Xg20YbD59PtOzKF+sgt3AxNHTMKdI0UM6g==
+X-Received: by 2002:a2e:9dd2:0:b0:2b9:e24d:21f6 with SMTP id
+ x18-20020a2e9dd2000000b002b9e24d21f6mr8537849ljj.20.1691461576629; 
+ Mon, 07 Aug 2023 19:26:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFNEm+Y6WWl+v6SW3V5FlF+qxZoMtf5PiRX9TeSa9v9sMGFuEkcW6A6jSYVhkrmtuO0whT+JZmflWz4uo7ct/I=
+X-Received: by 2002:a2e:9dd2:0:b0:2b9:e24d:21f6 with SMTP id
+ x18-20020a2e9dd2000000b002b9e24d21f6mr8537832ljj.20.1691461576310; Mon, 07
+ Aug 2023 19:26:16 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230807110936.21819-46-zhengqi.arch@bytedance.com>
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, dm-devel@redhat.com, linux-mtd@lists.infradead.org,
- cel@kernel.org, x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com,
- simon.horman@corigine.com, xen-devel@lists.xenproject.org,
- linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org,
- linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org,
- dlemoal@kernel.org, yujie.liu@intel.com, vbabka@suse.cz,
- linux-raid@vger.kernel.org, brauner@kernel.org, tytso@mit.edu,
- gregkh@linuxfoundation.org, muchun.song@linux.dev,
- linux-kernel@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
- linux-xfs@vger.kernel.org, senozhatsky@chromium.org, netdev@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+References: <20230710034237.12391-1-xuanzhuo@linux.alibaba.com>
+ <20230710034237.12391-6-xuanzhuo@linux.alibaba.com>
+ <ZK/cxNHzI23I6efc@infradead.org>
+ <20230713104805-mutt-send-email-mst@kernel.org>
+ <ZLjSsmTfcpaL6H/I@infradead.org>
+ <20230720131928-mutt-send-email-mst@kernel.org>
+ <ZL6qPvd6X1CgUD4S@infradead.org>
+ <1690251228.3455179-1-xuanzhuo@linux.alibaba.com>
+ <20230725033321-mutt-send-email-mst@kernel.org>
+ <1690283243.4048996-1-xuanzhuo@linux.alibaba.com>
+ <1690524153.3603117-1-xuanzhuo@linux.alibaba.com>
+ <20230801121543-mutt-send-email-mst@kernel.org>
+ <1690940971.9409487-2-xuanzhuo@linux.alibaba.com>
+ <1691388845.9121156-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1691388845.9121156-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 8 Aug 2023 10:26:04 +0800
+Message-ID: <CACGkMEsoivXfBV75whjyB0yreUNh7HeucGLw3Bq9Zvu1NGnj_g@mail.gmail.com>
+Subject: Re: [PATCH vhost v11 05/10] virtio_ring: introduce virtqueue_dma_dev()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,154 +129,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Dave Chinner via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Dave Chinner <david@fromorbit.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 07, 2023 at 07:09:33PM +0800, Qi Zheng wrote:
-> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
-> index eb342994675a..f06225f18531 100644
-> --- a/include/linux/shrinker.h
-> +++ b/include/linux/shrinker.h
-> @@ -4,6 +4,8 @@
->  
->  #include <linux/atomic.h>
->  #include <linux/types.h>
-> +#include <linux/refcount.h>
-> +#include <linux/completion.h>
->  
->  #define SHRINKER_UNIT_BITS	BITS_PER_LONG
->  
-> @@ -87,6 +89,10 @@ struct shrinker {
->  	int seeks;	/* seeks to recreate an obj */
->  	unsigned flags;
->  
-> +	refcount_t refcount;
-> +	struct completion done;
-> +	struct rcu_head rcu;
-
-Documentation, please. What does the refcount protect, what does the
-completion provide, etc.
-
-> +
->  	void *private_data;
->  
->  	/* These are for internal use */
-> @@ -120,6 +126,17 @@ struct shrinker *shrinker_alloc(unsigned int flags, const char *fmt, ...);
->  void shrinker_register(struct shrinker *shrinker);
->  void shrinker_free(struct shrinker *shrinker);
->  
-> +static inline bool shrinker_try_get(struct shrinker *shrinker)
-> +{
-> +	return refcount_inc_not_zero(&shrinker->refcount);
-> +}
-> +
-> +static inline void shrinker_put(struct shrinker *shrinker)
-> +{
-> +	if (refcount_dec_and_test(&shrinker->refcount))
-> +		complete(&shrinker->done);
-> +}
-> +
->  #ifdef CONFIG_SHRINKER_DEBUG
->  extern int __printf(2, 3) shrinker_debugfs_rename(struct shrinker *shrinker,
->  						  const char *fmt, ...);
-> diff --git a/mm/shrinker.c b/mm/shrinker.c
-> index 1911c06b8af5..d318f5621862 100644
-> --- a/mm/shrinker.c
-> +++ b/mm/shrinker.c
-> @@ -2,6 +2,7 @@
->  #include <linux/memcontrol.h>
->  #include <linux/rwsem.h>
->  #include <linux/shrinker.h>
-> +#include <linux/rculist.h>
->  #include <trace/events/vmscan.h>
->  
->  #include "internal.h"
-> @@ -577,33 +578,42 @@ unsigned long shrink_slab(gfp_t gfp_mask, int nid, struct mem_cgroup *memcg,
->  	if (!mem_cgroup_disabled() && !mem_cgroup_is_root(memcg))
->  		return shrink_slab_memcg(gfp_mask, nid, memcg, priority);
->  
-> -	if (!down_read_trylock(&shrinker_rwsem))
-> -		goto out;
-> -
-> -	list_for_each_entry(shrinker, &shrinker_list, list) {
-> +	rcu_read_lock();
-> +	list_for_each_entry_rcu(shrinker, &shrinker_list, list) {
->  		struct shrink_control sc = {
->  			.gfp_mask = gfp_mask,
->  			.nid = nid,
->  			.memcg = memcg,
->  		};
->  
-> +		if (!shrinker_try_get(shrinker))
-> +			continue;
-> +
-> +		/*
-> +		 * We can safely unlock the RCU lock here since we already
-> +		 * hold the refcount of the shrinker.
-> +		 */
-> +		rcu_read_unlock();
-> +
->  		ret = do_shrink_slab(&sc, shrinker, priority);
->  		if (ret == SHRINK_EMPTY)
->  			ret = 0;
->  		freed += ret;
-> +
->  		/*
-> -		 * Bail out if someone want to register a new shrinker to
-> -		 * prevent the registration from being stalled for long periods
-> -		 * by parallel ongoing shrinking.
-> +		 * This shrinker may be deleted from shrinker_list and freed
-> +		 * after the shrinker_put() below, but this shrinker is still
-> +		 * used for the next traversal. So it is necessary to hold the
-> +		 * RCU lock first to prevent this shrinker from being freed,
-> +		 * which also ensures that the next shrinker that is traversed
-> +		 * will not be freed (even if it is deleted from shrinker_list
-> +		 * at the same time).
->  		 */
-
-This needs to be moved to the head of the function, and document
-the whole list walk, get, put and completion parts of the algorithm
-that make it safe. There's more to this than "we hold a reference
-count", especially the tricky "we might see the shrinker before it
-is fully initialised" case....
-
-
-.....
->  void shrinker_free(struct shrinker *shrinker)
->  {
->  	struct dentry *debugfs_entry = NULL;
-> @@ -686,9 +712,18 @@ void shrinker_free(struct shrinker *shrinker)
->  	if (!shrinker)
->  		return;
->  
-> +	if (shrinker->flags & SHRINKER_REGISTERED) {
-> +		shrinker_put(shrinker);
-> +		wait_for_completion(&shrinker->done);
-> +	}
-
-Needs a comment explaining why we need to wait here...
-> +
->  	down_write(&shrinker_rwsem);
->  	if (shrinker->flags & SHRINKER_REGISTERED) {
-> -		list_del(&shrinker->list);
-> +		/*
-> +		 * Lookups on the shrinker are over and will fail in the future,
-> +		 * so we can now remove it from the lists and free it.
-> +		 */
-
-.... rather than here after the wait has been done and provided the
-guarantee that no shrinker is running or will run again...
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBBdWcgNywgMjAyMyBhdCAyOjE14oCvUE0gWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51
+eC5hbGliYWJhLmNvbT4gd3JvdGU6Cj4KPiBPbiBXZWQsIDIgQXVnIDIwMjMgMDk6NDk6MzEgKzA4
+MDAsIFh1YW4gWmh1byA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+ID4gT24g
+VHVlLCAxIEF1ZyAyMDIzIDEyOjE3OjQ3IC0wNDAwLCAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0
+QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiBPbiBGcmksIEp1bCAyOCwgMjAyMyBhdCAwMjowMjoz
+M1BNICswODAwLCBYdWFuIFpodW8gd3JvdGU6Cj4gPiA+ID4gT24gVHVlLCAyNSBKdWwgMjAyMyAx
+OTowNzoyMyArMDgwMCwgWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4gd3Jv
+dGU6Cj4gPiA+ID4gPiBPbiBUdWUsIDI1IEp1bCAyMDIzIDAzOjM0OjM0IC0wNDAwLCAiTWljaGFl
+bCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+ID4gPiBPbiBUdWUs
+IEp1bCAyNSwgMjAyMyBhdCAxMDoxMzo0OEFNICswODAwLCBYdWFuIFpodW8gd3JvdGU6Cj4gPiA+
+ID4gPiA+ID4gT24gTW9uLCAyNCBKdWwgMjAyMyAwOTo0Mzo0MiAtMDcwMCwgQ2hyaXN0b3BoIEhl
+bGx3aWcgPGhjaEBpbmZyYWRlYWQub3JnPiB3cm90ZToKPiA+ID4gPiA+ID4gPiA+IE9uIFRodSwg
+SnVsIDIwLCAyMDIzIGF0IDAxOjIxOjA3UE0gLTA0MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90
+ZToKPiA+ID4gPiA+ID4gPiA+ID4gV2VsbCBJIHRoaW5rIHdlIGNhbiBhZGQgd3JhcHBlcnMgbGlr
+ZSB2aXJ0aW9fZG1hX3N5bmMgYW5kIHNvIG9uLgo+ID4gPiA+ID4gPiA+ID4gPiBUaGVyZSBhcmUg
+Tk9QIGZvciBub24tZG1hIHNvIHBhc3NpbmcgdGhlIGRtYSBkZXZpY2UgaXMgaGFybWxlc3MuCj4g
+PiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+ID4gWWVzLCBwbGVhc2UuCj4gPiA+ID4gPiA+ID4K
+PiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IEkgYW0gbm90IHN1cmUgSSBnb3QgdGhpcyBmdWxs
+eS4KPiA+ID4gPiA+ID4gPgo+ID4gPiA+ID4gPiA+IEFyZSB5b3UgbWVhbiB0aGlzOgo+ID4gPiA+
+ID4gPiA+IGh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2FsbC8yMDIzMDIxNDA3MjcwNC4xMjY2NjAt
+OC14dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbS8KPiA+ID4gPiA+ID4gPiBodHRwczovL2xvcmUu
+a2VybmVsLm9yZy9hbGwvMjAyMzAyMTQwNzI3MDQuMTI2NjYwLTkteHVhbnpodW9AbGludXguYWxp
+YmFiYS5jb20vCj4gPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gPiBUaGVuIHRoZSBkcml2ZXIgbXVz
+dCBkbyBkbWEgb3BlcmF0aW9uKG1hcCBhbmQgc3luYykgYnkgdGhlc2UgdmlydGlvX2RtYV8qIEFQ
+SXMuCj4gPiA+ID4gPiA+ID4gTm8gY2FyZSB0aGUgZGV2aWNlIGlzIG5vbi1kbWEgZGV2aWNlIG9y
+IGRtYSBkZXZpY2UuCj4gPiA+ID4gPiA+Cj4gPiA+ID4gPiA+IHllcwo+ID4gPiA+ID4gPgo+ID4g
+PiA+ID4gPiA+IFRoZW4gdGhlIEFGX1hEUCBtdXN0IHVzZSB0aGVzZSB2aXJ0aW9fZG1hXyogQVBJ
+cyBmb3IgdmlydGlvIGRldmljZS4KPiA+ID4gPiA+ID4KPiA+ID4gPiA+ID4gV2UnbGwgd29ycnkg
+YWJvdXQgQUZfWERQIHdoZW4gdGhlIHBhdGNoIGlzIHBvc3RlZC4KPiA+ID4gPiA+Cj4gPiA+ID4g
+PiBZRVMuCj4gPiA+ID4gPgo+ID4gPiA+ID4gV2UgZGlzY3Vzc2VkIGl0LiBUaGV5IHZvdGVkICdu
+bycuCj4gPiA+ID4gPgo+ID4gPiA+ID4gaHR0cDovL2xvcmUua2VybmVsLm9yZy9hbGwvMjAyMzA0
+MjQwODI4NTYuMTVjMWU1OTNAa2VybmVsLm9yZwo+ID4gPiA+Cj4gPiA+ID4KPiA+ID4gPiBIaSBn
+dXlzLCB0aGlzIHRvcGljIGlzIHN0dWNrIGFnYWluLiBIb3cgc2hvdWxkIEkgcHJvY2VlZCB3aXRo
+IHRoaXMgd29yaz8KPiA+ID4gPgo+ID4gPiA+IExldCBtZSBicmllZmx5IHN1bW1hcml6ZToKPiA+
+ID4gPiAxLiBUaGUgcHJvYmxlbSB3aXRoIGFkZGluZyB2aXJ0aW9fZG1hX3ttYXAsIHN5bmN9IGFw
+aSBpcyB0aGF0LCBmb3IgQUZfWERQIGFuZAo+ID4gPiA+IHRoZSBkcml2ZXIgbGF5ZXIsIHdlIG5l
+ZWQgdG8gc3VwcG9ydCB0aGVzZSBBUElzLiBUaGUgY3VycmVudCBjb25jbHVzaW9uIG9mCj4gPiA+
+ID4gQUZfWERQIGlzIG5vLgo+ID4gPiA+Cj4gPiA+ID4gMi4gU2V0IGRtYV9zZXRfbWFza19hbmRf
+Y29oZXJlbnQsIHRoZW4gd2UgY2FuIHVzZSBETUEgQVBJIHVuaWZvcm1seSBpbnNpZGUKPiA+ID4g
+PiBkcml2ZXIuIFRoaXMgaWRlYSBzZWVtcyB0byBiZSBpbmNvbnNpc3RlbnQgd2l0aCB0aGUgZnJh
+bWV3b3JrIGRlc2lnbiBvZiBETUEuIFRoZQo+ID4gPiA+IGNvbmNsdXNpb24gaXMgbm8uCj4gPiA+
+ID4KPiA+ID4gPiAzLiBXZSBub3RpY2VkIHRoYXQgaWYgdGhlIHZpcnRpbyBkZXZpY2Ugc3VwcG9y
+dHMgVklSVElPX0ZfQUNDRVNTX1BMQVRGT1JNLCBpdAo+ID4gPiA+IHVzZXMgRE1BIEFQSS4gQW5k
+IHRoaXMgdHlwZSBvZiBkZXZpY2UgaXMgdGhlIGZ1dHVyZSBkaXJlY3Rpb24sIHNvIHdlIG9ubHkK
+PiA+ID4gPiBzdXBwb3J0IERNQSBwcmVtYXBwZWQgZm9yIHRoaXMgdHlwZSBvZiB2aXJ0aW8gZGV2
+aWNlLiBUaGUgcHJvYmxlbSB3aXRoIHRoaXMKPiA+ID4gPiBzb2x1dGlvbiBpcyB0aGF0IHZpcnRx
+dWV1ZV9kbWFfZGV2KCkgb25seSByZXR1cm5zIGRldiBpbiBzb21lIGNhc2VzLCBiZWNhdXNlCj4g
+PiA+ID4gVklSVElPX0ZfQUNDRVNTX1BMQVRGT1JNIGlzIHN1cHBvcnRlZCBpbiBzdWNoIGNhc2Vz
+LgoKQ291bGQgeW91IGV4cGxhaW4gdGhlIGlzc3VlIGEgbGl0dGxlIGJpdCBtb3JlPwoKRS5nIGlm
+IHdlIGxpbWl0IEFGX1hEUCB0byBBQ0VTU19QTEFURlJPTSBvbmx5LCB3aHkgZG9lcwp2aXJ0cXVl
+dWVfZG1hX2RldigpIG9ubHkgcmV0dXJuIGRldiBpbiBzb21lIGNhc2VzPwoKVGhhbmtzCgo+T3Ro
+ZXJ3aXNlIE5VTEwgaXMgcmV0dXJuZWQuCj4gPiA+ID4gVGhpcyBvcHRpb24gaXMgY3VycmVudGx5
+IE5PLgo+ID4gPiA+Cj4gPiA+ID4gU28gSSdtIHdvbmRlcmluZyB3aGF0IHNob3VsZCBJIGRvLCBm
+cm9tIGEgRE1BIHBvaW50IG9mIHZpZXcsIGlzIHRoZXJlIGFueQo+ID4gPiA+IHNvbHV0aW9uIGlu
+IGNhc2Ugb2YgdXNpbmcgRE1BIEFQST8KPiA+ID4gPgo+ID4gPiA+IFRoYW5rIHlvdQo+ID4gPgo+
+ID4gPgo+ID4gPiBJIHRoaW5rIGl0J3Mgb2sgYXQgdGhpcyBwb2ludCwgQ2hyaXN0b3BoIGp1c3Qg
+YXNrZWQgeW91Cj4gPiA+IHRvIGFkZCB3cmFwcGVycyBmb3IgbWFwL3VubWFwIGZvciB1c2UgaW4g
+dmlydGlvIGNvZGUuCj4gPiA+IFNlZW1zIGxpa2UgYSBjb3NtZXRpYyBjaGFuZ2UsIHNob3VsZG4n
+dCBiZSBoYXJkLgo+ID4KPiA+IFllcywgdGhhdCBpcyBub3QgaGFyZCwgSSBoYXMgdGhpcyBjb2Rl
+Lgo+ID4KPiA+IEJ1dCwgeW91IG1lYW4gdGhhdCB0aGUgd3JhcHBlcnMgaXMganVzdCB1c2VkIGZv
+ciB0aGUgdmlydGlvIGRyaXZlciBjb2RlPwo+ID4gQW5kIHdlIGFsc28gb2ZmZXIgdGhlICBBUEkg
+dmlydHF1ZXVlX2RtYV9kZXYoKSBhdCB0aGUgc2FtZSB0aW1lPwo+ID4gVGhlbiB0aGUgZHJpdmVy
+IHdpbGwgaGFzIHR3byBjaG9vc2VzIHRvIGRvIERNQS4KPiA+Cj4gPiBJcyB0aGF0IHNvPwo+Cj4g
+UGluZy4KPgo+IFRoYW5rcwo+Cj4gPgo+ID4KPiA+ID4gT3RoZXJ3aXNlIEkgaGF2ZW4ndCBzZWVu
+IHNpZ25pZmljYW50IGNvbW1lbnRzLgo+ID4gPgo+ID4gPgo+ID4gPiBDaHJpc3RvcGggZG8gSSBz
+dW1tYXJpemUgd2hhdCB5b3UgYXJlIHNheWluZyBjb3JyZWN0bHk/Cj4gPiA+IC0tCj4gPiA+IE1T
+VAo+ID4gPgo+ID4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
