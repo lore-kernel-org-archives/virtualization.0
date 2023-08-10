@@ -1,113 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 23C36EB64DD
-	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 03:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26A8BEB64DD
+	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 03:13:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AD787418A1;
-	Thu, 10 Aug 2023 03:11:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AD787418A1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VjhS7Dc/
+	by smtp1.osuosl.org (Postfix) with ESMTP id BE05683B7F;
+	Thu, 10 Aug 2023 03:13:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BE05683B7F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GE0jWwTF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id U3MJUPws_knC; Thu, 10 Aug 2023 03:11:28 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LB8xzAetuVMD; Thu, 10 Aug 2023 03:13:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B32EB40547;
-	Thu, 10 Aug 2023 03:11:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B32EB40547
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 384AC83B3E;
+	Thu, 10 Aug 2023 03:13:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 384AC83B3E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D763C0072;
-	Thu, 10 Aug 2023 03:11:27 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12D54C0072;
+	Thu, 10 Aug 2023 03:13:10 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 92C15C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64565C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 03:11:25 +0000 (UTC)
+ Thu, 10 Aug 2023 03:13:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7A20060F3C
+ by smtp3.osuosl.org (Postfix) with ESMTP id 31EE960EE5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 03:11:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7A20060F3C
+ Thu, 10 Aug 2023 03:13:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 31EE960EE5
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VjhS7Dc/
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=GE0jWwTF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TPcD5yfKNyRk
+ with ESMTP id XgivNv72e9Gz
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 03:11:24 +0000 (UTC)
+ Thu, 10 Aug 2023 03:13:07 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A9B9D60BAC
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8333160E80
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 03:11:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A9B9D60BAC
+ Thu, 10 Aug 2023 03:13:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8333160E80
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1691637083;
+ s=mimecast20190719; t=1691637186;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=BjSq2/jRZy5vhViCmQhbUeZdXoVE7rcUYsh36jxfIHo=;
- b=VjhS7Dc/C1YOB2FOrQUsttXBw6MGn0JOLHFZpelLCGu6Nxj2Wl8tQ4c7+C0hWONiPAHOiW
- Ykz9gRU/7A9/SvCsN0Hmb3s/Q9iIVkL+G5SQLiNuhl5dHlOBsW5WMcf7jduqg96ewftQV3
- 72y96qTwUKn7Klb2KlX5g7pn8Q7DRpY=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-627-AIONGIkoMtqoJeRwaiKqfw-1; Wed, 09 Aug 2023 23:11:21 -0400
-X-MC-Unique: AIONGIkoMtqoJeRwaiKqfw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- 38308e7fff4ca-2b9bf493456so4593331fa.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Aug 2023 20:11:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1691637080; x=1692241880;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=BjSq2/jRZy5vhViCmQhbUeZdXoVE7rcUYsh36jxfIHo=;
- b=kenH+gYrGt4JhQo1FzWlfRx21qa4zq1D2l08caIKyLbU+mwCBsp6EDw2Upc9IdU2Kq
- DXPTwRohJRIuS5TZPUpt4oLm45q7ZMeYhyCo+Xg+P/roxeSapZOENyH5YJxnEak1NXAC
- 82+9bmI/vvNIXlEzTL9A4ewHoD40O18LLJ6wAx4MuoTOLgYWmkZr0B2XOKTQPzBea2Ci
- lV0H711JHHvM4zg8kP+MavhnovXkjIzmPlHL0+GVJsHUBKu0JlbRVD3QtHy/X6gWz4w1
- sQh+qC4QmvncH1lthOv55VN5o1pE5P0M0dV9vOuyaeAzvCal0fq9i+jNcqO0R0vT39qG
- xayg==
-X-Gm-Message-State: AOJu0YxZpmAjC0gwZF/o3dxT0DlPY42/DZujqUF+totmekidehWy0q3w
- K2MCkeOwRcPOqDmzr6PN/CoEHxE5xHswlvAJP3VPJk9QcCLXXLLCNWyGX0tsIdnXqXJkiAk20lI
- wKSzyyQ8D5SfzvH47I5e4aNhxtSAi5liCCMMonHc82jMQWwnxTSvS6i1jWw==
-X-Received: by 2002:a2e:99c8:0:b0:2b9:e623:c2d8 with SMTP id
- l8-20020a2e99c8000000b002b9e623c2d8mr713263ljj.44.1691637080065; 
- Wed, 09 Aug 2023 20:11:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGzk68fYfUkbasLCWhJFVsZVjtwL3zuwTfJ/vuTVo0nFCp+aqUEoqlGOG6tDMXmepGT4QFTUr47CTuqGuzptX8=
-X-Received: by 2002:a2e:99c8:0:b0:2b9:e623:c2d8 with SMTP id
- l8-20020a2e99c8000000b002b9e623c2d8mr713255ljj.44.1691637079678; Wed, 09 Aug
- 2023 20:11:19 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230809031329.251362-1-jasowang@redhat.com>
- <66687029c1235e56d9279800ceb026dca029c966.camel@nvidia.com>
- <CACGkMEvETiKpx3-EsVejLe9EkSroaoFjJkLBEMmh71YU+1GjGA@mail.gmail.com>
- <20230809025039-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230809025039-mutt-send-email-mst@kernel.org>
+ content-transfer-encoding:content-transfer-encoding;
+ bh=x9L6xP3gYbtAj0NCz8uLq+ActI3o6tJnEr7jbjLqmsY=;
+ b=GE0jWwTFjmNqwbfU/VfUqap4lOwMtnLQXtILQHznhKtrSPlM1bxAofx/MYTWqbSqml4NCH
+ 5tJSJYe8HuhGbv3Dfs/k+3MNvE3mL4f08XtsU7loB8wU9eVtdeaTc4o3R2am3eTgATg4LY
+ KNhs+9lCPMYJ5AVHMlRtWa6u+dXpOvA=
+Received: from mimecast-mx02.redhat.com (66.187.233.73 [66.187.233.73]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-695-PMEYTa7MMwCIYYLCdWABiQ-1; Wed, 09 Aug 2023 23:13:03 -0400
+X-MC-Unique: PMEYTa7MMwCIYYLCdWABiQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7E0113C0CEEE;
+ Thu, 10 Aug 2023 03:13:02 +0000 (UTC)
+Received: from dell-per430-12.lab.eng.pek2.redhat.com
+ (dell-per430-12.lab.eng.pek2.redhat.com [10.73.196.55])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C39642166B25;
+ Thu, 10 Aug 2023 03:12:58 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 10 Aug 2023 11:11:08 +0800
-Message-ID: <CACGkMEvHe09tQttaV-eotf+kZMHajLuRJPd0iF6TB-H9xmFNJA@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: set queues after driver_ok
-To: "Michael S. Tsirkin" <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "edumazet@google.com" <edumazet@google.com>,
- "kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com
+Subject: [PATCH net V2] virtio-net: set queues after driver_ok
+Date: Wed,  9 Aug 2023 23:12:56 -0400
+Message-Id: <20230810031256.813284-1-jasowang@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,57 +93,56 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBBdWcgOSwgMjAyMyBhdCAyOjUx4oCvUE0gTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
-cmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiBXZWQsIEF1ZyAwOSwgMjAyMyBhdCAwMjo0NToxN1BN
-ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4gT24gV2VkLCBBdWcgOSwgMjAyMyBhdCAyOjIz
-4oCvUE0gRHJhZ29zIFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5jb20+IHdyb3RlOgo+ID4gPgo+
-ID4gPiBPbiBUdWUsIDIwMjMtMDgtMDggYXQgMjM6MTMgLTA0MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4gPiA+ID4gQ29tbWl0IDI1MjY2MTI4ZmUxNiAoInZpcnRpby1uZXQ6IGZpeCByYWNlIGJldHdl
-ZW4gc2V0IHF1ZXVlcyBhbmQKPiA+ID4gPiBwcm9iZSIpIHRyaWVzIHRvIGZpeCB0aGUgcmFjZSBi
-ZXR3ZWVuIHNldCBxdWV1ZXMgYW5kIHByb2JlIGJ5IGNhbGxpbmcKPiA+ID4gPiBfdmlydG5ldF9z
-ZXRfcXVldWVzKCkgYmVmb3JlIERSSVZFUl9PSyBpcyBzZXQuIFRoaXMgdmlvbGF0ZXMgdmlydGlv
-Cj4gPiA+ID4gc3BlYy4gRml4aW5nIHRoaXMgYnkgc2V0dGluZyBxdWV1ZXMgYWZ0ZXIgdmlydGlv
-X2RldmljZV9yZWFkeSgpLgo+ID4gPiA+Cj4gPiA+ID4gRml4ZXM6IDI1MjY2MTI4ZmUxNiAoInZp
-cnRpby1uZXQ6IGZpeCByYWNlIGJldHdlZW4gc2V0IHF1ZXVlcyBhbmQgcHJvYmUiKQo+ID4gPiA+
-IFJlcG9ydGVkLWJ5OiBEcmFnb3MgVGF0dWxlYSA8ZHRhdHVsZWFAbnZpZGlhLmNvbT4KPiA+ID4g
-PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gPiA+
-IC0tLQo+ID4gPiA+IFRoZSBwYXRjaCBpcyBuZWVkZWQgZm9yIC1zdGFibGUuCj4gPiA+ID4gLS0t
-Cj4gPiA+ID4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDQgKystLQo+ID4gPiA+ICAxIGZp
-bGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+ID4gPiA+Cj4gPiA+
-ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3Zp
-cnRpb19uZXQuYwo+ID4gPiA+IGluZGV4IDEyNzBjOGQyMzQ2My4uZmYwMzkyMWU0NmRmIDEwMDY0
-NAo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+ICsrKyBiL2Ry
-aXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gPiA+IEBAIC00MjE5LDggKzQyMTksNiBAQCBzdGF0
-aWMgaW50IHZpcnRuZXRfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPiA+ID4g
-ICAgICAgICBpZiAodmktPmhhc19yc3MgfHwgdmktPmhhc19yc3NfaGFzaF9yZXBvcnQpCj4gPiA+
-ID4gICAgICAgICAgICAgICAgIHZpcnRuZXRfaW5pdF9kZWZhdWx0X3Jzcyh2aSk7Cj4gPiA+ID4K
-PiA+ID4gPiAtICAgICAgIF92aXJ0bmV0X3NldF9xdWV1ZXModmksIHZpLT5jdXJyX3F1ZXVlX3Bh
-aXJzKTsKPiA+ID4gPiAtCj4gPiA+ID4gICAgICAgICAvKiBzZXJpYWxpemUgbmV0ZGV2IHJlZ2lz
-dGVyICsgdmlydGlvX2RldmljZV9yZWFkeSgpIHdpdGggbmRvX29wZW4oKQo+ID4gPiA+ICovCj4g
-PiA+ID4gICAgICAgICBydG5sX2xvY2soKTsKPiA+ID4gPgo+ID4gPiA+IEBAIC00MjMzLDYgKzQy
-MzEsOCBAQCBzdGF0aWMgaW50IHZpcnRuZXRfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZk
-ZXYpCj4gPiA+ID4KPiA+ID4gPiAgICAgICAgIHZpcnRpb19kZXZpY2VfcmVhZHkodmRldik7Cj4g
-PiA+ID4KPiA+ID4gPiArICAgICAgIF92aXJ0bmV0X3NldF9xdWV1ZXModmksIHZpLT5jdXJyX3F1
-ZXVlX3BhaXJzKTsKPiA+ID4gPiArCj4gPiA+ID4gICAgICAgICAvKiBhIHJhbmRvbSBNQUMgYWRk
-cmVzcyBoYXMgYmVlbiBhc3NpZ25lZCwgbm90aWZ5IHRoZSBkZXZpY2UuCj4gPiA+ID4gICAgICAg
-ICAgKiBXZSBkb24ndCBmYWlsIHByb2JlIGlmIFZJUlRJT19ORVRfRl9DVFJMX01BQ19BRERSIGlz
-IG5vdCB0aGVyZQo+ID4gPiA+ICAgICAgICAgICogYmVjYXVzZSBtYW55IGRldmljZXMgd29yayBm
-aW5lIHdpdGhvdXQgZ2V0dGluZyBNQUMgZXhwbGljaXRseQo+ID4gPgo+ID4gPiBUaGFua3MgZm9y
-IHRoZSBxdWljayBmaXguIERvZXNuJ3QgdGhpcyBmaXggdGhvdWdoIGJyaW5nIGJhY2sgdGhlIG9y
-aWdpbmFsIHJhY2UKPiA+ID4gdGhhdCB3YXMgZml4ZWQgaW4gY29tbWl0IDI1MjY2MTI4ZmUxNiAo
-InZpcnRpby1uZXQ6IGZpeCByYWNlIGJldHdlZW4gc2V0IHF1ZXVlcwo+ID4gPiBhbmQgcHJvYmUi
-KT8gT3IgaXMgYmVpbmcgdW5kZXIgdGhlIHNhbWUgcm50bF9sb2NrIHNlc3Npb24gYXMgcmVnaXN0
-ZXJfbmV0ZGV2Cj4gPiA+IGVub3VnaCB0byBhdm9pZCB0aGUgcmFjZT8KPiA+Cj4gPiBZZXMsIHJ0
-bmwgbmVlZHMgdG8gYmUgaGVsZCBmb3IgdXNlcnNwYWNlIHJlcXVlc3RzIHRvIGNoYW5nZSB0aGUg
-bnVtYmVyCj4gPiBvZiBxdWV1ZXMuIFNvIHdlIGFyZSBzZXJpYWxpemVkIGluIHRoaXMgd2F5Lgo+
-ID4KPiA+IFRoYW5rcwo+Cj4gbWF5YmUgcG9zdCB2MiBhZGRpbmcgdGhpcyBpbiB0aGUgY29tbWl0
-IGxvZy4KCk9rLCB2MiB3aWxsIGJlIHBvc3RlZCBzb29uLgoKVGhhbmtzCgo+Cj4KPiA+ID4KPiA+
-ID4gVGhhbmtzLAo+ID4gPiBEcmFnb3MKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Commit 25266128fe16 ("virtio-net: fix race between set queues and
+probe") tries to fix the race between set queues and probe by calling
+_virtnet_set_queues() before DRIVER_OK is set. This violates virtio
+spec. Fixing this by setting queues after virtio_device_ready().
+
+Note that rtnl needs to be held for userspace requests to change the
+number of queues. So we are serialized in this way.
+
+Fixes: 25266128fe16 ("virtio-net: fix race between set queues and probe")
+Reported-by: Dragos Tatulea <dtatulea@nvidia.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch is needed for -stable.
+Changes since V1: Tweak the commit log.
+---
+ drivers/net/virtio_net.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 1270c8d23463..ff03921e46df 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -4219,8 +4219,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (vi->has_rss || vi->has_rss_hash_report)
+ 		virtnet_init_default_rss(vi);
+ 
+-	_virtnet_set_queues(vi, vi->curr_queue_pairs);
+-
+ 	/* serialize netdev register + virtio_device_ready() with ndo_open() */
+ 	rtnl_lock();
+ 
+@@ -4233,6 +4231,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
++	_virtnet_set_queues(vi, vi->curr_queue_pairs);
++
+ 	/* a random MAC address has been assigned, notify the device.
+ 	 * We don't fail probe if VIRTIO_NET_F_CTRL_MAC_ADDR is not there
+ 	 * because many devices work fine without getting MAC explicitly
+-- 
+2.39.3
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
