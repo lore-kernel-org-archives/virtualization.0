@@ -4,60 +4,57 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC83AC001DB
-	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 12:31:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5390EC001E0
+	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 12:31:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DC1FD41B5D;
-	Thu, 10 Aug 2023 12:31:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DC1FD41B5D
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8AF1741B27;
+	Thu, 10 Aug 2023 12:31:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8AF1741B27
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2svexU1OEu6K; Thu, 10 Aug 2023 12:31:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 09D5041B39;
+	with ESMTP id L5xFJcFI6SGG; Thu, 10 Aug 2023 12:31:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B52AD41B1A;
 	Thu, 10 Aug 2023 12:31:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 09D5041B39
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B52AD41B1A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2630C007F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F4C0C0DD2;
 	Thu, 10 Aug 2023 12:31:11 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81440C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0AACFC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:11 +0000 (UTC)
+ Thu, 10 Aug 2023 12:31:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D7F3C405B7
+ by smtp2.osuosl.org (Postfix) with ESMTP id 141D9400FC
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Aug 2023 12:31:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D7F3C405B7
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 141D9400FC
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id E11yWoRFOX2C
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:08 +0000 (UTC)
-Received: from out30-124.freemail.mail.aliyun.com
- (out30-124.freemail.mail.aliyun.com [115.124.30.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B769140191
+ with ESMTP id wOonVVR1lUGf
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Aug 2023 12:31:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B769140191
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046059;
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A8C50405B7
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Aug 2023 12:31:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A8C50405B7
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046050;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=15; SR=0;
- TI=SMTPD_---0VpTqS9p_1691670660; 
+ TI=SMTPD_---0VpTrCRr_1691670657; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VpTqS9p_1691670660) by smtp.aliyun-inc.com;
- Thu, 10 Aug 2023 20:31:01 +0800
+ fp:SMTPD_---0VpTrCRr_1691670657) by smtp.aliyun-inc.com;
+ Thu, 10 Aug 2023 20:30:58 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH vhost v13 02/12] virtio_ring: put mapping error check in
- vring_map_one_sg
-Date: Thu, 10 Aug 2023 20:30:47 +0800
-Message-Id: <20230810123057.43407-3-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v13 00/12] virtio core prepares for AF_XDP
+Date: Thu, 10 Aug 2023 20:30:45 +0800
+Message-Id: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
-References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 X-Git-Hash: 6ea114ee5d47
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -84,114 +81,138 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch put the dma addr error check in vring_map_one_sg().
+## About DMA APIs
 
-The benefits of doing this:
+Now, virtio may can not work with DMA APIs when virtio features do not have
+VIRTIO_F_ACCESS_PLATFORM.
 
-1. reduce one judgment of vq->use_dma_api.
-2. make vring_map_one_sg more simple, without calling
-   vring_mapping_error to check the return value. simplifies subsequent
-   code
+1. I tried to let DMA APIs return phy address by virtio-device. But DMA APIs just
+   work with the "real" devices.
+2. I tried to let xsk support callballs to get phy address from virtio-net
+   driver as the dma address. But the maintainers of xsk may want to use dma-buf
+   to replace the DMA APIs. I think that may be a larger effort. We will wait
+   too long.
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/virtio/virtio_ring.c | 37 +++++++++++++++++++++---------------
- 1 file changed, 22 insertions(+), 15 deletions(-)
+So rethinking this, firstly, we can support premapped-dma only for devices with
+VIRTIO_F_ACCESS_PLATFORM. In the case of af-xdp, if the users want to use it,
+they have to update the device to support VIRTIO_F_RING_RESET, and they can also
+enable the device's VIRTIO_F_ACCESS_PLATFORM feature.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index f8754f1d64d3..87d7ceeecdbd 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -355,9 +355,8 @@ static struct device *vring_dma_dev(const struct vring_virtqueue *vq)
- }
- 
- /* Map one sg entry. */
--static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
--				   struct scatterlist *sg,
--				   enum dma_data_direction direction)
-+static int vring_map_one_sg(const struct vring_virtqueue *vq, struct scatterlist *sg,
-+			    enum dma_data_direction direction, dma_addr_t *addr)
- {
- 	if (!vq->use_dma_api) {
- 		/*
-@@ -366,7 +365,8 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
- 		 * depending on the direction.
- 		 */
- 		kmsan_handle_dma(sg_page(sg), sg->offset, sg->length, direction);
--		return (dma_addr_t)sg_phys(sg);
-+		*addr = (dma_addr_t)sg_phys(sg);
-+		return 0;
- 	}
- 
- 	/*
-@@ -374,9 +374,14 @@ static dma_addr_t vring_map_one_sg(const struct vring_virtqueue *vq,
- 	 * the way it expects (we don't guarantee that the scatterlist
- 	 * will exist for the lifetime of the mapping).
- 	 */
--	return dma_map_page(vring_dma_dev(vq),
-+	*addr = dma_map_page(vring_dma_dev(vq),
- 			    sg_page(sg), sg->offset, sg->length,
- 			    direction);
-+
-+	if (dma_mapping_error(vring_dma_dev(vq), *addr))
-+		return -ENOMEM;
-+
-+	return 0;
- }
- 
- static dma_addr_t vring_map_single(const struct vring_virtqueue *vq,
-@@ -588,8 +593,9 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 
- 	for (n = 0; n < out_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_TO_DEVICE);
--			if (vring_mapping_error(vq, addr))
-+			dma_addr_t addr;
-+
-+			if (vring_map_one_sg(vq, sg, DMA_TO_DEVICE, &addr))
- 				goto unmap_release;
- 
- 			prev = i;
-@@ -603,8 +609,9 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
- 	}
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			dma_addr_t addr = vring_map_one_sg(vq, sg, DMA_FROM_DEVICE);
--			if (vring_mapping_error(vq, addr))
-+			dma_addr_t addr;
-+
-+			if (vring_map_one_sg(vq, sg, DMA_FROM_DEVICE, &addr))
- 				goto unmap_release;
- 
- 			prev = i;
-@@ -1281,9 +1288,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
- 
- 	for (n = 0; n < out_sgs + in_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			addr = vring_map_one_sg(vq, sg, n < out_sgs ?
--					DMA_TO_DEVICE : DMA_FROM_DEVICE);
--			if (vring_mapping_error(vq, addr))
-+			if (vring_map_one_sg(vq, sg, n < out_sgs ?
-+					     DMA_TO_DEVICE : DMA_FROM_DEVICE, &addr))
- 				goto unmap_release;
- 
- 			desc[i].flags = cpu_to_le16(n < out_sgs ?
-@@ -1428,9 +1434,10 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
- 	c = 0;
- 	for (n = 0; n < out_sgs + in_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
--			dma_addr_t addr = vring_map_one_sg(vq, sg, n < out_sgs ?
--					DMA_TO_DEVICE : DMA_FROM_DEVICE);
--			if (vring_mapping_error(vq, addr))
-+			dma_addr_t addr;
-+
-+			if (vring_map_one_sg(vq, sg, n < out_sgs ?
-+					     DMA_TO_DEVICE : DMA_FROM_DEVICE, &addr))
- 				goto unmap_release;
- 
- 			flags = cpu_to_le16(vq->packed.avail_used_flags |
--- 
+Thanks for the help from Christoph.
+
+## For AF_XDP
+
+XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
+copy feature of xsk (XDP socket) needs to be supported by the driver. The
+performance of zero copy is very good.
+
+ENV: Qemu with vhost.
+
+                   vhost cpu | Guest APP CPU |Guest Softirq CPU | PPS
+-----------------------------|---------------|------------------|------------
+xmit by sockperf:     90%    |   100%        |                  |  318967
+xmit by xsk:          100%   |   30%         |   33%            | 1192064
+recv by sockperf:     100%   |   68%         |   100%           |  692288
+recv by xsk:          100%   |   33%         |   43%            |  771670
+
+Before achieving the function of Virtio-Net, we also have to let virtio core
+support these features:
+
+1. virtio core support premapped
+2. virtio core support reset per-queue
+
+## VirtioNET rx dma merge
+
+After introducing premapping, I added an example to virtio-net. virtio-net can
+merge dma mappings through this feature. @Jason
+
+kernel command line: intel_iommu=on iommu.passthrough=0
+
+           |  strict=0  | strict=1
+    Before |  775496pps | 428614pps
+    After  | 1109316pps | 742853pps
+
+Please review.
+
+Thanks.
+
+v13:
+ 1. virtio-net uses the virtqueue_dma_* APIs
+ 2. virtio-net unmap with the flags DMA_ATTR_SKIP_CPU_SYNC
+
+v12:
+ 1. Alloc dma info from the alloc frag. Avoid alloc array to store the dma info.
+ 2. rename virtqueue_set_premapped() to virtqueue_set_dma_premapped()
+
+v11
+ 1. virtio-net merges dma operates based on the feature premapped
+ 2. A better way to handle the map error with the premapped
+
+v10:
+ 1. support to set vq to premapped mode, then the vq just handles the premapped request.
+ 2. virtio-net support to do dma mapping in advance
+
+v9:
+ 1. use flag to distinguish the premapped operations. no do judgment by sg.
+
+v8:
+ 1. vring_sg_address: check by sg_page(sg) not dma_address. Because 0 is a valid dma address
+ 2. remove unused code from vring_map_one_sg()
+
+v7:
+ 1. virtqueue_dma_dev() return NULL when virtio is without DMA API.
+
+v6:
+ 1. change the size of the flags to u32.
+
+v5:
+ 1. fix for error handler
+ 2. add flags to record internal dma mapping
+
+v4:
+ 1. rename map_inter to dma_map_internal
+ 2. fix: Excess function parameter 'vq' description in 'virtqueue_dma_dev'
+
+v3:
+ 1. add map_inter to struct desc state to reocrd whether virtio core do dma map
+
+v2:
+ 1. based on sgs[0]->dma_address to judgment is premapped
+ 2. based on extra.addr to judgment to do unmap for no-indirect desc
+ 3. based on indir_desc to judgment to do unmap for indirect desc
+ 4. rename virtqueue_get_dma_dev to virtqueue_dma_dev
+
+v1:
+ 1. expose dma device. NO introduce the api for dma and sync
+ 2. split some commit for review.
+
+
+
+
+
+
+
+Xuan Zhuo (12):
+  virtio_ring: check use_dma_api before unmap desc for indirect
+  virtio_ring: put mapping error check in vring_map_one_sg
+  virtio_ring: introduce virtqueue_set_dma_premapped()
+  virtio_ring: support add premapped buf
+  virtio_ring: introduce virtqueue_dma_dev()
+  virtio_ring: skip unmap for premapped
+  virtio_ring: correct the expression of the description of
+    virtqueue_resize()
+  virtio_ring: separate the logic of reset/enable from virtqueue_resize
+  virtio_ring: introduce virtqueue_reset()
+  virtio_ring: introduce dma map api for virtqueue
+  virtio_ring: introduce dma sync api for virtqueue
+  virtio_net: merge dma operations when filling mergeable buffers
+
+ drivers/net/virtio_net.c     | 228 ++++++++++++++++---
+ drivers/virtio/virtio_ring.c | 410 ++++++++++++++++++++++++++++++-----
+ include/linux/virtio.h       |  22 ++
+ 3 files changed, 582 insertions(+), 78 deletions(-)
+
+--
 2.32.0.3.g01195cf9f
 
 _______________________________________________
