@@ -1,60 +1,59 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C0CEC001DB
-	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 12:31:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07E66C001E0
+	for <virtualization@archiver.kernel.org>; Thu, 10 Aug 2023 12:31:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1CD6A41B39;
-	Thu, 10 Aug 2023 12:31:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1CD6A41B39
+	by smtp3.osuosl.org (Postfix) with ESMTP id A92CC60BEF;
+	Thu, 10 Aug 2023 12:31:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A92CC60BEF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pH9zUcx6mTtl; Thu, 10 Aug 2023 12:31:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2B9D241952;
-	Thu, 10 Aug 2023 12:31:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2B9D241952
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MEgikPNiy1dn; Thu, 10 Aug 2023 12:31:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2C8AA60FB5;
+	Thu, 10 Aug 2023 12:31:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2C8AA60FB5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 760FCC0DD3;
-	Thu, 10 Aug 2023 12:31:15 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04E73C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 092D3C0072;
+	Thu, 10 Aug 2023 12:31:19 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AA684C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:14 +0000 (UTC)
+ Thu, 10 Aug 2023 12:31:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 54C7040A5F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7672841753
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 54C7040A5F
+ Thu, 10 Aug 2023 12:31:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7672841753
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kAKdxer1r_5N
+ with ESMTP id fMRraeDQ0UgY
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:12 +0000 (UTC)
-Received: from out30-101.freemail.mail.aliyun.com
- (out30-101.freemail.mail.aliyun.com [115.124.30.101])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E9C18405B7
+ Thu, 10 Aug 2023 12:31:16 +0000 (UTC)
+Received: from out30-100.freemail.mail.aliyun.com
+ (out30-100.freemail.mail.aliyun.com [115.124.30.100])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9D316405B7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Aug 2023 12:31:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E9C18405B7
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
+ Thu, 10 Aug 2023 12:31:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D316405B7
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045168;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=15; SR=0;
- TI=SMTPD_---0VpToDqc_1691670661; 
+ TI=SMTPD_---0VpTqSC5_1691670665; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VpToDqc_1691670661) by smtp.aliyun-inc.com;
- Thu, 10 Aug 2023 20:31:02 +0800
+ fp:SMTPD_---0VpTqSC5_1691670665) by smtp.aliyun-inc.com;
+ Thu, 10 Aug 2023 20:31:06 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH vhost v13 03/12] virtio_ring: introduce
- virtqueue_set_dma_premapped()
-Date: Thu, 10 Aug 2023 20:30:48 +0800
-Message-Id: <20230810123057.43407-4-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v13 06/12] virtio_ring: skip unmap for premapped
+Date: Thu, 10 Aug 2023 20:30:51 +0800
+Message-Id: <20230810123057.43407-7-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
 References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
@@ -84,118 +83,182 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This helper allows the driver change the dma mode to premapped mode.
-Under the premapped mode, the virtio core do not do dma mapping
-internally.
+Now we add a case where we skip dma unmap, the vq->premapped is true.
 
-This just work when the use_dma_api is true. If the use_dma_api is false,
-the dma options is not through the DMA APIs, that is not the standard
-way of the linux kernel.
+We can't just rely on use_dma_api to determine whether to skip the dma
+operation. For convenience, I introduced the "do_unmap". By default, it
+is the same as use_dma_api. If the driver is configured with premapped,
+then do_unmap is false.
+
+So as long as do_unmap is false, for addr of desc, we should skip dma
+unmap operation.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/virtio/virtio_ring.c | 53 ++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h       |  2 ++
- 2 files changed, 55 insertions(+)
+ drivers/virtio/virtio_ring.c | 42 ++++++++++++++++++++++++------------
+ 1 file changed, 28 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 87d7ceeecdbd..8e81b01e0735 100644
+index bb3d73d221cd..7973814b6e31 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -172,6 +172,9 @@ struct vring_virtqueue {
- 	/* Host publishes avail event idx */
- 	bool event;
+@@ -175,6 +175,11 @@ struct vring_virtqueue {
+ 	/* Do DMA mapping by driver */
+ 	bool premapped;
  
-+	/* Do DMA mapping by driver */
-+	bool premapped;
++	/* Do unmap or not for desc. Just when premapped is False and
++	 * use_dma_api is true, this is true.
++	 */
++	bool do_unmap;
 +
  	/* Head of free buffer list. */
  	unsigned int free_head;
  	/* Number we've added since last sync. */
-@@ -2061,6 +2064,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->packed_ring = true;
+@@ -440,7 +445,7 @@ static void vring_unmap_one_split_indirect(const struct vring_virtqueue *vq,
+ {
+ 	u16 flags;
+ 
+-	if (!vq->use_dma_api)
++	if (!vq->do_unmap)
+ 		return;
+ 
+ 	flags = virtio16_to_cpu(vq->vq.vdev, desc->flags);
+@@ -458,18 +463,21 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+ 	struct vring_desc_extra *extra = vq->split.desc_extra;
+ 	u16 flags;
+ 
+-	if (!vq->use_dma_api)
+-		goto out;
+-
+ 	flags = extra[i].flags;
+ 
+ 	if (flags & VRING_DESC_F_INDIRECT) {
++		if (!vq->use_dma_api)
++			goto out;
++
+ 		dma_unmap_single(vring_dma_dev(vq),
+ 				 extra[i].addr,
+ 				 extra[i].len,
+ 				 (flags & VRING_DESC_F_WRITE) ?
+ 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	} else {
++		if (!vq->do_unmap)
++			goto out;
++
+ 		dma_unmap_page(vring_dma_dev(vq),
+ 			       extra[i].addr,
+ 			       extra[i].len,
+@@ -635,7 +643,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+ 	}
+ 	/* Last one doesn't continue. */
+ 	desc[prev].flags &= cpu_to_virtio16(_vq->vdev, ~VRING_DESC_F_NEXT);
+-	if (!indirect && vq->use_dma_api)
++	if (!indirect && vq->do_unmap)
+ 		vq->split.desc_extra[prev & (vq->split.vring.num - 1)].flags &=
+ 			~VRING_DESC_F_NEXT;
+ 
+@@ -794,7 +802,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 				VRING_DESC_F_INDIRECT));
+ 		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+ 
+-		if (vq->use_dma_api) {
++		if (vq->do_unmap) {
+ 			for (j = 0; j < len / sizeof(struct vring_desc); j++)
+ 				vring_unmap_one_split_indirect(vq, &indir_desc[j]);
+ 		}
+@@ -1217,17 +1225,20 @@ static void vring_unmap_extra_packed(const struct vring_virtqueue *vq,
+ {
+ 	u16 flags;
+ 
+-	if (!vq->use_dma_api)
+-		return;
+-
+ 	flags = extra->flags;
+ 
+ 	if (flags & VRING_DESC_F_INDIRECT) {
++		if (!vq->use_dma_api)
++			return;
++
+ 		dma_unmap_single(vring_dma_dev(vq),
+ 				 extra->addr, extra->len,
+ 				 (flags & VRING_DESC_F_WRITE) ?
+ 				 DMA_FROM_DEVICE : DMA_TO_DEVICE);
+ 	} else {
++		if (!vq->do_unmap)
++			return;
++
+ 		dma_unmap_page(vring_dma_dev(vq),
+ 			       extra->addr, extra->len,
+ 			       (flags & VRING_DESC_F_WRITE) ?
+@@ -1240,7 +1251,7 @@ static void vring_unmap_desc_packed(const struct vring_virtqueue *vq,
+ {
+ 	u16 flags;
+ 
+-	if (!vq->use_dma_api)
++	if (!vq->do_unmap)
+ 		return;
+ 
+ 	flags = le16_to_cpu(desc->flags);
+@@ -1329,7 +1340,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+ 				sizeof(struct vring_packed_desc));
+ 	vq->packed.vring.desc[head].id = cpu_to_le16(id);
+ 
+-	if (vq->use_dma_api) {
++	if (vq->do_unmap) {
+ 		vq->packed.desc_extra[id].addr = addr;
+ 		vq->packed.desc_extra[id].len = total_sg *
+ 				sizeof(struct vring_packed_desc);
+@@ -1470,7 +1481,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 			desc[i].len = cpu_to_le32(sg->length);
+ 			desc[i].id = cpu_to_le16(id);
+ 
+-			if (unlikely(vq->use_dma_api)) {
++			if (unlikely(vq->do_unmap)) {
+ 				vq->packed.desc_extra[curr].addr = addr;
+ 				vq->packed.desc_extra[curr].len = sg->length;
+ 				vq->packed.desc_extra[curr].flags =
+@@ -1604,7 +1615,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 	vq->free_head = id;
+ 	vq->vq.num_free += state->num;
+ 
+-	if (unlikely(vq->use_dma_api)) {
++	if (unlikely(vq->do_unmap)) {
+ 		curr = id;
+ 		for (i = 0; i < state->num; i++) {
+ 			vring_unmap_extra_packed(vq,
+@@ -1621,7 +1632,7 @@ static void detach_buf_packed(struct vring_virtqueue *vq,
+ 		if (!desc)
+ 			return;
+ 
+-		if (vq->use_dma_api) {
++		if (vq->do_unmap) {
+ 			len = vq->packed.desc_extra[id].len;
+ 			for (i = 0; i < len / sizeof(struct vring_packed_desc);
+ 					i++)
+@@ -2080,6 +2091,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
  	vq->dma_dev = dma_dev;
  	vq->use_dma_api = vring_use_dma_api(vdev);
-+	vq->premapped = false;
+ 	vq->premapped = false;
++	vq->do_unmap = vq->use_dma_api;
  
  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
  		!context;
-@@ -2550,6 +2554,7 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
- #endif
+@@ -2587,6 +2599,7 @@ static struct virtqueue *__vring_new_virtqueue(unsigned int index,
  	vq->dma_dev = dma_dev;
  	vq->use_dma_api = vring_use_dma_api(vdev);
-+	vq->premapped = false;
+ 	vq->premapped = false;
++	vq->do_unmap = vq->use_dma_api;
  
  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
  		!context;
-@@ -2693,6 +2698,54 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
- }
- EXPORT_SYMBOL_GPL(virtqueue_resize);
+@@ -2771,6 +2784,7 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+ 	}
  
-+/**
-+ * virtqueue_set_dma_premapped - set the vring premapped mode
-+ * @_vq: the struct virtqueue we're talking about.
-+ *
-+ * Enable the premapped mode of the vq.
-+ *
-+ * The vring in premapped mode does not do dma internally, so the driver must
-+ * do dma mapping in advance. The driver must pass the dma_address through
-+ * dma_address of scatterlist. When the driver got a used buffer from
-+ * the vring, it has to unmap the dma address.
-+ *
-+ * This function must be called immediately after creating the vq, or after vq
-+ * reset, and before adding any buffers to it.
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error.
-+ * 0: success.
-+ * -EINVAL: vring does not use the dma api, so we can not enable premapped mode.
-+ */
-+int virtqueue_set_dma_premapped(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+	u32 num;
-+
-+	START_USE(vq);
-+
-+	num = vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num;
-+
-+	if (num != vq->vq.num_free) {
-+		END_USE(vq);
-+		return -EINVAL;
-+	}
-+
-+	if (!vq->use_dma_api) {
-+		END_USE(vq);
-+		return -EINVAL;
-+	}
-+
-+	vq->premapped = true;
-+
-+	END_USE(vq);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
-+
- /* Only available for split ring */
- struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      unsigned int num,
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index de6041deee37..8add38038877 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -78,6 +78,8 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+ 	vq->premapped = true;
++	vq->do_unmap = false;
  
- unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+ 	END_USE(vq);
  
-+int virtqueue_set_dma_premapped(struct virtqueue *_vq);
-+
- bool virtqueue_poll(struct virtqueue *vq, unsigned);
- 
- bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
 -- 
 2.32.0.3.g01195cf9f
 
