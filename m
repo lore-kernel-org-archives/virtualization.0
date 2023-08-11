@@ -1,84 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1D3FEC0015E
-	for <virtualization@archiver.kernel.org>; Fri, 11 Aug 2023 14:11:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CDB96EB64DD
+	for <virtualization@archiver.kernel.org>; Fri, 11 Aug 2023 15:23:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A51B984058;
-	Fri, 11 Aug 2023 14:11:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A51B984058
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Q0QNScZ+
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4134541E97;
+	Fri, 11 Aug 2023 15:23:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4134541E97
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=YS2L6z8m
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Rpf-YbFBrwJQ; Fri, 11 Aug 2023 14:11:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DEE6B84056;
-	Fri, 11 Aug 2023 14:11:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DEE6B84056
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g7lWEER38dnT; Fri, 11 Aug 2023 15:22:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 039A941E8E;
+	Fri, 11 Aug 2023 15:22:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 039A941E8E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AFC63C0071;
-	Fri, 11 Aug 2023 14:11:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 934C0C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C3F97C0072;
+	Fri, 11 Aug 2023 15:22:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CD133C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Aug 2023 14:11:17 +0000 (UTC)
+ Fri, 11 Aug 2023 15:22:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6804B84058
+ by smtp4.osuosl.org (Postfix) with ESMTP id AE01341E91
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Aug 2023 14:11:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6804B84058
+ Fri, 11 Aug 2023 15:22:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AE01341E91
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bvhEkK9SQ-qg
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wZ5A_Yv4F_80
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Aug 2023 14:11:16 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
- by smtp1.osuosl.org (Postfix) with ESMTPS id F15BE84057
+ Fri, 11 Aug 2023 15:22:55 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CAC6A41E8E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Aug 2023 14:11:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F15BE84057
+ Fri, 11 Aug 2023 15:22:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CAC6A41E8E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1691763075; x=1723299075;
+ t=1691767374; x=1723303374;
  h=date:from:to:cc:subject:message-id:references:
  mime-version:in-reply-to;
- bh=Jt/2rLq73Tbwy8z/aES+VL28TlLzClMtBcB98WUWQdA=;
- b=Q0QNScZ+pP8h16UjpY30KEkZZ1d9XBfcTUlBLPilFLXoi+Pxu8shL0y9
- G2FcDkcFt4xlv6khw2yAZFh8VPeEFfkStZdMRcuxNZpdyL8uSzVBwD2sH
- qGTno5ueKP/Hs1/hsC1Q7BCLD0ICOyEr38xuCVaBtSGWvJretHaR8tuiF
- 9GtnqHc1mmT8gsd7uGn2ODt3xe5XSHRpJfHag7uqFSfDoGakZkEy9oUuS
- lZxDhD5/B1uwE6gXly2L4oLOJxFD5h3qSYDGmVKagabRoGP8+oBT1Qn60
- zD98SkOX8JkaHVmu/bM78QmSZtb5O0mBqM8ySrWugCsTAYI0X9DGB8NCt w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="351285909"
-X-IronPort-AV: E=Sophos;i="6.01,165,1684825200"; d="scan'208";a="351285909"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
- by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 11 Aug 2023 07:10:49 -0700
+ bh=Fkyv3rSrsrjBL4e8GlcWm/2hC7gH0L18Y3DUqVG2jz0=;
+ b=YS2L6z8m2Nu5g9UX23VvQy6HF0iBFA6BienkeiepqHdVdjxbrVnMv3wt
+ Zo7bNHqWon3fRowVjNr3cb/SqV/LlqBB1hXKQy+ATmy+0hPBdTLiMbsKy
+ ygr66UkRr8vFm9+0i4T414VScZuySqfVd0OCJ3hdTZdBPRh3R05/CXSf6
+ b5RGIEg1ijYqc+I8JpBUiM5y2M+y/1xZk8dKjYhi0U/XrStq/m7GPSju/
+ X1zSw2xkSdhHk4O3vDKU1xNsi2h5y+Wuhci6Ug9Jnqj8Ma2on7XGEsdIZ
+ d6YoOWEswz5cUW9PXnFrcPG8FoM3n8AWUIlXEuGhY1zBV7acTbj9qqozv w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="352023641"
+X-IronPort-AV: E=Sophos;i="6.01,166,1684825200"; d="scan'208";a="352023641"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 11 Aug 2023 08:22:48 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="856316178"
-X-IronPort-AV: E=Sophos;i="6.01,165,1684825200"; d="scan'208";a="856316178"
+X-IronPort-AV: E=McAfee;i="6600,9927,10799"; a="732700643"
+X-IronPort-AV: E=Sophos;i="6.01,166,1684825200"; d="scan'208";a="732700643"
 Received: from lkp-server01.sh.intel.com (HELO d1ccc7e87e8f) ([10.239.97.150])
- by orsmga004.jf.intel.com with ESMTP; 11 Aug 2023 07:10:43 -0700
+ by orsmga002.jf.intel.com with ESMTP; 11 Aug 2023 08:22:44 -0700
 Received: from kbuild by d1ccc7e87e8f with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1qUSqg-0007pE-2b;
- Fri, 11 Aug 2023 14:10:42 +0000
-Date: Fri, 11 Aug 2023 22:10:05 +0800
+ (envelope-from <lkp@intel.com>) id 1qUTyN-0007rC-2w;
+ Fri, 11 Aug 2023 15:22:43 +0000
+Date: Fri, 11 Aug 2023 23:21:57 +0800
 From: kernel test robot <lkp@intel.com>
 To: Heng Qi <hengqi@linux.alibaba.com>, "Michael S . Tsirkin" <mst@redhat.com>,
  Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH net-next 6/8] virtio-net: support rx netdim
-Message-ID: <202308112234.AWbpPmUV-lkp@intel.com>
-References: <20230811065512.22190-7-hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next 7/8] virtio-net: support tx netdim
+Message-ID: <202308112350.gTAjKZog-lkp@intel.com>
+References: <20230811065512.22190-8-hengqi@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20230811065512.22190-7-hengqi@linux.alibaba.com>
+In-Reply-To: <20230811065512.22190-8-hengqi@linux.alibaba.com>
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  Jesper Dangaard Brouer <hawk@kernel.org>,
  Daniel Borkmann <daniel@iogearbox.net>,
@@ -110,16 +110,16 @@ kernel test robot noticed the following build errors:
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-initially-change-the-value-of-tx-frames/20230811-150529
 base:   net-next/main
-patch link:    https://lore.kernel.org/r/20230811065512.22190-7-hengqi%40linux.alibaba.com
-patch subject: [PATCH net-next 6/8] virtio-net: support rx netdim
-config: i386-randconfig-i011-20230811 (https://download.01.org/0day-ci/archive/20230811/202308112234.AWbpPmUV-lkp@intel.com/config)
+patch link:    https://lore.kernel.org/r/20230811065512.22190-8-hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next 7/8] virtio-net: support tx netdim
+config: i386-randconfig-i011-20230811 (https://download.01.org/0day-ci/archive/20230811/202308112350.gTAjKZog-lkp@intel.com/config)
 compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce: (https://download.01.org/0day-ci/archive/20230811/202308112234.AWbpPmUV-lkp@intel.com/reproduce)
+reproduce: (https://download.01.org/0day-ci/archive/20230811/202308112350.gTAjKZog-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202308112234.AWbpPmUV-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202308112350.gTAjKZog-lkp@intel.com/
 
 All errors (new ones prefixed by >>, old ones prefixed by <<):
 
@@ -223,8 +223,9 @@ WARNING: modpost: missing MODULE_DESCRIPTION() in samples/kfifo/dma-example.o
 WARNING: modpost: missing MODULE_DESCRIPTION() in samples/kfifo/inttype-example.o
 WARNING: modpost: missing MODULE_DESCRIPTION() in samples/kfifo/record-example.o
 WARNING: modpost: missing MODULE_DESCRIPTION() in samples/kmemleak/kmemleak-test.o
->> ERROR: modpost: "net_dim_get_rx_moderation" [drivers/net/virtio_net.ko] undefined!
->> ERROR: modpost: "net_dim" [drivers/net/virtio_net.ko] undefined!
+>> ERROR: modpost: "net_dim_get_tx_moderation" [drivers/net/virtio_net.ko] undefined!
+ERROR: modpost: "net_dim_get_rx_moderation" [drivers/net/virtio_net.ko] undefined!
+ERROR: modpost: "net_dim" [drivers/net/virtio_net.ko] undefined!
 
 -- 
 0-DAY CI Kernel Test Service
