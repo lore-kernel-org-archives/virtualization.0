@@ -4,109 +4,107 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB8A6C001DB
-	for <virtualization@archiver.kernel.org>; Sun, 13 Aug 2023 19:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2308EEB64DD
+	for <virtualization@archiver.kernel.org>; Sun, 13 Aug 2023 23:08:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1CD4881489;
-	Sun, 13 Aug 2023 19:01:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1CD4881489
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8CB0781516;
+	Sun, 13 Aug 2023 23:08:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8CB0781516
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FKtnZqiK
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gAYdFQ/T
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7Ju09xYAC09I; Sun, 13 Aug 2023 19:01:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2289581463;
-	Sun, 13 Aug 2023 19:01:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2289581463
+	with ESMTP id H70gt4-mMrTr; Sun, 13 Aug 2023 23:08:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0CDCA81449;
+	Sun, 13 Aug 2023 23:08:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0CDCA81449
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 007C2C0072;
-	Sun, 13 Aug 2023 19:01:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1944C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC961C0071;
+	Sun, 13 Aug 2023 23:08:17 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1C421C0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Aug 2023 19:01:36 +0000 (UTC)
+ Sun, 13 Aug 2023 23:08:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8BB788146B
+ by smtp1.osuosl.org (Postfix) with ESMTP id EACEA81449
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Aug 2023 19:01:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8BB788146B
+ Sun, 13 Aug 2023 23:08:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EACEA81449
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3jObc9lkcLVR
+ with ESMTP id tZFtOTj5fP20
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Aug 2023 19:01:35 +0000 (UTC)
+ Sun, 13 Aug 2023 23:08:15 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2B14181463
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AC59D81448
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Aug 2023 19:01:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2B14181463
+ Sun, 13 Aug 2023 23:08:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AC59D81448
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1691953293;
+ s=mimecast20190719; t=1691968094;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=CEt9jygVzQcGJ/r1YIvshQV5vep7vwd+a/V9X6Fi/+I=;
- b=FKtnZqiKsLqcpxq/Cr/mHiMBHoaGzVXFiNI9gmit6mfpo0pCPXswoHjlCCsdtV6833LEy3
- T0cv8iIDBP4tfvYrvS7BuH96FF8ZbrzKh2pChmbW08L7+4jiMmgj1CZko1BdR0CiDtpqTP
- YrUC5X12ZT6L6+Eq+nOEuy1Ws3ESZAo=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ content-transfer-encoding:content-transfer-encoding;
+ bh=AUa1QX/mJ1ef9VxwUsegnOGKLjQxThmW1L4mbjRAl5o=;
+ b=gAYdFQ/TBCNWCbrOzuFmK2+Vz4ns4QeDYNYSoIHdEwWzBOUq9I1ppLu/Z3O6oLAPjrto7B
+ oHPUhRcWo4mL6witR4/r+lAwnuI8zK51jSqK8Stw9KfPN1Rjzej6wJU39mdveEHbMk8jOK
+ IU4moGJmi2AdtzCng0wkUDhNr+AQj0A=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-190-8EniZWznMdWqKYyQ32hcKA-1; Sun, 13 Aug 2023 15:01:32 -0400
-X-MC-Unique: 8EniZWznMdWqKYyQ32hcKA-1
-Received: by mail-ej1-f69.google.com with SMTP id
- a640c23a62f3a-99bfe6a531bso222263266b.1
+ us-mta-655-lxRB5beIMsuzbMtrg0Lctg-1; Sun, 13 Aug 2023 19:08:12 -0400
+X-MC-Unique: lxRB5beIMsuzbMtrg0Lctg-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ 38308e7fff4ca-2b9f0b7af1cso36451291fa.3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Aug 2023 12:01:31 -0700 (PDT)
+ Sun, 13 Aug 2023 16:08:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1691953291; x=1692558091;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=CEt9jygVzQcGJ/r1YIvshQV5vep7vwd+a/V9X6Fi/+I=;
- b=knU2K5PBg2m1GVr6qfgH3dQtYz7U+fZZq1/0DOv8L7UB1LB/K0skik0WWvN8oAdgaN
- HuFYnbVT9Q35zqSXGHUHwkPm2DaFNCZegIhJcHZLdYcin6D5HdY8bDQbrRIboNChyis/
- Cxha54rN5oRsaYy/1glqYwAXDPOZVTys8d/8fouramZVZHCBi7yqJAPejh5Rlb2uI+Se
- R9CkmrHGNZZzAUTFk/QKTejHiYBvNgsSVdNNe2BXejADsTZM4/vyjcL9+ggz4ykfSm2u
- 4iRFNz0digDFQ3a62KJb1AiUag3lukECYPPYOH9cQJqcGk6KzD9+vSw8QFQmDsy0Divy
- Dfmg==
-X-Gm-Message-State: AOJu0YzTU6duj1pEgG3MWHYbop9kNhdT4pPyV/Af/13zw3GfkOtSuiu2
- R7FjS/8GlAIh3+qPiO7cXDneJPlaJNVFh2P3gD185vKrKYSntfoLQowx6HpfdwSOcC4IAsgJShY
- DUNdgtztpIZKEI3MwKt3YWWKRuwh8Puy6t2m2JeeiRQ==
-X-Received: by 2002:a17:906:5db4:b0:99c:ac84:663a with SMTP id
- n20-20020a1709065db400b0099cac84663amr5775071ejv.65.1691953291059; 
- Sun, 13 Aug 2023 12:01:31 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGhMaFdsuzYAw2yinsIysYJSim9+L86qb9TO9hQl2qrKJMg5+Y+NMBiUqcJJQ0Gh9hAZ/5lTA==
-X-Received: by 2002:a17:906:5db4:b0:99c:ac84:663a with SMTP id
- n20-20020a1709065db400b0099cac84663amr5775055ejv.65.1691953290645; 
- Sun, 13 Aug 2023 12:01:30 -0700 (PDT)
-Received: from redhat.com ([2.55.27.97]) by smtp.gmail.com with ESMTPSA id
- q14-20020a17090622ce00b00992ca779f42sm4825074eja.97.2023.08.13.12.01.26
+ d=1e100.net; s=20221208; t=1691968091; x=1692572891;
+ h=content-transfer-encoding:content-disposition:mime-version
+ :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=AUa1QX/mJ1ef9VxwUsegnOGKLjQxThmW1L4mbjRAl5o=;
+ b=RhFDmI5eQa7qzqW2wH4rtQlXnEeMY933I7199KVTglixBvFkHL4J/1k4AqGAjCgbUQ
+ b6T8nSVGIrIienHX8An1gCqz6IB4KgTbZ+1XtRPlk9q5EdvEcqBGZM3OVMvrzzlBR17g
+ /pPEksR+0f1v/YNouBjZ5dD2ELPTUkFBicxnTs9NFZ8UsPl1yZomqX3tIoRnDr4NQoWR
+ lRcVFMD0v2TQ3LiqXUgI2EhBLj7HLcrycFtOHSQnq3V8bmbOO0TKCobOPRtKKFTeQ0zL
+ MPwRHykwtJeqdkKzne16BGnbKLZmUALsp4s2uq3npoaepCqAbP8Jq4NYZ6jpbPAVQB9h
+ twPw==
+X-Gm-Message-State: AOJu0YxqRIurMB0nCHCLmUMnNTQEBb6XpMINRLrnGv+0kcwlPgvHrcrC
+ bd95SV/hNiJ+NpeZAksXM09gPatKel8AjrHbkraH79LHwC0qHszGPttagQgVq17PJ3BN1ph3u9S
+ 3tYd7Wbo3yMAi6RmDutUMl+7AJ7uTneDkC2OvVwXFAA==
+X-Received: by 2002:a2e:8503:0:b0:2b7:1005:931b with SMTP id
+ j3-20020a2e8503000000b002b71005931bmr5573396lji.0.1691968090804; 
+ Sun, 13 Aug 2023 16:08:10 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHfB6KQC44UtzTvTIQLTU6WSArsFvqwFM/tL9oeOdLXdw+TuyKztZH0mu5DyTnZ3c9/bKtQHw==
+X-Received: by 2002:a2e:8503:0:b0:2b7:1005:931b with SMTP id
+ j3-20020a2e8503000000b002b71005931bmr5573379lji.0.1691968090444; 
+ Sun, 13 Aug 2023 16:08:10 -0700 (PDT)
+Received: from redhat.com ([2.55.42.146]) by smtp.gmail.com with ESMTPSA id
+ jo19-20020a170906f6d300b0099bcd1fa5b0sm5002759ejb.192.2023.08.13.16.08.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 13 Aug 2023 12:01:28 -0700 (PDT)
-Date: Sun, 13 Aug 2023 15:01:24 -0400
+ Sun, 13 Aug 2023 16:08:09 -0700 (PDT)
+Date: Sun, 13 Aug 2023 19:08:03 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH v11 8/8] vhost: use vhost_tasks for worker threads
-Message-ID: <20230813145936-mutt-send-email-mst@kernel.org>
-References: <20230202232517.8695-1-michael.christie@oracle.com>
- <20230202232517.8695-9-michael.christie@oracle.com>
- <20230720090415-mutt-send-email-mst@kernel.org>
- <dcd74064-7617-c895-4f78-cb46ef1d582b@oracle.com>
- <20230810145528-mutt-send-email-mst@kernel.org>
- <b2b02526-913d-42a9-9d23-59badf5b96db@oracle.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio: bugfixes
+Message-ID: <20230813190803-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <b2b02526-913d-42a9-9d23-59badf5b96db@oracle.com>
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: brauner@kernel.org, konrad.wilk@oracle.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- ebiederm@xmission.com, stefanha@redhat.com, torvalds@linux-foundation.org
+Cc: andrew@daynix.com, kvm@vger.kernel.org, allen.hubbe@amd.com,
+ virtualization@lists.linux-foundation.org, wsa+renesas@sang-engineering.com,
+ xieyongji@bytedance.com, gal@nvidia.com, mst@redhat.com, eperezma@redhat.com,
+ yin31149@gmail.com, leiyang@redhat.com, stefanha@redhat.com,
+ stable@vger.kernelorg, linma@zju.edu.cn, netdev@vger.kernel.org,
+ rdunlap@infradead.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ maxime.coquelin@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,148 +116,73 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Aug 11, 2023 at 01:51:36PM -0500, Mike Christie wrote:
-> On 8/10/23 1:57 PM, Michael S. Tsirkin wrote:
-> > On Sat, Jul 22, 2023 at 11:03:29PM -0500, michael.christie@oracle.com wrote:
-> >> On 7/20/23 8:06 AM, Michael S. Tsirkin wrote:
-> >>> On Thu, Feb 02, 2023 at 05:25:17PM -0600, Mike Christie wrote:
-> >>>> For vhost workers we use the kthread API which inherit's its values from
-> >>>> and checks against the kthreadd thread. This results in the wrong RLIMITs
-> >>>> being checked, so while tools like libvirt try to control the number of
-> >>>> threads based on the nproc rlimit setting we can end up creating more
-> >>>> threads than the user wanted.
-> >>>>
-> >>>> This patch has us use the vhost_task helpers which will inherit its
-> >>>> values/checks from the thread that owns the device similar to if we did
-> >>>> a clone in userspace. The vhost threads will now be counted in the nproc
-> >>>> rlimits. And we get features like cgroups and mm sharing automatically,
-> >>>> so we can remove those calls.
-> >>>>
-> >>>> Signed-off-by: Mike Christie <michael.christie@oracle.com>
-> >>>> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> >>>
-> >>>
-> >>> Hi Mike,
-> >>> So this seems to have caused a measureable regression in networking
-> >>> performance (about 30%). Take a look here, and there's a zip file
-> >>> with detailed measuraments attached:
-> >>>
-> >>> https://bugzilla.redhat.com/show_bug.cgi?id=2222603
-> >>>
-> >>>
-> >>> Could you take a look please?
-> >>> You can also ask reporter questions there assuming you
-> >>> have or can create a (free) account.
-> >>>
-> >>
-> >> Sorry for the late reply. I just got home from vacation.
-> >>
-> >> The account creation link seems to be down. I keep getting a
-> >> "unable to establish SMTP connection to bz-exim-prod port 25 " error.
-> >>
-> >> Can you give me Quan's email?
-> >>
-> >> I think I can replicate the problem. I just need some extra info from Quan:
-> >>
-> >> 1. Just double check that they are using RHEL 9 on the host running the VMs.
-> >> 2. The kernel config
-> >> 3. Any tuning that was done. Is tuned running in guest and/or host running the
-> >> VMs and what profile is being used in each.
-> >> 4. Number of vCPUs and virtqueues being used.
-> >> 5. Can they dump the contents of:
-> >>
-> >> /sys/kernel/debug/sched
-> >>
-> >> and
-> >>
-> >> sysctl  -a
-> >>
-> >> on the host running the VMs.
-> >>
-> >> 6. With the 6.4 kernel, can they also run a quick test and tell me if they set
-> >> the scheduler to batch:
-> >>
-> >> ps -T -o comm,pid,tid $QEMU_THREAD
-> >>
-> >> then for each vhost thread do:
-> >>
-> >> chrt -b -p 0 $VHOST_THREAD
-> >>
-> >> Does that end up increasing perf? When I do this I see throughput go up by
-> >> around 50% vs 6.3 when sessions was 16 or more (16 was the number of vCPUs
-> >> and virtqueues per net device in the VM). Note that I'm not saying that is a fix.
-> >> It's just a difference I noticed when running some other tests.
-> > 
-> > 
-> > Mike I'm unsure what to do at this point. Regressions are not nice
-> > but if the kernel is released with the new userspace api we won't
-> > be able to revert. So what's the plan?
-> > 
-> 
-> I'm sort of stumped. I still can't replicate the problem out of the box. 6.3 and
-> 6.4 perform the same for me. I've tried your setup and settings and with different
-> combos of using things like tuned and irqbalance.
-> 
-> I can sort of force the issue. In 6.4, the vhost thread inherits it's settings
-> from the parent thread. In 6.3, the vhost thread inherits from kthreadd and we
-> would then reset the sched settings. So in 6.4 if I just tune the parent differently
-> I can cause different performance. If we want the 6.3 behavior we can do the patch
-> below.
-> 
-> However, I don't think you guys are hitting this because you are just running
-> qemu from the normal shell and were not doing anything fancy with the sched
-> settings.
-> 
-> 
-> diff --git a/kernel/vhost_task.c b/kernel/vhost_task.c
-> index da35e5b7f047..f2c2638d1106 100644
-> --- a/kernel/vhost_task.c
-> +++ b/kernel/vhost_task.c
-> @@ -2,6 +2,7 @@
->  /*
->   * Copyright (C) 2021 Oracle Corporation
->   */
-> +#include <uapi/linux/sched/types.h>
->  #include <linux/slab.h>
->  #include <linux/completion.h>
->  #include <linux/sched/task.h>
-> @@ -22,9 +23,16 @@ struct vhost_task {
->  
->  static int vhost_task_fn(void *data)
->  {
-> +	static const struct sched_param param = { .sched_priority = 0 };
->  	struct vhost_task *vtsk = data;
->  	bool dead = false;
->  
-> +	/*
-> +	 * Don't inherit the parent's sched info, so we maintain compat from
-> +	 * when we used kthreads and it reset this info.
-> +	 */
-> +	sched_setscheduler_nocheck(current, SCHED_NORMAL, &param);
-> +
->  	for (;;) {
->  		bool did_work;
->  
-> 
-> 
-
-yes seems unlikely, still, attach this to bugzilla so it can be
-tested?
-
-and, what will help you debug? any traces to enable?
-
-Also wasn't there another issue with a non standard config?
-Maybe if we fix that it will by chance fix this one too?
-
-> 
-> 
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+QWxsIHNtYWxsLCBmYWlybHkgc2FmZSBjaGFuZ2VzLgoKVGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNp
+bmNlIGNvbW1pdCA1MmE5M2QzOWIxN2RjN2ViOThiNmFhM2VkYjkzOTQzMjQ4ZTAzYjJmOgoKICBM
+aW51eCA2LjUtcmM1ICgyMDIzLTA4LTA2IDE1OjA3OjUxIC0wNzAwKQoKYXJlIGF2YWlsYWJsZSBp
+biB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3Nj
+bS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKCmZvciB5b3Ug
+dG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBmNTU0ODRmZDdiZTkyM2I3NDBlOGUxZmMzMDQwNzBiYTUz
+Njc1Y2I0OgoKICB2aXJ0aW8tbWVtOiBjaGVjayBpZiB0aGUgY29uZmlnIGNoYW5nZWQgYmVmb3Jl
+IGZha2Ugb2ZmbGluaW5nIG1lbW9yeSAoMjAyMy0wOC0xMCAxNTo1MTo0NiAtMDQwMCkKCi0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0KdmlydGlvOiBidWdmaXhlcwoKanVzdCBhIGJ1bmNoIG9mIGJ1Z2ZpeGVzIGFsbCBvdmVyIHRo
+ZSBwbGFjZS4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5j
+b20+CgotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tCkFsbGVuIEh1YmJlICgyKToKICAgICAgcGRzX3ZkcGE6IHJlc2V0IHRvIHZk
+cGEgc3BlY2lmaWVkIG1hYwogICAgICBwZHNfdmRwYTogYWxsb2MgaXJxIHZlY3RvcnMgb24gRFJJ
+VkVSX09LCgpEYXZpZCBIaWxkZW5icmFuZCAoNCk6CiAgICAgIHZpcnRpby1tZW06IHJlbW92ZSB1
+bnNhZmUgdW5wbHVnIGluIEJpZyBCbG9jayBNb2RlIChCQk0pCiAgICAgIHZpcnRpby1tZW06IGNv
+bnZlcnQgbW9zdCBvZmZsaW5lX2FuZF9yZW1vdmVfbWVtb3J5KCkgZXJyb3JzIHRvIC1FQlVTWQog
+ICAgICB2aXJ0aW8tbWVtOiBrZWVwIHJldHJ5aW5nIG9uIG9mZmxpbmVfYW5kX3JlbW92ZV9tZW1v
+cnkoKSBlcnJvcnMgaW4gU3ViIEJsb2NrIE1vZGUgKFNCTSkKICAgICAgdmlydGlvLW1lbTogY2hl
+Y2sgaWYgdGhlIGNvbmZpZyBjaGFuZ2VkIGJlZm9yZSBmYWtlIG9mZmxpbmluZyBtZW1vcnkKCkRy
+YWdvcyBUYXR1bGVhICg0KToKICAgICAgdmRwYTogRW5hYmxlIHN0cmljdCB2YWxpZGF0aW9uIGZv
+ciBuZXRsaW5rcyBvcHMKICAgICAgdmRwYS9tbHg1OiBDb3JyZWN0IGRlZmF1bHQgbnVtYmVyIG9m
+IHF1ZXVlcyB3aGVuIE1RIGlzIG9uCiAgICAgIHZkcGEvbWx4NTogRml4IG1yLT5pbml0aWFsaXpl
+ZCBzZW1hbnRpY3MKICAgICAgdmRwYS9tbHg1OiBGaXggY3Jhc2ggb24gc2h1dGRvd24gZm9yIHdo
+ZW4gbm8gbmRldiBleGlzdHMKCkV1Z2VuaW8gUMOpcmV6ICgxKToKICAgICAgdmRwYS9tbHg1OiBE
+ZWxldGUgY29udHJvbCB2cSBpb3RsYiBpbiBkZXN0cm95X21yIG9ubHkgd2hlbiBuZWNlc3NhcnkK
+CkZlbmcgTGl1ICgxKToKICAgICAgdmlydGlvLXBjaTogRml4IGxlZ2FjeSBkZXZpY2UgZmxhZyBz
+ZXR0aW5nIGVycm9yIGluIHByb2JlCgpHYWwgUHJlc3NtYW4gKDEpOgogICAgICB2aXJ0aW8tdmRw
+YTogRml4IGNwdW1hc2sgbWVtb3J5IGxlYWsgaW4gdmlydGlvX3ZkcGFfZmluZF92cXMoKQoKSGF3
+a2lucyBKaWF3ZWkgKDEpOgogICAgICB2aXJ0aW8tbmV0OiBaZXJvIG1heF90eF92cSBmaWVsZCBm
+b3IgVklSVElPX05FVF9DVFJMX01RX0hBU0hfQ09ORklHIGNhc2UKCkxpbiBNYSAoMyk6CiAgICAg
+IHZkcGE6IEFkZCBmZWF0dXJlcyBhdHRyIHRvIHZkcGFfbmxfcG9saWN5IGZvciBubGF0dHIgbGVu
+Z3RoIGNoZWNrCiAgICAgIHZkcGE6IEFkZCBxdWV1ZSBpbmRleCBhdHRyIHRvIHZkcGFfbmxfcG9s
+aWN5IGZvciBubGF0dHIgbGVuZ3RoIGNoZWNrCiAgICAgIHZkcGE6IEFkZCBtYXggdnFwIGF0dHIg
+dG8gdmRwYV9ubF9wb2xpY3kgZm9yIG5sYXR0ciBsZW5ndGggY2hlY2sKCk1heGltZSBDb3F1ZWxp
+biAoMSk6CiAgICAgIHZkdXNlOiBVc2UgcHJvcGVyIHNwaW5sb2NrIGZvciBJUlEgaW5qZWN0aW9u
+CgpNaWtlIENocmlzdGllICgzKToKICAgICAgdmhvc3Qtc2NzaTogRml4IGFsaWdubWVudCBoYW5k
+bGluZyB3aXRoIHdpbmRvd3MKICAgICAgdmhvc3Qtc2NzaTogUmVuYW1lIHZob3N0X3Njc2lfaW92
+X3RvX3NnbAogICAgICBNQUlOVEFJTkVSUzogYWRkIHZob3N0LXNjc2kgZW50cnkgYW5kIG15c2Vs
+ZiBhcyBhIGNvLW1haW50YWluZXIKClNoYW5ub24gTmVsc29uICg0KToKICAgICAgcGRzX3ZkcGE6
+IHByb3RlY3QgTWFrZWZpbGUgZnJvbSB1bmNvbmZpZ3VyZWQgZGVidWdmcwogICAgICBwZHNfdmRw
+YTogYWx3YXlzIGFsbG93IG9mZmVyaW5nIFZJUlRJT19ORVRfRl9NQUMKICAgICAgcGRzX3ZkcGE6
+IGNsZWFuIGFuZCByZXNldCB2cXMgZW50cmllcwogICAgICBwZHNfdmRwYTogZml4IHVwIGRlYnVn
+ZnMgZmVhdHVyZSBiaXQgcHJpbnRpbmcKCldvbGZyYW0gU2FuZyAoMSk6CiAgICAgIHZpcnRpby1t
+bWlvOiBkb24ndCBicmVhayBsaWZlY3ljbGUgb2Ygdm1fZGV2CgogTUFJTlRBSU5FUlMgICAgICAg
+ICAgICAgICAgICAgICAgICB8ICAxMSArKy0KIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyAgICAg
+ICAgICAgfCAgIDIgKy0KIGRyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbWx4NV92ZHBhLmggfCAgIDIg
+KwogZHJpdmVycy92ZHBhL21seDUvY29yZS9tci5jICAgICAgICB8IDEwNSArKysrKysrKysrKysr
+KystLS0tLS0KIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyAgfCAgMjYgKysrLS0t
+CiBkcml2ZXJzL3ZkcGEvcGRzL01ha2VmaWxlICAgICAgICAgIHwgICAzICstCiBkcml2ZXJzL3Zk
+cGEvcGRzL2RlYnVnZnMuYyAgICAgICAgIHwgIDE1ICsrLQogZHJpdmVycy92ZHBhL3Bkcy92ZHBh
+X2Rldi5jICAgICAgICB8IDE3NiArKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tCiBk
+cml2ZXJzL3ZkcGEvcGRzL3ZkcGFfZGV2LmggICAgICAgIHwgICA1ICstCiBkcml2ZXJzL3ZkcGEv
+dmRwYS5jICAgICAgICAgICAgICAgIHwgICA5ICstCiBkcml2ZXJzL3ZkcGEvdmRwYV91c2VyL3Zk
+dXNlX2Rldi5jIHwgICA4ICstCiBkcml2ZXJzL3Zob3N0L3Njc2kuYyAgICAgICAgICAgICAgIHwg
+MTg3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0KIGRyaXZlcnMvdmlydGlv
+L3ZpcnRpb19tZW0uYyAgICAgICAgfCAxNjggKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0t
+LS0tCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jICAgICAgIHwgICA1ICstCiBkcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgICAyIC0KIGRyaXZlcnMvdmlydGlvL3ZpcnRp
+b19wY2lfbGVnYWN5LmMgfCAgIDEgKwogZHJpdmVycy92aXJ0aW8vdmlydGlvX3ZkcGEuYyAgICAg
+ICB8ICAgMiArCiAxNyBmaWxlcyBjaGFuZ2VkLCA1MTkgaW5zZXJ0aW9ucygrKSwgMjA4IGRlbGV0
+aW9ucygtKQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
