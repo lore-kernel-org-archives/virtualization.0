@@ -1,163 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CA7DC07E8A
-	for <virtualization@archiver.kernel.org>; Wed, 16 Aug 2023 18:31:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 07EA8C25B7D
+	for <virtualization@archiver.kernel.org>; Wed, 16 Aug 2023 21:10:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F1B9B41712;
-	Wed, 16 Aug 2023 18:31:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F1B9B41712
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=J2vmuHss
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0QReP7-6sRZm; Wed, 16 Aug 2023 18:31:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 770D74063C;
-	Wed, 16 Aug 2023 18:31:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 770D74063C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33599C0071;
-	Wed, 16 Aug 2023 18:31:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 91F7CC0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Aug 2023 18:31:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5512E60F6B
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Aug 2023 18:31:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5512E60F6B
-Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=J2vmuHss
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7F66B61416;
+	Wed, 16 Aug 2023 21:10:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7F66B61416
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UkXbOlo4
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hz0gzgKS4UKp
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id StV8V9_NHlba; Wed, 16 Aug 2023 21:10:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E381860D77;
+	Wed, 16 Aug 2023 21:10:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E381860D77
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4805C0072;
+	Wed, 16 Aug 2023 21:10:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 22669C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Aug 2023 18:31:25 +0000 (UTC)
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam04on20625.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8d::625])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 40B836061B
+ Wed, 16 Aug 2023 21:10:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id EA8D882009
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Aug 2023 18:31:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 40B836061B
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=L+8JuXEvxF8VSyPTLTSfzzzlRe14LL6QggDbDCxjzBf7b+89pMAxxU57C2z8kyYzdMK8x05KcFEdAU3M+ZJ0WL5POxkN3O3BSaweiUFxQ8BnsABueRC1Vp/UhoIFNpfqQo42r69BS8/bcSPf5tLrvup8Tjl+SypDi77PDkd6/OkgLg3Us71lYhgeYPWe1Ho7BaKxo8CgNEXLZExNaqTLBD1uUlD9iauP84VxQKfmqS40QiGDEo95uaUGo3kHTODTLncCadgXiPoNYZ170NUQxPVGVfdhU1XQ6EJa/2ej8NsVjQExurw0Ubimb99CtLppplbCp8AhyxmScnNteY9lhw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3BnfSgAaPgCFNbDNytPDTdgaGyTZ0n9K+idJLqt10Cs=;
- b=iVQCWQZb4BgSQEFHGvFAnr0PsXFpnKkRHaupR2hCsd/IvtAkC/PPYUfaACfPdvfQC6D99rSb53cpKqUQ0Lo5O8sGnw04312vu2zU/a9RelInRMxXELWl42ZAKNBzgnlzjTr0E4RwW8q3An4S20BDwUcNny+ryHc6nIlLCk+Qswk2ZBIO+r9XD7WiUiBRpA2iYgf7DMQeX1QALaVng1+gGMtRPLNybj2V3GRxNqZ7A0ax7rhdfQvvArsGIlccPmkw1qI5e4sj6DiH3tielK147WKHinMQz7opYEDLwMPEeJ1tO6E/79Mvh6aknDN+56y1bbV2NkR/ozvBWkhS01dB9A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3BnfSgAaPgCFNbDNytPDTdgaGyTZ0n9K+idJLqt10Cs=;
- b=J2vmuHssah3UYksvcMACznZCOW1nLrdK5Jwb5NF8cBxr9CFhkErECQfpOcotxRWZR51uSMs7QBF3UKfnOUuHX1bEdL/xMkWhDlw/gk5yZjteSe1U++OeIO9Aj5AzykN/8SxrqbeK5WGiORh55FoIVoBqMex3Lng2OAhz6EtjZwls5CLE1fyPLQNIji7zJmCbGyW222tNmDx3PdbzDPrdvmkSoJvRRH3KAmtyAA85BNf9FJERw1l1AYLlWJQP7RUu4YMXgTAx9MFO1UT4ZCQY4Ba5SjDbkAswIipC3g/EBAKfZu4M8hUZ540c0bifb/j5Q8jGzJHBatSn48WmdLsYCA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
- by MW4PR12MB7117.namprd12.prod.outlook.com (2603:10b6:303:221::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6678.26; Wed, 16 Aug
- 2023 18:31:20 +0000
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::87fb:3736:7ec4:b260]) by CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::87fb:3736:7ec4:b260%4]) with mapi id 15.20.6678.029; Wed, 16 Aug 2023
- 18:31:19 +0000
-Message-ID: <e8a414f0-ac55-9ac1-b115-94daa5914a9c@nvidia.com>
-Date: Wed, 16 Aug 2023 14:31:15 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
-Subject: Re: [PATCH net v1] virtio_net: Introduce skb_vnet_common_hdr to avoid
- typecasting
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Simon Horman <horms@kernel.org>
-References: <20230814171845.65930-1-feliu@nvidia.com>
- <ZNtYpohWyjnb883M@vergenet.net>
- <05348d62-586c-4b1f-40bd-5541caca0947@nvidia.com>
- <ZNunz1hbqPKpcOgA@vergenet.net>
- <CAF=yD-L+d34Uuvt3sOFOnxXhMmoMXNfHzcaSPk=t1PtiPUHZ1g@mail.gmail.com>
- <f9f3c150-2b5e-7bd0-1c1a-062bd1f16fcd@nvidia.com>
- <64dce2f2b99f5_23f1f82949f@willemb.c.googlers.com.notmuch>
-In-Reply-To: <64dce2f2b99f5_23f1f82949f@willemb.c.googlers.com.notmuch>
-X-ClientProxiedBy: DS7PR03CA0190.namprd03.prod.outlook.com
- (2603:10b6:5:3b6::15) To CY5PR12MB6201.namprd12.prod.outlook.com
- (2603:10b6:930:26::16)
+ Wed, 16 Aug 2023 21:10:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA8D882009
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=UkXbOlo4
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fbB5SkGy4pb9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Aug 2023 21:10:36 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id EE8AE81FF0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Aug 2023 21:10:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EE8AE81FF0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1692220234;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=lmvhOImdcPsDgCoClmG52OKtaZmuqbcjQU1wtGTz/Hk=;
+ b=UkXbOlo4+JY77fNOYIK5SaMtx7ntSgRLnMJUWm0kbFPK+xVjqaWXol+f7tuithj+xlYLP7
+ vzBJeswZSLudaggTC/FfAxyi+D4y8+Jig0Xaqd7z4DJCbBvFIkdAlu6A3iylmLBJH6nQca
+ KsFD4J7BelbkLqQUaFc5WI69okl8Lgg=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-56--HRmax_sMJeSbVZ5qWRZzQ-1; Wed, 16 Aug 2023 17:10:30 -0400
+X-MC-Unique: -HRmax_sMJeSbVZ5qWRZzQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7B0468DC660;
+ Wed, 16 Aug 2023 21:10:30 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.22.32.124])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id E48662026D4B;
+ Wed, 16 Aug 2023 21:10:29 +0000 (UTC)
+Received: by fedora.redhat.com (Postfix, from userid 1000)
+ id 2C40B17B0CB; Wed, 16 Aug 2023 17:10:25 -0400 (EDT)
+Date: Wed, 16 Aug 2023 17:10:25 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Peter-Jan Gootzen <peter-jan@gootzen.net>
+Subject: Re: [PATCH V4] virtio-fs: Improved request latencies when Virtio
+ queue is full
+Message-ID: <ZN07QR2SFfjOYunC@redhat.com>
+References: <20230703191457.1847740-1-peter-jan@gootzen.net>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|MW4PR12MB7117:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6eaf0462-d11b-4a2d-8c26-08db9e86fc14
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 244sFdBLJDtohsWz/lT0aWp86rfAfvSaQsXeLq/wd1TevKdlVXsWQGQmOgWMLEqpZewGAXD3HaXckga1DSqBr7wkM3VALS0mmwgzQjoG7F9aT5MhtjW92QuT/h4btpC2lsyFVDwfzBjchzDj2BcJhMG/8fF0W959sb2/WOjzLs85SApTjtxrEAfbvub0drPd+Uvf91GWi1VGtHK6C8N3y4xR591b9qPSM+09xrvnfKBvoCW5PNJsL7Vq58bXTEu2FiaUtIPSQKzWz/1RGBVGjHs8xIi6dlGinkvLxeDuE2kl3HYGp/I1WtvY5Ri7XkSE4HkzqO+6e72Hp4Bv8sYk6gK+o8wuymfxl7bScZXWifG72YMENjvGc0ToiQub3B8CraK9ppcmci/810U0MD36YBQlCw8uFWu8uLolJpkT0ZQbz8OpCzvyRO2QwPBmma4ueAT0XWLDFMWk3zFnxfNwwZxeaWUdG6kIBUIkiSykkfgEhucgQGf3vsnnTVDVpTyqEQXtwrsviI0ex0Kj0KlgsQz6VP8dHoajosRtCpdH6MokQuNGTqwJc/4SK9Y0d4aGL7elKro6IfT26H+++ZsQe0XgUWw6nyyA0Iv8qKgrfGDSf7L8mMYYerT1i0bCcfGK4ZlccwKPI0xMxkxTmVrrvA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(39860400002)(346002)(396003)(376002)(136003)(366004)(451199024)(1800799009)(186009)(316002)(54906003)(66946007)(110136005)(66476007)(66556008)(41300700001)(5660300002)(38100700002)(31686004)(8676002)(4326008)(8936002)(2906002)(83380400001)(26005)(478600001)(7416002)(86362001)(6512007)(31696002)(6506007)(36756003)(6666004)(2616005)(6486002)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QVM5ZHlOOG51REMySVpHMDFDNmRkVE9pK21xSDlMNytSWjM2Z2NmcnNUVmxK?=
- =?utf-8?B?UXJsaGQ1VWFZTWR5THFrN0s5MVRYOXJVYjlRdHFzVWlTNXZ0bEhtOC8veGRY?=
- =?utf-8?B?N0FDb1ZVK0pvTjVkZy9JRFg3Z2VXZ0ppa2lRMVNKRGpRUkI4NlR0bmZQQ1BD?=
- =?utf-8?B?eHpxdEtDZ3hyWDRjQ0E4RkM4cW1hUUJZRHNEUW1qNHRwT3ViZmhXdllkdTBD?=
- =?utf-8?B?ekhYOGJzTXJIcFlZdDJTWTZiczgrKy9WYkJCOEszMXBCVG5qYjZjTHZpWUUv?=
- =?utf-8?B?UkZGMmxjRlgyTWhJNWlDWTNkQ2RKMXNGVmVYdnpieW9WTzF6eVpBSnlVYmYz?=
- =?utf-8?B?SE9aMU5zdGJlSkJVcVFyN0VqR1BEOXJncFY0V1dqQ3NZMmRvWjNESERDYnJY?=
- =?utf-8?B?UHQwbElDMElOd2JXMjJLOGsxZXVKR3VSYWRmM21JTmtZQUwvc0JoUEN0N2Iz?=
- =?utf-8?B?MEd6K1ZTYmN5UlFWWlB5MXBlZXVKWE1ob2VvMzJ4WUJXS282d0VVeXN1Ykt1?=
- =?utf-8?B?d0l3T1NQM1Nic0Z2UVhvL1BleUpscWZhZGh6YkcwMVBiVEE3Q1dpRS9RR2ZZ?=
- =?utf-8?B?MEZsdkNwUTRTaUZiQjNkMVhNYjVHR2lidmtSNXNyQjlsTzh1V3dMTGZWNW5P?=
- =?utf-8?B?UU5xRjVObVdKNHBudzFiLzZxRGcyVTJWazhkV2FUVkd1VVNPUnBZeUxSUjlY?=
- =?utf-8?B?M0VuSzluVnVRUW9NalNOWFlscDZ4VnIyTTRRU1hkSWVhQUtQdDkwMS9zRzNp?=
- =?utf-8?B?ZUppOFV3c3ljOHB2VFJBcnBJZE4rZG1yb1gvYlRyREZNNUJOQkxUU3Bwd3Zm?=
- =?utf-8?B?RjFjRGtsN1l4MEFrQm9TUml5Z2dtT3BKRkhJWE5EN05WY2NuWURKaTVMUlpz?=
- =?utf-8?B?cVVUb3p1aHNxNU9yVjNrTktTWFdsNFZ6dy9qWVFsVGQ3L2RJWEo3SlIvbmhi?=
- =?utf-8?B?OXdoZ0R6VGdITUJZL1lzSk0yaEFJdUhHYTdVbnVNNkVPcWwzeWxDTUhYUGtQ?=
- =?utf-8?B?NjZLMk5HWDZ3YTZXRTdWaGwrcmhObEQraFUwbTRoSTNTejNlaU9WNWhZZExk?=
- =?utf-8?B?emF2dEllOHBCdC8zMWdqMW1DOVA3MDd6WFY1enVRdWJhTTNyOXlyaHFNaDBT?=
- =?utf-8?B?ekpDQ0xnRDZOWXNwalNneDQwK3pZbGJhVXMyNnR4dU9HSWpwUXA3cGlNMUxN?=
- =?utf-8?B?bWwrY21qTHRFS0NDaUpud0g2ZVBTTUJOREhuRFRtakVTb05Td1hiejVDVzRK?=
- =?utf-8?B?ZXd2eXdqM2FWRmUzSzg3R3krT3Y0d0oyQkVRa0pNOC90OVIrbnZkSnMxSy9M?=
- =?utf-8?B?NVU3NDIyV2RMSGdHdGtjWU9naXd3dlZZZmdOVWtqbU45ODIyZno1NnZPckZQ?=
- =?utf-8?B?Vitqbm5ESUdQN0RNcVVwaExrd0lUYWcvRGpRbGhkTE4xVjZ5VHlkV1RQUnFn?=
- =?utf-8?B?OWJwWUZFd1prYURtMjBOazZoV3IxSlkwaVdRdW9tbmFEY1NXTTJHNlkxaXox?=
- =?utf-8?B?NE44M2VEVEM1RjRUQVhEUW00VHA4dlVjZVUrd29MLyt0TTZxamREM0ZRNGdL?=
- =?utf-8?B?RFM0ZkVyb0c0V1RPb1ZHLzNLNlpVaFk1eVRwUE9kZHlrbnVxTTNJZjhYc3BS?=
- =?utf-8?B?eTRMcFpHeVo4ZWVVNGJnQjlUd3pKYm4vb1FjbCtYSTRNaENPeGtROEtJZi95?=
- =?utf-8?B?cnl0NnMzTkxYem5obVhydWJqM1BtVFI3Z3ErN3NISTN3SWRVRlJHM1VmY1Z6?=
- =?utf-8?B?Sk90UUpIMGRHRkM1NmlId0V1aHpMbzRLL0FVdFRRS0ptZ3ZqKzNtOEJvZTdl?=
- =?utf-8?B?ZUZHS2RmdDB4RnNMVEhaYlNaeWhBY2VSK0JWK1g2cjJvaUIvU2padmUwRVp2?=
- =?utf-8?B?NmhtU1BaMk5UMVJneW50TlR4OUVOUWFqdG4zUmJKOHVVSVBGK2VLVCtFRVJE?=
- =?utf-8?B?U3J6V0tLOWVoYjQ0Uk12TG9VczdET28wWEFVQ0NKMzJhRCs4NmNNRDZGRlpm?=
- =?utf-8?B?WDFKMGY3ZmFneUovV0NMbVhyTXNadEtSbzRVRGpaVEl3R3k4dkRWbEpidUsz?=
- =?utf-8?B?TFZQaWUzM0R5c1RKTngyeERKdlJYQUYyR1dYbldOdFdNRVE3MDBPekswcVds?=
- =?utf-8?Q?7atX2aynV0Tjcx2GiT85Igl3e?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6eaf0462-d11b-4a2d-8c26-08db9e86fc14
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Aug 2023 18:31:19.6413 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /CkO+cylfKnslvAcZabqhA4xZFxP2jPh/rdgE0b/xEbVOOGlq+2IqSb1XbY9lVR1zKtuKJNstmxF9qDRpjTz+A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7117
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Jiri Pirko <jiri@nvidia.com>,
- Bodong Wang <bodong@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20230703191457.1847740-1-peter-jan@gootzen.net>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: miklos@szeredi.hu, stefanha@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -169,72 +98,169 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Feng Liu <feliu@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Mon, Jul 03, 2023 at 09:14:59PM +0200, Peter-Jan Gootzen wrote:
+> When the Virtio queue is full, a work item is scheduled
+> to execute in 1ms that retries adding the request to the queue.
+> This is a large amount of time on the scale on which a
+> virtio-fs device can operate. When using a DPU this is around
+> 40us baseline without going to a remote server (4k, QD=1).
+> This patch queues requests when the Virtio queue is full,
+> and when a completed request is taken off, immediately fills
+> it back up with queued requests.
+> 
+> This reduces the 99.9th percentile latencies in our tests by
+> 60x and slightly increases the overall throughput, when using a
+> queue depth 2x the size of the Virtio queue size, with a
+> DPU-powered virtio-fs device.
+> 
+> Signed-off-by: Peter-Jan Gootzen <peter-jan@gootzen.net>
+> ---
+> V4: Removed return value on error changes to simplify patch,
+> that should be changed in another patch.
+> V3: Fixed requests falling into the void when -ENOMEM and no new
+> incoming requests. Virtio-fs now always lets -ENOMEM bubble up to
+> userspace. Also made queue full condition more explicit with
+> -ENOSPC in `send_forget_request`.
+> V2: Not scheduling dispatch work anymore when not needed
+> and changed delayed_work structs to work_struct structs
+> 
+>  fs/fuse/virtio_fs.c | 32 +++++++++++++++++---------------
+>  1 file changed, 17 insertions(+), 15 deletions(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 4d8d4f16c727..a676297db09b 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -45,7 +45,7 @@ struct virtio_fs_vq {
+>  	struct work_struct done_work;
+>  	struct list_head queued_reqs;
+>  	struct list_head end_reqs;	/* End these requests */
+> -	struct delayed_work dispatch_work;
+> +	struct work_struct dispatch_work;
+>  	struct fuse_dev *fud;
+>  	bool connected;
+>  	long in_flight;
+> @@ -202,7 +202,7 @@ static void virtio_fs_drain_queue(struct virtio_fs_vq *fsvq)
+>  	}
+>  
+>  	flush_work(&fsvq->done_work);
+> -	flush_delayed_work(&fsvq->dispatch_work);
+> +	flush_work(&fsvq->dispatch_work);
+>  }
+>  
+>  static void virtio_fs_drain_all_queues_locked(struct virtio_fs *fs)
+> @@ -346,6 +346,9 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
+>  			dec_in_flight_req(fsvq);
+>  		}
+>  	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
+> +
+> +	if (!list_empty(&fsvq->queued_reqs))
+> +		schedule_work(&fsvq->dispatch_work);
+>  	spin_unlock(&fsvq->lock);
+>  }
+>  
+> @@ -353,7 +356,7 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+>  {
+>  	struct fuse_req *req;
+>  	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+> -						 dispatch_work.work);
+> +						 dispatch_work);
+>  	int ret;
+>  
+>  	pr_debug("virtio-fs: worker %s called.\n", __func__);
+> @@ -388,8 +391,6 @@ static void virtio_fs_request_dispatch_work(struct work_struct *work)
+>  			if (ret == -ENOMEM || ret == -ENOSPC) {
+>  				spin_lock(&fsvq->lock);
+>  				list_add_tail(&req->list, &fsvq->queued_reqs);
+> -				schedule_delayed_work(&fsvq->dispatch_work,
+> -						      msecs_to_jiffies(1));
+>  				spin_unlock(&fsvq->lock);
 
+If we are running low on memroy and very first request gets queued, then
+we had deadlock as there is no completion happening after that. I think
+I pointed this out in V2 as well. 
 
-On 2023-08-16 a.m.10:53, Willem de Bruijn wrote:
-> External email: Use caution opening links or attachments
-> 
-> 
->>
->> Thanks for the detailed explanation.
->>
->> I kept virtio_net_hdr_mrg_rxbuf and virtio_net_hdr_v1_hash structures in
->> virtio_net.h, which can be forward compatible with existing user
->> applications which use these structures.
-> 
-> They're UAPI, so we cannot modify or remove them anyway.
-> 
-> Which is exactly why we want to be careful with adding anything new.
-> 
-ok
+I think first you need to write a patch to return -ENOMEM to user space
+and then second patch queues the request only on -ENOSPC.
 
->> virtio_net_hdr_v1_hash cannot use virtio_net_hdr as the first member,
->> because in virtio_net_hdr_v1, csum_start and csum_offset are stored in
->> union as a structure, and virtio_net_hdr cannot be used instead.
-> 
-> Oh right. That wasn't always the case, or the reason for this.
-> Not super relevant but, commit ed9ecb0415b9 has the history
-> 
->      virtio: Don't expose legacy net features when VIRTIO_NET_NO_LEGACY defined.
-> 
->      In particular, the virtio header always has the u16 num_buffers field.
->      We define a new 'struct virtio_net_hdr_v1' for this (rather than
->      simply calling it 'struct virtio_net_hdr', to avoid nasty type errors
->      if some parts of a project define VIRTIO_NET_NO_LEGACY and some don't.
-> 
->      Transitional devices (which can't define VIRTIO_NET_NO_LEGACY) will
->      have to keep using struct virtio_net_hdr_mrg_rxbuf, which has the same
->      byte layout as struct virtio_net_hdr_v1.
-> 
-> The union was added to overload csum use on tx with RSC use on rx, in
-> commit 22b436c9b568. I don't quite follow why there now are three
-> structs, rather than two. The first two seem to both implement csum
-> partial. Anyway, not super important here.
->ok
+Thanks
+Vivek
 
->> In addition, I put this new structure virtio_net_common_hdr in uapi,
->> hoping it could be used in future user space application to avoid
->> potential risks caused by type coercion (such as the problems mentioned
->> in the patch description ). So I think it should be in this header file.
->> What do you think?
+>  				return;
+>  			}
+> @@ -436,8 +437,6 @@ static int send_forget_request(struct virtio_fs_vq *fsvq,
+>  			pr_debug("virtio-fs: Could not queue FORGET: err=%d. Will try later\n",
+>  				 ret);
+>  			list_add_tail(&forget->list, &fsvq->queued_reqs);
+> -			schedule_delayed_work(&fsvq->dispatch_work,
+> -					      msecs_to_jiffies(1));
+>  			if (!in_flight)
+>  				inc_in_flight_req(fsvq);
+>  			/* Queue is full */
+> @@ -469,7 +468,7 @@ static void virtio_fs_hiprio_dispatch_work(struct work_struct *work)
+>  {
+>  	struct virtio_fs_forget *forget;
+>  	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
+> -						 dispatch_work.work);
+> +						 dispatch_work);
+>  	pr_debug("virtio-fs: worker %s called.\n", __func__);
+>  	while (1) {
+>  		spin_lock(&fsvq->lock);
+> @@ -647,6 +646,11 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
+>  			virtio_fs_request_complete(req, fsvq);
+>  		}
+>  	}
+> +
+> +	spin_lock(&fsvq->lock);
+> +	if (!list_empty(&fsvq->queued_reqs))
+> +		schedule_work(&fsvq->dispatch_work);
+> +	spin_unlock(&fsvq->lock);
+>  }
+>  
+>  /* Virtqueue interrupt handler */
+> @@ -670,12 +674,12 @@ static void virtio_fs_init_vq(struct virtio_fs_vq *fsvq, char *name,
+>  
+>  	if (vq_type == VQ_REQUEST) {
+>  		INIT_WORK(&fsvq->done_work, virtio_fs_requests_done_work);
+> -		INIT_DELAYED_WORK(&fsvq->dispatch_work,
+> -				  virtio_fs_request_dispatch_work);
+> +		INIT_WORK(&fsvq->dispatch_work,
+> +			  virtio_fs_request_dispatch_work);
+>  	} else {
+>  		INIT_WORK(&fsvq->done_work, virtio_fs_hiprio_done_work);
+> -		INIT_DELAYED_WORK(&fsvq->dispatch_work,
+> -				  virtio_fs_hiprio_dispatch_work);
+> +		INIT_WORK(&fsvq->dispatch_work,
+> +			  virtio_fs_hiprio_dispatch_work);
+>  	}
+>  }
+>  
+> @@ -1254,8 +1258,6 @@ __releases(fiq->lock)
+>  			spin_lock(&fsvq->lock);
+>  			list_add_tail(&req->list, &fsvq->queued_reqs);
+>  			inc_in_flight_req(fsvq);
+> -			schedule_delayed_work(&fsvq->dispatch_work,
+> -						msecs_to_jiffies(1));
+>  			spin_unlock(&fsvq->lock);
+>  			return;
+>  		}
+> @@ -1265,7 +1267,7 @@ __releases(fiq->lock)
+>  		/* Can't end request in submission context. Use a worker */
+>  		spin_lock(&fsvq->lock);
+>  		list_add_tail(&req->list, &fsvq->end_reqs);
+> -		schedule_delayed_work(&fsvq->dispatch_work, 0);
+> +		schedule_work(&fsvq->dispatch_work);
+>  		spin_unlock(&fsvq->lock);
+>  		return;
+>  	}
+> -- 
+> 2.34.1
 > 
-> Adding anything to UAPI has a high bar. Do you have a concrete use
-> case for this?
-
-In the scene of with and without VIRTIO_NET_F_HASH_REPORT feature, this 
-patch has been tested on my setup, and the function is ok.
-
-> 
-> This does seem mostly a helper to simplify kernel logic to me, which
-> is better kept in non-UAPI headers.
-OK, will change it.
 
 _______________________________________________
 Virtualization mailing list
