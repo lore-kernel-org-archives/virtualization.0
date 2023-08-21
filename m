@@ -1,104 +1,63 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 665CCEE4996
-	for <virtualization@archiver.kernel.org>; Mon, 21 Aug 2023 14:47:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86E10EE4993
+	for <virtualization@archiver.kernel.org>; Mon, 21 Aug 2023 16:09:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D90574088A;
-	Mon, 21 Aug 2023 14:47:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D90574088A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20221208 header.b=nzOfc/+3
+	by smtp2.osuosl.org (Postfix) with ESMTP id 033D8405AF;
+	Mon, 21 Aug 2023 16:09:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 033D8405AF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9XpjMfIyZhz4; Mon, 21 Aug 2023 14:47:02 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JDrZ1jJgixHZ; Mon, 21 Aug 2023 16:09:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0BFA0405A4;
-	Mon, 21 Aug 2023 14:47:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0BFA0405A4
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C78F3400DD;
+	Mon, 21 Aug 2023 16:09:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C78F3400DD
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB423C0071;
-	Mon, 21 Aug 2023 14:47:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B27BDC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 95F9FC0039;
+	Mon, 21 Aug 2023 16:09:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 25F48C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Aug 2023 14:47:00 +0000 (UTC)
+ Mon, 21 Aug 2023 16:09:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8AF58405CE
+ by smtp4.osuosl.org (Postfix) with ESMTP id F26E0403EC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Aug 2023 14:47:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8AF58405CE
+ Mon, 21 Aug 2023 16:09:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F26E0403EC
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yle3yRKqm5Vv
+ with ESMTP id wRs-Rt5qSAcc
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Aug 2023 14:46:59 +0000 (UTC)
-Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com
- [IPv6:2607:f8b0:4864:20::f2a])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9104D405A4
+ Mon, 21 Aug 2023 16:09:15 +0000 (UTC)
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EAABD4034F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Aug 2023 14:46:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9104D405A4
-Received: by mail-qv1-xf2a.google.com with SMTP id
- 6a1803df08f44-64cca551ae2so14356986d6.0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 21 Aug 2023 07:46:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20221208; t=1692629218; x=1693234018;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
- :message-id:reply-to;
- bh=WuA3TdNjVttC4ENEMTU7iIB13TPKbbPgEw4DfONfOIg=;
- b=nzOfc/+3vPkk+2xcoHixT2qig/KVfSfruaE8oC/BHOhj4Vj8zK9wQl/YBsovUfjuyE
- zzdUfx0F+1nY+xEONrt5yI8FWOp1QrAohZ3IkYZyY94D8Nb0lF63snqV0onxX8UJbdRS
- W1OENcVQ/wPS91JuWs6rzqCuSYu2pCwXc2MvCLhv1xAQf/GW34/3Xok29hzwDsUcEWri
- K6RBfHFWHDQw3zBVPMEemIuhjd5J2WirIGF8kiJIV2fCCwk1JLsGdgid8sas/T3c1R7D
- ClfsowvOP6bADW4XnuMdfydqJvFH70N4COIOkZ7NSD8UaocdbL6/2rMcwVI7BOjmq2gJ
- pIfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1692629218; x=1693234018;
- h=content-transfer-encoding:mime-version:subject:references
- :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
- :cc:subject:date:message-id:reply-to;
- bh=WuA3TdNjVttC4ENEMTU7iIB13TPKbbPgEw4DfONfOIg=;
- b=cJ4UvUBqopHActT3hc3/W80GVu2U9hRDuFVEHoWL0j6DCDRaIUuBGN5jeYYCCpCtJd
- 7ZPrf7GLTpJ8laJbhjRf2pBWdEsa+SehyIvU/RFSBtMEYKBKvAQ8bne5MN5Dr0V5fXEp
- vTMdDNAEo+DSVCjBznxI2MxAv4LLTpLoH3zmDQ1ebVn1OYNAs5erykBjmMHXoQOvJ37T
- 0DyxqTJv0aL0j6kni3kBcDF6P6YoIS4M9kF1ratPaR1/h8W+r7Qts/BiKHZ/XfNvears
- od9uHnJ4KZYsnbEt2IT1TPIxQOYBqbscMqDY4+Es7IiYYvWzpi4hgbntodKgAj+V8bsT
- k70A==
-X-Gm-Message-State: AOJu0YxCye6e85YFg6rF7TH9RiRrz0kp2LKE42bVhmX3kaiUWIjj/MjW
- /qzssLf3qAzimC/x0EVgn6Q=
-X-Google-Smtp-Source: AGHT+IG/I4x/uX5zBHwBZnZQvnI1/jXeEL+zKtLEb5rhbvBKzlFssu9Ud/GZZNrEpLvz+FrLSwB56A==
-X-Received: by 2002:a0c:e084:0:b0:64f:3e27:1e4a with SMTP id
- l4-20020a0ce084000000b0064f3e271e4amr3752794qvk.19.1692629218377; 
- Mon, 21 Aug 2023 07:46:58 -0700 (PDT)
-Received: from localhost (172.174.245.35.bc.googleusercontent.com.
- [35.245.174.172]) by smtp.gmail.com with ESMTPSA id
- t3-20020a0ce2c3000000b0064729e5b2d9sm2950385qvl.14.2023.08.21.07.46.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 21 Aug 2023 07:46:58 -0700 (PDT)
-Date: Mon, 21 Aug 2023 10:46:57 -0400
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Feng Liu <feliu@nvidia.com>, virtualization@lists.linux-foundation.org, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-ID: <64e378e1c7fed_1b7a7294fd@willemb.c.googlers.com.notmuch>
-In-Reply-To: <20230821142713.5062-1-feliu@nvidia.com>
-References: <20230821142713.5062-1-feliu@nvidia.com>
-Subject: Re: [PATCH net-next v3] virtio_net: Introduce skb_vnet_common_hdr to
- avoid typecasting
-Mime-Version: 1.0
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
- Simon Horman <horms@kernel.org>, Jiri Pirko <jiri@nvidia.com>,
- Bodong Wang <bodong@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, "David S . Miller" <davem@davemloft.net>
+ Mon, 21 Aug 2023 16:09:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EAABD4034F
+Received: from 157.81.37.188.rev.vodafone.pt ([188.37.81.157]
+ helo=LAPTOP-EPOV2LRR) by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <worldcist@saisti.eu>) id 1qY6wy-0008Es-VS
+ for virtualization@lists.linux-foundation.org; Mon, 21 Aug 2023 18:36:17 +0300
+From: "WorldCIST-24" <marialemos72@gmail.com>
+Subject: WorldCIST'24 - Call for Workshops Proposals
+To: virtualization@lists.linux-foundation.org
+MIME-Version: 1.0
+Date: Mon, 21 Aug 2023 16:36:16 +0100
+Priority: urgent
+X-Priority: 1
+Importance: high
+Message-ID: <246401005979703@gmail-com>
+X-Antivirus: AVG (VPS 230820-6, 20/8/2023), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,68 +69,298 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: worldcist@gmail.com
+Content-Type: multipart/mixed; boundary="===============6317453107984432765=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Feng Liu wrote:
-> The virtio_net driver currently deals with different versions and types
-> of virtio net headers, such as virtio_net_hdr_mrg_rxbuf,
-> virtio_net_hdr_v1_hash, etc. Due to these variations, the code relies
-> on multiple type casts to convert memory between different structures,
-> potentially leading to bugs when there are changes in these structures.
-> 
-> Introduces the "struct skb_vnet_common_hdr" as a unifying header
-> structure using a union. With this approach, various virtio net header
-> structures can be converted by accessing different members of this
-> structure, thus eliminating the need for type casting and reducing the
-> risk of potential bugs.
-> 
-> For example following code:
-> static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-> 		struct receive_queue *rq,
-> 		struct page *page, unsigned int offset,
-> 		unsigned int len, unsigned int truesize,
-> 		unsigned int headroom)
-> {
-> [...]
-> 	struct virtio_net_hdr_mrg_rxbuf *hdr;
-> [...]
-> 	hdr_len = vi->hdr_len;
-> [...]
-> ok:
-> 	hdr = skb_vnet_hdr(skb);
-> 	memcpy(hdr, hdr_p, hdr_len);
-> [...]
-> }
-> 
-> When VIRTIO_NET_F_HASH_REPORT feature is enabled, hdr_len = 20
-> But the sizeof(*hdr) is 12,
-> memcpy(hdr, hdr_p, hdr_len); will copy 20 bytes to the hdr,
-> which make a potential risk of bug. And this risk can be avoided by
-> introducing struct skb_vnet_common_hdr.
-> 
-> Change log
-> v1->v2
-> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> feedback from Simon Horman <horms@kernel.org>
-> 1. change to use net-next tree.
-> 2. move skb_vnet_common_hdr inside kernel file instead of the UAPI header.
-> 
-> v2->v3
-> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> 1. fix typo in commit message.
-> 2. add original struct virtio_net_hdr into union
-> 3. remove virtio_net_hdr_mrg_rxbuf variable in receive_buf;
-> 
-> Signed-off-by: Feng Liu <feliu@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+This is a multi-part message in MIME format
 
-Reviewed-by: Willem de Bruijn <willemb@google.com>
+--===============6317453107984432765==
+Content-Type: multipart/alternative; charset=utf-8; boundary="GKdV8RHAEnu8aFqMeu=_on3VDfPnlmOEcV"
 
-A similar solution as tpacket_uhdr.
+This is a multi-part message in MIME format
+
+--GKdV8RHAEnu8aFqMeu=_on3VDfPnlmOEcV
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* CORE Conference
+** Google Scholar H5-Index =3D 25
+
+*** Indexed in Scopus, WoS, DBLP, etc
+
+
+
+
+------------------------------   ------------------------------   ---------=
+--------------------- 
+CALL for WORKSHOPS PROPOSALS for the WorldCIST'24
+
+The 12th World Conference on Information Systems and Technologies
+
+Lodz University of Technology, Poland, March 26-28, 2024
+
+http://worldcist.org/ <http://worldcist.org/> 
+ ------------------------------   ------------------------------   --------=
+--------------------- 
+
+
+
+SCOPE
+
+The Information Systems and Technologies research and industrial community =
+is invited to submit proposals for the organization of Workshops at WorldCi=
+st'24 - 12th World Conference on Information Systems and Technologies, to b=
+e held at Lodz University of Technology, Poland, March 26 - 28, 2024. World=
+Cist is a global forum for researchers and practitioners to present and dis=
+cuss the most recent innovations, trends, results, experiences and concerns=
+ in the several perspectives of Information Systems and Technologies. 
+
+
+WORKSHOP FORMAT
+
+Workshops should focus on a specific scientific subject on the scope of Wor=
+ldCist'24 but not directly included on the main conference areas. Each work=
+shop will be coordinated by an Organizing Committee composed of, at least, =
+two researchers in the field, preferably from different institutions and di=
+fferent countries. The organizers should create an international Program Co=
+mmittee for the Workshop, with recognized researchers within the specific W=
+orkshop scientific area. Each workshop should have at least ten submissions=
+ and five accepted papers to be conducted at WorldCist'24.
+
+The selection of Workshops will be performed by WorldCist'24 Conference/Wor=
+kshop Chairs. Each Workshop will have 1 article offered for 10 articles wit=
+h paid registration, 2 articles offered for 20 articles with paid registrat=
+ion, and 3 articles offered for 40 articles with paid registration.
+
+Workshops full and short papers will be published in the conference main pr=
+oceedings in specific Workshop chapters published by Springer in a book of =
+the LNNS series. Proceedings will be submitted for indexation by WoS, SCOPU=
+S, DBLP, EI-Compendex among several other scientific databases. Extended ve=
+rsions of best selected papers will be published in journals indexed by WoS=
+/SCI, SCOPUS and DBLP. Detailed and up-to-date information may be found at =
+WorldCist'24 website: http://worldcist.org/ <https://mkt.saisti.eu/go/4b931=
+c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe1Nb>
+
+
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+
+- Producing and distributing the Workshop Call for Papers (CFP);
+- Coordinating the review and selection process for the papers submitted to=
+ the Workshop, as Workshop chairs (on the paper submission system to be ins=
+talled);
+- Delivering the final versions of the papers accepted for the Workshop in =
+accordance with the guidelines and deadlines defined by WorldCist'24 organi=
+zers;
+- Coordinating and chairing the Workshop sessions at the conference.
+
+WorldCist'24 organizers reserve the right to cancel any Workshop if deadlin=
+es are missed or if the number of registered attendees is too low to suppor=
+t the costs associated with the Workshop.
+
+
+PROPOSAL CONTENT
+
+Workshop proposals should contain the following information:
+
+- Workshop title;
+- Brief description of the specific scientific scope of the Workshop;
+- List of topics of interest (max 15 topics);
+- Reasons the Workshop should be held within WorldCist=E2=80=9924;
+- Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee;
+- Preliminary proposal for the Workshop Program Committee (Names and affili=
+ations).
+
+Proposals should be submitted at https://easychair.org/   conferences/?conf=
+=3D   worldcistworkshops2024 in PDF (in English), by September 10, 2023.
+
+
+IMPORTANT DATES 
+- Deadline for Workshop proposals: September 10, 2023
+- Notification of Workshop acceptance: September 17, 2023
+- Workshop Final Information and Program Committee: September 24, 2023
+- Deadline for paper submission: November 26, 2023
+- Notification of paper acceptance: December 24, 2023
+- Deadline for final versions and conference registration: January 5, 2024
+- Conference dates: March 26 - 28, 2024
+
+
+CHAIR
+
+Fernando Moreira, Portucalense University, Portugal
+
+
+
+
+WEBSITE
+
+http://worldcist.org/ <https://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba=
+8d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nn>  
+
+
+-- 
+This email has been checked for viruses by AVG antivirus software.
+www.avg.com
+--GKdV8RHAEnu8aFqMeu=_on3VDfPnlmOEcV
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <div id=3D"m_994143590781331048isPasted">
+      <div><span>
+          <div id=3D"m_994143590781331048isPasted">
+            <div>
+              <div>
+                <div>* CORE Conference</div>
+              </div>
+            </div>
+          </div>
+          <p>** Google Scholar H5-Index =3D 25</p>
+          <div id=3D"m_994143590781331048isPasted">
+            <div>
+              <p>*** Indexed in Scopus, WoS, DBLP, etc</p>
+              <p><br /></p>
+            </div>
+          </div>
+          <div>------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+          </div>
+          <p><strong>CALL for WORKSHOPS PROPOSALS for the WorldCIST'24</str=
+ong></p>
+          <div><strong>The 12th World Conference on Information Systems and=
+ Technologies</strong><br /><br />Lodz University of Technology, Poland, Ma=
+rch 26-28, 2024<br /><br /><a href=3D"http://worldcist.org/" rel=3D"nofollo=
+w noreferrer" target=3D"_blank" data-saferedirecturl=3D"https://www.google.=
+com/url?q=3Dhttps://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b49=
+54ce0144252905ese2OOTeYP0re3xe5Nl&source=3Dgmail&ust=3D1692015458017000&usg=
+=3DAOvVaw0qbWL5O6boZtfnMJCribs9">http://worldcist.org/</a> </div>
+          <p><a>&nbsp;</a>------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;----------------------------- 
+          </p>
+          <p><br /></p>
+          <p><strong>SCOPE</strong></p>
+          <p id=3D"m_994143590781331048isPasted">The Information Systems an=
+d Technologies research and industrial community is invited to submit propo=
+sals for the organization of Workshops at WorldCist'24 - 12th World Confere=
+nce on Information Systems and Technologies, to be held at Lodz University =
+of Technology, Poland, March 26 - 28, 2024. WorldCist is a global forum for=
+ researchers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several perspectiv=
+es of Information Systems and Technologies. <br /><br /><br /><strong>WORKS=
+HOP FORMAT</strong></p>
+          <p>Workshops should focus on a specific scientific subject on the=
+ scope of WorldCist'24 but not directly included on the main conference are=
+as. Each workshop will be coordinated by an Organizing Committee composed o=
+f, at least, two researchers in the field, preferably from different instit=
+utions and different countries. The organizers should create an internation=
+al Program Committee for the Workshop, with recognized researchers within t=
+he specific Workshop scientific area. Each workshop should have at least te=
+n submissions and five accepted papers to be conducted at WorldCist'24.<br =
+/><br />The selection of Workshops will be performed by WorldCist'24 Confer=
+ence/Workshop Chairs. Each Workshop will have 1 article offered for 10 arti=
+cles with paid registration, 2 articles offered for 20 articles with paid r=
+egistration, and 3 articles offered for 40 articles with paid registration.=
+</p>
+          <p>Workshops full and short papers will be published in the confe=
+rence main proceedings in specific Workshop chapters published by Springer =
+in a book of the LNNS series. Proceedings will be submitted for indexation =
+by WoS, SCOPUS, DBLP, EI-Compendex among several other scientific databases=
+=2E Extended versions of best selected papers will be published in journals=
+ indexed by WoS/SCI, SCOPUS and DBLP. Detailed and up-to-date information m=
+ay be found at WorldCist'24 website: <a href=3D"https://mkt.saisti.eu/go/4b=
+931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe1Nb" targ=
+et=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:=
+//mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2=
+OOTeYP0re3xe1Nb&source=3Dgmail&ust=3D1692015458017000&usg=3DAOvVaw0uDlcNi-P=
+rf8AlzVL7I8Lz">http://worldcist.org/</a><br /><br /><br /><strong>WORKSHOP =
+ORGANIZATION</strong><br /><br />The Organizing Committee of each Workshop =
+will be responsible for:<br /><br />- Producing and distributing the Worksh=
+op Call for Papers (CFP);<br />- Coordinating the review and selection proc=
+ess for the papers submitted to the Workshop, as Workshop chairs (on the pa=
+per submission system to be installed);<br />- Delivering the final version=
+s of the papers accepted for the Workshop in accordance with the guidelines=
+ and deadlines defined by WorldCist'24 organizers;<br />- Coordinating and =
+chairing the Workshop sessions at the conference.<br /><br />WorldCist'24 o=
+rganizers reserve the right to cancel any Workshop if deadlines are missed =
+or if the number of registered attendees is too low to support the costs as=
+sociated with the Workshop.<br /><br /><br /><strong>PROPOSAL CONTENT</stro=
+ng><br /><br />Workshop proposals should contain the following information:=
+<br /><br />- Workshop title;<br />- Brief description of the specific scie=
+ntific scope of the Workshop;<br />- List of topics of interest (max 15 top=
+ics);<br />- Reasons the Workshop should be held within WorldCist&rsquo;24;=
+<br />- Name, postal address, phone and email of all the members of the Wor=
+kshop Organizing Committee;<br />- Preliminary proposal for the Workshop Pr=
+ogram Committee (Names and affiliations).<br /><br />Proposals should be su=
+bmitted at <a href=3D"https://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8=
+d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nm" target=3D"_blank" data-safered=
+irecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/4b931c0=
+2e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nm&source=3Dg=
+mail&ust=3D1692015458017000&usg=3DAOvVaw31n2bA2uwPBPlgVZkQtXb0">https://eas=
+ychair.org/ 
+              <wbr>&nbsp;</wbr>&nbsp;conferences/?conf=3D 
+              <wbr>&nbsp;</wbr>&nbsp;worldcistworkshops2024</a> in PDF (in =
+English), by September 10, 2023.<br /><br /><br /><strong>IMPORTANT DATES</=
+strong> 
+          </p>
+          <p>- Deadline for Workshop proposals: September 10, 2023<br />- N=
+otification of Workshop acceptance: September 17, 2023<br />- Workshop Fina=
+l Information and Program Committee: September 24, 2023<br />- Deadline for=
+ paper submission: November 26, 2023<br />- Notification of paper acceptanc=
+e: December 24, 2023<br />- Deadline for final versions and conference regi=
+stration: January 5, 2024<br />- Conference dates: March 26 - 28, 2024</p>
+          <p><br /><strong>CHAIR</strong><br /><br />Fernando Moreira, Port=
+ucalense University, Portugal</p>
+          <p><br /></p>
+          <p><strong>WEBSITE</strong></p>
+          <p><a id=3D"m_994143590781331048isPasted" href=3D"https://mkt.sai=
+sti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re=
+3xe5Nn" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/ur=
+l?q=3Dhttps://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce01=
+44252905ese2OOTeYP0re3xe5Nn&source=3Dgmail&ust=3D1692015458017000&usg=3DAOv=
+Vaw2g_5zy2lULBM0j1Jr5eI-Y">http://worldcist.org/</a>&nbsp; </p></span>
+      </div>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
+rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
+px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
+ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
+_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
+lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
+dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
+ 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
+-serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
+signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
+_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
+=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
+2" width=3D"1" height=3D"1"> </a></div></body>
+</html>
+
+--GKdV8RHAEnu8aFqMeu=_on3VDfPnlmOEcV--
+
+
+--===============6317453107984432765==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6317453107984432765==--
+
