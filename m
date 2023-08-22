@@ -1,87 +1,132 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 476FBEE4996
-	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 13:40:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D63FEE49B0
+	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 13:56:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A174740241;
-	Tue, 22 Aug 2023 13:40:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A174740241
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=e/3iDY1k
+	by smtp1.osuosl.org (Postfix) with ESMTP id 039B281332;
+	Tue, 22 Aug 2023 13:56:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 039B281332
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=OvQvaauB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NIewG-jtt2xg; Tue, 22 Aug 2023 13:40:24 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id u_Dwyl8ImuT4; Tue, 22 Aug 2023 13:56:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BD8E3402BA;
-	Tue, 22 Aug 2023 13:40:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BD8E3402BA
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7232E8139C;
+	Tue, 22 Aug 2023 13:56:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7232E8139C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 85C32C0071;
-	Tue, 22 Aug 2023 13:40:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BF78DC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B76DC0071;
+	Tue, 22 Aug 2023 13:56:28 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A029C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:40:22 +0000 (UTC)
+ Tue, 22 Aug 2023 13:56:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 98E83611E6
+ by smtp1.osuosl.org (Postfix) with ESMTP id 47FAA813A1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:40:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 98E83611E6
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=e/3iDY1k
+ Tue, 22 Aug 2023 13:56:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47FAA813A1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fRsdT01d_ZDv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9s155IjQVfH2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:40:21 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 73F6E611B8
+ Tue, 22 Aug 2023 13:56:25 +0000 (UTC)
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com
+ [IPv6:2a00:1450:4864:20::429])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C3A4D8139C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:40:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 73F6E611B8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1692711620;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=xllcJciTJwkjZIlhV6UjbTwuh0nErD/MF676N4GEx7U=;
- b=e/3iDY1kE5ReBYyoJIxuMh6Os9oSk67n5IMKJ0v5Kva6Cuwj3PyRloQ+rW+DbEUD0l219y
- BlF9BiiJGMTrwDy7bIRKyeDMwWmUQgWsh01e5AjxqCg2qyld1upJ07tYmd7Kt+AkjmUAyK
- nZCXBMikVdkN75EHC9BI8Zwx8Z6rC6A=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-137-Pp5xutw2OVq7pwRhPtQgcw-1; Tue, 22 Aug 2023 09:40:14 -0400
-X-MC-Unique: Pp5xutw2OVq7pwRhPtQgcw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
- [10.11.54.2])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 293DF856F67;
- Tue, 22 Aug 2023 13:40:14 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.69])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A25CB40D2843;
- Tue, 22 Aug 2023 13:40:13 +0000 (UTC)
-Date: Tue, 22 Aug 2023 09:40:11 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Daniel Verkamp <dverkamp@chromium.org>
-Subject: Re: [virtio-comment] virtio queue numbering and optional queues
-Message-ID: <20230822134011.GB727224@fedora>
-References: <CABVzXAke4LRt4=S4FsFTFf_WPrAhe1dukoLZto6t6R13kgjw0Q@mail.gmail.com>
+ Tue, 22 Aug 2023 13:56:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C3A4D8139C
+Received: by mail-wr1-x429.google.com with SMTP id
+ ffacd0b85a97d-3175e1bb38cso748732f8f.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 22 Aug 2023 06:56:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ffwll.ch; s=google; t=1692712583; x=1693317383;
+ h=in-reply-to:content-disposition:mime-version:references
+ :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=LXzMnEM8moHL5KfliVx5cD1lb3aAd5NGNjk14fqFYLY=;
+ b=OvQvaauBf9P71X6OM3iV6zJjVstVKwDXVeR2TcNPjDcJz2f399JP5BZxFUiXHkTWc/
+ r5lP7XQ7vkvpSMptW40PFm8KnzYip/IftCKI/V7U1LWv+OZcsOEZqcqKXDKRf7oBDJOP
+ RNOespNYAQNJ9FavrWx3YuWYiBeKAeIF+XsTA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1692712583; x=1693317383;
+ h=in-reply-to:content-disposition:mime-version:references
+ :mail-followup-to:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=LXzMnEM8moHL5KfliVx5cD1lb3aAd5NGNjk14fqFYLY=;
+ b=M+UKHvrsiUqd8YIhXL07tWWv/NmP+Sa5DYKVWQ3yHD+XFE7GzmKMzbW3/iMP59L/ED
+ IVSmiougzlVUOTHSrOg75fgokP8aeMt+j8/lEapRng6zf8Xp+5Hjo9xlvurmIca4BfuT
+ YS6uI+OLYtw2g5Fi5bpLr5QjrnBWVeZPpKRM2bKjPYZOdQAIribGh1h3um0JVzJbwIFS
+ SsAcV8sZd36FsH1k76F04IJlC5lAeNgpWdz/E7cc9uMOS/g2d5SJ5O63hiO6a+X8UEsV
+ yJkG/c78XhH6QEhAB3BG/WIa53X1Cmp83Hbzsmhki79TIe6AlOs7n/P/q97nq+m04kV3
+ /jIQ==
+X-Gm-Message-State: AOJu0YyA4UgxWptRBGyFX/m6BJZqqft5kKghLp7nR0iROO3e9yxe2Z2H
+ bBfzi0HQSh0QwLj2Ua8opdhWcQ==
+X-Google-Smtp-Source: AGHT+IHJQrlSrCu8WgUX5s8XkdDm6/hR/jwfxds8mVBdQgFEL5tBYnuf/oIT+VMpj8Z6S8wRiH/+Kw==
+X-Received: by 2002:a5d:65c5:0:b0:319:8dcf:5c10 with SMTP id
+ e5-20020a5d65c5000000b003198dcf5c10mr6979657wrw.6.1692712582669; 
+ Tue, 22 Aug 2023 06:56:22 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id
+ u5-20020a05600c210500b003fc02e8ea68sm19456835wml.13.2023.08.22.06.56.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 22 Aug 2023 06:56:22 -0700 (PDT)
+Date: Tue, 22 Aug 2023 15:56:19 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Qi Zheng <zhengqi.arch@bytedance.com>
+Subject: Re: [PATCH v4 43/48] drm/ttm: introduce pool_shrink_rwsem
+Message-ID: <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
+Mail-Followup-To: Qi Zheng <zhengqi.arch@bytedance.com>,
+ akpm@linux-foundation.org, david@fromorbit.com, tkhai@ya.ru,
+ vbabka@suse.cz, roman.gushchin@linux.dev, djwong@kernel.org,
+ brauner@kernel.org, paulmck@kernel.org, tytso@mit.edu,
+ steven.price@arm.com, cel@kernel.org, senozhatsky@chromium.org,
+ yujie.liu@intel.com, gregkh@linuxfoundation.org,
+ muchun.song@linux.dev, simon.horman@corigine.com,
+ dlemoal@kernel.org, kvm@vger.kernel.org,
+ dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ dm-devel@redhat.com, linux-mtd@lists.infradead.org, x86@kernel.org,
+ cluster-devel@redhat.com, xen-devel@lists.xenproject.org,
+ linux-ext4@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ rcu@vger.kernel.org, linux-bcache@vger.kernel.org,
+ Muchun Song <songmuchun@bytedance.com>, linux-raid@vger.kernel.org,
+ linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ linux-btrfs@vger.kernel.org
+References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
+ <20230807110936.21819-44-zhengqi.arch@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <CABVzXAke4LRt4=S4FsFTFf_WPrAhe1dukoLZto6t6R13kgjw0Q@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
-Cc: Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org, virtio-comment@lists.oasis-open.org,
- Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20230807110936.21819-44-zhengqi.arch@bytedance.com>
+X-Operating-System: Linux phenom 6.3.0-2-amd64 
+Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev,
+ david@fromorbit.com, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org,
+ x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com,
+ simon.horman@corigine.com, xen-devel@lists.xenproject.org,
+ linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org,
+ dlemoal@kernel.org, Muchun Song <songmuchun@bytedance.com>,
+ yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org,
+ brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org,
+ muchun.song@linux.dev, linux-kernel@vger.kernel.org,
+ linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
+ senozhatsky@chromium.org, netdev@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
+ linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,173 +138,128 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2542070255966791251=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Mon, Aug 07, 2023 at 07:09:31PM +0800, Qi Zheng wrote:
+> Currently, the synchronize_shrinkers() is only used by TTM pool. It only
+> requires that no shrinkers run in parallel.
+> 
+> After we use RCU+refcount method to implement the lockless slab shrink,
+> we can not use shrinker_rwsem or synchronize_rcu() to guarantee that all
+> shrinker invocations have seen an update before freeing memory.
+> 
+> So we introduce a new pool_shrink_rwsem to implement a private
+> synchronize_shrinkers(), so as to achieve the same purpose.
+> 
+> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
+> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
 
---===============2542070255966791251==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="NsB0Om6PIIbwq28o"
-Content-Disposition: inline
+On the 5 drm patches (I counted 2 ttm and 3 drivers) for merging through
+some other tree (since I'm assuming that's how this will land):
 
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
---NsB0Om6PIIbwq28o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> ---
+>  drivers/gpu/drm/ttm/ttm_pool.c | 15 +++++++++++++++
+>  include/linux/shrinker.h       |  2 --
+>  mm/shrinker.c                  | 15 ---------------
+>  3 files changed, 15 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
+> index c9c9618c0dce..38b4c280725c 100644
+> --- a/drivers/gpu/drm/ttm/ttm_pool.c
+> +++ b/drivers/gpu/drm/ttm/ttm_pool.c
+> @@ -74,6 +74,7 @@ static struct ttm_pool_type global_dma32_uncached[MAX_ORDER + 1];
+>  static spinlock_t shrinker_lock;
+>  static struct list_head shrinker_list;
+>  static struct shrinker *mm_shrinker;
+> +static DECLARE_RWSEM(pool_shrink_rwsem);
+>  
+>  /* Allocate pages of size 1 << order with the given gfp_flags */
+>  static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
+> @@ -317,6 +318,7 @@ static unsigned int ttm_pool_shrink(void)
+>  	unsigned int num_pages;
+>  	struct page *p;
+>  
+> +	down_read(&pool_shrink_rwsem);
+>  	spin_lock(&shrinker_lock);
+>  	pt = list_first_entry(&shrinker_list, typeof(*pt), shrinker_list);
+>  	list_move_tail(&pt->shrinker_list, &shrinker_list);
+> @@ -329,6 +331,7 @@ static unsigned int ttm_pool_shrink(void)
+>  	} else {
+>  		num_pages = 0;
+>  	}
+> +	up_read(&pool_shrink_rwsem);
+>  
+>  	return num_pages;
+>  }
+> @@ -572,6 +575,18 @@ void ttm_pool_init(struct ttm_pool *pool, struct device *dev,
+>  }
+>  EXPORT_SYMBOL(ttm_pool_init);
+>  
+> +/**
+> + * synchronize_shrinkers - Wait for all running shrinkers to complete.
+> + *
+> + * This is useful to guarantee that all shrinker invocations have seen an
+> + * update, before freeing memory, similar to rcu.
+> + */
+> +static void synchronize_shrinkers(void)
+> +{
+> +	down_write(&pool_shrink_rwsem);
+> +	up_write(&pool_shrink_rwsem);
+> +}
+> +
+>  /**
+>   * ttm_pool_fini - Cleanup a pool
+>   *
+> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
+> index c55c07c3f0cb..025c8070dd86 100644
+> --- a/include/linux/shrinker.h
+> +++ b/include/linux/shrinker.h
+> @@ -103,8 +103,6 @@ struct shrinker *shrinker_alloc(unsigned int flags, const char *fmt, ...);
+>  void shrinker_register(struct shrinker *shrinker);
+>  void shrinker_free(struct shrinker *shrinker);
+>  
+> -extern void synchronize_shrinkers(void);
+> -
+>  #ifdef CONFIG_SHRINKER_DEBUG
+>  extern int __printf(2, 3) shrinker_debugfs_rename(struct shrinker *shrinker,
+>  						  const char *fmt, ...);
+> diff --git a/mm/shrinker.c b/mm/shrinker.c
+> index 3ab301ff122d..a27779ed3798 100644
+> --- a/mm/shrinker.c
+> +++ b/mm/shrinker.c
+> @@ -650,18 +650,3 @@ void shrinker_free(struct shrinker *shrinker)
+>  	kfree(shrinker);
+>  }
+>  EXPORT_SYMBOL_GPL(shrinker_free);
+> -
+> -/**
+> - * synchronize_shrinkers - Wait for all running shrinkers to complete.
+> - *
+> - * This is equivalent to calling unregister_shrink() and register_shrinker(),
+> - * but atomically and with less overhead. This is useful to guarantee that all
+> - * shrinker invocations have seen an update, before freeing memory, similar to
+> - * rcu.
+> - */
+> -void synchronize_shrinkers(void)
+> -{
+> -	down_write(&shrinker_rwsem);
+> -	up_write(&shrinker_rwsem);
+> -}
+> -EXPORT_SYMBOL(synchronize_shrinkers);
+> -- 
+> 2.30.2
+> 
 
-On Mon, Aug 21, 2023 at 03:18:50PM -0700, Daniel Verkamp wrote:
-> Hello virtio folks,
-
-Hi Daniel,
-I have CCed those involved in the free page hint and page reporting
-features.
-
-Stefan
-
->=20
-> I noticed a mismatch between the way the specification defines
-> device-specific virtqueue indexes and the way device and driver
-> implementers have interpreted the specification. As a practical example,
-> consider the traditional memory balloon device [1]. The first two queues
-> (indexes 0 and 1) are available as part of the baseline device, but the
-> rest of the queues are tied to feature bits.
->=20
-> Section 5.5.2, "Virtqueues", gives a list that appears to be a mapping fr=
-om
-> queue index to queue name/function, defining queue index 3 as free_page_vq
-> and index 4 as reporting_vq, and declaring that "free_page_vq only exists
-> if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set" and "reporting_vq only exists =
-if
-> VIRTIO_BALLOON_F_PAGE_REPORTING is set." This wording is a bit vague, but=
- I
-> assume "is set" means "is negotiated" (not just "advertised by the
-> device"). Also presumably "exists" means something like "may only be used
-> by the driver if the feature bit is negotiated" and "should be ignored by
-> the device if the feature bit is not negotiated", although it would be ni=
-ce
-> to have a proper definition in the spec somewhere.
->=20
-> Section 5.5.3, "Feature bits", gives definitions of the feature bits, with
-> similar descriptions of the relationship between the feature bits and
-> virtqueue availability, although the wording is slightly different
-> ("present" rather than "exists"). No dependency between feature bits is
-> defined, so it seems like it should be valid for a device or driver to
-> support or accept one of the higher-numbered features while not supporting
-> a lower-numbered one.
->=20
->=20
-> Notably, there is no mention of queue index assignments changing based on
-> negotiated features in either of these sections. Hence a reader can only
-> assume that the queue index assignments are fixed (i.e. stats_vq will
-> always be vq index 4 if F_STATS_VQ is negotiated, regardless of any other
-> feature bits).
->=20
-> Now consider a scenario where VIRTIO_BALLOON_F_STATS_VQ and
-> VIRTIO_BALLOON_F_PAGE_REPORTING are negotiated but
-> VIRTIO_BALLOON_F_FREE_PAGE_HINT is not (perhaps the device supports all of
-> the defined features but the driver only wants to use reporting_vq, not
-> free_page_vq). In this case, what queue index should be used by the driver
-> when enabling reporting_vq? My reading of the specification is that the
-> reporting_vq is always queue index 4, independent of whether
-> VIRTIO_BALLOON_F_STATS_VQ or VIRTIO_BALLOON_F_FREE_PAGE_HINT are
-> negotiated, but this contradicts existing device and driver
-> implementations, which will use queue index 3 (the next one after stats_vq
-> =3D 2) as reporting_vq in this case.
->=20
-> The qemu virtio-ballon device [2] assigns the next-highest unused queue
-> index when calling virtio_add_queue(), and in the scenario presented abov=
-e,
-> free_page_vq will not be added since F_STATS_VQ is not negotiated, so
-> reporting_vq will be assigned queue index 3, rather than 4. (Additionally,
-> qemu always adds the stats_vq regardless of negotiated features, but that=
-'s
-> irrelevant in this case since we are assuming the STATS_VQ feature is
-> negotiated.)
->=20
-> The Linux virtio driver code originally seemed to use the correct (by my
-> reading) indexes, but it was changed to match the layout used by qemu in a
-> 2019 commit ("virtio_pci: use queue idx instead of array idx to set up the
-> vq") [3] - in other words, it will now also expect queue index 3 to be
-> reporting_vq in the scenario laid out above.
->=20
-> I'm not sure how to resolve the mismatch between the specification and
-> actual implementation behavior. The simplest change would probably be to
-> rewrite the specification to drop the explicit queue indexes in section
-> 5.5.2 and add some wording about how queues are numbered based on
-> negotiated feature bits (this would need to be applied to other device
-> types that have specified queue indexes as well). However, this would also
-> technically be an incompatible change of the specification. On the other
-> hand, changing the device and driver implementations to match the
-> specification would be even more challenging, since it would be an
-> incompatible change in actual practice, not just a change of the spec to
-> match consensus implementation behavior.
->=20
->=20
-> Perhaps drivers could add a quirk to detect old versions of the qemu devi=
-ce
-> and use the old behavior, while enabling the correct behavior only for
-> other device vendors and newer qemu device revisions, and the qemu device
-> could add an opt-in feature to enable the correct behavior that users wou=
-ld
-> need to enable only when they know they have a sufficiently new driver wi=
-th
-> the fix.
->=20
->=20
-> Or maybe there could be a new feature bit that would opt into following t=
-he
-> spec-defined queue indexes (VIRTIO_F_VERSION_2?) and some new wording to
-> require devices to use the old behavior when that bit is not negotiated,
-> but that also feels less than ideal to me.
->=20
-> Any thoughts on how to proceed with this situation? Is my reading of the
-> specification just wrong?
->=20
-> Thanks,
->=20
-> -- Daniel
->=20
-> [1]:
-> https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.ht=
-ml#x1-3160002
->=20
-> [2]:
-> https://github.com/qemu/qemu/blob/f33c74576425fac2cbb0725229895fe096df426=
-1/hw/virtio/virtio-balloon.c#L879-L897
->=20
-> [3]:
-> https://github.com/torvalds/linux/commit/ddbeac07a39a81d82331a312d0578fab=
-94fccbf1
-
---NsB0Om6PIIbwq28o
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmTkursACgkQnKSrs4Gr
-c8hY+Af/WebgXTM8+0jDCtOkr9ErLVrpWkHrmPJvRYq+/CZQGt/OxKZk65L4hNZm
-N6POPg0QW57+SN3z4EDAedrUI4g5muy/PxLxKU6e+1G4oIIZOaMK6dvZ6Ef/bMfE
-gaOcqAXWxsQgWbDmsRotEidmJ1Gak0R4WHwWUm549eGSFvgP1Cn7P77PeGwGSnIL
-7k0yLX80514vq7iycJmUeUIb7H0lCkMoL49r0vzZO1tMvmwxp4FvuA60GwXsYn6E
-QM80FTm/XB6qoPSnatQZsuwima8EZZewFaVsYjX33Zo++7CA0LzsHCJaOUjxCBOK
-MBEJPFeyGd3uN+tdlppzDz48erQ4mw==
-=o3yW
------END PGP SIGNATURE-----
-
---NsB0Om6PIIbwq28o--
-
-
---===============2542070255966791251==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2542070255966791251==--
-
