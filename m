@@ -4,155 +4,118 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5DE4EE49A3
-	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 14:26:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BE47EE4993
+	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 14:29:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4A9CA81FD1;
-	Tue, 22 Aug 2023 14:26:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A9CA81FD1
+	by smtp1.osuosl.org (Postfix) with ESMTP id 00CFD81CBA;
+	Tue, 22 Aug 2023 14:29:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 00CFD81CBA
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=k5dp+qj1
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=XcWHrxZh
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7VZWEeckFAiJ; Tue, 22 Aug 2023 14:26:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 972A781FC4;
-	Tue, 22 Aug 2023 14:25:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 972A781FC4
+	with ESMTP id XoBVXNyDFYMZ; Tue, 22 Aug 2023 14:29:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 44F8B817FF;
+	Tue, 22 Aug 2023 14:29:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 44F8B817FF
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 58C4BC0039;
-	Tue, 22 Aug 2023 14:25:59 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 34DF2C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 05261C0039;
+	Tue, 22 Aug 2023 14:29:11 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8FE23C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 14:25:58 +0000 (UTC)
+ Tue, 22 Aug 2023 14:29:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DA930611BC
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6A8F240199
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 14:25:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA930611BC
-Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=k5dp+qj1
+ Tue, 22 Aug 2023 14:29:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6A8F240199
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=XcWHrxZh
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WDv8xyYX7qzj
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id k_VOKEnMYWhb
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 14:25:56 +0000 (UTC)
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on2062e.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eab::62e])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 778B1611AA
+ Tue, 22 Aug 2023 14:29:09 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 33E4E4014D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 14:25:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 778B1611AA
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dMGAZnszGvw0aouy/fj0X6nEmoxQ2jaz/4+HEr4oY6fn/LZGEjbk1gA1BuJQWTp+4kgxVBaRwh7vIW7U0vpV96gTmi518aHkMSBJgmv8B7dbaeDWYL8g+lCM2jlK74pul4fgNo2HUD4fUhVV+AVwsBCQAARfc4J9rI7vUnR9OxU35PeBuYDUp/QyiLR6QvxZ3k8135B/xjuThQqNaGeKdm+8idTnM5lq4rK3eQFPwZRnzKsCpr0HZYF0yLkcuzlfAqotiec9A5aywZog4X3dXGccTdFF07tWUVn7lgZYS4UPIYfB39kyhQ0Wl3g8rHZuVHr2M2FQb9KOu2678PZ92Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=6bdOAv91KMCAvzXGwKzTJLC8kqoTKXjHHd197D6GaCk=;
- b=NRn86HasjGy5Pcvw6c1Uku7yU9/2QgBvCGYJAWUgK47G2LHFNYD9bHUZarWOf6uUPRWBUYVBM2Q6XbGluBTw9vR6Ayt8HY473QD0+6XPNrYdHGyglukpua2XnGAJePSkNCkF9nSKV4XVdGlB8HeFug7UjbC0gRAKrPoOeSH7nWCHXj1XtzSixvDv70GYHw2PlWONyrvfSuEH7Ie4nVqcwd6I63o6HScXCtX5Yx6XKxCuBe0amDMhwfOi3KbeFBgX8eYBW7k7yQRAv5b1eQCmeBTBaaxtrW+SJdMQHc5lbQn+ZCjxzNi79H9cLlaY0lhtzjjreJIcF7B7k+BxzUqeXg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6bdOAv91KMCAvzXGwKzTJLC8kqoTKXjHHd197D6GaCk=;
- b=k5dp+qj1IwUtIRyCUAh/etnaoUwx7oEpzN/5NknHDXEd6kmJc2OLo4UEnaPJCSxsVPiKDpVRvMLVrs5Y7KfI0p+Gz/GY/jhKtvVNq4sXvdHqPV9wY3OrYP19BqNJWZrCi6ZSdqiLWk3/DGhafGViZa9RaxWvyPIUV3pdL8md1Ja1JWvA1aAOG8q8a9GtPtZibK3byUgL7lT+LivViFgmbqA7lKZW+unrk5IEqX7YJgQ74Du4i+j4LGv4FOglD/ukzQZK+4yQEwF+DNbFZYQqZr+GpV4+fzkLGrmhgEHhX/aZy0nA4Vu02icnIO7ixBzPwZwgq6UXWQ6U1+uN8Z5z0A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
- by BY5PR12MB4081.namprd12.prod.outlook.com (2603:10b6:a03:20e::21)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.24; Tue, 22 Aug
- 2023 14:25:52 +0000
-Received: from CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::87fb:3736:7ec4:b260]) by CY5PR12MB6201.namprd12.prod.outlook.com
- ([fe80::87fb:3736:7ec4:b260%4]) with mapi id 15.20.6699.022; Tue, 22 Aug 2023
- 14:25:52 +0000
-Message-ID: <6b022182-fc7d-9269-c1aa-39e2a807d39f@nvidia.com>
-Date: Tue, 22 Aug 2023 10:25:48 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.9.0
-Subject: Re: [PATCH net-next v3] virtio_net: Introduce skb_vnet_common_hdr to
- avoid typecasting
-To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20230821142713.5062-1-feliu@nvidia.com>
-In-Reply-To: <20230821142713.5062-1-feliu@nvidia.com>
-X-ClientProxiedBy: DM6PR07CA0042.namprd07.prod.outlook.com
- (2603:10b6:5:74::19) To CY5PR12MB6201.namprd12.prod.outlook.com
- (2603:10b6:930:26::16)
+ Tue, 22 Aug 2023 14:29:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 33E4E4014D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1692714548;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Oo0qQMP+EpYcaK0x6LYo/3scrNwDZqWhIrmx2SDwrB8=;
+ b=XcWHrxZhB3PhH5bR84/4bgFnntjI9t5dndHAWR+zzPTw+tTbI9QdGZlcRCZbsW5CcE+MbC
+ D9Eih6dn0j6KI0qjYBEPCkJAQaodu8uTRr5HY1IMhlGXLnHybzxq+DnnOavjl/9l0DU6Nb
+ bObcgh5P1S73oQEOWnZo/RLNpr3vg4E=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-374-tmh1baoiMWy2w8dAY1EBtQ-1; Tue, 22 Aug 2023 10:29:06 -0400
+X-MC-Unique: tmh1baoiMWy2w8dAY1EBtQ-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ 38308e7fff4ca-2bcbb224910so27096511fa.0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 22 Aug 2023 07:29:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1692714545; x=1693319345;
+ h=content-transfer-encoding:in-reply-to:subject:organization:from
+ :references:cc:to:content-language:user-agent:mime-version:date
+ :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=Oo0qQMP+EpYcaK0x6LYo/3scrNwDZqWhIrmx2SDwrB8=;
+ b=A2rPqUa3QA8mG++Tcxl6bKIiVO8LhHdGn7DSnxXTyk6yyar6dzM2zijCoKW5zMLV/f
+ GxdzXpsy/LqpkFRBu7847ECjqpSGnBULUsYtNYcr7unI5VKMDgVRePEEqcMGMM6LYl5f
+ 9u+uhM0oV0QkOCUCMr4E4/Hx1Vq5SQTdt0XozHI0bNaOsQQX86701i9l/BIuUvLk+8et
+ gZV2wTTFjlseGQx4vFSSVToe18d6v6xGpEZx8xk2M2Y9aLErQbc9E4KZT8D92IK1c+Jh
+ 7v+QltFd4+TfAT2vl/rKpE5VKfo8DJ/EEaIe6EK7OamXIgyScwtGmuiD2Jui+ffRoBIr
+ 7BTQ==
+X-Gm-Message-State: AOJu0YxsTUoY1FCXrrsiOATRw9Cnf4W4QNtt4XADJ1u7BrXJB9moMvdk
+ k5/evJSpfT4b0ZgdtvZcJniEV+cp/jrJ12T0bwro955Dog5UJJJry0YYYOSwhq53BFF5c5xTFMy
+ 1WZOl7ZwsBYz8K+ve6tBZEK4zUgNffumccRGsRhC8UA==
+X-Received: by 2002:a2e:b053:0:b0:2b9:6810:b333 with SMTP id
+ d19-20020a2eb053000000b002b96810b333mr6891278ljl.14.1692714544834; 
+ Tue, 22 Aug 2023 07:29:04 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGHbtdV1Z2oYexwVe8mpbyzXTeUz0WQ5wiHT8u+gk/LvXpSBjPcLrFisAk3pJfWzuqTvvZdCw==
+X-Received: by 2002:a2e:b053:0:b0:2b9:6810:b333 with SMTP id
+ d19-20020a2eb053000000b002b96810b333mr6891263ljl.14.1692714544356; 
+ Tue, 22 Aug 2023 07:29:04 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c706:7400:83da:ebad:ba7f:c97c?
+ (p200300cbc706740083daebadba7fc97c.dip0.t-ipconnect.de.
+ [2003:cb:c706:7400:83da:ebad:ba7f:c97c])
+ by smtp.gmail.com with ESMTPSA id
+ b15-20020a05600c11cf00b003fe215e4492sm16116605wmi.4.2023.08.22.07.29.03
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 22 Aug 2023 07:29:03 -0700 (PDT)
+Message-ID: <437ee67b-d3d6-906a-7ee1-d798d3f77643@redhat.com>
+Date: Tue, 22 Aug 2023 16:29:03 +0200
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|BY5PR12MB4081:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0cb21628-109b-4a7a-0096-08dba31bb013
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Tlpxd1YVwFH10rKhMtTwD1OPgE9dM7FGPkwdx0z3Po/aUPcMXAPSKDpDUKLsyh81DMclTDvnwmfYHg1kXIoXAFMIZw/QjGATeZQZ5qvkXCe04vOkTuNOtjjoQAKPSZRZW3whTJfGvjVoZNnXmW7fqmPS6omEDDwE9HGs7/jk/ttg27BJ+lM9OjXQ2h7vTRwqTNmghGyoFdfii14azfIDOffMWrZKWNwu6tJE3DEdUjbDr+YZLq6DxzIg397V/lE+0gGKamf/U2Fx99YSrssB7FpmSSzvNGZxsnLA1FyQBzKxpCJVRe7exFEyj97zt+7tl/b7fqzx8zsLuYAcA+mm+y6DxaRcRQr9VacjuPabWfqu/BaR3gscu/8xOhfS6NTULQUi8KXvsCUqDNp6GBLX8WFd/J1wAGJFpZ9YPNm/Fe/z/kCRqgZX9++oc6/Uk8n+kWDC9E2UMt0KH0as2IDnNMocHF0jKnl3jNIsSN8HWjHe4GjM3wrlpLWwW1An67nnX1hXywnA5uaisTLO5rvgvwkfO0QUHtFir/fLZ+HWE4zepQ7q3kKhkazmxY6XKfdq3BHr9FArK6d16k3uLn8v36doduaqRbljJ68ur8OmgOhT7lqnaW1iX57SREb7t5nOTpH5GHUoCrSbLtXjUXvALg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(396003)(136003)(376002)(39860400002)(346002)(366004)(1800799009)(186009)(451199024)(54906003)(66476007)(66556008)(6512007)(316002)(66946007)(66899024)(110136005)(8676002)(8936002)(2616005)(107886003)(4326008)(36756003)(41300700001)(478600001)(6666004)(38100700002)(6486002)(6506007)(83380400001)(2906002)(7416002)(31686004)(31696002)(86362001)(5660300002)(26005)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L3lUK0xSdldYUVFIZEZxbS9ENnl6NVo2K3ZtZUs3TGI1SWgzVWpUMGJTRzly?=
- =?utf-8?B?eGRac0xFakFDY2VZZW5BOVFjbHNsdnUxZUczZU5PMmJuSEptdmJ2Y3NJMXor?=
- =?utf-8?B?L3J0cTBaR0pIbW5hRTdhK0wrVUJncUhha0Q4dHpkY3BVM3lKVVpqbDJnZlBw?=
- =?utf-8?B?a0NLOE1oMGdvdUg5STl4SVJxOXFHMG1pR3crVjFmUnp6TzUwZ0JraTVJVDkz?=
- =?utf-8?B?UE9xbXBwMnovbUxRRHF0YitBelBKSy95dEVtZWNGeEtKdkY4Sk8xenlCN1FB?=
- =?utf-8?B?bXRXdTY1amVPd2FLdENmL3FhNVRhYmgxd3ZIQUE5c1hVMWlpbTlWQjRxb3d3?=
- =?utf-8?B?VEdWbTBqTWN4bEQ1azRuSG9BaDZPcGJXTkZlYnRpK0htVEhNWU5GUmNJYXZy?=
- =?utf-8?B?YU5PRGhmcVZrbmhFajlBaDZaajdkY0pkSW0vRWtuRXUrYU5QNlQwVGd4a3dQ?=
- =?utf-8?B?UUt6S1ZHOFA3SEJpYkM4YmRNMzZSRHVTc2FnV2ZhejJyWU4wY3hCa2ZrUFh4?=
- =?utf-8?B?Z3ZWUTFOMWlDMDJldDF4TXBiYktyN2FmbGJoZnYvTk5ZTHptdFh4VmNpUVJl?=
- =?utf-8?B?ZU5zOTRiWk5TMEc2RENyMGRIK1VVOFBDdHVPV3ZXbytzY24ybkVwVG13Y0xZ?=
- =?utf-8?B?eWIyb1Njd0Foa1R0QkZTRlVCY0VFUlFnWlNsTUNkTmxGRndBKzFIYThkWWhN?=
- =?utf-8?B?alp5NnBGQXZRVllmUjlrMzBwOVRCOTRDN0s2WFVuUTlReGZEdDFhQnNGYnhy?=
- =?utf-8?B?azdQbTFiSWFPSkN3bEt1UTJSR1Y0SzVYM25lRkEyRCtyVTk0TTVRb3JudHl4?=
- =?utf-8?B?T3RiaFBLeTFzNnFHT1RDWXRsdnQyYjdlZzlkZVovZ2lQcWZnQVRLV1dvRTJW?=
- =?utf-8?B?UGtpOHF4V21GcXlrcW1qMzNHSjBpUWdZSXAzNm9nZFMzVHRZR1VLU3NMR2hS?=
- =?utf-8?B?QkpRTWFSU0Y2ZXRZZm5BeWpTcGtWU0kzRW5UZVVyeTkzVUcwK1VHa2dBSjNU?=
- =?utf-8?B?cHI0N3BncVhDdVRCNUVHYXh2Q3VObEdEZmpUa001dDNGdjJBd0w4ci9odUN4?=
- =?utf-8?B?alVyVlpyMTJlUzN5cXNuMmZIcDFidngvaFlDVDJPZ1lLS3lZWXRkc2dzOE1O?=
- =?utf-8?B?a3Jwa0JNSG5PdVVNUm45UUt4eWRRTUFXcE1HeTBjTGxMWmd5eDdYellEL3pG?=
- =?utf-8?B?eUowNlMyMWh4RDJkNUtsTG5Ta1pjMFAzRzlpVk1SUUdhZ3Evd2UwKzlJL0NU?=
- =?utf-8?B?S2VpcWZMaUo5blRTUURuYXJSRDJaNTRqd0llRlVnUlNaMDVZSzczOVRFVWNE?=
- =?utf-8?B?TU1hKzI3M1REOEdSSW5iOWNFMHcvNWx0VldqSG92a1BobEczTER6ZVltTGhn?=
- =?utf-8?B?U1NnYnFIYlJseEYzTEZCRmpINDJjd3lUU0lkalh2YUVDODBnbHh1cHFzVlVl?=
- =?utf-8?B?UEVXYlhxRGhMbjEyc1M3UlkxMWlMVzlQMjlMeFpnVE5uSlcyVnVkZXp3S0hM?=
- =?utf-8?B?QWxMOGl0cHNzQXoraEYwY2NtczdLVzl4ampUdzI3MjNXQXZVbkpFMXBYN09Z?=
- =?utf-8?B?bmZiMXpHQUh2OWVXTXdLSlNudktSTjArc1NXWkNBRXVQODZxTzFzbXp6WXpr?=
- =?utf-8?B?RTM3NlZXc2RLQnVUb1ErMzZxNDNtVGVQeVFYWWxPTGdRRkpUd1B6WUlucG4w?=
- =?utf-8?B?Unpldjh5UEtEb25CVnFVeXpqczNkdkdmZ1ZPaytObjJqcUtyckozNTVUWDkr?=
- =?utf-8?B?TlcxRmU2Ym5OcUc3OGtTWGxDUFdiRTIvbXpDZTNndDlBdjlRQWFXQjFvUDlv?=
- =?utf-8?B?MW44bndqYUVKREs5UmRlV25PMmlDeEZUcjZhdWRFN2FxSnVadTkzRi9CL2x2?=
- =?utf-8?B?V3IvRTcxODZ4V09zM1JsVENOeDY0RWYwMVhzRXp5cFRPWFZ6SVhmaUl3VE4w?=
- =?utf-8?B?cXFGS3JHTi9iUFVYN09uTm90ODloN0tHSGlYSFJ2SWozdXZ2TnZUTUNheC9T?=
- =?utf-8?B?L09ZWDVXc1VFbm1ybVQxekdXOVZuV040a2JjYUJUdHprRFB2Z1NDM1I2TDY3?=
- =?utf-8?B?N0o2V1gzQm5uZTZwaGl6S0lsenVQSHlmRXozNElucXBMd1NNY1EvbEVXOFkw?=
- =?utf-8?Q?0VAdCNtEmxXmb3aIf/g9Ibmnv?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0cb21628-109b-4a7a-0096-08dba31bb013
-X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Aug 2023 14:25:51.8759 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CZlw+ubCJelEUJYaxGmj4+eW09OdGgbSHqmwL2SSavnkZzUsV7DdRWsRi2UHfkRQ69OIRxnjeGabyrVFAtg7gw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4081
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
- Jiri Pirko <jiri@nvidia.com>, Bodong Wang <bodong@nvidia.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S . Miller" <davem@davemloft.net>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+To: Stefan Hajnoczi <stefanha@redhat.com>,
+ Daniel Verkamp <dverkamp@chromium.org>
+References: <CABVzXAke4LRt4=S4FsFTFf_WPrAhe1dukoLZto6t6R13kgjw0Q@mail.gmail.com>
+ <20230822134011.GB727224@fedora>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [virtio-comment] virtio queue numbering and optional queues
+In-Reply-To: <20230822134011.GB727224@fedora>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Cornelia Huck <cohuck@redhat.com>,
+ Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org,
+ virtio-comment@lists.oasis-open.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -164,165 +127,237 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
-Reply-To: Feng Liu <feliu@nvidia.com>
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Jason , MST
+On 22.08.23 15:40, Stefan Hajnoczi wrote:
+> On Mon, Aug 21, 2023 at 03:18:50PM -0700, Daniel Verkamp wrote:
+>> Hello virtio folks,
+> 
+> Hi Daniel,
+> I have CCed those involved in the free page hint and page reporting
+> features.
+> 
+> Stefan
+> 
+>>
+>> I noticed a mismatch between the way the specification defines
+>> device-specific virtqueue indexes and the way device and driver
+>> implementers have interpreted the specification. As a practical example,
+>> consider the traditional memory balloon device [1]. The first two queues
+>> (indexes 0 and 1) are available as part of the baseline device, but the
+>> rest of the queues are tied to feature bits.
+>>
+>> Section 5.5.2, "Virtqueues", gives a list that appears to be a mapping from
+>> queue index to queue name/function, defining queue index 3 as free_page_vq
+>> and index 4 as reporting_vq, and declaring that "free_page_vq only exists
+>> if VIRTIO_BALLOON_F_FREE_PAGE_HINT is set" and "reporting_vq only exists if
+>> VIRTIO_BALLOON_F_PAGE_REPORTING is set." This wording is a bit vague, but I
+>> assume "is set" means "is negotiated" (not just "advertised by the
+>> device").
 
-Could you help to review this patch ?  Any more comments?
+Staring at QEMU: the queues are added when the virtio-balloon device is
+*created*. Queues are added based on feature configuration, if they are
+part of the device feature set.
 
-Thanks
-Feng
+That should translate to "is advertised", not "is negotiated".
 
-On 2023-08-21 a.m.10:27, Feng Liu wrote:
-> The virtio_net driver currently deals with different versions and types
-> of virtio net headers, such as virtio_net_hdr_mrg_rxbuf,
-> virtio_net_hdr_v1_hash, etc. Due to these variations, the code relies
-> on multiple type casts to convert memory between different structures,
-> potentially leading to bugs when there are changes in these structures.
-> 
-> Introduces the "struct skb_vnet_common_hdr" as a unifying header
-> structure using a union. With this approach, various virtio net header
-> structures can be converted by accessing different members of this
-> structure, thus eliminating the need for type casting and reducing the
-> risk of potential bugs.
-> 
-> For example following code:
-> static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-> 		struct receive_queue *rq,
-> 		struct page *page, unsigned int offset,
-> 		unsigned int len, unsigned int truesize,
-> 		unsigned int headroom)
-> {
-> [...]
-> 	struct virtio_net_hdr_mrg_rxbuf *hdr;
-> [...]
-> 	hdr_len = vi->hdr_len;
-> [...]
-> ok:
-> 	hdr = skb_vnet_hdr(skb);
-> 	memcpy(hdr, hdr_p, hdr_len);
-> [...]
-> }
-> 
-> When VIRTIO_NET_F_HASH_REPORT feature is enabled, hdr_len = 20
-> But the sizeof(*hdr) is 12,
-> memcpy(hdr, hdr_p, hdr_len); will copy 20 bytes to the hdr,
-> which make a potential risk of bug. And this risk can be avoided by
-> introducing struct skb_vnet_common_hdr.
-> 
-> Change log
-> v1->v2
-> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> feedback from Simon Horman <horms@kernel.org>
-> 1. change to use net-next tree.
-> 2. move skb_vnet_common_hdr inside kernel file instead of the UAPI header.
-> 
-> v2->v3
-> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-> 1. fix typo in commit message.
-> 2. add original struct virtio_net_hdr into union
-> 3. remove virtio_net_hdr_mrg_rxbuf variable in receive_buf;
-> 
-> Signed-off-by: Feng Liu <feliu@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> ---
->   drivers/net/virtio_net.c | 27 ++++++++++++++++++---------
->   1 file changed, 18 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 8e9f4cfe941f..8c74bc8cfe68 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -303,6 +303,14 @@ struct padded_vnet_hdr {
->   	char padding[12];
->   };
->   
-> +struct virtio_net_common_hdr {
-> +	union {
-> +		struct virtio_net_hdr hdr;
-> +		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
-> +		struct virtio_net_hdr_v1_hash hash_v1_hdr;
-> +	};
-> +};
-> +
->   static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
->   static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
->   
-> @@ -344,9 +352,10 @@ static int rxq2vq(int rxq)
->   	return rxq * 2;
->   }
->   
-> -static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
-> +static inline struct virtio_net_common_hdr *
-> +skb_vnet_common_hdr(struct sk_buff *skb)
->   {
-> -	return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
-> +	return (struct virtio_net_common_hdr *)skb->cb;
->   }
->   
->   /*
-> @@ -469,7 +478,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->   				   unsigned int headroom)
->   {
->   	struct sk_buff *skb;
-> -	struct virtio_net_hdr_mrg_rxbuf *hdr;
-> +	struct virtio_net_common_hdr *hdr;
->   	unsigned int copy, hdr_len, hdr_padded_len;
->   	struct page *page_to_free = NULL;
->   	int tailroom, shinfo_size;
-> @@ -554,7 +563,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->   		give_pages(rq, page);
->   
->   ok:
-> -	hdr = skb_vnet_hdr(skb);
-> +	hdr = skb_vnet_common_hdr(skb);
->   	memcpy(hdr, hdr_p, hdr_len);
->   	if (page_to_free)
->   		put_page(page_to_free);
-> @@ -966,7 +975,7 @@ static struct sk_buff *receive_small_build_skb(struct virtnet_info *vi,
->   		return NULL;
->   
->   	buf += header_offset;
-> -	memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
-> +	memcpy(skb_vnet_common_hdr(skb), buf, vi->hdr_len);
->   
->   	return skb;
->   }
-> @@ -1577,7 +1586,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
->   {
->   	struct net_device *dev = vi->dev;
->   	struct sk_buff *skb;
-> -	struct virtio_net_hdr_mrg_rxbuf *hdr;
-> +	struct virtio_net_common_hdr *hdr;
->   
->   	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
->   		pr_debug("%s: short packet %i\n", dev->name, len);
-> @@ -1597,9 +1606,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
->   	if (unlikely(!skb))
->   		return;
->   
-> -	hdr = skb_vnet_hdr(skb);
-> +	hdr = skb_vnet_common_hdr(skb);
->   	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
-> -		virtio_skb_set_hash((const struct virtio_net_hdr_v1_hash *)hdr, skb);
-> +		virtio_skb_set_hash(&hdr->hash_v1_hdr, skb);
->   
->   	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
->   		skb->ip_summed = CHECKSUM_UNNECESSARY;
-> @@ -2105,7 +2114,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
->   	if (can_push)
->   		hdr = (struct virtio_net_hdr_mrg_rxbuf *)(skb->data - hdr_len);
->   	else
-> -		hdr = skb_vnet_hdr(skb);
-> +		hdr = &skb_vnet_common_hdr(skb)->mrg_hdr;
->   
->   	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
->   				    virtio_is_little_endian(vi->vdev), false,
+The queue ordering is as follows:
+
+* inflate queue, baseline device
+* deflate queue, baseline device
+* driver memory statistics, VIRTIO_BALLOON_F_STATS_VQ
+* free page hinting, VIRTIO_BALLOON_F_FREE_PAGE_HINT
+* free page reporting, VIRTIO_BALLOON_F_REPORTING
+
+QEMU always supports the first 3, so they use number 0-2. The other two
+can be configured for the device.
+
+So the queue indices vary based on actual feature presence.
+
+>> Also presumably "exists" means something like "may only be used
+>> by the driver if the feature bit is negotiated" and "should be ignored by
+>> the device if the feature bit is not negotiated", although it would be nice
+>> to have a proper definition in the spec somewhere.
+>>
+>> Section 5.5.3, "Feature bits", gives definitions of the feature bits, with
+>> similar descriptions of the relationship between the feature bits and
+>> virtqueue availability, although the wording is slightly different
+>> ("present" rather than "exists"). No dependency between feature bits is
+>> defined, so it seems like it should be valid for a device or driver to
+>> support or accept one of the higher-numbered features while not supporting
+>> a lower-numbered one.
+
+Yes, that's my understanding.
+
+>>
+>>
+>> Notably, there is no mention of queue index assignments changing based on
+>> negotiated features in either of these sections. Hence a reader can only
+>> assume that the queue index assignments are fixed (i.e. stats_vq will
+>> always be vq index 4 if F_STATS_VQ is negotiated, regardless of any other
+>> feature bits).
+
+And that does not seem to be the case. At least QEMU assigns them sequentially,
+based on actually configured features for the device.
+
+If I read the kernel code correctly (drivers/virtio/virtio_balloon.c:init_vqs)
+it also behaves that way: if the device has a certain feature
+"virtio_has_feature", it gets the next index. Otherwise, the next index goes
+to another feature:
+
+	/*
+	 * Inflateq and deflateq are used unconditionally. The names[]
+	 * will be NULL if the related feature is not enabled, which will
+	 * cause no allocation for the corresponding virtqueue in find_vqs.
+	 */
+	callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+	names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+	callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+	names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+	callbacks[VIRTIO_BALLOON_VQ_STATS] = NULL;
+	names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+	callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+	names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+	names[VIRTIO_BALLOON_VQ_REPORTING] = NULL;
+
+
+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+		names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+		callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
+	}
+
+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+		names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
+		callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+	}
+
+	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
+		names[VIRTIO_BALLOON_VQ_REPORTING] = "reporting_vq";
+		callbacks[VIRTIO_BALLOON_VQ_REPORTING] = balloon_ack;
+	}
+
+	err = virtio_find_vqs(vb->vdev, VIRTIO_BALLOON_VQ_MAX, vqs,
+			      callbacks, names, NULL);
+	if (err)
+		return err;
+
+>>
+>> Now consider a scenario where VIRTIO_BALLOON_F_STATS_VQ and
+>> VIRTIO_BALLOON_F_PAGE_REPORTING are negotiated but
+>> VIRTIO_BALLOON_F_FREE_PAGE_HINT is not (perhaps the device supports all of
+>> the defined features but the driver only wants to use reporting_vq, not
+>> free_page_vq). In this case, what queue index should be used by the driver
+>> when enabling reporting_vq? My reading of the specification is that the
+>> reporting_vq is always queue index 4, independent of whether
+>> VIRTIO_BALLOON_F_STATS_VQ or VIRTIO_BALLOON_F_FREE_PAGE_HINT are
+>> negotiated, but this contradicts existing device and driver
+>> implementations, which will use queue index 3 (the next one after stats_vq
+>> = 2) as reporting_vq in this case.
+
+Then the specification really needs updating :)
+
+>>
+>> The qemu virtio-ballon device [2] assigns the next-highest unused queue
+>> index when calling virtio_add_queue(), and in the scenario presented above,
+>> free_page_vq will not be added since F_STATS_VQ is not negotiated, so
+>> reporting_vq will be assigned queue index 3, rather than 4. (Additionally,
+>> qemu always adds the stats_vq regardless of negotiated features, but that's
+>> irrelevant in this case since we are assuming the STATS_VQ feature is
+>> negotiated.)
+>>
+>> The Linux virtio driver code originally seemed to use the correct (by my
+>> reading) indexes, but it was changed to match the layout used by qemu in a
+>> 2019 commit ("virtio_pci: use queue idx instead of array idx to set up the
+>> vq") [3] - in other words, it will now also expect queue index 3 to be
+>> reporting_vq in the scenario laid out above.
+
+Note that at the time of this commit, there was no support for "free page reporting".
+
+         callbacks[VIRTIO_BALLOON_VQ_INFLATE] = balloon_ack;
+         names[VIRTIO_BALLOON_VQ_INFLATE] = "inflate";
+         callbacks[VIRTIO_BALLOON_VQ_DEFLATE] = balloon_ack;
+         names[VIRTIO_BALLOON_VQ_DEFLATE] = "deflate";
+         names[VIRTIO_BALLOON_VQ_STATS] = NULL;
+         names[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+
+         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+                 names[VIRTIO_BALLOON_VQ_STATS] = "stats";
+                 callbacks[VIRTIO_BALLOON_VQ_STATS] = stats_request;
+         }
+
+         if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+                 names[VIRTIO_BALLOON_VQ_FREE_PAGE] = "free_page_vq";
+                 callbacks[VIRTIO_BALLOON_VQ_FREE_PAGE] = NULL;
+         }
+
+And as QEMU always sets VIRTIO_BALLOON_F_STATS_VQ, that one always gets id=2.
+
+Consequently, VIRTIO_BALLOON_F_FREE_PAGE_HINT, if around, gets id=3.
+
+As we didn't support VIRTIO_BALLOON_F_REPORTING, it doesn't matter which id it gets.
+
+But as you note, once we have different implementations and more feature variability,
+it's a mess.
+
+A device that implements VIRTIO_BALLOON_F_FREE_PAGE_HINT but not VIRTIO_BALLOON_F_STATS_VQ
+might not work correctly with either old or new QEMU.
+
+Maybe it needs to be documented that any device that implements either
+VIRTIO_BALLOON_F_FREE_PAGE_HINT or VIRTIO_BALLOON_F_REPORTING *must* also implement
+VIRTIO_BALLOON_F_STATS_VQ, so old+new Linux drivers would continue working.
+
+>>
+>> I'm not sure how to resolve the mismatch between the specification and
+>> actual implementation behavior. The simplest change would probably be to
+>> rewrite the specification to drop the explicit queue indexes in section
+>> 5.5.2 and add some wording about how queues are numbered based on
+>> negotiated feature bits (this would need to be applied to other device
+
+Yes.
+
+>> types that have specified queue indexes as well). However, this would also
+>> technically be an incompatible change of the specification. On the other
+>> hand, changing the device and driver implementations to match the
+>> specification would be even more challenging, since it would be an
+>> incompatible change in actual practice, not just a change of the spec to
+>> match consensus implementation behavior.
+
+Changing drivers/devices is pretty much impossible.
+
+So we should document the queue assignment better, and maybe the implication
+of requiring VIRTIO_BALLOON_F_STATS_VQ when any new features are implemented.
+
+Does that make sense?
+
+>>
+>>
+>> Perhaps drivers could add a quirk to detect old versions of the qemu device
+>> and use the old behavior, while enabling the correct behavior only for
+>> other device vendors and newer qemu device revisions, and the qemu device
+>> could add an opt-in feature to enable the correct behavior that users would
+>> need to enable only when they know they have a sufficiently new driver with
+>> the fix.
+>>
+>>
+>> Or maybe there could be a new feature bit that would opt into following the
+>> spec-defined queue indexes (VIRTIO_F_VERSION_2?) and some new wording to
+>> require devices to use the old behavior when that bit is not negotiated,
+>> but that also feels less than ideal to me.
+>>
+>> Any thoughts on how to proceed with this situation? Is my reading of the
+>> specification just wrong?
+
+I think you raised an important point. We should try documenting reality in
+the specification.
+
+-- 
+Cheers,
+
+David / dhildenb
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
