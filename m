@@ -1,113 +1,124 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B881BEE4993
-	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 08:55:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 21D0AEE4993
+	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 09:37:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0DDED408D1;
-	Tue, 22 Aug 2023 08:55:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0DDED408D1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FPJ+yeG7
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8808081D47;
+	Tue, 22 Aug 2023 09:37:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8808081D47
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=efG4w0c3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uqID6thumRR5; Tue, 22 Aug 2023 08:55:01 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lSIdRwRJN8Lo; Tue, 22 Aug 2023 09:37:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 298D64090C;
-	Tue, 22 Aug 2023 08:55:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 298D64090C
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EC37B81BF5;
+	Tue, 22 Aug 2023 09:37:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EC37B81BF5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EBEA5C0088;
-	Tue, 22 Aug 2023 08:55:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DF8D3C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C9351C0071;
+	Tue, 22 Aug 2023 09:37:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DEB62C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 08:54:59 +0000 (UTC)
+ Tue, 22 Aug 2023 09:37:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9D09E61147
+ by smtp2.osuosl.org (Postfix) with ESMTP id A5E6240530
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 08:54:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D09E61147
-Authentication-Results: smtp3.osuosl.org;
+ Tue, 22 Aug 2023 09:37:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5E6240530
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FPJ+yeG7
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=efG4w0c3
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GwVKf3l2t8ld
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 00xDxQRP4iyK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 08:54:58 +0000 (UTC)
+ Tue, 22 Aug 2023 09:37:06 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A42E360AE8
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4933F402E8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 08:54:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A42E360AE8
+ Tue, 22 Aug 2023 09:37:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4933F402E8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1692694497;
+ s=mimecast20190719; t=1692697025;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=FpNZZm0xrOZji3+sFL4gaEKA2aO8eVbYxQuyUN3O8GQ=;
- b=FPJ+yeG7fbwHctYAmePsIVuiyqF9Wj8nsfBjX9N0wfi6DTZNKliXSVHWWqUXOWMyl5UdDN
- z7vcszDaevGRf0nxmqkXrm+afkph2T8vikjL54RL1qWmB+z6V+09vj8X5S/BM4uEe1Qi8Q
- 7rDptDDIuGuEUlRUeqdh7yxF4VPFHi0=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=88XKvBbvsZX0D94XbZs3LYQhbIwXeyaOzyGjFpIV09M=;
+ b=efG4w0c3kkHxw/t2EqVM0fPXtANDihviph6LNqvnTzhj8VFOeUWc908BQ7h/U7WEvG+90k
+ RLOFwSZYz02e9sneXAmUy0MRccBM4Q7MU3vO5zEcJ6oSmaeAs1ggSa4ntbrQvpCejo7TcN
+ q3wv7jEc6YflaK6vB+LdlubW2UqC7C4=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-635-7OZe3dyrMY-Zz-QsdAjhCw-1; Tue, 22 Aug 2023 04:54:56 -0400
-X-MC-Unique: 7OZe3dyrMY-Zz-QsdAjhCw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- 38308e7fff4ca-2bc84f4d7a5so14830651fa.0
+ us-mta-49-K0p7zFVoOpyefuLgwGvQRg-1; Tue, 22 Aug 2023 05:37:01 -0400
+X-MC-Unique: K0p7zFVoOpyefuLgwGvQRg-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ af79cd13be357-76d882c4906so576958185a.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 01:54:55 -0700 (PDT)
+ Tue, 22 Aug 2023 02:37:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1692694494; x=1693299294;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=FpNZZm0xrOZji3+sFL4gaEKA2aO8eVbYxQuyUN3O8GQ=;
- b=GOuxJyO7fxWzmq5VVVAjpkhEFIcPKx6WMruGjlAjdfLxCVi7wP3VVwWcC+PdtHKXLx
- Nii/40PN5GEwY2Knt7GBBZA8JBRJBrIn+WyM6/9NhI9vcm6PuUfEsJALusCEnNqpsOib
- uub1LUgfHBaLjAGyd5pIlk7HhnAVqdemStJrZFfF9znJzVJ+qaG6Fy450i0jy5GdKJIm
- 0+Og0vraCirQVSjOJQ5H5We7T/mLCftS0hsdUUwEgInQVW0DHSyggJStgnv6YMTIsQiu
- fsATpTaPaWlCoQygnb0z3hpYQiERRsq3Ano0ksfc2hBpvaiG7wcjcIluefWdzi4lSzKd
- 4MUA==
-X-Gm-Message-State: AOJu0YyEWC0Z5va+SAXJ3HUCOIr5l1EnoFGof5Vj6GADQuCWKNvEC7Jf
- nVDW8g2y4fNcS0+i8g0v7L6+o1gvYtL9T3fjy1Vzn1bqFY+6KNAp9neJ+UjWPQ3DDE9MjnEEKC9
- AorWWB/9YCSHCY+7y8S2HiMfypslOqF+bvJ7wDFFDAlplJKeUoemnuw8PkQ==
-X-Received: by 2002:a2e:90cd:0:b0:2bc:c052:25b4 with SMTP id
- o13-20020a2e90cd000000b002bcc05225b4mr1761824ljg.19.1692694494523; 
- Tue, 22 Aug 2023 01:54:54 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGsgvEvyPuN1nmaPQF0XF6UL0KXVvbjLrlQKHixu27C8/EN+LiH2p4Q7Ehyg4xJLpbfwhFF3ui+1btbYMHi5Z0=
-X-Received: by 2002:a2e:90cd:0:b0:2bc:c052:25b4 with SMTP id
- o13-20020a2e90cd000000b002bcc05225b4mr1761812ljg.19.1692694494200; Tue, 22
- Aug 2023 01:54:54 -0700 (PDT)
+ d=1e100.net; s=20221208; t=1692697021; x=1693301821;
+ h=in-reply-to:content-transfer-encoding:content-disposition
+ :mime-version:references:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=88XKvBbvsZX0D94XbZs3LYQhbIwXeyaOzyGjFpIV09M=;
+ b=epWEXCKNrUz+xbefUxNhiPJ36oh8vMcQiiYgWFOXbdl4UcmJOb0wsramNcUweJHHDm
+ 0MDaJblmq2SHQnfWHppUcK+xCJvV4SF2GcV2KYVdNiIVdu+pMxySP8E9Kk7xhPZ/2Tti
+ Gu9orynW4YH1tLDDpmaJUlZPbse0VJFKASDFL0S0jBzgJL4LG1Of5VKlqVHmv7NQSnWf
+ tiZ1lw37iJlbt7lpKfWb0qeo/n5dGpxJ4LVzyZjoNGrZX3H1uehBIX9Hd3x0noXvmSCm
+ 32Lz/dP7txmSdafF6rhTKiD1943lwNRtIKjnDcX1dPxXQ+DAI3z7/Bu41s1cupyO3Ajt
+ 6nzA==
+X-Gm-Message-State: AOJu0Yw80B+mcQpYUpR78+FRPImFcscK9OoWU9r+p4fi/xKaSDSFSlpX
+ q71qocGi7uoJ9MQjcgSWWJUmRxqPbuwPqQU6aQ+fF+CfFKa+It7QZI5lTu6Oglc8FnGPflAdoa/
+ gFY3oNWuN/UjchQeAXcWVNr7hJomZE6TWgzXrdRJ/vQ==
+X-Received: by 2002:a05:620a:2846:b0:76d:5d0a:bbae with SMTP id
+ h6-20020a05620a284600b0076d5d0abbaemr11761440qkp.56.1692697020936; 
+ Tue, 22 Aug 2023 02:37:00 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEqiiFiAb1dy2pjAQIW67i5TzCZYjsu3zaiNgThtV7tFgSZ11knhoDsrhWXkOFFbN2wgXSlMQ==
+X-Received: by 2002:a05:620a:2846:b0:76d:5d0a:bbae with SMTP id
+ h6-20020a05620a284600b0076d5d0abbaemr11761419qkp.56.1692697020641; 
+ Tue, 22 Aug 2023 02:37:00 -0700 (PDT)
+Received: from sgarzare-redhat ([193.207.203.174])
+ by smtp.gmail.com with ESMTPSA id
+ b8-20020a05620a126800b00767cd764ecfsm3103547qkl.33.2023.08.22.02.36.57
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 22 Aug 2023 02:37:00 -0700 (PDT)
+Date: Tue, 22 Aug 2023 11:36:54 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@sberdevices.ru>
+Subject: Re: [RFC PATCH v1 1/2] vsock: send SIGPIPE on write to shutdowned
+ socket
+Message-ID: <kernljom75y4nzle7s5cfid6pm6rvhf7t3zf4mrdes7oxjry23@pm7cdshzvemn>
+References: <20230801141727.481156-1-AVKrasnov@sberdevices.ru>
+ <20230801141727.481156-2-AVKrasnov@sberdevices.ru>
+ <qgn26mgfotc7qxzp6ad7ezkdex6aqniv32c5tvehxh4hljsnvs@x7wvyvptizxx>
+ <44fef482-579a-fed6-6e8c-d400546285fc@gmail.com>
+ <bzkwqp26joyzgvqyoypyv43wv7t3b6rzs3v5hkch45yggmrzp6@25byvzqwiztb>
+ <140bb8ec-f443-79f9-662b-0c4e972c8dd6@gmail.com>
+ <e2ytj5asmxnyb7oebxpzfuithtidwzcwxki7aao2q344sg3yru@ezqk5iezf3i4>
+ <5a01c815-ae19-8f3c-2367-ca9aa74aba5f@sberdevices.ru>
 MIME-Version: 1.0
-References: <CACGkMEseKv8MzaF8uxVTjkaAm2xvei578g=rNVzogfPQRQPOhQ@mail.gmail.com>
- <1692063807-5018-1-git-send-email-si-wei.liu@oracle.com>
- <1692063807-5018-5-git-send-email-si-wei.liu@oracle.com>
- <CACGkMEuCDN7U2ANYvRa1TuhH5iR5rb2cdHVixwE_C9zgP__9GQ@mail.gmail.com>
- <ea6ecd2b-5391-3820-d3fd-411b60a5a2ec@oracle.com>
- <CACGkMEvEpAsAA_kP=rgUfyeoq_Kj+rpZxEsxmPEZD5braxcT+Q@mail.gmail.com>
- <9f118fc9-4f6f-dd67-a291-be78152e47fd@oracle.com>
-In-Reply-To: <9f118fc9-4f6f-dd67-a291-be78152e47fd@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 22 Aug 2023 16:54:42 +0800
-Message-ID: <CACGkMEtNZnGw+O2PkZkCgOd+NiU3kw7asYsGH3EkuOHd=GvCnA@mail.gmail.com>
-Subject: Re: [PATCH RFC 4/4] vhost-vdpa: introduce IOTLB_PERSIST backend
- feature bit
-To: Si-Wei Liu <si-wei.liu@oracle.com>
+In-Reply-To: <5a01c815-ae19-8f3c-2367-ca9aa74aba5f@sberdevices.ru>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, gal@nvidia.com,
+Content-Disposition: inline
+Cc: Arseniy Krasnov <oxffffaa@gmail.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com
+ Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ kernel@sberdevices.ru, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ Bobby Eshleman <bobby.eshleman@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,107 +130,159 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBBdWcgMTcsIDIwMjMgYXQgNzo0NOKAr0FNIFNpLVdlaSBMaXUgPHNpLXdlaS5saXVA
-b3JhY2xlLmNvbT4gd3JvdGU6Cj4KPgo+Cj4gT24gOC8xNS8yMDIzIDY6NDggUE0sIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiBPbiBXZWQsIEF1ZyAxNiwgMjAyMyBhdCA2OjMx4oCvQU0gU2ktV2VpIExp
-dSA8c2ktd2VpLmxpdUBvcmFjbGUuY29tPiB3cm90ZToKPiA+Pgo+ID4+Cj4gPj4gT24gOC8xNC8y
-MDIzIDc6MjUgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gPj4+IE9uIFR1ZSwgQXVnIDE1LCAyMDIz
-IGF0IDk6NDXigK9BTSBTaS1XZWkgTGl1IDxzaS13ZWkubGl1QG9yYWNsZS5jb20+IHdyb3RlOgo+
-ID4+Pj4gU2lnbmVkLW9mZi1ieTogU2ktV2VpIExpdSA8c2ktd2VpLmxpdUBvcmFjbGUuY29tPgo+
-ID4+Pj4gLS0tCj4gPj4+PiAgICBkcml2ZXJzL3Zob3N0L3ZkcGEuYyAgICAgICAgICAgICB8IDE2
-ICsrKysrKysrKysrKysrKy0KPiA+Pj4+ICAgIGluY2x1ZGUvdWFwaS9saW51eC92aG9zdF90eXBl
-cy5oIHwgIDIgKysKPiA+Pj4+ICAgIDIgZmlsZXMgY2hhbmdlZCwgMTcgaW5zZXJ0aW9ucygrKSwg
-MSBkZWxldGlvbigtKQo+ID4+Pj4KPiA+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zk
-cGEuYyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gPj4+PiBpbmRleCA2MmIwYTAxLi43NTA5MmE3
-IDEwMDY0NAo+ID4+Pj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPiA+Pj4+ICsrKyBiL2Ry
-aXZlcnMvdmhvc3QvdmRwYS5jCj4gPj4+PiBAQCAtNDA2LDYgKzQwNiwxNCBAQCBzdGF0aWMgYm9v
-bCB2aG9zdF92ZHBhX2Nhbl9yZXN1bWUoY29uc3Qgc3RydWN0IHZob3N0X3ZkcGEgKnYpCj4gPj4+
-PiAgICAgICAgICAgcmV0dXJuIG9wcy0+cmVzdW1lOwo+ID4+Pj4gICAgfQo+ID4+Pj4KPiA+Pj4+
-ICtzdGF0aWMgYm9vbCB2aG9zdF92ZHBhX2hhc19wZXJzaXN0ZW50X21hcChjb25zdCBzdHJ1Y3Qg
-dmhvc3RfdmRwYSAqdikKPiA+Pj4+ICt7Cj4gPj4+PiArICAgICAgIHN0cnVjdCB2ZHBhX2Rldmlj
-ZSAqdmRwYSA9IHYtPnZkcGE7Cj4gPj4+PiArICAgICAgIGNvbnN0IHN0cnVjdCB2ZHBhX2NvbmZp
-Z19vcHMgKm9wcyA9IHZkcGEtPmNvbmZpZzsKPiA+Pj4+ICsKPiA+Pj4+ICsgICAgICAgcmV0dXJu
-ICghb3BzLT5zZXRfbWFwICYmICFvcHMtPmRtYV9tYXApIHx8IG9wcy0+cmVzZXRfbWFwOwo+ID4+
-PiBTbyB0aGlzIG1lYW5zIHRoZSBJT1RMQi9JT01NVSBtYXBwaW5ncyBoYXZlIGFscmVhZHkgYmVl
-biBkZWNvdXBsZWQKPiA+Pj4gZnJvbSB0aGUgdmRwYSByZXNldC4KPiA+PiBOb3QgaW4gdGhlIHNl
-bnNlIG9mIEFQSSwgaXQnIGJlZW4gY291cGxlZCBzaW5jZSBkYXkgb25lIGZyb20gdGhlCj4gPj4g
-aW1wbGVtZW50YXRpb25zIG9mIGV2ZXJ5IG9uLWNoaXAgSU9NTVUgcGFyZW50IGRyaXZlciwgbmFt
-ZWx5IG1seDVfdmRwYQo+ID4+IGFuZCB2ZHBhX3NpbS4gQmVjYXVzZSBvZiB0aGF0LCBsYXRlciBv
-biB0aGUgKGltcHJvcGVyKSBzdXBwb3J0IGZvcgo+ID4+IHZpcnRpby12ZHBhLCBmcm9tIGNvbW1p
-dCA2ZjUzMTJmODAxODMgKCJ2ZHBhL21seDU6IEFkZCBzdXBwb3J0IGZvcgo+ID4+IHJ1bm5pbmcg
-d2l0aCB2aXJ0aW9fdmRwYSIpIGFuZCA2YzNkMzI5ZTY0ODYgKCJ2ZHBhX3NpbTogZ2V0IHJpZCBv
-ZiBETUEKPiA+PiBvcHMiKSBtaXN1c2VkIHRoZSAucmVzZXQoKSBvcCB0byByZWFsaXplIDE6MSBt
-YXBwaW5nLCByZW5kZXJpbmcgc3Ryb25nCj4gPj4gY291cGxpbmcgYmV0d2VlbiBkZXZpY2UgcmVz
-ZXQgYW5kIHJlc2V0IG9mIGlvdGxiIG1hcHBpbmdzLiBUaGlzIHNlcmllcwo+ID4+IHRyeSB0byBy
-ZWN0aWZ5IHRoYXQgaW1wbGVtZW50YXRpb24gZGVmaWNpZW5jeSwgd2hpbGUga2VlcCB1c2Vyc3Bh
-Y2UKPiA+PiBjb250aW51aW5nIHRvIHdvcmsgd2l0aCBvbGRlciBrZXJuZWwgYmVoYXZpb3IuCj4g
-Pj4KPiA+Pj4gICAgU28gaXQgc2hvdWxkIGhhdmUgYmVlbiBub3RpY2VkIGJ5IHRoZSB1c2Vyc3Bh
-Y2UuCj4gPj4gWWVzLCB1c2Vyc3BhY2UgaGFkIG5vdGljZWQgdGhpcyBuby1jaGlwIElPTU1VIGRp
-c2NyZXBhbmN5IHNpbmNlIGRheSBvbmUKPiA+PiBJIHN1cHBvc2UuIFVuZm9ydHVuYXRlbHkgdGhl
-cmUncyBhbHJlYWR5IGNvZGUgaW4gdXNlcnNwYWNlIHdpdGggdGhpcwo+ID4+IGFzc3VtcHRpb24g
-aW4gbWluZCB0aGF0IHByb2FjdGl2ZWx5IHRlYXJzIGRvd24gYW5kIHNldHMgdXAgaW90bGIgbWFw
-cGluZwo+ID4+IGFyb3VuZCB2ZHBhIGRldmljZSByZXNldC4uLgo+ID4+PiBJIGd1ZXNzIHdlIGNh
-biBqdXN0IGZpeCB0aGUgc2ltdWxhdG9yIGFuZCBtbHg1IHRoZW4gd2UgYXJlIGZpbmU/Cj4gPj4g
-T25seSBJRiB3ZSBkb24ndCBjYXJlIGFib3V0IHJ1bm5pbmcgbmV3IFFFTVUgb24gb2xkZXIga2Vy
-bmVscyB3aXRoCj4gPj4gZmxhd2VkIG9uLWNoaXAgaW9tbXUgYmVoYXZpb3IgYXJvdW5kIHJlc2V0
-LiBCdXQgdGhhdCdzIGEgYmlnIElGLi4uCj4gPiBTbyB3aGF0IEkgbWVhbnQgaXM6Cj4gPgo+ID4g
-VXNlcnNwYWNlIGRvZXNuJ3Qga25vdyB3aGV0aGVyIHRoZSB2ZW5kb3Igc3BlY2lmaWMgbWFwcGlu
-Z3MgKHNldF9tYXApCj4gPiBhcmUgcmVxdWlyZWQgb3Igbm90LiBBbmQgaW4gdGhlIGltcGxlbWVu
-dGF0aW9uIG9mIHZob3N0X3ZkcGEsIGlmCj4gPiBwbGF0Zm9ybSBJT01NVSBpcyB1c2VkLCB0aGUg
-bWFwcGluZ3MgYXJlIGRlY291cGxlZCBmcm9tIHRoZSByZXNldC4gU28KPiA+IGlmIHRoZSBRZW11
-IHdvcmtzIHdpdGggcGFyZW50cyB3aXRoIHBsYXRmb3JtIElPTU1VIGl0IG1lYW5zIFFlbXUgY2Fu
-Cj4gPiB3b3JrIGlmIHdlIGp1c3QgZGVjb3VwbGUgdmVuZG9yIHNwZWNpZmljIG1hcHBpbmdzIGZy
-b20gdGhlIHBhcmVudHMKPiA+IHRoYXQgdXNlcyBzZXRfbWFwLgo+IEkgd2FzIGF3YXJlIG9mIHRo
-aXMsIGFuZCBpZiB5b3UgbWF5IG5vdGljZSBJIGRvbid0IGV2ZW4gb2ZmZXIgYSB3YXkKPiBiYWNr
-d2FyZCB0byByZXRhaW4vZW11bGF0ZSB0aGUgZmxhd2VkIHZob3N0LWlvdGxiIHJlc2V0IGJlaGF2
-aW9yIGZvcgo+IG9sZGVyIHVzZXJzcGFjZSAtIEkgY29uc2lkZXIgaXQgbW9yZSBvZiBhIGJ1ZyBp
-biAuc2V0X21hcCBkcml2ZXIKPiBpbXBsZW1lbnRhdGlvbiBvZiBpdHMgb3duIHJhdGhlciB0aGFu
-IHdoYXQgdGhlIHZob3N0LXZkcGEgaW90bGIKPiBhYnN0cmFjdGlvbiB3aXNoZXMgdG8gZXhwb3Nl
-IHRvIHVzZXJzcGFjZSBpbiB0aGUgZmlyc3QgcGxhY2UuCgpUaGF0J3MgbXkgdW5kZXJzdGFuZGlu
-ZyBhcyB3ZWxsLgoKPgo+IElmIHlvdSBldmVyIGxvb2sgaW50byBRRU1VJ3Mgdmhvc3RfdmRwYV9y
-ZXNldF9zdGF0dXMoKSBmdW5jdGlvbiwgeW91IG1heQo+IHNlZSBtZW1vcnlfbGlzdGVuZXJfdW5y
-ZWdpc3RlcigpIHdpbGwgYmUgY2FsbGVkIHRvIGV2aWN0IGFsbCBvZiB0aGUKPiBleGlzdGluZyBp
-b3RsYiBtYXBwaW5ncyByaWdodCBhZnRlciB2aG9zdF92ZHBhX3Jlc2V0X2RldmljZSgpIGFjcm9z
-cwo+IGRldmljZSByZXNldCwgYW5kIGxhdGVyIG9uIGF0IHZob3N0X3ZkcGFfZGV2X3N0YXJ0KCks
-Cj4gbWVtb3J5X2xpc3RlbmVyX3JlZ2lzdGVyKCkgd2lsbCBzZXQgdXAgYWxsIGlvdGxiIG1hcHBp
-bmdzIGFnYWluLiBJbiBhbgo+IGlkZWFsIHdvcmxkIHdpdGhvdXQgdGhpcyBvbi1jaGlwIGlvbW11
-IGRlZmljaWVuY3kgUUVNVSBzaG91bGQgbm90IGhhdmUKPiB0byBiZWhhdmUgdGhpcyB3YXkgLSB0
-aGlzIGlzIHdoYXQgSSBtZW50aW9uZWQgZWFybGllciB0aGF0IHVzZXJzcGFjZSBoYWQKPiBhbHJl
-YWR5IG5vdGljZWQgdGhlIGRpc2NyZXBhbmN5IGFuZCBpdCBoYXMgdG8gInByb2FjdGl2ZWx5IHRl
-YXIgZG93biBhbmQKPiBzZXQgdXAgaW90bGIgbWFwcGluZyBhcm91bmQgdmRwYSBkZXZpY2UgcmVz
-ZXQiLiBBcHBhcmVudGx5IGZyb20KPiBmdW5jdGlvbmFsaXR5IHBlcnNwZWN0aXZlIHRoaXMgdHJp
-Y2sgd29ya3MgY29tcGxldGVseSBmaW5lIHdpdGggcGxhdGZvcm0KPiBJT01NVSwgaG93ZXZlciwg
-aXQncyBzdWItb3B0aW1hbCBpbiB0aGUgcGVyZm9ybWFuY2UgcGVyc3BlY3RpdmUuCgpSaWdodC4K
-Cj4KPiBXZSBjYW4ndCBzaW1wbHkgZml4IFFFTVUgYnkgbW92aW5nIHRoaXMgbWVtb3J5X2xpc3Rl
-bmVyX3VucmVnaXN0ZXIoKQo+IGNhbGwgb3V0IG9mIHRoZSByZXNldCBwYXRoIHVuY29uZGl0aW9u
-YWxseSwgYXMgd2UgZG9uJ3Qgd2FudCB0byBicmVhawo+IHRoZSBhbHJlYWR5LWZ1bmN0aW9uaW5n
-IG9sZGVyIGtlcm5lbCBldmVuIHRob3VnaCBpdCdzIHN1Ym9wdGltYWwgaW4KPiBwZXJmb3JtYW5j
-ZS4KCkknbSBub3Qgc3VyZSBob3cgdGhpbmdzIGNhbiBiZSBicm9rZW4gaW4gdGhpcyBjYXNlPyBP
-ciB3aHkgaXQgaXMKc3BlY2lmaWMgdG8gcGFyZW50IHdpdGggc2V0X21hcC4KCj4gSW5zdGVhZCwg
-dG8ga2VlcCBuZXcgUUVNVSBjb250aW51aW5nIHRvIHdvcmsgb24gdG9wIG9mIHRoZQo+IGV4aXN0
-aW5nIG9yIG9sZGVyIGtlcm5lbHMsIFFFTVUgaGFzIHRvIGNoZWNrIHRoaXMgSU9UTEJfUEVSU0lT
-VCBmZWF0dXJlCj4gZmxhZyB0byBkZWNpZGUgd2hldGhlciBpdCBpcyBzYWZlIG5vdCB0byBib3Ro
-ZXIgZmx1c2hpbmcgYW5kIHNldHRpbmcgdXAKPiBpb3RsYiBhY3Jvc3MgcmVzZXQuIEZvciB0aGUg
-cGxhdGZvcm0gSU9NTVUgY2FzZSwgdmRwYSBwYXJlbnQgZHJpdmVyCj4gd29uJ3QgaW1wbGVtZW50
-IGVpdGhlciB0aGUgLnNldF9tYXAgb3IgLmRtYV9tYXAgb3AsIHNvIGl0IHNob3VsZCBiZQo+IGNv
-dmVyZWQgaW4gdGhlIHZob3N0X3ZkcGFfaGFzX3BlcnNpc3RlbnRfbWFwKCkgY2hlY2sgSSBzdXBw
-b3NlLgoKSnVzdCB0byBtYWtlIHN1cmUgd2UgYXJlIGF0IHRoZSBzYW1lIHBhZ2UuCgpGcm9tIHRo
-ZSB1c2Vyc3BhY2UgcG9pbnQgb2YgdmlldywgdGhlIElPVExCIHBlcnNpc3RzIGFuZCB2aG9zdC12
-RFBBCmRvZXNuJ3QgcmVzZXQgdGhlIElPVExCIGR1cmluZyB2RFBBIHJlc2V0LiBCdXQgd2UgaGF2
-ZSBhcmUgdHdvIGxldmVscwpvZiB0aGUgY291cGxpbmcgaW4gb3RoZXIgcGxhY2VzOgoKMSkgUWVt
-dSBsZXZlbDogbWVtb3J5IGxpc3RlbmVyIGlzIGNvdXBsZWQgd2l0aCBEUklWRVJfT0svcmVzZXQK
-MikgdkRQQSBwYXJlbnQgbGV2ZWw6IG1seDUgYnVpbGQvZGVzdHJveSBNUiBkdXJpbmcgRFJJVkVS
-X09LL3Jlc2V0CgpJZiBJIHVuZGVyc3RhbmQgeW91IGNvcnJlY3RseSwgc2luY2Ugd2UndmUgY291
-cGxlZCBpbiAxKSwgUWVtdSBjYW4ndApiZSBhd2FyZSBvZiB3aGV0aGVyIHRoZSBtYXBwaW5nIGlz
-IGNvdXBsZWQgd2l0aCByZXNldCBvciBub3Q/IElmIHdlCnNpbXBseSBkZWNvdXBsZSBpbiAxKSwg
-bWVtb3J5IG1hcHBpZ25zIG1pZ2h0IGJlIGxvc3QgZHVyaW5nIHZEUEEgcnNldC4KClRoYW5rcwoK
-Pgo+Cj4gVGhhbmtzLAo+IC1TaXdlaQo+ID4gVGhhbmtzCj4gPgo+ID4+IFJlZ2FyZHMsCj4gPj4g
-LVNpd2VpCj4gPj4+IFRoYW5rcwo+ID4+Pgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Aug 14, 2023 at 10:40:17PM +0300, Arseniy Krasnov wrote:
+>
+>
+>On 04.08.2023 18:02, Stefano Garzarella wrote:
+>> On Fri, Aug 04, 2023 at 05:34:20PM +0300, Arseniy Krasnov wrote:
+>>>
+>>>
+>>> On 04.08.2023 17:28, Stefano Garzarella wrote:
+>>>> On Fri, Aug 04, 2023 at 03:46:47PM +0300, Arseniy Krasnov wrote:
+>>>>> Hi Stefano,
+>>>>>
+>>>>> On 02.08.2023 10:46, Stefano Garzarella wrote:
+>>>>>> On Tue, Aug 01, 2023 at 05:17:26PM +0300, Arseniy Krasnov wrote:
+>>>>>>> POSIX requires to send SIGPIPE on write to SOCK_STREAM socket which=
+ was
+>>>>>>> shutdowned with SHUT_WR flag or its peer was shutdowned with SHUT_RD
+>>>>>>> flag. Also we must not send SIGPIPE if MSG_NOSIGNAL flag is set.
+>>>>>>>
+>>>>>>> Signed-off-by: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>>>>>>> ---
+>>>>>>> net/vmw_vsock/af_vsock.c | 3 +++
+>>>>>>> 1 file changed, 3 insertions(+)
+>>>>>>>
+>>>>>>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>>>>>> index 020cf17ab7e4..013b65241b65 100644
+>>>>>>> --- a/net/vmw_vsock/af_vsock.c
+>>>>>>> +++ b/net/vmw_vsock/af_vsock.c
+>>>>>>> @@ -1921,6 +1921,9 @@ static int vsock_connectible_sendmsg(struct s=
+ocket *sock, struct msghdr *msg,
+>>>>>>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err =3D total_written;
+>>>>>>> =A0=A0=A0=A0}
+>>>>>>> out:
+>>>>>>> +=A0=A0=A0 if (sk->sk_type =3D=3D SOCK_STREAM)
+>>>>>>> +=A0=A0=A0=A0=A0=A0=A0 err =3D sk_stream_error(sk, msg->msg_flags, =
+err);
+>>>>>>
+>>>>>> Do you know why we don't need this for SOCK_SEQPACKET and SOCK_DGRAM?
+>>>>>
+>>>>> Yes, here is my explanation:
+>>>>>
+>>>>> This function checks that input error is SIGPIPE, and if so it sends =
+SIGPIPE to the 'current' thread
+>>>>> (except case when MSG_NOSIGNAL flag is set). This behaviour is descri=
+bed in POSIX:
+>>>>>
+>>>>> Page 367 (description of defines from sys/socket.h):
+>>>>> MSG_NOSIGNAL: No SIGPIPE generated when an attempt to send is made on=
+ a stream-
+>>>>> oriented socket that is no longer connected.
+>>>>>
+>>>>> Page 497 (description of SOCK_STREAM):
+>>>>> A SIGPIPE signal is raised if a thread sends on a broken stream (one =
+that is
+>>>>> no longer connected).
+>>>>
+>>>> Okay, but I think we should do also for SEQPACKET:
+>>>>
+>>>> https://pubs.opengroup.org/onlinepubs/009696699/functions/xsh_chap02_1=
+0.html
+>>>>
+>>>> In 2.10.6 Socket Types:
+>>>>
+>>>> "The SOCK_SEQPACKET socket type is similar to the SOCK_STREAM type, and
+>>>> is also connection-oriented. The only difference between these types is
+>>>> that record boundaries ..."
+>>>>
+>>>> Then in=A0 2.10.14 Signals:
+>>>>
+>>>> "The SIGPIPE signal shall be sent to a thread that attempts to send da=
+ta
+>>>> on a socket that is no longer able to send. In addition, the send
+>>>> operation fails with the error [EPIPE]."
+>>>>
+>>>> It's honestly not super clear, but I assume the problem is similar with
+>>>> seqpacket since it's connection-oriented, or did I miss something?
+>>>>
+>>>> For example in sctp_sendmsg() IIUC we raise a SIGPIPE regardless of
+>>>> whether the socket is STREAM or SEQPACKET.
+>>>
+>>> Hm, yes, you're right. Seems check for socket type is not needed in thi=
+s case,
+>>> as this function is only for connection oriented sockets.
+>>
+>> Ack!
+>>
+>>>
+>>>>
+>>>>>
+>>>>> Page 1802 (description of 'send()' call):
+>>>>> MSG_NOSIGNAL
+>>>>>
+>>>>> Requests not to send the SIGPIPE signal if an attempt to
+>>>>> send is made on a stream-oriented socket that is no
+>>>>> longer connected. The [EPIPE] error shall still be
+>>>>> returned
+>>>>>
+>>>>> And the same for 'sendto()' and 'sendmsg()'
+>>>>>
+>>>>> Link to the POSIX document:
+>>>>> https://www.open-std.org/jtc1/sc22/open/n4217.pdf
+>>>>>
+>>>>> TCP (I think we must rely on it), KCM, SMC sockets (all of them are s=
+tream) work in the same
+>>>>> way by calling this function. AF_UNIX also works in the same way, but=
+ it implements SIGPIPE handling
+>>>>> without this function.
+>>>>
+>>>> I'm okay calling this function.
+>>>>
+>>>>>
+>>>>> The only thing that confused me a little bit, that sockets above retu=
+rns EPIPE when
+>>>>> we have only SEND_SHUTDOWN set, but for AF_VSOCK EPIPE is returned fo=
+r RCV_SHUTDOWN
+>>>>> also, but I think it is related to this patchset.
+>>>>
+>>>> Do you mean that it is NOT related to this patchset?
+>>>
+>>> Yes, **NOT**
+>>
+>> Got it, so if you have time when you're back, let's check also that
+>> (not for this series as you mentioned).
+>
+>^^^
+>Hello Stefano, so:
+>
+>there is some confusion with check for RCV_SHUTDOWN: it presents in AF_UNI=
+X, but missed
+>in TCP (it checks only for SEND_SHUTDOWN). I performed simple test which t=
+ries
+>to send data to peer which already called shutdown(SHUT_RD) - AF_UNIX and =
+TCP behave
+>differently. AF_UNIX sends SIGPIPE, while TCP allows to send data.
+>
+>I suggest to not touch this check for AF_VSOCK (e.g. continue work as AF_U=
+NIX),
+>because I don't see strong motivation/argument to remove it.
+
+Yep, I agree!
+
+However, I think it's a fairly borderline case, so unless we have a
+specific request, I wouldn't spend too much time on it.
+
+Thanks for looking at it!
+
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
