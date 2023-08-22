@@ -4,129 +4,155 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8D63FEE49B0
-	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 13:56:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5DE4EE49A3
+	for <virtualization@archiver.kernel.org>; Tue, 22 Aug 2023 14:26:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 039B281332;
-	Tue, 22 Aug 2023 13:56:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 039B281332
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4A9CA81FD1;
+	Tue, 22 Aug 2023 14:26:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A9CA81FD1
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.a=rsa-sha256 header.s=google header.b=OvQvaauB
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=k5dp+qj1
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u_Dwyl8ImuT4; Tue, 22 Aug 2023 13:56:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7232E8139C;
-	Tue, 22 Aug 2023 13:56:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7232E8139C
+	with ESMTP id 7VZWEeckFAiJ; Tue, 22 Aug 2023 14:26:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 972A781FC4;
+	Tue, 22 Aug 2023 14:25:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 972A781FC4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B76DC0071;
-	Tue, 22 Aug 2023 13:56:28 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A029C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 58C4BC0039;
+	Tue, 22 Aug 2023 14:25:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 34DF2C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:56:26 +0000 (UTC)
+ Tue, 22 Aug 2023 14:25:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 47FAA813A1
+ by smtp3.osuosl.org (Postfix) with ESMTP id DA930611BC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:56:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47FAA813A1
+ Tue, 22 Aug 2023 14:25:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DA930611BC
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=k5dp+qj1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9s155IjQVfH2
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WDv8xyYX7qzj
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:56:25 +0000 (UTC)
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com
- [IPv6:2a00:1450:4864:20::429])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C3A4D8139C
+ Tue, 22 Aug 2023 14:25:56 +0000 (UTC)
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com
+ (mail-co1nam11on2062e.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eab::62e])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 778B1611AA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 13:56:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C3A4D8139C
-Received: by mail-wr1-x429.google.com with SMTP id
- ffacd0b85a97d-3175e1bb38cso748732f8f.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Aug 2023 06:56:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ffwll.ch; s=google; t=1692712583; x=1693317383;
- h=in-reply-to:content-disposition:mime-version:references
- :mail-followup-to:message-id:subject:cc:to:from:date:from:to:cc
- :subject:date:message-id:reply-to;
- bh=LXzMnEM8moHL5KfliVx5cD1lb3aAd5NGNjk14fqFYLY=;
- b=OvQvaauBf9P71X6OM3iV6zJjVstVKwDXVeR2TcNPjDcJz2f399JP5BZxFUiXHkTWc/
- r5lP7XQ7vkvpSMptW40PFm8KnzYip/IftCKI/V7U1LWv+OZcsOEZqcqKXDKRf7oBDJOP
- RNOespNYAQNJ9FavrWx3YuWYiBeKAeIF+XsTA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1692712583; x=1693317383;
- h=in-reply-to:content-disposition:mime-version:references
- :mail-followup-to:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=LXzMnEM8moHL5KfliVx5cD1lb3aAd5NGNjk14fqFYLY=;
- b=M+UKHvrsiUqd8YIhXL07tWWv/NmP+Sa5DYKVWQ3yHD+XFE7GzmKMzbW3/iMP59L/ED
- IVSmiougzlVUOTHSrOg75fgokP8aeMt+j8/lEapRng6zf8Xp+5Hjo9xlvurmIca4BfuT
- YS6uI+OLYtw2g5Fi5bpLr5QjrnBWVeZPpKRM2bKjPYZOdQAIribGh1h3um0JVzJbwIFS
- SsAcV8sZd36FsH1k76F04IJlC5lAeNgpWdz/E7cc9uMOS/g2d5SJ5O63hiO6a+X8UEsV
- yJkG/c78XhH6QEhAB3BG/WIa53X1Cmp83Hbzsmhki79TIe6AlOs7n/P/q97nq+m04kV3
- /jIQ==
-X-Gm-Message-State: AOJu0YyA4UgxWptRBGyFX/m6BJZqqft5kKghLp7nR0iROO3e9yxe2Z2H
- bBfzi0HQSh0QwLj2Ua8opdhWcQ==
-X-Google-Smtp-Source: AGHT+IHJQrlSrCu8WgUX5s8XkdDm6/hR/jwfxds8mVBdQgFEL5tBYnuf/oIT+VMpj8Z6S8wRiH/+Kw==
-X-Received: by 2002:a5d:65c5:0:b0:319:8dcf:5c10 with SMTP id
- e5-20020a5d65c5000000b003198dcf5c10mr6979657wrw.6.1692712582669; 
- Tue, 22 Aug 2023 06:56:22 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id
- u5-20020a05600c210500b003fc02e8ea68sm19456835wml.13.2023.08.22.06.56.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 22 Aug 2023 06:56:22 -0700 (PDT)
-Date: Tue, 22 Aug 2023 15:56:19 +0200
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Qi Zheng <zhengqi.arch@bytedance.com>
-Subject: Re: [PATCH v4 43/48] drm/ttm: introduce pool_shrink_rwsem
-Message-ID: <ZOS+g51Yx9PsYkGU@phenom.ffwll.local>
-Mail-Followup-To: Qi Zheng <zhengqi.arch@bytedance.com>,
- akpm@linux-foundation.org, david@fromorbit.com, tkhai@ya.ru,
- vbabka@suse.cz, roman.gushchin@linux.dev, djwong@kernel.org,
- brauner@kernel.org, paulmck@kernel.org, tytso@mit.edu,
- steven.price@arm.com, cel@kernel.org, senozhatsky@chromium.org,
- yujie.liu@intel.com, gregkh@linuxfoundation.org,
- muchun.song@linux.dev, simon.horman@corigine.com,
- dlemoal@kernel.org, kvm@vger.kernel.org,
- dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- dm-devel@redhat.com, linux-mtd@lists.infradead.org, x86@kernel.org,
- cluster-devel@redhat.com, xen-devel@lists.xenproject.org,
- linux-ext4@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- rcu@vger.kernel.org, linux-bcache@vger.kernel.org,
- Muchun Song <songmuchun@bytedance.com>, linux-raid@vger.kernel.org,
- linux-nfs@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-erofs@lists.ozlabs.org,
- linux-btrfs@vger.kernel.org
-References: <20230807110936.21819-1-zhengqi.arch@bytedance.com>
- <20230807110936.21819-44-zhengqi.arch@bytedance.com>
+ Tue, 22 Aug 2023 14:25:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 778B1611AA
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dMGAZnszGvw0aouy/fj0X6nEmoxQ2jaz/4+HEr4oY6fn/LZGEjbk1gA1BuJQWTp+4kgxVBaRwh7vIW7U0vpV96gTmi518aHkMSBJgmv8B7dbaeDWYL8g+lCM2jlK74pul4fgNo2HUD4fUhVV+AVwsBCQAARfc4J9rI7vUnR9OxU35PeBuYDUp/QyiLR6QvxZ3k8135B/xjuThQqNaGeKdm+8idTnM5lq4rK3eQFPwZRnzKsCpr0HZYF0yLkcuzlfAqotiec9A5aywZog4X3dXGccTdFF07tWUVn7lgZYS4UPIYfB39kyhQ0Wl3g8rHZuVHr2M2FQb9KOu2678PZ92Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6bdOAv91KMCAvzXGwKzTJLC8kqoTKXjHHd197D6GaCk=;
+ b=NRn86HasjGy5Pcvw6c1Uku7yU9/2QgBvCGYJAWUgK47G2LHFNYD9bHUZarWOf6uUPRWBUYVBM2Q6XbGluBTw9vR6Ayt8HY473QD0+6XPNrYdHGyglukpua2XnGAJePSkNCkF9nSKV4XVdGlB8HeFug7UjbC0gRAKrPoOeSH7nWCHXj1XtzSixvDv70GYHw2PlWONyrvfSuEH7Ie4nVqcwd6I63o6HScXCtX5Yx6XKxCuBe0amDMhwfOi3KbeFBgX8eYBW7k7yQRAv5b1eQCmeBTBaaxtrW+SJdMQHc5lbQn+ZCjxzNi79H9cLlaY0lhtzjjreJIcF7B7k+BxzUqeXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6bdOAv91KMCAvzXGwKzTJLC8kqoTKXjHHd197D6GaCk=;
+ b=k5dp+qj1IwUtIRyCUAh/etnaoUwx7oEpzN/5NknHDXEd6kmJc2OLo4UEnaPJCSxsVPiKDpVRvMLVrs5Y7KfI0p+Gz/GY/jhKtvVNq4sXvdHqPV9wY3OrYP19BqNJWZrCi6ZSdqiLWk3/DGhafGViZa9RaxWvyPIUV3pdL8md1Ja1JWvA1aAOG8q8a9GtPtZibK3byUgL7lT+LivViFgmbqA7lKZW+unrk5IEqX7YJgQ74Du4i+j4LGv4FOglD/ukzQZK+4yQEwF+DNbFZYQqZr+GpV4+fzkLGrmhgEHhX/aZy0nA4Vu02icnIO7ixBzPwZwgq6UXWQ6U1+uN8Z5z0A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
+ by BY5PR12MB4081.namprd12.prod.outlook.com (2603:10b6:a03:20e::21)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.24; Tue, 22 Aug
+ 2023 14:25:52 +0000
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::87fb:3736:7ec4:b260]) by CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::87fb:3736:7ec4:b260%4]) with mapi id 15.20.6699.022; Tue, 22 Aug 2023
+ 14:25:52 +0000
+Message-ID: <6b022182-fc7d-9269-c1aa-39e2a807d39f@nvidia.com>
+Date: Tue, 22 Aug 2023 10:25:48 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH net-next v3] virtio_net: Introduce skb_vnet_common_hdr to
+ avoid typecasting
+To: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20230821142713.5062-1-feliu@nvidia.com>
+In-Reply-To: <20230821142713.5062-1-feliu@nvidia.com>
+X-ClientProxiedBy: DM6PR07CA0042.namprd07.prod.outlook.com
+ (2603:10b6:5:74::19) To CY5PR12MB6201.namprd12.prod.outlook.com
+ (2603:10b6:930:26::16)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230807110936.21819-44-zhengqi.arch@bytedance.com>
-X-Operating-System: Linux phenom 6.3.0-2-amd64 
-Cc: kvm@vger.kernel.org, djwong@kernel.org, roman.gushchin@linux.dev,
- david@fromorbit.com, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- dm-devel@redhat.com, linux-mtd@lists.infradead.org, cel@kernel.org,
- x86@kernel.org, steven.price@arm.com, cluster-devel@redhat.com,
- simon.horman@corigine.com, xen-devel@lists.xenproject.org,
- linux-ext4@vger.kernel.org, paulmck@kernel.org, linux-arm-msm@vger.kernel.org,
- linux-nfs@vger.kernel.org, rcu@vger.kernel.org, linux-bcache@vger.kernel.org,
- dlemoal@kernel.org, Muchun Song <songmuchun@bytedance.com>,
- yujie.liu@intel.com, vbabka@suse.cz, linux-raid@vger.kernel.org,
- brauner@kernel.org, tytso@mit.edu, gregkh@linuxfoundation.org,
- muchun.song@linux.dev, linux-kernel@vger.kernel.org,
- linux-f2fs-devel@lists.sourceforge.net, linux-xfs@vger.kernel.org,
- senozhatsky@chromium.org, netdev@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org,
- linux-erofs@lists.ozlabs.org, linux-btrfs@vger.kernel.org, tkhai@ya.ru
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|BY5PR12MB4081:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0cb21628-109b-4a7a-0096-08dba31bb013
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Tlpxd1YVwFH10rKhMtTwD1OPgE9dM7FGPkwdx0z3Po/aUPcMXAPSKDpDUKLsyh81DMclTDvnwmfYHg1kXIoXAFMIZw/QjGATeZQZ5qvkXCe04vOkTuNOtjjoQAKPSZRZW3whTJfGvjVoZNnXmW7fqmPS6omEDDwE9HGs7/jk/ttg27BJ+lM9OjXQ2h7vTRwqTNmghGyoFdfii14azfIDOffMWrZKWNwu6tJE3DEdUjbDr+YZLq6DxzIg397V/lE+0gGKamf/U2Fx99YSrssB7FpmSSzvNGZxsnLA1FyQBzKxpCJVRe7exFEyj97zt+7tl/b7fqzx8zsLuYAcA+mm+y6DxaRcRQr9VacjuPabWfqu/BaR3gscu/8xOhfS6NTULQUi8KXvsCUqDNp6GBLX8WFd/J1wAGJFpZ9YPNm/Fe/z/kCRqgZX9++oc6/Uk8n+kWDC9E2UMt0KH0as2IDnNMocHF0jKnl3jNIsSN8HWjHe4GjM3wrlpLWwW1An67nnX1hXywnA5uaisTLO5rvgvwkfO0QUHtFir/fLZ+HWE4zepQ7q3kKhkazmxY6XKfdq3BHr9FArK6d16k3uLn8v36doduaqRbljJ68ur8OmgOhT7lqnaW1iX57SREb7t5nOTpH5GHUoCrSbLtXjUXvALg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(396003)(136003)(376002)(39860400002)(346002)(366004)(1800799009)(186009)(451199024)(54906003)(66476007)(66556008)(6512007)(316002)(66946007)(66899024)(110136005)(8676002)(8936002)(2616005)(107886003)(4326008)(36756003)(41300700001)(478600001)(6666004)(38100700002)(6486002)(6506007)(83380400001)(2906002)(7416002)(31686004)(31696002)(86362001)(5660300002)(26005)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L3lUK0xSdldYUVFIZEZxbS9ENnl6NVo2K3ZtZUs3TGI1SWgzVWpUMGJTRzly?=
+ =?utf-8?B?eGRac0xFakFDY2VZZW5BOVFjbHNsdnUxZUczZU5PMmJuSEptdmJ2Y3NJMXor?=
+ =?utf-8?B?L3J0cTBaR0pIbW5hRTdhK0wrVUJncUhha0Q4dHpkY3BVM3lKVVpqbDJnZlBw?=
+ =?utf-8?B?a0NLOE1oMGdvdUg5STl4SVJxOXFHMG1pR3crVjFmUnp6TzUwZ0JraTVJVDkz?=
+ =?utf-8?B?UE9xbXBwMnovbUxRRHF0YitBelBKSy95dEVtZWNGeEtKdkY4Sk8xenlCN1FB?=
+ =?utf-8?B?bXRXdTY1amVPd2FLdENmL3FhNVRhYmgxd3ZIQUE5c1hVMWlpbTlWQjRxb3d3?=
+ =?utf-8?B?VEdWbTBqTWN4bEQ1azRuSG9BaDZPcGJXTkZlYnRpK0htVEhNWU5GUmNJYXZy?=
+ =?utf-8?B?YU5PRGhmcVZrbmhFajlBaDZaajdkY0pkSW0vRWtuRXUrYU5QNlQwVGd4a3dQ?=
+ =?utf-8?B?UUt6S1ZHOFA3SEJpYkM4YmRNMzZSRHVTc2FnV2ZhejJyWU4wY3hCa2ZrUFh4?=
+ =?utf-8?B?Z3ZWUTFOMWlDMDJldDF4TXBiYktyN2FmbGJoZnYvTk5ZTHptdFh4VmNpUVJl?=
+ =?utf-8?B?ZU5zOTRiWk5TMEc2RENyMGRIK1VVOFBDdHVPV3ZXbytzY24ybkVwVG13Y0xZ?=
+ =?utf-8?B?eWIyb1Njd0Foa1R0QkZTRlVCY0VFUlFnWlNsTUNkTmxGRndBKzFIYThkWWhN?=
+ =?utf-8?B?alp5NnBGQXZRVllmUjlrMzBwOVRCOTRDN0s2WFVuUTlReGZEdDFhQnNGYnhy?=
+ =?utf-8?B?azdQbTFiSWFPSkN3bEt1UTJSR1Y0SzVYM25lRkEyRCtyVTk0TTVRb3JudHl4?=
+ =?utf-8?B?T3RiaFBLeTFzNnFHT1RDWXRsdnQyYjdlZzlkZVovZ2lQcWZnQVRLV1dvRTJW?=
+ =?utf-8?B?UGtpOHF4V21GcXlrcW1qMzNHSjBpUWdZSXAzNm9nZFMzVHRZR1VLU3NMR2hS?=
+ =?utf-8?B?QkpRTWFSU0Y2ZXRZZm5BeWpTcGtWU0kzRW5UZVVyeTkzVUcwK1VHa2dBSjNU?=
+ =?utf-8?B?cHI0N3BncVhDdVRCNUVHYXh2Q3VObEdEZmpUa001dDNGdjJBd0w4ci9odUN4?=
+ =?utf-8?B?alVyVlpyMTJlUzN5cXNuMmZIcDFidngvaFlDVDJPZ1lLS3lZWXRkc2dzOE1O?=
+ =?utf-8?B?a3Jwa0JNSG5PdVVNUm45UUt4eWRRTUFXcE1HeTBjTGxMWmd5eDdYellEL3pG?=
+ =?utf-8?B?eUowNlMyMWh4RDJkNUtsTG5Ta1pjMFAzRzlpVk1SUUdhZ3Evd2UwKzlJL0NU?=
+ =?utf-8?B?S2VpcWZMaUo5blRTUURuYXJSRDJaNTRqd0llRlVnUlNaMDVZSzczOVRFVWNE?=
+ =?utf-8?B?TU1hKzI3M1REOEdSSW5iOWNFMHcvNWx0VldqSG92a1BobEczTER6ZVltTGhn?=
+ =?utf-8?B?U1NnYnFIYlJseEYzTEZCRmpINDJjd3lUU0lkalh2YUVDODBnbHh1cHFzVlVl?=
+ =?utf-8?B?UEVXYlhxRGhMbjEyc1M3UlkxMWlMVzlQMjlMeFpnVE5uSlcyVnVkZXp3S0hM?=
+ =?utf-8?B?QWxMOGl0cHNzQXoraEYwY2NtczdLVzl4ampUdzI3MjNXQXZVbkpFMXBYN09Z?=
+ =?utf-8?B?bmZiMXpHQUh2OWVXTXdLSlNudktSTjArc1NXWkNBRXVQODZxTzFzbXp6WXpr?=
+ =?utf-8?B?RTM3NlZXc2RLQnVUb1ErMzZxNDNtVGVQeVFYWWxPTGdRRkpUd1B6WUlucG4w?=
+ =?utf-8?B?Unpldjh5UEtEb25CVnFVeXpqczNkdkdmZ1ZPaytObjJqcUtyckozNTVUWDkr?=
+ =?utf-8?B?TlcxRmU2Ym5OcUc3OGtTWGxDUFdiRTIvbXpDZTNndDlBdjlRQWFXQjFvUDlv?=
+ =?utf-8?B?MW44bndqYUVKREs5UmRlV25PMmlDeEZUcjZhdWRFN2FxSnVadTkzRi9CL2x2?=
+ =?utf-8?B?V3IvRTcxODZ4V09zM1JsVENOeDY0RWYwMVhzRXp5cFRPWFZ6SVhmaUl3VE4w?=
+ =?utf-8?B?cXFGS3JHTi9iUFVYN09uTm90ODloN0tHSGlYSFJ2SWozdXZ2TnZUTUNheC9T?=
+ =?utf-8?B?L09ZWDVXc1VFbm1ybVQxekdXOVZuV040a2JjYUJUdHprRFB2Z1NDM1I2TDY3?=
+ =?utf-8?B?N0o2V1gzQm5uZTZwaGl6S0lsenVQSHlmRXozNElucXBMd1NNY1EvbEVXOFkw?=
+ =?utf-8?Q?0VAdCNtEmxXmb3aIf/g9Ibmnv?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0cb21628-109b-4a7a-0096-08dba31bb013
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Aug 2023 14:25:51.8759 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: CZlw+ubCJelEUJYaxGmj4+eW09OdGgbSHqmwL2SSavnkZzUsV7DdRWsRi2UHfkRQ69OIRxnjeGabyrVFAtg7gw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4081
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+ Jiri Pirko <jiri@nvidia.com>, Bodong Wang <bodong@nvidia.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -138,127 +164,165 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: Feng Liu <feliu@nvidia.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 07, 2023 at 07:09:31PM +0800, Qi Zheng wrote:
-> Currently, the synchronize_shrinkers() is only used by TTM pool. It only
-> requires that no shrinkers run in parallel.
-> 
-> After we use RCU+refcount method to implement the lockless slab shrink,
-> we can not use shrinker_rwsem or synchronize_rcu() to guarantee that all
-> shrinker invocations have seen an update before freeing memory.
-> 
-> So we introduce a new pool_shrink_rwsem to implement a private
-> synchronize_shrinkers(), so as to achieve the same purpose.
-> 
-> Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-> Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Hi Jason , MST
 
-On the 5 drm patches (I counted 2 ttm and 3 drivers) for merging through
-some other tree (since I'm assuming that's how this will land):
+Could you help to review this patch ?  Any more comments?
 
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Thanks
+Feng
 
+On 2023-08-21 a.m.10:27, Feng Liu wrote:
+> The virtio_net driver currently deals with different versions and types
+> of virtio net headers, such as virtio_net_hdr_mrg_rxbuf,
+> virtio_net_hdr_v1_hash, etc. Due to these variations, the code relies
+> on multiple type casts to convert memory between different structures,
+> potentially leading to bugs when there are changes in these structures.
+> 
+> Introduces the "struct skb_vnet_common_hdr" as a unifying header
+> structure using a union. With this approach, various virtio net header
+> structures can be converted by accessing different members of this
+> structure, thus eliminating the need for type casting and reducing the
+> risk of potential bugs.
+> 
+> For example following code:
+> static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+> 		struct receive_queue *rq,
+> 		struct page *page, unsigned int offset,
+> 		unsigned int len, unsigned int truesize,
+> 		unsigned int headroom)
+> {
+> [...]
+> 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+> [...]
+> 	hdr_len = vi->hdr_len;
+> [...]
+> ok:
+> 	hdr = skb_vnet_hdr(skb);
+> 	memcpy(hdr, hdr_p, hdr_len);
+> [...]
+> }
+> 
+> When VIRTIO_NET_F_HASH_REPORT feature is enabled, hdr_len = 20
+> But the sizeof(*hdr) is 12,
+> memcpy(hdr, hdr_p, hdr_len); will copy 20 bytes to the hdr,
+> which make a potential risk of bug. And this risk can be avoided by
+> introducing struct skb_vnet_common_hdr.
+> 
+> Change log
+> v1->v2
+> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+> feedback from Simon Horman <horms@kernel.org>
+> 1. change to use net-next tree.
+> 2. move skb_vnet_common_hdr inside kernel file instead of the UAPI header.
+> 
+> v2->v3
+> feedback from Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+> 1. fix typo in commit message.
+> 2. add original struct virtio_net_hdr into union
+> 3. remove virtio_net_hdr_mrg_rxbuf variable in receive_buf;
+> 
+> Signed-off-by: Feng Liu <feliu@nvidia.com>
+> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 > ---
->  drivers/gpu/drm/ttm/ttm_pool.c | 15 +++++++++++++++
->  include/linux/shrinker.h       |  2 --
->  mm/shrinker.c                  | 15 ---------------
->  3 files changed, 15 insertions(+), 17 deletions(-)
+>   drivers/net/virtio_net.c | 27 ++++++++++++++++++---------
+>   1 file changed, 18 insertions(+), 9 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
-> index c9c9618c0dce..38b4c280725c 100644
-> --- a/drivers/gpu/drm/ttm/ttm_pool.c
-> +++ b/drivers/gpu/drm/ttm/ttm_pool.c
-> @@ -74,6 +74,7 @@ static struct ttm_pool_type global_dma32_uncached[MAX_ORDER + 1];
->  static spinlock_t shrinker_lock;
->  static struct list_head shrinker_list;
->  static struct shrinker *mm_shrinker;
-> +static DECLARE_RWSEM(pool_shrink_rwsem);
->  
->  /* Allocate pages of size 1 << order with the given gfp_flags */
->  static struct page *ttm_pool_alloc_page(struct ttm_pool *pool, gfp_t gfp_flags,
-> @@ -317,6 +318,7 @@ static unsigned int ttm_pool_shrink(void)
->  	unsigned int num_pages;
->  	struct page *p;
->  
-> +	down_read(&pool_shrink_rwsem);
->  	spin_lock(&shrinker_lock);
->  	pt = list_first_entry(&shrinker_list, typeof(*pt), shrinker_list);
->  	list_move_tail(&pt->shrinker_list, &shrinker_list);
-> @@ -329,6 +331,7 @@ static unsigned int ttm_pool_shrink(void)
->  	} else {
->  		num_pages = 0;
->  	}
-> +	up_read(&pool_shrink_rwsem);
->  
->  	return num_pages;
->  }
-> @@ -572,6 +575,18 @@ void ttm_pool_init(struct ttm_pool *pool, struct device *dev,
->  }
->  EXPORT_SYMBOL(ttm_pool_init);
->  
-> +/**
-> + * synchronize_shrinkers - Wait for all running shrinkers to complete.
-> + *
-> + * This is useful to guarantee that all shrinker invocations have seen an
-> + * update, before freeing memory, similar to rcu.
-> + */
-> +static void synchronize_shrinkers(void)
-> +{
-> +	down_write(&pool_shrink_rwsem);
-> +	up_write(&pool_shrink_rwsem);
-> +}
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 8e9f4cfe941f..8c74bc8cfe68 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -303,6 +303,14 @@ struct padded_vnet_hdr {
+>   	char padding[12];
+>   };
+>   
+> +struct virtio_net_common_hdr {
+> +	union {
+> +		struct virtio_net_hdr hdr;
+> +		struct virtio_net_hdr_mrg_rxbuf	mrg_hdr;
+> +		struct virtio_net_hdr_v1_hash hash_v1_hdr;
+> +	};
+> +};
 > +
->  /**
->   * ttm_pool_fini - Cleanup a pool
->   *
-> diff --git a/include/linux/shrinker.h b/include/linux/shrinker.h
-> index c55c07c3f0cb..025c8070dd86 100644
-> --- a/include/linux/shrinker.h
-> +++ b/include/linux/shrinker.h
-> @@ -103,8 +103,6 @@ struct shrinker *shrinker_alloc(unsigned int flags, const char *fmt, ...);
->  void shrinker_register(struct shrinker *shrinker);
->  void shrinker_free(struct shrinker *shrinker);
->  
-> -extern void synchronize_shrinkers(void);
-> -
->  #ifdef CONFIG_SHRINKER_DEBUG
->  extern int __printf(2, 3) shrinker_debugfs_rename(struct shrinker *shrinker,
->  						  const char *fmt, ...);
-> diff --git a/mm/shrinker.c b/mm/shrinker.c
-> index 3ab301ff122d..a27779ed3798 100644
-> --- a/mm/shrinker.c
-> +++ b/mm/shrinker.c
-> @@ -650,18 +650,3 @@ void shrinker_free(struct shrinker *shrinker)
->  	kfree(shrinker);
->  }
->  EXPORT_SYMBOL_GPL(shrinker_free);
-> -
-> -/**
-> - * synchronize_shrinkers - Wait for all running shrinkers to complete.
-> - *
-> - * This is equivalent to calling unregister_shrink() and register_shrinker(),
-> - * but atomically and with less overhead. This is useful to guarantee that all
-> - * shrinker invocations have seen an update, before freeing memory, similar to
-> - * rcu.
-> - */
-> -void synchronize_shrinkers(void)
-> -{
-> -	down_write(&shrinker_rwsem);
-> -	up_write(&shrinker_rwsem);
-> -}
-> -EXPORT_SYMBOL(synchronize_shrinkers);
-> -- 
-> 2.30.2
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+>   static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
+>   static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+>   
+> @@ -344,9 +352,10 @@ static int rxq2vq(int rxq)
+>   	return rxq * 2;
+>   }
+>   
+> -static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
+> +static inline struct virtio_net_common_hdr *
+> +skb_vnet_common_hdr(struct sk_buff *skb)
+>   {
+> -	return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
+> +	return (struct virtio_net_common_hdr *)skb->cb;
+>   }
+>   
+>   /*
+> @@ -469,7 +478,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   				   unsigned int headroom)
+>   {
+>   	struct sk_buff *skb;
+> -	struct virtio_net_hdr_mrg_rxbuf *hdr;
+> +	struct virtio_net_common_hdr *hdr;
+>   	unsigned int copy, hdr_len, hdr_padded_len;
+>   	struct page *page_to_free = NULL;
+>   	int tailroom, shinfo_size;
+> @@ -554,7 +563,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   		give_pages(rq, page);
+>   
+>   ok:
+> -	hdr = skb_vnet_hdr(skb);
+> +	hdr = skb_vnet_common_hdr(skb);
+>   	memcpy(hdr, hdr_p, hdr_len);
+>   	if (page_to_free)
+>   		put_page(page_to_free);
+> @@ -966,7 +975,7 @@ static struct sk_buff *receive_small_build_skb(struct virtnet_info *vi,
+>   		return NULL;
+>   
+>   	buf += header_offset;
+> -	memcpy(skb_vnet_hdr(skb), buf, vi->hdr_len);
+> +	memcpy(skb_vnet_common_hdr(skb), buf, vi->hdr_len);
+>   
+>   	return skb;
+>   }
+> @@ -1577,7 +1586,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>   {
+>   	struct net_device *dev = vi->dev;
+>   	struct sk_buff *skb;
+> -	struct virtio_net_hdr_mrg_rxbuf *hdr;
+> +	struct virtio_net_common_hdr *hdr;
+>   
+>   	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+>   		pr_debug("%s: short packet %i\n", dev->name, len);
+> @@ -1597,9 +1606,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>   	if (unlikely(!skb))
+>   		return;
+>   
+> -	hdr = skb_vnet_hdr(skb);
+> +	hdr = skb_vnet_common_hdr(skb);
+>   	if (dev->features & NETIF_F_RXHASH && vi->has_rss_hash_report)
+> -		virtio_skb_set_hash((const struct virtio_net_hdr_v1_hash *)hdr, skb);
+> +		virtio_skb_set_hash(&hdr->hash_v1_hdr, skb);
+>   
+>   	if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
+>   		skb->ip_summed = CHECKSUM_UNNECESSARY;
+> @@ -2105,7 +2114,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+>   	if (can_push)
+>   		hdr = (struct virtio_net_hdr_mrg_rxbuf *)(skb->data - hdr_len);
+>   	else
+> -		hdr = skb_vnet_hdr(skb);
+> +		hdr = &skb_vnet_common_hdr(skb)->mrg_hdr;
+>   
+>   	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
+>   				    virtio_is_little_endian(vi->vdev), false,
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
