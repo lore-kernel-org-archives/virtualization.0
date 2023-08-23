@@ -1,88 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81FEBEE49B0
-	for <virtualization@archiver.kernel.org>; Wed, 23 Aug 2023 10:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C7E8EE4993
+	for <virtualization@archiver.kernel.org>; Wed, 23 Aug 2023 15:30:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E58B760FD6;
-	Wed, 23 Aug 2023 10:25:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E58B760FD6
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7818581750;
+	Wed, 23 Aug 2023 15:30:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7818581750
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=cXXHrMMK
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bcf83hggrKMc; Wed, 23 Aug 2023 15:30:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BD6CC81446;
+	Wed, 23 Aug 2023 15:30:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD6CC81446
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9748AC0039;
+	Wed, 23 Aug 2023 15:30:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1C3FC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Aug 2023 15:30:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7EB7E6122A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Aug 2023 15:30:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7EB7E6122A
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=E+vlYrSd
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=cXXHrMMK
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Qc1IJBDfYjXK; Wed, 23 Aug 2023 10:25:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 326D460ADF;
-	Wed, 23 Aug 2023 10:25:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 326D460ADF
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F209CC0071;
-	Wed, 23 Aug 2023 10:25:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8CE40C0032
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G5crMeFvEIVZ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Aug 2023 10:25:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5A688405A9
+ Wed, 23 Aug 2023 15:30:47 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A8BA160FDE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Aug 2023 10:25:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A688405A9
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
- header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg
- header.b=E+vlYrSd
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qc_jSMzj4LrI
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Aug 2023 10:25:46 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp2.osuosl.org (Postfix) with ESMTPS id F2A1E40533
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Aug 2023 10:25:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F2A1E40533
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits))
+ Wed, 23 Aug 2023 15:30:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A8BA160FDE
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1692804646;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=BiPg1CR7QhpEos1y8wjGxBQSx510OyL+G2I/cKhPLW8=;
+ b=cXXHrMMKFE0ANarCyO9h3/h9KnyUQmBLjdQEBc+gML0hoDSCtr3XEC+ifhNQPaoGkkwc1x
+ WSuGO0A3LUhEM8J8or2xgpAvGuN3V3emuMtkCFYuIMugVjRPn18CvRf0nYkSoHehRiZyal
+ 7EMZ8zqT74I2Rwat69YC3iyKFHDTrX0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-473-8NWu1HKwP7-2Q0-vJASG5Q-1; Wed, 23 Aug 2023 11:30:40 -0400
+X-MC-Unique: 8NWu1HKwP7-2Q0-vJASG5Q-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id DD91F61D7E;
- Wed, 23 Aug 2023 10:25:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8125AC433C7;
- Wed, 23 Aug 2023 10:25:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1692786344;
- bh=1SoNFlSDBESEpcUsmvCkcrZqM4mjft2HogS2NbeyGmE=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=E+vlYrSdAnPcxsYLLO0ChKFjh+9XZ9zyLgRhKIgkovbbZIZeZ7KMiIpxNmZSyQsib
- XUqttnDDlRKi8yHkzUyoVLIAFjZE9HQ5iBqaYvdUxO7HHNVceekz6YVg0Z/+PIoVXk
- 2qGQRJCr5xBydAuNg9TMlrZGkrvrkOt1txoiQ3ag=
-Date: Wed, 23 Aug 2023 12:25:41 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Babis Chalios <bchalios@amazon.es>
-Subject: Re: [RFC PATCH 1/2] random: emit reseed notifications for PRNGs
-Message-ID: <2023082317-bauble-appeasing-90c0@gregkh>
-References: <20230823090107.65749-1-bchalios@amazon.es>
- <20230823090107.65749-2-bchalios@amazon.es>
- <2023082322-semester-heave-e5bc@gregkh>
- <ff6aa77e-4e5c-488e-bd45-319fc09720c3@amazon.es>
- <2023082340-daybreak-lagged-f157@gregkh>
- <89ce1064-e4a3-461f-8a78-88e72e5b6419@amazon.es>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 25F0B85D083;
+ Wed, 23 Aug 2023 15:30:38 +0000 (UTC)
+Received: from laptop.redhat.com (unknown [10.39.193.143])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 15181C15BAE;
+ Wed, 23 Aug 2023 15:30:35 +0000 (UTC)
+From: Eric Auger <eric.auger@redhat.com>
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, elic@nvidia.com,
+ mail@anirudhrb.com, jasowang@redhat.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ kvmarm@lists.cs.columbia.edu, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
+Subject: [PATCH] vhost: Allow null msg.size on VHOST_IOTLB_INVALIDATE
+Date: Wed, 23 Aug 2023 17:30:32 +0200
+Message-ID: <20230823153032.239304-1-eric.auger@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <89ce1064-e4a3-461f-8a78-88e72e5b6419@amazon.es>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Jason A. Donenfeld" <Jason@zx2c4.com>, graf@amazon.de,
- Theodore Ts'o <tytso@mit.edu>, Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>, xmarcalx@amazon.co.uk,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-crypto@vger.kernel.org, Olivia Mackall <olivia@selenic.com>,
- aams@amazon.de, dwmw@amazon.co.uk
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,72 +97,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Aug 23, 2023 at 12:08:35PM +0200, Babis Chalios wrote:
-> 
-> 
-> On 23/8/23 12:06, Greg KH wrote:
-> > CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
-> > 
-> > 
-> > 
-> > On Wed, Aug 23, 2023 at 11:27:11AM +0200, Babis Chalios wrote:
-> > > Hi Greg,
-> > > 
-> > > On 23/8/23 11:08, Greg KH wrote:
-> > > > CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
-> > > > 
-> > > > 
-> > > > 
-> > > > On Wed, Aug 23, 2023 at 11:01:05AM +0200, Babis Chalios wrote:
-> > > > > Sometimes, PRNGs need to reseed. For example, on a regular timer
-> > > > > interval, to ensure nothing consumes a random value for longer than e.g.
-> > > > > 5 minutes, or when VMs get cloned, to ensure seeds don't leak in to
-> > > > > clones.
-> > > > > 
-> > > > > The notification happens through a 32bit epoch value that changes every
-> > > > > time cached entropy is no longer valid, hence PRNGs need to reseed. User
-> > > > > space applications can get hold of a pointer to this value through
-> > > > > /dev/(u)random. We introduce a new ioctl() that returns an anonymous
-> > > > > file descriptor. From this file descriptor we can mmap() a single page
-> > > > > which includes the epoch at offset 0.
-> > > > > 
-> > > > > random.c maintains the epoch value in a global shared page. It exposes
-> > > > > a registration API for kernel subsystems that are able to notify when
-> > > > > reseeding is needed. Notifiers register with random.c and receive a
-> > > > > unique 8bit ID and a pointer to the epoch. When they need to report a
-> > > > > reseeding event they write a new epoch value which includes the
-> > > > > notifier ID in the first 8 bits and an increasing counter value in the
-> > > > > remaining 24 bits:
-> > > > > 
-> > > > >                 RNG epoch
-> > > > > *-------------*---------------------*
-> > > > > | notifier id | epoch counter value |
-> > > > > *-------------*---------------------*
-> > > > >        8 bits           24 bits
-> > > > Why not just use 32/32 for a full 64bit value, or better yet, 2
-> > > > different variables?  Why is 32bits and packing things together here
-> > > > somehow simpler?
-> > > We made it 32 bits so that we can read/write it atomically in all 32bit
-> > > architectures.
-> > > Do you think that's not a problem?
-> > What 32bit platforms care about this type of interface at all?
-> 
-> I think, any 32bit platform that gets random bytes from the kernel.
+Commit e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb
+entries") Forbade vhost iotlb msg with null size to prevent entries
+with size = start = 0 and last = ULONG_MAX to end up in the iotlb.
 
-You are making a new api, for some new functionality, for what I thought
-was virtual machines (hence the virtio driver), none of which work in a
-32bit system.
+Then commit 95932ab2ea07 ("vhost: allow batching hint without size")
+only applied the check for VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE
+message types to fix a regression observed with batching hit.
 
-I thought this was an ioctl for userspace, which can handle 64bits at
-once (or 2 32bit numbers).
+Still, the introduction of that check introduced a regression for
+some users attempting to invalidate the whole ULONG_MAX range by
+setting the size to 0. This is the case with qemu/smmuv3/vhost
+integration which does not work anymore. It Looks safe to partially
+revert the original commit and allow VHOST_IOTLB_INVALIDATE messages
+with null size. vhost_iotlb_del_range() will compute a correct end
+iova. Same for vhost_vdpa_iotlb_unmap().
 
-For internal kernel stuff, a lock should be fine, or better yet, a 64bit
-atomic value read (horrible on 32bit platforms, I know...)
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Fixes: e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb entries")
+---
+ drivers/vhost/vhost.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Just asking, it feels odd to pack bits in these days for when 90% of the
-cpus really don't need it.
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c71d573f1c94..e0c181ad17e3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1458,9 +1458,7 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+ 		goto done;
+ 	}
+ 
+-	if ((msg.type == VHOST_IOTLB_UPDATE ||
+-	     msg.type == VHOST_IOTLB_INVALIDATE) &&
+-	     msg.size == 0) {
++	if (msg.type == VHOST_IOTLB_UPDATE && msg.size == 0) {
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+-- 
+2.41.0
 
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
