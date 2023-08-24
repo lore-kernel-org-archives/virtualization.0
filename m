@@ -1,115 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F306EC6FA8F
-	for <virtualization@archiver.kernel.org>; Thu, 24 Aug 2023 09:02:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E801BC3DA6F
+	for <virtualization@archiver.kernel.org>; Thu, 24 Aug 2023 09:37:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 69E0F6136A;
-	Thu, 24 Aug 2023 09:02:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 69E0F6136A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6BBC68233C;
+	Thu, 24 Aug 2023 09:37:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6BBC68233C
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=busTArwm
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SEOdQ8slqRjc; Thu, 24 Aug 2023 09:37:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E604382330;
+	Thu, 24 Aug 2023 09:37:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E604382330
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7743AC0071;
+	Thu, 24 Aug 2023 09:37:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82511C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 24 Aug 2023 09:37:33 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 569DA61393
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 24 Aug 2023 09:37:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 569DA61393
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=NeCkGtO5
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=busTArwm
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qrC2mOSY6KWV; Thu, 24 Aug 2023 09:02:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C2F926135E;
-	Thu, 24 Aug 2023 09:02:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C2F926135E
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8328AC0039;
-	Thu, 24 Aug 2023 09:02:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 55D25C0032
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OevyIFk5HHz6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Aug 2023 09:02:03 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 22F0541483
+ Thu, 24 Aug 2023 09:37:32 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6FD9161392
  for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Aug 2023 09:02:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 22F0541483
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=NeCkGtO5
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zE_rfc44iauW
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Aug 2023 09:02:02 +0000 (UTC)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 11C8541480
- for <virtualization@lists.linux-foundation.org>;
- Thu, 24 Aug 2023 09:02:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 11C8541480
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ Thu, 24 Aug 2023 09:37:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6FD9161392
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1692869851;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=uZHW7/YdobFQu4b8Ky8EljlQfqzf6RTBcoIhE6B2qYY=;
+ b=busTArwmquthbFPkzK9KWCjYfLQbSa9zDF0xNGqONH6w/X6Aa50SJnGXYuLXHzsbaXKSdd
+ EFFNYvkDVVZaRhNIO53o8PANHMs/vVP91UXWfGzbVsd+lrTjq8yNuD85+D/9bMGtGjIZfD
+ SKKqJd//YFnb7vQicQtrHOwKDyvqKDk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-158-gOjt71FkNzGmanITnBlIvw-1; Thu, 24 Aug 2023 05:37:28 -0400
+X-MC-Unique: gOjt71FkNzGmanITnBlIvw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 5ABA122C9B;
- Thu, 24 Aug 2023 09:01:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1692867717; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=egg0anXRwEikjuBX1Cu3G3bFWp0ncIQVfRy2OweTBCs=;
- b=NeCkGtO57wesDc0moN2yZJNuuPZDrqoNsnWfRwdpdLwQzYEpHKcD7Rkw/2pzFR7RIOYLTc
- FWOdx1JDmOBJ+Me7pCeMRzyaJWmEGzJRC2RgmjS476wziijZREMIKTWs+huWfnjD2puzyL
- 1tjGTzTHeA7QNvuNF/rl14H38Nn9puQ=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id DF3EE138FB;
- Thu, 24 Aug 2023 09:01:56 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id kMPzNIQc52QWUwAAMHmgww
- (envelope-from <jgross@suse.com>); Thu, 24 Aug 2023 09:01:56 +0000
-Message-ID: <a32e211f-4add-4fb2-9e5a-480ae9b9bbf2@suse.com>
-Date: Thu, 24 Aug 2023 11:01:56 +0200
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 859D8101A528;
+ Thu, 24 Aug 2023 09:37:27 +0000 (UTC)
+Received: from laptop.redhat.com (unknown [10.39.193.143])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 60C4B6B2B2;
+ Thu, 24 Aug 2023 09:37:25 +0000 (UTC)
+From: Eric Auger <eric.auger@redhat.com>
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, elic@nvidia.com,
+ mail@anirudhrb.com, jasowang@redhat.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, kvmarm@lists.linux.dev
+Subject: [PATCH v2] vhost: Allow null msg.size on VHOST_IOTLB_INVALIDATE
+Date: Thu, 24 Aug 2023 11:37:22 +0200
+Message-ID: <20230824093722.249291-1-eric.auger@redhat.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 0/3] x86/paravirt: Get rid of paravirt patching
-Content-Language: en-US
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-References: <20230608140333.4083-1-jgross@suse.com>
- <acda7276-234b-9036-c178-ca2b441f3998@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <acda7276-234b-9036-c178-ca2b441f3998@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Alexey Makhalov <amakhalov@vmware.com>, xen-devel@lists.xenproject.org,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Wanpeng Li <wanpengli@tencent.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+Cc: stable@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,179 +92,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============7109087876904720803=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7109087876904720803==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------xA8JPSq6dXP1gpZd6i7AROJ0"
+Commit e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb
+entries") Forbade vhost iotlb msg with null size to prevent entries
+with size = start = 0 and last = ULONG_MAX to end up in the iotlb.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------xA8JPSq6dXP1gpZd6i7AROJ0
-Content-Type: multipart/mixed; boundary="------------IlAJHtNd5EUXbqjj5ruYobon";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>,
- "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
- Alexey Makhalov <amakhalov@vmware.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>, xen-devel@lists.xenproject.org
-Message-ID: <a32e211f-4add-4fb2-9e5a-480ae9b9bbf2@suse.com>
-Subject: Re: [RFC PATCH 0/3] x86/paravirt: Get rid of paravirt patching
-References: <20230608140333.4083-1-jgross@suse.com>
- <acda7276-234b-9036-c178-ca2b441f3998@suse.com>
-In-Reply-To: <acda7276-234b-9036-c178-ca2b441f3998@suse.com>
+Then commit 95932ab2ea07 ("vhost: allow batching hint without size")
+only applied the check for VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE
+message types to fix a regression observed with batching hit.
 
---------------IlAJHtNd5EUXbqjj5ruYobon
-Content-Type: multipart/mixed; boundary="------------qW0bpoPA5AINx3Iryt6lqFLS"
+Still, the introduction of that check introduced a regression for
+some users attempting to invalidate the whole ULONG_MAX range by
+setting the size to 0. This is the case with qemu/smmuv3/vhost
+integration which does not work anymore. It Looks safe to partially
+revert the original commit and allow VHOST_IOTLB_INVALIDATE messages
+with null size. vhost_iotlb_del_range() will compute a correct end
+iova. Same for vhost_vdpa_iotlb_unmap().
 
---------------qW0bpoPA5AINx3Iryt6lqFLS
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Fixes: e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb entries")
+Cc: stable@vger.kernel.org # v5.17+
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-UElORyENCg0KT24gMTAuMDcuMjMgMTQ6MjksIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+IEFu
-eSBjb21tZW50cz8NCj4gDQo+IE9uIDA4LjA2LjIzIDE2OjAzLCBKdWVyZ2VuIEdyb3NzIHdy
-b3RlOg0KPj4gVGhpcyBpcyBhIHNtYWxsIHNlcmllcyBnZXR0aW5nIHJpZCBvZiBwYXJhdmly
-dCBwYXRjaGluZyBieSBzd2l0Y2hpbmcNCj4+IGNvbXBsZXRlbHkgdG8gYWx0ZXJuYXRpdmUg
-cGF0Y2hpbmcgZm9yIHRoZSBzYW1lIGZ1bmN0aW9uYWxpdHkuDQo+Pg0KPj4gVGhlIGJhc2lj
-IGlkZWEgaXMgdG8gYWRkIHRoZSBjYXBhYmlsaXR5IHRvIHN3aXRjaCBmcm9tIGluZGlyZWN0
-IHRvDQo+PiBkaXJlY3QgY2FsbHMgdmlhIGEgc3BlY2lhbCBhbHRlcm5hdGl2ZSBwYXRjaGlu
-ZyBvcHRpb24uDQo+Pg0KPj4gVGhpcyByZW1vdmVzIF9zb21lXyBvZiB0aGUgcGFyYXZpcnQg
-bWFjcm8gbWF6ZSwgYnV0IG1vc3Qgb2YgaXQgbmVlZHMNCj4+IHRvIHN0YXkgZHVlIHRvIHRo
-ZSBuZWVkIG9mIGhpZGluZyB0aGUgY2FsbCBpbnN0cnVjdGlvbnMgZnJvbSB0aGUNCj4+IGNv
-bXBpbGVyIGluIG9yZGVyIHRvIGF2b2lkIG5lZWRsZXNzIHJlZ2lzdGVyIHNhdmUvcmVzdG9y
-ZS4NCj4+DQo+PiBXaGF0IGlzIGdvaW5nIGF3YXkgaXMgdGhlIG5hc3R5IHN0YWNraW5nIG9m
-IGFsdGVybmF0aXZlIGFuZCBwYXJhdmlydA0KPj4gcGF0Y2hpbmcgYW5kIChvZiBjb3Vyc2Up
-IHRoZSBzcGVjaWFsIC5wYXJhaW5zdHJ1Y3Rpb25zIGxpbmtlciBzZWN0aW9uLg0KPj4NCj4+
-IEkgaGF2ZSB0ZXN0ZWQgdGhlIHNlcmllcyBvbiBiYXJlIG1ldGFsIGFuZCBhcyBYZW4gUFYg
-ZG9tYWluIHRvIHN0aWxsDQo+PiB3b3JrLg0KPj4NCj4+IFJGQyBiZWNhdXNlIEknbSBxdWl0
-ZSBzdXJlIHRoZXJlIHdpbGwgYmUgc29tZSBvYmp0b29sIHdvcmsgbmVlZGVkDQo+PiAoYXQg
-bGVhc3QgcmVtb3ZpbmcgdGhlIHNwZWNpZmljIHBhcmF2aXJ0IGhhbmRsaW5nKS4NCj4+DQo+
-PiBKdWVyZ2VuIEdyb3NzICgzKToNCj4+IMKgwqAgeDg2L3BhcmF2aXJ0OiBtb3ZlIHNvbWUg
-ZnVuY3Rpb25zIGFuZCBkZWZpbmVzIHRvIGFsdGVybmF0aXZlDQo+PiDCoMKgIHg4Ni9hbHRl
-cm5hdGl2ZTogYWRkIGluZGlyZWN0IGNhbGwgcGF0Y2hpbmcNCj4+IMKgwqAgeDg2L3BhcmF2
-aXJ0OiBzd2l0Y2ggbWl4ZWQgcGFyYXZpcnQvYWx0ZXJuYXRpdmUgY2FsbHMgdG8gYWx0ZXJu
-YXRpdmVfMg0KPj4NCj4+IMKgIGFyY2gveDg2L2luY2x1ZGUvYXNtL2FsdGVybmF0aXZlLmjC
-oMKgwqDCoMKgwqDCoCB8IDI2ICsrKysrLQ0KPj4gwqAgYXJjaC94ODYvaW5jbHVkZS9hc20v
-cGFyYXZpcnQuaMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMzkgKystLS0tLS0tDQo+PiDCoCBh
-cmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5owqDCoMKgwqAgfCA2OCArKyst
-LS0tLS0tLS0tLS0tDQo+PiDCoCBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9xc3BpbmxvY2tfcGFy
-YXZpcnQuaCB8wqAgNCArLQ0KPj4gwqAgYXJjaC94ODYvaW5jbHVkZS9hc20vdGV4dC1wYXRj
-aGluZy5owqDCoMKgwqDCoCB8IDEyIC0tLQ0KPj4gwqAgYXJjaC94ODYva2VybmVsL2FsdGVy
-bmF0aXZlLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfCA5OSArKysrKysrKysrKy0tLS0t
-LS0tLS0tLQ0KPj4gwqAgYXJjaC94ODYva2VybmVsL2NhbGx0aHVua3MuY8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIHwgMTcgKystLQ0KPj4gwqAgYXJjaC94ODYva2VybmVsL2t2bS5j
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgNCArLQ0KPj4g
-wqAgYXJjaC94ODYva2VybmVsL21vZHVsZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB8IDIwICsrLS0tDQo+PiDCoCBhcmNoL3g4Ni9rZXJuZWwvcGFyYXZpcnQuY8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDU0ICsrLS0tLS0tLS0tLS0NCj4+IMKg
-IGFyY2gveDg2L2tlcm5lbC92bWxpbnV4Lmxkcy5TwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHwgMTMgLS0tDQo+PiDCoCBhcmNoL3g4Ni90b29scy9yZWxvY3MuY8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMiArLQ0KPj4gwqAgYXJjaC94ODYveGVuL2ly
-cS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAg
-MiArLQ0KPj4gwqAgMTMgZmlsZXMgY2hhbmdlZCwgMTExIGluc2VydGlvbnMoKyksIDI0OSBk
-ZWxldGlvbnMoLSkNCj4+DQo+IA0KDQo=
---------------qW0bpoPA5AINx3Iryt6lqFLS
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+---
+v1 -> v2:
+- Added Cc stable and Jason's Acked-by
+---
+ drivers/vhost/vhost.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------qW0bpoPA5AINx3Iryt6lqFLS--
-
---------------IlAJHtNd5EUXbqjj5ruYobon--
-
---------------xA8JPSq6dXP1gpZd6i7AROJ0
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmTnHIQFAwAAAAAACgkQsN6d1ii/Ey8n
-vwf+LLwfy/ZCu3h4Yznh9ADz+Z6QLx25dcChZ3PW9TpFv0/It2mewnB2dbbA9FXkMcKppkbIkOyT
-qvFngSvS1JNDOb7hHe7HS7JWPiiaSzbRv2swl/k+KRj54o/7blTP9jAykQ0UtEoZTszQOwX6gMTX
-h1xnTUSFtC5eS4Ijy4fjxqg9id2taSSWbMxohEJdSQ/XwzwtlCT4uk6aThzh1pxc2h/5Wf7yGnJg
-yRydtilThbqiQ1HTGbgh40URW1ptUXj53gPc+lVOPV1obYQMWgqOrgpsL9dzBMSGvCNI0MNzdNCz
-CJZ+YKQ6QSE17kPFUmamvzuoN2/zHGYPz5WsUuHasg==
-=ELGp
------END PGP SIGNATURE-----
-
---------------xA8JPSq6dXP1gpZd6i7AROJ0--
-
---===============7109087876904720803==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c71d573f1c94..e0c181ad17e3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1458,9 +1458,7 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+ 		goto done;
+ 	}
+ 
+-	if ((msg.type == VHOST_IOTLB_UPDATE ||
+-	     msg.type == VHOST_IOTLB_INVALIDATE) &&
+-	     msg.size == 0) {
++	if (msg.type == VHOST_IOTLB_UPDATE && msg.size == 0) {
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+-- 
+2.41.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7109087876904720803==--
