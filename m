@@ -1,163 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10074C83F12
-	for <virtualization@archiver.kernel.org>; Mon, 28 Aug 2023 10:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D709FC71153
+	for <virtualization@archiver.kernel.org>; Mon, 28 Aug 2023 21:34:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8D57A4053F;
-	Mon, 28 Aug 2023 10:21:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8D57A4053F
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=ajQokBdh
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37DC4414C6;
+	Mon, 28 Aug 2023 21:34:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 37DC4414C6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=SoZZKsRz
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZHaW5iekLHs9; Mon, 28 Aug 2023 10:21:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0F5F3404D3;
-	Mon, 28 Aug 2023 10:21:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F5F3404D3
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xgCq8Vlvh4qK; Mon, 28 Aug 2023 21:34:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 195AD4090A;
+	Mon, 28 Aug 2023 21:34:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 195AD4090A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0927C0071;
-	Mon, 28 Aug 2023 10:21:36 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E696EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C8984C0071;
+	Mon, 28 Aug 2023 21:34:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 96AD2C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Aug 2023 10:21:35 +0000 (UTC)
+ Mon, 28 Aug 2023 21:34:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8865260EF1
+ by smtp4.osuosl.org (Postfix) with ESMTP id EF2BF4090A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Aug 2023 10:21:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8865260EF1
-Authentication-Results: smtp3.osuosl.org; dkim=pass (1024-bit key,
- unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256
- header.s=selector1 header.b=ajQokBdh
+ Mon, 28 Aug 2023 21:34:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org EF2BF4090A
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cUTIpRORf3DY
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hfHNrBk8G_ku
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Aug 2023 10:21:34 +0000 (UTC)
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on20608.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eab::608])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3497360E35
+ Mon, 28 Aug 2023 21:34:36 +0000 (UTC)
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on20628.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5b::628])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 34D42408D2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Aug 2023 10:21:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3497360E35
+ Mon, 28 Aug 2023 21:34:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 34D42408D2
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=X0A14wj41fLfZH9yI0CrmYO3IGk3iA77WxqoPLtvBB+dBYXO09GqkiQJOFmbGgNhdRoyyIXmDE2e9wPRHfGrFOzUayHUhuAZ9uuEUHcF5yYjQ+v5pcT1nm2XYt57J4m7ddP1Ex+5otyeoo/TxFq+fZOhD8+u/3GIlOm2ZNaDlhvWJv+P4sU9i22evXng56XuLAZNI61fAqj6zBo0DSh5ye+8/pvD2nvcTdTGK5HeA8CD/ZiDqKX3VAscstqT3xk5usZZKmjw1Vpkf9pIoFNW4cRWn3Bfhm1rhQklZgw1dXGSxqrbq/PNPTYlm0GiVFC3SbwUbnjGD70kZLF+91PrIQ==
+ b=in8nkY3QCCDU+hKcRn6VJaaPYDuuSessInYe0XeOm+sf6RsmF0ZHC+KX+1gwwMxeratYjFk4CnssOmG4+9nkEaZLL9rA36my0a1XplmOtBonNAia0n677TEWqWR8ffMJuSEXGXoI6ilYj6EQvMDV/jheEYs9dvVLwly8J4oi+DlmdXSbSqVrQt2Xg4fiJ8GvkEZVvpI7DFQYbph0jODWD8ErRoUkN3oxzAr7yIts+X4kfJgi7fCRSarxTYnstC78jm1Hn47PbtSK/HRD/iwwqAtmeH+6lrtnc5qS0y+IUy7a3iIv9S6N6VoBaXCV4s3Gi0Eye0rTNsCcvrI5MzQCzQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=OVGdi4Uf91g+pLirn0cEIGiDETD61OgVgS5+hO4lkhs=;
- b=Ci4xarekzn4o1fV3JLlMnMD1/9pWWRFf4wWPNyGXOlhMeY97KIUaBWwEpi41xmtIhVRbNM0/PBs/FHfKs7PkICO3qn1VYSNeS1oU8+IMkAPTUPqNajGH/CP4DSC0xBkdY1sDdSE4u4G65ueU6z2N34kQ9+frDRDebPJ6wkyXID5V/HhuCXZYnzGr/qGT89Pm//aqhOc+92ExN0v9ovBM0Co1gXoEF+kf20MfwilYnz/DkWsxFpXIrlLhoMATQghLma7D2bgjFeiRGbNHwgU4pYXO0hIZEiWKEhPcH/KSkksOc9/O/WO3i7tpKbSW5LFi4jXMJMb89NEFIjeLDCG1Jg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+ bh=bfm1d3+L503ARZOXg7Lh+wOM1Osxvv6PsxROcITxcU0=;
+ b=Oyrs5kCHFTStHBnBdo59C17joN5+br2A5uvCOx1Y18iCwm79QtxCiWxCwsl7hrlFHuSZNHZx8zli8uxIa+pTZj2635T1Ls1MhoOBThi37Ww3yVpmwjHG/jMS+t1kQsKAnghvmOvn1e2B1k7s0NLw7BtWbC5nfaXik3wCTh6guxT+7+Z26jzvMJIeU3s09+ZoCHNKC5x1f8T1TP9ufcaqD4AMV8qpQQkrGY8A1n7U8zff+6U7DkxKbTJTo8h+rqxZ6oG1pL+zOhSujYyS+ad71GyzxfusI92tMzotowR+UzcTmkeA0oRGvy71nCKB7rOGEYiAyYjV1kPfzucGhvcBEQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OVGdi4Uf91g+pLirn0cEIGiDETD61OgVgS5+hO4lkhs=;
- b=ajQokBdhqr1TyQHcDpT5hdZ6iOOkFNcPE8eNdY8/tKG9EXAkF+OaY6AkxkifaO2pgTTkuaxfpGM4I63mJXYmCnxd9rGy1bd8P80kCi9FKVE9QcLjlA2kLjt7HcqCjUPiFiiSQfCNLXhoitKaHFpp9hvWdKsPko934yrhloEdY+Y=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com (2603:10b6:408:43::13)
- by CY5PR12MB6552.namprd12.prod.outlook.com (2603:10b6:930:40::16)
+ bh=bfm1d3+L503ARZOXg7Lh+wOM1Osxvv6PsxROcITxcU0=;
+ b=SoZZKsRzcL+f1hKaKIzMpLDzaYCYvZmo0eHu67celWJ9B1deJBTdqz21nq28jABToZBvJuAf5JxgiM/0Uei8nag3Nm1JbWBUKUCJ7BNiHxlj26vFkcRGViydXIUx1KlsqTYddNIzPAA/hFeL1p8CQdxYBvgVNAC8yEN204x+Dhw=
+Received: from BYAPR11CA0078.namprd11.prod.outlook.com (2603:10b6:a03:f4::19)
+ by IA1PR12MB8537.namprd12.prod.outlook.com (2603:10b6:208:453::16)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.34; Mon, 28 Aug
- 2023 10:21:31 +0000
-Received: from BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::3d:c14:667a:1c81]) by BN8PR12MB3587.namprd12.prod.outlook.com
- ([fe80::3d:c14:667a:1c81%4]) with mapi id 15.20.6699.035; Mon, 28 Aug 2023
- 10:21:31 +0000
-Message-ID: <92449ad6-25b0-b28e-97b3-b947d5ff963c@amd.com>
-Date: Mon, 28 Aug 2023 12:21:23 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v15 11/23] dma-resv: Add kref_put_dma_resv()
-Content-Language: en-US
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
- Boris Brezillon <boris.brezillon@collabora.com>,
- Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
- Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Boqun Feng <boqun.feng@gmail.com>, Mark Rutland <mark.rutland@arm.com>
-References: <20230827175449.1766701-1-dmitry.osipenko@collabora.com>
- <20230827175449.1766701-12-dmitry.osipenko@collabora.com>
-In-Reply-To: <20230827175449.1766701-12-dmitry.osipenko@collabora.com>
-X-ClientProxiedBy: FR0P281CA0055.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:49::15) To BN8PR12MB3587.namprd12.prod.outlook.com
- (2603:10b6:408:43::13)
+ 2023 21:34:32 +0000
+Received: from MWH0EPF000989E7.namprd02.prod.outlook.com
+ (2603:10b6:a03:f4:cafe::a2) by BYAPR11CA0078.outlook.office365.com
+ (2603:10b6:a03:f4::19) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.35 via Frontend
+ Transport; Mon, 28 Aug 2023 21:34:32 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ MWH0EPF000989E7.mail.protection.outlook.com (10.167.241.134) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6745.17 via Frontend Transport; Mon, 28 Aug 2023 21:34:31 +0000
+Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Mon, 28 Aug
+ 2023 16:34:28 -0500
+To: <jasowang@redhat.com>, <mst@redhat.com>,
+ <virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
+ <brett.creeley@amd.com>, <netdev@vger.kernel.org>
+Subject: [PATCH net] virtio: kdoc for struct virtio_pci_modern_device
+Date: Mon, 28 Aug 2023 14:34:03 -0700
+Message-ID: <20230828213403.45490-1-shannon.nelson@amd.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
+X-Originating-IP: [10.180.168.240]
+X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
+ (10.181.40.145)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3587:EE_|CY5PR12MB6552:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0c22e8dc-8df3-4c10-f775-08dba7b08c1e
+X-MS-TrafficTypeDiagnostic: MWH0EPF000989E7:EE_|IA1PR12MB8537:EE_
+X-MS-Office365-Filtering-Correlation-Id: 085ec87b-6c25-4110-3323-08dba80e913a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: gaA60E6Vh/6elLhYn9mw/ZW+Sjf4uYrRykIAzTc5pKndqKHCk8z4Yuf9zhcAfbH3A0Xw6mKEBidm+Lj4X+DQgI47z2+41X2qzDao3rSXJZsWnmLAYM7hRwuC7Kk3EXuuvdcH91/tb4AFHKx0m2dXHMoXImlgHwmXOLkqAfX0P65N5PcCbMGeiiJ0kHjIXZLAZ5vsPM3y6h1ZcRLp/cDtX7/8DcVmP9xYNU63q764S7ziFVLLSKq7RUvcyTRkxhkrNPSL5D+jXDgscWIiWJtNa285QDMgW7Afai3oF2PJ6I1LY1CIcQaumzS6QNn8L89nLJcsBp2mFL6rNotgCD8JM605SOU271taISpRWN1ZtlGAuid3dwqOKjax4DXRPOGXDFapoMbPO3T5nuAd6CbqvhW0E5Cwl0846ZTGK4DLSal3y7Tp/fOWuS3IrUW3ROpe1S5sDw0ZQdU6RpxC4z+Ako4wkzFeRijU7rtqR5yvTt9NFxUalxXBiFTXAWUmbZ8Cn5TUbf6NQ73ik14bdc0jxk9X+jBHspix2L9C+VnUQbWtSSEIqFyMFP+EzICt7wqtpQ7PdwPyfO3Fm/4bSZy/pyyPKFVciTghedaJdFkWz5+YHmEw3zt2pHrx4O8nwYXHO3QOKfAnu7nsMq5SpLplezdwrQSrr9brm/qXhNfLXQs=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BN8PR12MB3587.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(396003)(366004)(39860400002)(376002)(346002)(136003)(451199024)(186009)(1800799009)(6512007)(6666004)(6506007)(6486002)(83380400001)(478600001)(2616005)(2906002)(7416002)(316002)(66476007)(41300700001)(66946007)(110136005)(66556008)(5660300002)(8676002)(4326008)(8936002)(36756003)(38100700002)(86362001)(31696002)(921005)(26005)(31686004)(43740500002)(45980500001);
+X-Microsoft-Antispam-Message-Info: n9gDyHJf3Kk0ugiXmSRrc5cljEr5PZAyDcPChfeMnXT2aHLL4lZbf8hdynpuVd0ZDuCCsZnsQFtbmrdZvXTLfQu5YRREXXtbRTBq055aQY9hp/Yi/dJuI88oS2GubqEFvS3bPDLfOaYqp65ey8nIKzKVZ2Dvo+GcUSgRUlWsb6yrzpzoJ52nSLJH39ECkwxyK60QFMTInJd5Xm6ZOlMWE6A3PjI1NSV0gIwJRaK/oVUGKtZhBxw4Wf85/fsoCEcKir5o54txViVwaDef0abX4fPzC7X3+oYLhN4U+T047lJt99/7zpJLHbF1FHHtgSH5Yb4E3H2r+pThXwHZJ4eTN91Rz9vqrPvjo0cLSB4NiqC36kBUuNUbLoav5KESY5J93jylfpFY6o2rZxaT6cJOmNY3zFYPuSc0QUSsQhZKK3Wkl4MAbILXvMMzoDAXpTXeCLdmiMIwpjENaOWPtHC9FygoptNDWDOlThhD0YF6uVOBVuTIi30LS45q59nqOcglb715XZp4g2wtMGz6FSyOBQHAKS4yL6kdez1WbBOz2PmfdYaS5jCoDrwuMw2cr9TQqYFjRggjnFNWBaJ3UJbGLKU+NdEYLmU+vIF2JQlojdhkpz5V6PEo+w4SElMxPSN+YWtYvRAQbHlKs4uM+rVjImeL24Z72n5mcX/RTvb2Z2LU1uZXK2xj4cLxGgrJu4i/HBArsyKGFbnB60gXSqNXn7rqPixb45crgEzzaS8QenG7kE9YlEVz9Q9xCzyvzlQGPOrDM/nPhJ8BWEdAvuIU2Q==
+X-Forefront-Antispam-Report: CIP:165.204.84.17; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:CAL; SFV:NSPM; H:SATLEXMB04.amd.com; PTR:InfoDomainNonexistent; CAT:NONE;
+ SFS:(13230031)(4636009)(136003)(396003)(346002)(376002)(39860400002)(1800799009)(82310400011)(186009)(451199024)(40470700004)(46966006)(36840700001)(83380400001)(478600001)(81166007)(356005)(966005)(82740400003)(16526019)(336012)(426003)(36860700001)(47076005)(26005)(1076003)(2616005)(40480700001)(6666004)(86362001)(2906002)(44832011)(316002)(8936002)(5660300002)(4326008)(70586007)(110136005)(8676002)(70206006)(54906003)(41300700001)(36756003)(40460700003)(36900700001);
  DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QlFpdStPZHZHMDl3M0tmaWpWL2lZSXFjUEVSYldLMkIzSU1CbUVyODNyazJu?=
- =?utf-8?B?bXk4SVpRa3JENjJBUlpDYngvSnhXZEZEaTRYampVRFZUYWpCTU1rNXhoSktp?=
- =?utf-8?B?SUQxR0VXWVhjeS95bkNMK2xOUXhxaXRqaWI3UkRuNGF3Y0hqODAxeXVPbGRZ?=
- =?utf-8?B?WEpFMUEreVZtcHpNM1hHL2JNdFdhbTI4YVVZbndjYjVWN2VETC94SDhwaDVw?=
- =?utf-8?B?RFBDL1ZCNlBzS3B1NWZyTC8wZUpzY0pjSnN1ekJnNE9tQWNCMFI4RFhkSnpQ?=
- =?utf-8?B?SHhOMXUzOGRyeEtjUWFlYVNMckdzT2xBdjZEOFJiMHhuR2xJcWNxemVPU1lD?=
- =?utf-8?B?djVyUkhQOXl5QVhHR01WdUY2ck1mL1dJOUhTVTdZdWgyM01QN2FuUjRaaStX?=
- =?utf-8?B?YlJxVTRWQmJueFNmV2VhRW9Ca3FaQ3I4cGdOakhQQmcvdXcwemY2VnJjQ2l6?=
- =?utf-8?B?YThCd0xBR2FTRUsvekZJTVVmWGhjTWprY1o4VE9sOGgrTWZLK1ZsZndvazY3?=
- =?utf-8?B?R3llWVY5R2RBYzJvSjVYZXpVTXNITU94ZWJLbnhkVStZVGo1OThxMk1HejBv?=
- =?utf-8?B?US8rdkxQbkh6RVdMQTZXUkdyTzN0RDBhaFdrcEhkZWU3NTdGcmlMTHg0Rzlx?=
- =?utf-8?B?c1Q4bVpadXB0Unl4VzNsK1BJbHo5S3B5TTg0enRLM2JZZjZSMlFIcW0ySFds?=
- =?utf-8?B?TUY0WEZLN0JKTjJzMXVlNFkzRU1qaGE0b0lVM1NWZkhDaVQyRVJZTUJGYWZq?=
- =?utf-8?B?R2VidzdvdTVVak5zVzBuWjNuS1l5THByZnBVUGtMOFliOTNWM2JURWEzNy9y?=
- =?utf-8?B?SDFoV2VGNGFCd0JUV1drd2JoMTZlTEEyR1BHbDhJV3lvK3F2Zy9wcmdOOThS?=
- =?utf-8?B?TDBsYVhjOVFMWGlHenltQWIyZVdlOVVDMVh2dGlhQXZGdGVJTTU5L2MvVHhB?=
- =?utf-8?B?bkQ0VlJWMnZ4cy91VVhPSkgrcWZwcjFXWUwxSEQvdUZjV0lEdDcwNStPWjFw?=
- =?utf-8?B?cGd3cUFKRnFYS0QrNUYxSmdnQ0JYNWZSMkU2c3loWWh1bnlpdXRkYks2T1lX?=
- =?utf-8?B?WjZaU1FmNm5CbzJoaFExL24vQUNUZkNNU210MzRVWjdaUmJKSG5vMnVRRXRo?=
- =?utf-8?B?QkZWWGpNMW02RmpJc2JmZDNlWFJOb1VoNm1wbFIzS3RpSDZRa1lXdGRvTW1i?=
- =?utf-8?B?MHF1MjlOYmNwTFN5a09VNUpaT1B2bElnbm9xYWJJeXZpQzJvb2JZVm1vaUNU?=
- =?utf-8?B?SnRnV2UvSm03TEJsb3dGbTlsVmd2ZVJWK0ZxdXAzdCtHbWE0aDVlRXlVbXZN?=
- =?utf-8?B?N0FicXMzdEE1cGw5LzR1RHdsd0pZaFNwYkdkU1ZiTlVSZVVEREFhcmNhZmtN?=
- =?utf-8?B?QmRQbzViL1YvcFhKcWIxb0EzTUxnanI0VFhCNU04aGlOYm82MHBPQ3F0RXRt?=
- =?utf-8?B?dnZpQWdKNG54VEtuSjE0dXBWcGxDdVJBT2VSRVNoVS84TmFuWXRidnkzM3k1?=
- =?utf-8?B?cnFCTVFBS2s2NHh3eXNJeVRQMUdwcmJTQnA4Q2tlNExpbHVjZWtYVWQ1dHRH?=
- =?utf-8?B?MWFnUFRIVXU2bFY2TXFVODYxQ1NuQlJnRXUxaFpjNDY1SVJwNHpTMWFQTFpX?=
- =?utf-8?B?YXdRR1Q3NWJMMUpIcjBiOXJYNi9rSlVkNDlRbUQ1RjNwZWt4TEZYaC9aYjZK?=
- =?utf-8?B?TTJFSEdxSHZobHhiSGZJL0FWcFpEUXllamNjcy9POGs3azFydk5qbWFsK0lI?=
- =?utf-8?B?K1FSdVVhU2F2eHpNNm5lVXJpSkN6R2dZeER0emMzV25jb3YzcFIrWWIxRjBU?=
- =?utf-8?B?TWV0NENrOG5qMlo5UlcxVDdTWk9lODZOdC9rdG1FQ0p4MjBaWVpoQmdnOFB0?=
- =?utf-8?B?eEFBUjZScTJnOEtvK1Jta3kvSjhiQ3lsRmZDNE90Vk9WYUxYd0lSbStERjZt?=
- =?utf-8?B?MkIrWGVObXY0aHROVFhrNXEzTFV1dk5uMTVLQ2dIZ0orZVA0dUJzb01KWnZT?=
- =?utf-8?B?bm5EVFduYlpaY2ZEc2FZTThwUXA5bmMvdVFVWXRHZDJYNlB4L3hreHZZWVZT?=
- =?utf-8?B?dEFxTmZpOWRsc3NOekdzc1BZS2hKbS9HZkVkNGRwWXBoZUV3RGROV25pQ0Jt?=
- =?utf-8?Q?Pt6znbPa7xCG4+dnaKb3SoCXz?=
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0c22e8dc-8df3-4c10-f775-08dba7b08c1e
-X-MS-Exchange-CrossTenant-AuthSource: BN8PR12MB3587.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Aug 2023 10:21:31.2551 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Aug 2023 21:34:31.6951 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 085ec87b-6c25-4110-3323-08dba80e913a
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8yN8Dhb578y9pPtgCvgAofCkn8W8hfxo0Bz/PaKOqoKLpF7khzB0j/12JLOcnABg
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6552
-Cc: intel-gfx@lists.freedesktop.org, kernel@collabora.com,
- linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d; Ip=[165.204.84.17];
+ Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource: MWH0EPF000989E7.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB8537
+Cc: simon.horman@corigine.com, drivers@pensando.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -169,65 +129,90 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= via Virtualization
+From: Shannon Nelson via Virtualization
  <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Reply-To: Shannon Nelson <shannon.nelson@amd.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Am 27.08.23 um 19:54 schrieb Dmitry Osipenko:
-> Add simple kref_put_dma_resv() helper that wraps around kref_put_ww_mutex()
-> for drivers that needs to lock dma-resv on kref_put().
->
-> It's not possible to easily add this helper to kref.h because of the
-> headers inclusion dependency, hence add it to dma-resv.h.
+Finally following up to Simon's suggestion for some kdoc attention
+on struct virtio_pci_modern_device.
 
-I was never really a big fan of kref_put_mutex() in the first place.
+Link: https://lore.kernel.org/netdev/ZE%2FQS0lnUvxFacjf@corigine.com/
+Cc: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
+---
+ include/linux/virtio_pci_modern.h | 34 ++++++++++++++++++++-----------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
 
-The main advantage comes from the included memory barrier, but this 
-actually doesn't work like most people think it works and is usually 
-pretty dangerous.
-
-And IIRC this was done because of the some special behavior mutexes have 
-with memory barriers and that isn't necessary with ww-mutex.
-
-Christian.
-
->
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> ---
->   include/linux/dma-resv.h | 9 +++++++++
->   1 file changed, 9 insertions(+)
->
-> diff --git a/include/linux/dma-resv.h b/include/linux/dma-resv.h
-> index 8d0e34dad446..c5cf302e4194 100644
-> --- a/include/linux/dma-resv.h
-> +++ b/include/linux/dma-resv.h
-> @@ -41,6 +41,7 @@
->   
->   #include <linux/ww_mutex.h>
->   #include <linux/dma-fence.h>
-> +#include <linux/kref.h>
->   #include <linux/slab.h>
->   #include <linux/seqlock.h>
->   #include <linux/rcupdate.h>
-> @@ -464,6 +465,14 @@ static inline void dma_resv_unlock(struct dma_resv *obj)
->   	ww_mutex_unlock(&obj->lock);
->   }
->   
-> +static inline int kref_put_dma_resv(struct kref *kref,
-> +				    void (*release)(struct kref *kref),
-> +				    struct dma_resv *resv,
-> +				    struct ww_acquire_ctx *ctx)
-> +{
-> +	return kref_put_ww_mutex(kref, release, &resv->lock, ctx);
-> +}
-> +
->   void dma_resv_init(struct dma_resv *obj);
->   void dma_resv_fini(struct dma_resv *obj);
->   int dma_resv_reserve_fences(struct dma_resv *obj, unsigned int num_fences);
+diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+index 067ac1d789bc..a38c729d1973 100644
+--- a/include/linux/virtio_pci_modern.h
++++ b/include/linux/virtio_pci_modern.h
+@@ -12,37 +12,47 @@ struct virtio_pci_modern_common_cfg {
+ 	__le16 queue_reset;		/* read-write */
+ };
+ 
++/**
++ * struct virtio_pci_modern_device - info for modern PCI virtio
++ * @pci_dev:	    Ptr to the PCI device struct
++ * @common:	    Position of the common capability in the PCI config
++ * @device:	    Device-specific data (non-legacy mode)
++ * @notify_base:    Base of vq notifications (non-legacy mode)
++ * @notify_pa:	    Physical base of vq notifications
++ * @isr:	    Where to read and clear interrupt
++ * @notify_len:	    So we can sanity-check accesses
++ * @device_len:	    So we can sanity-check accesses
++ * @notify_map_cap: Capability for when we need to map notifications per-vq
++ * @notify_offset_multiplier: Multiply queue_notify_off by this value
++ *                            (non-legacy mode).
++ * @modern_bars:    Bitmask of BARs
++ * @id:		    Device and vendor id
++ * @device_id_check: Callback defined before vp_modern_probe() to be used to
++ *		    verify the PCI device is a vendor's expected device rather
++ *		    than the standard virtio PCI device
++ *		    Returns the found device id or ERRNO
++ * @dma_mask:	    Optional mask instead of the traditional DMA_BIT_MASK(64),
++ *		    for vendor devices with DMA space address limitations
++ */
+ struct virtio_pci_modern_device {
+ 	struct pci_dev *pci_dev;
+ 
+ 	struct virtio_pci_common_cfg __iomem *common;
+-	/* Device-specific data (non-legacy mode)  */
+ 	void __iomem *device;
+-	/* Base of vq notifications (non-legacy mode). */
+ 	void __iomem *notify_base;
+-	/* Physical base of vq notifications */
+ 	resource_size_t notify_pa;
+-	/* Where to read and clear interrupt */
+ 	u8 __iomem *isr;
+ 
+-	/* So we can sanity-check accesses. */
+ 	size_t notify_len;
+ 	size_t device_len;
+ 
+-	/* Capability for when we need to map notifications per-vq. */
+ 	int notify_map_cap;
+ 
+-	/* Multiply queue_notify_off by this value. (non-legacy mode). */
+ 	u32 notify_offset_multiplier;
+-
+ 	int modern_bars;
+-
+ 	struct virtio_device_id id;
+ 
+-	/* optional check for vendor virtio device, returns dev_id or -ERRNO */
+ 	int (*device_id_check)(struct pci_dev *pdev);
+-
+-	/* optional mask for devices with limited DMA space */
+ 	u64 dma_mask;
+ };
+ 
+-- 
+2.17.1
 
 _______________________________________________
 Virtualization mailing list
