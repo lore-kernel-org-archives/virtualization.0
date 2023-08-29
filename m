@@ -1,86 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 50775C83F12
-	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 13:32:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB444C83F35
+	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 13:34:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6EDC64114E;
-	Tue, 29 Aug 2023 13:32:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6EDC64114E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=simEZLPu
+	by smtp4.osuosl.org (Postfix) with ESMTP id 563D440363;
+	Tue, 29 Aug 2023 13:34:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 563D440363
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=O4zJVlgW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ToyNB_1PESPq; Tue, 29 Aug 2023 13:32:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D48D641145;
-	Tue, 29 Aug 2023 13:32:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D48D641145
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W-O24VkUz4uy; Tue, 29 Aug 2023 13:34:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A603A402C4;
+	Tue, 29 Aug 2023 13:34:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A603A402C4
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 16673C0DD6;
-	Tue, 29 Aug 2023 13:32:33 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83293C0039
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 796F7C0039;
+	Tue, 29 Aug 2023 13:34:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20164C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 13:32:31 +0000 (UTC)
+ Tue, 29 Aug 2023 13:34:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 494FC81FE0
+ by smtp1.osuosl.org (Postfix) with ESMTP id E1CF98145B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 13:32:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 494FC81FE0
+ Tue, 29 Aug 2023 13:34:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E1CF98145B
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
- header.a=rsa-sha256 header.s=k20201202 header.b=simEZLPu
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=O4zJVlgW
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ojhA59eK3gCA
+ with ESMTP id Zo6GFKb3X0PK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 13:32:30 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org
- [IPv6:2604:1380:4641:c500::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8159D81FAC
+ Tue, 29 Aug 2023 13:34:16 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1F42A8142C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 13:32:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8159D81FAC
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits))
+ Tue, 29 Aug 2023 13:34:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F42A8142C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1693316054;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=meHgujCAcJWGepUP3mVRioCZxpb1/KV09es2CrqMcik=;
+ b=O4zJVlgW2tO9d7OW6qZaMVleBwj8NWENSs/VMYYX4zRUI8y3NCPGj8KWU06yoGeNxrs1oc
+ Z1FAuLI+IhnNV+ISLN5SnX3SbNIHzb7ghnXTZrcAQAQ/U7PCy7hIWXCFEhkFY4yWduDT2x
+ JHttZZgEdcAcekXgAgmv61NelHTkGPY=
+Received: from mimecast-mx02.redhat.com (66.187.233.73 [66.187.233.73]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-447-pDofYS_2OEqJMmIBLgET0Q-1; Tue, 29 Aug 2023 09:34:11 -0400
+X-MC-Unique: pDofYS_2OEqJMmIBLgET0Q-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.2])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id BE7FD6574A;
- Tue, 29 Aug 2023 13:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76FBFC433C8;
- Tue, 29 Aug 2023 13:32:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1693315949;
- bh=ms2FDB3jNM4pkoafxxmkuXKTvTc4QVtI/Rqaf/6iA4c=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=simEZLPuHoHZ4yF/ICZzdb4EzgcHdS/VroLHjdtVDsDR6RN3uIXNJNvs32ObFWzFA
- KEZI9lS9T4MgPgsYxBHU6kCCcGcjKH3D2t7uTi0okdrHiT1b3a81WrkyRKKObrmkbB
- 1iJNEB9Xhbyp7aAIqWhm63Yg2h+82LjQyhbN+T4cL1joj1P9hinn1i6qR2vAKGzwGA
- wIW2p7oL52bj8J444rHa61qgtHmRRrpxCIdZoYMmooBqCgnM/aCTnOwC3qv4Z5Gm8z
- j4CWwcXuM3u96Y18hPXKNEE//5e8e0rtyzzve2uDZclJ8XpYxIiRZUb+BnaI0bmhH0
- q9c0JBZsweSNQ==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.4 09/17] virtio-mem: check if the config changed
- before fake offlining memory
-Date: Tue, 29 Aug 2023 09:31:56 -0400
-Message-Id: <20230829133211.519957-9-sashal@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230829133211.519957-1-sashal@kernel.org>
-References: <20230829133211.519957-1-sashal@kernel.org>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0D63A2815E23;
+ Tue, 29 Aug 2023 13:34:11 +0000 (UTC)
+Received: from [10.39.208.19] (unknown [10.39.208.19])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 3A4F640C6F4C;
+ Tue, 29 Aug 2023 13:34:08 +0000 (UTC)
+Message-ID: <ad2b2f93-3598-cffc-0f0d-fe20b2444011@redhat.com>
+Date: Tue, 29 Aug 2023 15:34:06 +0200
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.4.12
-Cc: Sasha Levin <sashal@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v3 0/3] vduse: add support for networking devices
+Content-Language: en-US
+To: Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+References: <20230705100430.61927-1-maxime.coquelin@redhat.com>
+ <20230810150347-mutt-send-email-mst@kernel.org>
+ <20230810142949.074c9430@kernel.org>
+ <20230810174021-mutt-send-email-mst@kernel.org>
+ <20230810150054.7baf34b7@kernel.org>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+In-Reply-To: <20230810150054.7baf34b7@kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.2
+Cc: xuanzhuo@linux.alibaba.com, lulu@redhat.com, eperezma@redhat.com,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ david.marchand@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,84 +102,37 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit f55484fd7be923b740e8e1fc304070ba53675cb4 ]
 
-If we repeatedly fail to fake offline memory to unplug it, we won't be
-sending any unplug requests to the device. However, we only check if the
-config changed when sending such (un)plug requests.
+On 8/11/23 00:00, Jakub Kicinski wrote:
+> On Thu, 10 Aug 2023 17:42:11 -0400 Michael S. Tsirkin wrote:
+>>> Directly into the stack? I thought VDUSE is vDPA in user space,
+>>> meaning to get to the kernel the packet has to first go thru
+>>> a virtio-net instance.
+>>
+>> yes. is that a sufficient filter in your opinion?
+> 
+> Yes, the ability to create the device feels stronger than CAP_NET_RAW,
+> and a bit tangential to CAP_NET_ADMIN. But I don't have much practical
+> experience with virt so no strong opinion, perhaps it does make sense
+> for someone's deployment? Dunno..
+> 
 
-We could end up trying for a long time to unplug memory, even though
-the config changed already and we're not supposed to unplug memory
-anymore. For example, the hypervisor might detect a low-memory situation
-while unplugging memory and decide to replug some memory. Continuing
-trying to unplug memory in that case can be problematic.
+I'm not sure CAP_NET_ADMIN should be required for creating the VDUSE
+devices, as the device could be attached to vhost-vDPA and so not
+visible to the Kernel networking stack.
 
-So let's check on a more regular basis.
+However, CAP_NET_ADMIN should be required to attach the VDUSE device to 
+virtio-vdpa/virtio-net.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20230713145551.2824980-5-david@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/virtio/virtio_mem.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+Does that make sense?
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a5cf92e3e5af2..fa5226c198cc6 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -1189,7 +1189,8 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
-  * Try to allocate a range, marking pages fake-offline, effectively
-  * fake-offlining them.
-  */
--static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
-+static int virtio_mem_fake_offline(struct virtio_mem *vm, unsigned long pfn,
-+				   unsigned long nr_pages)
- {
- 	const bool is_movable = is_zone_movable_page(pfn_to_page(pfn));
- 	int rc, retry_count;
-@@ -1202,6 +1203,14 @@ static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
- 	 * some guarantees.
- 	 */
- 	for (retry_count = 0; retry_count < 5; retry_count++) {
-+		/*
-+		 * If the config changed, stop immediately and go back to the
-+		 * main loop: avoid trying to keep unplugging if the device
-+		 * might have decided to not remove any more memory.
-+		 */
-+		if (atomic_read(&vm->config_changed))
-+			return -EAGAIN;
-+
- 		rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
- 					GFP_KERNEL);
- 		if (rc == -ENOMEM)
-@@ -1951,7 +1960,7 @@ static int virtio_mem_sbm_unplug_sb_online(struct virtio_mem *vm,
- 	start_pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
- 			     sb_id * vm->sbm.sb_size);
- 
--	rc = virtio_mem_fake_offline(start_pfn, nr_pages);
-+	rc = virtio_mem_fake_offline(vm, start_pfn, nr_pages);
- 	if (rc)
- 		return rc;
- 
-@@ -2149,7 +2158,7 @@ static int virtio_mem_bbm_offline_remove_and_unplug_bb(struct virtio_mem *vm,
- 		if (!page)
- 			continue;
- 
--		rc = virtio_mem_fake_offline(pfn, PAGES_PER_SECTION);
-+		rc = virtio_mem_fake_offline(vm, pfn, PAGES_PER_SECTION);
- 		if (rc) {
- 			end_pfn = pfn;
- 			goto rollback;
--- 
-2.40.1
+Maxime
 
 _______________________________________________
 Virtualization mailing list
