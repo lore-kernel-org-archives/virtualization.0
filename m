@@ -4,86 +4,105 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6C1CC6FA8F
-	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 19:02:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BE35C6FA8F
+	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 22:21:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 14A728214D;
-	Tue, 29 Aug 2023 19:02:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 14A728214D
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8C1428204D;
+	Tue, 29 Aug 2023 22:21:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C1428204D
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ZFYpgEaz
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DloVnVwG
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K2upzESqx5y6; Tue, 29 Aug 2023 19:02:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 485BC82140;
-	Tue, 29 Aug 2023 19:02:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 485BC82140
+	with ESMTP id iZO8gORLTa0Z; Tue, 29 Aug 2023 22:21:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B242E8203E;
+	Tue, 29 Aug 2023 22:21:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B242E8203E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 19DDFC0071;
-	Tue, 29 Aug 2023 19:02:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C9B2AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7AE3DC0071;
+	Tue, 29 Aug 2023 22:21:47 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E9D90C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 19:02:46 +0000 (UTC)
+ Tue, 29 Aug 2023 22:21:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9C3E040503
+ by smtp1.osuosl.org (Postfix) with ESMTP id C407982040
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 19:02:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9C3E040503
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=ZFYpgEaz
+ Tue, 29 Aug 2023 22:21:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C407982040
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kbTq3GjdHNFq
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VSFANFF0bNio
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 19:02:45 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7FC98401A3
+ Tue, 29 Aug 2023 22:21:44 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6988D8203E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 19:02:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7FC98401A3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1693335765; x=1724871765;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=ZssVyiuPrzV8HRbNj+dFM/GZZcr2HnyGAqBT1eeT8yU=;
- b=ZFYpgEazbe2nPr1h2cz8cHR0nsTMdw+nxisfHJSCMRGQY0flCOlTi3eJ
- ufnO8iOQCfmIiT1peBbWUetb9dCO+4Hi5u3BVqpfLigP68Il84e1eOUwN
- uQggpZuD4Ffry/h44/Gxv8xZeUYCycqA5xYUPsun5ldrwnEMsYXauVrwH
- UxOLOw04y0/6RX6Ey3xKFdTLUJn2zE9det8eXWzLD7NHsHB8U27Wb+Sn3
- 4k+nKAr8NyDKb9+hYohlRclMLa+xhLuAPouW6aVi9g8WUxe7/+zOk7OSG
- qAHNF7xEmQe3cfq6hU9jcixWDotujw0fXGe6xhEve5+PmdHSbCIhzzk0B A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10817"; a="406452260"
-X-IronPort-AV: E=Sophos;i="6.02,211,1688454000"; d="scan'208";a="406452260"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
- by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 29 Aug 2023 12:02:43 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10817"; a="808809395"
-X-IronPort-AV: E=Sophos;i="6.02,211,1688454000"; d="scan'208";a="808809395"
-Received: from lkp-server02.sh.intel.com (HELO daf8bb0a381d) ([10.239.97.151])
- by fmsmga004.fm.intel.com with ESMTP; 29 Aug 2023 12:02:41 -0700
-Received: from kbuild by daf8bb0a381d with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1qb3z6-00090T-2L;
- Tue, 29 Aug 2023 19:02:40 +0000
-Date: Wed, 30 Aug 2023 03:02:24 +0800
-From: kernel test robot <lkp@intel.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Parav Pandit <parav@mellanox.com>
-Subject: Re: [PATCH] vdpa/mlx5: Fix firmware error on creation of 1k VQs
-Message-ID: <202308300241.q7t7Ouf3-lkp@intel.com>
-References: <20230829174219.928343-1-dtatulea@nvidia.com>
+ Tue, 29 Aug 2023 22:21:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6988D8203E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1693347703;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Lu7V0ePLcaShI0tBfiRxcbnlQz+HWlAtwpMfUn9Uxqo=;
+ b=DloVnVwGNZdoCjhXvA0LjWNwUs3FQEIKbD8MgN/JXaxgmFtNPxTt9FylNuj/SRWl46P6of
+ qAHykbNgttwUwrvxqwhY8L1UxMpjAIirxwtz5sCuVQtkK+uKWLvpbR1/p6cNvfSqk0Bzq4
+ cpaWn/Y28zkPlKp4C4Afsi36J6dat4Y=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-597-MtjoBFy-NXi0P1_gsb9wzQ-1; Tue, 29 Aug 2023 18:21:41 -0400
+X-MC-Unique: MtjoBFy-NXi0P1_gsb9wzQ-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ 2adb3069b0e04-500c67585acso957186e87.2
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 29 Aug 2023 15:21:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1693347700; x=1693952500;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=Lu7V0ePLcaShI0tBfiRxcbnlQz+HWlAtwpMfUn9Uxqo=;
+ b=Qf/PPdcjajzuGIkJbInCSJgR5MvYnFMnwz1wyJjD45hQ+VDL61IcxzPktLy4zK9aX9
+ A7d11ZKW4rSjY2GxTLkgO3UInU2VIUPt0lj7eOYXJegq8qy+yQcWm2ulHvWKE7j6dZKT
+ CLrpDtUZUS0DoCKcY9oyLcy5kkYKynksMOIUKVCafyGot/PzD9mMoAkbPvOu4iznTTuA
+ iZ3lPRKFbqM7ttGQYn1eLOcKfITzWoFio0UaMRzS5vomIQQZupWQNEb9Gbtw2LUAaqhp
+ GUifZ44+VERgWcjK3QZyByTCoJ1sqqp2tnhWD9sZ2iLnTOr6SQWqAKDnts5Ou4RpsS5H
+ 5X+Q==
+X-Gm-Message-State: AOJu0YwcW2PDVByS4MpIy39gLQwhv6iC/heljSdf1Exo6yICNT2nxFPy
+ Ztxg9y7HVNxw3aLqVv7/ExOD8xTuuA8erTJo03RtzHigsZNRPGRf6ZyBYCg0CuhwegMP2CbBZ2Y
+ Ma05JEB/6v/9hq3EVWqPUhJUT7sZZxhCQ5xRV4FAAsQ==
+X-Received: by 2002:a05:6512:3113:b0:4f6:3677:54e with SMTP id
+ n19-20020a056512311300b004f63677054emr155122lfb.36.1693347700261; 
+ Tue, 29 Aug 2023 15:21:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE/X8qmx8ebiElNKKVk8tCX2u7VhtGOVy45JqOvHAtGV9oCr27xjdgHLEYci2c30JOJOzIuJg==
+X-Received: by 2002:a05:6512:3113:b0:4f6:3677:54e with SMTP id
+ n19-20020a056512311300b004f63677054emr155097lfb.36.1693347699770; 
+ Tue, 29 Aug 2023 15:21:39 -0700 (PDT)
+Received: from redhat.com ([2.55.167.22]) by smtp.gmail.com with ESMTPSA id
+ f2-20020a056402150200b005233609e39dsm6131494edw.30.2023.08.29.15.21.37
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 29 Aug 2023 15:21:39 -0700 (PDT)
+Date: Tue, 29 Aug 2023 18:21:35 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Bobby Eshleman <bobby.eshleman@bytedance.com>
+Subject: Re: [PATCH] virtio-vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
+Message-ID: <20230829181549-mutt-send-email-mst@kernel.org>
+References: <20230829212945.3420727-1-bobby.eshleman@bytedance.com>
 MIME-Version: 1.0
+In-Reply-To: <20230829212945.3420727-1-bobby.eshleman@bytedance.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20230829174219.928343-1-dtatulea@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Saeed Mahameed <saeedm@nvidia.com>, oe-kbuild-all@lists.linux.dev
+Cc: virtio-dev@lists.oasis-open.org, cong.wang@bytedance.com,
+ jiang.wang@bytedance.com, bobbyeshleman@gmail.com, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, stefanha@redhat.com,
+ virtio-comment@lists.oasis-open.org, arseny.krasnov@kaspersky.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,76 +119,184 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Dragos,
+On Tue, Aug 29, 2023 at 09:29:45PM +0000, Bobby Eshleman wrote:
+> This adds support for datagrams to the virtio-vsock device.
+> 
+> virtio-vsock already supports stream and seqpacket types. The existing
+> message types and header fields are extended to support datagrams.
+> Semantic differences between the flow types are stated, as well as any
+> additional requirements for devices and drivers implementing this
+> feature.
+> 
+> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+> ---
+>  device-types/vsock/description.tex | 95 +++++++++++++++++++++++++++---
+>  1 file changed, 88 insertions(+), 7 deletions(-)
+> 
+> diff --git a/device-types/vsock/description.tex b/device-types/vsock/description.tex
+> index 7d91d159872f..638dca8e5da1 100644
+> --- a/device-types/vsock/description.tex
+> +++ b/device-types/vsock/description.tex
+> @@ -20,6 +20,7 @@ \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
+>  \item[VIRTIO_VSOCK_F_STREAM (0)] stream socket type is supported.
+>  \item[VIRTIO_VSOCK_F_SEQPACKET (1)] seqpacket socket type is supported.
+>  \item[VIRTIO_VSOCK_F_NO_IMPLIED_STREAM (2)] stream socket type is not implied.
+> +\item[VIRTIO_VSOCK_F_DGRAM (3)] datagram socket type is supported.
+>  \end{description}
+>  
+>  \drivernormative{\subsubsection}{Feature bits}{Device Types / Socket Device / Feature bits}
+> @@ -167,17 +168,22 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
+>  consists of a (cid, port number) tuple. The header fields used for this are
+>  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
+>  
+> -Currently stream and seqpacket sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
+> -for stream socket types, and 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for seqpacket socket types.
+> +
+> +Currently stream, seqpacket, and datagram sockets are supported. \field{type} is
+> +1 (VIRTIO_VSOCK_TYPE_STREAM) for stream socket types, 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for
+> +seqpacket socket types, and 3 (VIRTIO_VSOCK_TYPE_DGRAM) for datagram socket types.
+>  
+>  \begin{lstlisting}
+>  #define VIRTIO_VSOCK_TYPE_STREAM    1
+>  #define VIRTIO_VSOCK_TYPE_SEQPACKET 2
+> +#define VIRTIO_VSOCK_TYPE_DGRAM     3
+>  \end{lstlisting}
+>  
+>  Stream sockets provide in-order, guaranteed, connection-oriented delivery
+>  without message boundaries. Seqpacket sockets provide in-order, guaranteed,
+> -connection-oriented delivery with message and record boundaries.
+> +connection-oriented delivery with message and record boundaries. Datagram
+> +sockets provide connection-less, best-effort delivery of messages, with no
+> +order or reliability guarantees.
+>  
+>  \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
+>  \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
+> @@ -203,16 +209,19 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+>  previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
+>  communicating updates any time a change in buffer space occurs.
+>  
+> +\field{buf_alloc} and \field{fwd_cnt} are reserved for future use by datagram
+> +sockets. These fields are not used for datagram buffer space management.
 
-kernel test robot noticed the following build warnings:
+no limits on datagram size?
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v6.5 next-20230829]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+also with no flow control at all there's a performance problem:
+imagine queue gets full. now buffers begin to be dropped.
+problem is, dropping is faster than delivering to application.
+so now application sees its packets consumed super quickly
+and starts sending even faster.
+not good for performance.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Dragos-Tatulea/vdpa-mlx5-Fix-firmware-error-on-creation-of-1k-VQs/20230830-014600
-base:   linus/master
-patch link:    https://lore.kernel.org/r/20230829174219.928343-1-dtatulea%40nvidia.com
-patch subject: [PATCH] vdpa/mlx5: Fix firmware error on creation of 1k VQs
-config: sparc-allyesconfig (https://download.01.org/0day-ci/archive/20230830/202308300241.q7t7Ouf3-lkp@intel.com/config)
-compiler: sparc64-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230830/202308300241.q7t7Ouf3-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202308300241.q7t7Ouf3-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   drivers/vdpa/mlx5/net/mlx5_vnet.c: In function 'read_umem_params':
->> drivers/vdpa/mlx5/net/mlx5_vnet.c:658:1: warning: the frame size of 4128 bytes is larger than 2048 bytes [-Wframe-larger-than=]
-     658 | }
-         | ^
+yes datagram expects some way to drop packets but just disabling flow
+control completely is not the right thing to do I think.
 
 
-vim +658 drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +
+>  \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> -sufficient free buffer space for the payload.
+> +For stream and seqpacket flows, VIRTIO_VSOCK_OP_RW data packets MUST only be
+> +transmitted when the peer has sufficient free buffer space for the payload.
+>  
+>  All packets associated with a stream flow MUST contain valid information in
+>  \field{buf_alloc} and \field{fwd_cnt} fields.
+>  
+>  \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> -sufficient free buffer space for the payload.
+> +For stream and seqpacket flows, VIRTIO_VSOCK_OP_RW data packets MUST only be
+> +transmitted when the peer has sufficient free buffer space for the payload.
+>  
+>  All packets associated with a stream flow MUST contain valid information in
+>  \field{buf_alloc} and \field{fwd_cnt} fields.
+> @@ -299,6 +308,78 @@ \subsubsection{Seqpacket Sockets}\label{sec:Device Types / Socket Device / Devic
+>  #define VIRTIO_VSOCK_SEQ_EOR (1 << 1)
+>  \end{lstlisting}
+>  
+> +\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets}
+> +
+> +\drivernormative{\paragraph}{Device Operation: Packet Fragmentation}{Device Types / Socket Device / Datagram Sockets / Fragmentation}
+> +
+> +Drivers MAY disassemble packets into smaller fragments. If drivers fragment a
+> +packet, they MUST follow the fragmentation rules described in section
+> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
+> +
+> +Drivers MUST support assembly of received packet fragments according to the
+> +fragmentation rules described in section
+> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
+> +
+> +\devicenormative{\paragraph}{Device Operation: Packet Fragmentation}{Device Types / Socket Device / Datagram Sockets / Fragmentation}
+> +
+> +Devices MAY disassemble packets into smaller fragments. If devices fragment a
+> +packet, they MUST follow the fragmentation rules described in section
+> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
+> +
+> +Devices MUST support assembly of received packet fragments according to the
+> +fragmentation rules described in section
+> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
+> +
+> +\drivernormative{\paragraph}{Device Operation: Packet Dropping}{Device Types / Socket Device / Datagram Sockets / Dropping}
+> +
+> +The driver MAY drop received packets with no notification to the device. This
+> +can happen if, for example, there are insufficient resources or no socket
+> +exists for the destination address.
+> +
+> +\devicenormative{\paragraph}{Device Operation: Packet Dropping}{Device Types / Socket Device / Datagram Sockets / Dropping}
+> +
+> +The device MAY drop received packets with no notification to the driver. This
+> +can happen if, for example, there are insufficient resources or no socket
+> +exists for the destination address.
+> +
+> +\paragraph{Datagram Fragmentation}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}
+> +
+> +\field{flags} may have the following bit set:
+> +
+> +\begin{lstlisting}
+> +#define VIRTIO_VSOCK_DGRAM_EOM (1 << 0)
+> +\end{lstlisting}
+> +
+> +When the header \field{flags} field bit VIRTIO_VSOCK_DGRAM_EOM (bit 0) is set,
+> +it indicates that the current payload is the end of a datagram fragment OR that
+> +the current payload is an entire datagram packet.
+> +
+> +Datagram fragmentation is subject to the following rules:
+> +
+> +The fragments for a datagram packet MUST be added to the virtqueue in
+> +sequential order.
+> +
+> +If a packet is not a fragment, then the VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of
+> +\field{flags} MUST be set.
+> +
+> +If a packet is the last fragment of a fragment sequence, then the
+> +VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of \field{flags} MUST be set.
+> +
+> +If a packet is any fragment except the last fragment of a fragment sequence,
+> +then the VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of \field{flags} MUST NOT be set.
+> +
+> +If a driver or device has already placed a fragment of a packet on the
+> +virtqueue, it MUST add the remaining fragments of the packet to the virtqueue
+> +before adding any additional packets or fragments to the virtqueue.
+> +
+> +If fragments for a packet are only partially received after an
+> +implementation-specific amount of time, then the destination device or driver
+> +MAY drop the fragments.
 
-   627	
-   628	static int read_umem_params(struct mlx5_vdpa_net *ndev)
-   629	{
-   630		u32 out[MLX5_ST_SZ_DW(query_hca_cap_out)] = {};
-   631		u32 in[MLX5_ST_SZ_DW(query_hca_cap_in)] = {};
-   632		u16 opmod = (MLX5_CAP_VDPA_EMULATION << 1) | (HCA_CAP_OPMOD_GET_CUR & 0x01);
-   633		struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
-   634		void *caps;
-   635		int err;
-   636	
-   637		MLX5_SET(query_hca_cap_in, in, opcode, MLX5_CMD_OP_QUERY_HCA_CAP);
-   638		MLX5_SET(query_hca_cap_in, in, op_mod, opmod);
-   639		err = mlx5_cmd_exec_inout(mdev, query_hca_cap, in, out);
-   640		if (err) {
-   641			mlx5_vdpa_warn(&ndev->mvdev,
-   642				"Failed reading vdpa umem capabilities with err %d\n", err);
-   643			return err;
-   644		}
-   645	
-   646		caps =  MLX5_ADDR_OF(query_hca_cap_out, out, capability);
-   647	
-   648		ndev->umem_1_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_1_buffer_param_a);
-   649		ndev->umem_1_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_1_buffer_param_b);
-   650	
-   651		ndev->umem_2_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_2_buffer_param_a);
-   652		ndev->umem_2_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_2_buffer_param_b);
-   653	
-   654		ndev->umem_3_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_3_buffer_param_a);
-   655		ndev->umem_3_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_3_buffer_param_b);
-   656	
-   657		return 0;
- > 658	}
-   659	
+and how to detect this partial situation?
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+and if not then what happens?
+
+> +Each buffer containing a fragment MUST begin with a valid struct
+> +virtio_vsock_hdr. \field{len} MUST equal the length of the fragment payload
+> +only.
+
+what does this mean exactly?
+
+>  \subsubsection{Device Events}\label{sec:Device Types / Socket Device / Device Operation / Device Events}
+>  
+>  Certain events are communicated by the device to the driver using the event
+> -- 
+> 2.20.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
