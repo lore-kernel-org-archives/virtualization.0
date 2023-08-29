@@ -4,126 +4,128 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BA23C71153
-	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 17:40:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B937C71153
+	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 17:42:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0144860FF2;
-	Tue, 29 Aug 2023 17:40:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0144860FF2
+	by smtp3.osuosl.org (Postfix) with ESMTP id 72B086112D;
+	Tue, 29 Aug 2023 17:42:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72B086112D
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=bytz/wdd
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=fbFEARWh
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w7hxUBI6BL29; Tue, 29 Aug 2023 17:40:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6E03160EDB;
-	Tue, 29 Aug 2023 17:40:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E03160EDB
+	with ESMTP id 91j4zMufS1FV; Tue, 29 Aug 2023 17:42:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E0EA060FBC;
+	Tue, 29 Aug 2023 17:42:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E0EA060FBC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D39DC0039;
-	Tue, 29 Aug 2023 17:40:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2E715C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA9C1C0039;
+	Tue, 29 Aug 2023 17:42:30 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3754AC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 17:40:54 +0000 (UTC)
+ Tue, 29 Aug 2023 17:42:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E40C460FBC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 11BFC82144
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 17:40:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E40C460FBC
+ Tue, 29 Aug 2023 17:42:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11BFC82144
+Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=fbFEARWh
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id j1LStgh72VSQ
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RHkSe8efwc1c
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 17:40:52 +0000 (UTC)
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on20623.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e88::623])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 76E5160EDB
+ Tue, 29 Aug 2023 17:42:27 +0000 (UTC)
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on20628.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5b::628])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AAE2782140
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 17:40:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 76E5160EDB
+ Tue, 29 Aug 2023 17:42:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AAE2782140
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Cbsr1fpfvlhQuLneI2CTKZqo04t7+HjBcZ3+MCI9I6UjWRONkZNGOby50a/adgFvb/OoUAnIXhmuOasLxiIJF6vtk67/dtp7MzT9CNoWn1uRbMMZrj4JZPedgcqf5CT6jjR6xlIo94EGSfNubuGcqzzzoX1uFpnzBIvUZaWo/uxJMff0BTz6n+xrx36S+ex9AAxfo6XSwgaZAeGzmj655SwxN9WzgcooBvW7xgUo2lKShGZHHJaWF/iml/5FWUHhpjbU3hj2uckVWIurIu0vbS7+epiXbbjW5owNek2sz2QXTviKdcPvETgdqlWfsTYXIK72n0+1cTiex3CuX6ahOg==
+ b=oc3b9PylXmJaXPyi4LStTf/AAu+9IAsnnu1g6B3aoTzVxieST6s2on2w6VITlKc8y18dj0Uc7HxWoNUvjTYcZ/j/atYy6BsAH+CbhbEbzwXOTXIVIyOQfrd9iJZPssLA6zD63bxI8dW1JRNnt2I10RmybfoxxoP6zkMnMFcsKjULRO0VtIPnf/J5CvJy6bhzXMV0RvJ5e8hMKurKJgzZGDpfSFqZBhgCkRYAzmX75zaCRJnP8ODAvATaE1Q1uMtv/CoI9JhVPOKwW0NQXMYQ/d5vFFgrBCfVVDFGMIX8kxzMsB2ltC1K9wX4jQtYCBIN8h7Jx54JvULswRxvld6g/A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=r3QO8Dgk30YSEZ8eYY9WDwx9ZRmONu9Eya4rrDQHUI4=;
- b=Z9TPivZF+6sZtZGzcjNZj17VwAUEThs4pBKdLTJTacueM72qA3+DaAJVKGw27+RfPYLkUh5fLUdVw8SxpnwhD1zKEAKDCm6Wp0vj0sCRJDJJuVXY/kuPKUq+oY2tg8pLeS3a5fyHDe+jIUGdrJ9Fi4rhKq+U5kwjsxLCpkd6ezWX+GfAWGfK3wcTvIcMtSnyTwxeEBg4Dd7llYYui1FSWuYy2LW3lUSJehI+c0H6gvunVLUq6BjJY6YJGY+HKu/pI3Prdsc6itbyCY8HwoPHG9jJl6v5lsh8u8RwlhhjrIrEUh2ZZKk9Of73SHNrs25M+LRduN0wuhkV7hcVtMt2Rw==
+ bh=mxNcm2VeB2Q2mD9IW3svqtT7NZTlNBYvfIUDIS6K5cE=;
+ b=lmJM7wY4//5nAWLitqyqw3BNGdamQ5uoMkt8vLV78c0Ad2dhb9dXj6CykGnVx96GLvUhYO1gKg3hnT3hfUIvzSNkyH9Un0aHQa5Bn41jeYBwdT1IOj3Hix4Idhtid23ndfEPr1/MDuXYTNm/ehbgr5A0komYWOuqBtf7fad/czGOzEFx8pdpX1b9GGaA+3QBoLXqrL/G/DHXz/z8ymkvCA1QVU/qbTpEtSy78w8Vz2XLGNq1R8HBV3PYRks4qnnu49zDJOe3GhEF6Hu8kAQIo73cks+wwzdk2C4eMJ1c50wP0RbSn7P9ps3byLprQva23KBNvwOEBqUxmV+HMu2Jag==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=r3QO8Dgk30YSEZ8eYY9WDwx9ZRmONu9Eya4rrDQHUI4=;
- b=bytz/wddO0jDiFYrQkA/TUPIiFepVt5Q/fvZvvZBP/w7Ymv9OZkWB7ybwhxuPvfG+dRcGMUwWh/HWWT5dkm+aweN/C91ff89qoWcd02nTNixrj8SxT6QQO4YqOY8kbNbnjgIdd2lwblhatzDT1X2PV67qYYUxZ/cHg8/aABSAL38S3ZB//lgIs6C+yzERm/SQBOu9+tajqtIksRw9kqSqCA0sAqLgM6MjHQN8Ft3JiMgR5hNl0LH2E1/79X6y6VltmXqFE2qmwNVvDRhoU8siZPwy4B2Gma9K0L5eZwr5/H4SpGG7juwYzzDAXpQgs4KQ7ttfEvcN35ceaeRzTszOw==
-Received: from MWH0EPF000554DF.namprd21.prod.outlook.com
- (2603:10b6:30f:fff2:0:1:0:4) by PH7PR12MB6883.namprd12.prod.outlook.com
- (2603:10b6:510:1b9::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.35; Tue, 29 Aug
- 2023 17:40:48 +0000
-Received: from MWH0EPF000971E8.namprd02.prod.outlook.com
- (2a01:111:f403:c903::1) by MWH0EPF000554DF.outlook.office365.com
- (2603:1036:d20::b) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6768.8 via Frontend
- Transport; Tue, 29 Aug 2023 17:40:48 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ bh=mxNcm2VeB2Q2mD9IW3svqtT7NZTlNBYvfIUDIS6K5cE=;
+ b=fbFEARWhMRmaTuAwtalrhBSADmdVifAChKLzs/pv2XJN0MSrHGN4L+iHDni9yJhKW72ZkNVa6IOlcS8vZqf/Rjnsjb+A0p23Jsh5q5ki2mQzh4R/GSD9zGLy6S0qBde8flrQIA43K4kVq9dHc48b89JfNTd2yv8Q4um8ScOdL4slZL/hybavB6C8HGvg7kceqt5wetCUiVZqHeN1oKFdNSwsTMdXzH89YeRezM+j4PAMowHkmVNPqWzOPi/sMho7kU2X5cmzsNcdVpYiNfknt1I9lOVN4T+utJqhqxQlArpKAPHIUvIF84sWfQCxwur/KPVgzhPdTpYlQ0wVnAWvtA==
+Received: from DS7PR03CA0295.namprd03.prod.outlook.com (2603:10b6:5:3ad::30)
+ by DS7PR12MB5837.namprd12.prod.outlook.com (2603:10b6:8:78::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6699.34; Tue, 29 Aug 2023 17:42:24 +0000
+Received: from CY4PEPF0000E9D6.namprd05.prod.outlook.com
+ (2603:10b6:5:3ad:cafe::c7) by DS7PR03CA0295.outlook.office365.com
+ (2603:10b6:5:3ad::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.35 via Frontend
+ Transport; Tue, 29 Aug 2023 17:42:24 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
  smtp.mailfrom=nvidia.com;
  dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- MWH0EPF000971E8.mail.protection.outlook.com (10.167.243.68) with Microsoft
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CY4PEPF0000E9D6.mail.protection.outlook.com (10.167.241.80) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6745.17 via Frontend Transport; Tue, 29 Aug 2023 17:40:48 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.6745.17 via Frontend Transport; Tue, 29 Aug 2023 17:42:24 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 29 Aug 2023
- 10:40:34 -0700
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.37; Tue, 29 Aug 2023 10:40:34 -0700
+ 10:42:14 -0700
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Tue, 29 Aug
+ 2023 10:42:13 -0700
 Received: from c-237-113-200-209.mtl.labs.mlnx (10.127.8.14) by
- mail.nvidia.com (10.126.190.182) with Microsoft SMTP Server id 15.2.986.37
- via Frontend Transport; Tue, 29 Aug 2023 10:40:32 -0700
+ mail.nvidia.com (10.129.68.7) with Microsoft SMTP Server id 15.2.986.37 via
+ Frontend Transport; Tue, 29 Aug 2023 10:42:11 -0700
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH] vdpa/mlx5: Fix double release of debugfs entry
-Date: Tue, 29 Aug 2023 20:40:09 +0300
-Message-ID: <20230829174014.928189-2-dtatulea@nvidia.com>
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Parav Pandit <parav@mellanox.com>
+Subject: [PATCH] vdpa/mlx5: Fix firmware error on creation of 1k VQs
+Date: Tue, 29 Aug 2023 20:41:46 +0300
+Message-ID: <20230829174219.928343-1-dtatulea@nvidia.com>
 X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000971E8:EE_|PH7PR12MB6883:EE_
-X-MS-Office365-Filtering-Correlation-Id: a7143deb-05e0-4ff1-3cff-08dba8b714bd
+X-MS-TrafficTypeDiagnostic: CY4PEPF0000E9D6:EE_|DS7PR12MB5837:EE_
+X-MS-Office365-Filtering-Correlation-Id: e28adb6f-87c9-4f03-1109-08dba8b74e05
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: uEmF+Q2REnJnTPmZmr2NLuH7xb+srq36mPJrx2cDRTyjS8ZFnUY3HGX42T85aOUVKfWeAQRdaj+xElbQWqwWVENWGLsy+brSAkJEwlcecW2KFplBVZI76+f0P0kPwWxEkfxTHiqMYro99dgsd5flR0VRz6a1G5km1BPoZ2+OUFs+JBvmXzNzNskJAP4uE9cuNDfgxKid55LvCukNMYxquMBFyfuj+RoVN6VwKnLKE0mvAv30ZYi66THvHzGFealvek8Sp3GKpR53cY0w9RJvXWJsFeJv/LlxTiEmkWYjqzZPcVQbHshYI/CTcfxHu8r9GKgQmoRU9aB7szizQ1UkXMOhkBU8ozOL1YldAW8cQzCVOAA6rq2iyGPJHfQ4pE2AIvy2y0ffq3qfh/NTEAZKrq0iLLHzfzsjA0pAR64oSsA+qOMMF9IinI28rXyKsN1hsZJiwBetkKVEZAmvbH02+TisGWz4y+1bunm7supadsAXOVXSV2WR/5KwBLsxWjJqpSXFm1TrPQORdnPK3JsP8FBFRpA1mnUmNmGIztC82cw5rRPVCghzLFDxBpXiJssw5mZXqLIq+H3of2mUy/Fv7HsjaXhByDhNHTI1GrW2C0kQ4QiyIf+EVDL6zr/HozyTmtJmEyKIoSDP6zrhFGjpP4nSsYaKTcGVslXcvm82mvTUF2al0W3zA5o7lC5TiKv4e14f8Mk9z/SaW3U6sFA+axw17lwSJVh8vBqwK6rVGRTw98hsX4oAwM4UIHgxoR11
-X-Forefront-Antispam-Report: CIP:216.228.118.232; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc7edge1.nvidia.com; CAT:NONE;
- SFS:(13230031)(4636009)(39860400002)(396003)(376002)(136003)(346002)(451199024)(82310400011)(1800799009)(186009)(36840700001)(46966006)(40470700004)(40460700003)(316002)(41300700001)(4326008)(336012)(426003)(2906002)(83380400001)(86362001)(47076005)(2616005)(26005)(36756003)(1076003)(5660300002)(8676002)(40480700001)(36860700001)(8936002)(6666004)(356005)(7636003)(82740400003)(54906003)(110136005)(70206006)(70586007)(478600001);
+X-Microsoft-Antispam-Message-Info: rvMTR0yOlabUoXmQiwD9ZcLeptWNRKf+eBrLq2TkruOu02yqR8bm4/IhCz/y8jgToRqhAGrRJqhuX+PFRU3MwVwBdWreLa9dmkmfMZz+cPyvymek9FqDwcSZ9PGJ+Ex0mnXU7semrxqPe2zkaPbOSDHSxBkfopZmb4kKY2Om/RGhWn+9Exng+5y+XS6/p5qjCGUGDFljoGO+9M8/l9V5BIVgxOLHPAXfGIKr5I30KrjBKX+5MFuOIImqdEsJ0Vy6VmO1nhGBNzX+FuOF1zJxWNrKhxYVONURWXQ+V0iVDsjYOCPTm/h7Z/828TYi4vgDd8K4DnbUocJEt1NUTguHxaxrKP4ARPrgazIoX9hLB8PaxnzSpJDk5b4ouaAHt7Yk5qQXDcIk63YchaCLRhUF3SdWM3p1ztEoQt7nLCWdKyOd6iQPW8jtoHfZOgi5LK2Zq7ukE+6DD1XpVGQyIvauckZS98Orh+v5jKxIKwb3LPUhIIHRN5bhwOlrTUXCDzzvqHu0ZE8ybGRq5FBBo2SabkrakSoCeUpcwrcBjbLsDhcPb7mgCKKfbrpovazTSAnfuLpyUftJQAQSBL69bdVqnPhSI1c0huP0fz+E03NmtLxxbCA5B/G5VqJfyzm/w2e9kn/GJL0vJzW1Z19lqM1BIri6LD1qqZjTVu5/tWeTmNueWmgw5PbHq5iR1eXoM4C5R+xUE+ylzMKq0jGlneigNSvM/suH66q3Nx1Zj9YZHACgXOYVTM+/i+4OdwEZ3dTl
+X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(396003)(376002)(39860400002)(136003)(346002)(1800799009)(82310400011)(451199024)(186009)(40470700004)(36840700001)(46966006)(83380400001)(478600001)(7636003)(356005)(82740400003)(426003)(336012)(36860700001)(47076005)(26005)(1076003)(2616005)(40480700001)(6666004)(5660300002)(2906002)(54906003)(8936002)(316002)(110136005)(70586007)(8676002)(4326008)(36756003)(41300700001)(86362001)(70206006)(40460700003);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2023 17:40:48.2547 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a7143deb-05e0-4ff1-3cff-08dba8b714bd
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Aug 2023 17:42:24.3399 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e28adb6f-87c9-4f03-1109-08dba8b74e05
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.118.232];
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
  Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: MWH0EPF000971E8.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: CY4PEPF0000E9D6.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6883
-Cc: linux-kernel@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB5837
+Cc: linux-kernel@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -144,84 +146,145 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The error path in setup_driver deletes the debugfs entry but doesn't
-clear the pointer. During .dev_del the invalid pointer will be released
-again causing a crash.
+A firmware error is triggered when configuring a 9k MTU on the PF after
+switching to switchdev mode and then using a vdpa device with larger
+(1k) rings:
+mlx5_cmd_out_err: CREATE_GENERAL_OBJECT(0xa00) op_mod(0xd) failed, status bad resource(0x5), syndrome (0xf6db90), err(-22)
 
-This patch fixes the issue by always clearing the debugfs entry in
-mlx5_vdpa_remove_debugfs. Also, stop removing the debugfs entry in
-.dev_del op: the debugfs entry is already handled within the
-setup_driver/teardown_driver scope.
+This is due to the fact that the hw VQ size parameters are computed
+based on the umem_1/2/3_buffer_param_a/b capabilities and all
+device capabilities are read only when the driver is moved to switchdev mode.
 
-Fixes: f0417e72add5 ("vdpa/mlx5: Add and remove debugfs in setup/teardown driver")
+The problematic configuration flow looks like this:
+1) Create VF
+2) Unbind VF
+3) Switch PF to switchdev mode.
+4) Bind VF
+5) Set PF MTU to 9k
+6) create vDPA device
+7) Start VM with vDPA device and 1K queue size
+
+Note that setting the MTU before step 3) doesn't trigger this issue.
+
+This patch reads the forementioned umem parameters at the latest point
+possible before the VQs of the device are created.
+
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
 Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
+Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
 ---
- drivers/vdpa/mlx5/net/debug.c     | 5 +++--
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 7 ++-----
- drivers/vdpa/mlx5/net/mlx5_vnet.h | 2 +-
- 3 files changed, 6 insertions(+), 8 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 55 ++++++++++++++++++++++++++-----
+ drivers/vdpa/mlx5/net/mlx5_vnet.h |  9 +++++
+ 2 files changed, 55 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/debug.c b/drivers/vdpa/mlx5/net/debug.c
-index 60d6ac68cdc4..9c85162c19fc 100644
---- a/drivers/vdpa/mlx5/net/debug.c
-+++ b/drivers/vdpa/mlx5/net/debug.c
-@@ -146,7 +146,8 @@ void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev)
- 		ndev->rx_dent = debugfs_create_dir("rx", ndev->debugfs);
- }
- 
--void mlx5_vdpa_remove_debugfs(struct dentry *dbg)
-+void mlx5_vdpa_remove_debugfs(struct mlx5_vdpa_net *ndev)
- {
--	debugfs_remove_recursive(dbg);
-+	debugfs_remove_recursive(ndev->debugfs);
-+	ndev->debugfs = NULL;
- }
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 37be945a0230..f91c938b4be1 100644
+index 37be945a0230..85855680b24c 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2713,7 +2713,7 @@ static int setup_driver(struct mlx5_vdpa_dev *mvdev)
- err_rqt:
- 	teardown_virtqueues(ndev);
- err_setup:
--	mlx5_vdpa_remove_debugfs(ndev->debugfs);
-+	mlx5_vdpa_remove_debugfs(ndev);
- out:
- 	return err;
+@@ -625,30 +625,62 @@ static void cq_destroy(struct mlx5_vdpa_net *ndev, u16 idx)
+ 	mlx5_db_free(ndev->mvdev.mdev, &vcq->db);
  }
-@@ -2727,8 +2727,7 @@ static void teardown_driver(struct mlx5_vdpa_net *ndev)
- 	if (!ndev->setup)
- 		return;
  
--	mlx5_vdpa_remove_debugfs(ndev->debugfs);
--	ndev->debugfs = NULL;
-+	mlx5_vdpa_remove_debugfs(ndev);
- 	teardown_steering(ndev);
- 	destroy_tir(ndev);
- 	destroy_rqt(ndev);
-@@ -3489,8 +3488,6 @@ static void mlx5_vdpa_dev_del(struct vdpa_mgmt_dev *v_mdev, struct vdpa_device *
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
- 	struct workqueue_struct *wq;
++static int read_umem_params(struct mlx5_vdpa_net *ndev)
++{
++	u32 out[MLX5_ST_SZ_DW(query_hca_cap_out)] = {};
++	u32 in[MLX5_ST_SZ_DW(query_hca_cap_in)] = {};
++	u16 opmod = (MLX5_CAP_VDPA_EMULATION << 1) | (HCA_CAP_OPMOD_GET_CUR & 0x01);
++	struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
++	void *caps;
++	int err;
++
++	MLX5_SET(query_hca_cap_in, in, opcode, MLX5_CMD_OP_QUERY_HCA_CAP);
++	MLX5_SET(query_hca_cap_in, in, op_mod, opmod);
++	err = mlx5_cmd_exec_inout(mdev, query_hca_cap, in, out);
++	if (err) {
++		mlx5_vdpa_warn(&ndev->mvdev,
++			"Failed reading vdpa umem capabilities with err %d\n", err);
++		return err;
++	}
++
++	caps =  MLX5_ADDR_OF(query_hca_cap_out, out, capability);
++
++	ndev->umem_1_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_1_buffer_param_a);
++	ndev->umem_1_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_1_buffer_param_b);
++
++	ndev->umem_2_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_2_buffer_param_a);
++	ndev->umem_2_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_2_buffer_param_b);
++
++	ndev->umem_3_buffer_param_a = MLX5_GET(virtio_emulation_cap, caps, umem_3_buffer_param_a);
++	ndev->umem_3_buffer_param_b = MLX5_GET(virtio_emulation_cap, caps, umem_3_buffer_param_b);
++
++	return 0;
++}
++
+ static void set_umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
+ 			  struct mlx5_vdpa_umem **umemp)
+ {
+-	struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
+-	int p_a;
+-	int p_b;
++	u32 p_a;
++	u32 p_b;
  
--	mlx5_vdpa_remove_debugfs(ndev->debugfs);
--	ndev->debugfs = NULL;
- 	unregister_link_notifier(ndev);
- 	_vdpa_unregister_device(dev);
- 	wq = mvdev->wq;
+ 	switch (num) {
+ 	case 1:
+-		p_a = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_1_buffer_param_a);
+-		p_b = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_1_buffer_param_b);
++		p_a = ndev->umem_1_buffer_param_a;
++		p_b = ndev->umem_1_buffer_param_b;
+ 		*umemp = &mvq->umem1;
+ 		break;
+ 	case 2:
+-		p_a = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_2_buffer_param_a);
+-		p_b = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_2_buffer_param_b);
++		p_a = ndev->umem_2_buffer_param_a;
++		p_b = ndev->umem_2_buffer_param_b;
+ 		*umemp = &mvq->umem2;
+ 		break;
+ 	case 3:
+-		p_a = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_3_buffer_param_a);
+-		p_b = MLX5_CAP_DEV_VDPA_EMULATION(mdev, umem_3_buffer_param_b);
++		p_a = ndev->umem_3_buffer_param_a;
++		p_b = ndev->umem_3_buffer_param_b;
+ 		*umemp = &mvq->umem3;
+ 		break;
+ 	}
++
+ 	(*umemp)->size = p_a * mvq->num_ent + p_b;
+ }
+ 
+@@ -2679,6 +2711,11 @@ static int setup_driver(struct mlx5_vdpa_dev *mvdev)
+ 		goto out;
+ 	}
+ 	mlx5_vdpa_add_debugfs(ndev);
++
++	err = read_umem_params(ndev);
++	if (err)
++		goto err_setup;
++
+ 	err = setup_virtqueues(mvdev);
+ 	if (err) {
+ 		mlx5_vdpa_warn(mvdev, "setup_virtqueues\n");
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.h b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-index 36c44d9fdd16..60cdbc903037 100644
+index 36c44d9fdd16..65ebbba20662 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.h
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.h
-@@ -88,7 +88,7 @@ struct macvlan_node {
+@@ -65,6 +65,15 @@ struct mlx5_vdpa_net {
+ 	struct hlist_head macvlan_hash[MLX5V_MACVLAN_SIZE];
+ 	struct mlx5_vdpa_irq_pool irqp;
+ 	struct dentry *debugfs;
++
++	u32 umem_1_buffer_param_a;
++	u32 umem_1_buffer_param_b;
++
++	u32 umem_2_buffer_param_a;
++	u32 umem_2_buffer_param_b;
++
++	u32 umem_3_buffer_param_a;
++	u32 umem_3_buffer_param_b;
  };
  
- void mlx5_vdpa_add_debugfs(struct mlx5_vdpa_net *ndev);
--void mlx5_vdpa_remove_debugfs(struct dentry *dbg);
-+void mlx5_vdpa_remove_debugfs(struct mlx5_vdpa_net *ndev);
- void mlx5_vdpa_add_rx_flow_table(struct mlx5_vdpa_net *ndev);
- void mlx5_vdpa_remove_rx_flow_table(struct mlx5_vdpa_net *ndev);
- void mlx5_vdpa_add_tirn(struct mlx5_vdpa_net *ndev);
+ struct mlx5_vdpa_counter {
 -- 
 2.41.0
 
