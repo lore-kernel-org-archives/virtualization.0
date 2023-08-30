@@ -1,108 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1BE35C6FA8F
-	for <virtualization@archiver.kernel.org>; Tue, 29 Aug 2023 22:21:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1C313C6FA8F
+	for <virtualization@archiver.kernel.org>; Wed, 30 Aug 2023 04:24:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8C1428204D;
-	Tue, 29 Aug 2023 22:21:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C1428204D
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DloVnVwG
+	by smtp2.osuosl.org (Postfix) with ESMTP id 863E0405CF;
+	Wed, 30 Aug 2023 04:24:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 863E0405CF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gq8AeV2W
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iZO8gORLTa0Z; Tue, 29 Aug 2023 22:21:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B242E8203E;
-	Tue, 29 Aug 2023 22:21:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B242E8203E
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ElkWk-TfkAlX; Wed, 30 Aug 2023 04:24:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EDAE2408A7;
+	Wed, 30 Aug 2023 04:24:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EDAE2408A7
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7AE3DC0071;
-	Tue, 29 Aug 2023 22:21:47 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E9D90C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9269FC0039;
+	Wed, 30 Aug 2023 04:24:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2584FC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 22:21:45 +0000 (UTC)
+ Wed, 30 Aug 2023 04:24:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C407982040
+ by smtp4.osuosl.org (Postfix) with ESMTP id F21EE4174C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 22:21:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C407982040
+ Wed, 30 Aug 2023 04:24:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org F21EE4174C
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=gq8AeV2W
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VSFANFF0bNio
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kIevWmo35W_m
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 22:21:44 +0000 (UTC)
+ Wed, 30 Aug 2023 04:24:38 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6988D8203E
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A26764169B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 22:21:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6988D8203E
+ Wed, 30 Aug 2023 04:24:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A26764169B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1693347703;
+ s=mimecast20190719; t=1693369477;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Lu7V0ePLcaShI0tBfiRxcbnlQz+HWlAtwpMfUn9Uxqo=;
- b=DloVnVwGNZdoCjhXvA0LjWNwUs3FQEIKbD8MgN/JXaxgmFtNPxTt9FylNuj/SRWl46P6of
- qAHykbNgttwUwrvxqwhY8L1UxMpjAIirxwtz5sCuVQtkK+uKWLvpbR1/p6cNvfSqk0Bzq4
- cpaWn/Y28zkPlKp4C4Afsi36J6dat4Y=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Kj1j2W7Rncwakl8+uaZCa8ACzieIXsTkub/0MwTanec=;
+ b=gq8AeV2W8TiDhQZBVZm1bQE71uiIDvVXV2qrWcyHI859CvyCrIhc6y9E4QjuwAKt2soNF4
+ 23hsjeXZVL3gTCJ6Cj+P1d32EvD5KVK1i/2szovfrBQft/OhfHjs4qFvACxfsPW0qVVe12
+ o7Y6V/kuoDNtl6Ig3x3G6SfPSi3Qba4=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-597-MtjoBFy-NXi0P1_gsb9wzQ-1; Tue, 29 Aug 2023 18:21:41 -0400
-X-MC-Unique: MtjoBFy-NXi0P1_gsb9wzQ-1
-Received: by mail-lf1-f69.google.com with SMTP id
- 2adb3069b0e04-500c67585acso957186e87.2
+ us-mta-453-D3Yo6xW3P3CQ-MiiTFDzvw-1; Wed, 30 Aug 2023 00:24:35 -0400
+X-MC-Unique: D3Yo6xW3P3CQ-MiiTFDzvw-1
+Received: by mail-pl1-f197.google.com with SMTP id
+ d9443c01a7336-1bf5aa81af9so64050825ad.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Aug 2023 15:21:41 -0700 (PDT)
+ Tue, 29 Aug 2023 21:24:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1693347700; x=1693952500;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=Lu7V0ePLcaShI0tBfiRxcbnlQz+HWlAtwpMfUn9Uxqo=;
- b=Qf/PPdcjajzuGIkJbInCSJgR5MvYnFMnwz1wyJjD45hQ+VDL61IcxzPktLy4zK9aX9
- A7d11ZKW4rSjY2GxTLkgO3UInU2VIUPt0lj7eOYXJegq8qy+yQcWm2ulHvWKE7j6dZKT
- CLrpDtUZUS0DoCKcY9oyLcy5kkYKynksMOIUKVCafyGot/PzD9mMoAkbPvOu4iznTTuA
- iZ3lPRKFbqM7ttGQYn1eLOcKfITzWoFio0UaMRzS5vomIQQZupWQNEb9Gbtw2LUAaqhp
- GUifZ44+VERgWcjK3QZyByTCoJ1sqqp2tnhWD9sZ2iLnTOr6SQWqAKDnts5Ou4RpsS5H
- 5X+Q==
-X-Gm-Message-State: AOJu0YwcW2PDVByS4MpIy39gLQwhv6iC/heljSdf1Exo6yICNT2nxFPy
- Ztxg9y7HVNxw3aLqVv7/ExOD8xTuuA8erTJo03RtzHigsZNRPGRf6ZyBYCg0CuhwegMP2CbBZ2Y
- Ma05JEB/6v/9hq3EVWqPUhJUT7sZZxhCQ5xRV4FAAsQ==
-X-Received: by 2002:a05:6512:3113:b0:4f6:3677:54e with SMTP id
- n19-20020a056512311300b004f63677054emr155122lfb.36.1693347700261; 
- Tue, 29 Aug 2023 15:21:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE/X8qmx8ebiElNKKVk8tCX2u7VhtGOVy45JqOvHAtGV9oCr27xjdgHLEYci2c30JOJOzIuJg==
-X-Received: by 2002:a05:6512:3113:b0:4f6:3677:54e with SMTP id
- n19-20020a056512311300b004f63677054emr155097lfb.36.1693347699770; 
- Tue, 29 Aug 2023 15:21:39 -0700 (PDT)
-Received: from redhat.com ([2.55.167.22]) by smtp.gmail.com with ESMTPSA id
- f2-20020a056402150200b005233609e39dsm6131494edw.30.2023.08.29.15.21.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Aug 2023 15:21:39 -0700 (PDT)
-Date: Tue, 29 Aug 2023 18:21:35 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Bobby Eshleman <bobby.eshleman@bytedance.com>
-Subject: Re: [PATCH] virtio-vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
-Message-ID: <20230829181549-mutt-send-email-mst@kernel.org>
-References: <20230829212945.3420727-1-bobby.eshleman@bytedance.com>
+ d=1e100.net; s=20221208; t=1693369474; x=1693974274;
+ h=content-transfer-encoding:in-reply-to:references:cc:to:from
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=Kj1j2W7Rncwakl8+uaZCa8ACzieIXsTkub/0MwTanec=;
+ b=i88YR2jIR1QMVPgC01pE22q+J6XLWJOeLO6C5WF5qdl08FNPixv2Hpg9y3ubwj1+Os
+ 8ImriqE9V2j+QTwq9q8FM6SLx0t7bhckLTh+E4EPXfXJb5eUOy8ZZva9ubA6jRI2sQ4d
+ 7hDLnWYZlAgu5gUNQf/nTc8+vwulHqbSuC47a48qXXOvDqGpc5/8d49iY4aQlQZbO7LQ
+ Z4ySEYDiOAwniVgNHbskMbaS2uJVkAeEDl+yvkxvFO/XPW4ta0eerUKIXeQQ6wDYMMFc
+ CFH7TkaClijBn6gnDAksHx5r0JGRfcttmSyKn/Acx2uJHbQCz8q6xUsPizOyvT9EcQur
+ I5rA==
+X-Gm-Message-State: AOJu0Yz5jBDcdNtCbl40tnESnr+zUhLK1oaaLNXWuQIjqLQ54EOEoV6m
+ I4gdrBrwhF1pXYOwWnB89ha/Zgxc7Ill1XRxl364kibBPRenHgc9FpVt31eK/KM5PD1RwuuNYeC
+ KOqdyGoxvfs9LPALcxQ8YTIkJ2YMnPFdZRus0naOYtTMMJpKpXt6DZNwJu51O5fIeFZo6MqECfb
+ Rjo0yzQCvwya49gKNyEUlZKQ==
+X-Received: by 2002:a17:902:8f8e:b0:1bc:16cf:fc30 with SMTP id
+ z14-20020a1709028f8e00b001bc16cffc30mr960190plo.63.1693369473822; 
+ Tue, 29 Aug 2023 21:24:33 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG4oZ5RU+i1Ya/foOIIWYjMTJ1600KCLxPq/800allU07bEPXQNtyHlYba2jpFLQGMrX6HJ4A==
+X-Received: by 2002:a17:902:8f8e:b0:1bc:16cf:fc30 with SMTP id
+ z14-20020a1709028f8e00b001bc16cffc30mr960173plo.63.1693369473421; 
+ Tue, 29 Aug 2023 21:24:33 -0700 (PDT)
+Received: from ?IPV6:2001:8003:e5b0:9f00:dbbc:1945:6e65:ec5?
+ ([2001:8003:e5b0:9f00:dbbc:1945:6e65:ec5])
+ by smtp.gmail.com with ESMTPSA id
+ jw15-20020a170903278f00b001bc6536051bsm10130790plb.184.2023.08.29.21.24.29
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 29 Aug 2023 21:24:32 -0700 (PDT)
+Message-ID: <55cb12bf-12e4-8da6-629c-5518f8abe85e@redhat.com>
+Date: Wed, 30 Aug 2023 14:24:28 +1000
 MIME-Version: 1.0
-In-Reply-To: <20230829212945.3420727-1-bobby.eshleman@bytedance.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH] virtio_balloon: Fix endless deflation and inflation on
+ arm64
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux-foundation.org
+References: <20230829015421.920511-1-gshan@redhat.com>
+In-Reply-To: <20230829015421.920511-1-gshan@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtio-dev@lists.oasis-open.org, cong.wang@bytedance.com,
- jiang.wang@bytedance.com, bobbyeshleman@gmail.com, cohuck@redhat.com,
- virtualization@lists.linux-foundation.org, stefanha@redhat.com,
- virtio-comment@lists.oasis-open.org, arseny.krasnov@kaspersky.com
+Content-Language: en-US
+Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+ Zhenyu Zhang <zhenyzha@redhat.com>, shan.gavin@gmail.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,188 +122,117 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 29, 2023 at 09:29:45PM +0000, Bobby Eshleman wrote:
-> This adds support for datagrams to the virtio-vsock device.
+On 8/29/23 11:54, Gavin Shan wrote:
+> The deflation request to the target, which isn't unaligned to the
+> guest page size causes endless deflation and inflation actions. For
+> example, we receive the flooding QMP events for the changes on memory
+> balloon's size after a deflation request to the unaligned target is
+> sent for the ARM64 guest, where we have 64KB base page size.
 > 
-> virtio-vsock already supports stream and seqpacket types. The existing
-> message types and header fields are extended to support datagrams.
-> Semantic differences between the flow types are stated, as well as any
-> additional requirements for devices and drivers implementing this
-> feature.
+>    /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+>    -accel kvm -machine virt,gic-version=host -cpu host          \
+>    -smp maxcpus=8,cpus=8,sockets=2,clusters=2,cores=2,threads=1 \
+>    -m 1024M,slots=16,maxmem=64G                                 \
+>    -object memory-backend-ram,id=mem0,size=512M                 \
+>    -object memory-backend-ram,id=mem1,size=512M                 \
+>    -numa node,nodeid=0,memdev=mem0,cpus=0-3                     \
+>    -numa node,nodeid=1,memdev=mem1,cpus=4-7                     \
+>      :                                                          \
+>    -device virtio-balloon-pci,id=balloon0,bus=pcie.10
 > 
-> Signed-off-by: Bobby Eshleman <bobby.eshleman@bytedance.com>
+>    { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>    {"return": {}}
+>    {"timestamp": {"seconds": 1693272173, "microseconds": 88667},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272174, "microseconds": 89704},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272175, "microseconds": 90819},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272176, "microseconds": 91961},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272177, "microseconds": 93040},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272178, "microseconds": 94117},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272179, "microseconds": 95337},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272180, "microseconds": 96615},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272181, "microseconds": 97626},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272182, "microseconds": 98693},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272183, "microseconds": 99698},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272184, "microseconds": 100727},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272185, "microseconds": 90430},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272186, "microseconds": 102999},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>       :
+>    <The similar QMP events repeat>
+> 
+> Fix it by having the target aligned to the guest page size, 64KB
+> in this specific case. With this applied, no flooding QMP event
+> is observed and the memory balloon's size can be stablizied to
+> 0x3ffe0000 soon after the deflation request is sent.
+> 
+>    { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>    {"return": {}}
+>    {"timestamp": {"seconds": 1693273328, "microseconds": 793075},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    { "execute" : "query-balloon" }
+>    {"return": {"actual": 1073610752}}
+> 
+> Signed-off-by: Gavin Shan <gshan@redhat.com>
 > ---
->  device-types/vsock/description.tex | 95 +++++++++++++++++++++++++++---
->  1 file changed, 88 insertions(+), 7 deletions(-)
+>   drivers/virtio/virtio_balloon.c | 13 ++++++++++++-
+>   1 file changed, 12 insertions(+), 1 deletion(-)
 > 
-> diff --git a/device-types/vsock/description.tex b/device-types/vsock/description.tex
-> index 7d91d159872f..638dca8e5da1 100644
-> --- a/device-types/vsock/description.tex
-> +++ b/device-types/vsock/description.tex
-> @@ -20,6 +20,7 @@ \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
->  \item[VIRTIO_VSOCK_F_STREAM (0)] stream socket type is supported.
->  \item[VIRTIO_VSOCK_F_SEQPACKET (1)] seqpacket socket type is supported.
->  \item[VIRTIO_VSOCK_F_NO_IMPLIED_STREAM (2)] stream socket type is not implied.
-> +\item[VIRTIO_VSOCK_F_DGRAM (3)] datagram socket type is supported.
->  \end{description}
->  
->  \drivernormative{\subsubsection}{Feature bits}{Device Types / Socket Device / Feature bits}
-> @@ -167,17 +168,22 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
->  consists of a (cid, port number) tuple. The header fields used for this are
->  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
->  
-> -Currently stream and seqpacket sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
-> -for stream socket types, and 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for seqpacket socket types.
-> +
-> +Currently stream, seqpacket, and datagram sockets are supported. \field{type} is
-> +1 (VIRTIO_VSOCK_TYPE_STREAM) for stream socket types, 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for
-> +seqpacket socket types, and 3 (VIRTIO_VSOCK_TYPE_DGRAM) for datagram socket types.
->  
->  \begin{lstlisting}
->  #define VIRTIO_VSOCK_TYPE_STREAM    1
->  #define VIRTIO_VSOCK_TYPE_SEQPACKET 2
-> +#define VIRTIO_VSOCK_TYPE_DGRAM     3
->  \end{lstlisting}
->  
->  Stream sockets provide in-order, guaranteed, connection-oriented delivery
->  without message boundaries. Seqpacket sockets provide in-order, guaranteed,
-> -connection-oriented delivery with message and record boundaries.
-> +connection-oriented delivery with message and record boundaries. Datagram
-> +sockets provide connection-less, best-effort delivery of messages, with no
-> +order or reliability guarantees.
->  
->  \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
->  \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
-> @@ -203,16 +209,19 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
->  previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
->  communicating updates any time a change in buffer space occurs.
->  
-> +\field{buf_alloc} and \field{fwd_cnt} are reserved for future use by datagram
-> +sockets. These fields are not used for datagram buffer space management.
 
-no limits on datagram size?
+It was supposed to copy David, Jason and Zhenyu. I don't know how they have been
+missed. My script may run into problems temporarily. Amending for it.
 
-also with no flow control at all there's a performance problem:
-imagine queue gets full. now buffers begin to be dropped.
-problem is, dropping is faster than delivering to application.
-so now application sees its packets consumed super quickly
-and starts sending even faster.
-not good for performance.
+Thanks,
+Gavin
 
-yes datagram expects some way to drop packets but just disabling flow
-control completely is not the right thing to do I think.
-
-
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 5b15936a5214..625caac35264 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -386,6 +386,17 @@ static void stats_handle_request(struct virtio_balloon *vb)
+>   	virtqueue_kick(vq);
+>   }
+>   
+> +static inline s64 align_pages_up(s64 diff)
+> +{
+> +	if (diff == 0)
+> +		return diff;
 > +
->  \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
-> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-> -sufficient free buffer space for the payload.
-> +For stream and seqpacket flows, VIRTIO_VSOCK_OP_RW data packets MUST only be
-> +transmitted when the peer has sufficient free buffer space for the payload.
->  
->  All packets associated with a stream flow MUST contain valid information in
->  \field{buf_alloc} and \field{fwd_cnt} fields.
->  
->  \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
-> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-> -sufficient free buffer space for the payload.
-> +For stream and seqpacket flows, VIRTIO_VSOCK_OP_RW data packets MUST only be
-> +transmitted when the peer has sufficient free buffer space for the payload.
->  
->  All packets associated with a stream flow MUST contain valid information in
->  \field{buf_alloc} and \field{fwd_cnt} fields.
-> @@ -299,6 +308,78 @@ \subsubsection{Seqpacket Sockets}\label{sec:Device Types / Socket Device / Devic
->  #define VIRTIO_VSOCK_SEQ_EOR (1 << 1)
->  \end{lstlisting}
->  
-> +\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets}
+> +	if (diff > 0)
+> +		return ALIGN(diff, VIRTIO_BALLOON_PAGES_PER_PAGE);
 > +
-> +\drivernormative{\paragraph}{Device Operation: Packet Fragmentation}{Device Types / Socket Device / Datagram Sockets / Fragmentation}
+> +	return -ALIGN(-diff, VIRTIO_BALLOON_PAGES_PER_PAGE);
+> +}
 > +
-> +Drivers MAY disassemble packets into smaller fragments. If drivers fragment a
-> +packet, they MUST follow the fragmentation rules described in section
-> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
-> +
-> +Drivers MUST support assembly of received packet fragments according to the
-> +fragmentation rules described in section
-> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
-> +
-> +\devicenormative{\paragraph}{Device Operation: Packet Fragmentation}{Device Types / Socket Device / Datagram Sockets / Fragmentation}
-> +
-> +Devices MAY disassemble packets into smaller fragments. If devices fragment a
-> +packet, they MUST follow the fragmentation rules described in section
-> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
-> +
-> +Devices MUST support assembly of received packet fragments according to the
-> +fragmentation rules described in section
-> +\ref{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}.
-> +
-> +\drivernormative{\paragraph}{Device Operation: Packet Dropping}{Device Types / Socket Device / Datagram Sockets / Dropping}
-> +
-> +The driver MAY drop received packets with no notification to the device. This
-> +can happen if, for example, there are insufficient resources or no socket
-> +exists for the destination address.
-> +
-> +\devicenormative{\paragraph}{Device Operation: Packet Dropping}{Device Types / Socket Device / Datagram Sockets / Dropping}
-> +
-> +The device MAY drop received packets with no notification to the driver. This
-> +can happen if, for example, there are insufficient resources or no socket
-> +exists for the destination address.
-> +
-> +\paragraph{Datagram Fragmentation}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets / Fragmentation}
-> +
-> +\field{flags} may have the following bit set:
-> +
-> +\begin{lstlisting}
-> +#define VIRTIO_VSOCK_DGRAM_EOM (1 << 0)
-> +\end{lstlisting}
-> +
-> +When the header \field{flags} field bit VIRTIO_VSOCK_DGRAM_EOM (bit 0) is set,
-> +it indicates that the current payload is the end of a datagram fragment OR that
-> +the current payload is an entire datagram packet.
-> +
-> +Datagram fragmentation is subject to the following rules:
-> +
-> +The fragments for a datagram packet MUST be added to the virtqueue in
-> +sequential order.
-> +
-> +If a packet is not a fragment, then the VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of
-> +\field{flags} MUST be set.
-> +
-> +If a packet is the last fragment of a fragment sequence, then the
-> +VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of \field{flags} MUST be set.
-> +
-> +If a packet is any fragment except the last fragment of a fragment sequence,
-> +then the VIRTIO_VSOCK_DGRAM_EOM bit (bit 0) of \field{flags} MUST NOT be set.
-> +
-> +If a driver or device has already placed a fragment of a packet on the
-> +virtqueue, it MUST add the remaining fragments of the packet to the virtqueue
-> +before adding any additional packets or fragments to the virtqueue.
-> +
-> +If fragments for a packet are only partially received after an
-> +implementation-specific amount of time, then the destination device or driver
-> +MAY drop the fragments.
-
-and how to detect this partial situation?
-
-and if not then what happens?
-
-> +Each buffer containing a fragment MUST begin with a valid struct
-> +virtio_vsock_hdr. \field{len} MUST equal the length of the fragment payload
-> +only.
-
-what does this mean exactly?
-
->  \subsubsection{Device Events}\label{sec:Device Types / Socket Device / Device Operation / Device Events}
->  
->  Certain events are communicated by the device to the driver using the event
-> -- 
-> 2.20.1
+>   static inline s64 towards_target(struct virtio_balloon *vb)
+>   {
+>   	s64 target;
+> @@ -396,7 +407,7 @@ static inline s64 towards_target(struct virtio_balloon *vb)
+>   			&num_pages);
+>   
+>   	target = num_pages;
+> -	return target - vb->num_pages;
+> +	return align_pages_up(target - vb->num_pages);
+>   }
+>   
+>   /* Gives back @num_to_return blocks of free pages to mm. */
 
 _______________________________________________
 Virtualization mailing list
