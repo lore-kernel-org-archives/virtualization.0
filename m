@@ -1,103 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1361AC83F2E
-	for <virtualization@archiver.kernel.org>; Thu, 31 Aug 2023 15:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA1DEC83F2E
+	for <virtualization@archiver.kernel.org>; Thu, 31 Aug 2023 15:23:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 99CFB837AC;
-	Thu, 31 Aug 2023 15:13:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 99CFB837AC
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gwWvJg3T
+	by smtp2.osuosl.org (Postfix) with ESMTP id 75D3C41892;
+	Thu, 31 Aug 2023 15:23:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 75D3C41892
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RvDmU0b0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wM7-m5Dg8FcK; Thu, 31 Aug 2023 15:13:12 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YsAQaxm8mhrP; Thu, 31 Aug 2023 15:23:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EC558835D9;
-	Thu, 31 Aug 2023 15:13:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EC558835D9
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1C1A94031D;
+	Thu, 31 Aug 2023 15:23:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1C1A94031D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C7B09C0039;
-	Thu, 31 Aug 2023 15:13:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07935C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2271C0039;
+	Thu, 31 Aug 2023 15:23:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B3090C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 31 Aug 2023 15:13:11 +0000 (UTC)
+ Thu, 31 Aug 2023 15:23:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C7A97835D9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8D41F41888
  for <virtualization@lists.linux-foundation.org>;
- Thu, 31 Aug 2023 15:13:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C7A97835D9
+ Thu, 31 Aug 2023 15:23:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8D41F41888
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a-RlGM-OPwUR
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id w14-Qj0B10vO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 31 Aug 2023 15:13:10 +0000 (UTC)
+ Thu, 31 Aug 2023 15:23:28 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D38C6836EA
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B08C54031D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 31 Aug 2023 15:13:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D38C6836EA
+ Thu, 31 Aug 2023 15:23:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B08C54031D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1693494788;
+ s=mimecast20190719; t=1693495407;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=7q3Y4yiktGEyTW0UFreHL9GRNARDnev7O8/a837iJGA=;
- b=gwWvJg3TvpczOtxkSOvmmZLRd4/9NNdrzLSi8dPUeRAW7jQHoINKpzRWvkobLnBC0ggksk
- 2TnXYcQrW+YVuNTa28Gxb3UFbiVYifd73W0PEA8aDxLlzroRgJoeiHXxNrcB8IoSO0pUzB
- SjHL3RqK2QD7DVZ63S2X7e3vHviy2hw=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=T2qLYWseOqvE9giCpHzoh0LjB8ysce7C+TOetknN7JE=;
+ b=RvDmU0b0+CzhJ9O4FcAT5pQ1amNgx26Razx50jprVGxxXiXyBiNGehXkvJAHpM1i4zj31I
+ a5ufuBcL+77NUgWLeiNVZFvb2BEQaStLTev1lBCweHkEj4JnqIT7CMzB+OvmT3iWbUdrvJ
+ X825Z2k6EuOnxgI6uj+ibe8z7aKMed4=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-17-CBBpZaYfMJiCqD5y1b9HrA-1; Thu, 31 Aug 2023 11:13:07 -0400
-X-MC-Unique: CBBpZaYfMJiCqD5y1b9HrA-1
-Received: by mail-ed1-f71.google.com with SMTP id
- 4fb4d7f45d1cf-52a08d02c62so706528a12.2
+ us-mta-79-woNIhyXcML-ItyJW4VtBfQ-1; Thu, 31 Aug 2023 11:23:26 -0400
+X-MC-Unique: woNIhyXcML-ItyJW4VtBfQ-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ a640c23a62f3a-99bcb13d8ddso68196266b.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 31 Aug 2023 08:13:07 -0700 (PDT)
+ Thu, 31 Aug 2023 08:23:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1693494786; x=1694099586;
+ d=1e100.net; s=20221208; t=1693495405; x=1694100205;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=7q3Y4yiktGEyTW0UFreHL9GRNARDnev7O8/a837iJGA=;
- b=HBKfqWueZ8TTeltBs8H8GLZW/lbdgw1HbjGcrr8M4WyjT6Zkwmjl7diUZWrqGHU/lO
- ULLSyv++l9ySMmrI3ykVseF/Vtx4ASVnXX1blWZoG0z/vaZ+mOakedeluPodBOaWR6Al
- 5DsEUI+sWJM37Y6Ibh78JINHX05r6AYdNCduFkLGJw8kDG7YMnnEB5I8HGOJHlftJU13
- wWXKKV8cDJ+OAs+79NF+yRyLciyRiik+hwbSiVIVXuVnzGCiG4shMEIpaYxyrPr8qM+X
- SkGwkjvEjAdKPEroaP2fWt8X1sDYqn1umQ+Ole1l1jPgpebweLRKf7KOJtGGuQNtO5hX
- 7X9Q==
-X-Gm-Message-State: AOJu0YyyluPHa5XSt0b9NU8oljy2NzM8p4Z4clBW/TYnI6rCMrjBKngW
- Y4enDIkJDq6k7ekR6Se4+S3sxMFLAxHbfdJpEFgIEvc9ugBc9MJOColx7p7YCgDd8YkLgZJytc6
- Bhmv8oJ3Ma/dgtrB9HiXR08TRc+yQkTnwxDneORxTrQ==
-X-Received: by 2002:a17:907:2711:b0:99b:627b:e96d with SMTP id
- w17-20020a170907271100b0099b627be96dmr3925091ejk.44.1693494786297; 
- Thu, 31 Aug 2023 08:13:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF715v/t0gaQyatoS18qed412E+sQSxkJ3L84oJw2LaknRVSuElh16mJtXthOZpoaHZRxEsZQ==
-X-Received: by 2002:a17:907:2711:b0:99b:627b:e96d with SMTP id
- w17-20020a170907271100b0099b627be96dmr3925080ejk.44.1693494785954; 
- Thu, 31 Aug 2023 08:13:05 -0700 (PDT)
+ bh=T2qLYWseOqvE9giCpHzoh0LjB8ysce7C+TOetknN7JE=;
+ b=kqmzMbZt/leR0mHywByKNADDY/uyqksxHNRGM/1HHOIYgu6Oy16XRvBKGTFoK1ZjXD
+ fZFo1jXuEIW9h20xT0pce8xshprQ67mn9xF5dNbYmHtkI4JGJmuVKkXanfo5haMF9obD
+ iRuBnZblfuXuINcav+iy6Q0ed2BzLE9el8IcG8WtoqQ1Az4mXXoOGwYV0HcACD/EceSV
+ qQ600TEaB9bchzKVqNowN4YUrLjyKYvB82GUhqm8x2+TRGt1bUKPcuL9Z4QR3PxvFr1v
+ blYMXTrnBFpJKghL04SKQze1OCsycstAXPL0NdlO2g0PM4UMpGR9L3DOlA3pgspXhA/E
+ jLng==
+X-Gm-Message-State: AOJu0YwZWYvDKgjeKAeUZZDtxIWp2VSF1s5CscrZ3wsvPRp0Ko4qhtcU
+ FRFPHl4xcMG1zjAbe3E1NWmTq7vAExDNMpY2inammK40ldMOJyMmSAroffpIekIthq4jiZmbLrz
+ MZuKS7X47uyboM1+/2rUeW6SCmwFqFcBjVP3GdL2xEg==
+X-Received: by 2002:a17:907:270c:b0:99b:40b5:1c3b with SMTP id
+ w12-20020a170907270c00b0099b40b51c3bmr4298766ejk.57.1693495404939; 
+ Thu, 31 Aug 2023 08:23:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEqU32suFcax5N4zksCL5waYuwAr8trEmXcjLOBAuPXy6wP4BOWSV+IqSHWUR9lSPZ+Yzgs4w==
+X-Received: by 2002:a17:907:270c:b0:99b:40b5:1c3b with SMTP id
+ w12-20020a170907270c00b0099b40b51c3bmr4298742ejk.57.1693495404674; 
+ Thu, 31 Aug 2023 08:23:24 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-114.retail.telecomitalia.it.
  [82.57.51.114]) by smtp.gmail.com with ESMTPSA id
- i2-20020a1709064ec200b0099bc8db97bcsm852964ejv.131.2023.08.31.08.13.04
+ l18-20020a1709066b9200b009930308425csm859467ejr.31.2023.08.31.08.23.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 31 Aug 2023 08:13:05 -0700 (PDT)
-Date: Thu, 31 Aug 2023 17:13:02 +0200
+ Thu, 31 Aug 2023 08:23:24 -0700 (PDT)
+Date: Thu, 31 Aug 2023 17:23:22 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [RFC PATCH v2 2/2] test/vsock: shutdowned socket test
-Message-ID: <tejk4hvlsjalsrm4fimm7vojhwhluj6ous3im33kmkydpmv6fi@nvy3twy6gtxy>
+Subject: Re: [RFC PATCH v2 0/2] vsock: handle writes to shutdowned socket
+Message-ID: <7byt3iwpo5ewpxkjwh6adlzq2nerrbv7trlreujuchsrkworxk@2jxzyul3o5cz>
 References: <20230826175900.3693844-1-avkrasnov@salutedevices.com>
- <20230826175900.3693844-3-avkrasnov@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <20230826175900.3693844-3-avkrasnov@salutedevices.com>
+In-Reply-To: <20230826175900.3693844-1-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -124,186 +123,48 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Aug 26, 2023 at 08:59:00PM +0300, Arseniy Krasnov wrote:
->This adds two tests for 'shutdown()' call. It checks that SIGPIPE is
->sent when MSG_NOSIGNAL is not set and vice versa. Both flags SHUT_WR
->and SHUT_RD are tested.
->
->Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->---
-> tools/testing/vsock/vsock_test.c | 138 +++++++++++++++++++++++++++++++
-> 1 file changed, 138 insertions(+)
+Hi Arseniy,
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+On Sat, Aug 26, 2023 at 08:58:58PM +0300, Arseniy Krasnov wrote:
+>Hello,
+>
+>this small patchset adds POSIX compliant behaviour on writes to the
+>socket which was shutdowned with 'shutdown()' (both sides - local with
+>SHUT_WR flag, peer - with SHUT_RD flag). According POSIX we must send
+>SIGPIPE in such cases (but SIGPIPE is not send when MSG_NOSIGNAL is set).
+>
+>First patch is implemented in the same way as net/ipv4/tcp.c:tcp_sendmsg_locked().
+>It uses 'sk_stream_error()' function which handles EPIPE error. Another
+>way is to use code from net/unix/af_unix.c:unix_stream_sendmsg() where
+>same logic from 'sk_stream_error()' is implemented "from scratch", but
+>it doesn't check 'sk_err' field. I think error from this field has more
+>priority to be returned from syscall. So I guess it is better to reuse
+>currently implemented 'sk_stream_error()' function.
+>
+>Test is also added.
+>
+>Head for this patchset is:
+>https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=b38460bc463c54e0c15ff3b37e81f7e2059bb9bb
+>
+>Link to v1:
+>https://lore.kernel.org/netdev/20230801141727.481156-1-AVKrasnov@sberdevices.ru/
+>
+>Changelog:
+>v1 -> v2:
+> * 0001 stills the same - SIGPIPE is sent only for SOCK_STREAM as discussed in v1
+>   with Stefano Garzarella <sgarzare@redhat.com>.
+> * 0002 - use 'sig_atomic_t' instead of 'bool' for flag variables updated from
+>   signal handler.
+>
+>Arseniy Krasnov (2):
+>  vsock: send SIGPIPE on write to shutdowned socket
+>  test/vsock: shutdowned socket test
 
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index 90718c2fd4ea..148fc9c47c50 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -19,6 +19,7 @@
-> #include <time.h>
-> #include <sys/mman.h>
-> #include <poll.h>
->+#include <signal.h>
->
-> #include "timeout.h"
-> #include "control.h"
->@@ -1170,6 +1171,133 @@ static void test_seqpacket_msg_peek_server(const struct test_opts *opts)
-> 	return test_msg_peek_server(opts, true);
-> }
->
->+static sig_atomic_t have_sigpipe;
->+
->+static void sigpipe(int signo)
->+{
->+	have_sigpipe = 1;
->+}
->+
->+static void test_stream_check_sigpipe(int fd)
->+{
->+	ssize_t res;
->+
->+	have_sigpipe = 0;
->+
->+	res = send(fd, "A", 1, 0);
->+	if (res != -1) {
->+		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (!have_sigpipe) {
->+		fprintf(stderr, "SIGPIPE expected\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	have_sigpipe = 0;
->+
->+	res = send(fd, "A", 1, MSG_NOSIGNAL);
->+	if (res != -1) {
->+		fprintf(stderr, "expected send(2) failure, got %zi\n", res);
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (have_sigpipe) {
->+		fprintf(stderr, "SIGPIPE not expected\n");
->+		exit(EXIT_FAILURE);
->+	}
->+}
->+
->+static void test_stream_shutwr_client(const struct test_opts *opts)
->+{
->+	int fd;
->+
->+	struct sigaction act = {
->+		.sa_handler = sigpipe,
->+	};
->+
->+	sigaction(SIGPIPE, &act, NULL);
->+
->+	fd = vsock_stream_connect(opts->peer_cid, 1234);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (shutdown(fd, SHUT_WR)) {
->+		perror("shutdown");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	test_stream_check_sigpipe(fd);
->+
->+	control_writeln("CLIENTDONE");
->+
->+	close(fd);
->+}
->+
->+static void test_stream_shutwr_server(const struct test_opts *opts)
->+{
->+	int fd;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("CLIENTDONE");
->+
->+	close(fd);
->+}
->+
->+static void test_stream_shutrd_client(const struct test_opts *opts)
->+{
->+	int fd;
->+
->+	struct sigaction act = {
->+		.sa_handler = sigpipe,
->+	};
->+
->+	sigaction(SIGPIPE, &act, NULL);
->+
->+	fd = vsock_stream_connect(opts->peer_cid, 1234);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_expectln("SHUTRDDONE");
->+
->+	test_stream_check_sigpipe(fd);
->+
->+	control_writeln("CLIENTDONE");
->+
->+	close(fd);
->+}
->+
->+static void test_stream_shutrd_server(const struct test_opts *opts)
->+{
->+	int fd;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (shutdown(fd, SHUT_RD)) {
->+		perror("shutdown");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_writeln("SHUTRDDONE");
->+	control_expectln("CLIENTDONE");
->+
->+	close(fd);
->+}
->+
-> static struct test_case test_cases[] = {
-> 	{
-> 		.name = "SOCK_STREAM connection reset",
->@@ -1250,6 +1378,16 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_seqpacket_msg_peek_client,
-> 		.run_server = test_seqpacket_msg_peek_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM SHUT_WR",
->+		.run_client = test_stream_shutwr_client,
->+		.run_server = test_stream_shutwr_server,
->+	},
->+	{
->+		.name = "SOCK_STREAM SHUT_RD",
->+		.run_client = test_stream_shutrd_client,
->+		.run_server = test_stream_shutrd_server,
->+	},
-> 	{},
-> };
->
->-- 
->2.25.1
->
->
+Thanks for this series, I fully reviewed it, LGTM!
+
+Please send it targeting net-next when it reopens.
+
+Stefano
 
 _______________________________________________
 Virtualization mailing list
