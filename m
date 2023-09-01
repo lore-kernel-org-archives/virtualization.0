@@ -1,107 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3A50CA0FE8
-	for <virtualization@archiver.kernel.org>; Fri,  1 Sep 2023 12:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7AB5ECA0FE1
+	for <virtualization@archiver.kernel.org>; Fri,  1 Sep 2023 12:37:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 66C3E81E50;
-	Fri,  1 Sep 2023 12:34:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 66C3E81E50
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dW71cnaq
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ogRaTiuD4hzg; Fri,  1 Sep 2023 12:34:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CEF9D81E46;
-	Fri,  1 Sep 2023 12:34:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CEF9D81E46
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A281BC0039;
-	Fri,  1 Sep 2023 12:34:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3FBABC0032
- for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Sep 2023 12:34:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 25C474200E
- for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Sep 2023 12:34:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 25C474200E
+	by smtp4.osuosl.org (Postfix) with ESMTP id E677542013;
+	Fri,  1 Sep 2023 12:37:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E677542013
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dW71cnaq
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fH9rtLuM
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id q-JEUfBcnuEU
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3RcP8JvhjyOO; Fri,  1 Sep 2023 12:37:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4E5294200F;
+	Fri,  1 Sep 2023 12:37:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E5294200F
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F8C3C0039;
+	Fri,  1 Sep 2023 12:37:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D1D9FC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Sep 2023 12:34:15 +0000 (UTC)
+ Fri,  1 Sep 2023 12:37:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 98A4583B58
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Sep 2023 12:37:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 98A4583B58
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=fH9rtLuM
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZnYvQkB3YRXj
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  1 Sep 2023 12:37:01 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 22CE04200D
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BF6C183B56
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Sep 2023 12:34:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 22CE04200D
+ Fri,  1 Sep 2023 12:37:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BF6C183B56
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1693571654;
+ s=mimecast20190719; t=1693571820;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=aNIJ/eGigZtGUYGZTGziEv0Hr86IZ6MX9zljYZmw98Q=;
- b=dW71cnaqsMBubyvulZnP+cNA3c7u+JDEORkXzSESoNtOiMqluKcZ5vuebGHdn7iVw/i67h
- 1zgsJeoogWW/sOQrilF/vapsv06UEZnA8ioNtJVNDMlleiZYTRCX2wkQ1NRvJ3O8QmoN7O
- nHoMv837Fo6suG6BuTgfwQ8iXkKtwRQ=
+ bh=j4h0vgqDbXZ9cKpY1IY0NrIgMllN6xWh52Qc3BdpfdQ=;
+ b=fH9rtLuMJfFJPbaQtiWW86rfh4Ue45kcl5kiushrWShaP98sezZeEYzIF/FNmRUhaOjEaV
+ v3HEWk876Rre0yk5vsz0p4UZTl3GN3Dm6S+Jbp7VAyT8mBqw4XX9/V0HvpMo6LIPiAcDb3
+ nDLJ4Fs+O/hh3ZS7Vu3wvihHwD4yOhY=
 Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
  [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-135-mXmSrYPkN_6YzD2VlQ51kQ-1; Fri, 01 Sep 2023 08:34:13 -0400
-X-MC-Unique: mXmSrYPkN_6YzD2VlQ51kQ-1
+ us-mta-327-SjFlieN0PYyAqdKkABGcgg-1; Fri, 01 Sep 2023 08:36:59 -0400
+X-MC-Unique: SjFlieN0PYyAqdKkABGcgg-1
 Received: by mail-ej1-f70.google.com with SMTP id
- a640c23a62f3a-98e40d91fdfso141299066b.3
+ a640c23a62f3a-9a5952a0b20so133018666b.3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 01 Sep 2023 05:34:12 -0700 (PDT)
+ Fri, 01 Sep 2023 05:36:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20221208; t=1693571652; x=1694176452;
+ d=1e100.net; s=20221208; t=1693571818; x=1694176618;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=aNIJ/eGigZtGUYGZTGziEv0Hr86IZ6MX9zljYZmw98Q=;
- b=bDrk9Fq8wS9gWirz6k9iHbYB3IA/dKlOdJASO8kf/s1F8JKet6FLK0Orrm0GO+eKaj
- Zh4Fkj5mDC7Yrsybgkmk1JCS4XlAhclBzJRlXyo1gs8szKkfYuOoyQSdiDGCiFKhRT4l
- IIr2eLmZ1Wi2oEK+8J5pQPf4qQmpxMV4GuC0JlhwOdF8JlH6utARiFQO7Fyn7oldm7kX
- /izgEmGc62QQoSy/sLQDuRZOU+P/6YMEMzQ6xh//lIjwPQ4BmSeRkgYUrJ2sjgktwuko
- QmWr2N1EYEFds3a1nDoxIsjfAbO0M7T7ruwQmltL32AcgrD6rRxeBwZJHHjjasbj9GGh
- FDTA==
-X-Gm-Message-State: AOJu0Yy80xQrxq2qfGoD4lXj1CZq8y+dTQKX+TGcod2ltXfMteg85BeY
- n0y1SuGllHhmjNNhMB3Prc/ys2Vm1I8Ccy+hMikCwOhWqBb6Hkn6CJLJsKB94NMrPZ+pKKlV3nH
- vm52OkPkpp6yY9n3G6QKBFs6e1HZslk6Q5eHOhCSCUQ==
-X-Received: by 2002:a17:906:cc4b:b0:9a1:f521:c3ff with SMTP id
- mm11-20020a170906cc4b00b009a1f521c3ffmr1968916ejb.40.1693571651948; 
- Fri, 01 Sep 2023 05:34:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFdwDTby/bdcndq6+v/2sv0Oadl3EG/Z9W3gE2sao7E3fQXKbNEUWMjvDkVCoig3fFvaMVq/Q==
-X-Received: by 2002:a17:906:cc4b:b0:9a1:f521:c3ff with SMTP id
- mm11-20020a170906cc4b00b009a1f521c3ffmr1968892ejb.40.1693571651661; 
- Fri, 01 Sep 2023 05:34:11 -0700 (PDT)
+ bh=j4h0vgqDbXZ9cKpY1IY0NrIgMllN6xWh52Qc3BdpfdQ=;
+ b=Ea3XasteaGMIRWpEeo4RS4b68k4HiUEPSkU3WGitQ0BcI2UYQeDsmI3K//8peyqiLp
+ Q/VBzjG1jDOEYWklRoCdHY4euAr2KaJChfFRofMSmbFfjJQ6AEDAZ/OT395yNV6ukeD/
+ g6CGQh17Iypk9T+8PYk7MMGRLOPy5JgH38LqzTjZA9ZjSH5BH2N3l9SkR5QeC4uiPjvg
+ uut1XRSGGNPDJ0hCl/6BM/WgLSN4ypsPOvXNQ4FRa77jTqgu8Zh2waSXqcLBj4THihMr
+ RGk9Qe2hwNzoYNkxA9kSdAbgvOjHpmWFH11Oi1wM6Bnfmyp8QgeiHGvfEQuhw98vcvkV
+ f9Fg==
+X-Gm-Message-State: AOJu0Yyj38jn9crB5TR/WruiZnYgQSgkozRdJQEBUOpPd/aGHmPQycQi
+ NEU8meV+OEnjlwQ12wtj3aZHo6s+qwL4a+mDOraOXgsEOIDGxaV0fx0SpYvcUzCikTpIYa5MVJH
+ MIhFBE5UAfw186CwVIR61O8A11bKjIVRs0Vrh8zozzw==
+X-Received: by 2002:a17:906:113:b0:99b:4a29:fb6a with SMTP id
+ 19-20020a170906011300b0099b4a29fb6amr1706292eje.59.1693571818101; 
+ Fri, 01 Sep 2023 05:36:58 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGnc7ku06Rb323HLHpbRqxeg5/4zOqE3MmS5rXNzpID4yPpYKwGJsgULx/Y2zOMng08MkVbQg==
+X-Received: by 2002:a17:906:113:b0:99b:4a29:fb6a with SMTP id
+ 19-20020a170906011300b0099b4a29fb6amr1706279eje.59.1693571817799; 
+ Fri, 01 Sep 2023 05:36:57 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-114.retail.telecomitalia.it.
  [82.57.51.114]) by smtp.gmail.com with ESMTPSA id
- l13-20020a170906a40d00b0099bc0daf3d7sm1926076ejz.182.2023.09.01.05.34.10
+ tk26-20020a170907c29a00b009a1082f423esm1880381ejc.88.2023.09.01.05.36.56
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 01 Sep 2023 05:34:11 -0700 (PDT)
-Date: Fri, 1 Sep 2023 14:34:08 +0200
+ Fri, 01 Sep 2023 05:36:57 -0700 (PDT)
+Date: Fri, 1 Sep 2023 14:36:55 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v7 1/4] vsock/virtio/vhost: read data from
- non-linear skb
-Message-ID: <auffsp3vajtsh4gynsfusph74bdbghvhoalalgvcfqyvphj5vw@hgiwneiqcbrd>
+Subject: Re: [PATCH net-next v7 2/4] vsock/virtio: support to send non-linear
+ skb
+Message-ID: <goakwa53hmon4aspdrjv3vrimy2b4sbv3unjwzhvn5fv5w7eqo@lvugg3vlrwga>
 References: <20230827085436.941183-1-avkrasnov@salutedevices.com>
- <20230827085436.941183-2-avkrasnov@salutedevices.com>
+ <20230827085436.941183-3-avkrasnov@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <20230827085436.941183-2-avkrasnov@salutedevices.com>
+In-Reply-To: <20230827085436.941183-3-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -128,49 +128,130 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Aug 27, 2023 at 11:54:33AM +0300, Arseniy Krasnov wrote:
->This is preparation patch for MSG_ZEROCOPY support. It adds handling of
->non-linear skbs by replacing direct calls of 'memcpy_to_msg()' with
->'skb_copy_datagram_iter()'. Main advantage of the second one is that it
->can handle paged part of the skb by using 'kmap()' on each page, but if
->there are no pages in the skb, it behaves like simple copying to iov
->iterator. This patch also adds new field to the control block of skb -
->this value shows current offset in the skb to read next portion of data
->(it doesn't matter linear it or not). Idea behind this field is that
->'skb_copy_datagram_iter()' handles both types of skb internally - it
->just needs an offset from which to copy data from the given skb. This
->offset is incremented on each read from skb. This approach allows to
->simplify handling of both linear and non-linear skbs, because for
->linear skb we need to call 'skb_pull()' after reading data from it,
->while in non-linear case we need to update 'data_len'.
+On Sun, Aug 27, 2023 at 11:54:34AM +0300, Arseniy Krasnov wrote:
+>For non-linear skb use its pages from fragment array as buffers in
+>virtio tx queue. These pages are already pinned by 'get_user_pages()'
+>during such skb creation.
 >
 >Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 >---
 > Changelog:
-> v5(big patchset) -> v1:
->  * Merge 'virtio_transport_common.c' and 'vhost/vsock.c' patches into
->    this single patch.
->  * Commit message update: grammar fix and remark that this patch is
->    MSG_ZEROCOPY preparation.
->  * Use 'min_t()' instead of comparison using '<>' operators.
-> v1 -> v2:
->  * R-b tag added.
-> v3 -> v4:
->  * R-b tag removed due to rebase:
->    * Part for 'virtio_transport_stream_do_peek()' is changed.
->    * Part for 'virtio_transport_seqpacket_do_peek()' is added.
->  * Comments about sleep in 'memcpy_to_msg()' now describe sleep in
->    'skb_copy_datagram_iter()'.
-> v5 -> v6:
->  * Commit message update.
->  * Rename 'frag_off' to 'offset' in 'virtio_vsock_skb_cb'.
+> v2 -> v3:
+>  * Comment about 'page_to_virt()' is updated. I don't remove R-b,
+>    as this change is quiet small I guess.
+> v6 -> v7:
+>  * Move arrays '*sgs' and 'bufs' to 'virtio_vsock' instead of being
+>    local variables. This allows to save stack space in cases of too
+>    big MAX_SKB_FRAGS.
+>  * Add 'WARN_ON_ONCE()' for handling nonlinear skbs - it checks that
+>    linear part of such skb contains only header.
+>  * R-b tag removed due to updates above.
 >
-> drivers/vhost/vsock.c                   | 14 +++++++----
-> include/linux/virtio_vsock.h            |  1 +
-> net/vmw_vsock/virtio_transport_common.c | 32 +++++++++++++++----------
-> 3 files changed, 29 insertions(+), 18 deletions(-)
+> net/vmw_vsock/virtio_transport.c | 54 +++++++++++++++++++++++++++-----
+> 1 file changed, 47 insertions(+), 7 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+>index e95df847176b..8636477cf088 100644
+>--- a/net/vmw_vsock/virtio_transport.c
+>+++ b/net/vmw_vsock/virtio_transport.c
+>@@ -63,6 +63,10 @@ struct virtio_vsock {
+>
+> 	u32 guest_cid;
+> 	bool seqpacket_allow;
+>+
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I'd add a comment here specifying specifying what we need these fields
+for and why we put them here (basically Paolo's suggestion).
+
+>+	/* +1 is for packet header. */
+>+	struct scatterlist *sgs[MAX_SKB_FRAGS + 1];
+>+	struct scatterlist bufs[MAX_SKB_FRAGS + 1];
+> };
+>
+> static u32 virtio_transport_get_local_cid(void)
+>@@ -100,8 +104,9 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+> 	vq = vsock->vqs[VSOCK_VQ_TX];
+>
+> 	for (;;) {
+>-		struct scatterlist hdr, buf, *sgs[2];
+> 		int ret, in_sg = 0, out_sg = 0;
+>+		struct scatterlist **sgs;
+>+		struct scatterlist *bufs;
+> 		struct sk_buff *skb;
+> 		bool reply;
+>
+>@@ -111,12 +116,47 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+>
+> 		virtio_transport_deliver_tap_pkt(skb);
+> 		reply = virtio_vsock_skb_reply(skb);
+>-
+>-		sg_init_one(&hdr, virtio_vsock_hdr(skb), sizeof(*virtio_vsock_hdr(skb)));
+>-		sgs[out_sg++] = &hdr;
+>-		if (skb->len > 0) {
+>-			sg_init_one(&buf, skb->data, skb->len);
+>-			sgs[out_sg++] = &buf;
+>+		sgs = vsock->sgs;
+>+		bufs = vsock->bufs;
+>+		sg_init_one(&bufs[out_sg], virtio_vsock_hdr(skb),
+>+			    sizeof(*virtio_vsock_hdr(skb)));
+>+		sgs[out_sg] = &bufs[out_sg];
+
+IIUC `sgs[i]` always contains `&bufs[i]`.
+
+Could we initialize it once when we allocate `struct virtio_vsock` in
+`virtio_vsock_probe`?
+
+Of course putting a comment in `struct virtio_vsock` about it.
+
+Since we are using them only for out buffers, I'd also rename them in
+out_sgs and out_bufs.
+
+The rest LGTM.
+
+Stefano
+
+>+		out_sg++;
+>+
+>+		if (!skb_is_nonlinear(skb)) {
+>+			if (skb->len > 0) {
+>+				sg_init_one(&bufs[out_sg], skb->data, skb->len);
+>+				sgs[out_sg] = &bufs[out_sg];
+>+				out_sg++;
+>+			}
+>+		} else {
+>+			struct skb_shared_info *si;
+>+			int i;
+>+
+>+			/* If skb is nonlinear, then its buffer must contain
+>+			 * only header and nothing more. Data is stored in
+>+			 * the fragged part.
+>+			 */
+>+			WARN_ON_ONCE(skb_headroom(skb) != sizeof(*virtio_vsock_hdr(skb)));
+>+
+>+			si = skb_shinfo(skb);
+>+
+>+			for (i = 0; i < si->nr_frags; i++) {
+>+				skb_frag_t *skb_frag = &si->frags[i];
+>+				void *va;
+>+
+>+				/* We will use 'page_to_virt()' for the userspace page
+>+				 * here, because virtio or dma-mapping layers will call
+>+				 * 'virt_to_phys()' later to fill the buffer descriptor.
+>+				 * We don't touch memory at "virtual" address of this page.
+>+				 */
+>+				va = page_to_virt(skb_frag->bv_page);
+>+				sg_init_one(&bufs[out_sg],
+>+					    va + skb_frag->bv_offset,
+>+					    skb_frag->bv_len);
+>+				sgs[out_sg] = &bufs[out_sg];
+>+				out_sg++;
+>+			}
+> 		}
+>
+> 		ret = virtqueue_add_sgs(vq, sgs, out_sg, in_sg, skb, GFP_KERNEL);
+>-- 
+>2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
