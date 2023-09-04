@@ -1,70 +1,63 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE47DC83F3F
-	for <virtualization@archiver.kernel.org>; Mon,  4 Sep 2023 16:34:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 876FCCA0FFA
+	for <virtualization@archiver.kernel.org>; Mon,  4 Sep 2023 17:25:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 26A3E40C96;
-	Mon,  4 Sep 2023 16:34:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 26A3E40C96
+	by smtp3.osuosl.org (Postfix) with ESMTP id 04050610BE;
+	Mon,  4 Sep 2023 17:25:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 04050610BE
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5Fn4rKE9u0tV; Mon,  4 Sep 2023 16:34:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 77DF540C5A;
-	Mon,  4 Sep 2023 16:34:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 77DF540C5A
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wqQvA_zyo7-3; Mon,  4 Sep 2023 17:25:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2D449610B6;
+	Mon,  4 Sep 2023 17:25:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2D449610B6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E364C0071;
-	Mon,  4 Sep 2023 16:34:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 057B3C0039;
+	Mon,  4 Sep 2023 17:25:53 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0A955C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DF0D6C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Sep 2023 16:33:59 +0000 (UTC)
+ Mon,  4 Sep 2023 17:25:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D8B134087E
+ by smtp4.osuosl.org (Postfix) with ESMTP id B86A8408E4
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Sep 2023 16:33:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D8B134087E
+ Mon,  4 Sep 2023 17:25:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B86A8408E4
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P_2V29yNTWMt
+ with ESMTP id ZIckrMnsaWfT
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Sep 2023 16:33:57 +0000 (UTC)
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp4.osuosl.org (Postfix) with ESMTP id 880ED40875
+ Mon,  4 Sep 2023 17:25:49 +0000 (UTC)
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 51404408E3
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Sep 2023 16:33:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 880ED40875
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6CA53143D;
- Mon,  4 Sep 2023 09:34:34 -0700 (PDT)
-Received: from [10.57.5.181] (unknown [10.57.5.181])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 5EF223F766;
- Mon,  4 Sep 2023 09:33:55 -0700 (PDT)
-Message-ID: <f1259993-2419-9c9e-30d3-0631ef938679@arm.com>
-Date: Mon, 4 Sep 2023 17:33:46 +0100
+ Mon,  4 Sep 2023 17:25:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 51404408E3
+Received: from [188.250.50.35] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <icits@saisti.eu>) id 1qdCuL-0002CL-E7
+ for virtualization@lists.linux-foundation.org; Mon, 04 Sep 2023 19:58:37 +0300
+From: "WorldCIST-24" <marialemos72@gmail.com>
+Subject: WorldCIST'24 - Call for Workshops Proposals
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
- Thunderbird/102.15.0
-Subject: Re: [PATCH 2/2] iommu/virtio: Add ops->flush_iotlb_all and enable
- deferred flush
-Content-Language: en-GB
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Niklas Schnelle <schnelle@linux.ibm.com>
-References: <20230825-viommu-sync-map-v1-0-56bdcfaa29ec@linux.ibm.com>
- <20230825-viommu-sync-map-v1-2-56bdcfaa29ec@linux.ibm.com>
- <20230904153403.GB815284@myrica>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <20230904153403.GB815284@myrica>
-Cc: linux-kernel@vger.kernel.org, Joerg Roedel <joro@8bytes.org>,
- Will Deacon <will@kernel.org>, iommu@lists.linux.dev,
- virtualization@lists.linux-foundation.org
+Date: Mon, 4 Sep 2023 17:58:37 +0100
+Priority: urgent
+X-Priority: 1
+Importance: high
+Message-ID: <16916666668046@gmail-com>
+X-Antivirus: AVG (VPS 230904-2, 4/9/2023), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,88 +69,298 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Reply-To: worldcist@gmail.com
+Content-Type: multipart/mixed; boundary="===============6118832816556969706=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2023-09-04 16:34, Jean-Philippe Brucker wrote:
-> On Fri, Aug 25, 2023 at 05:21:26PM +0200, Niklas Schnelle wrote:
->> Add ops->flush_iotlb_all operation to enable virtio-iommu for the
->> dma-iommu deferred flush scheme. This results inn a significant increase
-> 
-> in
-> 
->> in performance in exchange for a window in which devices can still
->> access previously IOMMU mapped memory. To get back to the prior behavior
->> iommu.strict=1 may be set on the kernel command line.
-> 
-> Maybe add that it depends on CONFIG_IOMMU_DEFAULT_DMA_{LAZY,STRICT} as
-> well, because I've seen kernel configs that enable either.
+This is a multi-part message in MIME format
 
-Indeed, I'd be inclined phrase it in terms of the driver now actually 
-being able to honour lazy mode when requested (which happens to be the 
-default on x86), rather than as if it might be some 
-potentially-unexpected change in behaviour.
+--===============6118832816556969706==
+Content-Type: multipart/alternative; charset=utf-8; boundary="ix9JxWgGhIBGyDeFyV4Bf4M9EKH=_mtQca"
 
-Thanks,
-Robin.
+This is a multi-part message in MIME format
 
->> Link: https://lore.kernel.org/lkml/20230802123612.GA6142@myrica/
->> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->> ---
->>   drivers/iommu/virtio-iommu.c | 12 ++++++++++++
->>   1 file changed, 12 insertions(+)
->>
->> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
->> index fb73dec5b953..1b7526494490 100644
->> --- a/drivers/iommu/virtio-iommu.c
->> +++ b/drivers/iommu/virtio-iommu.c
->> @@ -924,6 +924,15 @@ static int viommu_iotlb_sync_map(struct iommu_domain *domain,
->>   	return viommu_sync_req(vdomain->viommu);
->>   }
->>   
->> +static void viommu_flush_iotlb_all(struct iommu_domain *domain)
->> +{
->> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
->> +
->> +	if (!vdomain->nr_endpoints)
->> +		return;
-> 
-> As for patch 1, a NULL check in viommu_sync_req() would allow dropping
-> this one
-> 
-> Thanks,
-> Jean
-> 
->> +	viommu_sync_req(vdomain->viommu);
->> +}
->> +
->>   static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
->>   {
->>   	struct iommu_resv_region *entry, *new_entry, *msi = NULL;
->> @@ -1049,6 +1058,8 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
->>   	switch (cap) {
->>   	case IOMMU_CAP_CACHE_COHERENCY:
->>   		return true;
->> +	case IOMMU_CAP_DEFERRED_FLUSH:
->> +		return true;
->>   	default:
->>   		return false;
->>   	}
->> @@ -1069,6 +1080,7 @@ static struct iommu_ops viommu_ops = {
->>   		.map_pages		= viommu_map_pages,
->>   		.unmap_pages		= viommu_unmap_pages,
->>   		.iova_to_phys		= viommu_iova_to_phys,
->> +		.flush_iotlb_all	= viommu_flush_iotlb_all,
->>   		.iotlb_sync		= viommu_iotlb_sync,
->>   		.iotlb_sync_map		= viommu_iotlb_sync_map,
->>   		.free			= viommu_domain_free,
->>
->> -- 
->> 2.39.2
->>
+--ix9JxWgGhIBGyDeFyV4Bf4M9EKH=_mtQca
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* CORE Conference
+** Google Scholar H5-Index =3D 25
+
+*** Indexed in Scopus, WoS, DBLP, etc
+
+
+
+
+------------------------------   ------------------------------   ---------=
+--------------------- 
+CALL for WORKSHOPS PROPOSALS for the WorldCIST'24
+
+The 12th World Conference on Information Systems and Technologies
+
+Lodz University of Technology, Poland, March 26-28, 2024
+
+http://worldcist.org/ <http://worldcist.org/> 
+ ------------------------------   ------------------------------   --------=
+--------------------- 
+
+
+
+SCOPE
+
+The Information Systems and Technologies research and industrial community =
+is invited to submit proposals for the organization of Workshops at WorldCi=
+st'24 - 12th World Conference on Information Systems and Technologies, to b=
+e held at Lodz University of Technology, Poland, March 26 - 28, 2024. World=
+Cist is a global forum for researchers and practitioners to present and dis=
+cuss the most recent innovations, trends, results, experiences and concerns=
+ in the several perspectives of Information Systems and Technologies. 
+
+
+WORKSHOP FORMAT
+
+Workshops should focus on a specific scientific subject on the scope of Wor=
+ldCist'24 but not directly included on the main conference areas. Each work=
+shop will be coordinated by an Organizing Committee composed of, at least, =
+two researchers in the field, preferably from different institutions and di=
+fferent countries. The organizers should create an international Program Co=
+mmittee for the Workshop, with recognized researchers within the specific W=
+orkshop scientific area. Each workshop should have at least ten submissions=
+ and five accepted papers to be conducted at WorldCist'24.
+
+The selection of Workshops will be performed by WorldCist'24 Conference/Wor=
+kshop Chairs. Each Workshop will have 1 article offered for 10 articles wit=
+h paid registration, 2 articles offered for 20 articles with paid registrat=
+ion, and 3 articles offered for 40 articles with paid registration.
+
+Workshops full and short papers will be published in the conference main pr=
+oceedings in specific Workshop chapters published by Springer in a book of =
+the LNNS series. Proceedings will be submitted for indexation by WoS, SCOPU=
+S, DBLP, EI-Compendex among several other scientific databases. Extended ve=
+rsions of best selected papers will be published in journals indexed by WoS=
+/SCI, SCOPUS and DBLP. Detailed and up-to-date information may be found at =
+WorldCist'24 website: http://worldcist.org/ <https://mkt.saisti.eu/go/4b931=
+c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe1Nb>
+
+
+WORKSHOP ORGANIZATION
+
+The Organizing Committee of each Workshop will be responsible for:
+
+- Producing and distributing the Workshop Call for Papers (CFP);
+- Coordinating the review and selection process for the papers submitted to=
+ the Workshop, as Workshop chairs (on the paper submission system to be ins=
+talled);
+- Delivering the final versions of the papers accepted for the Workshop in =
+accordance with the guidelines and deadlines defined by WorldCist'24 organi=
+zers;
+- Coordinating and chairing the Workshop sessions at the conference.
+
+WorldCist'24 organizers reserve the right to cancel any Workshop if deadlin=
+es are missed or if the number of registered attendees is too low to suppor=
+t the costs associated with the Workshop.
+
+
+PROPOSAL CONTENT
+
+Workshop proposals should contain the following information:
+
+- Workshop title;
+- Brief description of the specific scientific scope of the Workshop;
+- List of topics of interest (max 15 topics);
+- Reasons the Workshop should be held within WorldCist=E2=80=9924;
+- Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee;
+- Preliminary proposal for the Workshop Program Committee (Names and affili=
+ations).
+
+Proposals should be submitted at https://easychair.org/   conferences/?conf=
+=3D   worldcistworkshops2024 in PDF (in English), by September 10, 2023.
+
+
+IMPORTANT DATES 
+- Deadline for Workshop proposals: September 10, 2023
+- Notification of Workshop acceptance: September 17, 2023
+- Workshop Final Information and Program Committee: September 24, 2023
+- Deadline for paper submission: November 26, 2023
+- Notification of paper acceptance: December 24, 2023
+- Deadline for final versions and conference registration: January 5, 2024
+- Conference dates: March 26 - 28, 2024
+
+
+CHAIR
+
+Fernando Moreira, Portucalense University, Portugal
+
+
+
+
+WEBSITE
+
+http://worldcist.org/ <https://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba=
+8d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nn>  
+
+
+-- 
+This email has been checked for viruses by AVG antivirus software.
+www.avg.com
+--ix9JxWgGhIBGyDeFyV4Bf4M9EKH=_mtQca
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <div id=3D"m_994143590781331048isPasted">
+      <div><span>
+          <div id=3D"m_994143590781331048isPasted">
+            <div>
+              <div>
+                <div>* CORE Conference</div>
+              </div>
+            </div>
+          </div>
+          <p>** Google Scholar H5-Index =3D 25</p>
+          <div id=3D"m_994143590781331048isPasted">
+            <div>
+              <p>*** Indexed in Scopus, WoS, DBLP, etc</p>
+              <p><br /></p>
+            </div>
+          </div>
+          <div>------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+          </div>
+          <p><strong>CALL for WORKSHOPS PROPOSALS for the WorldCIST'24</str=
+ong></p>
+          <div><strong>The 12th World Conference on Information Systems and=
+ Technologies</strong><br /><br />Lodz University of Technology, Poland, Ma=
+rch 26-28, 2024<br /><br /><a href=3D"http://worldcist.org/" rel=3D"nofollo=
+w noreferrer" target=3D"_blank" data-saferedirecturl=3D"https://www.google.=
+com/url?q=3Dhttps://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b49=
+54ce0144252905ese2OOTeYP0re3xe5Nl&source=3Dgmail&ust=3D1692015458017000&usg=
+=3DAOvVaw0qbWL5O6boZtfnMJCribs9">http://worldcist.org/</a> </div>
+          <p><a>&nbsp;</a>------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
+            <wbr>&nbsp;</wbr>&nbsp;----------------------------- 
+          </p>
+          <p><br /></p>
+          <p><strong>SCOPE</strong></p>
+          <p id=3D"m_994143590781331048isPasted">The Information Systems an=
+d Technologies research and industrial community is invited to submit propo=
+sals for the organization of Workshops at WorldCist'24 - 12th World Confere=
+nce on Information Systems and Technologies, to be held at Lodz University =
+of Technology, Poland, March 26 - 28, 2024. WorldCist is a global forum for=
+ researchers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several perspectiv=
+es of Information Systems and Technologies. <br /><br /><br /><strong>WORKS=
+HOP FORMAT</strong></p>
+          <p>Workshops should focus on a specific scientific subject on the=
+ scope of WorldCist'24 but not directly included on the main conference are=
+as. Each workshop will be coordinated by an Organizing Committee composed o=
+f, at least, two researchers in the field, preferably from different instit=
+utions and different countries. The organizers should create an internation=
+al Program Committee for the Workshop, with recognized researchers within t=
+he specific Workshop scientific area. Each workshop should have at least te=
+n submissions and five accepted papers to be conducted at WorldCist'24.<br =
+/><br />The selection of Workshops will be performed by WorldCist'24 Confer=
+ence/Workshop Chairs. Each Workshop will have 1 article offered for 10 arti=
+cles with paid registration, 2 articles offered for 20 articles with paid r=
+egistration, and 3 articles offered for 40 articles with paid registration.=
+</p>
+          <p>Workshops full and short papers will be published in the confe=
+rence main proceedings in specific Workshop chapters published by Springer =
+in a book of the LNNS series. Proceedings will be submitted for indexation =
+by WoS, SCOPUS, DBLP, EI-Compendex among several other scientific databases=
+=2E Extended versions of best selected papers will be published in journals=
+ indexed by WoS/SCI, SCOPUS and DBLP. Detailed and up-to-date information m=
+ay be found at WorldCist'24 website: <a href=3D"https://mkt.saisti.eu/go/4b=
+931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe1Nb" targ=
+et=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:=
+//mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2=
+OOTeYP0re3xe1Nb&source=3Dgmail&ust=3D1692015458017000&usg=3DAOvVaw0uDlcNi-P=
+rf8AlzVL7I8Lz">http://worldcist.org/</a><br /><br /><br /><strong>WORKSHOP =
+ORGANIZATION</strong><br /><br />The Organizing Committee of each Workshop =
+will be responsible for:<br /><br />- Producing and distributing the Worksh=
+op Call for Papers (CFP);<br />- Coordinating the review and selection proc=
+ess for the papers submitted to the Workshop, as Workshop chairs (on the pa=
+per submission system to be installed);<br />- Delivering the final version=
+s of the papers accepted for the Workshop in accordance with the guidelines=
+ and deadlines defined by WorldCist'24 organizers;<br />- Coordinating and =
+chairing the Workshop sessions at the conference.<br /><br />WorldCist'24 o=
+rganizers reserve the right to cancel any Workshop if deadlines are missed =
+or if the number of registered attendees is too low to support the costs as=
+sociated with the Workshop.<br /><br /><br /><strong>PROPOSAL CONTENT</stro=
+ng><br /><br />Workshop proposals should contain the following information:=
+<br /><br />- Workshop title;<br />- Brief description of the specific scie=
+ntific scope of the Workshop;<br />- List of topics of interest (max 15 top=
+ics);<br />- Reasons the Workshop should be held within WorldCist&rsquo;24;=
+<br />- Name, postal address, phone and email of all the members of the Wor=
+kshop Organizing Committee;<br />- Preliminary proposal for the Workshop Pr=
+ogram Committee (Names and affiliations).<br /><br />Proposals should be su=
+bmitted at <a href=3D"https://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8=
+d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nm" target=3D"_blank" data-safered=
+irecturl=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/4b931c0=
+2e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re3xe5Nm&source=3Dg=
+mail&ust=3D1692015458017000&usg=3DAOvVaw31n2bA2uwPBPlgVZkQtXb0">https://eas=
+ychair.org/ 
+              <wbr>&nbsp;</wbr>&nbsp;conferences/?conf=3D 
+              <wbr>&nbsp;</wbr>&nbsp;worldcistworkshops2024</a> in PDF (in =
+English), by September 10, 2023.<br /><br /><br /><strong>IMPORTANT DATES</=
+strong> 
+          </p>
+          <p>- Deadline for Workshop proposals: September 10, 2023<br />- N=
+otification of Workshop acceptance: September 17, 2023<br />- Workshop Fina=
+l Information and Program Committee: September 24, 2023<br />- Deadline for=
+ paper submission: November 26, 2023<br />- Notification of paper acceptanc=
+e: December 24, 2023<br />- Deadline for final versions and conference regi=
+stration: January 5, 2024<br />- Conference dates: March 26 - 28, 2024</p>
+          <p><br /><strong>CHAIR</strong><br /><br />Fernando Moreira, Port=
+ucalense University, Portugal</p>
+          <p><br /></p>
+          <p><strong>WEBSITE</strong></p>
+          <p><a id=3D"m_994143590781331048isPasted" href=3D"https://mkt.sai=
+sti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce0144252905ese2OOTeYP0re=
+3xe5Nn" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/ur=
+l?q=3Dhttps://mkt.saisti.eu/go/4b931c02e0fb429d-f130269dba8d68a979b4954ce01=
+44252905ese2OOTeYP0re3xe5Nn&source=3Dgmail&ust=3D1692015458017000&usg=3DAOv=
+Vaw2g_5zy2lULBM0j1Jr5eI-Y">http://worldcist.org/</a>&nbsp; </p></span>
+      </div>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
+rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
+px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
+ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
+_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
+lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
+dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
+ 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
+-serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
+signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
+_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
+=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
+2" width=3D"1" height=3D"1"> </a></div></body>
+</html>
+
+--ix9JxWgGhIBGyDeFyV4Bf4M9EKH=_mtQca--
+
+
+--===============6118832816556969706==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6118832816556969706==--
+
