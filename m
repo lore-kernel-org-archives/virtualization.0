@@ -4,64 +4,121 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF678EE14A5
-	for <virtualization@archiver.kernel.org>; Wed,  6 Sep 2023 16:35:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA879EC8733
+	for <virtualization@archiver.kernel.org>; Thu,  7 Sep 2023 14:21:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 380CB4056F;
-	Wed,  6 Sep 2023 16:35:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 380CB4056F
+	by smtp2.osuosl.org (Postfix) with ESMTP id 24ADC400DA;
+	Thu,  7 Sep 2023 14:21:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 24ADC400DA
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jPRHHTWz
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lbk_EbdkigMm; Wed,  6 Sep 2023 16:35:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B5967400D9;
-	Wed,  6 Sep 2023 16:35:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B5967400D9
+	with ESMTP id sI-0V18DURFJ; Thu,  7 Sep 2023 14:21:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9C4CF4027F;
+	Thu,  7 Sep 2023 14:21:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9C4CF4027F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89F8FC0071;
-	Wed,  6 Sep 2023 16:35:07 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E773AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F3FEC0039;
+	Thu,  7 Sep 2023 14:21:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7E65CC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Sep 2023 16:35:05 +0000 (UTC)
+ Thu,  7 Sep 2023 14:21:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C23B64034B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4B94B60C33
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Sep 2023 16:35:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C23B64034B
+ Thu,  7 Sep 2023 14:21:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4B94B60C33
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=jPRHHTWz
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vLgW0Aa1NSfh
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4qHLi9OHpQLi
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Sep 2023 16:35:03 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7713A400D9
+ Thu,  7 Sep 2023 14:21:28 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2988660A62
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Sep 2023 16:35:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7713A400D9
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature RSA-PSS (2048 bits))
- (No client certificate requested)
- by sin.source.kernel.org (Postfix) with ESMTPS id 69FD8CE16E7;
- Wed,  6 Sep 2023 16:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29018C433C8;
- Wed,  6 Sep 2023 16:26:37 +0000 (UTC)
-Date: Wed, 6 Sep 2023 17:26:34 +0100
-From: Catalin Marinas <catalin.marinas@arm.com>
-To: Maximilian Heyne <mheyne@amazon.de>
-Subject: Re: [PATCH] virtio-mmio: fix memory leak of vm_dev
-Message-ID: <ZPioOicQ5nPtDmwJ@arm.com>
-References: <20230905094228.97125-1-mheyne@amazon.de>
+ Thu,  7 Sep 2023 14:21:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2988660A62
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1694096487;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=LglCnmsSm9cwfpFlqnr7JUE1NH9ptGkqmJUAdBvVp8g=;
+ b=jPRHHTWzTH4+e194UMmSo25ie9lz+muPNFXOUy3XiT5XiRBbfz1K8uqAoZ4oIbVYsEt+W4
+ fp17eq3FzVy3De07P97iZd5LQSrN2SBP5+pEjj1a/FTKPc9/pPBfczPfklwUO9j5hoKNtJ
+ B9ilPAOwXCLcgYkG6l2MBQ4CZIKENsY=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-135-ukXTHDDlPX-d_UlZxgey_A-1; Thu, 07 Sep 2023 10:21:23 -0400
+X-MC-Unique: ukXTHDDlPX-d_UlZxgey_A-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ ffacd0b85a97d-31aea5cf0f5so697722f8f.1
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 07 Sep 2023 07:21:23 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20221208; t=1694096482; x=1694701282;
+ h=content-transfer-encoding:in-reply-to:from:references:cc:to
+ :content-language:subject:reply-to:user-agent:mime-version:date
+ :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=LglCnmsSm9cwfpFlqnr7JUE1NH9ptGkqmJUAdBvVp8g=;
+ b=bHwUtyir1kw7ePLNwh/ZjJlUl4GxGPOpekDsj8C+SImMwqEgkcO4cDP4hkzyU9UCGo
+ 4H56h7P3Qfkw/cDAv16U4AtrRtitsgVX+jhl5AH5n2sVBvSUHc4fyeZS/3MBNH9RTaQE
+ q+hQQVivYOmCVdqy6tMQzhOmTooHatzz8scElXLEdD9nQ0t7PZdE5KQcjpN8LiV2uZNV
+ WbygAEur5FH/5zqQw3CLG7hdcQO9rTSwGZG/pdREAUp9gFfaS0/27U2RV3GtqFbAELKt
+ 10cC1diCT4bL0z6TvLH9+1uwTFMmyggNbXdubc8XTi4Iay++JyqV/qYpoLeaLyySeCeC
+ 2wPw==
+X-Gm-Message-State: AOJu0YzxuG3u/pMDfnXs28r5Cq2Pt7/r6oZ7xBjWSii/54C3BufxApR8
+ P4qLGD04+l+bwgV8Qh45IZk3P2uFWyKGagRGtSlvPpRDeKGgwswfEZh2fCkXhCbKTn7Nv3C40VO
+ AM5hEJAg4o6lIYZTvYDWf0jXHf9hL0/zPMGUnIu767Q==
+X-Received: by 2002:a5d:654d:0:b0:317:1b08:b317 with SMTP id
+ z13-20020a5d654d000000b003171b08b317mr4766225wrv.6.1694096482617; 
+ Thu, 07 Sep 2023 07:21:22 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE+wAZoGUFZ5L33EjPRRR6PH6ZBIxSFyJkTnzLHNd+ONfr0VBusQvOVWFfA3E7tbWAyv3/9Nw==
+X-Received: by 2002:a5d:654d:0:b0:317:1b08:b317 with SMTP id
+ z13-20020a5d654d000000b003171b08b317mr4766198wrv.6.1694096482246; 
+ Thu, 07 Sep 2023 07:21:22 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:59e:9d80:527b:9dff:feef:3874?
+ ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
+ by smtp.gmail.com with ESMTPSA id
+ f12-20020adffccc000000b003143c9beeaesm23365778wrs.44.2023.09.07.07.21.20
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 07 Sep 2023 07:21:21 -0700 (PDT)
+Message-ID: <e28cd056-9b54-1e5d-7602-c5acfc7f4ea7@redhat.com>
+Date: Thu, 7 Sep 2023 16:21:19 +0200
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20230905094228.97125-1-mheyne@amazon.de>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Wolfram Sang <wsa+renesas@sang-engineering.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH 2/2] iommu/virtio: Add ops->flush_iotlb_all and enable
+ deferred flush
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Niklas Schnelle <schnelle@linux.ibm.com>
+References: <20230825-viommu-sync-map-v1-0-56bdcfaa29ec@linux.ibm.com>
+ <20230825-viommu-sync-map-v1-2-56bdcfaa29ec@linux.ibm.com>
+ <20230904153403.GB815284@myrica>
+ <f1259993-2419-9c9e-30d3-0631ef938679@arm.com>
+ <ba38b6d90e1f24f249ed8a18e65c403be6ff90e9.camel@linux.ibm.com>
+ <20230906132031.GA1528947@myrica>
+From: Eric Auger <eric.auger@redhat.com>
+In-Reply-To: <20230906132031.GA1528947@myrica>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux.dev, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -73,93 +130,128 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Reply-To: eric.auger@redhat.com
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 05, 2023 at 09:42:28AM +0000, Maximilian Heyne wrote:
-> With the recent removal of vm_dev from devres its memory is only freed
-> via the callback virtio_mmio_release_dev. However, this only takes
-> effect after device_add is called by register_virtio_device. Until then
-> it's an unmanaged resource and must be explicitly freed on error exit.
->
-> This bug was discovered and resolved using Coverity Static Analysis
-> Security Testing (SAST) by Synopsys, Inc.
->
-> Cc: stable@vger.kernel.org
-> Fixes: 55c91fedd03d ("virtio-mmio: don't break lifecycle of vm_dev")
-> Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Hi,
 
-Kmemleak was reporting around 31 of these leaks (under qemu). I have not
-tried your patch yet as you mentioned a v2.
+On 9/6/23 15:20, Jean-Philippe Brucker wrote:
+> On Wed, Sep 06, 2023 at 09:55:49AM +0200, Niklas Schnelle wrote:
+>> On Mon, 2023-09-04 at 17:33 +0100, Robin Murphy wrote:
+>>> On 2023-09-04 16:34, Jean-Philippe Brucker wrote:
+>>>> On Fri, Aug 25, 2023 at 05:21:26PM +0200, Niklas Schnelle wrote:
+>>>>> Add ops->flush_iotlb_all operation to enable virtio-iommu for the
+>>>>> dma-iommu deferred flush scheme. This results inn a significant increase
+>>>> in
+>>>>
+>>>>> in performance in exchange for a window in which devices can still
+>>>>> access previously IOMMU mapped memory. To get back to the prior behavior
+>>>>> iommu.strict=1 may be set on the kernel command line.
+>>>> Maybe add that it depends on CONFIG_IOMMU_DEFAULT_DMA_{LAZY,STRICT} as
+>>>> well, because I've seen kernel configs that enable either.
+>>> Indeed, I'd be inclined phrase it in terms of the driver now actually 
+>>> being able to honour lazy mode when requested (which happens to be the 
+>>> default on x86), rather than as if it might be some 
+>>> potentially-unexpected change in behaviour.
+>>>
+>>> Thanks,
+>>> Robin.
+>> I kept running this series on a KVM guest on my private workstation
+>> (QEMU v8.0.4) and while running iperf3 on a passed-through Intel 82599
+>> VF. I got a bunch of IOMMU events similar to the following as well as
+>> card resets in the host.
+>>
+>> ..
+>> [ 5959.338214] vfio-pci 0000:04:10.0: AMD-Vi: Event logged [IO_PAGE_FAULT domain=0x0037 address=0x7b657064 flags=0x0000]
+>> [ 5963.353429] ixgbe 0000:03:00.0 enp3s0: Detected Tx Unit Hang
+>>                  Tx Queue             <0>
+>>                  TDH, TDT             <93>, <9d>
+>>                  next_to_use          <9d>
+>>                  next_to_clean        <93>
+>>                tx_buffer_info[next_to_clean]
+>>                  time_stamp           <10019e800>
+>>                  jiffies              <10019ec80>
+>> ...
+>>
+>> I retested on v6.5 vanilla (guest & host) and still get the above
+>> errors so luckily for me it doesn't seem to be caused by the new code
+>> but I can't reproduce it without virtio-iommu. Any idea what could
+>> cause this?
+> Adding Eric in case this looks familiar.
+Unfortunately no idea of what could cause those page faults. On ther
+other hand I mostly test on ARM and INTEL.
 
-unreferenced object 0xffff000040bb6c00 (size 1024):
-  comm "swapper/0", pid 1, jiffies 4294892472 (age 106.728s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000669bb200>] __kmem_cache_alloc_node+0x1c4/0x288
-    [<00000000ac0129e3>] kmalloc_trace+0x20/0x2c
-    [<0000000055d7a492>] virtio_mmio_probe+0x28/0x260
-    [<000000002661dcec>] platform_probe+0x68/0xdc
-    [<00000000e9abc76a>] really_probe+0x148/0x2ac
-    [<00000000d9fbd8d5>] __driver_probe_device+0x78/0x12c
-    [<0000000060d7804a>] driver_probe_device+0x3c/0x15c
-    [<00000000705fa0e9>] __driver_attach+0x94/0x19c
-    [<000000005079c97f>] bus_for_each_dev+0x74/0xd4
-    [<0000000026582009>] driver_attach+0x24/0x30
-    [<000000003e6b0968>] bus_add_driver+0xe4/0x1e8
-    [<000000009e7b5554>] driver_register+0x60/0x128
-    [<00000000d1f180b4>] __platform_driver_register+0x28/0x34
-    [<0000000097a0072e>] virtio_mmio_init+0x1c/0x28
-    [<00000000b3340a88>] do_one_initcall+0x6c/0x1b0
-    [<0000000048f4ff06>] kernel_init_freeable+0x1bc/0x284
+Thanks
 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 97760f611295..b2a48d07e973 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -631,13 +631,16 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  	spin_lock_init(&vm_dev->lock);
+Eric
 >
->  	vm_dev->base = devm_platform_ioremap_resource(pdev, 0);
-> -	if (IS_ERR(vm_dev->base))
-> +	if (IS_ERR(vm_dev->base)) {
-> +		kfree(vm_dev);
->  		return PTR_ERR(vm_dev->base);
-> +	}
+> I don't have hardware to test this but I guess QEMU system emulation may
+> be able to reproduce the issue since it has an AMD IOMMU (unmaintained)
+> and igb, I can give that a try.
 >
->  	/* Check magic value */
->  	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
->  	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
->  		dev_warn(&pdev->dev, "Wrong magic value 0x%08lx!\n", magic);
-> +		kfree(vm_dev);
->  		return -ENODEV;
->  	}
+> Thanks,
+> Jean
 >
-> @@ -646,6 +649,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  	if (vm_dev->version < 1 || vm_dev->version > 2) {
->  		dev_err(&pdev->dev, "Version %ld not supported!\n",
->  				vm_dev->version);
-> +		kfree(vm_dev);
->  		return -ENXIO;
->  	}
->
-> @@ -655,6 +659,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
->  		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
->  		 * with no function. End probing now with no error reported.
->  		 */
-> +		kfree(vm_dev);
->  		return -ENODEV;
->  	}
->  	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
+>>>>> Link: https://lore.kernel.org/lkml/20230802123612.GA6142@myrica/
+>>>>> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+>>>>> ---
+>>>>>   drivers/iommu/virtio-iommu.c | 12 ++++++++++++
+>>>>>   1 file changed, 12 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+>>>>> index fb73dec5b953..1b7526494490 100644
+>>>>> --- a/drivers/iommu/virtio-iommu.c
+>>>>> +++ b/drivers/iommu/virtio-iommu.c
+>>>>> @@ -924,6 +924,15 @@ static int viommu_iotlb_sync_map(struct iommu_domain *domain,
+>>>>>   	return viommu_sync_req(vdomain->viommu);
+>>>>>   }
+>>>>>   
+>>>>> +static void viommu_flush_iotlb_all(struct iommu_domain *domain)
+>>>>> +{
+>>>>> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
+>>>>> +
+>>>>> +	if (!vdomain->nr_endpoints)
+>>>>> +		return;
+>>>> As for patch 1, a NULL check in viommu_sync_req() would allow dropping
+>>>> this one
+>>>>
+>>>> Thanks,
+>>>> Jean
+>> Right, makes sense will move the check into viommu_sync_req() and add a
+>> coment that it is there fore the cases where viommu_iotlb_sync() et al
+>> get called before the IOMMU is set up.
+>>
+>>>>> +	viommu_sync_req(vdomain->viommu);
+>>>>> +}
+>>>>> +
+>>>>>   static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+>>>>>   {
+>>>>>   	struct iommu_resv_region *entry, *new_entry, *msi = NULL;
+>>>>> @@ -1049,6 +1058,8 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
+>>>>>   	switch (cap) {
+>>>>>   	case IOMMU_CAP_CACHE_COHERENCY:
+>>>>>   		return true;
+>>>>> +	case IOMMU_CAP_DEFERRED_FLUSH:
+>>>>> +		return true;
+>>>>>   	default:
+>>>>>   		return false;
+>>>>>   	}
+>>>>> @@ -1069,6 +1080,7 @@ static struct iommu_ops viommu_ops = {
+>>>>>   		.map_pages		= viommu_map_pages,
+>>>>>   		.unmap_pages		= viommu_unmap_pages,
+>>>>>   		.iova_to_phys		= viommu_iova_to_phys,
+>>>>> +		.flush_iotlb_all	= viommu_flush_iotlb_all,
+>>>>>   		.iotlb_sync		= viommu_iotlb_sync,
+>>>>>   		.iotlb_sync_map		= viommu_iotlb_sync_map,
+>>>>>   		.free			= viommu_domain_free,
+>>>>>
+>>>>> -- 
+>>>>> 2.39.2
+>>>>>
 
-I'd rather have a goto with a single point of freeing.
-
---
-Catalin
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
