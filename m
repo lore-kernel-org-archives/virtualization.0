@@ -1,101 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83E84C71153
-	for <virtualization@archiver.kernel.org>; Mon, 11 Sep 2023 02:35:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EEEB6C71153
+	for <virtualization@archiver.kernel.org>; Mon, 11 Sep 2023 03:43:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CE55C40916;
-	Mon, 11 Sep 2023 02:35:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE55C40916
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QIBNWNnA
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5D4E2400FB;
+	Mon, 11 Sep 2023 03:43:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D4E2400FB
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ds+ReeXf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fiSRrsn24i9n; Mon, 11 Sep 2023 02:35:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2128D40936;
-	Mon, 11 Sep 2023 02:35:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2128D40936
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id n727vtoukZr2; Mon, 11 Sep 2023 03:43:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5211240116;
+	Mon, 11 Sep 2023 03:43:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5211240116
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D145DC0071;
-	Mon, 11 Sep 2023 02:35:31 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 28F21C0039;
+	Mon, 11 Sep 2023 03:43:04 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F275C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2EE28C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Sep 2023 02:35:30 +0000 (UTC)
+ Mon, 11 Sep 2023 03:43:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 62B7060BA7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 08E1360C08
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Sep 2023 02:35:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62B7060BA7
+ Mon, 11 Sep 2023 03:43:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 08E1360C08
 Authentication-Results: smtp3.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=QIBNWNnA
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ds+ReeXf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AI-3R35qu2DU
+ with ESMTP id p3qKAFN8Q66E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Sep 2023 02:35:29 +0000 (UTC)
+ Mon, 11 Sep 2023 03:43:01 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7578A60B9D
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2E53560C05
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Sep 2023 02:35:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7578A60B9D
+ Mon, 11 Sep 2023 03:43:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2E53560C05
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1694399728;
+ s=mimecast20190719; t=1694403779;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=1JiEAacOPpZr8Csa8+TL/orlrtaJ6UeA2+KsyYOTzfY=;
- b=QIBNWNnA1n7jZoHWDBjgr3TvyqYbK4HZX15ezec6M4AsgjfmziNaxjF4M4za1LrN0pnS8W
- Sedb/SAd/u0jn41O8NXveRGfqqX4uOUrmTBWRhzG0iEfDbgVsuFYls5O+huKM0ODZ/4eNw
- +26WPMf5lBHKyqC8bYPyWcqejgijHN4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-97-azuA0cncMTqSkMKdZMqhhg-1; Sun, 10 Sep 2023 22:35:22 -0400
-X-MC-Unique: azuA0cncMTqSkMKdZMqhhg-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
- [10.11.54.10])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 90084101FAA8;
- Mon, 11 Sep 2023 02:35:21 +0000 (UTC)
-Received: from [10.22.8.52] (unknown [10.22.8.52])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 5531549310E;
- Mon, 11 Sep 2023 02:35:19 +0000 (UTC)
-Message-ID: <f091ead0-99b9-b30a-a295-730ce321ac60@redhat.com>
-Date: Sun, 10 Sep 2023 22:35:19 -0400
+ bh=9sqxh+GFHHbDLcfyo/0cojYj4G95x6wsRb2JSvZuE98=;
+ b=Ds+ReeXfUiAwgXoeC3IwmHNR1VYNcMPlNYC3ohnxngKW3CaZW6odCj+Zke+pwQSqUMo0G4
+ DADJ8n2q/G1XXRCoyQ5l3iWgHziWUq32Balz3Ij2/fIN8Cj+NgLed9X4G3FthY0e0LAhxA
+ ImLgQzZ2E3XD+57t4gqap8Ymlqgd/oA=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-231-xWYz87_MMmyBv1CGObmFkQ-1; Sun, 10 Sep 2023 23:42:57 -0400
+X-MC-Unique: xWYz87_MMmyBv1CGObmFkQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ 2adb3069b0e04-5009121067cso4059078e87.2
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 10 Sep 2023 20:42:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1694403776; x=1695008576;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=9sqxh+GFHHbDLcfyo/0cojYj4G95x6wsRb2JSvZuE98=;
+ b=B+DPdF+A6haDezGXYt1lkhxHxOwQpSjalG9sDr+KPtQpysiJIWaRXPdsMSqRz7X1Wq
+ 6zdYFKch7UQcfcLba0c7509zivznECpn+ZW1bBk4huXEYpYCEl/W8JWL6N2xh3aKmxCx
+ xcXmgwCnDuNOJ1aS3qgNSuJwushjNCC3iWpeI7yTmFW9p9GVSr8hK7Q0JcZZ3yTar6K4
+ t7kzmUt5BUOlHkJioiA3O6IRcUDokVkPqG85G7xjC9MZj+6JylLiqu9TOvA0XRv8LLFQ
+ b9G2mir7il82qQBmLqG0ikhgAYjTvIctlOCkkz/87qN4PXrSR+uf9xOUElkBVNEd4Xjq
+ YFAQ==
+X-Gm-Message-State: AOJu0YxREhNcMtGUq7/AG7tu6W0nUqORyqFcg3+/008NAWdNWC56UKJn
+ F15xzc7n+7rEaMqZ6ki8VPk2Tiu/X2fiH/Z0wNMt5kaApgwBPjHC7AWknsoCWz2dyAl94FxidEN
+ LXwqRXrCwDsRVXVmy9/vgufa0Sn4xgqztj91G/piXw7+zPyOxQMnkN20nkg==
+X-Received: by 2002:a05:6512:36c2:b0:500:a2d0:51ba with SMTP id
+ e2-20020a05651236c200b00500a2d051bamr5820874lfs.44.1694403776367; 
+ Sun, 10 Sep 2023 20:42:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHoAcli7voi5SOj4fZlcb+ZM7xDA53H4O2+Fw85MIXHke7Wo3XFBzwa82YD7axzYkKmsAfhKzpGbeFMLrYnzSQ=
+X-Received: by 2002:a05:6512:36c2:b0:500:a2d0:51ba with SMTP id
+ e2-20020a05651236c200b00500a2d051bamr5820867lfs.44.1694403776106; Sun, 10 Sep
+ 2023 20:42:56 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH V11 04/17] locking/qspinlock: Improve xchg_tail for number
- of cpus >= 16k
-Content-Language: en-US
-To: guoren@kernel.org, paul.walmsley@sifive.com, anup@brainfault.org,
- peterz@infradead.org, mingo@redhat.com, will@kernel.org,
- palmer@rivosinc.com, boqun.feng@gmail.com, tglx@linutronix.de,
- paulmck@kernel.org, rostedt@goodmis.org, rdunlap@infradead.org,
- catalin.marinas@arm.com, conor.dooley@microchip.com,
- xiaoguang.xing@sophgo.com, bjorn@rivosinc.com, alexghiti@rivosinc.com,
- keescook@chromium.org, greentime.hu@sifive.com, ajones@ventanamicro.com,
- jszhang@kernel.org, wefu@redhat.com, wuwei2016@iscas.ac.cn,
- leobras@redhat.com
-References: <20230910082911.3378782-1-guoren@kernel.org>
- <20230910082911.3378782-5-guoren@kernel.org>
-From: Waiman Long <longman@redhat.com>
-In-Reply-To: <20230910082911.3378782-5-guoren@kernel.org>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-Cc: linux-arch@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
- kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-csky@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-riscv@lists.infradead.org
+References: <1694266319-32287-1-git-send-email-si-wei.liu@oracle.com>
+ <1694266319-32287-2-git-send-email-si-wei.liu@oracle.com>
+In-Reply-To: <1694266319-32287-2-git-send-email-si-wei.liu@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 11 Sep 2023 11:42:45 +0800
+Message-ID: <CACGkMEsACZcKQr9BGB0FzqJQbpfu9QTsh3hTxLaJ72on+3pK7w@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 1/4] vdpa: introduce .reset_map operation callback
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: eperezma@redhat.com, virtualization@lists.linux-foundation.org,
+ xuanzhuo@linux.alibaba.com, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,56 +112,47 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-On 9/10/23 04:28, guoren@kernel.org wrote:
-> From: Guo Ren <guoren@linux.alibaba.com>
->
-> The target of xchg_tail is to write the tail to the lock value, so
-> adding prefetchw could help the next cmpxchg step, which may
-> decrease the cmpxchg retry loops of xchg_tail. Some processors may
-> utilize this feature to give a forward guarantee, e.g., RISC-V
-> XuanTie processors would block the snoop channel & irq for several
-> cycles when prefetch.w instruction (from Zicbop extension) retired,
-> which guarantees the next cmpxchg succeeds.
->
-> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-> Signed-off-by: Guo Ren <guoren@kernel.org>
-> ---
->   kernel/locking/qspinlock.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
-> index d3f99060b60f..96b54e2ade86 100644
-> --- a/kernel/locking/qspinlock.c
-> +++ b/kernel/locking/qspinlock.c
-> @@ -223,7 +223,10 @@ static __always_inline void clear_pending_set_locked(struct qspinlock *lock)
->    */
->   static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
->   {
-> -	u32 old, new, val = atomic_read(&lock->val);
-> +	u32 old, new, val;
-> +
-> +	prefetchw(&lock->val);
-> +	val = atomic_read(&lock->val);
->   
->   	for (;;) {
->   		new = (val & _Q_LOCKED_PENDING_MASK) | tail;
-
-That looks a bit weird. You pre-fetch and then immediately read it. How 
-much performance gain you get by this change alone?
-
-Maybe you can define an arch specific primitive that default back to 
-atomic_read() if not defined.
-
-Cheers,
-Longman
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+SGkgU2ktV2VpOgoKT24gU2F0LCBTZXAgOSwgMjAyMyBhdCA5OjM04oCvUE0gU2ktV2VpIExpdSA8
+c2ktd2VpLmxpdUBvcmFjbGUuY29tPiB3cm90ZToKPgo+IE9uLWNoaXAgSU9NTVUgcGFyZW50IGRy
+aXZlciBjb3VsZCB1c2UgaXQgdG8gcmVzdG9yZSBtZW1vcnkgbWFwcGluZwo+IHRvIHRoZSBpbml0
+aWFsIHN0YXRlLgoKQXMgZGlzY3Vzc2VkIGJlZm9yZS4gT24tY2hpcCBJT01NVSBpcyB0aGUgaGFy
+ZHdhcmUgZGV0YWlscyB0aGF0IG5lZWQKdG8gYmUgaGlkZGVuIGJ5IHRoZSB2RFBBIGJ1cy4KCkV4
+cG9zaW5nIHRoaXMgd2lsbCBjb21wbGljYXRlIHRoZSBpbXBsZW1lbnRhdGlvbiBvZiBidXMgZHJp
+dmVycy4KClRoYW5rcwoKPgo+IFNpZ25lZC1vZmYtYnk6IFNpLVdlaSBMaXUgPHNpLXdlaS5saXVA
+b3JhY2xlLmNvbT4KPiAtLS0KPiAgaW5jbHVkZS9saW51eC92ZHBhLmggfCA3ICsrKysrKysKPiAg
+MSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUv
+bGludXgvdmRwYS5oIGIvaW5jbHVkZS9saW51eC92ZHBhLmgKPiBpbmRleCAxN2E0ZWZhLi5kYWVj
+ZjU1IDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvdmRwYS5oCj4gKysrIGIvaW5jbHVkZS9s
+aW51eC92ZHBhLmgKPiBAQCAtMzI0LDYgKzMyNCwxMiBAQCBzdHJ1Y3QgdmRwYV9tYXBfZmlsZSB7
+Cj4gICAqICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAaW92YTogaW92YSB0byBiZSB1bm1h
+cHBlZAo+ICAgKiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQHNpemU6IHNpemUgb2YgdGhl
+IGFyZWEKPiAgICogICAgICAgICAgICAgICAgICAgICAgICAgICAgIFJldHVybnMgaW50ZWdlcjog
+c3VjY2VzcyAoMCkgb3IgZXJyb3IgKDwgMCkKPiArICogQHJlc2V0X21hcDogICAgICAgICAgICAg
+ICAgIFJlc2V0IGRldmljZSBtZW1vcnkgbWFwcGluZyAob3B0aW9uYWwpCj4gKyAqICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICBOZWVkZWQgZm9yIGRldmljZSB0aGF0IHVzaW5nIGRldmljZQo+
+ICsgKiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3BlY2lmaWMgRE1BIHRyYW5zbGF0aW9u
+IChvbi1jaGlwIElPTU1VKQo+ICsgKiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgQHZkZXY6
+IHZkcGEgZGV2aWNlCj4gKyAqICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAYXNpZDogYWRk
+cmVzcyBzcGFjZSBpZGVudGlmaWVyCj4gKyAqICAgICAgICAgICAgICAgICAgICAgICAgICAgICBS
+ZXR1cm5zIGludGVnZXI6IHN1Y2Nlc3MgKDApIG9yIGVycm9yICg8IDApCj4gICAqIEBnZXRfdnFf
+ZG1hX2RldjogICAgICAgICAgICBHZXQgdGhlIGRtYSBkZXZpY2UgZm9yIGEgc3BlY2lmaWMKPiAg
+ICogICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZpcnRxdWV1ZSAob3B0aW9uYWwpCj4gICAq
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBAdmRldjogdmRwYSBkZXZpY2UKPiBAQCAtNDAx
+LDYgKzQwNyw3IEBAIHN0cnVjdCB2ZHBhX2NvbmZpZ19vcHMgewo+ICAgICAgICAgICAgICAgICAg
+ICAgICAgdTY0IGlvdmEsIHU2NCBzaXplLCB1NjQgcGEsIHUzMiBwZXJtLCB2b2lkICpvcGFxdWUp
+Owo+ICAgICAgICAgaW50ICgqZG1hX3VubWFwKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHVu
+c2lnbmVkIGludCBhc2lkLAo+ICAgICAgICAgICAgICAgICAgICAgICAgICB1NjQgaW92YSwgdTY0
+IHNpemUpOwo+ICsgICAgICAgaW50ICgqcmVzZXRfbWFwKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZk
+ZXYsIHVuc2lnbmVkIGludCBhc2lkKTsKPiAgICAgICAgIGludCAoKnNldF9ncm91cF9hc2lkKShz
+dHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIGludCBncm91cCwKPiAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBpbnQgYXNpZCk7Cj4gICAgICAgICBzdHJ1Y3Qg
+ZGV2aWNlICooKmdldF92cV9kbWFfZGV2KShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHUxNiBp
+ZHgpOwo+IC0tCj4gMS44LjMuMQo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
