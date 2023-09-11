@@ -1,97 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5765DEEB58F
-	for <virtualization@archiver.kernel.org>; Sat,  9 Sep 2023 13:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 83E84C71153
+	for <virtualization@archiver.kernel.org>; Mon, 11 Sep 2023 02:35:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 042E140A95;
-	Sat,  9 Sep 2023 13:46:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 042E140A95
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=KXQXvqf+
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id reM71nH7R0ej; Sat,  9 Sep 2023 13:46:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DDB3C40A91;
-	Sat,  9 Sep 2023 13:46:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DDB3C40A91
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AE286C008C;
-	Sat,  9 Sep 2023 13:46:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC2CBC0032
- for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Sep 2023 13:46:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C414A41DB5
- for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Sep 2023 13:46:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C414A41DB5
+	by smtp4.osuosl.org (Postfix) with ESMTP id CE55C40916;
+	Mon, 11 Sep 2023 02:35:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CE55C40916
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=KXQXvqf+
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QIBNWNnA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iqH3bjaDnL05
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fiSRrsn24i9n; Mon, 11 Sep 2023 02:35:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2128D40936;
+	Mon, 11 Sep 2023 02:35:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2128D40936
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D145DC0071;
+	Mon, 11 Sep 2023 02:35:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F275C0032
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Sep 2023 13:46:28 +0000 (UTC)
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7CD2940976
+ Mon, 11 Sep 2023 02:35:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 62B7060BA7
  for <virtualization@lists.linux-foundation.org>;
- Sat,  9 Sep 2023 13:46:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7CD2940976
-Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 389DFXFY007614; Sat, 9 Sep 2023 13:46:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : in-reply-to : references; s=corp-2023-03-30;
- bh=3SoettkK0A5ly5HDPAE54a1qyx6iHgB1BZZ3utGj/7g=;
- b=KXQXvqf+gtZxBd7RDe7GtSRpJpTLPBHv9Bk8XhzBsNUeQix9r2MzfERNGNiiEH+2rIWW
- AzFuwAW+euKepgqky+LuAeT/ZDQG4+Y5Rhc08nIyJOIy5vP3kJUynkS6BNiMWJlPZMy2
- P2cSPXg0lYSAOZKsY0gasoJrGceb5O9enPJkZ5O1gedFUurcbnN7DmlC204YfZrsf32X
- QFFmSpn6hG3s+zRomoSrTNychpdvcIGWHPxl2A04T0SmtL8h3gbAEXyQ2pMXismqjbUw
- VEPre1D3pVk9sMv5Rv1UOU2xesFfxm4bH4nmSBBtF4x0NJwBzxTHoWkKiDwfk0zfKTat TA== 
-Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3t0sds80my-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 09 Sep 2023 13:46:24 +0000
-Received: from pps.filterd
- (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 389A1UVA007574; Sat, 9 Sep 2023 13:46:23 GMT
-Received: from ban25x6uut24.us.oracle.com (ban25x6uut24.us.oracle.com
- [10.153.73.24])
- by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id
- 3t0f52mh12-3; Sat, 09 Sep 2023 13:46:23 +0000
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-To: eperezma@redhat.com, jasowang@redhat.com, mst@redhat.com,
- xuanzhuo@linux.alibaba.com, dtatulea@nvidia.com
-Subject: [PATCH RFC v3 2/4] vdpa/mlx5: implement .reset_map driver op
-Date: Sat,  9 Sep 2023 06:43:57 -0700
-Message-Id: <1694267039-718-3-git-send-email-si-wei.liu@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1694267039-718-1-git-send-email-si-wei.liu@oracle.com>
-References: <1694267039-718-1-git-send-email-si-wei.liu@oracle.com>
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.601,FMLib:17.11.176.26
- definitions=2023-09-09_12,2023-09-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
- suspectscore=0
- spamscore=0 mlxscore=0 mlxlogscore=999 adultscore=0 phishscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2308100000 definitions=main-2309090124
-X-Proofpoint-GUID: RtcTz-pYFLPpsa8mdcmkfjIcIfWwcgjv
-X-Proofpoint-ORIG-GUID: RtcTz-pYFLPpsa8mdcmkfjIcIfWwcgjv
-Cc: virtualization@lists.linux-foundation.org
+ Mon, 11 Sep 2023 02:35:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62B7060BA7
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=QIBNWNnA
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AI-3R35qu2DU
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 11 Sep 2023 02:35:29 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7578A60B9D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 11 Sep 2023 02:35:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7578A60B9D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1694399728;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=1JiEAacOPpZr8Csa8+TL/orlrtaJ6UeA2+KsyYOTzfY=;
+ b=QIBNWNnA1n7jZoHWDBjgr3TvyqYbK4HZX15ezec6M4AsgjfmziNaxjF4M4za1LrN0pnS8W
+ Sedb/SAd/u0jn41O8NXveRGfqqX4uOUrmTBWRhzG0iEfDbgVsuFYls5O+huKM0ODZ/4eNw
+ +26WPMf5lBHKyqC8bYPyWcqejgijHN4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-97-azuA0cncMTqSkMKdZMqhhg-1; Sun, 10 Sep 2023 22:35:22 -0400
+X-MC-Unique: azuA0cncMTqSkMKdZMqhhg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 90084101FAA8;
+ Mon, 11 Sep 2023 02:35:21 +0000 (UTC)
+Received: from [10.22.8.52] (unknown [10.22.8.52])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5531549310E;
+ Mon, 11 Sep 2023 02:35:19 +0000 (UTC)
+Message-ID: <f091ead0-99b9-b30a-a295-730ce321ac60@redhat.com>
+Date: Sun, 10 Sep 2023 22:35:19 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH V11 04/17] locking/qspinlock: Improve xchg_tail for number
+ of cpus >= 16k
+Content-Language: en-US
+To: guoren@kernel.org, paul.walmsley@sifive.com, anup@brainfault.org,
+ peterz@infradead.org, mingo@redhat.com, will@kernel.org,
+ palmer@rivosinc.com, boqun.feng@gmail.com, tglx@linutronix.de,
+ paulmck@kernel.org, rostedt@goodmis.org, rdunlap@infradead.org,
+ catalin.marinas@arm.com, conor.dooley@microchip.com,
+ xiaoguang.xing@sophgo.com, bjorn@rivosinc.com, alexghiti@rivosinc.com,
+ keescook@chromium.org, greentime.hu@sifive.com, ajones@ventanamicro.com,
+ jszhang@kernel.org, wefu@redhat.com, wuwei2016@iscas.ac.cn,
+ leobras@redhat.com
+References: <20230910082911.3378782-1-guoren@kernel.org>
+ <20230910082911.3378782-5-guoren@kernel.org>
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <20230910082911.3378782-5-guoren@kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+Cc: linux-arch@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+ kvm@vger.kernel.org, linux-doc@vger.kernel.org, linux-csky@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-riscv@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,230 +107,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Today, mlx5_vdpa gets started by preallocate 1:1 DMA mapping at
-device creation time, while this 1:1 mapping will be implicitly
-destroyed when the first .set_map call is invoked. Everytime
-when the .reset callback is invoked, any mapping left behind will
-be dropped then reset back to the initial 1:1 DMA mapping.
 
-In order to reduce excessive memory mapping cost during live
-migration, it is desirable to decouple the vhost-vdpa iotlb
-abstraction from the virtio device life cycle, i.e. mappings
-should be left intact across virtio device reset. Leverage the
-.reset_map callback to reset memory mapping, then the device
-.reset routine can run free from having to clean up memory
-mappings.
+On 9/10/23 04:28, guoren@kernel.org wrote:
+> From: Guo Ren <guoren@linux.alibaba.com>
+>
+> The target of xchg_tail is to write the tail to the lock value, so
+> adding prefetchw could help the next cmpxchg step, which may
+> decrease the cmpxchg retry loops of xchg_tail. Some processors may
+> utilize this feature to give a forward guarantee, e.g., RISC-V
+> XuanTie processors would block the snoop channel & irq for several
+> cycles when prefetch.w instruction (from Zicbop extension) retired,
+> which guarantees the next cmpxchg succeeds.
+>
+> Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+> Signed-off-by: Guo Ren <guoren@kernel.org>
+> ---
+>   kernel/locking/qspinlock.c | 5 ++++-
+>   1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+> index d3f99060b60f..96b54e2ade86 100644
+> --- a/kernel/locking/qspinlock.c
+> +++ b/kernel/locking/qspinlock.c
+> @@ -223,7 +223,10 @@ static __always_inline void clear_pending_set_locked(struct qspinlock *lock)
+>    */
+>   static __always_inline u32 xchg_tail(struct qspinlock *lock, u32 tail)
+>   {
+> -	u32 old, new, val = atomic_read(&lock->val);
+> +	u32 old, new, val;
+> +
+> +	prefetchw(&lock->val);
+> +	val = atomic_read(&lock->val);
+>   
+>   	for (;;) {
+>   		new = (val & _Q_LOCKED_PENDING_MASK) | tail;
 
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+That looks a bit weird. You pre-fetch and then immediately read it. How 
+much performance gain you get by this change alone?
 
----
-RFC v1 -> v2:
-  - fix error path when both CVQ and DVQ fall in same asid
----
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |  1 +
- drivers/vdpa/mlx5/core/mr.c        | 70 +++++++++++++++++++++++---------------
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 18 +++++++---
- 3 files changed, 56 insertions(+), 33 deletions(-)
+Maybe you can define an arch specific primitive that default back to 
+atomic_read() if not defined.
 
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index b53420e..5c9a25a 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -123,6 +123,7 @@ int mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
- 			unsigned int asid);
- void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev);
- void mlx5_vdpa_destroy_mr_asid(struct mlx5_vdpa_dev *mvdev, unsigned int asid);
-+int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid);
- 
- #define mlx5_vdpa_warn(__dev, format, ...)                                                         \
- 	dev_warn((__dev)->mdev->device, "%s:%d:(pid %d) warning: " format, __func__, __LINE__,     \
-diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-index 5a1971fc..ec2c7b4e1 100644
---- a/drivers/vdpa/mlx5/core/mr.c
-+++ b/drivers/vdpa/mlx5/core/mr.c
-@@ -489,21 +489,15 @@ static void destroy_user_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *mr
- 	}
- }
- 
--static void _mlx5_vdpa_destroy_cvq_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
-+static void _mlx5_vdpa_destroy_cvq_mr(struct mlx5_vdpa_dev *mvdev)
- {
--	if (mvdev->group2asid[MLX5_VDPA_CVQ_GROUP] != asid)
--		return;
--
- 	prune_iotlb(mvdev);
- }
- 
--static void _mlx5_vdpa_destroy_dvq_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
-+static void _mlx5_vdpa_destroy_dvq_mr(struct mlx5_vdpa_dev *mvdev)
- {
- 	struct mlx5_vdpa_mr *mr = &mvdev->mr;
- 
--	if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] != asid)
--		return;
--
- 	if (!mr->initialized)
- 		return;
- 
-@@ -521,8 +515,10 @@ void mlx5_vdpa_destroy_mr_asid(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
- 
- 	mutex_lock(&mr->mkey_mtx);
- 
--	_mlx5_vdpa_destroy_dvq_mr(mvdev, asid);
--	_mlx5_vdpa_destroy_cvq_mr(mvdev, asid);
-+	if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] == asid)
-+		_mlx5_vdpa_destroy_dvq_mr(mvdev);
-+	if (mvdev->group2asid[MLX5_VDPA_CVQ_GROUP] == asid)
-+		_mlx5_vdpa_destroy_cvq_mr(mvdev);
- 
- 	mutex_unlock(&mr->mkey_mtx);
- }
-@@ -534,25 +530,17 @@ void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev)
- }
- 
- static int _mlx5_vdpa_create_cvq_mr(struct mlx5_vdpa_dev *mvdev,
--				    struct vhost_iotlb *iotlb,
--				    unsigned int asid)
-+				    struct vhost_iotlb *iotlb)
- {
--	if (mvdev->group2asid[MLX5_VDPA_CVQ_GROUP] != asid)
--		return 0;
--
- 	return dup_iotlb(mvdev, iotlb);
- }
- 
- static int _mlx5_vdpa_create_dvq_mr(struct mlx5_vdpa_dev *mvdev,
--				    struct vhost_iotlb *iotlb,
--				    unsigned int asid)
-+				    struct vhost_iotlb *iotlb)
- {
- 	struct mlx5_vdpa_mr *mr = &mvdev->mr;
- 	int err;
- 
--	if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] != asid)
--		return 0;
--
- 	if (mr->initialized)
- 		return 0;
- 
-@@ -574,18 +562,22 @@ static int _mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev,
- {
- 	int err;
- 
--	err = _mlx5_vdpa_create_dvq_mr(mvdev, iotlb, asid);
--	if (err)
--		return err;
--
--	err = _mlx5_vdpa_create_cvq_mr(mvdev, iotlb, asid);
--	if (err)
--		goto out_err;
-+	if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] == asid) {
-+		err = _mlx5_vdpa_create_dvq_mr(mvdev, iotlb);
-+		if (err)
-+			return err;
-+	}
-+	if (mvdev->group2asid[MLX5_VDPA_CVQ_GROUP] == asid) {
-+		err = _mlx5_vdpa_create_cvq_mr(mvdev, iotlb);
-+		if (err)
-+			goto out_err;
-+	}
- 
- 	return 0;
- 
- out_err:
--	_mlx5_vdpa_destroy_dvq_mr(mvdev, asid);
-+	if (mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP] == asid)
-+		_mlx5_vdpa_destroy_dvq_mr(mvdev);
- 
- 	return err;
- }
-@@ -601,6 +593,28 @@ int mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
- 	return err;
- }
- 
-+int mlx5_vdpa_reset_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
-+{
-+	struct mlx5_vdpa_mr *mr = &mvdev->mr;
-+	int err = 0;
-+
-+	if (asid != 0)
-+		return 0;
-+
-+	mutex_lock(&mr->mkey_mtx);
-+	if (!mr->user_mr)
-+		goto out;
-+	_mlx5_vdpa_destroy_dvq_mr(mvdev);
-+	if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
-+		err = _mlx5_vdpa_create_dvq_mr(mvdev, NULL);
-+		if (err)
-+			mlx5_vdpa_warn(mvdev, "create DMA MR failed\n");
-+	}
-+out:
-+	mutex_unlock(&mr->mkey_mtx);
-+	return err;
-+}
-+
- int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
- 			     bool *change_map, unsigned int asid)
- {
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 37be945..3cb5db6 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2824,7 +2824,6 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
- 	unregister_link_notifier(ndev);
- 	teardown_driver(ndev);
- 	clear_vqs_ready(ndev);
--	mlx5_vdpa_destroy_mr(&ndev->mvdev);
- 	ndev->mvdev.status = 0;
- 	ndev->mvdev.suspended = false;
- 	ndev->cur_num_vqs = 0;
-@@ -2835,10 +2834,6 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
- 	init_group_to_asid_map(mvdev);
- 	++mvdev->generation;
- 
--	if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
--		if (mlx5_vdpa_create_mr(mvdev, NULL, 0))
--			mlx5_vdpa_warn(mvdev, "create MR failed\n");
--	}
- 	up_write(&ndev->reslock);
- 
- 	return 0;
-@@ -2903,6 +2898,18 @@ static int mlx5_vdpa_set_map(struct vdpa_device *vdev, unsigned int asid,
- 	return err;
- }
- 
-+static int mlx5_vdpa_reset_map(struct vdpa_device *vdev, unsigned int asid)
-+{
-+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+	int err;
-+
-+	down_write(&ndev->reslock);
-+	err = mlx5_vdpa_reset_mr(mvdev, asid);
-+	up_write(&ndev->reslock);
-+	return err;
-+}
-+
- static struct device *mlx5_get_vq_dma_dev(struct vdpa_device *vdev, u16 idx)
- {
- 	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
-@@ -3162,6 +3169,7 @@ static int mlx5_set_group_asid(struct vdpa_device *vdev, u32 group,
- 	.set_config = mlx5_vdpa_set_config,
- 	.get_generation = mlx5_vdpa_get_generation,
- 	.set_map = mlx5_vdpa_set_map,
-+	.reset_map = mlx5_vdpa_reset_map,
- 	.set_group_asid = mlx5_set_group_asid,
- 	.get_vq_dma_dev = mlx5_get_vq_dma_dev,
- 	.free = mlx5_vdpa_free,
--- 
-1.8.3.1
+Cheers,
+Longman
 
 _______________________________________________
 Virtualization mailing list
