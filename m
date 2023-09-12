@@ -1,105 +1,131 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FF46CA0ECA
-	for <virtualization@archiver.kernel.org>; Tue, 12 Sep 2023 07:41:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F3CFCCA0ECA
+	for <virtualization@archiver.kernel.org>; Tue, 12 Sep 2023 13:02:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0B102418D1;
-	Tue, 12 Sep 2023 07:41:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0B102418D1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ibkztNct
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C82961193;
+	Tue, 12 Sep 2023 13:02:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C82961193
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=EqAUr+s2
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id An96G9qhwBb7; Tue, 12 Sep 2023 07:41:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2A210417B3;
-	Tue, 12 Sep 2023 07:41:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2A210417B3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cODSfVQbLkbX; Tue, 12 Sep 2023 13:02:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A43596114E;
+	Tue, 12 Sep 2023 13:02:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A43596114E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A03AC0039;
-	Tue, 12 Sep 2023 07:41:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 130EDC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 69CB5C008C;
+	Tue, 12 Sep 2023 13:02:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E0032C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Sep 2023 07:41:06 +0000 (UTC)
+ Tue, 12 Sep 2023 13:02:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D9B96418BD
+ by smtp3.osuosl.org (Postfix) with ESMTP id 887A361192
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Sep 2023 07:41:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D9B96418BD
+ Tue, 12 Sep 2023 13:02:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 887A361192
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZidMWIcubHV8
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WmT--ILy--Hm
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Sep 2023 07:41:03 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D642D417B3
+ Tue, 12 Sep 2023 13:02:10 +0000 (UTC)
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com
+ (mail-dm3nam02on20604.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e83::604])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 48C986114E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Sep 2023 07:41:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D642D417B3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1694504461;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=TmEyY93Ck8WkDOQRoCLqGrbPgTcfdcNt9t1RcylOzYQ=;
- b=ibkztNctLiWa96/rf1B0qJANpKoVkP2z5st5lVROef4cpjLHK43RhDyUkG78HTLM4RPBZg
- cu2FY73m5I9B34gqdZq35un34M2jif5+FjT1g1x7OuiWZOQveoYtJ7AbV9zt1XV5+XVkSR
- RpXw1rVw7ApXDQv+78ds8fbKRNYvcD4=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-2-427AufUHMlKJpr7rG9IUmg-1; Tue, 12 Sep 2023 03:39:21 -0400
-X-MC-Unique: 427AufUHMlKJpr7rG9IUmg-1
-Received: by mail-lf1-f69.google.com with SMTP id
- 2adb3069b0e04-500b5dbf113so5427075e87.0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Sep 2023 00:39:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1694504360; x=1695109160;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=TmEyY93Ck8WkDOQRoCLqGrbPgTcfdcNt9t1RcylOzYQ=;
- b=j4T/fl8Gb66rUuq71t6lduSRBaIdCFzxvU/S84Pq4FJ7TY1EfCuAHsUjVqruAKBCz0
- J0zU2UcCAyC7PC5vTKtE7KtP9I8GiM5XdfG1mjqEkMYBAdBzIlz9dOZnOGjnRbJ7Qo+s
- gHZUX9K95G3X+Zjy409ZFW3uOpIB33ih7CymXe6O1WnzWpSbPlNjwAlZX9KNaLEqaIa+
- NDiLE8B0wipwiO+JQTnF86mvTRU3sJFeQ85e/+gs0oNbX8z66tp7B+C4gEJ2YB/R49gg
- wE8PUJO1BFTanxE9pQI6oyEawnBEBMoHjq44G0InqV3fvRENgjP8TizKKwlXwPt1F7iw
- pP0A==
-X-Gm-Message-State: AOJu0YwlGIyy40gPEQj5iCPO8qqYpKguNHuygAs6hTl8raQSB4FiXKTT
- qaL5/I9De94w6ZZ88TZXO32WRKBoeeWryoI85+yqRcXtRzvWtRJQnnCnuF+vUVCelF741x+H/i+
- 27bGdXgmqWkjVoA8CAagm9RgAzcmeek0sh5OH3rfkk+cjteeWJlYuOB8t9g==
-X-Received: by 2002:a05:6512:2316:b0:502:adbc:9b74 with SMTP id
- o22-20020a056512231600b00502adbc9b74mr7946545lfu.68.1694504360155; 
- Tue, 12 Sep 2023 00:39:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF5gCC4PBq6IeJnmSasULynPErX2GOpzHNHa9ZcLnpFdOr478ISKQkds33cuYD+0XpwR2uPx/pX3MJrAV2owaA=
-X-Received: by 2002:a05:6512:2316:b0:502:adbc:9b74 with SMTP id
- o22-20020a056512231600b00502adbc9b74mr7946526lfu.68.1694504359782; Tue, 12
- Sep 2023 00:39:19 -0700 (PDT)
+ Tue, 12 Sep 2023 13:02:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 48C986114E
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZJcoPLAwk7WD7TVO06HuLd3Z9g2iqEYjr5z3Dpex/fjX4R9sDMM2twAPTBdytBmxpLmguMwlc3d0z2sFdK9OF0yTyrPOJbclhALXhuQZq+uD/wJNxLyvmPpSoGGVXL/QtVHFi0/wFk/9+2i8trwOTUuG+GZwTonRZIe5uwSqWLTKCxVBFVrYVCtpc+FAGMD7Eq2Ey2gFCw9vmeCX10B7V9WkTco/OYFMLh4UmsRzSs3ysB3Ml9u8p00cZ8jyeoPyK/uyK2Vka6n0xkd+dye14+IGClEcp3qhwWmZvw6l3jeKy/cFdBvuE++kyMflHIZa7wWb7ni2bv2J3++5fNyogA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=q+dXJCvzCTXQjgflifo+HFC+x50V9Pe4EnLdKJohe18=;
+ b=HgaC9Eplo0Ubv7PKdZtGKmXI0x3uarHR01Mr87Ju6E2wjWJy8uZ9Avjv3sbDrlmspEYsBdfYquGhAuuvXG0iuClDLif/6qSu/L7RsEiEQ2/0awmafyEhweydnqgxvJcDnT3cvXEp5Lq7zk3AMWaxQ2+8KyAaSoDs9udzbPA1z6F5ny22n3llp23nsG5Wp1AGn1fmo0VsQ1LezgJyh9VRHzyCCzj1RbtmZy5rPRo6McPnnMhduEQHQgi82Gw1NTMWgOyd4DLzA1DDYDexuFVnKjWk3d1UMDtKOwP+1oYOU+mFo75931fR2EPDZBXSZDVenvpvd+Ssf228F02azGS+gw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=q+dXJCvzCTXQjgflifo+HFC+x50V9Pe4EnLdKJohe18=;
+ b=EqAUr+s21Zxy3hKulUJw9iSOEDjj+VIPkZEZMPgo2lLj06RNtzg4UDqg18eMSnTwYMvvMLvAaAcOdYbuH7x3v2gxfkT3JlSBVVggH4VAJq/RPUhYEBqh+zXMesTC0+MT0/WWcwGX6IatNF11sSnSZygkuUZ4yxVxdviR/N0eurisfimI4RB2n3j+hWcCLTxwgT8VXMI4dNHFC/8m/3R+70nLvt5T+HS91GnZwdPMr13ConNnkumSPYetkLGk5qukBtQoDEl4Uwr7Uh4UH3B7S/RKuI+T+/O56UPVp9Qk/zCXCQEphws6WV/wGvLtoJHt7EK2VOOCB9oVfzHZbsDPHg==
+Received: from SN6PR01CA0020.prod.exchangelabs.com (2603:10b6:805:b6::33) by
+ LV2PR12MB5895.namprd12.prod.outlook.com (2603:10b6:408:173::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6745.36; Tue, 12 Sep
+ 2023 13:02:07 +0000
+Received: from SA2PEPF000015C6.namprd03.prod.outlook.com
+ (2603:10b6:805:b6:cafe::50) by SN6PR01CA0020.outlook.office365.com
+ (2603:10b6:805:b6::33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6768.35 via Frontend
+ Transport; Tue, 12 Sep 2023 13:02:07 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SA2PEPF000015C6.mail.protection.outlook.com (10.167.241.196) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6792.16 via Frontend Transport; Tue, 12 Sep 2023 13:02:07 +0000
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.5; Tue, 12 Sep 2023
+ 06:01:37 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail202.nvidia.com
+ (10.129.68.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.37; Tue, 12 Sep
+ 2023 06:01:37 -0700
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.10) with Microsoft SMTP Server id 15.2.986.37 via
+ Frontend Transport; Tue, 12 Sep 2023 06:01:34 -0700
+To: Jason Wang <jasowang@redhat.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+ <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>, "Michael S .
+ Tsirkin" <mst@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ <virtualization@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 00/16] vdpa: Add support for vq descriptor mappings
+Date: Tue, 12 Sep 2023 16:01:10 +0300
+Message-ID: <20230912130132.561193-1-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-References: <20230912030008.3599514-1-lulu@redhat.com>
- <20230912030008.3599514-4-lulu@redhat.com>
-In-Reply-To: <20230912030008.3599514-4-lulu@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 12 Sep 2023 15:39:08 +0800
-Message-ID: <CACGkMEuKcgH0kdLPmWZ69fL6SYvoVPfeGv11QwhQDW2sr9DZ3Q@mail.gmail.com>
-Subject: Re: [RFC v2 3/4] vduse: update the vq_info in ioctl
-To: Cindy Lu <lulu@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- maxime.coquelin@redhat.com
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA2PEPF000015C6:EE_|LV2PR12MB5895:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6c757d42-c69d-4e64-84a4-08dbb39077f2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ADPi3HzDTaIf0F7G0HkkycYJKjFs2XBu6W5XE9ui6vYC+xYlfhFrBFAHen/rCb2N2OPwX9QsbEd0+54Cppo/7h22Ha8F8BUO1bYOhBXsQQZl97+5qwg5+a237NX0UuFojJtko/5YCWGb/XrSUxK+hOViCidKUypkX74haiJ3R7h5kcaP3EMV9vEMqbCHW2V/thgiv/pzJGyYdPlkogx8JqoifuKdKvzctbcy9bjrBUW5w/wyc7b0I/06eSTWO6mkcAQ0xhvDWzpFPMsTlok/S5c9INWt1+b9sdhJnoFh4Wm1fKmkQ/49kytiihyRkSb6yk1yXunp+m45ugegF2FYwP6qdu3qAFcQHn0HDmlhBcj3msh3M5bR2jB9Y2uBU9Fw3pRBQw7S+jgFnQQrqKRKfOLq3HsUfKcw5st7+z4yUnlDfRQlBmQrDHnDrUpBnEBkWK0Yfmy1C+RDbqYb5aGz/N5SLaSZawYrwDnUpmGFkmLvjjBTRNMlHSBT2f4JY+32zlb4UiU/YlR/FNNjL4LNxdxtY21IcHHgmBDQbV7C9Bco6439y16/u+sfqmEdkZqk5kcjSNWSfHG1Gr6BrDYQnW6OGF/PlyD3wP2N5XoaSnjj1Hj/E3EKIHu08w4f8moahset6bPtJZ0z75w0O/9ZuoA85HrMaoQAY3XJsDUQsYPXYr1PUlkBuBBaJ8eg4eoXXtfB0zqNI9h9jGPlBSGk+/hs/eb1ND69hx9KVk6+pP2qgXds6BpRAQPd74+YwRVAFrqcEzOXx8++twJkHRKO4j4imYRh5GP7CU2qRFRKOVk=
+X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(346002)(39860400002)(376002)(136003)(396003)(82310400011)(451199024)(186009)(1800799009)(46966006)(36840700001)(40470700004)(36860700001)(83380400001)(426003)(336012)(2616005)(26005)(54906003)(70586007)(41300700001)(6666004)(7636003)(356005)(82740400003)(70206006)(1076003)(8676002)(110136005)(966005)(478600001)(8936002)(316002)(4326008)(5660300002)(47076005)(2906002)(86362001)(36756003)(40460700003)(40480700001);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Sep 2023 13:02:07.0852 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6c757d42-c69d-4e64-84a4-08dbb39077f2
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: SA2PEPF000015C6.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5895
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kvm@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,59 +137,64 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Dragos Tatulea via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Dragos Tatulea <dtatulea@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBTZXAgMTIsIDIwMjMgYXQgMTE6MDDigK9BTSBDaW5keSBMdSA8bHVsdUByZWRoYXQu
-Y29tPiB3cm90ZToKPgo+IEluIFZEVVNFX1ZRX0dFVF9JTkZPLCB0aGUgZHJpdmVyIHdpbGwgc3lu
-YyB0aGUgbGFzdF9hdmFpbF9pZHgKPiB3aXRoIHJlY29ubmVjdCBpbmZvLCBBZnRlciBtYXBwaW5n
-IHRoZSByZWNvbm5lY3QgcGFnZXMgdG8gdXNlcnNwYWNlCj4gVGhlIHVzZXJzcGFjZSBBcHAgd2ls
-bCB1cGRhdGUgdGhlIHJlY29ubmVjdF90aW1lIGluCj4gc3RydWN0IHZob3N0X3JlY29ubmVjdF92
-cmluZywgSWYgdGhpcyBpcyBub3QgMCB0aGVuIGl0IG1lYW5zIHRoaXMKPiB2cSBpcyByZWNvbm5l
-Y3RlZCBhbmQgd2lsbCB1cGRhdGUgdGhlIGxhc3RfYXZhaWxfaWR4Cj4KPiBTaWduZWQtb2ZmLWJ5
-OiBDaW5keSBMdSA8bHVsdUByZWRoYXQuY29tPgo+IC0tLQo+ICBkcml2ZXJzL3ZkcGEvdmRwYV91
-c2VyL3ZkdXNlX2Rldi5jIHwgMTMgKysrKysrKysrKysrKwo+ICBpbmNsdWRlL3VhcGkvbGludXgv
-dmR1c2UuaCAgICAgICAgIHwgIDYgKysrKysrCj4gIDIgZmlsZXMgY2hhbmdlZCwgMTkgaW5zZXJ0
-aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2
-LmMgYi9kcml2ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jCj4gaW5kZXggMmM2OWY0MDA0
-YTZlLi42ODBiMjNkYmRkZTIgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL3ZkcGFfdXNlci92
-ZHVzZV9kZXYuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMKPiBA
-QCAtMTIyMSw2ICsxMjIxLDggQEAgc3RhdGljIGxvbmcgdmR1c2VfZGV2X2lvY3RsKHN0cnVjdCBm
-aWxlICpmaWxlLCB1bnNpZ25lZCBpbnQgY21kLAo+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmR1
-c2VfdnFfaW5mbyB2cV9pbmZvOwo+ICAgICAgICAgICAgICAgICBzdHJ1Y3QgdmR1c2VfdmlydHF1
-ZXVlICp2cTsKPiAgICAgICAgICAgICAgICAgdTMyIGluZGV4Owo+ICsgICAgICAgICAgICAgICBz
-dHJ1Y3QgdmRwYV9yZWNvbm5lY3RfaW5mbyAqYXJlYTsKPiArICAgICAgICAgICAgICAgc3RydWN0
-IHZob3N0X3JlY29ubmVjdF92cmluZyAqdnFfcmVjb25uZWN0Owo+Cj4gICAgICAgICAgICAgICAg
-IHJldCA9IC1FRkFVTFQ7Cj4gICAgICAgICAgICAgICAgIGlmIChjb3B5X2Zyb21fdXNlcigmdnFf
-aW5mbywgYXJncCwgc2l6ZW9mKHZxX2luZm8pKSkKPiBAQCAtMTI1Miw2ICsxMjU0LDE3IEBAIHN0
-YXRpYyBsb25nIHZkdXNlX2Rldl9pb2N0bChzdHJ1Y3QgZmlsZSAqZmlsZSwgdW5zaWduZWQgaW50
-IGNtZCwKPgo+ICAgICAgICAgICAgICAgICB2cV9pbmZvLnJlYWR5ID0gdnEtPnJlYWR5Owo+Cj4g
-KyAgICAgICAgICAgICAgIGFyZWEgPSAmdnEtPnJlY29ubmVjdF9pbmZvOwo+ICsKPiArICAgICAg
-ICAgICAgICAgdnFfcmVjb25uZWN0ID0gKHN0cnVjdCB2aG9zdF9yZWNvbm5lY3RfdnJpbmcgKilh
-cmVhLT52YWRkcjsKPiArICAgICAgICAgICAgICAgLypjaGVjayBpZiB0aGUgdnEgaXMgcmVjb25u
-ZWN0LCBpZiB5ZXMgdGhlbiB1cGRhdGUgdGhlIGxhc3RfYXZhaWxfaWR4Ki8KPiArICAgICAgICAg
-ICAgICAgaWYgKCh2cV9yZWNvbm5lY3QtPmxhc3RfYXZhaWxfaWR4ICE9Cj4gKyAgICAgICAgICAg
-ICAgICAgICAgdnFfaW5mby5zcGxpdC5hdmFpbF9pbmRleCkgJiYKPiArICAgICAgICAgICAgICAg
-ICAgICh2cV9yZWNvbm5lY3QtPnJlY29ubmVjdF90aW1lICE9IDApKSB7Cj4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgdnFfaW5mby5zcGxpdC5hdmFpbF9pbmRleCA9Cj4gKyAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICB2cV9yZWNvbm5lY3QtPmxhc3RfYXZhaWxfaWR4Owo+ICsgICAgICAg
-ICAgICAgICB9Cj4gKwo+ICAgICAgICAgICAgICAgICByZXQgPSAtRUZBVUxUOwo+ICAgICAgICAg
-ICAgICAgICBpZiAoY29weV90b191c2VyKGFyZ3AsICZ2cV9pbmZvLCBzaXplb2YodnFfaW5mbykp
-KQo+ICAgICAgICAgICAgICAgICAgICAgICAgIGJyZWFrOwo+IGRpZmYgLS1naXQgYS9pbmNsdWRl
-L3VhcGkvbGludXgvdmR1c2UuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92ZHVzZS5oCj4gaW5kZXgg
-MTFiZDQ4YzcyYzZjLi5kNTg1NDI1ODAzZmQgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xp
-bnV4L3ZkdXNlLmgKPiArKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmR1c2UuaAo+IEBAIC0zNTAs
-NCArMzUwLDEwIEBAIHN0cnVjdCB2ZHVzZV9kZXZfcmVzcG9uc2Ugewo+ICAgICAgICAgfTsKPiAg
-fTsKPgo+ICtzdHJ1Y3Qgdmhvc3RfcmVjb25uZWN0X3ZyaW5nIHsKPiArICAgICAgIF9fdTE2IHJl
-Y29ubmVjdF90aW1lOwo+ICsgICAgICAgX191MTYgbGFzdF9hdmFpbF9pZHg7Cj4gKyAgICAgICBf
-Qm9vbCBhdmFpbF93cmFwX2NvdW50ZXI7CgpQbGVhc2UgYWRkIGEgY29tbWVudCBmb3IgZWFjaCBm
-aWVsZC4KCkFuZCBJIG5ldmVyIHNhdyBfQm9vbCBpcyB1c2VkIGluIHVhcGkgYmVmb3JlLCBtYXli
-ZSBpdCdzIGJldHRlciB0bwpwYWNrIGl0IHdpdGggbGFzdF9hdmFpbF9pZHggaW50byBhIF9fdTMy
-LgoKQnR3LCBkbyB3ZSBuZWVkIHRvIHRyYWNrIGluZmxpZ2h0IGRlc2NyaXB0b3JzIGFzIHdlbGw/
-CgpUaGFua3MKCj4gK307Cj4gKwo+ICAjZW5kaWYgLyogX1VBUElfVkRVU0VfSF8gKi8KPiAtLQo+
-IDIuMzQuMwo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This patch series adds support for vq descriptor table mappings which
+are used to improve vdpa live migration downtime. The improvement comes
+from using smaller mappings which take less time to create and destroy
+in hw.
+
+The first part adds the vdpa core changes from Si-Wei [0].
+
+The second part adds support in mlx5_vdpa:
+- Refactor the mr code to be able to cleanly add descriptor mappings.
+- Add hardware descriptor mr support.
+- Properly update iotlb for cvq during ASID switch.
+
+[0] https://lore.kernel.org/virtualization/1694248959-13369-1-git-send-email-si-wei.liu@oracle.com
+
+Dragos Tatulea (13):
+  vdpa/mlx5: Create helper function for dma mappings
+  vdpa/mlx5: Decouple cvq iotlb handling from hw mapping code
+  vdpa/mlx5: Take cvq iotlb lock during refresh
+  vdpa/mlx5: Collapse "dvq" mr add/delete functions
+  vdpa/mlx5: Rename mr destroy functions
+  vdpa/mlx5: Allow creation/deletion of any given mr struct
+  vdpa/mlx5: Move mr mutex out of mr struct
+  vdpa/mlx5: Improve mr update flow
+  vdpa/mlx5: Introduce mr for vq descriptor
+  vdpa/mlx5: Enable hw support for vq descriptor mapping
+  vdpa/mlx5: Make iotlb helper functions more generic
+  vdpa/mlx5: Update cvq iotlb mapping on ASID change
+  Cover letter: vdpa/mlx5: Add support for vq descriptor mappings
+
+Si-Wei Liu (3):
+  vdpa: introduce dedicated descriptor group for virtqueue
+  vhost-vdpa: introduce descriptor group backend feature
+  vhost-vdpa: uAPI to get dedicated descriptor group id
+
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h |  31 +++--
+ drivers/vdpa/mlx5/core/mr.c        | 191 ++++++++++++++++-------------
+ drivers/vdpa/mlx5/core/resources.c |   6 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 100 ++++++++++-----
+ drivers/vhost/vdpa.c               |  27 ++++
+ include/linux/mlx5/mlx5_ifc.h      |   8 +-
+ include/linux/mlx5/mlx5_ifc_vdpa.h |   7 +-
+ include/linux/vdpa.h               |  11 ++
+ include/uapi/linux/vhost.h         |   8 ++
+ include/uapi/linux/vhost_types.h   |   5 +
+ 10 files changed, 264 insertions(+), 130 deletions(-)
+
+-- 
+2.41.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
