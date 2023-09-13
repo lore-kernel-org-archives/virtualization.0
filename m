@@ -4,90 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1282BEDEC43
-	for <virtualization@archiver.kernel.org>; Wed, 13 Sep 2023 11:44:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A17A1EDEC50
+	for <virtualization@archiver.kernel.org>; Wed, 13 Sep 2023 13:06:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 98C9F418BE;
-	Wed, 13 Sep 2023 11:44:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 98C9F418BE
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0EC0C41D5F;
+	Wed, 13 Sep 2023 13:06:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0EC0C41D5F
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=KbCJatsA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T9eY3mOD
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7pwChBNr8RX6; Wed, 13 Sep 2023 11:44:40 +0000 (UTC)
+	with ESMTP id cXSKXSoR6hwU; Wed, 13 Sep 2023 13:06:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2598341B35;
-	Wed, 13 Sep 2023 11:44:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2598341B35
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 32133418BC;
+	Wed, 13 Sep 2023 13:06:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32133418BC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DDF17C0DD8;
-	Wed, 13 Sep 2023 11:44:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AB78EC0DD3
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F30E8C0039;
+	Wed, 13 Sep 2023 13:06:51 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9816CC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Sep 2023 11:44:38 +0000 (UTC)
+ Wed, 13 Sep 2023 13:06:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 74F7881491
+ by smtp2.osuosl.org (Postfix) with ESMTP id 607D940586
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Sep 2023 11:44:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 74F7881491
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=KbCJatsA
+ Wed, 13 Sep 2023 13:06:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 607D940586
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=T9eY3mOD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8GtLO9ebaoL7
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id U6IVKIeEI676
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Sep 2023 11:44:37 +0000 (UTC)
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id EBAC081462
+ Wed, 13 Sep 2023 13:06:49 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7FEAB400C7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Sep 2023 11:44:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EBAC081462
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 2C7F81F45B;
- Wed, 13 Sep 2023 11:38:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1694605122; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
+ Wed, 13 Sep 2023 13:06:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7FEAB400C7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1694610407;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=pys8ZMeihbqu1bWQt/XnMbkpDqMreD1pEdIt/VtSRwk=;
- b=KbCJatsAJtpEHO9X8iEcCiF/f6loxsNqBoDiqyiM0AFZ4RzaFcQc/ha3w17oXxz1bsUNdh
- ZxKyIQhwguDSEfDE0PPBW56VU6oh+zzqVzG9E5Ug9oY+uyW3zHiP4GNhNoOgkrAnhNd8SL
- +/49XOWY03XxzlSOwY3uYIO6t6d8bTY=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ bh=1N8nXpfMCNYLFwc5DqM2IQ2ttQ6FxXsVgYdelfbJc5Y=;
+ b=T9eY3mODb/4Jr7k0DOfaEKR0YP+59bxDxTVLT9rdri9zvh0GZdUPHyLOGr0Z+9ksgXCuXh
+ eXIQTQcxrse1G/0U0CO6ho7entgPHDCmBQmQJtquQsdowuaQ0Y0BaNqOtLwFIGkzflEw14
+ lW60X+9MkzYFsZOZZENFNyjmv6kvMYs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-659-QRcYUWmXNfChTXcc_wePhw-1; Wed, 13 Sep 2023 09:06:42 -0400
+X-MC-Unique: QRcYUWmXNfChTXcc_wePhw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id BB6E513582;
- Wed, 13 Sep 2023 11:38:41 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id rzyeLEGfAWV8CwAAMHmgww
- (envelope-from <jgross@suse.com>); Wed, 13 Sep 2023 11:38:41 +0000
-To: linux-kernel@vger.kernel.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org,
- linux-trace-kernel@vger.kernel.org
-Subject: [PATCH 2/3] x86/xen: move paravirt lazy code
-Date: Wed, 13 Sep 2023 13:38:27 +0200
-Message-Id: <20230913113828.18421-3-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20230913113828.18421-1-jgross@suse.com>
-References: <20230913113828.18421-1-jgross@suse.com>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2B7A2101FAA1;
+ Wed, 13 Sep 2023 13:06:41 +0000 (UTC)
+Received: from [10.22.32.174] (unknown [10.22.32.174])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id A80792904;
+ Wed, 13 Sep 2023 13:06:37 +0000 (UTC)
+Message-ID: <0ea8d0e7-6447-3a60-8cf4-d6a4e89fa8be@redhat.com>
+Date: Wed, 13 Sep 2023 09:06:37 -0400
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, "H. Peter Anvin" <hpa@zytor.com>,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ajay Kaher <akaher@vmware.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- Masami Hiramatsu <mhiramat@kernel.org>, Alexey Makhalov <amakhalov@vmware.com>,
- xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH V11 04/17] locking/qspinlock: Improve xchg_tail for number
+ of cpus >= 16k
+Content-Language: en-US
+To: Guo Ren <guoren@kernel.org>, Leonardo Bras <leobras@redhat.com>
+References: <20230910082911.3378782-1-guoren@kernel.org>
+ <20230910082911.3378782-5-guoren@kernel.org>
+ <f091ead0-99b9-b30a-a295-730ce321ac60@redhat.com>
+ <CAJF2gTSbUUdLhN8PFdFzQd0M1T2MVOL1cdZn46WKq1S8MuQYHw@mail.gmail.com>
+ <06714da1-d566-766f-7a13-a3c93b5953c4@redhat.com>
+ <CAJF2gTQ3Q7f+FGorVTR66c6TGWsSeeKVvLF+LH1_m3kSHrm0yA@mail.gmail.com>
+ <ZQF49GIZoFceUGYH@redhat.com>
+ <CAJF2gTTHdCr-FQVSGUc+LapkJPmDiEYYa_1P6T86uCjRujgnTg@mail.gmail.com>
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <CAJF2gTTHdCr-FQVSGUc+LapkJPmDiEYYa_1P6T86uCjRujgnTg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
+Cc: Guo Ren <guoren@linux.alibaba.com>, kvm@vger.kernel.org,
+ linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
+ bjorn@rivosinc.com, palmer@rivosinc.com,
+ virtualization@lists.linux-foundation.org, conor.dooley@microchip.com,
+ jszhang@kernel.org, linux-riscv@lists.infradead.org, will@kernel.org,
+ keescook@chromium.org, linux-arch@vger.kernel.org, anup@brainfault.org,
+ linux-csky@vger.kernel.org, xiaoguang.xing@sophgo.com, mingo@redhat.com,
+ greentime.hu@sifive.com, ajones@ventanamicro.com, alexghiti@rivosinc.com,
+ paulmck@kernel.org, boqun.feng@gmail.com, rostedt@goodmis.org,
+ paul.walmsley@sifive.com, tglx@linutronix.de, rdunlap@infradead.org,
+ wuwei2016@iscas.ac.cn, wefu@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,555 +113,81 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Only Xen is using the paravirt lazy mode code, so it can be moved to
-Xen specific sources.
-
-This allows to make some of the functions static or to merge them into
-their only call sites.
-
-While at it do a rename from "paravirt" to "xen" for all moved
-specifiers.
-
-No functional change.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
- arch/x86/include/asm/paravirt_types.h | 15 ------
- arch/x86/include/asm/xen/hypervisor.h | 26 +++++++++++
- arch/x86/kernel/paravirt.c            | 67 ---------------------------
- arch/x86/xen/enlighten_pv.c           | 39 +++++++++++++---
- arch/x86/xen/mmu_pv.c                 | 55 ++++++++++++++--------
- arch/x86/xen/multicalls.h             |  4 +-
- include/trace/events/xen.h            | 12 ++---
- 7 files changed, 102 insertions(+), 116 deletions(-)
-
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 4acbcddddc29..772d03487520 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -9,13 +9,6 @@ struct paravirt_patch_site {
- 	u8 type;		/* type of this instruction */
- 	u8 len;			/* length of original instruction */
- };
--
--/* Lazy mode for batching updates / context switch */
--enum paravirt_lazy_mode {
--	PARAVIRT_LAZY_NONE,
--	PARAVIRT_LAZY_MMU,
--	PARAVIRT_LAZY_CPU,
--};
- #endif
- 
- #ifdef CONFIG_PARAVIRT
-@@ -549,14 +542,6 @@ int paravirt_disable_iospace(void);
- 	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),	\
- 		     PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
- 
--enum paravirt_lazy_mode paravirt_get_lazy_mode(void);
--void paravirt_start_context_switch(struct task_struct *prev);
--void paravirt_end_context_switch(struct task_struct *next);
--
--void paravirt_enter_lazy_mmu(void);
--void paravirt_leave_lazy_mmu(void);
--void paravirt_flush_lazy_mmu(void);
--
- void _paravirt_nop(void);
- void paravirt_BUG(void);
- unsigned long paravirt_ret0(void);
-diff --git a/arch/x86/include/asm/xen/hypervisor.h b/arch/x86/include/asm/xen/hypervisor.h
-index 5fc35f889cd1..ed05ce3df5c7 100644
---- a/arch/x86/include/asm/xen/hypervisor.h
-+++ b/arch/x86/include/asm/xen/hypervisor.h
-@@ -36,6 +36,7 @@
- extern struct shared_info *HYPERVISOR_shared_info;
- extern struct start_info *xen_start_info;
- 
-+#include <asm/bug.h>
- #include <asm/processor.h>
- 
- #define XEN_SIGNATURE "XenVMMXenVMM"
-@@ -63,4 +64,29 @@ void __init xen_pvh_init(struct boot_params *boot_params);
- void __init mem_map_via_hcall(struct boot_params *boot_params_p);
- #endif
- 
-+/* Lazy mode for batching updates / context switch */
-+enum xen_lazy_mode {
-+	XEN_LAZY_NONE,
-+	XEN_LAZY_MMU,
-+	XEN_LAZY_CPU,
-+};
-+
-+DECLARE_PER_CPU(enum xen_lazy_mode, xen_lazy_mode);
-+
-+static inline void enter_lazy(enum xen_lazy_mode mode)
-+{
-+	BUG_ON(this_cpu_read(xen_lazy_mode) != XEN_LAZY_NONE);
-+
-+	this_cpu_write(xen_lazy_mode, mode);
-+}
-+
-+static inline void leave_lazy(enum xen_lazy_mode mode)
-+{
-+	BUG_ON(this_cpu_read(xen_lazy_mode) != mode);
-+
-+	this_cpu_write(xen_lazy_mode, XEN_LAZY_NONE);
-+}
-+
-+enum xen_lazy_mode xen_get_lazy_mode(void);
-+
- #endif /* _ASM_X86_XEN_HYPERVISOR_H */
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 975f98d5eee5..97f1436c1a20 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -143,66 +143,7 @@ int paravirt_disable_iospace(void)
- 	return request_resource(&ioport_resource, &reserve_ioports);
- }
- 
--static DEFINE_PER_CPU(enum paravirt_lazy_mode, paravirt_lazy_mode) = PARAVIRT_LAZY_NONE;
--
--static inline void enter_lazy(enum paravirt_lazy_mode mode)
--{
--	BUG_ON(this_cpu_read(paravirt_lazy_mode) != PARAVIRT_LAZY_NONE);
--
--	this_cpu_write(paravirt_lazy_mode, mode);
--}
--
--static void leave_lazy(enum paravirt_lazy_mode mode)
--{
--	BUG_ON(this_cpu_read(paravirt_lazy_mode) != mode);
--
--	this_cpu_write(paravirt_lazy_mode, PARAVIRT_LAZY_NONE);
--}
--
--void paravirt_enter_lazy_mmu(void)
--{
--	enter_lazy(PARAVIRT_LAZY_MMU);
--}
--
--void paravirt_leave_lazy_mmu(void)
--{
--	leave_lazy(PARAVIRT_LAZY_MMU);
--}
--
--void paravirt_flush_lazy_mmu(void)
--{
--	preempt_disable();
--
--	if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_MMU) {
--		arch_leave_lazy_mmu_mode();
--		arch_enter_lazy_mmu_mode();
--	}
--
--	preempt_enable();
--}
--
- #ifdef CONFIG_PARAVIRT_XXL
--void paravirt_start_context_switch(struct task_struct *prev)
--{
--	BUG_ON(preemptible());
--
--	if (this_cpu_read(paravirt_lazy_mode) == PARAVIRT_LAZY_MMU) {
--		arch_leave_lazy_mmu_mode();
--		set_ti_thread_flag(task_thread_info(prev), TIF_LAZY_MMU_UPDATES);
--	}
--	enter_lazy(PARAVIRT_LAZY_CPU);
--}
--
--void paravirt_end_context_switch(struct task_struct *next)
--{
--	BUG_ON(preemptible());
--
--	leave_lazy(PARAVIRT_LAZY_CPU);
--
--	if (test_and_clear_ti_thread_flag(task_thread_info(next), TIF_LAZY_MMU_UPDATES))
--		arch_enter_lazy_mmu_mode();
--}
--
- static noinstr void pv_native_write_cr2(unsigned long val)
- {
- 	native_write_cr2(val);
-@@ -229,14 +170,6 @@ static noinstr void pv_native_safe_halt(void)
- }
- #endif
- 
--enum paravirt_lazy_mode paravirt_get_lazy_mode(void)
--{
--	if (in_interrupt())
--		return PARAVIRT_LAZY_NONE;
--
--	return this_cpu_read(paravirt_lazy_mode);
--}
--
- struct pv_info pv_info = {
- 	.name = "bare hardware",
- #ifdef CONFIG_PARAVIRT_XXL
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 49352fad7d1d..54b83825c4b6 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -101,6 +101,16 @@ struct tls_descs {
- 	struct desc_struct desc[3];
- };
- 
-+DEFINE_PER_CPU(enum xen_lazy_mode, xen_lazy_mode) = XEN_LAZY_NONE;
-+
-+enum xen_lazy_mode xen_get_lazy_mode(void)
-+{
-+	if (in_interrupt())
-+		return XEN_LAZY_NONE;
-+
-+	return this_cpu_read(xen_lazy_mode);
-+}
-+
- /*
-  * Updating the 3 TLS descriptors in the GDT on every task switch is
-  * surprisingly expensive so we avoid updating them if they haven't
-@@ -362,10 +372,25 @@ static noinstr unsigned long xen_get_debugreg(int reg)
- 	return HYPERVISOR_get_debugreg(reg);
- }
- 
-+static void xen_start_context_switch(struct task_struct *prev)
-+{
-+	BUG_ON(preemptible());
-+
-+	if (this_cpu_read(xen_lazy_mode) == XEN_LAZY_MMU) {
-+		arch_leave_lazy_mmu_mode();
-+		set_ti_thread_flag(task_thread_info(prev), TIF_LAZY_MMU_UPDATES);
-+	}
-+	enter_lazy(XEN_LAZY_CPU);
-+}
-+
- static void xen_end_context_switch(struct task_struct *next)
- {
-+	BUG_ON(preemptible());
-+
- 	xen_mc_flush();
--	paravirt_end_context_switch(next);
-+	leave_lazy(XEN_LAZY_CPU);
-+	if (test_and_clear_ti_thread_flag(task_thread_info(next), TIF_LAZY_MMU_UPDATES))
-+		arch_enter_lazy_mmu_mode();
- }
- 
- static unsigned long xen_store_tr(void)
-@@ -472,7 +497,7 @@ static void xen_set_ldt(const void *addr, unsigned entries)
- 
- 	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
- 
--	xen_mc_issue(PARAVIRT_LAZY_CPU);
-+	xen_mc_issue(XEN_LAZY_CPU);
- }
- 
- static void xen_load_gdt(const struct desc_ptr *dtr)
-@@ -568,7 +593,7 @@ static void xen_load_tls(struct thread_struct *t, unsigned int cpu)
- 	 * exception between the new %fs descriptor being loaded and
- 	 * %fs being effectively cleared at __switch_to().
- 	 */
--	if (paravirt_get_lazy_mode() == PARAVIRT_LAZY_CPU)
-+	if (xen_get_lazy_mode() == XEN_LAZY_CPU)
- 		loadsegment(fs, 0);
- 
- 	xen_mc_batch();
-@@ -577,7 +602,7 @@ static void xen_load_tls(struct thread_struct *t, unsigned int cpu)
- 	load_TLS_descriptor(t, cpu, 1);
- 	load_TLS_descriptor(t, cpu, 2);
- 
--	xen_mc_issue(PARAVIRT_LAZY_CPU);
-+	xen_mc_issue(XEN_LAZY_CPU);
- }
- 
- static void xen_load_gs_index(unsigned int idx)
-@@ -909,7 +934,7 @@ static void xen_load_sp0(unsigned long sp0)
- 
- 	mcs = xen_mc_entry(0);
- 	MULTI_stack_switch(mcs.mc, __KERNEL_DS, sp0);
--	xen_mc_issue(PARAVIRT_LAZY_CPU);
-+	xen_mc_issue(XEN_LAZY_CPU);
- 	this_cpu_write(cpu_tss_rw.x86_tss.sp0, sp0);
- }
- 
-@@ -973,7 +998,7 @@ static void xen_write_cr0(unsigned long cr0)
- 
- 	MULTI_fpu_taskswitch(mcs.mc, (cr0 & X86_CR0_TS) != 0);
- 
--	xen_mc_issue(PARAVIRT_LAZY_CPU);
-+	xen_mc_issue(XEN_LAZY_CPU);
- }
- 
- static void xen_write_cr4(unsigned long cr4)
-@@ -1156,7 +1181,7 @@ static const typeof(pv_ops) xen_cpu_ops __initconst = {
- #endif
- 		.io_delay = xen_io_delay,
- 
--		.start_context_switch = paravirt_start_context_switch,
-+		.start_context_switch = xen_start_context_switch,
- 		.end_context_switch = xen_end_context_switch,
- 	},
- };
-diff --git a/arch/x86/xen/mmu_pv.c b/arch/x86/xen/mmu_pv.c
-index 1652c39e3dfb..b6830554ff69 100644
---- a/arch/x86/xen/mmu_pv.c
-+++ b/arch/x86/xen/mmu_pv.c
-@@ -236,7 +236,7 @@ static void xen_set_pmd_hyper(pmd_t *ptr, pmd_t val)
- 	u.val = pmd_val_ma(val);
- 	xen_extend_mmu_update(&u);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-@@ -270,7 +270,7 @@ static bool xen_batched_set_pte(pte_t *ptep, pte_t pteval)
- {
- 	struct mmu_update u;
- 
--	if (paravirt_get_lazy_mode() != PARAVIRT_LAZY_MMU)
-+	if (xen_get_lazy_mode() != XEN_LAZY_MMU)
- 		return false;
- 
- 	xen_mc_batch();
-@@ -279,7 +279,7 @@ static bool xen_batched_set_pte(pte_t *ptep, pte_t pteval)
- 	u.val = pte_val_ma(pteval);
- 	xen_extend_mmu_update(&u);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	return true;
- }
-@@ -325,7 +325,7 @@ void xen_ptep_modify_prot_commit(struct vm_area_struct *vma, unsigned long addr,
- 	u.val = pte_val_ma(pte);
- 	xen_extend_mmu_update(&u);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- }
- 
- /* Assume pteval_t is equivalent to all the other *val_t types. */
-@@ -419,7 +419,7 @@ static void xen_set_pud_hyper(pud_t *ptr, pud_t val)
- 	u.val = pud_val_ma(val);
- 	xen_extend_mmu_update(&u);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-@@ -499,7 +499,7 @@ static void __init xen_set_p4d_hyper(p4d_t *ptr, p4d_t val)
- 
- 	__xen_set_p4d_hyper(ptr, val);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-@@ -531,7 +531,7 @@ static void xen_set_p4d(p4d_t *ptr, p4d_t val)
- 	if (user_ptr)
- 		__xen_set_p4d_hyper((p4d_t *)user_ptr, val);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- }
- 
- #if CONFIG_PGTABLE_LEVELS >= 5
-@@ -1245,7 +1245,7 @@ static noinline void xen_flush_tlb(void)
- 	op->cmd = MMUEXT_TLB_FLUSH_LOCAL;
- 	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-@@ -1265,7 +1265,7 @@ static void xen_flush_tlb_one_user(unsigned long addr)
- 	op->arg1.linear_addr = addr & PAGE_MASK;
- 	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-@@ -1302,7 +1302,7 @@ static void xen_flush_tlb_multi(const struct cpumask *cpus,
- 
- 	MULTI_mmuext_op(mcs.mc, &args->op, 1, NULL, DOMID_SELF);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- }
- 
- static unsigned long xen_read_cr3(void)
-@@ -1361,7 +1361,7 @@ static void xen_write_cr3(unsigned long cr3)
- 	else
- 		__xen_write_cr3(false, 0);
- 
--	xen_mc_issue(PARAVIRT_LAZY_CPU);  /* interrupts restored */
-+	xen_mc_issue(XEN_LAZY_CPU);  /* interrupts restored */
- }
- 
- /*
-@@ -1396,7 +1396,7 @@ static void __init xen_write_cr3_init(unsigned long cr3)
- 
- 	__xen_write_cr3(true, cr3);
- 
--	xen_mc_issue(PARAVIRT_LAZY_CPU);  /* interrupts restored */
-+	xen_mc_issue(XEN_LAZY_CPU);  /* interrupts restored */
- }
- 
- static int xen_pgd_alloc(struct mm_struct *mm)
-@@ -1557,7 +1557,7 @@ static inline void xen_alloc_ptpage(struct mm_struct *mm, unsigned long pfn,
- 		if (level == PT_PTE && USE_SPLIT_PTE_PTLOCKS && !pinned)
- 			__pin_pagetable_pfn(MMUEXT_PIN_L1_TABLE, pfn);
- 
--		xen_mc_issue(PARAVIRT_LAZY_MMU);
-+		xen_mc_issue(XEN_LAZY_MMU);
- 	}
- }
- 
-@@ -1587,7 +1587,7 @@ static inline void xen_release_ptpage(unsigned long pfn, unsigned level)
- 
- 		__set_pfn_prot(pfn, PAGE_KERNEL);
- 
--		xen_mc_issue(PARAVIRT_LAZY_MMU);
-+		xen_mc_issue(XEN_LAZY_MMU);
- 
- 		ClearPagePinned(page);
- 	}
-@@ -1804,7 +1804,7 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
- 	 */
- 	xen_mc_batch();
- 	__xen_write_cr3(true, __pa(init_top_pgt));
--	xen_mc_issue(PARAVIRT_LAZY_CPU);
-+	xen_mc_issue(XEN_LAZY_CPU);
- 
- 	/* We can't that easily rip out L3 and L2, as the Xen pagetables are
- 	 * set out this way: [L4], [L1], [L2], [L3], [L1], [L1] ...  for
-@@ -2083,6 +2083,23 @@ static void xen_set_fixmap(unsigned idx, phys_addr_t phys, pgprot_t prot)
- #endif
- }
- 
-+static void xen_enter_lazy_mmu(void)
-+{
-+	enter_lazy(XEN_LAZY_MMU);
-+}
-+
-+static void xen_flush_lazy_mmu(void)
-+{
-+	preempt_disable();
-+
-+	if (xen_get_lazy_mode() == XEN_LAZY_MMU) {
-+		arch_leave_lazy_mmu_mode();
-+		arch_enter_lazy_mmu_mode();
-+	}
-+
-+	preempt_enable();
-+}
-+
- static void __init xen_post_allocator_init(void)
- {
- 	pv_ops.mmu.set_pte = xen_set_pte;
-@@ -2107,7 +2124,7 @@ static void xen_leave_lazy_mmu(void)
- {
- 	preempt_disable();
- 	xen_mc_flush();
--	paravirt_leave_lazy_mmu();
-+	leave_lazy(XEN_LAZY_MMU);
- 	preempt_enable();
- }
- 
-@@ -2166,9 +2183,9 @@ static const typeof(pv_ops) xen_mmu_ops __initconst = {
- 		.exit_mmap = xen_exit_mmap,
- 
- 		.lazy_mode = {
--			.enter = paravirt_enter_lazy_mmu,
-+			.enter = xen_enter_lazy_mmu,
- 			.leave = xen_leave_lazy_mmu,
--			.flush = paravirt_flush_lazy_mmu,
-+			.flush = xen_flush_lazy_mmu,
- 		},
- 
- 		.set_fixmap = xen_set_fixmap,
-@@ -2385,7 +2402,7 @@ static noinline void xen_flush_tlb_all(void)
- 	op->cmd = MMUEXT_TLB_FLUSH_ALL;
- 	MULTI_mmuext_op(mcs.mc, op, 1, NULL, DOMID_SELF);
- 
--	xen_mc_issue(PARAVIRT_LAZY_MMU);
-+	xen_mc_issue(XEN_LAZY_MMU);
- 
- 	preempt_enable();
- }
-diff --git a/arch/x86/xen/multicalls.h b/arch/x86/xen/multicalls.h
-index 1c51b2c87f30..c3867b585e0d 100644
---- a/arch/x86/xen/multicalls.h
-+++ b/arch/x86/xen/multicalls.h
-@@ -26,7 +26,7 @@ static inline void xen_mc_batch(void)
- 
- 	/* need to disable interrupts until this entry is complete */
- 	local_irq_save(flags);
--	trace_xen_mc_batch(paravirt_get_lazy_mode());
-+	trace_xen_mc_batch(xen_get_lazy_mode());
- 	__this_cpu_write(xen_mc_irq_flags, flags);
- }
- 
-@@ -44,7 +44,7 @@ static inline void xen_mc_issue(unsigned mode)
- {
- 	trace_xen_mc_issue(mode);
- 
--	if ((paravirt_get_lazy_mode() & mode) == 0)
-+	if ((xen_get_lazy_mode() & mode) == 0)
- 		xen_mc_flush();
- 
- 	/* restore flags saved in xen_mc_batch */
-diff --git a/include/trace/events/xen.h b/include/trace/events/xen.h
-index 44a3f565264d..0577f0cdd231 100644
---- a/include/trace/events/xen.h
-+++ b/include/trace/events/xen.h
-@@ -6,26 +6,26 @@
- #define _TRACE_XEN_H
- 
- #include <linux/tracepoint.h>
--#include <asm/paravirt_types.h>
-+#include <asm/xen/hypervisor.h>
- #include <asm/xen/trace_types.h>
- 
- struct multicall_entry;
- 
- /* Multicalls */
- DECLARE_EVENT_CLASS(xen_mc__batch,
--	    TP_PROTO(enum paravirt_lazy_mode mode),
-+	    TP_PROTO(enum xen_lazy_mode mode),
- 	    TP_ARGS(mode),
- 	    TP_STRUCT__entry(
--		    __field(enum paravirt_lazy_mode, mode)
-+		    __field(enum xen_lazy_mode, mode)
- 		    ),
- 	    TP_fast_assign(__entry->mode = mode),
- 	    TP_printk("start batch LAZY_%s",
--		      (__entry->mode == PARAVIRT_LAZY_MMU) ? "MMU" :
--		      (__entry->mode == PARAVIRT_LAZY_CPU) ? "CPU" : "NONE")
-+		      (__entry->mode == XEN_LAZY_MMU) ? "MMU" :
-+		      (__entry->mode == XEN_LAZY_CPU) ? "CPU" : "NONE")
- 	);
- #define DEFINE_XEN_MC_BATCH(name)			\
- 	DEFINE_EVENT(xen_mc__batch, name,		\
--		TP_PROTO(enum paravirt_lazy_mode mode),	\
-+		TP_PROTO(enum xen_lazy_mode mode),	\
- 		     TP_ARGS(mode))
- 
- DEFINE_XEN_MC_BATCH(xen_mc_batch);
--- 
-2.35.3
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gOS8xMy8yMyAwODo1MiwgR3VvIFJlbiB3cm90ZToKPiBPbiBXZWQsIFNlcCAxMywgMjAyMyBh
+dCA0OjU14oCvUE0gTGVvbmFyZG8gQnJhcyA8bGVvYnJhc0ByZWRoYXQuY29tPiB3cm90ZToKPj4g
+T24gVHVlLCBTZXAgMTIsIDIwMjMgYXQgMDk6MTA6MDhBTSArMDgwMCwgR3VvIFJlbiB3cm90ZToK
+Pj4+IE9uIE1vbiwgU2VwIDExLCAyMDIzIGF0IDk6MDPigK9QTSBXYWltYW4gTG9uZyA8bG9uZ21h
+bkByZWRoYXQuY29tPiB3cm90ZToKPj4+PiBPbiA5LzEwLzIzIDIzOjA5LCBHdW8gUmVuIHdyb3Rl
+Ogo+Pj4+PiBPbiBNb24sIFNlcCAxMSwgMjAyMyBhdCAxMDozNeKAr0FNIFdhaW1hbiBMb25nIDxs
+b25nbWFuQHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+Pj4gT24gOS8xMC8yMyAwNDoyOCwgZ3VvcmVu
+QGtlcm5lbC5vcmcgd3JvdGU6Cj4+Pj4+Pj4gRnJvbTogR3VvIFJlbiA8Z3VvcmVuQGxpbnV4LmFs
+aWJhYmEuY29tPgo+Pj4+Pj4+Cj4+Pj4+Pj4gVGhlIHRhcmdldCBvZiB4Y2hnX3RhaWwgaXMgdG8g
+d3JpdGUgdGhlIHRhaWwgdG8gdGhlIGxvY2sgdmFsdWUsIHNvCj4+Pj4+Pj4gYWRkaW5nIHByZWZl
+dGNodyBjb3VsZCBoZWxwIHRoZSBuZXh0IGNtcHhjaGcgc3RlcCwgd2hpY2ggbWF5Cj4+Pj4+Pj4g
+ZGVjcmVhc2UgdGhlIGNtcHhjaGcgcmV0cnkgbG9vcHMgb2YgeGNoZ190YWlsLiBTb21lIHByb2Nl
+c3NvcnMgbWF5Cj4+Pj4+Pj4gdXRpbGl6ZSB0aGlzIGZlYXR1cmUgdG8gZ2l2ZSBhIGZvcndhcmQg
+Z3VhcmFudGVlLCBlLmcuLCBSSVNDLVYKPj4+Pj4+PiBYdWFuVGllIHByb2Nlc3NvcnMgd291bGQg
+YmxvY2sgdGhlIHNub29wIGNoYW5uZWwgJiBpcnEgZm9yIHNldmVyYWwKPj4+Pj4+PiBjeWNsZXMg
+d2hlbiBwcmVmZXRjaC53IGluc3RydWN0aW9uIChmcm9tIFppY2JvcCBleHRlbnNpb24pIHJldGly
+ZWQsCj4+Pj4+Pj4gd2hpY2ggZ3VhcmFudGVlcyB0aGUgbmV4dCBjbXB4Y2hnIHN1Y2NlZWRzLgo+
+Pj4+Pj4+Cj4+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogR3VvIFJlbiA8Z3VvcmVuQGxpbnV4LmFsaWJh
+YmEuY29tPgo+Pj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEd1byBSZW4gPGd1b3JlbkBrZXJuZWwub3Jn
+Pgo+Pj4+Pj4+IC0tLQo+Pj4+Pj4+ICAgICBrZXJuZWwvbG9ja2luZy9xc3BpbmxvY2suYyB8IDUg
+KysrKy0KPj4+Pj4+PiAgICAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMSBkZWxl
+dGlvbigtKQo+Pj4+Pj4+Cj4+Pj4+Pj4gZGlmZiAtLWdpdCBhL2tlcm5lbC9sb2NraW5nL3FzcGlu
+bG9jay5jIGIva2VybmVsL2xvY2tpbmcvcXNwaW5sb2NrLmMKPj4+Pj4+PiBpbmRleCBkM2Y5OTA2
+MGI2MGYuLjk2YjU0ZTJhZGU4NiAxMDA2NDQKPj4+Pj4+PiAtLS0gYS9rZXJuZWwvbG9ja2luZy9x
+c3BpbmxvY2suYwo+Pj4+Pj4+ICsrKyBiL2tlcm5lbC9sb2NraW5nL3FzcGlubG9jay5jCj4+Pj4+
+Pj4gQEAgLTIyMyw3ICsyMjMsMTAgQEAgc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIGNsZWFy
+X3BlbmRpbmdfc2V0X2xvY2tlZChzdHJ1Y3QgcXNwaW5sb2NrICpsb2NrKQo+Pj4+Pj4+ICAgICAg
+Ki8KPj4+Pj4+PiAgICAgc3RhdGljIF9fYWx3YXlzX2lubGluZSB1MzIgeGNoZ190YWlsKHN0cnVj
+dCBxc3BpbmxvY2sgKmxvY2ssIHUzMiB0YWlsKQo+Pj4+Pj4+ICAgICB7Cj4+Pj4+Pj4gLSAgICAg
+dTMyIG9sZCwgbmV3LCB2YWwgPSBhdG9taWNfcmVhZCgmbG9jay0+dmFsKTsKPj4+Pj4+PiArICAg
+ICB1MzIgb2xkLCBuZXcsIHZhbDsKPj4+Pj4+PiArCj4+Pj4+Pj4gKyAgICAgcHJlZmV0Y2h3KCZs
+b2NrLT52YWwpOwo+Pj4+Pj4+ICsgICAgIHZhbCA9IGF0b21pY19yZWFkKCZsb2NrLT52YWwpOwo+
+Pj4+Pj4+Cj4+Pj4+Pj4gICAgICAgICBmb3IgKDs7KSB7Cj4+Pj4+Pj4gICAgICAgICAgICAgICAg
+IG5ldyA9ICh2YWwgJiBfUV9MT0NLRURfUEVORElOR19NQVNLKSB8IHRhaWw7Cj4+Pj4+PiBUaGF0
+IGxvb2tzIGEgYml0IHdlaXJkLiBZb3UgcHJlLWZldGNoIGFuZCB0aGVuIGltbWVkaWF0ZWx5IHJl
+YWQgaXQuIEhvdwo+Pj4+Pj4gbXVjaCBwZXJmb3JtYW5jZSBnYWluIHlvdSBnZXQgYnkgdGhpcyBj
+aGFuZ2UgYWxvbmU/Cj4+Pj4+Pgo+Pj4+Pj4gTWF5YmUgeW91IGNhbiBkZWZpbmUgYW4gYXJjaCBz
+cGVjaWZpYyBwcmltaXRpdmUgdGhhdCBkZWZhdWx0IGJhY2sgdG8KPj4+Pj4+IGF0b21pY19yZWFk
+KCkgaWYgbm90IGRlZmluZWQuCj4+Pj4+IFRoeCBmb3IgdGhlIHJlcGx5LiBUaGlzIGlzIGEgZ2Vu
+ZXJpYyBvcHRpbWl6YXRpb24gcG9pbnQgSSB3b3VsZCBsaWtlCj4+Pj4+IHRvIHRhbGsgYWJvdXQg
+d2l0aCB5b3UuCj4+Pj4+Cj4+Pj4+IEZpcnN0LCBwcmVmZXRjaHcoKSBtYWtlcyBjYWNoZWxpbmUg
+YW4gZXhjbHVzaXZlIHN0YXRlIGFuZCBzZXJ2ZXMgZm9yCj4+Pj4+IHRoZSBuZXh0IGNtcHhjaGcg
+bG9vcCBzZW1hbnRpYywgd2hpY2ggd3JpdGVzIHRoZSBpZHhfdGFpbCBwYXJ0IG9mCj4+Pj4+IGFy
+Y2hfc3Bpbl9sb2NrLiBUaGUgYXRvbWljX3JlYWQgb25seSBtYWtlcyBjYWNoZWxpbmUgaW4gdGhl
+IHNoYXJlZAo+Pj4+PiBzdGF0ZSwgd2hpY2ggY291bGRuJ3QgZ2l2ZSBhbnkgZ3VhcmFudGVlIGZv
+ciB0aGUgbmV4dCBjbXB4Y2hnIGxvb3AKPj4+Pj4gc2VtYW50aWMuIE1pY3JvLWFyY2hpdGVjdHVy
+ZSBjb3VsZCB1dGlsaXplIHByZWZldGNodygpIHRvIHByb3ZpZGUgYQo+Pj4+PiBzdHJvbmcgZm9y
+d2FyZCBwcm9ncmVzcyBndWFyYW50ZWUgZm9yIHRoZSB4Y2hnX3RhaWwsIGUuZy4sIHRoZSBULUhF
+QUQKPj4+Pj4gWHVhblRpZSBwcm9jZXNzb3Igd291bGQgaG9sZCB0aGUgZXhjbHVzaXZlIGNhY2hl
+bGluZSBzdGF0ZSB1bnRpbCB0aGUKPj4+Pj4gbmV4dCBjbXB4Y2hnIHdyaXRlIHN1Y2Nlc3MuCj4+
+Pj4+Cj4+Pj4+IEluIHRoZSBlbmQsIExldCdzIGdvIGJhY2sgdG8gdGhlIHByaW5jaXBsZTogdGhl
+IHhjaGdfdGFpbCBpcyBhbiBhdG9taWMKPj4+Pj4gc3dhcCBvcGVyYXRpb24gdGhhdCBjb250YWlu
+cyB3cml0ZSBldmVudHVhbGx5LCBzbyBnaXZpbmcgYSBwcmVmZXRjaHcoKQo+Pj4+PiBhdCB0aGUg
+YmVnaW5uaW5nIGlzIGFjY2VwdGFibGUgZm9yIGFsbCBhcmNoaXRlY3R1cmVzLi4KPj4+Pj4g4oCi
+4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCi4oCiCj4+Pj4gSSBkaWQgcmVhbGl6ZSBhZnRl
+cndhcmQgdGhhdCBwcmVmZXRjaHcgZ2V0cyB0aGUgY2FjaGVsaW5lIGluIGV4Y2x1c2l2ZQo+Pj4+
+IHN0YXRlLiBJIHdpbGwgc3VnZ2VzdCB5b3UgbWVudGlvbiB0aGF0IGluIHlvdXIgY29tbWl0IGxv
+ZyBhcyB3ZWxsIGFzCj4+Pj4gYWRkaW5nIGEgY29tbWVudCBhYm91dCBpdHMgcHVycG9zZSBpbiB0
+aGUgY29kZS4KPj4+IE9rYXksIEkgd291bGQgZG8gdGhhdCBpbiB2MTIsIHRoeC4KPj4gSSB3b3Vs
+ZCBzdWdnZXN0IGFkZGluZyBhIHNuaXBwZXQgZnJvbSB0aGUgSVNBIEV4dGVuc3Rpb24gZG9jOgo+
+Pgo+PiAiQSBwcmVmZXRjaC53IGluc3RydWN0aW9uIGluZGljYXRlcyB0byBoYXJkd2FyZSB0aGF0
+IHRoZSBjYWNoZSBibG9jayB3aG9zZQo+PiBlZmZlY3RpdmUgYWRkcmVzcyBpcyB0aGUgc3VtIG9m
+IHRoZSBiYXNlIGFkZHJlc3Mgc3BlY2lmaWVkIGluIHJzMSBhbmQgdGhlCj4+IHNpZ24tZXh0ZW5k
+ZWQgb2Zmc2V0IGVuY29kZWQgaW4gaW1tWzExOjBdLCB3aGVyZSBpbW1bNDowXSBlcXVhbHMgMGIw
+MDAwMCwKPj4gaXMgbGlrZWx5IHRvIGJlIGFjY2Vzc2VkIGJ5IGEgZGF0YSB3cml0ZSAoaS5lLiBz
+dG9yZSkgaW4gdGhlIG5lYXIgZnV0dXJlLiIKPiBHb29kIHBvaW50LCB0aHguCgpxc3BpbmxvY2sg
+aXMgZ2VuZXJpYyBjb2RlLiBJIHN1cHBvc2UgdGhpcyBpcyBmb3IgdGhlIFJJU0NWIGFyY2hpdGVj
+dHVyZS4gCllvdSBjYW4gbWVudGlvbiB0aGF0IGluIHRoZSBjb21taXQgbG9nIGFzIGFuIGV4YW1w
+bGUsIGJ1dCBJIHByZWZlciBtb3JlIApnZW5lcmljIGNvbW1lbnQgZXNwZWNpYWxseSBpbiB0aGUg
+Y29kZS4KCkNoZWVycywKTG9uZ21hbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
