@@ -1,103 +1,99 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0FB33EE645A
-	for <virtualization@archiver.kernel.org>; Fri, 15 Sep 2023 12:15:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 03BA5EE6457
+	for <virtualization@archiver.kernel.org>; Fri, 15 Sep 2023 12:15:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9FA1942114;
-	Fri, 15 Sep 2023 12:15:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9FA1942114
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NuNY3WG1
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9523483C1F;
+	Fri, 15 Sep 2023 12:15:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9523483C1F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dpEww9ZW
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VfV3ZUEZsU9M; Fri, 15 Sep 2023 12:15:31 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rbZrXD7slWp0; Fri, 15 Sep 2023 12:15:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E0E1642117;
-	Fri, 15 Sep 2023 12:15:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E0E1642117
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1428E83C1B;
+	Fri, 15 Sep 2023 12:15:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1428E83C1B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CAAC0C0039;
-	Fri, 15 Sep 2023 12:15:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AE519C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00656C0039;
+	Fri, 15 Sep 2023 12:15:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D0DB6C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Sep 2023 12:15:29 +0000 (UTC)
+ Fri, 15 Sep 2023 12:15:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7BD6061321
+ by smtp1.osuosl.org (Postfix) with ESMTP id ABD6383C1B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Sep 2023 12:15:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7BD6061321
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=NuNY3WG1
+ Fri, 15 Sep 2023 12:15:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ABD6383C1B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vO9kV4kRqMU7
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LJNG3JYZDtSX
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Sep 2023 12:15:29 +0000 (UTC)
+ Fri, 15 Sep 2023 12:15:31 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C4E2C612F4
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E209283C19
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Sep 2023 12:15:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C4E2C612F4
+ Fri, 15 Sep 2023 12:15:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E209283C19
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1694780127;
+ s=mimecast20190719; t=1694780129;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=4IzPTIpBjDzBGvsyRo0gBVOG837dBZudcrNhelcBAVs=;
- b=NuNY3WG1WnX4m0MxIHJzurF+eZ0XicILWQUxYh92xYOaJ8S50QOA8NVMwkyznnAQ5N5O+6
- ORNnHX+vMVdrhxaHPoEWdF735SLcZ1nUUH6vJpFaL55/HlIeXy0duGFYf//7Uap1jLQP6M
- j3QuukfkLhdXJUrsP5fxJl3ypQEzhUc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=RMEGvb3Sq84IyOhcCt8lUx9+cduXmZG2jRi2oEjFcn4=;
+ b=dpEww9ZWhA09YjSV5fLYP1s10Asq6CadZ8AtNEhrltQ+tHvqMgxxqwdVgjzUreF+pPluIM
+ Mwc29093wqy+xea6d1jjDctVlTskUEpyxJJ1DWqMhahtXBKabEyjwkEHbuAh8vAfWtAY/j
+ w7JznimAm2uFO4SSbutwusGMNxv2P5I=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-624-1xmi5Ta1P7-yDsp4S8mONQ-1; Fri, 15 Sep 2023 08:15:26 -0400
-X-MC-Unique: 1xmi5Ta1P7-yDsp4S8mONQ-1
-Received: by mail-wr1-f71.google.com with SMTP id
- ffacd0b85a97d-31f9186eb8dso1310388f8f.1
+ us-mta-230-fQ89ZiJjPg2KhydDXE6XdQ-1; Fri, 15 Sep 2023 08:15:28 -0400
+X-MC-Unique: fQ89ZiJjPg2KhydDXE6XdQ-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ ffacd0b85a97d-31c5c762f97so1454145f8f.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Sep 2023 05:15:25 -0700 (PDT)
+ Fri, 15 Sep 2023 05:15:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1694780125; x=1695384925;
+ d=1e100.net; s=20230601; t=1694780127; x=1695384927;
  h=content-transfer-encoding:mime-version:references:in-reply-to
  :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
  :subject:date:message-id:reply-to;
- bh=4IzPTIpBjDzBGvsyRo0gBVOG837dBZudcrNhelcBAVs=;
- b=oHZXq78ojwIBiKBcw2qFjibY+LdtIRAWbEaKcPzB3n0LMoiP/zBXtVj3VVJ4qoDZ7i
- ybgYxRDV6AJVrDUECqZtI5NfAMmnzmf5XBb3qzVsZR5tpP7qiAKh2LfMAG9R6lPjYQxL
- T/uaz9NMbq98p/ZcjUb1Rfht8JirOcDVXYRIWpoZeDFcw2yyFWh1LV8plR4c8Hk2fVlh
- r3/ghZOVJXPVU69WiJmawE5XgkvR/IzOAx6YNRQdLtX4m2ReAqwMcZxRWf/3CI3Z4zwY
- /PrKtPSmlmdPlMKCvWWIHL5XvThn1naGWaQusxryuvpiwyIQgWGd1ijopJsHw7BUIgQf
- G9Gw==
-X-Gm-Message-State: AOJu0YxmPE5WrU01ymUpw6rqubykUJQxBz6XWfUT+GxUUye1p0mMAdga
- en7zGTJwbt4TKPPvdENmQv9LbTHmGML/lfKurea8Ndo2whxpl1mwSS02DOH9NtEfi4e2ZTBxZtu
- 0YHPlnSAzN1+wrRAbOP0qc8fJnFK64EmfQMbS0ztq4w==
-X-Received: by 2002:adf:cd08:0:b0:31f:afeb:4e71 with SMTP id
- w8-20020adfcd08000000b0031fafeb4e71mr1327909wrm.48.1694780124853; 
- Fri, 15 Sep 2023 05:15:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEAM+qT8oGEefSDmkyANZPTMrHB/rc6Va9KYPc9DtRjeZCpejNAvp5rpxARReDs63NX0XPsvQ==
-X-Received: by 2002:adf:cd08:0:b0:31f:afeb:4e71 with SMTP id
- w8-20020adfcd08000000b0031fafeb4e71mr1327892wrm.48.1694780124604; 
- Fri, 15 Sep 2023 05:15:24 -0700 (PDT)
+ bh=RMEGvb3Sq84IyOhcCt8lUx9+cduXmZG2jRi2oEjFcn4=;
+ b=SKCyGEtxkT1bFe8SKnmYpYMpmVCoF+IOEoI9dHstKhcDNByHKp2PC3yIZ8hMrK2WtH
+ 1KH7PZeXh4LuF3GRkfluayyBS/mjf3+DpLeyJqzrw3Cwa7MOjEs3Hp/lwuEOrncIA/aL
+ GB1kh4o1BQuaHEsoBum/lhsa34Q/EL/7rRrv8Oo7llXiPc8vwWmYZUADTH0H5VU8I9Lj
+ e0fodXw6UVNEObalOwES37Bg2Wz6GUPs1Di6ZKJqcXnTenLHXJT5O4dMbEsZVF0lpJj0
+ 4jS1LLcsLUgJEM9uc6pPvbg6LL2iJ8LbqoMNAgL0B+KHmMMEpdcb3AsQbPC2sblElkUQ
+ Me/w==
+X-Gm-Message-State: AOJu0YyIsOBHZaGMFX0dgZXCJwdkRMRWZZNaMQjwzKgyk6bwqWteaIJ/
+ w4BTjcPdivSPnjCkBam9/YB3tg41CmsfnDdUf4/8PFZT1H2h9K6RpCS0jtnwJUeqtCS8mr9sldi
+ LkPK1CRdCmEzIqXoDkZj8PtCfTN+T4OS0fIkTr7rF+g==
+X-Received: by 2002:a5d:6dcb:0:b0:31f:eb8d:4823 with SMTP id
+ d11-20020a5d6dcb000000b0031feb8d4823mr1120351wrz.26.1694780115686; 
+ Fri, 15 Sep 2023 05:15:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHmZEMz8JTAkutLT6oF8NF90vZ5bmQukR1ASa3FCQYrmpM8Mq37F3IN0p/HD9/gA/uhMXLXfw==
+X-Received: by 2002:a5d:6dcb:0:b0:31f:eb8d:4823 with SMTP id
+ d11-20020a5d6dcb000000b0031feb8d4823mr1119962wrz.26.1694780101879; 
+ Fri, 15 Sep 2023 05:15:01 -0700 (PDT)
 Received: from step1.lan ([46.222.72.72]) by smtp.gmail.com with ESMTPSA id
- s1-20020a5d4ec1000000b0031fbbe347e1sm4287767wrv.65.2023.09.15.05.15.22
+ l12-20020a5d674c000000b0030ae53550f5sm4257548wrw.51.2023.09.15.05.14.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 15 Sep 2023 05:15:23 -0700 (PDT)
+ Fri, 15 Sep 2023 05:15:00 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next 5/5] vsock/test: track bytes in MSG_PEEK test for
- SOCK_SEQPACKET
-Date: Fri, 15 Sep 2023 14:14:52 +0200
-Message-ID: <20230915121452.87192-6-sgarzare@redhat.com>
+Subject: [PATCH net-next 1/5] vsock/test: add recv_buf() utility function
+Date: Fri, 15 Sep 2023 14:14:48 +0200
+Message-ID: <20230915121452.87192-2-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230915121452.87192-1-sgarzare@redhat.com>
 References: <20230915121452.87192-1-sgarzare@redhat.com>
@@ -123,54 +119,138 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The test was a bit complicated to read.
-Added variables to keep track of the bytes read and to be read
-in each step. Also some comments.
+Move the code of recv_byte() out in a new utility function that
+can be used to receive a generic buffer.
 
-The test is unchanged.
+This new function can be used when we need to receive a custom
+buffer and not just a single 'A' byte.
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- tools/testing/vsock/vsock_test.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ tools/testing/vsock/util.h |  1 +
+ tools/testing/vsock/util.c | 88 +++++++++++++++++++++++---------------
+ 2 files changed, 54 insertions(+), 35 deletions(-)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index b18acbaf92e2..5743dcae2350 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1002,6 +1002,7 @@ static void test_stream_virtio_skb_merge_client(const struct test_opts *opts)
+diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+index fb99208a95ea..fe31f267e67e 100644
+--- a/tools/testing/vsock/util.h
++++ b/tools/testing/vsock/util.h
+@@ -42,6 +42,7 @@ int vsock_stream_accept(unsigned int cid, unsigned int port,
+ int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+ 			   struct sockaddr_vm *clientaddrp);
+ void vsock_wait_remote_close(int fd);
++void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret);
+ void send_byte(int fd, int expected_ret, int flags);
+ void recv_byte(int fd, int expected_ret, int flags);
+ void run_tests(const struct test_case *test_cases,
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index 01b636d3039a..2826902706e8 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -211,6 +211,58 @@ int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+ 	return vsock_accept(cid, port, clientaddrp, SOCK_SEQPACKET);
+ }
  
- static void test_stream_virtio_skb_merge_server(const struct test_opts *opts)
++/* Receive bytes in a buffer and check the return value.
++ *
++ * expected_ret:
++ *  <0 Negative errno (for testing errors)
++ *   0 End-of-file
++ *  >0 Success (bytes successfully read)
++ */
++void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret)
++{
++	ssize_t nread = 0;
++	ssize_t ret;
++
++	timeout_begin(TIMEOUT);
++	do {
++		ret = recv(fd, buf + nread, len - nread, flags);
++		timeout_check("recv");
++
++		if (ret == 0 || (ret < 0 && errno != EINTR))
++			break;
++
++		nread += ret;
++	} while (nread < len);
++	timeout_end();
++
++	if (expected_ret < 0) {
++		if (ret != -1) {
++			fprintf(stderr, "bogus recv(2) return value %zd (expected %zd)\n",
++				ret, expected_ret);
++			exit(EXIT_FAILURE);
++		}
++		if (errno != -expected_ret) {
++			perror("recv");
++			exit(EXIT_FAILURE);
++		}
++		return;
++	}
++
++	if (ret < 0) {
++		perror("recv");
++		exit(EXIT_FAILURE);
++	}
++
++	if (nread != expected_ret) {
++		if (ret == 0)
++			fprintf(stderr, "unexpected EOF while receiving bytes\n");
++
++		fprintf(stderr, "bogus recv(2) bytes read %zd (expected %zd)\n",
++			nread, expected_ret);
++		exit(EXIT_FAILURE);
++	}
++}
++
+ /* Transmit one byte and check the return value.
+  *
+  * expected_ret:
+@@ -270,43 +322,9 @@ void send_byte(int fd, int expected_ret, int flags)
+ void recv_byte(int fd, int expected_ret, int flags)
  {
-+	size_t read = 0, to_read;
- 	unsigned char buf[64];
- 	int fd;
+ 	uint8_t byte;
+-	ssize_t nread;
+-
+-	timeout_begin(TIMEOUT);
+-	do {
+-		nread = recv(fd, &byte, sizeof(byte), flags);
+-		timeout_check("read");
+-	} while (nread < 0 && errno == EINTR);
+-	timeout_end();
+-
+-	if (expected_ret < 0) {
+-		if (nread != -1) {
+-			fprintf(stderr, "bogus recv(2) return value %zd\n",
+-				nread);
+-			exit(EXIT_FAILURE);
+-		}
+-		if (errno != -expected_ret) {
+-			perror("read");
+-			exit(EXIT_FAILURE);
+-		}
+-		return;
+-	}
  
-@@ -1014,14 +1015,21 @@ static void test_stream_virtio_skb_merge_server(const struct test_opts *opts)
- 	control_expectln("SEND0");
+-	if (nread < 0) {
+-		perror("read");
+-		exit(EXIT_FAILURE);
+-	}
+-	if (nread == 0) {
+-		if (expected_ret == 0)
+-			return;
++	recv_buf(fd, &byte, sizeof(byte), flags, expected_ret);
  
- 	/* Read skbuff partially. */
--	recv_buf(fd, buf, 2, 0, 2);
-+	to_read = 2;
-+	recv_buf(fd, buf + read, to_read, 0, to_read);
-+	read += to_read;
- 
- 	control_writeln("REPLY0");
- 	control_expectln("SEND1");
- 
--	recv_buf(fd, buf + 2, 8, 0, 8);
-+	/* Read the rest of both buffers */
-+	to_read = strlen(HELLO_STR WORLD_STR) - read;
-+	recv_buf(fd, buf + read, to_read, 0, to_read);
-+	read += to_read;
- 
--	recv_buf(fd, buf, sizeof(buf) - 8 - 2, MSG_DONTWAIT, -EAGAIN);
-+	/* No more bytes should be there */
-+	to_read = sizeof(buf) - read;
-+	recv_buf(fd, buf + read, to_read, MSG_DONTWAIT, -EAGAIN);
- 
- 	if (memcmp(buf, HELLO_STR WORLD_STR, strlen(HELLO_STR WORLD_STR))) {
- 		fprintf(stderr, "pattern mismatch\n");
+-		fprintf(stderr, "unexpected EOF while receiving byte\n");
+-		exit(EXIT_FAILURE);
+-	}
+-	if (nread != sizeof(byte)) {
+-		fprintf(stderr, "bogus recv(2) return value %zd\n", nread);
+-		exit(EXIT_FAILURE);
+-	}
+ 	if (byte != 'A') {
+ 		fprintf(stderr, "unexpected byte read %c\n", byte);
+ 		exit(EXIT_FAILURE);
 -- 
 2.41.0
 
