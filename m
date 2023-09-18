@@ -4,110 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0498BC46CA1
-	for <virtualization@archiver.kernel.org>; Mon, 18 Sep 2023 14:50:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C0325C46CA1
+	for <virtualization@archiver.kernel.org>; Mon, 18 Sep 2023 15:58:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 716B0812D3;
-	Mon, 18 Sep 2023 14:50:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 716B0812D3
+	by smtp1.osuosl.org (Postfix) with ESMTP id 456B081FF4;
+	Mon, 18 Sep 2023 15:58:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 456B081FF4
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=AZmP+PPm
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=BTJeH0Yj
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YOj4le4b-R-q; Mon, 18 Sep 2023 14:50:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D11E9812C6;
-	Mon, 18 Sep 2023 14:50:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D11E9812C6
+	with ESMTP id wIPhuyQsDc34; Mon, 18 Sep 2023 15:58:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6974C81FAC;
+	Mon, 18 Sep 2023 15:58:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6974C81FAC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A9CFBC0039;
-	Mon, 18 Sep 2023 14:50:16 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2A204C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D1E2C0071;
+	Mon, 18 Sep 2023 15:58:09 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 831F7C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Sep 2023 14:50:15 +0000 (UTC)
+ Mon, 18 Sep 2023 15:58:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E4F31812BA
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4A6644094F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Sep 2023 14:50:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E4F31812BA
+ Mon, 18 Sep 2023 15:58:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A6644094F
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org
+ header.a=rsa-sha256 header.s=google header.b=BTJeH0Yj
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Iqf9K0b5x1pJ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id m0GqDqT3JKEu
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Sep 2023 14:50:13 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 81F64812B2
+ Mon, 18 Sep 2023 15:58:06 +0000 (UTC)
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com
+ [IPv6:2a00:1450:4864:20::32e])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3AAEB40C20
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Sep 2023 14:50:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 81F64812B2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695048612;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=LcTISZgyQz7Bvk45tsdOeOYi0IZTcEbOF6L8io0wv6s=;
- b=AZmP+PPmdGbBADR5nqYOagxezbjYlqEiLBwqYoLZfz1fBK0NyUzlIOBdcorqD/pkSkpJM2
- qo80A/G0ww9r97TTAj5grrHjuR/Q8j217ihD24PTSrq4q3RVIFj5Nx/QbfHXSVy0+jMRR0
- KnLa8veoRlQA3ImtxwfW2bmzE+UiY0M=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-507-nPSDjoXRNFKXpD6KmFYLcg-1; Mon, 18 Sep 2023 10:50:10 -0400
-X-MC-Unique: nPSDjoXRNFKXpD6KmFYLcg-1
-Received: by mail-wr1-f70.google.com with SMTP id
- ffacd0b85a97d-314256aedcbso3113449f8f.0
+ Mon, 18 Sep 2023 15:58:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AAEB40C20
+Received: by mail-wm1-x32e.google.com with SMTP id
+ 5b1f17b1804b1-402d0eda361so51138075e9.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Sep 2023 07:50:10 -0700 (PDT)
+ Mon, 18 Sep 2023 08:58:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linaro.org; s=google; t=1695052684; x=1695657484;
+ darn=lists.linux-foundation.org; 
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=BuWLNVcWzC6ASPZz9GEuSYcaG6pqUJBDXR7IC05cfLo=;
+ b=BTJeH0Yjzrzq8hs/T59XpfmXWq3fKHLF+L8lNWLIt63fTId72nokG7LjnrEno1J0rl
+ 389um1QlVGF979y8Zr0kgsatNLd9222strxR6zF3OBe3l3VmzTiJJYxgg9UtyxZX6VkD
+ hZOVhCU3c2ul7NDok0G0rfV78GgNGQQ0fKjUd/0spaXpk+uCRw1xvT5vS6/er4p3tIEH
+ KB3MwaABr6xGjLx2ksPvg4DliVOCkH0C8oHHLZAW9rqe3cGZqXx/JbbXgnDEIAfx5aZ2
+ Wn/bIoCPX+/qhJDSjRt7AakqsqW98tL1mE9OyzkFpBmWMUx69OQfBSoa0SFx6jyvovun
+ /Y0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695048610; x=1695653410;
+ d=1e100.net; s=20230601; t=1695052684; x=1695657484;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=LcTISZgyQz7Bvk45tsdOeOYi0IZTcEbOF6L8io0wv6s=;
- b=kTtl91X0qVqUnQxUFgvrKlRXhAwYu9eXvmydrq4JvtdVo/dDiaOmrt4JIjL0a0TqYV
- LlA1V5hZZ4gOQ6uyoGTHgSxcqT3HR5S0cd1QxML/a7s/Juw2L5MIqh2X8M3AyauxHRM+
- ioiEBIVI3dB4XEWNa6lFChAEqfRLwX6/ReWXQqQypVWo6nBweRCngUJzNbgixhsxr3o2
- L50JCziU7D4q5XMcRrBMEZtUq59B2lV3XzBlB82VTb4kBwLaUcBexpetq5CfEjzCG22/
- wvsFqVx+esjGO5GfwIPmM1Qvr+YDLpb5Es3QVQDIaKGAs+MaPeuU1ZnzfV5E5tRO+kYa
- 21xQ==
-X-Gm-Message-State: AOJu0YwDySuU8zi0EiUUtPOdFpaJl8gxAkUwhiIGkXk48F+sbP2TFeoa
- KtCxoynylPXyU3BtU1aN6tPfd/kT2Sov7QIBUd4T+dxmjVJpl0AsapNs68OyfcU3f/VZPWzVV/j
- 28f4N3VdmQZRS0LtDxwCtWl8qQ+osv1b2cqyMl7sExA==
-X-Received: by 2002:a5d:4941:0:b0:319:72f8:7249 with SMTP id
- r1-20020a5d4941000000b0031972f87249mr7183138wrs.66.1695048609813; 
- Mon, 18 Sep 2023 07:50:09 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGMpvQ2Hg0cP8tmtAOT3D6mlDBNWBlCvpd7g68aXHEpraHiZGH8Wu30Hj0RA2msYaZmefhIrA==
-X-Received: by 2002:a5d:4941:0:b0:319:72f8:7249 with SMTP id
- r1-20020a5d4941000000b0031972f87249mr7183112wrs.66.1695048609417; 
- Mon, 18 Sep 2023 07:50:09 -0700 (PDT)
-Received: from sgarzare-redhat ([46.222.42.69])
+ bh=BuWLNVcWzC6ASPZz9GEuSYcaG6pqUJBDXR7IC05cfLo=;
+ b=cKg0I4uAG99UYSjoJgpy2b5I7V95o5kx2nzkMzyz9APG8LDSViu1lnweGNhX7e3WVC
+ 5B4KG+MwxXHot7CEtrjriQ2ZbJP9fJFMuaefp+IF2/myXP9Ov1yjK/okQzGLkQUUFVED
+ hJt/SjUrHJa3Rd53fSQSW4QUhL4/SigW0Es0Ib6YQLztbTSiKxyEMPft/VF2Ly5wMr2/
+ YHNHbn5eJO0ueOxKOskJHIi3VQLwidnJfLP4bNOkfp4yZoNqLx519Og+8WGASvRQDuKZ
+ Zf648ipbUH2HgYUkEB3YD7WeQ4nP4YeemLRkPUmugcsbuPmMwYox8wGny09xgzBFrcpP
+ cluw==
+X-Gm-Message-State: AOJu0YzCs4TTqJ+v4UQchIyhhHW2wKAp2hCmrW0q+hB6R+m78RJ7UG1f
+ JuaemhlMk4hsEA9Qb4Jm708jsg==
+X-Google-Smtp-Source: AGHT+IFkwjfPBd2yc8mJTKncE3vqTaKfj1taiCNjhQjrYNC7gDR/8luatOeD/+/M95Nq3Fi20OUQWg==
+X-Received: by 2002:a05:600c:3784:b0:3fb:4055:1ddd with SMTP id
+ o4-20020a05600c378400b003fb40551dddmr7641400wmr.28.1695052683796; 
+ Mon, 18 Sep 2023 08:58:03 -0700 (PDT)
+Received: from myrica ([2a02:c7c:7290:b00:fd32:2b31:6755:400c])
  by smtp.gmail.com with ESMTPSA id
- m6-20020adfe946000000b0031980783d78sm12772049wrn.54.2023.09.18.07.50.07
+ ay18-20020a05600c1e1200b003fef5e76f2csm3022438wmb.0.2023.09.18.08.57.57
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 18 Sep 2023 07:50:08 -0700 (PDT)
-Date: Mon, 18 Sep 2023 16:50:05 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v9 4/4] vsock/virtio: MSG_ZEROCOPY flag support
-Message-ID: <fwv4zdqjfhtwqookpvqqlckoqnxgyiinzhs5mq5pevl7ucefrt@hgd67phghec6>
-References: <20230916130918.4105122-1-avkrasnov@salutedevices.com>
- <20230916130918.4105122-5-avkrasnov@salutedevices.com>
+ Mon, 18 Sep 2023 08:57:59 -0700 (PDT)
+Date: Mon, 18 Sep 2023 16:58:00 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
+Message-ID: <20230918155800.GA2751287@myrica>
+References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
+ <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20230916130918.4105122-5-avkrasnov@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+In-Reply-To: <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
+Cc: Will Deacon <will@kernel.org>, Joerg Roedel <joro@8bytes.org>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Eric Dumazet <edumazet@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+ iommu@lists.linux.dev, Robin Murphy <robin.murphy@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,108 +110,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Sep 16, 2023 at 04:09:18PM +0300, Arseniy Krasnov wrote:
->This adds handling of MSG_ZEROCOPY flag on transmission path:
->
->1) If this flag is set and zerocopy transmission is possible (enabled
->   in socket options and transport allows zerocopy), then non-linear
->   skb will be created and filled with the pages of user's buffer.
->   Pages of user's buffer are locked in memory by 'get_user_pages()'.
->2) Replaces way of skb owning: instead of 'skb_set_owner_sk_safe()' it
->   calls 'skb_set_owner_w()'. Reason of this change is that
->   '__zerocopy_sg_from_iter()' increments 'sk_wmem_alloc' of socket, so
->   to decrease this field correctly, proper skb destructor is needed:
->   'sock_wfree()'. This destructor is set by 'skb_set_owner_w()'.
->3) Adds new callback to 'struct virtio_transport': 'can_msgzerocopy'.
->   If this callback is set, then transport needs extra check to be able
->   to send provided number of buffers in zerocopy mode. Currently, the
->   only transport that needs this callback set is virtio, because this
->   transport adds new buffers to the virtio queue and we need to check,
->   that number of these buffers is less than size of the queue (it is
->   required by virtio spec). vhost and loopback transports don't need
->   this check.
->
->Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->---
-> Changelog:
-> v5(big patchset) -> v1:
->  * Refactorings of 'if' conditions.
->  * Remove extra blank line.
->  * Remove 'frag_off' field unneeded init.
->  * Add function 'virtio_transport_fill_skb()' which fills both linear
->    and non-linear skb with provided data.
-> v1 -> v2:
->  * Use original order of last four arguments in 'virtio_transport_alloc_skb()'.
-> v2 -> v3:
->  * Add new transport callback: 'msgzerocopy_check_iov'. It checks that
->    provided 'iov_iter' with data could be sent in a zerocopy mode.
->    If this callback is not set in transport - transport allows to send
->    any 'iov_iter' in zerocopy mode. Otherwise - if callback returns 'true'
->    then zerocopy is allowed. Reason of this callback is that in case of
->    G2H transmission we insert whole skb to the tx virtio queue and such
->    skb must fit to the size of the virtio queue to be sent in a single
->    iteration (may be tx logic in 'virtio_transport.c' could be reworked
->    as in vhost to support partial send of current skb). This callback
->    will be enabled only for G2H path. For details pls see comment
->    'Check that tx queue...' below.
-> v3 -> v4:
->  * 'msgzerocopy_check_iov' moved from 'struct vsock_transport' to
->    'struct virtio_transport' as it is virtio specific callback and
->    never needed in other transports.
-> v4 -> v5:
->  * 'msgzerocopy_check_iov' renamed to 'can_msgzerocopy' and now it
->    uses number of buffers to send as input argument. I think there is
->    no need to pass iov to this callback (at least today, it is used only
->    by guest side of virtio transport), because the only thing that this
->    callback does is comparison of number of buffers to be inserted to
->    the tx queue and size of this queue.
->  * Remove any checks for type of current 'iov_iter' with payload (is it
->    'iovec' or 'ubuf'). These checks left from the earlier versions where I
->    didn't use already implemented kernel API which handles every type of
->    'iov_iter'.
-> v5 -> v6:
->  * Refactor 'virtio_transport_fill_skb()'.
->  * Add 'WARN_ON_ONCE()' and comment on invalid combination of destination
->    socket and payload in 'virtio_transport_alloc_skb()'.
-> v7 -> v8:
->  * Move '+1' addition from 'can_msgzerocopy' callback body to the caller.
->    This addition means packet header.
->  * In 'virtio_transport_can_zcopy()' rename 'max_to_send' argument to
->    'pkt_len'.
->  * Update commit message by adding details about new 'can_msgzerocopy'
->    callback.
->  * In 'virtio_transport_init_hdr()' move 'len' argument directly after
->    'info'.
->  * Add comment about processing last skb in tx loop.
->  * Update comment for 'can_msgzerocopy' callback for more details.
-> v8 -> v9:
->  * Return and update comment for 'virtio_transport_alloc_skb()'.
->  * Pass pointer to transport ops to 'virtio_transport_can_zcopy()',
->    this allows to use it directly without calling virtio_transport_get_ops()'.
->  * Remove redundant call for 'msg_data_left()' in 'virtio_transport_fill_skb()'.
->  * Do not pass 'struct vsock_sock*' to 'virtio_transport_alloc_skb()',
->    use same pointer from already passed 'struct virtio_vsock_pkt_info*'.
->  * Fix setting 'end of message' bit for SOCK_SEQPACKET (add call for
->    'msg_data_left()' == 0).
->  * Add 'zcopy' parameter to packet allocation trace event.
+On Mon, Sep 18, 2023 at 01:51:43PM +0200, Niklas Schnelle wrote:
+> Pull out the sync operation from viommu_map_pages() by implementing
+> ops->iotlb_sync_map. This allows the common IOMMU code to map multiple
+> elements of an sg with a single sync (see iommu_map_sg()). Furthermore,
+> it is also a requirement for IOMMU_CAP_DEFERRED_FLUSH.
+> 
+> Link: https://lore.kernel.org/lkml/20230726111433.1105665-1-schnelle@linux.ibm.com/
+> Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
 
-Thanks for addressing the comments!
->
-> include/linux/virtio_vsock.h                  |   9 +
-> .../events/vsock_virtio_transport_common.h    |  12 +-
-> net/vmw_vsock/virtio_transport.c              |  32 +++
-> net/vmw_vsock/virtio_transport_common.c       | 250 ++++++++++++++----
-> 4 files changed, 241 insertions(+), 62 deletions(-)
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-LGTM!
+This must be merged after "iommu/dma: s390 DMA API conversion and
+optimized IOTLB flushing" because of the updated iotlb_sync_map()
+prototype.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Thanks,
+Jean
 
+> ---
+>  drivers/iommu/virtio-iommu.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 17dcd826f5c2..3649586f0e5c 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -189,6 +189,12 @@ static int viommu_sync_req(struct viommu_dev *viommu)
+>  	int ret;
+>  	unsigned long flags;
+>  
+> +	/*
+> +	 * .iotlb_sync_map and .flush_iotlb_all may be called before the viommu
+> +	 * is initialized e.g. via iommu_create_device_direct_mappings()
+> +	 */
+> +	if (!viommu)
+> +		return 0;
+>  	spin_lock_irqsave(&viommu->request_lock, flags);
+>  	ret = __viommu_sync_req(viommu);
+>  	if (ret)
+> @@ -843,7 +849,7 @@ static int viommu_map_pages(struct iommu_domain *domain, unsigned long iova,
+>  			.flags		= cpu_to_le32(flags),
+>  		};
+>  
+> -		ret = viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
+> +		ret = viommu_add_req(vdomain->viommu, &map, sizeof(map));
+>  		if (ret) {
+>  			viommu_del_mappings(vdomain, iova, end);
+>  			return ret;
+> @@ -912,6 +918,14 @@ static void viommu_iotlb_sync(struct iommu_domain *domain,
+>  	viommu_sync_req(vdomain->viommu);
+>  }
+>  
+> +static int viommu_iotlb_sync_map(struct iommu_domain *domain,
+> +				 unsigned long iova, size_t size)
+> +{
+> +	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> +
+> +	return viommu_sync_req(vdomain->viommu);
+> +}
+> +
+>  static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
+>  {
+>  	struct iommu_resv_region *entry, *new_entry, *msi = NULL;
+> @@ -1058,6 +1072,7 @@ static struct iommu_ops viommu_ops = {
+>  		.unmap_pages		= viommu_unmap_pages,
+>  		.iova_to_phys		= viommu_iova_to_phys,
+>  		.iotlb_sync		= viommu_iotlb_sync,
+> +		.iotlb_sync_map		= viommu_iotlb_sync_map,
+>  		.free			= viommu_domain_free,
+>  	}
+>  };
+> 
+> -- 
+> 2.39.2
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
