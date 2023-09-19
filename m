@@ -1,99 +1,66 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAAE6CD54A8
-	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 08:15:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75333CD54A8
+	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 08:28:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6BA6E41BAF;
-	Tue, 19 Sep 2023 08:15:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6BA6E41BAF
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=H7TkFisF
+	by smtp1.osuosl.org (Postfix) with ESMTP id F051782B21;
+	Tue, 19 Sep 2023 08:28:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F051782B21
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7jTSDKt0v3AM; Tue, 19 Sep 2023 08:15:20 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QJvTEgztmGNU; Tue, 19 Sep 2023 08:28:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 52DC941B97;
-	Tue, 19 Sep 2023 08:15:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 52DC941B97
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2D2C7822DA;
+	Tue, 19 Sep 2023 08:28:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D2C7822DA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30CFEC0071;
-	Tue, 19 Sep 2023 08:15:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 80097C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F0DDFC0071;
+	Tue, 19 Sep 2023 08:28:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19429C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 08:15:17 +0000 (UTC)
+ Tue, 19 Sep 2023 08:28:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4E9CC41B99
+ by smtp3.osuosl.org (Postfix) with ESMTP id CB0FE61590
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 08:15:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E9CC41B99
+ Tue, 19 Sep 2023 08:28:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB0FE61590
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MSUxMgo_UoCE
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lEFyh3L4I_tO
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 08:15:16 +0000 (UTC)
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com
- [IPv6:2a00:1450:4864:20::430])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CB90741B97
+ Tue, 19 Sep 2023 08:28:15 +0000 (UTC)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C6F98614D3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 08:15:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CB90741B97
-Received: by mail-wr1-x430.google.com with SMTP id
- ffacd0b85a97d-32164a6af64so729451f8f.2
- for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 01:15:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=linaro.org; s=google; t=1695111314; x=1695716114;
- darn=lists.linux-foundation.org; 
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=z9DuA2m46Djcdz3icf/RXjOs6wp73S2oIUkhIKRMWaU=;
- b=H7TkFisFeFMO9bIH3j8Ddc4JO7Ai6y08pnmQUTdb3Iv6AEahtED7you3SzTRe2las5
- nIn1YlEmSnB91UMvQ2Gvy2qSJDapbuCd5vZTJ7BJznukchsOylDVD/VS0MuhqiKk4qR3
- WyLk+5L+n9bYhH6EpIy8YQQ+W1/KyeFxuH7CENwL/CRQLzQzTNTUO0fCqMz2Ezti0Jnx
- cRNxtYhUsGAtitGfWEUDs17/SoF7+IOEPAFY/pvPkgpCdetdJcEZZJ0o45jWY+X0fAar
- /CeKXFLPqfguGwjM3KliJj3YVhJ56MpxXuAxLdpdw1tT/8gC6WziYSOc4GUNf/ll6ScX
- LgKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695111314; x=1695716114;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=z9DuA2m46Djcdz3icf/RXjOs6wp73S2oIUkhIKRMWaU=;
- b=OVjJc97/2JupOq6T2+ANa0eMyma3ZiMwm0AjhJeviUN9ZUwvIdRwEaKHOm4RwA4v2w
- 7N2yGfQI+GXjMPDQ1hqTfYNO5Mp5yTXfrpMFuQ/D0rKu2WG8kc3nLeVTzuIPwgZgSvJI
- aGqSrs3GTJDyNFXPJnNMi+GkOA/ueDBRbKhLjY/dbV/CAbAwZL0jisscauz4wqcZRD7K
- pGBIcfXkysFi8vSywu/qlxlU7aLQCoVeXN/OzlSJV4aEuDXG5FAYJvxTgrHm7MsT45uT
- +81bFOh+v4/nFaNq6OA+zdaiZDkT/LsALt3lxaLEfN/QsanC7hTizpKw7t3+yoENffI5
- KT7A==
-X-Gm-Message-State: AOJu0YyTit02Iv8l57Wgzwhyt2yjFNi7aeErTxE+jxHONATVeANcgrNq
- i5bk2wTGnKpD4690e7oxOXgRRQ==
-X-Google-Smtp-Source: AGHT+IFGBTaGE4GEoHpdTwySnKUr0nW2LPy/soxU/asQgYmN8W5lJXq9nrjAyrswMLLRTbyUplW17Q==
-X-Received: by 2002:a05:6000:1865:b0:31f:f8c1:f43c with SMTP id
- d5-20020a056000186500b0031ff8c1f43cmr11762566wri.41.1695111313622; 
- Tue, 19 Sep 2023 01:15:13 -0700 (PDT)
-Received: from myrica ([2a02:c7c:7290:b00:fd32:2b31:6755:400c])
- by smtp.gmail.com with ESMTPSA id
- o16-20020a5d4a90000000b0031ffb51f6f9sm10302003wrq.30.2023.09.19.01.15.12
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Sep 2023 01:15:13 -0700 (PDT)
-Date: Tue, 19 Sep 2023 09:15:19 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Robin Murphy <robin.murphy@arm.com>
+ Tue, 19 Sep 2023 08:28:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C6F98614D3
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2BE031FB;
+ Tue, 19 Sep 2023 01:28:52 -0700 (PDT)
+Received: from [10.57.94.129] (unknown [10.57.94.129])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id B9CDE3F59C;
+ Tue, 19 Sep 2023 01:28:13 -0700 (PDT)
+Message-ID: <1d513178-bab9-0522-87f5-1a058bb8121d@arm.com>
+Date: Tue, 19 Sep 2023 09:28:08 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
 Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
-Message-ID: <20230919081519.GA3860249@myrica>
+Content-Language: en-GB
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
 References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
  <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
  <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
+ <20230919081519.GA3860249@myrica>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20230919081519.GA3860249@myrica>
 Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
  iommu@lists.linux.dev, Will Deacon <will@kernel.org>
@@ -108,43 +75,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 18, 2023 at 05:37:47PM +0100, Robin Murphy wrote:
-> > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> > index 17dcd826f5c2..3649586f0e5c 100644
-> > --- a/drivers/iommu/virtio-iommu.c
-> > +++ b/drivers/iommu/virtio-iommu.c
-> > @@ -189,6 +189,12 @@ static int viommu_sync_req(struct viommu_dev *viommu)
-> >   	int ret;
-> >   	unsigned long flags;
-> > +	/*
-> > +	 * .iotlb_sync_map and .flush_iotlb_all may be called before the viommu
-> > +	 * is initialized e.g. via iommu_create_device_direct_mappings()
-> > +	 */
-> > +	if (!viommu)
-> > +		return 0;
+On 2023-09-19 09:15, Jean-Philippe Brucker wrote:
+> On Mon, Sep 18, 2023 at 05:37:47PM +0100, Robin Murphy wrote:
+>>> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+>>> index 17dcd826f5c2..3649586f0e5c 100644
+>>> --- a/drivers/iommu/virtio-iommu.c
+>>> +++ b/drivers/iommu/virtio-iommu.c
+>>> @@ -189,6 +189,12 @@ static int viommu_sync_req(struct viommu_dev *viommu)
+>>>    	int ret;
+>>>    	unsigned long flags;
+>>> +	/*
+>>> +	 * .iotlb_sync_map and .flush_iotlb_all may be called before the viommu
+>>> +	 * is initialized e.g. via iommu_create_device_direct_mappings()
+>>> +	 */
+>>> +	if (!viommu)
+>>> +		return 0;
+>>
+>> Minor nit: I'd be inclined to make that check explicitly in the places where
+>> it definitely is expected, rather than allowing *any* sync to silently do
+>> nothing if called incorrectly. Plus then they could use
+>> vdomain->nr_endpoints for consistency with the equivalent checks elsewhere
+>> (it did take me a moment to figure out how we could get to .iotlb_sync_map
+>> with a NULL viommu without viommu_map_pages() blowing up first...)
 > 
-> Minor nit: I'd be inclined to make that check explicitly in the places where
-> it definitely is expected, rather than allowing *any* sync to silently do
-> nothing if called incorrectly. Plus then they could use
-> vdomain->nr_endpoints for consistency with the equivalent checks elsewhere
-> (it did take me a moment to figure out how we could get to .iotlb_sync_map
-> with a NULL viommu without viommu_map_pages() blowing up first...)
+> They're not strictly equivalent: this check works around a temporary issue
+> with the IOMMU core, which calls map/unmap before the domain is finalized.
+> Once we merge domain_alloc() and finalize(), then this check disappears,
+> but we still need to test nr_endpoints in map/unmap to handle detached
+> domains (and we still need to fix the synchronization of nr_endpoints
+> against attach/detach). That's why I preferred doing this on viommu and
+> keeping it in one place.
 
-They're not strictly equivalent: this check works around a temporary issue
-with the IOMMU core, which calls map/unmap before the domain is finalized.
-Once we merge domain_alloc() and finalize(), then this check disappears,
-but we still need to test nr_endpoints in map/unmap to handle detached
-domains (and we still need to fix the synchronization of nr_endpoints
-against attach/detach). That's why I preferred doing this on viommu and
-keeping it in one place.
+Fair enough - it just seems to me that in both cases it's a detached 
+domain, so its previous history of whether it's ever been otherwise or 
+not shouldn't matter. Even once viommu is initialised, does it really 
+make sense to send sync commands for a mapping on a detached domain 
+where we haven't actually sent any map/unmap commands?
 
 Thanks,
-Jean
+Robin.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
