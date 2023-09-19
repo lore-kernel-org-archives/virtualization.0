@@ -1,108 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 38D12CD5BC7
-	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 14:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB501CD5BCE
+	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 14:48:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7F01F82D0F;
-	Tue, 19 Sep 2023 14:19:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F01F82D0F
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PsWuv6+U
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5C127404C8;
+	Tue, 19 Sep 2023 14:48:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5C127404C8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=iirJkXOf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yUXpH4ylUiLp; Tue, 19 Sep 2023 14:19:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 12ACB82CCA;
-	Tue, 19 Sep 2023 14:19:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 12ACB82CCA
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id v_9qsKpANj1m; Tue, 19 Sep 2023 14:48:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7D88E4032C;
+	Tue, 19 Sep 2023 14:48:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7D88E4032C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E3C83C0071;
-	Tue, 19 Sep 2023 14:19:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E2C60C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45529C0071;
+	Tue, 19 Sep 2023 14:48:17 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56915C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 14:19:06 +0000 (UTC)
+ Tue, 19 Sep 2023 14:48:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A7E1B82CF1
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2AB7682AF8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 14:19:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A7E1B82CF1
+ Tue, 19 Sep 2023 14:48:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2AB7682AF8
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
+ header.a=rsa-sha256 header.s=google header.b=iirJkXOf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HMGL_gwUlmkp
+ with ESMTP id p3XmPP4_em46
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 14:19:06 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E8AF182CCA
+ Tue, 19 Sep 2023 14:48:11 +0000 (UTC)
+Received: from mail-qv1-xf33.google.com (mail-qv1-xf33.google.com
+ [IPv6:2607:f8b0:4864:20::f33])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2128A82342
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 14:19:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E8AF182CCA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695133144;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=mHsPb4vwC+hSL0GCp3HRQ13LaXYANF8EE6mc0h6Oj8g=;
- b=PsWuv6+U2b+GK64JSTINZpe/Qodcl5XQ3ccnfDCG6c2i3OBPVojHnYcIthgPaK/gllD8cF
- b612RwfjNOt8maPEcvoyVrkhBY4bcAwaHaOskasG7lnL+JhK8IhxDjWZnuqHG4Vo2ykC3h
- q89Nl7e4GLD7L97vVQ+QEYcGIDSvN2w=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-564-AK09J2k1PPi_lk3SCYdbRw-1; Tue, 19 Sep 2023 10:19:02 -0400
-X-MC-Unique: AK09J2k1PPi_lk3SCYdbRw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-401c4f03b00so45428685e9.1
+ Tue, 19 Sep 2023 14:48:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2128A82342
+Received: by mail-qv1-xf33.google.com with SMTP id
+ 6a1803df08f44-6564515ec4eso19008996d6.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 07:19:01 -0700 (PDT)
+ Tue, 19 Sep 2023 07:48:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ziepe.ca; s=google; t=1695134890; x=1695739690;
+ darn=lists.linux-foundation.org; 
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=EquMz/cfki7kEYJ0MaznRKfaKZ1PqbzvZHpIvKnZUnM=;
+ b=iirJkXOfMj0tkQM/DUs0ze9NQb2lH5AYN2v+wYHBmteiKny/YG5Qb3ZfZZVj7x4dAe
+ kii33/eKHp38OK8QhU0wFUY2KhSAFqSrqGsTg1QsfVBcFfqysTpwrFHrqXFWDAkyUNOL
+ uxZ0A+gAd19mMkrJauGQucPxX2ODtLZ2FrsOWZl8dbBGljiqFcsw0WK2NxVF/ZCNTEdJ
+ Est8xBoC5P+9KCeDo6fQ6fSnWGXZ6hdHOMjT4AEgc3kE4iajKBW90HzcTKoP4/OXN00z
+ ijQk4pRDiRDbcEA8cbIlWi8vOCDMI0SHkFvfMv32F0G6y6HugYAx7BsHTedvdkB5FABT
+ oMUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695133141; x=1695737941;
+ d=1e100.net; s=20230601; t=1695134890; x=1695739690;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=mHsPb4vwC+hSL0GCp3HRQ13LaXYANF8EE6mc0h6Oj8g=;
- b=iSvPmHSMijzqGdI8gvpNHiMKw16aZ3OXAehsZqWRFMeMiG9BCinqsCjBh9oaT6p4Lj
- OXH4icrESfKzEPJ8TyADHgeePWZJ64JgfaPW970PW/TZ5bJlhNiBfGSpXXHnRX+rnecT
- lN4Gp/a9c5KXtGsLNuW2PZyhNyFBpnvimRMFWFU4VeRdX+7NnP78W3OJW4/P/IBWODic
- OqESriX7dsYlY7t73ARwcu7yfzp7msXfq0GtYXY32N/+TuB5scoAG9gasnV8sCQE+W7H
- Z0btnsmew3WecXP11PhWSqOoc6eozKn+0SHWAdSkgB9SFdbCsW2zPjyXB6Nc4KoYTMlt
- WooA==
-X-Gm-Message-State: AOJu0Yz3pYUSkijekXEuU5scBeDeMF2GrEza3e80MtTHvD566HDw7uHK
- zmshUaFeJPniuxWmMV1gLTMCtlQ55Wk355WKRl7Ab3ABKbBHWVynO2bEcdJHVP/uzCD0+bjBZR5
- omyTFwcu7GAEOIoejgHmWFPrh2LhoQgfW7sEpQiSQwA==
-X-Received: by 2002:a05:600c:2a4e:b0:401:c338:ab96 with SMTP id
- x14-20020a05600c2a4e00b00401c338ab96mr10435238wme.34.1695133140888; 
- Tue, 19 Sep 2023 07:19:00 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHULrW8YH1mAvut0fZRQ8pHQtMqOvI3PTpgt45Tanm07z1GXdEHC8fUEBACgIXmq28KDQvcCw==
-X-Received: by 2002:a05:600c:2a4e:b0:401:c338:ab96 with SMTP id
- x14-20020a05600c2a4e00b00401c338ab96mr10435220wme.34.1695133140545; 
- Tue, 19 Sep 2023 07:19:00 -0700 (PDT)
-Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
- by smtp.gmail.com with ESMTPSA id
- 16-20020a05600c029000b003fee8793911sm15444202wmk.44.2023.09.19.07.18.59
+ bh=EquMz/cfki7kEYJ0MaznRKfaKZ1PqbzvZHpIvKnZUnM=;
+ b=d+qL1KqWgs0g2x6IhD0zxbpVFgmaTPrB4hwFGP/hNut6s5Kx9jz26Z6kzh0FHzqzM8
+ /cbbu/28xjFPx8pqSY2yn49v8xKsMQc8jl+E35ats/Nm1QQkVM0tYhAJopV6U/lwCA2W
+ gt31Xw/WUt1CDsVoYBdB0FlhjHqsFLpzgg15OAlaXdaXmuJEKOPZVJmxAU8VfAeYlOtG
+ tnXflboNbnC+tmukS4Z992etKxF52pZlk+5rUZZ+y+h/+L6KYhGbLCX4cBMVg6DKOKso
+ Mn1iTZyu7g+KEEJXa7coJlj0HMcoPzLj7XvCypYQCO0Dyr60AhcOo2nh/TL0HeVD0Guv
+ XS8A==
+X-Gm-Message-State: AOJu0YxAyisMRV0W9uyKHNonEq2DpeFLNFWYEdLytd1sisnQPN4u0Ncm
+ k3MYnnELm5zwgSqzqPI9Ko0y/DeT6gvY3bzrsa4=
+X-Google-Smtp-Source: AGHT+IFhbKsrLcKnFuicZOuiJBoQGo+a4wPHjLFimyP3XIPppsptAboML0WRwQZ8AGOCizTCF1f9dQ==
+X-Received: by 2002:a05:6214:1192:b0:64f:60e9:9285 with SMTP id
+ t18-20020a056214119200b0064f60e99285mr12393879qvv.30.1695134889866; 
+ Tue, 19 Sep 2023 07:48:09 -0700 (PDT)
+Received: from ziepe.ca
+ (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net.
+ [142.68.26.201]) by smtp.gmail.com with ESMTPSA id
+ w25-20020a0cb559000000b0064f72988fecsm4437544qvd.127.2023.09.19.07.46.54
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Sep 2023 07:18:59 -0700 (PDT)
-Date: Tue, 19 Sep 2023 16:18:57 +0200
-From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: virtio-sound linux driver conformance to spec
-Message-ID: <ZQmt0Z8lbPMuFzR+@fedora>
-References: <ZQHPeD0fds9sYzHO@pc-79.home>
- <20230919054054-mutt-send-email-mst@kernel.org>
+ Tue, 19 Sep 2023 07:47:22 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+ (envelope-from <jgg@ziepe.ca>) id 1qic01-000ExN-0m;
+ Tue, 19 Sep 2023 11:46:49 -0300
+Date: Tue, 19 Sep 2023 11:46:49 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
+Message-ID: <20230919144649.GT13795@ziepe.ca>
+References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
+ <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
+ <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
+ <20230919081519.GA3860249@myrica>
 MIME-Version: 1.0
-In-Reply-To: <20230919054054-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtio-comment@lists.oasis-open.org, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20230919081519.GA3860249@myrica>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>,
+ Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux.dev, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,31 +122,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 19, 2023 at 05:43:56AM -0400, Michael S. Tsirkin wrote:
-> On Wed, Sep 13, 2023 at 05:04:24PM +0200, Matias Ezequiel Vara Larsen wrote:
-> > Hello,
+On Tue, Sep 19, 2023 at 09:15:19AM +0100, Jean-Philippe Brucker wrote:
+> On Mon, Sep 18, 2023 at 05:37:47PM +0100, Robin Murphy wrote:
+> > > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> > > index 17dcd826f5c2..3649586f0e5c 100644
+> > > --- a/drivers/iommu/virtio-iommu.c
+> > > +++ b/drivers/iommu/virtio-iommu.c
+> > > @@ -189,6 +189,12 @@ static int viommu_sync_req(struct viommu_dev *viommu)
+> > >   	int ret;
+> > >   	unsigned long flags;
+> > > +	/*
+> > > +	 * .iotlb_sync_map and .flush_iotlb_all may be called before the viommu
+> > > +	 * is initialized e.g. via iommu_create_device_direct_mappings()
+> > > +	 */
+> > > +	if (!viommu)
+> > > +		return 0;
 > > 
-> > This email is to report a behavior of the Linux virtio-sound driver that
-> > looks like it is not conforming to the VirtIO specification. The kernel
-> > driver is moving buffers from the used ring to the available ring
-> > without knowing if the content has been updated from the user. If the
-> > device picks up buffers from the available ring just after it is
-> > notified, it happens that the content is old.
-> 
-> Then, what happens, exactly? Do things still work?
+> > Minor nit: I'd be inclined to make that check explicitly in the places where
+> > it definitely is expected, rather than allowing *any* sync to silently do
+> > nothing if called incorrectly. Plus then they could use
+> > vdomain->nr_endpoints for consistency with the equivalent checks elsewhere
+> > (it did take me a moment to figure out how we could get to .iotlb_sync_map
+> > with a NULL viommu without viommu_map_pages() blowing up first...)
 
-We are currently developing a vhost-user backend for virtio-sound and
-what happens is that if the backend implementation decides to copy the
-content of a buffer from a request that just arrived to the available
-ring, it gets the old content thus reproducing some sections two times.
-For example, we observe that when issuing `aplay FrontLeft.wav`, we hear
-`Front, front left...`. To fix this issue, our current implementation
-delays reading from guest memory just until the audio engine requires.
-However, the first implementation shall also work since it is conforming
-to the specification.
+This makes more sense to me
 
-Matias
+Ultimately this driver should reach a point where every iommu_domain
+always has a non-null domain->viommu because it will be set during
+alloc.
 
+But it can still have nr_endpoints == 0, doesn't it make sense to
+avoid sync in this case?
+
+(btw this driver is missing locking around vdomain->nr_endpoints)
+
+> They're not strictly equivalent: this check works around a temporary issue
+> with the IOMMU core, which calls map/unmap before the domain is
+> finalized.
+
+Where? The above points to iommu_create_device_direct_mappings() but
+it doesn't because the pgsize_bitmap == 0:
+
+static int iommu_create_device_direct_mappings(struct iommu_domain *domain,
+					       struct device *dev)
+{
+	struct iommu_resv_region *entry;
+	struct list_head mappings;
+	unsigned long pg_size;
+	int ret = 0;
+
+	pg_size = domain->pgsize_bitmap ? 1UL << __ffs(domain->pgsize_bitmap) : 0;
+	INIT_LIST_HEAD(&mappings);
+
+	if (WARN_ON_ONCE(iommu_is_dma_domain(domain) && !pg_size))
+
+Indeed, the driver should be failing all map's until the domain is
+finalized because it has no way to check the IOVA matches the eventual
+aperture.
+
+Jason
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
