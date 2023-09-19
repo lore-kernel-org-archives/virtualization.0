@@ -1,114 +1,102 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8BCAECD549F
-	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 07:55:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EAAE6CD54A8
+	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 08:15:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 11E04813DD;
-	Tue, 19 Sep 2023 07:55:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 11E04813DD
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EA1PBUYy
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6BA6E41BAF;
+	Tue, 19 Sep 2023 08:15:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6BA6E41BAF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.a=rsa-sha256 header.s=google header.b=H7TkFisF
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rsG1jbuMqdXd; Tue, 19 Sep 2023 07:54:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B2BEB813C9;
-	Tue, 19 Sep 2023 07:54:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B2BEB813C9
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7jTSDKt0v3AM; Tue, 19 Sep 2023 08:15:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 52DC941B97;
+	Tue, 19 Sep 2023 08:15:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 52DC941B97
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 904C8C0039;
-	Tue, 19 Sep 2023 07:54:58 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4AFA4C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 30CFEC0071;
+	Tue, 19 Sep 2023 08:15:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 80097C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 07:54:57 +0000 (UTC)
+ Tue, 19 Sep 2023 08:15:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 21D598135D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4E9CC41B99
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 07:54:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 21D598135D
+ Tue, 19 Sep 2023 08:15:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E9CC41B99
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id c4qn9k8C3OkQ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MSUxMgo_UoCE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 07:54:56 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5B59281355
+ Tue, 19 Sep 2023 08:15:16 +0000 (UTC)
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com
+ [IPv6:2a00:1450:4864:20::430])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CB90741B97
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 07:54:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5B59281355
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695110095;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=xq2PUpZjcLYmB0sc19KGgnU6q5ctsCTIhTwce+KUPmU=;
- b=EA1PBUYyViTLO73SJ1nOc/IfMNNNcgj+3G7d9NPdqpfEJ4M+NRppCOFFa/EFr26Ro+xqAg
- slw5+QZ/+yokQL9H7oWC+VWbc5Y5Z9phh3IqEXBxaTfHFUbV1eI8sJoNj0zqHaSDrXNZA/
- O5/e2F1xqOUmUzo2w2KVKCHkCA+cI1U=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-693-rFZIQttuNcuPwKRcxVsS8g-1; Tue, 19 Sep 2023 03:54:53 -0400
-X-MC-Unique: rFZIQttuNcuPwKRcxVsS8g-1
-Received: by mail-lf1-f72.google.com with SMTP id
- 2adb3069b0e04-5029bd7d9f7so6362821e87.3
+ Tue, 19 Sep 2023 08:15:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CB90741B97
+Received: by mail-wr1-x430.google.com with SMTP id
+ ffacd0b85a97d-32164a6af64so729451f8f.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 00:54:52 -0700 (PDT)
+ Tue, 19 Sep 2023 01:15:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=linaro.org; s=google; t=1695111314; x=1695716114;
+ darn=lists.linux-foundation.org; 
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=z9DuA2m46Djcdz3icf/RXjOs6wp73S2oIUkhIKRMWaU=;
+ b=H7TkFisFeFMO9bIH3j8Ddc4JO7Ai6y08pnmQUTdb3Iv6AEahtED7you3SzTRe2las5
+ nIn1YlEmSnB91UMvQ2Gvy2qSJDapbuCd5vZTJ7BJznukchsOylDVD/VS0MuhqiKk4qR3
+ WyLk+5L+n9bYhH6EpIy8YQQ+W1/KyeFxuH7CENwL/CRQLzQzTNTUO0fCqMz2Ezti0Jnx
+ cRNxtYhUsGAtitGfWEUDs17/SoF7+IOEPAFY/pvPkgpCdetdJcEZZJ0o45jWY+X0fAar
+ /CeKXFLPqfguGwjM3KliJj3YVhJ56MpxXuAxLdpdw1tT/8gC6WziYSOc4GUNf/ll6ScX
+ LgKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695110091; x=1695714891;
+ d=1e100.net; s=20230601; t=1695111314; x=1695716114;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=xq2PUpZjcLYmB0sc19KGgnU6q5ctsCTIhTwce+KUPmU=;
- b=AAfkZMP4pMNCyWAUWZDm1myW3Q7/kDGFlPq0Pz9xXJJqp4DB4EKbyfbxskLk50wsME
- Fw8YLzs3+bpySOD4icKkSeyZcwX/V+xageGHlapHtysGbl87SGSNjOZaQXWStkF6hSI8
- fPgpMq8SHfKhiLhLzrU8ppeux/YOsFyWHSMJShiKWdP8fhxLMK5amW3kbEyRpz18mZmN
- QSgtV9w7h9kVoEQijrzuuvR4t7Gkizu9OR6TIod4TnjxD2cNFitJWpHCeRx+qbMYZ2YT
- uxEUQckr0rydhNWZXxv+K6PrO9yKztpuxIkcY/N1wNIQEncraWjYTwZi+9d0u+jrY4OW
- WGvw==
-X-Gm-Message-State: AOJu0YwqJV14fcw/JZy1uXsQZ/wVRpkVKhpZrvtUL9jTOqCL5B6CKo9k
- EVt7M7LwF5kXu3TCYHBMJ94clLO9PkRHo+/CRH61JE7gyfOYjxjg996W+6MpDUSkdOfWiA6Zz3P
- UiV7cpkTFbt11KO3sJgWFT75wgVci5WeceuJ/YxUJ8w==
-X-Received: by 2002:a05:6512:988:b0:500:7e64:cff1 with SMTP id
- w8-20020a056512098800b005007e64cff1mr7920472lft.14.1695110091616; 
- Tue, 19 Sep 2023 00:54:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEuCMWkGTykvVJzGOBWF+ltNRkIaGMXVMrzHnBowZKeRdkWnM1pfr62hc7g2qB3p0oGcC763w==
-X-Received: by 2002:a05:6512:988:b0:500:7e64:cff1 with SMTP id
- w8-20020a056512098800b005007e64cff1mr7920452lft.14.1695110091255; 
- Tue, 19 Sep 2023 00:54:51 -0700 (PDT)
-Received: from sgarzare-redhat ([46.222.147.15])
+ bh=z9DuA2m46Djcdz3icf/RXjOs6wp73S2oIUkhIKRMWaU=;
+ b=OVjJc97/2JupOq6T2+ANa0eMyma3ZiMwm0AjhJeviUN9ZUwvIdRwEaKHOm4RwA4v2w
+ 7N2yGfQI+GXjMPDQ1hqTfYNO5Mp5yTXfrpMFuQ/D0rKu2WG8kc3nLeVTzuIPwgZgSvJI
+ aGqSrs3GTJDyNFXPJnNMi+GkOA/ueDBRbKhLjY/dbV/CAbAwZL0jisscauz4wqcZRD7K
+ pGBIcfXkysFi8vSywu/qlxlU7aLQCoVeXN/OzlSJV4aEuDXG5FAYJvxTgrHm7MsT45uT
+ +81bFOh+v4/nFaNq6OA+zdaiZDkT/LsALt3lxaLEfN/QsanC7hTizpKw7t3+yoENffI5
+ KT7A==
+X-Gm-Message-State: AOJu0YyTit02Iv8l57Wgzwhyt2yjFNi7aeErTxE+jxHONATVeANcgrNq
+ i5bk2wTGnKpD4690e7oxOXgRRQ==
+X-Google-Smtp-Source: AGHT+IFGBTaGE4GEoHpdTwySnKUr0nW2LPy/soxU/asQgYmN8W5lJXq9nrjAyrswMLLRTbyUplW17Q==
+X-Received: by 2002:a05:6000:1865:b0:31f:f8c1:f43c with SMTP id
+ d5-20020a056000186500b0031ff8c1f43cmr11762566wri.41.1695111313622; 
+ Tue, 19 Sep 2023 01:15:13 -0700 (PDT)
+Received: from myrica ([2a02:c7c:7290:b00:fd32:2b31:6755:400c])
  by smtp.gmail.com with ESMTPSA id
- a4-20020a05600c068400b004042dbb8925sm14294571wmn.38.2023.09.19.00.54.49
+ o16-20020a5d4a90000000b0031ffb51f6f9sm10302003wrq.30.2023.09.19.01.15.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Sep 2023 00:54:50 -0700 (PDT)
-Date: Tue, 19 Sep 2023 09:54:47 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v9 0/4] vsock/virtio/vhost: MSG_ZEROCOPY
- preparations
-Message-ID: <yys5jgwkukvfyrgfz6txxzqc7el5megf2xntnk6j4ausvjdgld@7aan4quqy4bs>
-References: <20230916130918.4105122-1-avkrasnov@salutedevices.com>
- <b5873e36-fe8c-85e8-e11b-4ccec386c015@salutedevices.com>
+ Tue, 19 Sep 2023 01:15:13 -0700 (PDT)
+Date: Tue, 19 Sep 2023 09:15:19 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
+Message-ID: <20230919081519.GA3860249@myrica>
+References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
+ <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
+ <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <b5873e36-fe8c-85e8-e11b-4ccec386c015@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+In-Reply-To: <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
+Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Eric Dumazet <edumazet@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+ iommu@lists.linux.dev, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,25 +108,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 18, 2023 at 07:56:00PM +0300, Arseniy Krasnov wrote:
->Hi Stefano,
->
->thanks for review! So when this patchset will be merged to net-next,
->I'll start sending next part of MSG_ZEROCOPY patchset, e.g. AF_VSOCK +
->Documentation/ patches.
+On Mon, Sep 18, 2023 at 05:37:47PM +0100, Robin Murphy wrote:
+> > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> > index 17dcd826f5c2..3649586f0e5c 100644
+> > --- a/drivers/iommu/virtio-iommu.c
+> > +++ b/drivers/iommu/virtio-iommu.c
+> > @@ -189,6 +189,12 @@ static int viommu_sync_req(struct viommu_dev *viommu)
+> >   	int ret;
+> >   	unsigned long flags;
+> > +	/*
+> > +	 * .iotlb_sync_map and .flush_iotlb_all may be called before the viommu
+> > +	 * is initialized e.g. via iommu_create_device_direct_mappings()
+> > +	 */
+> > +	if (!viommu)
+> > +		return 0;
+> 
+> Minor nit: I'd be inclined to make that check explicitly in the places where
+> it definitely is expected, rather than allowing *any* sync to silently do
+> nothing if called incorrectly. Plus then they could use
+> vdomain->nr_endpoints for consistency with the equivalent checks elsewhere
+> (it did take me a moment to figure out how we could get to .iotlb_sync_map
+> with a NULL viommu without viommu_map_pages() blowing up first...)
 
-Ack, if it is not a very big series, maybe better to include also the
-tests so we can run them before merge the feature.
+They're not strictly equivalent: this check works around a temporary issue
+with the IOMMU core, which calls map/unmap before the domain is finalized.
+Once we merge domain_alloc() and finalize(), then this check disappears,
+but we still need to test nr_endpoints in map/unmap to handle detached
+domains (and we still need to fix the synchronization of nr_endpoints
+against attach/detach). That's why I preferred doing this on viommu and
+keeping it in one place.
 
-WDYT?
-
-Stefano
-
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
