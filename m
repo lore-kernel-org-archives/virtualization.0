@@ -4,108 +4,116 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AC2BBCE79A9
-	for <virtualization@archiver.kernel.org>; Tue, 19 Sep 2023 15:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 75014CE79A8
+	for <virtualization@archiver.kernel.org>; Wed, 20 Sep 2023 02:38:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0989641D9C;
-	Tue, 19 Sep 2023 15:52:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0989641D9C
+	by smtp4.osuosl.org (Postfix) with ESMTP id E064941498;
+	Wed, 20 Sep 2023 02:38:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E064941498
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=F+1hs4J2
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=fRUYapky
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hffmJ5mQ_El2; Tue, 19 Sep 2023 15:52:45 +0000 (UTC)
+	with ESMTP id GYrwdXnEM_Sk; Wed, 20 Sep 2023 02:38:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4667E41B97;
-	Tue, 19 Sep 2023 15:52:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4667E41B97
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E060D409D0;
+	Wed, 20 Sep 2023 02:38:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E060D409D0
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11B17C0039;
-	Tue, 19 Sep 2023 15:52:44 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B20C5C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B1E46C0071;
+	Wed, 20 Sep 2023 02:38:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 559B3C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 15:52:42 +0000 (UTC)
+ Wed, 20 Sep 2023 02:38:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 86FD4830A8
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1C4FE82F39
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 15:52:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 86FD4830A8
+ Wed, 20 Sep 2023 02:38:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C4FE82F39
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=F+1hs4J2
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=fRUYapky
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4D0WMR-OCQJF
+ with ESMTP id UVwEBaaloDzi
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 15:52:36 +0000 (UTC)
+ Wed, 20 Sep 2023 02:38:46 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 373748376E
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4EE2A82F32
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 15:52:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 373748376E
+ Wed, 20 Sep 2023 02:38:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4EE2A82F32
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695138755;
+ s=mimecast20190719; t=1695177525;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=CbKVtehYcbhibKezgI6pJqBXoaPfzap/QyqXqux7Yww=;
- b=F+1hs4J2w/0nDQbe0FwkcXY4+k4eL1AP/5p4mub6WWandCOiob08cpZiW/Sr9xZByvCoCx
- 1esEh1h/bX4Q6J7WSFADhHPy68FAjnKYSKLKTl/k8xYYE9UGwjXRqT6Q8DMp/tVqVknoK1
- 33tDdyL8UtPK/akvGbTiVpWGbHPcnAY=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=mltdWUrYuG2mZM3mBsS3pkG+K6kdQVfPyUFr6/Wteqo=;
+ b=fRUYapkyUuGEW7ywxbzIoKoyH+mpzZjT6c+1fFvwfKHzaKzBrpsM0SPgqwD4868KDUX3Xs
+ O6ngl4YHLGoPfjTBFVz0/Ar0SfqzFBa0CQNFFiOoRLJ6mDlWUFOronOl46GteWo3HhLnLI
+ POthraKGVr3eojz/2W7uEH3vPwC4abY=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-593-awF1oL_KOzGT64JGa63XHw-1; Tue, 19 Sep 2023 11:52:33 -0400
-X-MC-Unique: awF1oL_KOzGT64JGa63XHw-1
-Received: by mail-lj1-f200.google.com with SMTP id
- 38308e7fff4ca-2bce272ebdfso73116941fa.1
+ us-mta-204-affvC8SSOqmXRlpVf9KtHQ-1; Tue, 19 Sep 2023 22:38:40 -0400
+X-MC-Unique: affvC8SSOqmXRlpVf9KtHQ-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ 38308e7fff4ca-2c0165b5c5cso31672151fa.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Sep 2023 08:52:33 -0700 (PDT)
+ Tue, 19 Sep 2023 19:38:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695138752; x=1695743552;
+ d=1e100.net; s=20230601; t=1695177519; x=1695782319;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=CbKVtehYcbhibKezgI6pJqBXoaPfzap/QyqXqux7Yww=;
- b=MuEwYmB202aQLUHdy3LEU/BXzAviVmf3zaOSidfXRwtA5IbE2fKfrMtQhzYMpzPjPh
- Uf3dEruONcMxIHyGLqc7VXnbz/sB9Um33CDIJQzy49q1E8AbVz6OoZ3SUKkjzvrOuQbZ
- zUNDwUpJ1zhU7Jg24s2qkwYPwcQ1LGz/D+Ng+6cUWN0Xkwk6wYPDQL/+oxzaI5hgsybe
- 3Rnltxz1zpZVzh8WATPNBjP7ykIJozBSwCP5w+aDPkNdW2enItAwLKhrZZxgKP+XJaBX
- 1iRQyamn+ORN/U9ojdtjpqdf2RJOVKVruprhybibm4lLF/WqgJTcSobTM9C4Yu+yboO9
- kniA==
-X-Gm-Message-State: AOJu0Yy6Xok5wdBXvEeayZOk5VX8T8NTFHHhquI1ny8kRjzsxkatI6GY
- 1NWdn0mUmk+ISVA+/8B40ci0cfEAHl7mlh6dEL8pLqT90Uz+n0fuYC15Kq672aHW9O/NtbvG7at
- gjUSdbnpiYzcOBhrKAHlXS9fNz5zXDGAsqxhjQm2VwA==
-X-Received: by 2002:a05:651c:120f:b0:2b6:e958:5700 with SMTP id
- i15-20020a05651c120f00b002b6e9585700mr10727846lja.4.1695138752074; 
- Tue, 19 Sep 2023 08:52:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFExL0VFTDt27m3v0qN/oTbmVeVCWwmLTwYALUw2zvGNVbTihnRcR/krc3U2LcAu1qft36hhQ==
-X-Received: by 2002:a05:651c:120f:b0:2b6:e958:5700 with SMTP id
- i15-20020a05651c120f00b002b6e9585700mr10727829lja.4.1695138751713; 
- Tue, 19 Sep 2023 08:52:31 -0700 (PDT)
+ bh=mltdWUrYuG2mZM3mBsS3pkG+K6kdQVfPyUFr6/Wteqo=;
+ b=ICQhFpCFGiC7znj4GyILOPVqTFxfQuQmGFCaTS5PFRTPJT3DAHC5I3tUOwQSpNQ4GB
+ cqhc8V0HOQJRJmuDMzjBoh2B6Q+wcVku/bx3jibgOk7znJZiIRtNbb03tXfJONZnBMDt
+ oT9dz/TwYFH10mRS8+QI3iTMJk96lOeKQ9liPKhpBX3wj0f6X8rs4kVPeERzNenh/Ls0
+ kxH0rFHn57VohACnpm++UGN4QWHMmEcjRt6B9/gY0wo5ZH/Da9iZxWE07+t9HAj3hX7a
+ 2HZT5CnuLAssGOpv1g5jBJdujpzj7l4Fn6L03nhLFxt/Ju9P/YFZp8+X4i2lGypjmU3u
+ Yzgg==
+X-Gm-Message-State: AOJu0YwiuKmaUtoZp106peY2xzApRvRchMnJGA1gIyy4wqkhWtBLwZXC
+ lT/4RFZ/iT5hZE2v26yk2NhA5xnKe9BsMuUloh25V9vVkLqRp6yJlYJcJZtcBbaqFMCCbr8V6HL
+ ePoF2dvxQ2Qiy28eYnpDEoTNVWCbNCvLdtazak/Bfhw==
+X-Received: by 2002:a2e:a3cd:0:b0:2bc:c557:84a0 with SMTP id
+ w13-20020a2ea3cd000000b002bcc55784a0mr928155lje.30.1695177519198; 
+ Tue, 19 Sep 2023 19:38:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEwXnlVNVhmJOWz1liAl5cY3Hket0qS/kxuaMrxgmSZwkofhhqlaN8M29TK4O/sX6epr0sArA==
+X-Received: by 2002:a2e:a3cd:0:b0:2bc:c557:84a0 with SMTP id
+ w13-20020a2ea3cd000000b002bcc55784a0mr928135lje.30.1695177518840; 
+ Tue, 19 Sep 2023 19:38:38 -0700 (PDT)
 Received: from redhat.com ([2.52.26.122]) by smtp.gmail.com with ESMTPSA id
- cf20-20020a170906b2d400b0099bd453357esm7931499ejb.41.2023.09.19.08.52.29
+ r11-20020a170906350b00b009a5f1d1564dsm8531069eja.126.2023.09.19.19.38.35
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Sep 2023 08:52:30 -0700 (PDT)
-Date: Tue, 19 Sep 2023 11:52:27 -0400
+ Tue, 19 Sep 2023 19:38:37 -0700 (PDT)
+Date: Tue, 19 Sep 2023 22:38:33 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Subject: Re: virtio-sound linux driver conformance to spec
-Message-ID: <20230919102250-mutt-send-email-mst@kernel.org>
-References: <ZQHPeD0fds9sYzHO@pc-79.home>
- <20230919054054-mutt-send-email-mst@kernel.org>
- <ZQmt0Z8lbPMuFzR+@fedora>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next v9 0/4] vsock/virtio/vhost: MSG_ZEROCOPY
+ preparations
+Message-ID: <20230919223700-mutt-send-email-mst@kernel.org>
+References: <20230916130918.4105122-1-avkrasnov@salutedevices.com>
+ <b5873e36-fe8c-85e8-e11b-4ccec386c015@salutedevices.com>
+ <yys5jgwkukvfyrgfz6txxzqc7el5megf2xntnk6j4ausvjdgld@7aan4quqy4bs>
+ <a5b25ee07245125fac4bbdc3b3604758251907d2.camel@redhat.com>
+ <hq67e2b3ljfjikvbaneczdve3fzg3dl5ziyc7xtujyqesp6dzm@fh5nqkptpb4n>
 MIME-Version: 1.0
-In-Reply-To: <ZQmt0Z8lbPMuFzR+@fedora>
+In-Reply-To: <hq67e2b3ljfjikvbaneczdve3fzg3dl5ziyc7xtujyqesp6dzm@fh5nqkptpb4n>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtio-comment@lists.oasis-open.org, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org
+Cc: Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
+ netdev@vger.kernel.org, Arseniy Krasnov <avkrasnov@salutedevices.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Eric Dumazet <edumazet@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, kernel@sberdevices.ru,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,35 +130,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 19, 2023 at 04:18:57PM +0200, Matias Ezequiel Vara Larsen wrote:
-> On Tue, Sep 19, 2023 at 05:43:56AM -0400, Michael S. Tsirkin wrote:
-> > On Wed, Sep 13, 2023 at 05:04:24PM +0200, Matias Ezequiel Vara Larsen wrote:
-> > > Hello,
+On Tue, Sep 19, 2023 at 03:35:51PM +0200, Stefano Garzarella wrote:
+> On Tue, Sep 19, 2023 at 03:19:54PM +0200, Paolo Abeni wrote:
+> > On Tue, 2023-09-19 at 09:54 +0200, Stefano Garzarella wrote:
+> > > On Mon, Sep 18, 2023 at 07:56:00PM +0300, Arseniy Krasnov wrote:
+> > > > Hi Stefano,
+> > > >
+> > > > thanks for review! So when this patchset will be merged to net-next,
+> > > > I'll start sending next part of MSG_ZEROCOPY patchset, e.g. AF_VSOCK +
+> > > > Documentation/ patches.
 > > > 
-> > > This email is to report a behavior of the Linux virtio-sound driver that
-> > > looks like it is not conforming to the VirtIO specification. The kernel
-> > > driver is moving buffers from the used ring to the available ring
-> > > without knowing if the content has been updated from the user. If the
-> > > device picks up buffers from the available ring just after it is
-> > > notified, it happens that the content is old.
+> > > Ack, if it is not a very big series, maybe better to include also the
+> > > tests so we can run them before merge the feature.
 > > 
-> > Then, what happens, exactly? Do things still work?
+> > I understand that at least 2 follow-up series are waiting for this, one
+> > of them targeting net-next and the bigger one targeting the virtio
+> > tree. Am I correct?
 > 
-> We are currently developing a vhost-user backend for virtio-sound and
-> what happens is that if the backend implementation decides to copy the
-> content of a buffer from a request that just arrived to the available
-> ring, it gets the old content thus reproducing some sections two times.
-> For example, we observe that when issuing `aplay FrontLeft.wav`, we hear
-> `Front, front left...`. To fix this issue, our current implementation
-> delays reading from guest memory just until the audio engine requires.
-> However, the first implementation shall also work since it is conforming
-> to the specification.
+> IIUC the next series will touch only the vsock core
+> (net/vmw_vsock/af_vsock.c), tests, and documentation.
 > 
-> Matias
+> The virtio part should be fully covered by this series.
+> 
+> @Arseniy feel free to correct me!
+> 
+> > 
+> > DaveM suggests this should go via the virtio tree, too. Any different
+> > opinion?
+> 
+> For this series should be fine, I'm not sure about the next series.
+> Merging this with the virtio tree, then it forces us to do it for
+> followup as well right?
+> 
+> In theory followup is more on the core, so better with net-next, but
+> it's also true that for now only virtio transports support it, so it
+> might be okay to continue with virtio.
+> 
+> @Michael WDYT?
+> 
+> Thanks,
+> Stefano
 
-Sounds like it. How hard is it to change the behaviour though?
-Does it involve changing userspace?
-Maybe we need to fix the spec after all...
+I didn't get DaveM's mail - was this off-list?
+I think net-next is easier because the follow up belongs in net-next.
+But if not I can take it, sure. Let me know.
 
 -- 
 MST
