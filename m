@@ -1,112 +1,119 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB7DBE7D0A2
-	for <virtualization@archiver.kernel.org>; Thu, 21 Sep 2023 20:34:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 608DFE7D0A2
+	for <virtualization@archiver.kernel.org>; Thu, 21 Sep 2023 20:46:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7ECCE417D0;
-	Thu, 21 Sep 2023 20:34:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7ECCE417D0
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=X1ojAtdi
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kPVoGi6_Zg5G; Thu, 21 Sep 2023 20:34:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 764204179F;
-	Thu, 21 Sep 2023 20:34:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 764204179F
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E0ADC0071;
-	Thu, 21 Sep 2023 20:34:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CCFC8C0032
- for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 20:34:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9435383CE2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 20:34:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9435383CE2
+	by smtp1.osuosl.org (Postfix) with ESMTP id 082CD822FE;
+	Thu, 21 Sep 2023 20:46:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 082CD822FE
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=X1ojAtdi
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=d4HRj1be
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bfBkteaQYOZx
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QRkbnEcIKJlU; Thu, 21 Sep 2023 20:46:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 475B5822F5;
+	Thu, 21 Sep 2023 20:45:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 475B5822F5
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 05E96C0071;
+	Thu, 21 Sep 2023 20:45:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A581CC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 20:34:12 +0000 (UTC)
+ Thu, 21 Sep 2023 20:45:57 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6D24660AC9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 21 Sep 2023 20:45:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6D24660AC9
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=d4HRj1be
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id c3_XRDjxWqyC
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 21 Sep 2023 20:45:55 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AA31C83CA1
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 331D76070A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 20:34:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA31C83CA1
+ Thu, 21 Sep 2023 20:45:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 331D76070A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695328451;
+ s=mimecast20190719; t=1695329154;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=A9eE/GA+11Z+74FMA8fmb32rMfa70a/qPrntg3eRsZY=;
- b=X1ojAtdi13t212a/Oih8Ryc3MLbLUsvrrbnwQOl4AUO6kVqPiUvpXm8AbhcYpp7X6TK9zH
- v+U2+xR20/HDZcseVWIJVYi5Is+E0PjWoFuVnLXlGUJ9WqxkMlH093DnGTh1xuXLfRtMB4
- tJ7hda+YP7zcQc+Yo7IbWqhYDSCxQWE=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=HXeE4TG44R23JcxBjDhXWMi0+WtDdxhkEq9BQKJjIy0=;
+ b=d4HRj1be9UJr4Si9k9wtk+lizXpaslQlr3W/ULYDfsBXQMJ9DOhzHan/tO85HY4kQYfuAe
+ IcaXjI9TQlWgylZq/GEIDR+aVg3DetozR9wQ3oWOJG5M6UVtUx5pAasst5b7udrRQTYI0L
+ WSM7sNye13N77amb6OviUyxftLDqrcY=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-639-_sUVCMZSP96TyITwH_RTeA-1; Thu, 21 Sep 2023 16:34:10 -0400
-X-MC-Unique: _sUVCMZSP96TyITwH_RTeA-1
-Received: by mail-lf1-f71.google.com with SMTP id
- 2adb3069b0e04-503343a850aso1753834e87.3
+ us-mta-16-eOMQybMsPuymYLz_xg7Wvw-1; Thu, 21 Sep 2023 16:45:52 -0400
+X-MC-Unique: eOMQybMsPuymYLz_xg7Wvw-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ 38308e7fff4ca-2c012f7ca56so19353681fa.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 13:34:09 -0700 (PDT)
+ Thu, 21 Sep 2023 13:45:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695328448; x=1695933248;
+ d=1e100.net; s=20230601; t=1695329151; x=1695933951;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=A9eE/GA+11Z+74FMA8fmb32rMfa70a/qPrntg3eRsZY=;
- b=Utvr/+HnQT+ZzxTHJ6VlHsTQx6M5AINo/elK3kM2UAPH41wLfuzKvPQ6HZP3ezCTDU
- 0I4Wc9UAhK7FVfGCxIBdpSBuEhteRyDjIfSOzPlOxRLswBQeoekh8xPAwaZxRPGfEZLQ
- I145ytaUKlkiZeV6ZrhyvPknG4zJwfJLEe+rPgrNPQaQ5XuqgmjEqTyz/tpHdzZNCvpr
- /h1pNIZFWDfjb2zY2oM1IPM/ZMxtg8KgSFNK2Q9bbDPwgIYRpCqv9zV+fh1CZG92Uw/O
- s+QZcWGEKHxlXAPyzFL36hi8CH5OcaxONiWUgiGDRyd6ndNQjTUc8riSICKEIMFFKYFB
- n55A==
-X-Gm-Message-State: AOJu0Yz+hBAcUHlMBEt+d8tdlG8358xzi43RVKyQ1PEfHOtxVhUnMnjr
- PrA4H18rp9qLuaBZyqveKg4X9m7Rq7P+dVd413nMW6+z0MikYXWxI7JqAkxOXsd6YPcVTkm8Oi+
- 5TY1xUkA0KXo1DFghrU/PD0aQ2cBS0KejlQ7J+xenUA==
-X-Received: by 2002:a05:6512:234f:b0:503:1be5:24ed with SMTP id
- p15-20020a056512234f00b005031be524edmr7682528lfu.44.1695328448678; 
- Thu, 21 Sep 2023 13:34:08 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF9E00kH+ycaMs6Jl7ZEFt6V382jx7EdF7x/msE4CgyQbHsUjzTXEcfTs6qU4xTZBQIVdB5Rg==
-X-Received: by 2002:a05:6512:234f:b0:503:1be5:24ed with SMTP id
- p15-20020a056512234f00b005031be524edmr7682504lfu.44.1695328448233; 
- Thu, 21 Sep 2023 13:34:08 -0700 (PDT)
+ bh=HXeE4TG44R23JcxBjDhXWMi0+WtDdxhkEq9BQKJjIy0=;
+ b=r6N3946ciqD1LlaIAXVfvbN89gCAIznoHxzZCqVCDFiTwq06Ra23GKV+JtrXSyFQy8
+ keVRKjefVilKQ7D/VSUV1iZjim+A7j4pgdBWTSeYSPGOd3v6FqNhIFuY7xhV4H3cX3k0
+ o7I38xcR9zIVFr2RTULh4B8iSmhmlEY8+zImwX55U+5UKyJnznCT+cvFIH6CYEEbi5+S
+ CKp7wys1MzwJxwr6o1RQb7n2kC/NlBKXadc/U6Fi4KeJzK3EfQN09t/IaaVw1M0Dck6U
+ r+4+MDyk86ckxOXZ1z6J16pgPid4L7PwiSklm7Vb24gDGFJJYjvAhF0xnpo49rMX1Js/
+ y+6g==
+X-Gm-Message-State: AOJu0YyV5dPvNOma7cDpflRI9yTG9S2d6VdvR5p4z+jnJFxBQX3KzzBn
+ O0DOMLtNl/UGlMLqE8X5L8IHxITT9yAv+lMlD9tsMsD55YT+XSBThEN6QOunm/vIcI4ye+PUgck
+ DKCbU64oGDCySTwXo9pOCzYyzgnrOZVqCn/t2hZzhbQ==
+X-Received: by 2002:a19:a410:0:b0:503:3890:ca3a with SMTP id
+ q16-20020a19a410000000b005033890ca3amr5181234lfc.66.1695329150807; 
+ Thu, 21 Sep 2023 13:45:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGUVyMjlZeXfqdaSOLrm1jlrnnaNg6HRSFnF4mEMeS4M7zyGlAp1B55TKazyR2yo53Y4zjmqQ==
+X-Received: by 2002:a19:a410:0:b0:503:3890:ca3a with SMTP id
+ q16-20020a19a410000000b005033890ca3amr5181222lfc.66.1695329150452; 
+ Thu, 21 Sep 2023 13:45:50 -0700 (PDT)
 Received: from redhat.com ([2.52.150.187]) by smtp.gmail.com with ESMTPSA id
- y19-20020a056402135300b0052fdfd8870bsm1290121edw.89.2023.09.21.13.34.05
+ ba26-20020a0564021ada00b005333c729654sm1304241edb.24.2023.09.21.13.45.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 21 Sep 2023 13:34:07 -0700 (PDT)
-Date: Thu, 21 Sep 2023 16:34:03 -0400
+ Thu, 21 Sep 2023 13:45:49 -0700 (PDT)
+Date: Thu, 21 Sep 2023 16:45:45 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH vfio 10/11] vfio/virtio: Expose admin commands over
- virtio device
-Message-ID: <20230921162621-mutt-send-email-mst@kernel.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20230921163421-mutt-send-email-mst@kernel.org>
 References: <20230921124040.145386-1-yishaih@nvidia.com>
- <20230921124040.145386-11-yishaih@nvidia.com>
+ <20230921124040.145386-12-yishaih@nvidia.com>
+ <20230921090844-mutt-send-email-mst@kernel.org>
+ <20230921141125.GM13733@nvidia.com>
+ <20230921101509-mutt-send-email-mst@kernel.org>
+ <20230921164139.GP13733@nvidia.com>
+ <20230921124331-mutt-send-email-mst@kernel.org>
+ <20230921183926.GV13733@nvidia.com>
+ <20230921150448-mutt-send-email-mst@kernel.org>
+ <20230921194946.GX13733@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20230921124040.145386-11-yishaih@nvidia.com>
+In-Reply-To: <20230921194946.GX13733@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
 Cc: kvm@vger.kernel.org, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
- leonro@nvidia.com
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,227 +130,110 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 21, 2023 at 03:40:39PM +0300, Yishai Hadas wrote:
-> Expose admin commands over the virtio device, to be used by the
-> vfio-virtio driver in the next patches.
+On Thu, Sep 21, 2023 at 04:49:46PM -0300, Jason Gunthorpe wrote:
+> On Thu, Sep 21, 2023 at 03:13:10PM -0400, Michael S. Tsirkin wrote:
+> > On Thu, Sep 21, 2023 at 03:39:26PM -0300, Jason Gunthorpe wrote:
+> > > On Thu, Sep 21, 2023 at 12:53:04PM -0400, Michael S. Tsirkin wrote:
+> > > > > vdpa is not vfio, I don't know how you can suggest vdpa is a
+> > > > > replacement for a vfio driver. They are completely different
+> > > > > things.
+> > > > > Each side has its own strengths, and vfio especially is accelerating
+> > > > > in its capability in way that vpda is not. eg if an iommufd conversion
+> > > > > had been done by now for vdpa I might be more sympathetic.
+> > > > 
+> > > > Yea, I agree iommufd is a big problem with vdpa right now. Cindy was
+> > > > sick and I didn't know and kept assuming she's working on this. I don't
+> > > > think it's a huge amount of work though.  I'll take a look.
+> > > > Is there anything else though? Do tell.
+> > > 
+> > > Confidential compute will never work with VDPA's approach.
+> > 
+> > I don't see how what this patchset is doing is different
+> > wrt to Confidential compute - you trap IO accesses and emulate.
+> > Care to elaborate?
 > 
-> It includes: list query/use, legacy write/read, read notify_info.
+> This patch series isn't about confidential compute, you asked about
+> the future. VFIO will support confidential compute in the future, VDPA
+> will not.
+
+Nonsense it already works.
+
+But I did not ask about the future since I do not believe it
+can be confidently predicted. I asked what is missing in VDPA
+now for you to add this feature there and not in VFIO.
+
+
+> > > > There are a bunch of things that I think are important for virtio
+> > > > that are completely out of scope for vfio, such as migrating
+> > > > cross-vendor. 
+> > > 
+> > > VFIO supports migration, if you want to have cross-vendor migration
+> > > then make a standard that describes the VFIO migration data format for
+> > > virtio devices.
+> > 
+> > This has nothing to do with data formats - you need two devices to
+> > behave identically. Which is what VDPA is about really.
 > 
-> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> ---
->  drivers/vfio/pci/virtio/cmd.c | 146 ++++++++++++++++++++++++++++++++++
->  drivers/vfio/pci/virtio/cmd.h |  27 +++++++
->  2 files changed, 173 insertions(+)
->  create mode 100644 drivers/vfio/pci/virtio/cmd.c
->  create mode 100644 drivers/vfio/pci/virtio/cmd.h
+> We've been looking at VFIO live migration extensively. Device
+> mediation, like VDPA does, is one legitimate approach for live
+> migration. It suites a certain type of heterogeneous environment well.
 > 
-> diff --git a/drivers/vfio/pci/virtio/cmd.c b/drivers/vfio/pci/virtio/cmd.c
-> new file mode 100644
-> index 000000000000..f068239cdbb0
-> --- /dev/null
-> +++ b/drivers/vfio/pci/virtio/cmd.c
-> @@ -0,0 +1,146 @@
-> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
-> +/*
-> + * Copyright (c) 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved
-> + */
-> +
-> +#include "cmd.h"
-> +
-> +int virtiovf_cmd_list_query(struct pci_dev *pdev, u8 *buf, int buf_size)
-> +{
-> +	struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-> +	struct scatterlist out_sg;
-> +	struct virtio_admin_cmd cmd = {};
-> +
-> +	if (!virtio_dev)
-> +		return -ENOTCONN;
-> +
-> +	sg_init_one(&out_sg, buf, buf_size);
-> +	cmd.opcode = VIRTIO_ADMIN_CMD_LIST_QUERY;
-> +	cmd.group_type = VIRTIO_ADMIN_GROUP_TYPE_SRIOV;
-> +	cmd.result_sg = &out_sg;
-> +
-> +	return virtio_admin_cmd_exec(virtio_dev, &cmd);
-> +}
-> +
+> But, it is equally legitimate to make the devices behave the same and
+> have them process a common migration data.
+> 
+> This can happen in public with standards, or it can happen in private
+> within a cloud operator's "private-standard" environment.
+> 
+> To date, in most of my discussions, I have not seen a strong appetite
+> for such public standards. In part due to the complexity.
+> 
+> Regardles, it is not the kernel communities job to insist on one
+> approach or the other.
+>
+> > > You are asking us to invest in the complexity of VDPA through out
+> > > (keep it working, keep it secure, invest time in deploying and
+> > > debugging in the field)
+> > > 
+> > > When it doesn't provide *ANY* value to the solution.
+> > 
+> > There's no "the solution"
+> 
+> Nonsense.
 
-in/out seem all wrong here. In virtio terminology, in means from
-device to driver, out means from driver to device.
+what there's only one solution that you use the definite article?
 
-> +int virtiovf_cmd_list_use(struct pci_dev *pdev, u8 *buf, int buf_size)
-> +{
-> +	struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-> +	struct scatterlist in_sg;
-> +	struct virtio_admin_cmd cmd = {};
-> +
-> +	if (!virtio_dev)
-> +		return -ENOTCONN;
-> +
-> +	sg_init_one(&in_sg, buf, buf_size);
-> +	cmd.opcode = VIRTIO_ADMIN_CMD_LIST_USE;
-> +	cmd.group_type = VIRTIO_ADMIN_GROUP_TYPE_SRIOV;
-> +	cmd.data_sg = &in_sg;
-> +
-> +	return virtio_admin_cmd_exec(virtio_dev, &cmd);
-> +}
-> +
-> +int virtiovf_cmd_lr_write(struct virtiovf_pci_core_device *virtvdev, u16 opcode,
+> > this sounds like a vendor only caring about solutions that involve
+> > that vendor's hardware exclusively, a little.
+> 
+> Not really.
+> 
+> Understand the DPU provider is not the vendor here. The DPU provider
+> gives a cloud operator a SDK to build these things. The operator is
+> the vendor from your perspective.
+> 
+> In many cases live migration never leaves the operator's confines in
+> the first place.
+> 
+> Even when it does, there is no real use case to live migrate a
+> virtio-net function from, say, AWS to GCP.
+> 
+> You are pushing for a lot of complexity and software that solves a
+> problem people in this space don't actually have.
+> 
+> As I said, VDPA is fine for the scenarios it addresses. It is an
+> alternative, not a replacement, for VFIO.
+> 
+> Jason
 
-
-what is _lr short for?
-
-> +			  u8 offset, u8 size, u8 *buf)
-> +{
-> +	struct virtio_device *virtio_dev =
-> +		virtio_pci_vf_get_pf_dev(virtvdev->core_device.pdev);
-> +	struct virtio_admin_cmd_data_lr_write *in;
-> +	struct scatterlist in_sg;
-> +	struct virtio_admin_cmd cmd = {};
-> +	int ret;
-> +
-> +	if (!virtio_dev)
-> +		return -ENOTCONN;
-> +
-> +	in = kzalloc(sizeof(*in) + size, GFP_KERNEL);
-> +	if (!in)
-> +		return -ENOMEM;
-> +
-> +	in->offset = offset;
-> +	memcpy(in->registers, buf, size);
-> +	sg_init_one(&in_sg, in, sizeof(*in) + size);
-> +	cmd.opcode = opcode;
-> +	cmd.group_type = VIRTIO_ADMIN_GROUP_TYPE_SRIOV;
-> +	cmd.group_member_id = virtvdev->vf_id + 1;
-
-weird. why + 1?
-
-> +	cmd.data_sg = &in_sg;
-> +	ret = virtio_admin_cmd_exec(virtio_dev, &cmd);
-> +
-> +	kfree(in);
-> +	return ret;
-> +}
-
-How do you know it's safe to send this command, in particular at
-this time? This seems to be doing zero checks, and zero synchronization
-with the PF driver.
+yea, VDPA does trap and emulate for config accesses.  which is exactly
+what this patch does?  so why does it belong in vfio muddying up its
+passthrough model is beyond me, except that apparently there's some
+specific deployment that happens to use vfio so now whatever
+that deployment needs has to go into vfio whether it belongs there or not.
 
 
-> +
-> +int virtiovf_cmd_lr_read(struct virtiovf_pci_core_device *virtvdev, u16 opcode,
-> +			 u8 offset, u8 size, u8 *buf)
-> +{
-> +	struct virtio_device *virtio_dev =
-> +		virtio_pci_vf_get_pf_dev(virtvdev->core_device.pdev);
-> +	struct virtio_admin_cmd_data_lr_read *in;
-> +	struct scatterlist in_sg, out_sg;
-> +	struct virtio_admin_cmd cmd = {};
-> +	int ret;
-> +
-> +	if (!virtio_dev)
-> +		return -ENOTCONN;
-> +
-> +	in = kzalloc(sizeof(*in), GFP_KERNEL);
-> +	if (!in)
-> +		return -ENOMEM;
-> +
-> +	in->offset = offset;
-> +	sg_init_one(&in_sg, in, sizeof(*in));
-> +	sg_init_one(&out_sg, buf, size);
-> +	cmd.opcode = opcode;
-> +	cmd.group_type = VIRTIO_ADMIN_GROUP_TYPE_SRIOV;
-> +	cmd.data_sg = &in_sg;
-> +	cmd.result_sg = &out_sg;
-> +	cmd.group_member_id = virtvdev->vf_id + 1;
-> +	ret = virtio_admin_cmd_exec(virtio_dev, &cmd);
-> +
-> +	kfree(in);
-> +	return ret;
-> +}
-> +
-> +int virtiovf_cmd_lq_read_notify(struct virtiovf_pci_core_device *virtvdev,
-
-and what is lq short for?
-
-> +				u8 req_bar_flags, u8 *bar, u64 *bar_offset)
-> +{
-> +	struct virtio_device *virtio_dev =
-> +		virtio_pci_vf_get_pf_dev(virtvdev->core_device.pdev);
-> +	struct virtio_admin_cmd_notify_info_result *out;
-> +	struct scatterlist out_sg;
-> +	struct virtio_admin_cmd cmd = {};
-> +	int ret;
-> +
-> +	if (!virtio_dev)
-> +		return -ENOTCONN;
-> +
-> +	out = kzalloc(sizeof(*out), GFP_KERNEL);
-> +	if (!out)
-> +		return -ENOMEM;
-> +
-> +	sg_init_one(&out_sg, out, sizeof(*out));
-> +	cmd.opcode = VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO;
-> +	cmd.group_type = VIRTIO_ADMIN_GROUP_TYPE_SRIOV;
-> +	cmd.result_sg = &out_sg;
-> +	cmd.group_member_id = virtvdev->vf_id + 1;
-> +	ret = virtio_admin_cmd_exec(virtio_dev, &cmd);
-> +	if (!ret) {
-> +		struct virtio_admin_cmd_notify_info_data *entry;
-> +		int i;
-> +
-> +		ret = -ENOENT;
-> +		for (i = 0; i < VIRTIO_ADMIN_CMD_MAX_NOTIFY_INFO; i++) {
-> +			entry = &out->entries[i];
-> +			if (entry->flags == VIRTIO_ADMIN_CMD_NOTIFY_INFO_FLAGS_END)
-> +				break;
-> +			if (entry->flags != req_bar_flags)
-> +				continue;
-> +			*bar = entry->bar;
-> +			*bar_offset = le64_to_cpu(entry->offset);
-> +			ret = 0;
-> +			break;
-> +		}
-> +	}
-> +
-> +	kfree(out);
-> +	return ret;
-> +}
-> diff --git a/drivers/vfio/pci/virtio/cmd.h b/drivers/vfio/pci/virtio/cmd.h
-> new file mode 100644
-> index 000000000000..c2a3645f4b90
-> --- /dev/null
-> +++ b/drivers/vfio/pci/virtio/cmd.h
-> @@ -0,0 +1,27 @@
-> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
-> +/*
-> + * Copyright (c) 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-> + */
-> +
-> +#ifndef VIRTIO_VFIO_CMD_H
-> +#define VIRTIO_VFIO_CMD_H
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/virtio.h>
-> +#include <linux/vfio_pci_core.h>
-> +#include <linux/virtio_pci.h>
-> +
-> +struct virtiovf_pci_core_device {
-> +	struct vfio_pci_core_device core_device;
-> +	int vf_id;
-> +};
-> +
-> +int virtiovf_cmd_list_query(struct pci_dev *pdev, u8 *buf, int buf_size);
-> +int virtiovf_cmd_list_use(struct pci_dev *pdev, u8 *buf, int buf_size);
-> +int virtiovf_cmd_lr_write(struct virtiovf_pci_core_device *virtvdev, u16 opcode,
-> +			  u8 offset, u8 size, u8 *buf);
-> +int virtiovf_cmd_lr_read(struct virtiovf_pci_core_device *virtvdev, u16 opcode,
-> +			 u8 offset, u8 size, u8 *buf);
-> +int virtiovf_cmd_lq_read_notify(struct virtiovf_pci_core_device *virtvdev,
-> +				u8 req_bar_flags, u8 *bar, u64 *bar_offset);
-> +#endif /* VIRTIO_VFIO_CMD_H */
-> -- 
-> 2.27.0
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
