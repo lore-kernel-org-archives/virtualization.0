@@ -1,118 +1,73 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00E27CD484A
-	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 17:51:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7053CCD484A
+	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 18:07:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9766081E7F;
-	Fri, 22 Sep 2023 17:51:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9766081E7F
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=dA3Dt089
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0E04E614E7;
+	Fri, 22 Sep 2023 18:07:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0E04E614E7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Vg_IcK1JPEgF; Fri, 22 Sep 2023 17:51:21 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id n5xosXUFlTbR; Fri, 22 Sep 2023 18:07:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 22BB381E72;
-	Fri, 22 Sep 2023 17:51:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 22BB381E72
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 72AB4610DB;
+	Fri, 22 Sep 2023 18:07:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72AB4610DB
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F2F9FC0071;
-	Fri, 22 Sep 2023 17:51:20 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4AA24C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5B466C0071;
+	Fri, 22 Sep 2023 18:07:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2399CC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 17:51:19 +0000 (UTC)
+ Fri, 22 Sep 2023 18:07:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 163D741DE7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0B74B614E7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 17:51:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 163D741DE7
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org
- header.a=rsa-sha256 header.s=google header.b=dA3Dt089
+ Fri, 22 Sep 2023 18:07:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0B74B614E7
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WJ_-kJHh2Ecp
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QsMplXpnIdrA
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 17:51:18 +0000 (UTC)
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com
- [IPv6:2607:f8b0:4864:20::535])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D99F6402A2
+ Fri, 22 Sep 2023 18:07:47 +0000 (UTC)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp3.osuosl.org (Postfix) with ESMTP id E7688610DB
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 17:51:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D99F6402A2
-Received: by mail-pg1-x535.google.com with SMTP id
- 41be03b00d2f7-54290603887so1789988a12.1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 10:51:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=chromium.org; s=google; t=1695405077; x=1696009877;
- darn=lists.linux-foundation.org; 
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:from:to:cc:subject:date:message-id:reply-to;
- bh=6FhFEbneXxxaBPpeUpxOqm5me+1wuH+iOEgRRKvJoLs=;
- b=dA3Dt089kMhH+sjTGWN4AEnj5zpN6JJJDvF9HkIJ7/cOq/AG1pVLanLsl8ebnyfyfa
- RnzzWyWkPyJud8Th9aZcjHK65+OTwkYT2r2pvg8DTLw8EtsSDq7YH+sIdyJa5iJpzwg6
- nm0gjf8D9SIWw3ggVpHh34YdNFmkjZ2sbakIk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695405077; x=1696009877;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=6FhFEbneXxxaBPpeUpxOqm5me+1wuH+iOEgRRKvJoLs=;
- b=fwpy5hXC1dxS1kNSOkrBzsGz95CZIzfqSuJGNOCVxXo2iMwL3bTB9h077S5qodr1Lz
- 7KB1ZyxUPgbD8286gtI1u1xiTz6/ITq/EnQbdrqskkvYVOMMIjJZ/6SpS8jnYrGf+N73
- a6HBEo8l+RA8bZzCkqT/aK05kL75i5nCw0C+9rgafffzrawMSUdXdjYOR2YAXzHfQtdk
- 7tXqz0saNQl9IK7DlcpzkyGd8v9euzv762vjvQl1v2a19tmm0JCwUDllUXrqvqMdOJUJ
- 5fc+jf7tYsPs5awU75smnUUFP5Oh7wK83hckrKATJ17akk7eHoetpyMbP2hfmzFGfbNZ
- rtmQ==
-X-Gm-Message-State: AOJu0YzOIG3e+kmb+N3b+nPBAhSWPb5iUm51iv8TwrStTHyPtKiOACzS
- 5VWF8MJ2IJhl6gHFwMJHsgE3JA==
-X-Google-Smtp-Source: AGHT+IGbdv9VwbwNAFjuBeDTZqWEmq6Cgd7EZVO0zimsbEWBFdYx8gilTv66w2ACi0U7EPXn8wEnXg==
-X-Received: by 2002:a17:903:11c9:b0:1bc:844:5831 with SMTP id
- q9-20020a17090311c900b001bc08445831mr94508plh.57.1695405077190; 
- Fri, 22 Sep 2023 10:51:17 -0700 (PDT)
-Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net.
- [198.0.35.241]) by smtp.gmail.com with ESMTPSA id
- jf11-20020a170903268b00b001c0a4146961sm3792429plb.19.2023.09.22.10.51.16
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 22 Sep 2023 10:51:16 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-To: Amit Shah <amit@kernel.org>
-Subject: [PATCH] virtio_console: Annotate struct port_buffer with __counted_by
-Date: Fri, 22 Sep 2023 10:51:15 -0700
-Message-Id: <20230922175115.work.059-kees@kernel.org>
-X-Mailer: git-send-email 2.34.1
+ Fri, 22 Sep 2023 18:07:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E7688610DB
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 876C7C15;
+ Fri, 22 Sep 2023 11:08:23 -0700 (PDT)
+Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 50FC03F59C;
+ Fri, 22 Sep 2023 11:07:45 -0700 (PDT)
+Message-ID: <123c53c3-d259-9c20-9aa6-0c216d7eb3c0@arm.com>
+Date: Fri, 22 Sep 2023 19:07:40 +0100
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1223; i=keescook@chromium.org; 
- h=from:subject:message-id;
- bh=hLc6EjIakpzsaX2PmH9KGXcoCU7k7VxuxAddnu5wvP4=; 
- b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBlDdQT7dSBQHc/s6zgQ1bG9pZSaUdLcPzEWU5q+
- UW8H+WTeDCJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZQ3UEwAKCRCJcvTf3G3A
- JvOmEACk0QTdWB4H9s0DTbpqXHzvscY+UZub5Qt5LP0HSsv4VUHS2VqKK302oSkpmjRd6PnScRR
- CgD59KxXDfrn0HXWKbgYGs9RBY9LB/BYhtrPIB+oA4X2l2bejqg//JPkCS5c3YQqgZslnuhfY+K
- 2qWoHc1d1Q51y6JIDeheahZwH2BAv/dhFLmVYKUtR2CMk6muErN/cf6KqtBMdaqmPZ3PDtnHnnG
- M4+CHKXrUvsM99Lcvi6rtZ+r4n5q6CcSns7LnRTpajJJesE0zXK5GHp36jbRQ06nZzMWRztHxt8
- bNaRpaV55BWkecXEOURmiGWFxtqwNgaUeY/uBYqsl2ND5izgFB8mnE7jPdvkQNUPaQbbBSsyXc2
- xm0/NYMUo+aUXRSqxSptEQhc1ANGAwMUx8tt+8y9JpsZP/2691w3VuXNzp/pCtK4j8a4sJrJ/on
- XMA/XKEbifZ3ep9LXPAHWWlwjSVSvw0jzJ8ZgeKWjQTvb09AawkDpXmhUr8r1bSCoKQksybOR6S
- sRo2x2Xc4LL44AKxKWTZ9HhOzAn/iScJowWZki3dOZrMvsN5Gved36lKyWWuFQifTANbzNIPFvR
- 1K35LT2O+9RZkieJErqb3GdNTuAQLgzFnrq4CtpzXoKu/Tst3IylFRzlkloZnU+cgGX1uqfgtv1
- OWDskmG st82qa8Q==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp;
- fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Cc: Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, llvm@lists.linux.dev,
- Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Nathan Chancellor <nathan@kernel.org>, linux-hardening@vger.kernel.org,
- Tom Rix <trix@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.0
+Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
+Content-Language: en-GB
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
+ <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
+ <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
+ <20230919081519.GA3860249@myrica> <20230919144649.GT13795@ziepe.ca>
+ <20230922075719.GB1361815@myrica> <20230922124130.GD13795@ziepe.ca>
+ <900b644e-6e21-1038-2252-3dc86cbf0a32@arm.com>
+ <20230922162714.GH13795@ziepe.ca>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20230922162714.GH13795@ziepe.ca>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux.dev, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,46 +79,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Prepare for the coming implementation by GCC and Clang of the __counted_by
-attribute. Flexible array members annotated with __counted_by can have
-their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
-(for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
-functions).
+On 22/09/2023 5:27 pm, Jason Gunthorpe wrote:
+> On Fri, Sep 22, 2023 at 02:13:18PM +0100, Robin Murphy wrote:
+>> On 22/09/2023 1:41 pm, Jason Gunthorpe wrote:
+>>> On Fri, Sep 22, 2023 at 08:57:19AM +0100, Jean-Philippe Brucker wrote:
+>>>>>> They're not strictly equivalent: this check works around a temporary issue
+>>>>>> with the IOMMU core, which calls map/unmap before the domain is
+>>>>>> finalized.
+>>>>>
+>>>>> Where? The above points to iommu_create_device_direct_mappings() but
+>>>>> it doesn't because the pgsize_bitmap == 0:
+>>>>
+>>>> __iommu_domain_alloc() sets pgsize_bitmap in this case:
+>>>>
+>>>>           /*
+>>>>            * If not already set, assume all sizes by default; the driver
+>>>>            * may override this later
+>>>>            */
+>>>>           if (!domain->pgsize_bitmap)
+>>>>                   domain->pgsize_bitmap = bus->iommu_ops->pgsize_bitmap;
+>>>
+>>> Dirver's shouldn't do that.
+>>>
+>>> The core code was fixed to try again with mapping reserved regions to
+>>> support these kinds of drivers.
+>>
+>> This is still the "normal" code path, really; I think it's only AMD that
+>> started initialising the domain bitmap "early" and warranted making it
+>> conditional.
+> 
+> My main point was that iommu_create_device_direct_mappings() should
+> fail for unfinalized domains, setting pgsize_bitmap to allow it to
+> succeed is not a nice hack, and not necessary now.
 
-As found with Coccinelle[1], add __counted_by for struct port_buffer.
+Sure, but it's the whole "unfinalised domains" and rewriting 
+domain->pgsize_bitmap after attach thing that is itself the massive 
+hack. AMD doesn't do that, and doesn't need to; it knows the appropriate 
+format at allocation time and can quite happily return a fully working 
+domain which allows map before attach, but the old ops->pgsize_bitmap 
+mechanism fundamentally doesn't work for multiple formats with different 
+page sizes. The only thing I'd accuse it of doing wrong is the weird 
+half-and-half thing of having one format as a default via one mechanism, 
+and the other as an override through the other, rather than setting both 
+explicitly.
 
-[1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+virtio isn't setting ops->pgsize_bitmap for the sake of direct mappings 
+either; it sets it once it's discovered any instance, since apparently 
+it's assuming that all instances must support identical page sizes, and 
+thus once it's seen one it can work "normally" per the core code's 
+assumptions. It's also I think the only driver which has a "finalise" 
+bodge but *can* still properly support map-before-attach, by virtue of 
+having to replay mappings to every new endpoint anyway.
 
-Cc: Amit Shah <amit@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> What do you think about something like this to replace
+> iommu_create_device_direct_mappings(), that does enforce things
+> properly?
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 680d1ef2a217..431e9e5bf9c1 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -106,7 +106,7 @@ struct port_buffer {
- 	unsigned int sgpages;
- 
- 	/* sg is used if spages > 0. sg must be the last in is struct */
--	struct scatterlist sg[];
-+	struct scatterlist sg[] __counted_by(sgpages);
- };
- 
- /*
--- 
-2.34.1
+I fail to see how that would make any practical difference. Either the 
+mappings can be correctly set up in a pagetable *before* the relevant 
+device is attached to that pagetable, or they can't (if the driver 
+doesn't have enough information to be able to do so) and we just have to 
+really hope nothing blows up in the race window between attaching the 
+device to an empty pagetable and having a second try at 
+iommu_create_device_direct_mappings(). That's a driver-level issue and 
+has nothing to do with pgsize_bitmap either way.
 
+Thanks,
+Robin.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
