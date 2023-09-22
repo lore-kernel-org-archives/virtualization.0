@@ -1,113 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9C6B9E7D0A2
-	for <virtualization@archiver.kernel.org>; Thu, 21 Sep 2023 21:00:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF218E7D0C6
+	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 01:51:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 101254207E;
-	Thu, 21 Sep 2023 21:00:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 101254207E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Mm3GvieG
+	by smtp3.osuosl.org (Postfix) with ESMTP id 34A27607C9;
+	Fri, 22 Sep 2023 01:51:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 34A27607C9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DUNGHfMzTES1; Thu, 21 Sep 2023 21:00:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4AE4241D99;
-	Thu, 21 Sep 2023 21:00:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4AE4241D99
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kWZ5_nV6mbZh; Fri, 22 Sep 2023 01:51:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A9F9660B6A;
+	Fri, 22 Sep 2023 01:51:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A9F9660B6A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E439C0071;
-	Thu, 21 Sep 2023 21:00:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1FB93C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 82B71C0039;
+	Fri, 22 Sep 2023 01:51:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0DE77C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 21:00:07 +0000 (UTC)
+ Fri, 22 Sep 2023 01:51:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 05CD141D9A
+ by smtp3.osuosl.org (Postfix) with ESMTP id C969760E29
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 21:00:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 05CD141D9A
+ Fri, 22 Sep 2023 01:51:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C969760E29
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rE9EesmIgMgE
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id v89fR484qsYw
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 21:00:06 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E2AB641D99
+ Fri, 22 Sep 2023 01:51:11 +0000 (UTC)
+Received: from out30-99.freemail.mail.aliyun.com
+ (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 61D8F607C9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 21:00:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2AB641D99
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695330004;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=w92TIdX77sqPjb1fzpSj+HbzxRLdHbB40Saqu1w60+Q=;
- b=Mm3GvieGt8uD+irbtVMpU1ZRedPiqqDrT3ih0I8dCsbsxyRxSVKQEwpNME0BMn8WdJscW6
- 8GDKKVOLB0Kxi1f8qw9PpF3PF9gRPnofqi0LWfraY1emcUM6jTEK1N6bIaWDJoDYlku5PF
- YOqwrdi0TK+NR51/5bsMAqzFDWBGZrE=
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com
- [209.85.160.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-207-pMY182pdN_2mtP_OyRnOew-1; Thu, 21 Sep 2023 17:00:02 -0400
-X-MC-Unique: pMY182pdN_2mtP_OyRnOew-1
-Received: by mail-oa1-f69.google.com with SMTP id
- 586e51a60fabf-1d66d948417so1971492fac.3
- for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Sep 2023 14:00:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695330002; x=1695934802;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=w92TIdX77sqPjb1fzpSj+HbzxRLdHbB40Saqu1w60+Q=;
- b=v4YzqJRjr1okxSpxDjiYECEiFKKRaqmSncpcAW2fX+O6p3lc0//sRciMZtKQ1mhZVn
- xDyLatTWUW8hP15sG8ijZajKLJIaFGsQRa40n/hlBEqjT9NOQNN7k8hUgqGvhQESAh82
- FfWx5Eo4ZOBxACDpLigfyfSDAma5uOYgkV6YRVR7gnIFQJgVSMRozSMCrgvkBIEAjqvS
- u0pT3vbUGJ6sFJE+soIY8DXyvHeZLyE/I4OZ9gwQQfZubCq0jPs8XtkOGmHIJe32DGw1
- dvFKji/YfF/VBmlL2vFwlUPAYm5AbfeSBx31157hQSEWWnp9yqrkiyR3LVrsldT7iYLe
- ZBog==
-X-Gm-Message-State: AOJu0YzksmFBokcRlTjwBmt8PQsAGiezTRoAbm66qhcAltM5M8XqiJFx
- Ad3JLwvOF7tzmd8pmDfq0psKz6dT64EH3HUxyzS2IlpbYg+dKDIVdFdPBCt7IQv7PTrSFyeDc0A
- JNRxSusJWesGqFcRGzQHW3JrXqvLBqOBPiO55K+hSvg==
-X-Received: by 2002:a05:6870:304c:b0:1d5:ef9d:5564 with SMTP id
- u12-20020a056870304c00b001d5ef9d5564mr6571674oau.11.1695330001958; 
- Thu, 21 Sep 2023 14:00:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHp49HT+ZImBpexc/Hl0xUqdHosRzIOsU7V7v6//pfkOGXqA0pJhTnPQVS6l0Y658YpvuzV9Q==
-X-Received: by 2002:a05:6870:304c:b0:1d5:ef9d:5564 with SMTP id
- u12-20020a056870304c00b001d5ef9d5564mr6571664oau.11.1695330001699; 
- Thu, 21 Sep 2023 14:00:01 -0700 (PDT)
-Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
- n21-20020a056870a45500b001d6631fd08fsm686096oal.47.2023.09.21.14.00.00
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 21 Sep 2023 14:00:01 -0700 (PDT)
-Date: Thu, 21 Sep 2023 14:59:59 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
+ Fri, 22 Sep 2023 01:51:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61D8F607C9
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R521e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=36; SR=0;
+ TI=SMTPD_---0Vsa-hC4_1695347462; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vsa-hC4_1695347462) by smtp.aliyun-inc.com;
+ Fri, 22 Sep 2023 09:51:04 +0800
+Message-ID: <1695347358.2770545-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v14 30/42] virtio_pci: introduce helper to get/set queue
+ reset
+Date: Fri, 22 Sep 2023 09:49:18 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Message-ID: <20230921145959.7d6b5b95.alex.williamson@redhat.com>
-In-Reply-To: <20230921161834-mutt-send-email-mst@kernel.org>
-References: <20230921124040.145386-1-yishaih@nvidia.com>
- <20230921124040.145386-12-yishaih@nvidia.com>
- <20230921135832.020d102a.alex.williamson@redhat.com>
- <20230921200121.GA13733@nvidia.com>
- <20230921161834-mutt-send-email-mst@kernel.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, Jason Gunthorpe <jgg@nvidia.com>,
- jiri@nvidia.com, leonro@nvidia.com
+References: <20220801063902.129329-1-xuanzhuo@linux.alibaba.com>
+ <20220801063902.129329-31-xuanzhuo@linux.alibaba.com>
+ <20230921100112-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230921100112-mutt-send-email-mst@kernel.org>
+Cc: Vadim Pasternak <vadimp@nvidia.com>, linux-remoteproc@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
+ Eric Dumazet <edumazet@google.com>, Alexander Gordeev <agordeev@linux.ibm.com>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ kvm@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+ Richard Weinberger <richard@nod.at>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ John Fastabend <john.fastabend@gmail.com>, Halil Pasic <pasic@linux.ibm.com>,
+ Jakub Kicinski <kuba@kernel.org>, platform-driver-x86@vger.kernel.org,
+ Eric Farman <farman@linux.ibm.com>, Jesper Dangaard Brouer <hawk@kernel.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, kangjie.xu@linux.alibaba.com,
+ Heiko Carstens <hca@linux.ibm.com>, linux-um@lists.infradead.org,
+ Mark Gross <markgross@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, Mathieu Poirier <mathieu.poirier@linaro.org>,
+ netdev@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
+ Sven Schnelle <svens@linux.ibm.com>, Johannes Berg <johannes@sipsolutions.net>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,44 +88,129 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, 21 Sep 2023 16:20:59 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, 21 Sep 2023 10:02:53 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Mon, Aug 01, 2022 at 02:38:50PM +0800, Xuan Zhuo wrote:
+> > Introduce new helpers to implement queue reset and get queue reset
+> > status.
+> >
+> >  https://github.com/oasis-tcs/virtio-spec/issues/124
+> >  https://github.com/oasis-tcs/virtio-spec/issues/139
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Acked-by: Jason Wang <jasowang@redhat.com>
+> > ---
+> >  drivers/virtio/virtio_pci_modern_dev.c | 39 ++++++++++++++++++++++++++
+> >  include/linux/virtio_pci_modern.h      |  2 ++
+> >  2 files changed, 41 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
+> > index fa2a9445bb18..869cb46bef96 100644
+> > --- a/drivers/virtio/virtio_pci_modern_dev.c
+> > +++ b/drivers/virtio/virtio_pci_modern_dev.c
+> > @@ -3,6 +3,7 @@
+> >  #include <linux/virtio_pci_modern.h>
+> >  #include <linux/module.h>
+> >  #include <linux/pci.h>
+> > +#include <linux/delay.h>
+> >
+> >  /*
+> >   * vp_modern_map_capability - map a part of virtio pci capability
+> > @@ -474,6 +475,44 @@ void vp_modern_set_status(struct virtio_pci_modern_device *mdev,
+> >  }
+> >  EXPORT_SYMBOL_GPL(vp_modern_set_status);
+> >
+> > +/*
+> > + * vp_modern_get_queue_reset - get the queue reset status
+> > + * @mdev: the modern virtio-pci device
+> > + * @index: queue index
+> > + */
+> > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > +{
+> > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > +
+> > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > +
+> > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > +	return vp_ioread16(&cfg->queue_reset);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vp_modern_get_queue_reset);
+> > +
+>
+> Actually, this does not validate that the config structure is big
+> enough. So it can access some unrelated memory. Don't know whether
+> that's exploitable e.g. for CoCo but not nice, anyway.
+> Need to validate the size and disable reset if it's too small.
 
-> On Thu, Sep 21, 2023 at 05:01:21PM -0300, Jason Gunthorpe wrote:
-> > On Thu, Sep 21, 2023 at 01:58:32PM -0600, Alex Williamson wrote:
-> >   
-> > > > +static const struct pci_device_id virtiovf_pci_table[] = {
-> > > > +	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },  
-> > > 
-> > > libvirt will blindly use this driver for all devices matching this as
-> > > we've discussed how it should make use of modules.alias.  I don't think
-> > > this driver should be squatting on devices where it doesn't add value
-> > > and it's not clear whether this is adding or subtracting value in all
-> > > cases for the one NIC that it modifies.  How should libvirt choose when
-> > > and where to use this driver?  What regressions are we going to see
-> > > with VMs that previously saw "modern" virtio-net devices and now see a
-> > > legacy compatible device?  Thanks,  
-> > 
-> > Maybe this approach needs to use a subsystem ID match?
-> > 
-> > Jason  
-> 
-> Maybe make users load it manually?
-> 
-> Please don't bind to virtio by default, you will break
-> all guests.
 
-This would never bind by default, it's only bound as a vfio override
-driver, but if libvirt were trying to determine the correct driver to
-use with vfio for a 0x1af4 device, it'd land on this one.  Thanks,
+static int vp_modern_disable_vq_and_reset(struct virtqueue *vq)
+{
+	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
+	struct virtio_pci_vq_info *info;
+	unsigned long flags;
 
-Alex
+->	if (!virtio_has_feature(vq->vdev, VIRTIO_F_RING_RESET))
+		return -ENOENT;
 
+	vp_modern_set_queue_reset(mdev, vq->index);
+
+
+I checked VIRTIO_F_RING_RESET before call this.
+
+Do you mean, we should put the check to this function.
+
+
+Thanks.
+
+
+
+>
+>
+> > +/*
+> > + * vp_modern_set_queue_reset - reset the queue
+> > + * @mdev: the modern virtio-pci device
+> > + * @index: queue index
+> > + */
+> > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index)
+> > +{
+> > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
+> > +
+> > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
+> > +
+> > +	vp_iowrite16(index, &cfg->cfg.queue_select);
+> > +	vp_iowrite16(1, &cfg->queue_reset);
+> > +
+> > +	while (vp_ioread16(&cfg->queue_reset))
+> > +		msleep(1);
+> > +
+> > +	while (vp_ioread16(&cfg->cfg.queue_enable))
+> > +		msleep(1);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vp_modern_set_queue_reset);
+> > +
+> >  /*
+> >   * vp_modern_queue_vector - set the MSIX vector for a specific virtqueue
+> >   * @mdev: the modern virtio-pci device
+> > diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
+> > index 05123b9a606f..c4eeb79b0139 100644
+> > --- a/include/linux/virtio_pci_modern.h
+> > +++ b/include/linux/virtio_pci_modern.h
+> > @@ -113,4 +113,6 @@ void __iomem * vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
+> >  				       u16 index, resource_size_t *pa);
+> >  int vp_modern_probe(struct virtio_pci_modern_device *mdev);
+> >  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
+> > +int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> > +void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
+> >  #endif
+> > --
+> > 2.31.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
