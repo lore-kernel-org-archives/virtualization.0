@@ -1,105 +1,119 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B2215CD4F32
-	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 08:37:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2389FCD4F44
+	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 09:47:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 26C7383D10;
-	Fri, 22 Sep 2023 08:37:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 26C7383D10
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=ugmtMMgB
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8F9AA60B1D;
+	Fri, 22 Sep 2023 09:47:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F9AA60B1D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JVODK6Qf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u2ZswvstdLUC; Fri, 22 Sep 2023 08:37:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B27FB83CD3;
-	Fri, 22 Sep 2023 08:37:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B27FB83CD3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8ZftVgN5p00D; Fri, 22 Sep 2023 09:47:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8F30960ACA;
+	Fri, 22 Sep 2023 09:47:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F30960ACA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83D47C0071;
-	Fri, 22 Sep 2023 08:37:06 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1E0E9C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61F7BC0071;
+	Fri, 22 Sep 2023 09:47:34 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9624FC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 08:37:05 +0000 (UTC)
+ Fri, 22 Sep 2023 09:47:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D925C41467
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5D5BD40461
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 08:37:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D925C41467
+ Fri, 22 Sep 2023 09:47:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5D5BD40461
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
- header.a=rsa-sha256 header.s=susede1 header.b=ugmtMMgB
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=JVODK6Qf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yTsmGhHac-_S
+ with ESMTP id p71QjhmgPWBn
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 08:37:04 +0000 (UTC)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D0EDC40407
+ Fri, 22 Sep 2023 09:47:32 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7775540414
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 08:37:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D0EDC40407
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 3BA9C2187C;
- Fri, 22 Sep 2023 08:37:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1695371821; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:autocrypt:autocrypt;
- bh=uS8uDkncTJinhEYSTMuu3ZhifDU6uMeETLu/kovtOdI=;
- b=ugmtMMgBhGCdhW+lNU5DS4bLt3x47YcEr/FgI6/MP8daHoBxZO60uIE6VXuQzm0EOgVUdr
- wpTK6Wya25SCWABJH5CDD8Er0dJ4xVN1ldPY5GV8vuhV/pvho02EUg2xgwhCMoEH+lqKDe
- RX/OcNI6cS0/3Bdu3RyNkVDUMjAuYZY=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 16C5B13597;
- Fri, 22 Sep 2023 08:37:01 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id ZyMGBC1SDWVoQQAAMHmgww
- (envelope-from <jgross@suse.com>); Fri, 22 Sep 2023 08:37:01 +0000
-Message-ID: <bdc81c97-ada4-41ef-89c4-7894201b46c2@suse.com>
-Date: Fri, 22 Sep 2023 10:36:59 +0200
+ Fri, 22 Sep 2023 09:47:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7775540414
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1695376051;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=6954+txMBpmYo04CypSUuQ2OMC1OEIajLVIpD63o/u0=;
+ b=JVODK6Qfo8vRRtpri0NiDFVN9IXM3E/Nd4DxIP4WuWhAfhcn7dPCQnO0ITj/yow15KjjLJ
+ GzxQxOG/OfpGxfrN+fXIeM/jNV9n5nwWwMMwq3HrE9DEnHpDbLcxdKqVY3k6Bi8f+T0gs3
+ H4PsC6rgEAVP0AIuGmBE78V61igvO0Q=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-636-RAc2zYbBN7qrFo7z1nzbwQ-1; Fri, 22 Sep 2023 05:47:29 -0400
+X-MC-Unique: RAc2zYbBN7qrFo7z1nzbwQ-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ 4fb4d7f45d1cf-532e56aa8f1so1360594a12.3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 22 Sep 2023 02:47:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1695376048; x=1695980848;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=6954+txMBpmYo04CypSUuQ2OMC1OEIajLVIpD63o/u0=;
+ b=VtrCbWT4kVGhTKK2oAi/ysKtFqjHXYS2YGowKRq/kR6SGXoFWpAqmHevgMJ949bLqs
+ G/3bWM8lc6L8mrZ6kwHkBDoODTRr77IVcOag/LjVf7W9CC0uZ5GbCZcERebLjI9nAKnZ
+ qdIDN2y26WNOSVfEhg3jEi2GWOWbCdQ8H7dchYeN94F6UDunPCfbZz+bqbv876CZZBDO
+ dsslG/cGlkjrpHSnz1VORrMIyC7BaL5s/0sIvkHOtDjguoA2XlJXWowCGCTe4ylYIwvl
+ SUlkM6e6A0cgha3jgXoAW76jPkjDi9dplXgqs6qoYhc+pgXUrw+nbfTHJ0IUS5a1PybU
+ yGtw==
+X-Gm-Message-State: AOJu0Yw40C0xmJK3A3oBmrjAmLpI7R67Yu/tMFPS3byFH+GD/FQlFjil
+ 8osD3gfusi/oU1YBdxVlxXQpqRznrxWGSLxdubdBbfmsle+ixG14wFouzBfduZlSHEehuN9cLbZ
+ SWt0ts1C44YIh4f85cs/cISI1zdzl+Kt6e2+SXIY7/A==
+X-Received: by 2002:a05:6402:114f:b0:522:2782:537 with SMTP id
+ g15-20020a056402114f00b0052227820537mr6944667edw.15.1695376048474; 
+ Fri, 22 Sep 2023 02:47:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IETZwiYeXyPDle3xoL9UArqKdbiEUti5oIzUYd4pU34ry486/q6oDn1zR3wW3ZaN159Z0kJKQ==
+X-Received: by 2002:a05:6402:114f:b0:522:2782:537 with SMTP id
+ g15-20020a056402114f00b0052227820537mr6944656edw.15.1695376048077; 
+ Fri, 22 Sep 2023 02:47:28 -0700 (PDT)
+Received: from redhat.com ([2.52.150.187]) by smtp.gmail.com with ESMTPSA id
+ y6-20020aa7d506000000b0052a1a623267sm2029423edq.62.2023.09.22.02.47.25
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 22 Sep 2023 02:47:27 -0700 (PDT)
+Date: Fri, 22 Sep 2023 05:47:23 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20230922011918-mutt-send-email-mst@kernel.org>
+References: <20230921125348-mutt-send-email-mst@kernel.org>
+ <20230921170709.GS13733@nvidia.com>
+ <20230921131035-mutt-send-email-mst@kernel.org>
+ <20230921174450.GT13733@nvidia.com>
+ <20230921135426-mutt-send-email-mst@kernel.org>
+ <20230921181637.GU13733@nvidia.com>
+ <20230921152802-mutt-send-email-mst@kernel.org>
+ <20230921195345.GZ13733@nvidia.com>
+ <20230921155834-mutt-send-email-mst@kernel.org>
+ <20230921224836.GD13733@nvidia.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Weird locking hierarchy in virtcrypto
-Cc: Linux Virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20230921224836.GD13733@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,139 +125,90 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============0070336269151277765=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0070336269151277765==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------0vr6U008U7kljdmAPt1MeplE"
+On Thu, Sep 21, 2023 at 07:48:36PM -0300, Jason Gunthorpe wrote:
+> On Thu, Sep 21, 2023 at 04:16:25PM -0400, Michael S. Tsirkin wrote:
+> > On Thu, Sep 21, 2023 at 04:53:45PM -0300, Jason Gunthorpe wrote:
+> > > On Thu, Sep 21, 2023 at 03:34:03PM -0400, Michael S. Tsirkin wrote:
+> > > 
+> > > > that's easy/practical.  If instead VDPA gives the same speed with just
+> > > > shadow vq then keeping this hack in vfio seems like less of a problem.
+> > > > Finally if VDPA is faster then maybe you will reconsider using it ;)
+> > > 
+> > > It is not all about the speed.
+> > > 
+> > > VDPA presents another large and complex software stack in the
+> > > hypervisor that can be eliminated by simply using VFIO.
+> > 
+> > If all you want is passing through your card to guest
+> > then yes this can be addressed "by simply using VFIO".
+> 
+> That is pretty much the goal, yes.
+> 
+> > And let me give you a simple example just from this patchset:
+> > it assumes guest uses MSIX and just breaks if it doesn't.
+> 
+> It does? Really? Where did you see that?
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------0vr6U008U7kljdmAPt1MeplE
-Content-Type: multipart/mixed; boundary="------------kF4Taz0E9ejHElBGS0JFE6yW";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Linux Virtualization <virtualization@lists.linux-foundation.org>
-Message-ID: <bdc81c97-ada4-41ef-89c4-7894201b46c2@suse.com>
-Subject: Weird locking hierarchy in virtcrypto
+This thing apparently:
 
---------------kF4Taz0E9ejHElBGS0JFE6yW
-Content-Type: multipart/mixed; boundary="------------qGJ5dqJPrffAciNE0IubMgfO"
++               opcode = (pos < VIRTIO_PCI_CONFIG_OFF(true)) ?
++                       VIRTIO_ADMIN_CMD_LEGACY_COMMON_CFG_READ :
++                       VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ;
 
---------------qGJ5dqJPrffAciNE0IubMgfO
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+That "true" is supposed to be whether guest enabled MSI or not.
 
-V2hpbGUgYmFja3BvcnRpbmcgYW4gdXBzdHJlYW0gcGF0Y2ggdG8gb25lIG9mIG91ciBvbGRl
-ciBkaXN0cm8ga2VybmVscyBJJ3ZlDQpmb3VuZCBhIHdlaXJkIGxvY2tpbmcgaGllcmFyY2h5
-IGluIHRoZSB2aXJ0aW8gY3J5cHRvIGRyaXZlcjoNCg0KdmlydGlvX2NvbmZpZ19jaGFuZ2Vk
-KCk6DQogICBzcGluX2xvY2tfaXJxc2F2ZSgpDQogICAtPl9fdmlydGlvX2NvbmZpZ19jaGFu
-Z2VkKCkNCiAgICAgICAtPmRydi0+Y29uZmlnX2NoYW5nZWQoKSAgICAgIDwtIGFzc3VtZSBk
-cnYgPT0gdmlydGlvX2NyeXB0b19kcml2ZXINCiAgICAgICAgIHZpcnRjcnlwdG9fY29uZmln
-X2NoYW5nZWQoKToNCiAgICAgICAgICAgLT52aXJ0Y3J5cHRvX3VwZGF0ZV9zdGF0dXMoKQ0K
-ICAgICAgICAgICAgICAgLT52aXJ0Y3J5cHRvX2Rldl9zdGFydCgpDQogICAgICAgICAgICAg
-ICAgICAgLT52aXJ0aW9fY3J5cHRvX3NrY2lwaGVyX2FsZ3NfcmVnaXN0ZXIoKQ0KICAgICAg
-ICAgICAgICAgICAgICAgICBtdXRleF9sb2NrKCkNCg0KSSBkb24ndCB0aGluayB0cnlpbmcg
-dG8gdGFrZSBhIG11dGV4IHdoaWxlIGhvbGRpbmcgYSBzcGlubG9jayB3aXRoIGludGVycnVw
-dHMNCmRpc2FibGVkIGlzIGEgcHJvcGVyIHRoaW5nIHRvIGRvLg0KDQpBbSBJIG92ZXJsb29r
-aW5nIHNvbWV0aGluZyBoZXJlPw0KDQoNCkp1ZXJnZW4NCg==
---------------qGJ5dqJPrffAciNE0IubMgfO
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+> > > VFIO is
+> > > already required for other scenarios.
+> > 
+> > Required ... by some people? Most VMs I run don't use anything
+> > outside of virtio.
+> 
+> Yes, some people. The sorts of people who run large data centers.
+>
+> > It seems to deal with emulating virtio which seems more like a vdpa
+> > thing.
+> 
+> Alex described it right, it creates an SW trapped IO bar that relays
+> the doorbell to an admin queue command.
+> 
+> > If you start adding virtio emulation to vfio then won't
+> > you just end up with another vdpa? And if no why not?
+> > And I don't buy the "we already invested in this vfio based solution",
+> > sorry - that's not a reason upstream has to maintain it.
+> 
+> I think you would be well justified to object to actual mediation,
+> like processing queues in VFIO or otherwise complex things.
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+This mediation is kind of smallish, I agree. Not completely devoid of
+logic though.
 
---------------qGJ5dqJPrffAciNE0IubMgfO--
+> Fortunately there is no need to do that with DPU HW. The legacy IO BAR
+> is a weird quirk that just cannot be done without a software trap, and
+> the OASIS standardization effort was for exactly this kind of
+> simplistic transformation.
+> 
+> I also don't buy the "upstream has to maintain it" line. The team that
+> submitted it will maintain it just fine, thank you.
 
---------------kF4Taz0E9ejHElBGS0JFE6yW--
+it will require maintainance effort when virtio changes are made.  For
+example it pokes at the device state - I don't see specific races right
+now but in the past we did e.g. reset the device to recover from errors
+and we might start doing it again.
 
---------------0vr6U008U7kljdmAPt1MeplE
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+If more of the logic is under virtio directory where we'll remember
+to keep it in loop, and will be able to reuse it from vdpa
+down the road, I would be more sympathetic.
 
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmUNUisFAwAAAAAACgkQsN6d1ii/Ey9O
-hQf/SvRkOC5cy4mYcsC6kimqOWatjEB4r4xLhxqpQORxpZIX8PnN5J2nDs611nLIKEEByZYBbkpK
-eTGTUPpmoVTssX4wxL+ocGg7vrf73Wc1ycsfHkpAKR5w6/byb1v3j8SnehMAHIU8Vkg0/+UATqND
-qL26e0l3ch/g0pYVf435b3eLxcfIcWX6klfkOhwzmL/AIlmSfVZoAAN1W/yGn19PEnCf2XGPGiSb
-LUrzYH7VtJCaGSwMnkOntoaFfCN0mceucc1A8MByDlJllPE6OZaAfHXCjiPLosEVAfCx1vY377VD
-UgJwULat63v99fDZ31BB1mWhy2lTodgANabdTe0oyw==
-=yZrP
------END PGP SIGNATURE-----
-
---------------0vr6U008U7kljdmAPt1MeplE--
-
---===============0070336269151277765==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0070336269151277765==--
