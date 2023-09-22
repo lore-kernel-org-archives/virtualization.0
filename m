@@ -1,113 +1,150 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E775CCD4843
-	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 16:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F962CD4847
+	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 17:34:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 80E366110F;
-	Fri, 22 Sep 2023 16:27:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80E366110F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=PapO3wOS
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 95Gc8-BKYVKn; Fri, 22 Sep 2023 16:27:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D5EFF60E0A;
-	Fri, 22 Sep 2023 16:27:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D5EFF60E0A
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A4247C0039;
-	Fri, 22 Sep 2023 16:27:20 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 203D5C0032
- for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 16:27:19 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id EEC4E838B6
- for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 16:27:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EEC4E838B6
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2C6E7813CE;
+	Fri, 22 Sep 2023 17:34:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2C6E7813CE
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
- header.a=rsa-sha256 header.s=google header.b=PapO3wOS
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=Bg/MWgqA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MY0_ThAuY1XT
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2J1uNpHqIdF1; Fri, 22 Sep 2023 17:34:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5E7D780C37;
+	Fri, 22 Sep 2023 17:34:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E7D780C37
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44D6FC0071;
+	Fri, 22 Sep 2023 17:34:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6DC9CC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 16:27:18 +0000 (UTC)
-Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com
- [IPv6:2607:f8b0:4864:20::82b])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AD49183638
+ Fri, 22 Sep 2023 17:34:34 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0120A41A18
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 16:27:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AD49183638
-Received: by mail-qt1-x82b.google.com with SMTP id
- d75a77b69052e-4121788397fso19128841cf.0
+ Fri, 22 Sep 2023 17:32:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0120A41A18
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org
+ header.a=rsa-sha256 header.s=google header.b=Bg/MWgqA
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gujm--28Lptv
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 09:27:17 -0700 (PDT)
+ Fri, 22 Sep 2023 17:32:18 +0000 (UTC)
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com
+ [IPv6:2607:f8b0:4864:20::62c])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A4237419E2
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 22 Sep 2023 17:32:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4237419E2
+Received: by mail-pl1-x62c.google.com with SMTP id
+ d9443c01a7336-1bd9b4f8e0eso20910735ad.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 22 Sep 2023 10:32:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1695400036; x=1696004836;
+ d=chromium.org; s=google; t=1695403938; x=1696008738;
  darn=lists.linux-foundation.org; 
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=KIMfIRUyRo38QcWwN/NLrw49quL7mRXAZqALVytIzPA=;
- b=PapO3wOS3Kjo8J6bpgmff0u/oOFbeRloTD52tX8uKH/lAEgx+Oa9wNnqiUR/i6/6jj
- lH+yVaP2eSft178VuLrbwLMu1I6Od/UHSllt8/4nIEr6Oa1KezbaWV221zI60KSqNg/X
- gJ6Njxr/3ibw2+L77hOxNFelz98/Srb1FtjLCMwhwAkGiv06DN82/dBgD8v5fYR3Pp3F
- AE0K8yodUP6cuEY3GX0QTleBsgtfR2HRT3HY4aMXkN1GKVoNZELLKt6e0sq266kJ8FmR
- bSBTF27+10Geibzi5RXi10/eRZU51hrI204mVcNZ2SVFfaUmuc9YHurcVk/ybXN0u5NR
- SFGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695400036; x=1696004836;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:from:to:cc:subject:date
  :message-id:reply-to;
- bh=KIMfIRUyRo38QcWwN/NLrw49quL7mRXAZqALVytIzPA=;
- b=QJdRDLczrF5C+EYEtuGuMPPwyPZgPWRYhS1AoKB5kMCY7LJlfV6RrdOskdrmmwzzqX
- iNEX3DdD52mnvViq98fj16ifcz0A6HqYe8RCYULTlXYMrhyBNUlzZbsCTiZRCOhM9iVR
- uR7N798pAikAREVP6i0z19GZoSM3KoOaIjGjQ6tGgc/BNWczVtt4i3kH25qLiJ0R3GWC
- lFjdXI7GFPoE0K0B5Vig6v7hCKoo51ucdirgZqYUmByPqDXZHLkH3AILwiV0B1L8KQT4
- Z5zDRUEWI/cPZgg363CVoASG2DP9QH90rR7y3cW7oUUDM6SnFNueUb0gsJW/IZFZIva/
- KHfQ==
-X-Gm-Message-State: AOJu0YyfgRAglf23L4EB+Lr3EfsamPPwCpo91+t/tXx+v5DIYSjb+6PC
- Duam2XL5Rh5QgD2+mB8gNca8PA==
-X-Google-Smtp-Source: AGHT+IHrRpYZK6H4zhpjDINCwImDGLSpKzbih7um8bbAruvRPEQN9Wtq+nGMybIYZj0RAXnHk3iVYg==
-X-Received: by 2002:ac8:7c56:0:b0:403:a662:a3c1 with SMTP id
- o22-20020ac87c56000000b00403a662a3c1mr3995742qtv.29.1695400036252; 
- Fri, 22 Sep 2023 09:27:16 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.68.26.201]) by smtp.gmail.com with ESMTPSA id
- gb6-20020a05622a598600b004108bebd1fcsm1560682qtb.24.2023.09.22.09.27.15
+ bh=i7mFLDUO5Hv4nuyIM6aHVjhOJF2f1Ccv+t7gCPQABb0=;
+ b=Bg/MWgqAqK6oJjL5kGOtCEOtAOsssxE0q7FKqk0Kvw//bnskPY+eKNFt9eJFPXhybg
+ XqSpFeHjvTaB8qsILN3x15OyfGnoov+omGwJZM2iLOUTIsm5H8uoKLbd9vHOel9740pk
+ xxcRnvGEYLdhcaw1xn8xcwVHRhQor3N0pIH/E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1695403938; x=1696008738;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=i7mFLDUO5Hv4nuyIM6aHVjhOJF2f1Ccv+t7gCPQABb0=;
+ b=sVQlOc4EuyxIhiSHyzl0ortbVehcdrVxtDNUnnHFbt9Rc8TmpIn8fQdmxw1NOdU5LK
+ iR52BY80+hXe1sEBYPd/CEp2JNvh7IZzqLWAsu7RXjxhpuGtS+ASsFi9L81jO888XBJw
+ I68s0VuoJyyDJfPC3oEV3fJtf+MIKQ7J0i7qiGHHnUAnBlHEqcoEDcZTJq4/OGNSYhzJ
+ qLGkt3PI6yBEorERGFo5v+nIWYNY7lkPtaESo2e83YbZr7Tfpn0A6RMnFfUm6uXgcs8a
+ deZ+RnXapO7H9M7i4ngpO1qcc0S06N3rIf5hEQqevOfJ69XNH28M7ePnd3JYwxrHCSkK
+ Q9kg==
+X-Gm-Message-State: AOJu0Yw30I+sl9kkOJwqHz0cDOPim0coxhLcJxLdo5AkZrrRlLcWJlvP
+ r6Fh2nEuBEt6EN3+7ULy4tsq6g==
+X-Google-Smtp-Source: AGHT+IE6F6K7CDwEaF3fHkMJFZDdCooH5rNl5USI0rssAlTS7mc8rdfuFtX4TpzsK8su4KRyBFD88Q==
+X-Received: by 2002:a17:902:e847:b0:1b6:bced:1dc2 with SMTP id
+ t7-20020a170902e84700b001b6bced1dc2mr224040plg.0.1695403938058; 
+ Fri, 22 Sep 2023 10:32:18 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net.
+ [198.0.35.241]) by smtp.gmail.com with ESMTPSA id
+ jf2-20020a170903268200b001b8c6662094sm3752514plb.188.2023.09.22.10.32.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 22 Sep 2023 09:27:15 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qjizq-000aGI-UW;
- Fri, 22 Sep 2023 13:27:14 -0300
-Date: Fri, 22 Sep 2023 13:27:14 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
-Message-ID: <20230922162714.GH13795@ziepe.ca>
-References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
- <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
- <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
- <20230919081519.GA3860249@myrica> <20230919144649.GT13795@ziepe.ca>
- <20230922075719.GB1361815@myrica> <20230922124130.GD13795@ziepe.ca>
- <900b644e-6e21-1038-2252-3dc86cbf0a32@arm.com>
+ Fri, 22 Sep 2023 10:32:17 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+To: David Airlie <airlied@gmail.com>
+Subject: [PATCH 1/9] drm/amd/pm: Annotate struct
+ smu10_voltage_dependency_table with __counted_by
+Date: Fri, 22 Sep 2023 10:32:06 -0700
+Message-Id: <20230922173216.3823169-1-keescook@chromium.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230922173110.work.084-kees@kernel.org>
+References: <20230922173110.work.084-kees@kernel.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <900b644e-6e21-1038-2252-3dc86cbf0a32@arm.com>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux.dev, Will Deacon <will@kernel.org>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1712; i=keescook@chromium.org; 
+ h=from:subject;
+ bh=kCvC5X4RJuHaoweqFnQ9xMUwIDOFINcpTmqcFOUOp9g=; 
+ b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBlDc+dzQGoS9m8Q71IG/SluCNIy0Np4uBUNCXIF
+ 2oTBIaso6OJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCZQ3PnQAKCRCJcvTf3G3A
+ JjY9EACkZXMo7wzxY4THEhXZJmkYixLA2UlloTPXgPy8CvMUYiNLBwVLSqoh/h/5MhgdgB+pVHX
+ gjEPVRbNLsQ1sMYLw31nppSpdtNmrx+qI2Xv8/FCIrTsOHuBoHSi+9nwoY2LW7IEx8xVxDORb01
+ i9WnFgRMl8JlxFCnGrKgYtrWpQVCGXMfpunpsPAAmh2g5Yfkoo8Yodegj0WGJdFnSQzp2irODLS
+ 4fzO25EG9TH3jtCwjZItDt5m0cT8oO2gC1LVyKm/WXFfllivnEC967z9zUAtQtABdtjhtosOPHC
+ 1jSJ119A0nTIyM6aLwtiK32qSZA2Of2ooijB8afmhRUb5Jb+iPKwLmRnvY+TycfX8U8VtGQBkbA
+ PsbT82Qj4Qqirr4cuxGVW/oAnE7XDwMh8IEHMNP1n3XOmEtlx7TVlgUKL774++kkLb5/dO90oUm
+ DGOwxoXK9G23PdRFLUZ82z/F0glCWWkDrqrmKUkcKnY7rdSxGYAapRKXY6YbnmQ3EA3hqkEBXtV
+ Df/r+VTS0EiXZ6VrmE54NZ2HQTkIjn/3uMxtp2UVPqb2tn6zRXFLAI85C3NUtvV2TNniYKdU/mB
+ V12ppntQS4AmfEbCBhZc3biSLzO4h5eErGTnBoeVzf8NDuINYiUgr2+IDcyvEE0XObVZcrukMxP
+ e9S9RTOiaW+wWUw==
+X-Developer-Key: i=keescook@chromium.org; a=openpgp;
+ fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
+Cc: Tejas Upadhyay <tejas.upadhyay@intel.com>, Emma Anholt <emma@anholt.net>,
+ Tom Rix <trix@redhat.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ llvm@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ Chris Wilson <chris@chris-wilson.co.uk>, Prike Liang <Prike.Liang@amd.com>,
+ Huang Rui <ray.huang@amd.com>, Andrzej Hajda <andrzej.hajda@intel.com>,
+ Marijn Suijten <marijn.suijten@somainline.org>,
+ Matthew Brost <matthew.brost@intel.com>, Karol Herbst <kherbst@redhat.com>,
+ Neil Armstrong <neil.armstrong@linaro.org>, amd-gfx@lists.freedesktop.org,
+ Kuogee Hsieh <quic_khsieh@quicinc.com>, Nathan Chancellor <nathan@kernel.org>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Ben Skeggs <bskeggs@redhat.com>, Andi Shyti <andi.shyti@linux.intel.com>,
+ nouveau@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+ virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
+ linux-hardening@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+ Lyude Paul <lyude@redhat.com>, Kees Cook <keescook@chromium.org>,
+ Yifan Zhang <yifan1.zhang@amd.com>, linux-arm-msm@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, Kevin Wang <kevin1.wang@amd.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>, Melissa Wen <mwen@igalia.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Maxime Ripard <mripard@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Evan Quan <evan.quan@amd.com>, Sean Paul <sean@poorly.run>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ Xiaojian Du <Xiaojian.Du@amd.com>, Le Ma <le.ma@amd.com>,
+ freedreno@lists.freedesktop.org, Bjorn Andersson <andersson@kernel.org>, "Pan,
+ Xinhui" <Xinhui.Pan@amd.com>, Nick Desaulniers <ndesaulniers@google.com>,
+ linux-kernel@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+ Zack Rusin <zackr@vmware.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Alex Deucher <alexander.deucher@amd.com>, Nirmoy Das <nirmoy.das@intel.com>,
+ Lang Yu <Lang.Yu@amd.com>,
+ =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+ John Harrison <john.c.harrison@Intel.com>,
+ Hawking Zhang <Hawking.Zhang@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,128 +156,41 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 22, 2023 at 02:13:18PM +0100, Robin Murphy wrote:
-> On 22/09/2023 1:41 pm, Jason Gunthorpe wrote:
-> > On Fri, Sep 22, 2023 at 08:57:19AM +0100, Jean-Philippe Brucker wrote:
-> > > > > They're not strictly equivalent: this check works around a temporary issue
-> > > > > with the IOMMU core, which calls map/unmap before the domain is
-> > > > > finalized.
-> > > > 
-> > > > Where? The above points to iommu_create_device_direct_mappings() but
-> > > > it doesn't because the pgsize_bitmap == 0:
-> > > 
-> > > __iommu_domain_alloc() sets pgsize_bitmap in this case:
-> > > 
-> > >          /*
-> > >           * If not already set, assume all sizes by default; the driver
-> > >           * may override this later
-> > >           */
-> > >          if (!domain->pgsize_bitmap)
-> > >                  domain->pgsize_bitmap = bus->iommu_ops->pgsize_bitmap;
-> > 
-> > Dirver's shouldn't do that.
-> > 
-> > The core code was fixed to try again with mapping reserved regions to
-> > support these kinds of drivers.
-> 
-> This is still the "normal" code path, really; I think it's only AMD that
-> started initialising the domain bitmap "early" and warranted making it
-> conditional.
-
-My main point was that iommu_create_device_direct_mappings() should
-fail for unfinalized domains, setting pgsize_bitmap to allow it to
-succeed is not a nice hack, and not necessary now.
-
-What do you think about something like this to replace
-iommu_create_device_direct_mappings(), that does enforce things
-properly?
-
-
-static int resv_cmp(void *priv, const struct list_head *llhs,
-		    const struct list_head *lrhs)
-{
-	struct iommu_resv_region *lhs = list_entry(llhs, struct iommu_resv_region, list);
-	struct iommu_resv_region *rhs = list_entry(lrhs, struct iommu_resv_region, list);
-
-	if (lhs->start == rhs->start)
-		return 0;
-	if (lhs->start < rhs->start)
-		return -1;
-	return 1;
-}
-
-static int iommu_create_device_direct_mappings(struct iommu_domain *domain,
-					       struct device *dev)
-{
-	struct iommu_resv_region *entry;
-	struct iommu_resv_region *tmp;
-	struct list_head mappings;
-	struct list_head direct;
-	phys_addr_t cur = 0;
-	int ret = 0;
-
-	INIT_LIST_HEAD(&mappings);
-	INIT_LIST_HEAD(&direct);
-
-	iommu_get_resv_regions(dev, &mappings);
-
-	list_for_each_entry_safe(entry, tmp, &mappings, list) {
-		if (entry->type == IOMMU_RESV_DIRECT)
-			dev->iommu->require_direct = 1;
-
-		if ((domain->type & __IOMMU_DOMAIN_PAGING) &&
-		    (entry->type == IOMMU_RESV_DIRECT ||
-		     entry->type == IOMMU_RESV_DIRECT_RELAXABLE)) {
-			if (domain->geometry.aperture_start > entry->start ||
-			    domain->geometry.aperture_end == 0 ||
-			    (domain->geometry.aperture_end - 1) <
-				    (entry->start + entry->length - 1)) {
-				ret = -EINVAL;
-				goto out;
-			}
-			list_move(&entry->list, &direct);
-		}
-	}
-
-	if (list_empty(&direct))
-		goto out;
-
-	/*
-	 * FW can have overlapping ranges, sort the list by start address
-	 * and map any duplicated IOVA only once.
-	 */
-	list_sort(NULL, &direct, resv_cmp);
-	list_for_each_entry(entry, &direct, list) {
-		phys_addr_t start_pfn = entry->start / PAGE_SIZE;
-		phys_addr_t last_pfn =
-			(entry->length - 1 + entry->start) / PAGE_SIZE;
-
-		if (start_pfn < cur)
-			start_pfn = cur;
-
-		if (start_pfn <= last_pfn) {
-			ret = iommu_map(domain, start_pfn * PAGE_SIZE,
-					start_pfn * PAGE_SIZE,
-					(last_pfn - start_pfn + 1) * PAGE_SIZE,
-					entry->prot, GFP_KERNEL);
-			if (ret)
-				goto out;
-			cur = last_pfn + 1;
-		}
-	}
-
-out:
-	list_splice(&direct, &mappings);
-	iommu_put_resv_regions(dev, &mappings);
-
-	return ret;
-}
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+UHJlcGFyZSBmb3IgdGhlIGNvbWluZyBpbXBsZW1lbnRhdGlvbiBieSBHQ0MgYW5kIENsYW5nIG9m
+IHRoZSBfX2NvdW50ZWRfYnkKYXR0cmlidXRlLiBGbGV4aWJsZSBhcnJheSBtZW1iZXJzIGFubm90
+YXRlZCB3aXRoIF9fY291bnRlZF9ieSBjYW4gaGF2ZQp0aGVpciBhY2Nlc3NlcyBib3VuZHMtY2hl
+Y2tlZCBhdCBydW4tdGltZSBjaGVja2luZyB2aWEgQ09ORklHX1VCU0FOX0JPVU5EUwooZm9yIGFy
+cmF5IGluZGV4aW5nKSBhbmQgQ09ORklHX0ZPUlRJRllfU09VUkNFIChmb3Igc3RyY3B5L21lbWNw
+eS1mYW1pbHkKZnVuY3Rpb25zKS4KCkFzIGZvdW5kIHdpdGggQ29jY2luZWxsZVsxXSwgYWRkIF9f
+Y291bnRlZF9ieSBmb3Igc3RydWN0IHNtdTEwX3ZvbHRhZ2VfZGVwZW5kZW5jeV90YWJsZS4KClsx
+XSBodHRwczovL2dpdGh1Yi5jb20va2Vlcy9rZXJuZWwtdG9vbHMvYmxvYi90cnVuay9jb2NjaW5l
+bGxlL2V4YW1wbGVzL2NvdW50ZWRfYnkuY29jY2kKCkNjOiBFdmFuIFF1YW4gPGV2YW4ucXVhbkBh
+bWQuY29tPgpDYzogQWxleCBEZXVjaGVyIDxhbGV4YW5kZXIuZGV1Y2hlckBhbWQuY29tPgpDYzog
+IkNocmlzdGlhbiBLw7ZuaWciIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+CkNjOiAiUGFuLCBY
+aW5odWkiIDxYaW5odWkuUGFuQGFtZC5jb20+CkNjOiBEYXZpZCBBaXJsaWUgPGFpcmxpZWRAZ21h
+aWwuY29tPgpDYzogRGFuaWVsIFZldHRlciA8ZGFuaWVsQGZmd2xsLmNoPgpDYzogWGlhb2ppYW4g
+RHUgPFhpYW9qaWFuLkR1QGFtZC5jb20+CkNjOiBIdWFuZyBSdWkgPHJheS5odWFuZ0BhbWQuY29t
+PgpDYzogS2V2aW4gV2FuZyA8a2V2aW4xLndhbmdAYW1kLmNvbT4KQ2M6IGFtZC1nZnhAbGlzdHMu
+ZnJlZWRlc2t0b3Aub3JnCkNjOiBkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnClNpZ25l
+ZC1vZmYtYnk6IEtlZXMgQ29vayA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPgotLS0KIGRyaXZlcnMv
+Z3B1L2RybS9hbWQvcG0vcG93ZXJwbGF5L2h3bWdyL3NtdTEwX2h3bWdyLmggfCAyICstCiAxIGZp
+bGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL2dwdS9kcm0vYW1kL3BtL3Bvd2VycGxheS9od21nci9zbXUxMF9od21nci5oIGIvZHJp
+dmVycy9ncHUvZHJtL2FtZC9wbS9wb3dlcnBsYXkvaHdtZ3Ivc211MTBfaHdtZ3IuaAppbmRleCA4
+MDhlMGVjYmUxZjAuLjQyYWRjMmEzZGNiYyAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2Ft
+ZC9wbS9wb3dlcnBsYXkvaHdtZ3Ivc211MTBfaHdtZ3IuaAorKysgYi9kcml2ZXJzL2dwdS9kcm0v
+YW1kL3BtL3Bvd2VycGxheS9od21nci9zbXUxMF9od21nci5oCkBAIC0xOTIsNyArMTkyLDcgQEAg
+c3RydWN0IHNtdTEwX2Nsb2NrX3ZvbHRhZ2VfZGVwZW5kZW5jeV9yZWNvcmQgewogCiBzdHJ1Y3Qg
+c211MTBfdm9sdGFnZV9kZXBlbmRlbmN5X3RhYmxlIHsKIAl1aW50MzJfdCBjb3VudDsKLQlzdHJ1
+Y3Qgc211MTBfY2xvY2tfdm9sdGFnZV9kZXBlbmRlbmN5X3JlY29yZCBlbnRyaWVzW107CisJc3Ry
+dWN0IHNtdTEwX2Nsb2NrX3ZvbHRhZ2VfZGVwZW5kZW5jeV9yZWNvcmQgZW50cmllc1tdIF9fY291
+bnRlZF9ieShjb3VudCk7CiB9OwogCiBzdHJ1Y3Qgc211MTBfY2xvY2tfdm9sdGFnZV9pbmZvcm1h
+dGlvbiB7Ci0tIAoyLjM0LjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
