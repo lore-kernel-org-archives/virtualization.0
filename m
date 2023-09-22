@@ -4,121 +4,116 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 81298E6FE2F
-	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 13:46:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BE76E6FE48
+	for <virtualization@archiver.kernel.org>; Fri, 22 Sep 2023 15:13:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 04CBF81AF4;
-	Fri, 22 Sep 2023 13:46:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04CBF81AF4
+	by smtp1.osuosl.org (Postfix) with ESMTP id B9D2F83A3F;
+	Fri, 22 Sep 2023 15:13:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9D2F83A3F
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=aCpALoxv
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IaItkzYO
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 69D6rhAvgY55; Fri, 22 Sep 2023 13:46:14 +0000 (UTC)
+	with ESMTP id oSbDpASfh-Zx; Fri, 22 Sep 2023 15:13:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 439D381AEF;
-	Fri, 22 Sep 2023 13:46:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 439D381AEF
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E756C8376B;
+	Fri, 22 Sep 2023 15:13:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E756C8376B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F304C0071;
-	Fri, 22 Sep 2023 13:46:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0E6CAC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C926FC0039;
+	Fri, 22 Sep 2023 15:13:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4765EC0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 13:46:12 +0000 (UTC)
+ Fri, 22 Sep 2023 15:13:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id CED1A4222D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1C83A838B6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 13:46:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CED1A4222D
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com
- header.a=rsa-sha256 header.s=pp1 header.b=aCpALoxv
+ Fri, 22 Sep 2023 15:13:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1C83A838B6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mr-HJ8m6t3fC
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id epWdfy9u3S65
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 13:46:07 +0000 (UTC)
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
- [148.163.156.1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 78A7042227
+ Fri, 22 Sep 2023 15:13:30 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E27238376B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Sep 2023 13:46:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78A7042227
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38MDVXlG019814; Fri, 22 Sep 2023 13:45:55 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : mime-version : content-type :
- content-transfer-encoding; s=pp1;
- bh=/cFj3W06N2pNUMxCX8cWjPL6+pS+obFp5SdEEoeM+VY=;
- b=aCpALoxv4OuXFh4X6IEjT3BGoixMoLd1fpbHCEkSEt331Jpg8QQKYgTT39viBjiiAylI
- jiDFfnuMBgMHhfm0W5cGvNzMOwHe04jghIBuHp0muG8VSVoQprdM/FpZDX+/MyD16DhE
- /gffERa+PB+s1GElKsla3dv26AXQzZEI2uv1JtSKtne9YoCVbA7G27WrgItvZgX+ThTM
- ujzPhxkOUOM44WpF52+301AMtxqAWV0wz7Z7s4urlRzvHhb0Cy+BVpx96kBHa3GOb8Ap
- i6bChYAucAM9IjZuukPh4uBWCFNcWWW/vDu4dFF7WjK9tTPVILkCS+X6Stt2l+7X9yfn QA== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9bvp0x16-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Fri, 22 Sep 2023 13:45:54 +0000
-Received: from m0353728.ppops.net (m0353728.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38MDVWUl019807;
- Fri, 22 Sep 2023 13:45:54 GMT
-Received: from ppma22.wdc07v.mail.ibm.com
- (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3t9bvp0x0v-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Fri, 22 Sep 2023 13:45:53 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
- by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38MDLcne018848; Fri, 22 Sep 2023 13:45:52 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
- by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3t8tsp2w7f-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Fri, 22 Sep 2023 13:45:52 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com
- [10.20.54.106])
- by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 38MDjn8a24314604
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 22 Sep 2023 13:45:49 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 7D0872004D;
- Fri, 22 Sep 2023 13:45:49 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id C320120043;
- Fri, 22 Sep 2023 13:45:48 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.56.45])
- by smtpav07.fra02v.mail.ibm.com (Postfix) with SMTP;
- Fri, 22 Sep 2023 13:45:48 +0000 (GMT)
-Date: Fri, 22 Sep 2023 15:45:46 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Gonglei <arei.gonglei@huawei.com>
-Subject: BUG: virtcrypto_dataq_callback calls crypto_finalize_request() from
- irq context
-Message-ID: <20230922154546.4f7447ce.pasic@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Fri, 22 Sep 2023 15:13:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E27238376B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1695395608;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=1fwravdlQW+TfYmAP3Jwly7QmycP8GgTViJStGE1Ymw=;
+ b=IaItkzYOOqGPQO+InBVZA7USENROXnhRt0R3I/Xys5MyEiDIoxAaMquYo5fGCF02fwl50v
+ jBeJQRWEMbWNf4+dA1BD2btzzXo/2tioDvymX9Zpp4qbhTfwA3V/ee0pvGUAWIstIZCfAL
+ B5p6MDnYuz8reErZDymw6a9+GnvThlk=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-170-eqthouBVOMScwiY8wUGCQQ-1; Fri, 22 Sep 2023 11:13:24 -0400
+X-MC-Unique: eqthouBVOMScwiY8wUGCQQ-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ 4fb4d7f45d1cf-530f2ccceeeso1543227a12.3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 22 Sep 2023 08:13:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1695395603; x=1696000403;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=1fwravdlQW+TfYmAP3Jwly7QmycP8GgTViJStGE1Ymw=;
+ b=ejrRaeGwoF3GlsJfxtWU8cp+0SU7Gpj/szAwCZq9K5j9Qvx7oPB2dY5/qczNcpspX5
+ VaLBiuqTN5Ip9chk+phscD7iyJHQ1wD5UhPqTQkGdMZMUTsy/+oFC5tUovPhprj7aItZ
+ RkCHNhdgoEEFVp5b3/Kvtx/OgHgu4ppY3XXyfK+zJWkV820yM4Pt1rzGAAQpnJp8BLA2
+ qvpWTMCTFuGadzssKG7Jqf5lAvyaWov71gGvkA4YyYjSQCl/+YY3lSOzAjnJAyyqBO9k
+ r4WFV902r1hh04hD7aiubKxEl8t7Hgyd5C2OzMAZNxndxGFw967VYD8qw7Uk/atqCjrK
+ ITjw==
+X-Gm-Message-State: AOJu0YytPJC3q9czSJE+XM68qHwdGgZc+EmacXRWAcUrNQKdyX4sSBSt
+ Dyq6fLWsyDlXPXuHGy5Q0pjD5wyCm81AFKHYb+XKIFpZyzLwwo6JVOSye2XZAcFEOD1G4IkdJD2
+ kTx5EhoqIBybRyo1bsXWD0TS3bMzzaoBsAavRr694KQ==
+X-Received: by 2002:a50:ed19:0:b0:52a:943:9ab5 with SMTP id
+ j25-20020a50ed19000000b0052a09439ab5mr7345418eds.31.1695395603652; 
+ Fri, 22 Sep 2023 08:13:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE0GrOD/17wfL7ZvOlZyM/FdueLD1tF3NbMlJUxhkMCutGNKq9CV+OCyqlu/MCmwJVlx6neRA==
+X-Received: by 2002:a50:ed19:0:b0:52a:943:9ab5 with SMTP id
+ j25-20020a50ed19000000b0052a09439ab5mr7345404eds.31.1695395603338; 
+ Fri, 22 Sep 2023 08:13:23 -0700 (PDT)
+Received: from redhat.com ([2.52.150.187]) by smtp.gmail.com with ESMTPSA id
+ e9-20020aa7d7c9000000b00532acb014a6sm2366924eds.68.2023.09.22.08.13.20
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 22 Sep 2023 08:13:22 -0700 (PDT)
+Date: Fri, 22 Sep 2023 11:13:18 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20230922111132-mutt-send-email-mst@kernel.org>
+References: <20230921131035-mutt-send-email-mst@kernel.org>
+ <20230921174450.GT13733@nvidia.com>
+ <20230921135426-mutt-send-email-mst@kernel.org>
+ <20230921181637.GU13733@nvidia.com>
+ <20230921152802-mutt-send-email-mst@kernel.org>
+ <20230921195345.GZ13733@nvidia.com>
+ <20230921155834-mutt-send-email-mst@kernel.org>
+ <CACGkMEvD+cTyRtax7_7TBNECQcGPcsziK+jCBgZcLJuETbyjYw@mail.gmail.com>
+ <20230922122246.GN13733@nvidia.com>
+ <PH0PR12MB548127753F25C45B7EFF203DDCFFA@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XhgLx4Gz-amqRwPr8OtvkgDQhkHIrwXB
-X-Proofpoint-ORIG-GUID: RnWSzCDN7QZQFgzoKepqGUiNisNbR2jH
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-22_11,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- bulkscore=0
- priorityscore=1501 mlxlogscore=999 spamscore=0 mlxscore=0 impostorscore=0
- lowpriorityscore=0 adultscore=0 malwarescore=0 suspectscore=0
- clxscore=1011 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309220116
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>, linux-crypto@vger.kernel.org
+In-Reply-To: <PH0PR12MB548127753F25C45B7EFF203DDCFFA@PH0PR12MB5481.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ Maor Gottlieb <maorg@nvidia.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
+ Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -135,111 +130,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Gonglei!
+On Fri, Sep 22, 2023 at 12:25:06PM +0000, Parav Pandit wrote:
+> 
+> > From: Jason Gunthorpe <jgg@nvidia.com>
+> > Sent: Friday, September 22, 2023 5:53 PM
+> 
+> 
+> > > And what's more, using MMIO BAR0 then it can work for legacy.
+> > 
+> > Oh? How? Our team didn't think so.
+> 
+> It does not. It was already discussed.
+> The device reset in legacy is not synchronous.
+> The drivers do not wait for reset to complete; it was written for the sw backend.
+> Hence MMIO BAR0 is not the best option in real implementations.
 
-Our CI has found that virtio-crypto does not honor the requirement of 
-crypto_finalize_request() being called in softirq context which is
-asserted in that function via lockdep_assert_in_softirq() since commit
-4058cf08945c ("crypto: engine - check if BH is disabled during
-completion").
+Or maybe they made it synchronous in hardware, that's all.
+After all same is true for the IO BAR0 e.g. for the PF: IO writes are posted anyway.
 
-The problem was originally found on s390x but Marc Hartmayer was so kind
-to reproduce it on amd64. Please find the corresponding kernel messages
-at the end of this email.
+Whether that's possible would depend on the hardware architecture.
 
-The call chain looks like this. 
-interrupt handler for queue notification
- --> virtcrypto_dataq_callback()
- --> via vc_req->alg_cb either virtio_crypto_skcipher_finalize_req()
-     or virtio_crypto_akcipher_finalize_req()
- --> crypto_finalize_skcipher_request()
-     or crypto_finalize_akcipher_request()
- --> crypto_finalize_request()
+-- 
+MST
 
-Everything above is happening in the interrupt handler (and in "hard" irq
-context).
-
-I'm not really familiar with the implementation of virtio_crypto or with
-the crypto_engine interfaces. I assume the problem is on the side of
-virtio-crypto so I would like to kindly ask you as the maintainer of
-virtio-crypt to have a look at it. But if you think it is rather in the
-crypto_engine, please clarify that with Herbert. I have no strong opinion
-on this issue.
-
-Regards,
-Halil
-
-[ 31.033415][ C0] WARNING: CPU: 0 PID: 136 at crypto/crypto_engine.c:58 crypto_finalize_request (crypto/crypto_engine.c:58 (discriminator 23)) crypto_engine
-[   31.034131][    C0] Modules linked in: virtio_crypto(+) vmw_vsock_virtio_transport_common(+) crypto_engine vsock
-[   31.035326][    C0] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.2-1.fc38 04/01/2014
-[ 31.035917][ C0] RIP: 0010:crypto_finalize_request (crypto/crypto_engine.c:58 (discriminator 23)) crypto_engine
-[ 31.036398][ C0] Code: 08 5b 5d 41 5c 41 5d e9 bf 88 1c c1 65 8b 05 b0 36 01 40 f6 c4 ff 74 12 a9 00 00 0f 00 75 0b a9 00 00 f0 00 0f 84 54 ff ff ff <0f> 0b e9 4d ff ff ff 4c 8d 6b 38 4c 89 ef e8 8e 47 1b c4 48 8d bb
-All code
-========
-   0:	08 5b 5d             	or     %bl,0x5d(%rbx)
-   3:	41 5c                	pop    %r12
-   5:	41 5d                	pop    %r13
-   7:	e9 bf 88 1c c1       	jmp    0xffffffffc11c88cb
-   c:	65 8b 05 b0 36 01 40 	mov    %gs:0x400136b0(%rip),%eax        # 0x400136c3
-  13:	f6 c4 ff             	test   $0xff,%ah
-  16:	74 12                	je     0x2a
-  18:	a9 00 00 0f 00       	test   $0xf0000,%eax
-  1d:	75 0b                	jne    0x2a
-  1f:	a9 00 00 f0 00       	test   $0xf00000,%eax
-  24:	0f 84 54 ff ff ff    	je     0xffffffffffffff7e
-  2a:*	0f 0b                	ud2		<-- trapping instruction
-  2c:	e9 4d ff ff ff       	jmp    0xffffffffffffff7e
-  31:	4c 8d 6b 38          	lea    0x38(%rbx),%r13
-  35:	4c 89 ef             	mov    %r13,%rdi
-  38:	e8 8e 47 1b c4       	call   0xffffffffc41b47cb
-  3d:	48                   	rex.W
-  3e:	8d                   	.byte 0x8d
-  3f:	bb                   	.byte 0xbb
-
-Code starting with the faulting instruction
-===========================================
-   0:	0f 0b                	ud2
-   2:	e9 4d ff ff ff       	jmp    0xffffffffffffff54
-   7:	4c 8d 6b 38          	lea    0x38(%rbx),%r13
-   b:	4c 89 ef             	mov    %r13,%rdi
-   e:	e8 8e 47 1b c4       	call   0xffffffffc41b47a1
-  13:	48                   	rex.W
-  14:	8d                   	.byte 0x8d
-  15:	bb                   	.byte 0xbb
-[   31.037591][    C0] RSP: 0018:ffffc90000007da0 EFLAGS: 00010046
-[   31.037976][    C0] RAX: 0000000080010002 RBX: ffff888006c87428 RCX: 1ffffffff0c0e523
-[   31.038471][    C0] RDX: 0000000000000000 RSI: ffff88810d0819e8 RDI: ffff888006c87449
-[   31.038967][    C0] RBP: ffff88810d0819e8 R08: 0000000000000000 R09: fffffbfff0b04f04
-[   31.039463][    C0] R10: ffffffff85827823 R11: ffffffff842013e6 R12: 0000000000000000
-[   31.039963][    C0] R13: 0000000000000001 R14: ffff88810d081a18 R15: dffffc0000000000
-[   31.040475][    C0] FS:  00007f80c0cc6800(0000) GS:ffff88811ae00000(0000) knlGS:0000000000000000
-[   31.041058][    C0] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   31.041473][    C0] CR2: 00007f22ad455270 CR3: 0000000106b22000 CR4: 00000000000006f0
-[   31.042024][    C0] Call Trace:
-[   31.042250][    C0]  <IRQ>
-[ 31.042433][ C0] ? __warn (kernel/panic.c:673) 
-[ 31.042710][ C0] ? crypto_finalize_request (crypto/crypto_engine.c:58 (discriminator 23)) crypto_engine
-[ 31.043161][ C0] ? report_bug (lib/bug.c:180 lib/bug.c:219) 
-[ 31.043451][ C0] ? handle_bug (arch/x86/kernel/traps.c:237 (discriminator 1)) 
-[ 31.043728][ C0] ? exc_invalid_op (arch/x86/kernel/traps.c:258 (discriminator 1)) 
-[ 31.044039][ C0] ? asm_exc_invalid_op (./arch/x86/include/asm/idtentry.h:568) 
-[ 31.044385][ C0] ? asm_common_interrupt (./arch/x86/include/asm/idtentry.h:636) 
-[ 31.044746][ C0] ? crypto_finalize_request (crypto/crypto_engine.c:58 (discriminator 23)) crypto_engine
-[ 31.045202][ C0] virtcrypto_dataq_callback (drivers/crypto/virtio/virtio_crypto_core.c:91) virtio_crypto
-[ 31.045661][ C0] ? __pfx_virtcrypto_dataq_callback (drivers/crypto/virtio/virtio_crypto_core.c:76) virtio_crypto
-[ 31.046148][ C0] ? __pfx_do_raw_spin_lock (kernel/locking/spinlock_debug.c:113) 
-[ 31.046499][ C0] vring_interrupt (drivers/virtio/virtio_ring.c:2598) 
-[ 31.046806][ C0] vp_vring_interrupt (drivers/virtio/virtio_pci_common.c:67 (discriminator 2)) 
-[ 31.047125][ C0] ? __pfx_vp_vring_interrupt (drivers/virtio/virtio_pci_common.c:60) 
-[ 31.047477][ C0] __handle_irq_event_percpu (kernel/irq/handle.c:158) 
-[ 31.047845][ C0] handle_irq_event (kernel/irq/handle.c:195 kernel/irq/handle.c:210) 
-[ 31.048147][ C0] handle_edge_irq (kernel/irq/chip.c:833) 
-[ 31.048454][ C0] __common_interrupt (arch/x86/kernel/irq.c:271) 
-[ 31.048767][ C0] common_interrupt (arch/x86/kernel/irq.c:247 (discriminator 47)) 
-[   31.049071][    C0]  </IRQ>
-[   31.049273][    C0]  <TASK>
-[ 31.049468][ C0] asm_common_interrupt (./arch/x86/include/asm/idtentry.h:636) 
-[ 31.049805][ C0] RIP: 0010:unwind_next_frame (arch/x86/kernel/unwind_orc.c:494)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
