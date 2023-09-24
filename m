@@ -1,146 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C4B2BCE7A88
-	for <virtualization@archiver.kernel.org>; Sun, 24 Sep 2023 09:41:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8C417CE7A88
+	for <virtualization@archiver.kernel.org>; Sun, 24 Sep 2023 10:13:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 304B94152E;
-	Sun, 24 Sep 2023 09:41:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 304B94152E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=embeddedor.com header.i=@embeddedor.com header.a=rsa-sha256 header.s=default header.b=WyNj3hQ4
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1A9E381F67;
+	Sun, 24 Sep 2023 10:13:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1A9E381F67
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w6YxwDzROez3; Sun, 24 Sep 2023 09:41:50 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E2AX30G9S6sj; Sun, 24 Sep 2023 10:13:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A025241529;
-	Sun, 24 Sep 2023 09:41:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A025241529
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 05D5881F17;
+	Sun, 24 Sep 2023 10:13:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05D5881F17
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8576DC0071;
-	Sun, 24 Sep 2023 09:41:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D322C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B5326C0039;
+	Sun, 24 Sep 2023 10:13:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F886C0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 09:41:48 +0000 (UTC)
+ Sun, 24 Sep 2023 10:13:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 186964152D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4059460A7D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 09:41:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 186964152D
+ Sun, 24 Sep 2023 10:13:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4059460A7D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Z5ERKbawnCGu
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DIAn5K82K-7e
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 09:41:47 +0000 (UTC)
-Received: from omta034.useast.a.cloudfilter.net
- (omta034.useast.a.cloudfilter.net [44.202.169.33])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1903741529
+ Sun, 24 Sep 2023 10:13:22 +0000 (UTC)
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 567FE60773
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 09:41:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1903741529
-Received: from eig-obgw-5010a.ext.cloudfilter.net ([10.0.29.199])
- by cmsmtp with ESMTP
- id kAgUqInE1ez0CkLc9qFdeH; Sun, 24 Sep 2023 09:41:21 +0000
-Received: from gator4166.hostgator.com ([108.167.133.22]) by cmsmtp with ESMTPS
- id kLcXqYYduIDdmkLcXqNSAl; Sun, 24 Sep 2023 09:41:45 +0000
-X-Authority-Analysis: v=2.4 cv=HcYH8wI8 c=1 sm=1 tr=0 ts=65100459
- a=1YbLdUo/zbTtOZ3uB5T3HA==:117 a=P7XfKmiOJ4/qXqHZrN7ymg==:17
- a=OWjo9vPv0XrRhIrVQ50Ab3nP57M=:19 a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19
- a=IkcTkHD0fZMA:10 a=zNV7Rl7Rt7sA:10 a=wYkD_t78qR0A:10 a=NEAV23lmAAAA:8
- a=20KFwNOVAAAA:8 a=pGLkceISAAAA:8 a=e5mUnYsNAAAA:8 a=cm27Pg_UAAAA:8
- a=VwQbUJbxAAAA:8 a=HvF037n1xESchLcPDVoA:9 a=QEXdDO2ut3YA:10
- a=Vxmtnl_E_bksehYqCbjh:22 a=xmb-EsYY8bH0VWELuYED:22 a=AjGcO6oz07-iQ99wixmX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
- :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
- Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=LJpKFYI8HAurZQUNChdEApljY9SFiaiFueT/5w9ez8A=; b=WyNj3hQ4m7k99wwrLc5UCHs1Jc
- 69JnjimjP16rPGM6Z286Pdu1EnpdBf8mvn8UjKRtZI4bAMSZGQvQ1d9x7xbbF7jhGmj8i/KfgpVr7
- c6kMdlOOArSNLIvPI7ALTr7ZlFSq7jOM6qDaQO6AiuyehwfBegbjTZSqAQxzkVDGe842WreDX4kmx
- XHRRkPtm2Lm/yGKMlAU/xXjqaVY17tUk+7nbeeqd30QAFyaig/PT4oxogP8/FHPvh54Qsp4aKp1TB
- 3O/2rSe65FJAdRxmlsC+oYSc83Oe5/HxuSX2iIA+whoUWfQqwbJkO09DT4sckq66htTHHi6PRZ1hS
- 7w0+uMIg==;
-Received: from [94.239.20.48] (port=43422 helo=[192.168.1.98])
- by gator4166.hostgator.com with esmtpsa (TLS1.2) tls
- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.96)
- (envelope-from <gustavo@embeddedor.com>) id 1qjkgF-000Q0w-1S;
- Fri, 22 Sep 2023 13:15:07 -0500
-Message-ID: <1916c681-cc7b-c101-de7d-5e9e0746c0c1@embeddedor.com>
-Date: Fri, 22 Sep 2023 20:15:58 -0600
+ Sun, 24 Sep 2023 10:13:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 567FE60773
+Received: from [194.39.126.105] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa (TLS1.2) tls
+ TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.94.2)
+ (envelope-from <icits@saisti.eu>) id 1qkLa3-001B9S-4n
+ for virtualization@lists.linux-foundation.org; Sun, 24 Sep 2023 12:39:11 +0300
+From: "WorldCIST-24" <marialemos72@gmail.com>
+Subject: WorldCIST'24 - 12nd World Conference on Information Systems and
+ Technologies | Lodz, Poland
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH 5/9] drm/nouveau/pm: Annotate struct nvkm_perfdom with
- __counted_by
-Content-Language: en-US
-To: Kees Cook <keescook@chromium.org>, David Airlie <airlied@gmail.com>
-References: <20230922173110.work.084-kees@kernel.org>
- <20230922173216.3823169-5-keescook@chromium.org>
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-In-Reply-To: <20230922173216.3823169-5-keescook@chromium.org>
-X-AntiAbuse: This header was added to track abuse,
- please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - lists.linux-foundation.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 94.239.20.48
-X-Source-L: No
-X-Exim-ID: 1qjkgF-000Q0w-1S
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: ([192.168.1.98]) [94.239.20.48]:43422
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 0
-X-Org: HG=hgshared;ORG=hostgator;
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
-X-CMAE-Envelope: MS4xfA4Yr87nMFo8nPHvzd8+iSYRtjOrcbxMMgIVF855NOfquRcjr2fygADSanzq48gu0AYcwceqrrIRPoMMgtDlq56QHDJvlEEluhPsyTp9So9sLuBPBrC+
- PB/zgkBb1XhM3/4rbGYdcSJM7XcFtBmouhtbOe13PMeCdxIpirEvdNgIv9RtEGJ7mCOegageDEbCWs/dN92eSO5QMr3lXlfXA1yE3LhRZkuFkg37pm0gk6Pq
-Cc: Tejas Upadhyay <tejas.upadhyay@intel.com>, Emma Anholt <emma@anholt.net>,
- nouveau@lists.freedesktop.org,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, llvm@lists.linux.dev,
- dri-devel@lists.freedesktop.org, Chris Wilson <chris@chris-wilson.co.uk>,
- Prike Liang <Prike.Liang@amd.com>, Huang Rui <ray.huang@amd.com>,
- Andrzej Hajda <andrzej.hajda@intel.com>,
- Marijn Suijten <marijn.suijten@somainline.org>,
- Matthew Brost <matthew.brost@intel.com>, Karol Herbst <kherbst@redhat.com>,
- Neil Armstrong <neil.armstrong@linaro.org>, amd-gfx@lists.freedesktop.org,
- Kuogee Hsieh <quic_khsieh@quicinc.com>, Nathan Chancellor <nathan@kernel.org>,
- VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
- Ben Skeggs <bskeggs@redhat.com>, Andi Shyti <andi.shyti@linux.intel.com>,
- Tom Rix <trix@redhat.com>, David Airlie <airlied@redhat.com>,
- virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
- linux-hardening@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
- Lyude Paul <lyude@redhat.com>, Yifan Zhang <yifan1.zhang@amd.com>,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- Kevin Wang <kevin1.wang@amd.com>, Abhinav Kumar <quic_abhinavk@quicinc.com>,
- Jani Nikula <jani.nikula@linux.intel.com>, Melissa Wen <mwen@igalia.com>,
- Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Maxime Ripard <mripard@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Evan Quan <evan.quan@amd.com>, Sean Paul <sean@poorly.run>,
- Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
- Xiaojian Du <Xiaojian.Du@amd.com>, Le Ma <le.ma@amd.com>,
- freedreno@lists.freedesktop.org, Bjorn Andersson <andersson@kernel.org>, "Pan,
- Xinhui" <Xinhui.Pan@amd.com>, Nick Desaulniers <ndesaulniers@google.com>,
- linux-kernel@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
- Zack Rusin <zackr@vmware.com>, Daniel Vetter <daniel@ffwll.ch>,
- Alex Deucher <alexander.deucher@amd.com>, Nirmoy Das <nirmoy.das@intel.com>,
- Lang Yu <Lang.Yu@amd.com>,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- John Harrison <john.c.harrison@Intel.com>,
- Hawking Zhang <Hawking.Zhang@amd.com>
+Date: Sun, 24 Sep 2023 10:39:11 +0100
+Priority: urgent
+X-Priority: 1
+Importance: high
+Message-ID: <21036209507265@gmail-com>
+X-Antivirus: AVG (VPS 230924-2, 24/9/2023), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -152,57 +70,465 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Reply-To: worldcist@gmail.com
+Content-Type: multipart/mixed; boundary="===============6653107241324932613=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+This is a multi-part message in MIME format
+
+--===============6653107241324932613==
+Content-Type: multipart/alternative; charset=utf-8; boundary="0RE8wtn7xC1CNNMkeC6=_ivFuZxwZpzjZk"
+
+This is a multi-part message in MIME format
+
+--0RE8wtn7xC1CNNMkeC6=_ivFuZxwZpzjZk
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* CORE Conference           
+** Google Scholar H5-Index =3D 25
+
+*** Indexed in Scopus, WoS, DBLP, etc.
 
 
-On 9/22/23 11:32, Kees Cook wrote:
-> Prepare for the coming implementation by GCC and Clang of the __counted_by
-> attribute. Flexible array members annotated with __counted_by can have
-> their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
-> (for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
-> functions).
-> 
-> As found with Coccinelle[1], add __counted_by for struct nvkm_perfdom.
-> 
-> [1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
-> 
-> Cc: Ben Skeggs <bskeggs@redhat.com>
-> Cc: Karol Herbst <kherbst@redhat.com>
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: David Airlie <airlied@gmail.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: nouveau@lists.freedesktop.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-Thanks
+------------------------------  ------------------------------  -----------=
+-------------------  ----------------------------- 
+WorldCIST'24 - The 12th World Conference on Information Systems and Technol=
+ogies
+
+Lodz University of Technology, Lodz, Poland, March 26-28, 2024
+
+http://worldcist.org/ <https://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4=
+a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb>          
+
+ -----------------------------  ------------------------------  -----------=
+-------------------  ----------------------------- 
+
+
+
+Scope
+
+The WorldCist'24 - 12nd World Conference on Information Systems and Technol=
+ogies,  to be held in Lodz, at Lodz University of Technology, Poland, 26 - =
+28 March 2024, is a global forum for researchers and practitioners to prese=
+nt and discuss the most recent innovations, trends, results, experiences an=
+d concerns in the several perspectives of Information Systems and Technolog=
+ies.
+
+We are pleased to invite you to submit your original papers to WorldCist'24=
+=2E All submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+ 
+
+Themes
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Technologies for Biomedical Applications (TBA)
+
+N) Information Technologies in Radiocommunications (ITR);
+
+ 
+
+Types of Submissions and Decisions
+
+Four types of original papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one of th=
+e Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to discu=
+ssion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. These p=
+apers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D, too=
+ls, etc., focused on some topics of the conference. These papers are assign=
+ed to a 4-page limit.
+
+Submitted papers must comply with the format of Lecture Notes in Networks a=
+nd Systems series (see Instructions for Authors at Springer Website) <https=
+://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere=
+2OOTeZb8we3Me5rX>, be written in English, must not have been published befo=
+re, not be under review for any other conference or publication and not inc=
+lude any information leading to the authors=E2=80=99 identification. Theref=
+ore, the authors=E2=80=99 names, affiliations and bibliographic references =
+should not be included in the version for evaluation by the Program Committ=
+ee. This information should only be included in the camera-ready version, s=
+aved in Word or Latex format and also in PDF format. These files must be ac=
+companied by the Consent to Publish form filled out, in a ZIP file, and upl=
+oaded at the conference management system.
+
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or accepted =
+by the Conference Chairs. In the later case, it can be accepted as the type=
+ originally submitted or as another type. Thus, full papers can be accepted=
+ as short papers or poster papers only. Similarly, short papers can be acce=
+pted as poster papers only.
+
+Poster papers and Company papers are not published in the Conference Procee=
+dings, being only presented and discussed. The authors of accepted poster p=
+apers should build and print a poster to be exhibited during the Conference=
+=2E This poster must follow an A1 or A2 vertical format. The Conference inc=
+ludes Work Sessions where these posters are presented and orally discussed,=
+ with a 7 minute limit per poster.
+
+The authors of accepted Full papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussion wil=
+l follow each presentation. The authors of accepted Short papers and Compan=
+y papers will have 11 minutes to present their work in a Conference Work Se=
+ssion; approximately 4 minutes of discussion will follow each presentation.=
+
+
+ 
+
+Publication and Indexing
+
+To ensure that a full paper or short paper is published and presented, post=
+er paper or company paper is presented, at least one of the authors must be=
+ fully registered by the 5th of January 2024, and the paper must comply wit=
+h the suggested layout and page-limit. Additionally, all recommended change=
+s must be addressed by the authors before they submit the camera-ready vers=
+ion.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Full and Short papers will be published in Proceedings by Springer, in seve=
+ral books of of the Lecture Notes in Networks and Systems series. Poster an=
+d company papers will not be published, just presented in the conference.
+
+Published Full and Short papers will be submitted for indexation by WoS, SC=
+OPUS, DBLP and Google Scholar, among others, and will be available in the S=
+pringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them for =
+publication in international journals indexed by WoS/SCI, SCOPUS and DBLP, =
+among others, such as:
+
+International Journal of Neural Systems <https://mkt.saisti.eu/go/4c8d0737e=
+f-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5s5> (IF: 8.0 / =
+Q1)
+
+Integrated Computer-Aided Engineering <https://mkt.saisti.eu/go/4c8d0737ef-=
+2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5s7> (IF: 6.5 / Q1=
+)
+
+Informatica <https://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af=
+251dec2-476d45dere2OOTeZb8we3Me5ts> (IF: 2.9 / Q1)
+
+Etc.
+
+ 
+
+Important Dates
+
+Paper Submission: November 10, 2023
+
+Notification of Acceptance: December 24, 2023
+
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: January 5, 2024.
+
+Camera-ready Submission: January 5, 2024
+
+
+
+
+
+
+
+Website of WorldCIST'24: http://worldcist.org/ <https://mkt.saisti.eu/go/4c=
+8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb>
+
+
+
+
+WorldCIST'24 Team
+
+http://worldcist.org/ <https://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4=
+a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb>
+
+
 -- 
-Gustavo
+This email has been checked for viruses by AVG antivirus software.
+www.avg.com
+--0RE8wtn7xC1CNNMkeC6=_ivFuZxwZpzjZk
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> ---
->   drivers/gpu/drm/nouveau/nvkm/engine/pm/priv.h | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/pm/priv.h b/drivers/gpu/drm/nouveau/nvkm/engine/pm/priv.h
-> index 6ae25d3e7f45..c011227f7052 100644
-> --- a/drivers/gpu/drm/nouveau/nvkm/engine/pm/priv.h
-> +++ b/drivers/gpu/drm/nouveau/nvkm/engine/pm/priv.h
-> @@ -82,7 +82,7 @@ struct nvkm_perfdom {
->   	u8  mode;
->   	u32 clk;
->   	u16 signal_nr;
-> -	struct nvkm_perfsig signal[];
-> +	struct nvkm_perfsig signal[] __counted_by(signal_nr);
->   };
->   
->   struct nvkm_funcdom {
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>* CORE Conference &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <p id=3D"m_1254779017760520523isPasted">** Google Scholar H5-Index =3D =
+25</p>
+    <p>*** Indexed in Scopus, WoS, DBLP, etc.</p>
+    <p><br /></p>------------------------------
+    <wbr>&nbsp;</wbr>------------------------------
+    <wbr>&nbsp;</wbr>------------------------------
+    <wbr>&nbsp;</wbr>----------------------------- 
+    <p><strong>WorldCIST'24 - The 12th World Conference on Information Syst=
+ems and Technologies</strong></p>
+    <p>Lodz University of Technology, Lodz, Poland, March 26-28, 2024</p>
+    <p><a href=3D"https://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21=
+b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb" rel=3D"nofollow noreferrer" target=
+=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps://=
+mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OO=
+TeZb8we3Me1Nb&source=3Dgmail&ust=3D1695633909140000&usg=3DAOvVaw0gpgMJip4as=
+e2C29tiBcWK">http://worldcist.org/</a>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nb=
+sp;</p>
+    <p><a>&nbsp;</a>-----------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>-----------------------------
+    </p>
+    <p><br /></p>
+    <div id=3D"m_1254779017760520523isPasted">
+      <p><strong>Scope</strong></p>
+      <p>The WorldCist'24 - 12<sup>nd</sup> World Conference on Information=
+ Systems and Technologies, &nbsp;to be held in Lodz, at Lodz University of =
+Technology, Poland, 26 - 28 March 2024, is a global forum for researchers a=
+nd practitioners to present and discuss the most recent innovations, trends=
+, results, experiences and concerns in the several perspectives of Informat=
+ion Systems and Technologies.</p>
+      <p style=3D"text-align: left">We are pleased to invite you to submit =
+your original papers to WorldCist'24. All submissions will be reviewed on t=
+he basis of relevance, originality, importance and clarity.</p>
+      <p style=3D"text-align: left">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Themes</strong></p>
+      <p>Submitted papers should be related with one or more of the main th=
+emes proposed for the Conference:</p>
+      <p style=3D"text-align: left; padding-left: 30px">A) Information and =
+Knowledge Management (IKM);</p>
+      <p style=3D"text-align: left; padding-left: 30px">B) Organizational M=
+odels and Information Systems (OMIS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">C) Software and Sys=
+tems Modeling (SSM);</p>
+      <p style=3D"text-align: left; padding-left: 30px">D) Software Systems=
+, Architectures, Applications and Tools (SSAAT);</p>
+      <p style=3D"text-align: left; padding-left: 30px">E) Multimedia Syste=
+ms and Applications (MSA);</p>
+      <p style=3D"text-align: left; padding-left: 30px">F) Computer Network=
+s, Mobility and Pervasive Systems (CNMPS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">G) Intelligent and =
+Decision Support Systems (IDSS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">H) Big Data Analyti=
+cs and Applications (BDAA);</p>
+      <p style=3D"text-align: left; padding-left: 30px">I) Human-Computer I=
+nteraction (HCI);</p>
+      <p style=3D"text-align: left; padding-left: 30px">J) Ethics, Computer=
+s and Security (ECS)</p>
+      <p style=3D"text-align: left; padding-left: 30px">K) Health Informati=
+cs (HIS);</p>
+      <p style=3D"text-align: left; padding-left: 30px">L) Information Tech=
+nologies in Education (ITE);</p>
+      <p style=3D"text-align: left; padding-left: 30px">M) Technologies for=
+ Biomedical Applications (TBA)</p>
+      <p style=3D"text-align: left; padding-left: 30px">N) Information Tech=
+nologies in Radiocommunications (ITR);</p>
+      <p style=3D"text-align: left; padding-left: 30px">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Types of Submissions and Decisi=
+ons</strong></p>
+      <p style=3D"text-align: left">Four types of original papers can be su=
+bmitted:</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Full pa=
+per</em><em>:</em></strong> Finished or consolidated R&amp;D works, to be i=
+ncluded in one of the Conference themes. These papers are assigned a 10-pag=
+e limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Short p=
+aper:</em></strong> Ongoing works with relevant preliminary results, open t=
+o discussion. These papers are assigned a 7-page limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><strong><em>Poster =
+paper:</em></strong> Initial work with relevant ideas, open to discussion. =
+These papers are assigned to a 4-page limit.</p>
+      <p style=3D"text-align: left; padding-left: 30px"><em><strong>Company=
+ paper:</strong></em> Companies' papers that show practical experience, R &=
+amp; D, tools, etc., focused on some topics of the conference. These papers=
+ are assigned to a 4-page limit.</p>
+      <p style=3D"text-align: left">Submitted papers must comply with the f=
+ormat of Lecture Notes in Networks and Systems series (see <a href=3D"https=
+://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere=
+2OOTeZb8we3Me5rX" rel=3D"noopener" target=3D"_blank" data-saferedirecturl=
+=3D"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/4c8d0737ef-2-1d=
+88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5rX&source=3Dgmail&ust=
+=3D1695633909140000&usg=3DAOvVaw2qR4uCR98o8eL1wsp13QGT">Instructions for Au=
+thors at Springer Website)</a>, be written in English, must not have been p=
+ublished before, not be under review for any other conference or publicatio=
+n and not include any information leading to the authors&rsquo; identificat=
+ion. Therefore, the authors&rsquo; names, affiliations and bibliographic re=
+ferences should not be included in the version for evaluation by the Progra=
+m Committee. This information should only be included in the camera-ready v=
+ersion, saved in Word or Latex format and also in PDF format. <span lang=3D=
+"en">These files must be accompanied by the <a rel=3D"noopener">Consent to =
+Publish form</a> filled out,&nbsp;</span><span lang=3D"en">in a ZIP file, a=
+nd uploaded at the conference management system.<br /></span></p>
+      <p style=3D"text-align: left">All papers will be subjected to a &ldqu=
+o;double-blind review&rdquo; by at least two members of the Program Committ=
+ee.</p>
+      <p style=3D"text-align: left">Based on Program Committee evaluation, =
+a paper can be rejected or accepted by the Conference Chairs. In the later =
+case, it can be accepted as the type originally submitted or as another typ=
+e. Thus, full papers can be accepted as short papers or poster papers only.=
+ Similarly, short papers can be accepted as poster papers only.</p>
+      <p style=3D"text-align: left">Poster papers and Company papers are no=
+t published in the Conference Proceedings, being only presented and discuss=
+ed. The authors of accepted poster papers should build and print a poster t=
+o be exhibited during the Conference. This poster must follow an A1 or A2 v=
+ertical format. The Conference includes Work Sessions where these posters a=
+re presented and orally discussed, with a 7 minute limit per poster.</p>
+      <p style=3D"text-align: left">The authors of accepted Full papers wil=
+l have 15 minutes to present their work in a Conference Work Session; appro=
+ximately 5 minutes of discussion will follow each presentation. The authors=
+ of accepted Short papers and Company papers will have 11 minutes to presen=
+t their work in a Conference Work Session; approximately 4 minutes of discu=
+ssion will follow each presentation.</p>
+      <p style=3D"text-align: left">&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Publication and Indexing</stron=
+g></p>
+      <p style=3D"text-align: left">To ensure that a full paper or short pa=
+per is published and presented, poster paper or company paper is presented,=
+ at least one of the authors must be fully registered by the 5<sup>th</sup>=
+ of January 2024, and the paper must comply with the suggested layout and p=
+age-limit. Additionally, all recommended changes must be addressed by the a=
+uthors before they submit the camera-ready version.</p>
+      <p style=3D"text-align: left">No more than one paper per registration=
+ will be published. An extra fee must be paid for publication of additional=
+ papers, with a maximum of one additional paper per registration. One regis=
+tration permits only the participation of one author in the conference.</p>=
+
+      <p style=3D"text-align: left">Full and Short papers will be published=
+ in Proceedings by Springer, in several books of <span style=3D"font-family=
+: verdana,geneva,sans-serif">of the Lecture Notes in Networks and Systems s=
+eries</span>. Poster and company papers will not be published, just present=
+ed in the conference.</p>
+      <p style=3D"text-align: left">Published Full and Short papers will be=
+ submitted for indexation by WoS, SCOPUS, DBLP and Google Scholar, among ot=
+hers, and will be available in the SpringerLink Digital Library.</p>
+      <p style=3D"text-align: left">The authors of the best selected papers=
+ will be invited to extend them for publication in international journals i=
+ndexed by WoS/SCI, SCOPUS and DBLP, among others, such as:</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/4=
+c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5s5" rel=
+=3D"noopener" target=3D"_blank" data-saferedirecturl=3D"https://www.google.=
+com/url?q=3Dhttps://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af2=
+51dec2-476d45dere2OOTeZb8we3Me5s5&source=3Dgmail&ust=3D1695633909140000&usg=
+=3DAOvVaw1tAzi6DUZ25YdYzcj_x67B">International Journal of Neural Systems</a=
+> (IF: 8.0 / Q1)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/4=
+c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5s7" rel=
+=3D"noopener" target=3D"_blank" data-saferedirecturl=3D"https://www.google.=
+com/url?q=3Dhttps://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af2=
+51dec2-476d45dere2OOTeZb8we3Me5s7&source=3Dgmail&ust=3D1695633909140000&usg=
+=3DAOvVaw0IBl494yJvMxcZq21WvDA1">Integrated Computer-Aided Engineering</a> =
+(IF: 6.5 / Q1)</p>
+      <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/4=
+c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me5ts" rel=
+=3D"noopener" target=3D"_blank" data-saferedirecturl=3D"https://www.google.=
+com/url?q=3Dhttps://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af2=
+51dec2-476d45dere2OOTeZb8we3Me5ts&source=3Dgmail&ust=3D1695633909141000&usg=
+=3DAOvVaw0-kRjaDYVbaQm-aTsAoIRr">Informatica</a> (IF: 2.9 / Q1)</p>
+      <p style=3D"padding-left: 30px">Etc.</p>
+      <p>&nbsp;</p>
+      <p style=3D"text-align: left"><strong>Important Dates</strong></p>
+      <p style=3D"text-align: left; padding-left: 30px">Paper Submission: <=
+em>November 10, 2023</em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Notification of Acc=
+eptance: <em>December 24, 2023<br /></em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Payment of Registra=
+tion, <em>to ensure the inclusion of an accepted paper in the conference pr=
+oceedings: January 5, 2024.</em></p>
+      <p style=3D"text-align: left; padding-left: 30px">Camera-ready Submis=
+sion: <em>January 5, 2024</em></p>
+      <div id=3D"m_1254779017760520523isPasted">
+        <p style=3D"text-align: left"><br /></p>
+        <p style=3D"text-align: left"><br /></p>
+        <p style=3D"text-align: left"><strong>Website of WorldCIST'24</stro=
+ng>: <a id=3D"m_1254779017760520523isPasted" href=3D"https://mkt.saisti.eu/=
+go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb"=
+ target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dh=
+ttps://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af251dec2-476d45=
+dere2OOTeZb8we3Me1Nb&source=3Dgmail&ust=3D1695633909141000&usg=3DAOvVaw2RVq=
+ePEY2W2HV_-d9NRLkq">http://worldcist.org/</a></p>
+        <p style=3D"text-align: left"><br /></p>
+        <p style=3D"text-align: left">WorldCIST'24 Team</p>
+        <p style=3D"text-align: left"><a id=3D"m_1254779017760520523isPaste=
+d" href=3D"https://mkt.saisti.eu/go/4c8d0737ef-2-1d88c9ad6028c4a-c21b5-af25=
+1dec2-476d45dere2OOTeZb8we3Me1Nb" target=3D"_blank" data-saferedirecturl=3D=
+"https://www.google.com/url?q=3Dhttps://mkt.saisti.eu/go/4c8d0737ef-2-1d88c=
+9ad6028c4a-c21b5-af251dec2-476d45dere2OOTeZb8we3Me1Nb&source=3Dgmail&ust=3D=
+1695633909141000&usg=3DAOvVaw2RVqePEY2W2HV_-d9NRLkq">http://worldcist.org/<=
+/a></p>
+      </div>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br /><table style=3D"bo=
+rder-top: 1px solid #D3D4DE;"><tr><td style=3D"width: 55px; padding-top: 13=
+px;"><a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_s=
+ource=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D"=
+_blank"><img src=3D"https://s-install.avcdn.net/ipm/preview/icons/icon-enve=
+lope-tick-green-avg-v1.png" alt=3D"" width=3D"46" height=3D"29" style=3D"wi=
+dth: 46px; height: 29px;"/></a></td><td style=3D"width: 470px; padding-top:=
+ 12px; color: #41424e; font-size: 13px; font-family: Arial, Helvetica, sans=
+-serif; line-height: 18px;">Virus-free.<a href=3D"http://www.avg.com/email-=
+signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaign=3Dsig-email&utm=
+_content=3Demailclient" target=3D"_blank" style=3D"color: #4453ea;">www.avg=
+=2Ecom</a></td></tr></table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF=
+2" width=3D"1" height=3D"1"> </a></div></body>
+</html>
+
+--0RE8wtn7xC1CNNMkeC6=_ivFuZxwZpzjZk--
+
+
+--===============6653107241324932613==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6653107241324932613==--
+
