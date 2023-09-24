@@ -1,128 +1,116 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 02D28CE7A8A
-	for <virtualization@archiver.kernel.org>; Sun, 24 Sep 2023 17:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 194B7CE7A91
+	for <virtualization@archiver.kernel.org>; Sun, 24 Sep 2023 23:58:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 63BF360E77;
-	Sun, 24 Sep 2023 17:40:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 63BF360E77
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=Rhz+Gc8B
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8F19140880;
+	Sun, 24 Sep 2023 23:58:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8F19140880
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=N0VUEXtr
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IJ8pnBYVARD4; Sun, 24 Sep 2023 17:40:04 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id x0FuJ63GhfPv; Sun, 24 Sep 2023 23:58:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D820760E4C;
-	Sun, 24 Sep 2023 17:40:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D820760E4C
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8248540629;
+	Sun, 24 Sep 2023 23:58:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8248540629
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5A06C0071;
-	Sun, 24 Sep 2023 17:40:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC328C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44196C0071;
+	Sun, 24 Sep 2023 23:58:51 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0AC18C0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 17:40:01 +0000 (UTC)
+ Sun, 24 Sep 2023 23:58:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BB73860E4E
+ by smtp1.osuosl.org (Postfix) with ESMTP id D375B813EC
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 17:40:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BB73860E4E
+ Sun, 24 Sep 2023 23:58:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D375B813EC
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=N0VUEXtr
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hBlbmAkLBGWA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id We4UWfW0MWqq
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 17:40:00 +0000 (UTC)
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 57EF260E4C
+ Sun, 24 Sep 2023 23:58:47 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C9135813DD
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Sep 2023 17:40:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 57EF260E4C
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38OGehq2006698; Sun, 24 Sep 2023 17:39:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=a2ctV+9L4kKCcLREiZQedto4qlgkJw8bUeFgjqbh5As=;
- b=Rhz+Gc8BTaoyzxlAeAH0FGE9+e9Kqa3pXNo6DwyLFoHRHTNKdM2ZTrhbapgsVuIlHzk7
- dgGnP2WqFB6N7bIkIrF9WiSHOKmtQbvpKZsBK1L+c+npfC3vunTw89c8KMlc6DrWLTt2
- IFbDpsChFjf8CIGpkY5P3U1oQpmny0h/xu4MNyfqo9/7h1NejWsW+/Gzt0x0nyUVPJLE
- WdPEmPUdXCP474I50K8kg2NWxoOKuWsz1Vx2QMJ+CWz/lHsjkRw2qc/rTDyrq5g/qR50
- uCICtyTff+gVgp+UOesRNcg7Mvx0ukKIs0dBWYiIwucg5j6eNAFeFsJ820is37qC4cLu aA== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5hb0bmq-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Sun, 24 Sep 2023 17:39:47 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38OHdlkB003823;
- Sun, 24 Sep 2023 17:39:47 GMT
-Received: from ppma13.dal12v.mail.ibm.com
- (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ta5hb0bmk-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Sun, 24 Sep 2023 17:39:47 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
- by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38OFaLvj030753; Sun, 24 Sep 2023 17:39:46 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
- by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tacjjc3n5-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Sun, 24 Sep 2023 17:39:46 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com
- [10.20.54.103])
- by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 38OHdhVc27394696
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sun, 24 Sep 2023 17:39:43 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id AE5C92004B;
- Sun, 24 Sep 2023 17:39:43 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id C618B20040;
- Sun, 24 Sep 2023 17:39:42 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown [9.171.29.239])
- by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
- Sun, 24 Sep 2023 17:39:42 +0000 (GMT)
-Date: Sun, 24 Sep 2023 19:39:41 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: Re: virtcrypto_dataq_callback calls crypto_finalize_request() from
- irq context
-Message-ID: <20230924193941.6a02237f.pasic@linux.ibm.com>
-In-Reply-To: <ed47fb73ad634ca395bd6c8e979dda8e@huawei.com>
-References: <20230922154546.4f7447ce.pasic@linux.ibm.com>
- <ed47fb73ad634ca395bd6c8e979dda8e@huawei.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: OAd7c8O-FiD8N90yvnR-OhbKEtCwd40N
-X-Proofpoint-ORIG-GUID: D7Y4RHuy_ajhhRgET4pDTmKzK3fghQZR
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+ Sun, 24 Sep 2023 23:58:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C9135813DD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1695599925;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ets5PYkEN00cN7wgOm2RwQsLcoaUgwsPfQGHKYG1F6g=;
+ b=N0VUEXtr0AZhVLjjPVU4v94tWsDLMCxSn9xIIhBXdJ7/NqmCwlWsmj2YTXiRhlyEEnAkHu
+ AmvcR2WlJvH0Em3LdVZ7ZCXk6g9AII+NSce2r+WpQUiFGCQpI5BkOEWSjYuvkGsak32Puy
+ 3pZ12SpE5wA6aAKMTMDveczR0tsm4LA=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-553-tfS-5SDrMDOxLD21j0Be7Q-1; Sun, 24 Sep 2023 19:58:44 -0400
+X-MC-Unique: tfS-5SDrMDOxLD21j0Be7Q-1
+Received: by mail-pj1-f70.google.com with SMTP id
+ 98e67ed59e1d1-27731a5b94dso1151280a91.1
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 24 Sep 2023 16:58:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1695599922; x=1696204722;
+ h=content-transfer-encoding:in-reply-to:references:cc:to:from
+ :content-language:subject:user-agent:mime-version:date:message-id
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=ets5PYkEN00cN7wgOm2RwQsLcoaUgwsPfQGHKYG1F6g=;
+ b=ky1tI7Fz2sYRiyLkI1GB+JARY3q10P9Yl/33WA7ofwiVmOdOExse1RJB/8Wd6blpSX
+ Pjzxry3nrqitjRj8HMtK0BGf17XbdGODiIoJpZH7gESFk7gfJbfKTTNIu2KXZVFGSicx
+ n5Sm/FIUdSAUrhRtyzBRyOaV1Mj3qk+/RnOR8NWWP7tDxsD9R4BkkNknYEWH9JqFnAeb
+ yQuq58btDjfp7mHsbLngjJ+9/xAa2iMLK3Jj8z7C4iuE/DzleOB7QR9e66zpvjOFVCp7
+ 3oLKarCo0atYO0V1OxmHesLA02rvoi5DAaAapbPmBq4ngSVST8qW35UQ8QUjK/a+4L2i
+ ccgQ==
+X-Gm-Message-State: AOJu0YwftJx6rw2CmpO2XNLwojpaJbJoz8feDK9f3M37LOJsBCzfk6+w
+ aNbe8gBzeYEEH+Y/avPeYiYycOwCIpCGq5/9Aegp/Pvcaaz2p0ofcEx8l1A5hCImqdoM0ZRE2Hx
+ TSJWJMdQpLH6V3af7M7OZ2ZFiFsGX3j7XQ3AwQWhd587qP+epcuS4id0cr7/jblxQGohz3j0P53
+ YWrp4dV3v6s7NUjB+VQlWSYA==
+X-Received: by 2002:a17:90a:2ca1:b0:26d:ae3:f6a6 with SMTP id
+ n30-20020a17090a2ca100b0026d0ae3f6a6mr2819277pjd.18.1695599922302; 
+ Sun, 24 Sep 2023 16:58:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFDUhf4oGjVLqD6nDiU8Yq56LBZmA3ph1fj5hxXW40AUTIUnA8R3a4yi1/uEa5ZPgJxtHjHow==
+X-Received: by 2002:a17:90a:2ca1:b0:26d:ae3:f6a6 with SMTP id
+ n30-20020a17090a2ca100b0026d0ae3f6a6mr2819265pjd.18.1695599921841; 
+ Sun, 24 Sep 2023 16:58:41 -0700 (PDT)
+Received: from ?IPV6:2001:8003:e5b0:9f00:dbbc:1945:6e65:ec5?
+ ([2001:8003:e5b0:9f00:dbbc:1945:6e65:ec5])
+ by smtp.gmail.com with ESMTPSA id
+ y9-20020a17090a16c900b002772faee740sm1216900pje.5.2023.09.24.16.58.37
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 24 Sep 2023 16:58:40 -0700 (PDT)
+Message-ID: <9efb4685-7c28-d51d-fd5b-aa2de8e5ded2@redhat.com>
+Date: Mon, 25 Sep 2023 09:58:35 +1000
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-24_15,2023-09-21_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 mlxscore=0
- priorityscore=1501 spamscore=0 clxscore=1015 malwarescore=0 suspectscore=0
- lowpriorityscore=0 mlxlogscore=951 adultscore=0 phishscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2309180000
- definitions=main-2309240154
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH v2] virtio_balloon: Fix endless deflation and inflation on
+ arm64
+From: Gavin Shan <gshan@redhat.com>
+To: virtualization@lists.linux-foundation.org
+References: <20230831011007.1032822-1-gshan@redhat.com>
+In-Reply-To: <20230831011007.1032822-1-gshan@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, linux-kernel@vger.kernel.org,
+ zhenyzha@redhat.com, shan.gavin@gmail.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -134,32 +122,111 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, 24 Sep 2023 11:56:25 +0000
-"Gonglei (Arei)" <arei.gonglei@huawei.com> wrote:
+Hi David and Michael,
 
-> Hi Halil,
+On 8/31/23 11:10, Gavin Shan wrote:
+> The deflation request to the target, which isn't unaligned to the
+> guest page size causes endless deflation and inflation actions. For
+> example, we receive the flooding QMP events for the changes on memory
+> balloon's size after a deflation request to the unaligned target is
+> sent for the ARM64 guest, where we have 64KB base page size.
 > 
-> Commit 4058cf08945 introduced a check for detecting crypto completion function 
-> called with enable BH, and indeed the virtio-crypto driver didn't disable BH, which needs
-> a patch to fix it.
+>    /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+>    -accel kvm -machine virt,gic-version=host -cpu host          \
+>    -smp maxcpus=8,cpus=8,sockets=2,clusters=2,cores=2,threads=1 \
+>    -m 1024M,slots=16,maxmem=64G                                 \
+>    -object memory-backend-ram,id=mem0,size=512M                 \
+>    -object memory-backend-ram,id=mem1,size=512M                 \
+>    -numa node,nodeid=0,memdev=mem0,cpus=0-3                     \
+>    -numa node,nodeid=1,memdev=mem1,cpus=4-7                     \
+>      :                                                          \
+>    -device virtio-balloon-pci,id=balloon0,bus=pcie.10
 > 
-> P.S.: https://lore.kernel.org/lkml/20220221120833.2618733-5-clabbe@baylibre.com/T/
+>    { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>    {"return": {}}
+>    {"timestamp": {"seconds": 1693272173, "microseconds": 88667},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272174, "microseconds": 89704},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272175, "microseconds": 90819},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272176, "microseconds": 91961},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272177, "microseconds": 93040},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272178, "microseconds": 94117},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272179, "microseconds": 95337},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272180, "microseconds": 96615},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272181, "microseconds": 97626},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272182, "microseconds": 98693},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>    {"timestamp": {"seconds": 1693272183, "microseconds": 99698},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272184, "microseconds": 100727},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272185, "microseconds": 90430},   \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    {"timestamp": {"seconds": 1693272186, "microseconds": 102999},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>       :
+>    <The similar QMP events repeat>
 > 
-> Regards,
-> -Gonglei
+> Fix it by aligning the target up to the guest page size, 64KB in this
+> specific case. With this applied, no flooding QMP events are observed
+> and the memory balloon's size can be stablizied to 0x3ffe0000 soon
+> after the deflation request is sent.
+> 
+>    { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>    {"return": {}}
+>    {"timestamp": {"seconds": 1693273328, "microseconds": 793075},  \
+>     "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>    { "execute" : "query-balloon" }
+>    {"return": {"actual": 1073610752}}
+> 
+> Signed-off-by: Gavin Shan <gshan@redhat.com>
+> Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
+> ---
+> v2: Align @num_pages up to the guest page size in towards_target()
+>      directly as David suggested.
+> ---
+>   drivers/virtio/virtio_balloon.c | 6 +++++-
+>   1 file changed, 5 insertions(+), 1 deletion(-)
+> 
 
-Thanks Gonglei!
+If the patch looks good, could you please merge this to Linux 6.6.rc4 since
+it's something needed by our downstream. I hope it can land upstream as early
+as possible, thanks a lot.
 
-Thanks! I would be glad to test that fix on s390x. Are you about to send
-one?
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 5b15936a5214..2d5d252ef419 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -395,7 +395,11 @@ static inline s64 towards_target(struct virtio_balloon *vb)
+>   	virtio_cread_le(vb->vdev, struct virtio_balloon_config, num_pages,
+>   			&num_pages);
+>   
+> -	target = num_pages;
+> +	/*
+> +	 * Aligned up to guest page size to avoid inflating and deflating
+> +	 * balloon endlessly.
+> +	 */
+> +	target = ALIGN(num_pages, VIRTIO_BALLOON_PAGES_PER_PAGE);
+>   	return target - vb->num_pages;
+>   }
+>   
 
-Regards,
-Halil
+Thanks,
+Gavin
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
