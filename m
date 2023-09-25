@@ -1,108 +1,81 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B0568CE7A81
-	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 10:31:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE7FECE7A94
+	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 11:24:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3DE8F40105;
-	Mon, 25 Sep 2023 10:31:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3DE8F40105
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ePyqz1Es
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1ADF0418B4;
+	Mon, 25 Sep 2023 11:24:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1ADF0418B4
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=OLKk7KzH
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tyfSdqDM7H2W; Mon, 25 Sep 2023 10:31:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C192F40129;
-	Mon, 25 Sep 2023 10:31:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C192F40129
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oWj-JHfG8mpV; Mon, 25 Sep 2023 11:24:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 487CB415E5;
+	Mon, 25 Sep 2023 11:24:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 487CB415E5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9241BC0071;
-	Mon, 25 Sep 2023 10:31:09 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6971FC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12563C0039;
+	Mon, 25 Sep 2023 11:24:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C54C7C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 10:31:08 +0000 (UTC)
+ Mon, 25 Sep 2023 11:24:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3051660792
+ by smtp1.osuosl.org (Postfix) with ESMTP id 93B6E80C17
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 10:31:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3051660792
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ePyqz1Es
+ Mon, 25 Sep 2023 11:24:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 93B6E80C17
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
+ header.a=rsa-sha256 header.s=casper.20170209 header.b=OLKk7KzH
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h3zjPSg36HYv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4nMAbAogXSrw
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 10:31:06 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DB5F260BCD
+ Mon, 25 Sep 2023 11:24:28 +0000 (UTC)
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 59A4080B98
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 10:31:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB5F260BCD
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695637864;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=0DpECY4xgD810waS/rgF1VksorNZHYkHpCmfPvNqmEU=;
- b=ePyqz1EsLb9CWe/6RWcb3GbCQq9NpcyiGzTGv647lTewWWn39wro/EMhnqbhgF/JSASoqE
- aNWY6oAmy7mmmqkqQnHL2dm06kqM5/XjaXnMtt2/RtRVcFQbNwmyNky3L0ZprY8coQhidS
- z03mhY3QCnI/gFD8OBJ2K4WpkxJ73s4=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-526-UwytUONOPsysnU0qxKR6vA-1; Mon, 25 Sep 2023 06:31:03 -0400
-X-MC-Unique: UwytUONOPsysnU0qxKR6vA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- 38308e7fff4ca-2b8405aace3so79638621fa.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 03:31:02 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695637861; x=1696242661;
- h=content-transfer-encoding:mime-version:message-id:date:subject:cc
- :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=0DpECY4xgD810waS/rgF1VksorNZHYkHpCmfPvNqmEU=;
- b=kiQCZp8Rk70wwrb25jgV2bTnHvSYKJqfNLPgsAJcEZUlrdfUXFwnQob8HtyWVDnHEu
- DtfiVz4QebhCLogPoqHFz2AuDUOP8Q4usPNx0ojbcKSU3EfHo3jdRtA13p8P0CxfZpcA
- 8cUMp50Iu9aAz6wN0K4Pf6/0+8tJJufzqCNYiD6VPkKYtBu8LZxA5ttQB5ZbcBpHTzO9
- V2xbG2ZkTBbcxZ9ps8SFt+YEI6JBMNJ3ZnIKdpwaNkmQ/M4hYTrEt2Pfd0TiRtAhUPBC
- BRDsJ5OYef1WLUNkUJfOqO9M6lqsnAHUWCx+DHAkBKtsTVO2CnDoTXfdtDOuz+2VL08V
- WM7Q==
-X-Gm-Message-State: AOJu0Yxmkh6We5nCVO0nSIOfAJgyZPRYPGg5V7x1oSpk8OoeN509wfbq
- Fcf9jwxS69ylsTW5FNaHdPYPFe2OINEOJi1oT7KXUHRqJLn+81+mp+0SiwlheIVWOzzMC0MLwNN
- mpmbKe0YQWN/HowiWn+28lWmi+A+9Q172gBMhvrrYWGnCihEgr6TmuUdQ1HaBWTl96flJqM4WlH
- brs458KdoyGcr4MpDQl3SATbDWUs1T
-X-Received: by 2002:a2e:8084:0:b0:2bc:fa8f:83c4 with SMTP id
- i4-20020a2e8084000000b002bcfa8f83c4mr5126305ljg.39.1695637861187; 
- Mon, 25 Sep 2023 03:31:01 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEx1EwDlCVz04qbWgbyK5nfpeoyXqfQ6Qq2TBRTZPqNjJwRcJMbIuZi7IseWRVL8VlZINlyCw==
-X-Received: by 2002:a2e:8084:0:b0:2bc:fa8f:83c4 with SMTP id
- i4-20020a2e8084000000b002bcfa8f83c4mr5126286ljg.39.1695637860736; 
- Mon, 25 Sep 2023 03:31:00 -0700 (PDT)
-Received: from step1.lan ([46.6.235.141]) by smtp.gmail.com with ESMTPSA id
- mh2-20020a170906eb8200b0099cc3c7ace2sm6161066ejb.140.2023.09.25.03.30.58
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 25 Sep 2023 03:30:59 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] vringh: don't use vringh_kiov_advance() in vringh_iov_xfer()
-Date: Mon, 25 Sep 2023 12:30:57 +0200
-Message-ID: <20230925103057.104541-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.41.0
+ Mon, 25 Sep 2023 11:24:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59A4080B98
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Transfer-Encoding:
+ Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
+ :Reply-To:Content-ID:Content-Description;
+ bh=CZlIUfCEZAaduIab/BeYk1An+kVppDAcETHyx1HtxZE=; b=OLKk7KzHiiGpF1sqjWKSHcWnBZ
+ 92q6oAsLH8WkTJ+FhxjcGNaRuF+h8XwsCxZhYYqda0aMpb2cL4VmSVVm/BkygQ4pqREJW/O9PEsoH
+ kGpcMhAXZLjcT2iGMbS73ooDgePc0V9S2npQoXjzsW/GmDP0nW9GDTZdiPVJ1Q+Xj+IX5wXMqaCtE
+ IFO648RpE+win1TFMnfxg5RDgEfDQvFgtgXf418BDPcR5oid/G6hnWo9eDcna1Wz9Bxek/r6HC7XD
+ jkiltcKNHN6SeLrlkuv6M8SpYywXLT+jiqcyO63cHS7K67XKjPSzn9pbj1sVAWbU/7SkZZB0a8LC0
+ WSmJI7FQ==;
+Received: from [195.181.170.235] (helo=[172.31.28.226])
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1qkjhM-001A2F-Jx; Mon, 25 Sep 2023 11:24:20 +0000
+Message-ID: <cb5e785d19a15356d85bca11bebf7975c495e948.camel@infradead.org>
+Subject: Re: [PATCH] virtio_console: Annotate struct port_buffer with
+ __counted_by
+From: Amit Shah <amit@infradead.org>
+To: Kees Cook <keescook@chromium.org>, Amit Shah <amit@kernel.org>
+Date: Mon, 25 Sep 2023 13:24:19 +0200
+In-Reply-To: <20230922175115.work.059-kees@kernel.org>
+References: <20230922175115.work.059-kees@kernel.org>
+User-Agent: Evolution 3.44.4-0ubuntu2 
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, llvm@lists.linux.dev,
+ Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Nathan Chancellor <nathan@kernel.org>, linux-hardening@vger.kernel.org,
+ Tom Rix <trix@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,51 +92,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In the while loop of vringh_iov_xfer(), `partlen` could be 0 if one of
-the `iov` has 0 lenght.
-In this case, we should skip the iov and go to the next one.
-But calling vringh_kiov_advance() with 0 lenght does not cause the
-advancement, since it returns immediately if asked to advance by 0 bytes.
+On Fri, 2023-09-22 at 10:51 -0700, Kees Cook wrote:
+> Prepare for the coming implementation by GCC and Clang of the __counted_by
+> attribute. Flexible array members annotated with __counted_by can have
+> their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
+> (for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
+> functions).
+> 
+> As found with Coccinelle[1], add __counted_by for struct port_buffer.
+> 
+> [1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+> 
+> Cc: Amit Shah <amit@kernel.org>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  drivers/char/virtio_console.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 680d1ef2a217..431e9e5bf9c1 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -106,7 +106,7 @@ struct port_buffer {
+>  	unsigned int sgpages;
+>  
+>  	/* sg is used if spages > 0. sg must be the last in is struct */
+> -	struct scatterlist sg[];
+> +	struct scatterlist sg[] __counted_by(sgpages);
+>  };
 
-Let's restore the code that was there before commit b8c06ad4d67d
-("vringh: implement vringh_kiov_advance()"), avoiding using
-vringh_kiov_advance().
+Reviewed-by: Amit Shah <amit@kernel.org>
 
-Fixes: b8c06ad4d67d ("vringh: implement vringh_kiov_advance()")
-Cc: stable@vger.kernel.org
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vhost/vringh.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+Greg, please pick this up.
 
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 955d938eb663..7b8fd977f71c 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -123,8 +123,18 @@ static inline ssize_t vringh_iov_xfer(struct vringh *vrh,
- 		done += partlen;
- 		len -= partlen;
- 		ptr += partlen;
-+		iov->consumed += partlen;
-+		iov->iov[iov->i].iov_len -= partlen;
-+		iov->iov[iov->i].iov_base += partlen;
- 
--		vringh_kiov_advance(iov, partlen);
-+		if (!iov->iov[iov->i].iov_len) {
-+			/* Fix up old iov element then increment. */
-+			iov->iov[iov->i].iov_len = iov->consumed;
-+			iov->iov[iov->i].iov_base -= iov->consumed;
-+
-+			iov->consumed = 0;
-+			iov->i++;
-+		}
- 	}
- 	return done;
- }
--- 
-2.41.0
+Thanks,
 
+		Amit
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
