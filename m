@@ -1,122 +1,130 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7C512CE7AAF
-	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 17:36:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C331CE7AB5
+	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 17:50:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0B22D818E6;
-	Mon, 25 Sep 2023 17:36:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B22D818E6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gKlkiFaF
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8C621416A2;
+	Mon, 25 Sep 2023 17:50:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8C621416A2
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=n1ATiAGl
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1W-djSDxoVwS; Mon, 25 Sep 2023 17:36:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 69C3981F61;
-	Mon, 25 Sep 2023 17:36:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 69C3981F61
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iiMy01HqFD_t; Mon, 25 Sep 2023 17:50:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E6994409E6;
+	Mon, 25 Sep 2023 17:50:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E6994409E6
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 35835C0039;
-	Mon, 25 Sep 2023 17:36:20 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9E419C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C7B0BC0039;
+	Mon, 25 Sep 2023 17:50:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47575C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 17:36:18 +0000 (UTC)
+ Mon, 25 Sep 2023 17:50:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 72B4A611F2
+ by smtp2.osuosl.org (Postfix) with ESMTP id 13C2940A87
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 17:36:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72B4A611F2
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=gKlkiFaF
+ Mon, 25 Sep 2023 17:50:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 13C2940A87
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zZo9nSQqAOz6
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G5OIhz4crEVP
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 17:36:17 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 858A16118F
+ Mon, 25 Sep 2023 17:50:05 +0000 (UTC)
+Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com
+ [IPv6:2001:4860:4864:20::2b])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 053CF409E6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 17:36:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 858A16118F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695663376;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=zjs4lEvHaDiAhNxtP1F5A4HCNq/ZOZBqE/yPfKd9nJ0=;
- b=gKlkiFaFzw5X0O+/iuY3B3ET7iV6ujjj/wOyQoiHpxhgkTJwI1jW8PkzFgPopnNA5pzUew
- gjPkFswyFPHF/Ov058UHDKsFbLO/LeKy4nF7XU+FeQWgqCVRtLU8o3gGXr4DcMNZC1Km/T
- WTrEgMsYLDZIo6bU6budkxwnYgiN9h8=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-549-VwOhugUzPGW24LdBFJTHog-1; Mon, 25 Sep 2023 13:36:15 -0400
-X-MC-Unique: VwOhugUzPGW24LdBFJTHog-1
-Received: by mail-qk1-f199.google.com with SMTP id
- af79cd13be357-7740517a478so1263300385a.3
+ Mon, 25 Sep 2023 17:50:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 053CF409E6
+Received: by mail-oa1-x2b.google.com with SMTP id
+ 586e51a60fabf-1d651ab1d77so4652655fac.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 10:36:14 -0700 (PDT)
+ Mon, 25 Sep 2023 10:50:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=chromium.org; s=google; t=1695664204; x=1696269004;
+ darn=lists.linux-foundation.org; 
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=LrNZUYK9GVon3CstC3PAw8y74HnTAoBSBfYauDl4OzM=;
+ b=n1ATiAGlrtv54YHB8K2CqDqle5cAtu5sLwgCTMKyTEsCQ+ryiclKMgWoo6pDHZhfKe
+ MTn0Y+EzeCCgR1tGQRYr81YjM94xQcsNC24C/bqT+PJ6156KZ3ADMS6snCOyC3o6A8Cs
+ 2Ifc93LlfPwSMAGd4owfx+nR+IYtlxxtkTt/E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695663374; x=1696268174;
+ d=1e100.net; s=20230601; t=1695664204; x=1696269004;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=zjs4lEvHaDiAhNxtP1F5A4HCNq/ZOZBqE/yPfKd9nJ0=;
- b=IoHhJELMkEOI2Xy7KtoFeGvpFoVjRq+8j+C0O1Ufnvs+eS59xPasxK60D5lsOp+64b
- Gl70cs94b8pTge5M05vEMOLoOYeHTq8LIKTPdRWjR4pNUWyDrExJmO3MANDb2faz6/1f
- LhAQE8qYT8NkLOiil5apSaDB0ut5x37KiQ59zP7iE/7c6GNQK7yxdtBcSsqm1tEEu73I
- +VbNJMF141jSj7BeY6uc4FRmuRwYQTyY+HRSd8hPfmFF6DvFu/S/ikkswjfiuLtbT7PA
- vz4u519Ct0Jue4wWn7gacuH+4O++pqesHelP8t8TowZhghNuiiFIrk+u0Q3FBij6M9xX
- 6Kfw==
-X-Gm-Message-State: AOJu0YxYBc/iVqOlSo4h9qoDEv49NmwWdAbvaHMfb4oHHb2fy2SUEPGU
- y6M2hC2ZG/zlmNwufXuhOacmjBIrZe/eN1pEv/+WtwSmGMlNX79Ct+DtQ/Mb4sDHsavWR7PWa2I
- 8xpDEbvh7vPDgw0TbeyDtMAAGwSUyIyWFJUaJioTp5w==
-X-Received: by 2002:a05:620a:4105:b0:774:244c:8b2c with SMTP id
- j5-20020a05620a410500b00774244c8b2cmr7602754qko.14.1695663374566; 
- Mon, 25 Sep 2023 10:36:14 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFmpiRCu+wzFPOCrZC1PqOEIb9d+Hn3KxIh66IaQJaLnetrbMNgTOFvL9gDfrNhGFU6c7tCrA==
-X-Received: by 2002:a05:620a:4105:b0:774:244c:8b2c with SMTP id
- j5-20020a05620a410500b00774244c8b2cmr7602741qko.14.1695663374271; 
- Mon, 25 Sep 2023 10:36:14 -0700 (PDT)
-Received: from redhat.com ([185.184.228.174]) by smtp.gmail.com with ESMTPSA id
- i15-20020a05620a144f00b00772662b77fesm1268315qkl.99.2023.09.25.10.36.09
+ bh=LrNZUYK9GVon3CstC3PAw8y74HnTAoBSBfYauDl4OzM=;
+ b=pEdQtSs3TE0RPpCrcVFRvEW1QfP4dJsyhn6JmeAdJslp/ThQ9v/zU7+olEOpZCldHG
+ SmIG3PPHtGDbELBBhTmgEwuEoVbfDnWFa4NkoaHomMsZgr2x0H5V301GQ1yaAbgVPscD
+ FAtoeQpUUl2e9UD5Hd0k2a6JafHmGcq0z7v33MoD8Sf05U1uGGs/tzA1E8ZP8fthG5eI
+ Nt2zBnvUNeoy0HkYxF+Ud404RLZux2WZrZJswZzZTJeCzlqU37m0gK1+xnSvTfRWleNk
+ SNFdgPnRCO1nBv/sNijeAnAH7sDRxbnVvN3J0BDq2Mo+ek4+zeoboju6VRTrVBq+BudA
+ N/9Q==
+X-Gm-Message-State: AOJu0YysKnRuX3kxRVXiylE4HNynyTM5OPNAv7XHbUfnfWbAIF/o4q9I
+ 8k740mSqCUzJvVhknAVwe74zxg==
+X-Google-Smtp-Source: AGHT+IEnVXJWnUtJ+JjUoJ2wutCIFPzVwQv9Kt/j17reyYiG5PztEKwn4JCr3bhZYPWh/NJDzvVOfA==
+X-Received: by 2002:a05:6870:3323:b0:1d5:5a83:22b7 with SMTP id
+ x35-20020a056870332300b001d55a8322b7mr9920226oae.51.1695664203813; 
+ Mon, 25 Sep 2023 10:50:03 -0700 (PDT)
+Received: from www.outflux.net (198-0-35-241-static.hfc.comcastbusiness.net.
+ [198.0.35.241]) by smtp.gmail.com with ESMTPSA id
+ p19-20020a639513000000b00578afd8e012sm7498975pgd.92.2023.09.25.10.50.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 25 Sep 2023 10:36:13 -0700 (PDT)
-Date: Mon, 25 Sep 2023 13:36:06 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Message-ID: <20230925060510-mutt-send-email-mst@kernel.org>
-References: <20230921152802-mutt-send-email-mst@kernel.org>
- <20230921195345.GZ13733@nvidia.com>
- <20230921155834-mutt-send-email-mst@kernel.org>
- <CACGkMEvD+cTyRtax7_7TBNECQcGPcsziK+jCBgZcLJuETbyjYw@mail.gmail.com>
- <20230922122246.GN13733@nvidia.com>
- <PH0PR12MB548127753F25C45B7EFF203DDCFFA@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20230922111132-mutt-send-email-mst@kernel.org>
- <20230922151534.GR13733@nvidia.com>
- <20230922113941-mutt-send-email-mst@kernel.org>
- <20230922162233.GT13733@nvidia.com>
+ Mon, 25 Sep 2023 10:50:03 -0700 (PDT)
+Date: Mon, 25 Sep 2023 10:50:02 -0700
+From: Kees Cook <keescook@chromium.org>
+To: Andrzej Hajda <andrzej.hajda@intel.com>
+Subject: Re: [PATCH 3/9] drm/i915/selftests: Annotate struct perf_series with
+ __counted_by
+Message-ID: <202309251043.2D1F7D08@keescook>
+References: <20230922173110.work.084-kees@kernel.org>
+ <20230922173216.3823169-3-keescook@chromium.org>
+ <b668d521-c8fd-1207-0a65-e1200e7ebb2c@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20230922162233.GT13733@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Maor Gottlieb <maorg@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jiri Pirko <jiri@nvidia.com>,
- Leon Romanovsky <leonro@nvidia.com>
+In-Reply-To: <b668d521-c8fd-1207-0a65-e1200e7ebb2c@intel.com>
+Cc: Tejas Upadhyay <tejas.upadhyay@intel.com>, Emma Anholt <emma@anholt.net>,
+ Tom Rix <trix@redhat.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ llvm@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ Chris Wilson <chris@chris-wilson.co.uk>, Prike Liang <Prike.Liang@amd.com>,
+ Huang Rui <ray.huang@amd.com>, Marijn Suijten <marijn.suijten@somainline.org>,
+ David Airlie <airlied@gmail.com>, Matthew Brost <matthew.brost@intel.com>,
+ Karol Herbst <kherbst@redhat.com>, Neil Armstrong <neil.armstrong@linaro.org>,
+ amd-gfx@lists.freedesktop.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+ Nathan Chancellor <nathan@kernel.org>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Ben Skeggs <bskeggs@redhat.com>, Andi Shyti <andi.shyti@linux.intel.com>,
+ nouveau@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+ virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
+ linux-hardening@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+ Lyude Paul <lyude@redhat.com>, Yifan Zhang <yifan1.zhang@amd.com>,
+ linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ Kevin Wang <kevin1.wang@amd.com>, Abhinav Kumar <quic_abhinavk@quicinc.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>, Melissa Wen <mwen@igalia.com>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Maxime Ripard <mripard@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Evan Quan <evan.quan@amd.com>, Sean Paul <sean@poorly.run>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+ Xiaojian Du <Xiaojian.Du@amd.com>, Le Ma <le.ma@amd.com>,
+ freedreno@lists.freedesktop.org, Bjorn Andersson <andersson@kernel.org>, "Pan,
+ Xinhui" <Xinhui.Pan@amd.com>, Nick Desaulniers <ndesaulniers@google.com>,
+ linux-kernel@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+ Zack Rusin <zackr@vmware.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Alex Deucher <alexander.deucher@amd.com>, Nirmoy Das <nirmoy.das@intel.com>,
+ Lang Yu <Lang.Yu@amd.com>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+ John Harrison <john.c.harrison@intel.com>,
+ Hawking Zhang <Hawking.Zhang@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,93 +141,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 22, 2023 at 01:22:33PM -0300, Jason Gunthorpe wrote:
-> On Fri, Sep 22, 2023 at 11:40:58AM -0400, Michael S. Tsirkin wrote:
-> > On Fri, Sep 22, 2023 at 12:15:34PM -0300, Jason Gunthorpe wrote:
-> > > On Fri, Sep 22, 2023 at 11:13:18AM -0400, Michael S. Tsirkin wrote:
-> > > > On Fri, Sep 22, 2023 at 12:25:06PM +0000, Parav Pandit wrote:
-> > > > > 
-> > > > > > From: Jason Gunthorpe <jgg@nvidia.com>
-> > > > > > Sent: Friday, September 22, 2023 5:53 PM
-> > > > > 
-> > > > > 
-> > > > > > > And what's more, using MMIO BAR0 then it can work for legacy.
-> > > > > > 
-> > > > > > Oh? How? Our team didn't think so.
-> > > > > 
-> > > > > It does not. It was already discussed.
-> > > > > The device reset in legacy is not synchronous.
-> > > > > The drivers do not wait for reset to complete; it was written for the sw backend.
-> > > > > Hence MMIO BAR0 is not the best option in real implementations.
-> > > > 
-> > > > Or maybe they made it synchronous in hardware, that's all.
-> > > > After all same is true for the IO BAR0 e.g. for the PF: IO writes
-> > > > are posted anyway.
-> > > 
-> > > IO writes are not posted in PCI.
+On Mon, Sep 25, 2023 at 12:08:36PM +0200, Andrzej Hajda wrote:
+> 
+> 
+> On 22.09.2023 19:32, Kees Cook wrote:
+> > Prepare for the coming implementation by GCC and Clang of the __counted_by
+> > attribute. Flexible array members annotated with __counted_by can have
+> > their accesses bounds-checked at run-time checking via CONFIG_UBSAN_BOUNDS
+> > (for array indexing) and CONFIG_FORTIFY_SOURCE (for strcpy/memcpy-family
+> > functions).
 > > 
-> > Aha, I was confused. Thanks for the correction. I guess you just buffer
-> > subsequent transactions while reset is going on and reset quickly enough
-> > for it to be seemless then?
+> > As found with Coccinelle[1], add __counted_by for struct perf_series.
+> > 
+> > [1] https://github.com/kees/kernel-tools/blob/trunk/coccinelle/examples/counted_by.cocci
+> > 
+> > Cc: Jani Nikula <jani.nikula@linux.intel.com>
+> > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> > Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> > Cc: Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+> > Cc: David Airlie <airlied@gmail.com>
+> > Cc: Daniel Vetter <daniel@ffwll.ch>
+> > Cc: Chris Wilson <chris@chris-wilson.co.uk>
+> > Cc: John Harrison <john.c.harrison@Intel.com>
+> > Cc: Andi Shyti <andi.shyti@linux.intel.com>
+> > Cc: Matthew Brost <matthew.brost@intel.com>
+> > Cc: intel-gfx@lists.freedesktop.org
+> > Cc: dri-devel@lists.freedesktop.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
 > 
-> >From a hardware perspective the CPU issues an non-posted IO write and
-> then it stops processing until the far side returns an IO completion.
+> I am surprised this is the only finding in i915, I would expected more.
+
+I'm sure there are more, but it's likely my Coccinelle pattern didn't
+catch it. There are many many flexible arrays in drm. :)
+
+$ grep -nRH '\[\];$' drivers/gpu/drm include/uapi/drm | grep -v :extern | wc -l
+122
+
+If anyone has some patterns I can add to the Coccinelle script, I can
+take another pass at it.
+
+> Anyway:
 > 
-> Using that you can emulate what the SW virtio model did and delay the
-> CPU from restarting until the reset is completed.
-> 
-> Since MMIO is always posted, this is not possible to emulate directly
-> using MMIO.
-> 
-> Converting IO into non-posted admin commands is a fairly close
-> recreation to what actual HW would do.
-> 
-> Jason
+> Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
 
-I thought you asked how it is possible for hardware to support reset if
-all it does is replace IO BAR with memory BAR. The answer is that since
-2011 the reset is followed by read of the status field (which isn't much
-older than MSIX support from 2009 - which this code assumes).  If one
-uses a Linux driver from 2011 and on then all you need to do is defer
-response to this read until after the reset is complete.
+Thank you!
 
-If you are using older drivers or other OSes then reset using a posted
-write after device has operated for a while might not be safe, so e.g.
-you might trigger races if you remove drivers from system or
-trigger hot unplug.  For example: 
-
-	static void virtio_pci_remove(struct pci_dev *pci_dev)
-	{
-
-	....
-
-		unregister_virtio_device(&vp_dev->vdev);
-
-	^^^^ triggers reset, then releases memory
-
-	....
-
-		pci_disable_device(pci_dev);
-
-	^^^ blocks DMA by clearing bus master
-
-	}
-
-here you could see some DMA into memory that has just been released.
-
-
-As Jason mentions hardware exists that is used under one of these two
-restrictions on the guest (Linux since 2011 or no resets while DMA is
-going on), and it works fine with these existing guests.
-
-Given the restrictions, virtio TC didn't elect to standardize this
-approach and instead opted for the heavier approach of
-converting IO into non-posted admin commands in software.
-
+-Kees
 
 -- 
-MST
-
+Kees Cook
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
