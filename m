@@ -1,113 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C49A4CE7A95
-	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 12:40:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D35BFCE7A95
+	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 13:08:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3900C41587;
-	Mon, 25 Sep 2023 12:40:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3900C41587
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=EEk5O6T5
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3A80781E22;
+	Mon, 25 Sep 2023 13:08:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3A80781E22
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nWZpMx95poLB; Mon, 25 Sep 2023 12:40:58 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id D_52zVldm16r; Mon, 25 Sep 2023 13:07:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id ACC6041030;
-	Mon, 25 Sep 2023 12:40:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ACC6041030
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AA07681C67;
+	Mon, 25 Sep 2023 13:07:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA07681C67
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 53492C0071;
-	Mon, 25 Sep 2023 12:40:57 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 73C5AC0071;
+	Mon, 25 Sep 2023 13:07:58 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D53ECC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E265AC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 12:40:55 +0000 (UTC)
+ Mon, 25 Sep 2023 13:07:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A859041565
+ by smtp2.osuosl.org (Postfix) with ESMTP id A9A8341559
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 12:40:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A859041565
+ Mon, 25 Sep 2023 13:07:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A9A8341559
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7xDiEzN5zLTr
+ with ESMTP id K8_7G8ZSPOXj
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 12:40:54 +0000 (UTC)
-Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com
- [IPv6:2607:f8b0:4864:20::b2c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B212B41030
+ Mon, 25 Sep 2023 13:07:55 +0000 (UTC)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp2.osuosl.org (Postfix) with ESMTP id AABF840185
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 12:40:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B212B41030
-Received: by mail-yb1-xb2c.google.com with SMTP id
- 3f1490d57ef6-d7ecdb99b7aso7099797276.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 05:40:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=ziepe.ca; s=google; t=1695645653; x=1696250453;
- darn=lists.linux-foundation.org; 
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
- bh=E4kzsEhG+gR50UuYrr0hWNyVHM1Qwmcb10rU8QBkH+4=;
- b=EEk5O6T54BGSw21QLIEUb779d4xd/QqBvfj98ij8dyRPHKZimwi0WTxa4DpgMKsL5s
- SUOVByONzxQgbuSYDGQ1XgkEyYH1fDRX8OWbEJ0g+uIPOQvURe6Lnj1rysx+lKt4hFK/
- HRu3UqYITmFIdlCjFomYfD02dRbjwRuZkAFNturS4PmaA/yMXhlSEnmsWNiOmwNv7/Lt
- 61Ahl/FNkz3P/f8ghfNSNPjp5h18Qi+6NzfSZWq9F5w/t/F7QhxhJ6957QoOFF7ocAzj
- vAsU9mcplCLimiXkSyYRhOUCfcGzWK3F+j4VAphbTxXlt7/p+izWDQyuInGsLy0BN7kP
- EbHg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695645653; x=1696250453;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=E4kzsEhG+gR50UuYrr0hWNyVHM1Qwmcb10rU8QBkH+4=;
- b=RD8YyTPxw09nlC93qn3IfwZ/lpGoBBRRw2Xj91fP3ewaHF9+7mydkX7huFj+JSPcPs
- YKuzBHyklYVdlqGQOCvViAes3eE0HJmjdM5cI+fgv5F+FGzK7sfBVZubjbN59N+kir7s
- iuIz8YbY3VoCkGX6Y1m6JTUYNuvdgrPlWnJ2zA6ux+zAyMXVXAdbkE7PyPb7Azty59Fj
- QmSrgach+bOGrcoWXEYpsBYBxEU/NfsyCxfD2TVMuhqFlvM/uub5J76CNQJCukKYlG06
- yBXJqWTvqAUTuxGDoPLYRC16q+LGFiqtsDpTOJF1gXoQw4Fryv1nIhGv2H9gYxDLby2C
- TFJA==
-X-Gm-Message-State: AOJu0Yy0QOxiiB5xi0rGF7MbgcSF1mtiUDmCfB/TO2cIR7FnoSDf87wR
- UoHddEqLNz9d/ksckr9CeCLyGw==
-X-Google-Smtp-Source: AGHT+IH3Y+9j9raszOHHXw26GDW4jOHx9++pXJi8a0moyryr53oJi6UZzICnhW5K7XiQ5mDWOsyiGA==
-X-Received: by 2002:a25:496:0:b0:d80:9ed:5038 with SMTP id
- 144-20020a250496000000b00d8009ed5038mr5820473ybe.21.1695645653492; 
- Mon, 25 Sep 2023 05:40:53 -0700 (PDT)
-Received: from ziepe.ca
- (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net.
- [142.68.26.201]) by smtp.gmail.com with ESMTPSA id
- m8-20020a0cf188000000b0065898a8977dsm1891356qvl.71.2023.09.25.05.40.52
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 25 Sep 2023 05:40:52 -0700 (PDT)
-Received: from jgg by wakko with local (Exim 4.95)
- (envelope-from <jgg@ziepe.ca>) id 1qkktQ-000qtP-5V;
- Mon, 25 Sep 2023 09:40:52 -0300
-Date: Mon, 25 Sep 2023 09:40:52 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Baolu Lu <baolu.lu@linux.intel.com>
+ Mon, 25 Sep 2023 13:07:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AABF840185
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DEE8CDA7;
+ Mon, 25 Sep 2023 06:08:32 -0700 (PDT)
+Received: from [10.57.0.188] (unknown [10.57.0.188])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 832CE3F5A1;
+ Mon, 25 Sep 2023 06:07:53 -0700 (PDT)
+Message-ID: <ade90cd5-bbf1-f4f9-0511-75e0e18d1a83@arm.com>
+Date: Mon, 25 Sep 2023 14:07:50 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
 Subject: Re: [PATCH v2 1/2] iommu/virtio: Make use of ops->iotlb_sync_map
-Message-ID: <20230925124052.GJ13795@ziepe.ca>
-References: <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
+Content-Language: en-GB
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20230918-viommu-sync-map-v2-0-f33767f6cf7a@linux.ibm.com>
+ <20230918-viommu-sync-map-v2-1-f33767f6cf7a@linux.ibm.com>
+ <ae7e513b-eb86-97e2-bed0-3cca91b8c959@arm.com>
  <20230919081519.GA3860249@myrica> <20230919144649.GT13795@ziepe.ca>
  <20230922075719.GB1361815@myrica> <20230922124130.GD13795@ziepe.ca>
  <900b644e-6e21-1038-2252-3dc86cbf0a32@arm.com>
  <20230922162714.GH13795@ziepe.ca>
  <123c53c3-d259-9c20-9aa6-0c216d7eb3c0@arm.com>
  <20230922233309.GI13795@ziepe.ca>
- <42860c87-cf4d-0413-c3ae-b74ee9e7e5e6@linux.intel.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <42860c87-cf4d-0413-c3ae-b74ee9e7e5e6@linux.intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20230922233309.GI13795@ziepe.ca>
 Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Niklas Schnelle <schnelle@linux.ibm.com>, Will Deacon <will@kernel.org>,
- Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
- Robin Murphy <robin.murphy@arm.com>
+ Niklas Schnelle <schnelle@linux.ibm.com>, Joerg Roedel <joro@8bytes.org>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux.dev, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,150 +81,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 25, 2023 at 10:48:21AM +0800, Baolu Lu wrote:
-> On 9/23/23 7:33 AM, Jason Gunthorpe wrote:
-> > On Fri, Sep 22, 2023 at 07:07:40PM +0100, Robin Murphy wrote:
-> > 
-> > > virtio isn't setting ops->pgsize_bitmap for the sake of direct mappings
-> > > either; it sets it once it's discovered any instance, since apparently it's
-> > > assuming that all instances must support identical page sizes, and thus once
-> > > it's seen one it can work "normally" per the core code's assumptions. It's
-> > > also I think the only driver which has a "finalise" bodge but*can*  still
-> > > properly support map-before-attach, by virtue of having to replay mappings
-> > > to every new endpoint anyway.
-> > Well it can't quite do that since it doesn't know the geometry - it
-> > all is sort of guessing and hoping it doesn't explode on replay. If it
-> > knows the geometry it wouldn't need finalize...
+On 2023-09-23 00:33, Jason Gunthorpe wrote:
+> On Fri, Sep 22, 2023 at 07:07:40PM +0100, Robin Murphy wrote:
 > 
-> The ultimate solution to this problem seems to be to add device pointer
-> to the parameter of ops->domain_alloc. So once the domain is allocated,
-> it is fully initialized. Attaching this domain to a device that is not
-> compatible will return -EINVAL, then the caller has to allocate a new
-> domain for this device.
+>> virtio isn't setting ops->pgsize_bitmap for the sake of direct mappings
+>> either; it sets it once it's discovered any instance, since apparently it's
+>> assuming that all instances must support identical page sizes, and thus once
+>> it's seen one it can work "normally" per the core code's assumptions. It's
+>> also I think the only driver which has a "finalise" bodge but *can* still
+>> properly support map-before-attach, by virtue of having to replay mappings
+>> to every new endpoint anyway.
+> 
+> Well it can't quite do that since it doesn't know the geometry - it
+> all is sort of guessing and hoping it doesn't explode on replay. If it
+> knows the geometry it wouldn't need finalize...
 
-Sure, it looks like this, and it works already for default domain
-setup.
+I think it's entirely reasonable to assume that any direct mappings 
+specified for a device are valid for that device and its IOMMU. However, 
+in the particular case of virtio, it really shouldn't ever have direct 
+mappings anyway, since even if the underlying hardware did have any, the 
+host can enforce the actual direct-mapping aspect itself, and just 
+present them as unusable regions to the guest.
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 8599394c9157d7..1697f5a2370785 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -637,15 +637,10 @@ static void viommu_event_handler(struct virtqueue *vq)
- 
- /* IOMMU API */
- 
--static struct iommu_domain *viommu_domain_alloc(unsigned type)
-+static struct viommu_domain *__viommu_domain_alloc(void)
- {
- 	struct viommu_domain *vdomain;
- 
--	if (type != IOMMU_DOMAIN_UNMANAGED &&
--	    type != IOMMU_DOMAIN_DMA &&
--	    type != IOMMU_DOMAIN_IDENTITY)
--		return NULL;
--
- 	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
- 	if (!vdomain)
- 		return NULL;
-@@ -654,16 +649,32 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
- 	spin_lock_init(&vdomain->mappings_lock);
- 	vdomain->mappings = RB_ROOT_CACHED;
- 
-+	return vdomain;
-+}
-+
-+static struct iommu_domain *viommu_domain_alloc(unsigned type)
-+{
-+	struct viommu_domain *vdomain;
-+
-+	/*
-+	 * viommu sometimes creates an identity domain out of a
-+	 * paging domain, that can't use the global static.
-+	 * During attach it will fill in an identity page table.
-+	 */
-+	if (type != IOMMU_DOMAIN_IDENTITY)
-+		return NULL;
-+	vdomain = __viommu_domain_alloc();
-+	if (!vdomain)
-+		return NULL;
- 	return &vdomain->domain;
- }
- 
- static int viommu_domain_finalise(struct viommu_endpoint *vdev,
--				  struct iommu_domain *domain)
-+				  struct viommu_domain *vdomain)
- {
- 	int ret;
- 	unsigned long viommu_page_size;
- 	struct viommu_dev *viommu = vdev->viommu;
--	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
- 	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
- 	if (viommu_page_size > PAGE_SIZE) {
-@@ -680,13 +691,13 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
- 
- 	vdomain->id		= (unsigned int)ret;
- 
--	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
--	domain->geometry	= viommu->geometry;
-+	vdomain->domain.pgsize_bitmap = viommu->pgsize_bitmap;
-+	vdomain->domain.geometry = viommu->geometry;
- 
- 	vdomain->map_flags	= viommu->map_flags;
- 	vdomain->viommu		= viommu;
- 
--	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
-+	if (vdomain->domain.type == IOMMU_DOMAIN_IDENTITY) {
- 		if (virtio_has_feature(viommu->vdev,
- 				       VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
- 			vdomain->bypass = true;
-@@ -717,6 +728,24 @@ static void viommu_domain_free(struct iommu_domain *domain)
- 	kfree(vdomain);
- }
- 
-+static struct iommu_domain *viommu_domain_alloc_paging(struct device *dev)
-+{
-+	struct viommu_domain *vdomain;
-+	vdomain = __viommu_domain_alloc();
-+	if (!vdomain)
-+		return NULL;
-+
-+	if (dev) {
-+		struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-+
-+		if (viommu_domain_finalise(vdev, vdomain)) {
-+			viommu_domain_free(&vdomain->domain);
-+			return NULL;
-+		}
-+	}
-+	return &vdomain->domain;
-+}
-+
- static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
- {
- 	int i;
-@@ -732,7 +761,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 		 * Properly initialize the domain now that we know which viommu
- 		 * owns it.
- 		 */
--		ret = viommu_domain_finalise(vdev, domain);
-+		ret = viommu_domain_finalise(vdev, vdomain);
- 	} else if (vdomain->viommu != vdev->viommu) {
- 		ret = -EINVAL;
- 	}
-@@ -1045,6 +1074,7 @@ static bool viommu_capable(struct device *dev, enum iommu_cap cap)
- static struct iommu_ops viommu_ops = {
- 	.capable		= viommu_capable,
- 	.domain_alloc		= viommu_domain_alloc,
-+	.domain_alloc_paging	= viommu_domain_alloc_paging,
- 	.probe_device		= viommu_probe_device,
- 	.probe_finalize		= viommu_probe_finalize,
- 	.release_device		= viommu_release_device,
+>>> What do you think about something like this to replace
+>>> iommu_create_device_direct_mappings(), that does enforce things
+>>> properly?
+>>
+>> I fail to see how that would make any practical difference. Either the
+>> mappings can be correctly set up in a pagetable *before* the relevant device
+>> is attached to that pagetable, or they can't (if the driver doesn't have
+>> enough information to be able to do so) and we just have to really hope
+>> nothing blows up in the race window between attaching the device to an empty
+>> pagetable and having a second try at iommu_create_device_direct_mappings().
+>> That's a driver-level issue and has nothing to do with pgsize_bitmap either
+>> way.
+> 
+> Except we don't detect this in the core code correctly, that is my
+> point. We should detect the aperture conflict, not pgsize_bitmap to
+> check if it is the first or second try.
+
+Again, that's irrelevant. It can only be about whether the actual 
+->map_pages call succeeds or not. A driver could well know up-front that 
+all instances support the same pgsize_bitmap and aperture, and set both 
+at ->domain_alloc time, yet still be unable to handle an actual mapping 
+without knowing which instance(s) that needs to interact with (e.g. 
+omap-iommu).
+
+Thanks,
+Robin.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
