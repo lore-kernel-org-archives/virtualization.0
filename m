@@ -1,103 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BFD1BE7E631
-	for <virtualization@archiver.kernel.org>; Tue, 26 Sep 2023 13:04:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1CEDEE7E633
+	for <virtualization@archiver.kernel.org>; Tue, 26 Sep 2023 13:10:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5391940AEE;
-	Tue, 26 Sep 2023 13:04:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5391940AEE
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dcyyhclP
+	by smtp4.osuosl.org (Postfix) with ESMTP id 98B224018A;
+	Tue, 26 Sep 2023 13:10:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 98B224018A
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NGRj70Lk
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GgvzYu75KMeh; Tue, 26 Sep 2023 13:04:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A8C7A408EC;
-	Tue, 26 Sep 2023 13:04:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A8C7A408EC
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EWlHTsBXxM4M; Tue, 26 Sep 2023 13:10:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C7CA44015F;
+	Tue, 26 Sep 2023 13:10:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C7CA44015F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DB86C0039;
-	Tue, 26 Sep 2023 13:04:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6CEDAC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DD16C0071;
+	Tue, 26 Sep 2023 13:10:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E9E7C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 13:04:42 +0000 (UTC)
+ Tue, 26 Sep 2023 13:10:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3AD8E40ADD
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2A24F813F9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 13:04:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AD8E40ADD
+ Tue, 26 Sep 2023 13:10:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2A24F813F9
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NGRj70Lk
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6d3UGAAKhuoA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PzjbujtNrF_t
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 13:04:41 +0000 (UTC)
+ Tue, 26 Sep 2023 13:10:31 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 68CE8408EC
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 499D08213D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 13:04:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 68CE8408EC
+ Tue, 26 Sep 2023 13:10:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 499D08213D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695733480;
+ s=mimecast20190719; t=1695733830;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pw3uLk1RX7EItsMeljDJQUwIv63n45/6NY/27SYTAmo=;
- b=dcyyhclPoEvQiFVV291RH3zf6iHaekplfvzeuXGDNDGBvFuNXqXAuaSnJFg2KbeFQ/09aE
- KNcDS628YYum4q0HJnZu6CRNhLsE8Cj3odkJt2v+LgD9rbvf3WOt5pdayQKTQTN8oAGtsn
- OUUGfkqaVVr72CJIjeshU4AkghRhIpA=
+ bh=53RN2iEKcF7cesjBINs3uKbZmoYEjMUrrV2QK4YxQVs=;
+ b=NGRj70LkD0MMjgiHDYGjLXrP3Ob3DD4gxhD48/ghqOtA+Ddhkvx+LdVeMirh9jM1LCZQnA
+ fiTcYaoYz1UhuRDLTRZERMKkXWGG4lTIgTjEtGlMAhHbuLU5XTOtROGyeR7P7zEmNEdhuM
+ yNVoObEm3E9cmBkq1/p0X5zPqPuSjfg=
 Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
  [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-694-CcBZ3QI1OUGw8mMicKUocg-1; Tue, 26 Sep 2023 09:04:37 -0400
-X-MC-Unique: CcBZ3QI1OUGw8mMicKUocg-1
+ us-mta-400-Jj_jyr_GNQOZ7CbJuD3iUQ-1; Tue, 26 Sep 2023 09:10:28 -0400
+X-MC-Unique: Jj_jyr_GNQOZ7CbJuD3iUQ-1
 Received: by mail-ej1-f69.google.com with SMTP id
- a640c23a62f3a-9a5d86705e4so755624266b.1
+ a640c23a62f3a-9a9e12a3093so482981366b.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 06:04:37 -0700 (PDT)
+ Tue, 26 Sep 2023 06:10:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695733476; x=1696338276;
+ d=1e100.net; s=20230601; t=1695733827; x=1696338627;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=pw3uLk1RX7EItsMeljDJQUwIv63n45/6NY/27SYTAmo=;
- b=ZHiB1lNdnc1D1fWBy12SMCp9IGJ6GSiSM1rFQBfdbpzK0E571z66kZ9m/L8jrmypee
- vy4lGmu4r55SJrETpfVKJw4F6IdHv+7YVFr/5qcaDG0P/73wNfdMZchsmFW5WlOOvi2O
- 6jOLuDfOyM1si5sGqaPDUXfRNJU6BP2Dwim9hR74wfZh0Fc15MmM0XgI/k0GCRG88NZL
- WFsFnHPmzYagbGymIk8B1+k+Kk/FygZHHr1hANQ6fs+d/AZPiZeXsO/cwpNcYOLeBJjO
- AqraAVYpggZoQ31HCwGnW00VWbUB+rcgn0GYB2KaCRuV2/4U+pNnZFcSoWHj5eMbQxpq
- Zzuw==
-X-Gm-Message-State: AOJu0Yx0YpsdharpDJWKLLsVe/CVFN8S6UrGV2/sSf3huoMw7/N0aB8j
- 66N7TForw9IJ8iYoQBbiSTc0fVW/PI2OD/STZspViByY3IwDF4xUWqBWMSu85nZBSXwTXC8rdyr
- DTT9EgmO/r9bX0RUhVDOEmQdr69d/TX8+LvOBRf0acA==
-X-Received: by 2002:a17:906:3299:b0:9ae:6196:a4d0 with SMTP id
- 25-20020a170906329900b009ae6196a4d0mr8605624ejw.17.1695733476626; 
- Tue, 26 Sep 2023 06:04:36 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEPT+qJWI4CE1FK30C7JELaHKq82GsQA7VABRt7UrHezh/PpcrPOPNsUXvYOw92dsnA/haacQ==
-X-Received: by 2002:a17:906:3299:b0:9ae:6196:a4d0 with SMTP id
- 25-20020a170906329900b009ae6196a4d0mr8605597ejw.17.1695733476299; 
- Tue, 26 Sep 2023 06:04:36 -0700 (PDT)
+ bh=53RN2iEKcF7cesjBINs3uKbZmoYEjMUrrV2QK4YxQVs=;
+ b=AMg9a2+R6Ihc8IEDm2mjUAUxzjqfNkVsNFZ0cAxaTfR03pAlZv+rX6ntWDIcaZU6DY
+ cVkDz8UzXnyarC2a+f+RxF1yno1WNWKlFZkyg30W/kf7rvkd2gVmkVtBmCn0qrsIYwUe
+ 4xrLQyw8x635MsNC3tUmTaaXRHPDfd71EZXwNOVwUYejO6fYq4KgvvLNFdDJYntJlhme
+ 0b7lmyuxfxRgyYrM7YUzZX79Yc04/RiGg8NQ+SfGxinNrzVFfIuwFLObm5+1hbo/R5jB
+ EBpqw6CZRt7qds4AC0h+CL8ZFeswGIc+UpN8+1v7nI1KHpUWDv1OgrXOyRwv5+QxmmFv
+ qZVA==
+X-Gm-Message-State: AOJu0YydYfu9jUCXXwAeZumTz3LKE4ffv+HMqnuPajmyYL+nHvbK/utV
+ BkR1IPl8rqpBsEvwJeO62aAkihFCL8PJ0G5wOk1KeuyWsCOV/63cS7ngoD1HMV5W3g1c7yxGwDt
+ ievRJaliY0QPyJeUW0cxhJ+rRBUYy0sb4tZzKTUxVPA==
+X-Received: by 2002:a17:907:3e0b:b0:9ae:5a56:be32 with SMTP id
+ hp11-20020a1709073e0b00b009ae5a56be32mr4084901ejc.38.1695733827489; 
+ Tue, 26 Sep 2023 06:10:27 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEhr8aocGYblGQIkanfvgdcYkJGgnxjzR7Ndhh5heLB5k61gMBi2Cpl5HUKWX7e6D9TEIPTRA==
+X-Received: by 2002:a17:907:3e0b:b0:9ae:5a56:be32 with SMTP id
+ hp11-20020a1709073e0b00b009ae5a56be32mr4084743ejc.38.1695733825833; 
+ Tue, 26 Sep 2023 06:10:25 -0700 (PDT)
 Received: from sgarzare-redhat ([46.6.146.182])
  by smtp.gmail.com with ESMTPSA id
- r11-20020a170906704b00b00999bb1e01dfsm7746690ejj.52.2023.09.26.06.04.33
+ h10-20020a17090634ca00b00997e00e78e6sm7780777ejb.112.2023.09.26.06.10.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 26 Sep 2023 06:04:35 -0700 (PDT)
-Date: Tue, 26 Sep 2023 15:04:31 +0200
+ Tue, 26 Sep 2023 06:10:25 -0700 (PDT)
+Date: Tue, 26 Sep 2023 15:10:21 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v1 12/12] test/vsock: io_uring rx/tx tests
-Message-ID: <kfuzqzhrgdk5f5arbq4n3vd6vro6533aeysqhdgqevcqxrdm6e@57ylpkc2t4q4>
+Subject: Re: [PATCH net-next v1 00/12] vsock/virtio: continue MSG_ZEROCOPY
+ support
+Message-ID: <zurqqucjbdnyxub6u7ya5gzt2nxgrgp4ggvz76smljqzfi6qzb@lr6ojra35bab>
 References: <20230922052428.4005676-1-avkrasnov@salutedevices.com>
- <20230922052428.4005676-13-avkrasnov@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <20230922052428.4005676-13-avkrasnov@salutedevices.com>
+In-Reply-To: <20230922052428.4005676-1-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -124,67 +127,39 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 22, 2023 at 08:24:28AM +0300, Arseniy Krasnov wrote:
->This adds set of tests which use io_uring for rx/tx. This test suite is
->implemented as separated util like 'vsock_test' and has the same set of
->input arguments as 'vsock_test'. These tests only cover cases of data
->transmission (no connect/bind/accept etc).
+Hi Arseniy,
+
+On Fri, Sep 22, 2023 at 08:24:16AM +0300, Arseniy Krasnov wrote:
+>Hello,
 >
->Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->---
-> Changelog:
-> v5(big patchset) -> v1:
->  * Use LDLIBS instead of LDFLAGS.
+>this patchset contains second and third parts of another big patchset
+>for MSG_ZEROCOPY flag support:
+>https://lore.kernel.org/netdev/20230701063947.3422088-1-AVKrasnov@sberdevices.ru/
 >
-> tools/testing/vsock/Makefile           |   7 +-
-> tools/testing/vsock/vsock_uring_test.c | 321 +++++++++++++++++++++++++
-> 2 files changed, 327 insertions(+), 1 deletion(-)
-> create mode 100644 tools/testing/vsock/vsock_uring_test.c
+>During review of this series, Stefano Garzarella <sgarzare@redhat.com>
+>suggested to split it for three parts to simplify review and merging:
 >
->diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
->index 1a26f60a596c..c84380bfc18d 100644
->--- a/tools/testing/vsock/Makefile
->+++ b/tools/testing/vsock/Makefile
->@@ -1,12 +1,17 @@
-> # SPDX-License-Identifier: GPL-2.0-only
->+ifeq ($(MAKECMDGOALS),vsock_uring_test)
->+LDLIBS = -luring
->+endif
->+
+>1) virtio and vhost updates (for fragged skbs) (merged to net-next, see
+>   link below)
+>2) AF_VSOCK updates (allows to enable MSG_ZEROCOPY mode and read
+>   tx completions) and update for Documentation/. <-- this patchset
+>3) Updates for tests and utils. <-- this patchset
+>
+>Part 1) was merged:
+>https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=71b263e79370348349553ecdf46f4a69eb436dc7
+>
+>Head for this patchset is:
+>https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=71b263e79370348349553ecdf46f4a69eb436dc7
 
-This will fails if for example we call make with more targets,
-e.g. `make vsock_test vsock_uring_test`.
+Thanks for the series.
+I did a quick review highlighting some things that need to be changed.
 
-I'd suggest to use something like this:
+Overall, the series seems to be in good shape. The tests went well.
 
---- a/tools/testing/vsock/Makefile
-+++ b/tools/testing/vsock/Makefile
-@@ -1,13 +1,11 @@
-  # SPDX-License-Identifier: GPL-2.0-only
--ifeq ($(MAKECMDGOALS),vsock_uring_test)
--LDLIBS = -luring
--endif
--
-  all: test vsock_perf
-  test: vsock_test vsock_diag_test
-  vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o
-  vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
-  vsock_perf: vsock_perf.o
-+
-+vsock_uring_test: LDLIBS = -luring
-  vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
+In the next few days I'll see if I can get a better look at the larger 
+patches like the tests, or I'll check in the next version.
 
-  CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
-
-> all: test vsock_perf
-> test: vsock_test vsock_diag_test
-> vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o
-> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
-> vsock_perf: vsock_perf.o
->+vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
-
-Shoud we add this new test to the "test" target as well?
-
+Thanks,
 Stefano
 
 _______________________________________________
