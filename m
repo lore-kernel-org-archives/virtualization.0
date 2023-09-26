@@ -1,95 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0C7FCE79A1
-	for <virtualization@archiver.kernel.org>; Mon, 25 Sep 2023 21:19:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DDBE1E8180C
+	for <virtualization@archiver.kernel.org>; Tue, 26 Sep 2023 01:28:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6832541B6E;
-	Mon, 25 Sep 2023 21:19:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6832541B6E
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DSXGvchS
+	by smtp1.osuosl.org (Postfix) with ESMTP id 52C04821D2;
+	Tue, 26 Sep 2023 01:28:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52C04821D2
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=R7GAmUgx
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J7zHSVE2BIz4; Mon, 25 Sep 2023 21:18:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4B76741993;
-	Mon, 25 Sep 2023 21:18:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4B76741993
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dQEkN_5QehxW; Tue, 26 Sep 2023 01:28:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B877B821CE;
+	Tue, 26 Sep 2023 01:28:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B877B821CE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 13A86C0039;
-	Mon, 25 Sep 2023 21:18:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE08C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D9E7C0039;
+	Tue, 26 Sep 2023 01:28:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6232DC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 21:18:56 +0000 (UTC)
+ Tue, 26 Sep 2023 01:28:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C954441725
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2F468821D0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 21:18:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C954441725
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=DSXGvchS
+ Tue, 26 Sep 2023 01:28:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2F468821D0
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aAyXeiIqk4xA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6_EmNAXgjnqu
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 21:18:55 +0000 (UTC)
+ Tue, 26 Sep 2023 01:28:33 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BA7D441723
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 40DAD821CE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Sep 2023 21:18:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BA7D441723
+ Tue, 26 Sep 2023 01:28:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 40DAD821CE
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695676733;
+ s=mimecast20190719; t=1695691712;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=sjbIZt/PW2FzwWrzcgpL9MX8MGpM8dB4UgR9ohho57s=;
- b=DSXGvchSXloAdIWlkB3xSw4DVcdQcdTuWhfyPXywJm7b0hy2U2mQBBpvdUy/+1qIGrFmGS
- DmEGB5gpMfWeYxOylqJhH0EY01ftv/rK+C9qD+tYAbXu0BPDUs3HVobUrCTImstn03s4vE
- xMU/Z06qu0FV8CZy6ojt+6CguDXYOB4=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-422-VVU9vKFBNsa0kL8oPRzKCQ-1; Mon, 25 Sep 2023 17:18:38 -0400
-X-MC-Unique: VVU9vKFBNsa0kL8oPRzKCQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com
- [10.11.54.7])
+ bh=6OhGiNLvBNZEMFqnuOuRobxprn9JRSs+NH5J7h+1BKk=;
+ b=R7GAmUgxPCUghuwi1YzVhrCisG4RlsrTMBI5IUB30Zy7LeFp9C/E9SwUl0XltX+dujtt2G
+ cXNousmCs0VmxesRePf4txoZfKEkjGJfIGHquDZ1QnxY2hIGXIzLxVqBPAx8vJ4mwOqK2u
+ GAIbgj+2w3MmunVDM+C1FxNa+85s2wo=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-335-OlB2hctWPDSKeJr00OCXww-1; Mon, 25 Sep 2023 21:28:26 -0400
+X-MC-Unique: OlB2hctWPDSKeJr00OCXww-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DE19229AB415;
- Mon, 25 Sep 2023 21:17:12 +0000 (UTC)
-Received: from localhost (unknown [10.39.194.68])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 40C93140273D;
- Mon, 25 Sep 2023 21:17:12 +0000 (UTC)
-Date: Mon, 25 Sep 2023 17:17:10 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4B0DD800962;
+ Tue, 26 Sep 2023 01:28:26 +0000 (UTC)
+Received: from fedora (unknown [10.72.120.8])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 1596B1678B;
+ Tue, 26 Sep 2023 01:28:19 +0000 (UTC)
+Date: Tue, 26 Sep 2023 09:28:15 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [PATCH V3] io_uring: fix IO hang in io_wq_put_and_exit from
  do_exit()
-Message-ID: <20230925211710.GH323580@fedora>
+Message-ID: <ZRIzr6C8tHM2N4Ng@fedora>
 References: <20230908093009.540763-1-ming.lei@redhat.com>
  <58227846-6b73-46ef-957f-d9b1e0451899@kernel.dk>
  <ZPsxCYFgZjIIeaBk@fedora>
  <0f85a6b5-3ba6-4b77-bb7d-79f365dbb44c@kernel.dk>
  <ZPs81IAYfB8J78Pv@fedora>
  <CACGkMEvP=f1mB=01CDOhHaDLNL9espKPrUffgHEdBVkW4fo=pw@mail.gmail.com>
+ <20230925211710.GH323580@fedora>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvP=f1mB=01CDOhHaDLNL9espKPrUffgHEdBVkW4fo=pw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Disposition: inline
+In-Reply-To: <20230925211710.GH323580@fedora>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Cc: Jens Axboe <axboe@kernel.dk>, David Howells <dhowells@redhat.com>,
- mst@redhat.com, io-uring@vger.kernel.org, linux-block@vger.kernel.org,
- Ming Lei <ming.lei@redhat.com>, virtualization@lists.linux-foundation.org,
- Pavel Begunkov <asml.silence@gmail.com>,
- Chengming Zhou <zhouchengming@bytedance.com>
+ ming.lei@redhat.com, mst@redhat.com, Pavel Begunkov <asml.silence@gmail.com>,
+ linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ io-uring@vger.kernel.org, Chengming Zhou <zhouchengming@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,164 +100,94 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============1164856541508652674=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
---===============1164856541508652674==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="HDPsBeSpl2khZZyk"
-Content-Disposition: inline
-
-
---HDPsBeSpl2khZZyk
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Sep 15, 2023 at 03:04:05PM +0800, Jason Wang wrote:
-> On Fri, Sep 8, 2023 at 11:25=E2=80=AFPM Ming Lei <ming.lei@redhat.com> wr=
-ote:
-> >
-> > On Fri, Sep 08, 2023 at 08:44:45AM -0600, Jens Axboe wrote:
-> > > On 9/8/23 8:34 AM, Ming Lei wrote:
-> > > > On Fri, Sep 08, 2023 at 07:49:53AM -0600, Jens Axboe wrote:
-> > > >> On 9/8/23 3:30 AM, Ming Lei wrote:
-> > > >>> diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-> > > >>> index ad636954abae..95a3d31a1ef1 100644
-> > > >>> --- a/io_uring/io_uring.c
-> > > >>> +++ b/io_uring/io_uring.c
-> > > >>> @@ -1930,6 +1930,10 @@ void io_wq_submit_work(struct io_wq_work *=
-work)
-> > > >>>           }
-> > > >>>   }
-> > > >>>
-> > > >>> + /* It is fragile to block POLLED IO, so switch to NON_BLOCK */
-> > > >>> + if ((req->ctx->flags & IORING_SETUP_IOPOLL) && def->iopoll_queu=
-e)
-> > > >>> +         issue_flags |=3D IO_URING_F_NONBLOCK;
-> > > >>> +
-> > > >>
-> > > >> I think this comment deserves to be more descriptive. Normally we
-> > > >> absolutely cannot block for polled IO, it's only OK here because i=
-o-wq
-> > > >
-> > > > Yeah, we don't do that until commit 2bc057692599 ("block: don't mak=
-e REQ_POLLED
-> > > > imply REQ_NOWAIT") which actually push the responsibility/risk up to
-> > > > io_uring.
-> > > >
-> > > >> is the issuer and not necessarily the poller of it. That generally=
- falls
-> > > >> upon the original issuer to poll these requests.
-> > > >>
-> > > >> I think this should be a separate commit, coming before the main f=
-ix
-> > > >> which is below.
-> > > >
-> > > > Looks fine, actually IO_URING_F_NONBLOCK change isn't a must, and t=
-he
-> > > > approach in V2 doesn't need this change.
-> > > >
-> > > >>
-> > > >>> @@ -3363,6 +3367,12 @@ __cold void io_uring_cancel_generic(bool c=
-ancel_all, struct io_sq_data *sqd)
-> > > >>>           finish_wait(&tctx->wait, &wait);
-> > > >>>   } while (1);
-> > > >>>
-> > > >>> + /*
-> > > >>> +  * Reap events from each ctx, otherwise these requests may take
-> > > >>> +  * resources and prevent other contexts from being moved on.
-> > > >>> +  */
-> > > >>> + xa_for_each(&tctx->xa, index, node)
-> > > >>> +         io_iopoll_try_reap_events(node->ctx);
-> > > >>
-> > > >> The main issue here is that if someone isn't polling for them, the=
-n we
-> > > >
-> > > > That is actually what this patch is addressing, :-)
-> > >
-> > > Right, that part is obvious :)
-> > >
-> > > >> get to wait for a timeout before they complete. This can delay exi=
-t, for
-> > > >> example, as we're now just waiting 30 seconds (or whatever the tim=
-eout
-> > > >> is on the underlying device) for them to get timed out before exit=
- can
-> > > >> finish.
-> > > >
-> > > > For the issue on null_blk, device timeout handler provides
-> > > > forward-progress, such as requests are released, so new IO can be
-> > > > handled.
-> > > >
-> > > > However, not all devices support timeout, such as virtio device.
-> > >
-> > > That's a bug in the driver, you cannot sanely support polled IO and n=
-ot
-> > > be able to deal with timeouts. Someone HAS to reap the requests and
-> > > there are only two things that can do that - the application doing the
-> > > polled IO, or if that doesn't happen, a timeout.
-> >
-> > OK, then device driver timeout handler has new responsibility of coveri=
-ng
-> > userspace accident, :-)
-
-Sorry, I don't have enough context so this is probably a silly question:
-
-When an application doesn't reap a polled request, why doesn't the block
-layer take care of this in a generic way? I don't see anything
-driver-specific about this.
-
-Driver-specific behavior would be sending an abort/cancel upon timeout.
-virtio-blk cannot do that because there is no such command in the device
-specification at the moment. So simply waiting for the polled request to
-complete is the only thing that can be done (aside from resetting the
-device), and it's generic behavior.
-
-Thanks,
-Stefan
-
-> >
-> > We may document this requirement for driver.
-> >
-> > So far the only one should be virtio-blk, and the two virtio storage
-> > drivers never implement timeout handler.
-> >
->=20
-> Adding Stefan for more comments.
->=20
-> Thanks
->=20
-
---HDPsBeSpl2khZZyk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmUR+NYACgkQnKSrs4Gr
-c8hthggAo7vnKS8HByNvkS1ugVClotOiaetq0qx9G2Zsn0tcVpMLqIFVlkGu/JEn
-dQPdQvRynTp5Jl98V9I6XYHRrit5J3ZlnNG7QcHlwR83L6TGvieu2MyCfK8jxtJJ
-r3xZKt3BX+Kl3b5iVPSFsTC5J7DV7IgysGUxooZxLCRiJuqH/QyiBWxriWZn/ffv
-mPKR4tGhfcYlOVg5KxjIGeWhX7Q2Xd33TrkFAB++mnEeCxCFTGIMi0UMAWxp8rmb
-UgjGQoyEHRyko1BICncTwPCySFxM0PEiHtUvSK9/XBqPYjYXHPyEBpIU3Xhf6KvO
-6j6PqRghCqs5CXiteW0wBE1i05dClg==
-=d074
------END PGP SIGNATURE-----
-
---HDPsBeSpl2khZZyk--
-
-
---===============1164856541508652674==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1164856541508652674==--
-
+T24gTW9uLCBTZXAgMjUsIDIwMjMgYXQgMDU6MTc6MTBQTSAtMDQwMCwgU3RlZmFuIEhham5vY3pp
+IHdyb3RlOgo+IE9uIEZyaSwgU2VwIDE1LCAyMDIzIGF0IDAzOjA0OjA1UE0gKzA4MDAsIEphc29u
+IFdhbmcgd3JvdGU6Cj4gPiBPbiBGcmksIFNlcCA4LCAyMDIzIGF0IDExOjI14oCvUE0gTWluZyBM
+ZWkgPG1pbmcubGVpQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPgo+ID4gPiBPbiBGcmksIFNlcCAw
+OCwgMjAyMyBhdCAwODo0NDo0NUFNIC0wNjAwLCBKZW5zIEF4Ym9lIHdyb3RlOgo+ID4gPiA+IE9u
+IDkvOC8yMyA4OjM0IEFNLCBNaW5nIExlaSB3cm90ZToKPiA+ID4gPiA+IE9uIEZyaSwgU2VwIDA4
+LCAyMDIzIGF0IDA3OjQ5OjUzQU0gLTA2MDAsIEplbnMgQXhib2Ugd3JvdGU6Cj4gPiA+ID4gPj4g
+T24gOS84LzIzIDM6MzAgQU0sIE1pbmcgTGVpIHdyb3RlOgo+ID4gPiA+ID4+PiBkaWZmIC0tZ2l0
+IGEvaW9fdXJpbmcvaW9fdXJpbmcuYyBiL2lvX3VyaW5nL2lvX3VyaW5nLmMKPiA+ID4gPiA+Pj4g
+aW5kZXggYWQ2MzY5NTRhYmFlLi45NWEzZDMxYTFlZjEgMTAwNjQ0Cj4gPiA+ID4gPj4+IC0tLSBh
+L2lvX3VyaW5nL2lvX3VyaW5nLmMKPiA+ID4gPiA+Pj4gKysrIGIvaW9fdXJpbmcvaW9fdXJpbmcu
+Ywo+ID4gPiA+ID4+PiBAQCAtMTkzMCw2ICsxOTMwLDEwIEBAIHZvaWQgaW9fd3Ffc3VibWl0X3dv
+cmsoc3RydWN0IGlvX3dxX3dvcmsgKndvcmspCj4gPiA+ID4gPj4+ICAgICAgICAgICB9Cj4gPiA+
+ID4gPj4+ICAgfQo+ID4gPiA+ID4+Pgo+ID4gPiA+ID4+PiArIC8qIEl0IGlzIGZyYWdpbGUgdG8g
+YmxvY2sgUE9MTEVEIElPLCBzbyBzd2l0Y2ggdG8gTk9OX0JMT0NLICovCj4gPiA+ID4gPj4+ICsg
+aWYgKChyZXEtPmN0eC0+ZmxhZ3MgJiBJT1JJTkdfU0VUVVBfSU9QT0xMKSAmJiBkZWYtPmlvcG9s
+bF9xdWV1ZSkKPiA+ID4gPiA+Pj4gKyAgICAgICAgIGlzc3VlX2ZsYWdzIHw9IElPX1VSSU5HX0Zf
+Tk9OQkxPQ0s7Cj4gPiA+ID4gPj4+ICsKPiA+ID4gPiA+Pgo+ID4gPiA+ID4+IEkgdGhpbmsgdGhp
+cyBjb21tZW50IGRlc2VydmVzIHRvIGJlIG1vcmUgZGVzY3JpcHRpdmUuIE5vcm1hbGx5IHdlCj4g
+PiA+ID4gPj4gYWJzb2x1dGVseSBjYW5ub3QgYmxvY2sgZm9yIHBvbGxlZCBJTywgaXQncyBvbmx5
+IE9LIGhlcmUgYmVjYXVzZSBpby13cQo+ID4gPiA+ID4KPiA+ID4gPiA+IFllYWgsIHdlIGRvbid0
+IGRvIHRoYXQgdW50aWwgY29tbWl0IDJiYzA1NzY5MjU5OSAoImJsb2NrOiBkb24ndCBtYWtlIFJF
+UV9QT0xMRUQKPiA+ID4gPiA+IGltcGx5IFJFUV9OT1dBSVQiKSB3aGljaCBhY3R1YWxseSBwdXNo
+IHRoZSByZXNwb25zaWJpbGl0eS9yaXNrIHVwIHRvCj4gPiA+ID4gPiBpb191cmluZy4KPiA+ID4g
+PiA+Cj4gPiA+ID4gPj4gaXMgdGhlIGlzc3VlciBhbmQgbm90IG5lY2Vzc2FyaWx5IHRoZSBwb2xs
+ZXIgb2YgaXQuIFRoYXQgZ2VuZXJhbGx5IGZhbGxzCj4gPiA+ID4gPj4gdXBvbiB0aGUgb3JpZ2lu
+YWwgaXNzdWVyIHRvIHBvbGwgdGhlc2UgcmVxdWVzdHMuCj4gPiA+ID4gPj4KPiA+ID4gPiA+PiBJ
+IHRoaW5rIHRoaXMgc2hvdWxkIGJlIGEgc2VwYXJhdGUgY29tbWl0LCBjb21pbmcgYmVmb3JlIHRo
+ZSBtYWluIGZpeAo+ID4gPiA+ID4+IHdoaWNoIGlzIGJlbG93Lgo+ID4gPiA+ID4KPiA+ID4gPiA+
+IExvb2tzIGZpbmUsIGFjdHVhbGx5IElPX1VSSU5HX0ZfTk9OQkxPQ0sgY2hhbmdlIGlzbid0IGEg
+bXVzdCwgYW5kIHRoZQo+ID4gPiA+ID4gYXBwcm9hY2ggaW4gVjIgZG9lc24ndCBuZWVkIHRoaXMg
+Y2hhbmdlLgo+ID4gPiA+ID4KPiA+ID4gPiA+Pgo+ID4gPiA+ID4+PiBAQCAtMzM2Myw2ICszMzY3
+LDEyIEBAIF9fY29sZCB2b2lkIGlvX3VyaW5nX2NhbmNlbF9nZW5lcmljKGJvb2wgY2FuY2VsX2Fs
+bCwgc3RydWN0IGlvX3NxX2RhdGEgKnNxZCkKPiA+ID4gPiA+Pj4gICAgICAgICAgIGZpbmlzaF93
+YWl0KCZ0Y3R4LT53YWl0LCAmd2FpdCk7Cj4gPiA+ID4gPj4+ICAgfSB3aGlsZSAoMSk7Cj4gPiA+
+ID4gPj4+Cj4gPiA+ID4gPj4+ICsgLyoKPiA+ID4gPiA+Pj4gKyAgKiBSZWFwIGV2ZW50cyBmcm9t
+IGVhY2ggY3R4LCBvdGhlcndpc2UgdGhlc2UgcmVxdWVzdHMgbWF5IHRha2UKPiA+ID4gPiA+Pj4g
+KyAgKiByZXNvdXJjZXMgYW5kIHByZXZlbnQgb3RoZXIgY29udGV4dHMgZnJvbSBiZWluZyBtb3Zl
+ZCBvbi4KPiA+ID4gPiA+Pj4gKyAgKi8KPiA+ID4gPiA+Pj4gKyB4YV9mb3JfZWFjaCgmdGN0eC0+
+eGEsIGluZGV4LCBub2RlKQo+ID4gPiA+ID4+PiArICAgICAgICAgaW9faW9wb2xsX3RyeV9yZWFw
+X2V2ZW50cyhub2RlLT5jdHgpOwo+ID4gPiA+ID4+Cj4gPiA+ID4gPj4gVGhlIG1haW4gaXNzdWUg
+aGVyZSBpcyB0aGF0IGlmIHNvbWVvbmUgaXNuJ3QgcG9sbGluZyBmb3IgdGhlbSwgdGhlbiB3ZQo+
+ID4gPiA+ID4KPiA+ID4gPiA+IFRoYXQgaXMgYWN0dWFsbHkgd2hhdCB0aGlzIHBhdGNoIGlzIGFk
+ZHJlc3NpbmcsIDotKQo+ID4gPiA+Cj4gPiA+ID4gUmlnaHQsIHRoYXQgcGFydCBpcyBvYnZpb3Vz
+IDopCj4gPiA+ID4KPiA+ID4gPiA+PiBnZXQgdG8gd2FpdCBmb3IgYSB0aW1lb3V0IGJlZm9yZSB0
+aGV5IGNvbXBsZXRlLiBUaGlzIGNhbiBkZWxheSBleGl0LCBmb3IKPiA+ID4gPiA+PiBleGFtcGxl
+LCBhcyB3ZSdyZSBub3cganVzdCB3YWl0aW5nIDMwIHNlY29uZHMgKG9yIHdoYXRldmVyIHRoZSB0
+aW1lb3V0Cj4gPiA+ID4gPj4gaXMgb24gdGhlIHVuZGVybHlpbmcgZGV2aWNlKSBmb3IgdGhlbSB0
+byBnZXQgdGltZWQgb3V0IGJlZm9yZSBleGl0IGNhbgo+ID4gPiA+ID4+IGZpbmlzaC4KPiA+ID4g
+PiA+Cj4gPiA+ID4gPiBGb3IgdGhlIGlzc3VlIG9uIG51bGxfYmxrLCBkZXZpY2UgdGltZW91dCBo
+YW5kbGVyIHByb3ZpZGVzCj4gPiA+ID4gPiBmb3J3YXJkLXByb2dyZXNzLCBzdWNoIGFzIHJlcXVl
+c3RzIGFyZSByZWxlYXNlZCwgc28gbmV3IElPIGNhbiBiZQo+ID4gPiA+ID4gaGFuZGxlZC4KPiA+
+ID4gPiA+Cj4gPiA+ID4gPiBIb3dldmVyLCBub3QgYWxsIGRldmljZXMgc3VwcG9ydCB0aW1lb3V0
+LCBzdWNoIGFzIHZpcnRpbyBkZXZpY2UuCj4gPiA+ID4KPiA+ID4gPiBUaGF0J3MgYSBidWcgaW4g
+dGhlIGRyaXZlciwgeW91IGNhbm5vdCBzYW5lbHkgc3VwcG9ydCBwb2xsZWQgSU8gYW5kIG5vdAo+
+ID4gPiA+IGJlIGFibGUgdG8gZGVhbCB3aXRoIHRpbWVvdXRzLiBTb21lb25lIEhBUyB0byByZWFw
+IHRoZSByZXF1ZXN0cyBhbmQKPiA+ID4gPiB0aGVyZSBhcmUgb25seSB0d28gdGhpbmdzIHRoYXQg
+Y2FuIGRvIHRoYXQgLSB0aGUgYXBwbGljYXRpb24gZG9pbmcgdGhlCj4gPiA+ID4gcG9sbGVkIElP
+LCBvciBpZiB0aGF0IGRvZXNuJ3QgaGFwcGVuLCBhIHRpbWVvdXQuCj4gPiA+Cj4gPiA+IE9LLCB0
+aGVuIGRldmljZSBkcml2ZXIgdGltZW91dCBoYW5kbGVyIGhhcyBuZXcgcmVzcG9uc2liaWxpdHkg
+b2YgY292ZXJpbmcKPiA+ID4gdXNlcnNwYWNlIGFjY2lkZW50LCA6LSkKPiAKPiBTb3JyeSwgSSBk
+b24ndCBoYXZlIGVub3VnaCBjb250ZXh0IHNvIHRoaXMgaXMgcHJvYmFibHkgYSBzaWxseSBxdWVz
+dGlvbjoKPiAKPiBXaGVuIGFuIGFwcGxpY2F0aW9uIGRvZXNuJ3QgcmVhcCBhIHBvbGxlZCByZXF1
+ZXN0LCB3aHkgZG9lc24ndCB0aGUgYmxvY2sKPiBsYXllciB0YWtlIGNhcmUgb2YgdGhpcyBpbiBh
+IGdlbmVyaWMgd2F5PyBJIGRvbid0IHNlZSBhbnl0aGluZwo+IGRyaXZlci1zcGVjaWZpYyBhYm91
+dCB0aGlzLgoKYmxvY2sgbGF5ZXIgZG9lc24ndCBoYXZlIGtub3dsZWRnZSB0byBoYW5kbGUgdGhh
+dCwgaW9fdXJpbmcga25vd3MgdGhlCmFwcGxpY2F0aW9uIGlzIGV4aXRpbmcsIGFuZCBjYW4gaGVs
+cCB0byByZWFwIHRoZSBldmVudHMuCgpCdXQgdGhlIGJpZyBxdWVzdGlvbiBpcyB0aGF0IGlmIHRo
+ZXJlIGlzIHJlYWxseSBJTyB0aW1lb3V0IGZvciB2aXJ0aW8tYmxrLgpJZiB0aGVyZSBpcywgdGhl
+IHJlYXAgZG9uZSBpbiBpb191cmluZyBtYXkgbmV2ZXIgcmV0dXJuIGFuZCBjYXVzZSBvdGhlcgpp
+c3N1ZSwgc28gaWYgaXQgaXMgZG9uZSBpbiBpb191cmluZywgdGhhdCBjYW4gYmUganVzdCB0aG91
+Z2h0IGFzIHNvcnQgb2YKaW1wcm92ZW1lbnQuCgpUaGUgcmVhbCBidWcgZml4IGlzIHN0aWxsIGlu
+IGRldmljZSBkcml2ZXIsIHVzdWFsbHkgb25seSB0aGUgZHJpdmVyIHRpbWVvdXQKaGFuZGxlciBj
+YW4gcHJvdmlkZSBmb3J3YXJkIHByb2dyZXNzIGd1YXJhbnRlZS4KCj4gCj4gRHJpdmVyLXNwZWNp
+ZmljIGJlaGF2aW9yIHdvdWxkIGJlIHNlbmRpbmcgYW4gYWJvcnQvY2FuY2VsIHVwb24gdGltZW91
+dC4KPiB2aXJ0aW8tYmxrIGNhbm5vdCBkbyB0aGF0IGJlY2F1c2UgdGhlcmUgaXMgbm8gc3VjaCBj
+b21tYW5kIGluIHRoZSBkZXZpY2UKPiBzcGVjaWZpY2F0aW9uIGF0IHRoZSBtb21lbnQuIFNvIHNp
+bXBseSB3YWl0aW5nIGZvciB0aGUgcG9sbGVkIHJlcXVlc3QgdG8KPiBjb21wbGV0ZSBpcyB0aGUg
+b25seSB0aGluZyB0aGF0IGNhbiBiZSBkb25lIChhc2lkZSBmcm9tIHJlc2V0dGluZyB0aGUKPiBk
+ZXZpY2UpLCBhbmQgaXQncyBnZW5lcmljIGJlaGF2aW9yLgoKVGhlbiBsb29rcyBub3Qgc2FmZSB0
+byBzdXBwb3J0IElPIHBvbGxpbmcgZm9yIHZpcnRpby1ibGssIG1heWJlIGRpc2FibGUgaXQKYXQg
+ZGVmYXVsdCBub3cgdW50aWwgdGhlIHZpcnRpby1ibGsgc3BlYyBzdGFydHMgdG8gc3VwcG9ydCBJ
+TyBhYm9ydD8KClRoYW5rcywKTWluZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
