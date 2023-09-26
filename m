@@ -1,115 +1,155 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F2B5E7E654
-	for <virtualization@archiver.kernel.org>; Tue, 26 Sep 2023 17:14:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91817E7E65D
+	for <virtualization@archiver.kernel.org>; Tue, 26 Sep 2023 19:14:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 20949824EF;
-	Tue, 26 Sep 2023 17:14:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 20949824EF
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ejbf+u0p
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1E94661048;
+	Tue, 26 Sep 2023 19:14:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1E94661048
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=dy9BGE16
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FHNS5FqfzmX5; Tue, 26 Sep 2023 17:14:03 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1R0dsGcAHoRX; Tue, 26 Sep 2023 19:14:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AF147824E2;
-	Tue, 26 Sep 2023 17:14:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF147824E2
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8113561059;
+	Tue, 26 Sep 2023 19:14:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8113561059
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8AC25C0071;
-	Tue, 26 Sep 2023 17:14:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AF554C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5222CC0071;
+	Tue, 26 Sep 2023 19:14:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 07162C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 17:14:01 +0000 (UTC)
+ Tue, 26 Sep 2023 19:14:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 88F3F40616
+ by smtp4.osuosl.org (Postfix) with ESMTP id D2C2140301
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 17:14:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 88F3F40616
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ejbf+u0p
+ Tue, 26 Sep 2023 19:14:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D2C2140301
+Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=dy9BGE16
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VVGoOt0zy2-Y
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4cWqH5KKNVkR
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 17:14:01 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C750840467
+ Tue, 26 Sep 2023 19:13:59 +0000 (UTC)
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10on20620.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e89::620])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 40497402E5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 17:14:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C750840467
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695748439;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=8iSKGZWWS3kPHTKmKQnCV3dnxajnStM2eAQDnCvJgoU=;
- b=Ejbf+u0pucWbdzUTuDaMJb+dG8SHBAcvo0jpagkwu1A8t8dq+G0tlPNMxfZzFTmiNxkrmC
- UXkCKfRV6waBrcv3pvgujtjMY/+ztnKzQu046JDD4xu2JkBtYvsUBuqP4E0Q9NFNay95b9
- Kh8Ezl/rrIk3q6uGm5vfUIRgOvGERnk=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-134-fOoRyyFcOAutEj4mVBc0WA-1; Tue, 26 Sep 2023 13:13:57 -0400
-X-MC-Unique: fOoRyyFcOAutEj4mVBc0WA-1
-Received: by mail-ej1-f69.google.com with SMTP id
- a640c23a62f3a-9ae7663e604so644678066b.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Sep 2023 10:13:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695748436; x=1696353236;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=8iSKGZWWS3kPHTKmKQnCV3dnxajnStM2eAQDnCvJgoU=;
- b=BO5mAx7nftAT7gZhw8B/A+0uj8TeVVgtXEVh7DLcsWxF0aQeaNN6oufs0HijEHnN4M
- HgGfpUDcVkr0RBKT8I76kqSjnFYRfoLDFiC3ZWeMYBgdxiYEDPjTF/SfINnafZAeA02Q
- 0JUr954QpP+zqlbz/eS5DCP0gn33EFmJpeXGyeCc/nVKNqpDCalC6f7QHMKiQZWn4jkQ
- JwWPHYj5vduFFloFEcXj1QidTAqfpfLFc4x/N0sqomOODzbp5kYCkVCz6GPzz9FwmsqL
- ygNCtrDTtcGf91R13X++76yD9wQWGDeobrM0EXeCkb9/jq6ki9MafYQCzHIgKG2e0oEy
- 6vVQ==
-X-Gm-Message-State: AOJu0YxB+eCrYZ1DhiYmb3lCqS+dnvJp5Zc3Kj2oBha7DZi5mXpABTcT
- YFiNcnRZHUdx/7fk6CDbUdVmJ/pzBQF8GMeVpwue+56tqW9fPVkYquPD4958AN9KascqUV3GES0
- MFk1c4hfeBPMc0kgb1uoG11p0wRxqgeGvT/EHTdIdmg==
-X-Received: by 2002:a17:906:1ce:b0:9ad:fcf8:e81b with SMTP id
- 14-20020a17090601ce00b009adfcf8e81bmr9202357ejj.51.1695748436233; 
- Tue, 26 Sep 2023 10:13:56 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGfk+7pxiRTHX+2QchxH8dV2phzuRQiv4H+N4VC9jMJ3K5sTKGvVgc9Wfj9N5+kDslbIIRD3Q==
-X-Received: by 2002:a17:906:1ce:b0:9ad:fcf8:e81b with SMTP id
- 14-20020a17090601ce00b009adfcf8e81bmr9202340ejj.51.1695748435941; 
- Tue, 26 Sep 2023 10:13:55 -0700 (PDT)
-Received: from redhat.com ([2.52.31.177]) by smtp.gmail.com with ESMTPSA id
- j8-20020a170906050800b009934855d8f1sm7978261eja.34.2023.09.26.10.13.53
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 26 Sep 2023 10:13:55 -0700 (PDT)
-Date: Tue, 26 Sep 2023 13:13:51 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH] crypto: virtio-crypto: call finalize with bh disabled
-Message-ID: <20230926130521-mutt-send-email-mst@kernel.org>
-References: <1914739e2de14ed396e5674aa2d4766c@huawei.com>
- <20230926184158.4ca2c0c3.pasic@linux.ibm.com>
+ Tue, 26 Sep 2023 19:13:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 40497402E5
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=DgdDtMtBTmW4QtWerEkLKQ5pqbh+MMha1Jmwg8ZfT5MJ23OzsmOolvNcthu9yyaWXmIpRt00Fs4JK30Ev476781cz7rpb9hcdG2IwIatq2PoigkNzGzP7OIizfnvKDqqUad58ginBcU57J9WDIp25EIypOjj/qW7Dw+ybEh0TkQ+wwPB3HuHZWmx45sMaMOUKhi6Q6or8tYogFbzvdgSWGmfnOp2/GQesRExReq0qVHZrkUCogqSY0Lp11M6pLRQ1tuOxdkwHqxWqmwz2JRgrucwbMHTHqz0IqXeiJx1+AIF70hXsQy+wA2RX77FZ2TxgU482KseKisIygFR96MLiA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=i86vJL+7b6Qr75eatOXM2Y03pUQTJ2oWfuup34CaAbU=;
+ b=kRA6auDSbHYPj5SzONxWcUxWAfaXAxoJQSj7296cZOWtLga4pSfzErnOnJwaCNGCSDwJX1gy9VIQ0AroIEGGtHwippAe+xMLWEfw2FrebSACiBJxObvTqz4nX8g7l4BehOiMI7LETHTwQfMWMqxLylmey+xic5UGnWjszmKCxH6v436ff5vpmdn4GVvjJuz9wQJQ1WbNujZZQJ/bH7ypIgNxbP2XovbpKHzBY4NxYe0zcetSfBCmcdZkpzBQDT1uNWsS9ZQx59f53EXNFeL/DiVYsBKDsPEiS3cFYx3Sn+KZ3MsIJuLP4FApdOI9FKbpJSrICtxD6S6b7KGrCYoiNQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=i86vJL+7b6Qr75eatOXM2Y03pUQTJ2oWfuup34CaAbU=;
+ b=dy9BGE16vFJxYmCktwoBc5he6JP3nh3szkS0FIgFksL5yYT1MgxQhnBhKF3Y7Tg6+A0WddugUrJ04Yz62URJpv/6OA1EYsAJROFgvO+jcArLsLsmghXvrYmoyeWRcJEtW17R8XZ1c8LgEPRbmPnXdeKY016VZoWVmQfWXXhCtavv8/6+vCvFZleDRMamTfRUsTYJgRxcEHnAdNUOVYdk1+zyiCYGh+Phk+fMYnfrfCJUPNzPtfkVFbEXufhjaw7HrE7HyZ+t25cIun+VcrV0Vcnrq5ibeOB+vtdOX66yuweufb/uMDZUnno9j9LsIrY3QvOVYFEGpnCq0zDFCTFDKw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
+ by DM6PR12MB4121.namprd12.prod.outlook.com (2603:10b6:5:220::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.28; Tue, 26 Sep
+ 2023 19:13:55 +0000
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082]) by CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082%4]) with mapi id 15.20.6813.017; Tue, 26 Sep 2023
+ 19:13:55 +0000
+Message-ID: <6eb92b47-cefe-8b00-d3d2-f15ce4aa9959@nvidia.com>
+Date: Tue, 26 Sep 2023 15:13:51 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH vfio 01/11] virtio-pci: Use virtio pci device layer vq
+ info instead of generic one
+To: "Michael S. Tsirkin" <mst@redhat.com>, Yishai Hadas <yishaih@nvidia.com>
+References: <20230921124040.145386-1-yishaih@nvidia.com>
+ <20230921124040.145386-2-yishaih@nvidia.com>
+ <20230921093540-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230921093540-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: DM6PR18CA0014.namprd18.prod.outlook.com
+ (2603:10b6:5:15b::27) To CY5PR12MB6201.namprd12.prod.outlook.com
+ (2603:10b6:930:26::16)
 MIME-Version: 1.0
-In-Reply-To: <20230926184158.4ca2c0c3.pasic@linux.ibm.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Cornelia Huck <cohuck@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "pizhenwei@bytedance.com" <pizhenwei@bytedance.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Marc Hartmayer <mhartmay@linux.ibm.com>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|DM6PR12MB4121:EE_
+X-MS-Office365-Filtering-Correlation-Id: f3dde423-0894-4a5a-8fab-08dbbec4ba8a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: yxIeq/uqvI2PXIuNTyNVcHgqi7nX2vb60qsEAvCMlkDxLlZPWvTZ/GT4nc/dWNyhMCYIL94sjrhU/4IdKGKkTaj/D74ljZmIz1vpToCDBSmJm7PP9ukNbCYPxwInvhTjuxzDRXfc9nclB4xGmRahiFiR8a4aoCbfKFowQet6zJnsy/2bFxLZFwv2k88CAnWlo9szuCCkTPsbW4AVn/bROS8LvLZHgHINtPp5fQrNkxq75RWugMJwC+AE6Fl6BMx8xsuUJHNLmzQuwHC9ax9LVaVedm5LmfOXq2zvSmW3Hd0S8SHQmqotPrnM8tQ3mvs03BEIjNMaXWDpreAl2LJZBeBUg+pTXS4yYOA7cVYifVY65M2xDYD2KSW7FTL5/iMqzUbVBpJQY8wdIg95wv/KtSiiyTnHc9rs2DAF8roerAtvd5Q4tBtC8/krm2OM5TYRiOQn6vmIjKosByD61Hjz7owplX2dxcq43GxgIOtGP289uXjQUQ8qo7sO/GDs2zjXwjsDP0r6CqwoBhN1NOvswYiUNi9BVZvdSjoDB5MPZSUR4FDFvsYF/J3fVfMdzuM0QARyccoA1UwgM3zR3qSuXgc6MyYwmFdGi7Ov7kkpf3G2J8WXYVM58QdNAeHwj8f520ZJjajtHg/lbmocbbH9wjKL0y1o9hNEyOfr1emTJdE=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(366004)(396003)(39860400002)(346002)(136003)(376002)(230922051799003)(451199024)(1800799009)(186009)(6666004)(6486002)(6506007)(83380400001)(2906002)(478600001)(107886003)(8676002)(5660300002)(66556008)(66476007)(4326008)(8936002)(66946007)(26005)(110136005)(41300700001)(316002)(6636002)(2616005)(38100700002)(31686004)(6512007)(86362001)(31696002)(36756003)(41533002)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?S0VVNlZzbDA0OHBZaFhYLzlvS2JYUmd5R0lRaTV6cUR6TW4zT295NzBtd1pH?=
+ =?utf-8?B?UHZsdmdObm9nbFRFYUUrOVFWTno5enlaVkV6L1FqcjlldjdieC9qZk16bEZJ?=
+ =?utf-8?B?ZVVvWmZqWklvOXMrTE5RdWFqcXhuSnU1NDBsbWdHenpNNWJpYXJrRmk5MUVu?=
+ =?utf-8?B?TmZucWxvbStpdHoveVI5eVNuUElYaXZDR3NJTjVBS2xLODhvSmwrdzF0Rll3?=
+ =?utf-8?B?Y2RPcW0zZ281VWZVeG05L3FpZTZkUHhxTnJBSjltVWJVUGFBOGJvcnpXc2xj?=
+ =?utf-8?B?Z21DMUFSdDVLRllicXZUa01FQmkwU3ZrZERaUGJCeWdpU1hrWlkveVl5S21a?=
+ =?utf-8?B?SzB1U0toQWtzTXVGT3lnZ0Qwd1YwQW56SmF1eXRoc0NEMHZaZVNkY1BBYWRX?=
+ =?utf-8?B?SkJCeVNSR25oaWlmYWlHWDlYVGpERGQwQ0d0cXliaCtpU1JMVGloVjBsWWda?=
+ =?utf-8?B?Rkxqbk02MGdMWFM0bGFHR0pnVythaGJpVERRT1Ewb000ZDFST1BXaERCaE9E?=
+ =?utf-8?B?QXJiYVNEQVZEcVBaTkcrSXNiOU9RcEdFeU8zV2RCVHFWQWZxMG0xUnprNDAw?=
+ =?utf-8?B?US85VzYrNW92a25IUUhHbGlDSVMvNERVOFRPOUp2bGJrSkt0NFpkT0JQVlls?=
+ =?utf-8?B?UDVEOFpjOVV3ZXRSTmVjY3ovUzA3dVJqbStzWENObDNEempFNVp6aFdxNVZp?=
+ =?utf-8?B?SWZnSWZkOUIxM1B2TmFQN0tiUnZUa1d5OW1YREc1VHNHVjNSaWlna2FMWnlq?=
+ =?utf-8?B?RFkvNk85T3NlODNGclJEWnZ6VEhsU01FNkZYczFDMXdtUjZDcER4aUhXQjJ0?=
+ =?utf-8?B?b3ZuTnZibU9HZW9sdUZwSmxTUG5pclNYNUZybjI0R1pWNEwrUXUvT1JDamVV?=
+ =?utf-8?B?ZUFnc1h0c2cxRWNpdG1MYS80SnRrU2daVmFJNXBFMi9vcWIyRms1VlZlanRi?=
+ =?utf-8?B?WmE3WWk3MjVoVmtDSVdRNDJtN0VuQ1hSTU9kMzRxS2FQYTBpaGlpUlQvZEMr?=
+ =?utf-8?B?dC9SSTgwdk1tME8ycDhTcTcyMzVxakxlTGo0RUd6SXpaeGNzaE5pVkpOckdK?=
+ =?utf-8?B?a2s3OHM3R2N4VWtpSnloYTYyS0ZYQUorTUZWc21jSEJUdS9GNjdMZ3c1c3V5?=
+ =?utf-8?B?N0ZyVW9QcUVQT1VxMlNEczI0RW1zdnFneE02ZVgxcFBkQ0s3SzBicytaekRO?=
+ =?utf-8?B?SWZ5WkJLbk1VZktVVTF6M1BaOUp6ZUE2NlNadjVFbjJEZVhtQkUwUkZEdzE3?=
+ =?utf-8?B?L1MybWRMazB3ZVVLREx3Ryt1cy83cjhDbEVabmFXUTNXdFNiT245Q0JWS0Vv?=
+ =?utf-8?B?Y1FjY0h6R1VoczBucjNXdlRmeXh2QUVEUGJpZTNkbXROaVlXbmVsMWV4Y2dD?=
+ =?utf-8?B?aTBLT0s4ZkRVVnlCMG5oNkhuUEZ5Zm9mQi8vRHAwYkg4ME52cUkydFlwQ1lJ?=
+ =?utf-8?B?enpZMUt3NDRKbXNzNlplcUh1a3NQQUFmOVRPTWZjeDhvMnpRMkFsckdEeHhy?=
+ =?utf-8?B?RjRZd2R6b2E2bWM4RGQ5YVNpZHdHNENnbXFPTUxUb0VWVnJEYnIwRDdidFph?=
+ =?utf-8?B?a1UwVkN3aHZYMDZvamY1ekhkb0RXS25WTTg3aFpUVmlEdUVDOFJFQkNOeC83?=
+ =?utf-8?B?NzFSREJTWXA5Z3BQZXNVM3IramN1cG15Tlh2YkN5dkx5OFJEOG5VYlp3eHhl?=
+ =?utf-8?B?NnFBMDNBNlVBeFN3cmI2dlFydVlXNGQwa004U0ZSdFlFbmlWSjZIZU1VZmhr?=
+ =?utf-8?B?VjhzVXhOTW9XVVJaK0pHMHFGNHczTldhMkhFVlNKNno5SnlGYkU2SHl5Nmll?=
+ =?utf-8?B?NUx4RU8vaWhNUFFOTmFtNFhRQnd2NHd6WWZ0NU5NZ2RHUjgyVUVmTW5ybGFy?=
+ =?utf-8?B?dWdtWmdjNWVGS0R3QS9ZTGFpZ21RVFdMMGxmMkNQMDQ0Qnk4OTZRKzVPMzVH?=
+ =?utf-8?B?QU5SN1Blb0YxTmF6R0ZnVGFLLzdsNHdHa2RDYyttRFczdjlUcUFwOHhYUm9x?=
+ =?utf-8?B?NGNNWGxVVFFxRThKcmx3MWFSek9qZTBiVFY2bjUxaTdoME1uYnViQUN4azAy?=
+ =?utf-8?B?eDF6Z2JWakhkU0VleHR2dmdQZXlHeE1sTWVPQU5WTlVac3VNVksxTDVKK3dj?=
+ =?utf-8?Q?JoU9eF56HuwCjBjlsSd0HDVa1?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3dde423-0894-4a5a-8fab-08dbbec4ba8a
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Sep 2023 19:13:55.6849 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UixJf2I9s5RBX4LU/Gae4eUfdj5vbBU96/9DuKgSntmAQHnIoHuRfdPVljGaAH1KHUBiM0uAp9i3GPzh/wx2Bg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4121
+Cc: kvm@vger.kernel.org, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
+ leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,61 +161,132 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: Feng Liu <feliu@nvidia.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 26, 2023 at 06:41:58PM +0200, Halil Pasic wrote:
-> [..]
-> > --- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> > +++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-> > @@ -61,8 +61,9 @@ static void virtio_crypto_akcipher_finalize_req(
-> >  	vc_akcipher_req->src_buf = NULL;
-> >  	vc_akcipher_req->dst_buf = NULL;
-> >  	virtcrypto_clear_request(&vc_akcipher_req->base);
-> > -
-> > +	local_bh_disable();
-> >  	crypto_finalize_akcipher_request(vc_akcipher_req->base.dataq->engine, req, err);
-> > +	local_bh_enable();
-> 
-> Thanks Gonglei!
-> 
-> I did this a quick spin, and it does not seem to be sufficient on s390x.
-> Which does not come as a surprise to me, because 
-> 
-> #define lockdep_assert_in_softirq()                                     \
-> do {                                                                    \
->         WARN_ON_ONCE(__lockdep_enabled                  &&              \
->                      (!in_softirq() || in_irq() || in_nmi()));          \
-> } while (0)
-> 
-> will still warn because  in_irq() still evaluates to true (your patch
-> addresses the !in_softirq() part).
-> 
-> I don't have any results on x86 yet. My current understanding is that the
-> virtio-pci transport code disables interrupts locally somewhere in the
-> call chain (actually in vp_vring_interrupt() via spin_lock_irqsave())
-> and then x86 would be fine. But I will get that verified.
-> 
-> On the other hand virtio_airq_handler() calls vring_interrupt() with
-> interrupts enabled. (While vring_interrupt() is called in a (read)
-> critical section in virtio_airq_handler() we use read_lock() and
-> not read_lock_irqsave() to grab the lock. Whether that is correct in
-> it self (i.e. disregarding the crypto problem) or not I'm not sure right
-> now. Will think some more about it tomorrow.) If the way to go forward
-> is disabling interrupts in virtio-ccw before vring_interrupt() is
-> called, I would be glad to spin a patch for that.
-> 
-> Copying Conny, as she may have an opinion on this (if I'm not wrong she
-> authored that code).
-> 
-> Regards,
-> Halil
 
-On a related note, config change callback is also handled incorrectly
-in this driver, it takes a mutex from interrupt context.
 
+On 2023-09-21 a.m.9:46, Michael S. Tsirkin wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> On Thu, Sep 21, 2023 at 03:40:30PM +0300, Yishai Hadas wrote:
+>> From: Feng Liu <feliu@nvidia.com>
+>>
+>> Currently VQ deletion callback vp_del_vqs() processes generic
+>> virtio_device level VQ list instead of VQ information available at PCI
+>> layer.
+>>
+>> To adhere to the layering, use the pci device level VQ information
+>> stored in the virtqueues or vqs.
+>>
+>> This also prepares the code to handle PCI layer admin vq life cycle to
+>> be managed within the pci layer and thereby avoid undesired deletion of
+>> admin vq by upper layer drivers (net, console, vfio), in the del_vqs()
+>> callback.
+> 
+>> Signed-off-by: Feng Liu <feliu@nvidia.com>
+>> Reviewed-by: Parav Pandit <parav@nvidia.com>
+>> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+>> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+>> ---
+>>   drivers/virtio/virtio_pci_common.c | 12 +++++++++---
+>>   drivers/virtio/virtio_pci_common.h |  1 +
+>>   2 files changed, 10 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+>> index c2524a7207cf..7a3e6edc4dd6 100644
+>> --- a/drivers/virtio/virtio_pci_common.c
+>> +++ b/drivers/virtio/virtio_pci_common.c
+>> @@ -232,12 +232,16 @@ static void vp_del_vq(struct virtqueue *vq)
+>>   void vp_del_vqs(struct virtio_device *vdev)
+>>   {
+>>        struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+>> -     struct virtqueue *vq, *n;
+>> +     struct virtqueue *vq;
+>>        int i;
+>>
+>> -     list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
+>> +     for (i = 0; i < vp_dev->nvqs; i++) {
+>> +             if (!vp_dev->vqs[i])
+>> +                     continue;
+>> +
+>> +             vq = vp_dev->vqs[i]->vq;
+>>                if (vp_dev->per_vq_vectors) {
+>> -                     int v = vp_dev->vqs[vq->index]->msix_vector;
+>> +                     int v = vp_dev->vqs[i]->msix_vector;
+>>
+>>                        if (v != VIRTIO_MSI_NO_VECTOR) {
+>>                                int irq = pci_irq_vector(vp_dev->pci_dev, v);
+>> @@ -294,6 +298,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+>>        vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+>>        if (!vp_dev->vqs)
+>>                return -ENOMEM;
+>> +     vp_dev->nvqs = nvqs;
+>>
+>>        if (per_vq_vectors) {
+>>                /* Best option: one for change interrupt, one per vq. */
+>> @@ -365,6 +370,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+>>        vp_dev->vqs = kcalloc(nvqs, sizeof(*vp_dev->vqs), GFP_KERNEL);
+>>        if (!vp_dev->vqs)
+>>                return -ENOMEM;
+>> +     vp_dev->nvqs = nvqs;
+>>
+>>        err = request_irq(vp_dev->pci_dev->irq, vp_interrupt, IRQF_SHARED,
+>>                        dev_name(&vdev->dev), vp_dev);
+>> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+>> index 4b773bd7c58c..602021967aaa 100644
+>> --- a/drivers/virtio/virtio_pci_common.h
+>> +++ b/drivers/virtio/virtio_pci_common.h
+>> @@ -60,6 +60,7 @@ struct virtio_pci_device {
+>>
+>>        /* array of all queues for house-keeping */
+>>        struct virtio_pci_vq_info **vqs;
+>> +     u32 nvqs;
+> 
+> I don't much like it that we are adding more duplicated info here.
+> In fact, we tried removing the vqs array in
+> 5c34d002dcc7a6dd665a19d098b4f4cd5501ba1a - there was some bug in that
+> patch and the author didn't have the time to debug
+> so I reverted but I don't really think we need to add to that.
+> 
+
+Hi Michael
+
+As explained in commit message, this patch is mainly to prepare for the 
+subsequent admin vq patches.
+
+The admin vq is also established using the common mechanism of vring, 
+and is added to vdev->vqs in __vring_new_virtqueue(). So vdev->vqs 
+contains all virtqueues, including rxq, txq, ctrlvq and admin vq.
+
+admin vq should be managed by the virito_pci layer and should not be 
+created or deleted by upper driver (net, blk);
+When the upper driver was unloaded, it will call del_vqs() interface, 
+which wll call vp_del_vqs(), and vp_del_vqs() should not delete the 
+admin vq, but only delete the virtqueues created by the upper driver 
+such as rxq, txq, and ctrlq.
+
+
+vp_dev->vqs[] array only contains virtqueues created by upper driver 
+such as rxq, txq, ctrlq. Traversing vp_dev->vqs array can only delete 
+the upper virtqueues, without the admin vq. Use the vdev->vqs linked 
+list cannot meet the needs.
+
+
+Can such an explanation be explained clearly? Or do you have any other 
+alternative methods?
+
+>>
+>>        /* MSI-X support */
+>>        int msix_enabled;
+>> --
+>> 2.27.0
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
