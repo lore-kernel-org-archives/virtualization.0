@@ -1,110 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 43096CE7A84
-	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 21:25:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CF97E82CDF
+	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 21:28:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A96F340123;
-	Wed, 27 Sep 2023 21:25:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A96F340123
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EYUSoADq
+	by smtp3.osuosl.org (Postfix) with ESMTP id 21343614B7;
+	Wed, 27 Sep 2023 21:28:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 21343614B7
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YY0aW4tu
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wcMqHA5Ckge5; Wed, 27 Sep 2023 21:25:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id ECA3F40488;
-	Wed, 27 Sep 2023 21:25:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ECA3F40488
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FggsOCwZaHrd; Wed, 27 Sep 2023 21:27:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 673CD610A2;
+	Wed, 27 Sep 2023 21:27:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 673CD610A2
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B81A6C0071;
-	Wed, 27 Sep 2023 21:25:10 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DA0CC0071;
+	Wed, 27 Sep 2023 21:27:58 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2CB26C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A00BFC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 21:25:09 +0000 (UTC)
+ Wed, 27 Sep 2023 21:27:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E983683412
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7507E83829
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 21:25:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E983683412
+ Wed, 27 Sep 2023 21:27:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7507E83829
 Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=EYUSoADq
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YY0aW4tu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PiXVKi5GNZXl
+ with ESMTP id KZA8gIRJb5QZ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 21:25:07 +0000 (UTC)
+ Wed, 27 Sep 2023 21:27:55 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C4590833CA
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 76C7A8381F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 21:25:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4590833CA
+ Wed, 27 Sep 2023 21:27:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 76C7A8381F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695849905;
+ s=mimecast20190719; t=1695850074;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=VmntjQFEBP4zxkSKza823gqYagc7cqE2Mw3qK1poHGA=;
- b=EYUSoADqjfs6Do1kcNdeuMa/cUjWYKYc6hPJXMxJIJi1GN++iIBNTQ4go/b+AoXTNGsQZs
- xHuq33UgmXVWkUErlyT+iHZOzFXEchZtFO8f22WmoUF/RY4V0J2LUlXv7QKcwIV+bTsLb2
- QGoEbYqOaaCGZdDKZxnHXvF20YND2+M=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=NVhXHBHOJiNE7AFztQWpCxUca0e80DXZadzWQuxdrFs=;
+ b=YY0aW4tukM9aIk6bYnDcp/3xhw0i6AMh3UllRxilCwizAtZczvjHp/jfoQ4tSVlRx1TKF9
+ Td20JZqU0JSaAT+48oQRYr2tFNL0qHwl9QDguk9xI/fsVpoHmHlAN74UvXOrMvfI13Agsi
+ BMdgWDYu6ttP+u/caRgzcnjfjm9cIYw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-177-KCMfeNimMHaui4bIVJX1UA-1; Wed, 27 Sep 2023 17:25:03 -0400
-X-MC-Unique: KCMfeNimMHaui4bIVJX1UA-1
-Received: by mail-wm1-f72.google.com with SMTP id
- 5b1f17b1804b1-402cd372b8bso116058265e9.2
+ us-mta-206-Q34wQI4SMR-_5Ip9Jj2W7Q-1; Wed, 27 Sep 2023 17:27:52 -0400
+X-MC-Unique: Q34wQI4SMR-_5Ip9Jj2W7Q-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ 5b1f17b1804b1-4052d1b19f8so108631745e9.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 14:25:03 -0700 (PDT)
+ Wed, 27 Sep 2023 14:27:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695849902; x=1696454702;
+ d=1e100.net; s=20230601; t=1695850071; x=1696454871;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=VmntjQFEBP4zxkSKza823gqYagc7cqE2Mw3qK1poHGA=;
- b=Vs6ixnrEtYsqjSqQteTWT1Vf/F5ntinlxwr5HTredCmrD4EZX3aJmbJuhxDOJOGRlv
- LzqC/JxZyZmFCPPz1Wq7DpRltoM5/DLbTaLEQDpRGv1JzV1uuJUVMl1Ci5eFnvfD3nWL
- l/vwJzOUg5IYSD6Eg1qKbI6Q+8QQt5Saqu7VcdMS8SUPisvPkbtRECE2vUQEYYnvGwiU
- vpG2zANhkTHQQqA4RjJ5AS8LmFu+azRRJ+A/I6XsgB16hTAaKts9hykJ5ESQECoSMY67
- /+wTP/Q/y0NSrZBRT7lE5gFTp3JBKkc2tiZWFVWzSBE7PYoSiRug0qKgqm9K8Xc4keim
- upFA==
-X-Gm-Message-State: AOJu0YzaAAqqbBc706FyBRs/PEC5a2Tw/05kRRa1wRAg6Uwh0SMPHwwf
- 72DDjR+tJzU3jAaB506XlV1pyH5NVqSYTkbFUOe7PXCIK6UckgqCkwfIMpHWOfxdiEdmaAqFUNm
- aSyOzO+1xUaDoUt2TJ8mFB8P4595WkOD5fltks+x2HQ==
-X-Received: by 2002:a7b:c4cb:0:b0:405:40c6:2b96 with SMTP id
- g11-20020a7bc4cb000000b0040540c62b96mr3252751wmk.3.1695849902522; 
- Wed, 27 Sep 2023 14:25:02 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGoSKe8qGtIAhaENH1IBp/4qm/cttWihUV2n1Xw4IXG2ADxskYunHMDBRVoizr7wIOq+D70bQ==
-X-Received: by 2002:a7b:c4cb:0:b0:405:40c6:2b96 with SMTP id
- g11-20020a7bc4cb000000b0040540c62b96mr3252738wmk.3.1695849902136; 
- Wed, 27 Sep 2023 14:25:02 -0700 (PDT)
+ bh=NVhXHBHOJiNE7AFztQWpCxUca0e80DXZadzWQuxdrFs=;
+ b=w0dDPZuj3sXkrzuuyLM3K/2BORxUILkWc01cnSXm6U01+IqY9v9cPTA3IGiymEEuKH
+ xweR7plIyJ7k227o4nmBH6Q1pt1KwqKG+IHyPgPTHkvuC5PYc59mTGwgN9fSAC8YQxIQ
+ DtMsQ/NXGgUVUJu1xiqfKnh4cNCzfmDZYXZB1W7qQ5dCXAhjFWdtudIYw87a8ozZ+wkZ
+ XxudugiO89aTcPr+nvpONKw8FycdSwTjflGntq6UwHLtqOFIhk1w9V51YFGQyFRRPbOe
+ i7rXRKgsHRyzYHdyme5uXQWqpIWVKZMqpJXK8wT6LA1fBUVJpSFoJr1LzxYAmoyuernZ
+ Z7Yw==
+X-Gm-Message-State: AOJu0Yw+uAxzwt7Fy8sp1yFEzq3Unwh01P8cifrkvdcDiEqMn/HzBVch
+ VjmoSRFBTEmZVhzrojUdk7Yh2Mfyf76ApqZZTdOBk4BAT47ijUsNJb/BwdcplEnCWw+6IjGEn8u
+ 9s+Els2v23WlBD0SwYwjVsWeQnXE7/OvCZH1OG6fzFg==
+X-Received: by 2002:a05:600c:d5:b0:404:f9c1:d5d7 with SMTP id
+ u21-20020a05600c00d500b00404f9c1d5d7mr2989077wmm.25.1695850071739; 
+ Wed, 27 Sep 2023 14:27:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFIcUJn90U5HWXMApV7/w5orCfurEE6KfmvMEkl/mryjB+2TvyKWxY5JcqbSZmIYrL/4XWi2g==
+X-Received: by 2002:a05:600c:d5:b0:404:f9c1:d5d7 with SMTP id
+ u21-20020a05600c00d500b00404f9c1d5d7mr2989057wmm.25.1695850071378; 
+ Wed, 27 Sep 2023 14:27:51 -0700 (PDT)
 Received: from redhat.com ([2.52.19.249]) by smtp.gmail.com with ESMTPSA id
- f2-20020a7bc8c2000000b003fefaf299b6sm7026620wml.38.2023.09.27.14.24.59
+ q12-20020a05600c040c00b0040586360a36sm10244285wmb.17.2023.09.27.14.27.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 27 Sep 2023 14:25:01 -0700 (PDT)
-Date: Wed, 27 Sep 2023 17:24:57 -0400
+ Wed, 27 Sep 2023 14:27:50 -0700 (PDT)
+Date: Wed, 27 Sep 2023 17:27:47 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Feng Liu <feliu@nvidia.com>
-Subject: Re: [PATCH vfio 01/11] virtio-pci: Use virtio pci device layer vq
- info instead of generic one
-Message-ID: <20230927171859-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH vfio 03/11] virtio-pci: Introduce admin virtqueue
+Message-ID: <20230927172553-mutt-send-email-mst@kernel.org>
 References: <20230921124040.145386-1-yishaih@nvidia.com>
- <20230921124040.145386-2-yishaih@nvidia.com>
- <20230921093540-mutt-send-email-mst@kernel.org>
- <6eb92b47-cefe-8b00-d3d2-f15ce4aa9959@nvidia.com>
- <39d8a0a5-4365-4ced-cac1-bef2bc8d6367@nvidia.com>
+ <20230921124040.145386-4-yishaih@nvidia.com>
+ <20230921095216-mutt-send-email-mst@kernel.org>
+ <62df07ea-ddb6-f4ee-f7c3-1400dbe3f0a9@nvidia.com>
+ <40f53b6f-f220-af35-0797-e3c60c8c1294@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <39d8a0a5-4365-4ced-cac1-bef2bc8d6367@nvidia.com>
+In-Reply-To: <40f53b6f-f220-af35-0797-e3c60c8c1294@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -122,154 +121,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 27, 2023 at 02:09:43PM -0400, Feng Liu wrote:
-> =
-
-> =
-
-> On 2023-09-26 p.m.3:13, Feng Liu via Virtualization wrote:
-> > External email: Use caution opening links or attachments
-> > =
-
-> > =
-
-> > On 2023-09-21 a.m.9:46, Michael S. Tsirkin wrote:
-> > > External email: Use caution opening links or attachments
-> > > =
-
-> > > =
-
-> > > On Thu, Sep 21, 2023 at 03:40:30PM +0300, Yishai Hadas wrote:
-> > > > From: Feng Liu <feliu@nvidia.com>
-> > > > =
-
-> =
-
-> > > > pci_irq_vector(vp_dev->pci_dev, v);
-> > > > @@ -294,6 +298,7 @@ static int vp_find_vqs_msix(struct
-> > > > virtio_device *vdev, unsigned int nvqs,
-> > > > =A0=A0=A0=A0=A0=A0 vp_dev->vqs =3D kcalloc(nvqs, sizeof(*vp_dev->vq=
-s), GFP_KERNEL);
-> > > > =A0=A0=A0=A0=A0=A0 if (!vp_dev->vqs)
-> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return -ENOMEM;
-> > > > +=A0=A0=A0=A0 vp_dev->nvqs =3D nvqs;
-> > > > =
-
-> > > > =A0=A0=A0=A0=A0=A0 if (per_vq_vectors) {
-> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /* Best option: one for =
-change interrupt, one per vq. */
-> > > > @@ -365,6 +370,7 @@ static int vp_find_vqs_intx(struct
-> > > > virtio_device *vdev, unsigned int nvqs,
-> > > > =A0=A0=A0=A0=A0=A0 vp_dev->vqs =3D kcalloc(nvqs, sizeof(*vp_dev->vq=
-s), GFP_KERNEL);
-> > > > =A0=A0=A0=A0=A0=A0 if (!vp_dev->vqs)
-> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return -ENOMEM;
-> > > > +=A0=A0=A0=A0 vp_dev->nvqs =3D nvqs;
-> > > > =
-
-> > > > =A0=A0=A0=A0=A0=A0 err =3D request_irq(vp_dev->pci_dev->irq, vp_int=
-errupt,
-> > > > IRQF_SHARED,
-> > > > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
-dev_name(&vdev->dev), vp_dev);
-> > > > diff --git a/drivers/virtio/virtio_pci_common.h
-> > > > b/drivers/virtio/virtio_pci_common.h
-> > > > index 4b773bd7c58c..602021967aaa 100644
-> > > > --- a/drivers/virtio/virtio_pci_common.h
-> > > > +++ b/drivers/virtio/virtio_pci_common.h
-> > > > @@ -60,6 +60,7 @@ struct virtio_pci_device {
-> > > > =
-
-> > > > =A0=A0=A0=A0=A0=A0 /* array of all queues for house-keeping */
-> > > > =A0=A0=A0=A0=A0=A0 struct virtio_pci_vq_info **vqs;
-> > > > +=A0=A0=A0=A0 u32 nvqs;
-> > > =
-
-> > > I don't much like it that we are adding more duplicated info here.
-> > > In fact, we tried removing the vqs array in
-> > > 5c34d002dcc7a6dd665a19d098b4f4cd5501ba1a - there was some bug in that
-> > > patch and the author didn't have the time to debug
-> > > so I reverted but I don't really think we need to add to that.
-> > > =
-
-> > =
-
-> > Hi Michael
-> > =
-
-> > As explained in commit message, this patch is mainly to prepare for the
-> > subsequent admin vq patches.
-> > =
-
-> > The admin vq is also established using the common mechanism of vring,
-> > and is added to vdev->vqs in __vring_new_virtqueue(). So vdev->vqs
-> > contains all virtqueues, including rxq, txq, ctrlvq and admin vq.
-> > =
-
-> > admin vq should be managed by the virito_pci layer and should not be
-> > created or deleted by upper driver (net, blk);
-> > When the upper driver was unloaded, it will call del_vqs() interface,
-> > which wll call vp_del_vqs(), and vp_del_vqs() should not delete the
-> > admin vq, but only delete the virtqueues created by the upper driver
-> > such as rxq, txq, and ctrlq.
-> > =
-
-> > =
-
-> > vp_dev->vqs[] array only contains virtqueues created by upper driver
-> > such as rxq, txq, ctrlq. Traversing vp_dev->vqs array can only delete
-> > the upper virtqueues, without the admin vq. Use the vdev->vqs linked
-> > list cannot meet the needs.
-> > =
-
-> > =
-
-> > Can such an explanation be explained clearly? Or do you have any other
-> > alternative methods?
-> > =
-
-> =
-
-> Hi, Michael
-> 	Is the above explanations OK to you?
-> =
-
-> Thanks
-> Feng
-
-First, the patch only addresses pci. Second, yes driver unload calls
-del_vqs but doesn't it also reset the device? If this happens while
-vfio tries to send commands to it then you have other problems.
-And, for the baroque need of admin vq which
-most devices don't have you are duplicating logic and wasting memory for
-everyone.
-
-What is a sane solution? virtio core was never designed to
-allow two drivers accessing the same device. So don't try, add the logic
-of device access in virtio core.  I feel the problem won't even exist if
-instead of just exposing the device pointer you expose a sane interface.
-
-
-> > > > =
-
-> > > > =A0=A0=A0=A0=A0=A0 /* MSI-X support */
-> > > > =A0=A0=A0=A0=A0=A0 int msix_enabled;
-> > > > -- =
-
-> > > > 2.27.0
-> > > =
-
-> > _______________________________________________
-> > Virtualization mailing list
-> > Virtualization@lists.linux-foundation.org
-> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCBTZXAgMjcsIDIwMjMgYXQgMDI6MTI6MjRQTSAtMDQwMCwgRmVuZyBMaXUgd3JvdGU6
+Cj4gCj4gCj4gT24gMjAyMy0wOS0yNiBwLm0uMzoyMywgRmVuZyBMaXUgdmlhIFZpcnR1YWxpemF0
+aW9uIHdyb3RlOgo+ID4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcgbGlua3Mg
+b3IgYXR0YWNobWVudHMKPiA+IAo+ID4gCj4gPiBPbiAyMDIzLTA5LTIxIGEubS45OjU3LCBNaWNo
+YWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiA+IEV4dGVybmFsIGVtYWlsOiBVc2UgY2F1dGlvbiBv
+cGVuaW5nIGxpbmtzIG9yIGF0dGFjaG1lbnRzCj4gPiA+IAo+ID4gPiAKPiA+ID4gT24gVGh1LCBT
+ZXAgMjEsIDIwMjMgYXQgMDM6NDA6MzJQTSArMDMwMCwgWWlzaGFpIEhhZGFzIHdyb3RlOgo+ID4g
+PiA+IEZyb206IEZlbmcgTGl1IDxmZWxpdUBudmlkaWEuY29tPgo+IAo+IAo+ID4gPiA+IMKgIGRy
+aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuX2F2cS5jIHwgNjUgKysrKysrKysrKysrKysr
+KysrKysrKysrKysKPiA+ID4gCj4gPiA+IGlmIHlvdSBoYXZlIGEgLmMgZmlsZSB3aXRob3V0IGEg
+LmggZmlsZSB5b3Uga25vdyB0aGVyZSdzIHNvbWV0aGluZwo+ID4gPiBmaXNoeS4gSnVzdCBhZGQg
+dGhpcyBpbnNpZGUgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYyA/Cj4gPiA+IAo+
+ID4gV2lsbCBkby4KPiA+IAo+IAo+ID4gPiA+ICtzdHJ1Y3QgdmlydGlvX2F2cSB7Cj4gPiA+IAo+
+ID4gPiBhZG1pbl92cSB3b3VsZCBiZSBiZXR0ZXIuIGFuZCB0aGlzIGlzIHBjaSBzcGVjaWZpYyB5
+ZXM/IHNvIHZpcnRpb19wY2lfCj4gPiA+IAo+ID4gCj4gPiBXaWxsIGRvLgo+ID4gCj4gCj4gPiA+
+ID4gCj4gPiA+ID4gK8KgwqDCoMKgIHN0cnVjdCB2aXJ0aW9fYXZxICphZG1pbjsKPiA+ID4gCj4g
+PiA+IGFuZCB0aGlzIGNvdWxkIGJlIHRoaW5rYWJseSBhZG1pbl92cS4KPiA+ID4gCj4gPiBXaWxs
+IGRvLgo+ID4gCj4gCj4gPiA+ID4gCj4gPiA+ID4gwqAgLyogSWYgZHJpdmVyIGRpZG4ndCBhZHZl
+cnRpc2UgdGhlIGZlYXR1cmUsIGl0IHdpbGwgbmV2ZXIgYXBwZWFyLiAqLwo+ID4gPiA+IGRpZmYg
+LS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19wY2lfbW9kZXJuLmgKPiA+ID4gPiBiL2luY2x1
+ZGUvbGludXgvdmlydGlvX3BjaV9tb2Rlcm4uaAo+ID4gPiA+IGluZGV4IDA2N2FjMWQ3ODliYy4u
+ZjZjYjEzZDg1OGZkIDEwMDY0NAo+ID4gPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX3Bj
+aV9tb2Rlcm4uaAo+ID4gPiA+ICsrKyBiL2luY2x1ZGUvbGludXgvdmlydGlvX3BjaV9tb2Rlcm4u
+aAo+ID4gPiA+IEBAIC0xMCw2ICsxMCw5IEBAIHN0cnVjdCB2aXJ0aW9fcGNpX21vZGVybl9jb21t
+b25fY2ZnIHsKPiA+ID4gPiAKPiA+ID4gPiDCoMKgwqDCoMKgwqAgX19sZTE2IHF1ZXVlX25vdGlm
+eV9kYXRhO8KgwqDCoMKgwqDCoCAvKiByZWFkLXdyaXRlICovCj4gPiA+ID4gwqDCoMKgwqDCoMKg
+IF9fbGUxNiBxdWV1ZV9yZXNldDvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLyogcmVhZC13cml0
+ZSAqLwo+ID4gPiA+ICsKPiA+ID4gPiArwqDCoMKgwqAgX19sZTE2IGFkbWluX3F1ZXVlX2luZGV4
+O8KgwqDCoMKgwqDCoCAvKiByZWFkLW9ubHkgKi8KPiA+ID4gPiArwqDCoMKgwqAgX19sZTE2IGFk
+bWluX3F1ZXVlX251bTvCoMKgwqDCoMKgwqDCoMKgIC8qIHJlYWQtb25seSAqLwo+ID4gPiA+IMKg
+IH07Cj4gPiA+IAo+ID4gPiAKPiA+ID4gb3VjaC4KPiA+ID4gYWN0dWFsbHkgdGhlcmUncyBhIHBy
+b2JsZW0KPiA+ID4gCj4gPiA+IMKgwqDCoMKgwqDCoMKgwqAgbWRldi0+Y29tbW9uID0gdnBfbW9k
+ZXJuX21hcF9jYXBhYmlsaXR5KG1kZXYsIGNvbW1vbiwKPiA+ID4gwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCBzaXplb2Yoc3RydWN0Cj4gPiA+IHZpcnRpb19wY2lfY29tbW9uX2NmZyksIDQsCj4gPiA+IMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgMCwgc2l6ZW9mKHN0cnVjdAo+ID4gPiB2aXJ0aW9fcGNpX2NvbW1v
+bl9jZmcpLAo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIE5VTEwsIE5VTEwpOwo+ID4gPiAKPiA+
+ID4gZXh0ZW5kaW5nIHRoaXMgc3RydWN0dXJlIG1lYW5zIHNvbWUgY2FsbHMgd2lsbCBzdGFydCBm
+YWlsaW5nIG9uCj4gPiA+IGV4aXN0aW5nIGRldmljZXMuCj4gPiA+IAo+ID4gPiBldmVuIG1vcmUg
+b2YgYW4gb3VjaCwgd2hlbiB3ZSBhZGRlZCBxdWV1ZV9ub3RpZnlfZGF0YSBhbmQgcXVldWVfcmVz
+ZXQgd2UKPiA+ID4gYWxzbyBwb3NzaWJseSBicm9rZSBzb21lIGRldmljZXMuIHdlbGwgaG9wZWZ1
+bGx5IG5vdCBzaW5jZSBubyBvbmUKPiA+ID4gcmVwb3J0ZWQgZmFpbHVyZXMgYnV0IHdlIHJlYWxs
+eSBuZWVkIHRvIGZpeCB0aGF0Lgo+ID4gPiAKPiA+ID4gCj4gPiBIaSBNaWNoYWVsCj4gPiAKPiA+
+IEkgZGlkbuKAmXQgc2VlIHRoZSBmYWlsIGluIHZwX21vZGVybl9tYXBfY2FwYWJpbGl0eSgpLCBh
+bmQKPiA+IHZwX21vZGVybl9tYXBfY2FwYWJpbGl0eSgpIG9ubHkgcmVhZCBhbmQgbWFwIHBjaSBt
+ZW1vcnkuIFRoZSBsZW5ndGggb2YKPiA+IHRoZSBtZW1vcnkgbWFwcGluZyB3aWxsIGluY3JlYXNl
+IGFzIHRoZSBzdHJ1Y3QgdmlydGlvX3BjaV9jb21tb25fY2ZnCj4gPiBpbmNyZWFzZXMuIE5vIGVy
+cm9ycyBhcmUgc2Vlbi4KPiA+IAo+ID4gQW5kIGFjY29yZGluZyB0byB0aGUgZXhpc3RpbmcgY29k
+ZSwgbmV3IHBjaSBjb25maWd1cmF0aW9uIHNwYWNlIG1lbWJlcnMKPiA+IGNhbiBvbmx5IGJlIGFk
+ZGVkIGluIHN0cnVjdCB2aXJ0aW9fcGNpX21vZGVybl9jb21tb25fY2ZnLgo+ID4gCj4gPiBFdmVy
+eSBzaW5nbGUgZW50cnkgYWRkZWQgaGVyZSBpcyBwcm90ZWN0ZWQgYnkgZmVhdHVyZSBiaXQsIHRo
+ZXJlIGlzIG5vCj4gPiBidWcgQUZBSUsuCj4gPiAKPiA+IENvdWxkIHlvdSBoZWxwIHRvIGV4cGxh
+aW4gaXQgbW9yZSBkZXRhaWw/wqAgV2hlcmUgYW5kIHdoeSBpdCB3aWxsIGZhbGwgaWYKPiA+IHdl
+IGFkZCBuZXcgbWVtYmVyIGluIHN0cnVjdCB2aXJ0aW9fcGNpX21vZGVybl9jb21tb25fY2ZnLgo+
+ID4gCj4gPiAKPiBIaSwgTWljaGFlbAo+IAlBbnkgY29tbWVudHMgYWJvdXQgdGhpcz8KPiBUaGFu
+a3MKPiBGZW5nCgpJZiBhbiBleGlzdGluZyBkZXZpY2UgZXhwb3NlcyBhIHNtYWxsCmNhcGFiaWxp
+dHkgbWF0Y2hpbmcgb2xkIHNpemUsIHRoZW4geW91IGNoYW5nZSBzaXplIHRoZW4KdGhlIGNoZWNr
+IHdpbGwgZmFpbCBvbiB0aGUgZXhpc3RpbmcgZGV2aWNlIGFuZCBkcml2ZXIgd29uJ3QgbG9hZC4K
+CkFsbCB0aGlzIGhhcHBlbnMgd2F5IGJlZm9yZSBmZWF0dXJlIGJpdCBjaGVja3MuCgoKPiA+ID4g
+PiAKPiA+ID4gPiDCoCBzdHJ1Y3QgdmlydGlvX3BjaV9tb2Rlcm5fZGV2aWNlIHsKPiA+ID4gPiAt
+LSAKPiA+ID4gPiAyLjI3LjAKPiA+ID4gCj4gPiBfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwo+ID4gVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0Cj4gPiBW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+ID4gaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24KCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
