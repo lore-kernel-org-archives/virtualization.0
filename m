@@ -1,109 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CF3DEE80A9A
-	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 07:35:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8A220E80AA1
+	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 07:38:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6FCA882280;
-	Wed, 27 Sep 2023 07:35:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6FCA882280
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DxqZbid8
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2C90341F1E;
+	Wed, 27 Sep 2023 07:38:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2C90341F1E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bOP9XgI+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hjrgJaGf6n6t; Wed, 27 Sep 2023 07:35:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4_-NFzAYgy9U; Wed, 27 Sep 2023 07:37:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B08E582281;
-	Wed, 27 Sep 2023 07:35:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B08E582281
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 222F64191A;
+	Wed, 27 Sep 2023 07:37:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 222F64191A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DD12C0071;
-	Wed, 27 Sep 2023 07:35:40 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78137C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E57FFC0071;
+	Wed, 27 Sep 2023 07:37:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6C5D4C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 07:35:39 +0000 (UTC)
+ Wed, 27 Sep 2023 07:37:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 534EC40567
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3AAE94013F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 07:35:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 534EC40567
+ Wed, 27 Sep 2023 07:37:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3AAE94013F
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=DxqZbid8
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=bOP9XgI+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xI4_1VUMyT9E
+ with ESMTP id 7V8u__WZ3E2g
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 07:35:38 +0000 (UTC)
+ Wed, 27 Sep 2023 07:37:55 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 83C9E40128
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D901440128
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 07:35:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 83C9E40128
+ Wed, 27 Sep 2023 07:37:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D901440128
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1695800137;
+ s=mimecast20190719; t=1695800273;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=ap6jvf8/2CoqbMpAwThp0QoWymIsVaHbvqKSWQ1uNLM=;
- b=DxqZbid8+SG9xtUkotqnGYLLppNEf+Q7lITn0rNcTt4RqNFfk4TQ9tu9PI1fme8nrXa1cA
- 150h+wGO8tagfGOGSLfqzs74ibdwKMQ1Gsr7g35SwoW9DmMuxQ21G/p+qOuCqFjos5m2HV
- r3yP+dOxVXMtwNHf5QlnB9E+oBIMxGQ=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=tzmdkgJVacl611f+REy0nRFcZdf1f4FGc4mWf9kNvKg=;
+ b=bOP9XgI+m2HXexDHDrJTYYvdPMv1rVsNTTKhX7yYlx7Kg2xORj6wZFR72csW+khcgkmhRQ
+ z0VgKBrm+Kb6vo0hX72rDoUoPFyL+FN1siKDsU1lvFznELZgRddhunHZmla2elWqp47WC4
+ iRulFBdPpQSJXWEM2xC1LbOLSS+bLro=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-653-zKNEtOeQNE6ph8IZ2rhp2A-1; Wed, 27 Sep 2023 03:35:36 -0400
-X-MC-Unique: zKNEtOeQNE6ph8IZ2rhp2A-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-405629826ccso72873995e9.0
+ us-mta-641-hkWgxlgcO7SHMhyic344Mw-1; Wed, 27 Sep 2023 03:37:51 -0400
+X-MC-Unique: hkWgxlgcO7SHMhyic344Mw-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ 5b1f17b1804b1-3fbdf341934so98163805e9.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 00:35:35 -0700 (PDT)
+ Wed, 27 Sep 2023 00:37:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1695800135; x=1696404935;
+ d=1e100.net; s=20230601; t=1695800270; x=1696405070;
  h=in-reply-to:content-transfer-encoding:content-disposition
  :mime-version:references:message-id:subject:cc:to:from:date
  :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=ap6jvf8/2CoqbMpAwThp0QoWymIsVaHbvqKSWQ1uNLM=;
- b=IYSPuuSrlsEPQntSNpmrpXGCiePZkHDvYeyAlGLhrh8cYvjvW7ZxoSNSF8cvIJi0hZ
- WQZlyHpIy/3kasyB8bWmdAoCuuRyIDAIqB3g02kTtARcuPrNyZZxkjG8N8BjAdHri4KY
- 0aBR/YgyJE9knqka8Ojxok0jUPwzwA2cyB3FsABa/VLp3s7p5MzyUy52OWohX08fyAwI
- hnNekandlZO5cV4nHBEh4GbBLhix98tGQsmAXN17NDm+eoaeAljmbeeQD5HiP3A8+pA/
- VgM0ZtQ90exfDVR4eOlLT+peMiX2RRKUzAHiTuyOdPF+Ntix2CZwHZkAnMsXKHcx4MCF
- 4pjg==
-X-Gm-Message-State: AOJu0Yz5PbhERV0UyfC+aiR8o2N5JoSW2U2IXbGzCm+JfTG7vL2GBd6v
- 6ecUpUU2+oWtCWybfMovw9/rtkbUHLM5uZp4mcr+32pz3CCkDIaT8PIQ1TlXJj7cVrVSSbQ4TBo
- 3fJrFpQ2qc+YyUrXQeXsKbH7rEDDDoYrE/e0gAGde7Q==
-X-Received: by 2002:a7b:ce94:0:b0:401:c944:a4d6 with SMTP id
- q20-20020a7bce94000000b00401c944a4d6mr1190424wmj.28.1695800134935; 
- Wed, 27 Sep 2023 00:35:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFNeo+a3D1T3OSxeUepQ732xUxuE+Jh5ew/NsV6Yu1nas54YVkW3cnsBtEB4qZvL4QfCzEH8w==
-X-Received: by 2002:a7b:ce94:0:b0:401:c944:a4d6 with SMTP id
- q20-20020a7bce94000000b00401c944a4d6mr1190398wmj.28.1695800134503; 
- Wed, 27 Sep 2023 00:35:34 -0700 (PDT)
+ bh=tzmdkgJVacl611f+REy0nRFcZdf1f4FGc4mWf9kNvKg=;
+ b=W1MhLAnqvSzPU+ud9PPFQKgig1qLJnYdowNw9s0to1mvmjHHEtNFeKyMxtwNAcXx9F
+ 3CtsRpg0nTkY10R+wra5xtrvDVMmmWXJrv7qKBkxLBu+P1PGkjoSK1/whnwP2ut+m6pz
+ jYxV1dhAHforzg5mpZJahKXQeNA7ESn4r1ChpScRlQULQxaAXpx9AwBHkosi9ZWRqD3k
+ EMhnlLCm1wAw2U3l93pwpGzZ4QFN0Ij3WSl0EOZ6AFLOGiITEFoZLsHdi15gTmFgP1N3
+ aGUZDGS6fNOk7aoSKLNrlg8YqyXMYlVuTQILA/4aZbP7VTUvgPBQIe/CVWSmdYt+7r1K
+ eUAA==
+X-Gm-Message-State: AOJu0YzOpxptz/eDPMt5kooHoyGTdT8ji5EsLrHKXgPdoFfghk3tROgZ
+ 3MPl1IAzqWnKMJdZb6nw8EYOXNG43va3tysiTeQeqkW6sohEWdE6gxp3YnkYJmw8st+D/mvEQUG
+ 2JIGQxgBflq4T9i4otZdcGar+k7ZKURoZh4Rl72aK4A==
+X-Received: by 2002:a05:600c:214:b0:401:bcb4:f133 with SMTP id
+ 20-20020a05600c021400b00401bcb4f133mr1317734wmi.22.1695800270778; 
+ Wed, 27 Sep 2023 00:37:50 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IF6GTWPyjdRalcEyKRa4+1Afbjfckld/pyknV9vE0PjXAKdAdSloWwE+dhutPySlcYVRFQJ4w==
+X-Received: by 2002:a05:600c:214:b0:401:bcb4:f133 with SMTP id
+ 20-20020a05600c021400b00401bcb4f133mr1317712wmi.22.1695800270393; 
+ Wed, 27 Sep 2023 00:37:50 -0700 (PDT)
 Received: from sgarzare-redhat ([46.222.19.70])
  by smtp.gmail.com with ESMTPSA id
- 19-20020a05600c029300b004060f0a0fdbsm4495926wmk.41.2023.09.27.00.35.32
+ e9-20020adfe7c9000000b003197efd1e7bsm2530401wrn.114.2023.09.27.00.37.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 27 Sep 2023 00:35:33 -0700 (PDT)
-Date: Wed, 27 Sep 2023 09:35:31 +0200
+ Wed, 27 Sep 2023 00:37:49 -0700 (PDT)
+Date: Wed, 27 Sep 2023 09:37:46 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v1 08/12] vsock: enable setting SO_ZEROCOPY
-Message-ID: <n4si4yyqs2svmvhueyxxyev2v3wxugzjjb25wpyveg3ns5nv6i@cfb4fyq5kdaf>
+Subject: Re: [PATCH net-next v1 12/12] test/vsock: io_uring rx/tx tests
+Message-ID: <46h5yyg62ize2woqu6rp5ebffuhrivo4y7fw3iknicozcaxiz5@ojfvm6qeqzam>
 References: <20230922052428.4005676-1-avkrasnov@salutedevices.com>
- <20230922052428.4005676-9-avkrasnov@salutedevices.com>
- <ynuctxau4ta4pk763ut7gfdaqzcuyve7uf2a2iltyspravs5uf@xrtqtbhuuvwq>
- <d27b863d-8576-2c9b-c6a6-c8e55d7dad68@salutedevices.com>
+ <20230922052428.4005676-13-avkrasnov@salutedevices.com>
+ <kfuzqzhrgdk5f5arbq4n3vd6vro6533aeysqhdgqevcqxrdm6e@57ylpkc2t4q4>
+ <708be048-862f-76ee-6671-16b54e72e5a8@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <d27b863d-8576-2c9b-c6a6-c8e55d7dad68@salutedevices.com>
+In-Reply-To: <708be048-862f-76ee-6671-16b54e72e5a8@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -130,113 +130,81 @@ Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 26, 2023 at 10:38:06PM +0300, Arseniy Krasnov wrote:
+On Tue, Sep 26, 2023 at 11:00:19PM +0300, Arseniy Krasnov wrote:
 >
 >
->On 26.09.2023 15:56, Stefano Garzarella wrote:
->> On Fri, Sep 22, 2023 at 08:24:24AM +0300, Arseniy Krasnov wrote:
->>> For AF_VSOCK, zerocopy tx mode depends on transport, so this option must
->>> be set in AF_VSOCK implementation where transport is accessible (if
->>> transport is not set during setting SO_ZEROCOPY: for example socket is
->>> not connected, then SO_ZEROCOPY will be enabled, but once transport will
->>> be assigned, support of this type of transmission will be checked).
->>>
->>> To handle SO_ZEROCOPY, AF_VSOCK implementation uses SOCK_CUSTOM_SOCKOPT
->>> bit, thus handling SOL_SOCKET option operations, but all of them except
->>> SO_ZEROCOPY will be forwarded to the generic handler by calling
->>> 'sock_setsockopt()'.
+>On 26.09.2023 16:04, Stefano Garzarella wrote:
+>> On Fri, Sep 22, 2023 at 08:24:28AM +0300, Arseniy Krasnov wrote:
+>>> This adds set of tests which use io_uring for rx/tx. This test suite is
+>>> implemented as separated util like 'vsock_test' and has the same set of
+>>> input arguments as 'vsock_test'. These tests only cover cases of data
+>>> transmission (no connect/bind/accept etc).
 >>>
 >>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 >>> ---
 >>> Changelog:
 >>> v5(big patchset) -> v1:
->>> =A0* Compact 'if' conditions.
->>> =A0* Rename 'zc_val' to 'zerocopy'.
->>> =A0* Use 'zerocopy' value directly in 'sock_valbool_flag()', without
->>> =A0=A0 ?: operator.
->>> =A0* Set 'SOCK_CUSTOM_SOCKOPT' bit for connectible sockets only, as
->>> =A0=A0 suggested by Bobby Eshleman <bobbyeshleman@gmail.com>.
+>>> =A0* Use LDLIBS instead of LDFLAGS.
 >>>
->>> net/vmw_vsock/af_vsock.c | 46 ++++++++++++++++++++++++++++++++++++++--
->>> 1 file changed, 44 insertions(+), 2 deletions(-)
+>>> tools/testing/vsock/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=A0=A0 7 +-
+>>> tools/testing/vsock/vsock_uring_test.c | 321 +++++++++++++++++++++++++
+>>> 2 files changed, 327 insertions(+), 1 deletion(-)
+>>> create mode 100644 tools/testing/vsock/vsock_uring_test.c
 >>>
->>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->>> index 482300eb88e0..c05a42e02a17 100644
->>> --- a/net/vmw_vsock/af_vsock.c
->>> +++ b/net/vmw_vsock/af_vsock.c
->>> @@ -1406,8 +1406,16 @@ static int vsock_connect(struct socket *sock, st=
-ruct sockaddr *addr,
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto out;
->>> =A0=A0=A0=A0=A0=A0=A0 }
->>>
->>> -=A0=A0=A0=A0=A0=A0=A0 if (vsock_msgzerocopy_allow(transport))
->>> +=A0=A0=A0=A0=A0=A0=A0 if (vsock_msgzerocopy_allow(transport)) {
->>> =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 set_bit(SOCK_SUPPORT_ZC, &sk->sk_sock=
-et->flags);
->>> +=A0=A0=A0=A0=A0=A0=A0 } else if (sock_flag(sk, SOCK_ZEROCOPY)) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /* If this option was set before 'co=
-nnect()',
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * when transport was unknown, che=
-ck that this
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 * feature is supported here.
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 */
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err =3D -EOPNOTSUPP;
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto out;
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>>
->>> =A0=A0=A0=A0=A0=A0=A0 err =3D vsock_auto_bind(vsk);
->>> =A0=A0=A0=A0=A0=A0=A0 if (err)
->>> @@ -1643,7 +1651,7 @@ static int vsock_connectible_setsockopt(struct so=
-cket *sock,
->>> =A0=A0=A0=A0const struct vsock_transport *transport;
->>> =A0=A0=A0=A0u64 val;
->>>
->>> -=A0=A0=A0 if (level !=3D AF_VSOCK)
->>> +=A0=A0=A0 if (level !=3D AF_VSOCK && level !=3D SOL_SOCKET)
->>> =A0=A0=A0=A0=A0=A0=A0 return -ENOPROTOOPT;
->>>
->>> #define COPY_IN(_v)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 \
->>> @@ -1666,6 +1674,34 @@ static int vsock_connectible_setsockopt(struct s=
-ocket *sock,
->>>
->>> =A0=A0=A0=A0transport =3D vsk->transport;
->>>
->>> +=A0=A0=A0 if (level =3D=3D SOL_SOCKET) {
->>> +=A0=A0=A0=A0=A0=A0=A0 int zerocopy;
+>>> diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>>> index 1a26f60a596c..c84380bfc18d 100644
+>>> --- a/tools/testing/vsock/Makefile
+>>> +++ b/tools/testing/vsock/Makefile
+>>> @@ -1,12 +1,17 @@
+>>> # SPDX-License-Identifier: GPL-2.0-only
+>>> +ifeq ($(MAKECMDGOALS),vsock_uring_test)
+>>> +LDLIBS =3D -luring
+>>> +endif
 >>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 if (optname !=3D SO_ZEROCOPY) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 release_sock(sk);
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 return sock_setsockopt(sock, level, =
-optname, optval, optlen);
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 /* Use 'int' type here, because variable to
->>> +=A0=A0=A0=A0=A0=A0=A0=A0 * set this option usually has this type.
->>> +=A0=A0=A0=A0=A0=A0=A0=A0 */
->>> +=A0=A0=A0=A0=A0=A0=A0 COPY_IN(zerocopy);
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 if (zerocopy < 0 || zerocopy > 1) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err =3D -EINVAL;
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto exit;
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 if (transport && !vsock_msgzerocopy_allow(transp=
-ort)) {
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 err =3D -EOPNOTSUPP;
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 goto exit;
->>> +=A0=A0=A0=A0=A0=A0=A0 }
->>> +
->>> +=A0=A0=A0=A0=A0=A0=A0 sock_valbool_flag(sk, SOCK_ZEROCOPY,
->>> +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 zerocopy);
 >>
->> it's not necessary to wrap this call.
+>> This will fails if for example we call make with more targets,
+>> e.g. `make vsock_test vsock_uring_test`.
+>>
+>> I'd suggest to use something like this:
+>>
+>> --- a/tools/testing/vsock/Makefile
+>> +++ b/tools/testing/vsock/Makefile
+>> @@ -1,13 +1,11 @@
+>> =A0# SPDX-License-Identifier: GPL-2.0-only
+>> -ifeq ($(MAKECMDGOALS),vsock_uring_test)
+>> -LDLIBS =3D -luring
+>> -endif
+>> -
+>> =A0all: test vsock_perf
+>> =A0test: vsock_test vsock_diag_test
+>> =A0vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o ut=
+il.o
+>> =A0vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+>> =A0vsock_perf: vsock_perf.o
+>> +
+>> +vsock_uring_test: LDLIBS =3D -luring
+>> =A0vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
+>>
+>> =A0CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/i=
+nclude -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-com=
+mon -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+>>
+>>> all: test vsock_perf
+>>> test: vsock_test vsock_diag_test
+>>> vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util=
+.o
+>>> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+>>> vsock_perf: vsock_perf.o
+>>> +vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
+>>
+>> Shoud we add this new test to the "test" target as well?
 >
->Sorry, what do you mean ?
+>Ok, but in this case, this target will always depend on liburing.
 
-I mean that can be on the same line:
+I think it's fine.
 
-	sock_valbool_flag(sk, SOCK_ZEROCOPY, zerocopy);
+If they want to run all the tests, they need liburing. If they don't
+want to build io_uring tests, they can just do `make vsock_test`.
 
 Stefano
 
