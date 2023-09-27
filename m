@@ -1,131 +1,153 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7BCE2E82CB4
-	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 17:12:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9BD73E82CBB
+	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 18:09:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C38E742C26;
-	Wed, 27 Sep 2023 17:12:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C38E742C26
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=gp8vpU7B
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bxrN9N4FG4qu; Wed, 27 Sep 2023 17:12:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 039EA428EA;
-	Wed, 27 Sep 2023 17:12:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 039EA428EA
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D8F6C0071;
-	Wed, 27 Sep 2023 17:12:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02E8AC0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 17:12:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BEFED4037C
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 17:12:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BEFED4037C
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3888A403EA;
+	Wed, 27 Sep 2023 18:09:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3888A403EA
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com
- header.a=rsa-sha256 header.s=pp1 header.b=gp8vpU7B
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=YMozpr1J
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UB82tl6lIS91; Wed, 27 Sep 2023 18:09:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9AACC40154;
+	Wed, 27 Sep 2023 18:09:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9AACC40154
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 63B3DC0071;
+	Wed, 27 Sep 2023 18:09:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 32164C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Sep 2023 18:09:53 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0C32E403EA
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Sep 2023 18:09:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0C32E403EA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 11TknLWRigtw
+ with ESMTP id yul6E3wpzhGy
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 17:12:17 +0000 (UTC)
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8FCF841450
+ Wed, 27 Sep 2023 18:09:51 +0000 (UTC)
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10on2060e.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e89::60e])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 969AC40154
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 17:12:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8FCF841450
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38RHA5JD023510; Wed, 27 Sep 2023 17:11:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=qFa9jLUh+JKvJ5yXF2hdYjW1ApltXhzFVkhrDmw7/Po=;
- b=gp8vpU7BtLZUNmb4/UU5a9kSe+wj/tpO/Rg/YP8N9JNcnJPpRkd68FqhBnyHc97hQCdU
- MDYKgSn6DHgcGXPE5qFhA1prJ2dxKS3lkb//4OHLeTSgreW38fDvYLNWLvaDatGJsic6
- g+oH8wkYZ9g7EucY28XXso5GP7ZSAed/FZMoZAVJhvKeZjIX8FVfmhVvqEzx+UV2838T
- ecAWhv0VN3edlyX07DaD8oFpDDlpFtBcSd6bPssMcG1kSa+4IOypRXtBltamW6EpdDnW
- fgLXmrIDR2NgqcNFTx6p0zeAizIPeidYm7mh3CrFLXOAtW3mxRtoKGN0Vssf5pl45JJC EQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnh8wswt-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 17:11:50 +0000
-Received: from m0353722.ppops.net (m0353722.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RHAP6u026041;
- Wed, 27 Sep 2023 17:11:50 GMT
-Received: from ppma23.wdc07v.mail.ibm.com
- (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcnh8wswm-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 17:11:50 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
- by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38RGU8eo011029; Wed, 27 Sep 2023 17:11:49 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
- by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tabukmxwx-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 17:11:49 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com
- [10.20.54.105])
- by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 38RHBk1K26346166
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 27 Sep 2023 17:11:46 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 354B520049;
- Wed, 27 Sep 2023 17:11:46 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id ECDD820040;
- Wed, 27 Sep 2023 17:11:45 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown
- [9.152.224.212])
- by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
- Wed, 27 Sep 2023 17:11:45 +0000 (GMT)
-Date: Wed, 27 Sep 2023 19:11:44 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: Re: [PATCH] crypto: virtio-crypto: call finalize with bh disabled
-Message-ID: <20230927191144.3fcd2f99.pasic@linux.ibm.com>
-In-Reply-To: <20230926184158.4ca2c0c3.pasic@linux.ibm.com>
-References: <1914739e2de14ed396e5674aa2d4766c@huawei.com>
- <20230926184158.4ca2c0c3.pasic@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Wed, 27 Sep 2023 18:09:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 969AC40154
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lvzqR+h1Bfw3VIE43QzYN9QS5NOFl7AswotihTo4nCIIkEVkX0qcWDsoJn36emHSXGl/TAz9EzSHLF3ybG1plhh488CDwO9rSwW+os6zta4vrlbqDpPJWUweXSDM8UyL4xrne5fw0CKRdD3j2rbGWmAYZnGh/lKkJ3ItqhAmp+aXwcoEJAMM5i15wGVui+eiMqpqgwt/KIXQiA+rOylTaAv3yz9qALaOQ2EfsE+DzHOqzMpEf06a2HNHUpry1dyLJIyvcfiPdm2PrMR8qpUV63mUVHm3S77atqAuV6pLNuC8kodT1Op0CRgJjCbKqfzosn8299n0iTIVjInWuD+THg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=JmwQJnUA5aIbXUzPxgqkGYwI1jbBrV+P5ivCFZLhddo=;
+ b=dg5hD4RbmKyEEBgv1xGmxoKuyvk3P7MiAvO0NGDd7t3cFfkvX4byzm36UIgay5sCG3ZVQNSH0tRPmR9WNjQD3MQSr7ti2WX2D3VuvbIzGgMn343Bisn+na9Npzj/U32PerpYuoZ3SRGZnZskOo5+jT8D3LwTg7GXWIu7FSKkq+/P3VAeYM1OJ8XbYHHlLrLF/mLHrwiUvogNNYN6lTDDlyIjM9YXYVbrc04313Zp9BYtKbpXjZZW6O8kNux1YWg1LwpdaWZ8IzFtg3NQD+zfn3tzL69aHiS3KKUmkC6XOizQTIhWkT1zObi2vOLf0VlYp3OM79UhwQO0Ghhr2Q05SA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=JmwQJnUA5aIbXUzPxgqkGYwI1jbBrV+P5ivCFZLhddo=;
+ b=YMozpr1J2bDya2cuN6pOGoDM7b6w3zXbdjlSh7y0FJxr/kUSEd2Mler65zXU9bBiFPm+0PR6NalN3puFksD/QKGeR8JJtCNFaeqAsI+H+NychiWirsFYJU5b2i9S4VH0HcKu8S578MDUQa0sEEjI4QjQusKs/glC+GYP9MhtmY1IIhV0CKU9b7doZnQeUGgSP+v8VNj2/JZGeg7DeIj3lQSBrQ4lR1G4NQqahef7TenFI79RdOF+bPAkgu5eQ+FnXr2iXm3hW6SmlwMMd7oiNbKUHSaCsOOhGrTJrTTwVNWvQvJ96y0WkjtwpvYBHs/LnoWFOl6tj7Zgt6OUy5yE8A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
+ by PH7PR12MB8828.namprd12.prod.outlook.com (2603:10b6:510:26b::17)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.28; Wed, 27 Sep
+ 2023 18:09:49 +0000
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082]) by CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082%4]) with mapi id 15.20.6813.017; Wed, 27 Sep 2023
+ 18:09:49 +0000
+Message-ID: <39d8a0a5-4365-4ced-cac1-bef2bc8d6367@nvidia.com>
+Date: Wed, 27 Sep 2023 14:09:43 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH vfio 01/11] virtio-pci: Use virtio pci device layer vq
+ info instead of generic one
+To: "Michael S. Tsirkin" <mst@redhat.com>, Yishai Hadas <yishaih@nvidia.com>
+References: <20230921124040.145386-1-yishaih@nvidia.com>
+ <20230921124040.145386-2-yishaih@nvidia.com>
+ <20230921093540-mutt-send-email-mst@kernel.org>
+ <6eb92b47-cefe-8b00-d3d2-f15ce4aa9959@nvidia.com>
+In-Reply-To: <6eb92b47-cefe-8b00-d3d2-f15ce4aa9959@nvidia.com>
+X-ClientProxiedBy: DM6PR06CA0015.namprd06.prod.outlook.com
+ (2603:10b6:5:120::28) To CY5PR12MB6201.namprd12.prod.outlook.com
+ (2603:10b6:930:26::16)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: RxwqV5G58QNG68Eh85H-hT-muy5w6C5f
-X-Proofpoint-ORIG-GUID: SFqE0SbA7I-X6qMRuKIB1WR9K-rgjWOj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-27_12,2023-09-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 suspectscore=0
- clxscore=1015 bulkscore=0 lowpriorityscore=0 priorityscore=1501
- impostorscore=0 adultscore=0 mlxscore=0 mlxlogscore=829 spamscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309270145
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "pizhenwei@bytedance.com" <pizhenwei@bytedance.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|PH7PR12MB8828:EE_
+X-MS-Office365-Filtering-Correlation-Id: a3d98893-87d5-4c5d-898c-08dbbf84ef2d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ux9BbCxaej9TCtdLOL9cPWpbtSMfRJbh2B06OJ7d49ePGlRRqLb+2DH4yIC5uXg0yb4qIogpgFNhgbj9IZdsZQyJHN2ftZjRYzP5hj06F8I+W2VF80/zLyljwteoSqgFvPRc43+c1QdD2wg22f0aQYahhDM8i5MTKnK8ip8NVXJUVoecIqeRlpoZWWaImagzi+h0MTZR6GiLFu/BWLMv4Vg6VxOQG6+MeVu5np5NfPnw4XXQJr0cxY6cHEneHeo/FQGgvBBkTf3znTymUHERXM4TJWmz8v7W5tjWYqMsJaGiWIur5fzyWLCou2W+EVdqBb/DPEUkIEYfQqNFzoJr3U2L5dAJYo4pgvcjV55E9Ci2igT8Tfr4QtmaI2PFvByc+FLocH32rQ7n4mwgqroMA7sSf/WfIyp4lV0Znc/B8Xu9aBP1hiOBkagM229sLTAGs/moNLqLZwhSuW0RYS/joVFm44iMv/qNEAoBcIbH0eG9GM7xmY/vYJ2xAysKs85VDeQio7zRBmWVBj7TqoTjc948YqtcMTwYZcf1CQfhc2CNNjlCqS7A8XF7uld6uppmpMkV68uaZGGy6Fgdw02gnas+2mkn2RWYp03/jxvmw+ygmiiNmTc0xp20DV72lTkL3z9zvNceVQgQnQiAjODMYfS6HGTnt2AhtbUNgTFBeCWr64d7hfr0CCxE7RQ1GnZu5QFQ3KydllHeXCVUB7tmGQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(376002)(346002)(136003)(366004)(39860400002)(396003)(230922051799003)(1800799009)(451199024)(186009)(316002)(5660300002)(8936002)(4326008)(8676002)(41300700001)(6636002)(110136005)(66476007)(66556008)(31686004)(66946007)(2906002)(6506007)(2616005)(6512007)(36756003)(478600001)(966005)(6486002)(26005)(107886003)(86362001)(83380400001)(31696002)(38100700002)(6666004)(41533002)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UmlNM2djSTBpWmpqMWRYVGsrMmRkbnh6Q3BKa0xhYm1hTzdZMFZCYlpuYjh2?=
+ =?utf-8?B?a2FDMElVMXgwZWY1clE3UzY1UUY5OGd0TnRDckRBQlB4OUt2djZQazJJL3N4?=
+ =?utf-8?B?cElJdWlHQzNRQlFyMG15QTJKSjVMWmVsWkpBcWhKVTV3QXV2ZllVMHMwbUVM?=
+ =?utf-8?B?L3gzN3FVSWFuS3ZTTjNIbVM0ZTZaK2FEMHJ3aWhVeG4vaTYwaStnSENGT0lO?=
+ =?utf-8?B?azd5ck0wTzdBRTNtN2tLQ3lNRTVqbncyYTFTVlBYb3Roa1RTbE9kQkpiUVdN?=
+ =?utf-8?B?R2hmOVVkRWQvL2RRSzhVdjB5dTNrV1A4VzBLOVFsZ1lTVCtTWmFsdlRXZlg5?=
+ =?utf-8?B?UXAwejB1TS80MEpMY3NMQzNjWVNRaS9yaUpoM0RzdUpsZTBLMUJqTlFOajhR?=
+ =?utf-8?B?Nkk1dTVNcEFpTGFTdzdJWHlLK014QUJrU0tDZnFmaUxMcUNsWVYrRE5qdFk0?=
+ =?utf-8?B?ampzQ0t2R2YrZVlhSU1neDlJRGVQNEhRb3dYQ1Z0S1A2NUpYaGQzNVIwSG5T?=
+ =?utf-8?B?clFIb1NKN0haaUJGWTE5TkJuRWN6c0xBbWFNRysxUUhMSFdGUGYwdzVHenQw?=
+ =?utf-8?B?M1ZqcnhuRy84ZE1ScTZxelVKTVg1dlhjbXFBd1IzaWs0WHpmTWlRYWNJR2x1?=
+ =?utf-8?B?cHZyTit5TkJNT2VnZmlESm51am9Wc1FyeWtCdXJTZTlFOWZ1cGhjOE5FOTN2?=
+ =?utf-8?B?YkZxWWdEWTF2SEl1TUx0UlRwT3JBTVU2enY5MjF4NkZvWE9kT3R0NU1oc2Nk?=
+ =?utf-8?B?WEE5dHVnQWI4Vjl1aWxhMWgzdUJHT1h5OXdKS0tEQVBqLzNERGxMSkxGU3dC?=
+ =?utf-8?B?YlYrN0k2QVo4NWE3ZjJ3N2lUSUpiTHIyTWtXcS9zQm44eTlyUnBkNUIwNlYw?=
+ =?utf-8?B?MXAxQ1lHRnRWbDdkelF4dFZudHN0NGNWbVYxd2NFQXpUUUZoem9oSmRFOEtO?=
+ =?utf-8?B?MGZhc2FoYXdGd3dneUplTnhUZVduRmloMm9tQjZNelNUVFlEb0hBR3lpTVI3?=
+ =?utf-8?B?WDJhc0hCTGMycURrOTVST21LUnorUG1tckFPb0U3YVVubU5pUG5EVXZka3Zr?=
+ =?utf-8?B?R0tIVlJYUWsvaXJhRHdlZFV3TFJvTEQrdUgxdkN1aHl5VUYwQlNRamlXd24r?=
+ =?utf-8?B?TVVSbFkzNTcyOUxiRTBEWDhxQXJacGRESkdBT2hocWJ3QlJHRk56OHpEQnhW?=
+ =?utf-8?B?N05NVlEwZmh4OUZzYVk0QTl6MFBNc3NWZFBPTk85WGJCTDRMaC9KZ2xza3g1?=
+ =?utf-8?B?NnMwODFlbWg0OW1KUDVveTNNZ2pTcEo5bmNib2NDV3h2Yk5Rc1QyU3Q5SzBt?=
+ =?utf-8?B?c0Nkc21nZUJ2WFh4Y0ZjV1VMeEljcVZRTjJ3MDVsSDNEc3hPdVJRb3RlZXQr?=
+ =?utf-8?B?SWVEWEJOeTFkMm8wcXlSbEpEMlp2dUxOeWZPNU8ydkxIQjQyWlZDclJrSlph?=
+ =?utf-8?B?T1VZcUUzYk9zQWprNnNSOHVNQ1RxZDBXTTczd29TVmpTQUx3YmFEYlFqK3hF?=
+ =?utf-8?B?anBrcjRsMFZlOWl4NTBTcGJ0cldScExiOGRsVGhRUGd2TFZ1MlpoYy84U3FV?=
+ =?utf-8?B?Yjh1QjQwQmZiZUVDclJkNVNaa0NyVG1TeU5paituQSs1RHNpZS82d3luTHhj?=
+ =?utf-8?B?TUNqTGlyOENiMDd5TFhhUEdyRkZ1d0FpQ3Q5dmNiekFJeGEzMjYyamgrdlRm?=
+ =?utf-8?B?MVY3T0lYWStqaURmUVViUHhpUWxiNTFFNkt3cEc2UWdnZDBEYXkwb1RwUlNp?=
+ =?utf-8?B?dVlFYUpjTGpENjdXRXVBWDVicEJxeFpsOHJ6QmZiVjFIc1AweS8vNUhtb2ZV?=
+ =?utf-8?B?NnRUWkpUWmFkSW1kYUE1bmRPaHBTMmIvOWJsRW1HN1h3d0NsWE1Qem91S0Z6?=
+ =?utf-8?B?K3RCNHpkaWVBZjRjL2ZEZjZ0Nnl0dndKRTFEbUJ4TkpLVnFlamRRTDJYVCtX?=
+ =?utf-8?B?aVBWeTQ4UUxEQitPVDFiTHVpWDJuZDFwKy9EcE9nTU02TGxIVWlVOEhmR2gw?=
+ =?utf-8?B?cDZZejRVQjJPMU1uT3ZoRnFWbUgyK0VKY05zK0hleUJjR1VpUWR6S2ptaDla?=
+ =?utf-8?B?ZWJ0a2JiSDNibjk5aVhyNHAvL0grOXhPTlhJMGZzU2ltSW5pSzUvZUt6SGpV?=
+ =?utf-8?Q?btIYPKQSKXaXH5TXDlNb/IKDM?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a3d98893-87d5-4c5d-898c-08dbbf84ef2d
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2023 18:09:49.0257 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: oM2k3VBoKPQUe8EM2B9zuu0bqNsV2Zm8s63tsCR04NBeTSmLrhTVkQV6zX5hcjY0xH0TqOqEC60R0BiBSsq67g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8828
+Cc: kvm@vger.kernel.org, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
+ leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,128 +159,74 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: Feng Liu <feliu@nvidia.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 26 Sep 2023 18:41:58 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
-
-> > +	local_bh_disable();
-> >  	crypto_finalize_akcipher_request(vc_akcipher_req->base.dataq->engine, req, err);
-> > +	local_bh_enable();  
-> 
-> Thanks Gonglei!
-> 
-> I did this a quick spin, and it does not seem to be sufficient on s390x.
-> Which does not come as a surprise to me, because 
-> 
-> #define lockdep_assert_in_softirq()                                     \
-> do {                                                                    \
->         WARN_ON_ONCE(__lockdep_enabled                  &&              \
->                      (!in_softirq() || in_irq() || in_nmi()));          \
-> } while (0)
-> 
-> will still warn because  in_irq() still evaluates to true (your patch
-> addresses the !in_softirq() part).
-> 
-> I don't have any results on x86 yet. My current understanding is that the
-> virtio-pci transport code disables interrupts locally somewhere in the
-> call chain (actually in vp_vring_interrupt() via spin_lock_irqsave())
-> and then x86 would be fine. But I will get that verified.
-
-[ 35.177962][ C0] WARNING: CPU: 0 PID: 152 at kernel/softirq.c:306 __local_bh_disable_ip (kernel/softirq.c:306 (discriminator 1)) 
-[   35.178551][    C0] Modules linked in: vmw_vsock_virtio_transport(+) vmw_vsock_virtio_transport_common virtio_crypto(+) crypto_engine vsock
-[   35.179930][    C0] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.16.2-1.fc38 04/01/2014
-[ 35.180548][ C0] RIP: 0010:__local_bh_disable_ip (kernel/softirq.c:306 (discriminator 1)) 
-[ 35.180936][ C0] Code: eb 7d 65 8b 05 ef 90 eb 7d 31 f0 f6 c4 ff 74 13 9c 58 f6 c4 02 75 17 80 e7 02 74 01 fb 5b c3 cc cc cc cc e8 48 2f 15 00 eb e6 <0f> 0b eb ca e8 2d 88 03 03 eb e2 66 66 2e 0f 1f 84 00 00 00 00 00
-All code
-========
-   0:	eb 7d                	jmp    0x7f
-   2:	65 8b 05 ef 90 eb 7d 	mov    %gs:0x7deb90ef(%rip),%eax        # 0x7deb90f8
-   9:	31 f0                	xor    %esi,%eax
-   b:	f6 c4 ff             	test   $0xff,%ah
-   e:	74 13                	je     0x23
-  10:	9c                   	pushf
-  11:	58                   	pop    %rax
-  12:	f6 c4 02             	test   $0x2,%ah
-  15:	75 17                	jne    0x2e
-  17:	80 e7 02             	and    $0x2,%bh
-  1a:	74 01                	je     0x1d
-  1c:	fb                   	sti
-  1d:	5b                   	pop    %rbx
-  1e:	c3                   	ret
-  1f:	cc                   	int3
-  20:	cc                   	int3
-  21:	cc                   	int3
-  22:	cc                   	int3
-  23:	e8 48 2f 15 00       	call   0x152f70
-  28:	eb e6                	jmp    0x10
-  2a:*	0f 0b                	ud2		<-- trapping instruction
-  2c:	eb ca                	jmp    0xfffffffffffffff8
-  2e:	e8 2d 88 03 03       	call   0x3038860
-  33:	eb e2                	jmp    0x17
-  35:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
-  3c:	00 00 00 00 
-
-Code starting with the faulting instruction
-===========================================
-   0:	0f 0b                	ud2
-   2:	eb ca                	jmp    0xffffffffffffffce
-   4:	e8 2d 88 03 03       	call   0x3038836
-   9:	eb e2                	jmp    0xffffffffffffffed
-   b:	66 66 2e 0f 1f 84 00 	data16 cs nopw 0x0(%rax,%rax,1)
-  12:	00 00 00 00 
-[   35.182237][    C0] RSP: 0018:ffffc90000007d88 EFLAGS: 00010006
-[   35.182637][    C0] RAX: 0000000080010003 RBX: ffff888108308538 RCX: ffffc90000007d50
-[   35.183186][    C0] RDX: ffff88811ae36300 RSI: 0000000000000200 RDI: ffffffffc02b16cc
-[   35.183700][    C0] RBP: ffff8881083084e8 R08: 0000000000000000 R09: fffffbfff0d04f04
-[   35.184216][    C0] R10: ffffffff86827823 R11: ffffffff852013e6 R12: 0000000000000001
-[   35.184730][    C0] R13: 0000000000000000 R14: ffff888108308538 R15: dffffc0000000000
-[   35.185248][    C0] FS:  00007f06cb551800(0000) GS:ffff88811ae00000(0000) knlGS:0000000000000000
-[   35.185831][    C0] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   35.186271][    C0] CR2: 000055dc93010628 CR3: 0000000116b28000 CR4: 00000000000006f0
-[   35.186789][    C0] Call Trace:
-[   35.187010][    C0]  <IRQ>
-[ 35.187204][ C0] ? __warn (kernel/panic.c:673) 
-[ 35.187505][ C0] ? __local_bh_disable_ip (kernel/softirq.c:306 (discriminator 1)) 
-[ 35.187857][ C0] ? report_bug (lib/bug.c:180 lib/bug.c:219) 
-[ 35.188197][ C0] ? handle_bug (arch/x86/kernel/traps.c:237 (discriminator 1)) 
-[ 35.188483][ C0] ? exc_invalid_op (arch/x86/kernel/traps.c:258 (discriminator 1)) 
-[ 35.188790][ C0] ? asm_exc_invalid_op (./arch/x86/include/asm/idtentry.h:568) 
-[ 35.189120][ C0] ? asm_common_interrupt (./arch/x86/include/asm/idtentry.h:636) 
-[ 35.189466][ C0] ? virtio_crypto_dataq_sym_callback (drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:567 drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:81 drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:55) virtio_crypto
-[ 35.189983][ C0] ? __local_bh_disable_ip (kernel/softirq.c:306 (discriminator 1)) 
-[ 35.190336][ C0] virtio_crypto_dataq_sym_callback (drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:570 drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:81 drivers/crypto/virtio/virtio_crypto_skcipher_algs.c:55) virtio_crypto
-[ 35.190837][ C0] virtcrypto_dataq_callback (drivers/crypto/virtio/virtio_crypto_core.c:91) virtio_crypto
-[ 35.191304][ C0] ? __pfx_virtcrypto_dataq_callback (drivers/crypto/virtio/virtio_crypto_core.c:76) virtio_crypto
-[ 35.191796][ C0] ? __pfx_do_raw_spin_lock (kernel/locking/spinlock_debug.c:113) 
-[ 35.192154][ C0] vring_interrupt (drivers/virtio/virtio_ring.c:2598) 
-[ 35.192536][ C0] vp_vring_interrupt (drivers/virtio/virtio_pci_common.c:67 (discriminator 2)) 
-[ 35.193064][ C0] ? __pfx_vp_vring_interrupt (drivers/virtio/virtio_pci_common.c:60) 
-[ 35.193793][ C0] __handle_irq_event_percpu (kernel/irq/handle.c:158) 
-[ 35.194272][ C0] handle_irq_event (kernel/irq/handle.c:195 kernel/irq/handle.c:210) 
-[ 35.194587][ C0] handle_edge_irq (kernel/irq/chip.c:833) 
-[ 35.194903][ C0] __common_interrupt (arch/x86/kernel/irq.c:271) 
-[ 35.195232][ C0] common_interrupt (arch/x86/kernel/irq.c:247 (discriminator 47)) 
-
-So I was wrong, this patch is not sufficient, not on x86 nor on s390x.
-And the problem is that we are in hardirq context.
-
-For some reason, I was under the impression that disabling interrupts in
-a hardirq context somehow takes you out of hardirq context and makes
-in_irq() return false. Silly me! (I was assuming the fix works on x86 and
-hallucinated based on that assumption and any differences I have found
-between virtio-ccw and virtio-pci.)
-
-Currently I don't see a need to fix anything in virtio-ccw.
-
-Regards,
-Halil
-
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CgpPbiAyMDIzLTA5LTI2IHAubS4zOjEzLCBGZW5nIExpdSB2aWEgVmlydHVhbGl6YXRpb24gd3Jv
+dGU6Cj4gRXh0ZXJuYWwgZW1haWw6IFVzZSBjYXV0aW9uIG9wZW5pbmcgbGlua3Mgb3IgYXR0YWNo
+bWVudHMKPiAKPiAKPiBPbiAyMDIzLTA5LTIxIGEubS45OjQ2LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4+IEV4dGVybmFsIGVtYWlsOiBVc2UgY2F1dGlvbiBvcGVuaW5nIGxpbmtzIG9yIGF0
+dGFjaG1lbnRzCj4+Cj4+Cj4+IE9uIFRodSwgU2VwIDIxLCAyMDIzIGF0IDAzOjQwOjMwUE0gKzAz
+MDAsIFlpc2hhaSBIYWRhcyB3cm90ZToKPj4+IEZyb206IEZlbmcgTGl1IDxmZWxpdUBudmlkaWEu
+Y29tPgo+Pj4KCj4+PiBwY2lfaXJxX3ZlY3Rvcih2cF9kZXYtPnBjaV9kZXYsIHYpOwo+Pj4gQEAg
+LTI5NCw2ICsyOTgsNyBAQCBzdGF0aWMgaW50IHZwX2ZpbmRfdnFzX21zaXgoc3RydWN0IHZpcnRp
+b19kZXZpY2UgCj4+PiAqdmRldiwgdW5zaWduZWQgaW50IG52cXMsCj4+PiDCoMKgwqDCoMKgwqAg
+dnBfZGV2LT52cXMgPSBrY2FsbG9jKG52cXMsIHNpemVvZigqdnBfZGV2LT52cXMpLCBHRlBfS0VS
+TkVMKTsKPj4+IMKgwqDCoMKgwqDCoCBpZiAoIXZwX2Rldi0+dnFzKQo+Pj4gwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gLUVOT01FTTsKPj4+ICvCoMKgwqDCoCB2cF9kZXYtPm52
+cXMgPSBudnFzOwo+Pj4KPj4+IMKgwqDCoMKgwqDCoCBpZiAocGVyX3ZxX3ZlY3RvcnMpIHsKPj4+
+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLyogQmVzdCBvcHRpb246IG9uZSBmb3IgY2hh
+bmdlIGludGVycnVwdCwgb25lIHBlciB2cS4gKi8KPj4+IEBAIC0zNjUsNiArMzcwLDcgQEAgc3Rh
+dGljIGludCB2cF9maW5kX3Zxc19pbnR4KHN0cnVjdCB2aXJ0aW9fZGV2aWNlIAo+Pj4gKnZkZXYs
+IHVuc2lnbmVkIGludCBudnFzLAo+Pj4gwqDCoMKgwqDCoMKgIHZwX2Rldi0+dnFzID0ga2NhbGxv
+YyhudnFzLCBzaXplb2YoKnZwX2Rldi0+dnFzKSwgR0ZQX0tFUk5FTCk7Cj4+PiDCoMKgwqDCoMKg
+wqAgaWYgKCF2cF9kZXYtPnZxcykKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0
+dXJuIC1FTk9NRU07Cj4+PiArwqDCoMKgwqAgdnBfZGV2LT5udnFzID0gbnZxczsKPj4+Cj4+PiDC
+oMKgwqDCoMKgwqAgZXJyID0gcmVxdWVzdF9pcnEodnBfZGV2LT5wY2lfZGV2LT5pcnEsIHZwX2lu
+dGVycnVwdCwgCj4+PiBJUlFGX1NIQVJFRCwKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgIGRldl9uYW1lKCZ2ZGV2LT5kZXYpLCB2cF9kZXYpOwo+Pj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmggCj4+PiBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmgKPj4+IGluZGV4IDRiNzczYmQ3YzU4Yy4uNjAy
+MDIxOTY3YWFhIDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21t
+b24uaAo+Pj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uaAo+Pj4gQEAg
+LTYwLDYgKzYwLDcgQEAgc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlIHsKPj4+Cj4+PiDCoMKgwqDC
+oMKgwqAgLyogYXJyYXkgb2YgYWxsIHF1ZXVlcyBmb3IgaG91c2Uta2VlcGluZyAqLwo+Pj4gwqDC
+oMKgwqDCoMKgIHN0cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gKip2cXM7Cj4+PiArwqDCoMKgwqAg
+dTMyIG52cXM7Cj4+Cj4+IEkgZG9uJ3QgbXVjaCBsaWtlIGl0IHRoYXQgd2UgYXJlIGFkZGluZyBt
+b3JlIGR1cGxpY2F0ZWQgaW5mbyBoZXJlLgo+PiBJbiBmYWN0LCB3ZSB0cmllZCByZW1vdmluZyB0
+aGUgdnFzIGFycmF5IGluCj4+IDVjMzRkMDAyZGNjN2E2ZGQ2NjVhMTlkMDk4YjRmNGNkNTUwMWJh
+MWEgLSB0aGVyZSB3YXMgc29tZSBidWcgaW4gdGhhdAo+PiBwYXRjaCBhbmQgdGhlIGF1dGhvciBk
+aWRuJ3QgaGF2ZSB0aGUgdGltZSB0byBkZWJ1Zwo+PiBzbyBJIHJldmVydGVkIGJ1dCBJIGRvbid0
+IHJlYWxseSB0aGluayB3ZSBuZWVkIHRvIGFkZCB0byB0aGF0Lgo+Pgo+IAo+IEhpIE1pY2hhZWwK
+PiAKPiBBcyBleHBsYWluZWQgaW4gY29tbWl0IG1lc3NhZ2UsIHRoaXMgcGF0Y2ggaXMgbWFpbmx5
+IHRvIHByZXBhcmUgZm9yIHRoZQo+IHN1YnNlcXVlbnQgYWRtaW4gdnEgcGF0Y2hlcy4KPiAKPiBU
+aGUgYWRtaW4gdnEgaXMgYWxzbyBlc3RhYmxpc2hlZCB1c2luZyB0aGUgY29tbW9uIG1lY2hhbmlz
+bSBvZiB2cmluZywKPiBhbmQgaXMgYWRkZWQgdG8gdmRldi0+dnFzIGluIF9fdnJpbmdfbmV3X3Zp
+cnRxdWV1ZSgpLiBTbyB2ZGV2LT52cXMKPiBjb250YWlucyBhbGwgdmlydHF1ZXVlcywgaW5jbHVk
+aW5nIHJ4cSwgdHhxLCBjdHJsdnEgYW5kIGFkbWluIHZxLgo+IAo+IGFkbWluIHZxIHNob3VsZCBi
+ZSBtYW5hZ2VkIGJ5IHRoZSB2aXJpdG9fcGNpIGxheWVyIGFuZCBzaG91bGQgbm90IGJlCj4gY3Jl
+YXRlZCBvciBkZWxldGVkIGJ5IHVwcGVyIGRyaXZlciAobmV0LCBibGspOwo+IFdoZW4gdGhlIHVw
+cGVyIGRyaXZlciB3YXMgdW5sb2FkZWQsIGl0IHdpbGwgY2FsbCBkZWxfdnFzKCkgaW50ZXJmYWNl
+LAo+IHdoaWNoIHdsbCBjYWxsIHZwX2RlbF92cXMoKSwgYW5kIHZwX2RlbF92cXMoKSBzaG91bGQg
+bm90IGRlbGV0ZSB0aGUKPiBhZG1pbiB2cSwgYnV0IG9ubHkgZGVsZXRlIHRoZSB2aXJ0cXVldWVz
+IGNyZWF0ZWQgYnkgdGhlIHVwcGVyIGRyaXZlcgo+IHN1Y2ggYXMgcnhxLCB0eHEsIGFuZCBjdHJs
+cS4KPiAKPiAKPiB2cF9kZXYtPnZxc1tdIGFycmF5IG9ubHkgY29udGFpbnMgdmlydHF1ZXVlcyBj
+cmVhdGVkIGJ5IHVwcGVyIGRyaXZlcgo+IHN1Y2ggYXMgcnhxLCB0eHEsIGN0cmxxLiBUcmF2ZXJz
+aW5nIHZwX2Rldi0+dnFzIGFycmF5IGNhbiBvbmx5IGRlbGV0ZQo+IHRoZSB1cHBlciB2aXJ0cXVl
+dWVzLCB3aXRob3V0IHRoZSBhZG1pbiB2cS4gVXNlIHRoZSB2ZGV2LT52cXMgbGlua2VkCj4gbGlz
+dCBjYW5ub3QgbWVldCB0aGUgbmVlZHMuCj4gCj4gCj4gQ2FuIHN1Y2ggYW4gZXhwbGFuYXRpb24g
+YmUgZXhwbGFpbmVkIGNsZWFybHk/IE9yIGRvIHlvdSBoYXZlIGFueSBvdGhlcgo+IGFsdGVybmF0
+aXZlIG1ldGhvZHM/Cj4gCgpIaSwgTWljaGFlbAoJSXMgdGhlIGFib3ZlIGV4cGxhbmF0aW9ucyBP
+SyB0byB5b3U/CgpUaGFua3MKRmVuZwoKPj4+Cj4+PiDCoMKgwqDCoMKgwqAgLyogTVNJLVggc3Vw
+cG9ydCAqLwo+Pj4gwqDCoMKgwqDCoMKgIGludCBtc2l4X2VuYWJsZWQ7Cj4+PiAtLSAKPj4+IDIu
+MjcuMAo+Pgo+IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+Cj4gVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0Cj4gVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKPiBodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
