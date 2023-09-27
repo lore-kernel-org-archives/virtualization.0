@@ -4,127 +4,80 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 91F4BE810DA
-	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 13:26:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7DFF9E80AAC
+	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 14:05:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 272DC82F50;
-	Wed, 27 Sep 2023 13:26:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 272DC82F50
+	by smtp1.osuosl.org (Postfix) with ESMTP id 001E782EE1;
+	Wed, 27 Sep 2023 14:05:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 001E782EE1
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=bvuKdv4J
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bmc3htZU
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B3iGQDblxpX8; Wed, 27 Sep 2023 13:26:09 +0000 (UTC)
+	with ESMTP id 2kCIj2cSfivP; Wed, 27 Sep 2023 14:05:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CD5C382AF8;
-	Wed, 27 Sep 2023 13:26:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD5C382AF8
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 874D98268B;
+	Wed, 27 Sep 2023 14:05:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 874D98268B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A396BC0071;
-	Wed, 27 Sep 2023 13:26:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A36EC0071;
+	Wed, 27 Sep 2023 14:05:56 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3B9D8C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 42F56C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 13:26:07 +0000 (UTC)
+ Wed, 27 Sep 2023 14:05:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0856582B51
+ by smtp1.osuosl.org (Postfix) with ESMTP id 115C7826DA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 13:26:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0856582B51
+ Wed, 27 Sep 2023 14:05:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 115C7826DA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bFsv-fAqJW2q
+ with ESMTP id VnI73URzKX2K
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 13:26:06 +0000 (UTC)
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4772B82B34
+ Wed, 27 Sep 2023 14:05:54 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 551F48268B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 13:26:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4772B82B34
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38RDH2Yu022849; Wed, 27 Sep 2023 13:25:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=GsIAyhpIf4NBRlkmaRy0sPks/FrsbwmkORMLxbn84u0=;
- b=bvuKdv4JklxGKBk8YHkjwkerHUGgfvpcDmMTNXlh1xC+ZEW89+XWV/AskEjpRUnbB4Dy
- P/SoaIdd2EMcZ82g8QgmDaS0IUDnkuO9z6drfsRo768ViTxN9cEdGnJujLmo+ao2dkUl
- X1gD3LIwfdcj4pDj7T1VRc+4/UiJfGkTuLkDqqR3ThM586hv0Ej65IV7chSDfE6acsPE
- 5uzDopAYgc8lRqic6X8eOZMm5j/2BYw8q6VE3e7uk9W47hILDneYNlahpj4wIB6TGR8v
- jMUj4GNzJLcv9DQdY1yoX5n1CNfMuhqh5JWriNrMQK2rxdM+J+CNRMP+hwwpWwqAaYv7 Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcmvdgqtt-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 13:25:39 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 38RDI1EC026637;
- Wed, 27 Sep 2023 13:25:39 GMT
-Received: from ppma12.dal12v.mail.ibm.com
- (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
- by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tcmvdgqsr-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 13:25:39 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
- by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id
- 38RCeBKd008456; Wed, 27 Sep 2023 13:25:36 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
- by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3taabsv4q1-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 27 Sep 2023 13:25:36 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com
- [10.20.54.100])
- by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 38RDPYAG17433166
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 27 Sep 2023 13:25:34 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 0508B2004B;
- Wed, 27 Sep 2023 13:25:34 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id D11A820040;
- Wed, 27 Sep 2023 13:25:33 +0000 (GMT)
-Received: from li-ce58cfcc-320b-11b2-a85c-85e19b5285e0 (unknown
- [9.152.224.212])
- by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
- Wed, 27 Sep 2023 13:25:33 +0000 (GMT)
-Date: Wed, 27 Sep 2023 15:25:31 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: Re: [PATCH] crypto: virtio-crypto: call finalize with bh disabled
-Message-ID: <20230927152531.061600f0.pasic@linux.ibm.com>
-In-Reply-To: <9564c220c8344939880bb805c5b3cac9@huawei.com>
-References: <1914739e2de14ed396e5674aa2d4766c@huawei.com>
- <20230926184158.4ca2c0c3.pasic@linux.ibm.com>
- <20230926130521-mutt-send-email-mst@kernel.org>
- <9564c220c8344939880bb805c5b3cac9@huawei.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Wed, 27 Sep 2023 14:05:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 551F48268B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1695823553;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=2yrzCvJKKpyb6A3C4WRH7XAPotWnSI2iCGZEtxqtwTM=;
+ b=bmc3htZU+JqcB2cCQ6lVP9hKpT6J85UjYhqe4y6GnBhY9P7aadzvaluKakX8fzw1wKqAPF
+ afL/Itaes9CP/vBDiFzp3IAkHJItafYHAGp+gsJGiUzqNEU+BobbP4g42yLGTTde8DmoKp
+ yyO33EkciD4A4IWv3GKb8M7XFwdzZ1U=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-275-jzxT90fYPaiCVfzsHq1OBg-1; Wed, 27 Sep 2023 10:05:49 -0400
+X-MC-Unique: jzxT90fYPaiCVfzsHq1OBg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.9])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BFDAF280D206;
+ Wed, 27 Sep 2023 14:05:48 +0000 (UTC)
+Received: from laptop.redhat.com (unknown [10.39.192.172])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 9990A492B16;
+ Wed, 27 Sep 2023 14:05:46 +0000 (UTC)
+From: Eric Auger <eric.auger@redhat.com>
+To: eric.auger.pro@gmail.com, eric.auger@redhat.com, elic@nvidia.com,
+ mail@anirudhrb.com, jasowang@redhat.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, kvmarm@lists.linux.dev
+Subject: [RESEND PATCH v2] vhost: Allow null msg.size on VHOST_IOTLB_INVALIDATE
+Date: Wed, 27 Sep 2023 16:05:44 +0200
+Message-ID: <20230927140544.205088-1-eric.auger@redhat.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: wmazh0HwbLN5HnkRF-bBsPH94u5eoxv7
-X-Proofpoint-GUID: oZUuEdATvYo_-Yz_WpSoKhEgtnWF29Cp
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-09-27_07,2023-09-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 clxscore=1015
- lowpriorityscore=0 malwarescore=0 suspectscore=0 bulkscore=0
- mlxlogscore=732 spamscore=0 adultscore=0 impostorscore=0 mlxscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2309270110
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "pizhenwei@bytedance.com" <pizhenwei@bytedance.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+Cc: stable@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -141,20 +94,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 27 Sep 2023 09:24:09 +0000
-"Gonglei (Arei)" <arei.gonglei@huawei.com> wrote:
+Commit e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb
+entries") Forbade vhost iotlb msg with null size to prevent entries
+with size = start = 0 and last = ULONG_MAX to end up in the iotlb.
 
-> > On a related note, config change callback is also handled incorrectly in this
-> > driver, it takes a mutex from interrupt context.  
-> 
-> Good catch. Will fix it.
+Then commit 95932ab2ea07 ("vhost: allow batching hint without size")
+only applied the check for VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE
+message types to fix a regression observed with batching hit.
 
-Thanks Gonglei! Sorry I first misunderstood this as a problem within the
-virtio-ccw driver, but it is actually about virtio-crypto. Thanks for
-fixing this!
+Still, the introduction of that check introduced a regression for
+some users attempting to invalidate the whole ULONG_MAX range by
+setting the size to 0. This is the case with qemu/smmuv3/vhost
+integration which does not work anymore. It Looks safe to partially
+revert the original commit and allow VHOST_IOTLB_INVALIDATE messages
+with null size. vhost_iotlb_del_range() will compute a correct end
+iova. Same for vhost_vdpa_iotlb_unmap().
 
-Regards,
-Halil
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Fixes: e2ae38cf3d91 ("vhost: fix hung thread due to erroneous iotlb entries")
+Cc: stable@vger.kernel.org # v5.17+
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vhost.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c71d573f1c94..e0c181ad17e3 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1458,9 +1458,7 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+ 		goto done;
+ 	}
+ 
+-	if ((msg.type == VHOST_IOTLB_UPDATE ||
+-	     msg.type == VHOST_IOTLB_INVALIDATE) &&
+-	     msg.size == 0) {
++	if (msg.type == VHOST_IOTLB_UPDATE && msg.size == 0) {
+ 		ret = -EINVAL;
+ 		goto done;
+ 	}
+-- 
+2.41.0
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
