@@ -1,68 +1,71 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BA126E7F14B
-	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 01:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9DD52E7F150
+	for <virtualization@archiver.kernel.org>; Wed, 27 Sep 2023 01:51:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3919160E36;
-	Wed, 27 Sep 2023 01:50:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3919160E36
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UnvG3q37rGIf; Wed, 27 Sep 2023 01:50:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7250560D75;
-	Wed, 27 Sep 2023 01:50:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7250560D75
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 522B0C0071;
-	Wed, 27 Sep 2023 01:50:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DBDBC0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 01:50:08 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D5B2B41EB5
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 01:50:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D5B2B41EB5
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3554641F73;
+	Wed, 27 Sep 2023 01:51:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3554641F73
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SnndR31enN3S
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yG5nX7H-gLLW; Wed, 27 Sep 2023 01:51:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DA6FD41EB9;
+	Wed, 27 Sep 2023 01:51:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DA6FD41EB9
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AC2A2C0071;
+	Wed, 27 Sep 2023 01:51:52 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE2F3C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 01:50:05 +0000 (UTC)
-Received: from out30-112.freemail.mail.aliyun.com
- (out30-112.freemail.mail.aliyun.com [115.124.30.112])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0338641E62
+ Wed, 27 Sep 2023 01:51:51 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id C61F782505
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Sep 2023 01:50:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0338641E62
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ Wed, 27 Sep 2023 01:51:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C61F782505
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HnRiAVUVkhYB
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Sep 2023 01:51:50 +0000 (UTC)
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CBD7F824EE
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 27 Sep 2023 01:51:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CBD7F824EE
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R271e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VsyF-Ei_1695779398; 
+ TI=SMTPD_---0VsyS9RB_1695779503; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VsyF-Ei_1695779398) by smtp.aliyun-inc.com;
- Wed, 27 Sep 2023 09:49:58 +0800
-Message-ID: <1695779259.7440922-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [GIT PULL] virtio: features
-Date: Wed, 27 Sep 2023 09:47:39 +0800
+ fp:SMTPD_---0VsyS9RB_1695779503) by smtp.aliyun-inc.com;
+ Wed, 27 Sep 2023 09:51:44 +0800
+Message-ID: <1695779406.5695555-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost v13 12/12] virtio_net: merge dma operations when
+ filling mergeable buffers
+Date: Wed, 27 Sep 2023 09:50:06 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Michael Roth <michael.roth@amd.com>
-References: <20230903181338-mutt-send-email-mst@kernel.org>
- <20230926130451.axgodaa6tvwqs3ut@amd.com>
-In-Reply-To: <20230926130451.axgodaa6tvwqs3ut@amd.com>
-Cc: xuanzhuo@linux.alibaba.com, kvm@vger.kernel.org,
- Thomas Lendacky <thomas.lendacky@amd.com>, netdev@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, yuehaibing@huawei.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- yuanyaogoog@chromium.org, eperezma@redhat.com,
- Linus Torvalds <torvalds@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20230810123057.43407-1-xuanzhuo@linux.alibaba.com>
+ <20230810123057.43407-13-xuanzhuo@linux.alibaba.com>
+ <20230926120055-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230926120055-mutt-send-email-mst@kernel.org>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,133 +78,412 @@ List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=hel
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCAyNiBTZXAgMjAyMyAwODowNDo1MSAtMDUwMCwgTWljaGFlbCBSb3RoIDxtaWNoYWVs
-LnJvdGhAYW1kLmNvbT4gd3JvdGU6Cj4gT24gU3VuLCBTZXAgMDMsIDIwMjMgYXQgMDY6MTM6MzhQ
-TSAtMDQwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gVGhlIGZvbGxvd2luZyBjaGFu
-Z2VzIHNpbmNlIGNvbW1pdCAyZGRlMThjZDFkOGZhYzczNTg3NWYyZTQ5ODdmMTE4MTdjYzBiYzJj
-Ogo+ID4KPiA+ICAgTGludXggNi41ICgyMDIzLTA4LTI3IDE0OjQ5OjUxIC0wNzAwKQo+ID4KPiA+
-IGFyZSBhdmFpbGFibGUgaW4gdGhlIEdpdCByZXBvc2l0b3J5IGF0Ogo+ID4KPiA+ICAgaHR0cHM6
-Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbXN0L3Zob3N0LmdpdCB0
-YWdzL2Zvcl9saW51cwo+ID4KPiA+IGZvciB5b3UgdG8gZmV0Y2ggY2hhbmdlcyB1cCB0byAxYWNm
-ZTJjMTIyNTg5OWVhYjVhYjcyNGM5MWI3ZTFlYjI4ODFiOWFiOgo+ID4KPiA+ICAgdmlydGlvX3Jp
-bmc6IGZpeCBhdmFpbF93cmFwX2NvdW50ZXIgaW4gdmlydHF1ZXVlX2FkZF9wYWNrZWQgKDIwMjMt
-MDktMDMgMTg6MTA6MjQgLTA0MDApCj4gPgo+ID4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ID4gdmlydGlvOiBmZWF0dXJl
-cwo+ID4KPiA+IGEgc21hbGwgcHVsbCByZXF1ZXN0IHRoaXMgdGltZSBhcm91bmQsIG1vc3RseSBi
-ZWNhdXNlIHRoZQo+ID4gdmR1c2UgbmV0d29yayBnb3QgcG9zdHBvbmVkIHRvIG5leHQgcmVsYXNl
-IHNvIHdlIGNhbiBiZSBzdXJlCj4gPiB3ZSBnb3QgdGhlIHNlY3VyaXR5IHN0b3JlIHJpZ2h0Lgo+
-ID4KPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+
-Cj4gPgo+ID4gLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLQo+ID4gRXVnZW5pbyBQ6ZaeZXogKDQpOgo+ID4gICAgICAgdmRwYTog
-YWRkIFZIT1NUX0JBQ0tFTkRfRl9FTkFCTEVfQUZURVJfRFJJVkVSX09LIGZsYWcKPiA+ICAgICAg
-IHZkcGE6IGFjY2VwdCBWSE9TVF9CQUNLRU5EX0ZfRU5BQkxFX0FGVEVSX0RSSVZFUl9PSyBiYWNr
-ZW5kIGZlYXR1cmUKPiA+ICAgICAgIHZkcGE6IGFkZCBnZXRfYmFja2VuZF9mZWF0dXJlcyB2ZHBh
-IG9wZXJhdGlvbgo+ID4gICAgICAgdmRwYV9zaW06IG9mZmVyIFZIT1NUX0JBQ0tFTkRfRl9FTkFC
-TEVfQUZURVJfRFJJVkVSX09LCj4gPgo+ID4gSmFzb24gV2FuZyAoMSk6Cj4gPiAgICAgICB2aXJ0
-aW9fdmRwYTogYnVpbGQgYWZmaW5pdHkgbWFza3MgY29uZGl0aW9uYWxseQo+ID4KPiA+IFh1YW4g
-Wmh1byAoMTIpOgo+ID4gICAgICAgdmlydGlvX3Jpbmc6IGNoZWNrIHVzZV9kbWFfYXBpIGJlZm9y
-ZSB1bm1hcCBkZXNjIGZvciBpbmRpcmVjdAo+ID4gICAgICAgdmlydGlvX3Jpbmc6IHB1dCBtYXBw
-aW5nIGVycm9yIGNoZWNrIGluIHZyaW5nX21hcF9vbmVfc2cKPiA+ICAgICAgIHZpcnRpb19yaW5n
-OiBpbnRyb2R1Y2UgdmlydHF1ZXVlX3NldF9kbWFfcHJlbWFwcGVkKCkKPiA+ICAgICAgIHZpcnRp
-b19yaW5nOiBzdXBwb3J0IGFkZCBwcmVtYXBwZWQgYnVmCj4gPiAgICAgICB2aXJ0aW9fcmluZzog
-aW50cm9kdWNlIHZpcnRxdWV1ZV9kbWFfZGV2KCkKPiA+ICAgICAgIHZpcnRpb19yaW5nOiBza2lw
-IHVubWFwIGZvciBwcmVtYXBwZWQKPiA+ICAgICAgIHZpcnRpb19yaW5nOiBjb3JyZWN0IHRoZSBl
-eHByZXNzaW9uIG9mIHRoZSBkZXNjcmlwdGlvbiBvZiB2aXJ0cXVldWVfcmVzaXplKCkKPiA+ICAg
-ICAgIHZpcnRpb19yaW5nOiBzZXBhcmF0ZSB0aGUgbG9naWMgb2YgcmVzZXQvZW5hYmxlIGZyb20g
-dmlydHF1ZXVlX3Jlc2l6ZQo+ID4gICAgICAgdmlydGlvX3Jpbmc6IGludHJvZHVjZSB2aXJ0cXVl
-dWVfcmVzZXQoKQo+ID4gICAgICAgdmlydGlvX3Jpbmc6IGludHJvZHVjZSBkbWEgbWFwIGFwaSBm
-b3IgdmlydHF1ZXVlCj4gPiAgICAgICB2aXJ0aW9fcmluZzogaW50cm9kdWNlIGRtYSBzeW5jIGFw
-aSBmb3IgdmlydHF1ZXVlCj4gPiAgICAgICB2aXJ0aW9fbmV0OiBtZXJnZSBkbWEgb3BlcmF0aW9u
-cyB3aGVuIGZpbGxpbmcgbWVyZ2VhYmxlIGJ1ZmZlcnMKPgo+IFRoaXMgXiBwYXRjaCAodXBzdHJl
-YW0gY29tbWl0IDI5NTUyNWUyOWEpIHNlZW1zIHRvIGNhdXNlIGEKPiBuZXR3b3JrLXJlbGF0ZWQg
-cmVncmVzc2lvbiB3aGVuIHVzaW5nIFNXSU9UTEIgaW4gdGhlIGd1ZXN0LiBJIG5vdGljZWQKPiB0
-aGlzIGluaXRpYWxseSB0ZXN0aW5nIFNFViBndWVzdHMsIHdoaWNoIHVzZSBTV0lPVExCIGJ5IGRl
-ZmF1bHQsIGJ1dAo+IGl0IGNhbiBhbHNvIGJlIHNlZW4gd2l0aCBub3JtYWwgZ3Vlc3RzIHdoZW4g
-Zm9yY2luZyBTV0lPVExCIHZpYQo+IHN3aW90bGI9Zm9yY2Uga2VybmVsIGNtZGxpbmUgb3B0aW9u
-LiBJIHNlZSBpdCB3aXRoIGJvdGggNi42LXJjMSBhbmQKPiA2LjYtcmMyIChoYXZlbid0IHRyaWVk
-IHJjMyB5ZXQsIGJ1dCBkb24ndCBzZWUgYW55IHJlbGF0ZWQgY2hhbmdlcwo+IHRoZXJlKSwgYW5k
-IHJldmVydGluZyA3MTQwNzM0OTVmIHNlZW1zIHRvIGF2b2lkIHRoZSBpc3N1ZS4KPgo+IFN0ZXBz
-IHRvIHJlcHJvZHVjZToKPgo+IDEpIEJvb3QgUUVNVS9LVk0gZ3Vlc3Qgd2l0aCA2LjYtcmMyIHdp
-dGggc3dpb3RsYj1mb3JjZSB2aWEgc29tZXRoaW5nIGxpa2UgdGhlIGZvbGxvd2luZyBjbWRsaW5l
-Ogo+Cj4gICAgcWVtdS1zeXN0ZW0teDg2XzY0IFwKPiAgICAtbWFjaGluZSBxMzUgLXNtcCA0LG1h
-eGNwdXM9MjU1IC1jcHUgRVBZQy1NaWxhbi12MiBcCj4gICAgLWVuYWJsZS1rdm0gLW0gMTZHLHNs
-b3RzPTUsbWF4bWVtPTI1NkcgLXZnYSBub25lIFwKPiAgICAtZGV2aWNlIHZpcnRpby1zY3NpLXBj
-aSxpZD1zY3NpMCxkaXNhYmxlLWxlZ2FjeT1vbixpb21tdV9wbGF0Zm9ybT10cnVlIFwKPiAgICAt
-ZHJpdmUgZmlsZT0vaG9tZS9tcm90aC9zdG9yYWdlL3VidW50dS0xOC4wNC1zZXZlczIucWNvdzIs
-aWY9bm9uZSxpZD1kcml2ZTAsc25hcHNob3Q9b2ZmIFwKPiAgICAtZGV2aWNlIHNjc2ktaGQsaWQ9
-aGQwLGRyaXZlPWRyaXZlMCxidXM9c2NzaTAuMCBcCj4gICAgLWRldmljZSB2aXJ0aW8tbmV0LXBj
-aSxuZXRkZXY9bmV0ZGV2MCxpZD1uZXQwLGRpc2FibGUtbGVnYWN5PW9uLGlvbW11X3BsYXRmb3Jt
-PXRydWUscm9tZmlsZT0gXAo+ICAgIC1uZXRkZXYgdGFwLHNjcmlwdD0vaG9tZS9tcm90aC9xZW11
-LWlmdXAsaWQ9bmV0ZGV2MCBcCj4gICAgLUwgL2hvbWUvbXJvdGgvc3RvcmFnZS9BTURTRVYyL3Nu
-cC1yZWxlYXNlLTIwMjMtMDktMjMvdXNyL2xvY2FsL3NoYXJlL3FlbXUgXAo+ICAgIC1kcml2ZSBp
-Zj1wZmxhc2gsZm9ybWF0PXJhdyx1bml0PTAsZmlsZT0vaG9tZS9tcm90aC9zdG9yYWdlL0FNRFNF
-VjIvc25wLXJlbGVhc2UtMjAyMy0wOS0yMy91c3IvbG9jYWwvc2hhcmUvcWVtdS9PVk1GX0NPREUu
-ZmQscmVhZG9ubHkgXAo+ICAgIC1kcml2ZSBpZj1wZmxhc2gsZm9ybWF0PXJhdyx1bml0PTEsZmls
-ZT0vaG9tZS9tcm90aC9zdG9yYWdlL0FNRFNFVjIvc25wLXJlbGVhc2UtMjAyMy0wOS0yMy91c3Iv
-bG9jYWwvc2hhcmUvcWVtdS9PVk1GX1ZBUlMuZmQgXAo+ICAgIC1kZWJ1Z2NvbiBmaWxlOmRlYnVn
-LmxvZyAtZ2xvYmFsIGlzYS1kZWJ1Z2Nvbi5pb2Jhc2U9MHg0MDIgLW1zZyB0aW1lc3RhbXA9b24g
-XAo+ICAgIC1rZXJuZWwgL2Jvb3Qvdm1saW51ei02LjYuMC1yYzItdmFuaWxsYTArIFwKPiAgICAt
-aW5pdHJkIC9ib290L2luaXRyZC5pbWctNi42LjAtcmMyLXZhbmlsbGEwKyBcCj4gICAgLWFwcGVu
-ZCAicm9vdD1VVUlEPWQ3MmE2ZDFjLTA2Y2YtNGI3OS1hZjQzLWYxYmFjNGY2MjBmOSBybyBjb25z
-b2xlPXR0eVMwLDExNTIwMG44IGVhcmx5cHJpbnRrPXNlcmlhbCx0dHlTMCwxMTUyMDAgZGVidWc9
-MSBzZXY9ZGVidWcgcGFnZV9wb2lzb249MCBzcGVjX3JzdGFja19vdmVyZmxvdz1vZmYgc3dpb3Rs
-Yj1mb3JjZSIKPgo+IDIpIHNjcCBhIHNtYWxsIGZpbGUgZnJvbSB0aGUgaG9zdCB0byB0aGUgZ3Vl
-c3QgSVAgdmlhIGl0cyB2aXJ0aW8tbmV0IGRldmljZS4KPiAgICBTbWFsbGVyIGZpbGUgc2l6ZXMg
-c3VjY2VlZCwgYnV0IHRoZSBsYXJnZXIgdGhlIGZpbGUgdGhlIG1vcmUgbGlrZWx5Cj4gICAgaXQg
-d2lsbCBmYWlsLiBlLmcuOgo+Cj4gICAgbXJvdGhAaG9zdDp+JCBkZCBpZj0vZGV2L3plcm8gb2Y9
-dGVzdCBicz0xSyBjb3VudD0xOQo+ICAgIDE5KzAgcmVjb3JkcyBpbgo+ICAgIDE5KzAgcmVjb3Jk
-cyBvdXQKPiAgICAxOTQ1NiBieXRlcyAoMTkga0IsIDE5IEtpQikgY29waWVkLCAwLjAwMDk0MDEz
-NCBzLCAyMC43IE1CL3MKPiAgICBtcm90aEBob3N0On4kIHNjcCB0ZXN0IHZtMDoKPiAgICB0ZXN0
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAxMDAlICAgMTlLQiAgMTAuMU1CL3MgICAwMDowMAo+ICAgIG1yb3RoQGhvc3Q6
-fiQgZGQgaWY9L2Rldi96ZXJvIG9mPXRlc3QgYnM9MUsgY291bnQ9MjAKPiAgICAyMCswIHJlY29y
-ZHMgaW4KPiAgICAyMCswIHJlY29yZHMgb3V0Cj4gICAgMjA0ODAgYnl0ZXMgKDIwIGtCLCAyMCBL
-aUIpIGNvcGllZCwgMC4wMDA5Mzc3NCBzLCAyMS44IE1CL3MKPiAgICBtcm90aEBob3N0On4kIHNj
-cCB0ZXN0IHZtMDoKPiAgICB0ZXN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAlICAgIDAgICAgIDAuMEtCL3MgICAt
-LTotLSBFVEEKPiAgICBjbGllbnRfbG9vcDogc2VuZCBkaXNjb25uZWN0OiBCcm9rZW4gcGlwZQo+
-ICAgIGxvc3QgY29ubmVjdGlvbgo+ICAgIG1yb3RoQGhvc3Q6fiQKCgpIaSBNaWNoYWVsLAoKVGhh
-bmtzIGZvciB0aGUgcmVwb3J0LgoKQ2xvdWQgeW91IHRyeSB0aGlzIGZpeD8gIEkgcmVwcm9kdWNl
-IHRoaXMgaXNzdWUsIGFuZCB0aGF0IHdvcmtzIGZvciBtZS4KClRoYW5rcy4KCgpkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCmlu
-ZGV4IDk4ZGM5YjQ5ZDU2Yi4uOWVjZTI3ZGM1MTQ0IDEwMDY0NAotLS0gYS9kcml2ZXJzL25ldC92
-aXJ0aW9fbmV0LmMKKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCkBAIC01ODksMTYgKzU4
-OSwxNiBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X3JxX3VubWFwKHN0cnVjdCByZWNlaXZlX3F1ZXVl
-ICpycSwgdm9pZCAqYnVmLCB1MzIgbGVuKQoKICAgICAgICAtLWRtYS0+cmVmOwoKLSAgICAgICBp
-ZiAoZG1hLT5yZWYpIHsKLSAgICAgICAgICAgICAgIGlmIChkbWEtPm5lZWRfc3luYyAmJiBsZW4p
-IHsKLSAgICAgICAgICAgICAgICAgICAgICAgb2Zmc2V0ID0gYnVmIC0gKGhlYWQgKyBzaXplb2Yo
-KmRtYSkpOworICAgICAgIGlmIChkbWEtPm5lZWRfc3luYyAmJiBsZW4pIHsKKyAgICAgICAgICAg
-ICAgIG9mZnNldCA9IGJ1ZiAtIChoZWFkICsgc2l6ZW9mKCpkbWEpKTsKCi0gICAgICAgICAgICAg
-ICAgICAgICAgIHZpcnRxdWV1ZV9kbWFfc3luY19zaW5nbGVfcmFuZ2VfZm9yX2NwdShycS0+dnEs
-IGRtYS0+YWRkciwgb2Zmc2V0LAotICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgbGVuLCBETUFfRlJPTV9ERVZJQ0UpOwotICAgICAg
-ICAgICAgICAgfQorICAgICAgICAgICAgICAgdmlydHF1ZXVlX2RtYV9zeW5jX3NpbmdsZV9yYW5n
-ZV9mb3JfY3B1KHJxLT52cSwgZG1hLT5hZGRyLAorICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9mZnNldCwgbGVuLAorICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIERNQV9GUk9NX0RFVklDRSk7
-CisgICAgICAgfQoKKyAgICAgICBpZiAoZG1hLT5yZWYpCiAgICAgICAgICAgICAgICByZXR1cm47
-Ci0gICAgICAgfQoKICAgICAgICB2aXJ0cXVldWVfZG1hX3VubWFwX3NpbmdsZV9hdHRycyhycS0+
-dnEsIGRtYS0+YWRkciwgZG1hLT5sZW4sCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgRE1BX0ZST01fREVWSUNFLCBETUFfQVRUUl9TS0lQX0NQVV9TWU5DKTsKCgo+Cj4g
-VGhhbmtzLAo+Cj4gTWlrZQo+Cj4gPgo+ID4gWXVhbiBZYW8gKDEpOgo+ID4gICAgICAgdmlydGlv
-X3Jpbmc6IGZpeCBhdmFpbF93cmFwX2NvdW50ZXIgaW4gdmlydHF1ZXVlX2FkZF9wYWNrZWQKPiA+
-Cj4gPiBZdWUgSGFpYmluZyAoMSk6Cj4gPiAgICAgICB2ZHBhL21seDU6IFJlbW92ZSB1bnVzZWQg
-ZnVuY3Rpb24gZGVjbGFyYXRpb25zCj4gPgo+ID4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyAg
-ICAgICAgICAgfCAyMzAgKysrKysrKysrKysrKysrKysrLS0tCj4gPiAgZHJpdmVycy92ZHBhL21s
-eDUvY29yZS9tbHg1X3ZkcGEuaCB8ICAgMyAtCj4gPiAgZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3Zk
-cGFfc2ltLmMgICB8ICAgOCArCj4gPiAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgICAgICAg
-ICB8ICAxNSArLQo+ID4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgICAgICAgfCA0MTIg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLQo+ID4gIGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb192ZHBhLmMgICAgICAgfCAgMTcgKy0KPiA+ICBpbmNsdWRlL2xpbnV4L3ZkcGEuaCAg
-ICAgICAgICAgICAgIHwgICA0ICsKPiA+ICBpbmNsdWRlL2xpbnV4L3ZpcnRpby5oICAgICAgICAg
-ICAgIHwgIDIyICsrCj4gPiAgaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0X3R5cGVzLmggICB8ICAg
-NCArCj4gPiAgOSBmaWxlcyBjaGFuZ2VkLCA2MjUgaW5zZXJ0aW9ucygrKSwgOTAgZGVsZXRpb25z
-KC0pCj4gPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, 26 Sep 2023 12:01:34 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Aug 10, 2023 at 08:30:57PM +0800, Xuan Zhuo wrote:
+> > Currently, the virtio core will perform a dma operation for each
+> > buffer. Although, the same page may be operated multiple times.
+> >
+> > This patch, the driver does the dma operation and manages the dma
+> > address based the feature premapped of virtio core.
+> >
+> > This way, we can perform only one dma operation for the pages of the
+> > alloc frag. This is beneficial for the iommu device.
+> >
+> > kernel command line: intel_iommu=on iommu.passthrough=0
+> >
+> >        |  strict=0  | strict=1
+> > Before |  775496pps | 428614pps
+> > After  | 1109316pps | 742853pps
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>
+> Hi Xuan Zhuo,
+> looks like this patch is causing regressions. Do you have time to debug
+> or should I revert?
+
+
+I have sended a fix to Michael Roth.
+
+I will wait his response. If that is ok, I will post that fix commit.
+
+Thanks.
+
+
+>
+> > ---
+> >  drivers/net/virtio_net.c | 228 ++++++++++++++++++++++++++++++++++-----
+> >  1 file changed, 202 insertions(+), 26 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 486b5849033d..16adb5ef18f8 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -126,6 +126,14 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+> >  #define VIRTNET_SQ_STATS_LEN	ARRAY_SIZE(virtnet_sq_stats_desc)
+> >  #define VIRTNET_RQ_STATS_LEN	ARRAY_SIZE(virtnet_rq_stats_desc)
+> >
+> > +/* The dma information of pages allocated at a time. */
+> > +struct virtnet_rq_dma {
+> > +	dma_addr_t addr;
+> > +	u32 ref;
+> > +	u16 len;
+> > +	u16 need_sync;
+> > +};
+> > +
+> >  /* Internal representation of a send virtqueue */
+> >  struct send_queue {
+> >  	/* Virtqueue associated with this send _queue */
+> > @@ -175,6 +183,12 @@ struct receive_queue {
+> >  	char name[16];
+> >
+> >  	struct xdp_rxq_info xdp_rxq;
+> > +
+> > +	/* Record the last dma info to free after new pages is allocated. */
+> > +	struct virtnet_rq_dma *last_dma;
+> > +
+> > +	/* Do dma by self */
+> > +	bool do_dma;
+> >  };
+> >
+> >  /* This structure can contain rss message with maximum settings for indirection table and keysize
+> > @@ -549,6 +563,156 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+> >  	return skb;
+> >  }
+> >
+> > +static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32 len)
+> > +{
+> > +	struct page *page = virt_to_head_page(buf);
+> > +	struct virtnet_rq_dma *dma;
+> > +	void *head;
+> > +	int offset;
+> > +
+> > +	head = page_address(page);
+> > +
+> > +	dma = head;
+> > +
+> > +	--dma->ref;
+> > +
+> > +	if (dma->ref) {
+> > +		if (dma->need_sync && len) {
+> > +			offset = buf - (head + sizeof(*dma));
+> > +
+> > +			virtqueue_dma_sync_single_range_for_cpu(rq->vq, dma->addr, offset,
+> > +								len, DMA_FROM_DEVICE);
+> > +		}
+> > +
+> > +		return;
+> > +	}
+> > +
+> > +	virtqueue_dma_unmap_single_attrs(rq->vq, dma->addr, dma->len,
+> > +					 DMA_FROM_DEVICE, DMA_ATTR_SKIP_CPU_SYNC);
+> > +	put_page(page);
+> > +}
+> > +
+> > +static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+> > +{
+> > +	void *buf;
+> > +
+> > +	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+> > +	if (buf && rq->do_dma)
+> > +		virtnet_rq_unmap(rq, buf, *len);
+> > +
+> > +	return buf;
+> > +}
+> > +
+> > +static void *virtnet_rq_detach_unused_buf(struct receive_queue *rq)
+> > +{
+> > +	void *buf;
+> > +
+> > +	buf = virtqueue_detach_unused_buf(rq->vq);
+> > +	if (buf && rq->do_dma)
+> > +		virtnet_rq_unmap(rq, buf, 0);
+> > +
+> > +	return buf;
+> > +}
+> > +
+> > +static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+> > +{
+> > +	struct virtnet_rq_dma *dma;
+> > +	dma_addr_t addr;
+> > +	u32 offset;
+> > +	void *head;
+> > +
+> > +	if (!rq->do_dma) {
+> > +		sg_init_one(rq->sg, buf, len);
+> > +		return;
+> > +	}
+> > +
+> > +	head = page_address(rq->alloc_frag.page);
+> > +
+> > +	offset = buf - head;
+> > +
+> > +	dma = head;
+> > +
+> > +	addr = dma->addr - sizeof(*dma) + offset;
+> > +
+> > +	sg_init_table(rq->sg, 1);
+> > +	rq->sg[0].dma_address = addr;
+> > +	rq->sg[0].length = len;
+> > +}
+> > +
+> > +static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp_t gfp)
+> > +{
+> > +	struct page_frag *alloc_frag = &rq->alloc_frag;
+> > +	struct virtnet_rq_dma *dma;
+> > +	void *buf, *head;
+> > +	dma_addr_t addr;
+> > +
+> > +	if (unlikely(!skb_page_frag_refill(size, alloc_frag, gfp)))
+> > +		return NULL;
+> > +
+> > +	head = page_address(alloc_frag->page);
+> > +
+> > +	if (rq->do_dma) {
+> > +		dma = head;
+> > +
+> > +		/* new pages */
+> > +		if (!alloc_frag->offset) {
+> > +			if (rq->last_dma) {
+> > +				/* Now, the new page is allocated, the last dma
+> > +				 * will not be used. So the dma can be unmapped
+> > +				 * if the ref is 0.
+> > +				 */
+> > +				virtnet_rq_unmap(rq, rq->last_dma, 0);
+> > +				rq->last_dma = NULL;
+> > +			}
+> > +
+> > +			dma->len = alloc_frag->size - sizeof(*dma);
+> > +
+> > +			addr = virtqueue_dma_map_single_attrs(rq->vq, dma + 1,
+> > +							      dma->len, DMA_FROM_DEVICE, 0);
+> > +			if (virtqueue_dma_mapping_error(rq->vq, addr))
+> > +				return NULL;
+> > +
+> > +			dma->addr = addr;
+> > +			dma->need_sync = virtqueue_dma_need_sync(rq->vq, addr);
+> > +
+> > +			/* Add a reference to dma to prevent the entire dma from
+> > +			 * being released during error handling. This reference
+> > +			 * will be freed after the pages are no longer used.
+> > +			 */
+> > +			get_page(alloc_frag->page);
+> > +			dma->ref = 1;
+> > +			alloc_frag->offset = sizeof(*dma);
+> > +
+> > +			rq->last_dma = dma;
+> > +		}
+> > +
+> > +		++dma->ref;
+> > +	}
+> > +
+> > +	buf = head + alloc_frag->offset;
+> > +
+> > +	get_page(alloc_frag->page);
+> > +	alloc_frag->offset += size;
+> > +
+> > +	return buf;
+> > +}
+> > +
+> > +static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+> > +{
+> > +	int i;
+> > +
+> > +	/* disable for big mode */
+> > +	if (!vi->mergeable_rx_bufs && vi->big_packets)
+> > +		return;
+> > +
+> > +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > +		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+> > +			continue;
+> > +
+> > +		vi->rq[i].do_dma = true;
+> > +	}
+> > +}
+> > +
+> >  static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
+> >  {
+> >  	unsigned int len;
+> > @@ -835,7 +999,7 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+> >  		void *buf;
+> >  		int off;
+> >
+> > -		buf = virtqueue_get_buf(rq->vq, &buflen);
+> > +		buf = virtnet_rq_get_buf(rq, &buflen, NULL);
+> >  		if (unlikely(!buf))
+> >  			goto err_buf;
+> >
+> > @@ -1126,7 +1290,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+> >  		return -EINVAL;
+> >
+> >  	while (--*num_buf > 0) {
+> > -		buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx);
+> > +		buf = virtnet_rq_get_buf(rq, &len, &ctx);
+> >  		if (unlikely(!buf)) {
+> >  			pr_debug("%s: rx error: %d buffers out of %d missing\n",
+> >  				 dev->name, *num_buf,
+> > @@ -1351,7 +1515,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+> >  	while (--num_buf) {
+> >  		int num_skb_frags;
+> >
+> > -		buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx);
+> > +		buf = virtnet_rq_get_buf(rq, &len, &ctx);
+> >  		if (unlikely(!buf)) {
+> >  			pr_debug("%s: rx error: %d buffers out of %d missing\n",
+> >  				 dev->name, num_buf,
+> > @@ -1414,7 +1578,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+> >  err_skb:
+> >  	put_page(page);
+> >  	while (num_buf-- > 1) {
+> > -		buf = virtqueue_get_buf(rq->vq, &len);
+> > +		buf = virtnet_rq_get_buf(rq, &len, NULL);
+> >  		if (unlikely(!buf)) {
+> >  			pr_debug("%s: rx error: %d buffers missing\n",
+> >  				 dev->name, num_buf);
+> > @@ -1524,7 +1688,6 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+> >  static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+> >  			     gfp_t gfp)
+> >  {
+> > -	struct page_frag *alloc_frag = &rq->alloc_frag;
+> >  	char *buf;
+> >  	unsigned int xdp_headroom = virtnet_get_headroom(vi);
+> >  	void *ctx = (void *)(unsigned long)xdp_headroom;
+> > @@ -1533,17 +1696,21 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct receive_queue *rq,
+> >
+> >  	len = SKB_DATA_ALIGN(len) +
+> >  	      SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
+> > -	if (unlikely(!skb_page_frag_refill(len, alloc_frag, gfp)))
+> > +
+> > +	buf = virtnet_rq_alloc(rq, len, gfp);
+> > +	if (unlikely(!buf))
+> >  		return -ENOMEM;
+> >
+> > -	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> > -	get_page(alloc_frag->page);
+> > -	alloc_frag->offset += len;
+> > -	sg_init_one(rq->sg, buf + VIRTNET_RX_PAD + xdp_headroom,
+> > -		    vi->hdr_len + GOOD_PACKET_LEN);
+> > +	virtnet_rq_init_one_sg(rq, buf + VIRTNET_RX_PAD + xdp_headroom,
+> > +			       vi->hdr_len + GOOD_PACKET_LEN);
+> > +
+> >  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+> > -	if (err < 0)
+> > +	if (err < 0) {
+> > +		if (rq->do_dma)
+> > +			virtnet_rq_unmap(rq, buf, 0);
+> >  		put_page(virt_to_head_page(buf));
+> > +	}
+> > +
+> >  	return err;
+> >  }
+> >
+> > @@ -1620,23 +1787,22 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+> >  	unsigned int headroom = virtnet_get_headroom(vi);
+> >  	unsigned int tailroom = headroom ? sizeof(struct skb_shared_info) : 0;
+> >  	unsigned int room = SKB_DATA_ALIGN(headroom + tailroom);
+> > -	char *buf;
+> > +	unsigned int len, hole;
+> >  	void *ctx;
+> > +	char *buf;
+> >  	int err;
+> > -	unsigned int len, hole;
+> >
+> >  	/* Extra tailroom is needed to satisfy XDP's assumption. This
+> >  	 * means rx frags coalescing won't work, but consider we've
+> >  	 * disabled GSO for XDP, it won't be a big issue.
+> >  	 */
+> >  	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> > -	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> > +
+> > +	buf = virtnet_rq_alloc(rq, len + room, gfp);
+> > +	if (unlikely(!buf))
+> >  		return -ENOMEM;
+> >
+> > -	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> >  	buf += headroom; /* advance address leaving hole at front of pkt */
+> > -	get_page(alloc_frag->page);
+> > -	alloc_frag->offset += len + room;
+> >  	hole = alloc_frag->size - alloc_frag->offset;
+> >  	if (hole < len + room) {
+> >  		/* To avoid internal fragmentation, if there is very likely not
+> > @@ -1650,11 +1816,15 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+> >  		alloc_frag->offset += hole;
+> >  	}
+> >
+> > -	sg_init_one(rq->sg, buf, len);
+> > +	virtnet_rq_init_one_sg(rq, buf, len);
+> > +
+> >  	ctx = mergeable_len_to_ctx(len + room, headroom);
+> >  	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+> > -	if (err < 0)
+> > +	if (err < 0) {
+> > +		if (rq->do_dma)
+> > +			virtnet_rq_unmap(rq, buf, 0);
+> >  		put_page(virt_to_head_page(buf));
+> > +	}
+> >
+> >  	return err;
+> >  }
+> > @@ -1775,13 +1945,13 @@ static int virtnet_receive(struct receive_queue *rq, int budget,
+> >  		void *ctx;
+> >
+> >  		while (stats.packets < budget &&
+> > -		       (buf = virtqueue_get_buf_ctx(rq->vq, &len, &ctx))) {
+> > +		       (buf = virtnet_rq_get_buf(rq, &len, &ctx))) {
+> >  			receive_buf(vi, rq, buf, len, ctx, xdp_xmit, &stats);
+> >  			stats.packets++;
+> >  		}
+> >  	} else {
+> >  		while (stats.packets < budget &&
+> > -		       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+> > +		       (buf = virtnet_rq_get_buf(rq, &len, NULL)) != NULL) {
+> >  			receive_buf(vi, rq, buf, len, NULL, xdp_xmit, &stats);
+> >  			stats.packets++;
+> >  		}
+> > @@ -3553,8 +3723,11 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+> >  {
+> >  	int i;
+> >  	for (i = 0; i < vi->max_queue_pairs; i++)
+> > -		if (vi->rq[i].alloc_frag.page)
+> > +		if (vi->rq[i].alloc_frag.page) {
+> > +			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
+> > +				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+> >  			put_page(vi->rq[i].alloc_frag.page);
+> > +		}
+> >  }
+> >
+> >  static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+> > @@ -3591,9 +3764,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+> >  	}
+> >
+> >  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > -		struct virtqueue *vq = vi->rq[i].vq;
+> > -		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+> > -			virtnet_rq_free_unused_buf(vq, buf);
+> > +		struct receive_queue *rq = &vi->rq[i];
+> > +
+> > +		while ((buf = virtnet_rq_detach_unused_buf(rq)) != NULL)
+> > +			virtnet_rq_free_unused_buf(rq->vq, buf);
+> >  		cond_resched();
+> >  	}
+> >  }
+> > @@ -3767,6 +3941,8 @@ static int init_vqs(struct virtnet_info *vi)
+> >  	if (ret)
+> >  		goto err_free;
+> >
+> > +	virtnet_rq_set_premapped(vi);
+> > +
+> >  	cpus_read_lock();
+> >  	virtnet_set_affinity(vi);
+> >  	cpus_read_unlock();
+> > --
+> > 2.32.0.3.g01195cf9f
+>
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
