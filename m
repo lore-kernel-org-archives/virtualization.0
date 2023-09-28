@@ -1,107 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DB684E732F5
-	for <virtualization@archiver.kernel.org>; Thu, 28 Sep 2023 16:50:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6943DE732F4
+	for <virtualization@archiver.kernel.org>; Thu, 28 Sep 2023 16:50:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 79DF0615A7;
-	Thu, 28 Sep 2023 16:50:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 79DF0615A7
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=UEjRnEcq
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0E7C941BC7;
+	Thu, 28 Sep 2023 16:50:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0E7C941BC7
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Lgtsk/BS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QSaRFKeeelv4; Thu, 28 Sep 2023 16:50:04 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tnPlPoR-tknv; Thu, 28 Sep 2023 16:50:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CB83C61164;
-	Thu, 28 Sep 2023 16:50:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB83C61164
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3052441BB5;
+	Thu, 28 Sep 2023 16:50:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3052441BB5
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5A75C0032;
-	Thu, 28 Sep 2023 16:50:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B9525C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1B81C0071;
+	Thu, 28 Sep 2023 16:50:05 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47383C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Sep 2023 16:50:01 +0000 (UTC)
+ Thu, 28 Sep 2023 16:50:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6EC1F41D6E
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1735F8343F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Sep 2023 16:50:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6EC1F41D6E
-Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
+ Thu, 28 Sep 2023 16:50:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1735F8343F
+Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
  unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=UEjRnEcq
+ header.s=selector2 header.b=Lgtsk/BS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xlN2C3gYmNtt
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EmdD8WG1YfgJ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Sep 2023 16:50:00 +0000 (UTC)
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on20603.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e88::603])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6DF6141C36
+ Thu, 28 Sep 2023 16:50:04 +0000 (UTC)
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2061d.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eaa::61d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 235EB82F32
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Sep 2023 16:50:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6DF6141C36
+ Thu, 28 Sep 2023 16:50:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 235EB82F32
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Kas8/nFuK27ABHt5Kg9sZHisGSgMpSOF6WXjLx1LzkaEWfVw0N2BImzvNZsCAxbcQJlWu8JJYt7wh49vHkS3lf3r8kCIfr/updAVnbBjeYXB6bjuH7wsY5vFMlSfDvYH9zKX+XknZ/bE/sjy3XMQXBqkaoD+0wi2pmaBRFxm6BHo8I/8Qr4ukavY7jdcP0IuDrb9nC6yApVYuqC0UwQ7MA6dh3kBE1TzSNQV3rH23TvMqn9/xGBZs1LqtpMTPiPUW0OEV8xXlr7tZt6Ayhh06NjRSRuJj6KXZttfwtz4JsFEACo3sZ/sZp+AHZ93mP7oGZ5ux1A2LcGACuufbzzSJw==
+ b=NwQXQlBTiFxwVkAgE+XtiEpQRYwspaBbRPvoumGu6u2UENjPBnqhF8tH4EcNu4XnbusOxOR6tITy7gDUB50LyPmR+hekA/zc5wie0NPsY1qKPYyrD8fxzm04L55fdOGjsW8urkEUyauTObBEGKR53EIxg8fGGRm2VzTg046vYju7MTX9ouFi7KNVliu/KcdGo/5IUFzYERxd+n6Q9e4tUA5uAzDngNx7vmKQzJwJrebpjiBmhaNYoMy2cZ4lYmY5MpKfi6zuvoiw/bx5uIR4l4XTUGIHTSxgGy/JhBNotx72hGPFrGJO1OwtXD+eFkZ6iiQIvoEMXxfTVr7aYeYWBw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eLEYp8FG8MYA2AcSAX//hEYnU7j56KnewdXwaWn6gPc=;
- b=dYTePof3hdLi57FkxGiJV8pAqZqsy0Mbx1a4fv9f5JjuPexFB5CWCudWQ1zqYvKoNT472n+t8caDmbGdEAiNMjq0hhDdpnjuNmNpVopVu/Ka6n7V6yaaxrco74BBtVtAlDZFtmbUPIfG3fxLyqWVIgDrSAfP7z8grLcrSHRTL8SGqp2xemWe7W64ppIGIJbn8p9maFfUQeMnP69IOAlEoJ0SWvYc8dmSZzTu8REXoLekakMY1Zgz/6kIt2x/wlrTdEyXcwKC8zSWw+meAxrZismv767oXT8sQwmpyCoFxo0AR5i5dyLVIMzFXkKnKRMmUxAdv8uQeNmzUuovvrocGA==
+ bh=qnJQ5tPt3zRoEBpIfXlFPOb7QvzypqNGxupaS7vWJDc=;
+ b=kSmKSsBorHuX8gV+MRk5Nzk6n2Xak+xuiffHEnvh38JRStl7hDg5WRbvoHu0YVG5yaVxdO4CoYg5ztUvoYvIbL/2PA7MEKzwTk94tT5qV3KSraBHzmpJ95Wn8hiEc6GRafBlJ+b8sAYY6FdQuvPfmkrJX4d7LEsFARfinb90FLOMiM1rVZWVcJSmOS+gIZR4B+n2crjRHuTBeN2+hsSi3puS/ekfCzldaobaCWCWoMq5BulNHUyQYxKMWHShaTygKlwLWaSu/scuzUngdMs39i0EgSU8ROShiDzCq9XLQrS1RVOjryz5nxgtMWGS8Ha+n3I4btiEgkcIKjFJslvLPw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ 216.228.118.233) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eLEYp8FG8MYA2AcSAX//hEYnU7j56KnewdXwaWn6gPc=;
- b=UEjRnEcqM0y2T+YtWJCBFQQZgSNV/q6Utio6hqf+iKpMloS+oANiEOJpJ/7WdaOknsSVWFdWTbFZ0CrZvMz3Up4EFwlF4pNqHkvt9vj0s4DRsjlrp/UtNGRZvTadSrzZhiQj0/KR//B+pzgsrPKquH2Ikgk3l145eSJd9XkhB72r9uHtnzwQfVEiYqt8hSk29l0gVupII8/wt9hPnGMSHwItNPvYAJLVrNF9lazGqruB0vLEke4rKJgF44eEEB7W5uG/KvsHOorH76z8lq99YpewxbV8x2yJJQw0K/pX3e12cGAkNDpCarramXewUNEKlPKvG8S3lPQ77Pi/mdm3TQ==
-Received: from CY5PR17CA0060.namprd17.prod.outlook.com (2603:10b6:930:12::27)
- by SN7PR12MB7250.namprd12.prod.outlook.com (2603:10b6:806:2aa::21)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.28; Thu, 28 Sep
- 2023 16:49:57 +0000
-Received: from CY4PEPF0000E9CF.namprd03.prod.outlook.com
- (2603:10b6:930:12:cafe::55) by CY5PR17CA0060.outlook.office365.com
- (2603:10b6:930:12::27) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.22 via Frontend
- Transport; Thu, 28 Sep 2023 16:49:57 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ bh=qnJQ5tPt3zRoEBpIfXlFPOb7QvzypqNGxupaS7vWJDc=;
+ b=Lgtsk/BSTQpGh1geAwyXe/ipNtYrlgXhWQDXY1hDDJFB7qQ/LGHrUvMUAnGh4cb1xteTzx1aErl59mkTxHLVmwdG+vTKd28RHRF/Anfqs/TkcHkT9D/girZe5gGPOOMVFt48NWKiYAeOJiY322tY0XSg5QOlR4G9k+hUipKsZYdHqb73Z2uJk1FgZ0eaSBISeIB7CInj9hwddrUhA++UNWx7nUBcQ9d5BAQwHporcw3ueScWD/UymA52dyDxuTKeiryrVCp9nlq45hs24Toy+POJ+cRl14jjtdkY5XloqBaQcSiCKiXXjcQ+W5I4xBdfyk1LHv+toPYV0PVK6rxmlA==
+Received: from MW4P223CA0018.NAMP223.PROD.OUTLOOK.COM (2603:10b6:303:80::23)
+ by CH3PR12MB8211.namprd12.prod.outlook.com (2603:10b6:610:125::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.21; Thu, 28 Sep
+ 2023 16:49:59 +0000
+Received: from CO1PEPF000044FC.namprd21.prod.outlook.com
+ (2603:10b6:303:80:cafe::d3) by MW4P223CA0018.outlook.office365.com
+ (2603:10b6:303:80::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.25 via Frontend
+ Transport; Thu, 28 Sep 2023 16:49:59 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
  smtp.mailfrom=nvidia.com;
  dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- CY4PEPF0000E9CF.mail.protection.outlook.com (10.167.241.142) with Microsoft
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ CO1PEPF000044FC.mail.protection.outlook.com (10.167.241.202) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6838.19 via Frontend Transport; Thu, 28 Sep 2023 16:49:57 +0000
-Received: from drhqmail201.nvidia.com (10.126.190.180) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ 15.20.6863.9 via Frontend Transport; Thu, 28 Sep 2023 16:49:59 +0000
+Received: from drhqmail203.nvidia.com (10.126.190.182) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 28 Sep
- 2023 09:49:52 -0700
+ 2023 09:49:46 -0700
 Received: from drhqmail202.nvidia.com (10.126.190.181) by
- drhqmail201.nvidia.com (10.126.190.180) with Microsoft SMTP Server
+ drhqmail203.nvidia.com (10.126.190.182) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.41; Thu, 28 Sep 2023 09:49:52 -0700
+ 15.2.986.41; Thu, 28 Sep 2023 09:49:46 -0700
 Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
  mail.nvidia.com (10.126.190.181) with Microsoft SMTP Server id 15.2.986.41
- via Frontend Transport; Thu, 28 Sep 2023 09:49:50 -0700
+ via Frontend Transport; Thu, 28 Sep 2023 09:49:44 -0700
 To: <eperezma@redhat.com>, <gal@nvidia.com>, "Michael S . Tsirkin"
  <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
  <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH vhost 09/16] vdpa/mlx5: Rename mr destroy functions
-Date: Thu, 28 Sep 2023 19:45:20 +0300
-Message-ID: <20230928164550.980832-11-dtatulea@nvidia.com>
+Subject: [PATCH vhost 07/16] vdpa/mlx5: Take cvq iotlb lock during refresh
+Date: Thu, 28 Sep 2023 19:45:18 +0300
+Message-ID: <20230928164550.980832-9-dtatulea@nvidia.com>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230928164550.980832-2-dtatulea@nvidia.com>
 References: <20230928164550.980832-2-dtatulea@nvidia.com>
@@ -109,26 +109,26 @@ MIME-Version: 1.0
 X-NV-OnPremToCloud: ExternallySecured
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000E9CF:EE_|SN7PR12MB7250:EE_
-X-MS-Office365-Filtering-Correlation-Id: 275dd05c-ab6c-4c9c-3364-08dbc042f2b8
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044FC:EE_|CH3PR12MB8211:EE_
+X-MS-Office365-Filtering-Correlation-Id: a9ea5f04-db78-4564-ceaf-08dbc042f3f2
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: e7o7g7fIWbhi3/hkxirxgCjhmityxNha3ESQQZjsQZUmZgTxECh1deUEjWdH9oul+eilzE0NOy1Pr0QUAynCW3rFLpYl9q6losZdlZLH3lhw4lmVneQtrI2GlRHTtZX1eRI2kAVGk6j/giH3RyMXbrszVs4KKRWwbUZrvihyNoGCBhumDQLB346+vRf5LK16lwGznqs0uGKY5TgkmAocomqa31w1AKcFVM0VIHjsf4bRExqxb2B067N5af08m/7mwdD+2PxpNDkwpFEs/i8MPh1hKStHEIxjQie32J5gnLQCEIYDXz3NWBWZUbry7faSPuogbfPD+dONDLLaxE5gEpsowsZydw620mrgxXH3lYgWKW/riWIGwe/6TJPlpiP4JTudwdU76P4MQtHXyZ4oEfwtTZtfOzalkVDZf674i6Pqt9vnm6TJDWwj7pj2kEwlP0sfNAQn69sTGZW4C627G7roG23azxVdizAVPXHnp1VaKfnPZvbgGIbwGGmFq3gWzEBBumOZSF79ciFsDdX6JWjRLyoZ+v3dhCFMXQQ+0KLbgEwkHdyXmTHI3NIB77FA3b618hWP/ItcLgSn8qD+X3tE0dArNc5SgkCmnhBbjtfR+/QzEf1i4KEYzj9EMnJOFwcedTCSCMDUFvbcB6XL4HNrXvxkRrWczkPp7CppZSV+ZSbHOmq/ax9v5ccoh/Lwf6vp47hEMzOUxa74mpFi4asWn9Mbbx37uO06kSxgGh0DL5Mudv7aNXpN/LKsx8zU
-X-Forefront-Antispam-Report: CIP:216.228.118.232; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc7edge1.nvidia.com; CAT:NONE;
- SFS:(13230031)(4636009)(376002)(136003)(396003)(346002)(39860400002)(230922051799003)(82310400011)(64100799003)(1800799009)(186009)(451199024)(40470700004)(46966006)(36840700001)(26005)(6666004)(1076003)(478600001)(2616005)(36860700001)(7636003)(426003)(36756003)(336012)(86362001)(356005)(5660300002)(83380400001)(82740400003)(47076005)(40460700003)(4326008)(40480700001)(8936002)(2906002)(8676002)(41300700001)(54906003)(316002)(70206006)(110136005)(70586007);
+X-Microsoft-Antispam-Message-Info: NaZ8iRDNrNMysAHH2DSBaK2oVPK/yeQPunLj9MybVEOqzfxuqqhNzzO7QacTJEcOV3/OFzwERfrZSu8cAPTYq9pZuo1lyr3fh7GJ0Ol/PuyprrPDP8EnqW683a6xAiUn6cNIojUVfBeWpNNgMK7JQsTY+TvmrNZDwqo7gE4otx1bluj8Ms4orGgqN3Ps3JljMk6YXdHiuuZySeRD11HXpiWd/wOBFx6KEOeCwbpc0oFohESihouMDkzSPpotFLs6abLS2/V0OAiX4tvIgMZJyHDi2Xrijk5QCZoMOBhRrWoNvewQr0HcpZAGYIC9WSr0Ym/iybpSOIcbghWHtdr4OMQmHo76lGqqYv42OXvYJJHikVQU0zbdjxGgQOR6IyRQDre1AJnduSkEV28rFy/S/mFmt/9npE6cNyhzptAdFKuxMST9WkuDJsmeAb6Rs+naF2tehTITwyHyQzoHfA+mxNN+afdP318rKSk60BJ8PPAojUMRnXiLj1NjXjG0in13niWG2/v2u4Byf0zxURXkWK7Bg4cmwqBnG9u2u4EvPc9gc1uaUWYTpOUK7zdykGN+V2GfZv5wi615VbOQa6xY57eL5MBIK8gPWvRZCWB7qcpcxjE6qEbpfOdBytonK9+FpjnKH8EI9ne6e0hTdavItyrf/0rIHBbNpR6hUjcL4mFByiph2rYVDjCPtSFpd6+Onoll6DUUABj1Lgn+/6nEMSLpGf5aDa3qwi0mgUK/Hsaxtxq/dTEwSYMZjhiEMvzdLC2jgjuFrfE4VqkPYaQU538FubY+h7qZBbjQGyJDhnc=
+X-Forefront-Antispam-Report: CIP:216.228.118.233; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc7edge2.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(39860400002)(346002)(376002)(136003)(396003)(230922051799003)(64100799003)(1800799009)(451199024)(186009)(82310400011)(36840700001)(40470700004)(46966006)(83380400001)(2616005)(478600001)(36860700001)(86362001)(36756003)(356005)(7636003)(82740400003)(40480700001)(336012)(26005)(66574015)(2906002)(47076005)(110136005)(966005)(6666004)(40460700003)(1076003)(4326008)(8936002)(8676002)(5660300002)(426003)(41300700001)(316002)(70206006)(54906003)(70586007);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2023 16:49:57.4652 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 275dd05c-ab6c-4c9c-3364-08dbc042f2b8
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Sep 2023 16:49:59.5426 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a9ea5f04-db78-4564-ceaf-08dbc042f3f2
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.118.232];
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.118.233];
  Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CY4PEPF0000E9CF.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: CO1PEPF000044FC.namprd21.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7250
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8211
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -144,123 +144,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: Dragos Tatulea via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: Dragos Tatulea <dtatulea@nvidia.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Make mlx5_destroy_mr symmetric to mlx5_create_mr.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
----
- drivers/vdpa/mlx5/core/mlx5_vdpa.h |  4 ++--
- drivers/vdpa/mlx5/core/mr.c        |  6 +++---
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 12 ++++++------
- 3 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-index 554899a80241..e1e6e7aba50e 100644
---- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-+++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
-@@ -118,8 +118,8 @@ int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *io
- 			     bool *change_map, unsigned int asid);
- int mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb,
- 			unsigned int asid);
--void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev);
--void mlx5_vdpa_destroy_mr_asid(struct mlx5_vdpa_dev *mvdev, unsigned int asid);
-+void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev);
-+void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid);
- int mlx5_vdpa_update_cvq_iotlb(struct mlx5_vdpa_dev *mvdev,
- 				struct vhost_iotlb *iotlb,
- 				unsigned int asid);
-diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-index fde00497f4ad..00dcce190a1f 100644
---- a/drivers/vdpa/mlx5/core/mr.c
-+++ b/drivers/vdpa/mlx5/core/mr.c
-@@ -507,7 +507,7 @@ static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid
- 	mr->initialized = false;
- }
- 
--void mlx5_vdpa_destroy_mr_asid(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
-+void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
- {
- 	struct mlx5_vdpa_mr *mr = &mvdev->mr;
- 
-@@ -518,9 +518,9 @@ void mlx5_vdpa_destroy_mr_asid(struct mlx5_vdpa_dev *mvdev, unsigned int asid)
- 	mutex_unlock(&mr->mkey_mtx);
- }
- 
--void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev)
-+void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
- {
--	mlx5_vdpa_destroy_mr_asid(mvdev, mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP]);
-+	mlx5_vdpa_destroy_mr(mvdev, mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP]);
- 	prune_iotlb(mvdev);
- }
- 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index aa4896662699..ab196c43694c 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2644,7 +2644,7 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
- 		goto err_mr;
- 
- 	teardown_driver(ndev);
--	mlx5_vdpa_destroy_mr_asid(mvdev, asid);
-+	mlx5_vdpa_destroy_mr(mvdev, asid);
- 	err = mlx5_vdpa_create_mr(mvdev, iotlb, asid);
- 	if (err)
- 		goto err_mr;
-@@ -2660,7 +2660,7 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
- 	return 0;
- 
- err_setup:
--	mlx5_vdpa_destroy_mr_asid(mvdev, asid);
-+	mlx5_vdpa_destroy_mr(mvdev, asid);
- err_mr:
- 	return err;
- }
-@@ -2797,7 +2797,7 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
- err_driver:
- 	unregister_link_notifier(ndev);
- err_setup:
--	mlx5_vdpa_destroy_mr(&ndev->mvdev);
-+	mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
- 	ndev->mvdev.status |= VIRTIO_CONFIG_S_FAILED;
- err_clear:
- 	up_write(&ndev->reslock);
-@@ -2824,7 +2824,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
- 	unregister_link_notifier(ndev);
- 	teardown_driver(ndev);
- 	clear_vqs_ready(ndev);
--	mlx5_vdpa_destroy_mr(&ndev->mvdev);
-+	mlx5_vdpa_destroy_mr_resources(&ndev->mvdev);
- 	ndev->mvdev.status = 0;
- 	ndev->mvdev.suspended = false;
- 	ndev->cur_num_vqs = 0;
-@@ -2944,7 +2944,7 @@ static void mlx5_vdpa_free(struct vdpa_device *vdev)
- 	ndev = to_mlx5_vdpa_ndev(mvdev);
- 
- 	free_resources(ndev);
--	mlx5_vdpa_destroy_mr(mvdev);
-+	mlx5_vdpa_destroy_mr_resources(mvdev);
- 	if (!is_zero_ether_addr(ndev->config.mac)) {
- 		pfmdev = pci_get_drvdata(pci_physfn(mvdev->mdev->pdev));
- 		mlx5_mpfs_del_mac(pfmdev, ndev->config.mac);
-@@ -3474,7 +3474,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
- err_res2:
- 	free_resources(ndev);
- err_mr:
--	mlx5_vdpa_destroy_mr(mvdev);
-+	mlx5_vdpa_destroy_mr_resources(mvdev);
- err_res:
- 	mlx5_vdpa_free_resources(&ndev->mvdev);
- err_mpfs:
--- 
-2.41.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+VGhlIHJlc2xvY2sgaXMgdGFrZW4gd2hpbGUgcmVmcmVzaCBpcyBjYWxsZWQgYnV0IGlvbW11X2xv
+Y2sgaXMgbW9yZQpzcGVjaWZpYyB0byB0aGlzIHJlc291cmNlLiBTbyB0YWtlIHRoZSBpb21tdV9s
+b2NrIGR1cmluZyBjdnEgaW90bGIKcmVmcmVzaC4KCkJhc2VkIG9uIEV1Z2VuaW8ncyBwYXRjaCBb
+MF0uCgpbMF0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGttbC8yMDIzMDExMjE0MjIxOC43MjU2
+MjItNC1lcGVyZXptYUByZWRoYXQuY29tLwoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+ClN1Z2dlc3RlZC1ieTogRXVnZW5pbyBQw6lyZXogPGVwZXJlem1hQHJlZGhh
+dC5jb20+ClNpZ25lZC1vZmYtYnk6IERyYWdvcyBUYXR1bGVhIDxkdGF0dWxlYUBudmlkaWEuY29t
+PgotLS0KIGRyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbXIuYyB8IDEwICsrKysrKysrKy0KIDEgZmls
+ZSBjaGFuZ2VkLCA5IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMK
+aW5kZXggZmNiNmFlMzJlOWVkLi41ODczMDBlN2MxOGUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmRw
+YS9tbHg1L2NvcmUvbXIuYworKysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL21yLmMKQEAgLTU5
+MCwxMSArNTkwLDE5IEBAIGludCBtbHg1X3ZkcGFfdXBkYXRlX2N2cV9pb3RsYihzdHJ1Y3QgbWx4
+NV92ZHBhX2RldiAqbXZkZXYsCiAJCQkJc3RydWN0IHZob3N0X2lvdGxiICppb3RsYiwKIAkJCQl1
+bnNpZ25lZCBpbnQgYXNpZCkKIHsKKwlpbnQgZXJyOworCiAJaWYgKG12ZGV2LT5ncm91cDJhc2lk
+W01MWDVfVkRQQV9DVlFfR1JPVVBdICE9IGFzaWQpCiAJCXJldHVybiAwOwogCisJc3Bpbl9sb2Nr
+KCZtdmRldi0+Y3ZxLmlvbW11X2xvY2spOworCiAJcHJ1bmVfaW90bGIobXZkZXYpOwotCXJldHVy
+biBkdXBfaW90bGIobXZkZXYsIGlvdGxiKTsKKwllcnIgPSBkdXBfaW90bGIobXZkZXYsIGlvdGxi
+KTsKKworCXNwaW5fdW5sb2NrKCZtdmRldi0+Y3ZxLmlvbW11X2xvY2spOworCisJcmV0dXJuIGVy
+cjsKIH0KIAogaW50IG1seDVfdmRwYV9jcmVhdGVfZG1hX21yKHN0cnVjdCBtbHg1X3ZkcGFfZGV2
+ICptdmRldikKLS0gCjIuNDEuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
