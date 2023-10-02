@@ -1,117 +1,132 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8140E7849A
-	for <virtualization@archiver.kernel.org>; Mon,  2 Oct 2023 11:50:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 93E1FE784BF
+	for <virtualization@archiver.kernel.org>; Mon,  2 Oct 2023 15:06:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2AC626132B;
-	Mon,  2 Oct 2023 11:50:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2AC626132B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SbEA3bt6
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1E2FE81FCA;
+	Mon,  2 Oct 2023 15:06:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1E2FE81FCA
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=c3gzoiri
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xxkXs46kPlJM; Mon,  2 Oct 2023 11:50:56 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QygfKmzRgpjy; Mon,  2 Oct 2023 15:06:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E2966129B;
-	Mon,  2 Oct 2023 11:50:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E2966129B
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 52B898197D;
+	Mon,  2 Oct 2023 15:06:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 52B898197D
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C873C0071;
-	Mon,  2 Oct 2023 11:50:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D95CC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2076FC0071;
+	Mon,  2 Oct 2023 15:06:34 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4F2B6C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:50:54 +0000 (UTC)
+ Mon,  2 Oct 2023 15:06:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E08716129B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 251FC40C2A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:50:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E08716129B
+ Mon,  2 Oct 2023 15:06:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 251FC40C2A
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com
+ header.a=rsa-sha256 header.s=20230601 header.b=c3gzoiri
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id n2W-D6-bXX6w
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DEp_zmIz5she
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:50:53 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id F0EFE6132A
+ Mon,  2 Oct 2023 15:06:32 +0000 (UTC)
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com
+ [IPv6:2001:4860:4864:20::2f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DCC22405BE
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:50:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F0EFE6132A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1696247452;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=mBrZhcB5nUcd1tpUxuWzIbaWMcBLbzzhsFdEDldJgN4=;
- b=SbEA3bt6l7ejvR/v7vAK7j6i3gwRxluCmJF30WGCo/X61XS1J/zVMIXhNMqwMYqlI8FRPv
- oeomV2z6rnYpw0EXdn3lpGvjIlLdoqTcgGYqPX3rvHAY6RMk+n4q3Wpdvu5mLAlGEkKChJ
- qU12u0uhjmujCrazz4pR7CpfzRfXi3M=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-RjplxvHLPciNY8ATbbsQ-A-1; Mon, 02 Oct 2023 07:50:48 -0400
-X-MC-Unique: RjplxvHLPciNY8ATbbsQ-A-1
-Received: by mail-wr1-f72.google.com with SMTP id
- ffacd0b85a97d-30e3ee8a42eso12123945f8f.1
+ Mon,  2 Oct 2023 15:06:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DCC22405BE
+Received: by mail-oa1-x2f.google.com with SMTP id
+ 586e51a60fabf-1dcead29b3eso7339461fac.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 02 Oct 2023 04:50:48 -0700 (PDT)
+ Mon, 02 Oct 2023 08:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=gmail.com; s=20230601; t=1696259191; x=1696863991;
+ darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=c0wIcnLi0eW3KIpAYRJEn1N+1DF/SZtUbN/0mO//zy4=;
+ b=c3gzoiriNwKJ4U+i1Q1rqRlCGLtDJCrWTRwD8b7sEtF5mRFekdh7XP+zNovQhBuZa+
+ kByayu23CjBn4ZSBUv7j/NTaObazVLEdj+IyvGe9LfiMCbAlIVp6bzSZWTa1rlsQBvl0
+ mjN6QSiEc5dlhaNH+5BsD66RNmnuidcUycEjsn1Tfll/Z3NubWsGJPjixGVTeb4KSTA0
+ t24q1lOfaBDzCo0EccEPTyZDybgkB3JakF46/v+O1fN1hrb20g8bGR1VlCEeCSA2xE4x
+ ugYcYC/IhpGaOSW8Jj1LsLEsuCVahXkRbW6mVK2/n6mlykzN4bNt/f/NRGxiyYLSJS8c
+ gn2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1696247447; x=1696852247;
- h=content-transfer-encoding:in-reply-to:organization:from:references
- :cc:to:content-language:subject:user-agent:mime-version:date
- :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
- :reply-to;
- bh=mBrZhcB5nUcd1tpUxuWzIbaWMcBLbzzhsFdEDldJgN4=;
- b=R5xYtsJtF67B2HL2qaVCFlsx/nAiHoBbR7bDKiFNku3hvJw4s9W4cXsOBl/dVi5ZVU
- UvDM6lQJinMKoZgFc/jkPvZqb01QIND2xXzYwFzRZJr6PwO3qp2VamdLhTCRZ78UaABc
- iuT/7HV63a4FuNiaQnfY0XotYjVpejZ9kz7eKLaO5OYsI41XR+ISrlpU/96ykPC3/UnA
- XEFSIkXOEnCh4i1v8aHamcbEUaCaCDE72RVPJo/otVfbBfDEtW7a0njWIG/x4IrXQqlL
- lR8fcPA2Ciff2uJDrm7rVA0C5XJ0zcQrlM/so1SQeg5EY8jNxXa3DsN2sYzP83xTwq+i
- IUlA==
-X-Gm-Message-State: AOJu0Ywp+0q4Q312W9neIoG1u1EJlzHDujcFQeu09MEL5eaxnIR1RP+y
- OnfLROLEjQ9jNiQoHfXobiCQJmFm1SYhxSuI2FOm36pKUdFOUl2qLyEeafVV5FOc4Vpr6Q6Q+aQ
- wfK0Dx+LbZuLNfP9GM+UHG9vIClPtwmHwt874By0Ebw==
-X-Received: by 2002:adf:e9c9:0:b0:319:79bb:980c with SMTP id
- l9-20020adfe9c9000000b0031979bb980cmr9786481wrn.64.1696247447630; 
- Mon, 02 Oct 2023 04:50:47 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHLNQHhxBlGvd3QBrupxsNSkpIsO/mIp/g907haHFJ/D8eLi4qV+cMl4rqxJw7Q8mpvESCurw==
-X-Received: by 2002:adf:e9c9:0:b0:319:79bb:980c with SMTP id
- l9-20020adfe9c9000000b0031979bb980cmr9786464wrn.64.1696247447165; 
- Mon, 02 Oct 2023 04:50:47 -0700 (PDT)
-Received: from ?IPV6:2003:cb:c735:f200:cb49:cb8f:88fc:9446?
- (p200300cbc735f200cb49cb8f88fc9446.dip0.t-ipconnect.de.
- [2003:cb:c735:f200:cb49:cb8f:88fc:9446])
- by smtp.gmail.com with ESMTPSA id
- x13-20020adff64d000000b00325b29a6441sm7465254wrp.82.2023.10.02.04.50.46
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 02 Oct 2023 04:50:46 -0700 (PDT)
-Message-ID: <53ec0cfb-37c8-f8e3-4cd3-53a390b2cd2b@redhat.com>
-Date: Mon, 2 Oct 2023 13:50:45 +0200
+ d=1e100.net; s=20230601; t=1696259191; x=1696863991;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=c0wIcnLi0eW3KIpAYRJEn1N+1DF/SZtUbN/0mO//zy4=;
+ b=Nc4fF9XHS25+ICpw9SRqjtIyRJkig9Ac6tacqzq7PdN8yrEslcCEMkr38jisAUrH5y
+ cSp5HD+bB6nk8FhBWCBFI7Q+yIwZZ0n/7fdFOQ9uEJVV1wJKF2XnqeoUyyWWiFUXoUh4
+ /AYXLOgYrZs0DBecAkkyI3Zkf5/MaXwHxNor5JUXgRL3rq6rW7CBmyqTy8b01VELUNL5
+ pXGy03hVY6m48mlSbNx392+GelyzJHFHpEjS/z3rkItztAntxeVPYvknXjJyfMupBVnQ
+ ltNzHbZ9xEEfPNMlaVee2pi1DhwrFyd2kA3YuEAveFJM1oelNp/EP7VLj0b7wV4+jEWY
+ iU1A==
+X-Gm-Message-State: AOJu0YynxHmQXqEnegvfMeJFOIRwm8DqU4eormDYbWq73v119j2PX63m
+ OvV4xBaI/V1Z8LX47z/xAJD7R5cNkDEjhk90MoM=
+X-Google-Smtp-Source: AGHT+IEX1je+61h+JUKWDKJZA+eu4NOUlivFnUEzoxSozC/G9+CulawvWCmD9DLQxtVZD1wdvqrdGNPyL3ZP6lrp6ME=
+X-Received: by 2002:a05:6870:a115:b0:1dd:7fa9:ed52 with SMTP id
+ m21-20020a056870a11500b001dd7fa9ed52mr15044564oae.17.1696259190738; Mon, 02
+ Oct 2023 08:06:30 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v2] virtio_balloon: Fix endless deflation and inflation on
- arm64
-To: Gavin Shan <gshan@redhat.com>, virtualization@lists.linux-foundation.org, 
- mst@redhat.com
-References: <20230831011007.1032822-1-gshan@redhat.com>
- <9efb4685-7c28-d51d-fd5b-aa2de8e5ded2@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <9efb4685-7c28-d51d-fd5b-aa2de8e5ded2@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
- shan.gavin@gmail.com, zhenyzha@redhat.com
+References: <20230922173110.work.084-kees@kernel.org>
+ <169601600138.3014939.8511343741428844249.b4-ty@chromium.org>
+ <83cd056c-52ae-01dd-7576-42d41da64c26@gmail.com>
+In-Reply-To: <83cd056c-52ae-01dd-7576-42d41da64c26@gmail.com>
+From: Alex Deucher <alexdeucher@gmail.com>
+Date: Mon, 2 Oct 2023 11:06:19 -0400
+Message-ID: <CADnq5_Ma2CrLYggJHKFEObsNmUoqJwb2p1xai5DfL=m43U6zEA@mail.gmail.com>
+Subject: Re: [PATCH 0/9] drm: Annotate structs with __counted_by
+To: =?UTF-8?Q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>
+Cc: Tejas Upadhyay <tejas.upadhyay@intel.com>,
+ Karol Herbst <kherbst@redhat.com>, Tom Rix <trix@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, llvm@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, Chris Wilson <chris@chris-wilson.co.uk>,
+ Prike Liang <Prike.Liang@amd.com>, Huang Rui <ray.huang@amd.com>,
+ Andrzej Hajda <andrzej.hajda@intel.com>,
+ Marijn Suijten <marijn.suijten@somainline.org>,
+ David Airlie <airlied@gmail.com>, Matthew Brost <matthew.brost@intel.com>,
+ Emma Anholt <emma@anholt.net>, Neil Armstrong <neil.armstrong@linaro.org>,
+ amd-gfx@lists.freedesktop.org, Kuogee Hsieh <quic_khsieh@quicinc.com>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Ben Skeggs <bskeggs@redhat.com>, Andi Shyti <andi.shyti@linux.intel.com>,
+ nouveau@lists.freedesktop.org, David Airlie <airlied@redhat.com>,
+ virtualization@lists.linux-foundation.org, Chia-I Wu <olvaffe@gmail.com>,
+ linux-hardening@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+ Lijo Lazar <lijo.lazar@amd.com>, Kees Cook <keescook@chromium.org>,
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, linux-arm-msm@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, Kevin Wang <kevin1.wang@amd.com>,
+ Abhinav Kumar <quic_abhinavk@quicinc.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Nathan Chancellor <nathan@kernel.org>, Le Ma <le.ma@amd.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Maxime Ripard <mripard@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Evan Quan <evan.quan@amd.com>, Sean Paul <sean@poorly.run>,
+ Yifan Zhang <yifan1.zhang@amd.com>, Xiaojian Du <Xiaojian.Du@amd.com>,
+ freedreno@lists.freedesktop.org, Bjorn Andersson <andersson@kernel.org>, "Pan,
+ Xinhui" <Xinhui.Pan@amd.com>, Nick Desaulniers <ndesaulniers@google.com>,
+ linux-kernel@vger.kernel.org, Rob Clark <robdclark@gmail.com>,
+ Melissa Wen <mwen@igalia.com>, Zack Rusin <zackr@vmware.com>,
+ Daniel Vetter <daniel@ffwll.ch>,
+ Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+ Nirmoy Das <nirmoy.das@intel.com>, Lang Yu <Lang.Yu@amd.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ John Harrison <john.c.harrison@intel.com>,
+ Hawking Zhang <Hawking.Zhang@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,100 +138,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 25.09.23 01:58, Gavin Shan wrote:
-> Hi David and Michael,
-> 
-> On 8/31/23 11:10, Gavin Shan wrote:
->> The deflation request to the target, which isn't unaligned to the
->> guest page size causes endless deflation and inflation actions. For
->> example, we receive the flooding QMP events for the changes on memory
->> balloon's size after a deflation request to the unaligned target is
->> sent for the ARM64 guest, where we have 64KB base page size.
->>
->>     /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
->>     -accel kvm -machine virt,gic-version=host -cpu host          \
->>     -smp maxcpus=8,cpus=8,sockets=2,clusters=2,cores=2,threads=1 \
->>     -m 1024M,slots=16,maxmem=64G                                 \
->>     -object memory-backend-ram,id=mem0,size=512M                 \
->>     -object memory-backend-ram,id=mem1,size=512M                 \
->>     -numa node,nodeid=0,memdev=mem0,cpus=0-3                     \
->>     -numa node,nodeid=1,memdev=mem1,cpus=4-7                     \
->>       :                                                          \
->>     -device virtio-balloon-pci,id=balloon0,bus=pcie.10
->>
->>     { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
->>     {"return": {}}
->>     {"timestamp": {"seconds": 1693272173, "microseconds": 88667},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272174, "microseconds": 89704},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272175, "microseconds": 90819},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272176, "microseconds": 91961},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272177, "microseconds": 93040},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
->>     {"timestamp": {"seconds": 1693272178, "microseconds": 94117},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
->>     {"timestamp": {"seconds": 1693272179, "microseconds": 95337},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272180, "microseconds": 96615},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
->>     {"timestamp": {"seconds": 1693272181, "microseconds": 97626},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272182, "microseconds": 98693},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
->>     {"timestamp": {"seconds": 1693272183, "microseconds": 99698},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272184, "microseconds": 100727},  \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272185, "microseconds": 90430},   \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     {"timestamp": {"seconds": 1693272186, "microseconds": 102999},  \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
->>        :
->>     <The similar QMP events repeat>
->>
->> Fix it by aligning the target up to the guest page size, 64KB in this
->> specific case. With this applied, no flooding QMP events are observed
->> and the memory balloon's size can be stablizied to 0x3ffe0000 soon
->> after the deflation request is sent.
->>
->>     { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
->>     {"return": {}}
->>     {"timestamp": {"seconds": 1693273328, "microseconds": 793075},  \
->>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
->>     { "execute" : "query-balloon" }
->>     {"return": {"actual": 1073610752}}
->>
->> Signed-off-by: Gavin Shan <gshan@redhat.com>
->> Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
->> ---
->> v2: Align @num_pages up to the guest page size in towards_target()
->>       directly as David suggested.
->> ---
->>    drivers/virtio/virtio_balloon.c | 6 +++++-
->>    1 file changed, 5 insertions(+), 1 deletion(-)
->>
-> 
-> If the patch looks good, could you please merge this to Linux 6.6.rc4 since
-> it's something needed by our downstream. I hope it can land upstream as early
-> as possible, thanks a lot.
-
-@MST, I cannot spot it in your usual vhost git yet. Should I pick it up 
-or what are your plans?
-
--- 
-Cheers,
-
-David / dhildenb
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBPY3QgMiwgMjAyMyBhdCA1OjIw4oCvQU0gQ2hyaXN0aWFuIEvDtm5pZwo8Y2tvZW5p
+Zy5sZWljaHR6dW1lcmtlbkBnbWFpbC5jb20+IHdyb3RlOgo+Cj4gQW0gMjkuMDkuMjMgdW0gMjE6
+MzMgc2NocmllYiBLZWVzIENvb2s6Cj4gPiBPbiBGcmksIDIyIFNlcCAyMDIzIDEwOjMyOjA1IC0w
+NzAwLCBLZWVzIENvb2sgd3JvdGU6Cj4gPj4gVGhpcyBpcyBhIGJhdGNoIG9mIHBhdGNoZXMgdG91
+Y2hpbmcgZHJtIGZvciBwcmVwYXJpbmcgZm9yIHRoZSBjb21pbmcKPiA+PiBpbXBsZW1lbnRhdGlv
+biBieSBHQ0MgYW5kIENsYW5nIG9mIHRoZSBfX2NvdW50ZWRfYnkgYXR0cmlidXRlLiBGbGV4aWJs
+ZQo+ID4+IGFycmF5IG1lbWJlcnMgYW5ub3RhdGVkIHdpdGggX19jb3VudGVkX2J5IGNhbiBoYXZl
+IHRoZWlyIGFjY2Vzc2VzCj4gPj4gYm91bmRzLWNoZWNrZWQgYXQgcnVuLXRpbWUgY2hlY2tpbmcg
+dmlhIENPTkZJR19VQlNBTl9CT1VORFMgKGZvciBhcnJheQo+ID4+IGluZGV4aW5nKSBhbmQgQ09O
+RklHX0ZPUlRJRllfU09VUkNFIChmb3Igc3RyY3B5L21lbWNweS1mYW1pbHkgZnVuY3Rpb25zKS4K
+PiA+Pgo+ID4+IEFzIGZvdW5kIHdpdGggQ29jY2luZWxsZVsxXSwgYWRkIF9fY291bnRlZF9ieSB0
+byBzdHJ1Y3RzIHRoYXQgd291bGQKPiA+PiBiZW5lZml0IGZyb20gdGhlIGFubm90YXRpb24uCj4g
+Pj4KPiA+PiBbLi4uXQo+ID4gU2luY2UgdGhpcyBnb3QgQWNrcywgSSBmaWd1cmUgSSBzaG91bGQg
+Y2FycnkgaXQgaW4gbXkgdHJlZS4gTGV0IG1lIGtub3cKPiA+IGlmIHRoaXMgc2hvdWxkIGdvIHZp
+YSBkcm0gaW5zdGVhZC4KPiA+Cj4gPiBBcHBsaWVkIHRvIGZvci1uZXh0L2hhcmRlbmluZywgdGhh
+bmtzIQo+ID4KPiA+IFsxLzldIGRybS9hbWQvcG06IEFubm90YXRlIHN0cnVjdCBzbXUxMF92b2x0
+YWdlX2RlcGVuZGVuY3lfdGFibGUgd2l0aCBfX2NvdW50ZWRfYnkKPiA+ICAgICAgICBodHRwczov
+L2dpdC5rZXJuZWwub3JnL2tlZXMvYy9hNjA0NmFjNjU5ZDYKPgo+IFNUT1AhIEluIGEgZm9sbG93
+IHVwIGRpc2N1c3Npb24gQWxleCBhbmQgSSBmaWd1cmVkIG91dCB0aGF0IHRoaXMgd29uJ3Qgd29y
+ay4KPgo+IFRoZSB2YWx1ZSBpbiB0aGUgc3RydWN0dXJlIGlzIGJ5dGUgc3dhcHBlZCBiYXNlZCBv
+biBzb21lIGZpcm13YXJlCj4gZW5kaWFubmVzcyB3aGljaCBub3QgbmVjZXNzYXJ5IG1hdGNoZXMg
+dGhlIENQVSBlbmRpYW5uZXNzLgoKU01VMTAgaXMgQVBVIG9ubHkgc28gdGhlIGVuZGlhbmVzcyBv
+ZiB0aGUgU01VIGZpcm13YXJlIGFuZCB0aGUgQ1BVCndpbGwgYWx3YXlzIG1hdGNoLgoKQWxleAoK
+Pgo+IFBsZWFzZSByZXZlcnQgdGhhdCBvbmUgZnJvbSBnb2luZyB1cHN0cmVhbSBpZiBpdCdzIGFs
+cmVhZHkgb24gaXQncyB3YXkuCj4KPiBBbmQgYmVjYXVzZSBvZiB0aG9zZSByZWFzb25zIEkgc3Ry
+b25nbHkgdGhpbmsgdGhhdCBwYXRjaGVzIGxpa2UgdGhpcwo+IHNob3VsZCBnbyB0aHJvdWdoIHRo
+ZSBEUk0gdHJlZSA6KQo+Cj4gUmVnYXJkcywKPiBDaHJpc3RpYW4uCj4KPiA+IFsyLzldIGRybS9h
+bWRncHUvZGlzY292ZXJ5OiBBbm5vdGF0ZSBzdHJ1Y3QgaXBfaHdfaW5zdGFuY2Ugd2l0aCBfX2Nv
+dW50ZWRfYnkKPiA+ICAgICAgICBodHRwczovL2dpdC5rZXJuZWwub3JnL2tlZXMvYy80ZGYzMzA4
+OWI0NmYKPiA+IFszLzldIGRybS9pOTE1L3NlbGZ0ZXN0czogQW5ub3RhdGUgc3RydWN0IHBlcmZf
+c2VyaWVzIHdpdGggX19jb3VudGVkX2J5Cj4gPiAgICAgICAgaHR0cHM6Ly9naXQua2VybmVsLm9y
+Zy9rZWVzL2MvZmZkM2Y4MjNiZGY2Cj4gPiBbNC85XSBkcm0vbXNtL2RwdTogQW5ub3RhdGUgc3Ry
+dWN0IGRwdV9od19pbnRyIHdpdGggX19jb3VudGVkX2J5Cj4gPiAgICAgICAgaHR0cHM6Ly9naXQu
+a2VybmVsLm9yZy9rZWVzL2MvMmRlMzVhOTg5Yjc2Cj4gPiBbNS85XSBkcm0vbm91dmVhdS9wbTog
+QW5ub3RhdGUgc3RydWN0IG52a21fcGVyZmRvbSB3aXRoIF9fY291bnRlZF9ieQo+ID4gICAgICAg
+IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcva2Vlcy9jLzE4OGFlYjA4YmZhYQo+ID4gWzYvOV0gZHJt
+L3ZjNDogQW5ub3RhdGUgc3RydWN0IHZjNF9wZXJmbW9uIHdpdGggX19jb3VudGVkX2J5Cj4gPiAg
+ICAgICAgaHR0cHM6Ly9naXQua2VybmVsLm9yZy9rZWVzL2MvNTlhNTRkYzg5NmMzCj4gPiBbNy85
+XSBkcm0vdmlydGlvOiBBbm5vdGF0ZSBzdHJ1Y3QgdmlydGlvX2dwdV9vYmplY3RfYXJyYXkgd2l0
+aCBfX2NvdW50ZWRfYnkKPiA+ICAgICAgICBodHRwczovL2dpdC5rZXJuZWwub3JnL2tlZXMvYy81
+Y2Q0NzZkZTMzYWYKPiA+IFs4LzldIGRybS92bXdnZng6IEFubm90YXRlIHN0cnVjdCB2bXdfc3Vy
+ZmFjZV9kaXJ0eSB3aXRoIF9fY291bnRlZF9ieQo+ID4gICAgICAgIGh0dHBzOi8vZ2l0Lmtlcm5l
+bC5vcmcva2Vlcy9jL2I0MjZmMmU1MzU2YQo+ID4gWzkvOV0gZHJtL3YzZDogQW5ub3RhdGUgc3Ry
+dWN0IHYzZF9wZXJmbW9uIHdpdGggX19jb3VudGVkX2J5Cj4gPiAgICAgICAgaHR0cHM6Ly9naXQu
+a2VybmVsLm9yZy9rZWVzL2MvZGM2NjJmYTFiMGU0Cj4gPgo+ID4gVGFrZSBjYXJlLAo+ID4KPgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
