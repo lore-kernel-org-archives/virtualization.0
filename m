@@ -1,150 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A7DC0E7849A
-	for <virtualization@archiver.kernel.org>; Mon,  2 Oct 2023 11:23:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A8140E7849A
+	for <virtualization@archiver.kernel.org>; Mon,  2 Oct 2023 11:50:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3374B41779;
-	Mon,  2 Oct 2023 11:23:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3374B41779
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=plX/VvDt
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2AC626132B;
+	Mon,  2 Oct 2023 11:50:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2AC626132B
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=SbEA3bt6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tgGaGnm-_V7y; Mon,  2 Oct 2023 11:23:41 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xxkXs46kPlJM; Mon,  2 Oct 2023 11:50:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7053540148;
-	Mon,  2 Oct 2023 11:23:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7053540148
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9E2966129B;
+	Mon,  2 Oct 2023 11:50:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9E2966129B
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3C569C0071;
-	Mon,  2 Oct 2023 11:23:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1E0B9C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C873C0071;
+	Mon,  2 Oct 2023 11:50:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D95CC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:23:38 +0000 (UTC)
+ Mon,  2 Oct 2023 11:50:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E6B2E82F76
+ by smtp3.osuosl.org (Postfix) with ESMTP id E08716129B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:23:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E6B2E82F76
-Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=plX/VvDt
+ Mon,  2 Oct 2023 11:50:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E08716129B
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3mW8Ln20xxoz
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id n2W-D6-bXX6w
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:23:37 +0000 (UTC)
-Received: from NAM04-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam04on2060c.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8c::60c])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E298682F4A
+ Mon,  2 Oct 2023 11:50:53 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id F0EFE6132A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Oct 2023 11:23:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E298682F4A
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iQOICVcddo56iysYnwbBuHyveai/qJZZOlTdtG310YeMi07H9jPZ57OefOiA5gkRpj5lV2tHTPF2i5H597gfQPeQhAoGHngmFiVL3xted2t8rm87f+I3/QV4sO/1CbRSoFOKxq6YvVepKKx6Y25xIkPGNBgnPKKQHOMQONGNyvviHs1hUs8I0haeAMrKAKBWeTNP8eyUYYHKiAHnYcCEfWkXiV/Er9FWa+jNall3lLw2vItmo+/hqrMArV82azcyh+cGasQJmSWUeMkMBEVyKm3JyaUZvC20SewiwhKiQpYFW0TR4vO1S0VZSqEZwhRkDb9t6cZ0nFq0ByOzJ5uhTw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HqNFaWfyqri5ai6ECUgki0hYoJZHc0LuDiwUqaWXwlc=;
- b=XbqTIThFUn1AeylcMvWlbjwAF6I1vwqsMWfnCH0w01kIo1hI9rVvONthELM+7X552tvDE7f7g5vD9fKy+H5jZJvhKAPR0GkECkWG5nbLG4h65ee4UdsWz5QkrgxVa2gouz3/jacjZv06isTYDz/nIzL8IBESu3EhKNc8y17dktItxhczdFk3tz83TD2PGG7UHh10n+9dIJ8wM/ML6MM8qok6YDyyTusn8NPrB0CCCaCD0TzjBPTnLdojaReWLR1v2onISaF1u3hdih7a2HpjxqMLx0aqlMfhpFybOei49vIzzUVTzSuCUg6zIS0le1IH8b1zWJAhe48Gt/j9BZhfdQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HqNFaWfyqri5ai6ECUgki0hYoJZHc0LuDiwUqaWXwlc=;
- b=plX/VvDtaocgzWZaOXmI8xnnb0YwX6uyQp/3o/B8Tcu8rNQoEu8Zxbm149ut15QeEJSEWyI8cSn5ZDFjfHijYgLwgDOpBPNHhJ73qELi7H+0tFG9vpzqxyO/3cT/bWWxsWfDtgJfQL5dFw6aIInkW7L9a+DCJUl3BikKt7yJXQhuGVkChnXF6TrPvzExbrZo0tu+m4S/5vRy6tQqKQ67+YVTv006NWiSEawuMXJ1w7A2JDiSvFRjrXMs+TNI9RyeAg2uDrb2Ri7iedrx2t61sPAgRCKvDkhHFA8e5BncU0BoRlFMK98pzbk0n+U68MohGJoKdDij+9Wn/a30fYBhcw==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH7PR12MB5830.namprd12.prod.outlook.com (2603:10b6:510:1d5::15)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.23; Mon, 2 Oct
- 2023 11:23:34 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::4002:4762:330c:a199]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::4002:4762:330c:a199%7]) with mapi id 15.20.6838.029; Mon, 2 Oct 2023
- 11:23:34 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>, Yishai Hadas <yishaih@nvidia.com>
-Subject: RE: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Topic: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Index: AQHZ7IkPl5ENqOgMC0yEzkOHANq/CLAnAKqAgA9qw0A=
-Date: Mon, 2 Oct 2023 11:23:34 +0000
-Message-ID: <PH0PR12MB54816D19D34358B37CD689C1DCC5A@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20230921124040.145386-1-yishaih@nvidia.com>
- <20230921124040.145386-12-yishaih@nvidia.com>
- <20230922114539-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20230922114539-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|PH7PR12MB5830:EE_
-x-ms-office365-filtering-correlation-id: 038c973b-30ea-4953-8f58-08dbc33a03db
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: jz0RYn4DtVMdqED5RqxyiNtRr1r24fGLTnSv/eg92/GVW8TbJ2EbivYwaVgvsYpTMj3F1EyyY5s/8oMhbXNFAs0YGsB2mMAbnsGTvlKokUGIFeZLtQR+UungbAY1hExKGJcvJVXrqftuzvtmzcj0iEluJ9jNY4aTgumH09yje1rBhDdttBnT31i63FLNg2PYypBsGy53rAP+t0AHtHroDLxBp6W5O8OoTHYG6sl4xQn4lSNeEmAWswxKJC9aqtDcGnNhwSRAqgRh5I+VTfuVB/VnuLsZT6syV86NchFha5888k8/KLfGfk58qvW/E7SFI4PPVfe69mw4gQWVnd/H+SLH8JCaZfq9TGSl812NEkRQspxupPld175ziQSv+apvBn4mv8jmAGDIpDfQqs7yGhqhrIKJH8T0puO38lpsZw1DzBT6g4b6/sh/FhF09CXb5sqweP7/XTAllbCiL+dUrNnqccsv1tgoDF8Ezifh/ZjdJN9vtVjaXy272bOOXv6KNkjYvLQKGGQmu5N1OeReDm/0w1bMt2NAdMWsQy7cpnRcFWEXiaaZ4HCXMCn9/JQtd15iqjbvlgDMpFdvaG6ExhOo7t2FAAgz24J3FR6HIrPfBVtHoz3dB9ThlDno8Nob
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(346002)(136003)(396003)(376002)(39860400002)(366004)(230922051799003)(186009)(1800799009)(64100799003)(451199024)(7696005)(71200400001)(55016003)(6506007)(122000001)(26005)(9686003)(107886003)(86362001)(110136005)(52536014)(38100700002)(316002)(38070700005)(33656002)(83380400001)(66556008)(6636002)(54906003)(41300700001)(66476007)(66946007)(8936002)(4326008)(478600001)(66446008)(76116006)(4744005)(64756008)(8676002)(2906002)(5660300002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?c67gs7XKDaqOcSnctAAD2fWvyygJRHpmLaFBBlPaAonWMAYItBcNtc64O1e8?=
- =?us-ascii?Q?mHy0QHuxuTGfjKutv1lyUuhjuvvuoHuqn3ooPn5s/p1lWEesV9L0HbGz0xQG?=
- =?us-ascii?Q?G2l45Xbz3D5O8ASa1hsyvkEaQMBg7enQtPb/1H1hB5TujI4JHrHtvN9aYeP4?=
- =?us-ascii?Q?iPkyyjo4p/HOV+L6zUE3xgpv/qFmPVnUODeipHv2yXmODY85lxikdJijHDZz?=
- =?us-ascii?Q?SI1pOzrnyJdIDl9C7Eqn42c9O0VAW7icbjgBfo+pyBb6Mc18VGq7P7EsNws0?=
- =?us-ascii?Q?KeBSPlAx6rL2VOtwIz28VbGZAfKIb6y7SN0TmNZyHzOVc8EBXe1kCbQcMdNI?=
- =?us-ascii?Q?YaALf6BImes1XA9o9vHiyu0+aNgZZnEHBQAsVfCsVD2ARKyHE1VqmG/d2PCb?=
- =?us-ascii?Q?9WRMFaHYf8Yp/+jyEklRJU9hVmuLG9lLRrnCgjNRIe65aGWwkZGDDOPysUX5?=
- =?us-ascii?Q?W11sjEnCYDPl59sJ66LR1E750cPfpYL1aWVsNoeIFmXC1PVikVp64MDfjQ5i?=
- =?us-ascii?Q?5glgV9DDNvl4JIVlgCm/bkXUCAQ/wMsuweRkTA/bx+3mLjigWSyd0j0MIlyh?=
- =?us-ascii?Q?wom9D2jX0zHw6yIcvRYCuNWlbXNLIN3TSGRktmIpdPBTwG11yPH/UrvqC2l3?=
- =?us-ascii?Q?xi2Zieexy8WBvm5eITkjsKvkwuSTEZVxw22CSz8pIYgcBQaY3TMbWaxBUoFV?=
- =?us-ascii?Q?QZdSnua10wDoeYVCSxCIhY4d8cW5HylVW4hxsZ3g+TlPTkfbaJxYjYVDhSZM?=
- =?us-ascii?Q?HfK2ycdDnyIX4OMvJeeo7PAL5UXgkD03evxDuo7yqxKxbUvRAETqv4FGb/Sp?=
- =?us-ascii?Q?yRu+gh//BYDnhX1i2f5Kr9u0AvoH7w7cgKGrukdVVjToP17W+mzJXIxG5kmf?=
- =?us-ascii?Q?vaxdq5IktBouuocY+ZCuzdfJ9yMR7o5RttxfxSlgeV0ultejVKLjj0iR1+Ym?=
- =?us-ascii?Q?V/1S3s/veC2oq2DpjUqfBck8VQL47wEpS4VYax94er/0//0iKkVhKAhpdc7J?=
- =?us-ascii?Q?djP3iU7ggxCgYfHbp6vS2PIDNmqTTNCqBu3Su3QVj9TeqCO6InLN6+S1IUPJ?=
- =?us-ascii?Q?LSOq9aeHnAWWFwcQHoyuOOhz0cKSvTgUXofdFeQlfLfcV3bvTJRMtGJwz753?=
- =?us-ascii?Q?TtXC9rX/EUtxkJ2TnPjYMy8ib7ZpMX0SucSPCaQBfYH4YPy79QXnFPrUKFfw?=
- =?us-ascii?Q?JjlIeWY4BtgKLBrLSVuH4U9XfQr9Z0e6am7LORi77+bGjst2f3/X8EhXND7c?=
- =?us-ascii?Q?PtUITcwVCWKN40BxpIFxSLS/LV8Jx/FJCXJyizHbhxlZ+UxgFIEdF2yR3H4T?=
- =?us-ascii?Q?A1h5BIAqTG6S2Nn63lYtkenJAmf5h2oX/ORzSa7tITNuiDt2ltWUXq2SNZaZ?=
- =?us-ascii?Q?baEGiyqJL75PawOujKPbFrOM0Lv3D5FKAnuZDWvoAO9qXc4kTxn9MAZ5bV8B?=
- =?us-ascii?Q?LKezyIhaLeZHtUtOL6mQ4WdWvrqvpZbz1dIIb0w3E4Wa4672OIr0xvCGJhnX?=
- =?us-ascii?Q?VJrmeRunl4DBdWuQCnFg3p20i1cA6XxkYAU484PX7UPHqryKdCcp9jgpz2Ah?=
- =?us-ascii?Q?ZknK/KUmj6tc6AylScc=3D?=
+ Mon,  2 Oct 2023 11:50:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F0EFE6132A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1696247452;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=mBrZhcB5nUcd1tpUxuWzIbaWMcBLbzzhsFdEDldJgN4=;
+ b=SbEA3bt6l7ejvR/v7vAK7j6i3gwRxluCmJF30WGCo/X61XS1J/zVMIXhNMqwMYqlI8FRPv
+ oeomV2z6rnYpw0EXdn3lpGvjIlLdoqTcgGYqPX3rvHAY6RMk+n4q3Wpdvu5mLAlGEkKChJ
+ qU12u0uhjmujCrazz4pR7CpfzRfXi3M=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-692-RjplxvHLPciNY8ATbbsQ-A-1; Mon, 02 Oct 2023 07:50:48 -0400
+X-MC-Unique: RjplxvHLPciNY8ATbbsQ-A-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ ffacd0b85a97d-30e3ee8a42eso12123945f8f.1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 02 Oct 2023 04:50:48 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1696247447; x=1696852247;
+ h=content-transfer-encoding:in-reply-to:organization:from:references
+ :cc:to:content-language:subject:user-agent:mime-version:date
+ :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=mBrZhcB5nUcd1tpUxuWzIbaWMcBLbzzhsFdEDldJgN4=;
+ b=R5xYtsJtF67B2HL2qaVCFlsx/nAiHoBbR7bDKiFNku3hvJw4s9W4cXsOBl/dVi5ZVU
+ UvDM6lQJinMKoZgFc/jkPvZqb01QIND2xXzYwFzRZJr6PwO3qp2VamdLhTCRZ78UaABc
+ iuT/7HV63a4FuNiaQnfY0XotYjVpejZ9kz7eKLaO5OYsI41XR+ISrlpU/96ykPC3/UnA
+ XEFSIkXOEnCh4i1v8aHamcbEUaCaCDE72RVPJo/otVfbBfDEtW7a0njWIG/x4IrXQqlL
+ lR8fcPA2Ciff2uJDrm7rVA0C5XJ0zcQrlM/so1SQeg5EY8jNxXa3DsN2sYzP83xTwq+i
+ IUlA==
+X-Gm-Message-State: AOJu0Ywp+0q4Q312W9neIoG1u1EJlzHDujcFQeu09MEL5eaxnIR1RP+y
+ OnfLROLEjQ9jNiQoHfXobiCQJmFm1SYhxSuI2FOm36pKUdFOUl2qLyEeafVV5FOc4Vpr6Q6Q+aQ
+ wfK0Dx+LbZuLNfP9GM+UHG9vIClPtwmHwt874By0Ebw==
+X-Received: by 2002:adf:e9c9:0:b0:319:79bb:980c with SMTP id
+ l9-20020adfe9c9000000b0031979bb980cmr9786481wrn.64.1696247447630; 
+ Mon, 02 Oct 2023 04:50:47 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHLNQHhxBlGvd3QBrupxsNSkpIsO/mIp/g907haHFJ/D8eLi4qV+cMl4rqxJw7Q8mpvESCurw==
+X-Received: by 2002:adf:e9c9:0:b0:319:79bb:980c with SMTP id
+ l9-20020adfe9c9000000b0031979bb980cmr9786464wrn.64.1696247447165; 
+ Mon, 02 Oct 2023 04:50:47 -0700 (PDT)
+Received: from ?IPV6:2003:cb:c735:f200:cb49:cb8f:88fc:9446?
+ (p200300cbc735f200cb49cb8f88fc9446.dip0.t-ipconnect.de.
+ [2003:cb:c735:f200:cb49:cb8f:88fc:9446])
+ by smtp.gmail.com with ESMTPSA id
+ x13-20020adff64d000000b00325b29a6441sm7465254wrp.82.2023.10.02.04.50.46
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 02 Oct 2023 04:50:46 -0700 (PDT)
+Message-ID: <53ec0cfb-37c8-f8e3-4cd3-53a390b2cd2b@redhat.com>
+Date: Mon, 2 Oct 2023 13:50:45 +0200
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 038c973b-30ea-4953-8f58-08dbc33a03db
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Oct 2023 11:23:34.3129 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jm2Hr7VqK3+7RFghsqk8c0j/eyixo2b45gIPJoo03U/1ZJHEEL1Iumzeq+upORg/dN5XRltSXrv0nnsuqRGK5w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5830
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Maor Gottlieb <maorg@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v2] virtio_balloon: Fix endless deflation and inflation on
+ arm64
+To: Gavin Shan <gshan@redhat.com>, virtualization@lists.linux-foundation.org, 
+ mst@redhat.com
+References: <20230831011007.1032822-1-gshan@redhat.com>
+ <9efb4685-7c28-d51d-fd5b-aa2de8e5ded2@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <9efb4685-7c28-d51d-fd5b-aa2de8e5ded2@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ shan.gavin@gmail.com, zhenyzha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -156,36 +123,99 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Friday, September 22, 2023 9:23 PM
-
-> > +static int virtiovf_pci_probe(struct pci_dev *pdev,
-> > +			      const struct pci_device_id *id) {
-> > +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
-> > +	struct virtiovf_pci_core_device *virtvdev;
-> > +	int ret;
-> > +
-> > +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
-> > +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
+On 25.09.23 01:58, Gavin Shan wrote:
+> Hi David and Michael,
 > 
-> I see this is the reason you set MSIX to true. But I think it's a misunderstanding -
-> that true means MSIX is enabled by guest, not that it exists.
+> On 8/31/23 11:10, Gavin Shan wrote:
+>> The deflation request to the target, which isn't unaligned to the
+>> guest page size causes endless deflation and inflation actions. For
+>> example, we receive the flooding QMP events for the changes on memory
+>> balloon's size after a deflation request to the unaligned target is
+>> sent for the ARM64 guest, where we have 64KB base page size.
+>>
+>>     /home/gavin/sandbox/qemu.main/build/qemu-system-aarch64      \
+>>     -accel kvm -machine virt,gic-version=host -cpu host          \
+>>     -smp maxcpus=8,cpus=8,sockets=2,clusters=2,cores=2,threads=1 \
+>>     -m 1024M,slots=16,maxmem=64G                                 \
+>>     -object memory-backend-ram,id=mem0,size=512M                 \
+>>     -object memory-backend-ram,id=mem1,size=512M                 \
+>>     -numa node,nodeid=0,memdev=mem0,cpus=0-3                     \
+>>     -numa node,nodeid=1,memdev=mem1,cpus=4-7                     \
+>>       :                                                          \
+>>     -device virtio-balloon-pci,id=balloon0,bus=pcie.10
+>>
+>>     { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>>     {"return": {}}
+>>     {"timestamp": {"seconds": 1693272173, "microseconds": 88667},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272174, "microseconds": 89704},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272175, "microseconds": 90819},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272176, "microseconds": 91961},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272177, "microseconds": 93040},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>>     {"timestamp": {"seconds": 1693272178, "microseconds": 94117},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>>     {"timestamp": {"seconds": 1693272179, "microseconds": 95337},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272180, "microseconds": 96615},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>>     {"timestamp": {"seconds": 1693272181, "microseconds": 97626},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272182, "microseconds": 98693},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>>     {"timestamp": {"seconds": 1693272183, "microseconds": 99698},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272184, "microseconds": 100727},  \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272185, "microseconds": 90430},   \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     {"timestamp": {"seconds": 1693272186, "microseconds": 102999},  \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073676288}}
+>>        :
+>>     <The similar QMP events repeat>
+>>
+>> Fix it by aligning the target up to the guest page size, 64KB in this
+>> specific case. With this applied, no flooding QMP events are observed
+>> and the memory balloon's size can be stablizied to 0x3ffe0000 soon
+>> after the deflation request is sent.
+>>
+>>     { "execute" : "balloon", "arguments": { "value" : 1073672192 } }
+>>     {"return": {}}
+>>     {"timestamp": {"seconds": 1693273328, "microseconds": 793075},  \
+>>      "event": "BALLOON_CHANGE", "data": {"actual": 1073610752}}
+>>     { "execute" : "query-balloon" }
+>>     {"return": {"actual": 1073610752}}
+>>
+>> Signed-off-by: Gavin Shan <gshan@redhat.com>
+>> Tested-by: Zhenyu Zhang <zhenyzha@redhat.com>
+>> ---
+>> v2: Align @num_pages up to the guest page size in towards_target()
+>>       directly as David suggested.
+>> ---
+>>    drivers/virtio/virtio_balloon.c | 6 +++++-
+>>    1 file changed, 5 insertions(+), 1 deletion(-)
+>>
+> 
+> If the patch looks good, could you please merge this to Linux 6.6.rc4 since
+> it's something needed by our downstream. I hope it can land upstream as early
+> as possible, thanks a lot.
 
-Msix check here just looks a sanity check to make sure that guest can enable msix.
-The msix enable check should be in the read()/write() calls to decide which AQ command to choose from, 
-i.e. to access common config or device config as written in the virtio spec. 
+@MST, I cannot spot it in your usual vhost git yet. Should I pick it up 
+or what are your plans?
 
-Yishai please fix the read() write() calls to dynamically consider the offset of 24/20 based on the msix enabled state.
+-- 
+Cheers,
+
+David / dhildenb
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
