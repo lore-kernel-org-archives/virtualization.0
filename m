@@ -1,107 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 32DAFE7AD76
-	for <virtualization@archiver.kernel.org>; Tue,  3 Oct 2023 16:23:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A53F5E7AD76
+	for <virtualization@archiver.kernel.org>; Tue,  3 Oct 2023 16:23:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A2049822C5;
-	Tue,  3 Oct 2023 16:23:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A2049822C5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FK2ehec1
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2289B6124E;
+	Tue,  3 Oct 2023 16:23:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2289B6124E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ey/sGDDo
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RAX7XIBjcT-7; Tue,  3 Oct 2023 16:23:01 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Jd5V3rfLas3F; Tue,  3 Oct 2023 16:23:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 24AC4822C7;
-	Tue,  3 Oct 2023 16:23:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 24AC4822C7
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5CE4A60F3E;
+	Tue,  3 Oct 2023 16:23:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5CE4A60F3E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB62AC0071;
-	Tue,  3 Oct 2023 16:23:00 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 26B50C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25236C0071;
+	Tue,  3 Oct 2023 16:23:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B93C8C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Oct 2023 16:23:00 +0000 (UTC)
+ Tue,  3 Oct 2023 16:23:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E8B164052A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8763D60F7F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Oct 2023 16:22:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E8B164052A
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=FK2ehec1
+ Tue,  3 Oct 2023 16:23:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8763D60F7F
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kj21ecttSx8F
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 9R2trjpZh9np
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Oct 2023 16:22:59 +0000 (UTC)
+ Tue,  3 Oct 2023 16:23:21 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3589440182
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 74E9C60F3E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Oct 2023 16:22:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3589440182
+ Tue,  3 Oct 2023 16:23:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 74E9C60F3E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1696350178;
+ s=mimecast20190719; t=1696350200;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=r147ix/t4ru4DZEC+DJrb4DBuvtWEoQLF9djs4ZSusI=;
- b=FK2ehec1A43sOvGpAHObG4mRRRskgWIIuTm0o2WFLRlMuedcWFeaj1D15NPB8BQLo6Ib9S
- mj/xLEC9dlPim5hp1tZ5yFi6gAfST+oPC2ev003iL4Dm0K3SHvXC9t9cqsOr9P6cWp2ibn
- nfi8lFkyFMQv6K/hqQC7iPc7L2z7B7g=
+ bh=K8nJSyCd6Mj6/uVIoeX6vSBcbL415T2j/UKJhN/9HxQ=;
+ b=ey/sGDDoSMh/Jnq134elEYvVGlNJ8rd82E2OTPDd9t092CFk/+cym9Y3tpMdIptUZBcYIR
+ 9nzHSDx8ijoSxSl1rEuMPV8kV4W2CmGyuZeXiMFi5u4ygXZKGZe4rR2zKH7y2AzV4YhgYm
+ bH9eq7iYJSLT5Jq8R0qAbITwcXBJ7aY=
 Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
  [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-352-XqZWx26dMUOB6Ct66iHOcA-1; Tue, 03 Oct 2023 12:22:46 -0400
-X-MC-Unique: XqZWx26dMUOB6Ct66iHOcA-1
+ us-mta-605-MMowvGa0MyildJt45K8HrA-1; Tue, 03 Oct 2023 12:23:19 -0400
+X-MC-Unique: MMowvGa0MyildJt45K8HrA-1
 Received: by mail-qv1-f69.google.com with SMTP id
- 6a1803df08f44-65afd7515aaso12340316d6.0
+ 6a1803df08f44-65b23c40cefso11266626d6.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 03 Oct 2023 09:22:46 -0700 (PDT)
+ Tue, 03 Oct 2023 09:23:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1696350166; x=1696954966;
+ d=1e100.net; s=20230601; t=1696350199; x=1696954999;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=r147ix/t4ru4DZEC+DJrb4DBuvtWEoQLF9djs4ZSusI=;
- b=WzeuXP9ab4gOhX9m8HSm3TRMASGbdAREfLMW2bWd/USxuDtd7T75IYZmfg1QGZeSg3
- PbWZ6WUocZ0bTTR8NBiKILd5L0FcvJW5N1/BWwNFcl0JnvElqnl/hD15ESzkVxfZUKlO
- YeKHFwgI3Ygx+Uz6K4smqVBZ1JUitAAMhZcO4/InKyePua+AmBQCJV3XeMh67TyiOVLM
- x4r/eqXcQrBVdR2b+maLToZSCgKC0zPw0TUIrUxlGYMRCfiwamdNxK/Sgx5nEzfCeCAj
- rCVv2ugCluWAYJ3QwLmGeqlZQaGjNraeAJ4zepHW2STtCnfC+5I2SVAEdCOCtOhPwn1z
- sEDQ==
-X-Gm-Message-State: AOJu0Yw01j4vxOAAYlBwGLAdB/PXrAYy9OIqb0MCc112NvNHvo2/gB44
- OlCPzxXgjpJ2rfMKN/nU2OQeibYGsX958Ctx6MoULsTw0ZEIOCQbBDT+FaVSPJsbnhtrgD7p7RT
- F+a2266x0HL40gDxV7JXEfbeRgLZrXynhGdLeXE5OpA==
-X-Received: by 2002:a05:6214:488d:b0:64f:51fe:859c with SMTP id
- pc13-20020a056214488d00b0064f51fe859cmr17355781qvb.43.1696350165794; 
- Tue, 03 Oct 2023 09:22:45 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGqvM306M50A2rjJC5L4OkATm7mDAd1KWNSEosWc5K4oFW+hSL2rCEcu1U+nylxnoxNFfNg/Q==
-X-Received: by 2002:a05:6214:488d:b0:64f:51fe:859c with SMTP id
- pc13-20020a056214488d00b0064f51fe859cmr17355759qvb.43.1696350165512; 
- Tue, 03 Oct 2023 09:22:45 -0700 (PDT)
+ bh=K8nJSyCd6Mj6/uVIoeX6vSBcbL415T2j/UKJhN/9HxQ=;
+ b=UF+GCoJoOv7v4RLPtHKvvlH5zF8cgonNegfaTjyjIxMQYwJ2yF4c4CH/90lD+7o7BN
+ Kr2D85I/Pixn2RUgL5TRM4BeoAfI7562bjMY89DMxfiVjeRQTJIWCeGwAgLETwbJrjJ7
+ mnsLeYJ42fS9UlRCn6jLz4DjzAOVexLCB7ZcNMAzJLU2CZiZC4ZICbSIAA2CMRgHNCLA
+ TQZyAYA1IeVfQKjaNs4Ct7VRH0YkVtZYoSsUdHisCiB+zGD3NGBxeejjKAsoU8MOSgCA
+ uEFNnGGqM3VH3JZeEgXF8YWwvqSxUFX2DiClYxydcBjYYFuhyzBOMT8ownnYPncIbfO0
+ Oj5g==
+X-Gm-Message-State: AOJu0Yy/kGtMaBmyhNKtGnCc6lEA5l7nnCxjGDuRsAhMlRXnZrMrjOUr
+ i/4pT2N37Txyrc0CRnqKvQIFPbXvPuSBmW0D/gGgEGBe2VyRjf4ktHEM8siAjWX/jWLy7aRg6V2
+ glJk/lmUxEClbGuC9T/rth8BS25NZ+8l4aWuZoGQe5g==
+X-Received: by 2002:a0c:f04c:0:b0:658:a29a:e297 with SMTP id
+ b12-20020a0cf04c000000b00658a29ae297mr12037767qvl.49.1696350198913; 
+ Tue, 03 Oct 2023 09:23:18 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG8uQkWWDZB3h/ubLuDg4GpK42nrIzlPUoFwtgf5CmfllU3UftYG/UPLqG6M4Qulj6QX9ZOAw==
+X-Received: by 2002:a0c:f04c:0:b0:658:a29a:e297 with SMTP id
+ b12-20020a0cf04c000000b00658a29ae297mr12037737qvl.49.1696350198592; 
+ Tue, 03 Oct 2023 09:23:18 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-114.retail.telecomitalia.it.
  [82.57.51.114]) by smtp.gmail.com with ESMTPSA id
- a21-20020a0ca995000000b0063d162a8b8bsm612637qvb.19.2023.10.03.09.22.42
+ vv22-20020a05620a563600b0076ca9f79e1fsm580607qkn.46.2023.10.03.09.23.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 03 Oct 2023 09:22:44 -0700 (PDT)
-Date: Tue, 3 Oct 2023 18:22:39 +0200
+ Tue, 03 Oct 2023 09:23:18 -0700 (PDT)
+Date: Tue, 3 Oct 2023 18:23:13 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v2 01/12] vsock: set EPOLLERR on non-empty error
- queue
-Message-ID: <qylubfxwihribskuw25sc6rvvjv7rz2loz6h6sdea464hzpq36@5gdhsu363gnx>
+Subject: Re: [PATCH net-next v2 02/12] vsock: read from socket's error queue
+Message-ID: <2o6wtfwxa3xeurri2tomed3zkdginsgu7gty7bvf5solgyheck@45pkpcol2xb3>
 References: <20230930210308.2394919-1-avkrasnov@salutedevices.com>
- <20230930210308.2394919-2-avkrasnov@salutedevices.com>
+ <20230930210308.2394919-3-avkrasnov@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <20230930210308.2394919-2-avkrasnov@salutedevices.com>
+In-Reply-To: <20230930210308.2394919-3-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -128,36 +124,87 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 01, 2023 at 12:02:57AM +0300, Arseniy Krasnov wrote:
->If socket's error queue is not empty, EPOLLERR must be set. Otherwise,
->reader of error queue won't detect data in it using EPOLLERR bit.
->Currently for AF_VSOCK this is actual only with MSG_ZEROCOPY, as this
->feature is the only user of an error queue of the socket.
+On Sun, Oct 01, 2023 at 12:02:58AM +0300, Arseniy Krasnov wrote:
+>This adds handling of MSG_ERRQUEUE input flag in receive call. This flag
+>is used to read socket's error queue instead of data queue. Possible
+>scenario of error queue usage is receiving completions for transmission
+>with MSG_ZEROCOPY flag. This patch also adds new defines: 'SOL_VSOCK'
+>and 'VSOCK_RECVERR'.
 >
 >Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 >---
 > Changelog:
 > v1 -> v2:
->  * Update commit message by removing 'fix' word.
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
+>  * Place new defines for userspace to the existing file 'vm_sockets.h'
+>    instead of creating new one.
 >
-> net/vmw_vsock/af_vsock.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
+> include/linux/socket.h          | 1 +
+> include/uapi/linux/vm_sockets.h | 4 ++++
+> net/vmw_vsock/af_vsock.c        | 6 ++++++
+> 3 files changed, 11 insertions(+)
 >
+>diff --git a/include/linux/socket.h b/include/linux/socket.h
+>index 39b74d83c7c4..cfcb7e2c3813 100644
+>--- a/include/linux/socket.h
+>+++ b/include/linux/socket.h
+>@@ -383,6 +383,7 @@ struct ucred {
+> #define SOL_MPTCP	284
+> #define SOL_MCTP	285
+> #define SOL_SMC		286
+>+#define SOL_VSOCK	287
+>
+> /* IPX options */
+> #define IPX_TYPE	1
+>diff --git a/include/uapi/linux/vm_sockets.h b/include/uapi/linux/vm_sockets.h
+>index c60ca33eac59..b1a66c1a7054 100644
+>--- a/include/uapi/linux/vm_sockets.h
+>+++ b/include/uapi/linux/vm_sockets.h
+>@@ -191,4 +191,8 @@ struct sockaddr_vm {
+>
+> #define IOCTL_VM_SOCKETS_GET_LOCAL_CID		_IO(7, 0xb9)
+>
+>+#define SOL_VSOCK	287
+>+
+>+#define VSOCK_RECVERR	1
+
+Please add good documentation for both of them. This is an header
+exposed to the user space.
+
+>+
+> #endif /* _UAPI_VM_SOCKETS_H */
 >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 013b65241b65..d841f4de33b0 100644
+>index d841f4de33b0..0365382beab6 100644
 >--- a/net/vmw_vsock/af_vsock.c
 >+++ b/net/vmw_vsock/af_vsock.c
->@@ -1030,7 +1030,7 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
-> 	poll_wait(file, sk_sleep(sk), wait);
-> 	mask = 0;
+>@@ -110,6 +110,8 @@
+> #include <linux/workqueue.h>
+> #include <net/sock.h>
+> #include <net/af_vsock.h>
+>+#include <linux/errqueue.h>
+>+#include <uapi/linux/vm_sockets.h>
+
+Let's keep the alphabetic order as it was before this change.
+
+`net/af_vsock.h` already includes the `uapi/linux/vm_sockets.h`,
+and we also use several defines from it in this file, so you can also
+skip it.
+
+On the other end it would be better to directly include the headers that
+we use, so it's also okay to keep it. As you prefer.
+
 >
->-	if (sk->sk_err)
->+	if (sk->sk_err || !skb_queue_empty_lockless(&sk->sk_error_queue))
-> 		/* Signify that there has been an error on this socket. */
-> 		mask |= EPOLLERR;
+> static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr);
+> static void vsock_sk_destruct(struct sock *sk);
+>@@ -2137,6 +2139,10 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 	int err;
+>
+> 	sk = sock->sk;
+>+
+>+	if (unlikely(flags & MSG_ERRQUEUE))
+>+		return sock_recv_errqueue(sk, msg, len, SOL_VSOCK, VSOCK_RECVERR);
+>+
+> 	vsk = vsock_sk(sk);
+> 	err = 0;
 >
 >-- 
 >2.25.1
