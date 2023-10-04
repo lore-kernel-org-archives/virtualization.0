@@ -1,107 +1,106 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 22D72E7C4D4
-	for <virtualization@archiver.kernel.org>; Wed,  4 Oct 2023 15:45:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B9B06E7C4D5
+	for <virtualization@archiver.kernel.org>; Wed,  4 Oct 2023 15:48:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B927961463;
-	Wed,  4 Oct 2023 15:45:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B927961463
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ek15eaoZ
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SBEV8cUcJJbV; Wed,  4 Oct 2023 15:45:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E437E61056;
-	Wed,  4 Oct 2023 15:45:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E437E61056
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BB340C0071;
-	Wed,  4 Oct 2023 15:45:17 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3D9FC0032
- for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Oct 2023 15:45:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A24D840CA5
- for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Oct 2023 15:45:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A24D840CA5
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4FBFB41958;
+	Wed,  4 Oct 2023 15:48:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4FBFB41958
 Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Ek15eaoZ
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TkdLA1sF
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2sODu8H4rSY7
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jG5pA6ILdQp8; Wed,  4 Oct 2023 15:48:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 700E34002B;
+	Wed,  4 Oct 2023 15:48:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 700E34002B
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 505E9C0071;
+	Wed,  4 Oct 2023 15:48:22 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE78BC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Oct 2023 15:45:15 +0000 (UTC)
+ Wed,  4 Oct 2023 15:48:20 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id AC90D61056
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Oct 2023 15:48:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC90D61056
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=TkdLA1sF
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eyQ8-qSCpQfI
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Oct 2023 15:48:19 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A1D694002B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9708D60A9A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Oct 2023 15:45:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A1D694002B
+ Wed,  4 Oct 2023 15:48:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9708D60A9A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1696434314;
+ s=mimecast20190719; t=1696434498;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=IxsazhYs2n/9MAXKA5npAthF91JV0rzqOS4I79VruDs=;
- b=Ek15eaoZI0IRnmTP0zTqafNmvx1XaXqz3AoScaaoXccXjPulnNcIPqJEuxzu087NNXsvQE
- 6eXE5nMQF8UCI7F4bxQrL2MvZ+YmwOF+qkJPGjzou4ZE6xrD7SfVSBx0QEMW/HmbhnDEQJ
- +A7GUdjPIbvXAp+ygC5q182wUvTZyOc=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=rZ8aDKUrpN2q/s8i97pAGn8PQgXbCGC0dTTfu9VD+mg=;
+ b=TkdLA1sF6LWWEA0MSPFWk2Ti3wbQW6sF35g3/fhtR1a13Yp88NrVVAClZBspBZb0eIE3de
+ gEyeYt5K6z0BdusQq/6VRxEE3PcVmDPlogCVP5plpQxHKWYMT8iJHj31wWac32K2przQ8u
+ a9CFM+aOt4SZYFCxICL7GJxrCRvB4AE=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-607-13p6MNhJPOi9ZR_j1I6Ahg-1; Wed, 04 Oct 2023 11:45:13 -0400
-X-MC-Unique: 13p6MNhJPOi9ZR_j1I6Ahg-1
-Received: by mail-qv1-f69.google.com with SMTP id
- 6a1803df08f44-65afcf18d05so24386826d6.3
+ us-mta-644-wlm1LzuDPK64YOrVqjvXaA-1; Wed, 04 Oct 2023 11:48:15 -0400
+X-MC-Unique: wlm1LzuDPK64YOrVqjvXaA-1
+Received: by mail-qv1-f70.google.com with SMTP id
+ 6a1803df08f44-6564dbde089so15361936d6.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Oct 2023 08:45:12 -0700 (PDT)
+ Wed, 04 Oct 2023 08:48:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1696434312; x=1697039112;
+ d=1e100.net; s=20230601; t=1696434495; x=1697039295;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=IxsazhYs2n/9MAXKA5npAthF91JV0rzqOS4I79VruDs=;
- b=kasHtOLuc+8G+uDNxW3doCsOiWfk72HEl8lAFpCUtglMLHjh1sF9ONQ9j+2EPPhNZH
- T4qPAxeRmb56CRMRjr9Y4Udm+DXhkDvTrOY9AFxYR22NxatuLboxrhKN2eQE5DAgTHdt
- RAGvXAwHzzi3iFMLszx/eakKhuftuhmKm0rwERUlLGmaaV3oLEkDHlD4gIqEgWoZPp4F
- PQBtPUcheeSzLm3469j9wF2VUf5SSERE6vFTUpaQV/XQ8bzWAEKSKGc7t02u7N8qPI9O
- GfuSlgXf40JfS+eiPOhrKKee8nkuX41NQXcM+a9tbtumQu0sKbWXbpC9iEWNoZJAqUaW
- KpGA==
-X-Gm-Message-State: AOJu0YwQr1a7Lro8KUs2gmtB0V0cOnBTaFe73D7ewuiNyxWLnZjA+2BO
- E1qhydb5iOJdOA0oFUanm7oJrOOPneqXNGUAGwgjCTdpmn4brJJgGEmRm7ADyFZj/hT4lOojhAB
- kSEY5UU/M4wzea4FQJXsMheMWXkFr9d2/D8BcMHOQsQ==
-X-Received: by 2002:a0c:e20a:0:b0:65b:8a2:6b86 with SMTP id
- q10-20020a0ce20a000000b0065b08a26b86mr2448015qvl.59.1696434312469; 
- Wed, 04 Oct 2023 08:45:12 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF9JiqUasipY0BgL87SyW5GEOL9U/R/0xTXkbkmk6K2dh+lVGuHH2VfMxE94OR1d7VlhS5Teg==
-X-Received: by 2002:a0c:e20a:0:b0:65b:8a2:6b86 with SMTP id
- q10-20020a0ce20a000000b0065b08a26b86mr2447984qvl.59.1696434312046; 
- Wed, 04 Oct 2023 08:45:12 -0700 (PDT)
+ bh=rZ8aDKUrpN2q/s8i97pAGn8PQgXbCGC0dTTfu9VD+mg=;
+ b=w1kyapryeeqbtHUkJeH1kh6ETNC9Qlkx9wy4XwqZjwdSeQKHFpTTdUiqIVIf+tHcmi
+ 87IqZknFNgJKueZ2pO+b85yOhUq1/CyniVetTM3puQqjOiQB2Nh5ydZSdjdICaC0OxBe
+ EkWnIVjZmuzFgeth0wulNCk4TmtXYB16RasByg+qygRmwtPrU6C99pwmVaSVUpv3GwK7
+ m8H+Es6ica9xKQw/2kGSoxyxCR12Zc0nu/DpvKMGNqhu5GRJPqTt3DbMSA1Z2Gl7uoXK
+ nwMeYyL9HlPYHrdrRtRgXJAl4U++kp/+OVQuOHUm5wZDqRM9tl59gOd4ifHkTZP3yxF0
+ ExPQ==
+X-Gm-Message-State: AOJu0YzOLITD5O+ioIQKTziyXRD+Crrh9qjm9/gc8iyKNw8B+YTOmhE/
+ L71AEzOxbb5KVVH4n1WTNrkn/PlQe0b+hv7+VjKU6mawh+Lg0x0kLSbSNq23Mvxgzvx+zHnkTiw
+ tpgz4w35etv4j11F4bhtxr/ICHUEo4Nu2mqSpnsyLBw==
+X-Received: by 2002:a0c:f491:0:b0:668:e6f7:3d42 with SMTP id
+ i17-20020a0cf491000000b00668e6f73d42mr12913qvm.9.1696434495044; 
+ Wed, 04 Oct 2023 08:48:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEFzQg9/PAKTUXYSmajg5mVR3ruDmI4lIW/Vdt72+UPy2wHO49ln/xAqowD3iY3Bl4a21lIzw==
+X-Received: by 2002:a0c:f491:0:b0:668:e6f7:3d42 with SMTP id
+ i17-20020a0cf491000000b00668e6f73d42mr12884qvm.9.1696434494754; 
+ Wed, 04 Oct 2023 08:48:14 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-57-51-114.retail.telecomitalia.it.
  [82.57.51.114]) by smtp.gmail.com with ESMTPSA id
- o3-20020a0ccb03000000b0064f4ac061b0sm1414263qvk.12.2023.10.04.08.45.09
+ op52-20020a05620a537400b0076d9e298928sm1349795qkn.66.2023.10.04.08.48.12
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 04 Oct 2023 08:45:11 -0700 (PDT)
-Date: Wed, 4 Oct 2023 17:45:06 +0200
+ Wed, 04 Oct 2023 08:48:14 -0700 (PDT)
+Date: Wed, 4 Oct 2023 17:48:10 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Subject: Re: [PATCH net-next v2 11/12] test/vsock: MSG_ZEROCOPY support for
- vsock_perf
-Message-ID: <s5ofd3qomvc6dd7kyo675cyit6u4goehukoq5mkwa2hqsg3bzb@4v46dm7dpuye>
+Subject: Re: [PATCH net-next v2 12/12] test/vsock: io_uring rx/tx tests
+Message-ID: <ycm437ztyvh4kch3loje5wsx4rvip5zgeppexhvdd2afkngofo@re24nrfczp47>
 References: <20230930210308.2394919-1-avkrasnov@salutedevices.com>
- <20230930210308.2394919-12-avkrasnov@salutedevices.com>
+ <20230930210308.2394919-13-avkrasnov@salutedevices.com>
 MIME-Version: 1.0
-In-Reply-To: <20230930210308.2394919-12-avkrasnov@salutedevices.com>
+In-Reply-To: <20230930210308.2394919-13-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -128,264 +127,382 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 01, 2023 at 12:03:07AM +0300, Arseniy Krasnov wrote:
->To use this option pass '--zc' parameter:
-
---zerocopy would be better IMHO
-
->
->./vsock_perf --zc --sender <cid> --port <port> --bytes <bytes to send>
->
->With this option MSG_ZEROCOPY flag will be passed to the 'send()' call.
+On Sun, Oct 01, 2023 at 12:03:08AM +0300, Arseniy Krasnov wrote:
+>This adds set of tests which use io_uring for rx/tx. This test suite is
+>implemented as separated util like 'vsock_test' and has the same set of
+>input arguments as 'vsock_test'. These tests only cover cases of data
+>transmission (no connect/bind/accept etc).
 >
 >Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 >---
-> tools/testing/vsock/vsock_perf.c | 143 +++++++++++++++++++++++++++++--
-> 1 file changed, 134 insertions(+), 9 deletions(-)
+> Changelog:
+> v1 -> v2:
+>  * Add 'LDLIBS = -luring' to the target 'vsock_uring_test'.
+>  * Add 'vsock_uring_test' to the target 'test'.
 >
->diff --git a/tools/testing/vsock/vsock_perf.c b/tools/testing/vsock/vsock_perf.c
->index a72520338f84..f0f183f3f9e8 100644
->--- a/tools/testing/vsock/vsock_perf.c
->+++ b/tools/testing/vsock/vsock_perf.c
->@@ -18,6 +18,8 @@
-> #include <poll.h>
-> #include <sys/socket.h>
-> #include <linux/vm_sockets.h>
+> tools/testing/vsock/Makefile           |   7 +-
+> tools/testing/vsock/vsock_uring_test.c | 321 +++++++++++++++++++++++++
+> 2 files changed, 326 insertions(+), 2 deletions(-)
+> create mode 100644 tools/testing/vsock/vsock_uring_test.c
+>
+>diff --git a/tools/testing/vsock/Makefile b/tools/testing/vsock/Makefile
+>index 1a26f60a596c..b80e7c7def1e 100644
+>--- a/tools/testing/vsock/Makefile
+>+++ b/tools/testing/vsock/Makefile
+>@@ -1,12 +1,15 @@
+> # SPDX-License-Identifier: GPL-2.0-only
+> all: test vsock_perf
+>-test: vsock_test vsock_diag_test
+>+test: vsock_test vsock_diag_test vsock_uring_test
+> vsock_test: vsock_test.o vsock_test_zerocopy.o timeout.o control.o util.o
+> vsock_diag_test: vsock_diag_test.o timeout.o control.o util.o
+> vsock_perf: vsock_perf.o
+>
+>+vsock_uring_test: LDLIBS = -luring
+>+vsock_uring_test: control.o util.o vsock_uring_test.o timeout.o
+>+
+> CFLAGS += -g -O2 -Werror -Wall -I. -I../../include -I../../../usr/include -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -D_GNU_SOURCE
+> .PHONY: all test clean
+> clean:
+>-	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf
+>+	${RM} *.o *.d vsock_test vsock_diag_test vsock_perf vsock_uring_test
+> -include *.d
+>diff --git a/tools/testing/vsock/vsock_uring_test.c b/tools/testing/vsock/vsock_uring_test.c
+>new file mode 100644
+>index 000000000000..725895350697
+>--- /dev/null
+>+++ b/tools/testing/vsock/vsock_uring_test.c
+>@@ -0,0 +1,321 @@
+>+// SPDX-License-Identifier: GPL-2.0-only
+>+/* io_uring tests for vsock
+>+ *
+>+ * Copyright (C) 2023 SberDevices.
+>+ *
+>+ * Author: Arseniy Krasnov <avkrasnov@salutedevices.com>
+>+ */
+>+
+>+#include <getopt.h>
+>+#include <stdio.h>
+>+#include <stdlib.h>
+>+#include <string.h>
+>+#include <liburing.h>
+>+#include <unistd.h>
 >+#include <sys/mman.h>
->+#include <linux/errqueue.h>
->
-> #define DEFAULT_BUF_SIZE_BYTES	(128 * 1024)
-> #define DEFAULT_TO_SEND_BYTES	(64 * 1024)
->@@ -28,9 +30,18 @@
-> #define BYTES_PER_GB		(1024 * 1024 * 1024ULL)
-> #define NSEC_PER_SEC		(1000000000ULL)
->
->+#ifndef SOL_VSOCK
->+#define SOL_VSOCK	287
->+#endif
+>+#include <linux/kernel.h>
+>+#include <error.h>
 >+
->+#ifndef VSOCK_RECVERR
->+#define VSOCK_RECVERR	1
->+#endif
+>+#include "util.h"
+>+#include "control.h"
 >+
-> static unsigned int port = DEFAULT_PORT;
-> static unsigned long buf_size_bytes = DEFAULT_BUF_SIZE_BYTES;
-> static unsigned long vsock_buf_bytes = DEFAULT_VSOCK_BUF_BYTES;
->+static bool zerocopy;
->
-> static void error(const char *s)
-> {
->@@ -247,15 +258,76 @@ static void run_receiver(unsigned long rcvlowat_bytes)
-> 	close(fd);
-> }
->
->+static void recv_completion(int fd)
->+{
->+	struct sock_extended_err *serr;
->+	char cmsg_data[128];
->+	struct cmsghdr *cm;
->+	struct msghdr msg = { 0 };
->+	ssize_t ret;
+>+#define PAGE_SIZE		4096
+>+#define RING_ENTRIES_NUM	4
 >+
->+	msg.msg_control = cmsg_data;
->+	msg.msg_controllen = sizeof(cmsg_data);
->+
->+	ret = recvmsg(fd, &msg, MSG_ERRQUEUE);
->+	if (ret) {
->+		fprintf(stderr, "recvmsg: failed to read err: %zi\n", ret);
->+		return;
->+	}
->+
->+	cm = CMSG_FIRSTHDR(&msg);
->+	if (!cm) {
->+		fprintf(stderr, "cmsg: no cmsg\n");
->+		return;
->+	}
->+
->+	if (cm->cmsg_level != SOL_VSOCK) {
->+		fprintf(stderr, "cmsg: unexpected 'cmsg_level'\n");
->+		return;
->+	}
->+
->+	if (cm->cmsg_type != VSOCK_RECVERR) {
->+		fprintf(stderr, "cmsg: unexpected 'cmsg_type'\n");
->+		return;
->+	}
->+
->+	serr = (void *)CMSG_DATA(cm);
->+	if (serr->ee_origin != SO_EE_ORIGIN_ZEROCOPY) {
->+		fprintf(stderr, "serr: wrong origin\n");
->+		return;
->+	}
->+
->+	if (serr->ee_errno) {
->+		fprintf(stderr, "serr: wrong error code\n");
->+		return;
->+	}
->+
->+	if (zerocopy && (serr->ee_code & SO_EE_CODE_ZEROCOPY_COPIED))
->+		fprintf(stderr, "warning: copy instead of zerocopy\n");
->+}
->+
->+static void enable_so_zerocopy(int fd)
->+{
->+	int val = 1;
->+
->+	if (setsockopt(fd, SOL_SOCKET, SO_ZEROCOPY, &val, sizeof(val)))
->+		error("setsockopt(SO_ZEROCOPY)");
->+}
+>+static struct vsock_test_data test_data_array[] = {
 
-We use enable_so_zerocopy() in a single place, maybe we can put this
-code there.
+Ah, I see vsock_test_data is used here, but we are using a subset
+of fields that are not exposed outside of this file.
 
-Anyway it seems we are copy & paste some codes from util, etc.
+So, let's define a custom struct in this file for this
+(e.g. struct vsock_io_uring_tests)
 
-Would make sense create a new header to use on both tests and perf?
+The rest LGTM!
 
-
->+
-> static void run_sender(int peer_cid, unsigned long to_send_bytes)
-> {
-> 	time_t tx_begin_ns;
-> 	time_t tx_total_ns;
-> 	size_t total_send;
->+	time_t time_in_send;
-> 	void *data;
-> 	int fd;
->
->-	printf("Run as sender\n");
->+	if (zerocopy)
->+		printf("Run as sender MSG_ZEROCOPY\n");
->+	else
->+		printf("Run as sender\n");
->+
-> 	printf("Connect to %i:%u\n", peer_cid, port);
-> 	printf("Send %lu bytes\n", to_send_bytes);
-> 	printf("TX buffer %lu bytes\n", buf_size_bytes);
->@@ -265,38 +337,82 @@ static void run_sender(int peer_cid, unsigned long to_send_bytes)
-> 	if (fd < 0)
-> 		exit(EXIT_FAILURE);
->
->-	data = malloc(buf_size_bytes);
->+	if (zerocopy) {
->+		enable_so_zerocopy(fd);
->
->-	if (!data) {
->-		fprintf(stderr, "'malloc()' failed\n");
->-		exit(EXIT_FAILURE);
->+		data = mmap(NULL, buf_size_bytes, PROT_READ | PROT_WRITE,
->+			    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
->+		if (data == MAP_FAILED) {
->+			perror("mmap");
->+			exit(EXIT_FAILURE);
->+		}
->+	} else {
->+		data = malloc(buf_size_bytes);
->+
->+		if (!data) {
->+			fprintf(stderr, "'malloc()' failed\n");
->+			exit(EXIT_FAILURE);
->+		}
-> 	}
->
-> 	memset(data, 0, buf_size_bytes);
-> 	total_send = 0;
->+	time_in_send = 0;
-> 	tx_begin_ns = current_nsec();
->
-> 	while (total_send < to_send_bytes) {
-> 		ssize_t sent;
->+		size_t rest_bytes;
->+		time_t before;
->
->-		sent = write(fd, data, buf_size_bytes);
->+		rest_bytes = to_send_bytes - total_send;
->+
->+		before = current_nsec();
->+		sent = send(fd, data, (rest_bytes > buf_size_bytes) ?
->+			    buf_size_bytes : rest_bytes,
->+			    zerocopy ? MSG_ZEROCOPY : 0);
->+		time_in_send += (current_nsec() - before);
->
-> 		if (sent <= 0)
-> 			error("write");
->
-> 		total_send += sent;
->+
->+		if (zerocopy) {
->+			struct pollfd fds = { 0 };
->+
->+			fds.fd = fd;
->+
->+			if (poll(&fds, 1, -1) < 0) {
->+				perror("poll");
->+				exit(EXIT_FAILURE);
->+			}
->+
->+			if (!(fds.revents & POLLERR)) {
->+				fprintf(stderr, "POLLERR expected\n");
->+				exit(EXIT_FAILURE);
->+			}
->+
->+			recv_completion(fd);
->+		}
-> 	}
->
-> 	tx_total_ns = current_nsec() - tx_begin_ns;
->
-> 	printf("total bytes sent: %zu\n", total_send);
-> 	printf("tx performance: %f Gbits/s\n",
->-	       get_gbps(total_send * 8, tx_total_ns));
->-	printf("total time in 'write()': %f sec\n",
->+	       get_gbps(total_send * 8, time_in_send));
->+	printf("total time in tx loop: %f sec\n",
-> 	       (float)tx_total_ns / NSEC_PER_SEC);
->+	printf("time in 'send()': %f sec\n",
->+	       (float)time_in_send / NSEC_PER_SEC);
->
-> 	close(fd);
->-	free(data);
->+
->+	if (zerocopy)
->+		munmap(data, buf_size_bytes);
->+	else
->+		free(data);
-> }
->
-> static const char optstring[] = "";
->@@ -336,6 +452,11 @@ static const struct option longopts[] = {
-> 		.has_arg = required_argument,
-> 		.val = 'R',
-> 	},
+>+	/* All elements have page aligned base and size. */
 >+	{
->+		.name = "zc",
->+		.has_arg = no_argument,
->+		.val = 'Z',
+>+		.vecs_cnt = 3,
+>+		{
+>+			{ NULL, PAGE_SIZE },
+>+			{ NULL, 2 * PAGE_SIZE },
+>+			{ NULL, 3 * PAGE_SIZE },
+>+		}
 >+	},
-> 	{},
-> };
->
->@@ -351,6 +472,7 @@ static void usage(void)
-> 	       "  --help			This message\n"
-> 	       "  --sender   <cid>		Sender mode (receiver default)\n"
-> 	       "                                <cid> of the receiver to connect to\n"
->+	       "  --zc				Enable zerocopy\n"
-
-Should we specify that this is used only in the sender?
-
-> 	       "  --port     <port>		Port (default %d)\n"
-> 	       "  --bytes    <bytes>KMG		Bytes to send (default %d)\n"
-> 	       "  --buf-size <bytes>KMG		Data buffer size (default %d). In sender mode\n"
->@@ -413,6 +535,9 @@ int main(int argc, char **argv)
-> 		case 'H': /* Help. */
-> 			usage();
-> 			break;
->+		case 'Z': /* Zerocopy. */
->+			zerocopy = true;
+>+	/* Middle element has both non-page aligned base and size. */
+>+	{
+>+		.vecs_cnt = 3,
+>+		{
+>+			{ NULL, PAGE_SIZE },
+>+			{ (void *)1, 200  },
+>+			{ NULL, 3 * PAGE_SIZE },
+>+		}
+>+	}
+>+};
+>+
+>+static void vsock_io_uring_client(const struct test_opts *opts,
+>+				  const struct vsock_test_data *test_data,
+>+				  bool msg_zerocopy)
+>+{
+>+	struct io_uring_sqe *sqe;
+>+	struct io_uring_cqe *cqe;
+>+	struct io_uring ring;
+>+	struct iovec *iovec;
+>+	struct msghdr msg;
+>+	int fd;
+>+
+>+	fd = vsock_stream_connect(opts->peer_cid, 1234);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (msg_zerocopy)
+>+		enable_so_zerocopy(fd);
+>+
+>+	iovec = iovec_from_test_data(test_data);
+>+
+>+	if (io_uring_queue_init(RING_ENTRIES_NUM, &ring, 0))
+>+		error(1, errno, "io_uring_queue_init");
+>+
+>+	if (io_uring_register_buffers(&ring, iovec, test_data->vecs_cnt))
+>+		error(1, errno, "io_uring_register_buffers");
+>+
+>+	memset(&msg, 0, sizeof(msg));
+>+	msg.msg_iov = iovec;
+>+	msg.msg_iovlen = test_data->vecs_cnt;
+>+	sqe = io_uring_get_sqe(&ring);
+>+
+>+	if (msg_zerocopy)
+>+		io_uring_prep_sendmsg_zc(sqe, fd, &msg, 0);
+>+	else
+>+		io_uring_prep_sendmsg(sqe, fd, &msg, 0);
+>+
+>+	if (io_uring_submit(&ring) != 1)
+>+		error(1, errno, "io_uring_submit");
+>+
+>+	if (io_uring_wait_cqe(&ring, &cqe))
+>+		error(1, errno, "io_uring_wait_cqe");
+>+
+>+	io_uring_cqe_seen(&ring, cqe);
+>+
+>+	control_writeulong(iovec_hash_djb2(iovec, test_data->vecs_cnt));
+>+
+>+	control_writeln("DONE");
+>+	io_uring_queue_exit(&ring);
+>+	free_iovec_test_data(test_data, iovec);
+>+	close(fd);
+>+}
+>+
+>+static void vsock_io_uring_server(const struct test_opts *opts,
+>+				  const struct vsock_test_data *test_data)
+>+{
+>+	unsigned long remote_hash;
+>+	unsigned long local_hash;
+>+	struct io_uring_sqe *sqe;
+>+	struct io_uring_cqe *cqe;
+>+	struct io_uring ring;
+>+	struct iovec iovec;
+>+	size_t data_len;
+>+	void *data;
+>+	int fd;
+>+
+>+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	data_len = iovec_bytes(test_data->vecs, test_data->vecs_cnt);
+>+
+>+	data = malloc(data_len);
+>+	if (!data) {
+>+		perror("malloc");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (io_uring_queue_init(RING_ENTRIES_NUM, &ring, 0))
+>+		error(1, errno, "io_uring_queue_init");
+>+
+>+	sqe = io_uring_get_sqe(&ring);
+>+	iovec.iov_base = data;
+>+	iovec.iov_len = data_len;
+>+
+>+	io_uring_prep_readv(sqe, fd, &iovec, 1, 0);
+>+
+>+	if (io_uring_submit(&ring) != 1)
+>+		error(1, errno, "io_uring_submit");
+>+
+>+	if (io_uring_wait_cqe(&ring, &cqe))
+>+		error(1, errno, "io_uring_wait_cqe");
+>+
+>+	if (cqe->res != data_len) {
+>+		fprintf(stderr, "expected %zu, got %u\n", data_len,
+>+			cqe->res);
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	local_hash = hash_djb2(data, data_len);
+>+
+>+	remote_hash = control_readulong();
+>+	if (remote_hash != local_hash) {
+>+		fprintf(stderr, "hash mismatch\n");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_expectln("DONE");
+>+	io_uring_queue_exit(&ring);
+>+	free(data);
+>+}
+>+
+>+void test_stream_uring_server(const struct test_opts *opts)
+>+{
+>+	int i;
+>+
+>+	for (i = 0; i < ARRAY_SIZE(test_data_array); i++)
+>+		vsock_io_uring_server(opts, &test_data_array[i]);
+>+}
+>+
+>+void test_stream_uring_client(const struct test_opts *opts)
+>+{
+>+	int i;
+>+
+>+	for (i = 0; i < ARRAY_SIZE(test_data_array); i++)
+>+		vsock_io_uring_client(opts, &test_data_array[i], false);
+>+}
+>+
+>+void test_stream_uring_msg_zc_server(const struct test_opts *opts)
+>+{
+>+	int i;
+>+
+>+	for (i = 0; i < ARRAY_SIZE(test_data_array); i++)
+>+		vsock_io_uring_server(opts, &test_data_array[i]);
+>+}
+>+
+>+void test_stream_uring_msg_zc_client(const struct test_opts *opts)
+>+{
+>+	int i;
+>+
+>+	for (i = 0; i < ARRAY_SIZE(test_data_array); i++)
+>+		vsock_io_uring_client(opts, &test_data_array[i], true);
+>+}
+>+
+>+static struct test_case test_cases[] = {
+>+	{
+>+		.name = "SOCK_STREAM io_uring test",
+>+		.run_server = test_stream_uring_server,
+>+		.run_client = test_stream_uring_client,
+>+	},
+>+	{
+>+		.name = "SOCK_STREAM io_uring MSG_ZEROCOPY test",
+>+		.run_server = test_stream_uring_msg_zc_server,
+>+		.run_client = test_stream_uring_msg_zc_client,
+>+	},
+>+	{},
+>+};
+>+
+>+static const char optstring[] = "";
+>+static const struct option longopts[] = {
+>+	{
+>+		.name = "control-host",
+>+		.has_arg = required_argument,
+>+		.val = 'H',
+>+	},
+>+	{
+>+		.name = "control-port",
+>+		.has_arg = required_argument,
+>+		.val = 'P',
+>+	},
+>+	{
+>+		.name = "mode",
+>+		.has_arg = required_argument,
+>+		.val = 'm',
+>+	},
+>+	{
+>+		.name = "peer-cid",
+>+		.has_arg = required_argument,
+>+		.val = 'p',
+>+	},
+>+	{
+>+		.name = "help",
+>+		.has_arg = no_argument,
+>+		.val = '?',
+>+	},
+>+	{},
+>+};
+>+
+>+static void usage(void)
+>+{
+>+	fprintf(stderr, "Usage: vsock_uring_test [--help] [--control-host=<host>] --control-port=<port> --mode=client|server --peer-cid=<cid>\n"
+>+		"\n"
+>+		"  Server: vsock_uring_test --control-port=1234 --mode=server --peer-cid=3\n"
+>+		"  Client: vsock_uring_test --control-host=192.168.0.1 --control-port=1234 --mode=client --peer-cid=2\n"
+>+		"\n"
+>+		"Run transmission tests using io_uring. Usage is the same as\n"
+>+		"in ./vsock_test\n"
+>+		"\n"
+>+		"Options:\n"
+>+		"  --help                 This help message\n"
+>+		"  --control-host <host>  Server IP address to connect to\n"
+>+		"  --control-port <port>  Server port to listen on/connect to\n"
+>+		"  --mode client|server   Server or client mode\n"
+>+		"  --peer-cid <cid>       CID of the other side\n"
+>+		);
+>+	exit(EXIT_FAILURE);
+>+}
+>+
+>+int main(int argc, char **argv)
+>+{
+>+	const char *control_host = NULL;
+>+	const char *control_port = NULL;
+>+	struct test_opts opts = {
+>+		.mode = TEST_MODE_UNSET,
+>+		.peer_cid = VMADDR_CID_ANY,
+>+	};
+>+
+>+	init_signals();
+>+
+>+	for (;;) {
+>+		int opt = getopt_long(argc, argv, optstring, longopts, NULL);
+>+
+>+		if (opt == -1)
 >+			break;
-> 		default:
-> 			usage();
-> 		}
+>+
+>+		switch (opt) {
+>+		case 'H':
+>+			control_host = optarg;
+>+			break;
+>+		case 'm':
+>+			if (strcmp(optarg, "client") == 0) {
+>+				opts.mode = TEST_MODE_CLIENT;
+>+			} else if (strcmp(optarg, "server") == 0) {
+>+				opts.mode = TEST_MODE_SERVER;
+>+			} else {
+>+				fprintf(stderr, "--mode must be \"client\" or \"server\"\n");
+>+				return EXIT_FAILURE;
+>+			}
+>+			break;
+>+		case 'p':
+>+			opts.peer_cid = parse_cid(optarg);
+>+			break;
+>+		case 'P':
+>+			control_port = optarg;
+>+			break;
+>+		case '?':
+>+		default:
+>+			usage();
+>+		}
+>+	}
+>+
+>+	if (!control_port)
+>+		usage();
+>+	if (opts.mode == TEST_MODE_UNSET)
+>+		usage();
+>+	if (opts.peer_cid == VMADDR_CID_ANY)
+>+		usage();
+>+
+>+	if (!control_host) {
+>+		if (opts.mode != TEST_MODE_SERVER)
+>+			usage();
+>+		control_host = "0.0.0.0";
+>+	}
+>+
+>+	control_init(control_host, control_port,
+>+		     opts.mode == TEST_MODE_SERVER);
+>+
+>+	run_tests(test_cases, &opts);
+>+
+>+	control_cleanup();
+>+
+>+	return 0;
+>+}
 >-- 
 >2.25.1
 >
