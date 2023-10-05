@@ -4,119 +4,159 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B45B8E9272A
-	for <virtualization@archiver.kernel.org>; Thu,  5 Oct 2023 19:18:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A547E92731
+	for <virtualization@archiver.kernel.org>; Thu,  5 Oct 2023 19:35:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2E79240A47;
-	Thu,  5 Oct 2023 19:18:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E79240A47
+	by smtp2.osuosl.org (Postfix) with ESMTP id 871F8415AA;
+	Thu,  5 Oct 2023 19:35:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 871F8415AA
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E1DYS1c/
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=RA1KXcFc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uFf-CRAja1Nn; Thu,  5 Oct 2023 19:18:40 +0000 (UTC)
+	with ESMTP id YvzkAs3QIH7d; Thu,  5 Oct 2023 19:35:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9D0CF40280;
-	Thu,  5 Oct 2023 19:18:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9D0CF40280
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0902740280;
+	Thu,  5 Oct 2023 19:35:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0902740280
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 86654C0039;
-	Thu,  5 Oct 2023 19:18:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CB02BC0039;
+	Thu,  5 Oct 2023 19:35:48 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6D545C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A50B7C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 19:18:38 +0000 (UTC)
+ Thu,  5 Oct 2023 19:35:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 46FD541FF1
+ by smtp4.osuosl.org (Postfix) with ESMTP id 69BA942206
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 19:18:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 46FD541FF1
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=E1DYS1c/
+ Thu,  5 Oct 2023 19:35:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 69BA942206
+Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=RA1KXcFc
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 41FdY3qSL6bQ
+ with ESMTP id VO2aIgmM_G9y
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 19:18:36 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0C5A641E7A
+ Thu,  5 Oct 2023 19:35:46 +0000 (UTC)
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam12on20623.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe59::623])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id AA32042163
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 19:18:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0C5A641E7A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1696533515;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=2R8nvS1fGysVMS5a70TnQ+euq+3ceDHbf0f2W4kS2b4=;
- b=E1DYS1c/Vb5lNUwW4K3kNTESufFV8GfqCa7asZgeG+C8zEe2n31TbUpIS0wd6IbAkBySWS
- /L+jIYf7XTOpvjXtjataBoLlc09qjmYS+Txj/o9vcOXkWcfa2g2g7eBFo71ZW4W8zArdD7
- Ao/cDj1FZFGLr7ua5+pTiZyJgudQbGQ=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-614-HCRIAI0IPKart0u0RaJerg-1; Thu, 05 Oct 2023 15:18:31 -0400
-X-MC-Unique: HCRIAI0IPKart0u0RaJerg-1
-Received: by mail-wr1-f71.google.com with SMTP id
- ffacd0b85a97d-30e3ee8a42eso1051811f8f.1
- for <virtualization@lists.linux-foundation.org>;
- Thu, 05 Oct 2023 12:18:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1696533510; x=1697138310;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=2R8nvS1fGysVMS5a70TnQ+euq+3ceDHbf0f2W4kS2b4=;
- b=Cot912glapWl78NfvKq6aCRSDLqHWBTC47nppmwEEAc/tN0H4y/el5nQndSguqXsb6
- JCR9d5xi0JiHyt4vxO43g1tpCXA6kh1wCMJUnYS3D+hsMmB1Yoj8SM6bFp9U9eOhKkas
- NwJ1FlmZRrz1tyVGiyWhRDz3rVVnEs02zAaCTJ9pWq6eZ9dSCt/yxWE8gkUQQyDSV1yG
- zlVqL25CNa30I4r3850bxYcSbxQt70fuAChtGiR+u6Td2nc8qZ61AVEj/5OECcwKSbFw
- k/vc9MOKbxt4V020zF96P/1yxDxC/Qu8JR3PcbwaccOF22lMa+UKtUN4B4yIRy3jEkCd
- 8O/Q==
-X-Gm-Message-State: AOJu0YyNWeTq72HVpBE3EJBLvOeBAohsyx9mLVh4O/Q7wFsCuj2gcoPa
- N5wQacyU9TY63jePcB1LggnAZg/A8Sp42RkBpaAhGNoRwwa3AB9mBG0RNGxEexxiieKm3e8RCQQ
- DmJ/1iLvcXCw7r5I5jMRBySx/6N9BTzPxvhUoFvDIAA==
-X-Received: by 2002:a5d:58c2:0:b0:319:7a9f:c63 with SMTP id
- o2-20020a5d58c2000000b003197a9f0c63mr5707829wrf.50.1696533510571; 
- Thu, 05 Oct 2023 12:18:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEJSoSJCYUxP/9cvc2Te2pM2upBQSmDoYt/HKnGitt6LjIRBQVlh0qAuXtMDSL56hXqGRauRg==
-X-Received: by 2002:a5d:58c2:0:b0:319:7a9f:c63 with SMTP id
- o2-20020a5d58c2000000b003197a9f0c63mr5707810wrf.50.1696533510205; 
- Thu, 05 Oct 2023 12:18:30 -0700 (PDT)
-Received: from redhat.com ([2.52.3.174]) by smtp.gmail.com with ESMTPSA id
- e1-20020adffc41000000b003267b4692e5sm2421018wrs.19.2023.10.05.12.18.27
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 05 Oct 2023 12:18:28 -0700 (PDT)
-Date: Thu, 5 Oct 2023 15:18:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Subject: Re: [PATCH vhost v2 00/16] vdpa: Add support for vq descriptor
- mappings
-Message-ID: <20231005151812-mutt-send-email-mst@kernel.org>
-References: <20230928164550.980832-2-dtatulea@nvidia.com>
- <20231005133054-mutt-send-email-mst@kernel.org>
- <9dfa552011c20a58d8550bd794977de821212df4.camel@nvidia.com>
+ Thu,  5 Oct 2023 19:35:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AA32042163
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZKAodqFyc484VSKKdNf7LFOxHtZ0GG4bz32n2Kf9peU1cM8b+cGkABJrRqku3rCWt+mc9PO4DOthutPeehR/Ya1EEzL1vtV/sRQv0xxsb5/OwaAQcUcrPpUfJjxuTEYBQiW1BRt2KIYqvXg4AxjmtYHJodOwXANIhW//L78bpWASMw+NbISlpNY5CkFVPvLiR4SxtJV9lnFPZR4tm5MidrQmK/rlaVoIhViLvCx6ZGXlVUUDGThW5ZgnL7cQvRWXggLPjjSfGYrDOOiFSUessOxmonqF06lxxWwLJP4khOgJymfIoNj7sTw8xSU7bhl+71tF6qQJyye1Z9zWRb3rJg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=xghBELYAjpDis2PtPUbXCIj9Gx2BK7QPaWIBxOX+J9s=;
+ b=Mune3fW/RpXpONt+jRWZLYSwnHqyYlYOHir0O/0OQ/P8qqSNRn4mzWOPEst5KhG0QLnTPdXIhE1SaytYOtxhs6n0NY4Z5lUgHwnXZxjZU81U30S7DnNl/j1C96P2Y9DkWt8SCQCyAJvdIptpDA3IXFpFjePC5/c5m4gwblkF4LqhZd/ZtgYMop+4RUIOhDb5cmMa+Y1XydoypOEHfHSdA0ZzNI3+MCOkD2oTTbxN/fz+Bk+EVS5y1K1nKL1vNiTYGuB+1xm0l3XMG+zBL60QWhjENr2R26N7nw5RSnhezg1KJqvFfBKza1EJZXgcUVGQcXTfbs1SWqLWXlurIxWPPA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xghBELYAjpDis2PtPUbXCIj9Gx2BK7QPaWIBxOX+J9s=;
+ b=RA1KXcFc1qcs3lczpBk/p1HinqzdRHxLowkU16lS5KylDt9wep/5WpJXTZnb3UeDKNcCS9G7t6GSft4R/ypLmPccGiVopoBOnGw9TM71oq3qx57hog5zpn21kPALo5SssY2KhZxXHxkmGuUzesUnIBeOdfqQpi97LbiuRwOzckMI1zycyIf6vUdHXl2Mux841JQ8FsXt30x+YDF7A5md/HY7YlAVEhWelx0Xe1oZSC0ARn82w2+DaRxRquo4EjbsGQ7aYpke9WTAj1p7FsuNpvFa4Qs3Ps7dfn90GeQySx8v9b85awcS2v3pSNMKzPK1xihBnmpbZrsg9zmu1bbiRA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com (2603:10b6:930:26::16)
+ by SN7PR12MB7249.namprd12.prod.outlook.com (2603:10b6:806:2a9::15)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.34; Thu, 5 Oct
+ 2023 19:35:43 +0000
+Received: from CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082]) by CY5PR12MB6201.namprd12.prod.outlook.com
+ ([fe80::8bbf:3b92:2607:4082%5]) with mapi id 15.20.6838.033; Thu, 5 Oct 2023
+ 19:35:42 +0000
+Message-ID: <4d025b89-fa7a-df4b-37d0-96814a2d2bcb@nvidia.com>
+Date: Thu, 5 Oct 2023 15:35:39 -0400
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.9.0
+Subject: Re: [PATCH net-next v4 2/2] virtio-net: add cond_resched() to the
+ command waiting loop
+To: Jason Wang <jasowang@redhat.com>
+References: <20230720083839.481487-1-jasowang@redhat.com>
+ <20230720083839.481487-3-jasowang@redhat.com>
+ <e4eb0162-d303-b17c-a71d-ca3929380b31@amd.com>
+ <20230720170001-mutt-send-email-mst@kernel.org>
+ <263a5ad7-1189-3be3-70de-c38a685bebe0@redhat.com>
+ <20230721104445-mutt-send-email-mst@kernel.org>
+ <6278a4aa-8901-b0e3-342f-5753a4bf32af@redhat.com>
+ <20230721110925-mutt-send-email-mst@kernel.org>
+ <e3490755-35ac-89b4-b0fa-b63720a9a5c9@redhat.com>
+ <20230723053441-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20230723053441-mutt-send-email-mst@kernel.org>
+X-ClientProxiedBy: SN6PR05CA0015.namprd05.prod.outlook.com
+ (2603:10b6:805:de::28) To CY5PR12MB6201.namprd12.prod.outlook.com
+ (2603:10b6:930:26::16)
 MIME-Version: 1.0
-In-Reply-To: <9dfa552011c20a58d8550bd794977de821212df4.camel@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "leon@kernel.org" <leon@kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- Gal Pressman <gal@nvidia.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- Saeed Mahameed <saeedm@nvidia.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY5PR12MB6201:EE_|SN7PR12MB7249:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9291253b-07f1-41c2-ed5c-08dbc5da436c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: t2RyMrc29EMSUxlqWdlOvDGIlPfGfCxmjJrDQjW0E4SUgEfQ6YZo+WwTThtvSTbAJv2Z4naSDRX+hGTcw8wh040TxBm83OhwMLQHb9FHfRWgf7onkh84cEvH2ZYgT5lHwAmaqZt4hWzLYsSrER9nZ7zbXW/pM5PF3NHgE05OA+u/mf2ymP8tukYW7wHBjsUulNeIk7BgLcfIsoHRsGKC253xKk0ezsQtvRkt3dfCmyddXewfqHWmQFAvU3Qk3LJhIxilVLEMZn9XRg8dgwxYaKYPKEOpqcVwbmI1x1sy/tsOe9J2v/q1kWPEsd49/0ef58uAF2YRRI8ei8x1cHEw9glNy7Pa24VGjpTDVQLtS7pbsAaoJqYbq05uVtJjUCilkXICFKaxxDhgnAejsMPoX8Hd1cvBE89gv+EmDSk5VK760HWUeT55tr1RI/AGPDWFC9Nf9pLE5cD4UXPpSiLJQGStfF0qyxer8jAAHjODFaCSNnOLeeQUm/L3OG94Th8chHW85z3rxvzkNQx0sjAAkbOApG/01JZt3RONVqmFmwuUOi46mh+kt64llvbQbPYvLd8LdlzfRFs37jtfH3oHzg7fvZXsyuAmmW8lCQkSu03KepQl6YtLs9KMjT8cfmOd5Z1GcSpeLXoLWBDWNDdha1FZvs6DZFecd/rb7dtEPDanX2QNna0CfIFEJ9uO/0wo
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:CY5PR12MB6201.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(376002)(396003)(136003)(39860400002)(366004)(346002)(230922051799003)(451199024)(64100799003)(186009)(1800799009)(41300700001)(8676002)(4326008)(26005)(478600001)(6486002)(966005)(8936002)(107886003)(66476007)(316002)(66946007)(2616005)(53546011)(6512007)(6506007)(6916009)(66556008)(5660300002)(83380400001)(38100700002)(6666004)(31686004)(2906002)(31696002)(86362001)(36756003)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bG9GSzhDRW5tTVpObjFUTTNyaHhwSk5nTXFvazZsTlB5WU9IZkMyejN6aEdq?=
+ =?utf-8?B?ZWsrZE15anF1dnFVcExTTExxRjY5N1ZxYzE4MzY2bEFLLzRWNjNlWnJ5R2tM?=
+ =?utf-8?B?SkFiTEdSSjhIZ0t1TnE3enB2V3hFK0ttZHg5cDN0TmlpekhhYUUyTVdJTTZB?=
+ =?utf-8?B?SVFVRzI0NFRPMXZxVkFUNnNQamdkcUNjeHRORWtSUzZwVnozUkNMQUdmWlc2?=
+ =?utf-8?B?OGhkRWZHcGpTeWhkRk55VVNBTXlYK3VpR1JuYjlrdGt5OEJJRzNhSW8xY2lY?=
+ =?utf-8?B?dDAxNVFjbGpQK3VLd0lMOFFRYnpLcWhMaElPMlAvbmFabExpalVBUFJkaEcz?=
+ =?utf-8?B?b3Fzbk1zREtyQjgwWFJralFLT1ZDOFNSWDdQYVgzbUt5MG9XV1NtRjRQeGpo?=
+ =?utf-8?B?cFZZR3V2WnpNWThYN1A5OXlaNEdnemg5OE5mRzZUQWljUklYb2xRaVVBQTBz?=
+ =?utf-8?B?S2VsVitMRVJOZVJFZWV6dmY3cTFTZFNZTytWdHBQcTI4aHY2RThoSEZSTXgv?=
+ =?utf-8?B?d0ZHdm1zM0pGRFYwUnlwQUJQYVE4R2JlNzAwL0oxdzFJaU1yQStUUXZwU0hE?=
+ =?utf-8?B?QU1Fc2hYcTkvMkEyMzJhVWprQVdrOE8zeWFJQWs3QS9tUUJRM1FhYll4Z01j?=
+ =?utf-8?B?U3MxRENOSXFCVmFiUGRYV1Z6OXJoV0E0aUN3aHQ5dmk4UGd0eGxSaGJacUMx?=
+ =?utf-8?B?RS9pUW81Q0thZ3k5RkwzZjMvYmhFTnFTdDFiT3BsL1NQRisyWFpzc2hKV3Jo?=
+ =?utf-8?B?U01zU2t1STAvSjFON1VkWExJN2xtSWl5OHkzVnQvR0c2SEpqN1h6cmw3NStG?=
+ =?utf-8?B?aVhEc0RrZ2xUaGpNSzNPUnlhaFdNSEFDWDcxUmRRbnBuc1p5UFBEVFEvclIx?=
+ =?utf-8?B?MkZCMnV0YWh1T3k0dHlYZzZTbm1VczlJU053bjhNM2F5bFlTVnFiYnRmcmJi?=
+ =?utf-8?B?ZzVjQVFYTkZlNVRHaDFjdCtlQk5TU2xqUi96SE5Va2R6Z0FxMGtoVXluczNM?=
+ =?utf-8?B?Z1JNQmJJbmYyQ2E2Z2pNNmQrN1g4cFpJNTlBdDQwYjVaT1c5YzJscEMwRmoz?=
+ =?utf-8?B?emI5WmlRMndBSG1MYWNBUnJ6ZWJBMkxBeEM5U2NwS3pwdzloK0VIdWdFVW1t?=
+ =?utf-8?B?Y2lHU3lTSFBBSnlQY2M2NGV6QTNjWWQ4RCtFVVhtSjhURjdVZ0FVbkZGc3ZO?=
+ =?utf-8?B?UHdBUS96OU16NEZxbCs1NU5hSFE1Rkt6TjkrZW40SG5LNkJsRjlPN2laczVz?=
+ =?utf-8?B?VFQxUGFLVW5FL0hMaFFESCs2Z3EwRVFERHo0c29wT0JndXpIelJucko1SnN1?=
+ =?utf-8?B?VHRoT0JMSmU3NW9DVmRaWDl6OHp3VS9DbnBGRldFU0dCTmk4bW53ZlZMVXNa?=
+ =?utf-8?B?eDd4cHhVZjlUYU4zUXZqRjlQWXF0bE5vaTdpMnIwRGs0VDFmMS9tb2ROZWli?=
+ =?utf-8?B?eHp0Ykp3NGVYamdUdXl0VFliQXRUMWY1ZkRGRy9iQklCakZ2UXkydkxVMGxy?=
+ =?utf-8?B?NGRJSkI5WG55UkNMY3VTbk90bnNjZGlmT2oydE4xdnBjRFdnMG1FWkd3TE05?=
+ =?utf-8?B?b0dOekI1WDUyNXB6aTJxNnZjd25YTzR4ckRIcG9rOVpNeXJnY1F2OXdvUTBL?=
+ =?utf-8?B?VVdodE1Gbk52QXpWdVJsK3lPMkpydUlyeHhZRGNJTnhaVXJPRW4zWFVZYSt6?=
+ =?utf-8?B?Y2lkOGpEUzRlZUt0Q1doSjV6SVBFbWNqS0JrcmhKbWcvY0JzMHBWbUJjVVRo?=
+ =?utf-8?B?NFBIZWpJQWZtcjFvaHlEd25QTmRIbWwzQ2RWYmx6WGN1SzBmaU90RTk4Skg4?=
+ =?utf-8?B?YnNubjRlZE1kT0NVUU5pZnhOT0RUSmpWQzVERmR4bjhpYUhOa3Z4UVMxZ2I3?=
+ =?utf-8?B?WHFXRUhmR2tlZDBkODM0M21nWmdrL3BHcE5wWXp0NjlBY3VJbWE5WFRUa1JI?=
+ =?utf-8?B?eHllMzdQU3FMYjBJVzZFTnJ1cWp3dFpQMDVreSt1aWpoOUhsZkZmTzdla2tO?=
+ =?utf-8?B?S3lOcEljTUdQRWh3L2FGNnQwcXdxRDZlVVFFaUFUQ05jMndPQWFMSWJ0blJv?=
+ =?utf-8?B?eExTQzF2TUgyV1JhcWhSSm5ZV1pFd0lCZTlRaW0vTjdSWTI5S3c2U2R0eElM?=
+ =?utf-8?Q?D+8oPd8tLBiCMCpjyZltZT6JH?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9291253b-07f1-41c2-ed5c-08dbc5da436c
+X-MS-Exchange-CrossTenant-AuthSource: CY5PR12MB6201.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2023 19:35:42.9520 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LNdG2fPL130YTEC5tclus1JfmffT4dayGrRo9pCWnAFZuWP7V6zpZzFDKsbnFtDr95HCCk8+pQSNWXJk1+Iajg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7249
+Cc: Bodong Wang <bodong@nvidia.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kuba@kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,114 +168,125 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+From: Feng Liu via Virtualization <virtualization@lists.linux-foundation.org>
+Reply-To: Feng Liu <feliu@nvidia.com>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 05, 2023 at 05:44:01PM +0000, Dragos Tatulea wrote:
-> On Thu, 2023-10-05 at 13:31 -0400, Michael S. Tsirkin wrote:
-> > On Thu, Sep 28, 2023 at 07:45:11PM +0300, Dragos Tatulea wrote:
-> > > This patch series adds support for vq descriptor table mappings which
-> > > are used to improve vdpa live migration downtime. The improvement com=
-es
-> > > from using smaller mappings which take less time to create and destroy
-> > > in hw.
-> > > =
-
-> > > The first part adds the vdpa core changes from Si-Wei [0].
-> > > =
-
-> > > The second part adds support in mlx5_vdpa:
-> > > - Refactor the mr code to be able to cleanly add descriptor mappings.
-> > > - Add hardware descriptor mr support.
-> > > - Properly update iotlb for cvq during ASID switch.
-> > > =
-
-> > > Changes in v2:
-> > > =
-
-> > > - The "vdpa/mlx5: Enable hw support for vq descriptor mapping" change
-> > > =A0 was split off into two patches to avoid merge conflicts into the =
-tree
-> > > =A0 of Linus.
-> > > =
-
-> > > =A0 The first patch contains only changes for mlx5_ifc.h. This must be
-> > > =A0 applied into the mlx5-next tree [1] first. Once this patch is app=
-lied
-> > > =A0 on mlx5-next, the change has to be pulled fom mlx5-next into the =
-vhost
-> > > =A0 tree and only then the remaining patches can be applied.
-> > =
-
-> > =
-
-> > I get it you plan v3?
-> There are some very small improvements (commit message in 13/16 and fix in
-> 16/16) that could make a v3. The latter can be addressed as a separate pa=
-tch
-> when moving dup_iotlb to vhost/iotlb. What do you think?
 
 
-if there's a fix by all means post v3.
+On 2023-07-24 a.m.2:46, Michael S. Tsirkin wrote:
+> External email: Use caution opening links or attachments
+> 
+> 
+> On Fri, Jul 21, 2023 at 10:18:03PM +0200, Maxime Coquelin wrote:
+>>
+>>
+>> On 7/21/23 17:10, Michael S. Tsirkin wrote:
+>>> On Fri, Jul 21, 2023 at 04:58:04PM +0200, Maxime Coquelin wrote:
+>>>>
+>>>>
+>>>> On 7/21/23 16:45, Michael S. Tsirkin wrote:
+>>>>> On Fri, Jul 21, 2023 at 04:37:00PM +0200, Maxime Coquelin wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 7/20/23 23:02, Michael S. Tsirkin wrote:
+>>>>>>> On Thu, Jul 20, 2023 at 01:26:20PM -0700, Shannon Nelson wrote:
+>>>>>>>> On 7/20/23 1:38 AM, Jason Wang wrote:
+>>>>>>>>>
+>>>>>>>>> Adding cond_resched() to the command waiting loop for a better
+>>>>>>>>> co-operation with the scheduler. This allows to give CPU a breath to
+>>>>>>>>> run other task(workqueue) instead of busy looping when preemption is
+>>>>>>>>> not allowed on a device whose CVQ might be slow.
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>>>>>>>
+>>>>>>>> This still leaves hung processes, but at least it doesn't pin the CPU any
+>>>>>>>> more.  Thanks.
+>>>>>>>> Reviewed-by: Shannon Nelson <shannon.nelson@amd.com>
+>>>>>>>>
+>>>>>>>
+>>>>>>> I'd like to see a full solution
+>>>>>>> 1- block until interrupt
+>>>>>>
+>>>>>> Would it make sense to also have a timeout?
+>>>>>> And when timeout expires, set FAILED bit in device status?
+>>>>>
+>>>>> virtio spec does not set any limits on the timing of vq
+>>>>> processing.
+>>>>
+>>>> Indeed, but I thought the driver could decide it is too long for it.
+>>>>
+>>>> The issue is we keep waiting with rtnl locked, it can quickly make the
+>>>> system unusable.
+>>>
+>>> if this is a problem we should find a way not to keep rtnl
+>>> locked indefinitely.
+>>
+>>  From the tests I have done, I think it is. With OVS, a reconfiguration is
+>> performed when the VDUSE device is added, and when a MLX5 device is
+>> in the same bridge, it ends up doing an ioctl() that tries to take the
+>> rtnl lock. In this configuration, it is not possible to kill OVS because
+>> it is stuck trying to acquire rtnl lock for mlx5 that is held by virtio-
+>> net.
+> 
+> So for sure, we can queue up the work and process it later.
+> The somewhat tricky part is limiting the memory consumption.
+> 
+> 
 
-> > =
 
-> > > [0]
-> > > https://lore.kernel.org/virtualization/1694248959-13369-1-git-send-em=
-ail-si-wei.liu@oracle.com
-> > > [1]
-> > > https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/lo=
-g/?h=3Dmlx5-next
-> > > =
+Hi Jason
 
-> > > Dragos Tatulea (13):
-> > > =A0 vdpa/mlx5: Expose descriptor group mkey hw capability
-> > > =A0 vdpa/mlx5: Create helper function for dma mappings
-> > > =A0 vdpa/mlx5: Decouple cvq iotlb handling from hw mapping code
-> > > =A0 vdpa/mlx5: Take cvq iotlb lock during refresh
-> > > =A0 vdpa/mlx5: Collapse "dvq" mr add/delete functions
-> > > =A0 vdpa/mlx5: Rename mr destroy functions
-> > > =A0 vdpa/mlx5: Allow creation/deletion of any given mr struct
-> > > =A0 vdpa/mlx5: Move mr mutex out of mr struct
-> > > =A0 vdpa/mlx5: Improve mr update flow
-> > > =A0 vdpa/mlx5: Introduce mr for vq descriptor
-> > > =A0 vdpa/mlx5: Enable hw support for vq descriptor mapping
-> > > =A0 vdpa/mlx5: Make iotlb helper functions more generic
-> > > =A0 vdpa/mlx5: Update cvq iotlb mapping on ASID change
-> > > =
+Excuse me, is there any plan for when will v5 patch series be sent out? 
+Will the v5 patches solve the problem of ctrlvq's infinite poll for 
+buggy devices?
 
-> > > Si-Wei Liu (3):
-> > > =A0 vdpa: introduce dedicated descriptor group for virtqueue
-> > > =A0 vhost-vdpa: introduce descriptor group backend feature
-> > > =A0 vhost-vdpa: uAPI to get dedicated descriptor group id
-> > > =
+Thanks
+Feng
 
-> > > =A0drivers/vdpa/mlx5/core/mlx5_vdpa.h |=A0 31 +++--
-> > > =A0drivers/vdpa/mlx5/core/mr.c=A0=A0=A0=A0=A0=A0=A0 | 191 +++++++++++=
-+++++-------------
-> > > =A0drivers/vdpa/mlx5/core/resources.c |=A0=A0 6 +-
-> > > =A0drivers/vdpa/mlx5/net/mlx5_vnet.c=A0 | 100 ++++++++++-----
-> > > =A0drivers/vhost/vdpa.c=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
-=A0 27 ++++
-> > > =A0include/linux/mlx5/mlx5_ifc.h=A0=A0=A0=A0=A0 |=A0=A0 8 +-
-> > > =A0include/linux/mlx5/mlx5_ifc_vdpa.h |=A0=A0 7 +-
-> > > =A0include/linux/vdpa.h=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
-=A0 11 ++
-> > > =A0include/uapi/linux/vhost.h=A0=A0=A0=A0=A0=A0=A0=A0 |=A0=A0 8 ++
-> > > =A0include/uapi/linux/vhost_types.h=A0=A0 |=A0=A0 5 +
-> > > =A010 files changed, 264 insertions(+), 130 deletions(-)
-> > > =
-
-> > > -- =
-
-> > > 2.41.0
-> > =
-
-> =
-
-
+>>>
+>>>>>>> 2- still handle surprise removal correctly by waking in that case
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>>> ---
+>>>>>>>>>       drivers/net/virtio_net.c | 4 +++-
+>>>>>>>>>       1 file changed, 3 insertions(+), 1 deletion(-)
+>>>>>>>>>
+>>>>>>>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>>>>>>>> index 9f3b1d6ac33d..e7533f29b219 100644
+>>>>>>>>> --- a/drivers/net/virtio_net.c
+>>>>>>>>> +++ b/drivers/net/virtio_net.c
+>>>>>>>>> @@ -2314,8 +2314,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>>>>>>>>>               * into the hypervisor, so the request should be handled immediately.
+>>>>>>>>>               */
+>>>>>>>>>              while (!virtqueue_get_buf(vi->cvq, &tmp) &&
+>>>>>>>>> -              !virtqueue_is_broken(vi->cvq))
+>>>>>>>>> +              !virtqueue_is_broken(vi->cvq)) {
+>>>>>>>>> +               cond_resched();
+>>>>>>>>>                      cpu_relax();
+>>>>>>>>> +       }
+>>>>>>>>>
+>>>>>>>>>              return vi->ctrl->status == VIRTIO_NET_OK;
+>>>>>>>>>       }
+>>>>>>>>> --
+>>>>>>>>> 2.39.3
+>>>>>>>>>
+>>>>>>>>> _______________________________________________
+>>>>>>>>> Virtualization mailing list
+>>>>>>>>> Virtualization@lists.linux-foundation.org
+>>>>>>>>> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>>>>>>>
+>>>>>
+>>>
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
