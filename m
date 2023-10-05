@@ -1,76 +1,80 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 936DFE92FD0
-	for <virtualization@archiver.kernel.org>; Thu,  5 Oct 2023 22:10:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7E1F0E92FCF
+	for <virtualization@archiver.kernel.org>; Thu,  5 Oct 2023 22:51:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 212C24261A;
-	Thu,  5 Oct 2023 22:10:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 212C24261A
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=N+1tqzKx
+	by smtp3.osuosl.org (Postfix) with ESMTP id F03696FA35;
+	Thu,  5 Oct 2023 22:51:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F03696FA35
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=MNukphMS
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Zjmzl6ZGSTlZ; Thu,  5 Oct 2023 22:10:56 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TSrI_0cjO_EB; Thu,  5 Oct 2023 22:51:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 53F5B4012A;
-	Thu,  5 Oct 2023 22:10:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53F5B4012A
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 439BE60F47;
+	Thu,  5 Oct 2023 22:51:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 439BE60F47
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB289C0071;
-	Thu,  5 Oct 2023 22:10:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1477BC0071;
+	Thu,  5 Oct 2023 22:51:07 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 776DCC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E90BAC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 22:10:53 +0000 (UTC)
+ Thu,  5 Oct 2023 22:51:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4B9B44261A
+ by smtp2.osuosl.org (Postfix) with ESMTP id B19C84168D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 22:10:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4B9B44261A
+ Thu,  5 Oct 2023 22:51:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B19C84168D
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org
+ header.a=rsa-sha256 header.s=k20201202 header.b=MNukphMS
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UkcdjyjTXIYt
+ with ESMTP id FUyOaajVDy0o
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 22:10:52 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A576F4012A
+ Thu,  5 Oct 2023 22:51:05 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org
+ [IPv6:2604:1380:4641:c500::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 086574157C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Oct 2023 22:10:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A576F4012A
+ Thu,  5 Oct 2023 22:51:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 086574157C
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
- by dfw.source.kernel.org (Postfix) with ESMTP id D3B1561B6C;
- Thu,  5 Oct 2023 22:10:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB93C433C7;
- Thu,  5 Oct 2023 22:10:51 +0000 (UTC)
+ by dfw.source.kernel.org (Postfix) with ESMTP id 84F8861B84;
+ Thu,  5 Oct 2023 22:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C844C433C7;
+ Thu,  5 Oct 2023 22:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1696543851;
- bh=UoU4cn3m/iQDeTvZ6sJCJc+J83ON7noH/i6xOi4WLLw=;
+ s=k20201202; t=1696546263;
+ bh=6Z+aNRTykgUl2shYjBKN3j99iPvZlR6BDg/SD2cELU8=;
  h=Date:From:To:Cc:Subject:In-Reply-To:From;
- b=N+1tqzKxM8k5U6oPZNf+PbjiiKdMm854tLVYikTTC5eIDDeVyg+N+NTEIrli6XAe9
- AYJvP4opqpuj/fwoMKh9l3oTV2QNACLfQNXHsca4VUbGX/t7yMWk1ahpiMV16G3KI2
- gVxDw5TYrM003BVXZYcEqNJi6Vf6nVXVw44yULSR14G2i/UPDrXwH3zM2QxvlfqlaT
- vKWPyNRZK4xcdUICXbjPso4zu+95Lit1pfcb3uTNBnaEqfpU0++MC6xignIlkdGzMh
- lJLcoGIjhWwBePNWlzuSPrTtXJkEPpJFxq3ht7XnhWrObZP78PjziFHLMjYQ0GcThX
- Ikd5tEHIkCbqA==
-Date: Thu, 5 Oct 2023 17:10:49 -0500
+ b=MNukphMSInGVUe6e01X0aki2ed92AZyanoAXS1Tse2jkA9W3Ip2Vrq3qZXUuWFeAm
+ 5THAUEv1ZFV7lRkX73pa5wFZbrMZVnBtOOADNoSVhDoSwvQbgRCf2ReCyg2FU8JDiw
+ hJBi1H9FhrZ6OnSz/lmhK+ZlshRSG+Z1VQ5zHtoIInARuChulTjTyRksLL+HT8wYwb
+ /b2wAQVwnnFrh5H08XEA415LtQagTLgi6HT7mMLSLLrpdJGnm+chWdfYEO2Pvwz94V
+ kz4ubbn+i563g6Wk23YSZYGgBg7iCQAhlJKyFUj281GiAyrIznmNiSXnDuSpnsUr5o
+ bPn9QBR7/7oXQ==
+Date: Thu, 5 Oct 2023 17:51:01 -0500
 From: Bjorn Helgaas <helgaas@kernel.org>
 To: Sui Jingfeng <sui.jingfeng@linux.dev>
-Subject: Re: [-next 4/5] drm/virgpu: Switch to pci_is_vga()
-Message-ID: <20231005221049.GA793091@bhelgaas>
+Subject: Re: [-next 1/5] PCI: Add the pci_is_vga() helper
+Message-ID: <20231005225101.GA792747@bhelgaas>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20231005215714.GA792609@bhelgaas>
+In-Reply-To: <20230830111532.444535-2-sui.jingfeng@linux.dev>
 Cc: Sui Jingfeng <suijingfeng@loongson.cn>, linux-pci@vger.kernel.org,
  linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
  Gurchetan Singh <gurchetansingh@chromium.org>,
- Bjorn Helgaas <bhelgaas@google.com>, David Airlie <airlied@redhat.com>,
- virtualization@lists.linux-foundation.org
+ Bjorn Helgaas <bhelgaas@google.com>, virtualization@lists.linux-foundation.org,
+ Chia-I Wu <olvaffe@gmail.com>, "Maciej W. Rozycki" <macro@orcam.me.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,56 +91,78 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 05, 2023 at 04:57:14PM -0500, Bjorn Helgaas wrote:
-> In subject: "drm/virtio" to match previous history.
+On Wed, Aug 30, 2023 at 07:15:28PM +0800, Sui Jingfeng wrote:
+> From: Sui Jingfeng <suijingfeng@loongson.cn>
 > 
-> On Wed, Aug 30, 2023 at 07:15:31PM +0800, Sui Jingfeng wrote:
-> > From: Sui Jingfeng <suijingfeng@loongson.cn>
-> > 
-> > Should be no functional change, just for cleanup purpose.
-> > 
-> > Cc: David Airlie <airlied@redhat.com>
-> > Cc: Gerd Hoffmann <kraxel@redhat.com>
-> > Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-> > Cc: Chia-I Wu <olvaffe@gmail.com>
-> > Cc: Daniel Vetter <daniel@ffwll.ch>
-> > Signed-off-by: Sui Jingfeng <suijingfeng@loongson.cn>
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_drv.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > index add075681e18..3a368304475a 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> > @@ -51,7 +51,7 @@ static int virtio_gpu_pci_quirk(struct drm_device *dev)
-> >  {
-> >  	struct pci_dev *pdev = to_pci_dev(dev->dev);
-> >  	const char *pname = dev_name(&pdev->dev);
-> > -	bool vga = (pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA;
-> > +	bool vga = pci_is_vga(pdev);
+> The PCI code and ID assignment specification defined four types of
+> display controllers for the display base class(03h), and the devices
+> with 0x00h sub-class code are VGA devices. VGA devices with programming
+
+I can update this with the spec details (PCI Code and Assignment spec
+r1.15, secs 1.1 and 1.4).
+
+> interface 0x00 is VGA-compatible, VGA devices with programming interface
+> 0x01 are 8514-compatible controllers. Besides, PCI_CLASS_NOT_DEFINED_VGA
+> is defined to provide backward compatibility for devices that were built
+> before the class code field was defined. Hence, introduce the pci_is_vga()
+> helper, let it handle the details for us. It returns true if the PCI(e)
+> device being tested belongs to the VGA devices category.
+>
+> Cc: "Maciej W. Rozycki" <macro@orcam.me.uk>
+> Signed-off-by: Sui Jingfeng <suijingfeng@loongson.cn>
+> ---
+>  include/linux/pci.h | 27 +++++++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
 > 
-> This *is* a functional change: Previously "vga" was only true for
-> PCI_CLASS_DISPLAY_VGA (0x0300).  Now it will be true for both
-> PCI_CLASS_DISPLAY_VGA (0x0300) and PCI_CLASS_DISPLAY_OTHER (0x0380).
+> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> index cf6e0b057752..ace727001911 100644
+> --- a/include/linux/pci.h
+> +++ b/include/linux/pci.h
+> @@ -713,6 +713,33 @@ static inline bool pci_is_bridge(struct pci_dev *dev)
+>  		dev->hdr_type == PCI_HEADER_TYPE_CARDBUS;
+>  }
+>  
+> +/**
+> + * The PCI code and ID assignment specification defined four types of
+> + * display controllers for the display base class(03h), and the devices
+> + * with 0x00h sub-class code are VGA devices. VGA devices with programming
+> + * interface 0x00 is VGA-compatible, VGA devices with programming interface
+> + * 0x01 are 8514-compatible controllers. Besides, PCI_CLASS_NOT_DEFINED_VGA
+> + * is defined to provide backward compatibility for devices that were built
+> + * before the class code field was defined. This means that it belong to the
+> + * VGA devices category also.
+> + *
+> + * Returns:
+> + * true if the PCI device is a VGA device, false otherwise.
+> + */
+> +static inline bool pci_is_vga(struct pci_dev *pdev)
+> +{
+> +	if (!pdev)
+> +		return false;
+> +
+> +	if ((pdev->class >> 8) == PCI_CLASS_DISPLAY_VGA)
+> +		return true;
+> +
+> +	if ((pdev->class >> 8) == PCI_CLASS_NOT_DEFINED_VGA)
+> +		return true;
 
-Oops, sorry, my mistake here.  I meant PCI_CLASS_NOT_DEFINED_VGA, not
-PCI_CLASS_DISPLAY_OTHER.  pci_is_vga() is true for either of:
+Are you seeing a problem that will be fixed by this series, i.e., a
+PCI_CLASS_NOT_DEFINED_VGA device that we currently don't handle
+correctly?
 
-  PCI_CLASS_DISPLAY_VGA       0x0300
-  PCI_CLASS_NOT_DEFINED_VGA   0x0001
+I think this makes sense per the spec, but there's always a risk of
+breaking something, so it's nice if the change actually *fixes*
+something to make that risk worthwhile.
 
-(PCI_CLASS_NOT_DEFINED_VGA is defined in the PCI Code and Assignment
-spec r1.15, sec 1.1; PCI_CLASS_DISPLAY_VGA is sec 1.4.)
-
-> Is that desirable?  I can't tell.  Maybe the GPU folks will chime in.
+> +	return false;
+> +}
+> +
+>  #define for_each_pci_bridge(dev, bus)				\
+>  	list_for_each_entry(dev, &bus->devices, bus_list)	\
+>  		if (!pci_is_bridge(dev)) {} else
+> -- 
+> 2.34.1
 > 
-> >  	int ret;
-> >  
-> >  	DRM_INFO("pci: %s detected at %s\n",
-> > -- 
-> > 2.34.1
-> > 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
