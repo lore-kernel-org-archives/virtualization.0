@@ -1,87 +1,80 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CA1C9E81DF5
-	for <virtualization@archiver.kernel.org>; Fri,  6 Oct 2023 13:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7554AE81DFF
+	for <virtualization@archiver.kernel.org>; Fri,  6 Oct 2023 14:31:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 491B983A37;
-	Fri,  6 Oct 2023 13:09:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 491B983A37
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=bombadil.20210309 header.b=hfHda9fM
+	by smtp3.osuosl.org (Postfix) with ESMTP id E26D9616B5;
+	Fri,  6 Oct 2023 14:31:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E26D9616B5
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.a=rsa-sha256 header.s=korg header.b=uPKWiP1S
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yPYQBQVUDjkh; Fri,  6 Oct 2023 13:09:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A73ED839BF;
-	Fri,  6 Oct 2023 13:09:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A73ED839BF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id s4YIT9SS8XF5; Fri,  6 Oct 2023 14:31:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 50CCD60E8A;
+	Fri,  6 Oct 2023 14:31:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 50CCD60E8A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 766E0C0039;
-	Fri,  6 Oct 2023 13:09:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B957C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 20E6FC0039;
+	Fri,  6 Oct 2023 14:31:03 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CA751C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Oct 2023 13:09:19 +0000 (UTC)
+ Fri,  6 Oct 2023 14:31:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2052E40468
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9F6A461456
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Oct 2023 13:09:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2052E40468
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org
- header.a=rsa-sha256 header.s=bombadil.20210309 header.b=hfHda9fM
+ Fri,  6 Oct 2023 14:31:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F6A461456
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9sxm-wNaI0U3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id zcu4NoPI-WSx
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Oct 2023 13:09:18 +0000 (UTC)
-Received: from bombadil.infradead.org (bombadil.infradead.org
- [IPv6:2607:7c80:54:3::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 98AF24013B
+ Fri,  6 Oct 2023 14:31:00 +0000 (UTC)
+Received: from ams.source.kernel.org (ams.source.kernel.org
+ [IPv6:2604:1380:4601:e00::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EF84760E8A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Oct 2023 13:09:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 98AF24013B
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=bombadil.20210309; h=In-Reply-To:Content-Type:MIME-Version
- :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=nQuVCtW6i+MOZrhvdH0VD4e/PHzoa/qwLMLD+xBePTg=; b=hfHda9fMner1U01YZgxu0tFTff
- ++34fcfWnKoqgalYk58hQhlCfc8FpRY//5ef6Yp/vwUQubJntGepMQ4ytZqVUzoz6hUYrsg/1FafW
- tZp4ymOuCY5DoAvkVnMFV4TmG8aueT02whS7Lppl72ZzX9XTkq5b20j8aheR28nUVhT3DpY4b3iYx
- de7NKsStt/BUliMsMWiQGm7DvPTe2sUY/oA+2SXXYfTQiI8rOE4lkXrKqCnxggBRiHTAiyB+7PNzx
- FKmKHRhlaI8ACi/nv1GcUJbfYsNuaiJY9XvmkY2kJSCEsOriHSsDNk6xLhg8PQtw0FNt+jYCTsqSP
- wWA+QmxQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.96 #2 (Red Hat
- Linux)) id 1qokZp-005rGD-2R; Fri, 06 Oct 2023 13:09:09 +0000
-Date: Fri, 6 Oct 2023 06:09:09 -0700
-From: Christoph Hellwig <hch@infradead.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH vfio 10/11] vfio/virtio: Expose admin commands over
- virtio device
-Message-ID: <ZSAG9cedvh+B0c0E@infradead.org>
-References: <20230921124040.145386-1-yishaih@nvidia.com>
- <20230921124040.145386-11-yishaih@nvidia.com>
- <20230922055336-mutt-send-email-mst@kernel.org>
- <c3724e2f-7938-abf7-6aea-02bfb3881151@nvidia.com>
- <20230926072538-mutt-send-email-mst@kernel.org>
- <ZRpjClKM5mwY2NI0@infradead.org>
- <20231002151320.GA650762@nvidia.com>
- <ZR54shUxqgfIjg/p@infradead.org>
- <20231005111004.GK682044@nvidia.com>
+ Fri,  6 Oct 2023 14:30:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EF84760E8A
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+ by ams.source.kernel.org (Postfix) with ESMTP id D7C14B8298C;
+ Fri,  6 Oct 2023 14:30:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CBAC433C8;
+ Fri,  6 Oct 2023 14:30:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1696602654;
+ bh=2fhphZG6bxXgGCz3VDXIQ9daJxLkRB/ZDJs2CpCzMAY=;
+ h=From:To:Cc:Subject:Date:From;
+ b=uPKWiP1SV4F7vTV3NT7BFtFzwcQaeWdCBLCOV7OOb+f4Ej+Zp4DvxjkEFs3IP63q8
+ f0++zS91i5/o3Zvq5y54lKvmrWDZyTx3CoD/xMGvhFQgPjNYijut7ku4760DFdtZ51
+ VByWkE+Jjp9fUUi5hCdDr/U9OTOHRuW5jKfh2vm4=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH] vduse: make vduse_class constant
+Date: Fri,  6 Oct 2023 16:30:44 +0200
+Message-ID: <2023100643-tricolor-citizen-6c2d@gregkh>
+X-Mailer: git-send-email 2.42.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20231005111004.GK682044@nvidia.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- bombadil.infradead.org. See http://www.infradead.org/rpr.html
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- maorg@nvidia.com, virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>, jiri@nvidia.com, leonro@nvidia.com
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4498;
+ i=gregkh@linuxfoundation.org; h=from:subject:message-id;
+ bh=2fhphZG6bxXgGCz3VDXIQ9daJxLkRB/ZDJs2CpCzMAY=;
+ b=owGbwMvMwCRo6H6F97bub03G02pJDKkKUsKfim/9VthzaaV8576syabXTz60elDWo58ssdto1
+ tWH81bv74hlYRBkYpAVU2T5so3n6P6KQ4pehranYeawMoEMYeDiFICJ/PvIsGA2Q//D46VTpjgt
+ jDCa/9T47L7VU/MZ5sqvOssbtz3o0NRDOnUHeJXvPpI78AwA
+X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp;
+ fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,63 +91,144 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 05, 2023 at 08:10:04AM -0300, Jason Gunthorpe wrote:
-> > But for all the augmented vfio use cases it doesn't, for them the
-> > augmented vfio functionality is an integral part of the core driver.
-> > That is true for nvme, virtio and I'd argue mlx5 as well.
-> 
-> I don't agree with this. I see the extra functionality as being an
-> integral part of the VF and VFIO. The PF driver is only providing a
-> proxied communication channel.
-> 
-> It is a limitation of PCI that the PF must act as a proxy.
+Now that the driver core allows for struct class to be in read-only
+memory, we should make all 'class' structures declared at build time
+placing them into read-only memory, instead of having to be dynamically
+allocated at runtime.
 
-For anything live migration it very fundamentally is not, as a function
-that is visible to a guest by definition can't drive the migration
-itself.  That isn't really a limitation in PCI, but follows form the
-fact that something else must control a live migration that is
-transparent to the guest.
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Xie Yongji <xieyongji@bytedance.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 40 ++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 19 deletions(-)
 
-> 
-> > So we need to stop registering separate pci_drivers for this kind
-> > of functionality, and instead have an interface to the driver to
-> > switch to certain functionalities.
-> 
-> ?? We must bind something to the VF's pci_driver, what do you imagine
-> that is?
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index df7869537ef1..0ddd4b8abecb 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -134,7 +134,6 @@ static DEFINE_MUTEX(vduse_lock);
+ static DEFINE_IDR(vduse_idr);
+ 
+ static dev_t vduse_major;
+-static struct class *vduse_class;
+ static struct cdev vduse_ctrl_cdev;
+ static struct cdev vduse_cdev;
+ static struct workqueue_struct *vduse_irq_wq;
+@@ -1528,6 +1527,16 @@ static const struct kobj_type vq_type = {
+ 	.default_groups	= vq_groups,
+ };
+ 
++static char *vduse_devnode(const struct device *dev, umode_t *mode)
++{
++	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
++}
++
++static const struct class vduse_class = {
++	.name = "vduse",
++	.devnode = vduse_devnode,
++};
++
+ static void vduse_dev_deinit_vqs(struct vduse_dev *dev)
+ {
+ 	int i;
+@@ -1638,7 +1647,7 @@ static int vduse_destroy_dev(char *name)
+ 	mutex_unlock(&dev->lock);
+ 
+ 	vduse_dev_reset(dev);
+-	device_destroy(vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
++	device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
+ 	idr_remove(&vduse_idr, dev->minor);
+ 	kvfree(dev->config);
+ 	vduse_dev_deinit_vqs(dev);
+@@ -1805,7 +1814,7 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+ 
+ 	dev->minor = ret;
+ 	dev->msg_timeout = VDUSE_MSG_DEFAULT_TIMEOUT;
+-	dev->dev = device_create_with_groups(vduse_class, NULL,
++	dev->dev = device_create_with_groups(&vduse_class, NULL,
+ 				MKDEV(MAJOR(vduse_major), dev->minor),
+ 				dev, vduse_dev_groups, "%s", config->name);
+ 	if (IS_ERR(dev->dev)) {
+@@ -1821,7 +1830,7 @@ static int vduse_create_dev(struct vduse_dev_config *config,
+ 
+ 	return 0;
+ err_vqs:
+-	device_destroy(vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
++	device_destroy(&vduse_class, MKDEV(MAJOR(vduse_major), dev->minor));
+ err_dev:
+ 	idr_remove(&vduse_idr, dev->minor);
+ err_idr:
+@@ -1934,11 +1943,6 @@ static const struct file_operations vduse_ctrl_fops = {
+ 	.llseek		= noop_llseek,
+ };
+ 
+-static char *vduse_devnode(const struct device *dev, umode_t *mode)
+-{
+-	return kasprintf(GFP_KERNEL, "vduse/%s", dev_name(dev));
+-}
+-
+ struct vduse_mgmt_dev {
+ 	struct vdpa_mgmt_dev mgmt_dev;
+ 	struct device dev;
+@@ -2082,11 +2086,9 @@ static int vduse_init(void)
+ 	int ret;
+ 	struct device *dev;
+ 
+-	vduse_class = class_create("vduse");
+-	if (IS_ERR(vduse_class))
+-		return PTR_ERR(vduse_class);
+-
+-	vduse_class->devnode = vduse_devnode;
++	ret = class_register(&vduse_class);
++	if (ret)
++		return ret;
+ 
+ 	ret = alloc_chrdev_region(&vduse_major, 0, VDUSE_DEV_MAX, "vduse");
+ 	if (ret)
+@@ -2099,7 +2101,7 @@ static int vduse_init(void)
+ 	if (ret)
+ 		goto err_ctrl_cdev;
+ 
+-	dev = device_create(vduse_class, NULL, vduse_major, NULL, "control");
++	dev = device_create(&vduse_class, NULL, vduse_major, NULL, "control");
+ 	if (IS_ERR(dev)) {
+ 		ret = PTR_ERR(dev);
+ 		goto err_device;
+@@ -2141,13 +2143,13 @@ static int vduse_init(void)
+ err_wq:
+ 	cdev_del(&vduse_cdev);
+ err_cdev:
+-	device_destroy(vduse_class, vduse_major);
++	device_destroy(&vduse_class, vduse_major);
+ err_device:
+ 	cdev_del(&vduse_ctrl_cdev);
+ err_ctrl_cdev:
+ 	unregister_chrdev_region(vduse_major, VDUSE_DEV_MAX);
+ err_chardev_region:
+-	class_destroy(vduse_class);
++	class_unregister(&vduse_class);
+ 	return ret;
+ }
+ module_init(vduse_init);
+@@ -2159,10 +2161,10 @@ static void vduse_exit(void)
+ 	destroy_workqueue(vduse_irq_bound_wq);
+ 	destroy_workqueue(vduse_irq_wq);
+ 	cdev_del(&vduse_cdev);
+-	device_destroy(vduse_class, vduse_major);
++	device_destroy(&vduse_class, vduse_major);
+ 	cdev_del(&vduse_ctrl_cdev);
+ 	unregister_chrdev_region(vduse_major, VDUSE_DEV_MAX);
+-	class_destroy(vduse_class);
++	class_unregister(&vduse_class);
+ }
+ module_exit(vduse_exit);
+ 
+-- 
+2.42.0
 
-The driver that knows this hardware.  In this case the virtio subsystem,
-in case of nvme the nvme driver, and in case of mlx5 the mlx5 driver.
-
-> > E.g. for this case there should be no new vfio-virtio device, but
-> > instead you should be able to switch the virtio device to an
-> > fake-legacy vfio mode.
-> 
-> Are you aruging about how we reach to vfio_register_XX() and what
-> directory the file lives?
-
-No.  That layout logically follows from what codebase the functionality
-is part of, though.
-
-> I don't know what "fake-legacy" even means, VFIO is not legacy.
-
-The driver we're talking about in this thread fakes up a virtio_pci
-legacy devie to the guest on top of a "modern" virtio_pci device.
-
-> There is alot of code in VFIO and the VMM side to take a VF and turn
-> it into a vPCI function. You can't just trivially duplicate VFIO in a
-> dozen drivers without creating a giant mess.
-
-I do not advocate for duplicating it.  But the code that calls this
-functionality belongs into the driver that deals with the compound
-device that we're doing this work for.
-
-> Further, userspace wants consistent ways to operate this stuff. If we
-> need a dozen ways to activate VFIO for every kind of driver that is
-> not a positive direction.
-
-We don't need a dozen ways.  We just need a single attribute on the
-pci (or $OTHERBUS) devide that switches it to vfio mode.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
