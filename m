@@ -1,111 +1,166 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 57E72E95A82
-	for <virtualization@archiver.kernel.org>; Sun,  8 Oct 2023 10:43:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 51977E95A91
+	for <virtualization@archiver.kernel.org>; Sun,  8 Oct 2023 12:04:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C48FB417A9;
-	Sun,  8 Oct 2023 10:43:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C48FB417A9
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=a1Csjf6P
+	by smtp1.osuosl.org (Postfix) with ESMTP id CB35782175;
+	Sun,  8 Oct 2023 12:04:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CB35782175
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=VJyaVAin
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c9T4AjGBouHe; Sun,  8 Oct 2023 10:43:00 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MrN0GBImWdQr; Sun,  8 Oct 2023 12:04:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DAB96417B6;
-	Sun,  8 Oct 2023 10:42:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DAB96417B6
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2FF398216E;
+	Sun,  8 Oct 2023 12:04:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2FF398216E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AD665C0039;
-	Sun,  8 Oct 2023 10:42:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9E454C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04EE5C0039;
+	Sun,  8 Oct 2023 12:04:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38A3AC0032
  for <virtualization@lists.linux-foundation.org>;
- Sun,  8 Oct 2023 10:42:58 +0000 (UTC)
+ Sun,  8 Oct 2023 12:04:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 65C41401CC
+ by smtp3.osuosl.org (Postfix) with ESMTP id DD31E60BA8
  for <virtualization@lists.linux-foundation.org>;
- Sun,  8 Oct 2023 10:42:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 65C41401CC
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=a1Csjf6P
+ Sun,  8 Oct 2023 12:04:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DD31E60BA8
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=VJyaVAin
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DjSyOxpyfFKP
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nwl59j4pJurZ
  for <virtualization@lists.linux-foundation.org>;
- Sun,  8 Oct 2023 10:42:55 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7F76F40199
+ Sun,  8 Oct 2023 12:04:37 +0000 (UTC)
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on20605.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5b::605])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E95D760B8C
  for <virtualization@lists.linux-foundation.org>;
- Sun,  8 Oct 2023 10:42:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7F76F40199
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1696761774;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=YeFnBygXDkeQ+o9CkyTf5kFBskj2LZ9+3dJaj3enCUM=;
- b=a1Csjf6PfJZ/ipzvnZB5ZBp3v216xuiT6c7cSmTlgGKvwlVGqYnUIlgceEb7xSgMBu4rmp
- nAc85vBQqaeTvausmEprINjxQDX4up2EYxcGEL49d2eVRHL/N4kSnRBmc6vypDVKBt+Myn
- 1pIDm2jMswDEw0ejoXhpnwMxLMkebIo=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-475-JnsWFEFaN-WcyrhGTF-sBQ-1; Sun, 08 Oct 2023 06:42:42 -0400
-X-MC-Unique: JnsWFEFaN-WcyrhGTF-sBQ-1
-Received: by mail-ej1-f69.google.com with SMTP id
- a640c23a62f3a-9a62adedadbso37524566b.1
- for <virtualization@lists.linux-foundation.org>;
- Sun, 08 Oct 2023 03:42:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1696761761; x=1697366561;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=YeFnBygXDkeQ+o9CkyTf5kFBskj2LZ9+3dJaj3enCUM=;
- b=VtQJcILHZt+WL0uThMhwfdYMI1ybbRYk8U/LV0zucXwuFedRO/AXcmGKQtQHkG0FBG
- 0vIJ+Z8mcsesu6kP/sm2WuwQ2RTnHJjkx9jmpnOVwp9SooWESD4gGZowAX6aX8Wac3rb
- PVK9Phv9x1+6u7QOa0yYJZii0+PcPxPD4kucWhqvhfWREtTbnzP1sgItDvIz7z7aqXI1
- ZN1ILTuSLD27gvHnkzXC1JRTx9gHRBnVBwgSjUhBN7DBJO0nDQS9SULx2FwhN2BpUJWS
- 2WY0EF0g3UGFF1IsysRyV8zVf4xsD5Fbvuo6JsQ6cjIQ0DS/CNF7Atp8ArzaRkMY1lKE
- zF/g==
-X-Gm-Message-State: AOJu0YwtGv+UC/hQMvOukkiUDs+Xf51drhVlE4zYRLZZfTMW0QnVfCiL
- 5+n2JFQTIJ80zr63UzC7ioBNv+sr+mUDtkPQ+cljYk+K6oILoTqr1lJfWbD98iOAg17Q1nAyUez
- xBuaEfdEkjOSbAkUqjpkEiilJJHje2sJ8kT0n9xs04w==
-X-Received: by 2002:a17:906:4e:b0:9a2:16e2:353 with SMTP id
- 14-20020a170906004e00b009a216e20353mr11974708ejg.6.1696761761603; 
- Sun, 08 Oct 2023 03:42:41 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFMcJsNUEPLS884sHWM2/c4zBwTl5RPvEh8ZBYQd4P5IdQz3YKf2EgDnIcaiTVFtbEvtNxgqQ==
-X-Received: by 2002:a17:906:4e:b0:9a2:16e2:353 with SMTP id
- 14-20020a170906004e00b009a216e20353mr11974699ejg.6.1696761761300; 
- Sun, 08 Oct 2023 03:42:41 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f6:d74e:e6b1:da81:860a:5e9e])
- by smtp.gmail.com with ESMTPSA id
- p26-20020a1709060dda00b0098921e1b064sm5378988eji.181.2023.10.08.03.42.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 08 Oct 2023 03:42:40 -0700 (PDT)
-Date: Sun, 8 Oct 2023 06:42:37 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost v2 1/2] virtio_pci: fix the common map size and add
- check for common size
-Message-ID: <20231008063339-mutt-send-email-mst@kernel.org>
-References: <20231008093842.87131-1-xuanzhuo@linux.alibaba.com>
- <20231008093842.87131-2-xuanzhuo@linux.alibaba.com>
+ Sun,  8 Oct 2023 12:04:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E95D760B8C
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GU7bj2haaWksxImdL/5t5Gq3Aw+5CB9Hd1e77lTW0ItBVDHZLbErdGP2U3h6nUkWavZg6DhbmMaDSSOiK11pTlsfbqnyHQr0Z9kMWHjBoDU+JsgI1nzFuj7qjY/EOoOnC0wrcOFfzFVHusycGu6zQSr+RCbnHjcbEwqJnNmxKw+tgKNpp66M5uKHmsRwEcYqSdJn3+QSRBCYlm8itu3+4qsBbcap/ct6ZHjOgKrTUIVeDDM0suAsKr1LRNVUxYH5XvK4gBBAK9VBGntLqE6bGBTeo9VvYmc7xpMn76MnJcXE7JIVcVGlvsQovq67Lncsf02KKMgakF8kneRP/UvusQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=kc21trQFyB4Ocy0vjnb1e6MoEW66rJvvwXnuVW8C4DY=;
+ b=i/G3WZmxUBxh/Jl4hkG2Y2TWC2YaOYQ6i9qUftnm04PMmn6VF+mDqWVTiRbaiUqGK4Qt7lCUC8ELxkXOCw2yDVqWyBGZx3TqU8DGpwwU+BmXVrbZXOTobuOz4mzM69hVs1DFsMGHT/bQLr/K5Q62PCkMlgaeDhqoWUCkFgGH7/kJ0BRhGA43wkMrdrnp/HCxKYOGIUyfAc8VVbeMj+4LEGWGNLsAW3qppWc42Me9phLCHOvGQMFI71vMm3rC4FLw9AtElduRC0Wu6+/AI4lfhTrHIzNhY07E3gfcxbw60LoBwBqfnttoHj+FOau/IvkCq2yKBx9XAFKACaWcLHCpQg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kc21trQFyB4Ocy0vjnb1e6MoEW66rJvvwXnuVW8C4DY=;
+ b=VJyaVAinPL+l2xET5SLoGGVf/U6uI9aYDcmCakEZR3AE+aL2xhnjHxXuMQ0PrRl70N1L2zaMsrD0g/+fGCGaSjN3TZHevLOf76uiAeqlgxxiSTw0Rvpm8/sBLr69YMGONzUA/zGz/NAi5hjRbzkScRkpGazD+U1Nztu+/rAotxBi9DjWw5xLG768DB468ULm7tlJP/8FjT4F10D8DMLcp2wQvYiYUKahUiuDYhROvRY/YfzFQAW9Jo1jBjhIDG9dv/yJozlLdb2R1jRmmfSqtfWPUN1ge6IlRoysNraiDANNNM9Zk1k05IBL+oMP+p6hLhXJYVGYjYzxVdYrPhfQQA==
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com (2603:10b6:5:1b6::13)
+ by SJ1PR12MB6123.namprd12.prod.outlook.com (2603:10b6:a03:45a::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.43; Sun, 8 Oct
+ 2023 12:04:33 +0000
+Received: from DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::fddf:d4b8:44d9:d378]) by DM6PR12MB5565.namprd12.prod.outlook.com
+ ([fe80::fddf:d4b8:44d9:d378%7]) with mapi id 15.20.6863.032; Sun, 8 Oct 2023
+ 12:04:32 +0000
+To: "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: [PATCH 09/16] vdpa/mlx5: Allow creation/deletion of any given mr
+ struct
+Thread-Topic: [PATCH 09/16] vdpa/mlx5: Allow creation/deletion of any given mr
+ struct
+Thread-Index: AQHZ5Xlk30nZFuaBXUOyCVsOMD7qbrAsnWKAgAAr3QCAEqqpAIAAgFWA
+Date: Sun, 8 Oct 2023 12:04:32 +0000
+Message-ID: <4f9759182636f7bb3cb15bc8b6ec6afbe0d6053d.camel@nvidia.com>
+References: <20230912130132.561193-1-dtatulea@nvidia.com>
+ <20230912130132.561193-10-dtatulea@nvidia.com>
+ <CACGkMEsC_rgnKyG3stFbc-Mz2yiKGwNUYYqG64jQbNpZBtnVvg@mail.gmail.com>
+ <c42db8942523afe8bbf54815f672acd9e47cfa67.camel@nvidia.com>
+ <CACGkMEvZESDuOiX_oOvMUh0YqCWYqvmD3Ve9YEJW3+RXXyvGew@mail.gmail.com>
+In-Reply-To: <CACGkMEvZESDuOiX_oOvMUh0YqCWYqvmD3Ve9YEJW3+RXXyvGew@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Evolution 3.48.4 (3.48.4-1.fc38) 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DM6PR12MB5565:EE_|SJ1PR12MB6123:EE_
+x-ms-office365-filtering-correlation-id: 9071e908-4985-4f33-43a6-08dbc7f6bb6a
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: carW5QrQrpXPEcU2ui/wktba/j04dXYB6R0QwZk8bdLpHKv600FIWe4Z/kyYI7DmGxWzKB9x1hCIxbkRyz14N9cQRQAm/mw4PlwP21O3/P+v8Jb6/LRiMQNegkMcgTz/7t05j5miw3l6plI/2nCwBDVaLCpSxvZPrDGLN7L9tyC+UD045AG7PeF4vj1MPYjOtsLFvYoB+JbG23QLwK2iuRgTz3Bc6V13cn1CDWEtjxhafFIoZleOzN1DBrBcTX5KhqbwB8gSA4wg24yp8k1ufJaa/CcOkfNZdgY0k2D8BhCRX9LwDRcFxwcYmYlU/ssxcKEmJDAaIWW5g9UiCwY0U4M8p4BQpCx270CvkYhuLUZ5GfK2pPslWIritjAVF718D173ELGxtrIHK4VQmGRwsq/4t1jvUTYWuAJMI04tsCtfw00A+gWJF8Z5YLf0I6o0O1I/Ef221iv66KpjFzZ+FKtxVV51knZAnsxpLCzULAhCc8/2Z5f+c1GGMkL/DZ9bJtn8rU2cNUD1h3JJON4p6W3Uui9U9PAGm6Hr5Nb8NB2uq+1Nfoj0rsNrXBgOidKhdTZ3uKW62+mP7myOOdR9+nNNhojmL+qu8qoqyM99amzYjMHVnVRLiWRMtCTcBOfN
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:DM6PR12MB5565.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(346002)(396003)(376002)(136003)(39850400004)(366004)(230922051799003)(64100799003)(1800799009)(451199024)(186009)(2616005)(71200400001)(26005)(53546011)(36756003)(38070700005)(86362001)(122000001)(38100700002)(107886003)(83380400001)(4326008)(2906002)(478600001)(6506007)(6512007)(8676002)(6486002)(8936002)(6916009)(316002)(41300700001)(5660300002)(76116006)(54906003)(66476007)(64756008)(66446008)(66946007)(66556008)(91956017);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?N1ppRkZ4anpnOE1DMEdSR3NwUStGTE5CdTVsdGJxT3dBbG9MYk1jRTJNVmk2?=
+ =?utf-8?B?SjZzWmN4Um1xR0ZlQkVRczFWSVluSWtTWm1iY2lPMW0xZzlaa2g3czY3NnBO?=
+ =?utf-8?B?azc4T3RtNFh5SHdKdS92YkZKOUlMRGt3OHVna2JWSVRkUDhOUk9DTXBxZHoy?=
+ =?utf-8?B?cEZ0cENPSDg2V1U1dVVyRzlXQ1dEcVFlbjR6d0JSQTRUYnpLVHhsRDVxWVo1?=
+ =?utf-8?B?cVZqQlpBbmVLOE9GZzF6c0w4N2NiK2NsbktpOXNZRG5yZUsvc0NjQkQ1RTlu?=
+ =?utf-8?B?K2RNSjlqWGlXcW52b0NzcmpiU3Jub0k5UXkzV3ZnMkxkaGJoMGxrMmwxaFpa?=
+ =?utf-8?B?RVBkbnVTYUlhMjUwVmxUNjh5cURzZE1XSkR6R0huaXBaV1Z6STA1MEIycnhz?=
+ =?utf-8?B?NFpIMGUxYTRKRHRFVzlTTnpsT1hCQ1R5bHhYTDBpTnUzSjYvWlNvUVE1TFlR?=
+ =?utf-8?B?UTdXL3NPMFA4Z1MwVFpDZTFla1BzK0l6c2VJVnZKS3RuY09Pck8vTHFIOXR0?=
+ =?utf-8?B?OS8zS2ZKWHF3TFVMTEhIRis3T3NFOXErdzVWcURtRmM1T3ZZTHBlYUZmVEox?=
+ =?utf-8?B?RHR2M0s1YXB0WENzVWpTdldGL0VJSjhueVBRcnl6Z0w0TWFYbXdBaDRFN1Y0?=
+ =?utf-8?B?UkZBR2gwVXBoVmE0Qm5pcnFUTzFkKzR2TTkvNlVpckNPczRscTZYMjREN3Jp?=
+ =?utf-8?B?TVNsQ2dQL0ZvYk4rcjBIMTI3VzlNMmlOSmFzMzI3aklqNDBPOTJvRGQxZjZD?=
+ =?utf-8?B?QVRZczZLTlFVdnJYNHJWRkF5M2Z6Q1RveTAyS3V2Q0cwU1NlWmlHcDY4SW0r?=
+ =?utf-8?B?ejdLRVo4Tld1VStDWVJuL0Nidk9KZWhDQ2QrY1ltdzV3SGV6Qk50ZVFyT2V1?=
+ =?utf-8?B?eWgrdTlXdnlQbFJMR2s0QXFzdndmTlpwT1IyTTVnL1kreTRWeGM3K01lTVc0?=
+ =?utf-8?B?WDVGb29QZzFobFUxdW5lVDVUVmJsUFFuWGVXMTJZaEx5RXBxVENvdkpSS1pI?=
+ =?utf-8?B?QXRuRHRJTGE0SGhRaFU0Z2svTzM1dDBKaERqWkxkd1RVb0FYL0ZweHBhWDNR?=
+ =?utf-8?B?TVpXa2pRMTlmR3hIQ0xSNVVXTnUxSzZQR0F2L3VHTWFPc0FBejJkTzJ4dTlX?=
+ =?utf-8?B?U0tNbTN1SUdzT29ndTZ5RFd4SFQ1Z3Q0aklzZ3RyN2dQN3E0MXBsK1c0b1dR?=
+ =?utf-8?B?aW05VmlkSVFFSUJRby9rV3NDUGJOaVlGUU8rcGpMS2I5elZMMFcyUS9mMjgw?=
+ =?utf-8?B?YmFRYUVDZ215UjRBUmZVbStQNEtwcUFKeFJrTjdQZ0gvZzVoVUZtSnZQanRs?=
+ =?utf-8?B?dFpwWWJ4dU1ueGk5VEdRQmhyZjVoZE0ySHptT05WZkdaWVNqSjJ4WEZSZEVq?=
+ =?utf-8?B?Y0xaMGZFZGpvVDU4bGhaQnVUQTVYZS8vNnVvdTZSNk1nTEtBdDF1dzNDYXNs?=
+ =?utf-8?B?OEJxR041TkpJczVRZVRpOWowaGliRVN1UFRZdDRROHhmZmJDV3NGeVYxVXpy?=
+ =?utf-8?B?aXNZRlhVajBad1h2V0EvazI1MERZL2hTL3FwSmlqSTIrc3pwK2NWZ2JWN3ZX?=
+ =?utf-8?B?ZU1iWVNWS3M3MVZSZmJiUmFUNVIvdkJUT28yM2hJQmJWQ1ozSHJKc3M2Z1FI?=
+ =?utf-8?B?QnZVallNanRNV0ZsSVpEdUt5d1czMm1UWlBENzQzYXRkTUZ2SCtzaVdxUHhz?=
+ =?utf-8?B?MlBDd1BTZ1hpSEpSYnBFazRZTHNrWXpBaVVkNEZFcWVhNjFDRGQ5Smc0WXR4?=
+ =?utf-8?B?bVZPcTNNUVdLZEx4bzE0NFdFUDBpUjI5T1R4WmNYUnY2bDBOYTJaU2pkODRk?=
+ =?utf-8?B?b3VXZDZ2VWIyaDBWRWJqREdWd1J0c1A5MXpzdG95RGFFR0RNczIwOUlRNUsx?=
+ =?utf-8?B?aXdMWHNoS2xZM3E4L0hPNy9LcVBIZVRMTXFhUWdHa0ZjSUgrQUNSdVJTclRK?=
+ =?utf-8?B?SlRxeUxWYmlHdWFTT0tEZDlnSzZObzQzdmM3bnNBSlloSFRxVWNVb0RCRGJF?=
+ =?utf-8?B?TExUeEVKSFRFb25XNDVEM3NhQU1Bb1IvdnNiQXZOR0tZckxzdDg0dS90NjNt?=
+ =?utf-8?B?QWova0FOd2Q5VStReFM2Y2NVNHRzU00weklmT2JPUmNBRnd4dll5Q0R0L0dl?=
+ =?utf-8?B?aTcvbnVzYzJMKzFOemlUaEV2TzI3MUgwYWNYeUF3T1RKNzBTdmlUMjI4TVBU?=
+ =?utf-8?B?dXc9PQ==?=
+Content-ID: <95495FAFCC16F34AA24E65A9C0FCC5EB@namprd12.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <20231008093842.87131-2-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR12MB5565.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9071e908-4985-4f33-43a6-08dbc7f6bb6a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Oct 2023 12:04:32.2798 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: FyZmT77SajIOWLman597CNC3X+TKL1F6d6JXO4UmQqF9ZgFrk21XKR7vLo0AK9TERupJ3xo8T8L+L0F7N5CArg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6123
+Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "eperezma@redhat.com" <eperezma@redhat.com>,
+ Saeed Mahameed <saeedm@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,111 +172,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Dragos Tatulea via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Dragos Tatulea <dtatulea@nvidia.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 08, 2023 at 05:38:41PM +0800, Xuan Zhuo wrote:
-> Now, the function vp_modern_map_capability() takes the size parameter,
-> which corresponds to the size of virtio_pci_common_cfg. As a result,
-> this indicates the size of memory area to map.
-> 
-> However, if the _F_RING_RESET is negotiated, the extra items will be
-> used. Therefore, we need to use the size of virtio_pci_modern_common_cfg
-> to map more space.
-> 
-> Meanwhile, this patch removes the feature(_F_RING_ERSET and
-
-typo
-
-> _F_NOTIFICATION_DATA) when the common cfg size does not match
-> the corresponding feature.
-> 
-> Fixes: 0b50cece0b78 ("virtio_pci: introduce helper to get/set queue reset")
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/virtio/virtio_pci_modern.c     | 20 +++++++++++++++++++-
->  drivers/virtio/virtio_pci_modern_dev.c |  4 ++--
->  include/linux/virtio_pci_modern.h      |  1 +
->  3 files changed, 22 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index d6bb68ba84e5..c0b9d2363ddb 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -22,8 +22,26 @@
->  static u64 vp_get_features(struct virtio_device *vdev)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	u64 features = vp_modern_get_features(&vp_dev->mdev);
-> +
-> +#define check_feature(feature, field)								\
-> +	do {											\
-> +		if (features & BIT_ULL(feature)) {						\
-> +			u32 offset = offsetofend(struct virtio_pci_modern_common_cfg, field);	\
-> +			if (unlikely(vp_dev->mdev.common_len < offset))				\
-> +				features &= ~BIT_ULL(feature);					\
-> +		}										\
-> +	} while (0)
-> +
-> +	/* For buggy devices, if the common len does not match the feature, we
-> +	 * remove the feature.
-
-I don't like doing this in vp_get_features. userspace won't be able
-to see the actual device features at all.
-Also, we should print an info message at least.
-
-I am still debating with myself whether clearing feature bits
-or just failing finalize_features (and thus, probe) is best.
-
-
-> +	 */
-> +	check_feature(VIRTIO_F_NOTIFICATION_DATA, queue_notify_data);
-> +	check_feature(VIRTIO_F_RING_RESET, queue_reset);
-> +
-> +#undef check_feature
-
-this macro's too scary. just pass offset and feature bit as
-parameters to an inline function.
-
->  
-> -	return vp_modern_get_features(&vp_dev->mdev);
-> +	return features;
->  }
->  
->  static void vp_transport_features(struct virtio_device *vdev, u64 features)
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index aad7d9296e77..33f319da1558 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -291,8 +291,8 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->  	err = -EINVAL;
->  	mdev->common = vp_modern_map_capability(mdev, common,
->  				      sizeof(struct virtio_pci_common_cfg), 4,
-> -				      0, sizeof(struct virtio_pci_common_cfg),
-> -				      NULL, NULL);
-> +				      0, sizeof(struct virtio_pci_modern_common_cfg),
-> +				      &mdev->common_len, NULL);
->  	if (!mdev->common)
->  		goto err_map_common;
->  	mdev->isr = vp_modern_map_capability(mdev, isr, sizeof(u8), 1,
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index 067ac1d789bc..edf62bae0474 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -28,6 +28,7 @@ struct virtio_pci_modern_device {
->  	/* So we can sanity-check accesses. */
->  	size_t notify_len;
->  	size_t device_len;
-> +	size_t common_len;
->  
->  	/* Capability for when we need to map notifications per-vq. */
->  	int notify_map_cap;
-> -- 
-> 2.32.0.3.g01195cf9f
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU3VuLCAyMDIzLTEwLTA4IGF0IDEyOjI1ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOg0KPiBP
+biBUdWUsIFNlcCAyNiwgMjAyMyBhdCAzOjIx4oCvUE0gRHJhZ29zIFRhdHVsZWEgPGR0YXR1bGVh
+QG52aWRpYS5jb20+IHdyb3RlOg0KPiA+IA0KPiA+IE9uIFR1ZSwgMjAyMy0wOS0yNiBhdCAxMjo0
+NCArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToNCj4gPiA+IE9uIFR1ZSwgU2VwIDEyLCAyMDIzIGF0
+IDk6MDLigK9QTSBEcmFnb3MgVGF0dWxlYSA8ZHRhdHVsZWFAbnZpZGlhLmNvbT4NCj4gPiA+IHdy
+b3RlOg0KPiA+ID4gPiANCj4gPiA+ID4gVGhpcyBwYXRjaCBhZGFwdHMgdGhlIG1yIGNyZWF0aW9u
+L2RlbGV0aW9uIGNvZGUgdG8gYmUgYWJsZSB0byB3b3JrIHdpdGgNCj4gPiA+ID4gYW55IGdpdmVu
+IG1yIHN0cnVjdCBwb2ludGVyLiBBbGwgdGhlIEFQSXMgYXJlIGFkYXB0ZWQgdG8gdGFrZSBhbiBl
+eHRyYQ0KPiA+ID4gPiBwYXJhbWV0ZXIgZm9yIHRoZSBtci4NCj4gPiA+ID4gDQo+ID4gPiA+IG1s
+eDVfdmRwYV9jcmVhdGUvZGVsZXRlX21yIGRvZXNuJ3QgbmVlZCBhIEFTSUQgcGFyYW1ldGVyIGFu
+eW1vcmUuIFRoZQ0KPiA+ID4gPiBjaGVjayBpcyBkb25lIGluIHRoZSBjYWxsZXIgaW5zdGVhZCAo
+bWx4NV9zZXRfbWFwKS4NCj4gPiA+ID4gDQo+ID4gPiA+IFRoaXMgY2hhbmdlIGlzIG5lZWRlZCBm
+b3IgYSBmb2xsb3d1cCBwYXRjaCB3aGljaCB3aWxsIGludHJvZHVjZSBhbg0KPiA+ID4gPiBhZGRp
+dGlvbmFsIG1yIGZvciB0aGUgdnEgZGVzY3JpcHRvciBkYXRhLg0KPiA+ID4gPiANCj4gPiA+ID4g
+U2lnbmVkLW9mZi1ieTogRHJhZ29zIFRhdHVsZWEgPGR0YXR1bGVhQG52aWRpYS5jb20+DQo+ID4g
+PiA+IC0tLQ0KPiA+ID4gDQo+ID4gPiBUaGlua2luZyBvZiB0aGlzIGRlY291cGxpbmcgSSB0aGlu
+ayBJIGhhdmUgYSBxdWVzdGlvbi4NCj4gPiA+IA0KPiA+ID4gV2UgYWR2ZXJ0aXNlIDIgYWRkcmVz
+cyBzcGFjZXMgYW5kIDIgZ3JvdXBzLiBTbyB3ZSBhY3R1YWxseSBkb24ndCBrbm93DQo+ID4gPiBm
+b3IgZXhhbXBsZSB3aGljaCBhZGRyZXNzIHNwYWNlcyB3aWxsIGJlIHVzZWQgYnkgZHZxLg0KPiA+
+ID4gDQo+ID4gPiBBbmQgYWN0dWFsbHkgd2UgYWxsb3cgdGhlIHVzZXIgc3BhY2UgdG8gZG8gc29t
+ZXRoaW5nIGxpa2UNCj4gPiA+IA0KPiA+ID4gc2V0X2dyb3VwX2FzaWQoZHZxX2dyb3VwLCAwKQ0K
+PiA+ID4gc2V0X21hcCgwKQ0KPiA+ID4gc2V0X2dyb3VwX2FzaWQoZHZxX2dyb3VwLCAxKQ0KPiA+
+ID4gc2V0X21hcCgxKQ0KPiA+ID4gDQo+ID4gPiBJIHdvbmRlciBpZiB0aGUgZGVjb3VwbGluZyBs
+aWtlIHRoaXMgcGF0Y2ggY2FuIHdvcmsgYW5kIHdoeS4NCj4gPiA+IA0KPiA+IFRoaXMgc2NlbmFy
+aW8gY291bGQgaW5kZWVkIHdvcmsuIEVzcGVjaWFsbHkgaWYgeW91IGxvb2sgYXQgdGhlIDEzJ3Ro
+IHBhdGNoDQo+ID4gWzBdDQo+ID4gd2hlcmUgaHcgc3VwcG9ydCBpcyBhZGRlZC4gQXJlIHlvdSB3
+b25kZXJpbmcgaWYgdGhpcyBzaG91bGQgd29yayBhdCBhbGwgb3INCj4gPiBpZiBpdA0KPiA+IHNo
+b3VsZCBiZSBibG9ja2VkPw0KPiANCj4gSXQgd291bGQgYmUgZ3JlYXQgaWYgaXQgY2FuIHdvcmsg
+d2l0aCB0aGUgZm9sbG93aW5nIHBhdGNoZXMuIEJ1dCBhdA0KPiBsZWFzdCBmb3IgdGhpcyBwYXRj
+aCwgaXQgc2VlbXMgbm90Og0KPiANCj4gRm9yIGV4YW1wbGUsIHdoYXQgaGFwcGVucyBpZiB3ZSBz
+d2l0Y2ggYmFjayB0byBncm91cCAwIGZvciBkdnE/DQo+IA0KPiBzZXRfZ3JvdXBfYXNpZChkdnFf
+Z3JvdXAsIDApDQo+IHNldF9tYXAoMCkNCj4gc2V0X2dyb3VwX2FzaWQoZHZxX2dyb3VwLCAxKQ0K
+PiBzZXRfbWFwKDEpDQo+IC8vIGhlcmUgd2UgZGVzdHJveSB0aGUgbXIgY3JlYXRlZCBmb3IgYXNp
+ZCAwDQo+IHNldF9ncm91cF9hc2lkKGR2cV9ncm91cCwgMCkNCj4gDQpJZiBieSBkZXN0cm95IHlv
+dSBtZWFuIC5yZXNldCwgSSB0aGluayBpdCB3b3JrczogRHVyaW5nIC5yZXNldCB0aGUgbWFwcGlu
+ZyBpbg0KQVNJRCAwIGlzIHJlc2V0IGJhY2sgdG8gdGhlIERNQS9weXNpY2FsIG1hcCAobWx4NV92
+ZHBhX2NyZWF0ZV9kbWFfbXIpLiBBbSBJDQptaXNzaW5nIHNvbWV0aGluZz8NCg0KPiBCdHcsIGlm
+IHRoaXMgaXMgYSBuZXcgaXNzdWUsIEkgaGF2ZW4ndCBjaGVja2VkIHdoZXRoZXIgb3Igbm90IGl0
+DQo+IGV4aXN0cyBiZWZvcmUgdGhpcyBzZXJpZXMgKGlmIHllcywgd2UgY2FuIGZpeCBvbiB0b3Ap
+Lg0KDQo+ID4gDQo+ID4gPiBJdCBsb29rcyB0byBtZSB0aGUgbW9zdCBlYXN5IHdheSBpcyB0byBs
+ZXQgZWFjaCBBUyBiZSBiYWNrZWQgYnkgYW4gTVIuDQo+ID4gPiBUaGVuIHdlIGRvbid0IGV2ZW4g
+bmVlZCB0byBjYXJlIGFib3V0IHRoZSBkdnEsIGN2cS4NCj4gPiBUaGF0J3Mgd2hhdCB0aGlzIHBh
+dGNoIHNlcmllcyBkb3dlcy4NCj4gDQo+IEdvb2QgdG8ga25vdyB0aGlzLCBJIHdpbGwgcmV2aWV3
+IHRoZSBzZXJpZXMuDQo+IA0KSSB3YXMgcGxhbm5pbmcgdG8gc3BpbiBhIHYzIHdpdGggRXVnZW5p
+bydzIHN1Z2dlc3Rpb25zLiBTaG91bGQgSSB3YWl0IGZvciB5b3VyDQpmZWVkYmFjayBiZWZvcmUg
+ZG9pbmcgdGhhdD8NCg0KVGhhbmtzLA0KRHJhZ29zDQpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
