@@ -1,155 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77F9ECDB46E
-	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 11:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 168B2CDB46E
+	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 11:45:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9792F40382;
-	Thu, 12 Oct 2023 11:40:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9792F40382
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=XSMdvhJ2
+	by smtp1.osuosl.org (Postfix) with ESMTP id AFAAF81ED9;
+	Thu, 12 Oct 2023 11:45:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AFAAF81ED9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y-_GQNp-rPZC; Thu, 12 Oct 2023 11:40:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5A7524013F;
-	Thu, 12 Oct 2023 11:40:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5A7524013F
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CpC0e2Y6AJXg; Thu, 12 Oct 2023 11:45:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 161F381EC9;
+	Thu, 12 Oct 2023 11:45:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 161F381EC9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F9D7C0071;
-	Thu, 12 Oct 2023 11:40:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BD097C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EDDDFC0071;
+	Thu, 12 Oct 2023 11:45:30 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E6F79C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 11:40:41 +0000 (UTC)
+ Thu, 12 Oct 2023 11:45:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 903534013F
+ by smtp1.osuosl.org (Postfix) with ESMTP id C257B81ECD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 11:40:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 903534013F
+ Thu, 12 Oct 2023 11:45:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C257B81ECD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IyBKeJS_aohR
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2DRecEOVLLZB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 11:40:38 +0000 (UTC)
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam11on20618.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7eaa::618])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9E238400E7
+ Thu, 12 Oct 2023 11:45:28 +0000 (UTC)
+Received: from out30-111.freemail.mail.aliyun.com
+ (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AF68B81EC9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 11:40:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9E238400E7
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Q4ab/XIklRu7TZLNK11yHm8VA4GJsg/LiV4OfDVbL6RpWUNSIo++9CPGsFbDMAGwvv+izvXMp8+6fCXunxZJOpXuZlPRIlYGia3MVeoFVPwa0ye5GiHyWohvFdTM0Zbg/jIyni5IvLZV1NuTmnjOuhzjg5J1KyUE4NBO5VFtS+DaPLLkjfaXeHOp+CTX76axaZV4qlIG1cV6vBjS03uKrLzWW6d9qoNJuQ3y9QgWKfKrs52a7zPLYw1shAKmWUxayQrooFyGYPzguJJRxJ6WgLwifNYa2pKQLJN31aKwlEfWYofXVYCIYR+YbQ11gFkcBGwkaF2UliFPvfmxwJ/vqA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oNRAYLXUL2+mEkXE/6EV+zstySniPZVouylR6g+Mlao=;
- b=HZNGqmXbnsJkSodLeoXSHQGRoqfvKJg7t5iDRRU2KIakmYJbL4XXoBvXyAKoMtXwaN/WiaTaxVjVP6SGvZEgnXjmEUqzTvTuSxsDt0zLWtryxvYP8IW+1Hu4+HIgswIq8QSiT6F2T7p0u01CNfVsT/f0B/zjgajOAqpVsIfy6L7nqniolOj9mM5RLj/rgsHDE7bGAX7itNHuK4RZfiocy0VA3Dm+zrBWK6+vzvTJmFVPFhOALpRPuQJRGUPCxfrHhtzDWtAJmK0FhgT3T/1eG3OJJCosocZjn29PK6dvJdjacHlGopoca+NNSSSP9aArDB/wl7Ky9wgmBmip86tkTQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oNRAYLXUL2+mEkXE/6EV+zstySniPZVouylR6g+Mlao=;
- b=XSMdvhJ2tB3/7aQsdqSMlBm3Eopxc+o3DoBd+5BVYq4N4LoGyGjFmneVBfxSQuXDyI/NsYui+EWwpZe7ckJRxbe4Rpb5uxM/jZr5WV9tsXzi1zhnuJDMmvuEe7pQ8wABsajsF9WtT4Q8O2DGH/H2U6I99oz1sLx8TcvO5+No5Cf/at/c3PQbERJbEGVMBOswYvh0CaY7CaTtcr+FRiA+slMvIbYYhGFzyXt1SjZmLPmYKzm/jWGW/kD6/Sj6p+sSTJsVOvJ4Rj+uuPyegzoJPIEXhSrLA213xEwG3b/ml4JFPhTj9ar/qr+aBaaJt/y22npcN2H3FB8TDrdD9Sfp/A==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by LV8PR12MB9111.namprd12.prod.outlook.com (2603:10b6:408:189::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6863.45; Thu, 12 Oct
- 2023 11:40:35 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::23d0:62e3:4a4a:78b5]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::23d0:62e3:4a4a:78b5%6]) with mapi id 15.20.6863.032; Thu, 12 Oct 2023
- 11:40:34 +0000
+ Thu, 12 Oct 2023 11:45:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AF68B81EC9
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R201e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=13; SR=0;
+ TI=SMTPD_---0Vu-YBhg_1697111118; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vu-YBhg_1697111118) by smtp.aliyun-inc.com;
+ Thu, 12 Oct 2023 19:45:19 +0800
+Message-ID: <1697110565.721146-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH vhost 01/22] virtio_ring: virtqueue_set_dma_premapped
+ support disable
+Date: Thu, 12 Oct 2023 19:36:05 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Topic: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Thread-Index: AQHZ7IkPl5ENqOgMC0yEzkOHANq/CLAlfIYAgAACZQCAAAJ1AIAAAaqAgAAD/QCAAAaKAIAAAwkAgAAF2ICAABWjgIAABYGAgAAGVYCAAHFrgIAAnJQAgAAAJ7CABBFQgIAAYeqAgACr64CAAJhp4IAZncEAgAABy1CAAAi4gIAAAoNA
-Date: Thu, 12 Oct 2023 11:40:34 +0000
-Message-ID: <PH0PR12MB5481589848BA2DDD0DD2DE3CDCD3A@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20230921155834-mutt-send-email-mst@kernel.org>
- <CACGkMEvD+cTyRtax7_7TBNECQcGPcsziK+jCBgZcLJuETbyjYw@mail.gmail.com>
- <20230922122246.GN13733@nvidia.com>
- <PH0PR12MB548127753F25C45B7EFF203DDCFFA@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEuX5HJVBOw9E+skr=K=QzH3oyHK8gk-r0hAvi6Wm7OA7Q@mail.gmail.com>
- <PH0PR12MB5481ED78F7467EEB0740847EDCFCA@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20230925141713-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481AF4B2F61E96794D7ABC7DCC3A@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20231012065008-mutt-send-email-mst@kernel.org>
- <PH0PR12MB548135D0DF3C8B0CD5F73616DCD3A@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20231012071804-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231012071804-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|LV8PR12MB9111:EE_
-x-ms-office365-filtering-correlation-id: 09bfc200-67d9-4a76-2281-08dbcb180c08
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: nZS8jcjB11tKFDykGaEsUs0TFtN+/3KVA9BqM87nyg14pSPkZO0MKbmaFr1UG13UKlHoG8SyB8Iaqk25qSvd2IUMbWOPocahHZVlHQnHTkh/D+kV0qNtW4ja0nUlMrw53hL007onevUbrkUlDsZQI+vkeJwBszlzQ91NCAdSO+we7YaDKSf2dONNPzAr3Lu6syBgq3ElxZdSvxmr1uf2Aibt54ZgdlQWyU+3NRcF4bOJjfcStMK2eh80C2ncaH1/KnVaflhN1TGYKnoiy4JviUZNIktmmtsNruK+Hg5ntH5G7hbKZVdG0NH8Xs+wdPMk/aI4m9gm8Mj5xEOPZyrpmoiGfuYWY2Q80G4lqNsodAMqvHY3TPlK8+KDq/PcGFDjl84SNaXpn20g6RW+n/uFE8XIVdp/wi3iagZ3fQZyIQptDpgIogc9k74Zn3sB5vJ/cy3ZqR0c/xKimnUfRAuDRtjHWnhh5ydYH9fqSfrWJUWgTynWm4Eh9x7WprWC7gY3LDgLUkd4tK3wvIXTHKewNDmtxqcmwTzehI3RD5pDGM7UOYu447QlWeeIp2hwzuK/maKsriX1RpEU3l1woMt3ZqxuaU/53WQ0tvkJuyDyo9yOBwNfLEAaOJTI6JaaEHb3
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(136003)(346002)(366004)(396003)(39860400002)(376002)(230922051799003)(186009)(1800799009)(451199024)(64100799003)(478600001)(71200400001)(7696005)(6506007)(9686003)(76116006)(66476007)(316002)(6916009)(66946007)(54906003)(64756008)(66556008)(66446008)(107886003)(26005)(55016003)(8676002)(8936002)(4326008)(52536014)(4744005)(38070700005)(2906002)(122000001)(5660300002)(41300700001)(86362001)(33656002)(38100700002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?K2hSBI3pst6qcaeB6qRi6rG0Q8rFYww4k2ijnQESoS57qkB091QQbWSt19qF?=
- =?us-ascii?Q?RFExCO6k3LjBAwhhOmynViMzeC2jefH/YrMZEMfAlQytsLuerImfYh7JhpPZ?=
- =?us-ascii?Q?mXT2+Hx9Xf/PtK85CePHJ+iM2w3jnc2M8oa/yLMI7h2DLcvxevJx4T5Y6+1I?=
- =?us-ascii?Q?7EsH0tbxETx9w1oWE1Z2Zu6ynlsb2Tpst73MhpP89gSZHIjQ+IW4oBEVemA3?=
- =?us-ascii?Q?anVOmyAvQIpf7uXn6iBiHiUcNKGG2eN91890xdBEFFgOLp3CDzIudgIQNVMw?=
- =?us-ascii?Q?/RFghz1gJPq8BNkFzCW6kMsUFMAQJdFmeWpGf+ogPnSj0MZ1/YCGucUG6TAg?=
- =?us-ascii?Q?T+d7f7dFrhnmF+LWHwcUgwz2mLGlGhl7eqMRocwokRNvb2WxVDnmCcRV3q3X?=
- =?us-ascii?Q?jWNFYtB6cLvcnRLljxru9tHhPKQuBPBzUNUMAM7yn5p4slWSKXWzxFMX8vZW?=
- =?us-ascii?Q?8RxAuLpR1QuvVfN2bqtTF49nI/sDnkcPO3vzCrhHxmJTQE652Brk99fTQQXG?=
- =?us-ascii?Q?86yPP8iuvRW3Qwkgv3U25lGK0iSkXzsgsVRQNCGBRonql149sElsXx3s224r?=
- =?us-ascii?Q?NzXfwwUf74BRjeNjQJFYmyOKRIUz8SZNlD7Fves1HhR+knZKOfKmPjjdJNkf?=
- =?us-ascii?Q?ILHUZXUPR39DsJXA1VQjWDLTlgnOSuThFCPsrqDV4WJtEv110XsgPCD9cqrM?=
- =?us-ascii?Q?0POQPUD2NxHo36ObcmFQM8dKyq8+Un7qPhHNIZ9NxUTarR+CDe9AXDWpN7cN?=
- =?us-ascii?Q?k3wNjzqRxAywdRaO6MU3C0KRQgPs5IKh7SXF4kfGifJ5dz5nlOsw8Fh1zH+o?=
- =?us-ascii?Q?haw2fJuzrK+X/psycIPFzzhivdBoEytCW5yuFGxTpfr3WGAuE+B1d76AEspK?=
- =?us-ascii?Q?KIliSfejacBBFTKX/AIuoyJo6CafWuyAIJZxHF6PgwWoqzy/d0Mz31Ii4+AD?=
- =?us-ascii?Q?erTsiTtwB2M7rzZxMCGZxIxlDr0vlPQSjlrc9S1ldPnhDlGPjimuFnSMfPxX?=
- =?us-ascii?Q?LADgQm7UWekDnrNMg0AFIjObmHYDShA6sJOI8EkAXBewckE0QDROj8hPNRU4?=
- =?us-ascii?Q?A7HX8ySEuRhAYk52G7Tt3foyWVnoH/gRKnleXWKwRCb6YsQUlh4OyQQseaQM?=
- =?us-ascii?Q?B8sAZTs6di0ixa1+VAh+xcW6xHVyyxwHFDGdB7oQ9UzaJWP9rwFverrhkwA6?=
- =?us-ascii?Q?teVcUnuL4eGiyu6BocTjtzfSWuUtKqa0X9mM4jK8oG5gWYRBiqYCJ5SnQQfS?=
- =?us-ascii?Q?wTLZu9ep5tcFY+OIEbgIyn9TUmoB6uexWgBcVOyvrtOyyM4WKryfh+Omp5FJ?=
- =?us-ascii?Q?y+S0IbRM6gZkXbNcB42dR0Zw32GttMf3NPjAJ0DuXfHboYB39jGnPLVUKyiv?=
- =?us-ascii?Q?UCK7ik+AM8uMTqbz7wuachU2vS/9LDlPhyWZppiH4kpEIlKk0V1AhomCWmvt?=
- =?us-ascii?Q?8hsGpwDzo7uQqwF6yVlpvL+9mgWsYpFXkudB/XXfbQkXwKpD8QIDki55ULls?=
- =?us-ascii?Q?IUE3GptfVOkY51fkTZ/67v1M720BJzCvSTDSr3QbJso0yXAIgHdx5sDyUwAF?=
- =?us-ascii?Q?LVxAwj7YBsmVZUbfGZ8=3D?=
-MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 09bfc200-67d9-4a76-2281-08dbcb180c08
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Oct 2023 11:40:34.4215 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: lJ9MhgKeqYKx9v9QYnSpP8dTZBUeYgSiIx5t0B04VuZ794cLdJuC3n3NbPjlqF2+l1F+4NJ+55IvLFqD9Y5Maw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR12MB9111
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Maor Gottlieb <maorg@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
+References: <20231011092728.105904-1-xuanzhuo@linux.alibaba.com>
+ <20231011092728.105904-2-xuanzhuo@linux.alibaba.com>
+ <20231012051416-mutt-send-email-mst@kernel.org>
+ <1697102334.7060938-2-xuanzhuo@linux.alibaba.com>
+ <20231012053812-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231012053812-mutt-send-email-mst@kernel.org>
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -161,38 +78,182 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Thursday, October 12, 2023 5:00 PM
-
-> I am instead talking about devices that work with existing legacy linux drivers
-> with no traps.
-> 
-Yep, I understood.
-
-> > I am not expecting OASIS to do anything extra for legacy registers.
+On Thu, 12 Oct 2023 05:40:38 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Oct 12, 2023 at 05:18:54PM +0800, Xuan Zhuo wrote:
+> > On Thu, 12 Oct 2023 05:15:52 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Wed, Oct 11, 2023 at 05:27:07PM +0800, Xuan Zhuo wrote:
+> > > > virtqueue_set_dma_premapped() adds a new parameter to disable the
+> > > > virtqueue premapped mode.
+> > > >
+> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > ---
+> > > >  drivers/net/virtio_net.c     |  2 +-
+> > > >  drivers/virtio/virtio_ring.c | 11 ++++++++---
+> > > >  include/linux/virtio.h       |  2 +-
+> > > >  3 files changed, 10 insertions(+), 5 deletions(-)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index fe7f314d65c9..6b5f47ebf9b2 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -737,7 +737,7 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+> > > >  		return;
+> > > >
+> > > >  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > > > -		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+> > > > +		if (virtqueue_set_dma_premapped(vi->rq[i].vq, true))
+> > > >  			continue;
+> > > >
+> > > >  		vi->rq[i].do_dma = true;
+> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > > index 51d8f3299c10..b3ded56722f4 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -2784,7 +2784,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+> > > >   * 0: success.
+> > > >   * -EINVAL: vring does not use the dma api, so we can not enable premapped mode.
+> > > >   */
+> > > > -int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> > > > +int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool mode)
+> > > >  {
+> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> > > >  	u32 num;
+> > > > @@ -2803,8 +2803,13 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+> > > >  		return -EINVAL;
+> > > >  	}
+> > > >
+> > > > -	vq->premapped = true;
+> > > > -	vq->do_unmap = false;
+> > > > +	if (mode) {
+> > > > +		vq->premapped = true;
+> > > > +		vq->do_unmap = false;
+> > > > +	} else {
+> > > > +		vq->premapped = false;
+> > > > +		vq->do_unmap = vq->use_dma_api;
+> > > > +	}
+> > > >
+> > > >  	END_USE(vq);
+> > > >
+> > > > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > > > index 4cc614a38376..1cf7b004348b 100644
+> > > > --- a/include/linux/virtio.h
+> > > > +++ b/include/linux/virtio.h
+> > > > @@ -81,7 +81,7 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+> > > >
+> > > >  unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+> > > >
+> > > > -int virtqueue_set_dma_premapped(struct virtqueue *_vq);
+> > > > +int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool mode);
+> > > >
+> > > >  bool virtqueue_poll(struct virtqueue *vq, unsigned);
+> > >
+> > > Wait a sec I thought we never change premapped. If you make this
+> > > dynamic don't you need a bunch of locking?
+> > > Or maybe queue is empty when you change this?
+> > > If yes pls add a bunch of BUG_ON checks to make sure this is not misused.
 > >
-> > [1] The device MUST reset when 0 is written to device_status, and present a 0
-> in device_status once that is done.
-> > [2] After writing 0 to device_status, the driver MUST wait for a read
-> > of device_status to return 0 before reinitializing the device.
-> 
-> We can add a note explaining that legacy drivers do not wait after doing reset,
-> that is not a problem.
-> If someone wants to make a device that works with existing legacy linux drivers,
-> they can do that.
-> Won't work with all drivers though, which is why oasis did not want to
-> standardize this.
+> >
+> > Actually, this api is called immediately after the vq init or vq reset.
+> >
+> > We already have such a check.
+> >
+> > Thanks.
+> >
+> > /**
+> >  * virtqueue_set_dma_premapped - set the vring premapped mode
+> >  * @_vq: the struct virtqueue we're talking about.
+> >  *
+> >  * Enable the premapped mode of the vq.
+> >  *
+> >  * The vring in premapped mode does not do dma internally, so the driver must
+> >  * do dma mapping in advance. The driver must pass the dma_address through
+> >  * dma_address of scatterlist. When the driver got a used buffer from
+> >  * the vring, it has to unmap the dma address.
+> >  *
+> >  * This function must be called immediately after creating the vq, or after vq
+> >  * reset, and before adding any buffers to it.
+> >  *
+> >  * Caller must ensure we don't call this with other virtqueue operations
+> >  * at the same time (except where noted).
+> >  *
+> >  * Returns zero or a negative error.
+> >  * 0: success.
+> >  * -EINVAL: vring does not use the dma api, so we can not enable premapped mode.
+> >  */
+> > int virtqueue_set_dma_premapped(struct virtqueue *_vq, bool mode)
+> > {
+> > 	struct vring_virtqueue *vq = to_vvq(_vq);
+> > 	u32 num;
+> >
+> > 	START_USE(vq);
+> >
+> > 	num = vq->packed_ring ? vq->packed.vring.num : vq->split.vring.num;
+> >
+> > -->	if (num != vq->vq.num_free) {
+> > 		END_USE(vq);
+> > 		return -EINVAL;
+> > 	}
+>
+> But it turns out virtnet_rq_set_premapped actually just ignores errors.
+> So returning EINVAL here does nothing caller just proceeds?
+> And checking num_free without locks is never safe anyway.
 
-Ok. thanks.
+The premise of all this is that this is called immediately after reset or init.
+So here, this error doesn't occur, so I didn't check.
+
+Regarding the lock issue, there will be no race for either rq or sq.
+rq is called after init vq, and there is no race at this time.
+
+In this patch set, sq is called during reset, and there will be no race.
+So I think it's safe.
+
+> I think the point is that this never triggers then just BUG_ON.
+>
+
+Yes, I agree, it would be better to use BUG_ON.
+
+The next verion will remove this commit, because I will put the patch set
+to the net-next. So I will not let the premapped to be dynamic.
+
+About the BUG_ON, I will post a patch to fix that.
+
+Thanks.
+
+
+>
+> >
+> > 	if (!vq->use_dma_api) {
+> > 		END_USE(vq);
+> > 		return -EINVAL;
+> > 	}
+> >
+> > 	if (mode) {
+> > 		vq->premapped = true;
+> > 		vq->do_unmap = false;
+> > 	} else {
+> > 		vq->premapped = false;
+> > 		vq->do_unmap = vq->use_dma_api;
+> > 	}
+> >
+> > 	END_USE(vq);
+> >
+> > 	return 0;
+> > }
+> > EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
+> >
+> >
+> > >
+> > >
+> > > > --
+> > > > 2.32.0.3.g01195cf9f
+> > >
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
