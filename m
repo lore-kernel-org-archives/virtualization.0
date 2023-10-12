@@ -1,103 +1,85 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB0E9CDB46E
-	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 10:52:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE481CDB46E
+	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 11:11:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 25DBA40004;
-	Thu, 12 Oct 2023 10:52:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25DBA40004
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hi9u5ioU
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4A3AA60BB5;
+	Thu, 12 Oct 2023 11:11:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4A3AA60BB5
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=AnEWKr6+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cnvOjE0scMTz; Thu, 12 Oct 2023 10:52:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 84434404B9;
-	Thu, 12 Oct 2023 10:52:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84434404B9
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Ht1G6l9CF5fE; Thu, 12 Oct 2023 11:11:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 33B2660B45;
+	Thu, 12 Oct 2023 11:11:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 33B2660B45
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51F62C0039;
-	Thu, 12 Oct 2023 10:52:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 11A63C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0BE7BC0071;
+	Thu, 12 Oct 2023 11:11:30 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3926BC0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:52:52 +0000 (UTC)
+ Thu, 12 Oct 2023 11:11:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C9B584151B
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1FDB6820B9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:52:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C9B584151B
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=hi9u5ioU
+ Thu, 12 Oct 2023 11:11:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1FDB6820B9
+Authentication-Results: smtp1.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=AnEWKr6+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Bo6UMOMTVOC5
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fovRZpWowVEO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:52:50 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 62D854150E
+ Thu, 12 Oct 2023 11:11:25 +0000 (UTC)
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10on20600.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e8a::600])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 710B681F61
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:52:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 62D854150E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697107969;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=WCc9mHbY2JlIHfp5VOa+l2dSwNloOuO6MCxzrGGXt3M=;
- b=hi9u5ioUIuLoP8YX55QHfILRGzOfcUDfWq+2WumE271KiXLiZYgA/GzTRD9o6Y+Vo+ojIx
- IDE+5jaRJMkHR6Eu0GIOvNXvP0GlvCtvQQ1Xlpbv8oS4dEwhw50yDz9z+/idVcrEEAFlxf
- Xo3zVqSBwJBENP32Iu4yh4sI8JQrhuw=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-221-gIMS5WEXMvSTMaOUBIZHDg-1; Thu, 12 Oct 2023 06:52:47 -0400
-X-MC-Unique: gIMS5WEXMvSTMaOUBIZHDg-1
-Received: by mail-lf1-f71.google.com with SMTP id
- 2adb3069b0e04-5043c463bf9so878223e87.0
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 03:52:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697107966; x=1697712766;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=WCc9mHbY2JlIHfp5VOa+l2dSwNloOuO6MCxzrGGXt3M=;
- b=ISzp7u5SB/a6IN9VElaceQ8JAws+z2nmiRwqFc8bp6qkwvsQvZIwp1L9YcQxSNhmdS
- hgF1Yvv4PVdS2NsD82gHMjjihhoDvxPO5SFJI9ocGjwqonF8GMYSracBgYp2JXOrk7mG
- hrpDNG/egtUYLTkqZYe/r/RtlHXSbwwtERq1oKTgbAiobbDy0uLus7VshG7Io+WPC/nK
- qmbbXSotVDboqEvC3Ycw645PVqgRK04CEDOtzS4cXo/lH2T9QxOxwfKplpc4sFVntLyp
- VTQXGx7FVP2HR6j2aodGS6CxRW6fx6J2DQc8FyC+ByrzgsqZrNZbaBH1vIuij1nhQSAo
- 1K4Q==
-X-Gm-Message-State: AOJu0Yw1T8/gmTQg4fHNWkcwv40LU6rKLMhScIRf81NwCfi4EFJmleSW
- 5v5EUXEWwCO67Pl9EA8/HnimG/980xBB2Ra+jinv7QxlZcAxCl6hUDN1tMQ7GonCsfdH6fNsS69
- b27h4okOOtHs3wKQ9O+Zej+ZTp7z0NnrFd6egvAzhHw==
-X-Received: by 2002:a05:6512:ba6:b0:503:2877:67d3 with SMTP id
- b38-20020a0565120ba600b00503287767d3mr23005978lfv.67.1697107966270; 
- Thu, 12 Oct 2023 03:52:46 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFzbTERUF8xEQetm4cgeqjsxy3FbcXouW9Y3QzwsFZi3a1d6dHvi0j5cXFUujnC5oFhbcHqgw==
-X-Received: by 2002:a05:6512:ba6:b0:503:2877:67d3 with SMTP id
- b38-20020a0565120ba600b00503287767d3mr23005953lfv.67.1697107965850; 
- Thu, 12 Oct 2023 03:52:45 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73d2:bf00:e379:826:5137:6b23])
- by smtp.gmail.com with ESMTPSA id
- c4-20020a5d4cc4000000b003247d3e5d99sm17990316wrt.55.2023.10.12.03.52.43
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 12 Oct 2023 03:52:45 -0700 (PDT)
-Date: Thu, 12 Oct 2023 06:52:42 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ Thu, 12 Oct 2023 11:11:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 710B681F61
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZCED4Mhz3bz2/oRH4c6Lmu60k+a6HcFJePpxLqfDi5AtX+du+A6M9I68eZFRvNeaxEB/sSHviOsQTg1hAfxUk+sFQQ001XZV6i+ea8E1b5BmQiP8GfMKJqHcXNFJOLFxuH4qkjJURIPa6mwHQ7c4us8XLX+MLxa9NUCtKVUNgSWOmOgj1JMEyoobBrK+IdwEQXVzoROK6cZvOblkHOiF34Ncyf6F5PMNQma7rNrqgyzS7xJBxSonBFUzH3lUWwaa7n8yzjGzANr+/cwGWFgB0qCIcGcsvW5hvsJ8NJAwlM+t5OwL3+SOavMafMsuPzUp4gF+N9sJQSvkOzz+3dxRvQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+8jGzel1SgOmAzau/1xvtlATpwvaq3KTcVCm9e8ikFc=;
+ b=kP6fXwDhPHK/9TIJDAmX1NdMkgeqWTmTcFv/C6wdgsxsO8+DZdvShnCah8uUn/jO0fMwM0Z9I2alqLVDaVd0QuuwornY2PqcRe/G7deBrLuxcXCVpA9VLohjGSBCa0LQp3hWZ0ZDB8D4+2+rKhfUw7/p5LcBQmreZDf275/akfOzbW24dsXM1olAt08zmjOojWBojKJD37chM9vDLeFncTYFAKPhepp0hLf6CHBH6eQS2IBbwRxPEogmmX171n/oZa+3U7YdLnF2XJop3J511frLZTTbTghymPPMAviSHoWi0cHijcJkZ4nbTCk92y3/9gWWzy3F6UnmzGO/NChO4w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+8jGzel1SgOmAzau/1xvtlATpwvaq3KTcVCm9e8ikFc=;
+ b=AnEWKr6+poluLoLZmllkffbk46CqtFTcGF4buLKRYoqxX6xTIwKMU7DmDTAtCAQOhg5ALAt0YUMxandDOia5hy5sRWJ3WZc4lwQvwDFG76+IL3INPV8YMD2fS61eFXMZZOyADKPpo7qTwXiCNAH7DZ5IUu557Owaz7HRm1WHfrCCGvZjdOLpL8xxqzmbP/63Bb+Gr3bGdI8FK/wWKxkg9yN4OPpfy1nWDV0NOrGfdP9U2BxZsze/U/HACe3Mi3PwQbQtUPdGXwmwfiYt0fwvTpvo/D1dldW7J23bCf/Xqz+4JZ+OBHvtK1aaPSlKf/PifSDGzNxqKh06DqGXUwuejA==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH7PR12MB6717.namprd12.prod.outlook.com (2603:10b6:510:1b0::20)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6863.38; Thu, 12 Oct
+ 2023 11:11:20 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::23d0:62e3:4a4a:78b5]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::23d0:62e3:4a4a:78b5%6]) with mapi id 15.20.6863.032; Thu, 12 Oct 2023
+ 11:11:20 +0000
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: RE: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
  virtio devices
-Message-ID: <20231012065008-mutt-send-email-mst@kernel.org>
+Thread-Topic: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Thread-Index: AQHZ7IkPl5ENqOgMC0yEzkOHANq/CLAlfIYAgAACZQCAAAJ1AIAAAaqAgAAD/QCAAAaKAIAAAwkAgAAF2ICAABWjgIAABYGAgAAGVYCAAHFrgIAAnJQAgAAAJ7CABBFQgIAAYeqAgACr64CAAJhp4IAZncEAgAABy1A=
+Date: Thu, 12 Oct 2023 11:11:20 +0000
+Message-ID: <PH0PR12MB548135D0DF3C8B0CD5F73616DCD3A@PH0PR12MB5481.namprd12.prod.outlook.com>
 References: <20230921152802-mutt-send-email-mst@kernel.org>
  <20230921195345.GZ13733@nvidia.com>
  <20230921155834-mutt-send-email-mst@kernel.org>
@@ -108,11 +90,64 @@ References: <20230921152802-mutt-send-email-mst@kernel.org>
  <PH0PR12MB5481ED78F7467EEB0740847EDCFCA@PH0PR12MB5481.namprd12.prod.outlook.com>
  <20230925141713-mutt-send-email-mst@kernel.org>
  <PH0PR12MB5481AF4B2F61E96794D7ABC7DCC3A@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20231012065008-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231012065008-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|PH7PR12MB6717:EE_
+x-ms-office365-filtering-correlation-id: 9c185f52-e511-4a29-a30e-08dbcb13f69d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: mLHB7P8nMXKl3rlKmxOmJPEWOBiHv9mPKe5P6Sn3Mo/CFKX0YcTS2uoZYVoKyfm4oPWSpInuyICu8w7nr59sxDYeP6AnTi4OD1EBQWyQOVEGcrw4n2IFsSJWFqyl8bn5E1Vow41Eg4GpmEpQbL0cxbzJ5F3itORjgtIHS/+SUr0BLy7zYUzdyuGQ/hrxdZxMhtmVK67M3XqldkjUqUVRIxn1V2pmK6uF3n2ubYTH9ftP3P+aTSCfS+5cVPsaCiSQ0UtEgAKJ6FnHHFVnxcw5POyUziceUxuDTjoXZ4Iizuj7/WEOLhS1DTFhx2urp/yGQ1Ztzfk5vpQwunYzp4UcW5s08ThtP4RwWXPghVMuUKxetsRTMT3LG51IzsxHeYneHvp9VSC79pQa6FkZTP5uyyCIf8djsDJhS4N/7n2rETQnJNidmzv3b/RPwpg5Lc8nPYqz3QAhdkuJQgykO534dq6nk3vsc2aNcmMYKsqVMBAyEqs/9EvJJIfNv7A9Qb3J7nptIgthD3ILJiAbtA+khZewt2nqEu6/5mBY4Mas4rXtYzJDNfiiTY7KWArKify8oUSvP/PvuPlW2aT09sb3muQXfbQGE0ZfOR+icAChF5jrw5FNBKlshGtKZ4lAQld1
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(13230031)(396003)(376002)(136003)(366004)(39860400002)(346002)(230922051799003)(451199024)(1800799009)(64100799003)(186009)(86362001)(33656002)(38070700005)(55016003)(9686003)(6506007)(478600001)(2906002)(66446008)(7696005)(41300700001)(66946007)(54906003)(66476007)(76116006)(52536014)(66556008)(107886003)(316002)(5660300002)(71200400001)(64756008)(26005)(6916009)(4326008)(8936002)(8676002)(83380400001)(38100700002)(122000001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?g9lu2LMmbUJHLkrytbuac0N6xbWtpzEYXn7ubMmLcpXuK7jh1lQxxwEjL0dr?=
+ =?us-ascii?Q?6vEIUIq2y4toZBvzJlZ5DD0A5+iNhi0CuQnb6WDi521qd3cm1lnosYOSj426?=
+ =?us-ascii?Q?HJn5VfUu07+16mlLUIqR7I9uJb0g7P74e87pOkunbjzopWMEJTRmEY6j9QdM?=
+ =?us-ascii?Q?9x7mWu1DuaNhJl3crRZ5G9UINZjRB5t1kxMdA7gfiOh6Z8YqfICceDFAxPGn?=
+ =?us-ascii?Q?dyFGPAoIE1jDI/qv8xldjRQ8SH0qMzag/JbisLRx6/lrllL3MHU4ZtL/K501?=
+ =?us-ascii?Q?HVenDqJ5+T+VdSLJ6CdFBuOEEmw4Sqg92DA/BXpP727yAc0AaQ5aM1odz0Dc?=
+ =?us-ascii?Q?5NKIWB5EGQkGypCRIV8mjgqXvfkF0U7WWRGtra7/Ee75/Vq+mvgDtdqP64El?=
+ =?us-ascii?Q?scN5pcfkOo0CpTvJH4RN1yrnWFHqqBoZsg/yFSm+/tlnVZEKARRAWNhRrHUi?=
+ =?us-ascii?Q?l3uJU+TtREbvI6OmK9VWRe+/NYwaeJ/sVJzp1BwdPVlxolD0lUWAsPnfC1rd?=
+ =?us-ascii?Q?CWVCzm3P9QW3sdj3mshAZ8DxS1NehX285+aMo9H1+acEthQuTn0e9XSn2O9f?=
+ =?us-ascii?Q?7eE3+HrLKUdBppwwRZVpkUa54xwtOZh5nzoGTXIh6aAiDb0RGGUtS7+WHAsq?=
+ =?us-ascii?Q?cOweUGP0jiNy/9dLWtZul/ldFCSmWAL53h0KYiLVLirPB5h/EACM4MjvlRi8?=
+ =?us-ascii?Q?LNsVDf5jx4vCm4J3maNqcFglFVzJ7SkbTA44QthoJLRLcKjLITS21ewrRv0U?=
+ =?us-ascii?Q?qj5qLiQ0Sg5B2ckus47cjX/f0CgrU0e1CP3yZ+BYEaPUSddLG6iChqIHy0wW?=
+ =?us-ascii?Q?5Gpi7YRmfq1A8RXKgzZoC13Xv/XHKwUT4N4m2IfwAKr8qTfqCkHDSKs4vOUf?=
+ =?us-ascii?Q?+rg8nn1PL0BFZqf0A16dada54+tC4spaGyx8PEWGUNUngOyIrPXAWEM7zTV0?=
+ =?us-ascii?Q?n1dh7R6vEH6le6fDH6U6tB3Z9H46kSwJNjF34kZLenLnhXzUKXzy6WGpb0+x?=
+ =?us-ascii?Q?b0V+TBWLI4ETprIBUy98wrUHfgwHgWg4p1L/zJJpOVhBjCZ8rkoQERxVwX5z?=
+ =?us-ascii?Q?6X9dATpU/maimEhk5y5/r0l1Z25aEFkdRiaDr2a+UE9eqvrJOF9ACAxEoPvD?=
+ =?us-ascii?Q?clOt3lKMat4wMZAwvlC17601Hk5Xs3JK1BasC+wXu1/9zZf0zBnRX/Htrtei?=
+ =?us-ascii?Q?38e0xTsZra5gO0iMLC7LcCGhVxJ6WkGRFomALziOWs772y6Nu/oNzqzfVVcJ?=
+ =?us-ascii?Q?vjKuJMhuIApUoz5jwhvdhzzbU+/9SKKbX+Nhy3RZh2XsMvz7pER+j8CisTEV?=
+ =?us-ascii?Q?8GrVINXfTFgkjHvvqnTiqpNurjRN0aFLTy/+zbv5zfXlzuucQfZqeUSqP4WF?=
+ =?us-ascii?Q?3J8SQxAV1VG4eAMfTYqVpE88bqrJzZW5cR93vUbkiw0awGWy6mzt6DQ0dRx+?=
+ =?us-ascii?Q?6uaYpUHHouxEtWEVEOyhZ6MVoP2nFyTXFL6EfmwcTPsL5EBVfwEoC6Q69LsZ?=
+ =?us-ascii?Q?BCvEU5+H4aN+kvhhlLhFteYlFhot7mk2SjeeynJLp2agnlEvPa0w3Usa06+b?=
+ =?us-ascii?Q?A9CNUlnvB65tNL56IVY=3D?=
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB5481AF4B2F61E96794D7ABC7DCC3A@PH0PR12MB5481.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9c185f52-e511-4a29-a30e-08dbcb13f69d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Oct 2023 11:11:20.5268 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TL8L/4VAtNZwqitOHz/OaCpQ4hQChdz1OPlVc9Af/wg5LlX5YqZB1A5RZm3TDqnJQbafLgug5oA4e/WI4P04Yg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB6717
 Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
  Maor Gottlieb <maorg@nvidia.com>,
  "virtualization@lists.linux-foundation.org"
@@ -129,30 +164,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 26, 2023 at 03:45:36AM +0000, Parav Pandit wrote:
+
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Thursday, October 12, 2023 4:23 PM
 > 
-> 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Tuesday, September 26, 2023 12:06 AM
-> 
-> > One can thinkably do that wait in hardware, though. Just defer completion until
-> > read is done.
+> On Tue, Sep 26, 2023 at 03:45:36AM +0000, Parav Pandit wrote:
 > >
-> Once OASIS does such new interface and if some hw vendor _actually_ wants to do such complex hw, may be vfio driver can adopt to it.
+> >
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: Tuesday, September 26, 2023 12:06 AM
+> >
+> > > One can thinkably do that wait in hardware, though. Just defer
+> > > completion until read is done.
+> > >
+> > Once OASIS does such new interface and if some hw vendor _actually_ wants
+> to do such complex hw, may be vfio driver can adopt to it.
+> 
+> The reset behaviour I describe is already in the spec. What else do you want
+> OASIS to standardize? Virtio currently is just a register map it does not yet
+> include suggestions on how exactly do pci express transactions look. You feel we
+> should add that?
 
-The reset behaviour I describe is already in the spec. What else do you
-want OASIS to standardize? Virtio currently is just a register map it
-does not yet include suggestions on how exactly do pci express
-transactions look. You feel we should add that?
+The reset behavior in the spec for modern as listed in [1] and [2] is just fine.
 
--- 
-MST
+What I meant is in context of having MMIO based legacy registers to "defer completion until read is done".
+I think you meant, "Just differ read completion, until reset is done".
+This means the hw needs to finish the device reset for thousands of devices within the read completion timeout of the pci.
+So when if OASIS does such standardization, someone can implement it.
 
+What I recollect, is OASIS didn't not standardize such anti-scale approach and took the admin command approach which achieve better scale.
+Hope I clarified.
+
+I am not expecting OASIS to do anything extra for legacy registers.
+
+[1] The device MUST reset when 0 is written to device_status, and present a 0 in device_status once that is done.
+[2] After writing 0 to device_status, the driver MUST wait for a read of device_status to return 0 before reinitializing
+the device.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
