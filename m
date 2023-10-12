@@ -1,99 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3B662CDB482
-	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 10:30:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id AB0E9CDB46E
+	for <virtualization@archiver.kernel.org>; Thu, 12 Oct 2023 10:52:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C0ADD4087A;
-	Thu, 12 Oct 2023 10:30:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C0ADD4087A
+	by smtp2.osuosl.org (Postfix) with ESMTP id 25DBA40004;
+	Thu, 12 Oct 2023 10:52:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25DBA40004
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hi9u5ioU
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cnvOjE0scMTz; Thu, 12 Oct 2023 10:52:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 84434404B9;
+	Thu, 12 Oct 2023 10:52:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 84434404B9
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 51F62C0039;
+	Thu, 12 Oct 2023 10:52:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11A63C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Oct 2023 10:52:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id C9B584151B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Oct 2023 10:52:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C9B584151B
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Iu1maRYc
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hi9u5ioU
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id F7Y_EazbGetb; Thu, 12 Oct 2023 10:30:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2FD6040491;
-	Thu, 12 Oct 2023 10:30:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2FD6040491
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 16141C0039;
-	Thu, 12 Oct 2023 10:30:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B517EC0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Bo6UMOMTVOC5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:30:39 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 832BE81D02
+ Thu, 12 Oct 2023 10:52:50 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 62D854150E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:30:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 832BE81D02
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=Iu1maRYc
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8ips-1Mpwu3w
+ Thu, 12 Oct 2023 10:52:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 62D854150E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1697107969;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=WCc9mHbY2JlIHfp5VOa+l2dSwNloOuO6MCxzrGGXt3M=;
+ b=hi9u5ioUIuLoP8YX55QHfILRGzOfcUDfWq+2WumE271KiXLiZYgA/GzTRD9o6Y+Vo+ojIx
+ IDE+5jaRJMkHR6Eu0GIOvNXvP0GlvCtvQQ1Xlpbv8oS4dEwhw50yDz9z+/idVcrEEAFlxf
+ Xo3zVqSBwJBENP32Iu4yh4sI8JQrhuw=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-221-gIMS5WEXMvSTMaOUBIZHDg-1; Thu, 12 Oct 2023 06:52:47 -0400
+X-MC-Unique: gIMS5WEXMvSTMaOUBIZHDg-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ 2adb3069b0e04-5043c463bf9so878223e87.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:30:38 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 98AD981CAF
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Oct 2023 10:30:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 98AD981CAF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1697106638; x=1728642638;
- h=message-id:date:mime-version:subject:to:cc:references:
- from:in-reply-to:content-transfer-encoding;
- bh=hradNalj6PFxuR3qnMWgd3TgXQ0asLVDZrCofaoeVQI=;
- b=Iu1maRYcMLqbCk1YVnXA2Dur+P70uFmDRUjRhHJXA/RLpVjti6AEHqJQ
- eJhlS4ymp8Cr0T5ZOmuZbwjaYPJLGzSMj/KFDN122lLSHZFkIA/HVxQkf
- vXu4oT88wcNW2E9aOuwuCJ/izPswHt9dnhLs4aPm63tgRWKNlfig8kIPo
- V4U5U3NjQGbMxO4ZGjmUPC7Z7YXLDUSqpcZQPktRvDm8RIUkpbNWikGTx
- zq91cEM7d1A9v0kyURTHu+0o3dNuAYAaRzJmqWnHuL45BnTm4WxBi5vd6
- Iye2dB18wawejK2qsudBynyeoZPtJGOz4V4kQoU0S1DjilrPrXs6RL91D Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10860"; a="449074057"
-X-IronPort-AV: E=Sophos;i="6.03,218,1694761200"; d="scan'208";a="449074057"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Oct 2023 03:30:37 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10860"; a="820085773"
-X-IronPort-AV: E=Sophos;i="6.03,218,1694761200"; d="scan'208";a="820085773"
-Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.93.29.0])
- ([10.93.29.0])
- by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Oct 2023 03:30:35 -0700
-Message-ID: <3aaec14f-6b54-6a4c-7fb3-49120607c42c@intel.com>
-Date: Thu, 12 Oct 2023 18:30:33 +0800
+ Thu, 12 Oct 2023 03:52:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1697107966; x=1697712766;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=WCc9mHbY2JlIHfp5VOa+l2dSwNloOuO6MCxzrGGXt3M=;
+ b=ISzp7u5SB/a6IN9VElaceQ8JAws+z2nmiRwqFc8bp6qkwvsQvZIwp1L9YcQxSNhmdS
+ hgF1Yvv4PVdS2NsD82gHMjjihhoDvxPO5SFJI9ocGjwqonF8GMYSracBgYp2JXOrk7mG
+ hrpDNG/egtUYLTkqZYe/r/RtlHXSbwwtERq1oKTgbAiobbDy0uLus7VshG7Io+WPC/nK
+ qmbbXSotVDboqEvC3Ycw645PVqgRK04CEDOtzS4cXo/lH2T9QxOxwfKplpc4sFVntLyp
+ VTQXGx7FVP2HR6j2aodGS6CxRW6fx6J2DQc8FyC+ByrzgsqZrNZbaBH1vIuij1nhQSAo
+ 1K4Q==
+X-Gm-Message-State: AOJu0Yw1T8/gmTQg4fHNWkcwv40LU6rKLMhScIRf81NwCfi4EFJmleSW
+ 5v5EUXEWwCO67Pl9EA8/HnimG/980xBB2Ra+jinv7QxlZcAxCl6hUDN1tMQ7GonCsfdH6fNsS69
+ b27h4okOOtHs3wKQ9O+Zej+ZTp7z0NnrFd6egvAzhHw==
+X-Received: by 2002:a05:6512:ba6:b0:503:2877:67d3 with SMTP id
+ b38-20020a0565120ba600b00503287767d3mr23005978lfv.67.1697107966270; 
+ Thu, 12 Oct 2023 03:52:46 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFzbTERUF8xEQetm4cgeqjsxy3FbcXouW9Y3QzwsFZi3a1d6dHvi0j5cXFUujnC5oFhbcHqgw==
+X-Received: by 2002:a05:6512:ba6:b0:503:2877:67d3 with SMTP id
+ b38-20020a0565120ba600b00503287767d3mr23005953lfv.67.1697107965850; 
+ Thu, 12 Oct 2023 03:52:45 -0700 (PDT)
+Received: from redhat.com ([2a06:c701:73d2:bf00:e379:826:5137:6b23])
+ by smtp.gmail.com with ESMTPSA id
+ c4-20020a5d4cc4000000b003247d3e5d99sm17990316wrt.55.2023.10.12.03.52.43
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 12 Oct 2023 03:52:45 -0700 (PDT)
+Date: Thu, 12 Oct 2023 06:52:42 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH vfio 11/11] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20231012065008-mutt-send-email-mst@kernel.org>
+References: <20230921152802-mutt-send-email-mst@kernel.org>
+ <20230921195345.GZ13733@nvidia.com>
+ <20230921155834-mutt-send-email-mst@kernel.org>
+ <CACGkMEvD+cTyRtax7_7TBNECQcGPcsziK+jCBgZcLJuETbyjYw@mail.gmail.com>
+ <20230922122246.GN13733@nvidia.com>
+ <PH0PR12MB548127753F25C45B7EFF203DDCFFA@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <CACGkMEuX5HJVBOw9E+skr=K=QzH3oyHK8gk-r0hAvi6Wm7OA7Q@mail.gmail.com>
+ <PH0PR12MB5481ED78F7467EEB0740847EDCFCA@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20230925141713-mutt-send-email-mst@kernel.org>
+ <PH0PR12MB5481AF4B2F61E96794D7ABC7DCC3A@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.15.1
-Subject: Re: [PATCH vfio 10/11] vfio/virtio: Expose admin commands over virtio
- device
-Content-Language: en-US
-To: Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin"
- <mst@redhat.com>
-References: <ZSAG9cedvh+B0c0E@infradead.org> <20231010131031.GJ3952@nvidia.com>
- <20231010094756-mutt-send-email-mst@kernel.org>
- <20231010140849.GL3952@nvidia.com>
- <20231010105339-mutt-send-email-mst@kernel.org>
- <e979dfa2-0733-7f0f-dd17-49ed89ef6c40@nvidia.com>
- <20231010111339-mutt-send-email-mst@kernel.org>
- <20231010155937.GN3952@nvidia.com> <ZSY9Cv5/e3nfA7ux@infradead.org>
- <20231011021454-mutt-send-email-mst@kernel.org>
- <ZSZHzs38Q3oqyn+Q@infradead.org>
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-In-Reply-To: <ZSZHzs38Q3oqyn+Q@infradead.org>
-Cc: kvm@vger.kernel.org, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, Jason Gunthorpe <jgg@nvidia.com>,
- jiri@nvidia.com, leonro@nvidia.com
+In-Reply-To: <PH0PR12MB5481AF4B2F61E96794D7ABC7DCC3A@PH0PR12MB5481.namprd12.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ Maor Gottlieb <maorg@nvidia.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
+ Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,35 +129,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Tue, Sep 26, 2023 at 03:45:36AM +0000, Parav Pandit wrote:
+> 
+> 
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Tuesday, September 26, 2023 12:06 AM
+> 
+> > One can thinkably do that wait in hardware, though. Just defer completion until
+> > read is done.
+> >
+> Once OASIS does such new interface and if some hw vendor _actually_ wants to do such complex hw, may be vfio driver can adopt to it.
 
+The reset behaviour I describe is already in the spec. What else do you
+want OASIS to standardize? Virtio currently is just a register map it
+does not yet include suggestions on how exactly do pci express
+transactions look. You feel we should add that?
 
-On 10/11/2023 2:59 PM, Christoph Hellwig wrote:
-> On Wed, Oct 11, 2023 at 02:43:37AM -0400, Michael S. Tsirkin wrote:
->>> Btw, what is that intel thing everyone is talking about?  And why
->>> would the virtio core support vendor specific behavior like that?
->> It's not a thing it's Zhu Lingshan :) intel is just one of the vendors
->> that implemented vdpa support and so Zhu Lingshan from intel is working
->> on vdpa and has also proposed virtio spec extensions for migration.
->> intel's driver is called ifcvf.  vdpa composes all this stuff that is
->> added to vfio in userspace, so it's a different approach.
-> Well, so let's call it virtio live migration instead of intel.
->
-> And please work all together in the virtio committee that you have
-> one way of communication between controlling and controlled functions.
-> If one extension does it one way and the other a different way that's
-> just creating a giant mess.
-I hope so, Jason Wang has proposed a solution to cooperate, but sadly
-rejected...
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
