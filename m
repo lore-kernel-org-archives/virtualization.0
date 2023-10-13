@@ -4,92 +4,104 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1E52ECDB47E
-	for <virtualization@archiver.kernel.org>; Fri, 13 Oct 2023 08:26:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADCB5CDB47E
+	for <virtualization@archiver.kernel.org>; Fri, 13 Oct 2023 09:22:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7791F41B26;
-	Fri, 13 Oct 2023 08:26:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7791F41B26
+	by smtp4.osuosl.org (Postfix) with ESMTP id 309BE41F68;
+	Fri, 13 Oct 2023 09:22:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 309BE41F68
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=yIfGRlLE
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Brvgvi5U
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dqvcVlkWOr0h; Fri, 13 Oct 2023 08:26:21 +0000 (UTC)
+	with ESMTP id 2XTJAaGIrnxN; Fri, 13 Oct 2023 09:22:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0669F41B08;
-	Fri, 13 Oct 2023 08:26:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0669F41B08
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B5F541BB3;
+	Fri, 13 Oct 2023 09:22:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B5F541BB3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CB437C0039;
-	Fri, 13 Oct 2023 08:26:20 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A055FC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D435C0039;
+	Fri, 13 Oct 2023 09:22:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC0F5C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 08:26:19 +0000 (UTC)
+ Fri, 13 Oct 2023 09:22:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6E2976104F
+ by smtp4.osuosl.org (Postfix) with ESMTP id B9F3441E46
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 08:26:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E2976104F
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=yIfGRlLE
+ Fri, 13 Oct 2023 09:22:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B9F3441E46
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QE3t5nq2L04R
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id J1W-tuek5QpW
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 08:26:18 +0000 (UTC)
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 72D676100D
+ Fri, 13 Oct 2023 09:22:52 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9BA6D41BB3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 08:26:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 72D676100D
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 39D7Opc1013924; Fri, 13 Oct 2023 08:26:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id; s=corp-2023-03-30;
- bh=/0aZsgxCF4y1JYPEwaC9JYKgoBe2Trmk++npA7bf5y0=;
- b=yIfGRlLEq+0gXPeFyUKwwaRRMbfR0usE+EYMVqFexk3LjdcmdShe7j1u5d1h+7QFnY1I
- 6j80BoCGHKU8PEg/oKn55odItYcfccBjT8W2iaKFXjMXl2Tn0J2n4sJ9IveAhZ3bGEk8
- OYI5ESiOOiBX7p1SMHRud+oTp7ZuzHfEucpalu5o27R7Q2UVkvUcS+12ctBf7pEehzHZ
- nSGaJCbqdhBe0c8PoTKkRYi/nqaBPW76+D324nr2lXWwSNCPtw91ssdtFwULOmhe2Pe4
- cALsLGhS8kz7GAugbpNQoIxd+eVXuygipDhZI/9y4HKtdzkigqVSFCvfQnWO4W78uHLH cQ== 
-Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
- (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3tjx8cmk76-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Fri, 13 Oct 2023 08:26:17 +0000
-Received: from pps.filterd
- (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
- by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 39D626bD020257; Fri, 13 Oct 2023 08:26:17 GMT
-Received: from ban25x6uut24.us.oracle.com (ban25x6uut24.us.oracle.com
- [10.153.73.24])
- by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id
- 3tptcj8d2r-1; Fri, 13 Oct 2023 08:26:16 +0000
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-To: jasowang@redhat.com, mst@redhat.com, eperezma@redhat.com,
- sgarzare@redhat.com
-Subject: [RFC PATCH] vdpa_sim: implement .reset_map support
-Date: Fri, 13 Oct 2023 01:23:40 -0700
-Message-Id: <1697185420-27213-1-git-send-email-si-wei.liu@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-13_03,2023-10-12_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
- adultscore=0
- suspectscore=0 phishscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310130069
-X-Proofpoint-ORIG-GUID: y_bZp2PgS0bvm98lMFFCMa3cM5HRiHF2
-X-Proofpoint-GUID: y_bZp2PgS0bvm98lMFFCMa3cM5HRiHF2
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+ Fri, 13 Oct 2023 09:22:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9BA6D41BB3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1697188971;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=y79P95BNudFuWy4ZhGlYbCRHyPElKrXCG8x3TZEUCz4=;
+ b=Brvgvi5U8rridS7lnhp9BGdfwXLDZ1SWIUmRBayLdNGIsXtZx9XraaxpfVd60xpiVeodrh
+ mjP4cXtbiwUVlNU8q1esS267jyFg5z9g8vhhWvnT+l/JDGp0Z/miCJygvfm5FXGERhSc5p
+ iwdQzmguatHtoM0EDaspDbTJpC9HGzU=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-392-G23x7Bs5OVChxT-mu_y4TA-1; Fri, 13 Oct 2023 05:22:40 -0400
+X-MC-Unique: G23x7Bs5OVChxT-mu_y4TA-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ af79cd13be357-775d995f92aso237606385a.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 13 Oct 2023 02:22:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1697188960; x=1697793760;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=y79P95BNudFuWy4ZhGlYbCRHyPElKrXCG8x3TZEUCz4=;
+ b=ifohcMeKhDNqV5MEVhbCCr/5VRq7tGQ157Rv8vekEYsjtizB+ZocNNZ6ELWnl8QVtQ
+ 8KrUyTpLswqjssbu7/YezM7rCAdMrSB/RPgBe+yj0sMNOlLiAdaYdc0GV2KsVwD/8iKD
+ nCDhykCB14ThgjuLWoxc0Sx4TwsMYQ6aSBcNmBY66MX3xqYTw4cGIy07WqPPr5XrIK5I
+ NNCJXwGIrCCf1kSIIwId8YIyScfV3KEmk/+mwFdvuQA97+uj1NODqruNg1YU7kra/9dV
+ BM5LUV/+cLREprhoFoNx86icoi/lv6MQ+hBtCzSkhHJoXv6ZLr3vzMayImfMJ399ITsC
+ InBw==
+X-Gm-Message-State: AOJu0YxKCoGWFPODOMhQMekEWS8ONitGOTyWxwEfAC4H2kZztL2HdufQ
+ GF3GTBYJ5IKR5a8ryZuTB35KJdFgutGp4txeoNx0RIXQtMQJN+VRPeh6OOOWYF/n/AHKBdY3UqV
+ q4afjWuH16Auqk1sy2hmATpZYV+GZlj/krr4RSfTB1g==
+X-Received: by 2002:a05:620a:d85:b0:770:70d6:417c with SMTP id
+ q5-20020a05620a0d8500b0077070d6417cmr30517229qkl.33.1697188960019; 
+ Fri, 13 Oct 2023 02:22:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IH7yQXWpfoJ05zTNZZ3hijxAkmU5shyP7Ol6Sd7hHjzaaIhP+h/JsELmfnvxIgO7AnjSGmhuw==
+X-Received: by 2002:a05:620a:d85:b0:770:70d6:417c with SMTP id
+ q5-20020a05620a0d8500b0077070d6417cmr30517223qkl.33.1697188959805; 
+ Fri, 13 Oct 2023 02:22:39 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-46-200-251.retail.telecomitalia.it.
+ [79.46.200.251]) by smtp.gmail.com with ESMTPSA id
+ p9-20020a05620a132900b0077434d0f06esm476063qkj.52.2023.10.13.02.22.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 13 Oct 2023 02:22:39 -0700 (PDT)
+Date: Fri, 13 Oct 2023 11:22:32 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: Re: [RFC PATCH] vdpa_sim: implement .reset_map support
+Message-ID: <4o4yuuezigilikolv2paxb7icrsm3gdnj5aeoe47uotzju7xve@s5vqaafrppdv>
+References: <1697185420-27213-1-git-send-email-si-wei.liu@oracle.com>
+MIME-Version: 1.0
+In-Reply-To: <1697185420-27213-1-git-send-email-si-wei.liu@oracle.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: eperezma@redhat.com, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,86 +113,35 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-RFC only. Not tested on vdpa-sim-blk with user virtual address.
-Works fine with vdpa-sim-net which uses physical address to map.
+Hi Si-Wei,
 
-This patch is based on top of [1].
+On Fri, Oct 13, 2023 at 01:23:40AM -0700, Si-Wei Liu wrote:
+>RFC only. Not tested on vdpa-sim-blk with user virtual address.
 
-[1] https://lore.kernel.org/virtualization/1696928580-7520-1-git-send-email-si-wei.liu@oracle.com/
+I can test it, but what I should stress?
 
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 28 +++++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 7 deletions(-)
+>Works fine with vdpa-sim-net which uses physical address to map.
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 76d4105..a7455f2 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -151,13 +151,6 @@ static void vdpasim_do_reset(struct vdpasim *vdpasim)
- 				 &vdpasim->iommu_lock);
- 	}
- 
--	for (i = 0; i < vdpasim->dev_attr.nas; i++) {
--		vhost_iotlb_reset(&vdpasim->iommu[i]);
--		vhost_iotlb_add_range(&vdpasim->iommu[i], 0, ULONG_MAX,
--				      0, VHOST_MAP_RW);
--		vdpasim->iommu_pt[i] = true;
--	}
--
- 	vdpasim->running = true;
- 	spin_unlock(&vdpasim->iommu_lock);
- 
-@@ -637,6 +630,25 @@ static int vdpasim_set_map(struct vdpa_device *vdpa, unsigned int asid,
- 	return ret;
- }
- 
-+static int vdpasim_reset_map(struct vdpa_device *vdpa, unsigned int asid)
-+{
-+	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-+
-+	if (asid >= vdpasim->dev_attr.nas)
-+		return -EINVAL;
-+
-+	spin_lock(&vdpasim->iommu_lock);
-+	if (vdpasim->iommu_pt[asid])
-+		goto out;
-+	vhost_iotlb_reset(&vdpasim->iommu[asid]);
-+	vhost_iotlb_add_range(&vdpasim->iommu[asid], 0, ULONG_MAX,
-+			      0, VHOST_MAP_RW);
-+	vdpasim->iommu_pt[asid] = true;
-+out:
-+	spin_unlock(&vdpasim->iommu_lock);
-+	return 0;
-+}
-+
- static int vdpasim_bind_mm(struct vdpa_device *vdpa, struct mm_struct *mm)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-@@ -759,6 +771,7 @@ static void vdpasim_free(struct vdpa_device *vdpa)
- 	.set_group_asid         = vdpasim_set_group_asid,
- 	.dma_map                = vdpasim_dma_map,
- 	.dma_unmap              = vdpasim_dma_unmap,
-+	.reset_map              = vdpasim_reset_map,
- 	.bind_mm		= vdpasim_bind_mm,
- 	.unbind_mm		= vdpasim_unbind_mm,
- 	.free                   = vdpasim_free,
-@@ -796,6 +809,7 @@ static void vdpasim_free(struct vdpa_device *vdpa)
- 	.get_iova_range         = vdpasim_get_iova_range,
- 	.set_group_asid         = vdpasim_set_group_asid,
- 	.set_map                = vdpasim_set_map,
-+	.reset_map              = vdpasim_reset_map,
- 	.bind_mm		= vdpasim_bind_mm,
- 	.unbind_mm		= vdpasim_unbind_mm,
- 	.free                   = vdpasim_free,
--- 
-1.8.3.1
+Can you share your tests? so I'll try to do the same with blk.
+
+>
+>This patch is based on top of [1].
+>
+>[1] 
+>https://lore.kernel.org/virtualization/1696928580-7520-1-git-send-email-si-wei.liu@oracle.com/
+
+The series does not apply well on master or vhost tree.
+Where should I apply it?
+
+If you have a tree with all of them applied, will be easy for me ;-)
+
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
