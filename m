@@ -1,107 +1,93 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id ADCB5CDB47E
-	for <virtualization@archiver.kernel.org>; Fri, 13 Oct 2023 09:22:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63AB4CDB47E
+	for <virtualization@archiver.kernel.org>; Fri, 13 Oct 2023 10:14:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 309BE41F68;
-	Fri, 13 Oct 2023 09:22:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 309BE41F68
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Brvgvi5U
+	by smtp2.osuosl.org (Postfix) with ESMTP id DB3D3416FF;
+	Fri, 13 Oct 2023 10:14:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB3D3416FF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=MCFCbWu4
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2XTJAaGIrnxN; Fri, 13 Oct 2023 09:22:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NU6JwP8mOdJi; Fri, 13 Oct 2023 10:14:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B5F541BB3;
-	Fri, 13 Oct 2023 09:22:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B5F541BB3
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6FDB14173C;
+	Fri, 13 Oct 2023 10:14:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6FDB14173C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D435C0039;
-	Fri, 13 Oct 2023 09:22:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41DB9C0071;
+	Fri, 13 Oct 2023 10:14:32 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC0F5C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 588CCC0071
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 09:22:53 +0000 (UTC)
+ Fri, 13 Oct 2023 10:14:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B9F3441E46
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6CFF741FBC
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 09:22:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B9F3441E46
+ Fri, 13 Oct 2023 10:14:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6CFF741FBC
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=MCFCbWu4
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J1W-tuek5QpW
+ with ESMTP id LUGds3YgJjxj
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 09:22:52 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9BA6D41BB3
+ Fri, 13 Oct 2023 10:14:27 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 583C941FB0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 09:22:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9BA6D41BB3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697188971;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=y79P95BNudFuWy4ZhGlYbCRHyPElKrXCG8x3TZEUCz4=;
- b=Brvgvi5U8rridS7lnhp9BGdfwXLDZ1SWIUmRBayLdNGIsXtZx9XraaxpfVd60xpiVeodrh
- mjP4cXtbiwUVlNU8q1esS267jyFg5z9g8vhhWvnT+l/JDGp0Z/miCJygvfm5FXGERhSc5p
- iwdQzmguatHtoM0EDaspDbTJpC9HGzU=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-392-G23x7Bs5OVChxT-mu_y4TA-1; Fri, 13 Oct 2023 05:22:40 -0400
-X-MC-Unique: G23x7Bs5OVChxT-mu_y4TA-1
-Received: by mail-qk1-f200.google.com with SMTP id
- af79cd13be357-775d995f92aso237606385a.1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Oct 2023 02:22:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697188960; x=1697793760;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=y79P95BNudFuWy4ZhGlYbCRHyPElKrXCG8x3TZEUCz4=;
- b=ifohcMeKhDNqV5MEVhbCCr/5VRq7tGQ157Rv8vekEYsjtizB+ZocNNZ6ELWnl8QVtQ
- 8KrUyTpLswqjssbu7/YezM7rCAdMrSB/RPgBe+yj0sMNOlLiAdaYdc0GV2KsVwD/8iKD
- nCDhykCB14ThgjuLWoxc0Sx4TwsMYQ6aSBcNmBY66MX3xqYTw4cGIy07WqPPr5XrIK5I
- NNCJXwGIrCCf1kSIIwId8YIyScfV3KEmk/+mwFdvuQA97+uj1NODqruNg1YU7kra/9dV
- BM5LUV/+cLREprhoFoNx86icoi/lv6MQ+hBtCzSkhHJoXv6ZLr3vzMayImfMJ399ITsC
- InBw==
-X-Gm-Message-State: AOJu0YxKCoGWFPODOMhQMekEWS8ONitGOTyWxwEfAC4H2kZztL2HdufQ
- GF3GTBYJ5IKR5a8ryZuTB35KJdFgutGp4txeoNx0RIXQtMQJN+VRPeh6OOOWYF/n/AHKBdY3UqV
- q4afjWuH16Auqk1sy2hmATpZYV+GZlj/krr4RSfTB1g==
-X-Received: by 2002:a05:620a:d85:b0:770:70d6:417c with SMTP id
- q5-20020a05620a0d8500b0077070d6417cmr30517229qkl.33.1697188960019; 
- Fri, 13 Oct 2023 02:22:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH7yQXWpfoJ05zTNZZ3hijxAkmU5shyP7Ol6Sd7hHjzaaIhP+h/JsELmfnvxIgO7AnjSGmhuw==
-X-Received: by 2002:a05:620a:d85:b0:770:70d6:417c with SMTP id
- q5-20020a05620a0d8500b0077070d6417cmr30517223qkl.33.1697188959805; 
- Fri, 13 Oct 2023 02:22:39 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-46-200-251.retail.telecomitalia.it.
- [79.46.200.251]) by smtp.gmail.com with ESMTPSA id
- p9-20020a05620a132900b0077434d0f06esm476063qkj.52.2023.10.13.02.22.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 13 Oct 2023 02:22:39 -0700 (PDT)
-Date: Fri, 13 Oct 2023 11:22:32 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Subject: Re: [RFC PATCH] vdpa_sim: implement .reset_map support
-Message-ID: <4o4yuuezigilikolv2paxb7icrsm3gdnj5aeoe47uotzju7xve@s5vqaafrppdv>
-References: <1697185420-27213-1-git-send-email-si-wei.liu@oracle.com>
+ Fri, 13 Oct 2023 10:14:27 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 583C941FB0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1697192067; x=1728728067;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=XFoqaJbduqLCyl9DPecY1ECvrkqVkONk2hKheDsUmwo=;
+ b=MCFCbWu45d/+RukE9so9zf15noau1idvW5FM04luUdLusQXIKoQOPj2p
+ PmJgFcvcLnwgvSVgpv3cNmJH/Mg3kQe1dmksujQ/Yf/kwtKYviDNtWKgQ
+ ePNjpYfBWIbJkwnRukG+zaKLRZ2TZp48WrHE0+EXvbGFQR6TCWu626tOy
+ sKPkbckUh9e3/MhC6sWxM99+Fgoofc1fg6gLRczhONbJ/jSQkmWRwNYB8
+ 7K6RlH1S2EnrPfX16Hw84mjhBJxjGeeNjFjmMLPjKeWe1OtXgWOZa2Iuc
+ qW6eiOWgVTGPHgHVZggxj6nclkZfsrMpzzVIESuDukk7Xhp+HZKpKXCTl g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10861"; a="416202067"
+X-IronPort-AV: E=Sophos;i="6.03,221,1694761200"; d="scan'208";a="416202067"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 13 Oct 2023 03:14:26 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10861"; a="754653480"
+X-IronPort-AV: E=Sophos;i="6.03,221,1694761200"; d="scan'208";a="754653480"
+Received: from lkp-server02.sh.intel.com (HELO f64821696465) ([10.239.97.151])
+ by orsmga002.jf.intel.com with ESMTP; 13 Oct 2023 03:14:18 -0700
+Received: from kbuild by f64821696465 with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1qrFBQ-0004cX-1O;
+ Fri, 13 Oct 2023 10:14:16 +0000
+Date: Fri, 13 Oct 2023 18:13:06 +0800
+From: kernel test robot <lkp@intel.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH vhost 11/22] virtio_net: sq support premapped mode
+Message-ID: <202310131711.QjbkIwe0-lkp@intel.com>
+References: <20231011092728.105904-12-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <1697185420-27213-1-git-send-email-si-wei.liu@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: eperezma@redhat.com, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com
+In-Reply-To: <20231011092728.105904-12-xuanzhuo@linux.alibaba.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ oe-kbuild-all@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,36 +99,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Si-Wei,
+Hi Xuan,
 
-On Fri, Oct 13, 2023 at 01:23:40AM -0700, Si-Wei Liu wrote:
->RFC only. Not tested on vdpa-sim-blk with user virtual address.
+kernel test robot noticed the following build warnings:
 
-I can test it, but what I should stress?
+[auto build test WARNING on linus/master]
+[also build test WARNING on v6.6-rc5 next-20231013]
+[cannot apply to mst-vhost/linux-next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
->Works fine with vdpa-sim-net which uses physical address to map.
+url:    https://github.com/intel-lab-lkp/linux/commits/Xuan-Zhuo/virtio_ring-virtqueue_set_dma_premapped-support-disable/20231011-180709
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20231011092728.105904-12-xuanzhuo%40linux.alibaba.com
+patch subject: [PATCH vhost 11/22] virtio_net: sq support premapped mode
+config: parisc-randconfig-001-20231013 (https://download.01.org/0day-ci/archive/20231013/202310131711.QjbkIwe0-lkp@intel.com/config)
+compiler: hppa-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231013/202310131711.QjbkIwe0-lkp@intel.com/reproduce)
 
-Can you share your tests? so I'll try to do the same with blk.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202310131711.QjbkIwe0-lkp@intel.com/
 
->
->This patch is based on top of [1].
->
->[1] 
->https://lore.kernel.org/virtualization/1696928580-7520-1-git-send-email-si-wei.liu@oracle.com/
+All warnings (new ones prefixed by >>):
 
-The series does not apply well on master or vhost tree.
-Where should I apply it?
+   In file included from drivers/net/virtio/main.c:25:
+   drivers/net/virtio/virtio_net.h: In function 'virtnet_sq_unmap':
+>> drivers/net/virtio/virtio_net.h:235:25: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+     235 |         head = (void *)((u64)data & ~VIRTIO_XMIT_DATA_MASK);
+         |                         ^
+>> drivers/net/virtio/virtio_net.h:235:16: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+     235 |         head = (void *)((u64)data & ~VIRTIO_XMIT_DATA_MASK);
+         |                ^
+   drivers/net/virtio/main.c: In function 'virtnet_sq_map_sg':
+>> drivers/net/virtio/main.c:600:25: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+     600 |         return (void *)((u64)head | ((u64)data & VIRTIO_XMIT_DATA_MASK));
+         |                         ^
+   drivers/net/virtio/main.c:600:38: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+     600 |         return (void *)((u64)head | ((u64)data & VIRTIO_XMIT_DATA_MASK));
+         |                                      ^
+>> drivers/net/virtio/main.c:600:16: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+     600 |         return (void *)((u64)head | ((u64)data & VIRTIO_XMIT_DATA_MASK));
+         |                ^
+   drivers/net/virtio/main.c: In function 'virtnet_find_vqs':
+   drivers/net/virtio/main.c:3977:48: warning: '%d' directive writing between 1 and 11 bytes into a region of size 10 [-Wformat-overflow=]
+    3977 |                 sprintf(vi->rq[i].name, "input.%d", i);
+         |                                                ^~
+   drivers/net/virtio/main.c:3977:41: note: directive argument in the range [-2147483641, 65534]
+    3977 |                 sprintf(vi->rq[i].name, "input.%d", i);
+         |                                         ^~~~~~~~~~
+   drivers/net/virtio/main.c:3977:17: note: 'sprintf' output between 8 and 18 bytes into a destination of size 16
+    3977 |                 sprintf(vi->rq[i].name, "input.%d", i);
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/net/virtio/main.c:3978:49: warning: '%d' directive writing between 1 and 11 bytes into a region of size 9 [-Wformat-overflow=]
+    3978 |                 sprintf(vi->sq[i].name, "output.%d", i);
+         |                                                 ^~
+   drivers/net/virtio/main.c:3978:41: note: directive argument in the range [-2147483641, 65534]
+    3978 |                 sprintf(vi->sq[i].name, "output.%d", i);
+         |                                         ^~~~~~~~~~~
+   drivers/net/virtio/main.c:3978:17: note: 'sprintf' output between 9 and 19 bytes into a destination of size 16
+    3978 |                 sprintf(vi->sq[i].name, "output.%d", i);
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you have a tree with all of them applied, will be easy for me ;-)
 
-Thanks,
-Stefano
+vim +235 drivers/net/virtio/virtio_net.h
 
+   230	
+   231	static inline void *virtnet_sq_unmap(struct virtnet_sq *sq, void *data)
+   232	{
+   233		struct virtnet_sq_dma *next, *head;
+   234	
+ > 235		head = (void *)((u64)data & ~VIRTIO_XMIT_DATA_MASK);
+   236	
+   237		data = head->data;
+   238	
+   239		while (head) {
+   240			virtqueue_dma_unmap_page_attrs(sq->vq, head->addr, head->len, DMA_TO_DEVICE, 0);
+   241	
+   242			next = head->next;
+   243	
+   244			head->next = sq->dmainfo.free;
+   245			sq->dmainfo.free = head;
+   246	
+   247			head = next;
+   248		}
+   249	
+   250		return data;
+   251	}
+   252	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
