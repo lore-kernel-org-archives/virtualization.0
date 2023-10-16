@@ -1,59 +1,59 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 009F0CDB465
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 107D0CDB483
 	for <virtualization@archiver.kernel.org>; Mon, 16 Oct 2023 12:00:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9CDA882148;
-	Mon, 16 Oct 2023 12:00:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9CDA882148
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uPVsY-36X543; Mon, 16 Oct 2023 12:00:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 182A882142;
+	by smtp4.osuosl.org (Postfix) with ESMTP id A5DCC41B2F;
 	Mon, 16 Oct 2023 12:00:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 182A882142
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A5DCC41B2F
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id anyzTJUpNOg5; Mon, 16 Oct 2023 12:00:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 4F12C41946;
+	Mon, 16 Oct 2023 12:00:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4F12C41946
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E6DABC0088;
-	Mon, 16 Oct 2023 12:00:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 801C7C0DD2;
+	Mon, 16 Oct 2023 12:00:50 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 10326C0032
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 12:00:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 58A5781FFC
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1C4FFC0032
  for <virtualization@lists.linux-foundation.org>;
  Mon, 16 Oct 2023 12:00:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 58A5781FFC
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 83B7881FFC
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Oct 2023 12:00:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 83B7881FFC
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RsQOHlpNPufS
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 12:00:48 +0000 (UTC)
-Received: from out30-130.freemail.mail.aliyun.com
- (out30-130.freemail.mail.aliyun.com [115.124.30.130])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A9814814C1
+ with ESMTP id VY4Tqa75tjqb
  for <virtualization@lists.linux-foundation.org>;
  Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A9814814C1
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R271e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7B736820EE
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B736820EE
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046051;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VuH0NbG_1697457641; 
+ TI=SMTPD_---0VuHUmQH_1697457638; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VuH0NbG_1697457641) by smtp.aliyun-inc.com;
- Mon, 16 Oct 2023 20:00:42 +0800
+ fp:SMTPD_---0VuHUmQH_1697457638) by smtp.aliyun-inc.com;
+ Mon, 16 Oct 2023 20:00:39 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next v1 06/19] virtio_net: separate virtnet_rx_resize()
-Date: Mon, 16 Oct 2023 20:00:20 +0800
-Message-Id: <20231016120033.26933-7-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v1 04/19] virtio_net: move to virtio_net.h
+Date: Mon, 16 Oct 2023 20:00:18 +0800
+Message-Id: <20231016120033.26933-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
 References: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
@@ -82,83 +82,609 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch separates two sub-functions from virtnet_rx_resize():
-
-* virtnet_rx_pause
-* virtnet_rx_resume
-
-Then the subsequent reset rx for xsk can share these two functions.
+Move some structure definitions and inline functions into the
+virtio_net.h file.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 ---
- drivers/net/virtio/main.c       | 29 +++++++++++++++++++++--------
- drivers/net/virtio/virtio_net.h |  3 +++
- 2 files changed, 24 insertions(+), 8 deletions(-)
+ drivers/net/virtio/main.c       | 252 +------------------------------
+ drivers/net/virtio/virtio_net.h | 256 ++++++++++++++++++++++++++++++++
+ 2 files changed, 258 insertions(+), 250 deletions(-)
+ create mode 100644 drivers/net/virtio/virtio_net.h
 
 diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-index ba38b6078e1d..e6b262341619 100644
+index 6cf77b6acdab..d8b6c0d86f29 100644
 --- a/drivers/net/virtio/main.c
 +++ b/drivers/net/virtio/main.c
-@@ -2120,26 +2120,39 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 	return NETDEV_TX_OK;
- }
+@@ -6,7 +6,6 @@
+ //#define DEBUG
+ #include <linux/netdevice.h>
+ #include <linux/etherdevice.h>
+-#include <linux/ethtool.h>
+ #include <linux/module.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_net.h>
+@@ -16,7 +15,6 @@
+ #include <linux/if_vlan.h>
+ #include <linux/slab.h>
+ #include <linux/cpu.h>
+-#include <linux/average.h>
+ #include <linux/filter.h>
+ #include <linux/kernel.h>
+ #include <net/route.h>
+@@ -24,6 +22,8 @@
+ #include <net/net_failover.h>
+ #include <net/netdev_rx_queue.h>
  
--static int virtnet_rx_resize(struct virtnet_info *vi,
--			     struct virtnet_rq *rq, u32 ring_num)
-+void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq)
- {
- 	bool running = netif_running(vi->dev);
--	int err, qindex;
++#include "virtio_net.h"
++
+ static int napi_weight = NAPI_POLL_WEIGHT;
+ module_param(napi_weight, int, 0444);
+ 
+@@ -45,15 +45,6 @@ module_param(napi_tx, bool, 0644);
+ #define VIRTIO_XDP_TX		BIT(0)
+ #define VIRTIO_XDP_REDIR	BIT(1)
+ 
+-#define VIRTIO_XDP_FLAG	BIT(0)
 -
--	qindex = rq - vi->rq;
+-/* RX packet size EWMA. The average packet size is used to determine the packet
+- * buffer size when refilling RX rings. As the entire RX ring may be refilled
+- * at once, the weight is chosen so that the EWMA will be insensitive to short-
+- * term, transient changes in packet size.
+- */
+-DECLARE_EWMA(pkt_len, 0, 64)
+-
+ #define VIRTNET_DRIVER_VERSION "1.0.0"
  
- 	if (running)
- 		napi_disable(&rq->napi);
-+}
+ static const unsigned long guest_offloads[] = {
+@@ -74,36 +65,6 @@ static const unsigned long guest_offloads[] = {
+ 				(1ULL << VIRTIO_NET_F_GUEST_USO4) | \
+ 				(1ULL << VIRTIO_NET_F_GUEST_USO6))
  
--	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
--	if (err)
--		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
-+void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq)
-+{
-+	bool running = netif_running(vi->dev);
+-struct virtnet_stat_desc {
+-	char desc[ETH_GSTRING_LEN];
+-	size_t offset;
+-};
+-
+-struct virtnet_sq_stats {
+-	struct u64_stats_sync syncp;
+-	u64 packets;
+-	u64 bytes;
+-	u64 xdp_tx;
+-	u64 xdp_tx_drops;
+-	u64 kicks;
+-	u64 tx_timeouts;
+-};
+-
+-struct virtnet_rq_stats {
+-	struct u64_stats_sync syncp;
+-	u64 packets;
+-	u64 bytes;
+-	u64 drops;
+-	u64 xdp_packets;
+-	u64 xdp_tx;
+-	u64 xdp_redirects;
+-	u64 xdp_drops;
+-	u64 kicks;
+-};
+-
+-#define VIRTNET_SQ_STAT(m)	offsetof(struct virtnet_sq_stats, m)
+-#define VIRTNET_RQ_STAT(m)	offsetof(struct virtnet_rq_stats, m)
+-
+ static const struct virtnet_stat_desc virtnet_sq_stats_desc[] = {
+ 	{ "packets",		VIRTNET_SQ_STAT(packets) },
+ 	{ "bytes",		VIRTNET_SQ_STAT(bytes) },
+@@ -127,80 +88,6 @@ static const struct virtnet_stat_desc virtnet_rq_stats_desc[] = {
+ #define VIRTNET_SQ_STATS_LEN	ARRAY_SIZE(virtnet_sq_stats_desc)
+ #define VIRTNET_RQ_STATS_LEN	ARRAY_SIZE(virtnet_rq_stats_desc)
  
- 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
- 		schedule_delayed_work(&vi->refill, 0);
+-struct virtnet_interrupt_coalesce {
+-	u32 max_packets;
+-	u32 max_usecs;
+-};
+-
+-/* The dma information of pages allocated at a time. */
+-struct virtnet_rq_dma {
+-	dma_addr_t addr;
+-	u32 ref;
+-	u16 len;
+-	u16 need_sync;
+-};
+-
+-/* Internal representation of a send virtqueue */
+-struct send_queue {
+-	/* Virtqueue associated with this send _queue */
+-	struct virtqueue *vq;
+-
+-	/* TX: fragments + linear part + virtio header */
+-	struct scatterlist sg[MAX_SKB_FRAGS + 2];
+-
+-	/* Name of the send queue: output.$index */
+-	char name[16];
+-
+-	struct virtnet_sq_stats stats;
+-
+-	struct virtnet_interrupt_coalesce intr_coal;
+-
+-	struct napi_struct napi;
+-
+-	/* Record whether sq is in reset state. */
+-	bool reset;
+-};
+-
+-/* Internal representation of a receive virtqueue */
+-struct receive_queue {
+-	/* Virtqueue associated with this receive_queue */
+-	struct virtqueue *vq;
+-
+-	struct napi_struct napi;
+-
+-	struct bpf_prog __rcu *xdp_prog;
+-
+-	struct virtnet_rq_stats stats;
+-
+-	struct virtnet_interrupt_coalesce intr_coal;
+-
+-	/* Chain pages by the private ptr. */
+-	struct page *pages;
+-
+-	/* Average packet length for mergeable receive buffers. */
+-	struct ewma_pkt_len mrg_avg_pkt_len;
+-
+-	/* Page frag for packet buffer allocation. */
+-	struct page_frag alloc_frag;
+-
+-	/* RX: fragments + linear part + virtio header */
+-	struct scatterlist sg[MAX_SKB_FRAGS + 2];
+-
+-	/* Min single buffer size for mergeable buffers case. */
+-	unsigned int min_buf_len;
+-
+-	/* Name of this receive queue: input.$index */
+-	char name[16];
+-
+-	struct xdp_rxq_info xdp_rxq;
+-
+-	/* Record the last dma info to free after new pages is allocated. */
+-	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
+-};
+-
+ /* This structure can contain rss message with maximum settings for indirection table and keysize
+  * Note, that default structure that describes RSS configuration virtio_net_rss_config
+  * contains same info but can't handle table values.
+@@ -234,88 +121,6 @@ struct control_buf {
+ 	struct virtio_net_ctrl_coal_vq coal_vq;
+ };
  
- 	if (running)
- 		virtnet_napi_enable(rq->vq, &rq->napi);
-+}
-+
-+static int virtnet_rx_resize(struct virtnet_info *vi,
-+			     struct virtnet_rq *rq, u32 ring_num)
-+{
-+	int err, qindex;
-+
-+	qindex = rq - vi->rq;
-+
-+	virtnet_rx_pause(vi, rq);
-+
-+	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
-+	if (err)
-+		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
-+
-+	virtnet_rx_resume(vi, rq);
- 	return err;
+-struct virtnet_info {
+-	struct virtio_device *vdev;
+-	struct virtqueue *cvq;
+-	struct net_device *dev;
+-	struct send_queue *sq;
+-	struct receive_queue *rq;
+-	unsigned int status;
+-
+-	/* Max # of queue pairs supported by the device */
+-	u16 max_queue_pairs;
+-
+-	/* # of queue pairs currently used by the driver */
+-	u16 curr_queue_pairs;
+-
+-	/* # of XDP queue pairs currently used by the driver */
+-	u16 xdp_queue_pairs;
+-
+-	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
+-	bool xdp_enabled;
+-
+-	/* I like... big packets and I cannot lie! */
+-	bool big_packets;
+-
+-	/* number of sg entries allocated for big packets */
+-	unsigned int big_packets_num_skbfrags;
+-
+-	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+-	bool mergeable_rx_bufs;
+-
+-	/* Host supports rss and/or hash report */
+-	bool has_rss;
+-	bool has_rss_hash_report;
+-	u8 rss_key_size;
+-	u16 rss_indir_table_size;
+-	u32 rss_hash_types_supported;
+-	u32 rss_hash_types_saved;
+-
+-	/* Has control virtqueue */
+-	bool has_cvq;
+-
+-	/* Host can handle any s/g split between our header and packet data */
+-	bool any_header_sg;
+-
+-	/* Packet virtio header size */
+-	u8 hdr_len;
+-
+-	/* Work struct for delayed refilling if we run low on memory. */
+-	struct delayed_work refill;
+-
+-	/* Is delayed refill enabled? */
+-	bool refill_enabled;
+-
+-	/* The lock to synchronize the access to refill_enabled */
+-	spinlock_t refill_lock;
+-
+-	/* Work struct for config space updates */
+-	struct work_struct config_work;
+-
+-	/* Does the affinity hint is set for virtqueues? */
+-	bool affinity_hint_set;
+-
+-	/* CPU hotplug instances for online & dead */
+-	struct hlist_node node;
+-	struct hlist_node node_dead;
+-
+-	struct control_buf *ctrl;
+-
+-	/* Ethtool settings */
+-	u8 duplex;
+-	u32 speed;
+-
+-	/* Interrupt coalescing settings */
+-	struct virtnet_interrupt_coalesce intr_coal_tx;
+-	struct virtnet_interrupt_coalesce intr_coal_rx;
+-
+-	unsigned long guest_offloads;
+-	unsigned long guest_offloads_capable;
+-
+-	/* failover when STANDBY feature enabled */
+-	struct failover *failover;
+-};
+-
+ struct padded_vnet_hdr {
+ 	struct virtio_net_hdr_v1_hash hdr;
+ 	/*
+@@ -337,45 +142,11 @@ struct virtio_net_common_hdr {
+ static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf);
+ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf);
+ 
+-static bool is_xdp_frame(void *ptr)
+-{
+-	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+-}
+-
+ static void *xdp_to_ptr(struct xdp_frame *ptr)
+ {
+ 	return (void *)((unsigned long)ptr | VIRTIO_XDP_FLAG);
  }
  
+-static struct xdp_frame *ptr_to_xdp(void *ptr)
+-{
+-	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+-}
+-
+-static void __free_old_xmit(struct send_queue *sq, bool in_napi,
+-			    struct virtnet_sq_stats *stats)
+-{
+-	unsigned int len;
+-	void *ptr;
+-
+-	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+-		if (!is_xdp_frame(ptr)) {
+-			struct sk_buff *skb = ptr;
+-
+-			pr_debug("Sent skb %p\n", skb);
+-
+-			stats->bytes += skb->len;
+-			napi_consume_skb(skb, in_napi);
+-		} else {
+-			struct xdp_frame *frame = ptr_to_xdp(ptr);
+-
+-			stats->bytes += xdp_get_frame_len(frame);
+-			xdp_return_frame(frame);
+-		}
+-		stats->packets++;
+-	}
+-}
+-
+ /* Converting between virtqueue no. and kernel tx/rx queue no.
+  * 0:rx0 1:tx0 2:rx1 3:tx1 ... 2N:rxN 2N+1:txN 2N+2:cvq
+  */
+@@ -446,15 +217,6 @@ static void disable_delayed_refill(struct virtnet_info *vi)
+ 	spin_unlock_bh(&vi->refill_lock);
+ }
+ 
+-static void virtqueue_napi_schedule(struct napi_struct *napi,
+-				    struct virtqueue *vq)
+-{
+-	if (napi_schedule_prep(napi)) {
+-		virtqueue_disable_cb(vq);
+-		__napi_schedule(napi);
+-	}
+-}
+-
+ static void virtqueue_napi_complete(struct napi_struct *napi,
+ 				    struct virtqueue *vq, int processed)
+ {
+@@ -786,16 +548,6 @@ static void free_old_xmit(struct send_queue *sq, bool in_napi)
+ 	u64_stats_update_end(&sq->stats.syncp);
+ }
+ 
+-static bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
+-{
+-	if (q < (vi->curr_queue_pairs - vi->xdp_queue_pairs))
+-		return false;
+-	else if (q < vi->curr_queue_pairs)
+-		return true;
+-	else
+-		return false;
+-}
+-
+ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 				      struct net_device *dev,
+ 				      struct send_queue *sq)
 diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-index 282504d6639a..70eea23adba6 100644
---- a/drivers/net/virtio/virtio_net.h
+new file mode 100644
+index 000000000000..ddaf0ecf4d9d
+--- /dev/null
 +++ b/drivers/net/virtio/virtio_net.h
-@@ -253,4 +253,7 @@ static inline bool virtnet_is_xdp_raw_buffer_queue(struct virtnet_info *vi, int
- 	else
- 		return false;
- }
+@@ -0,0 +1,256 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
 +
-+void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq);
-+void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq);
- #endif
++#ifndef __VIRTIO_NET_H__
++#define __VIRTIO_NET_H__
++
++#include <linux/ethtool.h>
++#include <linux/average.h>
++
++#define VIRTIO_XDP_FLAG	BIT(0)
++
++/* RX packet size EWMA. The average packet size is used to determine the packet
++ * buffer size when refilling RX rings. As the entire RX ring may be refilled
++ * at once, the weight is chosen so that the EWMA will be insensitive to short-
++ * term, transient changes in packet size.
++ */
++DECLARE_EWMA(pkt_len, 0, 64)
++
++struct virtnet_stat_desc {
++	char desc[ETH_GSTRING_LEN];
++	size_t offset;
++};
++
++struct virtnet_sq_stats {
++	struct u64_stats_sync syncp;
++	u64 packets;
++	u64 bytes;
++	u64 xdp_tx;
++	u64 xdp_tx_drops;
++	u64 kicks;
++	u64 tx_timeouts;
++};
++
++struct virtnet_rq_stats {
++	struct u64_stats_sync syncp;
++	u64 packets;
++	u64 bytes;
++	u64 drops;
++	u64 xdp_packets;
++	u64 xdp_tx;
++	u64 xdp_redirects;
++	u64 xdp_drops;
++	u64 kicks;
++};
++
++#define VIRTNET_SQ_STAT(m)	offsetof(struct virtnet_sq_stats, m)
++#define VIRTNET_RQ_STAT(m)	offsetof(struct virtnet_rq_stats, m)
++
++struct virtnet_interrupt_coalesce {
++	u32 max_packets;
++	u32 max_usecs;
++};
++
++/* The dma information of pages allocated at a time. */
++struct virtnet_rq_dma {
++	dma_addr_t addr;
++	u32 ref;
++	u16 len;
++	u16 need_sync;
++};
++
++/* Internal representation of a send virtqueue */
++struct send_queue {
++	/* Virtqueue associated with this send _queue */
++	struct virtqueue *vq;
++
++	/* TX: fragments + linear part + virtio header */
++	struct scatterlist sg[MAX_SKB_FRAGS + 2];
++
++	/* Name of the send queue: output.$index */
++	char name[16];
++
++	struct virtnet_sq_stats stats;
++
++	struct virtnet_interrupt_coalesce intr_coal;
++
++	struct napi_struct napi;
++
++	/* Record whether sq is in reset state. */
++	bool reset;
++};
++
++/* Internal representation of a receive virtqueue */
++struct receive_queue {
++	/* Virtqueue associated with this receive_queue */
++	struct virtqueue *vq;
++
++	struct napi_struct napi;
++
++	struct bpf_prog __rcu *xdp_prog;
++
++	struct virtnet_rq_stats stats;
++
++	struct virtnet_interrupt_coalesce intr_coal;
++
++	/* Chain pages by the private ptr. */
++	struct page *pages;
++
++	/* Average packet length for mergeable receive buffers. */
++	struct ewma_pkt_len mrg_avg_pkt_len;
++
++	/* Page frag for packet buffer allocation. */
++	struct page_frag alloc_frag;
++
++	/* RX: fragments + linear part + virtio header */
++	struct scatterlist sg[MAX_SKB_FRAGS + 2];
++
++	/* Min single buffer size for mergeable buffers case. */
++	unsigned int min_buf_len;
++
++	/* Name of this receive queue: input.$index */
++	char name[16];
++
++	struct xdp_rxq_info xdp_rxq;
++
++	/* Record the last dma info to free after new pages is allocated. */
++	struct virtnet_rq_dma *last_dma;
++
++	/* Do dma by self */
++	bool do_dma;
++};
++
++struct virtnet_info {
++	struct virtio_device *vdev;
++	struct virtqueue *cvq;
++	struct net_device *dev;
++	struct send_queue *sq;
++	struct receive_queue *rq;
++	unsigned int status;
++
++	/* Max # of queue pairs supported by the device */
++	u16 max_queue_pairs;
++
++	/* # of queue pairs currently used by the driver */
++	u16 curr_queue_pairs;
++
++	/* # of XDP queue pairs currently used by the driver */
++	u16 xdp_queue_pairs;
++
++	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
++	bool xdp_enabled;
++
++	/* I like... big packets and I cannot lie! */
++	bool big_packets;
++
++	/* number of sg entries allocated for big packets */
++	unsigned int big_packets_num_skbfrags;
++
++	/* Host will merge rx buffers for big packets (shake it! shake it!) */
++	bool mergeable_rx_bufs;
++
++	/* Host supports rss and/or hash report */
++	bool has_rss;
++	bool has_rss_hash_report;
++	u8 rss_key_size;
++	u16 rss_indir_table_size;
++	u32 rss_hash_types_supported;
++	u32 rss_hash_types_saved;
++
++	/* Has control virtqueue */
++	bool has_cvq;
++
++	/* Host can handle any s/g split between our header and packet data */
++	bool any_header_sg;
++
++	/* Packet virtio header size */
++	u8 hdr_len;
++
++	/* Work struct for delayed refilling if we run low on memory. */
++	struct delayed_work refill;
++
++	/* Is delayed refill enabled? */
++	bool refill_enabled;
++
++	/* The lock to synchronize the access to refill_enabled */
++	spinlock_t refill_lock;
++
++	/* Work struct for config space updates */
++	struct work_struct config_work;
++
++	/* Does the affinity hint is set for virtqueues? */
++	bool affinity_hint_set;
++
++	/* CPU hotplug instances for online & dead */
++	struct hlist_node node;
++	struct hlist_node node_dead;
++
++	struct control_buf *ctrl;
++
++	/* Ethtool settings */
++	u8 duplex;
++	u32 speed;
++
++	/* Interrupt coalescing settings */
++	struct virtnet_interrupt_coalesce intr_coal_tx;
++	struct virtnet_interrupt_coalesce intr_coal_rx;
++
++	unsigned long guest_offloads;
++	unsigned long guest_offloads_capable;
++
++	/* failover when STANDBY feature enabled */
++	struct failover *failover;
++};
++
++static inline bool is_xdp_frame(void *ptr)
++{
++	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
++}
++
++static inline struct xdp_frame *ptr_to_xdp(void *ptr)
++{
++	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
++}
++
++static inline void __free_old_xmit(struct send_queue *sq, bool in_napi,
++				   struct virtnet_sq_stats *stats)
++{
++	unsigned int len;
++	void *ptr;
++
++	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
++		if (!is_xdp_frame(ptr)) {
++			struct sk_buff *skb = ptr;
++
++			pr_debug("Sent skb %p\n", skb);
++
++			stats->bytes += skb->len;
++			napi_consume_skb(skb, in_napi);
++		} else {
++			struct xdp_frame *frame = ptr_to_xdp(ptr);
++
++			stats->bytes += xdp_get_frame_len(frame);
++			xdp_return_frame(frame);
++		}
++		stats->packets++;
++	}
++}
++
++static inline void virtqueue_napi_schedule(struct napi_struct *napi,
++					   struct virtqueue *vq)
++{
++	if (napi_schedule_prep(napi)) {
++		virtqueue_disable_cb(vq);
++		__napi_schedule(napi);
++	}
++}
++
++static inline bool is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
++{
++	if (q < (vi->curr_queue_pairs - vi->xdp_queue_pairs))
++		return false;
++	else if (q < vi->curr_queue_pairs)
++		return true;
++	else
++		return false;
++}
++#endif
 -- 
 2.32.0.3.g01195cf9f
 
