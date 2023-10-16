@@ -1,63 +1,60 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E51DCDB465
-	for <virtualization@archiver.kernel.org>; Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C09ECDB482
+	for <virtualization@archiver.kernel.org>; Mon, 16 Oct 2023 12:00:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0B59C820F9;
-	Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B59C820F9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9025860E1D;
+	Mon, 16 Oct 2023 12:00:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9025860E1D
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Lag0Apsj0M6A; Mon, 16 Oct 2023 12:00:46 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1vYE7cChNB7r; Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8BDC3820DE;
-	Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8BDC3820DE
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E904060E27;
+	Mon, 16 Oct 2023 12:00:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E904060E27
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6889AC0071;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C2C9EC0DD9;
 	Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20BDEC0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20ED1C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1B01882009
  for <virtualization@lists.linux-foundation.org>;
  Mon, 16 Oct 2023 12:00:44 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E3D7B82020
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 12:00:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E3D7B82020
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1B01882009
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nCp7c6M54IHm
+ with ESMTP id iQbUmfmdb1mo
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 12:00:42 +0000 (UTC)
-Received: from out30-97.freemail.mail.aliyun.com
- (out30-97.freemail.mail.aliyun.com [115.124.30.97])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 215FA82009
+ Mon, 16 Oct 2023 12:00:43 +0000 (UTC)
+Received: from out30-99.freemail.mail.aliyun.com
+ (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2118681FFC
  for <virtualization@lists.linux-foundation.org>;
  Mon, 16 Oct 2023 12:00:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 215FA82009
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R551e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2118681FFC
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R131e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046049;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VuH0NZd_1697457635; 
+ TI=SMTPD_---0VuHc.Mz_1697457634; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VuH0NZd_1697457635) by smtp.aliyun-inc.com;
- Mon, 16 Oct 2023 20:00:36 +0800
+ fp:SMTPD_---0VuHc.Mz_1697457634) by smtp.aliyun-inc.com;
+ Mon, 16 Oct 2023 20:00:34 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next v1 01/19] virtio_net: rename free_old_xmit_skbs to
- free_old_xmit
-Date: Mon, 16 Oct 2023 20:00:15 +0800
-Message-Id: <20231016120033.26933-2-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v1 00/19] virtio-net: support AF_XDP zero copy
+Date: Mon, 16 Oct 2023 20:00:14 +0800
+Message-Id: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
-References: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 X-Git-Hash: 9790cc452aab
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -83,65 +80,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
-subsequent added xsk, so change the name of this function to
-free_old_xmit.
+## AF_XDP
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/net/virtio_net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
+copy feature of xsk (XDP socket) needs to be supported by the driver. The
+performance of zero copy is very good. mlx5 and intel ixgbe already support
+this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
+feature.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index fe7f314d65c9..3d87386d8220 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -744,7 +744,7 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- 	}
- }
- 
--static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, bool in_napi)
- {
- 	unsigned int len;
- 	unsigned int packets = 0;
-@@ -816,7 +816,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(sq, false);
-+			free_old_xmit(sq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				virtqueue_disable_cb(sq->vq);
-@@ -2124,7 +2124,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit_skbs(sq, true);
-+			free_old_xmit(sq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
- 
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-@@ -2246,7 +2246,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit_skbs(sq, true);
-+	free_old_xmit(sq, true);
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
-@@ -2336,7 +2336,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
- 
--		free_old_xmit_skbs(sq, false);
-+		free_old_xmit(sq, false);
- 
- 	} while (use_napi && kick &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
--- 
+At present, we have completed some preparation:
+
+1. vq-reset (virtio spec and kernel code)
+2. virtio-core premapped dma
+3. virtio-net xdp refactor
+
+So it is time for Virtio-Net to complete the support for the XDP Socket
+Zerocopy.
+
+Virtio-net can not increase the queue num at will, so xsk shares the queue with
+kernel.
+
+On the other hand, Virtio-Net does not support generate interrupt from driver
+manually, so when we wakeup tx xmit, we used some tips. If the CPU run by TX
+NAPI last time is other CPUs, use IPI to wake up NAPI on the remote CPU. If it
+is also the local CPU, then we wake up napi directly.
+
+This patch set includes some refactor to the virtio-net to let that to support
+AF_XDP.
+
+## performance
+
+ENV: Qemu with vhost-user(polling mode).
+
+Sockperf: https://github.com/Mellanox/sockperf
+I use this tool to send udp packet by kernel syscall.
+
+xmit command: sockperf tp -i 10.0.3.1 -t 1000
+
+I write a tool that sends udp packets or recvs udp packets by AF_XDP.
+
+                  | Guest APP CPU |Guest Softirq CPU | UDP PPS
+------------------|---------------|------------------|------------
+xmit by syscall   |   100%        |                  |   676,915
+xmit by xsk       |   59.1%       |   100%           | 5,447,168
+recv by syscall   |   60%         |   100%           |   932,288
+recv by xsk       |   35.7%       |   100%           | 3,343,168
+
+## maintain
+
+I am currently a reviewer for virtio-net. I commit to maintain AF_XDP support in
+virtio-net.
+
+Please review.
+
+Thanks.
+
+v1:
+    1. remove two virtio commits. Push this patchset to net-next
+    2. squash "virtio_net: virtnet_poll_tx support rescheduled" to xsk: support tx
+    3. fix some warnings
+
+Xuan Zhuo (19):
+  virtio_net: rename free_old_xmit_skbs to free_old_xmit
+  virtio_net: unify the code for recycling the xmit ptr
+  virtio_net: independent directory
+  virtio_net: move to virtio_net.h
+  virtio_net: add prefix virtnet to all struct/api inside virtio_net.h
+  virtio_net: separate virtnet_rx_resize()
+  virtio_net: separate virtnet_tx_resize()
+  virtio_net: sq support premapped mode
+  virtio_net: xsk: bind/unbind xsk
+  virtio_net: xsk: prevent disable tx napi
+  virtio_net: xsk: tx: support tx
+  virtio_net: xsk: tx: support wakeup
+  virtio_net: xsk: tx: virtnet_free_old_xmit() distinguishes xsk buffer
+  virtio_net: xsk: tx: virtnet_sq_free_unused_buf() check xsk buffer
+  virtio_net: xsk: rx: introduce add_recvbuf_xsk()
+  virtio_net: xsk: rx: introduce receive_xsk() to recv xsk buffer
+  virtio_net: xsk: rx: virtnet_rq_free_unused_buf() check xsk buffer
+  virtio_net: update tx timeout record
+  virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
+
+ MAINTAINERS                                 |   2 +-
+ drivers/net/Kconfig                         |   8 +-
+ drivers/net/Makefile                        |   2 +-
+ drivers/net/virtio/Kconfig                  |  13 +
+ drivers/net/virtio/Makefile                 |   8 +
+ drivers/net/{virtio_net.c => virtio/main.c} | 652 +++++++++-----------
+ drivers/net/virtio/virtio_net.h             | 359 +++++++++++
+ drivers/net/virtio/xsk.c                    | 545 ++++++++++++++++
+ drivers/net/virtio/xsk.h                    |  32 +
+ 9 files changed, 1247 insertions(+), 374 deletions(-)
+ create mode 100644 drivers/net/virtio/Kconfig
+ create mode 100644 drivers/net/virtio/Makefile
+ rename drivers/net/{virtio_net.c => virtio/main.c} (91%)
+ create mode 100644 drivers/net/virtio/virtio_net.h
+ create mode 100644 drivers/net/virtio/xsk.c
+ create mode 100644 drivers/net/virtio/xsk.h
+
+--
 2.32.0.3.g01195cf9f
 
 _______________________________________________
