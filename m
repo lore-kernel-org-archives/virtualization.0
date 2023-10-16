@@ -1,101 +1,72 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 00B08CDB465
-	for <virtualization@archiver.kernel.org>; Mon, 16 Oct 2023 09:53:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E51DCDB465
+	for <virtualization@archiver.kernel.org>; Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 77C95418BD;
-	Mon, 16 Oct 2023 09:53:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77C95418BD
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=W2rmuOXk
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0B59C820F9;
+	Mon, 16 Oct 2023 12:00:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0B59C820F9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id savj_Vhjuu9T; Mon, 16 Oct 2023 09:53:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A5C1140979;
-	Mon, 16 Oct 2023 09:53:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A5C1140979
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Lag0Apsj0M6A; Mon, 16 Oct 2023 12:00:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8BDC3820DE;
+	Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8BDC3820DE
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 85FFCC0071;
-	Mon, 16 Oct 2023 09:53:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F59AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6889AC0071;
+	Mon, 16 Oct 2023 12:00:45 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20BDEC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 09:53:37 +0000 (UTC)
+ Mon, 16 Oct 2023 12:00:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5EC8A81F47
+ by smtp1.osuosl.org (Postfix) with ESMTP id E3D7B82020
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 09:53:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EC8A81F47
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=W2rmuOXk
+ Mon, 16 Oct 2023 12:00:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E3D7B82020
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NnLKwoEukZGP
+ with ESMTP id nCp7c6M54IHm
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 09:53:34 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B7EAA8132E
+ Mon, 16 Oct 2023 12:00:42 +0000 (UTC)
+Received: from out30-97.freemail.mail.aliyun.com
+ (out30-97.freemail.mail.aliyun.com [115.124.30.97])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 215FA82009
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Oct 2023 09:53:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7EAA8132E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1697450013; x=1728986013;
- h=message-id:date:mime-version:subject:to:cc:references:
- from:in-reply-to:content-transfer-encoding;
- bh=dAsUnnyluJvXyQp37TtlbSqZLVCD7Sjo47cIWmQv6Pc=;
- b=W2rmuOXktsBe1wH4ZNA3qcjpB6bEtRcDhuGJwY/uZTwcLXAcNaBHOujI
- YxixDIxK2f6fUffl5c0e5MoAgLUpcod16tLdAJW++c6DhdUfoD77FQ55u
- EVmwggiienvMZtb0IV9VB3REYrwr/tUnmZIXgrF/oHgO+qGbJo7ZQHwg0
- 2N01NLj/j0SH9TnCRv6D3tyxM5DQDE0GYDLznABwMKTlQ9Txvlcnaih1O
- 9uQOczg3Xoga7iBkwv7IjHAsI1PX2g1HJ8x/0Kt2KCsHE7AAkJ2VKZ5N5
- y5H4fgQb/oLrWLRUoVO5wFG4PCbGnaZdsLcSrzLihOLAKcUv7zUh5LSmA g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10863"; a="382712471"
-X-IronPort-AV: E=Sophos;i="6.03,229,1694761200"; d="scan'208";a="382712471"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 16 Oct 2023 02:53:32 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10863"; a="825941359"
-X-IronPort-AV: E=Sophos;i="6.03,229,1694761200"; d="scan'208";a="825941359"
-Received: from lingshan-mobl.ccr.corp.intel.com (HELO [10.93.35.20])
- ([10.93.35.20])
- by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 16 Oct 2023 02:53:29 -0700
-Message-ID: <774272d3-8e73-4323-8772-533896894643@intel.com>
-Date: Mon, 16 Oct 2023 17:53:26 +0800
+ Mon, 16 Oct 2023 12:00:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 215FA82009
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R551e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
+ TI=SMTPD_---0VuH0NZd_1697457635; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0VuH0NZd_1697457635) by smtp.aliyun-inc.com;
+ Mon, 16 Oct 2023 20:00:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: netdev@vger.kernel.org
+Subject: [PATCH net-next v1 01/19] virtio_net: rename free_old_xmit_skbs to
+ free_old_xmit
+Date: Mon, 16 Oct 2023 20:00:15 +0800
+Message-Id: <20231016120033.26933-2-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
+References: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vfio 10/11] vfio/virtio: Expose admin commands over virtio
- device
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20231010155937.GN3952@nvidia.com> <ZSY9Cv5/e3nfA7ux@infradead.org>
- <20231011021454-mutt-send-email-mst@kernel.org>
- <ZSZHzs38Q3oqyn+Q@infradead.org>
- <PH0PR12MB5481336B395F38E875ED11D8DCCCA@PH0PR12MB5481.namprd12.prod.outlook.com>
- <c75bb669-76fe-ef12-817e-2a8b5f0b317b@intel.com>
- <20231012132749.GK3952@nvidia.com>
- <840d4c6f-4150-4818-a66c-1dbe1474b4c6@intel.com>
- <20231013094959-mutt-send-email-mst@kernel.org>
- <818c4212-9d9a-4775-80f3-c07e82057be8@intel.com>
- <20231016045050-mutt-send-email-mst@kernel.org>
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-In-Reply-To: <20231016045050-mutt-send-email-mst@kernel.org>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Leon Romanovsky <leonro@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Christoph Hellwig <hch@infradead.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Jiri Pirko <jiri@nvidia.com>, Maor Gottlieb <maorg@nvidia.com>
+X-Git-Hash: 9790cc452aab
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,66 +78,71 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
+subsequent added xsk, so change the name of this function to
+free_old_xmit.
 
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-On 10/16/2023 4:52 PM, Michael S. Tsirkin wrote:
-> On Mon, Oct 16, 2023 at 04:33:10PM +0800, Zhu, Lingshan wrote:
->>
->> On 10/13/2023 9:50 PM, Michael S. Tsirkin wrote:
->>> On Fri, Oct 13, 2023 at 06:28:34PM +0800, Zhu, Lingshan wrote:
->>>> On 10/12/2023 9:27 PM, Jason Gunthorpe wrote:
->>>>
->>>>       On Thu, Oct 12, 2023 at 06:29:47PM +0800, Zhu, Lingshan wrote:
->>>>
->>>>
->>>>           sorry for the late reply, we have discussed this for weeks in virtio mailing
->>>>           list. I have proposed a live migration solution which is a config space solution.
->>>>
->>>>       I'm sorry that can't be a serious proposal - config space can't do
->>>>       DMA, it is not suitable.
->>>>
->>>> config space only controls the live migration process and config the related
->>>> facilities.
->>>> We don't use config space to transfer data.
->>>>
->>>> The new added registers work like queue_enable or features.
->>>>
->>>> For example, we use DMA to report dirty pages and MMIO to fetch the dirty data.
->>>>
->>>> I remember in another thread you said:"you can't use DMA for any migration
->>>> flows"
->>>>
->>>> And I agree to that statement, so we use config space registers to control the
->>>> flow.
->>>>
->>>> Thanks,
->>>> Zhu Lingshan
->>>>
->>>>
->>>>       Jason
->>>>
->>> If you are using dma then I don't see what's wrong with admin vq.
->>> dma is all it does.
->> dma != admin vq,
-> Well they share the same issue that they don't work for nesting
-> because DMA can not be intercepted.
-(hope this is not a spam to virtualization list and I try to keep this 
-short)
-only use dma for host memory access, e.g., dirty page bitmap, no need to 
-intercepted.
->
->> and I think we have discussed many details in pros and cons
->> in admin vq live migration proposal in virtio-comment.
->> I am not sure we should span the discussions here, repeat them over again.
->>
->> Thanks
-> Yea let's not.
->
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index fe7f314d65c9..3d87386d8220 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -744,7 +744,7 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ 	}
+ }
+ 
+-static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
++static void free_old_xmit(struct send_queue *sq, bool in_napi)
+ {
+ 	unsigned int len;
+ 	unsigned int packets = 0;
+@@ -816,7 +816,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
+ 				virtqueue_napi_schedule(&sq->napi, sq->vq);
+ 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+ 			/* More just got used, free them then recheck. */
+-			free_old_xmit_skbs(sq, false);
++			free_old_xmit(sq, false);
+ 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_subqueue(dev, qnum);
+ 				virtqueue_disable_cb(sq->vq);
+@@ -2124,7 +2124,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 
+ 		do {
+ 			virtqueue_disable_cb(sq->vq);
+-			free_old_xmit_skbs(sq, true);
++			free_old_xmit(sq, true);
+ 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+ 
+ 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+@@ -2246,7 +2246,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
+ 	virtqueue_disable_cb(sq->vq);
+-	free_old_xmit_skbs(sq, true);
++	free_old_xmit(sq, true);
+ 
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
+@@ -2336,7 +2336,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (use_napi)
+ 			virtqueue_disable_cb(sq->vq);
+ 
+-		free_old_xmit_skbs(sq, false);
++		free_old_xmit(sq, false);
+ 
+ 	} while (use_napi && kick &&
+ 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+-- 
+2.32.0.3.g01195cf9f
 
 _______________________________________________
 Virtualization mailing list
