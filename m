@@ -1,113 +1,133 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17306CDB474
-	for <virtualization@archiver.kernel.org>; Tue, 17 Oct 2023 13:28:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 176E8CDB482
+	for <virtualization@archiver.kernel.org>; Tue, 17 Oct 2023 13:43:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8364D41B6C;
-	Tue, 17 Oct 2023 13:28:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8364D41B6C
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LOnlTlAI
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7BDE560E2F;
+	Tue, 17 Oct 2023 13:43:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7BDE560E2F
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Vi+odGwo
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xN4hgqBT505a; Tue, 17 Oct 2023 13:42:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id ADD8F60B93;
+	Tue, 17 Oct 2023 13:42:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ADD8F60B93
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8905BC0032;
+	Tue, 17 Oct 2023 13:42:58 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DAFE0C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Oct 2023 13:42:56 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id C2E9E41DCA
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Oct 2023 13:42:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C2E9E41DCA
+Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=Vi+odGwo
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nv9lKNRwJN0H; Tue, 17 Oct 2023 13:28:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8FE674027C;
-	Tue, 17 Oct 2023 13:28:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8FE674027C
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DB0CC0072;
-	Tue, 17 Oct 2023 13:28:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BDCFEC0032
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OvC_zLx3EQaE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 13:28:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8C4758204A
+ Tue, 17 Oct 2023 13:42:55 +0000 (UTC)
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2062e.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eaa::62e])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6085C41DC7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 13:28:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8C4758204A
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=LOnlTlAI
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UbFl7rHQFbVu
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 13:28:37 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4E12A81EE9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 13:28:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E12A81EE9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697549316;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=PhVqTbabL6sq7HN9XgiUy3YMvpy6i23xCHUppYbkIyo=;
- b=LOnlTlAIrTDlKnlm+CAuzO/AieUAe6PpahtPLTxX+EBG6h0ZTUgs52nmhS0A13UzmLawjb
- ccFkqwOZnbjRqcQ16fziPWzXdQg8J8/ut4QPGzAN5icItYGGMTVS81Is+tU9cIRW+3dwRc
- Ytj5cgDlmpunOiN2S7Zm3nbuZAwJ60k=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-384-VmG3pZMsOd2hqJugoKQeeg-1; Tue, 17 Oct 2023 09:28:33 -0400
-X-MC-Unique: VmG3pZMsOd2hqJugoKQeeg-1
-Received: by mail-oi1-f197.google.com with SMTP id
- 5614622812f47-3af5a2a0c8fso8756698b6e.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 06:28:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697549313; x=1698154113;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=PhVqTbabL6sq7HN9XgiUy3YMvpy6i23xCHUppYbkIyo=;
- b=TfRpOAhenyX4QMav15F6ct+bDxL92OPGdOICEVXrFjMhYlM9F5PvwicvhTD+IPCQVw
- ezAxiGtWyrv17CRDK7yYqsTorKnuI0HTgq6itnPL/QKQ25vh4zMl2f2YigoDEgovTZgq
- EnAHb/OdWZb4tnLdHhIFMndXzV0+ipX00EZRjEX84UkPsqCpy6u4gFLhA+eAr4t0Hato
- ChmvM9/NzjbAkyg4KDxwMz7neHOUwtueHphG80gcSRZdeU7dj8lOLsKhxR4ohCCqd2rG
- zlq893A4ZAHoMA0A2xD6y6IK+Lx4p1q4InIwQH/c0jhIdjtHRnXPcMSSKMEEtI9E1j8P
- +kCQ==
-X-Gm-Message-State: AOJu0Yz5G/KDseha965nYFPORcsTMMcrcSXQKXzEi5IaCakITBnwulSa
- ZM4+0qew0KrGKV8aEMuWhqhd8ZqH3/unrof73bYW3d7uYaO9+mTQajZEr2O7gHvsEq2OEKgctRm
- PseOpfjf7ZeC9c+hIR2rnAEs9luTxKXL9WjgA/gNFCA==
-X-Received: by 2002:a05:6808:4d6:b0:3a7:2598:ab2c with SMTP id
- a22-20020a05680804d600b003a72598ab2cmr2405563oie.7.1697549312876; 
- Tue, 17 Oct 2023 06:28:32 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEmNw+G5EzFy/KsOuP+UAGm3kI1m0UlUNmnuPcxkv/nPe5RZHf5Bux/Bi8iFz94fB4vQTIW5g==
-X-Received: by 2002:a05:6808:4d6:b0:3a7:2598:ab2c with SMTP id
- a22-20020a05680804d600b003a72598ab2cmr2405528oie.7.1697549312492; 
- Tue, 17 Oct 2023 06:28:32 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-12-185-56.business.telecomitalia.it.
- [87.12.185.56]) by smtp.gmail.com with ESMTPSA id
- e7-20020a0caa47000000b0064f5d70d072sm553752qvb.37.2023.10.17.06.28.30
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 17 Oct 2023 06:28:31 -0700 (PDT)
-Date: Tue, 17 Oct 2023 15:28:05 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] ALSA: virtio: use copy and fill_silence callbacks
-Message-ID: <g7hi2yqqiee5tyehuyn422uzxz6tc3kfbahgjaykrnpm43zisn@prfjfy7isuv7>
-References: <ZSgMeoMx6NX2zCx/@fedora>
- <20231012111525-mutt-send-email-mst@kernel.org>
+ Tue, 17 Oct 2023 13:42:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6085C41DC7
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IjzMmMAEdHK1b163G9lHxtJ5Xui9jDa/eNKSPcVrZU9iXH6zyRZxoNNn3SDZMglP0WOTnmG35ssm/B/T9cAknc02vBg6ZQPOnN6OqyylGBaeLn7Sx99iSKpNKJgSbyxBD4gNZeNdDYAaSHBE3mAUJ9grvGQ9tlE0luyfkuUj/LsnV1HCGt63hHY7arbTwe8QgiKOdhIsvd1wBsfsmQ2AkJxJNT9lqTnQ8Dha9AYLO/9iIL6mrhWDuN31I8ykdusZ7vn0WOFen9jreFgWAs1KOoHs57ZwHHrtEHcp0hjm2XRuwKAuRSzTMLx2kKlsJ5L4aMxEu+6pZXNBviseggPsvg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fc/Bwoemc6LCkX076U5fu8GJRtPUWnTfze5+FdUE9QM=;
+ b=ZvPJdewNEsdgUVi44Is6B3/R933dGL44Yfyj7Xk2aySv6YcKnWS/9G8LveMY75l8F0t6NCHUUPC5c0NySvEcNGTiYtM5KutmjzehMyJtEMRr14mMjPOnVn89iWaeUwjK4n0NCvzShWgJHOabbso3TbUnzb5Ri8Ddc5G8hdtlAH08EVg8/hfi/ACoAx/wxYSEUn5mPTAtyVXCkgzbN8K0QZXkgIUD0nksQ+UZa9WO7a6sHn7OCbGwfNCBonXA19voGjjsMlMoTHq5sSEnTNr63OFGlRxk1C9AQ2r/xm2qo9nwHzWNmgb25B502kPeJxWHp8MBi27i7zLDTL0IFKtaFg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fc/Bwoemc6LCkX076U5fu8GJRtPUWnTfze5+FdUE9QM=;
+ b=Vi+odGwozCxBQ+S7kY5ZlKahO1w+JhLhPKPT+LGnKggGv9EeVUSPQErWiHtUD0PlBuoDMXmpJrjwLI6tcoLUULgSiL5fpPn/CSGOKy6L3BuaTDl4hRGqV64rWiOy584xA0qyyuIHgutkt7gzt4pE0mINnfrvnQuM+YPic+FxLxHANJRnKIL4DYzoP6icpBOzI2NVp+GIcJWIyKzT4e2WpohwxGgsHGHYa1Nl05WjaTfxYP/BYLChfif4bgwsPuWLd9OjfcGt7ZShACEmA9hVCXxse/IBd5Qd4XqDUw204iLbP3876dtYdEFz78LD80mD0cF5gEmTMvga/mt4x6IuWQ==
+Received: from BL1PR13CA0200.namprd13.prod.outlook.com (2603:10b6:208:2be::25)
+ by DM4PR12MB5101.namprd12.prod.outlook.com (2603:10b6:5:390::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6886.36; Tue, 17 Oct
+ 2023 13:42:51 +0000
+Received: from BL02EPF0001A101.namprd05.prod.outlook.com
+ (2603:10b6:208:2be:cafe::4f) by BL1PR13CA0200.outlook.office365.com
+ (2603:10b6:208:2be::25) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.18 via Frontend
+ Transport; Tue, 17 Oct 2023 13:42:51 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ BL02EPF0001A101.mail.protection.outlook.com (10.167.241.132) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6907.21 via Frontend Transport; Tue, 17 Oct 2023 13:42:51 +0000
+Received: from rnnvmail204.nvidia.com (10.129.68.6) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 17 Oct
+ 2023 06:42:42 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail204.nvidia.com
+ (10.129.68.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 17 Oct
+ 2023 06:42:41 -0700
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com (10.129.68.10)
+ with Microsoft SMTP Server id 15.2.986.41 via Frontend Transport;
+ Tue, 17 Oct 2023 06:42:38 -0700
+To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+ <jgg@nvidia.com>
+Subject: [PATCH V1 vfio 0/9] Introduce a vfio driver over virtio devices
+Date: Tue, 17 Oct 2023 16:42:08 +0300
+Message-ID: <20231017134217.82497-1-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-In-Reply-To: <20231012111525-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: alsa-devel@alsa-project.org, mripard@redhat.com,
- linux-kernel@vger.kernel.org, tiwai@suse.com,
- virtualization@lists.linux-foundation.org, stefanha@redhat.com,
- pbonzini@redhat.com, perex@perex.cz
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A101:EE_|DM4PR12MB5101:EE_
+X-MS-Office365-Filtering-Correlation-Id: 97e1df6c-b18c-4e96-97fb-08dbcf16f52a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: ftJuE30pkr3/Q45lYpTLpEtSNOHWIz8ZsgrYPapRIbrgYFid+BCkUNIEjLAec0dKJlTptJdyt8hW8MaKGVe3t3zC41OpfXknL8Lw+/OoUA6tihvdqrFjWcKLTGi8r3F0pQLLY9y62mNPUWcF7niXdFSmcOtUDl91b8B6zCUN4Yc0E/15b4wxiIMbL393cg7Q0d3p81V6wVPHG3qLcTJ2sQ6SPvONLii63iEyd+wuy4avah59HQGtE/gh2uj8ZKW0Ba3ywDX7dl9e+w0VwRzcwEilddK2kizEkfIa/brF7638QcNTYp8v2p1ojW3mjSms9P14MAl5kaLiJVwB9a9fy6MtGT8N2qubqLyWQd0PV16Rj3pLxxvoPDTnhZDP7f+JaUy4ETTK8TAo2XqTjlReCgQo7+rUjGGSPXZ0LYe8NZw9+HM5uHbcFbN2DB5n6ueFrQErNYxWQOR4JQPd1l1Qvd4vePnTY0VVCg3LGBKEH8sXsLu2hiEGvDHRkdEhmApCpX+D+mOlklpxgH4k4EpjS+bPzSDzBeIhcwWpjHHW17NwObxPADvD2YHYkaaBhMSnxAqHOoDdFXX362KXWPga4jIguBxoXpvNWL9GzjnlAn464QDFGAfeKAJA0gx7RO9nlfe6pZ+AGLEytXSpeg1cUZRDVvg3w0bui8YLAvSmfWCDVDdvq15bJ3sbcuQHe8tPMSmlro2OZNo6TRRiqHvNkn/GHIwXw5S2cq6YVv3w4IEQFyCdPbhr+Zi4vy7Z0cYsB1lA4NevnoAVgT5I0IEmHBDhuieL3x7a0QId8dODrPxFTUdTWGD5AFplw/FPq7v1ByRjVvR0fSvWfhypcvLm4A==
+X-Forefront-Antispam-Report: CIP:216.228.117.161; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge2.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(396003)(136003)(39860400002)(346002)(376002)(230922051799003)(82310400011)(186009)(64100799003)(1800799009)(451199024)(40470700004)(36840700001)(46966006)(36756003)(40480700001)(40460700003)(110136005)(316002)(6636002)(54906003)(70586007)(70206006)(86362001)(82740400003)(7636003)(356005)(36860700001)(83380400001)(426003)(336012)(107886003)(26005)(1076003)(2616005)(8936002)(966005)(6666004)(7696005)(2906002)(478600001)(41300700001)(5660300002)(8676002)(47076005)(4326008)(21314003)(2101003);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Oct 2023 13:42:51.0465 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 97e1df6c-b18c-4e96-97fb-08dbcf16f52a
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.161];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BL02EPF0001A101.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB5101
+Cc: kvm@vger.kernel.org, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,374 +139,139 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Yishai Hadas via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Yishai Hadas <yishaih@nvidia.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 12, 2023 at 11:16:54AM -0400, Michael S. Tsirkin wrote:
->On Thu, Oct 12, 2023 at 05:10:50PM +0200, Matias Ezequiel Vara Larsen wrote:
->> This commit replaces the mmap mechanism with the copy() and
->> fill_silence() callbacks for both capturing and playback for the
->> virtio-sound driver. This change is required to prevent the updating of
->> the content of a buffer that is already in the available ring.
->>
->> The current mechanism splits a dma buffer into descriptors that are
->> exposed to the device. This dma buffer is shared with the user
->> application. When the device consumes a buffer, the driver moves the
->> request from the used ring to available ring.
->>
->> The driver exposes the buffer to the device without knowing if the
->> content has been updated from the user. The section 2.8.21.1 of the
->> virtio spec states that: "The device MAY access the descriptor chains
->> the driver created and the memory they refer to immediately". If the
->> device picks up buffers from the available ring just after it is
->> notified, it happens that the content may be old.
->>
->> By providing the copy() callback, the driver first updates the content
->> of the buffer, and then, exposes the buffer to the device by enqueuing
->> it in the available ring. Thus, device always picks up a buffer that is
->> updated.
->>
->> For capturing, the driver starts by exposing all the available buffers
->> to device. After device updates the content of a buffer, it enqueues it
->> in the used ring. It is only after the copy() for capturing is issued
->> that the driver re-enqueues the buffer in the available ring.
->>
->> Note that the copy() function assumes that user is always writing a
->> period. Testing shows that this is true but I may be wrong. This RFC
->> aims at clarifying this.
->>
->> Signed-off-by: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
->
->
->Thank you for working on this!
+This series introduce a vfio driver over virtio devices to support the
+legacy interface functionality for VFs.
 
-Yep, +1!
+Background, from the virtio spec [1].
+--------------------------------------------------------------------
+In some systems, there is a need to support a virtio legacy driver with
+a device that does not directly support the legacy interface. In such
+scenarios, a group owner device can provide the legacy interface
+functionality for the group member devices. The driver of the owner
+device can then access the legacy interface of a member device on behalf
+of the legacy member device driver.
 
-@Michael do you think we should cc stable and add a Fixes tag since
-the driver is not following the virtio spec?
+For example, with the SR-IOV group type, group members (VFs) can not
+present the legacy interface in an I/O BAR in BAR0 as expected by the
+legacy pci driver. If the legacy driver is running inside a virtual
+machine, the hypervisor executing the virtual machine can present a
+virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
+legacy driver accesses to this I/O BAR and forwards them to the group
+owner device (PF) using group administration commands.
+--------------------------------------------------------------------
 
-Or it is too risky?
+The first 6 patches are in the virtio area and handle the below:
+- Fix common config map for modern device as was reported by Michael Tsirkin.
+- Introduce the admin virtqueue infrastcture.
+- Expose the layout of the commands that should be used for
+  supporting the legacy access.
+- Expose APIs to enable upper layers as of vfio, net, etc
+  to execute admin commands.
 
-IIUC snd_pcm_ops is changed a bit from previous versions, so we may have
-to adapt the patch for stable branches.
+The above follows the virtio spec that was lastly accepted in that area
+[1].
 
-Stefano
+The last 3 patches are in the vfio area and handle the below:
+- Expose some APIs from vfio/pci to be used by the vfio/virtio driver.
+- Introduce a vfio driver over virtio devices to support the legacy
+  interface functionality for VFs. 
 
->
->> ---
->>  sound/virtio/virtio_pcm.c     | 11 ++--
->>  sound/virtio/virtio_pcm.h     |  9 +++-
->>  sound/virtio/virtio_pcm_msg.c | 50 ++++++++++++++++---
->>  sound/virtio/virtio_pcm_ops.c | 94 +++++++++++++++++++++++++++++++----
->>  4 files changed, 137 insertions(+), 27 deletions(-)
->>
->> diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
->> index c10d91fff2fb..bfe982952303 100644
->> --- a/sound/virtio/virtio_pcm.c
->> +++ b/sound/virtio/virtio_pcm.c
->> @@ -104,8 +104,6 @@ static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
->>  	 * only message-based transport.
->>  	 */
->>  	vss->hw.info =
->> -		SNDRV_PCM_INFO_MMAP |
->> -		SNDRV_PCM_INFO_MMAP_VALID |
->>  		SNDRV_PCM_INFO_BATCH |
->>  		SNDRV_PCM_INFO_BLOCK_TRANSFER |
->>  		SNDRV_PCM_INFO_INTERLEAVED |
->> @@ -471,12 +469,11 @@ int virtsnd_pcm_build_devs(struct virtio_snd *snd)
->>  			for (kss = ks->substream; kss; kss = kss->next)
->>  				vs->substreams[kss->number]->substream = kss;
->>
->> -			snd_pcm_set_ops(vpcm->pcm, i, &virtsnd_pcm_ops);
->> +			if (i == SNDRV_PCM_STREAM_CAPTURE)
->> +				snd_pcm_set_ops(vpcm->pcm, i, &virtsnd_pcm_capture_ops);
->> +			else
->> +				snd_pcm_set_ops(vpcm->pcm, i, &virtsnd_pcm_playback_ops);
->>  		}
->> -
->> -		snd_pcm_set_managed_buffer_all(vpcm->pcm,
->> -					       SNDRV_DMA_TYPE_VMALLOC, NULL,
->> -					       0, 0);
->>  	}
->>
->>  	return 0;
->> diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
->> index 062eb8e8f2cf..1c1106ec971f 100644
->> --- a/sound/virtio/virtio_pcm.h
->> +++ b/sound/virtio/virtio_pcm.h
->> @@ -50,6 +50,8 @@ struct virtio_pcm_substream {
->>  	struct work_struct elapsed_period;
->>  	spinlock_t lock;
->>  	size_t buffer_bytes;
->> +	u8 *buffer;
->> +	size_t buffer_sz;
->>  	size_t hw_ptr;
->>  	bool xfer_enabled;
->>  	bool xfer_xrun;
->> @@ -90,7 +92,8 @@ struct virtio_pcm {
->>  	struct virtio_pcm_stream streams[SNDRV_PCM_STREAM_LAST + 1];
->>  };
->>
->> -extern const struct snd_pcm_ops virtsnd_pcm_ops;
->> +extern const struct snd_pcm_ops virtsnd_pcm_playback_ops;
->> +extern const struct snd_pcm_ops virtsnd_pcm_capture_ops;
->>
->>  int virtsnd_pcm_validate(struct virtio_device *vdev);
->>
->> @@ -117,7 +120,9 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
->>
->>  void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss);
->>
->> -int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss);
->> +int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, bool single);
->> +
->> +int virtsnd_pcm_msg_send_locked(struct virtio_pcm_substream *vss, bool single);
->>
->>  unsigned int virtsnd_pcm_msg_pending_num(struct virtio_pcm_substream *vss);
->>
->> diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
->> index aca2dc1989ba..9a5f9814cb62 100644
->> --- a/sound/virtio/virtio_pcm_msg.c
->> +++ b/sound/virtio/virtio_pcm_msg.c
->> @@ -132,7 +132,6 @@ static void virtsnd_pcm_sg_from(struct scatterlist *sgs, int nsgs, u8 *data,
->>  int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
->>  			  unsigned int periods, unsigned int period_bytes)
->>  {
->> -	struct snd_pcm_runtime *runtime = vss->substream->runtime;
->>  	unsigned int i;
->>
->>  	vss->msgs = kcalloc(periods, sizeof(*vss->msgs), GFP_KERNEL);
->> @@ -142,7 +141,7 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
->>  	vss->nmsgs = periods;
->>
->>  	for (i = 0; i < periods; ++i) {
->> -		u8 *data = runtime->dma_area + period_bytes * i;
->> +		u8 *data = vss->buffer + period_bytes * i;
->>  		int sg_num = virtsnd_pcm_sg_num(data, period_bytes);
->>  		struct virtio_pcm_msg *msg;
->>
->> @@ -186,10 +185,12 @@ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
->>  /**
->>   * virtsnd_pcm_msg_send() - Send asynchronous I/O messages.
->>   * @vss: VirtIO PCM substream.
->> + * @single: true to enqueue a single message, false to enqueue all of them.
->>   *
->>   * All messages are organized in an ordered circular list. Each time the
->> - * function is called, all currently non-enqueued messages are added to the
->> - * virtqueue. For this, the function keeps track of two values:
->> + * function is called, first non-enqueued message is added to the virtqueue.
->> + * When single is True, only the first message is enqueued. When False, all the
->> + * available messages are enqueued.  The function keeps track of two values:
->>   *
->>   *   msg_last_enqueued = index of the last enqueued message,
->>   *   msg_count = # of pending messages in the virtqueue.
->> @@ -198,7 +199,7 @@ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
->>   *          spinlocks to be held by caller.
->>   * Return: 0 on success, -errno on failure.
->>   */
->> -int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
->> +int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, bool single)
->>  {
->>  	struct snd_pcm_runtime *runtime = vss->substream->runtime;
->>  	struct virtio_snd *snd = vss->snd;
->> @@ -211,6 +212,13 @@ int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
->>  	i = (vss->msg_last_enqueued + 1) % runtime->periods;
->>  	n = runtime->periods - vss->msg_count;
->>
->> +	if (single) {
->> +		if (n < 1)
->> +			return -EFAULT;
->> +
->> +		n = 1;
->> +	}
->> +
->>  	for (; n; --n, i = (i + 1) % runtime->periods) {
->>  		struct virtio_pcm_msg *msg = vss->msgs[i];
->>  		struct scatterlist *psgs[] = {
->> @@ -250,6 +258,36 @@ int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
->>  	return 0;
->>  }
->>
->> +/**
->> + * virtsnd_pcm_msg_send_locked() - Send asynchronous I/O messages.
->> + * @vss: VirtIO PCM substream.
->> + * @single: true to enqueue a single message, false to enqueue all of them.
->> + *
->> + * This function holds the tx/rx queue and the VirtIO substream spinlocks
->> + * before calling virtsnd_pcm_msg_send(). This is a wrapper function to ease
->> + * the invocation of virtsnd_pcm_msg_send().
->> + *
->> + * Context: Any context.
->> + * Return: 0 on success, -errno on failure.
->> + */
->> +
->> +int virtsnd_pcm_msg_send_locked(struct virtio_pcm_substream *vss, bool single)
->> +{
->> +	struct virtio_snd_queue *queue;
->> +	int rc;
->> +	unsigned long flags;
->> +
->> +	queue = virtsnd_pcm_queue(vss);
->> +
->> +	spin_lock_irqsave(&queue->lock, flags);
->> +	spin_lock(&vss->lock);
->> +	rc = virtsnd_pcm_msg_send(vss, single);
->> +	spin_unlock(&vss->lock);
->> +	spin_unlock_irqrestore(&queue->lock, flags);
->> +
->> +	return rc;
->> +}
->> +
->>  /**
->>   * virtsnd_pcm_msg_pending_num() - Returns the number of pending I/O messages.
->>   * @vss: VirtIO substream.
->> @@ -320,8 +358,6 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
->>  					le32_to_cpu(msg->status.latency_bytes));
->>
->>  		schedule_work(&vss->elapsed_period);
->> -
->> -		virtsnd_pcm_msg_send(vss);
->>  	} else if (!vss->msg_count) {
->>  		wake_up_all(&vss->msg_empty);
->>  	}
->> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
->> index f8bfb87624be..a208439dbff8 100644
->> --- a/sound/virtio/virtio_pcm_ops.c
->> +++ b/sound/virtio/virtio_pcm_ops.c
->> @@ -238,6 +238,11 @@ static int virtsnd_pcm_hw_params(struct snd_pcm_substream *substream,
->>  	 */
->>  	virtsnd_pcm_msg_free(vss);
->>
->> +	vss->buffer_sz = params_buffer_bytes(hw_params);
->> +	vss->buffer = alloc_pages_exact(vss->buffer_sz, GFP_KERNEL);
->> +	if (!vss->buffer)
->> +		return -ENOMEM;
->> +
->>  	return virtsnd_pcm_msg_alloc(vss, params_periods(hw_params),
->>  				     params_period_bytes(hw_params));
->>  }
->> @@ -257,6 +262,11 @@ static int virtsnd_pcm_hw_free(struct snd_pcm_substream *substream)
->>  	if (!virtsnd_pcm_msg_pending_num(vss))
->>  		virtsnd_pcm_msg_free(vss);
->>
->> +	if (vss->buffer) {
->> +		free_pages_exact(vss->buffer, vss->buffer_sz);
->> +		vss->buffer = NULL;
->> +	}
->> +
->>  	return 0;
->>  }
->>
->> @@ -331,15 +341,18 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
->>  	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
->>  		queue = virtsnd_pcm_queue(vss);
->>
->> -		spin_lock_irqsave(&queue->lock, flags);
->> -		spin_lock(&vss->lock);
->> -		rc = virtsnd_pcm_msg_send(vss);
->> -		if (!rc)
->> -			vss->xfer_enabled = true;
->> -		spin_unlock(&vss->lock);
->> -		spin_unlock_irqrestore(&queue->lock, flags);
->> -		if (rc)
->> -			return rc;
->> +		// The buffers should be exposed first during capturing so that
->> +		// the device can consume them. Capturing cannot begin
->> +		// otherwise.
->> +		if (vss->direction == SNDRV_PCM_STREAM_CAPTURE) {
->> +			rc = virtsnd_pcm_msg_send_locked(vss, false);
->> +			if (rc)
->> +				return rc;
->> +		}
->> +
->> +		spin_lock_irqsave(&vss->lock, flags);
->> +		vss->xfer_enabled = true;
->> +		spin_unlock_irqrestore(&vss->lock, flags);
->>
->>  		msg = virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_START,
->>  						GFP_KERNEL);
->> @@ -450,8 +463,66 @@ virtsnd_pcm_pointer(struct snd_pcm_substream *substream)
->>  	return hw_ptr;
->>  }
->>
->> -/* PCM substream operators map. */
->> -const struct snd_pcm_ops virtsnd_pcm_ops = {
->> +static int virtsnd_pcm_pb_copy(struct snd_pcm_substream *substream,
->> +			       int channel, unsigned long pos, struct iov_iter
->> +			       *src, unsigned long count)
->> +{
->> +	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
->> +
->> +	if (unlikely(pos + count > vss->buffer_sz))
->> +		return -EINVAL;
->> +
->> +	if (copy_from_iter(vss->buffer + pos, count, src) != count)
->> +		return -EFAULT;
->> +
->> +	return virtsnd_pcm_msg_send_locked(vss, true);
->> +}
->> +
->> +static int virtsnd_pcm_cap_copy(struct snd_pcm_substream *substream,
->> +				int channel, unsigned long pos, struct iov_iter
->> +				*dst, unsigned long count)
->> +{
->> +	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
->> +
->> +	if (unlikely(pos + count > vss->buffer_sz))
->> +		return -EINVAL;
->> +
->> +	if (copy_to_iter(vss->buffer + pos, count, dst) != count)
->> +		return -EFAULT;
->> +
->> +	return virtsnd_pcm_msg_send_locked(vss, true);
->> +}
->> +
->> +static int virtsnd_pcm_pb_silence(struct snd_pcm_substream *substream, int channel,
->> +				  unsigned long pos, unsigned long count)
->> +{
->> +	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
->> +
->> +	if (unlikely(pos + count > vss->buffer_sz))
->> +		return -EINVAL;
->> +
->> +	memset(vss->buffer + pos, 0, count);
->> +
->> +	return virtsnd_pcm_msg_send_locked(vss, true);
->> +}
->> +
->> +/* PCM substream operators map for playback. */
->> +const struct snd_pcm_ops virtsnd_pcm_playback_ops = {
->> +	.open = virtsnd_pcm_open,
->> +	.close = virtsnd_pcm_close,
->> +	.ioctl = snd_pcm_lib_ioctl,
->> +	.hw_params = virtsnd_pcm_hw_params,
->> +	.hw_free = virtsnd_pcm_hw_free,
->> +	.prepare = virtsnd_pcm_prepare,
->> +	.trigger = virtsnd_pcm_trigger,
->> +	.sync_stop = virtsnd_pcm_sync_stop,
->> +	.pointer = virtsnd_pcm_pointer,
->> +	.copy = virtsnd_pcm_pb_copy,
->> +	.fill_silence = virtsnd_pcm_pb_silence,
->> +};
->> +
->> +/* PCM substream operators map for capturing. */
->> +const struct snd_pcm_ops virtsnd_pcm_capture_ops = {
->>  	.open = virtsnd_pcm_open,
->>  	.close = virtsnd_pcm_close,
->>  	.ioctl = snd_pcm_lib_ioctl,
->> @@ -461,4 +532,5 @@ const struct snd_pcm_ops virtsnd_pcm_ops = {
->>  	.trigger = virtsnd_pcm_trigger,
->>  	.sync_stop = virtsnd_pcm_sync_stop,
->>  	.pointer = virtsnd_pcm_pointer,
->> +	.copy = virtsnd_pcm_cap_copy,
->>  };
->>
->> base-commit: 8a749fd1a8720d4619c91c8b6e7528c0a355c0aa
->> --
->> 2.41.0
->
+The series was tested successfully over virtio-net VFs in the host,
+while running in the guest both modern and legacy drivers.
+
+[1]
+https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
+
+Changes from V0: https://www.spinics.net/lists/linux-virtualization/msg63802.html
+
+Virtio:
+- Fix the common config map size issue that was reported by Michael
+  Tsirkin.
+- Do not use vp_dev->vqs[] array upon vp_del_vqs() as was asked by
+  Michael, instead skip the AQ specifically.
+- Move admin vq implementation into virtio_pci_modern.c as was asked by
+  Michael.
+- Rename structure virtio_avq to virtio_pci_admin_vq and some extra
+  corresponding renames.
+- Remove exported symbols virtio_pci_vf_get_pf_dev(),
+  virtio_admin_cmd_exec() as now callers are local to the module.
+- Handle inflight commands as part of the device reset flow.
+- Introduce APIs per admin command in virtio-pci as was asked by Michael.
+
+Vfio:
+- Change to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL for
+  vfio_pci_core_setup_barmap() and vfio_pci_iowrite#xxx() as pointed by
+  Alex.
+- Drop the intermediate patch which prepares the commands and calls the
+  generic virtio admin command API (i.e. virtio_admin_cmd_exec()).
+- Instead, call directly to the new APIs per admin command that are
+  exported from Virtio - based on Michael's request.
+- Enable only virtio-net as part of the pci_device_id table to enforce
+  upon binding only what is supported as suggested by Alex.
+- Add support for byte-wise access (read/write) over the device config
+  region as was asked by Alex.
+- Consider whether MSIX is practically enabled/disabled to choose the
+  right opcode upon issuing read/write admin command, as mentioned
+  by Michael.
+- Move to use VIRTIO_PCI_CONFIG_OFF instead of adding some new defines
+  as was suggested by Michael.
+- Set the '.close_device' op to vfio_pci_core_close_device() as was
+  pointed by Alex.
+- Adapt to Vfio multi-line comment style in a few places.
+- Add virtualization@lists.linux-foundation.org in the MAINTAINERS file
+  to be CCed for the new driver as was suggested by Jason.
+
+Yishai
+
+Feng Liu (5):
+  virtio-pci: Fix common config map for modern device
+  virtio: Define feature bit for administration virtqueue
+  virtio-pci: Introduce admin virtqueue
+  virtio-pci: Introduce admin command sending function
+  virtio-pci: Introduce admin commands
+
+Yishai Hadas (4):
+  virtio-pci: Introduce APIs to execute legacy IO admin commands
+  vfio/pci: Expose vfio_pci_core_setup_barmap()
+  vfio/pci: Expose vfio_pci_iowrite/read##size()
+  vfio/virtio: Introduce a vfio driver over virtio devices
+
+ MAINTAINERS                            |   7 +
+ drivers/vfio/pci/Kconfig               |   2 +
+ drivers/vfio/pci/Makefile              |   2 +
+ drivers/vfio/pci/vfio_pci_core.c       |  25 ++
+ drivers/vfio/pci/vfio_pci_rdwr.c       |  38 +-
+ drivers/vfio/pci/virtio/Kconfig        |  15 +
+ drivers/vfio/pci/virtio/Makefile       |   4 +
+ drivers/vfio/pci/virtio/main.c         | 577 +++++++++++++++++++++++++
+ drivers/virtio/virtio.c                |  37 +-
+ drivers/virtio/virtio_pci_common.c     |  14 +
+ drivers/virtio/virtio_pci_common.h     |  20 +-
+ drivers/virtio/virtio_pci_modern.c     | 441 ++++++++++++++++++-
+ drivers/virtio/virtio_pci_modern_dev.c |  24 +-
+ include/linux/vfio_pci_core.h          |  20 +
+ include/linux/virtio.h                 |   8 +
+ include/linux/virtio_config.h          |   4 +
+ include/linux/virtio_pci_admin.h       |  18 +
+ include/linux/virtio_pci_modern.h      |   5 +
+ include/uapi/linux/virtio_config.h     |   8 +-
+ include/uapi/linux/virtio_pci.h        |  66 +++
+ 20 files changed, 1295 insertions(+), 40 deletions(-)
+ create mode 100644 drivers/vfio/pci/virtio/Kconfig
+ create mode 100644 drivers/vfio/pci/virtio/Makefile
+ create mode 100644 drivers/vfio/pci/virtio/main.c
+ create mode 100644 include/linux/virtio_pci_admin.h
+
+-- 
+2.27.0
 
 _______________________________________________
 Virtualization mailing list
