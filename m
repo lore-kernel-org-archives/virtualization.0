@@ -1,113 +1,86 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2A990CDB483
-	for <virtualization@archiver.kernel.org>; Tue, 17 Oct 2023 20:24:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04392CDB482
+	for <virtualization@archiver.kernel.org>; Tue, 17 Oct 2023 20:34:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 911BC400D1;
-	Tue, 17 Oct 2023 20:24:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 911BC400D1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VHEaqi42
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fPkjX6XIeAUP; Tue, 17 Oct 2023 20:24:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 71B1640128;
-	Tue, 17 Oct 2023 20:24:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 71B1640128
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4555BC0071;
-	Tue, 17 Oct 2023 20:24:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5F9ECC0032
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:24:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3AC5D812FD
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:24:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3AC5D812FD
+	by smtp1.osuosl.org (Postfix) with ESMTP id 801A5821FC;
+	Tue, 17 Oct 2023 20:34:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 801A5821FC
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VHEaqi42
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BoPnK4d3
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id px7XA_jtIIp1; Tue, 17 Oct 2023 20:34:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7213C821F4;
+	Tue, 17 Oct 2023 20:34:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7213C821F4
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 52343C0071;
+	Tue, 17 Oct 2023 20:34:41 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AC9FCC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Oct 2023 20:34:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7519A821F8
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Oct 2023 20:34:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7519A821F8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SYObW-Flf0hR
+ with ESMTP id rnCJm1mTAy2j
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:24:54 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 38FFF80E96
+ Tue, 17 Oct 2023 20:34:39 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id F38C4821F4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:24:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38FFF80E96
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697574293;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=EtUjdWCB9WMQU/mTfw17tXlwwNnT6x1gJtmkKU4zsR8=;
- b=VHEaqi42my4AxYraXgm3xSmzpX7GLEhUeisWjkQfoA0Ojjhi+pN+yBdTxmAW03srRfqVS3
- BbdOf3sl3tndIHvEySCPkFspWand1r8rpY2jbOXIaSbtXwa1XpuuHXMmCGrTqajJBhGIfA
- 637X9yqQ3wZ5DIOmAUBHXQKiZq/Cv/c=
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
- [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-226-qbx7NXXiMcazMdLoNoepWA-1; Tue, 17 Oct 2023 16:24:51 -0400
-X-MC-Unique: qbx7NXXiMcazMdLoNoepWA-1
-Received: by mail-io1-f71.google.com with SMTP id
- ca18e2360f4ac-79fa06105b0so294570439f.0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 13:24:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697574291; x=1698179091;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=EtUjdWCB9WMQU/mTfw17tXlwwNnT6x1gJtmkKU4zsR8=;
- b=Ys138SqDGoxjmUAgWVDIAnn/QeVNOc1qa1SflxNPfhnEctxa9O0arPQwIhJW/ikEvj
- GJH8YhWOLyd69EhnmJv+7wnAI2+BtB52lcp7Hg504faExWBrGkODWUXuavurTj4mp8oF
- 7dNr7GcK9LWB4PG4MzIvxdszvPA5Lp9LOtk/+Sz/VIlSwH5oPsNNU/mARrZRWzNZTyYN
- RUiirvHTjqpMMRo792k52KMvPeygygzKUdomfLPHy3+qyFeUm9E2hXha0tOZxyNRcnCy
- SvEBLAJIglVjQXivbGo2H41bzJa/g2Uu2ag9AWAcM86KxKEddrnqvScal0DbHEE4MWGU
- dyLQ==
-X-Gm-Message-State: AOJu0YxVxWHcn9we9992LJ1HuZiDl/jtj8pHDRnN9XByXElcEqjPKWgW
- cNz/859F9kOH9vd/mwk0JhQXEPgU9OsFlxoh2OC5YBbaMgBgjMAQsiuM/CKdVumxTy7nsR/7lSh
- MIlip30g13KKG/GuUUusvZU4CqwuoYw+OBqN741Detg==
-X-Received: by 2002:a92:d98e:0:b0:34f:20d9:74a9 with SMTP id
- r14-20020a92d98e000000b0034f20d974a9mr2740340iln.11.1697574290779; 
- Tue, 17 Oct 2023 13:24:50 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGlyFESvUm/reMsU2KMAu2LePTBp8vzSNdVO5O7BVyyVkEJDRLpPI9geTQERTRpMwuocgfjvA==
-X-Received: by 2002:a92:d98e:0:b0:34f:20d9:74a9 with SMTP id
- r14-20020a92d98e000000b0034f20d974a9mr2740328iln.11.1697574290530; 
- Tue, 17 Oct 2023 13:24:50 -0700 (PDT)
-Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
- w14-20020a02cf8e000000b0045c79bb28d6sm683968jar.114.2023.10.17.13.24.49
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 17 Oct 2023 13:24:50 -0700 (PDT)
-Date: Tue, 17 Oct 2023 14:24:48 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Message-ID: <20231017142448.08673cdc.alex.williamson@redhat.com>
-In-Reply-To: <20231017134217.82497-10-yishaih@nvidia.com>
-References: <20231017134217.82497-1-yishaih@nvidia.com>
- <20231017134217.82497-10-yishaih@nvidia.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ Tue, 17 Oct 2023 20:34:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F38C4821F4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1697574878; x=1729110878;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=gg02HXV/DM1Y3hQtypJQLDnLAQ1YO1LltY0joN3bM5c=;
+ b=BoPnK4d3Y9JYdCtAVXXQO0rBuUCHoI0Md22rKIsPxEr0YsNvyEUA52Hy
+ u9NfkcgVg5Dpy8t5OFV9DjOIPU5BiZFfX1iGOjDAWU6TeA13we3w/diyi
+ ILnNV0xCQxBEBZYYcsRUaFtJTJ4nahucXBhRinOg+I0p1nPbIvdGDhGjj
+ Kd2bQ8XRGjoQ06ACkR1uY8A8JAZ0ur+iHkSferlNqCdIoQ/2W8mMwx4q0
+ lDQ5mllq6MaqVbJz3/pou7MlBRLVFF7IkHi4pZNRZdE8syQ5XZkTJn6PD
+ 33LGMmeChsa7PqvtCLoHYwagFCrm3jLsLLPKxQ30nmziNCGGtEBbWBl6Q w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="366132720"
+X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; d="scan'208";a="366132720"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 17 Oct 2023 13:34:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="846963335"
+X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; d="scan'208";a="846963335"
+Received: from lkp-server02.sh.intel.com (HELO f64821696465) ([10.239.97.151])
+ by FMSMGA003.fm.intel.com with ESMTP; 17 Oct 2023 13:34:33 -0700
+Received: from kbuild by f64821696465 with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1qsqlr-000A3X-1S;
+ Tue, 17 Oct 2023 20:34:31 +0000
+Date: Wed, 18 Oct 2023 04:33:40 +0800
+From: kernel test robot <lkp@intel.com>
+To: Yishai Hadas <yishaih@nvidia.com>, alex.williamson@redhat.com,
+ mst@redhat.com, jasowang@redhat.com, jgg@nvidia.com
+Subject: Re: [PATCH V1 vfio 6/9] virtio-pci: Introduce APIs to execute legacy
+ IO admin commands
+Message-ID: <202310180437.jo2csM6u-lkp@intel.com>
+References: <20231017134217.82497-7-yishaih@nvidia.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
- leonro@nvidia.com
+Content-Disposition: inline
+In-Reply-To: <20231017134217.82497-7-yishaih@nvidia.com>
+Cc: kvm@vger.kernel.org, maorg@nvidia.com, oe-kbuild-all@lists.linux.dev,
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,103 +97,261 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 17 Oct 2023 16:42:17 +0300
-Yishai Hadas <yishaih@nvidia.com> wrote:
-> +static int virtiovf_pci_probe(struct pci_dev *pdev,
-> +			      const struct pci_device_id *id)
-> +{
-> +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
-> +	struct virtiovf_pci_core_device *virtvdev;
-> +	int ret;
-> +
-> +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
-> +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
-> +		ops = &virtiovf_acc_vfio_pci_tran_ops;
+Hi Yishai,
+
+kernel test robot noticed the following build warnings:
+
+[auto build test WARNING on linus/master]
+[also build test WARNING on v6.6-rc6 next-20231017]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Yishai-Hadas/virtio-pci-Fix-common-config-map-for-modern-device/20231017-214450
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20231017134217.82497-7-yishaih%40nvidia.com
+patch subject: [PATCH V1 vfio 6/9] virtio-pci: Introduce APIs to execute legacy IO admin commands
+config: alpha-allyesconfig (https://download.01.org/0day-ci/archive/20231018/202310180437.jo2csM6u-lkp@intel.com/config)
+compiler: alpha-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231018/202310180437.jo2csM6u-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202310180437.jo2csM6u-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/virtio/virtio_pci_modern.c:731:5: warning: no previous prototype for 'virtio_pci_admin_list_query' [-Wmissing-prototypes]
+     731 | int virtio_pci_admin_list_query(struct pci_dev *pdev, u8 *buf, int buf_size)
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/virtio/virtio_pci_modern.c:758:5: warning: no previous prototype for 'virtio_pci_admin_list_use' [-Wmissing-prototypes]
+     758 | int virtio_pci_admin_list_use(struct pci_dev *pdev, u8 *buf, int buf_size)
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/virtio/virtio_pci_modern.c:786:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_write' [-Wmissing-prototypes]
+     786 | int virtio_pci_admin_legacy_io_write(struct pci_dev *pdev, u16 opcode,
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/virtio/virtio_pci_modern.c:831:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_read' [-Wmissing-prototypes]
+     831 | int virtio_pci_admin_legacy_io_read(struct pci_dev *pdev, u16 opcode,
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>> drivers/virtio/virtio_pci_modern.c:877:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_notify_info' [-Wmissing-prototypes]
+     877 | int virtio_pci_admin_legacy_io_notify_info(struct pci_dev *pdev,
+         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-This is still an issue for me, it's a very narrow use case where we
-have a modern device and want to enable legacy support.  Implementing an
-IO BAR and mangling the device ID seems like it should be an opt-in,
-not standard behavior for any compatible device.  Users should
-generally expect that the device they see in the host is the device
-they see in the guest.  They might even rely on that principle.
+vim +/virtio_pci_admin_list_query +731 drivers/virtio/virtio_pci_modern.c
 
-We can't use the argument that users wanting the default device should
-use vfio-pci rather than virtio-vfio-pci because we've already defined
-the algorithm by which libvirt should choose a variant driver for a
-device.  libvirt will choose this driver for all virtio-net devices.
+   721	
+   722	/*
+   723	 * virtio_pci_admin_list_query - Provides to driver list of commands
+   724	 * supported for the PCI VF.
+   725	 * @dev: VF pci_dev
+   726	 * @buf: buffer to hold the returned list
+   727	 * @buf_size: size of the given buffer
+   728	 *
+   729	 * Returns 0 on success, or negative on failure.
+   730	 */
+ > 731	int virtio_pci_admin_list_query(struct pci_dev *pdev, u8 *buf, int buf_size)
+   732	{
+   733		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
+   734		struct virtio_admin_cmd cmd = {};
+   735		struct scatterlist result_sg;
+   736	
+   737		if (!virtio_dev)
+   738			return -ENODEV;
+   739	
+   740		sg_init_one(&result_sg, buf, buf_size);
+   741		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LIST_QUERY);
+   742		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
+   743		cmd.result_sg = &result_sg;
+   744	
+   745		return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+   746	}
+   747	EXPORT_SYMBOL_GPL(virtio_pci_admin_list_query);
+   748	
+   749	/*
+   750	 * virtio_pci_admin_list_use - Provides to device list of commands
+   751	 * used for the PCI VF.
+   752	 * @dev: VF pci_dev
+   753	 * @buf: buffer which holds the list
+   754	 * @buf_size: size of the given buffer
+   755	 *
+   756	 * Returns 0 on success, or negative on failure.
+   757	 */
+ > 758	int virtio_pci_admin_list_use(struct pci_dev *pdev, u8 *buf, int buf_size)
+   759	{
+   760		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
+   761		struct virtio_admin_cmd cmd = {};
+   762		struct scatterlist data_sg;
+   763	
+   764		if (!virtio_dev)
+   765			return -ENODEV;
+   766	
+   767		sg_init_one(&data_sg, buf, buf_size);
+   768		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LIST_USE);
+   769		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
+   770		cmd.data_sg = &data_sg;
+   771	
+   772		return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+   773	}
+   774	EXPORT_SYMBOL_GPL(virtio_pci_admin_list_use);
+   775	
+   776	/*
+   777	 * virtio_pci_admin_legacy_io_write - Write legacy registers of a member device
+   778	 * @dev: VF pci_dev
+   779	 * @opcode: op code of the io write command
+   780	 * @offset: starting byte offset within the registers to write to
+   781	 * @size: size of the data to write
+   782	 * @buf: buffer which holds the data
+   783	 *
+   784	 * Returns 0 on success, or negative on failure.
+   785	 */
+ > 786	int virtio_pci_admin_legacy_io_write(struct pci_dev *pdev, u16 opcode,
+   787					     u8 offset, u8 size, u8 *buf)
+   788	{
+   789		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
+   790		struct virtio_admin_cmd_legacy_wr_data *data;
+   791		struct virtio_admin_cmd cmd = {};
+   792		struct scatterlist data_sg;
+   793		int vf_id;
+   794		int ret;
+   795	
+   796		if (!virtio_dev)
+   797			return -ENODEV;
+   798	
+   799		vf_id = pci_iov_vf_id(pdev);
+   800		if (vf_id < 0)
+   801			return vf_id;
+   802	
+   803		data = kzalloc(sizeof(*data) + size, GFP_KERNEL);
+   804		if (!data)
+   805			return -ENOMEM;
+   806	
+   807		data->offset = offset;
+   808		memcpy(data->registers, buf, size);
+   809		sg_init_one(&data_sg, data, sizeof(*data) + size);
+   810		cmd.opcode = cpu_to_le16(opcode);
+   811		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
+   812		cmd.group_member_id = cpu_to_le64(vf_id + 1);
+   813		cmd.data_sg = &data_sg;
+   814		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+   815	
+   816		kfree(data);
+   817		return ret;
+   818	}
+   819	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_write);
+   820	
+   821	/*
+   822	 * virtio_pci_admin_legacy_io_read - Read legacy registers of a member device
+   823	 * @dev: VF pci_dev
+   824	 * @opcode: op code of the io read command
+   825	 * @offset: starting byte offset within the registers to read from
+   826	 * @size: size of the data to be read
+   827	 * @buf: buffer to hold the returned data
+   828	 *
+   829	 * Returns 0 on success, or negative on failure.
+   830	 */
+ > 831	int virtio_pci_admin_legacy_io_read(struct pci_dev *pdev, u16 opcode,
+   832					    u8 offset, u8 size, u8 *buf)
+   833	{
+   834		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
+   835		struct virtio_admin_cmd_legacy_rd_data *data;
+   836		struct scatterlist data_sg, result_sg;
+   837		struct virtio_admin_cmd cmd = {};
+   838		int vf_id;
+   839		int ret;
+   840	
+   841		if (!virtio_dev)
+   842			return -ENODEV;
+   843	
+   844		vf_id = pci_iov_vf_id(pdev);
+   845		if (vf_id < 0)
+   846			return vf_id;
+   847	
+   848		data = kzalloc(sizeof(*data), GFP_KERNEL);
+   849		if (!data)
+   850			return -ENOMEM;
+   851	
+   852		data->offset = offset;
+   853		sg_init_one(&data_sg, data, sizeof(*data));
+   854		sg_init_one(&result_sg, buf, size);
+   855		cmd.opcode = cpu_to_le16(opcode);
+   856		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
+   857		cmd.group_member_id = cpu_to_le64(vf_id + 1);
+   858		cmd.data_sg = &data_sg;
+   859		cmd.result_sg = &result_sg;
+   860		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+   861	
+   862		kfree(data);
+   863		return ret;
+   864	}
+   865	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_read);
+   866	
+   867	/*
+   868	 * virtio_pci_admin_legacy_io_notify_info - Read the queue notification
+   869	 * information for legacy interface
+   870	 * @dev: VF pci_dev
+   871	 * @req_bar_flags: requested bar flags
+   872	 * @bar: on output the BAR number of the member device
+   873	 * @bar_offset: on output the offset within bar
+   874	 *
+   875	 * Returns 0 on success, or negative on failure.
+   876	 */
+ > 877	int virtio_pci_admin_legacy_io_notify_info(struct pci_dev *pdev,
+   878						   u8 req_bar_flags, u8 *bar,
+   879						   u64 *bar_offset)
+   880	{
+   881		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
+   882		struct virtio_admin_cmd_notify_info_result *result;
+   883		struct virtio_admin_cmd cmd = {};
+   884		struct scatterlist result_sg;
+   885		int vf_id;
+   886		int ret;
+   887	
+   888		if (!virtio_dev)
+   889			return -ENODEV;
+   890	
+   891		vf_id = pci_iov_vf_id(pdev);
+   892		if (vf_id < 0)
+   893			return vf_id;
+   894	
+   895		result = kzalloc(sizeof(*result), GFP_KERNEL);
+   896		if (!result)
+   897			return -ENOMEM;
+   898	
+   899		sg_init_one(&result_sg, result, sizeof(*result));
+   900		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO);
+   901		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
+   902		cmd.group_member_id = cpu_to_le64(vf_id + 1);
+   903		cmd.result_sg = &result_sg;
+   904		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
+   905		if (!ret) {
+   906			struct virtio_admin_cmd_notify_info_data *entry;
+   907			int i;
+   908	
+   909			ret = -ENOENT;
+   910			for (i = 0; i < VIRTIO_ADMIN_CMD_MAX_NOTIFY_INFO; i++) {
+   911				entry = &result->entries[i];
+   912				if (entry->flags == VIRTIO_ADMIN_CMD_NOTIFY_INFO_FLAGS_END)
+   913					break;
+   914				if (entry->flags != req_bar_flags)
+   915					continue;
+   916				*bar = entry->bar;
+   917				*bar_offset = le64_to_cpu(entry->offset);
+   918				ret = 0;
+   919				break;
+   920			}
+   921		}
+   922	
+   923		kfree(result);
+   924		return ret;
+   925	}
+   926	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_notify_info);
+   927	
 
-This driver effectively has the option to expose two different profiles
-for the device, native or transitional.  We've discussed profile
-support for variant drivers previously as an equivalent functionality
-to mdev types, but the only use case for this currently is out-of-tree.
-I think this might be the opportunity to define how device profiles are
-exposed and selected in a variant driver.
-
-Jason had previously suggested a devlink interface for this, but I
-understand that path had been shot down by devlink developers.  Another
-obvious option is sysfs, where we might imagine an optional "profiles"
-directory, perhaps under vfio-dev.  Attributes of "available" and
-"current" could allow discovery and selection of a profile similar to
-mdev types.
-
-Is this where we should head with this or are there other options to
-confine this transitional behavior?
-
-BTW, what is "acc" in virtiovf_acc_vfio_pci_ops?
-
-> +
-> +	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
-> +				     &pdev->dev, ops);
-> +	if (IS_ERR(virtvdev))
-> +		return PTR_ERR(virtvdev);
-> +
-> +	dev_set_drvdata(&pdev->dev, &virtvdev->core_device);
-> +	ret = vfio_pci_core_register_device(&virtvdev->core_device);
-> +	if (ret)
-> +		goto out;
-> +	return 0;
-> +out:
-> +	vfio_put_device(&virtvdev->core_device.vdev);
-> +	return ret;
-> +}
-> +
-> +static void virtiovf_pci_remove(struct pci_dev *pdev)
-> +{
-> +	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
-> +
-> +	vfio_pci_core_unregister_device(&virtvdev->core_device);
-> +	vfio_put_device(&virtvdev->core_device.vdev);
-> +}
-> +
-> +static const struct pci_device_id virtiovf_pci_table[] = {
-> +	/* Only virtio-net is supported/tested so far */
-> +	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
-> +	{}
-> +};
-> +
-> +MODULE_DEVICE_TABLE(pci, virtiovf_pci_table);
-> +
-> +static struct pci_driver virtiovf_pci_driver = {
-> +	.name = KBUILD_MODNAME,
-> +	.id_table = virtiovf_pci_table,
-> +	.probe = virtiovf_pci_probe,
-> +	.remove = virtiovf_pci_remove,
-> +	.err_handler = &vfio_pci_core_err_handlers,
-> +	.driver_managed_dma = true,
-> +};
-> +
-> +module_pci_driver(virtiovf_pci_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
-> +MODULE_DESCRIPTION(
-> +	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO device family");
-
-Not yet "family" per the device table.  Thanks,
-
-Alex
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
