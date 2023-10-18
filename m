@@ -4,83 +4,174 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04392CDB482
-	for <virtualization@archiver.kernel.org>; Tue, 17 Oct 2023 20:34:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6EAE8CDB474
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 00:15:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 801A5821FC;
-	Tue, 17 Oct 2023 20:34:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 801A5821FC
+	by smtp1.osuosl.org (Postfix) with ESMTP id 046FF813E6;
+	Wed, 18 Oct 2023 00:15:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 046FF813E6
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=BoPnK4d3
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=hTsIpO9w
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id px7XA_jtIIp1; Tue, 17 Oct 2023 20:34:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7213C821F4;
-	Tue, 17 Oct 2023 20:34:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7213C821F4
+	with ESMTP id LFEvSzL-MVvQ; Wed, 18 Oct 2023 00:15:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5DEB1813D8;
+	Wed, 18 Oct 2023 00:15:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DEB1813D8
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52343C0071;
-	Tue, 17 Oct 2023 20:34:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AC9FCC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 36CF0C0071;
+	Wed, 18 Oct 2023 00:15:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3784C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:34:40 +0000 (UTC)
+ Wed, 18 Oct 2023 00:15:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7519A821F8
+ by smtp4.osuosl.org (Postfix) with ESMTP id BDFD841E51
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:34:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7519A821F8
+ Wed, 18 Oct 2023 00:15:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BDFD841E51
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com
+ header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=hTsIpO9w
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rnCJm1mTAy2j
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GBEo6L4e33iQ
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:34:39 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.151])
- by smtp1.osuosl.org (Postfix) with ESMTPS id F38C4821F4
+ Wed, 18 Oct 2023 00:15:44 +0000 (UTC)
+Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu
+ [18.185.115.110])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4E6A041E4F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Oct 2023 20:34:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F38C4821F4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1697574878; x=1729110878;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=gg02HXV/DM1Y3hQtypJQLDnLAQ1YO1LltY0joN3bM5c=;
- b=BoPnK4d3Y9JYdCtAVXXQO0rBuUCHoI0Md22rKIsPxEr0YsNvyEUA52Hy
- u9NfkcgVg5Dpy8t5OFV9DjOIPU5BiZFfX1iGOjDAWU6TeA13we3w/diyi
- ILnNV0xCQxBEBZYYcsRUaFtJTJ4nahucXBhRinOg+I0p1nPbIvdGDhGjj
- Kd2bQ8XRGjoQ06ACkR1uY8A8JAZ0ur+iHkSferlNqCdIoQ/2W8mMwx4q0
- lDQ5mllq6MaqVbJz3/pou7MlBRLVFF7IkHi4pZNRZdE8syQ5XZkTJn6PD
- 33LGMmeChsa7PqvtCLoHYwagFCrm3jLsLLPKxQ30nmziNCGGtEBbWBl6Q w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="366132720"
-X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; d="scan'208";a="366132720"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
- by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 17 Oct 2023 13:34:38 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10866"; a="846963335"
-X-IronPort-AV: E=Sophos;i="6.03,233,1694761200"; d="scan'208";a="846963335"
-Received: from lkp-server02.sh.intel.com (HELO f64821696465) ([10.239.97.151])
- by FMSMGA003.fm.intel.com with ESMTP; 17 Oct 2023 13:34:33 -0700
-Received: from kbuild by f64821696465 with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1qsqlr-000A3X-1S;
- Tue, 17 Oct 2023 20:34:31 +0000
-Date: Wed, 18 Oct 2023 04:33:40 +0800
-From: kernel test robot <lkp@intel.com>
-To: Yishai Hadas <yishaih@nvidia.com>, alex.williamson@redhat.com,
- mst@redhat.com, jasowang@redhat.com, jgg@nvidia.com
-Subject: Re: [PATCH V1 vfio 6/9] virtio-pci: Introduce APIs to execute legacy
- IO admin commands
-Message-ID: <202310180437.jo2csM6u-lkp@intel.com>
-References: <20231017134217.82497-7-yishaih@nvidia.com>
+ Wed, 18 Oct 2023 00:15:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4E6A041E4F
+Received: from 104.47.7.168_.trendmicro.com (unknown [172.21.184.89])
+ by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 8F615100004F7;
+ Wed, 18 Oct 2023 00:15:41 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1697588140.972000
+X-TM-MAIL-UUID: d38766e5-5abb-4ca8-b512-331d9a606d38
+Received: from DEU01-BE0-obe.outbound.protection.outlook.com (unknown
+ [104.47.7.168])
+ by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id
+ ED8D810001285; Wed, 18 Oct 2023 00:15:40 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FEyrQuPf/Ki5clpRRyoKfphe9J6z/VxEVJ9489qUNxVBgqOm9r1tPOrcf9SHwPftA6edNZtkQBpeEGPS8uxmtebCrnEw7tUwGIpWqper+063KXzv+oODA6Um/WglBzg9rHh1H0wX1Mzb6tFEF8HatPQK3+3K8cE9Qj9LC4IiJkRqa5wYPiBko1ZtlDd+QJwSsrZCVq08exAvRxG6pLtLCgmyWW1FDtOQbU2PD4tWYXHl0O9LGU5s5qsJ2Q7QWeqWrranKAOvmFmRM/lyXWP2Pw1HVwCq86UzGYTOyK8A+qVOivnBu4l24xVynqclKQni3gmC3m4HEDJVN7iwB+BMcQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VjuGpLsF92lho6XO92Q4+gSdbPTMmYDqaDG+7JwAl3k=;
+ b=aGUyu9vDF6FQDPncAx8eL5nC2mR99zVUGxR7rk2UeQpthd8MG/y0MXkRziNDtTi+Q+Uj23X/z7JQQqAe14i1FPGWwjA92russBUG5rg/6CuaWCHcHGx/bFQp8PJpLP7yXR6qTOXJhV8IYLal4+kiCLH9ufvwzNgNmVOxL/z4CGosha34Tltpn6EqXyZh9vkSdjkXQhGeDNchs1x01hkDOKRuCWADsZJlKeq+X72Vde9CjDQugRK5dGuhvSCiBt4xkRlR8RXuaS6A6DhfFy7QOzi6G7YP0KdTFXBZqbFqsUeZPMDTJcG9qytzr9+/gwTc2ccZisHVL3acpaoiq5EBvg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <28e51b45-2221-4d6d-b160-977991833908@opensynergy.com>
+Date: Wed, 18 Oct 2023 09:15:18 +0900
+Subject: Re: [RFC PATCH] ALSA: virtio: use copy and fill_silence callbacks
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+References: <ZSgMeoMx6NX2zCx/@fedora>
+ <6384c982-2b6d-474b-bf29-d495422aff20@opensynergy.com>
+ <ZS6EBZ7oyGB9nhay@fedora>
+Content-Language: en-US
+In-Reply-To: <ZS6EBZ7oyGB9nhay@fedora>
+X-ClientProxiedBy: FR2P281CA0056.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:93::7) To FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:22::9)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20231017134217.82497-7-yishaih@nvidia.com>
-Cc: kvm@vger.kernel.org, maorg@nvidia.com, oe-kbuild-all@lists.linux.dev,
- virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: FR0P281MB2382:EE_|BE1P281MB2290:EE_
+X-MS-Office365-Filtering-Correlation-Id: cdaa388b-e2c9-42ff-fd57-08dbcf6f5b57
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QU87f/q6P8+jdrFQCG74i7k6UB2BXpcKRBhyGJRO8dn4XVVnnOBexa2hwyeMfTHQrTcY0BHbmnYLpq4w7rjhzH6XD3PXfUakLGHfwwLIA3rQoTXh5LXRWPfSfTF1u6CRhXvUsmIYr1KssLHCSj2Wnxr7eDF+Rptq33AzNPfpedgG9Fdgyz1s/ez85VBheFctEIiWWqfK2QmA1EJKu9RoDxdJzU2JEu0FUdabZBoewP9oFTShmzPnPDFiyIrfkk8WMGFaFt62WEJSNT3UoOhnIrlWAfUdjTNdiusTl/RFkBwboOX9mmLUVlJLSyXNkzkdib1TtY/coLLIpTKUzKwkWd8McFDrt0zC5lc208gU6CQ+qEMCp2M7AmRMVj0T+xgFzVS1B1/kfoofKPU+s2cbCEXbRh9EzFjUWhJTrkMi9ofh9m45tx5Pv7yFgCospXEeS8KGl5atRv4sJgErv1lmlQGuuaMJ1UtXb62IDlNhGqsB2PUhzJrtHX7p5LqAs8vJKdQg9DIgw//YNNPzc2bLTtrIIRwXtwmG+vs+mjTiZ5gpPCE2UbzOQxKee/0UmWB+L6bKTBXt2+BuBBvAffqnVcOUzFvvOHydNxw6P4H+uZVKqFDV4CsrxPJ8ErhEX4MvLS1veNWUBLqDIZGAuUOjIA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM; PTR:; CAT:NONE;
+ SFS:(13230031)(136003)(346002)(396003)(366004)(39840400004)(376002)(230922051799003)(186009)(64100799003)(1800799009)(451199024)(26005)(31686004)(38100700002)(41300700001)(5660300002)(44832011)(66476007)(66556008)(42186006)(66946007)(8936002)(8676002)(4326008)(7416002)(4744005)(6916009)(31696002)(86362001)(316002)(53546011)(478600001)(2906002)(2616005)(36756003);
+ DIR:OUT; SFP:1102; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NmlZYU9VYktyS01abzMvejE3KzZYUE11dGtRNUsyRHZEeVRiUlhIYnIzbWc4?=
+ =?utf-8?B?bVV3dWdPUzZKRDNVUHZsQ3FtYjVzYk52SUFydEpsajBmclhnUWljeGE2RXBW?=
+ =?utf-8?B?cGRlRDFKUjJ5MmwvVzFQaVUzUjVtWXpPcTZzdG9uYnB0VDNrUkhFZjNuemd1?=
+ =?utf-8?B?dkpiZC8rSHZZczNHMCtCelpRL2ZxZis4bVJYSDVmV3JyTFVMa0ZCeXRKcnM3?=
+ =?utf-8?B?MGx6cVVleGRVRDh6SVIvamFoZ3BPYTNQK2hXeUozclpsaW5YTkZXbG50SlZD?=
+ =?utf-8?B?VnFUOUlYZ0ZmV0NYallnSnRMRk1PdHhqQ3ZzU2k1aW5sSm1hbno2TWdwZ0tK?=
+ =?utf-8?B?NG16bzk1eXh6SFZpcGR1a1ZrUG1tRlprS2dIRjhBMXZaOUltZ21McVVENFgv?=
+ =?utf-8?B?VllpMktXQjdBTFhjL2R1MTJraFpQdmxtcCs1RXBqRDlkajBjd2thYUNLVVNn?=
+ =?utf-8?B?WU9OMkF5M1lHVUNaeEhzYk9sSmFIeUM2cnJ3dUVYMUNndVdFaklrMXozMDVG?=
+ =?utf-8?B?KzJJVzBFekpObW4zVjVnREZoU3FrOFdYdFdLSDV2eUp5akUwblo2N05naUxN?=
+ =?utf-8?B?RDhoQ0FqN1ZIcm16TmFGWnluWUhNb21pZkdmVkhCUkRXeW1qbHNoQ3hHNWd2?=
+ =?utf-8?B?RThXZ3hiV1hGS3B4aWY0dk0zZWZFS0lhR01nU3dWWDVPMXNWa240WUg5Vmhr?=
+ =?utf-8?B?NzBEOHdoVzgydGFLRjF0TE9ML2xvamdoMEk3bHd3RWwxNTBpbFV5M2s5b00x?=
+ =?utf-8?B?QS9WWWNGRjR4aDh0OHpmTndaU2E3R0NSNGpmUXkrRnVUZlVYMjZoL0dGLzll?=
+ =?utf-8?B?T2JNdjNjNUx2M1lGK1Z2NGZGcXlNZ1J0VmpRV2JQMStweWowYVhPakFWUkxM?=
+ =?utf-8?B?RGlmYzdVaXJRbm1oY1FSRUx0VUI2ajhlRU9Fd1BBUjc5YXhYNnpxUUF2dm9B?=
+ =?utf-8?B?TjAyZVAzRTk4ZFdFTFlidjhTMkw2SlZSVTZRTmMzU2R1dXlqdXVKM2pJVDYr?=
+ =?utf-8?B?eVB0SjUrcEJvdzdUWmx2MmRqemV5RzlCMFlHd05IZFVuV2tiWXpsTzhtcktn?=
+ =?utf-8?B?TDNtaUIxWUkza2gybjhJeC95MFpPc2plUW5jY3ZjOUNBdllxUXhuWUs2bm95?=
+ =?utf-8?B?WlFFeVVBUGhjaC9EV0xHcnozZGExeGZ0Yk9JUlNneWJCYzVrTjBpS2s5Wk5q?=
+ =?utf-8?B?NHlQcXEySUIvN0R0ZjR1dXdEMWRyaGlJU2hmVGV6VE1Lb3JvR2JNZEZ0UlNB?=
+ =?utf-8?B?eHlPUDUzRWRPazRlZm5ZaWYvVzB4YmJXSThuQ3ZvVTlPQVl5THQ1NXlXVTRa?=
+ =?utf-8?B?WU5CdnNoU3hnYm1XSzBIOTBwemlGanlvU0cwNHVwMm5hR0NxKzRNYitWT0FW?=
+ =?utf-8?B?RmlwQllIRGV6YzRwRHdqbmhMTmNQc0hTdnhqbWJQeXFXYjJkQ3lOa2dIbUp0?=
+ =?utf-8?B?cnY4RjdvWDQ1cFd1b2xJWEl3d09zUGhsYlBvSkkxV296Q1Fzdm90WmtwRjF3?=
+ =?utf-8?B?VGNvZFp3a1d5K05EekhUZ1F3RkpuM09hZWV1VFVKUmJWdmQrMFU4Um4xSE8r?=
+ =?utf-8?B?RHpPU2F1Z1pLYXZVWDhPNlZHaU9ET1ZEWVlpcVFBUmlVb3Nla3NGQ2VlaE5K?=
+ =?utf-8?B?d1U1MW54Q1A4K3ppb0xIcUx4ZlpUeVpyVEZDOTcvbG1CVVJZVVI4NW1MWFBq?=
+ =?utf-8?B?N01rMlpuWXF3V2pQS3lPQWtEOE5VaURCb1JzVHo1aFE2WFVwNE4wQWZ2eTA0?=
+ =?utf-8?B?ZWVHcVpwaE9uOWF1QUV6SzFYUEZuZVFEYjYwREtVZUZ4RWcrMk5zSFV0cHN4?=
+ =?utf-8?B?WGNPelA3ODA3Y21lQTRXNTZJd0FrayttOTZEV1I4RGVMUk9ndG5nc0srbjVv?=
+ =?utf-8?B?RmJhd08xSTBnemtZYmhySW9BSHNjRXRwLzVYc3Brc2N6bGNZM2QzODgyQjVv?=
+ =?utf-8?B?SXJqZk9vVnp6ckNmSnl3UHhlbDMyellITzJudVM3aUMvcUx6VHFhMXpia0t5?=
+ =?utf-8?B?UHN1OVFnRkFDeTJ5djBwQlBXeThrUko2QWYrd2NEdEJCQWh0UXRUYmFPdldO?=
+ =?utf-8?B?bHFnT0pPNUlMc2pXQWhRT1NlU3diZXhyR1RiWVF2OHpQUHh5WlM5bThhUTlj?=
+ =?utf-8?Q?rkQqgWuNBmSovYmvSoZMIfoG6?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cdaa388b-e2c9-42ff-fd57-08dbcf6f5b57
+X-MS-Exchange-CrossTenant-AuthSource: FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2023 00:15:39.1746 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: SoDscNCANC29Y6QU7l2pRzE4HFjKrcxhnun2s2lmGVjQzvD3iQ9kcfSzxnG8kKV6fkl4of48ZAOikQSMQSwkcA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BE1P281MB2290
+X-TM-AS-ERS: 104.47.7.168-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1015-27942.003
+X-TMASE-Result: 10--8.304000-4.000000
+X-TMASE-MatchedRID: +c13yJDs901TzAVQ78TKJRhvdi92BBAu+HAk4j3F9/Qa9RqlFbRIduAA
+ SvqZjfN4M2ta6t23unXTsSdxipbi+7dpEPyORLdV0RneM2u5ms9W1n4bHTHoQZXVwPqFeiBVT0B
+ RZNI+YwbANog326X8vo19zNGhZoVDsM/3m9ko3yj27frq98KnmgaG4Utj+sREcYO7LzLWqS6Xn7
+ CqFttPWxjSLVDqKI5E8BB++qkUITWZDRZvymtiMn7DsKL7bCLU
+X-TMASE-XGENCLOUD: 54600590-e107-48d1-8b60-efb7cefc22e0-0-0-200-0
+X-TM-Deliver-Signature: E80A9620F45A3CA3C6291C30DB18BAAF
+X-TM-Addin-Auth: /mXZCuS4ctFgXJQPaxm7A2Q8/sfBvTnBbeBj+x5F2/precZizm9nOqzCO9+
+ 9mA+K/jpIB86KjFcqmdn9/YwgyMGRHzsuPr2238+ytOb4TXdpZVhFaZNa5vDKBHvxgrsEBQDZ7R
+ JWY6aWM5H+iovWpLf7YeQnAr2flfDX0emq9AeSckuOjjvaCpJJPMhufVT/gfgHMx6jixhZ0msLc
+ h+k2kb3C1uc4IggswgksRofczonZQPvxXGnDAOCVe6kj7wPoIBZzaT56U8PXiifrFQCuvqaHRWB
+ 3LP9xABtYs66/8s=.B1QJHwPnJ24MfwB19uvkS6/5gMCIGd7qEj+4BZkokFB7q6lJcHRQIrUDym
+ c0QEO+wBNie82NoxMeM0cKzhfl/hJfdqk45WgKAV1JI6RKRT5xQz2QJTtUYqv7EQakL6x8Icyy5
+ jSImbp2KSi35ipH3ccExektRdhfa57IouwPwFm8iEkAl9bcczHf5Wc8cQ8elHNaFpvmxmyq2sB7
+ 1OWjfPUMXfxSC+bW789OHA/icQzglST573a8nvaBJ+g2T5cEg9NeFlPJXXBsEgCr3YfZUWgwvXL
+ oNpsPgLggChWtMbR0mi0Ia7uC7cP4QySYEz5lnOBq/Hq76A0KFLlQmgdE8g==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+ s=TM-DKIM-20210503141657; t=1697588141;
+ bh=rxwaXK7wsHQ9yjJMtig2FrHLjvYQY+JGipH32QfMqIQ=; l=393;
+ h=Date:To:From;
+ b=hTsIpO9wa+IfpIzgum0b1VXB8UnHH3NjtzX39+8yO/pZ8RIb5p6V0qgQMgm0GphId
+ l9bG6OR3WQh+BskpSdJdxQAWIFhvSLS3SJZY1paLphReojfjK0AnXmTWX3Xs/euNFX
+ 9PRzMUI3wbjg0kf5H9okr6ApmfoNS7hr6mkDy/k1fNuRc2/Nq93o7OS/4lZ1mATCTP
+ l4ZVDygujmwZ7M7Vy/a7o+Gf3l1wRqE++mqNqQw9ypBJk1V9ykqu4JB+XbdNO4DXNf
+ UiHgYn2N1Oz0RxvobKrtf/HwQt7+0S2bWqntlQ2eU+dRr+CV08rXoyhmJ4eVzQzLjr
+ Hu3POQdVApPEA==
+Cc: alsa-devel@alsa-project.org, mripard@redhat.com, mst@redhat.com,
+ tiwai@suse.com, linux-kernel@vger.kernel.org, perex@perex.cz,
+ stefanha@redhat.com, pbonzini@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,266 +183,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
+From: Anton Yakovlev via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Yishai,
+Hi Matias,
 
-kernel test robot noticed the following build warnings:
+On 17.10.2023 21:54, Matias Ezequiel Vara Larsen wrote:
+> Hello Anton,
+> 
+> Thanks for your help! I am going to send a second version of the patch
+> with your changes. Is it OK if I add you with the "Co-developed-by"
+> tag?.
 
-[auto build test WARNING on linus/master]
-[also build test WARNING on v6.6-rc6 next-20231017]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Yishai-Hadas/virtio-pci-Fix-common-config-map-for-modern-device/20231017-214450
-base:   linus/master
-patch link:    https://lore.kernel.org/r/20231017134217.82497-7-yishaih%40nvidia.com
-patch subject: [PATCH V1 vfio 6/9] virtio-pci: Introduce APIs to execute legacy IO admin commands
-config: alpha-allyesconfig (https://download.01.org/0day-ci/archive/20231018/202310180437.jo2csM6u-lkp@intel.com/config)
-compiler: alpha-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231018/202310180437.jo2csM6u-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202310180437.jo2csM6u-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/virtio/virtio_pci_modern.c:731:5: warning: no previous prototype for 'virtio_pci_admin_list_query' [-Wmissing-prototypes]
-     731 | int virtio_pci_admin_list_query(struct pci_dev *pdev, u8 *buf, int buf_size)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/virtio/virtio_pci_modern.c:758:5: warning: no previous prototype for 'virtio_pci_admin_list_use' [-Wmissing-prototypes]
-     758 | int virtio_pci_admin_list_use(struct pci_dev *pdev, u8 *buf, int buf_size)
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/virtio/virtio_pci_modern.c:786:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_write' [-Wmissing-prototypes]
-     786 | int virtio_pci_admin_legacy_io_write(struct pci_dev *pdev, u16 opcode,
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/virtio/virtio_pci_modern.c:831:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_read' [-Wmissing-prototypes]
-     831 | int virtio_pci_admin_legacy_io_read(struct pci_dev *pdev, u16 opcode,
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->> drivers/virtio/virtio_pci_modern.c:877:5: warning: no previous prototype for 'virtio_pci_admin_legacy_io_notify_info' [-Wmissing-prototypes]
-     877 | int virtio_pci_admin_legacy_io_notify_info(struct pci_dev *pdev,
-         |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Yes, I'm fine with that. :)
 
 
-vim +/virtio_pci_admin_list_query +731 drivers/virtio/virtio_pci_modern.c
-
-   721	
-   722	/*
-   723	 * virtio_pci_admin_list_query - Provides to driver list of commands
-   724	 * supported for the PCI VF.
-   725	 * @dev: VF pci_dev
-   726	 * @buf: buffer to hold the returned list
-   727	 * @buf_size: size of the given buffer
-   728	 *
-   729	 * Returns 0 on success, or negative on failure.
-   730	 */
- > 731	int virtio_pci_admin_list_query(struct pci_dev *pdev, u8 *buf, int buf_size)
-   732	{
-   733		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-   734		struct virtio_admin_cmd cmd = {};
-   735		struct scatterlist result_sg;
-   736	
-   737		if (!virtio_dev)
-   738			return -ENODEV;
-   739	
-   740		sg_init_one(&result_sg, buf, buf_size);
-   741		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LIST_QUERY);
-   742		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
-   743		cmd.result_sg = &result_sg;
-   744	
-   745		return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-   746	}
-   747	EXPORT_SYMBOL_GPL(virtio_pci_admin_list_query);
-   748	
-   749	/*
-   750	 * virtio_pci_admin_list_use - Provides to device list of commands
-   751	 * used for the PCI VF.
-   752	 * @dev: VF pci_dev
-   753	 * @buf: buffer which holds the list
-   754	 * @buf_size: size of the given buffer
-   755	 *
-   756	 * Returns 0 on success, or negative on failure.
-   757	 */
- > 758	int virtio_pci_admin_list_use(struct pci_dev *pdev, u8 *buf, int buf_size)
-   759	{
-   760		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-   761		struct virtio_admin_cmd cmd = {};
-   762		struct scatterlist data_sg;
-   763	
-   764		if (!virtio_dev)
-   765			return -ENODEV;
-   766	
-   767		sg_init_one(&data_sg, buf, buf_size);
-   768		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LIST_USE);
-   769		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
-   770		cmd.data_sg = &data_sg;
-   771	
-   772		return vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-   773	}
-   774	EXPORT_SYMBOL_GPL(virtio_pci_admin_list_use);
-   775	
-   776	/*
-   777	 * virtio_pci_admin_legacy_io_write - Write legacy registers of a member device
-   778	 * @dev: VF pci_dev
-   779	 * @opcode: op code of the io write command
-   780	 * @offset: starting byte offset within the registers to write to
-   781	 * @size: size of the data to write
-   782	 * @buf: buffer which holds the data
-   783	 *
-   784	 * Returns 0 on success, or negative on failure.
-   785	 */
- > 786	int virtio_pci_admin_legacy_io_write(struct pci_dev *pdev, u16 opcode,
-   787					     u8 offset, u8 size, u8 *buf)
-   788	{
-   789		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-   790		struct virtio_admin_cmd_legacy_wr_data *data;
-   791		struct virtio_admin_cmd cmd = {};
-   792		struct scatterlist data_sg;
-   793		int vf_id;
-   794		int ret;
-   795	
-   796		if (!virtio_dev)
-   797			return -ENODEV;
-   798	
-   799		vf_id = pci_iov_vf_id(pdev);
-   800		if (vf_id < 0)
-   801			return vf_id;
-   802	
-   803		data = kzalloc(sizeof(*data) + size, GFP_KERNEL);
-   804		if (!data)
-   805			return -ENOMEM;
-   806	
-   807		data->offset = offset;
-   808		memcpy(data->registers, buf, size);
-   809		sg_init_one(&data_sg, data, sizeof(*data) + size);
-   810		cmd.opcode = cpu_to_le16(opcode);
-   811		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
-   812		cmd.group_member_id = cpu_to_le64(vf_id + 1);
-   813		cmd.data_sg = &data_sg;
-   814		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-   815	
-   816		kfree(data);
-   817		return ret;
-   818	}
-   819	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_write);
-   820	
-   821	/*
-   822	 * virtio_pci_admin_legacy_io_read - Read legacy registers of a member device
-   823	 * @dev: VF pci_dev
-   824	 * @opcode: op code of the io read command
-   825	 * @offset: starting byte offset within the registers to read from
-   826	 * @size: size of the data to be read
-   827	 * @buf: buffer to hold the returned data
-   828	 *
-   829	 * Returns 0 on success, or negative on failure.
-   830	 */
- > 831	int virtio_pci_admin_legacy_io_read(struct pci_dev *pdev, u16 opcode,
-   832					    u8 offset, u8 size, u8 *buf)
-   833	{
-   834		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-   835		struct virtio_admin_cmd_legacy_rd_data *data;
-   836		struct scatterlist data_sg, result_sg;
-   837		struct virtio_admin_cmd cmd = {};
-   838		int vf_id;
-   839		int ret;
-   840	
-   841		if (!virtio_dev)
-   842			return -ENODEV;
-   843	
-   844		vf_id = pci_iov_vf_id(pdev);
-   845		if (vf_id < 0)
-   846			return vf_id;
-   847	
-   848		data = kzalloc(sizeof(*data), GFP_KERNEL);
-   849		if (!data)
-   850			return -ENOMEM;
-   851	
-   852		data->offset = offset;
-   853		sg_init_one(&data_sg, data, sizeof(*data));
-   854		sg_init_one(&result_sg, buf, size);
-   855		cmd.opcode = cpu_to_le16(opcode);
-   856		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
-   857		cmd.group_member_id = cpu_to_le64(vf_id + 1);
-   858		cmd.data_sg = &data_sg;
-   859		cmd.result_sg = &result_sg;
-   860		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-   861	
-   862		kfree(data);
-   863		return ret;
-   864	}
-   865	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_read);
-   866	
-   867	/*
-   868	 * virtio_pci_admin_legacy_io_notify_info - Read the queue notification
-   869	 * information for legacy interface
-   870	 * @dev: VF pci_dev
-   871	 * @req_bar_flags: requested bar flags
-   872	 * @bar: on output the BAR number of the member device
-   873	 * @bar_offset: on output the offset within bar
-   874	 *
-   875	 * Returns 0 on success, or negative on failure.
-   876	 */
- > 877	int virtio_pci_admin_legacy_io_notify_info(struct pci_dev *pdev,
-   878						   u8 req_bar_flags, u8 *bar,
-   879						   u64 *bar_offset)
-   880	{
-   881		struct virtio_device *virtio_dev = virtio_pci_vf_get_pf_dev(pdev);
-   882		struct virtio_admin_cmd_notify_info_result *result;
-   883		struct virtio_admin_cmd cmd = {};
-   884		struct scatterlist result_sg;
-   885		int vf_id;
-   886		int ret;
-   887	
-   888		if (!virtio_dev)
-   889			return -ENODEV;
-   890	
-   891		vf_id = pci_iov_vf_id(pdev);
-   892		if (vf_id < 0)
-   893			return vf_id;
-   894	
-   895		result = kzalloc(sizeof(*result), GFP_KERNEL);
-   896		if (!result)
-   897			return -ENOMEM;
-   898	
-   899		sg_init_one(&result_sg, result, sizeof(*result));
-   900		cmd.opcode = cpu_to_le16(VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO);
-   901		cmd.group_type = cpu_to_le16(VIRTIO_ADMIN_GROUP_TYPE_SRIOV);
-   902		cmd.group_member_id = cpu_to_le64(vf_id + 1);
-   903		cmd.result_sg = &result_sg;
-   904		ret = vp_modern_admin_cmd_exec(virtio_dev, &cmd);
-   905		if (!ret) {
-   906			struct virtio_admin_cmd_notify_info_data *entry;
-   907			int i;
-   908	
-   909			ret = -ENOENT;
-   910			for (i = 0; i < VIRTIO_ADMIN_CMD_MAX_NOTIFY_INFO; i++) {
-   911				entry = &result->entries[i];
-   912				if (entry->flags == VIRTIO_ADMIN_CMD_NOTIFY_INFO_FLAGS_END)
-   913					break;
-   914				if (entry->flags != req_bar_flags)
-   915					continue;
-   916				*bar = entry->bar;
-   917				*bar_offset = le64_to_cpu(entry->offset);
-   918				ret = 0;
-   919				break;
-   920			}
-   921		}
-   922	
-   923		kfree(result);
-   924		return ret;
-   925	}
-   926	EXPORT_SYMBOL_GPL(virtio_pci_admin_legacy_io_notify_info);
-   927	
+Best regards,
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Anton Yakovlev
+Senior Software Engineer
+
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
