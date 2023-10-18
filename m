@@ -1,114 +1,87 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1E79CCDB47E
-	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 18:29:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1A8EBCDB483
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 19:53:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 54B2383065;
-	Wed, 18 Oct 2023 18:29:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54B2383065
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IGcc1yJo
+	by smtp2.osuosl.org (Postfix) with ESMTP id 769DE40AFC;
+	Wed, 18 Oct 2023 19:53:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 769DE40AFC
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=cr8hzm/U
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Iqij30TrSz_2; Wed, 18 Oct 2023 18:29:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2525583083;
-	Wed, 18 Oct 2023 18:29:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2525583083
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rTgwKJgAGYqT; Wed, 18 Oct 2023 19:53:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2C3A74010F;
+	Wed, 18 Oct 2023 19:53:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C3A74010F
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EB77EC0071;
-	Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DF620C0039;
+	Wed, 18 Oct 2023 19:53:14 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65FC8C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B7E8DC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
+ Wed, 18 Oct 2023 19:53:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2D8CF42202
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8DEBA41BA3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D8CF42202
+ Wed, 18 Oct 2023 19:53:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8DEBA41BA3
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=IGcc1yJo
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=cr8hzm/U
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XFAyFMlJQld9
+ with ESMTP id 6e54cUfrTghV
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 18:29:38 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E1D3142201
+ Wed, 18 Oct 2023 19:53:11 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2BD0D41B5C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 18:29:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E1D3142201
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697653776;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=7R6RTAkgPJ3A2Sl/SrJ6GMc2ikyq7O3Z+XFs2kp36A8=;
- b=IGcc1yJoXPULEBTMurcpQiVlb4sO5Zn2ULT61K6aFeBdIgOJdH5Vk8dDCs+6CjrU8LBg43
- pvw8mHsBNRSnJmxmLB/uv0+iB5d6Qf0xvhWjjfLx065FPkCeUK8QlSdqe1cw7GBf+OlCgy
- nRn8jvBDQdmoW8yej9+D/HAbvUh+eIQ=
-Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
- [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-130-ik0yePtCPVqwiTUSrdXXGA-1; Wed, 18 Oct 2023 14:29:29 -0400
-X-MC-Unique: ik0yePtCPVqwiTUSrdXXGA-1
-Received: by mail-io1-f72.google.com with SMTP id
- ca18e2360f4ac-780addd7382so588768139f.1
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 11:29:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697653768; x=1698258568;
- h=content-transfer-encoding:mime-version:references:in-reply-to
- :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=7R6RTAkgPJ3A2Sl/SrJ6GMc2ikyq7O3Z+XFs2kp36A8=;
- b=dT14jei5ZXOdIMVufqKRNCbmwXgO1KY9YJSCa2rW6SBIw2fjNyE7R0UK6O0rlqjdaw
- 5Ao5mc5wAlfEVNm8MmxJ8apHnujv+IgPeL3S8hrPsLNaWcUiSWc21DbiC6iCvff4wCFb
- ThblhAWKuq14XHVrIELtCv8cpdaglV05pLK9gfXRK/HERYDiXpzjX7L5igWOtOq5ZBs7
- kHJQkleuJrzeS0OLe6UlnNR3U9xkdVqBmSS8g5HQbIPuGGx/UAxufmij3pIXZMZD/JAx
- 1CSWctiV5aojo17zwJD+0LatWq8hZmku7fAs2rB+q0P3LLB99NuMkIvmzplDIk7MXpLm
- 3npw==
-X-Gm-Message-State: AOJu0YxqQWh7W0wa4PhJ0Pn/spEg/ifpL4IS2tdzdqnRlTzpJYzCXfHG
- CERF15cqRlxV6cjWPtaW3W6skh6VSVrOYa/UhElku+oX7Bok1jl8xvnyNoxqvKWqbQt7yCi61QC
- qbjobHUmHTvj0ElErhUa8K1EGxMor5Jbk3hFWlYpgHQ==
-X-Received: by 2002:a05:6602:2c90:b0:79f:e9ac:f60a with SMTP id
- i16-20020a0566022c9000b0079fe9acf60amr55509iow.20.1697653768612; 
- Wed, 18 Oct 2023 11:29:28 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEZOgP35lJk8sk1selAnhrxsD5cVz/op+LUUohZIIuhrccEv2yoS+AMAHgBHkSLHcYMuVLrUw==
-X-Received: by 2002:a05:6602:2c90:b0:79f:e9ac:f60a with SMTP id
- i16-20020a0566022c9000b0079fe9acf60amr55478iow.20.1697653768208; 
- Wed, 18 Oct 2023 11:29:28 -0700 (PDT)
-Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
- i141-20020a6b3b93000000b007a667019071sm900347ioa.22.2023.10.18.11.29.27
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 18 Oct 2023 11:29:27 -0700 (PDT)
-Date: Wed, 18 Oct 2023 12:29:25 -0600
-From: Alex Williamson <alex.williamson@redhat.com>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
- virtio devices
-Message-ID: <20231018122925.3fde9405.alex.williamson@redhat.com>
-In-Reply-To: <20231018163333.GZ3952@nvidia.com>
-References: <20231017134217.82497-1-yishaih@nvidia.com>
- <20231017134217.82497-10-yishaih@nvidia.com>
- <20231017142448.08673cdc.alex.williamson@redhat.com>
- <20231018163333.GZ3952@nvidia.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
+ Wed, 18 Oct 2023 19:53:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2BD0D41B5C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1697658791; x=1729194791;
+ h=date:from:to:cc:subject:message-id:mime-version;
+ bh=vVcTcLcqzSvvPpWvdFGa7bhaSwzPNStbb7uaXtpeqCI=;
+ b=cr8hzm/U7E1ovbjawHrK5fQH4bsIFGQTxvSj60nfpr778ilOjBnA67VZ
+ Yw0d0I4DLhb99KnM6dwGFVaiZ9daaqzknuwoRQi7jJu16CF35eOAET6RY
+ pEaodAxmeOC8RSdjBM2260TzVf643z8/Rucp1Rh8F4DqhsFc1+N+C2Lwd
+ xSwfyHRoZWCS2nirxBJWJYmjaU7RAuBDIVPMtf4A/6ecDCrSLh4+LhLxq
+ C99CrhTrD644TaPbgAOvl4xueLaHv6GNbPLaFBdxBi6azKChGztO308an
+ MDqmYeTNPpDyL5gDoll7UNCzTTy76IksL/yOCn7k8OXDMOTaZqhVVk+6i A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10867"; a="452569155"
+X-IronPort-AV: E=Sophos;i="6.03,235,1694761200"; d="scan'208";a="452569155"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+ by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 18 Oct 2023 12:52:26 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10867"; a="1003924988"
+X-IronPort-AV: E=Sophos;i="6.03,235,1694761200"; d="scan'208";a="1003924988"
+Received: from lkp-server01.sh.intel.com (HELO 8917679a5d3e) ([10.239.97.150])
+ by fmsmga006.fm.intel.com with ESMTP; 18 Oct 2023 12:52:20 -0700
+Received: from kbuild by 8917679a5d3e with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1qtCaX-0000wa-1O;
+ Wed, 18 Oct 2023 19:52:17 +0000
+Date: Thu, 19 Oct 2023 03:51:55 +0800
+From: kernel test robot <lkp@intel.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [mst-vhost:vhost 18/35] drivers/virtio/virtio_pci_modern.c:54:17:
+ warning: format '%ld' expects argument of type 'long int', but argument 3
+ has type 'size_t' {aka 'unsigned int'}
+Message-ID: <202310190338.ES0nNnf4-lkp@intel.com>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org,
+ oe-kbuild-all@lists.linux.dev
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,138 +98,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 18 Oct 2023 13:33:33 -0300
-Jason Gunthorpe <jgg@nvidia.com> wrote:
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+head:   185ec99c107fe7659a9d809bc7a8e7ab3c338bf9
+commit: 37c82be3988d4cc710dee436d47cd80e792cab93 [18/35] virtio_pci: add check for common cfg size
+config: parisc-allyesconfig (https://download.01.org/0day-ci/archive/20231019/202310190338.ES0nNnf4-lkp@intel.com/config)
+compiler: hppa-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231019/202310190338.ES0nNnf4-lkp@intel.com/reproduce)
 
-> On Tue, Oct 17, 2023 at 02:24:48PM -0600, Alex Williamson wrote:
-> > On Tue, 17 Oct 2023 16:42:17 +0300
-> > Yishai Hadas <yishaih@nvidia.com> wrote:  
-> > > +static int virtiovf_pci_probe(struct pci_dev *pdev,
-> > > +			      const struct pci_device_id *id)
-> > > +{
-> > > +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
-> > > +	struct virtiovf_pci_core_device *virtvdev;
-> > > +	int ret;
-> > > +
-> > > +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
-> > > +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
-> > > +		ops = &virtiovf_acc_vfio_pci_tran_ops;  
-> > 
-> > This is still an issue for me, it's a very narrow use case where we
-> > have a modern device and want to enable legacy support.  Implementing an
-> > IO BAR and mangling the device ID seems like it should be an opt-in,
-> > not standard behavior for any compatible device.  Users should
-> > generally expect that the device they see in the host is the device
-> > they see in the guest.  They might even rely on that principle.  
-> 
-> I think this should be configured when the VF is provisioned. If the
-> user does not want legacy IO bar support then the VFIO VF function
-> should not advertise the capability, and they won't get driver
-> support.
-> 
-> I think that is a very reasonable way to approach this - it is how we
-> approached similar problems for mlx5. The provisioning interface is
-> what "profiles" the VF, regardless of if VFIO is driving it or not.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202310190338.ES0nNnf4-lkp@intel.com/
 
-It seems like a huge assumption that every device is going to allow
-this degree of specification in provisioning VFs.  mlx5 is a vendor
-specific driver, it can make such assumptions in design philosophy.
+All warnings (new ones prefixed by >>):
 
-> > We can't use the argument that users wanting the default device should
-> > use vfio-pci rather than virtio-vfio-pci because we've already defined
-> > the algorithm by which libvirt should choose a variant driver for a
-> > device.  libvirt will choose this driver for all virtio-net devices.  
-> 
-> Well, we can if the use case is niche. I think profiling a virtio VF
-> to support legacy IO bar emulation and then not wanting to use it is
-> a niche case.
-> 
-> The same argument is going come with live migration. This same driver
-> will still bind and enable live migration if the virtio function is
-> profiled to support it. If you don't want that in your system then
-> don't profile the VF for migration support.
+   In file included from include/linux/device.h:15,
+                    from include/linux/pci.h:37,
+                    from drivers/virtio/virtio_pci_common.h:21,
+                    from drivers/virtio/virtio_pci_modern.c:20:
+   drivers/virtio/virtio_pci_modern.c: In function '__vp_check_common_size_one_feature':
+>> drivers/virtio/virtio_pci_modern.c:54:17: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'size_t' {aka 'unsigned int'} [-Wformat=]
+      54 |                 "virtio: common cfg size(%ld) does not match the feature %s\n",
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/dev_printk.h:110:30: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                              ^~~
+   include/linux/dev_printk.h:144:56: note: in expansion of macro 'dev_fmt'
+     144 |         dev_printk_index_wrap(_dev_err, KERN_ERR, dev, dev_fmt(fmt), ##__VA_ARGS__)
+         |                                                        ^~~~~~~
+   drivers/virtio/virtio_pci_modern.c:53:9: note: in expansion of macro 'dev_err'
+      53 |         dev_err(&vdev->dev,
+         |         ^~~~~~~
+   drivers/virtio/virtio_pci_modern.c:54:44: note: format string is defined here
+      54 |                 "virtio: common cfg size(%ld) does not match the feature %s\n",
+         |                                          ~~^
+         |                                            |
+         |                                            long int
+         |                                          %d
 
-What in the virtio or SR-IOV spec requires a vendor to make this
-configurable?
 
-> > This driver effectively has the option to expose two different profiles
-> > for the device, native or transitional.  We've discussed profile
-> > support for variant drivers previously as an equivalent functionality
-> > to mdev types, but the only use case for this currently is out-of-tree.
-> > I think this might be the opportunity to define how device profiles are
-> > exposed and selected in a variant driver.  
-> 
-> Honestly, I've been trying to keep this out of VFIO...
-> 
-> The function is profiled when it is created, by whatever created
-> it. As in the other thread we have a vast amount of variation in what
-> is required to provision the function in the first place. "Legacy IO
-> BAR emulation support" is just one thing. virtio-net needs to be
-> hooked up to real network and get a MAC, virtio-blk needs to be hooked
-> up to real storage and get a media. At a minimum. This is big and
-> complicated.
-> 
-> It may not even be the x86 running VFIO that is doing this
-> provisioning, the PCI function may come pre-provisioned from a DPU.
-> 
-> It feels better to keep that all in one place, in whatever external
-> thing is preparing the function before giving it to VFIO. VFIO is
-> concerned with operating a prepared function.
-> 
-> When we get to SIOV it should not be VFIO that is
-> provisioning/creating functions. The owning driver should be doing
-> this and routing the function to VFIO (eg with an aux device or
-> otherwise)
-> 
-> This gets back to the qemu thread on the grace patch where we need to
-> ask how does the libvirt world see this, given there is no good way to
-> generically handle all scenarios without a userspace driver to operate
-> elements.
+vim +54 drivers/virtio/virtio_pci_modern.c
 
-So nothing here is really "all in one place", it may be in the
-provisioning of the VF, outside of the scope of the host OS, it might
-be a collection of scripts or operators with device or interface
-specific tooling to configure the device.  Sometimes this configuration
-will be before the device is probed by the vfio-pci variant driver,
-sometimes in between probing and opening the device.
+  > 20	#include "virtio_pci_common.h"
+    21	
+    22	static u64 vp_get_features(struct virtio_device *vdev)
+    23	{
+    24		struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+    25	
+    26		return vp_modern_get_features(&vp_dev->mdev);
+    27	}
+    28	
+    29	static void vp_transport_features(struct virtio_device *vdev, u64 features)
+    30	{
+    31		struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+    32		struct pci_dev *pci_dev = vp_dev->pci_dev;
+    33	
+    34		if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
+    35				pci_find_ext_capability(pci_dev, PCI_EXT_CAP_ID_SRIOV))
+    36			__virtio_set_bit(vdev, VIRTIO_F_SR_IOV);
+    37	
+    38		if (features & BIT_ULL(VIRTIO_F_RING_RESET))
+    39			__virtio_set_bit(vdev, VIRTIO_F_RING_RESET);
+    40	}
+    41	
+    42	static int __vp_check_common_size_one_feature(struct virtio_device *vdev, u32 fbit,
+    43						    u32 offset, const char *fname)
+    44	{
+    45		struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+    46	
+    47		if (!__virtio_test_bit(vdev, fbit))
+    48			return 0;
+    49	
+    50		if (likely(vp_dev->mdev.common_len >= offset))
+    51			return 0;
+    52	
+    53		dev_err(&vdev->dev,
+  > 54			"virtio: common cfg size(%ld) does not match the feature %s\n",
+    55			vp_dev->mdev.common_len, fname);
+    56	
+    57		return -EINVAL;
+    58	}
+    59	
 
-I don't see why it becomes out of scope if the variant driver itself
-provides some means for selecting a device profile.  We have evidence
-both from mdev vGPUs and here (imo) that we can expect to see that
-behavior, so why wouldn't we want to attempt some basic shared
-interface for variant drivers to implement for selecting such a profile
-rather than add to this hodgepodge 
-
-> > Jason had previously suggested a devlink interface for this, but I
-> > understand that path had been shot down by devlink developers.    
-> 
-> I think we go some things support but supporting all things was shot
-> down.
-> 
-> > Another obvious option is sysfs, where we might imagine an optional
-> > "profiles" directory, perhaps under vfio-dev.  Attributes of
-> > "available" and "current" could allow discovery and selection of a
-> > profile similar to mdev types.  
-> 
-> IMHO it is a far too complex problem for sysfs.
-
-Isn't it then just like devlink, not a silver bullet, but useful for
-some configuration?  AIUI, devlink shot down a means to list available
-profiles for a device and a means to select one of those profiles.
-There are a variety of attributes in sysfs which perform this sort of
-behavior.  Specifying a specific profile in sysfs can be difficult, and
-I'm not proposing sysfs profile support as a mandatory feature, but I'm
-also not a fan of the vendor specific sysfs approach that out of tree
-drivers have taken.
-
-The mdev type interface is certainly not perfect, but from it we've
-been able to develop mdevctl to allow persistent and complex
-configurations of mdev devices.  I'd like to see the ability to do
-something like that with variant drivers that offer multiple profiles
-without always depending on vendor specific interfaces.  Thanks,
-
-Alex
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
