@@ -1,227 +1,139 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 273F6CDB47E
-	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 08:49:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0C0ACCDB483
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 09:02:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9C27841DB1;
-	Wed, 18 Oct 2023 08:49:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9C27841DB1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=dRrlHsAt;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-oracle-onmicrosoft-com header.b=n/JoJVDn
+	by smtp1.osuosl.org (Postfix) with ESMTP id 710E8822DC;
+	Wed, 18 Oct 2023 09:02:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 710E8822DC
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=EAkocob9
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k6L5fPMtcOtt; Wed, 18 Oct 2023 08:49:42 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vR-m78uKs8LA; Wed, 18 Oct 2023 09:02:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 208B241C59;
-	Wed, 18 Oct 2023 08:49:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 208B241C59
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B64A822A1;
+	Wed, 18 Oct 2023 09:02:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9B64A822A1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DDA7EC0039;
-	Wed, 18 Oct 2023 08:49:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D766AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C319C0039;
+	Wed, 18 Oct 2023 09:02:22 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 114F3C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 08:49:40 +0000 (UTC)
+ Wed, 18 Oct 2023 09:02:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B19F561013
+ by smtp3.osuosl.org (Postfix) with ESMTP id A97FE61068
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 08:49:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B19F561013
-Authentication-Results: smtp3.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=dRrlHsAt; 
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.i=@oracle.onmicrosoft.com header.a=rsa-sha256
- header.s=selector2-oracle-onmicrosoft-com header.b=n/JoJVDn
+ Wed, 18 Oct 2023 09:02:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A97FE61068
+Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
+ unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
+ header.s=selector2 header.b=EAkocob9
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zEZVfScmRZIP
+ with ESMTP id POIVZnnbeZqT
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 08:49:39 +0000 (UTC)
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6B38A60FBD
+ Wed, 18 Oct 2023 09:02:19 +0000 (UTC)
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12on2062d.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5a::62d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E1EC460B36
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 08:49:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6B38A60FBD
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 39I7496F017042; Wed, 18 Oct 2023 08:49:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2023-03-30;
- bh=aQ/30rBsDFYNImEneQ+xxvc58NDoQpLHQJ9H0NIv6IA=;
- b=dRrlHsAtTfxbm0ytlzZ/LjlUEZlpnhqrkbYuepM4mzTNC1607D/x7ZqKBBO2Fqa5tvy5
- krYUPZh29zyIl/lZXzV3s3eT0ZwP14vxpVp29tT+RFT3ZJRbppIHvHNnW4s8j0rg2xvm
- vGbhothnrpxqoPMqV/sUiGkEDD7IRSDukzCUcH/3MY4Y/UFSLS/A1dS+8BMKpAeHVqru
- 2RLWp5UtEfnJNaMNNnYLHa33c1z9PxZyomd5tOaQlh1mAbQqWaxrx9qI59XFPoBGXMsB
- /8BfkyZxNixbqeQXLF3JQLk1pqPLbmqXZ6yZ/WcvQJboTh7snxb9lhciboBpX9R+Y1u7 6g== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3tqk3jq1q4-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 18 Oct 2023 08:49:36 +0000
-Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 39I6UkWj040556; Wed, 18 Oct 2023 08:49:35 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com
- (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3trfynes5r-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 18 Oct 2023 08:49:34 +0000
+ Wed, 18 Oct 2023 09:02:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E1EC460B36
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VxD1ohJ7F110Jh1uXsq8r9S5ZbW63S1mJ89z32hzZXfjgK4jhWFvmaExxLAxNUBrSh6PIlaF+/yb2PhywdxDUtKbVc53f8AT2dIY/UFf1AAwtFzKwKp6IaD/T+ZxdgZ5Zjc6VfOH50KspOVQI0uTwoEszfB68eqtyim9UhF3wqNHbD4fDR5ga44SRAfNtcfDtoEQ90iM4pgGQwgs4nfw+8vtZU6guN4MdfZVwhdMTLgZ/ixWygw4tiWP5yPBL4yoTOvP7NgJUtcpM6CdoDIcMfxGE0e+oxVYwG4XUcKZVdPYyiyQYeOsjBpV7fbJMHEH6uCXvE6umBldK7JGq9VTrw==
+ b=canb0W2AlFGi6YmKbeO9eV1UvUCRNyzQPTg0ccNMqDq727n1ZZLjul+lqKB95hRgGLpY5oy0BZG7z6oKiACayUFW8Rhn0YPaDITdz7Hgty2kL84WobFF9pkK5bfObV4186YbT95V81+VFk4hejOpDNEWUD9f92EyAk8qzM327PwNTwmHjDS0n+pAc9XGFGs5JshwAycpozhrJGBbxVUIVdBgtWcXSrnHcXU7S8Ai4vOPXpOCn6TGm7lha47yDULy0bPa5NoEMsD9biBVGBQhPOy2db8OjsRQ4UQUIvd9EeR8WXrBTYQ0ecT739EKQJZaCNHCXjV/ICb6qW6FZE4Kqg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=aQ/30rBsDFYNImEneQ+xxvc58NDoQpLHQJ9H0NIv6IA=;
- b=W5HkvHk/YC8ZqLBM19EUx7pLWiopWB0KMZIwPTiENzGnErhyax1T4RlzWXXNGAUHF0x8snUzItw82djzO061bNpA5qgeq3Jn9Ct0N3SEGht4X3thS0N+CBRfhZokLihHFsAY3dKm99LFflYFZcktZ/GcYitlpGqMZjbFMEk6MdrnEkP2opCgzfc4X7D3HM1RrbcmSjRteDnlAjAP5FM2frLW6Te++T7C7I64Z5VRHjBnRp3WfmczY4tQuGSK4wxuDc/wbYjeAplbS0Xww38vzyUIfi4f4SVf0GWGeXWNAjJ+B+csWuCqRpBxcHIc49bl4Gk1jTbK2LJHe3coIxNFJg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ bh=wfBt23eFHdT6U0M3XTx0EeQzDqRtZT+eRXqdtRHerfw=;
+ b=M+VgeGDo+tFsicY726cVoD70IiRefoWL15Hi9yBKeblZ6CoOqhDgzUEiB5/1a40Qpg60RKCmVx+FL9Z/qq5juDXZZ1mLFfoRFyz/q46ab4eeuruAsnJMLsb4wtvh8jHdkyRpak/xTNzqZH7ShUOOtNPn+WNkOyyRApxm+w5pu1msKvWRXYp5wGtYBaBo1KUGuky//Vx7vR2s3A19qWFOhSVCHghN+szWOGbDtVSLgUc7/QNMgSypu/ZvIBobbeyJvS45eY2AVrE6Gl190Ked++KkUKTNj+ED8hS6erBHIoNLcxlf1j20bGuTm+wMHL6LPMlSxN1/cmb4/Fl3YbSyqQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aQ/30rBsDFYNImEneQ+xxvc58NDoQpLHQJ9H0NIv6IA=;
- b=n/JoJVDniMuo6IoAcFWM9sc8XblNAZBEF0/1YZ/N6U7qdCtvP1mErulTT9v3+TWmCCuoHLUSRjYUknlCkvraqIDp9Xk3ZVzo3TYHKRy26Na6tNm3OBe4TiYpHVaAiIiCm+gE4HIJv8jZyeset25lD/wJ848On65QIOw2aMhehhs=
-Received: from MW4PR10MB6535.namprd10.prod.outlook.com (2603:10b6:303:225::12)
- by CH0PR10MB4940.namprd10.prod.outlook.com (2603:10b6:610:c7::12)
+ bh=wfBt23eFHdT6U0M3XTx0EeQzDqRtZT+eRXqdtRHerfw=;
+ b=EAkocob9dXpAEk29K1KdSJngDa23aKGVIidLhjCz/73U44OcrK//jXBXqEQ1a17LsVsxQ7fAlukr9RD58Lbmor5XPdXA2KcMX9uW7XpCnSYT4JqWQgBSIEpuTxHTEFH/XpMs+1nTd+TGExeGQG+14pngGK11FBBk1p83z45SHRlD3oaSREo7jJu29VXTsVOQsZW9d/gmH/0Kx6ul2dxbxRjDvjclqvGdW7/uNJNE9RQClBQQdYRyBYc7jOGVRPnkxok/ViNOXuPc7N78MxtOUh2Up60iftdLVx7+gWa+8yNgm1eXwvCInSC5Eo9Owero54S4pJDDYNqp3fxai5CuUg==
+Received: from CH5PR04CA0010.namprd04.prod.outlook.com (2603:10b6:610:1f4::18)
+ by MW4PR12MB7144.namprd12.prod.outlook.com (2603:10b6:303:21b::17)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6886.36; Wed, 18 Oct
- 2023 08:49:32 +0000
-Received: from MW4PR10MB6535.namprd10.prod.outlook.com
- ([fe80::5393:c70f:cefa:91c1]) by MW4PR10MB6535.namprd10.prod.outlook.com
- ([fe80::5393:c70f:cefa:91c1%3]) with mapi id 15.20.6886.034; Wed, 18 Oct 2023
- 08:49:32 +0000
-Message-ID: <d2b52f01-3d00-46ad-b58e-e23fd8a49e87@oracle.com>
-Date: Wed, 18 Oct 2023 01:49:27 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/4] vhost-vdpa: reset vendor specific mapping to initial
- state in .release
-Content-Language: en-US
-To: Jason Wang <jasowang@redhat.com>
-References: <1696928580-7520-1-git-send-email-si-wei.liu@oracle.com>
- <1696928580-7520-3-git-send-email-si-wei.liu@oracle.com>
- <CACGkMEtkcyC54M_8A63uBEYjJP+EinLzTk3gP8CQ_rWs0Omt-Q@mail.gmail.com>
- <1bd79050-8eb5-49f6-9e58-6c7eb3fcab3e@oracle.com>
- <CACGkMEt_zvBM=ysbXZJEC1sdbCk=BpcWvtjeuP_L2WH4ke1dWQ@mail.gmail.com>
- <CAJaqyWf0AhsS6kaGUMVCosDjuRoeCAqO3OTVC=veqjV3jCqUjQ@mail.gmail.com>
- <8f8c0c28-59a4-489b-9276-fc3b5cfa8faa@oracle.com>
- <CACGkMEs0W1joaNh0-a27Nekxn8V8CmGgr99p+r60dA6sQeys5g@mail.gmail.com>
- <c9c819b9-4a63-4bb4-a977-881f6e653ed8@oracle.com>
- <CACGkMEuX8-T6BhbiqkTfF3NBoxS35zQ=k6Th=h0G5sDz4DV93Q@mail.gmail.com>
- <CACGkMEtZ_oEydqsvJh0-eaDh4q_KHq9fLPg1uy-W1m7K_g+1-w@mail.gmail.com>
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-Organization: Oracle Corporation
-In-Reply-To: <CACGkMEtZ_oEydqsvJh0-eaDh4q_KHq9fLPg1uy-W1m7K_g+1-w@mail.gmail.com>
-X-ClientProxiedBy: MN2PR13CA0024.namprd13.prod.outlook.com
- (2603:10b6:208:160::37) To MW4PR10MB6535.namprd10.prod.outlook.com
- (2603:10b6:303:225::12)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.23; Wed, 18 Oct
+ 2023 09:02:16 +0000
+Received: from DS2PEPF00003447.namprd04.prod.outlook.com
+ (2603:10b6:610:1f4:cafe::74) by CH5PR04CA0010.outlook.office365.com
+ (2603:10b6:610:1f4::18) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.23 via Frontend
+ Transport; Wed, 18 Oct 2023 09:02:16 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ DS2PEPF00003447.mail.protection.outlook.com (10.167.17.74) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6907.20 via Frontend Transport; Wed, 18 Oct 2023 09:02:16 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 18 Oct
+ 2023 02:02:04 -0700
+Received: from [172.27.13.185] (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 18 Oct
+ 2023 02:01:59 -0700
+Message-ID: <f6168335-d5e1-00ec-13ba-8c9a174b7eb0@nvidia.com>
+Date: Wed, 18 Oct 2023 12:01:57 +0300
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+To: Alex Williamson <alex.williamson@redhat.com>, Jason Gunthorpe
+ <jgg@nvidia.com>
+References: <20231017134217.82497-1-yishaih@nvidia.com>
+ <20231017134217.82497-10-yishaih@nvidia.com>
+ <20231017142448.08673cdc.alex.williamson@redhat.com>
+Content-Language: en-US
+In-Reply-To: <20231017142448.08673cdc.alex.williamson@redhat.com>
+X-Originating-IP: [10.126.231.35]
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW4PR10MB6535:EE_|CH0PR10MB4940:EE_
-X-MS-Office365-Filtering-Correlation-Id: fb451e97-d788-4c4c-c0df-08dbcfb725db
+X-MS-TrafficTypeDiagnostic: DS2PEPF00003447:EE_|MW4PR12MB7144:EE_
+X-MS-Office365-Filtering-Correlation-Id: a7f3edd5-c3de-42aa-8da6-08dbcfb8ed23
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: fk6xdurA3F8UaKEvqZ5vbg6PMak2Vfha2xd9CXBtr9EX3R81I8bIX7sdmDq2lNgiX21NGmn1Hos95kfT8YQzeus1RBebQUlRmS1qF9tyC32tTpSfNnm5P67AWFKtQZtdC5fz0IUzQQuMPvKdOAw0/DMOs4LDPN9fW0x6eVxIwEddv108sSE1Vb7TLLorsZL+Q7g6dlQc+3EMcn31XJlQSFjr8livsTfuY5wQsIvqL/sC4JZkGjsGPJcppPLnDNN3f8OH7H6VJY7ljdkH16e7FLh4XEGCGUpqYeFMWHmRnLFh5YEBLojg2eLg43oMGQC6jv/Dow8O4dp7KWfepxOcY5O36Wpmciz4P1VpdPQjZ7Pgo/vMz0gPSOtLYqvf5yeClZ76aGsZ012ELF9mA0OWtBf7aHm7qQ+9Oa63zqtA4sROXD2QjIIdGI9WOsRvl+5b1NBF812xtJ8C6mInuIyYG5zkT/IDqKs+qqYsPUK6HYmXY5U3GQ9D1neA52ch1O0bcr2WXunKJzNUlrp5FagXPYoPN1EdiKCuvVnWM0Xp8RZCij1DHN1HIWHdYLtuK1eufQbtZa9AtvlUd36cZZl26I+X8TNRtLTHyn+1JKJAZb9udPSrbo2TjilwTvaerEDa8pKh+8yddPTqk+fkls78NLSLClz1WtIlF9UDHqprMtw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MW4PR10MB6535.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(376002)(366004)(346002)(39860400002)(396003)(136003)(230922051799003)(186009)(64100799003)(1800799009)(451199024)(2906002)(6486002)(478600001)(66556008)(6916009)(41300700001)(66946007)(316002)(8936002)(4326008)(8676002)(31686004)(66476007)(66899024)(5660300002)(36916002)(6506007)(53546011)(86362001)(31696002)(6512007)(38100700002)(2616005)(36756003)(26005)(6666004)(83380400001)(142923001)(45980500001)(43740500002);
+X-Microsoft-Antispam-Message-Info: rSyLEXR32RKfihWNv93OR/pG6klVfKR6/nC2bLf2M0eMDxtO64ypY1phy5AGES+JCleRva41QTVCdgD5NjZr324ReeXDl9j6x3S2pmt0D95Yoh+3Rm3Ks/jnX5F8NjbxpgKW/4Nq7CswXCLWUSGkgms38l7DqIdJWXNGTR3kZX96NpLKirhXFF/PpygQtezXdjKsTs0TcmdEeUdQC3GgP5FnMtN8x9TbiYkkluEYppMdvtYIOFGF9y1eJ8u+HceiGJkkF3RtHLLHBzMZEU06WgEIQ86RL7GRzondzcIGqG1JAxBNpxub7R4Vcpn6ufwv9YejIKrPbiqltGk4/jsUsCWU3P8s+WWWrRDNQKIBtlfBFGhlqTs2bi8BaKZ370E6Ua5uue/NvJbV1V8taM/kG4IoJi2xizIpqhl//mZkGFOYy7IOc9PR94Mnnw9Y3zfxdCzuQJcx0y6P58pxdiIJr8yOf9xAw3tFo2Q7MYad9chdc1fgWQZbup2+XRyJfGKESZ3FqEMig9+U+K4VSCQCxecDg2hqHsng2mfR3Sk2wZCRbfX4QWgIE3Kw6YZvI/2dUMDSsX1Iq6h7aN5f7ACypi4o/g4Hr96/g30zSC3q7WrcCZBLQ3NKeXIpVlwO3jsI3DUaKTGO1ebl3SSbskLzWi29NBhJO7qk2T7uAsEUx4LqSaEVJosN7PUdyAfDfKoAswYk6nrmdVswHYdItGPef4xV/3yUkiNN60Ufc0EaBAM0pGjS/8iSWraxhsNUfudUI1y4WnU9H/TOJVMoJe5asLjAtYpknn8T7nRBeO9c0lwSCWJff78VyrnExdRMkiSx
+X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(346002)(136003)(376002)(396003)(39860400002)(230922051799003)(451199024)(186009)(82310400011)(1800799009)(64100799003)(40470700004)(46966006)(36840700001)(40460700003)(2906002)(47076005)(53546011)(70206006)(31696002)(107886003)(2616005)(54906003)(70586007)(316002)(478600001)(41300700001)(6636002)(966005)(16576012)(86362001)(110136005)(26005)(83380400001)(36860700001)(356005)(7636003)(426003)(82740400003)(16526019)(336012)(40480700001)(8936002)(36756003)(8676002)(4326008)(5660300002)(31686004)(43740500002);
  DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?UFpudGp6Q1BVM0ZCQ1p6ZjJMTXNENDFwM2pKckdSQ3hqY0ZHTTRITTBEMGNu?=
- =?utf-8?B?dXJaU0JRczBMSmc1d0d1aEhKbXRSVXpDc3NJUUxZcC9sRktoNFVydGhScmtY?=
- =?utf-8?B?QXF1Rlh5bnlxNmZXT09HMWxKTHNZVnlXZmdxR0ROMVFDNHRXMXRyVU9lZkxT?=
- =?utf-8?B?RDh5YjVITEllM3BGd0NyMlM5T2htNTN0Wk82bTVCWmJVNmJPTkE1UUNoWTJq?=
- =?utf-8?B?emFBMmR1WGROYXIrdUVEUm5RRlBHaWMrUERFZDU3c0kzNmxKSGVaZ0RZNERM?=
- =?utf-8?B?UXY5QXFwd2ZySHFPOWtjaGpmSUVkM09vVVluQ2RpNVVyeVFwMWRXQlUza1Vk?=
- =?utf-8?B?Q0pQQlY5cVh4VHlETm1kOFNwYTNydkZWdktycEVSYWltbVJucnpCMndQR0Yy?=
- =?utf-8?B?ZityV09UcFM0MVpFRDh1Mm9BbWMyekt2cWtsbVpaZkNrSXZua01raUFUMkI3?=
- =?utf-8?B?MTc1MkFEZHQvSS9MYVpFSnJoNlpEdnFGNWVoS0M4eHdkdzluMmNNaXRSQ3pI?=
- =?utf-8?B?WVR4Y0NDbElrY1J5YmI0QzZ6TWZOaWFveHVCaXZnTzRaK3JyZTh4bGNzdEFV?=
- =?utf-8?B?cThUUTcxd0tld0lRa1hGMFVpYlVleGxpSDF1U1QzMHpRcHJZaXY2M0NVajRC?=
- =?utf-8?B?eEgrQzVVV21ycld6cU9BNjFLOG1oR2FJcWI2YzR6K1hzM0JPdXVGU05mbCsv?=
- =?utf-8?B?eGlDbXZwRTJsdWlXeDcvQlpXNXd3UXNhT1FsSXlCSlFhRW1MVlkvbzlzTjI4?=
- =?utf-8?B?QzFrSkZkeXhSbGdIalVzeWN5SGRzcit6aEZCRSthK2tjUUpNN0JUQnd3ajlS?=
- =?utf-8?B?K0c2Y0VNaTArazQzUVRGSksycTFEeXlWU0EwSytMR3VzSzVkaEowUGljWkdm?=
- =?utf-8?B?Z3ZTWWppd0k0cURYWEJrQ2k0NlpRcVBETHVrWWJaQmFpb0dIcTJTZ2s2Ui9Q?=
- =?utf-8?B?VUU1ajFlTU0vT1A4emdYaG1LWG02UWhoand1clQwVisxdXMwK1BnQ0RkUmFJ?=
- =?utf-8?B?bFZ1a0tYM3NOS2hZWHhpdjdncHBmdy9paXgyQWFhOFBUVTZ1c0F1eWtkZzh2?=
- =?utf-8?B?SHdDWlFaK1E5bFQyL3U4MjhVdW1RUXkrWCtGRSsybHdjbUx5Y3hRcFFodk9W?=
- =?utf-8?B?d1lsQXNBRmZWSVBxcU5McmY0MVV1Q0VtNjNKdEVGaDVhU21YUXRpem4vd25r?=
- =?utf-8?B?WXZ5dzFNc0prV05jY0IvdVEvaC9XSUU4dlVTTDJ1bm1CaGcvZDZVUEpJdWxo?=
- =?utf-8?B?K3NZaDFHc0M3YUhadlVJUGpta3RBLzBMNk9nTzZxRGVyY1ZYbDM4SmF3b0s2?=
- =?utf-8?B?ZktjSWpsTy9tT05kM2Z2NmdJWGdTS2hydjVhTlBNSmt6cHU2bHZUdVBIM0Jh?=
- =?utf-8?B?d0pHN2RzTCtqRGhBdFRST2YveGtZTVA1dm5DV0JtZ2xVTERHeWNYU01kUzZi?=
- =?utf-8?B?Yk9iTEN1K2FVQk5yTkhzUGtTcGxiSFp5OE43dVhQeWRob241cjhvZkUyZ1Rj?=
- =?utf-8?B?WDRrZkw5WkdtaW80dVJhVytNRXhMM1pYRGdDL3o1YU9qMGxTeVFhNDhMeUxR?=
- =?utf-8?B?M0crMS9UVVpuaEVwajNsSFJDM2dsc1dQWnhocUlhVXVTY3orTEtSckFRN0xl?=
- =?utf-8?B?eklNeHNtTTZmYW54WDhsMDNsYUxOQ3A1eHpBRGtwc29sQjAvL21RY05ZbTdU?=
- =?utf-8?B?dTBlZGFiaFJzMWhWaFNXR0dFdUdCQlp4a25oRVlzNEFkamZ4dFZuSjBvZmg5?=
- =?utf-8?B?UWRhS1BQY0hPdnR1cE1PYXIzRmdBVTBEbUxURHNBdStDbW5BSzhMaWJKWDZH?=
- =?utf-8?B?OXFhZStXd3RPNVlhOW5xeXhEd0c0OFA1MG9UbGo5LzUxYlNPV1RGZ0FiU3Qx?=
- =?utf-8?B?WGdwYzlsdUlyMEFId2x5RzNsa3NqV0JBQlNMMGJNb2QrdkRiNW9TS1BjTHJJ?=
- =?utf-8?B?bm1rN0IvMEFFenVLYktwRzc0eVdqeSttMDMyMWYxd1IvSzliMmx6RlFySUZq?=
- =?utf-8?B?RFFHbnR3akREVDc1QmRXL0ZBL2RacCtXY014cU1ZRHRxVnNFK0pBYUw5VkYw?=
- =?utf-8?B?L2xLalBjODVITHFvSmpDZ1Z6YS9Id3ArNGloMFM5MXJpWDhDVWYvS1k4alkw?=
- =?utf-8?Q?wZRxZfNZl9Us4KIL3xrK3BTmV?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: =?utf-8?B?K2hmcVpua2txbDlJSDh3aUt6dVVsRzhERE1Cdko3RnlNY3NsS1greXBaNTg1?=
- =?utf-8?B?eTdJd0lDTUdMSnBSKzNSWkVaR2JhTXBOTTNoUWpkL2c3bVplZnZOeUduWDdL?=
- =?utf-8?B?Z3Z5UlFmUDY4NmN2RXd3c0FVU29kc1lDdExoZUdHYVRoK2lrTFpTQm0xZ1BZ?=
- =?utf-8?B?QTh6RGNaSDZYWEIvRTl1V2tsdWRFNWZxUlhlSi9IeHlVMGxaTmxMLzFxOCt2?=
- =?utf-8?B?NHJGQTk0TGd4a0hLZlJ0TkV2T1g4LzBoOVFmVGRIVU1YV0s1Q0ljYmo2NDF6?=
- =?utf-8?B?bDF3M2xuV0U4THFkMmhVSlNGZmg4N0h1cE1TcFlPWVFhUzFXc29Kbk9SVDNy?=
- =?utf-8?B?ZU9udlFRU2ZsOWtsejJHbXFqMlRJcGVSbEJYSXZCZDBCeWw2NWRvdTlBT1NE?=
- =?utf-8?B?ODZDYk92aXpUUHRTUTRuY3gzcEdtSzJnQmxLWmVBTXhhakxCZkJ5ek54WkNF?=
- =?utf-8?B?MDQrN01GVld6cXhzYm01VG1NcWxnZkNuYWUrcFVOSG4vSk9COTVxVmZwSTlq?=
- =?utf-8?B?MUIwWFBKNk1OSW1TelNqU2xua2xRMFA0cnJPZGozWjhGRjUwQmUxLzU0Z1A5?=
- =?utf-8?B?d0J2N3JXd01tazdIR082bFpUUW9wVUJMajlLcm16aVBkNHR4S1JseDVibS9R?=
- =?utf-8?B?Vk43RGovSVA3RTBJdDVJSWhmU1ExSDNRK3kralV4SEFuNnhBdEJqSnNpdWUx?=
- =?utf-8?B?SVpSR1dwK3ozSGR2cHJlL2t6VFVjelVlNEUyYytlZVRRYSs2eFh6ek9zSUQ4?=
- =?utf-8?B?dUZMQVU5ektZb21LTDVlY1ZldGxjWnBQTlc3dEU3akxaNWtyeC9HMnpQK1cw?=
- =?utf-8?B?YWZLbzBWbXU1RjA3K3hYdDhieU1Zb1YraHREaE81dGpXWjY0YTBhaThETERF?=
- =?utf-8?B?aGNiVkwzVHFpN3I5STBib1lySUowZFU2KzBhd0gvclEveS9BemFrSDRNcmNa?=
- =?utf-8?B?SGNnQm1WbFMwRlVlWkpkTDhIU0F4dlZpWDlId1hueEFxMnlxRUovZ09pd3pC?=
- =?utf-8?B?NWYyTXRYYzJSbENPSFF1ZjN4QlJKQSt0bGZJQlAvYWRKaXlodUZJeDNDK1RG?=
- =?utf-8?B?NW5UVS94b2Z5aUM1NFVCTFFzNUVXOEFtWUt0dlVxQ0dhRDcrNXZRTzY5S2VG?=
- =?utf-8?B?NzhUelhKMW44L3NNaUN0TUNlbFV3QUJVK0d4VXlkczA3cG12QTc3N3hYRGEz?=
- =?utf-8?B?Vk9HL1FwSkRtRSsyemkzeVRXck00S0hnN3dDb1ZmLzF1RXNHV1hWdTNpdmkz?=
- =?utf-8?Q?Ckn6+jkpjYmiKe+?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fb451e97-d788-4c4c-c0df-08dbcfb725db
-X-MS-Exchange-CrossTenant-AuthSource: MW4PR10MB6535.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2023 08:49:32.5780 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Q+Q0NR0ZZFx5Rb96YzKIHxo1MM4tdxlZGB/RdTGKpA76xvNq3LRmcuQ1XUoBP5CG02w4JqgWA0rbrO/Sk/SzZQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB4940
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-18_06,2023-10-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=838
- adultscore=0
- phishscore=0 spamscore=0 suspectscore=0 malwarescore=0 bulkscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310180073
-X-Proofpoint-GUID: 6ARHR6jR_RkyXyJjSkrZL11eZsZDJmzG
-X-Proofpoint-ORIG-GUID: 6ARHR6jR_RkyXyJjSkrZL11eZsZDJmzG
-Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Eugenio Perez Martin <eperezma@redhat.com>
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Oct 2023 09:02:16.0956 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: a7f3edd5-c3de-42aa-8da6-08dbcfb8ed23
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DS2PEPF00003447.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7144
+Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -233,58 +145,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Yishai Hadas via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Yishai Hadas <yishaih@nvidia.com>
 Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-On 10/18/2023 12:00 AM, Jason Wang wrote:
->> Unfortunately, it's a must to stick to ABI. I agree it's a mess but we
->> don't have a better choice. Or we can fail the probe if userspace
->> doesn't ack this feature.
-> Antoher idea we can just do the following in vhost_vdpa reset?
+On 17/10/2023 23:24, Alex Williamson wrote:
+> On Tue, 17 Oct 2023 16:42:17 +0300
+> Yishai Hadas <yishaih@nvidia.com> wrote:
+>> +static int virtiovf_pci_probe(struct pci_dev *pdev,
+>> +			      const struct pci_device_id *id)
+>> +{
+>> +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
+>> +	struct virtiovf_pci_core_device *virtvdev;
+>> +	int ret;
+>> +
+>> +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
+>> +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
+>> +		ops = &virtiovf_acc_vfio_pci_tran_ops;
 >
-> config->reset()
-> if (IOTLB_PERSIST is not set) {
->      config->reset_map()
-> }
+> This is still an issue for me, it's a very narrow use case where we
+> have a modern device and want to enable legacy support.  Implementing an
+> IO BAR and mangling the device ID seems like it should be an opt-in,
+> not standard behavior for any compatible device.  Users should
+> generally expect that the device they see in the host is the device
+> they see in the guest.  They might even rely on that principle.
+
+Users here mainly refer to cloud operators.
+
+We may assume, I believe, that they will be fine with seeing a 
+transitional device in the guest as they would like to get the legacy IO 
+support for their system.
+
+However, we can still consider supplying a configuration knob in the 
+device layer (e.g. in the DPU side) to let a cloud operator turning off 
+the legacy capability.
+
+In that case upon probe() of the vfio-virtio driver, we'll just pick-up 
+the default vfio-pci 'ops' and in the guest we may have the same device 
+ID as of in the host.
+
+With that approach we may not require a HOST side control (i.e. sysfs, 
+etc.), but stay with a s device control based on its user manual.
+
+At the end, we don't expect any functional issue nor any compatible 
+problem with the new driver, both modern and legacy drivers can work in 
+the guest.
+
+Can that work for you ?
+
 >
-> Then we don't have the burden to maintain them in the parent?
+> We can't use the argument that users wanting the default device should
+> use vfio-pci rather than virtio-vfio-pci because we've already defined
+> the algorithm by which libvirt should choose a variant driver for a
+> device.  libvirt will choose this driver for all virtio-net devices.
 >
-> Thanks
-Please see my earlier response in the other email, thanks.
+> This driver effectively has the option to expose two different profiles
+> for the device, native or transitional.  We've discussed profile
+> support for variant drivers previously as an equivalent functionality
+> to mdev types, but the only use case for this currently is out-of-tree.
+> I think this might be the opportunity to define how device profiles are
+> exposed and selected in a variant driver.
+>
+> Jason had previously suggested a devlink interface for this, but I
+> understand that path had been shot down by devlink developers.  Another
+> obvious option is sysfs, where we might imagine an optional "profiles"
+> directory, perhaps under vfio-dev.  Attributes of "available" and
+> "current" could allow discovery and selection of a profile similar to
+> mdev types.
 
-----------------%<----------------%<----------------
+Referring to the sysfs option,
 
-First, the ideal fix would be to leave this reset_vendor_mappings() 
-emulation code on the individual driver itself, which already has the 
-broken behavior. But today there's no backend feature negotiation 
-between vhost-vdpa and the parent driver. Do we want to send down the 
-acked_backend_features to parent drivers?
+Do you expect the sysfs data to effect the libvirt decision ? may that 
+require changes in libvirt ?
 
-Second, IOTLB_PERSIST is needed but not sufficient. Due to lack of 
-backend feature negotiation in parent driver, if vhost-vdpa has to 
-provide the old-behaviour emulation for compatibility on driver's 
-behalf, it needs to be done per-driver basis. There could be good 
-on-chip or vendor IOMMU implementation which doesn't clear the IOTLB in 
-.reset, and vendor specific IOMMU doesn't have to provide .reset_map, we 
-should allow these good driver implementations rather than 
-unconditionally stick to some specific problematic behavior for every 
-other good driver. Then we need a set of device flags (backend_features 
-bit again?) to indicate the specific driver needs upper layer's help on 
-old-behaviour emulation.
+In addition,
+May that be too late as the sysfs entry will be created upon driver 
+binding by libvirt or that we have in mind some other option to control 
+with that ?
 
-Last but not least, I'm not sure how to properly emulate 
-reset_vendor_mappings() from vhost-vdpa layer. If a vendor driver has no 
-.reset_map op implemented, or if .reset_map has a slightly different 
-implementation than what it used to reset the iotlb in the .reset op, 
-then this either becomes effectively dead code if no one ends up using, 
-or the vhost-vdpa emulation is helpless and limited in scope, unable to 
-cover all the cases.
+Jason,
+Can you please comment here as well ?
 
-----------------%<----------------%<----------------
+> Is this where we should head with this or are there other options to
+> confine this transitional behavior?
+>
+> BTW, what is "acc" in virtiovf_acc_vfio_pci_ops?
+
+"acc" is just a short-cut to "access", see also here[1] a similar usage.
+
+[1] 
+https://elixir.bootlin.com/linux/v6.6-rc6/source/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c#L1380
+
+>
+>> +
+>> +	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
+>> +				     &pdev->dev, ops);
+>> +	if (IS_ERR(virtvdev))
+>> +		return PTR_ERR(virtvdev);
+>> +
+>> +	dev_set_drvdata(&pdev->dev, &virtvdev->core_device);
+>> +	ret = vfio_pci_core_register_device(&virtvdev->core_device);
+>> +	if (ret)
+>> +		goto out;
+>> +	return 0;
+>> +out:
+>> +	vfio_put_device(&virtvdev->core_device.vdev);
+>> +	return ret;
+>> +}
+>> +
+>> +static void virtiovf_pci_remove(struct pci_dev *pdev)
+>> +{
+>> +	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
+>> +
+>> +	vfio_pci_core_unregister_device(&virtvdev->core_device);
+>> +	vfio_put_device(&virtvdev->core_device.vdev);
+>> +}
+>> +
+>> +static const struct pci_device_id virtiovf_pci_table[] = {
+>> +	/* Only virtio-net is supported/tested so far */
+>> +	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
+>> +	{}
+>> +};
+>> +
+>> +MODULE_DEVICE_TABLE(pci, virtiovf_pci_table);
+>> +
+>> +static struct pci_driver virtiovf_pci_driver = {
+>> +	.name = KBUILD_MODNAME,
+>> +	.id_table = virtiovf_pci_table,
+>> +	.probe = virtiovf_pci_probe,
+>> +	.remove = virtiovf_pci_remove,
+>> +	.err_handler = &vfio_pci_core_err_handlers,
+>> +	.driver_managed_dma = true,
+>> +};
+>> +
+>> +module_pci_driver(virtiovf_pci_driver);
+>> +
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
+>> +MODULE_DESCRIPTION(
+>> +	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO device family");
+> Not yet "family" per the device table.  Thanks,
+
+Right
+
+How about dropping the word "family" and say instead ".. for VIRTIO 
+devices" as we have in the Kconfig in that patch [1] ?
+
+[1] "This provides support for exposing VIRTIO VF devices .."
+
+Yishai
+
+> Alex
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
