@@ -1,90 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3EA1ACDB47E
-	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 13:17:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04683CDB483
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 13:31:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AA6DE80C57;
-	Wed, 18 Oct 2023 13:17:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AA6DE80C57
-Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ZtEO98I4
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hP7NiyT2aetN; Wed, 18 Oct 2023 13:16:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 05AC982181;
-	Wed, 18 Oct 2023 13:16:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 05AC982181
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C94C1C0039;
-	Wed, 18 Oct 2023 13:16:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A98D9C0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 13:16:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 77D5B41FB1
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 13:16:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 77D5B41FB1
+	by smtp4.osuosl.org (Postfix) with ESMTP id 710CE41B95;
+	Wed, 18 Oct 2023 13:31:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 710CE41B95
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
- header.a=rsa-sha256 header.s=Intel header.b=ZtEO98I4
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NGenaonJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dQbGoxvHih01
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CqWrP9JUU3x9; Wed, 18 Oct 2023 13:31:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 907A041B5D;
+	Wed, 18 Oct 2023 13:31:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 907A041B5D
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 745D4C0039;
+	Wed, 18 Oct 2023 13:31:03 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 385E6C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 13:16:56 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E3CF441FAE
+ Wed, 18 Oct 2023 13:31:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 11F734057F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 13:16:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E3CF441FAE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
- d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
- t=1697635015; x=1729171015;
- h=date:from:to:cc:subject:message-id:references:
- mime-version:in-reply-to;
- bh=jeOFtHCTI1p4lK5pWUWJCbF1FQqSM44h4JC6UZC9JqQ=;
- b=ZtEO98I4Z4xYX30ecJxCXxk9A2jc5BynvaXIPDWuNo0RxezEd6q5tYSl
- a157HTqf+m4J4dYqGy6sUS9oZEHw0E5u7UTbVeXYH9nh4NhvKe+mFXyN6
- 8+duQ4tnuMOQwR846D36v4kLvOhC03zMDRzZfkKNp9gXuEn2XWNYYnFkx
- NKepQleTURhW7TiJiUhsYXqND1/MrBJzwngQXEcUiscEZ7HkgiEZQQ/nF
- D0jFeDkSsnzPfcE6Fa7jU0HyssRtThBPBcU6rE8vWM6z2DO4z40pLmBaV
- KZ3Eq2Jc8Vm5OJ7iAN/RyHdatrwkISgl1xOymsEsHjLESSAz7nUTc36yE A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10867"; a="450233220"
-X-IronPort-AV: E=Sophos;i="6.03,235,1694761200"; d="scan'208";a="450233220"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 18 Oct 2023 06:16:54 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10867"; a="756587511"
-X-IronPort-AV: E=Sophos;i="6.03,235,1694761200"; d="scan'208";a="756587511"
-Received: from lkp-server01.sh.intel.com (HELO 8917679a5d3e) ([10.239.97.150])
- by orsmga002.jf.intel.com with ESMTP; 18 Oct 2023 06:16:51 -0700
-Received: from kbuild by 8917679a5d3e with local (Exim 4.96)
- (envelope-from <lkp@intel.com>) id 1qt6Po-0000Oh-1k;
- Wed, 18 Oct 2023 13:16:48 +0000
-Date: Wed, 18 Oct 2023 21:16:22 +0800
-From: kernel test robot <lkp@intel.com>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>,
- anton.yakovlev@opensynergy.com, mst@redhat.com
-Subject: Re: [PATCH v2] ALSA: virtio: use copy and fill_silence callbacks
-Message-ID: <202310182118.4uWJrE2p-lkp@intel.com>
-References: <ZS+392ZzVIoEyv8n@fedora>
+ Wed, 18 Oct 2023 13:31:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 11F734057F
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=NGenaonJ
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id U0SLTv6TgUYQ
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Oct 2023 13:31:00 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 76B4740220
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Oct 2023 13:31:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 76B4740220
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1697635859;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fEXGwMCG6NmoQSfVuziNVwS9xQqZtdPUm0GnfFJdAXE=;
+ b=NGenaonJkAraq6zAnGaDgATwSyyyVv34Z1YYDa+TZHUbzr1UcqiZ+OVYlzjwvycN2QaF6t
+ eVYPJndzr44xKmZxugup6TQZzeuRfkddih9C9gn5aEP7lQ79MDP6f+lXePMNKJ/1JpfOrU
+ Vd4TacAK7643+DuNVokOMvUsCV/WMzc=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-690-6udq_9LYOvS6epgHppcxfQ-1; Wed, 18 Oct 2023 09:30:57 -0400
+X-MC-Unique: 6udq_9LYOvS6epgHppcxfQ-1
+Received: by mail-qk1-f199.google.com with SMTP id
+ af79cd13be357-775d995f92aso884547785a.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Oct 2023 06:30:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1697635857; x=1698240657;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=fEXGwMCG6NmoQSfVuziNVwS9xQqZtdPUm0GnfFJdAXE=;
+ b=Bk6KXM4W2fz0srICMDKKcWZhyJ8MQxWiH8e8VAyOlPgBcK8/WXOnHDfPXzzsVgbPbu
+ /tiR8/xCqyuYRD+7HH15uqb+17lWe+C7rf58Po6qxUeb/Xi1SeehQdyh4nurxMZklLMq
+ Q4Zs+JZKUWpuMFH3qg+eQGK/+lKf7qTu55q+ZHD8xUliaCjwe3Hwoe6arJcLExUja3oU
+ GPimS2an+oJQUmiQoEg/f4b5H7zUdhyrVOmuO+17pmpOQdBPL22NKuYeZzclKAhHueJh
+ GJoJv4vwkv2qrwAwHqawgdD8+CqDlyhYTYzapoKFqc88pRBohfJ1//+cDOCldNdpY3Pe
+ I9ZQ==
+X-Gm-Message-State: AOJu0YxbVhzcCq+mPnPxp8hqVCUZB+kOeb0++O9bWTKah+RbKOjeCFPO
+ gXiWYRKbmSmmGRr7aQkXbLLqubeIx+9M+lPYldUnnCoCyNvLFbnO7QztbGznJdWUEqsohiZD/3N
+ TTbjTD68hjFOqFeC+yZwJvH0As6HCEBg0h7YxdPOeAA==
+X-Received: by 2002:a05:620a:370f:b0:772:64bb:441e with SMTP id
+ de15-20020a05620a370f00b0077264bb441emr6272095qkb.36.1697635856806; 
+ Wed, 18 Oct 2023 06:30:56 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGNVeWDmRPz+YvnvmaBsLxz6uYHRhB8ieHrkfALvgnYyPg30Bws8YCVi6m+vxuhCvx3UbO0og==
+X-Received: by 2002:a05:620a:370f:b0:772:64bb:441e with SMTP id
+ de15-20020a05620a370f00b0077264bb441emr6272060qkb.36.1697635856370; 
+ Wed, 18 Oct 2023 06:30:56 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+ by smtp.gmail.com with ESMTPSA id
+ t27-20020a05620a035b00b0076cda7eab11sm1459228qkm.133.2023.10.18.06.30.54
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 18 Oct 2023 06:30:56 -0700 (PDT)
+Date: Wed, 18 Oct 2023 15:30:52 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Subject: Re: [virtio-comment] Re: virtio-sound: release control request
+ clarification
+Message-ID: <ZS/eDMsOCSatnX90@fedora>
+References: <ZS6mA6/EsmvDVlTC@fedora>
+ <1a54feab-5de9-4b39-a4ce-7ff22e23cf52@opensynergy.com>
 MIME-Version: 1.0
+In-Reply-To: <1a54feab-5de9-4b39-a4ce-7ff22e23cf52@opensynergy.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <ZS+392ZzVIoEyv8n@fedora>
-Cc: alsa-devel@alsa-project.org, mripard@redhat.com,
- linux-kernel@vger.kernel.org, tiwai@suse.com, perex@perex.cz,
- stefanha@redhat.com, oe-kbuild-all@lists.linux.dev, pbonzini@redhat.com,
- virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org,
+ stefanha@redhat.com, virtio-comment@lists.oasis-open.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,118 +123,143 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Matias,
+Hello Anton,
 
-kernel test robot noticed the following build warnings:
+thanks for the response. I added some inline comments.
 
-[auto build test WARNING on 8a749fd1a8720d4619c91c8b6e7528c0a355c0aa]
+On Wed, Oct 18, 2023 at 10:06:05AM +0900, Anton Yakovlev wrote:
+> Hi Matias,
+> 
+> 
+> On 18.10.2023 00:19, Matias Ezequiel Vara Larsen wrote:
+> > Hello,
+> > 
+> > This email is to clarify the VirtIO specification regarding the RELEASE
+> > control request. Section 5.14.6.6.5.1 [1] states the following device
+> > requirements for the RELEASE control request:
+> > 1. The device MUST complete all pending I/O messages for the specified
+> > stream ID.
+> > 2. The device MUST NOT complete the control request while there are
+> > pending I/O messages for the specified stream ID.
+> > 
+> > The 1) requirement does not indicate what "complete" means. Does it mean
+> > that the pending I/O messages in the tx queue shall be outputted in the
+> > host, i.e., consumed by the audio backend? Or, completion means simply
+> > to put the requests in the used-ring without consuming them?
+> 
+> Here "to complete" means moving the buffers to the used list in vring.
+> Technically, the specification only requires that the device "return" all
+> referenced DMA memory to the guest before completing the RELEASE control
+> request. What the device actually does with these I/O messages is
+> implementation dependent and is not within the scope of the specification.
+> Thus...
+> 
+> 
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Matias-Ezequiel-Vara-Larsen/ALSA-virtio-use-copy-and-fill_silence-callbacks/20231018-185108
-base:   8a749fd1a8720d4619c91c8b6e7528c0a355c0aa
-patch link:    https://lore.kernel.org/r/ZS%2B392ZzVIoEyv8n%40fedora
-patch subject: [PATCH v2] ALSA: virtio: use copy and fill_silence callbacks
-config: m68k-allyesconfig (https://download.01.org/0day-ci/archive/20231018/202310182118.4uWJrE2p-lkp@intel.com/config)
-compiler: m68k-linux-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231018/202310182118.4uWJrE2p-lkp@intel.com/reproduce)
+Thank you, I got it. If I correctly understand you, after RELEASE is
+issued, the specs specify only that the device should "return" all
+buffers or "complete" them. Device implementations MAY or MAY NOT
+playback them. In other words, the specification does not specify if
+consumption should occur. I had interpreted this to mean that the guest
+intended to output those buffers, leaving the device implementation with
+no option but to do so.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202310182118.4uWJrE2p-lkp@intel.com/
+> > Regarding 2), I interpret it as "the device shall wait until all I/O
+> > messages are proceeded to complete the RELEASE control request".
+> 
+> ...you can do this way if you really need to.
+> 
+> 
+> > Currently, the kernel driver seems not expecting such a delay when the
+> > RELEASE command is sent. If I understand correctly, the kernel driver
+> > first sends the RELEASE command and waits a fixed amount of time until
+> > the device can process it. Then, the driver waits a fixed amount of time
+> > until all pending IO messages are completed. If the device follows the
+> > specification and waits until all messages IO are completed to issue the
+> > completion of the RELEASE command, the kernel driver may timeout. The
+> > time to complete N IO messages in the TX queue could be proportional
+> > with the number of pending messages.
+> 
+> The default timeout for control requests in the ALSA driver is 1 second. In
+> theory, this time should be enough to completely reproduce/fill the 500ms
+> buffer, and complete all requests, including the RELEASE control request. If
+> the device fails to do this, then most likely there are some problems with the
+> implementation.
+> 
 
-All warnings (new ones prefixed by >>):
+Thanks for clarifying. Sorry to repeat myself, the point I want to make
+is that the virtsnd_pcm_sync_stop() function that sends the RELEASE
+control request uses virtsnd_ctl_msg_send_sync(). Message timeouts are
+set up by the "msg_timeout_ms" module parameter. The timeout is the same
+as for other control requests, such as SET_PARAM and PREPARE, but these
+commands do not require flushing a queue, so I wondered how the timeout
+could be the same.
 
->> sound/virtio/virtio_pcm_msg.c:200: warning: Function parameter or member 'offset' not described in 'virtsnd_pcm_msg_send'
->> sound/virtio/virtio_pcm_msg.c:200: warning: Function parameter or member 'bytes' not described in 'virtsnd_pcm_msg_send'
-   2 warnings as Errors
+> 
+> > In our device implementation [2], RELEASE is handled as follows:
+> > - Drop all messages in the TX queue without outputting in the host.
+> > - Complete the RELEASE control request.
+> > 
+> > This seems to be working, however, I can observe that sometimes there
+> > are still requests in the TX queue when we get RELEASE. Those requests
+> > are never reproduced in the host.
+> > 
+> > My questions are:
+> > - In the specification, should we modify it to clarify that all pending
+> >    IO messages in the device are discarded during RELEASE, that is, not
+> >    output to the host, but signaled to the guest as completed?
+> 
+> No, we shouldn't. See comment above.
+> 
+> 
+> > - According to the specification, should the driver wait in RELEASE an
+> >    amount of time proportional to the number of periods yet to be
+> >    reproduced?
+> 
+> This is purely a matter of driver implementation. It is possible to implement
+> the driver without timeouts, but this would be a bad idea. Because bugs in the
+> device could lead to an infinite wait in the kernel.
+> 
+> 
 
+I agree, thanks.
 
-vim +200 sound/virtio/virtio_pcm_msg.c
+Matias.
 
-f40a28679e0b7c Anton Yakovlev              2021-03-02  184  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  185  /**
-f40a28679e0b7c Anton Yakovlev              2021-03-02  186   * virtsnd_pcm_msg_send() - Send asynchronous I/O messages.
-f40a28679e0b7c Anton Yakovlev              2021-03-02  187   * @vss: VirtIO PCM substream.
-f40a28679e0b7c Anton Yakovlev              2021-03-02  188   *
-f40a28679e0b7c Anton Yakovlev              2021-03-02  189   * All messages are organized in an ordered circular list. Each time the
-f40a28679e0b7c Anton Yakovlev              2021-03-02  190   * function is called, all currently non-enqueued messages are added to the
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  191   * virtqueue. For this, the function uses offset and bytes to calculate the
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  192   * messages that need to be added.
-f40a28679e0b7c Anton Yakovlev              2021-03-02  193   *
-f40a28679e0b7c Anton Yakovlev              2021-03-02  194   * Context: Any context. Expects the tx/rx queue and the VirtIO substream
-f40a28679e0b7c Anton Yakovlev              2021-03-02  195   *          spinlocks to be held by caller.
-f40a28679e0b7c Anton Yakovlev              2021-03-02  196   * Return: 0 on success, -errno on failure.
-f40a28679e0b7c Anton Yakovlev              2021-03-02  197   */
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  198  int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, unsigned long offset,
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  199  			 unsigned long bytes)
-f40a28679e0b7c Anton Yakovlev              2021-03-02 @200  {
-f40a28679e0b7c Anton Yakovlev              2021-03-02  201  	struct virtio_snd *snd = vss->snd;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  202  	struct virtio_device *vdev = snd->vdev;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  203  	struct virtqueue *vqueue = virtsnd_pcm_queue(vss)->vqueue;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  204  	unsigned long period_bytes = snd_pcm_lib_period_bytes(vss->substream);
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  205  	unsigned long start, end, i;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  206  	unsigned int msg_count = vss->msg_count;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  207  	bool notify = false;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  208  	int rc;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  209  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  210  	start = offset / period_bytes;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  211  	end = (offset + bytes - 1) / period_bytes;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  212  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  213  	for (i = start; i <= end; i++) {
-f40a28679e0b7c Anton Yakovlev              2021-03-02  214  		struct virtio_pcm_msg *msg = vss->msgs[i];
-f40a28679e0b7c Anton Yakovlev              2021-03-02  215  		struct scatterlist *psgs[] = {
-f40a28679e0b7c Anton Yakovlev              2021-03-02  216  			&msg->sgs[PCM_MSG_SG_XFER],
-f40a28679e0b7c Anton Yakovlev              2021-03-02  217  			&msg->sgs[PCM_MSG_SG_DATA],
-f40a28679e0b7c Anton Yakovlev              2021-03-02  218  			&msg->sgs[PCM_MSG_SG_STATUS]
-f40a28679e0b7c Anton Yakovlev              2021-03-02  219  		};
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  220  		unsigned long n;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  221  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  222  		n = period_bytes - (offset % period_bytes);
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  223  		if (n > bytes)
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  224  			n = bytes;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  225  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  226  		msg->length += n;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  227  		if (msg->length == period_bytes) {
-f40a28679e0b7c Anton Yakovlev              2021-03-02  228  			msg->xfer.stream_id = cpu_to_le32(vss->sid);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  229  			memset(&msg->status, 0, sizeof(msg->status));
-f40a28679e0b7c Anton Yakovlev              2021-03-02  230  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  231  			if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
-f40a28679e0b7c Anton Yakovlev              2021-03-02  232  				rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
-f40a28679e0b7c Anton Yakovlev              2021-03-02  233  						       GFP_ATOMIC);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  234  			else
-f40a28679e0b7c Anton Yakovlev              2021-03-02  235  				rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
-f40a28679e0b7c Anton Yakovlev              2021-03-02  236  						       GFP_ATOMIC);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  237  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  238  			if (rc) {
-f40a28679e0b7c Anton Yakovlev              2021-03-02  239  				dev_err(&vdev->dev,
-f40a28679e0b7c Anton Yakovlev              2021-03-02  240  					"SID %u: failed to send I/O message\n",
-f40a28679e0b7c Anton Yakovlev              2021-03-02  241  					vss->sid);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  242  				return rc;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  243  			}
-f40a28679e0b7c Anton Yakovlev              2021-03-02  244  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  245  			vss->msg_count++;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  246  		}
-f40a28679e0b7c Anton Yakovlev              2021-03-02  247  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  248  		offset = 0;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  249  		bytes -= n;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  250  	}
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  251  
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  252  	if (msg_count == vss->msg_count)
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  253  		return 0;
-10ad52116c3a46 Matias Ezequiel Vara Larsen 2023-10-18  254  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  255  	if (!(vss->features & (1U << VIRTIO_SND_PCM_F_MSG_POLLING)))
-f40a28679e0b7c Anton Yakovlev              2021-03-02  256  		notify = virtqueue_kick_prepare(vqueue);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  257  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  258  	if (notify)
-f40a28679e0b7c Anton Yakovlev              2021-03-02  259  		virtqueue_notify(vqueue);
-f40a28679e0b7c Anton Yakovlev              2021-03-02  260  
-f40a28679e0b7c Anton Yakovlev              2021-03-02  261  	return 0;
-f40a28679e0b7c Anton Yakovlev              2021-03-02  262  }
-f40a28679e0b7c Anton Yakovlev              2021-03-02  263  
+> Best regards,
+> 
+> > 
+> > Thanks, Matias.
+> > 
+> > [1]
+> > https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fdocs.oasis%2dopen.org%2fvirtio%2fvirtio%2fv1.2%2fcsd01%2fvirtio%2dv1.2%2dcsd01.html&umid=31e1136e-6322-4698-9f1d-d631ac36403e&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-586f0596c89224a3bc9e20df81eaea8933bb129a
+> > [2]
+> > https://github.com/rust-vmm/vhost-device/tree/main/staging/vhost-device-sound
+> 
+> -- 
+> Anton Yakovlev
+> Senior Software Engineer
+> 
+> OpenSynergy GmbH
+> Rotherstr. 20, 10245 Berlin
+> 
+> This publicly archived list offers a means to provide input to the
+> OASIS Virtual I/O Device (VIRTIO) TC.
+> 
+> In order to verify user consent to the Feedback License terms and
+> to minimize spam in the list archive, subscription is required
+> before posting.
+> 
+> Subscribe: virtio-comment-subscribe@lists.oasis-open.org
+> Unsubscribe: virtio-comment-unsubscribe@lists.oasis-open.org
+> List help: virtio-comment-help@lists.oasis-open.org
+> List archive: https://lists.oasis-open.org/archives/virtio-comment/
+> Feedback License: https://www.oasis-open.org/who/ipr/feedback_license.pdf
+> List Guidelines: https://www.oasis-open.org/policies-guidelines/mailing-lists
+> Committee: https://www.oasis-open.org/committees/virtio/
+> Join OASIS: https://www.oasis-open.org/join/
+> 
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
