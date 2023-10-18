@@ -1,110 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 979A4CDB47E
-	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 17:25:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1E79CCDB47E
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 18:29:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0280F40621;
-	Wed, 18 Oct 2023 17:25:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0280F40621
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RpLe8K5m
+	by smtp1.osuosl.org (Postfix) with ESMTP id 54B2383065;
+	Wed, 18 Oct 2023 18:29:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54B2383065
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=IGcc1yJo
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yN0cJIkfvhxv; Wed, 18 Oct 2023 17:24:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C8E2C40004;
-	Wed, 18 Oct 2023 17:24:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C8E2C40004
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Iqij30TrSz_2; Wed, 18 Oct 2023 18:29:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2525583083;
+	Wed, 18 Oct 2023 18:29:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2525583083
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E936C0039;
-	Wed, 18 Oct 2023 17:24:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CD882C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB77EC0071;
+	Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65FC8C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 17:24:57 +0000 (UTC)
+ Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A4BF740199
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2D8CF42202
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 17:24:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4BF740199
+ Wed, 18 Oct 2023 18:29:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D8CF42202
+Authentication-Results: smtp4.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=IGcc1yJo
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JojqOpTAm47e
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XFAyFMlJQld9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 17:24:56 +0000 (UTC)
+ Wed, 18 Oct 2023 18:29:38 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 2E37E40004
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E1D3142201
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 17:24:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2E37E40004
+ Wed, 18 Oct 2023 18:29:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E1D3142201
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697649895;
+ s=mimecast20190719; t=1697653776;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=5AOd0/hJo+xQgO9OcEYZKv2n43WMiR7HBnvKw0ANJXA=;
- b=RpLe8K5mAbONvk3pVUNsI4+KdLJWkb4Zd9ewl7cxXQAdsznE4rGSePUyLJFZV8w27RY0b4
- i9ifvv9a0k6avUvykWdoY4WksisMo9a39GlOOQELElu2KislSdpYgCyQbG6VKGGHfv+yCk
- uTlHixqRbVjrgO5F6jvHbypvUdwpEc4=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=7R6RTAkgPJ3A2Sl/SrJ6GMc2ikyq7O3Z+XFs2kp36A8=;
+ b=IGcc1yJoXPULEBTMurcpQiVlb4sO5Zn2ULT61K6aFeBdIgOJdH5Vk8dDCs+6CjrU8LBg43
+ pvw8mHsBNRSnJmxmLB/uv0+iB5d6Qf0xvhWjjfLx065FPkCeUK8QlSdqe1cw7GBf+OlCgy
+ nRn8jvBDQdmoW8yej9+D/HAbvUh+eIQ=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-iFPQk28bP6SKiRxqIcX9zw-1; Wed, 18 Oct 2023 13:24:53 -0400
-X-MC-Unique: iFPQk28bP6SKiRxqIcX9zw-1
-Received: by mail-lj1-f199.google.com with SMTP id
- 38308e7fff4ca-2c506abc320so42210721fa.2
+ us-mta-130-ik0yePtCPVqwiTUSrdXXGA-1; Wed, 18 Oct 2023 14:29:29 -0400
+X-MC-Unique: ik0yePtCPVqwiTUSrdXXGA-1
+Received: by mail-io1-f72.google.com with SMTP id
+ ca18e2360f4ac-780addd7382so588768139f.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 10:24:53 -0700 (PDT)
+ Wed, 18 Oct 2023 11:29:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697649892; x=1698254692;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=5AOd0/hJo+xQgO9OcEYZKv2n43WMiR7HBnvKw0ANJXA=;
- b=ZPaKHZ3TyC2w64e0w4gLcSw2ZnY4AuMS/uGcBcux24A4VoO0JY8vvGYBtDJaJKEnk8
- av6frrIKwRi1gomImiQmBUT+8M01zgTp9zGMYP9QS8cwxKO1cFdAt0nBAmhQc54bZ1A7
- D8aML+KRhKF2APQcVnUZHgiJhS6eORgpPAtMvYHtLJOkxnfSxoyuDZNos652r3Mk5rc5
- 4tW+uGAyG2wtOGSW0fQhVjmDIx6msCnwsDd8MZ033mj7t0Ya5X3SjSsvfePJDpvDozGW
- yetB2yTnzNK5e61Q5Qq9O+6SlFNAyAbGw/3Zwk0iB9Wh+Upg0vGtahlOY5rgFDutyCqP
- ZaQA==
-X-Gm-Message-State: AOJu0Yw+zl6LLip0jFBhRRTPAUxfjXtVtbglpBWChKjZDmsA7HAGl2HB
- DrjI8nMaP/Q2D6e1mRLI4j8VH/meXli1l+pfO1tFU3P7D3TfcFFbeHE+m02SYqhr1KnU57jiePi
- bqKlX4jIRuXC7qKemblJ8o7ghvw3z8e9H3WYkRT70rg==
-X-Received: by 2002:a2e:3619:0:b0:2bf:a9b6:d254 with SMTP id
- d25-20020a2e3619000000b002bfa9b6d254mr3934009lja.50.1697649892291; 
- Wed, 18 Oct 2023 10:24:52 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHBwF/FZH/EqE5Pe6mKGEiyQtBuyLQcUH3K5SG7IYfDvAmL8IFrvXOTzgtqDTf2JFbCaqPxsA==
-X-Received: by 2002:a2e:3619:0:b0:2bf:a9b6:d254 with SMTP id
- d25-20020a2e3619000000b002bfa9b6d254mr3933990lja.50.1697649891837; 
- Wed, 18 Oct 2023 10:24:51 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f2:2037:f34:d61b:7da0:a7be])
- by smtp.gmail.com with ESMTPSA id
- r9-20020a05600c320900b0040644e699a0sm2184668wmp.45.2023.10.18.10.24.48
+ d=1e100.net; s=20230601; t=1697653768; x=1698258568;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=7R6RTAkgPJ3A2Sl/SrJ6GMc2ikyq7O3Z+XFs2kp36A8=;
+ b=dT14jei5ZXOdIMVufqKRNCbmwXgO1KY9YJSCa2rW6SBIw2fjNyE7R0UK6O0rlqjdaw
+ 5Ao5mc5wAlfEVNm8MmxJ8apHnujv+IgPeL3S8hrPsLNaWcUiSWc21DbiC6iCvff4wCFb
+ ThblhAWKuq14XHVrIELtCv8cpdaglV05pLK9gfXRK/HERYDiXpzjX7L5igWOtOq5ZBs7
+ kHJQkleuJrzeS0OLe6UlnNR3U9xkdVqBmSS8g5HQbIPuGGx/UAxufmij3pIXZMZD/JAx
+ 1CSWctiV5aojo17zwJD+0LatWq8hZmku7fAs2rB+q0P3LLB99NuMkIvmzplDIk7MXpLm
+ 3npw==
+X-Gm-Message-State: AOJu0YxqQWh7W0wa4PhJ0Pn/spEg/ifpL4IS2tdzdqnRlTzpJYzCXfHG
+ CERF15cqRlxV6cjWPtaW3W6skh6VSVrOYa/UhElku+oX7Bok1jl8xvnyNoxqvKWqbQt7yCi61QC
+ qbjobHUmHTvj0ElErhUa8K1EGxMor5Jbk3hFWlYpgHQ==
+X-Received: by 2002:a05:6602:2c90:b0:79f:e9ac:f60a with SMTP id
+ i16-20020a0566022c9000b0079fe9acf60amr55509iow.20.1697653768612; 
+ Wed, 18 Oct 2023 11:29:28 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEZOgP35lJk8sk1selAnhrxsD5cVz/op+LUUohZIIuhrccEv2yoS+AMAHgBHkSLHcYMuVLrUw==
+X-Received: by 2002:a05:6602:2c90:b0:79f:e9ac:f60a with SMTP id
+ i16-20020a0566022c9000b0079fe9acf60amr55478iow.20.1697653768208; 
+ Wed, 18 Oct 2023 11:29:28 -0700 (PDT)
+Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
+ i141-20020a6b3b93000000b007a667019071sm900347ioa.22.2023.10.18.11.29.27
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 18 Oct 2023 10:24:51 -0700 (PDT)
-Date: Wed, 18 Oct 2023 13:24:46 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Subject: Re: [PATCH vhost v4 00/16] vdpa: Add support for vq descriptor
- mappings
-Message-ID: <20231018132347-mutt-send-email-mst@kernel.org>
-References: <20231018171456.1624030-2-dtatulea@nvidia.com>
+ Wed, 18 Oct 2023 11:29:27 -0700 (PDT)
+Date: Wed, 18 Oct 2023 12:29:25 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20231018122925.3fde9405.alex.williamson@redhat.com>
+In-Reply-To: <20231018163333.GZ3952@nvidia.com>
+References: <20231017134217.82497-1-yishaih@nvidia.com>
+ <20231017134217.82497-10-yishaih@nvidia.com>
+ <20231017142448.08673cdc.alex.williamson@redhat.com>
+ <20231018163333.GZ3952@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20231018171456.1624030-2-dtatulea@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kvm@vger.kernel.org,
- Leon Romanovsky <leon@kernel.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Eugenio Perez Martin <eperezma@redhat.com>, Saeed Mahameed <saeedm@nvidia.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,88 +125,137 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 18, 2023 at 08:14:39PM +0300, Dragos Tatulea wrote:
-> This patch series adds support for vq descriptor table mappings which
-> are used to improve vdpa live migration downtime. The improvement comes
-> from using smaller mappings which take less time to create and destroy
-> in hw.
-> 
-> The first part adds the vdpa core changes from Si-Wei [0].
-> 
-> The second part adds support in mlx5_vdpa:
-> - Refactor the mr code to be able to cleanly add descriptor mappings.
-> - Add hardware descriptor mr support.
-> - Properly update iotlb for cvq during ASID switch.
-> 
-> Changes in v4:
-> 
-> - Improved the handling of empty iotlbs. See mlx5_vdpa_change_map
->   section in patch "12/16 vdpa/mlx5: Improve mr upate flow".
-> - Fixed a invalid usage of desc_group_mkey hw vq field when the
->   capability is not there. See patch
->   "15/16 vdpa/mlx5: Enable hw support for vq descriptor map".
+On Wed, 18 Oct 2023 13:33:33 -0300
+Jason Gunthorpe <jgg@nvidia.com> wrote:
 
-At this point, whether this patchset makes it in 6.7 will largely depend
-on how many rcs there are in 6.6, so it can get some time in next.
+> On Tue, Oct 17, 2023 at 02:24:48PM -0600, Alex Williamson wrote:
+> > On Tue, 17 Oct 2023 16:42:17 +0300
+> > Yishai Hadas <yishaih@nvidia.com> wrote:  
+> > > +static int virtiovf_pci_probe(struct pci_dev *pdev,
+> > > +			      const struct pci_device_id *id)
+> > > +{
+> > > +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
+> > > +	struct virtiovf_pci_core_device *virtvdev;
+> > > +	int ret;
+> > > +
+> > > +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
+> > > +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
+> > > +		ops = &virtiovf_acc_vfio_pci_tran_ops;  
+> > 
+> > This is still an issue for me, it's a very narrow use case where we
+> > have a modern device and want to enable legacy support.  Implementing an
+> > IO BAR and mangling the device ID seems like it should be an opt-in,
+> > not standard behavior for any compatible device.  Users should
+> > generally expect that the device they see in the host is the device
+> > they see in the guest.  They might even rely on that principle.  
+> 
+> I think this should be configured when the VF is provisioned. If the
+> user does not want legacy IO bar support then the VFIO VF function
+> should not advertise the capability, and they won't get driver
+> support.
+> 
+> I think that is a very reasonable way to approach this - it is how we
+> approached similar problems for mlx5. The provisioning interface is
+> what "profiles" the VF, regardless of if VFIO is driving it or not.
 
+It seems like a huge assumption that every device is going to allow
+this degree of specification in provisioning VFs.  mlx5 is a vendor
+specific driver, it can make such assumptions in design philosophy.
 
-> Changes in v3:
+> > We can't use the argument that users wanting the default device should
+> > use vfio-pci rather than virtio-vfio-pci because we've already defined
+> > the algorithm by which libvirt should choose a variant driver for a
+> > device.  libvirt will choose this driver for all virtio-net devices.  
 > 
-> - dup_iotlb now checks for src == dst case and returns an error.
-> - Renamed iotlb parameter in dup_iotlb to dst.
-> - Removed a redundant check of the asid value.
-> - Fixed a commit message.
-> - mx5_ifc.h patch has been applied to mlx5-vhost tree. When applying
->   this series please pull from that tree first.
+> Well, we can if the use case is niche. I think profiling a virtio VF
+> to support legacy IO bar emulation and then not wanting to use it is
+> a niche case.
 > 
-> Changes in v2:
+> The same argument is going come with live migration. This same driver
+> will still bind and enable live migration if the virtio function is
+> profiled to support it. If you don't want that in your system then
+> don't profile the VF for migration support.
+
+What in the virtio or SR-IOV spec requires a vendor to make this
+configurable?
+
+> > This driver effectively has the option to expose two different profiles
+> > for the device, native or transitional.  We've discussed profile
+> > support for variant drivers previously as an equivalent functionality
+> > to mdev types, but the only use case for this currently is out-of-tree.
+> > I think this might be the opportunity to define how device profiles are
+> > exposed and selected in a variant driver.  
 > 
-> - The "vdpa/mlx5: Enable hw support for vq descriptor mapping" change
->   was split off into two patches to avoid merge conflicts into the tree
->   of Linus.
+> Honestly, I've been trying to keep this out of VFIO...
 > 
->   The first patch contains only changes for mlx5_ifc.h. This must be
->   applied into the mlx5-vdpa tree [1] first. Once this patch is applied
->   on mlx5-vdpa, the change has to be pulled fom mlx5-vdpa into the vhost
->   tree and only then the remaining patches can be applied.
+> The function is profiled when it is created, by whatever created
+> it. As in the other thread we have a vast amount of variation in what
+> is required to provision the function in the first place. "Legacy IO
+> BAR emulation support" is just one thing. virtio-net needs to be
+> hooked up to real network and get a MAC, virtio-blk needs to be hooked
+> up to real storage and get a media. At a minimum. This is big and
+> complicated.
 > 
-> [0] https://lore.kernel.org/virtualization/1694248959-13369-1-git-send-email-si-wei.liu@oracle.com
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
+> It may not even be the x86 running VFIO that is doing this
+> provisioning, the PCI function may come pre-provisioned from a DPU.
 > 
-> Dragos Tatulea (13):
->   vdpa/mlx5: Expose descriptor group mkey hw capability
->   vdpa/mlx5: Create helper function for dma mappings
->   vdpa/mlx5: Decouple cvq iotlb handling from hw mapping code
->   vdpa/mlx5: Take cvq iotlb lock during refresh
->   vdpa/mlx5: Collapse "dvq" mr add/delete functions
->   vdpa/mlx5: Rename mr destroy functions
->   vdpa/mlx5: Allow creation/deletion of any given mr struct
->   vdpa/mlx5: Move mr mutex out of mr struct
->   vdpa/mlx5: Improve mr update flow
->   vdpa/mlx5: Introduce mr for vq descriptor
->   vdpa/mlx5: Enable hw support for vq descriptor mapping
->   vdpa/mlx5: Make iotlb helper functions more generic
->   vdpa/mlx5: Update cvq iotlb mapping on ASID change
+> It feels better to keep that all in one place, in whatever external
+> thing is preparing the function before giving it to VFIO. VFIO is
+> concerned with operating a prepared function.
 > 
-> Si-Wei Liu (3):
->   vdpa: introduce dedicated descriptor group for virtqueue
->   vhost-vdpa: introduce descriptor group backend feature
->   vhost-vdpa: uAPI to get dedicated descriptor group id
+> When we get to SIOV it should not be VFIO that is
+> provisioning/creating functions. The owning driver should be doing
+> this and routing the function to VFIO (eg with an aux device or
+> otherwise)
 > 
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  31 +++--
->  drivers/vdpa/mlx5/core/mr.c        | 194 ++++++++++++++++-------------
->  drivers/vdpa/mlx5/core/resources.c |   6 +-
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 105 +++++++++++-----
->  drivers/vhost/vdpa.c               |  27 ++++
->  include/linux/mlx5/mlx5_ifc.h      |   8 +-
->  include/linux/mlx5/mlx5_ifc_vdpa.h |   7 +-
->  include/linux/vdpa.h               |  11 ++
->  include/uapi/linux/vhost.h         |   8 ++
->  include/uapi/linux/vhost_types.h   |   5 +
->  10 files changed, 272 insertions(+), 130 deletions(-)
+> This gets back to the qemu thread on the grace patch where we need to
+> ask how does the libvirt world see this, given there is no good way to
+> generically handle all scenarios without a userspace driver to operate
+> elements.
+
+So nothing here is really "all in one place", it may be in the
+provisioning of the VF, outside of the scope of the host OS, it might
+be a collection of scripts or operators with device or interface
+specific tooling to configure the device.  Sometimes this configuration
+will be before the device is probed by the vfio-pci variant driver,
+sometimes in between probing and opening the device.
+
+I don't see why it becomes out of scope if the variant driver itself
+provides some means for selecting a device profile.  We have evidence
+both from mdev vGPUs and here (imo) that we can expect to see that
+behavior, so why wouldn't we want to attempt some basic shared
+interface for variant drivers to implement for selecting such a profile
+rather than add to this hodgepodge 
+
+> > Jason had previously suggested a devlink interface for this, but I
+> > understand that path had been shot down by devlink developers.    
 > 
-> -- 
-> 2.41.0
+> I think we go some things support but supporting all things was shot
+> down.
+> 
+> > Another obvious option is sysfs, where we might imagine an optional
+> > "profiles" directory, perhaps under vfio-dev.  Attributes of
+> > "available" and "current" could allow discovery and selection of a
+> > profile similar to mdev types.  
+> 
+> IMHO it is a far too complex problem for sysfs.
+
+Isn't it then just like devlink, not a silver bullet, but useful for
+some configuration?  AIUI, devlink shot down a means to list available
+profiles for a device and a means to select one of those profiles.
+There are a variety of attributes in sysfs which perform this sort of
+behavior.  Specifying a specific profile in sysfs can be difficult, and
+I'm not proposing sysfs profile support as a mandatory feature, but I'm
+also not a fan of the vendor specific sysfs approach that out of tree
+drivers have taken.
+
+The mdev type interface is certainly not perfect, but from it we've
+been able to develop mdevctl to allow persistent and complex
+configurations of mdev devices.  I'd like to see the ability to do
+something like that with variant drivers that offer multiple profiles
+without always depending on vendor specific interfaces.  Thanks,
+
+Alex
 
 _______________________________________________
 Virtualization mailing list
