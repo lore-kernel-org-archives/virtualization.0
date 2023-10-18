@@ -1,109 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B3874CDB47E
-	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 11:34:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 04A61CDB47E
+	for <virtualization@archiver.kernel.org>; Wed, 18 Oct 2023 12:52:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 399E740C1C;
-	Wed, 18 Oct 2023 11:34:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 399E740C1C
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20230601 header.b=b1/MBqY9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 80A70614A1;
+	Wed, 18 Oct 2023 12:52:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80A70614A1
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BDarZphf
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IfiFMu1MHDTE; Wed, 18 Oct 2023 11:34:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 96CC2400F2;
-	Wed, 18 Oct 2023 11:34:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 96CC2400F2
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ivqz_6Gp_HCv; Wed, 18 Oct 2023 12:52:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BBB096149C;
+	Wed, 18 Oct 2023 12:52:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BBB096149C
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B8B5C0039;
-	Wed, 18 Oct 2023 11:34:52 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E907AC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8AD10C0071;
+	Wed, 18 Oct 2023 12:52:01 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 598F2C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 11:34:50 +0000 (UTC)
+ Wed, 18 Oct 2023 12:52:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BD69340C1C
+ by smtp2.osuosl.org (Postfix) with ESMTP id 208BC4037C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 11:34:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BD69340C1C
+ Wed, 18 Oct 2023 12:52:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 208BC4037C
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=BDarZphf
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id b36cQuWh8PHp
+ with ESMTP id jVwPR-BE1dt4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 11:34:49 +0000 (UTC)
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com
- [IPv6:2a00:1450:4864:20::634])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 29C58400F2
+ Wed, 18 Oct 2023 12:51:57 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8CD49402F6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 11:34:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 29C58400F2
-Received: by mail-ej1-x634.google.com with SMTP id
- a640c23a62f3a-9b2f73e3af3so1028606866b.3
+ Wed, 18 Oct 2023 12:51:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8CD49402F6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1697633516;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=1O+/2owa5fju7g4/U4PJiwL7dSPmfofgEFgCR3W+zek=;
+ b=BDarZphfZdrSz2z1l/noWZgZuX122tPeC2cWmjXLS64jt7E6HWvirXJo0CZTXph6rplIDY
+ fe2rAv7FGzLhutO8P6MEo04r3ID5APr8rFrxZj6gmwNLvb29S7e/mVmmJ8PhHaTyaOag4g
+ 2h4W0HpWvKaQnITF9Sg3Mvo469MEnZo=
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com
+ [209.85.166.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-696-yd3juCckO_CHjQYf_ij32Q-1; Wed, 18 Oct 2023 08:51:55 -0400
+X-MC-Unique: yd3juCckO_CHjQYf_ij32Q-1
+Received: by mail-io1-f71.google.com with SMTP id
+ ca18e2360f4ac-79fc1c4948aso517809939f.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 04:34:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=gmail.com; s=20230601; t=1697628887; x=1698233687;
- darn=lists.linux-foundation.org; 
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
- :reply-to; bh=bLIYllS+O6Xd2qzawS5VK1eQ02CDGNfk+dIUUR4Mb9M=;
- b=b1/MBqY9EkCXPSb3M5t2cHc1xHQ71jAvQL24uY77YJcpv+FrrasiPGzHBegKoQ0iLt
- n9vlrREY7kXtvtzm72aQpNqPO5o1oufUjsduUViAq5JfqpZW2Z8rA3fSdUpfgFjXgYUs
- ZfRQT0eJtCpaV3aplOGAmfzqO7o9uMWFzjQzFGz59L06QJRAyZcmUL3jsqQutXpY2kV3
- T2lcDLPpPFM+O7WEo2U2HWF4RNvJL5OfVtuSGgvD+KUI+bULYS0Y/DymifG/eBhLZW0J
- LYhSNwlsbNm/HpQU6otwwFT3/C8R22vm+aZFv+Uw8obm/3nSw2RJq47lgPea8QH+PFoO
- VhVQ==
+ Wed, 18 Oct 2023 05:51:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697628887; x=1698233687;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=bLIYllS+O6Xd2qzawS5VK1eQ02CDGNfk+dIUUR4Mb9M=;
- b=HaOx8fbmhYcOpLsTvImXrv2Gao/kVEDdseubIvkziGAxTwNK+XWWSLwHv/H25jHBNq
- VP/XES4I44YVXBmcQfYFiSfks5i7B/6Wgnhz/T15VyTO+JfXN/KlFeQZpiVaIpPz7IQP
- w0E+8F+RSqSybUzbm2j8UF6ReYW9TENc0p4wlSSFEKrzOwEnuZwH2v1JcikIY/NmKaCU
- GRXeb7nA4v/rSWteJbOAlwQ0T4FWc77aOlCXEJtfTucDHHTU2uHEofABMsJr2EQlcDMe
- DcAT3qBPqal4s1HkOFe4DZ2olszNXrE9o3HKy1c8TZKx8IMUwxdw/7VMX0eRRSgHuW3o
- 8Q8A==
-X-Gm-Message-State: AOJu0Yzafay/wMr/tEgaNmHZriTrZsy6ZAewrSMUDlEVxeFpXCj15f7N
- JM0uvay5iMSJO72atIdjqWI=
-X-Google-Smtp-Source: AGHT+IEYuZTECiTe/CWO5fzOqWJ8nMXo46EwDgNlRRBWZqPtxnbzqwj6YGcgm9HvKPNlFMhAV6hFaQ==
-X-Received: by 2002:a17:906:dac4:b0:9be:dce3:6e07 with SMTP id
- xi4-20020a170906dac400b009bedce36e07mr4461109ejb.32.1697628886950; 
- Wed, 18 Oct 2023 04:34:46 -0700 (PDT)
-Received: from gmail.com (1F2EF7B2.nat.pool.telekom.hu. [31.46.247.178])
- by smtp.gmail.com with ESMTPSA id
- mm27-20020a170906cc5b00b0099e12a49c8fsm1521281ejb.173.2023.10.18.04.34.45
+ d=1e100.net; s=20230601; t=1697633514; x=1698238314;
+ h=content-transfer-encoding:mime-version:organization:references
+ :in-reply-to:message-id:subject:cc:to:from:date:x-gm-message-state
+ :from:to:cc:subject:date:message-id:reply-to;
+ bh=1O+/2owa5fju7g4/U4PJiwL7dSPmfofgEFgCR3W+zek=;
+ b=NSlbAUDkqKlYTMoEDR2RHNtcO1siBr5v1Tc8BpWj+uB0aoawoHYTe22GOB6mkaERo5
+ JogTQyiVeCVZq9Shlg3gLUj8DJZMRiQ0NR2fiJVCTsApPDoreC+MTZ2B1/H3XlltNacr
+ W3hCIQl0hyEyYB6RXlrh4lqMZ/AwXvruJiWubHS/+7RHdyMBv534cbw1V+7FVOAqIgm3
+ n1INqCg/Fw9vOgtOOPxFNp9zCCyrA28hAPYZh0zaszU324cAnvyAgGahdoWFDNVfEESi
+ lWUiQaPbhH5uv+b846TAYpTbl3EvP3NAcX3M4BsRnXyzbMqp94QtzNLFuE782w+lceDi
+ zFzQ==
+X-Gm-Message-State: AOJu0YxBU5E1duSibTeOq8p6S0CvabEO5fSV4LH7hurMrTwskKu5mIcm
+ U/zsbjehjGzpp90ON6JtYYBvWJ6zIMgUzqhNsOVA73hfzyjvmY3MbCJfsGauc/+CEarED9mDzKk
+ AZpmXKgh6jf+d+woLMzcZNsUi4qEubnTdXwagUQIDXQ==
+X-Received: by 2002:a05:6602:2d84:b0:7a5:a391:73ae with SMTP id
+ k4-20020a0566022d8400b007a5a39173aemr6528407iow.17.1697633514201; 
+ Wed, 18 Oct 2023 05:51:54 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHRH+kUg5NIUrWgXNmdt12UdPuElVEnxJGaEhQRXqfEVuIRCXKrb+d01Jr6pDdRbiFWRwcnmw==
+X-Received: by 2002:a05:6602:2d84:b0:7a5:a391:73ae with SMTP id
+ k4-20020a0566022d8400b007a5a39173aemr6528379iow.17.1697633513797; 
+ Wed, 18 Oct 2023 05:51:53 -0700 (PDT)
+Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
+ r11-20020a02c84b000000b0042bb296863asm1148997jao.56.2023.10.18.05.51.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 18 Oct 2023 04:34:46 -0700 (PDT)
-Date: Wed, 18 Oct 2023 13:34:44 +0200
-From: Ingo Molnar <mingo@kernel.org>
-To: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2 3/4] x86/paravirt: switch mixed paravirt/alternative
- calls to alternative_2
-Message-ID: <ZS/C1HS/EEXTtVji@gmail.com>
-References: <20231016123933.17284-1-jgross@suse.com>
- <20231016123933.17284-4-jgross@suse.com>
- <20231016142930.GE33217@noisy.programming.kicks-ass.net>
- <4f5cc965-36da-43f0-aaaa-082a2235ec1e@suse.com>
+ Wed, 18 Oct 2023 05:51:53 -0700 (PDT)
+Date: Wed, 18 Oct 2023 06:51:51 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20231018065151.39ee962d.alex.williamson@redhat.com>
+In-Reply-To: <f6168335-d5e1-00ec-13ba-8c9a174b7eb0@nvidia.com>
+References: <20231017134217.82497-1-yishaih@nvidia.com>
+ <20231017134217.82497-10-yishaih@nvidia.com>
+ <20231017142448.08673cdc.alex.williamson@redhat.com>
+ <f6168335-d5e1-00ec-13ba-8c9a174b7eb0@nvidia.com>
+Organization: Red Hat
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <4f5cc965-36da-43f0-aaaa-082a2235ec1e@suse.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>,
- Alexey Makhalov <amakhalov@vmware.com>, Peter Zijlstra <peterz@infradead.org>,
- x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
- Ajay Kaher <akaher@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Thomas Gleixner <tglx@linutronix.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, Jason Gunthorpe <jgg@nvidia.com>,
+ jiri@nvidia.com, leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,33 +126,188 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Wed, 18 Oct 2023 12:01:57 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-* Juergen Gross <jgross@suse.com> wrote:
-
-> On 16.10.23 16:29, Peter Zijlstra wrote:
-> > On Mon, Oct 16, 2023 at 02:39:32PM +0200, Juergen Gross wrote:
-> > > Instead of stacking alternative and paravirt patching, use the new
-> > > ALT_FLAG_CALL flag to switch those mixed calls to pure alternative
-> > > handling.
-> > > 
-> > > This eliminates the need to be careful regarding the sequence of
-> > > alternative and paravirt patching.
-> > > 
-> > > For call depth tracking callthunks_setup() needs to be adapted to patch
-> > > calls at alternative patching sites instead of paravirt calls.
-> > > 
-> > > Signed-off-by: Juergen Gross <jgross@suse.com>
-> > 
-> > I cannot help but feel this would've been better as two patches, one
-> > introducing ALT_NOT_XEN and then a second with the rest.
+> On 17/10/2023 23:24, Alex Williamson wrote:
+> > On Tue, 17 Oct 2023 16:42:17 +0300
+> > Yishai Hadas <yishaih@nvidia.com> wrote:  
+> >> +static int virtiovf_pci_probe(struct pci_dev *pdev,
+> >> +			      const struct pci_device_id *id)
+> >> +{
+> >> +	const struct vfio_device_ops *ops = &virtiovf_acc_vfio_pci_ops;
+> >> +	struct virtiovf_pci_core_device *virtvdev;
+> >> +	int ret;
+> >> +
+> >> +	if (pdev->is_virtfn && virtiovf_support_legacy_access(pdev) &&
+> >> +	    !virtiovf_bar0_exists(pdev) && pdev->msix_cap)
+> >> +		ops = &virtiovf_acc_vfio_pci_tran_ops;  
+> >
+> > This is still an issue for me, it's a very narrow use case where we
+> > have a modern device and want to enable legacy support.  Implementing an
+> > IO BAR and mangling the device ID seems like it should be an opt-in,
+> > not standard behavior for any compatible device.  Users should
+> > generally expect that the device they see in the host is the device
+> > they see in the guest.  They might even rely on that principle.  
 > 
-> In case I need to respin I'll split it up.
+> Users here mainly refer to cloud operators.
+> 
+> We may assume, I believe, that they will be fine with seeing a 
+> transitional device in the guest as they would like to get the legacy IO 
+> support for their system.
+> 
+> However, we can still consider supplying a configuration knob in the 
+> device layer (e.g. in the DPU side) to let a cloud operator turning off 
+> the legacy capability.
 
-Yeah, would be nice to split this patch into two, as Peter requested.
+This is a driver that implements to the virtio standard, so I don't see
+how we can assume that the current use case is the only use case we'll
+ever see.  Therefore we cannot assume this will only be consumed by a
+specific cloud operator making use of NVIDIA hardware.  Other vendors
+may implement this spec for other environments.  We might even see an
+implementation of a virtual virtio-net device with SR-IOV.
 
-Thanks,
+> In that case upon probe() of the vfio-virtio driver, we'll just pick-up 
+> the default vfio-pci 'ops' and in the guest we may have the same device 
+> ID as of in the host.
+> 
+> With that approach we may not require a HOST side control (i.e. sysfs, 
+> etc.), but stay with a s device control based on its user manual.
+> 
+> At the end, we don't expect any functional issue nor any compatible 
+> problem with the new driver, both modern and legacy drivers can work in 
+> the guest.
+> 
+> Can that work for you ?
 
-	Ingo
+This is not being proposed as an NVIDIA specific driver, we can't make
+such claims relative to all foreseeable implementations of virtio-net.
+
+> > We can't use the argument that users wanting the default device should
+> > use vfio-pci rather than virtio-vfio-pci because we've already defined
+> > the algorithm by which libvirt should choose a variant driver for a
+> > device.  libvirt will choose this driver for all virtio-net devices.
+> >
+> > This driver effectively has the option to expose two different profiles
+> > for the device, native or transitional.  We've discussed profile
+> > support for variant drivers previously as an equivalent functionality
+> > to mdev types, but the only use case for this currently is out-of-tree.
+> > I think this might be the opportunity to define how device profiles are
+> > exposed and selected in a variant driver.
+> >
+> > Jason had previously suggested a devlink interface for this, but I
+> > understand that path had been shot down by devlink developers.  Another
+> > obvious option is sysfs, where we might imagine an optional "profiles"
+> > directory, perhaps under vfio-dev.  Attributes of "available" and
+> > "current" could allow discovery and selection of a profile similar to
+> > mdev types.  
+> 
+> Referring to the sysfs option,
+> 
+> Do you expect the sysfs data to effect the libvirt decision ? may that 
+> require changes in libvirt ?
+
+We don't have such changes in libvirt for mdev, other than the ability
+of the nodedev information to return available type information.
+Generally the mdev type is configured outside of libvirt, which falls
+into the same sort of configuration as necessary to enable migration on
+mlx5-vfio-pci.
+
+It's possible we could allows a default profile which would be used if
+the open_device callback is used without setting a profile, but we need
+to be careful of vGPU use cases where profiles consume resources and a
+default selection may affect other devices.
+
+> In addition,
+> May that be too late as the sysfs entry will be created upon driver 
+> binding by libvirt or that we have in mind some other option to control 
+> with that ?
+
+No different than mlx5-vfio-pci, there's a necessary point between
+binding the driver and using the device where configuration is needed.
+
+> Jason,
+> Can you please comment here as well ?
+> 
+> > Is this where we should head with this or are there other options to
+> > confine this transitional behavior?
+> >
+> > BTW, what is "acc" in virtiovf_acc_vfio_pci_ops?  
+> 
+> "acc" is just a short-cut to "access", see also here[1] a similar usage.
+> 
+> [1] 
+> https://elixir.bootlin.com/linux/v6.6-rc6/source/drivers/vfio/pci/hisilicon/hisi_acc_vfio_pci.c#L1380
+
+Per the Kconfig:
+
+	  This provides generic PCI support for HiSilicon ACC devices
+	  using the VFIO framework.
+
+Therefore I understood acc in this use case to be a formal reference to
+the controller name.
+
+> >> +
+> >> +	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
+> >> +				     &pdev->dev, ops);
+> >> +	if (IS_ERR(virtvdev))
+> >> +		return PTR_ERR(virtvdev);
+> >> +
+> >> +	dev_set_drvdata(&pdev->dev, &virtvdev->core_device);
+> >> +	ret = vfio_pci_core_register_device(&virtvdev->core_device);
+> >> +	if (ret)
+> >> +		goto out;
+> >> +	return 0;
+> >> +out:
+> >> +	vfio_put_device(&virtvdev->core_device.vdev);
+> >> +	return ret;
+> >> +}
+> >> +
+> >> +static void virtiovf_pci_remove(struct pci_dev *pdev)
+> >> +{
+> >> +	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
+> >> +
+> >> +	vfio_pci_core_unregister_device(&virtvdev->core_device);
+> >> +	vfio_put_device(&virtvdev->core_device.vdev);
+> >> +}
+> >> +
+> >> +static const struct pci_device_id virtiovf_pci_table[] = {
+> >> +	/* Only virtio-net is supported/tested so far */
+> >> +	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
+> >> +	{}
+> >> +};
+> >> +
+> >> +MODULE_DEVICE_TABLE(pci, virtiovf_pci_table);
+> >> +
+> >> +static struct pci_driver virtiovf_pci_driver = {
+> >> +	.name = KBUILD_MODNAME,
+> >> +	.id_table = virtiovf_pci_table,
+> >> +	.probe = virtiovf_pci_probe,
+> >> +	.remove = virtiovf_pci_remove,
+> >> +	.err_handler = &vfio_pci_core_err_handlers,
+> >> +	.driver_managed_dma = true,
+> >> +};
+> >> +
+> >> +module_pci_driver(virtiovf_pci_driver);
+> >> +
+> >> +MODULE_LICENSE("GPL");
+> >> +MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
+> >> +MODULE_DESCRIPTION(
+> >> +	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO device family");  
+> > Not yet "family" per the device table.  Thanks,  
+> 
+> Right
+> 
+> How about dropping the word "family" and say instead ".. for VIRTIO 
+> devices" as we have in the Kconfig in that patch [1] ?
+> 
+> [1] "This provides support for exposing VIRTIO VF devices .."
+
+Are we realistically extending this beyond virtio-net?  Maybe all the
+descriptions should be limited to what is actually supported as
+proposed rather than aspirational goals.  Thanks,
+
+Alex
 
 _______________________________________________
 Virtualization mailing list
