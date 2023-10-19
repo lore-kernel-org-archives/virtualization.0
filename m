@@ -1,183 +1,184 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BC863CDB482
-	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 01:20:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D008FCDB47E
+	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 01:39:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5DEB5423EC;
-	Thu, 19 Oct 2023 01:20:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5DEB5423EC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=MN5l5Fvc
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gfRtruSnUxvM; Thu, 19 Oct 2023 01:20:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B457742263;
-	Thu, 19 Oct 2023 01:20:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B457742263
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 790BCC0039;
-	Thu, 19 Oct 2023 01:20:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DDC66C0032
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 01:20:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B7E37831F2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 01:20:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7E37831F2
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4E4938374F;
+	Thu, 19 Oct 2023 01:39:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E4938374F
 Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com
- header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=MN5l5Fvc
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=HNGkwPNg
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DYQzr5TR2LH4
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kWJ256dssDgF; Thu, 19 Oct 2023 01:39:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 861AD83705;
+	Thu, 19 Oct 2023 01:39:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 861AD83705
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 667FFC0039;
+	Thu, 19 Oct 2023 01:39:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 973F2C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 01:20:37 +0000 (UTC)
+ Thu, 19 Oct 2023 01:39:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6E9DE60F36
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Oct 2023 01:39:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E9DE60F36
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com
+ header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=HNGkwPNg
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MvGPkRyoD9Fc
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Oct 2023 01:39:30 +0000 (UTC)
 Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu
- [18.185.115.121])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 896B8831A7
+ [18.185.115.122])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9AF2060B8F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 01:20:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 896B8831A7
-Received: from 104.47.11.168_.trendmicro.com (unknown [172.21.187.19])
- by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 67B18100004D1;
- Thu, 19 Oct 2023 01:20:33 +0000 (UTC)
-X-TM-MAIL-RECEIVED-TIME: 1697678432.833000
-X-TM-MAIL-UUID: a3c353fc-f5b3-48a8-993e-84e00a2af078
-Received: from DEU01-FR2-obe.outbound.protection.outlook.com (unknown
- [104.47.11.168])
+ Thu, 19 Oct 2023 01:39:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9AF2060B8F
+Received: from 104.47.7.168_.trendmicro.com (unknown [172.21.187.19])
+ by repost01.tmes.trendmicro.eu (Postfix) with SMTP id 1DD5210000079;
+ Thu, 19 Oct 2023 01:39:27 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1697679566.159000
+X-TM-MAIL-UUID: 5eeecf30-b4e9-490c-9d13-879f515c6496
+Received: from DEU01-BE0-obe.outbound.protection.outlook.com (unknown
+ [104.47.7.168])
  by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id
- CB9441000179E; Thu, 19 Oct 2023 01:20:32 +0000 (UTC)
+ 26F4B10006A5F; Thu, 19 Oct 2023 01:39:26 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Jksg8j7VbiqvZIjj4n4ACGIfundryLRjgzBqRPpti1Wkt3sIKQHglXV+YFsR0AGIUPEwTfwCd8ya4vTFhv2bowU4SKNlgK0D1/xKuQMiBDZDs/uqCz8ReeJgYyyGMupskawbQrNs9El8C6NpJDp2fo0SgdlmWr32vpaSzXvITISUAHG2xtkq5Alq9ou0cVj3nZK4yIsrhWNPA0CXhzynPCJij1fCSW9ZWxMdiZwHJ61w40pnehnuJH8vT/ucc/JAX0euvouMlQcquykJWLvIyQIJj1jIWO/t5tBRQQZBdqq7At6+lEF62uGNmRFl5kVv8LNGlND3cC/5YYG8f79haA==
+ b=QxNpZAMXw4ddvDBv7glcb+jMjEwb57uiyso7jh2ZclrmbgqRoizpmNNLC7YHcjJyYNwgHNER2AlyqPDUAgT1Yed5MMXHiG8TTLUymhqqYJLClN6uRrDX5VKlO7ftbLJVeiYwENER/zekaslxZ9O+UZYywd2xghALeBHXK9DZk9QAQIfGOr06k69JZkEV3RDnJecmZoU9F0Axr/Yy8AWPVFA2v94+KWemNoZNnqd0y1yTFAGP9zdNaXjnB4DcMRXmPp6Rcq0NyJckooksIQmgzAVVME+TA8RsWz/kBTAfXvfwSPLfvcQASGXVsddrtT//YsWePlPtxRl97BsLfvBAGw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=gf8ADurVAExiXRWNH/YmTmGeaZLtnBY5G7jHDYYYD+Q=;
- b=O+hXcympS1iT46EPVmCRjC4CAQeO1w229h35D/GeywbBs/z+1wsXrnUxbF24nFBxeOOahhnOruwDqnvPPvpg5xwjnKKXB6E0ihxzMYPyDu0db56+cEZmoV0GsCI+mkKfJBeawMwffOscNvYFSY9leiDfx742+JJOEx3mgNIuq7ojVZNGHYn5hXeX7ZNVR/ic+SOZ+GSqlmBdiuK7xLiJxHut4Dqm2lGFa0rtJ223rzIGFDKasP2S4oEfPn6cELp4uyam3boV96OJ0ggw3L5CQipdNr9VinC2X7lFXt//1oYlQ2SFAvNZI+QB5EyqgZiZbznpNYvSPKE//cG5gAeI/w==
+ bh=NPdJUhKbcqJkqZsEnT8/Jcs6JfSRtpleVgI9nXWUWpM=;
+ b=l8eNlW2hOsBp34DSvTnIWZY49AdhlrNR96gwXqd8V4zhMVVQ3UZCTWkEnfMQtn3LirRZ4iVB4YI+uaIlrsArZl18/0wm+LXWF0dOMixC+GP4J4AxDdGPi1YWiVxRpU3tyJDeKRod2Zn5vpu3ufE1+suyD1aXd8gAfJDLEQUePBpLIaLDQ0CNxNIWpF3ukGk8co/axQBD/gE26obu9hBF/MlS30os0EslGGBgsV8peIcvN/6GPqTw3MD79gsFSL7PIRj83tF9ZLyd63cGVdmqdiUGVXQn2VTfYK2D0HGeJraODlhYPBUBrd84ugpXpWe0OEShuKUKp/UhwZnKdK+qGQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=opensynergy.com; dmarc=pass action=none
  header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=opensynergy.com;
-Message-ID: <e50c5a67-d2b7-4ef1-8aaa-309437fa8cb5@opensynergy.com>
-Date: Thu, 19 Oct 2023 10:20:19 +0900
-Subject: Re: [PATCH v2] ALSA: virtio: use copy and fill_silence callbacks
-To: Takashi Iwai <tiwai@suse.de>,
- Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-References: <ZS+392ZzVIoEyv8n@fedora> <871qdrn6sg.wl-tiwai@suse.de>
+Message-ID: <58aa1223-0505-421d-9849-b4e9344cb48e@opensynergy.com>
+Date: Thu, 19 Oct 2023 10:39:12 +0900
+Subject: Re: [virtio-comment] Re: virtio-sound: release control request
+ clarification
 Content-Language: en-US
-In-Reply-To: <871qdrn6sg.wl-tiwai@suse.de>
-X-ClientProxiedBy: BE1P281CA0369.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:b10:82::15) To FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+References: <ZS6mA6/EsmvDVlTC@fedora>
+ <1a54feab-5de9-4b39-a4ce-7ff22e23cf52@opensynergy.com>
+ <ZS/eDMsOCSatnX90@fedora>
+In-Reply-To: <ZS/eDMsOCSatnX90@fedora>
+X-ClientProxiedBy: FR4P281CA0010.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:c8::9) To FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM
  (2603:10a6:d10:22::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: FR0P281MB2382:EE_|FR2P281MB2330:EE_
-X-MS-Office365-Filtering-Correlation-Id: bebe1dec-514c-4d47-2fb5-08dbd0419649
+X-MS-TrafficTypeDiagnostic: FR0P281MB2382:EE_|BE1P281MB2356:EE_
+X-MS-Office365-Filtering-Correlation-Id: aa49fb0a-c1cd-4212-3a75-08dbd0443969
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: HRM31kLYZxcAm4U1IGgr0hC8POktOxVaybqVaap2Agkf+wRTEv18CXPYrRWaNdzv0jmZhnB2e8amwkGs6UFe3SU12jviod4Gwv2KUBzO9bCULr5qToGZ1fa9iB/uazfmr0IKaD78VDSme+VV4ZTzqYfn4fL2e1Xdi4JlKFRmb7oXY4WilnAGt4eGOG2MyzmjXFAodO7spZU/mVR7vd5gL6KJk/4qBfsU/V2YHuBbK72vLQv2J5TTN4CMz54QkoE0xrTRme+pO+yEXsLG7fiMnGmix59h9zTPI8yR7g47k7XcDhJqcAiK2prHlcrxL6TUK78If1uK51BejOwxnvsMV5V48GZTOTdeWhOsbPbXIYIRCHspU7Q0Dvw6/L1Whm3lz6RkCdCxtgmNG9+rp0WSDXKLjwBR5BqagbKAmNKWmD+rbzndU/rt1b9mu3VJwoyuADJ6oJzQ5gtmhbO6GAJu+XUdm9g494OBwmqLTFDsb3gP1mP2uMjuRRO1kDbCqCf4kHyEZ35PdZK8GonfHl0Li7EYPxG/xuKbuSDd11LG6Fafgm/XY0JIVzvLKZEfJqj7egt2QoJtLgOeiIBT8P/1y3A8+QhllWQtHzGKgfNtq6V775Zm/egvZOfYQa81SUum9GSZch6IrU69WmSQ5kEUHA==
+X-Microsoft-Antispam-Message-Info: VmItJRZaitrabZpGkl8JB0+HAN5HkGygm9gyfWtlJKccODobCvGPAgo1YyYLzcKi2gCFll9oASrRSxhK3wAndo+UgYW06+Kizp4bcDRfYB3Vj2NwCSeXQZnsWMBAuB0yh78IWm8F8ta7NlyfuWclVYr2Wr9YhfwGhAy4osEOAajq7SOChVwP53jNp4zF5VO7oSDfOs1nsvEXVx+C8PpfEeVYRL09ccpwtuGRi+s3D1/XBscUIghThRD5uJAjlewwmw/moEAOwdfwhjzIlhkwzybX7AlIVAip3NbjokRJkXl/4QOJzdLUWr73+OHWGSdjA1vwPlA8kXlsd4Rjn/Fx2m3I6DHQ1852e8bej2pW1c2ivjYpAQAMf7NJ0ifZxNEHc7fvXyI+oM6H7+97ADwt6mvDAlgTTUhgGeml2Y+icr1cvIIbZpFt2vi0wHSQOakXjPaXM0FcYhPqdpJoM5CJdEwSnxAyFYkW9MwCo7Yxgdh1ZlxeaDyi2X78IQEXKcOJL2Au0wySASiqY425KuxyPfHneL5jZpMagqwWM7+inOSkP7TgMiGve/veTOFw7wDUM9kGAht1M8Znwhmtn0x8yZ8THwaTOv+JoJ6e3v2W8zTpPd5dELnMbHZ+a3gqL4nsk5ZjX0+4EIt2E3YDavEamhRCVf3tH8QRXA1YpymhTSkwzZlBmQQC7LSuLdhwoWWw
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM; PTR:; CAT:NONE;
- SFS:(13230031)(346002)(396003)(366004)(39840400004)(376002)(136003)(230922051799003)(451199024)(186009)(1800799009)(64100799003)(66946007)(66556008)(110136005)(66476007)(316002)(8936002)(42186006)(478600001)(966005)(8676002)(5660300002)(2906002)(36756003)(41300700001)(44832011)(4326008)(31696002)(86362001)(7416002)(38100700002)(2616005)(53546011)(83380400001)(26005)(31686004);
+ SFS:(13230031)(346002)(366004)(396003)(39840400004)(376002)(136003)(230922051799003)(451199024)(64100799003)(186009)(1800799009)(66899024)(42186006)(66556008)(66476007)(316002)(6916009)(66946007)(966005)(478600001)(2906002)(31696002)(86362001)(36756003)(5660300002)(4326008)(8676002)(8936002)(41300700001)(44832011)(2616005)(26005)(38100700002)(53546011)(31686004)(83380400001);
  DIR:OUT; SFP:1102; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bU5MdGFGOUxPcUhuaFU5TWF5U1h1MldVaElMRFp5d2k2RW52NXZtRFN1Z0lP?=
- =?utf-8?B?QTlZSnozcTgwQ09GOHBXYTRoaXh5Myt3VnNyYTE5aXBFUk5QOEVnTHQ3SHB0?=
- =?utf-8?B?RFpFcHVKdWdoOEJzUjB3ZFYzRkt2NkpTakNxNjdnMFlUQjFNRFBIUk5oOHlT?=
- =?utf-8?B?M1NwYmJHS0lDMmorY0gxQzA0Z2ZoQzgxMWdJdlRRNXh1eXBnK2FNMmJkOE9a?=
- =?utf-8?B?dmp0Rk5ZUjQrT0lXWnVNQkVnc0ZGNk1jSWRGUFo5NVhnZWY4Z1AraWloQkRi?=
- =?utf-8?B?Rk55djdEVGMwNHluZ2FaL3dYK3dQemRhSVozYU9ITEVyQlJ3MmtUczNYTU04?=
- =?utf-8?B?ZjAyL05KTDJiOFdBbWJ0WGxpczBtdGR3ZlRkcmVlNERtcVAyUEUwaTJOc1hD?=
- =?utf-8?B?VXkzM2QraDlBaWxvOWVoRFo2QmNkTG1XOWhJRkJFM2RXZ3VhMk0ybmdEaGRj?=
- =?utf-8?B?WHh3UnRncDRnVFZJdUEza3AzSlJJbmVRRlpmWUxReFJqd3N5RmJQVXduMWdH?=
- =?utf-8?B?QSswZ1JDUUdSRFByKzRjblFOTFBLQUN3eVJaVkU5dFcrQXR3WVR5V1FkUCtF?=
- =?utf-8?B?ZkFQQTNjb1RjNVZCMkg3SnA4dkNReXh0ZC9BUGQ5bXo4STFqSWViN1JDSTZI?=
- =?utf-8?B?Z1RNdEczMGkxd1dDSDNraHRwWmExUjJVU2EycnpNN3JRN0xZaFFsZ2hJY3dG?=
- =?utf-8?B?a1pzQSs0WnNLOHp6cUplMzhmWm9iQmcxSnE0Rlk5ODZ1YTB3bzhYSWtqRlFI?=
- =?utf-8?B?bXZhTDEzMGFJMTI4a3FOYUhSUmwxTng1NnZaaWx5NWo5VE9WNUt6S0tkbEt5?=
- =?utf-8?B?c0FRc0lFaks5eHZXMnZXVWUwVkdSTHVZN056akprbVJLLzB3QVdNOGFzd2RO?=
- =?utf-8?B?dVg5cTlvRjg0alJ1Zm1FeE9ROCtMNlUwYm9DT0FqSURLcVVoak5FVzJlZDVk?=
- =?utf-8?B?UjM5Z3ZISGVqdkdSVEsrT25mdCtDQWtNcisraXF2dmZ3SDZVRnFyRk9rVGRp?=
- =?utf-8?B?MHNOQU5LUFdaenZFdENubmNlSHVvaS9mVkRhTEV4TE9CNzZsWWxJZHRmNStm?=
- =?utf-8?B?TEhia3g5VUgwcDNXZE95L21MbXcyMHVNM2lxR3R3UVl6VDg4cDVDRW5PTmpE?=
- =?utf-8?B?WlhYY3dUOGIxNHFURXF6ZTNHK2t0REN3VytvUmtqQ21tRmJVTDNhL2RXMGtT?=
- =?utf-8?B?Q1dNNUhpOTB1TGtwTkNZYy82VmhFSXQxQk9WdkJkN3RuVFYybWdoVUd4NERS?=
- =?utf-8?B?eGxPWHlsdzdHN3pQL3pFUC90NjVqY21ZdnBxWXZiejZJK1ZTNWJCMnlLZHNp?=
- =?utf-8?B?R3BzY0pDd3E0aDhNaVpucDNUL2kvWkxjREFDeWE1blZGd0NzcWpOQ0xQKzNH?=
- =?utf-8?B?emVtKzBYUStwelNaR0RKNHV1ZHY5amFBNnM0MVAvY1VOY1VTTytrYjdURU1H?=
- =?utf-8?B?SkpMdklacGNxU1gyV1I4SG9UNEV4V0VyUE9FMnZoeXB6TGNhNlVSeEtoMDlW?=
- =?utf-8?B?N3Z4RTRsUDRuN0hRUEgwZ0hkRmQwWEo4Tm9aL050djR2NGpDSGNGWTdqZ0Qz?=
- =?utf-8?B?M2dRWUN1VWFhOEdid0MyekxoSVpGRTREOThBRmh5T2JOYXdnYUtGS3A4Sno2?=
- =?utf-8?B?azhPNWRQQkVacUJxSTd4TGJlTkdLeFRRTmJFUEZFN24vNjZjQnV5VWlmeWJm?=
- =?utf-8?B?cDdwMDdJMFJZeU5DWXY0M0RuOEJsQXAxVklBR0s3L1JDb29QZkE3NGVuNytp?=
- =?utf-8?B?SEVYVzBrQ1VJbHVWVkJ1Z0lMUW5FVjhmSXRVeVk1aVY1TG4vYVpHeVR6c1BS?=
- =?utf-8?B?MXBITWpwek5YZjI2L21EbjBkWmtidXhBUHBvdGlSNmNiV1g0dERjdzVGKzRI?=
- =?utf-8?B?NFRyNnVML2h0Y0JsWnlobE1jdHRlQy9nUDhBanJRSG9LWThZakFUZ0VqdXpn?=
- =?utf-8?B?OGNpaTQ0Si84NHM1c05ZeUVxbFlVS05pbnFKZ3FzMVFKRUdnNTlMdURzVXdh?=
- =?utf-8?B?ZWRSWFVrZSttNllDTWdGbVZkUUlwZ044R0R3QmpqemR5bCtLbkpvb21kNE9R?=
- =?utf-8?B?K2w0Z0FJVTVVSTV6NGxEeGZFUGl5ajlOVHAxVjVYVWJ4V013azRseUdMeXpz?=
- =?utf-8?Q?t3D9KhRvGnxBGyrn4Vg/GXlDr?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?NkZ3NG5TZm1rSE02WTg0QzhEVzJpSFA0dWV5bWh3NVBnMVZZWXkzck54d0Jr?=
+ =?utf-8?B?SkRxVDZ2STRzOEVSb3J4OWErajRxUUJhRnl6dXNYejJLcCs4OEtEMEUvMnQx?=
+ =?utf-8?B?bEtXYlNWcWZHNGd1RVZzWWtCVEJ5Tyt3RVVuOUpyM1h5VHdKREZlUlZ1KzQx?=
+ =?utf-8?B?VTR6MHlwQW9zTjd4RkNFTzcySlFrTUM3RThoeWFVc04rR1RCRm1DanpMTS9J?=
+ =?utf-8?B?QW5uZVVBT1A2d1pLWjZPdG0wR1lIYmxPQmI3V2JxR2VZdGRYbHdYSXhjNWM1?=
+ =?utf-8?B?alp2am0wZGhpM1hhakpiTmliRHdqUk5vQk1UZkp4bGZCMTRXVmVmZTF4VG1m?=
+ =?utf-8?B?UzQ2a2RQOFU5V0h3aml4d1dhR0pXY1N1V1FvR1dIMEYyMklsVHlLQ3VpNzlk?=
+ =?utf-8?B?TXc2K2F6WCtGTDAvY2FzVVdyWko0L1VOSkwwWE9CZ2FsRnFkNHpybkN1Y2ho?=
+ =?utf-8?B?bVVBT1l2TmlDVGdmeVRTYUljVytWdUtDK1pQSVRiTXRjYXBibU4rVy9QRWk5?=
+ =?utf-8?B?RytxckIzTDRYUFozZTVDMTZPb0NMa2dsa29ENEFJbklxazdnZDdNclpYWm1p?=
+ =?utf-8?B?SnIwR21KREhHOUJnQ3FFTk5sWWMwZk93eEZuVk1UNERaVk5VVFFXUlYvcXND?=
+ =?utf-8?B?RFZxTDI4T0ZBRUNralhtUGRuWjVwbi81NFlBNGp4dU5DSFZsbUtZSXlvWnBZ?=
+ =?utf-8?B?Zjk0bzBWWm5DZldrNk5oMUJxM1RpTmsrbmx3THR3L1dGMDNlWUJ3VVlSbGdv?=
+ =?utf-8?B?NjdoSzVoajEza2Y0U0lSdVNKa2h0TVBZQnhYaGRqa0FadjY5QU5OcTY5cVJ5?=
+ =?utf-8?B?Ny9udkI3NG1qakR0Tk9jY0N2L2RZLzdwQ1RBYTdENjEwamVKZ3lOQURUbTRv?=
+ =?utf-8?B?VlpIN1FHaW1qUVBDV1AxNmkwK3h5RWtZZTBkZElDcnVRaGJpaWlxR25INkk3?=
+ =?utf-8?B?a2dJRFMrdVZWMmI3VFo5ZHNtbDI1Ky8xMCtnTnE4eHozVU9xeW1IdCtpZ2JT?=
+ =?utf-8?B?blhnSEZXYzF4YWlDbE1FNlkvWEVDMFFQak1lRnhSVllVTjU4ZVZFZlZuK3Rh?=
+ =?utf-8?B?Q0NKN2RxR2hlRVZRMGVkYmd3Qm44WHY4aTk5Sk8wMjc3MWt1OHRPbFlBTU1t?=
+ =?utf-8?B?SGdqdWtsYlE4OXVqY3F1ZzRzbUhXMkkzMGRuWU9EWEdSK3JFS1NSZzExS0Fk?=
+ =?utf-8?B?b1lEeWQ5MXZGa3ZhM0wybXoydzFCUUwzUThteVRGWHNIbFNLYUNNTFI0SFZX?=
+ =?utf-8?B?eXU5cWh2UTg0d0lLVlp6anRFRjZHZHpEa1BpZUluUG5aZ2ZsYWYxZFJ6TldQ?=
+ =?utf-8?B?SmpKZ29TWWloRDF1ZXh6WktTVlY4VTdkT3lHak1WcmhGRUg5b1RCeHlMTzE0?=
+ =?utf-8?B?Q1ZQckR6UTBPbS9Rd0FiVHRreG8wTWJSbVN0blBMa2QzOEtXbnBnQmN2TFpL?=
+ =?utf-8?B?MWp2TlNuVjU3M2RuSlJzY0RGMzNoWGhkMmwzdnNiTU84U0RROXBIb1pkWExR?=
+ =?utf-8?B?emdBS1lWdlJma1NEZitoVkVIL29GWXFoQnpOYVhaR0pjMlV0ZEE5eFNuWC90?=
+ =?utf-8?B?OVZ3WnI5d2lpTXg3TTcwU004eXV1UFhqemRSM0xGYmkycjgzQkFkMWQ5SDF6?=
+ =?utf-8?B?dGJmdlJSSUhCRnQvbFl2Uzg2ZDFhS2ZFMHlaTjdYdHY4STQ4MjdGOEk1NHc3?=
+ =?utf-8?B?RllncGVnUHQwWVFYUEhwQVRMdm5LU0QxRmMwdlI5d0xSc05ETWpGQllla3hI?=
+ =?utf-8?B?RjVBY2hzdEpOZ20rN2VwWjFiMktNemtVTWNxRzMzanY2SkZSU2ZZeHRpQndR?=
+ =?utf-8?B?ZGFkVGdxYy9tRGhtcnJ2cnBoSHdOZ2hvVDdyTFFTZ2pMZmcvV2gvNmxKZHd5?=
+ =?utf-8?B?OWFubnRIeTVqV2picjRIYmpyRzhPWUhIMzduK0FuNCsxZTF1RUgwVUxlMmN4?=
+ =?utf-8?B?dkFIREhXeUVZaUd6VDJHdk8yUGNhTjI2ajFhTklRSHE3ZVpCWW9YblZodHRy?=
+ =?utf-8?B?WlZMcXVPdWMwWHA5Q3BuV3Mramkxdm1sdmFHM1MzazNNcmpwMTFFMzZGVWVl?=
+ =?utf-8?B?OHdBUjUvV1R4SUFickJURUxja0FQZTc5WG1MSGduUGU1ODlMUWRRZGgyQWRO?=
+ =?utf-8?Q?1OL5l6LX4K/et6KnA10HZwTlV?=
 X-OriginatorOrg: opensynergy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bebe1dec-514c-4d47-2fb5-08dbd0419649
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa49fb0a-c1cd-4212-3a75-08dbd0443969
 X-MS-Exchange-CrossTenant-AuthSource: FR0P281MB2382.DEUP281.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2023 01:20:31.7167 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Oct 2023 01:39:24.3403 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bS7tR2gJvvjDPvpND1pyLvKAoMJQfLJsqXVmzBkV/LRzeY76638/Yyl4IwWKeuEvsHXamFAWtJ5dvlXV6YFDWQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: FR2P281MB2330
-X-TM-AS-ERS: 104.47.11.168-0.0.0.0
+X-MS-Exchange-CrossTenant-UserPrincipalName: GJwB4JcGPbMMcooQ76qcFDnwcN+Jiw0ZgFpZ5vcPs0hR4EBCaQMcUEJTm7xWJV8PTt0x+yQc4Kj1bDPZ7aFAvg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BE1P281MB2356
+X-TM-AS-ERS: 104.47.7.168-0.0.0.0
 X-TMASE-Version: StarCloud-1.3-9.1.1015-27944.003
-X-TMASE-Result: 10--27.350300-4.000000
-X-TMASE-MatchedRID: 0+daXaNUWRV6u8Ra7Bkp4ww4DIWv1jSVbU+XbFYs1xLykUQ3+1QpKU3S
- C9bkE9YyNr5aA8MV0XkcydMA6f+1WPujgI8W3VQdrf03Gvoif/fn0oaU6WM++6WXeo1JBrZgw5n
- Zy2X+Nx7e+5l0TSAQlxCNJOxfs3EOC5yGwbf+IdgsJRkKgHlrKG8lDAHJQfo4uxtkhcNHU8oUS+
- eIOZZCPodKFEXU7ctQ12qbvVPRySQoDQ4wSBO3SRdLtszs/yIYEkUS8Erng9q2gwaXPtBp+ya2Z
- Yhi6NLbDbopmLJYchOBariVNrrFRXX/e6Wwhp/J6x+Q+uPsJqpxd2b9FYfw7aFRWC8HCKx2feEy
- sJu+yTJopHFvth7VZA5pdByl/RFheQczFQh2XEsD7AbA+ThQk9ztvqTn5fr3MCyfT2VAUIXaiin
- ot3yvwUI5EMS4xHCcY6NiQNWkjVsldkOpPw3c45/KMn5sGLoglZroRtOiCG2L12p7cZqBWHUhg4
- grojSzdl50cfr3QRNKV13hwcvu9uPXzq8/z8gYsX4aFYAMIYOVlsxwvB691Zq9yKH2z9zouhCa9
- ZJvTFsnCwTCNGqnQA2HX3i8MKsscRyh6V9KDHJyIoQdDbaH+hSqHA2q+Ri179D5zLNFLFFDmpWA
- k9AhwYGwjJO9Z+9p6xA0Ava73nAPm15xyht8lcTvQx6Ny2Cr+sMesHlgpMuEJNgyBSJlsiqhjeL
- NyvT7eG3erYjBbl1+3BndfXUhXQ==
-X-TMASE-XGENCLOUD: c6379135-309e-49b6-b3d0-d057082d082d-0-0-200-0
-X-TM-Deliver-Signature: 4E2E8D0F4B9F376DEBC124A174A1973B
-X-TM-Addin-Auth: GAEFCnFsah310md1HnB79FGLTgvFkLFYnX5KZbrz7oYI/thXkI6K0PUxtN0
- gT67t5te0QpzMI1HWVolbutRaBxr3339ouSmc5fdPohimgU9eGy2fx8HCQX+r5/L5OEPGfD8ffj
- 42b5cpOfcRsFFTPHflVYWyyl9bONuG20NxEdlISjtxR3slFfpVKxgUrmFADz3fw+AGfQgb3NM/Y
- Y3ozht1TMPH2RMRTfV0yk8/cO2UDST9xh36bbSgFLC2dC33607eTxIeGkXeLtmm+7ewvErQAVuR
- pJRzah7Bd+q0gtQ=.DkvDMS0yeHgYnKftnsFg/oqf4hB02/rcMaAcDbeHRFhvzGgqCg1ciqh3G/
- K8ERrKIpnbHs6zFqjGLxppIt1WTNKPPDlOQ0WWpK5vlkW7LQV6iHZBuSG3sR26o/GPTa2qv0M8W
- zGjfk8iQfcU1692rilFYe7YZw9+cbliu24EMq1WYs/TDAptZ+SkErnWgM0XnRe8FSQ+bPHtuS3c
- j32Rl0X7LtP5zqGm2PjB38eRq5+grhce9Urqn8wy0w1J8GU/QvZrauU01gMtpA6TYUaOByKXvvx
- +taLEowRtZGkBiCwva+qVG3SswUOjhqZYbXCoBglutCG59DNyFJRu5RJwzw==
+X-TMASE-Result: 10--35.247300-4.000000
+X-TMASE-MatchedRID: B0+RG8xpjtRTzAVQ78TKJRhvdi92BBAu+HAk4j3F9/Q32MNYHthSkwZz
+ +fefjHSkd8BegXzERwu1KXAvR/p0L5BRGqI1sleG7PuxPfP7XCDn0oaU6WM++z4/QEVYRSrU5TY
+ gPdEFG8nYEvcMGOKsuuqDZoOj0iDIswRgP3pwMhJKZ5/rkg+kiIHV87ajhAZwgP0eEH5XmXOZ/c
+ ElhY3jtkUW/HQdfZuXHrdltiBAOOYseEVv9y7iCqniWcyxO9yFOteHVGUMZ+CLqBSGNAUF/jRGJ
+ noK3ysiVcxKuLJmfajKGm4i8OqQ4MnKzQVv22Mmn8oyfmwYuiASlFBwyvSaLjnirt1Adl4grhHk
+ j0hiSu3ze8xLKFK1Aru1kW+n07sPJ7YYCxl68IEF7eh/bG4q+BNyPXhHYGDrQg/DWi2s2tEojxA
+ NJtkcjuxOIXDujLQWBPCWjDMeq+3WUlSIdhd0iUF4BLa02hGBFQ/jDVQKXn4zf8BjZjQSE01w0v
+ HMvWkXlY8Ey34RTAyq+oRn9TlAHE3CnMPBXN22+wgn0U2OrUj2TdaXZpTzp6FRWC8HCKx2feEys
+ Ju+yTLDo6MsU9GwCtT0W8Wz+F3lSG9DTGXldcC6CwqDeGCczAGKwuA7BUnHxW5XYZNHONrZv66s
+ fcfywy1UkG2v3wxhQXYl80lP/n/NbHr9UzU803EayD3+TWEcMBiUeMdCj3Ypw3Xj/9GnTKZz8GE
+ Wk+EwC3kRdPWoAzF0lxBjNKrrc4n8kUCxEWNKQj0AQ98QP92jg0lrtKMWyg2h/xVLZG6HTvOSXK
+ E9MP3p9F0NCWHmGKuJLXQ+r452oli4ZoiOHT/pP8tMOyYmaA==
+X-TMASE-XGENCLOUD: 9f146a65-a0a6-4f9e-83b0-4bf1f5f85d34-0-0-200-0
+X-TM-Deliver-Signature: D110E3E71C2B10A5BBD63F112A3FF82A
+X-TM-Addin-Auth: IlzwLTcs0tO/eU0rVYZ9N2g3k1IEFMC9ycI03ympCrF2yyKeYERwQmQUe8X
+ UazheOcnymTj1esIcPMd6wg0pk98Kx84YkBcn+8fEREKoPlUl7zw/CRdrthwcT93MvwaOvkXW1F
+ v2Nth7CVA/Ie+sSk+tA51cg9kRckWN9A5bor0Tvyms2y/spGVksozgGptQad1eTMLDlng2blze9
+ zYHk4m8OBb9esnOKAwrZ56mpEd/yXcQjbxrZ2WizEK/Fqo7pAY2a5D8pr8XeL0iTmYXAG2Gnls/
+ 7Lx57eY8GT0HFAQ=.pnzkaKyuconswhrPKz/1Z0MtKo3XvfW4Uw7nIEUG+MK+f6k8JnXg3Hn+So
+ +gJ8DibqiVVvIaaMhZ9CkpKLdbShD1HpaNqUT9RWVhRwhxI2jEfWCTKeuVwdqD4NyXf759aez/h
+ L3DYIGysMeB6/U6j6vdQJ/8VxA8n6EcXMOpFWZJyj/+4LZVa6CAXCcivOo8KxXlfh+/bKRuIy8E
+ /g2vQpUFSgPr9VqmB9eWWhAO9FH4ny9rO9mq3Eoy/L53d6PPrYBEedVbDpVJLakHc1ZDOYoMgGH
+ +NqWZSDemGHE0UK9nXsHsYrDRR30WemH8iTpbRxaytvtqmqvVOjRGrTSuQA==
 X-TM-Addin-ProductCode: EMS
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
- s=TM-DKIM-20210503141657; t=1697678433;
- bh=eVMFAFdoIfvrqzVhsneZDt7MOvUdX2fbf1KdxxiXDWE=; l=5010;
+ s=TM-DKIM-20210503141657; t=1697679567;
+ bh=Mg7YqcynHHlfyBHjo2bV/aho2b8B8QTAEKBm6Ndv8tQ=; l=7823;
  h=Date:To:From;
- b=MN5l5FvcvXdFupw3he6UL0jUZ7yJGlD+M1Rfc4MY02LvqBVOBLmAZQ0wWlYh5umpB
- Z2rOYWgFl+mCnsjkOL5kAJrLW3ddX3WIRGTpcacYT4m48s6bOK1kcaDfYFsasx61Gz
- tbFXHGOhHl9wxxMt11rVbp6ymq/AWlq24iAn6XcpdAZRLl+PWb1560OwIt4ul1Oqhc
- hSdhGagRWwSn4RqY8/G0FrtoIx08BbohhXqv9841M8qUaQdY6ExHfBahVybGKRzgvc
- iBfwVaDJPjpDRn5nJ89fgDq19LRi7KpqpELk7jCIorIpsX5W9dNIviStlXK5fEAd8z
- AgLvu8OWLBEDg==
-Cc: alsa-devel@alsa-project.org, mripard@redhat.com, mst@redhat.com,
- tiwai@suse.com, linux-kernel@vger.kernel.org, perex@perex.cz,
- stefanha@redhat.com, pbonzini@redhat.com,
- virtualization@lists.linux-foundation.org
+ b=HNGkwPNgkWCcJoQhoUaTuC5BAUMbYa5T8RHgqEaXUDg9wxEWMXBLTM+r7Hv9p44hB
+ xBwoy1wfBRwfnBnZlZ+Ze9mwjm/IbyNFWS4vnl/486Bo4KH6nke4Baai2+4vFdhErf
+ J1/0UWNeM/uVp0W5tRvuZEyI/kb7xcOeZrgi4oDvMgHJ/V6Px5vG67GAfpqhsWDt89
+ zBA9BjMpR5ZOd+YXvavLnH+x/B70oCZuzgy2Oso5C49JFCHzItW0DQL/y7bxqYMpv6
+ 40sszW1/nVZdERTXsIiQosIaIhU4XlC8HxLh7GBiP/cUzZIckz1Kq/M6ogxMXov/RR
+ SvRacRfydlU5A==
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org,
+ stefanha@redhat.com, virtio-comment@lists.oasis-open.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -197,111 +198,158 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Takashi,
+Hi Matias,
 
-On 19.10.2023 03:07, Takashi Iwai wrote:
-> On Wed, 18 Oct 2023 12:48:23 +0200,
-> Matias Ezequiel Vara Larsen wrote:
->>
->> This commit replaces the mmap mechanism with the copy() and
->> fill_silence() callbacks for both capturing and playback for the
->> virtio-sound driver. This change is required to prevent the updating of
->> the content of a buffer that is already in the available ring.
->>
->> The current mechanism splits a dma buffer into descriptors that are
->> exposed to the device. This dma buffer is shared with the user
->> application. When the device consumes a buffer, the driver moves the
->> request from the used ring to available ring.
->>
->> The driver exposes the buffer to the device without knowing if the
->> content has been updated from the user. The section 2.8.21.1 of the
->> virtio spec states that: "The device MAY access the descriptor chains
->> the driver created and the memory they refer to immediately". If the
->> device picks up buffers from the available ring just after it is
->> notified, it happens that the content may be old.
->>
->> By providing the copy() callback, the driver first updates the content
->> of the buffer, and then, exposes the buffer to the device by enqueuing
->> it in the available ring. Thus, device always picks up a buffer that is
->> updated. During copy(), the number of requests enqueued depends on the
->> "pos" and "bytes" arguments. The length of each request is period_size
->> bytes.
->>
->> For capturing, the driver starts by exposing all the available buffers
->> to device. After device updates the content of a buffer, it enqueues it
->> in the used ring. It is only after the copy() for capturing is issued
->> that the driver re-enqueues the buffer in the available ring.
->>
->> Co-developed-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
->> Signed-off-by: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
->> ---
->> Changelog:
->> v1 -> v2:
->>   * Use snd_pcm_set_managed_buffer_all()for buffer allocation/freeing.
->>   * Make virtsnd_pcm_msg_send() generic by specifying the offset and size
->>     for the modified part of the buffer; this way no assumptions need to
->>     be made.
->>   * Disable SNDRV_PCM_INFO_NO_REWINDS since now only sequential
->>     reading/writing of frames is supported.
->>   * Correct comment at virtsnd_pcm_msg_send().
->>   * v1 patch at:
->>     https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2flore.kernel.org%2flkml%2f20231016151000.GE119987%40fedora%2ft%2f&umid=2f305b77-83e7-47b6-a461-a8ca67d0bfe2&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-2d5775265e7e1741ae8eb783a3cb78ed553093c1
->>
->>   sound/virtio/virtio_pcm.c     |  7 ++-
->>   sound/virtio/virtio_pcm.h     |  9 ++--
->>   sound/virtio/virtio_pcm_msg.c | 93 ++++++++++++++++++++++-------------
->>   sound/virtio/virtio_pcm_ops.c | 81 +++++++++++++++++++++++++-----
->>   4 files changed, 137 insertions(+), 53 deletions(-)
+On 18.10.2023 22:30, Matias Ezequiel Vara Larsen wrote:
+> Hello Anton,
 > 
-> Most of the code changes look good, but I wonder:
+> thanks for the response. I added some inline comments.
 > 
+> On Wed, Oct 18, 2023 at 10:06:05AM +0900, Anton Yakovlev wrote:
+>> Hi Matias,
 >>
->> diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
->> index c10d91fff2fb..66d67eef1bcc 100644
->> --- a/sound/virtio/virtio_pcm.c
->> +++ b/sound/virtio/virtio_pcm.c
->> @@ -104,12 +104,11 @@ static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
->>   	 * only message-based transport.
->>   	 */
->>   	vss->hw.info =
->> -		SNDRV_PCM_INFO_MMAP |
->> -		SNDRV_PCM_INFO_MMAP_VALID |
+>>
+>> On 18.10.2023 00:19, Matias Ezequiel Vara Larsen wrote:
+>>> Hello,
+>>>
+>>> This email is to clarify the VirtIO specification regarding the RELEASE
+>>> control request. Section 5.14.6.6.5.1 [1] states the following device
+>>> requirements for the RELEASE control request:
+>>> 1. The device MUST complete all pending I/O messages for the specified
+>>> stream ID.
+>>> 2. The device MUST NOT complete the control request while there are
+>>> pending I/O messages for the specified stream ID.
+>>>
+>>> The 1) requirement does not indicate what "complete" means. Does it mean
+>>> that the pending I/O messages in the tx queue shall be outputted in the
+>>> host, i.e., consumed by the audio backend? Or, completion means simply
+>>> to put the requests in the used-ring without consuming them?
+>>
+>> Here "to complete" means moving the buffers to the used list in vring.
+>> Technically, the specification only requires that the device "return" all
+>> referenced DMA memory to the guest before completing the RELEASE control
+>> request. What the device actually does with these I/O messages is
+>> implementation dependent and is not within the scope of the specification.
+>> Thus...
+>>
+>>
 > 
-> Do we need the removal of those MMAP features inevitably?
-> Usually mmap can still work even if the driver implements the copy
-> ops.  Those aren't always mutual exclusive.
+> Thank you, I got it. If I correctly understand you, after RELEASE is
+> issued, the specs specify only that the device should "return" all
+> buffers or "complete" them. Device implementations MAY or MAY NOT
+> playback them. In other words, the specification does not specify if
+> consumption should occur. I had interpreted this to mean that the guest
+> intended to output those buffers, leaving the device implementation with
+> no option but to do so.
+> 
+>>> Regarding 2), I interpret it as "the device shall wait until all I/O
+>>> messages are proceeded to complete the RELEASE control request".
+>>
+>> ...you can do this way if you really need to.
+>>
+>>
+>>> Currently, the kernel driver seems not expecting such a delay when the
+>>> RELEASE command is sent. If I understand correctly, the kernel driver
+>>> first sends the RELEASE command and waits a fixed amount of time until
+>>> the device can process it. Then, the driver waits a fixed amount of time
+>>> until all pending IO messages are completed. If the device follows the
+>>> specification and waits until all messages IO are completed to issue the
+>>> completion of the RELEASE command, the kernel driver may timeout. The
+>>> time to complete N IO messages in the TX queue could be proportional
+>>> with the number of pending messages.
+>>
+>> The default timeout for control requests in the ALSA driver is 1 second. In
+>> theory, this time should be enough to completely reproduce/fill the 500ms
+>> buffer, and complete all requests, including the RELEASE control request. If
+>> the device fails to do this, then most likely there are some problems with the
+>> implementation.
+>>
+> 
+> Thanks for clarifying. Sorry to repeat myself, the point I want to make
+> is that the virtsnd_pcm_sync_stop() function that sends the RELEASE
+> control request uses virtsnd_ctl_msg_send_sync(). Message timeouts are
+> set up by the "msg_timeout_ms" module parameter. The timeout is the same
+> as for other control requests, such as SET_PARAM and PREPARE, but these
+> commands do not require flushing a queue, so I wondered how the timeout
+> could be the same.
 
-The driver uses a message queue to communicate with the device. Thus,
-the audio buffer is sliced into several I/O requests (= number of
-periods) of the same size (= period size).
+In general, I don't think it's possible to scale/adjust the timeout value for
+any of the control requests at runtime. You pointed only at the RELEASE
+request, but depending on the device implementation, other requests may also
+take an unpredictable amount of time. For example, if the device communicates
+with an audio server over the network.
 
-Before this, all such requests were enqueued when the substream started,
-and immediately re-enqueued once the request is completed. This approach
-made it possible to add mmap support. But for mmap there are no explicit
-notifications from the application how many frames were written or read.
-Thus, it was assumed that the virtual device should read/write frames to
-requests based on timings. And there are some problems here:
-
-   1. This was found to violate the virtio specification: if a request is
-      already in the queue, the device can safely read/write there at any
-      time.
-   2. It looks like this breaks the use case with swiotlb. Personally I'm
-      not sure how the application handles DMA ownership in the case of
-      mmaped buffer.
-
-To correctly implement mmap support, instead of transferring data via a
-message queue, the driver and device must have a shared memory region.
-We can add mmap in the future when we expand the functionality of the
-device to support such shared memory.
+Therefore, in order not to overcomplicate things, a single more or less
+reasonable default value was chosen. Which is also suitable for RELEASE (see
+my thoughts above).
 
 
 Best regards,
 
+>>
+>>> In our device implementation [2], RELEASE is handled as follows:
+>>> - Drop all messages in the TX queue without outputting in the host.
+>>> - Complete the RELEASE control request.
+>>>
+>>> This seems to be working, however, I can observe that sometimes there
+>>> are still requests in the TX queue when we get RELEASE. Those requests
+>>> are never reproduced in the host.
+>>>
+>>> My questions are:
+>>> - In the specification, should we modify it to clarify that all pending
+>>>     IO messages in the device are discarded during RELEASE, that is, not
+>>>     output to the host, but signaled to the guest as completed?
+>>
+>> No, we shouldn't. See comment above.
+>>
+>>
+>>> - According to the specification, should the driver wait in RELEASE an
+>>>     amount of time proportional to the number of periods yet to be
+>>>     reproduced?
+>>
+>> This is purely a matter of driver implementation. It is possible to implement
+>> the driver without timeouts, but this would be a bad idea. Because bugs in the
+>> device could lead to an infinite wait in the kernel.
+>>
+>>
 > 
+> I agree, thanks.
 > 
-> thanks,
+> Matias.
 > 
-> Takashi
+>> Best regards,
+>>
+>>>
+>>> Thanks, Matias.
+>>>
+>>> [1]
+>>> https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fdocs.oasis%2dopen.org%2fvirtio%2fvirtio%2fv1.2%2fcsd01%2fvirtio%2dv1.2%2dcsd01.html&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-411b9d1d7b38e7727e6478284b6313d5ad82f5a5
+>>> [2]
+>>> https://github.com/rust-vmm/vhost-device/tree/main/staging/vhost-device-sound
+>>
+>> -- 
+>> Anton Yakovlev
+>> Senior Software Engineer
+>>
+>> OpenSynergy GmbH
+>> Rotherstr. 20, 10245 Berlin
+>>
+>> This publicly archived list offers a means to provide input to the
+>> OASIS Virtual I/O Device (VIRTIO) TC.
+>>
+>> In order to verify user consent to the Feedback License terms and
+>> to minimize spam in the list archive, subscription is required
+>> before posting.
+>>
+>> Subscribe: virtio-comment-subscribe@lists.oasis-open.org
+>> Unsubscribe: virtio-comment-unsubscribe@lists.oasis-open.org
+>> List help: virtio-comment-help@lists.oasis-open.org
+>> List archive: https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2flists.oasis%2dopen.org%2farchives%2fvirtio%2dcomment%2f&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-a481d373f80a6c1b5882e1f0170a0687329391b1
+>> Feedback License: https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fwww.oasis%2dopen.org%2fwho%2fipr%2ffeedback%5flicense.pdf&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-9797dad096ce101e2ddeccc4601649f954e89c09
+>> List Guidelines: https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fwww.oasis%2dopen.org%2fpolicies%2dguidelines%2fmailing%2dlists&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-e529fd6878ce2da5bc6d951687d9f90e34808b1b
+>> Committee: https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fwww.oasis%2dopen.org%2fcommittees%2fvirtio%2f&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-afc2604472b6094aee00bdd9a5aa0a65d12f7e19
+>> Join OASIS: https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2fwww.oasis%2dopen.org%2fjoin%2f&umid=d5297ffc-9da6-41eb-a09f-b57cd7282232&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-cae044bc06deaf94443835e5f72f10909d5abeec
+>>
 
 -- 
 Anton Yakovlev
