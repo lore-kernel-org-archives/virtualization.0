@@ -4,106 +4,86 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DEF13CDB482
-	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 04:24:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 53868CDB465
+	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 04:41:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5E745820D2;
-	Thu, 19 Oct 2023 04:24:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E745820D2
+	by smtp1.osuosl.org (Postfix) with ESMTP id B961383AA6;
+	Thu, 19 Oct 2023 04:41:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B961383AA6
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OwrV3AAl
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au header.a=rsa-sha256 header.s=201909 header.b=J6FyjU8Z
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Bb9O8M4DiCTB; Thu, 19 Oct 2023 04:24:11 +0000 (UTC)
+	with ESMTP id Jds2MjVYfh_h; Thu, 19 Oct 2023 04:41:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BEDE282089;
-	Thu, 19 Oct 2023 04:24:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BEDE282089
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 38A8283A90;
+	Thu, 19 Oct 2023 04:41:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 38A8283A90
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9338DC0071;
-	Thu, 19 Oct 2023 04:24:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DB386C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C0C0C0071;
+	Thu, 19 Oct 2023 04:41:52 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6A2F4C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 04:24:08 +0000 (UTC)
+ Thu, 19 Oct 2023 04:41:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B7110821C5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 302C341D18
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 04:24:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7110821C5
+ Thu, 19 Oct 2023 04:41:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 302C341D18
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=ellerman.id.au header.i=@ellerman.id.au
+ header.a=rsa-sha256 header.s=201909 header.b=J6FyjU8Z
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qImZmrULU-Jk
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eejs03YH7WXa
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 04:24:06 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 97B2482089
+ Thu, 19 Oct 2023 04:41:49 +0000 (UTC)
+Received: from gandalf.ozlabs.org (mail.ozlabs.org
+ [IPv6:2404:9400:2221:ea00::3])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 55D50400FD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 04:24:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 97B2482089
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697689445;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Uje06+IDMOt/vx/J8KUApszxQg4fGF227v/uCWaECeA=;
- b=OwrV3AAlHd30Gw31oYAQLEPVa6I6nE9ML3g0L0gOJ/98GQtC7asLQv6JKv5/zpvipCFMw2
- hewjLcX3bZmobryDF6Z/afE994Xf4IeFyd0nzRLfdCxAafGmeU4GP2l8CDfk/I2/yoO3LD
- EPugL/oKq7yMSOtyQdO9aaqKxA8W6Kk=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-159-Vj-U7xbJPrqfQ8OPEv3anw-1; Thu, 19 Oct 2023 00:24:01 -0400
-X-MC-Unique: Vj-U7xbJPrqfQ8OPEv3anw-1
-Received: by mail-lf1-f72.google.com with SMTP id
- 2adb3069b0e04-507b8ac8007so3337078e87.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Oct 2023 21:24:01 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697689440; x=1698294240;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=Uje06+IDMOt/vx/J8KUApszxQg4fGF227v/uCWaECeA=;
- b=XnzLHK/GZ7Mc5FodEFpxmksBXFqHEVx1I3sS2wDH/Ym48IcRxWfsBv5qKd4iCipfk9
- 7EzkkmcyUkBCxopEbLlmepWLajG6T4hpXRfZ3z+q0ghAXE30470tEfxeewlgt+gXBBZt
- jphkgg546rZ1W4VNu2sjwFVtbGUkiBigxTEAA1L/Xl3YMiquqLUue16+AOAfigeZsVve
- aSXaBmz+yOc2uno6ALYQRNFuDKpPYUhVnLMgJtBOBiVhFYzlju4E2bzZzUA6KpevGRzp
- zOvaZfS7AW8s+agY6CNfRif9HOsF1JwtDD/2HonOnUD+xK44D7+Q2cYQ3qhjEBytohM5
- hE2Q==
-X-Gm-Message-State: AOJu0Ywx2HJ5IbRkIEQSoWCkHfhm9QFN6Y3fL6NNefAY/c8deoZZkC2F
- nCEPbu0VGmc/8hKOanFIf16XS5qyPDX0lpN00E5eKHDnFacLCRl8HCHhkm6q38guiC/eNksXK5C
- LYev5bn4pJdqFD4sJN8O/2YP1yn6au5Od13wBpVLm97OTGpL2W06RSZjnGA==
-X-Received: by 2002:a19:ee14:0:b0:500:7685:83d with SMTP id
- g20-20020a19ee14000000b005007685083dmr568831lfb.48.1697689439817; 
- Wed, 18 Oct 2023 21:23:59 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH0cSd1leA1z1IEbWaSrC+PUAKHLFPVSoCz7pyb25FZIitCtvt4UQzpR1S+XpCSPSBkYRmEQ65C+ZNEeRGxNQA=
-X-Received: by 2002:a19:ee14:0:b0:500:7685:83d with SMTP id
- g20-20020a19ee14000000b005007685083dmr568824lfb.48.1697689439457; Wed, 18 Oct
- 2023 21:23:59 -0700 (PDT)
+ Thu, 19 Oct 2023 04:41:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 55D50400FD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+ s=201909; t=1697690500;
+ bh=aZD3f3MJzhsJpL8v00FCIVTR80RmPudwdmbBGZ55N60=;
+ h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+ b=J6FyjU8ZcUqzKfrbX6tvRVugxcuuDAuhQZm7b9zE61MsAnCf5APF7LyescJyN6wZR
+ m1khyZCQYb/ZJSmomAzMQZInm2insvZJDM5l0ZJsR6LKiXPRE7vWag8RxDZVT8L3Rg
+ c32Y5+4JYqlQKndElHkVVephQtpVDDNqG3LwkED0A28En/90Tm7Rqocn7z4UBFnJq0
+ 6uXg/vzi871Xe6qTz6cEK/jaOkU0tIpqozIqty+xr4ybU1YzHiLKRNsH8wbe+i5He8
+ HLjtmDOw9kIpRAms4NOPuXh+UuNhMrCrklTZ+rbg7GlqCF48yQOGZfMNqy92wYSh4q
+ t6gZAbp6V8vtA==
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+ (No client certificate requested)
+ by mail.ozlabs.org (Postfix) with ESMTPSA id 4S9w6D66dcz4xPy;
+ Thu, 19 Oct 2023 15:41:40 +1100 (AEDT)
+From: Michael Ellerman <mpe@ellerman.id.au>
+To: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 3/6] powerpc/smp: Move shared_processor static key to
+ smp.h
+In-Reply-To: <20231018163751.2423181-4-srikar@linux.vnet.ibm.com>
+References: <20231018163751.2423181-1-srikar@linux.vnet.ibm.com>
+ <20231018163751.2423181-4-srikar@linux.vnet.ibm.com>
+Date: Thu, 19 Oct 2023 15:41:40 +1100
+Message-ID: <87sf675im3.fsf@mail.lhotse>
 MIME-Version: 1.0
-References: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
- <20231016120033.26933-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20231016120033.26933-3-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 19 Oct 2023 12:23:48 +0800
-Message-ID: <CACGkMEvU+nhC=Qaj_gWGi3osGgTYdwVDav4-1fs2BrbvDOEpyg@mail.gmail.com>
-Subject: Re: [PATCH net-next v1 02/19] virtio_net: unify the code for
- recycling the xmit ptr
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Valentin Schneider <vschneid@redhat.com>,
+ Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+ Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, Ajay Kaher <akaher@vmware.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ virtualization@lists.linux-foundation.org,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Rohan McLure <rmclure@linux.ibm.com>, Nicholas Piggin <npiggin@gmail.com>,
+ Alexey Makhalov <amakhalov@vmware.com>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+ Josh Poimboeuf <jpoimboe@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,103 +95,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBPY3QgMTYsIDIwMjMgYXQgODowMOKAr1BNIFh1YW4gWmh1byA8eHVhbnpodW9AbGlu
-dXguYWxpYmFiYS5jb20+IHdyb3RlOgo+Cj4gVGhlcmUgYXJlIHR3byBjb21wbGV0ZWx5IHNpbWls
-YXIgYW5kIGluZGVwZW5kZW50IGltcGxlbWVudGF0aW9ucy4gVGhpcwo+IGlzIGluY29udmVuaWVu
-dCBmb3IgdGhlIHN1YnNlcXVlbnQgYWRkaXRpb24gb2YgbmV3IHR5cGVzLiBTbyBleHRyYWN0IGEK
-PiBmdW5jdGlvbiBmcm9tIHRoaXMgcGllY2Ugb2YgY29kZSBhbmQgY2FsbCB0aGlzIGZ1bmN0aW9u
-IHVuaWZvcm1seSB0bwo+IHJlY292ZXIgb2xkIHhtaXQgcHRyLgo+Cj4gU2lnbmVkLW9mZi1ieTog
-WHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KCkFja2VkLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKVGhhbmtzCgo+IC0tLQo+ICBkcml2ZXJzL25ldC92
-aXJ0aW9fbmV0LmMgfCA3NiArKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-Cj4gIDEgZmlsZSBjaGFuZ2VkLCAzMyBpbnNlcnRpb25zKCspLCA0MyBkZWxldGlvbnMoLSkKPgo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMKPiBpbmRleCAzZDg3Mzg2ZDgyMjAuLjZjZjc3YjZhY2RhYiAxMDA2NDQKPiAtLS0g
-YS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiArKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0
-LmMKPiBAQCAtMzUyLDYgKzM1MiwzMCBAQCBzdGF0aWMgc3RydWN0IHhkcF9mcmFtZSAqcHRyX3Rv
-X3hkcCh2b2lkICpwdHIpCj4gICAgICAgICByZXR1cm4gKHN0cnVjdCB4ZHBfZnJhbWUgKikoKHVu
-c2lnbmVkIGxvbmcpcHRyICYgflZJUlRJT19YRFBfRkxBRyk7Cj4gIH0KPgo+ICtzdGF0aWMgdm9p
-ZCBfX2ZyZWVfb2xkX3htaXQoc3RydWN0IHNlbmRfcXVldWUgKnNxLCBib29sIGluX25hcGksCj4g
-KyAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB2aXJ0bmV0X3NxX3N0YXRzICpzdGF0
-cykKPiArewo+ICsgICAgICAgdW5zaWduZWQgaW50IGxlbjsKPiArICAgICAgIHZvaWQgKnB0cjsK
-PiArCj4gKyAgICAgICB3aGlsZSAoKHB0ciA9IHZpcnRxdWV1ZV9nZXRfYnVmKHNxLT52cSwgJmxl
-bikpICE9IE5VTEwpIHsKPiArICAgICAgICAgICAgICAgaWYgKCFpc194ZHBfZnJhbWUocHRyKSkg
-ewo+ICsgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCBza19idWZmICpza2IgPSBwdHI7Cj4g
-Kwo+ICsgICAgICAgICAgICAgICAgICAgICAgIHByX2RlYnVnKCJTZW50IHNrYiAlcFxuIiwgc2ti
-KTsKPiArCj4gKyAgICAgICAgICAgICAgICAgICAgICAgc3RhdHMtPmJ5dGVzICs9IHNrYi0+bGVu
-Owo+ICsgICAgICAgICAgICAgICAgICAgICAgIG5hcGlfY29uc3VtZV9za2Ioc2tiLCBpbl9uYXBp
-KTsKPiArICAgICAgICAgICAgICAgfSBlbHNlIHsKPiArICAgICAgICAgICAgICAgICAgICAgICBz
-dHJ1Y3QgeGRwX2ZyYW1lICpmcmFtZSA9IHB0cl90b194ZHAocHRyKTsKPiArCj4gKyAgICAgICAg
-ICAgICAgICAgICAgICAgc3RhdHMtPmJ5dGVzICs9IHhkcF9nZXRfZnJhbWVfbGVuKGZyYW1lKTsK
-PiArICAgICAgICAgICAgICAgICAgICAgICB4ZHBfcmV0dXJuX2ZyYW1lKGZyYW1lKTsKPiArICAg
-ICAgICAgICAgICAgfQo+ICsgICAgICAgICAgICAgICBzdGF0cy0+cGFja2V0cysrOwo+ICsgICAg
-ICAgfQo+ICt9Cj4gKwo+ICAvKiBDb252ZXJ0aW5nIGJldHdlZW4gdmlydHF1ZXVlIG5vLiBhbmQg
-a2VybmVsIHR4L3J4IHF1ZXVlIG5vLgo+ICAgKiAwOnJ4MCAxOnR4MCAyOnJ4MSAzOnR4MSAuLi4g
-Mk46cnhOIDJOKzE6dHhOIDJOKzI6Y3ZxCj4gICAqLwo+IEBAIC03NDYsMzcgKzc3MCwxOSBAQCBz
-dGF0aWMgdm9pZCB2aXJ0bmV0X3JxX3NldF9wcmVtYXBwZWQoc3RydWN0IHZpcnRuZXRfaW5mbyAq
-dmkpCj4KPiAgc3RhdGljIHZvaWQgZnJlZV9vbGRfeG1pdChzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3Es
-IGJvb2wgaW5fbmFwaSkKPiAgewo+IC0gICAgICAgdW5zaWduZWQgaW50IGxlbjsKPiAtICAgICAg
-IHVuc2lnbmVkIGludCBwYWNrZXRzID0gMDsKPiAtICAgICAgIHVuc2lnbmVkIGludCBieXRlcyA9
-IDA7Cj4gLSAgICAgICB2b2lkICpwdHI7Cj4gKyAgICAgICBzdHJ1Y3QgdmlydG5ldF9zcV9zdGF0
-cyBzdGF0cyA9IHt9Owo+Cj4gLSAgICAgICB3aGlsZSAoKHB0ciA9IHZpcnRxdWV1ZV9nZXRfYnVm
-KHNxLT52cSwgJmxlbikpICE9IE5VTEwpIHsKPiAtICAgICAgICAgICAgICAgaWYgKGxpa2VseSgh
-aXNfeGRwX2ZyYW1lKHB0cikpKSB7Cj4gLSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IHNr
-X2J1ZmYgKnNrYiA9IHB0cjsKPiAtCj4gLSAgICAgICAgICAgICAgICAgICAgICAgcHJfZGVidWco
-IlNlbnQgc2tiICVwXG4iLCBza2IpOwo+IC0KPiAtICAgICAgICAgICAgICAgICAgICAgICBieXRl
-cyArPSBza2ItPmxlbjsKPiAtICAgICAgICAgICAgICAgICAgICAgICBuYXBpX2NvbnN1bWVfc2ti
-KHNrYiwgaW5fbmFwaSk7Cj4gLSAgICAgICAgICAgICAgIH0gZWxzZSB7Cj4gLSAgICAgICAgICAg
-ICAgICAgICAgICAgc3RydWN0IHhkcF9mcmFtZSAqZnJhbWUgPSBwdHJfdG9feGRwKHB0cik7Cj4g
-LQo+IC0gICAgICAgICAgICAgICAgICAgICAgIGJ5dGVzICs9IHhkcF9nZXRfZnJhbWVfbGVuKGZy
-YW1lKTsKPiAtICAgICAgICAgICAgICAgICAgICAgICB4ZHBfcmV0dXJuX2ZyYW1lKGZyYW1lKTsK
-PiAtICAgICAgICAgICAgICAgfQo+IC0gICAgICAgICAgICAgICBwYWNrZXRzKys7Cj4gLSAgICAg
-ICB9Cj4gKyAgICAgICBfX2ZyZWVfb2xkX3htaXQoc3EsIGluX25hcGksICZzdGF0cyk7Cj4KPiAg
-ICAgICAgIC8qIEF2b2lkIG92ZXJoZWFkIHdoZW4gbm8gcGFja2V0cyBoYXZlIGJlZW4gcHJvY2Vz
-c2VkCj4gICAgICAgICAgKiBoYXBwZW5zIHdoZW4gY2FsbGVkIHNwZWN1bGF0aXZlbHkgZnJvbSBz
-dGFydF94bWl0Lgo+ICAgICAgICAgICovCj4gLSAgICAgICBpZiAoIXBhY2tldHMpCj4gKyAgICAg
-ICBpZiAoIXN0YXRzLnBhY2tldHMpCj4gICAgICAgICAgICAgICAgIHJldHVybjsKPgo+ICAgICAg
-ICAgdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmc3EtPnN0YXRzLnN5bmNwKTsKPiAtICAgICAgIHNx
-LT5zdGF0cy5ieXRlcyArPSBieXRlczsKPiAtICAgICAgIHNxLT5zdGF0cy5wYWNrZXRzICs9IHBh
-Y2tldHM7Cj4gKyAgICAgICBzcS0+c3RhdHMuYnl0ZXMgKz0gc3RhdHMuYnl0ZXM7Cj4gKyAgICAg
-ICBzcS0+c3RhdHMucGFja2V0cyArPSBzdGF0cy5wYWNrZXRzOwo+ICAgICAgICAgdTY0X3N0YXRz
-X3VwZGF0ZV9lbmQoJnNxLT5zdGF0cy5zeW5jcCk7Cj4gIH0KPgo+IEBAIC05MTUsMTUgKzkyMSwx
-MiBAQCBzdGF0aWMgaW50IHZpcnRuZXRfeGRwX3htaXQoc3RydWN0IG5ldF9kZXZpY2UgKmRldiwK
-PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaW50IG4sIHN0cnVjdCB4ZHBfZnJhbWUgKipm
-cmFtZXMsIHUzMiBmbGFncykKPiAgewo+ICAgICAgICAgc3RydWN0IHZpcnRuZXRfaW5mbyAqdmkg
-PSBuZXRkZXZfcHJpdihkZXYpOwo+ICsgICAgICAgc3RydWN0IHZpcnRuZXRfc3Ffc3RhdHMgc3Rh
-dHMgPSB7fTsKPiAgICAgICAgIHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSA9IHZpLT5ycTsKPiAg
-ICAgICAgIHN0cnVjdCBicGZfcHJvZyAqeGRwX3Byb2c7Cj4gICAgICAgICBzdHJ1Y3Qgc2VuZF9x
-dWV1ZSAqc3E7Cj4gLSAgICAgICB1bnNpZ25lZCBpbnQgbGVuOwo+IC0gICAgICAgaW50IHBhY2tl
-dHMgPSAwOwo+IC0gICAgICAgaW50IGJ5dGVzID0gMDsKPiAgICAgICAgIGludCBueG1pdCA9IDA7
-Cj4gICAgICAgICBpbnQga2lja3MgPSAwOwo+IC0gICAgICAgdm9pZCAqcHRyOwo+ICAgICAgICAg
-aW50IHJldDsKPiAgICAgICAgIGludCBpOwo+Cj4gQEAgLTk0MiwyMCArOTQ1LDcgQEAgc3RhdGlj
-IGludCB2aXJ0bmV0X3hkcF94bWl0KHN0cnVjdCBuZXRfZGV2aWNlICpkZXYsCj4gICAgICAgICB9
-Cj4KPiAgICAgICAgIC8qIEZyZWUgdXAgYW55IHBlbmRpbmcgb2xkIGJ1ZmZlcnMgYmVmb3JlIHF1
-ZXVlaW5nIG5ldyBvbmVzLiAqLwo+IC0gICAgICAgd2hpbGUgKChwdHIgPSB2aXJ0cXVldWVfZ2V0
-X2J1ZihzcS0+dnEsICZsZW4pKSAhPSBOVUxMKSB7Cj4gLSAgICAgICAgICAgICAgIGlmIChsaWtl
-bHkoaXNfeGRwX2ZyYW1lKHB0cikpKSB7Cj4gLSAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0
-IHhkcF9mcmFtZSAqZnJhbWUgPSBwdHJfdG9feGRwKHB0cik7Cj4gLQo+IC0gICAgICAgICAgICAg
-ICAgICAgICAgIGJ5dGVzICs9IHhkcF9nZXRfZnJhbWVfbGVuKGZyYW1lKTsKPiAtICAgICAgICAg
-ICAgICAgICAgICAgICB4ZHBfcmV0dXJuX2ZyYW1lKGZyYW1lKTsKPiAtICAgICAgICAgICAgICAg
-fSBlbHNlIHsKPiAtICAgICAgICAgICAgICAgICAgICAgICBzdHJ1Y3Qgc2tfYnVmZiAqc2tiID0g
-cHRyOwo+IC0KPiAtICAgICAgICAgICAgICAgICAgICAgICBieXRlcyArPSBza2ItPmxlbjsKPiAt
-ICAgICAgICAgICAgICAgICAgICAgICBuYXBpX2NvbnN1bWVfc2tiKHNrYiwgZmFsc2UpOwo+IC0g
-ICAgICAgICAgICAgICB9Cj4gLSAgICAgICAgICAgICAgIHBhY2tldHMrKzsKPiAtICAgICAgIH0K
-PiArICAgICAgIF9fZnJlZV9vbGRfeG1pdChzcSwgZmFsc2UsICZzdGF0cyk7Cj4KPiAgICAgICAg
-IGZvciAoaSA9IDA7IGkgPCBuOyBpKyspIHsKPiAgICAgICAgICAgICAgICAgc3RydWN0IHhkcF9m
-cmFtZSAqeGRwZiA9IGZyYW1lc1tpXTsKPiBAQCAtOTc1LDggKzk2NSw4IEBAIHN0YXRpYyBpbnQg
-dmlydG5ldF94ZHBfeG1pdChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAo+ICAgICAgICAgfQo+ICBv
-dXQ6Cj4gICAgICAgICB1NjRfc3RhdHNfdXBkYXRlX2JlZ2luKCZzcS0+c3RhdHMuc3luY3ApOwo+
-IC0gICAgICAgc3EtPnN0YXRzLmJ5dGVzICs9IGJ5dGVzOwo+IC0gICAgICAgc3EtPnN0YXRzLnBh
-Y2tldHMgKz0gcGFja2V0czsKPiArICAgICAgIHNxLT5zdGF0cy5ieXRlcyArPSBzdGF0cy5ieXRl
-czsKPiArICAgICAgIHNxLT5zdGF0cy5wYWNrZXRzICs9IHN0YXRzLnBhY2tldHM7Cj4gICAgICAg
-ICBzcS0+c3RhdHMueGRwX3R4ICs9IG47Cj4gICAgICAgICBzcS0+c3RhdHMueGRwX3R4X2Ryb3Bz
-ICs9IG4gLSBueG1pdDsKPiAgICAgICAgIHNxLT5zdGF0cy5raWNrcyArPSBraWNrczsKPiAtLQo+
-IDIuMzIuMC4zLmcwMTE5NWNmOWYKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Srikar Dronamraju <srikar@linux.vnet.ibm.com> writes:
+> The ability to detect if the system is running in a shared processor
+> mode is helpful in few more generic cases not just in
+> paravirtualization.
+> For example: At boot time, different scheduler/ topology flags may be
+> set based on the processor mode. Hence move it to a more generic file.
+
+I'd rather you just included paravirt.h in the few files where you need it.
+
+cheers
+
+> diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
+> index 0372b0093f72..cf83e837a571 100644
+> --- a/arch/powerpc/include/asm/paravirt.h
+> +++ b/arch/powerpc/include/asm/paravirt.h
+> @@ -15,13 +15,6 @@
+>  #include <asm/kvm_guest.h>
+>  #include <asm/cputhreads.h>
+>  
+> -DECLARE_STATIC_KEY_FALSE(shared_processor);
+> -
+> -static inline bool is_shared_processor(void)
+> -{
+> -	return static_branch_unlikely(&shared_processor);
+> -}
+> -
+>  #ifdef CONFIG_PARAVIRT_TIME_ACCOUNTING
+>  extern struct static_key paravirt_steal_enabled;
+>  extern struct static_key paravirt_steal_rq_enabled;
+> @@ -77,11 +70,6 @@ static inline bool is_vcpu_idle(int vcpu)
+>  	return lppaca_of(vcpu).idle;
+>  }
+>  #else
+> -static inline bool is_shared_processor(void)
+> -{
+> -	return false;
+> -}
+> -
+>  static inline u32 yield_count_of(int cpu)
+>  {
+>  	return 0;
+> diff --git a/arch/powerpc/include/asm/smp.h b/arch/powerpc/include/asm/smp.h
+> index aaaa576d0e15..08631b2a4528 100644
+> --- a/arch/powerpc/include/asm/smp.h
+> +++ b/arch/powerpc/include/asm/smp.h
+> @@ -34,6 +34,20 @@ extern bool coregroup_enabled;
+>  extern int cpu_to_chip_id(int cpu);
+>  extern int *chip_id_lookup_table;
+>  
+> +#ifdef CONFIG_PPC_SPLPAR
+> +DECLARE_STATIC_KEY_FALSE(shared_processor);
+> +
+> +static inline bool is_shared_processor(void)
+> +{
+> +	return static_branch_unlikely(&shared_processor);
+> +}
+> +#else
+> +static inline bool is_shared_processor(void)
+> +{
+> +	return false;
+> +}
+> +#endif
+> +
+>  DECLARE_PER_CPU(cpumask_var_t, thread_group_l1_cache_map);
+>  DECLARE_PER_CPU(cpumask_var_t, thread_group_l2_cache_map);
+>  DECLARE_PER_CPU(cpumask_var_t, thread_group_l3_cache_map);
+> -- 
+> 2.31.1
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
