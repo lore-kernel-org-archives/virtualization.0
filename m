@@ -4,109 +4,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4574FCDB482
-	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 09:52:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C7465CDB483
+	for <virtualization@archiver.kernel.org>; Thu, 19 Oct 2023 10:16:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A4D1D404B1;
-	Thu, 19 Oct 2023 09:52:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A4D1D404B1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3FA7F42E9F;
+	Thu, 19 Oct 2023 10:16:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3FA7F42E9F
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=PRpc+AQe
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=SeDo3OXA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id US_cljsfGOYv; Thu, 19 Oct 2023 09:52:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C2A1840151;
-	Thu, 19 Oct 2023 09:52:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C2A1840151
+	with ESMTP id iEHy8PHPhgKO; Thu, 19 Oct 2023 10:16:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4F90C41831;
+	Thu, 19 Oct 2023 10:16:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4F90C41831
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 99E10C0071;
-	Thu, 19 Oct 2023 09:52:27 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DFA53C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2191BC0039;
+	Thu, 19 Oct 2023 10:16:31 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5A03C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 09:52:25 +0000 (UTC)
+ Thu, 19 Oct 2023 10:16:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id ADFF142C5B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9F26741831
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 09:52:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADFF142C5B
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=PRpc+AQe
+ Thu, 19 Oct 2023 10:16:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9F26741831
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vOMc7RuKqOkz
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7eWSEs82cW3e
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 09:52:24 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6ED7242C58
+ Thu, 19 Oct 2023 10:16:29 +0000 (UTC)
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com
+ [IPv6:2a00:1450:4864:20::62a])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7F9014060B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 09:52:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6ED7242C58
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1697709143;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=s07yKdQmQaOSMtiWdOLGzN3oWEKTIekP+ixiSoBemg8=;
- b=PRpc+AQeGMLWr4Dlh+3PG5MTlRV6FC4GTfCQYW+W2tyeS6gMzf9JJoU9izh2lhTMmFHvw5
- oRnbvy91Gy9hTgzcR3N563vOSIHUKGXD2W5D8wfVppUeUw4qooDyT9wFfQCDmQpvLvekWI
- xmvCSQDl8vIy546SON14pgzfFugPfoU=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-322-Q9iwJivwMnG-wmhTznJq4A-1; Thu, 19 Oct 2023 05:52:21 -0400
-X-MC-Unique: Q9iwJivwMnG-wmhTznJq4A-1
-Received: by mail-wr1-f69.google.com with SMTP id
- ffacd0b85a97d-32da215295fso3097847f8f.2
+ Thu, 19 Oct 2023 10:16:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7F9014060B
+Received: by mail-ej1-x62a.google.com with SMTP id
+ a640c23a62f3a-99de884ad25so1254354766b.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Oct 2023 02:52:21 -0700 (PDT)
+ Thu, 19 Oct 2023 03:16:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=cloudflare.com; s=google09082023; t=1697710587; x=1698315387;
+ darn=lists.linux-foundation.org; 
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:from:to:cc:subject:date:message-id:reply-to;
+ bh=wsXbezCZoeuJrO98GwOgaGC8RBPaWgtTZVWkdUgAb5c=;
+ b=SeDo3OXA6FJI9OLEn7xtJA7w9Ak0o1zwEtRiELmYCCG0r7oIsPBwUd4BRgM2ud4bhK
+ PKaFCHeSVGyn599P+JXICk358/gL4Rtgh8lbZ0dBdOUJ6OZvgJc5Qmr+MUlVU2641h+a
+ dcqFvIAQNF4xpT7Y/wHVLzxlVa/u08cFsDwYLLHcBX52S4b7DYLoENQ9S785yblkMZnp
+ nauKkbTX2Kc1s1UvEvY5P/RavJTEDNL4Ov/SzMBNfWmSbhfOD2SqiYrJhhBc1lFt6wg+
+ KRHsaUbcqfiEUx6jNsxdkUu5XU2XBRNCrXH0TfRhBaFRTBD7GLbKhtmxIWH8mGIjb6m6
+ ILhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1697709140; x=1698313940;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=s07yKdQmQaOSMtiWdOLGzN3oWEKTIekP+ixiSoBemg8=;
- b=bGzLzgfuaBL1CAoZsMnYsVC5OiUdsfhAU67qWSTnuYHjnSyJmGeY1RDZDAWKGWTKPi
- rMFsb/Cn+FNjjRWwNMoCgBdB1MZZgoFpsCi2ayaFr3Wo3f+iazbUPBD7SQbiDhgQOsdc
- X/OtgUSWCSWt7sfWI7bQ1hE0mpN3rINWBrG00euIfqgS6ROC7HQCY6vCuBd0N2KJyUL1
- YGce+1qqGdn3czRsnReeHLqnJICgf8fJXIvamSmu6abtWxOfKB1vAFjvPSsCq1oh0JYD
- jh9UpCrdPvP2J90tVeA203qdBZ+RELa9tfjJyDkfwC+d75HU02bQp9kc61wb2+R3ZPhw
- XTuA==
-X-Gm-Message-State: AOJu0YzhJ+3CD0m6tSyTLlKBxZ87aQUxj7XEPfiHhmLEgR7yvZlOTCj/
- d7ncQhFrUA16GDwB00YinXYS2jLrTNb//214eYf9oqYoxCgpFBgeOSzNEjYAQU4JwQ+eyieHRlb
- pCOWufMkxJs5+2pqQ6OPHPsDD7w7N3NBFPQQzzr1pUw==
-X-Received: by 2002:a5d:534a:0:b0:32d:9572:6469 with SMTP id
- t10-20020a5d534a000000b0032d95726469mr1411104wrv.46.1697709140712; 
- Thu, 19 Oct 2023 02:52:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGbrIg21JiUOlDeiQ+N0/lCafmoyCQ7Q6G+JcToUR3WGNATzgv3QP9FSlCqPRWoYhSWovXwVw==
-X-Received: by 2002:a5d:534a:0:b0:32d:9572:6469 with SMTP id
- t10-20020a5d534a000000b0032d95726469mr1411083wrv.46.1697709140369; 
- Thu, 19 Oct 2023 02:52:20 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f2:2037:f34:d61b:7da0:a7be])
+ d=1e100.net; s=20230601; t=1697710587; x=1698315387;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=wsXbezCZoeuJrO98GwOgaGC8RBPaWgtTZVWkdUgAb5c=;
+ b=RIUt/GLBmAiJnzcIBG06M56m7gVYW/Xvw/QHGfaX0+HMco1s/1Rg0TdQWkuiTHBWam
+ F/LgrqUHkYkREwfw0ZOGHikGMIMQfC9PdIeK5l8K/mXtjlifdC4t0JMVOSYFLjBCMdRb
+ 5rsNxngWFVZS3Kp4uuwFbxP/B5JLShUPXfo4nX+3nBfDd9dJGdG8vlcEw3d9GV50DO4O
+ pBcbcenC13en1Rr/0f+aqRHQHabfACfn4VUEMK9McDFNkn/njJP2gEftIggXLR1nmlWF
+ OwEOjvGYidiqO6/u8upBmuB/JkJFrOS3s45cAahFL8Tf0Ar4yz/d8MKgWwZIBQS1DQgA
+ aDlA==
+X-Gm-Message-State: AOJu0YxzLMey0oqQ3fjTlw59KrOevr3KqQMAduyArKeOWgLa53ctU27Z
+ Ly3olnGDcVgOYQVD8C31x2ZzpcPBVwLBrhkWN9nDIg==
+X-Google-Smtp-Source: AGHT+IGKx6okUJClW9akG9H6m9kJqJ0Nyt+kBKsXxyAiYiyCKsRx/FPkbX0599vNxVESnPv8DZ7cIQ==
+X-Received: by 2002:a17:906:dac4:b0:9c4:4b20:44a4 with SMTP id
+ xi4-20020a170906dac400b009c44b2044a4mr1270036ejb.48.1697710587277; 
+ Thu, 19 Oct 2023 03:16:27 -0700 (PDT)
+Received: from cloudflare.com ([2a09:bac5:5064:2dc::49:194])
  by smtp.gmail.com with ESMTPSA id
- k8-20020adfe3c8000000b0032710f5584fsm4074029wrm.25.2023.10.19.02.52.17
+ le3-20020a170907170300b009c70b392051sm3252439ejc.100.2023.10.19.03.16.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 19 Oct 2023 02:52:19 -0700 (PDT)
-Date: Thu, 19 Oct 2023 05:52:15 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: zhenwei pi <pizhenwei@bytedance.com>
-Subject: Re: PING: [PATCH] virtio-blk: fix implicit overflow on
- virtio_max_dma_size
-Message-ID: <20231019055134-mutt-send-email-mst@kernel.org>
-References: <20230904061045.510460-1-pizhenwei@bytedance.com>
- <dedde8ee-6edb-4950-aa8b-e89e025440b7@bytedance.com>
+ Thu, 19 Oct 2023 03:16:26 -0700 (PDT)
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH 1/2] virtio_pci: Don't make an extra copy of cpu affinity mask
+Date: Thu, 19 Oct 2023 12:16:24 +0200
+Message-ID: <20231019101625.412936-1-jakub@cloudflare.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-In-Reply-To: <dedde8ee-6edb-4950-aa8b-e89e025440b7@bytedance.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: axboe@kernel.dk, xuanzhuo@linux.alibaba.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Caleb Raitto <caraitto@google.com>,
+ kernel-team@cloudflare.com, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,64 +103,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Jakub Sitnicki via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Jakub Sitnicki <jakub@cloudflare.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 19, 2023 at 05:43:55PM +0800, zhenwei pi wrote:
-> Hi Michael,
-> 
-> This seems to have been ignored as you suggested.
-> 
-> LINK: https://www.spinics.net/lists/linux-virtualization/msg63015.html
+Since commit 19e226e8cc5d ("virtio: Make vp_set_vq_affinity() take a
+mask.") it is actually not needed to have a local copy of the cpu mask.
 
-Pls Cc more widely then:
+Pass the cpu mask we got as argument to set the irq affinity hint.
 
-Paolo Bonzini <pbonzini@redhat.com> (reviewer:VIRTIO BLOCK AND SCSI DRIVERS)
-Stefan Hajnoczi <stefanha@redhat.com> (reviewer:VIRTIO BLOCK AND SCSI DRIVERS)
-Xuan Zhuo <xuanzhuo@linux.alibaba.com> (reviewer:VIRTIO CORE AND NET DRIVERS)
-Jens Axboe <axboe@kernel.dk> (maintainer:BLOCK LAYER)
-linux-block@vger.kernel.org (open list:BLOCK LAYER)
+Cc: Caleb Raitto <caraitto@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+---
+ drivers/virtio/virtio_pci_common.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-would all be good people to ask to review this.
-
-
-> On 9/4/23 14:10, zhenwei pi wrote:
-> > The following codes have an implicit conversion from size_t to u32:
-> > (u32)max_size = (size_t)virtio_max_dma_size(vdev);
-> > 
-> > This may lead overflow, Ex (size_t)4G -> (u32)0. Once
-> > virtio_max_dma_size() has a larger size than U32_MAX, use U32_MAX
-> > instead.
-> > 
-> > Signed-off-by: zhenwei pi <pizhenwei@bytedance.com>
-> > ---
-> >   drivers/block/virtio_blk.c | 4 +++-
-> >   1 file changed, 3 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 1fe011676d07..4a4b9bad551e 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -1313,6 +1313,7 @@ static int virtblk_probe(struct virtio_device *vdev)
-> >   	u16 min_io_size;
-> >   	u8 physical_block_exp, alignment_offset;
-> >   	unsigned int queue_depth;
-> > +	size_t max_dma_size;
-> >   	if (!vdev->config->get) {
-> >   		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > @@ -1411,7 +1412,8 @@ static int virtblk_probe(struct virtio_device *vdev)
-> >   	/* No real sector limit. */
-> >   	blk_queue_max_hw_sectors(q, UINT_MAX);
-> > -	max_size = virtio_max_dma_size(vdev);
-> > +	max_dma_size = virtio_max_dma_size(vdev);
-> > +	max_size = max_dma_size > U32_MAX ? U32_MAX : max_dma_size;
-> >   	/* Host can optionally specify maximum segment size and number of
-> >   	 * segments. */
-> 
-> -- 
-> zhenwei pi
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index c2524a7207cf..8927bc338f06 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -433,21 +433,14 @@ int vp_set_vq_affinity(struct virtqueue *vq, const struct cpumask *cpu_mask)
+ 	struct virtio_device *vdev = vq->vdev;
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtio_pci_vq_info *info = vp_dev->vqs[vq->index];
+-	struct cpumask *mask;
+ 	unsigned int irq;
+ 
+ 	if (!vq->callback)
+ 		return -EINVAL;
+ 
+ 	if (vp_dev->msix_enabled) {
+-		mask = vp_dev->msix_affinity_masks[info->msix_vector];
+ 		irq = pci_irq_vector(vp_dev->pci_dev, info->msix_vector);
+-		if (!cpu_mask)
+-			irq_set_affinity_hint(irq, NULL);
+-		else {
+-			cpumask_copy(mask, cpu_mask);
+-			irq_set_affinity_hint(irq, mask);
+-		}
++		irq_set_affinity_hint(irq, cpu_mask);
+ 	}
+ 	return 0;
+ }
+-- 
+2.41.0
 
 _______________________________________________
 Virtualization mailing list
