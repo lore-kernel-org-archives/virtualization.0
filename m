@@ -1,121 +1,112 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9FDB4C25B44
-	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 15:13:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 80860C004C0
+	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 15:33:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3F09D611E2;
-	Mon, 23 Oct 2023 15:13:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3F09D611E2
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=eIMVqvXC
+	by smtp1.osuosl.org (Postfix) with ESMTP id F38D481ED3;
+	Mon, 23 Oct 2023 15:33:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F38D481ED3
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=hXwoYepA
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HVp0WTMtsDO2; Mon, 23 Oct 2023 15:13:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C63E2610B3;
-	Mon, 23 Oct 2023 15:13:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C63E2610B3
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5XBtnWVAazin; Mon, 23 Oct 2023 15:33:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2274681EB3;
+	Mon, 23 Oct 2023 15:33:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2274681EB3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E7A1C0039;
-	Mon, 23 Oct 2023 15:13:46 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E8F53C0039;
+	Mon, 23 Oct 2023 15:33:31 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 652C3C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF6BCC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 15:13:45 +0000 (UTC)
+ Mon, 23 Oct 2023 15:33:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3344941F3A
+ by smtp4.osuosl.org (Postfix) with ESMTP id A6FBF42153
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 15:13:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3344941F3A
+ Mon, 23 Oct 2023 15:33:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A6FBF42153
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com
- header.a=rsa-sha256 header.s=s2048 header.b=eIMVqvXC
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=hXwoYepA
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hZuhpg82zpGu
+ with ESMTP id Jhxe9X5S5Dyw
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 15:13:44 +0000 (UTC)
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com
- (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3857941F1F
+ Mon, 23 Oct 2023 15:33:29 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 441FB42159
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 15:13:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3857941F1F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1698074023; bh=5qhVm0qgr8MH691SK66XJk00Hxsjalx43/T/nxE11RE=;
- h=Date:Subject:To:References:From:In-Reply-To:From:Subject:Reply-To;
- b=eIMVqvXCK0N6enOdR3XYdaij+4lApowWtvpfSolkqo6niG1w3GuRDrnZXRYu2EmyosncbxXJONkYIrI8CGTLxPunP07yBauVcuKHYwYzaAH60XH7B5xgmGY/fZiXrJ7aW9ylgD4aA/+3Iz4vdYyUutrtnrozf/Jgky63arzVmd7DUdil4F5BG4vwmdoFvfowWXorMaicn8IF22xeoIuMsDnDb0WY+NWhX3eXqERM3TyWQbwSy4nOwnzHHx2ZSt6RlRT9DnRK+duKMIIMTEEHCOcP87YJIrN8n69Q8aUrYpWWeOnkDYY7A2sQi5wCoIoGxuOiuS3+TLzIqputSDIgdQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
- t=1698074023; bh=OaJlbcPRdhgb16Vxj8vBgx/z56oKzG59epzMgdrnPPK=;
- h=X-Sonic-MF:Date:Subject:To:From:From:Subject;
- b=ZS5lJatzliNW+xOxGVTQVU3VNWMMrOjl30HLcBo4zgU/K5JWHSesSDUUv7JSnFoCIuPLTD7bJkOyuTMHYel0cyhF90dmqA/bz0fVC7w8V8d3jmxU+AplBL8WPEqUxbnThMagTY1R6Tz4lOw4IgoCu92b3OiyTmbELtztHXrUwa59nwBNhFWvk3UgMZ7H0dM8LSg6KVos+3oQxx/mmFa5iIHg9SjTQfVtgeegr56ONLEoC+0bwZ6s8aHfBh5426h5xz+/lsOhcX0RjT2/RlakjjY2GUZqzHjkCoQjiNUedBdQjBMMdDSUHtrLpY3nbjHkkOCtjkKAL0LZzi9ozN9DbQ==
-X-YMail-OSG: CWBLw44VM1nf33uQEfb5bmH6sn7LKTfUX_Zz6p2tdKu2BCeBfDnhjEtyXFu9tTZ
- INuvp51.xhDXrHRjZ8zS7rHCdZaZ9f4U9mRO543iHR9gDkzsbijT1aoNuFprr38ne5yWz9b8GPUp
- G6RB0SiByS9A4wcCvplNnVcb_xyQDcDjfUKdpJJlnjUnu2ONjembyT1z5xea4l1UNbyq0g8Ipcvi
- 7qtVDQTuYT3yOztcsd95uhxdmp40iY1Jovtzy7LsILZkFL4aILM1RFKD4ESs9df4Rg.V2QyrjNRX
- vVlS2eRZYvt8AvsT0yXGfT.PMuGRff3NAxLKLKQ.XztolTXTs0F2hpQoC9.1eD3ujRV8vIVx5WyJ
- 3zHGzJONe42UhKC8p0A3YJQjrpGnjxXUi_4_G2RS6jHFixHva_Cjo383j9N84tYzhaYvl5LF5y6I
- tcGopQq1NKZTKwi8g.YCxcnK2HTV4V5vHpbcDXeb0cOmMRIAf_QOK_c1bfDmW2n8TzRZJEA_zcLO
- J_iCJWZk7IZ0GZMVpP5yFIARWA.vNu4J9F.fimHvVX4fgrwAwjtl9RHtcZQnGATeuxO4HKe_gH0w
- cNO4mpcSjXCIahpC84IA0RbRGBih_Y8L71uF3.I5Wrq_wCHkIaZkPK7Q_2wK3ZrW0beGvyJPPTKZ
- Z3PgtyCFRuHj6Swu4bzOYSkaRWcLMvY1e9WQKQS8IGPEPsvM7EGJWoMPHIqdHD4VhifdAecVokec
- Js8hkbSu3EdsGse94rg1o5Uz0Lj.mjS0eKD991Q807VGmgDPZk6RzPxsXqTWLiVCOebBgUpmGXt9
- Vp7xSp7aQyuZQ4QMfiX8gpFygfV4c43OMGmmST9TLFCXKJITSt3sqig5KE4rs1JwzmKBKt52ktO4
- i_qGAf6DLrEvybANwnQsLtk6TQKejF9yrajdgX7sZQVHRajuhg2mImI.21WFAbxWnklckFYLl9Ck
- J2X0OxzmTAKb8GiFkxqjjy5zY0yWGaKTpcDW2o.LMA76xh5ZF2E8.8XYgLNtwZuOIdeeN.8jZW_X
- A_GQkgzaI7qexP2WaynyyqhY3R1w9iTuCMaP0n8IiNSTbvCu9wPvBtO2bXd4r9kIXj9nHxwwc.GT
- EhTsT.D.HGL8f2z56LWSfzh5NRmHBSbRXTGGAeGenrxtMbPeAPQXnQHVftkWfA7g0.XiWFrtg7S3
- 1HRLBVsQNVi2iPNgAcOPa4m8aIGZmSrUgkRFFxzxHL28EisTRC2utWp.zTIVUH4EYvNP3fHUCizL
- m8H5TnMFhBP.4gvpr2z9JsDLZ.Hpiy4MrhMzi.K1Z5da7ZqZgWBBMECHSpAaJxdakU2f6Zr2ug37
- iR2HsGf8cxj.EwW.GznGZIiSIwBDzxFo3vCeYMRBl50pVRCEOYE2hzn0_aSOYu7C1dND4Tb4hjgE
- AgA0O4FBQLg993a0h0pzkwEpT_HetVvbZ5qC_d7zPfutzEitaM3r_AG04vta45CxtUIFm99rJNyt
- 2i2gCIy8wreoLz3R4OUfFBF.X1aBOdXqnjw_zMrfCfvEcEY99GomnsKokrTLjWHCMxOfcwZh2nz3
- JNCh_JLDpgakNH3lyoH_xeU0fAWJe_dg4U2tZhI.28OQAOX5iIBsuc3HVjB8m_nICk6N_qpGKhOL
- 4._AZ7JfdKEwP5D19M7Tp8BL19Ni7uxNDQ.ayKgN9dI1S0wWGAfVFbr03tQ8CBH2ZxVlJljDlu8g
- ChM8zzKaTcP4gELWwEwJoKQu9HRPyvMr4.lTT572rcixr6ggO87byZPy4_fjesStsn4ykb1IqNlw
- gYl.z9m7rV2sxAWp.NVvYFEqMHMO57vt26qZn1Ce3LmLsJnEN5l89byUMhbKK_grfrr61FPUZWly
- ViSzc08YI_4tyDDizDfjpj32H7cwzL18am8syU63aZnS72_4L8XUgzlUlNpWIBNhtpA3tx5lEdgu
- PJ_CM81tRGX0EI6tjlT3ne1jINNqOZwTGuUuopImu3vBwZPp.xAENw3hPTPZV9EdHPJ4K3TlVkUx
- eAkzYrni9qXD4KIG3W.WHH2mMTIpgZNrSxV1bX.D4AeAKvRWXP4J49i.0uytCyhYYyXJ_LED1W4b
- 1EfZPNtyGwxy7DDjdgi2uf.Pi5t1VmPVYIHMLWUv6f6WC5p9TWr71ADWb7mckh9BNOXhG6I1_w0i
- zOcp5n0byV7u_FNC5jARO.JzXbCTcXVdbBSnFdjpLkLToNKYkitIgtI571xRkNn5qwLAa8i7bn29
- 89.PcdiEqIotFuLewpOhulTmoTJUCs13s1pdK5qFpJyyQhWZwMU9_JbspwhR0mFZxwPVqfI5RPUc
- CknMKcw--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 5c4d3800-39da-4bf1-8665-b40081fd39d8
-Received: from sonic.gate.mail.ne1.yahoo.com by
- sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 23 Oct 2023 15:13:43 +0000
-Received: by hermes--production-ne1-68668bc7f7-pg4xv (Yahoo Inc. Hermes SMTP
- Server) with ESMTPA ID 6749c8cefbdd6387e1e81113019a3174; 
- Mon, 23 Oct 2023 15:13:38 +0000 (UTC)
-Message-ID: <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
-Date: Mon, 23 Oct 2023 08:13:35 -0700
+ Mon, 23 Oct 2023 15:33:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 441FB42159
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1698075208;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=CVyXYnNlesI1s2bnyJgk2UUZk/foyIhU6sDI+zB3eeI=;
+ b=hXwoYepAbKqLuKWbW+bQEzIKwnUvKe2pNci9lGTo6K2pVJg+xeT3xgxNA2awgid8gy9ENj
+ 4Vc6sLnEb3Wb9KDm6/1Z9NZwwIkthziIojIzJC7kvooUmOQGt9LMGVCJ4AXWp3svYVdwUi
+ 5P4HVICUgrJvSgWszq1K6V2UOfJB6tE=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-302-UyI8bcEpPnaylS8pU2JkFg-1; Mon, 23 Oct 2023 11:33:26 -0400
+X-MC-Unique: UyI8bcEpPnaylS8pU2JkFg-1
+Received: by mail-io1-f72.google.com with SMTP id
+ ca18e2360f4ac-7a66847671eso451146039f.2
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Oct 2023 08:33:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1698075205; x=1698680005;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=CVyXYnNlesI1s2bnyJgk2UUZk/foyIhU6sDI+zB3eeI=;
+ b=S8eeCb/VqYf24iyzAxZ8YHq+/hWUO0WcO68cNA/5/5H0+IMMKbsK2JSSWTmGnAY3To
+ 09Ac0GeTYQRmfpydyV7Wx2rCbnKDslThiUCGNJ4c916NEoRizC+Qc4Od8wFwUHOEntze
+ XixBstachMNNLfeeWwZ5Y13RtS2X9MypuQaPwrfVB4TkTugWGDRwlbQXHBrrYf4ZA/LR
+ tlDKT2ICMyVcJ2yn0Sdu/LF0qMtHIfO/+s7qXKaL1+yu2h4zbQWD4OuAUQea0M6hSals
+ XyrxytfwFj99uQdc3I/W4s0/zhvfHuJ/PLOs+TukXe5WuoL3ciZ7qGdqF9SccDsXVYVx
+ zEoQ==
+X-Gm-Message-State: AOJu0YyCZ5r1xRrSpbEZgz8arB28InscZw6AeboY8dZ5KaJKcxYkWcqV
+ YTBhbq7tuHTS0n1K4xJemYqmtUhs+2Q0qlDEM/qYAzb3njayss4C+n2a9zWrlayaVmcI6bPx1OS
+ /UItHATXYiRwMofaUVQNN23pXFEfQaYxKvDjJfcApGA==
+X-Received: by 2002:a05:6602:1689:b0:7a9:629f:3c5a with SMTP id
+ s9-20020a056602168900b007a9629f3c5amr2485996iow.14.1698075205144; 
+ Mon, 23 Oct 2023 08:33:25 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHNHX8s1tVCBgdJ5d5FeQxPsEYzG+wkzJ4SpEaHuHvDxZeHq0lJujXcwqErqJeqpLdvp+UkIg==
+X-Received: by 2002:a05:6602:1689:b0:7a9:629f:3c5a with SMTP id
+ s9-20020a056602168900b007a9629f3c5amr2485973iow.14.1698075204809; 
+ Mon, 23 Oct 2023 08:33:24 -0700 (PDT)
+Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
+ d26-20020a056602185a00b0079fbb834232sm2459860ioi.19.2023.10.23.08.33.23
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 23 Oct 2023 08:33:24 -0700 (PDT)
+Date: Mon, 23 Oct 2023 09:33:23 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH V1 vfio 0/9] Introduce a vfio driver over virtio devices
+Message-ID: <20231023093323.2a20b67c.alex.williamson@redhat.com>
+In-Reply-To: <6e2c79c2-5d1d-3f3b-163b-29403c669049@nvidia.com>
+References: <20231017134217.82497-1-yishaih@nvidia.com>
+ <6e2c79c2-5d1d-3f3b-163b-29403c669049@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
-Content-Language: en-US
-To: Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
- jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
- eparis@parisplace.org, xieyongji@bytedance.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- david.marchand@redhat.com, lulu@redhat.com,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
- <20231020155819.24000-5-maxime.coquelin@redhat.com>
- <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
- <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
-X-Mailer: WebService/1.1.21797
- mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
+ leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,47 +123,177 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
->
->
-> On 10/21/23 00:20, Casey Schaufler wrote:
->> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
->>> This patch introduces LSM hooks for devices creation,
->>> destruction and opening operations, checking the
->>> application is allowed to perform these operations for
->>> the Virtio device type.
->>
->> Why do you think that there needs to be a special LSM check for virtio
->> devices? What can't existing device attributes be used?
->
-> Michael asked for a way for SELinux to allow/prevent the creation of
-> some types of devices [0].
->
-> A device is created using ioctl() on VDUSE control chardev. Its type is
-> specified via a field in the structure passed in argument.
->
-> I didn't see other way than adding dedicated LSM hooks to achieve this,
-> but it is possible that their is a better way to do it?
+On Sun, 22 Oct 2023 11:20:31 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-At the very least the hook should be made more general, and I'd have to
-see a proposal before commenting on that. security_dev_destroy(dev) might
-be a better approach. If there's reason to control destruction of vduse
-devices it's reasonable to assume that there are other devices with the
-same or similar properties.
+> On 17/10/2023 16:42, Yishai Hadas wrote:
+> > This series introduce a vfio driver over virtio devices to support the
+> > legacy interface functionality for VFs.
+> >
+> > Background, from the virtio spec [1].
+> > --------------------------------------------------------------------
+> > In some systems, there is a need to support a virtio legacy driver with
+> > a device that does not directly support the legacy interface. In such
+> > scenarios, a group owner device can provide the legacy interface
+> > functionality for the group member devices. The driver of the owner
+> > device can then access the legacy interface of a member device on behalf
+> > of the legacy member device driver.
+> >
+> > For example, with the SR-IOV group type, group members (VFs) can not
+> > present the legacy interface in an I/O BAR in BAR0 as expected by the
+> > legacy pci driver. If the legacy driver is running inside a virtual
+> > machine, the hypervisor executing the virtual machine can present a
+> > virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
+> > legacy driver accesses to this I/O BAR and forwards them to the group
+> > owner device (PF) using group administration commands.
+> > --------------------------------------------------------------------
+> >
+> > The first 6 patches are in the virtio area and handle the below:
+> > - Fix common config map for modern device as was reported by Michael Tsirkin.
+> > - Introduce the admin virtqueue infrastcture.
+> > - Expose the layout of the commands that should be used for
+> >    supporting the legacy access.
+> > - Expose APIs to enable upper layers as of vfio, net, etc
+> >    to execute admin commands.
+> >
+> > The above follows the virtio spec that was lastly accepted in that area
+> > [1].
+> >
+> > The last 3 patches are in the vfio area and handle the below:
+> > - Expose some APIs from vfio/pci to be used by the vfio/virtio driver.
+> > - Introduce a vfio driver over virtio devices to support the legacy
+> >    interface functionality for VFs.
+> >
+> > The series was tested successfully over virtio-net VFs in the host,
+> > while running in the guest both modern and legacy drivers.
+> >
+> > [1]
+> > https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
+> >
+> > Changes from V0: https://www.spinics.net/lists/linux-virtualization/msg63802.html
+> >
+> > Virtio:
+> > - Fix the common config map size issue that was reported by Michael
+> >    Tsirkin.
+> > - Do not use vp_dev->vqs[] array upon vp_del_vqs() as was asked by
+> >    Michael, instead skip the AQ specifically.
+> > - Move admin vq implementation into virtio_pci_modern.c as was asked by
+> >    Michael.
+> > - Rename structure virtio_avq to virtio_pci_admin_vq and some extra
+> >    corresponding renames.
+> > - Remove exported symbols virtio_pci_vf_get_pf_dev(),
+> >    virtio_admin_cmd_exec() as now callers are local to the module.
+> > - Handle inflight commands as part of the device reset flow.
+> > - Introduce APIs per admin command in virtio-pci as was asked by Michael.
+> >
+> > Vfio:
+> > - Change to use EXPORT_SYMBOL_GPL instead of EXPORT_SYMBOL for
+> >    vfio_pci_core_setup_barmap() and vfio_pci_iowrite#xxx() as pointed by
+> >    Alex.
+> > - Drop the intermediate patch which prepares the commands and calls the
+> >    generic virtio admin command API (i.e. virtio_admin_cmd_exec()).
+> > - Instead, call directly to the new APIs per admin command that are
+> >    exported from Virtio - based on Michael's request.
+> > - Enable only virtio-net as part of the pci_device_id table to enforce
+> >    upon binding only what is supported as suggested by Alex.
+> > - Add support for byte-wise access (read/write) over the device config
+> >    region as was asked by Alex.
+> > - Consider whether MSIX is practically enabled/disabled to choose the
+> >    right opcode upon issuing read/write admin command, as mentioned
+> >    by Michael.
+> > - Move to use VIRTIO_PCI_CONFIG_OFF instead of adding some new defines
+> >    as was suggested by Michael.
+> > - Set the '.close_device' op to vfio_pci_core_close_device() as was
+> >    pointed by Alex.
+> > - Adapt to Vfio multi-line comment style in a few places.
+> > - Add virtualization@lists.linux-foundation.org in the MAINTAINERS file
+> >    to be CCed for the new driver as was suggested by Jason.
+> >
+> > Yishai
+> >
+> > Feng Liu (5):
+> >    virtio-pci: Fix common config map for modern device
+> >    virtio: Define feature bit for administration virtqueue
+> >    virtio-pci: Introduce admin virtqueue
+> >    virtio-pci: Introduce admin command sending function
+> >    virtio-pci: Introduce admin commands
+> >
+> > Yishai Hadas (4):
+> >    virtio-pci: Introduce APIs to execute legacy IO admin commands
+> >    vfio/pci: Expose vfio_pci_core_setup_barmap()
+> >    vfio/pci: Expose vfio_pci_iowrite/read##size()
+> >    vfio/virtio: Introduce a vfio driver over virtio devices
+> >
+> >   MAINTAINERS                            |   7 +
+> >   drivers/vfio/pci/Kconfig               |   2 +
+> >   drivers/vfio/pci/Makefile              |   2 +
+> >   drivers/vfio/pci/vfio_pci_core.c       |  25 ++
+> >   drivers/vfio/pci/vfio_pci_rdwr.c       |  38 +-
+> >   drivers/vfio/pci/virtio/Kconfig        |  15 +
+> >   drivers/vfio/pci/virtio/Makefile       |   4 +
+> >   drivers/vfio/pci/virtio/main.c         | 577 +++++++++++++++++++++++++
+> >   drivers/virtio/virtio.c                |  37 +-
+> >   drivers/virtio/virtio_pci_common.c     |  14 +
+> >   drivers/virtio/virtio_pci_common.h     |  20 +-
+> >   drivers/virtio/virtio_pci_modern.c     | 441 ++++++++++++++++++-
+> >   drivers/virtio/virtio_pci_modern_dev.c |  24 +-
+> >   include/linux/vfio_pci_core.h          |  20 +
+> >   include/linux/virtio.h                 |   8 +
+> >   include/linux/virtio_config.h          |   4 +
+> >   include/linux/virtio_pci_admin.h       |  18 +
+> >   include/linux/virtio_pci_modern.h      |   5 +
+> >   include/uapi/linux/virtio_config.h     |   8 +-
+> >   include/uapi/linux/virtio_pci.h        |  66 +++
+> >   20 files changed, 1295 insertions(+), 40 deletions(-)
+> >   create mode 100644 drivers/vfio/pci/virtio/Kconfig
+> >   create mode 100644 drivers/vfio/pci/virtio/Makefile
+> >   create mode 100644 drivers/vfio/pci/virtio/main.c
+> >   create mode 100644 include/linux/virtio_pci_admin.h
+> >  
+> Hi Michael,
+> 
+> Did you have the chance to review the virtio part of that series ?
+> 
+> IMO, we addressed all your notes on V0, I would be happy to get your 
+> feedback on V1 before sending V2.
+> 
+> In my TO-DO list for V2, have for now the below minor items.
+> Virtio:
+> Patch #6: Fix a krobot note where it needs to include the H file as part 
+> of the export symbols C file.
+> Vfio:
+> #patch #9: Rename the 'ops' variable to drop the 'acc' and potentially 
+> some rename in the description of the module with regards to 'family'.
+> 
+> Alex,
+> Are you fine to leave the provisioning of the VF including the control 
+> of its transitional capability in the device hands as was suggested by 
+> Jason ?
 
-Since SELinux is your target use case, can you explain why you can't
-create SELinux policy to enforce the restrictions you're after? I believe
-(but can be proven wrong, of course) that SELinux has mechanism for dealing
-with controls on ioctls.
+If this is the standard we're going to follow, ie. profiling of a
+device is expected to occur prior to the probe of the vfio-pci variant
+driver, then we should get the out-of-tree NVIDIA vGPU driver on board
+with this too.
 
+> Any specific recommendation following the discussion in the ML, for the 
+> 'family' note ?
 
->
-> Thanks,
-> Maxime
->
-> [0]:
-> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
->
+It's not super important, it's just overly broad vs what's actually
+implemented.  Limiting the description to virtio-net for the current
+implementation is fine.
+
+> Once I'll have the above feedback I may prepare and send V2.
+
+I'll try to take a more thorough look, but also note my comments to
+Ankit relative to config space emulation.  This driver correctly
+implements the flags for the IO Port BAR, but does not support sizing
+of the BAR through config space, which I think is a shortcoming
+relative to that implemented by vfio-pci.  QEMU doesn't rely on this,
+but we don't know there aren't other userspaces that depend on this
+behavior.  Thanks,
+
+Alex
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
