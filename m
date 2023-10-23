@@ -4,108 +4,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A9284CDB474
-	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 05:02:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3663DC001E0
+	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 05:49:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 123CF60F2F;
-	Mon, 23 Oct 2023 05:02:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 123CF60F2F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aTq91aEi
+	by smtp3.osuosl.org (Postfix) with ESMTP id A9E1560F45;
+	Mon, 23 Oct 2023 05:49:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A9E1560F45
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9INOjtuqLMQf; Mon, 23 Oct 2023 05:02:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6FBF760F2A;
-	Mon, 23 Oct 2023 05:02:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6FBF760F2A
+	with ESMTP id XZ_Ub9yGN0UE; Mon, 23 Oct 2023 05:49:20 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3C06860BA1;
+	Mon, 23 Oct 2023 05:49:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C06860BA1
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DEA3C0071;
-	Mon, 23 Oct 2023 05:02:28 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 433E9C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C991C0039;
+	Mon, 23 Oct 2023 05:49:20 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A6E8C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 05:02:27 +0000 (UTC)
+ Mon, 23 Oct 2023 05:49:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0B59241B59
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1F1D540A8E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 05:02:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0B59241B59
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=aTq91aEi
+ Mon, 23 Oct 2023 05:49:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F1D540A8E
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I2FEaQsy8rqH
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eJa6QP3aTxI8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 05:02:26 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E02EF41B34
+ Mon, 23 Oct 2023 05:49:17 +0000 (UTC)
+Received: from out30-110.freemail.mail.aliyun.com
+ (out30-110.freemail.mail.aliyun.com [115.124.30.110])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A7F2440146
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 05:02:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E02EF41B34
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698037344;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=VYWewINA58ufsweAbU1fUSU48ieD3onMLop08pEtwvU=;
- b=aTq91aEiwLuF5yy5/m/IeypSvj33Qp1ZzYojiTe4mYPN35LCU75+uh46pTA6wxrdBemRfK
- oO8RGe3z9byJNXsLgG0B4isdI/E4OWLJhe6xC3Znm6IvB114HrCuAS7BKK06xli1ciQhCl
- V1XggJWFaZVtqTCZ49Ux24qZKH0nFL4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-500-9-o1jcjENuCOyfuPDPeyEg-1; Mon, 23 Oct 2023 01:02:16 -0400
-X-MC-Unique: 9-o1jcjENuCOyfuPDPeyEg-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-408508aa81cso20117605e9.3
- for <virtualization@lists.linux-foundation.org>;
- Sun, 22 Oct 2023 22:02:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698037335; x=1698642135;
- h=content-disposition:mime-version:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=VYWewINA58ufsweAbU1fUSU48ieD3onMLop08pEtwvU=;
- b=P2cP3xhijcuNUvuJ0DHT21ry0Irpqu6V174mfJYY5i87DzUO1tc3Lx88eWoos2nyZD
- +ioMn4seyzngfdeE3dPTsgQS6IMTETwGqaDgi6In5DRT9nYEEZFAfxDHJcaZKzP/8MSz
- NtIR9XvFN0Q1OqtQoU38gsY8VC6UbnyKPU6rjHdzmPb5mcLpQltYe35vLV+YcqU35OyY
- S3+X6gsmMp1vo5gPjaNcEUTr9myZ1ugYFVCSFv4tWEnAHmFmTzGEQ/TNiY/VjAOBjHJ5
- caiPwFOd73VhJugncHV49rm+rero3HUSE4DBYXtP9V59hHnvW2h+ny9Ax5ks8VuhVnEn
- 86FQ==
-X-Gm-Message-State: AOJu0Yz7heLXx7xG9ZImw03J8+rAL+9dc6GzJ/eq98PEGvlGsVu+nFcx
- aLApwk31L13SNHURHpxy/nD1u7X2XDzLU+pEQkzcFuoBOPFGK8XuSMf/GMk7JO4Y9oMG8tglUFt
- D7okuOqJkPFYtcvvXr3+CN+8DFtFYD91acMZpRzAgWg==
-X-Received: by 2002:a05:600c:188a:b0:406:7021:7d8 with SMTP id
- x10-20020a05600c188a00b00406702107d8mr6243003wmp.20.1698037335648; 
- Sun, 22 Oct 2023 22:02:15 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEEE93zO060dPvm0mbGcpCvz5k2sh+CIGfA4Q3Qp53GzxNdWjPayH2r0nxenrW1QoZUESLwnA==
-X-Received: by 2002:a05:600c:188a:b0:406:7021:7d8 with SMTP id
- x10-20020a05600c188a00b00406702107d8mr6242988wmp.20.1698037335303; 
- Sun, 22 Oct 2023 22:02:15 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f2:e88f:2c2c:db43:583d:d30e])
- by smtp.gmail.com with ESMTPSA id
- 1-20020a05600c028100b004077219aed5sm13079549wmk.6.2023.10.22.22.02.09
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 22 Oct 2023 22:02:14 -0700 (PDT)
-Date: Mon, 23 Oct 2023 01:02:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [GIT PULL] virtio: last minute fixes
-Message-ID: <20231023010207-mutt-send-email-mst@kernel.org>
-MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: xuanzhuo@linux.alibaba.com, kvm@vger.kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- liming.wu@jaguarmicro.com, virtualization@lists.linux-foundation.org,
- pasic@linux.ibm.com, eric.auger@redhat.com, mheyne@amazon.de,
- catalin.marinas@arm.com, shawn.shao@jaguarmicro.com, zhenyzha@redhat.com,
- pizhenwei@bytedance.com
+ Mon, 23 Oct 2023 05:49:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A7F2440146
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045192;
+ MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=5; SR=0;
+ TI=SMTPD_---0Vudok89_1698040147; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Vudok89_1698040147) by smtp.aliyun-inc.com;
+ Mon, 23 Oct 2023 13:49:08 +0800
+Message-ID: <1698040004.5365264-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] virtio_ring: add an error code check in virtqueue_resize
+Date: Mon, 23 Oct 2023 13:46:44 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Su Hui <suhui@nfschina.com>
+References: <20231020092320.209234-1-suhui@nfschina.com>
+ <20231020053047-mutt-send-email-mst@kernel.org>
+ <1697794601.5857713-2-xuanzhuo@linux.alibaba.com>
+ <20231020054140-mutt-send-email-mst@kernel.org>
+ <1697795422.0986886-1-xuanzhuo@linux.alibaba.com>
+ <20231020055943-mutt-send-email-mst@kernel.org>
+ <1698028017.8052797-1-xuanzhuo@linux.alibaba.com>
+ <d4aa3f76-3e08-a852-a948-b88226a37fdd@nfschina.com>
+ <1698029596.5404413-3-xuanzhuo@linux.alibaba.com>
+ <46aee820-6c01-ed8a-613b-5c57258d749e@nfschina.com>
+In-Reply-To: <46aee820-6c01-ed8a-613b-5c57258d749e@nfschina.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, kernel-janitors@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,70 +78,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The following changes since commit 58720809f52779dc0f08e53e54b014209d13eebb:
+On Mon, 23 Oct 2023 11:06:48 +0800, Su Hui <suhui@nfschina.com> wrote:
+>
+> On 2023/10/23 10:53, Xuan Zhuo wrote:
+> > On Mon, 23 Oct 2023 10:51:59 +0800, Su Hui <suhui@nfschina.com> wrote:
+> >> On 2023/10/23 10:26, Xuan Zhuo wrote:
+> >>>>>> Well, what are the cases where it can happen practically?
+> >>>>> Device error. Such as vp_active_vq()
+> >>>>>
+> >>>>> Thanks.
+> >>>> Hmm interesting. OK. But do callers know to recover?
+> >>> No.
+> >>>
+> >>> So I think WARN + broken is suitable.
+> >>>
+> >>> Thanks.
+> >> Sorry for the late, is the following code okay?
+> >>
+> >> @@ -2739,7 +2739,7 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+> >>                        void (*recycle)(struct virtqueue *vq, void *buf))
+> >>    {
+> >>           struct vring_virtqueue *vq = to_vvq(_vq);
+> >> -       int err;
+> >> +       int err, err_reset;
+> >>
+> >>           if (num > vq->vq.num_max)
+> >>                   return -E2BIG;
+> >> @@ -2759,7 +2759,15 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+> >>           else
+> >>                   err = virtqueue_resize_split(_vq, num);
+> >>
+> >> -       return virtqueue_enable_after_reset(_vq);
+> >> +       err_reset = virtqueue_enable_after_reset(_vq);
+> >> +
+> >> +       if (err) {
+> > No err.
+> >
+> > err is not important.
+> > You can remove that.
+>
+> Emm, I'm a little confused that which code should I remove ?
 
-  Linux 6.6-rc6 (2023-10-15 13:34:39 -0700)
 
-are available in the Git repository at:
+like this:
+	if (vq->packed_ring)
+		virtqueue_resize_packed(_vq, num);
+	else
+		virtqueue_resize_split(_vq, num);
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+And we should set broken and warn inside virtqueue_enable_after_reset()?
 
-for you to fetch changes up to 061b39fdfe7fd98946e67637213bcbb10a318cca:
+Thanks.
 
-  virtio_pci: fix the common cfg map size (2023-10-18 11:30:12 -0400)
 
-----------------------------------------------------------------
-virtio: last minute fixes
 
-a collection of small fixes that look like worth having in
-this release.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Dragos Tatulea (2):
-      vdpa/mlx5: Fix double release of debugfs entry
-      vdpa/mlx5: Fix firmware error on creation of 1k VQs
-
-Eric Auger (1):
-      vhost: Allow null msg.size on VHOST_IOTLB_INVALIDATE
-
-Gavin Shan (1):
-      virtio_balloon: Fix endless deflation and inflation on arm64
-
-Liming Wu (1):
-      tools/virtio: Add dma sync api for virtio test
-
-Maximilian Heyne (1):
-      virtio-mmio: fix memory leak of vm_dev
-
-Shawn.Shao (1):
-      vdpa_sim_blk: Fix the potential leak of mgmt_dev
-
-Xuan Zhuo (1):
-      virtio_pci: fix the common cfg map size
-
-zhenwei pi (1):
-      virtio-crypto: handle config changed by work queue
-
- drivers/crypto/virtio/virtio_crypto_common.h |  3 ++
- drivers/crypto/virtio/virtio_crypto_core.c   | 14 +++++-
- drivers/vdpa/mlx5/net/debug.c                |  5 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.c            | 70 ++++++++++++++++++++++------
- drivers/vdpa/mlx5/net/mlx5_vnet.h            | 11 ++++-
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c         |  5 +-
- drivers/vhost/vhost.c                        |  4 +-
- drivers/virtio/virtio_balloon.c              |  6 ++-
- drivers/virtio/virtio_mmio.c                 | 19 ++++++--
- drivers/virtio/virtio_pci_modern_dev.c       |  2 +-
- tools/virtio/linux/dma-mapping.h             | 12 +++++
- 11 files changed, 121 insertions(+), 30 deletions(-)
-
+>
+> > Thanks.
+> >
+> >
+> >> +               vq->broken = true;
+> >> +               WARN_ON(err_reset);
+> >> +               return err;
+> >> +       }
+> >> +
+> >> +       return err_reset;
+> >>    }
+> >>
+> >> Thanks.
+> >> Su Hui
+> >>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
