@@ -1,78 +1,82 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 26DE3C001E0
-	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 07:29:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 02B76C001E0
+	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 07:35:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A143C60F41;
-	Mon, 23 Oct 2023 07:29:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A143C60F41
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UlOS7NcO
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9875341E71;
+	Mon, 23 Oct 2023 07:35:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9875341E71
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Za10lST6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ow_02qCG-Se3; Mon, 23 Oct 2023 07:29:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2A59660F44;
-	Mon, 23 Oct 2023 07:29:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2A59660F44
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wjVrgogcCL-w; Mon, 23 Oct 2023 07:35:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1999741E63;
+	Mon, 23 Oct 2023 07:35:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1999741E63
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD21FC0039;
-	Mon, 23 Oct 2023 07:29:09 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D556EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C35DBC0039;
+	Mon, 23 Oct 2023 07:35:39 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EEF0FC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 07:29:08 +0000 (UTC)
+ Mon, 23 Oct 2023 07:35:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A2E4360F44
+ by smtp2.osuosl.org (Postfix) with ESMTP id C05D740463
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 07:29:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A2E4360F44
+ Mon, 23 Oct 2023 07:35:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C05D740463
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Za10lST6
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xeNaqs69ldJk
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0zgp4GQtNAAp
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 07:29:07 +0000 (UTC)
+ Mon, 23 Oct 2023 07:35:37 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B0A2760F41
+ by smtp2.osuosl.org (Postfix) with ESMTPS id AFF9040158
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 07:29:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B0A2760F41
+ Mon, 23 Oct 2023 07:35:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AFF9040158
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698046146;
+ s=mimecast20190719; t=1698046536;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=apWD1/Zyp7DIITJ5upQ0rpbEXd3C5IkVNMzYkTTehzg=;
- b=UlOS7NcO1nSkZ7XIcOOq1NvaKC9c01jwSAQNRzJrRLtSjosLJvA24iwyex2AJG0HjNnF6h
- uaVp5nIVTbcBMIl4Hv6HrZPCCDG2mb6gKtqjhPAhUuamptz2N5h0DtVma/918L9rsDFXhX
- 7zjpQtMUZHtFtOoiH4XNJccJZVey9l0=
+ bh=gCvqpOQdF+5gxTxit3nhJ+3DoMqApvSza5DK6qieuOY=;
+ b=Za10lST6FRwz7EHHx0VjPmPVfVMRIRlxpAc1Nt8pk6p+mQ/PXwOwtlgKXEkJ4BMetzp4ZG
+ MpCaNqfcnFw8WToWm8zGv9cwXBENdW5bUoy5krQ5tAgztKzBKfPw3CDrD0NmEf8PpHSSGP
+ qLgGLZW4B1lNu6OVaWGThD4ewRXnB4E=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-343-D_tBb5ZPNhiaCklXsRYJZA-1; Mon, 23 Oct 2023 03:29:03 -0400
-X-MC-Unique: D_tBb5ZPNhiaCklXsRYJZA-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com
- [10.11.54.9])
+ us-mta-627-VcvqjrNzMDmHKL0BqsVrOw-1; Mon, 23 Oct 2023 03:35:30 -0400
+X-MC-Unique: VcvqjrNzMDmHKL0BqsVrOw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.8])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 653FE3C14918;
- Mon, 23 Oct 2023 07:29:02 +0000 (UTC)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4D38E3C176E1;
+ Mon, 23 Oct 2023 07:35:30 +0000 (UTC)
 Received: from [10.39.208.17] (unknown [10.39.208.17])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 1315D492BD9;
- Mon, 23 Oct 2023 07:28:58 +0000 (UTC)
-Message-ID: <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
-Date: Mon, 23 Oct 2023 09:28:57 +0200
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 25DD8C15BB8;
+ Mon, 23 Oct 2023 07:35:25 +0000 (UTC)
+Message-ID: <b7efba7a-0948-4b54-93cf-d676f9d5ea30@redhat.com>
+Date: Mon, 23 Oct 2023 09:35:24 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Subject: Re: [PATCH v4 1/4] vduse: validate block features only with block
+ devices
 Content-Language: en-US
 To: Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
  jasowang@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
@@ -82,8 +86,8 @@ To: Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
  linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
  david.marchand@redhat.com, lulu@redhat.com
 References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
- <20231020155819.24000-5-maxime.coquelin@redhat.com>
- <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <20231020155819.24000-2-maxime.coquelin@redhat.com>
+ <499aa925-f1fc-43de-ad5c-2fab28fb38e7@schaufler-ca.com>
 From: Maxime Coquelin <maxime.coquelin@redhat.com>
 Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
  xsFNBFOEQQIBEADjNLYZZqghYuWv1nlLisptPJp+TSxE/KuP7x47e1Gr5/oMDJ1OKNG8rlNg
@@ -128,8 +132,8 @@ Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
  fxjSxjSO6rj4/MeenmlJw1yebzkX8ZmaSi8BHe+n6jTGEFNrbiOdWpJgc5yHIZZnwXaW54QT
  UhhSjDL1rV2B4F28w30jYmlRmm2RdN7iCZfbyP3dvFQTzQ4ySquuPkIGcOOHrvZzxbRjzMx1
  Mwqu3GQ=
-In-Reply-To: <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+In-Reply-To: <499aa925-f1fc-43de-ad5c-2fab28fb38e7@schaufler-ca.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.8
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -148,30 +152,63 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 
-On 10/21/23 00:20, Casey Schaufler wrote:
+On 10/21/23 00:07, Casey Schaufler wrote:
 > On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
->> This patch introduces LSM hooks for devices creation,
->> destruction and opening operations, checking the
->> application is allowed to perform these operations for
->> the Virtio device type.
+>> This patch is preliminary work to enable network device
+>> type support to VDUSE.
+>>
+>> As VIRTIO_BLK_F_CONFIG_WCE shares the same value as
+>> VIRTIO_NET_F_HOST_TSO4, we need to restrict its check
+>> to Virtio-blk device type.
+>>
+>> Acked-by: Jason Wang <jasowang@redhat.com>
+>> Reviewed-by: Xie Yongji <xieyongji@bytedance.com>
+>> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
+>> ---
+>>   drivers/vdpa/vdpa_user/vduse_dev.c | 9 +++++----
+>>   1 file changed, 5 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> index df7869537ef1..5b3879976b3d 100644
+>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+>> @@ -1662,13 +1662,14 @@ static bool device_is_allowed(u32 device_id)
+>>   	return false;
+>>   }
+>>   
+>> -static bool features_is_valid(u64 features)
+>> +static bool features_is_valid(struct vduse_dev_config *config)
 > 
-> Why do you think that there needs to be a special LSM check for virtio
-> devices? What can't existing device attributes be used?
+> This should either be features_are_valid() or feature_is_valid().
+> Correct pluralization is important in the English language.
 
-Michael asked for a way for SELinux to allow/prevent the creation of
-some types of devices [0].
-
-A device is created using ioctl() on VDUSE control chardev. Its type is
-specified via a field in the structure passed in argument.
-
-I didn't see other way than adding dedicated LSM hooks to achieve this,
-but it is possible that their is a better way to do it?
+Indeed, I will change to features_are_valid() in next revision.
 
 Thanks,
 Maxime
 
-[0]: 
-https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>   {
+>> -	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+>> +	if (!(config->features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+>>   		return false;
+>>   
+>>   	/* Now we only support read-only configuration space */
+>> -	if (features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE))
+>> +	if ((config->device_id == VIRTIO_ID_BLOCK) &&
+>> +			(config->features & (1ULL << VIRTIO_BLK_F_CONFIG_WCE)))
+>>   		return false;
+>>   
+>>   	return true;
+>> @@ -1695,7 +1696,7 @@ static bool vduse_validate_config(struct vduse_dev_config *config)
+>>   	if (!device_is_allowed(config->device_id))
+>>   		return false;
+>>   
+>> -	if (!features_is_valid(config->features))
+>> +	if (!features_is_valid(config))
+>>   		return false;
+>>   
+>>   	return true;
+> 
 
 _______________________________________________
 Virtualization mailing list
