@@ -1,95 +1,182 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5DC3EC25B67
-	for <virtualization@archiver.kernel.org>; Mon, 23 Oct 2023 23:17:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C97B2C25B6B
+	for <virtualization@archiver.kernel.org>; Tue, 24 Oct 2023 00:11:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E7E7961464;
-	Mon, 23 Oct 2023 23:17:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E7E7961464
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=VXqYeNUG
+	by smtp2.osuosl.org (Postfix) with ESMTP id 283B04195F;
+	Tue, 24 Oct 2023 00:11:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 283B04195F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=u6Zs+Zrq
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QdY--37wjCVw; Mon, 23 Oct 2023 23:17:16 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aLoSGu0KKSk6; Tue, 24 Oct 2023 00:11:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 50B4961467;
-	Mon, 23 Oct 2023 23:17:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 50B4961467
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A5776400DC;
+	Tue, 24 Oct 2023 00:11:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A5776400DC
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2443AC0039;
-	Mon, 23 Oct 2023 23:17:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 330C7C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62AACC0071;
+	Tue, 24 Oct 2023 00:11:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 159CDC0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 23:17:14 +0000 (UTC)
+ Tue, 24 Oct 2023 00:11:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0E1A0428B6
+ by smtp1.osuosl.org (Postfix) with ESMTP id F15B7816F5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 23:17:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E1A0428B6
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=VXqYeNUG
+ Tue, 24 Oct 2023 00:11:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org F15B7816F5
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=opensynergy.com header.i=@opensynergy.com
+ header.a=rsa-sha256 header.s=TM-DKIM-20210503141657 header.b=u6Zs+Zrq
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6dbG2EI1-GOy
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0lmRuMxowt4f
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 23:17:13 +0000 (UTC)
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E2AD9428B5
+ Tue, 24 Oct 2023 00:11:27 +0000 (UTC)
+Received: from repost01.tmes.trendmicro.eu (repost01.tmes.trendmicro.eu
+ [18.185.115.111])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CD616813F5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Oct 2023 23:17:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2AD9428B5
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 39NMJZnC012114; Mon, 23 Oct 2023 23:17:06 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id; s=corp-2023-03-30;
- bh=GpxSDSh7UIyddMbQEDT+nBmKcU5KTVkXVikk2aYD+GM=;
- b=VXqYeNUGIT8y0g4T2ZEdAQYN3l9XjV49wDOfcpXMc3yh+hYxg1vDI3VvoCzuuU0g2FCt
- QDoUuKyxedDQcIodsfm3k4DABNRGj6jZ8XKftBZsad5a61jp2JcsEmObvTkXORwHpCiJ
- XEb2OJ1xMkKmnc35fSa14UtB5l/p7GRHalPGyZqBrFUeeTiyZFqmuY3UXkBNaSfuGTmx
- fFAeoKyUrMP6GBFYPdFsrTDwsyriN5fYeRExKFmjMQAG2c5pCiO2Fik0c9d6MFjUECjb
- J4q8pAhETydCyO6wvPMEjhlOz6Yq82SFIt6GbtPAnQzgQnfEQZCm70H4DSvItCxC8yJ7 RA== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3tv68tc9rw-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 23 Oct 2023 23:17:05 +0000
-Received: from pps.filterd
- (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 39NLO3lF018954; Mon, 23 Oct 2023 23:17:05 GMT
-Received: from ban25x6uut24.us.oracle.com (ban25x6uut24.us.oracle.com
- [10.153.73.24])
- by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id
- 3tv534verp-1; Mon, 23 Oct 2023 23:17:05 +0000
-From: Si-Wei Liu <si-wei.liu@oracle.com>
-To: jasowang@redhat.com, mst@redhat.com,
- virtualization@lists.linux-foundation.org, sfr@canb.auug.org.au
-Subject: [PATCH] vhost-vdpa: fix NULL pointer deref in _compat_vdpa_reset
-Date: Mon, 23 Oct 2023 16:14:23 -0700
-Message-Id: <1698102863-21122-1-git-send-email-si-wei.liu@oracle.com>
-X-Mailer: git-send-email 1.8.3.1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-23_21,2023-10-19_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
- malwarescore=0 bulkscore=0
- mlxscore=0 suspectscore=0 phishscore=0 adultscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2310170001
- definitions=main-2310230204
-X-Proofpoint-ORIG-GUID: kFqRJFETwDPh-5HKFdvBMTVe0lcMo_3O
-X-Proofpoint-GUID: kFqRJFETwDPh-5HKFdvBMTVe0lcMo_3O
-Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org
+ Tue, 24 Oct 2023 00:11:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CD616813F5
+Received: from 104.47.11.169_.trendmicro.com (unknown [172.21.184.89])
+ by repost01.tmes.trendmicro.eu (Postfix) with SMTP id B22F810000D16;
+ Tue, 24 Oct 2023 00:11:23 +0000 (UTC)
+X-TM-MAIL-RECEIVED-TIME: 1698106283.337000
+X-TM-MAIL-UUID: 77ff5ad5-b4ec-4f7b-acbc-105ddbffeb0e
+Received: from DEU01-FR2-obe.outbound.protection.outlook.com (unknown
+ [104.47.11.169])
+ by repre01.tmes.trendmicro.eu (Trend Micro Email Security) with ESMTPS id
+ 528E01000100B; Tue, 24 Oct 2023 00:11:23 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BokVjo291kPU2VBAvLpVC6L4NCh0MGRXAFkxA6pOCYpTQdZw/5PRyx6Mb962B+GWESuQh99QQGXXTwLAyHY0c7PrRn60BTHUajl5KnblRnp4jPr159r9OosbN8HbyNpioor4m1xy4BLLdGMJLy6h2RaCL38Km8KFPeY5YRYNFaBsE/xQRWOaH5qvmkUwRpCSEaGh8638QqC04jwFG7yPgN4JlkDPFmym+6edTL/W9NjRwlFnHTAaNcg+VrQloveHmaLIpM4ZTOtXnb3tZ0c3KuSelBiBn5/VMjV9N+1vEhFmad7CN1P3iquAiruNTTLlD0s4n3FOrFyUCKaFOGAHrw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bnkacQflEac2v1amQql1sOd4Yju9cld7TgbIvyExlOg=;
+ b=MMQtBQcRAoVhAszkvyffjuHg0QWnK/koK5erJNYxV2Z7siVu/BU8CVAIuznC28dIFEAFdE2Vat249xfb+K9Po2B5g3M4qWwzfSpsy0zALwQ8pcuYnBAULfgn8QUWXOfSraiEUPWsh/6JsXbFXSIjb6UPOmHuADZ8n9EF/qrBVSda7F07QDUeL5ArXdDWlWeFIUMvf8mQ2Yi56cKBCJ5fWmUAr2cAdvLq930fDtEZMjm2uruVdKUJZ0dIaRVm7BqLK0sxHGF/meRnp36wn5+4EOq7WNy1D6cOeyjJz9QiEC5Nrfi9lowj0nPf3iyc5H1Sd93Jf6o2dvQn3Om+YJvGuw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=opensynergy.com;
+Message-ID: <a7808ac5-3f03-4584-93bc-485d358d57c1@opensynergy.com>
+Date: Tue, 24 Oct 2023 09:11:10 +0900
+Subject: Re: [PATCH v3] ALSA: virtio: use ack callback
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, mst@redhat.com
+References: <ZTaMEUZUTrRRUD6y@fedora>
+Content-Language: en-US
+In-Reply-To: <ZTaMEUZUTrRRUD6y@fedora>
+X-ClientProxiedBy: FR5P281CA0016.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:f1::14) To BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:5c::11)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BEZP281MB2374:EE_|FRYP281MB2191:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7f8ba72b-4c86-4313-7c42-08dbd425c0d6
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vrm+c011fElGUbdxLx5hv3haF6KBBth4ycB6ia3PeDTji84w0qwrT6Kwk5suwBQadWxF8A8L3S5SywRu8B5WUXycs6qQvhkPkSBSLYTzUv3YYJAGug3m9YcAo5RpugAw8ZyOs/ZsyXnHfaRQRwQHDwcvKoR5IFjZSb0rR9EE4nEmTaNskvTNqSbpgcpykXRSXWq8qvxV88puV6YdTgU+Z0Y/Ig8WYDjdikm934uW9LryRq2AQI5SXh1/xalcfrNiMAbByJzVmiNuSVFrfx4bz73auuBykTiadxWuGQh9nxQhp6Bp9mEDOVIogqEdvYNjeZ+34CcvSZC20ukxZ5fO3YT+hukBWPtB9W7xb732wvF+OTGhpQVRzS/NT5OMTV+xnddzkwBUT/BXzM82sWX1UDcWP48BNOZEWVs/dtIKmqS+HfHt/58hSAHEOFTYUn0XM6oAwIxAFItIFZ08jyvVxqvAW08V8MSC2JLMJGRTsTlxoTZZKfmPa1xiQzN+SqQDElhviAkaZ50yvnsVxWp3d/FoTh44FpyG/A2+FmxFSyBnM+BrxUQsaI6/IyiklsPIF6lMDIqG6eSFzrmgwxtIXrmGbbUePxGYFJIXeJg+ACeLN+KPZM0rFf9yGAGQyKtYhgDn/0ScGD+6aecgJavhKyTemeW5T+cBVsMzRXxn7Mk=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM; PTR:; CAT:NONE;
+ SFS:(13230031)(39840400004)(346002)(396003)(366004)(376002)(136003)(230922051799003)(64100799003)(186009)(1800799009)(451199024)(31686004)(2616005)(53546011)(38100700002)(31696002)(86362001)(36756003)(41300700001)(26005)(2906002)(44832011)(7416002)(30864003)(966005)(83380400001)(478600001)(8676002)(8936002)(5660300002)(4326008)(42186006)(66556008)(316002)(66946007)(66476007);
+ DIR:OUT; SFP:1102; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bU5xTFFLNmFXcjRyVWtwRndmOUtUQWlFUGs2OVI1TVlXdEVyQUNNUlpWdUtM?=
+ =?utf-8?B?R2lGSTNGYmNSSXZLY3NKRTdGbVg0VkNuV1BOZTlwSTZXL0JxMUFwbWxraE9a?=
+ =?utf-8?B?Rm9xb2xoZkc1ZnN1TmlVK0FYRDFjNXdMTHQwYXJqUW00ZHl6RVRWVU44cThW?=
+ =?utf-8?B?enlhaEFTR2hFNnUxaGVaSWVaTTdRZGwrU2p5RmVPOXZRbVlRT3BTR25xTHZK?=
+ =?utf-8?B?YXpYdHQ4cmVxZDVyZFRWV2UzZ1N6UWVIcVZncGJoYXJtZUpYRnpyangwN0FN?=
+ =?utf-8?B?OTVyMW13VXhZMVlUODdWaW1JSm1RdTEyMTFjcDMvRVRuNDNRUkRMTXlJaFA0?=
+ =?utf-8?B?RmRCUTVDVVhmUmNySXJUSmpxVWVXWU5LSHFPNVVKT0VhMU1jOXpOWEc0OC9v?=
+ =?utf-8?B?Q1d6T0dmVGRYS1c2cjEzSFBsbWVuTFkxZXduMTdTaHlRNkI3VGRRV3M1YTBC?=
+ =?utf-8?B?UmhzUTZUQTlHN2s3ZHptTjNnRTR3T1ovTHNnNGtFOVgzSVpTVFd6TmtJTkEx?=
+ =?utf-8?B?MmZOWDB1ellqZDgySkN5RURwYVVrUS9XMVc5bE9ZUnhBNXhzRGk5bDAxV2dR?=
+ =?utf-8?B?NWF3eXNmeXpQNEJ6cXdNWmFYOC82Z295Ym1KSEFtcWhPQ2lMc1VjYktwaGFY?=
+ =?utf-8?B?Z2FUaldQOHlPVHNReXlFTFRENFQxbC91RlU0L0ZiamNSZ1h3K1JJbWFlbmE2?=
+ =?utf-8?B?VU5PMnJER0phT2RCMmN0RFlJZkpZZi9FQ3RZQmxBQ3hjQjNLeWh5U3VKTXVI?=
+ =?utf-8?B?WFV6cWtYdDV5a0VKZ08zTlJEemhOc3owVFFCZStBRW1rVmFrWERXYituTDBY?=
+ =?utf-8?B?RXJxQTY3N25uajh3MDgvd0gxSU14dHk1djdNKy9JNzAwaHZxbWsxYUlOUDVH?=
+ =?utf-8?B?S0YrSXJmaGVyWlVVeU4xbS8rV09CQzkxZVZuczF1SjlKbWJpU3V0d0FJZTJQ?=
+ =?utf-8?B?eDMzbW96KzFhb2dsMWk1WjdQbGl2R0FkeU8wY0kvNHBkZG1rbWhySVBrcUFy?=
+ =?utf-8?B?dXlCc1k4OTBISWFneVpuMXdyb2d4eFF3dVY3SVdwY2tqdDNsa0xzTW55YzlS?=
+ =?utf-8?B?YnV0UHR0S0ZSZmtUMGlHM2ZiUlJzM0JkS2MxUGVtRFBlOWZrNTNScnBKTUhr?=
+ =?utf-8?B?MDZ1THBKSXRIcHFTeUowRzl3a096NTUwSHF1RTBMVHRCRTVZY09QYU9ITGZF?=
+ =?utf-8?B?ZEZwWVhCVG9SZzcvUXZHYUJvamg0Ty9laUhlRE1LNUdLQmlZMlZCS0NJcDIx?=
+ =?utf-8?B?Skc0dFJjT2kvS21vcHVQR1BOUU9oeUIvQTZBaXQzRkMvOTZoZlRKempaZ2pn?=
+ =?utf-8?B?Kzg5WmYrbXAyRXdVRUZNd3FuY1RIY2RqT3RHSDBDdmVGQ3JtUnIzUjg4bWk2?=
+ =?utf-8?B?bVQ5ajkvWFRzSlAydU9VUnhKSHY0eGdjdk9xK0RLRWl2T3Y2Y3BWbTM0b1dY?=
+ =?utf-8?B?NUpTZk4xNUREQjJ3a3gwZm5aMGtxTzhvSTNDenZjZkpKcDdmUVJxRjZYWWV1?=
+ =?utf-8?B?eTFMbGhtV0Nxd3haZWRpaTZxcFVsZTJORFBZaDlGRDE4RkxvUWRzREJ4bUhm?=
+ =?utf-8?B?Y2RvNU0wMXlMTHQwZlMrQTVOQ0FoMG9tR0JqNk05RVFpS0NINHFKNGxKL0x2?=
+ =?utf-8?B?NHhncHo2MDdjeFQ1RUJWekdqUXJSYWk4d3dNL09YK0g2cWYwaTdYMVMrOGow?=
+ =?utf-8?B?Ky9MUnh3eWRZMk4wdFJidndQbjZTWUhpaE03T2tVZ1lVblpJMW1PYVlwa0x2?=
+ =?utf-8?B?Z0t6UE4ySTBQL2V4L1pGaUpJUldQNTIwaXdkODhMYmhqbDVHemZid2kxbzN6?=
+ =?utf-8?B?d0VrazVzQkJYZ1NJd0R1NFB4K3ZUWkNxbzBvZ00rQnRWcVR2RnYzbmFzWkZM?=
+ =?utf-8?B?R1V5QlYvWHdWL3Flc3FBWTJ2cjlsUTN2T2NacEhVbkhUaUQrOCsza04wWkFG?=
+ =?utf-8?B?WTZJWlJUdFRkdmtOcEFRWFRmRjE1WFFTY2M1ZFk2N1hrWDNQZmxQMmRvNTR2?=
+ =?utf-8?B?N0pwOWRMS2NvQjlvMXVaQzU0UEoyRU5FNGwvb2VaNUxFK2ZIaEoxUCtrL0sy?=
+ =?utf-8?B?NVlVVy9YQitoWnBkTHVuMmxuNys3aDErQ2JHbmFjTzZDeXIrUVdWTk5kY3JJ?=
+ =?utf-8?Q?/PEJm+qD6OP3B//o6Yx7IV8tI?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7f8ba72b-4c86-4313-7c42-08dbd425c0d6
+X-MS-Exchange-CrossTenant-AuthSource: BEZP281MB2374.DEUP281.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Oct 2023 00:11:21.8062 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 3q0l5LcFWa0KLadnTgM8rd0doAv4rpS3nmDLsRdnbHeXw6nygI+iJNdaSFpiPYXhWMcoxoL2sjw+mWZRdneThQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: FRYP281MB2191
+X-TM-AS-ERS: 104.47.11.169-0.0.0.0
+X-TMASE-Version: StarCloud-1.3-9.1.1015-27954.003
+X-TMASE-Result: 10--22.446400-4.000000
+X-TMASE-MatchedRID: b/1IsOqez6dxHKHpX0oMclY9XYa1m8xAZK1SF2R3edgrwvLze83KAozv
+ m4Pxxv8Pyu3z7i3vDyRixG1BKJfHB/+qpWmqEPg8ITytpp/jrEzCjCxslGQrORxnMY5CbhsDFZp
+ Plpzh62WlGa+vOpRchezi1bYwxuLCe9BlXvdmdcMsJRkKgHlrKG8lDAHJQfo4uxtkhcNHU8q/VP
+ rnHmBZ41Kc/rRb51rIT/4sve2RJeQkEDLQ9SF8dVZB3ebKuqDZnVW5D6U48fcLDzQJD3kt0BgvD
+ LMzLQnup6zqiHj263MqSEjxwqOovEB18yGtgV5AUrLQDoO1CVcSRRLwSueD2qaikDM2s04msUhF
+ qfNcgQSOWA7WYqzVHt9rEb5Bf7uJQZdS6shUybjcMvZsE7nbYgf8yw0JGfKVSEazXcGLi+pWJ/2
+ jutJX2+b1Nz8aB8UnAW1a55mUwfT9ldOC+RYUwbzf3G4hAqP9lIhi5GPAGePHA9/x8bsoXbdR0S
+ OxdZbbTMncP/fvV6GaTQJyFGUjR+xAkh/4iTFXhi2C7dlNKWpWEpmiB2wI2xz2sRWlXYlsqTvdM
+ FzB6We3UZmshdxAcVVZaI9Xr8ZXoR0T2IxW1QMnDrpxCH9Hlxnz+kO152KHujBC2MOFc2/92Qye
+ yVvg9DnSnJR7/jmXAZuNGa1Y8H+7TLcxkxrna3lrH/TkKCsRikbFJLrj8PZCD8NaLaza0SiPEA0
+ m2RyOkdo2c2shEujlS3lpuOq4YlE0IR/WwiQgSfWp9DpMHJ7piEa4ycCIsDB4jJltGVDbLN5wGP
+ X3TPXYeXOEzfM22dEoO5p+Ouf5muMpo5XKw2/jfCs1ZLzBSlo7GmCOJYd1AqYBE3k9Mpw=
+X-TMASE-XGENCLOUD: 540b6483-7809-4f45-8bd3-53aa3a027cea-0-0-200-0
+X-TM-Deliver-Signature: 1759E8D0E36F93484587016491F42D67
+X-TM-Addin-Auth: G+/sdhIfcnS49yduSjScKUl0AFRc4LbuKNDDd2qb/3nIvifhv1vBLNVD7cA
+ J6RMmhRmXG411RKxRjNG3hd3K7lY8juVtZRVU2cBKco2xBADkBsqOJandLJ8Hfm3a4NfSqEDIj9
+ k/i7yGlHpqjiD56p+pFJORcCP4Q5bck682mKTyGDCP6XUQYsq7rbja+DMScFuACP5Uye+0u1Pwz
+ qGb9zPSZkgkiacxlrzV1v+qj2c1P/YaRUxDg06sru4arqzXh49oVeZmJ0aKs9UfHd/6+EdTBn98
+ jbHHK33L8LYK0Rs=.L2mzIk9MxPOGbvXlon1Vat0sxqvoCEUKn4fQUCyIAnc8mVPIoVaFC1Vuuu
+ 79U2BbV+fVvaRnjZ3p71UdQEbEF9yi/Fb2AXjRxpVwnJwyO3NR0CSr9G9SELz6B/KnOAQlXTIdj
+ 8rEpDDnRqXsCrgVXu9b4ehjUcrtF1nHNP1+9W8qqlY99hkfP6AkYrfDMYrQ+BY/ah1bK2VPwyW9
+ +Ygu4D2dsTccP8/DEPepuOzM9IGhPdSw7ZcNrMgXihNROtr7SBJlZqYwu1+SZrN50BT5WVfrdGG
+ V/2ht9wOta2J60uwIpvpAP8sK71jBb+s0hgdCDbDM83CkWdFju9F4im6RZw==
+X-TM-Addin-ProductCode: EMS
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=opensynergy.com;
+ s=TM-DKIM-20210503141657; t=1698106283;
+ bh=nSH/xpUBfco0EKfXIzzSFkinNZ/Xvpm99ceS6fJB0GM=; l=13180;
+ h=Date:To:From;
+ b=u6Zs+Zrq8C2J5fuJHhSiv7OWzFjTrH9dci/xPRc9SKHFMrpwJ5MWlza7jbUiWAWHS
+ 2XrDkewdhXJ2auIKMCKn/7yqoBICWqZ/XYi6tVb5AjrI2y14urQganEYpgoWbl11YH
+ eSW61e3q/tfK4/KWpTZPi/UDsNc/cKhNskGeLDPEr0hsGDgV2FOm85G7PKGCuZq25C
+ 4P6FFlFMnArXQI9v1XZUX0GeTLLdYWFI1Q/eIfD7UXFRrP/uzxQTY0auLWvcvGIRQl
+ jCOVZurmX7P+M+nFyd00LbHFA6y6lMvonwJrE21htSnEme2ni1B+JlbGG9DH4jJRCg
+ LVLhiwAI+W/Pw==
+Cc: alsa-devel@alsa-project.org, mripard@redhat.com, tiwai@suse.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ stefanha@redhat.com, pbonzini@redhat.com, perex@perex.cz
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,92 +188,355 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: Anton Yakovlev via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-As subject. There's a vhost_vdpa_reset() done earlier before
-vhost_dev is initialized via vhost_dev_init(), ending up with
-NULL pointer dereference. Fix is to check if vqs is initialized
-before checking backend features and resetting the device.
+Hi Matias,
 
-  BUG: kernel NULL pointer dereference, address: 0000000000000000
-  #PF: supervisor read access in kernel mode
-  #PF: error_code(0x0000) - not-present page
-  PGD 0 P4D 0
-  Oops: 0000 [#1] SMP
-  CPU: 3 PID: 1727 Comm: qemu-system-x86 Not tainted 6.6.0-rc6+ #2
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-
-  a4aeb02-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:_compat_vdpa_reset+0x47/0xc0 [vhost_vdpa]
-  Code: c7 c7 fb 12 56 a0 4c 8d a5 b8 02 00 00 48 89 ea e8 7e b8 c4
-  48 89 ee 48 c7 c7 19 13 56 a0 4c 8b ad b0 02 00 00 <48> 8b 00 49
-  00 48 8b 80 88 45 00 00 48 c1 e8 08 48
-  RSP: 0018:ffff8881063c3c38 EFLAGS: 00010246
-  RAX: 0000000000000000 RBX: ffff8881074eb800 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: ffff888103ab4000 RDI: ffffffffa0561319
-  RBP: ffff888103ab4000 R08: 00000000ffffdfff R09: 0000000000000001
-  R10: 0000000000000003 R11: ffff88887fecbac0 R12: ffff888103ab42b8
-  R13: ffff888106dbe850 R14: 0000000000000003 R15: ffff8881074ebc18
-  FS:  00007f02fba6ef00(0000) GS:ffff88885f8c0000(0000)
-  knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 0000000000000000 CR3: 00000001325e5003 CR4: 0000000000372ea0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   <TASK>
-   ? __die+0x1f/0x60
-   ? page_fault_oops+0x14c/0x3b0
-   ? exc_page_fault+0x74/0x140
-   ? asm_exc_page_fault+0x22/0x30
-   ? _compat_vdpa_reset+0x47/0xc0 [vhost_vdpa]
-   ? _compat_vdpa_reset+0x32/0xc0 [vhost_vdpa]
-   vhost_vdpa_open+0x55/0x270 [vhost_vdpa]
-   ? sb_init_dio_done_wq+0x50/0x50
-   chrdev_open+0xc0/0x210
-   ? __unregister_chrdev+0x50/0x50
-   do_dentry_open+0x1fc/0x4f0
-   path_openat+0xc2d/0xf20
-   do_filp_open+0xb4/0x160
-   ? kmem_cache_alloc+0x3c/0x490
-   do_sys_openat2+0x8d/0xc0
-   __x64_sys_openat+0x6a/0xa0
-   do_syscall_64+0x3c/0x80
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+Thanks for the new patch!
 
-Fixes: 10cbf8dfaf93 ("vhost-vdpa: clean iotlb map during reset for older userspace")
-Reported-by: Dragos Tatulea <dtatulea@nvidia.com>
-Closes: https://lore.kernel.org/all/b4913f84-8b52-4d28-af51-8573dc361f82@oracle.com/
-Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
----
- drivers/vhost/vdpa.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 9ce40003793b..9a2343c45df0 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -232,9 +232,11 @@ static int _compat_vdpa_reset(struct vhost_vdpa *v)
- 	struct vdpa_device *vdpa = v->vdpa;
- 	u32 flags = 0;
- 
--	flags |= !vhost_backend_has_feature(v->vdev.vqs[0],
--					    VHOST_BACKEND_F_IOTLB_PERSIST) ?
--		 VDPA_RESET_F_CLEAN_MAP : 0;
-+	if (v->vdev.vqs) {
-+		flags |= !vhost_backend_has_feature(v->vdev.vqs[0],
-+						    VHOST_BACKEND_F_IOTLB_PERSIST) ?
-+			 VDPA_RESET_F_CLEAN_MAP : 0;
-+	}
- 
- 	return vdpa_reset(vdpa, flags);
- }
+
+On 24.10.2023 00:06, Matias Ezequiel Vara Larsen wrote:
+> This commit uses the ack() callback to determine when a buffer has been
+> updated, then exposes it to guest.
+> 
+> The current mechanism splits a dma buffer into descriptors that are
+> exposed to the device. This dma buffer is shared with the user
+> application. When the device consumes a buffer, the driver moves the
+> request from the used ring to available ring.
+> 
+> The driver exposes the buffer to the device without knowing if the
+> content has been updated from the user. The section 2.8.21.1 of the
+> virtio spec states that: "The device MAY access the descriptor chains
+> the driver created and the memory they refer to immediately". If the
+> device picks up buffers from the available ring just after it is
+> notified, it happens that the content may be old.
+> 
+> When the ack() callback is invoked, the driver exposes only the buffers
+> that have already been updated, i.e., enqueued in the available ring.
+> Thus, the device always picks up a buffer that is updated.
+> 
+> For capturing, the driver starts by exposing all the available buffers
+> to device. After device updates the content of a buffer, it enqueues it
+> in the used ring. It is only after the ack() for capturing is issued
+> that the driver re-enqueues the buffer in the available ring.
+> 
+> Co-developed-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> Signed-off-by: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+> ---
+> Changelog:
+> v2 -> v3:
+>   * Use ack() callback instead of copy()/fill_silence()
+>   * Change commit name
+>   * Rewrite commit message
+>   * Remove virtsnd_pcm_msg_send_locked()
+>   * Use single callback for both capture and playback
+>   * Fix kernel test robot warnings regarding documentation
+>   * v2 patch at:
+>     https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2flore.kernel.org%2flkml%2f87y1fzkq8c.wl%2dtiwai%40suse.de%2fT%2f&umid=6a6586e6-1bcb-48d2-8c0c-75ef6bb15df9&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-090fe82db9a03f0dc8c4f214d4d2e2bf916e7f1f
+> v1 -> v2:
+>   * Use snd_pcm_set_managed_buffer_all()for buffer allocation/freeing.
+>   * Make virtsnd_pcm_msg_send() generic by specifying the offset and size
+>     for the modified part of the buffer; this way no assumptions need to
+>     be made.
+>   * Disable SNDRV_PCM_INFO_NO_REWINDS since now only sequential
+>     reading/writing of frames is supported.
+>   * Correct comment at virtsnd_pcm_msg_send().
+>   * v1 patch at:
+>     https://ddec1-0-en-ctp.trendmicro.com:443/wis/clicktime/v1/query?url=https%3a%2f%2flore.kernel.org%2flkml%2f20231016151000.GE119987%40fedora%2ft%2f&umid=6a6586e6-1bcb-48d2-8c0c-75ef6bb15df9&auth=53c7c7de28b92dfd96e93d9dd61a23e634d2fbec-2d4d809544c877beff1a631a29db01290c65d879
+> 
+>   sound/virtio/virtio_pcm.c     |  1 +
+>   sound/virtio/virtio_pcm.h     |  6 ++-
+>   sound/virtio/virtio_pcm_msg.c | 80 ++++++++++++++++++++---------------
+>   sound/virtio/virtio_pcm_ops.c | 30 +++++++++++--
+>   4 files changed, 79 insertions(+), 38 deletions(-)
+> 
+> diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
+> index c10d91fff2fb..9cc5a95b4913 100644
+> --- a/sound/virtio/virtio_pcm.c
+> +++ b/sound/virtio/virtio_pcm.c
+> @@ -124,6 +124,7 @@ static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
+>   	values = le64_to_cpu(info->formats);
+>   
+>   	vss->hw.formats = 0;
+> +	vss->appl_ptr = 0;
+>   
+>   	for (i = 0; i < ARRAY_SIZE(g_v2a_format_map); ++i)
+>   		if (values & (1ULL << i)) {
+> diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
+> index 062eb8e8f2cf..ea3c2845ae9b 100644
+> --- a/sound/virtio/virtio_pcm.h
+> +++ b/sound/virtio/virtio_pcm.h
+> @@ -27,6 +27,7 @@ struct virtio_pcm_msg;
+>    *        substream operators.
+>    * @buffer_bytes: Current buffer size in bytes.
+>    * @hw_ptr: Substream hardware pointer value in bytes [0 ... buffer_bytes).
+> + * @appl_ptr: Substream application pointer value in bytes [0 ... buffer_bytes).
+>    * @xfer_enabled: Data transfer state (0 - off, 1 - on).
+>    * @xfer_xrun: Data underflow/overflow state (0 - no xrun, 1 - xrun).
+>    * @stopped: True if the substream is stopped and must be released on the device
+> @@ -51,13 +52,13 @@ struct virtio_pcm_substream {
+>   	spinlock_t lock;
+>   	size_t buffer_bytes;
+>   	size_t hw_ptr;
+> +	size_t appl_ptr;
+>   	bool xfer_enabled;
+>   	bool xfer_xrun;
+>   	bool stopped;
+>   	bool suspended;
+>   	struct virtio_pcm_msg **msgs;
+>   	unsigned int nmsgs;
+> -	int msg_last_enqueued;
+>   	unsigned int msg_count;
+>   	wait_queue_head_t msg_empty;
+>   };
+> @@ -117,7 +118,8 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
+>   
+>   void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss);
+>   
+> -int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss);
+> +int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, unsigned long offset,
+> +			 unsigned long bytes);
+>   
+>   unsigned int virtsnd_pcm_msg_pending_num(struct virtio_pcm_substream *vss);
+>   
+> diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+> index aca2dc1989ba..106e8e847746 100644
+> --- a/sound/virtio/virtio_pcm_msg.c
+> +++ b/sound/virtio/virtio_pcm_msg.c
+> @@ -155,7 +155,6 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
+>   			    sizeof(msg->xfer));
+>   		sg_init_one(&msg->sgs[PCM_MSG_SG_STATUS], &msg->status,
+>   			    sizeof(msg->status));
+> -		msg->length = period_bytes;
+>   		virtsnd_pcm_sg_from(&msg->sgs[PCM_MSG_SG_DATA], sg_num, data,
+>   				    period_bytes);
+>   
+> @@ -181,66 +180,81 @@ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
+>   
+>   	vss->msgs = NULL;
+>   	vss->nmsgs = 0;
+> +	vss->appl_ptr = 0;
+>   }
+>   
+>   /**
+>    * virtsnd_pcm_msg_send() - Send asynchronous I/O messages.
+>    * @vss: VirtIO PCM substream.
+> + * @offset: starting position that has been updated
+> + * @bytes: number of bytes that has been updated
+>    *
+>    * All messages are organized in an ordered circular list. Each time the
+>    * function is called, all currently non-enqueued messages are added to the
+> - * virtqueue. For this, the function keeps track of two values:
+> - *
+> - *   msg_last_enqueued = index of the last enqueued message,
+> - *   msg_count = # of pending messages in the virtqueue.
+> + * virtqueue. For this, the function uses offset and bytes to calculate the
+> + * messages that need to be added.
+>    *
+>    * Context: Any context. Expects the tx/rx queue and the VirtIO substream
+>    *          spinlocks to be held by caller.
+>    * Return: 0 on success, -errno on failure.
+>    */
+> -int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
+> +int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, unsigned long offset,
+> +			 unsigned long bytes)
+>   {
+> -	struct snd_pcm_runtime *runtime = vss->substream->runtime;
+>   	struct virtio_snd *snd = vss->snd;
+>   	struct virtio_device *vdev = snd->vdev;
+>   	struct virtqueue *vqueue = virtsnd_pcm_queue(vss)->vqueue;
+> -	int i;
+> -	int n;
+> +	unsigned long period_bytes = snd_pcm_lib_period_bytes(vss->substream);
+> +	unsigned long start, end, i;
+> +	unsigned int msg_count = vss->msg_count;
+>   	bool notify = false;
+> +	int rc;
+>   
+> -	i = (vss->msg_last_enqueued + 1) % runtime->periods;
+> -	n = runtime->periods - vss->msg_count;
+> +	start = offset / period_bytes;
+> +	end = (offset + bytes - 1) / period_bytes;
+>   
+> -	for (; n; --n, i = (i + 1) % runtime->periods) {
+> +	for (i = start; i <= end; i++) {
+>   		struct virtio_pcm_msg *msg = vss->msgs[i];
+>   		struct scatterlist *psgs[] = {
+>   			&msg->sgs[PCM_MSG_SG_XFER],
+>   			&msg->sgs[PCM_MSG_SG_DATA],
+>   			&msg->sgs[PCM_MSG_SG_STATUS]
+>   		};
+> -		int rc;
+> -
+> -		msg->xfer.stream_id = cpu_to_le32(vss->sid);
+> -		memset(&msg->status, 0, sizeof(msg->status));
+> -
+> -		if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
+> -			rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
+> -					       GFP_ATOMIC);
+> -		else
+> -			rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
+> -					       GFP_ATOMIC);
+> -
+> -		if (rc) {
+> -			dev_err(&vdev->dev,
+> -				"SID %u: failed to send I/O message\n",
+> -				vss->sid);
+> -			return rc;
+> +		unsigned long n;
+> +
+> +		n = period_bytes - (offset % period_bytes);
+> +		if (n > bytes)
+> +			n = bytes;
+> +
+> +		msg->length += n;
+> +		if (msg->length == period_bytes) {
+> +			msg->xfer.stream_id = cpu_to_le32(vss->sid);
+> +			memset(&msg->status, 0, sizeof(msg->status));
+> +
+> +			if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
+> +				rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
+> +						       GFP_ATOMIC);
+> +			else
+> +				rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
+> +						       GFP_ATOMIC);
+> +
+> +			if (rc) {
+> +				dev_err(&vdev->dev,
+> +					"SID %u: failed to send I/O message\n",
+> +					vss->sid);
+> +				return rc;
+> +			}
+> +
+> +			vss->msg_count++;
+>   		}
+>   
+> -		vss->msg_last_enqueued = i;
+> -		vss->msg_count++;
+> +		offset = 0;
+> +		bytes -= n;
+>   	}
+>   
+> +	if (msg_count == vss->msg_count)
+> +		return 0;
+> +
+>   	if (!(vss->features & (1U << VIRTIO_SND_PCM_F_MSG_POLLING)))
+>   		notify = virtqueue_kick_prepare(vqueue);
+>   
+> @@ -309,6 +323,8 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+>   	if (vss->hw_ptr >= vss->buffer_bytes)
+>   		vss->hw_ptr -= vss->buffer_bytes;
+>   
+> +	msg->length = 0;
+> +
+>   	vss->xfer_xrun = false;
+>   	vss->msg_count--;
+>   
+> @@ -320,8 +336,6 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+>   					le32_to_cpu(msg->status.latency_bytes));
+>   
+>   		schedule_work(&vss->elapsed_period);
+> -
+> -		virtsnd_pcm_msg_send(vss);
+>   	} else if (!vss->msg_count) {
+>   		wake_up_all(&vss->msg_empty);
+>   	}
+> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+> index f8bfb87624be..21cde37ecfa3 100644
+> --- a/sound/virtio/virtio_pcm_ops.c
+> +++ b/sound/virtio/virtio_pcm_ops.c
+> @@ -282,7 +282,6 @@ static int virtsnd_pcm_prepare(struct snd_pcm_substream *substream)
+>   
+>   		vss->buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+>   		vss->hw_ptr = 0;
+> -		vss->msg_last_enqueued = -1;
+>   	} else {
+>   		struct snd_pcm_runtime *runtime = substream->runtime;
+>   		unsigned int buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+> @@ -324,7 +323,7 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
+>   	struct virtio_snd_queue *queue;
+>   	struct virtio_snd_msg *msg;
+>   	unsigned long flags;
+> -	int rc;
+> +	int rc = 0;
+>   
+>   	switch (command) {
+>   	case SNDRV_PCM_TRIGGER_START:
+> @@ -333,7 +332,8 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
+>   
+>   		spin_lock_irqsave(&queue->lock, flags);
+>   		spin_lock(&vss->lock);
+> -		rc = virtsnd_pcm_msg_send(vss);
+> +		if (vss->direction == SNDRV_PCM_STREAM_CAPTURE)
+> +			rc = virtsnd_pcm_msg_send(vss, 0, vss->buffer_bytes);
+>   		if (!rc)
+>   			vss->xfer_enabled = true;
+>   		spin_unlock(&vss->lock);
+> @@ -450,6 +450,29 @@ virtsnd_pcm_pointer(struct snd_pcm_substream *substream)
+>   	return hw_ptr;
+>   }
+>   
+> +static int virtsnd_pcm_ack(struct snd_pcm_substream *substream)
+> +{
+> +	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+> +	struct virtio_snd_queue *queue = virtsnd_pcm_queue(vss);
+> +	unsigned long flags;
+> +	struct snd_pcm_runtime *runtime = vss->substream->runtime;
+> +	ssize_t appl_pos = frames_to_bytes(runtime, runtime->control->appl_ptr);
+> +	ssize_t buf_size = frames_to_bytes(runtime, runtime->buffer_size);
+> +	int rc;
+> +
+> +	spin_lock_irqsave(&queue->lock, flags);
+> +	spin_lock(&vss->lock);
+> +
+> +	ssize_t bytes = (appl_pos - vss->appl_ptr) % buf_size;
+> +
+> +	rc = virtsnd_pcm_msg_send(vss, vss->appl_ptr % buf_size, bytes);
+> +	vss->appl_ptr += bytes;
+
+I think it makes sense to store vss->appl_ptr in frames (type
+snd_pcm_uframes_t instead of size_t), and do all calculations in frames.
+You could do convertion before invoking virtsnd_pcm_msg_send().
+
+We also need to either disable rewinds (SNDRV_PCM_INFO_NO_REWINDS), or take
+into account the case when the new runtime->control->appl_ptr value is less
+than the old one.
+
+
+Best regards,
+
+> +
+> +	spin_unlock(&vss->lock);
+> +	spin_unlock_irqrestore(&queue->lock, flags);
+> +	return rc;
+> +}
+> +
+>   /* PCM substream operators map. */
+>   const struct snd_pcm_ops virtsnd_pcm_ops = {
+>   	.open = virtsnd_pcm_open,
+> @@ -461,4 +484,5 @@ const struct snd_pcm_ops virtsnd_pcm_ops = {
+>   	.trigger = virtsnd_pcm_trigger,
+>   	.sync_stop = virtsnd_pcm_sync_stop,
+>   	.pointer = virtsnd_pcm_pointer,
+> +	.ack = virtsnd_pcm_ack,
+>   };
+> 
+> base-commit: 8a749fd1a8720d4619c91c8b6e7528c0a355c0aa
+
 -- 
-2.39.3
+Anton Yakovlev
+Senior Software Engineer
 
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
