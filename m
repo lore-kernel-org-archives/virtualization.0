@@ -1,107 +1,123 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4A285C00A8F
-	for <virtualization@archiver.kernel.org>; Tue, 24 Oct 2023 12:02:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6C158C07545
+	for <virtualization@archiver.kernel.org>; Tue, 24 Oct 2023 15:30:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C317060ABE;
-	Tue, 24 Oct 2023 12:02:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C317060ABE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=cloudflare.com header.i=@cloudflare.com header.a=rsa-sha256 header.s=google09082023 header.b=ce2YjTG5
+	by smtp4.osuosl.org (Postfix) with ESMTP id 03A0841706;
+	Tue, 24 Oct 2023 15:30:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 03A0841706
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.a=rsa-sha256 header.s=s2048 header.b=oRrVD3Mg
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4Whto9ozbnqB; Tue, 24 Oct 2023 12:02:47 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zcZTcHgS3DOg; Tue, 24 Oct 2023 15:30:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1F5D66006A;
-	Tue, 24 Oct 2023 12:02:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F5D66006A
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 61EA8415C9;
+	Tue, 24 Oct 2023 15:30:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 61EA8415C9
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F1513C0071;
-	Tue, 24 Oct 2023 12:02:46 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F4A8C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 316F4C0071;
+	Tue, 24 Oct 2023 15:30:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B4B52C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 12:02:45 +0000 (UTC)
+ Tue, 24 Oct 2023 15:30:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1B2056006A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8F84082C98
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 12:02:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B2056006A
+ Tue, 24 Oct 2023 15:30:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8F84082C98
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com
+ header.a=rsa-sha256 header.s=s2048 header.b=oRrVD3Mg
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sLTfphCLLDo4
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lDudDjA7u80V
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 12:02:43 +0000 (UTC)
-Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com
- [IPv6:2a00:1450:4864:20::62f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 878246FBF2
+ Tue, 24 Oct 2023 15:30:09 +0000 (UTC)
+Received: from sonic302-27.consmr.mail.ne1.yahoo.com
+ (sonic302-27.consmr.mail.ne1.yahoo.com [66.163.186.153])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4B49C816F5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 12:02:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 878246FBF2
-Received: by mail-ej1-x62f.google.com with SMTP id
- a640c23a62f3a-9ba1eb73c27so690212866b.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 05:02:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cloudflare.com; s=google09082023; t=1698148961; x=1698753761;
- darn=lists.linux-foundation.org; 
- h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
- :user-agent:references:from:to:cc:subject:date:message-id:reply-to;
- bh=vUX3/J/qlNzLrWL3mFobCRPHJJns33eg8PeRo1zgZcc=;
- b=ce2YjTG5V+C0dtpOdv5Tub9p0Lbz8FlbuSs6ISJDb2mKbYvOdu+mW9ZfwriWTN4F8+
- IYTjUZIrNH/dTipHs+iYhyubPjsaxF5Oe8C8ta4Iu1tAfBsP1LJw6XCf0p5hjMeqIYiu
- q9jLI2FkW+vtOMf1fHm0tUraAu5MIx1rRL1K9/BQneYR8D9izkOFWdBf4XytOo1e3cyz
- k7cdBjf/wYQgWyA3jDFvqbZCTTMN1YqNA3ovy4aSsuxbSVLDR3uZzJmtPu5OmjX56qfr
- UMZTWh7MWhBsmQb91XWXPja6CgbyJ9yqKX7vhPbXQKu0vUtSH9RMYaLycXgvNeY8uVO0
- Ws2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698148961; x=1698753761;
- h=mime-version:message-id:in-reply-to:date:subject:cc:to:from
- :user-agent:references:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=vUX3/J/qlNzLrWL3mFobCRPHJJns33eg8PeRo1zgZcc=;
- b=no1sbHDzlvm+eWNmEk9+f0s0U+DU872N5trhrI2Dc6iU0NOwhgAQhCWfgnBUORF/Kw
- uO/Qzf2SEbOdTRiNpVQmC0g+vfxe/+54tF7v3rGuAMobrvfI2e8XsOjLF0qLc/4KhNnw
- 7U9kMdXABdgTcKKwMBd3c1asR3wBPy51axoIhXLa/k3yhhcOxTslfbbZvTQo1WA6y4II
- glpErC+6rUW9zwEvxVCjBQdK0Ry/JKyaF6g+rXbQUlE9y1FXT+aXhHAcJ5EAKlvm2+dw
- 8AnTQSVENuhoemUYYtz93yCfGdSz8at8UYIBrSgColrV4s69V97JTqEmrK8UoCdhowL3
- vFAA==
-X-Gm-Message-State: AOJu0YxmO/wGBVTxtynWPkJ4mrRrC/LR0mriB6er58oSU5YopjV9VtK0
- qj06n72YCeKQUdb/3JFPhwYSJg==
-X-Google-Smtp-Source: AGHT+IHQlQp6SYqGcwivXMQJdIDTmbhdyz84sLTrVeXzyLB/BwkNn6E/Xytz51NfRzcDQJk4SzIHUA==
-X-Received: by 2002:a17:906:da84:b0:9a5:d657:47e1 with SMTP id
- xh4-20020a170906da8400b009a5d65747e1mr9250857ejb.43.1698148961496; 
- Tue, 24 Oct 2023 05:02:41 -0700 (PDT)
-Received: from cloudflare.com ([2a09:bac5:5064:2dc::49:e9])
- by smtp.gmail.com with ESMTPSA id
- e6-20020a170906080600b009c70b392051sm8195883ejd.100.2023.10.24.05.02.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 24 Oct 2023 05:02:40 -0700 (PDT)
-References: <20231019101625.412936-1-jakub@cloudflare.com>
- <1697720122.49851-2-xuanzhuo@linux.alibaba.com>
- <87il6x2rj6.fsf@cloudflare.com>
- <1698114697.434748-1-xuanzhuo@linux.alibaba.com>
- <87edhk2z03.fsf@cloudflare.com>
- <1698144808.8577316-1-xuanzhuo@linux.alibaba.com>
- <87a5s82qig.fsf@cloudflare.com>
- <1698147983.0338666-1-xuanzhuo@linux.alibaba.com>
-User-agent: mu4e 1.6.10; emacs 28.3
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 1/2] virtio_pci: Don't make an extra copy of cpu
- affinity mask
-Date: Tue, 24 Oct 2023 13:55:02 +0200
-In-reply-to: <1698147983.0338666-1-xuanzhuo@linux.alibaba.com>
-Message-ID: <875y2w2ppc.fsf@cloudflare.com>
+ Tue, 24 Oct 2023 15:30:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4B49C816F5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1698161408; bh=/YWm8GWX2383RfzFLFlBBduZ0aqXcPqlJQ3Z3PAB/jk=;
+ h=Date:Subject:To:References:From:In-Reply-To:From:Subject:Reply-To;
+ b=oRrVD3MghqUvCPNNVDqxY5gD7/iZWJ5beBwVmbM46N6KeIOs98QvthAVhKEqsIkclvk2wr1RXcfh1Gr3Q9EPSBj8NdS4zZGcW9UCm5m1ulk8NLBRrAIHp+CVVALv42qCeuxR5m5DS0HrmwFxH+tX60aoePLSiKoJ0LtvYlVA03XZ4WYcRC4WsA/A5zYl7N5CcjC3dHDXaeztY6QqgwVUiiclG33TY2ZpLFZZPr9ZW9UcSVGNeRHEEmKbpeOgAEqshiva/kMjcAduiUARZTkk+jHai9o3jSo8NunwUuun3vGLXJ9W+Kcv6LQsU9AzT0aMWiZEOnCGA3OC+8k+opl/KA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048;
+ t=1698161408; bh=CkIOfqZ9TC1VkyJ7eKh3XTtlD8DmK8bQcnLdZ7gE9j3=;
+ h=X-Sonic-MF:Date:Subject:To:From:From:Subject;
+ b=difXLLaq92rU/B3K+Bjmm2EFmg4IhMPFDeOBmICWrC4kLTaWJwpOmdJArLY/vgFDiaELYzA1wT6ByMn1aliB+dUL1vDBj/UgYwEbEiUr5WV8C9nt85x0TLFmAa1AoOy+TQpgngTEItfGFH+Uz2Ir+ASn4e09OoB7qsntaTkR1tpMNtf9j+2Ki4dyCU9u24ehTcEr9jonmsGS+XZaM0ZKvni/VuVTHxfEhiE45eVmjSgJ5pfa3l9I6YiEZWXZJbs9b8bAA78VatUKaZV7iuoLxvgIuNFFu+QFDPLGnpJkqB89Y0bqNSvpkUjNVcwvUS8TEruyVDdrz2JTKiEijrTFxg==
+X-YMail-OSG: B4ESFpwVM1kBZ6lSz8rkkaXhskytnfYU40elwEwgBiLLQZujXONemP5xHi72sOt
+ ai7ZWBC8CJCZVw8MUfjwqrM7kujN_pfUkWR6Zt67bdR01U2nvtGsfaVBSHrZ3316B7mYc_IWswMN
+ ggHnj0tqoBGKOUm238BxaeXRIZIb7Y7remZYF16w4dTf3g00wwfa2o7bO3bJshxzTdIS3n9bnr.Y
+ zgkhl26mNCNNJd3ifh46QkCxH2cLgOiYrq2fzGI_CIAgPedHsCSRCBCJR.A9QobIPbYIKTUepx2b
+ 9NEoDaq8c2EBUA3_SQsOU4SFDtvkREnQ4S5km3n6P8XHEgosm5ElHGSMq7hCXF6v7CW2ESUMpuGV
+ kqyif8dqRE8x2kXdMZl4unuwbhGdQxYyMjWeleyaDZ75r.J9sq.70lsmOeAsTJlJk7bTqWvAns5j
+ 9N3jGik3y_WrUhae2XxGtXPdwfspZN07uA8BrhekX1GU9CrdMY5bexy_y0bflZmRczNgzVOuxkEd
+ N.JRSeGCb0bXiqurRm7wx0ukYjWlSSrITGsjSX4DiB8iNVbwY7s.8mrH0A9qXB1zuGpr3aFqKER_
+ YsAXJ3Dub.E36nnjS01zDrGsXR8iyer5Lo39Wlr6IQxmxQkScTB8CP.G8xlCHJK7foJJZkrm2ITG
+ k5EsS2oKD1n_jGS2fMv.HmDboZqQzb3EbOMSBeLTUcbTLoZsxAFFzz8W7.FJKHvxoocaPs6Mm..J
+ 1NWrMNKhhSsALI1rgzQI4YVkCAOesI21bAt5LIw7qDpQbKjheooVsnGc7.ZQ2zk9FgJwP841XowD
+ LHYXSgzJB.fPth.0GIf8VY8h.DzdmdVSRwJuE0RbY9hcPAep2EFO4hPDKdkG4N1n049FAKQTNIHE
+ _mOkgno3yu7MdYLZ9Vafa_p1Aurny4ey2tihyVujaKTKUJWySHsgvJh9vuUPUIMEcx7tGGiDRmsm
+ L9qDppwVWYk64CutoaIO4W8BSJRbkD7DNVyUTYGIWLmLtsye8mYBTr4Qpm1kktuQn6ntqNDW1tX.
+ aPEk22pkRLczeUR0LLCuK7xguidMOmuwyom39hoQr93cFpQg6RnB7b0fC9Wz.1aAoJA.lXOGAdKp
+ MDqq0k6h8JCoXYC8oY.k.oFiKzPhaqG2akyD2NZoeddH0QwuMRDKM5YBJrTupWtdU64rWwl0ev4l
+ 5EySje8tQ.6JwdR1rEeXav9YhHq1DndSBnHS_sFLl5Fvyo1hp1ij6dpHltSamh1sdGwF3p8LD9UX
+ VrcCEKAOFcLIpnQO24mVN9VlR8DHuN6orecrrTDxPZ4EhtMyZ9u4_vKTPzso_wgzUmX25PAbhxrn
+ gkr3yR0Oqrv8fyOxKXqTpr7jmeGB7HY5xi0llqq892PQWtSG24g.sM4pn8qomh5awh_UkBYqUr7n
+ FJmTPO5ygl39LKxOBgO.8AUELQZXuDED7yCozPTL2o1vp0IXWH9zJzHOGpPD.drvVlQbGhBR4BU3
+ teZ.UGUYmCT12Ai1SlvovfEPawwJl5DTGxSZRfuuiLZJWayFO0W6s_F2sl8W3LOXd1i_XbEx6VIt
+ X_nSzWMDPuzwpnqGbweg_fQq2gWezXFsxqNm0mY_LEu.UyjbmCbDQDSh8uph0Ui6fC19B9UC89ns
+ 4_q6PUJxpnkDn0OHDZmaOJ0Yj0cF4AYaUga8QttzcCcBp2azGw3jkZC8u12c5phBZnzfeiAJKJqM
+ Ul8H2Qezo2QN888BOZF1CqhlltfHFAECwvsGWOOj44Mff71H6inqBAI9zrdqeW3PMsPYyqRdbWDb
+ WHWVZyM88odTnXedhvC8uaAUN_knRzbg5qveYAtspLDjA5dcotfI9tvJn6HonYV1iC.ewiopqRA7
+ ..oT.N.99eAxxayy0qggE8iAYwCuBOXcZxAUmUT517W8cWADDOtUUT8Y4VDJkg36s_Dw5Y8WFSil
+ 7PwsD5GVd2R.ojPy.fm1DL5PAP6IwySw0Mt3Y7tEI0d5jJkuVcSzM5RTPW41d50dZMcXHFrNrpy.
+ mIB0rKUB18MHUyqQ3AivrRQuJHxz2Xk9Sdg4XHmozlxE9hF9BLUf6t.tIRDxEYAxYgW27qPjrQ5U
+ Wd63CeBd70IjSp8Z38CmiuAYOOTg3usrE8MkoGDmdiunuNm45dx6jzp_7uN81VcYaKd.M8oI7igV
+ UwfUmmtRbZb3tSSFtYZxWHAz1rojkTe5HxGVL1nLpWtn12nKKt6OFbKSPaJtvJCD2kn3cWdxXz.D
+ 9ODnAeiXLD.YGqz7ntz8UGXx6K.yjOTZT7MEg8Uk22BDRSeQvNVgJa_SgAcfpqZERieIhgSddOJx
+ LSqt7JB01NQ--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: b51fecd6-b267-4256-b431-c807c318f436
+Received: from sonic.gate.mail.ne1.yahoo.com by
+ sonic302.consmr.mail.ne1.yahoo.com with HTTP; Tue, 24 Oct 2023 15:30:08 +0000
+Received: by hermes--production-ne1-68668bc7f7-tcb7m (Yahoo Inc. Hermes SMTP
+ Server) with ESMTPA ID 5fc5461d31a49f2849dcb731ecf23d84; 
+ Tue, 24 Oct 2023 15:30:03 +0000 (UTC)
+Message-ID: <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+Date: Tue, 24 Oct 2023 08:30:00 -0700
 MIME-Version: 1.0
-Cc: Caleb Raitto <caraitto@google.com>, kernel-team@cloudflare.com,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Content-Language: en-US
+To: Maxime Coquelin <maxime.coquelin@redhat.com>, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
+ jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
+ eparis@parisplace.org, xieyongji@bytedance.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ david.marchand@redhat.com, lulu@redhat.com,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+ <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+ <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+X-Mailer: WebService/1.1.21797
+ mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,112 +129,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Jakub Sitnicki via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Jakub Sitnicki <jakub@cloudflare.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 24, 2023 at 07:46 PM +08, Xuan Zhuo wrote:
-> On Tue, 24 Oct 2023 13:26:49 +0200, Jakub Sitnicki <jakub@cloudflare.com> wrote:
->> On Tue, Oct 24, 2023 at 06:53 PM +08, Xuan Zhuo wrote:
->> > On Tue, 24 Oct 2023 10:17:19 +0200, Jakub Sitnicki <jakub@cloudflare.com> wrote:
->> >> On Tue, Oct 24, 2023 at 10:31 AM +08, Xuan Zhuo wrote:
->> >> > On Mon, 23 Oct 2023 18:52:45 +0200, Jakub Sitnicki <jakub@cloudflare.com> wrote:
->> >> >> On Thu, Oct 19, 2023 at 08:55 PM +08, Xuan Zhuo wrote:
->> >> >> > On Thu, 19 Oct 2023 12:16:24 +0200, Jakub Sitnicki <jakub@cloudflare.com> wrote:
->> >> >> >> Since commit 19e226e8cc5d ("virtio: Make vp_set_vq_affinity() take a
->> >> >> >> mask.") it is actually not needed to have a local copy of the cpu mask.
->> >> >> >
->> >> >> >
->> >> >> > Could you give more info to prove this?
->> >> >
->> >> >
->> >> > Actually, my question is that can we pass a val on the stack(or temp value) to
->> >> > the irq_set_affinity_hint()?
->> >> >
->> >> > Such as the virtio-net uses zalloc_cpumask_var to alloc a cpu_mask, and
->> >> > that will be released.
->> >> >
->> >> >
->> >> >
->> >> > 	int __irq_apply_affinity_hint(unsigned int irq, const struct cpumask *m,
->> >> > 				      bool setaffinity)
->> >> > 	{
->> >> > 		unsigned long flags;
->> >> > 		struct irq_desc *desc = irq_get_desc_lock(irq, &flags, IRQ_GET_DESC_CHECK_GLOBAL);
->> >> >
->> >> > 		if (!desc)
->> >> > 			return -EINVAL;
->> >> > ->		desc->affinity_hint = m;
->> >> > 		irq_put_desc_unlock(desc, flags);
->> >> > 		if (m && setaffinity)
->> >> > 			__irq_set_affinity(irq, m, false);
->> >> > 		return 0;
->> >> > 	}
->> >> > 	EXPORT_SYMBOL_GPL(__irq_apply_affinity_hint);
->> >> >
->> >> > The above code directly refers the mask pointer. If the mask is a temp value, I
->> >> > think that is a bug.
->> >>
->> >> You are completely right. irq_set_affinity_hint stores the mask pointer.
->> >> irq_affinity_hint_proc_show later dereferences it when user reads out
->> >> /proc/irq/*/affinity_hint.
->> >>
->> >> I have failed to notice that. That's why we need cpumask_copy to stay.
->> >>
->> >> My patch is buggy. Please disregard.
->> >>
->> >> I will send a v2 to only migrate from deprecated irq_set_affinity_hint.
->> >>
->> >> > And I notice that many places directly pass the temp value to this API.
->> >> > And I am a little confused. ^_^ Or I missed something.
->> >>
->> >> There seem two be two gropus of callers:
->> >>
->> >> 1. Those that use get_cpu_mask/cpumask_of/cpumask_of_node to produce a
->> >>    cpumask pointer which is a preallocated constant.
->> >>
->> >>    $ weggli 'irq_set_affinity_hint(_, $func(_));' ~/src/linux
->> >>
->> >> 2. Those that pass a pointer to memory somewhere.
->> >>
->> >>    $ weggli 'irq_set_affinity_hint(_, $mask);' ~/src/linux
->> >>
->> >> (weggli tool can be found at https://github.com/weggli-rs/weggli)
->> >>
->> >> I've looked over the callers from group #2 but I couldn't find any
->> >> passing a pointer memory on stack :-)
->> >
->> > Pls check stmmac_request_irq_multi_msi()
->>
->> Good catch. That one looks buggy.
->>
->> I should also checked for callers that take an address of a var/field:
->>
->>   $ weggli 'irq_set_affinity_hint(_, &$mask);' ~/src/linux
+On 10/24/2023 2:49 AM, Maxime Coquelin wrote:
 >
-> Do you find more?
+>
+> On 10/23/23 17:13, Casey Schaufler wrote:
+>> On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>>>
+>>>
+>>> On 10/21/23 00:20, Casey Schaufler wrote:
+>>>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>>>> This patch introduces LSM hooks for devices creation,
+>>>>> destruction and opening operations, checking the
+>>>>> application is allowed to perform these operations for
+>>>>> the Virtio device type.
+>>>>
+>>>> Why do you think that there needs to be a special LSM check for virtio
+>>>> devices? What can't existing device attributes be used?
+>>>
+>>> Michael asked for a way for SELinux to allow/prevent the creation of
+>>> some types of devices [0].
+>>>
+>>> A device is created using ioctl() on VDUSE control chardev. Its type is
+>>> specified via a field in the structure passed in argument.
+>>>
+>>> I didn't see other way than adding dedicated LSM hooks to achieve this,
+>>> but it is possible that their is a better way to do it?
+>>
+>> At the very least the hook should be made more general, and I'd have to
+>> see a proposal before commenting on that. security_dev_destroy(dev)
+>> might
+>> be a better approach. If there's reason to control destruction of vduse
+>> devices it's reasonable to assume that there are other devices with the
+>> same or similar properties.
+>
+> VDUSE is different from other devices as the device is actually
+> implemented by the user-space application, so this is very specific in
+> my opinion.
 
-No, just the one you pointed out. Unless I missed something.
+This is hardly unique. If you're implementing the device
+in user-space you may well be able to implement the desired
+controls there.
 
-I ran an improved query. Shows everything but the non-interesting cases:
+>
+>>
+>> Since SELinux is your target use case, can you explain why you can't
+>> create SELinux policy to enforce the restrictions you're after? I
+>> believe
+>> (but can be proven wrong, of course) that SELinux has mechanism for
+>> dealing
+>> with controls on ioctls.
+>>
+>
+> I am not aware of such mechanism to deal with ioctl(), if you have a
+> pointer that would be welcome.
 
-$ weggli '{
-	NOT: irq_set_affinity_hint(_, NULL);
-	NOT: irq_set_affinity_hint(_, get_cpu_mask(_));
-	NOT: irq_set_affinity_hint(_, cpumask_of(_));
-	irq_set_affinity_hint(_, _);
-}' ~/src/linux
+security/selinux/hooks.c
 
-And repeated it for irq_set_affinity_and_hint and irq_update_affinity.
-
-The calls where it was not obvious at first sight that we're passing a
-pointer to some heap memory, turned out to use a temporary variable to
-either store address to heap memory or return value from cpumask_of*().
-
+>
+> Thanks,
+> Maxime
+>
+>>
+>>>
+>>> Thanks,
+>>> Maxime
+>>>
+>>> [0]:
+>>> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>>
+>>>
+>>
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
