@@ -1,60 +1,62 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8E607C07545
-	for <virtualization@archiver.kernel.org>; Tue, 24 Oct 2023 03:49:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5662C00A8F
+	for <virtualization@archiver.kernel.org>; Tue, 24 Oct 2023 03:49:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0594A6F5B5;
-	Tue, 24 Oct 2023 03:49:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0594A6F5B5
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4A2F042E80;
+	Tue, 24 Oct 2023 03:49:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4A2F042E80
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V_4Rskgo5VCW; Tue, 24 Oct 2023 03:49:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 914CC6F521;
-	Tue, 24 Oct 2023 03:49:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 914CC6F521
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9Z03lQRHGmcM; Tue, 24 Oct 2023 03:49:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CA29342E63;
+	Tue, 24 Oct 2023 03:49:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CA29342E63
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 73823C0039;
-	Tue, 24 Oct 2023 03:49:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A4F06C0039;
+	Tue, 24 Oct 2023 03:49:13 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B269C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE61CC0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 03:49:10 +0000 (UTC)
+ Tue, 24 Oct 2023 03:49:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2639283E2C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7729A83DE5
  for <virtualization@lists.linux-foundation.org>;
  Tue, 24 Oct 2023 03:49:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2639283E2C
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7729A83DE5
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NL41RRnseMDi
+ with ESMTP id kWQkm4MV17Hc
  for <virtualization@lists.linux-foundation.org>;
  Tue, 24 Oct 2023 03:49:09 +0000 (UTC)
-Received: from out30-111.freemail.mail.aliyun.com
- (out30-111.freemail.mail.aliyun.com [115.124.30.111])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 71F9C83DE5
+Received: from out30-130.freemail.mail.aliyun.com
+ (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4CEAD83E23
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 03:49:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 71F9C83DE5
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
+ Tue, 24 Oct 2023 03:49:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4CEAD83E23
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R411e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=4; SR=0;
- TI=SMTPD_---0VuofaRX_1698119341; 
+ TI=SMTPD_---0VuooDAz_1698119342; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VuofaRX_1698119341) by smtp.aliyun-inc.com;
- Tue, 24 Oct 2023 11:49:02 +0800
+ fp:SMTPD_---0VuooDAz_1698119342) by smtp.aliyun-inc.com;
+ Tue, 24 Oct 2023 11:49:03 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH vhost 0/2] virtio: set broken when re-enable vq fails
-Date: Tue, 24 Oct 2023 11:48:59 +0800
-Message-Id: <20231024034901.29839-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost 1/2] virtio_ring: remove unused code
+Date: Tue, 24 Oct 2023 11:49:00 +0800
+Message-Id: <20231024034901.29839-2-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20231024034901.29839-1-xuanzhuo@linux.alibaba.com>
+References: <20231024034901.29839-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 X-Git-Hash: 9ea33e687370
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -75,23 +77,30 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In vp_modern_enable_vq_after_reset, we will do some check to ensure
-that the vq is in reset status. If that fails, the vq is good.
+Remove the ignored return values;
 
-If the vq_active_vp() fails, that means the vq is broken.
-The driver will can not use that vq, this commit sets
-the vq to broken.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Xuan Zhuo (2):
-  virtio_ring: remove unused code
-  virtio: set broken when re-enabling vq fails
-
- drivers/virtio/virtio_pci_modern.c |  6 +++---
- drivers/virtio/virtio_ring.c       | 15 ++++++++++-----
- include/linux/virtio_config.h      |  2 ++
- 3 files changed, 15 insertions(+), 8 deletions(-)
-
---
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 51d8f3299c10..af310418e66e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2755,9 +2755,9 @@ int virtqueue_resize(struct virtqueue *_vq, u32 num,
+ 		return err;
+ 
+ 	if (vq->packed_ring)
+-		err = virtqueue_resize_packed(_vq, num);
++		virtqueue_resize_packed(_vq, num);
+ 	else
+-		err = virtqueue_resize_split(_vq, num);
++		virtqueue_resize_split(_vq, num);
+ 
+ 	return virtqueue_enable_after_reset(_vq);
+ }
+-- 
 2.32.0.3.g01195cf9f
 
 _______________________________________________
