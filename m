@@ -1,138 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 087A8C25B6B
-	for <virtualization@archiver.kernel.org>; Wed, 25 Oct 2023 09:36:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C6E64C25B47
+	for <virtualization@archiver.kernel.org>; Wed, 25 Oct 2023 09:49:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5AA53703A4;
-	Wed, 25 Oct 2023 09:36:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5AA53703A4
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=bcckztAt
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XhIET_LOB2Oy; Wed, 25 Oct 2023 09:36:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 695147036D;
-	Wed, 25 Oct 2023 09:36:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 695147036D
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 42552C0039;
-	Wed, 25 Oct 2023 09:36:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20325C0032
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 09:36:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E8E6B4EC75
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 09:36:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E8E6B4EC75
-Authentication-Results: smtp4.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=bcckztAt
+	by smtp4.osuosl.org (Postfix) with ESMTP id 454864F376;
+	Wed, 25 Oct 2023 09:49:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 454864F376
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aFSwagYB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id p7NI9Lil5zY9
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YmmcZQuej0ZW; Wed, 25 Oct 2023 09:49:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1F5654F364;
+	Wed, 25 Oct 2023 09:49:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1F5654F364
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC151C0039;
+	Wed, 25 Oct 2023 09:49:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE051C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 09:36:36 +0000 (UTC)
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam10on20615.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e89::615])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B310B4EC72
+ Wed, 25 Oct 2023 09:49:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C99156FBB4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 09:36:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B310B4EC72
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=NLmYwD7vaDlaHrNjVhr8ra71378HL6maVQ8mu1TvAwLw54ApOYlfv4xfQ2XXPvemAfCPxyGStca/nz6UTVme00jRxCi9FElE+4fjJwpkO/Dzo0G8WnimkkTTP89jfrxgZDHAXUvP6MpfWXBHWn4zv2iLt6C736TgKyCzHy9PQ2oGwDfHyKvVN0yoarMLvk21hkF7oI+Nxf8dclPac0AN1FAXWzeA/D/6vvsVScj7BJ3retwN+tGMFmD+ROtcjUArQ0miR7Q9j3/QcOQCQ4S5tJ75UJ37+xlwDnZmTMi+WoYMRz52OP14yW7HveJ/YYPmwupTaghtfE4eRy7XOTPIQg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KVrvLZH4VOwfxz+0WpAnsClCD9Z1kv7EEMcwCalXR1Q=;
- b=bKsjU1E5yFBu3jXvkDXcpP28bL6CuwRTJwau98a7XUjnAYm/wxF90325dFaioSPqclMZcNBsJ8XsFZscZ4iX5vWgc3DljsA0RUauMujJduQ9Rxpft91SlYv2wakqagN03RfGJjDgYLZ594BDg8fSPqplwl4FHFZkNG7PTXyGQUOa0q3koEL7Cgjmmg7eI2b/pqvpH50G00frhVxae+k2Wb2xHPJ52i2gB+VaOS934YwOp56bvijgU13hfqp9dk9SRn4qsPuY0PJDxA+/2oCdfftgUWxGIQuhNeoA3mzbKFODrk625dAD6ES/y3NC07fu8zyxYD4AQHICC48rXSay9g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KVrvLZH4VOwfxz+0WpAnsClCD9Z1kv7EEMcwCalXR1Q=;
- b=bcckztAtnRrFJ56fSb11i25UJYiULr2qTw8QawTBOJW+hvmMxPo6fX+TGNCh63ZJej9IfqVCq450BHNJH4MWFuqHA5UKqk2YfJAM4kEuMPNOAJNxAe2QSb7nWzizlYhUtcAjQBYV4K9+S+jZQjCxsdU5KTPGS3Qs9sJXKWoYWloG2wDTFTMWYhIhak+iLdEpt2mQbIwKF2+UNJrQ9HdU8Ud2gj+urkxr9E3gzXeJ1KJDKJvlShGPzqbREEwOvej61k5XEBxYvN4o5D8acfE2t92oSDinLkrZGuCYntPzdy7z0pbwt3go38MS2YwyjxrLq4Y4eWj1p7BE7jzKubt14w==
-Received: from CH2PR14CA0023.namprd14.prod.outlook.com (2603:10b6:610:60::33)
- by BY5PR12MB4920.namprd12.prod.outlook.com (2603:10b6:a03:1d3::19)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.33; Wed, 25 Oct
- 2023 09:36:33 +0000
-Received: from DS2PEPF00003441.namprd04.prod.outlook.com
- (2603:10b6:610:60:cafe::bc) by CH2PR14CA0023.outlook.office365.com
- (2603:10b6:610:60::33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.34 via Frontend
- Transport; Wed, 25 Oct 2023 09:36:32 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com;
- dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- DS2PEPF00003441.mail.protection.outlook.com (10.167.17.68) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6933.15 via Frontend Transport; Wed, 25 Oct 2023 09:36:32 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 25 Oct
- 2023 02:36:20 -0700
-Received: from [172.27.14.159] (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 25 Oct
- 2023 02:36:16 -0700
-Message-ID: <155561a3-cb30-48a9-8723-33b667e23aa5@nvidia.com>
-Date: Wed, 25 Oct 2023 12:36:14 +0300
+ Wed, 25 Oct 2023 09:49:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C99156FBB4
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=aFSwagYB
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1gcd5uVhRPmI
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Oct 2023 09:49:36 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 482DF60FB1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Oct 2023 09:49:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 482DF60FB1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1698227374;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=Ccl0cEpWSY7Q7abylmVR9V2MDOgCLoroXtJWqlW54Xo=;
+ b=aFSwagYBCQKL7dHDOBMQ0bK+Lm1KPNBJaNd2k+5VRZYWOoH5x+2DtRN36KGSUuaESBazH6
+ 55ILWe2W837VeKP3R0KIh48yuGogNyvXuIKijjIOouySLsef6o4krGn1DQkziknXw3uRG/
+ hXAm9I7dp3WiXP6yOkvSpwwjFZyJLxU=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-526-el1tDJNAM6qXmUE_DPunUQ-1; Wed, 25 Oct 2023 05:49:24 -0400
+X-MC-Unique: el1tDJNAM6qXmUE_DPunUQ-1
+Received: by mail-qk1-f200.google.com with SMTP id
+ af79cd13be357-7788ea971caso666407885a.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Oct 2023 02:49:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1698227364; x=1698832164;
+ h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+ :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+ bh=Ccl0cEpWSY7Q7abylmVR9V2MDOgCLoroXtJWqlW54Xo=;
+ b=pRIEvDyEfMB93rJiIVqZS72nHaasI2kZyQvRqkpNuigOzaAP9DxW+uM6y9w6CJ9et/
+ HVRKCQJqyDT3dE5V+hw+gVF0BJ9+gB6E+rCOhSvGeNPYKjuZNxn5NY7XJQDuAhoXngNl
+ 7F5hWmMZ/CobC20R/llAeGPwgSN7zo0BZhROwwZNpuQIDtl0t8TwpcfS6zPRu7eyfiCY
+ ADqul6Y68jSm+6eSXuoA10YvRt2GIvyOrJ5unqAMEk2XwHjQHFxhVGbyP263YprwwVfw
+ Hh5Fp1ldWnXpdAZ5BchisVsXPVaE3lZ/5H1Vb3bL0RjBD1qyieYk2GbjE8thN1OyptIK
+ vFeA==
+X-Gm-Message-State: AOJu0YwSKHxkF1lS7xqjyktNUlu5y0N+Yl6zkQu8eYrQ5D9e+6W1dycp
+ Dj0NxEhQioBOIdRpsrtp2m830zqCfF61qQrgWAjQrOQ/rYYrPIfRARCaWMkwfiTyLv8WVzyuUrT
+ ViaMafrz4MXFkyrQ9k/kMN0Wrfyp9xLNFADlJ/D2e3Q==
+X-Received: by 2002:a05:620a:1917:b0:774:3742:31e4 with SMTP id
+ bj23-20020a05620a191700b00774374231e4mr15631622qkb.52.1698227364042; 
+ Wed, 25 Oct 2023 02:49:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFTL33e6oFAjKeVirlLu6b3nY/ZpyOwCVIrxTejwiUZ+OEK+IinMwOWgwbuTl1/wFe8H4KdIg==
+X-Received: by 2002:a05:620a:1917:b0:774:3742:31e4 with SMTP id
+ bj23-20020a05620a191700b00774374231e4mr15631611qkb.52.1698227363690; 
+ Wed, 25 Oct 2023 02:49:23 -0700 (PDT)
+Received: from fedora ([2a01:e0a:257:8c60:80f1:cdf8:48d0:b0a1])
+ by smtp.gmail.com with ESMTPSA id
+ g21-20020a05620a109500b007659935ce64sm4058867qkk.71.2023.10.25.02.49.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 25 Oct 2023 02:49:23 -0700 (PDT)
+Date: Wed, 25 Oct 2023 11:49:19 +0200
+From: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+To: anton.yakovlev@opensynergy.com, mst@redhat.com
+Subject: [PATCH v4] ALSA: virtio: use ack callback
+Message-ID: <ZTjkn1YAFz67yfqx@fedora>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V1 vfio 6/9] virtio-pci: Introduce APIs to execute legacy
- IO admin commands
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20231017134217.82497-1-yishaih@nvidia.com>
- <20231017134217.82497-7-yishaih@nvidia.com>
- <20231024165210-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231024165210-mutt-send-email-mst@kernel.org>
-X-Originating-IP: [10.126.231.35]
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS2PEPF00003441:EE_|BY5PR12MB4920:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9c5d27e1-0594-43c3-b1b4-08dbd53ddfd7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 7lmgHVYsC/ix+eUT8bVLJQYkMSoLkzW/wDQVKmk6wdDaEMnVPgIFszPhedLvN+4nbYY0e5Ld4/yl0tuMpmZvAWsusSZ55nv4aTOcb3OZGIdeJ7WHDlmOBb58mmEhDQ2ATqZF9ekQ7tx07LJ34p9+bLWsDDBTiJtmTOEtX+qpYXGUp905olSA5B5vUUquwVX69sbFmjxrfOOeWDPrHWeQUTy1TMbuspCaEM8mLQnDnpkYESuH6Y1MK5ok/NqDE2+aDMxA+WT1SDZZtb2D8OiiUuw0ZG5Dk5LurEhvrLSC+354cTD23em0kc6H04I4aY8cxMXAyepm2vqXhPhuqURNIF4wyQkLhBFg+QFK/jegOnG01AsbHxT9mi/PPDTP0lDi0PFLhRi6AJRR1aZIfbYpxftGTf2U90SVsNL0NTvUCYxKl6y7MsKs9NuNt8TCjA9uxYXF+oD8RGx69iYZ8AO7sik6T3FK5cT/R0zbt9RVH8X4iWG2zHdBVZUrJu27SfFFxc+M5V9g8XlkxLckZsSOixdW3p7nj7f+gfLkgSscei0io5Ap/L3fAFc70maj8p4nOu4FtecHNxXYZ00EuD2YpdNgsynY4dxIs6ytZImdWWU0W4DHScPJ47KLMXbGborFwFICIneGW5CtFTm+sNM8h+a6s+6WaQ54UjIEaD8SNDC00Bhg5A2BxKwcG7Wa/1vD4nwtFDmrpJfvhNuaZCsHuWxyQk69UJ3bZsfuILq+z/I4ZsmBanMRv+OqCjKA1qFWYwybdRJCh629jR4jQhnFEg==
-X-Forefront-Antispam-Report: CIP:216.228.117.161; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge2.nvidia.com; CAT:NONE;
- SFS:(13230031)(4636009)(376002)(346002)(39860400002)(396003)(136003)(230922051799003)(186009)(451199024)(1800799009)(82310400011)(64100799003)(36840700001)(46966006)(40470700004)(31686004)(83380400001)(40480700001)(40460700003)(30864003)(36860700001)(8676002)(36756003)(4326008)(2906002)(8936002)(53546011)(107886003)(82740400003)(26005)(47076005)(2616005)(16526019)(7636003)(356005)(426003)(336012)(5660300002)(54906003)(6916009)(31696002)(316002)(70586007)(86362001)(41300700001)(16576012)(70206006)(478600001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Oct 2023 09:36:32.5889 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9c5d27e1-0594-43c3-b1b4-08dbd53ddfd7
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.161];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: DS2PEPF00003441.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4920
-Cc: kvm@vger.kernel.org, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
- leonro@nvidia.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: alsa-devel@alsa-project.org, mripard@redhat.com, tiwai@suse.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ stefanha@redhat.com, pbonzini@redhat.com, perex@perex.cz
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -144,210 +113,466 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Yishai Hadas via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Yishai Hadas <yishaih@nvidia.com>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-UmUgc2VuZGluZyBhcyBwcmV2aW91cyByZXBseSB3YXMgYnkgbWlzdGFrZSBub3QgaW4gYSB0ZXh0
-IGZvcm1hdC4KCk9uIDI1LzEwLzIwMjMgMDowMSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-IE9uIFR1ZSwgT2N0IDE3LCAyMDIzIGF0IDA0OjQyOjE0UE0gKzAzMDAsIFlpc2hhaSBIYWRhcyB3
-cm90ZToKPj4gSW50cm9kdWNlIEFQSXMgdG8gZXhlY3V0ZSBsZWdhY3kgSU8gYWRtaW4gY29tbWFu
-ZHMuCj4+Cj4+IEl0IGluY2x1ZGVzOiBsaXN0X3F1ZXJ5L3VzZSwgaW9fbGVnYWN5X3JlYWQvd3Jp
-dGUsCj4+IGlvX2xlZ2FjeV9ub3RpZnlfaW5mby4KPj4KPj4gVGhvc2UgQVBJcyB3aWxsIGJlIHVz
-ZWQgYnkgdGhlIG5leHQgcGF0Y2hlcyBmcm9tIHRoaXMgc2VyaWVzLgo+Pgo+PiBTaWduZWQtb2Zm
-LWJ5OiBZaXNoYWkgSGFkYXMgPHlpc2hhaWhAbnZpZGlhLmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uYyB8ICAxMSArKwo+PiAgIGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfY29tbW9uLmggfCAgIDIgKwo+PiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19w
-Y2lfbW9kZXJuLmMgfCAyMDYgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4gICBpbmNs
-dWRlL2xpbnV4L3ZpcnRpb19wY2lfYWRtaW4uaCAgIHwgIDE4ICsrKwo+PiAgIDQgZmlsZXMgY2hh
-bmdlZCwgMjM3IGluc2VydGlvbnMoKykKPj4gICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS9s
-aW51eC92aXJ0aW9fcGNpX2FkbWluLmgKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2lfY29tbW9uLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5j
-Cj4+IGluZGV4IDZiNDc2NmQ1YWJlNi4uMjEyZDY4NDAxZDJjIDEwMDY0NAo+PiAtLS0gYS9kcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jCj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3Zp
-cnRpb19wY2lfY29tbW9uLmMKPj4gQEAgLTY0NSw2ICs2NDUsMTcgQEAgc3RhdGljIHN0cnVjdCBw
-Y2lfZHJpdmVyIHZpcnRpb19wY2lfZHJpdmVyID0gewo+PiAgIAkuc3Jpb3ZfY29uZmlndXJlID0g
-dmlydGlvX3BjaV9zcmlvdl9jb25maWd1cmUsCj4+ICAgfTsKPj4gICAKPj4gK3N0cnVjdCB2aXJ0
-aW9fZGV2aWNlICp2aXJ0aW9fcGNpX3ZmX2dldF9wZl9kZXYoc3RydWN0IHBjaV9kZXYgKnBkZXYp
-Cj4+ICt7Cj4+ICsJc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICpwZl92cF9kZXY7Cj4+ICsKPj4g
-KwlwZl92cF9kZXYgPSBwY2lfaW92X2dldF9wZl9kcnZkYXRhKHBkZXYsICZ2aXJ0aW9fcGNpX2Ry
-aXZlcik7Cj4+ICsJaWYgKElTX0VSUihwZl92cF9kZXYpKQo+PiArCQlyZXR1cm4gTlVMTDsKPj4g
-Kwo+PiArCXJldHVybiAmcGZfdnBfZGV2LT52ZGV2Owo+PiArfQo+PiArCj4+ICAgbW9kdWxlX3Bj
-aV9kcml2ZXIodmlydGlvX3BjaV9kcml2ZXIpOwo+PiAgIAo+PiAgIE1PRFVMRV9BVVRIT1IoIkFu
-dGhvbnkgTGlndW9yaSA8YWxpZ3VvcmlAdXMuaWJtLmNvbT4iKTsKPj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmggYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
-cGNpX2NvbW1vbi5oCj4+IGluZGV4IGEyMWI5YmEwMWE2MC4uMjc4NWU2MWVkNjY4IDEwMDY0NAo+
-PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5oCj4+ICsrKyBiL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmgKPj4gQEAgLTE1NSw0ICsxNTUsNiBAQCBzdGF0
-aWMgaW5saW5lIHZvaWQgdmlydGlvX3BjaV9sZWdhY3lfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fcGNp
-X2RldmljZSAqdnBfZGV2KQo+PiAgIGludCB2aXJ0aW9fcGNpX21vZGVybl9wcm9iZShzdHJ1Y3Qg
-dmlydGlvX3BjaV9kZXZpY2UgKik7Cj4+ICAgdm9pZCB2aXJ0aW9fcGNpX21vZGVybl9yZW1vdmUo
-c3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICopOwo+PiAgIAo+PiArc3RydWN0IHZpcnRpb19kZXZp
-Y2UgKnZpcnRpb19wY2lfdmZfZ2V0X3BmX2RldihzdHJ1Y3QgcGNpX2RldiAqcGRldik7Cj4+ICsK
-Pj4gICAjZW5kaWYKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9k
-ZXJuLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jCj4+IGluZGV4IGNjMTU5
-YThlNmM3MC4uMDBiNjVlMjBiMmY1IDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcGNpX21vZGVybi5jCj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJu
-LmMKPj4gQEAgLTcxOSw2ICs3MTksMjEyIEBAIHN0YXRpYyB2b2lkIHZwX21vZGVybl9kZXN0cm95
-X2F2cShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4gICAJdnBfZGV2LT5kZWxfdnEoJnZw
-X2Rldi0+YWRtaW5fdnEuaW5mbyk7Cj4+ICAgfQo+PiAgIAo+PiArLyoKPj4gKyAqIHZpcnRpb19w
-Y2lfYWRtaW5fbGlzdF9xdWVyeSAtIFByb3ZpZGVzIHRvIGRyaXZlciBsaXN0IG9mIGNvbW1hbmRz
-Cj4+ICsgKiBzdXBwb3J0ZWQgZm9yIHRoZSBQQ0kgVkYuCj4+ICsgKiBAZGV2OiBWRiBwY2lfZGV2
-Cj4+ICsgKiBAYnVmOiBidWZmZXIgdG8gaG9sZCB0aGUgcmV0dXJuZWQgbGlzdAo+PiArICogQGJ1
-Zl9zaXplOiBzaXplIG9mIHRoZSBnaXZlbiBidWZmZXIKPj4gKyAqCj4+ICsgKiBSZXR1cm5zIDAg
-b24gc3VjY2Vzcywgb3IgbmVnYXRpdmUgb24gZmFpbHVyZS4KPj4gKyAqLwo+PiAraW50IHZpcnRp
-b19wY2lfYWRtaW5fbGlzdF9xdWVyeShzdHJ1Y3QgcGNpX2RldiAqcGRldiwgdTggKmJ1ZiwgaW50
-IGJ1Zl9zaXplKQo+PiArewo+PiArCXN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2aXJ0aW9fZGV2ID0g
-dmlydGlvX3BjaV92Zl9nZXRfcGZfZGV2KHBkZXYpOwo+PiArCXN0cnVjdCB2aXJ0aW9fYWRtaW5f
-Y21kIGNtZCA9IHt9Owo+PiArCXN0cnVjdCBzY2F0dGVybGlzdCByZXN1bHRfc2c7Cj4+ICsKPj4g
-KwlpZiAoIXZpcnRpb19kZXYpCj4+ICsJCXJldHVybiAtRU5PREVWOwo+PiArCj4+ICsJc2dfaW5p
-dF9vbmUoJnJlc3VsdF9zZywgYnVmLCBidWZfc2l6ZSk7Cj4+ICsJY21kLm9wY29kZSA9IGNwdV90
-b19sZTE2KFZJUlRJT19BRE1JTl9DTURfTElTVF9RVUVSWSk7Cj4+ICsJY21kLmdyb3VwX3R5cGUg
-PSBjcHVfdG9fbGUxNihWSVJUSU9fQURNSU5fR1JPVVBfVFlQRV9TUklPVik7Cj4+ICsJY21kLnJl
-c3VsdF9zZyA9ICZyZXN1bHRfc2c7Cj4+ICsKPj4gKwlyZXR1cm4gdnBfbW9kZXJuX2FkbWluX2Nt
-ZF9leGVjKHZpcnRpb19kZXYsICZjbWQpOwo+PiArfQo+PiArRVhQT1JUX1NZTUJPTF9HUEwodmly
-dGlvX3BjaV9hZG1pbl9saXN0X3F1ZXJ5KTsKPj4gKwo+PiArLyoKPj4gKyAqIHZpcnRpb19wY2lf
-YWRtaW5fbGlzdF91c2UgLSBQcm92aWRlcyB0byBkZXZpY2UgbGlzdCBvZiBjb21tYW5kcwo+PiAr
-ICogdXNlZCBmb3IgdGhlIFBDSSBWRi4KPj4gKyAqIEBkZXY6IFZGIHBjaV9kZXYKPj4gKyAqIEBi
-dWY6IGJ1ZmZlciB3aGljaCBob2xkcyB0aGUgbGlzdAo+PiArICogQGJ1Zl9zaXplOiBzaXplIG9m
-IHRoZSBnaXZlbiBidWZmZXIKPj4gKyAqCj4+ICsgKiBSZXR1cm5zIDAgb24gc3VjY2Vzcywgb3Ig
-bmVnYXRpdmUgb24gZmFpbHVyZS4KPj4gKyAqLwo+PiAraW50IHZpcnRpb19wY2lfYWRtaW5fbGlz
-dF91c2Uoc3RydWN0IHBjaV9kZXYgKnBkZXYsIHU4ICpidWYsIGludCBidWZfc2l6ZSkKPj4gK3sK
-Pj4gKwlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmlydGlvX2RldiA9IHZpcnRpb19wY2lfdmZfZ2V0
-X3BmX2RldihwZGV2KTsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWluX2NtZCBjbWQgPSB7fTsKPj4g
-KwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgZGF0YV9zZzsKPj4gKwo+PiArCWlmICghdmlydGlvX2RldikK
-Pj4gKwkJcmV0dXJuIC1FTk9ERVY7Cj4+ICsKPj4gKwlzZ19pbml0X29uZSgmZGF0YV9zZywgYnVm
-LCBidWZfc2l6ZSk7Cj4+ICsJY21kLm9wY29kZSA9IGNwdV90b19sZTE2KFZJUlRJT19BRE1JTl9D
-TURfTElTVF9VU0UpOwo+PiArCWNtZC5ncm91cF90eXBlID0gY3B1X3RvX2xlMTYoVklSVElPX0FE
-TUlOX0dST1VQX1RZUEVfU1JJT1YpOwo+PiArCWNtZC5kYXRhX3NnID0gJmRhdGFfc2c7Cj4+ICsK
-Pj4gKwlyZXR1cm4gdnBfbW9kZXJuX2FkbWluX2NtZF9leGVjKHZpcnRpb19kZXYsICZjbWQpOwo+
-PiArfQo+PiArRVhQT1JUX1NZTUJPTF9HUEwodmlydGlvX3BjaV9hZG1pbl9saXN0X3VzZSk7Cj4g
-bGlzdCBjb21tYW5kcyBhcmUgYWN0dWFsbHkgZm9yIGEgZ3JvdXAsIG5vdCBmb3IgdGhlIFZGLgpU
-aGUgVkYgd2FzIGdpdmVuIHRvIGxldCB0aGUgZnVuY3Rpb24gZ2V0cyB0aGUgUEYgZnJvbSBpdC4K
-Rm9yIG5vdywgdGhlIG9ubHkgZXhpc3RpbmcgJ2dyb3VwX3R5cGUnIGluIHRoZSBzcGVjIGlzIFNS
-SU9WLCB0aGlzIGlzIAp3aHkgd2UgaGFyZC1jb2RlZCBpdCBpbnRlcm5hbGx5IHRvIG1hdGNoIHRo
-ZSBWRiBQQ0kuCgpBbHRlcm5hdGl2ZWx5LApXZSBjYW4gY2hhbmdlIHRoZSBBUEkgdG8gZ2V0IHRo
-ZSBQRiBhbmQgJ2dyb3VwX3R5cGUnIGZyb20gdGhlIGNhbGxlciB0byAKYmV0dGVyIG1hdGNoIGZ1
-dHVyZSB1c2FnZS4KSG93ZXZlciwgdGhpcyB3aWxsIHJlcXVpcmUgdG8gZXhwb3J0IHRoZSB2aXJ0
-aW9fcGNpX3ZmX2dldF9wZl9kZXYoKSBBUEkgCm91dHNpZGUgdmlydGlvLXBjaS4KCkRvIHlvdSBw
-cmVmZXIgdG8gY2hhbmdlIHRvIHRoZSBsYXR0ZXIgb3B0aW9uID8KPj4gKwo+PiArLyoKPj4gKyAq
-IHZpcnRpb19wY2lfYWRtaW5fbGVnYWN5X2lvX3dyaXRlIC0gV3JpdGUgbGVnYWN5IHJlZ2lzdGVy
-cyBvZiBhIG1lbWJlciBkZXZpY2UKPj4gKyAqIEBkZXY6IFZGIHBjaV9kZXYKPj4gKyAqIEBvcGNv
-ZGU6IG9wIGNvZGUgb2YgdGhlIGlvIHdyaXRlIGNvbW1hbmQKPiBvcGNvZGUgaXMgYWN0dWFsbHkg
-ZWl0aGVyIFZJUlRJT19BRE1JTl9DTURfTEVHQUNZX0NPTU1PTl9DRkdfV1JJVEUKPiBvciBWSVJU
-SU9fQURNSU5fQ01EX0xFR0FDWV9ERVZfQ0ZHX1dSSVRFIGNvcnJlY3Q/Cj4KPiBTbyBwbGVhc2Ug
-anVzdCBhZGQgMiBBUElzIGZvciB0aGlzIHNvIHVzZXJzIGRvbid0IG5lZWQgdG8gY2FyZS4KPiBD
-b3VsZCBiZSB3cmFwcGVycyBhcm91bmQgdGhlc2UgdHdvIHRoaW5ncy4KPgo+Ck9LLgpXZSdsbCBl
-eHBvcnQgdGhlIGJlbG93IDIgQVBJcyBbMV0gd2hpY2ggaW50ZXJuYWxseSB3aWxsIGNhbGwgCnZp
-cnRpb19wY2lfYWRtaW5fbGVnYWN5X2lvX3dyaXRlKCkgd2l0aCB0aGUgcHJvcGVyIG9wIGNvZGUg
-aGFyZC1jb2RlZC4KWzFddmlydGlvX3BjaV9hZG1pbl9sZWdhY3lfZGV2aWNlX2lvX3dyaXRlKCkK
-IMKgwqDCoMKgIHZpcnRpb19wY2lfYWRtaW5fbGVnYWN5X2NvbW1vbl9pb193cml0ZSgpCgpZaXNo
-YWkKCj4KPj4gKyAqIEBvZmZzZXQ6IHN0YXJ0aW5nIGJ5dGUgb2Zmc2V0IHdpdGhpbiB0aGUgcmVn
-aXN0ZXJzIHRvIHdyaXRlIHRvCj4+ICsgKiBAc2l6ZTogc2l6ZSBvZiB0aGUgZGF0YSB0byB3cml0
-ZQo+PiArICogQGJ1ZjogYnVmZmVyIHdoaWNoIGhvbGRzIHRoZSBkYXRhCj4+ICsgKgo+PiArICog
-UmV0dXJucyAwIG9uIHN1Y2Nlc3MsIG9yIG5lZ2F0aXZlIG9uIGZhaWx1cmUuCj4+ICsgKi8KPj4g
-K2ludCB2aXJ0aW9fcGNpX2FkbWluX2xlZ2FjeV9pb193cml0ZShzdHJ1Y3QgcGNpX2RldiAqcGRl
-diwgdTE2IG9wY29kZSwKPj4gKwkJCQkgICAgIHU4IG9mZnNldCwgdTggc2l6ZSwgdTggKmJ1ZikK
-Pj4gK3sKPj4gKwlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmlydGlvX2RldiA9IHZpcnRpb19wY2lf
-dmZfZ2V0X3BmX2RldihwZGV2KTsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWluX2NtZF9sZWdhY3lf
-d3JfZGF0YSAqZGF0YTsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWluX2NtZCBjbWQgPSB7fTsKPj4g
-KwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgZGF0YV9zZzsKPj4gKwlpbnQgdmZfaWQ7Cj4+ICsJaW50IHJl
-dDsKPj4gKwo+PiArCWlmICghdmlydGlvX2RldikKPj4gKwkJcmV0dXJuIC1FTk9ERVY7Cj4+ICsK
-Pj4gKwl2Zl9pZCA9IHBjaV9pb3ZfdmZfaWQocGRldik7Cj4+ICsJaWYgKHZmX2lkIDwgMCkKPj4g
-KwkJcmV0dXJuIHZmX2lkOwo+PiArCj4+ICsJZGF0YSA9IGt6YWxsb2Moc2l6ZW9mKCpkYXRhKSAr
-IHNpemUsIEdGUF9LRVJORUwpOwo+PiArCWlmICghZGF0YSkKPj4gKwkJcmV0dXJuIC1FTk9NRU07
-Cj4+ICsKPj4gKwlkYXRhLT5vZmZzZXQgPSBvZmZzZXQ7Cj4+ICsJbWVtY3B5KGRhdGEtPnJlZ2lz
-dGVycywgYnVmLCBzaXplKTsKPj4gKwlzZ19pbml0X29uZSgmZGF0YV9zZywgZGF0YSwgc2l6ZW9m
-KCpkYXRhKSArIHNpemUpOwo+PiArCWNtZC5vcGNvZGUgPSBjcHVfdG9fbGUxNihvcGNvZGUpOwo+
-PiArCWNtZC5ncm91cF90eXBlID0gY3B1X3RvX2xlMTYoVklSVElPX0FETUlOX0dST1VQX1RZUEVf
-U1JJT1YpOwo+PiArCWNtZC5ncm91cF9tZW1iZXJfaWQgPSBjcHVfdG9fbGU2NCh2Zl9pZCArIDEp
-Owo+PiArCWNtZC5kYXRhX3NnID0gJmRhdGFfc2c7Cj4+ICsJcmV0ID0gdnBfbW9kZXJuX2FkbWlu
-X2NtZF9leGVjKHZpcnRpb19kZXYsICZjbWQpOwo+PiArCj4+ICsJa2ZyZWUoZGF0YSk7Cj4+ICsJ
-cmV0dXJuIHJldDsKPj4gK30KPj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19wY2lfYWRtaW5f
-bGVnYWN5X2lvX3dyaXRlKTsKPj4gKwo+PiArLyoKPj4gKyAqIHZpcnRpb19wY2lfYWRtaW5fbGVn
-YWN5X2lvX3JlYWQgLSBSZWFkIGxlZ2FjeSByZWdpc3RlcnMgb2YgYSBtZW1iZXIgZGV2aWNlCj4+
-ICsgKiBAZGV2OiBWRiBwY2lfZGV2Cj4+ICsgKiBAb3Bjb2RlOiBvcCBjb2RlIG9mIHRoZSBpbyBy
-ZWFkIGNvbW1hbmQKPj4gKyAqIEBvZmZzZXQ6IHN0YXJ0aW5nIGJ5dGUgb2Zmc2V0IHdpdGhpbiB0
-aGUgcmVnaXN0ZXJzIHRvIHJlYWQgZnJvbQo+PiArICogQHNpemU6IHNpemUgb2YgdGhlIGRhdGEg
-dG8gYmUgcmVhZAo+PiArICogQGJ1ZjogYnVmZmVyIHRvIGhvbGQgdGhlIHJldHVybmVkIGRhdGEK
-Pj4gKyAqCj4+ICsgKiBSZXR1cm5zIDAgb24gc3VjY2Vzcywgb3IgbmVnYXRpdmUgb24gZmFpbHVy
-ZS4KPj4gKyAqLwo+PiAraW50IHZpcnRpb19wY2lfYWRtaW5fbGVnYWN5X2lvX3JlYWQoc3RydWN0
-IHBjaV9kZXYgKnBkZXYsIHUxNiBvcGNvZGUsCj4+ICsJCQkJICAgIHU4IG9mZnNldCwgdTggc2l6
-ZSwgdTggKmJ1ZikKPj4gK3sKPj4gKwlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmlydGlvX2RldiA9
-IHZpcnRpb19wY2lfdmZfZ2V0X3BmX2RldihwZGV2KTsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWlu
-X2NtZF9sZWdhY3lfcmRfZGF0YSAqZGF0YTsKPj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgZGF0YV9z
-ZywgcmVzdWx0X3NnOwo+PiArCXN0cnVjdCB2aXJ0aW9fYWRtaW5fY21kIGNtZCA9IHt9Owo+PiAr
-CWludCB2Zl9pZDsKPj4gKwlpbnQgcmV0Owo+PiArCj4+ICsJaWYgKCF2aXJ0aW9fZGV2KQo+PiAr
-CQlyZXR1cm4gLUVOT0RFVjsKPj4gKwo+PiArCXZmX2lkID0gcGNpX2lvdl92Zl9pZChwZGV2KTsK
-Pj4gKwlpZiAodmZfaWQgPCAwKQo+PiArCQlyZXR1cm4gdmZfaWQ7Cj4+ICsKPj4gKwlkYXRhID0g
-a3phbGxvYyhzaXplb2YoKmRhdGEpLCBHRlBfS0VSTkVMKTsKPj4gKwlpZiAoIWRhdGEpCj4+ICsJ
-CXJldHVybiAtRU5PTUVNOwo+PiArCj4+ICsJZGF0YS0+b2Zmc2V0ID0gb2Zmc2V0Owo+PiArCXNn
-X2luaXRfb25lKCZkYXRhX3NnLCBkYXRhLCBzaXplb2YoKmRhdGEpKTsKPj4gKwlzZ19pbml0X29u
-ZSgmcmVzdWx0X3NnLCBidWYsIHNpemUpOwo+PiArCWNtZC5vcGNvZGUgPSBjcHVfdG9fbGUxNihv
-cGNvZGUpOwo+PiArCWNtZC5ncm91cF90eXBlID0gY3B1X3RvX2xlMTYoVklSVElPX0FETUlOX0dS
-T1VQX1RZUEVfU1JJT1YpOwo+PiArCWNtZC5ncm91cF9tZW1iZXJfaWQgPSBjcHVfdG9fbGU2NCh2
-Zl9pZCArIDEpOwo+PiArCWNtZC5kYXRhX3NnID0gJmRhdGFfc2c7Cj4+ICsJY21kLnJlc3VsdF9z
-ZyA9ICZyZXN1bHRfc2c7Cj4+ICsJcmV0ID0gdnBfbW9kZXJuX2FkbWluX2NtZF9leGVjKHZpcnRp
-b19kZXYsICZjbWQpOwo+PiArCj4+ICsJa2ZyZWUoZGF0YSk7Cj4+ICsJcmV0dXJuIHJldDsKPj4g
-K30KPj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19wY2lfYWRtaW5fbGVnYWN5X2lvX3JlYWQp
-Owo+PiArCj4+ICsvKgo+PiArICogdmlydGlvX3BjaV9hZG1pbl9sZWdhY3lfaW9fbm90aWZ5X2lu
-Zm8gLSBSZWFkIHRoZSBxdWV1ZSBub3RpZmljYXRpb24KPj4gKyAqIGluZm9ybWF0aW9uIGZvciBs
-ZWdhY3kgaW50ZXJmYWNlCj4+ICsgKiBAZGV2OiBWRiBwY2lfZGV2Cj4+ICsgKiBAcmVxX2Jhcl9m
-bGFnczogcmVxdWVzdGVkIGJhciBmbGFncwo+PiArICogQGJhcjogb24gb3V0cHV0IHRoZSBCQVIg
-bnVtYmVyIG9mIHRoZSBtZW1iZXIgZGV2aWNlCj4+ICsgKiBAYmFyX29mZnNldDogb24gb3V0cHV0
-IHRoZSBvZmZzZXQgd2l0aGluIGJhcgo+PiArICoKPj4gKyAqIFJldHVybnMgMCBvbiBzdWNjZXNz
-LCBvciBuZWdhdGl2ZSBvbiBmYWlsdXJlLgo+PiArICovCj4+ICtpbnQgdmlydGlvX3BjaV9hZG1p
-bl9sZWdhY3lfaW9fbm90aWZ5X2luZm8oc3RydWN0IHBjaV9kZXYgKnBkZXYsCj4+ICsJCQkJCSAg
-IHU4IHJlcV9iYXJfZmxhZ3MsIHU4ICpiYXIsCj4+ICsJCQkJCSAgIHU2NCAqYmFyX29mZnNldCkK
-Pj4gK3sKPj4gKwlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmlydGlvX2RldiA9IHZpcnRpb19wY2lf
-dmZfZ2V0X3BmX2RldihwZGV2KTsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWluX2NtZF9ub3RpZnlf
-aW5mb19yZXN1bHQgKnJlc3VsdDsKPj4gKwlzdHJ1Y3QgdmlydGlvX2FkbWluX2NtZCBjbWQgPSB7
-fTsKPj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgcmVzdWx0X3NnOwo+PiArCWludCB2Zl9pZDsKPj4g
-KwlpbnQgcmV0Owo+PiArCj4+ICsJaWYgKCF2aXJ0aW9fZGV2KQo+PiArCQlyZXR1cm4gLUVOT0RF
-VjsKPj4gKwo+PiArCXZmX2lkID0gcGNpX2lvdl92Zl9pZChwZGV2KTsKPj4gKwlpZiAodmZfaWQg
-PCAwKQo+PiArCQlyZXR1cm4gdmZfaWQ7Cj4+ICsKPj4gKwlyZXN1bHQgPSBremFsbG9jKHNpemVv
-ZigqcmVzdWx0KSwgR0ZQX0tFUk5FTCk7Cj4+ICsJaWYgKCFyZXN1bHQpCj4+ICsJCXJldHVybiAt
-RU5PTUVNOwo+PiArCj4+ICsJc2dfaW5pdF9vbmUoJnJlc3VsdF9zZywgcmVzdWx0LCBzaXplb2Yo
-KnJlc3VsdCkpOwo+PiArCWNtZC5vcGNvZGUgPSBjcHVfdG9fbGUxNihWSVJUSU9fQURNSU5fQ01E
-X0xFR0FDWV9OT1RJRllfSU5GTyk7Cj4+ICsJY21kLmdyb3VwX3R5cGUgPSBjcHVfdG9fbGUxNihW
-SVJUSU9fQURNSU5fR1JPVVBfVFlQRV9TUklPVik7Cj4+ICsJY21kLmdyb3VwX21lbWJlcl9pZCA9
-IGNwdV90b19sZTY0KHZmX2lkICsgMSk7Cj4+ICsJY21kLnJlc3VsdF9zZyA9ICZyZXN1bHRfc2c7
-Cj4+ICsJcmV0ID0gdnBfbW9kZXJuX2FkbWluX2NtZF9leGVjKHZpcnRpb19kZXYsICZjbWQpOwo+
-PiArCWlmICghcmV0KSB7Cj4+ICsJCXN0cnVjdCB2aXJ0aW9fYWRtaW5fY21kX25vdGlmeV9pbmZv
-X2RhdGEgKmVudHJ5Owo+PiArCQlpbnQgaTsKPj4gKwo+PiArCQlyZXQgPSAtRU5PRU5UOwo+PiAr
-CQlmb3IgKGkgPSAwOyBpIDwgVklSVElPX0FETUlOX0NNRF9NQVhfTk9USUZZX0lORk87IGkrKykg
-ewo+PiArCQkJZW50cnkgPSAmcmVzdWx0LT5lbnRyaWVzW2ldOwo+PiArCQkJaWYgKGVudHJ5LT5m
-bGFncyA9PSBWSVJUSU9fQURNSU5fQ01EX05PVElGWV9JTkZPX0ZMQUdTX0VORCkKPj4gKwkJCQli
-cmVhazsKPj4gKwkJCWlmIChlbnRyeS0+ZmxhZ3MgIT0gcmVxX2Jhcl9mbGFncykKPj4gKwkJCQlj
-b250aW51ZTsKPj4gKwkJCSpiYXIgPSBlbnRyeS0+YmFyOwo+PiArCQkJKmJhcl9vZmZzZXQgPSBs
-ZTY0X3RvX2NwdShlbnRyeS0+b2Zmc2V0KTsKPj4gKwkJCXJldCA9IDA7Cj4+ICsJCQlicmVhazsK
-Pj4gKwkJfQo+PiArCX0KPj4gKwo+PiArCWtmcmVlKHJlc3VsdCk7Cj4+ICsJcmV0dXJuIHJldDsK
-Pj4gK30KPj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19wY2lfYWRtaW5fbGVnYWN5X2lvX25v
-dGlmeV9pbmZvKTsKPj4gKwo+PiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdmlydGlvX2NvbmZpZ19v
-cHMgdmlydGlvX3BjaV9jb25maWdfbm9kZXZfb3BzID0gewo+PiAgIAkuZ2V0CQk9IE5VTEwsCj4+
-ICAgCS5zZXQJCT0gTlVMTCwKPj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX3Bj
-aV9hZG1pbi5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcGNpX2FkbWluLmgKPj4gbmV3IGZpbGUg
-bW9kZSAxMDA2NDQKPj4gaW5kZXggMDAwMDAwMDAwMDAwLi5jYjkxNmE0YmMxYjEKPj4gLS0tIC9k
-ZXYvbnVsbAo+PiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19wY2lfYWRtaW4uaAo+PiBAQCAt
-MCwwICsxLDE4IEBACj4+ICsvKiBTUERYLUxpY2Vuc2UtSWRlbnRpZmllcjogR1BMLTIuMCAqLwo+
-PiArI2lmbmRlZiBfTElOVVhfVklSVElPX1BDSV9BRE1JTl9ICj4+ICsjZGVmaW5lIF9MSU5VWF9W
-SVJUSU9fUENJX0FETUlOX0gKPj4gKwo+PiArI2luY2x1ZGUgPGxpbnV4L3R5cGVzLmg+Cj4+ICsj
-aW5jbHVkZSA8bGludXgvcGNpLmg+Cj4+ICsKPj4gK2ludCB2aXJ0aW9fcGNpX2FkbWluX2xpc3Rf
-dXNlKHN0cnVjdCBwY2lfZGV2ICpwZGV2LCB1OCAqYnVmLCBpbnQgYnVmX3NpemUpOwo+PiAraW50
-IHZpcnRpb19wY2lfYWRtaW5fbGlzdF9xdWVyeShzdHJ1Y3QgcGNpX2RldiAqcGRldiwgdTggKmJ1
-ZiwgaW50IGJ1Zl9zaXplKTsKPj4gK2ludCB2aXJ0aW9fcGNpX2FkbWluX2xlZ2FjeV9pb193cml0
-ZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwgdTE2IG9wY29kZSwKPj4gKwkJCQkgICAgIHU4IG9mZnNl
-dCwgdTggc2l6ZSwgdTggKmJ1Zik7Cj4+ICtpbnQgdmlydGlvX3BjaV9hZG1pbl9sZWdhY3lfaW9f
-cmVhZChzdHJ1Y3QgcGNpX2RldiAqcGRldiwgdTE2IG9wY29kZSwKPj4gKwkJCQkgICAgdTggb2Zm
-c2V0LCB1OCBzaXplLCB1OCAqYnVmKTsKPj4gK2ludCB2aXJ0aW9fcGNpX2FkbWluX2xlZ2FjeV9p
-b19ub3RpZnlfaW5mbyhzdHJ1Y3QgcGNpX2RldiAqcGRldiwKPj4gKwkJCQkJICAgdTggcmVxX2Jh
-cl9mbGFncywgdTggKmJhciwKPj4gKwkJCQkJICAgdTY0ICpiYXJfb2Zmc2V0KTsKPj4gKwo+PiAr
-I2VuZGlmIC8qIF9MSU5VWF9WSVJUSU9fUENJX0FETUlOX0ggKi8KPj4gLS0gCj4+IDIuMjcuMAoK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+This commit uses the ack() callback to determine when a buffer has been
+updated, then exposes it to guest.
+
+The current mechanism splits a dma buffer into descriptors that are
+exposed to the device. This dma buffer is shared with the user
+application. When the device consumes a buffer, the driver moves the
+request from the used ring to available ring.
+
+The driver exposes the buffer to the device without knowing if the
+content has been updated from the user. The section 2.8.21.1 of the
+virtio spec states that: "The device MAY access the descriptor chains
+the driver created and the memory they refer to immediately". If the
+device picks up buffers from the available ring just after it is
+notified, it happens that the content may be old.
+
+When the ack() callback is invoked, the driver exposes only the buffers
+that have already been updated, i.e., enqueued in the available ring.
+Thus, the device always picks up a buffer that is updated.
+
+For capturing, the driver starts by exposing all the available buffers
+to device. After device updates the content of a buffer, it enqueues it
+in the used ring. It is only after the ack() for capturing is issued
+that the driver re-enqueues the buffer in the available ring.
+
+Co-developed-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Signed-off-by: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+---
+Changelog:
+v3 -> v4:
+ * Disable rewinds
+ * Add SNDRV_PCM_INFO_SYNC_APPLPTR flag
+ * Use pcm indirect API for pointer() and ack() callbacks
+v2 -> v3:
+ * Use ack() callback instead of copy()/fill_silence()
+ * Change commit name
+ * Rewrite commit message
+ * Remove virtsnd_pcm_msg_send_locked()
+ * Use single callback for both capture and playback
+ * Fix kernel test robot warnings regarding documentation
+ * v2 patch at:
+   https://lore.kernel.org/lkml/87y1fzkq8c.wl-tiwai@suse.de/T/
+v1 -> v2:
+ * Use snd_pcm_set_managed_buffer_all()for buffer allocation/freeing.
+ * Make virtsnd_pcm_msg_send() generic by specifying the offset and size
+   for the modified part of the buffer; this way no assumptions need to
+   be made.
+ * Disable SNDRV_PCM_INFO_NO_REWINDS since now only sequential
+   reading/writing of frames is supported.
+ * Correct comment at virtsnd_pcm_msg_send().
+ * v1 patch at:
+   https://lore.kernel.org/lkml/20231016151000.GE119987@fedora/t/
+
+ sound/virtio/virtio_pcm.c     |   6 +-
+ sound/virtio/virtio_pcm.h     |   9 ++-
+ sound/virtio/virtio_pcm_msg.c |  79 ++++++++++++---------
+ sound/virtio/virtio_pcm_ops.c | 125 +++++++++++++++++++++++++++-------
+ 4 files changed, 158 insertions(+), 61 deletions(-)
+
+diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
+index c10d91fff2fb..967e4c45be9b 100644
+--- a/sound/virtio/virtio_pcm.c
++++ b/sound/virtio/virtio_pcm.c
+@@ -109,7 +109,9 @@ static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
+ 		SNDRV_PCM_INFO_BATCH |
+ 		SNDRV_PCM_INFO_BLOCK_TRANSFER |
+ 		SNDRV_PCM_INFO_INTERLEAVED |
+-		SNDRV_PCM_INFO_PAUSE;
++		SNDRV_PCM_INFO_PAUSE |
++		SNDRV_PCM_INFO_NO_REWINDS |
++		SNDRV_PCM_INFO_SYNC_APPLPTR;
+ 
+ 	if (!info->channels_min || info->channels_min > info->channels_max) {
+ 		dev_err(&vdev->dev,
+@@ -471,7 +473,7 @@ int virtsnd_pcm_build_devs(struct virtio_snd *snd)
+ 			for (kss = ks->substream; kss; kss = kss->next)
+ 				vs->substreams[kss->number]->substream = kss;
+ 
+-			snd_pcm_set_ops(vpcm->pcm, i, &virtsnd_pcm_ops);
++			snd_pcm_set_ops(vpcm->pcm, i, &virtsnd_pcm_ops[i]);
+ 		}
+ 
+ 		snd_pcm_set_managed_buffer_all(vpcm->pcm,
+diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
+index 062eb8e8f2cf..5dd1b43b9493 100644
+--- a/sound/virtio/virtio_pcm.h
++++ b/sound/virtio/virtio_pcm.h
+@@ -9,6 +9,7 @@
+ #include <linux/atomic.h>
+ #include <linux/virtio_config.h>
+ #include <sound/pcm.h>
++#include <sound/pcm-indirect.h>
+ 
+ struct virtio_pcm;
+ struct virtio_pcm_msg;
+@@ -21,6 +22,7 @@ struct virtio_pcm_msg;
+  * @direction: Stream data flow direction (SNDRV_PCM_STREAM_XXX).
+  * @features: Stream VirtIO feature bit map (1 << VIRTIO_SND_PCM_F_XXX).
+  * @substream: Kernel ALSA substream.
++ * @pcm_indirect: Kernel indirect pcm structure.
+  * @hw: Kernel ALSA substream hardware descriptor.
+  * @elapsed_period: Kernel work to handle the elapsed period state.
+  * @lock: Spinlock that protects fields shared by interrupt handlers and
+@@ -46,6 +48,7 @@ struct virtio_pcm_substream {
+ 	u32 direction;
+ 	u32 features;
+ 	struct snd_pcm_substream *substream;
++	struct snd_pcm_indirect pcm_indirect;
+ 	struct snd_pcm_hardware hw;
+ 	struct work_struct elapsed_period;
+ 	spinlock_t lock;
+@@ -57,7 +60,6 @@ struct virtio_pcm_substream {
+ 	bool suspended;
+ 	struct virtio_pcm_msg **msgs;
+ 	unsigned int nmsgs;
+-	int msg_last_enqueued;
+ 	unsigned int msg_count;
+ 	wait_queue_head_t msg_empty;
+ };
+@@ -90,7 +92,7 @@ struct virtio_pcm {
+ 	struct virtio_pcm_stream streams[SNDRV_PCM_STREAM_LAST + 1];
+ };
+ 
+-extern const struct snd_pcm_ops virtsnd_pcm_ops;
++extern const struct snd_pcm_ops virtsnd_pcm_ops[];
+ 
+ int virtsnd_pcm_validate(struct virtio_device *vdev);
+ 
+@@ -117,7 +119,8 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
+ 
+ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss);
+ 
+-int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss);
++int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, unsigned long offset,
++			 unsigned long bytes);
+ 
+ unsigned int virtsnd_pcm_msg_pending_num(struct virtio_pcm_substream *vss);
+ 
+diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+index aca2dc1989ba..542446c4c7ba 100644
+--- a/sound/virtio/virtio_pcm_msg.c
++++ b/sound/virtio/virtio_pcm_msg.c
+@@ -155,7 +155,6 @@ int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
+ 			    sizeof(msg->xfer));
+ 		sg_init_one(&msg->sgs[PCM_MSG_SG_STATUS], &msg->status,
+ 			    sizeof(msg->status));
+-		msg->length = period_bytes;
+ 		virtsnd_pcm_sg_from(&msg->sgs[PCM_MSG_SG_DATA], sg_num, data,
+ 				    period_bytes);
+ 
+@@ -186,61 +185,75 @@ void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
+ /**
+  * virtsnd_pcm_msg_send() - Send asynchronous I/O messages.
+  * @vss: VirtIO PCM substream.
++ * @offset: starting position that has been updated
++ * @bytes: number of bytes that has been updated
+  *
+  * All messages are organized in an ordered circular list. Each time the
+  * function is called, all currently non-enqueued messages are added to the
+- * virtqueue. For this, the function keeps track of two values:
+- *
+- *   msg_last_enqueued = index of the last enqueued message,
+- *   msg_count = # of pending messages in the virtqueue.
++ * virtqueue. For this, the function uses offset and bytes to calculate the
++ * messages that need to be added.
+  *
+  * Context: Any context. Expects the tx/rx queue and the VirtIO substream
+  *          spinlocks to be held by caller.
+  * Return: 0 on success, -errno on failure.
+  */
+-int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
++int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss, unsigned long offset,
++			 unsigned long bytes)
+ {
+-	struct snd_pcm_runtime *runtime = vss->substream->runtime;
+ 	struct virtio_snd *snd = vss->snd;
+ 	struct virtio_device *vdev = snd->vdev;
+ 	struct virtqueue *vqueue = virtsnd_pcm_queue(vss)->vqueue;
+-	int i;
+-	int n;
++	unsigned long period_bytes = snd_pcm_lib_period_bytes(vss->substream);
++	unsigned long start, end, i;
++	unsigned int msg_count = vss->msg_count;
+ 	bool notify = false;
++	int rc;
+ 
+-	i = (vss->msg_last_enqueued + 1) % runtime->periods;
+-	n = runtime->periods - vss->msg_count;
++	start = offset / period_bytes;
++	end = (offset + bytes - 1) / period_bytes;
+ 
+-	for (; n; --n, i = (i + 1) % runtime->periods) {
++	for (i = start; i <= end; i++) {
+ 		struct virtio_pcm_msg *msg = vss->msgs[i];
+ 		struct scatterlist *psgs[] = {
+ 			&msg->sgs[PCM_MSG_SG_XFER],
+ 			&msg->sgs[PCM_MSG_SG_DATA],
+ 			&msg->sgs[PCM_MSG_SG_STATUS]
+ 		};
+-		int rc;
+-
+-		msg->xfer.stream_id = cpu_to_le32(vss->sid);
+-		memset(&msg->status, 0, sizeof(msg->status));
+-
+-		if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
+-			rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
+-					       GFP_ATOMIC);
+-		else
+-			rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
+-					       GFP_ATOMIC);
+-
+-		if (rc) {
+-			dev_err(&vdev->dev,
+-				"SID %u: failed to send I/O message\n",
+-				vss->sid);
+-			return rc;
++		unsigned long n;
++
++		n = period_bytes - (offset % period_bytes);
++		if (n > bytes)
++			n = bytes;
++
++		msg->length += n;
++		if (msg->length == period_bytes) {
++			msg->xfer.stream_id = cpu_to_le32(vss->sid);
++			memset(&msg->status, 0, sizeof(msg->status));
++
++			if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
++				rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
++						       GFP_ATOMIC);
++			else
++				rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
++						       GFP_ATOMIC);
++
++			if (rc) {
++				dev_err(&vdev->dev,
++					"SID %u: failed to send I/O message\n",
++					vss->sid);
++				return rc;
++			}
++
++			vss->msg_count++;
+ 		}
+ 
+-		vss->msg_last_enqueued = i;
+-		vss->msg_count++;
++		offset = 0;
++		bytes -= n;
+ 	}
+ 
++	if (msg_count == vss->msg_count)
++		return 0;
++
+ 	if (!(vss->features & (1U << VIRTIO_SND_PCM_F_MSG_POLLING)))
+ 		notify = virtqueue_kick_prepare(vqueue);
+ 
+@@ -309,6 +322,8 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+ 	if (vss->hw_ptr >= vss->buffer_bytes)
+ 		vss->hw_ptr -= vss->buffer_bytes;
+ 
++	msg->length = 0;
++
+ 	vss->xfer_xrun = false;
+ 	vss->msg_count--;
+ 
+@@ -320,8 +335,6 @@ static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+ 					le32_to_cpu(msg->status.latency_bytes));
+ 
+ 		schedule_work(&vss->elapsed_period);
+-
+-		virtsnd_pcm_msg_send(vss);
+ 	} else if (!vss->msg_count) {
+ 		wake_up_all(&vss->msg_empty);
+ 	}
+diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
+index f8bfb87624be..ad12aae52fc3 100644
+--- a/sound/virtio/virtio_pcm_ops.c
++++ b/sound/virtio/virtio_pcm_ops.c
+@@ -282,7 +282,6 @@ static int virtsnd_pcm_prepare(struct snd_pcm_substream *substream)
+ 
+ 		vss->buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+ 		vss->hw_ptr = 0;
+-		vss->msg_last_enqueued = -1;
+ 	} else {
+ 		struct snd_pcm_runtime *runtime = substream->runtime;
+ 		unsigned int buffer_bytes = snd_pcm_lib_buffer_bytes(substream);
+@@ -300,6 +299,11 @@ static int virtsnd_pcm_prepare(struct snd_pcm_substream *substream)
+ 	vss->suspended = false;
+ 	vss->msg_count = 0;
+ 
++	memset(&vss->pcm_indirect, 0, sizeof(vss->pcm_indirect));
++	vss->pcm_indirect.sw_buffer_size =
++		vss->pcm_indirect.hw_buffer_size =
++		snd_pcm_lib_buffer_bytes(substream);
++
+ 	msg = virtsnd_pcm_ctl_msg_alloc(vss, VIRTIO_SND_R_PCM_PREPARE,
+ 					GFP_KERNEL);
+ 	if (!msg)
+@@ -324,7 +328,7 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
+ 	struct virtio_snd_queue *queue;
+ 	struct virtio_snd_msg *msg;
+ 	unsigned long flags;
+-	int rc;
++	int rc = 0;
+ 
+ 	switch (command) {
+ 	case SNDRV_PCM_TRIGGER_START:
+@@ -333,7 +337,8 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
+ 
+ 		spin_lock_irqsave(&queue->lock, flags);
+ 		spin_lock(&vss->lock);
+-		rc = virtsnd_pcm_msg_send(vss);
++		if (vss->direction == SNDRV_PCM_STREAM_CAPTURE)
++			rc = virtsnd_pcm_msg_send(vss, 0, vss->buffer_bytes);
+ 		if (!rc)
+ 			vss->xfer_enabled = true;
+ 		spin_unlock(&vss->lock);
+@@ -428,37 +433,111 @@ static int virtsnd_pcm_sync_stop(struct snd_pcm_substream *substream)
+ }
+ 
+ /**
+- * virtsnd_pcm_pointer() - Get the current hardware position for the PCM
+- *                         substream.
++ * virtsnd_pcm_pb_pointer() - Get the current hardware position for the PCM
++ *                         substream for playback.
+  * @substream: Kernel ALSA substream.
+  *
+- * Context: Any context. Takes and releases the VirtIO substream spinlock.
++ * Context: Any context.
+  * Return: Hardware position in frames inside [0 ... buffer_size) range.
+  */
+ static snd_pcm_uframes_t
+-virtsnd_pcm_pointer(struct snd_pcm_substream *substream)
++virtsnd_pcm_pb_pointer(struct snd_pcm_substream *substream)
++{
++	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
++
++	return snd_pcm_indirect_playback_pointer(substream,
++		&vss->pcm_indirect,
++		vss->hw_ptr);
++}
++
++/**
++ * virtsnd_pcm_cp_pointer() - Get the current hardware position for the PCM
++ *                         substream for capture.
++ * @substream: Kernel ALSA substream.
++ *
++ * Context: Any context.
++ * Return: Hardware position in frames inside [0 ... buffer_size) range.
++ */
++static snd_pcm_uframes_t
++virtsnd_pcm_cp_pointer(struct snd_pcm_substream *substream)
++{
++	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
++
++	return snd_pcm_indirect_capture_pointer(substream,
++		&vss->pcm_indirect,
++		vss->hw_ptr);
++}
++
++static void virtsnd_pcm_trans_copy(struct snd_pcm_substream *substream,
++				   struct snd_pcm_indirect *rec, size_t bytes)
+ {
+ 	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
+-	snd_pcm_uframes_t hw_ptr = SNDRV_PCM_POS_XRUN;
++
++	virtsnd_pcm_msg_send(vss, rec->sw_data, bytes);
++}
++
++static int virtsnd_pcm_pb_ack(struct snd_pcm_substream *substream)
++{
++	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
++	struct virtio_snd_queue *queue = virtsnd_pcm_queue(vss);
++	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&queue->lock, flags);
++	spin_lock(&vss->lock);
++
++	rc = snd_pcm_indirect_playback_transfer(substream, &vss->pcm_indirect,
++						virtsnd_pcm_trans_copy);
++
++	spin_unlock(&vss->lock);
++	spin_unlock_irqrestore(&queue->lock, flags);
++
++	return rc;
++}
++
++static int virtsnd_pcm_cp_ack(struct snd_pcm_substream *substream)
++{
++	struct virtio_pcm_substream *vss = snd_pcm_substream_chip(substream);
++	struct virtio_snd_queue *queue = virtsnd_pcm_queue(vss);
+ 	unsigned long flags;
++	int rc;
++
++	spin_lock_irqsave(&queue->lock, flags);
++	spin_lock(&vss->lock);
++
++	rc = snd_pcm_indirect_capture_transfer(substream, &vss->pcm_indirect,
++					       virtsnd_pcm_trans_copy);
+ 
+-	spin_lock_irqsave(&vss->lock, flags);
+-	if (!vss->xfer_xrun)
+-		hw_ptr = bytes_to_frames(substream->runtime, vss->hw_ptr);
+-	spin_unlock_irqrestore(&vss->lock, flags);
++	spin_unlock(&vss->lock);
++	spin_unlock_irqrestore(&queue->lock, flags);
+ 
+-	return hw_ptr;
++	return rc;
+ }
+ 
+ /* PCM substream operators map. */
+-const struct snd_pcm_ops virtsnd_pcm_ops = {
+-	.open = virtsnd_pcm_open,
+-	.close = virtsnd_pcm_close,
+-	.ioctl = snd_pcm_lib_ioctl,
+-	.hw_params = virtsnd_pcm_hw_params,
+-	.hw_free = virtsnd_pcm_hw_free,
+-	.prepare = virtsnd_pcm_prepare,
+-	.trigger = virtsnd_pcm_trigger,
+-	.sync_stop = virtsnd_pcm_sync_stop,
+-	.pointer = virtsnd_pcm_pointer,
++const struct snd_pcm_ops virtsnd_pcm_ops[] = {
++	{
++		.open = virtsnd_pcm_open,
++		.close = virtsnd_pcm_close,
++		.ioctl = snd_pcm_lib_ioctl,
++		.hw_params = virtsnd_pcm_hw_params,
++		.hw_free = virtsnd_pcm_hw_free,
++		.prepare = virtsnd_pcm_prepare,
++		.trigger = virtsnd_pcm_trigger,
++		.sync_stop = virtsnd_pcm_sync_stop,
++		.pointer = virtsnd_pcm_pb_pointer,
++		.ack = virtsnd_pcm_pb_ack,
++	},
++	{
++		.open = virtsnd_pcm_open,
++		.close = virtsnd_pcm_close,
++		.ioctl = snd_pcm_lib_ioctl,
++		.hw_params = virtsnd_pcm_hw_params,
++		.hw_free = virtsnd_pcm_hw_free,
++		.prepare = virtsnd_pcm_prepare,
++		.trigger = virtsnd_pcm_trigger,
++		.sync_stop = virtsnd_pcm_sync_stop,
++		.pointer = virtsnd_pcm_cp_pointer,
++		.ack = virtsnd_pcm_cp_ack,
++	},
+ };
+
+base-commit: 8a749fd1a8720d4619c91c8b6e7528c0a355c0aa
+-- 
+2.41.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
