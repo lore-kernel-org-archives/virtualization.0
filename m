@@ -1,107 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C150EC0032E
-	for <virtualization@archiver.kernel.org>; Wed, 25 Oct 2023 03:36:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A6367C0032E
+	for <virtualization@archiver.kernel.org>; Wed, 25 Oct 2023 05:49:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4D961431CC;
-	Wed, 25 Oct 2023 03:36:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4D961431CC
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RqzZTWqp
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1BA83707DE;
+	Wed, 25 Oct 2023 05:49:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1BA83707DE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=CRg6HQCi
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vnvOG5E0vLj0; Wed, 25 Oct 2023 03:36:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4EDA5434D9;
-	Wed, 25 Oct 2023 03:36:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4EDA5434D9
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QW1dwkyNrVtI; Wed, 25 Oct 2023 05:49:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 657496FC0E;
+	Wed, 25 Oct 2023 05:49:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 657496FC0E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29800C0071;
-	Wed, 25 Oct 2023 03:36:04 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BFE97C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4676FC0039;
+	Wed, 25 Oct 2023 05:49:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4E73C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 03:36:02 +0000 (UTC)
+ Wed, 25 Oct 2023 05:49:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9AB5D84B1E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9D8DE6FCCD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 03:36:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9AB5D84B1E
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=RqzZTWqp
+ Wed, 25 Oct 2023 05:49:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9D8DE6FCCD
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xYAF4iyYWVi7
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wQxyhZzegsEb
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 03:36:02 +0000 (UTC)
+ Wed, 25 Oct 2023 05:49:52 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C4F8584B16
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 94BF06FC0E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Oct 2023 03:36:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C4F8584B16
+ Wed, 25 Oct 2023 05:49:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 94BF06FC0E
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698204960;
+ s=mimecast20190719; t=1698212991;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=xfDLb1C5fG+3hvae1lcC3XUNoWIDZjI8HvveldeQhUI=;
- b=RqzZTWqppVrwhBwJlRjE1/HDUcU6JGJrfKw5zfo50Ohpbe7fe8oXoxKDy463OO0AARwNqv
- m57aEfWxqsCgPDiMaaZDHlVwo9JOZi0rhcDCMLSFE+iN+FR0JdSAXiN8KEPdHlEXZ0mqQs
- e/xoKT31uMS89iQj66FYWAE1bgBg4xc=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=ZmdyaZ9qXbYT3M7CCj4FId0OwQhVUrEnLkY5RdWbyec=;
+ b=CRg6HQCibJX+092jcd7We3wd6c9HR1taiWXMMWVI9SoNR4eRWIKbnkJ+l5upioIvh2k3HU
+ HEmS6ZM2qwNPv6B4Vf4Em+DeW0ISikdjlOqpXlaccKQHPLyyBSxhizItqpG9VJQO3131lA
+ vGwqAyVXsPxBfh1PF2Mbh7hopxKsuEw=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-116-fnWT7P4LO9exmEAOAIe0hA-1; Tue, 24 Oct 2023 23:35:57 -0400
-X-MC-Unique: fnWT7P4LO9exmEAOAIe0hA-1
-Received: by mail-lf1-f69.google.com with SMTP id
- 2adb3069b0e04-50798a25ebaso243898e87.0
+ us-mta-364-hn_lGLysN1aqSiXT38YjFQ-1; Wed, 25 Oct 2023 01:49:49 -0400
+X-MC-Unique: hn_lGLysN1aqSiXT38YjFQ-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ 5b1f17b1804b1-408f9e9e9b0so23845725e9.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Oct 2023 20:35:56 -0700 (PDT)
+ Tue, 24 Oct 2023 22:49:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698204955; x=1698809755;
- h=content-transfer-encoding:cc:to:subject:message-id:date:from
- :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
- :subject:date:message-id:reply-to;
- bh=xfDLb1C5fG+3hvae1lcC3XUNoWIDZjI8HvveldeQhUI=;
- b=GXd5lACmdVVC5tGiqdyo8RYAHnHYIDmtn/4yjmqNqzCt7rHbTEU7+FV6Beqh8/cF3n
- fml2016EEct9RTtvLQjp6TvqHoqTXJj3TmwFOoPZKstNR0+hwuv/CcXPW4uoNiglYEFH
- VAQcSx9jHzAuGpNn7MoWeddDp11nNDYS8NAUINgZHFUyZbZ+LlUD3NQci21iu6YoZE1l
- O/W99Gyg4NQPqOLMwd2kOL56HSpboUP+bOseV5j00Dp3ZVms9dXAAU0sO6s642YjJm13
- ZGt4aUNTjmuAWDre9nDfsAu1hZuv6W9W6jOLzXYMG66PBELP4R/TfYzKS9KiJy6eW++f
- QGsw==
-X-Gm-Message-State: AOJu0Yw8UVL6UjiA+wlxztZkNlcVaTTv78y++oTHE2TrBUcQ/E0oHrmB
- x7L4uus0VH9eT0VMd/rudkRWNZ6z4W+DDSEIR4dh+3I6stNjzbGBkZZLaTVjnYx0pXH/kdjghiH
- CkCotWbuOR7PFOtA3KAvU/h2D2nzjnP7omMab9DpDfHyDbmlVA90B47QMlA==
-X-Received: by 2002:a05:6512:3e14:b0:507:9c72:3ace with SMTP id
- i20-20020a0565123e1400b005079c723acemr6015129lfv.26.1698204955592; 
- Tue, 24 Oct 2023 20:35:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFeHtwk890NQeEoItJvcNRHX2Ml0qXCOmSqFUCIUrPgkJHFPDqdG2NJa8DayWvoA5ZFM/qWvP6c0YG2Q898ATQ=
-X-Received: by 2002:a05:6512:3e14:b0:507:9c72:3ace with SMTP id
- i20-20020a0565123e1400b005079c723acemr6015114lfv.26.1698204955289; Tue, 24
- Oct 2023 20:35:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <cover.1697093455.git.hengqi@linux.alibaba.com>
- <ef5d159875745040e406473bd5c03e9875742ff5.1697093455.git.hengqi@linux.alibaba.com>
-In-Reply-To: <ef5d159875745040e406473bd5c03e9875742ff5.1697093455.git.hengqi@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 25 Oct 2023 11:35:43 +0800
-Message-ID: <CACGkMEuX+kJ8G2CitnACVgx_OSsdbtedD+dvXJ_REFdwzx56Vg@mail.gmail.com>
-Subject: Re: [PATCH net-next 5/5] virtio-net: support tx netdim
+ d=1e100.net; s=20230601; t=1698212988; x=1698817788;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=ZmdyaZ9qXbYT3M7CCj4FId0OwQhVUrEnLkY5RdWbyec=;
+ b=rp6WC8bW6lZlPU6OZxOGgK3k5fqOQReIWtbONLaxL2pmwcxxsTQk7AM6oYqFsOdk3x
+ u4JPx72OtwwDhcPKDxZ+ucTrTQlTSmrPqLZ0qIGUr4X3e/kp2C/qjbH4ziUgh5lknJOy
+ tA32WCUvayYCjzx5Y/cT0qPGscvQDlqGcU6pILfN5bQSGz+/m61U4tKLG6OxdhTNm4IA
+ xGkD4g6kbUKE9aWG8sgnuWSwEa19g5QWLZ4hlF9OxJSE4xMfzvkHSXz5w1nwmuD9b9Ty
+ 8yN81kq5E4pJRwzctmDxV3R7y117TkNY1dhppllUF0FlggahtU3L9BViJK7AWKq70jzx
+ buhA==
+X-Gm-Message-State: AOJu0YzURyDYFiymNAoYI4hp6JkDAMj/vwVH3RR6eF6Amos68smhWjnf
+ uyCOKzwEw1Qkt7j44ErzhiICIPpCpZU2jplMKGJZ/hMLJn2XRznXIpjvUDoHoP2h83O1XUJOP2K
+ OKytgCNqU8PvB/LB6LAtnrXou6lQ7vii78WYZDI7Ljg==
+X-Received: by 2002:a05:600c:468c:b0:408:3ea0:3026 with SMTP id
+ p12-20020a05600c468c00b004083ea03026mr10594934wmo.11.1698212988464; 
+ Tue, 24 Oct 2023 22:49:48 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IErtELIfss3EdE6wkMvrrbrNfMHdzx0+gPrTXpCzna2cPiuLf5sUwd9EudZdDacqgHXNu1zHw==
+X-Received: by 2002:a05:600c:468c:b0:408:3ea0:3026 with SMTP id
+ p12-20020a05600c468c00b004083ea03026mr10594920wmo.11.1698212988006; 
+ Tue, 24 Oct 2023 22:49:48 -0700 (PDT)
+Received: from redhat.com ([2a02:14f:1f1:7547:f72e:6bd0:1eb2:d4b5])
+ by smtp.gmail.com with ESMTPSA id
+ b4-20020a05600010c400b0032da471c0c1sm11303905wrx.7.2023.10.24.22.49.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 24 Oct 2023 22:49:47 -0700 (PDT)
+Date: Wed, 25 Oct 2023 01:49:42 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Heng Qi <hengqi@linux.alibaba.com>
+Subject: Re: [PATCH net-next 0/5] virtio-net: support dynamic coalescing
+ moderation
+Message-ID: <20231025014821-mutt-send-email-mst@kernel.org>
+References: <cover.1697093455.git.hengqi@linux.alibaba.com>
+MIME-Version: 1.0
+In-Reply-To: <cover.1697093455.git.hengqi@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "Liu, Yujie" <yujie.liu@intel.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Jesper Dangaard Brouer <hawk@kernel.org>, netdev@vger.kernel.org,
  John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
  virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
  Simon Horman <horms@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
@@ -117,54 +118,71 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBPY3QgMTIsIDIwMjMgYXQgMzo0NOKAr1BNIEhlbmcgUWkgPGhlbmdxaUBsaW51eC5h
-bGliYWJhLmNvbT4gd3JvdGU6Cj4KPiBTaW1pbGFyIHRvIHJ4IG5ldGRpbSwgdGhpcyBwYXRjaCBz
-dXBwb3J0cyBhZGFwdGl2ZSB0eAo+IGNvYWxlc2NpbmcgbW9kZXJhdGlvbiBmb3IgdGhlIHZpcnRp
-by1uZXQuCj4KPiBTaWduZWQtb2ZmLWJ5OiBIZW5nIFFpIDxoZW5ncWlAbGludXguYWxpYmFiYS5j
-b20+Cj4gLS0tCj4gIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDE0MyArKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDExOSBpbnNlcnRp
-b25zKCspLCAyNCBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBpbmRleCA2YWQyODkwYTc5MDku
-LjFjNjgwY2IwOWQ0OCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiAr
-KysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiBAQCAtMTU0LDYgKzE1NCwxNSBAQCBzdHJ1
-Y3Qgc2VuZF9xdWV1ZSB7Cj4KPiAgICAgICAgIHN0cnVjdCB2aXJ0bmV0X3NxX3N0YXRzIHN0YXRz
-Owo+Cj4gKyAgICAgICAvKiBUaGUgbnVtYmVyIG9mIHR4IG5vdGlmaWNhdGlvbnMgKi8KPiArICAg
-ICAgIHUxNiBjYWxsczsKPiArCj4gKyAgICAgICAvKiBJcyBkeW5hbWljIGludGVycnVwdCBtb2Rl
-cmF0aW9uIGVuYWJsZWQ/ICovCj4gKyAgICAgICBib29sIGRpbV9lbmFibGVkOwo+ICsKPiArICAg
-ICAgIC8qIER5bmFtaWMgSW50ZXJydXB0IE1vZGVyYXRpb24gKi8KPiArICAgICAgIHN0cnVjdCBk
-aW0gZGltOwo+ICsKPiAgICAgICAgIHN0cnVjdCB2aXJ0bmV0X2ludGVycnVwdF9jb2FsZXNjZSBp
-bnRyX2NvYWw7Cj4KPiAgICAgICAgIHN0cnVjdCBuYXBpX3N0cnVjdCBuYXBpOwo+IEBAIC0zMTcs
-OCArMzI2LDkgQEAgc3RydWN0IHZpcnRuZXRfaW5mbyB7Cj4gICAgICAgICB1OCBkdXBsZXg7Cj4g
-ICAgICAgICB1MzIgc3BlZWQ7Cj4KPiAtICAgICAgIC8qIElzIHJ4IGR5bmFtaWMgaW50ZXJydXB0
-IG1vZGVyYXRpb24gZW5hYmxlZD8gKi8KPiArICAgICAgIC8qIElzIGR5bmFtaWMgaW50ZXJydXB0
-IG1vZGVyYXRpb24gZW5hYmxlZD8gKi8KPiAgICAgICAgIGJvb2wgcnhfZGltX2VuYWJsZWQ7Cj4g
-KyAgICAgICBib29sIHR4X2RpbV9lbmFibGVkOwo+Cj4gICAgICAgICAvKiBJbnRlcnJ1cHQgY29h
-bGVzY2luZyBzZXR0aW5ncyAqLwo+ICAgICAgICAgc3RydWN0IHZpcnRuZXRfaW50ZXJydXB0X2Nv
-YWxlc2NlIGludHJfY29hbF90eDsKPiBAQCAtNDY0LDE5ICs0NzQsNDAgQEAgc3RhdGljIGJvb2wg
-dmlydHF1ZXVlX25hcGlfY29tcGxldGUoc3RydWN0IG5hcGlfc3RydWN0ICpuYXBpLAo+ICAgICAg
-ICAgcmV0dXJuIGZhbHNlOwo+ICB9Cj4KPiArc3RhdGljIHZvaWQgdmlydG5ldF90eF9kaW1fd29y
-ayhzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspOwo+ICsKPiArc3RhdGljIHZvaWQgdmlydG5ldF90
-eF9kaW1fdXBkYXRlKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLCBzdHJ1Y3Qgc2VuZF9xdWV1ZSAq
-c3EpCj4gK3sKPiArICAgICAgIHN0cnVjdCB2aXJ0bmV0X3NxX3N0YXRzICpzdGF0cyA9ICZzcS0+
-c3RhdHM7Cj4gKyAgICAgICBzdHJ1Y3QgZGltX3NhbXBsZSBjdXJfc2FtcGxlID0ge307Cj4gKwo+
-ICsgICAgICAgdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbigmc3EtPnN0YXRzLnN5bmNwKTsKPiArICAg
-ICAgIGRpbV91cGRhdGVfc2FtcGxlKHNxLT5jYWxscywgc3RhdHMtPnBhY2tldHMsCj4gKyAgICAg
-ICAgICAgICAgICAgICAgICAgICBzdGF0cy0+Ynl0ZXMsICZjdXJfc2FtcGxlKTsKPiArICAgICAg
-IHU2NF9zdGF0c191cGRhdGVfZW5kKCZzcS0+c3RhdHMuc3luY3ApOwo+ICsKPiArICAgICAgIG5l
-dF9kaW0oJnNxLT5kaW0sIGN1cl9zYW1wbGUpOwo+ICt9Cj4gKwo+ICBzdGF0aWMgdm9pZCBza2Jf
-eG1pdF9kb25lKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ICB7Cj4gICAgICAgICBzdHJ1Y3Qgdmly
-dG5ldF9pbmZvICp2aSA9IHZxLT52ZGV2LT5wcml2Owo+IC0gICAgICAgc3RydWN0IG5hcGlfc3Ry
-dWN0ICpuYXBpID0gJnZpLT5zcVt2cTJ0eHEodnEpXS5uYXBpOwo+ICsgICAgICAgc3RydWN0IHNl
-bmRfcXVldWUgKnNxID0gJnZpLT5zcVt2cTJ0eHEodnEpXTsKPiArICAgICAgIHN0cnVjdCBuYXBp
-X3N0cnVjdCAqbmFwaSA9ICZzcS0+bmFwaTsKPiArCj4gKyAgICAgICBzcS0+Y2FsbHMrKzsKCkkg
-d29uZGVyIHdoYXQncyB0aGUgaW1wYWN0IG9mIHRoaXMgY291bnRlcnMgZm9yIG5ldGRpbS4gQXMg
-d2UgaGF2ZSBhCm1vZGUgb2Ygb3JwaGFuIHNrYiBpbiB4bWl0LgoKV2UgbmVlZCB0byB0ZXN0IHRv
-IHNlZS4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Oct 12, 2023 at 03:44:04PM +0800, Heng Qi wrote:
+> Now, virtio-net already supports per-queue moderation parameter
+> setting. Based on this, we use the netdim library of linux to support
+> dynamic coalescing moderation for virtio-net.
+> 
+> Due to hardware scheduling issues, we only tested rx dim.
+
+So patches 1 to 4 look ok but patch 5 is untested - we should
+probably wait until it's tested properly.
+
+
+> @Test env
+> rxq0 has affinity to cpu0.
+> 
+> @Test cmd
+> client: taskset -c 0 sockperf tp -i ${IP} -t 30 --tcp -m ${msg_size}
+> server: taskset -c 0 sockperf sr --tcp
+> 
+> @Test res
+> The second column is the ratio of the result returned by client
+> when rx dim is enabled to the result returned by client when
+> rx dim is disabled.
+> 	--------------------------------------
+> 	| msg_size |  rx_dim=on / rx_dim=off |
+> 	--------------------------------------
+> 	|   14B    |         + 3%            |   
+> 	--------------------------------------
+> 	|   100B   |         + 16%           |
+> 	--------------------------------------
+> 	|   500B   |         + 25%           |
+> 	--------------------------------------
+> 	|   1400B  |         + 28%           |
+> 	--------------------------------------
+> 	|   2048B  |         + 22%           |
+> 	--------------------------------------
+> 	|   4096B  |         + 5%            |
+> 	--------------------------------------
+> 
+> ---
+> This patch set was part of the previous netdim patch set[1].
+> [1] was split into a merged bugfix set[2] and the current set.
+> The previous relevant commentators have been Cced.
+> 
+> [1] https://lore.kernel.org/all/20230811065512.22190-1-hengqi@linux.alibaba.com/
+> [2] https://lore.kernel.org/all/cover.1696745452.git.hengqi@linux.alibaba.com/
+> 
+> Heng Qi (5):
+>   virtio-net: returns whether napi is complete
+>   virtio-net: separate rx/tx coalescing moderation cmds
+>   virtio-net: extract virtqueue coalescig cmd for reuse
+>   virtio-net: support rx netdim
+>   virtio-net: support tx netdim
+> 
+>  drivers/net/virtio_net.c | 394 ++++++++++++++++++++++++++++++++-------
+>  1 file changed, 322 insertions(+), 72 deletions(-)
+> 
+> -- 
+> 2.19.1.6.gb485710b
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
