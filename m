@@ -4,108 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3ACDC25B67
-	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 17:21:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEF00C25B67
+	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 17:55:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7008B42201;
-	Thu, 26 Oct 2023 17:21:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7008B42201
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4B9C541C5E;
+	Thu, 26 Oct 2023 17:55:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4B9C541C5E
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ahk67NXS
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5KKkhh8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y5TMQS91lVZY; Thu, 26 Oct 2023 17:21:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E48014214D;
-	Thu, 26 Oct 2023 17:21:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E48014214D
+	with ESMTP id ZTOOn8EjDkYQ; Thu, 26 Oct 2023 17:55:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 825C641B84;
+	Thu, 26 Oct 2023 17:55:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 825C641B84
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5777C0071;
-	Thu, 26 Oct 2023 17:21:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5798BC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A09DC0071;
+	Thu, 26 Oct 2023 17:55:48 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC259C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 17:21:00 +0000 (UTC)
+ Thu, 26 Oct 2023 17:55:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1EAEF42495
+ by smtp1.osuosl.org (Postfix) with ESMTP id C81FA83E50
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 17:21:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1EAEF42495
-Authentication-Results: smtp2.osuosl.org;
+ Thu, 26 Oct 2023 17:55:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C81FA83E50
+Authentication-Results: smtp1.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=ahk67NXS
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=K5KKkhh8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1wqLSiHY0zlv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HVKWKrnogzrI
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 17:20:57 +0000 (UTC)
+ Thu, 26 Oct 2023 17:55:46 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D34624012D
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E9D1183E30
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 17:20:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D34624012D
+ Thu, 26 Oct 2023 17:55:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E9D1183E30
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698340855;
+ s=mimecast20190719; t=1698342944;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=5kLaQtEOk7UbV1uqygBEcoktd0GtHWmaS2i+eVzn0zA=;
- b=ahk67NXStyH3aKane9/cxS4CxVRQz8dni4xdhY5NiTDe7jaKKujBKkUDVdMhOtAbslPGLy
- JzAls2uaK+F3OOp3w/HtifpMhXm1SsDQShzRNzs+n8vpCHRICZcpbyjw+Re4QCcw6gqTxv
- fJJrQRNfs9Y/coqpvOFEt6Pmlov/fsY=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=RZ6iVv8oE6cIOnSLClGga0Gh0D3fHj5Pk7B1lo93yNA=;
+ b=K5KKkhh8ZUAVFwlzi08WKOFBk5yNzIbS6v44WKnVj958zZ/kK2GlIf/u1CvjQicDF4cNz5
+ Ojv383YCGliQw7MIEfDjjx/s6gWNTMQd2vFfC7oVWFYx90HAgOTAEhUmYJhNutSEBqPpvy
+ baemgyRFJbadUGw/48byQj4JHBmov0k=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-310-8q2ye_a7OCy3uj9EwpLrsg-1; Thu, 26 Oct 2023 13:20:44 -0400
-X-MC-Unique: 8q2ye_a7OCy3uj9EwpLrsg-1
-Received: by mail-lf1-f71.google.com with SMTP id
- 2adb3069b0e04-507b8ac8007so1334396e87.0
+ us-mta-692-CpRiJ7zfNYKgOpJyBbk9pw-1; Thu, 26 Oct 2023 13:55:43 -0400
+X-MC-Unique: CpRiJ7zfNYKgOpJyBbk9pw-1
+Received: by mail-oi1-f200.google.com with SMTP id
+ 5614622812f47-3af7219c67fso1738987b6e.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 10:20:43 -0700 (PDT)
+ Thu, 26 Oct 2023 10:55:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698340842; x=1698945642;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=5kLaQtEOk7UbV1uqygBEcoktd0GtHWmaS2i+eVzn0zA=;
- b=wLmKmmCBcVFvmzm6wgG215kLJz7dakaOiUYuQ93RF9aWqA1RbwYZVOjSQN5kjyk2K1
- 6LIyEUNTRvbw8Y7/asXZhm/cpiIzU+LcE8NaOgZT09dmmUw7hLnngDCnND8/Bia9uXHn
- V8dYCG+xiOfm9g7tv4BTBhCQvgR60Klpu6fOzwFup3PKPCvmnUik/2tvQAu98dluaSGD
- kXJ+LmkM/qUKJqR09d5FkJWKlLJJg1ncDKhrf4nacsrXJM3FMb1csZB5OR9m1l9ekzRV
- FN11uy9x+E25ws9nGUiyjGvCHdk899fBdoExfzt/RQ+BQUAuDo5dtOJcHsTRSUs61sOG
- Ybqg==
-X-Gm-Message-State: AOJu0Ywu49ti8AJqFHItgPbd+SEUUHzdIWEkMVkUJhiAL+VChwsMg826
- x6KRNOQuWn9hVgzZmY74rckLxNCntUmuZqwkOTLuMLKem9vnyayuTmiOc28gkwCEwFotFoNc1/4
- PNRBfn2DwBaIxRb9jODTjSYpuXWYWf8TZ7oHsjcBZnA==
-X-Received: by 2002:a19:771a:0:b0:507:9784:644c with SMTP id
- s26-20020a19771a000000b005079784644cmr13650lfc.26.1698340842617; 
- Thu, 26 Oct 2023 10:20:42 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFBuY88F57kBvZ8DBFENBLOEu6PPi0md4h+oiVlvlZqcMwMkNddTglwsedLiad4JyDOl/3LWg==
-X-Received: by 2002:a19:771a:0:b0:507:9784:644c with SMTP id
- s26-20020a19771a000000b005079784644cmr13641lfc.26.1698340842258; 
- Thu, 26 Oct 2023 10:20:42 -0700 (PDT)
-Received: from redhat.com ([2.52.26.119]) by smtp.gmail.com with ESMTPSA id
- r6-20020a5d6946000000b00318147fd2d3sm14569272wrw.41.2023.10.26.10.20.39
+ d=1e100.net; s=20230601; t=1698342942; x=1698947742;
+ h=content-transfer-encoding:mime-version:references:in-reply-to
+ :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=RZ6iVv8oE6cIOnSLClGga0Gh0D3fHj5Pk7B1lo93yNA=;
+ b=lWZnh8QUUYbzbZ3Ks6Rt/xIf8q9JnrlaK+Ps3m7Y64eLtmnsm4uBS8UKcJfznllW3b
+ sTASXESKeCJ1sCUXCzWU5a19WeGpegKmT90rxZsAgKtJ0mxUoeZJQzmAHqzEEIN1mXRj
+ f2XOLQ5tm+8y/UXBJx88skKSacp9YfNgTNPItvZS12/i+kLm/UgzukcoGmXtDbYcvgeG
+ vge1LWJuQQPUJxnYmwfEJtY9cWOOcumLQnyJVYbuoLAiybvdy2froI0wD3B+VTcntfRz
+ kVOmRWUqtn2Lv1oCZeOma7gQNvJRVIpQzk9b1uroouqjezvH0dr5pWiW1sBDQILQOGSJ
+ GGag==
+X-Gm-Message-State: AOJu0YxaI7zzcKQeZRokbD/5uWM8sc6Fs5AfIFTfAfYJFUms7tWNYXfS
+ SJw4vGD19I/fEqCiFyCWcgcvvPhaKdAQgDzTKFX5ls0EDOpNknJJVyRSMm88yIrv7TN421+FM25
+ tFOtylLUkaT5So2uzc5HQarnw8KHBlO7xrZ6LgdLXmQ==
+X-Received: by 2002:a05:6871:a40c:b0:1dd:7f3a:b703 with SMTP id
+ vz12-20020a056871a40c00b001dd7f3ab703mr415389oab.0.1698342942564; 
+ Thu, 26 Oct 2023 10:55:42 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEg08tFB7c1YeA7yTIAQ6470xh94njF6ucMpjnRWWMJg718xKWDwz4Z93pBDCLt/eA2gSz+KA==
+X-Received: by 2002:a05:6871:a40c:b0:1dd:7f3a:b703 with SMTP id
+ vz12-20020a056871a40c00b001dd7f3ab703mr415360oab.0.1698342942178; 
+ Thu, 26 Oct 2023 10:55:42 -0700 (PDT)
+Received: from redhat.com ([38.15.60.12]) by smtp.gmail.com with ESMTPSA id
+ fh10-20020a056638628a00b00459c279647bsm685293jab.127.2023.10.26.10.55.41
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 26 Oct 2023 10:20:41 -0700 (PDT)
-Date: Thu, 26 Oct 2023 13:20:34 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jakub Sitnicki <jakub@cloudflare.com>
-Subject: Re: [PATCH v2] virtio_pci: Switch away from deprecated
- irq_set_affinity_hint
-Message-ID: <20231026131830-mutt-send-email-mst@kernel.org>
-References: <20231025145319.380775-1-jakub@cloudflare.com>
- <87wmv91h3p.fsf@cloudflare.com>
+ Thu, 26 Oct 2023 10:55:41 -0700 (PDT)
+Date: Thu, 26 Oct 2023 11:55:39 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Subject: Re: [PATCH V1 vfio 9/9] vfio/virtio: Introduce a vfio driver over
+ virtio devices
+Message-ID: <20231026115539.72c01af9.alex.williamson@redhat.com>
+In-Reply-To: <a55540a1-b61c-417b-97a5-567cfc660ce6@nvidia.com>
+References: <20231017134217.82497-1-yishaih@nvidia.com>
+ <20231017134217.82497-10-yishaih@nvidia.com>
+ <20231024135713.360c2980.alex.williamson@redhat.com>
+ <d6c720a0-1575-45b7-b96d-03a916310699@nvidia.com>
+ <20231025131328.407a60a3.alex.williamson@redhat.com>
+ <a55540a1-b61c-417b-97a5-567cfc660ce6@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.35; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <87wmv91h3p.fsf@cloudflare.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kernel-team@cloudflare.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
+ leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,38 +128,109 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 26, 2023 at 06:25:08PM +0200, Jakub Sitnicki wrote:
-> On Wed, Oct 25, 2023 at 04:53 PM +02, Jakub Sitnicki wrote:
-> > Since commit 65c7cdedeb30 ("genirq: Provide new interfaces for affinity
-> > hints") irq_set_affinity_hint is being phased out.
+On Thu, 26 Oct 2023 15:08:12 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
+
+> On 25/10/2023 22:13, Alex Williamson wrote:
+> > On Wed, 25 Oct 2023 17:35:51 +0300
+> > Yishai Hadas <yishaih@nvidia.com> wrote:
+> >  
+> >> On 24/10/2023 22:57, Alex Williamson wrote:  
+> >>> On Tue, 17 Oct 2023 16:42:17 +0300
+> >>> Yishai Hadas <yishaih@nvidia.com> wrote:
+   
+> >>>> +		if (copy_to_user(buf + copy_offset, &val32, copy_count))
+> >>>> +			return -EFAULT;
+> >>>> +	}
+> >>>> +
+> >>>> +	if (range_intersect_range(pos, count, PCI_SUBSYSTEM_ID, sizeof(val16),
+> >>>> +				  &copy_offset, &copy_count, NULL)) {
+> >>>> +		/*
+> >>>> +		 * Transitional devices use the PCI subsystem device id as
+> >>>> +		 * virtio device id, same as legacy driver always did.  
+> >>> Where did we require the subsystem vendor ID to be 0x1af4?  This
+> >>> subsystem device ID really only makes since given that subsystem
+> >>> vendor ID, right?  Otherwise I don't see that non-transitional devices,
+> >>> such as the VF, have a hard requirement per the spec for the subsystem
+> >>> vendor ID.
+> >>>
+> >>> Do we want to make this only probe the correct subsystem vendor ID or do
+> >>> we want to emulate the subsystem vendor ID as well?  I don't see this is
+> >>> correct without one of those options.  
+> >> Looking in the 1.x spec we can see the below.
+> >>
+> >> Legacy Interfaces: A Note on PCI Device Discovery
+> >>
+> >> "Transitional devices MUST have the PCI Subsystem
+> >> Device ID matching the Virtio Device ID, as indicated in section 5 ...
+> >> This is to match legacy drivers."
+> >>
+> >> However, there is no need to enforce Subsystem Vendor ID.
+> >>
+> >> This is what we followed here.
+> >>
+> >> Makes sense ?  
+> > So do I understand correctly that virtio dictates the subsystem device
+> > ID for all subsystem vendor IDs that implement a legacy virtio
+> > interface?  Ok, but this device didn't actually implement a legacy
+> > virtio interface.  The device itself is not tranistional, we're imposing
+> > an emulated transitional interface onto it.  So did the subsystem vendor
+> > agree to have their subsystem device ID managed by the virtio committee
+> > or might we create conflicts?  I imagine we know we don't have a
+> > conflict if we also virtualize the subsystem vendor ID.
+> >  
+> The non transitional net device in the virtio spec defined as the below 
+> tuple.
+> T_A: VID=0x1AF4, DID=0x1040, Subsys_VID=FOO, Subsys_DID=0x40.
+> 
+> And transitional net device in the virtio spec for a vendor FOO is 
+> defined as:
+> T_B: VID=0x1AF4,DID=0x1000,Subsys_VID=FOO, subsys_DID=0x1
+> 
+> This driver is converting T_A to T_B, which both are defined by the 
+> virtio spec.
+> Hence, it does not conflict for the subsystem vendor, it is fine.
+
+Surprising to me that the virtio spec dictates subsystem device ID in
+all cases.  The further discussion in this thread seems to indicate we
+need to virtualize subsystem vendor ID for broader driver compatibility
+anyway.
+
+> > BTW, it would be a lot easier for all of the config space emulation here
+> > if we could make use of the existing field virtualization in
+> > vfio-pci-core.  In fact you'll see in vfio_config_init() that
+> > PCI_DEVICE_ID is already virtualized for VFs, so it would be enough to
+> > simply do the following to report the desired device ID:
 > >
-> > Switch to new interfaces for setting and applying irq affinity hints.
-> >
-> > Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-> > ---
-> > v2:
-> >  - Leave cpumask_copy as is. We can't pass pointer to stack memory as hint.
-> >    Proposed a change to IRQ affinity interface to address this limitation:
-> >    https://lore.kernel.org/r/20231025141517.375378-1-jakub@cloudflare.com
+> > 	*(__le16 *)&vconfig[PCI_DEVICE_ID] = cpu_to_le16(0x1000);  
 > 
-> Just a note to the ^ - if we wanted to get rid of msix_affinity_masks,
-> we could call irq_set_affinity directly, instead of calling it through
-> irq_set_affinity[_and]_hint.
+> I would prefer keeping things simple and have one place/flow that 
+> handles all the fields as we have now as part of the driver.
+
+That's the same argument I'd make for re-using the core code, we don't
+need multiple implementations handling merging physical and virtual
+bits within config space.
+
+> In any case, I'll further look at that option for managing the DEVICE_ID 
+> towards V2.
 > 
-> The hint wouldn't be available any more in /proc/irq/N/affinity_hint,
-> but the same information can be gathered from /proc/irq/N/smp_affinity.
+> > It appears everything in this function could be handled similarly by
+> > vfio-pci-core if the right fields in the perm_bits.virt and .write
+> > bits could be manipulated and vconfig modified appropriately.  I'd look
+> > for a way that a variant driver could provide an alternate set of
+> > permissions structures for various capabilities.  Thanks,  
 > 
-> [...]
+> OK
+> 
+> However, let's not block V2 and the series acceptance as of that.
+> 
+> It can always be some future refactoring as part of other series that 
+> will bring the infra-structure that is needed for that.
 
+We're already on the verge of the v6.7 merge window, so this looks like
+v6.8 material anyway.  We have time.  Thanks,
 
-So we are potentially breaking some userspace - what's the value we
-gain?  Is there some way we can make disable_irq/enable_irq work?
-That would have a lot of value.
-There is an actual need for that in virtio for coco but we can't use
-these APIs with affinity managed IRQs.
-
--- 
-MST
+Alex
 
 _______________________________________________
 Virtualization mailing list
