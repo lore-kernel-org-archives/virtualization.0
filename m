@@ -4,108 +4,91 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E4B65C25B6B
-	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 07:28:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EB313C25B6B
+	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 09:03:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7727641FA8;
-	Thu, 26 Oct 2023 07:28:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7727641FA8
+	by smtp4.osuosl.org (Postfix) with ESMTP id 31C3340998;
+	Thu, 26 Oct 2023 09:03:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 31C3340998
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=OqWH942j
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Xf9kttC+
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qy6dbGL_5Bjc; Thu, 26 Oct 2023 07:28:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C557C41F9B;
-	Thu, 26 Oct 2023 07:27:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C557C41F9B
+	with ESMTP id IEaHBQBD8NWU; Thu, 26 Oct 2023 09:03:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 55D4E409F3;
+	Thu, 26 Oct 2023 09:03:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 55D4E409F3
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D07DC0071;
-	Thu, 26 Oct 2023 07:27:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7BDBAC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 27F09C0071;
+	Thu, 26 Oct 2023 09:03:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7CF47C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 07:27:58 +0000 (UTC)
+ Thu, 26 Oct 2023 09:03:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 573B68317B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5EB1461191
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 07:27:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 573B68317B
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=OqWH942j
+ Thu, 26 Oct 2023 09:03:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5EB1461191
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com
+ header.a=rsa-sha256 header.s=Intel header.b=Xf9kttC+
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dTP0-2A7OafD
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tXMxrN81NvBF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 07:27:57 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4A1F58318C
+ Thu, 26 Oct 2023 09:03:29 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 001B361174
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 07:27:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4A1F58318C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698305275;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=jFAk/UX+mocmkaca8aE9iwm2NVVEyC9d5/N9h8Hr0Qk=;
- b=OqWH942jr5VDAiJQ67GiGN4jJNusBu+WMpti21kmx6bml+FzGw1v2GRn46V0oByizhgIje
- PtaU+CyEje/3HtbCpLq7RdZ4Z80vle+ZWUgEptmeAqxK2akWYE1HAHqMjAX+NFECzUJAuW
- McW97WFikY6veFB0l5RgfBaROviBU1g=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-630-mBxti9_XNqWmp49blVKqYw-1; Thu, 26 Oct 2023 03:27:49 -0400
-X-MC-Unique: mBxti9_XNqWmp49blVKqYw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-4090fa518bbso4411085e9.2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 00:27:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698305268; x=1698910068;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=jFAk/UX+mocmkaca8aE9iwm2NVVEyC9d5/N9h8Hr0Qk=;
- b=RVV0pLl3d8f1GrvJEVMWazL+1chuaDi/5kNuFj5xc8e4hRRUQGTNLxsjiu4js1LAJb
- VJ/uXcoVNUkV980SWemRusCjrbv3ixXsRdOj9RlbRwixearPyfC/PxbUEZttpMjxqBoR
- NlPQWtPmIFQFg0/v8h0V3VZ3hdoz6Nuj3nH+1Lx1Pbi0Dlakw28DjJfQH1ARrSNackr9
- bFuIzK+B3FcXiymA+U0MnK8WwnarEqQCpo6U4weXgBIK7xtLo1hYsM6DwNyXKKN9SnJ6
- jbXbP8K3LPXNIzd0hGuICoQe7rM3OyXGUxcInIxtBlDNI+KnJXY40X8pOTUKPYPaE94m
- RQZQ==
-X-Gm-Message-State: AOJu0Yxv/rdJ3PQhP7FUmJg1HMVRlyagsZ0vdgUX0lpY9vYV7PEXQrXs
- V+eFPEORSoPjPeXMMySWBPu9/nvRYaqW4fzU+KKGOzAH4nP1GZnhpL5jzPuPYL8RKiaLDHlbfJn
- LUdzwTQUq7ln+10Y7NhkKdFAzxZcAgsR73HOSyl/7Vg==
-X-Received: by 2002:a05:600c:5122:b0:403:272:4414 with SMTP id
- o34-20020a05600c512200b0040302724414mr13653842wms.0.1698305268319; 
- Thu, 26 Oct 2023 00:27:48 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEDmxe4z2Ra5Jw2xkZ3lS9zcLLaRq/+nM5ao37J48dzXRSejdwXRV3MKk8nh9wCEGGF4SoKdQ==
-X-Received: by 2002:a05:600c:5122:b0:403:272:4414 with SMTP id
- o34-20020a05600c512200b0040302724414mr13653825wms.0.1698305267881; 
- Thu, 26 Oct 2023 00:27:47 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:1f6:3c98:7fa5:a31:81ed:a5e2])
- by smtp.gmail.com with ESMTPSA id
- f9-20020a7bc8c9000000b004054dcbf92asm1716144wml.20.2023.10.26.00.27.45
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 26 Oct 2023 00:27:46 -0700 (PDT)
-Date: Thu, 26 Oct 2023 03:27:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Subject: Re: [PATCH v5 0/7] vdpa: decouple reset of iotlb mapping from device
- reset
-Message-ID: <20231026032713-mutt-send-email-mst@kernel.org>
-References: <1698304480-18463-1-git-send-email-si-wei.liu@oracle.com>
+ Thu, 26 Oct 2023 09:03:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 001B361174
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+ d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+ t=1698311009; x=1729847009;
+ h=date:from:to:cc:subject:message-id:references:
+ mime-version:in-reply-to;
+ bh=tdMCYhhtdDyuQ1YyIqyhjZ6BXjSHRnJQZrR/uUizRRA=;
+ b=Xf9kttC+kCMWHsGyCFkPHiQMaJugiL+daDPnOk38REFXKnpzLRWiKDKM
+ e1UnHFaxAUKAIbB317C72AZ6+l2ix1dxArcJynsFO1jqP15wA++eUq9M+
+ SFnH1N0vDRBTDctgqfFieS6A+7FW0dYhJW2+7GX7jfVAxL2Pz5/qPWhn0
+ CA+pfTNO4xW0K3Nu/rrk4Vm5BGTU8Pwn3U8vFa0ZV01MODLlSpbfzeWzo
+ 7ctR6rDUjGydhbr8akBhRbiFe9fGFweNP+bZSAgUi4hPQ6UCn7CMbZXTn
+ hfHTgsxQE7OsSPqryNTWEPXo2zlZbEAIxRuxAXFlGGirHM+4S1Mw9tIoQ Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10874"; a="386376292"
+X-IronPort-AV: E=Sophos;i="6.03,253,1694761200"; d="scan'208";a="386376292"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 26 Oct 2023 02:03:17 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10874"; a="752648781"
+X-IronPort-AV: E=Sophos;i="6.03,253,1694761200"; d="scan'208";a="752648781"
+Received: from lkp-server01.sh.intel.com (HELO 8917679a5d3e) ([10.239.97.150])
+ by orsmga007.jf.intel.com with ESMTP; 26 Oct 2023 02:03:13 -0700
+Received: from kbuild by 8917679a5d3e with local (Exim 4.96)
+ (envelope-from <lkp@intel.com>) id 1qvwGl-0009fP-1J;
+ Thu, 26 Oct 2023 09:03:11 +0000
+Date: Thu, 26 Oct 2023 17:02:22 +0800
+From: kernel test robot <lkp@intel.com>
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v3 4/5] x86/paravirt: switch mixed paravirt/alternative
+ calls to alternative_2
+Message-ID: <202310261653.LKIRqagq-lkp@intel.com>
+References: <20231019091520.14540-5-jgross@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <1698304480-18463-1-git-send-email-si-wei.liu@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com
+In-Reply-To: <20231019091520.14540-5-jgross@suse.com>
+Cc: Juergen Gross <jgross@suse.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Ajay Kaher <akaher@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Alexey Makhalov <amakhalov@vmware.com>, oe-kbuild-all@lists.linux.dev,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,87 +105,92 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 26, 2023 at 12:14:33AM -0700, Si-Wei Liu wrote:
-> In order to reduce needlessly high setup and teardown cost
-> of iotlb mapping during live migration, it's crucial to
-> decouple the vhost-vdpa iotlb abstraction from the virtio
-> device life cycle, i.e. iotlb mappings should be left
-> intact across virtio device reset [1]. For it to work, the
-> on-chip IOMMU parent device could implement a separate
-> .reset_map() operation callback to restore 1:1 DMA mapping
-> without having to resort to the .reset() callback, the
-> latter of which is mainly used to reset virtio device state.
-> This new .reset_map() callback will be invoked only before
-> the vhost-vdpa driver is to be removed and detached from
-> the vdpa bus, such that other vdpa bus drivers, e.g. 
-> virtio-vdpa, can start with 1:1 DMA mapping when they
-> are attached. For the context, those on-chip IOMMU parent
-> devices, create the 1:1 DMA mapping at vdpa device creation,
-> and they would implicitly destroy the 1:1 mapping when
-> the first .set_map or .dma_map callback is invoked.
-> 
-> This patchset is rebased on top of the latest vhost tree.
-> 
-> [1] Reducing vdpa migration downtime because of memory pin / maps
-> https://www.mail-archive.com/qemu-devel@nongnu.org/msg953755.html
+Hi Juergen,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on kvm/queue]
+[also build test ERROR on tip/master linus/master v6.6-rc7 next-20231025]
+[cannot apply to tip/x86/core kvm/linux-next tip/auto-latest]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Juergen-Gross/x86-paravirt-move-some-functions-and-defines-to-alternative/20231019-171709
+base:   https://git.kernel.org/pub/scm/virt/kvm/kvm.git queue
+patch link:    https://lore.kernel.org/r/20231019091520.14540-5-jgross%40suse.com
+patch subject: [PATCH v3 4/5] x86/paravirt: switch mixed paravirt/alternative calls to alternative_2
+config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20231026/202310261653.LKIRqagq-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231026/202310261653.LKIRqagq-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202310261653.LKIRqagq-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   arch/x86/entry/entry_64.S: Assembler messages:
+>> arch/x86/entry/entry_64.S:454: Error: no such instruction: `alt_call_instr'
+   arch/x86/entry/entry_64.S:319:  Info: macro invoked from here
+   arch/x86/entry/entry_64.S:1138:   Info: macro invoked from here
 
 
-If this is just a squash of v4 with fixes then I already pushed it.
-Ignoring this for now.
+vim +454 arch/x86/entry/entry_64.S
 
-> ---
-> v5:
-> - Squashed two fixups to the clean map patch
-> 
-> v4:
-> - Rework compatibility using new .compat_reset driver op
-> 
-> v3:
-> - add .reset_map support to vdpa_sim
-> - introduce module parameter to provide bug-for-bug compatibility with older
->   userspace 
-> 
-> v2:
-> - improved commit message to clarify the intended csope of .reset_map API
-> - improved commit messages to clarify no breakage on older userspace
-> 
-> v1:
-> - rewrote commit messages to include more detailed description and background
-> - reword to vendor specific IOMMU implementation from on-chip IOMMU
-> - include parent device backend feautres to persistent iotlb precondition
-> - reimplement mlx5_vdpa patch on top of descriptor group series
-> 
-> RFC v3:
-> - fix missing return due to merge error in patch #4
-> 
-> RFC v2:
-> - rebased on top of the "[PATCH RFC v2 0/3] vdpa: dedicated descriptor table group" series:
->   https://lore.kernel.org/virtualization/1694248959-13369-1-git-send-email-si-wei.liu@oracle.com/
-> 
-> ---
-> 
-> Si-Wei Liu (7):
->   vdpa: introduce .reset_map operation callback
->   vhost-vdpa: reset vendor specific mapping to initial state in .release
->   vhost-vdpa: introduce IOTLB_PERSIST backend feature bit
->   vdpa: introduce .compat_reset operation callback
->   vhost-vdpa: clean iotlb map during reset for older userspace
->   vdpa/mlx5: implement .reset_map driver op
->   vdpa_sim: implement .reset_map support
-> 
->  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  1 +
->  drivers/vdpa/mlx5/core/mr.c        | 17 ++++++++++
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 27 ++++++++++++++--
->  drivers/vdpa/vdpa_sim/vdpa_sim.c   | 52 ++++++++++++++++++++++++------
->  drivers/vhost/vdpa.c               | 52 +++++++++++++++++++++++++++---
->  drivers/virtio/virtio_vdpa.c       |  2 +-
->  include/linux/vdpa.h               | 30 +++++++++++++++--
->  include/uapi/linux/vhost_types.h   |  2 ++
->  8 files changed, 164 insertions(+), 19 deletions(-)
-> 
-> -- 
-> 2.39.3
+6368558c37107b Thomas Gleixner 2020-05-21  442  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  443  /**
+cfa82a00533f70 Thomas Gleixner 2020-02-25  444   * idtentry_mce_db - Macro to generate entry stubs for #MC and #DB
+cfa82a00533f70 Thomas Gleixner 2020-02-25  445   * @vector:		Vector number
+cfa82a00533f70 Thomas Gleixner 2020-02-25  446   * @asmsym:		ASM symbol for the entry point
+cfa82a00533f70 Thomas Gleixner 2020-02-25  447   * @cfunc:		C function to be called
+cfa82a00533f70 Thomas Gleixner 2020-02-25  448   *
+cfa82a00533f70 Thomas Gleixner 2020-02-25  449   * The macro emits code to set up the kernel context for #MC and #DB
+cfa82a00533f70 Thomas Gleixner 2020-02-25  450   *
+cfa82a00533f70 Thomas Gleixner 2020-02-25  451   * If the entry comes from user space it uses the normal entry path
+cfa82a00533f70 Thomas Gleixner 2020-02-25  452   * including the return to user space work and preemption checks on
+cfa82a00533f70 Thomas Gleixner 2020-02-25  453   * exit.
+cfa82a00533f70 Thomas Gleixner 2020-02-25 @454   *
+cfa82a00533f70 Thomas Gleixner 2020-02-25  455   * If hits in kernel mode then it needs to go through the paranoid
+cfa82a00533f70 Thomas Gleixner 2020-02-25  456   * entry as the exception can hit any random state. No preemption
+cfa82a00533f70 Thomas Gleixner 2020-02-25  457   * check on exit to keep the paranoid path simple.
+cfa82a00533f70 Thomas Gleixner 2020-02-25  458   */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  459  .macro idtentry_mce_db vector asmsym cfunc
+cfa82a00533f70 Thomas Gleixner 2020-02-25  460  SYM_CODE_START(\asmsym)
+4708ea14bef314 Josh Poimboeuf  2023-03-01  461  	UNWIND_HINT_IRET_ENTRY
+8f93402b92d443 Peter Zijlstra  2022-03-08  462  	ENDBR
+cfa82a00533f70 Thomas Gleixner 2020-02-25  463  	ASM_CLAC
+c64cc2802a784e Lai Jiangshan   2022-04-21  464  	cld
+cfa82a00533f70 Thomas Gleixner 2020-02-25  465  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  466  	pushq	$-1			/* ORIG_RAX: no syscall to restart */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  467  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  468  	/*
+cfa82a00533f70 Thomas Gleixner 2020-02-25  469  	 * If the entry is from userspace, switch stacks and treat it as
+cfa82a00533f70 Thomas Gleixner 2020-02-25  470  	 * a normal entry.
+cfa82a00533f70 Thomas Gleixner 2020-02-25  471  	 */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  472  	testb	$3, CS-ORIG_RAX(%rsp)
+cfa82a00533f70 Thomas Gleixner 2020-02-25  473  	jnz	.Lfrom_usermode_switch_stack_\@
+cfa82a00533f70 Thomas Gleixner 2020-02-25  474  
+c82965f9e53005 Chang S. Bae    2020-05-28  475  	/* paranoid_entry returns GS information for paranoid_exit in EBX. */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  476  	call	paranoid_entry
+cfa82a00533f70 Thomas Gleixner 2020-02-25  477  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  478  	UNWIND_HINT_REGS
+cfa82a00533f70 Thomas Gleixner 2020-02-25  479  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  480  	movq	%rsp, %rdi		/* pt_regs pointer */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  481  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  482  	call	\cfunc
+cfa82a00533f70 Thomas Gleixner 2020-02-25  483  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  484  	jmp	paranoid_exit
+cfa82a00533f70 Thomas Gleixner 2020-02-25  485  
+cfa82a00533f70 Thomas Gleixner 2020-02-25  486  	/* Switch to the regular task stack and use the noist entry point */
+cfa82a00533f70 Thomas Gleixner 2020-02-25  487  .Lfrom_usermode_switch_stack_\@:
+e2dcb5f1390715 Thomas Gleixner 2020-05-21  488  	idtentry_body noist_\cfunc, has_error_code=0
+cfa82a00533f70 Thomas Gleixner 2020-02-25  489  
 
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
