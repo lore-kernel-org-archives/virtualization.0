@@ -1,103 +1,104 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 44AADC25B48
-	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 20:07:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C314DC25B48
+	for <virtualization@archiver.kernel.org>; Thu, 26 Oct 2023 20:11:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CD2A66FC47;
-	Thu, 26 Oct 2023 20:07:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CD2A66FC47
+	by smtp1.osuosl.org (Postfix) with ESMTP id 54ED181E7A;
+	Thu, 26 Oct 2023 20:11:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 54ED181E7A
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=ozndSAJH
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W0HOZWAHJ6Eq; Thu, 26 Oct 2023 20:11:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id ED73F81DE0;
+	Thu, 26 Oct 2023 20:11:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org ED73F81DE0
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C336AC0071;
+	Thu, 26 Oct 2023 20:11:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DF4BAC0032
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Oct 2023 20:11:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id AC92B6FC4B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Oct 2023 20:11:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AC92B6FC4B
 Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=f5E3oVbd
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=ozndSAJH
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Wf_FmEWjShIq; Thu, 26 Oct 2023 20:07:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 39ECF6FC44;
-	Thu, 26 Oct 2023 20:07:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 39ECF6FC44
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 17354C0071;
-	Thu, 26 Oct 2023 20:07:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 80D47C0032
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZcU0drxajOs2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 20:07:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4505842F6F
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 20:07:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4505842F6F
-Authentication-Results: smtp2.osuosl.org;
- dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
- header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=f5E3oVbd
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7vIYrHCX1yXX
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 20:07:22 +0000 (UTC)
+ Thu, 26 Oct 2023 20:11:22 +0000 (UTC)
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DF5B640184
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EDBB56FC48
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Oct 2023 20:07:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DF5B640184
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+ Thu, 26 Oct 2023 20:11:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EDBB56FC48
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
  by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
- 39QJsQmQ031910; Thu, 26 Oct 2023 20:07:17 GMT
+ 39QJsZXs022995; Thu, 26 Oct 2023 20:11:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id; s=corp-2023-03-30;
  bh=sEJaHi8D5zE3GzzOYXpgBAdryXTBPVqu/owy7NkIqfI=;
- b=f5E3oVbdb+Bs6L3GvC+k7uZ0qpc8QsbNXVFtYRt/H/V9I7ylDG78ejl+D1yf0+kh5jdM
- ZkGJNWBnQLrE2Oc7Ei+yy6UNneFkpt+Ev1cgkEUOpK+qn2f21y6IrDZsiUYil8MuYttP
- guSLCpQYOxJZQ55rjm4cOc3raIYP2xS4OFzieGqWO4vRarzXtZJMqdfhoPGEfcfDdh/X
- 02nBTkQoOlHo8mJD2K2kCR+pDgSKb5dP1X+OVBvOjWIw1rtac5qqmLFoe7YWXhkttOuy
- Ik4HKDzYrk6iscfbefqxhCOSS43sMbUTEfS1A3JVMnMKs4hvb8bbRnPW40wVGKoSBiNC Dw== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
- by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3tyx2183px-1
+ b=ozndSAJHokav5q61a9/P99h+OXZT7nFE2XOTsG9fbvsjRCMiFsg9cq6tfPQyXQLm9sWZ
+ jLAgLxBu2IbunBBEeZp4p4JNlnqj6PkRrj6FZM3Depchcg5ZqU+hHVzjfmV+JDYQ4nKn
+ 2QbaPiO2324I5AjIULWX3IOAUaoSl0h3TV2LRoAIyBM19o0P6UOaU8FnAX9mvPZzATL1
+ vpbmrtVBy8e0vXgy/T6prD4CR0MsUipA4b3bSEdQW9XxPMgAdrD31vI8nBG5/IaqMLwJ
+ CXE9/uIEthlGjFUl653vuznIha0hqhavzamOo0usMD5spruSaw97tTj/mTbMqqdBV2AZ AA== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3tywuc84mj-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 Oct 2023 20:07:17 +0000
+ Thu, 26 Oct 2023 20:11:17 +0000
 Received: from pps.filterd
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
- with ESMTP id 39QInaQL038583; Thu, 26 Oct 2023 20:07:17 GMT
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 39QImmU8008100; Thu, 26 Oct 2023 20:11:16 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id
- 3tywqs2s3k-1
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3tywqhjy4p-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 26 Oct 2023 20:07:16 +0000
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com
- (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
- by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39QK7GAX019980;
- Thu, 26 Oct 2023 20:07:16 GMT
+ Thu, 26 Oct 2023 20:11:16 +0000
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 39QKBGDo004951;
+ Thu, 26 Oct 2023 20:11:16 GMT
 Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
- by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with
- ESMTP id 3tywqs2s2j-1; Thu, 26 Oct 2023 20:07:16 +0000
+ by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with
+ ESMTP id 3tywqhjy4c-1; Thu, 26 Oct 2023 20:11:16 +0000
 From: Steve Sistare <steven.sistare@oracle.com>
 To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 Subject: [RFC] vdpa/mlx5: preserve CVQ vringh index
-Date: Thu, 26 Oct 2023 13:07:14 -0700
-Message-Id: <1698350834-415881-1-git-send-email-steven.sistare@oracle.com>
+Date: Thu, 26 Oct 2023 13:11:15 -0700
+Message-Id: <1698351075-415989-1-git-send-email-steven.sistare@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-26_19,2023-10-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
- mlxlogscore=999
- suspectscore=0 malwarescore=0 adultscore=0 phishscore=0 bulkscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2310240000 definitions=main-2310260174
-X-Proofpoint-ORIG-GUID: fGcPzlz4eB_nP8pm3_qJeYh123OnxEEa
-X-Proofpoint-GUID: fGcPzlz4eB_nP8pm3_qJeYh123OnxEEa
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ spamscore=0 mlxscore=0
+ phishscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2310240000
+ definitions=main-2310260174
+X-Proofpoint-ORIG-GUID: uDbtsfEWjIDO3JobeStHxQ99AMXzJ-_w
+X-Proofpoint-GUID: uDbtsfEWjIDO3JobeStHxQ99AMXzJ-_w
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Eli Cohen <elic@nvidia.com>
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Steve Sistare <steven.sistare@oracle.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
