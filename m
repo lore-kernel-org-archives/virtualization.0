@@ -1,106 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CCCC9C4332F
-	for <virtualization@archiver.kernel.org>; Sun, 29 Oct 2023 20:22:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9AC2C4167B
+	for <virtualization@archiver.kernel.org>; Sun, 29 Oct 2023 20:27:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6E382613F2;
-	Sun, 29 Oct 2023 20:22:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6E382613F2
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=VWjSGEqC
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9hOIuU4x-cWJ; Sun, 29 Oct 2023 20:22:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9A2A061487;
-	Sun, 29 Oct 2023 20:22:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9A2A061487
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6FB9EC0071;
-	Sun, 29 Oct 2023 20:22:49 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4087FC0032
- for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:22:48 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 06ACA4F184
- for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:22:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 06ACA4F184
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7531D42DFD;
+	Sun, 29 Oct 2023 20:27:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7531D42DFD
 Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=VWjSGEqC
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wm76Y24Z
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DPEIo9ImZcn3
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pVlBqkuAIfUD; Sun, 29 Oct 2023 20:27:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5051442DAD;
+	Sun, 29 Oct 2023 20:27:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5051442DAD
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B5A7C0071;
+	Sun, 29 Oct 2023 20:27:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8BCEFC0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:22:46 +0000 (UTC)
+ Sun, 29 Oct 2023 20:26:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5575A84F78
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 29 Oct 2023 20:26:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5575A84F78
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wm76Y24Z
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Etc7wqrfCxPr
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 29 Oct 2023 20:26:55 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 95A774F183
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B5D5484D66
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:22:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 95A774F183
+ Sun, 29 Oct 2023 20:26:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5D5484D66
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698610965;
+ s=mimecast20190719; t=1698611213;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=CWMptbdEqSPW6DTVorX42MT0mx5PC7rPZ4gI4RPDpzc=;
- b=VWjSGEqCuXZ48U9Nvp6x8URcz2kA6kXOtdHZhzoBpN/F7NPVoUKgLUoPvuI0YtEsZBqPgp
- nCC1+j5NAqw3P0hCO8Di3b+sqWi1RrloXx3uPaTkCVY1+7L+VUS9PmMBxcC8Dh73Tzwkwv
- ex2HNwcgxpU7iOE09RAmZX6Xib1OMcw=
-Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
- [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=rJbbUkNvWBEodXwBkNJ7Ij9ttKOZL60NGR2gag2PH2Q=;
+ b=Wm76Y24Zt/12lQZla3G+jei3EuReHByGXGndIRV36bE7xUzE0YFr+UAl4QQ5JHK5NRu70H
+ dIh71LJa/jnFO/hilf9pyG8gt5anjtyitqEyogztp3prxKKRvCh13KjsRO3Aibtvqgpwba
+ Rbdx7IlqM/xgnUCwIa2ekH/x63+0A/A=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-685-DyQXHR6jNQazhElkHnHJMA-1; Sun, 29 Oct 2023 16:22:41 -0400
-X-MC-Unique: DyQXHR6jNQazhElkHnHJMA-1
-Received: by mail-lj1-f198.google.com with SMTP id
- 38308e7fff4ca-2c5073588cbso32401561fa.3
+ us-mta-680-eD8g8unzOLaMKlMQ6yVSJQ-1; Sun, 29 Oct 2023 16:26:52 -0400
+X-MC-Unique: eD8g8unzOLaMKlMQ6yVSJQ-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ 4fb4d7f45d1cf-5400c8c6392so2701412a12.1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 13:22:41 -0700 (PDT)
+ Sun, 29 Oct 2023 13:26:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698610960; x=1699215760;
+ d=1e100.net; s=20230601; t=1698611211; x=1699216011;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=CWMptbdEqSPW6DTVorX42MT0mx5PC7rPZ4gI4RPDpzc=;
- b=Car7hF2ZtbQkuR43KmwGjuPrQlM+v6AJzC5NQkdKeB49cX59EM5zm9ujYNhnzkmgHZ
- 3DMsVOgb+sJzQWt/Y088hfw89DfDXUuehZhU8nuvGKCbqO64/E794VYefeURjobF61uJ
- 15qMmyA0hKG//PehiCAjxSar9IHCyCH/Qf9Z6sZC3QsBLWaFI6DBB8gGaZKD4RFrF/gR
- bEZO8yAN+w3iz25kdTehRh+7fUQcv7u/xRGSa1j9fEXkr0l3WTM4VPdQsNgDT+6vR8fr
- iyU9H1iMP6btS1r+QCNQykq4cjXo9AXitKbP+IaUkmdLRzlMW4/oNi7FM79YWsR9SDFm
- CLgw==
-X-Gm-Message-State: AOJu0YylWiO52GWOlcWy+6jnSIpzncvCMvziNihgnwKlqqBMUtorE3vx
- KLlMTgICqitD2zZj+K1w/Q03vFJotdJbHDXjziGsmyRQIy1XT71Q1hrFBBmHW+LR88pKDo23l0G
- Mpc0LKD1x757zZLdmZ8aozmstGpdeeLnuC8Fd6YBg3A==
-X-Received: by 2002:a05:6512:488e:b0:509:d97:c850 with SMTP id
- eq14-20020a056512488e00b005090d97c850mr3237619lfb.31.1698610959740; 
- Sun, 29 Oct 2023 13:22:39 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG306PecvsjTqxpx0wIbGSvcL93zLGuhGRDR2Br1oXuelNKzuHbFJj3hog8tDb5DKTgMi3T7g==
-X-Received: by 2002:a05:6512:488e:b0:509:d97:c850 with SMTP id
- eq14-20020a056512488e00b005090d97c850mr3237605lfb.31.1698610959289; 
- Sun, 29 Oct 2023 13:22:39 -0700 (PDT)
+ bh=rJbbUkNvWBEodXwBkNJ7Ij9ttKOZL60NGR2gag2PH2Q=;
+ b=slKZjd7Uem3dQm5C+dBD7Gu7pXE+EknTtXHeT9goGwaZqSALTWn14p7Z9sGz+5sinJ
+ 7VVDKrga7EtZCFZC9oihIyyHil7jyJ35QJ2Hkjsw3kv9lxmv4zyTmdFil2mV+E7TUEu/
+ P2c+hSzOB5GYe5kZJXBXvR/d4hFftbjdOKy2ze+8QeW9YdJvzkoy6geN2kXXoj33xx4v
+ waNuF8NIQ2rM1LJk0RJbqKUVhE66fwKGclF3QKrc6nzn3y8J1W9pmk+4bcNQ6Po+riG4
+ V3GnnywTMmPd+K1CoeTQ2vH2NmPMe6dcB2ImNTg43285uyD/QNrciQIbqTVzFt3gZY/N
+ +New==
+X-Gm-Message-State: AOJu0YySICM87eKInE/NGWCMSYl1A0+bI/e232YV7yMTUKY+n12ebRnM
+ ZVO9BNsSbe9Hte/QfqMZCrZmSF9ktg4TQ+V6M1+FMQqc8czLR7H3Xut3rgvKaqzYK1LZQjw/Nh6
+ XUfCuC3no9rBugyg4b49MUD4O7IfgRuoK9SPbg9zjwA==
+X-Received: by 2002:a17:906:dc8f:b0:9c4:bb5f:970d with SMTP id
+ cs15-20020a170906dc8f00b009c4bb5f970dmr7225610ejc.45.1698611211016; 
+ Sun, 29 Oct 2023 13:26:51 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEmBQA9NAT8hmav8ZRqdcywEB2wxqccw+gPEpxsipOoCmtv9JqyOjyGWVHoA1MP6KDymJgmEg==
+X-Received: by 2002:a17:906:dc8f:b0:9c4:bb5f:970d with SMTP id
+ cs15-20020a170906dc8f00b009c4bb5f970dmr7225590ejc.45.1698611210614; 
+ Sun, 29 Oct 2023 13:26:50 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:16f:5c91:cfe8:a545:4338:bf76])
  by smtp.gmail.com with ESMTPSA id
- k21-20020a1709065fd500b009c5c5c2c59csm4946126ejv.149.2023.10.29.13.22.35
+ kt12-20020a170906aacc00b009ad8acac02asm4902622ejb.172.2023.10.29.13.26.46
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 29 Oct 2023 13:22:38 -0700 (PDT)
-Date: Sun, 29 Oct 2023 16:22:32 -0400
+ Sun, 29 Oct 2023 13:26:49 -0700 (PDT)
+Date: Sun, 29 Oct 2023 16:26:44 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH V2 vfio 2/9] virtio-pci: Introduce admin virtqueue
-Message-ID: <20231029161909-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH V2 vfio 3/9] virtio-pci: Introduce admin command sending
+ function
+Message-ID: <20231029162255-mutt-send-email-mst@kernel.org>
 References: <20231029155952.67686-1-yishaih@nvidia.com>
- <20231029155952.67686-3-yishaih@nvidia.com>
+ <20231029155952.67686-4-yishaih@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20231029155952.67686-3-yishaih@nvidia.com>
+In-Reply-To: <20231029155952.67686-4-yishaih@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -123,377 +124,331 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 29, 2023 at 05:59:45PM +0200, Yishai Hadas wrote:
+On Sun, Oct 29, 2023 at 05:59:46PM +0200, Yishai Hadas wrote:
 > From: Feng Liu <feliu@nvidia.com>
 > 
-> Introduce support for the admin virtqueue. By negotiating
-> VIRTIO_F_ADMIN_VQ feature, driver detects capability and creates one
-> administration virtqueue. Administration virtqueue implementation in
-> virtio pci generic layer, enables multiple types of upper layer
-> drivers such as vfio, net, blk to utilize it.
+> Add support for sending admin command through admin virtqueue interface.
+> Abort any inflight admin commands once device reset completes.
+> 
+> To enforce the below statement from the specification [1], the admin
+> queue is activated for the upper layer users only post of setting status
+> to DRIVER_OK.
+> 
+> [1] The driver MUST NOT send any buffer available notifications to the
+> device before setting DRIVER_OK.
 > 
 > Signed-off-by: Feng Liu <feliu@nvidia.com>
 > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 > Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
 > ---
->  drivers/virtio/virtio.c                | 37 ++++++++++++++--
->  drivers/virtio/virtio_pci_common.c     |  3 ++
->  drivers/virtio/virtio_pci_common.h     | 15 ++++++-
->  drivers/virtio/virtio_pci_modern.c     | 61 +++++++++++++++++++++++++-
->  drivers/virtio/virtio_pci_modern_dev.c | 18 ++++++++
->  include/linux/virtio_config.h          |  4 ++
->  include/linux/virtio_pci_modern.h      |  5 +++
->  7 files changed, 137 insertions(+), 6 deletions(-)
+>  drivers/virtio/virtio_pci_common.h |   3 +
+>  drivers/virtio/virtio_pci_modern.c | 174 +++++++++++++++++++++++++++++
+>  include/linux/virtio.h             |   8 ++
+>  include/uapi/linux/virtio_pci.h    |  22 ++++
+>  4 files changed, 207 insertions(+)
 > 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 3893dc29eb26..f4080692b351 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -302,9 +302,15 @@ static int virtio_dev_probe(struct device *_d)
->  	if (err)
->  		goto err;
->  
-> +	if (dev->config->create_avq) {
-> +		err = dev->config->create_avq(dev);
-> +		if (err)
-> +			goto err;
-> +	}
-> +
->  	err = drv->probe(dev);
->  	if (err)
-> -		goto err;
-> +		goto err_probe;
->  
->  	/* If probe didn't do it, mark device DRIVER_OK ourselves. */
->  	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-
-Hmm I am not all that happy that we are just creating avq
-unconditionally.
-Can't we do it on demand to avoid wasting resources if
-no one uses it?
-
-
-
-
-
-> @@ -316,6 +322,10 @@ static int virtio_dev_probe(struct device *_d)
->  	virtio_config_enable(dev);
->  
->  	return 0;
-> +
-> +err_probe:
-> +	if (dev->config->destroy_avq)
-> +		dev->config->destroy_avq(dev);
->  err:
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->  	return err;
-> @@ -331,6 +341,9 @@ static void virtio_dev_remove(struct device *_d)
->  
->  	drv->remove(dev);
->  
-> +	if (dev->config->destroy_avq)
-> +		dev->config->destroy_avq(dev);
-> +
->  	/* Driver should have reset device. */
->  	WARN_ON_ONCE(dev->config->get_status(dev));
->  
-> @@ -489,13 +502,20 @@ EXPORT_SYMBOL_GPL(unregister_virtio_device);
->  int virtio_device_freeze(struct virtio_device *dev)
->  {
->  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> +	int ret;
->  
->  	virtio_config_disable(dev);
->  
->  	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
->  
-> -	if (drv && drv->freeze)
-> -		return drv->freeze(dev);
-> +	if (drv && drv->freeze) {
-> +		ret = drv->freeze(dev);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	if (dev->config->destroy_avq)
-> +		dev->config->destroy_avq(dev);
->  
->  	return 0;
->  }
-> @@ -532,10 +552,16 @@ int virtio_device_restore(struct virtio_device *dev)
->  	if (ret)
->  		goto err;
->  
-> +	if (dev->config->create_avq) {
-> +		ret = dev->config->create_avq(dev);
-> +		if (ret)
-> +			goto err;
-> +	}
-> +
->  	if (drv->restore) {
->  		ret = drv->restore(dev);
->  		if (ret)
-> -			goto err;
-> +			goto err_restore;
->  	}
->  
->  	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
-> @@ -546,6 +572,9 @@ int virtio_device_restore(struct virtio_device *dev)
->  
->  	return 0;
->  
-> +err_restore:
-> +	if (dev->config->destroy_avq)
-> +		dev->config->destroy_avq(dev);
->  err:
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->  	return ret;
-> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> index c2524a7207cf..6b4766d5abe6 100644
-> --- a/drivers/virtio/virtio_pci_common.c
-> +++ b/drivers/virtio/virtio_pci_common.c
-> @@ -236,6 +236,9 @@ void vp_del_vqs(struct virtio_device *vdev)
->  	int i;
->  
->  	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
-> +		if (vp_dev->is_avq(vdev, vq->index))
-> +			continue;
-> +
->  		if (vp_dev->per_vq_vectors) {
->  			int v = vp_dev->vqs[vq->index]->msix_vector;
->  
 > diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index 4b773bd7c58c..e03af0966a4b 100644
+> index e03af0966a4b..a21b9ba01a60 100644
 > --- a/drivers/virtio/virtio_pci_common.h
 > +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -41,6 +41,14 @@ struct virtio_pci_vq_info {
->  	unsigned int msix_vector;
+> @@ -44,9 +44,12 @@ struct virtio_pci_vq_info {
+>  struct virtio_pci_admin_vq {
+>  	/* Virtqueue info associated with this admin queue. */
+>  	struct virtio_pci_vq_info info;
+> +	struct completion flush_done;
+> +	refcount_t refcount;
+
+what exactly does this count?
+
+>  	/* Name of the admin queue: avq.$index. */
+>  	char name[10];
+>  	u16 vq_index;
+> +	bool abort;
 >  };
 >  
-> +struct virtio_pci_admin_vq {
-> +	/* Virtqueue info associated with this admin queue. */
-> +	struct virtio_pci_vq_info info;
-> +	/* Name of the admin queue: avq.$index. */
-> +	char name[10];
-> +	u16 vq_index;
-> +};
-> +
 >  /* Our device structure */
->  struct virtio_pci_device {
->  	struct virtio_device vdev;
-> @@ -58,9 +66,13 @@ struct virtio_pci_device {
->  	spinlock_t lock;
->  	struct list_head virtqueues;
->  
-> -	/* array of all queues for house-keeping */
-> +	/* Array of all virtqueues reported in the
-> +	 * PCI common config num_queues field
-> +	 */
->  	struct virtio_pci_vq_info **vqs;
->  
-> +	struct virtio_pci_admin_vq admin_vq;
-> +
->  	/* MSI-X support */
->  	int msix_enabled;
->  	int intx_enabled;
-> @@ -86,6 +98,7 @@ struct virtio_pci_device {
->  	void (*del_vq)(struct virtio_pci_vq_info *info);
->  
->  	u16 (*config_vector)(struct virtio_pci_device *vp_dev, u16 vector);
-> +	bool (*is_avq)(struct virtio_device *vdev, unsigned int index);
->  };
->  
->  /* Constants for MSI-X */
 > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index d6bb68ba84e5..01c5ba346471 100644
+> index 01c5ba346471..ccd7a4d9f57f 100644
 > --- a/drivers/virtio/virtio_pci_modern.c
 > +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -26,6 +26,16 @@ static u64 vp_get_features(struct virtio_device *vdev)
->  	return vp_modern_get_features(&vp_dev->mdev);
+> @@ -36,6 +36,58 @@ static bool vp_is_avq(struct virtio_device *vdev, unsigned int index)
+>  	return index == vp_dev->admin_vq.vq_index;
 >  }
 >  
-> +static bool vp_is_avq(struct virtio_device *vdev, unsigned int index)
+> +static bool vp_modern_avq_get(struct virtio_pci_admin_vq *admin_vq)
+> +{
+> +	return refcount_inc_not_zero(&admin_vq->refcount);
+> +}
+> +
+> +static void vp_modern_avq_put(struct virtio_pci_admin_vq *admin_vq)
+> +{
+> +	if (refcount_dec_and_test(&admin_vq->refcount))
+> +		complete(&admin_vq->flush_done);
+> +}
+> +
+> +static bool vp_modern_avq_is_abort(const struct virtio_pci_admin_vq *admin_vq)
+> +{
+> +	return READ_ONCE(admin_vq->abort);
+> +}
+> +
+> +static void
+> +vp_modern_avq_set_abort(struct virtio_pci_admin_vq *admin_vq, bool abort)
+> +{
+> +	/* Mark the AVQ to abort, so that inflight commands can be aborted. */
+> +	WRITE_ONCE(admin_vq->abort, abort);
+> +}
+> +
+> +static void vp_modern_avq_activate(struct virtio_device *vdev)
 > +{
 > +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> +	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
 > +
 > +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> +		return false;
+> +		return;
 > +
-> +	return index == vp_dev->admin_vq.vq_index;
+> +	init_completion(&admin_vq->flush_done);
+> +	refcount_set(&admin_vq->refcount, 1);
+> +	vp_modern_avq_set_abort(admin_vq, false);
+> +}
+> +
+> +static void vp_modern_avq_deactivate(struct virtio_device *vdev)
+> +{
+> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> +	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
+> +
+> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
+> +		return;
+> +
+> +	vp_modern_avq_set_abort(admin_vq, true);
+> +	/* Balance with refcount_set() during vp_modern_avq_activate */
+> +	vp_modern_avq_put(admin_vq);
+> +
+> +	/* Wait for all the inflight admin commands to be aborted */
+> +	wait_for_completion(&vp_dev->admin_vq.flush_done);
 > +}
 > +
 >  static void vp_transport_features(struct virtio_device *vdev, u64 features)
 >  {
 >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> @@ -37,6 +47,9 @@ static void vp_transport_features(struct virtio_device *vdev, u64 features)
->  
->  	if (features & BIT_ULL(VIRTIO_F_RING_RESET))
->  		__virtio_set_bit(vdev, VIRTIO_F_RING_RESET);
-> +
-> +	if (features & BIT_ULL(VIRTIO_F_ADMIN_VQ))
-> +		__virtio_set_bit(vdev, VIRTIO_F_ADMIN_VQ);
+> @@ -172,6 +224,8 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
+>  	/* We should never be setting status to 0. */
+>  	BUG_ON(status == 0);
+>  	vp_modern_set_status(&vp_dev->mdev, status);
+> +	if (status & VIRTIO_CONFIG_S_DRIVER_OK)
+> +		vp_modern_avq_activate(vdev);
 >  }
 >  
->  /* virtio config->finalize_features() implementation */
-> @@ -317,7 +330,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
->  	else
->  		notify = vp_notify;
->  
-> -	if (index >= vp_modern_get_num_queues(mdev))
-> +	if (index >= vp_modern_get_num_queues(mdev) &&
-> +	    !vp_is_avq(&vp_dev->vdev, index))
->  		return ERR_PTR(-EINVAL);
->  
->  	/* Check if queue is either not available or already active. */
-> @@ -491,6 +505,46 @@ static bool vp_get_shm_region(struct virtio_device *vdev,
+>  static void vp_reset(struct virtio_device *vdev)
+> @@ -188,6 +242,9 @@ static void vp_reset(struct virtio_device *vdev)
+>  	 */
+>  	while (vp_modern_get_status(mdev))
+>  		msleep(1);
+> +
+> +	vp_modern_avq_deactivate(vdev);
+> +
+>  	/* Flush pending VQ/configuration callbacks. */
+>  	vp_synchronize_vectors(vdev);
+>  }
+> @@ -505,6 +562,121 @@ static bool vp_get_shm_region(struct virtio_device *vdev,
 >  	return true;
 >  }
 >  
-> +static int vp_modern_create_avq(struct virtio_device *vdev)
+> +static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+> +				    struct scatterlist **sgs,
+> +				    unsigned int out_num,
+> +				    unsigned int in_num,
+> +				    void *data,
+> +				    gfp_t gfp)
 > +{
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	struct virtio_pci_admin_vq *avq;
 > +	struct virtqueue *vq;
-> +	u16 admin_q_num;
+> +	int ret, len;
 > +
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> +		return 0;
+> +	if (!vp_modern_avq_get(admin_vq))
+> +		return -EIO;
 > +
-> +	admin_q_num = vp_modern_avq_num(&vp_dev->mdev);
-> +	if (!admin_q_num)
-> +		return -EINVAL;
+> +	vq = admin_vq->info.vq;
+> +
+> +	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, data, gfp);
+> +	if (ret < 0)
+> +		goto out;
+> +
+
+virtqueue_add_sgs requires locking, it is not atomic.
+Add some kind of mutex?
+Will also help prevent vq overruns.
+
+> +	if (unlikely(!virtqueue_kick(vq))) {
+> +		ret = -EIO;
+> +		goto out;
+> +	}
 
 
-We really just need 1 entry ATM. Limit to that?
+
 
 > +
-> +	avq = &vp_dev->admin_vq;
-> +	avq->vq_index = vp_modern_avq_index(&vp_dev->mdev);
-> +	sprintf(avq->name, "avq.%u", avq->vq_index);
-> +	vq = vp_dev->setup_vq(vp_dev, &vp_dev->admin_vq.info, avq->vq_index, NULL,
-> +			      avq->name, NULL, VIRTIO_MSI_NO_VECTOR);
-> +	if (IS_ERR(vq)) {
-> +		dev_err(&vdev->dev, "failed to setup admin virtqueue, err=%ld",
-> +			PTR_ERR(vq));
-> +		return PTR_ERR(vq);
+> +	while (!virtqueue_get_buf(vq, &len) &&
+> +	       !virtqueue_is_broken(vq) &&
+> +	       !vp_modern_avq_is_abort(admin_vq))
+> +		cpu_relax();
+> +
+> +	if (vp_modern_avq_is_abort(admin_vq) || virtqueue_is_broken(vq)) {
+> +		ret = -EIO;
+> +		goto out;
+> +	}
+> +out:
+> +	vp_modern_avq_put(admin_vq);
+> +	return ret;
+> +}
+> +
+> +#define VIRTIO_AVQ_SGS_MAX	4
+> +
+> +static int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
+> +				    struct virtio_admin_cmd *cmd)
+> +{
+> +	struct scatterlist *sgs[VIRTIO_AVQ_SGS_MAX], hdr, stat;
+> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> +	struct virtio_admin_cmd_status *va_status;
+> +	unsigned int out_num = 0, in_num = 0;
+> +	struct virtio_admin_cmd_hdr *va_hdr;
+> +	struct virtqueue *avq;
+> +	u16 status;
+> +	int ret;
+> +
+> +	avq = virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ) ?
+> +		vp_dev->admin_vq.info.vq : NULL;
+> +	if (!avq)
+> +		return -EOPNOTSUPP;
+> +
+> +	va_status = kzalloc(sizeof(*va_status), GFP_KERNEL);
+> +	if (!va_status)
+> +		return -ENOMEM;
+> +
+> +	va_hdr = kzalloc(sizeof(*va_hdr), GFP_KERNEL);
+> +	if (!va_hdr) {
+> +		ret = -ENOMEM;
+> +		goto err_alloc;
 > +	}
 > +
-> +	vp_dev->admin_vq.info.vq = vq;
-> +	vp_modern_set_queue_enable(&vp_dev->mdev, avq->info.vq->index, true);
-> +	return 0;
+> +	va_hdr->opcode = cmd->opcode;
+> +	va_hdr->group_type = cmd->group_type;
+> +	va_hdr->group_member_id = cmd->group_member_id;
+> +
+> +	/* Add header */
+> +	sg_init_one(&hdr, va_hdr, sizeof(*va_hdr));
+> +	sgs[out_num] = &hdr;
+> +	out_num++;
+> +
+> +	if (cmd->data_sg) {
+> +		sgs[out_num] = cmd->data_sg;
+> +		out_num++;
+> +	}
+> +
+> +	/* Add return status */
+> +	sg_init_one(&stat, va_status, sizeof(*va_status));
+> +	sgs[out_num + in_num] = &stat;
+> +	in_num++;
+> +
+> +	if (cmd->result_sg) {
+> +		sgs[out_num + in_num] = cmd->result_sg;
+> +		in_num++;
+> +	}
+
+
+BUG_ON here to check we did not overrun sgs?
+
+> +
+> +	ret = virtqueue_exec_admin_cmd(&vp_dev->admin_vq, sgs,
+> +				       out_num, in_num,
+> +				       sgs, GFP_KERNEL);
+> +	if (ret) {
+> +		dev_err(&vdev->dev,
+> +			"Failed to execute command on admin vq: %d\n.", ret);
+> +		goto err_cmd_exec;
+> +	}
+> +
+> +	status = le16_to_cpu(va_status->status);
+> +	if (status != VIRTIO_ADMIN_STATUS_OK) {
+> +		dev_err(&vdev->dev,
+> +			"admin command error: status(%#x) qualifier(%#x)\n",
+> +			status, le16_to_cpu(va_status->status_qualifier));
+> +		ret = -status;
+> +	}
+> +
+> +err_cmd_exec:
+> +	kfree(va_hdr);
+> +err_alloc:
+> +	kfree(va_status);
+> +	return ret;
 > +}
 > +
-> +static void vp_modern_destroy_avq(struct virtio_device *vdev)
-> +{
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> +		return;
-> +
-> +	vp_dev->del_vq(&vp_dev->admin_vq.info);
-> +}
-> +
->  static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
->  	.get		= NULL,
->  	.set		= NULL,
-> @@ -509,6 +563,8 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
->  	.get_shm_region  = vp_get_shm_region,
->  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
->  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> +	.create_avq = vp_modern_create_avq,
-> +	.destroy_avq = vp_modern_destroy_avq,
->  };
+>  static int vp_modern_create_avq(struct virtio_device *vdev)
+>  {
+>  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> @@ -530,6 +702,7 @@ static int vp_modern_create_avq(struct virtio_device *vdev)
+>  		return PTR_ERR(vq);
+>  	}
 >  
->  static const struct virtio_config_ops virtio_pci_config_ops = {
-> @@ -529,6 +585,8 @@ static const struct virtio_config_ops virtio_pci_config_ops = {
->  	.get_shm_region  = vp_get_shm_region,
->  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
->  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> +	.create_avq = vp_modern_create_avq,
-> +	.destroy_avq = vp_modern_destroy_avq,
->  };
+> +	refcount_set(&vp_dev->admin_vq.refcount, 0);
+>  	vp_dev->admin_vq.info.vq = vq;
+>  	vp_modern_set_queue_enable(&vp_dev->mdev, avq->info.vq->index, true);
+>  	return 0;
+> @@ -542,6 +715,7 @@ static void vp_modern_destroy_avq(struct virtio_device *vdev)
+>  	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
+>  		return;
 >  
->  /* the PCI probing function */
-> @@ -552,6 +610,7 @@ int virtio_pci_modern_probe(struct virtio_pci_device *vp_dev)
->  	vp_dev->config_vector = vp_config_vector;
->  	vp_dev->setup_vq = setup_vq;
->  	vp_dev->del_vq = del_vq;
-> +	vp_dev->is_avq = vp_is_avq;
->  	vp_dev->isr = mdev->isr;
->  	vp_dev->vdev.id = mdev->id;
->  
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index 9cb601e16688..4aab1727d121 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -714,6 +714,24 @@ void __iomem *vp_modern_map_vq_notify(struct virtio_pci_modern_device *mdev,
+> +	WARN_ON(refcount_read(&vp_dev->admin_vq.refcount));
+>  	vp_dev->del_vq(&vp_dev->admin_vq.info);
 >  }
->  EXPORT_SYMBOL_GPL(vp_modern_map_vq_notify);
 >  
-> +u16 vp_modern_avq_num(struct virtio_pci_modern_device *mdev)
-> +{
-> +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> +
-> +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
-> +	return vp_ioread16(&cfg->admin_queue_num);
-> +}
-> +EXPORT_SYMBOL_GPL(vp_modern_avq_num);
-> +
-> +u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev)
-> +{
-> +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> +
-> +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev->common;
-> +	return vp_ioread16(&cfg->admin_queue_index);
-> +}
-> +EXPORT_SYMBOL_GPL(vp_modern_avq_index);
-> +
->  MODULE_VERSION("0.1");
->  MODULE_DESCRIPTION("Modern Virtio PCI Device");
->  MODULE_AUTHOR("Jason Wang <jasowang@redhat.com>");
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 2b3438de2c4d..da9b271b54db 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -93,6 +93,8 @@ typedef void vq_callback_t(struct virtqueue *);
->   *	Returns 0 on success or error status
->   *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
->   *	set.
-> + * @create_avq: create admin virtqueue resource.
-> + * @destroy_avq: destroy admin virtqueue resource.
->   */
->  struct virtio_config_ops {
->  	void (*get)(struct virtio_device *vdev, unsigned offset,
-> @@ -120,6 +122,8 @@ struct virtio_config_ops {
->  			       struct virtio_shm_region *region, u8 id);
->  	int (*disable_vq_and_reset)(struct virtqueue *vq);
->  	int (*enable_vq_after_reset)(struct virtqueue *vq);
-> +	int (*create_avq)(struct virtio_device *vdev);
-> +	void (*destroy_avq)(struct virtio_device *vdev);
->  };
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 4cc614a38376..b0201747a263 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -103,6 +103,14 @@ int virtqueue_resize(struct virtqueue *vq, u32 num,
+>  int virtqueue_reset(struct virtqueue *vq,
+>  		    void (*recycle)(struct virtqueue *vq, void *buf));
 >  
->  /* If driver didn't advertise the feature, it will never appear. */
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index 067ac1d789bc..0f8737c9ae7d 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -10,6 +10,9 @@ struct virtio_pci_modern_common_cfg {
->  
->  	__le16 queue_notify_data;	/* read-write */
->  	__le16 queue_reset;		/* read-write */
+> +struct virtio_admin_cmd {
+> +	__le16 opcode;
+> +	__le16 group_type;
+> +	__le64 group_member_id;
+> +	struct scatterlist *data_sg;
+> +	struct scatterlist *result_sg;
+> +};
 > +
-> +	__le16 admin_queue_index;	/* read-only */
-> +	__le16 admin_queue_num;		/* read-only */
->  };
+>  /**
+>   * struct virtio_device - representation of a device using virtio
+>   * @index: unique position on the virtio bus
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> index f703afc7ad31..68eacc9676dc 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -207,4 +207,26 @@ struct virtio_pci_cfg_cap {
 >  
->  struct virtio_pci_modern_device {
-> @@ -121,4 +124,6 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev);
->  void vp_modern_remove(struct virtio_pci_modern_device *mdev);
->  int vp_modern_get_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
->  void vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16 index);
-> +u16 vp_modern_avq_num(struct virtio_pci_modern_device *mdev);
-> +u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev);
+>  #endif /* VIRTIO_PCI_NO_MODERN */
+>  
+> +/* Admin command status. */
+> +#define VIRTIO_ADMIN_STATUS_OK		0
+> +
+> +struct __packed virtio_admin_cmd_hdr {
+> +	__le16 opcode;
+> +	/*
+> +	 * 1 - SR-IOV
+> +	 * 2-65535 - reserved
+> +	 */
+> +	__le16 group_type;
+> +	/* Unused, reserved for future extensions. */
+> +	__u8 reserved1[12];
+> +	__le64 group_member_id;
+> +};
+> +
+> +struct __packed virtio_admin_cmd_status {
+> +	__le16 status;
+> +	__le16 status_qualifier;
+> +	/* Unused, reserved for future extensions. */
+> +	__u8 reserved2[4];
+> +};
+> +
 >  #endif
 > -- 
 > 2.27.0
