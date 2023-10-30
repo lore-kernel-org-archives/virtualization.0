@@ -4,110 +4,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E9AC2C4167B
-	for <virtualization@archiver.kernel.org>; Sun, 29 Oct 2023 20:27:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3BCCBC4332F
+	for <virtualization@archiver.kernel.org>; Mon, 30 Oct 2023 12:39:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7531D42DFD;
-	Sun, 29 Oct 2023 20:27:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7531D42DFD
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9E60B4F3AE;
+	Mon, 30 Oct 2023 12:39:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9E60B4F3AE
 Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wm76Y24Z
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.a=rsa-sha256 header.s=susede1 header.b=Y5PKASa8
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pVlBqkuAIfUD; Sun, 29 Oct 2023 20:27:01 +0000 (UTC)
+	with ESMTP id 6u5STOSn42eS; Mon, 30 Oct 2023 12:39:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5051442DAD;
-	Sun, 29 Oct 2023 20:27:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5051442DAD
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0E3C44F38E;
+	Mon, 30 Oct 2023 12:39:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0E3C44F38E
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B5A7C0071;
-	Sun, 29 Oct 2023 20:27:00 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8BCEFC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 637EAC0039;
+	Mon, 30 Oct 2023 12:39:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB39BC0032
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:26:58 +0000 (UTC)
+ Mon, 30 Oct 2023 12:39:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5575A84F78
+ by smtp3.osuosl.org (Postfix) with ESMTP id 80E9A7076D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:26:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5575A84F78
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=Wm76Y24Z
+ Mon, 30 Oct 2023 12:39:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 80E9A7076D
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com
+ header.a=rsa-sha256 header.s=susede1 header.b=Y5PKASa8
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Etc7wqrfCxPr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iLQqzqwSPyah
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:26:55 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B5D5484D66
+ Mon, 30 Oct 2023 12:39:31 +0000 (UTC)
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B4AFC70769
  for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 20:26:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B5D5484D66
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698611213;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=rJbbUkNvWBEodXwBkNJ7Ij9ttKOZL60NGR2gag2PH2Q=;
- b=Wm76Y24Zt/12lQZla3G+jei3EuReHByGXGndIRV36bE7xUzE0YFr+UAl4QQ5JHK5NRu70H
- dIh71LJa/jnFO/hilf9pyG8gt5anjtyitqEyogztp3prxKKRvCh13KjsRO3Aibtvqgpwba
- Rbdx7IlqM/xgnUCwIa2ekH/x63+0A/A=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-eD8g8unzOLaMKlMQ6yVSJQ-1; Sun, 29 Oct 2023 16:26:52 -0400
-X-MC-Unique: eD8g8unzOLaMKlMQ6yVSJQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- 4fb4d7f45d1cf-5400c8c6392so2701412a12.1
- for <virtualization@lists.linux-foundation.org>;
- Sun, 29 Oct 2023 13:26:51 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698611211; x=1699216011;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=rJbbUkNvWBEodXwBkNJ7Ij9ttKOZL60NGR2gag2PH2Q=;
- b=slKZjd7Uem3dQm5C+dBD7Gu7pXE+EknTtXHeT9goGwaZqSALTWn14p7Z9sGz+5sinJ
- 7VVDKrga7EtZCFZC9oihIyyHil7jyJ35QJ2Hkjsw3kv9lxmv4zyTmdFil2mV+E7TUEu/
- P2c+hSzOB5GYe5kZJXBXvR/d4hFftbjdOKy2ze+8QeW9YdJvzkoy6geN2kXXoj33xx4v
- waNuF8NIQ2rM1LJk0RJbqKUVhE66fwKGclF3QKrc6nzn3y8J1W9pmk+4bcNQ6Po+riG4
- V3GnnywTMmPd+K1CoeTQ2vH2NmPMe6dcB2ImNTg43285uyD/QNrciQIbqTVzFt3gZY/N
- +New==
-X-Gm-Message-State: AOJu0YySICM87eKInE/NGWCMSYl1A0+bI/e232YV7yMTUKY+n12ebRnM
- ZVO9BNsSbe9Hte/QfqMZCrZmSF9ktg4TQ+V6M1+FMQqc8czLR7H3Xut3rgvKaqzYK1LZQjw/Nh6
- XUfCuC3no9rBugyg4b49MUD4O7IfgRuoK9SPbg9zjwA==
-X-Received: by 2002:a17:906:dc8f:b0:9c4:bb5f:970d with SMTP id
- cs15-20020a170906dc8f00b009c4bb5f970dmr7225610ejc.45.1698611211016; 
- Sun, 29 Oct 2023 13:26:51 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEmBQA9NAT8hmav8ZRqdcywEB2wxqccw+gPEpxsipOoCmtv9JqyOjyGWVHoA1MP6KDymJgmEg==
-X-Received: by 2002:a17:906:dc8f:b0:9c4:bb5f:970d with SMTP id
- cs15-20020a170906dc8f00b009c4bb5f970dmr7225590ejc.45.1698611210614; 
- Sun, 29 Oct 2023 13:26:50 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:16f:5c91:cfe8:a545:4338:bf76])
- by smtp.gmail.com with ESMTPSA id
- kt12-20020a170906aacc00b009ad8acac02asm4902622ejb.172.2023.10.29.13.26.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 29 Oct 2023 13:26:49 -0700 (PDT)
-Date: Sun, 29 Oct 2023 16:26:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yishai Hadas <yishaih@nvidia.com>
-Subject: Re: [PATCH V2 vfio 3/9] virtio-pci: Introduce admin command sending
- function
-Message-ID: <20231029162255-mutt-send-email-mst@kernel.org>
-References: <20231029155952.67686-1-yishaih@nvidia.com>
- <20231029155952.67686-4-yishaih@nvidia.com>
+ Mon, 30 Oct 2023 12:39:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B4AFC70769
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 1B056219CD;
+ Mon, 30 Oct 2023 12:39:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1698669569; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+ bh=Lngqcg+nkjGVgOoPgmcw4oMm+hcyGCopDw1fWfcrD/8=;
+ b=Y5PKASa8dFVmFdnT6aL8z5iuwp4kcS3EeacVeKZUt/f07PMcW/mWWajKWL565n56G1hLov
+ U3bRVzYyDJxOy2KSCtmT9hAXa8+XCMS3GI8vldRR0+Pd4xjCY75XRAmxWZh4LY5qxC+Gu4
+ 8j3I9oJ6K0OfNxn6YPbWpfHYe3QPz4g=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 93B40138EF;
+ Mon, 30 Oct 2023 12:39:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id ZbidIgCkP2UOegAAMHmgww
+ (envelope-from <jgross@suse.com>); Mon, 30 Oct 2023 12:39:28 +0000
+Message-ID: <3b6a8d5d-f766-49fd-aa35-992c5b048bc6@suse.com>
+Date: Mon, 30 Oct 2023 13:39:27 +0100
 MIME-Version: 1.0
-In-Reply-To: <20231029155952.67686-4-yishaih@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, maorg@nvidia.com,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
- leonro@nvidia.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/5] x86/paravirt: move some functions and defines to
+ alternative
+Content-Language: en-US
+To: Borislav Petkov <bp@alien8.de>
+References: <20231019091520.14540-1-jgross@suse.com>
+ <20231019091520.14540-2-jgross@suse.com>
+ <20231025103402.GBZTjvGse9c0utZGO0@fat_crate.local>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20231025103402.GBZTjvGse9c0utZGO0@fat_crate.local>
+Cc: Wanpeng Li <wanpengli@tencent.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ Alexey Makhalov <amakhalov@vmware.com>, xen-devel@lists.xenproject.org,
+ kvm@vger.kernel.org, VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Peter Zijlstra <peterz@infradead.org>, Ajay Kaher <akaher@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,341 +124,165 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============6193462089797163151=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 29, 2023 at 05:59:46PM +0200, Yishai Hadas wrote:
-> From: Feng Liu <feliu@nvidia.com>
-> 
-> Add support for sending admin command through admin virtqueue interface.
-> Abort any inflight admin commands once device reset completes.
-> 
-> To enforce the below statement from the specification [1], the admin
-> queue is activated for the upper layer users only post of setting status
-> to DRIVER_OK.
-> 
-> [1] The driver MUST NOT send any buffer available notifications to the
-> device before setting DRIVER_OK.
-> 
-> Signed-off-by: Feng Liu <feliu@nvidia.com>
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> ---
->  drivers/virtio/virtio_pci_common.h |   3 +
->  drivers/virtio/virtio_pci_modern.c | 174 +++++++++++++++++++++++++++++
->  include/linux/virtio.h             |   8 ++
->  include/uapi/linux/virtio_pci.h    |  22 ++++
->  4 files changed, 207 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> index e03af0966a4b..a21b9ba01a60 100644
-> --- a/drivers/virtio/virtio_pci_common.h
-> +++ b/drivers/virtio/virtio_pci_common.h
-> @@ -44,9 +44,12 @@ struct virtio_pci_vq_info {
->  struct virtio_pci_admin_vq {
->  	/* Virtqueue info associated with this admin queue. */
->  	struct virtio_pci_vq_info info;
-> +	struct completion flush_done;
-> +	refcount_t refcount;
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============6193462089797163151==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------CjY5AqY2i0DxVv5xgZzdvcJ0"
 
-what exactly does this count?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------CjY5AqY2i0DxVv5xgZzdvcJ0
+Content-Type: multipart/mixed; boundary="------------WtUeyENtP6GaM0fFvnSU09ev";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
+ virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Ajay Kaher <akaher@vmware.com>, Alexey Makhalov <amakhalov@vmware.com>,
+ VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ xen-devel@lists.xenproject.org, Peter Zijlstra <peterz@infradead.org>
+Message-ID: <3b6a8d5d-f766-49fd-aa35-992c5b048bc6@suse.com>
+Subject: Re: [PATCH v3 1/5] x86/paravirt: move some functions and defines to
+ alternative
+References: <20231019091520.14540-1-jgross@suse.com>
+ <20231019091520.14540-2-jgross@suse.com>
+ <20231025103402.GBZTjvGse9c0utZGO0@fat_crate.local>
+In-Reply-To: <20231025103402.GBZTjvGse9c0utZGO0@fat_crate.local>
 
->  	/* Name of the admin queue: avq.$index. */
->  	char name[10];
->  	u16 vq_index;
-> +	bool abort;
->  };
->  
->  /* Our device structure */
-> diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> index 01c5ba346471..ccd7a4d9f57f 100644
-> --- a/drivers/virtio/virtio_pci_modern.c
-> +++ b/drivers/virtio/virtio_pci_modern.c
-> @@ -36,6 +36,58 @@ static bool vp_is_avq(struct virtio_device *vdev, unsigned int index)
->  	return index == vp_dev->admin_vq.vq_index;
->  }
->  
-> +static bool vp_modern_avq_get(struct virtio_pci_admin_vq *admin_vq)
-> +{
-> +	return refcount_inc_not_zero(&admin_vq->refcount);
-> +}
-> +
-> +static void vp_modern_avq_put(struct virtio_pci_admin_vq *admin_vq)
-> +{
-> +	if (refcount_dec_and_test(&admin_vq->refcount))
-> +		complete(&admin_vq->flush_done);
-> +}
-> +
-> +static bool vp_modern_avq_is_abort(const struct virtio_pci_admin_vq *admin_vq)
-> +{
-> +	return READ_ONCE(admin_vq->abort);
-> +}
-> +
-> +static void
-> +vp_modern_avq_set_abort(struct virtio_pci_admin_vq *admin_vq, bool abort)
-> +{
-> +	/* Mark the AVQ to abort, so that inflight commands can be aborted. */
-> +	WRITE_ONCE(admin_vq->abort, abort);
-> +}
-> +
-> +static void vp_modern_avq_activate(struct virtio_device *vdev)
-> +{
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
-> +
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> +		return;
-> +
-> +	init_completion(&admin_vq->flush_done);
-> +	refcount_set(&admin_vq->refcount, 1);
-> +	vp_modern_avq_set_abort(admin_vq, false);
-> +}
-> +
-> +static void vp_modern_avq_deactivate(struct virtio_device *vdev)
-> +{
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	struct virtio_pci_admin_vq *admin_vq = &vp_dev->admin_vq;
-> +
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> +		return;
-> +
-> +	vp_modern_avq_set_abort(admin_vq, true);
-> +	/* Balance with refcount_set() during vp_modern_avq_activate */
-> +	vp_modern_avq_put(admin_vq);
-> +
-> +	/* Wait for all the inflight admin commands to be aborted */
-> +	wait_for_completion(&vp_dev->admin_vq.flush_done);
-> +}
-> +
->  static void vp_transport_features(struct virtio_device *vdev, u64 features)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> @@ -172,6 +224,8 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
->  	/* We should never be setting status to 0. */
->  	BUG_ON(status == 0);
->  	vp_modern_set_status(&vp_dev->mdev, status);
-> +	if (status & VIRTIO_CONFIG_S_DRIVER_OK)
-> +		vp_modern_avq_activate(vdev);
->  }
->  
->  static void vp_reset(struct virtio_device *vdev)
-> @@ -188,6 +242,9 @@ static void vp_reset(struct virtio_device *vdev)
->  	 */
->  	while (vp_modern_get_status(mdev))
->  		msleep(1);
-> +
-> +	vp_modern_avq_deactivate(vdev);
-> +
->  	/* Flush pending VQ/configuration callbacks. */
->  	vp_synchronize_vectors(vdev);
->  }
-> @@ -505,6 +562,121 @@ static bool vp_get_shm_region(struct virtio_device *vdev,
->  	return true;
->  }
->  
-> +static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
-> +				    struct scatterlist **sgs,
-> +				    unsigned int out_num,
-> +				    unsigned int in_num,
-> +				    void *data,
-> +				    gfp_t gfp)
-> +{
-> +	struct virtqueue *vq;
-> +	int ret, len;
-> +
-> +	if (!vp_modern_avq_get(admin_vq))
-> +		return -EIO;
-> +
-> +	vq = admin_vq->info.vq;
-> +
-> +	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, data, gfp);
-> +	if (ret < 0)
-> +		goto out;
-> +
+--------------WtUeyENtP6GaM0fFvnSU09ev
+Content-Type: multipart/mixed; boundary="------------gKgRX3PD6Fey5HM02ylSIZYh"
 
-virtqueue_add_sgs requires locking, it is not atomic.
-Add some kind of mutex?
-Will also help prevent vq overruns.
+--------------gKgRX3PD6Fey5HM02ylSIZYh
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-> +	if (unlikely(!virtqueue_kick(vq))) {
-> +		ret = -EIO;
-> +		goto out;
-> +	}
+T24gMjUuMTAuMjMgMTI6MzQsIEJvcmlzbGF2IFBldGtvdiB3cm90ZToNCj4gT24gVGh1LCBP
+Y3QgMTksIDIwMjMgYXQgMTE6MTU6MTZBTSArMDIwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToN
+Cj4+ICsvKiBMb3ctbGV2ZWwgYmFja2VuZCBmdW5jdGlvbnMgdXNhYmxlIGZyb20gYWx0ZXJu
+YXRpdmUgY29kZSByZXBsYWNlbWVudHMuICovDQo+PiArREVGSU5FX0FTTV9GVU5DKHg4Nl9u
+b3AsICIiLCAuZW50cnkudGV4dCk7DQo+PiArRVhQT1JUX1NZTUJPTF9HUEwoeDg2X25vcCk7
+DQo+IA0KPiBUaGlzIGlzIGFsbCB4ODYgY29kZSBzbyB5b3UgZG9uJ3QgcmVhbGx5IG5lZWQg
+dGhlICJ4ODZfIiBwcmVmaXggLSAibm9wIg0KPiBpcyBwZXJmZWN0bHkgZmluZS4NCj4gDQo+
+PiArbm9pbnN0ciB2b2lkIHg4Nl9CVUcodm9pZCkNCj4+ICt7DQo+PiArCUJVRygpOw0KPj4g
+K30NCj4+ICtFWFBPUlRfU1lNQk9MX0dQTCh4ODZfQlVHKTsNCj4gDQo+IFRoYXQgZXhwb3J0
+IGlzIG5lZWRlZCBmb3I/DQo+IA0KPiBQYXJhdmlydCBzdHVmZiBpbiBtb2R1bGVzPw0KPiAN
+Cj4gSXQgYnVpbGRzIGhlcmUgd2l0aG91dCBpdCAtIEkgZ3Vlc3MgSSBuZWVkIHRvIGRvIGFu
+IGFsbG1vZGNvbmZpZy4NCj4gDQoNClR1cm5zIG91dCBpdCBpcyBuZWVkZWQgYWZ0ZXIgYWxs
+LiBXaXRoIHBhdGNoIDQgYXBwbGllZCBJIGdldDoNCg0KRVJST1I6IG1vZHBvc3Q6ICJCVUdf
+ZnVuYyIgW2FyY2gveDg2L2V2ZW50cy9hbWQvcG93ZXIua29dIHVuZGVmaW5lZCENCkVSUk9S
+OiBtb2Rwb3N0OiAiQlVHX2Z1bmMiIFthcmNoL3g4Ni9rZXJuZWwvY3B1L21jZS9tY2UtaW5q
+ZWN0LmtvXSB1bmRlZmluZWQhDQpFUlJPUjogbW9kcG9zdDogIkJVR19mdW5jIiBbYXJjaC94
+ODYva2VybmVsL2NwdWlkLmtvXSB1bmRlZmluZWQhDQpFUlJPUjogbW9kcG9zdDogIkJVR19m
+dW5jIiBbYXJjaC94ODYva3ZtL2t2bS5rb10gdW5kZWZpbmVkIQ0KRVJST1I6IG1vZHBvc3Q6
+ICJCVUdfZnVuYyIgW2FyY2gveDg2L2t2bS9rdm0taW50ZWwua29dIHVuZGVmaW5lZCENCkVS
+Uk9SOiBtb2Rwb3N0OiAiQlVHX2Z1bmMiIFthcmNoL3g4Ni9rdm0va3ZtLWFtZC5rb10gdW5k
+ZWZpbmVkIQ0KRVJST1I6IG1vZHBvc3Q6ICJCVUdfZnVuYyIgW2ZzL25mc2QvbmZzZC5rb10g
+dW5kZWZpbmVkIQ0KRVJST1I6IG1vZHBvc3Q6ICJCVUdfZnVuYyIgW2NyeXB0by9hZXNfdGku
+a29dIHVuZGVmaW5lZCENCkVSUk9SOiBtb2Rwb3N0OiAiQlVHX2Z1bmMiIFtkcml2ZXJzL3Zp
+ZGVvL2ZiZGV2L3V2ZXNhZmIua29dIHVuZGVmaW5lZCENCkVSUk9SOiBtb2Rwb3N0OiAiQlVH
+X2Z1bmMiIFtkcml2ZXJzL3ZpZGVvL3ZnYXN0YXRlLmtvXSB1bmRlZmluZWQhDQoNCg0KSnVl
+cmdlbg0K
+--------------gKgRX3PD6Fey5HM02ylSIZYh
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
+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
+jR/i1DG86lem3iBDXzXsZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
 
+--------------gKgRX3PD6Fey5HM02ylSIZYh--
 
-> +
-> +	while (!virtqueue_get_buf(vq, &len) &&
-> +	       !virtqueue_is_broken(vq) &&
-> +	       !vp_modern_avq_is_abort(admin_vq))
-> +		cpu_relax();
-> +
-> +	if (vp_modern_avq_is_abort(admin_vq) || virtqueue_is_broken(vq)) {
-> +		ret = -EIO;
-> +		goto out;
-> +	}
-> +out:
-> +	vp_modern_avq_put(admin_vq);
-> +	return ret;
-> +}
-> +
-> +#define VIRTIO_AVQ_SGS_MAX	4
-> +
-> +static int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
-> +				    struct virtio_admin_cmd *cmd)
-> +{
-> +	struct scatterlist *sgs[VIRTIO_AVQ_SGS_MAX], hdr, stat;
-> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> +	struct virtio_admin_cmd_status *va_status;
-> +	unsigned int out_num = 0, in_num = 0;
-> +	struct virtio_admin_cmd_hdr *va_hdr;
-> +	struct virtqueue *avq;
-> +	u16 status;
-> +	int ret;
-> +
-> +	avq = virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ) ?
-> +		vp_dev->admin_vq.info.vq : NULL;
-> +	if (!avq)
-> +		return -EOPNOTSUPP;
-> +
-> +	va_status = kzalloc(sizeof(*va_status), GFP_KERNEL);
-> +	if (!va_status)
-> +		return -ENOMEM;
-> +
-> +	va_hdr = kzalloc(sizeof(*va_hdr), GFP_KERNEL);
-> +	if (!va_hdr) {
-> +		ret = -ENOMEM;
-> +		goto err_alloc;
-> +	}
-> +
-> +	va_hdr->opcode = cmd->opcode;
-> +	va_hdr->group_type = cmd->group_type;
-> +	va_hdr->group_member_id = cmd->group_member_id;
-> +
-> +	/* Add header */
-> +	sg_init_one(&hdr, va_hdr, sizeof(*va_hdr));
-> +	sgs[out_num] = &hdr;
-> +	out_num++;
-> +
-> +	if (cmd->data_sg) {
-> +		sgs[out_num] = cmd->data_sg;
-> +		out_num++;
-> +	}
-> +
-> +	/* Add return status */
-> +	sg_init_one(&stat, va_status, sizeof(*va_status));
-> +	sgs[out_num + in_num] = &stat;
-> +	in_num++;
-> +
-> +	if (cmd->result_sg) {
-> +		sgs[out_num + in_num] = cmd->result_sg;
-> +		in_num++;
-> +	}
+--------------WtUeyENtP6GaM0fFvnSU09ev--
 
+--------------CjY5AqY2i0DxVv5xgZzdvcJ0
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-BUG_ON here to check we did not overrun sgs?
+-----BEGIN PGP SIGNATURE-----
 
-> +
-> +	ret = virtqueue_exec_admin_cmd(&vp_dev->admin_vq, sgs,
-> +				       out_num, in_num,
-> +				       sgs, GFP_KERNEL);
-> +	if (ret) {
-> +		dev_err(&vdev->dev,
-> +			"Failed to execute command on admin vq: %d\n.", ret);
-> +		goto err_cmd_exec;
-> +	}
-> +
-> +	status = le16_to_cpu(va_status->status);
-> +	if (status != VIRTIO_ADMIN_STATUS_OK) {
-> +		dev_err(&vdev->dev,
-> +			"admin command error: status(%#x) qualifier(%#x)\n",
-> +			status, le16_to_cpu(va_status->status_qualifier));
-> +		ret = -status;
-> +	}
-> +
-> +err_cmd_exec:
-> +	kfree(va_hdr);
-> +err_alloc:
-> +	kfree(va_status);
-> +	return ret;
-> +}
-> +
->  static int vp_modern_create_avq(struct virtio_device *vdev)
->  {
->  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> @@ -530,6 +702,7 @@ static int vp_modern_create_avq(struct virtio_device *vdev)
->  		return PTR_ERR(vq);
->  	}
->  
-> +	refcount_set(&vp_dev->admin_vq.refcount, 0);
->  	vp_dev->admin_vq.info.vq = vq;
->  	vp_modern_set_queue_enable(&vp_dev->mdev, avq->info.vq->index, true);
->  	return 0;
-> @@ -542,6 +715,7 @@ static void vp_modern_destroy_avq(struct virtio_device *vdev)
->  	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
->  		return;
->  
-> +	WARN_ON(refcount_read(&vp_dev->admin_vq.refcount));
->  	vp_dev->del_vq(&vp_dev->admin_vq.info);
->  }
->  
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 4cc614a38376..b0201747a263 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -103,6 +103,14 @@ int virtqueue_resize(struct virtqueue *vq, u32 num,
->  int virtqueue_reset(struct virtqueue *vq,
->  		    void (*recycle)(struct virtqueue *vq, void *buf));
->  
-> +struct virtio_admin_cmd {
-> +	__le16 opcode;
-> +	__le16 group_type;
-> +	__le64 group_member_id;
-> +	struct scatterlist *data_sg;
-> +	struct scatterlist *result_sg;
-> +};
-> +
->  /**
->   * struct virtio_device - representation of a device using virtio
->   * @index: unique position on the virtio bus
-> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> index f703afc7ad31..68eacc9676dc 100644
-> --- a/include/uapi/linux/virtio_pci.h
-> +++ b/include/uapi/linux/virtio_pci.h
-> @@ -207,4 +207,26 @@ struct virtio_pci_cfg_cap {
->  
->  #endif /* VIRTIO_PCI_NO_MODERN */
->  
-> +/* Admin command status. */
-> +#define VIRTIO_ADMIN_STATUS_OK		0
-> +
-> +struct __packed virtio_admin_cmd_hdr {
-> +	__le16 opcode;
-> +	/*
-> +	 * 1 - SR-IOV
-> +	 * 2-65535 - reserved
-> +	 */
-> +	__le16 group_type;
-> +	/* Unused, reserved for future extensions. */
-> +	__u8 reserved1[12];
-> +	__le64 group_member_id;
-> +};
-> +
-> +struct __packed virtio_admin_cmd_status {
-> +	__le16 status;
-> +	__le16 status_qualifier;
-> +	/* Unused, reserved for future extensions. */
-> +	__u8 reserved2[4];
-> +};
-> +
->  #endif
-> -- 
-> 2.27.0
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmU/pAAFAwAAAAAACgkQsN6d1ii/Ey9X
+uQf9HVW5MAezF4sh5DKlZuUi81hLzbrceMI/4mgDEoARnFElG81OLh2+VbeukkopRfKFk83m3iDX
+Nwczt7+A65fKi2X31jD2Qcwk+Roy22HyH3YOVGR8GyrwD+t40pnnA2j+ltwLNwT8NlnQ4sX/Xs54
+/u43Mb372gE+gxQUR6JQq3aHeO+xcYoAvOYOeUn3JGOWoCu/HbQGwAoU6T2Xn5xwdeHTnTRugghs
+DsS8QMJJXxmeTFMVokdeISwUqENxPiGTPyOlhzCxLtHkAQyatGHlUXcuOoE/9LeQ+yjOBa6QO8Zp
+psAtk64ro1/ouewo/0WZUNT9G+g3r8jL2mkMZU5Bww==
+=rD7o
+-----END PGP SIGNATURE-----
+
+--------------CjY5AqY2i0DxVv5xgZzdvcJ0--
+
+--===============6193462089797163151==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6193462089797163151==--
