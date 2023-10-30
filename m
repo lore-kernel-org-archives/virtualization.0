@@ -1,112 +1,137 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0B5BBC4332F
-	for <virtualization@archiver.kernel.org>; Mon, 30 Oct 2023 15:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2140EC4332F
+	for <virtualization@archiver.kernel.org>; Mon, 30 Oct 2023 16:07:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9BF0460743;
-	Mon, 30 Oct 2023 15:59:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9BF0460743
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=JSu/5pdA
+	by smtp4.osuosl.org (Postfix) with ESMTP id A9FA4409AD;
+	Mon, 30 Oct 2023 16:07:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A9FA4409AD
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=DLEMAFk1
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DIANa7NFyA7Q; Mon, 30 Oct 2023 15:59:52 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wJdnPShpKNdy; Mon, 30 Oct 2023 16:07:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9565F6070A;
-	Mon, 30 Oct 2023 15:59:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9565F6070A
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 845D940995;
+	Mon, 30 Oct 2023 16:07:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 845D940995
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B8CEC0071;
-	Mon, 30 Oct 2023 15:59:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C5E98C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E7CEC0071;
+	Mon, 30 Oct 2023 16:07:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06903C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Oct 2023 15:59:50 +0000 (UTC)
+ Mon, 30 Oct 2023 16:07:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8DBC96070A
+ by smtp4.osuosl.org (Postfix) with ESMTP id D38B940996
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Oct 2023 15:59:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8DBC96070A
+ Mon, 30 Oct 2023 16:07:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D38B940996
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lKQCscG9tfQm
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id s2N4AeLtzek9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Oct 2023 15:59:49 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 38E8C60737
+ Mon, 30 Oct 2023 16:07:17 +0000 (UTC)
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam11on20601.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eae::601])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D849A40995
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Oct 2023 15:59:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 38E8C60737
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698681588;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=5IIgh8kG2TQT8ChaB+uGYIXXsWLNdP6VpZ6rpKcqCXY=;
- b=JSu/5pdASTEXwPQorStifCn2vvjsInbsJjmpIvl4lY8KH2JHy8fJptZW7OdSTCidCPKSHo
- c3BLfIXRvTUFY/Au8SPiLYOb/KBU7OvXybtVEM6e6IhRKnfWdGUKPQUVuyDoy8OOxss0B5
- qxw+A5suam6/FWF1G+ipKKCvsB6GodU=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-665-ZCjU3wRFO7CsuMrc_uLOFA-1; Mon, 30 Oct 2023 11:59:31 -0400
-X-MC-Unique: ZCjU3wRFO7CsuMrc_uLOFA-1
-Received: by mail-wm1-f71.google.com with SMTP id
- 5b1f17b1804b1-4084a9e637eso33779995e9.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Oct 2023 08:59:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698681570; x=1699286370;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=5IIgh8kG2TQT8ChaB+uGYIXXsWLNdP6VpZ6rpKcqCXY=;
- b=miFvI2ybxY17isbCh2VDil7XhqrCpO3vXluadrp8Fg0TY3ogJJ3cSfmAMtuRdLqbu0
- ReaGwvf9jGGGwShCyg5sdvz74XhEdxRIo2rbqPgBAxpjiW1DuBWhmsNa+7ilrDIV9uDe
- 9YvX/I/4WsSAuzZVGXnZyhR9BUCPXlKtBlN11yd1I73QjB8pcBtu+mk+L4zjJxpW7J7V
- OFZPtv0JDdfhMxUrlPQVP8/8wc1mI/UuhUDC49NOKfsPEQ8KO1VTx5w3k2VIn3f2MlMM
- MgS2aB4hbgBqdaZoJWj4jGvZd/et1rjoaWZm6f5guCdygesFO4g7PSGrpEvxdHLv0JAy
- HwRg==
-X-Gm-Message-State: AOJu0YxOUMUc202bbJFx6w4xdK4axpwOrY91xMI95mvIHJHb93w6WLIr
- WPtGvWQ7L3YlFs70zF07xgCeQVnfHnZMosXXH9lSoBI0qYNt3nLHmu4QGjT/8xFPV//oUcno9IW
- UadfQtdR0klsfW4RhNLnttMuHsANNNFVgSAzBLLdQ5g==
-X-Received: by 2002:a05:600c:3154:b0:408:39d3:a26b with SMTP id
- h20-20020a05600c315400b0040839d3a26bmr8215177wmo.40.1698681570158; 
- Mon, 30 Oct 2023 08:59:30 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGC+ciZeYOYRxIfFBcwzx4qqGf/LqpWM0q+i9GiHYoTm/RVdPEMB+azsieXWdybiAHVlJUKtg==
-X-Received: by 2002:a05:600c:3154:b0:408:39d3:a26b with SMTP id
- h20-20020a05600c315400b0040839d3a26bmr8215156wmo.40.1698681569675; 
- Mon, 30 Oct 2023 08:59:29 -0700 (PDT)
-Received: from redhat.com ([2.52.26.150]) by smtp.gmail.com with ESMTPSA id
- g7-20020a05600c4ec700b004064ac107cfsm9708527wmq.39.2023.10.30.08.59.26
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 30 Oct 2023 08:59:28 -0700 (PDT)
-Date: Mon, 30 Oct 2023 11:59:23 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH V2 vfio 2/9] virtio-pci: Introduce admin virtqueue
-Message-ID: <20231030115759-mutt-send-email-mst@kernel.org>
-References: <20231029155952.67686-1-yishaih@nvidia.com>
- <20231029155952.67686-3-yishaih@nvidia.com>
- <20231029161909-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54810E45C628DE3A5829D438DCA1A@PH0PR12MB5481.namprd12.prod.outlook.com>
+ Mon, 30 Oct 2023 16:07:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D849A40995
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jmZg9PW4YcyfdzXNX68tJ1Gsu59HrLxHPQMxfLLXOPzIYFyFggvCnRyZE/I8BexVlPUFWYQlcWwy0HXAbySFv39Yl1uaUj7Gnrc6NEMANwo+Hvkr4O07WLwMnHZiqK7wk8V2bjuJlUY7nP1KLzshjyL1Lc/3QiWltUipBGyEeoUx3lEdRq2jf2zfXwIOIrkFBBap9iMrQeIaKrDMnPBnktCx/CbCNV7H4xx6HZoilSOlougbeDTjOMqPT5Z5aguokoG6ELPBxbmReLfMpeXCpgvUcZy2wyTKHv5t+NnJHaOshJrUJx8sfJxYWS7BOqUj1F1rxcL35Zc9pQODOfiopA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=MoAGjrdPrNIY/qGNNIUck3Q3G9HOqeWHGIFSUIeM0JY=;
+ b=dmi90o8PL+lptR2u3rlcd+TtcDsi/okaTiKg6+KSGp9bwr4Z2bRuP3Aox+m8SE6EyiIei8PobBF0zOsQ3r71V/w6hl7r2DGTTj9cnxHoilUYdtX1IQnkytv0+u0RbCj4LV4uLzIAlfVk7HZzbj/2MKcuSBDKYWMqbtHm7BO0MWGBeVr781xt5fSvsg6XV+LkVeseCihRWFjhQZu8MCPKRhgBTdPubdTs4ttVhw8iP4L7trvtGGLAlIvK8Ay+s83e9WAhQtlElc3hWkgo7MGw48E9U0+9gziTkzRt/+sktRNKJGCI9Y5RL+6Z/4gPPTKiyjfzNlTrpTeHlcP5mf5hpQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=MoAGjrdPrNIY/qGNNIUck3Q3G9HOqeWHGIFSUIeM0JY=;
+ b=DLEMAFk1U6f1lCNh1SsWCPvubCrtabxheRmz4QdiA1of0YaIex5EgHp3x9c5Z5UW7h8LfuYHhrhrDBIXIZN2qFhi8kfIB1HNvEBqvXEPpT0l02EecbMtmHeD7KvyTcxw0rCrh0z2OHK+ZdjZuXk9+Jj1nZ8uc1SWC41NaqQQMgRFFqY1bVWSBk1vqE8AQLHvBHuN7iBigdFORXewzTPAIng5sUWlmBVik1KlHbmqvPUyZYWHaG6HP/1R6qcA9SljR3Xt9n0bruw7rq12djE8lkS1l3QtiH6xpfAjAMtYmEZBqf15TWuv0qINs4cZmGi1wZoE6q0flChto7EW5U5DBg==
+Received: from BL1PR13CA0382.namprd13.prod.outlook.com (2603:10b6:208:2c0::27)
+ by SN7PR12MB6911.namprd12.prod.outlook.com (2603:10b6:806:261::8)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6933.23; Mon, 30 Oct
+ 2023 16:07:13 +0000
+Received: from BL6PEPF0001AB75.namprd02.prod.outlook.com
+ (2603:10b6:208:2c0:cafe::e4) by BL1PR13CA0382.outlook.office365.com
+ (2603:10b6:208:2c0::27) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.11 via Frontend
+ Transport; Mon, 30 Oct 2023 16:07:13 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com;
+ dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BL6PEPF0001AB75.mail.protection.outlook.com (10.167.242.168) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6933.15 via Frontend Transport; Mon, 30 Oct 2023 16:07:13 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Mon, 30 Oct
+ 2023 09:06:52 -0700
+Received: from [172.27.14.170] (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Mon, 30 Oct
+ 2023 09:06:48 -0700
+Message-ID: <4e95d66c-c382-4612-8d4b-7ff2b0acd3fb@nvidia.com>
+Date: Mon, 30 Oct 2023 18:06:45 +0200
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB54810E45C628DE3A5829D438DCA1A@PH0PR12MB5481.namprd12.prod.outlook.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Maor Gottlieb <maorg@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V2 vfio 5/9] virtio-pci: Initialize the supported admin
+ commands
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20231029155952.67686-1-yishaih@nvidia.com>
+ <20231029155952.67686-6-yishaih@nvidia.com>
+ <20231029160750-mutt-send-email-mst@kernel.org>
+ <bb8df2c8-74b5-4666-beda-550248a88890@nvidia.com>
+ <20231030115541-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231030115541-mutt-send-email-mst@kernel.org>
+X-Originating-IP: [10.126.231.35]
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB75:EE_|SN7PR12MB6911:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6239e1ae-c3eb-4ccc-0757-08dbd96247a4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 2GIAiELWGN8EcGW+8tpHL4Z/QFPnlaSjcz57WXYdMgPw6G24RoLQBEs/x5DFgOrE1p21iguYaM3cRd6jAOy7tdGGa9XzAiDXVwnepG7bjKYMU1JMUoy+Z6LHc6QRyx8av/hFCPqhNvm2Fw+kwmp5mXV0wAGz6oMRGyapTG9VBxEli4kLoXv9kyzuKCTLX8PWet14Nw0VM7OAr0ENBVqzSe7JTlNfhsVBwT83N3I8chKc0X8yrYYpPI2EjSaGJ6Qkt/GrPekubqf3tsaT6+IIkbbFxoMBRpJ5gWe/4MX50T67Dpq6iKhYL7R6ngLIVrNyndnfOwNbz43zJfMYsYxUu4fIJlKjng/u/quBzNzmQxNUNEeBRbG/xYZWR5NjihXBAvGorXOy1NUergWdUiK7ENZZBDTzVqtKMGF1XnhVMF3bMQTttxjcZyjt7xP01tQ/JXl6DV7WMSrdjb99O2mvnR+5n3CEOJMsZiQ+vCBSzC01ixnOXctTAqbeHLbs8pWw5ACSZT17vgcIBh46sgO57IVHBhfwffwPAMH295Hfc2HHXZGrodQaMymD/HtKH6dKAeV3wEbcwU+WNuam2P0W9qyfzeOvYDS/6zVP7fm5NAmQB5P/xPJX9laP5Y/lgDV+Bffs8Lf6iV0kvPSUyyFCn44XSxbblQ656z64X7bADZTos2QwzQlG69f0U+pkCtTI+yKbSSYjbNMnl20yfzCABKdiSbMSkzXtmR58voTfL7D96kbwcrM35c/SA+mi3r4ZEWB1NFdG3/SnpVbOEwMocQ==
+X-Forefront-Antispam-Report: CIP:216.228.117.160; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:dc6edge1.nvidia.com; CAT:NONE;
+ SFS:(13230031)(4636009)(376002)(396003)(39860400002)(346002)(136003)(230922051799003)(64100799003)(1800799009)(82310400011)(451199024)(186009)(36840700001)(40470700004)(46966006)(31696002)(8676002)(86362001)(8936002)(31686004)(4326008)(41300700001)(7636003)(5660300002)(2906002)(83380400001)(70206006)(54906003)(70586007)(6916009)(316002)(16576012)(336012)(426003)(356005)(16526019)(36860700001)(40480700001)(53546011)(6666004)(478600001)(40460700003)(47076005)(36756003)(2616005)(107886003)(82740400003)(26005)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Oct 2023 16:07:13.2980 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6239e1ae-c3eb-4ccc-0757-08dbd96247a4
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.117.160];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BL6PEPF0001AB75.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6911
+Cc: kvm@vger.kernel.org, maorg@nvidia.com,
+ virtualization@lists.linux-foundation.org, jgg@nvidia.com, jiri@nvidia.com,
+ leonro@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,416 +143,126 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Yishai Hadas via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Yishai Hadas <yishaih@nvidia.com>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 30, 2023 at 03:51:40PM +0000, Parav Pandit wrote:
-> 
-> 
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Monday, October 30, 2023 1:53 AM
-> > 
-> > On Sun, Oct 29, 2023 at 05:59:45PM +0200, Yishai Hadas wrote:
-> > > From: Feng Liu <feliu@nvidia.com>
-> > >
-> > > Introduce support for the admin virtqueue. By negotiating
-> > > VIRTIO_F_ADMIN_VQ feature, driver detects capability and creates one
-> > > administration virtqueue. Administration virtqueue implementation in
-> > > virtio pci generic layer, enables multiple types of upper layer
-> > > drivers such as vfio, net, blk to utilize it.
-> > >
-> > > Signed-off-by: Feng Liu <feliu@nvidia.com>
-> > > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> > > Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> > > Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> > > ---
-> > >  drivers/virtio/virtio.c                | 37 ++++++++++++++--
-> > >  drivers/virtio/virtio_pci_common.c     |  3 ++
-> > >  drivers/virtio/virtio_pci_common.h     | 15 ++++++-
-> > >  drivers/virtio/virtio_pci_modern.c     | 61 +++++++++++++++++++++++++-
-> > >  drivers/virtio/virtio_pci_modern_dev.c | 18 ++++++++
-> > >  include/linux/virtio_config.h          |  4 ++
-> > >  include/linux/virtio_pci_modern.h      |  5 +++
-> > >  7 files changed, 137 insertions(+), 6 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c index
-> > > 3893dc29eb26..f4080692b351 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -302,9 +302,15 @@ static int virtio_dev_probe(struct device *_d)
-> > >  	if (err)
-> > >  		goto err;
-> > >
-> > > +	if (dev->config->create_avq) {
-> > > +		err = dev->config->create_avq(dev);
-> > > +		if (err)
-> > > +			goto err;
-> > > +	}
-> > > +
-> > >  	err = drv->probe(dev);
-> > >  	if (err)
-> > > -		goto err;
-> > > +		goto err_probe;
-> > >
-> > >  	/* If probe didn't do it, mark device DRIVER_OK ourselves. */
-> > >  	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-> > 
-> > Hmm I am not all that happy that we are just creating avq unconditionally.
-> > Can't we do it on demand to avoid wasting resources if no one uses it?
-> >
-> Virtio queues must be enabled before driver_ok as we discussed in F_DYNAMIC bit exercise.
-> So creating AQ when first legacy command is invoked, would be too late.
-
-Well we didn't release the spec with AQ so I am pretty sure there are no
-devices using the feature. Do we want to already make an
-exception for AQ and allow creating AQs after DRIVER_OK
-even without F_DYNAMIC?
-
-> > 
-> > > @@ -316,6 +322,10 @@ static int virtio_dev_probe(struct device *_d)
-> > >  	virtio_config_enable(dev);
-> > >
-> > >  	return 0;
-> > > +
-> > > +err_probe:
-> > > +	if (dev->config->destroy_avq)
-> > > +		dev->config->destroy_avq(dev);
-> > >  err:
-> > >  	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-> > >  	return err;
-> > > @@ -331,6 +341,9 @@ static void virtio_dev_remove(struct device *_d)
-> > >
-> > >  	drv->remove(dev);
-> > >
-> > > +	if (dev->config->destroy_avq)
-> > > +		dev->config->destroy_avq(dev);
-> > > +
-> > >  	/* Driver should have reset device. */
-> > >  	WARN_ON_ONCE(dev->config->get_status(dev));
-> > >
-> > > @@ -489,13 +502,20 @@ EXPORT_SYMBOL_GPL(unregister_virtio_device);
-> > >  int virtio_device_freeze(struct virtio_device *dev)  {
-> > >  	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-> > > +	int ret;
-> > >
-> > >  	virtio_config_disable(dev);
-> > >
-> > >  	dev->failed = dev->config->get_status(dev) &
-> > VIRTIO_CONFIG_S_FAILED;
-> > >
-> > > -	if (drv && drv->freeze)
-> > > -		return drv->freeze(dev);
-> > > +	if (drv && drv->freeze) {
-> > > +		ret = drv->freeze(dev);
-> > > +		if (ret)
-> > > +			return ret;
-> > > +	}
-> > > +
-> > > +	if (dev->config->destroy_avq)
-> > > +		dev->config->destroy_avq(dev);
-> > >
-> > >  	return 0;
-> > >  }
-> > > @@ -532,10 +552,16 @@ int virtio_device_restore(struct virtio_device *dev)
-> > >  	if (ret)
-> > >  		goto err;
-> > >
-> > > +	if (dev->config->create_avq) {
-> > > +		ret = dev->config->create_avq(dev);
-> > > +		if (ret)
-> > > +			goto err;
-> > > +	}
-> > > +
-> > >  	if (drv->restore) {
-> > >  		ret = drv->restore(dev);
-> > >  		if (ret)
-> > > -			goto err;
-> > > +			goto err_restore;
-> > >  	}
-> > >
-> > >  	/* If restore didn't do it, mark device DRIVER_OK ourselves. */ @@
-> > > -546,6 +572,9 @@ int virtio_device_restore(struct virtio_device *dev)
-> > >
-> > >  	return 0;
-> > >
-> > > +err_restore:
-> > > +	if (dev->config->destroy_avq)
-> > > +		dev->config->destroy_avq(dev);
-> > >  err:
-> > >  	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-> > >  	return ret;
-> > > diff --git a/drivers/virtio/virtio_pci_common.c
-> > > b/drivers/virtio/virtio_pci_common.c
-> > > index c2524a7207cf..6b4766d5abe6 100644
-> > > --- a/drivers/virtio/virtio_pci_common.c
-> > > +++ b/drivers/virtio/virtio_pci_common.c
-> > > @@ -236,6 +236,9 @@ void vp_del_vqs(struct virtio_device *vdev)
-> > >  	int i;
-> > >
-> > >  	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
-> > > +		if (vp_dev->is_avq(vdev, vq->index))
-> > > +			continue;
-> > > +
-> > >  		if (vp_dev->per_vq_vectors) {
-> > >  			int v = vp_dev->vqs[vq->index]->msix_vector;
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_common.h
-> > > b/drivers/virtio/virtio_pci_common.h
-> > > index 4b773bd7c58c..e03af0966a4b 100644
-> > > --- a/drivers/virtio/virtio_pci_common.h
-> > > +++ b/drivers/virtio/virtio_pci_common.h
-> > > @@ -41,6 +41,14 @@ struct virtio_pci_vq_info {
-> > >  	unsigned int msix_vector;
-> > >  };
-> > >
-> > > +struct virtio_pci_admin_vq {
-> > > +	/* Virtqueue info associated with this admin queue. */
-> > > +	struct virtio_pci_vq_info info;
-> > > +	/* Name of the admin queue: avq.$index. */
-> > > +	char name[10];
-> > > +	u16 vq_index;
-> > > +};
-> > > +
-> > >  /* Our device structure */
-> > >  struct virtio_pci_device {
-> > >  	struct virtio_device vdev;
-> > > @@ -58,9 +66,13 @@ struct virtio_pci_device {
-> > >  	spinlock_t lock;
-> > >  	struct list_head virtqueues;
-> > >
-> > > -	/* array of all queues for house-keeping */
-> > > +	/* Array of all virtqueues reported in the
-> > > +	 * PCI common config num_queues field
-> > > +	 */
-> > >  	struct virtio_pci_vq_info **vqs;
-> > >
-> > > +	struct virtio_pci_admin_vq admin_vq;
-> > > +
-> > >  	/* MSI-X support */
-> > >  	int msix_enabled;
-> > >  	int intx_enabled;
-> > > @@ -86,6 +98,7 @@ struct virtio_pci_device {
-> > >  	void (*del_vq)(struct virtio_pci_vq_info *info);
-> > >
-> > >  	u16 (*config_vector)(struct virtio_pci_device *vp_dev, u16 vector);
-> > > +	bool (*is_avq)(struct virtio_device *vdev, unsigned int index);
-> > >  };
-> > >
-> > >  /* Constants for MSI-X */
-> > > diff --git a/drivers/virtio/virtio_pci_modern.c
-> > > b/drivers/virtio/virtio_pci_modern.c
-> > > index d6bb68ba84e5..01c5ba346471 100644
-> > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > @@ -26,6 +26,16 @@ static u64 vp_get_features(struct virtio_device *vdev)
-> > >  	return vp_modern_get_features(&vp_dev->mdev);
-> > >  }
-> > >
-> > > +static bool vp_is_avq(struct virtio_device *vdev, unsigned int index)
-> > > +{
-> > > +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > +
-> > > +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> > > +		return false;
-> > > +
-> > > +	return index == vp_dev->admin_vq.vq_index; }
-> > > +
-> > >  static void vp_transport_features(struct virtio_device *vdev, u64
-> > > features)  {
-> > >  	struct virtio_pci_device *vp_dev = to_vp_device(vdev); @@ -37,6
-> > > +47,9 @@ static void vp_transport_features(struct virtio_device *vdev,
-> > > u64 features)
-> > >
-> > >  	if (features & BIT_ULL(VIRTIO_F_RING_RESET))
-> > >  		__virtio_set_bit(vdev, VIRTIO_F_RING_RESET);
-> > > +
-> > > +	if (features & BIT_ULL(VIRTIO_F_ADMIN_VQ))
-> > > +		__virtio_set_bit(vdev, VIRTIO_F_ADMIN_VQ);
-> > >  }
-> > >
-> > >  /* virtio config->finalize_features() implementation */ @@ -317,7
-> > > +330,8 @@ static struct virtqueue *setup_vq(struct virtio_pci_device
-> > *vp_dev,
-> > >  	else
-> > >  		notify = vp_notify;
-> > >
-> > > -	if (index >= vp_modern_get_num_queues(mdev))
-> > > +	if (index >= vp_modern_get_num_queues(mdev) &&
-> > > +	    !vp_is_avq(&vp_dev->vdev, index))
-> > >  		return ERR_PTR(-EINVAL);
-> > >
-> > >  	/* Check if queue is either not available or already active. */ @@
-> > > -491,6 +505,46 @@ static bool vp_get_shm_region(struct virtio_device
-> > *vdev,
-> > >  	return true;
-> > >  }
-> > >
-> > > +static int vp_modern_create_avq(struct virtio_device *vdev) {
-> > > +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > +	struct virtio_pci_admin_vq *avq;
-> > > +	struct virtqueue *vq;
-> > > +	u16 admin_q_num;
-> > > +
-> > > +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> > > +		return 0;
-> > > +
-> > > +	admin_q_num = vp_modern_avq_num(&vp_dev->mdev);
-> > > +	if (!admin_q_num)
-> > > +		return -EINVAL;
-> > 
-> > 
-> > We really just need 1 entry ATM. Limit to that?
-> >
-> Above check is only reading and validating that number of admin queues being nonzero from the device.
-> It is ok if its > 1. 
-> Driver currently using only 1 aq of default depth (entries) reported by the device.
-> 
-> Did I misunderstand your question about 1 entry?
->  
-> > > +
-> > > +	avq = &vp_dev->admin_vq;
-> > > +	avq->vq_index = vp_modern_avq_index(&vp_dev->mdev);
-> > > +	sprintf(avq->name, "avq.%u", avq->vq_index);
-> > > +	vq = vp_dev->setup_vq(vp_dev, &vp_dev->admin_vq.info, avq-
-> > >vq_index, NULL,
-> > > +			      avq->name, NULL, VIRTIO_MSI_NO_VECTOR);
-> > > +	if (IS_ERR(vq)) {
-> > > +		dev_err(&vdev->dev, "failed to setup admin virtqueue,
-> > err=%ld",
-> > > +			PTR_ERR(vq));
-> > > +		return PTR_ERR(vq);
-> > > +	}
-> > > +
-> > > +	vp_dev->admin_vq.info.vq = vq;
-> > > +	vp_modern_set_queue_enable(&vp_dev->mdev, avq->info.vq->index,
-> > true);
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static void vp_modern_destroy_avq(struct virtio_device *vdev) {
-> > > +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > +
-> > > +	if (!virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ))
-> > > +		return;
-> > > +
-> > > +	vp_dev->del_vq(&vp_dev->admin_vq.info);
-> > > +}
-> > > +
-> > >  static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-> > >  	.get		= NULL,
-> > >  	.set		= NULL,
-> > > @@ -509,6 +563,8 @@ static const struct virtio_config_ops
-> > virtio_pci_config_nodev_ops = {
-> > >  	.get_shm_region  = vp_get_shm_region,
-> > >  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
-> > >  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> > > +	.create_avq = vp_modern_create_avq,
-> > > +	.destroy_avq = vp_modern_destroy_avq,
-> > >  };
-> > >
-> > >  static const struct virtio_config_ops virtio_pci_config_ops = { @@
-> > > -529,6 +585,8 @@ static const struct virtio_config_ops virtio_pci_config_ops
-> > = {
-> > >  	.get_shm_region  = vp_get_shm_region,
-> > >  	.disable_vq_and_reset = vp_modern_disable_vq_and_reset,
-> > >  	.enable_vq_after_reset = vp_modern_enable_vq_after_reset,
-> > > +	.create_avq = vp_modern_create_avq,
-> > > +	.destroy_avq = vp_modern_destroy_avq,
-> > >  };
-> > >
-> > >  /* the PCI probing function */
-> > > @@ -552,6 +610,7 @@ int virtio_pci_modern_probe(struct virtio_pci_device
-> > *vp_dev)
-> > >  	vp_dev->config_vector = vp_config_vector;
-> > >  	vp_dev->setup_vq = setup_vq;
-> > >  	vp_dev->del_vq = del_vq;
-> > > +	vp_dev->is_avq = vp_is_avq;
-> > >  	vp_dev->isr = mdev->isr;
-> > >  	vp_dev->vdev.id = mdev->id;
-> > >
-> > > diff --git a/drivers/virtio/virtio_pci_modern_dev.c
-> > > b/drivers/virtio/virtio_pci_modern_dev.c
-> > > index 9cb601e16688..4aab1727d121 100644
-> > > --- a/drivers/virtio/virtio_pci_modern_dev.c
-> > > +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> > > @@ -714,6 +714,24 @@ void __iomem *vp_modern_map_vq_notify(struct
-> > > virtio_pci_modern_device *mdev,  }
-> > > EXPORT_SYMBOL_GPL(vp_modern_map_vq_notify);
-> > >
-> > > +u16 vp_modern_avq_num(struct virtio_pci_modern_device *mdev) {
-> > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> > > +
-> > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev-
-> > >common;
-> > > +	return vp_ioread16(&cfg->admin_queue_num);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(vp_modern_avq_num);
-> > > +
-> > > +u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev) {
-> > > +	struct virtio_pci_modern_common_cfg __iomem *cfg;
-> > > +
-> > > +	cfg = (struct virtio_pci_modern_common_cfg __iomem *)mdev-
-> > >common;
-> > > +	return vp_ioread16(&cfg->admin_queue_index);
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(vp_modern_avq_index);
-> > > +
-> > >  MODULE_VERSION("0.1");
-> > >  MODULE_DESCRIPTION("Modern Virtio PCI Device");
-> > MODULE_AUTHOR("Jason
-> > > Wang <jasowang@redhat.com>"); diff --git
-> > > a/include/linux/virtio_config.h b/include/linux/virtio_config.h index
-> > > 2b3438de2c4d..da9b271b54db 100644
-> > > --- a/include/linux/virtio_config.h
-> > > +++ b/include/linux/virtio_config.h
-> > > @@ -93,6 +93,8 @@ typedef void vq_callback_t(struct virtqueue *);
-> > >   *	Returns 0 on success or error status
-> > >   *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
-> > >   *	set.
-> > > + * @create_avq: create admin virtqueue resource.
-> > > + * @destroy_avq: destroy admin virtqueue resource.
-> > >   */
-> > >  struct virtio_config_ops {
-> > >  	void (*get)(struct virtio_device *vdev, unsigned offset, @@ -120,6
-> > > +122,8 @@ struct virtio_config_ops {
-> > >  			       struct virtio_shm_region *region, u8 id);
-> > >  	int (*disable_vq_and_reset)(struct virtqueue *vq);
-> > >  	int (*enable_vq_after_reset)(struct virtqueue *vq);
-> > > +	int (*create_avq)(struct virtio_device *vdev);
-> > > +	void (*destroy_avq)(struct virtio_device *vdev);
-> > >  };
-> > >
-> > >  /* If driver didn't advertise the feature, it will never appear. */
-> > > diff --git a/include/linux/virtio_pci_modern.h
-> > > b/include/linux/virtio_pci_modern.h
-> > > index 067ac1d789bc..0f8737c9ae7d 100644
-> > > --- a/include/linux/virtio_pci_modern.h
-> > > +++ b/include/linux/virtio_pci_modern.h
-> > > @@ -10,6 +10,9 @@ struct virtio_pci_modern_common_cfg {
-> > >
-> > >  	__le16 queue_notify_data;	/* read-write */
-> > >  	__le16 queue_reset;		/* read-write */
-> > > +
-> > > +	__le16 admin_queue_index;	/* read-only */
-> > > +	__le16 admin_queue_num;		/* read-only */
-> > >  };
-> > >
-> > >  struct virtio_pci_modern_device {
-> > > @@ -121,4 +124,6 @@ int vp_modern_probe(struct
-> > > virtio_pci_modern_device *mdev);  void vp_modern_remove(struct
-> > > virtio_pci_modern_device *mdev);  int vp_modern_get_queue_reset(struct
-> > > virtio_pci_modern_device *mdev, u16 index);  void
-> > > vp_modern_set_queue_reset(struct virtio_pci_modern_device *mdev, u16
-> > > index);
-> > > +u16 vp_modern_avq_num(struct virtio_pci_modern_device *mdev);
-> > > +u16 vp_modern_avq_index(struct virtio_pci_modern_device *mdev);
-> > >  #endif
-> > > --
-> > > 2.27.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gMzAvMTAvMjAyMyAxNzo1NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9uIE1vbiwg
+T2N0IDMwLCAyMDIzIGF0IDA1OjI3OjUwUE0gKzAyMDAsIFlpc2hhaSBIYWRhcyB3cm90ZToKPj4g
+T24gMjkvMTAvMjAyMyAyMjoxNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4gT24gU3Vu
+LCBPY3QgMjksIDIwMjMgYXQgMDU6NTk6NDhQTSArMDIwMCwgWWlzaGFpIEhhZGFzIHdyb3RlOgo+
+Pj4+IEluaXRpYWxpemUgdGhlIHN1cHBvcnRlZCBhZG1pbiBjb21tYW5kcyB1cG9uIGFjdGl2YXRp
+bmcgdGhlIGFkbWluIHF1ZXVlLgo+Pj4+Cj4+Pj4gVGhlIHN1cHBvcnRlZCBjb21tYW5kcyBhcmUg
+c2F2ZWQgYXMgcGFydCBvZiB0aGUgYWRtaW4gcXVldWUgY29udGV4dCwgaXQKPj4+PiB3aWxsIGJl
+IHVzZWQgYnkgdGhlIG5leHQgcGF0Y2hlcyBmcm9tIHRoaXMgc2VyaWVzLgo+Pj4+Cj4+Pj4gTm90
+ZToKPj4+PiBBcyB3ZSBkb24ndCB3YW50IHRvIGxldCB1cHBlciBsYXllcnMgdG8gZXhlY3V0ZSBh
+ZG1pbiBjb21tYW5kcyBiZWZvcmUKPj4+PiB0aGF0IHRoaXMgaW5pdGlhbGl6YXRpb24gc3RlcCB3
+YXMgY29tcGxldGVkLCB3ZSBzZXQgcmVmIGNvdW50IHRvIDEgb25seQo+Pj4+IHBvc3Qgb2YgdGhh
+dCBmbG93IGFuZCB1c2UgYSBub24gcmVmIGNvdW50ZWQgdmVyc2lvbiBjb21tYW5kIGZvciB0aGlz
+Cj4+Pj4gaW50ZXJuYWwgZmxvdy4KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IFlpc2hhaSBIYWRh
+cyA8eWlzaGFpaEBudmlkaWEuY29tPgo+Pj4+IC0tLQo+Pj4+ICAgIGRyaXZlcnMvdmlydGlvL3Zp
+cnRpb19wY2lfY29tbW9uLmggfCAgMSArCj4+Pj4gICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
+aV9tb2Rlcm4uYyB8IDc3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQo+Pj4+ICAgIDIg
+ZmlsZXMgY2hhbmdlZCwgNzcgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Pj4+Cj4+Pj4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmggYi9kcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5oCj4+Pj4gaW5kZXggYTIxYjliYTAxYTYwLi45ZTA3
+ZTU1NmE1MWEgMTAwNjQ0Cj4+Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21t
+b24uaAo+Pj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmgKPj4+PiBA
+QCAtNDYsNiArNDYsNyBAQCBzdHJ1Y3QgdmlydGlvX3BjaV9hZG1pbl92cSB7Cj4+Pj4gICAgCXN0
+cnVjdCB2aXJ0aW9fcGNpX3ZxX2luZm8gaW5mbzsKPj4+PiAgICAJc3RydWN0IGNvbXBsZXRpb24g
+Zmx1c2hfZG9uZTsKPj4+PiAgICAJcmVmY291bnRfdCByZWZjb3VudDsKPj4+PiArCXU2NCBzdXBw
+b3J0ZWRfY21kczsKPj4+PiAgICAJLyogTmFtZSBvZiB0aGUgYWRtaW4gcXVldWU6IGF2cS4kaW5k
+ZXguICovCj4+Pj4gICAgCWNoYXIgbmFtZVsxMF07Cj4+Pj4gICAgCXUxNiB2cV9pbmRleDsKPj4+
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMKPj4+PiBpbmRleCBjY2Q3YTRkOWY1N2YuLjI1
+ZTI3YWE3OWNhYiAxMDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX21v
+ZGVybi5jCj4+Pj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm4uYwo+Pj4+
+IEBAIC0xOSw2ICsxOSw5IEBACj4+Pj4gICAgI2RlZmluZSBWSVJUSU9fUklOR19OT19MRUdBQ1kK
+Pj4+PiAgICAjaW5jbHVkZSAidmlydGlvX3BjaV9jb21tb24uaCIKPj4+PiArc3RhdGljIGludCB2
+cF9tb2Rlcm5fYWRtaW5fY21kX2V4ZWMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsCj4+Pj4g
+KwkJCQkgICAgc3RydWN0IHZpcnRpb19hZG1pbl9jbWQgKmNtZCk7Cj4+Pj4gKwo+Pj4gSSBkb24n
+dCBtdWNoIGxpa2UgZm9yd2FyZCBkZWNsYXJhdGlvbnMuIEp1c3Qgb3JkZXIgZnVuY3Rpb25zIHNl
+bnNpYmx5Cj4+PiBhbmQgdGhleSB3aWxsIG5vdCBiZSBuZWVkZWQuCj4+IE9LLCB3aWxsIGJlIHBh
+cnQgb2YgVjMuCj4+Cj4+Pj4gICAgc3RhdGljIHU2NCB2cF9nZXRfZmVhdHVyZXMoc3RydWN0IHZp
+cnRpb19kZXZpY2UgKnZkZXYpCj4+Pj4gICAgewo+Pj4+ICAgIAlzdHJ1Y3QgdmlydGlvX3BjaV9k
+ZXZpY2UgKnZwX2RldiA9IHRvX3ZwX2RldmljZSh2ZGV2KTsKPj4+PiBAQCAtNTksNiArNjIsNDIg
+QEAgdnBfbW9kZXJuX2F2cV9zZXRfYWJvcnQoc3RydWN0IHZpcnRpb19wY2lfYWRtaW5fdnEgKmFk
+bWluX3ZxLCBib29sIGFib3J0KQo+Pj4+ICAgIAlXUklURV9PTkNFKGFkbWluX3ZxLT5hYm9ydCwg
+YWJvcnQpOwo+Pj4+ICAgIH0KPj4+PiArc3RhdGljIHZvaWQgdmlydGlvX3BjaV9hZG1pbl9pbml0
+X2NtZF9saXN0KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2aXJ0aW9fZGV2KQo+Pj4+ICt7Cj4+Pj4g
+KwlzdHJ1Y3QgdmlydGlvX3BjaV9kZXZpY2UgKnZwX2RldiA9IHRvX3ZwX2RldmljZSh2aXJ0aW9f
+ZGV2KTsKPj4+PiArCXN0cnVjdCB2aXJ0aW9fYWRtaW5fY21kIGNtZCA9IHt9Owo+Pj4+ICsJc3Ry
+dWN0IHNjYXR0ZXJsaXN0IHJlc3VsdF9zZzsKPj4+PiArCXN0cnVjdCBzY2F0dGVybGlzdCBkYXRh
+X3NnOwo+Pj4+ICsJX19sZTY0ICpkYXRhOwo+Pj4+ICsJaW50IHJldDsKPj4+PiArCj4+Pj4gKwlk
+YXRhID0ga3phbGxvYyhzaXplb2YoKmRhdGEpLCBHRlBfS0VSTkVMKTsKPj4+PiArCWlmICghZGF0
+YSkKPj4+PiArCQlyZXR1cm47Cj4+Pj4gKwo+Pj4+ICsJc2dfaW5pdF9vbmUoJnJlc3VsdF9zZywg
+ZGF0YSwgc2l6ZW9mKCpkYXRhKSk7Cj4+Pj4gKwljbWQub3Bjb2RlID0gY3B1X3RvX2xlMTYoVklS
+VElPX0FETUlOX0NNRF9MSVNUX1FVRVJZKTsKPj4+PiArCWNtZC5ncm91cF90eXBlID0gY3B1X3Rv
+X2xlMTYoVklSVElPX0FETUlOX0dST1VQX1RZUEVfU1JJT1YpOwo+Pj4+ICsJY21kLnJlc3VsdF9z
+ZyA9ICZyZXN1bHRfc2c7Cj4+Pj4gKwo+Pj4+ICsJcmV0ID0gdnBfbW9kZXJuX2FkbWluX2NtZF9l
+eGVjKHZpcnRpb19kZXYsICZjbWQpOwo+Pj4+ICsJaWYgKHJldCkKPj4+PiArCQlnb3RvIGVuZDsK
+Pj4+PiArCj4+Pj4gKwlzZ19pbml0X29uZSgmZGF0YV9zZywgZGF0YSwgc2l6ZW9mKCpkYXRhKSk7
+Cj4+Pj4gKwljbWQub3Bjb2RlID0gY3B1X3RvX2xlMTYoVklSVElPX0FETUlOX0NNRF9MSVNUX1VT
+RSk7Cj4+Pj4gKwljbWQuZGF0YV9zZyA9ICZkYXRhX3NnOwo+Pj4+ICsJY21kLnJlc3VsdF9zZyA9
+IE5VTEw7Cj4+Pj4gKwo+Pj4+ICsJcmV0ID0gdnBfbW9kZXJuX2FkbWluX2NtZF9leGVjKHZpcnRp
+b19kZXYsICZjbWQpOwo+Pj4+ICsJaWYgKHJldCkKPj4+PiArCQlnb3RvIGVuZDsKPj4+PiArCj4+
+Pj4gKwl2cF9kZXYtPmFkbWluX3ZxLnN1cHBvcnRlZF9jbWRzID0gbGU2NF90b19jcHUoKmRhdGEp
+Owo+Pj4+ICtlbmQ6Cj4+Pj4gKwlrZnJlZShkYXRhKTsKPj4+PiArfQo+Pj4+ICsKPj4+PiAgICBz
+dGF0aWMgdm9pZCB2cF9tb2Rlcm5fYXZxX2FjdGl2YXRlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2
+ZGV2KQo+Pj4+ICAgIHsKPj4+PiAgICAJc3RydWN0IHZpcnRpb19wY2lfZGV2aWNlICp2cF9kZXYg
+PSB0b192cF9kZXZpY2UodmRldik7Cj4+Pj4gQEAgLTY3LDYgKzEwNiw3IEBAIHN0YXRpYyB2b2lk
+IHZwX21vZGVybl9hdnFfYWN0aXZhdGUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4+Pj4g
+ICAgCWlmICghdmlydGlvX2hhc19mZWF0dXJlKHZkZXYsIFZJUlRJT19GX0FETUlOX1ZRKSkKPj4+
+PiAgICAJCXJldHVybjsKPj4+PiArCXZpcnRpb19wY2lfYWRtaW5faW5pdF9jbWRfbGlzdCh2ZGV2
+KTsKPj4+PiAgICAJaW5pdF9jb21wbGV0aW9uKCZhZG1pbl92cS0+Zmx1c2hfZG9uZSk7Cj4+Pj4g
+ICAgCXJlZmNvdW50X3NldCgmYWRtaW5fdnEtPnJlZmNvdW50LCAxKTsKPj4+PiAgICAJdnBfbW9k
+ZXJuX2F2cV9zZXRfYWJvcnQoYWRtaW5fdnEsIGZhbHNlKTsKPj4+PiBAQCAtNTYyLDYgKzYwMiwz
+NSBAQCBzdGF0aWMgYm9vbCB2cF9nZXRfc2htX3JlZ2lvbihzdHJ1Y3QgdmlydGlvX2RldmljZSAq
+dmRldiwKPj4+PiAgICAJcmV0dXJuIHRydWU7Cj4+Pj4gICAgfQo+Pj4+ICtzdGF0aWMgaW50IF9f
+dmlydHF1ZXVlX2V4ZWNfYWRtaW5fY21kKHN0cnVjdCB2aXJ0aW9fcGNpX2FkbWluX3ZxICphZG1p
+bl92cSwKPj4+PiArCQkJCSAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKipzZ3MsCj4+Pj4gKwkJCQkg
+ICAgdW5zaWduZWQgaW50IG91dF9udW0sCj4+Pj4gKwkJCQkgICAgdW5zaWduZWQgaW50IGluX251
+bSwKPj4+PiArCQkJCSAgICB2b2lkICpkYXRhLAo+Pj4+ICsJCQkJICAgIGdmcF90IGdmcCkKPj4+
+PiArewo+Pj4+ICsJc3RydWN0IHZpcnRxdWV1ZSAqdnE7Cj4+Pj4gKwlpbnQgcmV0LCBsZW47Cj4+
+Pj4gKwo+Pj4+ICsJdnEgPSBhZG1pbl92cS0+aW5mby52cTsKPj4+PiArCj4+Pj4gKwlyZXQgPSB2
+aXJ0cXVldWVfYWRkX3Nncyh2cSwgc2dzLCBvdXRfbnVtLCBpbl9udW0sIGRhdGEsIGdmcCk7Cj4+
+Pj4gKwlpZiAocmV0IDwgMCkKPj4+PiArCQlyZXR1cm4gcmV0Owo+Pj4+ICsKPj4+PiArCWlmICh1
+bmxpa2VseSghdmlydHF1ZXVlX2tpY2sodnEpKSkKPj4+PiArCQlyZXR1cm4gLUVJTzsKPj4+PiAr
+Cj4+Pj4gKwl3aGlsZSAoIXZpcnRxdWV1ZV9nZXRfYnVmKHZxLCAmbGVuKSAmJgo+Pj4+ICsJICAg
+ICAgICF2aXJ0cXVldWVfaXNfYnJva2VuKHZxKSkKPj4+PiArCQljcHVfcmVsYXgoKTsKPj4+PiAr
+Cj4+Pj4gKwlpZiAodmlydHF1ZXVlX2lzX2Jyb2tlbih2cSkpCj4+Pj4gKwkJcmV0dXJuIC1FSU87
+Cj4+Pj4gKwo+Pj4+ICsJcmV0dXJuIDA7Cj4+Pj4gK30KPj4+PiArCj4+PiBUaGlzIGlzIHRvbGVy
+YWJsZSBJIGd1ZXNzIGJ1dCBpdCBtaWdodCBwaW4gdGhlIENQVSBmb3IgYSBsb25nIHRpbWUuCj4+
+PiBUaGUgZGlmZmljdWx0eSBpcyBoYW5kbGluZyBzdXByaXplIHJlbW92YWwgd2VsbCB3aGljaCB3
+ZSBjdXJyZW50bHkKPj4+IGRvbid0IGRvIHdpdGggaW50ZXJydXB0cy4gSSB3b3VsZCBzYXkgaXQn
+cyBvayBhcyBpcyBidXQgYWRkCj4+PiBhIFRPRE8gY29tbWVudHMgYWxvbmcgdGhlIGxpbmVzIG9m
+IC8qIFRPRE86IHVzZSBpbnRlcnJ1cHRzIG9uY2UgdGhlc2UgdmlydHF1ZXVlX2lzX2Jyb2tlbiAq
+Lwo+PiBJIGFzc3VtZSB0aGF0IHlvdSBhc2tlZCBmb3IgYWRkaW5nIHRoZSBiZWxvdyBjb21tZW50
+IGJlZm9yZSB0aGUgd2hpbGUgbG9vcDoKPj4gLyogVE9ETyB1c2UgaW50ZXJydXB0cyB0byByZWR1
+Y2UgY3B1IGN5Y2xlcyBpbiB0aGUgZnV0dXJlICovCj4+Cj4+IFJpZ2h0ID8KPj4KPj4gWWlzaGFp
+Cj4gV2VsbCBJIHdyb3RlIHdoYXQgSSBtZWFudC4gaW4gdGhlIGZ1dHVyZSBpcyByZWR1bmRhbnQg
+LSBldmVyeW9uZSBrbm93cwo+IHdlIGNhbid0IGNoYW5nZSB0aGUgcGFzdC4KCkkgYWdyZWUsIG5v
+IG5lZWQgZm9yICdpbiB0aGUgZnV0dXJlJy4KCkhvd2V2ZXIsIGluIHlvdXIgc3VnZ2VzdGlvbiB5
+b3UgbWVudGlvbmVkwqAgIm9uY2UgdGhlc2UgdmlydHF1ZXVlX2lzX2Jyb2tlbiIuCgpXaGF0IGRv
+ZXMgdGhhdCBtZWFuIGluIGN1cnJlbnQgcG9sbGluZyBtb2RlID8KCllpc2hhaQoKPgo+Pj4+ICAg
+IHN0YXRpYyBpbnQgdmlydHF1ZXVlX2V4ZWNfYWRtaW5fY21kKHN0cnVjdCB2aXJ0aW9fcGNpX2Fk
+bWluX3ZxICphZG1pbl92cSwKPj4+PiAgICAJCQkJICAgIHN0cnVjdCBzY2F0dGVybGlzdCAqKnNn
+cywKPj4+PiAgICAJCQkJICAgIHVuc2lnbmVkIGludCBvdXRfbnVtLAo+Pj4+IEBAIC02NTMsNyAr
+NzIyLDEzIEBAIHN0YXRpYyBpbnQgdnBfbW9kZXJuX2FkbWluX2NtZF9leGVjKHN0cnVjdCB2aXJ0
+aW9fZGV2aWNlICp2ZGV2LAo+Pj4+ICAgIAkJaW5fbnVtKys7Cj4+Pj4gICAgCX0KPj4+PiAtCXJl
+dCA9IHZpcnRxdWV1ZV9leGVjX2FkbWluX2NtZCgmdnBfZGV2LT5hZG1pbl92cSwgc2dzLAo+Pj4+
+ICsJaWYgKGNtZC0+b3Bjb2RlID09IFZJUlRJT19BRE1JTl9DTURfTElTVF9RVUVSWSB8fAo+Pj4+
+ICsJICAgIGNtZC0+b3Bjb2RlID09IFZJUlRJT19BRE1JTl9DTURfTElTVF9VU0UpCj4+Pj4gKwkJ
+cmV0ID0gX192aXJ0cXVldWVfZXhlY19hZG1pbl9jbWQoJnZwX2Rldi0+YWRtaW5fdnEsIHNncywK
+Pj4+PiArCQkJCSAgICAgICBvdXRfbnVtLCBpbl9udW0sCj4+Pj4gKwkJCQkgICAgICAgc2dzLCBH
+RlBfS0VSTkVMKTsKPj4+PiArCWVsc2UKPj4+PiArCQlyZXQgPSB2aXJ0cXVldWVfZXhlY19hZG1p
+bl9jbWQoJnZwX2Rldi0+YWRtaW5fdnEsIHNncywKPj4+PiAgICAJCQkJICAgICAgIG91dF9udW0s
+IGluX251bSwKPj4+PiAgICAJCQkJICAgICAgIHNncywgR0ZQX0tFUk5FTCk7Cj4+Pj4gICAgCWlm
+IChyZXQpIHsKPj4+PiAtLSAKPj4+PiAyLjI3LjAKCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
