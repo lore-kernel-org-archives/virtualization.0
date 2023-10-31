@@ -1,154 +1,109 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 72F08C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 31 Oct 2023 12:11:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD384C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 31 Oct 2023 14:43:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 079A5428CC;
-	Tue, 31 Oct 2023 12:11:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 079A5428CC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=uXkP8ogr
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5E47180CEA;
+	Tue, 31 Oct 2023 14:43:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5E47180CEA
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=DYN42d4C
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2t0izf68G7cc; Tue, 31 Oct 2023 12:11:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2D10341860;
-	Tue, 31 Oct 2023 12:11:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D10341860
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JlhQ0tF0BDT6; Tue, 31 Oct 2023 14:43:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B30EE80C44;
+	Tue, 31 Oct 2023 14:43:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B30EE80C44
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04DFFC0039;
-	Tue, 31 Oct 2023 12:11:41 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 73688C0039;
+	Tue, 31 Oct 2023 14:43:53 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0EC05C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56F28C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Oct 2023 12:11:40 +0000 (UTC)
+ Tue, 31 Oct 2023 14:43:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id EB8D8612FA
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1F7FE61340
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Oct 2023 12:11:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EB8D8612FA
-Authentication-Results: smtp3.osuosl.org; dkim=pass (2048-bit key,
- unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256
- header.s=selector2 header.b=uXkP8ogr
+ Tue, 31 Oct 2023 14:43:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1F7FE61340
+Authentication-Results: smtp3.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=DYN42d4C
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qzQB584OOwOd
+ with ESMTP id aaxntx-v-Oav
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Oct 2023 12:11:38 +0000 (UTC)
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam10on2060c.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e89::60c])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3E644612F7
+ Tue, 31 Oct 2023 14:43:50 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D46456129E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Oct 2023 12:11:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3E644612F7
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ec3/se91ZrS/aCSfs+YQowDvY9RvGmbn3rnSY2Ie5aHGIEN/mSjx7fQzpmitFby4tU2VB9SDh4RbX1Sf2lST73eeUbUxdCroD0M9QF6IJbdVVv/1yYw+FUcpdI6O6292HHWMiM6Yt0cc2gmAk/qenhzyZQUoBZ9csj7yyEHumF7DqI+OCpjJ36N4CfDEgmatTQWiCcjaCYK86hPTEgWx0KVDwi32D/nM6BRxyZYqaod0ZqeVuzDVMyHWNYpurxnn/8QCRTQGkhzsfPQtbMYyzOcaZSmI22y2CX9ZcAC8FOPjhoJFKgNbVes0cCJM1WcTsdAiSmdZY6zuQMEGbW2C8w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qrwZ3jo1bVCDLyyermtLPlwIjJR82tpyaOrCanpwM3E=;
- b=e8zuGbGDGeQkP7m9PdqcFuPVLedYwWd6SkBSJbE2HYtwCETf+DvzA8X7+0OcpQfVR/ZrPYYxANPQajU94IbjooMGIcJ8F8+6nmoj9T5hDNAluANVgWAh8IJmmAkPtKnbCWPGjtLYnIuZwyhgB7frZocAanSUo60MKnRYln7jfaPL3x2Jv1yZMY2J4YfVYvfwjSYS7ajQp8u4pjjW+WvEQfWWTGeQ+4F4IXHv6fzZEZCN6VyVXLIo1ocX8XEjQkZwdHeGwAWswv9EjjBu+4Y0FkKifHygdvqQ/UavFPSemXSWwa3adGEX9JXi13Ei/yQo18KZEUd7qTmZEnXfESToAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qrwZ3jo1bVCDLyyermtLPlwIjJR82tpyaOrCanpwM3E=;
- b=uXkP8ogrZuyM0NXKHigz/mn4j/nx+bIizre83/bCVJOXOrrvyw+M14p3fblvj3ftdzMIp5GgSq+ExI+Gl1xejMXZbh1jrSoiyvpwXcrEip+ysFBAcjw4RCxYcBmNFTsWDtkTExAOa2UCThOQmSjc4E0AQwkvCbfDi3My8GMeBuGEpGs6SzeTdAjwkHDJH7/EQFztsKV/A6Lsp+dr/WqGI1zTqNOCIf8xPG3LOG4X6MoVOTNCbV3MOjgWbCRDpj9O3F1Zl8dl1gduSbBw+F8ClO6XoT+FWF3p5qm6aK6SpxC0+/+vRduz6CVUVckrqwCY7fqRrlMwa4DLaXsV+YK1cg==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by IA0PR12MB8327.namprd12.prod.outlook.com (2603:10b6:208:40e::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6933.29; Tue, 31 Oct
- 2023 12:11:34 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::cdcb:e909:74a4:be7c]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::cdcb:e909:74a4:be7c%4]) with mapi id 15.20.6933.028; Tue, 31 Oct 2023
- 12:11:34 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH V2 vfio 2/9] virtio-pci: Introduce admin virtqueue
-Thread-Topic: [PATCH V2 vfio 2/9] virtio-pci: Introduce admin virtqueue
-Thread-Index: AQHaCoENkpIXTr9HoESn9KiFa24lo7BhNkgAgAFFedCAAANWgIAAI7/QgABanACAADw/IIAAUYgAgABCCrA=
-Date: Tue, 31 Oct 2023 12:11:34 +0000
-Message-ID: <PH0PR12MB54810728B89DCF1F958E9274DCA0A@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20231029155952.67686-1-yishaih@nvidia.com>
- <20231029155952.67686-3-yishaih@nvidia.com>
- <20231029161909-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54810E45C628DE3A5829D438DCA1A@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20231030115759-mutt-send-email-mst@kernel.org>
- <PH0PR12MB548197CD7A10D5A89B7213CDDCA1A@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20231030193110-mutt-send-email-mst@kernel.org>
- <PH0PR12MB5481F2851BF40C5BBD59909CDCA0A@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20231031034833-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231031034833-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PH0PR12MB5481:EE_|IA0PR12MB8327:EE_
-x-ms-office365-filtering-correlation-id: f2f5e49d-8033-415d-1f4f-08dbda0a86bd
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: VlNbfQhiq/eYlDv3St4OMHgz82O/DmuJUssynT7wQvj/1v6HdHYkfYRLmfUe52p3t9gv/w3NFGWhIsxtl84bwYF7ZGVfnLAXRA19wpvh6zQ9WmLPuYNgp7R9XTve/eJME8HNy0WpL+8HqzT07JSJ9oAIKX6yOg6ST9DmzqhW8LyoTvlTTzNru7mheXqMOLpfPMabalGL5jkcqf8eGPEMAjKljjKslRjNQk6EhwbmpisWArbufsTEFJH4VM4CFwGrPJvXkX9Sl7BPgh7E+VrBxjxtc1yx8gvVjgHnsShjwEBAjFL8d0dpEmsGI4/i5w9ajSXtxBImwlEoYmFJOLbxipOY5MO+duwYK1ixCTMM4WwnJQrowB2WFWvE3aMpZkkOTrg8089KviCkWeUfGGTnfH6aLE0ue4K7fo24KISYyyDTSJQlHn9wYi8oxODFvTJmY93+ZD1844HUHC+SjqrbcW6W6ss9qzurX65U1WxoUu0gR+ckW+GgWLPtbjFiDmNq52WKkZ+q5oNhy43Txiv+tZuDF0aaD++W7d7brycuAml7okDahDxr6pypPDIG9s4vdsgDCVXkQJj1xGYev06LXDl6pOKM9ITv8e/+pvSp2I/n/GS/GEQEgcC/OV4yjUUH
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(13230031)(396003)(366004)(376002)(39860400002)(136003)(346002)(230922051799003)(186009)(1800799009)(451199024)(64100799003)(38100700002)(478600001)(9686003)(122000001)(6506007)(7696005)(55016003)(33656002)(83380400001)(107886003)(71200400001)(26005)(54906003)(66446008)(64756008)(66556008)(66476007)(76116006)(66946007)(6916009)(316002)(66899024)(5660300002)(41300700001)(2906002)(86362001)(8936002)(8676002)(4326008)(52536014)(38070700009);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?knEGi//h5B46ciWPpd4L9jSKL8lklQ+hnUbHoyEt3JfIV9MyzuxILo+vkclD?=
- =?us-ascii?Q?KBZEqYzRjzmREA/hCARX9uCBjFZ45wGqJSVO8jgob3EMyOU3z4HoQZ8M4lF4?=
- =?us-ascii?Q?/k8RwE3Nbn70umGbssuc3tPw0+O4ODPXUZLocxcq1Bt4xn7+2kaL5eVq+tl1?=
- =?us-ascii?Q?/TdqJXuVIh1NxZqASHcHCUt2jpenQSeKTI4a+eBU+VxM2cCG6SUq5hUVvFq+?=
- =?us-ascii?Q?tgubPdtIVVc9Qy32U4rZ2RiY+jUy5kMcwhBdJqbxZW/SsbiB/Omi6gLVV5Ub?=
- =?us-ascii?Q?3oTkITMruXrvUqVg/1uc1x/ltEsEHsn0ViqjTbkZqre518ojWtMlvzBQI3YZ?=
- =?us-ascii?Q?g7bTpaafEAGrq+0eDJmwhevfwcP+nBT9J95YpOs/SjoRzhyYa/CpU2FATYpW?=
- =?us-ascii?Q?o0JEfbqLmfmPHgGXkzR25MapgglOKT0EOMLvP8qJOku9FarrIpQEoTYy66md?=
- =?us-ascii?Q?fQvQgmWvJgcqS9gg3qobPKNzDLITg3WAEtjDRfrq18VyXyefWL24G1EjeNU5?=
- =?us-ascii?Q?/X+dYUEi9Uj22k6XKS8+D6HnZGo50b8FiJLPv1dgLrxVpi2SX1JzRQMQu5kB?=
- =?us-ascii?Q?fG5qU/BbQTGOWe/fjQn7jr0Eta6k7cRqemYZV6HCcU88d/MCGiLYfM6UDAQo?=
- =?us-ascii?Q?S4fmtbGFecDlgp5Y/v1a+4luBTuej7E6l9AXcCxCJhJpIr+sO3pi/nzV50QD?=
- =?us-ascii?Q?OQ14d8LosWRzOn2KlTg14orZ95yyT19xiLZH7bQmqykx4BKBidfBGK9tH8NH?=
- =?us-ascii?Q?QUVzccNkm+lFmgQVAjdAqJdnQuMUhxCqcgDIYU/WPj5oCkkrsvdJVt9ZbzvM?=
- =?us-ascii?Q?v/eLOuD1FUlGJZJiO7nz8F/syxgNwjl7+FDLls2dsWtPN5Xar4Msw7LWhLOn?=
- =?us-ascii?Q?oTAPjjMkhIaS7TX6iZC65afHKRMrnh0OwTIaeSCmMV8t30Ng1iaMcYtByRVK?=
- =?us-ascii?Q?VZgQOHbrG0MUmC0smYFscrsK+2kKQfL7aZAsUQeiirZso3J7ucCD5MDPlSvS?=
- =?us-ascii?Q?/JnX8vCsDO4PRDT8RqdgPnuInT/sECJJ8EJ47tEsP8nVSXOiASyFvZdWxBdn?=
- =?us-ascii?Q?5TWe8yoAC3t0HZle/zZT4I54Y4pih92E/zuX573oVbzVgcMzEhG/bhdjEkKx?=
- =?us-ascii?Q?QLFryETkQncyvdGrmI6JYsbz7gypUn3sY/Sob+Mvt3KlL45n6UK/pR8wjrFX?=
- =?us-ascii?Q?ssBF+OkaI2+oQrujoPXW7KuzgtgzNpMxqER8Xq3HklBPKcS6pm8IfBX7QDE9?=
- =?us-ascii?Q?wEoJjRW7wgTtQOkpTNoO7hCkHcBIDjSS2X4KLxV0/rMJt4l0NvTEgJ9BUX8b?=
- =?us-ascii?Q?qzNxtXUylbqD3O/GNgrjU8B49Lze1susoN4ahIyNVu40kGHVrSGbqXYpDy50?=
- =?us-ascii?Q?Y62Rpc5yeJsz06KmJA7Q/RQptiSib3uUZJwK9BCZOmBbDVGM1a8/enricnTm?=
- =?us-ascii?Q?/TLB2qlwr5EZ6/QZYetKo4lafvVPiSlF7s6rbGjc6Fb4+b7P+yfZ5lxXwlRB?=
- =?us-ascii?Q?A0rdwA6ySL262r0NuN1aPeh978du8vLmKIhryzJU2fllY9RwOuhovjgLGFP5?=
- =?us-ascii?Q?DjCWa5L1pDb5jbbPs2A=3D?=
+ Tue, 31 Oct 2023 14:43:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D46456129E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1698763428;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=xXlUwrZ8a+TiVbwN/xlzrhXNH8IBziMOpwtSPkVcE7I=;
+ b=DYN42d4CB4bw2sneBoTHPSP/DkNwfUMHq5RTbME45zJB+6E2HfdIhqQBehkEIdlUbLOpk2
+ s6kLlWL5DMJ8HdUpm+fx/UDUDcR/VlCTQExX//aL118hyL/nBZfUWOrRK6B84fHhacK5l7
+ 1/aA7vc8zuHM+jvSDWznRA2ARwHKPWM=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-343-BtjqtuxqOoWKOcP2ITW4TQ-1; Tue, 31 Oct 2023 10:43:45 -0400
+X-MC-Unique: BtjqtuxqOoWKOcP2ITW4TQ-1
+Received: by mail-ot1-f71.google.com with SMTP id
+ 46e09a7af769-6d30af2399bso1077115a34.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Oct 2023 07:43:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1698763424; x=1699368224;
+ h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+ :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+ :reply-to;
+ bh=xXlUwrZ8a+TiVbwN/xlzrhXNH8IBziMOpwtSPkVcE7I=;
+ b=rwi7VTOfmmO473z81DdP3cLoCUpXU3ZPYEukt197eFwp7Jw5zQt3s2OT0DC/F83IvJ
+ 75bfh0CemwF+lU5W40o10hgY7wbbQAvPYLZymRDdoO4v6c97w50ZGKZxk+iawYks9qKE
+ XlACMDkbXut3Ui8v9AedUZmUjrgw8/UxWepqpMt2rLbzLuFKaf/F8I1eYco+xnDQSR9f
+ bZeDnqh2U+3G5XUCUKfeo6GkNxGGFcufPfDRWqSgv2BUkGGqUMbWU8YxrkEjmOOYRPyU
+ j2yUuoOgUKZ3ewigOhFi5aJMfq7XGmlVi8sgGZKTgwKAqJJy2NImWDqJHEhVK5/bvPRW
+ AJaQ==
+X-Gm-Message-State: AOJu0YzbN1DqxpYCSEf9y7PruGzBx4u6xVUmrGFj0pXvSthsfd1MnCC3
+ sW5eRgXXGRvvPZxYfN0NgK3+UpOJuKCizW163PlzxvoF/BoMsFW5a8lV10euSSZFxbQUd+ZU9n7
+ HddCXEgmrFvxKdd4Q6d321oHYr78LlEI9EIm64sG7nJDpZu0gvj2xMB9vARwysDV/zuNuadYz/u
+ vWwryvVKbs5zpLb88de6eSXHuhKw==
+X-Received: by 2002:a05:6830:1e35:b0:6d3:a14:f3f1 with SMTP id
+ t21-20020a0568301e3500b006d30a14f3f1mr2374209otr.7.1698763424357; 
+ Tue, 31 Oct 2023 07:43:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGFBHVEKDScky83TG83898xQYY2ysehM/b/1rfoz+oNpMActtM8216vJOH2Z5EptpCShbw5hQ==
+X-Received: by 2002:a05:6830:1e35:b0:6d3:a14:f3f1 with SMTP id
+ t21-20020a0568301e3500b006d30a14f3f1mr2374193otr.7.1698763424028; 
+ Tue, 31 Oct 2023 07:43:44 -0700 (PDT)
+Received: from step1.redhat.com ([5.179.178.82])
+ by smtp.gmail.com with ESMTPSA id
+ j7-20020ac84c87000000b004181e5a724csm544231qtv.88.2023.10.31.07.43.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 31 Oct 2023 07:43:43 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH] vdpa_sim_blk: allocate the buffer zeroed
+Date: Tue, 31 Oct 2023 15:43:39 +0100
+Message-ID: <20231031144339.121453-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f2f5e49d-8033-415d-1f4f-08dbda0a86bd
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2023 12:11:34.7616 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: CWcLPq3wolg9L+9sukceVF9viriftGA5PtzoqJUcKRNsW11Hks4GTblO7oIwy9dznncN3cLdEpXn+iYnNnm4Xg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB8327
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- Maor Gottlieb <maorg@nvidia.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Jason Gunthorpe <jgg@nvidia.com>,
- Jiri Pirko <jiri@nvidia.com>, Leon Romanovsky <leonro@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Qing Wang <qinwang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -160,170 +115,47 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Deleting and recreating a device can lead to having the same
+content as the old device, so let's always allocate buffers
+completely zeroed out.
 
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Tuesday, October 31, 2023 1:29 PM
-> 
-> On Tue, Oct 31, 2023 at 03:11:57AM +0000, Parav Pandit wrote:
-> >
-> >
-> > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > Sent: Tuesday, October 31, 2023 5:02 AM
-> > >
-> > > On Mon, Oct 30, 2023 at 06:10:06PM +0000, Parav Pandit wrote:
-> > > >
-> > > >
-> > > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > > Sent: Monday, October 30, 2023 9:29 PM On Mon, Oct 30, 2023 at
-> > > > > 03:51:40PM +0000, Parav Pandit wrote:
-> > > > > >
-> > > > > >
-> > > > > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > > > > Sent: Monday, October 30, 2023 1:53 AM
-> > > > > > >
-> > > > > > > On Sun, Oct 29, 2023 at 05:59:45PM +0200, Yishai Hadas wrote:
-> > > > > > > > From: Feng Liu <feliu@nvidia.com>
-> > > > > > > >
-> > > > > > > > Introduce support for the admin virtqueue. By negotiating
-> > > > > > > > VIRTIO_F_ADMIN_VQ feature, driver detects capability and
-> > > > > > > > creates one administration virtqueue. Administration
-> > > > > > > > virtqueue implementation in virtio pci generic layer,
-> > > > > > > > enables multiple types of upper layer drivers such as vfio, net, blk
-> to utilize it.
-> > > > > > > >
-> > > > > > > > Signed-off-by: Feng Liu <feliu@nvidia.com>
-> > > > > > > > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> > > > > > > > Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-> > > > > > > > Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
-> > > > > > > > ---
-> > > > > > > >  drivers/virtio/virtio.c                | 37 ++++++++++++++--
-> > > > > > > >  drivers/virtio/virtio_pci_common.c     |  3 ++
-> > > > > > > >  drivers/virtio/virtio_pci_common.h     | 15 ++++++-
-> > > > > > > >  drivers/virtio/virtio_pci_modern.c     | 61
-> > > +++++++++++++++++++++++++-
-> > > > > > > >  drivers/virtio/virtio_pci_modern_dev.c | 18 ++++++++
-> > > > > > > >  include/linux/virtio_config.h          |  4 ++
-> > > > > > > >  include/linux/virtio_pci_modern.h      |  5 +++
-> > > > > > > >  7 files changed, 137 insertions(+), 6 deletions(-)
-> > > > > > > >
-> > > > > > > > diff --git a/drivers/virtio/virtio.c
-> > > > > > > > b/drivers/virtio/virtio.c index
-> > > > > > > > 3893dc29eb26..f4080692b351 100644
-> > > > > > > > --- a/drivers/virtio/virtio.c
-> > > > > > > > +++ b/drivers/virtio/virtio.c
-> > > > > > > > @@ -302,9 +302,15 @@ static int virtio_dev_probe(struct device
-> *_d)
-> > > > > > > >  	if (err)
-> > > > > > > >  		goto err;
-> > > > > > > >
-> > > > > > > > +	if (dev->config->create_avq) {
-> > > > > > > > +		err = dev->config->create_avq(dev);
-> > > > > > > > +		if (err)
-> > > > > > > > +			goto err;
-> > > > > > > > +	}
-> > > > > > > > +
-> > > > > > > >  	err = drv->probe(dev);
-> > > > > > > >  	if (err)
-> > > > > > > > -		goto err;
-> > > > > > > > +		goto err_probe;
-> > > > > > > >
-> > > > > > > >  	/* If probe didn't do it, mark device DRIVER_OK ourselves. */
-> > > > > > > >  	if (!(dev->config->get_status(dev) &
-> > > > > > > > VIRTIO_CONFIG_S_DRIVER_OK))
-> > > > > > >
-> > > > > > > Hmm I am not all that happy that we are just creating avq
-> > > unconditionally.
-> > > > > > > Can't we do it on demand to avoid wasting resources if no one uses
-> it?
-> > > > > > >
-> > > > > > Virtio queues must be enabled before driver_ok as we discussed
-> > > > > > in
-> > > > > F_DYNAMIC bit exercise.
-> > > > > > So creating AQ when first legacy command is invoked, would be too
-> late.
-> > > > >
-> > > > > Well we didn't release the spec with AQ so I am pretty sure
-> > > > > there are no devices using the feature. Do we want to already
-> > > > > make an exception for AQ and allow creating AQs after DRIVER_OK
-> > > > > even without
-> > > F_DYNAMIC?
-> > > > >
-> > > > No. it would abuse the init time config registers for the dynamic
-> > > > things like
-> > > this.
-> > > > For flow filters and others there is need for dynamic q creation
-> > > > with multiple
-> > > physical address anyway.
-> > >
-> > > That seems like a completely unrelated issue.
-> > >
-> > It isn't.
-> > Driver requirements are:
-> > 1. Driver needs to dynamically create vqs 2. Sometimes this VQ needs
-> > to have multiple physical addresses 3. Driver needs to create them
-> > after driver is fully running, past the bootstrap stage using tiny
-> > config registers
-> >
-> > Device requirements are:
-> > 1. Not to keep growing 64K VQs *(8+8+8) bytes of address registers +
-> > enable bit 2. Ability to return appropriate error code when fail to
-> > create queue 3. Above #2
-> >
-> > Users of this new infrastructure are eth tx,rx queues, flow filter queues, aq, blk
-> rq per cpu.
-> > AQs are just one of those.
-> > When a generic infrastructure for this will be built in the spec as we started
-> that, all above use cases will be handled.
-> >
-> > > > So creating virtqueues dynamically using a generic scheme is
-> > > > desired with
-> > > new feature bit.
-> 
-> Reducing config registers and returning errors should be handled by a new
-> transport.
-> VQ with multiple addresses - I can see how you would maybe only support that
-> with that new transport?
-> 
-PCI is the transport that offers unified way to create and destroy dynamic VQs. And modify/query VQ attributes.
-Unified across PFs, VFs.
+Fixes: abebb16254b3 ("vdpa_sim_blk: support shared backend")
+Suggested-by: Qing Wang <qinwang@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-So no need for some grand transport. Virtio spec already underlying infrastructure that can be extended for PCI.
-For example,
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+index b3a3cb165795..b137f3679343 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+@@ -437,7 +437,7 @@ static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+ 	if (blk->shared_backend) {
+ 		blk->buffer = shared_buffer;
+ 	} else {
+-		blk->buffer = kvmalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
++		blk->buffer = kvzalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
+ 				       GFP_KERNEL);
+ 		if (!blk->buffer) {
+ 			ret = -ENOMEM;
+@@ -495,7 +495,7 @@ static int __init vdpasim_blk_init(void)
+ 		goto parent_err;
+ 
+ 	if (shared_backend) {
+-		shared_buffer = kvmalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
++		shared_buffer = kvzalloc(VDPASIM_BLK_CAPACITY << SECTOR_SHIFT,
+ 					 GFP_KERNEL);
+ 		if (!shared_buffer) {
+ 			ret = -ENOMEM;
+-- 
+2.41.0
 
-VQ attributes are already modified and queried by CVQ for net already.
-
-Such create/destroy commands can easily be supported on cvq.
-(cvq already exists on 6 out of 18 virtio devices).
-Rest 12 devices are so small which will unlikely need dynamic vqs.
-
-All will be neatly tied to single interface between driver and device for VQ create/destroy/modify/query.
-
-Anyway, this is the work OASIS currently doing for 1.4-timeline.
-This patch is based on 1.3 standard update.
-
-> 
-> I think I can guess why you are tying multiple addresses to dynamic VQs - you
-> suspect that allocating huge half-megabyte VQs dynamically will fail if triggered
-> on a busy system. Is that the point?
-Yes, it is likely. I don't have the link right now, but Eric S and/or Saeed had some links to it.
-
-> 
-> 
-> In that case I feel it's a good argument to special-case admin VQs because
-> there's no real need to make them huge at the moment - for example this
-> driver just adds one at a time.
-> No?
-In current form creating a VQ with single outstanding command with 4 descriptors = 64 bytes is not that huge resource wastage either.
-
-So Linux driver can adapt to dynamic aq and with multiple PAs can be done in future when OASIS adapts to it.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
