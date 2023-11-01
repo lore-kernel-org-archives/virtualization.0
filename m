@@ -1,62 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 610BEC4332F
-	for <virtualization@archiver.kernel.org>; Wed,  1 Nov 2023 01:45:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 632D9C4332F
+	for <virtualization@archiver.kernel.org>; Wed,  1 Nov 2023 04:36:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DBB0D8443B;
-	Wed,  1 Nov 2023 01:45:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DBB0D8443B
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8F2516FB17;
+	Wed,  1 Nov 2023 04:36:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F2516FB17
+Authentication-Results: smtp3.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=HHVfMrSB
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NuS534Ycec2L; Wed,  1 Nov 2023 01:45:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A76C883E0D;
-	Wed,  1 Nov 2023 01:45:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A76C883E0D
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BNXvBw5g8Fzi; Wed,  1 Nov 2023 04:36:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 49CB26FB16;
+	Wed,  1 Nov 2023 04:36:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 49CB26FB16
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3C85EC0071;
-	Wed,  1 Nov 2023 01:45:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 17D47C0071;
+	Wed,  1 Nov 2023 04:36:38 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E6530C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6C1B5C0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 01:45:21 +0000 (UTC)
+ Wed,  1 Nov 2023 04:36:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B875841736
+ by smtp2.osuosl.org (Postfix) with ESMTP id 330844047B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 01:45:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B875841736
+ Wed,  1 Nov 2023 04:36:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 330844047B
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=HHVfMrSB
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3HBb6uT5ZLil
+ with ESMTP id o2FEG-ibXArE
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 01:45:17 +0000 (UTC)
-Received: from out30-101.freemail.mail.aliyun.com
- (out30-101.freemail.mail.aliyun.com [115.124.30.101])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 188B5408D7
+ Wed,  1 Nov 2023 04:36:35 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0F286400B9
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 01:45:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 188B5408D7
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R121e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018045176;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=3; SR=0;
- TI=SMTPD_---0VvIssn4_1698803110; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VvIssn4_1698803110) by smtp.aliyun-inc.com;
- Wed, 01 Nov 2023 09:45:11 +0800
-Message-ID: <1698803104.3925707-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio_pci: move structure to a header
-Date: Wed, 1 Nov 2023 09:45:04 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <110d3058179284b092722827bef4f74f8ba0c622.1698769192.git.mst@redhat.com>
-In-Reply-To: <110d3058179284b092722827bef4f74f8ba0c622.1698769192.git.mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+ Wed,  1 Nov 2023 04:36:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0F286400B9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1698813393;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Bm6nv3OrJNAdAjBRVuIThTw9zVigtFmJLGDyu68dZkw=;
+ b=HHVfMrSBP1WiarZ76VH1Heo8TMzC2tUMnnVp/ZznP9gINGpEqGzoS7VQrfC5/xEOILWYRm
+ UAM1o4tyzYfq3YtajI6CHPtylCJA3PecbfXuj1Jo5wYNzf2CTH3xwqs9BrnS51YH4KpM8/
+ 628tXQY1kCeZn9Z6blAQeSgBPsBam/Q=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-576-QZX79JTCOOSIvgTrcKgzZg-1; Wed, 01 Nov 2023 00:36:32 -0400
+X-MC-Unique: QZX79JTCOOSIvgTrcKgzZg-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ 38308e7fff4ca-2c503804667so69651251fa.0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Oct 2023 21:36:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20230601; t=1698813391; x=1699418191;
+ h=content-transfer-encoding:cc:to:subject:message-id:date:from
+ :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+ :subject:date:message-id:reply-to;
+ bh=Bm6nv3OrJNAdAjBRVuIThTw9zVigtFmJLGDyu68dZkw=;
+ b=wfaHVB8eFt3hHXBYmMyjLKzUs56GL94l8WT2GsIKxq2SnzMifG5PaPki1w2TMZThRL
+ IZAMt4HY/ruMKTCSG2rLjvJBd/EynBny1g9aQuxHaFOKAD0nlX1k4YivILCsce3O0jig
+ Z88Wfi37RELfpzMl4ZvyWo5Chy65J28pNPozZjrZFvyBV6L0KsjBXRiMpPFeXhoJ4EFE
+ rbIhZr2BmKAOI/5/bRzJZ2BblTwZ1brdEh0XkyuVJjG4192Gnnv9RboHQGPC2NkwlgA8
+ cCzM737y5DtvdhdkLDb25ZP7y/sKvFv0vRxSkityx6a63S2QRLikhywWw/sfyYMfT6qY
+ yhMg==
+X-Gm-Message-State: AOJu0Yxw9Nb2fgr6RTek5svmwgtPk/ZXRdLRWlDMzx6dCOJAcerx+BoE
+ VtRN9GALjUASfTNEHkYrsStDQLy7HW87eX38YYPNXqZVDah18zgIaJwOqVTaVoPnoCFUZOh5mJv
+ YjWBfwrQYD3eARojLI/CNNrhYz8x3oHONlyem05z9TGnlixksNzpgQS2h4w==
+X-Received: by 2002:a19:ae16:0:b0:503:afa:e79 with SMTP id
+ f22-20020a19ae16000000b005030afa0e79mr10181916lfc.5.1698813390936; 
+ Tue, 31 Oct 2023 21:36:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEFiWTEEXffIJuc8scoNdDy3OwhB3Mf/+OrEdEdZTWinIPqM4Ur7SHi0nvzq6dnmpW4or5dSxVvXJ3rxzRcbLU=
+X-Received: by 2002:a19:ae16:0:b0:503:afa:e79 with SMTP id
+ f22-20020a19ae16000000b005030afa0e79mr10181908lfc.5.1698813390652; 
+ Tue, 31 Oct 2023 21:36:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <cf53cb61-0699-4e36-a980-94fd4268ff00@moroto.mountain>
+In-Reply-To: <cf53cb61-0699-4e36-a980-94fd4268ff00@moroto.mountain>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 1 Nov 2023 12:36:19 +0800
+Message-ID: <CACGkMEvytH47Wb2LjP2667-D8OWbDruwV8aRvqcUzksWB-ruvg@mail.gmail.com>
+Subject: Re: [PATCH net-XXX] vhost-vdpa: fix use after free in
+ vhost_vdpa_probe()
+To: Dan Carpenter <dan.carpenter@linaro.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, kernel-janitors@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Bo Liu <liubo03@inspur.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -68,95 +113,27 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 31 Oct 2023 12:19:54 -0400, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> These are guest/host interfaces so belong in the header
-> where e.g. qemu will know to find them.
-> Note: we added a new structure as opposed to extending existing one
-> because someone might be relying on the size of the existing structure
-> staying unchanged.  Add a warning to avoid using sizeof.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-
-> ---
->  drivers/virtio/virtio_pci_modern_dev.c |  7 ++++---
->  include/linux/virtio_pci_modern.h      |  7 -------
->  include/uapi/linux/virtio_pci.h        | 11 +++++++++++
->  3 files changed, 15 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_pci_modern_dev.c b/drivers/virtio/virtio_pci_modern_dev.c
-> index e2a1fe7bb66c..7de8b1ebabac 100644
-> --- a/drivers/virtio/virtio_pci_modern_dev.c
-> +++ b/drivers/virtio/virtio_pci_modern_dev.c
-> @@ -294,9 +294,10 @@ int vp_modern_probe(struct virtio_pci_modern_device *mdev)
->
->  	err = -EINVAL;
->  	mdev->common = vp_modern_map_capability(mdev, common,
-> -				      sizeof(struct virtio_pci_common_cfg), 4,
-> -				      0, sizeof(struct virtio_pci_modern_common_cfg),
-> -				      &mdev->common_len, NULL);
-> +			      sizeof(struct virtio_pci_common_cfg), 4, 0,
-> +			      offsetofend(struct virtio_pci_modern_common_cfg,
-> +					  queue_reset),
-> +			      &mdev->common_len, NULL);
->  	if (!mdev->common)
->  		goto err_map_common;
->  	mdev->isr = vp_modern_map_capability(mdev, isr, sizeof(u8), 1,
-> diff --git a/include/linux/virtio_pci_modern.h b/include/linux/virtio_pci_modern.h
-> index d0f2797420f7..a09e13a577a9 100644
-> --- a/include/linux/virtio_pci_modern.h
-> +++ b/include/linux/virtio_pci_modern.h
-> @@ -5,13 +5,6 @@
->  #include <linux/pci.h>
->  #include <linux/virtio_pci.h>
->
-> -struct virtio_pci_modern_common_cfg {
-> -	struct virtio_pci_common_cfg cfg;
-> -
-> -	__le16 queue_notify_data;	/* read-write */
-> -	__le16 queue_reset;		/* read-write */
-> -};
-> -
->  /**
->   * struct virtio_pci_modern_device - info for modern PCI virtio
->   * @pci_dev:	    Ptr to the PCI device struct
-> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-> index f703afc7ad31..44f4dd2add18 100644
-> --- a/include/uapi/linux/virtio_pci.h
-> +++ b/include/uapi/linux/virtio_pci.h
-> @@ -166,6 +166,17 @@ struct virtio_pci_common_cfg {
->  	__le32 queue_used_hi;		/* read-write */
->  };
->
-> +/*
-> + * Warning: do not use sizeof on this: use offsetofend for
-> + * specific fields you need.
-> + */
-> +struct virtio_pci_modern_common_cfg {
-> +	struct virtio_pci_common_cfg cfg;
-> +
-> +	__le16 queue_notify_data;	/* read-write */
-> +	__le16 queue_reset;		/* read-write */
-> +};
-> +
->  /* Fields in VIRTIO_PCI_CAP_PCI_CFG: */
->  struct virtio_pci_cfg_cap {
->  	struct virtio_pci_cap cap;
-> --
-> MST
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBPY3QgMjcsIDIwMjMgYXQgODoxM+KAr1BNIERhbiBDYXJwZW50ZXIgPGRhbi5jYXJw
+ZW50ZXJAbGluYXJvLm9yZz4gd3JvdGU6Cj4KPiBUaGUgcHV0X2RldmljZSgpIGNhbGxzIHZob3N0
+X3ZkcGFfcmVsZWFzZV9kZXYoKSB3aGljaCBjYWxscwo+IGlkYV9zaW1wbGVfcmVtb3ZlKCkgYW5k
+IGZyZWVzICJ2Ii4gIFNvIHRoaXMgY2FsbCB0bwo+IGlkYV9zaW1wbGVfcmVtb3ZlKCkgaXMgYSB1
+c2UgYWZ0ZXIgZnJlZSBhbmQgYSBkb3VibGUgZnJlZS4KPgo+IEZpeGVzOiBlYmU2YTM1NGZhN2Ug
+KCJ2aG9zdC12ZHBhOiBDYWxsIGlkYV9zaW1wbGVfcmVtb3ZlKCkgd2hlbiBmYWlsZWQiKQo+IFNp
+Z25lZC1vZmYtYnk6IERhbiBDYXJwZW50ZXIgPGRhbi5jYXJwZW50ZXJAbGluYXJvLm9yZz4KCkFj
+a2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKVGhhbmtzCgo+IC0tLQo+
+ICBkcml2ZXJzL3Zob3N0L3ZkcGEuYyB8IDEgLQo+ICAxIGZpbGUgY2hhbmdlZCwgMSBkZWxldGlv
+bigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdmRwYS5jIGIvZHJpdmVycy92aG9z
+dC92ZHBhLmMKPiBpbmRleCA5YTIzNDNjNDVkZjAuLjFhYTY3NzI5ZTE4OCAxMDA2NDQKPiAtLS0g
+YS9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gQEAg
+LTE1MTEsNyArMTUxMSw2IEBAIHN0YXRpYyBpbnQgdmhvc3RfdmRwYV9wcm9iZShzdHJ1Y3QgdmRw
+YV9kZXZpY2UgKnZkcGEpCj4KPiAgZXJyOgo+ICAgICAgICAgcHV0X2RldmljZSgmdi0+ZGV2KTsK
+PiAtICAgICAgIGlkYV9zaW1wbGVfcmVtb3ZlKCZ2aG9zdF92ZHBhX2lkYSwgdi0+bWlub3IpOwo+
+ICAgICAgICAgcmV0dXJuIHI7Cj4gIH0KPgo+IC0tCj4gMi40Mi4wCj4KCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
