@@ -1,114 +1,117 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BB92FC4332F
-	for <virtualization@archiver.kernel.org>; Wed,  1 Nov 2023 13:01:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 28238C4167D
+	for <virtualization@archiver.kernel.org>; Wed,  1 Nov 2023 13:25:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4830D6FC9F;
-	Wed,  1 Nov 2023 13:01:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4830D6FC9F
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=dBkgnjaO
+	by smtp1.osuosl.org (Postfix) with ESMTP id A442E84456;
+	Wed,  1 Nov 2023 13:25:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A442E84456
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=FyDwE40i
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EtXAV4_PJnX7; Wed,  1 Nov 2023 13:01:43 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fmbqn4fGE5vN; Wed,  1 Nov 2023 13:25:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CAE8261381;
-	Wed,  1 Nov 2023 13:01:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CAE8261381
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 35626840BA;
+	Wed,  1 Nov 2023 13:25:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 35626840BA
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A2C0AC0039;
-	Wed,  1 Nov 2023 13:01:42 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 66016C0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A9FAC0072;
+	Wed,  1 Nov 2023 13:25:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 23BFAC0032
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 13:01:41 +0000 (UTC)
+ Wed,  1 Nov 2023 13:25:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2D25E4EC99
+ by smtp2.osuosl.org (Postfix) with ESMTP id F081F401D8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 13:01:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 2D25E4EC99
-Authentication-Results: smtp4.osuosl.org;
+ Wed,  1 Nov 2023 13:25:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F081F401D8
+Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=dBkgnjaO
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=FyDwE40i
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SYBwddgDfNzI
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Zc8jwgc-RNPs
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 13:01:40 +0000 (UTC)
+ Wed,  1 Nov 2023 13:25:43 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E4DBA4EC92
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B698E40156
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Nov 2023 13:01:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E4DBA4EC92
+ Wed,  1 Nov 2023 13:25:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B698E40156
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698843698;
+ s=mimecast20190719; t=1698845142;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=U25hlv0d5a4u4nzaxOvc1rnVpT1wnO8Tahwawd9Dugw=;
- b=dBkgnjaO/VhapUctkA0GdboQn0TY7ePbVPGb8UlGGa3QWgjwx8ggRuheXjUFwoCTPdnprj
- mkGAKo5IIMkoLQxMLKh0nuia1V3waK1Vdz/4NxnGUF0FYo8xvE9WBXanPJPgBS0DUNrpmM
- Jh5+K6wkNIBzNi1Hai24zmQN2/qAkcw=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=5vuuw2hgFSjYMbIsoJnBkA458K2z+JiLRYE0TFB3z/Q=;
+ b=FyDwE40id3B+I1StnmclzA7Zb2ect/dG8dNPflteUutQQpIdLIFbVUgftnPdaGqq6TENQg
+ IiCllp/pYdKA9nPmyma9PIVoxVRtKBH+TxjAU27Mo/NypaNBSvLTFkJExIh+gKc+ZYDCmO
+ GA8HF4r6oojvWFwWxhQ1jDWxKFxHWro=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-56-QqhXGeHIOEOF1NmvFD1XVQ-1; Wed, 01 Nov 2023 09:01:37 -0400
-X-MC-Unique: QqhXGeHIOEOF1NmvFD1XVQ-1
-Received: by mail-ej1-f71.google.com with SMTP id
- a640c23a62f3a-9ae0bf9c0a9so451662666b.3
+ us-mta-346-6CiZ2ui7Nmik7SXKc5gAVA-1; Wed, 01 Nov 2023 09:25:40 -0400
+X-MC-Unique: 6CiZ2ui7Nmik7SXKc5gAVA-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ a640c23a62f3a-9a62adedadbso475248066b.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Nov 2023 06:01:36 -0700 (PDT)
+ Wed, 01 Nov 2023 06:25:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698843696; x=1699448496;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=U25hlv0d5a4u4nzaxOvc1rnVpT1wnO8Tahwawd9Dugw=;
- b=cmrTG9H51J9liHReu7QTodmvmNj71LCFCrDPNPImL8Exm45TRzej3sCUCgrac3dm2R
- CGbJj9sDgzJ88SozTjPu8J9TL2UP3YpzoYUZyz1icNoXWynunYLGNBKBpxMGSeNhsXN2
- 7sGdJTlWRxs+GVXaAA2Hb6f4rQsxSgv3pbqupN61dYGlLKw/pQsT/dn+rP5XVqcKf/nG
- Y5KxCfm+37GhKEbjjDLn4WutqzYGw4SvQisP/34XzbYpRD1cG7mD6040Q4Ot7Ao5NEGn
- ZWoNR/6cJU0jJMLb0jVuzAlHI+/m4OvUIbqnC4vLA/xAoV7pRGo3OabGFyPGp1No3gOM
- +cVw==
-X-Gm-Message-State: AOJu0YzoAoT8eziIJQo6weZ1CavwBKtOKayfK0reJTnRdARgm8dUdkEu
- qiAtqGoAKeedg/pafvpAE5TDjE4h/vGOP2fWTsdzok+1Q8VggtGjU7uHe6onFCSTlzhpf5Y3cRz
- A2EDrvw9R+xcTxWnxwNwsTZKtSQV86YFDPOY0Qi+beA==
-X-Received: by 2002:a17:906:b008:b0:9d5:d803:31ee with SMTP id
- v8-20020a170906b00800b009d5d80331eemr1616994ejy.34.1698843695914; 
- Wed, 01 Nov 2023 06:01:35 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IERo4+i+XMFGmYaRUefWF1xxE2JKB60Ea01trIxcM+Pd00A2B92UcuBtp4Hc8zdtSJw0q8cqQ==
-X-Received: by 2002:a17:906:b008:b0:9d5:d803:31ee with SMTP id
- v8-20020a170906b00800b009d5d80331eemr1616963ejy.34.1698843695452; 
- Wed, 01 Nov 2023 06:01:35 -0700 (PDT)
+ d=1e100.net; s=20230601; t=1698845139; x=1699449939;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=5vuuw2hgFSjYMbIsoJnBkA458K2z+JiLRYE0TFB3z/Q=;
+ b=KqCnPr3DWBpE2uon5nhGPnEH+2UtuRiOPjNrwd2T+BPfAs9JCSZdMg4oWccIPsgo1j
+ ZKVxjgUQjGM2JN1Aq07Xs7cY1ORIdw3u64zeYy+ObGGsUy7wRjoqYMRhpM5KeCA8kkSV
+ EMwFSKyBusDK0TZayas16nVyZE5DBw7/SBT4hAUW5UyQBme3v1okFFSHxmL4xzrY4lrD
+ k/7JMvyecQVEwZ+SDcZkp9JhT1WNM6+nHPU2tCT4Wd7lGPzRJsVcQZvN4nkijkPvkEgL
+ D3IhX41ii3NsLn8Fk/PZylI+A/VfGiR0ewCQM4ZmqPuUm57NvPQqRGGsKXA41iIcENes
+ YVTg==
+X-Gm-Message-State: AOJu0YxTNTPUHTvyq8FrpoOE0bMtfwEbWQ8cwcfz3LzpMC7H1O/UV/qV
+ ig5kabFRNlAxsHszttUBei84+yARHhwItwhVwD0MRDupyGD96kBhrBJD7BYmY8l2q0qvR5Ebmi/
+ 1+GiFSSrM8V/YOcN4NE35kS2GrGXuez/cDqpnEpcKiQ==
+X-Received: by 2002:a17:907:da1:b0:9d7:139:ca02 with SMTP id
+ go33-20020a1709070da100b009d70139ca02mr1593787ejc.18.1698845139549; 
+ Wed, 01 Nov 2023 06:25:39 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGH01EOmDvR1VZ1Vpqwf7/m2EHCZhBOjFFX6rLdJc7iyoXzWszkpEDc8Iv42M1PCJjd0h1kjg==
+X-Received: by 2002:a17:907:da1:b0:9d7:139:ca02 with SMTP id
+ go33-20020a1709070da100b009d70139ca02mr1593777ejc.18.1698845139229; 
+ Wed, 01 Nov 2023 06:25:39 -0700 (PDT)
 Received: from redhat.com ([2a02:14f:1f7:e470:9af7:1504:1b35:8a09])
  by smtp.gmail.com with ESMTPSA id
- oz3-20020a170906cd0300b00977eec7b7e8sm2378853ejb.68.2023.11.01.06.01.32
+ cl21-20020a170906c4d500b0099bd1a78ef5sm2397533ejb.74.2023.11.01.06.25.36
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 01 Nov 2023 06:01:34 -0700 (PDT)
-Date: Wed, 1 Nov 2023 09:01:30 -0400
+ Wed, 01 Nov 2023 06:25:38 -0700 (PDT)
+Date: Wed, 1 Nov 2023 09:25:33 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/2] vdpa: Add logging operatins
-Message-ID: <20231101090114-mutt-send-email-mst@kernel.org>
-References: <cover.1693012755.git.jiangdongxu1@huawei.com>
- <CACGkMEsP+3nTjG8gj0PoYg0DvyqqOpJKoAxG=m27t+iv-6GVbQ@mail.gmail.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: virtcrypto_dataq_callback calls crypto_finalize_request() from
+ irq context
+Message-ID: <20231101092521-mutt-send-email-mst@kernel.org>
+References: <20230922154546.4f7447ce.pasic@linux.ibm.com>
+ <ed47fb73ad634ca395bd6c8e979dda8e@huawei.com>
+ <20230924193941.6a02237f.pasic@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEsP+3nTjG8gj0PoYg0DvyqqOpJKoAxG=m27t+iv-6GVbQ@mail.gmail.com>
+In-Reply-To: <20230924193941.6a02237f.pasic@linux.ibm.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: eric.fangyi@huawei.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Jiang Dongxu <jiangdongxu1@huawei.com>, eperezma <eperezma@redhat.com>,
- longpeng2@huawei.com, Siwei Liu <loseweigh@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Marc Hartmayer <mhartmay@linux.ibm.com>,
+ "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,36 +123,38 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBTZXAgMTEsIDIwMjMgYXQgMDI6NTY6NThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiBBZGRpbmcgRXVnZW5pbyBhbmQgU2kgV2VpLgo+IAo+IE9uIFNhdCwgQXVnIDI2LCAyMDIz
-IGF0IDk6MjTigK9BTSBKaWFuZyBEb25neHUgPGppYW5nZG9uZ3h1MUBodWF3ZWkuY29tPiB3cm90
-ZToKPiA+Cj4gPiBGcm9tOiBqaWFuZ2Rvbmd4dSA8amlhbmdkb25neHUxQGh1YXdlaS5jb20+Cj4g
-Pgo+ID4gQ3VycmVudGx5LCB0aGUgdmRwYSBkZXZpY2Ugc3VwcG9ydHMgc3VzcGVuZCBhbmQgcmVz
-dW1lIG9wZXJhdGlvbnMuCj4gPiBUbyBzdXBwb3J0IHZkcGEgZGV2aWNlIGxpdmUgbWlncmF0aW9u
-LCB3ZSBuZWVkIHRvIHN1cHBvcnQgbG9nZ2luZwo+ID4gb3BlcmF0aW9ucyBhbmQgZGV2aWNlIHN0
-YXRlIHNhdmUvbG9hZCBvcGVydGlvbnMuCj4gPgo+ID4gVGhlc2Ugc2VyaWVzIGludHJvZHVjZXMg
-c29tZSBuZXcgb3BlcmF0aW9ucyBmb3IgdmRwYSBkZXZpY2VzLgo+ID4gVGhleSBhbGxvdyB2ZHBh
-IHRvIGVuYWJsZSBsb2dnaW5nIHdoaWxlIHZtIHN0YXJ0IGxpdmUgbWlncmF0aW9uLgo+ID4KPiA+
-IEFuZCBJIHdpbGwgc3VibWl0IGFub3RoZXIgcGF0Y2hlcyBhYm91dCBzYXZpbmcgYW5kIGxvYWRp
-bmcKPiA+IHZkcGEgZGV2aWNlIHN0YXRlIGxhdGVyLgo+IAo+IFRoYW5rcyBmb3Igd29ya2luZyBv
-biB0aGlzLCBJIGhhdmUgc2V2ZXJhbCBxdWVzdGlvbnM6Cj4gCj4gMSkgSXMgdGhlcmUgYW4gZXhh
-bXBsZSBpbXBsZW1lbnRhdGlvbiBvZiB0aGUgbG9nZ2luZyBpbiB0aGUgZHJpdmVycz8KPiBXZSBu
-ZWVkIGEgcmVhbCB1c2VyIGluIG9yZGVyIHRvIG1lcmdlIHRoaXMuCj4gMikgSXMgdGhlIGxvZ2dp
-bmcgYmFzZWQgb24gSU9WQSBvciBWQT8gSG93IHRoZSBETUEgaXNvbGF0aW9uIGlzIGJlaW5nCj4g
-ZG9uZSB3aXRoIHRoaXM/IERvIHdlIG5lZWQgYSBTRVRfTE9HR0lOR19BU0lEIHVBUEkgZm9yIHRo
-aXM/IChXZSBoYWQKPiBzb21lIGRpc2N1c3Npb24gb24gdGhpcyBpbiB0aGUgcGFzdCkuCj4gCj4g
-VGhhbmtzCgoKTm8gYW5zd2VyIHNvIGZhciBzbyBJJ2xsIGRyb3AgdGhpcyBmb3Igbm93LgoKPiA+
-Cj4gPiBqaWFuZ2Rvbmd4dSAoMik6Cj4gPiAgIHZkcGE6IGFkZCBsb2cgb3BlcmF0aW9ucwo+ID4g
-ICB2aG9zdC12ZHBhOiBhZGQgdUFQSSBmb3IgbG9nZ2luZwo+ID4KPiA+ICBkcml2ZXJzL3Zob3N0
-L3ZkcGEuYyAgICAgICB8IDQ5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-Cj4gPiAgaW5jbHVkZS9saW51eC92ZHBhLmggICAgICAgfCAxNCArKysrKysrKysrKwo+ID4gIGlu
-Y2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIHwgIDQgKysrKwo+ID4gIDMgZmlsZXMgY2hhbmdlZCwg
-NjcgaW5zZXJ0aW9ucygrKQo+ID4KPiA+IC0tCj4gPiAyLjI3LjAKPiA+CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Sun, Sep 24, 2023 at 07:39:41PM +0200, Halil Pasic wrote:
+> On Sun, 24 Sep 2023 11:56:25 +0000
+> "Gonglei (Arei)" <arei.gonglei@huawei.com> wrote:
+> 
+> > Hi Halil,
+> > 
+> > Commit 4058cf08945 introduced a check for detecting crypto completion function 
+> > called with enable BH, and indeed the virtio-crypto driver didn't disable BH, which needs
+> > a patch to fix it.
+> > 
+> > P.S.: https://lore.kernel.org/lkml/20220221120833.2618733-5-clabbe@baylibre.com/T/
+> > 
+> > Regards,
+> > -Gonglei
+> 
+> Thanks Gonglei!
+> 
+> Thanks! I would be glad to test that fix on s390x. Are you about to send
+> one?
+> 
+> Regards,
+> Halil
+
+
+Gonglei did you intend to send a fix?
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
