@@ -1,113 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B160FC4332F
-	for <virtualization@archiver.kernel.org>; Thu,  2 Nov 2023 10:02:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2E0CC4332F
+	for <virtualization@archiver.kernel.org>; Thu,  2 Nov 2023 12:47:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4101570636;
-	Thu,  2 Nov 2023 10:02:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4101570636
-Authentication-Results: smtp3.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TPuluYLg
+	by smtp1.osuosl.org (Postfix) with ESMTP id 79DF48502B;
+	Thu,  2 Nov 2023 12:47:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 79DF48502B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=bgo+GULy
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bGcjqF9VcDbh; Thu,  2 Nov 2023 10:02:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 74E5D60F66;
-	Thu,  2 Nov 2023 10:02:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 74E5D60F66
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ukmnx7Fhgs2x; Thu,  2 Nov 2023 12:47:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 32EC785035;
+	Thu,  2 Nov 2023 12:47:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 32EC785035
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 482C1C0039;
-	Thu,  2 Nov 2023 10:02:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A6C6EC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F138AC0039;
+	Thu,  2 Nov 2023 12:47:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89F29C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 10:02:14 +0000 (UTC)
+ Thu,  2 Nov 2023 12:47:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8608142D57
+ by smtp2.osuosl.org (Postfix) with ESMTP id 645EA43402
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 10:02:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8608142D57
-Authentication-Results: smtp4.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=TPuluYLg
+ Thu,  2 Nov 2023 12:47:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 645EA43402
+Authentication-Results: smtp2.osuosl.org;
+ dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca
+ header.a=rsa-sha256 header.s=google header.b=bgo+GULy
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ELyILKmFSuYS
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZmSrNTmaMuqW
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 10:02:10 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 78B6342D9E
+ Thu,  2 Nov 2023 12:47:45 +0000 (UTC)
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com
+ [IPv6:2607:f8b0:4864:20::72f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 12A2D41468
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 10:02:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 78B6342D9E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698919329;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=HQZaCcbNvR/vRwvT++3FkZXUSfW2tFLkbmwPh6CE5mI=;
- b=TPuluYLg1B6RYighJ5sUG5s1TExDJ730Gfw/dKHyYhYM7SEqh/cVBJ5IodgJtCEx2iN91t
- 0uk3XVbDao/xyHnxBk4gV7JbIqz6O9TNLvrZ7cMsxvxh+WGGl/gQyfHM1BiIO2QQwerFnV
- 4qteCLo1P/VN1UE6Tv/P/08PliXmfT8=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-404-vvhcQIiLOMyYneFyplBlXw-1; Thu, 02 Nov 2023 06:02:07 -0400
-X-MC-Unique: vvhcQIiLOMyYneFyplBlXw-1
-Received: by mail-lf1-f71.google.com with SMTP id
- 2adb3069b0e04-5079630993dso600213e87.1
+ Thu,  2 Nov 2023 12:47:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 12A2D41468
+Received: by mail-qk1-x72f.google.com with SMTP id
+ af79cd13be357-7789923612dso49959885a.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Nov 2023 03:02:07 -0700 (PDT)
+ Thu, 02 Nov 2023 05:47:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=ziepe.ca; s=google; t=1698929264; x=1699534064;
+ darn=lists.linux-foundation.org; 
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+ bh=WQ+GdWawOo3FT7vEf5mwevTBQUu7eDKWKnvNYW/PsMc=;
+ b=bgo+GULyl/S7mgs3vD/NG8Zv2Vo55x4RUtW1mJ8vFtgaMbqb+++gR4IgAXORKfKrMw
+ z7cmShQX0V1rR7oFLA1W1a/7Me1alnviQLGlHJOZVIfenmCUYTZlmJejMi/IglK//fpD
+ P4Bh/79Jq3XWeO7YElrmQu2tQ7IBa4wsKCg54gSmVp1Mt4q0x4M24448GzW5jCBcz2mU
+ NjJsTXGgi0aQRm+K7KIqrER8nSTKEB3ObRv4kUW+xqjuJeAggfYDqxzMuW12MRTUEJ4U
+ eNEwxSRbfuDZ9KewvTDFiWXhGEh2p2R7EtIOXPZb09vIUoHkYRFzZ6uFL8S3PFaHtT0i
+ tMAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698919326; x=1699524126;
- h=in-reply-to:content-transfer-encoding:content-disposition
- :mime-version:references:message-id:subject:cc:to:from:date
- :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
- bh=HQZaCcbNvR/vRwvT++3FkZXUSfW2tFLkbmwPh6CE5mI=;
- b=tkAhFIGrYGPzH5DPdowWqtNTKgdFogASWqgsDy4raicRdHisIKxFF172+eqRUtPF59
- FEkfPVotmQIL6Swk1KnZmweTO5f25fYJ+ulDsWe0xfg3j/NCGzP+7jAxqBjNQXU86L0y
- owPx17GrP97Z219YiSvoL51qxBNK+4kiaVFUMIEImd2JJ8UchwAhuEVg7lsu1YxQgNWC
- VCX3GUZy2LJVvZjw02KTDAGBvmQCpb/hbIDt+IqL+abY9BfDlARzA6F678ySKg3xJf9e
- hhmA7RjMoVLV5n7t3BtkQ42Y8zbHWJ/zreh79JR47zskBJ6G2oxYRcmhZhFfvBo3j4rI
- qNLg==
-X-Gm-Message-State: AOJu0YxY+XqLY1O3F2WGTrEGQ4Ng2WDwaa+v1xrgvas7bLOeVWXDDyqr
- 5fpNN8LTmPPozFYUdRpv03SBsxAfL76tSMEQDmG9AoV4AGqfWcdUJsYo1b9/PNhZbcEZ2/XlR0i
- IUvuFJ6m2ygUurPuljXYfurCoJfi+c7VAUPzHRtlpXw==
-X-Received: by 2002:ac2:47fa:0:b0:506:899d:1994 with SMTP id
- b26-20020ac247fa000000b00506899d1994mr12240665lfp.52.1698919326296; 
- Thu, 02 Nov 2023 03:02:06 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGgzRDP6IedPcxWzyU82zbL27uQuZvFZAmfFO8532rjHoXbxjyP/bbnF/jAQjaUjhe/+z5K+Q==
-X-Received: by 2002:ac2:47fa:0:b0:506:899d:1994 with SMTP id
- b26-20020ac247fa000000b00506899d1994mr12240648lfp.52.1698919325964; 
- Thu, 02 Nov 2023 03:02:05 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:174:efc3:a5be:5586:34a6:1108])
- by smtp.gmail.com with ESMTPSA id
- a16-20020adff7d0000000b0032dbf99bf4fsm1812242wrq.89.2023.11.02.03.02.03
+ d=1e100.net; s=20230601; t=1698929264; x=1699534064;
+ h=in-reply-to:content-disposition:mime-version:references:message-id
+ :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+ :message-id:reply-to;
+ bh=WQ+GdWawOo3FT7vEf5mwevTBQUu7eDKWKnvNYW/PsMc=;
+ b=E5RinBv34URijUv/vfraIt1A692oIQEgdZ0jjoyZgl4DEoBLxwB7TejHrhyi7zLu5d
+ +RC3GnqH/4YI6wyCwi7EUtQgi9GgQjIPahI4ja1dlidP3C3ePgQfyyeqriwR0vpQk0jg
+ kOr00ypLtSDwcg+CNfVWr3ukUOY0y6QQa/Az2MjJ1mTa6TliS5W/ay7VWKF9ShSkx/Py
+ JuqCS8p5X7VCXh2XpsbgQFUZV+AJkX96rwWNVezdHauVM9axWbIkHroHvdpG3NTBRP1Q
+ SXR08PrchDNVGkf6YWLKn97lYX7eIBfqktO62qwBC22nOATt2FY1XoO10OQYfQ6t22Ql
+ yPWQ==
+X-Gm-Message-State: AOJu0Yy83SyxVoLLOQkXcu8YjX1ACXbVI0eOnBFRDq/QG4Cz5gBFtB3g
+ 37LUzpEmdA+eA2/X918DzbOxPA==
+X-Google-Smtp-Source: AGHT+IFxFiOR7UXzaPpwFSzkWqw0zJo0m72p87r7wZ2km12vbMwY4rfJeHI3ydNPhYo9BA85V7lP4Q==
+X-Received: by 2002:a05:620a:35e:b0:775:9bb1:9ac4 with SMTP id
+ t30-20020a05620a035e00b007759bb19ac4mr18012659qkm.61.1698929263726; 
+ Thu, 02 Nov 2023 05:47:43 -0700 (PDT)
+Received: from ziepe.ca
+ (hlfxns017vw-142-68-26-201.dhcp-dynamic.fibreop.ns.bellaliant.net.
+ [142.68.26.201]) by smtp.gmail.com with ESMTPSA id
+ r18-20020a05620a299200b007770673e757sm2291720qkp.94.2023.11.02.05.47.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 02 Nov 2023 03:02:05 -0700 (PDT)
-Date: Thu, 2 Nov 2023 06:02:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cindy Lu <lulu@redhat.com>
-Subject: Re: [RFC 0/7] vdpa: Add support for iommufd
-Message-ID: <20231102060151-mutt-send-email-mst@kernel.org>
-References: <20230923170540.1447301-1-lulu@redhat.com>
- <20231026024147-mutt-send-email-mst@kernel.org>
- <CACLfguXstNSC20x=acDx20CXU3UksURDY04Z89DM_sNbGeTELQ@mail.gmail.com>
+ Thu, 02 Nov 2023 05:47:43 -0700 (PDT)
+Received: from jgg by wakko with local (Exim 4.95)
+ (envelope-from <jgg@ziepe.ca>) id 1qyX6s-0004kn-JW;
+ Thu, 02 Nov 2023 09:47:42 -0300
+Date: Thu, 2 Nov 2023 09:47:42 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Subject: Re: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+Message-ID: <20231102124742.GA4634@ziepe.ca>
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <CACLfguXstNSC20x=acDx20CXU3UksURDY04Z89DM_sNbGeTELQ@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: yi.l.liu@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com
+In-Reply-To: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Yi Liu <yi.l.liu@intel.com>, Will Deacon <will@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux.dev,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>, Nicolin Chen <nicolinc@nvidia.com>,
+ linux-kselftest@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,35 +116,42 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVGh1LCBPY3QgMjYsIDIwMjMgYXQgMDI6NDg6MDdQTSArMDgwMCwgQ2luZHkgTHUgd3JvdGU6
-Cj4gT24gVGh1LCBPY3QgMjYsIDIwMjMgYXQgMjo0MuKAr1BNIE1pY2hhZWwgUy4gVHNpcmtpbiA8
-bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIFN1biwgU2VwIDI0LCAyMDIzIGF0IDAx
-OjA1OjMzQU0gKzA4MDAsIENpbmR5IEx1IHdyb3RlOgo+ID4gPiBIaSBBbGwKPiA+ID4gUmVhbGx5
-IGFwb2xvZ2l6ZSBmb3IgdGhlIGRlbGF5LCB0aGlzIGlzIHRoZSBkcmFmdCBSRkMgZm9yCj4gPiA+
-IGlvbW11ZmQgc3VwcG9ydCBmb3IgdmRwYSwgVGhpcyBjb2RlIHByb3ZpZGVzIHRoZSBiYXNpYyBm
-dW5jdGlvbgo+ID4gPiBmb3IgaW9tbXVmZCBzdXBwb3J0Cj4gPiA+Cj4gPiA+IFRoZSBjb2RlIHdh
-cyB0ZXN0ZWQgYW5kIHBhc3NlZCBpbiBkZXZpY2UgdmRwYV9zaW1fbmV0Cj4gPiA+IFRoZSBxZW11
-IGNvZGUgaXMKPiA+ID4gaHR0cHM6Ly9naXRsYWIuY29tL2x1bHU2L2dpdGxhYnFlbXV0bXAvLS90
-cmVlL2lvbW11ZmRSRkMKPiA+ID4gVGhlIGtlcm5lbCBjb2RlIGlzCj4gPiA+IGh0dHBzOi8vZ2l0
-bGFiLmNvbS9sdWx1Ni92aG9zdC8tL3RyZWUvaW9tbXVmZFJGQwo+ID4gPgo+ID4gPiBUb0RvCj4g
-PiA+IDEuIHRoaXMgY29kZSBpcyBvdXQgb2YgZGF0ZSBhbmQgbmVlZHMgdG8gY2xlYW4gYW5kIHJl
-YmFzZSBvbiB0aGUgbGF0ZXN0IGNvZGUKPiA+ID4gMi4gdGhpcyBjb2RlIGhhcyBzb21lIHdvcmth
-cm91bmQsIEkgU2tpcCB0aGUgY2hlY2sgZm9yCj4gPiA+IGlvbW11X2dyb3VwIGFuZCBDQUNIRV9D
-T0hFUkVOQ1ksIGFsc28gc29tZSBtaXNjIGlzc3VlcyBsaWtlIG5lZWQgdG8gYWRkCj4gPiA+IG11
-dGV4IGZvciBpb21tZmQgb3BlcmF0aW9ucwo+ID4gPiAzLiBvbmx5IHRlc3QgaW4gZW11bGF0ZWQg
-ZGV2aWNlLCBvdGhlciBtb2RlcyBub3QgdGVzdGVkIHlldAo+ID4gPgo+ID4gPiBBZnRlciBhZGRy
-ZXNzZWQgdGhlc2UgcHJvYmxlbXMgSSB3aWxsIHNlbmQgb3V0IGEgbmV3IHZlcnNpb24gZm9yIFJG
-Qy4gSSB3aWxsCj4gPiA+IHByb3ZpZGUgdGhlIGNvZGUgaW4gMyB3ZWVrcwo+ID4KPiA+IFdoYXQn
-cyB0aGUgc3RhdHVzIGhlcmU/Cj4gPgo+IEhpIE1pY2hhZWwKPiBUaGUgY29kZSBpcyBmaW5pc2hl
-ZCwgYnV0IEkgZm91bmQgc29tZSBidWcgYWZ0ZXIgYWRkaW5nIHRoZSBzdXBwb3J0IGZvciBBU0lE
-LAo+IHdpbGwgcG9zdCB0aGUgbmV3IHZlcnNpb24gYWZ0ZXIgdGhpcyBidWcgaXMgZml4ZWQsIHNo
-b3VsZCBiZSBuZXh0IHdlZWsKPiBUaGFua3MKPiBDaW5keQoKVGhlIHdlZWsgaXMgYWxtb3N0IGdv
-bmUsIHdoYXQncyBnb2luZyBvbj8KCgo+ID4gLS0KPiA+IE1TVAo+ID4KCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Oct 26, 2023 at 10:49:24AM +0800, Lu Baolu wrote:
+> Hi folks,
+> 
+> This series implements the functionality of delivering IO page faults to
+> user space through the IOMMUFD framework for nested translation. Nested
+> translation is a hardware feature that supports two-stage translation
+> tables for IOMMU. The second-stage translation table is managed by the
+> host VMM, while the first-stage translation table is owned by user
+> space. This allows user space to control the IOMMU mappings for its
+> devices.
+
+Having now looked more closely at the ARM requirements it seems we
+will need generic events, not just page fault events to have a
+complete emulation.
+
+So I'd like to see this generalized into a channel to carry any
+events..
+
+> User space indicates its capability of handling IO page faults by
+> setting the IOMMU_HWPT_ALLOC_IOPF_CAPABLE flag when allocating a
+> hardware page table (HWPT). IOMMUFD will then set up its infrastructure
+> for page fault delivery. On a successful return of HWPT allocation, the
+> user can retrieve and respond to page faults by reading and writing to
+> the file descriptor (FD) returned in out_fault_fd.
+
+This is the right way to approach it, and more broadly this shouldn't
+be an iommufd specific thing. Kernel drivers will also need to create
+fault capable PAGING iommu domains.
+
+Jason
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
