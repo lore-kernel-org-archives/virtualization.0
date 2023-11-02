@@ -1,84 +1,143 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 29BC0C4332F
-	for <virtualization@archiver.kernel.org>; Thu,  2 Nov 2023 13:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id EA109C4332F
+	for <virtualization@archiver.kernel.org>; Thu,  2 Nov 2023 17:57:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B623A43488;
-	Thu,  2 Nov 2023 13:25:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B623A43488
+	by smtp4.osuosl.org (Postfix) with ESMTP id 823744F1C2;
+	Thu,  2 Nov 2023 17:57:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 823744F1C2
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=jQ3tnucv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3L9lHIyTjzaV; Thu,  2 Nov 2023 13:25:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D785243452;
-	Thu,  2 Nov 2023 13:25:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D785243452
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dRT9iD07D69i; Thu,  2 Nov 2023 17:57:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DB5564F23A;
+	Thu,  2 Nov 2023 17:57:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB5564F23A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B16CDC0072;
-	Thu,  2 Nov 2023 13:25:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B61FC0032
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B3261C0072;
+	Thu,  2 Nov 2023 17:57:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9BD73C0032
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 13:25:43 +0000 (UTC)
+ Thu,  2 Nov 2023 17:57:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2418443452
+ by smtp1.osuosl.org (Postfix) with ESMTP id 711F285257
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 13:25:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2418443452
+ Thu,  2 Nov 2023 17:57:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 711F285257
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=jQ3tnucv
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DCTLJkX279y7
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id t5jpveMFmlca
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 13:25:38 +0000 (UTC)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4C8A643486
+ Thu,  2 Nov 2023 17:57:10 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 446D485256
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Nov 2023 13:25:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C8A643486
-Received: from kwepemi500023.china.huawei.com (unknown [172.30.72.57])
- by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SLl0h6D4FzrTrP;
- Thu,  2 Nov 2023 21:22:28 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- kwepemi500023.china.huawei.com (7.221.188.76) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.31; Thu, 2 Nov 2023 21:25:31 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2507.031;
- Thu, 2 Nov 2023 21:25:31 +0800
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: virtcrypto_dataq_callback calls crypto_finalize_request() from
- irq context
-Thread-Topic: virtcrypto_dataq_callback calls crypto_finalize_request() from
- irq context
-Thread-Index: AQHZ7VsjRTMxo/hUEkmU1GjtoDjS1rAp3v1A///cYoCAO3GWgIACEayQ//9+LICAAIbrcA==
-Date: Thu, 2 Nov 2023 13:25:31 +0000
-Message-ID: <6e1792a31c1646f4a301faf1a1b42cc1@huawei.com>
-References: <20230922154546.4f7447ce.pasic@linux.ibm.com>
- <ed47fb73ad634ca395bd6c8e979dda8e@huawei.com>
- <20230924193941.6a02237f.pasic@linux.ibm.com>
- <20231101092521-mutt-send-email-mst@kernel.org>
- <5d9ebbdb042845009b47e6a9ee149231@huawei.com>
- <20231102091548-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231102091548-mutt-send-email-mst@kernel.org>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.174.149.11]
+ Thu,  2 Nov 2023 17:57:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 446D485256
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1698947829;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+ bh=tp8izf7QPwpHFaPqaZVcwUXFrUe8L7A/9WJXpfj40As=;
+ b=jQ3tnucv0clKthMfvijf9lMrUQvjE+1JwkwuM8Vg3Lwp3xcAv8TqVE4TCbEivZYdse+H/P
+ 5oUwKlIx7uhDEvEuNpLV3x7XHX8ANMogkU0K0/J1Wm5PTLpjwq9aZx8t5TgrIHWhqn+yKm
+ 7Xrd6JWJaBpl5ix9M5rFMeOqbFvKGzY=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-173-OqV3xzT6OW6kFOqF9arXhQ-1; Thu,
+ 02 Nov 2023 13:57:06 -0400
+X-MC-Unique: OqV3xzT6OW6kFOqF9arXhQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 60F7B1C29EB6;
+ Thu,  2 Nov 2023 17:57:04 +0000 (UTC)
+Received: from [10.39.208.33] (unknown [10.39.208.33])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 6D3ED492BFC;
+ Thu,  2 Nov 2023 17:57:00 +0000 (UTC)
+Message-ID: <76572500-5f90-46fe-9bf2-b090bf1b616b@redhat.com>
+Date: Thu, 2 Nov 2023 18:56:59 +0100
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
-Cc: Herbert Xu <herbert@gondor.apana.org.au>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>,
- Marc Hartmayer <mhartmay@linux.ibm.com>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Content-Language: en-US
+To: Casey Schaufler <casey@schaufler-ca.com>, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, paul@paul-moore.com,
+ jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com,
+ eparis@parisplace.org, xieyongji@bytedance.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ david.marchand@redhat.com, lulu@redhat.com
+References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+ <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+ <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+ <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,84 +149,100 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: "Gonglei \(Arei\) via Virtualization"
- <virtualization@lists.linux-foundation.org>
-Reply-To: "Gonglei \(Arei\)" <arei.gonglei@huawei.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 
-> -----Original Message-----
-> From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> Sent: Thursday, November 2, 2023 9:17 PM
-> To: Gonglei (Arei) <arei.gonglei@huawei.com>
-> Cc: Halil Pasic <pasic@linux.ibm.com>; Herbert Xu
-> <herbert@gondor.apana.org.au>; Jason Wang <jasowang@redhat.com>;
-> virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
-> linux-crypto@vger.kernel.org; Marc Hartmayer <mhartmay@linux.ibm.com>
-> Subject: Re: virtcrypto_dataq_callback calls crypto_finalize_request() from irq
-> context
+On 10/24/23 17:30, Casey Schaufler wrote:
+> On 10/24/2023 2:49 AM, Maxime Coquelin wrote:
+>>
+>>
+>> On 10/23/23 17:13, Casey Schaufler wrote:
+>>> On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>>>>
+>>>>
+>>>> On 10/21/23 00:20, Casey Schaufler wrote:
+>>>>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>>>>> This patch introduces LSM hooks for devices creation,
+>>>>>> destruction and opening operations, checking the
+>>>>>> application is allowed to perform these operations for
+>>>>>> the Virtio device type.
+>>>>>
+>>>>> Why do you think that there needs to be a special LSM check for virtio
+>>>>> devices? What can't existing device attributes be used?
+>>>>
+>>>> Michael asked for a way for SELinux to allow/prevent the creation of
+>>>> some types of devices [0].
+>>>>
+>>>> A device is created using ioctl() on VDUSE control chardev. Its type is
+>>>> specified via a field in the structure passed in argument.
+>>>>
+>>>> I didn't see other way than adding dedicated LSM hooks to achieve this,
+>>>> but it is possible that their is a better way to do it?
+>>>
+>>> At the very least the hook should be made more general, and I'd have to
+>>> see a proposal before commenting on that. security_dev_destroy(dev)
+>>> might
+>>> be a better approach. If there's reason to control destruction of vduse
+>>> devices it's reasonable to assume that there are other devices with the
+>>> same or similar properties.
+>>
+>> VDUSE is different from other devices as the device is actually
+>> implemented by the user-space application, so this is very specific in
+>> my opinion.
 > 
-> On Thu, Nov 02, 2023 at 01:04:07PM +0000, Gonglei (Arei) wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Michael S. Tsirkin [mailto:mst@redhat.com]
-> > > Sent: Wednesday, November 1, 2023 9:26 PM
-> > > To: Halil Pasic <pasic@linux.ibm.com>
-> > > Cc: Gonglei (Arei) <arei.gonglei@huawei.com>; Herbert Xu
-> > > <herbert@gondor.apana.org.au>; Jason Wang <jasowang@redhat.com>;
-> > > virtualization@lists.linux-foundation.org;
-> > > linux-kernel@vger.kernel.org; linux-crypto@vger.kernel.org; Marc
-> > > Hartmayer <mhartmay@linux.ibm.com>
-> > > Subject: Re: virtcrypto_dataq_callback calls
-> > > crypto_finalize_request() from irq context
-> > >
-> > > On Sun, Sep 24, 2023 at 07:39:41PM +0200, Halil Pasic wrote:
-> > > > On Sun, 24 Sep 2023 11:56:25 +0000 "Gonglei (Arei)"
-> > > > <arei.gonglei@huawei.com> wrote:
-> > > >
-> > > > > Hi Halil,
-> > > > >
-> > > > > Commit 4058cf08945 introduced a check for detecting crypto
-> > > > > completion function called with enable BH, and indeed the
-> > > > > virtio-crypto driver didn't disable BH, which needs a patch to fix it.
-> > > > >
-> > > > > P.S.:
-> > > > > https://lore.kernel.org/lkml/20220221120833.2618733-5-clabbe@bay
-> > > > > libr
-> > > > > e.com/T/
-> > > > >
-> > > > > Regards,
-> > > > > -Gonglei
-> > > >
-> > > > Thanks Gonglei!
-> > > >
-> > > > Thanks! I would be glad to test that fix on s390x. Are you about
-> > > > to send one?
-> > > >
-> > > > Regards,
-> > > > Halil
-> > >
-> > >
-> > > Gonglei did you intend to send a fix?
-> >
-> > Actually I sent a patch a month ago, pls see another thread.
-> >
-> >
-> > Regards,
-> > -Gonglei
+> This is hardly unique. If you're implementing the device
+> in user-space you may well be able to implement the desired
+> controls there.
 > 
-> And I think there was an issue with that patch that you wanted to fix?
-> config changed callback got fixed but this still didn't.
+>>
+>>>
+>>> Since SELinux is your target use case, can you explain why you can't
+>>> create SELinux policy to enforce the restrictions you're after? I
+>>> believe
+>>> (but can be proven wrong, of course) that SELinux has mechanism for
+>>> dealing
+>>> with controls on ioctls.
+>>>
+>>
+>> I am not aware of such mechanism to deal with ioctl(), if you have a
+>> pointer that would be welcome.
 > 
-Now my concern is whether or not the judgement (commit 4058cf08945c1) is reasonable.
+> security/selinux/hooks.c
+
+We might be able to extend selinux_file_ioctl(), but that will only
+covers the ioctl for the control file, this patch also adds hook for the
+device file opening that would need dedicated hook as the device type
+information is stored in the device's private data.
+
+Michael, before going further, I would be interested in your feedback.
+Was this patch what you had in mind when requesting for a way to
+allow/deny devices types for a given application?
 
 Regards,
--Gonglei
+Maxime
+
+> 
+>>
+>> Thanks,
+>> Maxime
+>>
+>>>
+>>>>
+>>>> Thanks,
+>>>> Maxime
+>>>>
+>>>> [0]:
+>>>> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>>>
+>>>>
+>>>
+>>
+> 
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
