@@ -1,100 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 48477C4332F
-	for <virtualization@archiver.kernel.org>; Fri,  3 Nov 2023 12:25:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C4963C41535
+	for <virtualization@archiver.kernel.org>; Fri,  3 Nov 2023 12:26:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B14A04368D;
-	Fri,  3 Nov 2023 12:25:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B14A04368D
+	by smtp4.osuosl.org (Postfix) with ESMTP id 507B74F3EE;
+	Fri,  3 Nov 2023 12:26:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 507B74F3EE
+Authentication-Results: smtp4.osuosl.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=X0diECcl
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BD5VhTnrgfM1; Fri,  3 Nov 2023 12:26:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C219A4F19A;
+	Fri,  3 Nov 2023 12:26:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C219A4F19A
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AACB0C0071;
+	Fri,  3 Nov 2023 12:26:43 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 75B18C0032
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Nov 2023 12:26:42 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4FA5A432DE
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Nov 2023 12:26:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4FA5A432DE
 Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=vt-edu.20230601.gappssmtp.com header.i=@vt-edu.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=A8I+nJZl
+ dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com
+ header.a=rsa-sha256 header.s=corp-2023-03-30 header.b=X0diECcl
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9SRsU5FC7UpK; Fri,  3 Nov 2023 12:25:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8EF4E404B1;
-	Fri,  3 Nov 2023 12:25:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8EF4E404B1
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6798EC0071;
-	Fri,  3 Nov 2023 12:25:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F09F4C0032
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ayYbuJKGGaSU
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 12:25:40 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id CC3E084D21
+ Fri,  3 Nov 2023 12:26:39 +0000 (UTC)
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B390943200
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 12:25:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC3E084D21
-Authentication-Results: smtp1.osuosl.org;
- dkim=pass (2048-bit key) header.d=vt-edu.20230601.gappssmtp.com
- header.i=@vt-edu.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601
- header.b=A8I+nJZl
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wD4e0jnWggGx
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 12:25:38 +0000 (UTC)
-Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com
- [IPv6:2607:f8b0:4864:20::935])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 49CB484D18
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 12:25:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 49CB484D18
-Received: by mail-ua1-x935.google.com with SMTP id
- a1e0cc1a2514c-7ba0d338367so828030241.2
- for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Nov 2023 05:25:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=vt-edu.20230601.gappssmtp.com; s=20230601; t=1699014337; x=1699619137;
- darn=lists.linux-foundation.org; 
- h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
- :date:message-id:reply-to;
- bh=2Bi2g2lPG1OoJamzAodvRCrCRuGvSQDXo9Dph5jPEVg=;
- b=A8I+nJZlfeLIML/CaTXh/IBeIXIR9pnH5lgHnTuivhk5vihTs+6dtFnsW9Io/+NS6W
- yLHKPOG7aenKrxd3EI96NVbz3A5P/h0RR7MOcHyCLe5cYrjjgb9Y5EoSrUcICt5uGbeH
- BVNWMghp5nXIZBqAp31EMlUP2C5kq1WcmeAVZOlUnG6BX7qarj2U8ywiZjS56VnM5a0O
- /B7xbaHqvfOLznUlJadlWQLXtooPGXt8pIeNpO/bJRWax+n6a19mhL/WG743XZnuIHQQ
- a7CZbm3qiIqA+gSvkUB41mFB/a32F/RD4Y1LEUZ74Ndn18tvF+WR3Occle6U7/DDPKkG
- SFpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1699014337; x=1699619137;
- h=to:subject:message-id:date:from:mime-version:x-gm-message-state
- :from:to:cc:subject:date:message-id:reply-to;
- bh=2Bi2g2lPG1OoJamzAodvRCrCRuGvSQDXo9Dph5jPEVg=;
- b=PgznoL6tXXM+qnuznnOBU8W5hNDJSWYKlw3RQ1/1KsuJ/WBl4/RbIy2sTOU6/mtilc
- JgTHyorP8ushBVJ62VWQk+rTrkuPKtzPIZeDFUyN9QObn09UHb3fXyQVPsdKVZUaQr13
- gG+yyAROhn2WeEl3VukJHFC2N4hZ33Hi2NiJM5df3aNxumoU1GyTVNPOxYhFwuly5Wzy
- QBiVBNwRI65DhepMdKObwHczEeSTcoHdHAjjxhMwBg8dz8spqkA+HK/pW7xASyESlBul
- 7dlmOyX57R6Y2PitdtB2RRGp5lOu6vwt9SZ1x5jbThLpVvzn5q6RDS1TE+MNx4TPyW7U
- qV1w==
-X-Gm-Message-State: AOJu0YzbUihgg70y8LmZ/AfBxuBShC2zIn10D4Q71CtZIwbcUfvgxD1R
- x0WIAqnSD/0OeF/8ABxug8w/XNQYpHj4RlyqSLw4Jw==
-X-Google-Smtp-Source: AGHT+IHbT9frMxL5oLpzIdUsUjA0gg/IXMcQsOkUPXiuDUDwH+esN39MtPcCamlXq1ZTFDJOhEoFwD9iMQA02/qgEJA=
-X-Received: by 2002:a05:6102:2089:b0:45d:8876:882 with SMTP id
- h9-20020a056102208900b0045d88760882mr2578337vsr.4.1699014336846; Fri, 03 Nov
- 2023 05:25:36 -0700 (PDT)
+ Fri,  3 Nov 2023 12:26:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B390943200
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id
+ 3A2NOgrf010612; Fri, 3 Nov 2023 12:26:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : mime-version : content-type :
+ content-transfer-encoding; s=corp-2023-03-30;
+ bh=zgHrw6VGeyWMel+aZHOfhG+ULGqf048GVY0ovi8BZ68=;
+ b=X0diECclx6eH3KP9Gq39pZ9xuHFiYx69oCscDi9jxdtWPxA+EjKA99MgkizkLJGziItB
+ 550XC+1GWeoiwK3PqMNdXwSAiGxetQXGZN3roNisALsB+/49ct03qbKDNWmpZs7JzV4W
+ R1fq+ylmE+vvhoY+DSFWZcV3AiLhcq+HchpYHpH81l/xOtrjctOXo7USwuZ6cybDov5+
+ vETsO3j+yeX/l/iSZy2U5RKdfZYbyoL+LrDRvSqqNy096Omf8I9t5PEpm0ECX8EsEoJO
+ iYWviV5NkhOmQKhEeTfXr98uKIV2vPR5sFYozuXv6gqKbOmwguYicT4UkzChIpmZiNO1 tw== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+ by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3u0tuuks6m-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 03 Nov 2023 12:26:34 +0000
+Received: from pps.filterd
+ (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19)
+ with ESMTP id 3A3AlWk9001040; Fri, 3 Nov 2023 12:26:33 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+ by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id
+ 3u0rrab69e-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 03 Nov 2023 12:26:33 +0000
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com
+ (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+ by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3A3CQXvT039969;
+ Fri, 3 Nov 2023 12:26:33 GMT
+Received: from ca-dev63.us.oracle.com (ca-dev63.us.oracle.com [10.211.8.221])
+ by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with
+ ESMTP id 3u0rrab66c-1; Fri, 03 Nov 2023 12:26:33 +0000
+From: Steve Sistare <steven.sistare@oracle.com>
+To: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: [PATCH V3] vdpa/mlx5: preserve CVQ vringh index
+Date: Fri,  3 Nov 2023 05:26:27 -0700
+Message-Id: <1699014387-194368-1-git-send-email-steven.sistare@oracle.com>
+X-Mailer: git-send-email 1.8.3.1
 MIME-Version: 1.0
-From: Ali Anwar <ali@vt.edu>
-Date: Fri, 3 Nov 2023 07:25:00 -0500
-Message-ID: <CA+Vr5ctG0bTnM8s5jOTFC02_iryLg_6yuzN5nNaBG24xqP8WOg@mail.gmail.com>
-Subject: HPDC 2024: Call for Workshops and Tutorials
-To: tci-announce@computer.org, tcde-announce@computer.org, 
- tcpp-announce@computer.org, tcbis-announce@computer.org, 
- "HPC-MEMBERS@listserv.acm.org" <HPC-MEMBERS@listserv.acm.org>, 
- sc-workshop-attendee-cfp@group.supercomputing.org, 
- hpc-india@mailman.serc.iisc.in, hipeac.publicity@lists.ugent.be, 
- sigops-announce@listserv.acm.org, publicity@hipeac.net, 
- htcondor-users@cs.wisc.edu, dbworld@cs.wisc.edu, 
- virtualization@lists.linux-foundation.org, users@planet-lab.org, 
- infodir_sigcomm@acm.org, sigplan-l@acm.uiuc.edu
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-03_12,2023-11-02_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ suspectscore=0
+ malwarescore=0 phishscore=0 spamscore=0 adultscore=0 bulkscore=0
+ mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2310240000 definitions=main-2311030104
+X-Proofpoint-GUID: oBBaOlEfpjy3wDarKlIvSnjZvFlr3MBP
+X-Proofpoint-ORIG-GUID: oBBaOlEfpjy3wDarKlIvSnjZvFlr3MBP
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Eugenio Perez Martin <eperezma@redhat.com>,
+ Steve Sistare <steven.sistare@oracle.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,257 +113,41 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============8454685716702946201=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============8454685716702946201==
-Content-Type: multipart/alternative; boundary="00000000000004374006093e9a0e"
-
---00000000000004374006093e9a0e
-Content-Type: text/plain; charset="UTF-8"
-
-*******************************************
-HPDC 2024: Call for Workshops and Tutorials
-Date: 3-7 June 2024
-Location: Pisa, Italy
-*******************************************
-
-* Overview
-
-HPDC warmly invites proposals for workshops and tutorials. Workshops offer
-a platform for valuable discussions among researchers and practitioners,
-focusing on key topics and emerging research areas in the field of
-High-Performance Computing (HPC) and distributed computing. Workshops
-typically feature a blend of invited talks, peer-reviewed papers, panel
-discussions, and work-in-progress presentations. Workshop organizers are
-encouraged to structure their sessions for an audience of approximately
-20-40 participants, with flexibility for either a full day or half day
-format depending on interest and space availability.
-
-We welcome proposals for workshops on new, innovative topics as well as
-submissions to continue successful workshops from previous years. Note that
-proceedings of HPDC workshops will be published in by the ACM in dedicated
-proceedings. The selected workshops and tutorials will be held on the first
-two days of the conference (June 3rd and 4th).
-
-* Important Dates AoE
-
-    November 6, 2023. Workshops and Tutorial proposals' early deadline
-
-    November 13, 2023. Notification of acceptance (Workshops and Tutorials)
-- early submissions
-
-    December 4, 2023. Workshops and Tutorial proposals' late deadline
-
-    December 11, 2023. Notification of acceptance (Workshops and Tutorials)
-- early submissions
-
-    TBA Paper Submission deadline
-
-    TBA Notification of acceptance (Papers)
-
-    TBA Camera-ready due
-
-* Workshops and Tutorials Submission Process
-
-To Submit: Please email your proposal to the Worshops and Tutorial chairs
-using the following addresses: matteo.mordacchini@iit.cnr.it ,
-mrz7dp@virginia.edu . The submissions must conform to the Submission
-Guidelines.
-
-* Workshop Proposals Formatting Guidelines
-
-Please adhere to the following formatting guidelines for workshop
-proposals. Your proposal should be submitted as a single PDF document
-containing 2 to 4 pages and should include the following information:
-- Workshop name: Provide the complete workshop title along its acronym.
-- Duration: Specify whether the workshop is intended for a full day or a
-half day.
-- Workshop Theme and Key Topics: Describe the overarching theme of the
-workshop and its core topics. Emphasize the focused nature of the theme.
-- Relevance to HPDC: Highlight how the proposed workshop complements the
-main HPDC program.
-- The structure of the workshop (peer-reviewed articles, invited articles,
-invited talks, panels, etc.).
-- Workshop Structure: Explain the workshop's structure, including elements
-like peer-reviewed articles, invited talks, panels, and more.
-- Invited Speakers and Panelists: Propose the names of potential invited
-speakers and panelists and describe how they will contribute to the
-workshop's discussions.
-- Program Committee (Optional): Provide a tentative list of program
-committee members if available.
-- Review Process: Detail the review process for workshop paper acceptance.
-- Call for Papers (Optional): If applicable, include a preliminary version
-of the Call for Papers (CFP).
-- Paper Publication: Specify the type and length of papers to be accepted
-if the workshop plans to publish papers.
-- Intended Audience: Outline plans for attracting submissions and workshop
-attendees.
-- Attraction and Engagement: A plan for attracting submissions and
-attendees to the workshop.
-- Organizer Bios: Briefly introduce the workshop organizers with their
-biographical information.
-- Previous Workshop Data (if applicable): Share details of past workshop
-editions, including attendance, submitted papers, and accepted papers.
-- Workshop Setup: Accepted workshops should be prepared to establish a
-dedicated website. If you plan to use a paper submission process with peer
-review, provide the submission link.
-
-* Tutorial Proposals Formatting Guidelines
-
-Tutorial proposals should be formatted as a single PDF document of 2-4
-pages, describing the following:
-- The full name and acronym of the Tutorial
-- Abstract, objectives and motivation, and intended audience
-- Name and a short biography of each tutorial presenter
-- A description of the topics that the tutorial will address, emphasizing
-their timeliness
-- An outline of the tutorial content, including its tentative schedule and
-the presenters for different parts
-- Possibility of and suitability for a virtual presentation of the tutorial
-- A description of the past/relevant experience of the speaker(s) on the
-topic of the tutorial
-- A description of previous tutorial experience of the speaker(s), and past
-versions of the tutorial
-- State whether a similar tutorial has been offered in recent ICC &
-Globecom (last two years) and how your tutorial differs
-
---00000000000004374006093e9a0e
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">******************************************* <br>
-<span class=3D"gmail-il">HPDC</span> 2024: Call for Workshops and Tutorials=
- <br>
-Date: 3-7 June 2024 <br>
-Location: Pisa, Italy <br>
-******************************************* <br>
-<br>
-* Overview <br>
-<br>
-<span class=3D"gmail-il">HPDC</span> warmly invites proposals for workshops=
- and=20
-tutorials. Workshops offer a platform for valuable discussions among=20
-researchers and practitioners, focusing on key topics and emerging=20
-research areas in the field of High-Performance Computing (HPC) and=20
-distributed computing. Workshops typically feature a blend of invited=20
-talks, peer-reviewed papers, panel discussions, and work-in-progress=20
-presentations. Workshop organizers are encouraged to structure their=20
-sessions for an audience of approximately 20-40 participants, with=20
-flexibility for either a full day or half day format depending on=20
-interest and space availability. <br>
-<br>
-We welcome proposals for workshops on new, innovative topics as well as=20
-submissions to continue successful workshops from previous years. Note=20
-that proceedings of <span class=3D"gmail-il">HPDC</span> workshops will be=
-=20
-published in by the ACM in dedicated proceedings. The selected workshops
- and tutorials will be held on the first two days of the conference=20
-(June 3rd and 4th). <br>
-<br>
-* Important Dates AoE <br>
-<br>
-=C2=A0 =C2=A0 November 6, <span class=3D"gmail-il">2023</span>. Workshops a=
-nd Tutorial proposals&#39; early deadline <br>
-<br>
-=C2=A0 =C2=A0 November 13, <span class=3D"gmail-il">2023</span>. Notificati=
-on of acceptance (Workshops and Tutorials) - early submissions <br>
-<br>
-=C2=A0 =C2=A0 December 4, <span class=3D"gmail-il">2023</span>. Workshops a=
-nd Tutorial proposals&#39; late deadline <br>
-<br>
-=C2=A0 =C2=A0 December 11, <span class=3D"gmail-il">2023</span>. Notificati=
-on of acceptance (Workshops and Tutorials) - early submissions <br>
-<br>
-=C2=A0 =C2=A0 TBA Paper Submission deadline <br>
-<br>
-=C2=A0 =C2=A0 TBA Notification of acceptance (Papers) <br>
-<br>
-=C2=A0 =C2=A0 TBA Camera-ready due <br>
-<br>
-* Workshops and Tutorials Submission Process <br>
-<br>
-To Submit: Please email your proposal to the Worshops and Tutorial chairs u=
-sing the following addresses: <a href=3D"mailto:matteo.mordacchini@iit.cnr.=
-it" target=3D"_blank">matteo.mordacchini@iit.cnr.it</a> , <a href=3D"mailto=
-:mrz7dp@virginia.edu" target=3D"_blank">mrz7dp@virginia.edu</a> . The submi=
-ssions must conform to the Submission Guidelines. <br>
-<br>
-* Workshop Proposals Formatting Guidelines <br>
-<br>
-Please adhere to the following formatting guidelines for workshop=20
-proposals. Your proposal should be submitted as a single PDF document=20
-containing 2 to 4 pages and should include the following information: <br>
-- Workshop name: Provide the complete workshop title along its acronym. <br=
->
-- Duration: Specify whether the workshop is intended for a full day or a ha=
-lf day. <br>
-- Workshop Theme and Key Topics: Describe the overarching theme of the=20
-workshop and its core topics. Emphasize the focused nature of the theme.
- <br>
-- Relevance to <span class=3D"gmail-il">HPDC</span>: Highlight how the prop=
-osed workshop complements the main <span class=3D"gmail-il">HPDC</span> pro=
-gram. <br>
-- The structure of the workshop (peer-reviewed articles, invited articles, =
-invited talks, panels, etc.). <br>
-- Workshop Structure: Explain the workshop&#39;s structure, including=20
-elements like peer-reviewed articles, invited talks, panels, and more. <br>
-- Invited Speakers and Panelists: Propose the names of potential invited
- speakers and panelists and describe how they will contribute to the=20
-workshop&#39;s discussions. <br>
-- Program Committee (Optional): Provide a tentative list of program committ=
-ee members if available. <br>
-- Review Process: Detail the review process for workshop paper acceptance. =
-<br>
-- Call for Papers (Optional): If applicable, include a preliminary version =
-of the Call for Papers (CFP). <br>
-- Paper Publication: Specify the type and length of papers to be accepted i=
-f the workshop plans to publish papers. <br>
-- Intended Audience: Outline plans for attracting submissions and workshop =
-attendees. <br>
-- Attraction and Engagement: A plan for attracting submissions and attendee=
-s to the workshop. <br>
-- Organizer Bios: Briefly introduce the workshop organizers with their biog=
-raphical information. <br>
-- Previous Workshop Data (if applicable): Share details of past workshop
- editions, including attendance, submitted papers, and accepted papers. <br=
->
-- Workshop Setup: Accepted workshops should be prepared to establish a=20
-dedicated website. If you plan to use a paper submission process with=20
-peer review, provide the submission link. <br>
-<br>
-* Tutorial Proposals Formatting Guidelines <br>
-<br>
-Tutorial proposals should be formatted as a single PDF document of 2-4 page=
-s, describing the following: <br>
-- The full name and acronym of the Tutorial <br>
-- Abstract, objectives and motivation, and intended audience <br>
-- Name and a short biography of each tutorial presenter <br>
-- A description of the topics that the tutorial will address, emphasizing t=
-heir timeliness <br>
-- An outline of the tutorial content, including its tentative schedule and =
-the presenters for different parts <br>
-- Possibility of and suitability for a virtual presentation of the tutorial=
- <br>
-- A description of the past/relevant experience of the speaker(s) on the to=
-pic of the tutorial <br>
-- A description of previous tutorial experience of the speaker(s), and past=
- versions of the tutorial <br><div>
-- State whether a similar tutorial has been offered in recent ICC &amp; Glo=
-becom (last two years) and how your tutorial differs</div><div><br></div><d=
-iv><br></div></div>
-
---00000000000004374006093e9a0e--
-
---===============8454685716702946201==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8454685716702946201==--
+bWx4NV92ZHBhIGRvZXMgbm90IHByZXNlcnZlIHVzZXJsYW5kJ3MgdmlldyBvZiB2cmluZyBiYXNl
+IGZvciB0aGUgY29udHJvbApxdWV1ZSBpbiB0aGUgZm9sbG93aW5nIHNlcXVlbmNlOgoKaW9jdGwg
+VkhPU1RfU0VUX1ZSSU5HX0JBU0UKaW9jdGwgVkhPU1RfVkRQQV9TRVRfU1RBVFVTIFZJUlRJT19D
+T05GSUdfU19EUklWRVJfT0sKICBtbHg1X3ZkcGFfc2V0X3N0YXR1cygpCiAgICBzZXR1cF9jdnFf
+dnJpbmcoKQogICAgICB2cmluZ2hfaW5pdF9pb3RsYigpCiAgICAgICAgdnJpbmdoX2luaXRfa2Vy
+bigpCiAgICAgICAgICB2cmgtPmxhc3RfYXZhaWxfaWR4ID0gMDsKaW9jdGwgVkhPU1RfR0VUX1ZS
+SU5HX0JBU0UKClRvIGZpeCwgcmVzdG9yZSB0aGUgdmFsdWUgb2YgY3ZxLT52cmluZy5sYXN0X2F2
+YWlsX2lkeCBhZnRlciBjYWxsaW5nCnZyaW5naF9pbml0X2lvdGxiLgoKRml4ZXM6IDUyNjI5MTJl
+ZjNjZiAoInZkcGEvbWx4NTogQWRkIHN1cHBvcnQgZm9yIGNvbnRyb2wgVlEgYW5kIE1BQyBzZXR0
+aW5nIikKClNpZ25lZC1vZmYtYnk6IFN0ZXZlIFNpc3RhcmUgPHN0ZXZlbi5zaXN0YXJlQG9yYWNs
+ZS5jb20+CkFja2VkLWJ5OiBFdWdlbmlvIFDDqXJleiA8ZXBlcmV6bWFAcmVkaGF0LmNvbT4KQWNr
+ZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Ci0tLQogZHJpdmVycy92ZHBh
+L21seDUvbmV0L21seDVfdm5ldC5jIHwgNyArKysrKystCiAxIGZpbGUgY2hhbmdlZCwgNiBpbnNl
+cnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL21seDUv
+bmV0L21seDVfdm5ldC5jIGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCmluZGV4
+IDk0NjQ4OGI4OTg5Zi4uY2E5NzJhZjNjODlhIDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZkcGEvbWx4
+NS9uZXQvbWx4NV92bmV0LmMKKysrIGIvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5j
+CkBAIC0yNzk1LDEzICsyNzk1LDE4IEBAIHN0YXRpYyBpbnQgc2V0dXBfY3ZxX3ZyaW5nKHN0cnVj
+dCBtbHg1X3ZkcGFfZGV2ICptdmRldikKIAlzdHJ1Y3QgbWx4NV9jb250cm9sX3ZxICpjdnEgPSAm
+bXZkZXYtPmN2cTsKIAlpbnQgZXJyID0gMDsKIAotCWlmIChtdmRldi0+YWN0dWFsX2ZlYXR1cmVz
+ICYgQklUX1VMTChWSVJUSU9fTkVUX0ZfQ1RSTF9WUSkpCisJaWYgKG12ZGV2LT5hY3R1YWxfZmVh
+dHVyZXMgJiBCSVRfVUxMKFZJUlRJT19ORVRfRl9DVFJMX1ZRKSkgeworCQl1MTYgaWR4ID0gY3Zx
+LT52cmluZy5sYXN0X2F2YWlsX2lkeDsKKwogCQllcnIgPSB2cmluZ2hfaW5pdF9pb3RsYigmY3Zx
+LT52cmluZywgbXZkZXYtPmFjdHVhbF9mZWF0dXJlcywKIAkJCQkJTUxYNV9DVlFfTUFYX0VOVCwg
+ZmFsc2UsCiAJCQkJCShzdHJ1Y3QgdnJpbmdfZGVzYyAqKSh1aW50cHRyX3QpY3ZxLT5kZXNjX2Fk
+ZHIsCiAJCQkJCShzdHJ1Y3QgdnJpbmdfYXZhaWwgKikodWludHB0cl90KWN2cS0+ZHJpdmVyX2Fk
+ZHIsCiAJCQkJCShzdHJ1Y3QgdnJpbmdfdXNlZCAqKSh1aW50cHRyX3QpY3ZxLT5kZXZpY2VfYWRk
+cik7CiAKKwkJaWYgKCFlcnIpCisJCQljdnEtPnZyaW5nLmxhc3RfYXZhaWxfaWR4ID0gY3ZxLT52
+cmluZy5sYXN0X3VzZWRfaWR4ID0gaWR4OworCX0KIAlyZXR1cm4gZXJyOwogfQogCi0tIAoyLjM5
+LjMKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
