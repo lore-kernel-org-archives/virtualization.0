@@ -1,113 +1,145 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id B8A3CC4332F
-	for <virtualization@archiver.kernel.org>; Fri,  3 Nov 2023 07:39:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3825FC4332F
+	for <virtualization@archiver.kernel.org>; Fri,  3 Nov 2023 07:55:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2C77B43549;
-	Fri,  3 Nov 2023 07:39:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2C77B43549
-Authentication-Results: smtp2.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=UXY+fvAm
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7hmgDTypIAYq; Fri,  3 Nov 2023 07:39:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B03D54185E;
-	Fri,  3 Nov 2023 07:39:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B03D54185E
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6E1FBC0071;
-	Fri,  3 Nov 2023 07:39:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8C0C4C0032
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 07:39:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 61B7F707C3
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 07:39:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 61B7F707C3
+	by smtp3.osuosl.org (Postfix) with ESMTP id D6CD8707C9;
+	Fri,  3 Nov 2023 07:55:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D6CD8707C9
 Authentication-Results: smtp3.osuosl.org;
- dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=UXY+fvAm
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvDEM3j/
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ALyqI4PhWxEZ
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id luppV31uGaCT; Fri,  3 Nov 2023 07:55:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 41CCC707C7;
+	Fri,  3 Nov 2023 07:55:33 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 41CCC707C7
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1907CC0071;
+	Fri,  3 Nov 2023 07:55:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 52309C0032
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 07:39:22 +0000 (UTC)
+ Fri,  3 Nov 2023 07:55:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 19E2D84FCE
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Nov 2023 07:55:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 19E2D84FCE
+Authentication-Results: smtp1.osuosl.org;
+ dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=YvDEM3j/
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gwrrmAIaGaME
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Nov 2023 07:55:31 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 18AE1707C2
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DFA1A84FC2
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Nov 2023 07:39:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 18AE1707C2
+ Fri,  3 Nov 2023 07:55:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DFA1A84FC2
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1698997161;
+ s=mimecast20190719; t=1698998129;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=1ZuQohmnOldmW1VHy4ROYujf3sIsVkqTMbg2gI0VTvA=;
- b=UXY+fvAm+5MOpxw5oCf3ZucvzeSaMbCEsrSQRPhXIFLUfMSEs31/Udw/OiAYWXzVVedvKc
- cQifisedbevmBTAEULHOnEoYSn2zlKWdPaukplhxUfhZEdO+LnlMUgMSJqfMIeCWXt2wWE
- RF/jXV2gUlfETkTAtc/uIM6x0MMy1lM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-463-923rvr0EMCG3IC8w1ZVU9g-1; Fri, 03 Nov 2023 03:39:17 -0400
-X-MC-Unique: 923rvr0EMCG3IC8w1ZVU9g-1
-Received: by mail-wm1-f69.google.com with SMTP id
- 5b1f17b1804b1-40837aa4a58so11844425e9.0
- for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Nov 2023 00:39:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1698997156; x=1699601956;
- h=in-reply-to:content-disposition:mime-version:references:message-id
- :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
- :message-id:reply-to;
- bh=1ZuQohmnOldmW1VHy4ROYujf3sIsVkqTMbg2gI0VTvA=;
- b=apIvrBaGNxxne6kCSQmwz553xNRNrJuZ3AEwBxEpRspV9diwWWwX9d9vcJZQIc/p8o
- 2RRdAj53h5l3Fj5Cvy5Bl/QcCrN1EA+NF7GjfGzuynHR5Cc0FiMP0OgLJZOHt0I/K6MX
- gJrGu0a0JIh0bjtsGyjQX8V0dwyP3Qwa+QMawFWBjuhr7k7Zc/Ylwoom+iRdo29HrVi8
- zraLiERJ7N6jA4xxTjG2eNb1i8NKoiJqG0G8mjo+qf66SQSnG8H7HUTpEqMzwKdN15KZ
- MCqXd6KDhdhDAaM1wJ7bpH5kyn7dBM5aQmTmTP5+Z77u47lM0YqQ3DsIUZ48CPKKW50z
- NMDQ==
-X-Gm-Message-State: AOJu0Yw5dDfykrlC0HZUqRHqc4FaQrGHv0ECEdjRB5b9ECv8ZAmMw9uG
- wn+WA0O10py/tkeHnSUbWj8gdO8EoTuo6firojtrwhWsqPWWUqX6Ixiqsxen3h7/OzFGFPrnCUp
- PFJRyQECD5BCLFDmretrk9pbQMWK0YjXcJtF5vdEWAA==
-X-Received: by 2002:a05:600c:4313:b0:401:c7ec:b930 with SMTP id
- p19-20020a05600c431300b00401c7ecb930mr1838750wme.10.1698997156167; 
- Fri, 03 Nov 2023 00:39:16 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHsPxlKYqAwFNSXNswHyQdCOpU9lVHJsDEKqDQ0yhKTs/DCMk3R2BvFerg99LrQVPM6Xpycwg==
-X-Received: by 2002:a05:600c:4313:b0:401:c7ec:b930 with SMTP id
- p19-20020a05600c431300b00401c7ecb930mr1838728wme.10.1698997155784; 
- Fri, 03 Nov 2023 00:39:15 -0700 (PDT)
-Received: from redhat.com ([2a02:14f:174:efc3:a5be:5586:34a6:1108])
- by smtp.gmail.com with ESMTPSA id
- bg19-20020a05600c3c9300b0040531f5c51asm1583577wmb.5.2023.11.03.00.39.12
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 03 Nov 2023 00:39:14 -0700 (PDT)
-Date: Fri, 3 Nov 2023 03:39:10 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH V2 vfio 5/9] virtio-pci: Initialize the supported admin
- commands
-Message-ID: <20231103033834-mutt-send-email-mst@kernel.org>
-References: <20231029155952.67686-6-yishaih@nvidia.com>
- <202311030838.GjyaBTjM-lkp@intel.com>
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+ bh=FOUy5i+ta8kHEotWXp1Hvd/Nqwn03M9SEkKRkyJzmFc=;
+ b=YvDEM3j/sxWZKyISeU+01stb+U2w6DEbOpGnEHdP0tBKFpnex4DWF3T3EQPI0H7oaDYxa+
+ dZ2sYud1S6YDK54zHo1UBSEVr+9+fP++8zc57AQGWYkF8pFL3gIpWmorI4rpqhlHIDWPRf
+ c7HHGZmwj2P2Ycu0d8bGgg0vk8s67R4=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-219-k2EqLvLfMKWRusGMt0IEPQ-1; Fri,
+ 03 Nov 2023 03:55:26 -0400
+X-MC-Unique: k2EqLvLfMKWRusGMt0IEPQ-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.10])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (No client certificate requested)
+ by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B131F1C06EC3;
+ Fri,  3 Nov 2023 07:55:25 +0000 (UTC)
+Received: from [10.39.208.33] (unknown [10.39.208.33])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 57B2C492BFA;
+ Fri,  3 Nov 2023 07:55:21 +0000 (UTC)
+Message-ID: <598eb8df-0f5f-4f21-8c34-f54ecbbcaca2@redhat.com>
+Date: Fri, 3 Nov 2023 08:55:19 +0100
 MIME-Version: 1.0
-In-Reply-To: <202311030838.GjyaBTjM-lkp@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, maorg@nvidia.com, jiri@nvidia.com,
- virtualization@lists.linux-foundation.org, jgg@nvidia.com,
- oe-kbuild-all@lists.linux.dev, leonro@nvidia.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20231020155819.24000-1-maxime.coquelin@redhat.com>
+ <20231020155819.24000-5-maxime.coquelin@redhat.com>
+ <c8f189e6-c79b-429a-ab36-2193bb68e3e9@schaufler-ca.com>
+ <923f87a1-1871-479e-832e-db67b5ae87fd@redhat.com>
+ <64626db9-e37a-4c65-a455-fc3985382216@schaufler-ca.com>
+ <7524dee3-7c48-4864-8182-1b166b0f6faa@redhat.com>
+ <b307ec62-7cfd-4a58-88ef-ea549c64e75e@schaufler-ca.com>
+ <76572500-5f90-46fe-9bf2-b090bf1b616b@redhat.com>
+ <20231102145932-mutt-send-email-mst@kernel.org>
+From: Maxime Coquelin <maxime.coquelin@redhat.com>
+Autocrypt: addr=maxime.coquelin@redhat.com; keydata=
+ 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
+ Mwqu3GQ=
+In-Reply-To: <20231102145932-mutt-send-email-mst@kernel.org>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
+Cc: xuanzhuo@linux.alibaba.com, paul@paul-moore.com, lulu@redhat.com,
+ selinux@vger.kernel.org, linux-kernel@vger.kernel.org, jmorris@namei.org,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ linux-security-module@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>, eparis@parisplace.org,
+ david.marchand@redhat.com, stephen.smalley.work@gmail.com, serge@hallyn.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,131 +151,127 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 03, 2023 at 08:33:06AM +0800, kernel test robot wrote:
-> Hi Yishai,
-> 
-> kernel test robot noticed the following build warnings:
-> 
-> [auto build test WARNING on awilliam-vfio/for-linus]
-> [also build test WARNING on linus/master v6.6]
-> [cannot apply to awilliam-vfio/next mst-vhost/linux-next next-20231102]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Yishai-Hadas/virtio-Define-feature-bit-for-administration-virtqueue/20231030-000414
-> base:   https://github.com/awilliam/linux-vfio.git for-linus
-> patch link:    https://lore.kernel.org/r/20231029155952.67686-6-yishaih%40nvidia.com
-> patch subject: [PATCH V2 vfio 5/9] virtio-pci: Initialize the supported admin commands
-> config: i386-randconfig-061-20231102 (https://download.01.org/0day-ci/archive/20231103/202311030838.GjyaBTjM-lkp@intel.com/config)
-> compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231103/202311030838.GjyaBTjM-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202311030838.GjyaBTjM-lkp@intel.com/
-> 
-> sparse warnings: (new ones prefixed by >>)
-> >> drivers/virtio/virtio_pci_modern.c:726:16: sparse: sparse: restricted __le16 degrades to integer
-> 
-> vim +726 drivers/virtio/virtio_pci_modern.c
-> 
->    673	
->    674	static int vp_modern_admin_cmd_exec(struct virtio_device *vdev,
->    675					    struct virtio_admin_cmd *cmd)
->    676	{
->    677		struct scatterlist *sgs[VIRTIO_AVQ_SGS_MAX], hdr, stat;
->    678		struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->    679		struct virtio_admin_cmd_status *va_status;
->    680		unsigned int out_num = 0, in_num = 0;
->    681		struct virtio_admin_cmd_hdr *va_hdr;
->    682		struct virtqueue *avq;
->    683		u16 status;
->    684		int ret;
->    685	
->    686		avq = virtio_has_feature(vdev, VIRTIO_F_ADMIN_VQ) ?
->    687			vp_dev->admin_vq.info.vq : NULL;
->    688		if (!avq)
->    689			return -EOPNOTSUPP;
->    690	
->    691		va_status = kzalloc(sizeof(*va_status), GFP_KERNEL);
->    692		if (!va_status)
->    693			return -ENOMEM;
->    694	
->    695		va_hdr = kzalloc(sizeof(*va_hdr), GFP_KERNEL);
->    696		if (!va_hdr) {
->    697			ret = -ENOMEM;
->    698			goto err_alloc;
->    699		}
->    700	
->    701		va_hdr->opcode = cmd->opcode;
->    702		va_hdr->group_type = cmd->group_type;
->    703		va_hdr->group_member_id = cmd->group_member_id;
->    704	
->    705		/* Add header */
->    706		sg_init_one(&hdr, va_hdr, sizeof(*va_hdr));
->    707		sgs[out_num] = &hdr;
->    708		out_num++;
->    709	
->    710		if (cmd->data_sg) {
->    711			sgs[out_num] = cmd->data_sg;
->    712			out_num++;
->    713		}
->    714	
->    715		/* Add return status */
->    716		sg_init_one(&stat, va_status, sizeof(*va_status));
->    717		sgs[out_num + in_num] = &stat;
->    718		in_num++;
->    719	
->    720		if (cmd->result_sg) {
->    721			sgs[out_num + in_num] = cmd->result_sg;
->    722			in_num++;
->    723		}
->    724	
->    725		if (cmd->opcode == VIRTIO_ADMIN_CMD_LIST_QUERY ||
->  > 726		    cmd->opcode == VIRTIO_ADMIN_CMD_LIST_USE)
 
-yes, this is broken on BE. You need to convert enums to LE before you
-compare.
 
->    727			ret = __virtqueue_exec_admin_cmd(&vp_dev->admin_vq, sgs,
->    728					       out_num, in_num,
->    729					       sgs, GFP_KERNEL);
->    730		else
->    731			ret = virtqueue_exec_admin_cmd(&vp_dev->admin_vq, sgs,
->    732					       out_num, in_num,
->    733					       sgs, GFP_KERNEL);
->    734		if (ret) {
->    735			dev_err(&vdev->dev,
->    736				"Failed to execute command on admin vq: %d\n.", ret);
->    737			goto err_cmd_exec;
->    738		}
->    739	
->    740		status = le16_to_cpu(va_status->status);
->    741		if (status != VIRTIO_ADMIN_STATUS_OK) {
->    742			dev_err(&vdev->dev,
->    743				"admin command error: status(%#x) qualifier(%#x)\n",
->    744				status, le16_to_cpu(va_status->status_qualifier));
->    745			ret = -status;
->    746		}
->    747	
->    748	err_cmd_exec:
->    749		kfree(va_hdr);
->    750	err_alloc:
->    751		kfree(va_status);
->    752		return ret;
->    753	}
->    754	
+On 11/2/23 19:59, Michael S. Tsirkin wrote:
+> On Thu, Nov 02, 2023 at 06:56:59PM +0100, Maxime Coquelin wrote:
+>>
+>>
+>> On 10/24/23 17:30, Casey Schaufler wrote:
+>>> On 10/24/2023 2:49 AM, Maxime Coquelin wrote:
+>>>>
+>>>>
+>>>> On 10/23/23 17:13, Casey Schaufler wrote:
+>>>>> On 10/23/2023 12:28 AM, Maxime Coquelin wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 10/21/23 00:20, Casey Schaufler wrote:
+>>>>>>> On 10/20/2023 8:58 AM, Maxime Coquelin wrote:
+>>>>>>>> This patch introduces LSM hooks for devices creation,
+>>>>>>>> destruction and opening operations, checking the
+>>>>>>>> application is allowed to perform these operations for
+>>>>>>>> the Virtio device type.
+>>>>>>>
+>>>>>>> Why do you think that there needs to be a special LSM check for virtio
+>>>>>>> devices? What can't existing device attributes be used?
+>>>>>>
+>>>>>> Michael asked for a way for SELinux to allow/prevent the creation of
+>>>>>> some types of devices [0].
+>>>>>>
+>>>>>> A device is created using ioctl() on VDUSE control chardev. Its type is
+>>>>>> specified via a field in the structure passed in argument.
+>>>>>>
+>>>>>> I didn't see other way than adding dedicated LSM hooks to achieve this,
+>>>>>> but it is possible that their is a better way to do it?
+>>>>>
+>>>>> At the very least the hook should be made more general, and I'd have to
+>>>>> see a proposal before commenting on that. security_dev_destroy(dev)
+>>>>> might
+>>>>> be a better approach. If there's reason to control destruction of vduse
+>>>>> devices it's reasonable to assume that there are other devices with the
+>>>>> same or similar properties.
+>>>>
+>>>> VDUSE is different from other devices as the device is actually
+>>>> implemented by the user-space application, so this is very specific in
+>>>> my opinion.
+>>>
+>>> This is hardly unique. If you're implementing the device
+>>> in user-space you may well be able to implement the desired
+>>> controls there.
+>>>
+>>>>
+>>>>>
+>>>>> Since SELinux is your target use case, can you explain why you can't
+>>>>> create SELinux policy to enforce the restrictions you're after? I
+>>>>> believe
+>>>>> (but can be proven wrong, of course) that SELinux has mechanism for
+>>>>> dealing
+>>>>> with controls on ioctls.
+>>>>>
+>>>>
+>>>> I am not aware of such mechanism to deal with ioctl(), if you have a
+>>>> pointer that would be welcome.
+>>>
+>>> security/selinux/hooks.c
+>>
+>> We might be able to extend selinux_file_ioctl(), but that will only
+>> covers the ioctl for the control file, this patch also adds hook for the
+>> device file opening that would need dedicated hook as the device type
+>> information is stored in the device's private data.
+>>
+>> Michael, before going further, I would be interested in your feedback.
+>> Was this patch what you had in mind when requesting for a way to
+>> allow/deny devices types for a given application?
+>>
+>> Regards,
+>> Maxime
 > 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
+> 
+> Yes, this is more or less what I had in mind.
+
+Great.
+
+Do you think we need to cover both ioctl() on the control file and
+open() on the device file, or only ioctl() is enough?
+
+If the former, we will need VDUSE-specific hooks. I may be able to
+improve my patch to have a single hook instead of 3 by passing the type
+of operation as an extra argument (create/destroy/open).
+
+If the latter, we may be able to extend the generic ioctl hook.
+
+Personally, I think it would make sense to also ensure a given
+application can only open existing VDUSE devices it supports. For
+example, openvswitch should only be allowed to open networking VDUSE
+devices.
+
+Thanks,
+Maxime
+
+> 
+>>>
+>>>>
+>>>> Thanks,
+>>>> Maxime
+>>>>
+>>>>>
+>>>>>>
+>>>>>> Thanks,
+>>>>>> Maxime
+>>>>>>
+>>>>>> [0]:
+>>>>>> https://lore.kernel.org/all/20230829130430-mutt-send-email-mst@kernel.org/
+>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>
+> 
 
 _______________________________________________
 Virtualization mailing list
