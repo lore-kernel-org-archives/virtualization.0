@@ -4,104 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 380F2C4332F
-	for <virtualization@archiver.kernel.org>; Mon,  6 Nov 2023 10:46:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C5C94C4167D
+	for <virtualization@archiver.kernel.org>; Mon,  6 Nov 2023 10:47:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D595D82081;
-	Mon,  6 Nov 2023 10:46:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D595D82081
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5301482358;
+	Mon,  6 Nov 2023 10:47:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5301482358
 Authentication-Results: smtp1.osuosl.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YfQuIxOo
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=LG1uB8Wu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v0afqp48qoP2; Mon,  6 Nov 2023 10:46:48 +0000 (UTC)
+	with ESMTP id xK4uJulEKlls; Mon,  6 Nov 2023 10:47:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5EE2D81BC5;
-	Mon,  6 Nov 2023 10:46:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EE2D81BC5
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A21DD82089;
+	Mon,  6 Nov 2023 10:47:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A21DD82089
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3E828C0039;
-	Mon,  6 Nov 2023 10:46:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 865BEC0039;
+	Mon,  6 Nov 2023 10:47:49 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B7652C0032
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ED0F9C0032
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Nov 2023 10:46:46 +0000 (UTC)
+ Mon,  6 Nov 2023 10:47:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8AADE41465
+ by smtp2.osuosl.org (Postfix) with ESMTP id D37DC41465
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Nov 2023 10:46:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8AADE41465
+ Mon,  6 Nov 2023 10:47:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D37DC41465
 Authentication-Results: smtp2.osuosl.org;
  dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com
- header.a=rsa-sha256 header.s=mimecast20190719 header.b=YfQuIxOo
+ header.a=rsa-sha256 header.s=mimecast20190719 header.b=LG1uB8Wu
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id coIV1aqQILAK
+ with ESMTP id Hwfg59VSAJh6
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Nov 2023 10:46:45 +0000 (UTC)
+ Mon,  6 Nov 2023 10:47:47 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8F13541464
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B074841464
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Nov 2023 10:46:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8F13541464
+ Mon,  6 Nov 2023 10:47:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B074841464
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1699267604;
+ s=mimecast20190719; t=1699267666;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Y6QcvY42P7J5f+1XN4Qoz7DTeNEAzvUSzxn7o+ZphKQ=;
- b=YfQuIxOoG/IMMRNoz0IYo7SOaW9ehhvriAYE3+mnXx9T7fFGNFRBp/5BWhYe1f7EFUKvzq
- /X+SuqM5AgA+oAmNL04sA+tkP4TNfWGkXZeOhn/Mj5sO0hh3OkiWlGM3sGvnrbXMmBwum5
- aqZzeDb51bYySX/nrwFb4e/zHGnPSr8=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=+lT38C9wjUtWACQaL07OufNUHAmzWCa7yzF7D6wde9Q=;
+ b=LG1uB8WuFH9su5K7aCgwzKvND5RWpE3E1Oc1lvsH/VIOHJ5OEl+lwEVqFUcWZAVrlxoIxS
+ 1D9w4t1/puoSqcQBms0o9XTk+/QDtLZi4mB3Hx4PDb3/UZ+PFK0nRQTaA0jgoDXvMJX0Pw
+ FnPlh6Sot/CYNLIapd4v6xBiP4oF8hc=
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
+ [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-220-Veuec2M6MP-liaZ5_oWsOA-1; Mon, 06 Nov 2023 05:46:41 -0500
-X-MC-Unique: Veuec2M6MP-liaZ5_oWsOA-1
-Received: by mail-qk1-f200.google.com with SMTP id
- af79cd13be357-7789f06778aso795835285a.0
+ us-mta-443-ThTh0vCiM16xWZsBbMFlww-1; Mon, 06 Nov 2023 05:47:43 -0500
+X-MC-Unique: ThTh0vCiM16xWZsBbMFlww-1
+Received: by mail-qt1-f200.google.com with SMTP id
+ d75a77b69052e-41b83b8dbe1so50962091cf.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 06 Nov 2023 02:46:41 -0800 (PST)
+ Mon, 06 Nov 2023 02:47:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20230601; t=1699267600; x=1699872400;
+ d=1e100.net; s=20230601; t=1699267663; x=1699872463;
  h=in-reply-to:content-disposition:mime-version:references:message-id
  :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
  :message-id:reply-to;
- bh=Y6QcvY42P7J5f+1XN4Qoz7DTeNEAzvUSzxn7o+ZphKQ=;
- b=BXcQvuAXVe7BCwhsrTAO858WP34VsddsJKhvukBQjl+55oSsuIN6iFVx4gCKnXvKPG
- /Y4Cxx5AENr/HmMRPIxJbo71Ed+pclXC5adWBwhhgIR2+lM7nlujBabLarQWHVL6PbW7
- LXOj1w8i5/dsRdEf8YjEQw0rW8vr8PGgw+nZUFbvhRWg5WE8G+e2Pn/AGRVNXk+3wNfW
- zeiSxpiBeeGjXOAkWFzCB+UAg6IgnojNEAnRpq7tX2JzSZ3xHfksF7YDezMw7RmBUQZ7
- MiqNK42lMZdxuIUFOMWMpHy/WeKRITGEeUIb3tywvbake4tuMWvU504jHChmN96DFWwU
- tLSw==
-X-Gm-Message-State: AOJu0YzzCJLKhY/PgbHiigO8UgHxMDh2l8k6QpsRirmwHwImp71CuCce
- CRBbxklZqDkFTnnTZqAa9iufvNDOj4h7CeQtxDdjDLULyrfFW1/ujfw80o4RXAx/SbYoC9IftEb
- 5PKAJWunql/+DrxNNGiAdFf7WFDozSKb8btnuTJ0A3g==
-X-Received: by 2002:a05:620a:4622:b0:779:cf70:8495 with SMTP id
- br34-20020a05620a462200b00779cf708495mr13042334qkb.22.1699267600581; 
- Mon, 06 Nov 2023 02:46:40 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE0MTPNegxkHg2EtjSBJdIkcLWvJeBZhkiYCgUyFVAeJU8p43NP4uMhUlLf+FYjn63g6E1jfw==
-X-Received: by 2002:a05:620a:4622:b0:779:cf70:8495 with SMTP id
- br34-20020a05620a462200b00779cf708495mr13042320qkb.22.1699267600334; 
- Mon, 06 Nov 2023 02:46:40 -0800 (PST)
+ bh=+lT38C9wjUtWACQaL07OufNUHAmzWCa7yzF7D6wde9Q=;
+ b=YXo2a2p/D1wWuFP57nbz/RlXte/x/0ghBS/WBGHXkX7IKLloLoU19YJzD9TyJSZbxj
+ gsMmQpnvrshjS8P/fTlbCdy19aZ6WIx6L0VvPFdO8ogDPGg1kM7xGaXV+u0FojM2mH6e
+ VefbhP9JhmWeGysydlZmOc8guzBq1qwf23dOkVeFvo9lvhbl0GfM3Xt5RelfAW7jOsV3
+ uWH2c68CfU+pgYXUbrakZTP0WS3lAuCpymNjjtPObpRHVJAFRtqfMldI0oLIn0cSkjc1
+ vki2D9mZy61e1E+UMerTAQ2FhacA5lq8mKoTG8vuJFhIdw1vW05/CA8YtlWzlzMjRV2i
+ z7Iw==
+X-Gm-Message-State: AOJu0YzANDmlcPTLqxAiejiTinuQ433CkHxBKnR6PIu/qgqxYls+Ta/4
+ UXnWMDpVnwP3SBZBKBpaIkJeh5dyqH1HzuXc5u2zF+qfb4V62pl+rV+JutMmMk7yr3+FEynunwa
+ Y7/cZtqwEMUV+9L2/G0lS8CYZYJW+OyuIZEC12i2mwg==
+X-Received: by 2002:ac8:58c9:0:b0:3fd:dab5:9430 with SMTP id
+ u9-20020ac858c9000000b003fddab59430mr34239780qta.16.1699267663092; 
+ Mon, 06 Nov 2023 02:47:43 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEjH5tsrv9EosQgCdf+Wk5X4APcmLon+ih9JbEw8zpkDnU51uS7si0Atvpc7KZve/mxRma74g==
+X-Received: by 2002:ac8:58c9:0:b0:3fd:dab5:9430 with SMTP id
+ u9-20020ac858c9000000b003fddab59430mr34239760qta.16.1699267662799; 
+ Mon, 06 Nov 2023 02:47:42 -0800 (PST)
 Received: from sgarzare-redhat ([5.179.191.143])
  by smtp.gmail.com with ESMTPSA id
- ay18-20020a05622a229200b004181c32dcc3sm3258973qtb.16.2023.11.06.02.46.34
+ b10-20020ac8678a000000b00410a9dd3d88sm3253917qtp.68.2023.11.06.02.47.39
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 06 Nov 2023 02:46:39 -0800 (PST)
-Date: Mon, 6 Nov 2023 11:46:26 +0100
+ Mon, 06 Nov 2023 02:47:42 -0800 (PST)
+Date: Mon, 6 Nov 2023 11:47:34 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: f.storniolo95@gmail.com
-Subject: Re: [PATCH net 2/4] test/vsock fix: add missing check on socket
- creation
-Message-ID: <dhech4poimv5fphsxpy4oxy5ks5kpki6kzboy6kpnfm65vz3tp@nm6hoicgj5ze>
+Subject: Re: [PATCH net 3/4] test/vsock: refactor vsock_accept
+Message-ID: <l2ng7ukyxj5ykzznogyescuufalhfvx2cvrykpht6gqyjrfoy3@ib6dag5o2qik>
 References: <20231103175551.41025-1-f.storniolo95@gmail.com>
- <20231103175551.41025-3-f.storniolo95@gmail.com>
+ <20231103175551.41025-4-f.storniolo95@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20231103175551.41025-3-f.storniolo95@gmail.com>
+In-Reply-To: <20231103175551.41025-4-f.storniolo95@gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
@@ -126,54 +125,82 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 03, 2023 at 06:55:49PM +0100, f.storniolo95@gmail.com wrote:
+On Fri, Nov 03, 2023 at 06:55:50PM +0100, f.storniolo95@gmail.com wrote:
 >From: Filippo Storniolo <f.storniolo95@gmail.com>
 >
->Add check on socket() return value in vsock_listen()
->and vsock_connect()
+>This is a preliminary patch to introduce SOCK_STREAM bind connect test.
+>vsock_accept() is split into vsock_listen() and vsock_accept().
 >
 >Co-developed-by: Luigi Leonardi <luigi.leonardi@outlook.com>
 >Signed-off-by: Luigi Leonardi <luigi.leonardi@outlook.com>
 >Signed-off-by: Filippo Storniolo <f.storniolo95@gmail.com>
 >---
-> tools/testing/vsock/util.c | 8 ++++++++
-> 1 file changed, 8 insertions(+)
+> tools/testing/vsock/util.c | 32 ++++++++++++++++++++------------
+> 1 file changed, 20 insertions(+), 12 deletions(-)
 
-If you need to resend the entire series, maybe you can remove "fix"
-from the commit title.
-
-But it's a minor thing, so I would only change it if there's something
-else that justifies sending a v2:
+LGTM!
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 >
 >diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
->index 92336721321a..698b0b44a2ee 100644
+>index 698b0b44a2ee..2fc96f29bdf2 100644
 >--- a/tools/testing/vsock/util.c
 >+++ b/tools/testing/vsock/util.c
->@@ -104,6 +104,10 @@ static int vsock_connect(unsigned int cid, unsigned int port, int type)
-> 	control_expectln("LISTENING");
+>@@ -136,11 +136,8 @@ int vsock_seqpacket_connect(unsigned int cid, unsigned int port)
+> 	return vsock_connect(cid, port, SOCK_SEQPACKET);
+> }
+>
+>-/* Listen on <cid, port> and return the first incoming connection.  The remote
+>- * address is stored to clientaddrp.  clientaddrp may be NULL.
+>- */
+>-static int vsock_accept(unsigned int cid, unsigned int port,
+>-			struct sockaddr_vm *clientaddrp, int type)
+>+/* Listen on <cid, port> and return the file descriptor. */
+>+static int vsock_listen(unsigned int cid, unsigned int port, int type)
+> {
+> 	union {
+> 		struct sockaddr sa;
+>@@ -152,14 +149,7 @@ static int vsock_accept(unsigned int cid, unsigned int port,
+> 			.svm_cid = cid,
+> 		},
+> 	};
+>-	union {
+>-		struct sockaddr sa;
+>-		struct sockaddr_vm svm;
+>-	} clientaddr;
+>-	socklen_t clientaddr_len = sizeof(clientaddr.svm);
+> 	int fd;
+>-	int client_fd;
+>-	int old_errno;
 >
 > 	fd = socket(AF_VSOCK, type, 0);
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
+> 	if (fd < 0) {
+>@@ -177,6 +167,24 @@ static int vsock_accept(unsigned int cid, unsigned int port,
+> 		exit(EXIT_FAILURE);
+> 	}
+>
+>+	return fd;
+>+}
+>+
+>+/* Listen on <cid, port> and return the first incoming connection.  The remote
+>+ * address is stored to clientaddrp.  clientaddrp may be NULL.
+>+ */
+>+static int vsock_accept(unsigned int cid, unsigned int port,
+>+			struct sockaddr_vm *clientaddrp, int type)
+>+{
+>+	union {
+>+		struct sockaddr sa;
+>+		struct sockaddr_vm svm;
+>+	} clientaddr;
+>+	socklen_t clientaddr_len = sizeof(clientaddr.svm);
+>+	int fd, client_fd, old_errno;
+>+
+>+	fd = vsock_listen(cid, port, type);
+>+
+> 	control_writeln("LISTENING");
 >
 > 	timeout_begin(TIMEOUT);
-> 	do {
->@@ -158,6 +162,10 @@ static int vsock_accept(unsigned int cid, unsigned int port,
-> 	int old_errno;
->
-> 	fd = socket(AF_VSOCK, type, 0);
->+	if (fd < 0) {
->+		perror("socket");
->+		exit(EXIT_FAILURE);
->+	}
->
-> 	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
-> 		perror("bind");
 >-- 
 >2.41.0
 >
