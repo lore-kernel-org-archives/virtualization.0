@@ -4,57 +4,56 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 86D1EC4167D
-	for <virtualization@archiver.kernel.org>; Tue,  7 Nov 2023 03:12:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9F6D6C04A68
+	for <virtualization@archiver.kernel.org>; Tue,  7 Nov 2023 03:12:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4E12582B94;
-	Tue,  7 Nov 2023 03:12:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4E12582B94
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0E60282B61;
+	Tue,  7 Nov 2023 03:12:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0E60282B61
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HGJmUq01xM3Y; Tue,  7 Nov 2023 03:12:47 +0000 (UTC)
+	with ESMTP id VED5Ym8RD7Zm; Tue,  7 Nov 2023 03:12:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9E2FD8233D;
-	Tue,  7 Nov 2023 03:12:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9E2FD8233D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6608C82B1A;
+	Tue,  7 Nov 2023 03:12:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6608C82B1A
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E9A9C0DD9;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B22DFC0DE1;
 	Tue,  7 Nov 2023 03:12:45 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51DF3C0032
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C660C0032
  for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Nov 2023 03:12:40 +0000 (UTC)
+ Tue,  7 Nov 2023 03:12:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1D6A6420E6
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7B8D882072
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  7 Nov 2023 03:12:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7B8D882072
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sjA8S0n1GjVW
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  7 Nov 2023 03:12:41 +0000 (UTC)
+Received: from out30-113.freemail.mail.aliyun.com
+ (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5BAD582082
  for <virtualization@lists.linux-foundation.org>;
  Tue,  7 Nov 2023 03:12:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1D6A6420E6
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kf8XaQ85Vqmf
- for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Nov 2023 03:12:36 +0000 (UTC)
-Received: from out30-110.freemail.mail.aliyun.com
- (out30-110.freemail.mail.aliyun.com [115.124.30.110])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4612341FBD
- for <virtualization@lists.linux-foundation.org>;
- Tue,  7 Nov 2023 03:12:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4612341FBD
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R221e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046060;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5BAD582082
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=ay29a033018046056;
  MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=14; SR=0;
- TI=SMTPD_---0VvsPwLC_1699326749; 
+ TI=SMTPD_---0VvsMwbt_1699326755; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0VvsPwLC_1699326749) by smtp.aliyun-inc.com;
- Tue, 07 Nov 2023 11:12:30 +0800
+ fp:SMTPD_---0VvsMwbt_1699326755) by smtp.aliyun-inc.com;
+ Tue, 07 Nov 2023 11:12:36 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next v2 01/21] virtio_net: rename free_old_xmit_skbs to
- free_old_xmit
-Date: Tue,  7 Nov 2023 11:12:07 +0800
-Message-Id: <20231107031227.100015-2-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v2 06/21] virtio_net: separate virtnet_rx_resize()
+Date: Tue,  7 Nov 2023 11:12:12 +0800
+Message-Id: <20231107031227.100015-7-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 In-Reply-To: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
 References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
@@ -83,65 +82,84 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Since free_old_xmit_skbs not only deals with skb, but also xdp frame and
-subsequent added xsk, so change the name of this function to
-free_old_xmit.
+This patch separates two sub-functions from virtnet_rx_resize():
+
+* virtnet_rx_pause
+* virtnet_rx_resume
+
+Then the subsequent reset rx for xsk can share these two functions.
 
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/net/virtio_net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/virtio/main.c       | 29 +++++++++++++++++++++--------
+ drivers/net/virtio/virtio_net.h |  3 +++
+ 2 files changed, 24 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index cf67c618b07b..e7dd131234b5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -744,7 +744,7 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
- 	}
+diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
+index 46a8be0c609c..c9f8294153e2 100644
+--- a/drivers/net/virtio/main.c
++++ b/drivers/net/virtio/main.c
+@@ -2186,26 +2186,39 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	return NETDEV_TX_OK;
  }
  
--static void free_old_xmit_skbs(struct send_queue *sq, bool in_napi)
-+static void free_old_xmit(struct send_queue *sq, bool in_napi)
+-static int virtnet_rx_resize(struct virtnet_info *vi,
+-			     struct virtnet_rq *rq, u32 ring_num)
++void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq)
  {
- 	unsigned int len;
- 	unsigned int packets = 0;
-@@ -816,7 +816,7 @@ static void check_sq_full_and_disable(struct virtnet_info *vi,
- 				virtqueue_napi_schedule(&sq->napi, sq->vq);
- 		} else if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
- 			/* More just got used, free them then recheck. */
--			free_old_xmit_skbs(sq, false);
-+			free_old_xmit(sq, false);
- 			if (sq->vq->num_free >= 2+MAX_SKB_FRAGS) {
- 				netif_start_subqueue(dev, qnum);
- 				virtqueue_disable_cb(sq->vq);
-@@ -2127,7 +2127,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+ 	bool running = netif_running(vi->dev);
+-	int err, qindex;
+-
+-	qindex = rq - vi->rq;
  
- 		do {
- 			virtqueue_disable_cb(sq->vq);
--			free_old_xmit_skbs(sq, true);
-+			free_old_xmit(sq, true);
- 		} while (unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+ 	if (running)
+ 		napi_disable(&rq->napi);
++}
  
- 		if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
-@@ -2249,7 +2249,7 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
- 	virtqueue_disable_cb(sq->vq);
--	free_old_xmit_skbs(sq, true);
-+	free_old_xmit(sq, true);
+-	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
+-	if (err)
+-		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
++void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq)
++{
++	bool running = netif_running(vi->dev);
  
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
-@@ -2339,7 +2339,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (use_napi)
- 			virtqueue_disable_cb(sq->vq);
+ 	if (!try_fill_recv(vi, rq, GFP_KERNEL))
+ 		schedule_delayed_work(&vi->refill, 0);
  
--		free_old_xmit_skbs(sq, false);
-+		free_old_xmit(sq, false);
+ 	if (running)
+ 		virtnet_napi_enable(rq->vq, &rq->napi);
++}
++
++static int virtnet_rx_resize(struct virtnet_info *vi,
++			     struct virtnet_rq *rq, u32 ring_num)
++{
++	int err, qindex;
++
++	qindex = rq - vi->rq;
++
++	virtnet_rx_pause(vi, rq);
++
++	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
++	if (err)
++		netdev_err(vi->dev, "resize rx fail: rx queue index: %d err: %d\n", qindex, err);
++
++	virtnet_rx_resume(vi, rq);
+ 	return err;
+ }
  
- 	} while (use_napi && kick &&
- 	       unlikely(!virtqueue_enable_cb_delayed(sq->vq)));
+diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
+index ebf9f344648a..693ca166fc93 100644
+--- a/drivers/net/virtio/virtio_net.h
++++ b/drivers/net/virtio/virtio_net.h
+@@ -190,4 +190,7 @@ struct virtnet_info {
+ 	/* failover when STANDBY feature enabled */
+ 	struct failover *failover;
+ };
++
++void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq);
++void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq);
+ #endif
 -- 
 2.32.0.3.g01195cf9f
 
