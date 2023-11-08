@@ -1,229 +1,210 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0464C1113
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 02:31:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5987C1373
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:03:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Wk2Lqgcn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WZYok7l6"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7213181B60
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 02:31:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7213181B60
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.a=rsa-sha256 header.s=google header.b=Wk2Lqgcn
+	by smtp3.osuosl.org (Postfix) with ESMTP id AF97260E39
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:03:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AF97260E39
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WZYok7l6
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iq_xlubPoTOF
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5KmIYwVHDjyq
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  8 Nov 2023 02:31:28 +0000 (UTC)
-Received: from mail-qv1-xf29.google.com (mail-qv1-xf29.google.com [IPv6:2607:f8b0:4864:20::f29])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 737BA81B3E
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 02:31:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 737BA81B3E
-Received: by mail-qv1-xf29.google.com with SMTP id 6a1803df08f44-66d0760cd20so3370066d6.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 07 Nov 2023 18:31:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1699410687; x=1700015487; darn=lists.linux-foundation.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=ZbkEkmaPK3/ui+Xn8VLbQvKYhD+dtLCrbQNgJWW9Ttg=;
-        b=Wk2LqgcnmORpJQ0b0UXnNEk/cDZJ5C2mpDGAEfDY/+ALf0ZxvNMgxa5REJYl5UcXYb
-         53+PFoGBFPTHPkBSDfoTcxRZ/K4UaFhjdC76uk4txAzFycyAX9bguRXT7qYEJB88/PrW
-         VaxzUDa4xUG6OdSbkoDBE6cUZMKeb6o6mMHJJ7ErHYaRDbBaZat4t4tXUI2RBjQHK8Il
-         9XQVZhrAjJmYfYkMFcRjzRa9W1AkBiLLXC4ReV41dFa/EM5pyBj4FXA3yzk3/sLlPekg
-         zGsAUAIbIMNX8e26w8KDbETnQzoaaI9ws4DWQX1+nIbjHlKuL+GnNJbxmMQojDP/D/xS
-         CAjQ==
+	Wed,  8 Nov 2023 03:03:30 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7573660A94
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:03:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7573660A94
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1699412609;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zdkmOE2i/X8mF+g84XXuwPONDq0bjsNF8/LqNbQhs1I=;
+	b=WZYok7l6a966HKtwKCNyjLBfYXALE8dJpgc2M9+RwJPuPHA9xR1pFFFfROnKlhlB6rj4zG
+	AMqyxOgbATQ9K9yYv3BC/+KWu10tDAoZQxNUHTocRDO97Ji1lhZ8zA1Am+erDZE+azwkxq
+	KjmD0MUQQSqryll+5Z9AkU7p7SFff0I=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-286-ZuHC_4l8Prae1o5Ypem-Sg-1; Tue, 07 Nov 2023 22:03:25 -0500
+X-MC-Unique: ZuHC_4l8Prae1o5Ypem-Sg-1
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-507ee71fc4eso6575111e87.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 07 Nov 2023 19:03:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699410687; x=1700015487;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZbkEkmaPK3/ui+Xn8VLbQvKYhD+dtLCrbQNgJWW9Ttg=;
-        b=nHHduFFtKV8B4o55xm3OQy8inFRrNkB8rf/Ii7doRLa/q+foBUJO6MpTYLeq+UPfN6
-         9NLbh7Pkb/qVDMTgf5INqsa9bZL0BN+0mT+b11WeedK97E5T4fv7unNDylv7s8jW4Xbe
-         h6OgV60mTdat/7NzaVs7UxHN5ZXVB6K4LcpoZO9mV0omFXAe+/SHFgKsE4rOtR1y/PTY
-         iU3wS8NI/fPCK7iB5GuaEMs/kuVhrBLOOlIZIH9vyJDNOInhBtrOTvUjSS87e2mtpl6F
-         G+N18XEZHI3X7q/5dtLcmUvPAUiqm7qbJH5xugQKl2atOVJgmWnz3wQv8jfsn3a3Cdr6
-         gerg==
-X-Gm-Message-State: AOJu0Yy9Sxs8PPazmLrPd9nZ1ul5MyCKFj2P0+OSke+kb9bETIRHODp4
-	ywyWEr7UEz60iETKPc1hyEZn
-X-Google-Smtp-Source: AGHT+IHTQ17LSA0ZChaX7vVfOq7M+l/b0UClJGf/WWYEXhjE85AkbiAYBvrrWJaZNK86n6MyC7kFYg==
-X-Received: by 2002:a05:6214:b26:b0:66f:ac87:73b7 with SMTP id w6-20020a0562140b2600b0066fac8773b7mr6056996qvj.15.1699410687064;
-        Tue, 07 Nov 2023 18:31:27 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id m13-20020ad4504d000000b0064f3b0d0143sm548809qvq.142.2023.11.07.18.31.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Nov 2023 18:31:26 -0800 (PST)
-Date: Tue, 07 Nov 2023 21:31:26 -0500
-Message-ID: <2b8269b7c58ebf9b260b4e2a0676bc22.paul@paul-moore.com>
-From: Paul Moore <paul@paul-moore.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Maxime Coquelin <maxime.coquelin@redhat.com>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, jmorris@namei.org, serge@hallyn.com, stephen.smalley.work@gmail.com, eparis@parisplace.org, xieyongji@bytedance.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, david.marchand@redhat.com, lulu@redhat.com
-Subject: Re: [PATCH v4 4/4] vduse: Add LSM hooks to check Virtio device type
-References: <20231020155819.24000-5-maxime.coquelin@redhat.com>
-In-Reply-To: <20231020155819.24000-5-maxime.coquelin@redhat.com>
+        d=1e100.net; s=20230601; t=1699412604; x=1700017404;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zdkmOE2i/X8mF+g84XXuwPONDq0bjsNF8/LqNbQhs1I=;
+        b=ekm+LE7VCshzkLJysyBTeaFF+m3H5PYOEVJ+e+9cbe1aPrbBCAnkn13Mu+UwTHzn6G
+         Q/bF0SH64r4WlKGsxbxEeMlrZyh3vg94k31yu69w2BBdrEQ9tTHbEMU88jd0ovHyb8pC
+         Fx6s2YOSccqnJEhdlYGwU6aPBidUUO59b3GPPXLQ5MMvWHUWQHtJMy2HKhp41R4WYw+H
+         46jE04Mj0FYP59DDdVzVktQIkA9Z3tVeDpjq0VE0lK/k3+HrHIENjDoCaTvmwOulYsku
+         xYBPIGlP9xGA3d9RPgSvxw2ysgi/RjDfRtI/9BaMh1XmEFbPzKJzKRH2QBDr5fhQr073
+         fHWw==
+X-Gm-Message-State: AOJu0Yxu/zAFUxdrqkaGSja5u7SmCNw1Leeu3EKJ0FSAM1XBMSPQs30y
+	EcBK5mLOBXlSFQktuTi7dIaB3YK91KW3WwPnMv4fSjaCTGJazuzv9oEpV/pBYzey831Bm/KbDmx
+	vjLAVIs7Jxf/+hV91U89U9KdRXchTNjuSLzLyOc2iu5OcRmdQvmqLFvUVeg==
+X-Received: by 2002:ac2:593b:0:b0:507:9a33:f105 with SMTP id v27-20020ac2593b000000b005079a33f105mr225713lfi.69.1699412603997;
+        Tue, 07 Nov 2023 19:03:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGfDeEEm3NoVSDw//ZEF2zrrCfMM8SZhj75WuhxEmVScFVNfxLlrPPD9qUMwz+h8100tBYfGU3SiaSXtv2KmjY=
+X-Received: by 2002:ac2:593b:0:b0:507:9a33:f105 with SMTP id
+ v27-20020ac2593b000000b005079a33f105mr225701lfi.69.1699412603658; Tue, 07 Nov
+ 2023 19:03:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+References: <20231103171641.1703146-1-lulu@redhat.com> <20231103171641.1703146-4-lulu@redhat.com>
+ <CACGkMEtVfHL2WPwxkYEfTKBE10uWfB2a75QQOO8rzn3=Y9FiBg@mail.gmail.com> <CACLfguX9-wEQPUyZkJZoRMmgPDRFNyZCmt0nvHROhyP1yooiYA@mail.gmail.com>
+In-Reply-To: <CACLfguX9-wEQPUyZkJZoRMmgPDRFNyZCmt0nvHROhyP1yooiYA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 8 Nov 2023 11:03:12 +0800
+Message-ID: <CACGkMEsp_rg+_01hwxCtZNOk2itB1L89mdOc1W1DG3umfEt5bw@mail.gmail.com>
+Subject: Re: [RFC v1 3/8] vhost: Add 3 new uapi to support iommufd
+To: Cindy Lu <lulu@redhat.com>
+Cc: mst@redhat.com, yi.l.liu@intel.com, jgg@nvidia.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Oct 20, 2023 "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> This patch introduces LSM hooks for devices creation,
-> destruction and opening operations, checking the
-> application is allowed to perform these operations for
-> the Virtio device type.
-> 
-> Signed-off-by: Maxime Coquelin <maxime.coquelin@redhat.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c  | 12 +++++++
->  include/linux/lsm_hook_defs.h       |  4 +++
->  include/linux/security.h            | 15 ++++++++
->  security/security.c                 | 42 ++++++++++++++++++++++
->  security/selinux/hooks.c            | 55 +++++++++++++++++++++++++++++
->  security/selinux/include/classmap.h |  2 ++
->  6 files changed, 130 insertions(+)
+On Tue, Nov 7, 2023 at 2:57=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
+>
+> On Mon, Nov 6, 2023 at 3:30=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > On Sat, Nov 4, 2023 at 1:17=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote=
+:
+> > >
+> > > VHOST_VDPA_SET_IOMMU_FD: bind the device to iommufd device
+> > >
+> > > VDPA_DEVICE_ATTACH_IOMMUFD_AS: Attach a vdpa device to an iommufd
+> > > address space specified by IOAS id.
+> > >
+> > > VDPA_DEVICE_DETACH_IOMMUFD_AS: Detach a vdpa device
+> > > from the iommufd address space
+> > >
+> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > ---
+> >
+> > [...]
+> >
+> > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> > > index f5c48b61ab62..07e1b2c443ca 100644
+> > > --- a/include/uapi/linux/vhost.h
+> > > +++ b/include/uapi/linux/vhost.h
+> > > @@ -219,4 +219,70 @@
+> > >   */
+> > >  #define VHOST_VDPA_RESUME              _IO(VHOST_VIRTIO, 0x7E)
+> > >
+> > > +/* vhost_vdpa_set_iommufd
+> > > + * Input parameters:
+> > > + * @iommufd: file descriptor from /dev/iommu; pass -1 to unset
+> > > + * @iommufd_ioasid: IOAS identifier returned from ioctl(IOMMU_IOAS_A=
+LLOC)
+> > > + * Output parameters:
+> > > + * @out_dev_id: device identifier
+> > > + */
+> > > +struct vhost_vdpa_set_iommufd {
+> > > +       __s32 iommufd;
+> > > +       __u32 iommufd_ioasid;
+> > > +       __u32 out_dev_id;
+> > > +};
+> > > +
+> > > +#define VHOST_VDPA_SET_IOMMU_FD \
+> > > +       _IOW(VHOST_VIRTIO, 0x7F, struct vhost_vdpa_set_iommufd)
+> > > +
+> > > +/*
+> > > + * VDPA_DEVICE_ATTACH_IOMMUFD_AS -
+> > > + * _IOW(VHOST_VIRTIO, 0x7f, struct vdpa_device_attach_iommufd_as)
+> > > + *
+> > > + * Attach a vdpa device to an iommufd address space specified by IOA=
+S
+> > > + * id.
+> > > + *
+> > > + * Available only after a device has been bound to iommufd via
+> > > + * VHOST_VDPA_SET_IOMMU_FD
+> > > + *
+> > > + * Undo by VDPA_DEVICE_DETACH_IOMMUFD_AS or device fd close.
+> > > + *
+> > > + * @argsz:     user filled size of this data.
+> > > + * @flags:     must be 0.
+> > > + * @ioas_id:   Input the target id which can represent an ioas
+> > > + *             allocated via iommufd subsystem.
+> > > + *
+> > > + * Return: 0 on success, -errno on failure.
+> > > + */
+> > > +struct vdpa_device_attach_iommufd_as {
+> > > +       __u32 argsz;
+> > > +       __u32 flags;
+> > > +       __u32 ioas_id;
+> > > +};
+> >
+> > I think we need to map ioas to vDPA AS, so there should be an ASID
+> > from the view of vDPA?
+> >
+> > Thanks
+> >
+> The qemu will have a structure save and  maintain this information,So
+> I didn't add this
+>  in kernel=EF=BC=8Cwe can add this but maybe only for check?
 
-My apologies for the late reply, I've been trying to work my way through
-the review backlog but it has been taking longer than expected; comments
-below ...
+I meant for example, a simulator has two AS. How can we attach an ioas
+to a specific AS with the above uAPI?
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 2aa0e219d721..65d9262a37f7 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -21,6 +21,7 @@
->   *  Copyright (C) 2016 Mellanox Technologies
->   */
->  
-> +#include "av_permissions.h"
->  #include <linux/init.h>
->  #include <linux/kd.h>
->  #include <linux/kernel.h>
-> @@ -92,6 +93,7 @@
->  #include <linux/fsnotify.h>
->  #include <linux/fanotify.h>
->  #include <linux/io_uring.h>
-> +#include <uapi/linux/virtio_ids.h>
->  
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -6950,6 +6952,56 @@ static int selinux_uring_cmd(struct io_uring_cmd *ioucmd)
->  }
->  #endif /* CONFIG_IO_URING */
->  
-> +static int vduse_check_device_type(u32 sid, u32 device_id)
-> +{
-> +	u32 requested;
-> +
-> +	if (device_id == VIRTIO_ID_NET)
-> +		requested = VDUSE__NET;
-> +	else if (device_id == VIRTIO_ID_BLOCK)
-> +		requested = VDUSE__BLOCK;
-> +	else
-> +		return -EINVAL;
-> +
-> +	return avc_has_perm(sid, sid, SECCLASS_VDUSE, requested, NULL);
-> +}
-> +
-> +static int selinux_vduse_dev_create(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVCREATE, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
+Thanks
 
-I see there has been some discussion about the need for a dedicated
-create hook as opposed to using the existing ioctl controls.  I think
-one important point that has been missing from the discussion is the
-idea of labeling the newly created device.  Unfortunately prior to a
-few minutes ago I hadn't ever looked at VDUSE so please correct me if
-I get some things wrong :)
+> this in
+> Thanks
+> Cindy
+> > > +
+> > > +#define VDPA_DEVICE_ATTACH_IOMMUFD_AS \
+> > > +       _IOW(VHOST_VIRTIO, 0x82, struct vdpa_device_attach_iommufd_as=
+)
+> > > +
+> > > +/*
+> > > + * VDPA_DEVICE_DETACH_IOMMUFD_AS
+> > > + *
+> > > + * Detach a vdpa device from the iommufd address space it has been
+> > > + * attached to. After it, device should be in a blocking DMA state.
+> > > + *
+> > > + * Available only after a device has been bound to iommufd via
+> > > + * VHOST_VDPA_SET_IOMMU_FD
+> > > + *
+> > > + * @argsz:     user filled size of this data.
+> > > + * @flags:     must be 0.
+> > > + *
+> > > + * Return: 0 on success, -errno on failure.
+> > > + */
+> > > +struct vdpa_device_detach_iommufd_as {
+> > > +       __u32 argsz;
+> > > +       __u32 flags;
+> > > +};
+> > > +
+> > > +#define VDPA_DEVICE_DETACH_IOMMUFD_AS \
+> > > +       _IOW(VHOST_VIRTIO, 0x83, struct vdpa_device_detach_iommufd_as=
+)
+> > > +
+> > >  #endif
+> > > --
+> > > 2.34.3
+> > >
+> >
+>
 
-From what I can see userspace creates a new VDUSE device with
-ioctl(VDUSE_CREATE_DEV), which trigger the creation of a new
-/dev/vduse/XXX device which will be labeled according to the udev
-and SELinux configuration, likely with a generic udev label.  My
-question is if we want to be able to uniquely label each VDUSE
-device based on the process that initiates the device creation
-with the call to ioctl()?  If that is the case, we would need a
-create hook not only to control the creation of the device, but to
-record the triggering process' label in the new device; this label
-would then be used in subsequent VDUSE open and destroy operations.
-The normal device file I/O operations would still be subject to the
-standard SELinux file I/O permissions using the device file label
-assigned by systemd/udev when the device was created.
-
-> +static int selinux_vduse_dev_destroy(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVDESTROY, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
-> +
-> +static int selinux_vduse_dev_open(u32 device_id)
-> +{
-> +	u32 sid = current_sid();
-> +	int ret;
-> +
-> +	ret = avc_has_perm(sid, sid, SECCLASS_VDUSE, VDUSE__DEVOPEN, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return vduse_check_device_type(sid, device_id);
-> +}
-> +
->  /*
->   * IMPORTANT NOTE: When adding new hooks, please be careful to keep this order:
->   * 1. any hooks that don't belong to (2.) or (3.) below,
-> @@ -7243,6 +7295,9 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
->  #ifdef CONFIG_PERF_EVENTS
->  	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
->  #endif
-> +	LSM_HOOK_INIT(vduse_dev_create, selinux_vduse_dev_create),
-> +	LSM_HOOK_INIT(vduse_dev_destroy, selinux_vduse_dev_destroy),
-> +	LSM_HOOK_INIT(vduse_dev_open, selinux_vduse_dev_open),
->  };
->  
->  static __init int selinux_init(void)
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-> index a3c380775d41..d3dc37fb03d4 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -256,6 +256,8 @@ const struct security_class_mapping secclass_map[] = {
->  	  { "override_creds", "sqpoll", "cmd", NULL } },
->  	{ "user_namespace",
->  	  { "create", NULL } },
-> +	{ "vduse",
-> +	  { "devcreate", "devdestroy", "devopen", "net", "block", NULL} },
-
-I think we can just call the permissions "create", "open", and "destroy"
-since the "dev" prefix is somewhat implied by this being a dedicated
-VDUSE object class.
-
-I don't see where you are using the "net" and "block" permissions above,
-is this a leftover from a prior draft of this patch or are you planning
-to do something with these permissions?
-
->  	{ NULL }
->    };
->  
-> -- 
-> 2.41.0
-
---
-paul-moore.com
