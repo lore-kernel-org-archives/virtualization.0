@@ -1,55 +1,55 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E415D505
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272E1D52F
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:18:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nhgobI02"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PZlFXTab"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B71AC81232
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B71AC81232
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nhgobI02
+	by smtp2.osuosl.org (Postfix) with ESMTP id 961B9408FB
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:18:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 961B9408FB
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=PZlFXTab
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.299
+X-Spam-Score: -4.297
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7PqrcorgLoWx
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JlO5vTMgFjh2
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  8 Nov 2023 08:01:15 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0DE4A810D7
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0DE4A810D7
+	Wed,  8 Nov 2023 08:18:47 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7DD84408BC
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:18:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7DD84408BC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699430475; x=1730966475;
+  t=1699431527; x=1730967527;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=waktInfzOKtDW0E1oxAKk3EhbspNu0YVHIgYOQNzgfM=;
-  b=nhgobI02NELjyDeeYprk7jdexSTuK1sET+Iue3s2JER4ytUTH4YbTqMf
-   1lT95v3WC1IT2UUgeC4+btBDDRrF41/eszP1fUfpC2I8WMNEQCZT0GDi+
-   LcOSaIJcPjcNAnVrI2L0RaPY6TcfvYnw0cmbJu/oumMgp/jW9W41W3pmK
-   DUysrCaROgf5qx2xfOi5inf+8B0+12XZoeO46qQkoSoWNp0O0anukltht
-   rMTS9QKERVBKaQu9lsH7exPLAeA+4SRslAwqUmQAt2JIcpUMuH2+jA1r3
-   cJbeMq7jGEoLGLVAf0HKmobgdxUVld1rUKYCeZ3KQE4ok/uAV+H9CjqcE
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="369050176"
+  bh=o4b+vqtKY9OOVsB1rEVpRTkAptYNaJoA44xLfvE+DI0=;
+  b=PZlFXTaboe+cKui+Gk6boQI113HJOq4qqUKvHjGRDhK3JS1tO4i2gAdx
+   lnCyOHhCN5JU/EwVgNC3mmpY/xsLm/J2uE/G97iwwFDEhaUoKWR4Y96uZ
+   nKi1tM9DWc1WtKTrH8rblP/L0oUTxi+leE55kfuIbqt69Wmghu7jTuGBZ
+   5r0P9B6XgdoUPLo54bv+H3C6GQ1yRJnf+fGe6EH9xljrB1dEtcGgdBPJ1
+   7OxMMni8OTNFPH/oyIaZ6PKUyi3T3t0hwB6O5YKZyTwQm7h5QZcmxf+Kw
+   e8xr0I2RjUW7iXysXBj89a7oa1xhYyz4NhhXUyE/0pg4DnzOVfQzQXTgp
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="420823081"
 X-IronPort-AV: E=Sophos;i="6.03,285,1694761200"; 
-   d="scan'208";a="369050176"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:01:13 -0800
+   d="scan'208";a="420823081"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:18:45 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="833411924"
+X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="828883803"
 X-IronPort-AV: E=Sophos;i="6.03,285,1694761200"; 
-   d="scan'208";a="833411924"
+   d="scan'208";a="828883803"
 Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.215.63]) ([10.254.215.63])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:01:01 -0800
-Message-ID: <99edf0cf-a570-43de-a79a-a040a403607e@linux.intel.com>
-Date: Wed, 8 Nov 2023 16:01:00 +0800
+  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:18:32 -0800
+Message-ID: <f7e69801-e651-471d-9768-43ddf1702f91@linux.intel.com>
+Date: Wed, 8 Nov 2023 16:18:30 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Cc: baolu.lu@linux.intel.com, Zhenhua Huang <quic_zhenhuah@quicinc.com>
-Subject: Re: [PATCH RFC 01/17] iommu: Remove struct iommu_ops *iommu from
- arch_setup_dma_ops()
+Subject: Re: [PATCH RFC 17/17] iommu: Mark dev_iommu_priv_set() with a lockdep
+Content-Language: en-US
 To: Jason Gunthorpe <jgg@nvidia.com>, acpica-devel@lists.linuxfoundation.org,
  Alyssa Rosenzweig <alyssa@rosenzweig.io>, Albert Ou <aou@eecs.berkeley.edu>,
  asahi@lists.linux.dev, Catalin Marinas <catalin.marinas@arm.com>,
@@ -87,32 +87,36 @@ To: Jason Gunthorpe <jgg@nvidia.com>, acpica-devel@lists.linuxfoundation.org,
  Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
  virtualization@lists.linux-foundation.org, Wei Liu <wei.liu@kernel.org>,
  Will Deacon <will@kernel.org>
-References: <1-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
-Content-Language: en-US
+References: <17-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
 From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <1-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+In-Reply-To: <17-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2023/11/4 0:44, Jason Gunthorpe wrote:
-> This is not being used to pass ops, it is just a way to tell if an
-> iommu driver was probed. These days this can be detected directly via
-> device_iommu_mapped(). Call device_iommu_mapped() in the two places that
-> need to check it and remove the iommu parameter everywhere.
+On 2023/11/4 0:45, Jason Gunthorpe wrote:
+> A perfect driver would only call dev_iommu_priv_set() from its probe
+> callback. We've made it functionally correct to call it from the of_xlate
+> by adding a lock around that call.
+> 
+> lockdep assert that iommu_probe_device_lock is held to discourage misuse.
+> 
+> Exclude PPC kernels with CONFIG_FSL_PAMU turned on because FSL_PAMU uses a
+> global static for its priv and abuses priv for its domain.
+> 
+> Remove the pointless stores of NULL, all these are on paths where the core
+> code will free dev->iommu after the op returns.
 > 
 > Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
 > ---
->   arch/arc/mm/dma.c               |  2 +-
->   arch/arm/mm/dma-mapping-nommu.c |  2 +-
->   arch/arm/mm/dma-mapping.c       | 10 +++++-----
->   arch/arm64/mm/dma-mapping.c     |  4 ++--
->   arch/mips/mm/dma-noncoherent.c  |  2 +-
->   arch/riscv/mm/dma-noncoherent.c |  2 +-
->   drivers/acpi/scan.c             |  3 +--
->   drivers/hv/hv_common.c          |  2 +-
->   drivers/of/device.c             |  2 +-
->   include/linux/dma-map-ops.h     |  4 ++--
->   10 files changed, 16 insertions(+), 17 deletions(-)
+>   drivers/iommu/amd/iommu.c                   | 2 --
+>   drivers/iommu/apple-dart.c                  | 1 -
+>   drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 1 -
+>   drivers/iommu/arm/arm-smmu/arm-smmu.c       | 1 -
+>   drivers/iommu/intel/iommu.c                 | 2 --
+>   drivers/iommu/iommu.c                       | 9 +++++++++
+>   drivers/iommu/omap-iommu.c                  | 1 -
+>   include/linux/iommu.h                       | 5 +----
+>   8 files changed, 10 insertions(+), 12 deletions(-)
 
 Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
