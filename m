@@ -1,202 +1,120 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 651E6DDD3
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 07:27:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E415D505
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="e+IiCQ0O"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nhgobI02"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5AB8660D77
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 07:27:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5AB8660D77
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=e+IiCQ0O
+	by smtp1.osuosl.org (Postfix) with ESMTP id B71AC81232
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B71AC81232
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=nhgobI02
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -4.299
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sCfiimMWUz6n
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7PqrcorgLoWx
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  8 Nov 2023 07:27:49 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 57E7760EF9
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 07:27:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 57E7760EF9
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id BAEC6120026;
-	Wed,  8 Nov 2023 10:27:46 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru BAEC6120026
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1699428466;
-	bh=1A1xWAExdbetyt9BTZzhwJ0hkGs2DzolGQHsmxn6VSA=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=e+IiCQ0OCkhBh/RSH8PWhShbq6JR05X6BjpNsLgR3IYtYpJFfuhauL/PaY23VwRQM
-	 tBSwweZ5NbURe0r6ln1ldlLSS2R3/r5GX4D2L699PR5nRJ/mHzMmMkVctS0nZkdpGs
-	 3s2oiUMLOWOvK2JIhbH/G2vOK2nKEgciM904cdUiovCJMPLnzGCE4rStJJg45LZ6dj
-	 FtUqxfCYDkhxoIIv44ub2DhB9h7qtb01t8FJ8wwkR45aTk7m7X1aDv+HmKNkbAs+be
-	 7j+Z/oKMn76eQfLeIxAv7SlyDohwvqJLRfo3SVXv4L3ps2r6QvJKCsGGM1dc4H7vj8
-	 5cTTRetWjuR7Q==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed,  8 Nov 2023 10:27:46 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.37; Wed, 8 Nov 2023 10:27:46 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH v1 1/2] virtio/vsock: send credit update during setting SO_RCVLOWAT
-Date: Wed, 8 Nov 2023 10:20:03 +0300
-Message-ID: <20231108072004.1045669-2-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
-References: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
+	Wed,  8 Nov 2023 08:01:15 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0DE4A810D7
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 08:01:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0DE4A810D7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1699430475; x=1730966475;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=waktInfzOKtDW0E1oxAKk3EhbspNu0YVHIgYOQNzgfM=;
+  b=nhgobI02NELjyDeeYprk7jdexSTuK1sET+Iue3s2JER4ytUTH4YbTqMf
+   1lT95v3WC1IT2UUgeC4+btBDDRrF41/eszP1fUfpC2I8WMNEQCZT0GDi+
+   LcOSaIJcPjcNAnVrI2L0RaPY6TcfvYnw0cmbJu/oumMgp/jW9W41W3pmK
+   DUysrCaROgf5qx2xfOi5inf+8B0+12XZoeO46qQkoSoWNp0O0anukltht
+   rMTS9QKERVBKaQu9lsH7exPLAeA+4SRslAwqUmQAt2JIcpUMuH2+jA1r3
+   cJbeMq7jGEoLGLVAf0HKmobgdxUVld1rUKYCeZ3KQE4ok/uAV+H9CjqcE
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="369050176"
+X-IronPort-AV: E=Sophos;i="6.03,285,1694761200"; 
+   d="scan'208";a="369050176"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:01:13 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10887"; a="833411924"
+X-IronPort-AV: E=Sophos;i="6.03,285,1694761200"; 
+   d="scan'208";a="833411924"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.215.63]) ([10.254.215.63])
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2023 00:01:01 -0800
+Message-ID: <99edf0cf-a570-43de-a79a-a040a403607e@linux.intel.com>
+Date: Wed, 8 Nov 2023 16:01:00 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [100.64.160.123]
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181188 [Nov 08 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 543 543 1e3516af5cdd92079dfeb0e292c8747a62cb1ee4, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;100.64.160.123:7.1.2;salutedevices.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/08 04:00:00 #22424297
-X-KSMG-AntiVirus-Status: Clean, skipped
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Zhenhua Huang <quic_zhenhuah@quicinc.com>
+Subject: Re: [PATCH RFC 01/17] iommu: Remove struct iommu_ops *iommu from
+ arch_setup_dma_ops()
+To: Jason Gunthorpe <jgg@nvidia.com>, acpica-devel@lists.linuxfoundation.org,
+ Alyssa Rosenzweig <alyssa@rosenzweig.io>, Albert Ou <aou@eecs.berkeley.edu>,
+ asahi@lists.linux.dev, Catalin Marinas <catalin.marinas@arm.com>,
+ Dexuan Cui <decui@microsoft.com>, devicetree@vger.kernel.org,
+ David Woodhouse <dwmw2@infradead.org>, Frank Rowand
+ <frowand.list@gmail.com>, Hanjun Guo <guohanjun@huawei.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Christoph Hellwig <hch@lst.de>,
+ iommu@lists.linux.dev, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>,
+ linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-hyperv@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>, Hector Martin
+ <marcan@marcan.st>, Palmer Dabbelt <palmer@dabbelt.com>,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Robert Moore <robert.moore@intel.com>, Rob Herring <robh+dt@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Sudeep Holla <sudeep.holla@arm.com>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Sven Peter <sven@svenpeter.dev>, Thierry Reding <thierry.reding@gmail.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
+ virtualization@lists.linux-foundation.org, Wei Liu <wei.liu@kernel.org>,
+ Will Deacon <will@kernel.org>
+References: <1-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <1-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This adds sending credit update message when SO_RCVLOWAT is updated and
-it is bigger than number of bytes in rx queue. It is needed, because
-'poll()' will wait until number of bytes in rx queue will be not smaller
-than SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual
-hungup for tx/rx is possible: sender waits for free space and receiver
-is waiting data in 'poll()'.
+On 2023/11/4 0:44, Jason Gunthorpe wrote:
+> This is not being used to pass ops, it is just a way to tell if an
+> iommu driver was probed. These days this can be detected directly via
+> device_iommu_mapped(). Call device_iommu_mapped() in the two places that
+> need to check it and remove the iommu parameter everywhere.
+> 
+> Signed-off-by: Jason Gunthorpe<jgg@nvidia.com>
+> ---
+>   arch/arc/mm/dma.c               |  2 +-
+>   arch/arm/mm/dma-mapping-nommu.c |  2 +-
+>   arch/arm/mm/dma-mapping.c       | 10 +++++-----
+>   arch/arm64/mm/dma-mapping.c     |  4 ++--
+>   arch/mips/mm/dma-noncoherent.c  |  2 +-
+>   arch/riscv/mm/dma-noncoherent.c |  2 +-
+>   drivers/acpi/scan.c             |  3 +--
+>   drivers/hv/hv_common.c          |  2 +-
+>   drivers/of/device.c             |  2 +-
+>   include/linux/dma-map-ops.h     |  4 ++--
+>   10 files changed, 16 insertions(+), 17 deletions(-)
 
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
----
- drivers/vhost/vsock.c                   |  2 ++
- include/linux/virtio_vsock.h            |  1 +
- net/vmw_vsock/virtio_transport.c        |  2 ++
- net/vmw_vsock/virtio_transport_common.c | 31 +++++++++++++++++++++++++
- net/vmw_vsock/vsock_loopback.c          |  2 ++
- 5 files changed, 38 insertions(+)
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index f75731396b7e..ecfa5c11f5ee 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = vhost_transport_send_pkt,
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index ebb3ce63d64d..97dc1bebc69c 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
- void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
- int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
- int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val);
- #endif /* _LINUX_VIRTIO_VSOCK_H */
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index af5bab1acee1..cf3431189d0c 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -539,6 +539,8 @@ static struct virtio_transport virtio_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = virtio_transport_send_pkt,
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index e22c81435ef7..88a58163046e 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1676,6 +1676,37 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
- }
- EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
- 
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val)
-+{
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	bool send_update = false;
-+
-+	spin_lock_bh(&vvs->rx_lock);
-+
-+	/* If number of available bytes is less than new
-+	 * SO_RCVLOWAT value, kick sender to send more
-+	 * data, because sender may sleep in its 'send()'
-+	 * syscall waiting for enough space at our side.
-+	 */
-+	if (vvs->rx_bytes < val)
-+		send_update = true;
-+
-+	spin_unlock_bh(&vvs->rx_lock);
-+
-+	if (send_update) {
-+		int err;
-+
-+		err = virtio_transport_send_credit_update(vsk);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	WRITE_ONCE(sk_vsock(vsk)->sk_rcvlowat, val ? : 1);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(virtio_transport_set_rcvlowat);
-+
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Asias He");
- MODULE_DESCRIPTION("common code for virtio vsock");
-diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-index 048640167411..388c157f6633 100644
---- a/net/vmw_vsock/vsock_loopback.c
-+++ b/net/vmw_vsock/vsock_loopback.c
-@@ -98,6 +98,8 @@ static struct virtio_transport loopback_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = vsock_loopback_send_pkt,
--- 
-2.25.1
-
+Best regards,
+baolu
