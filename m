@@ -1,156 +1,98 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5A1ECF
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:04:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D63D04C66
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:10:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BAp9XLbR"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PH1DBhv2"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5047840583
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:04:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5047840583
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BAp9XLbR
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5AB73817A1
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:10:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5AB73817A1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=PH1DBhv2
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ALiYkspcKDad
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VFQOaRlaygkV
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  8 Nov 2023 03:04:03 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 46DC440195
-	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:04:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 46DC440195
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1699412642;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=y1LQ97ddUdIP3S349Nk8ZXmiilx7zt+gyQAEPt1RKwk=;
-	b=BAp9XLbR7HEoy/X9GLv3H42I3WPRhx6+bWdNABCMBszLihXXu6CiW+D0k0mrGg34xLRa6q
-	6dW+o9HCOJaDH/4g0VPUFx4U57JkhojBxm+c5i5Y+op5S5cB5cnk43JD7g9SNaPrpyYuVr
-	TD2UM2XRVor79ruDut0IZETdr8T6j6A=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-300-6J-Wu1_YN2SixvwwORZXjQ-1; Tue, 07 Nov 2023 22:04:00 -0500
-X-MC-Unique: 6J-Wu1_YN2SixvwwORZXjQ-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-507f20a111fso208151e87.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 07 Nov 2023 19:04:00 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699412639; x=1700017439;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y1LQ97ddUdIP3S349Nk8ZXmiilx7zt+gyQAEPt1RKwk=;
-        b=QR2wrT+TAByQdqdMu0fOYD31hMRlSX9yxa4XkqIGi+8Orak1XlPqI1ToAqM4RRU9EX
-         PrxDD92h2dDJW8mMROG2rC8A1SAkLK+bFcHrGvj1aOOo+YN6II4q8anDbEYFZqUlkivj
-         iS6PdrMpzr2EV+1BiwzQElG9fhQyb6RRaapPyeJ3WakVV7GfqCoDMnN+SknEAQfT78jl
-         2p5GVh3C9bYGvDQ8GGYvMzgDiRp5Xw/Ixr2wj/3nOagfbI6yTDJpUVSvKhtXYqlpE2sj
-         vrxi7eCmlfv8/qAOcoBS09aS20KjqpG3Z67y6pXdjiWt0LwNVPS2sFs/5kJ3BCg6IsGv
-         59oQ==
-X-Gm-Message-State: AOJu0Yx4S50v75Qd//eJhzzR+MNjrcGR5td9xXtma7RsyTT+f7ZFUkl5
-	13Ar1JaxifrVl105UWdEBxUxac+cteJzhnSB3Wldj6lULgXyei7UZ5phdGVTNGG6Uc72t4Gv5xi
-	eA97RgPUpdIYn3HcCLTnX+d5FIObFxOPDITI0AUyUWHCdQGx18/46dj6snw==
-X-Received: by 2002:a05:6512:3910:b0:509:4d3f:a1c4 with SMTP id a16-20020a056512391000b005094d3fa1c4mr185162lfu.12.1699412639367;
-        Tue, 07 Nov 2023 19:03:59 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE/WtWEcYVrA6P1JEZ/+s4O/JbYCESejqz6Phd8UEmQIVsvMMk65SthMYJwstqiEzC8DRLJGzSaYpA8nNqIY1Y=
-X-Received: by 2002:a05:6512:3910:b0:509:4d3f:a1c4 with SMTP id
- a16-20020a056512391000b005094d3fa1c4mr185156lfu.12.1699412639102; Tue, 07 Nov
- 2023 19:03:59 -0800 (PST)
+	Wed,  8 Nov 2023 03:10:28 +0000 (UTC)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 59B2D81799
+	for <virtualization@lists.linux-foundation.org>; Wed,  8 Nov 2023 03:10:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 59B2D81799
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by ams.source.kernel.org (Postfix) with ESMTP id F1C1FB81A93;
+	Wed,  8 Nov 2023 03:10:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 88FB7C433CA;
+	Wed,  8 Nov 2023 03:10:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1699413024;
+	bh=db462BER3D6dOv8vrwDUmbYyIEQAH4iq/9pl02uWBls=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=PH1DBhv2LS+PBbNau6viPmQOX9QtuEFQ+eoIR2vhwDa8v07aBAPgAuBV/ozVmhwxZ
+	 t8tB6Qw5m1QegYEi4POYM+D95IbSfQiYHM0ClhkwgJz6Hx67HoLTcNefNlbScPoI1y
+	 Bh67lEAeZyE2hSyYnx1I3wGqtE6mhfJICmNAWJgBU22rz50JsogpWTRxZzg1JWs5Na
+	 b68IsiUImOnNYOui7wegyKl7FreNqNWA4t1QrrpEaaoYVgAv1mFPutkNZZv+x62zG/
+	 NxPxFBQoo1/lt3gQHl62iZ6+jGd9TSbh2iXqmhbzmynizMtIc15qdfQo07S6NP4WjR
+	 hXofs+TSn90HQ==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 645D8C395FC;
+	Wed,  8 Nov 2023 03:10:24 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231103171641.1703146-1-lulu@redhat.com> <20231103171641.1703146-9-lulu@redhat.com>
- <CACGkMEtRJ6-KRQ1qrrwC3FVBosMfYvV6Q47enoE9cE9C8MYYOg@mail.gmail.com> <CACLfguUPZVY2HDBoir67u0CeR3A9wHjCGvuc3cGLe0L43f8jkg@mail.gmail.com>
-In-Reply-To: <CACLfguUPZVY2HDBoir67u0CeR3A9wHjCGvuc3cGLe0L43f8jkg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 Nov 2023 11:03:48 +0800
-Message-ID: <CACGkMEuA3jg06s9wuxTL60geFm6+nnbEnYXvv8HhTgXoFHyJgQ@mail.gmail.com>
-Subject: Re: [RFC v1 8/8] iommu: expose the function iommu_device_use_default_domain
-To: Cindy Lu <lulu@redhat.com>
-Cc: mst@redhat.com, yi.l.liu@intel.com, jgg@nvidia.com, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] virtio/vsock: Fix uninit-value in
+ virtio_transport_recv_pkt()
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <169941302440.21503.9572078694318707509.git-patchwork-notify@kernel.org>
+Date: Wed, 08 Nov 2023 03:10:24 +0000
+References: <20231104150531.257952-1-syoshida@redhat.com>
+In-Reply-To: <20231104150531.257952-1-syoshida@redhat.com>
+To: Shigeru Yoshida <syoshida@redhat.com>
+Cc: stefanha@redhat.com, sgarzare@redhat.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ syzbot+0c8ce1da0ac31abbadcd@syzkaller.appspotmail.com
 
-On Tue, Nov 7, 2023 at 2:10=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote:
->
-> On Mon, Nov 6, 2023 at 3:26=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
-rote:
-> >
-> > On Sat, Nov 4, 2023 at 1:18=E2=80=AFAM Cindy Lu <lulu@redhat.com> wrote=
-:
-> > >
-> > > Expose the function iommu_device_use_default_domain() and
-> > > iommu_device_unuse_default_domain()=EF=BC=8C
-> > > While vdpa bind the iommufd device and detach the iommu device,
-> > > vdpa need to call the function
-> > > iommu_device_unuse_default_domain() to release the owner
-> > >
-> > > Signed-off-by: Cindy Lu <lulu@redhat.com>
-> >
-> > This is the end of the series, who is the user then?
-> >
-> > Thanks
-> >
-> hi Jason
-> These 2 functions was called in vhost_vdpa_iommufd_set_device(), Vdpa nee=
-d to
-> release the dma owner, otherwise, the function will fail when
-> iommufd called iommu_device_claim_dma_owner() in iommufd_device_bind()
-> I will change this sequence, Or maybe will find some other way to fix
-> this problem
-> thanks
+Hello:
 
-I meant exporting helpers needs to be done before the real users.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Thanks
+On Sun,  5 Nov 2023 00:05:31 +0900 you wrote:
+> KMSAN reported the following uninit-value access issue:
+> 
+> =====================================================
+> BUG: KMSAN: uninit-value in virtio_transport_recv_pkt+0x1dfb/0x26a0 net/vmw_vsock/virtio_transport_common.c:1421
+>  virtio_transport_recv_pkt+0x1dfb/0x26a0 net/vmw_vsock/virtio_transport_common.c:1421
+>  vsock_loopback_work+0x3bb/0x5a0 net/vmw_vsock/vsock_loopback.c:120
+>  process_one_work kernel/workqueue.c:2630 [inline]
+>  process_scheduled_works+0xff6/0x1e60 kernel/workqueue.c:2703
+>  worker_thread+0xeca/0x14d0 kernel/workqueue.c:2784
+>  kthread+0x3cc/0x520 kernel/kthread.c:388
+>  ret_from_fork+0x66/0x80 arch/x86/kernel/process.c:147
+>  ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+> 
+> [...]
 
-> cindy
->
->
-> > > ---
-> > >  drivers/iommu/iommu.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > >
-> > > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> > > index 3bfc56df4f78..987cbf8c9a87 100644
-> > > --- a/drivers/iommu/iommu.c
-> > > +++ b/drivers/iommu/iommu.c
-> > > @@ -3164,6 +3164,7 @@ int iommu_device_use_default_domain(struct devi=
-ce *dev)
-> > >
-> > >         return ret;
-> > >  }
-> > > +EXPORT_SYMBOL_GPL(iommu_device_use_default_domain);
-> > >
-> > >  /**
-> > >   * iommu_device_unuse_default_domain() - Device driver stops handlin=
-g device
-> > > @@ -3187,6 +3188,7 @@ void iommu_device_unuse_default_domain(struct d=
-evice *dev)
-> > >         mutex_unlock(&group->mutex);
-> > >         iommu_group_put(group);
-> > >  }
-> > > +EXPORT_SYMBOL_GPL(iommu_device_unuse_default_domain);
-> > >
-> > >  static int __iommu_group_alloc_blocking_domain(struct iommu_group *g=
-roup)
-> > >  {
-> > > --
-> > > 2.34.3
-> > >
-> >
->
+Here is the summary with links:
+  - [net,v2] virtio/vsock: Fix uninit-value in virtio_transport_recv_pkt()
+    https://git.kernel.org/netdev/net/c/34c4effacfc3
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
