@@ -1,230 +1,432 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AF03107BB
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:19:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vp1tFeUO"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 971D610A17
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:31:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C5864408E8
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:19:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C5864408E8
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Vp1tFeUO
+	by smtp1.osuosl.org (Postfix) with ESMTP id 04FFD813BC
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:31:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 04FFD813BC
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CIUpzumTgEd3
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ooQ4PsKYgOjO
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  9 Nov 2023 08:19:18 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7206E400D7
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:19:18 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7206E400D7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1699517957;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xE4TaI1xFoCeG0Et+qFiFcEYZ8Mpoef4JSlUW87OIww=;
-	b=Vp1tFeUOW7RAjhAR6O/kMXjSKqnA2fHlyHPfJN7RmbZ5uklw/e13N428Zj6skZ3qEF/sJ3
-	Tct/qpJJha8KnFqmRKEqUKkxe+AEBMcTkM08uuUyKULKzF8fLNTTIdpEWfYVznTE6DTGvg
-	aYmlrr15MAuvQbXaIv+9PzG6E5/ultQ=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-220-EebOZnJ9NTK3VLQrSRTkNA-1; Thu, 09 Nov 2023 03:19:15 -0500
-X-MC-Unique: EebOZnJ9NTK3VLQrSRTkNA-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-9c797b497e8so44489766b.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 00:19:15 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699517950; x=1700122750;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xE4TaI1xFoCeG0Et+qFiFcEYZ8Mpoef4JSlUW87OIww=;
-        b=iHfQux4zXEuZgtgEixv7sLasHGSWUlCk2GoEoX2empw8WjoEWL6eQzXuoe2qYmEBRM
-         3NKgcWqVgjgCDKJcdtCDEGKAZq9wilGAhG8OFF+P3zqtud4mxjzN8okfJqJNUr8DkYYl
-         snCzegvI3zjyMJmrpIzS9vIP8wmYCw1eQwswtLVTfWPyKVizNzStYWIR2P2EACu4ZcGz
-         9JKETQqDOotu4sbH6sCa2u8uXFqQI2GxgSDUPheQDkohyEJZzwkGg8mswPcacix8ua0h
-         kprwuPTBXbYS2j8eOrSB5uFMR1IEIVFqQxtxCszgfd2m40UEoSHaNG5XqP4+2aV4hXll
-         XNXA==
-X-Gm-Message-State: AOJu0YyLI63ljJtFswHOmNX3nblJBBfRXLAeAbtfvjSnzuwd/OYAwx6p
-	HpzWljJi0+NDfAv0pMr6dKH5I6H5TtKpi7kec2+A3uLNtXSYHlnHrv3RmUnTmEbQGyes0D2MYs0
-	qorjwKc80jMrM7RNmw+e4MAYrLZ5sVWurUdfC8G83eA==
-X-Received: by 2002:a17:906:eec1:b0:9ae:7502:7d30 with SMTP id wu1-20020a170906eec100b009ae75027d30mr3326794ejb.57.1699517949889;
-        Thu, 09 Nov 2023 00:19:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE85mNmjr2GJvt9X07Odv5atdHbnAvtDjyxWQli00YOJsFuWVyKjxhVxKuEH3lwcrhlzuTj1Q==
-X-Received: by 2002:a17:906:eec1:b0:9ae:7502:7d30 with SMTP id wu1-20020a170906eec100b009ae75027d30mr3326766ejb.57.1699517949486;
-        Thu, 09 Nov 2023 00:19:09 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f4:2044:be5a:328c:4b98:1420])
-        by smtp.gmail.com with ESMTPSA id c7-20020a170906694700b0099293cdbc98sm2241746ejs.145.2023.11.09.00.19.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Nov 2023 00:19:08 -0800 (PST)
-Date: Thu, 9 Nov 2023 03:19:04 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v2 00/21] virtio-net: support AF_XDP zero copy
-Message-ID: <20231109031728-mutt-send-email-mst@kernel.org>
-References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
+	Thu,  9 Nov 2023 08:31:40 +0000 (UTC)
+Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4091681398
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:31:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4091681398
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw02OKq_1699518689;
+Received: from 30.221.148.83(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vw02OKq_1699518689)
+          by smtp.aliyun-inc.com;
+          Thu, 09 Nov 2023 16:31:30 +0800
+Message-ID: <a2931f26-f735-447d-b542-d0cdf5b2f7e3@linux.alibaba.com>
+Date: Thu, 9 Nov 2023 16:31:26 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Tue, Nov 07, 2023 at 11:12:06AM +0800, Xuan Zhuo wrote:
-> ## AF_XDP
-> 
-> XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
-> copy feature of xsk (XDP socket) needs to be supported by the driver. The
-> performance of zero copy is very good. mlx5 and intel ixgbe already support
-> this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-> feature.
-> 
-> At present, we have completed some preparation:
-> 
-> 1. vq-reset (virtio spec and kernel code)
-> 2. virtio-core premapped dma
-> 3. virtio-net xdp refactor
-> 
-> So it is time for Virtio-Net to complete the support for the XDP Socket
-> Zerocopy.
-> 
-> Virtio-net can not increase the queue num at will, so xsk shares the queue with
-> kernel.
-> 
-> On the other hand, Virtio-Net does not support generate interrupt from driver
-> manually, so when we wakeup tx xmit, we used some tips. If the CPU run by TX
-> NAPI last time is other CPUs, use IPI to wake up NAPI on the remote CPU. If it
-> is also the local CPU, then we wake up napi directly.
-> 
-> This patch set includes some refactor to the virtio-net to let that to support
-> AF_XDP.
-> 
-> ## performance
-> 
-> ENV: Qemu with vhost-user(polling mode).
-> Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
-> 
-> ### virtio PMD in guest with testpmd
-> 
-> testpmd> show port stats all
-> 
->  ######################## NIC statistics for port 0 ########################
->  RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
->  RX-errors: 0
->  RX-nombuf: 0
->  TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
-> 
-> 
->  Throughput (since last show)
->  Rx-pps:   8861574     Rx-bps:  3969985208
->  Tx-pps:   8861493     Tx-bps:  3969962736
->  ############################################################################
-> 
-> ### AF_XDP PMD in guest with testpmd
-> 
-> testpmd> show port stats all
-> 
->   ######################## NIC statistics for port 0  ########################
->   RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
->   RX-errors: 0
->   RX-nombuf:  0
->   TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
-> 
->   Throughput (since last show)
->   Rx-pps:      6333196          Rx-bps:   2837272088
->   Tx-pps:      6333227          Tx-bps:   2837285936
->   ############################################################################
-> 
-> But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
-> 
-> ## maintain
-> 
-> I am currently a reviewer for virtio-net. I commit to maintain AF_XDP support in
-> virtio-net.
-> 
-> Please review.
-> 
-> Thanks.
-> 
-> v2
->     1. wakeup uses the way of GVE. No send ipi to wakeup napi on remote cpu.
->     2. remove rcu. Because we synchronize all operat, so the rcu is not needed.
->     3. split the commit "move to virtio_net.h" in last patch set. Just move the
->        struct/api to header when we use them.
->     4. add comments for some code
-> 
-> v1:
->     1. remove two virtio commits. Push this patchset to net-next
->     2. squash "virtio_net: virtnet_poll_tx support rescheduled" to xsk: support tx
->     3. fix some warnings
-> 
-> 
-> Xuan Zhuo (21):
->   virtio_net: rename free_old_xmit_skbs to free_old_xmit
->   virtio_net: unify the code for recycling the xmit ptr
->   virtio_net: independent directory
->   virtio_net: move core structures to virtio_net.h
->   virtio_net: add prefix virtnet to all struct inside virtio_net.h
->   virtio_net: separate virtnet_rx_resize()
->   virtio_net: separate virtnet_tx_resize()
->   virtio_net: sq support premapped mode
->   virtio_net: xsk: bind/unbind xsk
->   virtio_net: xsk: prevent disable tx napi
->   virtio_net: move some api to header
->   virtio_net: xsk: tx: support tx
->   virtio_net: xsk: tx: support wakeup
->   virtio_net: xsk: tx: virtnet_free_old_xmit() distinguishes xsk buffer
->   virtio_net: xsk: tx: virtnet_sq_free_unused_buf() check xsk buffer
->   virtio_net: xsk: rx: introduce add_recvbuf_xsk()
->   virtio_net: xsk: rx: skip dma unmap when rq is bind with AF_XDP
->   virtio_net: xsk: rx: introduce receive_xsk() to recv xsk buffer
->   virtio_net: xsk: rx: virtnet_rq_free_unused_buf() check xsk buffer
->   virtio_net: update tx timeout record
->   virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
-> 
->  MAINTAINERS                                 |   2 +-
->  drivers/net/Kconfig                         |   8 +-
->  drivers/net/Makefile                        |   2 +-
->  drivers/net/virtio/Kconfig                  |  13 +
->  drivers/net/virtio/Makefile                 |   8 +
->  drivers/net/{virtio_net.c => virtio/main.c} | 630 +++++++++-----------
->  drivers/net/virtio/virtio_net.h             | 346 +++++++++++
->  drivers/net/virtio/xsk.c                    | 498 ++++++++++++++++
->  drivers/net/virtio/xsk.h                    |  32 +
->  9 files changed, 1174 insertions(+), 365 deletions(-)
->  create mode 100644 drivers/net/virtio/Kconfig
->  create mode 100644 drivers/net/virtio/Makefile
->  rename drivers/net/{virtio_net.c => virtio/main.c} (92%)
->  create mode 100644 drivers/net/virtio/virtio_net.h
->  create mode 100644 drivers/net/virtio/xsk.c
->  create mode 100644 drivers/net/virtio/xsk.h
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 4/5] virtio-net: support rx netdim
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
+ Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, Simon Horman <horms@kernel.org>,
+ Jakub Kicinski <kuba@kernel.org>, "Liu, Yujie" <yujie.liu@intel.com>
+References: <cover.1698929590.git.hengqi@linux.alibaba.com>
+ <12c77098b73313eea8fdc88a3d1d20611444827d.1698929590.git.hengqi@linux.alibaba.com>
+ <CACGkMEunoNEA1KFKmH+RhHkFreMgAEa-NgL+XVNROi8qvL42=A@mail.gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <CACGkMEunoNEA1KFKmH+RhHkFreMgAEa-NgL+XVNROi8qvL42=A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
 
-Too much code duplications for my taste. Would there maybe be less if
-everything was in a single file?
 
+在 2023/11/9 下午12:43, Jason Wang 写道:
+> On Thu, Nov 2, 2023 at 9:10 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>> By comparing the traffic information in the complete napi processes,
+>> let the virtio-net driver automatically adjust the coalescing
+>> moderation parameters of each receive queue.
+>>
+>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>> ---
+>> v1->v2:
+>> - Improved the judgment of dim switch conditions.
+>> - Fix the safe problem of work thread.
+> Nit: it's better to be more concrete here, e.g what kind of "safe
+> problem" it is.
 
-> --
-> 2.32.0.3.g01195cf9f
+Maybe it shouldn't be called a "safe problem" because it won't be 
+destructive.
+When the specific rxq is reset, the device will respond with errno when 
+the work
+tries to modifiy parameters for the rxq.
+
+>
+>
+>>   drivers/net/virtio_net.c | 187 ++++++++++++++++++++++++++++++++++-----
+>>   1 file changed, 165 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 69fe09e99b3c..5473aa1ee5cd 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -19,6 +19,7 @@
+>>   #include <linux/average.h>
+>>   #include <linux/filter.h>
+>>   #include <linux/kernel.h>
+>> +#include <linux/dim.h>
+>>   #include <net/route.h>
+>>   #include <net/xdp.h>
+>>   #include <net/net_failover.h>
+>> @@ -172,6 +173,17 @@ struct receive_queue {
+>>
+>>          struct virtnet_rq_stats stats;
+>>
+>> +       /* The number of rx notifications */
+>> +       u16 calls;
+>> +
+>> +       /* Is dynamic interrupt moderation enabled? */
+>> +       bool dim_enabled;
+>> +
+>> +       /* Dynamic Interrupt Moderation */
+>> +       struct dim dim;
+>> +
+>> +       u32 packets_in_napi;
+>> +
+>>          struct virtnet_interrupt_coalesce intr_coal;
+>>
+>>          /* Chain pages by the private ptr. */
+>> @@ -305,6 +317,9 @@ struct virtnet_info {
+>>          u8 duplex;
+>>          u32 speed;
+>>
+>> +       /* Is rx dynamic interrupt moderation enabled? */
+>> +       bool rx_dim_enabled;
+>> +
+>>          /* Interrupt coalescing settings */
+>>          struct virtnet_interrupt_coalesce intr_coal_tx;
+>>          struct virtnet_interrupt_coalesce intr_coal_rx;
+>> @@ -2001,6 +2016,7 @@ static void skb_recv_done(struct virtqueue *rvq)
+>>          struct virtnet_info *vi = rvq->vdev->priv;
+>>          struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
+>>
+>> +       rq->calls++;
+>>          virtqueue_napi_schedule(&rq->napi, rvq);
+>>   }
+>>
+>> @@ -2141,6 +2157,26 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>>          }
+>>   }
+>>
+>> +static void virtnet_rx_dim_work(struct work_struct *work);
+>> +
+>> +static void virtnet_rx_dim_update(struct virtnet_info *vi, struct receive_queue *rq)
+>> +{
+>> +       struct dim_sample cur_sample = {};
+>> +
+>> +       if (!rq->packets_in_napi)
+>> +               return;
+>> +
+>> +       u64_stats_update_begin(&rq->stats.syncp);
+>> +       dim_update_sample(rq->calls,
+>> +                         u64_stats_read(&rq->stats.packets),
+>> +                         u64_stats_read(&rq->stats.bytes),
+>> +                         &cur_sample);
+>> +       u64_stats_update_end(&rq->stats.syncp);
+>> +
+>> +       net_dim(&rq->dim, cur_sample);
+>> +       rq->packets_in_napi = 0;
+>> +}
+>> +
+>>   static int virtnet_poll(struct napi_struct *napi, int budget)
+>>   {
+>>          struct receive_queue *rq =
+>> @@ -2149,17 +2185,22 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>>          struct send_queue *sq;
+>>          unsigned int received;
+>>          unsigned int xdp_xmit = 0;
+>> +       bool napi_complete;
+>>
+>>          virtnet_poll_cleantx(rq);
+>>
+>>          received = virtnet_receive(rq, budget, &xdp_xmit);
+>> +       rq->packets_in_napi += received;
+>>
+>>          if (xdp_xmit & VIRTIO_XDP_REDIR)
+>>                  xdp_do_flush();
+>>
+>>          /* Out of packets? */
+>> -       if (received < budget)
+>> -               virtqueue_napi_complete(napi, rq->vq, received);
+>> +       if (received < budget) {
+>> +               napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
+>> +               if (napi_complete && rq->dim_enabled)
+>> +                       virtnet_rx_dim_update(vi, rq);
+>> +       }
+>>
+>>          if (xdp_xmit & VIRTIO_XDP_TX) {
+>>                  sq = virtnet_xdp_get_sq(vi);
+>> @@ -2179,6 +2220,7 @@ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+>>          virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+>>          napi_disable(&vi->rq[qp_index].napi);
+>>          xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+>> +       cancel_work_sync(&vi->rq[qp_index].dim.work);
+>>   }
+>>
+>>   static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>> @@ -2196,6 +2238,9 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>>          if (err < 0)
+>>                  goto err_xdp_reg_mem_model;
+>>
+>> +       INIT_WORK(&vi->rq[qp_index].dim.work, virtnet_rx_dim_work);
+> Any reason we need to do the INIT_WORK here but not probe?
+
+This can initialize the work when the device status changes (open, restore).
+At this time, rxq is ready and once it's napi is enabled, the work can 
+start working.
+
+>
+>> +       vi->rq[qp_index].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
+>> +
+>>          virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+>>          virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+>>
+>> @@ -2393,8 +2438,10 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+>>
+>>          qindex = rq - vi->rq;
+>>
+>> -       if (running)
+>> +       if (running) {
+>>                  napi_disable(&rq->napi);
+>> +               cancel_work_sync(&rq->dim.work);
+>> +       }
+>>
+>>          err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
+>>          if (err)
+>> @@ -2403,8 +2450,10 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+>>          if (!try_fill_recv(vi, rq, GFP_KERNEL))
+>>                  schedule_delayed_work(&vi->refill, 0);
+>>
+>> -       if (running)
+>> +       if (running) {
+>> +               INIT_WORK(&rq->dim.work, virtnet_rx_dim_work);
+>>                  virtnet_napi_enable(rq->vq, &rq->napi);
+>> +       }
+>>          return err;
+>>   }
+>>
+>> @@ -3341,24 +3390,51 @@ static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>>   static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>>                                            struct ethtool_coalesce *ec)
+>>   {
+>> +       bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
+>>          struct scatterlist sgs_rx;
+>> +       bool switch_dim, update;
+>>          int i;
+>>
+>> -       vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+>> -       vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+>> -       sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+>> -
+>> -       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>> -                                 VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+>> -                                 &sgs_rx))
+>> -               return -EINVAL;
+>> +       switch_dim = rx_ctrl_dim_on != vi->rx_dim_enabled;
+>> +       if (switch_dim) {
+>> +               if (rx_ctrl_dim_on) {
+>> +                       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+>> +                               vi->rx_dim_enabled = true;
+>> +                               for (i = 0; i < vi->max_queue_pairs; i++)
+>> +                                       vi->rq[i].dim_enabled = true;
+>> +                       } else {
+>> +                               return -EOPNOTSUPP;
+>> +                       }
+>> +               } else {
+>> +                       vi->rx_dim_enabled = false;
+>> +                       for (i = 0; i < vi->max_queue_pairs; i++)
+>> +                               vi->rq[i].dim_enabled = false;
+>> +               }
+>> +       } else {
+>> +               if (ec->rx_coalesce_usecs != vi->intr_coal_rx.max_usecs ||
+>> +                   ec->rx_max_coalesced_frames != vi->intr_coal_rx.max_packets)
+>> +                       update = true;
+>>
+>> -       /* Save parameters */
+>> -       vi->intr_coal_rx.max_usecs = ec->rx_coalesce_usecs;
+>> -       vi->intr_coal_rx.max_packets = ec->rx_max_coalesced_frames;
+>> -       for (i = 0; i < vi->max_queue_pairs; i++) {
+>> -               vi->rq[i].intr_coal.max_usecs = ec->rx_coalesce_usecs;
+>> -               vi->rq[i].intr_coal.max_packets = ec->rx_max_coalesced_frames;
+>> +               if (vi->rx_dim_enabled) {
+>> +                       if (update)
+>> +                               return -EINVAL;
+> update could be used without initialization?
+
+It defaults to false, but I will initialize it explicitly in the next 
+version.
+
+>
+> Btw under what condition could we reach here?
+
+If the current dim status is on, and this condition is triggered when 
+the user
+tries to modify parameters.
+
+Thanks!
+
+>
+> Thanks
+>
+>> +               } else {
+>> +                       vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+>> +                       vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+>> +                       sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+>> +
+>> +                       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>> +                                                 VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+>> +                                                 &sgs_rx))
+>> +                               return -EINVAL;
+>> +
+>> +                       vi->intr_coal_rx.max_usecs = ec->rx_coalesce_usecs;
+>> +                       vi->intr_coal_rx.max_packets = ec->rx_max_coalesced_frames;
+>> +                       for (i = 0; i < vi->max_queue_pairs; i++) {
+>> +                               vi->rq[i].intr_coal.max_usecs = ec->rx_coalesce_usecs;
+>> +                               vi->rq[i].intr_coal.max_packets = ec->rx_max_coalesced_frames;
+>> +                       }
+>> +               }
+>>          }
+>>
+>>          return 0;
+>> @@ -3380,15 +3456,54 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
+>>          return 0;
+>>   }
+>>
+>> +static int virtnet_send_rx_notf_coal_vq_cmds(struct virtnet_info *vi,
+>> +                                            struct ethtool_coalesce *ec,
+>> +                                            u16 queue)
+>> +{
+>> +       bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
+>> +       bool cur_rx_dim = vi->rq[queue].dim_enabled;
+>> +       u32 max_usecs, max_packets;
+>> +       bool switch_dim, update;
+>> +       int err;
+>> +
+>> +       switch_dim = rx_ctrl_dim_on != cur_rx_dim;
+>> +       if (switch_dim) {
+>> +               if (rx_ctrl_dim_on)
+>> +                       vi->rq[queue].dim_enabled = true;
+>> +               else
+>> +                       vi->rq[queue].dim_enabled = false;
+>> +       } else {
+>> +               max_usecs = vi->rq[queue].intr_coal.max_usecs;
+>> +               max_packets = vi->rq[queue].intr_coal.max_packets;
+>> +               if (ec->rx_coalesce_usecs != max_usecs ||
+>> +                   ec->rx_max_coalesced_frames != max_packets)
+>> +                       update = true;
+>> +
+>> +               if (cur_rx_dim) {
+>> +                       if (update)
+>> +                               return -EINVAL;
+>> +               } else {
+>> +                       if (!update)
+>> +                               return 0;
+>> +
+>> +                       err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, queue,
+>> +                                                              ec->rx_coalesce_usecs,
+>> +                                                              ec->rx_max_coalesced_frames);
+>> +                       if (err)
+>> +                               return err;
+>> +               }
+>> +       }
+>> +
+>> +       return 0;
+>> +}
+>> +
+>>   static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+>>                                            struct ethtool_coalesce *ec,
+>>                                            u16 queue)
+>>   {
+>>          int err;
+>>
+>> -       err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, queue,
+>> -                                              ec->rx_coalesce_usecs,
+>> -                                              ec->rx_max_coalesced_frames);
+>> +       err = virtnet_send_rx_notf_coal_vq_cmds(vi, ec, queue);
+>>          if (err)
+>>                  return err;
+>>
+>> @@ -3401,6 +3516,32 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+>>          return 0;
+>>   }
+>>
+>> +static void virtnet_rx_dim_work(struct work_struct *work)
+>> +{
+>> +       struct dim *dim = container_of(work, struct dim, work);
+>> +       struct receive_queue *rq = container_of(dim,
+>> +                       struct receive_queue, dim);
+>> +       struct virtnet_info *vi = rq->vq->vdev->priv;
+>> +       struct net_device *dev = vi->dev;
+>> +       struct dim_cq_moder update_moder;
+>> +       int qnum = rq - vi->rq, err;
+>> +
+>> +       update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
+>> +       if (update_moder.usec != vi->rq[qnum].intr_coal.max_usecs ||
+>> +           update_moder.pkts != vi->rq[qnum].intr_coal.max_packets) {
+>> +               rtnl_lock();
+>> +               err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
+>> +                                                      update_moder.usec,
+>> +                                                      update_moder.pkts);
+>> +               if (err)
+>> +                       pr_debug("%s: Failed to send dim parameters on rxq%d\n",
+>> +                                dev->name, (int)(rq - vi->rq));
+>> +               rtnl_unlock();
+>> +       }
+>> +
+>> +       dim->state = DIM_START_MEASURE;
+>> +}
+>> +
+>>   static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
+>>   {
+>>          /* usecs coalescing is supported only if VIRTIO_NET_F_NOTF_COAL
+>> @@ -3482,6 +3623,7 @@ static int virtnet_get_coalesce(struct net_device *dev,
+>>                  ec->tx_coalesce_usecs = vi->intr_coal_tx.max_usecs;
+>>                  ec->tx_max_coalesced_frames = vi->intr_coal_tx.max_packets;
+>>                  ec->rx_max_coalesced_frames = vi->intr_coal_rx.max_packets;
+>> +               ec->use_adaptive_rx_coalesce = vi->rx_dim_enabled;
+>>          } else {
+>>                  ec->rx_max_coalesced_frames = 1;
+>>
+>> @@ -3539,6 +3681,7 @@ static int virtnet_get_per_queue_coalesce(struct net_device *dev,
+>>                  ec->tx_coalesce_usecs = vi->sq[queue].intr_coal.max_usecs;
+>>                  ec->tx_max_coalesced_frames = vi->sq[queue].intr_coal.max_packets;
+>>                  ec->rx_max_coalesced_frames = vi->rq[queue].intr_coal.max_packets;
+>> +               ec->use_adaptive_rx_coalesce = vi->rq[queue].dim_enabled;
+>>          } else {
+>>                  ec->rx_max_coalesced_frames = 1;
+>>
+>> @@ -3664,7 +3807,7 @@ static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
+>>
+>>   static const struct ethtool_ops virtnet_ethtool_ops = {
+>>          .supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES |
+>> -               ETHTOOL_COALESCE_USECS,
+>> +               ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE_RX,
+>>          .get_drvinfo = virtnet_get_drvinfo,
+>>          .get_link = ethtool_op_get_link,
+>>          .get_ringparam = virtnet_get_ringparam,
+>> --
+>> 2.19.1.6.gb485710b
+>>
 
