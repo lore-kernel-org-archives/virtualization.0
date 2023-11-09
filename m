@@ -1,139 +1,216 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BB3710944
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:34:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAAC819471
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 10:58:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0927E815CC
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:34:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0927E815CC
+	by smtp1.osuosl.org (Postfix) with ESMTP id 40B1D82175
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 10:58:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 40B1D82175
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -9.9
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z9HmVHYdi-54
+	with ESMTP id 2MDrngwXE5Ek
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  9 Nov 2023 08:34:23 +0000 (UTC)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D1C0081587
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 08:34:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D1C0081587
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw01fIT_1699518853;
-Received: from 30.221.148.83(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vw01fIT_1699518853)
+	Thu,  9 Nov 2023 10:58:43 +0000 (UTC)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 5B17E81A9C
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 10:58:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5B17E81A9C
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R341e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw0bMC3_1699527511;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vw0bMC3_1699527511)
           by smtp.aliyun-inc.com;
-          Thu, 09 Nov 2023 16:34:14 +0800
-Message-ID: <4ed04b2e-b4be-4841-8484-7e7087cc90f4@linux.alibaba.com>
-Date: Thu, 9 Nov 2023 16:34:11 +0800
+          Thu, 09 Nov 2023 18:58:32 +0800
+Message-ID: <1699526256.4202905-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 00/21] virtio-net: support AF_XDP zero copy
+Date: Thu, 9 Nov 2023 18:37:36 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ bpf@vger.kernel.org
+References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
+ <20231109031728-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231109031728-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v2 5/5] virtio-net: return -EOPNOTSUPP for
- adaptive-tx
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>,
- Paolo Abeni <pabeni@redhat.com>, "David S. Miller" <davem@davemloft.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Simon Horman <horms@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, "Liu, Yujie" <yujie.liu@intel.com>
-References: <cover.1698929590.git.hengqi@linux.alibaba.com>
- <4d57c072ca7d12034a1be4d9284e2be5988e1330.1698929590.git.hengqi@linux.alibaba.com>
- <CACGkMEt23Xm=dpwJMwX9dnwVjmQZqBp0SBxnpY19fgc=xMpcjA@mail.gmail.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <CACGkMEt23Xm=dpwJMwX9dnwVjmQZqBp0SBxnpY19fgc=xMpcjA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+
+On Thu, 9 Nov 2023 03:19:04 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Nov 07, 2023 at 11:12:06AM +0800, Xuan Zhuo wrote:
+> > ## AF_XDP
+> >
+> > XDP socket(AF_XDP) is an excellent bypass kernel network framework. The zero
+> > copy feature of xsk (XDP socket) needs to be supported by the driver. The
+> > performance of zero copy is very good. mlx5 and intel ixgbe already support
+> > this feature, This patch set allows virtio-net to support xsk's zerocopy xmit
+> > feature.
+> >
+> > At present, we have completed some preparation:
+> >
+> > 1. vq-reset (virtio spec and kernel code)
+> > 2. virtio-core premapped dma
+> > 3. virtio-net xdp refactor
+> >
+> > So it is time for Virtio-Net to complete the support for the XDP Socket
+> > Zerocopy.
+> >
+> > Virtio-net can not increase the queue num at will, so xsk shares the queue with
+> > kernel.
+> >
+> > On the other hand, Virtio-Net does not support generate interrupt from driver
+> > manually, so when we wakeup tx xmit, we used some tips. If the CPU run by TX
+> > NAPI last time is other CPUs, use IPI to wake up NAPI on the remote CPU. If it
+> > is also the local CPU, then we wake up napi directly.
+> >
+> > This patch set includes some refactor to the virtio-net to let that to support
+> > AF_XDP.
+> >
+> > ## performance
+> >
+> > ENV: Qemu with vhost-user(polling mode).
+> > Host CPU: Intel(R) Xeon(R) Platinum 8163 CPU @ 2.50GHz
+> >
+> > ### virtio PMD in guest with testpmd
+> >
+> > testpmd> show port stats all
+> >
+> >  ######################## NIC statistics for port 0 ########################
+> >  RX-packets: 19531092064 RX-missed: 0     RX-bytes: 1093741155584
+> >  RX-errors: 0
+> >  RX-nombuf: 0
+> >  TX-packets: 5959955552 TX-errors: 0     TX-bytes: 371030645664
+> >
+> >
+> >  Throughput (since last show)
+> >  Rx-pps:   8861574     Rx-bps:  3969985208
+> >  Tx-pps:   8861493     Tx-bps:  3969962736
+> >  ############################################################################
+> >
+> > ### AF_XDP PMD in guest with testpmd
+> >
+> > testpmd> show port stats all
+> >
+> >   ######################## NIC statistics for port 0  ########################
+> >   RX-packets: 68152727   RX-missed: 0          RX-bytes:  3816552712
+> >   RX-errors: 0
+> >   RX-nombuf:  0
+> >   TX-packets: 68114967   TX-errors: 33216      TX-bytes:  3814438152
+> >
+> >   Throughput (since last show)
+> >   Rx-pps:      6333196          Rx-bps:   2837272088
+> >   Tx-pps:      6333227          Tx-bps:   2837285936
+> >   ############################################################################
+> >
+> > But AF_XDP consumes more CPU for tx and rx napi(100% and 86%).
+> >
+> > ## maintain
+> >
+> > I am currently a reviewer for virtio-net. I commit to maintain AF_XDP support in
+> > virtio-net.
+> >
+> > Please review.
+> >
+> > Thanks.
+> >
+> > v2
+> >     1. wakeup uses the way of GVE. No send ipi to wakeup napi on remote cpu.
+> >     2. remove rcu. Because we synchronize all operat, so the rcu is not needed.
+> >     3. split the commit "move to virtio_net.h" in last patch set. Just move the
+> >        struct/api to header when we use them.
+> >     4. add comments for some code
+> >
+> > v1:
+> >     1. remove two virtio commits. Push this patchset to net-next
+> >     2. squash "virtio_net: virtnet_poll_tx support rescheduled" to xsk: support tx
+> >     3. fix some warnings
+> >
+> >
+> > Xuan Zhuo (21):
+> >   virtio_net: rename free_old_xmit_skbs to free_old_xmit
+> >   virtio_net: unify the code for recycling the xmit ptr
+> >   virtio_net: independent directory
+> >   virtio_net: move core structures to virtio_net.h
+> >   virtio_net: add prefix virtnet to all struct inside virtio_net.h
+> >   virtio_net: separate virtnet_rx_resize()
+> >   virtio_net: separate virtnet_tx_resize()
+> >   virtio_net: sq support premapped mode
+> >   virtio_net: xsk: bind/unbind xsk
+> >   virtio_net: xsk: prevent disable tx napi
+> >   virtio_net: move some api to header
+> >   virtio_net: xsk: tx: support tx
+> >   virtio_net: xsk: tx: support wakeup
+> >   virtio_net: xsk: tx: virtnet_free_old_xmit() distinguishes xsk buffer
+> >   virtio_net: xsk: tx: virtnet_sq_free_unused_buf() check xsk buffer
+> >   virtio_net: xsk: rx: introduce add_recvbuf_xsk()
+> >   virtio_net: xsk: rx: skip dma unmap when rq is bind with AF_XDP
+> >   virtio_net: xsk: rx: introduce receive_xsk() to recv xsk buffer
+> >   virtio_net: xsk: rx: virtnet_rq_free_unused_buf() check xsk buffer
+> >   virtio_net: update tx timeout record
+> >   virtio_net: xdp_features add NETDEV_XDP_ACT_XSK_ZEROCOPY
+> >
+> >  MAINTAINERS                                 |   2 +-
+> >  drivers/net/Kconfig                         |   8 +-
+> >  drivers/net/Makefile                        |   2 +-
+> >  drivers/net/virtio/Kconfig                  |  13 +
+> >  drivers/net/virtio/Makefile                 |   8 +
+> >  drivers/net/{virtio_net.c => virtio/main.c} | 630 +++++++++-----------
+> >  drivers/net/virtio/virtio_net.h             | 346 +++++++++++
+> >  drivers/net/virtio/xsk.c                    | 498 ++++++++++++++++
+> >  drivers/net/virtio/xsk.h                    |  32 +
+> >  9 files changed, 1174 insertions(+), 365 deletions(-)
+> >  create mode 100644 drivers/net/virtio/Kconfig
+> >  create mode 100644 drivers/net/virtio/Makefile
+> >  rename drivers/net/{virtio_net.c => virtio/main.c} (92%)
+> >  create mode 100644 drivers/net/virtio/virtio_net.h
+> >  create mode 100644 drivers/net/virtio/xsk.c
+> >  create mode 100644 drivers/net/virtio/xsk.h
+>
+>
+> Too much code duplications for my taste. Would there maybe be less if
+> everything was in a single file?
+
+
+What duplication?
+
+Yes. If everything is in a single file, something maybe simpler. But I
+do not like that, that will be more trouble in the future. We want to
+make the virtnet more like the modern network card, then we will
+introduce more features to the virtio-net. I think it's time to
+split the single file to modules. I think letting every module simple is
+beneficial for the maintaining.
+
+About the duplications, I do not understand. No duplication,
+We just refer the functions from each other.
+
+Do you mean the receive_xsk()?
+Let we resolve this problem if you think it's a duplicate. I think this is the
+right way.
+
+Thanks.
 
 
 
-在 2023/11/9 下午12:45, Jason Wang 写道:
-> On Thu, Nov 2, 2023 at 9:10 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->> We do not currently support tx dim, so respond to -EOPNOTSUPP.
->>
->> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
->> ---
->> v1->v2:
->> - Use -EOPNOTSUPP instead of specific implementation.
->>
->>   drivers/net/virtio_net.c | 29 ++++++++++++++++++++++++++---
->>   1 file changed, 26 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 5473aa1ee5cd..03edeadd0725 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -3364,9 +3364,15 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
->>   static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
->>                                            struct ethtool_coalesce *ec)
->>   {
->> +       bool tx_ctrl_dim_on = !!ec->use_adaptive_tx_coalesce;
->>          struct scatterlist sgs_tx;
->>          int i;
->>
->> +       if (tx_ctrl_dim_on) {
->> +               pr_debug("Failed to enable adaptive-tx, which is not supported\n");
->> +               return -EOPNOTSUPP;
->> +       }
-> When can we hit this?
 
-When user tries to enable tx dim using following cmd:
-'ethtool -C eth0 adaptive-tx on'
-
-Thanks!
 
 >
-> Thanks
 >
->> +
->>          vi->ctrl->coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
->>          vi->ctrl->coal_tx.tx_max_packets = cpu_to_le32(ec->tx_max_coalesced_frames);
->>          sg_init_one(&sgs_tx, &vi->ctrl->coal_tx, sizeof(vi->ctrl->coal_tx));
->> @@ -3497,6 +3503,25 @@ static int virtnet_send_rx_notf_coal_vq_cmds(struct virtnet_info *vi,
->>          return 0;
->>   }
->>
->> +static int virtnet_send_tx_notf_coal_vq_cmds(struct virtnet_info *vi,
->> +                                            struct ethtool_coalesce *ec,
->> +                                            u16 queue)
->> +{
->> +       bool tx_ctrl_dim_on = !!ec->use_adaptive_tx_coalesce;
->> +       int err;
->> +
->> +       if (tx_ctrl_dim_on) {
->> +               pr_debug("Enabling adaptive-tx for txq%d is not supported\n", queue);
->> +               return -EOPNOTSUPP;
->> +       }
->> +
->> +       err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, queue,
->> +                                              ec->tx_coalesce_usecs,
->> +                                              ec->tx_max_coalesced_frames);
->> +
->> +       return err;
->> +}
->> +
->>   static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
->>                                            struct ethtool_coalesce *ec,
->>                                            u16 queue)
->> @@ -3507,9 +3532,7 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
->>          if (err)
->>                  return err;
->>
->> -       err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, queue,
->> -                                              ec->tx_coalesce_usecs,
->> -                                              ec->tx_max_coalesced_frames);
->> +       err = virtnet_send_tx_notf_coal_vq_cmds(vi, ec, queue);
->>          if (err)
->>                  return err;
->>
->> --
->> 2.19.1.6.gb485710b
->>
-
+> > --
+> > 2.32.0.3.g01195cf9f
+>
+>
