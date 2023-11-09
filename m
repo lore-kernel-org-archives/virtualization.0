@@ -1,134 +1,125 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9677DEC8
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 17:25:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F08238FB8
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 23:48:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A3lKFeph"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J4fu2dXK"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1ABD16131E
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 17:25:17 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1ABD16131E
+	by smtp3.osuosl.org (Postfix) with ESMTP id B490D612DE
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 23:48:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B490D612DE
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=A3lKFeph
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=J4fu2dXK
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sUPXXV5dNT55
+	with ESMTP id 7FEUQRckyvej
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  9 Nov 2023 17:25:16 +0000 (UTC)
+	Thu,  9 Nov 2023 23:48:58 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3FFE561313
-	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 17:25:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3FFE561313
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CFC6A60D88
+	for <virtualization@lists.linux-foundation.org>; Thu,  9 Nov 2023 23:48:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CFC6A60D88
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1699550715;
+	s=mimecast20190719; t=1699573736;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Y0steN0/ACKFTtJOvpHMkiOMUe7bddz5OgwOILeHxPA=;
-	b=A3lKFepho4J9ud6CksUrN6W8KfjvDWtpH1672v52zjROYN3hirks6cJeXFy4UpDLMxWMTC
-	m59ylLX8seMAaUkjETiRouUcsHYpDs+3XlPo8p7ugxUn8odV7fRMUKPU2mYJZJhzATm5s5
-	LXp+JSBZ/O+UKr0gCwk7+u+pzrXGPys=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=3SxbBnBy8wcp+DFoAqPelvZA1LQU0OFFn4SXuqEY8lc=;
+	b=J4fu2dXKN6mpOWvYDtuUWYWqnqiAhGlso4OHerB5TI0O8saXl6k7LIarnVBNkL7P3uEf2K
+	468CezVxqnM4k4LHi2IVjgWs1hE0xvS8wBerK2hG9V068n42+A2nikyYo//8aLqcARd66k
+	t0DJojIJGRns9ZvvjLAD1vGPf5kNg3M=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-199-jCwectlSMlWVFGCimh6ajg-1; Thu, 09 Nov 2023 12:25:13 -0500
-X-MC-Unique: jCwectlSMlWVFGCimh6ajg-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-5079c865541so1061901e87.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 09:25:13 -0800 (PST)
+ us-mta-209-HrIxIUllNMae20EwtgVr4A-1; Thu, 09 Nov 2023 18:48:53 -0500
+X-MC-Unique: HrIxIUllNMae20EwtgVr4A-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-9ddae43f3f7so111945666b.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 15:48:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699550712; x=1700155512;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Y0steN0/ACKFTtJOvpHMkiOMUe7bddz5OgwOILeHxPA=;
-        b=n2EfZ1DRkIY+LvIfYfh5BjdPxCakyGmKGvYI+BlRj9DcESvRQZBXrfEJbTh/bUaaL/
-         whfl+CS0Q9+wDorhxRNK9yWn0I3l2DkYpVQcQER4YQlbKvDZiwe6ES0WqIVnRkr2rhe0
-         PLTn8gYDq7L55pNh+D8BsdZMvfS4n2lohfSeeymAozeUgVeboMcO5wO3uFgNNWVXve6M
-         EJUtE4cR7RUadc4CRX9BozaPET2pIADra75xpS273ncmogkZHF/jgaxwdBPhTr+N/aE5
-         eAQE9nMQfrdfxOpuEyjlvP4EVx6QwTwD3J9enccbKNHzzfr8CK7HvY88Q6I8XWYF9K0x
-         p+ew==
-X-Gm-Message-State: AOJu0YyV+KKYcr2FgTTFQjbSWsKJGhg/Md4vrCY5KWyyUO/Iz8AxslO8
-	81MGaCPNOvoJ+b4fWfIbOczC6Gun71i06wxtL/vbGafE5tDpMCvxZ67IoSGrOdLgsCWEJIEhwsu
-	sJMZVRRxrwvAOe7QAF9M0m93AImyfPN8qGZrqgK2qoA==
-X-Received: by 2002:a19:e007:0:b0:507:b935:9f5f with SMTP id x7-20020a19e007000000b00507b9359f5fmr1877869lfg.24.1699550712276;
-        Thu, 09 Nov 2023 09:25:12 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IENtuNNft+jXRPbq2qJhlZT81jWdLguxD1V9O4aFnQJMyc+8VWIMEbR49N4zRWK0Yg8oNcUMw==
-X-Received: by 2002:a19:e007:0:b0:507:b935:9f5f with SMTP id x7-20020a19e007000000b00507b9359f5fmr1877857lfg.24.1699550712088;
-        Thu, 09 Nov 2023 09:25:12 -0800 (PST)
-Received: from localhost (205.pool92-176-231.dynamic.orange.es. [92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id f15-20020a056000128f00b00323293bd023sm135806wrx.6.2023.11.09.09.25.11
+        d=1e100.net; s=20230601; t=1699573732; x=1700178532;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3SxbBnBy8wcp+DFoAqPelvZA1LQU0OFFn4SXuqEY8lc=;
+        b=tV1Lvvc21hmDQTe7DZuwSqbiDN9sYdfuQ+cNtwt9ymW4Zbf+glfD1El/p50yad2Ve0
+         j8ssuLgxWDiNoL2ti38vncTm3UIQ7CoDnQL8jG8433nCG4Ar6wUdn/4TFWgLmcAU2+mQ
+         0XxE1XQwlOCxZcL57HO57apIv11KrztS7j59dItwSiKedoLJ/+Cvx+Ke6BjYc10wpnwN
+         Eh1Ea7mFXZB5npNJT6Tt/CvMFIDhaLVu2YLM1jEjnDiBfJX9phYVnHuh7VWEFmHF8BVi
+         d+V8kEIKCOf16/n9IpdFIXd7nAJCIBaDoDxd2C1jqctyi6WAm434haItPVrOOUZBwOQL
+         0m8Q==
+X-Gm-Message-State: AOJu0Yx3uzySEZ9X1cgpuZY8TDhmhncMT0QYln9MFA/vxQngFsmYiVr5
+	D2fiwSIaD+rZZ8PjAZ/R4NJGKRiOuwEmwrCog+MCn1WEWbDYah0N35ZVUs5guBL/iBP0YrWZlgl
+	8MajWwwpmAdw09Uh/pE2YBfXYbf7ke9VG19TGzE+Wqw==
+X-Received: by 2002:a17:907:25c4:b0:9e1:1996:f3d6 with SMTP id ae4-20020a17090725c400b009e11996f3d6mr6251177ejc.76.1699573732742;
+        Thu, 09 Nov 2023 15:48:52 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEKFgKEEunbjt3marXxbZibLU1JXnSLXyCS7/ojjJiN6MLuJ2Aa5uQPqet3dxVKkQKsLVJ/dA==
+X-Received: by 2002:a17:907:25c4:b0:9e1:1996:f3d6 with SMTP id ae4-20020a17090725c400b009e11996f3d6mr6251167ejc.76.1699573732476;
+        Thu, 09 Nov 2023 15:48:52 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f4:2044:be5a:328c:4b98:1420])
+        by smtp.gmail.com with ESMTPSA id j17-20020a170906255100b009737b8d47b6sm3126661ejb.203.2023.11.09.15.48.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Nov 2023 09:25:11 -0800 (PST)
-From: Javier Martinez Canillas <javierm@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Simon Ser <contact@emersion.fr>,
-	Sima Vetter <daniel.vetter@ffwll.ch>,
-	Pekka Paalanen <pekka.paalanen@collabora.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Bilal Elmoussaoui <belmouss@redhat.com>,
-	Erico Nunes <nunes.erico@gmail.com>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	stable@vger.kernel.org,
-	nerdopolis <bluescreen_avenger@verizon.net>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux-foundation.org
-Subject: [PATCH 3/6] drm/virtio: Use drm_atomic_helper_buffer_damage_merged() for buffer damage
-Date: Thu,  9 Nov 2023 18:24:37 +0100
-Message-ID: <20231109172449.1599262-4-javierm@redhat.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231109172449.1599262-1-javierm@redhat.com>
-References: <20231109172449.1599262-1-javierm@redhat.com>
+        Thu, 09 Nov 2023 15:48:51 -0800 (PST)
+Date: Thu, 9 Nov 2023 18:48:46 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Cindy Lu <lulu@redhat.com>, jasowang@redhat.com, yi.l.liu@intel.com,
+	linux-kernel@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: Re: [RFC v1 0/8] vhost-vdpa: add support for iommufd
+Message-ID: <20231109183407-mutt-send-email-mst@kernel.org>
+References: <20231103171641.1703146-1-lulu@redhat.com>
+ <20231107022847-mutt-send-email-mst@kernel.org>
+ <20231107124902.GJ4488@nvidia.com>
+ <20231107082343-mutt-send-email-mst@kernel.org>
+ <20231107141237.GO4488@nvidia.com>
+ <20231107092551-mutt-send-email-mst@kernel.org>
+ <20231107155217.GQ4488@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20231107155217.GQ4488@nvidia.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The driver does per-buffer uploads. It needs to use the damage helper that
-handles buffer damages, rather than the helper that handles frame damages.
+On Tue, Nov 07, 2023 at 11:52:17AM -0400, Jason Gunthorpe wrote:
+> On Tue, Nov 07, 2023 at 09:30:21AM -0500, Michael S. Tsirkin wrote:
+> > On Tue, Nov 07, 2023 at 10:12:37AM -0400, Jason Gunthorpe wrote:
+> > > Big company's should take the responsibility to train and provide
+> > > skill development for their own staff.
+> > 
+> > That would result in a beautiful cathedral of a patch. I know this is
+> > how some companies work. We are doing more of a bazaar thing here,
+> > though. In a bunch of subsystems it seems that you don't get the
+> > necessary skills until you have been publically shouted at by
+> > maintainers - better to start early ;). Not a nice environment for
+> > novices, for sure.
+> 
+> In my view the "shouting from maintainers" is harmful to the people
+> buidling skills and it is an unkind thing to dump employees into that
+> kind of situation.
+> 
+> They should have help to establish the basic level of competence where
+> they may do the wrong thing, but all the process and presentation of
+> the wrong thing is top notch. You get a much better reception.
+> 
+> Jason
 
-Fixes: 01f05940a9a7 ("drm/virtio: Enable fb damage clips property for the primary plane")
-Cc: <stable@vger.kernel.org> # v6.4+
-Reported-by: nerdopolis <bluescreen_avenger@verizon.net>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218115
-Suggested-by: Sima Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
----
+What - like e.g. mechanically fixing checkpatch warnings without
+understanding? I actually very much dislike it when people take a bad
+patch and just polish the presentation
+- it is easier for me if I can judge patch quality quickly from the
+presentation. Matter of taste I guess.
 
- drivers/gpu/drm/virtio/virtgpu_plane.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a2e045f3a000..1adfd9813cde 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -183,7 +183,7 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 		return;
- 	}
- 
--	if (!drm_atomic_helper_damage_merged(old_state, plane->state, &rect))
-+	if (!drm_atomic_helper_buffer_damage_merged(old_state, plane->state, &rect))
- 		return;
- 
- 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
 -- 
-2.41.0
+MST
 
