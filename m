@@ -1,47 +1,47 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C102D12B75
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2895E14AA5
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:15:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Hbb8LDTQ"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Nl1qwv/E"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 42C3C60F97
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42C3C60F97
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Hbb8LDTQ
+	by smtp2.osuosl.org (Postfix) with ESMTP id B4033405F9
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:15:45 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B4033405F9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Nl1qwv/E
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5ZTcyfSpXgeN
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VkiSRps8LDUl
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 11:01:29 +0000 (UTC)
+	Fri, 10 Nov 2023 11:15:44 +0000 (UTC)
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6DF0260E6F
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6DF0260E6F
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4A3944052C
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:15:44 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A3944052C
 Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 8A25A66073EB;
-	Fri, 10 Nov 2023 11:01:26 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 9BF1A66073EB;
+	Fri, 10 Nov 2023 11:15:40 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1699614087;
-	bh=M7g15Ds3YB0rAZrwMqFqhvf/l8gr3sjjjFteM0C28zs=;
+	s=mail; t=1699614941;
+	bh=IX+JT55IYP1u5VMEzIBMbRyK6BoNMKTFRZG8ZICiNpA=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=Hbb8LDTQq4RSYvyQKXhwzEaFY3S/PSmM2XeVj8XNi5/pmEFm+CXppTiuTj7QD4CZx
-	 8co2y4KUpNxbre2QFzUUcxRA8sCPdl2Z+jxgtbG+80PTAsE9BoMeC5F14w0W1jgmz/
-	 OV5w1DJ/ocBfKg7xRQQelCeq/r68xhZxMOmsrL02W9qe9LuCWJhmbL6HHGAUD/0Ttf
-	 gHYguXb0/fxr81PZJhFrPt7GM8DXDF0KWVIHuuXNSLRCIbzrQHP/Aq36d0BSVXWFpV
-	 IZTIsIKBR0jzOw9XBpgwo9WUTuSuRdYKExb716IYVxzMjqPM6sGpodGY933J8AqFLT
-	 c9mLE9lfwOacw==
-Date: Fri, 10 Nov 2023 12:01:23 +0100
+	b=Nl1qwv/ExujGVRXi4s+XEQXd+vR1UNkr9UD1QSUFwFY7sbhDYRnmCdB7A+2yO9ar3
+	 LTJfddwSoKWvGrI/54va3pfmN3G4jeH41dGnaJIT+b2JU0V/cay5bNiU23ySm8ecMI
+	 iw1rMZMh7oidN2xpmemNKnZhg8U4+ZNDbU2Q+cqGWmrTHZHBbSLjbr8MP2NV2ahuZo
+	 BgW4pVR/9FnnBS/3Lql2Mp2fXvqLFq+Z2MfiPP67djbsgPR2Oa0H2BE3F9iD0Yx5c8
+	 LAuAbGWDtYL88bXyts34wJyXjyqkMj+R09jYk0AAbk5ILd/3YmMt90GMNccDe99QP7
+	 R8Aizc3dMReQA==
+Date: Fri, 10 Nov 2023 12:15:37 +0100
 From: Boris Brezillon <boris.brezillon@collabora.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -54,12 +54,12 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, kernel@collabora.com,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 17/26] drm/v3d: Explicitly get and put drm-shmem
- pages
-Message-ID: <20231110120123.65f399af@collabora.com>
-In-Reply-To: <20231029230205.93277-18-dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v18 18/26] drm/shmem-helper: Change sgt allocation
+ policy
+Message-ID: <20231110121537.6f37c5a0@collabora.com>
+In-Reply-To: <20231029230205.93277-19-dmitry.osipenko@collabora.com>
 References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-18-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-19-dmitry.osipenko@collabora.com>
 Organization: Collabora
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -71,55 +71,142 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 30 Oct 2023 02:01:56 +0300
+On Mon, 30 Oct 2023 02:01:57 +0300
 Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-> To simplify the drm-shmem refcnt handling, we're moving away from
-> the implicit get_pages() that is used by get_pages_sgt(). From now on
-> drivers will have to pin pages while they use sgt. V3D driver doesn't
-> support shrinker, hence pages are pinned and sgt is valid as long as
-> pages' use-count > 0.
+> In a preparation to addition of drm-shmem memory shrinker support, change
+> the SGT allocation policy in this way:
+> 
+> 1. SGT can be allocated only if shmem pages are pinned at the
+> time of allocation, otherwise allocation fails.
+> 
+> 2. Drivers must ensure that pages are pinned during the time of SGT usage
+> and should get new SGT if pages were unpinned.
+
+In general, I would discourage drivers from caching the sgt returned by
+drm_gem_shmem_get_pages_sgt[_locked](), since the GEM SHMEM layer does
+the caching already, so calling drm_gem_shmem_get_pages_sgt_locked()
+should be pretty cheap. What this implies is that any portion of the
+code using an sgt returned by drm_gem_shmem_get_pages_sgt_locked() must
+be surrounded by get/pin_pages()/put/unpin_pages() calls unless the
+pages are known to be pinned for the whole BO lifetime. And of course,
+as soon as an MMU mapping is created, and even if the sgt is no longer
+accessed, the pages must remain pinned until the MMU mapping is torn
+down.
+
+> 
+> This new policy is required by the shrinker because it will move pages
+> to/from SWAP unless pages are pinned, invalidating SGT pointer once pages
+> are relocated.
+> 
+> Previous patches prepared drivers to the new policy.
 > 
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
 Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 
 > ---
->  drivers/gpu/drm/v3d/v3d_bo.c | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/drm_gem_shmem_helper.c | 51 +++++++++++++-------------
+>  1 file changed, 26 insertions(+), 25 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
-> index 42cd874f6810..0597c6b01b6c 100644
-> --- a/drivers/gpu/drm/v3d/v3d_bo.c
-> +++ b/drivers/gpu/drm/v3d/v3d_bo.c
-> @@ -47,6 +47,9 @@ void v3d_free_object(struct drm_gem_object *obj)
->  	/* GPU execution may have dirtied any pages in the BO. */
->  	bo->base.pages_mark_dirty_on_put = true;
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index f371ebc6f85c..1420d2166b76 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -133,6 +133,14 @@ drm_gem_shmem_free_pages(struct drm_gem_shmem_object *shmem)
+>  {
+>  	struct drm_gem_object *obj = &shmem->base;
 >  
-> +	if (!obj->import_attach)
-> +		drm_gem_shmem_put_pages(&bo->base);
+> +	if (shmem->sgt) {
+> +		dma_unmap_sgtable(obj->dev->dev, shmem->sgt,
+> +				  DMA_BIDIRECTIONAL, 0);
+> +		sg_free_table(shmem->sgt);
+> +		kfree(shmem->sgt);
+> +		shmem->sgt = NULL;
+> +	}
 > +
->  	drm_gem_shmem_free(&bo->base);
+>  #ifdef CONFIG_X86
+>  	if (shmem->map_wc)
+>  		set_pages_array_wb(shmem->pages, obj->size >> PAGE_SHIFT);
+> @@ -155,23 +163,12 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
+>  {
+>  	struct drm_gem_object *obj = &shmem->base;
+>  
+> -	if (obj->import_attach) {
+> +	if (obj->import_attach)
+>  		drm_prime_gem_destroy(obj, shmem->sgt);
+> -	} else {
+> -		drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
+> -
+> -		if (shmem->sgt) {
+> -			dma_unmap_sgtable(obj->dev->dev, shmem->sgt,
+> -					  DMA_BIDIRECTIONAL, 0);
+> -			sg_free_table(shmem->sgt);
+> -			kfree(shmem->sgt);
+> -		}
+> -		if (shmem->pages)
+> -			drm_gem_shmem_put_pages_locked(shmem);
+>  
+> -		drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
+> -		drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
+> -	}
+> +	drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
+> +	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
+> +	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
+>  
+>  	drm_gem_object_release(obj);
+>  	kfree(shmem);
+> @@ -705,6 +702,9 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
+>  
+>  	drm_WARN_ON(obj->dev, obj->import_attach);
+>  
+> +	if (drm_WARN_ON(obj->dev, !shmem->pages))
+> +		return ERR_PTR(-ENOMEM);
+> +
+>  	return drm_prime_pages_to_sg(obj->dev, shmem->pages, obj->size >> PAGE_SHIFT);
+>  }
+>  EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
+> @@ -720,15 +720,10 @@ static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_
+>  
+>  	drm_WARN_ON(obj->dev, obj->import_attach);
+>  
+> -	ret = drm_gem_shmem_get_pages_locked(shmem);
+> -	if (ret)
+> -		return ERR_PTR(ret);
+> -
+>  	sgt = drm_gem_shmem_get_sg_table(shmem);
+> -	if (IS_ERR(sgt)) {
+> -		ret = PTR_ERR(sgt);
+> -		goto err_put_pages;
+> -	}
+> +	if (IS_ERR(sgt))
+> +		return sgt;
+> +
+>  	/* Map the pages for use by the h/w. */
+>  	ret = dma_map_sgtable(obj->dev->dev, sgt, DMA_BIDIRECTIONAL, 0);
+>  	if (ret)
+> @@ -741,8 +736,6 @@ static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_
+>  err_free_sgt:
+>  	sg_free_table(sgt);
+>  	kfree(sgt);
+> -err_put_pages:
+> -	drm_gem_shmem_put_pages_locked(shmem);
+>  	return ERR_PTR(ret);
 >  }
 >  
-> @@ -135,12 +138,18 @@ struct v3d_bo *v3d_bo_create(struct drm_device *dev, struct drm_file *file_priv,
->  		return ERR_CAST(shmem_obj);
->  	bo = to_v3d_bo(&shmem_obj->base);
->  
-> -	ret = v3d_bo_create_finish(&shmem_obj->base);
-> +	ret = drm_gem_shmem_get_pages(shmem_obj);
->  	if (ret)
->  		goto free_obj;
->  
-> +	ret = v3d_bo_create_finish(&shmem_obj->base);
-> +	if (ret)
-> +		goto put_pages;
-> +
->  	return bo;
->  
-> +put_pages:
-> +	drm_gem_shmem_put_pages(shmem_obj);
->  free_obj:
->  	drm_gem_shmem_free(shmem_obj);
->  	return ERR_PTR(ret);
+> @@ -759,6 +752,14 @@ static struct sg_table *drm_gem_shmem_get_pages_sgt_locked(struct drm_gem_shmem_
+>   * and difference between dma-buf imported and natively allocated objects.
+>   * drm_gem_shmem_get_sg_table() should not be directly called by drivers.
+>   *
+> + * Drivers should adhere to these SGT usage rules:
+> + *
+> + * 1. SGT should be allocated only if shmem pages are pinned at the
+> + *    time of allocation, otherwise allocation will fail.
+> + *
+> + * 2. Drivers should ensure that pages are pinned during the time of
+> + *    SGT usage and should get new SGT if pages were unpinned.
+> + *
+>   * Returns:
+>   * A pointer to the scatter/gather table of pinned pages or errno on failure.
+>   */
 
