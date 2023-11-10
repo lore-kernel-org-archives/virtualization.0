@@ -1,225 +1,217 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 336711374
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 03:04:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2C771C3F
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QqPlDPxL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8E6078276E
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 03:04:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8E6078276E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 298194210D
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 298194210D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QqPlDPxL
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.9
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7-LmA1ZVpd83
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CN8RwFOYLILt
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 03:04:45 +0000 (UTC)
-Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E3B118272D
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 03:04:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E3B118272D
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R491e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw2yIua_1699585477;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vw2yIua_1699585477)
-          by smtp.aliyun-inc.com;
-          Fri, 10 Nov 2023 11:04:38 +0800
-Message-ID: <1699585459.226797-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 16/21] virtio_net: xsk: rx: introduce add_recvbuf_xsk()
-Date: Fri, 10 Nov 2023 11:04:19 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux-foundation.org,
- bpf@vger.kernel.org
+	Fri, 10 Nov 2023 05:33:05 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 12F39420E3
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 12F39420E3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1699594383;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=C0FBlN0CWGiDM52kXk7prl9hTa/PXsYBXY2rSTMy4sg=;
+	b=QqPlDPxLPAHGHCmHtbuvpBUE66PVnyXHlAj+q1B0gbRtPwC2qs05oNSZb7hLx6LbzE1qZj
+	t+X0WkrJ1LwLuv9zuylKukwr654IY4g8wnBag9vyg+54HkwYhHDr6T9RwGzArRsgDpzQWF
+	Ri+drFWQv476cq8R8w5xX6F7Hof2aNE=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-228-jltOFRNuMX2Oy6HPG6Kd8A-1; Fri, 10 Nov 2023 00:32:57 -0500
+X-MC-Unique: jltOFRNuMX2Oy6HPG6Kd8A-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-9dd58f582a0so129613366b.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 21:32:56 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699594376; x=1700199176;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C0FBlN0CWGiDM52kXk7prl9hTa/PXsYBXY2rSTMy4sg=;
+        b=HKqyhRViWGk8u57lHWr7J0bNsRmVqYmMm++bcA3SEzW+uY7oeLVradBKuFP5hBzh5l
+         zx4dRTcGRK/qcQay2bfn5BcRlNbHLTku1icL3PuJIiBIj8v2nSl3y7louHzkM6Y6+xX8
+         vNINrjtFJXgBIZAZX4qF7krXbBtANycETQDyYErtLgzmQjPau06WabjYGot9UZU0GUnP
+         iO4P5suyvqxrmlSl90izWVB3A5QidXx753Zs3ZSJslGiJFNVtqsskkgxv9Csuq+lreXj
+         rjD36X4KrG34OFpmI1EEQIdiUJ+Fpm864iUoAjRtaRW//A+MQfUYljwZBBgmoDAD9w+x
+         fPGQ==
+X-Gm-Message-State: AOJu0YyPspuVo3RrZ1d+28JR6NtKhjDzGJSh1xXlh8Mmrq4i9RIBEarf
+	qV8MdEMumRvlmX0miDIEK1P+QXPyD+O99aMeEju/qVAOMCVnDxP6yYtr6zEbbjmD+x5O2QFDPoC
+	44UUxv9TlWa83RZY55L0WbbtLFGjppQmuvOJXsfv5tg==
+X-Received: by 2002:a17:907:2ce1:b0:9a1:f81f:d0d5 with SMTP id hz1-20020a1709072ce100b009a1f81fd0d5mr5593460ejc.54.1699594375867;
+        Thu, 09 Nov 2023 21:32:55 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHQHgHsq1zGzHRPaMJsrJwpfnDPFYKTZAF6+/FP3fqYhqWEjlgdvAZs5yADDFKLMEEWVfwUyA==
+X-Received: by 2002:a17:907:2ce1:b0:9a1:f81f:d0d5 with SMTP id hz1-20020a1709072ce100b009a1f81fd0d5mr5593450ejc.54.1699594375562;
+        Thu, 09 Nov 2023 21:32:55 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f4:2044:be5a:328c:4b98:1420])
+        by smtp.gmail.com with ESMTPSA id mj10-20020a170906af8a00b009ddcf5b07b8sm3461131ejb.148.2023.11.09.21.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Nov 2023 21:32:54 -0800 (PST)
+Date: Fri, 10 Nov 2023 00:32:50 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
+Subject: Re: [PATCH net-next v2 14/21] virtio_net: xsk: tx:
+ virtnet_free_old_xmit() distinguishes xsk buffer
+Message-ID: <20231110003159-mutt-send-email-mst@kernel.org>
 References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
- <20231107031227.100015-17-xuanzhuo@linux.alibaba.com>
- <20231109031003-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231109031003-mutt-send-email-mst@kernel.org>
+ <20231107031227.100015-15-xuanzhuo@linux.alibaba.com>
+ <20231109061056-mutt-send-email-mst@kernel.org>
+ <1699528568.0674586-6-xuanzhuo@linux.alibaba.com>
+ <20231109065912-mutt-send-email-mst@kernel.org>
+ <1699580672.387567-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <1699580672.387567-1-xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, 9 Nov 2023 03:12:27 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Nov 07, 2023 at 11:12:22AM +0800, Xuan Zhuo wrote:
-> > Implement the logic of filling rq with XSK buffers.
+On Fri, Nov 10, 2023 at 09:44:32AM +0800, Xuan Zhuo wrote:
+> On Thu, 9 Nov 2023 06:59:48 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Thu, Nov 09, 2023 at 07:16:08PM +0800, Xuan Zhuo wrote:
+> > > On Thu, 9 Nov 2023 06:11:49 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > On Tue, Nov 07, 2023 at 11:12:20AM +0800, Xuan Zhuo wrote:
+> > > > > virtnet_free_old_xmit distinguishes three type ptr(skb, xdp frame, xsk
+> > > > > buffer) by the last bits of the pointer.
+> > > > >
+> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > ---
+> > > > >  drivers/net/virtio/virtio_net.h | 18 ++++++++++++++++--
+> > > > >  drivers/net/virtio/xsk.h        |  5 +++++
+> > > > >  2 files changed, 21 insertions(+), 2 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
+> > > > > index a431a2c1ee47..a13d6d301fdb 100644
+> > > > > --- a/drivers/net/virtio/virtio_net.h
+> > > > > +++ b/drivers/net/virtio/virtio_net.h
+> > > > > @@ -225,6 +225,11 @@ struct virtnet_info {
+> > > > >  	struct failover *failover;
+> > > > >  };
+> > > > >
+> > > > > +static inline bool virtnet_is_skb_ptr(void *ptr)
+> > > > > +{
+> > > > > +	return !((unsigned long)ptr & VIRTIO_XMIT_DATA_MASK);
+> > > > > +}
+> > > > > +
+> > > > >  static inline bool virtnet_is_xdp_frame(void *ptr)
+> > > > >  {
+> > > > >  	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > > > > @@ -235,6 +240,8 @@ static inline struct xdp_frame *virtnet_ptr_to_xdp(void *ptr)
+> > > > >  	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+> > > > >  }
+> > > > >
+> > > > > +static inline u32 virtnet_ptr_to_xsk(void *ptr);
+> > > > > +
+> > > >
+> > > > I don't understand why you need this here.
+> > >
+> > > The below function virtnet_free_old_xmit needs this.
+> > >
+> > > Thanks.
 > >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio/main.c       |  4 ++-
-> >  drivers/net/virtio/virtio_net.h |  5 ++++
-> >  drivers/net/virtio/xsk.c        | 49 ++++++++++++++++++++++++++++++++-
-> >  drivers/net/virtio/xsk.h        |  2 ++
-> >  4 files changed, 58 insertions(+), 2 deletions(-)
+> > I don't understand why is virtnet_free_old_xmit inline, either.
+> 
+> That is in the header file.
+> 
+
+It does not belong there.
+
+
 > >
-> > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> > index 6210a6e37396..15943a22e17d 100644
-> > --- a/drivers/net/virtio/main.c
-> > +++ b/drivers/net/virtio/main.c
-> > @@ -1798,7 +1798,9 @@ static bool try_fill_recv(struct virtnet_info *vi, struct virtnet_rq *rq,
-> >  	bool oom;
+> > > >
+> > > >
+> > > > >  static inline void *virtnet_sq_unmap(struct virtnet_sq *sq, void *data)
+> > > > >  {
+> > > > >  	struct virtnet_sq_dma *next, *head;
+> > > > > @@ -261,11 +268,12 @@ static inline void *virtnet_sq_unmap(struct virtnet_sq *sq, void *data)
+> > > > >  static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > >  					 u64 *bytes, u64 *packets)
+> > > > >  {
+> > > > > +	unsigned int xsknum = 0;
+> > > > >  	unsigned int len;
+> > > > >  	void *ptr;
+> > > > >
+> > > > >  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> > > > > -		if (!virtnet_is_xdp_frame(ptr)) {
+> > > > > +		if (virtnet_is_skb_ptr(ptr)) {
+> > > > >  			struct sk_buff *skb;
+> > > > >
+> > > > >  			if (sq->do_dma)
+> > > > > @@ -277,7 +285,7 @@ static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > >
+> > > > >  			*bytes += skb->len;
+> > > > >  			napi_consume_skb(skb, in_napi);
+> > > > > -		} else {
+> > > > > +		} else if (virtnet_is_xdp_frame(ptr)) {
+> > > > >  			struct xdp_frame *frame;
+> > > > >
+> > > > >  			if (sq->do_dma)
+> > > > > @@ -287,9 +295,15 @@ static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > >
+> > > > >  			*bytes += xdp_get_frame_len(frame);
+> > > > >  			xdp_return_frame(frame);
+> > > > > +		} else {
+> > > > > +			*bytes += virtnet_ptr_to_xsk(ptr);
+> > > > > +			++xsknum;
+> > > > >  		}
+> > > > >  		(*packets)++;
+> > > > >  	}
+> > > > > +
+> > > > > +	if (xsknum)
+> > > > > +		xsk_tx_completed(sq->xsk.pool, xsknum);
+> > > > >  }
+> > > > >
+> > > > >  static inline bool virtnet_is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
+> > > > > diff --git a/drivers/net/virtio/xsk.h b/drivers/net/virtio/xsk.h
+> > > > > index 1bd19dcda649..7ebc9bda7aee 100644
+> > > > > --- a/drivers/net/virtio/xsk.h
+> > > > > +++ b/drivers/net/virtio/xsk.h
+> > > > > @@ -14,6 +14,11 @@ static inline void *virtnet_xsk_to_ptr(u32 len)
+> > > > >  	return (void *)(p | VIRTIO_XSK_FLAG);
+> > > > >  }
+> > > > >
+> > > > > +static inline u32 virtnet_ptr_to_xsk(void *ptr)
+> > > > > +{
+> > > > > +	return ((unsigned long)ptr) >> VIRTIO_XSK_FLAG_OFFSET;
+> > > > > +}
+> > > > > +
+> > > > >  int virtnet_xsk_pool_setup(struct net_device *dev, struct netdev_bpf *xdp);
+> > > > >  bool virtnet_xsk_xmit(struct virtnet_sq *sq, struct xsk_buff_pool *pool,
+> > > > >  		      int budget);
+> > > > > --
+> > > > > 2.32.0.3.g01195cf9f
+> > > >
+> > > >
 > >
-> >  	do {
-> > -		if (vi->mergeable_rx_bufs)
-> > +		if (rq->xsk.pool)
-> > +			err = virtnet_add_recvbuf_xsk(vi, rq, rq->xsk.pool, gfp);
-> > +		else if (vi->mergeable_rx_bufs)
-> >  			err = add_recvbuf_mergeable(vi, rq, gfp);
-> >  		else if (vi->big_packets)
-> >  			err = add_recvbuf_big(vi, rq, gfp);
->
-> I'm not sure I understand. How does this handle mergeable flag still being set?
 
-
-# xsk with merge
-
-## fill ring
-
-We fill the ring with the buffers from the xdp socket just like we alloc buffer
-from the kernel.
-
-## receive buffer
-
-Now the xsk supported the multi-buffer recently. But I want to support that after
-this packet set. So if the packet uses more buffers, I drop that.
-
-If the xdp is not bound or the xdp prog does not redirect the packet to xsk socket.
-all buffers are used to make skbs, whatever the packet uses one buffer or more.
-But the buffers is from the xsk socket. So we must allocat new pages and copy
-the data to the new pages. And free the buffers of xsk socket.
-
-
-Thanks.
-
-
->
->
-> > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-> > index a13d6d301fdb..1242785e311e 100644
-> > --- a/drivers/net/virtio/virtio_net.h
-> > +++ b/drivers/net/virtio/virtio_net.h
-> > @@ -140,6 +140,11 @@ struct virtnet_rq {
-> >
-> >  		/* xdp rxq used by xsk */
-> >  		struct xdp_rxq_info xdp_rxq;
-> > +
-> > +		struct xdp_buff **xsk_buffs;
-> > +		u32 nxt_idx;
-> > +		u32 num;
-> > +		u32 size;
-> >  	} xsk;
-> >  };
-> >
-> > diff --git a/drivers/net/virtio/xsk.c b/drivers/net/virtio/xsk.c
-> > index ea5804ddd44e..e737c3353212 100644
-> > --- a/drivers/net/virtio/xsk.c
-> > +++ b/drivers/net/virtio/xsk.c
-> > @@ -38,6 +38,41 @@ static void virtnet_xsk_check_queue(struct virtnet_sq *sq)
-> >  		netif_stop_subqueue(dev, qnum);
-> >  }
-> >
-> > +int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct virtnet_rq *rq,
-> > +			    struct xsk_buff_pool *pool, gfp_t gfp)
-> > +{
-> > +	struct xdp_buff **xsk_buffs;
-> > +	dma_addr_t addr;
-> > +	u32 len, i;
-> > +	int err = 0;
-> > +
-> > +	xsk_buffs = rq->xsk.xsk_buffs;
-> > +
-> > +	if (rq->xsk.nxt_idx >= rq->xsk.num) {
-> > +		rq->xsk.num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->xsk.size);
-> > +		if (!rq->xsk.num)
-> > +			return -ENOMEM;
-> > +		rq->xsk.nxt_idx = 0;
-> > +	}
->
-> Another manually rolled linked list implementation.
-> Please, don't.
->
->
-> > +
-> > +	i = rq->xsk.nxt_idx;
-> > +
-> > +	/* use the part of XDP_PACKET_HEADROOM as the virtnet hdr space */
-> > +	addr = xsk_buff_xdp_get_dma(xsk_buffs[i]) - vi->hdr_len;
-> > +	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-> > +
-> > +	sg_init_table(rq->sg, 1);
-> > +	sg_fill_dma(rq->sg, addr, len);
-> > +
-> > +	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, xsk_buffs[i], gfp);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	rq->xsk.nxt_idx++;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int virtnet_xsk_xmit_one(struct virtnet_sq *sq,
-> >  				struct xsk_buff_pool *pool,
-> >  				struct xdp_desc *desc)
-> > @@ -213,7 +248,7 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
-> >  	struct virtnet_sq *sq;
-> >  	struct device *dma_dev;
-> >  	dma_addr_t hdr_dma;
-> > -	int err;
-> > +	int err, size;
-> >
-> >  	/* In big_packets mode, xdp cannot work, so there is no need to
-> >  	 * initialize xsk of rq.
-> > @@ -249,6 +284,16 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
-> >  	if (!dma_dev)
-> >  		return -EPERM;
-> >
-> > +	size = virtqueue_get_vring_size(rq->vq);
-> > +
-> > +	rq->xsk.xsk_buffs = kcalloc(size, sizeof(*rq->xsk.xsk_buffs), GFP_KERNEL);
-> > +	if (!rq->xsk.xsk_buffs)
-> > +		return -ENOMEM;
-> > +
-> > +	rq->xsk.size = size;
-> > +	rq->xsk.nxt_idx = 0;
-> > +	rq->xsk.num = 0;
-> > +
-> >  	hdr_dma = dma_map_single(dma_dev, &xsk_hdr, vi->hdr_len, DMA_TO_DEVICE);
-> >  	if (dma_mapping_error(dma_dev, hdr_dma))
-> >  		return -ENOMEM;
-> > @@ -307,6 +352,8 @@ static int virtnet_xsk_pool_disable(struct net_device *dev, u16 qid)
-> >
-> >  	dma_unmap_single(dma_dev, sq->xsk.hdr_dma_address, vi->hdr_len, DMA_TO_DEVICE);
-> >
-> > +	kfree(rq->xsk.xsk_buffs);
-> > +
-> >  	return err1 | err2;
-> >  }
-> >
-> > diff --git a/drivers/net/virtio/xsk.h b/drivers/net/virtio/xsk.h
-> > index 7ebc9bda7aee..bef41a3f954e 100644
-> > --- a/drivers/net/virtio/xsk.h
-> > +++ b/drivers/net/virtio/xsk.h
-> > @@ -23,4 +23,6 @@ int virtnet_xsk_pool_setup(struct net_device *dev, struct netdev_bpf *xdp);
-> >  bool virtnet_xsk_xmit(struct virtnet_sq *sq, struct xsk_buff_pool *pool,
-> >  		      int budget);
-> >  int virtnet_xsk_wakeup(struct net_device *dev, u32 qid, u32 flag);
-> > +int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct virtnet_rq *rq,
-> > +			    struct xsk_buff_pool *pool, gfp_t gfp);
-> >  #endif
-> > --
-> > 2.32.0.3.g01195cf9f
->
->
