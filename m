@@ -1,189 +1,105 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0556A20E4
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:54:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD01E23D4
+	for <virtualization@lists.linux.dev>; Fri, 10 Nov 2023 06:01:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
 Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8BF5280C13
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:54:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8BF5280C13
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.899
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8wkLR1e_kD1i
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 05:54:49 +0000 (UTC)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DE31C80AAA
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:54:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE31C80AAA
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw3KG7D_1699595683;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vw3KG7D_1699595683)
-          by smtp.aliyun-inc.com;
-          Fri, 10 Nov 2023 13:54:43 +0800
-Message-ID: <1699595508.3049185-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 17/21] virtio_net: xsk: rx: skip dma unmap when rq is bind with AF_XDP
-Date: Fri, 10 Nov 2023 13:51:48 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Jason Wang <jasowang@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux-foundation.org,
- bpf@vger.kernel.org
-References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
- <20231107031227.100015-18-xuanzhuo@linux.alibaba.com>
- <20231109031347-mutt-send-email-mst@kernel.org>
- <1699528202.3090942-4-xuanzhuo@linux.alibaba.com>
- <20231109070015-mutt-send-email-mst@kernel.org>
- <1699580836.3647869-2-xuanzhuo@linux.alibaba.com>
- <20231110003305-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231110003305-mutt-send-email-mst@kernel.org>
+X-UUID: 03b1ea3b08bf4a16b3aaf728a042b3d3-20231110
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.32,REQID:e2de9630-3f36-4b47-a4bd-bdb0ec1fda6f,IP:5,U
+	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:-5
+X-CID-INFO: VERSION:1.1.32,REQID:e2de9630-3f36-4b47-a4bd-bdb0ec1fda6f,IP:5,URL
+	:0,TC:0,Content:-5,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:-5
+X-CID-META: VersionHash:5f78ec9,CLOUDID:4ded3b95-10ce-4e4b-85c2-c9b5229ff92b,B
+	ulkID:231110133836Q67P66PL,BulkQuantity:1,Recheck:0,SF:38|24|17|19|44|66|1
+	02,TC:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,Bulk:40,QS:nil,BEC:nil,COL
+	:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
+X-CID-BVR: 0,NGT
+X-CID-BAS: 0,NGT,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
+X-UUID: 03b1ea3b08bf4a16b3aaf728a042b3d3-20231110
+X-User: heminhong@kylinos.cn
+Received: from localhost.localdomain [(116.128.244.169)] by mailgw
+	(envelope-from <heminhong@kylinos.cn>)
+	(Generic MTA)
+	with ESMTP id 1158269534; Fri, 10 Nov 2023 13:50:49 +0800
+From: heminhong <heminhong@kylinos.cn>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch
+Cc: virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	heminhong <heminhong@kylinos.cn>
+Subject: [PATCH] drm/qxl: remove unused declaration
+Date: Fri, 10 Nov 2023 13:50:31 +0800
+Message-Id: <20231110055031.57360-1-heminhong@kylinos.cn>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Fri, 10 Nov 2023 00:33:27 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Nov 10, 2023 at 09:47:16AM +0800, Xuan Zhuo wrote:
-> > On Thu, 9 Nov 2023 07:00:51 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Thu, Nov 09, 2023 at 07:10:02PM +0800, Xuan Zhuo wrote:
-> > > > On Thu, 9 Nov 2023 03:15:03 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > > On Tue, Nov 07, 2023 at 11:12:23AM +0800, Xuan Zhuo wrote:
-> > > > > > When rq is bound with AF_XDP, the buffer dma is managed
-> > > > > > by the AF_XDP APIs. So the buffer got from the virtio core should
-> > > > > > skip the dma unmap operation.
-> > > > > >
-> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > >
-> > > > >
-> > > > > I don't get it - is this like a bugfix?
-> > > >
-> > > > I want focus on this. So let it as an independent commit.
-> > > >
-> > > > > And why do we need our own flag and checks?
-> > > > > Doesn't virtio core DTRT?
-> > > >
-> > > >
-> > > > struct vring_virtqueue {
-> > > > 	[....]
-> > > >
-> > > > 	/* Do DMA mapping by driver */
-> > > > 	bool premapped;
-> > > >
-> > > > We can not.
-> > > >
-> > > > So I add own flag.
-> > > >
-> > > > Thanks.
-> > >
-> > > Still don't get it. Why not check the premapped flag?
-> >
-> > premapped is in the struct vring_virtqueue.
-> >
-> > We can not access it from the driver.
->
->
-> If it's useful, move it.
+Some functions are never used by the driver,
+removing the functions declaration, it can be reducing program size,
+and improving code readability and maintainability.
 
+Signed-off-by: heminhong <heminhong@kylinos.cn>
+---
+ drivers/gpu/drm/qxl/qxl_drv.h | 7 -------
+ 1 file changed, 7 deletions(-)
 
-We set that by API.
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 307a890fde13..32069acd93f8 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -119,7 +119,6 @@ struct qxl_output {
+ 
+ #define to_qxl_crtc(x) container_of(x, struct qxl_crtc, base)
+ #define drm_connector_to_qxl_output(x) container_of(x, struct qxl_output, base)
+-#define drm_encoder_to_qxl_output(x) container_of(x, struct qxl_output, enc)
+ 
+ struct qxl_mman {
+ 	struct ttm_device		bdev;
+@@ -256,8 +255,6 @@ struct qxl_device {
+ 
+ #define to_qxl(dev) container_of(dev, struct qxl_device, ddev)
+ 
+-int qxl_debugfs_fence_init(struct qxl_device *rdev);
+-
+ int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
+ void qxl_device_fini(struct qxl_device *qdev);
+ 
+@@ -344,8 +341,6 @@ qxl_image_alloc_objects(struct qxl_device *qdev,
+ 			int height, int stride);
+ void qxl_image_free_objects(struct qxl_device *qdev, struct qxl_drm_image *dimage);
+ 
+-void qxl_update_screen(struct qxl_device *qxl);
+-
+ /* qxl io operations (qxl_cmd.c) */
+ 
+ void qxl_io_create_primary(struct qxl_device *qdev,
+@@ -445,8 +440,6 @@ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
+ 
+ int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo);
+ 
+-struct qxl_drv_surface *
+-qxl_surface_lookup(struct drm_device *dev, int surface_id);
+ void qxl_surface_evict(struct qxl_device *qdev, struct qxl_bo *surf, bool freeing);
+ 
+ /* qxl_ioctl.c */
+-- 
+2.25.1
 
-If we expose that to the driver. I worry some driver change it directly.
-So I think it's better for the driver to add an own flag.
-
-Thanks.
-
-
->
->
-> >
-> > >
-> > > >
-> > > > >
-> > > > > > ---
-> > > > > >  drivers/net/virtio/main.c       | 8 +++++---
-> > > > > >  drivers/net/virtio/virtio_net.h | 3 +++
-> > > > > >  drivers/net/virtio/xsk.c        | 1 +
-> > > > > >  3 files changed, 9 insertions(+), 3 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> > > > > > index 15943a22e17d..a318b2533b94 100644
-> > > > > > --- a/drivers/net/virtio/main.c
-> > > > > > +++ b/drivers/net/virtio/main.c
-> > > > > > @@ -430,7 +430,7 @@ static void *virtnet_rq_get_buf(struct virtnet_rq *rq, u32 *len, void **ctx)
-> > > > > >  	void *buf;
-> > > > > >
-> > > > > >  	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> > > > > > -	if (buf && rq->do_dma)
-> > > > > > +	if (buf && rq->do_dma_unmap)
-> > > > > >  		virtnet_rq_unmap(rq, buf, *len);
-> > > > > >
-> > > > > >  	return buf;
-> > > > > > @@ -561,8 +561,10 @@ static void virtnet_set_premapped(struct virtnet_info *vi)
-> > > > > >
-> > > > > >  		/* disable for big mode */
-> > > > > >  		if (vi->mergeable_rx_bufs || !vi->big_packets) {
-> > > > > > -			if (!virtqueue_set_dma_premapped(vi->rq[i].vq))
-> > > > > > +			if (!virtqueue_set_dma_premapped(vi->rq[i].vq)) {
-> > > > > >  				vi->rq[i].do_dma = true;
-> > > > > > +				vi->rq[i].do_dma_unmap = true;
-> > > > > > +			}
-> > > > > >  		}
-> > > > > >  	}
-> > > > > >  }
-> > > > > > @@ -3944,7 +3946,7 @@ void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
-> > > > > >
-> > > > > >  	rq = &vi->rq[i];
-> > > > > >
-> > > > > > -	if (rq->do_dma)
-> > > > > > +	if (rq->do_dma_unmap)
-> > > > > >  		virtnet_rq_unmap(rq, buf, 0);
-> > > > > >
-> > > > > >  	virtnet_rq_free_buf(vi, rq, buf);
-> > > > > > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-> > > > > > index 1242785e311e..2005d0cd22e2 100644
-> > > > > > --- a/drivers/net/virtio/virtio_net.h
-> > > > > > +++ b/drivers/net/virtio/virtio_net.h
-> > > > > > @@ -135,6 +135,9 @@ struct virtnet_rq {
-> > > > > >  	/* Do dma by self */
-> > > > > >  	bool do_dma;
-> > > > > >
-> > > > > > +	/* Do dma unmap after getting buf from virtio core. */
-> > > > > > +	bool do_dma_unmap;
-> > > > > > +
-> > > > > >  	struct {
-> > > > > >  		struct xsk_buff_pool *pool;
-> > > > > >
-> > > > > > diff --git a/drivers/net/virtio/xsk.c b/drivers/net/virtio/xsk.c
-> > > > > > index e737c3353212..b09c473c29fb 100644
-> > > > > > --- a/drivers/net/virtio/xsk.c
-> > > > > > +++ b/drivers/net/virtio/xsk.c
-> > > > > > @@ -210,6 +210,7 @@ static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struct virtnet_rq *
-> > > > > >  		xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
-> > > > > >
-> > > > > >  	rq->xsk.pool = pool;
-> > > > > > +	rq->do_dma_unmap = !pool;
-> > > > > >
-> > > > > >  	virtnet_rx_resume(vi, rq);
-> > > > > >
-> > > > > > --
-> > > > > > 2.32.0.3.g01195cf9f
-> > > > >
-> > > > >
-> > >
-> > >
->
->
