@@ -1,105 +1,287 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD01E23D4
-	for <virtualization@lists.linux.dev>; Fri, 10 Nov 2023 06:01:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-X-UUID: 03b1ea3b08bf4a16b3aaf728a042b3d3-20231110
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.32,REQID:e2de9630-3f36-4b47-a4bd-bdb0ec1fda6f,IP:5,U
-	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
-	N:release,TS:-5
-X-CID-INFO: VERSION:1.1.32,REQID:e2de9630-3f36-4b47-a4bd-bdb0ec1fda6f,IP:5,URL
-	:0,TC:0,Content:-5,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:-5
-X-CID-META: VersionHash:5f78ec9,CLOUDID:4ded3b95-10ce-4e4b-85c2-c9b5229ff92b,B
-	ulkID:231110133836Q67P66PL,BulkQuantity:1,Recheck:0,SF:38|24|17|19|44|66|1
-	02,TC:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,Bulk:40,QS:nil,BEC:nil,COL
-	:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0,NGT
-X-CID-BAS: 0,NGT,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD,TF_CID_SPAM_FSI
-X-UUID: 03b1ea3b08bf4a16b3aaf728a042b3d3-20231110
-X-User: heminhong@kylinos.cn
-Received: from localhost.localdomain [(116.128.244.169)] by mailgw
-	(envelope-from <heminhong@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 1158269534; Fri, 10 Nov 2023 13:50:49 +0800
-From: heminhong <heminhong@kylinos.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	airlied@gmail.com,
-	daniel@ffwll.ch
-Cc: virtualization@lists.linux.dev,
-	spice-devel@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	heminhong <heminhong@kylinos.cn>
-Subject: [PATCH] drm/qxl: remove unused declaration
-Date: Fri, 10 Nov 2023 13:50:31 +0800
-Message-Id: <20231110055031.57360-1-heminhong@kylinos.cn>
-X-Mailer: git-send-email 2.25.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B2CC63B0
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 06:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gjz9+aRY"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id D150982201
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 06:50:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D150982201
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Gjz9+aRY
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id av-BlZdT9nns
+	for <virtualization@lists.linux-foundation.org>;
+	Fri, 10 Nov 2023 06:50:21 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BCFB0821CC
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 06:50:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BCFB0821CC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1699599019;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0M1EG+vkP/oHQ3C8AC569hjRGE3An7KZi4c6BBHfHyQ=;
+	b=Gjz9+aRY6IHphGSu1Jql0Q+OiRrR3uO4s0GJWz77RdJvwag4VSQ7trKd5uR+6SyaK72AiM
+	jEWDriPHxT8LXxsrc9D2MizifqnK9ZcimH9R/QMYTcrr7kTAWhRgvY+ffLXDm/a/hRcKyN
+	SXVOuWcT1HOxEq668ShgngCYqkgoN34=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-657-GQPGwDINM-ynmrWAeoDLKg-1; Fri, 10 Nov 2023 01:50:18 -0500
+X-MC-Unique: GQPGwDINM-ynmrWAeoDLKg-1
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-53fa5cd4480so1330192a12.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 22:50:18 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699599017; x=1700203817;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0M1EG+vkP/oHQ3C8AC569hjRGE3An7KZi4c6BBHfHyQ=;
+        b=Em7EkTFXlh48XpdxouM67vKULWXjhB4M1RNTyLikjYe+TKjB1nm+sfNpzDNfaPETU6
+         zOSDvnLBt7BJzKUkL85IS7P7LM2H9gEYtaG8f6Pb2H9sB22CttNRDGsqvxZeBZ6RfZUQ
+         jAltl51aHLNt9+YzkXsjFv/ghnETekT7pSh7VMCKg7bx6iEfjapca/wDiiRVuSr73joE
+         CKKBtuMCIp7TZe5jZV1nR0IgnT+RiTzaSLjS9+zHEsczOZz7Pew2Rr0+6vYtoNwKiiOM
+         L4qqA7X+VIq5p2SspdGwRkBxSR95L7QizK41ZqnWlIWxpFgvfatTWj4bDICOFObN9jeN
+         EVDQ==
+X-Gm-Message-State: AOJu0Yz4apjFUtbDiXv7rjuFj3/1aHAbjjbkHLobAgIRl3Uy+7VIoJ5Y
+	dht9qiqoQENg4YD1Bt7NoYeWyzCwzKDakmhhWZyKPnm1gop5WKFYWhlrMmGJF7UR5907KEzyZRe
+	4s0f+xK0tvNqkMnPcbFEHUUBb8gKsazzzcTtGQx5BXWmreFoNUMIsvoJvnA==
+X-Received: by 2002:a50:9b19:0:b0:543:c388:1d69 with SMTP id o25-20020a509b19000000b00543c3881d69mr6199681edi.16.1699599017183;
+        Thu, 09 Nov 2023 22:50:17 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFJKgFLm8IAWbD4pDRiL75jQXjIaaTe0xwSRHT7UApyxw5o/GJCLUzV1pFMAY6YeZ6y/T9BJxhpOlXosUbTuEo=
+X-Received: by 2002:a50:9b19:0:b0:543:c388:1d69 with SMTP id
+ o25-20020a509b19000000b00543c3881d69mr6199675edi.16.1699599016862; Thu, 09
+ Nov 2023 22:50:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20231103171641.1703146-1-lulu@redhat.com> <20231103171641.1703146-4-lulu@redhat.com>
+ <CACGkMEtVfHL2WPwxkYEfTKBE10uWfB2a75QQOO8rzn3=Y9FiBg@mail.gmail.com>
+ <CACLfguX9-wEQPUyZkJZoRMmgPDRFNyZCmt0nvHROhyP1yooiYA@mail.gmail.com>
+ <CACGkMEsp_rg+_01hwxCtZNOk2itB1L89mdOc1W1DG3umfEt5bw@mail.gmail.com>
+ <CACLfguW3NZawOL0ET2K7bmtGZuzQwUfJ2HSgnirswzZK1ayPnA@mail.gmail.com>
+ <CACGkMEvnNXC8PhBNQn_F0ROGRX3CvwmXM6wP2A69aydSuzThYw@mail.gmail.com> <CACGkMEtVqAYP3ec0+uxmdiOdXXevjy5S+7Vuc9s=PcS3ry0nCg@mail.gmail.com>
+In-Reply-To: <CACGkMEtVqAYP3ec0+uxmdiOdXXevjy5S+7Vuc9s=PcS3ry0nCg@mail.gmail.com>
+From: Cindy Lu <lulu@redhat.com>
+Date: Fri, 10 Nov 2023 14:49:33 +0800
+Message-ID: <CACLfguXNtzD5TW4VC_Yu755Mtkz4vVo6_Vvo=gVs4pHdF3-NCg@mail.gmail.com>
+Subject: Re: [RFC v1 3/8] vhost: Add 3 new uapi to support iommufd
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, yi.l.liu@intel.com, jgg@nvidia.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Some functions are never used by the driver,
-removing the functions declaration, it can be reducing program size,
-and improving code readability and maintainability.
-
-Signed-off-by: heminhong <heminhong@kylinos.cn>
----
- drivers/gpu/drm/qxl/qxl_drv.h | 7 -------
- 1 file changed, 7 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 307a890fde13..32069acd93f8 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -119,7 +119,6 @@ struct qxl_output {
- 
- #define to_qxl_crtc(x) container_of(x, struct qxl_crtc, base)
- #define drm_connector_to_qxl_output(x) container_of(x, struct qxl_output, base)
--#define drm_encoder_to_qxl_output(x) container_of(x, struct qxl_output, enc)
- 
- struct qxl_mman {
- 	struct ttm_device		bdev;
-@@ -256,8 +255,6 @@ struct qxl_device {
- 
- #define to_qxl(dev) container_of(dev, struct qxl_device, ddev)
- 
--int qxl_debugfs_fence_init(struct qxl_device *rdev);
--
- int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
- void qxl_device_fini(struct qxl_device *qdev);
- 
-@@ -344,8 +341,6 @@ qxl_image_alloc_objects(struct qxl_device *qdev,
- 			int height, int stride);
- void qxl_image_free_objects(struct qxl_device *qdev, struct qxl_drm_image *dimage);
- 
--void qxl_update_screen(struct qxl_device *qxl);
--
- /* qxl io operations (qxl_cmd.c) */
- 
- void qxl_io_create_primary(struct qxl_device *qdev,
-@@ -445,8 +440,6 @@ int qxl_hw_surface_dealloc(struct qxl_device *qdev,
- 
- int qxl_bo_check_id(struct qxl_device *qdev, struct qxl_bo *bo);
- 
--struct qxl_drv_surface *
--qxl_surface_lookup(struct drm_device *dev, int surface_id);
- void qxl_surface_evict(struct qxl_device *qdev, struct qxl_bo *surf, bool freeing);
- 
- /* qxl_ioctl.c */
--- 
-2.25.1
+Jason Wang <jasowang@redhat.com> =E4=BA=8E2023=E5=B9=B411=E6=9C=8810=E6=97=
+=A5=E5=91=A8=E4=BA=94 10:32=E5=86=99=E9=81=93=EF=BC=9A
+>
+> On Wed, Nov 8, 2023 at 3:09=E2=80=AFPM Jason Wang <jasowang@redhat.com> w=
+rote:
+> >
+> > On Wed, Nov 8, 2023 at 2:39=E2=80=AFPM Cindy Lu <lulu@redhat.com> wrote=
+:
+> > >
+> > > On Wed, Nov 8, 2023 at 11:03=E2=80=AFAM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > >
+> > > > On Tue, Nov 7, 2023 at 2:57=E2=80=AFPM Cindy Lu <lulu@redhat.com> w=
+rote:
+> > > > >
+> > > > > On Mon, Nov 6, 2023 at 3:30=E2=80=AFPM Jason Wang <jasowang@redha=
+t.com> wrote:
+> > > > > >
+> > > > > > On Sat, Nov 4, 2023 at 1:17=E2=80=AFAM Cindy Lu <lulu@redhat.co=
+m> wrote:
+> > > > > > >
+> > > > > > > VHOST_VDPA_SET_IOMMU_FD: bind the device to iommufd device
+> > > > > > >
+> > > > > > > VDPA_DEVICE_ATTACH_IOMMUFD_AS: Attach a vdpa device to an iom=
+mufd
+> > > > > > > address space specified by IOAS id.
+> > > > > > >
+> > > > > > > VDPA_DEVICE_DETACH_IOMMUFD_AS: Detach a vdpa device
+> > > > > > > from the iommufd address space
+> > > > > > >
+> > > > > > > Signed-off-by: Cindy Lu <lulu@redhat.com>
+> > > > > > > ---
+> > > > > >
+> > > > > > [...]
+> > > > > >
+> > > > > > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/=
+vhost.h
+> > > > > > > index f5c48b61ab62..07e1b2c443ca 100644
+> > > > > > > --- a/include/uapi/linux/vhost.h
+> > > > > > > +++ b/include/uapi/linux/vhost.h
+> > > > > > > @@ -219,4 +219,70 @@
+> > > > > > >   */
+> > > > > > >  #define VHOST_VDPA_RESUME              _IO(VHOST_VIRTIO, 0x7=
+E)
+> > > > > > >
+> > > > > > > +/* vhost_vdpa_set_iommufd
+> > > > > > > + * Input parameters:
+> > > > > > > + * @iommufd: file descriptor from /dev/iommu; pass -1 to uns=
+et
+> > > > > > > + * @iommufd_ioasid: IOAS identifier returned from ioctl(IOMM=
+U_IOAS_ALLOC)
+> > > > > > > + * Output parameters:
+> > > > > > > + * @out_dev_id: device identifier
+> > > > > > > + */
+> > > > > > > +struct vhost_vdpa_set_iommufd {
+> > > > > > > +       __s32 iommufd;
+> > > > > > > +       __u32 iommufd_ioasid;
+> > > > > > > +       __u32 out_dev_id;
+> > > > > > > +};
+> > > > > > > +
+> > > > > > > +#define VHOST_VDPA_SET_IOMMU_FD \
+> > > > > > > +       _IOW(VHOST_VIRTIO, 0x7F, struct vhost_vdpa_set_iommuf=
+d)
+> > > > > > > +
+> > > > > > > +/*
+> > > > > > > + * VDPA_DEVICE_ATTACH_IOMMUFD_AS -
+> > > > > > > + * _IOW(VHOST_VIRTIO, 0x7f, struct vdpa_device_attach_iommuf=
+d_as)
+> > > > > > > + *
+> > > > > > > + * Attach a vdpa device to an iommufd address space specifie=
+d by IOAS
+> > > > > > > + * id.
+> > > > > > > + *
+> > > > > > > + * Available only after a device has been bound to iommufd v=
+ia
+> > > > > > > + * VHOST_VDPA_SET_IOMMU_FD
+> > > > > > > + *
+> > > > > > > + * Undo by VDPA_DEVICE_DETACH_IOMMUFD_AS or device fd close.
+> > > > > > > + *
+> > > > > > > + * @argsz:     user filled size of this data.
+> > > > > > > + * @flags:     must be 0.
+> > > > > > > + * @ioas_id:   Input the target id which can represent an io=
+as
+> > > > > > > + *             allocated via iommufd subsystem.
+> > > > > > > + *
+> > > > > > > + * Return: 0 on success, -errno on failure.
+> > > > > > > + */
+> > > > > > > +struct vdpa_device_attach_iommufd_as {
+> > > > > > > +       __u32 argsz;
+> > > > > > > +       __u32 flags;
+> > > > > > > +       __u32 ioas_id;
+> > > > > > > +};
+> > > > > >
+> > > > > > I think we need to map ioas to vDPA AS, so there should be an A=
+SID
+> > > > > > from the view of vDPA?
+> > > > > >
+> > > > > > Thanks
+> > > > > >
+> > > > > The qemu will have a structure save and  maintain this informatio=
+n,So
+> > > > > I didn't add this
+> > > > >  in kernel=EF=BC=8Cwe can add this but maybe only for check?
+> > > >
+> > > > I meant for example, a simulator has two AS. How can we attach an i=
+oas
+> > > > to a specific AS with the above uAPI?
+> > > >
+> > > > Thank>
+> > > this   __u32 ioas_id here is alloc from the iommufd system. maybe I
+> > > need to change to new name iommuds_asid to
+> > > make this more clear
+> > > the process in qemu is
+> > >
+> > > 1) qemu want to use AS 0 (for example)
+> > > 2) checking the existing asid. the asid 0 not used before
+> > > 3 )alloc new asid from iommufd system, get new ioas_id (maybe 3 for e=
+xample)
+> > > qemu will save this relation 3<-->0 in the driver.
+> > > 4) setting the ioctl VDPA_DEVICE_ATTACH_IOMMUFD_AS to attach new ASID
+> > > to the kernel
+> >
+> > So if we want to map IOMMUFD AS 3 to VDPA AS 0, how can it be done?
+> >
+> > For example I didn't see a vDPA AS parameter in the above uAPI.
+> >
+> > vhost_vdpa_set_iommufd has iommufd_ioasid which is obviously not the vD=
+PA AS.
+> >
+> > And ioas_id of vdpa_device_attach_iommufd_as (as you explained above)
+> > is not vDPA AS.
+>
+> For example, the simulator/mlx5e has two ASes. It needs to know the
+> mapping between vDPA AS and iommufd AS. Otherwise the translation will
+> be problematic.
+>
+> Thanks
+>
+Got it, thanks Jason. I will re-write this part
+Thanks
+Cindy
+> >
+> > Thanks
+> >
+> >
+> > > 5=EF=BC=89 while map the memory=EF=BC=8C qemu will use ASID 3 to map =
+/umap
+> > > and use ASID 0 for legacy mode map/umap
+> > >
+> > > So kernel here will not maintain the ioas_id from iommufd=EF=BC=8C
+> > > and this also make the code strange since there will 2 different asid
+> > > for the same AS, maybe we can save these information in the kernel
+> > > Thanks
+> > > cindy
+> > > > > Thanks
+> > > > > Cindy
+> > > > > > > +
+> > > > > > > +#define VDPA_DEVICE_ATTACH_IOMMUFD_AS \
+> > > > > > > +       _IOW(VHOST_VIRTIO, 0x82, struct vdpa_device_attach_io=
+mmufd_as)
+> > > > > > > +
+> > > > > > > +/*
+> > > > > > > + * VDPA_DEVICE_DETACH_IOMMUFD_AS
+> > > > > > > + *
+> > > > > > > + * Detach a vdpa device from the iommufd address space it ha=
+s been
+> > > > > > > + * attached to. After it, device should be in a blocking DMA=
+ state.
+> > > > > > > + *
+> > > > > > > + * Available only after a device has been bound to iommufd v=
+ia
+> > > > > > > + * VHOST_VDPA_SET_IOMMU_FD
+> > > > > > > + *
+> > > > > > > + * @argsz:     user filled size of this data.
+> > > > > > > + * @flags:     must be 0.
+> > > > > > > + *
+> > > > > > > + * Return: 0 on success, -errno on failure.
+> > > > > > > + */
+> > > > > > > +struct vdpa_device_detach_iommufd_as {
+> > > > > > > +       __u32 argsz;
+> > > > > > > +       __u32 flags;
+> > > > > > > +};
+> > > > > > > +
+> > > > > > > +#define VDPA_DEVICE_DETACH_IOMMUFD_AS \
+> > > > > > > +       _IOW(VHOST_VIRTIO, 0x83, struct vdpa_device_detach_io=
+mmufd_as)
+> > > > > > > +
+> > > > > > >  #endif
+> > > > > > > --
+> > > > > > > 2.34.3
+> > > > > > >
+> > > > > >
+> > > > >
+> > > >
+> > >
+>
 
