@@ -1,218 +1,238 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FE9123D4
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B131220E4
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:37:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bax7+73u"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tx13K5Ju"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1780E83720
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1780E83720
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bax7+73u
+	by smtp4.osuosl.org (Postfix) with ESMTP id 48CA74210D
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:37:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 48CA74210D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=Tx13K5Ju
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6bzoUhOYnaP2
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id O7TsuH-DzfM3
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 05:33:37 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BC70083419
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:33:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BC70083419
+	Fri, 10 Nov 2023 05:37:42 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0CB3D420E4
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:37:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0CB3D420E4
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1699594416;
+	s=mimecast20190719; t=1699594661;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=KA0v3OBMTeHRtp+JBUoL+seQE2z12N8pOIFQ7+xs9p8=;
-	b=bax7+73uxU1/cu491BSPcmOPr0ER6gBdsr/NOfKTbAo0cWbSBwbRfFD/JtJFYEi/JWTtH6
-	V98PE46U/a0/kP9qodnQIideUFcESqzi+XZ8ED60osGW8ha8ANU2mgO1l6a47sp7+H3rce
-	LqS8OXACsKS3B6vuB8xQhZ7tPwDSuF4=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uqPJjk2MnnGWUWPzIuCuxDAT90q27Y0NAPuOrC1RSKw=;
+	b=Tx13K5Ju3CvSIeu3161vke3Ulnw7DzEr+sBCf9TEE4a03p+xWftUJ3MB0ONeiUOPAVVQMl
+	6a6AwACjy53iOPM2FeI9mMfhIuB6zNxD+8Ttk5cEalkWPlqvMtjbSfSOLrVLjYQYWPZP6A
+	JsCYyj6NwbJfGXiPhT7QZ6IH9cqlcZY=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-136-yOVt1-vKNhu9gPHjziuldw-1; Fri, 10 Nov 2023 00:33:34 -0500
-X-MC-Unique: yOVt1-vKNhu9gPHjziuldw-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-9ddae43f3f7so126859866b.3
-        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 21:33:34 -0800 (PST)
+ us-mta-567-BGb01zp8PQ2Y02BC_c-11g-1; Fri, 10 Nov 2023 00:37:39 -0500
+X-MC-Unique: BGb01zp8PQ2Y02BC_c-11g-1
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-543d2bc7d9dso1295383a12.1
+        for <virtualization@lists.linux-foundation.org>; Thu, 09 Nov 2023 21:37:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699594413; x=1700199213;
+        d=1e100.net; s=20230601; t=1699594658; x=1700199458;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KA0v3OBMTeHRtp+JBUoL+seQE2z12N8pOIFQ7+xs9p8=;
-        b=xIvPYPxuynZQVLs9Tyh2ibiazYMmxjwqG+WZ4+lV8uucwm/qkX0erPpcGh1iS82nIg
-         wuq1c337dNPLmf/y5ev8Ds5N4PiRznLgooD2iGhLSo0XqyL4yVuY9nhQRXvAt6jZysCe
-         ZkbzijzuYnxJ6z9YWAfWU/fE2/Onf7Ig5Au7yaSIOKHtQnZyi08Ae7WZSAPNtaTcY1w4
-         VMkAtPfZLIt8Ptrs3XaiGzTcoL3BqjO8HpMmzKe0hAu9Z0RndUiVDnoJUirnAY7Ij0ZS
-         rippfz5J7xxPMTJncf7jzcYddNgU8ox0Xw3dhF/6juJjfnpcNqFKRnm7k1dMdPmmy2Bz
-         5B2g==
-X-Gm-Message-State: AOJu0Ywiqs0GvnQFMj/UlUmu7+PoStIMlWS9qDU7ulxXO7mZMbKAyNkd
-	jILcYTTqjAkc/aA3y0viP5PwHYqF1fFZj8ZANMzyfQuhYgrnEysYNR0cMNyvy5PCo15qpvNQIUD
-	cjDV+fEoD69MoZN0wygiZIgITGyxeO+KFzQGKa0aOBw==
-X-Received: by 2002:a17:907:26c4:b0:9d2:20ee:b18b with SMTP id bp4-20020a17090726c400b009d220eeb18bmr5823226ejc.42.1699594413700;
-        Thu, 09 Nov 2023 21:33:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEBbBn5im1hOWZJw1AgpLiSs3sWtFi9jJ5Mxh5qC987b7swzUCnrRO1vlcquRH3RcU71Up0TQ==
-X-Received: by 2002:a17:907:26c4:b0:9d2:20ee:b18b with SMTP id bp4-20020a17090726c400b009d220eeb18bmr5823208ejc.42.1699594413357;
-        Thu, 09 Nov 2023 21:33:33 -0800 (PST)
+        bh=uqPJjk2MnnGWUWPzIuCuxDAT90q27Y0NAPuOrC1RSKw=;
+        b=jaIs5jJGyVgZGxOlf6boeX5HZbGzELuuwT03H4+8pkqFZMzT4KVIhEATfG4Y1Ulw4j
+         i/vyKuXDsTVoQYKEHyKZc4lH4HZXxsudC1dAH+K0TZVbWg1AGdajr09D7GFNWcxEbtYr
+         CGfCmJ9HEv9MD/3MDgIrqagNlWbny1wluRbCxI1lXlGU5dru2BXeR264i9lLAkd+fw65
+         VkoivhmZsBAPybzTVnRv11cIF5r5dDZQtqYe0djdtpku9iamgF7akrOGwVjF11UamxUI
+         VkCK012in51hktbOYjximglhFChN0bqUAwJZU07U3QsmREiWZn85xq2fLv8oX76te7bG
+         U8sQ==
+X-Gm-Message-State: AOJu0YxmnJ1K7e1aX3lkojyKQzCPwCRZQkIq0IxLV+MmCxvSuOvJrqKM
+	7LagDIXxI5NA5uq/KGRzf3Mnk4REjRLvaQdaNIkxKYS12H8L+3RwHehcYgHutiofR9MwAMN9WS7
+	l97ZJl20WdKDJn1yrHOWJmJEt3ielnN1chsM6ScRejg==
+X-Received: by 2002:a50:cd1c:0:b0:540:7a88:ac7c with SMTP id z28-20020a50cd1c000000b005407a88ac7cmr5784231edi.21.1699594658658;
+        Thu, 09 Nov 2023 21:37:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IE7zLetQroH1ubeoLJcpWp4q5dNSVEDvqJm+BH0wZvyeMC1ulO2/9gwKCf7p62SZ1ryr4goAA==
+X-Received: by 2002:a50:cd1c:0:b0:540:7a88:ac7c with SMTP id z28-20020a50cd1c000000b005407a88ac7cmr5784218edi.21.1699594658295;
+        Thu, 09 Nov 2023 21:37:38 -0800 (PST)
 Received: from redhat.com ([2a02:14f:1f4:2044:be5a:328c:4b98:1420])
-        by smtp.gmail.com with ESMTPSA id y27-20020a170906071b00b009b285351817sm3385639ejb.116.2023.11.09.21.33.30
+        by smtp.gmail.com with ESMTPSA id h10-20020a50cdca000000b00540ea3a25e6sm690965edj.72.2023.11.09.21.37.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Nov 2023 21:33:32 -0800 (PST)
-Date: Fri, 10 Nov 2023 00:33:27 -0500
+        Thu, 09 Nov 2023 21:37:37 -0800 (PST)
+Date: Fri, 10 Nov 2023 00:37:32 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
 	Eric Dumazet <edumazet@google.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next v2 17/21] virtio_net: xsk: rx: skip dma unmap
- when rq is bind with AF_XDP
-Message-ID: <20231110003305-mutt-send-email-mst@kernel.org>
-References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
- <20231107031227.100015-18-xuanzhuo@linux.alibaba.com>
- <20231109031347-mutt-send-email-mst@kernel.org>
- <1699528202.3090942-4-xuanzhuo@linux.alibaba.com>
- <20231109070015-mutt-send-email-mst@kernel.org>
- <1699580836.3647869-2-xuanzhuo@linux.alibaba.com>
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH net] virtio_net: fix missing dma unmap for resize
+Message-ID: <20231110003406-mutt-send-email-mst@kernel.org>
+References: <20231106081832.668-1-xuanzhuo@linux.alibaba.com>
+ <20231109070359-mutt-send-email-mst@kernel.org>
+ <1699581525.5133314-4-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <1699580836.3647869-2-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1699581525.5133314-4-xuanzhuo@linux.alibaba.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, Nov 10, 2023 at 09:47:16AM +0800, Xuan Zhuo wrote:
-> On Thu, 9 Nov 2023 07:00:51 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Nov 09, 2023 at 07:10:02PM +0800, Xuan Zhuo wrote:
-> > > On Thu, 9 Nov 2023 03:15:03 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > > On Tue, Nov 07, 2023 at 11:12:23AM +0800, Xuan Zhuo wrote:
-> > > > > When rq is bound with AF_XDP, the buffer dma is managed
-> > > > > by the AF_XDP APIs. So the buffer got from the virtio core should
-> > > > > skip the dma unmap operation.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > >
-> > > >
-> > > > I don't get it - is this like a bugfix?
+On Fri, Nov 10, 2023 at 09:58:45AM +0800, Xuan Zhuo wrote:
+> On Thu, 9 Nov 2023 07:06:16 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Mon, Nov 06, 2023 at 04:18:32PM +0800, Xuan Zhuo wrote:
+> > > For rq, we have three cases getting buffers from virtio core:
 > > >
-> > > I want focus on this. So let it as an independent commit.
+> > > 1. virtqueue_get_buf{,_ctx}
+> > > 2. virtqueue_detach_unused_buf
+> > > 3. callback for virtqueue_resize
 > > >
-> > > > And why do we need our own flag and checks?
-> > > > Doesn't virtio core DTRT?
+> > > But in commit 295525e29a5b("virtio_net: merge dma operations when
+> > > filling mergeable buffers"), I missed the dma unmap for the #3 case.
 > > >
+> > > That will leak some memory, because I did not release the pages referred
+> > > by the unused buffers.
 > > >
-> > > struct vring_virtqueue {
-> > > 	[....]
+> > > If we do such script, we will make the system OOM.
 > > >
-> > > 	/* Do DMA mapping by driver */
-> > > 	bool premapped;
+> > >     while true
+> > >     do
+> > >             ethtool -G ens4 rx 128
+> > >             ethtool -G ens4 rx 256
+> > >             free -m
+> > >     done
 > > >
-> > > We can not.
+> > > Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/net/virtio_net.c | 43 ++++++++++++++++++++--------------------
+> > >  1 file changed, 22 insertions(+), 21 deletions(-)
 > > >
-> > > So I add own flag.
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index d16f592c2061..6423a3a007ce 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -408,6 +408,17 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
+> > >  	return p;
+> > >  }
 > > >
-> > > Thanks.
+> > > +static void virtnet_rq_free_buf(struct virtnet_info *vi,
+> > > +				struct receive_queue *rq, void *buf)
+> > > +{
+> > > +	if (vi->mergeable_rx_bufs)
+> > > +		put_page(virt_to_head_page(buf));
+> > > +	else if (vi->big_packets)
+> > > +		give_pages(rq, buf);
+> > > +	else
+> > > +		put_page(virt_to_head_page(buf));
+> > > +}
+> > > +
 > >
-> > Still don't get it. Why not check the premapped flag?
-> 
-> premapped is in the struct vring_virtqueue.
-> 
-> We can not access it from the driver.
-
-
-If it's useful, move it.
-
-
-> 
-> >
+> > >  static void enable_delayed_refill(struct virtnet_info *vi)
+> > >  {
+> > >  	spin_lock_bh(&vi->refill_lock);
+> > > @@ -634,17 +645,6 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+> > >  	return buf;
+> > >  }
 > > >
-> > > >
-> > > > > ---
-> > > > >  drivers/net/virtio/main.c       | 8 +++++---
-> > > > >  drivers/net/virtio/virtio_net.h | 3 +++
-> > > > >  drivers/net/virtio/xsk.c        | 1 +
-> > > > >  3 files changed, 9 insertions(+), 3 deletions(-)
-> > > > >
-> > > > > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> > > > > index 15943a22e17d..a318b2533b94 100644
-> > > > > --- a/drivers/net/virtio/main.c
-> > > > > +++ b/drivers/net/virtio/main.c
-> > > > > @@ -430,7 +430,7 @@ static void *virtnet_rq_get_buf(struct virtnet_rq *rq, u32 *len, void **ctx)
-> > > > >  	void *buf;
-> > > > >
-> > > > >  	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> > > > > -	if (buf && rq->do_dma)
-> > > > > +	if (buf && rq->do_dma_unmap)
-> > > > >  		virtnet_rq_unmap(rq, buf, *len);
-> > > > >
-> > > > >  	return buf;
-> > > > > @@ -561,8 +561,10 @@ static void virtnet_set_premapped(struct virtnet_info *vi)
-> > > > >
-> > > > >  		/* disable for big mode */
-> > > > >  		if (vi->mergeable_rx_bufs || !vi->big_packets) {
-> > > > > -			if (!virtqueue_set_dma_premapped(vi->rq[i].vq))
-> > > > > +			if (!virtqueue_set_dma_premapped(vi->rq[i].vq)) {
-> > > > >  				vi->rq[i].do_dma = true;
-> > > > > +				vi->rq[i].do_dma_unmap = true;
-> > > > > +			}
-> > > > >  		}
-> > > > >  	}
-> > > > >  }
-> > > > > @@ -3944,7 +3946,7 @@ void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
-> > > > >
-> > > > >  	rq = &vi->rq[i];
-> > > > >
-> > > > > -	if (rq->do_dma)
-> > > > > +	if (rq->do_dma_unmap)
-> > > > >  		virtnet_rq_unmap(rq, buf, 0);
-> > > > >
-> > > > >  	virtnet_rq_free_buf(vi, rq, buf);
-> > > > > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
-> > > > > index 1242785e311e..2005d0cd22e2 100644
-> > > > > --- a/drivers/net/virtio/virtio_net.h
-> > > > > +++ b/drivers/net/virtio/virtio_net.h
-> > > > > @@ -135,6 +135,9 @@ struct virtnet_rq {
-> > > > >  	/* Do dma by self */
-> > > > >  	bool do_dma;
-> > > > >
-> > > > > +	/* Do dma unmap after getting buf from virtio core. */
-> > > > > +	bool do_dma_unmap;
-> > > > > +
-> > > > >  	struct {
-> > > > >  		struct xsk_buff_pool *pool;
-> > > > >
-> > > > > diff --git a/drivers/net/virtio/xsk.c b/drivers/net/virtio/xsk.c
-> > > > > index e737c3353212..b09c473c29fb 100644
-> > > > > --- a/drivers/net/virtio/xsk.c
-> > > > > +++ b/drivers/net/virtio/xsk.c
-> > > > > @@ -210,6 +210,7 @@ static int virtnet_rq_bind_xsk_pool(struct virtnet_info *vi, struct virtnet_rq *
-> > > > >  		xdp_rxq_info_unreg(&rq->xsk.xdp_rxq);
-> > > > >
-> > > > >  	rq->xsk.pool = pool;
-> > > > > +	rq->do_dma_unmap = !pool;
-> > > > >
-> > > > >  	virtnet_rx_resume(vi, rq);
-> > > > >
-> > > > > --
-> > > > > 2.32.0.3.g01195cf9f
-> > > >
-> > > >
+> > > -static void *virtnet_rq_detach_unused_buf(struct receive_queue *rq)
+> > > -{
+> > > -	void *buf;
+> > > -
+> > > -	buf = virtqueue_detach_unused_buf(rq->vq);
+> > > -	if (buf && rq->do_dma)
+> > > -		virtnet_rq_unmap(rq, buf, 0);
+> > > -
+> > > -	return buf;
+> > > -}
+> > > -
+> > >  static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
+> > >  {
+> > >  	struct virtnet_rq_dma *dma;
+> > > @@ -1764,7 +1764,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+> > >  	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+> > >  		pr_debug("%s: short packet %i\n", dev->name, len);
+> > >  		DEV_STATS_INC(dev, rx_length_errors);
+> > > -		virtnet_rq_free_unused_buf(rq->vq, buf);
+> > > +		virtnet_rq_free_buf(vi, rq, buf);
+> > >  		return;
+> > >  	}
+> > >
+> > > @@ -4034,14 +4034,15 @@ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
+> > >  static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+> > >  {
+> > >  	struct virtnet_info *vi = vq->vdev->priv;
+> > > +	struct receive_queue *rq;
+> > >  	int i = vq2rxq(vq);
+> > >
+> > > -	if (vi->mergeable_rx_bufs)
+> > > -		put_page(virt_to_head_page(buf));
+> > > -	else if (vi->big_packets)
+> > > -		give_pages(&vi->rq[i], buf);
+> > > -	else
+> > > -		put_page(virt_to_head_page(buf));
+> > > +	rq = &vi->rq[i];
+> > > +
+> > > +	if (rq->do_dma)
+> > > +		virtnet_rq_unmap(rq, buf, 0);
+> > > +
+> > > +	virtnet_rq_free_buf(vi, rq, buf);
+> > >  }
+> > >
 > >
+> > So we have virtnet_rq_free_buf which sounds like it should free any
+> > buf, and we have virtnet_rq_free_unused_buf which is only for unused.
+> > Or so it would seem from names but this is not true.
+> > Better function names?
+> 
+> Sorry. not get it.
+> 
+> virtnet_rq_free_buf() that free the buf passed in. That is called by
+> virtnet_rq_free_unused_buf or receive_buf to free the buffer. I think
+> the name is right.
+> 
+> virtnet_rq_free_unused_buf is called by free_unused_bufs() and the
+> virtqueue_resize() to free the unused bufs. I think this name is right also.
+> 
+> So I do not get your mean.
+> Are there any details I've overlooked?
+> 
+> Thanks.
+
+Bad function names - they are too similar. Function name should
+say what it does not where it's called from.
+What is the difference? That virtnet_rq_free_unused_buf unmaps
+and frees and virtnet_rq_free_buf just frees memory?
+
+
+> >
+> > >  static void free_unused_bufs(struct virtnet_info *vi)
+> > > @@ -4057,10 +4058,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
+> > >  	}
+> > >
+> > >  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> > > -		struct receive_queue *rq = &vi->rq[i];
+> > > +		struct virtqueue *vq = vi->rq[i].vq;
+> > >
+> > > -		while ((buf = virtnet_rq_detach_unused_buf(rq)) != NULL)
+> > > -			virtnet_rq_free_unused_buf(rq->vq, buf);
+> > > +		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+> > > +			virtnet_rq_free_unused_buf(vq, buf);
+> > >  		cond_resched();
+> > >  	}
+> > >  }
+> > > --
+> > > 2.32.0.3.g01195cf9f
 > >
 
