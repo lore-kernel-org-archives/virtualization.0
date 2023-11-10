@@ -1,47 +1,47 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057441429C
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:30:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D30A12B75
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:54:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="SpZSbskc"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="GUde9qeo"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 68874404CC
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:30:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 68874404CC
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=SpZSbskc
+	by smtp1.osuosl.org (Postfix) with ESMTP id E2E8A82269
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:54:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E2E8A82269
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=GUde9qeo
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dITAxc_VF1h2
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E4WizZPU13kR
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 10:30:13 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 63C804050F
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:30:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63C804050F
+	Fri, 10 Nov 2023 10:54:02 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B284882263
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:54:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B284882263
 Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 87A2B66073F9;
-	Fri, 10 Nov 2023 10:30:10 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 7507266073E5;
+	Fri, 10 Nov 2023 10:53:58 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1699612211;
-	bh=fmIgRldcPaxkMOahz2iminQvGRgsI7UzfHVaQEb2Rgc=;
+	s=mail; t=1699613639;
+	bh=7zX1VEgiMUv93VPzTl7ntimr/mmmRRrBd4yOYvFZgw0=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=SpZSbskcGN1cd5a251hFAMouFuhn7IptHfS0olNAx8thCCPaIGZS3DMtl9V7YgXY1
-	 xnaI8XSzmJYUPHxXpk7KndsvqGItJXCrH/p/CikmqWVWWwAGUIWr9cr/Ahyy/iJ2H2
-	 wiZrQNz68fn0djNX1yEgCPbhEe7tvS4vSU+dWlk3w2IknFoPLQTzNBFZfx4YolDO4e
-	 +Gxy6EDyD6ngJtsMPNAX4o76Qm/5gYTrrGxVntuxT9v17SC/zpJ5XJI6TEMtr0X2id
-	 /Tj9PLwq574xIw7+8YqWtJm19cfQDF5cv2WHozf1uyccvoR0RQuS4kbCjEMBP284M1
-	 1v3KUHfjuBuow==
-Date: Fri, 10 Nov 2023 11:30:07 +0100
+	b=GUde9qeoRMAqb2soKoAU2Sc+G067iLuAB0lGwLT2YtUX5rujIXF6eSzPXtzjMfipR
+	 Z4FXCU/AjXv1hkE7VbaU8S9Ch0s2SMO+DcKXEtg6ja9wPomqMSbdPPhT4anyZOZb1B
+	 XqQdljSwKx8pv0ha2ZKddptU2VzkXLTg9HQYnGDoJ+lge2IbiMY3MEhof0atyKwyq7
+	 9ToH3OK/CnHj3YKv8hCIKIyFo0TqB7om/P5E0ZIXQa/qAueGRYU3GFb5m7RYW6hxnV
+	 69IQJuMjrsVoknd5TitRYxRHiDaBj1DVT4Q/SOHHsrAZZsDV1D2kxOG+3BbViet9rW
+	 lGcqj1IVUrMjw==
+Date: Fri, 10 Nov 2023 11:53:54 +0100
 From: Boris Brezillon <boris.brezillon@collabora.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -54,12 +54,12 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, kernel@collabora.com,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 14/26] drm/lima: Explicitly get and put drm-shmem
- pages
-Message-ID: <20231110113007.600e72c1@collabora.com>
-In-Reply-To: <20231029230205.93277-15-dmitry.osipenko@collabora.com>
+Subject: Re: [PATCH v18 15/26] drm/panfrost: Explicitly get and put
+ drm-shmem pages
+Message-ID: <20231110115354.356c87f7@collabora.com>
+In-Reply-To: <20231029230205.93277-16-dmitry.osipenko@collabora.com>
 References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-15-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-16-dmitry.osipenko@collabora.com>
 Organization: Collabora
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -71,117 +71,111 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 30 Oct 2023 02:01:53 +0300
+On Mon, 30 Oct 2023 02:01:54 +0300
 Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
 > To simplify the drm-shmem refcnt handling, we're moving away from
 > the implicit get_pages() that is used by get_pages_sgt(). From now on
-> drivers will have to pin pages while they use sgt. Lima driver doesn't
-> have shrinker, hence pages are pinned and sgt is valid as long as pages'
-> use-count > 0.
+> drivers will have to pin pages while they use sgt. Panfrost's shrinker
+> doesn't support swapping out BOs, hence pages are pinned and sgt is valid
+> as long as pages' use-count > 0.
 > 
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 > ---
->  drivers/gpu/drm/lima/lima_gem.c | 18 ++++++++++++++++--
->  drivers/gpu/drm/lima/lima_gem.h |  1 +
->  2 files changed, 17 insertions(+), 2 deletions(-)
+>  drivers/gpu/drm/panfrost/panfrost_gem.c | 17 +++++++++++++++++
+>  drivers/gpu/drm/panfrost/panfrost_mmu.c |  6 ++----
+>  2 files changed, 19 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
-> index 988e74f67465..d255f5775dac 100644
-> --- a/drivers/gpu/drm/lima/lima_gem.c
-> +++ b/drivers/gpu/drm/lima/lima_gem.c
-> @@ -46,6 +46,7 @@ int lima_heap_alloc(struct lima_bo *bo, struct lima_vm *vm)
->  			return -ENOMEM;
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> index 6b77d8cebcb2..bb9d43cf7c3c 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> @@ -47,8 +47,13 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
+>  			}
 >  		}
->  
-> +		bo->put_pages = true;
->  		bo->base.pages = pages;
->  		refcount_set(&bo->base.pages_use_count, 1);
->  
-> @@ -115,6 +116,7 @@ int lima_gem_create_handle(struct drm_device *dev, struct drm_file *file,
->  		return PTR_ERR(shmem);
->  
->  	obj = &shmem->base;
-> +	bo = to_lima_bo(obj);
->  
->  	/* Mali Utgard GPU can only support 32bit address space */
->  	mask = mapping_gfp_mask(obj->filp->f_mapping);
-> @@ -123,13 +125,19 @@ int lima_gem_create_handle(struct drm_device *dev, struct drm_file *file,
->  	mapping_set_gfp_mask(obj->filp->f_mapping, mask);
->  
->  	if (is_heap) {
-> -		bo = to_lima_bo(obj);
->  		err = lima_heap_alloc(bo, NULL);
->  		if (err)
->  			goto out;
->  	} else {
-> -		struct sg_table *sgt = drm_gem_shmem_get_pages_sgt(shmem);
-> +		struct sg_table *sgt;
+>  		kvfree(bo->sgts);
 > +
-> +		err = drm_gem_shmem_get_pages(shmem);
-> +		if (err)
-> +			goto out;
-> +
-> +		bo->put_pages = true;
->  
-> +		sgt = drm_gem_shmem_get_pages_sgt(shmem);
->  		if (IS_ERR(sgt)) {
->  			err = PTR_ERR(sgt);
->  			goto out;
-
-Pretty sure we don't need this put_pages flag. We can either check
-ba->base.base.pages or refcount_read(&bo->base.pages_use_count). Or,
-even better, if it's just used in the error path of the same function,
-simply have a dedicated error path for that case:
-
-	drm_gem_object_put(obj);
-	return 0;
-
-err_put_pages:
-	if (!is_heap)
-		drm_gem_shmem_put_pages(shmem);
-
-err_put_bo:
-	drm_gem_object_put(obj);
-	return err;
-}
-
-> @@ -139,6 +147,9 @@ int lima_gem_create_handle(struct drm_device *dev, struct drm_file *file,
->  	err = drm_gem_handle_create(file, obj, handle);
->  
->  out:
-> +	if (err && bo->put_pages)
-> +		drm_gem_shmem_put_pages(shmem);
-> +
->  	/* drop reference from allocate - handle holds it now */
->  	drm_gem_object_put(obj);
->  
-> @@ -152,6 +163,9 @@ static void lima_gem_free_object(struct drm_gem_object *obj)
->  	if (!list_empty(&bo->va))
->  		dev_err(obj->dev->dev, "lima gem free bo still has va\n");
->  
-> +	if (bo->put_pages)
 > +		drm_gem_shmem_put_pages(&bo->base);
-
-This one can be replaced by
-
-	if (!is_heap || bo->base.base.pages)
-		drm_gem_shmem_put_pages(&bo->base);
-
+>  	}
+>  
+> +	if (!bo->is_heap && !obj->import_attach)
+> +		drm_gem_shmem_put_pages(&bo->base);
 > +
 >  	drm_gem_shmem_free(&bo->base);
 >  }
 >  
-> diff --git a/drivers/gpu/drm/lima/lima_gem.h b/drivers/gpu/drm/lima/lima_gem.h
-> index ccea06142f4b..dc5a6d465c80 100644
-> --- a/drivers/gpu/drm/lima/lima_gem.h
-> +++ b/drivers/gpu/drm/lima/lima_gem.h
-> @@ -16,6 +16,7 @@ struct lima_bo {
->  	struct list_head va;
+> @@ -269,6 +274,7 @@ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
+>  {
+>  	struct drm_gem_shmem_object *shmem;
+>  	struct panfrost_gem_object *bo;
+> +	int err;
 >  
->  	size_t heap_size;
-> +	bool put_pages;
->  };
+>  	/* Round up heap allocations to 2MB to keep fault handling simple */
+>  	if (flags & PANFROST_BO_HEAP)
+> @@ -282,7 +288,18 @@ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
+>  	bo->noexec = !!(flags & PANFROST_BO_NOEXEC);
+>  	bo->is_heap = !!(flags & PANFROST_BO_HEAP);
 >  
->  static inline struct lima_bo *
+> +	if (!bo->is_heap) {
+> +		err = drm_gem_shmem_get_pages(shmem);
+
+Hm, there was no drm_gem_shmem_get_pages_sgt() call here, why should we
+add a drm_gem_shmem_get_pages()? What we should do instead is add a
+drm_gem_shmem_get_pages() for each drm_gem_shmem_get_pages_sgt() we
+have in the driver (in panfrost_mmu_map()), and add
+drm_gem_shmem_put_pages() calls where they are missing
+(panfrost_mmu_unmap()).
+
+> +		if (err)
+> +			goto err_free;
+> +	}
+> +
+>  	return bo;
+> +
+> +err_free:
+> +	drm_gem_shmem_free(&bo->base);
+> +
+> +	return ERR_PTR(err);
+>  }
+>  
+>  struct drm_gem_object *
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> index 770dab1942c2..ac145a98377b 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> @@ -504,7 +504,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+>  		if (IS_ERR(pages[i])) {
+>  			ret = PTR_ERR(pages[i]);
+>  			pages[i] = NULL;
+> -			goto err_pages;
+> +			goto err_unlock;
+>  		}
+>  	}
+>  
+> @@ -512,7 +512,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+>  	ret = sg_alloc_table_from_pages(sgt, pages + page_offset,
+>  					NUM_FAULT_PAGES, 0, SZ_2M, GFP_KERNEL);
+>  	if (ret)
+> -		goto err_pages;
+> +		goto err_unlock;
+
+Feels like the panfrost_gem_mapping object should hold a ref on the BO
+pages, not the BO itself, because, ultimately, the user of the BO is
+the GPU. This matches what I was saying about moving get/put_pages() to
+panfrost_mmu_map/unmap(): everytime a panfrost_gem_mapping becomes
+active, to want to take a pages ref, every time it becomes inactive,
+you should release the pages ref.
+
+>  
+>  	ret = dma_map_sgtable(pfdev->dev, sgt, DMA_BIDIRECTIONAL, 0);
+>  	if (ret)
+> @@ -535,8 +535,6 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+>  
+>  err_map:
+>  	sg_free_table(sgt);
+> -err_pages:
+> -	drm_gem_shmem_put_pages_locked(&bo->base);
+>  err_unlock:
+>  	dma_resv_unlock(obj->resv);
+>  err_bo:
 
