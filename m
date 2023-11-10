@@ -1,212 +1,186 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F12320E4
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:49:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C026B20E4
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:51:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 195DC60DE5
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:49:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 195DC60DE5
+	by smtp1.osuosl.org (Postfix) with ESMTP id 32EB0822BD
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:51:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 32EB0822BD
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 02IdeeHc4nvf
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fJ7LgkH2cdbi
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 05:49:31 +0000 (UTC)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 35D7F60D88
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:49:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 35D7F60D88
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R911e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Vw3QqTU_1699595359;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vw3QqTU_1699595359)
+	Fri, 10 Nov 2023 05:51:09 +0000 (UTC)
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A4EB08229C
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 05:51:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A4EB08229C
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vw3KEoX_1699595461;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vw3KEoX_1699595461)
           by smtp.aliyun-inc.com;
-          Fri, 10 Nov 2023 13:49:20 +0800
-Message-ID: <1699595064.2429245-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net] virtio_net: fix missing dma unmap for resize
-Date: Fri, 10 Nov 2023 13:44:24 +0800
+          Fri, 10 Nov 2023 13:51:02 +0800
+Message-ID: <1699595409.9489238-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 14/21] virtio_net: xsk: tx: virtnet_free_old_xmit() distinguishes xsk buffer
+Date: Fri, 10 Nov 2023 13:50:09 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org,
- Jason Wang <jasowang@redhat.com>,
  "David S. Miller" <davem@davemloft.net>,
  Eric Dumazet <edumazet@google.com>,
  Jakub Kicinski <kuba@kernel.org>,
  Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux-foundation.org
-References: <20231106081832.668-1-xuanzhuo@linux.alibaba.com>
- <20231109070359-mutt-send-email-mst@kernel.org>
- <1699581525.5133314-4-xuanzhuo@linux.alibaba.com>
- <20231110003406-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20231110003406-mutt-send-email-mst@kernel.org>
+ Jason Wang <jasowang@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ bpf@vger.kernel.org
+References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
+ <20231107031227.100015-15-xuanzhuo@linux.alibaba.com>
+ <20231109061056-mutt-send-email-mst@kernel.org>
+ <1699528568.0674586-6-xuanzhuo@linux.alibaba.com>
+ <20231109065912-mutt-send-email-mst@kernel.org>
+ <1699580672.387567-1-xuanzhuo@linux.alibaba.com>
+ <20231110003159-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231110003159-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 
-On Fri, 10 Nov 2023 00:37:32 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Fri, Nov 10, 2023 at 09:58:45AM +0800, Xuan Zhuo wrote:
-> > On Thu, 9 Nov 2023 07:06:16 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Mon, Nov 06, 2023 at 04:18:32PM +0800, Xuan Zhuo wrote:
-> > > > For rq, we have three cases getting buffers from virtio core:
+On Fri, 10 Nov 2023 00:32:50 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Fri, Nov 10, 2023 at 09:44:32AM +0800, Xuan Zhuo wrote:
+> > On Thu, 9 Nov 2023 06:59:48 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Thu, Nov 09, 2023 at 07:16:08PM +0800, Xuan Zhuo wrote:
+> > > > On Thu, 9 Nov 2023 06:11:49 -0500, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > > > On Tue, Nov 07, 2023 at 11:12:20AM +0800, Xuan Zhuo wrote:
+> > > > > > virtnet_free_old_xmit distinguishes three type ptr(skb, xdp frame, xsk
+> > > > > > buffer) by the last bits of the pointer.
+> > > > > >
+> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > ---
+> > > > > >  drivers/net/virtio/virtio_net.h | 18 ++++++++++++++++--
+> > > > > >  drivers/net/virtio/xsk.h        |  5 +++++
+> > > > > >  2 files changed, 21 insertions(+), 2 deletions(-)
+> > > > > >
+> > > > > > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
+> > > > > > index a431a2c1ee47..a13d6d301fdb 100644
+> > > > > > --- a/drivers/net/virtio/virtio_net.h
+> > > > > > +++ b/drivers/net/virtio/virtio_net.h
+> > > > > > @@ -225,6 +225,11 @@ struct virtnet_info {
+> > > > > >  	struct failover *failover;
+> > > > > >  };
+> > > > > >
+> > > > > > +static inline bool virtnet_is_skb_ptr(void *ptr)
+> > > > > > +{
+> > > > > > +	return !((unsigned long)ptr & VIRTIO_XMIT_DATA_MASK);
+> > > > > > +}
+> > > > > > +
+> > > > > >  static inline bool virtnet_is_xdp_frame(void *ptr)
+> > > > > >  {
+> > > > > >  	return (unsigned long)ptr & VIRTIO_XDP_FLAG;
+> > > > > > @@ -235,6 +240,8 @@ static inline struct xdp_frame *virtnet_ptr_to_xdp(void *ptr)
+> > > > > >  	return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG);
+> > > > > >  }
+> > > > > >
+> > > > > > +static inline u32 virtnet_ptr_to_xsk(void *ptr);
+> > > > > > +
+> > > > >
+> > > > > I don't understand why you need this here.
 > > > >
-> > > > 1. virtqueue_get_buf{,_ctx}
-> > > > 2. virtqueue_detach_unused_buf
-> > > > 3. callback for virtqueue_resize
+> > > > The below function virtnet_free_old_xmit needs this.
 > > > >
-> > > > But in commit 295525e29a5b("virtio_net: merge dma operations when
-> > > > filling mergeable buffers"), I missed the dma unmap for the #3 case.
-> > > >
-> > > > That will leak some memory, because I did not release the pages referred
-> > > > by the unused buffers.
-> > > >
-> > > > If we do such script, we will make the system OOM.
-> > > >
-> > > >     while true
-> > > >     do
-> > > >             ethtool -G ens4 rx 128
-> > > >             ethtool -G ens4 rx 256
-> > > >             free -m
-> > > >     done
-> > > >
-> > > > Fixes: 295525e29a5b ("virtio_net: merge dma operations when filling mergeable buffers")
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 43 ++++++++++++++++++++--------------------
-> > > >  1 file changed, 22 insertions(+), 21 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index d16f592c2061..6423a3a007ce 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -408,6 +408,17 @@ static struct page *get_a_page(struct receive_queue *rq, gfp_t gfp_mask)
-> > > >  	return p;
-> > > >  }
-> > > >
-> > > > +static void virtnet_rq_free_buf(struct virtnet_info *vi,
-> > > > +				struct receive_queue *rq, void *buf)
-> > > > +{
-> > > > +	if (vi->mergeable_rx_bufs)
-> > > > +		put_page(virt_to_head_page(buf));
-> > > > +	else if (vi->big_packets)
-> > > > +		give_pages(rq, buf);
-> > > > +	else
-> > > > +		put_page(virt_to_head_page(buf));
-> > > > +}
-> > > > +
+> > > > Thanks.
 > > >
-> > > >  static void enable_delayed_refill(struct virtnet_info *vi)
-> > > >  {
-> > > >  	spin_lock_bh(&vi->refill_lock);
-> > > > @@ -634,17 +645,6 @@ static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
-> > > >  	return buf;
-> > > >  }
-> > > >
-> > > > -static void *virtnet_rq_detach_unused_buf(struct receive_queue *rq)
-> > > > -{
-> > > > -	void *buf;
-> > > > -
-> > > > -	buf = virtqueue_detach_unused_buf(rq->vq);
-> > > > -	if (buf && rq->do_dma)
-> > > > -		virtnet_rq_unmap(rq, buf, 0);
-> > > > -
-> > > > -	return buf;
-> > > > -}
-> > > > -
-> > > >  static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *buf, u32 len)
-> > > >  {
-> > > >  	struct virtnet_rq_dma *dma;
-> > > > @@ -1764,7 +1764,7 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-> > > >  	if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
-> > > >  		pr_debug("%s: short packet %i\n", dev->name, len);
-> > > >  		DEV_STATS_INC(dev, rx_length_errors);
-> > > > -		virtnet_rq_free_unused_buf(rq->vq, buf);
-> > > > +		virtnet_rq_free_buf(vi, rq, buf);
-> > > >  		return;
-> > > >  	}
-> > > >
-> > > > @@ -4034,14 +4034,15 @@ static void virtnet_sq_free_unused_buf(struct virtqueue *vq, void *buf)
-> > > >  static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
-> > > >  {
-> > > >  	struct virtnet_info *vi = vq->vdev->priv;
-> > > > +	struct receive_queue *rq;
-> > > >  	int i = vq2rxq(vq);
-> > > >
-> > > > -	if (vi->mergeable_rx_bufs)
-> > > > -		put_page(virt_to_head_page(buf));
-> > > > -	else if (vi->big_packets)
-> > > > -		give_pages(&vi->rq[i], buf);
-> > > > -	else
-> > > > -		put_page(virt_to_head_page(buf));
-> > > > +	rq = &vi->rq[i];
-> > > > +
-> > > > +	if (rq->do_dma)
-> > > > +		virtnet_rq_unmap(rq, buf, 0);
-> > > > +
-> > > > +	virtnet_rq_free_buf(vi, rq, buf);
-> > > >  }
-> > > >
-> > >
-> > > So we have virtnet_rq_free_buf which sounds like it should free any
-> > > buf, and we have virtnet_rq_free_unused_buf which is only for unused.
-> > > Or so it would seem from names but this is not true.
-> > > Better function names?
+> > > I don't understand why is virtnet_free_old_xmit inline, either.
 > >
-> > Sorry. not get it.
+> > That is in the header file.
 > >
-> > virtnet_rq_free_buf() that free the buf passed in. That is called by
-> > virtnet_rq_free_unused_buf or receive_buf to free the buffer. I think
-> > the name is right.
-> >
-> > virtnet_rq_free_unused_buf is called by free_unused_bufs() and the
-> > virtqueue_resize() to free the unused bufs. I think this name is right also.
-> >
-> > So I do not get your mean.
-> > Are there any details I've overlooked?
-> >
-> > Thanks.
 >
-> Bad function names - they are too similar. Function name should
-> say what it does not where it's called from.
-> What is the difference? That virtnet_rq_free_unused_buf unmaps
-> and frees and virtnet_rq_free_buf just frees memory?
+> It does not belong there.
 
-Yes. virtnet_rq_free_buf frees memory.
 
-For this patch, I think virtnet_rq_free_buf is ok.
-virtnet_rq_free_buf is as your request.
-virtnet_rq_free_unused_buf is named as it want to do. Or as you said.
-Indeed these are similar.
+Do you mean virtnet_free_old_xmit?
 
-Could you give some advices?
+That will be called by xsk.c. So I move it to the header file.
 
 Thanks.
 
 
-
 >
 >
 > > >
-> > > >  static void free_unused_bufs(struct virtnet_info *vi)
-> > > > @@ -4057,10 +4058,10 @@ static void free_unused_bufs(struct virtnet_info *vi)
-> > > >  	}
-> > > >
-> > > >  	for (i = 0; i < vi->max_queue_pairs; i++) {
-> > > > -		struct receive_queue *rq = &vi->rq[i];
-> > > > +		struct virtqueue *vq = vi->rq[i].vq;
-> > > >
-> > > > -		while ((buf = virtnet_rq_detach_unused_buf(rq)) != NULL)
-> > > > -			virtnet_rq_free_unused_buf(rq->vq, buf);
-> > > > +		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
-> > > > +			virtnet_rq_free_unused_buf(vq, buf);
-> > > >  		cond_resched();
-> > > >  	}
-> > > >  }
-> > > > --
-> > > > 2.32.0.3.g01195cf9f
+> > > > >
+> > > > >
+> > > > > >  static inline void *virtnet_sq_unmap(struct virtnet_sq *sq, void *data)
+> > > > > >  {
+> > > > > >  	struct virtnet_sq_dma *next, *head;
+> > > > > > @@ -261,11 +268,12 @@ static inline void *virtnet_sq_unmap(struct virtnet_sq *sq, void *data)
+> > > > > >  static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > > >  					 u64 *bytes, u64 *packets)
+> > > > > >  {
+> > > > > > +	unsigned int xsknum = 0;
+> > > > > >  	unsigned int len;
+> > > > > >  	void *ptr;
+> > > > > >
+> > > > > >  	while ((ptr = virtqueue_get_buf(sq->vq, &len)) != NULL) {
+> > > > > > -		if (!virtnet_is_xdp_frame(ptr)) {
+> > > > > > +		if (virtnet_is_skb_ptr(ptr)) {
+> > > > > >  			struct sk_buff *skb;
+> > > > > >
+> > > > > >  			if (sq->do_dma)
+> > > > > > @@ -277,7 +285,7 @@ static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > > >
+> > > > > >  			*bytes += skb->len;
+> > > > > >  			napi_consume_skb(skb, in_napi);
+> > > > > > -		} else {
+> > > > > > +		} else if (virtnet_is_xdp_frame(ptr)) {
+> > > > > >  			struct xdp_frame *frame;
+> > > > > >
+> > > > > >  			if (sq->do_dma)
+> > > > > > @@ -287,9 +295,15 @@ static inline void virtnet_free_old_xmit(struct virtnet_sq *sq, bool in_napi,
+> > > > > >
+> > > > > >  			*bytes += xdp_get_frame_len(frame);
+> > > > > >  			xdp_return_frame(frame);
+> > > > > > +		} else {
+> > > > > > +			*bytes += virtnet_ptr_to_xsk(ptr);
+> > > > > > +			++xsknum;
+> > > > > >  		}
+> > > > > >  		(*packets)++;
+> > > > > >  	}
+> > > > > > +
+> > > > > > +	if (xsknum)
+> > > > > > +		xsk_tx_completed(sq->xsk.pool, xsknum);
+> > > > > >  }
+> > > > > >
+> > > > > >  static inline bool virtnet_is_xdp_raw_buffer_queue(struct virtnet_info *vi, int q)
+> > > > > > diff --git a/drivers/net/virtio/xsk.h b/drivers/net/virtio/xsk.h
+> > > > > > index 1bd19dcda649..7ebc9bda7aee 100644
+> > > > > > --- a/drivers/net/virtio/xsk.h
+> > > > > > +++ b/drivers/net/virtio/xsk.h
+> > > > > > @@ -14,6 +14,11 @@ static inline void *virtnet_xsk_to_ptr(u32 len)
+> > > > > >  	return (void *)(p | VIRTIO_XSK_FLAG);
+> > > > > >  }
+> > > > > >
+> > > > > > +static inline u32 virtnet_ptr_to_xsk(void *ptr)
+> > > > > > +{
+> > > > > > +	return ((unsigned long)ptr) >> VIRTIO_XSK_FLAG_OFFSET;
+> > > > > > +}
+> > > > > > +
+> > > > > >  int virtnet_xsk_pool_setup(struct net_device *dev, struct netdev_bpf *xdp);
+> > > > > >  bool virtnet_xsk_xmit(struct virtnet_sq *sq, struct xsk_buff_pool *pool,
+> > > > > >  		      int budget);
+> > > > > > --
+> > > > > > 2.32.0.3.g01195cf9f
+> > > > >
+> > > > >
 > > >
 >
