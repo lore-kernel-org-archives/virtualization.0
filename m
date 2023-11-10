@@ -1,47 +1,47 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D2B12B8E
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:59:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C102D12B75
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="hCwmaf1/"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Hbb8LDTQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 38D4640292
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:59:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 38D4640292
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=hCwmaf1/
+	by smtp3.osuosl.org (Postfix) with ESMTP id 42C3C60F97
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 42C3C60F97
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Hbb8LDTQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AK8dhFDzc1Gs
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5ZTcyfSpXgeN
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 10:59:20 +0000 (UTC)
+	Fri, 10 Nov 2023 11:01:29 +0000 (UTC)
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 29C5D40556
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 10:59:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 29C5D40556
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6DF0260E6F
+	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 11:01:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6DF0260E6F
 Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 45E7066073F9;
-	Fri, 10 Nov 2023 10:59:17 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 8A25A66073EB;
+	Fri, 10 Nov 2023 11:01:26 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1699613958;
-	bh=ZwpoO39PwAcjfL9GkpofbSRYEQHZvFcfLJvO8dVtaOY=;
+	s=mail; t=1699614087;
+	bh=M7g15Ds3YB0rAZrwMqFqhvf/l8gr3sjjjFteM0C28zs=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=hCwmaf1/GH2BOD+QU8ObZlILAodHTzNOczSmHflRumj1efPx3yYxSSS9u67/DiPc9
-	 akCQp8c8oTOmR8KC+mUyP97IXWHGAnBWXdAyB2TqgNfS5I+YUO0ix490jHP7+jz5c2
-	 H+2AkWtC8sXPXWLw+FbbyF2to86qEcIqtFjO/qNOkrVZq5xsZ+GX7TVYtFtRQSN6+O
-	 qdC7dMsQMct6JEA0CziZ7/54ZwAM2TtiWCQ6Sm5T78vZBA/A3AgfvN97u3kJLBlmWq
-	 MFuCUM9UOE59hK9dNfyWC+XWCy9ivT0Au5UIlH8rH9uluauoeexGSdEr/4/wj5O3Z/
-	 Yry6w8sobEgdg==
-Date: Fri, 10 Nov 2023 11:59:13 +0100
+	b=Hbb8LDTQq4RSYvyQKXhwzEaFY3S/PSmM2XeVj8XNi5/pmEFm+CXppTiuTj7QD4CZx
+	 8co2y4KUpNxbre2QFzUUcxRA8sCPdl2Z+jxgtbG+80PTAsE9BoMeC5F14w0W1jgmz/
+	 OV5w1DJ/ocBfKg7xRQQelCeq/r68xhZxMOmsrL02W9qe9LuCWJhmbL6HHGAUD/0Ttf
+	 gHYguXb0/fxr81PZJhFrPt7GM8DXDF0KWVIHuuXNSLRCIbzrQHP/Aq36d0BSVXWFpV
+	 IZTIsIKBR0jzOw9XBpgwo9WUTuSuRdYKExb716IYVxzMjqPM6sGpodGY933J8AqFLT
+	 c9mLE9lfwOacw==
+Date: Fri, 10 Nov 2023 12:01:23 +0100
 From: Boris Brezillon <boris.brezillon@collabora.com>
 To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
@@ -54,12 +54,12 @@ Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
  <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
  linux-kernel@vger.kernel.org, kernel@collabora.com,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 16/26] drm/virtio: Explicitly get and put drm-shmem
+Subject: Re: [PATCH v18 17/26] drm/v3d: Explicitly get and put drm-shmem
  pages
-Message-ID: <20231110115913.48f5672b@collabora.com>
-In-Reply-To: <20231029230205.93277-17-dmitry.osipenko@collabora.com>
+Message-ID: <20231110120123.65f399af@collabora.com>
+In-Reply-To: <20231029230205.93277-18-dmitry.osipenko@collabora.com>
 References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-17-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-18-dmitry.osipenko@collabora.com>
 Organization: Collabora
 X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -71,56 +71,55 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 30 Oct 2023 02:01:55 +0300
+On Mon, 30 Oct 2023 02:01:56 +0300
 Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-> We're moving away from implicit get_pages() that is done by
-> get_pages_sgt() to simplify the refcnt handling. Drivers will have
-> to pin pages while they use sgt. VirtIO-GPU doesn't support shrinker,
-> hence pages are pinned and sgt is valid as long as pages' use-count > 0.
+> To simplify the drm-shmem refcnt handling, we're moving away from
+> the implicit get_pages() that is used by get_pages_sgt(). From now on
+> drivers will have to pin pages while they use sgt. V3D driver doesn't
+> support shrinker, hence pages are pinned and sgt is valid as long as
+> pages' use-count > 0.
 > 
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
 Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
 
 > ---
->  drivers/gpu/drm/virtio/virtgpu_object.c | 9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/v3d/v3d_bo.c | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-> index ee5d2a70656b..998f8b05ceb1 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -67,6 +67,7 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+> diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
+> index 42cd874f6810..0597c6b01b6c 100644
+> --- a/drivers/gpu/drm/v3d/v3d_bo.c
+> +++ b/drivers/gpu/drm/v3d/v3d_bo.c
+> @@ -47,6 +47,9 @@ void v3d_free_object(struct drm_gem_object *obj)
+>  	/* GPU execution may have dirtied any pages in the BO. */
+>  	bo->base.pages_mark_dirty_on_put = true;
 >  
->  	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
->  	if (virtio_gpu_is_shmem(bo)) {
+> +	if (!obj->import_attach)
 > +		drm_gem_shmem_put_pages(&bo->base);
->  		drm_gem_shmem_free(&bo->base);
->  	} else if (virtio_gpu_is_vram(bo)) {
->  		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
-> @@ -196,9 +197,13 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->  		return PTR_ERR(shmem_obj);
->  	bo = gem_to_virtio_gpu_obj(&shmem_obj->base);
->  
-> +	ret = drm_gem_shmem_get_pages(shmem_obj);
-> +	if (ret)
-> +		goto err_free_gem;
 > +
->  	ret = virtio_gpu_resource_id_get(vgdev, &bo->hw_res_handle);
->  	if (ret < 0)
-> -		goto err_free_gem;
-> +		goto err_put_pages;
+>  	drm_gem_shmem_free(&bo->base);
+>  }
 >  
->  	bo->dumb = params->dumb;
+> @@ -135,12 +138,18 @@ struct v3d_bo *v3d_bo_create(struct drm_device *dev, struct drm_file *file_priv,
+>  		return ERR_CAST(shmem_obj);
+>  	bo = to_v3d_bo(&shmem_obj->base);
 >  
-> @@ -243,6 +248,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->  	kvfree(ents);
->  err_put_id:
->  	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
-> +err_put_pages:
+> -	ret = v3d_bo_create_finish(&shmem_obj->base);
+> +	ret = drm_gem_shmem_get_pages(shmem_obj);
+>  	if (ret)
+>  		goto free_obj;
+>  
+> +	ret = v3d_bo_create_finish(&shmem_obj->base);
+> +	if (ret)
+> +		goto put_pages;
+> +
+>  	return bo;
+>  
+> +put_pages:
 > +	drm_gem_shmem_put_pages(shmem_obj);
->  err_free_gem:
+>  free_obj:
 >  	drm_gem_shmem_free(shmem_obj);
->  	return ret;
+>  	return ERR_PTR(ret);
 
