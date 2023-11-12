@@ -1,136 +1,391 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9FCA3C6BF
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 22:18:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0E0D440E
+	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 04:24:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="V2J+ToTR"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hRRFuWbW"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8D38A42851
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 22:18:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8D38A42851
+	by smtp4.osuosl.org (Postfix) with ESMTP id 121A241B39
+	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 04:24:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 121A241B39
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=V2J+ToTR
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=hRRFuWbW
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -7.101
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9vl-MkBzFOdB
+	with ESMTP id g7jauPRpwv8Q
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 10 Nov 2023 22:18:28 +0000 (UTC)
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on20610.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e8d::610])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C43284284D
-	for <virtualization@lists.linux-foundation.org>; Fri, 10 Nov 2023 22:18:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C43284284D
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BRYc5riP1JJRFMyfBWpkN8gwbfm7nh7o92tvkWW7fcCD04WyoFh1Ggjl4uNRvA/gsnQE4VKMfnAq3AM/FdbMgIqnDjJ39grgS3YpeUXIFhQogSWbDjlDEaWiqJNPWq0TeVEo/QmWKXUGUHjJ3CZTuI30/qYIZL8XDHS9faI9mDgiXguzKtqVfgRLao0stiO+xH1DaJoR80Ffh6WYNbi+9kvctKLpb1KrQAweTcCjMqt7XWg2WXBb9szkVG3qLt7KqZV1GrZdV6ixW0hJy4VcbCTNrmqi7txzMbEkK1HD2gbKj4YniG09HP6lhX6FqN+UcJOJTTF6vQrCOwC8NafmzQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PK1Lh/+MaB4xCiLg6Vj2v6CeGe6bwCBv3dvOleIjXHU=;
- b=U6Ivsev+GKC8Glg9L7tskThkoS8hZg6J2UuJTCHE+QGWP1VXxkzz4Ki4eDYOrBfyL24IebhjuYfMFsJcV0X7xO9Idt1hGmZCu6LBsIoLpL+4MChqtX8M/oC6xeHLtXZhqehKFRBcFk0/8Hc/9W/V6PUh1ZjdI+rntDP0+tSNEgNOgtpldiAdec6a7irQMr/xwG0RRryElXmT6lUiyBMaUUMeqO3GQz9+n5EkM6ahGwQP5QCi27SLIXkD8/jPfxI5CRpQyP+liOPQizEJsMYb3e6uyyMDgfcIfV8UZVLofpLfK/pC2vXjKanbjXvMvIwmt0c3TANjlk0VxtoBZ7eUhQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PK1Lh/+MaB4xCiLg6Vj2v6CeGe6bwCBv3dvOleIjXHU=;
- b=V2J+ToTRUHGEFxdSS8aGHHM22XhFBJ9bXAaL5iKGUNoXckVNLlfAc6xJuCFpOCa4EeEUvnwFo2G06G9m9Soz6j+8sc8+03u1kMDKodXnwTYhfrNDe+xPpMh5N5x4GSvSAaBfeE7Rv4tNknkRI8ubW5P3Ansai5PqQXkvo6bvqHU=
-Received: from SJ0PR03CA0156.namprd03.prod.outlook.com (2603:10b6:a03:338::11)
- by CH3PR12MB8879.namprd12.prod.outlook.com (2603:10b6:610:171::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6977.18; Fri, 10 Nov
- 2023 22:18:23 +0000
-Received: from MWH0EPF000989E7.namprd02.prod.outlook.com
- (2603:10b6:a03:338:cafe::49) by SJ0PR03CA0156.outlook.office365.com
- (2603:10b6:a03:338::11) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6977.19 via Frontend
- Transport; Fri, 10 Nov 2023 22:18:23 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- MWH0EPF000989E7.mail.protection.outlook.com (10.167.241.134) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6977.21 via Frontend Transport; Fri, 10 Nov 2023 22:18:22 +0000
-Received: from driver-dev1.pensando.io (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.32; Fri, 10 Nov
- 2023 16:18:21 -0600
-From: Shannon Nelson <shannon.nelson@amd.com>
-To: <jasowang@redhat.com>, <mst@redhat.com>,
-	<virtualization@lists.linux-foundation.org>, <shannon.nelson@amd.com>,
-	<brett.creeley@amd.com>
-CC: <lkp@intel.com>, <drivers@pensando.io>
-Subject: [PATCH virtio 3/3] pds_vdpa: set features order
-Date: Fri, 10 Nov 2023 14:18:02 -0800
-Message-ID: <20231110221802.46841-4-shannon.nelson@amd.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20231110221802.46841-1-shannon.nelson@amd.com>
-References: <20231110221802.46841-1-shannon.nelson@amd.com>
+	Sun, 12 Nov 2023 04:24:12 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 807B741B2F
+	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 04:24:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 807B741B2F
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 1A4A960BFF
+	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 04:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B67A3C433CB
+	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 04:24:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1699763050;
+	bh=eyaFGEhiGJK4ias2UMHUe7vz2gLtyF3bFQKBmE5Rll8=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=hRRFuWbWJuQM1VyPdP2GOmZRYxxw9SjhEl/6Opab2G/cbOLxZpK11HgYFUpgZ9PWT
+	 hthMOf0MZ9fUUM2UeKmpZZEONvzPqQ3w3tVVzFIG7HprQgzMYZyxAREo0Q1v7nqnQ8
+	 wNJotqBG516n24jYXdBTv5hUQtlB9jdeAH+YIPE9A+1aetnKURbLxHyzz2HokOmZB8
+	 DA342nuxf6zrMWIoWZr2iIAjJ2Aa0tiPNkNbg7at/DH4KFOPHP4NSB+BfvQ1N6JaJn
+	 UPwQca4qDOtpS2IMvqBSu9pqMq3fPu2HLZy9CNTi69ZD60Ow2Y3FccB6KC0ZLjWYok
+	 0gvVtbQOILrdQ==
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-540c54944c4so6839427a12.1
+        for <virtualization@lists.linux-foundation.org>; Sat, 11 Nov 2023 20:24:10 -0800 (PST)
+X-Gm-Message-State: AOJu0Yx7PssI2yqwDsYLXDaWfohjVT9ik22nihPh00n90NpLJXW2k5Px
+	jyOGS/BRUjddjs9NrC+lCPoPONT4S9NZr01DPKk=
+X-Google-Smtp-Source: AGHT+IEMuZQVCXD+DoCKbqdPvWLb2VfuWAbh8lz2pXWDCLTsFeJPEhmxB5yM8aRn/MgoSWxD2fJgeCm6roC/SM/ZDgA=
+X-Received: by 2002:a50:ee91:0:b0:545:5601:414d with SMTP id
+ f17-20020a50ee91000000b005455601414dmr3379939edr.17.1699763049161; Sat, 11
+ Nov 2023 20:24:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000989E7:EE_|CH3PR12MB8879:EE_
-X-MS-Office365-Filtering-Correlation-Id: a8dc46e8-4278-4bae-e933-08dbe23af3d9
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	rqmGeve/w7rficKX0nF3xByFusTjVyrrOUUritCsSyuyZPBGJk8mBWYAXUNTBjJvv7dlWMEFFoQsmbxlinElnvzfWaWl2id13FfMvNzhsjXgWIfnmOsXSSl6mD2d1ATbtUW3Xmpjuj1hDM3+j76tfQvK1zN3yKk6On2cU3W9d/g9fOuEkyjlmsYc7wQu3Drj7WGlwGagmgatNpZuA67UhG5ogPfLjtjXILLAh/1vgPoBsODNo8TubjOCXQuOcfT+KPVj5qjRH9Zb5m0AXs2Zbl6+Ia1bLLH6HKg63ouZxkA9PLKzij/AWcHA9JFp59oE1a4mII9iKkvug8Y2FMn4eNi2k0o1ZL+7Dd3roZuA5Wr4WLiLT+AwSU00z3pwm1mK32wwSEdfJFvIzmXqqQRskpdtXqdFhxC0Wn4blbO3o0ovLN2BkFI/8K7k9qLUAqfEV+bYK41Z+a3v0LZztrSTEkbeuqpCW+aUq/ERW/DHb1mIUbBKBnshLdIyma8ukP4HSdD5AL2vK+9SfPPcX1ZEeuXUDaoKYsQlJoI1l7MIIIzF675IE03XbHCpAdQEt9gkeWv/xB2FFw1oAAZbEP4j10qMCBRgy/oA4DxI9xTJBCJMVFmhL0DSy3anefPnmuJ5gaDyWkThTMs63EnYYL/uyncx71PBkRn4ib965A8emLNM03qFdpg9+I19pFJtEgZBp88yyM8Ll/SeaCOlF27FzxzJVGZ+d7G7hrqORJ1QeCUCgyqdVHlB6yFtxXt+O5fmVSlK9YfvLh0WnKat9Am1Wg==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(136003)(346002)(39860400002)(376002)(396003)(230922051799003)(64100799003)(186009)(1800799009)(451199024)(82310400011)(36840700001)(46966006)(40470700004)(5660300002)(40460700003)(40480700001)(2616005)(6666004)(478600001)(36860700001)(36756003)(70206006)(356005)(81166007)(86362001)(82740400003)(16526019)(44832011)(83380400001)(54906003)(110136005)(47076005)(41300700001)(4744005)(426003)(26005)(2906002)(336012)(70586007)(8936002)(6636002)(1076003)(316002)(4326008)(8676002)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Nov 2023 22:18:22.7525
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a8dc46e8-4278-4bae-e933-08dbe23af3d9
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000989E7.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8879
+References: <20230910082911.3378782-1-guoren@kernel.org> <ZUlPwQVG4OTkighB@redhat.com>
+In-Reply-To: <ZUlPwQVG4OTkighB@redhat.com>
+From: Guo Ren <guoren@kernel.org>
+Date: Sat, 11 Nov 2023 23:23:57 -0500
+X-Gmail-Original-Message-ID: <CAJF2gTSY5dO3iTxidiXSrAyWRRnjsW3WsFZASDpmw0P70rfVvA@mail.gmail.com>
+Message-ID: <CAJF2gTSY5dO3iTxidiXSrAyWRRnjsW3WsFZASDpmw0P70rfVvA@mail.gmail.com>
+Subject: Re: [PATCH V11 00/17] riscv: Add Native/Paravirt qspinlock support
+To: Leonardo Bras <leobras@redhat.com>
+Cc: paul.walmsley@sifive.com, anup@brainfault.org, peterz@infradead.org, 
+	mingo@redhat.com, will@kernel.org, palmer@rivosinc.com, longman@redhat.com, 
+	boqun.feng@gmail.com, tglx@linutronix.de, paulmck@kernel.org, 
+	rostedt@goodmis.org, rdunlap@infradead.org, catalin.marinas@arm.com, 
+	conor.dooley@microchip.com, xiaoguang.xing@sophgo.com, bjorn@rivosinc.com, 
+	alexghiti@rivosinc.com, keescook@chromium.org, greentime.hu@sifive.com, 
+	ajones@ventanamicro.com, jszhang@kernel.org, wefu@redhat.com, 
+	wuwei2016@iscas.ac.cn, linux-arch@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, linux-doc@vger.kernel.org, 
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	linux-csky@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Fix up the order that the device and negotiated features
-are checked to get a more reliable difference when things
-get changed.
+On Mon, Nov 6, 2023 at 3:42=E2=80=AFPM Leonardo Bras <leobras@redhat.com> w=
+rote:
+>
+> On Sun, Sep 10, 2023 at 04:28:54AM -0400, guoren@kernel.org wrote:
+> > From: Guo Ren <guoren@linux.alibaba.com>
+> >
+> > patch[1 - 10]: Native   qspinlock
+> > patch[11 -17]: Paravirt qspinlock
+> >
+> > patch[4]: Add prefetchw in qspinlock's xchg_tail when cpus >=3D 16k
+> >
+> > This series based on:
+> >  - [RFC PATCH v5 0/5] Rework & improve riscv cmpxchg.h and atomic.h
+> >    https://lore.kernel.org/linux-riscv/20230810040349.92279-2-leobras@r=
+edhat.com/
+> >  - [PATCH V3] asm-generic: ticket-lock: Optimize arch_spin_value_unlock=
+ed
+> >    https://lore.kernel.org/linux-riscv/20230908154339.3250567-1-guoren@=
+kernel.org/
+> >
+> > I merge them into sg2042-master branch, then you could directly try it =
+on
+> > sg2042 hardware platform:
+> >
+> > https://github.com/guoren83/linux/tree/sg2042-master-qspinlock-64ilp32_=
+v5
+> >
+> > Use sophgo_mango_ubuntu_defconfig for sg2042 64/128 cores hardware
+> > platform.
+> >
+> > Native qspinlock
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >
+> > This time we've proved the qspinlock on th1520 [1] & sg2042 [2], which
+> > gives stability and performance improvement. All T-HEAD processors have
+> > a strong LR/SC forward progress guarantee than the requirements of the
+> > ISA, which could satisfy the xchg_tail of native_qspinlock. Now,
+> > qspinlock has been run with us for more than 1 year, and we have enough
+> > confidence to enable it for all the T-HEAD processors. Of causes, we
+> > found a livelock problem with the qspinlock lock torture test from the
+> > CPU store merge buffer delay mechanism, which caused the queued spinloc=
+k
+> > becomes a dead ring and RCU warning to come out. We introduce a custom
+> > WRITE_ONCE to solve this. Do we need explicit ISA instruction to signal
+> > it? Or let hardware handle this.
+> >
+> > We've tested the patch on SOPHGO sg2042 & th1520 and passed the stress
+> > test on Fedora & Ubuntu & OpenEuler ... Here is the performance
+> > comparison between qspinlock and ticket_lock on sg2042 (64 cores):
+> >
+> > sysbench test=3Dthreads threads=3D32 yields=3D100 lock=3D8 (+13.8%):
+> >   queued_spinlock 0.5109/0.00
+> >   ticket_spinlock 0.5814/0.00
+> >
+> > perf futex/hash (+6.7%):
+> >   queued_spinlock 1444393 operations/sec (+- 0.09%)
+> >   ticket_spinlock 1353215 operations/sec (+- 0.15%)
+> >
+> > perf futex/wake-parallel (+8.6%):
+> >   queued_spinlock (waking 1/64 threads) in 0.0253 ms (+-2.90%)
+> >   ticket_spinlock (waking 1/64 threads) in 0.0275 ms (+-3.12%)
+> >
+> > perf futex/requeue (+4.2%):
+> >   queued_spinlock Requeued 64 of 64 threads in 0.0785 ms (+-0.55%)
+> >   ticket_spinlock Requeued 64 of 64 threads in 0.0818 ms (+-4.12%)
+> >
+> > System Benchmarks (+6.4%)
+> >   queued_spinlock:
+> >     System Benchmarks Index Values               BASELINE       RESULT =
+   INDEX
+> >     Dhrystone 2 using register variables         116700.0  628613745.4 =
+ 53865.8
+> >     Double-Precision Whetstone                       55.0     182422.8 =
+ 33167.8
+> >     Execl Throughput                                 43.0      13116.6 =
+  3050.4
+> >     File Copy 1024 bufsize 2000 maxblocks          3960.0    7762306.2 =
+ 19601.8
+> >     File Copy 256 bufsize 500 maxblocks            1655.0    3417556.8 =
+ 20649.9
+> >     File Copy 4096 bufsize 8000 maxblocks          5800.0    7427995.7 =
+ 12806.9
+> >     Pipe Throughput                               12440.0   23058600.5 =
+ 18535.9
+> >     Pipe-based Context Switching                   4000.0    2835617.7 =
+  7089.0
+> >     Process Creation                                126.0      12537.3 =
+   995.0
+> >     Shell Scripts (1 concurrent)                     42.4      57057.4 =
+ 13456.9
+> >     Shell Scripts (8 concurrent)                      6.0       7367.1 =
+ 12278.5
+> >     System Call Overhead                          15000.0   33308301.3 =
+ 22205.5
+> >                                                                        =
+=3D=3D=3D=3D=3D=3D=3D=3D
+> >     System Benchmarks Index Score                                      =
+ 12426.1
+> >
+> >   ticket_spinlock:
+> >     System Benchmarks Index Values               BASELINE       RESULT =
+   INDEX
+> >     Dhrystone 2 using register variables         116700.0  626541701.9 =
+ 53688.2
+> >     Double-Precision Whetstone                       55.0     181921.0 =
+ 33076.5
+> >     Execl Throughput                                 43.0      12625.1 =
+  2936.1
+> >     File Copy 1024 bufsize 2000 maxblocks          3960.0    6553792.9 =
+ 16550.0
+> >     File Copy 256 bufsize 500 maxblocks            1655.0    3189231.6 =
+ 19270.3
+> >     File Copy 4096 bufsize 8000 maxblocks          5800.0    7221277.0 =
+ 12450.5
+> >     Pipe Throughput                               12440.0   20594018.7 =
+ 16554.7
+> >     Pipe-based Context Switching                   4000.0    2571117.7 =
+  6427.8
+> >     Process Creation                                126.0      10798.4 =
+   857.0
+> >     Shell Scripts (1 concurrent)                     42.4      57227.5 =
+ 13497.1
+> >     Shell Scripts (8 concurrent)                      6.0       7329.2 =
+ 12215.3
+> >     System Call Overhead                          15000.0   30766778.4 =
+ 20511.2
+> >                                                                        =
+=3D=3D=3D=3D=3D=3D=3D=3D
+> >     System Benchmarks Index Score                                      =
+ 11670.7
+> >
+> > The qspinlock has a significant improvement on SOPHGO SG2042 64
+> > cores platform than the ticket_lock.
+> >
+> > Paravirt qspinlock
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >
+> > We implemented kvm_kick_cpu/kvm_wait_cpu and add tracepoints to observe=
+ the
+> > behaviors. Also, introduce a new SBI extension SBI_EXT_PVLOCK (0xAB0401=
+). If the
+> > name and number are approved, I will send a formal proposal to the SBI =
+spec.
+> >
+>
+> Hello Guo Ren,
+>
+> Any update on this series?
+Found a nested virtualization problem, and I'm solving that. After
+that, I'll update v12.
 
-Signed-off-by: Shannon Nelson <shannon.nelson@amd.com>
----
- drivers/vdpa/pds/vdpa_dev.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> Thanks!
+> Leo
+>
+>
+> > Changlog:
+> > V11:
+> >  - Based on Leonardo Bras's cmpxchg_small patches v5.
+> >  - Based on Guo Ren's Optimize arch_spin_value_unlocked patch v3.
+> >  - Remove abusing alternative framework and use jump_label instead.
+> >  - Introduce prefetch.w to improve T-HEAD processors' LR/SC forward pro=
+gress
+> >    guarantee.
+> >  - Optimize qspinlock xchg_tail when NR_CPUS >=3D 16K.
+> >
+> > V10:
+> > https://lore.kernel.org/linux-riscv/20230802164701.192791-1-guoren@kern=
+el.org/
+> >  - Using an alternative framework instead of static_key_branch in the
+> >    asm/spinlock.h.
+> >  - Fixup store merge buffer problem, which causes qspinlock lock
+> >    torture test livelock.
+> >  - Add paravirt qspinlock support, include KVM backend
+> >  - Add Compact NUMA-awared qspinlock support
+> >
+> > V9:
+> > https://lore.kernel.org/linux-riscv/20220808071318.3335746-1-guoren@ker=
+nel.org/
+> >  - Cleanup generic ticket-lock code, (Using smp_mb__after_spinlock as
+> >    RCsc)
+> >  - Add qspinlock and combo-lock for riscv
+> >  - Add qspinlock to openrisc
+> >  - Use generic header in csky
+> >  - Optimize cmpxchg & atomic code
+> >
+> > V8:
+> > https://lore.kernel.org/linux-riscv/20220724122517.1019187-1-guoren@ker=
+nel.org/
+> >  - Coding convention ticket fixup
+> >  - Move combo spinlock into riscv and simply asm-generic/spinlock.h
+> >  - Fixup xchg16 with wrong return value
+> >  - Add csky qspinlock
+> >  - Add combo & qspinlock & ticket-lock comparison
+> >  - Clean up unnecessary riscv acquire and release definitions
+> >  - Enable ARCH_INLINE_READ*/WRITE*/SPIN* for riscv & csky
+> >
+> > V7:
+> > https://lore.kernel.org/linux-riscv/20220628081946.1999419-1-guoren@ker=
+nel.org/
+> >  - Add combo spinlock (ticket & queued) support
+> >  - Rename ticket_spinlock.h
+> >  - Remove unnecessary atomic_read in ticket_spin_value_unlocked
+> >
+> > V6:
+> > https://lore.kernel.org/linux-riscv/20220621144920.2945595-1-guoren@ker=
+nel.org/
+> >  - Fixup Clang compile problem Reported-by: kernel test robot
+> >  - Cleanup asm-generic/spinlock.h
+> >  - Remove changelog in patch main comment part, suggested by
+> >    Conor.Dooley
+> >  - Remove "default y if NUMA" in Kconfig
+> >
+> > V5:
+> > https://lore.kernel.org/linux-riscv/20220620155404.1968739-1-guoren@ker=
+nel.org/
+> >  - Update comment with RISC-V forward guarantee feature.
+> >  - Back to V3 direction and optimize asm code.
+> >
+> > V4:
+> > https://lore.kernel.org/linux-riscv/1616868399-82848-4-git-send-email-g=
+uoren@kernel.org/
+> >  - Remove custom sub-word xchg implementation
+> >  - Add ARCH_USE_QUEUED_SPINLOCKS_XCHG32 in locking/qspinlock
+> >
+> > V3:
+> > https://lore.kernel.org/linux-riscv/1616658937-82063-1-git-send-email-g=
+uoren@kernel.org/
+> >  - Coding convention by Peter Zijlstra's advices
+> >
+> > V2:
+> > https://lore.kernel.org/linux-riscv/1606225437-22948-2-git-send-email-g=
+uoren@kernel.org/
+> >  - Coding convention in cmpxchg.h
+> >  - Re-implement short xchg
+> >  - Remove char & cmpxchg implementations
+> >
+> > V1:
+> > https://lore.kernel.org/linux-riscv/20190211043829.30096-1-michaeljclar=
+k@mac.com/
+> >  - Using cmpxchg loop to implement sub-word atomic
+> >
+> >
+> > Guo Ren (17):
+> >   asm-generic: ticket-lock: Reuse arch_spinlock_t of qspinlock
+> >   asm-generic: ticket-lock: Move into ticket_spinlock.h
+> >   riscv: Use Zicbop in arch_xchg when available
+> >   locking/qspinlock: Improve xchg_tail for number of cpus >=3D 16k
+> >   riscv: qspinlock: Add basic queued_spinlock support
+> >   riscv: qspinlock: Introduce combo spinlock
+> >   riscv: qspinlock: Introduce qspinlock param for command line
+> >   riscv: qspinlock: Add virt_spin_lock() support for KVM guest
+> >   riscv: qspinlock: errata: Add ERRATA_THEAD_WRITE_ONCE fixup
+> >   riscv: qspinlock: errata: Enable qspinlock for T-HEAD processors
+> >   RISC-V: paravirt: pvqspinlock: Add paravirt qspinlock skeleton
+> >   RISC-V: paravirt: pvqspinlock: Add nopvspin kernel parameter
+> >   RISC-V: paravirt: pvqspinlock: Add SBI implementation
+> >   RISC-V: paravirt: pvqspinlock: Add kconfig entry
+> >   RISC-V: paravirt: pvqspinlock: Add trace point for pv_kick/wait
+> >   RISC-V: paravirt: pvqspinlock: KVM: Add paravirt qspinlock skeleton
+> >   RISC-V: paravirt: pvqspinlock: KVM: Implement
+> >     kvm_sbi_ext_pvlock_kick_cpu()
+> >
+> >  .../admin-guide/kernel-parameters.txt         |   8 +-
+> >  arch/riscv/Kconfig                            |  50 ++++++++
+> >  arch/riscv/Kconfig.errata                     |  19 +++
+> >  arch/riscv/errata/thead/errata.c              |  29 +++++
+> >  arch/riscv/include/asm/Kbuild                 |   2 +-
+> >  arch/riscv/include/asm/cmpxchg.h              |   4 +-
+> >  arch/riscv/include/asm/errata_list.h          |  13 --
+> >  arch/riscv/include/asm/hwcap.h                |   1 +
+> >  arch/riscv/include/asm/insn-def.h             |   5 +
+> >  arch/riscv/include/asm/kvm_vcpu_sbi.h         |   1 +
+> >  arch/riscv/include/asm/processor.h            |  13 ++
+> >  arch/riscv/include/asm/qspinlock.h            |  35 ++++++
+> >  arch/riscv/include/asm/qspinlock_paravirt.h   |  29 +++++
+> >  arch/riscv/include/asm/rwonce.h               |  24 ++++
+> >  arch/riscv/include/asm/sbi.h                  |  14 +++
+> >  arch/riscv/include/asm/spinlock.h             | 113 ++++++++++++++++++
+> >  arch/riscv/include/asm/vendorid_list.h        |  14 +++
+> >  arch/riscv/include/uapi/asm/kvm.h             |   1 +
+> >  arch/riscv/kernel/Makefile                    |   1 +
+> >  arch/riscv/kernel/cpufeature.c                |   1 +
+> >  arch/riscv/kernel/qspinlock_paravirt.c        |  83 +++++++++++++
+> >  arch/riscv/kernel/sbi.c                       |   2 +-
+> >  arch/riscv/kernel/setup.c                     |  60 ++++++++++
+> >  .../kernel/trace_events_filter_paravirt.h     |  60 ++++++++++
+> >  arch/riscv/kvm/Makefile                       |   1 +
+> >  arch/riscv/kvm/vcpu_sbi.c                     |   4 +
+> >  arch/riscv/kvm/vcpu_sbi_pvlock.c              |  57 +++++++++
+> >  include/asm-generic/rwonce.h                  |   2 +
+> >  include/asm-generic/spinlock.h                |  87 +-------------
+> >  include/asm-generic/spinlock_types.h          |  12 +-
+> >  include/asm-generic/ticket_spinlock.h         | 103 ++++++++++++++++
+> >  kernel/locking/qspinlock.c                    |   5 +-
+> >  32 files changed, 739 insertions(+), 114 deletions(-)
+> >  create mode 100644 arch/riscv/include/asm/qspinlock.h
+> >  create mode 100644 arch/riscv/include/asm/qspinlock_paravirt.h
+> >  create mode 100644 arch/riscv/include/asm/rwonce.h
+> >  create mode 100644 arch/riscv/include/asm/spinlock.h
+> >  create mode 100644 arch/riscv/kernel/qspinlock_paravirt.c
+> >  create mode 100644 arch/riscv/kernel/trace_events_filter_paravirt.h
+> >  create mode 100644 arch/riscv/kvm/vcpu_sbi_pvlock.c
+> >  create mode 100644 include/asm-generic/ticket_spinlock.h
+> >
+> > --
+> > 2.36.1
+> >
+>
 
-diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
-index 9fc89c82d1f0..25c0fe5ec3d5 100644
---- a/drivers/vdpa/pds/vdpa_dev.c
-+++ b/drivers/vdpa/pds/vdpa_dev.c
-@@ -318,9 +318,8 @@ static int pds_vdpa_set_driver_features(struct vdpa_device *vdpa_dev, u64 featur
- 		return -EOPNOTSUPP;
- 	}
- 
--	pdsv->negotiated_features = nego_features;
--
- 	driver_features = pds_vdpa_get_driver_features(vdpa_dev);
-+	pdsv->negotiated_features = nego_features;
- 	dev_dbg(dev, "%s: %#llx => %#llx\n",
- 		__func__, driver_features, nego_features);
- 
--- 
-2.17.1
 
+--=20
+Best Regards
+ Guo Ren
