@@ -1,41 +1,41 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C68A38466
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:41:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF0978475
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="C/i6Z8Sv"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="naLeBV79"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 497F641723
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:41:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 497F641723
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=C/i6Z8Sv
+	by smtp2.osuosl.org (Postfix) with ESMTP id 661B04016C
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 661B04016C
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=naLeBV79
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id itNEG27F65K8
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sWR-1UeUj9ys
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 13 Nov 2023 02:41:53 +0000 (UTC)
-Received: from smtp-8fad.mail.infomaniak.ch (smtp-8fad.mail.infomaniak.ch [IPv6:2001:1600:3:17::8fad])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DB0354171B
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:41:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB0354171B
+	Mon, 13 Nov 2023 02:42:30 +0000 (UTC)
+Received: from smtp-42aa.mail.infomaniak.ch (smtp-42aa.mail.infomaniak.ch [IPv6:2001:1600:4:17::42aa])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EC6DF40148
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org EC6DF40148
 Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-	by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCt95GW0zMq1KB;
-	Mon, 13 Nov 2023 02:24:17 +0000 (UTC)
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCt839JlzMpnPj;
-	Mon, 13 Nov 2023 03:24:16 +0100 (CET)
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtM4fDdzMpvbm;
+	Mon, 13 Nov 2023 02:24:27 +0000 (UTC)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtL2gRXzMpnPj;
+	Mon, 13 Nov 2023 03:24:26 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842257;
-	bh=PQNeiuyuaag6rY0/0aZvbY8DcQ+uJkpAZ3YhXfGbU/4=;
+	s=20191114; t=1699842267;
+	bh=ch9T7FXLfTJgFWbno30mYt9y51RERoKANoOanV/XFpA=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=C/i6Z8Svs7dAZPWHowQNO6lgYqfxZGIKRT4Rv+iVe68+nEKFccASjZlbdqodXOe1Q
-	 dwVNuK0bdmdi7h9FMblZ5QvHp8E1G+JUWSQCcbOCYk2XfDmL7p6wvj8iHnqyDwYJcQ
-	 tPLUIarjGKkAIHFzNY1thLtfdgMO1Vd24CZIiMHI=
+	b=naLeBV79e37SdDz+D/dS7uyrmwvygGCWlJc+XJuRQzMv5XfDFnAdIMM6Uid+A4GTN
+	 RAhlLTNQ/RTX6yjhoengNgNRl5DnbJYrC4WmjoGlHXKyNa50wVn5zQJnJq4Mtvmw+J
+	 D2bNNNOJvWidC6klDm91oW1hugsA6v5+ManBoxf4=
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -76,9 +76,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 06/19] KVM: x86: Add kvm_x86_ops.fault_gva()
-Date: Sun, 12 Nov 2023 21:23:13 -0500
-Message-ID: <20231113022326.24388-7-mic@digikod.net>
+Subject: [RFC PATCH v2 09/19] KVM: x86: Extend kvm_range_has_memory_attributes() with match_all
+Date: Sun, 12 Nov 2023 21:23:16 -0500
+Message-ID: <20231113022326.24388-10-mic@digikod.net>
 In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
 References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
@@ -91,117 +91,111 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Infomaniak-Routing: alpha
 
-This function is needed for kvm_mmu_page_fault() to create synthetic
-page faults.
+This enables to check if an attribute is tied to any memory page in a
+range. This will be useful in a folling commit to check for
+KVM_MEMORY_ATTRIBUTE_HEKI_IMMUTABLE.
 
-Code originally written by Mihai Donțu and Nicușor Cîțu:
-https://lore.kernel.org/r/20211006173113.26445-18-alazar@bitdefender.com
-Renamed fault_gla() to fault_gva() and use the new
-EPT_VIOLATION_GVA_IS_VALID.
-
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Chao Peng <chao.p.peng@linux.intel.com>
 Cc: Kees Cook <keescook@chromium.org>
 Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Sean Christopherson <seanjc@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Co-developed-by: Mihai Donțu <mdontu@bitdefender.com>
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Nicușor Cîțu <nicu.citu@icloud.com>
-Signed-off-by: Nicușor Cîțu <nicu.citu@icloud.com>
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
 Signed-off-by: Mickaël Salaün <mic@digikod.net>
 ---
- arch/x86/include/asm/kvm-x86-ops.h |  1 +
- arch/x86/include/asm/kvm_host.h    |  2 ++
- arch/x86/kvm/svm/svm.c             |  9 +++++++++
- arch/x86/kvm/vmx/vmx.c             | 10 ++++++++++
- 4 files changed, 22 insertions(+)
 
-diff --git a/arch/x86/include/asm/kvm-x86-ops.h b/arch/x86/include/asm/kvm-x86-ops.h
-index e3054e3e46d5..ba3db679db2b 100644
---- a/arch/x86/include/asm/kvm-x86-ops.h
-+++ b/arch/x86/include/asm/kvm-x86-ops.h
-@@ -134,6 +134,7 @@ KVM_X86_OP(msr_filter_changed)
- KVM_X86_OP(complete_emulated_msr)
- KVM_X86_OP(vcpu_deliver_sipi_vector)
- KVM_X86_OP_OPTIONAL_RET0(vcpu_get_apicv_inhibit_reasons);
-+KVM_X86_OP(fault_gva)
+Changes since v1:
+* New patch
+---
+ arch/x86/kvm/mmu/mmu.c   |  2 +-
+ include/linux/kvm_host.h |  2 +-
+ virt/kvm/kvm_main.c      | 27 ++++++++++++++++++---------
+ 3 files changed, 20 insertions(+), 11 deletions(-)
+
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index d7010e09440d..2024ff21d036 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7279,7 +7279,7 @@ static bool hugepage_has_attrs(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 	const unsigned long end = start + KVM_PAGES_PER_HPAGE(level);
  
- #undef KVM_X86_OP
- #undef KVM_X86_OP_OPTIONAL
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index dff10051e9b6..0415dacd4b28 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1750,6 +1750,8 @@ struct kvm_x86_ops {
- 	 * Returns vCPU specific APICv inhibit reasons
- 	 */
- 	unsigned long (*vcpu_get_apicv_inhibit_reasons)(struct kvm_vcpu *vcpu);
-+
-+	u64 (*fault_gva)(struct kvm_vcpu *vcpu);
- };
+ 	if (level == PG_LEVEL_2M)
+-		return kvm_range_has_memory_attributes(kvm, start, end, attrs);
++		return kvm_range_has_memory_attributes(kvm, start, end, attrs, true);
  
- struct kvm_x86_nested_ops {
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index beea99c8e8e0..d32517a2cf9c 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4906,6 +4906,13 @@ static int svm_vm_init(struct kvm *kvm)
- 	return 0;
+ 	for (gfn = start; gfn < end; gfn += KVM_PAGES_PER_HPAGE(level - 1)) {
+ 		if (hugepage_test_mixed(slot, gfn, level - 1) ||
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index de68390ab0f2..9ecb016a336f 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -2391,7 +2391,7 @@ static inline unsigned long kvm_get_memory_attributes(struct kvm *kvm, gfn_t gfn
  }
  
-+static u64 svm_fault_gva(struct kvm_vcpu *vcpu)
-+{
-+	const struct vcpu_svm *svm = to_svm(vcpu);
-+
-+	return svm->vcpu.arch.cr2 ? svm->vcpu.arch.cr2 : ~0ull;
-+}
-+
- static struct kvm_x86_ops svm_x86_ops __initdata = {
- 	.name = KBUILD_MODNAME,
+ bool kvm_range_has_memory_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+-				     unsigned long attrs);
++				     unsigned long attrs, bool match_all);
+ bool kvm_arch_pre_set_memory_attributes(struct kvm *kvm,
+ 					struct kvm_gfn_range *range);
+ bool kvm_arch_post_set_memory_attributes(struct kvm *kvm,
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index e2c178db17d5..67dbaaf40c1c 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2435,11 +2435,11 @@ static int kvm_vm_ioctl_clear_dirty_log(struct kvm *kvm,
  
-@@ -5037,6 +5044,8 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
- 
- 	.vcpu_deliver_sipi_vector = svm_vcpu_deliver_sipi_vector,
- 	.vcpu_get_apicv_inhibit_reasons = avic_vcpu_get_apicv_inhibit_reasons,
-+
-+	.fault_gva = svm_fault_gva,
- };
- 
+ #ifdef CONFIG_KVM_GENERIC_MEMORY_ATTRIBUTES
  /*
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 1b1581f578b0..a8158bc1dda9 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -8233,6 +8233,14 @@ static void vmx_vm_destroy(struct kvm *kvm)
- 	free_pages((unsigned long)kvm_vmx->pid_table, vmx_get_pid_table_order(kvm));
- }
+- * Returns true if _all_ gfns in the range [@start, @end) have attributes
+- * matching the @attrs bitmask.
++ * According to @match_all, returns true if _all_ (respectively _any_) gfns in
++ * the range [@start, @end) have attributes matching the @attrs bitmask.
+  */
+ bool kvm_range_has_memory_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+-				     unsigned long attrs)
++				     unsigned long attrs, bool match_all)
+ {
+ 	XA_STATE(xas, &kvm->mem_attr_array, start);
+ 	unsigned long index;
+@@ -2453,16 +2453,25 @@ bool kvm_range_has_memory_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 		goto out;
+ 	}
  
-+static u64 vmx_fault_gva(struct kvm_vcpu *vcpu)
-+{
-+	if (vcpu->arch.exit_qualification & EPT_VIOLATION_GVA_IS_VALID)
-+		return vmcs_readl(GUEST_LINEAR_ADDRESS);
-+
-+	return ~0ull;
-+}
-+
- static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.name = KBUILD_MODNAME,
+-	has_attrs = true;
++	has_attrs = match_all;
+ 	for (index = start; index < end; index++) {
+ 		do {
+ 			entry = xas_next(&xas);
+ 		} while (xas_retry(&xas, entry));
  
-@@ -8373,6 +8381,8 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.complete_emulated_msr = kvm_complete_insn_gp,
+-		if (xas.xa_index != index ||
+-		    (xa_to_value(entry) & attrs) != attrs) {
+-			has_attrs = false;
+-			break;
++		if (match_all) {
++			if (xas.xa_index != index ||
++			    (xa_to_value(entry) & attrs) != attrs) {
++				has_attrs = false;
++				break;
++			}
++		} else {
++			index = xas.xa_index;
++			if (index < end &&
++			    (xa_to_value(entry) & attrs) == attrs) {
++				has_attrs = true;
++				break;
++			}
+ 		}
+ 	}
  
- 	.vcpu_deliver_sipi_vector = kvm_vcpu_deliver_sipi_vector,
-+
-+	.fault_gva = vmx_fault_gva,
- };
+@@ -2578,7 +2587,7 @@ int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 	lockdep_assert_held(&kvm->slots_arch_lock);
  
- static unsigned int vmx_handle_intel_pt_intr(void)
+ 	/* Nothing to do if the entire range as the desired attributes. */
+-	if (kvm_range_has_memory_attributes(kvm, start, end, attributes))
++	if (kvm_range_has_memory_attributes(kvm, start, end, attributes, true))
+ 		return r;
+ 
+ 	/*
 -- 
 2.42.1
 
