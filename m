@@ -1,41 +1,41 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 739211A595
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CD5B1C2B7
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="tSrGiLtu"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="vrln9/b4"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 74A968202C
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4B2DC416FA
 	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 74A968202C
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=tSrGiLtu
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4B2DC416FA
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=vrln9/b4
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DExLPEW5Zt9v
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Yw9zasn0mYaL
 	for <virtualization@lists.linux-foundation.org>;
 	Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
-Received: from smtp-190a.mail.infomaniak.ch (smtp-190a.mail.infomaniak.ch [IPv6:2001:1600:4:17::190a])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E20F82032
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E20F82032
-Received: from smtp-3-0000.mail.infomaniak.ch (unknown [10.4.36.107])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCts44SJzMpvdP;
-	Mon, 13 Nov 2023 02:24:53 +0000 (UTC)
-Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtr2nMzz3W;
-	Mon, 13 Nov 2023 03:24:52 +0100 (CET)
+Received: from smtp-42a8.mail.infomaniak.ch (smtp-42a8.mail.infomaniak.ch [IPv6:2001:1600:4:17::42a8])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1B1654171B
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1B1654171B
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtJ0ZdVzMpvZk;
+	Mon, 13 Nov 2023 02:24:24 +0000 (UTC)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtG6J2GzMpnPd;
+	Mon, 13 Nov 2023 03:24:22 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842293;
-	bh=xCal4QiPzuyoIMCQ55fNeQ6igvrqyER4Ogi9VJWigXw=;
+	s=20191114; t=1699842263;
+	bh=oVoPkAWjPfqZGemyyPZ53MkaSuuZZCG0BkbPtJbgAiE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=tSrGiLtuSOlTibjuVDi1SgaJbkgBVfdywQJICFGMkZZbetDA86MTLx1CUJrtURSJN
-	 PCIUP107oOKIFocIkyU1oVto05PKP3vEUaLGG4TW793G5zq8LWUqWguccvZHAbm47M
-	 LggTT2pvie45aa6Z33u6iroI0xd/t/vhEQdIBxuk=
+	b=vrln9/b46q/IyvbLiM7gr/pjSy6nNAlaXyCcWrkwCHL76184CKYv4PInqVYTmM3XU
+	 usQOOb2erA5xMR73/PzeYEi/AVI+wGVine2Q4AcSnr9lSM8X4meSz+MPB7uM5eZm7x
+	 SS5OjADjVFHRajKr3cVBhD/5XC7T3gtprqTK5mks=
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -76,9 +76,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 16/19] heki: x86: Update permissions counters when guest page permissions change
-Date: Sun, 12 Nov 2023 21:23:23 -0500
-Message-ID: <20231113022326.24388-17-mic@digikod.net>
+Subject: [RFC PATCH v2 08/19] KVM: x86: Extend kvm_vm_set_mem_attributes() with a mask
+Date: Sun, 12 Nov 2023 21:23:15 -0500
+Message-ID: <20231113022326.24388-9-mic@digikod.net>
 In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
 References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
@@ -91,249 +91,140 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Infomaniak-Routing: alpha
 
-From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Enable to only update a subset of attributes.
 
-When permissions are changed on an existing mapping, update the
-permissions counters.
+This is needed to be able to use the XArray for different use cases and
+make sure they don't interfere (see a following commit).
 
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Chao Peng <chao.p.peng@linux.intel.com>
 Cc: Kees Cook <keescook@chromium.org>
 Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Mickaël Salaün <mic@digikod.net>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Sean Christopherson <seanjc@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 ---
 
 Changes since v1:
 * New patch
 ---
- arch/x86/mm/heki.c           |  9 +++++++
- arch/x86/mm/pat/set_memory.c | 51 ++++++++++++++++++++++++++++++++++++
- include/linux/heki.h         | 14 ++++++++++
- virt/heki/counters.c         | 23 ++++++++++++++++
- 4 files changed, 97 insertions(+)
+ arch/x86/kvm/mmu/mmu.c   |  2 +-
+ include/linux/kvm_host.h |  2 +-
+ virt/kvm/kvm_main.c      | 27 +++++++++++++++++++--------
+ 3 files changed, 21 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/mm/heki.c b/arch/x86/mm/heki.c
-index c495df0d8772..c0eace9e343f 100644
---- a/arch/x86/mm/heki.c
-+++ b/arch/x86/mm/heki.c
-@@ -54,3 +54,12 @@ unsigned long heki_flags_to_permissions(unsigned long flags)
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 4d378d308762..d7010e09440d 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7283,7 +7283,7 @@ static bool hugepage_has_attrs(struct kvm *kvm, struct kvm_memory_slot *slot,
  
- 	return permissions;
- }
-+
-+void heki_pgprot_to_permissions(pgprot_t prot, unsigned long *set,
-+				unsigned long *clear)
-+{
-+	if (pgprot_val(prot) & _PAGE_RW)
-+		*set |= MEM_ATTR_WRITE;
-+	if (pgprot_val(prot) & _PAGE_NX)
-+		*clear |= MEM_ATTR_EXEC;
-+}
-diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index bda9f129835e..6aaa1ce5692c 100644
---- a/arch/x86/mm/pat/set_memory.c
-+++ b/arch/x86/mm/pat/set_memory.c
-@@ -22,6 +22,7 @@
- #include <linux/cc_platform.h>
- #include <linux/set_memory.h>
- #include <linux/memregion.h>
-+#include <linux/heki.h>
+ 	for (gfn = start; gfn < end; gfn += KVM_PAGES_PER_HPAGE(level - 1)) {
+ 		if (hugepage_test_mixed(slot, gfn, level - 1) ||
+-		    attrs != kvm_get_memory_attributes(kvm, gfn))
++		    !(attrs & kvm_get_memory_attributes(kvm, gfn)))
+ 			return false;
+ 	}
+ 	return true;
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 85b8648fd892..de68390ab0f2 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -2397,7 +2397,7 @@ bool kvm_arch_pre_set_memory_attributes(struct kvm *kvm,
+ bool kvm_arch_post_set_memory_attributes(struct kvm *kvm,
+ 					 struct kvm_gfn_range *range);
+ int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+-			      unsigned long attributes);
++			      unsigned long attributes, unsigned long mask);
  
- #include <asm/e820/api.h>
- #include <asm/processor.h>
-@@ -2056,11 +2057,56 @@ int clear_mce_nospec(unsigned long pfn)
- EXPORT_SYMBOL_GPL(clear_mce_nospec);
- #endif /* CONFIG_X86_64 */
- 
-+#ifdef CONFIG_HEKI
-+
-+static void heki_change_page_attr_set(unsigned long va, int numpages,
-+				      pgprot_t set)
-+{
-+	unsigned long va_end;
-+	unsigned long set_permissions = 0, clear_permissions = 0;
-+
-+	heki_pgprot_to_permissions(set, &set_permissions, &clear_permissions);
-+	if (!(set_permissions | clear_permissions))
-+		return;
-+
-+	va_end = va + (numpages << PAGE_SHIFT);
-+	heki_update(va, va_end, set_permissions, clear_permissions);
-+}
-+
-+static void heki_change_page_attr_clear(unsigned long va, int numpages,
-+					pgprot_t clear)
-+{
-+	unsigned long va_end;
-+	unsigned long set_permissions = 0, clear_permissions = 0;
-+
-+	heki_pgprot_to_permissions(clear, &clear_permissions, &set_permissions);
-+	if (!(set_permissions | clear_permissions))
-+		return;
-+
-+	va_end = va + (numpages << PAGE_SHIFT);
-+	heki_update(va, va_end, set_permissions, clear_permissions);
-+}
-+
-+#else /* !CONFIG_HEKI */
-+
-+static void heki_change_page_attr_set(unsigned long va, int numpages,
-+				      pgprot_t set)
-+{
-+}
-+
-+static void heki_change_page_attr_clear(unsigned long va, int numpages,
-+					pgprot_t clear)
-+{
-+}
-+
-+#endif /* CONFIG_HEKI */
-+
- int set_memory_x(unsigned long addr, int numpages)
+ static inline bool kvm_mem_is_private(struct kvm *kvm, gfn_t gfn)
  {
- 	if (!(__supported_pte_mask & _PAGE_NX))
- 		return 0;
- 
-+	heki_change_page_attr_clear(addr, numpages, __pgprot(_PAGE_NX));
- 	return change_page_attr_clear(&addr, numpages, __pgprot(_PAGE_NX), 0);
- }
- 
-@@ -2069,11 +2115,14 @@ int set_memory_nx(unsigned long addr, int numpages)
- 	if (!(__supported_pte_mask & _PAGE_NX))
- 		return 0;
- 
-+	heki_change_page_attr_set(addr, numpages, __pgprot(_PAGE_NX));
- 	return change_page_attr_set(&addr, numpages, __pgprot(_PAGE_NX), 0);
- }
- 
- int set_memory_ro(unsigned long addr, int numpages)
- {
-+	// TODO: What about _PAGE_DIRTY?
-+	heki_change_page_attr_clear(addr, numpages, __pgprot(_PAGE_RW));
- 	return change_page_attr_clear(&addr, numpages, __pgprot(_PAGE_RW | _PAGE_DIRTY), 0);
- }
- 
-@@ -2084,11 +2133,13 @@ int set_memory_rox(unsigned long addr, int numpages)
- 	if (__supported_pte_mask & _PAGE_NX)
- 		clr.pgprot |= _PAGE_NX;
- 
-+	heki_change_page_attr_clear(addr, numpages, clr);
- 	return change_page_attr_clear(&addr, numpages, clr, 0);
- }
- 
- int set_memory_rw(unsigned long addr, int numpages)
- {
-+	heki_change_page_attr_set(addr, numpages, __pgprot(_PAGE_RW));
- 	return change_page_attr_set(&addr, numpages, __pgprot(_PAGE_RW), 0);
- }
- 
-diff --git a/include/linux/heki.h b/include/linux/heki.h
-index d660994d34d0..079b34af07f0 100644
---- a/include/linux/heki.h
-+++ b/include/linux/heki.h
-@@ -73,6 +73,7 @@ struct heki_hypervisor {
-  *
-  *	- a page is mapped into the kernel address space
-  *	- a page is unmapped from the kernel address space
-+ *	- permissions are changed for a mapped page
-  */
- struct heki {
- 	struct heki_hypervisor *hypervisor;
-@@ -81,6 +82,7 @@ struct heki {
- 
- enum heki_cmd {
- 	HEKI_MAP,
-+	HEKI_UPDATE,
- 	HEKI_UNMAP,
- };
- 
-@@ -98,6 +100,10 @@ struct heki_args {
- 
- 	/* Command passed by caller. */
- 	enum heki_cmd cmd;
-+
-+	/* Permissions passed by heki_update(). */
-+	unsigned long set;
-+	unsigned long clear;
- };
- 
- /* Callback function called by the table walker. */
-@@ -114,11 +120,15 @@ void heki_counters_init(void);
- void heki_walk(unsigned long va, unsigned long va_end, heki_func_t func,
- 	       struct heki_args *args);
- void heki_map(unsigned long va, unsigned long end);
-+void heki_update(unsigned long va, unsigned long end, unsigned long set,
-+		 unsigned long clear);
- void heki_unmap(unsigned long va, unsigned long end);
- 
- /* Arch-specific functions. */
- void heki_arch_early_init(void);
- unsigned long heki_flags_to_permissions(unsigned long flags);
-+void heki_pgprot_to_permissions(pgprot_t prot, unsigned long *set,
-+				unsigned long *clear);
- 
- #else /* !CONFIG_HEKI */
- 
-@@ -131,6 +141,10 @@ static inline void heki_late_init(void)
- static inline void heki_map(unsigned long va, unsigned long end)
- {
- }
-+static inline void heki_update(unsigned long va, unsigned long end,
-+			       unsigned long set, unsigned long clear)
-+{
-+}
- static inline void heki_unmap(unsigned long va, unsigned long end)
- {
- }
-diff --git a/virt/heki/counters.c b/virt/heki/counters.c
-index adc8d566b8a9..d0f830b0775a 100644
---- a/virt/heki/counters.c
-+++ b/virt/heki/counters.c
-@@ -88,6 +88,13 @@ void heki_callback(struct heki_args *args)
- 			heki_update_counters(counters, 0, permissions, 0);
- 			break;
- 
-+		case HEKI_UPDATE:
-+			if (!counters)
-+				continue;
-+			heki_update_counters(counters, permissions, args->set,
-+					     args->clear);
-+			break;
-+
- 		case HEKI_UNMAP:
- 			if (WARN_ON_ONCE(!counters))
- 				break;
-@@ -131,6 +138,22 @@ void heki_map(unsigned long va, unsigned long end)
- 	heki_func(va, end, &args);
- }
- 
-+/*
-+ * Find the mappings in the given range and update permission counters for
-+ * them. Apply permissions in the host page table.
-+ */
-+void heki_update(unsigned long va, unsigned long end, unsigned long set,
-+		 unsigned long clear)
-+{
-+	struct heki_args args = {
-+		.cmd = HEKI_UPDATE,
-+		.set = set,
-+		.clear = clear,
-+	};
-+
-+	heki_func(va, end, &args);
-+}
-+
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0096ccfbb609..e2c178db17d5 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2436,7 +2436,7 @@ static int kvm_vm_ioctl_clear_dirty_log(struct kvm *kvm,
+ #ifdef CONFIG_KVM_GENERIC_MEMORY_ATTRIBUTES
  /*
-  * Find the mappings in the given range and revert the permission counters for
-  * them.
+  * Returns true if _all_ gfns in the range [@start, @end) have attributes
+- * matching @attrs.
++ * matching the @attrs bitmask.
+  */
+ bool kvm_range_has_memory_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 				     unsigned long attrs)
+@@ -2459,7 +2459,8 @@ bool kvm_range_has_memory_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 			entry = xas_next(&xas);
+ 		} while (xas_retry(&xas, entry));
+ 
+-		if (xas.xa_index != index || xa_to_value(entry) != attrs) {
++		if (xas.xa_index != index ||
++		    (xa_to_value(entry) & attrs) != attrs) {
+ 			has_attrs = false;
+ 			break;
+ 		}
+@@ -2553,7 +2554,7 @@ static bool kvm_pre_set_memory_attributes(struct kvm *kvm,
+ 
+ /* Set @attributes for the gfn range [@start, @end). */
+ int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+-				     unsigned long attributes)
++			      unsigned long attributes, unsigned long mask)
+ {
+ 	struct kvm_mmu_notifier_range pre_set_range = {
+ 		.start = start,
+@@ -2572,11 +2573,8 @@ int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 		.may_block = true,
+ 	};
+ 	unsigned long i;
+-	void *entry;
+ 	int r = 0;
+ 
+-	entry = attributes ? xa_mk_value(attributes) : NULL;
+-
+ 	lockdep_assert_held(&kvm->slots_arch_lock);
+ 
+ 	/* Nothing to do if the entire range as the desired attributes. */
+@@ -2596,6 +2594,16 @@ int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 	kvm_handle_gfn_range(kvm, &pre_set_range);
+ 
+ 	for (i = start; i < end; i++) {
++		unsigned long value = 0;
++		void *entry;
++
++		entry = xa_load(&kvm->mem_attr_array, i);
++		if (xa_is_value(entry))
++			value = xa_to_value(entry) & ~mask;
++
++		value |= attributes & mask;
++		entry = value ? xa_mk_value(value) : NULL;
++
+ 		r = xa_err(xa_store(&kvm->mem_attr_array, i, entry,
+ 				    GFP_KERNEL_ACCOUNT));
+ 		KVM_BUG_ON(r, kvm);
+@@ -2609,12 +2617,14 @@ static int kvm_vm_ioctl_set_mem_attributes(struct kvm *kvm,
+ 					   struct kvm_memory_attributes *attrs)
+ {
+ 	int r;
++	unsigned long attrs_mask;
+ 	gfn_t start, end;
+ 
+ 	/* flags is currently not used. */
+ 	if (attrs->flags)
+ 		return -EINVAL;
+-	if (attrs->attributes & ~kvm_supported_mem_attributes(kvm))
++	attrs_mask = kvm_supported_mem_attributes(kvm);
++	if (attrs->attributes & ~attrs_mask)
+ 		return -EINVAL;
+ 	if (attrs->size == 0 || attrs->address + attrs->size < attrs->address)
+ 		return -EINVAL;
+@@ -2632,7 +2642,8 @@ static int kvm_vm_ioctl_set_mem_attributes(struct kvm *kvm,
+ 	BUILD_BUG_ON(sizeof(attrs->attributes) != sizeof(unsigned long));
+ 
+ 	mutex_lock(&kvm->slots_arch_lock);
+-	r = kvm_vm_set_mem_attributes(kvm, start, end, attrs->attributes);
++	r = kvm_vm_set_mem_attributes(kvm, start, end, attrs->attributes,
++				      attrs_mask);
+ 	mutex_unlock(&kvm->slots_arch_lock);
+ 	return r;
+ }
 -- 
 2.42.1
 
