@@ -1,42 +1,41 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E44AA1775F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06D8F1799D
 	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="K6v5KJH9"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="bV4lvDvQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 846F282036
+	by smtp4.osuosl.org (Postfix) with ESMTP id 98D2A41723
 	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 846F282036
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=K6v5KJH9
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 98D2A41723
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=bV4lvDvQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fVB1xr0Qh3Wx
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id N0ydKLUE-AyH
 	for <virtualization@lists.linux-foundation.org>;
 	Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
-X-Greylist: delayed 508 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 13 Nov 2023 02:32:29 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30F968202C
-Received: from smtp-bc08.mail.infomaniak.ch (smtp-bc08.mail.infomaniak.ch [IPv6:2001:1600:4:17::bc08])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 30F968202C
+Received: from smtp-8faa.mail.infomaniak.ch (smtp-8faa.mail.infomaniak.ch [IPv6:2001:1600:4:17::8faa])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 64BE6416FA
 	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
-Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtf4t44zMpvd2;
-	Mon, 13 Nov 2023 02:24:42 +0000 (UTC)
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtd2zG3zMpnPr;
-	Mon, 13 Nov 2023 03:24:41 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 64BE6416FA
+Received: from smtp-3-0000.mail.infomaniak.ch (unknown [10.4.36.107])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCsp5jGkzMpvS5;
+	Mon, 13 Nov 2023 02:23:58 +0000 (UTC)
+Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCsn4w8yz3W;
+	Mon, 13 Nov 2023 03:23:57 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842282;
-	bh=hEzwbKiCPTVRprt7TA2n5SNi5zwGnb2iVWTsgeipVHE=;
+	s=20191114; t=1699842238;
+	bh=tY8hlJfPopuy154H09Cr6nqcw/h0DUTJ1/nUw09u9eU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=K6v5KJH9jR6IiLGfGMDtfMvhMpsRKAlNdnYP3VLP1tQYDJsD9yOa1l7BiqESRCqDJ
-	 cmZYiFVvTDYPtiXd2tBOhB0CrMCZj3y2+qczeM+o9M04Idv7FHkodSM7IbhjzC/hXd
-	 PiK+ofD1UU5HDgZ8vthIvlYSVcyE4os40daGAPbA=
+	b=bV4lvDvQTCac2IMzSmZNNLVBOtTqAuS2XLzxMp+OAzsv+rke/FG2TXyxhi8G9+60p
+	 uVBBHLsVIDwfgY2jYAyUCw2LIYtSt/u33MBaH9fX9Ljjyq03aPdOVNbFjYzptoLzUl
+	 mUsHCWJz6tf9YxVBhc8meVQg8fYV2sX1kdkepvvo=
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -77,9 +76,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 13/19] heki: Implement a kernel page table walker
-Date: Sun, 12 Nov 2023 21:23:20 -0500
-Message-ID: <20231113022326.24388-14-mic@digikod.net>
+Subject: [RFC PATCH v2 01/19] virt: Introduce Hypervisor Enforced Kernel Integrity (Heki)
+Date: Sun, 12 Nov 2023 21:23:08 -0500
+Message-ID: <20231113022326.24388-2-mic@digikod.net>
 In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
 References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
@@ -94,27 +93,25 @@ X-Infomaniak-Routing: alpha
 
 From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 
-The Heki feature needs to do the following:
+Hypervisor Enforced Kernel Integrity (Heki) is a feature that will use
+the hypervisor to enhance guest virtual machine security.
 
-- Find kernel mappings.
+Implement minimal code to introduce Heki:
 
-- Determine the permissions associated with each mapping.
+- Define the config variables.
 
-- Determine the collective permissions for a guest physical page across
-  all of its mappings.
+- Define a kernel command line parameter "heki" to turn the feature
+  on or off. By default, Heki is on.
 
-This way, a guest physical page can reflect only the required
-permissions in the EPT thanks to the KVM_HC_PROTECT_MEMORY hypercall..
-
-Implement a kernel page table walker that walks all of the kernel
-mappings and calls a callback function for each mapping.
+- Define heki_early_init() and call it in start_kernel(). Currently,
+  this function only prints the value of the "heki" command
+  line parameter.
 
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
 Cc: H. Peter Anvin <hpa@zytor.com>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Kees Cook <keescook@chromium.org>
-Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Sean Christopherson <seanjc@google.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
@@ -125,197 +122,221 @@ Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 ---
 
-Change since v1:
-* New patch and new file: virt/heki/walk.c
+Changes since v1:
+* Shrinked this patch to only contain the minimal common parts.
+* Moved heki_early_init() to start_kernel().
 ---
- include/linux/heki.h |  16 +++++
- virt/heki/Makefile   |   1 +
- virt/heki/walk.c     | 140 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 157 insertions(+)
- create mode 100644 virt/heki/walk.c
+ Kconfig              |  2 ++
+ arch/x86/Kconfig     |  1 +
+ include/linux/heki.h | 31 +++++++++++++++++++++++++++++++
+ init/main.c          |  2 ++
+ mm/mm_init.c         |  1 +
+ virt/Makefile        |  1 +
+ virt/heki/Kconfig    | 19 +++++++++++++++++++
+ virt/heki/Makefile   |  3 +++
+ virt/heki/common.h   | 16 ++++++++++++++++
+ virt/heki/main.c     | 32 ++++++++++++++++++++++++++++++++
+ 10 files changed, 108 insertions(+)
+ create mode 100644 include/linux/heki.h
+ create mode 100644 virt/heki/Kconfig
+ create mode 100644 virt/heki/Makefile
+ create mode 100644 virt/heki/common.h
+ create mode 100644 virt/heki/main.c
 
+diff --git a/Kconfig b/Kconfig
+index 745bc773f567..0c844d9bcb03 100644
+--- a/Kconfig
++++ b/Kconfig
+@@ -29,4 +29,6 @@ source "lib/Kconfig"
+ 
+ source "lib/Kconfig.debug"
+ 
++source "virt/heki/Kconfig"
++
+ source "Documentation/Kconfig"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 66bfabae8814..424f949442bd 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -35,6 +35,7 @@ config X86_64
+ 	select SWIOTLB
+ 	select ARCH_HAS_ELFCORE_COMPAT
+ 	select ZONE_DMA32
++	select ARCH_SUPPORTS_HEKI
+ 
+ config FORCE_DYNAMIC_FTRACE
+ 	def_bool y
 diff --git a/include/linux/heki.h b/include/linux/heki.h
-index 9b0c966c50d1..a7ae0b387dfe 100644
---- a/include/linux/heki.h
-+++ b/include/linux/heki.h
-@@ -61,6 +61,22 @@ struct heki {
- 	struct heki_hypervisor *hypervisor;
- };
- 
-+/*
-+ * The kernel page table is walked to locate kernel mappings. For each
-+ * mapping, a callback function is called. The table walker passes information
-+ * about the mapping to the callback using this structure.
-+ */
-+struct heki_args {
-+	/* Information passed by the table walker to the callback. */
-+	unsigned long va;
-+	phys_addr_t pa;
-+	size_t size;
-+	unsigned long flags;
-+};
-+
-+/* Callback function called by the table walker. */
-+typedef void (*heki_func_t)(struct heki_args *args);
-+
- extern struct heki heki;
- extern bool heki_enabled;
- 
-diff --git a/virt/heki/Makefile b/virt/heki/Makefile
-index 354e567df71c..a5daa4ff7a4f 100644
---- a/virt/heki/Makefile
-+++ b/virt/heki/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
- 
- obj-y += main.o
-+obj-y += walk.o
-diff --git a/virt/heki/walk.c b/virt/heki/walk.c
 new file mode 100644
-index 000000000000..e10b54226fcc
+index 000000000000..4c18d2283392
 --- /dev/null
-+++ b/virt/heki/walk.c
-@@ -0,0 +1,140 @@
-+// SPDX-License-Identifier: GPL-2.0-only
++++ b/include/linux/heki.h
+@@ -0,0 +1,31 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
 +/*
-+ * Hypervisor Enforced Kernel Integrity (Heki) - Kernel page table walker.
++ * Hypervisor Enforced Kernel Integrity (Heki) - Definitions
 + *
 + * Copyright © 2023 Microsoft Corporation
++ */
++
++#ifndef __HEKI_H__
++#define __HEKI_H__
++
++#include <linux/types.h>
++#include <linux/cache.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/printk.h>
++
++#ifdef CONFIG_HEKI
++
++extern bool heki_enabled;
++
++void heki_early_init(void);
++
++#else /* !CONFIG_HEKI */
++
++static inline void heki_early_init(void)
++{
++}
++
++#endif /* CONFIG_HEKI */
++
++#endif /* __HEKI_H__ */
+diff --git a/init/main.c b/init/main.c
+index 436d73261810..0d28301c5402 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -99,6 +99,7 @@
+ #include <linux/init_syscalls.h>
+ #include <linux/stackdepot.h>
+ #include <linux/randomize_kstack.h>
++#include <linux/heki.h>
+ #include <net/net_namespace.h>
+ 
+ #include <asm/io.h>
+@@ -1047,6 +1048,7 @@ void start_kernel(void)
+ 	uts_ns_init();
+ 	key_init();
+ 	security_init();
++	heki_early_init();
+ 	dbg_late_init();
+ 	net_ns_init();
+ 	vfs_caches_init();
+diff --git a/mm/mm_init.c b/mm/mm_init.c
+index 50f2f34745af..896977383cc3 100644
+--- a/mm/mm_init.c
++++ b/mm/mm_init.c
+@@ -26,6 +26,7 @@
+ #include <linux/pgtable.h>
+ #include <linux/swap.h>
+ #include <linux/cma.h>
++#include <linux/heki.h>
+ #include "internal.h"
+ #include "slab.h"
+ #include "shuffle.h"
+diff --git a/virt/Makefile b/virt/Makefile
+index 1cfea9436af9..4550dc624466 100644
+--- a/virt/Makefile
++++ b/virt/Makefile
+@@ -1,2 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-y	+= lib/
++obj-$(CONFIG_HEKI) += heki/
+diff --git a/virt/heki/Kconfig b/virt/heki/Kconfig
+new file mode 100644
+index 000000000000..49695fff6d21
+--- /dev/null
++++ b/virt/heki/Kconfig
+@@ -0,0 +1,19 @@
++# SPDX-License-Identifier: GPL-2.0
++#
++# Hypervisor Enforced Kernel Integrity (Heki)
++
++config HEKI
++	bool "Hypervisor Enforced Kernel Integrity (Heki)"
++	depends on ARCH_SUPPORTS_HEKI
++	help
++	  This feature enhances guest virtual machine security by taking
++	  advantage of security features provided by the hypervisor for guests.
++	  This feature is helpful in maintaining guest virtual machine security
++	  even after the guest kernel has been compromised.
++
++config ARCH_SUPPORTS_HEKI
++	bool "Architecture support for Heki"
++	help
++	  An architecture should select this when it can successfully build
++	  and run with CONFIG_HEKI. That is, it should provide all of the
++	  architecture support required for the HEKI feature.
+diff --git a/virt/heki/Makefile b/virt/heki/Makefile
+new file mode 100644
+index 000000000000..354e567df71c
+--- /dev/null
++++ b/virt/heki/Makefile
+@@ -0,0 +1,3 @@
++# SPDX-License-Identifier: GPL-2.0-only
++
++obj-y += main.o
+diff --git a/virt/heki/common.h b/virt/heki/common.h
+new file mode 100644
+index 000000000000..edd98fc650a8
+--- /dev/null
++++ b/virt/heki/common.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Hypervisor Enforced Kernel Integrity (Heki) - Common header
 + *
-+ * Cf. arch/x86/mm/init_64.c
++ * Copyright © 2023 Microsoft Corporation
++ */
++
++#ifndef _HEKI_COMMON_H
++
++#ifdef pr_fmt
++#undef pr_fmt
++#endif
++
++#define pr_fmt(fmt) "heki-guest: " fmt
++
++#endif /* _HEKI_COMMON_H */
+diff --git a/virt/heki/main.c b/virt/heki/main.c
+new file mode 100644
+index 000000000000..f005dd74d586
+--- /dev/null
++++ b/virt/heki/main.c
+@@ -0,0 +1,32 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Hypervisor Enforced Kernel Integrity (Heki) - Common code
++ *
++ * Copyright © 2023 Microsoft Corporation
 + */
 +
 +#include <linux/heki.h>
-+#include <linux/pgtable.h>
 +
-+static void heki_walk_pte(pmd_t *pmd, unsigned long va, unsigned long va_end,
-+			  heki_func_t func, struct heki_args *args)
++#include "common.h"
++
++bool heki_enabled __ro_after_init = true;
++
++/*
++ * Must be called after kmem_cache_init().
++ */
++__init void heki_early_init(void)
 +{
-+	pte_t *pte;
-+	unsigned long next_va;
-+
-+	for (pte = pte_offset_kernel(pmd, va); va < va_end;
-+	     va = next_va, pte++) {
-+		next_va = (va + PAGE_SIZE) & PAGE_MASK;
-+
-+		if (next_va > va_end)
-+			next_va = va_end;
-+
-+		if (!pte_present(*pte))
-+			continue;
-+
-+		args->va = va;
-+		args->pa = pte_pfn(*pte) << PAGE_SHIFT;
-+		args->size = PAGE_SIZE;
-+		args->flags = pte_flags(*pte);
-+
-+		func(args);
++	if (!heki_enabled) {
++		pr_warn("Heki is not enabled\n");
++		return;
 +	}
++	pr_warn("Heki is enabled\n");
 +}
 +
-+static void heki_walk_pmd(pud_t *pud, unsigned long va, unsigned long va_end,
-+			  heki_func_t func, struct heki_args *args)
++static int __init heki_parse_config(char *str)
 +{
-+	pmd_t *pmd;
-+	unsigned long next_va;
-+
-+	for (pmd = pmd_offset(pud, va); va < va_end; va = next_va, pmd++) {
-+		next_va = pmd_addr_end(va, va_end);
-+
-+		if (!pmd_present(*pmd))
-+			continue;
-+
-+		if (pmd_large(*pmd)) {
-+			args->va = va;
-+			args->pa = pmd_pfn(*pmd) << PAGE_SHIFT;
-+			args->pa += va & (PMD_SIZE - 1);
-+			args->size = next_va - va;
-+			args->flags = pmd_flags(*pmd);
-+
-+			func(args);
-+		} else {
-+			heki_walk_pte(pmd, va, next_va, func, args);
-+		}
-+	}
++	if (strtobool(str, &heki_enabled))
++		pr_warn("Invalid option string for heki: '%s'\n", str);
++	return 1;
 +}
-+
-+static void heki_walk_pud(p4d_t *p4d, unsigned long va, unsigned long va_end,
-+			  heki_func_t func, struct heki_args *args)
-+{
-+	pud_t *pud;
-+	unsigned long next_va;
-+
-+	for (pud = pud_offset(p4d, va); va < va_end; va = next_va, pud++) {
-+		next_va = pud_addr_end(va, va_end);
-+
-+		if (!pud_present(*pud))
-+			continue;
-+
-+		if (pud_large(*pud)) {
-+			args->va = va;
-+			args->pa = pud_pfn(*pud) << PAGE_SHIFT;
-+			args->pa += va & (PUD_SIZE - 1);
-+			args->size = next_va - va;
-+			args->flags = pud_flags(*pud);
-+
-+			func(args);
-+		} else {
-+			heki_walk_pmd(pud, va, next_va, func, args);
-+		}
-+	}
-+}
-+
-+static void heki_walk_p4d(pgd_t *pgd, unsigned long va, unsigned long va_end,
-+			  heki_func_t func, struct heki_args *args)
-+{
-+	p4d_t *p4d;
-+	unsigned long next_va;
-+
-+	for (p4d = p4d_offset(pgd, va); va < va_end; va = next_va, p4d++) {
-+		next_va = p4d_addr_end(va, va_end);
-+
-+		if (!p4d_present(*p4d))
-+			continue;
-+
-+		if (p4d_large(*p4d)) {
-+			args->va = va;
-+			args->pa = p4d_pfn(*p4d) << PAGE_SHIFT;
-+			args->pa += va & (P4D_SIZE - 1);
-+			args->size = next_va - va;
-+			args->flags = p4d_flags(*p4d);
-+
-+			func(args);
-+		} else {
-+			heki_walk_pud(p4d, va, next_va, func, args);
-+		}
-+	}
-+}
-+
-+void heki_walk(unsigned long va, unsigned long va_end, heki_func_t func,
-+	       struct heki_args *args)
-+{
-+	pgd_t *pgd;
-+	unsigned long next_va;
-+
-+	for (pgd = pgd_offset_k(va); va < va_end; va = next_va, pgd++) {
-+		next_va = pgd_addr_end(va, va_end);
-+
-+		if (!pgd_present(*pgd))
-+			continue;
-+
-+		if (pgd_large(*pgd)) {
-+			args->va = va;
-+			args->pa = pgd_pfn(*pgd) << PAGE_SHIFT;
-+			args->pa += va & (PGDIR_SIZE - 1);
-+			args->size = next_va - va;
-+			args->flags = pgd_flags(*pgd);
-+
-+			func(args);
-+		} else {
-+			heki_walk_p4d(pgd, va, next_va, func, args);
-+		}
-+	}
-+}
++__setup("heki=", heki_parse_config);
 -- 
 2.42.1
 
