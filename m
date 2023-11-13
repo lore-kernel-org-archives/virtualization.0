@@ -1,560 +1,252 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 941F7154A3
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 17:44:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CDB48BFC
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:31:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="y2lDmzRk"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2B82861389
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 17:44:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2B82861389
+	by smtp1.osuosl.org (Postfix) with ESMTP id AAD588202F
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:31:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AAD588202F
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=y2lDmzRk
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.398
+X-Spam-Score: -2.798
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3yQRmmq6H0fd
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id B_ig9xEzlquc
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 12 Nov 2023 17:44:21 +0000 (UTC)
-Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0D629612FF
-	for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 17:44:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0D629612FF
-Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-1cc5b7057d5so32951965ad.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 09:44:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699811060; x=1700415860;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CvhxjJJa/Ci/xiREQjeS8Wq0K4FF0IBEX2F6g2Az9kA=;
-        b=ElM2fuqT8tllN27EhTxfp0KWrgk7jcPk/aOjWvdCJg15jg6R2o6GunxKa2PZ3XU7sy
-         7vEN1NvRNOmFKF36zwLBtTuvir/YWjktDc3p93HzdxV0BtlGEEq38WW2f2vrPHb9vmf1
-         cLdxIJfeCUDOBWwdG7+FhKIfQrdmcqTQ/fL3EvzWPmabCBSrOK8wdQ1sKkomcxI0QWjS
-         jqCSrHoQ16nctR1mOO4xj5vuTxo36BLJ1BJH0rYp1tPJzW/+IxRSZ7MjMVBnSe+TP2js
-         BuLNlUDJF1FLdWthPPI6WuPXjgaJRPK1Fk/z0FI5/9d9pExMqq6CQrGWdYCICTP9nqMq
-         g4Qg==
-X-Gm-Message-State: AOJu0YxWqa6lzwxbh5Xcauy3+niQzDEpfIJbrHGjtVexthl2A2jWWYnp
-	Rzu5OB4ajKEMD94WrV/3Eo4=
-X-Google-Smtp-Source: AGHT+IGW/6opwcX0FKkXoXOWhN/xe80DDhDI51xBwA9NGI/6J99Nej7hImFcEeW3SS6pkD9vP0+f8A==
-X-Received: by 2002:a17:902:c10c:b0:1cc:41c5:adfd with SMTP id 12-20020a170902c10c00b001cc41c5adfdmr5540408pli.49.1699811060025;
-        Sun, 12 Nov 2023 09:44:20 -0800 (PST)
-Received: from localhost ([156.39.10.100])
-        by smtp.gmail.com with ESMTPSA id 13-20020a170902c24d00b001c5fc291ef9sm2777542plg.209.2023.11.12.09.44.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Nov 2023 09:44:19 -0800 (PST)
-Date: Sun, 12 Nov 2023 09:44:18 -0800
-From: Moritz Fischer <mdf@kernel.org>
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: acpica-devel@lists.linuxfoundation.org,
-	Alyssa Rosenzweig <alyssa@rosenzweig.io>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Dexuan Cui <decui@microsoft.com>, devicetree@vger.kernel.org,
-	David Woodhouse <dwmw2@infradead.org>,
-	Frank Rowand <frowand.list@gmail.com>,
-	Hanjun Guo <guohanjun@huawei.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Christoph Hellwig <hch@lst.de>, iommu@lists.linux.dev,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Jonathan Hunter <jonathanh@nvidia.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>,
-	linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-hyperv@vger.kernel.org, linux-mips@vger.kernel.org,
-	linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
-	linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Marek Szyprowski <m.szyprowski@samsung.com>,
-	Hector Martin <marcan@marcan.st>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Robert Moore <robert.moore@intel.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-	Sven Peter <sven@svenpeter.dev>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
+	Mon, 13 Nov 2023 02:31:53 +0000 (UTC)
+Received: from smtp-8fa9.mail.infomaniak.ch (smtp-8fa9.mail.infomaniak.ch [83.166.143.169])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8139B8202C
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:31:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8139B8202C
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+	by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtF0JdCzMpxDc;
+	Mon, 13 Nov 2023 02:24:21 +0000 (UTC)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtC4TrjzMpnPd;
+	Mon, 13 Nov 2023 03:24:19 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+	s=20191114; t=1699842260;
+	bh=3ZLY/nS0lwLKi/L6VqWKqVBloAFCSA+eB24SBhCzIXI=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=y2lDmzRkLKrzf6YPi3D4QKjQPJhPLdTzsvCbaLH8n86bmNl5EAyUw5Vphk2fc4rJw
+	 TLfnFGEyP2jqJAbn8DJnwo1XABN8RimqjRgV1bCMpAPRjX8PzxhdSJt9kDm6zHLvGd
+	 /ggMXvnRZc6CA01WJiWQxAi6rqcHrhmU955Fp2TY=
+From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
+To: Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Kees Cook <keescook@chromium.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>
+Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	Alexander Graf <graf@amazon.com>,
+	Chao Peng <chao.p.peng@linux.intel.com>,
+	"Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+	Forrest Yuan Yu <yuanyu@google.com>,
+	James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>,
+	John Andersen <john.s.andersen@intel.com>,
+	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>,
+	Marian Rotariu <marian.c.rotariu@gmail.com>,
+	=?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>,
+	=?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>,
+	Thara Gopinath <tgopinath@microsoft.com>,
+	Trilok Soni <quic_tsoni@quicinc.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	Yu Zhang <yu.c.zhang@linux.intel.com>,
+	Zahra Tarkhani <ztarkhani@microsoft.com>,
+	=?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>,
+	dev@lists.cloudhypervisor.org,
+	kvm@vger.kernel.org,
+	linux-hardening@vger.kernel.org,
+	linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	qemu-devel@nongnu.org,
 	virtualization@lists.linux-foundation.org,
-	Wei Liu <wei.liu@kernel.org>, Will Deacon <will@kernel.org>,
-	Zhenhua Huang <quic_zhenhuah@quicinc.com>
-Subject: Re: [PATCH RFC 10/17] acpi: Do not use dev->iommu within
- acpi_iommu_configure()
-Message-ID: <ZVEO8li-WnQMXaLc@archbook>
-References: <0-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
- <10-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+	x86@kernel.org,
+	xen-devel@lists.xenproject.org
+Subject: [RFC PATCH v2 07/19] KVM: x86: Make memory attribute helpers more generic
+Date: Sun, 12 Nov 2023 21:23:14 -0500
+Message-ID: <20231113022326.24388-8-mic@digikod.net>
+In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
+References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <10-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Infomaniak-Routing: alpha
 
-On Fri, Nov 03, 2023 at 01:44:55PM -0300, Jason Gunthorpe wrote:
-> This call chain is using dev->iommu->fwspec to pass around the fwspec
-> between the three parts (acpi_iommu_configure(), acpi_iommu_fwspec_init(),
-> iommu_probe_device()).
-> 
-> However there is no locking around the accesses to dev->iommu, so this is
-> all racy.
-> 
-> Allocate a clean, local, fwspec at the start of acpu_iommu_configure(),
-Nit: s/acpu_iommu_configure/acpi_iommu_configure_id() ?
-> pass it through all functions on the stack to fill it with data, and
-> finally pass it into iommu_probe_device_fwspec() which will load it into
-> dev->iommu under a lock.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+To make it useful for other use cases such as Heki, remove the private
+memory optimizations.
 
-Reviewed-by: Moritz Fischer <mdf@kernel.org>
-> ---
->  drivers/acpi/arm64/iort.c | 39 ++++++++---------
->  drivers/acpi/scan.c       | 89 ++++++++++++++++++---------------------
->  drivers/acpi/viot.c       | 44 ++++++++++---------
->  drivers/iommu/iommu.c     |  5 +--
->  include/acpi/acpi_bus.h   |  8 ++--
->  include/linux/acpi_iort.h |  3 +-
->  include/linux/acpi_viot.h |  5 ++-
->  include/linux/iommu.h     |  2 +
->  8 files changed, 97 insertions(+), 98 deletions(-)
-> 
-> diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-> index 6496ff5a6ba20d..accd01dcfe93f5 100644
-> --- a/drivers/acpi/arm64/iort.c
-> +++ b/drivers/acpi/arm64/iort.c
-> @@ -1218,10 +1218,9 @@ static bool iort_pci_rc_supports_ats(struct acpi_iort_node *node)
->  	return pci_rc->ats_attribute & ACPI_IORT_ATS_SUPPORTED;
->  }
->  
-> -static int iort_iommu_xlate(struct device *dev, struct acpi_iort_node *node,
-> -			    u32 streamid)
-> +static int iort_iommu_xlate(struct iommu_fwspec *fwspec, struct device *dev,
-> +			    struct acpi_iort_node *node, u32 streamid)
->  {
-> -	const struct iommu_ops *ops;
->  	struct fwnode_handle *iort_fwnode;
->  
->  	if (!node)
-> @@ -1239,17 +1238,14 @@ static int iort_iommu_xlate(struct device *dev, struct acpi_iort_node *node,
->  	 * in the kernel or not, defer the IOMMU configuration
->  	 * or just abort it.
->  	 */
-> -	ops = iommu_ops_from_fwnode(iort_fwnode);
-> -	if (!ops)
-> -		return iort_iommu_driver_enabled(node->type) ?
-> -		       -EPROBE_DEFER : -ENODEV;
-> -
-> -	return acpi_iommu_fwspec_init(dev, streamid, iort_fwnode, ops);
-> +	return acpi_iommu_fwspec_init(fwspec, dev, streamid, iort_fwnode,
-> +				      iort_iommu_driver_enabled(node->type));
->  }
->  
->  struct iort_pci_alias_info {
->  	struct device *dev;
->  	struct acpi_iort_node *node;
-> +	struct iommu_fwspec *fwspec;
->  };
->  
->  static int iort_pci_iommu_init(struct pci_dev *pdev, u16 alias, void *data)
-> @@ -1260,7 +1256,7 @@ static int iort_pci_iommu_init(struct pci_dev *pdev, u16 alias, void *data)
->  
->  	parent = iort_node_map_id(info->node, alias, &streamid,
->  				  IORT_IOMMU_TYPE);
-> -	return iort_iommu_xlate(info->dev, parent, streamid);
-> +	return iort_iommu_xlate(info->fwspec, info->dev, parent, streamid);
->  }
->  
->  static void iort_named_component_init(struct device *dev,
-> @@ -1280,7 +1276,8 @@ static void iort_named_component_init(struct device *dev,
->  		dev_warn(dev, "Could not add device properties\n");
->  }
->  
-> -static int iort_nc_iommu_map(struct device *dev, struct acpi_iort_node *node)
-> +static int iort_nc_iommu_map(struct iommu_fwspec *fwspec, struct device *dev,
-> +			     struct acpi_iort_node *node)
->  {
->  	struct acpi_iort_node *parent;
->  	int err = -ENODEV, i = 0;
-> @@ -1293,13 +1290,13 @@ static int iort_nc_iommu_map(struct device *dev, struct acpi_iort_node *node)
->  						   i++);
->  
->  		if (parent)
-> -			err = iort_iommu_xlate(dev, parent, streamid);
-> +			err = iort_iommu_xlate(fwspec, dev, parent, streamid);
->  	} while (parent && !err);
->  
->  	return err;
->  }
->  
-> -static int iort_nc_iommu_map_id(struct device *dev,
-> +static int iort_nc_iommu_map_id(struct iommu_fwspec *fwspec, struct device *dev,
->  				struct acpi_iort_node *node,
->  				const u32 *in_id)
->  {
-> @@ -1308,7 +1305,7 @@ static int iort_nc_iommu_map_id(struct device *dev,
->  
->  	parent = iort_node_map_id(node, *in_id, &streamid, IORT_IOMMU_TYPE);
->  	if (parent)
-> -		return iort_iommu_xlate(dev, parent, streamid);
-> +		return iort_iommu_xlate(fwspec, dev, parent, streamid);
->  
->  	return -ENODEV;
->  }
-> @@ -1322,15 +1319,16 @@ static int iort_nc_iommu_map_id(struct device *dev,
->   *
->   * Returns: 0 on success, <0 on failure
->   */
-> -int iort_iommu_configure_id(struct device *dev, const u32 *id_in)
-> +int iort_iommu_configure_id(struct iommu_fwspec *fwspec, struct device *dev,
-> +			    const u32 *id_in)
->  {
->  	struct acpi_iort_node *node;
->  	int err = -ENODEV;
->  
->  	if (dev_is_pci(dev)) {
-> -		struct iommu_fwspec *fwspec;
->  		struct pci_bus *bus = to_pci_dev(dev)->bus;
-> -		struct iort_pci_alias_info info = { .dev = dev };
-> +		struct iort_pci_alias_info info = { .dev = dev,
-> +						    .fwspec = fwspec };
->  
->  		node = iort_scan_node(ACPI_IORT_NODE_PCI_ROOT_COMPLEX,
->  				      iort_match_node_callback, &bus->dev);
-> @@ -1341,8 +1339,7 @@ int iort_iommu_configure_id(struct device *dev, const u32 *id_in)
->  		err = pci_for_each_dma_alias(to_pci_dev(dev),
->  					     iort_pci_iommu_init, &info);
->  
-> -		fwspec = dev_iommu_fwspec_get(dev);
-> -		if (fwspec && iort_pci_rc_supports_ats(node))
-> +		if (iort_pci_rc_supports_ats(node))
->  			fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
->  	} else {
->  		node = iort_scan_node(ACPI_IORT_NODE_NAMED_COMPONENT,
-> @@ -1350,8 +1347,8 @@ int iort_iommu_configure_id(struct device *dev, const u32 *id_in)
->  		if (!node)
->  			return -ENODEV;
->  
-> -		err = id_in ? iort_nc_iommu_map_id(dev, node, id_in) :
-> -			      iort_nc_iommu_map(dev, node);
-> +		err = id_in ? iort_nc_iommu_map_id(fwspec, dev, node, id_in) :
-> +			      iort_nc_iommu_map(fwspec, dev, node);
->  
->  		if (!err)
->  			iort_named_component_init(dev, node);
-> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-> index fbabde001a23a2..1e01a8e0316867 100644
-> --- a/drivers/acpi/scan.c
-> +++ b/drivers/acpi/scan.c
-> @@ -1543,74 +1543,67 @@ int acpi_dma_get_range(struct device *dev, const struct bus_dma_region **map)
->  }
->  
->  #ifdef CONFIG_IOMMU_API
-> -int acpi_iommu_fwspec_init(struct device *dev, u32 id,
-> -			   struct fwnode_handle *fwnode,
-> -			   const struct iommu_ops *ops)
-> +int acpi_iommu_fwspec_init(struct iommu_fwspec *fwspec, struct device *dev,
-> +			   u32 id, struct fwnode_handle *fwnode,
-> +			   bool iommu_driver_available)
->  {
-> -	int ret = iommu_fwspec_init(dev, fwnode, ops);
-> +	int ret;
->  
-> -	if (!ret)
-> -		ret = iommu_fwspec_add_ids(dev, &id, 1);
-> -
-> -	return ret;
-> -}
-> -
-> -static inline const struct iommu_ops *acpi_iommu_fwspec_ops(struct device *dev)
-> -{
-> -	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> -
-> -	return fwspec ? fwspec->ops : NULL;
-> +	ret = iommu_fwspec_assign_iommu(fwspec, dev, fwnode);
-> +	if (ret) {
-> +		if (ret == -EPROBE_DEFER && !iommu_driver_available)
-> +			return -ENODEV;
-> +		return ret;
-> +	}
-> +	return iommu_fwspec_append_ids(fwspec, &id, 1);
->  }
->  
->  static int acpi_iommu_configure_id(struct device *dev, const u32 *id_in)
->  {
->  	int err;
-> -	const struct iommu_ops *ops;
-> +	struct iommu_fwspec *fwspec;
->  
-> -	/*
-> -	 * If we already translated the fwspec there is nothing left to do,
-> -	 * return the iommu_ops.
-> -	 */
-> -	ops = acpi_iommu_fwspec_ops(dev);
-> -	if (ops)
-> -		return 0;
-> +	fwspec = iommu_fwspec_alloc();
-> +	if (IS_ERR(fwspec))
-> +		return PTR_ERR(fwspec);
->  
-> -	err = iort_iommu_configure_id(dev, id_in);
-> -	if (err && err != -EPROBE_DEFER)
-> -		err = viot_iommu_configure(dev);
-> +	err = iort_iommu_configure_id(fwspec, dev, id_in);
-> +	if (err == -ENODEV)
-> +		err = viot_iommu_configure(fwspec, dev);
-> +	if (err == -ENODEV || err == -EPROBE_DEFER)
-> +		goto err_free;
-> +	if (err)
-> +		goto err_log;
->  
-> -	/*
-> -	 * If we have reason to believe the IOMMU driver missed the initial
-> -	 * iommu_probe_device() call for dev, replay it to get things in order.
-> -	 */
-> -	if (!err && dev->bus)
-> -		err = iommu_probe_device(dev);
-> -
-> -	/* Ignore all other errors apart from EPROBE_DEFER */
-> -	if (err == -EPROBE_DEFER) {
-> -		return err;
-> -	} else if (err) {
-> -		dev_dbg(dev, "Adding to IOMMU failed: %d\n", err);
-> -		return -ENODEV;
-> +	err = iommu_probe_device_fwspec(dev, fwspec);
-> +	if (err) {
-> +		/*
-> +		 * Ownership for fwspec always passes into
-> +		 * iommu_probe_device_fwspec()
-> +		 */
-> +		fwspec = NULL;
-> +		goto err_log;
->  	}
-> -	if (!acpi_iommu_fwspec_ops(dev))
-> -		return -ENODEV;
-> -	return 0;
-> +
-> +err_log:
-> +	dev_dbg(dev, "Adding to IOMMU failed: %d\n", err);
-> +err_free:
-> +	iommu_fwspec_dealloc(fwspec);
-> +	return err;
->  }
->  
->  #else /* !CONFIG_IOMMU_API */
->  
-> -int acpi_iommu_fwspec_init(struct device *dev, u32 id,
-> -			   struct fwnode_handle *fwnode,
-> -			   const struct iommu_ops *ops)
-> +int acpi_iommu_fwspec_init(struct iommu_fwspec *fwspec, struct device *dev,
-> +			   u32 id, struct fwnode_handle *fwnode,
-> +			   bool iommu_driver_available)
->  {
->  	return -ENODEV;
->  }
->  
-> -static const struct iommu_ops *acpi_iommu_configure_id(struct device *dev,
-> -						       const u32 *id_in)
-> +static const int acpi_iommu_configure_id(struct device *dev, const u32 *id_in)
->  {
-> -	return NULL;
-> +	return -ENODEV;
->  }
->  
->  #endif /* !CONFIG_IOMMU_API */
-> diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
-> index c8025921c129b2..33b511dd202d15 100644
-> --- a/drivers/acpi/viot.c
-> +++ b/drivers/acpi/viot.c
-> @@ -304,11 +304,9 @@ void __init acpi_viot_init(void)
->  	acpi_put_table(hdr);
->  }
->  
-> -static int viot_dev_iommu_init(struct device *dev, struct viot_iommu *viommu,
-> -			       u32 epid)
-> +static int viot_dev_iommu_init(struct iommu_fwspec *fwspec, struct device *dev,
-> +			       struct viot_iommu *viommu, u32 epid)
->  {
-> -	const struct iommu_ops *ops;
-> -
->  	if (!viommu)
->  		return -ENODEV;
->  
-> @@ -316,19 +314,20 @@ static int viot_dev_iommu_init(struct device *dev, struct viot_iommu *viommu,
->  	if (device_match_fwnode(dev, viommu->fwnode))
->  		return -EINVAL;
->  
-> -	ops = iommu_ops_from_fwnode(viommu->fwnode);
-> -	if (!ops)
-> -		return IS_ENABLED(CONFIG_VIRTIO_IOMMU) ?
-> -			-EPROBE_DEFER : -ENODEV;
-> -
-> -	return acpi_iommu_fwspec_init(dev, epid, viommu->fwnode, ops);
-> +	return acpi_iommu_fwspec_init(fwspec, dev, epid, viommu->fwnode,
-> +				      IS_ENABLED(CONFIG_VIRTIO_IOMMU));
->  }
->  
-> +struct viot_pci_alias_info {
-> +	struct device *dev;
-> +	struct iommu_fwspec *fwspec;
-> +};
-> +
->  static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
->  {
->  	u32 epid;
->  	struct viot_endpoint *ep;
-> -	struct device *aliased_dev = data;
-> +	struct viot_pci_alias_info *info = data;
->  	u32 domain_nr = pci_domain_nr(pdev->bus);
->  
->  	list_for_each_entry(ep, &viot_pci_ranges, list) {
-> @@ -339,14 +338,15 @@ static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
->  			epid = ((domain_nr - ep->segment_start) << 16) +
->  				dev_id - ep->bdf_start + ep->endpoint_id;
->  
-> -			return viot_dev_iommu_init(aliased_dev, ep->viommu,
-> -						   epid);
-> +			return viot_dev_iommu_init(info->fwspec, info->dev,
-> +						   ep->viommu, epid);
->  		}
->  	}
->  	return -ENODEV;
->  }
->  
-> -static int viot_mmio_dev_iommu_init(struct platform_device *pdev)
-> +static int viot_mmio_dev_iommu_init(struct iommu_fwspec *fwspec,
-> +				    struct platform_device *pdev)
->  {
->  	struct resource *mem;
->  	struct viot_endpoint *ep;
-> @@ -357,8 +357,8 @@ static int viot_mmio_dev_iommu_init(struct platform_device *pdev)
->  
->  	list_for_each_entry(ep, &viot_mmio_endpoints, list) {
->  		if (ep->address == mem->start)
-> -			return viot_dev_iommu_init(&pdev->dev, ep->viommu,
-> -						   ep->endpoint_id);
-> +			return viot_dev_iommu_init(fwspec, &pdev->dev,
-> +						   ep->viommu, ep->endpoint_id);
->  	}
->  	return -ENODEV;
->  }
-> @@ -369,12 +369,16 @@ static int viot_mmio_dev_iommu_init(struct platform_device *pdev)
->   *
->   * Return: 0 on success, <0 on failure
->   */
-> -int viot_iommu_configure(struct device *dev)
-> +int viot_iommu_configure(struct iommu_fwspec *fwspec, struct device *dev)
->  {
-> -	if (dev_is_pci(dev))
-> +	if (dev_is_pci(dev)) {
-> +		struct viot_pci_alias_info info = { .dev = dev,
-> +						    .fwspec = fwspec };
->  		return pci_for_each_dma_alias(to_pci_dev(dev),
-> -					      viot_pci_dev_iommu_init, dev);
-> +					      viot_pci_dev_iommu_init, &info);
-> +	}
->  	else if (dev_is_platform(dev))
-> -		return viot_mmio_dev_iommu_init(to_platform_device(dev));
-> +		return viot_mmio_dev_iommu_init(fwspec,
-> +						to_platform_device(dev));
->  	return -ENODEV;
->  }
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 15dbe2d9eb24c2..9cfba9d12d1400 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -2960,9 +2960,8 @@ const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode)
->  	return ops;
->  }
->  
-> -static int iommu_fwspec_assign_iommu(struct iommu_fwspec *fwspec,
-> -				     struct device *dev,
-> -				     struct fwnode_handle *iommu_fwnode)
-> +int iommu_fwspec_assign_iommu(struct iommu_fwspec *fwspec, struct device *dev,
-> +			      struct fwnode_handle *iommu_fwnode)
->  {
->  	const struct iommu_ops *ops;
->  
-> diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-> index 254685085c825c..70f97096c776e4 100644
-> --- a/include/acpi/acpi_bus.h
-> +++ b/include/acpi/acpi_bus.h
-> @@ -12,6 +12,8 @@
->  #include <linux/device.h>
->  #include <linux/property.h>
->  
-> +struct iommu_fwspec;
-> +
->  /* TBD: Make dynamic */
->  #define ACPI_MAX_HANDLES	10
->  struct acpi_handle_list {
-> @@ -625,9 +627,9 @@ struct acpi_pci_root {
->  
->  bool acpi_dma_supported(const struct acpi_device *adev);
->  enum dev_dma_attr acpi_get_dma_attr(struct acpi_device *adev);
-> -int acpi_iommu_fwspec_init(struct device *dev, u32 id,
-> -			   struct fwnode_handle *fwnode,
-> -			   const struct iommu_ops *ops);
-> +int acpi_iommu_fwspec_init(struct iommu_fwspec *fwspec, struct device *dev,
-> +			   u32 id, struct fwnode_handle *fwnode,
-> +			   bool iommu_driver_available);
->  int acpi_dma_get_range(struct device *dev, const struct bus_dma_region **map);
->  int acpi_dma_configure_id(struct device *dev, enum dev_dma_attr attr,
->  			   const u32 *input_id);
-> diff --git a/include/linux/acpi_iort.h b/include/linux/acpi_iort.h
-> index 1cb65592c95dd3..80794ec45d1693 100644
-> --- a/include/linux/acpi_iort.h
-> +++ b/include/linux/acpi_iort.h
-> @@ -40,7 +40,8 @@ void iort_put_rmr_sids(struct fwnode_handle *iommu_fwnode,
->  		       struct list_head *head);
->  /* IOMMU interface */
->  int iort_dma_get_ranges(struct device *dev, u64 *size);
-> -int iort_iommu_configure_id(struct device *dev, const u32 *id_in);
-> +int iort_iommu_configure_id(struct iommu_fwspec *fwspec, struct device *dev,
-> +			    const u32 *id_in);
->  void iort_iommu_get_resv_regions(struct device *dev, struct list_head *head);
->  phys_addr_t acpi_iort_dma_get_max_cpu_address(void);
->  #else
-> diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
-> index a5a12243156377..f1874cb6d43c09 100644
-> --- a/include/linux/acpi_viot.h
-> +++ b/include/linux/acpi_viot.h
-> @@ -8,11 +8,12 @@
->  #ifdef CONFIG_ACPI_VIOT
->  void __init acpi_viot_early_init(void);
->  void __init acpi_viot_init(void);
-> -int viot_iommu_configure(struct device *dev);
-> +int viot_iommu_configure(struct iommu_fwspec *fwspec, struct device *dev);
->  #else
->  static inline void acpi_viot_early_init(void) {}
->  static inline void acpi_viot_init(void) {}
-> -static inline int viot_iommu_configure(struct device *dev)
-> +static inline int viot_iommu_configure(struct iommu_fwspec *fwspec,
-> +				       struct device *dev)
->  {
->  	return -ENODEV;
->  }
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index c5a5e2b5e2cc2a..27e4605d498850 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -688,6 +688,8 @@ void iommu_fwspec_dealloc(struct iommu_fwspec *fwspec);
->  int iommu_fwspec_of_xlate(struct iommu_fwspec *fwspec, struct device *dev,
->  			  struct fwnode_handle *iommu_fwnode,
->  			  struct of_phandle_args *iommu_spec);
-> +int iommu_fwspec_assign_iommu(struct iommu_fwspec *fwspec, struct device *dev,
-> +			      struct fwnode_handle *iommu_fwnode);
->  
->  int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
->  		      const struct iommu_ops *ops);
-> -- 
-> 2.42.0
-> 
+I guess we could try to infer the applied attributes to get back these
+optimizations when it makes sense, but let's keep this simple for now.
+
+Main changes:
+
+- Replace slots_lock with slots_arch_lock to make it callable from a KVM
+  hypercall.
+
+- Move this mutex lock into kvm_vm_ioctl_set_mem_attributes() to make it
+  easier to use with other locks.
+
+- Export kvm_vm_set_mem_attributes().
+
+- Remove the kvm_arch_pre_set_memory_attributes() and
+  kvm_arch_post_set_memory_attributes() KVM_MEMORY_ATTRIBUTE_PRIVATE
+  optimizations.
+
+Cc: Chao Peng <chao.p.peng@linux.intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
+---
+
+Changes since v1:
+* New patch
+---
+ arch/x86/kvm/mmu/mmu.c   | 23 -----------------------
+ include/linux/kvm_host.h |  2 ++
+ virt/kvm/kvm_main.c      | 19 ++++++++++---------
+ 3 files changed, 12 insertions(+), 32 deletions(-)
+
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 7e053973125c..4d378d308762 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -7251,20 +7251,6 @@ void kvm_mmu_pre_destroy_vm(struct kvm *kvm)
+ bool kvm_arch_pre_set_memory_attributes(struct kvm *kvm,
+ 					struct kvm_gfn_range *range)
+ {
+-	/*
+-	 * Zap SPTEs even if the slot can't be mapped PRIVATE.  KVM x86 only
+-	 * supports KVM_MEMORY_ATTRIBUTE_PRIVATE, and so it *seems* like KVM
+-	 * can simply ignore such slots.  But if userspace is making memory
+-	 * PRIVATE, then KVM must prevent the guest from accessing the memory
+-	 * as shared.  And if userspace is making memory SHARED and this point
+-	 * is reached, then at least one page within the range was previously
+-	 * PRIVATE, i.e. the slot's possible hugepage ranges are changing.
+-	 * Zapping SPTEs in this case ensures KVM will reassess whether or not
+-	 * a hugepage can be used for affected ranges.
+-	 */
+-	if (WARN_ON_ONCE(!kvm_arch_has_private_mem(kvm)))
+-		return false;
+-
+ 	return kvm_unmap_gfn_range(kvm, range);
+ }
+ 
+@@ -7313,15 +7299,6 @@ bool kvm_arch_post_set_memory_attributes(struct kvm *kvm,
+ 	lockdep_assert_held_write(&kvm->mmu_lock);
+ 	lockdep_assert_held(&kvm->slots_lock);
+ 
+-	/*
+-	 * Calculate which ranges can be mapped with hugepages even if the slot
+-	 * can't map memory PRIVATE.  KVM mustn't create a SHARED hugepage over
+-	 * a range that has PRIVATE GFNs, and conversely converting a range to
+-	 * SHARED may now allow hugepages.
+-	 */
+-	if (WARN_ON_ONCE(!kvm_arch_has_private_mem(kvm)))
+-		return false;
+-
+ 	/*
+ 	 * The sequence matters here: upper levels consume the result of lower
+ 	 * level's scanning.
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index ec32af17add8..85b8648fd892 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -2396,6 +2396,8 @@ bool kvm_arch_pre_set_memory_attributes(struct kvm *kvm,
+ 					struct kvm_gfn_range *range);
+ bool kvm_arch_post_set_memory_attributes(struct kvm *kvm,
+ 					 struct kvm_gfn_range *range);
++int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
++			      unsigned long attributes);
+ 
+ static inline bool kvm_mem_is_private(struct kvm *kvm, gfn_t gfn)
+ {
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 23633984142f..0096ccfbb609 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2552,7 +2552,7 @@ static bool kvm_pre_set_memory_attributes(struct kvm *kvm,
+ }
+ 
+ /* Set @attributes for the gfn range [@start, @end). */
+-static int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
++int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 				     unsigned long attributes)
+ {
+ 	struct kvm_mmu_notifier_range pre_set_range = {
+@@ -2577,11 +2577,11 @@ static int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 
+ 	entry = attributes ? xa_mk_value(attributes) : NULL;
+ 
+-	mutex_lock(&kvm->slots_lock);
++	lockdep_assert_held(&kvm->slots_arch_lock);
+ 
+ 	/* Nothing to do if the entire range as the desired attributes. */
+ 	if (kvm_range_has_memory_attributes(kvm, start, end, attributes))
+-		goto out_unlock;
++		return r;
+ 
+ 	/*
+ 	 * Reserve memory ahead of time to avoid having to deal with failures
+@@ -2590,7 +2590,7 @@ static int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 	for (i = start; i < end; i++) {
+ 		r = xa_reserve(&kvm->mem_attr_array, i, GFP_KERNEL_ACCOUNT);
+ 		if (r)
+-			goto out_unlock;
++			return r;
+ 	}
+ 
+ 	kvm_handle_gfn_range(kvm, &pre_set_range);
+@@ -2602,15 +2602,13 @@ static int kvm_vm_set_mem_attributes(struct kvm *kvm, gfn_t start, gfn_t end,
+ 	}
+ 
+ 	kvm_handle_gfn_range(kvm, &post_set_range);
+-
+-out_unlock:
+-	mutex_unlock(&kvm->slots_lock);
+-
+ 	return r;
+ }
++
+ static int kvm_vm_ioctl_set_mem_attributes(struct kvm *kvm,
+ 					   struct kvm_memory_attributes *attrs)
+ {
++	int r;
+ 	gfn_t start, end;
+ 
+ 	/* flags is currently not used. */
+@@ -2633,7 +2631,10 @@ static int kvm_vm_ioctl_set_mem_attributes(struct kvm *kvm,
+ 	 */
+ 	BUILD_BUG_ON(sizeof(attrs->attributes) != sizeof(unsigned long));
+ 
+-	return kvm_vm_set_mem_attributes(kvm, start, end, attrs->attributes);
++	mutex_lock(&kvm->slots_arch_lock);
++	r = kvm_vm_set_mem_attributes(kvm, start, end, attrs->attributes);
++	mutex_unlock(&kvm->slots_arch_lock);
++	return r;
+ }
+ #endif /* CONFIG_KVM_GENERIC_MEMORY_ATTRIBUTES */
+ 
+-- 
+2.42.1
+
