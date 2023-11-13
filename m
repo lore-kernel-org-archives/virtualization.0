@@ -1,485 +1,119 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B76847B
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33CB111702
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 05:51:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="JKmMqdli"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="gqM43HrN"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D0FA440148
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D0FA440148
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=JKmMqdli
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9BCBD416D1
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 05:51:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9BCBD416D1
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=gqM43HrN
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.798
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9vgEF6YTITeT
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Na3bmpXiEVg1
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 13 Nov 2023 02:42:30 +0000 (UTC)
-Received: from smtp-8fa8.mail.infomaniak.ch (smtp-8fa8.mail.infomaniak.ch [83.166.143.168])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B43D7400CB
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:42:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B43D7400CB
-Received: from smtp-3-0000.mail.infomaniak.ch (unknown [10.4.36.107])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtb03xVzMpvcL;
-	Mon, 13 Nov 2023 02:24:39 +0000 (UTC)
-Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtY6j2Kz3W;
-	Mon, 13 Nov 2023 03:24:37 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842278;
-	bh=udX3yMbRw+y6U4YMfanKu8XE/62XvcB7w1fSqqDyDOI=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=JKmMqdlijgI0WHD2CFxV/y7DWfB+LUKrwQo0xOX8EfXAZsvA9YZ7OO5gDS9iDz+rl
-	 OhhkExnEBcdos98SON70W/UL9RJeu0hGR5koDZT8lkh5am5LEoQnacmgelAtWgQqxy
-	 GoKDTdCaRbpksDhhbdbuDq2zFJFNL69+pG5malPA=
-From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
-To: Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Ingo Molnar <mingo@redhat.com>,
-	Kees Cook <keescook@chromium.org>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Wanpeng Li <wanpengli@tencent.com>
-Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
-	Alexander Graf <graf@amazon.com>,
-	Chao Peng <chao.p.peng@linux.intel.com>,
-	"Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
-	Forrest Yuan Yu <yuanyu@google.com>,
-	James Gowans <jgowans@amazon.com>,
-	James Morris <jamorris@linux.microsoft.com>,
-	John Andersen <john.s.andersen@intel.com>,
-	"Madhavan T . Venkataraman" <madvenka@linux.microsoft.com>,
-	Marian Rotariu <marian.c.rotariu@gmail.com>,
-	=?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>,
-	=?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>,
-	Thara Gopinath <tgopinath@microsoft.com>,
-	Trilok Soni <quic_tsoni@quicinc.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Will Deacon <will@kernel.org>,
-	Yu Zhang <yu.c.zhang@linux.intel.com>,
-	Zahra Tarkhani <ztarkhani@microsoft.com>,
-	=?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>,
-	dev@lists.cloudhypervisor.org,
-	kvm@vger.kernel.org,
-	linux-hardening@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	qemu-devel@nongnu.org,
-	virtualization@lists.linux-foundation.org,
-	x86@kernel.org,
-	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 12/19] x86: Implement the Memory Table feature to store arbitrary per-page data
-Date: Sun, 12 Nov 2023 21:23:19 -0500
-Message-ID: <20231113022326.24388-13-mic@digikod.net>
-In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
-References: <20231113022326.24388-1-mic@digikod.net>
+	Mon, 13 Nov 2023 05:51:55 +0000 (UTC)
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 04E6B416C6
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 05:51:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 04E6B416C6
+Received: by mail-pg1-x52f.google.com with SMTP id 41be03b00d2f7-5c194b111d6so424348a12.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 12 Nov 2023 21:51:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1699854713; x=1700459513; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=d3gsxgxUWE7sauUTr/vPNFu3myJ6+D29dcITW4pw1EI=;
+        b=gqM43HrNMscxZ3xNS31EP3QMX+1tHjCK0JhjT7QGn0BNuLxCTDh384X2yc+6CgMPuj
+         L2aCkrKQ/9hKxQ6THdzvYvpiGEluSgFcHJeDjbfKlXLqnspq37NZWsNuZgEqBzmdzKDy
+         OoU9DxHwE1tusO0NvRT9kndkDPnBY8kMO7nco=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699854713; x=1700459513;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=d3gsxgxUWE7sauUTr/vPNFu3myJ6+D29dcITW4pw1EI=;
+        b=H44bNAywivSBoFk48Wx+CbRt8GsBn7ytJ8Lg0WwLVhWgsVbp8jjblNiM2TW0WXS4o/
+         pYy9yixLEa5Qky8sXEswXtQncTOaAwCaAOKIRSMdiMIHlILg3sG+jd5no+NwbvMDNPHy
+         xkKk/tZuT3ZW7USWDod+eKkxeIqT7y6X6zKFMqa+9lsOUtw9G4TyTF/yH4hdmlPtj5Ur
+         u+S9zzJVdQ9jLq4tdqHrc1w+CsI2guyALbFtatO9iY9WcOr18gIMn6lmzb67MXlSBfna
+         DT5MBo/zwNg7EAFyp6HW+MitLgDRdSja9A1mEVVHPP1TQo2n/ftFraobAuCVR+1OAJ1T
+         O6mw==
+X-Gm-Message-State: AOJu0YzcNBonFjiYI9uN1FPrbom19JwNHKnF4YWu8QBQvrcI5Sj2oBMd
+	SlUFOQVr4FZDq2ySQlND/AKPSK+cdB2vjcS3wQo=
+X-Google-Smtp-Source: AGHT+IGtoqIiLNdRIrkQj/Km8AZg8AWLn5j3QqvI8VTAGO98KBA9/AXhjfpsp6WdhaljfbeKQiE4fA==
+X-Received: by 2002:a05:6a20:1447:b0:185:a90d:367e with SMTP id a7-20020a056a20144700b00185a90d367emr8322809pzi.2.1699854713209;
+        Sun, 12 Nov 2023 21:51:53 -0800 (PST)
+Received: from localhost ([2401:fa00:8f:203:b3d4:3d34:1798:ff1c])
+        by smtp.gmail.com with UTF8SMTPSA id jc17-20020a17090325d100b001c724732058sm3373241plb.235.2023.11.12.21.51.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 12 Nov 2023 21:51:52 -0800 (PST)
+From: David Stevens <stevensd@chromium.org>
+To: virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org
+Cc: David Stevens <stevensd@chromium.org>
+Subject: [PATCH] virtio: Add virtio-device power management
+Date: Mon, 13 Nov 2023 14:51:38 +0900
+Message-ID: <20231113055138.117392-1-stevensd@chromium.org>
+X-Mailer: git-send-email 2.42.0.869.gea05f2083d-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Infomaniak-Routing: alpha
 
-From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Virtio power management for virtio pci devices is defined on top of PCI
+power management, so it mostly works out of the box. All that's needed
+is to add suspend/resume callbacks to the virtio core, instead of
+reusing the freeze/restore.
 
-This feature can be used by a consumer to associate any arbitrary
-pointer with a physical page. The feature implements a page table format
-that mirrors the hardware page table. A leaf entry in the table points
-to consumer data for that page.
-
-The page table format has these advantages:
-
-- The format allows for a sparse representation. This is useful since
-  the physical address space can be large and is typically sparsely
-  populated in a system.
-
-- A consumer of this feature can choose to populate data just for the
-  pages he is interested in.
-
-- Information can be stored for large pages, if a consumer wishes.
-
-For instance, for Heki, the guest kernel uses this to create permissions
-counters for each guest physical page. The permissions counters reflects
-the collective permissions for a guest physical page across all mappings
-to that page. This allows the guest to request the hypervisor to set
-only the necessary permissions for a guest physical page in the EPT
-(instead of RWX).
-
-This feature could also be used to improve the KVM's memory attribute
-and the write page tracking.
-
-We will support large page entries in mem_table in a future version
-thanks to extra mem_table_ops's merge() and split() operations.
-
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Mickaël Salaün <mic@digikod.net>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Signed-off-by: David Stevens <stevensd@chromium.org>
 ---
+ drivers/virtio/virtio_pci_common.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-Changes since v1:
-* New patch and new file: kernel/mem_table.c
----
- arch/x86/kernel/setup.c   |   2 +
- include/linux/heki.h      |   1 +
- include/linux/mem_table.h |  55 ++++++++++
- kernel/Makefile           |   2 +
- kernel/mem_table.c        | 219 ++++++++++++++++++++++++++++++++++++++
- 5 files changed, 279 insertions(+)
- create mode 100644 include/linux/mem_table.h
- create mode 100644 kernel/mem_table.c
-
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index b098b1fa2470..e7ae46953ae4 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -25,6 +25,7 @@
- #include <linux/static_call.h>
- #include <linux/swiotlb.h>
- #include <linux/random.h>
-+#include <linux/mem_table.h>
- 
- #include <uapi/linux/mount.h>
- 
-@@ -1315,6 +1316,7 @@ void __init setup_arch(char **cmdline_p)
- #endif
- 
- 	unwind_init();
-+	mem_table_init(PG_LEVEL_4K);
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index c2524a7207cf..0cad900eaf4f 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -492,8 +492,27 @@ static int virtio_pci_restore(struct device *dev)
+ 	return virtio_device_restore(&vp_dev->vdev);
  }
  
- #ifdef CONFIG_X86_32
-diff --git a/include/linux/heki.h b/include/linux/heki.h
-index 89cc9273a968..9b0c966c50d1 100644
---- a/include/linux/heki.h
-+++ b/include/linux/heki.h
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/printk.h>
-+#include <linux/slab.h>
++static int virtio_pci_suspend(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++
++	return pci_dev->pm_cap ? 0 : virtio_pci_freeze(dev);
++}
++
++static int virtio_pci_resume(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++
++	return pci_dev->pm_cap ? 0 : virtio_pci_restore(dev);
++}
++
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
++	.suspend = virtio_pci_suspend,
++	.resume = virtio_pci_resume,
++	.freeze = virtio_pci_freeze,
++	.thaw = virtio_pci_restore,
++	.poweroff = virtio_pci_freeze,
++	.restore = virtio_pci_restore,
+ };
+ #endif
  
- #ifdef CONFIG_HEKI
- 
-diff --git a/include/linux/mem_table.h b/include/linux/mem_table.h
-new file mode 100644
-index 000000000000..738bf12309f3
---- /dev/null
-+++ b/include/linux/mem_table.h
-@@ -0,0 +1,55 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Memory table feature - Definitions.
-+ *
-+ * Copyright © 2023 Microsoft Corporation.
-+ */
-+
-+#ifndef __MEM_TABLE_H__
-+#define __MEM_TABLE_H__
-+
-+/* clang-format off */
-+
-+/*
-+ * The MEM_TABLE bit is set on entries that point to an intermediate table.
-+ * So, this bit is reserved. This means that pointers to consumer data must
-+ * be at least two-byte aligned (so the MEM_TABLE bit is 0).
-+ */
-+#define MEM_TABLE		BIT(0)
-+#define IS_LEAF(entry)		!((uintptr_t)entry & MEM_TABLE)
-+
-+/* clang-format on */
-+
-+/*
-+ * A memory table is arranged exactly like a page table. The memory table
-+ * configuration reflects the hardware page table configuration.
-+ */
-+
-+/* Parameters at each level of the memory table hierarchy. */
-+struct mem_table_level {
-+	unsigned int number;
-+	unsigned int nentries;
-+	unsigned int shift;
-+	unsigned int mask;
-+};
-+
-+struct mem_table {
-+	struct mem_table_level *level;
-+	struct mem_table_ops *ops;
-+	bool changed;
-+	void *entries[];
-+};
-+
-+/* Operations that need to be supplied by a consumer of memory tables. */
-+struct mem_table_ops {
-+	void (*free)(void *buf);
-+};
-+
-+void mem_table_init(unsigned int base_level);
-+struct mem_table *mem_table_alloc(struct mem_table_ops *ops);
-+void mem_table_free(struct mem_table *table);
-+void **mem_table_create(struct mem_table *table, phys_addr_t pa);
-+void **mem_table_find(struct mem_table *table, phys_addr_t pa,
-+		      unsigned int *level_num);
-+
-+#endif /* __MEM_TABLE_H__ */
-diff --git a/kernel/Makefile b/kernel/Makefile
-index 3947122d618b..dcef03ec5c54 100644
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -131,6 +131,8 @@ obj-$(CONFIG_WATCH_QUEUE) += watch_queue.o
- obj-$(CONFIG_RESOURCE_KUNIT_TEST) += resource_kunit.o
- obj-$(CONFIG_SYSCTL_KUNIT_TEST) += sysctl-test.o
- 
-+obj-$(CONFIG_SPARSEMEM) += mem_table.o
-+
- CFLAGS_stackleak.o += $(DISABLE_STACKLEAK_PLUGIN)
- obj-$(CONFIG_GCC_PLUGIN_STACKLEAK) += stackleak.o
- KASAN_SANITIZE_stackleak.o := n
-diff --git a/kernel/mem_table.c b/kernel/mem_table.c
-new file mode 100644
-index 000000000000..280a1b5ddde0
---- /dev/null
-+++ b/kernel/mem_table.c
-@@ -0,0 +1,219 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Memory table feature.
-+ *
-+ * This feature can be used by a consumer to associate any arbitrary pointer
-+ * with a physical page. The feature implements a page table format that
-+ * mirrors the hardware page table. A leaf entry in the table points to
-+ * consumer data for that page.
-+ *
-+ * The page table format has these advantages:
-+ *
-+ *	- The format allows for a sparse representation. This is useful since
-+ *	  the physical address space can be large and is typically sparsely
-+ *	  populated in a system.
-+ *
-+ *	- A consumer of this feature can choose to populate data just for
-+ *	  the pages he is interested in.
-+ *
-+ *	- Information can be stored for large pages, if a consumer wishes.
-+ *
-+ * For instance, for Heki, the guest kernel uses this to create permissions
-+ * counters for each guest physical page. The permissions counters reflects the
-+ * collective permissions for a guest physical page across all mappings to that
-+ * page. This allows the guest to request the hypervisor to set only the
-+ * necessary permissions for a guest physical page in the EPT (instead of RWX).
-+ *
-+ * Copyright © 2023 Microsoft Corporation.
-+ */
-+
-+/*
-+ * Memory table functions use recursion for simplicity. The recursion is bounded
-+ * by the number of hardware page table levels.
-+ *
-+ * Locking is left to the caller of these functions.
-+ */
-+#include <linux/heki.h>
-+#include <linux/mem_table.h>
-+#include <linux/pgtable.h>
-+
-+#define TABLE(entry) ((void *)((uintptr_t)entry & ~MEM_TABLE))
-+#define ENTRY(table) ((void *)((uintptr_t)table | MEM_TABLE))
-+
-+/*
-+ * Within this feature, the table levels start from 0. On X86, the base level
-+ * is not 0.
-+ */
-+unsigned int mem_table_base_level __ro_after_init;
-+unsigned int mem_table_nlevels __ro_after_init;
-+struct mem_table_level mem_table_levels[CONFIG_PGTABLE_LEVELS] __ro_after_init;
-+
-+void __init mem_table_init(unsigned int base_level)
-+{
-+	struct mem_table_level *level;
-+	unsigned long shift, delta_shift;
-+	int physmem_bits;
-+	int i, max_levels;
-+
-+	/*
-+	 * Compute the actual number of levels present. Compute the parameters
-+	 * for each level.
-+	 */
-+	shift = ilog2(PAGE_SIZE);
-+	physmem_bits = PAGE_SHIFT;
-+	max_levels = CONFIG_PGTABLE_LEVELS;
-+
-+	for (i = 0; i < max_levels && physmem_bits < MAX_PHYSMEM_BITS; i++) {
-+		level = &mem_table_levels[i];
-+
-+		switch (i) {
-+		case 0:
-+			level->nentries = PTRS_PER_PTE;
-+			break;
-+		case 1:
-+			level->nentries = PTRS_PER_PMD;
-+			break;
-+		case 2:
-+			level->nentries = PTRS_PER_PUD;
-+			break;
-+		case 3:
-+			level->nentries = PTRS_PER_P4D;
-+			break;
-+		case 4:
-+			level->nentries = PTRS_PER_PGD;
-+			break;
-+		}
-+		level->number = i;
-+		level->shift = shift;
-+		level->mask = level->nentries - 1;
-+
-+		delta_shift = ilog2(level->nentries);
-+		shift += delta_shift;
-+		physmem_bits += delta_shift;
-+	}
-+	mem_table_nlevels = i;
-+	mem_table_base_level = base_level;
-+}
-+
-+struct mem_table *mem_table_alloc(struct mem_table_ops *ops)
-+{
-+	struct mem_table_level *level;
-+	struct mem_table *table;
-+
-+	level = &mem_table_levels[mem_table_nlevels - 1];
-+
-+	table = kzalloc(struct_size(table, entries, level->nentries),
-+			GFP_KERNEL);
-+	if (table) {
-+		table->level = level;
-+		table->ops = ops;
-+		return table;
-+	}
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(mem_table_alloc);
-+
-+static void _mem_table_free(struct mem_table *table)
-+{
-+	struct mem_table_level *level = table->level;
-+	void **entries = table->entries;
-+	struct mem_table_ops *ops = table->ops;
-+	int i;
-+
-+	for (i = 0; i < level->nentries; i++) {
-+		if (!entries[i])
-+			continue;
-+		if (IS_LEAF(entries[i])) {
-+			/* The consumer frees the pointer. */
-+			ops->free(entries[i]);
-+			continue;
-+		}
-+		_mem_table_free(TABLE(entries[i]));
-+	}
-+	kfree(table);
-+}
-+
-+void mem_table_free(struct mem_table *table)
-+{
-+	_mem_table_free(table);
-+}
-+EXPORT_SYMBOL_GPL(mem_table_free);
-+
-+static void **_mem_table_find(struct mem_table *table, phys_addr_t pa,
-+			      unsigned int *level_number)
-+{
-+	struct mem_table_level *level = table->level;
-+	void **entries = table->entries;
-+	unsigned long i;
-+
-+	i = (pa >> level->shift) & level->mask;
-+
-+	*level_number = level->number;
-+	if (!entries[i])
-+		return NULL;
-+
-+	if (IS_LEAF(entries[i]))
-+		return &entries[i];
-+
-+	return _mem_table_find(TABLE(entries[i]), pa, level_number);
-+}
-+
-+void **mem_table_find(struct mem_table *table, phys_addr_t pa,
-+		      unsigned int *level_number)
-+{
-+	void **entry;
-+
-+	entry = _mem_table_find(table, pa, level_number);
-+	level_number += mem_table_base_level;
-+
-+	return entry;
-+}
-+EXPORT_SYMBOL_GPL(mem_table_find);
-+
-+static void **_mem_table_create(struct mem_table *table, phys_addr_t pa)
-+{
-+	struct mem_table_level *level = table->level;
-+	void **entries = table->entries;
-+	unsigned long i;
-+
-+	table->changed = true;
-+	i = (pa >> level->shift) & level->mask;
-+
-+	if (!level->number) {
-+		/*
-+		 * Reached the lowest level. Return a pointer to the entry
-+		 * so that the consumer can populate it.
-+		 */
-+		return &entries[i];
-+	}
-+
-+	/*
-+	 * If the entry is NULL, then create a lower level table and make the
-+	 * entry point to it. Or, if the entry is a leaf, then we need to
-+	 * split the entry. In this case as well, create a lower level table
-+	 * to split the entry.
-+	 */
-+	if (!entries[i] || IS_LEAF(entries[i])) {
-+		struct mem_table *next;
-+
-+		/* Create next level table. */
-+		level--;
-+		next = kzalloc(struct_size(table, entries, level->nentries),
-+			       GFP_KERNEL);
-+		if (!next)
-+			return NULL;
-+
-+		next->level = level;
-+		next->ops = table->ops;
-+		next->changed = true;
-+		entries[i] = ENTRY(next);
-+	}
-+
-+	return _mem_table_create(TABLE(entries[i]), pa);
-+}
-+
-+void **mem_table_create(struct mem_table *table, phys_addr_t pa)
-+{
-+	return _mem_table_create(table, pa);
-+}
-+EXPORT_SYMBOL_GPL(mem_table_create);
 -- 
-2.42.1
+2.42.0.869.gea05f2083d-goog
 
