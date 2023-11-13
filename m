@@ -1,41 +1,42 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573DBBE69
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E44AA1775F
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="dJfAiYA2"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="K6v5KJH9"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CEFA840148
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:31:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CEFA840148
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=dJfAiYA2
+	by smtp1.osuosl.org (Postfix) with ESMTP id 846F282036
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 846F282036
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=K6v5KJH9
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.798
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UU-VC0kwKj8s
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fVB1xr0Qh3Wx
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 13 Nov 2023 02:31:53 +0000 (UTC)
-Received: from smtp-42a9.mail.infomaniak.ch (smtp-42a9.mail.infomaniak.ch [84.16.66.169])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 567D1403E7
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:31:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 567D1403E7
+	Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
+X-Greylist: delayed 508 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 13 Nov 2023 02:32:29 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 30F968202C
+Received: from smtp-bc08.mail.infomaniak.ch (smtp-bc08.mail.infomaniak.ch [IPv6:2001:1600:4:17::bc08])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 30F968202C
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
 Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
-	by smtp-2-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtx4lfyzMq2H9;
-	Mon, 13 Nov 2023 02:24:57 +0000 (UTC)
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtw1z09zMpnPr;
-	Mon, 13 Nov 2023 03:24:56 +0100 (CET)
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCtf4t44zMpvd2;
+	Mon, 13 Nov 2023 02:24:42 +0000 (UTC)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCtd2zG3zMpnPr;
+	Mon, 13 Nov 2023 03:24:41 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842297;
-	bh=x8fg6SD1g74kkGJ23TK2HH1loleby/1wIvw5whB02rE=;
+	s=20191114; t=1699842282;
+	bh=hEzwbKiCPTVRprt7TA2n5SNi5zwGnb2iVWTsgeipVHE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=dJfAiYA2HYA3jqI/ZQKjz5gzrQbNbqyogck83ckqbDcyi+QeXvv9eLzd5ebcYVOvo
-	 cLtZ+H/07iEl7T5kTrk2eFqbGuc3VumW1ct0jF8/XyG299t2fBuDo8YODWnquBbTNY
-	 ymQ6InNw/ozaj7PTIf8MX7lr4GmSX3s7IhzlnmOM=
+	b=K6v5KJH9jR6IiLGfGMDtfMvhMpsRKAlNdnYP3VLP1tQYDJsD9yOa1l7BiqESRCqDJ
+	 cmZYiFVvTDYPtiXd2tBOhB0CrMCZj3y2+qczeM+o9M04Idv7FHkodSM7IbhjzC/hXd
+	 PiK+ofD1UU5HDgZ8vthIvlYSVcyE4os40daGAPbA=
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -76,9 +77,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 17/19] heki: x86: Update permissions counters during text patching
-Date: Sun, 12 Nov 2023 21:23:24 -0500
-Message-ID: <20231113022326.24388-18-mic@digikod.net>
+Subject: [RFC PATCH v2 13/19] heki: Implement a kernel page table walker
+Date: Sun, 12 Nov 2023 21:23:20 -0500
+Message-ID: <20231113022326.24388-14-mic@digikod.net>
 In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
 References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
@@ -93,12 +94,20 @@ X-Infomaniak-Routing: alpha
 
 From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 
-X86 uses a function called __text_poke() to modify executable code. This
-patching function is used by many features such as KProbes and FTrace.
+The Heki feature needs to do the following:
 
-Update the permissions counters for the text page so that write
-permissions can be temporarily established in the EPT to modify the
-instructions in that page.
+- Find kernel mappings.
+
+- Determine the permissions associated with each mapping.
+
+- Determine the collective permissions for a guest physical page across
+  all of its mappings.
+
+This way, a guest physical page can reflect only the required
+permissions in the EPT thanks to the KVM_HC_PROTECT_MEMORY hypercall..
+
+Implement a kernel page table walker that walks all of the kernel
+mappings and calls a callback function for each mapping.
 
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
@@ -106,165 +115,207 @@ Cc: H. Peter Anvin <hpa@zytor.com>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Kees Cook <keescook@chromium.org>
 Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-Cc: Mickaël Salaün <mic@digikod.net>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Sean Christopherson <seanjc@google.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: Wanpeng Li <wanpengli@tencent.com>
+Co-developed-by: Mickaël Salaün <mic@digikod.net>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 ---
 
-Changes since v1:
-* New patch
+Change since v1:
+* New patch and new file: virt/heki/walk.c
 ---
- arch/x86/kernel/alternative.c |  5 ++++
- arch/x86/mm/heki.c            | 49 +++++++++++++++++++++++++++++++++++
- include/linux/heki.h          | 14 ++++++++++
- 3 files changed, 68 insertions(+)
+ include/linux/heki.h |  16 +++++
+ virt/heki/Makefile   |   1 +
+ virt/heki/walk.c     | 140 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 157 insertions(+)
+ create mode 100644 virt/heki/walk.c
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 517ee01503be..64fd8757ba5c 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -18,6 +18,7 @@
- #include <linux/mmu_context.h>
- #include <linux/bsearch.h>
- #include <linux/sync_core.h>
-+#include <linux/heki.h>
- #include <asm/text-patching.h>
- #include <asm/alternative.h>
- #include <asm/sections.h>
-@@ -1801,6 +1802,7 @@ static void *__text_poke(text_poke_f func, void *addr, const void *src, size_t l
- 	 */
- 	pgprot = __pgprot(pgprot_val(PAGE_KERNEL) & ~_PAGE_GLOBAL);
- 
-+	heki_text_poke_start(pages, cross_page_boundary ? 2 : 1, pgprot);
- 	/*
- 	 * The lock is not really needed, but this allows to avoid open-coding.
- 	 */
-@@ -1865,7 +1867,10 @@ static void *__text_poke(text_poke_f func, void *addr, const void *src, size_t l
- 	}
- 
- 	local_irq_restore(flags);
-+
- 	pte_unmap_unlock(ptep, ptl);
-+	heki_text_poke_end(pages, cross_page_boundary ? 2 : 1, pgprot);
-+
- 	return addr;
- }
- 
-diff --git a/arch/x86/mm/heki.c b/arch/x86/mm/heki.c
-index c0eace9e343f..e4c60d8b4f2d 100644
---- a/arch/x86/mm/heki.c
-+++ b/arch/x86/mm/heki.c
-@@ -5,8 +5,11 @@
-  * Copyright © 2023 Microsoft Corporation
-  */
- 
-+#include <asm/pgtable.h>
-+#include <asm/text-patching.h>
- #include <linux/heki.h>
- #include <linux/kvm_mem_attr.h>
-+#include <linux/mm.h>
- 
- #ifdef pr_fmt
- #undef pr_fmt
-@@ -63,3 +66,49 @@ void heki_pgprot_to_permissions(pgprot_t prot, unsigned long *set,
- 	if (pgprot_val(prot) & _PAGE_NX)
- 		*clear |= MEM_ATTR_EXEC;
- }
-+
-+static unsigned long heki_pgprot_to_flags(pgprot_t prot)
-+{
-+	unsigned long flags = 0;
-+
-+	if (pgprot_val(prot) & _PAGE_RW)
-+		flags |= _PAGE_RW;
-+	if (pgprot_val(prot) & _PAGE_NX)
-+		flags |= _PAGE_NX;
-+	return flags;
-+}
-+
-+static void heki_text_poke_common(struct page **pages, int npages,
-+				  pgprot_t prot, enum heki_cmd cmd)
-+{
-+	struct heki_args args = {
-+		.cmd = cmd,
-+	};
-+	unsigned long va = poking_addr;
-+	int i;
-+
-+	if (!heki.counters)
-+		return;
-+
-+	mutex_lock(&heki_lock);
-+
-+	for (i = 0; i < npages; i++, va += PAGE_SIZE) {
-+		args.va = va;
-+		args.pa = page_to_pfn(pages[i]) << PAGE_SHIFT;
-+		args.size = PAGE_SIZE;
-+		args.flags = heki_pgprot_to_flags(prot);
-+		heki_callback(&args);
-+	}
-+
-+	mutex_unlock(&heki_lock);
-+}
-+
-+void heki_text_poke_start(struct page **pages, int npages, pgprot_t prot)
-+{
-+	heki_text_poke_common(pages, npages, prot, HEKI_MAP);
-+}
-+
-+void heki_text_poke_end(struct page **pages, int npages, pgprot_t prot)
-+{
-+	heki_text_poke_common(pages, npages, prot, HEKI_UNMAP);
-+}
 diff --git a/include/linux/heki.h b/include/linux/heki.h
-index 079b34af07f0..6f2cfddc6dac 100644
+index 9b0c966c50d1..a7ae0b387dfe 100644
 --- a/include/linux/heki.h
 +++ b/include/linux/heki.h
-@@ -111,6 +111,7 @@ typedef void (*heki_func_t)(struct heki_args *args);
+@@ -61,6 +61,22 @@ struct heki {
+ 	struct heki_hypervisor *hypervisor;
+ };
  
++/*
++ * The kernel page table is walked to locate kernel mappings. For each
++ * mapping, a callback function is called. The table walker passes information
++ * about the mapping to the callback using this structure.
++ */
++struct heki_args {
++	/* Information passed by the table walker to the callback. */
++	unsigned long va;
++	phys_addr_t pa;
++	size_t size;
++	unsigned long flags;
++};
++
++/* Callback function called by the table walker. */
++typedef void (*heki_func_t)(struct heki_args *args);
++
  extern struct heki heki;
  extern bool heki_enabled;
-+extern struct mutex heki_lock;
  
- extern bool __read_mostly enable_mbec;
+diff --git a/virt/heki/Makefile b/virt/heki/Makefile
+index 354e567df71c..a5daa4ff7a4f 100644
+--- a/virt/heki/Makefile
++++ b/virt/heki/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
  
-@@ -123,12 +124,15 @@ void heki_map(unsigned long va, unsigned long end);
- void heki_update(unsigned long va, unsigned long end, unsigned long set,
- 		 unsigned long clear);
- void heki_unmap(unsigned long va, unsigned long end);
-+void heki_callback(struct heki_args *args);
- 
- /* Arch-specific functions. */
- void heki_arch_early_init(void);
- unsigned long heki_flags_to_permissions(unsigned long flags);
- void heki_pgprot_to_permissions(pgprot_t prot, unsigned long *set,
- 				unsigned long *clear);
-+void heki_text_poke_start(struct page **pages, int npages, pgprot_t prot);
-+void heki_text_poke_end(struct page **pages, int npages, pgprot_t prot);
- 
- #else /* !CONFIG_HEKI */
- 
-@@ -149,6 +153,16 @@ static inline void heki_unmap(unsigned long va, unsigned long end)
- {
- }
- 
-+/* Arch-specific functions. */
-+static inline void heki_text_poke_start(struct page **pages, int npages,
-+					pgprot_t prot)
+ obj-y += main.o
++obj-y += walk.o
+diff --git a/virt/heki/walk.c b/virt/heki/walk.c
+new file mode 100644
+index 000000000000..e10b54226fcc
+--- /dev/null
++++ b/virt/heki/walk.c
+@@ -0,0 +1,140 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Hypervisor Enforced Kernel Integrity (Heki) - Kernel page table walker.
++ *
++ * Copyright © 2023 Microsoft Corporation
++ *
++ * Cf. arch/x86/mm/init_64.c
++ */
++
++#include <linux/heki.h>
++#include <linux/pgtable.h>
++
++static void heki_walk_pte(pmd_t *pmd, unsigned long va, unsigned long va_end,
++			  heki_func_t func, struct heki_args *args)
 +{
-+}
-+static inline void heki_text_poke_end(struct page **pages, int npages,
-+				      pgprot_t prot)
-+{
++	pte_t *pte;
++	unsigned long next_va;
++
++	for (pte = pte_offset_kernel(pmd, va); va < va_end;
++	     va = next_va, pte++) {
++		next_va = (va + PAGE_SIZE) & PAGE_MASK;
++
++		if (next_va > va_end)
++			next_va = va_end;
++
++		if (!pte_present(*pte))
++			continue;
++
++		args->va = va;
++		args->pa = pte_pfn(*pte) << PAGE_SHIFT;
++		args->size = PAGE_SIZE;
++		args->flags = pte_flags(*pte);
++
++		func(args);
++	}
 +}
 +
- #endif /* CONFIG_HEKI */
- 
- #endif /* __HEKI_H__ */
++static void heki_walk_pmd(pud_t *pud, unsigned long va, unsigned long va_end,
++			  heki_func_t func, struct heki_args *args)
++{
++	pmd_t *pmd;
++	unsigned long next_va;
++
++	for (pmd = pmd_offset(pud, va); va < va_end; va = next_va, pmd++) {
++		next_va = pmd_addr_end(va, va_end);
++
++		if (!pmd_present(*pmd))
++			continue;
++
++		if (pmd_large(*pmd)) {
++			args->va = va;
++			args->pa = pmd_pfn(*pmd) << PAGE_SHIFT;
++			args->pa += va & (PMD_SIZE - 1);
++			args->size = next_va - va;
++			args->flags = pmd_flags(*pmd);
++
++			func(args);
++		} else {
++			heki_walk_pte(pmd, va, next_va, func, args);
++		}
++	}
++}
++
++static void heki_walk_pud(p4d_t *p4d, unsigned long va, unsigned long va_end,
++			  heki_func_t func, struct heki_args *args)
++{
++	pud_t *pud;
++	unsigned long next_va;
++
++	for (pud = pud_offset(p4d, va); va < va_end; va = next_va, pud++) {
++		next_va = pud_addr_end(va, va_end);
++
++		if (!pud_present(*pud))
++			continue;
++
++		if (pud_large(*pud)) {
++			args->va = va;
++			args->pa = pud_pfn(*pud) << PAGE_SHIFT;
++			args->pa += va & (PUD_SIZE - 1);
++			args->size = next_va - va;
++			args->flags = pud_flags(*pud);
++
++			func(args);
++		} else {
++			heki_walk_pmd(pud, va, next_va, func, args);
++		}
++	}
++}
++
++static void heki_walk_p4d(pgd_t *pgd, unsigned long va, unsigned long va_end,
++			  heki_func_t func, struct heki_args *args)
++{
++	p4d_t *p4d;
++	unsigned long next_va;
++
++	for (p4d = p4d_offset(pgd, va); va < va_end; va = next_va, p4d++) {
++		next_va = p4d_addr_end(va, va_end);
++
++		if (!p4d_present(*p4d))
++			continue;
++
++		if (p4d_large(*p4d)) {
++			args->va = va;
++			args->pa = p4d_pfn(*p4d) << PAGE_SHIFT;
++			args->pa += va & (P4D_SIZE - 1);
++			args->size = next_va - va;
++			args->flags = p4d_flags(*p4d);
++
++			func(args);
++		} else {
++			heki_walk_pud(p4d, va, next_va, func, args);
++		}
++	}
++}
++
++void heki_walk(unsigned long va, unsigned long va_end, heki_func_t func,
++	       struct heki_args *args)
++{
++	pgd_t *pgd;
++	unsigned long next_va;
++
++	for (pgd = pgd_offset_k(va); va < va_end; va = next_va, pgd++) {
++		next_va = pgd_addr_end(va, va_end);
++
++		if (!pgd_present(*pgd))
++			continue;
++
++		if (pgd_large(*pgd)) {
++			args->va = va;
++			args->pa = pgd_pfn(*pgd) << PAGE_SHIFT;
++			args->pa += va & (PGDIR_SIZE - 1);
++			args->size = next_va - va;
++			args->flags = pgd_flags(*pgd);
++
++			func(args);
++		} else {
++			heki_walk_p4d(pgd, va, next_va, func, args);
++		}
++	}
++}
 -- 
 2.42.1
 
