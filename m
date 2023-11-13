@@ -1,45 +1,45 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1166015ACF
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:20:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15C34168A9
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:54:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RGky/CDn"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="wROikK0F"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8DC4781F96
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:20:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8DC4781F96
+	by smtp1.osuosl.org (Postfix) with ESMTP id 742AE81008
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:54:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 742AE81008
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=RGky/CDn
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=wROikK0F
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.398
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OgxMpnuGn0Wp
+	with ESMTP id S2DLMCfmZOcz
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 13 Nov 2023 08:20:33 +0000 (UTC)
+	Mon, 13 Nov 2023 08:54:54 +0000 (UTC)
 Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DD47C81F95
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:20:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DD47C81F95
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9DBE280FB9
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 08:54:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9DBE280FB9
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
 	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
 	Sender:Reply-To:Content-ID:Content-Description;
-	bh=Vb6yF7Z1sBKdQY3wavT2xUDJmLu+GkW+0ySW8ghKdVA=; b=RGky/CDnkLKlTSPAu++ti06E7l
-	ILAUJR6hOpprntlymw3H+pU19GgkD0k1AUHCUWsxWBB7DQLk2U3onnfv7tU0IvtJuqH7gVIbjzW44
-	WRF4easbIOX+MURmTMUl5+yu0wP15LgXAhCBZKbxOp3tw7tJze4Faipi4nqb0Hme2XuwcGRMtyy+w
-	vX5z+JZhNdp44hFpuTi6awZzlLxAkrlGP3IjFQLEEojz22KpxKrjdzbTI3NxR325ZnWyFWhASqy+j
-	gn046ayl+YKyRr/4FsS5rohaCBgXJ2lq9X/B7+vjVBFdpVffo6jg/ruojCZv+GsGEKWKyXXDF7yJv
-	Y9vMTtnA==;
+	bh=dutrm5ccD7TaxoUTd5HetFxAB3OI7e+5hdO7Sj9SVNo=; b=wROikK0F+E/0+gQCY5aizziwZM
+	QBnqTdIASK/w4O/XE3EW5v2abecSdYkvK+1zJnluPUtnBngldSvjaMgTnd7kRGV514mvgKT2hU0vC
+	zyXBTRnb7A9gFNaBRlwjzsA4yg5tTIt5CaM1p3Y5thi2fixgzbu9gYQs2dMIhNq7ghLsDwXDjPCGW
+	c4IO6A3VhEeYayv5zlUHiiN4fSixzrzW2ZU+OFXqHfAYwdcx8Ci4e1LYOZbFbUtVyqtN+xQnmTz7h
+	4Bnr6O5PUCwR9sOreXh5yplAfAZI8hKiF8rtnUT8tx3OIE8Nkxzi4qJBpBkKgX1hESNRrFrl/uuYN
+	3iMt4jmQ==;
 Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
 	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-	id 1r2SAL-00D6tb-Gh; Mon, 13 Nov 2023 08:19:30 +0000
+	id 1r2Shn-00DHEt-7m; Mon, 13 Nov 2023 08:54:04 +0000
 Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id D372F300427; Mon, 13 Nov 2023 09:19:29 +0100 (CET)
-Date: Mon, 13 Nov 2023 09:19:29 +0100
+	id 8FD82300427; Mon, 13 Nov 2023 09:54:03 +0100 (CET)
+Date: Mon, 13 Nov 2023 09:54:03 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
 Cc: Borislav Petkov <bp@alien8.de>,
@@ -73,11 +73,11 @@ Cc: Borislav Petkov <bp@alien8.de>,
 	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
 	qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
 	x86@kernel.org, xen-devel@lists.xenproject.org
-Subject: Re: [RFC PATCH v2 17/19] heki: x86: Update permissions counters
- during text patching
-Message-ID: <20231113081929.GA16138@noisy.programming.kicks-ass.net>
+Subject: Re: [RFC PATCH v2 18/19] heki: x86: Protect guest kernel memory
+ using the KVM hypervisor
+Message-ID: <20231113085403.GC16138@noisy.programming.kicks-ass.net>
 References: <20231113022326.24388-1-mic@digikod.net>
- <20231113022326.24388-18-mic@digikod.net>
+ <20231113022326.24388-19-mic@digikod.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -87,72 +87,35 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20231113022326.24388-18-mic@digikod.net>
+In-Reply-To: <20231113022326.24388-19-mic@digikod.net>
 
-On Sun, Nov 12, 2023 at 09:23:24PM -0500, Mickaël Salaün wrote:
+On Sun, Nov 12, 2023 at 09:23:25PM -0500, Mickaël Salaün wrote:
 > From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 > 
-> X86 uses a function called __text_poke() to modify executable code. This
-> patching function is used by many features such as KProbes and FTrace.
+> Implement a hypervisor function, kvm_protect_memory() that calls the
+> KVM_HC_PROTECT_MEMORY hypercall to request the KVM hypervisor to
+> set specified permissions on a list of guest pages.
 > 
-> Update the permissions counters for the text page so that write
-> permissions can be temporarily established in the EPT to modify the
-> instructions in that page.
+> Using the protect_memory() function, set proper EPT permissions for all
+> guest pages.
 > 
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: H. Peter Anvin <hpa@zytor.com>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-> Cc: Mickaël Salaün <mic@digikod.net>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Sean Christopherson <seanjc@google.com>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-> Cc: Wanpeng Li <wanpengli@tencent.com>
-> Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
-> ---
+> Use the MEM_ATTR_IMMUTABLE property to protect the kernel static
+> sections and the boot-time read-only sections. This enables to make sure
+> a compromised guest will not be able to change its main physical memory
+> page permissions. However, this also disable any feature that may change
+> the kernel's text section (e.g., ftrace, Kprobes), but they can still be
+> used on kernel modules.
 > 
-> Changes since v1:
-> * New patch
-> ---
->  arch/x86/kernel/alternative.c |  5 ++++
->  arch/x86/mm/heki.c            | 49 +++++++++++++++++++++++++++++++++++
->  include/linux/heki.h          | 14 ++++++++++
->  3 files changed, 68 insertions(+)
+> Module loading/unloading, and eBPF JIT is allowed without restrictions
+> for now, but we'll need a way to authenticate these code changes to
+> really improve the guests' security. We plan to use module signatures,
+> but there is no solution yet to authenticate eBPF programs.
 > 
-> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-> index 517ee01503be..64fd8757ba5c 100644
-> --- a/arch/x86/kernel/alternative.c
-> +++ b/arch/x86/kernel/alternative.c
-> @@ -18,6 +18,7 @@
->  #include <linux/mmu_context.h>
->  #include <linux/bsearch.h>
->  #include <linux/sync_core.h>
-> +#include <linux/heki.h>
->  #include <asm/text-patching.h>
->  #include <asm/alternative.h>
->  #include <asm/sections.h>
-> @@ -1801,6 +1802,7 @@ static void *__text_poke(text_poke_f func, void *addr, const void *src, size_t l
->  	 */
->  	pgprot = __pgprot(pgprot_val(PAGE_KERNEL) & ~_PAGE_GLOBAL);
->  
-> +	heki_text_poke_start(pages, cross_page_boundary ? 2 : 1, pgprot);
->  	/*
->  	 * The lock is not really needed, but this allows to avoid open-coding.
->  	 */
-> @@ -1865,7 +1867,10 @@ static void *__text_poke(text_poke_f func, void *addr, const void *src, size_t l
->  	}
->  
->  	local_irq_restore(flags);
-> +
->  	pte_unmap_unlock(ptep, ptl);
-> +	heki_text_poke_end(pages, cross_page_boundary ? 2 : 1, pgprot);
-> +
->  	return addr;
->  }
+> Being able to use ftrace and Kprobes in a secure way is a challenge not
+> solved yet. We're looking for ideas to make this work.
+> 
+> Likewise, the JUMP_LABEL feature cannot work because the kernel's text
+> section is read-only.
 
-This makes no sense, we already use a custom CR3 with userspace alias
-for the actual pages to write to, why are you then frobbing permissions
-on that *again* ?
+What is the actual problem? As is the kernel text map is already RO and
+never changed.
