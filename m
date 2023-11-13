@@ -1,41 +1,41 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06D8F1799D
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CCE1182BD
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="bV4lvDvQ"
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="j5ewNw8U"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 98D2A41723
-	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 98D2A41723
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=bV4lvDvQ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0340360BFE
+	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0340360BFE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.a=rsa-sha256 header.s=20191114 header.b=j5ewNw8U
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id N0ydKLUE-AyH
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qE7jDiHSKOXQ
 	for <virtualization@lists.linux-foundation.org>;
 	Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
-Received: from smtp-8faa.mail.infomaniak.ch (smtp-8faa.mail.infomaniak.ch [IPv6:2001:1600:4:17::8faa])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 64BE6416FA
+Received: from smtp-42a8.mail.infomaniak.ch (smtp-42a8.mail.infomaniak.ch [IPv6:2001:1600:4:17::42a8])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 97DF460BF3
 	for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 02:32:29 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 64BE6416FA
-Received: from smtp-3-0000.mail.infomaniak.ch (unknown [10.4.36.107])
-	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCsp5jGkzMpvS5;
-	Mon, 13 Nov 2023 02:23:58 +0000 (UTC)
-Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCsn4w8yz3W;
-	Mon, 13 Nov 2023 03:23:57 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 97DF460BF3
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [10.4.36.108])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4STCt22fpHzMpvYh;
+	Mon, 13 Nov 2023 02:24:10 +0000 (UTC)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4STCt065wzzMpnPj;
+	Mon, 13 Nov 2023 03:24:08 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
-	s=20191114; t=1699842238;
-	bh=tY8hlJfPopuy154H09Cr6nqcw/h0DUTJ1/nUw09u9eU=;
+	s=20191114; t=1699842250;
+	bh=esVX+RxDYBu/Sf0VJM0uwsUmshvOSuRinJo44ok6d6I=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=bV4lvDvQTCac2IMzSmZNNLVBOtTqAuS2XLzxMp+OAzsv+rke/FG2TXyxhi8G9+60p
-	 uVBBHLsVIDwfgY2jYAyUCw2LIYtSt/u33MBaH9fX9Ljjyq03aPdOVNbFjYzptoLzUl
-	 mUsHCWJz6tf9YxVBhc8meVQg8fYV2sX1kdkepvvo=
+	b=j5ewNw8U+CG4uLmDWsFmdmmPUPds1RzaRFS3iHpbIedD8bQNFxISwi0x84JEiZJ2I
+	 NCDOM4+qkBQaGKfao4tSd+VlnabW4CgD40djzXTwDdf8kQnk1T5bqF0vW0NlssX/dI
+	 heNYXTA3TuNjmf/r++0u7uvbsMYZxag0QM+XHVLs=
 From: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>
 To: Borislav Petkov <bp@alien8.de>,
 	Dave Hansen <dave.hansen@linux.intel.com>,
@@ -76,9 +76,9 @@ Cc: =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
 	virtualization@lists.linux-foundation.org,
 	x86@kernel.org,
 	xen-devel@lists.xenproject.org
-Subject: [RFC PATCH v2 01/19] virt: Introduce Hypervisor Enforced Kernel Integrity (Heki)
-Date: Sun, 12 Nov 2023 21:23:08 -0500
-Message-ID: <20231113022326.24388-2-mic@digikod.net>
+Subject: [RFC PATCH v2 04/19] heki: Lock guest control registers at the end of guest kernel init
+Date: Sun, 12 Nov 2023 21:23:11 -0500
+Message-ID: <20231113022326.24388-5-mic@digikod.net>
 In-Reply-To: <20231113022326.24388-1-mic@digikod.net>
 References: <20231113022326.24388-1-mic@digikod.net>
 Precedence: bulk
@@ -91,21 +91,38 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Infomaniak-Routing: alpha
 
-From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+The hypervisor needs to provide some functions to support Heki. These
+form the Heki-Hypervisor API.
 
-Hypervisor Enforced Kernel Integrity (Heki) is a feature that will use
-the hypervisor to enhance guest virtual machine security.
+Define a heki_hypervisor structure to house the API functions. A
+hypervisor that supports Heki must instantiate a heki_hypervisor
+structure and pass it to the Heki common code. This allows the common
+code to access these functions in a hypervisor-agnostic way.
 
-Implement minimal code to introduce Heki:
+The first function that is implemented is lock_crs() (lock control
+registers). That is, certain flags in the control registers are pinned
+so that they can never be changed for the lifetime of the guest.
 
-- Define the config variables.
+Implement Heki support in the guest:
 
-- Define a kernel command line parameter "heki" to turn the feature
-  on or off. By default, Heki is on.
+- Each supported hypervisor in x86 implements a set of functions for the
+  guest kernel. Add an init_heki() function to that set.  This function
+  initializes Heki-related stuff. Call init_heki() for the detected
+  hypervisor in init_hypervisor_platform().
 
-- Define heki_early_init() and call it in start_kernel(). Currently,
-  this function only prints the value of the "heki" command
-  line parameter.
+- Implement init_heki() for the guest.
+
+- Implement kvm_lock_crs() in the guest to lock down control registers.
+  This function calls a KVM hypercall to do the job.
+
+- Instantiate a heki_hypervisor structure that contains a pointer to
+  kvm_lock_crs().
+
+- Pass the heki_hypervisor structure to Heki common code in init_heki().
+
+Implement a heki_late_init() function and call it at the end of kernel
+init. This function calls lock_crs(). In other words, control registers
+of a guest are locked down at the end of guest kernel init.
 
 Cc: Borislav Petkov <bp@alien8.de>
 Cc: Dave Hansen <dave.hansen@linux.intel.com>
@@ -117,226 +134,267 @@ Cc: Sean Christopherson <seanjc@google.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
 Cc: Wanpeng Li <wanpengli@tencent.com>
-Co-developed-by: Mickaël Salaün <mic@digikod.net>
-Signed-off-by: Mickaël Salaün <mic@digikod.net>
+Co-developed-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
 Signed-off-by: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+Signed-off-by: Mickaël Salaün <mic@digikod.net>
 ---
 
 Changes since v1:
-* Shrinked this patch to only contain the minimal common parts.
-* Moved heki_early_init() to start_kernel().
+* Shrinked the patch to only manage the CR pinning.
 ---
- Kconfig              |  2 ++
- arch/x86/Kconfig     |  1 +
- include/linux/heki.h | 31 +++++++++++++++++++++++++++++++
- init/main.c          |  2 ++
- mm/mm_init.c         |  1 +
- virt/Makefile        |  1 +
- virt/heki/Kconfig    | 19 +++++++++++++++++++
- virt/heki/Makefile   |  3 +++
- virt/heki/common.h   | 16 ++++++++++++++++
- virt/heki/main.c     | 32 ++++++++++++++++++++++++++++++++
- 10 files changed, 108 insertions(+)
- create mode 100644 include/linux/heki.h
- create mode 100644 virt/heki/Kconfig
- create mode 100644 virt/heki/Makefile
- create mode 100644 virt/heki/common.h
- create mode 100644 virt/heki/main.c
+ arch/x86/include/asm/x86_init.h  |  1 +
+ arch/x86/kernel/cpu/hypervisor.c |  1 +
+ arch/x86/kernel/kvm.c            | 56 ++++++++++++++++++++++++++++++++
+ arch/x86/kvm/Kconfig             |  1 +
+ include/linux/heki.h             | 22 +++++++++++++
+ init/main.c                      |  1 +
+ virt/heki/Kconfig                |  9 ++++-
+ virt/heki/main.c                 | 25 ++++++++++++++
+ 8 files changed, 115 insertions(+), 1 deletion(-)
 
-diff --git a/Kconfig b/Kconfig
-index 745bc773f567..0c844d9bcb03 100644
---- a/Kconfig
-+++ b/Kconfig
-@@ -29,4 +29,6 @@ source "lib/Kconfig"
+diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+index 5240d88db52a..ff4dfd2f615e 100644
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -127,6 +127,7 @@ struct x86_hyper_init {
+ 	bool (*msi_ext_dest_id)(void);
+ 	void (*init_mem_mapping)(void);
+ 	void (*init_after_bootmem)(void);
++	void (*init_heki)(void);
+ };
  
- source "lib/Kconfig.debug"
+ /**
+diff --git a/arch/x86/kernel/cpu/hypervisor.c b/arch/x86/kernel/cpu/hypervisor.c
+index 553bfbfc3a1b..6085c8129e0c 100644
+--- a/arch/x86/kernel/cpu/hypervisor.c
++++ b/arch/x86/kernel/cpu/hypervisor.c
+@@ -106,4 +106,5 @@ void __init init_hypervisor_platform(void)
  
-+source "virt/heki/Kconfig"
-+
- source "Documentation/Kconfig"
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 66bfabae8814..424f949442bd 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -35,6 +35,7 @@ config X86_64
- 	select SWIOTLB
- 	select ARCH_HAS_ELFCORE_COMPAT
- 	select ZONE_DMA32
-+	select ARCH_SUPPORTS_HEKI
+ 	x86_hyper_type = h->type;
+ 	x86_init.hyper.init_platform();
++	x86_init.hyper.init_heki();
+ }
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index b8ab9ee5896c..8349f4ad3bbd 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscore_ops.h>
+ #include <linux/cc_platform.h>
+ #include <linux/efi.h>
++#include <linux/heki.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -997,6 +998,60 @@ static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
+ }
+ #endif
  
- config FORCE_DYNAMIC_FTRACE
- 	def_bool y
-diff --git a/include/linux/heki.h b/include/linux/heki.h
-new file mode 100644
-index 000000000000..4c18d2283392
---- /dev/null
-+++ b/include/linux/heki.h
-@@ -0,0 +1,31 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Hypervisor Enforced Kernel Integrity (Heki) - Definitions
-+ *
-+ * Copyright © 2023 Microsoft Corporation
-+ */
-+
-+#ifndef __HEKI_H__
-+#define __HEKI_H__
-+
-+#include <linux/types.h>
-+#include <linux/cache.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/printk.h>
-+
 +#ifdef CONFIG_HEKI
 +
-+extern bool heki_enabled;
++extern unsigned long cr4_pinned_mask;
 +
-+void heki_early_init(void);
++/*
++ * TODO: Check SMP policy consistency, e.g. with
++ * this_cpu_read(cpu_tlbstate.cr4)
++ */
++static int kvm_lock_crs(void)
++{
++	unsigned long cr4;
++	int err;
 +
-+#else /* !CONFIG_HEKI */
++	err = kvm_hypercall3(KVM_HC_LOCK_CR_UPDATE, 0, X86_CR0_WP, 0);
++	if (err)
++		return err;
 +
-+static inline void heki_early_init(void)
++	cr4 = __read_cr4();
++	err = kvm_hypercall3(KVM_HC_LOCK_CR_UPDATE, 4, cr4 & cr4_pinned_mask,
++			     0);
++	return err;
++}
++
++static struct heki_hypervisor kvm_heki_hypervisor = {
++	.lock_crs = kvm_lock_crs,
++};
++
++static void kvm_init_heki(void)
++{
++	long err;
++
++	if (!kvm_para_available()) {
++		/* Cannot make KVM hypercalls. */
++		return;
++	}
++
++	err = kvm_hypercall3(KVM_HC_LOCK_CR_UPDATE, 0, 0,
++			     KVM_LOCK_CR_UPDATE_VERSION);
++	if (err < 1) {
++		/* Ignores host not supporting at least the first version. */
++		return;
++	}
++
++	heki.hypervisor = &kvm_heki_hypervisor;
++}
++
++#else /* CONFIG_HEKI */
++
++static void kvm_init_heki(void)
 +{
 +}
 +
 +#endif /* CONFIG_HEKI */
 +
-+#endif /* __HEKI_H__ */
+ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+ 	.name				= "KVM",
+ 	.detect				= kvm_detect,
+@@ -1005,6 +1060,7 @@ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+ 	.init.x2apic_available		= kvm_para_available,
+ 	.init.msi_ext_dest_id		= kvm_msi_ext_dest_id,
+ 	.init.init_platform		= kvm_init_platform,
++	.init.init_heki			= kvm_init_heki,
+ #if defined(CONFIG_AMD_MEM_ENCRYPT)
+ 	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
+ 	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
+diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+index 8452ed0228cb..7a3b52b7e456 100644
+--- a/arch/x86/kvm/Kconfig
++++ b/arch/x86/kvm/Kconfig
+@@ -49,6 +49,7 @@ config KVM
+ 	select INTERVAL_TREE
+ 	select HAVE_KVM_PM_NOTIFIER if PM
+ 	select KVM_GENERIC_HARDWARE_ENABLING
++	select HYPERVISOR_SUPPORTS_HEKI
+ 	help
+ 	  Support hosting fully virtualized guest machines using hardware
+ 	  virtualization extensions.  You will need a fairly recent
+diff --git a/include/linux/heki.h b/include/linux/heki.h
+index 4c18d2283392..96ccb17657e5 100644
+--- a/include/linux/heki.h
++++ b/include/linux/heki.h
+@@ -9,6 +9,7 @@
+ #define __HEKI_H__
+ 
+ #include <linux/types.h>
++#include <linux/bug.h>
+ #include <linux/cache.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -16,15 +17,36 @@
+ 
+ #ifdef CONFIG_HEKI
+ 
++/*
++ * A hypervisor that supports Heki will instantiate this structure to
++ * provide hypervisor specific functions for Heki.
++ */
++struct heki_hypervisor {
++	int (*lock_crs)(void); /* Lock control registers. */
++};
++
++/*
++ * If the active hypervisor supports Heki, it will plug its heki_hypervisor
++ * pointer into this heki structure.
++ */
++struct heki {
++	struct heki_hypervisor *hypervisor;
++};
++
++extern struct heki heki;
+ extern bool heki_enabled;
+ 
+ void heki_early_init(void);
++void heki_late_init(void);
+ 
+ #else /* !CONFIG_HEKI */
+ 
+ static inline void heki_early_init(void)
+ {
+ }
++static inline void heki_late_init(void)
++{
++}
+ 
+ #endif /* CONFIG_HEKI */
+ 
 diff --git a/init/main.c b/init/main.c
-index 436d73261810..0d28301c5402 100644
+index 0d28301c5402..f1c998bbb370 100644
 --- a/init/main.c
 +++ b/init/main.c
-@@ -99,6 +99,7 @@
- #include <linux/init_syscalls.h>
- #include <linux/stackdepot.h>
- #include <linux/randomize_kstack.h>
-+#include <linux/heki.h>
- #include <net/net_namespace.h>
+@@ -1447,6 +1447,7 @@ static int __ref kernel_init(void *unused)
+ 	exit_boot_config();
+ 	free_initmem();
+ 	mark_readonly();
++	heki_late_init();
  
- #include <asm/io.h>
-@@ -1047,6 +1048,7 @@ void start_kernel(void)
- 	uts_ns_init();
- 	key_init();
- 	security_init();
-+	heki_early_init();
- 	dbg_late_init();
- 	net_ns_init();
- 	vfs_caches_init();
-diff --git a/mm/mm_init.c b/mm/mm_init.c
-index 50f2f34745af..896977383cc3 100644
---- a/mm/mm_init.c
-+++ b/mm/mm_init.c
-@@ -26,6 +26,7 @@
- #include <linux/pgtable.h>
- #include <linux/swap.h>
- #include <linux/cma.h>
-+#include <linux/heki.h>
- #include "internal.h"
- #include "slab.h"
- #include "shuffle.h"
-diff --git a/virt/Makefile b/virt/Makefile
-index 1cfea9436af9..4550dc624466 100644
---- a/virt/Makefile
-+++ b/virt/Makefile
-@@ -1,2 +1,3 @@
- # SPDX-License-Identifier: GPL-2.0-only
- obj-y	+= lib/
-+obj-$(CONFIG_HEKI) += heki/
+ 	/*
+ 	 * Kernel mappings are now finalized - update the userspace page-table
 diff --git a/virt/heki/Kconfig b/virt/heki/Kconfig
-new file mode 100644
-index 000000000000..49695fff6d21
---- /dev/null
+index 49695fff6d21..5ea75b595667 100644
+--- a/virt/heki/Kconfig
 +++ b/virt/heki/Kconfig
-@@ -0,0 +1,19 @@
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Hypervisor Enforced Kernel Integrity (Heki)
+@@ -4,7 +4,7 @@
+ 
+ config HEKI
+ 	bool "Hypervisor Enforced Kernel Integrity (Heki)"
+-	depends on ARCH_SUPPORTS_HEKI
++	depends on ARCH_SUPPORTS_HEKI && HYPERVISOR_SUPPORTS_HEKI
+ 	help
+ 	  This feature enhances guest virtual machine security by taking
+ 	  advantage of security features provided by the hypervisor for guests.
+@@ -17,3 +17,10 @@ config ARCH_SUPPORTS_HEKI
+ 	  An architecture should select this when it can successfully build
+ 	  and run with CONFIG_HEKI. That is, it should provide all of the
+ 	  architecture support required for the HEKI feature.
 +
-+config HEKI
-+	bool "Hypervisor Enforced Kernel Integrity (Heki)"
-+	depends on ARCH_SUPPORTS_HEKI
++config HYPERVISOR_SUPPORTS_HEKI
++	bool "Hypervisor support for Heki"
 +	help
-+	  This feature enhances guest virtual machine security by taking
-+	  advantage of security features provided by the hypervisor for guests.
-+	  This feature is helpful in maintaining guest virtual machine security
-+	  even after the guest kernel has been compromised.
-+
-+config ARCH_SUPPORTS_HEKI
-+	bool "Architecture support for Heki"
-+	help
-+	  An architecture should select this when it can successfully build
++	  A hypervisor should select this when it can successfully build
 +	  and run with CONFIG_HEKI. That is, it should provide all of the
-+	  architecture support required for the HEKI feature.
-diff --git a/virt/heki/Makefile b/virt/heki/Makefile
-new file mode 100644
-index 000000000000..354e567df71c
---- /dev/null
-+++ b/virt/heki/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+
-+obj-y += main.o
-diff --git a/virt/heki/common.h b/virt/heki/common.h
-new file mode 100644
-index 000000000000..edd98fc650a8
---- /dev/null
-+++ b/virt/heki/common.h
-@@ -0,0 +1,16 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Hypervisor Enforced Kernel Integrity (Heki) - Common header
-+ *
-+ * Copyright © 2023 Microsoft Corporation
-+ */
-+
-+#ifndef _HEKI_COMMON_H
-+
-+#ifdef pr_fmt
-+#undef pr_fmt
-+#endif
-+
-+#define pr_fmt(fmt) "heki-guest: " fmt
-+
-+#endif /* _HEKI_COMMON_H */
++	  hypervisor support required for the Heki feature.
 diff --git a/virt/heki/main.c b/virt/heki/main.c
-new file mode 100644
-index 000000000000..f005dd74d586
---- /dev/null
+index f005dd74d586..ff1937e1c946 100644
+--- a/virt/heki/main.c
 +++ b/virt/heki/main.c
-@@ -0,0 +1,32 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Hypervisor Enforced Kernel Integrity (Heki) - Common code
-+ *
-+ * Copyright © 2023 Microsoft Corporation
-+ */
+@@ -10,6 +10,7 @@
+ #include "common.h"
+ 
+ bool heki_enabled __ro_after_init = true;
++struct heki heki;
+ 
+ /*
+  * Must be called after kmem_cache_init().
+@@ -21,6 +22,30 @@ __init void heki_early_init(void)
+ 		return;
+ 	}
+ 	pr_warn("Heki is enabled\n");
 +
-+#include <linux/heki.h>
-+
-+#include "common.h"
-+
-+bool heki_enabled __ro_after_init = true;
-+
-+/*
-+ * Must be called after kmem_cache_init().
-+ */
-+__init void heki_early_init(void)
-+{
-+	if (!heki_enabled) {
-+		pr_warn("Heki is not enabled\n");
++	if (!heki.hypervisor) {
++		/* This happens for kernels running on bare metal as well. */
++		pr_warn("No support for Heki in the active hypervisor\n");
 +		return;
 +	}
-+	pr_warn("Heki is enabled\n");
++	pr_warn("Heki is supported by the active Hypervisor\n");
 +}
 +
-+static int __init heki_parse_config(char *str)
++/*
++ * Must be called after mark_readonly().
++ */
++void heki_late_init(void)
 +{
-+	if (strtobool(str, &heki_enabled))
-+		pr_warn("Invalid option string for heki: '%s'\n", str);
-+	return 1;
-+}
-+__setup("heki=", heki_parse_config);
++	struct heki_hypervisor *hypervisor = heki.hypervisor;
++
++	if (!heki_enabled || !heki.hypervisor)
++		return;
++
++	/* Locks control registers so a compromised guest cannot change them. */
++	if (WARN_ON(hypervisor->lock_crs()))
++		return;
++
++	pr_warn("Control registers locked\n");
+ }
+ 
+ static int __init heki_parse_config(char *str)
 -- 
 2.42.1
 
