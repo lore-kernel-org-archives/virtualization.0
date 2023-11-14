@@ -1,156 +1,146 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6719BA50
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 04:46:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D370ECA41;
+	Tue, 14 Nov 2023 05:35:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="P4U9JNsZ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 490EF81F6E
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 04:46:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 490EF81F6E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3DDF040338;
+	Tue, 14 Nov 2023 05:35:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3DDF040338
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.a=rsa-sha256 header.s=qcppdkim1 header.b=P4U9JNsZ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.8
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w_aQI44KlLVc
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 14 Nov 2023 04:46:12 +0000 (UTC)
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 387F681F5C
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 04:46:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 387F681F5C
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwNyvib_1699937165;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VwNyvib_1699937165)
-          by smtp.aliyun-inc.com;
-          Tue, 14 Nov 2023 12:46:06 +0800
-Message-ID: <1699937141.9116893-5-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 08/21] virtio_net: sq support premapped mode
-Date: Tue, 14 Nov 2023 12:45:41 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux-foundation.org,
- bpf@vger.kernel.org
-References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
- <20231107031227.100015-9-xuanzhuo@linux.alibaba.com>
- <CACGkMEtLee8ELzqFnV_zOu3p5tU6hivouKM=WjtNAq+2wQzAFQ@mail.gmail.com>
- <1699527528.5637772-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEu4toAuAuJdrXF0AJqsHc-ovPg3vi8=My-+BxaMi+TBSw@mail.gmail.com>
- <1699932516.9040368-2-xuanzhuo@linux.alibaba.com>
- <CACGkMEv7-U4HNe8UOENx9A+5fj-GJ7wvO=aw8v+axoiG7yhqdA@mail.gmail.com>
- <1699934262.516097-4-xuanzhuo@linux.alibaba.com>
- <CACGkMEuvdA1xWtLLsV49XCGwD8S+AXDkHeq2K3-AsqgWixZVXg@mail.gmail.com>
-In-Reply-To: <CACGkMEuvdA1xWtLLsV49XCGwD8S+AXDkHeq2K3-AsqgWixZVXg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QECLIEarRHa4; Tue, 14 Nov 2023 05:34:59 +0000 (UTC)
+X-Greylist: delayed 2233 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 14 Nov 2023 05:34:59 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 143D14030E
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 143D14030E;
+	Tue, 14 Nov 2023 05:34:58 +0000 (UTC)
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AE4dQxp015496;
+	Tue, 14 Nov 2023 04:57:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
+ mime-version : subject : to : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=qcppdkim1;
+ bh=Ut+LP/oQgS6AHmq27TArlkMKu8wbNEjr6zcLsTELHGU=;
+ b=P4U9JNsZ9twinkAM6crKSroq7yTQNIGWmkH2jnosKDAz9K5IrD0KC+OFma4jfeDqxQq+
+ Jios5YHkR/P1oDpeARKJM2+nQJAHIoy/AU39G733GUA7X/t+IfSA/Um81F8A6iCtQL26
+ XG4dtUswJSuAwmlGjkGcZuNFHb330V24H5OqAeBwm6fW/02agttPnGwa8mYMhC8YNPDL
+ TSKl5hj7Y9fOX8//4nAwpHHKR4ae/Pebp5Zv8rijSDAyEzEk9K9W2+AIslRM+tKCuR55
+ lfIA8BS+uF4K4AD8r57Ipm+m83CMrPvY4hiFvL9PLI1Y49qIQrtqpSe+/TUS76UcnzFQ vA== 
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3ubuswrmww-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Nov 2023 04:57:04 +0000
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 3AE4v2nN010730
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 14 Nov 2023 04:57:02 GMT
+Received: from [10.239.132.245] (10.80.80.8) by nalasex01a.na.qualcomm.com
+ (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.39; Mon, 13 Nov
+ 2023 20:56:53 -0800
+Message-ID: <ee647939-3f47-4b82-b1e4-a0c9414a1e8e@quicinc.com>
+Date: Tue, 14 Nov 2023 12:56:43 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 00/17] Solve iommu probe races around iommu_fwspec
+Content-Language: en-US
+To: Jason Gunthorpe <jgg@nvidia.com>, <acpica-devel@lists.linuxfoundation.org>,
+        Alyssa Rosenzweig
+	<alyssa@rosenzweig.io>,
+        Albert Ou <aou@eecs.berkeley.edu>, <asahi@lists.linux.dev>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Catalin Marinas
+	<catalin.marinas@arm.com>,
+        Dexuan Cui <decui@microsoft.com>, <devicetree@vger.kernel.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Frank
+ Rowand <frowand.list@gmail.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Haiyang
+ Zhang <haiyangz@microsoft.com>,
+        Christoph Hellwig <hch@lst.de>, <iommu@lists.linux.dev>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+        "K.
+ Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>,
+        <linux-acpi@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+        <linux-hyperv@vger.kernel.org>, <linux-mips@vger.kernel.org>,
+        <linux-riscv@lists.infradead.org>,
+        <linux-snps-arc@lists.infradead.org>, <linux-tegra@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Lorenzo
+ Pieralisi <lpieralisi@kernel.org>,
+        Marek Szyprowski
+	<m.szyprowski@samsung.com>,
+        Hector Martin <marcan@marcan.st>, Palmer Dabbelt
+	<palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        "Rafael J.
+ Wysocki" <rafael@kernel.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Rob
+ Herring <robh+dt@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+        Sudeep
+ Holla <sudeep.holla@arm.com>,
+        Suravee Suthikulpanit
+	<suravee.suthikulpanit@amd.com>,
+        Sven Peter <sven@svenpeter.dev>,
+        Thierry
+ Reding <thierry.reding@gmail.com>,
+        Thomas Bogendoerfer
+	<tsbogend@alpha.franken.de>,
+        Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta
+	<vgupta@kernel.org>,
+        <virtualization@lists.linux-foundation.org>,
+        Wei Liu
+	<wei.liu@kernel.org>, Will Deacon <will@kernel.org>
+References: <0-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+From: Zhenhua Huang <quic_zhenhuah@quicinc.com>
+In-Reply-To: <0-v1-5f734af130a3+34f-iommu_fwspec_jgg@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: W9mLspwTBqhYvV5ajR8gt_t_BuX4RknD
+X-Proofpoint-ORIG-GUID: W9mLspwTBqhYvV5ajR8gt_t_BuX4RknD
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-14_03,2023-11-09_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 clxscore=1011 mlxlogscore=917
+ impostorscore=0 adultscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ mlxscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311140037
 
-On Tue, 14 Nov 2023 12:27:20 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Tue, Nov 14, 2023 at 11:59=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
-a.com> wrote:
-> >
-> > On Tue, 14 Nov 2023 11:55:52 +0800, Jason Wang <jasowang@redhat.com> wr=
-ote:
-> > > On Tue, Nov 14, 2023 at 11:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.al=
-ibaba.com> wrote:
-> > > >
-> > > > On Tue, 14 Nov 2023 11:26:42 +0800, Jason Wang <jasowang@redhat.com=
-> wrote:
-> > > > > On Thu, Nov 9, 2023 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.=
-alibaba.com> wrote:
-> > > > > >
-> > > > > > On Thu, 9 Nov 2023 14:37:38 +0800, Jason Wang <jasowang@redhat.=
-com> wrote:
-> > > > > > > On Tue, Nov 7, 2023 at 11:12=E2=80=AFAM Xuan Zhuo <xuanzhuo@l=
-inux.alibaba.com> wrote:
-> > > > > > > >
-> > > > > > > > If the xsk is enabling, the xsk tx will share the send queu=
-e.
-> > > > > > > > But the xsk requires that the send queue use the premapped =
-mode.
-> > > > > > > > So the send queue must support premapped mode.
-> > > > > > > >
-> > > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > > > > ---
-> > > > > > > >  drivers/net/virtio/main.c       | 163 ++++++++++++++++++++=
-++++++++----
-> > > > > > > >  drivers/net/virtio/virtio_net.h |  16 ++++
-> > > > > > > >  2 files changed, 163 insertions(+), 16 deletions(-)
-> > > > > > > >
-> > >
-> > > [...]
-> > >
-> > > > > > >
-> > > > > > > I think we need to seek a way to reuse what has been stored b=
-y virtio
-> > > > > > > core. It should be much more efficient.
-> > > > > >
-> > > > > >
-> > > > > > Yes.
-> > > > > >
-> > > > > > But that is for net-next branch.
-> > > > > >
-> > > > > > Can we do that as a fix after that is merged to 6.8?
-> > > > >
-> > > > > We still have time. I would like to do it from the start.
-> > > >
-> > > >
-> > > > I want to finish the job including new AF_XDP ZC feature.
-> > > > Because that this must wait the merge window.
-> > > > Base on that, the optimizing work can be done everytime.
-> > > >
-> > > > If we work from the new virtio prepare, that can be merged to 6.8.
-> > > > And the AF_XDP zc must wait 6.9. right?
-> > >
-> > > It can be part of this series. Or anything I missed?
-> > >
-> > > My understanding is that, since the information is handy, it just
-> > > requires new helpers. So I don't expect it needs a large series.
-> >
-> > Now, this is pushing to net-next.
-> >
-> > If we add an new virtio-core helper. That must be pushed to virtio bran=
-ch.
-> > And this patch set must wait that.
->
-> I don't think so if it's just a matter of new helpers. The
-> acknowledgement from the virtio maintainer should be sufficient.
->
-> Let's just try and see?
+Thanks Jason.
 
-OK.
+On 2023/11/4 0:44, Jason Gunthorpe wrote:
+> This is a more complete solution that the first attempt here:
+> https://lore.kernel.org/r/1698825902-10685-1-git-send-email-quic_zhenhuah@quicinc.com
+> 
+> I haven't been able to test this on any HW that touches these paths, so if
+> some people with HW can help get it in shape it can become non-RFC.
 
-Thanks.
+Thank you for addressing it quickly with a thorough way. I have 
+backported it to Android common kernel 6.1 and tested basic sanity well.
+I will share these to OEMs and see if they can reproduce further, thanks.
 
-
->
-> THanks
->
-> >
-> > Thanks.
-> >
-> >
-> > >
-> > > Thanks
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > >
-> >
->
+Thanks,
+Zhenhua
