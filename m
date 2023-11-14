@@ -1,150 +1,130 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A9C88F76
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iIujexgj"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 592CDB668
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:59:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2CB1540199
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:56:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2CB1540199
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=iIujexgj
+	by smtp1.osuosl.org (Postfix) with ESMTP id EB9E081F68
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:59:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EB9E081F68
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -9.9
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eGNqK8RDhUQv
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id rEL8iAR_3MLL
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 14 Nov 2023 03:56:10 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8C3F04016D
-	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:56:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8C3F04016D
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1699934169;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6Wu1omyNFDVtFU1Hlcc2IaJQt9sbEgmhL34rN70HKs0=;
-	b=iIujexgj7mqDCkHJPhryEpmBLP1P4CUEM+XIBui9huxMvFngjq25aBjm4ztn9wwo2iFOGT
-	P0NHMucpDLbJnLSwXmLoJRUp7xiOpE8Wq+KFKw7+xv+Xs9Hsc27OW9f6dZZoV20g7PIjGD
-	LkvDoQM7rkLkBfago837WgGJP8mLXrw=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-496-MFoK0YzOOEC_jyNVpqu2gA-1; Mon, 13 Nov 2023 22:56:05 -0500
-X-MC-Unique: MFoK0YzOOEC_jyNVpqu2gA-1
-Received: by mail-lj1-f197.google.com with SMTP id 38308e7fff4ca-2c562dab105so33557651fa.1
-        for <virtualization@lists.linux-foundation.org>; Mon, 13 Nov 2023 19:56:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699934164; x=1700538964;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6Wu1omyNFDVtFU1Hlcc2IaJQt9sbEgmhL34rN70HKs0=;
-        b=eTAUsrv6EHqxUqSMi+Iyq9YZ5/H4vUu6DFvAeSUIvYzJzfkBUpTAqZVrDv4GLa6K6M
-         trXAAcf/0IoCyc2FKjIwfG/yVIpNRzj51BIFPvx3E6ZFXbagnlUiXPv/IP7smMatF1pG
-         rLWRDui7DXl/qnPh5sIBzMQCXth4V84pGcqjaD5McwnmIqH9WqaGbAhXbtWlvp7dnq0x
-         0Ol30sGpAa0ApPclzi7NYHcv1+RCT6oUHNn8U09lAjl+uEnLM8ilBG8pI5dOz7uZ/Vz7
-         uuzXFm9Jyp1b8hFeI3LIO8gatnUWIrCiKEXMblAdJ46FQtbW1pqlGrfIkAVWG6SBwUxX
-         ri3g==
-X-Gm-Message-State: AOJu0YzRpRLs4Sx/3ffhGm9OnR+EF3Ml23/qIKAMUuJOzCVw5paCz1bC
-	5MmckRYtcjN/tvzc7sd3olqtDI3tC/R7y3zHl5XJ6gzpMqL9NXdgYxAdNqiluAhb82vUFDsTrG5
-	WnQoIYsq6zG7IfQIc1ieaqKXtJf+XRo6Ncl7+JbXb831AshDcMv5naL+x1Q==
-X-Received: by 2002:a05:6512:15a6:b0:50a:6fb8:a0c0 with SMTP id bp38-20020a05651215a600b0050a6fb8a0c0mr484418lfb.19.1699934163778;
-        Mon, 13 Nov 2023 19:56:03 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFS1MSbGPt3y7yEXZl8rECF+p48KM5DSsexq7zLBD9jB7CB91nepWM3PaNvdV3NxtMMyRByMxBbujQPLEqLfM0=
-X-Received: by 2002:a05:6512:15a6:b0:50a:6fb8:a0c0 with SMTP id
- bp38-20020a05651215a600b0050a6fb8a0c0mr484409lfb.19.1699934163493; Mon, 13
- Nov 2023 19:56:03 -0800 (PST)
+	Tue, 14 Nov 2023 03:59:09 +0000 (UTC)
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4AA7381F66
+	for <virtualization@lists.linux-foundation.org>; Tue, 14 Nov 2023 03:59:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4AA7381F66
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwNzpiL_1699934341;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VwNzpiL_1699934341)
+          by smtp.aliyun-inc.com;
+          Tue, 14 Nov 2023 11:59:02 +0800
+Message-ID: <1699934262.516097-4-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net-next v2 08/21] virtio_net: sq support premapped mode
+Date: Tue, 14 Nov 2023 11:57:42 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ bpf@vger.kernel.org
+References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
+ <20231107031227.100015-9-xuanzhuo@linux.alibaba.com>
+ <CACGkMEtLee8ELzqFnV_zOu3p5tU6hivouKM=WjtNAq+2wQzAFQ@mail.gmail.com>
+ <1699527528.5637772-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEu4toAuAuJdrXF0AJqsHc-ovPg3vi8=My-+BxaMi+TBSw@mail.gmail.com>
+ <1699932516.9040368-2-xuanzhuo@linux.alibaba.com>
+ <CACGkMEv7-U4HNe8UOENx9A+5fj-GJ7wvO=aw8v+axoiG7yhqdA@mail.gmail.com>
+In-Reply-To: <CACGkMEv7-U4HNe8UOENx9A+5fj-GJ7wvO=aw8v+axoiG7yhqdA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20231107031227.100015-1-xuanzhuo@linux.alibaba.com>
- <20231107031227.100015-9-xuanzhuo@linux.alibaba.com> <CACGkMEtLee8ELzqFnV_zOu3p5tU6hivouKM=WjtNAq+2wQzAFQ@mail.gmail.com>
- <1699527528.5637772-2-xuanzhuo@linux.alibaba.com> <CACGkMEu4toAuAuJdrXF0AJqsHc-ovPg3vi8=My-+BxaMi+TBSw@mail.gmail.com>
- <1699932516.9040368-2-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1699932516.9040368-2-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 14 Nov 2023 11:55:52 +0800
-Message-ID: <CACGkMEv7-U4HNe8UOENx9A+5fj-GJ7wvO=aw8v+axoiG7yhqdA@mail.gmail.com>
-Subject: Re: [PATCH net-next v2 08/21] virtio_net: sq support premapped mode
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
-	virtualization@lists.linux-foundation.org, bpf@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 14, 2023 at 11:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
->
-> On Tue, 14 Nov 2023 11:26:42 +0800, Jason Wang <jasowang@redhat.com> wrot=
-e:
-> > On Thu, Nov 9, 2023 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibab=
+On Tue, 14 Nov 2023 11:55:52 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Tue, Nov 14, 2023 at 11:42=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibab=
 a.com> wrote:
-> > >
-> > > On Thu, 9 Nov 2023 14:37:38 +0800, Jason Wang <jasowang@redhat.com> w=
-rote:
-> > > > On Tue, Nov 7, 2023 at 11:12=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.a=
-libaba.com> wrote:
-> > > > >
-> > > > > If the xsk is enabling, the xsk tx will share the send queue.
-> > > > > But the xsk requires that the send queue use the premapped mode.
-> > > > > So the send queue must support premapped mode.
-> > > > >
-> > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > > ---
-> > > > >  drivers/net/virtio/main.c       | 163 ++++++++++++++++++++++++++=
-++----
-> > > > >  drivers/net/virtio/virtio_net.h |  16 ++++
-> > > > >  2 files changed, 163 insertions(+), 16 deletions(-)
-> > > > >
-
-[...]
-
-> > > >
-> > > > I think we need to seek a way to reuse what has been stored by virt=
-io
-> > > > core. It should be much more efficient.
-> > >
-> > >
-> > > Yes.
-> > >
-> > > But that is for net-next branch.
-> > >
-> > > Can we do that as a fix after that is merged to 6.8?
 > >
-> > We still have time. I would like to do it from the start.
+> > On Tue, 14 Nov 2023 11:26:42 +0800, Jason Wang <jasowang@redhat.com> wr=
+ote:
+> > > On Thu, Nov 9, 2023 at 7:06=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alib=
+aba.com> wrote:
+> > > >
+> > > > On Thu, 9 Nov 2023 14:37:38 +0800, Jason Wang <jasowang@redhat.com>=
+ wrote:
+> > > > > On Tue, Nov 7, 2023 at 11:12=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux=
+.alibaba.com> wrote:
+> > > > > >
+> > > > > > If the xsk is enabling, the xsk tx will share the send queue.
+> > > > > > But the xsk requires that the send queue use the premapped mode.
+> > > > > > So the send queue must support premapped mode.
+> > > > > >
+> > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > ---
+> > > > > >  drivers/net/virtio/main.c       | 163 ++++++++++++++++++++++++=
+++++----
+> > > > > >  drivers/net/virtio/virtio_net.h |  16 ++++
+> > > > > >  2 files changed, 163 insertions(+), 16 deletions(-)
+> > > > > >
 >
+> [...]
 >
-> I want to finish the job including new AF_XDP ZC feature.
-> Because that this must wait the merge window.
-> Base on that, the optimizing work can be done everytime.
+> > > > >
+> > > > > I think we need to seek a way to reuse what has been stored by vi=
+rtio
+> > > > > core. It should be much more efficient.
+> > > >
+> > > >
+> > > > Yes.
+> > > >
+> > > > But that is for net-next branch.
+> > > >
+> > > > Can we do that as a fix after that is merged to 6.8?
+> > >
+> > > We still have time. I would like to do it from the start.
+> >
+> >
+> > I want to finish the job including new AF_XDP ZC feature.
+> > Because that this must wait the merge window.
+> > Base on that, the optimizing work can be done everytime.
+> >
+> > If we work from the new virtio prepare, that can be merged to 6.8.
+> > And the AF_XDP zc must wait 6.9. right?
 >
-> If we work from the new virtio prepare, that can be merged to 6.8.
-> And the AF_XDP zc must wait 6.9. right?
+> It can be part of this series. Or anything I missed?
+>
+> My understanding is that, since the information is handy, it just
+> requires new helpers. So I don't expect it needs a large series.
 
-It can be part of this series. Or anything I missed?
+Now, this is pushing to net-next.
 
-My understanding is that, since the information is handy, it just
-requires new helpers. So I don't expect it needs a large series.
+If we add an new virtio-core helper. That must be pushed to virtio branch.
+And this patch set must wait that.
 
-Thanks
+Thanks.
+
 
 >
 > Thanks
 >
-
+> >
+> > Thanks
+> >
+>
