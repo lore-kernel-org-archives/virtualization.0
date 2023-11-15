@@ -1,240 +1,87 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083CFECA
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 02:44:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7A9C982025
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 02:44:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7A9C982025
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.899
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fils_xppDyCh
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 02:44:26 +0000 (UTC)
-Received: from out30-132.freemail.mail.aliyun.com (out30-132.freemail.mail.aliyun.com [115.124.30.132])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 719EF81FDB
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 02:44:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 719EF81FDB
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R201e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwRB2Rd_1700016257;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VwRB2Rd_1700016257)
-          by smtp.aliyun-inc.com;
-          Wed, 15 Nov 2023 10:44:18 +0800
-Message-ID: <1700015705.1762614-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v1 16/19] virtio_net: xsk: rx: introduce receive_xsk() to recv xsk buffer
-Date: Wed, 15 Nov 2023 10:35:05 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- virtualization@lists.linux-foundation.org,
- bpf@vger.kernel.org
-References: <20231016120033.26933-1-xuanzhuo@linux.alibaba.com>
- <20231016120033.26933-17-xuanzhuo@linux.alibaba.com>
- <CACGkMEtvVBXupsiE8=Mt4CWJqckS5tF-w_ZdG2qs-AoYBWptWA@mail.gmail.com>
-In-Reply-To: <CACGkMEtvVBXupsiE8=Mt4CWJqckS5tF-w_ZdG2qs-AoYBWptWA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF47510F5
+	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 03:34:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pYNBYrkE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72144C433C9;
+	Wed, 15 Nov 2023 03:34:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700019261;
+	bh=BPXcmbIHJIlBqHjEjTXsb/rxW6/LFGR3qAUvhVYpjtQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=pYNBYrkEelRPGCp9Mg3v4ld+Tqi3EO7UfJvzOI0ejadhSS9cN0a0FI5+6LxvcviZC
+	 UDMrRpr7ZSn09UcgP4451ee0/sEe0XFT4wAWlwsUhPfdwIPT3e5MDEaKXRW/SCLeew
+	 x8MVpxCn95J0Zu/7Tx0K757qzAhioXH+3YAK9D9uO+XOM8fCJ+yRgdrHNF2KTnxE4/
+	 MdeJEPV5Qb9N0M0wzGnMse8MJp4+u/SYg55gKWB0yxl5Rf0lmo2puJatDa3lnKxtVH
+	 Zo/EdqPVDTsvykquBgP1mU4T6Uft/+4bAsBDK7LqIWhm92Knbk8Bgxur0kNQku00ua
+	 qh2Nt8bw254zg==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Zongmin Zhou <zhouzongmin@kylinos.cn>,
+	Dave Airlie <airlied@redhat.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Sasha Levin <sashal@kernel.org>,
+	kraxel@redhat.com,
+	maarten.lankhorst@linux.intel.com,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	daniel@ffwll.ch,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.6 2/6] drm/qxl: prevent memory leak
+Date: Tue, 14 Nov 2023 22:33:36 -0500
+Message-ID: <20231115033350.1228588-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.42.0
+In-Reply-To: <20231115033350.1228588-1-sashal@kernel.org>
+References: <20231115033350.1228588-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.6.1
+Content-Transfer-Encoding: 8bit
 
-On Fri, 20 Oct 2023 14:57:06 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Oct 16, 2023 at 8:01=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba=
-.com> wrote:
-> >
-> > Implementing the logic of xsk rx. If this packet is not for XSK
-> > determined in XDP, then we need to copy once to generate a SKB.
-> > If it is for XSK, it is a zerocopy receive packet process.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio/main.c       |  14 ++--
-> >  drivers/net/virtio/virtio_net.h |   4 ++
-> >  drivers/net/virtio/xsk.c        | 120 ++++++++++++++++++++++++++++++++
-> >  drivers/net/virtio/xsk.h        |   4 ++
-> >  4 files changed, 137 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> > index 0e740447b142..003dd67ab707 100644
-> > --- a/drivers/net/virtio/main.c
-> > +++ b/drivers/net/virtio/main.c
-> > @@ -822,10 +822,10 @@ static void put_xdp_frags(struct xdp_buff *xdp)
-> >         }
-> >  }
-> >
-> > -static int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_b=
-uff *xdp,
-> > -                              struct net_device *dev,
-> > -                              unsigned int *xdp_xmit,
-> > -                              struct virtnet_rq_stats *stats)
-> > +int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xd=
-p,
-> > +                       struct net_device *dev,
-> > +                       unsigned int *xdp_xmit,
-> > +                       struct virtnet_rq_stats *stats)
-> >  {
-> >         struct xdp_frame *xdpf;
-> >         int err;
-> > @@ -1589,13 +1589,17 @@ static void receive_buf(struct virtnet_info *vi=
-, struct virtnet_rq *rq,
-> >                 return;
-> >         }
-> >
-> > -       if (vi->mergeable_rx_bufs)
-> > +       rcu_read_lock();
-> > +       if (rcu_dereference(rq->xsk.pool))
-> > +               skb =3D virtnet_receive_xsk(dev, vi, rq, buf, len, xdp_=
-xmit, stats);
-> > +       else if (vi->mergeable_rx_bufs)
-> >                 skb =3D receive_mergeable(dev, vi, rq, buf, ctx, len, x=
-dp_xmit,
-> >                                         stats);
-> >         else if (vi->big_packets)
-> >                 skb =3D receive_big(dev, vi, rq, buf, len, stats);
-> >         else
-> >                 skb =3D receive_small(dev, vi, rq, buf, ctx, len, xdp_x=
-mit, stats);
-> > +       rcu_read_unlock();
-> >
-> >         if (unlikely(!skb))
-> >                 return;
-> > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virti=
-o_net.h
-> > index 6e71622fca45..fd7f34703c9b 100644
-> > --- a/drivers/net/virtio/virtio_net.h
-> > +++ b/drivers/net/virtio/virtio_net.h
-> > @@ -346,6 +346,10 @@ static inline bool virtnet_is_xdp_raw_buffer_queue=
-(struct virtnet_info *vi, int
-> >                 return false;
-> >  }
-> >
-> > +int virtnet_xdp_handler(struct bpf_prog *xdp_prog, struct xdp_buff *xd=
-p,
-> > +                       struct net_device *dev,
-> > +                       unsigned int *xdp_xmit,
-> > +                       struct virtnet_rq_stats *stats);
-> >  void virtnet_rx_pause(struct virtnet_info *vi, struct virtnet_rq *rq);
-> >  void virtnet_rx_resume(struct virtnet_info *vi, struct virtnet_rq *rq);
-> >  void virtnet_tx_pause(struct virtnet_info *vi, struct virtnet_sq *sq);
-> > diff --git a/drivers/net/virtio/xsk.c b/drivers/net/virtio/xsk.c
-> > index 841fb078882a..f1c64414fac9 100644
-> > --- a/drivers/net/virtio/xsk.c
-> > +++ b/drivers/net/virtio/xsk.c
-> > @@ -13,6 +13,18 @@ static void sg_fill_dma(struct scatterlist *sg, dma_=
-addr_t addr, u32 len)
-> >         sg->length =3D len;
-> >  }
-> >
-> > +static unsigned int virtnet_receive_buf_num(struct virtnet_info *vi, c=
-har *buf)
-> > +{
-> > +       struct virtio_net_hdr_mrg_rxbuf *hdr;
-> > +
-> > +       if (vi->mergeable_rx_bufs) {
-> > +               hdr =3D (struct virtio_net_hdr_mrg_rxbuf *)buf;
-> > +               return virtio16_to_cpu(vi->vdev, hdr->num_buffers);
-> > +       }
-> > +
-> > +       return 1;
-> > +}
-> > +
-> >  static void virtnet_xsk_check_queue(struct virtnet_sq *sq)
-> >  {
-> >         struct virtnet_info *vi =3D sq->vq->vdev->priv;
-> > @@ -37,6 +49,114 @@ static void virtnet_xsk_check_queue(struct virtnet_=
-sq *sq)
-> >                 netif_stop_subqueue(dev, qnum);
-> >  }
-> >
-> > +static void merge_drop_follow_xdp(struct net_device *dev,
-> > +                                 struct virtnet_rq *rq,
-> > +                                 u32 num_buf,
-> > +                                 struct virtnet_rq_stats *stats)
-> > +{
-> > +       struct xdp_buff *xdp;
-> > +       u32 len;
-> > +
-> > +       while (num_buf-- > 1) {
-> > +               xdp =3D virtqueue_get_buf(rq->vq, &len);
-> > +               if (unlikely(!xdp)) {
-> > +                       pr_debug("%s: rx error: %d buffers missing\n",
-> > +                                dev->name, num_buf);
-> > +                       dev->stats.rx_length_errors++;
-> > +                       break;
-> > +               }
-> > +               stats->bytes +=3D len;
-> > +               xsk_buff_free(xdp);
-> > +       }
-> > +}
-> > +
-> > +static struct sk_buff *construct_skb(struct virtnet_rq *rq,
-> > +                                    struct xdp_buff *xdp)
-> > +{
-> > +       unsigned int metasize =3D xdp->data - xdp->data_meta;
-> > +       struct sk_buff *skb;
-> > +       unsigned int size;
-> > +
-> > +       size =3D xdp->data_end - xdp->data_hard_start;
-> > +       skb =3D napi_alloc_skb(&rq->napi, size);
-> > +       if (unlikely(!skb))
-> > +               return NULL;
-> > +
-> > +       skb_reserve(skb, xdp->data_meta - xdp->data_hard_start);
-> > +
-> > +       size =3D xdp->data_end - xdp->data_meta;
-> > +       memcpy(__skb_put(skb, size), xdp->data_meta, size);
-> > +
-> > +       if (metasize) {
-> > +               __skb_pull(skb, metasize);
-> > +               skb_metadata_set(skb, metasize);
-> > +       }
-> > +
-> > +       return skb;
-> > +}
-> > +
-> > +struct sk_buff *virtnet_receive_xsk(struct net_device *dev, struct vir=
-tnet_info *vi,
-> > +                                   struct virtnet_rq *rq, void *buf,
-> > +                                   unsigned int len, unsigned int *xdp=
-_xmit,
-> > +                                   struct virtnet_rq_stats *stats)
-> > +{
->
-> I wonder if anything blocks us from reusing the existing XDP logic?
-> Are there some subtle differences?
+From: Zongmin Zhou <zhouzongmin@kylinos.cn>
 
+[ Upstream commit 0e8b9f258baed25f1c5672613699247c76b007b5 ]
 
-About this, "the existing XDP logic" do you mean virtnet_xdp_handler()?
-This function reuse it.
+The allocated memory for qdev->dumb_heads should be released
+in qxl_destroy_monitors_object before qxl suspend.
+otherwise,qxl_create_monitors_object will be called to
+reallocate memory for qdev->dumb_heads after qxl resume,
+it will cause memory leak.
 
-virtnet_receive_xsk is on the same level with receive_mergeable.
+Signed-off-by: Zongmin Zhou <zhouzongmin@kylinos.cn>
+Link: https://lore.kernel.org/r/20230801025309.4049813-1-zhouzongmin@kylinos.cn
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I do the mergeable logic and small logic inside this function.
-Do you have any question on why we introduce this function?
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 6492a70e3c396..404b0483bb7cb 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1229,6 +1229,9 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
+ 	if (!qdev->monitors_config_bo)
+ 		return 0;
+ 
++	kfree(qdev->dumb_heads);
++	qdev->dumb_heads = NULL;
++
+ 	qdev->monitors_config = NULL;
+ 	qdev->ram_header->monitors_config = 0;
+ 
+-- 
+2.42.0
 
-I tried to do inside receive_mergeable/small, but that be difficult.
-Because that the buf,ctx is differ from the origin logic.
-So I think introducing an new handler is the right way.
-
-Thanks.
-
-
->
-> Thanks
->
