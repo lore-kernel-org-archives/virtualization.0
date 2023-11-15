@@ -1,101 +1,154 @@
-Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E75A54404
-	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 07:07:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D517C7E
+	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 08:33:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U4Od5/O5"
-Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-581f78a0206so3561808eaf.2
-        for <virtualization@lists.linux.dev>; Tue, 14 Nov 2023 23:07:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700032034; x=1700636834; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=DD6loysLm1if0z26gUfJWR92/8dI2bMs4fySErE1LEY=;
-        b=U4Od5/O5c62Dsm1XgSct+fql3Fd/f/c1e9U+68tv+o/1RmtKvDyQg9mZvTsb5b1Bgz
-         2xq6Cd9/56eFmQH4KcrF6uXuA7JGzwdvYg//9/HJEh5477wfZJWVjq79FnIkG1KCW0+p
-         NfYldRHLU/YW2zMXLehKCceRwqam1AL8UoW6i9Xitg3hszrwJ4ImNyCoGpAt3WVBS1PM
-         r8TPZ+FvyIqrZ6cjjD7Fv4GBvPtqLBzlkUkfpfXQJXt2tgI0Dbiy0QUWbNLfB+byMx6E
-         UJIL7WrR5yDkkUkD5xQvOL2vFt4PxyUjXKZkTSRsX398/2R2YOMcPekiFGmGytcwOKK/
-         zvqA==
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-5a92782615dso76213427b3.2
+        for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 00:33:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700032034; x=1700636834;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=DD6loysLm1if0z26gUfJWR92/8dI2bMs4fySErE1LEY=;
-        b=IA1cLeDgYKzuK/skNSchy2RvZsTqABWipakgCto4Uftn5vsuXPTloy7EhwKGIWH2NG
-         ppl5HvAhYPWWgRL34utGos9Bc5juzrHXjKrb5d03Zu0katXnos8+IUYJLQ0qDnyxQLZf
-         DFltz4IMe8dZ7eGMTl/p+Us/oJ9qxRmiQhAfpkoppE9HOSj+Sf+IDnxxGB65kd/pjLFJ
-         olUzeE5DDPjvDcMkYGeppZSifOESh3YXuv586IGWpHcCIYy9JDNxV6nCa5CnLbuPD6OJ
-         7F+p56b31hPahPJ4mZQ7hQ8zddbjFOiW2t6PopDlsfm617EZKKsGWGQtS2USe0wnz1MP
-         vXig==
-X-Gm-Message-State: AOJu0YzwERL28FyvPJu+1w6S0ax+3cXPXjkmZxdIrDtKkB0MsM35GncV
-	Iv4WRsNEpVF+sm7uwf/2sIYWit0qvz3rQxf6i8k=
-X-Google-Smtp-Source: AGHT+IGraImbABbVnYg6Ry57RVFnd3IqKf02szE055lgCefoqqyZvE2zfw+kuPwbsXcgZfPjjXz5Afh8lqooVZbQ9JU=
-X-Received: by 2002:a4a:305e:0:b0:58a:211:acf8 with SMTP id
- z30-20020a4a305e000000b0058a0211acf8mr10912431ooz.7.1700032033893; Tue, 14
- Nov 2023 23:07:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1700037221; x=1700642021;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=loUWrR6eECAA+uv6HMt8OKh14KvU7DOewoh9g24/Sfw=;
+        b=TrKEeIs/UMWfTYUApLNESW4oxw6mKo9khsifvd6KysaFj3MrEqceW8tk/0uxrUobrI
+         Us0lkLqa5EaBJXFs1H4HfqzfsSTG5XD8k+c39HuzIsPOmsh7Oixq/zhpHMVSbepZldEA
+         FbelQTmsM4V5BVPXCZt2wjMdk92nFmcCs5udRmlOdzHdmF7EDzmku6oatBx1KervvBRL
+         xiQj/9TcSrxn+j2RycUiCok0vRV+2IG45+RTvALtA3BpIozQ3zDwtSAbx+hiG6rZXX7Q
+         p+hxOo/oGHNLmslJxt+BEdNogZPD9On2z9yb7V1f5+n+pVEDU2RIDKyXjOkA1tPbmwlH
+         R6Jw==
+X-Gm-Message-State: AOJu0YztZQwl2g3pdvORI6aiuSWmcvf2qBf08cDdRcNu3vtJcFvkFfBL
+	XXlo+w6Cee+aQcbaP/wM8swzfnZ2JmC23w==
+X-Google-Smtp-Source: AGHT+IHpz7ptmu+bbH2ln86GRdNkifeceVf/A2v7nQ/hVltYavwbD2sJnMmnR91zsMDtHkczJc3otA==
+X-Received: by 2002:a0d:cc96:0:b0:5af:73cd:ba30 with SMTP id o144-20020a0dcc96000000b005af73cdba30mr13129635ywd.39.1700037221618;
+        Wed, 15 Nov 2023 00:33:41 -0800 (PST)
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com. [209.85.128.180])
+        by smtp.gmail.com with ESMTPSA id n4-20020a0de404000000b0057736c436f1sm244372ywe.141.2023.11.15.00.33.40
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 15 Nov 2023 00:33:40 -0800 (PST)
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-5a7b3d33663so76090297b3.3
+        for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 00:33:40 -0800 (PST)
+X-Received: by 2002:a81:8408:0:b0:5a7:a81d:e410 with SMTP id
+ u8-20020a818408000000b005a7a81de410mr13654199ywf.18.1700037220389; Wed, 15
+ Nov 2023 00:33:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231115033459.1228900-1-sashal@kernel.org> <20231115033459.1228900-2-sashal@kernel.org>
-In-Reply-To: <20231115033459.1228900-2-sashal@kernel.org>
-From: Frediano Ziglio <freddy77@gmail.com>
-Date: Wed, 15 Nov 2023 07:07:02 +0000
-Message-ID: <CAHt6W4cdQSXbBf4gO_jR-q-Q8SAonNDoQ0f2cO7LsnT__priWA@mail.gmail.com>
-Subject: Re: [Spice-devel] [PATCH AUTOSEL 6.5 2/6] drm/qxl: prevent memory leak
-To: Sasha Levin <sashal@kernel.org>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, daniel@ffwll.ch, 
-	dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, 
-	virtualization@lists.linux.dev, Maxime Ripard <mripard@kernel.org>, 
-	Zongmin Zhou <zhouzongmin@kylinos.cn>, kraxel@redhat.com, tzimmermann@suse.de, 
-	spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+References: <a1d9e09b-f533-5e2c-7a13-af96647e1a71@embeddedor.com>
+ <10D1983F-33EF-46C3-976E-463D1CB5A6E9@xenosoft.de> <9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de>
+ <c47fba21-3ae9-4021-9f4a-09c2670ebdbc@xenosoft.de> <0d89bcd0-9b68-4c0a-acd8-2c7532e62f6d@xenosoft.de>
+ <6530cea3-4507-454e-bc36-a6970c8e7578@xenosoft.de> <CAMuHMdU-8Fu55C2zu_XxmG8n5paOQYfqNA84JNvXo4c87D-kFw@mail.gmail.com>
+ <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
+In-Reply-To: <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 15 Nov 2023 09:33:28 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
+Message-ID: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
+Subject: Re: Fbdev issue after the drm updates 'drm-next-2023-10-31-1'
+To: Christian Zigotzky <chzigotzky@xenosoft.de>
+Cc: Maling list - DRI developers <dri-devel@lists.freedesktop.org>, =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>, 
+	airlied@gmail.com, deller@gmx.de, Darren Stevens <darren@stevens-zone.net>, 
+	mad skateman <madskateman@gmail.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, 
+	"R.T.Dickinson" <rtd2@xtra.co.nz>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Christian Zigotzky <info@xenosoft.de>, Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Il giorno mer 15 nov 2023 alle ore 06:57 Sasha Levin
-<sashal@kernel.org> ha scritto:
->
-> From: Zongmin Zhou <zhouzongmin@kylinos.cn>
->
-> [ Upstream commit 0e8b9f258baed25f1c5672613699247c76b007b5 ]
->
-> The allocated memory for qdev->dumb_heads should be released
-> in qxl_destroy_monitors_object before qxl suspend.
-> otherwise,qxl_create_monitors_object will be called to
+Hi Christian,
 
-Minor, typo: otherwise -> Otherwise.
+CC virtgpu
 
-> reallocate memory for qdev->dumb_heads after qxl resume,
-> it will cause memory leak.
->
-> Signed-off-by: Zongmin Zhou <zhouzongmin@kylinos.cn>
-> Link: https://lore.kernel.org/r/20230801025309.4049813-1-zhouzongmin@kylinos.cn
-> Reviewed-by: Dave Airlie <airlied@redhat.com>
-> Signed-off-by: Maxime Ripard <mripard@kernel.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/gpu/drm/qxl/qxl_display.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> index 6492a70e3c396..404b0483bb7cb 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -1229,6 +1229,9 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
->         if (!qdev->monitors_config_bo)
->                 return 0;
->
-> +       kfree(qdev->dumb_heads);
-> +       qdev->dumb_heads = NULL;
-> +
->         qdev->monitors_config = NULL;
->         qdev->ram_header->monitors_config = 0;
->
+On Tue, Nov 14, 2023 at 10:45=E2=80=AFAM Christian Zigotzky
+<chzigotzky@xenosoft.de> wrote:
+> On 13 November 2023 at 01:48 pm, Geert Uytterhoeven wrote:
+> > I can confirm there is no graphics output with m68k/virt, and
 
-Frediano
+Before the error message you reported:
+
+    virtio-mmio virtio-mmio.125: [drm] *ERROR* fbdev: Failed to setup
+generic emulation (ret=3D-2)
+
+it also prints:
+
+    virtio-mmio virtio-mmio.125: [drm] bpp/depth value of 32/24 not support=
+ed
+    virtio-mmio virtio-mmio.125: [drm] No compatible format found
+
+Upon closer look, it turns out virtgpu is special in that its main
+plane supports only a single format: DRM_FORMAT_HOST_XRGB8888, which
+is XR24 on little-endian, and BX24 on big-endian.  I.e. on big-endian,
+virtgpu does not support XR24.  Isn't this a violation of the DRM
+rule that every driver must implement support for XR24?
+
+> > bisected this to my own commit 6ae2ff23aa43a0c4 ("drm/client: Convert
+> > drm_client_buffer_addfb() to drm_mode_addfb2()"), ouch...
+> >
+> > It turns out the old call to drm_mode_addfb() caused a translation
+> > from a fourcc to a bpp/depth pair to a _different_ fourcc, due to the
+> > quirk processing in drm_driver_legacy_fb_format().
+> > I.e. on m68k/virt, the original requested format was XR24, which was
+> > translated to BX24. The former doesn't work, the latter works.
+> >
+> > The following (gmail-whitespace-damaged) patch fixed the issue for me:
+> >
+> > --- a/drivers/gpu/drm/drm_client.c
+> > +++ b/drivers/gpu/drm/drm_client.c
+> > @@ -400,6 +400,16 @@ static int drm_client_buffer_addfb(struct
+> > drm_client_buffer *buffer,
+> >
+> >         fb_req.width =3D width;
+> >         fb_req.height =3D height;
+> > +       if (client->dev->mode_config.quirk_addfb_prefer_host_byte_order=
+) {
+> > +               if (format =3D=3D DRM_FORMAT_XRGB8888)
+> > +                       format =3D DRM_FORMAT_HOST_XRGB8888;
+> > +               if (format =3D=3D DRM_FORMAT_ARGB8888)
+> > +                       format =3D DRM_FORMAT_HOST_ARGB8888;
+> > +               if (format =3D=3D DRM_FORMAT_RGB565)
+> > +                       format =3D DRM_FORMAT_HOST_RGB565;
+> > +               if (format =3D=3D DRM_FORMAT_XRGB1555)
+> > +                       format =3D DRM_FORMAT_HOST_XRGB1555;
+> > +       }
+> >         fb_req.pixel_format =3D format;
+> >         fb_req.handles[0] =3D handle;
+> >         fb_req.pitches[0] =3D buffer->pitch;
+> >
+> > However, I don't think we want to sprinkle more of these
+> > translations around... So perhaps we should (re)add a call to
+> > drm_driver_legacy_fb_format() to drm_client_buffer_addfb()?
+> >
+> > Second, as I doubt you are using a big-endian system, you are probably
+> > running into a slightly different issue.
+> >
+> > Oh wait, you did CC linuxppc-dev, so perhaps you are running on a
+> > big-endian machine?
+>
+> Your patch works! :-) Thanks a lot!
+>
+> I tested it with the virtio-vga and with the virtio-gpu-pci device in a v=
+irtual ppce500 QEMU/KVM HV machine with an e5500 CPU today.
+>
+> Tested-by: Christian Zigotzky <chzigotzky@xenosoft.de>
+
+Thanks for testing!
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
