@@ -1,72 +1,69 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 272C62E852
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:23:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pErthgeD"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24EBC3C0F
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:52:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 977E481B69
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:23:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 977E481B69
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=pErthgeD
+	by smtp2.osuosl.org (Postfix) with ESMTP id 90CF9400E4
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:52:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 90CF9400E4
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id liabO-7qx4sM
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JRZ2jKezCJTL
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 04:23:15 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CE014817C3
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:23:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CE014817C3
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id BC2FDCE1C45;
-	Wed, 15 Nov 2023 04:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBA9BC433C8;
-	Wed, 15 Nov 2023 04:23:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700022189;
-	bh=GwyRQdupYWEx39i8GPje4vSvKw7QVNRwxwRvkzjvais=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=pErthgeDMY7HCj4Edusuhh5S62tHBqZsO2U6OQrFGXnmQZrD6fPq12El6FfBIlAiy
-	 ekLwoSmbBNbiMjjJQTmlXBL3HFQ3/6NImx34OMXZgaYSQeqNuYnOZS1Nu+bQAajunt
-	 usKuF72ErI8vmBv0bg+6fPGunTn4NOUfNTkCzRk8Q5OOQABRwM2dw8zKbMegy2YlCZ
-	 xW2lvpFLOPuSx9AEB1WhqtUjPhNQqlZEy7kum8lhZ2MgQj07AKsKJh/INp7Seiv2CN
-	 60LXxFmiUEUh79qMZq7vYudY95EL3M4m0UxhJR0RAaNmmWrt8Q19GiGeAMk+Ck6uDR
-	 +1EKYW2fL0hGA==
-Date: Tue, 14 Nov 2023 23:23:05 -0500
-From: Jakub Kicinski <kuba@kernel.org>
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Jason
- Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "David S .
- Miller" <davem@davemloft.net>, Jesper Dangaard Brouer <hawk@kernel.org>,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov
- <ast@kernel.org>, Simon Horman <horms@kernel.org>,
- xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v3 5/5] virtio-net: return -EOPNOTSUPP for
- adaptive-tx
-Message-ID: <20231114232305.4cd58415@kernel.org>
-In-Reply-To: <6a79229fbeb72edf41185a45a0f9ea5cd87a1086.1699938946.git.hengqi@linux.alibaba.com>
-References: <cover.1699938946.git.hengqi@linux.alibaba.com>
-	<6a79229fbeb72edf41185a45a0f9ea5cd87a1086.1699938946.git.hengqi@linux.alibaba.com>
+	Wed, 15 Nov 2023 04:52:22 +0000 (UTC)
+Received: from out30-113.freemail.mail.aliyun.com (out30-113.freemail.mail.aliyun.com [115.124.30.113])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id AEE2640018
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 04:52:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org AEE2640018
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0VwRTcUH_1700023933;
+Received: from 30.221.148.252(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0VwRTcUH_1700023933)
+          by smtp.aliyun-inc.com;
+          Wed, 15 Nov 2023 12:52:15 +0800
+Message-ID: <b337cb82-afa8-411b-a38f-88c0d05d1aec@linux.alibaba.com>
+Date: Wed, 15 Nov 2023 12:52:11 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3 5/5] virtio-net: return -EOPNOTSUPP for
+ adaptive-tx
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Jason Wang <jasowang@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+ Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>,
+ "David S . Miller" <davem@davemloft.net>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ John Fastabend <john.fastabend@gmail.com>,
+ Alexei Starovoitov <ast@kernel.org>, Simon Horman <horms@kernel.org>,
+ xuanzhuo@linux.alibaba.com
+References: <cover.1699938946.git.hengqi@linux.alibaba.com>
+ <6a79229fbeb72edf41185a45a0f9ea5cd87a1086.1699938946.git.hengqi@linux.alibaba.com>
+ <20231114232305.4cd58415@kernel.org>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <20231114232305.4cd58415@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, 14 Nov 2023 13:55:47 +0800 Heng Qi wrote:
-> We do not currently support tx dim, so respond to -EOPNOTSUPP.
 
-Hm, why do you need this? You don't set ADAPTIVE_TX in
-.supported_coalesce_params, so core should prevent attempts
-to enable ADAPTIVE_TX.
+
+在 2023/11/15 下午12:23, Jakub Kicinski 写道:
+> On Tue, 14 Nov 2023 13:55:47 +0800 Heng Qi wrote:
+>> We do not currently support tx dim, so respond to -EOPNOTSUPP.
+> Hm, why do you need this? You don't set ADAPTIVE_TX in
+> .supported_coalesce_params, so core should prevent attempts
+> to enable ADAPTIVE_TX.
+
+Indeed. Will drop this.
+
+Thanks!
+
+
