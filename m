@@ -1,279 +1,162 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC23156D4
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16106179A6
+	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 13:15:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ba9qshhh"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0DEDF60ECD
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0DEDF60ECD
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ba9qshhh
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZWmEFMmilDoQ
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 11:11:14 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id F36CB60A97
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F36CB60A97
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hiyXnj5C"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700046672;
+	s=mimecast20190719; t=1700054157;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P+9IBIN2TseVRMl8fITJ/N2WS2NwQD1vqkbQglXI4X4=;
-	b=ba9qshhh9s3RdtAFLDQVNTsdA2RGQU+5OBLpymJjLOTrtjD60d2P50bNVSUl5EciSpDYum
-	t4zP9RKBr4crLIvX7jF5M7MnQtA1wcdVsV9G5RrVbl1N7UluhNTdcl2pNVIJTOYA9+7dOY
-	ab00+IytNTLWqosCarVKYPgFk/VfWfQ=
-Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
- [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=4lF7aMHaWE0StDFmSjkvXf9QppPYg6hsJ7Fo37wmlDE=;
+	b=hiyXnj5Cz2ylK27TvjwJNPuiMVaG+kR1Lyk7EkSMZoRnyjmYkwYZg5TRzbvozbxlqVb6zg
+	SyAyBLULf0tP9fZo8OJglALWDqvc6EHIYDNbpfnxmTqMKRALlvt3brh0jRaiW3lzG4PsAb
+	hB3oenzmH+Zxj0rfcZXwVf4zBvMx5HQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-363-Ep5G_CrrNjCx0W1_hKtI3w-1; Wed, 15 Nov 2023 06:11:10 -0500
-X-MC-Unique: Ep5G_CrrNjCx0W1_hKtI3w-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-9e31708ad72so460129466b.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:11:10 -0800 (PST)
+ us-mta-687-O5XXaHmfP0GmTPEodZYmYw-1; Wed, 15 Nov 2023 08:15:54 -0500
+X-MC-Unique: O5XXaHmfP0GmTPEodZYmYw-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-32fd8da34fbso3090601f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 05:15:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700046669; x=1700651469;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P+9IBIN2TseVRMl8fITJ/N2WS2NwQD1vqkbQglXI4X4=;
-        b=qptPcDuYUiiI8qnR7bJqbxnYEJLek+CcRm/c300+bN3+X0BdyAhSSywsD8sa6OWk3n
-         sy63+nAqCNjrKKsmer1RgYpbA9CRXyGgxM2hxrF3DRCSB8hCGj/ZZH69FXnraMcAArzJ
-         flPD2l+kcf8prZOTy+vi/53qlRHNYobt36O7k6ofQlhjyhoOt630H/ShBPfcQmQepwwj
-         Mo3QUlFMGpnNrlaYz3hi+TjCJvf1FjpA3ttw39wxQGOMsD5H8u7SFQuuOqCoDjf0jPB+
-         SWFHTyBHZs3TDxUvF5WTE5vX5EAgEruCCwXrLRYuVrJHG8LUnzsrMzWM6hbRQCAX56o1
-         jW6Q==
-X-Gm-Message-State: AOJu0YytI9JJRMHGJpIo9DLvrtHXuc5yP1mtbTN83xnMgSAkzcVQqXhO
-	hsOHiCuQwto06KEqiaOe7QdvhzBQ2bd/f6Voah1h9WtLJtTr3sESG7M/tGwbuY4oCHDfhhI+Nrx
-	PptiawGPdVJTIeJNvs7pBbV30vfGiQOx4B02ltX/JTQ==
-X-Received: by 2002:a17:906:d292:b0:9dd:f5ba:856d with SMTP id ay18-20020a170906d29200b009ddf5ba856dmr10523744ejb.62.1700046669461;
-        Wed, 15 Nov 2023 03:11:09 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEicy/bLc4oN1a42wj/6SobC5kFcPGCJNdEL99xoe8FtbG79XQBALGZSqlBlQSbj2/E80ogpw==
-X-Received: by 2002:a17:906:d292:b0:9dd:f5ba:856d with SMTP id ay18-20020a170906d29200b009ddf5ba856dmr10523724ejb.62.1700046669162;
-        Wed, 15 Nov 2023 03:11:09 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-199.retail.telecomitalia.it. [79.46.200.199])
-        by smtp.gmail.com with ESMTPSA id e10-20020a170906080a00b009a193a5acffsm6916813ejd.121.2023.11.15.03.11.07
+        d=1e100.net; s=20230601; t=1700054153; x=1700658953;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4lF7aMHaWE0StDFmSjkvXf9QppPYg6hsJ7Fo37wmlDE=;
+        b=RRJ/1k7GPBhVpHmQgGsdTBiBU0sgfBb26r0m/0TVKYGmP9pZH8nfscVX3cejNAv8GL
+         ZzK1zrprOTNkjyRfUjWYpxlyz5MP/ZtyzlYP7BponlCGXdu0LOKv05yHNuUnDw3Af/9i
+         cjBNd8jcHbNfpmITs45jmMvXEgnyFNaFMldsl43B27y78uR31avF3oDSW8W2wT+sVyPm
+         dKVeVeVmd4DrepDTcYMwbfuJrpjlfk91XT132v+MYNOzwkPwYwvy5JiyiuRiGZo7VDWZ
+         DTQDfWuTwstRdzs0Bdjy84/wnxoChd0xgVlAr/1TLclqbcFGqpdTpmfWpx7ekaoAGl8F
+         8kJQ==
+X-Gm-Message-State: AOJu0YyySLY6MmTeAIzPmefskvkPAw0lM8cZ1jHXIA+6LIo+x7D0OjJb
+	S1nSlXPVTaLkx1rPI02pW17+lekWdqry6Ub7huS+uDdeNbtZbo9hkRcEn7sBq9UFBO/UTkUVOlR
+	3/8St+63ZCmLs5OybZzhhox0eGlg=
+X-Received: by 2002:a5d:64ef:0:b0:31c:8880:5d0f with SMTP id g15-20020a5d64ef000000b0031c88805d0fmr8815345wri.11.1700054153442;
+        Wed, 15 Nov 2023 05:15:53 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IG8Akj/DP0M6gaPcJ9iKzQAqtuUVukMuYMObXNcXMXbVoCf04jCr7iPlpSq+gDQSE1T7tfrhg==
+X-Received: by 2002:a5d:64ef:0:b0:31c:8880:5d0f with SMTP id g15-20020a5d64ef000000b0031c88805d0fmr8815312wri.11.1700054153053;
+        Wed, 15 Nov 2023 05:15:53 -0800 (PST)
+Received: from localhost (205.pool92-176-231.dynamic.orange.es. [92.176.231.205])
+        by smtp.gmail.com with ESMTPSA id q12-20020a05600000cc00b0032db4e660d9sm10551595wrx.56.2023.11.15.05.15.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Nov 2023 03:11:08 -0800 (PST)
-Date: Wed, 15 Nov 2023 12:11:02 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
-Subject: Re: [RFC PATCH v1 2/2] vsock/test: SO_RCVLOWAT + deferred credit
- update test
-Message-ID: <zukasb6k7ogta33c2wik6cgadg2rkacestat7pkexd45u53swh@ovso3hafta77>
-References: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
- <20231108072004.1045669-3-avkrasnov@salutedevices.com>
+        Wed, 15 Nov 2023 05:15:52 -0800 (PST)
+From: Javier Martinez Canillas <javierm@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Maxime Ripard <mripard@kernel.org>,
+	Bilal Elmoussaoui <belmouss@redhat.com>,
+	Simon Ser <contact@emersion.fr>,
+	Erico Nunes <nunes.erico@gmail.com>,
+	Pekka Paalanen <pekka.paalanen@collabora.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	Sima Vetter <daniel.vetter@ffwll.ch>,
+	Javier Martinez Canillas <javierm@redhat.com>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	David Airlie <airlied@gmail.com>,
+	David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+	Zack Rusin <zackr@vmware.com>,
+	dri-devel@lists.freedesktop.org,
+	linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH v2 0/5] drm: Allow the damage helpers to handle buffer damage
+Date: Wed, 15 Nov 2023 14:15:39 +0100
+Message-ID: <20231115131549.2191589-1-javierm@redhat.com>
+X-Mailer: git-send-email 2.41.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231108072004.1045669-3-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
-On Wed, Nov 08, 2023 at 10:20:04AM +0300, Arseniy Krasnov wrote:
->This adds test which checks, that updating SO_RCVLOWAT value also sends
+Hello,
 
-You can avoid "This adds", and write just "Add test ...".
+This series is to fix an issue that surfaced after damage clipping was
+enabled for the virtio-gpu by commit 01f05940a9a7 ("drm/virtio: Enable
+fb damage clips property for the primary plane").
 
-See https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
+After that change, flickering artifacts was reported to be present with
+both weston and wlroots wayland compositors when running in a virtual
+machine. The cause was identified by Sima Vetter, who pointed out that
+virtio-gpu does per-buffer uploads and for this reason it needs to do
+a buffer damage handling, instead of frame damage handling.
 
-     Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
-     instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
-     to do frotz", as if you are giving orders to the codebase to change
-     its behaviour.
+Their suggestion was to extend the damage helpers to cover that case
+and given that there's isn't a buffer damage accumulation algorithm
+(e.g: buffer age), just do a full plane update if the framebuffer that
+is attached to a plane changed since the last plane update (page-flip).
 
-Also in the other patch.
+It is a v2 that addresses issues pointed out by Thomas Zimmermann in v1:
+https://lists.freedesktop.org/archives/dri-devel/2023-November/430138.html
 
->credit update message. Otherwise mutual hungup may happen when receiver
->didn't send credit update and then calls 'poll()' with non default
->SO_RCVLOWAT value (e.g. waiting enough bytes to read), while sender
->waits for free space at receiver's side.
->
->Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->---
-> tools/testing/vsock/vsock_test.c | 131 +++++++++++++++++++++++++++++++
-> 1 file changed, 131 insertions(+)
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index c1f7bc9abd22..c71b3875fd16 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -1180,6 +1180,132 @@ static void test_stream_shutrd_server(const struct test_opts *opts)
-> 	close(fd);
-> }
->
->+#define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
->+#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE	(1024 * 64)
+Patch #1 adds a ignore_damage_clips field to struct drm_plane_state to be
+set by drivers that want the damage helpers to ignore the damage clips.
 
-What about adding a comment like the one in the cover letter about
-dependency with kernel values?
+Patch #2 fixes the virtio-gpu damage handling logic by asking the damage
+helper to ignore the damage clips if the framebuffer attached to a plane
+has changed since the last page-flip.
 
-Please add it also in the commit description.
+Patch #3 does the same but for the vmwgfx driver that also needs to handle
+buffer damage and should have the same issue (although I haven't tested it
+due not having a VMWare setup).
 
-I'm thinking if we should move all the defines that depends on the
-kernel in some special header.
+Patch #4 adds to the KMS damage tracking kernel-doc some paragraphs about
+damage tracking types and references to links that explain frame damage vs
+buffer damage.
 
->+
->+static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opts)
->+{
->+	size_t buf_size;
->+	void *buf;
->+	int fd;
->+
->+	fd = vsock_stream_connect(opts->peer_cid, 1234);
->+	if (fd < 0) {
->+		perror("connect");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Send 1 byte more than peer's buffer size. */
->+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE + 1;
->+
->+	buf = malloc(buf_size);
->+	if (!buf) {
->+		perror("malloc");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	/* Wait until peer sets needed buffer size. */
->+	control_expectln("SRVREADY");
->+
->+	if (send(fd, buf, buf_size, 0) != buf_size) {
->+		perror("send failed");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	free(buf);
->+	close(fd);
->+}
->+
->+static void test_stream_rcvlowat_def_cred_upd_server(const struct test_opts *opts)
->+{
->+	size_t recv_buf_size;
->+	struct pollfd fds;
->+	size_t buf_size;
->+	void *buf;
->+	int fd;
->+
->+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
->+	if (fd < 0) {
->+		perror("accept");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
->+
->+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->+		       &buf_size, sizeof(buf_size))) {
->+		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	buf = malloc(buf_size);
->+	if (!buf) {
->+		perror("malloc");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	control_writeln("SRVREADY");
->+
->+	/* Wait until there will be 128KB of data in rx queue. */
->+	while (1) {
->+		ssize_t res;
->+
->+		res = recv(fd, buf, buf_size, MSG_PEEK);
->+		if (res == buf_size)
->+			break;
->+
->+		if (res <= 0) {
->+			fprintf(stderr, "unexpected 'recv()' return: %zi\n", res);
->+			exit(EXIT_FAILURE);
->+		}
->+	}
->+
->+	/* There is 128KB of data in the socket's rx queue,
->+	 * dequeue first 64KB, credit update is not sent.
->+	 */
->+	recv_buf_size = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
->+	recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
->+	recv_buf_size++;
->+
->+	/* Updating SO_RCVLOWAT will send credit update. */
->+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
->+		       &recv_buf_size, sizeof(recv_buf_size))) {
->+		perror("setsockopt(SO_RCVLOWAT)");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	memset(&fds, 0, sizeof(fds));
->+	fds.fd = fd;
->+	fds.events = POLLIN | POLLRDNORM | POLLERR |
->+		     POLLRDHUP | POLLHUP;
->+
->+	/* This 'poll()' will return once we receive last byte
->+	 * sent by client.
->+	 */
->+	if (poll(&fds, 1, -1) < 0) {
->+		perror("poll");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (fds.revents & POLLERR) {
->+		fprintf(stderr, "'poll()' error\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	if (fds.revents & (POLLIN | POLLRDNORM)) {
->+		recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
->+	} else {
->+		/* These flags must be set, as there is at
->+		 * least 64KB of data ready to read.
->+		 */
->+		fprintf(stderr, "POLLIN | POLLRDNORM expected\n");
->+		exit(EXIT_FAILURE);
->+	}
->+
->+	free(buf);
->+	close(fd);
->+}
->+
-> static struct test_case test_cases[] = {
-> 	{
-> 		.name = "SOCK_STREAM connection reset",
->@@ -1285,6 +1411,11 @@ static struct test_case test_cases[] = {
-> 		.run_client = test_stream_msgzcopy_empty_errq_client,
-> 		.run_server = test_stream_msgzcopy_empty_errq_server,
-> 	},
->+	{
->+		.name = "SOCK_STREAM virtio SO_RCVLOWAT + deferred cred update",
->+		.run_client = test_stream_rcvlowat_def_cred_upd_client,
->+		.run_server = test_stream_rcvlowat_def_cred_upd_server,
->+	},
-> 	{},
-> };
->
->-- 
->2.25.1
->
+Finally patch #5 adds an item to the DRM todo, about the need to implement
+some buffer damage accumulation algorithm instead of just doing full plane
+updates in this case.
+
+Because commit 01f05940a9a7 landed in v6.4, the first 2 patches are marked
+as Fixes and Cc stable.
+
+I've tested this on a VM with weston, was able to reproduce the issue
+reported and the patches did fix the problem.
+
+Best regards,
+Javier
+
+Changes in v2:
+- Add a struct drm_plane_state .ignore_damage_clips to set in the plane's
+  .atomic_check, instead of having different helpers (Thomas Zimmermann).
+- Set struct drm_plane_state .ignore_damage_clips in virtio-gpu plane's
+  .atomic_check instead of using a different helpers (Thomas Zimmermann).
+- Set struct drm_plane_state .ignore_damage_clips in vmwgfx plane's
+  .atomic_check instead of using a different helpers (Thomas Zimmermann).
+
+Javier Martinez Canillas (5):
+  drm: Allow drivers to indicate the damage helpers to ignore damage
+    clips
+  drm/virtio: Disable damage clipping if FB changed since last page-flip
+  drm/vmwgfx: Disable damage clipping if FB changed since last page-flip
+  drm/plane: Extend damage tracking kernel-doc
+  drm/todo: Add entry about implementing buffer age for damage tracking
+
+ Documentation/gpu/todo.rst             | 20 ++++++++++++++++++++
+ drivers/gpu/drm/drm_damage_helper.c    |  3 ++-
+ drivers/gpu/drm/drm_plane.c            | 20 ++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 10 ++++++++++
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c    | 11 +++++++++++
+ include/drm/drm_plane.h                |  8 ++++++++
+ 6 files changed, 71 insertions(+), 1 deletion(-)
+
+-- 
+2.41.0
 
