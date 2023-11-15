@@ -1,70 +1,70 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8447A171A4
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:09:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EC23156D4
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EGO3VCJH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ba9qshhh"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 100DE40525
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:09:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 100DE40525
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EGO3VCJH
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0DEDF60ECD
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 0DEDF60ECD
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ba9qshhh
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XgKL_n7BRw9D
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZWmEFMmilDoQ
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 15 Nov 2023 11:09:01 +0000 (UTC)
+	Wed, 15 Nov 2023 11:11:14 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D8F8A4051A
-	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:09:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D8F8A4051A
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F36CB60A97
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:11:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F36CB60A97
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700046539;
+	s=mimecast20190719; t=1700046672;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zDBT66qXHQHw50FZVm9tIKPyXDoNqaIeneC9a2eHcLs=;
-	b=EGO3VCJH7mcVtwt1IpNsBvk3L9XPKA9+X7XZQVRBAUp+jSN7Wne7xauXKlmFhKrDScMUe/
-	zmxwubgKX0/tI2Yp3K38ljT/8dVX5DT1AaJ4ZnZh3oyaUKDA/HkU0H6bEejY2d4uMsNfeh
-	txb7wOPV8A9e5mFne+fquQpX5L9+5QQ=
+	bh=P+9IBIN2TseVRMl8fITJ/N2WS2NwQD1vqkbQglXI4X4=;
+	b=ba9qshhh9s3RdtAFLDQVNTsdA2RGQU+5OBLpymJjLOTrtjD60d2P50bNVSUl5EciSpDYum
+	t4zP9RKBr4crLIvX7jF5M7MnQtA1wcdVsV9G5RrVbl1N7UluhNTdcl2pNVIJTOYA9+7dOY
+	ab00+IytNTLWqosCarVKYPgFk/VfWfQ=
 Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
  [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-661-gc5kdoXnOTyo3HDRkZVXxA-1; Wed, 15 Nov 2023 06:08:57 -0500
-X-MC-Unique: gc5kdoXnOTyo3HDRkZVXxA-1
-Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-9d30a6a67abso445031966b.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:08:57 -0800 (PST)
+ us-mta-363-Ep5G_CrrNjCx0W1_hKtI3w-1; Wed, 15 Nov 2023 06:11:10 -0500
+X-MC-Unique: Ep5G_CrrNjCx0W1_hKtI3w-1
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-9e31708ad72so460129466b.3
+        for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:11:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700046536; x=1700651336;
+        d=1e100.net; s=20230601; t=1700046669; x=1700651469;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=zDBT66qXHQHw50FZVm9tIKPyXDoNqaIeneC9a2eHcLs=;
-        b=VBFc82pr/eur5fkIcznccHbL0Rhx6AOyAqx7qB6GJTTEqEsy5Hm0OT2e+c8InpbNN2
-         o0WKLYAKKKRi24T1Cuy9Crwt9uihsf2b6ofTd5Us0OUai9OQxZHsCugnRDzQNg1fE+IU
-         aJVCqS91TxhtEGfMjrJiwp6+Rmw97vFK+Vge5xc5vUervSHPD4WXEvrHTqBRNnBHd68Q
-         DAuM6Y7OnJDRnQ5cmv+TD28OJ8XUC6k3KMpEWf9WCkM8wX2nzkZ351qkbICNdPn5tiH9
-         TvFpJTixepqFyuF3VLvL/vUW6QmpvtWqml9dwafMM7jlcqZ2PUJ4I36PwfOFieSPk58K
-         SAQA==
-X-Gm-Message-State: AOJu0YzF+oEF7VvFtbcp+TDda7BVC3OuF3aJywYWE7BTuBiQLDQufbi5
-	3Lh2wLq0zkLYjwKTtUw46Jow6vta/+M7V/8FodQDuxtDpD/KPON7yRvzXc2z1vAbV5/3KhNU2v8
-	WX4zP+Dka4CvsDDAYR91E6Pn04AotIsxeBM/D2Og5jA==
-X-Received: by 2002:a05:6402:40cb:b0:53f:bb1e:ce39 with SMTP id z11-20020a05640240cb00b0053fbb1ece39mr11478728edb.34.1700046536091;
-        Wed, 15 Nov 2023 03:08:56 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGsq1ynZRIuY+ajEh3UBWfLCL9drgoil/i4ZVS1lkVBo2HzBBwaSNuBLnpqx9eRR/znFXxIrA==
-X-Received: by 2002:a05:6402:40cb:b0:53f:bb1e:ce39 with SMTP id z11-20020a05640240cb00b0053fbb1ece39mr11478699edb.34.1700046535589;
-        Wed, 15 Nov 2023 03:08:55 -0800 (PST)
+        bh=P+9IBIN2TseVRMl8fITJ/N2WS2NwQD1vqkbQglXI4X4=;
+        b=qptPcDuYUiiI8qnR7bJqbxnYEJLek+CcRm/c300+bN3+X0BdyAhSSywsD8sa6OWk3n
+         sy63+nAqCNjrKKsmer1RgYpbA9CRXyGgxM2hxrF3DRCSB8hCGj/ZZH69FXnraMcAArzJ
+         flPD2l+kcf8prZOTy+vi/53qlRHNYobt36O7k6ofQlhjyhoOt630H/ShBPfcQmQepwwj
+         Mo3QUlFMGpnNrlaYz3hi+TjCJvf1FjpA3ttw39wxQGOMsD5H8u7SFQuuOqCoDjf0jPB+
+         SWFHTyBHZs3TDxUvF5WTE5vX5EAgEruCCwXrLRYuVrJHG8LUnzsrMzWM6hbRQCAX56o1
+         jW6Q==
+X-Gm-Message-State: AOJu0YytI9JJRMHGJpIo9DLvrtHXuc5yP1mtbTN83xnMgSAkzcVQqXhO
+	hsOHiCuQwto06KEqiaOe7QdvhzBQ2bd/f6Voah1h9WtLJtTr3sESG7M/tGwbuY4oCHDfhhI+Nrx
+	PptiawGPdVJTIeJNvs7pBbV30vfGiQOx4B02ltX/JTQ==
+X-Received: by 2002:a17:906:d292:b0:9dd:f5ba:856d with SMTP id ay18-20020a170906d29200b009ddf5ba856dmr10523744ejb.62.1700046669461;
+        Wed, 15 Nov 2023 03:11:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEicy/bLc4oN1a42wj/6SobC5kFcPGCJNdEL99xoe8FtbG79XQBALGZSqlBlQSbj2/E80ogpw==
+X-Received: by 2002:a17:906:d292:b0:9dd:f5ba:856d with SMTP id ay18-20020a170906d29200b009ddf5ba856dmr10523724ejb.62.1700046669162;
+        Wed, 15 Nov 2023 03:11:09 -0800 (PST)
 Received: from sgarzare-redhat (host-79-46-200-199.retail.telecomitalia.it. [79.46.200.199])
-        by smtp.gmail.com with ESMTPSA id t23-20020a50d717000000b005470cacc4bfsm6357529edi.84.2023.11.15.03.08.54
+        by smtp.gmail.com with ESMTPSA id e10-20020a170906080a00b009a193a5acffsm6916813ejd.121.2023.11.15.03.11.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Nov 2023 03:08:55 -0800 (PST)
-Date: Wed, 15 Nov 2023 12:08:52 +0100
+        Wed, 15 Nov 2023 03:11:08 -0800 (PST)
+Date: Wed, 15 Nov 2023 12:11:02 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseniy Krasnov <avkrasnov@salutedevices.com>
 Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
@@ -74,149 +74,206 @@ Cc: Stefan Hajnoczi <stefanha@redhat.com>,
 	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
 	oxffffaa@gmail.com
-Subject: Re: [RFC PATCH v1 1/2] virtio/vsock: send credit update during
- setting SO_RCVLOWAT
-Message-ID: <6owgy5zo5lmx3w2vsu6ux552olyuq4lnqzrawngc3gmi5fonn6@6emsez7krq7f>
+Subject: Re: [RFC PATCH v1 2/2] vsock/test: SO_RCVLOWAT + deferred credit
+ update test
+Message-ID: <zukasb6k7ogta33c2wik6cgadg2rkacestat7pkexd45u53swh@ovso3hafta77>
 References: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
- <20231108072004.1045669-2-avkrasnov@salutedevices.com>
+ <20231108072004.1045669-3-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231108072004.1045669-2-avkrasnov@salutedevices.com>
+In-Reply-To: <20231108072004.1045669-3-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Wed, Nov 08, 2023 at 10:20:03AM +0300, Arseniy Krasnov wrote:
->This adds sending credit update message when SO_RCVLOWAT is updated and
->it is bigger than number of bytes in rx queue. It is needed, because
->'poll()' will wait until number of bytes in rx queue will be not smaller
->than SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual
->hungup for tx/rx is possible: sender waits for free space and receiver
->is waiting data in 'poll()'.
+On Wed, Nov 08, 2023 at 10:20:04AM +0300, Arseniy Krasnov wrote:
+>This adds test which checks, that updating SO_RCVLOWAT value also sends
+
+You can avoid "This adds", and write just "Add test ...".
+
+See https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
+
+     Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
+     instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
+     to do frotz", as if you are giving orders to the codebase to change
+     its behaviour.
+
+Also in the other patch.
+
+>credit update message. Otherwise mutual hungup may happen when receiver
+>didn't send credit update and then calls 'poll()' with non default
+>SO_RCVLOWAT value (e.g. waiting enough bytes to read), while sender
+>waits for free space at receiver's side.
 >
 >Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 >---
-> drivers/vhost/vsock.c                   |  2 ++
-> include/linux/virtio_vsock.h            |  1 +
-> net/vmw_vsock/virtio_transport.c        |  2 ++
-> net/vmw_vsock/virtio_transport_common.c | 31 +++++++++++++++++++++++++
-> net/vmw_vsock/vsock_loopback.c          |  2 ++
-> 5 files changed, 38 insertions(+)
+> tools/testing/vsock/vsock_test.c | 131 +++++++++++++++++++++++++++++++
+> 1 file changed, 131 insertions(+)
 >
->diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->index f75731396b7e..ecfa5c11f5ee 100644
->--- a/drivers/vhost/vsock.c
->+++ b/drivers/vhost/vsock.c
->@@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport = {
-> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->
-> 		.read_skb = virtio_transport_read_skb,
->+
->+		.set_rcvlowat             = virtio_transport_set_rcvlowat
-> 	},
->
-> 	.send_pkt = vhost_transport_send_pkt,
->diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->index ebb3ce63d64d..97dc1bebc69c 100644
->--- a/include/linux/virtio_vsock.h
->+++ b/include/linux/virtio_vsock.h
->@@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
-> void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
-> int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
-> int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
->+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val);
-> #endif /* _LINUX_VIRTIO_VSOCK_H */
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index af5bab1acee1..cf3431189d0c 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -539,6 +539,8 @@ static struct virtio_transport virtio_transport = {
-> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->
-> 		.read_skb = virtio_transport_read_skb,
->+
->+		.set_rcvlowat             = virtio_transport_set_rcvlowat
-> 	},
->
-> 	.send_pkt = virtio_transport_send_pkt,
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index e22c81435ef7..88a58163046e 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1676,6 +1676,37 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index c1f7bc9abd22..c71b3875fd16 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -1180,6 +1180,132 @@ static void test_stream_shutrd_server(const struct test_opts *opts)
+> 	close(fd);
 > }
-> EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
 >
->+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val)
+>+#define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
+>+#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE	(1024 * 64)
+
+What about adding a comment like the one in the cover letter about
+dependency with kernel values?
+
+Please add it also in the commit description.
+
+I'm thinking if we should move all the defines that depends on the
+kernel in some special header.
+
+>+
+>+static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opts)
 >+{
->+	struct virtio_vsock_sock *vvs = vsk->trans;
->+	bool send_update = false;
-
-I'd declare this not initialized.
-
+>+	size_t buf_size;
+>+	void *buf;
+>+	int fd;
 >+
->+	spin_lock_bh(&vvs->rx_lock);
->+
->+	/* If number of available bytes is less than new
->+	 * SO_RCVLOWAT value, kick sender to send more
->+	 * data, because sender may sleep in its 'send()'
->+	 * syscall waiting for enough space at our side.
->+	 */
->+	if (vvs->rx_bytes < val)
->+		send_update = true;
-
-Then here just:
-	send_update = vvs->rx_bytes < val;
-
->+
->+	spin_unlock_bh(&vvs->rx_lock);
->+
->+	if (send_update) {
->+		int err;
->+
->+		err = virtio_transport_send_credit_update(vsk);
->+		if (err < 0)
->+			return err;
+>+	fd = vsock_stream_connect(opts->peer_cid, 1234);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
 >+	}
 >+
->+	WRITE_ONCE(sk_vsock(vsk)->sk_rcvlowat, val ? : 1);
-
-Not in this patch, but what about doing this in vsock_set_rcvlowat() in 
-af_vsock.c?
-
-I mean avoid to return if `transport->set_rcvlowat(vsk, val)` is
-successfully, so set sk_rcvlowat in a single point.
-
-The rest LGTM!
-
-Stefano
-
+>+	/* Send 1 byte more than peer's buffer size. */
+>+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE + 1;
 >+
->+	return 0;
+>+	buf = malloc(buf_size);
+>+	if (!buf) {
+>+		perror("malloc");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	/* Wait until peer sets needed buffer size. */
+>+	control_expectln("SRVREADY");
+>+
+>+	if (send(fd, buf, buf_size, 0) != buf_size) {
+>+		perror("send failed");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	free(buf);
+>+	close(fd);
 >+}
->+EXPORT_SYMBOL_GPL(virtio_transport_set_rcvlowat);
 >+
-> MODULE_LICENSE("GPL v2");
-> MODULE_AUTHOR("Asias He");
-> MODULE_DESCRIPTION("common code for virtio vsock");
->diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
->index 048640167411..388c157f6633 100644
->--- a/net/vmw_vsock/vsock_loopback.c
->+++ b/net/vmw_vsock/vsock_loopback.c
->@@ -98,6 +98,8 @@ static struct virtio_transport loopback_transport = {
-> 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->
-> 		.read_skb = virtio_transport_read_skb,
+>+static void test_stream_rcvlowat_def_cred_upd_server(const struct test_opts *opts)
+>+{
+>+	size_t recv_buf_size;
+>+	struct pollfd fds;
+>+	size_t buf_size;
+>+	void *buf;
+>+	int fd;
 >+
->+		.set_rcvlowat             = virtio_transport_set_rcvlowat
+>+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
+>+
+>+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
+>+		       &buf_size, sizeof(buf_size))) {
+>+		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	buf = malloc(buf_size);
+>+	if (!buf) {
+>+		perror("malloc");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("SRVREADY");
+>+
+>+	/* Wait until there will be 128KB of data in rx queue. */
+>+	while (1) {
+>+		ssize_t res;
+>+
+>+		res = recv(fd, buf, buf_size, MSG_PEEK);
+>+		if (res == buf_size)
+>+			break;
+>+
+>+		if (res <= 0) {
+>+			fprintf(stderr, "unexpected 'recv()' return: %zi\n", res);
+>+			exit(EXIT_FAILURE);
+>+		}
+>+	}
+>+
+>+	/* There is 128KB of data in the socket's rx queue,
+>+	 * dequeue first 64KB, credit update is not sent.
+>+	 */
+>+	recv_buf_size = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
+>+	recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
+>+	recv_buf_size++;
+>+
+>+	/* Updating SO_RCVLOWAT will send credit update. */
+>+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
+>+		       &recv_buf_size, sizeof(recv_buf_size))) {
+>+		perror("setsockopt(SO_RCVLOWAT)");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	memset(&fds, 0, sizeof(fds));
+>+	fds.fd = fd;
+>+	fds.events = POLLIN | POLLRDNORM | POLLERR |
+>+		     POLLRDHUP | POLLHUP;
+>+
+>+	/* This 'poll()' will return once we receive last byte
+>+	 * sent by client.
+>+	 */
+>+	if (poll(&fds, 1, -1) < 0) {
+>+		perror("poll");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (fds.revents & POLLERR) {
+>+		fprintf(stderr, "'poll()' error\n");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (fds.revents & (POLLIN | POLLRDNORM)) {
+>+		recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
+>+	} else {
+>+		/* These flags must be set, as there is at
+>+		 * least 64KB of data ready to read.
+>+		 */
+>+		fprintf(stderr, "POLLIN | POLLRDNORM expected\n");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	free(buf);
+>+	close(fd);
+>+}
+>+
+> static struct test_case test_cases[] = {
+> 	{
+> 		.name = "SOCK_STREAM connection reset",
+>@@ -1285,6 +1411,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_stream_msgzcopy_empty_errq_client,
+> 		.run_server = test_stream_msgzcopy_empty_errq_server,
 > 	},
+>+	{
+>+		.name = "SOCK_STREAM virtio SO_RCVLOWAT + deferred cred update",
+>+		.run_client = test_stream_rcvlowat_def_cred_upd_client,
+>+		.run_server = test_stream_rcvlowat_def_cred_upd_server,
+>+	},
+> 	{},
+> };
 >
-> 	.send_pkt = vsock_loopback_send_pkt,
->-- 2.25.1
+>-- 
+>2.25.1
 >
 
