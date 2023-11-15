@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC79F65A
-	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 03:39:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D33E23A5
+	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 03:40:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L4SSRwB7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDA5BC433C8;
-	Wed, 15 Nov 2023 03:36:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HiTcSslF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3832EC433C7;
+	Wed, 15 Nov 2023 03:40:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700019541;
-	bh=bcUStvzoYBQPxGOjaHvVyWseLm4bdC+hbtjNlPqnaJE=;
+	s=k20201202; t=1700019655;
+	bh=tVgL1iVBYEHLvnBl1jIyCmnRPWjf5BlC0AfaKk93HBc=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=L4SSRwB7FntGu3sWvBSW4D9+8CJ9niVhjwKTIBQaFsXkMHX7KLaFh5Xx29wZwGHkR
-	 TdsVyiookbxlP9M3m7YKE7mQXJiQaSymtzaN8ztIJMSv3x4lIWHETAAReT9jbGmeMC
-	 7+wn8m2/lKWeXx7bDa2/dXVsLaO72skVqFq7njehh+tFRM0SaaMVN63oaXxrv8zfRk
-	 DWTGN37HJEHk75yAZac5uxdU6VHGuEkDzAYjjYe0qjjzG1wbGN/CzlzTNoCJq/DLZB
-	 iJu6jDubhPzwBgc8feVLzw9XSU/L1ypT6In4Q3fLwqrK8c3fUeSUiMY+WQgjOvht93
-	 7TMxVFUNvPwKA==
+	b=HiTcSslF8Bo8X70rFCFtJvBQjAjFLjWq4XHd2i+3kFRaSVhZS8fY9P1TTGpKuryF7
+	 ufF9AYFe70zkQtSmX5MPOvjeRRE0XN3lZVgzRY62zJPcnsQx5jP66rWFjydxrwjk5i
+	 +X0Su1rmciYFwCCHpLJbvXW3mB+8eKcFe6ihJGhmabMTGgIgaUe6ZhDXLdjI60Dsrt
+	 lkvb/Il4xbLnc/VN20jE1v1dwLSvTmsJU5+BXwTy/szpi9vJFquI1rX/LQqD/g+tmM
+	 rf30B2JzDS10azJ5uW2FQccZbgivWuJngRREn7Bgfn82Q0w8Mh12A1ir0INQ/IVL+2
+	 YguGA0o/BmMWQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -32,12 +32,12 @@ Cc: Zongmin Zhou <zhouzongmin@kylinos.cn>,
 	virtualization@lists.linux.dev,
 	spice-devel@lists.freedesktop.org,
 	dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 2/6] drm/qxl: prevent memory leak
-Date: Tue, 14 Nov 2023 22:35:56 -0500
-Message-ID: <20231115033608.1229058-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 2/4] drm/qxl: prevent memory leak
+Date: Tue, 14 Nov 2023 22:40:12 -0500
+Message-ID: <20231115034024.1236659-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231115033608.1229058-1-sashal@kernel.org>
-References: <20231115033608.1229058-1-sashal@kernel.org>
+In-Reply-To: <20231115034024.1236659-1-sashal@kernel.org>
+References: <20231115034024.1236659-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,7 +46,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.62
+X-stable-base: Linux 5.15.138
 Content-Transfer-Encoding: 8bit
 
 From: Zongmin Zhou <zhouzongmin@kylinos.cn>
@@ -69,10 +69,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index a152a7c6db215..f91a86225d5e7 100644
+index 9e0a1e8360117..dc04412784a0d 100644
 --- a/drivers/gpu/drm/qxl/qxl_display.c
 +++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1229,6 +1229,9 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
+@@ -1221,6 +1221,9 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
  	if (!qdev->monitors_config_bo)
  		return 0;
  
