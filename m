@@ -1,128 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C53353AA
-	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 09:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68735156D6
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:08:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OYkfFi8Z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aamLDYyj"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 53D0D60C0E
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:08:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 53D0D60C0E
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=aamLDYyj
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id B22VAogiGIbk
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 15 Nov 2023 11:08:33 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 18D4B60AEC
+	for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 11:08:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 18D4B60AEC
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700040133;
+	s=mimecast20190719; t=1700046512;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jB1CvYOkCkHMxZfFOkHOZeMADsl4bD5nT6AyVfy5BX0=;
-	b=OYkfFi8ZDoeh3O2aKG/mPYXHg+1CQQRFO60joZt64KgZo9Bg6vPeb73Pr9G8g5FUf1OUet
-	dzMQcmRBNogzLVZbAql1DNNnPzAtKcYs4k4C58Lzvs9Jw2Tj+LLlFvPyhrnJnCxuAdVtYT
-	peZNKZgdzQWNTrLSAhypnz/otO56wiE=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=30YlxcbouoHUqbszSietM15X2VzsRmxEM5Z6VzVk+yg=;
+	b=aamLDYyjB/QhwFak6DD7ZoNbDp8hEHsJj1+i5ZIPmiSp5n7Xx53fnDfE0ukHWGOkxbG7L+
+	TfCycMqqaZ08ZlGFzDDVJgmKjl6qdd9a+DBgDcNJij1bYoi7+b7IcBomoZhiffUt3EayZG
+	O/a3ks2KqhjZzClhcr7R09AOaG6H/Lc=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-553-t453yyLMMAmonuabQryWOQ-1; Wed, 15 Nov 2023 04:22:08 -0500
-X-MC-Unique: t453yyLMMAmonuabQryWOQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 43711185A782;
-	Wed, 15 Nov 2023 09:22:07 +0000 (UTC)
-Received: from sirius.home.kraxel.org (unknown [10.39.192.56])
-	by smtp.corp.redhat.com (Postfix) with ESMTPS id 5FD5B2026D66;
-	Wed, 15 Nov 2023 09:22:06 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
-	id BBF81180AC06; Wed, 15 Nov 2023 10:22:04 +0100 (CET)
-Date: Wed, 15 Nov 2023 10:22:04 +0100
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Christian Zigotzky <chzigotzky@xenosoft.de>, 
-	Maling list - DRI developers <dri-devel@lists.freedesktop.org>, Michel =?utf-8?Q?D=C3=A4nzer?= <michel@daenzer.net>, 
-	airlied@gmail.com, deller@gmx.de, Darren Stevens <darren@stevens-zone.net>, 
-	mad skateman <madskateman@gmail.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, 
-	"R.T.Dickinson" <rtd2@xtra.co.nz>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Christian Zigotzky <info@xenosoft.de>, virtualization@lists.linux.dev
-Subject: Re: Fbdev issue after the drm updates 'drm-next-2023-10-31-1'
-Message-ID: <uxr4sf6kirv32tfbd6qjzxqd53zpoknjfa4ucr4zs5ktkks2re@spgj4j64raaa>
-References: <a1d9e09b-f533-5e2c-7a13-af96647e1a71@embeddedor.com>
- <10D1983F-33EF-46C3-976E-463D1CB5A6E9@xenosoft.de>
- <9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de>
- <c47fba21-3ae9-4021-9f4a-09c2670ebdbc@xenosoft.de>
- <0d89bcd0-9b68-4c0a-acd8-2c7532e62f6d@xenosoft.de>
- <6530cea3-4507-454e-bc36-a6970c8e7578@xenosoft.de>
- <CAMuHMdU-8Fu55C2zu_XxmG8n5paOQYfqNA84JNvXo4c87D-kFw@mail.gmail.com>
- <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
- <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
+ us-mta-529-DHnwxSm5MReOrDDNXCgl7Q-1; Wed, 15 Nov 2023 06:08:30 -0500
+X-MC-Unique: DHnwxSm5MReOrDDNXCgl7Q-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-9e5e190458dso97009866b.1
+        for <virtualization@lists.linux-foundation.org>; Wed, 15 Nov 2023 03:08:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700046509; x=1700651309;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=30YlxcbouoHUqbszSietM15X2VzsRmxEM5Z6VzVk+yg=;
+        b=HVXejt40var/dLipPXTOIcvST0/pRSjALvZvp+Oh3SDbU3OCo2IbVx5pkUqY7Z8LIU
+         hfbFXOUjPKL7WYy+hhm/O5P0AROf1kx+VPfvT8YwUuXpTkRS/4pSe0B40sIcZXDwd8hp
+         TPK1wsWOhN8WZW12MWq7/81HPX0ojh+neQlbCwh6lUHbAFPNJPQMV6f9lN6k1ED1yPdR
+         wq6neBEEg1/f4LbpkQFF3CJ8NCEf5gMx5iK5M1EZXWd5hNF1oB0l/MF6VW7hVpoFTcaQ
+         +TVgAEgT3Gvje214mALpe7dERuzG3L6mgAt6tnIWGoBPAT/HRlnr0zMtJJ1Gk8/VQHzf
+         /xRg==
+X-Gm-Message-State: AOJu0YxjG7wR2BT0TnMG4NiIEBiD7V/7RQZwPzj6aKxKOmyS4143I78M
+	Ajq08q5fSlewlJ0x1fGIfpTWVh56GYKJ0kEXb8R6fHrmnswpEk160SOj7/b2V1E5LefdDUcG8V0
+	ri/R+u1h5kIDOS5QgjQWobRhacJpbki8ygpQcpEekvw==
+X-Received: by 2002:a17:906:66d9:b0:9e6:2c5a:450a with SMTP id k25-20020a17090666d900b009e62c5a450amr4490052ejp.26.1700046509099;
+        Wed, 15 Nov 2023 03:08:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHve6gIrQ6JWmFSezcPN9+P/sMdMQNqa9BHvI8TeelpKxEVC6UBoL04CyyICjC7dN059GHFfA==
+X-Received: by 2002:a17:906:66d9:b0:9e6:2c5a:450a with SMTP id k25-20020a17090666d900b009e62c5a450amr4490025ejp.26.1700046508757;
+        Wed, 15 Nov 2023 03:08:28 -0800 (PST)
+Received: from sgarzare-redhat (host-79-46-200-199.retail.telecomitalia.it. [79.46.200.199])
+        by smtp.gmail.com with ESMTPSA id v6-20020a056402174600b00530a9488623sm6410463edx.46.2023.11.15.03.08.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Nov 2023 03:08:28 -0800 (PST)
+Date: Wed, 15 Nov 2023 12:08:23 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com
+Subject: Re: [RFC PATCH v1 0/2] send credit update during setting SO_RCVLOWAT
+Message-ID: <fqhgsbepjwftqmpv6xn7oqizdgmp25ri66seiewiikreglmmsd@uyouhusmjtby>
+References: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
+In-Reply-To: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Wed, Nov 15, 2023 at 09:33:28AM +0100, Geert Uytterhoeven wrote:
-> Hi Christian,
-> 
-> CC virtgpu
-> 
-> On Tue, Nov 14, 2023 at 10:45 AM Christian Zigotzky
-> <chzigotzky@xenosoft.de> wrote:
-> > On 13 November 2023 at 01:48 pm, Geert Uytterhoeven wrote:
-> > > I can confirm there is no graphics output with m68k/virt, and
-> 
-> Before the error message you reported:
-> 
->     virtio-mmio virtio-mmio.125: [drm] *ERROR* fbdev: Failed to setup
-> generic emulation (ret=-2)
-> 
-> it also prints:
-> 
->     virtio-mmio virtio-mmio.125: [drm] bpp/depth value of 32/24 not supported
->     virtio-mmio virtio-mmio.125: [drm] No compatible format found
-> 
-> Upon closer look, it turns out virtgpu is special in that its main
-> plane supports only a single format: DRM_FORMAT_HOST_XRGB8888, which
-> is XR24 on little-endian, and BX24 on big-endian.  I.e. on big-endian,
-> virtgpu does not support XR24.
+On Wed, Nov 08, 2023 at 10:20:02AM +0300, Arseniy Krasnov wrote:
+>Hello,
+>
+>                               DESCRIPTION
+>
+>This patchset fixes old problem with hungup of both rx/tx sides and adds
+>test for it. This happens due to non-default SO_RCVLOWAT value and
+>deferred credit update in virtio/vsock. Link to previous old patchset:
+>https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+>
+>Here is what happens step by step:
+>
+>                                  TEST
+>
+>                            INITIAL CONDITIONS
+>
+>1) Vsock buffer size is 128KB.
+>2) Maximum packet size is also 64KB as defined in header (yes it is
+>   hardcoded, just to remind about that value).
+>3) SO_RCVLOWAT is default, e.g. 1 byte.
+>
+>
+>                                 STEPS
+>
+>            SENDER                              RECEIVER
+>1) sends 128KB + 1 byte in a
+>   single buffer. 128KB will
+>   be sent, but for 1 byte
+>   sender will wait for free
+>   space at peer. Sender goes
+>   to sleep.
+>
+>
+>2)                                     reads 64KB, credit update not sent
+>3)                                     sets SO_RCVLOWAT to 64KB + 1
+>4)                                     poll() -> wait forever, there is
+>                                       only 64KB available to read.
+>
+>So in step 4) receiver also goes to sleep, waiting for enough data or
+>connection shutdown message from the sender. Idea to fix it is that rx
+>kicks tx side to continue transmission (and may be close connection)
+>when rx changes number of bytes to be woken up (e.g. SO_RCVLOWAT) and
+>this value is bigger than number of available bytes to read.
+>
+>I've added small test for this, but not sure as it uses hardcoded value
 
-Driver and device support both XR24 and BX24 on both little endian and
-big endian just fine.
+Thanks for adding the test!
 
-Problem is both fbdev interfaces and the ADDFB ioctl specify the format
-using bpp instead of fourcc, and advertising only one framebuffer format
--- in native byte order -- used to worked best, especially on bigendian
-machines.
+>for maximum packet length, this value is defined in kernel header and
+>used to control deferred credit update. And as this is not available to
+>userspace, I can't control test parameters correctly (if one day this
+>define will be changed - test may become useless).
 
-That was years ago though, IIRC predating the generic fbdev emulation,
-so maybe it's time to revisit that.  Changing it should be as simple as
-updating the format arrays:
+I see, I'll leave a comment in the patch!
 
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -30,11 +30,13 @@
- #include "virtgpu_drv.h"
- 
- static const uint32_t virtio_gpu_formats[] = {
--       DRM_FORMAT_HOST_XRGB8888,
-+       DRM_FORMAT_XRGB8888,
-+       DRM_FORMAT_BGRX8888,
- };
- 
- static const uint32_t virtio_gpu_cursor_formats[] = {
--       DRM_FORMAT_HOST_ARGB8888,
-+       DRM_FORMAT_ARGB8888,
-+       DRM_FORMAT_BGRA8888,
- };
- 
- uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
+Thanks,
+Stefano
 
-HTH,
-  Gerd
+>
+>Head for this patchset is:
+>https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=ff269e2cd5adce4ae14f883fc9c8803bc43ee1e9
+>
+>Arseniy Krasnov (2):
+>  virtio/vsock: send credit update during setting SO_RCVLOWAT
+>  vsock/test: SO_RCVLOWAT + deferred credit update test
+>
+> drivers/vhost/vsock.c                   |   2 +
+> include/linux/virtio_vsock.h            |   1 +
+> net/vmw_vsock/virtio_transport.c        |   2 +
+> net/vmw_vsock/virtio_transport_common.c |  31 ++++++
+> net/vmw_vsock/vsock_loopback.c          |   2 +
+> tools/testing/vsock/vsock_test.c        | 131 ++++++++++++++++++++++++
+> 6 files changed, 169 insertions(+)
+>
+>-- 
+>2.25.1
+>
 
