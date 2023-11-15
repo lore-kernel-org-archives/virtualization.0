@@ -1,154 +1,128 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D517C7E
-	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 08:33:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-5a92782615dso76213427b3.2
-        for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 00:33:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700037221; x=1700642021;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=loUWrR6eECAA+uv6HMt8OKh14KvU7DOewoh9g24/Sfw=;
-        b=TrKEeIs/UMWfTYUApLNESW4oxw6mKo9khsifvd6KysaFj3MrEqceW8tk/0uxrUobrI
-         Us0lkLqa5EaBJXFs1H4HfqzfsSTG5XD8k+c39HuzIsPOmsh7Oixq/zhpHMVSbepZldEA
-         FbelQTmsM4V5BVPXCZt2wjMdk92nFmcCs5udRmlOdzHdmF7EDzmku6oatBx1KervvBRL
-         xiQj/9TcSrxn+j2RycUiCok0vRV+2IG45+RTvALtA3BpIozQ3zDwtSAbx+hiG6rZXX7Q
-         p+hxOo/oGHNLmslJxt+BEdNogZPD9On2z9yb7V1f5+n+pVEDU2RIDKyXjOkA1tPbmwlH
-         R6Jw==
-X-Gm-Message-State: AOJu0YztZQwl2g3pdvORI6aiuSWmcvf2qBf08cDdRcNu3vtJcFvkFfBL
-	XXlo+w6Cee+aQcbaP/wM8swzfnZ2JmC23w==
-X-Google-Smtp-Source: AGHT+IHpz7ptmu+bbH2ln86GRdNkifeceVf/A2v7nQ/hVltYavwbD2sJnMmnR91zsMDtHkczJc3otA==
-X-Received: by 2002:a0d:cc96:0:b0:5af:73cd:ba30 with SMTP id o144-20020a0dcc96000000b005af73cdba30mr13129635ywd.39.1700037221618;
-        Wed, 15 Nov 2023 00:33:41 -0800 (PST)
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com. [209.85.128.180])
-        by smtp.gmail.com with ESMTPSA id n4-20020a0de404000000b0057736c436f1sm244372ywe.141.2023.11.15.00.33.40
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 15 Nov 2023 00:33:40 -0800 (PST)
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-5a7b3d33663so76090297b3.3
-        for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 00:33:40 -0800 (PST)
-X-Received: by 2002:a81:8408:0:b0:5a7:a81d:e410 with SMTP id
- u8-20020a818408000000b005a7a81de410mr13654199ywf.18.1700037220389; Wed, 15
- Nov 2023 00:33:40 -0800 (PST)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C53353AA
+	for <virtualization@lists.linux.dev>; Wed, 15 Nov 2023 09:22:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OYkfFi8Z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700040133;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jB1CvYOkCkHMxZfFOkHOZeMADsl4bD5nT6AyVfy5BX0=;
+	b=OYkfFi8ZDoeh3O2aKG/mPYXHg+1CQQRFO60joZt64KgZo9Bg6vPeb73Pr9G8g5FUf1OUet
+	dzMQcmRBNogzLVZbAql1DNNnPzAtKcYs4k4C58Lzvs9Jw2Tj+LLlFvPyhrnJnCxuAdVtYT
+	peZNKZgdzQWNTrLSAhypnz/otO56wiE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-553-t453yyLMMAmonuabQryWOQ-1; Wed, 15 Nov 2023 04:22:08 -0500
+X-MC-Unique: t453yyLMMAmonuabQryWOQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 43711185A782;
+	Wed, 15 Nov 2023 09:22:07 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.192.56])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 5FD5B2026D66;
+	Wed, 15 Nov 2023 09:22:06 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+	id BBF81180AC06; Wed, 15 Nov 2023 10:22:04 +0100 (CET)
+Date: Wed, 15 Nov 2023 10:22:04 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Christian Zigotzky <chzigotzky@xenosoft.de>, 
+	Maling list - DRI developers <dri-devel@lists.freedesktop.org>, Michel =?utf-8?Q?D=C3=A4nzer?= <michel@daenzer.net>, 
+	airlied@gmail.com, deller@gmx.de, Darren Stevens <darren@stevens-zone.net>, 
+	mad skateman <madskateman@gmail.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, 
+	"R.T.Dickinson" <rtd2@xtra.co.nz>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Christian Zigotzky <info@xenosoft.de>, virtualization@lists.linux.dev
+Subject: Re: Fbdev issue after the drm updates 'drm-next-2023-10-31-1'
+Message-ID: <uxr4sf6kirv32tfbd6qjzxqd53zpoknjfa4ucr4zs5ktkks2re@spgj4j64raaa>
+References: <a1d9e09b-f533-5e2c-7a13-af96647e1a71@embeddedor.com>
+ <10D1983F-33EF-46C3-976E-463D1CB5A6E9@xenosoft.de>
+ <9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de>
+ <c47fba21-3ae9-4021-9f4a-09c2670ebdbc@xenosoft.de>
+ <0d89bcd0-9b68-4c0a-acd8-2c7532e62f6d@xenosoft.de>
+ <6530cea3-4507-454e-bc36-a6970c8e7578@xenosoft.de>
+ <CAMuHMdU-8Fu55C2zu_XxmG8n5paOQYfqNA84JNvXo4c87D-kFw@mail.gmail.com>
+ <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
+ <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <a1d9e09b-f533-5e2c-7a13-af96647e1a71@embeddedor.com>
- <10D1983F-33EF-46C3-976E-463D1CB5A6E9@xenosoft.de> <9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de>
- <c47fba21-3ae9-4021-9f4a-09c2670ebdbc@xenosoft.de> <0d89bcd0-9b68-4c0a-acd8-2c7532e62f6d@xenosoft.de>
- <6530cea3-4507-454e-bc36-a6970c8e7578@xenosoft.de> <CAMuHMdU-8Fu55C2zu_XxmG8n5paOQYfqNA84JNvXo4c87D-kFw@mail.gmail.com>
- <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
-In-Reply-To: <fee4eb69-97ea-4b02-9e36-0962ebe3faa9@xenosoft.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Wed, 15 Nov 2023 09:33:28 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
-Message-ID: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
-Subject: Re: Fbdev issue after the drm updates 'drm-next-2023-10-31-1'
-To: Christian Zigotzky <chzigotzky@xenosoft.de>
-Cc: Maling list - DRI developers <dri-devel@lists.freedesktop.org>, =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel@daenzer.net>, 
-	airlied@gmail.com, deller@gmx.de, Darren Stevens <darren@stevens-zone.net>, 
-	mad skateman <madskateman@gmail.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, 
-	"R.T.Dickinson" <rtd2@xtra.co.nz>, Thomas Zimmermann <tzimmermann@suse.de>, 
-	Christian Zigotzky <info@xenosoft.de>, Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CAMuHMdWu6Q3ew0m4xugjF_hgSt0RFFr+ccoBrSzt0FGLgtxJtA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-Hi Christian,
+On Wed, Nov 15, 2023 at 09:33:28AM +0100, Geert Uytterhoeven wrote:
+> Hi Christian,
+> 
+> CC virtgpu
+> 
+> On Tue, Nov 14, 2023 at 10:45 AM Christian Zigotzky
+> <chzigotzky@xenosoft.de> wrote:
+> > On 13 November 2023 at 01:48 pm, Geert Uytterhoeven wrote:
+> > > I can confirm there is no graphics output with m68k/virt, and
+> 
+> Before the error message you reported:
+> 
+>     virtio-mmio virtio-mmio.125: [drm] *ERROR* fbdev: Failed to setup
+> generic emulation (ret=-2)
+> 
+> it also prints:
+> 
+>     virtio-mmio virtio-mmio.125: [drm] bpp/depth value of 32/24 not supported
+>     virtio-mmio virtio-mmio.125: [drm] No compatible format found
+> 
+> Upon closer look, it turns out virtgpu is special in that its main
+> plane supports only a single format: DRM_FORMAT_HOST_XRGB8888, which
+> is XR24 on little-endian, and BX24 on big-endian.  I.e. on big-endian,
+> virtgpu does not support XR24.
 
-CC virtgpu
+Driver and device support both XR24 and BX24 on both little endian and
+big endian just fine.
 
-On Tue, Nov 14, 2023 at 10:45=E2=80=AFAM Christian Zigotzky
-<chzigotzky@xenosoft.de> wrote:
-> On 13 November 2023 at 01:48 pm, Geert Uytterhoeven wrote:
-> > I can confirm there is no graphics output with m68k/virt, and
+Problem is both fbdev interfaces and the ADDFB ioctl specify the format
+using bpp instead of fourcc, and advertising only one framebuffer format
+-- in native byte order -- used to worked best, especially on bigendian
+machines.
 
-Before the error message you reported:
+That was years ago though, IIRC predating the generic fbdev emulation,
+so maybe it's time to revisit that.  Changing it should be as simple as
+updating the format arrays:
 
-    virtio-mmio virtio-mmio.125: [drm] *ERROR* fbdev: Failed to setup
-generic emulation (ret=3D-2)
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -30,11 +30,13 @@
+ #include "virtgpu_drv.h"
+ 
+ static const uint32_t virtio_gpu_formats[] = {
+-       DRM_FORMAT_HOST_XRGB8888,
++       DRM_FORMAT_XRGB8888,
++       DRM_FORMAT_BGRX8888,
+ };
+ 
+ static const uint32_t virtio_gpu_cursor_formats[] = {
+-       DRM_FORMAT_HOST_ARGB8888,
++       DRM_FORMAT_ARGB8888,
++       DRM_FORMAT_BGRA8888,
+ };
+ 
+ uint32_t virtio_gpu_translate_format(uint32_t drm_fourcc)
 
-it also prints:
+HTH,
+  Gerd
 
-    virtio-mmio virtio-mmio.125: [drm] bpp/depth value of 32/24 not support=
-ed
-    virtio-mmio virtio-mmio.125: [drm] No compatible format found
-
-Upon closer look, it turns out virtgpu is special in that its main
-plane supports only a single format: DRM_FORMAT_HOST_XRGB8888, which
-is XR24 on little-endian, and BX24 on big-endian.  I.e. on big-endian,
-virtgpu does not support XR24.  Isn't this a violation of the DRM
-rule that every driver must implement support for XR24?
-
-> > bisected this to my own commit 6ae2ff23aa43a0c4 ("drm/client: Convert
-> > drm_client_buffer_addfb() to drm_mode_addfb2()"), ouch...
-> >
-> > It turns out the old call to drm_mode_addfb() caused a translation
-> > from a fourcc to a bpp/depth pair to a _different_ fourcc, due to the
-> > quirk processing in drm_driver_legacy_fb_format().
-> > I.e. on m68k/virt, the original requested format was XR24, which was
-> > translated to BX24. The former doesn't work, the latter works.
-> >
-> > The following (gmail-whitespace-damaged) patch fixed the issue for me:
-> >
-> > --- a/drivers/gpu/drm/drm_client.c
-> > +++ b/drivers/gpu/drm/drm_client.c
-> > @@ -400,6 +400,16 @@ static int drm_client_buffer_addfb(struct
-> > drm_client_buffer *buffer,
-> >
-> >         fb_req.width =3D width;
-> >         fb_req.height =3D height;
-> > +       if (client->dev->mode_config.quirk_addfb_prefer_host_byte_order=
-) {
-> > +               if (format =3D=3D DRM_FORMAT_XRGB8888)
-> > +                       format =3D DRM_FORMAT_HOST_XRGB8888;
-> > +               if (format =3D=3D DRM_FORMAT_ARGB8888)
-> > +                       format =3D DRM_FORMAT_HOST_ARGB8888;
-> > +               if (format =3D=3D DRM_FORMAT_RGB565)
-> > +                       format =3D DRM_FORMAT_HOST_RGB565;
-> > +               if (format =3D=3D DRM_FORMAT_XRGB1555)
-> > +                       format =3D DRM_FORMAT_HOST_XRGB1555;
-> > +       }
-> >         fb_req.pixel_format =3D format;
-> >         fb_req.handles[0] =3D handle;
-> >         fb_req.pitches[0] =3D buffer->pitch;
-> >
-> > However, I don't think we want to sprinkle more of these
-> > translations around... So perhaps we should (re)add a call to
-> > drm_driver_legacy_fb_format() to drm_client_buffer_addfb()?
-> >
-> > Second, as I doubt you are using a big-endian system, you are probably
-> > running into a slightly different issue.
-> >
-> > Oh wait, you did CC linuxppc-dev, so perhaps you are running on a
-> > big-endian machine?
->
-> Your patch works! :-) Thanks a lot!
->
-> I tested it with the virtio-vga and with the virtio-gpu-pci device in a v=
-irtual ppce500 QEMU/KVM HV machine with an e5500 CPU today.
->
-> Tested-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-
-Thanks for testing!
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
