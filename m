@@ -1,318 +1,262 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64B5E10A14
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Nov 2023 08:11:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F65F2CCBC
+	for <virtualization@lists.linux.dev>; Thu, 16 Nov 2023 12:07:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NB4hD8xz"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DE7C740B23
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Nov 2023 08:11:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DE7C740B23
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=NB4hD8xz
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1ZmzvQf_J9FM
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 16 Nov 2023 08:11:34 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 696B34054E
-	for <virtualization@lists.linux-foundation.org>; Thu, 16 Nov 2023 08:11:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 696B34054E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700122293;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FLaNZilIDD63SEEygMdoCG1llBxOb1PA9Y3SZfWqDgY=;
-	b=NB4hD8xzzTA8wAkO2BglkbTmhIvQQikqzEvwYLh7wylY8WpiS7IPo9HyDxfJN7QznTX08x
-	QCj6NNphkntl02wp63Bf83eJPP6nbcq7bup/bRJwXBCH1JV0h/JeiA7GYfta/8W3rIhlj9
-	EB6u9XbeOBhhOlpo9462kT0/gWzPcJk=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-694-aar2R0fiN-qoE78to-EUdA-1; Thu, 16 Nov 2023 03:11:31 -0500
-X-MC-Unique: aar2R0fiN-qoE78to-EUdA-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-50a753d9f0aso472199e87.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 16 Nov 2023 00:11:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700122290; x=1700727090;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FLaNZilIDD63SEEygMdoCG1llBxOb1PA9Y3SZfWqDgY=;
-        b=qUUHwCLri+4VDgZK/Jn5M28q61AXN7B7DpgTVVnzw4ecLFD2xXViuLleUGa+nbShxF
-         XLNwU7a0mavDEXP8O7cFJW/xkDVcJobVoW+051vU7PfQE/wJh/1u2o0WO5c4b5xQCJPD
-         HYZ0dGjC2nHrBX+nckxJThTcnim2EEhRhprxwrVWfAJr0gGO0aYrn137k9Nyb7YlgGzs
-         F0RjFvFGkoXFpKjNcSGqmILP2J+lJUMkeU1CgaZVO7mHMPNrmyjsKYxDsYGjpt03l19n
-         X/Yzg1tKlKdhLmdPtSMa7c4eK9eJbmKmNlkK6QEqa3zSNYJlhnJyiYaYjWBgHiZmuMJm
-         zQfQ==
-X-Gm-Message-State: AOJu0YxdrN5RIohw29VYLaSuSeBS138JtkA4YYcrjos4kjplE6AcF6Tr
-	Vn61QQU/rjyiAW29wmw66fQSjA/916qoBwYchU9EA8h/8/fbPam+IvAzZA89M51VZ8ve1pvFbTA
-	PprgIEiOd1pSRjTyjmpeG39XkydyTVobn+S0Fl0WdOCXwjCwg/yzWLc56fQ==
-X-Received: by 2002:a05:6512:b14:b0:509:8e3d:7cb0 with SMTP id w20-20020a0565120b1400b005098e3d7cb0mr14843265lfu.41.1700122289715;
-        Thu, 16 Nov 2023 00:11:29 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEMRdnF3HRiUkpMAM+ioukVfdqgIGlPEV8hGc02mOPiDDn2Gl9wY56oW12ynHFZa8+kJMMDSVG9Hqp2PJrdRkE=
-X-Received: by 2002:a05:6512:b14:b0:509:8e3d:7cb0 with SMTP id
- w20-20020a0565120b1400b005098e3d7cb0mr14843247lfu.41.1700122289452; Thu, 16
- Nov 2023 00:11:29 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="LU5Xmw6a";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="+U0iK3dI"
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 08BDC22944;
+	Thu, 16 Nov 2023 12:07:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1700136475; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SdmFJRr4Si5h0PIb8OUUGx3aM3YL7HZjF2KKvaXWYpo=;
+	b=LU5Xmw6ajCwHu9Il/zU/lEWWAN7qqJPIVcsgFEnq200tlrHx5PlZwDONUbv0jZUHdShyT7
+	+d0Fk4JUapKT2Qrvbd8exfVCQUwndELJaGg8ljrcdB9XM0Skm2/hmNAPc/qL4DiUouCG4A
+	JVksZYOT13RXtfudBaG72JdaH83xtUE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1700136475;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=SdmFJRr4Si5h0PIb8OUUGx3aM3YL7HZjF2KKvaXWYpo=;
+	b=+U0iK3dI2BhFGoIMIyjvRF9IfteLG88eNCFfSTOAqye8Lu8gsx3MufEE54SusBvQp/HBUz
+	jg+xrz36s2A3hXCw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+	(No client certificate requested)
+	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 79B3A1377E;
+	Thu, 16 Nov 2023 12:07:54 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+	by imap2.suse-dmz.suse.de with ESMTPSA
+	id CMydGhoGVmXCYAAAMHmgww
+	(envelope-from <tzimmermann@suse.de>); Thu, 16 Nov 2023 12:07:54 +0000
+Message-ID: <95ba4d72-441d-4bb2-8fcd-39b748f1eb37@suse.de>
+Date: Thu, 16 Nov 2023 13:07:53 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231114113104.33994-1-xuanzhuo@linux.alibaba.com> <20231114113104.33994-5-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20231114113104.33994-5-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 16 Nov 2023 16:11:17 +0800
-Message-ID: <CACGkMEs9+NCNd53EYu4_=gg+0giuZV1WoaCUUyn-YLwCrm-Ztg@mail.gmail.com>
-Subject: Re: [RFC 4/4] virtio_net: sq support premapped mode
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: virtualization@lists.linux-foundation.org, 
-	"Michael S . Tsirkin" <mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/5] drm: Allow the damage helpers to handle buffer
+ damage
+Content-Language: en-US
+To: Javier Martinez Canillas <javierm@redhat.com>,
+ linux-kernel@vger.kernel.org
+Cc: Maxime Ripard <mripard@kernel.org>,
+ Bilal Elmoussaoui <belmouss@redhat.com>, Simon Ser <contact@emersion.fr>,
+ Erico Nunes <nunes.erico@gmail.com>,
+ Pekka Paalanen <pekka.paalanen@collabora.com>,
+ Sima Vetter <daniel.vetter@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Zack Rusin <zackr@vmware.com>, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org, virtualization@lists.linux.dev
+References: <20231115131549.2191589-1-javierm@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20231115131549.2191589-1-javierm@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------VD60tmeiTEWkm1bJy0V0MmyH"
+Authentication-Results: smtp-out1.suse.de;
+	none
+X-Spam-Level: 
+X-Spam-Score: 0.05
+X-Spamd-Result: default: False [0.05 / 50.00];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 BAYES_SPAM(4.84)[99.35%];
+	 XM_UA_NO_VERSION(0.01)[];
+	 TO_DN_SOME(0.00)[];
+	 HAS_ATTACHMENT(0.00)[];
+	 REPLY(-4.00)[];
+	 MIME_BASE64_TEXT_BOGUS(1.00)[];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
+	 MIME_BASE64_TEXT(0.10)[];
+	 SIGNED_PGP(-2.00)[];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+,1:+,2:+,3:~];
+	 MID_RHS_MATCH_FROM(0.00)[];
+	 ARC_NA(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 TAGGED_RCPT(0.00)[];
+	 MIME_GOOD(-0.20)[multipart/signed,multipart/mixed,text/plain];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 RCPT_COUNT_TWELVE(0.00)[21];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 RCVD_COUNT_TWO(0.00)[2];
+	 RCVD_TLS_ALL(0.00)[];
+	 SUSPICIOUS_RECIPS(1.50)[];
+	 FREEMAIL_CC(0.00)[kernel.org,redhat.com,emersion.fr,gmail.com,collabora.com,ffwll.ch,chromium.org,lwn.net,linux.intel.com,vmware.com,lists.freedesktop.org,vger.kernel.org,lists.linux.dev]
+X-Spam-Flag: NO
 
-On Tue, Nov 14, 2023 at 7:31=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
-om> wrote:
->
-> If the xsk is enabling, the xsk tx will share the send queue.
-> But the xsk requires that the send queue use the premapped mode.
-> So the send queue must support premapped mode.
->
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> ---
->  drivers/net/virtio/main.c       | 114 ++++++++++++++++++++++++++++----
->  drivers/net/virtio/virtio_net.h |   2 +
->  2 files changed, 102 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> index 57cbd449637a..0766fed28afe 100644
-> --- a/drivers/net/virtio/main.c
-> +++ b/drivers/net/virtio/main.c
-> @@ -167,13 +167,46 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
->         return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FLAG=
-);
->  }
->
-> +static void virtnet_sq_unmap(struct virtnet_sq *sq)
-> +{
-> +       struct scatterlist *sg;
-> +
-> +       for (sg =3D sq->sg; ; sg =3D sg_next(sg)) {
-> +               virtqueue_dma_unmap_single_attrs(sq->vq,
-> +                                                sg->dma_address,
-> +                                                sg->length,
-> +                                                DMA_TO_DEVICE, 0);
-> +
-> +               if (sg_is_last(sg)) {
-> +                       /* clear the end mark setted by virtio core. */
-> +                       sg_unmark_end(sg);
-> +                       break;
-> +               }
-> +       }
-> +
-> +       /* mark the last one of sq->sg[] as the end for reuse by
-> +        * virtqueue_get_buf_ctx_dma().
-> +        */
-> +       sg_mark_end(&sq->sg[ARRAY_SIZE(sq->sg) - 1]);
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------VD60tmeiTEWkm1bJy0V0MmyH
+Content-Type: multipart/mixed; boundary="------------49dyl47sZl0hpVGsE90avT3q";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Javier Martinez Canillas <javierm@redhat.com>,
+ linux-kernel@vger.kernel.org
+Cc: Maxime Ripard <mripard@kernel.org>,
+ Bilal Elmoussaoui <belmouss@redhat.com>, Simon Ser <contact@emersion.fr>,
+ Erico Nunes <nunes.erico@gmail.com>,
+ Pekka Paalanen <pekka.paalanen@collabora.com>,
+ Sima Vetter <daniel.vetter@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>,
+ Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+ Zack Rusin <zackr@vmware.com>, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org, virtualization@lists.linux.dev
+Message-ID: <95ba4d72-441d-4bb2-8fcd-39b748f1eb37@suse.de>
+Subject: Re: [PATCH v2 0/5] drm: Allow the damage helpers to handle buffer
+ damage
+References: <20231115131549.2191589-1-javierm@redhat.com>
+In-Reply-To: <20231115131549.2191589-1-javierm@redhat.com>
 
-This API seems to be odd: the flag is set to be core but clear by driver.
+--------------49dyl47sZl0hpVGsE90avT3q
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Can we simply follow the add API that returns the #sgs?
+SGkgSmF2aWVyLA0KDQpwbGVhc2UgdGFrZSBteQ0KDQpSZXZpZXdlZC1ieTogVGhvbWFzIFpp
+bW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQoNCmZvciB0aGUgd2hvbGUgcGF0Y2gg
+c2V0LiBNYXliZSBjb25zaWRlciBteSBjb21tZW50IG9uIHBhdGNoIDQuDQoNCkJlc3QgcmVn
+YXJkcw0KVGhvbWFzDQoNCkFtIDE1LjExLjIzIHVtIDE0OjE1IHNjaHJpZWIgSmF2aWVyIE1h
+cnRpbmV6IENhbmlsbGFzOg0KPiBIZWxsbywNCj4gDQo+IFRoaXMgc2VyaWVzIGlzIHRvIGZp
+eCBhbiBpc3N1ZSB0aGF0IHN1cmZhY2VkIGFmdGVyIGRhbWFnZSBjbGlwcGluZyB3YXMNCj4g
+ZW5hYmxlZCBmb3IgdGhlIHZpcnRpby1ncHUgYnkgY29tbWl0IDAxZjA1OTQwYTlhNyAoImRy
+bS92aXJ0aW86IEVuYWJsZQ0KPiBmYiBkYW1hZ2UgY2xpcHMgcHJvcGVydHkgZm9yIHRoZSBw
+cmltYXJ5IHBsYW5lIikuDQo+IA0KPiBBZnRlciB0aGF0IGNoYW5nZSwgZmxpY2tlcmluZyBh
+cnRpZmFjdHMgd2FzIHJlcG9ydGVkIHRvIGJlIHByZXNlbnQgd2l0aA0KPiBib3RoIHdlc3Rv
+biBhbmQgd2xyb290cyB3YXlsYW5kIGNvbXBvc2l0b3JzIHdoZW4gcnVubmluZyBpbiBhIHZp
+cnR1YWwNCj4gbWFjaGluZS4gVGhlIGNhdXNlIHdhcyBpZGVudGlmaWVkIGJ5IFNpbWEgVmV0
+dGVyLCB3aG8gcG9pbnRlZCBvdXQgdGhhdA0KPiB2aXJ0aW8tZ3B1IGRvZXMgcGVyLWJ1ZmZl
+ciB1cGxvYWRzIGFuZCBmb3IgdGhpcyByZWFzb24gaXQgbmVlZHMgdG8gZG8NCj4gYSBidWZm
+ZXIgZGFtYWdlIGhhbmRsaW5nLCBpbnN0ZWFkIG9mIGZyYW1lIGRhbWFnZSBoYW5kbGluZy4N
+Cj4gDQo+IFRoZWlyIHN1Z2dlc3Rpb24gd2FzIHRvIGV4dGVuZCB0aGUgZGFtYWdlIGhlbHBl
+cnMgdG8gY292ZXIgdGhhdCBjYXNlDQo+IGFuZCBnaXZlbiB0aGF0IHRoZXJlJ3MgaXNuJ3Qg
+YSBidWZmZXIgZGFtYWdlIGFjY3VtdWxhdGlvbiBhbGdvcml0aG0NCj4gKGUuZzogYnVmZmVy
+IGFnZSksIGp1c3QgZG8gYSBmdWxsIHBsYW5lIHVwZGF0ZSBpZiB0aGUgZnJhbWVidWZmZXIg
+dGhhdA0KPiBpcyBhdHRhY2hlZCB0byBhIHBsYW5lIGNoYW5nZWQgc2luY2UgdGhlIGxhc3Qg
+cGxhbmUgdXBkYXRlIChwYWdlLWZsaXApLg0KPiANCj4gSXQgaXMgYSB2MiB0aGF0IGFkZHJl
+c3NlcyBpc3N1ZXMgcG9pbnRlZCBvdXQgYnkgVGhvbWFzIFppbW1lcm1hbm4gaW4gdjE6DQo+
+IGh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL2FyY2hpdmVzL2RyaS1kZXZlbC8yMDIz
+LU5vdmVtYmVyLzQzMDEzOC5odG1sDQo+IA0KPiBQYXRjaCAjMSBhZGRzIGEgaWdub3JlX2Rh
+bWFnZV9jbGlwcyBmaWVsZCB0byBzdHJ1Y3QgZHJtX3BsYW5lX3N0YXRlIHRvIGJlDQo+IHNl
+dCBieSBkcml2ZXJzIHRoYXQgd2FudCB0aGUgZGFtYWdlIGhlbHBlcnMgdG8gaWdub3JlIHRo
+ZSBkYW1hZ2UgY2xpcHMuDQo+IA0KPiBQYXRjaCAjMiBmaXhlcyB0aGUgdmlydGlvLWdwdSBk
+YW1hZ2UgaGFuZGxpbmcgbG9naWMgYnkgYXNraW5nIHRoZSBkYW1hZ2UNCj4gaGVscGVyIHRv
+IGlnbm9yZSB0aGUgZGFtYWdlIGNsaXBzIGlmIHRoZSBmcmFtZWJ1ZmZlciBhdHRhY2hlZCB0
+byBhIHBsYW5lDQo+IGhhcyBjaGFuZ2VkIHNpbmNlIHRoZSBsYXN0IHBhZ2UtZmxpcC4NCj4g
+DQo+IFBhdGNoICMzIGRvZXMgdGhlIHNhbWUgYnV0IGZvciB0aGUgdm13Z2Z4IGRyaXZlciB0
+aGF0IGFsc28gbmVlZHMgdG8gaGFuZGxlDQo+IGJ1ZmZlciBkYW1hZ2UgYW5kIHNob3VsZCBo
+YXZlIHRoZSBzYW1lIGlzc3VlIChhbHRob3VnaCBJIGhhdmVuJ3QgdGVzdGVkIGl0DQo+IGR1
+ZSBub3QgaGF2aW5nIGEgVk1XYXJlIHNldHVwKS4NCj4gDQo+IFBhdGNoICM0IGFkZHMgdG8g
+dGhlIEtNUyBkYW1hZ2UgdHJhY2tpbmcga2VybmVsLWRvYyBzb21lIHBhcmFncmFwaHMgYWJv
+dXQNCj4gZGFtYWdlIHRyYWNraW5nIHR5cGVzIGFuZCByZWZlcmVuY2VzIHRvIGxpbmtzIHRo
+YXQgZXhwbGFpbiBmcmFtZSBkYW1hZ2UgdnMNCj4gYnVmZmVyIGRhbWFnZS4NCj4gDQo+IEZp
+bmFsbHkgcGF0Y2ggIzUgYWRkcyBhbiBpdGVtIHRvIHRoZSBEUk0gdG9kbywgYWJvdXQgdGhl
+IG5lZWQgdG8gaW1wbGVtZW50DQo+IHNvbWUgYnVmZmVyIGRhbWFnZSBhY2N1bXVsYXRpb24g
+YWxnb3JpdGhtIGluc3RlYWQgb2YganVzdCBkb2luZyBmdWxsIHBsYW5lDQo+IHVwZGF0ZXMg
+aW4gdGhpcyBjYXNlLg0KPiANCj4gQmVjYXVzZSBjb21taXQgMDFmMDU5NDBhOWE3IGxhbmRl
+ZCBpbiB2Ni40LCB0aGUgZmlyc3QgMiBwYXRjaGVzIGFyZSBtYXJrZWQNCj4gYXMgRml4ZXMg
+YW5kIENjIHN0YWJsZS4NCj4gDQo+IEkndmUgdGVzdGVkIHRoaXMgb24gYSBWTSB3aXRoIHdl
+c3Rvbiwgd2FzIGFibGUgdG8gcmVwcm9kdWNlIHRoZSBpc3N1ZQ0KPiByZXBvcnRlZCBhbmQg
+dGhlIHBhdGNoZXMgZGlkIGZpeCB0aGUgcHJvYmxlbS4NCj4gDQo+IEJlc3QgcmVnYXJkcywN
+Cj4gSmF2aWVyDQo+IA0KPiBDaGFuZ2VzIGluIHYyOg0KPiAtIEFkZCBhIHN0cnVjdCBkcm1f
+cGxhbmVfc3RhdGUgLmlnbm9yZV9kYW1hZ2VfY2xpcHMgdG8gc2V0IGluIHRoZSBwbGFuZSdz
+DQo+ICAgIC5hdG9taWNfY2hlY2ssIGluc3RlYWQgb2YgaGF2aW5nIGRpZmZlcmVudCBoZWxw
+ZXJzIChUaG9tYXMgWmltbWVybWFubikuDQo+IC0gU2V0IHN0cnVjdCBkcm1fcGxhbmVfc3Rh
+dGUgLmlnbm9yZV9kYW1hZ2VfY2xpcHMgaW4gdmlydGlvLWdwdSBwbGFuZSdzDQo+ICAgIC5h
+dG9taWNfY2hlY2sgaW5zdGVhZCBvZiB1c2luZyBhIGRpZmZlcmVudCBoZWxwZXJzIChUaG9t
+YXMgWmltbWVybWFubikuDQo+IC0gU2V0IHN0cnVjdCBkcm1fcGxhbmVfc3RhdGUgLmlnbm9y
+ZV9kYW1hZ2VfY2xpcHMgaW4gdm13Z2Z4IHBsYW5lJ3MNCj4gICAgLmF0b21pY19jaGVjayBp
+bnN0ZWFkIG9mIHVzaW5nIGEgZGlmZmVyZW50IGhlbHBlcnMgKFRob21hcyBaaW1tZXJtYW5u
+KS4NCj4gDQo+IEphdmllciBNYXJ0aW5leiBDYW5pbGxhcyAoNSk6DQo+ICAgIGRybTogQWxs
+b3cgZHJpdmVycyB0byBpbmRpY2F0ZSB0aGUgZGFtYWdlIGhlbHBlcnMgdG8gaWdub3JlIGRh
+bWFnZQ0KPiAgICAgIGNsaXBzDQo+ICAgIGRybS92aXJ0aW86IERpc2FibGUgZGFtYWdlIGNs
+aXBwaW5nIGlmIEZCIGNoYW5nZWQgc2luY2UgbGFzdCBwYWdlLWZsaXANCj4gICAgZHJtL3Zt
+d2dmeDogRGlzYWJsZSBkYW1hZ2UgY2xpcHBpbmcgaWYgRkIgY2hhbmdlZCBzaW5jZSBsYXN0
+IHBhZ2UtZmxpcA0KPiAgICBkcm0vcGxhbmU6IEV4dGVuZCBkYW1hZ2UgdHJhY2tpbmcga2Vy
+bmVsLWRvYw0KPiAgICBkcm0vdG9kbzogQWRkIGVudHJ5IGFib3V0IGltcGxlbWVudGluZyBi
+dWZmZXIgYWdlIGZvciBkYW1hZ2UgdHJhY2tpbmcNCj4gDQo+ICAgRG9jdW1lbnRhdGlvbi9n
+cHUvdG9kby5yc3QgICAgICAgICAgICAgfCAyMCArKysrKysrKysrKysrKysrKysrKw0KPiAg
+IGRyaXZlcnMvZ3B1L2RybS9kcm1fZGFtYWdlX2hlbHBlci5jICAgIHwgIDMgKystDQo+ICAg
+ZHJpdmVycy9ncHUvZHJtL2RybV9wbGFuZS5jICAgICAgICAgICAgfCAyMCArKysrKysrKysr
+KysrKysrKysrKw0KPiAgIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9wbGFuZS5j
+IHwgMTAgKysrKysrKysrKw0KPiAgIGRyaXZlcnMvZ3B1L2RybS92bXdnZngvdm13Z2Z4X2tt
+cy5jICAgIHwgMTEgKysrKysrKysrKysNCj4gICBpbmNsdWRlL2RybS9kcm1fcGxhbmUuaCAg
+ICAgICAgICAgICAgICB8ICA4ICsrKysrKysrDQo+ICAgNiBmaWxlcyBjaGFuZ2VkLCA3MSBp
+bnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQo+IA0KDQotLSANClRob21hcyBaaW1tZXJt
+YW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9u
+cyBHZXJtYW55IEdtYkgNCkZyYW5rZW5zdHJhc3NlIDE0NiwgOTA0NjEgTnVlcm5iZXJnLCBH
+ZXJtYW55DQpHRjogSXZvIFRvdGV2LCBBbmRyZXcgTXllcnMsIEFuZHJldyBNY0RvbmFsZCwg
+Qm91ZGllbiBNb2VybWFuDQpIUkIgMzY4MDkgKEFHIE51ZXJuYmVyZykNCg==
 
-> +}
-> +
->  static void __free_old_xmit(struct virtnet_sq *sq, bool in_napi,
->                             u64 *bytes, u64 *packets)
->  {
-> +       struct scatterlist *sg =3D NULL;
->         unsigned int len;
->         void *ptr;
->
-> -       while ((ptr =3D virtqueue_get_buf(sq->vq, &len)) !=3D NULL) {
-> +       /* clear the sg table */
-> +       if (sq->do_dma) {
-> +               sg_init_table(sq->sg, ARRAY_SIZE(sq->sg));
-> +               sg =3D sq->sg;
-> +       }
-> +
-> +       while ((ptr =3D virtqueue_get_buf_ctx_dma(sq->vq, &len, sg, NULL)=
-) !=3D NULL) {
-> +               if (sq->do_dma)
-> +                       virtnet_sq_unmap(sq);
-> +
->                 if (!is_xdp_frame(ptr)) {
->                         struct sk_buff *skb =3D ptr;
->
-> @@ -567,22 +600,61 @@ static void *virtnet_rq_alloc(struct virtnet_rq *rq=
-, u32 size, gfp_t gfp)
->         return buf;
->  }
->
-> -static void virtnet_rq_set_premapped(struct virtnet_info *vi)
-> +static void virtnet_set_premapped(struct virtnet_info *vi)
->  {
->         int i;
->
-> -       /* disable for big mode */
-> -       if (!vi->mergeable_rx_bufs && vi->big_packets)
-> -               return;
-> -
->         for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> -               if (virtqueue_set_dma_premapped(vi->rq[i].vq))
-> -                       continue;
-> +               if (!virtqueue_set_dma_premapped(vi->sq[i].vq))
-> +                       vi->sq[i].do_dma =3D true;
->
-> -               vi->rq[i].do_dma =3D true;
-> +               /* disable for big mode */
-> +               if (vi->mergeable_rx_bufs || !vi->big_packets) {
-> +                       if (!virtqueue_set_dma_premapped(vi->rq[i].vq))
-> +                               vi->rq[i].do_dma =3D true;
-> +               }
->         }
->  }
->
-> +static int virtnet_sq_map_sg(struct virtnet_sq *sq)
-> +{
-> +       struct scatterlist *sg;
-> +
-> +       for (sg =3D sq->sg; sg; sg =3D sg_next(sg)) {
-> +               sg->dma_address =3D virtqueue_dma_map_single_attrs(sq->vq=
-, sg_virt(sg),
-> +                                                                sg->leng=
-th,
-> +                                                                DMA_TO_D=
-EVICE, 0);
-> +               if (virtqueue_dma_mapping_error(sq->vq, sg->dma_address))
-> +                       goto err;
-> +       }
-> +
-> +       return 0;
-> +
-> +err:
-> +       if (sg !=3D sq->sg) {
-> +               sg_mark_end(sg - 1);
-> +               virtnet_sq_unmap(sq);
-> +       }
-> +       return -ENOMEM;
-> +}
-> +
-> +static int virtnet_add_outbuf(struct virtnet_sq *sq, u32 num, void *data=
-)
-> +{
-> +       int ret;
-> +
-> +       if (sq->do_dma) {
-> +               ret =3D virtnet_sq_map_sg(sq);
-> +               if (ret)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       ret =3D virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATOMI=
-C);
-> +       if (ret && sq->do_dma)
-> +               virtnet_sq_unmap(sq);
-> +
-> +       return ret;
-> +}
-> +
->  static void free_old_xmit(struct virtnet_sq *sq, bool in_napi)
->  {
->         u64 bytes, packets =3D 0;
-> @@ -686,8 +758,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info=
- *vi,
->                             skb_frag_size(frag), skb_frag_off(frag));
->         }
->
-> -       err =3D virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
-> -                                  xdp_to_ptr(xdpf), GFP_ATOMIC);
-> +       err =3D virtnet_add_outbuf(sq, nr_frags + 1, xdp_to_ptr(xdpf));
->         if (unlikely(err))
->                 return -ENOSPC; /* Caller handle free/refcnt */
->
-> @@ -2126,7 +2197,7 @@ static int xmit_skb(struct virtnet_sq *sq, struct s=
-k_buff *skb)
->                         return num_sg;
->                 num_sg++;
->         }
-> -       return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOM=
-IC);
-> +       return virtnet_add_outbuf(sq, num_sg, skb);
->  }
->
->  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *de=
-v)
-> @@ -3852,10 +3923,25 @@ static void virtnet_rq_free_unused_buf(struct vir=
-tqueue *vq, void *buf)
->
->  static void virtnet_sq_free_unused_bufs(struct virtqueue *vq)
->  {
-> +       struct virtnet_info *vi =3D vq->vdev->priv;
-> +       struct scatterlist *sg =3D NULL;
-> +       struct virtnet_sq *sq;
-> +       int i =3D vq2txq(vq);
->         void *buf;
->
-> -       while ((buf =3D virtqueue_detach_unused_buf(vq)) !=3D NULL)
-> +       sq =3D &vi->sq[i];
-> +
-> +       if (sq->do_dma) {
-> +               sg_init_table(sq->sg, ARRAY_SIZE(sq->sg));
+--------------49dyl47sZl0hpVGsE90avT3q--
 
-Btw, if we only care about dma_addr and length, using sg seems to be
-expensive here.
+--------------VD60tmeiTEWkm1bJy0V0MmyH
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-Thanks
+-----BEGIN PGP SIGNATURE-----
 
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmVWBhoFAwAAAAAACgkQlh/E3EQov+Aa
+5g/+Jevsj8sedobQpP3DVRHU9EreRChHbIu+D4QCWXAM6OcWB361EIMh0+E0KyMoKd2HGGeM0Vsr
+wiNZyfT77r3AC9VBhmyPYkeSy2kfQ+Oy9x7ev9igz6TCCBGq9u9kaHZebbsQaTKHQ/k9lWdJabAz
+jh9ijYbhdHGO6tNtSgsUndDymFSSJSV445fgZ4Y0oaMbQ1mqRYu9ipLRpKT2r3VcAHr8pqPCbDvJ
+DegAJzTIFKffR0foL0SHDU1T20IvO/ANWF2LRoh6+aACDfXutgKLy9d0/f15A5Po7yeqiBfDwIse
+6hh6xqsnz+zSE9/FtCajr3m/U4dbGpZOeBibDBkx/XimqNgk35RwS3MjBtkjYWNeeTaWq00fEJP5
+EmsUclsHNfwV2CyhH3BZ8o7/4gBGGE1hhq4xMB4SuIBese018G7/qaoE/LrqYNDNWbryZ597AB/c
+kCVyfHPuiRyXsjyZ0txjCpuKWI9Kgi/4o/VpbvSex6TKHOORdhNEBWiobQ0Nw6AJoT3AiT5ME1oA
+o5iqJWpLMZP4rSy+iuFcneyu6Yfml9CzzJVw8xv+YBvydaPBF3LmZscFHKjVYlq7vl1rsRWmpzf5
+u572YlGCYN5AXEqe9urOlf+xDtZ/1y7BZZb49fAcflKeJSM11Hkb8Ehwo7/yzUX5vQWh/TVmR8hl
+uwk=
+=j5Mu
+-----END PGP SIGNATURE-----
 
-> +               sg =3D sq->sg;
-> +       }
-> +
-> +       while ((buf =3D virtqueue_detach_unused_buf_premapped(vq, sg)) !=
-=3D NULL) {
-> +               if (sq->do_dma)
-> +                       virtnet_sq_unmap(sq);
-> +
->                 virtnet_sq_free_unused_buf(vq, buf);
-> +       }
->  }
->
->  static void virtnet_rq_free_unused_bufs(struct virtqueue *vq)
-> @@ -4052,7 +4138,7 @@ static int init_vqs(struct virtnet_info *vi)
->         if (ret)
->                 goto err_free;
->
-> -       virtnet_rq_set_premapped(vi);
-> +       virtnet_set_premapped(vi);
->
->         cpus_read_lock();
->         virtnet_set_affinity(vi);
-> diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_=
-net.h
-> index ebf9f344648a..870855a829a0 100644
-> --- a/drivers/net/virtio/virtio_net.h
-> +++ b/drivers/net/virtio/virtio_net.h
-> @@ -67,6 +67,8 @@ struct virtnet_sq {
->
->         /* Record whether sq is in reset state. */
->         bool reset;
-> +
-> +       bool do_dma;
->  };
->
->  /* Internal representation of a receive virtqueue */
-> --
-> 2.32.0.3.g01195cf9f
->
-
+--------------VD60tmeiTEWkm1bJy0V0MmyH--
