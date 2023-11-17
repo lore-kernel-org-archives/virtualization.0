@@ -1,175 +1,171 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B9ED2F9
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:58:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82EFA9466
+	for <virtualization@lists.linux.dev>; Fri, 17 Nov 2023 09:25:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="fbTB1TKj"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 34D7D41B52
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:58:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 34D7D41B52
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=fbTB1TKj
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hDPfquLeDSxe
-	for <virtualization@lists.linux-foundation.org>;
-	Fri, 17 Nov 2023 08:58:47 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AF15D41889
-	for <virtualization@lists.linux-foundation.org>; Fri, 17 Nov 2023 08:58:45 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AF15D41889
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id A64B9120097;
-	Fri, 17 Nov 2023 11:58:40 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru A64B9120097
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1700211520;
-	bh=HN+PvIjLqzQn6wjZP926vHy0wPu+a4K5ITDOFK7AlOE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=fbTB1TKjZE9AIUNudoR0Vy7AVqsTakFba2sLFRyrNstMcANH1pgsLVYXHK6ITrOE+
-	 RU3YvcWfqGgqUCZPQ41moC7zCReP6GTarQHJx0ZYEXm5HuKHgtp4522pitd2wYYxhj
-	 60npuohOI7JFMtLNBsJpdD5RqkxFG/eN6vlFJdIDPDFZ6ENtP1WhdMbe4YvZaOXzSb
-	 gU0RryRcspaEmkqh50nWKgHrDNnf+ELoT6vqhDmJ5yikPagei9i6Ao9Lqkz0at6c5k
-	 SjfoqusdKk5ydlEcvuDF/GlwKsMovwEJjm/jfgKwK1o7cRSbYMQm2ThR5niBnw7M37
-	 J+IcbfY7hiGjQ==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Fri, 17 Nov 2023 11:58:40 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Fri, 17 Nov 2023 11:58:40 +0300
-Message-ID: <1700ac19-a355-fad4-79e2-7598ee33bd00@salutedevices.com>
-Date: Fri, 17 Nov 2023 11:50:59 +0300
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SrKj/vIs"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=guXus9uH0FtCWZaDTlKgZ0PR6col0jhDMGMT5oJhEVM=; b=SrKj/vIsYJgpnCM83sG0ipdpJ0
+	N0MsKblH+oANZx/KJGb2LUz+KuEqjAdFJSoFDqUktMPYDNZpx3Nn044HkgXDLjRxet8aM8jg4zJ71
+	pa/9d46jAhrcGLiMf3nTRJd4LWciONWgjxt0doUoVOh1m+LeE31wOZz4YxBU+jFWCOh2yD+dYv7ha
+	fv8+JtjkT3cSeBGEifCEZIOVmQ1/0ByvSlFV3/o66SthRI2xrJ7+y5qa99pgijYfned9S/+Y7YvDR
+	oS2IkgkXulz897E8P0Fy5Wo/EluUYw5ekPn1FNsZO1wN/yIcbMhtiJdK2cQvUzGw9+NI2JVZ+0TGb
+	3/ARDTOQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+	id 1r3v4I-007B1g-1Z;
+	Fri, 17 Nov 2023 09:25:19 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 29F8A300478; Fri, 17 Nov 2023 10:23:18 +0100 (CET)
+Date: Fri, 17 Nov 2023 10:23:18 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com
+Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
+ lag based placement)
+Message-ID: <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
+References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [RFC PATCH v1 2/2] vsock/test: SO_RCVLOWAT + deferred credit
- update test
-To: Stefano Garzarella <sgarzare@redhat.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
-	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
-References: <20231108072004.1045669-1-avkrasnov@salutedevices.com>
- <20231108072004.1045669-3-avkrasnov@salutedevices.com>
- <zukasb6k7ogta33c2wik6cgadg2rkacestat7pkexd45u53swh@ovso3hafta77>
- <923a6149-3bd5-c5b4-766d-8301f9e7484a@salutedevices.com>
- <tbvwohgvrc6kvlsyap3sk5zqww5q6schsu4szx7e23wgg7pvb3@e7xa5mg5inul>
-Content-Language: en-US
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <tbvwohgvrc6kvlsyap3sk5zqww5q6schsu4szx7e23wgg7pvb3@e7xa5mg5inul>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [100.64.160.123]
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181429 [Nov 17 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 543 543 1e3516af5cdd92079dfeb0e292c8747a62cb1ee4, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;docs.kernel.org:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean, bases: 2023/11/17 08:17:00
-X-KSMG-LinksScanning: Clean, bases: 2023/11/17 08:17:00
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/17 07:09:00 #22469944
-X-KSMG-AntiVirus-Status: Clean, skipped
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
 
 
+Your email is pretty badly mangled by wrapping, please try and
+reconfigure your MUA, esp. the trace and debug output is unreadable.
 
-On 17.11.2023 11:30, Stefano Garzarella wrote:
-> On Fri, Nov 17, 2023 at 10:12:38AM +0300, Arseniy Krasnov wrote:
->>
->>
->> On 15.11.2023 14:11, Stefano Garzarella wrote:
->>> On Wed, Nov 08, 2023 at 10:20:04AM +0300, Arseniy Krasnov wrote:
->>>> This adds test which checks, that updating SO_RCVLOWAT value also sends
->>>
->>> You can avoid "This adds", and write just "Add test ...".
->>>
->>> See https://docs.kernel.org/process/submitting-patches.html#describe-your-changes
->>>
->>>     Describe your changes in imperative mood, e.g. "make xyzzy do frotz"
->>>     instead of "[This patch] makes xyzzy do frotz" or "[I] changed xyzzy
->>>     to do frotz", as if you are giving orders to the codebase to change
->>>     its behaviour.
->>>
->>> Also in the other patch.
->>>
->>>> credit update message. Otherwise mutual hungup may happen when receiver
->>>> didn't send credit update and then calls 'poll()' with non default
->>>> SO_RCVLOWAT value (e.g. waiting enough bytes to read), while sender
->>>> waits for free space at receiver's side.
->>>>
->>>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>>> ---
->>>> tools/testing/vsock/vsock_test.c | 131 +++++++++++++++++++++++++++++++
->>>> 1 file changed, 131 insertions(+)
->>>>
->>>> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->>>> index c1f7bc9abd22..c71b3875fd16 100644
->>>> --- a/tools/testing/vsock/vsock_test.c
->>>> +++ b/tools/testing/vsock/vsock_test.c
->>>> @@ -1180,6 +1180,132 @@ static void test_stream_shutrd_server(const struct test_opts *opts)
->>>>     close(fd);
->>>> }
->>>>
->>>> +#define RCVLOWAT_CREDIT_UPD_BUF_SIZE    (1024 * 128)
->>>> +#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE    (1024 * 64)
->>>
->>> What about adding a comment like the one in the cover letter about
->>> dependency with kernel values?
->>>
->>> Please add it also in the commit description.
->>>
->>> I'm thinking if we should move all the defines that depends on the
->>> kernel in some special header.
->>
->> IIUC it will be new header file in tools/testing/vsock, which includes such defines. At
->> this moment in will contain only VIRTIO_VSOCK_MAX_PKT_BUF_SIZE. Idea is that such defines
+On Thu, Nov 16, 2023 at 07:58:18PM +0100, Tobias Huschle wrote:
+
+> The base scenario are two KVM guests running on an s390 LPAR. One guest
+> hosts the uperf server, one the uperf client.
+> With EEVDF we observe a regression of ~50% for a strburst test.
+> For a more detailed description of the setup see the section TEST SUMMARY at
+> the bottom.
+
+Well, that's not good :/
+
+> Short summary:
+> The mentioned kworker has been scheduled to CPU 14 before the tracing was
+> enabled.
+> A vhost process is migrated onto CPU 14.
+> The vruntimes of kworker and vhost differ significantly (86642125805 vs
+> 4242563284 -> factor 20)
+
+So bear with me, I know absolutely nothing about virt stuff. I suspect
+there's cgroups involved because shiny or something.
+
+kworkers are typically not in cgroups and are part of the root cgroup,
+but what's a vhost and where does it live?
+
+Also, what are their weights / nice values?
+
+> The vhost process wants to wake up the kworker, therefore the kworker is
+> placed onto the runqueue again and set to runnable.
+> The vhost process continues to execute, waking up other vhost processes on
+> other CPUs.
 > 
-> So this only works on the virtio transport though, not the other
-> transports, right? (but maybe the others don't have this problem, so
-> it's fine).
-
-Yes, this case is only actual in virtio as this logic exists in virtio
-only (the same situation as for skb merging sometimes ago).
-
+> So far this behavior is not different to what we see on pre-EEVDF kernels.
 > 
->> are not supposed to use by user (so do not move it to uapi headers), but needed by tests
->> to check kernel behaviour. Please correct me if i'm wrong.
-> 
-> Right!
-> Maybe if it's just one, we can leave it there for now, but with a
-> comment on top explaining where it comes.
+> On timestamp 576.162767, the vhost process triggers the last wake up of
+> another vhost on another CPU.
+> Until timestamp 576.171155, we see no other activity. Now, the vhost process
+> ends its time slice.
+> Then, vhost gets re-assigned new time slices 4 times and gets then migrated
+> off to CPU 15.
 
-Ok, got it, I'll add comment
+So why does this vhost stay on the CPU if it doesn't have anything to
+do? (I've not tried to make sense of the trace, that's just too
+painful).
 
-Thanks, Arseniy
+> This does not occur with older kernels.
+> The kworker has to wait for the migration to happen in order to be able to
+> execute again.
+> This is due to the fact, that the vruntime of the kworker is significantly
+> larger than the one of vhost.
 
+That's, weird. Can you add a trace_printk() to update_entity_lag() and
+have it print out the lag, limit and vlag (post clamping) values? And
+also in place_entity() for the reverse process, lag pre and post scaling
+or something.
+
+After confirming both tasks are indeed in the same cgroup ofcourse,
+because if they're not, vruntime will be meaningless to compare and we
+should look elsewhere.
+
+Also, what HZ and what preemption mode are you running? If kworker is
+somehow vastly over-shooting it's slice -- keeps running way past the
+avg_vruntime, then it will build up a giant lag and you get what you
+describe, next time it wakes up it gets placed far to the right (exactly
+where it was when it 'finally' went to sleep, relatively speaking).
+
+> We found some options which sound plausible but we are not sure if they are
+> valid or not:
 > 
-> Thanks,
-> Stefano
-> 
+> 1. The wake up path has a dependency on the vruntime metrics that now delays
+> the execution of the kworker.
+> 2. The previous commit af4cf40470c2 (sched/fair: Add cfs_rq::avg_vruntime)
+> which updates the way cfs_rq->min_vruntime and
+>     cfs_rq->avg_runtime are set might have introduced an issue which is
+> uncovered with the commit mentioned above.
+
+Suppose you have a few tasks (of equal weight) on you virtual timeline
+like so:
+
+   ---------+---+---+---+---+------
+            ^       ^
+	    |       `avg_vruntime
+	    `-min_vruntime
+
+Then the above would be more or less the relative placements of these
+values. avg_vruntime is the weighted average of the various vruntimes
+and is therefore always in the 'middle' of the tasks, and not somewhere
+out-there.
+
+min_vruntime is a monotonically increasing 'minimum' that's left-ish on
+the tree (there's a few cases where a new task can be placed left of
+min_vruntime and its no longer actuall the minimum, but whatever).
+
+These values should be relatively close to one another, depending
+ofcourse on the spread of the tasks. So I don't think this is causing
+trouble.
+
+Anyway, the big difference with lag based placement is that where
+previously tasks (that do not migrate) retain their old vruntime and on
+placing they get pulled forward to at least min_vruntime, so a task that
+wildly overshoots, but then doesn't run for significant time can still
+be overtaken and then when placed again be 'okay'.
+
+Now OTOH, with lag-based placement,  we strictly preserve their relative
+offset vs avg_vruntime. So if they were *far* too the right when they go
+to sleep, they will again be there on placement.
+
+Sleeping doesn't help them anymore.
+
+Now, IF this is the problem, I might have a patch that helps:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/commit/?h=sched/eevdf&id=119feac4fcc77001cd9bf199b25f08d232289a5c
+
+That branch is based on v6.7-rc1 and then some, but I think it's
+relatively easy to rebase the lot on v6.6 (which I'm assuming you're
+on).
+
+I'm a little conflicted on the patch, conceptually I like what it does,
+but the code it turned into is quite horrible. I've tried implementing
+it differently a number of times but always ended up with things that
+either didn't work or were worse.
+
+But if it works, it works I suppose.
+
