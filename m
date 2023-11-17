@@ -1,298 +1,295 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E40617726
-	for <virtualization@lists.linux.dev>; Fri, 17 Nov 2023 12:24:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCB0630F93
+	for <virtualization@lists.linux.dev>; Fri, 17 Nov 2023 12:38:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B1QTwYpo"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHBxUmn001854;
-	Fri, 17 Nov 2023 12:24:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : content-type : in-reply-to :
- mime-version; s=pp1; bh=g/LbJifLEhv9VAEUkd0VMYGie7Nh1ngRR5OraPEIgLc=;
- b=B1QTwYpoi0/JPCeu+/gY5FkR6dLO9wBYmfcMRpuApdWf5Spn+IQis5xtOxJwPdFpK99C
- lVnsqZ15aiaq9FOD2t4uaYSVykrPR8N+vTfBb5rGYtwiS71TAkBIa5TSvnwhgxcIUheK
- EaJ5rGUtmLLYHVqd2RRHNghWXQl9pyEXlCf6CA+gNuLSA5IjjCGJupxUKoKMXiU9SJ7t
- ZFRKC8+UsXHbGiwDuggbjDqzrFmxPgSmISM1dzFxRL4HooWgn0XHglUVrwplxv3ygBtn
- u8FNgMp20lUu+fi2YDKnow9b2TfjZAvH3rREsbPxCAOOXE6Y3G1qjoJpVotKDhHdxoNH GA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7snrkfk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Nov 2023 12:24:24 +0000
-Received: from m0360072.ppops.net (m0360072.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AHCBjfY008600;
-	Fri, 17 Nov 2023 12:24:24 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ue7snrkf6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Nov 2023 12:24:24 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AHAY5Qs009958;
-	Fri, 17 Nov 2023 12:24:23 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3uapn2599q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 17 Nov 2023 12:24:23 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AHCOLqJ19464884
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Nov 2023 12:24:21 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 751A82004B;
-	Fri, 17 Nov 2023 12:24:21 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 38F3220040;
-	Fri, 17 Nov 2023 12:24:21 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.135.230])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri, 17 Nov 2023 12:24:21 +0000 (GMT)
-Date: Fri, 17 Nov 2023 13:24:21 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: Peter Zijlstra <peterz@infradead.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Dtpn1gWv"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=ihaKmDQEUKTpLi3X62NAOuhZsDyQ5ySoKRLINzqRVm0=; b=Dtpn1gWv0I+0QPid4NYzcsR/6j
+	Fnqh+ZOcrbzX0ek/ekvlgdLxQeJBvQLc2Or69WIqPsQPUpCBKWGngILq8Yg51uDD0QKU4GNBD9bxZ
+	t052LdAsWc7KsuoXoRRzkXBNrP+h5GZm0KyV1KsAOV4omImFqr+9dQCANq5qGRVt2zXc0ak1IRnMd
+	PA3FAx1dyrt7LRiP/oabBenTnKJjMg/9OsJr1izBHUTooI5dPTYhfahZ6/nP4kdN39zBV8MxpOiOh
+	TgxveYHS+0rv+vyKboYXWwJX0Y5LUqnPOH2GZSTwPWuOkRpIML5crC0+xKaV/LT3zKWOXphB8zPU/
+	jp6pFuNQ==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+	id 1r3y6h-007HlG-1D;
+	Fri, 17 Nov 2023 12:37:59 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 10E793002BE; Fri, 17 Nov 2023 13:37:59 +0100 (CET)
+Date: Fri, 17 Nov 2023 13:37:59 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Tobias Huschle <huschle@linux.ibm.com>
 Cc: Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
-        jasowang@redhat.com
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com, wuyun.abel@bytedance.com
 Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
  lag based placement)
-Message-ID: <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
+Message-ID: <20231117123759.GP8262@noisy.programming.kicks-ass.net>
 References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
  <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: WZwa4MpiyR3hTwWW8OxyGLBUBiUM0tvV
-X-Proofpoint-GUID: zttd9tuaSAJVsf2tWjlPt_VTzfk6ZCyl
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+ <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-17_10,2023-11-16_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- spamscore=0 malwarescore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- adultscore=0 suspectscore=0 mlxlogscore=999 phishscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311170091
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
 
-On Fri, Nov 17, 2023 at 10:23:18AM +0100, Peter Zijlstra wrote:
+On Fri, Nov 17, 2023 at 01:24:21PM +0100, Tobias Huschle wrote:
+> On Fri, Nov 17, 2023 at 10:23:18AM +0100, Peter Zijlstra wrote:
+
+> > kworkers are typically not in cgroups and are part of the root cgroup,
+> > but what's a vhost and where does it live?
 > 
-> Your email is pretty badly mangled by wrapping, please try and
-> reconfigure your MUA, esp. the trace and debug output is unreadable.
-
-Just saw that .. sorry, will append the trace and latency data again.
-
-[...]
-
+> The qemu instances of the two KVM guests are placed into cgroups.
+> The vhosts run within the context of these qemu instances (4 threads per guest).
+> So they are also put into those cgroups.
 > 
-> So bear with me, I know absolutely nothing about virt stuff. I suspect
-> there's cgroups involved because shiny or something.
+> I'll answer the other questions you brought up as well, but I guess that one 
+> is most critical: 
 > 
-> kworkers are typically not in cgroups and are part of the root cgroup,
-> but what's a vhost and where does it live?
-
-The qemu instances of the two KVM guests are placed into cgroups.
-The vhosts run within the context of these qemu instances (4 threads per guest).
-So they are also put into those cgroups.
-
-I'll answer the other questions you brought up as well, but I guess that one 
-is most critical: 
-
+> > 
+> > After confirming both tasks are indeed in the same cgroup ofcourse,
+> > because if they're not, vruntime will be meaningless to compare and we
+> > should look elsewhere.
 > 
-> After confirming both tasks are indeed in the same cgroup ofcourse,
-> because if they're not, vruntime will be meaningless to compare and we
-> should look elsewhere.
+> In that case we probably have to go with elsewhere ... which is good to know.
 
-In that case we probably have to go with elsewhere ... which is good to know.
+Ah, so if this is a cgroup issue, it might be worth trying this patch
+that we have in tip/sched/urgent.
 
-> 
-> Also, what are their weights / nice values?
-> 
+I'll try and read the rest of the email a little later, gotta run
+errands first.
 
-Everything runs under default priority of 120. No nice values are set.
-
-[...]
-
-> 
-> So why does this vhost stay on the CPU if it doesn't have anything to
-> do? (I've not tried to make sense of the trace, that's just too
-> painful).
-
-It does something, we just don't see anything scheduler related in the trace anymore.
-So far we haven't gone down the path of looking deeper into vhost.
-We actually don't know what it's doing at the point where we took the trace.
-
-[...]
-
-> 
-> That's, weird. Can you add a trace_printk() to update_entity_lag() and
-> have it print out the lag, limit and vlag (post clamping) values? And
-> also in place_entity() for the reverse process, lag pre and post scaling
-> or something.
-
-There is already a trace statement in the log for place_entity, that's were we
-found some of the irritating numbers, will add another one for update_entity_lag 
-and send an update once we have it.
-
-Unless there is no sense in doing so because of the involvement of cgroups.
-
-> 
-> Also, what HZ and what preemption mode are you running? If kworker is
-
-HZ=100
-We run a non-preemptable kernel.
-
-> somehow vastly over-shooting it's slice -- keeps running way past the
-> avg_vruntime, then it will build up a giant lag and you get what you
-> describe, next time it wakes up it gets placed far to the right (exactly
-> where it was when it 'finally' went to sleep, relatively speaking).
-
-That's one of the things that irritated us, the kworker has basically no lag.
-I hope the reformatted trace below helps claryfing things.
-If this is ok due to them not being in the same cgroup, then that's just how it is.
-
-[...]
-
-> 
-> Now OTOH, with lag-based placement,  we strictly preserve their relative
-> offset vs avg_vruntime. So if they were *far* too the right when they go
-> to sleep, they will again be there on placement.
-
-Yea, that's what I gathered from the EEVDF paper and the 3 strategies discussed
-how to handle tasks that "rejoin the competition".
-
-I'll do some catching up on how cgroups play into this.
-
-> 
-> Sleeping doesn't help them anymore.
-> 
-> Now, IF this is the problem, I might have a patch that helps:
-> 
->   https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git/commit/?h=sched/eevdf&id=119feac4fcc77001cd9bf199b25f08d232289a5c
-> 
-> That branch is based on v6.7-rc1 and then some, but I think it's
-> relatively easy to rebase the lot on v6.6 (which I'm assuming you're
-> on).
-> 
-> I'm a little conflicted on the patch, conceptually I like what it does,
-> but the code it turned into is quite horrible. I've tried implementing
-> it differently a number of times but always ended up with things that
-> either didn't work or were worse.
-> 
-> But if it works, it works I suppose.
-> 
-
-I'll check out the patch, thanks for the pointer.
-
-Here's the hopefully unmangled data:
-
-#################### TRACE EXCERPT ####################
-The sched_place trace event was added to the end of the place_entity function and outputs:
-sev -> sched_entity vruntime
-sed -> sched_entity deadline
-sel -> sched_entity vlag
-avg -> cfs_rq avg_vruntime
-min -> cfs_rq min_vruntime
-cpu -> cpu of cfs_rq
-nr  -> cfs_rq nr_running
 ---
-    CPU 3/KVM-2950    [014] d....   576.161432: sched_migrate_task: comm=vhost-2920 pid=2941 prio=120 orig_cpu=15 dest_cpu=14
---> migrates task from cpu 15 to 14
-    CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm=vhost-2920 pid=2941 sev=4242563284 sed=4245563284 sel=0 avg=4242563284 min=4242563284 cpu=14 nr=0
---> places vhost 2920 on CPU 14 with vruntime 4242563284
-    CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm= pid=0 sev=16329848593 sed=16334604010 sel=0 avg=16329848593 min=16329848593 cpu=14 nr=0
-    CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm= pid=0 sev=42560661157 sed=42627443765 sel=0 avg=42560661157 min=42560661157 cpu=14 nr=0
-    CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm= pid=0 sev=53846627372 sed=54125900099 sel=0 avg=53846627372 min=53846627372 cpu=14 nr=0
-    CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm= pid=0 sev=86640641980 sed=87255041979 sel=0 avg=86640641980 min=86640641980 cpu=14 nr=0
-    CPU 3/KVM-2950    [014] dN...   576.161434: sched_stat_wait: comm=vhost-2920 pid=2941 delay=9958 [ns]
-    CPU 3/KVM-2950    [014] d....   576.161435: sched_switch: prev_comm=CPU 3/KVM prev_pid=2950 prev_prio=120 prev_state=S ==> next_comm=vhost-2920 next_pid=2941 next_prio=120
-   vhost-2920-2941    [014] D....   576.161439: sched_waking: comm=vhost-2286 pid=2309 prio=120 target_cpu=008
-   vhost-2920-2941    [014] d....   576.161446: sched_waking: comm=kworker/14:0 pid=6525 prio=120 target_cpu=014
-   vhost-2920-2941    [014] d....   576.161447: sched_place: comm=kworker/14:0 pid=6525 sev=86642125805 sed=86645125805 sel=0 avg=86642125805 min=86642125805 cpu=14 nr=1
---> places kworker 6525 on cpu 14 with vruntime 86642125805
--->  which is far larger than vhost vruntime of  4242563284
-   vhost-2920-2941    [014] d....   576.161447: sched_stat_blocked: comm=kworker/14:0 pid=6525 delay=10143757 [ns]
-   vhost-2920-2941    [014] dN...   576.161447: sched_wakeup: comm=kworker/14:0 pid=6525 prio=120 target_cpu=014
-   vhost-2920-2941    [014] dN...   576.161448: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=13884 [ns] vruntime=4242577168 [ns]
---> vhost 2920 finishes after 13884 ns of runtime
-   vhost-2920-2941    [014] dN...   576.161448: sched_stat_wait: comm=kworker/14:0 pid=6525 delay=0 [ns]
-   vhost-2920-2941    [014] d....   576.161448: sched_switch: prev_comm=vhost-2920 prev_pid=2941 prev_prio=120 prev_state=R+ ==> next_comm=kworker/14:0 next_pid=6525 next_prio=120
---> switch to kworker
- kworker/14:0-6525    [014] d....   576.161449: sched_waking: comm=CPU 2/KVM pid=2949 prio=120 target_cpu=007
- kworker/14:0-6525    [014] d....   576.161450: sched_stat_runtime: comm=kworker/14:0 pid=6525 runtime=3714 [ns] vruntime=86642129519 [ns]
---> kworker finshes after 3714 ns of runtime
- kworker/14:0-6525    [014] d....   576.161450: sched_stat_wait: comm=vhost-2920 pid=2941 delay=3714 [ns]
- kworker/14:0-6525    [014] d....   576.161451: sched_switch: prev_comm=kworker/14:0 prev_pid=6525 prev_prio=120 prev_state=I ==> next_comm=vhost-2920 next_pid=2941 next_prio=120
---> switch back to vhost
-   vhost-2920-2941    [014] d....   576.161478: sched_waking: comm=kworker/14:0 pid=6525 prio=120 target_cpu=014
-   vhost-2920-2941    [014] d....   576.161478: sched_place: comm=kworker/14:0 pid=6525 sev=86642191859 sed=86645191859 sel=-1150 avg=86642188144 min=86642188144 cpu=14 nr=1
---> kworker placed again on cpu 14 with vruntime 86642191859, the problem occurs only if lag <= 0, having lag=0 does not always hit the problem though
-   vhost-2920-2941    [014] d....   576.161478: sched_stat_blocked: comm=kworker/14:0 pid=6525 delay=27943 [ns]
-   vhost-2920-2941    [014] d....   576.161479: sched_wakeup: comm=kworker/14:0 pid=6525 prio=120 target_cpu=014
-   vhost-2920-2941    [014] D....   576.161511: sched_waking: comm=vhost-2286 pid=2308 prio=120 target_cpu=006
-   vhost-2920-2941    [014] D....   576.161512: sched_waking: comm=vhost-2286 pid=2309 prio=120 target_cpu=008
-   vhost-2920-2941    [014] D....   576.161516: sched_waking: comm=vhost-2286 pid=2308 prio=120 target_cpu=006
-   vhost-2920-2941    [014] D....   576.161773: sched_waking: comm=vhost-2286 pid=2308 prio=120 target_cpu=006
-   vhost-2920-2941    [014] D....   576.161775: sched_waking: comm=vhost-2286 pid=2309 prio=120 target_cpu=008
-   vhost-2920-2941    [014] D....   576.162103: sched_waking: comm=vhost-2286 pid=2308 prio=120 target_cpu=006
-   vhost-2920-2941    [014] D....   576.162105: sched_waking: comm=vhost-2286 pid=2307 prio=120 target_cpu=021
-   vhost-2920-2941    [014] D....   576.162326: sched_waking: comm=vhost-2286 pid=2305 prio=120 target_cpu=004
-   vhost-2920-2941    [014] D....   576.162437: sched_waking: comm=vhost-2286 pid=2308 prio=120 target_cpu=006
-   vhost-2920-2941    [014] D....   576.162767: sched_waking: comm=vhost-2286 pid=2305 prio=120 target_cpu=004
-   vhost-2920-2941    [014] d.h..   576.171155: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=9704465 [ns] vruntime=4252281633 [ns]
-   vhost-2920-2941    [014] d.h..   576.181155: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=10000377 [ns] vruntime=4262282010 [ns]
-   vhost-2920-2941    [014] d.h..   576.191154: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=9999514 [ns] vruntime=4272281524 [ns]
-   vhost-2920-2941    [014] d.h..   576.201155: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=10000246 [ns] vruntime=4282281770 [ns]
---> vhost gets rescheduled multiple times because its vruntime is significantly smaller than the vruntime of the kworker
-   vhost-2920-2941    [014] dNh..   576.201176: sched_wakeup: comm=migration/14 pid=85 prio=0 target_cpu=014
-   vhost-2920-2941    [014] dN...   576.201191: sched_stat_runtime: comm=vhost-2920 pid=2941 runtime=25190 [ns] vruntime=4282306960 [ns]
-   vhost-2920-2941    [014] d....   576.201192: sched_switch: prev_comm=vhost-2920 prev_pid=2941 prev_prio=120 prev_state=R+ ==> next_comm=migration/14 next_pid=85 next_prio=0
- migration/14-85      [014] d..1.   576.201194: sched_migrate_task: comm=vhost-2920 pid=2941 prio=120 orig_cpu=14 dest_cpu=15
---> vhost gets migrated off of cpu 14
- migration/14-85      [014] d..1.   576.201194: sched_place: comm=vhost-2920 pid=2941 sev=3198666923 sed=3201666923 sel=0 avg=3198666923 min=3198666923 cpu=15 nr=0
- migration/14-85      [014] d..1.   576.201195: sched_place: comm= pid=0 sev=12775683594 sed=12779398224 sel=0 avg=12775683594 min=12775683594 cpu=15 nr=0
- migration/14-85      [014] d..1.   576.201195: sched_place: comm= pid=0 sev=33655559178 sed=33661025369 sel=0 avg=33655559178 min=33655559178 cpu=15 nr=0
- migration/14-85      [014] d..1.   576.201195: sched_place: comm= pid=0 sev=42240572785 sed=42244083642 sel=0 avg=42240572785 min=42240572785 cpu=15 nr=0
- migration/14-85      [014] d..1.   576.201196: sched_place: comm= pid=0 sev=70190876523 sed=70194789898 sel=-13068763 avg=70190876523 min=70190876523 cpu=15 nr=0
- migration/14-85      [014] d....   576.201198: sched_stat_wait: comm=kworker/14:0 pid=6525 delay=39718472 [ns]
- migration/14-85      [014] d....   576.201198: sched_switch: prev_comm=migration/14 prev_pid=85 prev_prio=0 prev_state=S ==> next_comm=kworker/14:0 next_pid=6525 next_prio=120
- --> only now, kworker is eligible to run again, after a delay of 39718472 ns
- kworker/14:0-6525    [014] d....   576.201200: sched_waking: comm=CPU 0/KVM pid=2947 prio=120 target_cpu=012
- kworker/14:0-6525    [014] d....   576.201290: sched_stat_runtime: comm=kworker/14:0 pid=6525 runtime=92941 [ns] vruntime=86642284800 [ns]
 
-#################### WAIT DELAYS - PERF LATENCY ####################
-last good commit --> perf sched latency -s max
- -------------------------------------------------------------------------------------------------------------------------------------------
-  Task                  |   Runtime ms  | Switches | Avg delay ms    | Max delay ms    | Max delay start           | Max delay end          |
- -------------------------------------------------------------------------------------------------------------------------------------------
-  CPU 2/KVM:(2)         |   5399.650 ms |   108698 | avg:   0.003 ms | max:   3.077 ms | max start:   544.090322 s | max end:   544.093399 s
-  CPU 7/KVM:(2)         |   5111.132 ms |    69632 | avg:   0.003 ms | max:   2.980 ms | max start:   544.690994 s | max end:   544.693974 s
-  kworker/22:3-ev:723   |    342.944 ms |    63417 | avg:   0.005 ms | max:   1.880 ms | max start:   545.235430 s | max end:   545.237310 s
-  CPU 0/KVM:(2)         |   8171.431 ms |   433099 | avg:   0.003 ms | max:   1.004 ms | max start:   547.970344 s | max end:   547.971348 s
-  CPU 1/KVM:(2)         |   5486.260 ms |   258702 | avg:   0.003 ms | max:   1.002 ms | max start:   548.782514 s | max end:   548.783516 s
-  CPU 5/KVM:(2)         |   4766.143 ms |    65727 | avg:   0.003 ms | max:   0.997 ms | max start:   545.313610 s | max end:   545.314607 s
-  vhost-2268:(6)        |  13206.503 ms |   315030 | avg:   0.003 ms | max:   0.989 ms | max start:   550.887761 s | max end:   550.888749 s
-  vhost-2892:(6)        |  14467.268 ms |   214005 | avg:   0.003 ms | max:   0.981 ms | max start:   545.213819 s | max end:   545.214800 s
-  CPU 3/KVM:(2)         |   5538.908 ms |    85105 | avg:   0.003 ms | max:   0.883 ms | max start:   547.138139 s | max end:   547.139023 s
-  CPU 6/KVM:(2)         |   5289.827 ms |    72301 | avg:   0.003 ms | max:   0.836 ms | max start:   551.094590 s | max end:   551.095425 s
+commit eab03c23c2a162085b13200d7942fc5a00b5ccc8
+Author: Abel Wu <wuyun.abel@bytedance.com>
+Date:   Tue Nov 7 17:05:07 2023 +0800
 
-6.6 rc7 --> perf sched latency -s max
--------------------------------------------------------------------------------------------------------------------------------------------
-  Task                  |   Runtime ms  | Switches | Avg delay ms    | Max delay ms    | Max delay start           | Max delay end          |
- -------------------------------------------------------------------------------------------------------------------------------------------
-  kworker/19:2-ev:1071  |     69.482 ms |    12700 | avg:   0.050 ms | max: 366.314 ms | max start: 54705.674294 s | max end: 54706.040607 s
-  kworker/13:1-ev:184   |     78.048 ms |    14645 | avg:   0.067 ms | max: 287.738 ms | max start: 54710.312863 s | max end: 54710.600602 s
-  kworker/12:1-ev:46148 |    138.488 ms |    26660 | avg:   0.021 ms | max: 147.414 ms | max start: 54706.133161 s | max end: 54706.280576 s
-  kworker/16:2-ev:33076 |    149.175 ms |    29491 | avg:   0.026 ms | max: 139.752 ms | max start: 54708.410845 s | max end: 54708.550597 s
-  CPU 3/KVM:(2)         |   1934.714 ms |    41896 | avg:   0.007 ms | max:  92.126 ms | max start: 54713.158498 s | max end: 54713.250624 s
-  kworker/7:2-eve:17001 |     68.164 ms |    11820 | avg:   0.045 ms | max:  69.717 ms | max start: 54707.100903 s | max end: 54707.170619 s
-  kworker/17:1-ev:46510 |     68.804 ms |    13328 | avg:   0.037 ms | max:  67.894 ms | max start: 54711.022711 s | max end: 54711.090605 s
-  kworker/21:1-ev:45782 |     68.906 ms |    13215 | avg:   0.021 ms | max:  59.473 ms | max start: 54709.351135 s | max end: 54709.410608 s
-  ksoftirqd/17:101      |      0.041 ms |        2 | avg:  25.028 ms | max:  50.047 ms | max start: 54711.040578 s | max end: 54711.090625 s
+    sched/eevdf: Fix vruntime adjustment on reweight
+    
+    vruntime of the (on_rq && !0-lag) entity needs to be adjusted when
+    it gets re-weighted, and the calculations can be simplified based
+    on the fact that re-weight won't change the w-average of all the
+    entities. Please check the proofs in comments.
+    
+    But adjusting vruntime can also cause position change in RB-tree
+    hence require re-queue to fix up which might be costly. This might
+    be avoided by deferring adjustment to the time the entity actually
+    leaves tree (dequeue/pick), but that will negatively affect task
+    selection and probably not good enough either.
+    
+    Fixes: 147f3efaa241 ("sched/fair: Implement an EEVDF-like scheduling policy")
+    Signed-off-by: Abel Wu <wuyun.abel@bytedance.com>
+    Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+    Link: https://lkml.kernel.org/r/20231107090510.71322-2-wuyun.abel@bytedance.com
+
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 2048138ce54b..025d90925bf6 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3666,41 +3666,140 @@ static inline void
+ dequeue_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se) { }
+ #endif
+ 
++static void reweight_eevdf(struct cfs_rq *cfs_rq, struct sched_entity *se,
++			   unsigned long weight)
++{
++	unsigned long old_weight = se->load.weight;
++	u64 avruntime = avg_vruntime(cfs_rq);
++	s64 vlag, vslice;
++
++	/*
++	 * VRUNTIME
++	 * ========
++	 *
++	 * COROLLARY #1: The virtual runtime of the entity needs to be
++	 * adjusted if re-weight at !0-lag point.
++	 *
++	 * Proof: For contradiction assume this is not true, so we can
++	 * re-weight without changing vruntime at !0-lag point.
++	 *
++	 *             Weight	VRuntime   Avg-VRuntime
++	 *     before    w          v            V
++	 *      after    w'         v'           V'
++	 *
++	 * Since lag needs to be preserved through re-weight:
++	 *
++	 *	lag = (V - v)*w = (V'- v')*w', where v = v'
++	 *	==>	V' = (V - v)*w/w' + v		(1)
++	 *
++	 * Let W be the total weight of the entities before reweight,
++	 * since V' is the new weighted average of entities:
++	 *
++	 *	V' = (WV + w'v - wv) / (W + w' - w)	(2)
++	 *
++	 * by using (1) & (2) we obtain:
++	 *
++	 *	(WV + w'v - wv) / (W + w' - w) = (V - v)*w/w' + v
++	 *	==> (WV-Wv+Wv+w'v-wv)/(W+w'-w) = (V - v)*w/w' + v
++	 *	==> (WV - Wv)/(W + w' - w) + v = (V - v)*w/w' + v
++	 *	==>	(V - v)*W/(W + w' - w) = (V - v)*w/w' (3)
++	 *
++	 * Since we are doing at !0-lag point which means V != v, we
++	 * can simplify (3):
++	 *
++	 *	==>	W / (W + w' - w) = w / w'
++	 *	==>	Ww' = Ww + ww' - ww
++	 *	==>	W * (w' - w) = w * (w' - w)
++	 *	==>	W = w	(re-weight indicates w' != w)
++	 *
++	 * So the cfs_rq contains only one entity, hence vruntime of
++	 * the entity @v should always equal to the cfs_rq's weighted
++	 * average vruntime @V, which means we will always re-weight
++	 * at 0-lag point, thus breach assumption. Proof completed.
++	 *
++	 *
++	 * COROLLARY #2: Re-weight does NOT affect weighted average
++	 * vruntime of all the entities.
++	 *
++	 * Proof: According to corollary #1, Eq. (1) should be:
++	 *
++	 *	(V - v)*w = (V' - v')*w'
++	 *	==>    v' = V' - (V - v)*w/w'		(4)
++	 *
++	 * According to the weighted average formula, we have:
++	 *
++	 *	V' = (WV - wv + w'v') / (W - w + w')
++	 *	   = (WV - wv + w'(V' - (V - v)w/w')) / (W - w + w')
++	 *	   = (WV - wv + w'V' - Vw + wv) / (W - w + w')
++	 *	   = (WV + w'V' - Vw) / (W - w + w')
++	 *
++	 *	==>  V'*(W - w + w') = WV + w'V' - Vw
++	 *	==>	V' * (W - w) = (W - w) * V	(5)
++	 *
++	 * If the entity is the only one in the cfs_rq, then reweight
++	 * always occurs at 0-lag point, so V won't change. Or else
++	 * there are other entities, hence W != w, then Eq. (5) turns
++	 * into V' = V. So V won't change in either case, proof done.
++	 *
++	 *
++	 * So according to corollary #1 & #2, the effect of re-weight
++	 * on vruntime should be:
++	 *
++	 *	v' = V' - (V - v) * w / w'		(4)
++	 *	   = V  - (V - v) * w / w'
++	 *	   = V  - vl * w / w'
++	 *	   = V  - vl'
++	 */
++	if (avruntime != se->vruntime) {
++		vlag = (s64)(avruntime - se->vruntime);
++		vlag = div_s64(vlag * old_weight, weight);
++		se->vruntime = avruntime - vlag;
++	}
++
++	/*
++	 * DEADLINE
++	 * ========
++	 *
++	 * When the weight changes, the virtual time slope changes and
++	 * we should adjust the relative virtual deadline accordingly.
++	 *
++	 *	d' = v' + (d - v)*w/w'
++	 *	   = V' - (V - v)*w/w' + (d - v)*w/w'
++	 *	   = V  - (V - v)*w/w' + (d - v)*w/w'
++	 *	   = V  + (d - V)*w/w'
++	 */
++	vslice = (s64)(se->deadline - avruntime);
++	vslice = div_s64(vslice * old_weight, weight);
++	se->deadline = avruntime + vslice;
++}
++
+ static void reweight_entity(struct cfs_rq *cfs_rq, struct sched_entity *se,
+ 			    unsigned long weight)
+ {
+-	unsigned long old_weight = se->load.weight;
++	bool curr = cfs_rq->curr == se;
+ 
+ 	if (se->on_rq) {
+ 		/* commit outstanding execution time */
+-		if (cfs_rq->curr == se)
++		if (curr)
+ 			update_curr(cfs_rq);
+ 		else
+-			avg_vruntime_sub(cfs_rq, se);
++			__dequeue_entity(cfs_rq, se);
+ 		update_load_sub(&cfs_rq->load, se->load.weight);
+ 	}
+ 	dequeue_load_avg(cfs_rq, se);
+ 
+-	update_load_set(&se->load, weight);
+-
+ 	if (!se->on_rq) {
+ 		/*
+ 		 * Because we keep se->vlag = V - v_i, while: lag_i = w_i*(V - v_i),
+ 		 * we need to scale se->vlag when w_i changes.
+ 		 */
+-		se->vlag = div_s64(se->vlag * old_weight, weight);
++		se->vlag = div_s64(se->vlag * se->load.weight, weight);
+ 	} else {
+-		s64 deadline = se->deadline - se->vruntime;
+-		/*
+-		 * When the weight changes, the virtual time slope changes and
+-		 * we should adjust the relative virtual deadline accordingly.
+-		 */
+-		deadline = div_s64(deadline * old_weight, weight);
+-		se->deadline = se->vruntime + deadline;
+-		if (se != cfs_rq->curr)
+-			min_deadline_cb_propagate(&se->run_node, NULL);
++		reweight_eevdf(cfs_rq, se, weight);
+ 	}
+ 
++	update_load_set(&se->load, weight);
++
+ #ifdef CONFIG_SMP
+ 	do {
+ 		u32 divider = get_pelt_divider(&se->avg);
+@@ -3712,8 +3811,17 @@ static void reweight_entity(struct cfs_rq *cfs_rq, struct sched_entity *se,
+ 	enqueue_load_avg(cfs_rq, se);
+ 	if (se->on_rq) {
+ 		update_load_add(&cfs_rq->load, se->load.weight);
+-		if (cfs_rq->curr != se)
+-			avg_vruntime_add(cfs_rq, se);
++		if (!curr) {
++			/*
++			 * The entity's vruntime has been adjusted, so let's check
++			 * whether the rq-wide min_vruntime needs updated too. Since
++			 * the calculations above require stable min_vruntime rather
++			 * than up-to-date one, we do the update at the end of the
++			 * reweight process.
++			 */
++			__enqueue_entity(cfs_rq, se);
++			update_min_vruntime(cfs_rq);
++		}
+ 	}
+ }
+ 
+@@ -3857,14 +3965,11 @@ static void update_cfs_group(struct sched_entity *se)
+ 
+ #ifndef CONFIG_SMP
+ 	shares = READ_ONCE(gcfs_rq->tg->shares);
+-
+-	if (likely(se->load.weight == shares))
+-		return;
+ #else
+-	shares   = calc_group_shares(gcfs_rq);
++	shares = calc_group_shares(gcfs_rq);
+ #endif
+-
+-	reweight_entity(cfs_rq_of(se), se, shares);
++	if (unlikely(se->load.weight != shares))
++		reweight_entity(cfs_rq_of(se), se, shares);
+ }
+ 
+ #else /* CONFIG_FAIR_GROUP_SCHED */
