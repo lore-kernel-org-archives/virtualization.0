@@ -1,118 +1,184 @@
-Received: from mx10.didiglobal.com (mx10.didiglobal.com [111.202.70.125])
-	by smtp.subspace.kernel.org (Postfix) with SMTP id 21BC5107AD
-	for <virtualization@lists.linux.dev>; Sat, 18 Nov 2023 15:33:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=didichuxing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=didiglobal.com
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from mail.didiglobal.com (unknown [10.79.64.13])
-	by mx10.didiglobal.com (MailData Gateway V2.8.8) with ESMTPS id 21E9C18F00FBBD;
-	Sat, 18 Nov 2023 23:30:03 +0800 (CST)
-Received: from [172.28.168.151] (10.79.71.102) by
- ZJY01-ACTMBX-03.didichuxing.com (10.79.64.13) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.32; Sat, 18 Nov 2023 23:30:02 +0800
-Message-ID: <44b3098e-f98c-4e68-8d13-9d668f92fe36@didichuxing.com>
-Date: Sat, 18 Nov 2023 23:29:52 +0800
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A0161865E
+	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZbW/M05"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id CF77A404A1
+	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CF77A404A1
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=TZbW/M05
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.401
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7NMZFuwu4O31
+	for <virtualization@lists.linux-foundation.org>;
+	Sat, 18 Nov 2023 16:09:21 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 42466400EC
+	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 42466400EC
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id D0D8760AEF
+	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10C7C433CD
+	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:08:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700323716;
+	bh=Rsnqi1ib4EvnXINLKabP7yw4uoi1oK5ej3itZD7VvwE=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=TZbW/M05LVwPMqWrhx9TKrKAmJhZWl5oGZokrp6Yk372oMK1SWeer8oqfOmkHhrWR
+	 Pb874z3lvuDQZyHxPY2FY1wz7XLr/nN7jQE5/GtXNhXPnEL13OHtq4LroScNw8G5vO
+	 bLDR+6HkW8reckqHCtvI3Pn91dQnI265wfRhp9e7lXQbPrAARLBJ4bfAqpckWpPwWO
+	 /0VuVGXKvO9UrKAj9FoErIVwTYmCUzjiygrMSQywP4P5omdSn+aGf5jmw+s9Ht631A
+	 OBnb7j4QKGmaaRPJyjREAq0DGcs9gkxdmbTyk+3BT0j3jVKMKWUNzJHErY2T7gQTeS
+	 fxws+iP0PAm4g==
+Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2c50fbc218bso38535351fa.3
+        for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 08:08:36 -0800 (PST)
+X-Gm-Message-State: AOJu0YwSomDgi2aalnGAb0EVDqLB0aHwLfCWbnq+Oc214d50y8nk4VvU
+	qd//5uPeI3UOOE7GfZ786xJH3TPbE/b8hKWQIYU=
+X-Google-Smtp-Source: AGHT+IG+EcBo0sANe4tTYtYM/fJV1YsiGyWzUxPjCVXnMZoFkdXUA3+0TtwXrE30/Pq6G+Dt5ITe1U4wqTtWliRSTrM=
+X-Received: by 2002:a2e:97c8:0:b0:2c8:6f66:27a7 with SMTP id
+ m8-20020a2e97c8000000b002c86f6627a7mr2087546ljj.23.1700323714932; Sat, 18 Nov
+ 2023 08:08:34 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
- Gecko/20100101 Thunderbird/102.15.0
-Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
- lag based placement)
-To: Abel Wu <wuyun.abel@bytedance.com>, Tobias Huschle
-	<huschle@linux.ibm.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<netdev@vger.kernel.org>
-CC: Peterz <peterz@infradead.org>, <mst@redhat.com>, <jasowang@redhat.com>
-Content-Language: en-US
-X-MD-Sfrom: wanghonglei@didiglobal.com
-X-MD-SrcIP: 10.79.64.13
-From: Honglei Wang <wanghonglei@didichuxing.com>
-In-Reply-To: <93c0f8f2-f40e-4dea-8260-6f610e77aa7f@bytedance.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.79.71.102]
-X-ClientProxiedBy: ZJY02-PUBMBX-01.didichuxing.com (10.79.65.31) To
- ZJY01-ACTMBX-03.didichuxing.com (10.79.64.13)
+References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
+ <20231015141644.260646-2-akihiko.odaki@daynix.com> <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
+ <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com> <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
+ <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
+ <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
+ <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com> <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
+In-Reply-To: <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
+From: Song Liu <song@kernel.org>
+Date: Sat, 18 Nov 2023 08:08:22 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
+Message-ID: <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jason Wang <jasowang@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>, 
+	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
+	Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, 
+	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
+A few rookie questions below.
 
-On 2023/11/18 15:33, Abel Wu wrote:
-> On 11/17/23 2:58 AM, Tobias Huschle Wrote:
->> #################### TRACE EXCERPT ####################
->> The sched_place trace event was added to the end of the place_entity 
->> function and outputs:
->> sev -> sched_entity vruntime
->> sed -> sched_entity deadline
->> sel -> sched_entity vlag
->> avg -> cfs_rq avg_vruntime
->> min -> cfs_rq min_vruntime
->> cpu -> cpu of cfs_rq
->> nr  -> cfs_rq nr_running
->> ---
->>      CPU 3/KVM-2950    [014] d....   576.161432: sched_migrate_task: 
->> comm=vhost-2920 pid=2941 prio=120 orig_cpu=15 dest_cpu=14
->> --> migrates task from cpu 15 to 14
->>      CPU 3/KVM-2950    [014] d....   576.161433: sched_place: 
->> comm=vhost-2920 pid=2941 sev=4242563284 sed=4245563284 sel=0 
->> avg=4242563284 min=4242563284 cpu=14 nr=0
->> --> places vhost 2920 on CPU 14 with vruntime 4242563284
->>      CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm= 
->> pid=0 sev=16329848593 sed=16334604010 sel=0 avg=16329848593 
->> min=16329848593 cpu=14 nr=0
->>      CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm= 
->> pid=0 sev=42560661157 sed=42627443765 sel=0 avg=42560661157 
->> min=42560661157 cpu=14 nr=0
->>      CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm= 
->> pid=0 sev=53846627372 sed=54125900099 sel=0 avg=53846627372 
->> min=53846627372 cpu=14 nr=0
->>      CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm= 
->> pid=0 sev=86640641980 sed=87255041979 sel=0 avg=86640641980 
->> min=86640641980 cpu=14 nr=0
-> 
-> As the following 2 lines indicates that vhost-2920 is on_rq so can be
-> picked as next, thus its cfs_rq must have at least one entity.
-> 
-> While the above 4 lines shows nr=0, so the "comm= pid=0" task(s) can't
-> be in the same cgroup with vhost-2920.
-> 
-> Say vhost is in cgroupA, and "comm= pid=0" task with sev=86640641980
-> is in cgroupB ...
-> 
-This looks like an hierarchy enqueue staff. The temporary trace can get 
-comm and pid of vhost-2920, but failed for the other 4. I think the 
-reason is they were just se but not tasks. Seems this came from the 
-for_each_sched_entity(se) when doing enqueue vhost-2920. And the last 
-one with cfs_rq vruntime=86640641980 might be the root cgroup which was 
-on same level with kworkers.
+On Sat, Nov 18, 2023 at 2:39=E2=80=AFAM Akihiko Odaki <akihiko.odaki@daynix=
+.com> wrote:
+>
+> On 2023/10/18 4:19, Akihiko Odaki wrote:
+> > On 2023/10/18 4:03, Alexei Starovoitov wrote:
+[...]
+> >
+> > I would also appreciate if you have some documentation or link to
+> > relevant discussions on the mailing list. That will avoid having same
+> > discussion you may already have done in the past.
+>
+> Hi,
+>
+> The discussion has been stuck for a month, but I'd still like to
+> continue figuring out the way best for the whole kernel to implement
+> this feature. I summarize the current situation and question that needs
+> to be answered before push this forward:
+>
+> The goal of this RFC is to allow to report hash values calculated with
+> eBPF steering program. It's essentially just to report 4 bytes from the
+> kernel to the userspace.
 
-So just from this tiny part of the trace log, there won't be thousands 
-ms level difference. Actually, it might be only 86642125805-86640641980 
-= 1.5 ms.
+AFAICT, the proposed design is to have BPF generate some data
+(namely hash, but could be anything afaict) and consume it from
+user space. Instead of updating __sk_buff, can we have the user
+space to fetch the data/hash from a bpf map? If this is an option,
+I guess we can implement the same feature with BPF tracing
+programs?
 
-correct me if there is anything wrong..
+>
+> Unfortunately, however, it is not acceptable for the BPF subsystem
+> because the "stable" BPF is completely fixed these days. The
+> "unstable/kfunc" BPF is an alternative, but the eBPF program will be
+> shipped with a portable userspace program (QEMU)[1] so the lack of
+> interface stability is not tolerable.
+
+bpf kfuncs are as stable as exported symbols. Is exported symbols
+like stability enough for the use case? (I would assume yes.)
+
+>
+> Another option is to hardcode the algorithm that was conventionally
+> implemented with eBPF steering program in the kernel[2]. It is possible
+> because the algorithm strictly follows the virtio-net specification[3].
+> However, there are proposals to add different algorithms to the
+> specification[4], and hardcoding the algorithm to the kernel will
+> require to add more UAPIs and code each time such a specification change
+> happens, which is not good for tuntap.
+
+The requirement looks similar to hid-bpf. Could you explain why that
+model is not enough? HID also requires some stability AFAICT.
 
 Thanks,
-Honglei
->>      CPU 3/KVM-2950    [014] dN...   576.161434: sched_stat_wait: 
->> comm=vhost-2920 pid=2941 delay=9958 [ns]
->>      CPU 3/KVM-2950    [014] d....   576.161435: sched_switch: 
->> prev_comm=CPU 3/KVM prev_pid=2950 prev_prio=120 prev_state=S ==> 
->> next_comm=vhost-2920 next_pid=2941 next_prio=120
->>     vhost-2920-2941    [014] D....   576.161439: sched_waking: 
->> comm=vhost-2286 pid=2309 prio=120 target_cpu=008
->>     vhost-2920-2941    [014] d....   576.161446: sched_waking: 
->> comm=kworker/14:0 pid=6525 prio=120 target_cpu=014
->>     vhost-2920-2941    [014] d....   576.161447: sched_place: 
->> comm=kworker/14:0 pid=6525 sev=86642125805 sed=86645125805 sel=0 
->> avg=86642125805 min=86642125805 cpu=14 nr=1
->> --> places kworker 6525 on cpu 14 with vruntime 86642125805
->> -->  which is far larger than vhost vruntime of  4242563284
-> 
-> Here nr=1 means there is another entity in the same cfs_rq with the
-> newly woken kworker, but which? According to the vruntime, I would
-> assume kworker is in cgroupB.
+Song
+
+>
+> In short, the proposed feature requires to make either of three compromis=
+es:
+>
+> 1. Compromise on the BPF side: Relax the "stable" BPF feature freeze
+> once and allow eBPF steering program to report 4 more bytes to the kernel=
+.
+>
+> 2. Compromise on the tuntap side: Implement the algorithm to the kernel,
+> and abandon the capability to update the algorithm without changing the
+> kernel.
+>
+> IMHO, I think it's better to make a compromise on the BPF side (option
+> 1). We should minimize the total UAPI changes in the whole kernel, and
+> option 1 is much superior in that sense.
+>
+> Yet I have to note that such a compromise on the BPF side can risk the
+> "stable" BPF feature freeze fragile and let other people complain like
+> "you allowed to change stable BPF for this, why do you reject [some
+> other request to change stable BPF]?" It is bad for BPF maintainers. (I
+> can imagine that introducing and maintaining widely different BPF
+> interfaces is too much burden.) And, of course, this requires an
+> approval from BPF maintainers.
+>
+> So I'd like to ask you that which of these compromises you think worse.
+> Please also tell me if you have another idea.
+>
+> Regards,
+> Akihiko Odaki
+>
+> [1] https://qemu.readthedocs.io/en/v8.1.0/devel/ebpf_rss.html
+> [2]
+> https://lore.kernel.org/all/20231008052101.144422-1-akihiko.odaki@daynix.=
+com/
+> [3]
+> https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.ht=
+ml#x1-2400003
+> [4]
+> https://lore.kernel.org/all/CACGkMEuBbGKssxNv5AfpaPpWQfk2BHR83rM5AHXN-YVM=
+f2NvpQ@mail.gmail.com/
