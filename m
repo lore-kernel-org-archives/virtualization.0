@@ -1,205 +1,154 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91D3E1B288
-	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 20:57:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A19EA19442
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 21:02:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="ID8/TSPn"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FZpuU0td"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C405281E40
-	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 20:57:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C405281E40
+	by smtp1.osuosl.org (Postfix) with ESMTP id 227E881A5F
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 21:02:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 227E881A5F
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=ID8/TSPn
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=FZpuU0td
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -4.401
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SwXmtwNojDFe
+	with ESMTP id VoYkpxtXQ1E2
 	for <virtualization@lists.linux-foundation.org>;
-	Sun, 19 Nov 2023 20:57:23 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B425381E5F
-	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 20:57:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B425381E5F
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id D86FA10000B;
-	Sun, 19 Nov 2023 23:57:18 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru D86FA10000B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1700427438;
-	bh=f3XkhHvZLw/2CD7IbNgZejqY3mMFhJAM3QeRUGk4nxs=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=ID8/TSPnF8q1gZGlKogNWQaFRpMbEuBSFo2op2pTm/trj2PClNBmF/yXL20TySYen
-	 +9WzKTerDD5B5hq7wNfSoRbyJ9bA9BmYkl5PYNu4HWQGXpPS2iYAsV+8TN+6F8ZBwm
-	 HOc+VL7DVwHJ1cJQEVQD7uUAQCIRbepKVrLix6/quaFMS+amLiw7Nm69hGrEuJrDFh
-	 +7NC7r/Rp5V4hEZBsB/BUyRcJ081orhIY8U6WksiiJNSJ/gVUT6NPn59KGxltm8k1f
-	 IV8T9p5DbaUNiOnEOIRDmkauHMaBDFAG1MYi4MhtE1fpxzqUmPOa11/ToMv0hswLyY
-	 crnFRYlCkiGDw==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Sun, 19 Nov 2023 23:57:18 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Sun, 19 Nov 2023 23:57:18 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH v2 2/3] virtio/vsock: send credit update during setting SO_RCVLOWAT
-Date: Sun, 19 Nov 2023 23:49:21 +0300
-Message-ID: <20231119204922.2251912-3-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20231119204922.2251912-1-avkrasnov@salutedevices.com>
-References: <20231119204922.2251912-1-avkrasnov@salutedevices.com>
+	Sun, 19 Nov 2023 21:02:53 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B7FD0819C8
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 21:02:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B7FD0819C8
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id 4D741CE0C61
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 21:02:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DB23C433CB
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 21:02:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700427767;
+	bh=LdCcDCVibEq9XtMPBRAazcWyb1lUm4YRH93xkKpOHbM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=FZpuU0tdRMVqNc17EPw2Yx+O61k7X2a1HFa5dIdI0JeSJbPg+OayhEf8qOUGAqiy3
+	 t65XUeKw8Z935Y5auUU0WejjqnKGgNlEp1OxFv3e2uEtZJlCjgkEV4oIU6FCpC7Ovs
+	 QRuW5N2zde8PrWeKWO39XMJLMQysUEvMBI4N3XDwn/odf4AVo7ewp/Cj5zp56782Vv
+	 uXEpEyQ8f4mV+dC1VwB33IAfg95hhwshydjYwfaxW2yJAJlvzXqSkLtHWFHq0EA08i
+	 vATgFTBKZotJ6LQY5zo+mmwR81AvAOd4c8JUF5epck+DjCpD4r8DMoNr8uQmKeXBP9
+	 R07melvoUfkSw==
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-2c509d5ab43so51544461fa.0
+        for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 13:02:47 -0800 (PST)
+X-Gm-Message-State: AOJu0Yxeroitr9JT3es2D2X+aZvVMaz4/TTTlF6bsehRWTeMnkh4ysiS
+	cYB7kUpJRqxxeipGYWkI2oNedcxpK80tUcHDjfE=
+X-Google-Smtp-Source: AGHT+IFyYOQHQnx0Par61ni3D+IsRVTlNd6D9SKI0apNaeY6hc8EhMaBYVtDLvZWr7jIRh/7uxjcLeqDv60Mo+HqTn0=
+X-Received: by 2002:a2e:9656:0:b0:2be:54b4:ff90 with SMTP id
+ z22-20020a2e9656000000b002be54b4ff90mr2814616ljh.53.1700427765530; Sun, 19
+ Nov 2023 13:02:45 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [100.64.160.123]
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181465 [Nov 19 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 543 543 1e3516af5cdd92079dfeb0e292c8747a62cb1ee4, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;100.64.160.123:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/19 19:33:00 #22482963
-X-KSMG-AntiVirus-Status: Clean, skipped
+References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
+ <20231015141644.260646-2-akihiko.odaki@daynix.com> <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
+ <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com> <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
+ <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
+ <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
+ <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com> <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
+ <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com> <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com>
+In-Reply-To: <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com>
+From: Song Liu <song@kernel.org>
+Date: Sun, 19 Nov 2023 13:02:33 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
+Message-ID: <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
+To: Akihiko Odaki <akihiko.odaki@daynix.com>
+Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jason Wang <jasowang@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
+	Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>, 
+	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
+	Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, 
+	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, 
+	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Send credit update message when SO_RCVLOWAT is updated and it is bigger
-than number of bytes in rx queue. It is needed, because 'poll()' will
-wait until number of bytes in rx queue will be not smaller than
-SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
-for tx/rx is possible: sender waits for free space and receiver is
-waiting data in 'poll()'.
+On Sun, Nov 19, 2023 at 12:03=E2=80=AFAM Akihiko Odaki <akihiko.odaki@dayni=
+x.com> wrote:
+>
+[...]
+>
+> Unfortunately no. The communication with the userspace can be done with
+> two different means:
+> - usual socket read/write
+> - vhost for direct interaction with a KVM guest
+>
+> The BPF map may be a valid option for socket read/write, but it is not
+> for vhost. In-kernel vhost may fetch hash from the BPF map, but I guess
+> it's not a standard way to have an interaction between the kernel code
+> and a BPF program.
 
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
----
- Changelog:
- v1 -> v2:
-  * Update commit message by removing 'This patch adds XXX' manner.
-  * Do not initialize 'send_update' variable - set it directly during
-    first usage.
+I am very new to areas like vhost and KVM. So I don't really follow.
+Does this mean we have the guest kernel reading data from host eBPF
+programs (loaded by Qemu)?
 
- drivers/vhost/vsock.c                   |  2 ++
- include/linux/virtio_vsock.h            |  1 +
- net/vmw_vsock/virtio_transport.c        |  2 ++
- net/vmw_vsock/virtio_transport_common.c | 28 +++++++++++++++++++++++++
- net/vmw_vsock/vsock_loopback.c          |  2 ++
- 5 files changed, 35 insertions(+)
+> >
+> >>
+> >> Unfortunately, however, it is not acceptable for the BPF subsystem
+> >> because the "stable" BPF is completely fixed these days. The
+> >> "unstable/kfunc" BPF is an alternative, but the eBPF program will be
+> >> shipped with a portable userspace program (QEMU)[1] so the lack of
+> >> interface stability is not tolerable.
+> >
+> > bpf kfuncs are as stable as exported symbols. Is exported symbols
+> > like stability enough for the use case? (I would assume yes.)
+> >
+> >>
+> >> Another option is to hardcode the algorithm that was conventionally
+> >> implemented with eBPF steering program in the kernel[2]. It is possibl=
+e
+> >> because the algorithm strictly follows the virtio-net specification[3]=
+.
+> >> However, there are proposals to add different algorithms to the
+> >> specification[4], and hardcoding the algorithm to the kernel will
+> >> require to add more UAPIs and code each time such a specification chan=
+ge
+> >> happens, which is not good for tuntap.
+> >
+> > The requirement looks similar to hid-bpf. Could you explain why that
+> > model is not enough? HID also requires some stability AFAICT.
+>
+> I have little knowledge with hid-bpf, but I assume it is more like a
+> "safe" kernel module; in my understanding, it affects the system state
+> and is intended to be loaded with some kind of a system daemon. It is
+> fine to have the same lifecycle with the kernel for such a BPF program;
+> whenever the kernel is updated, the distributor can recompile the BPF
+> program with the new kernel headers and ship it along with the kernel
+> just as like a kernel module.
+>
+> In contrast, our intended use case is more like a normal application.
+> So, for example, a user may download a container and run QEMU (including
+> the BPF program) installed in the container. As such, it is nice if the
+> ABI is stable across kernel releases, but it is not guaranteed for
+> kfuncs. Such a use case is already covered with the eBPF steering
+> program so I want to maintain it if possible.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index f75731396b7e..ecfa5c11f5ee 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = vhost_transport_send_pkt,
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index ebb3ce63d64d..97dc1bebc69c 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
- void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
- int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
- int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val);
- #endif /* _LINUX_VIRTIO_VSOCK_H */
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index af5bab1acee1..cf3431189d0c 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -539,6 +539,8 @@ static struct virtio_transport virtio_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = virtio_transport_send_pkt,
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index f6dc896bf44c..4acee21b4350 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1684,6 +1684,34 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
- }
- EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
- 
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val)
-+{
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	bool send_update;
-+
-+	spin_lock_bh(&vvs->rx_lock);
-+
-+	/* If number of available bytes is less than new
-+	 * SO_RCVLOWAT value, kick sender to send more
-+	 * data, because sender may sleep in its 'send()'
-+	 * syscall waiting for enough space at our side.
-+	 */
-+	send_update = vvs->rx_bytes < val;
-+
-+	spin_unlock_bh(&vvs->rx_lock);
-+
-+	if (send_update) {
-+		int err;
-+
-+		err = virtio_transport_send_credit_update(vsk);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(virtio_transport_set_rcvlowat);
-+
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Asias He");
- MODULE_DESCRIPTION("common code for virtio vsock");
-diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-index 048640167411..388c157f6633 100644
---- a/net/vmw_vsock/vsock_loopback.c
-+++ b/net/vmw_vsock/vsock_loopback.c
-@@ -98,6 +98,8 @@ static struct virtio_transport loopback_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = vsock_loopback_send_pkt,
--- 
-2.25.1
+TBH, I don't think stability should be a concern for kfuncs used by QEMU.
+Many core BPF APIs are now implemented as kfuncs: bpf_dynptr_*,
+bpf_rcu_*, etc. As long as there are valid use cases,these kfuncs will
+be supported.
 
+Thanks,
+Song
