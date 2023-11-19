@@ -1,283 +1,170 @@
-Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 400C45684;
-	Sun, 19 Nov 2023 09:20:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marcan.st
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marcan.st
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B38BD27B
+	for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 10:57:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marcan.st header.i=@marcan.st header.b="j5HQXu3N"
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: marcan@marcan.st)
-	by mail.marcansoft.com (Postfix) with ESMTPSA id F0C7145037;
-	Sun, 19 Nov 2023 09:19:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
-	t=1700385600; bh=v2TCssYCBYtNkHs+VM+LpzhdZ1ldfOyFyouChbFTIb0=;
-	h=Date:Subject:From:To:References:In-Reply-To;
-	b=j5HQXu3NdqP3j4hmmEYGvyTELZstrnmLjBeVBgja8jWlFwAWbLAaxkb0IFb8dUFUK
-	 ylbXySSxV1rdJR+wJze95Qt90P0M7495kVU9Rclj09OlY/3gTapM6o+a7yMGquvDrj
-	 jogCad7hJ0YxEq2lCadFZuOqgnAHWGZqEPquhUD+tpGdDxlMyokgqWElnJKSqVGPuf
-	 7YKStcVS6Q1zhTQs2BqQ4oa9bPc/MaxwID8Uk1BvmlMaFcdD17R5kgVChd2mfuZNaS
-	 4UMOvg4Sv0ZGRmpiakFrt9NYotUw6oUoErgST5qhuAyBWf4sb+HUWpXpVBG4l+Bu9g
-	 UMaF8SjXVR4cA==
-Message-ID: <1eb12c35-e64e-4c32-af99-8743dc2ec266@marcan.st>
-Date: Sun, 19 Nov 2023 18:19:43 +0900
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="awcYFyLD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700391439;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=GpzYJKfv/0ZtdesZuwEDnk0DKAmF9L/deY6r6V9scok=;
+	b=awcYFyLDH4k2zLmSDONDxZL/y/5NWIGWErkMp/+paGA6gRq29asfwtGeHfXoAg4VVMUFzA
+	n9RzzGrnhG4hvwEtEOtlqRoaw9d3KCKFUrruyIosRS2xWNrg/+hgQFssMZGvvj3MLNYjBu
+	iM+0KLIQiitIu0NJs7lfVdeSf0x9oo4=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-353-1u-iqPIJMSSElmR0oYZXIw-1; Sun, 19 Nov 2023 05:57:15 -0500
+X-MC-Unique: 1u-iqPIJMSSElmR0oYZXIw-1
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4095fcbba0aso7882805e9.1
+        for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 02:57:15 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700391434; x=1700996234;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GpzYJKfv/0ZtdesZuwEDnk0DKAmF9L/deY6r6V9scok=;
+        b=pwbcEshXUcq9YoGsuGuoz9tHUodQxiKY0yiAqIhgMTquNTN76EPx/2UKzzarwIHcvR
+         qP1MS2UMf7o6w/83n24UEDDYE9Mr83Cq9yfxv+i23BrJvvKcQod6v5Zjn2/kP1Kkeu5v
+         U5hLZ0DSxNosaijfwVMQm7mWPq0eicoGBGQ/yrOoz6UnX3oy+6Dl+h8XsDX2aq/9LUvY
+         hDiYsdOVrPEo07m8XkI/TuGO7PqqlE9VNXkGiX0nNMiLtv6cvtCMdvKdIvNEI3mfXRTK
+         4ywncy62cW1+tgIdN3GyId4sQGPjYG7O/fQvMRUfaR/aY7EH9l0LLLX0wLOIzj3gqU5/
+         ts+A==
+X-Gm-Message-State: AOJu0Ywd8ACV+KbcsiERfyLJ0wRyyAVF9hoHsDiE2EDIG8ZS8VdXYCuj
+	i1a/ODoCTOnwPwcCchx/TMMkmwBCG42bwCrajPmrATy4ge2dht5ddAIiJZ5I0jQvG8Zx4YHizRq
+	TN6IC079Z07uBT8X289r6Da4XdO4=
+X-Received: by 2002:a05:600c:35c7:b0:409:57ec:9d7e with SMTP id r7-20020a05600c35c700b0040957ec9d7emr3646458wmq.21.1700391434294;
+        Sun, 19 Nov 2023 02:57:14 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF9bQCU2PwD56RVajuSjL/MgwYtR78B+r3siDyRHcYH8/tVvIrad76Lc1ocORueFtFPDVgqEA==
+X-Received: by 2002:a05:600c:35c7:b0:409:57ec:9d7e with SMTP id r7-20020a05600c35c700b0040957ec9d7emr3646424wmq.21.1700391433813;
+        Sun, 19 Nov 2023 02:57:13 -0800 (PST)
+Received: from localhost (205.pool92-176-231.dynamic.orange.es. [92.176.231.205])
+        by smtp.gmail.com with ESMTPSA id d34-20020a05600c4c2200b0040a48430837sm13634419wmp.13.2023.11.19.02.57.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Nov 2023 02:57:13 -0800 (PST)
+From: Javier Martinez Canillas <javierm@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Zimmermann <tzimmermann@suse.de>,
+	Maxime Ripard <mripard@kernel.org>,
+	Pekka Paalanen <pekka.paalanen@collabora.com>,
+	Sima Vetter <daniel.vetter@ffwll.ch>,
+	Erico Nunes <nunes.erico@gmail.com>,
+	Simon Ser <contact@emersion.fr>,
+	Bilal Elmoussaoui <belmouss@redhat.com>,
+	Javier Martinez Canillas <javierm@redhat.com>,
+	Chia-I Wu <olvaffe@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	David Airlie <airlied@gmail.com>,
+	David Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>,
+	Zack Rusin <zackr@vmware.com>,
+	dri-devel@lists.freedesktop.org,
+	linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: [PATCH v3 0/5] drm: Allow the damage helpers to handle buffer damage
+Date: Sun, 19 Nov 2023 11:56:56 +0100
+Message-ID: <20231119105709.3143489-1-javierm@redhat.com>
+X-Mailer: git-send-email 2.41.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 06/17] iommu: Add iommu_fwspec_alloc/dealloc()
-Content-Language: en-US
-From: Hector Martin <marcan@marcan.st>
-To: Jason Gunthorpe <jgg@nvidia.com>, acpica-devel@lists.linux.dev,
- Alyssa Rosenzweig <alyssa@rosenzweig.io>, Albert Ou <aou@eecs.berkeley.edu>,
- asahi@lists.linux.dev, Catalin Marinas <catalin.marinas@arm.com>,
- Dexuan Cui <decui@microsoft.com>, devicetree@vger.kernel.org,
- David Woodhouse <dwmw2@infradead.org>, Frank Rowand
- <frowand.list@gmail.com>, Hanjun Guo <guohanjun@huawei.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, iommu@lists.linux.dev,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
- "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>,
- linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-hyperv@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
- linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
- Lorenzo Pieralisi <lpieralisi@kernel.org>,
- Marek Szyprowski <m.szyprowski@samsung.com>,
- Palmer Dabbelt <palmer@dabbelt.com>, patches@lists.linux.dev,
- Paul Walmsley <paul.walmsley@sifive.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Robert Moore <robert.moore@intel.com>, Rob Herring <robh+dt@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>, Sudeep Holla <sudeep.holla@arm.com>,
- Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
- Sven Peter <sven@svenpeter.dev>, Thierry Reding <thierry.reding@gmail.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
- virtualization@lists.linux.dev, Wei Liu <wei.liu@kernel.org>,
- Will Deacon <will@kernel.org>
-References: <6-v2-36a0088ecaa7+22c6e-iommu_fwspec_jgg@nvidia.com>
- <20a7ef6d-a8ca-4bd8-ad7e-11856db617a2@marcan.st>
-In-Reply-To: <20a7ef6d-a8ca-4bd8-ad7e-11856db617a2@marcan.st>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="US-ASCII"; x-default=true
 
+Hello,
 
+This series is to fix an issue that surfaced after damage clipping was
+enabled for the virtio-gpu by commit 01f05940a9a7 ("drm/virtio: Enable
+fb damage clips property for the primary plane").
 
-On 2023/11/19 17:10, Hector Martin wrote:
-> On 2023/11/15 23:05, Jason Gunthorpe wrote:
->> Allow fwspec to exist independently from the dev->iommu by providing
->> functions to allow allocating and freeing the raw struct iommu_fwspec.
->>
->> Reflow the existing paths to call the new alloc/dealloc functions.
->>
->> Reviewed-by: Jerry Snitselaar <jsnitsel@redhat.com>
->> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
->> ---
->>  drivers/iommu/iommu.c | 82 ++++++++++++++++++++++++++++++++-----------
->>  include/linux/iommu.h | 11 +++++-
->>  2 files changed, 72 insertions(+), 21 deletions(-)
->>
->> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
->> index 18a82a20934d53..86bbb9e75c7e03 100644
->> --- a/drivers/iommu/iommu.c
->> +++ b/drivers/iommu/iommu.c
->> @@ -361,10 +361,8 @@ static void dev_iommu_free(struct device *dev)
->>  	struct dev_iommu *param = dev->iommu;
->>  
->>  	dev->iommu = NULL;
->> -	if (param->fwspec) {
->> -		fwnode_handle_put(param->fwspec->iommu_fwnode);
->> -		kfree(param->fwspec);
->> -	}
->> +	if (param->fwspec)
->> +		iommu_fwspec_dealloc(param->fwspec);
->>  	kfree(param);
->>  }
->>  
->> @@ -2920,10 +2918,61 @@ const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode)
->>  	return ops;
->>  }
->>  
->> +static int iommu_fwspec_assign_iommu(struct iommu_fwspec *fwspec,
->> +				     struct device *dev,
->> +				     struct fwnode_handle *iommu_fwnode)
->> +{
->> +	const struct iommu_ops *ops;
->> +
->> +	if (fwspec->iommu_fwnode) {
->> +		/*
->> +		 * fwspec->iommu_fwnode is the first iommu's fwnode. In the rare
->> +		 * case of multiple iommus for one device they must point to the
->> +		 * same driver, checked via same ops.
->> +		 */
->> +		ops = iommu_ops_from_fwnode(iommu_fwnode);
-> 
-> This carries over a related bug from the original code: If a device has
-> two IOMMUs and the first one probes but the second one defers, ops will
-> be NULL here and the check will fail with EINVAL.
-> 
-> Adding a check for that case here fixes it:
-> 
-> 		if (!ops)
-> 			return driver_deferred_probe_check_state(dev);
-> 
-> With that, for the whole series:
-> 
-> Tested-by: Hector Martin <marcan@marcan.st>
-> 
-> I can't specifically test for the probe races the series intends to fix
-> though, since that bug we only hit extremely rarely. I'm just testing
-> that nothing breaks.
+After that change, flickering artifacts was reported to be present with
+both weston and wlroots wayland compositors when running in a virtual
+machine. The cause was identified by Sima Vetter, who pointed out that
+virtio-gpu does per-buffer uploads and for this reason it needs to do
+a buffer damage handling, instead of frame damage handling.
 
-Actually no, this fix is not sufficient. If the first IOMMU is ready
-then the xlate path allocates dev->iommu, which then
-__iommu_probe_device takes as a sign that all IOMMUs are ready and does
-the device init. Then when the xlate comes along again after suceeding
-with the second IOMMU, __iommu_probe_device sees the device is already
-in a group and never initializes the second IOMMU, leaving the device
-with only one IOMMU.
+Their suggestion was to extend the damage helpers to cover that case
+and given that there's isn't a buffer damage accumulation algorithm
+(e.g: buffer age), just do a full plane update if the framebuffer that
+is attached to a plane changed since the last plane update (page-flip).
 
-This patch fixes it, but honestly, at this point I have no idea how to
-"properly" fix this. There is *way* too much subtlety in this whole
-codepath.
+It is a v3 that addresses issues pointed out by Thomas Zimmermann  and
+Simon Ser in v2:
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 2477dec29740..2e4baf0572e7 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2935,6 +2935,12 @@ int iommu_fwspec_of_xlate(struct iommu_fwspec
-*fwspec, struct device *dev,
- 	int ret;
+https://lists.freedesktop.org/archives/dri-devel/2023-November/430896.html
 
- 	ret = iommu_fwspec_assign_iommu(fwspec, dev, iommu_fwnode);
-+	if (ret == -EPROBE_DEFER) {
-+		mutex_lock(&iommu_probe_device_lock);
-+		if (dev->iommu)
-+			dev_iommu_free(dev);
-+		mutex_unlock(&iommu_probe_device_lock);
-+	}
- 	if (ret)
- 		return ret;
+Patch #1 adds a ignore_damage_clips field to struct drm_plane_state to be
+set by drivers that want the damage helpers to ignore the damage clips.
 
-> 
->> +		if (fwspec->ops != ops)
->> +			return -EINVAL;
->> +		return 0;
->> +	}
->> +
->> +	if (!fwspec->ops) {
->> +		ops = iommu_ops_from_fwnode(iommu_fwnode);
->> +		if (!ops)
->> +			return driver_deferred_probe_check_state(dev);
->> +		fwspec->ops = ops;
->> +	}
->> +
->> +	of_node_get(to_of_node(iommu_fwnode));
->> +	fwspec->iommu_fwnode = iommu_fwnode;
->> +	return 0;
->> +}
->> +
->> +struct iommu_fwspec *iommu_fwspec_alloc(void)
->> +{
->> +	struct iommu_fwspec *fwspec;
->> +
->> +	fwspec = kzalloc(sizeof(*fwspec), GFP_KERNEL);
->> +	if (!fwspec)
->> +		return ERR_PTR(-ENOMEM);
->> +	return fwspec;
->> +}
->> +
->> +void iommu_fwspec_dealloc(struct iommu_fwspec *fwspec)
->> +{
->> +	if (!fwspec)
->> +		return;
->> +
->> +	if (fwspec->iommu_fwnode)
->> +		fwnode_handle_put(fwspec->iommu_fwnode);
->> +	kfree(fwspec);
->> +}
->> +
->>  int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
->>  		      const struct iommu_ops *ops)
->>  {
->>  	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
->> +	int ret;
->>  
->>  	if (fwspec)
->>  		return ops == fwspec->ops ? 0 : -EINVAL;
->> @@ -2931,29 +2980,22 @@ int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
->>  	if (!dev_iommu_get(dev))
->>  		return -ENOMEM;
->>  
->> -	fwspec = kzalloc(sizeof(*fwspec), GFP_KERNEL);
->> -	if (!fwspec)
->> -		return -ENOMEM;
->> +	fwspec = iommu_fwspec_alloc();
->> +	if (IS_ERR(fwspec))
->> +		return PTR_ERR(fwspec);
->>  
->> -	of_node_get(to_of_node(iommu_fwnode));
->> -	fwspec->iommu_fwnode = iommu_fwnode;
->>  	fwspec->ops = ops;
->> +	ret = iommu_fwspec_assign_iommu(fwspec, dev, iommu_fwnode);
->> +	if (ret) {
->> +		iommu_fwspec_dealloc(fwspec);
->> +		return ret;
->> +	}
->> +
->>  	dev_iommu_fwspec_set(dev, fwspec);
->>  	return 0;
->>  }
->>  EXPORT_SYMBOL_GPL(iommu_fwspec_init);
->>  
->> -void iommu_fwspec_free(struct device *dev)
->> -{
->> -	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
->> -
->> -	if (fwspec) {
->> -		fwnode_handle_put(fwspec->iommu_fwnode);
->> -		kfree(fwspec);
->> -		dev_iommu_fwspec_set(dev, NULL);
->> -	}
->> -}
->> -EXPORT_SYMBOL_GPL(iommu_fwspec_free);
->>  
->>  int iommu_fwspec_add_ids(struct device *dev, u32 *ids, int num_ids)
->>  {
->> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
->> index e98a4ca8f536b7..c7c68cb59aa4dc 100644
->> --- a/include/linux/iommu.h
->> +++ b/include/linux/iommu.h
->> @@ -813,9 +813,18 @@ struct iommu_sva {
->>  	struct iommu_domain		*domain;
->>  };
->>  
->> +struct iommu_fwspec *iommu_fwspec_alloc(void);
->> +void iommu_fwspec_dealloc(struct iommu_fwspec *fwspec);
->> +
->>  int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
->>  		      const struct iommu_ops *ops);
->> -void iommu_fwspec_free(struct device *dev);
->> +static inline void iommu_fwspec_free(struct device *dev)
->> +{
->> +	if (!dev->iommu)
->> +		return;
->> +	iommu_fwspec_dealloc(dev->iommu->fwspec);
->> +	dev->iommu->fwspec = NULL;
->> +}
->>  int iommu_fwspec_add_ids(struct device *dev, u32 *ids, int num_ids);
->>  const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode);
->>  
-> 
-> - Hector
-> 
-> 
+Patch #2 fixes the virtio-gpu damage handling logic by asking the damage
+helper to ignore the damage clips if the framebuffer attached to a plane
+has changed since the last page-flip.
 
-- Hector
+Patch #3 does the same but for the vmwgfx driver that also needs to handle
+buffer damage and should have the same issue (although I haven't tested it
+due not having a VMWare setup).
+
+Patch #4 adds to the KMS damage tracking kernel-doc some paragraphs about
+damage tracking types and references to links that explain frame damage vs
+buffer damage.
+
+Finally patch #5 adds an item to the DRM todo, about the need to implement
+some buffer damage accumulation algorithm instead of just doing full plane
+updates in this case.
+
+Because commit 01f05940a9a7 landed in v6.4, the first 2 patches are marked
+as Fixes and Cc stable.
+
+I've tested this on a VM with weston, was able to reproduce the issue
+reported and the patches did fix the problem.
+
+Best regards,
+Javier
+
+Changes in v3:
+- Fix typo in the kernel-doc (Simon Ser).
+- Add a paragraph explaining what the problem in the kernel is and
+  make it clear that the refeference documents are related to how
+  user-space handles this case (Thomas Zimmermann).
+
+Changes in v2:
+- Add a struct drm_plane_state .ignore_damage_clips to set in the plane's
+  .atomic_check, instead of having different helpers (Thomas Zimmermann).
+- Set struct drm_plane_state .ignore_damage_clips in virtio-gpu plane's
+  .atomic_check instead of using a different helpers (Thomas Zimmermann).
+- Set struct drm_plane_state .ignore_damage_clips in vmwgfx plane's
+  .atomic_check instead of using a different helpers (Thomas Zimmermann).
+
+Javier Martinez Canillas (5):
+  drm: Allow drivers to indicate the damage helpers to ignore damage
+    clips
+  drm/virtio: Disable damage clipping if FB changed since last page-flip
+  drm/vmwgfx: Disable damage clipping if FB changed since last page-flip
+  drm/plane: Extend damage tracking kernel-doc
+  drm/todo: Add entry about implementing buffer age for damage tracking
+
+ Documentation/gpu/todo.rst             | 20 ++++++++++++++++++++
+ drivers/gpu/drm/drm_damage_helper.c    |  3 ++-
+ drivers/gpu/drm/drm_plane.c            | 26 ++++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 10 ++++++++++
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c    | 11 +++++++++++
+ include/drm/drm_plane.h                |  8 ++++++++
+ 6 files changed, 77 insertions(+), 1 deletion(-)
+
+-- 
+2.41.0
+
