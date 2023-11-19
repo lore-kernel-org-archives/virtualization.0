@@ -1,184 +1,233 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A0161865E
-	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C751186D;
+	Sun, 19 Nov 2023 03:30:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TZbW/M05"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CF77A404A1
-	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org CF77A404A1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=TZbW/M05
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.401
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7NMZFuwu4O31
-	for <virtualization@lists.linux-foundation.org>;
-	Sat, 18 Nov 2023 16:09:21 +0000 (UTC)
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 42466400EC
-	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 42466400EC
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by dfw.source.kernel.org (Postfix) with ESMTP id D0D8760AEF
-	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:09:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10C7C433CD
-	for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 16:08:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hBdsCaJG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2FBC433C8;
+	Sun, 19 Nov 2023 03:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700323716;
-	bh=Rsnqi1ib4EvnXINLKabP7yw4uoi1oK5ej3itZD7VvwE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=TZbW/M05LVwPMqWrhx9TKrKAmJhZWl5oGZokrp6Yk372oMK1SWeer8oqfOmkHhrWR
-	 Pb874z3lvuDQZyHxPY2FY1wz7XLr/nN7jQE5/GtXNhXPnEL13OHtq4LroScNw8G5vO
-	 bLDR+6HkW8reckqHCtvI3Pn91dQnI265wfRhp9e7lXQbPrAARLBJ4bfAqpckWpPwWO
-	 /0VuVGXKvO9UrKAj9FoErIVwTYmCUzjiygrMSQywP4P5omdSn+aGf5jmw+s9Ht631A
-	 OBnb7j4QKGmaaRPJyjREAq0DGcs9gkxdmbTyk+3BT0j3jVKMKWUNzJHErY2T7gQTeS
-	 fxws+iP0PAm4g==
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-2c50fbc218bso38535351fa.3
-        for <virtualization@lists.linux-foundation.org>; Sat, 18 Nov 2023 08:08:36 -0800 (PST)
-X-Gm-Message-State: AOJu0YwSomDgi2aalnGAb0EVDqLB0aHwLfCWbnq+Oc214d50y8nk4VvU
-	qd//5uPeI3UOOE7GfZ786xJH3TPbE/b8hKWQIYU=
-X-Google-Smtp-Source: AGHT+IG+EcBo0sANe4tTYtYM/fJV1YsiGyWzUxPjCVXnMZoFkdXUA3+0TtwXrE30/Pq6G+Dt5ITe1U4wqTtWliRSTrM=
-X-Received: by 2002:a2e:97c8:0:b0:2c8:6f66:27a7 with SMTP id
- m8-20020a2e97c8000000b002c86f6627a7mr2087546ljj.23.1700323714932; Sat, 18 Nov
- 2023 08:08:34 -0800 (PST)
+	s=k20201202; t=1700364611;
+	bh=cF0DfcV5jamol5ijl6UjVG5UKkxViwvd/MyyuGVd+BA=;
+	h=From:To:Cc:Subject:Date:From;
+	b=hBdsCaJGdZ2wVZzBQvYwx5V2OQ7oa1M6OoRgE+VCZa8PfHDjXti9f1yOfblQk/KTg
+	 +dd0jNGo67QWr12l2Cq/M+PM1jQnRtaw4rvcncHpW4tBNsXok+ZpXXGgqpM8ims2Qs
+	 fEqrRIfMTusjsz3AIa8q/dPzRlG39Hmjx786uNOSNo8Yk6mhDqxjbovL/mYOnNWHhx
+	 5LxQyp4jHWNk0xJuEMNIBChxBJQ2MCGzLoMHaQZKEZd4bfWExXuiYoD3l6C3QYBsbq
+	 oeBgzCVmCciQRtownB0jtrgft1lcJ1Zg0QXOjXdGUDrIVNHB4ECYLWOViNUGzu+Ywv
+	 Kx5CeLAXoPFAw==
+From: Jakub Kicinski <kuba@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	Jakub Kicinski <kuba@kernel.org>,
+	dsahern@kernel.org,
+	matttbe@kernel.org,
+	martineau@kernel.org,
+	marcelo.leitner@gmail.com,
+	lucien.xin@gmail.com,
+	kgraul@linux.ibm.com,
+	wenjia@linux.ibm.com,
+	jaka@linux.ibm.com,
+	alibuda@linux.alibaba.com,
+	tonylu@linux.alibaba.com,
+	guwen@linux.alibaba.com,
+	jmaloy@redhat.com,
+	ying.xue@windriver.com,
+	sgarzare@redhat.com,
+	bjorn@kernel.org,
+	magnus.karlsson@intel.com,
+	maciej.fijalkowski@intel.com,
+	kuniyu@amazon.com,
+	mptcp@lists.linux.dev,
+	linux-sctp@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net,
+	virtualization@lists.linux.dev,
+	bpf@vger.kernel.org
+Subject: [PATCH net] net: fill in MODULE_DESCRIPTION()s for SOCK_DIAG modules
+Date: Sat, 18 Nov 2023 19:30:06 -0800
+Message-ID: <20231119033006.442271-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
- <20231015141644.260646-2-akihiko.odaki@daynix.com> <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
- <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com> <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
- <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
- <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
- <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com> <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
-In-Reply-To: <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
-From: Song Liu <song@kernel.org>
-Date: Sat, 18 Nov 2023 08:08:22 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
-Message-ID: <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
-To: Akihiko Odaki <akihiko.odaki@daynix.com>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Jason Wang <jasowang@redhat.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, 
-	Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>, 
-	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, 
-	"open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, 
-	Yuri Benditovich <yuri.benditovich@daynix.com>, Andrew Melnychenko <andrew@daynix.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi,
+W=1 builds now warn if module is built without a MODULE_DESCRIPTION().
+Add descriptions to all the sock diag modules in one fell swoop.
 
-A few rookie questions below.
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: dsahern@kernel.org
+CC: matttbe@kernel.org
+CC: martineau@kernel.org
+CC: marcelo.leitner@gmail.com
+CC: lucien.xin@gmail.com
+CC: kgraul@linux.ibm.com
+CC: wenjia@linux.ibm.com
+CC: jaka@linux.ibm.com
+CC: alibuda@linux.alibaba.com
+CC: tonylu@linux.alibaba.com
+CC: guwen@linux.alibaba.com
+CC: jmaloy@redhat.com
+CC: ying.xue@windriver.com
+CC: sgarzare@redhat.com
+CC: bjorn@kernel.org
+CC: magnus.karlsson@intel.com
+CC: maciej.fijalkowski@intel.com
+CC: kuniyu@amazon.com
+CC: mptcp@lists.linux.dev
+CC: linux-sctp@vger.kernel.org
+CC: linux-s390@vger.kernel.org
+CC: tipc-discussion@lists.sourceforge.net
+CC: virtualization@lists.linux.dev
+CC: bpf@vger.kernel.org
+---
+ net/ipv4/inet_diag.c   | 1 +
+ net/ipv4/raw_diag.c    | 1 +
+ net/ipv4/tcp_diag.c    | 1 +
+ net/ipv4/udp_diag.c    | 1 +
+ net/mptcp/mptcp_diag.c | 1 +
+ net/packet/diag.c      | 1 +
+ net/sctp/diag.c        | 1 +
+ net/smc/smc_diag.c     | 1 +
+ net/tipc/diag.c        | 1 +
+ net/unix/diag.c        | 1 +
+ net/vmw_vsock/diag.c   | 1 +
+ net/xdp/xsk_diag.c     | 1 +
+ 12 files changed, 12 insertions(+)
 
-On Sat, Nov 18, 2023 at 2:39=E2=80=AFAM Akihiko Odaki <akihiko.odaki@daynix=
-.com> wrote:
->
-> On 2023/10/18 4:19, Akihiko Odaki wrote:
-> > On 2023/10/18 4:03, Alexei Starovoitov wrote:
-[...]
-> >
-> > I would also appreciate if you have some documentation or link to
-> > relevant discussions on the mailing list. That will avoid having same
-> > discussion you may already have done in the past.
->
-> Hi,
->
-> The discussion has been stuck for a month, but I'd still like to
-> continue figuring out the way best for the whole kernel to implement
-> this feature. I summarize the current situation and question that needs
-> to be answered before push this forward:
->
-> The goal of this RFC is to allow to report hash values calculated with
-> eBPF steering program. It's essentially just to report 4 bytes from the
-> kernel to the userspace.
+diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
+index f01aee832aab..7d0e7aaa71e0 100644
+--- a/net/ipv4/inet_diag.c
++++ b/net/ipv4/inet_diag.c
+@@ -1481,5 +1481,6 @@ static void __exit inet_diag_exit(void)
+ module_init(inet_diag_init);
+ module_exit(inet_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("INET/INET6: socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2 /* AF_INET */);
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 10 /* AF_INET6 */);
+diff --git a/net/ipv4/raw_diag.c b/net/ipv4/raw_diag.c
+index 63a40e4b678f..fe2140c8375c 100644
+--- a/net/ipv4/raw_diag.c
++++ b/net/ipv4/raw_diag.c
+@@ -257,5 +257,6 @@ static void __exit raw_diag_exit(void)
+ module_init(raw_diag_init);
+ module_exit(raw_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("RAW socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-255 /* AF_INET - IPPROTO_RAW */);
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 10-255 /* AF_INET6 - IPPROTO_RAW */);
+diff --git a/net/ipv4/tcp_diag.c b/net/ipv4/tcp_diag.c
+index 01b50fa79189..4cbe4b44425a 100644
+--- a/net/ipv4/tcp_diag.c
++++ b/net/ipv4/tcp_diag.c
+@@ -247,4 +247,5 @@ static void __exit tcp_diag_exit(void)
+ module_init(tcp_diag_init);
+ module_exit(tcp_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("TCP socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-6 /* AF_INET - IPPROTO_TCP */);
+diff --git a/net/ipv4/udp_diag.c b/net/ipv4/udp_diag.c
+index de3f2d31f510..dc41a22ee80e 100644
+--- a/net/ipv4/udp_diag.c
++++ b/net/ipv4/udp_diag.c
+@@ -296,5 +296,6 @@ static void __exit udp_diag_exit(void)
+ module_init(udp_diag_init);
+ module_exit(udp_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("UDP socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-17 /* AF_INET - IPPROTO_UDP */);
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-136 /* AF_INET - IPPROTO_UDPLITE */);
+diff --git a/net/mptcp/mptcp_diag.c b/net/mptcp/mptcp_diag.c
+index 8df1bdb647e2..5409c2ea3f57 100644
+--- a/net/mptcp/mptcp_diag.c
++++ b/net/mptcp/mptcp_diag.c
+@@ -245,4 +245,5 @@ static void __exit mptcp_diag_exit(void)
+ module_init(mptcp_diag_init);
+ module_exit(mptcp_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("MPTCP socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-262 /* AF_INET - IPPROTO_MPTCP */);
+diff --git a/net/packet/diag.c b/net/packet/diag.c
+index f6b200cb3c06..9a7980e3309d 100644
+--- a/net/packet/diag.c
++++ b/net/packet/diag.c
+@@ -262,4 +262,5 @@ static void __exit packet_diag_exit(void)
+ module_init(packet_diag_init);
+ module_exit(packet_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("PACKET socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 17 /* AF_PACKET */);
+diff --git a/net/sctp/diag.c b/net/sctp/diag.c
+index c3d6b92dd386..eb05131ff1dd 100644
+--- a/net/sctp/diag.c
++++ b/net/sctp/diag.c
+@@ -527,4 +527,5 @@ static void __exit sctp_diag_exit(void)
+ module_init(sctp_diag_init);
+ module_exit(sctp_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("SCTP socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-132);
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 7ff2152971a5..a584613aca12 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -268,5 +268,6 @@ static void __exit smc_diag_exit(void)
+ module_init(smc_diag_init);
+ module_exit(smc_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("SMC socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 43 /* AF_SMC */);
+ MODULE_ALIAS_GENL_FAMILY(SMCR_GENL_FAMILY_NAME);
+diff --git a/net/tipc/diag.c b/net/tipc/diag.c
+index 73137f4aeb68..18733451c9e0 100644
+--- a/net/tipc/diag.c
++++ b/net/tipc/diag.c
+@@ -113,4 +113,5 @@ module_init(tipc_diag_init);
+ module_exit(tipc_diag_exit);
+ 
+ MODULE_LICENSE("Dual BSD/GPL");
++MODULE_DESCRIPTION("TIPC socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, AF_TIPC);
+diff --git a/net/unix/diag.c b/net/unix/diag.c
+index 616b55c5b890..bec09a3a1d44 100644
+--- a/net/unix/diag.c
++++ b/net/unix/diag.c
+@@ -339,4 +339,5 @@ static void __exit unix_diag_exit(void)
+ module_init(unix_diag_init);
+ module_exit(unix_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("UNIX socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 1 /* AF_LOCAL */);
+diff --git a/net/vmw_vsock/diag.c b/net/vmw_vsock/diag.c
+index a2823b1c5e28..2e29994f92ff 100644
+--- a/net/vmw_vsock/diag.c
++++ b/net/vmw_vsock/diag.c
+@@ -174,5 +174,6 @@ static void __exit vsock_diag_exit(void)
+ module_init(vsock_diag_init);
+ module_exit(vsock_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("VMware Virtual Sockets monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG,
+ 			       40 /* AF_VSOCK */);
+diff --git a/net/xdp/xsk_diag.c b/net/xdp/xsk_diag.c
+index 22b36c8143cf..9f8955367275 100644
+--- a/net/xdp/xsk_diag.c
++++ b/net/xdp/xsk_diag.c
+@@ -211,4 +211,5 @@ static void __exit xsk_diag_exit(void)
+ module_init(xsk_diag_init);
+ module_exit(xsk_diag_exit);
+ MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("XDP socket monitoring via SOCK_DIAG");
+ MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, AF_XDP);
+-- 
+2.42.0
 
-AFAICT, the proposed design is to have BPF generate some data
-(namely hash, but could be anything afaict) and consume it from
-user space. Instead of updating __sk_buff, can we have the user
-space to fetch the data/hash from a bpf map? If this is an option,
-I guess we can implement the same feature with BPF tracing
-programs?
-
->
-> Unfortunately, however, it is not acceptable for the BPF subsystem
-> because the "stable" BPF is completely fixed these days. The
-> "unstable/kfunc" BPF is an alternative, but the eBPF program will be
-> shipped with a portable userspace program (QEMU)[1] so the lack of
-> interface stability is not tolerable.
-
-bpf kfuncs are as stable as exported symbols. Is exported symbols
-like stability enough for the use case? (I would assume yes.)
-
->
-> Another option is to hardcode the algorithm that was conventionally
-> implemented with eBPF steering program in the kernel[2]. It is possible
-> because the algorithm strictly follows the virtio-net specification[3].
-> However, there are proposals to add different algorithms to the
-> specification[4], and hardcoding the algorithm to the kernel will
-> require to add more UAPIs and code each time such a specification change
-> happens, which is not good for tuntap.
-
-The requirement looks similar to hid-bpf. Could you explain why that
-model is not enough? HID also requires some stability AFAICT.
-
-Thanks,
-Song
-
->
-> In short, the proposed feature requires to make either of three compromis=
-es:
->
-> 1. Compromise on the BPF side: Relax the "stable" BPF feature freeze
-> once and allow eBPF steering program to report 4 more bytes to the kernel=
-.
->
-> 2. Compromise on the tuntap side: Implement the algorithm to the kernel,
-> and abandon the capability to update the algorithm without changing the
-> kernel.
->
-> IMHO, I think it's better to make a compromise on the BPF side (option
-> 1). We should minimize the total UAPI changes in the whole kernel, and
-> option 1 is much superior in that sense.
->
-> Yet I have to note that such a compromise on the BPF side can risk the
-> "stable" BPF feature freeze fragile and let other people complain like
-> "you allowed to change stable BPF for this, why do you reject [some
-> other request to change stable BPF]?" It is bad for BPF maintainers. (I
-> can imagine that introducing and maintaining widely different BPF
-> interfaces is too much burden.) And, of course, this requires an
-> approval from BPF maintainers.
->
-> So I'd like to ask you that which of these compromises you think worse.
-> Please also tell me if you have another idea.
->
-> Regards,
-> Akihiko Odaki
->
-> [1] https://qemu.readthedocs.io/en/v8.1.0/devel/ebpf_rss.html
-> [2]
-> https://lore.kernel.org/all/20231008052101.144422-1-akihiko.odaki@daynix.=
-com/
-> [3]
-> https://docs.oasis-open.org/virtio/virtio/v1.2/csd01/virtio-v1.2-csd01.ht=
-ml#x1-2400003
-> [4]
-> https://lore.kernel.org/all/CACGkMEuBbGKssxNv5AfpaPpWQfk2BHR83rM5AHXN-YVM=
-f2NvpQ@mail.gmail.com/
