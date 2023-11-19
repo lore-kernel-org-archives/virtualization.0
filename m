@@ -1,139 +1,525 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2E3DF4C
-	for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 10:57:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712A0101D9
+	for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 13:29:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ea7u83yS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700391442;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wduLhA1JfH2JIibNOg1UP/hJXljazR5AfhyG/qLMjyE=;
-	b=ea7u83yS69wT4RP2dvQ1MsxYQqFXQUL/FpUU0Ri7CsLpow7Fn3v5x0k3PPbD23WjjiKJvM
-	Gy1sOA4zl9Gp3SDDyTsWV75fR27vMUcGp41WrcaUQxj3C0B8wj6uVtPwTBm8YfrRQxZG5/
-	I0vkBF0HBJfCPuSMwxThncYmx+PJTOI=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-601-Js0Op4K6MZi-3XJROYD2GA-1; Sun, 19 Nov 2023 05:57:19 -0500
-X-MC-Unique: Js0Op4K6MZi-3XJROYD2GA-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40a700481f4so6490915e9.1
-        for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 02:57:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b9iZx8Tb"
+Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-6cb7951d713so256601b3a.1
+        for <virtualization@lists.linux.dev>; Sun, 19 Nov 2023 05:29:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700400585; x=1701005385; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=kJv8gAH5q8bXkpAdk4M1bXRnPQIyDa6bo8fb8FFn0o4=;
+        b=b9iZx8Tb3/CGDZD8JFmueipmwy0yzFQ+JXiai8OF9JXFeObFFecSG63CxSx4nKKarc
+         B8Rk4DGa/V9/pHKD43UkW3M0ULP6zQbb6cb14RdN9rJYxfA36ibVUQB1F3LoJgl+YixN
+         gFg87+1W8KLLvy6eoaRRG+Bblg8kHapvZhmG9Ekjhx5mMCAf3zN3UUwFzRkVYOs0Xx2Q
+         OzDo24amZppRyOppxhk4MEr/x/+x2qQOeta8vVHqoUr4QHJm+vaxk6zrsLM+AVGgwICY
+         EopvW+oXPV2m2MkdioVOes6Y4dOP9thMDvDTUCsIhFOleqy2WGt3BD3EvR58vu9eK75q
+         m/Wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700391438; x=1700996238;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wduLhA1JfH2JIibNOg1UP/hJXljazR5AfhyG/qLMjyE=;
-        b=iQas03ZmzF0z0TPVubevjsYoHwjOpRQmvIv/8K/Hsw9qsm4bfrO+bSSuuugLWL0XbO
-         9yhQOaJpFVDI/AoGfwQEa73M/iH9wPJoofwqSJeGXV2vlnfoiUu5BQ+4FAn+jmkdOD7F
-         Me2FzJSo9D4KqZfXwip+pwXtAaborbM8mJ/hPrVtaGJmSaqKu4J9x4wbCEMqEsjS7Z9T
-         PFQJBCn7wnAMfBWFf0bOON0441hsZVJee7ANaOhbtGKV21RdBg5VxDnGFUQj8wjcOOnN
-         FejQLhrD3PQfyk2UCEEgCPxfLPa/C/4EQPebVrUsvCC7TjOzGpf/T0G3ZDewjBNTKDD0
-         QnPg==
-X-Gm-Message-State: AOJu0YzHKI5MmHh3XxyyRZtg4cKGmSADpmC2IOvg/hZ1y1f3u3h5DRGK
-	A3B57ppmpo9MjUF/eEttvq8mOLWulTgSE8r/aTpwGJpdSLWUEL2ZmQzHCHpGgF3l8i+7ZXXS2Zj
-	2KzKq/wtNQwtJp2PQ92SKTX3fRcc=
-X-Received: by 2002:a05:600c:5254:b0:408:40e2:773b with SMTP id fc20-20020a05600c525400b0040840e2773bmr3874941wmb.34.1700391438612;
-        Sun, 19 Nov 2023 02:57:18 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGlYVHBUM49anhifPkjs7hxrNsnEGArla3y2Mra38iXhi+oYySY1k50/IKpNWu+heDGdF252Q==
-X-Received: by 2002:a05:600c:5254:b0:408:40e2:773b with SMTP id fc20-20020a05600c525400b0040840e2773bmr3874914wmb.34.1700391438309;
-        Sun, 19 Nov 2023 02:57:18 -0800 (PST)
-Received: from localhost (205.pool92-176-231.dynamic.orange.es. [92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id t13-20020a05600c450d00b004094e565e71sm9510932wmo.23.2023.11.19.02.57.16
+        d=1e100.net; s=20230601; t=1700400585; x=1701005385;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=kJv8gAH5q8bXkpAdk4M1bXRnPQIyDa6bo8fb8FFn0o4=;
+        b=M5kg66HXhRKyOevRntLbsTjXkhLgQj0665uaM0R2c/dootVdsZT63yQ0LuHjCDwJpl
+         Lx0YrL4rRyVkUf6NBYK/FH+Sd5yxR32yB64c9/HEcTkE2WrRiBPQ9c4VvOjcbHNykKfj
+         EW5bmP0Mjtkq6z+UXdjAcuD9XgTwON04SSVc80kQFsoCl2sNMG3LGmN4TqA2+99+79Oq
+         mljipBk6vyX0LZEnQ/0/UUBufn1f9gqHrwtetq5Ln4O24xkaDG1GNhRuWt6Kra1Gh8De
+         0P07VUTsIVxWYnTVZJUYjF4lWyYhGDZBINMvGOjZoY6RrEX3LpiWUWyReyh25HeUYgU0
+         1BcA==
+X-Gm-Message-State: AOJu0Yyzbgghp1GcYLlO5Jfq9tdzTsAuJm0HknkVaVkSYFm4ngVlPG6r
+	21OO4IA9hCKSEacVcWD1ENotffl6din1UA==
+X-Google-Smtp-Source: AGHT+IHQr6RPot5nQxRcjCCT/nrJWyqQqhh0R0i1gPi6uGHlXXfu4GQVp69AC9Bhscb4UwyJoH8/rw==
+X-Received: by 2002:a05:6a21:32a9:b0:187:fefc:541d with SMTP id yt41-20020a056a2132a900b00187fefc541dmr6166706pzb.17.1700400584473;
+        Sun, 19 Nov 2023 05:29:44 -0800 (PST)
+Received: from archie.me ([103.131.18.64])
+        by smtp.gmail.com with ESMTPSA id x4-20020aa784c4000000b006bf536bcd23sm4363921pfn.161.2023.11.19.05.29.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Nov 2023 02:57:17 -0800 (PST)
-From: Javier Martinez Canillas <javierm@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Zimmermann <tzimmermann@suse.de>,
-	Maxime Ripard <mripard@kernel.org>,
-	Pekka Paalanen <pekka.paalanen@collabora.com>,
-	Sima Vetter <daniel.vetter@ffwll.ch>,
-	Erico Nunes <nunes.erico@gmail.com>,
-	Simon Ser <contact@emersion.fr>,
-	Bilal Elmoussaoui <belmouss@redhat.com>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	stable@vger.kernel.org,
-	nerdopolis <bluescreen_avenger@verizon.net>,
-	Chia-I Wu <olvaffe@gmail.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
-	David Airlie <airlied@redhat.com>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev
-Subject: [PATCH v3 2/5] drm/virtio: Disable damage clipping if FB changed since last page-flip
-Date: Sun, 19 Nov 2023 11:56:58 +0100
-Message-ID: <20231119105709.3143489-3-javierm@redhat.com>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231119105709.3143489-1-javierm@redhat.com>
-References: <20231119105709.3143489-1-javierm@redhat.com>
+        Sun, 19 Nov 2023 05:29:44 -0800 (PST)
+Received: by archie.me (Postfix, from userid 1000)
+	id EACB9101D92E3; Sun, 19 Nov 2023 20:29:39 +0700 (WIB)
+Date: Sun, 19 Nov 2023 20:29:39 +0700
+From: Bagas Sanjaya <bagasdotme@gmail.com>
+To: Tobias Huschle <huschle@linux.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux KVM <kvm@vger.kernel.org>,
+	Linux Virtualization <virtualization@lists.linux.dev>,
+	Linux Networking <netdev@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>,
+	Abel Wu <wuyun.abel@bytedance.com>,
+	Honglei Wang <wanghonglei@didichuxing.com>, mst@redhat.com,
+	jasowang@redhat.com
+Subject: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair: Add
+ lag based placement)
+Message-ID: <ZVoNw4ta_1oWIrKX@archie.me>
+References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset="US-ASCII"; x-default=true
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="XWkoM4CGzIe0dY30"
+Content-Disposition: inline
+In-Reply-To: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
 
-The driver does per-buffer uploads and needs to force a full plane update
-if the plane's attached framebuffer has change since the last page-flip.
 
-Fixes: 01f05940a9a7 ("drm/virtio: Enable fb damage clips property for the primary plane")
-Cc: <stable@vger.kernel.org> # v6.4+
-Reported-by: nerdopolis <bluescreen_avenger@verizon.net>
-Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218115
-Suggested-by: Sima Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
----
+--XWkoM4CGzIe0dY30
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-(no changes since v2)
+On Thu, Nov 16, 2023 at 07:58:18PM +0100, Tobias Huschle wrote:
+> Hi,
+>=20
+> when testing the EEVDF scheduler we stumbled upon a performance regression
+> in a uperf scenario and would like to
+> kindly ask for feedback on whether we are going into the right direction
+> with our analysis so far.
+>=20
+> The base scenario are two KVM guests running on an s390 LPAR. One guest
+> hosts the uperf server, one the uperf client.
+> With EEVDF we observe a regression of ~50% for a strburst test.
+> For a more detailed description of the setup see the section TEST SUMMARY=
+ at
+> the bottom.
+>=20
+> Bisecting led us to the following commit which appears to introduce the
+> regression:
+> 86bfbb7ce4f6 sched/fair: Add lag based placement
+>=20
+> We then compared the last good commit we identified with a recent level of
+> the devel branch.
+> The issue still persists on 6.7 rc1 although there is some improvement (d=
+own
+> from 62% regression to 49%)
+>=20
+> All analysis described further are based on a 6.6 rc7 kernel.
+>=20
+> We sampled perf data to get an idea on what is going wrong and ended up
+> seeing an dramatic increase in the maximum
+> wait times from 3ms up to 366ms. See section WAIT DELAYS below for more
+> details.
+>=20
+> We then collected tracing data to get a better insight into what is going
+> on.
+> The trace excerpt in section TRACE EXCERPT shows one example (of multiple
+> per test run) of the problematic scenario where
+> a kworker(pid=3D6525) has to wait for 39,718 ms.
+>=20
+> Short summary:
+> The mentioned kworker has been scheduled to CPU 14 before the tracing was
+> enabled.
+> A vhost process is migrated onto CPU 14.
+> The vruntimes of kworker and vhost differ significantly (86642125805 vs
+> 4242563284 -> factor 20)
+> The vhost process wants to wake up the kworker, therefore the kworker is
+> placed onto the runqueue again and set to runnable.
+> The vhost process continues to execute, waking up other vhost processes on
+> other CPUs.
+>=20
+> So far this behavior is not different to what we see on pre-EEVDF kernels.
+>=20
+> On timestamp 576.162767, the vhost process triggers the last wake up of
+> another vhost on another CPU.
+> Until timestamp 576.171155, we see no other activity. Now, the vhost proc=
+ess
+> ends its time slice.
+> Then, vhost gets re-assigned new time slices 4 times and gets then migrat=
+ed
+> off to CPU 15.
+> This does not occur with older kernels.
+> The kworker has to wait for the migration to happen in order to be able to
+> execute again.
+> This is due to the fact, that the vruntime of the kworker is significantly
+> larger than the one of vhost.
+>=20
+>=20
+> We observed the large difference in vruntime between kworker and vhost in
+> the same magnitude on
+> a kernel built based on the parent of the commit mentioned above.
+> With EEVDF, the kworker is doomed to wait until the vhost either catches =
+up
+> on vruntime (which would take 86 seconds)
+> or the vhost is migrated off of the CPU.
+>=20
+> We found some options which sound plausible but we are not sure if they a=
+re
+> valid or not:
+>=20
+> 1. The wake up path has a dependency on the vruntime metrics that now del=
+ays
+> the execution of the kworker.
+> 2. The previous commit af4cf40470c2 (sched/fair: Add cfs_rq::avg_vruntime)
+> which updates the way cfs_rq->min_vruntime and
+>     cfs_rq->avg_runtime are set might have introduced an issue which is
+> uncovered with the commit mentioned above.
+> 3. An assumption in the vhost code which causes vhost to rely on being
+> scheduled off in time to allow the kworker to proceed.
+>=20
+> We also stumbled upon the following mailing thread:
+> https://lore.kernel.org/lkml/ZORaUsd+So+tnyMV@chenyu5-mobl2/
+> That conversation, and the patches derived from it lead to the assumption
+> that the wake up path might be adjustable in a way
+> that this case in particular can be addressed.
+> At the same time, the vast difference in vruntimes is concerning since, at
+> least for some time frame, both processes are on the runqueue.
+>=20
+> We would be glad to hear some feedback on which paths to pursue and which
+> might just be a dead end in the first place.
+>=20
+>=20
+> #################### TRACE EXCERPT ####################
+> The sched_place trace event was added to the end of the place_entity
+> function and outputs:
+> sev -> sched_entity vruntime
+> sed -> sched_entity deadline
+> sel -> sched_entity vlag
+> avg -> cfs_rq avg_vruntime
+> min -> cfs_rq min_vruntime
+> cpu -> cpu of cfs_rq
+> nr  -> cfs_rq nr_running
+> ---
+>     CPU 3/KVM-2950    [014] d....   576.161432: sched_migrate_task:
+> comm=3Dvhost-2920 pid=3D2941 prio=3D120 orig_cpu=3D15 dest_cpu=3D14
+> --> migrates task from cpu 15 to 14
+>     CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm=3Dvhost=
+-2920
+> pid=3D2941 sev=3D4242563284 sed=3D4245563284 sel=3D0 avg=3D4242563284 min=
+=3D4242563284
+> cpu=3D14 nr=3D0
+> --> places vhost 2920 on CPU 14 with vruntime 4242563284
+>     CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm=3D pid=
+=3D0
+> sev=3D16329848593 sed=3D16334604010 sel=3D0 avg=3D16329848593 min=3D16329=
+848593 cpu=3D14
+> nr=3D0
+>     CPU 3/KVM-2950    [014] d....   576.161433: sched_place: comm=3D pid=
+=3D0
+> sev=3D42560661157 sed=3D42627443765 sel=3D0 avg=3D42560661157 min=3D42560=
+661157 cpu=3D14
+> nr=3D0
+>     CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm=3D pid=
+=3D0
+> sev=3D53846627372 sed=3D54125900099 sel=3D0 avg=3D53846627372 min=3D53846=
+627372 cpu=3D14
+> nr=3D0
+>     CPU 3/KVM-2950    [014] d....   576.161434: sched_place: comm=3D pid=
+=3D0
+> sev=3D86640641980 sed=3D87255041979 sel=3D0 avg=3D86640641980 min=3D86640=
+641980 cpu=3D14
+> nr=3D0
+>     CPU 3/KVM-2950    [014] dN...   576.161434: sched_stat_wait:
+> comm=3Dvhost-2920 pid=3D2941 delay=3D9958 [ns]
+>     CPU 3/KVM-2950    [014] d....   576.161435: sched_switch: prev_comm=
+=3DCPU
+> 3/KVM prev_pid=3D2950 prev_prio=3D120 prev_state=3DS =3D=3D> next_comm=3D=
+vhost-2920
+> next_pid=3D2941 next_prio=3D120
+>    vhost-2920-2941    [014] D....   576.161439: sched_waking:
+> comm=3Dvhost-2286 pid=3D2309 prio=3D120 target_cpu=3D008
+>    vhost-2920-2941    [014] d....   576.161446: sched_waking:
+> comm=3Dkworker/14:0 pid=3D6525 prio=3D120 target_cpu=3D014
+>    vhost-2920-2941    [014] d....   576.161447: sched_place:
+> comm=3Dkworker/14:0 pid=3D6525 sev=3D86642125805 sed=3D86645125805 sel=3D0
+> avg=3D86642125805 min=3D86642125805 cpu=3D14 nr=3D1
+> --> places kworker 6525 on cpu 14 with vruntime 86642125805
+> -->  which is far larger than vhost vruntime of  4242563284
+>    vhost-2920-2941    [014] d....   576.161447: sched_stat_blocked:
+> comm=3Dkworker/14:0 pid=3D6525 delay=3D10143757 [ns]
+>    vhost-2920-2941    [014] dN...   576.161447: sched_wakeup:
+> comm=3Dkworker/14:0 pid=3D6525 prio=3D120 target_cpu=3D014
+>    vhost-2920-2941    [014] dN...   576.161448: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D13884 [ns] vruntime=3D4242577168 [=
+ns]
+> --> vhost 2920 finishes after 13884 ns of runtime
+>    vhost-2920-2941    [014] dN...   576.161448: sched_stat_wait:
+> comm=3Dkworker/14:0 pid=3D6525 delay=3D0 [ns]
+>    vhost-2920-2941    [014] d....   576.161448: sched_switch:
+> prev_comm=3Dvhost-2920 prev_pid=3D2941 prev_prio=3D120 prev_state=3DR+ =
+=3D=3D>
+> next_comm=3Dkworker/14:0 next_pid=3D6525 next_prio=3D120
+> --> switch to kworker
+>  kworker/14:0-6525    [014] d....   576.161449: sched_waking: comm=3DCPU =
+2/KVM
+> pid=3D2949 prio=3D120 target_cpu=3D007
+>  kworker/14:0-6525    [014] d....   576.161450: sched_stat_runtime:
+> comm=3Dkworker/14:0 pid=3D6525 runtime=3D3714 [ns] vruntime=3D86642129519=
+ [ns]
+> --> kworker finshes after 3714 ns of runtime
+>  kworker/14:0-6525    [014] d....   576.161450: sched_stat_wait:
+> comm=3Dvhost-2920 pid=3D2941 delay=3D3714 [ns]
+>  kworker/14:0-6525    [014] d....   576.161451: sched_switch:
+> prev_comm=3Dkworker/14:0 prev_pid=3D6525 prev_prio=3D120 prev_state=3DI =
+=3D=3D>
+> next_comm=3Dvhost-2920 next_pid=3D2941 next_prio=3D120
+> --> switch back to vhost
+>    vhost-2920-2941    [014] d....   576.161478: sched_waking:
+> comm=3Dkworker/14:0 pid=3D6525 prio=3D120 target_cpu=3D014
+>    vhost-2920-2941    [014] d....   576.161478: sched_place:
+> comm=3Dkworker/14:0 pid=3D6525 sev=3D86642191859 sed=3D86645191859 sel=3D=
+-1150
+> avg=3D86642188144 min=3D86642188144 cpu=3D14 nr=3D1
+> --> kworker placed again on cpu 14 with vruntime 86642191859, the problem
+> occurs only if lag <=3D 0, having lag=3D0 does not always hit the problem=
+ though
+>    vhost-2920-2941    [014] d....   576.161478: sched_stat_blocked:
+> comm=3Dkworker/14:0 pid=3D6525 delay=3D27943 [ns]
+>    vhost-2920-2941    [014] d....   576.161479: sched_wakeup:
+> comm=3Dkworker/14:0 pid=3D6525 prio=3D120 target_cpu=3D014
+>    vhost-2920-2941    [014] D....   576.161511: sched_waking:
+> comm=3Dvhost-2286 pid=3D2308 prio=3D120 target_cpu=3D006
+>    vhost-2920-2941    [014] D....   576.161512: sched_waking:
+> comm=3Dvhost-2286 pid=3D2309 prio=3D120 target_cpu=3D008
+>    vhost-2920-2941    [014] D....   576.161516: sched_waking:
+> comm=3Dvhost-2286 pid=3D2308 prio=3D120 target_cpu=3D006
+>    vhost-2920-2941    [014] D....   576.161773: sched_waking:
+> comm=3Dvhost-2286 pid=3D2308 prio=3D120 target_cpu=3D006
+>    vhost-2920-2941    [014] D....   576.161775: sched_waking:
+> comm=3Dvhost-2286 pid=3D2309 prio=3D120 target_cpu=3D008
+>    vhost-2920-2941    [014] D....   576.162103: sched_waking:
+> comm=3Dvhost-2286 pid=3D2308 prio=3D120 target_cpu=3D006
+>    vhost-2920-2941    [014] D....   576.162105: sched_waking:
+> comm=3Dvhost-2286 pid=3D2307 prio=3D120 target_cpu=3D021
+>    vhost-2920-2941    [014] D....   576.162326: sched_waking:
+> comm=3Dvhost-2286 pid=3D2305 prio=3D120 target_cpu=3D004
+>    vhost-2920-2941    [014] D....   576.162437: sched_waking:
+> comm=3Dvhost-2286 pid=3D2308 prio=3D120 target_cpu=3D006
+>    vhost-2920-2941    [014] D....   576.162767: sched_waking:
+> comm=3Dvhost-2286 pid=3D2305 prio=3D120 target_cpu=3D004
+>    vhost-2920-2941    [014] d.h..   576.171155: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D9704465 [ns] vruntime=3D4252281633=
+ [ns]
+>    vhost-2920-2941    [014] d.h..   576.181155: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D10000377 [ns] vruntime=3D426228201=
+0 [ns]
+>    vhost-2920-2941    [014] d.h..   576.191154: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D9999514 [ns] vruntime=3D4272281524=
+ [ns]
+>    vhost-2920-2941    [014] d.h..   576.201155: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D10000246 [ns] vruntime=3D428228177=
+0 [ns]
+> --> vhost gets rescheduled multiple times because its vruntime is
+> significantly smaller than the vruntime of the kworker
+>    vhost-2920-2941    [014] dNh..   576.201176: sched_wakeup:
+> comm=3Dmigration/14 pid=3D85 prio=3D0 target_cpu=3D014
+>    vhost-2920-2941    [014] dN...   576.201191: sched_stat_runtime:
+> comm=3Dvhost-2920 pid=3D2941 runtime=3D25190 [ns] vruntime=3D4282306960 [=
+ns]
+>    vhost-2920-2941    [014] d....   576.201192: sched_switch:
+> prev_comm=3Dvhost-2920 prev_pid=3D2941 prev_prio=3D120 prev_state=3DR+ =
+=3D=3D>
+> next_comm=3Dmigration/14 next_pid=3D85 next_prio=3D0
+>  migration/14-85      [014] d..1.   576.201194: sched_migrate_task:
+> comm=3Dvhost-2920 pid=3D2941 prio=3D120 orig_cpu=3D14 dest_cpu=3D15
+> --> vhost gets migrated off of cpu 14
+>  migration/14-85      [014] d..1.   576.201194: sched_place: comm=3Dvhost=
+-2920
+> pid=3D2941 sev=3D3198666923 sed=3D3201666923 sel=3D0 avg=3D3198666923 min=
+=3D3198666923
+> cpu=3D15 nr=3D0
+>  migration/14-85      [014] d..1.   576.201195: sched_place: comm=3D pid=
+=3D0
+> sev=3D12775683594 sed=3D12779398224 sel=3D0 avg=3D12775683594 min=3D12775=
+683594 cpu=3D15
+> nr=3D0
+>  migration/14-85      [014] d..1.   576.201195: sched_place: comm=3D pid=
+=3D0
+> sev=3D33655559178 sed=3D33661025369 sel=3D0 avg=3D33655559178 min=3D33655=
+559178 cpu=3D15
+> nr=3D0
+>  migration/14-85      [014] d..1.   576.201195: sched_place: comm=3D pid=
+=3D0
+> sev=3D42240572785 sed=3D42244083642 sel=3D0 avg=3D42240572785 min=3D42240=
+572785 cpu=3D15
+> nr=3D0
+>  migration/14-85      [014] d..1.   576.201196: sched_place: comm=3D pid=
+=3D0
+> sev=3D70190876523 sed=3D70194789898 sel=3D-13068763 avg=3D70190876523
+> min=3D70190876523 cpu=3D15 nr=3D0
+>  migration/14-85      [014] d....   576.201198: sched_stat_wait:
+> comm=3Dkworker/14:0 pid=3D6525 delay=3D39718472 [ns]
+>  migration/14-85      [014] d....   576.201198: sched_switch:
+> prev_comm=3Dmigration/14 prev_pid=3D85 prev_prio=3D0 prev_state=3DS =3D=
+=3D>
+> next_comm=3Dkworker/14:0 next_pid=3D6525 next_prio=3D120
+>  --> only now, kworker is eligible to run again, after a delay of 39718472
+> ns
+>  kworker/14:0-6525    [014] d....   576.201200: sched_waking: comm=3DCPU =
+0/KVM
+> pid=3D2947 prio=3D120 target_cpu=3D012
+>  kworker/14:0-6525    [014] d....   576.201290: sched_stat_runtime:
+> comm=3Dkworker/14:0 pid=3D6525 runtime=3D92941 [ns] vruntime=3D8664228480=
+0 [ns]
+>=20
+> #################### WAIT DELAYS - PERF LATENCY ####################
+> last good commit --> perf sched latency -s max
+> -------------------------------------------------------------------------=
+------------------------------------------------------------------
+>   Task                  |   Runtime ms  | Switches | Avg delay ms    | Max
+> delay ms    | Max delay start           | Max delay end          |
+> -------------------------------------------------------------------------=
+------------------------------------------------------------------
+>   CPU 2/KVM:(2)         |   5399.650 ms |   108698 | avg:   0.003 ms | ma=
+x:
+> 3.077 ms | max start:   544.090322 s | max end:   544.093399 s
+>   CPU 7/KVM:(2)         |   5111.132 ms |    69632 | avg:   0.003 ms | ma=
+x:
+> 2.980 ms | max start:   544.690994 s | max end:   544.693974 s
+>   kworker/22:3-ev:723   |    342.944 ms |    63417 | avg:   0.005 ms | ma=
+x:
+> 1.880 ms | max start:   545.235430 s | max end:   545.237310 s
+>   CPU 0/KVM:(2)         |   8171.431 ms |   433099 | avg:   0.003 ms | ma=
+x:
+> 1.004 ms | max start:   547.970344 s | max end:   547.971348 s
+>   CPU 1/KVM:(2)         |   5486.260 ms |   258702 | avg:   0.003 ms | ma=
+x:
+> 1.002 ms | max start:   548.782514 s | max end:   548.783516 s
+>   CPU 5/KVM:(2)         |   4766.143 ms |    65727 | avg:   0.003 ms | ma=
+x:
+> 0.997 ms | max start:   545.313610 s | max end:   545.314607 s
+>   vhost-2268:(6)        |  13206.503 ms |   315030 | avg:   0.003 ms | ma=
+x:
+> 0.989 ms | max start:   550.887761 s | max end:   550.888749 s
+>   vhost-2892:(6)        |  14467.268 ms |   214005 | avg:   0.003 ms | ma=
+x:
+> 0.981 ms | max start:   545.213819 s | max end:   545.214800 s
+>   CPU 3/KVM:(2)         |   5538.908 ms |    85105 | avg:   0.003 ms | ma=
+x:
+> 0.883 ms | max start:   547.138139 s | max end:   547.139023 s
+>   CPU 6/KVM:(2)         |   5289.827 ms |    72301 | avg:   0.003 ms | ma=
+x:
+> 0.836 ms | max start:   551.094590 s | max end:   551.095425 s
+>=20
+> 6.6 rc7 --> perf sched latency -s max
+> -------------------------------------------------------------------------=
+------------------------------------------------------------------
+>   Task                  |   Runtime ms  | Switches | Avg delay ms    | Max
+> delay ms    | Max delay start           | Max delay end          |
+> -------------------------------------------------------------------------=
+------------------------------------------------------------------
+>   kworker/19:2-ev:1071  |     69.482 ms |    12700 | avg:   0.050 ms | ma=
+x:
+> 366.314 ms | max start: 54705.674294 s | max end: 54706.040607 s
+>   kworker/13:1-ev:184   |     78.048 ms |    14645 | avg:   0.067 ms | ma=
+x:
+> 287.738 ms | max start: 54710.312863 s | max end: 54710.600602 s
+>   kworker/12:1-ev:46148 |    138.488 ms |    26660 | avg:   0.021 ms | ma=
+x:
+> 147.414 ms | max start: 54706.133161 s | max end: 54706.280576 s
+>   kworker/16:2-ev:33076 |    149.175 ms |    29491 | avg:   0.026 ms | ma=
+x:
+> 139.752 ms | max start: 54708.410845 s | max end: 54708.550597 s
+>   CPU 3/KVM:(2)         |   1934.714 ms |    41896 | avg:   0.007 ms | ma=
+x:
+> 92.126 ms | max start: 54713.158498 s | max end: 54713.250624 s
+>   kworker/7:2-eve:17001 |     68.164 ms |    11820 | avg:   0.045 ms | ma=
+x:
+> 69.717 ms | max start: 54707.100903 s | max end: 54707.170619 s
+>   kworker/17:1-ev:46510 |     68.804 ms |    13328 | avg:   0.037 ms | ma=
+x:
+> 67.894 ms | max start: 54711.022711 s | max end: 54711.090605 s
+>   kworker/21:1-ev:45782 |     68.906 ms |    13215 | avg:   0.021 ms | ma=
+x:
+> 59.473 ms | max start: 54709.351135 s | max end: 54709.410608 s
+>   ksoftirqd/17:101      |      0.041 ms |        2 | avg:  25.028 ms | ma=
+x:
+> 50.047 ms | max start: 54711.040578 s | max end: 54711.090625 s
+>=20
+> #################### TEST SUMMARY ####################
+>  Setup description:
+> - single KVM host with 2 identical guests
+> - guests are connected virtually via Open vSwitch
+> - guests run uperf streaming read workload with 50 parallel connections
+> - one guests acts as uperf client, the other one as uperf server
+>=20
+> Regression:
+> kernel-6.5.0-rc2: 78 Gb/s (before 86bfbb7ce4f6 sched/fair: Add lag based
+> placement)
+> kernel-6.5.0-rc2: 29 Gb/s (with 86bfbb7ce4f6 sched/fair: Add lag based
+> placement)
+> kernel-6.7.0-rc1: 41 Gb/s
+>=20
+> KVM host:
+> - 12 dedicated IFLs, SMT-2 (24 Linux CPUs)
+> - 64 GiB memory
+> - FEDORA 38
+> - kernel commandline: transparent_hugepage=3Dnever audit_enable=3D0 audit=
+=3D0
+> audit_debug=3D0 selinux=3D0
+>=20
+> KVM guests:
+> - 8 vCPUs
+> - 8 GiB memory
+> - RHEL 9.2
+> - kernel: 5.14.0-162.6.1.el9_1.s390x
+> - kernel commandline: transparent_hugepage=3Dnever audit_enable=3D0 audit=
+=3D0
+> audit_debug=3D0 selinux=3D0
+>=20
+> Open vSwitch:
+> - Open vSwitch with 2 ports, each with mtu=3D32768 and qlen=3D15000
+> - Open vSwitch ports attached to guests via virtio-net
+> - each guest has 4 vhost-queues
+>=20
+> Domain xml snippet for Open vSwitch port:
+> <interface type=3D"bridge" dev=3D"OVS">
+>   <source bridge=3D"vswitch0"/>
+>   <mac address=3D"02:bb:97:28:02:02"/>
+>   <virtualport type=3D"openvswitch"/>
+>   <model type=3D"virtio"/>
+>   <target dev=3D"vport1"/>
+>   <driver name=3D"vhost" queues=3D"4"/>
+>   <address type=3D"ccw" cssid=3D"0xfe" ssid=3D"0x0" devno=3D"0x0002"/>
+> </interface>
+>=20
+> Benchmark: uperf
+> - workload: str-readx30k, 50 active parallel connections
+> - uperf server permanently sends data in 30720-byte chunks
+> - uperf client receives and acknowledges this data
+> - Server: uperf -s
+> - Client: uperf -a -i 30 -m uperf.xml
+>=20
+> uperf.xml:
+> <?xml version=3D"1.0"?>
+> <profile name=3D"strburst">
+>   <group nprocs=3D"50">
+>     <transaction iterations=3D"1">
+>       <flowop type=3D"connect" options=3D"remotehost=3D10.161.28.3 protoc=
+ol=3Dtcp
+> "/>
+>     </transaction>
+>     <transaction duration=3D"300">
+>       <flowop type=3D"read" options=3D"count=3D640 size=3D30k"/>
+>     </transaction>
+>     <transaction iterations=3D"1">
+>       <flowop type=3D"disconnect" />
+>     </transaction>
+>   </group>
+> </profile>
 
-Changes in v2:
-- Set struct drm_plane_state .ignore_damage_clips in virtio-gpu plane's
-  .atomic_check instead of using a different helpers (Thomas Zimmermann).
+Thanks for the regression report. I'm adding it to regzbot:
 
- drivers/gpu/drm/virtio/virtgpu_plane.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+#regzbot ^introduced: 86bfbb7ce4f67a
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a2e045f3a000..a1ef657eba07 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -79,6 +79,8 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- {
- 	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state,
- 										 plane);
-+	struct drm_plane_state *old_plane_state = drm_atomic_get_old_plane_state(state,
-+										 plane);
- 	bool is_cursor = plane->type == DRM_PLANE_TYPE_CURSOR;
- 	struct drm_crtc_state *crtc_state;
- 	int ret;
-@@ -86,6 +88,14 @@ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
- 	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
- 		return 0;
- 
-+	/*
-+	 * Ignore damage clips if the framebuffer attached to the plane's state
-+	 * has changed since the last plane update (page-flip). In this case, a
-+	 * full plane update should happen because uploads are done per-buffer.
-+	 */
-+	if (old_plane_state->fb != new_plane_state->fb)
-+		new_plane_state->ignore_damage_clips = true;
-+
- 	crtc_state = drm_atomic_get_crtc_state(state,
- 					       new_plane_state->crtc);
- 	if (IS_ERR(crtc_state))
--- 
-2.41.0
+--=20
+An old man doll... just what I always wanted! - Clara
 
+--XWkoM4CGzIe0dY30
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZVoNwwAKCRD2uYlJVVFO
+o+cBAQDFArs4DMouZ9oO1BGlpXk4EJ/Pl0fstGGjl7k0pjOZmwD/Rx1VCZEOmNdQ
+LDMkvDch9XMSRonRYEMu7zlO4fSGHQI=
+=s1/r
+-----END PGP SIGNATURE-----
+
+--XWkoM4CGzIe0dY30--
