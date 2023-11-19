@@ -1,233 +1,115 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C751186D;
-	Sun, 19 Nov 2023 03:30:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECD021847
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 03:46:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hBdsCaJG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2FBC433C8;
-	Sun, 19 Nov 2023 03:30:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700364611;
-	bh=cF0DfcV5jamol5ijl6UjVG5UKkxViwvd/MyyuGVd+BA=;
-	h=From:To:Cc:Subject:Date:From;
-	b=hBdsCaJGdZ2wVZzBQvYwx5V2OQ7oa1M6OoRgE+VCZa8PfHDjXti9f1yOfblQk/KTg
-	 +dd0jNGo67QWr12l2Cq/M+PM1jQnRtaw4rvcncHpW4tBNsXok+ZpXXGgqpM8ims2Qs
-	 fEqrRIfMTusjsz3AIa8q/dPzRlG39Hmjx786uNOSNo8Yk6mhDqxjbovL/mYOnNWHhx
-	 5LxQyp4jHWNk0xJuEMNIBChxBJQ2MCGzLoMHaQZKEZd4bfWExXuiYoD3l6C3QYBsbq
-	 oeBgzCVmCciQRtownB0jtrgft1lcJ1Zg0QXOjXdGUDrIVNHB4ECYLWOViNUGzu+Ywv
-	 Kx5CeLAXoPFAw==
-From: Jakub Kicinski <kuba@kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	Jakub Kicinski <kuba@kernel.org>,
-	dsahern@kernel.org,
-	matttbe@kernel.org,
-	martineau@kernel.org,
-	marcelo.leitner@gmail.com,
-	lucien.xin@gmail.com,
-	kgraul@linux.ibm.com,
-	wenjia@linux.ibm.com,
-	jaka@linux.ibm.com,
-	alibuda@linux.alibaba.com,
-	tonylu@linux.alibaba.com,
-	guwen@linux.alibaba.com,
-	jmaloy@redhat.com,
-	ying.xue@windriver.com,
-	sgarzare@redhat.com,
-	bjorn@kernel.org,
-	magnus.karlsson@intel.com,
-	maciej.fijalkowski@intel.com,
-	kuniyu@amazon.com,
-	mptcp@lists.linux.dev,
-	linux-sctp@vger.kernel.org,
-	linux-s390@vger.kernel.org,
-	tipc-discussion@lists.sourceforge.net,
-	virtualization@lists.linux.dev,
-	bpf@vger.kernel.org
-Subject: [PATCH net] net: fill in MODULE_DESCRIPTION()s for SOCK_DIAG modules
-Date: Sat, 18 Nov 2023 19:30:06 -0800
-Message-ID: <20231119033006.442271-1-kuba@kernel.org>
-X-Mailer: git-send-email 2.42.0
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="injQIhPS"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5AA10418F8
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 03:46:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5AA10418F8
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=injQIhPS
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nsN0wP7gsi_3
+	for <virtualization@lists.linux-foundation.org>;
+	Sun, 19 Nov 2023 03:46:28 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 514A541687
+	for <virtualization@lists.linux-foundation.org>; Sun, 19 Nov 2023 03:46:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 514A541687
+Received: from [10.3.2.161] (zone.collabora.co.uk [167.235.23.81])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 4BA0C6605638;
+	Sun, 19 Nov 2023 03:46:24 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1700365585;
+	bh=86PLapbNm9s+HCVP0s7mDF8f5f5LtrYgQuCF1ZMWpMU=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
+	b=injQIhPSREuwYia7T7G65tdzinr0ssccyJ+PM9XcvHBcrNp+9bg3C+tLPgrzK9i8Y
+	 crmHJhLVD8w5z3Xk2KEAtJ7ibvV6h30J8qBMITLcwuqfnpen/ETPjp6uorjkK6rarm
+	 Q1lyIBB66SdSFWQJaBrVxj/7osUPqC+3KapKGZC4WgZUT6mSWMoF5ekxPhLcdjIWmv
+	 UwsQ18h2Lqp5PlipIUWCXYPZj35ISc7MYbwK0At2jRyQ/YeXdo2iSbCEGPGzo7c7iP
+	 pohfLiF0znWvf2GOXrI2pF8nzzUqbYZSViHdaLGED+KzcXCYnnz4It5+BBM9/Ptum/
+	 Ci4c3DwsaNT/A==
+Message-ID: <68470997-bb4c-3c11-98b5-aa75c52cbaea@collabora.com>
+Date: Sun, 19 Nov 2023 06:46:19 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH] drm/virtio: add definition for venus capset
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: Huang Rui <ray.huang@amd.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+References: <20230915105918.3763061-1-ray.huang@amd.com>
+ <a7b783c8-b1c8-90e3-b6c7-7fa8c6d24d21@collabora.com>
+In-Reply-To: <a7b783c8-b1c8-90e3-b6c7-7fa8c6d24d21@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-W=1 builds now warn if module is built without a MODULE_DESCRIPTION().
-Add descriptions to all the sock diag modules in one fell swoop.
+On 9/21/23 00:16, Dmitry Osipenko wrote:
+> On 9/15/23 13:59, Huang Rui wrote:
+>> This definition is used fro qemu, and qemu imports this marco in the
+>> headers to enable venus for virtio gpu. So it should add it even kernel
+>> doesn't use this.
+>>
+>> Signed-off-by: Huang Rui <ray.huang@amd.com>
+>> ---
+>>
+>> Hi all,
+>>
+>> We would like to add a new definition for venus capset, it will be used for
+>> qemu. Please see details on below discussion:
+>>
+>> https://lore.kernel.org/qemu-devel/b82982aa-5b9e-481e-9491-b9313877bcaa@daynix.com/
+>>
+>> Thanks,
+>> Ray
+>>
+>>  include/uapi/linux/virtio_gpu.h | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+>> index f556fde07b76..0e21f3998108 100644
+>> --- a/include/uapi/linux/virtio_gpu.h
+>> +++ b/include/uapi/linux/virtio_gpu.h
+>> @@ -309,6 +309,8 @@ struct virtio_gpu_cmd_submit {
+>>  
+>>  #define VIRTIO_GPU_CAPSET_VIRGL 1
+>>  #define VIRTIO_GPU_CAPSET_VIRGL2 2
+>> +/* 3 is reserved for gfxstream */
+>> +#define VIRTIO_GPU_CAPSET_VENUS 4
+> 
+> Could you please add all other capsets, so we won't needed to do it
+> again in the future
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
----
-CC: dsahern@kernel.org
-CC: matttbe@kernel.org
-CC: martineau@kernel.org
-CC: marcelo.leitner@gmail.com
-CC: lucien.xin@gmail.com
-CC: kgraul@linux.ibm.com
-CC: wenjia@linux.ibm.com
-CC: jaka@linux.ibm.com
-CC: alibuda@linux.alibaba.com
-CC: tonylu@linux.alibaba.com
-CC: guwen@linux.alibaba.com
-CC: jmaloy@redhat.com
-CC: ying.xue@windriver.com
-CC: sgarzare@redhat.com
-CC: bjorn@kernel.org
-CC: magnus.karlsson@intel.com
-CC: maciej.fijalkowski@intel.com
-CC: kuniyu@amazon.com
-CC: mptcp@lists.linux.dev
-CC: linux-sctp@vger.kernel.org
-CC: linux-s390@vger.kernel.org
-CC: tipc-discussion@lists.sourceforge.net
-CC: virtualization@lists.linux.dev
-CC: bpf@vger.kernel.org
----
- net/ipv4/inet_diag.c   | 1 +
- net/ipv4/raw_diag.c    | 1 +
- net/ipv4/tcp_diag.c    | 1 +
- net/ipv4/udp_diag.c    | 1 +
- net/mptcp/mptcp_diag.c | 1 +
- net/packet/diag.c      | 1 +
- net/sctp/diag.c        | 1 +
- net/smc/smc_diag.c     | 1 +
- net/tipc/diag.c        | 1 +
- net/unix/diag.c        | 1 +
- net/vmw_vsock/diag.c   | 1 +
- net/xdp/xsk_diag.c     | 1 +
- 12 files changed, 12 insertions(+)
+I've opened request to update virtio-spec with the corrected/updated
+capsets https://github.com/oasis-tcs/virtio-spec/issues/182. I'm
+expecting that it will take some time until spec change will be merged
+and now leaning to apply this v1 patch to not hold the Venus work.
 
-diff --git a/net/ipv4/inet_diag.c b/net/ipv4/inet_diag.c
-index f01aee832aab..7d0e7aaa71e0 100644
---- a/net/ipv4/inet_diag.c
-+++ b/net/ipv4/inet_diag.c
-@@ -1481,5 +1481,6 @@ static void __exit inet_diag_exit(void)
- module_init(inet_diag_init);
- module_exit(inet_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("INET/INET6: socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2 /* AF_INET */);
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 10 /* AF_INET6 */);
-diff --git a/net/ipv4/raw_diag.c b/net/ipv4/raw_diag.c
-index 63a40e4b678f..fe2140c8375c 100644
---- a/net/ipv4/raw_diag.c
-+++ b/net/ipv4/raw_diag.c
-@@ -257,5 +257,6 @@ static void __exit raw_diag_exit(void)
- module_init(raw_diag_init);
- module_exit(raw_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("RAW socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-255 /* AF_INET - IPPROTO_RAW */);
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 10-255 /* AF_INET6 - IPPROTO_RAW */);
-diff --git a/net/ipv4/tcp_diag.c b/net/ipv4/tcp_diag.c
-index 01b50fa79189..4cbe4b44425a 100644
---- a/net/ipv4/tcp_diag.c
-+++ b/net/ipv4/tcp_diag.c
-@@ -247,4 +247,5 @@ static void __exit tcp_diag_exit(void)
- module_init(tcp_diag_init);
- module_exit(tcp_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("TCP socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-6 /* AF_INET - IPPROTO_TCP */);
-diff --git a/net/ipv4/udp_diag.c b/net/ipv4/udp_diag.c
-index de3f2d31f510..dc41a22ee80e 100644
---- a/net/ipv4/udp_diag.c
-+++ b/net/ipv4/udp_diag.c
-@@ -296,5 +296,6 @@ static void __exit udp_diag_exit(void)
- module_init(udp_diag_init);
- module_exit(udp_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("UDP socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-17 /* AF_INET - IPPROTO_UDP */);
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-136 /* AF_INET - IPPROTO_UDPLITE */);
-diff --git a/net/mptcp/mptcp_diag.c b/net/mptcp/mptcp_diag.c
-index 8df1bdb647e2..5409c2ea3f57 100644
---- a/net/mptcp/mptcp_diag.c
-+++ b/net/mptcp/mptcp_diag.c
-@@ -245,4 +245,5 @@ static void __exit mptcp_diag_exit(void)
- module_init(mptcp_diag_init);
- module_exit(mptcp_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("MPTCP socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-262 /* AF_INET - IPPROTO_MPTCP */);
-diff --git a/net/packet/diag.c b/net/packet/diag.c
-index f6b200cb3c06..9a7980e3309d 100644
---- a/net/packet/diag.c
-+++ b/net/packet/diag.c
-@@ -262,4 +262,5 @@ static void __exit packet_diag_exit(void)
- module_init(packet_diag_init);
- module_exit(packet_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("PACKET socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 17 /* AF_PACKET */);
-diff --git a/net/sctp/diag.c b/net/sctp/diag.c
-index c3d6b92dd386..eb05131ff1dd 100644
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -527,4 +527,5 @@ static void __exit sctp_diag_exit(void)
- module_init(sctp_diag_init);
- module_exit(sctp_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("SCTP socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 2-132);
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 7ff2152971a5..a584613aca12 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -268,5 +268,6 @@ static void __exit smc_diag_exit(void)
- module_init(smc_diag_init);
- module_exit(smc_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("SMC socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 43 /* AF_SMC */);
- MODULE_ALIAS_GENL_FAMILY(SMCR_GENL_FAMILY_NAME);
-diff --git a/net/tipc/diag.c b/net/tipc/diag.c
-index 73137f4aeb68..18733451c9e0 100644
---- a/net/tipc/diag.c
-+++ b/net/tipc/diag.c
-@@ -113,4 +113,5 @@ module_init(tipc_diag_init);
- module_exit(tipc_diag_exit);
- 
- MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_DESCRIPTION("TIPC socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, AF_TIPC);
-diff --git a/net/unix/diag.c b/net/unix/diag.c
-index 616b55c5b890..bec09a3a1d44 100644
---- a/net/unix/diag.c
-+++ b/net/unix/diag.c
-@@ -339,4 +339,5 @@ static void __exit unix_diag_exit(void)
- module_init(unix_diag_init);
- module_exit(unix_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("UNIX socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, 1 /* AF_LOCAL */);
-diff --git a/net/vmw_vsock/diag.c b/net/vmw_vsock/diag.c
-index a2823b1c5e28..2e29994f92ff 100644
---- a/net/vmw_vsock/diag.c
-+++ b/net/vmw_vsock/diag.c
-@@ -174,5 +174,6 @@ static void __exit vsock_diag_exit(void)
- module_init(vsock_diag_init);
- module_exit(vsock_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("VMware Virtual Sockets monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG,
- 			       40 /* AF_VSOCK */);
-diff --git a/net/xdp/xsk_diag.c b/net/xdp/xsk_diag.c
-index 22b36c8143cf..9f8955367275 100644
---- a/net/xdp/xsk_diag.c
-+++ b/net/xdp/xsk_diag.c
-@@ -211,4 +211,5 @@ static void __exit xsk_diag_exit(void)
- module_init(xsk_diag_init);
- module_exit(xsk_diag_exit);
- MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("XDP socket monitoring via SOCK_DIAG");
- MODULE_ALIAS_NET_PF_PROTO_TYPE(PF_NETLINK, NETLINK_SOCK_DIAG, AF_XDP);
+Gerd, do you have objections? R-b/ack?
+
 -- 
-2.42.0
+Best regards,
+Dmitry
 
