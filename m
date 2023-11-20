@@ -1,105 +1,155 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C3C3154A6
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="chJFgsWQ"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 411C21803B
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8452D81551
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:38:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8452D81551
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=chJFgsWQ
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9298D400E4
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9298D400E4
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -4.198
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Nl9mBXncxejG
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uIaQVFXIhv9W
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 20 Nov 2023 11:38:06 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AB272814C9
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:38:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AB272814C9
-Received: from [10.3.2.161] (zone.collabora.co.uk [167.235.23.81])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
-	(No client certificate requested)
-	(Authenticated sender: dmitry.osipenko)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 359F96602F1D;
-	Mon, 20 Nov 2023 11:38:03 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1700480284;
-	bh=lX9d/Us0h3a8J02mdLie/YqRrpifDkBDv3KBw5ibIks=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=chJFgsWQJyiQmfayqPlZ/ywdBeuH/DLNWFm9e+lVYjoPy31JHLrAFwQkqgLrm4MKX
-	 TKOAq+/8SPGa0jMFfX2Wfn05kUMuCE81IH5j0kWlVBjIDbBB08LQub3NrbLMXYAvU3
-	 mW7Q/Hme2Utumxsb4KUPawimjE9/8o4BTIVxwnkatOEQQfQ6Y/uZSlR+0kP1MySz38
-	 jlmwiCSQLA3nLUpg8acg8wBYqxRxS5NLPvwMNMPEjieCzJh78Giapyo24mBtYyv2eT
-	 rQGfliib8CnQQEkoolLnEoU8zPOV+n5TZkytqmh3rIW4nWZocO7eOZUEXXrgzd8d9O
-	 X2MoeZ71QhnIw==
-Message-ID: <97c673e2-66ee-80de-3ad7-d8f02a56a3f6@collabora.com>
-Date: Mon, 20 Nov 2023 14:38:00 +0300
+	Mon, 20 Nov 2023 11:49:52 +0000 (UTC)
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0DE2F400CF
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0DE2F400CF
+Received: from dggpemm100005.china.huawei.com (unknown [172.30.72.55])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SYm4z6HnFzvQth;
+	Mon, 20 Nov 2023 19:49:23 +0800 (CST)
+Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
+ dggpemm100005.china.huawei.com (7.185.36.231) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Mon, 20 Nov 2023 19:49:45 +0800
+Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
+ dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2507.035;
+ Mon, 20 Nov 2023 19:49:45 +0800
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, "linux-crypto@vger.kernel.org"
+	<linux-crypto@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>
+CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, wangyangxin <wangyangxin1@huawei.com>,
+	"Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
+Thread-Topic: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
+Thread-Index: Adobp2Ma20NfNCVRS52WT53esc9NTA==
+Date: Mon, 20 Nov 2023 11:49:45 +0000
+Message-ID: <b2fe5c6a60984a9e91bd9dea419c5154@huawei.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-originating-ip: [10.174.149.11]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v18 11/26] drm/shmem-helper: Prepare drm_gem_shmem_free()
- to shrinker addition
-Content-Language: en-US
-To: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
- Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
- <20231029230205.93277-12-dmitry.osipenko@collabora.com>
- <20231110111601.5d6bd1ab@collabora.com>
- <bd2308d6-38e5-6042-3da8-fb436f67a88e@collabora.com>
- <20231120121942.4eef9e03@collabora.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20231120121942.4eef9e03@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-CFilter-Loop: Reflected
 
-On 11/20/23 14:19, Boris Brezillon wrote:
-...
->>>> -		dma_resv_lock(shmem->base.resv, NULL);
->>>> -
->>>>  		drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
->>>>  
->>>>  		if (shmem->sgt) {
->>>> @@ -157,8 +171,6 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
->>>>    
->>> If you drop the dma_resv_lock/unlock(), you should also replace the
->>> drm_gem_shmem_put_pages_locked() by a drm_gem_shmem_free_pages() in this
->>> commit.  
->>
->> drm_gem_shmem_put_pages_locked() is exported by a later patch of this
->> series, it's not worthwhile to remove this function
-> 
-> I'm not talking about removing drm_gem_shmem_put_pages_locked(), but
-> replacing the drm_gem_shmem_put_pages_locked() call you have in
-> drm_gem_shmem_free() by a drm_gem_shmem_free_pages(), so you don't end
-> up with a lockdep warning when you stop exactly here in the patch
-> series, which is important if we want to keep things bisectable.
+Doing ipsec produces a spinlock recursion warning.
+This is due to crypto_finalize_request() being called in the upper half.
+Move virtual data queue processing of virtio-crypto driver to tasklet.
 
-Indeed, there is assert_locked() there. Thanks for the clarification :)
+Fixes: dbaf0624ffa57 ("crypto: add virtio-crypto driver")
+Reported-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: wangyangxin <wangyangxin1@huawei.com>
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+---
+ drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
+ drivers/crypto/virtio/virtio_crypto_core.c   | 23 +++++++++++++----------
+ 2 files changed, 15 insertions(+), 10 deletions(-)
 
--- 
-Best regards,
-Dmitry
+diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/=
+virtio/virtio_crypto_common.h
+index 59a4c02..5c17c6e 100644
+--- a/drivers/crypto/virtio/virtio_crypto_common.h
++++ b/drivers/crypto/virtio/virtio_crypto_common.h
+@@ -10,6 +10,7 @@
+ #include <linux/virtio.h>
+ #include <linux/crypto.h>
+ #include <linux/spinlock.h>
++#include <linux/interrupt.h>
+ #include <crypto/aead.h>
+ #include <crypto/aes.h>
+ #include <crypto/engine.h>
+@@ -28,6 +29,7 @@ struct data_queue {
+ 	char name[32];
+=20
+ 	struct crypto_engine *engine;
++	struct tasklet_struct done_task;
+ };
+=20
+ struct virtio_crypto {
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/vi=
+rtio/virtio_crypto_core.c
+index 1198bd3..e747f4f 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -72,27 +72,28 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto =
+*vcrypto, struct scatterl
+ 	return 0;
+ }
+=20
+-static void virtcrypto_dataq_callback(struct virtqueue *vq)
++static void virtcrypto_done_task(unsigned long data)
+ {
+-	struct virtio_crypto *vcrypto =3D vq->vdev->priv;
++	struct data_queue *data_vq =3D (struct data_queue *)data;
++	struct virtqueue *vq =3D data_vq->vq;
+ 	struct virtio_crypto_request *vc_req;
+-	unsigned long flags;
+ 	unsigned int len;
+-	unsigned int qid =3D vq->index;
+=20
+-	spin_lock_irqsave(&vcrypto->data_vq[qid].lock, flags);
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		while ((vc_req =3D virtqueue_get_buf(vq, &len)) !=3D NULL) {
+-			spin_unlock_irqrestore(
+-				&vcrypto->data_vq[qid].lock, flags);
+ 			if (vc_req->alg_cb)
+ 				vc_req->alg_cb(vc_req, len);
+-			spin_lock_irqsave(
+-				&vcrypto->data_vq[qid].lock, flags);
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
+-	spin_unlock_irqrestore(&vcrypto->data_vq[qid].lock, flags);
++}
++
++static void virtcrypto_dataq_callback(struct virtqueue *vq)
++{
++	struct virtio_crypto *vcrypto =3D vq->vdev->priv;
++	struct data_queue *dq =3D &vcrypto->data_vq[vq->index];
++
++	tasklet_schedule(&dq->done_task);
+ }
+=20
+ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+@@ -150,6 +151,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi=
+)
+ 			ret =3D -ENOMEM;
+ 			goto err_engine;
+ 		}
++		tasklet_init(&vi->data_vq[i].done_task, virtcrypto_done_task,
++				(unsigned long)&vi->data_vq[i]);
+ 	}
+=20
+ 	kfree(names);
+--=20
+1.8.3.1
+
+
 
