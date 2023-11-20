@@ -1,155 +1,165 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 411C21803B
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9298D400E4
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 9298D400E4
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -4.198
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uIaQVFXIhv9W
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 20 Nov 2023 11:49:52 +0000 (UTC)
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0DE2F400CF
-	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:49:51 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0DE2F400CF
-Received: from dggpemm100005.china.huawei.com (unknown [172.30.72.55])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4SYm4z6HnFzvQth;
-	Mon, 20 Nov 2023 19:49:23 +0800 (CST)
-Received: from dggpemm500006.china.huawei.com (7.185.36.236) by
- dggpemm100005.china.huawei.com (7.185.36.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Mon, 20 Nov 2023 19:49:45 +0800
-Received: from dggpemm500006.china.huawei.com ([7.185.36.236]) by
- dggpemm500006.china.huawei.com ([7.185.36.236]) with mapi id 15.01.2507.035;
- Mon, 20 Nov 2023 19:49:45 +0800
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "linux-crypto@vger.kernel.org"
-	<linux-crypto@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, wangyangxin <wangyangxin1@huawei.com>,
-	"Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
-Thread-Topic: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
-Thread-Index: Adobp2Ma20NfNCVRS52WT53esc9NTA==
-Date: Mon, 20 Nov 2023 11:49:45 +0000
-Message-ID: <b2fe5c6a60984a9e91bd9dea419c5154@huawei.com>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-originating-ip: [10.174.149.11]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A662182BE
+	for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 11:55:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="gyci+U9v"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=PErohMmpIxRK4QMw8WDDj/1lAS30uf8VYTViuVX+yvU=; b=gyci+U9vXHgasjfs8HQnCINXBZ
+	ZDoZmXXpDs6km4JJ5GN+f2afjIVMNZlLYWIwBzNxuGhb1MFSjy19O4mMHk/uvdJaEPtagLjaXXYgx
+	iZ7DLa036MxGvEZDJS9uWkcaHd6+7S63p3QiD9oaTbE9OcTSjV79jjlg1psAyFzhq1QhbCG/Zw3HM
+	gyTjvkHjWqaRZEmmxZNdjqk/jJEoNmxfgLf4M2jpNJb/+uEcoL/xg7TF+J88ZQzjvkJ2UImzMQFT7
+	9PJDvI7bQ4VCxmD03RT33OOYV4hvpOfE7P0mfQ0xwHVo9G3GhfzPi0OQRq04zfO6h5t/RNbu3eRgE
+	333t+i2g==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+	id 1r51wm-00AvJl-1N;
+	Mon, 20 Nov 2023 10:56:08 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id B814F300419; Mon, 20 Nov 2023 11:56:06 +0100 (CET)
+Date: Mon, 20 Nov 2023 11:56:06 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Abel Wu <wuyun.abel@bytedance.com>
+Cc: Tobias Huschle <huschle@linux.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	mst@redhat.com, jasowang@redhat.com
+Subject: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair:
+ Add lag based placement)
+Message-ID: <20231120105606.GQ8262@noisy.programming.kicks-ass.net>
+References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
+ <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
+ <2c7509e3-6db0-461e-991b-026553157dbe@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2c7509e3-6db0-461e-991b-026553157dbe@bytedance.com>
 
-Doing ipsec produces a spinlock recursion warning.
-This is due to crypto_finalize_request() being called in the upper half.
-Move virtual data queue processing of virtio-crypto driver to tasklet.
+On Sat, Nov 18, 2023 at 01:14:32PM +0800, Abel Wu wrote:
 
-Fixes: dbaf0624ffa57 ("crypto: add virtio-crypto driver")
-Reported-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: wangyangxin <wangyangxin1@huawei.com>
-Signed-off-by: Gonglei <arei.gonglei@huawei.com>
----
- drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
- drivers/crypto/virtio/virtio_crypto_core.c   | 23 +++++++++++++----------
- 2 files changed, 15 insertions(+), 10 deletions(-)
+> Hi Peter, I'm a little confused here. As we adopt placement strategy #1
+> when PLACE_LAG is enabled, the lag of that entity needs to be preserved.
+> Given that the weight doesn't change, we have:
+> 
+> 	vl' = vl
+> 
+> But in fact it is scaled on placement:
+> 
+> 	vl' = vl * W/(W + w)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/=
-virtio/virtio_crypto_common.h
-index 59a4c02..5c17c6e 100644
---- a/drivers/crypto/virtio/virtio_crypto_common.h
-+++ b/drivers/crypto/virtio/virtio_crypto_common.h
-@@ -10,6 +10,7 @@
- #include <linux/virtio.h>
- #include <linux/crypto.h>
- #include <linux/spinlock.h>
-+#include <linux/interrupt.h>
- #include <crypto/aead.h>
- #include <crypto/aes.h>
- #include <crypto/engine.h>
-@@ -28,6 +29,7 @@ struct data_queue {
- 	char name[32];
-=20
- 	struct crypto_engine *engine;
-+	struct tasklet_struct done_task;
- };
-=20
- struct virtio_crypto {
-diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/vi=
-rtio/virtio_crypto_core.c
-index 1198bd3..e747f4f 100644
---- a/drivers/crypto/virtio/virtio_crypto_core.c
-+++ b/drivers/crypto/virtio/virtio_crypto_core.c
-@@ -72,27 +72,28 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto =
-*vcrypto, struct scatterl
- 	return 0;
- }
-=20
--static void virtcrypto_dataq_callback(struct virtqueue *vq)
-+static void virtcrypto_done_task(unsigned long data)
- {
--	struct virtio_crypto *vcrypto =3D vq->vdev->priv;
-+	struct data_queue *data_vq =3D (struct data_queue *)data;
-+	struct virtqueue *vq =3D data_vq->vq;
- 	struct virtio_crypto_request *vc_req;
--	unsigned long flags;
- 	unsigned int len;
--	unsigned int qid =3D vq->index;
-=20
--	spin_lock_irqsave(&vcrypto->data_vq[qid].lock, flags);
- 	do {
- 		virtqueue_disable_cb(vq);
- 		while ((vc_req =3D virtqueue_get_buf(vq, &len)) !=3D NULL) {
--			spin_unlock_irqrestore(
--				&vcrypto->data_vq[qid].lock, flags);
- 			if (vc_req->alg_cb)
- 				vc_req->alg_cb(vc_req, len);
--			spin_lock_irqsave(
--				&vcrypto->data_vq[qid].lock, flags);
- 		}
- 	} while (!virtqueue_enable_cb(vq));
--	spin_unlock_irqrestore(&vcrypto->data_vq[qid].lock, flags);
-+}
-+
-+static void virtcrypto_dataq_callback(struct virtqueue *vq)
-+{
-+	struct virtio_crypto *vcrypto =3D vq->vdev->priv;
-+	struct data_queue *dq =3D &vcrypto->data_vq[vq->index];
-+
-+	tasklet_schedule(&dq->done_task);
- }
-=20
- static int virtcrypto_find_vqs(struct virtio_crypto *vi)
-@@ -150,6 +151,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi=
-)
- 			ret =3D -ENOMEM;
- 			goto err_engine;
- 		}
-+		tasklet_init(&vi->data_vq[i].done_task, virtcrypto_done_task,
-+				(unsigned long)&vi->data_vq[i]);
- 	}
-=20
- 	kfree(names);
---=20
-1.8.3.1
+(W+w)/W
+
+> 
+> Does this intended? 
+
+The scaling, yes that's intended and the comment explains why. So now
+you have me confused too :-)
+
+Specifically, I want the lag after placement to be equal to the lag we
+come in with. Since placement will affect avg_vruntime (adding one
+element to the average changes the average etc..) the placement also
+affects the lag as measured after placement.
+
+Or rather, if you enqueue and dequeue, I want the lag to be preserved.
+If you do not take placement into consideration, lag will dissipate real
+quick.
+
+> And to illustrate my understanding of strategy #1:
+
+> @@ -5162,41 +5165,17 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
+>  		 * vl_i is given by:
+>  		 *
+>  		 *   V' = (\Sum w_j*v_j + w_i*v_i) / (W + w_i)
+> -		 *      = (W*V + w_i*(V - vl_i)) / (W + w_i)
+> -		 *      = (W*V + w_i*V - w_i*vl_i) / (W + w_i)
+> -		 *      = (V*(W + w_i) - w_i*l) / (W + w_i)
+> -		 *      = V - w_i*vl_i / (W + w_i)
+> -		 *
+> -		 * And the actual lag after adding an entity with vl_i is:
+> -		 *
+> -		 *   vl'_i = V' - v_i
+> -		 *         = V - w_i*vl_i / (W + w_i) - (V - vl_i)
+> -		 *         = vl_i - w_i*vl_i / (W + w_i)
+> -		 *
+> -		 * Which is strictly less than vl_i. So in order to preserve lag
+> -		 * we should inflate the lag before placement such that the
+> -		 * effective lag after placement comes out right.
+> -		 *
+> -		 * As such, invert the above relation for vl'_i to get the vl_i
+> -		 * we need to use such that the lag after placement is the lag
+> -		 * we computed before dequeue.
+> +		 *      = (W*V + w_i*(V' - vl_i)) / (W + w_i)
+> +		 *      = V - w_i*vl_i / W
+>  		 *
+> -		 *   vl'_i = vl_i - w_i*vl_i / (W + w_i)
+> -		 *         = ((W + w_i)*vl_i - w_i*vl_i) / (W + w_i)
+> -		 *
+> -		 *   (W + w_i)*vl'_i = (W + w_i)*vl_i - w_i*vl_i
+> -		 *                   = W*vl_i
+> -		 *
+> -		 *   vl_i = (W + w_i)*vl'_i / W
+>  		 */
+>  		load = cfs_rq->avg_load;
+>  		if (curr && curr->on_rq)
+>  			load += scale_load_down(curr->load.weight);
+> -
+> -		lag *= load + scale_load_down(se->load.weight);
+>  		if (WARN_ON_ONCE(!load))
+>  			load = 1;
+> -		lag = div_s64(lag, load);
+> +
+> +		vruntime -= div_s64(lag * scale_load_down(se->load.weight), load);
+>  	}
+>  	se->vruntime = vruntime - lag;
 
 
+So you're proposing we do:
 
+	v = V - (lag * w) / (W + w) - lag
+
+?
+
+That can be written like:
+
+	v = V - (lag * w) / (W+w) - (lag * (W+w)) / (W+w)
+	  = V - (lag * (W+w) + lag * w) / (W+w)
+	  = V - (lag * (W+2w)) / (W+w)
+
+And that turns into a mess AFAICT.
+
+
+Let me repeat my earlier argument. Suppose v,w,l are the new element.
+V,W are the old avg_vruntime and sum-weight.
+
+Then: V = V*W / W, and by extention: V' = (V*W + v*w) / (W + w).
+
+The new lag, after placement: 
+
+l' = V' - v = (V*W + v*w) / (W+w) - v
+            = (V*W + v*w) / (W+w) - v * (W+w) / (W+v)
+	    = (V*W + v*w -v*W - v*w) / (W+w)
+	    = (V*W - v*W) / (W+w)
+	    = W*(V-v) / (W+w)
+	    = W/(W+w) * (V-v)
+
+Substitute: v = V - (W+w)/W * l, my scaling thing, to obtain:
+
+l' = W/(W+w) * (V - (V - (W+w)/W * l))
+   = W/(W+w) * (V - V + (W+w)/W * l)
+   = W/(W+w) * (W+w)/W * l
+   = l
+
+So by scaling, we've preserved lag across placement.
+
+That make sense?
