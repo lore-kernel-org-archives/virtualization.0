@@ -1,232 +1,186 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 040BD18E13
-	for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 12:06:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bytedance.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bytedance.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 719C51B289
+	for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 12:29:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bytedance.com header.i=@bytedance.com header.b="VnB229j0"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-1cc394f4cdfso31014145ad.0
-        for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 04:06:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance.com; s=google; t=1700481985; x=1701086785; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xVcC8hR/V0NYT0+DB0uWFXv4sVGxkELPBpe0/v11m1o=;
-        b=VnB229j0fT+tRNFCDpx57qQJ0YynNpq+D4LeypUnJf9jax5s1oKCnTmdSlpcflscvK
-         DyHf1bUo70Z7bYjRDCV1+WV4t2Bu+AaUuHQGGfdqlzVwlaUS6usMQrRNAw5sIXZ4/CK2
-         ZjEWOZ5TKSlX4jFh/GtCcP79fay4kGXM3f0vSMrrA4vpSHDoUZXav8wMievcYZvQaIol
-         c+jIwYoFUX8qj56y6OrNAo2yzyAVjgQWnkloxRBRY9bW84bay+FdqZh8qmiZ2skX2A2T
-         wcn2rkMGJDgwaQend0O7nZCvTogQaLS+QZlLtqXFh0Rbxn8RiLeOFiLMu4txvUpj5plh
-         uodg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="anXY541k"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700483386;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=e4OC0yOur0IZ04mctIkt9Weg8mzI9CmT9lSe7QtjZ/I=;
+	b=anXY541khFK8Fny1UxdF3iZ9modSvhXcSEPTh9DbrpgmNYqttbTro5gMpuqxhTyH8AvYZE
+	aOxhRu0KI/+mnUGEm4Q5ERCyfXg/5wAOskyxuBFEpPzLr9fCleaMuLMs3YJ34R3EqvjbvD
+	XQ766vxrU9HT39BfrwPisazJdJy6WQU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-435-D45Cv2LKN4KwPJTs_sp-4A-1; Mon, 20 Nov 2023 07:29:45 -0500
+X-MC-Unique: D45Cv2LKN4KwPJTs_sp-4A-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4083c9b426fso11558435e9.2
+        for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 04:29:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700481985; x=1701086785;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
+        d=1e100.net; s=20230601; t=1700483383; x=1701088183;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xVcC8hR/V0NYT0+DB0uWFXv4sVGxkELPBpe0/v11m1o=;
-        b=Ult/IIkbI3eI8MxgoNVbCWUKrzvDp2vZXxdEOITh+JoR6dOLOSEP4AEwZ017GxC1+T
-         /zNob0cpl/5s9g0Y4qpeuTj2509kUH2fgJd3Qkfck3YKYwnkS+7ctPf/A9NoIQ5aP09x
-         pzRK6B68mkhnH4WQVvG/FaD0Z3Bjo9p1MQQ1ya+SSaaq1hvLo8vy/JZ5YZNbTcubH3LM
-         0l22pxKzHgkMJXVw7yZ5IYlS0zM5Q925kNQGBzP4ljUka634Ch4HimpNG0BDuoYuLGd4
-         Ien1sESP2XxmLtA42hGWjxiiLf3YZryrQ96D/JG/noepS3g33LEunDYmTZFSsS4Cmp43
-         cxrA==
-X-Gm-Message-State: AOJu0YxERKMl0N7aqZktJdvBxHZ2Y5NkVSxvl06waXeWyNECYYATF6YV
-	FK3O75PByUp+CqwZs+x4FLjDRw==
-X-Google-Smtp-Source: AGHT+IGM1XuWCU5poSeUzc7w4cvTyjbzDfnxMsuQyhs+1L/NEmEH7PI3Hq6+FgbcpyTkz6qgnpHy0A==
-X-Received: by 2002:a17:902:c18b:b0:1cf:5673:3630 with SMTP id d11-20020a170902c18b00b001cf56733630mr3480320pld.6.1700481985103;
-        Mon, 20 Nov 2023 04:06:25 -0800 (PST)
-Received: from [10.4.27.171] ([139.177.225.255])
-        by smtp.gmail.com with ESMTPSA id t1-20020a170902bc4100b001c60a2b5c61sm2170268plz.134.2023.11.20.04.06.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Nov 2023 04:06:20 -0800 (PST)
-Message-ID: <06613204-b279-4f66-a786-e5e26bccd42e@bytedance.com>
-Date: Mon, 20 Nov 2023 20:06:08 +0800
+        bh=e4OC0yOur0IZ04mctIkt9Weg8mzI9CmT9lSe7QtjZ/I=;
+        b=lQX28jiFuToGDvLZqvVzzFpWC77DW46XUMJGoMiNDD8hAONDkXxHbQYYR/3mFnbJkF
+         p82vngeGB0RqA9+oZyz8aWOQQ6SaQa2qWXagff9fVjvvJ2AR+WpXeSMhuz6UNbhcohWG
+         JqeFgfX/N0lBy/r1ziUuL8mAHrKOW1Mhtz4io5drRoH94TvxIXJcJp4YNAdW5r1KUpa7
+         O6M1ffrC7P4DBGTtLrLoMqYjAXAkL7hSEn2e9FfHzPn66sQ2+hiKUzo7G2LmHp7wGzHn
+         I0deejSOHQ1+g9D7TmTJrAENDCKHrFzWC603fSgSydIan++PVGFBJvgrNSCroqjvyF7w
+         u+eA==
+X-Gm-Message-State: AOJu0YwEGoqgS7KdMwPoq4m6zncmyO42WXL5GdhS9v5m2MouiHipGbiw
+	gcHgAsbfgCckIqk0ZMovT5IuxPGqTxOLmniz1tta7hemFVoBGbs+g22Su0fywt08vz7cRhcuuVA
+	PWGBSrFl7CeUhOR+sMiW6I0FUHkmxoAw6MDw=
+X-Received: by 2002:a05:6000:18ad:b0:32d:b06c:d30b with SMTP id b13-20020a05600018ad00b0032db06cd30bmr5730137wri.55.1700483383318;
+        Mon, 20 Nov 2023 04:29:43 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHiA5hPdMs1obosTpxknc0+Rt9qQ0WLFLD6MUPyHppA14MnXYwOfQDTbg9QzN09h4w9KTDWZg==
+X-Received: by 2002:a05:6000:18ad:b0:32d:b06c:d30b with SMTP id b13-20020a05600018ad00b0032db06cd30bmr5730124wri.55.1700483382944;
+        Mon, 20 Nov 2023 04:29:42 -0800 (PST)
+Received: from redhat.com ([2a02:14f:175:626e:8b7b:4d17:fb61:4be1])
+        by smtp.gmail.com with ESMTPSA id d16-20020adfe2d0000000b003316a2aedadsm10687712wrj.36.2023.11.20.04.29.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Nov 2023 04:29:42 -0800 (PST)
+Date: Mon, 20 Nov 2023 07:29:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Reshetova, Elena" <elena.reshetova@intel.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+	"virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
+Subject: Re: Using packed virtqueues in Confidential VMs
+Message-ID: <20231120072623-mutt-send-email-mst@kernel.org>
+References: <20231116200245.GA336841@fedora>
+ <DM8PR11MB5750765B1310C904A8B1B00BE7B4A@DM8PR11MB5750.namprd11.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Tobias Huschle <huschle@linux.ibm.com>,
- Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
- jasowang@redhat.com
-References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
- <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
- <2c7509e3-6db0-461e-991b-026553157dbe@bytedance.com>
- <20231120105606.GQ8262@noisy.programming.kicks-ass.net>
-From: Abel Wu <wuyun.abel@bytedance.com>
-In-Reply-To: <20231120105606.GQ8262@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <DM8PR11MB5750765B1310C904A8B1B00BE7B4A@DM8PR11MB5750.namprd11.prod.outlook.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On 11/20/23 6:56 PM, Peter Zijlstra Wrote:
-> On Sat, Nov 18, 2023 at 01:14:32PM +0800, Abel Wu wrote:
+On Mon, Nov 20, 2023 at 10:13:15AM +0000, Reshetova, Elena wrote:
+> Hi Stefan, 
 > 
->> Hi Peter, I'm a little confused here. As we adopt placement strategy #1
->> when PLACE_LAG is enabled, the lag of that entity needs to be preserved.
->> Given that the weight doesn't change, we have:
->>
->> 	vl' = vl
->>
->> But in fact it is scaled on placement:
->>
->> 	vl' = vl * W/(W + w)
+> Thank you for following up on this! Please find my comments inline. 
 > 
-> (W+w)/W
+> > -----Original Message-----
+> > From: Stefan Hajnoczi <stefanha@redhat.com>
+> > Sent: Thursday, November 16, 2023 10:03 PM
+> > To: Reshetova, Elena <elena.reshetova@intel.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>; virtio-dev@lists.oasis-open.org;
+> > virtualization@lists.linux.dev
+> > Subject: Using packed virtqueues in Confidential VMs
+> > 
+> > Hi Elena,
+> > You raised concerns about using packed virtqueues with untrusted devices at
+> > Linux Plumbers Conference. I reviewed the specification and did not find
+> > fundamental issues that would preclude the use of packed virtqueues in
+> > untrusted devices. Do you have more information about issues with packed
+> > virtqueues?
+> 
+> First of all a bit of clarification: our overall logic for making our first reference
+> release of Linux intel tdx stacks [1] was to enable only minimal required
+> functionality and this also applied to numerous modes that virtio provided. 
+> Because for each enabled functionality we would have to do a code audit and
+> a proper fuzzing setup and all of this requires resources. 
 
-Ah, right. I misunderstood (again) the comment which says:
-
-	vl_i = (W + w_i)*vl'_i / W
-
-So the current implementation is:
-
-	v' = V - vl'
-
-and what I was proposing is:
-
-	v' = V' - vl
-
-and they are equal in fact.
+However, both with packed and split I don't think speculation barriers
+have been added and they are likely to be needed.
+I wonder whether your fuzzing included attempts to force spectre like 
+leaks based on speculation execution.
 
 > 
->>
->> Does this intended?
+> The choice of split queue was a natural first step since it is the most straightforward
+> to understand (at least it was for us, bare in mind we are not experts in virtio as
+> you are) and the fact that there was work already done ([2] and other patches)
+> to harden the descriptors for split queue. 
 > 
-> The scaling, yes that's intended and the comment explains why. So now
-> you have me confused too :-)
+> [1] https://github.com/intel/tdx-tools 
+> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/drivers/virtio?h=v6.6-rc4&id=72b5e8958738aaa453db5149e6ca3bcf416023b9
 > 
-> Specifically, I want the lag after placement to be equal to the lag we
-> come in with. Since placement will affect avg_vruntime (adding one
-> element to the average changes the average etc..) the placement also
-> affects the lag as measured after placement.
+> I remember looking at the packed queue long ago and noticing that at least
+> some descriptor fields are under device control and I wasn’t sure why the similar 
+> hardening was not done here as for the split case.
 
-Yes. You did the math in an iterative fashion and mine is facing the
-final state:
+packed has R/W descriptors. This means however that data is copied over
+from descriptor and validated before use.
 
-	v' = V' - vlag
-	V' = (WV + wv') / (W + w)
 
-which gives:
+> However, we had many
+> issues to handle in past, and since we didn’t need the packed queue, we
+> never went to investigate this further. 
+> It is also possible that we simply misunderstood the code at that point.
+> 
+> > 
+> > I also reviewed Linux's virtio_ring.c to look for implementation issues. One
+> > thing I noticed was that detach_buf_packed -> vring_unmap_desc_packed trusts
+> > the fields of indirect descriptors that have been mapped to the device:
+> > 
+> >   flags = le16_to_cpu(desc->flags);
+> > 
+> >   dma_unmap_page(vring_dma_dev(vq),
+> >                  le64_to_cpu(desc->addr),
+> >                  le32_to_cpu(desc->len),
+> >                  (flags & VRING_DESC_F_WRITE) ?
+> >                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> 
+> 
+> > 
+> > This could be problematic if the device is able to modify indirect descriptors.
+> > However, the indirect descriptor table is mapped with DMA_TO_DEVICE:
+> > 
+> >   addr = vring_map_single(vq, desc,
+> >                           total_sg * sizeof(struct vring_packed_desc),
+> >                           DMA_TO_DEVICE);
+> > 
+> > There is no problem when there is an enforcing IOMMU that maps the page with
+> > read-only permissions but that's not always the case. 
+> 
+> We don’t use IOMMU at the moment for the confidential guest, since we don’t
+> have to (memory is encrypted/protected) and only explicitly shared pages are
+> available for the host/devices to modify. 
+> Do I understand it correctly that in our case the indirect descriptor table will 
+> end up mapped shared for this mode to work and then there is no protection? 
+> 
 
-	V' = V - w * vlag / W
+I think this whole table is copied to swiotlb (this is what DMA_TO_DEVICE
+AFAIK).
 
+> Software devices (QEMU,
+> > vhost kernel, or vhost-user) usually have full access to guest RAM. They can
+> > cause dma_unmap_page() to be invoked with arguments of their choice (except
+> > for
+> > the first argument) by modifying indirect descriptors.
+> > 
+> > I am not sure if this poses a danger since software devices already have access
+> > to guest RAM, but I think this code is risky. It would be safer for the driver
+> > to stash away the arguments needed for dma_unmap_page() in memory that is
+> > not
+> > mapped to the device.
+> > 
+> > Other than that, I didn't find any issues with the packed virtqueue
+> > implementation.
 > 
-> Or rather, if you enqueue and dequeue, I want the lag to be preserved.
-> If you do not take placement into consideration, lag will dissipate real
-> quick.
+> Thank you for looking into this! Even if we didn’t need the packed queue, 
+> I am sure other deployments might need it and it would be the best for 
+> virtio to provide all modes that are secure. 
 > 
->> And to illustrate my understanding of strategy #1:
+> Best Regards,
+> Elena.
 > 
->> @@ -5162,41 +5165,17 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
->>   		 * vl_i is given by:
->>   		 *
->>   		 *   V' = (\Sum w_j*v_j + w_i*v_i) / (W + w_i)
->> -		 *      = (W*V + w_i*(V - vl_i)) / (W + w_i)
->> -		 *      = (W*V + w_i*V - w_i*vl_i) / (W + w_i)
->> -		 *      = (V*(W + w_i) - w_i*l) / (W + w_i)
->> -		 *      = V - w_i*vl_i / (W + w_i)
->> -		 *
->> -		 * And the actual lag after adding an entity with vl_i is:
->> -		 *
->> -		 *   vl'_i = V' - v_i
->> -		 *         = V - w_i*vl_i / (W + w_i) - (V - vl_i)
->> -		 *         = vl_i - w_i*vl_i / (W + w_i)
->> -		 *
->> -		 * Which is strictly less than vl_i. So in order to preserve lag
->> -		 * we should inflate the lag before placement such that the
->> -		 * effective lag after placement comes out right.
->> -		 *
->> -		 * As such, invert the above relation for vl'_i to get the vl_i
->> -		 * we need to use such that the lag after placement is the lag
->> -		 * we computed before dequeue.
->> +		 *      = (W*V + w_i*(V' - vl_i)) / (W + w_i)
->> +		 *      = V - w_i*vl_i / W
->>   		 *
->> -		 *   vl'_i = vl_i - w_i*vl_i / (W + w_i)
->> -		 *         = ((W + w_i)*vl_i - w_i*vl_i) / (W + w_i)
->> -		 *
->> -		 *   (W + w_i)*vl'_i = (W + w_i)*vl_i - w_i*vl_i
->> -		 *                   = W*vl_i
->> -		 *
->> -		 *   vl_i = (W + w_i)*vl'_i / W
->>   		 */
->>   		load = cfs_rq->avg_load;
->>   		if (curr && curr->on_rq)
->>   			load += scale_load_down(curr->load.weight);
->> -
->> -		lag *= load + scale_load_down(se->load.weight);
->>   		if (WARN_ON_ONCE(!load))
->>   			load = 1;
->> -		lag = div_s64(lag, load);
->> +
->> +		vruntime -= div_s64(lag * scale_load_down(se->load.weight), load);
->>   	}
->>   	se->vruntime = vruntime - lag;
-> 
-> 
-> So you're proposing we do:
-> 
-> 	v = V - (lag * w) / (W + w) - lag
+> > 
+> > Stefan
 
-What I 'm proposing is:
-
-	V' = V - w * vlag / W
-
-so we have:
-
-	v' = V' - vlag
-	   = V - vlag * w/W - vlag
-	   = V - vlag * (W + w)/W
-
-which is exactly the same as current implementation.
-
-> 
-> ?
-> 
-> That can be written like:
-> 
-> 	v = V - (lag * w) / (W+w) - (lag * (W+w)) / (W+w)
-> 	  = V - (lag * (W+w) + lag * w) / (W+w)
-> 	  = V - (lag * (W+2w)) / (W+w)
-> 
-> And that turns into a mess AFAICT.
-> 
-> 
-> Let me repeat my earlier argument. Suppose v,w,l are the new element.
-> V,W are the old avg_vruntime and sum-weight.
-> 
-> Then: V = V*W / W, and by extention: V' = (V*W + v*w) / (W + w).
-> 
-> The new lag, after placement:
-> 
-> l' = V' - v = (V*W + v*w) / (W+w) - v
->              = (V*W + v*w) / (W+w) - v * (W+w) / (W+v)
-> 	    = (V*W + v*w -v*W - v*w) / (W+w)
-> 	    = (V*W - v*W) / (W+w)
-> 	    = W*(V-v) / (W+w)
-> 	    = W/(W+w) * (V-v)
-> 
-> Substitute: v = V - (W+w)/W * l, my scaling thing, to obtain:
-> 
-> l' = W/(W+w) * (V - (V - (W+w)/W * l))
->     = W/(W+w) * (V - V + (W+w)/W * l)
->     = W/(W+w) * (W+w)/W * l
->     = l
-> 
-> So by scaling, we've preserved lag across placement.
-> 
-> That make sense?
-
-Yes, I think I won't misunderstand again for the 3rd time :)
-
-Thanks!
-	Abel
