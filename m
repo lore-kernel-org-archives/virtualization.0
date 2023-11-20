@@ -1,209 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2943F4E7
-	for <virtualization@lists.linux.dev>; Mon, 20 Nov 2023 11:02:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB11414A99
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:19:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pr9apzzY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700478173;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=pVQbSwLuvKvAdjFsoDlO68RZZRbAqTrfgYiulLLs7uw=;
-	b=Pr9apzzYVW4MiK4cEn7UXtZ/xIOktDParfx4Klk+uowyl5MFOlixW8fuX1fOgDTnP88r3X
-	nWXzvhd1I+GXk17uFk676R0SYnIJ0564OVQkDtvkeGorrR+X1UcC2oN27JAzoJ8aBO4QV5
-	FxQ6pKip8nB/kRRBLCwqO9QUft8LNz4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-450-cgzHw3_LM1erQg7AqBec9A-1; Mon, 20 Nov 2023 06:02:49 -0500
-X-MC-Unique: cgzHw3_LM1erQg7AqBec9A-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="WKW8Ft04"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3B9E08137B
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:19:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3B9E08137B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=WKW8Ft04
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4NCFW18qJxfk
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 20 Nov 2023 11:19:49 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CDB928135E
+	for <virtualization@lists.linux-foundation.org>; Mon, 20 Nov 2023 11:19:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CDB928135E
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 63BAC821AE0;
-	Mon, 20 Nov 2023 11:02:49 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.67])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id BDF3D492BE0;
-	Mon, 20 Nov 2023 11:02:48 +0000 (UTC)
-Date: Mon, 20 Nov 2023 06:02:47 -0500
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: "Reshetova, Elena" <elena.reshetova@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
-	"virtio-dev@lists.oasis-open.org" <virtio-dev@lists.oasis-open.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>
-Subject: Re: Using packed virtqueues in Confidential VMs
-Message-ID: <20231120110247.GC540380@fedora>
-References: <20231116200245.GA336841@fedora>
- <DM8PR11MB5750765B1310C904A8B1B00BE7B4A@DM8PR11MB5750.namprd11.prod.outlook.com>
+	(Authenticated sender: bbrezillon)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id BEA596602F20;
+	Mon, 20 Nov 2023 11:19:45 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1700479186;
+	bh=9Gwt+Qw+/yGw48nLIGTTalAMKfLuy5O3oivlggeeOJc=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=WKW8Ft04Mf+mcif9h+B4Gbv7Uv1AnLixSwzYD400y1F9obOi4Cjy4mwF5bbTtRVMG
+	 LSkNVjwKcBAOjA+YTEv57Y8yHAbfSUAuOXNxDPdMMrmfKNcxEAks/mSiXO7HRocI0l
+	 uclMX9uo8I4qR3VFGwrkxXdPaW4Vqc404FxlWOBLZoMhCiD9wWxmvvfFobDlOhKzQG
+	 V6VmLfpEo9LmSpUnniS8zzMNilnX0J9CXXhRtVZiQcJXpG2fWiJMWO1ac3fglBCJ8n
+	 f47mDePdZ+xgN0lJnnZJRDGxtLSx9KdTtxipKdu1Uyx8/pXQJCo5HbSAgyTibvPL6I
+	 IatXnRx2n+4Rg==
+Date: Mon, 20 Nov 2023 12:19:42 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
+ <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
+ <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 11/26] drm/shmem-helper: Prepare
+ drm_gem_shmem_free() to shrinker addition
+Message-ID: <20231120121942.4eef9e03@collabora.com>
+In-Reply-To: <bd2308d6-38e5-6042-3da8-fb436f67a88e@collabora.com>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-12-dmitry.osipenko@collabora.com>
+	<20231110111601.5d6bd1ab@collabora.com>
+	<bd2308d6-38e5-6042-3da8-fb436f67a88e@collabora.com>
+Organization: Collabora
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="T9d0AhHQbbggMTd4"
-Content-Disposition: inline
-In-Reply-To: <DM8PR11MB5750765B1310C904A8B1B00BE7B4A@DM8PR11MB5750.namprd11.prod.outlook.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Mon, 20 Nov 2023 14:02:29 +0300
+Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
---T9d0AhHQbbggMTd4
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On 11/10/23 13:16, Boris Brezillon wrote:
+> > On Mon, 30 Oct 2023 02:01:50 +0300
+> > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> >   
+> >> Prepare drm_gem_shmem_free() to addition of memory shrinker support
+> >> to drm-shmem by adding and using variant of put_pages() that doesn't
+> >> touch reservation lock. Reservation shouldn't be touched because lockdep
+> >> will trigger a bogus warning about locking contention with fs_reclaim
+> >> code paths that can't happen during the time when GEM is freed and
+> >> lockdep doesn't know about that.
+> >>
+> >> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+> >> ---
+> >>  drivers/gpu/drm/drm_gem_shmem_helper.c | 35 +++++++++++++-------------
+> >>  1 file changed, 18 insertions(+), 17 deletions(-)
+> >>
+> >> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >> index 08b5a57c59d8..24ff2b99e75b 100644
+> >> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >> @@ -128,6 +128,22 @@ struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t
+> >>  }
+> >>  EXPORT_SYMBOL_GPL(drm_gem_shmem_create);
+> >>  
+> >> +static void
+> >> +drm_gem_shmem_free_pages(struct drm_gem_shmem_object *shmem)
+> >> +{
+> >> +	struct drm_gem_object *obj = &shmem->base;
+> >> +
+> >> +#ifdef CONFIG_X86
+> >> +	if (shmem->map_wc)
+> >> +		set_pages_array_wb(shmem->pages, obj->size >> PAGE_SHIFT);
+> >> +#endif
+> >> +
+> >> +	drm_gem_put_pages(obj, shmem->pages,
+> >> +			  shmem->pages_mark_dirty_on_put,
+> >> +			  shmem->pages_mark_accessed_on_put);
+> >> +	shmem->pages = NULL;
+> >> +}
+> >> +
+> >>  /**
+> >>   * drm_gem_shmem_free - Free resources associated with a shmem GEM object
+> >>   * @shmem: shmem GEM object to free
+> >> @@ -142,8 +158,6 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
+> >>  	if (obj->import_attach) {
+> >>  		drm_prime_gem_destroy(obj, shmem->sgt);
+> >>  	} else {
+> >> -		dma_resv_lock(shmem->base.resv, NULL);
+> >> -
+> >>  		drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
+> >>  
+> >>  		if (shmem->sgt) {
+> >> @@ -157,8 +171,6 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
+> >>    
+> > If you drop the dma_resv_lock/unlock(), you should also replace the
+> > drm_gem_shmem_put_pages_locked() by a drm_gem_shmem_free_pages() in this
+> > commit.  
+> 
+> drm_gem_shmem_put_pages_locked() is exported by a later patch of this
+> series, it's not worthwhile to remove this function
 
-On Mon, Nov 20, 2023 at 10:13:15AM +0000, Reshetova, Elena wrote:
-> Hi Stefan,=20
->=20
-> Thank you for following up on this! Please find my comments inline.=20
->=20
-> > -----Original Message-----
-> > From: Stefan Hajnoczi <stefanha@redhat.com>
-> > Sent: Thursday, November 16, 2023 10:03 PM
-> > To: Reshetova, Elena <elena.reshetova@intel.com>
-> > Cc: Michael S. Tsirkin <mst@redhat.com>; virtio-dev@lists.oasis-open.or=
-g;
-> > virtualization@lists.linux.dev
-> > Subject: Using packed virtqueues in Confidential VMs
-> >=20
-> > Hi Elena,
-> > You raised concerns about using packed virtqueues with untrusted device=
-s at
-> > Linux Plumbers Conference. I reviewed the specification and did not find
-> > fundamental issues that would preclude the use of packed virtqueues in
-> > untrusted devices. Do you have more information about issues with packed
-> > virtqueues?
->=20
-> First of all a bit of clarification: our overall logic for making our fir=
-st reference
-> release of Linux intel tdx stacks [1] was to enable only minimal required
-> functionality and this also applied to numerous modes that virtio provide=
-d.=20
-> Because for each enabled functionality we would have to do a code audit a=
-nd
-> a proper fuzzing setup and all of this requires resources.=20
->=20
-> The choice of split queue was a natural first step since it is the most s=
-traightforward
-> to understand (at least it was for us, bare in mind we are not experts in=
- virtio as
-> you are) and the fact that there was work already done ([2] and other pat=
-ches)
-> to harden the descriptors for split queue.=20
->=20
-> [1] https://github.com/intel/tdx-tools=20
-> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/co=
-mmit/drivers/virtio?h=3Dv6.6-rc4&id=3D72b5e8958738aaa453db5149e6ca3bcf41602=
-3b9
->=20
-> I remember looking at the packed queue long ago and noticing that at least
-> some descriptor fields are under device control and I wasn=E2=80=99t sure=
- why the similar=20
-> hardening was not done here as for the split case. However, we had many
-> issues to handle in past, and since we didn=E2=80=99t need the packed que=
-ue, we
-> never went to investigate this further.=20
-> It is also possible that we simply misunderstood the code at that point.
->=20
-> >=20
-> > I also reviewed Linux's virtio_ring.c to look for implementation issues=
-=2E One
-> > thing I noticed was that detach_buf_packed -> vring_unmap_desc_packed t=
-rusts
-> > the fields of indirect descriptors that have been mapped to the device:
-> >=20
-> >   flags =3D le16_to_cpu(desc->flags);
-> >=20
-> >   dma_unmap_page(vring_dma_dev(vq),
-> >                  le64_to_cpu(desc->addr),
-> >                  le32_to_cpu(desc->len),
-> >                  (flags & VRING_DESC_F_WRITE) ?
-> >                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
->=20
->=20
-> >=20
-> > This could be problematic if the device is able to modify indirect desc=
-riptors.
-> > However, the indirect descriptor table is mapped with DMA_TO_DEVICE:
-> >=20
-> >   addr =3D vring_map_single(vq, desc,
-> >                           total_sg * sizeof(struct vring_packed_desc),
-> >                           DMA_TO_DEVICE);
-> >=20
-> > There is no problem when there is an enforcing IOMMU that maps the page=
- with
-> > read-only permissions but that's not always the case.=20
->=20
-> We don=E2=80=99t use IOMMU at the moment for the confidential guest, sinc=
-e we don=E2=80=99t
-> have to (memory is encrypted/protected) and only explicitly shared pages =
-are
-> available for the host/devices to modify.=20
-> Do I understand it correctly that in our case the indirect descriptor tab=
-le will=20
-> end up mapped shared for this mode to work and then there is no protectio=
-n?=20
-
-Correct.
-
->=20
-> Software devices (QEMU,
-> > vhost kernel, or vhost-user) usually have full access to guest RAM. The=
-y can
-> > cause dma_unmap_page() to be invoked with arguments of their choice (ex=
-cept
-> > for
-> > the first argument) by modifying indirect descriptors.
-> >=20
-> > I am not sure if this poses a danger since software devices already hav=
-e access
-> > to guest RAM, but I think this code is risky. It would be safer for the=
- driver
-> > to stash away the arguments needed for dma_unmap_page() in memory that =
-is
-> > not
-> > mapped to the device.
-> >=20
-> > Other than that, I didn't find any issues with the packed virtqueue
-> > implementation.
->=20
-> Thank you for looking into this! Even if we didn=E2=80=99t need the packe=
-d queue,=20
-> I am sure other deployments might need it and it would be the best for=20
-> virtio to provide all modes that are secure.=20
-
-I looked at the split virtqueue layout code and noticed
-vring_unmap_one_split_indirect() does the same thing. So packed and
-split virtqueues are the same with respect to loading descriptor fields
-=66rom memory that devices without an IOMMU may have overwritten.
-
-The impact of letting an attacker choose most of the arguments to
-dma_unmap_page() is not clear to me. There is swiotlb state associated
-with every mapping. I haven't read the swiotlb code, so I'm not sure how
-robust it is against invalid inputs.
-
-Stefan
-
---T9d0AhHQbbggMTd4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmVbPNYACgkQnKSrs4Gr
-c8iEeAgAlm5Nku7MGM7Utq3MuR+sI6zrnQIvnJp49CIMC9ciYqpLgeY/eqUVZtvj
-IjEPNhWnkYE65slFTMOnMXr4fvW1i7oYW23Fyb8cAoMUlGoIdtFAG1DjO5MVTBlS
-BJl/pinPY0rgeNsVoYGF3BTLL8++ojOKGSQ28xc71yQmT9KAz0BVUhttCAT/tUPm
-m2OcKBi3WgkdXezK/TmQHvzybCHKMQXoyyH3e52LRZsDYr8fgO6VUil+I4rD1SFY
-y/YuOUtvUUfOKhHqfof1QdwPayVI4YnlUFuisZ6RDm7yhSiEkvZgyHH8otlv1qX0
-Zfc9xR8l0q+Dy4kb/6LrPMldmV1lbQ==
-=Rfai
------END PGP SIGNATURE-----
-
---T9d0AhHQbbggMTd4--
-
+I'm not talking about removing drm_gem_shmem_put_pages_locked(), but
+replacing the drm_gem_shmem_put_pages_locked() call you have in
+drm_gem_shmem_free() by a drm_gem_shmem_free_pages(), so you don't end
+up with a lockdep warning when you stop exactly here in the patch
+series, which is important if we want to keep things bisectable.
