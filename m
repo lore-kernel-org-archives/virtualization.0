@@ -1,65 +1,68 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98548584DC
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFC1054BE7
+	for <virtualization@lists.linux.dev>; Tue, 21 Nov 2023 22:56:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="AjInmCZV"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1F7EA812F5
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F7EA812F5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=AjInmCZV
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Fi3_96kvpn64
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 21 Nov 2023 21:24:45 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E02FF81008
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E02FF81008
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id D216F12005A;
-	Wed, 22 Nov 2023 00:24:37 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru D216F12005A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1700601877;
-	bh=u9fx6BXWHsu28OWJVt3WPYYDtH1LMdQKdP1Xw3XIl5s=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=AjInmCZV1UUpTgDFNZFOTjad3x5OnA/ZVlSCqOXc/2QSVThYwVASfDgh27Ghq1s2Q
-	 UErvgpmiuUp4Jj0SgmIpMRes1ox/t1O9qtuRsgP8ScHoeUgEUv5Ktq2F18Ycu1pr3g
-	 EFXWwrWnKkjC+a7LfNh1JYAv3njvu5MiB85xd+G5a8DwGOHZP075lAdgYSNogJ0+SF
-	 YKQk1x8bY5PNvVh8bpjNo0Nix56+NKXT6RdO1HFkLQ4c+hNl/tfK8l/fL4PKY38oUv
-	 G31/Wtw9bv2J6B31s4dyd0pPkpHg7N4CEXSD5RSbrwwrkPNU5GnLFFbxGUyTmVsdJ6
-	 VjEbX000XvYDQ==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed, 22 Nov 2023 00:24:37 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Wed, 22 Nov 2023 00:24:37 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [PATCH net v1] vsock/test: fix SEQPACKET message bounds test
-Date: Wed, 22 Nov 2023 00:16:42 +0300
-Message-ID: <20231121211642.163474-1-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B5il7C9t"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-1cf6373ce31so2154985ad.0
+        for <virtualization@lists.linux.dev>; Tue, 21 Nov 2023 14:56:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700607418; x=1701212218; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=pHi5YlXCcsX/D19JuU9Nw7CLS9+F6yhOBOO+wjnP29E=;
+        b=B5il7C9tpQP0Em74K3xWMW8x7m/Ewjh642VHUJpMdXU/1aQIGPu3+c5g0yMB0WJftA
+         1tINGOjkbTQRAdkoa2F+rH8tny4xc1Byrg8LxkLd/g2JWSkTfCfetC6OvtqblKHqwQG+
+         rnuDyhyu+J+uiQRpvwVWpO3/K/xuXw1eXMOi+BGPf9Rym0bSCauBJ+tnhfBDyYxxuXfc
+         NuSeyjauJtSEtyI+R4KLenWv7gPi7k8+kz6aEyXPWaP1u/QKVitboqMno7DfFl5DGlDC
+         RJgC8+QB9eDrY5bF6tP1IITc9ULyZMPdns4Oc3fEbYU4KQd/DthrInuu69nSJj7B8Kjr
+         zaYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700607418; x=1701212218;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:sender:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=pHi5YlXCcsX/D19JuU9Nw7CLS9+F6yhOBOO+wjnP29E=;
+        b=WbsjCd5r5vp4Um9nUdiNCaWLT8dZOhWS79NXOh9WmmRYApzbkBQg8ZHzGVqh/9dCDk
+         +1stWq0BS2yHxuSTX17+cXDXEEJ7nZTr08HEZ2PlZwWcKFVHt33xuCRwkp6XbtXR6hxl
+         OO1464dvxH00rB/V5eRxxp7Ppi/Tdqs8BI1lGzlL/wFRaQME5IOwPt1XV8660ng/epyp
+         h+7UYmcWZWLo28upJ7sanW1LxeaGjoDckJrpjjZoQv/EnIkfmDrZP/HrH73o3+PAp4or
+         1ygKA9PrZHqwtZlA4plmw7G4zDhHpsMIE54jMcxN2pNGzErZhfFMRQ0Njbmj9e8EvArx
+         G4zg==
+X-Gm-Message-State: AOJu0Yyx2gbDIsWwAexju0tiDm8FOZdT0W46bXVv8+2fi9YHr7HfCUrW
+	AJ47Nbl0lEnQlp1Io6S0Yvc=
+X-Google-Smtp-Source: AGHT+IE6s57NYG7jptMBdy5DVewa70KWUQtBlIN7PP5AfrSGIy85Ot97zH3PYYTC8wgjLQNl/n6VtQ==
+X-Received: by 2002:a17:902:c94b:b0:1c5:cf7c:4d50 with SMTP id i11-20020a170902c94b00b001c5cf7c4d50mr1008200pla.18.1700607418027;
+        Tue, 21 Nov 2023 14:56:58 -0800 (PST)
+Received: from bangji.hsd1.ca.comcast.net ([2601:647:6780:42e0:7377:923f:1ff3:266d])
+        by smtp.gmail.com with ESMTPSA id m12-20020a1709026bcc00b001cc47c1c29csm8413189plt.84.2023.11.21.14.56.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Nov 2023 14:56:57 -0800 (PST)
+Sender: Namhyung Kim <namhyung@gmail.com>
+From: Namhyung Kim <namhyung@kernel.org>
+To: Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Jiri Olsa <jolsa@kernel.org>
+Cc: Ian Rogers <irogers@google.com>,
+	Adrian Hunter <adrian.hunter@intel.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@kernel.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	linux-perf-users@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org
+Subject: [PATCH 05/14] tools headers UAPI: Update tools's copy of vhost.h header
+Date: Tue, 21 Nov 2023 14:56:40 -0800
+Message-ID: <20231121225650.390246-5-namhyung@kernel.org>
+X-Mailer: git-send-email 2.43.0.rc1.413.gea7ed67945-goog
+In-Reply-To: <20231121225650.390246-1-namhyung@kernel.org>
+References: <20231121225650.390246-1-namhyung@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,108 +70,77 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181514 [Nov 21 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;100.64.160.123:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/21 19:56:00 #22495758
-X-KSMG-AntiVirus-Status: Clean, skipped
 
-Tune message length calculation to make this test work on machines
-where 'getpagesize()' returns >32KB. Now maximum message length is not
-hardcoded (on machines above it was smaller than 'getpagesize()' return
-value, thus we get negative value and test fails), but calculated at
-runtime and always bigger than 'getpagesize()' result. Reproduced on
-aarch64 with 64KB page size.
+tldr; Just FYI, I'm carrying this on the perf tools tree.
 
-Fixes: 5c338112e48a ("test/vsock: rework message bounds test")
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Full explanation:
+
+There used to be no copies, with tools/ code using kernel headers
+directly. From time to time tools/perf/ broke due to legitimate kernel
+hacking. At some point Linus complained about such direct usage. Then we
+adopted the current model.
+
+The way these headers are used in perf are not restricted to just
+including them to compile something.
+
+There are sometimes used in scripts that convert defines into string
+tables, etc, so some change may break one of these scripts, or new MSRs
+may use some different #define pattern, etc.
+
+E.g.:
+
+  $ ls -1 tools/perf/trace/beauty/*.sh | head -5
+  tools/perf/trace/beauty/arch_errno_names.sh
+  tools/perf/trace/beauty/drm_ioctl.sh
+  tools/perf/trace/beauty/fadvise.sh
+  tools/perf/trace/beauty/fsconfig.sh
+  tools/perf/trace/beauty/fsmount.sh
+  $
+  $ tools/perf/trace/beauty/fadvise.sh
+  static const char *fadvise_advices[] = {
+        [0] = "NORMAL",
+        [1] = "RANDOM",
+        [2] = "SEQUENTIAL",
+        [3] = "WILLNEED",
+        [4] = "DONTNEED",
+        [5] = "NOREUSE",
+  };
+  $
+
+The tools/perf/check-headers.sh script, part of the tools/ build
+process, points out changes in the original files.
+
+So its important not to touch the copies in tools/ when doing changes in
+the original kernel headers, that will be done later, when
+check-headers.sh inform about the change to the perf tools hackers.
+
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
 ---
- tools/testing/vsock/vsock_test.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ tools/include/uapi/linux/vhost.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index f5623b8d76b7..691e44c746bf 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -353,11 +353,12 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
- }
+diff --git a/tools/include/uapi/linux/vhost.h b/tools/include/uapi/linux/vhost.h
+index f5c48b61ab62..649560c685f1 100644
+--- a/tools/include/uapi/linux/vhost.h
++++ b/tools/include/uapi/linux/vhost.h
+@@ -219,4 +219,12 @@
+  */
+ #define VHOST_VDPA_RESUME		_IO(VHOST_VIRTIO, 0x7E)
  
- #define SOCK_BUF_SIZE (2 * 1024 * 1024)
--#define MAX_MSG_SIZE (32 * 1024)
-+#define MAX_MSG_PAGES 4
- 
- static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
- {
- 	unsigned long curr_hash;
-+	size_t max_msg_size;
- 	int page_size;
- 	int msg_count;
- 	int fd;
-@@ -373,7 +374,8 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
- 
- 	curr_hash = 0;
- 	page_size = getpagesize();
--	msg_count = SOCK_BUF_SIZE / MAX_MSG_SIZE;
-+	max_msg_size = MAX_MSG_PAGES * page_size;
-+	msg_count = SOCK_BUF_SIZE / max_msg_size;
- 
- 	for (int i = 0; i < msg_count; i++) {
- 		size_t buf_size;
-@@ -383,7 +385,7 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
- 		/* Use "small" buffers and "big" buffers. */
- 		if (i & 1)
- 			buf_size = page_size +
--					(rand() % (MAX_MSG_SIZE - page_size));
-+					(rand() % (max_msg_size - page_size));
- 		else
- 			buf_size = 1 + (rand() % page_size);
- 
-@@ -429,7 +431,6 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
- 	unsigned long remote_hash;
- 	unsigned long curr_hash;
- 	int fd;
--	char buf[MAX_MSG_SIZE];
- 	struct msghdr msg = {0};
- 	struct iovec iov = {0};
- 
-@@ -457,8 +458,13 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
- 	control_writeln("SRVREADY");
- 	/* Wait, until peer sends whole data. */
- 	control_expectln("SENDDONE");
--	iov.iov_base = buf;
--	iov.iov_len = sizeof(buf);
-+	iov.iov_len = MAX_MSG_PAGES * getpagesize();
-+	iov.iov_base = malloc(iov.iov_len);
-+	if (!iov.iov_base) {
-+		perror("malloc");
-+		exit(EXIT_FAILURE);
-+	}
-+
- 	msg.msg_iov = &iov;
- 	msg.msg_iovlen = 1;
- 
-@@ -483,6 +489,7 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
- 		curr_hash += hash_djb2(msg.msg_iov[0].iov_base, recv_size);
- 	}
- 
-+	free(iov.iov_base);
- 	close(fd);
- 	remote_hash = control_readulong();
- 
++/* Get the group for the descriptor table including driver & device areas
++ * of a virtqueue: read index, write group in num.
++ * The virtqueue index is stored in the index field of vhost_vring_state.
++ * The group ID of the descriptor table for this specific virtqueue
++ * is returned via num field of vhost_vring_state.
++ */
++#define VHOST_VDPA_GET_VRING_DESC_GROUP	_IOWR(VHOST_VIRTIO, 0x7F,	\
++					      struct vhost_vring_state)
+ #endif
 -- 
-2.25.1
+2.43.0.rc1.413.gea7ed67945-goog
 
