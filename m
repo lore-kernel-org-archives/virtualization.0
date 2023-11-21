@@ -1,259 +1,174 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 304AF55C30
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 18:45:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98548584DC
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="Yvb+fT8x"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="AjInmCZV"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8401E40A45
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 18:45:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8401E40A45
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.a=rsa-sha256 header.s=alien8 header.b=Yvb+fT8x
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1F7EA812F5
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1F7EA812F5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=AjInmCZV
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0gBNHf-skzcQ
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Fi3_96kvpn64
 	for <virtualization@lists.linux-foundation.org>;
-	Tue, 21 Nov 2023 18:45:34 +0000 (UTC)
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 36E5740017
-	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 18:45:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36E5740017
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 6909E40E024E;
-	Tue, 21 Nov 2023 18:45:27 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id Pi_TiCzc_9uo; Tue, 21 Nov 2023 18:45:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1700592324; bh=tqZ7PE/4BcoxuBf+REmYnd/FNUTP77IUNBiOA3NqXBE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Yvb+fT8xOBlYmB1NUrqpC3Mb/10WG7VFOOAJz4QZSsDCmKLxCFpjKiX1skk93zTiY
-	 eSTSXLahx5mm2Oca86NGNual8iH6FvPH5iq3C095o+thk0le0J1dyNCc90D2qebDdC
-	 FOrmADp89eYbo88spCP2QobNt2l336LQDw3iskvBVygS+ULp8FSiXGaYI/Z9SkJA+T
-	 q3no1QuGnLJOKQiV770nNOqPzSnpHTGVZlmN6APprs4BuQJ7bouAGmadI2UKu7E0up
-	 8vegfPN5mRwSN/Hr8UUKG/F1sLZtI/M8WBMIjoHqfFoJ8jFTr64SuCSCTYFnVwmvTs
-	 mArRdB0qoh78AZwCJBnQnusH54nwN4+7Vc7Zf+dLWMA6csgYbSP1IGeb+APiFLvLno
-	 YoiBgRxOQfGBLxwduU04DKzS053c08h79YoAMX5jK6qiFlAWrRA8XK3U2Akt8YpCIr
-	 kEap2SwkIeaay7wDXDavjiM/1d4onDV3Wk5I/ufMXsl9btGbkOQUPxDpy2luI5byli
-	 G3HeiqVTMaXHtTBtl2t1x0zFqVInHMDWqEs6sZs5Eg/qnJ0D6IsUkatQmaAsX5P79B
-	 5d9fDNHIdRTFyU1/Zh0yuiedK14bfSYezJIkYZsNnd2iqlPx61XONR7HFb84FdoXTI
-	 E20JwR+QmYltMnxlWkqmDtWA=
-Received: from zn.tnic (pd95304da.dip0.t-ipconnect.de [217.83.4.218])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	Tue, 21 Nov 2023 21:24:45 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E02FF81008
+	for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 21:24:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E02FF81008
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id D216F12005A;
+	Wed, 22 Nov 2023 00:24:37 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru D216F12005A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1700601877;
+	bh=u9fx6BXWHsu28OWJVt3WPYYDtH1LMdQKdP1Xw3XIl5s=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=AjInmCZV1UUpTgDFNZFOTjad3x5OnA/ZVlSCqOXc/2QSVThYwVASfDgh27Ghq1s2Q
+	 UErvgpmiuUp4Jj0SgmIpMRes1ox/t1O9qtuRsgP8ScHoeUgEUv5Ktq2F18Ycu1pr3g
+	 EFXWwrWnKkjC+a7LfNh1JYAv3njvu5MiB85xd+G5a8DwGOHZP075lAdgYSNogJ0+SF
+	 YKQk1x8bY5PNvVh8bpjNo0Nix56+NKXT6RdO1HFkLQ4c+hNl/tfK8l/fL4PKY38oUv
+	 G31/Wtw9bv2J6B31s4dyd0pPkpHg7N4CEXSD5RSbrwwrkPNU5GnLFFbxGUyTmVsdJ6
+	 VjEbX000XvYDQ==
+Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 473AC40E0032;
-	Tue, 21 Nov 2023 18:45:12 +0000 (UTC)
-Date: Tue, 21 Nov 2023 19:45:05 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Juergen Gross <jgross@suse.com>
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org,
-	virtualization@lists.linux-foundation.org,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <akaher@vmware.com>,
-	Alexey Makhalov <amakhalov@vmware.com>,
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v4 4/5] x86/paravirt: switch mixed paravirt/alternative
- calls to alternative_2
-Message-ID: <20231121184505.GGZVz6sc+4sP7/HFji@fat_crate.local>
-References: <20231030142508.1407-1-jgross@suse.com>
- <20231030142508.1407-5-jgross@suse.com>
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Wed, 22 Nov 2023 00:24:37 +0300 (MSK)
+Received: from localhost.localdomain (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Wed, 22 Nov 2023 00:24:37 +0300
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
+Subject: [PATCH net v1] vsock/test: fix SEQPACKET message bounds test
+Date: Wed, 22 Nov 2023 00:16:42 +0300
+Message-ID: <20231121211642.163474-1-avkrasnov@salutedevices.com>
+X-Mailer: git-send-email 2.35.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20231030142508.1407-5-jgross@suse.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 181514 [Nov 21 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;100.64.160.123:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/21 19:56:00 #22495758
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Mon, Oct 30, 2023 at 03:25:07PM +0100, Juergen Gross wrote:
-> Instead of stacking alternative and paravirt patching, use the new
-> ALT_FLAG_CALL flag to switch those mixed calls to pure alternative
-> handling.
-> 
-> This eliminates the need to be careful regarding the sequence of
-> alternative and paravirt patching.
-> 
-> For call depth tracking callthunks_setup() needs to be adapted to patch
-> calls at alternative patching sites instead of paravirt calls.
+Tune message length calculation to make this test work on machines
+where 'getpagesize()' returns >32KB. Now maximum message length is not
+hardcoded (on machines above it was smaller than 'getpagesize()' return
+value, thus we get negative value and test fails), but calculated at
+runtime and always bigger than 'getpagesize()' result. Reproduced on
+aarch64 with 64KB page size.
 
-Why is this important so that it is called out explicitly in the commit
-message? Is callthunks_setup() special somehow?
+Fixes: 5c338112e48a ("test/vsock: rework message bounds test")
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+---
+ tools/testing/vsock/vsock_test.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/x86/include/asm/alternative.h    |  5 +++--
->  arch/x86/include/asm/paravirt.h       |  9 ++++++---
->  arch/x86/include/asm/paravirt_types.h | 26 +++++++++-----------------
->  arch/x86/kernel/callthunks.c          | 17 ++++++++---------
->  arch/x86/kernel/module.c              | 20 +++++---------------
->  5 files changed, 31 insertions(+), 46 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
-> index 2a74a94bd569..07b17bc615a0 100644
-> --- a/arch/x86/include/asm/alternative.h
-> +++ b/arch/x86/include/asm/alternative.h
-> @@ -89,6 +89,8 @@ struct alt_instr {
->  	u8  replacementlen;	/* length of new instruction */
->  } __packed;
->  
-> +extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
-> +
-
-arch/x86/include/asm/alternative.h:92:extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
-arch/x86/kernel/alternative.c:163:extern struct alt_instr __alt_instructions[], __alt_instructions_end[];
-
-Zap the declaration from the .c file pls.
-
->  /*
->   * Debug flag that can be tested to see whether alternative
->   * instructions were patched in already:
-> @@ -104,11 +106,10 @@ extern void apply_fineibt(s32 *start_retpoline, s32 *end_retpoine,
->  			  s32 *start_cfi, s32 *end_cfi);
->  
->  struct module;
-> -struct paravirt_patch_site;
->  
->  struct callthunk_sites {
->  	s32				*call_start, *call_end;
-> -	struct paravirt_patch_site	*pv_start, *pv_end;
-> +	struct alt_instr		*alt_start, *alt_end;
->  };
->  
->  #ifdef CONFIG_CALL_THUNKS
-> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-> index 3749311d51c3..9c6c5cfa9fe2 100644
-> --- a/arch/x86/include/asm/paravirt.h
-> +++ b/arch/x86/include/asm/paravirt.h
-> @@ -740,20 +740,23 @@ void native_pv_lock_init(void) __init;
->  
->  #ifdef CONFIG_X86_64
->  #ifdef CONFIG_PARAVIRT_XXL
-> +#ifdef CONFIG_DEBUG_ENTRY
->  
->  #define PARA_PATCH(off)		((off) / 8)
->  #define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
->  #define PARA_INDIRECT(addr)	*addr(%rip)
->  
-> -#ifdef CONFIG_DEBUG_ENTRY
->  .macro PARA_IRQ_save_fl
->  	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),
->  		  ANNOTATE_RETPOLINE_SAFE;
->  		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);)
-> +	ANNOTATE_RETPOLINE_SAFE;
-> +	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
->  .endm
->  
-> -#define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
-> -				    ALT_NOT_XEN
-> +#define SAVE_FLAGS ALTERNATIVE_2 "PARA_IRQ_save_fl;",			\
-> +				 ALT_CALL_INSTR, ALT_CALL_ALWAYS,	\
-> +				 "pushf; pop %rax;", ALT_NOT_XEN
-
-How is that supposed to work?
-
-At build time for a PARAVIRT_XXL build it'll have that PARA_IRQ_save_fl
-macro in there which issues a .parainstructions section and an indirect
-call to
-
-	call *pv_ops+240(%rip);
-
-then it'll always patch in "call BUG_func" due to X86_FEATURE_ALWAYS.
-
-I guess this is your way of saying "this should always be patched, one
-way or the other, depending on X86_FEATURE_XENPV, and this is a way to
-catch unpatched locations...
-
-Then on a pv build which doesn't set X86_FEATURE_XENPV during boot,
-it'll replace the "call BUG_func" thing with the pushf;pop.
-
-And if it does set X86_FEATURE_XENPV, it'll patch in the direct call to
-.... /me greps tree ... pv_native_save_fl I guess.
-
-If anything, how those ALT_CALL_ALWAYS things are supposed to work,
-should be documented there, over the macro definition and what the
-intent is.
-
-Because otherwise we'll have to swap in the whole machinery back into
-our L1s each time we need to touch it.
-
-And btw, this whole patching stuff becomes insanely non-trivial slowly.
-
-:-\
-
-> diff --git a/arch/x86/kernel/callthunks.c b/arch/x86/kernel/callthunks.c
-> index faa9f2299848..200ea8087ddb 100644
-> --- a/arch/x86/kernel/callthunks.c
-> +++ b/arch/x86/kernel/callthunks.c
-> @@ -238,14 +238,13 @@ patch_call_sites(s32 *start, s32 *end, const struct core_text *ct)
->  }
->  
->  static __init_or_module void
-> -patch_paravirt_call_sites(struct paravirt_patch_site *start,
-> -			  struct paravirt_patch_site *end,
-> -			  const struct core_text *ct)
-> +patch_alt_call_sites(struct alt_instr *start, struct alt_instr *end,
-> +		     const struct core_text *ct)
->  {
-> -	struct paravirt_patch_site *p;
-> +	struct alt_instr *a;
->  
-> -	for (p = start; p < end; p++)
-> -		patch_call(p->instr, ct);
-> +	for (a = start; a < end; a++)
-> +		patch_call((u8 *)&a->instr_offset + a->instr_offset, ct);
-
-tip:x86/paravirt has:
-
-5c22c4726e4a ("x86/paravirt: Use relative reference for the original instruction offset")
-
-Perhaps redo yours ontop of tip/master:
-
-diff --git a/arch/x86/kernel/callthunks.c b/arch/x86/kernel/callthunks.c
-index 57e5c2e75c2a..76414aba116d 100644
---- a/arch/x86/kernel/callthunks.c
-+++ b/arch/x86/kernel/callthunks.c
-@@ -233,14 +233,18 @@ patch_call_sites(s32 *start, s32 *end, const struct core_text *ct)
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index f5623b8d76b7..691e44c746bf 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -353,11 +353,12 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
  }
  
- static __init_or_module void
--patch_paravirt_call_sites(struct paravirt_patch_site *start,
--                         struct paravirt_patch_site *end,
--                         const struct core_text *ct)
-+patch_alt_call_sites(struct alt_instr *start, struct alt_instr *end,
-+                    const struct core_text *ct)
- {
--       struct paravirt_patch_site *p;
-+       struct alt_instr *a;
+ #define SOCK_BUF_SIZE (2 * 1024 * 1024)
+-#define MAX_MSG_SIZE (32 * 1024)
++#define MAX_MSG_PAGES 4
  
-+<<<<<<<
-        for (p = start; p < end; p++)
-                patch_call((void *)&p->instr_offset + p->instr_offset, ct);
-+=======
-+       for (a = start; a < end; a++)
-+               patch_call((u8 *)&a->instr_offset + a->instr_offset, ct);
-+>>>>>>>
-
-Thx.
-
+ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
+ {
+ 	unsigned long curr_hash;
++	size_t max_msg_size;
+ 	int page_size;
+ 	int msg_count;
+ 	int fd;
+@@ -373,7 +374,8 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
+ 
+ 	curr_hash = 0;
+ 	page_size = getpagesize();
+-	msg_count = SOCK_BUF_SIZE / MAX_MSG_SIZE;
++	max_msg_size = MAX_MSG_PAGES * page_size;
++	msg_count = SOCK_BUF_SIZE / max_msg_size;
+ 
+ 	for (int i = 0; i < msg_count; i++) {
+ 		size_t buf_size;
+@@ -383,7 +385,7 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
+ 		/* Use "small" buffers and "big" buffers. */
+ 		if (i & 1)
+ 			buf_size = page_size +
+-					(rand() % (MAX_MSG_SIZE - page_size));
++					(rand() % (max_msg_size - page_size));
+ 		else
+ 			buf_size = 1 + (rand() % page_size);
+ 
+@@ -429,7 +431,6 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
+ 	unsigned long remote_hash;
+ 	unsigned long curr_hash;
+ 	int fd;
+-	char buf[MAX_MSG_SIZE];
+ 	struct msghdr msg = {0};
+ 	struct iovec iov = {0};
+ 
+@@ -457,8 +458,13 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
+ 	control_writeln("SRVREADY");
+ 	/* Wait, until peer sends whole data. */
+ 	control_expectln("SENDDONE");
+-	iov.iov_base = buf;
+-	iov.iov_len = sizeof(buf);
++	iov.iov_len = MAX_MSG_PAGES * getpagesize();
++	iov.iov_base = malloc(iov.iov_len);
++	if (!iov.iov_base) {
++		perror("malloc");
++		exit(EXIT_FAILURE);
++	}
++
+ 	msg.msg_iov = &iov;
+ 	msg.msg_iovlen = 1;
+ 
+@@ -483,6 +489,7 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
+ 		curr_hash += hash_djb2(msg.msg_iov[0].iov_base, recv_size);
+ 	}
+ 
++	free(iov.iov_base);
+ 	close(fd);
+ 	remote_hash = control_readulong();
+ 
 -- 
-Regards/Gruss,
-    Boris.
+2.25.1
 
-https://people.kernel.org/tglx/notes-about-netiquette
