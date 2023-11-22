@@ -1,283 +1,198 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77EC64F5FD
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AABD95C8EA
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="qKbbYsqc"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="bPMXSA4q"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 238ED403A8
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 238ED403A8
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=qKbbYsqc
+	by smtp1.osuosl.org (Postfix) with ESMTP id 13D19812D5
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 13D19812D5
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=bPMXSA4q
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8qHcRVXfw-oT
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KptOBBxCr814
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 18:13:12 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 920A640425
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 920A640425
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id A11FC120071;
-	Wed, 22 Nov 2023 21:13:06 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru A11FC120071
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1700676786;
-	bh=PHuX2kiU/Nw67VMyYDVUZRMzOKwEXqxibwx95TeiHrY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=qKbbYsqcVz1eJcEhXQyiURPf5mSMbm5h5oQI+sT1NLmyNPqLwKa261XpE4pm6SeoV
-	 XLKQ6NA314B2NC4a/cTzD9TdFctwL551mcgzudoYAaw3MUVSa/viTfsXYYOKEi3pSb
-	 buLKdfS5BHiHGyVvMZisk9HXAFLY/UYbT8fFtjuCIgJP35ye04xlwywE/thwwcnZXS
-	 Q+OY5e0MJgTjNrwoMrEY3VHHvxy034Qzfonr6hE58X1fO5ElsEeSc5GGV4q8ZUm7db
-	 qFkHEhoscmj2A2scwKUdVFG5VGVPqiKfJj/C6+fOUmN+7IALVUsNa4Ct9c+6gXNeNh
-	 zoN+mBSUk2d7g==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed, 22 Nov 2023 21:13:06 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Wed, 22 Nov 2023 21:13:06 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH v3 3/3] vsock/test: SO_RCVLOWAT + deferred credit update test
-Date: Wed, 22 Nov 2023 21:05:10 +0300
-Message-ID: <20231122180510.2297075-4-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
-References: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
+	Wed, 22 Nov 2023 19:00:28 +0000 (UTC)
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062d.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5b::62d])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 39F7E8123F
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39F7E8123F
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=FS3BikAmEUdHk/YYN/8JfHiOb+ba3InZRmL3U1YgUnDBGprfJR/5TTHY13Yze+HfUqtZTtB1vF9jM8uo+ZuATyyBNysHAXmxNKDt0btHUGJ/y+ktqJE0O4GO5STDlEOVxtGjrqo6JNaC3tOm3x3RVWNtrWeju1qYgaJoO/0ImTIZl42TtmHQ3dIQZ9wnVMdOJw4fGIlKse2IjvpFmLSM4DZeHtsd3EEDO+mz6HUV4ezLDXbfVX9eFji6OEuGE7EAPUXpWmzT6mNwHghcLbNNst9np2fjfW6pZctDpUhPpMWp/BRovX4t9tQX/RUDU4iMjTbLw18vxWErW1DmtPW8yg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=eZWDflHyvSXyxnLDpVXI3Lh4doEAtVUGqRgZZsjAyCY=;
+ b=KC0B4GZhfDrcJ8Wf76jBEkbxpzu7c+EIllN9d0rzRY13fmOSqZu2c+9r1rHX3FB7WaX8uKNt40c7X6lYhTs9br8GlXsz8VxZuwMxbN0aNky9ULLpvi2KEKte/EFK0NR1I7nvtSg3ChEjfVEmxJ2IF8hq4eaQAr0zD4IVR/VwoOLNGhatiB02SsEsIfbSnKVWDrmkvvbM086L79jG2ehFXtRQ8APr4TV3TrJOGkBl65x/QxW0ddaISwB+ye8Ct50AcbK6c7zGka4bCHFrHcCDLAY3WPNMSvcw5r7GwXrrOCrmjKPQh26vn56akVgjb/myC0ErqiimO66THlqR0ERLzQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=eZWDflHyvSXyxnLDpVXI3Lh4doEAtVUGqRgZZsjAyCY=;
+ b=bPMXSA4qT8uUjXtoGhm5qEUxw4Lb4E1Fk05FX+3Vwx+3bmMmCkD178GUlnxwdhgCOT8J03MD57BgKVXKKS2txHrsN/E+Nr9qgNSUiwBKjvIdSY2HPNVEiQc8udAVmog4t5ArDZigLq8GyFg0NtbfLSXkn+W+WcnZVDZl9S2xx78=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from SN6PR12MB2621.namprd12.prod.outlook.com (2603:10b6:805:73::15)
+ by MW4PR12MB6825.namprd12.prod.outlook.com (2603:10b6:303:20d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.18; Wed, 22 Nov
+ 2023 19:00:21 +0000
+Received: from SN6PR12MB2621.namprd12.prod.outlook.com
+ ([fe80::517a:f65:688e:c4b1]) by SN6PR12MB2621.namprd12.prod.outlook.com
+ ([fe80::517a:f65:688e:c4b1%7]) with mapi id 15.20.7025.017; Wed, 22 Nov 2023
+ 19:00:21 +0000
+Message-ID: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
+Date: Wed, 22 Nov 2023 19:00:16 +0000
+User-Agent: Mozilla Thunderbird
+From: Ayan Kumar Halder <ayankuma@amd.com>
+Subject: Enabling more than one HVC console on Arm64 platform
+To: amit@kernel.org, Julien Grall <julien@xen.org>,
+ Michal Orzel <michal.orzel@amd.com>,
+ "Stabellini, Stefano" <stefano.stabellini@amd.com>
+Cc: arnd@arndb.de, virtualization@lists.linux-foundation.org,
+ "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+Content-Language: en-GB
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR4P281CA0220.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:e4::15) To SN6PR12MB2621.namprd12.prod.outlook.com
+ (2603:10b6:805:73::15)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181545 [Nov 22 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/22 11:24:00 #22501433
-X-KSMG-AntiVirus-Status: Clean, skipped
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN6PR12MB2621:EE_|MW4PR12MB6825:EE_
+X-MS-Office365-Filtering-Correlation-Id: c4797dc4-294b-4a7e-883d-08dbeb8d46b0
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	M8DZd347f76xnuenAD/0Xh3k4P4cMSB5McbR457Ol4PuAzaPUMOPtZD+meZgX5QiE3+Uo5JTv00kDOE2kKIc1vZ0yV9aEY8/lNR9doQtcjZynan01L6nf3uXdeQC1omTgzC7N/Dxvm22EILD+Hfv1uuJ43PK6AWdme8yIEzDv4eqS2oIrjmOugGmjPQ7m2Ipsmqfx5bAVHafxtwLRjmXOGw0WBRL/huJRTrlFsTYf1hSZXgaDISs/dBT3ramZQqO51j+zVWt6iHxqK66I/U1ILg7QAFqB+xfvfhO8HK7dfFWDu+JO5/CS8mDxgo6cP7AsDVE8Y7PLCXDZ88ZuI/dcpjbGxVYNs141TaG4r3UzLDJovsZ9RJiluwqy/czmC9wvbrI5yBaVjKz/z+SZHw3NErX3ydvNw0hEMgAVM14JM7C6WEq9Nxp4VCW6huYqXbO9kohh0Nt/xVQU+4PKepn3wgY4bwUtgSPH3oydRJeDyYHZtoiuFhgC0Re5Rdwhi60fH4BseUvptDBfIO4ZGo+zp2un1bYSVhSumfAM08gSnFADZN++RDid53JACuepxSrcVRBk6BFHG/diccNBg9NVrYcLFsPvt0dOBtZOz0rWrfF3q7b2+WA+hj+yzqyBxdH
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR12MB2621.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(136003)(366004)(376002)(346002)(39860400002)(230922051799003)(186009)(451199024)(64100799003)(1800799012)(6512007)(6506007)(26005)(8676002)(966005)(6486002)(478600001)(2616005)(31696002)(2906002)(36756003)(8936002)(4326008)(5660300002)(41300700001)(66556008)(316002)(66946007)(6636002)(66476007)(110136005)(6666004)(38100700002)(31686004)(83380400001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?NUN5a1l2eXQvcVZ5VTdRaGR6eVBVNDRRMVQ4S2NXNGpDWmZUYUZlQkZ4OVU4?=
+ =?utf-8?B?aHY4dlNMaVFSM2Z1aXNlTytGT0JuSUlOVzZVcU9UU3BTNVpzRE9zdG03VHlG?=
+ =?utf-8?B?R045bERNU0JkaGQ2TmRlcjBHdzhhOGt2S2k2UnhwTm9mQjhVOVlCTEl4WG9h?=
+ =?utf-8?B?UlI3NS83SGREZ0wrTjFnNUlNQWx3RXg3bFoybFREUlJlcWQ4NnBLcktHWlVB?=
+ =?utf-8?B?a3QwK0xtZTlOdUtJRytlaXA3Q3hmckg0U2FNaXRmMy8rN045Vzl2aHNOMlc3?=
+ =?utf-8?B?RkZscUEyU3QramVvL2pJOEhHTk9XbW9zVkx6eFd0c08xdGFkYys4L3BreWNH?=
+ =?utf-8?B?Slc3UksxUXZhc3hEOEM5OEpmTld0WXdSVE9hZEVEY3A2K3F0UWllSkhPOHcv?=
+ =?utf-8?B?ZGh1eWhkSm9mYW4yWW41Y0hoNHZZL0VRU0xwd0Zpa01Mc3FObWZqbmNFdE4z?=
+ =?utf-8?B?S0pnK0JUTkhodVlQNTI2OGVWNGY0eTY5bjVmRVdCbkVvVm9OakMvMlVVTmFP?=
+ =?utf-8?B?Y3dmRFEwaXpVakNDeUgxYUs5MlhYRlY2YUgweGI0ZjBhc1VvMjJQS3hTZEpm?=
+ =?utf-8?B?Nk90VFZDNDVlOFUyMkJybWJjN3B4TVFmK3J3dm9iZ3B3bzFpTnJwT0ptZ2Zp?=
+ =?utf-8?B?THJqRjFKZHMxYnJCZ1M3VVpiVk5aMFN5OVBIUmY2VDlXbTIyazMxQnJiZE8r?=
+ =?utf-8?B?VnFSaTllc0d6bkVxYUF0ZTh5dDFNdms0UzF6NVBBQlF2TTRyeUIyQXJXbzcx?=
+ =?utf-8?B?NWRKZ21PamllYmxuUUJvQ2d3UFYwOUpKb1lBbFRtUXFxQnU5UENwd0t6SkJ6?=
+ =?utf-8?B?NWFMK2RMN3lab3VBMUhGb0FOWHJHOWZ0eFhmTkpDRlFEVUtQMVo5cm5mYTFC?=
+ =?utf-8?B?MGRvd2hTWktXK1NjVzZGRG5aeERwdFpUV2tmQndnNEFXbkgxbFJHQXAvVXAw?=
+ =?utf-8?B?eW1ocTRpdTNaL0NEVWY3Q0ZUYUNkOHBFV2oxaG0welB0aTVOWGNSd3dGUVAz?=
+ =?utf-8?B?dVp5eWx4SVRoUm5kMmFsdXNCVnFpQ25QWFkrZGFlQWYzanJDNkJiV1pQOHR5?=
+ =?utf-8?B?VG1GQm50WGxQMzYxOGVpR2Y5NWZ0ZnZUc1Z5UzdadlVSbk8zUjFTR2p1dFZl?=
+ =?utf-8?B?M0ZYRjVOc1Z4Qi9hOWtHQlZLUXRzeDFMcUIvMlVvaVRxdm9JOEhBcVFkNWQx?=
+ =?utf-8?B?QUpQY0pzYnpTOEJsS21oejRBcEZUdkdPUS95VWtxRE5HcTJ4ejkyMHhhYS82?=
+ =?utf-8?B?elBCTlFVazFNaTRkdVRXSUpUSk1MdUtVcUU3NS8zTkNCL2t3b3JOb21NMHkz?=
+ =?utf-8?B?ajMxRjdSSE1VMHIyNHZvT3p6VEJMTWNwT3IzSTdOVGRJUmxBNkZRb3ZZYWEy?=
+ =?utf-8?B?MGRXN3g5L0xKNmIxOTVxblhwQWVMWVFmWmcxUTdSVGtBR3B1Q240NXFjaDh0?=
+ =?utf-8?B?OHB4L2M5dTV0dGNtRHRweHZsc0ErYkVJRnVFV3dZSk5YeVRNV0RKbWl3bmlP?=
+ =?utf-8?B?QThNaEhIMVEvSGtHY0JaOWR4aWxnQ05lN3BpbFJ0WWYzSW50TFNKbUJ2ZTFp?=
+ =?utf-8?B?Y1U1N2FBdGJXZUZmcTVpOVNrWElvYUZUQndjSTRZdFRBbHZUeStkMDA4bUJs?=
+ =?utf-8?B?emREY3RabkFDazZDYzE4Uy8xZFkyendFV3dNVzJ3NGY3YmVuQ2k0YnlvdGJX?=
+ =?utf-8?B?bDZ2T1hiTnJFU2pDamVsVDk0R1M3aGE4dDVCdFVBZnRRWDdjZklHeWR4RnBh?=
+ =?utf-8?B?dXE4ZW9VbmtQc0o5NmFoaWhZNVduMFFtSzduVnNiSzZuQURhcnZvbHI2NFl5?=
+ =?utf-8?B?QWFEenQwUVpxVGNMVFRRNWVLTkdjb1dHSzhBcjJKemtBbXM1MDdZdy84NE16?=
+ =?utf-8?B?aUFZbkx6TVErd1hkSGRScnJuODBYSXFpcjI2L0Zsd1Uxd0N3YmtqVWFJVzZT?=
+ =?utf-8?B?bFdXRjMrQ3NPNmhTWlMyTEF2dGhreXJEUnZzMElhbnJCdkZ3aXNSeUREcFpP?=
+ =?utf-8?B?S3pKdVZzZG0yUm52QUpoZTEyc1c3dDJDbnl0UkhISUdqdFlGdEY1REp5cXJG?=
+ =?utf-8?B?eWNhTytYem56MlJ2Nml6Z1VvRGRScGVOMjhrVllzWGd2OWgxZll5ZW13UXdD?=
+ =?utf-8?Q?A/R2D7Ko4ylPE9Sby6l71xMaD?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c4797dc4-294b-4a7e-883d-08dbeb8d46b0
+X-MS-Exchange-CrossTenant-AuthSource: SN6PR12MB2621.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 19:00:21.4649
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: WbHA2M4JrWGeAJAUlRitrYNpkIj5F0Ie8gbqVNkJIu4N2Lb432LalSHu2Bbt4llvFA01UbOnKPYUWHuUE1CdMA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6825
 
-Test which checks, that updating SO_RCVLOWAT value also sends credit
-update message. Otherwise mutual hungup may happen when receiver didn't
-send credit update and then calls 'poll()' with non default SO_RCVLOWAT
-value (e.g. waiting enough bytes to read), while sender waits for free
-space at receiver's side. Important thing is that this test relies on
-kernel's define for maximum packet size for virtio transport and this
-value is not exported to user: VIRTIO_VSOCK_MAX_PKT_BUF_SIZE (this
-define is used to control moment when to send credit update message).
-If this value or its usage will be changed in kernel - this test may
-become useless/broken.
+Hi Amit/All,
 
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
----
- Changelog:
- v1 -> v2:
-  * Update commit message by removing 'This patch adds XXX' manner.
-  * Update commit message by adding details about dependency for this
-    test from kernel internal define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
-  * Add comment for this dependency in 'vsock_test.c' where this define
-    is duplicated.
- v2 -> v3:
-  * Replace synchronization based on control TCP socket with vsock
-    data socket - this is needed to allow sender transmit data only
-    when new buffer size of receiver is visible to sender. Otherwise
-    there is race and test fails sometimes.
+We came across this scenario and would be helpful if you can provide 
+some pointers
 
- tools/testing/vsock/vsock_test.c | 142 +++++++++++++++++++++++++++++++
- 1 file changed, 142 insertions(+)
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index 5b0e93f9996c..773a71260fba 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -1225,6 +1225,143 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
- 	}
- }
- 
-+#define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
-+/* This define is the same as in 'include/linux/virtio_vsock.h':
-+ * it is used to decide when to send credit update message during
-+ * reading from rx queue of a socket. Value and its usage in
-+ * kernel is important for this test.
-+ */
-+#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE	(1024 * 64)
-+
-+static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opts)
-+{
-+	size_t buf_size;
-+	void *buf;
-+	int fd;
-+
-+	fd = vsock_stream_connect(opts->peer_cid, 1234);
-+	if (fd < 0) {
-+		perror("connect");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* Send 1 byte more than peer's buffer size. */
-+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE + 1;
-+
-+	buf = malloc(buf_size);
-+	if (!buf) {
-+		perror("malloc");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* Wait until peer sets needed buffer size. */
-+	recv_byte(fd, 1, 0);
-+
-+	if (send(fd, buf, buf_size, 0) != buf_size) {
-+		perror("send failed");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	free(buf);
-+	close(fd);
-+}
-+
-+static void test_stream_rcvlowat_def_cred_upd_server(const struct test_opts *opts)
-+{
-+	size_t recv_buf_size;
-+	struct pollfd fds;
-+	size_t buf_size;
-+	void *buf;
-+	int fd;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
-+
-+	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
-+		       &buf_size, sizeof(buf_size))) {
-+		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* Send one dummy byte here, because 'setsockopt()' above also
-+	 * sends special packet which tells sender to update our buffer
-+	 * size. This 'send_byte()' will serialize such packet with data
-+	 * reads in a loop below. Sender starts transmission only when
-+	 * it receives this single byte.
-+	 */
-+	send_byte(fd, 1, 0);
-+
-+	buf = malloc(buf_size);
-+	if (!buf) {
-+		perror("malloc");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* Wait until there will be 128KB of data in rx queue. */
-+	while (1) {
-+		ssize_t res;
-+
-+		res = recv(fd, buf, buf_size, MSG_PEEK);
-+		if (res == buf_size)
-+			break;
-+
-+		if (res <= 0) {
-+			fprintf(stderr, "unexpected 'recv()' return: %zi\n", res);
-+			exit(EXIT_FAILURE);
-+		}
-+	}
-+
-+	/* There is 128KB of data in the socket's rx queue,
-+	 * dequeue first 64KB, credit update is not sent.
-+	 */
-+	recv_buf_size = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
-+	recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
-+	recv_buf_size++;
-+
-+	/* Updating SO_RCVLOWAT will send credit update. */
-+	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
-+		       &recv_buf_size, sizeof(recv_buf_size))) {
-+		perror("setsockopt(SO_RCVLOWAT)");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	memset(&fds, 0, sizeof(fds));
-+	fds.fd = fd;
-+	fds.events = POLLIN | POLLRDNORM | POLLERR |
-+		     POLLRDHUP | POLLHUP;
-+
-+	/* This 'poll()' will return once we receive last byte
-+	 * sent by client.
-+	 */
-+	if (poll(&fds, 1, -1) < 0) {
-+		perror("poll");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (fds.revents & POLLERR) {
-+		fprintf(stderr, "'poll()' error\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	if (fds.revents & (POLLIN | POLLRDNORM)) {
-+		recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
-+	} else {
-+		/* These flags must be set, as there is at
-+		 * least 64KB of data ready to read.
-+		 */
-+		fprintf(stderr, "POLLIN | POLLRDNORM expected\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	free(buf);
-+	close(fd);
-+}
-+
- static struct test_case test_cases[] = {
- 	{
- 		.name = "SOCK_STREAM connection reset",
-@@ -1335,6 +1472,11 @@ static struct test_case test_cases[] = {
- 		.run_client = test_double_bind_connect_client,
- 		.run_server = test_double_bind_connect_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM virtio SO_RCVLOWAT + deferred cred update",
-+		.run_client = test_stream_rcvlowat_def_cred_upd_client,
-+		.run_server = test_stream_rcvlowat_def_cred_upd_server,
-+	},
- 	{},
- };
- 
--- 
-2.25.1
+Linux running as Dom0 on Xen hypervisor with HVC_DCC = y and HVC_XEN = y 
+on Arm64 platform.
+
+This causes a crash when Dom0 tries to access "DBGDTRTX_EL0" register, 
+it traps to Xen.
+
+Xen does not emulate this register so it crashes.
+
+|Logs - https://paste.debian.net/1298983/|
+
+|
+|
+
+|My aim is to avoid the crash and let Xen boot Dom0 even though there 
+might not be a debug console available.|
+
+|So, I am trying to add emulation for |"DBGDTRTX_EL0" register in Xen.
+
+
+As a quick trial (may be not the perfect solution), I am trying to 
+emulate this register as "read as zero/write ignore" (similar to KVM).
+
+However, I could not see logs to the Xen console (ie HVC0).
+
+
+So my question is
+
+1. Is it possible in Linux to probe more than one HVC console so that 
+Linux can put the same logs in HVC_DCC and HVC_XEN drivers ?
+
+So that the user can always see the logs in the default Xen console (ie 
+hvc0) even if the debug console is not present.
+
+
+Another possible alternative I am exploring is to enable trapping for 
+read of MDCCSR_EL0 in Xen, so that Xen returns with MDCCSR_EL0.TXfull 
+set to 1.
+
+static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
+{
+     int i;
+
+     for (i = 0; i < count; i++) {
+         while (__dcc_getstatus() & DCC_STATUS_TX)
+             cpu_relax(); <<<<<<<<<<----------- So this will be invoked.
+
+         __dcc_putchar(buf[i]);
+     }
+
+     return count;
+}
+
+Any pointers are highly appreciated.
+
+
+Kind regards,
+
+Ayan
 
