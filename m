@@ -1,191 +1,157 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 387782136F
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:16:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A712F48793
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:29:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QxdhiCdX"
+	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b="HH3AjfCf"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id BCE41405A0
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:16:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BCE41405A0
+	by smtp2.osuosl.org (Postfix) with ESMTP id C248940272
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:29:51 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C248940272
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QxdhiCdX
+	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-corigine-onmicrosoft-com header.b=HH3AjfCf
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -1.902
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eONwqW_3H2Rj
+	with ESMTP id 3LVqwYwe2RBE
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 09:16:25 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7DE6C40272
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:16:25 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 7DE6C40272
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700644584;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FvqBK0UZREQjTEFtoe+8dwMEyfkRZhPHhHrOq6zH23k=;
-	b=QxdhiCdX+e0UpV1YnY6TtkSow4lX4tk6dqXpuVpQEwF4jiY0B7v8eLSl4uhEIHcCJoHYRJ
-	+k04dECEeNXJorWvZDjBhJ4zIBT/ha8l+s8SEJ5D8TMvKi4r2eOMTMr2Giz3zja8kkALPq
-	JLDwCzkOhUtgeH+fKnwOjwQLmcz6aWA=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-645-VvdZ2kRNNhGnbdNYV3mEHA-1; Wed, 22 Nov 2023 04:16:22 -0500
-X-MC-Unique: VvdZ2kRNNhGnbdNYV3mEHA-1
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5cbab2450c5so24386147b3.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 01:16:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700644582; x=1701249382;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FvqBK0UZREQjTEFtoe+8dwMEyfkRZhPHhHrOq6zH23k=;
-        b=oNR3SeLNRKA+0DmAq4NvU9LoKI9AMO6HX5fA68P1TF+bxV0aLsFVud28tukHvrIFJm
-         e0+dL2qoyHsKQcBFIeC5wkJmVrrw6kR9BMD0xSn6wx7hvRnmrosQ3OT/ot4JcqMhK6WO
-         DGl9nqe146lc0FI2AuL1/8r+EhzShF7hAwuqvrG0dloQVX/35GEvnjXgBb/RXvTqCg1s
-         Pon3mNJ0sNLvZHfkrAlbp+YlwUFjoKd4Uuus6zeKrtJfn3UtoCW02OazHxyjkNDVOHIN
-         sHuXGSc8gge+C4Z4e/Z9OadWPAHRlxvbS8gGXPEdeDU5zl1zWMW5XETqaZCYekY76A71
-         SazQ==
-X-Gm-Message-State: AOJu0YwIquqOcD4t11skXuUcVPQocmhqQLw3JnjQCCLV2uVKBCPsV2L5
-	H9WQuVIOrOXVNck4+FUVTTaCAvtnEPFRFrIaaaUoF8jjAUuNMOZnGQZyrQiJFoukgg/SvvnG+LR
-	C+jggtmEG8+CVQLkQnFyklZgbk+XMT7t8G34xLgl37A==
-X-Received: by 2002:a25:e812:0:b0:daf:81e5:d2fa with SMTP id k18-20020a25e812000000b00daf81e5d2famr1645679ybd.33.1700644582098;
-        Wed, 22 Nov 2023 01:16:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFgjChf8tYk5WRQhvlQx17JS9JtaEmIgWhz74vAPdVRs7d7DxN/bnfe4x0/ngk4fEhGpNP7Bw==
-X-Received: by 2002:a25:e812:0:b0:daf:81e5:d2fa with SMTP id k18-20020a25e812000000b00daf81e5d2famr1645672ybd.33.1700644581817;
-        Wed, 22 Nov 2023 01:16:21 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-199.retail.telecomitalia.it. [79.46.200.199])
-        by smtp.gmail.com with ESMTPSA id qd24-20020ad44818000000b0065b21b232bfsm4711765qvb.138.2023.11.22.01.16.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Nov 2023 01:16:21 -0800 (PST)
-Date: Wed, 22 Nov 2023 10:16:14 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com, Bogdan Marcynkov <bmarcynk@redhat.com>
-Subject: Re: [PATCH net v1] vsock/test: fix SEQPACKET message bounds test
-Message-ID: <zoq32fkokk2ygtiabxgf74xu6vkfdynrlfzdqguh67qlogzd7j@qfd57sgudzpw>
-References: <20231121211642.163474-1-avkrasnov@salutedevices.com>
+	Wed, 22 Nov 2023 09:29:50 +0000 (UTC)
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on20722.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe59::722])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C3E6140165
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 09:29:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C3E6140165
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=K8oPZjRnnapYTUrxSkfU5r7Ax9aUi8VNxKuO6Cf78AtUgUP56o6GwlJ6G4kWpMiBIW1GLLF1PkyfnzzSySd8nkHfJzb07zPO/weXN6Svycb9AeIGwZLdr8v3ASPh5hvAzgDnVpgEkkkNEINKigto3vBaH00znYixJPhKkDDU+/Xz6chtkWGau8aGiiOtdsM9V+lnzf9yccjNC7FxuZXofFxZB/ImIyqVh9lRuWXwAFAFwdGKZAatLrKTLV6KsbwEX9E0X+XANvtNBWGq83tHi5kFflFGqWy98TYzsI6OG8znjGrwz2rIbIhUUTfsiEwsfcyyNvzNTPx64wVadKx3Mw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=o0yqJ+/s/KPIIDhLIw+0umXmUY3WX5eY1cya3j3A3uk=;
+ b=B/gfBtVmOy4Ei6TnedKODojsQ6vhcSRhwvspyThevlS2XGWpiHp9sm7vwl0LWIrwzbJWW+3M76SAMLJ7fRADaDKI3Yeb+zHKZXiL78eAbsbcCUVpgIuFCtFAvya0vYdAoMFBn8enV6fJrZefOWfAjNGSRtf8zcMuW5ty8aH6jTlW3UnAiUMOLQECKXekYRmrKtLN56CsxBGsusxdHL3a1th45NqgvdanFltJDJ52aPZSbZuEPBy2EZNc8GanKn0/Z4OkItBHnXlQwuvOEh9e8cvxT2QdoTnCcjO5hwncfKbEHpnLJgPWDzPglrDVPcRZZYn4EINPy9ZvZntrQD9VJw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
+ dkim=pass header.d=corigine.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=o0yqJ+/s/KPIIDhLIw+0umXmUY3WX5eY1cya3j3A3uk=;
+ b=HH3AjfCf/1PiGg2xREBlhrdbln0IHQ7WMjFdNdL9ic66cOkUzTeLPEuROR2WlyoMrHbuPTACICSTsDRQSE2Ah0l57SYnaH/LCD4OTIDCtlHVLgBGLThNawFBeTsT1qJ9J2F1WRqC8XQsEWvjdyILmV8itbdX3I9aLxzJiZcv9cE=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=corigine.com;
+Received: from DM6PR13MB3705.namprd13.prod.outlook.com (2603:10b6:5:24c::16)
+ by BLAPR13MB4641.namprd13.prod.outlook.com (2603:10b6:208:330::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.18; Wed, 22 Nov
+ 2023 09:29:46 +0000
+Received: from DM6PR13MB3705.namprd13.prod.outlook.com
+ ([fe80::91e8:b139:26e3:f374]) by DM6PR13MB3705.namprd13.prod.outlook.com
+ ([fe80::91e8:b139:26e3:f374%3]) with mapi id 15.20.7025.017; Wed, 22 Nov 2023
+ 09:29:46 +0000
+From: Yinjun Zhang <yinjun.zhang@corigine.com>
+To: hengqi@linux.alibaba.com
+Cc: ast@kernel.org,
+	davem@davemloft.net,
+	edumazet@google.com,
+	hawk@kernel.org,
+	horms@kernel.org,
+	jasowang@redhat.com,
+	john.fastabend@gmail.com,
+	kuba@kernel.org,
+	mst@redhat.com,
+	netdev@vger.kernel.org,
+	pabeni@redhat.com,
+	virtualization@lists.linux-foundation.org,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net-next v4 4/4] virtio-net: support rx netdim
+Date: Wed, 22 Nov 2023 17:29:39 +0800
+Message-Id: <20231122092939.1005591-1-yinjun.zhang@corigine.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <c00b526f32d9f9a5cd2e98a212ee5306d6b6d71c.1700478183.git.hengqi@linux.alibaba.com>
+References: <c00b526f32d9f9a5cd2e98a212ee5306d6b6d71c.1700478183.git.hengqi@linux.alibaba.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SI2PR01CA0028.apcprd01.prod.exchangelabs.com
+ (2603:1096:4:192::21) To DM6PR13MB3705.namprd13.prod.outlook.com
+ (2603:10b6:5:24c::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231121211642.163474-1-avkrasnov@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM6PR13MB3705:EE_|BLAPR13MB4641:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2750e3d1-b43e-4064-c03a-08dbeb3d90f2
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	otCtA6m7KDjDXHB35Po42uY1Xt94sa/e1BrRHtBHZdq22dofZZhvTZ4Aj8hc35oppcBnBi/nWDDhS7Tz53uQqneKha2g14r2fRe+NdCaQRv/wzCzbpLPQKJ1sFSY75sScvYYf6GobegHhSH2K+AvgcKrJxHUwK/XAlHabz4sIgMpxwC7beIcU3EmdrNbgPcFmCmZXjTcVRebI6Ljv+PnFmFDlLB/gWoqrYx8IuhdQv+KkniGXrlbhPCi50rMRvZ8JrkETAcYIVx8YfsJAtMZgRAuEmxwP8GHFO6vBg5XA1IIkB09vpwes6CdEJX8fAtemOuFMMMGWu1VuM5VkZpTRs6Oxc/Fov0AOy8hH8nEWHqTRB44yLjQAQcwUYxbI0KOJ2B5jY5U7EAImcEv9h1UI79kgC7eZ8t8C18BNPn0ILVQqdjG2R9luAuANjpUTib2xgb50PElj9MDtrBOMxetcQIiLfeydLK+tYRgGz/A39xDbcfmvfn0j92Asa7BnZKdJiikoWAYNhluPYR2nZdrGIhkYiTlvkvgtd2Qk4GhM4/gueC6x4eDl/RCYhHjWjWgqyPNI3GgdhllSqIm7gjNCeXZzld9nrdmp5oQX+kE1Dvnyxo6PnKzMRNK8CgKmYfYSyj+05Rijj7ItEV4Lx1Jp+9zjvOATPhmw+atXPcHfi0=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR13MB3705.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(136003)(376002)(366004)(39830400003)(346002)(230922051799003)(451199024)(186009)(1800799012)(64100799003)(5660300002)(44832011)(4744005)(2906002)(7416002)(6486002)(52116002)(26005)(1076003)(38100700002)(6512007)(86362001)(36756003)(2616005)(6506007)(83380400001)(6666004)(478600001)(8936002)(8676002)(41300700001)(38350700005)(66946007)(66556008)(4326008)(66476007)(6916009)(316002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?P7Ys5iTdFp+Y4JutR8CPo4nHA+lnSpm1iuyscMdZpoDw0DhH1oaHFPGztmSw?=
+ =?us-ascii?Q?/sRZ1yW/c6lvW/hDaz4ijDytPERtoL3eVoAloeHIwcF50j63H7oJ8VGrdPTu?=
+ =?us-ascii?Q?dZsq63dSM3A7aWIF9Ew4DwPiAW5EHHfAYz2qx/kFZuuITTJ06Qyzihn/vYVi?=
+ =?us-ascii?Q?OZjhudmYrh0BOLBL5ZDNFpQOgI56Y7LDwWVVPnLKHxfdzDtJQW/IGpSf18Bu?=
+ =?us-ascii?Q?JgkPUjp+tmaLmseQzJunT/4eT6+BJTjrLwnV0DwdZoZujWT1S638ng7v/+wr?=
+ =?us-ascii?Q?eyDdg4whjdX3wFd0aeuI6ugxxtMiybS6mrEGdGKhjzOlr0zWmbLdpTU3vBid?=
+ =?us-ascii?Q?ng3DVEQZho/3FzrLacrFugB6Xg1bLZm+858RuZ+FaAbm6P4GH6AeLZBsMvrn?=
+ =?us-ascii?Q?DhmNYrpwRJr8SVwqru3zEGMG1BPoHDYkihJbP/tBGf9Xv9l0UVX0ztTeZLUg?=
+ =?us-ascii?Q?SYJRkjKftXO1GKneyWPhfmA3iAAr5X+SzMH/90FVys5BOOXf/8YPVmBCSmTc?=
+ =?us-ascii?Q?+/f3/+sni0vMVZq6yUSer0G3cyPRy/tfdeEs0DwmyBuPLnvK5NAViPm3zyYA?=
+ =?us-ascii?Q?8jZUSOqOX3BmYgKQheYm08bjSGydyGHTgGJK4YkCPPN7yX/O7HO1qzvzYG8c?=
+ =?us-ascii?Q?CuZ3CXMZvblEWbY/y4FDgQ0Vpc00A+g2wib1c2nRDg9VMTzB2QSHgTsSPXUB?=
+ =?us-ascii?Q?PwvqY4loRRsyR4cU94sqz6EWYinTcGtZPN8kvuWZ+C05KN6+3RcclvYB6DUf?=
+ =?us-ascii?Q?P/YlP0p5TKOvf2vM4qsrxeX6fQDCWsGVx18BJ8D6WAoo/m/71S8J+8+cbb7A?=
+ =?us-ascii?Q?1ke/B6xTL78sAt1Rp/f9X6RsXI493QS2X2Z1Bb0XnbzMcu8Xh7qrQXrYcR8+?=
+ =?us-ascii?Q?GAL3b7xflmLJA0fi6obGMNqrT+t0pJFpbB7YZ2LfUCXXsJK4nbSav5owmZsr?=
+ =?us-ascii?Q?U9Hxpqw6aeeZuM8Ueb3zBqOsh5UWB34AB86P+XJITqIXw018U2ZpeRib9wlB?=
+ =?us-ascii?Q?sBmDYZBoImfd+oLyzHqybH2fFeSNJ/ejsZbeG2RBMMrVJZHiROSO8+3B/axr?=
+ =?us-ascii?Q?EjnxQp0xicHYpRNMCKd5sYsqLDJhMkfmcwpjwNwuzFvx0vdrwBYGktc+KGmD?=
+ =?us-ascii?Q?5UMp6E7x9N3+8uA4eXv2cRgGqjLg9P7Jo2Wsk0KoxSV2BguvOqvEw3SLGGLo?=
+ =?us-ascii?Q?+LG2xL/nl8+mdFf7rUdEZrpTPcc4GcLu1ATjJrrjGV2oPLYxy9dmQEk+/TdK?=
+ =?us-ascii?Q?CLN22gr6/BisCZFqP1q8kyMLXEsObugYzWwbz724IlvEmEVJq0VCn5PQn+Pc?=
+ =?us-ascii?Q?k1MUdiMJcBwj1FKdactqcgc82hQyEA9b4ynPRylTF/YiYnIPpGjbZwWwIjou?=
+ =?us-ascii?Q?g8UvDevBs9UEDZYLZJIzWXhujiBEBAjKFc+xVbR6MqPUWF/o/DnSg97tOpM6?=
+ =?us-ascii?Q?jgusCD3ieFUxkSWfFxLsaMfHA8DHYMJStFvwq+9hDak/5B1HzDW4Xv8WgYQf?=
+ =?us-ascii?Q?qa2HTCBxKD4oGageNXJSerm38Sszf3h5m7IOb9lRnu9lgaAYpPNwHszUbR6l?=
+ =?us-ascii?Q?m5lCfKUv8e8EWJne35yC2JHtgvw7dVJmMFPBy6oz3t0hPrff0KZvYvXuzPUZ?=
+ =?us-ascii?Q?9w=3D=3D?=
+X-OriginatorOrg: corigine.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2750e3d1-b43e-4064-c03a-08dbeb3d90f2
+X-MS-Exchange-CrossTenant-AuthSource: DM6PR13MB3705.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 09:29:46.2162
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fe128f2c-073b-4c20-818e-7246a585940c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0iQrHHiHvqi31u+0i2K4URRsqJAD9BSJCo5VdHLsn7L74s7pMT219yd88ecE104wqjlw6+ZalNQ8wsQGJv4VevDCgFbWPam6Vj6gHMeh/4Y=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BLAPR13MB4641
 
-On Wed, Nov 22, 2023 at 12:16:42AM +0300, Arseniy Krasnov wrote:
->Tune message length calculation to make this test work on machines
->where 'getpagesize()' returns >32KB. Now maximum message length is not
->hardcoded (on machines above it was smaller than 'getpagesize()' return
->value, thus we get negative value and test fails), but calculated at
->runtime and always bigger than 'getpagesize()' result. Reproduced on
->aarch64 with 64KB page size.
+On Mon, 20 Nov 2023 20:37:34 +0800, Heng Qi wrote:
+<...>
+> @@ -2179,6 +2220,7 @@ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+>  	virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+>  	napi_disable(&vi->rq[qp_index].napi);
+>  	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+> +	cancel_work_sync(&vi->rq[qp_index].dim.work);
 
-It was reported to me by Bogdan, so we can add:
+I'm not sure, but please check if here may cause deadlock:
+ rtnl_lock held ->
+ .ndo_stop ->
+ virtnet_disable_queue_pair() ->
+ cancel_work_sync() ->
+ virtnet_rx_dim_work() ->
+ rtnl_lock()
 
-Reported-by: Bogdan Marcynkov <bmarcynk@redhat.com>
+>  }
+>  
+>  static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
 
->
->Fixes: 5c338112e48a ("test/vsock: rework message bounds test")
->Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->---
-> tools/testing/vsock/vsock_test.c | 19 +++++++++++++------
-> 1 file changed, 13 insertions(+), 6 deletions(-)
-
-The fix LGTM and it worked on aarch64 machine.
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks for the fast fix!
-Stefano
-
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index f5623b8d76b7..691e44c746bf 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -353,11 +353,12 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
-> }
->
-> #define SOCK_BUF_SIZE (2 * 1024 * 1024)
->-#define MAX_MSG_SIZE (32 * 1024)
->+#define MAX_MSG_PAGES 4
->
-> static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
-> {
-> 	unsigned long curr_hash;
->+	size_t max_msg_size;
-> 	int page_size;
-> 	int msg_count;
-> 	int fd;
->@@ -373,7 +374,8 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
->
-> 	curr_hash = 0;
-> 	page_size = getpagesize();
->-	msg_count = SOCK_BUF_SIZE / MAX_MSG_SIZE;
->+	max_msg_size = MAX_MSG_PAGES * page_size;
->+	msg_count = SOCK_BUF_SIZE / max_msg_size;
->
-> 	for (int i = 0; i < msg_count; i++) {
-> 		size_t buf_size;
->@@ -383,7 +385,7 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
-> 		/* Use "small" buffers and "big" buffers. */
-> 		if (i & 1)
-> 			buf_size = page_size +
->-					(rand() % (MAX_MSG_SIZE - page_size));
->+					(rand() % (max_msg_size - page_size));
-> 		else
-> 			buf_size = 1 + (rand() % page_size);
->
->@@ -429,7 +431,6 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
-> 	unsigned long remote_hash;
-> 	unsigned long curr_hash;
-> 	int fd;
->-	char buf[MAX_MSG_SIZE];
-> 	struct msghdr msg = {0};
-> 	struct iovec iov = {0};
->
->@@ -457,8 +458,13 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
-> 	control_writeln("SRVREADY");
-> 	/* Wait, until peer sends whole data. */
-> 	control_expectln("SENDDONE");
->-	iov.iov_base = buf;
->-	iov.iov_len = sizeof(buf);
->+	iov.iov_len = MAX_MSG_PAGES * getpagesize();
->+	iov.iov_base = malloc(iov.iov_len);
->+	if (!iov.iov_base) {
->+		perror("malloc");
->+		exit(EXIT_FAILURE);
->+	}
->+
-> 	msg.msg_iov = &iov;
-> 	msg.msg_iovlen = 1;
->
->@@ -483,6 +489,7 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
-> 		curr_hash += hash_djb2(msg.msg_iov[0].iov_base, recv_size);
-> 	}
->
->+	free(iov.iov_base);
-> 	close(fd);
-> 	remote_hash = control_readulong();
->
->-- 
->2.25.1
->
-
+<...>
