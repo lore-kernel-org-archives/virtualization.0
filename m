@@ -1,146 +1,174 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C3214F1F0
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 15:19:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2B0B659
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jZch6GFZ"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="Iyp+Jk4h"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8F33961244
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 15:19:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8F33961244
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=jZch6GFZ
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7CF384043D
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7CF384043D
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=Iyp+Jk4h
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.301
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Mo_K0ALP7BQY
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LfbL7Rf7l_Gq
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 15:19:34 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.120])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4A3516101B
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 15:19:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4A3516101B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700666374; x=1732202374;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=nrNPcz4uYEQBP3pOrCUXcuO8X6G/FSLQKBhZfBz9dLY=;
-  b=jZch6GFZuvc4KL5mmkDJyV/wv9A/+3fph73dCCyQHaqJCLL0lT8/Syuo
-   Ip6wdwnMOPOZZMEaRdsky+tmRcl7V08f5qMSEKjiyY0c006XuCCvx/sJx
-   U91LzWyI5CGwEOgw5e8aSMOfICogT0vC9QE4dR8nw3HuMuVeM3RgxeyPL
-   UyK9lTpos9um7WLiGkaqTt/Tb5hWF5htNMgccLLbexdE5E4Q+r5TAXysJ
-   ekiv1MYgdTsGxvKXkTTm+qJ+qLECo9ljSstZO5cE3Ur1yGjpf7pWT8dyU
-   UZzfRrb3ZBVIv1A4VV6aLtHL7aB4GcYwmOUkkouLa1MuVGDghYP4ESf2V
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="390932762"
-X-IronPort-AV: E=Sophos;i="6.04,219,1695711600"; 
-   d="scan'208";a="390932762"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Nov 2023 07:19:32 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="833052538"
-X-IronPort-AV: E=Sophos;i="6.04,219,1695711600"; 
-   d="scan'208";a="833052538"
-Received: from tjquresh-mobl.ger.corp.intel.com (HELO localhost) ([10.252.41.76])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Nov 2023 07:19:09 -0800
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>, Vitaly
- Kuznetsov <vkuznets@redhat.com>, Sean Christopherson <seanjc@google.com>,
- Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave
- Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, David Woodhouse
- <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>, Oded Gabbay
- <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>, Tom Rix
- <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>, Xu Yilun
- <yilun.xu@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>, Zhi Wang
- <zhi.a.wang@intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tvrtko.ursulin@linux.intel.com>, David Airlie <airlied@gmail.com>, Daniel
- Vetter <daniel@ffwll.ch>, Leon Romanovsky <leon@kernel.org>, Jason
- Gunthorpe <jgg@ziepe.ca>, Frederic Barrat <fbarrat@linux.ibm.com>, Andrew
- Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, Eric Farman
- <farman@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, Halil
- Pasic <pasic@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>,
- Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens
- <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
- <agordeev@linux.ibm.com>, Christian Borntraeger
- <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Tony
- Krowiak <akrowiak@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>,
- Harald Freudenberger <freude@linux.ibm.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Diana Craciun <diana.craciun@oss.nxp.com>,
- Alex Williamson <alex.williamson@redhat.com>, Eric Auger
- <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>, Benjamin LaHaise
- <bcrl@kvack.org>, Christian Brauner <brauner@kernel.org>, Johannes Weiner
- <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, Roman Gushchin
- <roman.gushchin@linux.dev>, Shakeel Butt <shakeelb@google.com>, Muchun
- Song <muchun.song@linux.dev>, Kirti Wankhede <kwankhede@nvidia.com>,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-fpga@vger.kernel.org,
- intel-gvt-dev@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- linux-rdma@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- linux-s390@vger.kernel.org, linux-usb@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org, Jens
- Axboe <axboe@kernel.dk>, Pavel Begunkov <asml.silence@gmail.com>,
- io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
-In-Reply-To: <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-Date: Wed, 22 Nov 2023 17:19:06 +0200
-Message-ID: <877cm9n7dh.fsf@intel.com>
+	Wed, 22 Nov 2023 18:13:10 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6C14B403A8
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6C14B403A8
+Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 4D52210005F;
+	Wed, 22 Nov 2023 21:13:05 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 4D52210005F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1700676785;
+	bh=Wfscbi3n28k0DaUHI1H1o3BRIqMYiUsGUp1uuO0MbWg=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=Iyp+Jk4hXAS1Z9tpvSicSlDO/XQhPwahs4oltBt0UZu4a44nEmrMkf6FPCK2Yu3Jc
+	 SbCj2cTv03PQX2mxfgwLuT1iZL+dqbZej91faNc4Riwvhr7Ae0ZY1dqAlmxNYoBHQu
+	 fa1OQeHplBioYvDl9sjIU+MUi+yP2VKKp2KO4wDqFCpeBHEwjEF5K/0rX9Y7jFoPKU
+	 VU4xcshbez2j4JAXQyRsXxC/9Iu4UCY/vih6+r7tO0thQpdX49QDNzmqe9nlBSkso6
+	 P6S2sh6e2jfpWb9ApnSP17u39RaWnAEkG9xdb6P5bqmS2u0VZAEjs2gzQ4H4Ubcw3e
+	 VABGOljRKe+AA==
+Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Wed, 22 Nov 2023 21:13:05 +0300 (MSK)
+Received: from localhost.localdomain (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Wed, 22 Nov 2023 21:13:04 +0300
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
+Subject: [RFC PATCH v3 0/3] send credit update during setting SO_RCVLOWAT
+Date: Wed, 22 Nov 2023 21:05:07 +0300
+Message-ID: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
+X-Mailer: git-send-email 2.35.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 181545 [Nov 22 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;git.kernel.org:7.1.1;127.0.0.199:7.1.2;salutedevices.com:7.1.1;100.64.160.123:7.1.2;lore.kernel.org:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean, bases: 2023/11/22 17:13:00
+X-KSMG-LinksScanning: Clean, bases: 2023/11/22 17:13:00
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/22 11:24:00 #22501433
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Wed, 22 Nov 2023, Christian Brauner <brauner@kernel.org> wrote:
-> diff --git a/fs/eventfd.c b/fs/eventfd.c
-> index 33a918f9566c..dc9e01053235 100644
-> --- a/fs/eventfd.c
-> +++ b/fs/eventfd.c
-> @@ -74,20 +74,17 @@ __u64 eventfd_signal_mask(struct eventfd_ctx *ctx, __u64 n, __poll_t mask)
->  /**
->   * eventfd_signal - Adds @n to the eventfd counter.
+Hello,
 
-This still refers to @n here, and in patch 4.
+                               DESCRIPTION
 
-BR,
-Jani.
+This patchset fixes old problem with hungup of both rx/tx sides and adds
+test for it. This happens due to non-default SO_RCVLOWAT value and
+deferred credit update in virtio/vsock. Link to previous old patchset:
+https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
 
->   * @ctx: [in] Pointer to the eventfd context.
-> - * @n: [in] Value of the counter to be added to the eventfd internal counter.
-> - *          The value cannot be negative.
->   *
->   * This function is supposed to be called by the kernel in paths that do not
->   * allow sleeping. In this function we allow the counter to reach the ULLONG_MAX
->   * value, and we signal this as overflow condition by returning a EPOLLERR
->   * to poll(2).
->   *
-> - * Returns the amount by which the counter was incremented.  This will be less
-> - * than @n if the counter has overflowed.
-> + * Returns the amount by which the counter was incremented.
->   */
-> -__u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
-> +__u64 eventfd_signal(struct eventfd_ctx *ctx)
->  {
-> -	return eventfd_signal_mask(ctx, n, 0);
-> +	return eventfd_signal_mask(ctx, 1, 0);
->  }
->  EXPORT_SYMBOL_GPL(eventfd_signal);
->  
+Here is what happens step by step:
+
+                                  TEST
+
+                            INITIAL CONDITIONS
+
+1) Vsock buffer size is 128KB.
+2) Maximum packet size is also 64KB as defined in header (yes it is
+   hardcoded, just to remind about that value).
+3) SO_RCVLOWAT is default, e.g. 1 byte.
+
+
+                                 STEPS
+
+            SENDER                              RECEIVER
+1) sends 128KB + 1 byte in a
+   single buffer. 128KB will
+   be sent, but for 1 byte
+   sender will wait for free
+   space at peer. Sender goes
+   to sleep.
+
+
+2)                                     reads 64KB, credit update not sent
+3)                                     sets SO_RCVLOWAT to 64KB + 1
+4)                                     poll() -> wait forever, there is
+                                       only 64KB available to read.
+
+So in step 4) receiver also goes to sleep, waiting for enough data or
+connection shutdown message from the sender. Idea to fix it is that rx
+kicks tx side to continue transmission (and may be close connection)
+when rx changes number of bytes to be woken up (e.g. SO_RCVLOWAT) and
+this value is bigger than number of available bytes to read.
+
+I've added small test for this, but not sure as it uses hardcoded value
+for maximum packet length, this value is defined in kernel header and
+used to control deferred credit update. And as this is not available to
+userspace, I can't control test parameters correctly (if one day this
+define will be changed - test may become useless). 
+
+Head for this patchset is:
+https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=18de1e517ed37ebaf33e771e46faf052e966e163
+
+Link to v1:
+https://lore.kernel.org/netdev/20231108072004.1045669-1-avkrasnov@salutedevices.com/
+Link to v2:
+https://lore.kernel.org/netdev/20231119204922.2251912-1-avkrasnov@salutedevices.com/
+
+Changelog:
+v1 -> v2:
+ * Patchset rebased and tested on new HEAD of net-next (see hash above).
+ * New patch is added as 0001 - it removes return from SO_RCVLOWAT set
+   callback in 'af_vsock.c' when transport callback is set - with that
+   we can set 'sk_rcvlowat' only once in 'af_vsock.c' and in future do
+   not copy-paste it to every transport. It was discussed in v1.
+ * See per-patch changelog after ---.
+v2 -> v3:
+ * See changelog after --- in 0003 only (0001 and 0002 still same).
+
+Arseniy Krasnov (3):
+  vsock: update SO_RCVLOWAT setting callback
+  virtio/vsock: send credit update during setting SO_RCVLOWAT
+  vsock/test: SO_RCVLOWAT + deferred credit update test
+
+ drivers/vhost/vsock.c                   |   2 +
+ include/linux/virtio_vsock.h            |   1 +
+ net/vmw_vsock/af_vsock.c                |   9 +-
+ net/vmw_vsock/virtio_transport.c        |   2 +
+ net/vmw_vsock/virtio_transport_common.c |  28 +++++
+ net/vmw_vsock/vsock_loopback.c          |   2 +
+ tools/testing/vsock/vsock_test.c        | 142 ++++++++++++++++++++++++
+ 7 files changed, 184 insertions(+), 2 deletions(-)
 
 -- 
-Jani Nikula, Intel
+2.25.1
+
