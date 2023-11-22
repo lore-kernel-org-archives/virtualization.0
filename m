@@ -1,48 +1,48 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F38220300
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B34758ACD
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="JQ8JXRmA"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="Vf6nTi3W"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A57D54058E
+	by smtp4.osuosl.org (Postfix) with ESMTP id 87E7A404A6
 	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A57D54058E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=JQ8JXRmA
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 87E7A404A6
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=Vf6nTi3W
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6S9ni6oFP5pC
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tJCW9Oh0kHnf
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 18:13:10 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6BD7540156
+	Wed, 22 Nov 2023 18:13:11 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A32844042F
 	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 18:13:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6BD7540156
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 5F426100068;
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A32844042F
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 14EB112006F;
 	Wed, 22 Nov 2023 21:13:06 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 5F426100068
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 14EB112006F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
 	s=mail; t=1700676786;
-	bh=f3XkhHvZLw/2CD7IbNgZejqY3mMFhJAM3QeRUGk4nxs=;
+	bh=vL+qQ9rhbaR3YIaKSe6iD2hKBiaKdxLdqmIkkNYOJUg=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=JQ8JXRmAX4D46TigD/mxC5oqm14QDseNAFSb2xyPM/bus60991vjju8BU+9rQ8tKI
-	 9S6x/j0UET1EFpfsq31A6RXA5tY0MNPD9LbbcB8/ZGO3EUOqI4pJJPvawpQhkWLHyp
-	 ToBHt76ejglY8ZvVGfthX+swdxndLbD72nHhTXqba85sZxQH7NUWnJUZvWCC8RaOgQ
-	 H63n+NPw1og26JdjCos5iy+3ZoXLUxIAZZPopyh3/qNyG6+gQ8XuaKD2Q6RncyaCBr
-	 3pm8xWspk+3AIh2ErZ+bhZjUVbKV9sRHXJjSdpLfo7bdFrP/S2RuBJ/57HD++ar06v
-	 kv4Qt/wZFFU4g==
+	b=Vf6nTi3WL903bejvUiRrGEeuSUznz0hTUBw0sovSH1vl02IKcIGaEKMSli5blwTD3
+	 Xy5wo5LvVouc6Ys8UYtMJfAFdO0oqZStLxKg5Z8VWe+DijeLVcuR0lCu9Z8ocL3JWh
+	 X5fb71GCyMrRULAUS4xcgM06MOCQiu5GHyO0Q83Bszd5yH46TJZbIf/o4XAc81RzVi
+	 WYeYiAeiuoJxZxyXwAkUnqRdlchE5AA8DO3/M8mArCSmgmoL0gnmOjzaayywwl9ezp
+	 IL9HzBelu50cm/n32A75aVtrllt7oUT3TbilUHP7xpGzLuRrqTXaVElmTcstsiO+YT
+	 2Uv6kDh4HpPdA==
 Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
 	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed, 22 Nov 2023 21:13:06 +0300 (MSK)
+	Wed, 22 Nov 2023 21:13:05 +0300 (MSK)
 Received: from localhost.localdomain (100.64.160.123) by
  p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
@@ -56,9 +56,9 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
 	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [RFC PATCH v3 2/3] virtio/vsock: send credit update during setting SO_RCVLOWAT
-Date: Wed, 22 Nov 2023 21:05:09 +0300
-Message-ID: <20231122180510.2297075-3-avkrasnov@salutedevices.com>
+Subject: [RFC PATCH v3 1/3] vsock: update SO_RCVLOWAT setting callback
+Date: Wed, 22 Nov 2023 21:05:08 +0300
+Message-ID: <20231122180510.2297075-2-avkrasnov@salutedevices.com>
 X-Mailer: git-send-email 2.35.0
 In-Reply-To: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
 References: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
@@ -81,7 +81,7 @@ X-KSMG-AntiSpam-Rate: 0
 X-KSMG-AntiSpam-Status: not_detected
 X-KSMG-AntiSpam-Method: none
 X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;100.64.160.123:7.1.2;salutedevices.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-KSMG-AntiSpam-Info: LuaCore: 3 0.3.3 e5c6a18a9a9bff0226d530c5b790210c0bd117c8, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
 X-MS-Exchange-Organization-SCL: -1
 X-KSMG-AntiSpam-Interceptor-Info: scan successful
 X-KSMG-AntiPhishing: Clean
@@ -89,116 +89,35 @@ X-KSMG-LinksScanning: Clean
 X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/22 11:24:00 #22501433
 X-KSMG-AntiVirus-Status: Clean, skipped
 
-Send credit update message when SO_RCVLOWAT is updated and it is bigger
-than number of bytes in rx queue. It is needed, because 'poll()' will
-wait until number of bytes in rx queue will be not smaller than
-SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
-for tx/rx is possible: sender waits for free space and receiver is
-waiting data in 'poll()'.
+Do not return if transport callback for SO_RCVLOWAT is set (only in
+error case). In this case we don't need to set 'sk_rcvlowat' field in
+each transport - only in 'vsock_set_rcvlowat()'.
 
 Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 ---
- Changelog:
- v1 -> v2:
-  * Update commit message by removing 'This patch adds XXX' manner.
-  * Do not initialize 'send_update' variable - set it directly during
-    first usage.
+ net/vmw_vsock/af_vsock.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
- drivers/vhost/vsock.c                   |  2 ++
- include/linux/virtio_vsock.h            |  1 +
- net/vmw_vsock/virtio_transport.c        |  2 ++
- net/vmw_vsock/virtio_transport_common.c | 28 +++++++++++++++++++++++++
- net/vmw_vsock/vsock_loopback.c          |  2 ++
- 5 files changed, 35 insertions(+)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index f75731396b7e..ecfa5c11f5ee 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -451,6 +451,8 @@ static struct virtio_transport vhost_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 816725af281f..af0058037f72 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2264,8 +2264,13 @@ static int vsock_set_rcvlowat(struct sock *sk, int val)
  
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
+ 	transport = vsk->transport;
  
- 	.send_pkt = vhost_transport_send_pkt,
-diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-index ebb3ce63d64d..97dc1bebc69c 100644
---- a/include/linux/virtio_vsock.h
-+++ b/include/linux/virtio_vsock.h
-@@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
- void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
- int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
- int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val);
- #endif /* _LINUX_VIRTIO_VSOCK_H */
-diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-index af5bab1acee1..cf3431189d0c 100644
---- a/net/vmw_vsock/virtio_transport.c
-+++ b/net/vmw_vsock/virtio_transport.c
-@@ -539,6 +539,8 @@ static struct virtio_transport virtio_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
- 
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = virtio_transport_send_pkt,
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index f6dc896bf44c..4acee21b4350 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1684,6 +1684,34 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
- }
- EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
- 
-+int virtio_transport_set_rcvlowat(struct vsock_sock *vsk, int val)
-+{
-+	struct virtio_vsock_sock *vvs = vsk->trans;
-+	bool send_update;
-+
-+	spin_lock_bh(&vvs->rx_lock);
-+
-+	/* If number of available bytes is less than new
-+	 * SO_RCVLOWAT value, kick sender to send more
-+	 * data, because sender may sleep in its 'send()'
-+	 * syscall waiting for enough space at our side.
-+	 */
-+	send_update = vvs->rx_bytes < val;
-+
-+	spin_unlock_bh(&vvs->rx_lock);
-+
-+	if (send_update) {
+-	if (transport && transport->set_rcvlowat)
+-		return transport->set_rcvlowat(vsk, val);
++	if (transport && transport->set_rcvlowat) {
 +		int err;
 +
-+		err = virtio_transport_send_credit_update(vsk);
-+		if (err < 0)
++		err = transport->set_rcvlowat(vsk, val);
++		if (err)
 +			return err;
 +	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(virtio_transport_set_rcvlowat);
-+
- MODULE_LICENSE("GPL v2");
- MODULE_AUTHOR("Asias He");
- MODULE_DESCRIPTION("common code for virtio vsock");
-diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-index 048640167411..388c157f6633 100644
---- a/net/vmw_vsock/vsock_loopback.c
-+++ b/net/vmw_vsock/vsock_loopback.c
-@@ -98,6 +98,8 @@ static struct virtio_transport loopback_transport = {
- 		.notify_buffer_size       = virtio_transport_notify_buffer_size,
  
- 		.read_skb = virtio_transport_read_skb,
-+
-+		.set_rcvlowat             = virtio_transport_set_rcvlowat
- 	},
- 
- 	.send_pkt = vsock_loopback_send_pkt,
+ 	WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
+ 	return 0;
 -- 
 2.25.1
 
