@@ -1,38 +1,38 @@
 Received: from DM4PR02CU002.outbound.protection.outlook.com (mail-centralusazon11013012.outbound.protection.outlook.com [52.101.64.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 167A222EF5
-	for <virtualization@lists.linux.dev>; Wed, 22 Nov 2023 23:31:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB181225AC
+	for <virtualization@lists.linux.dev>; Wed, 22 Nov 2023 23:31:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vmware.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vmware.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=vmware.com header.i=@vmware.com header.b="XiMIDW7g"
+	dkim=pass (1024-bit key) header.d=vmware.com header.i=@vmware.com header.b="qvxFxZLX"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hLLoxFUk8Bz9vogryFjundOvfgaEguTlfX1C+e2PlWaJpVOM5VzWp2UzG82PORCL/9VZr+y+w0Ba7i4j6/6trkOW/Urrt2/0zr4XF2VRhxIrNrkpuYVcyFqkV7/BbyfBiqsDLvDYwo38xOjfcp/HXY668SvkLgbgzpu95IlcwsbK9qSM+ak4OMQ+8t8KpaJ+IS0cJjJ3tlgdSe5NkFkYj4Cp1q8JjxSTJ4Vo1LSPAehAoSTUPGozjeo0bQ4kCa54gyOeHZXDZZN2/BLEkQo/j8v5SLdm/Nn0PkaNmFnR9ECF18BqqD+1tP684Acy6uEWX8N7LattqUPiCPcOPprgxQ==
+ b=nCacTArm+WRteu4CskXJbY+5axyfCe2XoNyrr1ji6THb8VeXi3J7yRJ1ZAjxJRCqtGdEAQn5IcarGlN1PrC+9ojqpdaalEhh5xBFb2ykAD2hN2EubuDmDvTHkmZrKrIk7/gZ/eivly2KZkrJ4YyLs8t6KWA/zDgS5rSDll5vnnoUfZnFLLL/SnjyKi3QkMe1B+JbmbCCHjC/ATn7UTAvfV/X5ATemWBkUhbOKsxkSpoQY27YZhZlRJuwHFqbqgfEUeSXdv9fLoQgBVBD3JrkvkMZo/0eLvkev314VdSIB5dcHi3gfnJtr2pIETbdC7LJpZu44Ukjcp6qRrLnRzU5bA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LQOF4vl58JYmp9N8tajjHVKmG0zId2Y/E+sOOYf8I8A=;
- b=Oz8wrYb3IapvDcclWiWXxso4+qcj9vh06FaUy2co6rt2zoapev1E1BANUimSu/RGImuAatbD7bnJ0V14oAo029rZbmHLvsagWnovCUzFlmKRKOwM6jPB/hY5t0yqJyvJG3WSC5yt+yp2TffyzOsY63GAa2vX47Qr4ISxrKcx+3RVKbU8q+q+tgK3CxlFpNr6un9LMv6JOaFT82WAjDe4Tb4Yg7ajiVukbBH39ODcGcbIWRqdDJtb42DeQzWaYskJZu8QrcdWYFXfNzC90E77uVEOQUsUELFlAdYJu6t8nixK+/tBYnCjDNXkPu0gZCz+cbyfrh4LPtx2U+JNZ+LFhg==
+ bh=mYs7K700gBSzwO+6j/TEg+wWDBD31/tUc3OwiVR/muA=;
+ b=K56V7LcYqfl1JrWOd29C1L3AiDrVQIRT6tcQyBQ3/RafSoCig/0cQWu9RUTBvbfoR4EQVF5mPwimyiKqEEvAesGgkHGVKjMn61zVhNX9gEZSdiOAXHxSMdnm/DT6oA4NbUEJ02OjoXNvrqVOYVkoBQGqJ2+paAyZzURb8FjNdiZLapCZtuscV0OTHZBqwb6g15c9QnBIUi500GGgs/xoWuhiCxq7gWHloFjD1KfUSnqZBsnINFMpZFXVLUTmZ/7kHpW5EywL6BVyzpo5HOh99pZKByK/GgeWw3tlL3pMjXeBHGOu1r+SyD1lSIR1+THrFdFPr314usT/LYk9SPgTxA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
  dkim=pass header.d=vmware.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LQOF4vl58JYmp9N8tajjHVKmG0zId2Y/E+sOOYf8I8A=;
- b=XiMIDW7geV1I3hLV37wn4pjAKneOTDSmA4oFqiHaYaKdkGuYIgbJf7NldJvmUAaY1wQ98AUwgAOpZ8s1dOpIREOW/OzuM0fAwOr46ukVtxF2eoq5lxzmeHs0dpqEN3WNAcO4ToL90M5C/SQLSW4E7Ra1Wrap2/MEqOa/t8wKyxE=
+ bh=mYs7K700gBSzwO+6j/TEg+wWDBD31/tUc3OwiVR/muA=;
+ b=qvxFxZLXm6V9akRtEnhjzRJJ4Hx/orOJBcr7EMBnsWWL8rxKDDMUuK+oyuM+MVpFnngk1D58it7AmK5VAq8hwH93p7TtnwlD6Dlmh0qc+eDEj2Jvfd2FpVJrKnz1TQLeEo6JIm97s7vXtRO39Ok6JcwC0ITyx483QPL9N6mNG8M=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vmware.com;
 Received: from MWHPR05MB3648.namprd05.prod.outlook.com (2603:10b6:301:45::23)
  by BY3PR05MB8275.namprd05.prod.outlook.com (2603:10b6:a03:3b6::22) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.18; Wed, 22 Nov
- 2023 23:31:24 +0000
+ 2023 23:31:26 +0000
 Received: from MWHPR05MB3648.namprd05.prod.outlook.com
  ([fe80::10f0:590a:708:4ad7]) by MWHPR05MB3648.namprd05.prod.outlook.com
  ([fe80::10f0:590a:708:4ad7%2]) with mapi id 15.20.7025.019; Wed, 22 Nov 2023
- 23:31:24 +0000
+ 23:31:26 +0000
 From: Alexey Makhalov <amakhalov@vmware.com>
 To: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
@@ -60,9 +60,9 @@ Cc: netdev@vger.kernel.org,
 	akaher@vmware.com,
 	jsipek@vmware.com,
 	Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH 1/6] x86/vmware: Move common macros to vmware.h
-Date: Wed, 22 Nov 2023 15:30:53 -0800
-Message-Id: <20231122233058.185601-9-amakhalov@vmware.com>
+Subject: [PATCH 3/6] ptp/vmware: Use vmware_hypercall API
+Date: Wed, 22 Nov 2023 15:30:55 -0800
+Message-Id: <20231122233058.185601-11-amakhalov@vmware.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20231122233058.185601-1-amakhalov@vmware.com>
 References: <20231122233058.185601-1-amakhalov@vmware.com>
@@ -79,249 +79,95 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: MWHPR05MB3648:EE_|BY3PR05MB8275:EE_
-X-MS-Office365-Filtering-Correlation-Id: 77908538-e7b9-41ca-bc27-08dbebb323e1
+X-MS-Office365-Filtering-Correlation-Id: 5c01e94b-30ae-4d1c-fa37-08dbebb32544
 X-LD-Processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	dzSgzKYxOdFv4T1a7JziApLZ7MqvfqyqxUB7T2rtwl9Vo4Ou10vwK8kWQAohMcgWjCLOcuirE2sWz5Pp+jyyMXWh+biFXqri5bDSsPz+XM0uvB04A3KmgewAc50YQxfdGO5GQP+64EHp8RzamlLGJhrUZnbxdkcoYWeVKED8KbYZgkYmE9Qk7LVs+0teie/9rTNHlbeq8E2J/V/IM1dJVIxQgCN39Y12dtdxDcz+CgBR1hl9wjfG0WxJa8NB/F1wS2l1Abfug8vGQSWJkt/vGxPtsGOTm+OoYcrF3hbVkKFbenfT45+F44OasYf36NDhjVu9+6Hd8e/l5wUJhlcIVOK1KTUswozryxAIzqn2BK637gg9oXgazj12T8dDIKzWJlaBeM1xIhOlqlBxkoZ6V62R10rievIJyldI8+NMJbS3j3MSrTgSBg1t5biT4dCcq0FAP778SjJDoKn58ftI3Gd831tvO6zGVhk7lmOoiHOOhH4ntbQngDyW0UUqfQse330pPW8Qa3X7T0EQK4LQ2IKyD+B64+0K1gPutfWsSlyicpIikuuqk9JjNR6AnCiSVLcgIU/qFaS/WCtZOxoNXm+RF46F/cHGI+IVYLxQL6jfCEBqNCxWmC2KrjKt0xf41dnal2WFDdpjO2sGb23ElaeHtf4lNQV8TNOEEfCN87V+/1qrkDLX2KdFBcmmJ5Vd
+	DIfP242+jRcm6uWK9t21PQ++by4xujmkLIGtfd1tm4tDFIu/jt1uCrkn5yylr7UGVuxSTApJb5p6XFf/S8GE19iTo8uAcxIL1MBonld7f25kJD9IkkENVntV+cLAADBmfGUvtCq/5DgjLtaivf62Y0F1exekPrIjMsIJ3AYtsa0Hyd6fomy+PeYgTdy+T001NMNuT2NZacc2eTgIWq0wmJfh34PywKT6oT1r8cXXQQTUyr2RPUSW1Zq2AIaGNOMdZn5eWSTK1RPJYr26EFP7VHB4ZITh1PY46I+OHiRW9g7FU123a7/fPPa73nmz3n5nTwyHE3gnWJoen3RqfhKXaiI9PwHVWRxcFPJHTLyZud5DwCgvbpw3WBdej8SHFRaezUEKgII4lkUi3eRIDpPCkWUHmxwx3ECOamyWRkneVBot5HAeqEWBkVIDgzBOyAU7rxD7axv4SWLH9LgpG0sSXBWTA6j2I/1NvftvJi5efZd5Rk+bzCCDRZKZjoUE3FxxyfoRbaBgAtB8CfVgmRfSrCOt/R5alHmge6twtF+YvUx+vF0wQUBF3XYLUb2jEksgEUwiSfkrQSuG2z/+Uu+/yRrj3LFZ4LMeZ0OMIH+3ISYRObrCQnoz8Agh6cu5VM43UaoRsncSvjj1/yb2PG89gikTRH+9UjXdK6XubR6xdmH9bFyaInq02BavBp3Sx0FB
 X-Forefront-Antispam-Report:
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR05MB3648.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(366004)(376002)(136003)(39860400002)(346002)(230922051799003)(1800799012)(186009)(451199024)(64100799003)(6486002)(4326008)(8676002)(8936002)(5660300002)(7416002)(2616005)(107886003)(478600001)(83380400001)(38350700005)(6666004)(2906002)(66946007)(66556008)(66476007)(38100700002)(316002)(41300700001)(6506007)(6512007)(52116002)(26005)(36756003)(86362001)(921008)(1076003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Kzk5tdDkNOXMDS2RnMHxgnxPTlg1Yo81SJhmErD6LhX5ooaoikhmU04d7WCW?=
- =?us-ascii?Q?nfVUUA8E30uQY8Nxt9uUagNx1FRpecR8YB2bWqUypNUy4HHSFKqVUDx370Lj?=
- =?us-ascii?Q?HmYEkWgrGvwZiixqPhjp5hLVlcHWMoNI5b4qjOgEePM1mgTdx4c2yfWRehuf?=
- =?us-ascii?Q?BkbEMuCJUdPpZBeTF2WW5Zc1K4xixQ0YHVfEItWOmmNWh4waujD98QkFrU5I?=
- =?us-ascii?Q?N3VEGCw2Zc+UyR64QpSNV+j69gZE586q+ZPBUdiTEj3eYB17WR6FpNw+rXOj?=
- =?us-ascii?Q?exiixdFAJ1R2+lSfd7SeWNyKOTx4bGrqE/foFbgqw+rYa63N7SE7HYAAb6Qy?=
- =?us-ascii?Q?NsY9uvzaOLiF0mvLfc5j4s5VKzVr2qSVz2J8zC1N2+Jo5L1+NkWMsBtWeE7E?=
- =?us-ascii?Q?eaVDWnt0qd3/ukTFDl81uVib7AdgMG5zbemgKh9G3Ge8xUww4F7mh9DeLRCk?=
- =?us-ascii?Q?lh67B0TTEBN49rSPDOZ7EBRdEaSP+44wbqHyxhgKX6tPS/qk4TTy1OQXei7j?=
- =?us-ascii?Q?bzIqZAVc0ZwPWTtSv64urjAGgnWH0ZKuKdCHwO8EjIKMFQs3zzq6Cn6fi/4V?=
- =?us-ascii?Q?k8Qd7sxS5l6xIthJUZzFZIJ/WrCLdaC+kuHwCqyZ3bWEYaU5b2zi1INFRrzC?=
- =?us-ascii?Q?hi66sfbtbtJ/aC+JTzsKOlcYSUN6T6E+p4vy2BYdRyAmnwnRro313Yu4A0kQ?=
- =?us-ascii?Q?AeH2RGLQlestEJs6jLk8UgWJgjo1asOK1dipGFbRKWhNFm2n/sPd2gTsdWLa?=
- =?us-ascii?Q?gKH8Jp39wf0QdTQUjCcg4LmtKhSMaHqoOHJJ8QehoTqQaWD1baQfnE1YiW4i?=
- =?us-ascii?Q?QFre4oNVI6mHDKht/MI253/PSQkU56N+TJdi2xg2pPewmzLwjlMhoZI3jHW7?=
- =?us-ascii?Q?GSZ9pQ5m8PrpaX1qiGWUhJMpSfcjX9cNK8+CxjewZ/0saE8DQq6dFiW0jVEO?=
- =?us-ascii?Q?oFayvB8duO5Q9cQsXFJQwQdwnpktJ8vTedcNWQQ83ke8/yy4bHYz6rdJ8eh7?=
- =?us-ascii?Q?iTA5ivFZoT4HYlSWB4bOFWaHuhJTWF6QL7raihdm9w7wKqnv73bkYNsYOLt5?=
- =?us-ascii?Q?xel1viZ1v21RxeTy45VFeky1IFJV6Ph4bg/1zDPm6+GV9CRJEmvQpWYDSTVx?=
- =?us-ascii?Q?qxbcngnCrOVV++ADDJ+rWVyIV/DTA7LZX0aHx2Xsdpi09qsASl/1AtBqJMIG?=
- =?us-ascii?Q?gq0ErSLHpLofP8gS98B4Wroa5lslYVCo1Ql0lWxLJyNzzAOeDQpoSEkCrR73?=
- =?us-ascii?Q?D/T7bWfzGuesHrJFC5ij/GXO2n4EkGnsGwLFeT9yOhqYKQDIO1B7Yl2e8/ge?=
- =?us-ascii?Q?JrswkhE4b6HBlnkVi9cGea6Bybcds/JPkaKbUzSPumgnirhlH10HQ4x2yBfT?=
- =?us-ascii?Q?vE9PfpzYrs8WDTawfWSjIa8XU1Wp9jrT8ctxKIBSSPij0RQ3iN98K+N4rJWh?=
- =?us-ascii?Q?qvFMRU6Ns3rzRG6QcHjV9bZiJ0vjHolhlXS/vNL2KJulAuZiJ0/1XoXdB8rn?=
- =?us-ascii?Q?2w8hyesTlkl9S4MOcf/PDaNE8mBwzyUrN3J006yvFe4V7yHjrHKx5fEJsS+H?=
- =?us-ascii?Q?/PxLLrKAecxRQo3qCjsP1+//HZUymCcf9Q5WWxe/?=
+	=?us-ascii?Q?0ADu/phnqPtetqDsPlFxART3aF1ghnqvZeen9BlWe2MUwPq4i6JoPzPB6fDt?=
+ =?us-ascii?Q?HL4vmP4YEmlEbhwuikMUrzUPJ6bR7Z+cJfkL054nLdNFfrsgWFA3eXPNKfM3?=
+ =?us-ascii?Q?j1ouPn3TciYH9zKeyn0eIap971ET0w4EF0Eo5eI0+qa18qk4QaLJnRmK+dzc?=
+ =?us-ascii?Q?6fcfhfvteicAad9amt+V9c4Wnjs71IKxsau6LR6JXpqtLy6ycbNDHFAYB7qn?=
+ =?us-ascii?Q?akY/ISD9wf5yOg8s5WJRltqdjl79atvH6kWTH0zH4GJqzEhFAEARWivwrgJ0?=
+ =?us-ascii?Q?wHXp6jTQI+NhwXuHl4c7Hf2aeXX93ZU3IPbi5jO2KziW3uNjaf+JXQhyR07B?=
+ =?us-ascii?Q?JPNuv2yjeP000w4XlPHGa8fFUpx1/4wlfXOVULLbdseB/jwalCuj8+hRAvlt?=
+ =?us-ascii?Q?im4CW0j2qTY13cUQ9g0Y1BzGpso9vTENuGcemhohGMc3Sq5g8r6ZuFJs9JXA?=
+ =?us-ascii?Q?4Nc69HCsoSBkR+uM0Kla5H+kaSYViwA1p/8TKHaMDxn4RvPTXVCV342jN7L5?=
+ =?us-ascii?Q?mSHHLcixgMAJdLWa9t+jL+sf6F373ga1EyO8Eu/8ooloLeIbeqbtI2EDEeCL?=
+ =?us-ascii?Q?mxkhse1pk74VwXMh53Jl3Q+HdCn+p0e4WmssHMHpHqdpV8Wb7T2B8SD/MIyE?=
+ =?us-ascii?Q?LzPkkwMuvEqxmVlycbWOATqeoFRb1uVFT20wA5r5MENxAIbQS1wRlIwYwzcM?=
+ =?us-ascii?Q?yXMCFHVpNfoCYof2vWZmkd7knSgV3Ba/JEgG3tb+rKKLnUJokgKGBujDNYnY?=
+ =?us-ascii?Q?DConRPmJ2ocubg6BxkvVzZLA530Mx/FHHIdK96VG5wDRIY9+lR1u31TTMnl5?=
+ =?us-ascii?Q?qu7oLuFU4/KuvqdcU5jVQKQWju5XUUZ6m17+790n1WE50qQvfRTClVfNncN6?=
+ =?us-ascii?Q?mEnT2pIEYQTM7kxnrbmzVAitYRyzfGxg2vFpyYOuDBNOZaCRb1xzzraRsx4U?=
+ =?us-ascii?Q?prPqKdZPOX011S1ql3yhyxJnfDpYSpwffFBkiPNUdvoO6irKZUJNErZYfahU?=
+ =?us-ascii?Q?FsQfzE6x6yzx9nJWUTkWfKQgXaH7ek/dYDSZdwHJy0lpZLmcfOergw9ssuRi?=
+ =?us-ascii?Q?KEwJPYoUBAB9o/Jyzdf2SN9j8EPoP7y+OnpcHqFJLHkurpXAsaRc9IdAR0dt?=
+ =?us-ascii?Q?Hjmmy6esFhiN8FpKcam+gbUO/CzYwGWWog/s67yvBVSD40nXuBO9QZSxB3EJ?=
+ =?us-ascii?Q?N+u785MD4U+v9282t1hJbMomxKl05IvsDk+8L2zraDxYMrJ6SiTvYLJpvXib?=
+ =?us-ascii?Q?K2Q1hMyq8yYSaXLESce7GcZGyNIpVNTqXv6TAxwQsvZvDDoL6MDXFoRyUKjW?=
+ =?us-ascii?Q?7XN1Rrx1gYTno/tmhLOXwJzATZ7QJOYsNLy4MdQb+1cQ+8cmrU2iKadvcBBs?=
+ =?us-ascii?Q?EbJ0lOt17N7zUwnEwTfqLn+ZE5X6zKapE827KGCZbI4RPARF79Q1iBlOMUrB?=
+ =?us-ascii?Q?m+yiGVZuB2B+dFN/mZfUpBKR8iQNp1IoAeLthymYyvYeAdKANmJew+spQ1y3?=
+ =?us-ascii?Q?tcw4b8BCIW+uLc73+brndhyWTaIRBFK7FNjEyOEvQjA5x1RMjmS0+xkbo5cX?=
+ =?us-ascii?Q?nFI++4AjLUjoBk4arlCi1wZ7oNFaJp25VHrDbLo6?=
 X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 77908538-e7b9-41ca-bc27-08dbebb323e1
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c01e94b-30ae-4d1c-fa37-08dbebb32544
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR05MB3648.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 23:31:24.0467
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 23:31:26.4005
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QuVI+V4o+EYHRvfXj2OXGdr9ejQMIB/9tg37Jdq2gexJ3TvT1ynGumtNUWzwEUTEYe9n1qZ8T7ePA+W5MYwkjA==
+X-MS-Exchange-CrossTenant-UserPrincipalName: tle+smzcxXq1bZbHF988NhkwQJD+MX+tTM27jlWTrqDWyPz+ICIsgmJzsHolKmp3juY/3j65fUMpDd9GcZY+1Q==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY3PR05MB8275
 
-Move VMware hypercall macros to vmware.h as a preparation step
-for the next commit. No functional changes besides exporting
-vmware_hypercall_mode symbol.
+Switch from VMWARE_HYPERCALL macro to vmware_hypercall API.
+Eliminate arch specific code. No functional changes intended.
 
 Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
 ---
- arch/x86/include/asm/vmware.h | 69 ++++++++++++++++++++++++++++++-----
- arch/x86/kernel/cpu/vmware.c  | 57 +++--------------------------
- 2 files changed, 66 insertions(+), 60 deletions(-)
+ drivers/ptp/ptp_vmw.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index ac9fc51e2b18..8cabf4a577bf 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -8,25 +8,37 @@
+diff --git a/drivers/ptp/ptp_vmw.c b/drivers/ptp/ptp_vmw.c
+index 27c5547aa8a9..e5bb521b9b82 100644
+--- a/drivers/ptp/ptp_vmw.c
++++ b/drivers/ptp/ptp_vmw.c
+@@ -14,7 +14,6 @@
+ #include <asm/hypervisor.h>
+ #include <asm/vmware.h>
  
- /*
-  * The hypercall definitions differ in the low word of the %edx argument
-- * in the following way: the old port base interface uses the port
-- * number to distinguish between high- and low bandwidth versions.
-+ * in the following way: the old I/O port based interface uses the port
-+ * number to distinguish between high- and low bandwidth versions, and
-+ * uses IN/OUT instructions to define transfer direction.
-  *
-  * The new vmcall interface instead uses a set of flags to select
-  * bandwidth mode and transfer direction. The flags should be loaded
-  * into %dx by any user and are automatically replaced by the port
-- * number if the VMWARE_HYPERVISOR_PORT method is used.
-+ * number if the I/O port method is used.
-  *
-  * In short, new driver code should strictly use the new definition of
-  * %dx content.
-  */
+-#define VMWARE_MAGIC 0x564D5868
+ #define VMWARE_CMD_PCLK(nr) ((nr << 16) | 97)
+ #define VMWARE_CMD_PCLK_GETTIME VMWARE_CMD_PCLK(0)
  
--/* Old port-based version */
--#define VMWARE_HYPERVISOR_PORT    0x5658
--#define VMWARE_HYPERVISOR_PORT_HB 0x5659
-+#define VMWARE_HYPERVISOR_HB		BIT(0)
-+#define VMWARE_HYPERVISOR_OUT		BIT(1)
+@@ -24,15 +23,10 @@ static struct ptp_clock *ptp_vmw_clock;
  
--/* Current vmcall / vmmcall version */
--#define VMWARE_HYPERVISOR_HB   BIT(0)
--#define VMWARE_HYPERVISOR_OUT  BIT(1)
-+#define VMWARE_HYPERVISOR_PORT		0x5658
-+#define VMWARE_HYPERVISOR_PORT_HB	(VMWARE_HYPERVISOR_PORT | \
-+					 VMWARE_HYPERVISOR_HB)
-+
-+#define VMWARE_HYPERVISOR_MAGIC		0x564D5868U
-+
-+#define VMWARE_CMD_GETVERSION		10
-+#define VMWARE_CMD_GETHZ		45
-+#define VMWARE_CMD_GETVCPU_INFO		68
-+#define VMWARE_CMD_STEALCLOCK		91
-+
-+#define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
-+#define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
-+
-+extern u8 vmware_hypercall_mode;
- 
- /* The low bandwidth call. The low word of edx is presumed clear. */
- #define VMWARE_HYPERCALL						\
-@@ -54,4 +66,43 @@
- 		      "rep insb",					\
- 		      "vmcall", X86_FEATURE_VMCALL,			\
- 		      "vmmcall", X86_FEATURE_VMW_VMMCALL)
-+
-+#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
-+	__asm__("inl (%%dx), %%eax" :					\
-+		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
-+		"a"(VMWARE_HYPERVISOR_MAGIC),				\
-+		"c"(VMWARE_CMD_##cmd),					\
-+		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
-+		"memory")
-+
-+#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
-+	__asm__("vmcall" :						\
-+		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
-+		"a"(VMWARE_HYPERVISOR_MAGIC),				\
-+		"c"(VMWARE_CMD_##cmd),					\
-+		"d"(0), "b"(UINT_MAX) :					\
-+		"memory")
-+
-+#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)				\
-+	__asm__("vmmcall" :						\
-+		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
-+		"a"(VMWARE_HYPERVISOR_MAGIC),				\
-+		"c"(VMWARE_CMD_##cmd),					\
-+		"d"(0), "b"(UINT_MAX) :					\
-+		"memory")
-+
-+#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
-+	switch (vmware_hypercall_mode) {			\
-+	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
-+		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
-+		break;						\
-+	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
-+		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
-+		break;						\
-+	default:						\
-+		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
-+		break;						\
-+	}							\
-+	} while (0)
-+
- #endif
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 11f83d07925e..4db8e1daa4a1 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -41,60 +41,14 @@
- 
- #define CPUID_VMWARE_INFO_LEAF               0x40000000
- #define CPUID_VMWARE_FEATURES_LEAF           0x40000010
--#define CPUID_VMWARE_FEATURES_ECX_VMMCALL    BIT(0)
--#define CPUID_VMWARE_FEATURES_ECX_VMCALL     BIT(1)
- 
--#define VMWARE_HYPERVISOR_MAGIC	0x564D5868
--
--#define VMWARE_CMD_GETVERSION    10
--#define VMWARE_CMD_GETHZ         45
--#define VMWARE_CMD_GETVCPU_INFO  68
--#define VMWARE_CMD_LEGACY_X2APIC  3
--#define VMWARE_CMD_VCPU_RESERVED 31
--#define VMWARE_CMD_STEALCLOCK    91
-+#define VCPU_LEGACY_X2APIC	3
-+#define VCPU_RESERVED		31
- 
- #define STEALCLOCK_NOT_AVAILABLE (-1)
- #define STEALCLOCK_DISABLED        0
- #define STEALCLOCK_ENABLED         1
- 
--#define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
--	__asm__("inl (%%dx), %%eax" :					\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(VMWARE_HYPERVISOR_PORT), "b"(UINT_MAX) :		\
--		"memory")
--
--#define VMWARE_VMCALL(cmd, eax, ebx, ecx, edx)				\
--	__asm__("vmcall" :						\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(0), "b"(UINT_MAX) :					\
--		"memory")
--
--#define VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx)                         \
--	__asm__("vmmcall" :						\
--		"=a"(eax), "=c"(ecx), "=d"(edx), "=b"(ebx) :		\
--		"a"(VMWARE_HYPERVISOR_MAGIC),				\
--		"c"(VMWARE_CMD_##cmd),					\
--		"d"(0), "b"(UINT_MAX) :					\
--		"memory")
--
--#define VMWARE_CMD(cmd, eax, ebx, ecx, edx) do {		\
--	switch (vmware_hypercall_mode) {			\
--	case CPUID_VMWARE_FEATURES_ECX_VMCALL:			\
--		VMWARE_VMCALL(cmd, eax, ebx, ecx, edx);		\
--		break;						\
--	case CPUID_VMWARE_FEATURES_ECX_VMMCALL:			\
--		VMWARE_VMMCALL(cmd, eax, ebx, ecx, edx);	\
--		break;						\
--	default:						\
--		VMWARE_PORT(cmd, eax, ebx, ecx, edx);		\
--		break;						\
--	}							\
--	} while (0)
--
- struct vmware_steal_time {
- 	union {
- 		uint64_t clock;	/* stolen time counter in units of vtsc */
-@@ -108,7 +62,8 @@ struct vmware_steal_time {
- };
- 
- static unsigned long vmware_tsc_khz __ro_after_init;
--static u8 vmware_hypercall_mode     __ro_after_init;
-+u8 vmware_hypercall_mode __ro_after_init;
-+EXPORT_SYMBOL_GPL(vmware_hypercall_mode);
- 
- static inline int __vmware_platform(void)
+ static int ptp_vmw_pclk_read(u64 *ns)
  {
-@@ -476,8 +431,8 @@ static bool __init vmware_legacy_x2apic_available(void)
- {
- 	uint32_t eax, ebx, ecx, edx;
- 	VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
--	return !(eax & BIT(VMWARE_CMD_VCPU_RESERVED)) &&
--		(eax & BIT(VMWARE_CMD_LEGACY_X2APIC));
-+	return !(eax & BIT(VCPU_RESERVED)) &&
-+		(eax & BIT(VCPU_LEGACY_X2APIC));
- }
+-	u32 ret, nsec_hi, nsec_lo, unused1, unused2, unused3;
+-
+-	asm volatile (VMWARE_HYPERCALL :
+-		"=a"(ret), "=b"(nsec_hi), "=c"(nsec_lo), "=d"(unused1),
+-		"=S"(unused2), "=D"(unused3) :
+-		"a"(VMWARE_MAGIC), "b"(0),
+-		"c"(VMWARE_CMD_PCLK_GETTIME), "d"(0) :
+-		"memory");
++	u32 ret, nsec_hi, nsec_lo;
  
- #ifdef CONFIG_AMD_MEM_ENCRYPT
++	ret = vmware_hypercall3(VMWARE_CMD_PCLK_GETTIME, 0,
++				&nsec_hi, &nsec_lo);
+ 	if (ret == 0)
+ 		*ns = ((u64)nsec_hi << 32) | nsec_lo;
+ 	return ret;
 -- 
 2.39.0
 
