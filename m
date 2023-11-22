@@ -1,168 +1,136 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF7F43D98B
-	for <virtualization@lists.linux.dev>; Wed, 22 Nov 2023 10:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D28254C618
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 12:49:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="SjXtM+ft"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=GD4bNNM15E1cJYaRe//tJkfYx4k2Jflbn5Zo9mdLKTw=; b=SjXtM+ft3WnregXt8o1Cq89gbu
-	N7byio5iMWHjPDRlP+StbGqPIPqD744/DwhZq8+VWKFIpEpVvCnttIr2LswYHplkpT6MfFYLQJeU0
-	KZ3KY1nEwg/rgqSWx8v4e3yY+jahpvKGCCVyVrocI6uKy3WCeBUdLR8AodWPZYlZxRSNPrR3gXRNa
-	OBLEwR0xEd9h98y3eCUMQ9hsy5o5TNoGsIY2OZ5A6zU/FbLStzctFcW10Sh6FO2zBQRIyhY1nIzd0
-	LKn3ayOVoMdfuJFVDc9hmhzsgn+nWBUyXq0O5IMdVQvk2ar1g186heq+I5x0ybktRuM3zX5TS8Ank
-	0IObH15g==;
-Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
-	id 1r5k1q-00CH1O-04;
-	Wed, 22 Nov 2023 10:00:18 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id A2CF83005AA; Wed, 22 Nov 2023 11:00:16 +0100 (CET)
-Date: Wed, 22 Nov 2023 11:00:16 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Abel Wu <wuyun.abel@bytedance.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	mst@redhat.com, jasowang@redhat.com
-Subject: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6 sched/fair:
- Add lag based placement)
-Message-ID: <20231122100016.GO8262@noisy.programming.kicks-ass.net>
-References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
- <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
- <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
- <20231117123759.GP8262@noisy.programming.kicks-ass.net>
- <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
- <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tc/2BAOy"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 36D3641B49
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 12:49:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 36D3641B49
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=Tc/2BAOy
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -7.101
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fFczqmWAyTtU
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 22 Nov 2023 12:49:03 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3758941B3E
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 12:49:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3758941B3E
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id BE99B61DC6;
+	Wed, 22 Nov 2023 12:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B8AC433C7;
+	Wed, 22 Nov 2023 12:48:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700657341;
+	bh=6OXBSUL+nsBWDSWY/Q2r+0obUk1WW2944LvuwrKFOOg=;
+	h=From:Subject:Date:To:Cc:From;
+	b=Tc/2BAOyq/CL424TPKJ+8ok4iD2CSlMj4gj7I88R2wR3SRpoXrwpPP4CcDv0rCy4Q
+	 imtDsj4NMmiBNZozdVII4r1Tu0lKWkktCHU3pI4LzAIFYMYIaMFpbulm6tUMVwguK4
+	 qTlrJ2u4/DeMIiXbQyzfXkH/WxJG3G65JVkRZ5lf6r4VzUJTQXH/UjyJJ0V5cZAl2s
+	 w/spDO6VPLhtfPliBsbbdWVAXUjht3ojtCQDl0LfCWNNwph8Zdy7ZX7mLHL0no3jWG
+	 z8IdhyFNF5VEPzmpKIFkxea1CvPQqUVZAxIi/ByG3Lv1c90SwdjDEIcrL99R5YQgIg
+	 fP3gmG5BvwYWQ==
+From: Christian Brauner <brauner@kernel.org>
+Subject: [PATCH v2 0/4] eventfd: simplify signal helpers
+Date: Wed, 22 Nov 2023 13:48:21 +0100
+Message-Id: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAJX4XWUC/32OTQ6CMBBGr0K6dkhbYpu48h6GRX8GaMRiZkijI
+ dzdwgFcvsV737cJRkrI4tZsgrAkTkuuoC+NCJPLI0KKlYWWupNWdVAGBiyY1yECpzG7GaSXURn
+ rosEgqvgmHNLnjD76yt4xgieXw3SkXo5XpLaY1gIFdRhT4nWh7/miqMP7O1gUSLBDdCZco1ba3
+ 59IGed2oVH0+77/ALQAWw7XAAAA
+To: linux-fsdevel@vger.kernel.org
+Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>, 
+ Vitaly Kuznetsov <vkuznets@redhat.com>, 
+ Sean Christopherson <seanjc@google.com>, 
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, 
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+ David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>, 
+ Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>, 
+ Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>, 
+ Xu Yilun <yilun.xu@intel.com>, Zhenyu Wang <zhenyuw@linux.intel.com>, 
+ Zhi Wang <zhi.a.wang@intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, 
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+ Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, 
+ David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+ Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+ Frederic Barrat <fbarrat@linux.ibm.com>, 
+ Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Eric Farman <farman@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, 
+ Halil Pasic <pasic@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, 
+ Peter Oberparleiter <oberpar@linux.ibm.com>, 
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+ Alexander Gordeev <agordeev@linux.ibm.com>, 
+ Christian Borntraeger <borntraeger@linux.ibm.com>, 
+ Sven Schnelle <svens@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, 
+ Jason Herne <jjherne@linux.ibm.com>, 
+ Harald Freudenberger <freude@linux.ibm.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ Diana Craciun <diana.craciun@oss.nxp.com>, 
+ Alex Williamson <alex.williamson@redhat.com>, 
+ Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>, 
+ Benjamin LaHaise <bcrl@kvack.org>, Christian Brauner <brauner@kernel.org>, 
+ Johannes Weiner <hannes@cmpxchg.org>, Michal Hocko <mhocko@kernel.org>, 
+ Roman Gushchin <roman.gushchin@linux.dev>, 
+ Shakeel Butt <shakeelb@google.com>, Muchun Song <muchun.song@linux.dev>, 
+ Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+ linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org, 
+ intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+ linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+ netdev@vger.kernel.org, linux-aio@kvack.org, cgroups@vger.kernel.org, 
+ linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>, 
+ Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+X-Mailer: b4 0.13-dev-26615
+X-Developer-Signature: v=1; a=openpgp-sha256; l=564; i=brauner@kernel.org;
+ h=from:subject:message-id; bh=6OXBSUL+nsBWDSWY/Q2r+0obUk1WW2944LvuwrKFOOg=;
+ b=owGbwMvMwCU28Zj0gdSKO4sYT6slMaTG/lhzPFmKbc7Vgs4lut/eP1hw9bOuxtyeI9s4tYwWe
+ yZZxby53lHKwiDGxSArpsji0G4SLrecp2KzUaYGzBxWJpAhDFycAjCRf4IM/8NUuv3TH0hJOWz8
+ c65PTujVFLaLGrq6vFP/9yxi7X77UInhf0113erTobU10gp/tt37unHeHp8P0ZHTLq5c7sWdN//
+ 2D04A
+X-Developer-Key: i=brauner@kernel.org; a=openpgp;
+ fpr=4880B8C9BD0E5106FC070F4F7B3C391EFEA93624
 
-On Tue, Nov 21, 2023 at 02:17:21PM +0100, Tobias Huschle wrote:
+Hey everyone,
 
-> We applied both suggested patch options and ran the test again, so 
-> 
-> sched/eevdf: Fix vruntime adjustment on reweight
-> sched/fair: Update min_vruntime for reweight_entity() correctly
-> 
-> and
-> 
-> sched/eevdf: Delay dequeue
-> 
-> Unfortunately, both variants do NOT fix the problem.
-> The regression remains unchanged.
+This simplifies the eventfd_signal() and eventfd_signal_mask() helpers
+significantly. They can be made void and not take any unnecessary
+arguments.
 
-Thanks for testing.
+I've added a few more simplifications based on Sean's suggestion.
 
-> I will continue getting myself familiar with how cgroups are scheduled to dig 
-> deeper here. If there are any other ideas, I'd be happy to use them as a 
-> starting point for further analysis.
-> 
-> Would additional traces still be of interest? If so, I would be glad to
-> provide them.
+Signed-off-by: Christian Brauner <brauner@kernel.org>
 
-So, since it got bisected to the placement logic, but is a cgroup
-related issue, I was thinking that 'Delay dequeue' might not cut it,
-that only works for tasks, not the internal entities.
-
-The below should also work for internal entities, but last time I poked
-around with it I had some regressions elsewhere -- you know, fix one,
-wreck another type of situations on hand.
-
-But still, could you please give it a go -- it applies cleanly to linus'
-master and -rc2.
+Changes in v2:
+- further simplify helpers
+- Link to v1: https://lore.kernel.org/r/20230713-vfs-eventfd-signal-v1-0-7fda6c5d212b@kernel.org
 
 ---
-Subject: sched/eevdf: Revenge of the Sith^WSleepers
 
-For tasks that have received excess service (negative lag) allow them to
-gain parity (zero lag) by sleeping.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+
 ---
- kernel/sched/fair.c     | 36 ++++++++++++++++++++++++++++++++++++
- kernel/sched/features.h |  6 ++++++
- 2 files changed, 42 insertions(+)
+base-commit: b85ea95d086471afb4ad062012a4d73cd328fa86
+change-id: 20230713-vfs-eventfd-signal-0b0d167ad6ec
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index d7a3c63a2171..b975e4b07a68 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5110,6 +5110,33 @@ static inline void update_misfit_status(struct task_struct *p, struct rq *rq) {}
- 
- #endif /* CONFIG_SMP */
- 
-+static inline u64
-+entity_vlag_sleeper(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
-+{
-+	u64 now, vdelta;
-+	s64 delta;
-+
-+	if (!(flags & ENQUEUE_WAKEUP))
-+		return se->vlag;
-+
-+	if (flags & ENQUEUE_MIGRATED)
-+		return 0;
-+
-+	now = rq_clock_task(rq_of(cfs_rq));
-+	delta = now - se->exec_start;
-+	if (delta < 0)
-+		return se->vlag;
-+
-+	if (sched_feat(GENTLE_SLEEPER))
-+		delta /= 2;
-+
-+	vdelta = __calc_delta(delta, NICE_0_LOAD, &cfs_rq->load);
-+	if (vdelta < -se->vlag)
-+		return se->vlag + vdelta;
-+
-+	return 0;
-+}
-+
- static void
- place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
- {
-@@ -5133,6 +5160,15 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
- 
- 		lag = se->vlag;
- 
-+		/*
-+		 * Allow tasks that have received too much service (negative
-+		 * lag) to (re)gain parity (zero lag) by sleeping for the
-+		 * equivalent duration. This ensures they will be readily
-+		 * eligible.
-+		 */
-+		if (sched_feat(PLACE_SLEEPER) && lag < 0)
-+			lag = entity_vlag_sleeper(cfs_rq, se, flags);
-+
- 		/*
- 		 * If we want to place a task and preserve lag, we have to
- 		 * consider the effect of the new entity on the weighted
-diff --git a/kernel/sched/features.h b/kernel/sched/features.h
-index a3ddf84de430..722282d3ed07 100644
---- a/kernel/sched/features.h
-+++ b/kernel/sched/features.h
-@@ -7,6 +7,12 @@
- SCHED_FEAT(PLACE_LAG, true)
- SCHED_FEAT(PLACE_DEADLINE_INITIAL, true)
- SCHED_FEAT(RUN_TO_PARITY, true)
-+/*
-+ * Let sleepers earn back lag, but not more than 0-lag. GENTLE_SLEEPERS earn at
-+ * half the speed.
-+ */
-+SCHED_FEAT(PLACE_SLEEPER, true)
-+SCHED_FEAT(GENTLE_SLEEPER, true)
- 
- /*
-  * Prefer to schedule the task we woke last (assuming it failed
