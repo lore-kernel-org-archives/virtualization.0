@@ -1,172 +1,135 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDCC4F5E1
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1BC5D902
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 22:05:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Ko3Id8Av"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="PoLRwynF"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B115160FAE
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:55 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B115160FAE
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=Ko3Id8Av
+	by smtp1.osuosl.org (Postfix) with ESMTP id A7E138135E
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 22:05:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A7E138135E
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=PoLRwynF
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FpsILCmyhhel
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XDNC1SRRDu97
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 19:23:54 +0000 (UTC)
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20613.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::613])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5CCA660EBB
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5CCA660EBB
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=hg6lLqOu13vJ/QgkURszhT+tty0gMHoBZ3g8SwXW+LNXa3l37dDgfYF8r3sIBnyO2N9/r0opyKfvviApsLMPHKP3kP4rbKpnvkvqC1PsMh4eIn/PG3hvN1b3tZxy7H7vx90gmips49DMsA7KF23iRr0tiajeMOpTIdPxmm0jojpASnDqy/I9VzGsSJIF4wPn7+XF3Go+UjKqW4xy+4s34bnSNhnrhZl2k8bn0yMkZRFW4Q4MiHhyE9fg4Knqb3oM8FUodxDxhjE+cLydFZ5N6lWlaAf+YxsrvaC+5Jq7WTSgD1J+yvf5rO7ijTWnJYUk2LrIg35EcMdeCa8STkjjJw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qNpYG+a2kMrDUQObCCjTTDBLvgmOmmMMjG0iUbmmIis=;
- b=HPR7u3s+vyIxfr5uvYJgKJL3Srw6ZvgKztdcucVSgrWuo96sp5Lb0htnsOrA+am/vAs3F6wYq9LFAJP3Y6XJcVsnanRMou5hTBG9wrZ0O5ZSbA3exmC0/ZjKDyyVVjF3STTpP8EIV48rzLACceofr1yshhkIlO3k8V94x5fx9z6aBcfE/j4ENGufv3XYa5ysVYWj6rmtXn/wgmfs8uFKHGv8KeadN+snVWKTy0oBJfxftf45bNI6TqSVtfUZEaevD63RMa8GoA3ij5d+HmEZ6jHo3Dc/JL00WneuOlTaN/ScXCtnjmzMUrPM7LgzYbPSEeQZCrSNmIHRpwpflgPP+w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=qNpYG+a2kMrDUQObCCjTTDBLvgmOmmMMjG0iUbmmIis=;
- b=Ko3Id8AvciGe7291aHYMOxhKFgC4Qo2qHJcUeVOMH6gewTeDOwfqqCdUP8+JPy6k3Ttbuza7Q+sUo6ELVV2tnytTd+9yxLd6owGS0JAmeUm0Akw4WYOBGqTOgMFgAA5SKio/hXiwBxmINxQWBGccp36/prffp1sxP9gYQcM8PZw=
-Received: from BYAPR06CA0013.namprd06.prod.outlook.com (2603:10b6:a03:d4::26)
- by SN7PR12MB7156.namprd12.prod.outlook.com (2603:10b6:806:2a7::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.26; Wed, 22 Nov
- 2023 19:23:48 +0000
-Received: from DS2PEPF0000343A.namprd02.prod.outlook.com
- (2603:10b6:a03:d4:cafe::b9) by BYAPR06CA0013.outlook.office365.com
- (2603:10b6:a03:d4::26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.19 via Frontend
- Transport; Wed, 22 Nov 2023 19:23:48 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DS2PEPF0000343A.mail.protection.outlook.com (10.167.18.37) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7025.13 via Frontend Transport; Wed, 22 Nov 2023 19:23:47 +0000
-Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Wed, 22 Nov
- 2023 13:23:46 -0600
-Received: from [10.252.147.188] (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server id 15.1.2507.34 via Frontend
- Transport; Wed, 22 Nov 2023 13:23:45 -0600
-Message-ID: <13d384e4-852a-4144-8738-6692defebbae@amd.com>
-Date: Wed, 22 Nov 2023 20:23:44 +0100
+	Wed, 22 Nov 2023 22:05:06 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BD95B8135D
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 22:05:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BD95B8135D
+Received: from [10.3.2.161] (zone.collabora.co.uk [167.235.23.81])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 31E596607332;
+	Wed, 22 Nov 2023 22:05:01 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1700690702;
+	bh=L8JWdmRbv/qGbL8ayeiLeAZrkbkPXFdz4DgESw6b6mY=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=PoLRwynFFCCpJfEbuu2PfIDTr3NeSI/VBEZmk2geOCk8erfiGRjZQzDXteIWW7X2U
+	 RRpdqwk63aslO0l+eOMNNjPQeAlCPXTxb7fM9AHlFal49/0eIyLAaNXPO04JMivZRt
+	 O2+7kA8GOTnJvm4QFFmsn2Qk8OeFHzDP2bsbN9FZP+4+GGKpHC9cSTakDFPAfZE3Lx
+	 1AX0Jg/gus++k0WwXx5PiZNLhsIKdy4hzHNXiewyvtGRK13mMbGOADhh2wxckGC843
+	 1IlFYJFMk0ibNkxSUsfHJrif1TLXH2GR2MPHLRa3zr4U6XQPFlDuz8CsTs4IfT5VxZ
+	 UnKN8MHEkF+0g==
+Message-ID: <26890ba7-5e19-df0c-fce0-26af58e66266@collabora.com>
+Date: Thu, 23 Nov 2023 01:04:56 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Enabling more than one HVC console on Arm64 platform
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v18 15/26] drm/panfrost: Explicitly get and put drm-shmem
+ pages
 Content-Language: en-US
-To: Ayan Kumar Halder <ayankuma@amd.com>, <amit@kernel.org>, Julien Grall
-	<julien@xen.org>, "Stabellini, Stefano" <stefano.stabellini@amd.com>
-CC: <arnd@arndb.de>, <virtualization@lists.linux-foundation.org>,
-	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-References: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
-From: Michal Orzel <michal.orzel@amd.com>
-In-Reply-To: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS2PEPF0000343A:EE_|SN7PR12MB7156:EE_
-X-MS-Office365-Filtering-Correlation-Id: 486db3e2-0232-42e8-c415-08dbeb908d40
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	1IcWLxcV41iIaOcCGcYJFWbn/RGOnRM8lnnXnqBpgsOahnGBVm9S/vvesrFfIgXxzREnUQzW1pat6RMuGCT9j7iQs/HQnm28GCClRmIUGXNXdUjQ3fRUsrU1Gw+hDaUb9nem/nBiLKt1ZAbaH4nIc8GLYADvfGBmSxi/fEnh5GRJ1Z1uUkzpL2FIkk7mhRr6x009/Uk5s0pYvK+zxajZX5ojFU6IFxUp22jBk2keKZQxrz/ns/P+sWMHwOUSgFdby/4yRmuc6V7gzyzhbZk2AIkA/rqZ3HffpVFgNNruQhgmoVsiubvS7zcZGRJkcN3rNpJpHgmxhRUQRXWPu3Kk6XybYemwq70Dbkwx4q7PR+6phoMKPpIjmtXA9IMFJo7PBW6/Ut/tEe4lEjo+83wN6v0T/KLH067UsBsEZqSY1dtN4ePRS08ujCGiTpZlMrkyGO0QQyB1WCmEBJ1CdZyihZKcwMJinKZwWdt4/EazqWeHL7DH5ezwsRrBmt+cKKZN+Wzp6v8EsShPlP7epwqtMuyzKjvaTGFpsJGwhbIuJnHzU0CNwS54YVzsmagbIByNeyOrAkcEynX+59oTKg+AvCSudw196GTwU24t3FGlyL3ziK0c7w6DQMJQroKMp00ePLO8m1u7uUaIT/sampDFrB4mtu3qMo9IWSJmZLhk595Ylj/8P//WbFb8elxcxvSx7IwBsPlfdkiXRuIjk/jM4PdnAkXhx736A9STvcmR7TppMPIDcLTEbxaQUDGZV0I2o1NYmgR2RYC7o4v/rloHRMiYoYoy2lBMF7k4SpVLJrT++O36FYTFzygrV821kwka
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(376002)(396003)(346002)(230922051799003)(451199024)(82310400011)(1800799012)(186009)(64100799003)(46966006)(40470700004)(36840700001)(5660300002)(2906002)(16576012)(8936002)(4326008)(8676002)(70586007)(110136005)(316002)(6636002)(26005)(478600001)(966005)(40480700001)(31686004)(44832011)(54906003)(70206006)(53546011)(2616005)(36756003)(336012)(426003)(86362001)(83380400001)(82740400003)(40460700003)(81166007)(47076005)(356005)(41300700001)(36860700001)(31696002)(36900700001)(43740500002)(2101003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 19:23:47.9925
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 486db3e2-0232-42e8-c415-08dbeb908d40
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DS2PEPF0000343A.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7156
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+ <20231029230205.93277-16-dmitry.osipenko@collabora.com>
+ <20231110115354.356c87f7@collabora.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20231110115354.356c87f7@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Ayan,
+On 11/10/23 13:53, Boris Brezillon wrote:
+> Hm, there was no drm_gem_shmem_get_pages_sgt() call here, why should we
+> add a drm_gem_shmem_get_pages()? What we should do instead is add a
+> drm_gem_shmem_get_pages() for each drm_gem_shmem_get_pages_sgt() we
+> have in the driver (in panfrost_mmu_map()), and add
+> drm_gem_shmem_put_pages() calls where they are missing
+> (panfrost_mmu_unmap()).
+> 
+>> +		if (err)
+>> +			goto err_free;
+>> +	}
+>> +
+>>  	return bo;
+>> +
+>> +err_free:
+>> +	drm_gem_shmem_free(&bo->base);
+>> +
+>> +	return ERR_PTR(err);
+>>  }
+>>  
+>>  struct drm_gem_object *
+>> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+>> index 770dab1942c2..ac145a98377b 100644
+>> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
+>> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+>> @@ -504,7 +504,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+>>  		if (IS_ERR(pages[i])) {
+>>  			ret = PTR_ERR(pages[i]);
+>>  			pages[i] = NULL;
+>> -			goto err_pages;
+>> +			goto err_unlock;
+>>  		}
+>>  	}
+>>  
+>> @@ -512,7 +512,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+>>  	ret = sg_alloc_table_from_pages(sgt, pages + page_offset,
+>>  					NUM_FAULT_PAGES, 0, SZ_2M, GFP_KERNEL);
+>>  	if (ret)
+>> -		goto err_pages;
+>> +		goto err_unlock;
+> Feels like the panfrost_gem_mapping object should hold a ref on the BO
+> pages, not the BO itself, because, ultimately, the user of the BO is
+> the GPU. This matches what I was saying about moving get/put_pages() to
+> panfrost_mmu_map/unmap(): everytime a panfrost_gem_mapping becomes
+> active, to want to take a pages ref, every time it becomes inactive,
+> you should release the pages ref.
 
-On 22/11/2023 20:00, Ayan Kumar Halder wrote:
-> Hi Amit/All,
-> 
-> We came across this scenario and would be helpful if you can provide 
-> some pointers
-> 
-> 
-> Linux running as Dom0 on Xen hypervisor with HVC_DCC = y and HVC_XEN = y 
-> on Arm64 platform.
-> 
-> This causes a crash when Dom0 tries to access "DBGDTRTX_EL0" register, 
-> it traps to Xen.
-> 
-> Xen does not emulate this register so it crashes.
-> 
-> |Logs - https://paste.debian.net/1298983/|
-> 
-> |
-> |
-> 
-> |My aim is to avoid the crash and let Xen boot Dom0 even though there 
-> might not be a debug console available.|
-> 
-> |So, I am trying to add emulation for |"DBGDTRTX_EL0" register in Xen.
-> 
-> 
-> As a quick trial (may be not the perfect solution), I am trying to 
-> emulate this register as "read as zero/write ignore" (similar to KVM).
-> 
-> However, I could not see logs to the Xen console (ie HVC0).
-> 
-> 
-> So my question is
-> 
-> 1. Is it possible in Linux to probe more than one HVC console so that 
-> Linux can put the same logs in HVC_DCC and HVC_XEN drivers ?
-> 
-> So that the user can always see the logs in the default Xen console (ie 
-> hvc0) even if the debug console is not present.
-If you have both HVC DCC and Xen enabled and DCC gets assigned hvc0, just use console=hvc1
-to see the messages from Xen.
-> 
-> 
-> Another possible alternative I am exploring is to enable trapping for 
-> read of MDCCSR_EL0 in Xen, so that Xen returns with MDCCSR_EL0.TXfull 
-> set to 1.
-> 
-> static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
-> {
->      int i;
-> 
->      for (i = 0; i < count; i++) {
->          while (__dcc_getstatus() & DCC_STATUS_TX)
->              cpu_relax(); <<<<<<<<<<----------- So this will be invoked.
-FWICS, this won't be invoked given that in init call hvc_dcc_check() will return false
-due to condition "if (!(__dcc_getstatus() & DCC_STATUS_TX))" being false. This is the whole
-point to make Linux return -ENODEV quickly.
+The panfrost_mmu_unmap() is also used by shrinker when BO is purged. I'm
+unhappy with how icky it all becomes if unmap is made to put pages.
 
-~Michal
+Previously map() was implicitly allocating pages with get_sgt() and then
+pages were implicitly released by drm_gem_shmem_free(). A non-heap BO is
+mapped when it's created by Panfrost, hence the actual lifetime of pages
+is kept unchanged by this patch. The implicit allocation is turned into
+explicit one, i.e. pages are explicitly allocated before BO is mapped.
+
+-- 
+Best regards,
+Dmitry
+
