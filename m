@@ -1,198 +1,172 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AABD95C8EA
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDCC4F5E1
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="bPMXSA4q"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Ko3Id8Av"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 13D19812D5
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 13D19812D5
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=bPMXSA4q
+	by smtp3.osuosl.org (Postfix) with ESMTP id B115160FAE
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B115160FAE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=amd.com header.i=@amd.com header.a=rsa-sha256 header.s=selector1 header.b=Ko3Id8Av
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KptOBBxCr814
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FpsILCmyhhel
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 19:00:28 +0000 (UTC)
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2062d.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5b::62d])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 39F7E8123F
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:00:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 39F7E8123F
+	Wed, 22 Nov 2023 19:23:54 +0000 (UTC)
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20613.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::613])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5CCA660EBB
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 19:23:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 5CCA660EBB
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=FS3BikAmEUdHk/YYN/8JfHiOb+ba3InZRmL3U1YgUnDBGprfJR/5TTHY13Yze+HfUqtZTtB1vF9jM8uo+ZuATyyBNysHAXmxNKDt0btHUGJ/y+ktqJE0O4GO5STDlEOVxtGjrqo6JNaC3tOm3x3RVWNtrWeju1qYgaJoO/0ImTIZl42TtmHQ3dIQZ9wnVMdOJw4fGIlKse2IjvpFmLSM4DZeHtsd3EEDO+mz6HUV4ezLDXbfVX9eFji6OEuGE7EAPUXpWmzT6mNwHghcLbNNst9np2fjfW6pZctDpUhPpMWp/BRovX4t9tQX/RUDU4iMjTbLw18vxWErW1DmtPW8yg==
+ b=hg6lLqOu13vJ/QgkURszhT+tty0gMHoBZ3g8SwXW+LNXa3l37dDgfYF8r3sIBnyO2N9/r0opyKfvviApsLMPHKP3kP4rbKpnvkvqC1PsMh4eIn/PG3hvN1b3tZxy7H7vx90gmips49DMsA7KF23iRr0tiajeMOpTIdPxmm0jojpASnDqy/I9VzGsSJIF4wPn7+XF3Go+UjKqW4xy+4s34bnSNhnrhZl2k8bn0yMkZRFW4Q4MiHhyE9fg4Knqb3oM8FUodxDxhjE+cLydFZ5N6lWlaAf+YxsrvaC+5Jq7WTSgD1J+yvf5rO7ijTWnJYUk2LrIg35EcMdeCa8STkjjJw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eZWDflHyvSXyxnLDpVXI3Lh4doEAtVUGqRgZZsjAyCY=;
- b=KC0B4GZhfDrcJ8Wf76jBEkbxpzu7c+EIllN9d0rzRY13fmOSqZu2c+9r1rHX3FB7WaX8uKNt40c7X6lYhTs9br8GlXsz8VxZuwMxbN0aNky9ULLpvi2KEKte/EFK0NR1I7nvtSg3ChEjfVEmxJ2IF8hq4eaQAr0zD4IVR/VwoOLNGhatiB02SsEsIfbSnKVWDrmkvvbM086L79jG2ehFXtRQ8APr4TV3TrJOGkBl65x/QxW0ddaISwB+ye8Ct50AcbK6c7zGka4bCHFrHcCDLAY3WPNMSvcw5r7GwXrrOCrmjKPQh26vn56akVgjb/myC0ErqiimO66THlqR0ERLzQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
+ bh=qNpYG+a2kMrDUQObCCjTTDBLvgmOmmMMjG0iUbmmIis=;
+ b=HPR7u3s+vyIxfr5uvYJgKJL3Srw6ZvgKztdcucVSgrWuo96sp5Lb0htnsOrA+am/vAs3F6wYq9LFAJP3Y6XJcVsnanRMou5hTBG9wrZ0O5ZSbA3exmC0/ZjKDyyVVjF3STTpP8EIV48rzLACceofr1yshhkIlO3k8V94x5fx9z6aBcfE/j4ENGufv3XYa5ysVYWj6rmtXn/wgmfs8uFKHGv8KeadN+snVWKTy0oBJfxftf45bNI6TqSVtfUZEaevD63RMa8GoA3ij5d+HmEZ6jHo3Dc/JL00WneuOlTaN/ScXCtnjmzMUrPM7LgzYbPSEeQZCrSNmIHRpwpflgPP+w==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eZWDflHyvSXyxnLDpVXI3Lh4doEAtVUGqRgZZsjAyCY=;
- b=bPMXSA4qT8uUjXtoGhm5qEUxw4Lb4E1Fk05FX+3Vwx+3bmMmCkD178GUlnxwdhgCOT8J03MD57BgKVXKKS2txHrsN/E+Nr9qgNSUiwBKjvIdSY2HPNVEiQc8udAVmog4t5ArDZigLq8GyFg0NtbfLSXkn+W+WcnZVDZl9S2xx78=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from SN6PR12MB2621.namprd12.prod.outlook.com (2603:10b6:805:73::15)
- by MW4PR12MB6825.namprd12.prod.outlook.com (2603:10b6:303:20d::17) with
+ bh=qNpYG+a2kMrDUQObCCjTTDBLvgmOmmMMjG0iUbmmIis=;
+ b=Ko3Id8AvciGe7291aHYMOxhKFgC4Qo2qHJcUeVOMH6gewTeDOwfqqCdUP8+JPy6k3Ttbuza7Q+sUo6ELVV2tnytTd+9yxLd6owGS0JAmeUm0Akw4WYOBGqTOgMFgAA5SKio/hXiwBxmINxQWBGccp36/prffp1sxP9gYQcM8PZw=
+Received: from BYAPR06CA0013.namprd06.prod.outlook.com (2603:10b6:a03:d4::26)
+ by SN7PR12MB7156.namprd12.prod.outlook.com (2603:10b6:806:2a7::10) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.18; Wed, 22 Nov
- 2023 19:00:21 +0000
-Received: from SN6PR12MB2621.namprd12.prod.outlook.com
- ([fe80::517a:f65:688e:c4b1]) by SN6PR12MB2621.namprd12.prod.outlook.com
- ([fe80::517a:f65:688e:c4b1%7]) with mapi id 15.20.7025.017; Wed, 22 Nov 2023
- 19:00:21 +0000
-Message-ID: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
-Date: Wed, 22 Nov 2023 19:00:16 +0000
-User-Agent: Mozilla Thunderbird
-From: Ayan Kumar Halder <ayankuma@amd.com>
-Subject: Enabling more than one HVC console on Arm64 platform
-To: amit@kernel.org, Julien Grall <julien@xen.org>,
- Michal Orzel <michal.orzel@amd.com>,
- "Stabellini, Stefano" <stefano.stabellini@amd.com>
-Cc: arnd@arndb.de, virtualization@lists.linux-foundation.org,
- "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
-Content-Language: en-GB
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR4P281CA0220.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:e4::15) To SN6PR12MB2621.namprd12.prod.outlook.com
- (2603:10b6:805:73::15)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.26; Wed, 22 Nov
+ 2023 19:23:48 +0000
+Received: from DS2PEPF0000343A.namprd02.prod.outlook.com
+ (2603:10b6:a03:d4:cafe::b9) by BYAPR06CA0013.outlook.office365.com
+ (2603:10b6:a03:d4::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.19 via Frontend
+ Transport; Wed, 22 Nov 2023 19:23:48 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
+Received: from SATLEXMB04.amd.com (165.204.84.17) by
+ DS2PEPF0000343A.mail.protection.outlook.com (10.167.18.37) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.7025.13 via Frontend Transport; Wed, 22 Nov 2023 19:23:47 +0000
+Received: from SATLEXMB04.amd.com (10.181.40.145) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.34; Wed, 22 Nov
+ 2023 13:23:46 -0600
+Received: from [10.252.147.188] (10.180.168.240) by SATLEXMB04.amd.com
+ (10.181.40.145) with Microsoft SMTP Server id 15.1.2507.34 via Frontend
+ Transport; Wed, 22 Nov 2023 13:23:45 -0600
+Message-ID: <13d384e4-852a-4144-8738-6692defebbae@amd.com>
+Date: Wed, 22 Nov 2023 20:23:44 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: Enabling more than one HVC console on Arm64 platform
+Content-Language: en-US
+To: Ayan Kumar Halder <ayankuma@amd.com>, <amit@kernel.org>, Julien Grall
+	<julien@xen.org>, "Stabellini, Stefano" <stefano.stabellini@amd.com>
+CC: <arnd@arndb.de>, <virtualization@lists.linux-foundation.org>,
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>
+References: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
+From: Michal Orzel <michal.orzel@amd.com>
+In-Reply-To: <f0b93b4d-b3b3-43b9-bff1-54399311a977@amd.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN6PR12MB2621:EE_|MW4PR12MB6825:EE_
-X-MS-Office365-Filtering-Correlation-Id: c4797dc4-294b-4a7e-883d-08dbeb8d46b0
+X-MS-TrafficTypeDiagnostic: DS2PEPF0000343A:EE_|SN7PR12MB7156:EE_
+X-MS-Office365-Filtering-Correlation-Id: 486db3e2-0232-42e8-c415-08dbeb908d40
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	M8DZd347f76xnuenAD/0Xh3k4P4cMSB5McbR457Ol4PuAzaPUMOPtZD+meZgX5QiE3+Uo5JTv00kDOE2kKIc1vZ0yV9aEY8/lNR9doQtcjZynan01L6nf3uXdeQC1omTgzC7N/Dxvm22EILD+Hfv1uuJ43PK6AWdme8yIEzDv4eqS2oIrjmOugGmjPQ7m2Ipsmqfx5bAVHafxtwLRjmXOGw0WBRL/huJRTrlFsTYf1hSZXgaDISs/dBT3ramZQqO51j+zVWt6iHxqK66I/U1ILg7QAFqB+xfvfhO8HK7dfFWDu+JO5/CS8mDxgo6cP7AsDVE8Y7PLCXDZ88ZuI/dcpjbGxVYNs141TaG4r3UzLDJovsZ9RJiluwqy/czmC9wvbrI5yBaVjKz/z+SZHw3NErX3ydvNw0hEMgAVM14JM7C6WEq9Nxp4VCW6huYqXbO9kohh0Nt/xVQU+4PKepn3wgY4bwUtgSPH3oydRJeDyYHZtoiuFhgC0Re5Rdwhi60fH4BseUvptDBfIO4ZGo+zp2un1bYSVhSumfAM08gSnFADZN++RDid53JACuepxSrcVRBk6BFHG/diccNBg9NVrYcLFsPvt0dOBtZOz0rWrfF3q7b2+WA+hj+yzqyBxdH
+	1IcWLxcV41iIaOcCGcYJFWbn/RGOnRM8lnnXnqBpgsOahnGBVm9S/vvesrFfIgXxzREnUQzW1pat6RMuGCT9j7iQs/HQnm28GCClRmIUGXNXdUjQ3fRUsrU1Gw+hDaUb9nem/nBiLKt1ZAbaH4nIc8GLYADvfGBmSxi/fEnh5GRJ1Z1uUkzpL2FIkk7mhRr6x009/Uk5s0pYvK+zxajZX5ojFU6IFxUp22jBk2keKZQxrz/ns/P+sWMHwOUSgFdby/4yRmuc6V7gzyzhbZk2AIkA/rqZ3HffpVFgNNruQhgmoVsiubvS7zcZGRJkcN3rNpJpHgmxhRUQRXWPu3Kk6XybYemwq70Dbkwx4q7PR+6phoMKPpIjmtXA9IMFJo7PBW6/Ut/tEe4lEjo+83wN6v0T/KLH067UsBsEZqSY1dtN4ePRS08ujCGiTpZlMrkyGO0QQyB1WCmEBJ1CdZyihZKcwMJinKZwWdt4/EazqWeHL7DH5ezwsRrBmt+cKKZN+Wzp6v8EsShPlP7epwqtMuyzKjvaTGFpsJGwhbIuJnHzU0CNwS54YVzsmagbIByNeyOrAkcEynX+59oTKg+AvCSudw196GTwU24t3FGlyL3ziK0c7w6DQMJQroKMp00ePLO8m1u7uUaIT/sampDFrB4mtu3qMo9IWSJmZLhk595Ylj/8P//WbFb8elxcxvSx7IwBsPlfdkiXRuIjk/jM4PdnAkXhx736A9STvcmR7TppMPIDcLTEbxaQUDGZV0I2o1NYmgR2RYC7o4v/rloHRMiYoYoy2lBMF7k4SpVLJrT++O36FYTFzygrV821kwka
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN6PR12MB2621.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(136003)(366004)(376002)(346002)(39860400002)(230922051799003)(186009)(451199024)(64100799003)(1800799012)(6512007)(6506007)(26005)(8676002)(966005)(6486002)(478600001)(2616005)(31696002)(2906002)(36756003)(8936002)(4326008)(5660300002)(41300700001)(66556008)(316002)(66946007)(6636002)(66476007)(110136005)(6666004)(38100700002)(31686004)(83380400001)(43740500002)(45980500001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NUN5a1l2eXQvcVZ5VTdRaGR6eVBVNDRRMVQ4S2NXNGpDWmZUYUZlQkZ4OVU4?=
- =?utf-8?B?aHY4dlNMaVFSM2Z1aXNlTytGT0JuSUlOVzZVcU9UU3BTNVpzRE9zdG03VHlG?=
- =?utf-8?B?R045bERNU0JkaGQ2TmRlcjBHdzhhOGt2S2k2UnhwTm9mQjhVOVlCTEl4WG9h?=
- =?utf-8?B?UlI3NS83SGREZ0wrTjFnNUlNQWx3RXg3bFoybFREUlJlcWQ4NnBLcktHWlVB?=
- =?utf-8?B?a3QwK0xtZTlOdUtJRytlaXA3Q3hmckg0U2FNaXRmMy8rN045Vzl2aHNOMlc3?=
- =?utf-8?B?RkZscUEyU3QramVvL2pJOEhHTk9XbW9zVkx6eFd0c08xdGFkYys4L3BreWNH?=
- =?utf-8?B?Slc3UksxUXZhc3hEOEM5OEpmTld0WXdSVE9hZEVEY3A2K3F0UWllSkhPOHcv?=
- =?utf-8?B?ZGh1eWhkSm9mYW4yWW41Y0hoNHZZL0VRU0xwd0Zpa01Mc3FObWZqbmNFdE4z?=
- =?utf-8?B?S0pnK0JUTkhodVlQNTI2OGVWNGY0eTY5bjVmRVdCbkVvVm9OakMvMlVVTmFP?=
- =?utf-8?B?Y3dmRFEwaXpVakNDeUgxYUs5MlhYRlY2YUgweGI0ZjBhc1VvMjJQS3hTZEpm?=
- =?utf-8?B?Nk90VFZDNDVlOFUyMkJybWJjN3B4TVFmK3J3dm9iZ3B3bzFpTnJwT0ptZ2Zp?=
- =?utf-8?B?THJqRjFKZHMxYnJCZ1M3VVpiVk5aMFN5OVBIUmY2VDlXbTIyazMxQnJiZE8r?=
- =?utf-8?B?VnFSaTllc0d6bkVxYUF0ZTh5dDFNdms0UzF6NVBBQlF2TTRyeUIyQXJXbzcx?=
- =?utf-8?B?NWRKZ21PamllYmxuUUJvQ2d3UFYwOUpKb1lBbFRtUXFxQnU5UENwd0t6SkJ6?=
- =?utf-8?B?NWFMK2RMN3lab3VBMUhGb0FOWHJHOWZ0eFhmTkpDRlFEVUtQMVo5cm5mYTFC?=
- =?utf-8?B?MGRvd2hTWktXK1NjVzZGRG5aeERwdFpUV2tmQndnNEFXbkgxbFJHQXAvVXAw?=
- =?utf-8?B?eW1ocTRpdTNaL0NEVWY3Q0ZUYUNkOHBFV2oxaG0welB0aTVOWGNSd3dGUVAz?=
- =?utf-8?B?dVp5eWx4SVRoUm5kMmFsdXNCVnFpQ25QWFkrZGFlQWYzanJDNkJiV1pQOHR5?=
- =?utf-8?B?VG1GQm50WGxQMzYxOGVpR2Y5NWZ0ZnZUc1Z5UzdadlVSbk8zUjFTR2p1dFZl?=
- =?utf-8?B?M0ZYRjVOc1Z4Qi9hOWtHQlZLUXRzeDFMcUIvMlVvaVRxdm9JOEhBcVFkNWQx?=
- =?utf-8?B?QUpQY0pzYnpTOEJsS21oejRBcEZUdkdPUS95VWtxRE5HcTJ4ejkyMHhhYS82?=
- =?utf-8?B?elBCTlFVazFNaTRkdVRXSUpUSk1MdUtVcUU3NS8zTkNCL2t3b3JOb21NMHkz?=
- =?utf-8?B?ajMxRjdSSE1VMHIyNHZvT3p6VEJMTWNwT3IzSTdOVGRJUmxBNkZRb3ZZYWEy?=
- =?utf-8?B?MGRXN3g5L0xKNmIxOTVxblhwQWVMWVFmWmcxUTdSVGtBR3B1Q240NXFjaDh0?=
- =?utf-8?B?OHB4L2M5dTV0dGNtRHRweHZsc0ErYkVJRnVFV3dZSk5YeVRNV0RKbWl3bmlP?=
- =?utf-8?B?QThNaEhIMVEvSGtHY0JaOWR4aWxnQ05lN3BpbFJ0WWYzSW50TFNKbUJ2ZTFp?=
- =?utf-8?B?Y1U1N2FBdGJXZUZmcTVpOVNrWElvYUZUQndjSTRZdFRBbHZUeStkMDA4bUJs?=
- =?utf-8?B?emREY3RabkFDazZDYzE4Uy8xZFkyendFV3dNVzJ3NGY3YmVuQ2k0YnlvdGJX?=
- =?utf-8?B?bDZ2T1hiTnJFU2pDamVsVDk0R1M3aGE4dDVCdFVBZnRRWDdjZklHeWR4RnBh?=
- =?utf-8?B?dXE4ZW9VbmtQc0o5NmFoaWhZNVduMFFtSzduVnNiSzZuQURhcnZvbHI2NFl5?=
- =?utf-8?B?QWFEenQwUVpxVGNMVFRRNWVLTkdjb1dHSzhBcjJKemtBbXM1MDdZdy84NE16?=
- =?utf-8?B?aUFZbkx6TVErd1hkSGRScnJuODBYSXFpcjI2L0Zsd1Uxd0N3YmtqVWFJVzZT?=
- =?utf-8?B?bFdXRjMrQ3NPNmhTWlMyTEF2dGhreXJEUnZzMElhbnJCdkZ3aXNSeUREcFpP?=
- =?utf-8?B?S3pKdVZzZG0yUm52QUpoZTEyc1c3dDJDbnl0UkhISUdqdFlGdEY1REp5cXJG?=
- =?utf-8?B?eWNhTytYem56MlJ2Nml6Z1VvRGRScGVOMjhrVllzWGd2OWgxZll5ZW13UXdD?=
- =?utf-8?Q?A/R2D7Ko4ylPE9Sby6l71xMaD?=
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(376002)(396003)(346002)(230922051799003)(451199024)(82310400011)(1800799012)(186009)(64100799003)(46966006)(40470700004)(36840700001)(5660300002)(2906002)(16576012)(8936002)(4326008)(8676002)(70586007)(110136005)(316002)(6636002)(26005)(478600001)(966005)(40480700001)(31686004)(44832011)(54906003)(70206006)(53546011)(2616005)(36756003)(336012)(426003)(86362001)(83380400001)(82740400003)(40460700003)(81166007)(47076005)(356005)(41300700001)(36860700001)(31696002)(36900700001)(43740500002)(2101003);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c4797dc4-294b-4a7e-883d-08dbeb8d46b0
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR12MB2621.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 19:00:21.4649
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Nov 2023 19:23:47.9925
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Network-Message-Id: 486db3e2-0232-42e8-c415-08dbeb908d40
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: WbHA2M4JrWGeAJAUlRitrYNpkIj5F0Ie8gbqVNkJIu4N2Lb432LalSHu2Bbt4llvFA01UbOnKPYUWHuUE1CdMA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB6825
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS2PEPF0000343A.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7156
 
-Hi Amit/All,
+Hi Ayan,
 
-We came across this scenario and would be helpful if you can provide 
-some pointers
+On 22/11/2023 20:00, Ayan Kumar Halder wrote:
+> Hi Amit/All,
+> 
+> We came across this scenario and would be helpful if you can provide 
+> some pointers
+> 
+> 
+> Linux running as Dom0 on Xen hypervisor with HVC_DCC = y and HVC_XEN = y 
+> on Arm64 platform.
+> 
+> This causes a crash when Dom0 tries to access "DBGDTRTX_EL0" register, 
+> it traps to Xen.
+> 
+> Xen does not emulate this register so it crashes.
+> 
+> |Logs - https://paste.debian.net/1298983/|
+> 
+> |
+> |
+> 
+> |My aim is to avoid the crash and let Xen boot Dom0 even though there 
+> might not be a debug console available.|
+> 
+> |So, I am trying to add emulation for |"DBGDTRTX_EL0" register in Xen.
+> 
+> 
+> As a quick trial (may be not the perfect solution), I am trying to 
+> emulate this register as "read as zero/write ignore" (similar to KVM).
+> 
+> However, I could not see logs to the Xen console (ie HVC0).
+> 
+> 
+> So my question is
+> 
+> 1. Is it possible in Linux to probe more than one HVC console so that 
+> Linux can put the same logs in HVC_DCC and HVC_XEN drivers ?
+> 
+> So that the user can always see the logs in the default Xen console (ie 
+> hvc0) even if the debug console is not present.
+If you have both HVC DCC and Xen enabled and DCC gets assigned hvc0, just use console=hvc1
+to see the messages from Xen.
+> 
+> 
+> Another possible alternative I am exploring is to enable trapping for 
+> read of MDCCSR_EL0 in Xen, so that Xen returns with MDCCSR_EL0.TXfull 
+> set to 1.
+> 
+> static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
+> {
+>      int i;
+> 
+>      for (i = 0; i < count; i++) {
+>          while (__dcc_getstatus() & DCC_STATUS_TX)
+>              cpu_relax(); <<<<<<<<<<----------- So this will be invoked.
+FWICS, this won't be invoked given that in init call hvc_dcc_check() will return false
+due to condition "if (!(__dcc_getstatus() & DCC_STATUS_TX))" being false. This is the whole
+point to make Linux return -ENODEV quickly.
 
-
-Linux running as Dom0 on Xen hypervisor with HVC_DCC = y and HVC_XEN = y 
-on Arm64 platform.
-
-This causes a crash when Dom0 tries to access "DBGDTRTX_EL0" register, 
-it traps to Xen.
-
-Xen does not emulate this register so it crashes.
-
-|Logs - https://paste.debian.net/1298983/|
-
-|
-|
-
-|My aim is to avoid the crash and let Xen boot Dom0 even though there 
-might not be a debug console available.|
-
-|So, I am trying to add emulation for |"DBGDTRTX_EL0" register in Xen.
-
-
-As a quick trial (may be not the perfect solution), I am trying to 
-emulate this register as "read as zero/write ignore" (similar to KVM).
-
-However, I could not see logs to the Xen console (ie HVC0).
-
-
-So my question is
-
-1. Is it possible in Linux to probe more than one HVC console so that 
-Linux can put the same logs in HVC_DCC and HVC_XEN drivers ?
-
-So that the user can always see the logs in the default Xen console (ie 
-hvc0) even if the debug console is not present.
-
-
-Another possible alternative I am exploring is to enable trapping for 
-read of MDCCSR_EL0 in Xen, so that Xen returns with MDCCSR_EL0.TXfull 
-set to 1.
-
-static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
-{
-     int i;
-
-     for (i = 0; i < count; i++) {
-         while (__dcc_getstatus() & DCC_STATUS_TX)
-             cpu_relax(); <<<<<<<<<<----------- So this will be invoked.
-
-         __dcc_putchar(buf[i]);
-     }
-
-     return count;
-}
-
-Any pointers are highly appreciated.
-
-
-Kind regards,
-
-Ayan
-
+~Michal
