@@ -1,322 +1,491 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F44F15480
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:01:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7216C156D9
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:03:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bJXP/ip1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ShJeb/mn"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7C1DB408E6
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:01:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7C1DB408E6
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=bJXP/ip1
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0224A4033F
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:03:52 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0224A4033F
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ShJeb/mn
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jc9PHvNefYxO
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cmAUyszCGiZH
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 22 Nov 2023 06:01:39 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 63E50408E5
-	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:01:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 63E50408E5
+	Wed, 22 Nov 2023 06:03:50 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4297D402A8
+	for <virtualization@lists.linux-foundation.org>; Wed, 22 Nov 2023 06:03:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4297D402A8
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1700632898;
+	s=mimecast20190719; t=1700633029;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=mLjdcjcjuRC+Jrm7qDSn8KnCWc2PRoPME/S3YfgX8DI=;
-	b=bJXP/ip1tne3KOrWmlHQMvPDxmwKkYfsBoOllY99FMH5awb5cVUt6mX3FQQlQS3I1AZjLF
-	8KLBOj/LoD0fTHGpMnHUY11u+koF2aUYBIj4sYNH5Qz6/mWvoGqvPm+j1Ekz+mCp5szrV2
-	896xOe6MpnaEaHyXLmn5fp50LYieZKU=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=RQRCKnJXMQ/ZqPDefEh9LAc41YPtySFFdrC77EsFBGI=;
+	b=ShJeb/mnsl1joVL2kLbmFm6Xl0xPXMO6maQOi/bmfjxVhqDQN6M/8An6dppaEJVKb/JsFw
+	yLvWNfipSxyoI/0fzrElczpKohj+uFG+5Ts1MLocK6E293VaiAQtcaLOHyA2gJyX4B0a+6
+	/vHrU13hnUbNUDIm7rRvuM2VjsJVuWM=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-214-_8-UNJiIMcWEmC3Kq_7qRA-1; Wed, 22 Nov 2023 01:01:36 -0500
-X-MC-Unique: _8-UNJiIMcWEmC3Kq_7qRA-1
-Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-50aa6be164bso3865621e87.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 22:01:35 -0800 (PST)
+ us-mta-183-4PbFQjzlNmyGes19ocOnXg-1; Wed, 22 Nov 2023 01:03:47 -0500
+X-MC-Unique: 4PbFQjzlNmyGes19ocOnXg-1
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-50aa7e5bd0aso4014843e87.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 21 Nov 2023 22:03:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700632894; x=1701237694;
+        d=1e100.net; s=20230601; t=1700633026; x=1701237826;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mLjdcjcjuRC+Jrm7qDSn8KnCWc2PRoPME/S3YfgX8DI=;
-        b=kOGA+Lp6fTnYbFGg0pdrtt4fFhHlANPuCnD/acacQ8imF3zLkcGNYaUCiEkFEU131q
-         dTgKIfl6lACPdmXmaXJekaZSKvdSgdkTvQJffXvAyyj0FbYZy0zw2opCjNxsC+LgGmzs
-         oXHukz0GgIQScqkXJb7Hlbuw25fiJzUNtW36/7vuCyMbD8WDj7HpcHQ+uGGsXkV1344L
-         8FYgx+FmgYun9G9tLx6p/K0HWaf5GJ3DC+VXPps16sphaxE9ZOqwfjXoJVk6B0fthlPy
-         WUODUWNzuTdN6vYnJ3ptpBDFTqTH0vg6i/yNliCVKDt8dpYpbEGpNAQvCokMfKRWTgtK
-         D6Ng==
-X-Gm-Message-State: AOJu0YxJR3paA2sJNVFBdYTsNq+Sj/B4PqQ2RZDkf53o061O6VGrZSSq
-	fKCSho8oR7SwDvh+IP9rjj7nKFZ8PY/kWF0D3Gb0S0nNOlIfY10pmepLhU2x/Z46kMsb5mE7NcC
-	1h6vUCuSr+/DkwEdQeIeKrdGW6vEB6qkNl5HbJ7qj6e/aIr5mxU8AuCMhdQ==
-X-Received: by 2002:ac2:4d11:0:b0:507:b0f7:ec92 with SMTP id r17-20020ac24d11000000b00507b0f7ec92mr740228lfi.59.1700632894518;
-        Tue, 21 Nov 2023 22:01:34 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGRirxx9/QD2GOoYQ3xSJvbTn7K8ycXwtu7XXZbK8J4skcR0Dcm8BJShif8F7MrFsU4GqNfZWS24UyQ1u/7lDA=
-X-Received: by 2002:ac2:4d11:0:b0:507:b0f7:ec92 with SMTP id
- r17-20020ac24d11000000b00507b0f7ec92mr740215lfi.59.1700632894178; Tue, 21 Nov
- 2023 22:01:34 -0800 (PST)
+        bh=RQRCKnJXMQ/ZqPDefEh9LAc41YPtySFFdrC77EsFBGI=;
+        b=s5PjBfI5CDdN0K+6OKiXkvUD1+63YeJqDnUMpqQQ0dkMKT69embgS5v/unihVJj9D+
+         pj1PCbtxJrZ2aN5/xSozvDOF3fkPGhtl7l9k3T5+yjIK1JY9bj3r1jwAQ7V/xxKTjhOa
+         NUe7f18ek1kKqzYnz0qw4LFTxWUsnptTUPa03adqgPNjJsNsWtn1433+6/m+J2ZQmSA2
+         RwMEigeqgcXQ8iAhz9ALLWpnofyP9VYVVhpBCo3xeKRHqKqUfQdE6X13l11qVVOEjGSo
+         oULAMTfLny7/W8KtO8U+iw/tiqqfj6ORspbJW1VvjeQjqztDV0YfK5emLKABlDe6k/zA
+         0qog==
+X-Gm-Message-State: AOJu0Yz4pZ4ZBqVgjwxCVjD4hkZDvJM6+Ln2GLGg9ET7AZJ3yczbfBsd
+	DBmXi+AaiOtnCPk+zeBbEVbNCLHV8gj6EjXJHkEGeI4d/aP7ZEy28Pa8E4EWI7zJI5FYMYfJEIE
+	3bZbWnqPqWPNoETUZzRRgR4MVyVNbxUOmaobfnmftxHMHd4w9y/Ir+efO3w==
+X-Received: by 2002:ac2:5472:0:b0:505:7113:1d0f with SMTP id e18-20020ac25472000000b0050571131d0fmr628874lfn.13.1700633025047;
+        Tue, 21 Nov 2023 22:03:45 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEK/wMdJ8Mmn7l1PKUfb+3qmG6b7aatGBzVi7wxlnc3vcE6rlG9iP6LhdTVDDX1syqueEl3TSEU8uX8TQAiuy0=
+X-Received: by 2002:ac2:5472:0:b0:505:7113:1d0f with SMTP id
+ e18-20020ac25472000000b0050571131d0fmr628855lfn.13.1700633024539; Tue, 21 Nov
+ 2023 22:03:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1700478183.git.hengqi@linux.alibaba.com>
- <c00b526f32d9f9a5cd2e98a212ee5306d6b6d71c.1700478183.git.hengqi@linux.alibaba.com>
- <CACGkMEtt-Anog6gS1YvKi2Bt+Q32BnQEtY7E-wLWJwKjRMTUrA@mail.gmail.com>
-In-Reply-To: <CACGkMEtt-Anog6gS1YvKi2Bt+Q32BnQEtY7E-wLWJwKjRMTUrA@mail.gmail.com>
+References: <20231114113104.33994-1-xuanzhuo@linux.alibaba.com>
+ <20231114113104.33994-2-xuanzhuo@linux.alibaba.com> <CACGkMEtYxbXwJUVwz-OcT1LybEpHcgWXCzpmrFPgGJo_yP9LWA@mail.gmail.com>
+ <1700547126.793057-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1700547126.793057-4-xuanzhuo@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 22 Nov 2023 14:01:22 +0800
-Message-ID: <CACGkMEsVrt4tEap=JRaTA7hmtaSyGyg-wN1SDeseExjL-vJbBQ@mail.gmail.com>
-Subject: Re: [PATCH net-next v4 4/4] virtio-net: support rx netdim
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	mst@redhat.com, kuba@kernel.org, edumazet@google.com, pabeni@redhat.com, 
-	davem@davemloft.net, hawk@kernel.org, john.fastabend@gmail.com, 
-	ast@kernel.org, horms@kernel.org, xuanzhuo@linux.alibaba.com
+Date: Wed, 22 Nov 2023 14:03:32 +0800
+Message-ID: <CACGkMEuBmkw90XqaVLU-eU1qq1aft9gDf91YGs3umSccdrDYVQ@mail.gmail.com>
+Subject: Re: [RFC 1/4] virtio_ring: introduce virtqueue_get_buf_ctx_dma()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux-foundation.org, 
+	"Michael S . Tsirkin" <mst@redhat.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 22, 2023 at 1:52=E2=80=AFPM Jason Wang <jasowang@redhat.com> wr=
-ote:
+On Tue, Nov 21, 2023 at 2:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
 >
-> On Mon, Nov 20, 2023 at 8:38=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com=
-> wrote:
+> On Thu, 16 Nov 2023 16:11:11 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Tue, Nov 14, 2023 at 7:31=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > introduce virtqueue_get_buf_ctx_dma() to collect the dma info when
+> > > get buf from virtio core for premapped mode.
+> > >
+> > > If the virtio queue is premapped mode, the virtio-net send buf may
+> > > have many desc. Every desc dma address need to be unmap. So here we
+> > > introduce a new helper to collect the dma address of the buffer from
+> > > the virtio core.
 > >
-> > By comparing the traffic information in the complete napi processes,
-> > let the virtio-net driver automatically adjust the coalescing
-> > moderation parameters of each receive queue.
+> > So looking at vring_desc_extra, what we have right now is:
 > >
-> > Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-> > ---
-> > v2->v3:
-> > - Some minor modifications.
+> > struct vring_desc_extra {
+> >         dma_addr_t addr;                /* Descriptor DMA addr. */
+> >         u32 len;                        /* Descriptor length. */
+> >         u16 flags;                      /* Descriptor flags. */
+> >         u16 next;                       /* The next desc state in a lis=
+t. */
+> > };
 > >
-> > v1->v2:
-> > - Improved the judgment of dim switch conditions.
-> > - Cancel the work when vq reset.
+> > And sg is
 > >
-> >  drivers/net/virtio_net.c | 191 ++++++++++++++++++++++++++++++++++-----
-> >  1 file changed, 169 insertions(+), 22 deletions(-)
+> > struct scatterlist {
+> >         unsigned long   page_link;
+> > unsigned int    offset;
+> >         unsigned int    length;
+> >         dma_addr_t      dma_address;
+> > #ifdef CONFIG_NEED_SG_DMA_LENGTH
+> >         unsigned int    dma_length;
+> > #endif
+> > #ifdef CONFIG_NEED_SG_DMA_FLAGS
+> >         unsigned int    dma_flags;
+> > #endif
+> > };
 > >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 69fe09e99b3c..bc32d5aae005 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -19,6 +19,7 @@
-> >  #include <linux/average.h>
-> >  #include <linux/filter.h>
-> >  #include <linux/kernel.h>
-> > +#include <linux/dim.h>
-> >  #include <net/route.h>
-> >  #include <net/xdp.h>
-> >  #include <net/net_failover.h>
-> > @@ -172,6 +173,17 @@ struct receive_queue {
-> >
-> >         struct virtnet_rq_stats stats;
-> >
-> > +       /* The number of rx notifications */
-> > +       u16 calls;
-> > +
-> > +       /* Is dynamic interrupt moderation enabled? */
-> > +       bool dim_enabled;
-> > +
-> > +       /* Dynamic Interrupt Moderation */
-> > +       struct dim dim;
-> > +
-> > +       u32 packets_in_napi;
-> > +
-> >         struct virtnet_interrupt_coalesce intr_coal;
-> >
-> >         /* Chain pages by the private ptr. */
-> > @@ -305,6 +317,9 @@ struct virtnet_info {
-> >         u8 duplex;
-> >         u32 speed;
-> >
-> > +       /* Is rx dynamic interrupt moderation enabled? */
-> > +       bool rx_dim_enabled;
-> > +
-> >         /* Interrupt coalescing settings */
-> >         struct virtnet_interrupt_coalesce intr_coal_tx;
-> >         struct virtnet_interrupt_coalesce intr_coal_rx;
-> > @@ -2001,6 +2016,7 @@ static void skb_recv_done(struct virtqueue *rvq)
-> >         struct virtnet_info *vi =3D rvq->vdev->priv;
-> >         struct receive_queue *rq =3D &vi->rq[vq2rxq(rvq)];
-> >
-> > +       rq->calls++;
-> >         virtqueue_napi_schedule(&rq->napi, rvq);
-> >  }
-> >
-> > @@ -2141,6 +2157,26 @@ static void virtnet_poll_cleantx(struct receive_=
-queue *rq)
-> >         }
-> >  }
-> >
-> > +static void virtnet_rx_dim_work(struct work_struct *work);
-> > +
-> > +static void virtnet_rx_dim_update(struct virtnet_info *vi, struct rece=
-ive_queue *rq)
-> > +{
-> > +       struct dim_sample cur_sample =3D {};
-> > +
-> > +       if (!rq->packets_in_napi)
-> > +               return;
-> > +
-> > +       u64_stats_update_begin(&rq->stats.syncp);
-> > +       dim_update_sample(rq->calls,
-> > +                         u64_stats_read(&rq->stats.packets),
-> > +                         u64_stats_read(&rq->stats.bytes),
-> > +                         &cur_sample);
-> > +       u64_stats_update_end(&rq->stats.syncp);
-> > +
-> > +       net_dim(&rq->dim, cur_sample);
-> > +       rq->packets_in_napi =3D 0;
-> > +}
-> > +
-> >  static int virtnet_poll(struct napi_struct *napi, int budget)
-> >  {
-> >         struct receive_queue *rq =3D
-> > @@ -2149,17 +2185,22 @@ static int virtnet_poll(struct napi_struct *nap=
-i, int budget)
-> >         struct send_queue *sq;
-> >         unsigned int received;
-> >         unsigned int xdp_xmit =3D 0;
-> > +       bool napi_complete;
-> >
-> >         virtnet_poll_cleantx(rq);
-> >
-> >         received =3D virtnet_receive(rq, budget, &xdp_xmit);
-> > +       rq->packets_in_napi +=3D received;
-> >
-> >         if (xdp_xmit & VIRTIO_XDP_REDIR)
-> >                 xdp_do_flush();
-> >
-> >         /* Out of packets? */
-> > -       if (received < budget)
-> > -               virtqueue_napi_complete(napi, rq->vq, received);
-> > +       if (received < budget) {
-> > +               napi_complete =3D virtqueue_napi_complete(napi, rq->vq,=
- received);
-> > +               if (napi_complete && rq->dim_enabled)
-> > +                       virtnet_rx_dim_update(vi, rq);
-> > +       }
-> >
-> >         if (xdp_xmit & VIRTIO_XDP_TX) {
-> >                 sq =3D virtnet_xdp_get_sq(vi);
-> > @@ -2179,6 +2220,7 @@ static void virtnet_disable_queue_pair(struct vir=
-tnet_info *vi, int qp_index)
-> >         virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
-> >         napi_disable(&vi->rq[qp_index].napi);
-> >         xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
-> > +       cancel_work_sync(&vi->rq[qp_index].dim.work);
-> >  }
-> >
-> >  static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_i=
-ndex)
-> > @@ -2196,6 +2238,9 @@ static int virtnet_enable_queue_pair(struct virtn=
-et_info *vi, int qp_index)
-> >         if (err < 0)
-> >                 goto err_xdp_reg_mem_model;
-> >
-> > +       INIT_WORK(&vi->rq[qp_index].dim.work, virtnet_rx_dim_work);
-> > +       vi->rq[qp_index].dim.mode =3D DIM_CQ_PERIOD_MODE_START_FROM_EQE=
-;
+> > Would it better just store sg?
 >
-> So in V2, you explained it can be done here but I want to know why it
-> must be done here.
+> Do you mean we expose the vring_desc_extra to dirver?
+
+Maybe or not, (or just us sg for desc_extra).
+
+Anyhow, any method needs to be benchmarked to see the performance impact.
+
 >
-> For example, the refill_work is initialized in alloc_queues().
+> How about introducing such a new structure?
 >
-> > +
-> >         virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi=
+> struct virtio_dma_item {
+>          dma_addr_t addr;
+>          u32 len;
+> };
+>
+> struct virtio_dma_head {
+>         u32 num;
+>         u32 used;
+>         struct virtio_dma_item items[];
+> };
+>
+> Then we just need to pass one pointer to the virtio.
+
+Just to make sure I understand here, where did we store those arrays?
+
+> num is used to pass the size of items
+> used is used to return the num used by virtio core.
+>
+> >
+> > More below
+> >
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 148 ++++++++++++++++++++++++++-------=
+--
+> > >  include/linux/virtio.h       |   2 +
+> > >  2 files changed, 115 insertions(+), 35 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+> > > index 51d8f3299c10..0b3caee4ef9d 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -362,6 +362,20 @@ static struct device *vring_dma_dev(const struct=
+ vring_virtqueue *vq)
+> > >         return vq->dma_dev;
+> > >  }
+> > >
+> > > +static void store_dma_to_sg(struct scatterlist **sgp, dma_addr_t add=
+r, unsigned int length)
+> > > +{
+> > > +       struct scatterlist *sg;
+> > > +
+> > > +       sg =3D *sgp;
+> > > +
+> > > +       sg->dma_address =3D addr;
+> > > +       sg->length =3D length;
+> > > +
+> > > +       sg =3D sg_next(sg);
+> > > +
+> > > +       *sgp =3D sg;
+> > > +}
+> > > +
+> > >  /* Map one sg entry. */
+> > >  static int vring_map_one_sg(const struct vring_virtqueue *vq, struct=
+ scatterlist *sg,
+> > >                             enum dma_data_direction direction, dma_ad=
+dr_t *addr)
+> > > @@ -441,12 +455,18 @@ static void virtqueue_init(struct vring_virtque=
+ue *vq, u32 num)
+> > >   */
+> > >
+> > >  static void vring_unmap_one_split_indirect(const struct vring_virtqu=
+eue *vq,
+> > > -                                          const struct vring_desc *d=
+esc)
+> > > +                                          const struct vring_desc *d=
+esc,
+> > > +                                          struct scatterlist **sg)
+> > >  {
+> > >         u16 flags;
+> > >
+> > > -       if (!vq->do_unmap)
+> > > +       if (!vq->do_unmap) {
+> > > +               if (*sg)
+> >
+> > Can we simply move the
+> >
+> > if (*sg) to store_dma_to_sg()?
+>
+> OK
+>
+>
+> >
+> > > +                       store_dma_to_sg(sg,
+> > > +                                       virtio64_to_cpu(vq->vq.vdev, =
+desc->addr),
+> > > +                                       virtio32_to_cpu(vq->vq.vdev, =
+desc->len));
+> > >                 return;
+> > > +       }
+> > >
+> > >         flags =3D virtio16_to_cpu(vq->vq.vdev, desc->flags);
+> > >
+> > > @@ -458,7 +478,7 @@ static void vring_unmap_one_split_indirect(const =
+struct vring_virtqueue *vq,
+> > >  }
+> > >
+> > >  static unsigned int vring_unmap_one_split(const struct vring_virtque=
+ue *vq,
+> > > -                                         unsigned int i)
+> > > +                                         unsigned int i, struct scat=
+terlist **sg)
+> > >  {
+> > >         struct vring_desc_extra *extra =3D vq->split.desc_extra;
+> > >         u16 flags;
+> > > @@ -475,8 +495,11 @@ static unsigned int vring_unmap_one_split(const =
+struct vring_virtqueue *vq,
+> > >                                  (flags & VRING_DESC_F_WRITE) ?
+> > >                                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> > >         } else {
+> > > -               if (!vq->do_unmap)
+> > > +               if (!vq->do_unmap) {
+> >
+> > The:
+> >
+> > else {
+> >       if {
+> >             if {
+> > }
+> >
+> > seems odd. I think I would prefer
+> >
+> > if (flags & VRING_DESC_F_INDIRECT) {
+> > } else if (!vq->do_unmap) {
+> > } else {
+> > }
+>
+>
+> Will fix.
+>
+>
+> >
+> > here
+> >
+> > Btw, I really think do_unmap is not a good name, we probably need to
+> > rename it as "unmap_desc".
+>
+> How about a separate patch for this?
+>
+> >
+> >
+> > > +                       if (*sg)
+> > > +                               store_dma_to_sg(sg, extra[i].addr, ex=
+tra[i].len);
+> >
+> > In which case we need to unmap by driver but we don't need a dma addres=
+s?
+>
+> Sorry, do not get it.
+
+I meant, I don't get how we can reach to this check.
+
+>
+> >
+> > >                         goto out;
+> > > +               }
+> > >
+> > >                 dma_unmap_page(vring_dma_dev(vq),
+> > >                                extra[i].addr,
+> > > @@ -717,10 +740,10 @@ static inline int virtqueue_add_split(struct vi=
+rtqueue *_vq,
+> > >                 if (i =3D=3D err_idx)
+> > >                         break;
+> > >                 if (indirect) {
+> > > -                       vring_unmap_one_split_indirect(vq, &desc[i]);
+> > > +                       vring_unmap_one_split_indirect(vq, &desc[i], =
+NULL);
+> > >                         i =3D virtio16_to_cpu(_vq->vdev, desc[i].next=
 );
-> >         virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_inde=
-x].napi);
+> > >                 } else
+> > > -                       i =3D vring_unmap_one_split(vq, i);
+> > > +                       i =3D vring_unmap_one_split(vq, i, NULL);
+> > >         }
+> > >
+> > >  free_indirect:
+> > > @@ -763,7 +786,7 @@ static bool virtqueue_kick_prepare_split(struct v=
+irtqueue *_vq)
+> > >  }
+> > >
+> > >  static void detach_buf_split(struct vring_virtqueue *vq, unsigned in=
+t head,
+> > > -                            void **ctx)
+> > > +                            struct scatterlist *sg, void **ctx)
+> > >  {
+> > >         unsigned int i, j;
+> > >         __virtio16 nextflag =3D cpu_to_virtio16(vq->vq.vdev, VRING_DE=
+SC_F_NEXT);
+> > > @@ -775,12 +798,12 @@ static void detach_buf_split(struct vring_virtq=
+ueue *vq, unsigned int head,
+> > >         i =3D head;
+> > >
+> > >         while (vq->split.vring.desc[i].flags & nextflag) {
+> > > -               vring_unmap_one_split(vq, i);
+> > > +               vring_unmap_one_split(vq, i, &sg);
+> > >                 i =3D vq->split.desc_extra[i].next;
+> > >                 vq->vq.num_free++;
+> > >         }
+> > >
+> > > -       vring_unmap_one_split(vq, i);
+> > > +       vring_unmap_one_split(vq, i, &sg);
+> > >         vq->split.desc_extra[i].next =3D vq->free_head;
+> > >         vq->free_head =3D head;
+> > >
+> > > @@ -794,7 +817,7 @@ static void detach_buf_split(struct vring_virtque=
+ue *vq, unsigned int head,
+> > >
+> > >                 /* Free the indirect table, if any, now that it's unm=
+apped. */
+> > >                 if (!indir_desc)
+> > > -                       return;
+> > > +                       goto end;
+> > >
+> > >                 len =3D vq->split.desc_extra[head].len;
+> > >
+> > > @@ -802,9 +825,10 @@ static void detach_buf_split(struct vring_virtqu=
+eue *vq, unsigned int head,
+> > >                                 VRING_DESC_F_INDIRECT));
+> > >                 BUG_ON(len =3D=3D 0 || len % sizeof(struct vring_desc=
+));
+> > >
+> > > -               if (vq->do_unmap) {
+> > > +               if (vq->do_unmap || sg) {
+> > >                         for (j =3D 0; j < len / sizeof(struct vring_d=
+esc); j++)
+> > > -                               vring_unmap_one_split_indirect(vq, &i=
+ndir_desc[j]);
+> > > +                               vring_unmap_one_split_indirect(vq, &i=
+ndir_desc[j], &sg);
+> > > +
+> > >                 }
+> > >
+> > >                 kfree(indir_desc);
+> > > @@ -812,6 +836,11 @@ static void detach_buf_split(struct vring_virtqu=
+eue *vq, unsigned int head,
+> > >         } else if (ctx) {
+> > >                 *ctx =3D vq->split.desc_state[head].indir_desc;
+> > >         }
+> > > +
+> > > +end:
+> > > +       /* sg point to the next. So we mark the last one as the end. =
+*/
+> > > +       if (!vq->do_unmap && sg)
+> > > +               sg_mark_end(sg - 1);
+> > >  }
+> > >
+> > >  static bool more_used_split(const struct vring_virtqueue *vq)
+> > > @@ -822,6 +851,7 @@ static bool more_used_split(const struct vring_vi=
+rtqueue *vq)
+> > >
+> > >  static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+> > >                                          unsigned int *len,
+> > > +                                        struct scatterlist *sg,
+> > >                                          void **ctx)
+> > >  {
+> > >         struct vring_virtqueue *vq =3D to_vvq(_vq);
+> > > @@ -862,7 +892,7 @@ static void *virtqueue_get_buf_ctx_split(struct v=
+irtqueue *_vq,
+> > >
+> > >         /* detach_buf_split clears data, so grab it now. */
+> > >         ret =3D vq->split.desc_state[i].data;
+> > > -       detach_buf_split(vq, i, ctx);
+> > > +       detach_buf_split(vq, i, sg, ctx);
+> > >         vq->last_used_idx++;
+> > >         /* If we expect an interrupt for the next entry, tell host
+> > >          * by writing event index and flush out the write before
+> > > @@ -984,7 +1014,7 @@ static void *virtqueue_detach_unused_buf_split(s=
+truct virtqueue *_vq)
+> > >                         continue;
+> > >                 /* detach_buf_split clears data, so grab it now. */
+> > >                 buf =3D vq->split.desc_state[i].data;
+> > > -               detach_buf_split(vq, i, NULL);
+> > > +               detach_buf_split(vq, i, NULL, NULL);
+> > >                 vq->split.avail_idx_shadow--;
+> > >                 vq->split.vring.avail->idx =3D cpu_to_virtio16(_vq->v=
+dev,
+> > >                                 vq->split.avail_idx_shadow);
+> > > @@ -1221,7 +1251,8 @@ static u16 packed_last_used(u16 last_used_idx)
+> > >  }
+> > >
+> > >  static void vring_unmap_extra_packed(const struct vring_virtqueue *v=
+q,
+> > > -                                    const struct vring_desc_extra *e=
+xtra)
+> > > +                                    const struct vring_desc_extra *e=
+xtra,
+> > > +                                    struct scatterlist **sg)
+> > >  {
+> > >         u16 flags;
+> > >
+> > > @@ -1236,8 +1267,11 @@ static void vring_unmap_extra_packed(const str=
+uct vring_virtqueue *vq,
+> > >                                  (flags & VRING_DESC_F_WRITE) ?
+> > >                                  DMA_FROM_DEVICE : DMA_TO_DEVICE);
+> > >         } else {
+> > > -               if (!vq->do_unmap)
+> > > +               if (!vq->do_unmap) {
+> > > +                       if (*sg)
+> > > +                               store_dma_to_sg(sg, extra->addr, extr=
+a->len);
+> > >                         return;
+> > > +               }
+> > >
+> > >                 dma_unmap_page(vring_dma_dev(vq),
+> > >                                extra->addr, extra->len,
+> > > @@ -1247,12 +1281,17 @@ static void vring_unmap_extra_packed(const st=
+ruct vring_virtqueue *vq,
+> > >  }
+> > >
+> > >  static void vring_unmap_desc_packed(const struct vring_virtqueue *vq=
+,
+> > > -                                   const struct vring_packed_desc *d=
+esc)
+> > > +                                   const struct vring_packed_desc *d=
+esc,
+> > > +                                   struct scatterlist **sg)
+> > >  {
 > >
-> > @@ -2393,8 +2438,10 @@ static int virtnet_rx_resize(struct virtnet_info=
- *vi,
+> > Interesting, I think this is only needed for indirect descriptors?
 > >
-> >         qindex =3D rq - vi->rq;
-> >
-> > -       if (running)
-> > +       if (running) {
-> >                 napi_disable(&rq->napi);
-> > +               cancel_work_sync(&rq->dim.work);
-> > +       }
-> >
-> >         err =3D virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unus=
-ed_buf);
-> >         if (err)
-> > @@ -2403,8 +2450,10 @@ static int virtnet_rx_resize(struct virtnet_info=
- *vi,
-> >         if (!try_fill_recv(vi, rq, GFP_KERNEL))
-> >                 schedule_delayed_work(&vi->refill, 0);
-> >
-> > -       if (running)
-> > +       if (running) {
-> > +               INIT_WORK(&rq->dim.work, virtnet_rx_dim_work);
-> >                 virtnet_napi_enable(rq->vq, &rq->napi);
-> > +       }
-> >         return err;
-> >  }
-> >
-> > @@ -3341,24 +3390,55 @@ static int virtnet_send_tx_notf_coal_cmds(struc=
-t virtnet_info *vi,
-> >  static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
-> >                                           struct ethtool_coalesce *ec)
-> >  {
-> > +       bool rx_ctrl_dim_on =3D !!ec->use_adaptive_rx_coalesce;
-> > +       bool update =3D false, switch_dim;
-> >         struct scatterlist sgs_rx;
-> >         int i;
-> >
-> > -       vi->ctrl->coal_rx.rx_usecs =3D cpu_to_le32(ec->rx_coalesce_usec=
-s);
-> > -       vi->ctrl->coal_rx.rx_max_packets =3D cpu_to_le32(ec->rx_max_coa=
-lesced_frames);
-> > -       sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_=
-rx));
-> > -
-> > -       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
-> > -                                 VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
-> > -                                 &sgs_rx))
-> > -               return -EINVAL;
-> > +       switch_dim =3D rx_ctrl_dim_on !=3D vi->rx_dim_enabled;
-> > +       if (switch_dim) {
-> > +               if (rx_ctrl_dim_on) {
-> > +                       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_V=
-Q_NOTF_COAL)) {
+> > If yes, why do we care about the dma addresses of indirect descriptors?
+> > If not, it's a bug that we should use desc_extra, otherwise it's a
+> > device-triggerable unmap which has security implications (we need to
+> > use vring_extra in this case).
 >
-> So basically, I'm asking why we need to duplicate the check here?
+> Sorry, I do not get.
 >
-> E.g caller has done the check for us:
+>                             indirect desc(alloc by virtio core)
+>        virtio-desc ------> |  | -------------------------------------> dm=
+a address of buffer
+>                            |  | -------------------------------------> dm=
+a address of buffer
+>                            |  | -------------------------------------> dm=
+a address of buffer
+>                            |  | -------------------------------------> dm=
+a address of buffer
+>                            |  | -------------------------------------> dm=
+a address of buffer
+>                            |  | -------------------------------------> dm=
+a address of buffer
 >
->         if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
->                 ret =3D virtnet_send_notf_coal_cmds(vi, ec);
->         else
->                 ret =3D virtnet_coal_params_supported(ec);
+> For vring_unmap_desc_packed the desc is the indirect desc(alloc by virtio=
+ core,
+> not the virtio desc), which record the dma address of buffer that is pass=
+ed by
+> the driver. Here we need to record the dma address to back to the driver.
 
-Speak too fast, they have different features :(
-
-But the point still, the logic needs some optimizations to reduce the
-levels of nesting if/else.
+I meant why should we return this to the driver? It is allocated by
+the vitio core and should be transparent to the driver.
 
 Thanks
-
->
-> ?
->
-> Please also check other nested if/else, usually, too many levels of
-> nesting is a hint that the logic needs to be optimized.
->
-> Thanks
 
