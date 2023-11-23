@@ -1,120 +1,180 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C2125561
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CF5D33CD4
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:34:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r42g7gVE"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ffSoGnfe"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7BE8F60B35
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7BE8F60B35
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=r42g7gVE
+	by smtp1.osuosl.org (Postfix) with ESMTP id 027EA82034
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:34:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 027EA82034
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ffSoGnfe
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V8uBw0oRwtaA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id feHNcdi11zU9
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 13:18:56 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 738EA60B27
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 738EA60B27
-Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id 11DDCCE2912;
-	Thu, 23 Nov 2023 13:18:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFAAC433C9;
-	Thu, 23 Nov 2023 13:18:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700745532;
-	bh=BJOuctG/jOXVT0hO6qxyVXBeYyH4TG/ylT0dyLa92yI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=r42g7gVEtjBJ5WfLPAfCypJTdeIZa9tza+98XErRLkZuJq42IHSNqt9TjDoS1u/dO
-	 mqRTO6hyOgRcqG5Vqi98sspSbfx6Ne64w0KZSaAUUdSmCRm0SeW9B8r2AffO7bhDq0
-	 voQrIzDl2Rys7kYNdpWCPkldE19sNixdWiKMUoa9j34EYG62L/DgZtbbaspmEPmu14
-	 PuPzBMdYXfPSBprGxxIV2rleVHq+xRFaQ7/X8REU4C8BYG2H4sP4+OADV7Tg2Ri8NY
-	 w8CXZUWWNJUaMlJH5PPc15vZ4ox/kvWZIeet2zBszz9qi15zBW/WlVu+mFthIg8ovM
-	 qoF7yc2VytIMg==
-Date: Thu, 23 Nov 2023 14:18:33 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Zhenyu Wang <zhenyuw@linux.intel.com>,
-	Zhi Wang <zhi.a.wang@intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Frederic Barrat <fbarrat@linux.ibm.com>,
-	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Eric Farman <farman@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Diana Craciun <diana.craciun@oss.nxp.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeelb@google.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
-Message-ID: <20231123-portwein-geeignet-787b940c7d2d@brauner>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
- <877cm9n7dh.fsf@intel.com>
+	Thu, 23 Nov 2023 14:34:04 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B66A08202B
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:34:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B66A08202B
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bbrezillon)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id C26CC66073C1;
+	Thu, 23 Nov 2023 14:34:00 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1700750041;
+	bh=0htDXOoHws9YajSN0MLwoGGtFzWUK1XbFgD/bJEmUqk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ffSoGnfeRA1ZwtUrV0MFluPgDHqyg9okeZML6jRLjZVQ6HPo+Ux0C1si80ux6G/ky
+	 gFM4Xq5b+ttu1ugqkfRAR2zGXC5qNvVGgHc9ZUINkl3C4ZmABGcebKg8Y1jgBuF4Ro
+	 BL/airH4lA0AC7oRbltwhHpTXKU7CQcW3D3+kdWpDL6pRCKcEDQFjVAACz/A1LtbSE
+	 NVGLjMYBG4jFpHf4KBQzVkaDE3/Vc0HRax1UXp/p0gDwiw5FMHGWp+KLLwRNWzcWDB
+	 bh690EjUAnLWwQ8i5JyZ1OQ5dPDkTNOSkaodbmIMd/lLt0vUTgWX4+iMnpQxHjJq0v
+	 R5zNaunLgu8hA==
+Date: Thu, 23 Nov 2023 15:33:57 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
+ <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
+ <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 15/26] drm/panfrost: Explicitly get and put
+ drm-shmem pages
+Message-ID: <20231123153357.39a79813@collabora.com>
+In-Reply-To: <14113ca6-79af-e857-d9ee-b8cf7572abd5@collabora.com>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-16-dmitry.osipenko@collabora.com>
+	<20231110115354.356c87f7@collabora.com>
+	<26890ba7-5e19-df0c-fce0-26af58e66266@collabora.com>
+	<20231123100557.05a49343@collabora.com>
+	<14113ca6-79af-e857-d9ee-b8cf7572abd5@collabora.com>
+Organization: Collabora
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <877cm9n7dh.fsf@intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> >   * eventfd_signal - Adds @n to the eventfd counter.
+On Thu, 23 Nov 2023 15:24:32 +0300
+Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+
+> On 11/23/23 12:05, Boris Brezillon wrote:
+> > On Thu, 23 Nov 2023 01:04:56 +0300
+> > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> >   
+> >> On 11/10/23 13:53, Boris Brezillon wrote:  
+> >>> Hm, there was no drm_gem_shmem_get_pages_sgt() call here, why
+> >>> should we add a drm_gem_shmem_get_pages()? What we should do
+> >>> instead is add a drm_gem_shmem_get_pages() for each
+> >>> drm_gem_shmem_get_pages_sgt() we have in the driver (in
+> >>> panfrost_mmu_map()), and add drm_gem_shmem_put_pages() calls
+> >>> where they are missing (panfrost_mmu_unmap()).
+> >>>     
+> >>>> +		if (err)
+> >>>> +			goto err_free;
+> >>>> +	}
+> >>>> +
+> >>>>  	return bo;
+> >>>> +
+> >>>> +err_free:
+> >>>> +	drm_gem_shmem_free(&bo->base);
+> >>>> +
+> >>>> +	return ERR_PTR(err);
+> >>>>  }
+> >>>>  
+> >>>>  struct drm_gem_object *
+> >>>> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> >>>> b/drivers/gpu/drm/panfrost/panfrost_mmu.c index
+> >>>> 770dab1942c2..ac145a98377b 100644 ---
+> >>>> a/drivers/gpu/drm/panfrost/panfrost_mmu.c +++
+> >>>> b/drivers/gpu/drm/panfrost/panfrost_mmu.c @@ -504,7 +504,7 @@
+> >>>> static int panfrost_mmu_map_fault_addr(struct panfrost_device
+> >>>> *pfdev, int as, if (IS_ERR(pages[i])) { ret = PTR_ERR(pages[i]);
+> >>>>  			pages[i] = NULL;
+> >>>> -			goto err_pages;
+> >>>> +			goto err_unlock;
+> >>>>  		}
+> >>>>  	}
+> >>>>  
+> >>>> @@ -512,7 +512,7 @@ static int
+> >>>> panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int
+> >>>> as, ret = sg_alloc_table_from_pages(sgt, pages + page_offset,
+> >>>> NUM_FAULT_PAGES, 0, SZ_2M, GFP_KERNEL); if (ret)
+> >>>> -		goto err_pages;
+> >>>> +		goto err_unlock;    
+> >>> Feels like the panfrost_gem_mapping object should hold a ref on
+> >>> the BO pages, not the BO itself, because, ultimately, the user of
+> >>> the BO is the GPU. This matches what I was saying about moving
+> >>> get/put_pages() to panfrost_mmu_map/unmap(): everytime a
+> >>> panfrost_gem_mapping becomes active, to want to take a pages ref,
+> >>> every time it becomes inactive, you should release the pages ref.
+> >>>    
+> >>
+> >> The panfrost_mmu_unmap() is also used by shrinker when BO is
+> >> purged. I'm unhappy with how icky it all becomes if unmap is made
+> >> to put pages.  
+> > 
+> > Why, that's exactly what's supposed to happen. If you mmu_unmap(),
+> > that means you no longer need the pages ref you got.  
 > 
-> This still refers to @n here, and in patch 4.
+> The drm_gem_shmem_purge() frees the pages. If mmu_unmap() frees pages
+> too, then it becomes odd for drm_gem_shmem_purge() that it needs to
+> free pages that were already freed.
 
-Fixed and folded. Thanks!
+Hm, I didn't consider the mmu_unmap() call in the eviction path.
+
+> 
+> >> Previously map() was implicitly allocating pages with get_sgt()
+> >> and then pages were implicitly released by drm_gem_shmem_free(). A
+> >> non-heap BO is mapped when it's created by Panfrost, hence the
+> >> actual lifetime of pages is kept unchanged by this patch.  
+> > 
+> > But the whole point of making it explicit is to control when pages
+> > are needed or not, isn't it. The fact we mmu_map() the BO at open
+> > time, and keep it mapped until it's not longer referenced is an
+> > implementation choice, and I don't think having pages_put() in
+> > mmu_unmap() changes that.  
+> 
+> Previously, when the last mmu_unmap() was done, the pages were not
+> released.
+> 
+> If you'll make unmap to put pages, then you can't map BO again
+> because pages are released by the last put() of unmap.
+
+Well, you could, if panfrost_gem_mapping_get() was not only
+returning an existing mapping, but was also creating one when none
+exist. But you're right, it messes up with the shmem shrinker and also
+changes the way we are doing things now.
+
+> In order to
+> keep the old pages allocation logic unchanged, the pages must be
+> referenced while BO is alive, not while mapping is alive.
+
+Correct.
+
+> 
+> Technically, the code can be changed to put pages on unmap. This
+> requires adding special quirk to drm_gem_shmem_purge() and then for
+> Panfrost pages should have the same lifetime as BO, hence why bother?
+
+No, we certainly don't want to do that.
