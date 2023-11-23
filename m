@@ -1,213 +1,280 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F1B63B
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 00:26:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="V9TwdeRG"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68C0C1A5A6
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:32:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4C29D4015A
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 00:26:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4C29D4015A
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=V9TwdeRG
+	by smtp1.osuosl.org (Postfix) with ESMTP id CC7B4813DE
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:32:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org CC7B4813DE
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.299
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dP_YSb_7Rf8x
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8mD_JwrHl2tJ
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 00:26:05 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.93])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1FC9C400D8
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 00:26:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1FC9C400D8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700699165; x=1732235165;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:in-reply-to;
-  bh=kMJqNQrPFkouBUmP1tIxtozSsYheDkR/LnL4F11wiis=;
-  b=V9TwdeRGIyQC3s7DyWk4UYRiN7nlWjii1BMAWINlGPxxtsIlZuVzksJr
-   C/Aml+Oix4A6Z6YXpiGKI+r+IQIry1oxlLabqAZfqfU4OdKz9WXPjR1nA
-   7Tqff0PM15Yl52VRG+qy1M1F5PJtO/9WrRj7O2utzsHtUoqRysTZzNCE8
-   S2FEvu2AfmcN+lnCRTVr/HFYO8M6J/NrXLNiFogMVJHu4MrTYo4D4206M
-   d0hnVW+P8oc7WAF8MkopbGaRF3Ijug67f/powfX8M5XKwP3kvYnjy6OPS
-   pJ25aYkXaGLGafVZnYw1nDZyUcs1kC/KzvSEiDQ6Xl5lp+6tbM05tlCem
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="389323006"
-X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
-   d="asc'?scan'208";a="389323006"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Nov 2023 16:26:03 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10902"; a="716903060"
-X-IronPort-AV: E=Sophos;i="6.04,220,1695711600"; 
-   d="asc'?scan'208";a="716903060"
-Received: from debian-skl.sh.intel.com (HELO debian-skl) ([10.239.160.45])
-  by orsmga003.jf.intel.com with ESMTP; 22 Nov 2023 16:25:45 -0800
-Date: Thu, 23 Nov 2023 08:24:24 +0800
-From: Zhenyu Wang <zhenyuw@linux.intel.com>
-To: Christian Brauner <brauner@kernel.org>
-Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Sean Christopherson <seanjc@google.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Zhenyu Wang <zhenyuw@linux.intel.com>,
-	Zhi Wang <zhi.a.wang@intel.com>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-	Frederic Barrat <fbarrat@linux.ibm.com>,
-	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Eric Farman <farman@linux.ibm.com>,
-	Matthew Rosato <mjrosato@linux.ibm.com>,
-	Halil Pasic <pasic@linux.ibm.com>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Tony Krowiak <akrowiak@linux.ibm.com>,
-	Jason Herne <jjherne@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Diana Craciun <diana.craciun@oss.nxp.com>,
-	Alex Williamson <alex.williamson@redhat.com>,
-	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Michal Hocko <mhocko@kernel.org>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Shakeel Butt <shakeelb@google.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
-	Jens Axboe <axboe@kernel.dk>,
-	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] i915: make inject_virtual_interrupt() void
-Message-ID: <ZV6buHrQy2+CJ7xX@debian-scheme>
-Reply-To: Zhenyu Wang <zhenyuw@linux.intel.com>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
+	Thu, 23 Nov 2023 08:32:09 +0000 (UTC)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 012B4813DC
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:32:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 012B4813DC
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=13;SR=0;TI=SMTPD_---0Vwyn4UG_1700728321;
+Received: from 30.221.145.52(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vwyn4UG_1700728321)
+          by smtp.aliyun-inc.com;
+          Thu, 23 Nov 2023 16:32:03 +0800
+Message-ID: <b87c060f-efec-4efe-a03d-a42242d6cec7@linux.alibaba.com>
+Date: Thu, 23 Nov 2023 16:31:59 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ehCOKC0wDaVXxQlM"
-Content-Disposition: inline
-In-Reply-To: <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v4 4/4] virtio-net: support rx netdim
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ mst@redhat.com, kuba@kernel.org, edumazet@google.com, pabeni@redhat.com,
+ davem@davemloft.net, hawk@kernel.org, john.fastabend@gmail.com,
+ ast@kernel.org, horms@kernel.org, xuanzhuo@linux.alibaba.com
+References: <cover.1700478183.git.hengqi@linux.alibaba.com>
+ <c00b526f32d9f9a5cd2e98a212ee5306d6b6d71c.1700478183.git.hengqi@linux.alibaba.com>
+ <CACGkMEtt-Anog6gS1YvKi2Bt+Q32BnQEtY7E-wLWJwKjRMTUrA@mail.gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <CACGkMEtt-Anog6gS1YvKi2Bt+Q32BnQEtY7E-wLWJwKjRMTUrA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
 
---ehCOKC0wDaVXxQlM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On 2023.11.22 13:48:22 +0100, Christian Brauner wrote:
-> The single caller of inject_virtual_interrupt() ignores the return value
-> anyway. This allows us to simplify eventfd_signal() in follow-up
-> patches.
->=20
-> Signed-off-by: Christian Brauner <brauner@kernel.org>
-> ---
->  drivers/gpu/drm/i915/gvt/interrupt.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/interrupt.c b/drivers/gpu/drm/i915/=
-gvt/interrupt.c
-> index de3f5903d1a7..9665876b4b13 100644
-> --- a/drivers/gpu/drm/i915/gvt/interrupt.c
-> +++ b/drivers/gpu/drm/i915/gvt/interrupt.c
-> @@ -422,7 +422,7 @@ static void init_irq_map(struct intel_gvt_irq *irq)
->  #define MSI_CAP_DATA(offset) (offset + 8)
->  #define MSI_CAP_EN 0x1
-> =20
-> -static int inject_virtual_interrupt(struct intel_vgpu *vgpu)
-> +static void inject_virtual_interrupt(struct intel_vgpu *vgpu)
->  {
->  	unsigned long offset =3D vgpu->gvt->device_info.msi_cap_offset;
->  	u16 control, data;
-> @@ -434,10 +434,10 @@ static int inject_virtual_interrupt(struct intel_vg=
-pu *vgpu)
-> =20
->  	/* Do not generate MSI if MSIEN is disabled */
->  	if (!(control & MSI_CAP_EN))
-> -		return 0;
-> +		return;
-> =20
->  	if (WARN(control & GENMASK(15, 1), "only support one MSI format\n"))
-> -		return -EINVAL;
-> +		return;
-> =20
->  	trace_inject_msi(vgpu->id, addr, data);
-> =20
-> @@ -451,10 +451,10 @@ static int inject_virtual_interrupt(struct intel_vg=
-pu *vgpu)
->  	 * returned and don't inject interrupt into guest.
->  	 */
->  	if (!test_bit(INTEL_VGPU_STATUS_ATTACHED, vgpu->status))
-> -		return -ESRCH;
-> -	if (vgpu->msi_trigger && eventfd_signal(vgpu->msi_trigger, 1) !=3D 1)
-> -		return -EFAULT;
-> -	return 0;
-> +		return;
-> +	if (!vgpu->msi_trigger)
-> +		return;
-> +	eventfd_signal(vgpu->msi_trigger, 1);
->  }
+在 2023/11/22 下午1:52, Jason Wang 写道:
+> On Mon, Nov 20, 2023 at 8:38 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>> By comparing the traffic information in the complete napi processes,
+>> let the virtio-net driver automatically adjust the coalescing
+>> moderation parameters of each receive queue.
+>>
+>> Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+>> ---
+>> v2->v3:
+>> - Some minor modifications.
+>>
+>> v1->v2:
+>> - Improved the judgment of dim switch conditions.
+>> - Cancel the work when vq reset.
+>>
+>>   drivers/net/virtio_net.c | 191 ++++++++++++++++++++++++++++++++++-----
+>>   1 file changed, 169 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 69fe09e99b3c..bc32d5aae005 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -19,6 +19,7 @@
+>>   #include <linux/average.h>
+>>   #include <linux/filter.h>
+>>   #include <linux/kernel.h>
+>> +#include <linux/dim.h>
+>>   #include <net/route.h>
+>>   #include <net/xdp.h>
+>>   #include <net/net_failover.h>
+>> @@ -172,6 +173,17 @@ struct receive_queue {
+>>
+>>          struct virtnet_rq_stats stats;
+>>
+>> +       /* The number of rx notifications */
+>> +       u16 calls;
+>> +
+>> +       /* Is dynamic interrupt moderation enabled? */
+>> +       bool dim_enabled;
+>> +
+>> +       /* Dynamic Interrupt Moderation */
+>> +       struct dim dim;
+>> +
+>> +       u32 packets_in_napi;
+>> +
+>>          struct virtnet_interrupt_coalesce intr_coal;
+>>
+>>          /* Chain pages by the private ptr. */
+>> @@ -305,6 +317,9 @@ struct virtnet_info {
+>>          u8 duplex;
+>>          u32 speed;
+>>
+>> +       /* Is rx dynamic interrupt moderation enabled? */
+>> +       bool rx_dim_enabled;
+>> +
+>>          /* Interrupt coalescing settings */
+>>          struct virtnet_interrupt_coalesce intr_coal_tx;
+>>          struct virtnet_interrupt_coalesce intr_coal_rx;
+>> @@ -2001,6 +2016,7 @@ static void skb_recv_done(struct virtqueue *rvq)
+>>          struct virtnet_info *vi = rvq->vdev->priv;
+>>          struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
+>>
+>> +       rq->calls++;
+>>          virtqueue_napi_schedule(&rq->napi, rvq);
+>>   }
+>>
+>> @@ -2141,6 +2157,26 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>>          }
+>>   }
+>>
+>> +static void virtnet_rx_dim_work(struct work_struct *work);
+>> +
+>> +static void virtnet_rx_dim_update(struct virtnet_info *vi, struct receive_queue *rq)
+>> +{
+>> +       struct dim_sample cur_sample = {};
+>> +
+>> +       if (!rq->packets_in_napi)
+>> +               return;
+>> +
+>> +       u64_stats_update_begin(&rq->stats.syncp);
+>> +       dim_update_sample(rq->calls,
+>> +                         u64_stats_read(&rq->stats.packets),
+>> +                         u64_stats_read(&rq->stats.bytes),
+>> +                         &cur_sample);
+>> +       u64_stats_update_end(&rq->stats.syncp);
+>> +
+>> +       net_dim(&rq->dim, cur_sample);
+>> +       rq->packets_in_napi = 0;
+>> +}
+>> +
+>>   static int virtnet_poll(struct napi_struct *napi, int budget)
+>>   {
+>>          struct receive_queue *rq =
+>> @@ -2149,17 +2185,22 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>>          struct send_queue *sq;
+>>          unsigned int received;
+>>          unsigned int xdp_xmit = 0;
+>> +       bool napi_complete;
+>>
+>>          virtnet_poll_cleantx(rq);
+>>
+>>          received = virtnet_receive(rq, budget, &xdp_xmit);
+>> +       rq->packets_in_napi += received;
+>>
+>>          if (xdp_xmit & VIRTIO_XDP_REDIR)
+>>                  xdp_do_flush();
+>>
+>>          /* Out of packets? */
+>> -       if (received < budget)
+>> -               virtqueue_napi_complete(napi, rq->vq, received);
+>> +       if (received < budget) {
+>> +               napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
+>> +               if (napi_complete && rq->dim_enabled)
+>> +                       virtnet_rx_dim_update(vi, rq);
+>> +       }
+>>
+>>          if (xdp_xmit & VIRTIO_XDP_TX) {
+>>                  sq = virtnet_xdp_get_sq(vi);
+>> @@ -2179,6 +2220,7 @@ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
+>>          virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
+>>          napi_disable(&vi->rq[qp_index].napi);
+>>          xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
+>> +       cancel_work_sync(&vi->rq[qp_index].dim.work);
+>>   }
+>>
+>>   static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>> @@ -2196,6 +2238,9 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>>          if (err < 0)
+>>                  goto err_xdp_reg_mem_model;
+>>
+>> +       INIT_WORK(&vi->rq[qp_index].dim.work, virtnet_rx_dim_work);
+>> +       vi->rq[qp_index].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
+> So in V2, you explained it can be done here but I want to know why it
+> must be done here.
 
-I think it's a little simpler to write as
-    if (vgpu->msi_trigger)
-            eventfd_signal(vgpu->msi_trigger, 1);
+It is not must be done here. We can place it in probe and make sure that 
+INIT_WORK() is
+done before napi is enabled for the first time.
 
-Looks fine with me.
+So then I'll don't call INIT_WORK() every time after "napi_disable -> 
+napi_enable" happens,
+and use the following process:
+Call INIT_WORK() in the driver probe and do cancel_work() after each 
+related napi_disable.
 
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+This will be clearer.
+
+Additionally, Yinjun Zhang found that cancel_work_sync() will cause a 
+deadlock
+when ndo_stop and virtnet_rx_dim_work occurs at the same time, so 
+cancel_work() will be used.
+
+>
+> For example, the refill_work is initialized in alloc_queues().
+>
+>> +
+>>          virtnet_napi_enable(vi->rq[qp_index].vq, &vi->rq[qp_index].napi);
+>>          virtnet_napi_tx_enable(vi, vi->sq[qp_index].vq, &vi->sq[qp_index].napi);
+>>
+>> @@ -2393,8 +2438,10 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+>>
+>>          qindex = rq - vi->rq;
+>>
+>> -       if (running)
+>> +       if (running) {
+>>                  napi_disable(&rq->napi);
+>> +               cancel_work_sync(&rq->dim.work);
+>> +       }
+>>
+>>          err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
+>>          if (err)
+>> @@ -2403,8 +2450,10 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
+>>          if (!try_fill_recv(vi, rq, GFP_KERNEL))
+>>                  schedule_delayed_work(&vi->refill, 0);
+>>
+>> -       if (running)
+>> +       if (running) {
+>> +               INIT_WORK(&rq->dim.work, virtnet_rx_dim_work);
+>>                  virtnet_napi_enable(rq->vq, &rq->napi);
+>> +       }
+>>          return err;
+>>   }
+>>
+>> @@ -3341,24 +3390,55 @@ static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
+>>   static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
+>>                                            struct ethtool_coalesce *ec)
+>>   {
+>> +       bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
+>> +       bool update = false, switch_dim;
+>>          struct scatterlist sgs_rx;
+>>          int i;
+>>
+>> -       vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
+>> -       vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
+>> -       sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
+>> -
+>> -       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+>> -                                 VIRTIO_NET_CTRL_NOTF_COAL_RX_SET,
+>> -                                 &sgs_rx))
+>> -               return -EINVAL;
+>> +       switch_dim = rx_ctrl_dim_on != vi->rx_dim_enabled;
+>> +       if (switch_dim) {
+>> +               if (rx_ctrl_dim_on) {
+>> +                       if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL)) {
+> So basically, I'm asking why we need to duplicate the check here?
+
+Here is VIRTIO_NET_F_*VQ*_NOTF_COAL.
+
+>
+> E.g caller has done the check for us:
+>
+>          if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_NOTF_COAL))
+>                  ret = virtnet_send_notf_coal_cmds(vi, ec);
+>          else
+>                  ret = virtnet_coal_params_supported(ec);
+>
+> ?
+>
+> Please also check other nested if/else, usually, too many levels of
+> nesting is a hint that the logic needs to be optimized.
+
+I will optimize this.
 
 Thanks!
 
-> =20
->  static void propagate_event(struct intel_gvt_irq *irq,
->=20
-> --=20
-> 2.42.0
->=20
+>
+> Thanks
 
---ehCOKC0wDaVXxQlM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCZV6bswAKCRCxBBozTXgY
-JySHAJ4qE2jv0i0ZauQv+Bv/bGwHt0ZrbACeJadIIL6gQC6kmoICLhyqplCwOeo=
-=1+t0
------END PGP SIGNATURE-----
-
---ehCOKC0wDaVXxQlM--
