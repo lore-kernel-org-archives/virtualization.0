@@ -1,123 +1,132 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mail.marcansoft.com (marcansoft.com [212.63.210.85])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358541D6A1
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:08:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B49FC2031F;
+	Thu, 23 Nov 2023 09:08:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=marcan.st
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marcan.st
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="cXWnvuH2"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A3EAD405B7
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:08:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A3EAD405B7
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=cXWnvuH2
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B53Eb6Yz_IuU
-	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 09:08:36 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B96A94049C
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:08:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B96A94049C
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
+	dkim=pass (2048-bit key) header.d=marcan.st header.i=@marcan.st header.b="bEylMheX"
+Received: from [127.0.0.1] (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id B73B86607377;
-	Thu, 23 Nov 2023 09:08:32 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1700730513;
-	bh=BIHodNmsBiGjHqmmU2/SA/mIIzueNfft8YCTcpkLTgU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=cXWnvuH2n9K2VzAsDkgwZW6+wVffZIAgGJPyIyl4iY6CA5ZEZLHdwnS/E6UzU/ju/
-	 6sFmHXVuEb31W1jwWXksIzQLoYFfRv5f+C9VqCUvh4hHs/AZf7/YBEIZPEncVEN3uV
-	 AAUO/q2UlgCcyEGw8444Agt0CLXNfeSqHhLXgCSO1UjWM5WO8WlwOtE8198AbDX7p4
-	 Re1gN18WWsPBREhAUxkQsHRq0d6yA44PpLx6quYZ9Slpi6z8fMl8cD6NQXUptuRocp
-	 +2QKYnE3GWBCIfi+hn1a6kzP4jNGhfhuBftAnL+HXKzlQofFiGrSRQx2q11hHncSwp
-	 GR6eTwumf6icQ==
-Date: Thu, 23 Nov 2023 10:08:29 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
- <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
- <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel@collabora.com,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 22/26] drm/shmem-helper: Don't free refcounted GEM
-Message-ID: <20231123100829.2e4addd0@collabora.com>
-In-Reply-To: <2faf1111-9646-21e3-feb3-f59c955bc719@collabora.com>
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-23-dmitry.osipenko@collabora.com>
-	<20231113105438.60896fdf@collabora.com>
-	<2faf1111-9646-21e3-feb3-f59c955bc719@collabora.com>
-Organization: Collabora
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+	(Authenticated sender: marcan@marcan.st)
+	by mail.marcansoft.com (Postfix) with ESMTPSA id 9BDB241EF0;
+	Thu, 23 Nov 2023 09:08:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=marcan.st; s=default;
+	t=1700730528; bh=tKvmM8VauJ2SKlC76Ts+IMS9Y0f1D93gbN6PS2aS1RQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=bEylMheXkP1AY7uDhyUgpvOvmafAgnH8kYOyGsGvzSEm3AG0TuKGO12XpHG7pIpPk
+	 7DWjDpQ/2UVGkEBlWmpkMsK+kkFSTbFl2mNZf+evyauyJJjLkxYiIMvQnQZccc7GYl
+	 eyA+fRFKB/4nH2lfKLFZ7jOWf+ZnhEEAdxplIRYiCSC8oH9YCENIvFOPHr97tQOVpS
+	 vFMyIE8sCHGbUWmMQTW6+kNNQZA2kAYPQ/d2k1mzDzQUzP4vU581SpL8b4NQXqoDyL
+	 Nq2SuV6KB6PtAtBepsn6kZamgJlbVvwi56sMxTDqNBWGfHkerXitbj24KAHWAlJH6q
+	 nnb+VrbjJRB5A==
+Message-ID: <ab23469f-19ce-4681-afc9-65518730b51b@marcan.st>
+Date: Thu, 23 Nov 2023 18:08:33 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 06/17] iommu: Add iommu_fwspec_alloc/dealloc()
+Content-Language: en-US
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: acpica-devel@lists.linux.dev, Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+ Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+ Catalin Marinas <catalin.marinas@arm.com>, Dexuan Cui <decui@microsoft.com>,
+ devicetree@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+ Frank Rowand <frowand.list@gmail.com>, Hanjun Guo <guohanjun@huawei.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, iommu@lists.linux.dev,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>,
+ linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-hyperv@vger.kernel.org, linux-mips@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-snps-arc@lists.infradead.org,
+ linux-tegra@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+ Lorenzo Pieralisi <lpieralisi@kernel.org>,
+ Marek Szyprowski <m.szyprowski@samsung.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, patches@lists.linux.dev,
+ Paul Walmsley <paul.walmsley@sifive.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Robert Moore <robert.moore@intel.com>, Rob Herring <robh+dt@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>, Sudeep Holla <sudeep.holla@arm.com>,
+ Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+ Sven Peter <sven@svenpeter.dev>, Thierry Reding <thierry.reding@gmail.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Krishna Reddy <vdumpa@nvidia.com>, Vineet Gupta <vgupta@kernel.org>,
+ virtualization@lists.linux.dev, Wei Liu <wei.liu@kernel.org>,
+ Will Deacon <will@kernel.org>
+References: <6-v2-36a0088ecaa7+22c6e-iommu_fwspec_jgg@nvidia.com>
+ <20a7ef6d-a8ca-4bd8-ad7e-11856db617a2@marcan.st>
+ <1eb12c35-e64e-4c32-af99-8743dc2ec266@marcan.st>
+ <20231119141329.GA6083@nvidia.com>
+ <90855bbf-e845-4e4d-a713-df71d1e477d2@marcan.st>
+ <20231121160058.GG6083@nvidia.com>
+From: Hector Martin <marcan@marcan.st>
+In-Reply-To: <20231121160058.GG6083@nvidia.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Thu, 23 Nov 2023 01:30:24 +0300
-Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
-
-> On 11/13/23 12:54, Boris Brezillon wrote:
-> > On Mon, 30 Oct 2023 02:02:01 +0300
-> > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
-> >   
-> >> Don't free refcounted shmem object to prevent use-after-free bug that
-> >> is worse than a memory leak.
-> >>
-> >> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> >> ---
-> >>  drivers/gpu/drm/drm_gem_shmem_helper.c | 7 ++++---
-> >>  1 file changed, 4 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> >> index 6dd087f19ea3..4253c367dc07 100644
-> >> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> >> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> >> @@ -203,9 +203,10 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
-> >>  	if (obj->import_attach)
-> >>  		drm_prime_gem_destroy(obj, shmem->sgt);
-> >>  
-> >> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
-> >> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
-> >> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
-> >> +	if (drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count)) ||
-> >> +	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count)) ||
-> >> +	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count)))
-> >> +		return;  
-> > 
-> > I guess you're worried about ->sgt being referenced by the driver after
-> > the GEM is destroyed. If we assume drivers don't cache the sgt and
-> > always call get_pages_sgt() when they need it that shouldn't be an
-> > issue. What we really don't want to release is the pages themselves,
-> > but the GPU MMU might still have active mappings pointing to these
-> > pages.
-> > 
-> > In any case, I'm not against leaking the GEM object when any of these
-> > counters are not zero, but can we at least have a comment in the
-> > code explaining why we're doing that, so people don't have to go look
-> > at the git history to figure it out.  
+On 2023/11/22 1:00, Jason Gunthorpe wrote:
+> On Tue, Nov 21, 2023 at 03:47:48PM +0900, Hector Martin wrote:
+>>> Which is sensitive only to !NULL fwspec, and if EPROBE_DEFER is
+>>> returned fwspec will be freed and dev->iommu->fwspec will be NULL
+>>> here.
+>>>
+>>> In the NULL case it does a 'bus probe' with a NULL fwspec and all the
+>>> fwspec drivers return immediately from their probe functions.
+>>>
+>>> Did I miss something?
+>>
+>> apple_dart is not a fwspec driver and doesn't do that :-)
 > 
-> This patch is a minor improvement, it doesn't address any specific
-> issue. This should be a common pattern in kernel. If you're giving a
-> warning and know about the inevitable catastrophe, then avoid it if you can.
+> It implements of_xlate that makes it a driver using the fwspec probe
+> path.
+> 
+> The issue is in apple-dart. Its logic for avoiding bus probe vs
+> fwspec probe is not correct.
+> 
+> It does:
+> 
+> static int apple_dart_of_xlate(struct device *dev, struct of_phandle_args *args)
+> {
+>  [..]
+>  	dev_iommu_priv_set(dev, cfg);
+> 
+> 
+> Then:
+> 
+> static struct iommu_device *apple_dart_probe_device(struct device *dev)
+> {
+> 	struct apple_dart_master_cfg *cfg = dev_iommu_priv_get(dev);
+> 	struct apple_dart_stream_map *stream_map;
+> 	int i;
+> 
+> 	if (!cfg)
+> 		return ERR_PTR(-ENODEV);
+> 
+> Which leaks the cfg memory on rare error cases and wrongly allows the
+> driver to probe without a fwspec, which I think is what you are
+> hitting.
+> 
+> It should be
+> 
+>        if (!dev_iommu_fwspec_get(dev) || !cfg)
+> 		return ERR_PTR(-ENODEV);
+> 
+> To ensure the driver never probes on the bus path.
+> 
+> Clearing the dev->iommu in the core code has the side effect of
+> clearing (and leaking) the cfg which would hide this issue.
 
-Sure, I'm just asking that we add a comment to explain why we leak
-memory here. Is that too much to ask?
+Aha! Yes, that makes it work with only the first change. I'll throw the
+apple-dart fix into our tree (and submit it once I get to clearing out
+the branch; the affected consumer driver isn't upstream yet so this
+isn't particularly urgent).
+
+- Hector
