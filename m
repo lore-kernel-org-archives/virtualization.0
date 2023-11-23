@@ -1,133 +1,91 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C7A18F44
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:48:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02DD43FB2E
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 17:00:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="GUBVz5eU"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AVlUgOAd"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 847C980DD3
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:48:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 847C980DD3
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=GUBVz5eU
+	by smtp4.osuosl.org (Postfix) with ESMTP id A42D3408BD
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 17:00:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A42D3408BD
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=AVlUgOAd
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -7.101
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IQFRCBbAxhty
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Hw6_0p1wCOSL
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 14:48:56 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AE15580DCD
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 14:48:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AE15580DCD
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id C2B82660739B;
-	Thu, 23 Nov 2023 14:48:51 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1700750932;
-	bh=TOxOSufmcOtURwsWljuFpDtQMmDKswF940eCd0/40e8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=GUBVz5eUSRzQhnr6IkWj+jo4rJm341qH1y3W881oKdKubsHsULT1YCS3ioMDZwpOk
-	 ssD5sNLakFDgu7dS5Tk0PaAgh/hMAMZSwynz1ccdNpYDxkC2mXV4ltmrpw0TxKcr0Y
-	 ejGZ8g02aLRVdDIGsom6njnd/GnR/GR8PtMIupQIRnWdEOcFWDnUw1bHWNO1rgY/d4
-	 0IgKTiFj8JKT43OsH+hoW3pIq1Vho62mmbtrbQQaHZhXeLB+saxCqR1swFBEa12Gtn
-	 4594UIN8+PPbXGQFijdjHu65/TC45og1ePfRGgUCaxv/Bih77MoQcIGiEm9ATQNTDG
-	 tUaj9so8WEU+Q==
-Date: Thu, 23 Nov 2023 15:48:48 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
- <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
- <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
- <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel@collabora.com,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 15/26] drm/panfrost: Explicitly get and put
- drm-shmem pages
-Message-ID: <20231123154848.034f4710@collabora.com>
-In-Reply-To: <20231029230205.93277-16-dmitry.osipenko@collabora.com>
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-16-dmitry.osipenko@collabora.com>
-Organization: Collabora
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+	Thu, 23 Nov 2023 17:00:29 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 016C34087F
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 17:00:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 016C34087F
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by dfw.source.kernel.org (Postfix) with ESMTP id 621116233B;
+	Thu, 23 Nov 2023 17:00:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A0B39C43395;
+	Thu, 23 Nov 2023 17:00:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700758826;
+	bh=QAhKOwmSyYL/06pMRYmwqRumPVYS4ikPDyPLMLk4BuA=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=AVlUgOAd/6Qj6nT4t8NFVdUtPwQ2l/VvAr/AsYAyEhcsdIDgNE74ytiYqDubRqE6S
+	 p0e/zkaOVwOAzshbkNW6MePqAsUbguzkjL48aPfFSqbNhpH1U70AWOr3jAAdyiSBic
+	 EVtmD37c45/gc21eptnlVFgYG/z2ZiNP1/wwzFi1VbaFCpzS2nJxCdUX/cVxQu7zld
+	 ezgZjc97kOLjvSYG9EPn/1PHIzVE04Gdl5kPsMZt1D8vH5sytLhN6Ytj/g0zSkZIGo
+	 rXjYt3gI0HhFVPv/fqpnNH1Wv5qV53VHTAMUFgwPGG3PHkHWZgiEPitcHT5BcrbR/o
+	 Uulq4AblryAaw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 8277EE00087;
+	Thu, 23 Nov 2023 17:00:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v1] vsock/test: fix SEQPACKET message bounds test
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170075882653.541.9262158470588794948.git-patchwork-notify@kernel.org>
+Date: Thu, 23 Nov 2023 17:00:26 +0000
+References: <20231121211642.163474-1-avkrasnov@salutedevices.com>
+In-Reply-To: <20231121211642.163474-1-avkrasnov@salutedevices.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: stefanha@redhat.com, sgarzare@redhat.com, davem@davemloft.net,
+ edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+ jasowang@redhat.com, bobby.eshleman@bytedance.com, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kernel@sberdevices.ru, oxffffaa@gmail.com
 
-On Mon, 30 Oct 2023 02:01:54 +0300
-Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+Hello:
 
-> To simplify the drm-shmem refcnt handling, we're moving away from
-> the implicit get_pages() that is used by get_pages_sgt(). From now on
-> drivers will have to pin pages while they use sgt. Panfrost's shrinker
-> doesn't support swapping out BOs, hence pages are pinned and sgt is valid
-> as long as pages' use-count > 0.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Wed, 22 Nov 2023 00:16:42 +0300 you wrote:
+> Tune message length calculation to make this test work on machines
+> where 'getpagesize()' returns >32KB. Now maximum message length is not
+> hardcoded (on machines above it was smaller than 'getpagesize()' return
+> value, thus we get negative value and test fails), but calculated at
+> runtime and always bigger than 'getpagesize()' result. Reproduced on
+> aarch64 with 64KB page size.
 > 
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> ---
->  drivers/gpu/drm/panfrost/panfrost_gem.c | 17 +++++++++++++++++
->  drivers/gpu/drm/panfrost/panfrost_mmu.c |  6 ++----
->  2 files changed, 19 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> index 6b77d8cebcb2..bb9d43cf7c3c 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-> @@ -47,8 +47,13 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
->  			}
->  		}
->  		kvfree(bo->sgts);
-> +
-> +		drm_gem_shmem_put_pages(&bo->base);
->  	}
->  
-> +	if (!bo->is_heap && !obj->import_attach)
-> +		drm_gem_shmem_put_pages(&bo->base);
-> +
->  	drm_gem_shmem_free(&bo->base);
->  }
->  
-> @@ -269,6 +274,7 @@ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
->  {
->  	struct drm_gem_shmem_object *shmem;
->  	struct panfrost_gem_object *bo;
-> +	int err;
->  
->  	/* Round up heap allocations to 2MB to keep fault handling simple */
->  	if (flags & PANFROST_BO_HEAP)
-> @@ -282,7 +288,18 @@ panfrost_gem_create(struct drm_device *dev, size_t size, u32 flags)
->  	bo->noexec = !!(flags & PANFROST_BO_NOEXEC);
->  	bo->is_heap = !!(flags & PANFROST_BO_HEAP);
->  
-> +	if (!bo->is_heap) {
-> +		err = drm_gem_shmem_get_pages(shmem);
+> [...]
 
-I really hate the fact we request pages here while we call
-panfrost_mmu_map() in panfrost_gem_open(), because ultimately, pages
-are requested for the MMU mapping. Also hate the quirk we have in shmem
-to call free_pages() instead of put_pages_locked() when the BO refcount
-dropped to zero, and I was hoping we could get rid of it at some point
-by teaching drivers to request pages when they actually need it instead
-of tying pages lifetime to the GEM object lifetime.
+Here is the summary with links:
+  - [net,v1] vsock/test: fix SEQPACKET message bounds test
+    https://git.kernel.org/netdev/net/c/f0863888f6cf
 
-Maybe what we should do instead is move the get/put_pages() in
-panfrost_mmu_map/unmap() (as I suggested), but have a special mapping
-panfrost_mmu_evict/restore() helpers that kill/restore the MMU mappings
-without releasing/acquiring the pages ref.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
