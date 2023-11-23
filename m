@@ -1,84 +1,147 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C371A5A6
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:34:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0665F16434
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:06:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZSp86fty"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 56854813E4
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:34:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 56854813E4
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8B2E860EBB
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:06:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8B2E860EBB
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ZSp86fty
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Dtx-8TBsMozZ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 63wLpm_947BP
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 08:34:48 +0000 (UTC)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 201EC813E3
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 08:34:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 201EC813E3
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VwypgXW_1700728482;
-Received: from 30.221.145.52(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0VwypgXW_1700728482)
-          by smtp.aliyun-inc.com;
-          Thu, 23 Nov 2023 16:34:43 +0800
-Message-ID: <e1e824ba-78dc-4a65-912d-4ef7f4175a51@linux.alibaba.com>
-Date: Thu, 23 Nov 2023 16:34:40 +0800
+	Thu, 23 Nov 2023 09:06:06 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4873160C24
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 09:06:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4873160C24
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bbrezillon)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id A0129660738E;
+	Thu, 23 Nov 2023 09:06:01 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1700730362;
+	bh=jXx0AZxK0x/3x229o8gedk/6QPlybYeQFVHL/LcCTj8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=ZSp86ftyTaaRQ1uCyPN0eOAAmXLdLz+oOdzcxBeABdqLPtswej1z5nVQj2WLuVB35
+	 2yuuRJUU8TjK4IAowsJVj2LRWBngf1dLfc2U4SqkoiJPIbp2DlnFz6jGMVG/dZMHaQ
+	 z12bNmCYM65GsdnU3hGAsEtkmQCQBr73UD/NOJ+lXOXuUVi60Y5UkVAiidyhKdWXrt
+	 TnUMkoloHlHX663vqHVpzOiLGL0AWM7Z4QcDg5xJp15giD05mAlqAPC/dpF4zvnhBo
+	 b9TS12tqrFhXs/iHkIPO8jLsAPW6hAslJdiwi9F77GDI3Ws7aCmbvN0XNu0oUmDf16
+	 /5Pey2NHXtIwA==
+Date: Thu, 23 Nov 2023 10:05:57 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, Maarten Lankhorst
+ <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
+ <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
+ <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 15/26] drm/panfrost: Explicitly get and put
+ drm-shmem pages
+Message-ID: <20231123100557.05a49343@collabora.com>
+In-Reply-To: <26890ba7-5e19-df0c-fce0-26af58e66266@collabora.com>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-16-dmitry.osipenko@collabora.com>
+	<20231110115354.356c87f7@collabora.com>
+	<26890ba7-5e19-df0c-fce0-26af58e66266@collabora.com>
+Organization: Collabora
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v4 4/4] virtio-net: support rx netdim
-To: Yinjun Zhang <yinjun.zhang@corigine.com>
-Cc: ast@kernel.org, davem@davemloft.net, edumazet@google.com,
- hawk@kernel.org, horms@kernel.org, jasowang@redhat.com,
- john.fastabend@gmail.com, kuba@kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, pabeni@redhat.com,
- virtualization@lists.linux-foundation.org, xuanzhuo@linux.alibaba.com
-References: <c00b526f32d9f9a5cd2e98a212ee5306d6b6d71c.1700478183.git.hengqi@linux.alibaba.com>
- <20231122092939.1005591-1-yinjun.zhang@corigine.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <20231122092939.1005591-1-yinjun.zhang@corigine.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Thu, 23 Nov 2023 01:04:56 +0300
+Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
+> On 11/10/23 13:53, Boris Brezillon wrote:
+> > Hm, there was no drm_gem_shmem_get_pages_sgt() call here, why should we
+> > add a drm_gem_shmem_get_pages()? What we should do instead is add a
+> > drm_gem_shmem_get_pages() for each drm_gem_shmem_get_pages_sgt() we
+> > have in the driver (in panfrost_mmu_map()), and add
+> > drm_gem_shmem_put_pages() calls where they are missing
+> > (panfrost_mmu_unmap()).
+> >   
+> >> +		if (err)
+> >> +			goto err_free;
+> >> +	}
+> >> +
+> >>  	return bo;
+> >> +
+> >> +err_free:
+> >> +	drm_gem_shmem_free(&bo->base);
+> >> +
+> >> +	return ERR_PTR(err);
+> >>  }
+> >>  
+> >>  struct drm_gem_object *
+> >> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> >> index 770dab1942c2..ac145a98377b 100644
+> >> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> >> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> >> @@ -504,7 +504,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+> >>  		if (IS_ERR(pages[i])) {
+> >>  			ret = PTR_ERR(pages[i]);
+> >>  			pages[i] = NULL;
+> >> -			goto err_pages;
+> >> +			goto err_unlock;
+> >>  		}
+> >>  	}
+> >>  
+> >> @@ -512,7 +512,7 @@ static int panfrost_mmu_map_fault_addr(struct panfrost_device *pfdev, int as,
+> >>  	ret = sg_alloc_table_from_pages(sgt, pages + page_offset,
+> >>  					NUM_FAULT_PAGES, 0, SZ_2M, GFP_KERNEL);
+> >>  	if (ret)
+> >> -		goto err_pages;
+> >> +		goto err_unlock;  
+> > Feels like the panfrost_gem_mapping object should hold a ref on the BO
+> > pages, not the BO itself, because, ultimately, the user of the BO is
+> > the GPU. This matches what I was saying about moving get/put_pages() to
+> > panfrost_mmu_map/unmap(): everytime a panfrost_gem_mapping becomes
+> > active, to want to take a pages ref, every time it becomes inactive,
+> > you should release the pages ref.  
+> 
+> The panfrost_mmu_unmap() is also used by shrinker when BO is purged. I'm
+> unhappy with how icky it all becomes if unmap is made to put pages.
 
-在 2023/11/22 下午5:29, Yinjun Zhang 写道:
-> On Mon, 20 Nov 2023 20:37:34 +0800, Heng Qi wrote:
-> <...>
->> @@ -2179,6 +2220,7 @@ static void virtnet_disable_queue_pair(struct virtnet_info *vi, int qp_index)
->>   	virtnet_napi_tx_disable(&vi->sq[qp_index].napi);
->>   	napi_disable(&vi->rq[qp_index].napi);
->>   	xdp_rxq_info_unreg(&vi->rq[qp_index].xdp_rxq);
->> +	cancel_work_sync(&vi->rq[qp_index].dim.work);
-> I'm not sure, but please check if here may cause deadlock:
->   rtnl_lock held ->
->   .ndo_stop ->
->   virtnet_disable_queue_pair() ->
->   cancel_work_sync() ->
->   virtnet_rx_dim_work() ->
->   rtnl_lock()
+Why, that's exactly what's supposed to happen. If you mmu_unmap(), that
+means you no longer need the pages ref you got.
 
-Good catch!
+> 
+> Previously map() was implicitly allocating pages with get_sgt() and then
+> pages were implicitly released by drm_gem_shmem_free(). A non-heap BO is
+> mapped when it's created by Panfrost, hence the actual lifetime of pages
+> is kept unchanged by this patch.
 
-I tried using cancel_work() which solves the problem. Additionally I 
-tested the
-scenario of ctrl cmd/.remove/.ndo_stop()/dim_work when there is a lot of 
-concurrency,
-and this can work very well.
+But the whole point of making it explicit is to control when pages are
+needed or not, isn't it. The fact we mmu_map() the BO at open time, and
+keep it mapped until it's not longer referenced is an implementation
+choice, and I don't think having pages_put() in mmu_unmap() changes
+that.
 
-Thanks!
-
->
->>   }
->>   
->>   static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
-> <...>
+> The implicit allocation is turned into
+> explicit one, i.e. pages are explicitly allocated before BO is mapped.
+> 
 
