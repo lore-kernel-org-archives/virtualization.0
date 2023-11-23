@@ -1,47 +1,47 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E2B425555
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C2125561
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nSfg5H2P"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r42g7gVE"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 059CB41E80
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:24 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 059CB41E80
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nSfg5H2P
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7BE8F60B35
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7BE8F60B35
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=r42g7gVE
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gxNTpTjRzM4s
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id V8uBw0oRwtaA
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 13:12:23 +0000 (UTC)
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ED50B41E7F
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED50B41E7F
+	Thu, 23 Nov 2023 13:18:56 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 738EA60B27
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:18:56 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 738EA60B27
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by sin.source.kernel.org (Postfix) with ESMTP id EF5AECE28FE;
-	Thu, 23 Nov 2023 13:12:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B246C433C7;
-	Thu, 23 Nov 2023 13:11:59 +0000 (UTC)
+	by sin.source.kernel.org (Postfix) with ESMTP id 11DDCCE2912;
+	Thu, 23 Nov 2023 13:18:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFAAC433C9;
+	Thu, 23 Nov 2023 13:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700745135;
-	bh=VBAn7FZcvw1drif9KzTmaabLPVAYO4zX2eeQPqBTwFw=;
+	s=k20201202; t=1700745532;
+	bh=BJOuctG/jOXVT0hO6qxyVXBeYyH4TG/ylT0dyLa92yI=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nSfg5H2PW95uhmCyWswaCk18HBzNnUr8lrZC9/jswVOaVEk9Necoc/3PSsg/eWI+c
-	 nUSNVQiBVNuTkdJG4ZroseK0fKTuKodiCnTfp5VBFncFM3thhaeXbqdq7/1OyUlFkh
-	 hvhoTdxdxKP2qiIgsXRrtgQ8aW/glFRtrG5pk0o8niH7Far3mtrppzle/A5KWCQFN1
-	 0J9D7XnhqZQWKtQ8+7lAsz1DeizPazr+k6Se4xCbJkyOxPi+pXbCyvcnpPCySfoTu/
-	 nxY4zeQuXLH9O0FYHNYyhAuFpYV+0VZCYLV3awl8R2o5zjol3Qy1blkTCXoR/k3lKT
-	 V10Lsp2N5sNOQ==
-Date: Thu, 23 Nov 2023 14:11:56 +0100
+	b=r42g7gVEtjBJ5WfLPAfCypJTdeIZa9tza+98XErRLkZuJq42IHSNqt9TjDoS1u/dO
+	 mqRTO6hyOgRcqG5Vqi98sspSbfx6Ne64w0KZSaAUUdSmCRm0SeW9B8r2AffO7bhDq0
+	 voQrIzDl2Rys7kYNdpWCPkldE19sNixdWiKMUoa9j34EYG62L/DgZtbbaspmEPmu14
+	 PuPzBMdYXfPSBprGxxIV2rleVHq+xRFaQ7/X8REU4C8BYG2H4sP4+OADV7Tg2Ri8NY
+	 w8CXZUWWNJUaMlJH5PPc15vZ4ox/kvWZIeet2zBszz9qi15zBW/WlVu+mFthIg8ovM
+	 qoF7yc2VytIMg==
+Date: Thu, 23 Nov 2023 14:18:33 +0100
 From: Christian Brauner <brauner@kernel.org>
-To: Zhenyu Wang <zhenyuw@linux.intel.com>
+To: Jani Nikula <jani.nikula@linux.intel.com>
 Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
 	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
 	Sean Christopherson <seanjc@google.com>,
@@ -52,8 +52,9 @@ Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
 	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
 	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
 	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-	Xu Yilun <yilun.xu@intel.com>, Zhi Wang <zhi.a.wang@intel.com>,
-	Jani Nikula <jani.nikula@linux.intel.com>,
+	Xu Yilun <yilun.xu@intel.com>,
+	Zhenyu Wang <zhenyuw@linux.intel.com>,
+	Zhi Wang <zhi.a.wang@intel.com>,
 	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
 	Rodrigo Vivi <rodrigo.vivi@intel.com>,
 	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
@@ -97,11 +98,11 @@ Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
 	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
 	Jens Axboe <axboe@kernel.dk>,
 	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Subject: Re: [PATCH v2 1/4] i915: make inject_virtual_interrupt() void
-Message-ID: <20231123-randlage-instinkt-e458628d2d7c@brauner>
+Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
+Message-ID: <20231123-portwein-geeignet-787b940c7d2d@brauner>
 References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
- <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
- <ZV6buHrQy2+CJ7xX@debian-scheme>
+ <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
+ <877cm9n7dh.fsf@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -110,15 +111,10 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <ZV6buHrQy2+CJ7xX@debian-scheme>
+In-Reply-To: <877cm9n7dh.fsf@intel.com>
 
-> > +	if (!vgpu->msi_trigger)
-> > +		return;
-> > +	eventfd_signal(vgpu->msi_trigger, 1);
-> >  }
+> >   * eventfd_signal - Adds @n to the eventfd counter.
 > 
-> I think it's a little simpler to write as
->     if (vgpu->msi_trigger)
->             eventfd_signal(vgpu->msi_trigger, 1);
+> This still refers to @n here, and in patch 4.
 
-Good point. I folded that suggestion into the patch.
+Fixed and folded. Thanks!
