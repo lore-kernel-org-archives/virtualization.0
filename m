@@ -1,134 +1,124 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1534524B22
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 12:36:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E2B425555
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="O+/9TN2/"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nSfg5H2P"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A164460EBB
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 12:36:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A164460EBB
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=O+/9TN2/
+	by smtp4.osuosl.org (Postfix) with ESMTP id 059CB41E80
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 059CB41E80
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=nSfg5H2P
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kkHyVrros4Xp
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gxNTpTjRzM4s
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 23 Nov 2023 12:36:58 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id B339A60E29
-	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 12:36:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B339A60E29
-Received: from [10.3.2.161] (zone.collabora.co.uk [167.235.23.81])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
-	(No client certificate requested)
-	(Authenticated sender: dmitry.osipenko)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 8F83C6607394;
-	Thu, 23 Nov 2023 12:36:54 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1700743015;
-	bh=2LllmDbYxcn3Wb7dP4KPovi6jD6viOltsx+ReLsVg9Y=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=O+/9TN2/vTqIy/P3ZggvtK0DJsdfdTShWxTMex0Q2IjdngbhpS/+J3TNcVsm4hpvb
-	 LhHGFYiSbNIv9qLLq+jffl/7vZKgM+HSdr56gD1jc7EnljOzpgGXK6vNFICi6iQAFC
-	 7b4NsAdlfZXZ7FvDLOr/quBmXUXOGuBzHySa/ZJHB2qJ4wlnF7bmRndc53m0FRAauX
-	 VRwUuAbAAOSfQVaW6RG8qY9FD+Oe3msdMGc0y4ymFeFJO9IK+/oZTtc1qav+peCgbH
-	 kYtYx/ziJdEsHe9fv3KL9n00h1/C117fREqXrzySSmB9Lm3ggaI+6dF7cv4TQv2b7A
-	 SDTCmj1+oUrUg==
-Message-ID: <fdc246db-e6cd-ff31-365f-0d2e0690364d@collabora.com>
-Date: Thu, 23 Nov 2023 15:36:51 +0300
+	Thu, 23 Nov 2023 13:12:23 +0000 (UTC)
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id ED50B41E7F
+	for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 13:12:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ED50B41E7F
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by sin.source.kernel.org (Postfix) with ESMTP id EF5AECE28FE;
+	Thu, 23 Nov 2023 13:12:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B246C433C7;
+	Thu, 23 Nov 2023 13:11:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700745135;
+	bh=VBAn7FZcvw1drif9KzTmaabLPVAYO4zX2eeQPqBTwFw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=nSfg5H2PW95uhmCyWswaCk18HBzNnUr8lrZC9/jswVOaVEk9Necoc/3PSsg/eWI+c
+	 nUSNVQiBVNuTkdJG4ZroseK0fKTuKodiCnTfp5VBFncFM3thhaeXbqdq7/1OyUlFkh
+	 hvhoTdxdxKP2qiIgsXRrtgQ8aW/glFRtrG5pk0o8niH7Far3mtrppzle/A5KWCQFN1
+	 0J9D7XnhqZQWKtQ8+7lAsz1DeizPazr+k6Se4xCbJkyOxPi+pXbCyvcnpPCySfoTu/
+	 nxY4zeQuXLH9O0FYHNYyhAuFpYV+0VZCYLV3awl8R2o5zjol3Qy1blkTCXoR/k3lKT
+	 V10Lsp2N5sNOQ==
+Date: Thu, 23 Nov 2023 14:11:56 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Zhenyu Wang <zhenyuw@linux.intel.com>
+Cc: linux-fsdevel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+	Jan Kara <jack@suse.cz>, Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	David Woodhouse <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
+	Oded Gabbay <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
+	Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
+	Xu Yilun <yilun.xu@intel.com>, Zhi Wang <zhi.a.wang@intel.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+	Leon Romanovsky <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
+	Frederic Barrat <fbarrat@linux.ibm.com>,
+	Andrew Donnellan <ajd@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Eric Farman <farman@linux.ibm.com>,
+	Matthew Rosato <mjrosato@linux.ibm.com>,
+	Halil Pasic <pasic@linux.ibm.com>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Tony Krowiak <akrowiak@linux.ibm.com>,
+	Jason Herne <jjherne@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Diana Craciun <diana.craciun@oss.nxp.com>,
+	Alex Williamson <alex.williamson@redhat.com>,
+	Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	Michal Hocko <mhocko@kernel.org>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Shakeel Butt <shakeelb@google.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
+	intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+	linux-aio@kvack.org, cgroups@vger.kernel.org, linux-mm@kvack.org,
+	Jens Axboe <axboe@kernel.dk>,
+	Pavel Begunkov <asml.silence@gmail.com>, io-uring@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] i915: make inject_virtual_interrupt() void
+Message-ID: <20231123-randlage-instinkt-e458628d2d7c@brauner>
+References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
+ <20231122-vfs-eventfd-signal-v2-1-bd549b14ce0c@kernel.org>
+ <ZV6buHrQy2+CJ7xX@debian-scheme>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.1
-Subject: Re: [PATCH v18 22/26] drm/shmem-helper: Don't free refcounted GEM
-Content-Language: en-US
-To: Boris Brezillon <boris.brezillon@collabora.com>
-Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
- Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- kernel@collabora.com, virtualization@lists.linux-foundation.org
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
- <20231029230205.93277-23-dmitry.osipenko@collabora.com>
- <20231113105438.60896fdf@collabora.com>
- <2faf1111-9646-21e3-feb3-f59c955bc719@collabora.com>
- <20231123100829.2e4addd0@collabora.com>
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20231123100829.2e4addd0@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ZV6buHrQy2+CJ7xX@debian-scheme>
 
-On 11/23/23 12:08, Boris Brezillon wrote:
-> On Thu, 23 Nov 2023 01:30:24 +0300
-> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> > +	if (!vgpu->msi_trigger)
+> > +		return;
+> > +	eventfd_signal(vgpu->msi_trigger, 1);
+> >  }
 > 
->> On 11/13/23 12:54, Boris Brezillon wrote:
->>> On Mon, 30 Oct 2023 02:02:01 +0300
->>> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
->>>   
->>>> Don't free refcounted shmem object to prevent use-after-free bug that
->>>> is worse than a memory leak.
->>>>
->>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
->>>> ---
->>>>  drivers/gpu/drm/drm_gem_shmem_helper.c | 7 ++++---
->>>>  1 file changed, 4 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
->>>> index 6dd087f19ea3..4253c367dc07 100644
->>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
->>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
->>>> @@ -203,9 +203,10 @@ void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
->>>>  	if (obj->import_attach)
->>>>  		drm_prime_gem_destroy(obj, shmem->sgt);
->>>>  
->>>> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count));
->>>> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count));
->>>> -	drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count));
->>>> +	if (drm_WARN_ON(obj->dev, refcount_read(&shmem->vmap_use_count)) ||
->>>> +	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_use_count)) ||
->>>> +	    drm_WARN_ON(obj->dev, refcount_read(&shmem->pages_pin_count)))
->>>> +		return;  
->>>
->>> I guess you're worried about ->sgt being referenced by the driver after
->>> the GEM is destroyed. If we assume drivers don't cache the sgt and
->>> always call get_pages_sgt() when they need it that shouldn't be an
->>> issue. What we really don't want to release is the pages themselves,
->>> but the GPU MMU might still have active mappings pointing to these
->>> pages.
->>>
->>> In any case, I'm not against leaking the GEM object when any of these
->>> counters are not zero, but can we at least have a comment in the
->>> code explaining why we're doing that, so people don't have to go look
->>> at the git history to figure it out.  
->>
->> This patch is a minor improvement, it doesn't address any specific
->> issue. This should be a common pattern in kernel. If you're giving a
->> warning and know about the inevitable catastrophe, then avoid it if you can.
-> 
-> Sure, I'm just asking that we add a comment to explain why we leak
-> memory here. Is that too much to ask?
+> I think it's a little simpler to write as
+>     if (vgpu->msi_trigger)
+>             eventfd_signal(vgpu->msi_trigger, 1);
 
-Will add the comment. The reason why I added this patch was unrelated to
-the sgt, that's what I'm talking about.
-
--- 
-Best regards,
-Dmitry
-
+Good point. I folded that suggestion into the patch.
