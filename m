@@ -1,77 +1,133 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7FD61EB33
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:36:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D021A70C
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:40:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MM9kpBK+"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bYUDEixv"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 2D7F381220
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:36:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2D7F381220
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=MM9kpBK+
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6F734401D2
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:40:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6F734401D2
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=bYUDEixv
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8iU3LJxEFqTy
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id g65BA3rMFw7i
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 24 Nov 2023 10:36:31 +0000 (UTC)
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6607480E84
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:36:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6607480E84
+	Fri, 24 Nov 2023 10:40:10 +0000 (UTC)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4A14740132
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 10:40:10 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 4A14740132
 Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
-	by ams.source.kernel.org (Postfix) with ESMTP id 42E20B83008;
-	Fri, 24 Nov 2023 10:36:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4786EC433C7;
-	Fri, 24 Nov 2023 10:36:27 +0000 (UTC)
+	by dfw.source.kernel.org (Postfix) with ESMTP id 50C2162154;
+	Fri, 24 Nov 2023 10:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E9DC433C7;
+	Fri, 24 Nov 2023 10:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1700822187;
-	bh=dwvET0tU2J4anZFCWNw+ZZdWZ1IJPa1GnEWhl08aDOY=;
-	h=Date:From:To:Subject:In-Reply-To:References:Cc:From;
-	b=MM9kpBK+yisLDCYJftMOvpfpu6pOA725LB5EXxmwkvXFqByoAqaB5X89kowP4w0yj
-	 zb681yXDg8hPDrvyYZXlz+nWipEQ6BGPdt591lhsL/JTR6pU7IR/QBTw4RlUo3UEPm
-	 vC/kRYKYyX83Sxk689k6xefJdd68JBlWNtrjZSm0ry5RNYhbAkWK9NQxctEyrvjMr4
-	 xbnGOxoOeDpcJBhVIHprlpn+i0ZjjweSibtSihYi81RQOfNUP9N4xSSsnH+q/ioJtn
-	 8T5MLJWcclvP5CfJY/zAbPj04zqAUA2KCtIClU2XCyjdsjl0WzOhFsK6Bs5ZQJXnsu
-	 xRJE8DkkXQncQ==
-Message-ID: <f27d3ba73b506111583b2a4f2471dfc9.mripard@kernel.org>
-Date: Fri, 24 Nov 2023 10:36:24 +0000
-From: "Maxime Ripard" <mripard@kernel.org>
-To: "Dmitry Osipenko" <dmitry.osipenko@collabora.com>
-Subject: Re: [PATCH v18 03/26] drm/shmem-helper: Make all exported symbols
- GPL
-In-Reply-To: <20231029230205.93277-4-dmitry.osipenko@collabora.com>
-References: <20231029230205.93277-4-dmitry.osipenko@collabora.com>
-Cc: dri-devel@lists.freedesktop.org, kernel@collabora.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Boris
- Brezillon" <boris.brezillon@collabora.com>, "Chia-I Wu" <olvaffe@gmail.com>,
- =?utf-8?b?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Daniel
- Vetter" <daniel@ffwll.ch>, "David Airlie" <airlied@gmail.com>, "Emma Anholt" <emma@anholt.net>, "Gerd
- Hoffmann" <kraxel@redhat.com>, "Gurchetan Singh" <gurchetansingh@chromium.org>, "Maarten
- Lankhorst" <maarten.lankhorst@linux.intel.com>, "Maxime Ripard" <mripard@kernel.org>, "Melissa
- Wen" <mwen@igalia.com>, "Qiang Yu" <yuq825@gmail.com>, "Steven Price" <steven.price@arm.com>, "Thomas
- Zimmermann" <tzimmermann@suse.de>
-Content-Transfer-Encoding: 7bit
+	s=k20201202; t=1700822409;
+	bh=yu7kFMpXZmzKeVcx8MNPyXndf7doerpWDtKSOSA/+yQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bYUDEixvbCkuFEtniyLG4wpWJGtV57ZcM9K7ZM+W8Wps7Mrh4ukiBQO0BUX2Q9A3n
+	 6bUM/lXjT+8fV/DeDo5qtJpFbJ7lb593VUIjH8YA8rYHpeROAf8+UFa9KVVInfIJM5
+	 3i1CXL7Fx0TOGyoMBGAiAZ3xYvFP1ME30jFdFO4IrTakDrdxHcFl5L9ndkYg0PwxTy
+	 sdi5H5U0H3jN0PEq9GZaVq+Q/7rRQ5IhYNSFBfg4FNeKCe/SY1kOaIBosdtp5FkkDZ
+	 I5VCweb49kNQ7LCtVnMA4RckmL7Y7NmBDi7jJSszP/wVpPiX9y2M6j2weYdVvV3Tz4
+	 DFE39EpbOur6g==
+Date: Fri, 24 Nov 2023 11:40:06 +0100
+From: Maxime Ripard <mripard@kernel.org>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>, 
+	Boris Brezillon <boris.brezillon@collabora.com>, Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>, 
+	dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, kernel@collabora.com, 
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
+ functions
+Message-ID: <wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+ <20231029230205.93277-5-dmitry.osipenko@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="eft4e43k6jxpkr7h"
+Content-Disposition: inline
+In-Reply-To: <20231029230205.93277-5-dmitry.osipenko@collabora.com>
 
-On Mon, 30 Oct 2023 02:01:42 +0300, Dmitry Osipenko wrote:
-> Make all drm-shmem exported symbols GPL to make them consistent with
-> the rest of drm-shmem symbols.
-> 
+
+--eft4e43k6jxpkr7h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:
+> Add locked and remove unlocked postfixes from drm-shmem function names,
+> making names consistent with the drm/gem core code.
+>=20
 > Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
 > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> 
-> [ ... ]
 
-Acked-by: Maxime Ripard <mripard@kernel.org>
+This contradicts my earlier ack on a patch but...
 
-Thanks!
+> ---
+>  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----------
+>  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
+>  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
+>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
+>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
+>  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
+>  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
+>  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
+>  9 files changed, 64 insertions(+), 64 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm=
+_gem_shmem_helper.c
+> index 0d61f2b3e213..154585ddae08 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_=
+funcs =3D {
+>  	.pin =3D drm_gem_shmem_object_pin,
+>  	.unpin =3D drm_gem_shmem_object_unpin,
+>  	.get_sg_table =3D drm_gem_shmem_object_get_sg_table,
+> -	.vmap =3D drm_gem_shmem_object_vmap,
+> -	.vunmap =3D drm_gem_shmem_object_vunmap,
+> +	.vmap =3D drm_gem_shmem_object_vmap_locked,
+> +	.vunmap =3D drm_gem_shmem_object_vunmap_locked,
+
+While I think we should indeed be consistent with the names, I would
+also expect helpers to get the locking right by default.
+
+I'm not sure how reasonable it is, but I think I'd prefer to turn this
+around and keep the drm_gem_shmem_object_vmap/unmap helpers name, and
+convert whatever function needs to be converted to the unlock suffix so
+we get a consistent naming.
+
+Does that make sense?
 Maxime
+
+--eft4e43k6jxpkr7h
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCZWB9hgAKCRDj7w1vZxhR
+xfb+AP43cb0axphjEQGBiPC4yhmd8hfPntevtBeCrKSQnUqj0gEAgok48TXqg35o
+lxqE3r2I5svK+XrhBmYyPiUeWN48jw0=
+=flek
+-----END PGP SIGNATURE-----
+
+--eft4e43k6jxpkr7h--
