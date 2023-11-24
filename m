@@ -1,195 +1,354 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB4A646
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 02:03:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB36E23A0
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 04:15:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ECGZCL00"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H7/HttBD"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1E336401D2
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 02:03:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1E336401D2
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.a=rsa-sha256 header.s=pp1 header.b=ECGZCL00
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3884B41E7E
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 04:15:15 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3884B41E7E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=H7/HttBD
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.998
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0sC83_8OlU-B
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4LRvQmuJvuaz
 	for <virtualization@lists.linux-foundation.org>;
-	Fri, 24 Nov 2023 02:03:37 +0000 (UTC)
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0DD41400BF
-	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 02:03:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0DD41400BF
-Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AO1GXZC015724;
-	Fri, 24 Nov 2023 02:02:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=0Ng7PzLWRUN5PalkUI/r7oq/iQlhZgewM1sHhRV/b/k=;
- b=ECGZCL00vygNh+PUV5gvGed1LpVpCU7AdG7pzF9Z8KI3aSTOrYALRwYA9iMrun3VFWzS
- Cxhnp4ju5bJ41wqtCaH/lg7Wfikym+5857Jz4RkwtHSi2nA99Up9BuAFwb/8fYIx/KNA
- HftBjFo5Bpbiw0XS5MNMcB7sGBhg7fd+foZx49RJNRTc4+s120bDWEU0j1NiZ7i8qNbK
- l8STevmDmrn8thyn0PpsZPYsu9Z85uQ689/XPgwp6z254ghbikGvf3qX4FWrYG6G9S4j
- QIlqy6X/Mf8hfmbRCiEsMfwjSZ9Jo7HVzzZUjUNvYLb3keI5NbExPrh0Zl9NoxjqUNZw BA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujc7dprav-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 02:02:44 +0000
-Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AO20D7U032226;
-	Fri, 24 Nov 2023 02:02:43 GMT
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3ujc7dpra6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 02:02:42 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3ANMmpBc009619;
-	Fri, 24 Nov 2023 02:02:41 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3ufaa2j9wp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 24 Nov 2023 02:02:41 +0000
-Received: from smtpav01.fra02v.mail.ibm.com (smtpav01.fra02v.mail.ibm.com [10.20.54.100])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AO22dMq23986834
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 24 Nov 2023 02:02:39 GMT
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4D9A62004B;
-	Fri, 24 Nov 2023 02:02:39 +0000 (GMT)
-Received: from smtpav01.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 69F0720040;
-	Fri, 24 Nov 2023 02:02:38 +0000 (GMT)
-Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
-	by smtpav01.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 24 Nov 2023 02:02:38 +0000 (GMT)
-Received: from jarvis.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by ozlabs.au.ibm.com (Postfix) with ESMTPSA id C622F60234;
-	Fri, 24 Nov 2023 13:02:35 +1100 (AEDT)
-Message-ID: <ef939be36737bba5d91aa6d5c8af19683aebd92c.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 2/4] eventfd: simplify eventfd_signal()
-From: Andrew Donnellan <ajd@linux.ibm.com>
-To: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org
-Cc: Christoph Hellwig <hch@lst.de>, Jan Kara <jack@suse.cz>,
-        Vitaly
- Kuznetsov <vkuznets@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org,
-        David Woodhouse
- <dwmw2@infradead.org>, Paul Durrant <paul@xen.org>,
-        Oded Gabbay
- <ogabbay@kernel.org>, Wu Hao <hao.wu@intel.com>,
-        Tom Rix <trix@redhat.com>, Moritz Fischer <mdf@kernel.org>,
-        Xu Yilun <yilun.xu@intel.com>, Zhenyu
- Wang <zhenyuw@linux.intel.com>,
-        Zhi Wang <zhi.a.wang@intel.com>,
-        Jani
- Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie
- <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-        Leon Romanovsky
- <leon@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Frederic Barrat
- <fbarrat@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>,
-        Eric Farman <farman@linux.ibm.com>,
-        Matthew
- Rosato <mjrosato@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Vineeth
- Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter
- <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian
- Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle
- <svens@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>,
-        Jason Herne
- <jjherne@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Diana Craciun
- <diana.craciun@oss.nxp.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>, Fei Li <fei1.li@intel.com>,
-        Benjamin
- LaHaise <bcrl@kvack.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal
- Hocko <mhocko@kernel.org>,
-        Roman Gushchin <roman.gushchin@linux.dev>,
-        Shakeel Butt <shakeelb@google.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        Kirti Wankhede <kwankhede@nvidia.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fpga@vger.kernel.org, intel-gvt-dev@lists.freedesktop.org,
-        intel-gfx@lists.freedesktop.org, linux-rdma@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
-        linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org,
-        netdev@vger.kernel.org, linux-aio@kvack.org, cgroups@vger.kernel.org,
-        linux-mm@kvack.org, Jens Axboe <axboe@kernel.dk>,
-        Pavel Begunkov
- <asml.silence@gmail.com>, io-uring@vger.kernel.org
-Date: Fri, 24 Nov 2023 13:02:25 +1100
-In-Reply-To: <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-References: <20231122-vfs-eventfd-signal-v2-0-bd549b14ce0c@kernel.org>
-	 <20231122-vfs-eventfd-signal-v2-2-bd549b14ce0c@kernel.org>
-Autocrypt: addr=ajd@linux.ibm.com; prefer-encrypt=mutual;
- keydata=mDMEZPaWfhYJKwYBBAHaRw8BAQdAAuMUoxVRwqphnsFua1W+WBz6I2cIn0+Ox4YypJSdBJ+0MEFuZHJldyBEb25uZWxsYW4gKElCTSBzdHVmZikgPGFqZEBsaW51eC5pYm0uY29tPoiTBBMWCgA7FiEE01kE3s9shZVYLX1Aj1Qx8QRYRqAFAmT2ln4CGwMFCwkIBwICIgIGFQoJCAsCBBYCAwECHgcCF4AACgkQj1Qx8QRYRqAdswD8DhIh4trRQYiPe+7LaM7q+0+Thz+CwUJCW3UFOf0SEO0BAPNdsi7aVV+4Oah6nYzqzH5Zbs4Tz5RY+Vsf+DD/EzUKuDgEZPaWfhIKKwYBBAGXVQEFAQEHQLN9moJRqN8Zop/kcyIjga+2qzLoVaNAL6+4diGnlr1xAwEIB4h4BBgWCgAgFiEE01kE3s9shZVYLX1Aj1Qx8QRYRqAFAmT2ln4CGwwACgkQj1Qx8QRYRqCYkwD/W+gIP9kITfU4wnLtueFUThxA0T/LF49M7k31Qb8rPCwBALeEYAlX648lzjSA07pJB68Jt39FuUno444dSVmhYtoH
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 (3.50.1-1.fc39) 
+	Fri, 24 Nov 2023 04:15:14 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 220C741E79
+	for <virtualization@lists.linux-foundation.org>; Fri, 24 Nov 2023 04:15:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 220C741E79
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1700799312;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HkOAWd3WtczE/UVU7ObuvacXzoXdSo7ZbFv9hxco8PI=;
+	b=H7/HttBD0BXRUPQuAo7jjre88pE9LZoK8CUXMSbVa6k6+mUiFI1AcFxDe+M1MH0/Nn1C4T
+	MGqK2nVOlOJYvgssTI7XY4cVD22Jgiar+vkflCM/HsN9b6cK5O2C1TD/AjPhqmD3OB9C+Q
+	MmdB+Z4gkKLJjP4P/wHD0aSPi9fZayE=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-185-AlRIr099MluRl4m0X41tRQ-1; Thu, 23 Nov 2023 23:15:11 -0500
+X-MC-Unique: AlRIr099MluRl4m0X41tRQ-1
+Received: by mail-lf1-f69.google.com with SMTP id 2adb3069b0e04-507d2e150c2so1420538e87.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 23 Nov 2023 20:15:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700799309; x=1701404109;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HkOAWd3WtczE/UVU7ObuvacXzoXdSo7ZbFv9hxco8PI=;
+        b=TIWn/00XxygnMQyBKuY/X6pC7Ll6xKJfiSva1kKqwazIkrjvwcxoqJIGq7qetkUywU
+         wbsdq5rpVE6LBgG3zeA1sETWLE2lZbnKpmjozaips5kWsLrW7PuY0EWw+xtTvvJ+oSmF
+         MjONWdiB3EbIWatDVBDxq0zLBzwD7kHsTYACtKL5m1bSmYwVJYP264nNRsJoZN9qAYBo
+         RgdAx565xUigssNu90ZtopG61av+Fa3wrkd9SM0zZ6ghTi/qLhA434JICLAF42sXaHJE
+         sncTQP13uQOGumi0HKA0WFRKiLcfGzsNFwEA4225wVbhNQ5lXWtShTx7SzraU4UNJK17
+         uYXw==
+X-Gm-Message-State: AOJu0YwtfgoScHlC8ltqkd16carjK0Tn87LbtSXD9pgOkRG9xZ0QJavp
+	g+oxbc1vJYrXnSkX5esQ4ZPfud5wI6K9+GdsWo9MvTVRPvAIjHkQWLlvtBYWGThZ2YWFlhY1Pw+
+	PFPsK3ld6hHCD9q8GE7OJoGecxHVEIgrZI4Dah0o/X2lshP7ORYhbFA+EUw==
+X-Received: by 2002:a19:5207:0:b0:509:4530:e7fb with SMTP id m7-20020a195207000000b005094530e7fbmr835364lfb.32.1700799309708;
+        Thu, 23 Nov 2023 20:15:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEJN8MblKE4m7YXwz/MbNgt9bOSEpSbLCdmr6FgCCU28bZ8ihVNgsBR84PeFo2midQD5JxQWy3XjHuEG/TUEj4=
+X-Received: by 2002:a19:5207:0:b0:509:4530:e7fb with SMTP id
+ m7-20020a195207000000b005094530e7fbmr835354lfb.32.1700799309332; Thu, 23 Nov
+ 2023 20:15:09 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: U6m_R-9wiDPD8mUOexzL3mzW4R9GPdf_
-X-Proofpoint-ORIG-GUID: L2W8us_JQG2_QSzrNAp-fbcpoLTnnQAq
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.987,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-23_15,2023-11-22_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
- malwarescore=0 mlxscore=0 suspectscore=0 bulkscore=0 priorityscore=1501
- adultscore=0 lowpriorityscore=0 mlxlogscore=714 clxscore=1011
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311240014
+References: <20231114113104.33994-1-xuanzhuo@linux.alibaba.com>
+ <20231114113104.33994-2-xuanzhuo@linux.alibaba.com> <CACGkMEtYxbXwJUVwz-OcT1LybEpHcgWXCzpmrFPgGJo_yP9LWA@mail.gmail.com>
+ <1700547126.793057-4-xuanzhuo@linux.alibaba.com> <CACGkMEuBmkw90XqaVLU-eU1qq1aft9gDf91YGs3umSccdrDYVQ@mail.gmail.com>
+ <1700634557.818587-3-xuanzhuo@linux.alibaba.com> <CACGkMEusOSqhqcMxcajXKeOGuvoABAyXmBpc-EQMrP2JQEh_Qg@mail.gmail.com>
+ <1700635902.0042756-4-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <1700635902.0042756-4-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 24 Nov 2023 12:14:57 +0800
+Message-ID: <CACGkMEv0b6MUcTzvPGBdoqmfUEQ5rwDYfQ7E012gj0zb2SQ02w@mail.gmail.com>
+Subject: Re: [RFC 1/4] virtio_ring: introduce virtqueue_get_buf_ctx_dma()
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: virtualization@lists.linux-foundation.org, 
+	"Michael S . Tsirkin" <mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2023-11-22 at 13:48 +0100, Christian Brauner wrote:
-> Ever since the evenfd type was introduced back in 2007 in commit
-> e1ad7468c77d ("signal/timer/event: eventfd core") the
-> eventfd_signal()
-> function only ever passed 1 as a value for @n. There's no point in
-> keeping that additional argument.
->=20
-> Signed-off-by: Christian Brauner <brauner@kernel.org>
+On Wed, Nov 22, 2023 at 2:57=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.c=
+om> wrote:
+>
+> On Wed, 22 Nov 2023 14:47:02 +0800, Jason Wang <jasowang@redhat.com> wrot=
+e:
+> > On Wed, Nov 22, 2023 at 2:34=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.aliba=
+ba.com> wrote:
+> > >
+> > > On Wed, 22 Nov 2023 14:03:32 +0800, Jason Wang <jasowang@redhat.com> =
+wrote:
+> > > > On Tue, Nov 21, 2023 at 2:27=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.a=
+libaba.com> wrote:
+> > > > >
+> > > > > On Thu, 16 Nov 2023 16:11:11 +0800, Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > > > > On Tue, Nov 14, 2023 at 7:31=E2=80=AFPM Xuan Zhuo <xuanzhuo@lin=
+ux.alibaba.com> wrote:
+> > > > > > >
+> > > > > > > introduce virtqueue_get_buf_ctx_dma() to collect the dma info=
+ when
+> > > > > > > get buf from virtio core for premapped mode.
+> > > > > > >
+> > > > > > > If the virtio queue is premapped mode, the virtio-net send bu=
+f may
+> > > > > > > have many desc. Every desc dma address need to be unmap. So h=
+ere we
+> > > > > > > introduce a new helper to collect the dma address of the buff=
+er from
+> > > > > > > the virtio core.
+> > > > > >
+> > > > > > So looking at vring_desc_extra, what we have right now is:
+> > > > > >
+> > > > > > struct vring_desc_extra {
+> > > > > >         dma_addr_t addr;                /* Descriptor DMA addr.=
+ */
+> > > > > >         u32 len;                        /* Descriptor length. *=
+/
+> > > > > >         u16 flags;                      /* Descriptor flags. */
+> > > > > >         u16 next;                       /* The next desc state =
+in a list. */
+> > > > > > };
+> > > > > >
+> > > > > > And sg is
+> > > > > >
+> > > > > > struct scatterlist {
+> > > > > >         unsigned long   page_link;
+> > > > > > unsigned int    offset;
+> > > > > >         unsigned int    length;
+> > > > > >         dma_addr_t      dma_address;
+> > > > > > #ifdef CONFIG_NEED_SG_DMA_LENGTH
+> > > > > >         unsigned int    dma_length;
+> > > > > > #endif
+> > > > > > #ifdef CONFIG_NEED_SG_DMA_FLAGS
+> > > > > >         unsigned int    dma_flags;
+> > > > > > #endif
+> > > > > > };
+> > > > > >
+> > > > > > Would it better just store sg?
+> > > > >
+> > > > > Do you mean we expose the vring_desc_extra to dirver?
+> > > >
+> > > > Maybe or not, (or just us sg for desc_extra).
+> > > >
+> > > > Anyhow, any method needs to be benchmarked to see the performance i=
+mpact.
+> > > >
+> > > > >
+> > > > > How about introducing such a new structure?
+> > > > >
+> > > > > struct virtio_dma_item {
+> > > > >          dma_addr_t addr;
+> > > > >          u32 len;
+> > > > > };
+> > > > >
+> > > > > struct virtio_dma_head {
+> > > > >         u32 num;
+> > > > >         u32 used;
+> > > > >         struct virtio_dma_item items[];
+> > > > > };
+> > > > >
+> > > > > Then we just need to pass one pointer to the virtio.
+> > > >
+> > > > Just to make sure I understand here, where did we store those array=
+s?
+> > >
+> > >
+> > > On the stack, or we can reuse the memory space of sq->sg.
+> > >
+> > > dma =3D (struct virtio_dma_head*)sq->sg;
+> >
+> > Ok, we need some benchmark for sure.
+> >
+> > >
+> > >
+> > > >
+> > > > > num is used to pass the size of items
+> > > > > used is used to return the num used by virtio core.
+> > > > >
+> > > > > >
+> > > > > > More below
+> > > > > >
+> > > > > > >
+> > > > > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > > > > > ---
+> > > > > > >  drivers/virtio/virtio_ring.c | 148 +++++++++++++++++++++++++=
++---------
+> > > > > > >  include/linux/virtio.h       |   2 +
+> > > > > > >  2 files changed, 115 insertions(+), 35 deletions(-)
+> > > > > > >
+> > > > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/vi=
+rtio_ring.c
+> > > > > > > index 51d8f3299c10..0b3caee4ef9d 100644
+> > > > > > > --- a/drivers/virtio/virtio_ring.c
+> > > > > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > > > > @@ -362,6 +362,20 @@ static struct device *vring_dma_dev(cons=
+t struct vring_virtqueue *vq)
+> > > > > > >         return vq->dma_dev;
+> > > > > > >  }
+> > > > > > >
+> > > > > > > +static void store_dma_to_sg(struct scatterlist **sgp, dma_ad=
+dr_t addr, unsigned int length)
+> > > > > > > +{
+> > > > > > > +       struct scatterlist *sg;
+> > > > > > > +
+> > > > > > > +       sg =3D *sgp;
+> > > > > > > +
+> > > > > > > +       sg->dma_address =3D addr;
+> > > > > > > +       sg->length =3D length;
+> > > > > > > +
+> > > > > > > +       sg =3D sg_next(sg);
+> > > > > > > +
+> > > > > > > +       *sgp =3D sg;
+> > > > > > > +}
+> > > > > > > +
+> > > > > > >  /* Map one sg entry. */
+> > > > > > >  static int vring_map_one_sg(const struct vring_virtqueue *vq=
+, struct scatterlist *sg,
+> > > > > > >                             enum dma_data_direction direction=
+, dma_addr_t *addr)
+> > > > > > > @@ -441,12 +455,18 @@ static void virtqueue_init(struct vring=
+_virtqueue *vq, u32 num)
+> > > > > > >   */
+> > > > > > >
+> > > > > > >  static void vring_unmap_one_split_indirect(const struct vrin=
+g_virtqueue *vq,
+> > > > > > > -                                          const struct vring=
+_desc *desc)
+> > > > > > > +                                          const struct vring=
+_desc *desc,
+> > > > > > > +                                          struct scatterlist=
+ **sg)
+> > > > > > >  {
+> > > > > > >         u16 flags;
+> > > > > > >
+> > > > > > > -       if (!vq->do_unmap)
+> > > > > > > +       if (!vq->do_unmap) {
+> > > > > > > +               if (*sg)
+> > > > > >
+> > > > > > Can we simply move the
+> > > > > >
+> > > > > > if (*sg) to store_dma_to_sg()?
+> > > > >
+> > > > > OK
+> > > > >
+> > > > >
+> > > > > >
+> > > > > > > +                       store_dma_to_sg(sg,
+> > > > > > > +                                       virtio64_to_cpu(vq->v=
+q.vdev, desc->addr),
+> > > > > > > +                                       virtio32_to_cpu(vq->v=
+q.vdev, desc->len));
+> > > > > > >                 return;
+> > > > > > > +       }
+> > > > > > >
+> > > > > > >         flags =3D virtio16_to_cpu(vq->vq.vdev, desc->flags);
+> > > > > > >
+> > > > > > > @@ -458,7 +478,7 @@ static void vring_unmap_one_split_indirec=
+t(const struct vring_virtqueue *vq,
+> > > > > > >  }
+> > > > > > >
+> > > > > > >  static unsigned int vring_unmap_one_split(const struct vring=
+_virtqueue *vq,
+> > > > > > > -                                         unsigned int i)
+> > > > > > > +                                         unsigned int i, str=
+uct scatterlist **sg)
+> > > > > > >  {
+> > > > > > >         struct vring_desc_extra *extra =3D vq->split.desc_ext=
+ra;
+> > > > > > >         u16 flags;
+> > > > > > > @@ -475,8 +495,11 @@ static unsigned int vring_unmap_one_spli=
+t(const struct vring_virtqueue *vq,
+> > > > > > >                                  (flags & VRING_DESC_F_WRITE)=
+ ?
+> > > > > > >                                  DMA_FROM_DEVICE : DMA_TO_DEV=
+ICE);
+> > > > > > >         } else {
+> > > > > > > -               if (!vq->do_unmap)
+> > > > > > > +               if (!vq->do_unmap) {
+> > > > > >
+> > > > > > The:
+> > > > > >
+> > > > > > else {
+> > > > > >       if {
+> > > > > >             if {
+> > > > > > }
+> > > > > >
+> > > > > > seems odd. I think I would prefer
+> > > > > >
+> > > > > > if (flags & VRING_DESC_F_INDIRECT) {
+> > > > > > } else if (!vq->do_unmap) {
+> > > > > > } else {
+> > > > > > }
+> > > > >
+> > > > >
+> > > > > Will fix.
+> > > > >
+> > > > >
+> > > > > >
+> > > > > > here
+> > > > > >
+> > > > > > Btw, I really think do_unmap is not a good name, we probably ne=
+ed to
+> > > > > > rename it as "unmap_desc".
+> > > > >
+> > > > > How about a separate patch for this?
+> > > > >
+> > > > > >
+> > > > > >
+> > > > > > > +                       if (*sg)
+> > > > > > > +                               store_dma_to_sg(sg, extra[i].=
+addr, extra[i].len);
+> > > > > >
+> > > > > > In which case we need to unmap by driver but we don't need a dm=
+a address?
+> > > > >
+> > > > > Sorry, do not get it.
+> > > >
+> > > > I meant, I don't get how we can reach to this check.
+> > >
+> > > This is the main way. I think you miss something.
+> >
+> > Or maybe you can explain the case where vq->do_unmap is false but *sg i=
+s NULL?
+>
+>
+> If vq->do_unmap is false, that is premapped mode or use_dma_api is false.
+> If the *sg is null, that means that the driver call the API
+> virtqueue_get_buf_ctx or virtqueue_get_buf.
+> If the *sg is not null, that means that the driver call the API
+>
+>         void *virtqueue_get_buf_ctx_dma(struct virtqueue *_vq, unsigned i=
+nt *len,
+>                                         struct scatterlist *sg, void **ct=
+x);
+>
+> Thanks.
 
-Acked-by: Andrew Donnellan <ajd@linux.ibm.com> # ocxl
+Ok, but my question still:
 
---=20
-Andrew Donnellan    OzLabs, ADL Canberra
-ajd@linux.ibm.com   IBM Australia Limited
+1) you explain one possible way here is use_dma_api is false and the
+driver doesn't call virtqueue_get_buf_ctx_dma().
+2) what happens if the driver uses a preamp but doesn't use
+virtqueue_get_buf_ctx_dma()? Should we warn in this case?
+
+Thanks
+
