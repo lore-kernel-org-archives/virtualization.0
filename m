@@ -1,107 +1,162 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AB5617C3
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 11:17:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1FC0DF56
+	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:22:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="Muw2Qz4K";
+	dkim=permerror (0-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="DJFBJkKy"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A595D81E50
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 11:17:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A595D81E50
+	by smtp2.osuosl.org (Postfix) with ESMTP id 36CEF400CF
+	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:22:28 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 36CEF400CF
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=Muw2Qz4K;
+	dkim=pass header.d=xenosoft.de header.i=@xenosoft.de header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=DJFBJkKy
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.198
+X-Spam-Score: -2.798
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R_NK0BXVsGnu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BDhvbRHbTx41
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 25 Nov 2023 11:17:33 +0000 (UTC)
-X-Greylist: delayed 434 seconds by postgrey-1.37 at util1.osuosl.org; Sat, 25 Nov 2023 11:17:33 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F45781E02
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6F45781E02
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 11:17:33 +0000 (UTC)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1r6qXx-002LA1-AU; Sat, 25 Nov 2023 12:10:01 +0100
-Received: from p5dc55299.dip0.t-ipconnect.de ([93.197.82.153] helo=suse-laptop.fritz.box)
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1r6qXx-0043jv-1z; Sat, 25 Nov 2023 12:10:01 +0100
-Message-ID: <ee75377ad22a3d07f272e17f53cabead7b43afcb.camel@physik.fu-berlin.de>
-Subject: Re: [PATCH v2] drm/virtio: Add suppport for non-native buffer
- formats
-From: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-To: Christian Zigotzky <chzigotzky@xenosoft.de>, Geert Uytterhoeven
-	 <geert@linux-m68k.org>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,  Thomas Zimmermann
- <tzimmermann@suse.de>, Laurent Vivier <lvivier@redhat.com>, Javier Martinez
- Canillas <javierm@redhat.com>, Hamza Mahfooz <hamza.mahfooz@amd.com>, 
- linux-m68k@lists.linux-m68k.org, dri-devel@lists.freedesktop.org, 
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, 
- "R.T.Dickinson" <rtd2@xtra.co.nz>, mad skateman <madskateman@gmail.com>,
- Christian Zigotzky <info@xenosoft.de>
-Date: Sat, 25 Nov 2023 12:09:59 +0100
-In-Reply-To: <37b9e5ab-e170-4071-a912-f3fec0d59d5c@xenosoft.de>
-References: 
-	<47a81d2e0e47b1715718779b6978a8b595cc7c5d.1700140609.git.geert@linux-m68k.org>
-	 <77c6gkquzq4sdtmrlko3lkxvcnipm2zfjem3kvhgslcellkefh@man7pbbzud47>
-	 <a9ade305-f90e-4250-a795-49ef4e29e0ac@xenosoft.de>
-	 <CAMuHMdXtUYJmEharJhBXx7D=fA3mQxg6uMP2=4Qgi==2a+kVQw@mail.gmail.com>
-	 <37b9e5ab-e170-4071-a912-f3fec0d59d5c@xenosoft.de>
-Autocrypt: addr=glaubitz@physik.fu-berlin.de; prefer-encrypt=mutual;
- keydata=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
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+	Sat, 25 Nov 2023 12:22:26 +0000 (UTC)
+Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 223354031F
+	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:22:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 223354031F
+ARC-Seal: i=1; a=rsa-sha256; t=1700914934; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=GQL7ywTel+nzsRDFW4JHygI05M178NNaqHk0W/JKtg5aViV7PwIsfwR9qp5YO9r+lv
+    oJqEGnEJ85+ZfZ5OVB5dIR9GbAxr1LbmDTRFXNFFrAeZ6ivASOlqLE8aIEi4nIM7VRQx
+    bnoOzQMsqtFaluOaQrRPrswJ0igQo7Suhbprs3imppstPdtIlJMdoDIpr2RYZYtQ8PE4
+    2C+vhAEgzXwcchjwtLIbvM89jYHikCrNZItDKsiMl0DKYyVonM9KE8DJ4+zqRgEL5Rp+
+    2kwg3Rqk+zf1AOUWKyMAgU2m04NCd7i800+D5DJ7CzqZMoJEGcv2NU8GrkglCQYLfpbQ
+    KR7w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1700914934;
+    s=strato-dkim-0002; d=strato.com;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=3fZtsTQSV8kT7cZkiE/joYbwN8JR/QKtTngzzR42yPo=;
+    b=MHEBAZHKXrtkbGgi6MVBMJ8J8bERYJZ67qs5+LeWHPdoxEJjOUxVGWKf8YrRsDXvk/
+    8T04yM++QDq99/4DklF8RrjvStkHxN8NCnuxbcNa6kbQbH+cvnjDoPvGjZtfjepgLIVl
+    56l5sztJEq22QfgnuOyhES5JuBtMWgVXro6fMm6mYbC+A1lZ+PAK4qdoSw9VKoZYaNLY
+    tpJZhTdSYpaT7xLi4kweWSOgCOlg5XwldPN1AtwyWyRx+sVrC/FpMW26srlYTAKz8QUi
+    1750dCR8HbC8Y5XGx6+Sz7XmE/TQB4ToF2HmSZkiXajzWzHWdoYqRz+wt6YDtBsqJ7rM
+    YASA==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo01
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1700914934;
+    s=strato-dkim-0002; d=xenosoft.de;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=3fZtsTQSV8kT7cZkiE/joYbwN8JR/QKtTngzzR42yPo=;
+    b=Muw2Qz4KzH03Vmzw+LfQB0IxkjgCNpx1aIYqekfuu/ocix4a8OxAQIJLXL4ddCpv+X
+    WXEIDCNBnCLYQINX+PsFbi07EgQdLZpG0F1VZzbytqgne7Zrq4TKnCRXmOYKlDQu2mti
+    b/LE7j4VB4//dpnsTh58mH+AYVFq2LxRW8eog6HjorMMmfIEZcEONedLGgGmZDDfvjHE
+    MNyPufhkm0o87ZcQ8jy2K9MsDdaUZyf6fwEY/pB9jJhR31Pv3kHiHizK4B3V02K0ddsk
+    eIz43cyJL/0QPgmMYSxA9ua6+5W6pmZyLOTegobOXLxwbBlVtXI9EyBRAfJAG0hA0PUK
+    1Zsg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1700914934;
+    s=strato-dkim-0003; d=xenosoft.de;
+    h=In-Reply-To:From:References:Cc:To:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=3fZtsTQSV8kT7cZkiE/joYbwN8JR/QKtTngzzR42yPo=;
+    b=DJFBJkKy1eS1IXVkgAlbM8B2kyxFO7ebFGSWVjrxTaeASXFFWeWgxpbn6/DSyrvxlI
+    ZYzZIbo9bwbrX/riJTAA==
+X-RZG-AUTH: ":L2QefEenb+UdBJSdRCXu93KJ1bmSGnhMdmOod1DhGM4l4Hio94KKxRySfLxnHfJ+Dkjp5DdBfi4XXBswJY0hynIKqjaeYiGT1rE/QhtjOKJAIg=="
+Received: from [IPV6:2a02:8109:8984:5d00:bc44:680c:952a:1673]
+    by smtp.strato.de (RZmta 49.9.1 AUTH)
+    with ESMTPSA id U060a4zAPCMDnqZ
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+	(Client did not present a certificate);
+    Sat, 25 Nov 2023 13:22:13 +0100 (CET)
+Message-ID: <9e8d2abd-94a1-4fb6-b30a-c6e4c52af011@xenosoft.de>
+Date: Sat, 25 Nov 2023 13:22:13 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-ZEDAT-Hint: PO
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/virtio: Add suppport for non-native buffer formats
+To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Laurent Vivier
+ <lvivier@redhat.com>, Javier Martinez Canillas <javierm@redhat.com>,
+ Hamza Mahfooz <hamza.mahfooz@amd.com>, linux-m68k@lists.linux-m68k.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, "R.T.Dickinson" <rtd2@xtra.co.nz>,
+ mad skateman <madskateman@gmail.com>, Christian Zigotzky <info@xenosoft.de>
+References: <47a81d2e0e47b1715718779b6978a8b595cc7c5d.1700140609.git.geert@linux-m68k.org>
+ <77c6gkquzq4sdtmrlko3lkxvcnipm2zfjem3kvhgslcellkefh@man7pbbzud47>
+ <a9ade305-f90e-4250-a795-49ef4e29e0ac@xenosoft.de>
+ <CAMuHMdXtUYJmEharJhBXx7D=fA3mQxg6uMP2=4Qgi==2a+kVQw@mail.gmail.com>
+ <37b9e5ab-e170-4071-a912-f3fec0d59d5c@xenosoft.de>
+ <ee75377ad22a3d07f272e17f53cabead7b43afcb.camel@physik.fu-berlin.de>
+Content-Language: de-DE
+From: Christian Zigotzky <chzigotzky@xenosoft.de>
+In-Reply-To: <ee75377ad22a3d07f272e17f53cabead7b43afcb.camel@physik.fu-berlin.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, 2023-11-25 at 11:06 +0100, Christian Zigotzky wrote:
-> Could you please revert the v2 patch because of the issue with the=20
-> virtio-mouse-pci cursor? I will try to use the v1 patch for the RC3 of=
-=20
-> kernel 6.7.
+On 25 November 2023 at 12:09 pm, John Paul Adrian Glaubitz wrote:
+> On Sat, 2023-11-25 at 11:06 +0100, Christian Zigotzky wrote:
+>> Could you please revert the v2 patch because of the issue with the
+>> virtio-mouse-pci cursor? I will try to use the v1 patch for the RC3 of
+>> kernel 6.7.
+> I don't understand why the v2 patch should yield any different results as
+> the only change compared to v1 is the fixed patch subject. There are no
+> functional differences, I just diffed the patches against each other:
+>
+> --- geert-patch-v1.patch        2023-11-25 12:09:19.122936658 +0100
+> +++ geert-patch-v2.patch        2023-11-25 12:09:36.313039085 +0100
+> @@ -34,6 +34,9 @@
+>   Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
+>   Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+>   ---
+> +v2:
+> +  - Fix truncated one-line summary.
+> +---
+>    drivers/gpu/drm/virtio/virtgpu_display.c | 11 +++++++++--
+>    drivers/gpu/drm/virtio/virtgpu_plane.c   |  6 ++++--
+>    2 files changed, 13 insertions(+), 4 deletions(-)
+>
+> Adrian
+>
+Hi Adrian,
 
-I don't understand why the v2 patch should yield any different results as
-the only change compared to v1 is the fixed patch subject. There are no
-functional differences, I just diffed the patches against each other:
+Thank you for the hint. I think you are right. I use the the following 
+patch.
 
---- geert-patch-v1.patch        2023-11-25 12:09:19.122936658 +0100
-+++ geert-patch-v2.patch        2023-11-25 12:09:36.313039085 +0100
-@@ -34,6 +34,9 @@
- Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
- Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
- ---
-+v2:
-+  - Fix truncated one-line summary.
-+---
-  drivers/gpu/drm/virtio/virtgpu_display.c | 11 +++++++++--
-  drivers/gpu/drm/virtio/virtgpu_plane.c   |  6 ++++--
-  2 files changed, 13 insertions(+), 4 deletions(-)
+--- a/drivers/gpu/drm/drm_client.c    2023-11-13 01:19:07.000000000 +0100
++++ b/drivers/gpu/drm/drm_client.c    2023-11-14 09:45:44.964199272 +0100
+@@ -400,6 +400,16 @@ static int drm_client_buffer_addfb(struc
 
-Adrian
+      fb_req.width = width;
+      fb_req.height = height;
++           if 
+(client->dev->mode_config.quirk_addfb_prefer_host_byte_order) {
++               if (format == DRM_FORMAT_XRGB8888)
++                       format = DRM_FORMAT_HOST_XRGB8888;
++               if (format == DRM_FORMAT_ARGB8888)
++                       format = DRM_FORMAT_HOST_ARGB8888;
++               if (format == DRM_FORMAT_RGB565)
++                       format = DRM_FORMAT_HOST_RGB565;
++               if (format == DRM_FORMAT_XRGB1555)
++                       format = DRM_FORMAT_HOST_XRGB1555;
++        }
+      fb_req.pixel_format = format;
+      fb_req.handles[0] = handle;
+      fb_req.pitches[0] = buffer->pitch;
 
---=20
- .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-  `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
+This patch solved the issue.
+
+Christian
