@@ -1,166 +1,127 @@
-Received: from MW2PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012002.outbound.protection.outlook.com [52.101.48.2])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83E42642
-	for <virtualization@lists.linux.dev>; Sat, 25 Nov 2023 01:23:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vmware.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vmware.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0069AECA
+	for <virtualization@lists.linux.dev>; Sat, 25 Nov 2023 04:58:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=vmware.com header.i=@vmware.com header.b="AJElrAjh"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=UnhJERccsEKLBvBc6FZ5xaWbNu7dWThcEe/bRaMgDuVAAfWM6mBhdJI/r1/QtJK2DO2iAp3jjdsh9Z+N+oOM6enmfFITsbT428XLROA07vBC1RYvbVB/M2DVHCsOzpeYfvA3IT8FW0t35N7PgietTD1BoPO1qClNE1++RTCgFsTqkJoe6fn6zAVg8Ejjw5HVjWUzR/n3ygQWtjW4DyFsWer54F0kgOeQBFl+K9XgR9efZoh6VeCA5vM08F1ufpBjVr7245VQ7HpS4N+r1mMe+c0xtiwgLIuDdsWzfTso/SPeSB1sYz81ARFoDg21JLWLcqep2Cw6W85Tg2QNBifWgg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/qQjLuqcfafIZoSL8igaFhk48rZPHM8HffNfrWzAFio=;
- b=a2QOOpI3bZcuCvxt8X9cX47OtVoiId6UULbusGgeTG2BPDx2QMFf37t4s67mUVefi9sqa4KW/Ou3Wm6klDL9qrbGUrz/qCEJpj+8gQ9/AD0lkXmnsHBhgnqDRUlx6g121FGhvlKv3fPnK/rM1Pt5ly4dgXc8eyVE3S/oFvZlmBsJygbYOo38uLqKqDfR4ZE+1VwoMhgYDL5S94Jp22As6Sf8bPAk/A40IDIxQg8Ur5l8+zO7t7JhtIVjCfLsdUX0mQV5z1LK9F2sTJJWp9m+Ia+0SigDAS/K5InwnRZMCiXIgqnoylY9yPWI+5VIowMzbLsAmbw6EKTF8A/HW0DpGA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/qQjLuqcfafIZoSL8igaFhk48rZPHM8HffNfrWzAFio=;
- b=AJElrAjh6mw4GdjnyVPTAbDPq03BKMMU3sNVMxquLtT4xm4IVEU0sgZz1g+YtCabH44GvQYQ795sCRUVX3/PV91iHM3E2rJmsHS/wS+SvOCsAPxhUEZBiCp0l2gZxqHRlgiMDDnH+ysScI6UcR9urTY8XOLK41efRNzaplN8VXs=
-Received: from MWHPR05MB3648.namprd05.prod.outlook.com (2603:10b6:301:45::23)
- by SJ0PR05MB9868.namprd05.prod.outlook.com (2603:10b6:a03:4e3::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.20; Sat, 25 Nov
- 2023 01:22:58 +0000
-Received: from MWHPR05MB3648.namprd05.prod.outlook.com
- ([fe80::10f0:590a:708:4ad7]) by MWHPR05MB3648.namprd05.prod.outlook.com
- ([fe80::10f0:590a:708:4ad7%2]) with mapi id 15.20.7025.021; Sat, 25 Nov 2023
- 01:22:58 +0000
-From: Alexey Makhalov <amakhalov@vmware.com>
-To: Simon Horman <horms@kernel.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "H . Peter
- Anvin" <hpa@zytor.com>, "x86@kernel.org" <x86@kernel.org>,
-	"dave.hansen@linux.intel.co" <dave.hansen@linux.intel.co>, "bp@alien8.d"
-	<bp@alien8.d>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner
-	<tglx@linutronix.de>, Zack Rusin <zackr@vmware.com>, Tim Merrifield
-	<timothym@vmware.com>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "daniel@ffwll.ch" <daniel@ffwll.ch>,
-	"airlied@gmail.com" <airlied@gmail.com>, "tzimmermann@suse.de"
-	<tzimmermann@suse.de>, "mripard@kernel.org" <mripard@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EIN4BzjK"
+Received: by mail-oi1-f181.google.com with SMTP id 5614622812f47-3b2e4107f47so1649524b6e.2
+        for <virtualization@lists.linux.dev>; Fri, 24 Nov 2023 20:58:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1700888312; x=1701493112; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=H7+G6kTUsYcf2EuznU9nGg+6a0PiyVvvTpJ6OmKLYnU=;
+        b=EIN4BzjKbwo6yWuc0VLyDhQsM9gl3fdGesOOo3MkVsTB6kYdb7r0p+lnA7E5rL3gYm
+         eGPWzTEVkVoU7XQ/CVwSt7lgONdRBfEYONGNDtKDyoixLlItMtT4DgK+JSw/vzkR2NHG
+         HHJ5LUUh3RiyK9Zu+KTPFIDtihViOPj34bgmWt7Db33QxunefZYT7RtmlJ+bAczOiPrN
+         3xQNqKIP6oIiozQqxJ7OV2UynMeB4XR7Avw3fCKxWScSH3K+CXx8Jo50iDC0RohxUvAR
+         mQPG2r42/hfJTSDRUWGPMjdaLYBxW0ZQw+8IeGWAFgpUdolpgY1g5PnmMgIC+wV3tzTI
+         Wx5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700888312; x=1701493112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=H7+G6kTUsYcf2EuznU9nGg+6a0PiyVvvTpJ6OmKLYnU=;
+        b=UdN8pO0os9wfl0Kct9HCcm2dnNFgGoWBPwQw5/EHJ/2+VQi3R4OLpfSx192bYwEB2W
+         hZgGS1sXlwfCtrqIRCVnrDNtQCqJcAudxGo7L6BFX7dZ7SJVuWNZw5P0oftaUdekXv5P
+         LdvAzJ8k1wGAL3NpWfuvGt4lRBGf8vUEfCZ2TmYny6Mj3qTDeu+Nr3XSUPAms9gwgUvB
+         R15/i7ZczfegpSCpyueoqHNk9otJ57pcdZy5Lp0IelQLaaPgJoI5NlfSssEd/ShDw5n7
+         gZP3xDb7zfawvOidYUnHJ8+B0vwZ92PDwoAEIBDmDXSTPkfpy2K/tM7AD658QVCd99VI
+         +1gg==
+X-Gm-Message-State: AOJu0YzwCejvC1EFSMmS3wauLB8Bsw3GDjdYsuvjWZJME8vKGp/dcJVU
+	Zas1HpJZv47Kto1EzyQ9j58=
+X-Google-Smtp-Source: AGHT+IFeTSL/V+P+KPM4Qgxl19x/Ka79WuZ6Y2vXNvWEwWRybB7C/6fG5QLOW4EjPMH7qokAspkoSg==
+X-Received: by 2002:a05:6808:13c2:b0:3b8:3e4d:605e with SMTP id d2-20020a05680813c200b003b83e4d605emr7298648oiw.42.1700888311914;
+        Fri, 24 Nov 2023 20:58:31 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:8b5c:82d0:578f:d0])
+        by smtp.gmail.com with ESMTPSA id fd39-20020a056a002ea700b006cb7b0c2503sm3703306pfb.95.2023.11.24.20.58.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Nov 2023 20:58:31 -0800 (PST)
+Date: Fri, 24 Nov 2023 20:58:28 -0800
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+To: Alexey Makhalov <amakhalov@vmware.com>
+Cc: Simon Horman <horms@kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"H . Peter Anvin" <hpa@zytor.com>,
+	"x86@kernel.org" <x86@kernel.org>,
+	"dave.hansen@linux.intel.co" <dave.hansen@linux.intel.co>,
+	"bp@alien8.d" <bp@alien8.d>, Ingo Molnar <mingo@redhat.com>,
+	Thomas Gleixner <tglx@linutronix.de>, Zack Rusin <zackr@vmware.com>,
+	Tim Merrifield <timothym@vmware.com>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"daniel@ffwll.ch" <daniel@ffwll.ch>,
+	"airlied@gmail.com" <airlied@gmail.com>,
+	"tzimmermann@suse.de" <tzimmermann@suse.de>,
+	"mripard@kernel.org" <mripard@kernel.org>,
 	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, "richardcochran@gmail.com"
-	<richardcochran@gmail.com>, "linux-input@vger.kernel.org"
-	<linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com"
-	<dmitry.torokhov@gmail.com>, Linux-graphics-maintainer
-	<Linux-graphics-maintainer@vmware.com>, Pv-drivers <Pv-drivers@vmware.com>,
-	Nadav Amit <namit@vmware.com>, Ajay Kaher <akaher@vmware.com>, Jeff Sipek
-	<jsipek@vmware.com>
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"richardcochran@gmail.com" <richardcochran@gmail.com>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	Linux-graphics-maintainer <Linux-graphics-maintainer@vmware.com>,
+	Pv-drivers <Pv-drivers@vmware.com>, Nadav Amit <namit@vmware.com>,
+	Ajay Kaher <akaher@vmware.com>, Jeff Sipek <jsipek@vmware.com>
 Subject: Re: [PATCH 4/6] input/vmmouse: Use vmware_hypercall API
-Thread-Topic: [PATCH 4/6] input/vmmouse: Use vmware_hypercall API
-Thread-Index: AQHaHZv+HhGdPqcT2UGcVBmuH/XNJ7CJ4rEAgABd4wA=
-Date: Sat, 25 Nov 2023 01:22:58 +0000
-Message-ID: <A64E0517-57D9-47DF-8DD8-040EE6843246@vmware.com>
+Message-ID: <ZWF-9DmwakJBonmf@google.com>
 References: <20231122233058.185601-1-amakhalov@vmware.com>
  <20231122233058.185601-5-amakhalov@vmware.com>
  <20231124194646.GW50352@kernel.org>
-In-Reply-To: <20231124194646.GW50352@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-mailer: Apple Mail (2.3731.700.6)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MWHPR05MB3648:EE_|SJ0PR05MB9868:EE_
-x-ms-office365-filtering-correlation-id: 8d3cdbff-e726-45bf-cee2-08dbed550f26
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- aN07+feasDGqc1bp9Eow4HucTwy+6QW0CDziNoThPvbc8JtUbQY8U29NW5FBT40ygKM0HAa2JMMb/dDnDVTrWcm1lh32ayDA5M14YPg19QGICfzb0UhCZtTXzvCR9hyZNM+ls41io8/4EkracMSLaoRSoxD7YSLunuQJqzAY23W08Vu+tea0jFYX07TTwK5QqC+/rWhmQL7CwDFpdvVHmqsY0x0N2A4VpYdFcKAKcS1L/sqeWWbpo5so748QHdDKxKwzfRLkVn83V0HsMY62VyRgYJ0uLsO8hKtjBuwNf9WyioznmYDEQSLOXfnwTxHopm6gDR3ePwbIy+upK+Kn/nhOOcs+5b8nTBiVM+0zKxrYVU8OB3w43plHqJJMtYg75ZKnHNzIiVi0AEHM0rI9smuGIO32+K6qqI1uABIEeFKuIUzhiwVGMqXkUXT1nLP7TvRF6gtVUAb+gnti467103QNAZfz7oRtWSILb2SuyUaCCHvNh1Ztner72ENcsFlgQTvtCi/44as9ev5g/+m8bh4bMdjmaQzR1xOpE+vOKQgRK/EXT0tXLHoWeSTYR3k++2Nn44V1O3CuqkQAUfY+6+se5MBIp+A+AYbeuRaXQCO7uTmdsYXzISXDUPfJqTFYRMXKASyH5VM9WK8AHMC56VQDqZRRSpUsNtu+xGZlYFB3ATP+2r4WkUxzBQoaNd3mPBMDJwbLrunxiQJRoyOrNA==
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MWHPR05MB3648.namprd05.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(346002)(39860400002)(376002)(396003)(366004)(136003)(230922051799003)(186009)(1800799012)(64100799003)(451199024)(5660300002)(7416002)(4326008)(8676002)(8936002)(2906002)(41300700001)(316002)(6916009)(66476007)(66556008)(66446008)(64756008)(66946007)(76116006)(91956017)(54906003)(38070700009)(86362001)(71200400001)(6506007)(478600001)(2616005)(36756003)(6512007)(33656002)(53546011)(26005)(122000001)(107886003)(83380400001)(38100700002)(6486002)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?VWpYQURRSnpSMEZMdkExWUxRdDI1T2JLSFlMWjVNRlVUSktoK1pFdHZxL0k3?=
- =?utf-8?B?YWdLWVJmU1N5dVh5dUg3MGtaOWlaQUlBRFNmQXN6QmFrWGQ0MkE1RlZxazBz?=
- =?utf-8?B?ZlBMUlZDeFVCL0pobU5FSjgybVp6eDNYZ0huUnZ2UGNJWUhFbW9qa3pBVGd2?=
- =?utf-8?B?UHlRSlZsOWh0WmRvb1JSRWcvUTN5M2pZTW5VMWxIdElOZE9MYUpaQTJVU2p4?=
- =?utf-8?B?VDJCU3ZjS2VXQTkzbm5pcENkeFREQ3Z4cU8yREkvOGtUSUpUdVh3alRONWU3?=
- =?utf-8?B?UU1VdkFMdVRzbFVTOC9YVnhkVHRIUWhBZnhwcE82aitpM1pIQnNIb29hNHZk?=
- =?utf-8?B?S3FBZ1JuYXhEV3pRRUJXbVVCSUdrSXZReDI1NjBTN2tHaytRWk5RN29TWjI2?=
- =?utf-8?B?VytoOTh0UUplYzJjQ2FBK1Z4SlEybzdaU0laeUlyMFE4N3NEdGs5a1BoNFZY?=
- =?utf-8?B?UHdXdHQ2OTVQNkljeFhOSFhKS0pDMkZ3aDI0T1FicDlrSVRrT2tmbUY1OStI?=
- =?utf-8?B?bVFhbXRnRVphazFsOTljY1NQa1NsZmR3ZW53ME4rM24zSU5xMjBFa2pweWZS?=
- =?utf-8?B?SHVXbkdmWm5LM3NJMTZaWWNqWFY1U2dGeHZMa3hCVjJwZW4wWmE0NWFnRGdJ?=
- =?utf-8?B?VXJnakVYeVMrdjQvMGZkbmhLZFVidkJTOGZBdmpuNjlld0pMU3NQSG5hSEhR?=
- =?utf-8?B?QUVzQnVWUHRpVGIwQzJIajZHckF5YS9Rdk14ZUZCcWJZQkNvVkJDTHBMaE9K?=
- =?utf-8?B?dGZPenRjdnA3Z2dyb21OOUNRYzY4cnE0bmZsZVN5dllYN21uVGVPVVJ4R3VT?=
- =?utf-8?B?blBnczZ5S3lDdWR1d1RKS2Q4SzVpL1owUlVyM2ZHZXMweUtUY3pUaU1wdnpn?=
- =?utf-8?B?QWt3OE1qdlFORUJ6WEVMRytsY1VOaXNHMUNnL1N4RHZtdUoyWTVwYzAwY2xR?=
- =?utf-8?B?NllQN3dBemlxNlliM1QzNSs5SmxlcmZzLzhjUm9kMjZVUGJpWEZKbnlLMHJD?=
- =?utf-8?B?NzlZZHdzY0s0TXdKdk5zUG83QW9uSUFJWSt0bjlxTFJtdVZBZG5ITjlvVnU1?=
- =?utf-8?B?MEhRaU43U0lLYVJXNER1cGdaT2loY3F5b3RnQjJkYk5VNjZYMlE5cEdOeUZs?=
- =?utf-8?B?OERMYTRTTEdRVGtsOWtKVm1rUlE0RFVYTFRDVEoxb05MVlpqMVVXdHNvcnNS?=
- =?utf-8?B?ZUhuTEdZUkNhY3JMRXY0bG1mdlB6aTVVRmhqT3ZMbHl2ekJzRnRKS2JHa3FN?=
- =?utf-8?B?VDlaRUZsRXRJbXJxYUUwMDJ3UkVlaDJJZ3ZsQjE3Qzc2aDBDSjY0YzNpUTJz?=
- =?utf-8?B?R3NoNTRPcTd6ZjNGR3locDhkcGEvZFZ1TVU3TUZ5MHpabkdvQ1NSaG96L1VQ?=
- =?utf-8?B?Tkg3d0NtUFZiOERiU001TmlVaDhOMnJJS2JaWEFOVmtIUHcrQ0hPbXZNeFlj?=
- =?utf-8?B?S01PdWZoNEYvSXAzN2ZGM1dCT0l3WVluOXJxeGdwVVQzK0FwaVNBa0hmMm82?=
- =?utf-8?B?a0tDOUluUlhQNEZybXdxK20xMjYrTFZiaDZpVnlNODlYdGpGMGZUUWNVS0tK?=
- =?utf-8?B?S1l1MllDNytDYmptdlFRS084TWhwV3FKZVZsa3lvZDhtVDNWVmpLQU5rQzBG?=
- =?utf-8?B?WXVrRjFZY0VlbEhUVlpWb3NTRzVhYTJiSkU5OFBNcmZpSTRqZlVuWU94TElu?=
- =?utf-8?B?RVpHV2JNVldqSVNrRHBTdWRrNlFJSUZ4ZE5jK1dLb3hwMVhGVTNJSFh0ZUtW?=
- =?utf-8?B?OVFQNXRQVnRqVXRHd0hUODFlT2dwQVI5aUI0RkVYeXdvNVd0blZESWxjRVBY?=
- =?utf-8?B?cUJQSDFIKzI0MXR3WDZyV2tnOVAwd09jVlpjcXZLY01PSm1wODE2N05wVVp3?=
- =?utf-8?B?VlJINXZpcFJ1VEJWWjdSU210VDU2Q1lhYWlET1lsY25aS1JBbFB1MmVDdEhj?=
- =?utf-8?B?TE00ZW9jNTNZa2xpVS90YkpZZE5lUTFoOTluMEMyZGR6cTNzM0FKWXF4d0Z2?=
- =?utf-8?B?djQzclRYWFdHeGhWRUVCNnVvS255di84SXFvQ1dWTjRnYzNsV1dXSWp2VHdx?=
- =?utf-8?B?ajN2NVYrRmZucDNtWWdJZzFOVzAvZXJLU0lzdUJUTGtVVTZOc1orNTc5bzll?=
- =?utf-8?Q?98Tad7qIiJnzZzEizXqtvJn3h?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <1A9245C4B9726F45B72EF49ACCDA5B23@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <A64E0517-57D9-47DF-8DD8-040EE6843246@vmware.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR05MB3648.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8d3cdbff-e726-45bf-cee2-08dbed550f26
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2023 01:22:58.5186
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Ujy95XAwBrV/ZyWdQfIPLCsWV3V0zvQpT3sAh7oKe0pcEKfQfcIicbXPygMGIXjwB62RtIznT/GBJaYLlSRNkQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR05MB9868
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <A64E0517-57D9-47DF-8DD8-040EE6843246@vmware.com>
 
-T24gTm92IDI0LCAyMDIzLCBhdCAxMTo0NiBBTSwgU2ltb24gSG9ybWFuIDxob3Jtc0BrZXJuZWwu
-b3JnPiB3cm90ZToNCj4gDQo+IE9uIFdlZCwgTm92IDIyLCAyMDIzIGF0IDAzOjMwOjQ5UE0gLTA4
-MDAsIEFsZXhleSBNYWtoYWxvdiB3cm90ZToNCj4+IFN3aXRjaCBmcm9tIFZNV0FSRV9IWVBFUkNB
-TEwgbWFjcm8gdG8gdm13YXJlX2h5cGVyY2FsbCBBUEkuDQo+PiBFbGltaW5hdGUgYXJjaCBzcGVj
-aWZpYyBjb2RlLiBObyBmdW5jdGlvbmFsIGNoYW5nZXMgaW50ZW5kZWQuDQo+PiANCj4+IFNpZ25l
-ZC1vZmYtYnk6IEFsZXhleSBNYWtoYWxvdiA8YW1ha2hhbG92QHZtd2FyZS5jb20+DQo+IA0KPiBI
-aSBBbGV4ZXksDQo+IA0KPiBpdCBpcyBub3Qgc3RyaWN0bHkgcmVsYXRlZCB0byB0aGlzIHBhdGNo
-LCBidXQgSSBub3RpY2UgdGhhbiBhbiB4ODZfNjQNCj4gYWxsbW9kY29uZmlnIGJ1aWxkIHdpdGgg
-Vz0xIHVzaW5nIGdjYy0xMyBmYWlscyB0byBjb21waWxlIHRoaXMgZmlsZS4NCj4gDQo+IEl0IGFw
-cGVhcnMgdGhhdCB0aGUgcHJvYmxlbSByZWxhdGVzIHRvIGJvdGggcHJpdi0+cGh5cyBhbmQNCj4g
-cHNtb3VzZS0+cHMyZGV2LnNlcmlvLT5waHlzIGJlaW5nIDMyIGJ5dGVzLg0KPiANCj4gDQo+IGRy
-aXZlcnMvaW5wdXQvbW91c2Uvdm1tb3VzZS5jOiBJbiBmdW5jdGlvbiDigJh2bW1vdXNlX2luaXTi
-gJk6DQo+IGRyaXZlcnMvaW5wdXQvbW91c2Uvdm1tb3VzZS5jOjQ1NTo1MzogZXJyb3I6IOKAmC9p
-bnB1dDHigJkgZGlyZWN0aXZlIG91dHB1dCBtYXkgYmUgdHJ1bmNhdGVkIHdyaXRpbmcgNyBieXRl
-cyBpbnRvIGEgcmVnaW9uIG9mIHNpemUgYmV0d2VlbiAxIGFuZCAzMiBbLVdlcnJvcj1mb3JtYXQt
-dHJ1bmNhdGlvbj1dDQo+ICA0NTUgfCAgICAgICAgIHNucHJpbnRmKHByaXYtPnBoeXMsIHNpemVv
-Zihwcml2LT5waHlzKSwgIiVzL2lucHV0MSIsDQo+ICAgICAgfCAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fg0KPiBkcml2ZXJzL2lucHV0
-L21vdXNlL3ZtbW91c2UuYzo0NTU6OTogbm90ZTog4oCYc25wcmludGbigJkgb3V0cHV0IGJldHdl
-ZW4gOCBhbmQgMzkgYnl0ZXMgaW50byBhIGRlc3RpbmF0aW9uIG9mIHNpemUgMzINCj4gIDQ1NSB8
-ICAgICAgICAgc25wcmludGYocHJpdi0+cGh5cywgc2l6ZW9mKHByaXYtPnBoeXMpLCAiJXMvaW5w
-dXQxIiwNCj4gICAgICB8ICAgICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn4NCj4gIDQ1NiB8ICAgICAgICAgICAgICAgICAgcHNtb3VzZS0+
-cHMyZGV2LnNlcmlvLT5waHlzKTsNCj4gICAgICB8ICAgICAgICAgICAgICAgICAgfn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fg0KPiANCj4gLi4uDQoNCkhpIFNpbW9uLCB0aGFua3MgZm9yIHJl
-cG9ydGluZyB0aGUgaXNzdWUuDQpaYWNrLCBwbGVhc2UgdGFrZSBhIGxvb2suDQoNCuKAlEFsZXhl
-eQ0KDQo=
+On Sat, Nov 25, 2023 at 01:22:58AM +0000, Alexey Makhalov wrote:
+> On Nov 24, 2023, at 11:46 AM, Simon Horman <horms@kernel.org> wrote:
+> > 
+> > On Wed, Nov 22, 2023 at 03:30:49PM -0800, Alexey Makhalov wrote:
+> >> Switch from VMWARE_HYPERCALL macro to vmware_hypercall API.
+> >> Eliminate arch specific code. No functional changes intended.
+> >> 
+> >> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+> > 
+> > Hi Alexey,
+> > 
+> > it is not strictly related to this patch, but I notice than an x86_64
+> > allmodconfig build with W=1 using gcc-13 fails to compile this file.
+> > 
+> > It appears that the problem relates to both priv->phys and
+> > psmouse->ps2dev.serio->phys being 32 bytes.
+> > 
+> > 
+> > drivers/input/mouse/vmmouse.c: In function ‘vmmouse_init’:
+> > drivers/input/mouse/vmmouse.c:455:53: error: ‘/input1’ directive output may be truncated writing 7 bytes into a region of size between 1 and 32 [-Werror=format-truncation=]
+> >  455 |         snprintf(priv->phys, sizeof(priv->phys), "%s/input1",
+> >      |                                                     ^~~~~~~
+> > drivers/input/mouse/vmmouse.c:455:9: note: ‘snprintf’ output between 8 and 39 bytes into a destination of size 32
+> >  455 |         snprintf(priv->phys, sizeof(priv->phys), "%s/input1",
+> >      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> >  456 |                  psmouse->ps2dev.serio->phys);
+> >      |                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> > 
+> > ...
+> 
+> Hi Simon, thanks for reporting the issue.
+> Zack, please take a look.
+
+We want the truncation behavior and we do not want GCC to make noise
+about these, that is why "format-truncation" is explicitly disabled for
+normal compiles. I guess we should exclude it even when we compile with
+W=1 instead of doing pointless changes in the drivers.
+
+Thanks.
+
+-- 
+Dmitry
