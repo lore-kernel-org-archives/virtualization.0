@@ -1,30 +1,30 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94BE62574
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF034C8F
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 136968101B
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 136968101B
+	by smtp2.osuosl.org (Postfix) with ESMTP id 71FA3403A2
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 71FA3403A2
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9GX1P19aTJ_c
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YdLz57jY85lI
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 27 Nov 2023 02:55:51 +0000 (UTC)
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 467B380F02
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:50 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 467B380F02
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vx7utgD_1701053744;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vx7utgD_1701053744)
+	Mon, 27 Nov 2023 02:55:54 +0000 (UTC)
+Received: from out30-98.freemail.mail.aliyun.com (out30-98.freemail.mail.aliyun.com [115.124.30.98])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id ADF1740104
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org ADF1740104
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R121e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046056;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vx7uthC_1701053747;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vx7uthC_1701053747)
           by smtp.aliyun-inc.com;
-          Mon, 27 Nov 2023 10:55:45 +0800
+          Mon, 27 Nov 2023 10:55:48 +0800
 From: Heng Qi <hengqi@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
@@ -40,10 +40,12 @@ Cc: jasowang@redhat.com,
 	horms@kernel.org,
 	xuanzhuo@linux.alibaba.com,
 	yinjun.zhang@corigine.com
-Subject: [PATCH net-next v5 0/4] virtio-net: support dynamic coalescing moderation
-Date: Mon, 27 Nov 2023 10:55:40 +0800
-Message-Id: <cover.1701050450.git.hengqi@linux.alibaba.com>
+Subject: [PATCH net-next v5 3/4] virtio-net: extract virtqueue coalescig cmd for reuse
+Date: Mon, 27 Nov 2023 10:55:43 +0800
+Message-Id: <2eeceac3fca52bbd72dc596ccea9ec92f1307cd5.1701050450.git.hengqi@linux.alibaba.com>
 X-Mailer: git-send-email 2.19.1.6.gb485710b
+In-Reply-To: <cover.1701050450.git.hengqi@linux.alibaba.com>
+References: <cover.1701050450.git.hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -52,93 +54,169 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Now, virtio-net already supports per-queue moderation parameter
-setting. Based on this, we use the linux dimlib to support
-dynamic coalescing moderation for virtio-net.
+Extract commands to set virtqueue coalescing parameters for reuse
+by ethtool -Q, vq resize and netdim.
 
-Due to some scheduling issues, we only support and test the rx dim.
+Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 106 +++++++++++++++++++++++----------------
+ 1 file changed, 64 insertions(+), 42 deletions(-)
 
-Some test results:
-
-I. Sockperf UDP
-=================================================
-1. Env
-rxq_0 with affinity to cpu_0.
-
-2. Cmd
-client: taskset -c 0 sockperf tp -p 8989 -i $IP -t 10 -m 16B
-server: taskset -c 0 sockperf sr -p 8989
-
-3. Result
-dim off: 1143277.00 rxpps, throughput 17.844 MBps, cpu is 100%.
-dim on:  1124161.00 rxpps, throughput 17.610 MBps, cpu is 83.5%.
-=================================================
-
-II. Redis
-=================================================
-1. Env
-There are 8 rxqs, and rxq_i with affinity to cpu_i.
-
-2. Result
-When all cpus are 100%, ops/sec of memtier_benchmark client is
-dim off:  978437.23
-dim on:  1143638.28
-=================================================
-
-III. Nginx
-=================================================
-1. Env
-There are 8 rxqs and rxq_i with affinity to cpu_i.
-
-2. Result
-When all cpus are 100%, requests/sec of wrk client is
-dim off:  877931.67
-dim on:  1019160.31
-=================================================
-
-IV. Latency of sockperf udp
-=================================================
-1. Rx cmd
-taskset -c 0 sockperf sr -p 8989
-
-2. Tx cmd
-taskset -c 0 sockperf pp -i ${ip} -p 8989 -t 10
-
-After running this cmd 5 times and averaging the results,
-
-3. Result
-dim off: 17.7735 usec
-dim on:  18.0110 usec
-=================================================
-
-Changelog:
-v4->v5:
-- Patch(4/4):
-   - Fix possible synchronization issues with cancel_work_sync.
-   - Reduce if/else nesting levels
-
-v3->v4:
-- Patch(5/5): drop.
-
-v2->v3:
-- Patch(4/5): some minor modifications.
-
-v1->v2:
-- Patch(2/5): a minor fix.
-- Patch(4/5):
-   - improve the judgment of dim switch conditions.
-   - Cancel the work when vq reset. 
-- Patch(5/5): drop the tx dim implementation.
-
-Heng Qi (4):
-  virtio-net: returns whether napi is complete
-  virtio-net: separate rx/tx coalescing moderation cmds
-  virtio-net: extract virtqueue coalescig cmd for reuse
-  virtio-net: support rx netdim
-
- drivers/net/virtio_net.c | 287 +++++++++++++++++++++++++++++++++------
- 1 file changed, 242 insertions(+), 45 deletions(-)
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 0285301caf78..69fe09e99b3c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2849,6 +2849,58 @@ static void virtnet_cpu_notif_remove(struct virtnet_info *vi)
+ 					    &vi->node_dead);
+ }
+ 
++static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
++					 u16 vqn, u32 max_usecs, u32 max_packets)
++{
++	struct scatterlist sgs;
++
++	vi->ctrl->coal_vq.vqn = cpu_to_le16(vqn);
++	vi->ctrl->coal_vq.coal.max_usecs = cpu_to_le32(max_usecs);
++	vi->ctrl->coal_vq.coal.max_packets = cpu_to_le32(max_packets);
++	sg_init_one(&sgs, &vi->ctrl->coal_vq, sizeof(vi->ctrl->coal_vq));
++
++	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
++				  VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
++				  &sgs))
++		return -EINVAL;
++
++	return 0;
++}
++
++static int virtnet_send_rx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
++					    u16 queue, u32 max_usecs,
++					    u32 max_packets)
++{
++	int err;
++
++	err = virtnet_send_ctrl_coal_vq_cmd(vi, rxq2vq(queue),
++					    max_usecs, max_packets);
++	if (err)
++		return err;
++
++	vi->rq[queue].intr_coal.max_usecs = max_usecs;
++	vi->rq[queue].intr_coal.max_packets = max_packets;
++
++	return 0;
++}
++
++static int virtnet_send_tx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
++					    u16 queue, u32 max_usecs,
++					    u32 max_packets)
++{
++	int err;
++
++	err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(queue),
++					    max_usecs, max_packets);
++	if (err)
++		return err;
++
++	vi->sq[queue].intr_coal.max_usecs = max_usecs;
++	vi->sq[queue].intr_coal.max_packets = max_packets;
++
++	return 0;
++}
++
+ static void virtnet_get_ringparam(struct net_device *dev,
+ 				  struct ethtool_ringparam *ring,
+ 				  struct kernel_ethtool_ringparam *kernel_ring,
+@@ -2906,14 +2958,11 @@ static int virtnet_set_ringparam(struct net_device *dev,
+ 			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
+ 			 * did not set any TX coalescing parameters, to 0.
+ 			 */
+-			err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(i),
+-							    vi->intr_coal_tx.max_usecs,
+-							    vi->intr_coal_tx.max_packets);
++			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
++							       vi->intr_coal_tx.max_usecs,
++							       vi->intr_coal_tx.max_packets);
+ 			if (err)
+ 				return err;
+-
+-			vi->sq[i].intr_coal.max_usecs = vi->intr_coal_tx.max_usecs;
+-			vi->sq[i].intr_coal.max_packets = vi->intr_coal_tx.max_packets;
+ 		}
+ 
+ 		if (ring->rx_pending != rx_pending) {
+@@ -2922,14 +2971,11 @@ static int virtnet_set_ringparam(struct net_device *dev,
+ 				return err;
+ 
+ 			/* The reason is same as the transmit virtqueue reset */
+-			err = virtnet_send_ctrl_coal_vq_cmd(vi, rxq2vq(i),
+-							    vi->intr_coal_rx.max_usecs,
+-							    vi->intr_coal_rx.max_packets);
++			err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, i,
++							       vi->intr_coal_rx.max_usecs,
++							       vi->intr_coal_rx.max_packets);
+ 			if (err)
+ 				return err;
+-
+-			vi->rq[i].intr_coal.max_usecs = vi->intr_coal_rx.max_usecs;
+-			vi->rq[i].intr_coal.max_packets = vi->intr_coal_rx.max_packets;
+ 		}
+ 	}
+ 
+@@ -3334,48 +3380,24 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
+ 	return 0;
+ }
+ 
+-static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
+-					 u16 vqn, u32 max_usecs, u32 max_packets)
+-{
+-	struct scatterlist sgs;
+-
+-	vi->ctrl->coal_vq.vqn = cpu_to_le16(vqn);
+-	vi->ctrl->coal_vq.coal.max_usecs = cpu_to_le32(max_usecs);
+-	vi->ctrl->coal_vq.coal.max_packets = cpu_to_le32(max_packets);
+-	sg_init_one(&sgs, &vi->ctrl->coal_vq, sizeof(vi->ctrl->coal_vq));
+-
+-	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_NOTF_COAL,
+-				  VIRTIO_NET_CTRL_NOTF_COAL_VQ_SET,
+-				  &sgs))
+-		return -EINVAL;
+-
+-	return 0;
+-}
+-
+ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
+ 					  struct ethtool_coalesce *ec,
+ 					  u16 queue)
+ {
+ 	int err;
+ 
+-	err = virtnet_send_ctrl_coal_vq_cmd(vi, rxq2vq(queue),
+-					    ec->rx_coalesce_usecs,
+-					    ec->rx_max_coalesced_frames);
++	err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, queue,
++					       ec->rx_coalesce_usecs,
++					       ec->rx_max_coalesced_frames);
+ 	if (err)
+ 		return err;
+ 
+-	vi->rq[queue].intr_coal.max_usecs = ec->rx_coalesce_usecs;
+-	vi->rq[queue].intr_coal.max_packets = ec->rx_max_coalesced_frames;
+-
+-	err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(queue),
+-					    ec->tx_coalesce_usecs,
+-					    ec->tx_max_coalesced_frames);
++	err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, queue,
++					       ec->tx_coalesce_usecs,
++					       ec->tx_max_coalesced_frames);
+ 	if (err)
+ 		return err;
+ 
+-	vi->sq[queue].intr_coal.max_usecs = ec->tx_coalesce_usecs;
+-	vi->sq[queue].intr_coal.max_packets = ec->tx_max_coalesced_frames;
+-
+ 	return 0;
+ }
+ 
 -- 
 2.19.1.6.gb485710b
 
