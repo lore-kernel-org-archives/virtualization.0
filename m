@@ -1,136 +1,150 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50ECD3A8DE
-	for <virtualization@lists.linux.dev>; Mon, 27 Nov 2023 18:59:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7925745969
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 20:04:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a8Ytgko1"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-40b4a8db314so1036035e9.3
-        for <virtualization@lists.linux.dev>; Mon, 27 Nov 2023 10:59:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1701111559; x=1701716359; darn=lists.linux.dev;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WjiPRjZPiCmdU/duAiKaG+F7L9L8u8NYrRvuFjn8aG4=;
-        b=a8Ytgko1CIIPXeGAloAxKDAexuIUXK7FKsZcXtZ4ljc5JLw9ghGjiP7N98qiK4yDUg
-         LmmwNPuA32aO0Zmf4PRSMWlbN9I+FzgtqeJX7T8tccMxSbDK8zXVR1zibQ7bkeyz0/WX
-         N+U67f624ETUGzX9cDfWTQBDHS6lYB/YZf0ZikxgZsmznHD28k2ZalNxSXXToAp9u46k
-         mpGDHT7Gmx7aKsYAamDfjuL3LU205VIIb+LvpFTPMSOy9rbSskc3JzzyBUlfhs9zRodV
-         cyaoPdCP/iCW0NZnJPWkhx1EQ+EdHUMsIqgt6NDzDh5AoeoacijH2THs1rXsGz8UNZCR
-         hVWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701111559; x=1701716359;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=WjiPRjZPiCmdU/duAiKaG+F7L9L8u8NYrRvuFjn8aG4=;
-        b=gpLNjY9y8Vgr/AKNnfQqZMgoZxmtfsSSMDAoBBHBCkqA2tFMKvQMnXwb6RlVNwuf13
-         SCSUkqWUj68S7Mq36cY638TfAcB2ZQT2D7UmQNGBd8qyecExTcYY0Ym5A3Jha+kWaOT5
-         fufm3aD9LPluHHkbesZ2kVsc1sOos3P+4gfl7TzafpCaSRUBLS68IBWCYOrsQtDVO54B
-         erFCZn0xcvrs/DlvQlbgIo3x4PQWEGo+MeuNiu3y8vfCWi3v330aJGpUDWM87oTvuTkg
-         yetseIri1D98q2Qx8ivqDO6f9lh7Ho0FdWFgxdmCs4yTsc+O/dvhT91ne5jd4IOkMbX6
-         7pvA==
-X-Gm-Message-State: AOJu0YxfWGhOQtc1y9J87i0fZzjTqUfDVWTawzLhqFTyIEaJUue1VACB
-	c5uiz+okAptCNeDxozU7Aok=
-X-Google-Smtp-Source: AGHT+IFYgkKTxGMxfAVQ2TiCEt6no+2USkpLLKMpoenaxT5hDflerFFL3yg/x9yfMMXXyOIN1holhA==
-X-Received: by 2002:a05:600c:3595:b0:409:7d0:d20b with SMTP id p21-20020a05600c359500b0040907d0d20bmr9631528wmq.24.1701111558608;
-        Mon, 27 Nov 2023 10:59:18 -0800 (PST)
-Received: from [10.254.108.81] (munvpn.amd.com. [165.204.72.6])
-        by smtp.gmail.com with ESMTPSA id j25-20020a05600c1c1900b004076f522058sm15526135wms.0.2023.11.27.10.59.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 27 Nov 2023 10:59:18 -0800 (PST)
-Message-ID: <c3809a89-31bc-4e5e-b0bf-538845e37f57@gmail.com>
-Date: Mon, 27 Nov 2023 19:59:16 +0100
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VlhbNNJt"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id C224A408DD
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 20:04:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C224A408DD
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=VlhbNNJt
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.398
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Q-TUqZJvW7FO
+	for <virtualization@lists.linux-foundation.org>;
+	Mon, 27 Nov 2023 20:04:03 +0000 (UTC)
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0FB0D408BD
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 20:04:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0FB0D408BD
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+	Sender:Reply-To:Content-ID:Content-Description;
+	bh=HKdTKht77swWp6IqbMhOYILRR0g0Evek+a+XDBEGFI4=; b=VlhbNNJtOQjRl9xNXhif3pyBI3
+	Yp697PDT+1EY5w8uqPMVRgSViNRDlwsEBioaXw3hqY3eTB8lhCbqt0zd3cnGZiqHwqP840guPwjV2
+	oriE6LXZ82ilVLw6slHwTwphcRMD/0Nd1NsiEuOe9r4lBzOcT6SSF2nX3osd+EUhPcnLH6Ranfo9H
+	Bv1hzhp/gFFn6ry0jRZXH/H0Gc8LitSNJ60ue7C967EBwiz7XA/OdUI9oaNSFUlcKQNcT7WMTubkf
+	R85oEhWPha2wXYJ4yiCw7hSoq1yPIGJKgfABhWmW6p9IKG8obBpzJRziZFbyBKuL64aiz/cSiRsQN
+	YX0jqE5A==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+	id 1r7hp0-00BhJQ-Ds; Mon, 27 Nov 2023 20:03:10 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id B60BD3002F1; Mon, 27 Nov 2023 21:03:08 +0100 (CET)
+Date: Mon, 27 Nov 2023 21:03:08 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>
+Cc: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+	Kees Cook <keescook@chromium.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>,
+	Alexander Graf <graf@amazon.com>,
+	Chao Peng <chao.p.peng@linux.intel.com>,
+	"Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+	Forrest Yuan Yu <yuanyu@google.com>,
+	James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>,
+	John Andersen <john.s.andersen@intel.com>,
+	Marian Rotariu <marian.c.rotariu@gmail.com>,
+	Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>,
+	=?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
+	Thara Gopinath <tgopinath@microsoft.com>,
+	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	Yu Zhang <yu.c.zhang@linux.intel.com>,
+	Zahra Tarkhani <ztarkhani@microsoft.com>,
+	=?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
+	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+	qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+	x86@kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [RFC PATCH v2 18/19] heki: x86: Protect guest kernel memory
+ using the KVM hypervisor
+Message-ID: <20231127200308.GY3818@noisy.programming.kicks-ass.net>
+References: <20231113022326.24388-1-mic@digikod.net>
+ <20231113022326.24388-19-mic@digikod.net>
+ <20231113085403.GC16138@noisy.programming.kicks-ass.net>
+ <b1dc0963-ab99-4a79-af19-ef5ed981fa60@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] drm/amdgpu: use GTT only as fallback for VRAM|GTT
-Content-Language: en-US
-To: "Bhardwaj, Rajneesh" <Rajneesh.Bhardwaj@amd.com>,
- "Mahfooz, Hamza" <Hamza.Mahfooz@amd.com>,
- "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
- "kherbst@redhat.com" <kherbst@redhat.com>, "dakr@redhat.com"
- <dakr@redhat.com>, "zackr@vmware.com" <zackr@vmware.com>,
- "Olsak, Marek" <Marek.Olsak@amd.com>,
- "linux-graphics-maintainer@vmware.com"
- <linux-graphics-maintainer@vmware.com>,
- "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
- "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
- "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-References: <20231127145437.15060-1-christian.koenig@amd.com>
- <20231127145437.15060-3-christian.koenig@amd.com>
- <a6e10770-32de-4235-a86f-02a90e93a0f4@amd.com>
- <DS7PR12MB59339B73B38A4EFDB2A67A9FFEBDA@DS7PR12MB5933.namprd12.prod.outlook.com>
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>
-In-Reply-To: <DS7PR12MB59339B73B38A4EFDB2A67A9FFEBDA@DS7PR12MB5933.namprd12.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <b1dc0963-ab99-4a79-af19-ef5ed981fa60@linux.microsoft.com>
 
-Am 27.11.23 um 17:47 schrieb Bhardwaj, Rajneesh:
-> [AMD Official Use Only - General]
->
-> -----Original Message-----
-> From: amd-gfx <amd-gfx-bounces@lists.freedesktop.org> On Behalf Of Hamza Mahfooz
-> Sent: Monday, November 27, 2023 10:53 AM
-> To: Christian KÃ¶nig <ckoenig.leichtzumerken@gmail.com>; jani.nikula@linux.intel.com; kherbst@redhat.com; dakr@redhat.com; zackr@vmware.com; Olsak, Marek <Marek.Olsak@amd.com>; linux-graphics-maintainer@vmware.com; amd-gfx@lists.freedesktop.org; nouveau@lists.freedesktop.org; intel-gfx@lists.freedesktop.org; virtualization@lists.linux.dev; spice-devel@lists.freedesktop.org; dri-devel@lists.freedesktop.org
-> Subject: Re: [PATCH 2/2] drm/amdgpu: use GTT only as fallback for VRAM|GTT
->
-> On 11/27/23 09:54, Christian KÃ¶nig wrote:
->> Try to fill up VRAM as well by setting the busy flag on GTT allocations.
->>
->> This fixes the issue that when VRAM was evacuated for suspend it's
->> never filled up again unless the application is restarted.
-> I found the subject description a bit misleading. Maybe use a Fixes tag describing it is a fix for suspend resume regression other than that, looks good to me.
+On Mon, Nov 27, 2023 at 11:05:23AM -0600, Madhavan T. Venkataraman wrote:
+> Apologies for the late reply. I was on vacation. Please see my response below:
+> 
+> On 11/13/23 02:54, Peter Zijlstra wrote:
+> > On Sun, Nov 12, 2023 at 09:23:25PM -0500, Mickaël Salaün wrote:
+> >> From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
+> >>
+> >> Implement a hypervisor function, kvm_protect_memory() that calls the
+> >> KVM_HC_PROTECT_MEMORY hypercall to request the KVM hypervisor to
+> >> set specified permissions on a list of guest pages.
+> >>
+> >> Using the protect_memory() function, set proper EPT permissions for all
+> >> guest pages.
+> >>
+> >> Use the MEM_ATTR_IMMUTABLE property to protect the kernel static
+> >> sections and the boot-time read-only sections. This enables to make sure
+> >> a compromised guest will not be able to change its main physical memory
+> >> page permissions. However, this also disable any feature that may change
+> >> the kernel's text section (e.g., ftrace, Kprobes), but they can still be
+> >> used on kernel modules.
+> >>
+> >> Module loading/unloading, and eBPF JIT is allowed without restrictions
+> >> for now, but we'll need a way to authenticate these code changes to
+> >> really improve the guests' security. We plan to use module signatures,
+> >> but there is no solution yet to authenticate eBPF programs.
+> >>
+> >> Being able to use ftrace and Kprobes in a secure way is a challenge not
+> >> solved yet. We're looking for ideas to make this work.
+> >>
+> >> Likewise, the JUMP_LABEL feature cannot work because the kernel's text
+> >> section is read-only.
+> > 
+> > What is the actual problem? As is the kernel text map is already RO and
+> > never changed.
+> 
+> For the JUMP_LABEL optimization, the text needs to be patched at some point.
+> That patching requires a writable mapping of the text page at the time of
+> patching.
+> 
+> In this Heki feature, we currently lock down the kernel text at the end of
+> kernel boot just before kicking off the init process. The lockdown is
+> implemented by setting the permissions of a text page to R_X in the extended
+> page table and not allowing write permissions in the EPT after that. So, jump label
+> patching during kernel boot is not a problem. But doing it after kernel
+> boot is a problem.
 
-Well exactly that's the problem, this isn't really a fix and we also 
-don't want to backport it.
+But you see, that's exactly what the kernel already does with the normal
+permissions. They get set to RX after init and are never changed.
 
-Basically the previous behavior was working as design, it's just that it 
-was never intended to be used like this.
+See the previous patch, we establish a read-write alias and write there.
 
->
-> Acked-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
->
-> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2893
+You seem to lack basic understanding of how the kernel works in this
+regard, which makes me very nervous about you touching any of this.
 
-Thanks,
-Christian.
-
->
->> Signed-off-by: Christian KÃ¶nig <christian.koenig@amd.com>
->> ---
->>    drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 6 ++++++
->>    1 file changed, 6 insertions(+)
->>
->> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
->> b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
->> index aa0dd6dad068..ddc8fb4db678 100644
->> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
->> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
->> @@ -173,6 +173,12 @@ void amdgpu_bo_placement_from_domain(struct amdgpu_bo *abo, u32 domain)
->>                        abo->flags & AMDGPU_GEM_CREATE_PREEMPTIBLE ?
->>                        AMDGPU_PL_PREEMPT : TTM_PL_TT;
->>                places[c].flags = 0;
->> +             /*
->> +              * When GTT is just an alternative to VRAM make sure that we
->> +              * only use it as fallback and still try to fill up VRAM first.
->> +              */
->> +             if (domain & AMDGPU_GEM_DOMAIN_VRAM)
->> +                     places[c].flags |= TTM_PL_FLAG_BUSY;
->>                c++;
->>        }
->>
-> --
-> Hamza
->
-
+I must also say I really dislike your extra/random permssion calls all
+over the place. They don't really get us anything afaict. Why can't you
+plumb into the existing set_memory_*() family?
