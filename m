@@ -1,167 +1,144 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D4B8211A
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:36:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="dLAAAh8H";
-	dkim=permerror (0-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="k/xUVoLQ"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94BE62574
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E8AC060B74
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:36:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E8AC060B74
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.a=rsa-sha256 header.s=strato-dkim-0002 header.b=dLAAAh8H;
-	dkim=pass header.d=xenosoft.de header.i=@xenosoft.de header.a=ed25519-sha256 header.s=strato-dkim-0003 header.b=k/xUVoLQ
+	by smtp1.osuosl.org (Postfix) with ESMTP id 136968101B
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 136968101B
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.798
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nxOWdA0Hi_PU
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9GX1P19aTJ_c
 	for <virtualization@lists.linux-foundation.org>;
-	Sat, 25 Nov 2023 12:36:09 +0000 (UTC)
-Received: from mo4-p02-ob.smtp.rzone.de (mo4-p02-ob.smtp.rzone.de [81.169.146.169])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 949F860B69
-	for <virtualization@lists.linux-foundation.org>; Sat, 25 Nov 2023 12:36:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 949F860B69
-ARC-Seal: i=1; a=rsa-sha256; t=1700915755; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=SFKxXYcw0DY3Pria634pawBeRWKRRXxfi3Y+vZy3WNv45FpWK/MWewg+Q9uDwBgqzI
-    /enXQtyu8P0uCilVQzhbepudj37ZOQqPVn4cO1RFUpLOCKBnO1zvmQejji715ys188zj
-    AjVvUpMyLetKI4UTsvbfe/i5IhLivgg44eJ674X2trdM8yjSHYYeoaBbZ4JxltAyqwKN
-    r+erA/DaoJU1phKMA7mPq5RTonRAsnyHYtbte+vU+bpUqgfEPye1b7oMqioGbMC8ywii
-    SRId6NU0uC0/5ZcBHzZ7eC0ZvWya/G8vErIwBg5aFCLZ3WUiMkvDkHdAVq7nN//76cet
-    +IEQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1700915755;
-    s=strato-dkim-0002; d=strato.com;
-    h=In-Reply-To:References:Cc:To:From:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=p56uFgR+2L+joFqVsz4BnJljMfmRwlsgQch0B8qQcmg=;
-    b=eFC0fcFKW3P+unvRT3QqxSRGvpZ9SH9UOuwCV+Rc6Va4K9TWHT20eVhsawLbSlIpbg
-    hBl06jmhofsu3QD+zymhTfFk5BCj2v5yoN8COAmOMHILpObKwO6wpJX6Oi84LBxFiv4E
-    91PHUaCKTdb69jrcuNI5M1DWfdQlDMqMezqT3NAfDH6iObt2ucLfwxDDlhvNwC5SUPOI
-    ZaO79AQoYxorZMyW4umhQXXlGKDlrMRcL4p9gm0oRo3j0zI1rHX7V+eev/HEASrWF/2T
-    0RqNQmiFPoxEG4xIKHiNMUCpwz1sK84/6Kie651p5gNJr5yzvypj8icmhQcQ4u0l++hr
-    AUHg==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo02
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1700915755;
-    s=strato-dkim-0002; d=xenosoft.de;
-    h=In-Reply-To:References:Cc:To:From:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=p56uFgR+2L+joFqVsz4BnJljMfmRwlsgQch0B8qQcmg=;
-    b=dLAAAh8H4MwhFrYhPbikzmad1Zr2xapLpe8gQGIyVsZ2Arj6oelgy6usS7zAe05GZN
-    q3HQNoQz4rkHUlz4EmW6Fi7VfzTLxqpdQ4LFXgnZ7CqaTVhNv2d6Ph22UaAYyy6PHxkQ
-    A4AN9TrM5CmVA/Gk0xG2zPqmTKCJJDm9C2oAkUNJuL/KzARBwAiCpwRNbZzY+YT36TbQ
-    IDqJj95yYaFVoz1nImVmbBZR0hFt5qY3N1BDtxjrZZweP+HU6NSO/KakLn0WRJ/I1Dd3
-    FrtMN2b4VQ8x7cvU7SjvPh4cI3J1wAEZxPVps2bA3pk1hFJt+becOQHIytMRrxyDdIi3
-    JTNQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1700915755;
-    s=strato-dkim-0003; d=xenosoft.de;
-    h=In-Reply-To:References:Cc:To:From:Subject:Date:Message-ID:Cc:Date:
-    From:Subject:Sender;
-    bh=p56uFgR+2L+joFqVsz4BnJljMfmRwlsgQch0B8qQcmg=;
-    b=k/xUVoLQGPkzgFFsbDRKOt43eEzMiKXYPTVTsswpE0W9NOsGK5/u1O1OaIFSJBcsdH
-    iNvaDZ/6UeVxT6krLgCg==
-X-RZG-AUTH: ":L2QefEenb+UdBJSdRCXu93KJ1bmSGnhMdmOod1DhGM4l4Hio94KKxRySfLxnHfJ+Dkjp5DdBfi4XXBswJY0hynIKqjaeYiGT1rE/QhtjOKJAIg=="
-Received: from [IPV6:2a02:8109:8984:5d00:bc44:680c:952a:1673]
-    by smtp.strato.de (RZmta 49.9.1 AUTH)
-    with ESMTPSA id U060a4zAPCZsnsU
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-	(Client did not present a certificate);
-    Sat, 25 Nov 2023 13:35:54 +0100 (CET)
-Message-ID: <1bd6d2c8-007b-46f7-85b4-9793ec650f94@xenosoft.de>
-Date: Sat, 25 Nov 2023 13:35:54 +0100
+	Mon, 27 Nov 2023 02:55:51 +0000 (UTC)
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 467B380F02
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 467B380F02
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R921e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045170;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vx7utgD_1701053744;
+Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vx7utgD_1701053744)
+          by smtp.aliyun-inc.com;
+          Mon, 27 Nov 2023 10:55:45 +0800
+From: Heng Qi <hengqi@linux.alibaba.com>
+To: virtualization@lists.linux-foundation.org,
+	netdev@vger.kernel.org
+Cc: jasowang@redhat.com,
+	mst@redhat.com,
+	kuba@kernel.org,
+	edumazet@google.com,
+	pabeni@redhat.com,
+	davem@davemloft.net,
+	hawk@kernel.org,
+	john.fastabend@gmail.com,
+	ast@kernel.org,
+	horms@kernel.org,
+	xuanzhuo@linux.alibaba.com,
+	yinjun.zhang@corigine.com
+Subject: [PATCH net-next v5 0/4] virtio-net: support dynamic coalescing moderation
+Date: Mon, 27 Nov 2023 10:55:40 +0800
+Message-Id: <cover.1701050450.git.hengqi@linux.alibaba.com>
+X-Mailer: git-send-email 2.19.1.6.gb485710b
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: Add suppport for non-native buffer formats
-Content-Language: de-DE
-From: Christian Zigotzky <chzigotzky@xenosoft.de>
-To: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
- Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>, Laurent Vivier
- <lvivier@redhat.com>, Javier Martinez Canillas <javierm@redhat.com>,
- Hamza Mahfooz <hamza.mahfooz@amd.com>, linux-m68k@lists.linux-m68k.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, "R.T.Dickinson" <rtd2@xtra.co.nz>,
- mad skateman <madskateman@gmail.com>, Christian Zigotzky <info@xenosoft.de>
-References: <47a81d2e0e47b1715718779b6978a8b595cc7c5d.1700140609.git.geert@linux-m68k.org>
- <77c6gkquzq4sdtmrlko3lkxvcnipm2zfjem3kvhgslcellkefh@man7pbbzud47>
- <a9ade305-f90e-4250-a795-49ef4e29e0ac@xenosoft.de>
- <CAMuHMdXtUYJmEharJhBXx7D=fA3mQxg6uMP2=4Qgi==2a+kVQw@mail.gmail.com>
- <37b9e5ab-e170-4071-a912-f3fec0d59d5c@xenosoft.de>
- <ee75377ad22a3d07f272e17f53cabead7b43afcb.camel@physik.fu-berlin.de>
- <9e8d2abd-94a1-4fb6-b30a-c6e4c52af011@xenosoft.de>
-In-Reply-To: <9e8d2abd-94a1-4fb6-b30a-c6e4c52af011@xenosoft.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 25 November 2023 at 01:22 pm, Christian Zigotzky wrote:
-> On 25 November 2023 at 12:09 pm, John Paul Adrian Glaubitz wrote:
->> On Sat, 2023-11-25 at 11:06 +0100, Christian Zigotzky wrote:
->>> Could you please revert the v2 patch because of the issue with the
->>> virtio-mouse-pci cursor? I will try to use the v1 patch for the RC3 of
->>> kernel 6.7.
->> I don't understand why the v2 patch should yield any different 
->> results as
->> the only change compared to v1 is the fixed patch subject. There are no
->> functional differences, I just diffed the patches against each other:
->>
->> --- geert-patch-v1.patch        2023-11-25 12:09:19.122936658 +0100
->> +++ geert-patch-v2.patch        2023-11-25 12:09:36.313039085 +0100
->> @@ -34,6 +34,9 @@
->>   Suggested-by: Gerd Hoffmann <kraxel@redhat.com>
->>   Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
->>   ---
->> +v2:
->> +  - Fix truncated one-line summary.
->> +---
->>    drivers/gpu/drm/virtio/virtgpu_display.c | 11 +++++++++--
->>    drivers/gpu/drm/virtio/virtgpu_plane.c   |  6 ++++--
->>    2 files changed, 13 insertions(+), 4 deletions(-)
->>
->> Adrian
->>
-> Hi Adrian,
->
-> Thank you for the hint. I think you are right. I use the following patch.
->
-> --- a/drivers/gpu/drm/drm_client.c    2023-11-13 01:19:07.000000000 +0100
-> +++ b/drivers/gpu/drm/drm_client.c    2023-11-14 09:45:44.964199272 +0100
-> @@ -400,6 +400,16 @@ static int drm_client_buffer_addfb(struc
->
->      fb_req.width = width;
->      fb_req.height = height;
-> +           if 
-> (client->dev->mode_config.quirk_addfb_prefer_host_byte_order) {
-> +               if (format == DRM_FORMAT_XRGB8888)
-> +                       format = DRM_FORMAT_HOST_XRGB8888;
-> +               if (format == DRM_FORMAT_ARGB8888)
-> +                       format = DRM_FORMAT_HOST_ARGB8888;
-> +               if (format == DRM_FORMAT_RGB565)
-> +                       format = DRM_FORMAT_HOST_RGB565;
-> +               if (format == DRM_FORMAT_XRGB1555)
-> +                       format = DRM_FORMAT_HOST_XRGB1555;
-> +        }
->      fb_req.pixel_format = format;
->      fb_req.handles[0] = handle;
->      fb_req.pitches[0] = buffer->pitch;
->
-> This patch solved the issue.
->
-> Christian
-This was the first solution and it works without any problems.
+Now, virtio-net already supports per-queue moderation parameter
+setting. Based on this, we use the linux dimlib to support
+dynamic coalescing moderation for virtio-net.
 
-Christian
+Due to some scheduling issues, we only support and test the rx dim.
+
+Some test results:
+
+I. Sockperf UDP
+=================================================
+1. Env
+rxq_0 with affinity to cpu_0.
+
+2. Cmd
+client: taskset -c 0 sockperf tp -p 8989 -i $IP -t 10 -m 16B
+server: taskset -c 0 sockperf sr -p 8989
+
+3. Result
+dim off: 1143277.00 rxpps, throughput 17.844 MBps, cpu is 100%.
+dim on:  1124161.00 rxpps, throughput 17.610 MBps, cpu is 83.5%.
+=================================================
+
+II. Redis
+=================================================
+1. Env
+There are 8 rxqs, and rxq_i with affinity to cpu_i.
+
+2. Result
+When all cpus are 100%, ops/sec of memtier_benchmark client is
+dim off:  978437.23
+dim on:  1143638.28
+=================================================
+
+III. Nginx
+=================================================
+1. Env
+There are 8 rxqs and rxq_i with affinity to cpu_i.
+
+2. Result
+When all cpus are 100%, requests/sec of wrk client is
+dim off:  877931.67
+dim on:  1019160.31
+=================================================
+
+IV. Latency of sockperf udp
+=================================================
+1. Rx cmd
+taskset -c 0 sockperf sr -p 8989
+
+2. Tx cmd
+taskset -c 0 sockperf pp -i ${ip} -p 8989 -t 10
+
+After running this cmd 5 times and averaging the results,
+
+3. Result
+dim off: 17.7735 usec
+dim on:  18.0110 usec
+=================================================
+
+Changelog:
+v4->v5:
+- Patch(4/4):
+   - Fix possible synchronization issues with cancel_work_sync.
+   - Reduce if/else nesting levels
+
+v3->v4:
+- Patch(5/5): drop.
+
+v2->v3:
+- Patch(4/5): some minor modifications.
+
+v1->v2:
+- Patch(2/5): a minor fix.
+- Patch(4/5):
+   - improve the judgment of dim switch conditions.
+   - Cancel the work when vq reset. 
+- Patch(5/5): drop the tx dim implementation.
+
+Heng Qi (4):
+  virtio-net: returns whether napi is complete
+  virtio-net: separate rx/tx coalescing moderation cmds
+  virtio-net: extract virtqueue coalescig cmd for reuse
+  virtio-net: support rx netdim
+
+ drivers/net/virtio_net.c | 287 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 242 insertions(+), 45 deletions(-)
+
+-- 
+2.19.1.6.gb485710b
+
