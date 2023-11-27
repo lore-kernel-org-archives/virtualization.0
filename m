@@ -1,42 +1,49 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BEC391E51A
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 17:05:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50ECD3A8DE
+	for <virtualization@lists.linux.dev>; Mon, 27 Nov 2023 18:59:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="rJ8cBOmh"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3847B80BEA
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 17:05:27 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 3847B80BEA
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=rJ8cBOmh
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.502
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TGADSXExuY4y
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 27 Nov 2023 17:05:26 +0000 (UTC)
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7FCBE80BE1
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 17:05:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7FCBE80BE1
-Received: from [192.168.4.26] (unknown [47.186.13.91])
-	by linux.microsoft.com (Postfix) with ESMTPSA id D60A120B74C0;
-	Mon, 27 Nov 2023 09:05:23 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D60A120B74C0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1701104726;
-	bh=hQp9k1xmzkhJv53kIi+fGz0Bm7C0uUgSE5lwBZUzRAE=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=rJ8cBOmhMjU1LJ0/8Jcu8Zs0D7K0IoJJgYpooleweR4JPTx8RVu3i076OKuSc40H8
-	 vQyhttx9sRNbXZhKrbp4uy9amwle/wkhxSgx+XSVVJGrDjkKV6ziAkv22z1oJr2gBV
-	 BrN8A1ek3f3VLgDmEE47gJhsasnKPJeYvbYTTmRg=
-Message-ID: <b1dc0963-ab99-4a79-af19-ef5ed981fa60@linux.microsoft.com>
-Date: Mon, 27 Nov 2023 11:05:23 -0600
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a8Ytgko1"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-40b4a8db314so1036035e9.3
+        for <virtualization@lists.linux.dev>; Mon, 27 Nov 2023 10:59:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1701111559; x=1701716359; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=WjiPRjZPiCmdU/duAiKaG+F7L9L8u8NYrRvuFjn8aG4=;
+        b=a8Ytgko1CIIPXeGAloAxKDAexuIUXK7FKsZcXtZ4ljc5JLw9ghGjiP7N98qiK4yDUg
+         LmmwNPuA32aO0Zmf4PRSMWlbN9I+FzgtqeJX7T8tccMxSbDK8zXVR1zibQ7bkeyz0/WX
+         N+U67f624ETUGzX9cDfWTQBDHS6lYB/YZf0ZikxgZsmznHD28k2ZalNxSXXToAp9u46k
+         mpGDHT7Gmx7aKsYAamDfjuL3LU205VIIb+LvpFTPMSOy9rbSskc3JzzyBUlfhs9zRodV
+         cyaoPdCP/iCW0NZnJPWkhx1EQ+EdHUMsIqgt6NDzDh5AoeoacijH2THs1rXsGz8UNZCR
+         hVWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701111559; x=1701716359;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=WjiPRjZPiCmdU/duAiKaG+F7L9L8u8NYrRvuFjn8aG4=;
+        b=gpLNjY9y8Vgr/AKNnfQqZMgoZxmtfsSSMDAoBBHBCkqA2tFMKvQMnXwb6RlVNwuf13
+         SCSUkqWUj68S7Mq36cY638TfAcB2ZQT2D7UmQNGBd8qyecExTcYY0Ym5A3Jha+kWaOT5
+         fufm3aD9LPluHHkbesZ2kVsc1sOos3P+4gfl7TzafpCaSRUBLS68IBWCYOrsQtDVO54B
+         erFCZn0xcvrs/DlvQlbgIo3x4PQWEGo+MeuNiu3y8vfCWi3v330aJGpUDWM87oTvuTkg
+         yetseIri1D98q2Qx8ivqDO6f9lh7Ho0FdWFgxdmCs4yTsc+O/dvhT91ne5jd4IOkMbX6
+         7pvA==
+X-Gm-Message-State: AOJu0YxfWGhOQtc1y9J87i0fZzjTqUfDVWTawzLhqFTyIEaJUue1VACB
+	c5uiz+okAptCNeDxozU7Aok=
+X-Google-Smtp-Source: AGHT+IFYgkKTxGMxfAVQ2TiCEt6no+2USkpLLKMpoenaxT5hDflerFFL3yg/x9yfMMXXyOIN1holhA==
+X-Received: by 2002:a05:600c:3595:b0:409:7d0:d20b with SMTP id p21-20020a05600c359500b0040907d0d20bmr9631528wmq.24.1701111558608;
+        Mon, 27 Nov 2023 10:59:18 -0800 (PST)
+Received: from [10.254.108.81] (munvpn.amd.com. [165.204.72.6])
+        by smtp.gmail.com with ESMTPSA id j25-20020a05600c1c1900b004076f522058sm15526135wms.0.2023.11.27.10.59.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 27 Nov 2023 10:59:18 -0800 (PST)
+Message-ID: <c3809a89-31bc-4e5e-b0bf-538845e37f57@gmail.com>
+Date: Mon, 27 Nov 2023 19:59:16 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,91 +51,86 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 18/19] heki: x86: Protect guest kernel memory using
- the KVM hypervisor
+Subject: Re: [PATCH 2/2] drm/amdgpu: use GTT only as fallback for VRAM|GTT
 Content-Language: en-US
-To: Peter Zijlstra <peterz@infradead.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8?=
- =?UTF-8?Q?n?= <mic@digikod.net>
-Cc: Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, "H . Peter Anvin" <hpa@zytor.com>,
- Ingo Molnar <mingo@redhat.com>, Kees Cook <keescook@chromium.org>,
- Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson
- <seanjc@google.com>, Thomas Gleixner <tglx@linutronix.de>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
- Alexander Graf <graf@amazon.com>, Chao Peng <chao.p.peng@linux.intel.com>,
- "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
- Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
- James Morris <jamorris@linux.microsoft.com>,
- John Andersen <john.s.andersen@intel.com>,
- Marian Rotariu <marian.c.rotariu@gmail.com>,
- =?UTF-8?Q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
- =?UTF-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
- Thara Gopinath <tgopinath@microsoft.com>,
- Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>,
- Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>,
- Zahra Tarkhani <ztarkhani@microsoft.com>,
- =?UTF-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
- dev@lists.cloudhypervisor.org, kvm@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
- x86@kernel.org, xen-devel@lists.xenproject.org
-References: <20231113022326.24388-1-mic@digikod.net>
- <20231113022326.24388-19-mic@digikod.net>
- <20231113085403.GC16138@noisy.programming.kicks-ass.net>
-From: "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>
-In-Reply-To: <20231113085403.GC16138@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
+To: "Bhardwaj, Rajneesh" <Rajneesh.Bhardwaj@amd.com>,
+ "Mahfooz, Hamza" <Hamza.Mahfooz@amd.com>,
+ "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+ "kherbst@redhat.com" <kherbst@redhat.com>, "dakr@redhat.com"
+ <dakr@redhat.com>, "zackr@vmware.com" <zackr@vmware.com>,
+ "Olsak, Marek" <Marek.Olsak@amd.com>,
+ "linux-graphics-maintainer@vmware.com"
+ <linux-graphics-maintainer@vmware.com>,
+ "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
+ "nouveau@lists.freedesktop.org" <nouveau@lists.freedesktop.org>,
+ "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "spice-devel@lists.freedesktop.org" <spice-devel@lists.freedesktop.org>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
+References: <20231127145437.15060-1-christian.koenig@amd.com>
+ <20231127145437.15060-3-christian.koenig@amd.com>
+ <a6e10770-32de-4235-a86f-02a90e93a0f4@amd.com>
+ <DS7PR12MB59339B73B38A4EFDB2A67A9FFEBDA@DS7PR12MB5933.namprd12.prod.outlook.com>
+From: =?UTF-8?Q?Christian_K=C3=B6nig?= <ckoenig.leichtzumerken@gmail.com>
+In-Reply-To: <DS7PR12MB59339B73B38A4EFDB2A67A9FFEBDA@DS7PR12MB5933.namprd12.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-Apologies for the late reply. I was on vacation. Please see my response below:
+Am 27.11.23 um 17:47 schrieb Bhardwaj, Rajneesh:
+> [AMD Official Use Only - General]
+>
+> -----Original Message-----
+> From: amd-gfx <amd-gfx-bounces@lists.freedesktop.org> On Behalf Of Hamza Mahfooz
+> Sent: Monday, November 27, 2023 10:53 AM
+> To: Christian König <ckoenig.leichtzumerken@gmail.com>; jani.nikula@linux.intel.com; kherbst@redhat.com; dakr@redhat.com; zackr@vmware.com; Olsak, Marek <Marek.Olsak@amd.com>; linux-graphics-maintainer@vmware.com; amd-gfx@lists.freedesktop.org; nouveau@lists.freedesktop.org; intel-gfx@lists.freedesktop.org; virtualization@lists.linux.dev; spice-devel@lists.freedesktop.org; dri-devel@lists.freedesktop.org
+> Subject: Re: [PATCH 2/2] drm/amdgpu: use GTT only as fallback for VRAM|GTT
+>
+> On 11/27/23 09:54, Christian König wrote:
+>> Try to fill up VRAM as well by setting the busy flag on GTT allocations.
+>>
+>> This fixes the issue that when VRAM was evacuated for suspend it's
+>> never filled up again unless the application is restarted.
+> I found the subject description a bit misleading. Maybe use a Fixes tag describing it is a fix for suspend resume regression other than that, looks good to me.
 
-On 11/13/23 02:54, Peter Zijlstra wrote:
-> On Sun, Nov 12, 2023 at 09:23:25PM -0500, Mickaël Salaün wrote:
->> From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
->>
->> Implement a hypervisor function, kvm_protect_memory() that calls the
->> KVM_HC_PROTECT_MEMORY hypercall to request the KVM hypervisor to
->> set specified permissions on a list of guest pages.
->>
->> Using the protect_memory() function, set proper EPT permissions for all
->> guest pages.
->>
->> Use the MEM_ATTR_IMMUTABLE property to protect the kernel static
->> sections and the boot-time read-only sections. This enables to make sure
->> a compromised guest will not be able to change its main physical memory
->> page permissions. However, this also disable any feature that may change
->> the kernel's text section (e.g., ftrace, Kprobes), but they can still be
->> used on kernel modules.
->>
->> Module loading/unloading, and eBPF JIT is allowed without restrictions
->> for now, but we'll need a way to authenticate these code changes to
->> really improve the guests' security. We plan to use module signatures,
->> but there is no solution yet to authenticate eBPF programs.
->>
->> Being able to use ftrace and Kprobes in a secure way is a challenge not
->> solved yet. We're looking for ideas to make this work.
->>
->> Likewise, the JUMP_LABEL feature cannot work because the kernel's text
->> section is read-only.
-> 
-> What is the actual problem? As is the kernel text map is already RO and
-> never changed.
+Well exactly that's the problem, this isn't really a fix and we also 
+don't want to backport it.
 
-For the JUMP_LABEL optimization, the text needs to be patched at some point.
-That patching requires a writable mapping of the text page at the time of
-patching.
+Basically the previous behavior was working as design, it's just that it 
+was never intended to be used like this.
 
-In this Heki feature, we currently lock down the kernel text at the end of
-kernel boot just before kicking off the init process. The lockdown is
-implemented by setting the permissions of a text page to R_X in the extended
-page table and not allowing write permissions in the EPT after that. So, jump label
-patching during kernel boot is not a problem. But doing it after kernel
-boot is a problem.
+>
+> Acked-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+>
+> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2893
 
-The lockdown is just for the current Heki implementation. In the future, we plan
-to have a way of authenticating guest requests to change permissions on a text page.
-Once that is in place, permissions on text pages can be changed on the fly to
-support features that depend on text patching - FTrace, KProbes, etc.
+Thanks,
+Christian.
 
-Madhavan
+>
+>> Signed-off-by: Christian König <christian.koenig@amd.com>
+>> ---
+>>    drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 6 ++++++
+>>    1 file changed, 6 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+>> b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+>> index aa0dd6dad068..ddc8fb4db678 100644
+>> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+>> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+>> @@ -173,6 +173,12 @@ void amdgpu_bo_placement_from_domain(struct amdgpu_bo *abo, u32 domain)
+>>                        abo->flags & AMDGPU_GEM_CREATE_PREEMPTIBLE ?
+>>                        AMDGPU_PL_PREEMPT : TTM_PL_TT;
+>>                places[c].flags = 0;
+>> +             /*
+>> +              * When GTT is just an alternative to VRAM make sure that we
+>> +              * only use it as fallback and still try to fill up VRAM first.
+>> +              */
+>> +             if (domain & AMDGPU_GEM_DOMAIN_VRAM)
+>> +                     places[c].flags |= TTM_PL_FLAG_BUSY;
+>>                c++;
+>>        }
+>>
+> --
+> Hamza
+>
+
