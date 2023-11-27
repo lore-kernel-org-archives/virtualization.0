@@ -1,125 +1,142 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF13C566C
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C2991096D
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 07:51:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="DV3r3shJ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6660380FAA
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:54 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6660380FAA
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6B83F404B1
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 07:51:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6B83F404B1
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=DV3r3shJ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jd1mcATVbMcr
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yu5_lw1hRtYF
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 27 Nov 2023 02:55:53 +0000 (UTC)
-Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1BCEF81026
-	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 02:55:52 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1BCEF81026
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045176;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vx7uXw7_1701053746;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vx7uXw7_1701053746)
-          by smtp.aliyun-inc.com;
-          Mon, 27 Nov 2023 10:55:47 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: virtualization@lists.linux-foundation.org,
-	netdev@vger.kernel.org
-Cc: jasowang@redhat.com,
-	mst@redhat.com,
-	kuba@kernel.org,
-	edumazet@google.com,
-	pabeni@redhat.com,
-	davem@davemloft.net,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
-	ast@kernel.org,
-	horms@kernel.org,
-	xuanzhuo@linux.alibaba.com,
-	yinjun.zhang@corigine.com
-Subject: [PATCH net-next v5 2/4] virtio-net: separate rx/tx coalescing moderation cmds
-Date: Mon, 27 Nov 2023 10:55:42 +0800
-Message-Id: <b84dfd2aacb4250874e0b4f5002e08ecb644a629.1701050450.git.hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <cover.1701050450.git.hengqi@linux.alibaba.com>
-References: <cover.1701050450.git.hengqi@linux.alibaba.com>
+	Mon, 27 Nov 2023 07:51:21 +0000 (UTC)
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2060f.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eab::60f])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8FC20400AB
+	for <virtualization@lists.linux-foundation.org>; Mon, 27 Nov 2023 07:51:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 8FC20400AB
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gWdUmCFpN2XGVMgm/lgtdUD+SgqvAhbr9+lRUf1kPLkvLvITLgDCuQTJgmhgsX82HnXUgNj8bRgcJ6/Q7HAEgJ5H1qrlez9oqIXV1NwxqA8KqYDrnrefdxoVIpVLCBAPvdJEPBqFH2LjBvNKJGNlCjJXPF4tzkUwQBbBrQoXXwNsIh1mJ2IW1OLUlAtw7zpJFBl8z/wwz0FCztTBJ//gVvMkEg9si0yzgj6vl1pXOKi+Gtn7DKMqqe7XHLNonO8qxru0oPREDjgByAIHyyvesqc3bdE1Qzx+wPulfyWY3utnv2B5Q4qt+7wNkPFNI/YtQFmRIMe2iVLkZmZk1jiCuw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=k5L4snLouOZ7xuQaWU1ZJxeKU/4CYhwBW5iCKY3dmzM=;
+ b=ACLFt/R3wOsZd0wyph2cXRenBU4NQFXzspZLEIAIYZfpGEJskPQoPSrZvCfj0U8N5BntUHqVEpvC41lDMXTcBhY6f2BSdL1Sq93t79skF9Xug+oFX5i2zOwg0aVFfRLZofLkfvwzfbdAVaTWAd5jFOe4X6x99B0Tvl6+2TkaVFqg+/bIFkW9+11v1HhBuvXbhKZFoda4OXW4KqvQYn8frkZod2sWopm29Y1wr5tvXF7sD8YvpeEd21++xg8z/GOA9XfqCo184Gbid4TcA9zerSNbPJiwpQldIooOLLkNgOc+BHhOQQW3HowTxr0F8Toa4C3s95fFyHiz+hctMjasiQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=k5L4snLouOZ7xuQaWU1ZJxeKU/4CYhwBW5iCKY3dmzM=;
+ b=DV3r3shJZxCE3lAsupWNk0ljL0XI6Z8MvT6qDGAIHmE+elz2qfTFu2aoRhZTieImGdQDPEGDkLNcy6R98GFFhrlta69NOUnzmv/pcgkXXcLcMZSKCl8UhI1Ytez2koiXg2DpHe+vW6oQ96MhIfCyysMri8gE584s8i9iSXlJQMG2JxHvIoI38xkfqoVATWV2RgS9mrwBHFEeGgz1V4iBywyVJpAyqKxWvcoD7rrBvY5tcFfG46cn9jK+w2EBQ5YAQX6zr1mY22sM4hrMci0pg9ZDC1XONovWqKE38ITUVCuvcd0w7ZDVPb01mkrAxShk6orynhnOiyDHBEKad/TWhQ==
+Received: from CH0PR03CA0021.namprd03.prod.outlook.com (2603:10b6:610:b0::26)
+ by IA1PR12MB6211.namprd12.prod.outlook.com (2603:10b6:208:3e5::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.27; Mon, 27 Nov
+ 2023 07:51:17 +0000
+Received: from DS2PEPF00003440.namprd02.prod.outlook.com
+ (2603:10b6:610:b0:cafe::3a) by CH0PR03CA0021.outlook.office365.com
+ (2603:10b6:610:b0::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.29 via Frontend
+ Transport; Mon, 27 Nov 2023 07:51:17 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ DS2PEPF00003440.mail.protection.outlook.com (10.167.18.43) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7046.17 via Frontend Transport; Mon, 27 Nov 2023 07:51:16 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 26 Nov
+ 2023 23:51:04 -0800
+Received: from [172.27.19.67] (10.126.230.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 26 Nov
+ 2023 23:50:57 -0800
+Message-ID: <dca10fc2-7666-4f03-90ae-3f309e483921@nvidia.com>
+Date: Mon, 27 Nov 2023 09:50:53 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V3 vfio 0/9] Introduce a vfio driver over virtio devices
+Content-Language: en-US
+To: "Michael S. Tsirkin" <mst@redhat.com>, Alex Williamson
+	<alex.williamson@redhat.com>
+CC: <jasowang@redhat.com>, <jgg@nvidia.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <parav@nvidia.com>,
+	<feliu@nvidia.com>, <jiri@nvidia.com>, <kevin.tian@intel.com>,
+	<joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>, <leonro@nvidia.com>,
+	<maorg@nvidia.com>
+References: <20231113080222.91795-1-yishaih@nvidia.com>
+ <20231113050633-mutt-send-email-mst@kernel.org>
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20231113050633-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS2PEPF00003440:EE_|IA1PR12MB6211:EE_
+X-MS-Office365-Filtering-Correlation-Id: dd6486ea-ad3f-47d1-ad23-08dbef1da2fc
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	KH6ailLw5FTkcPZEP1mQawb75kFeBY9cAULbfVG/Hm0W36Nctaufpr29cBS0T/beOgJ+rZywofhlPxpqwFCEHdAlL04MtFxQiPExlAA0boIw1XRRQ8ppy6zmB9Bo9zlqjDhihd1Jgz5XunMOrpkF2XfIm62btYKkXIx8cmo3Sf9LwHmpf87o445/z6irwyx3xZ/Er81D9L760qOSKjXzJlxxbKEfsKJpxGN/Gs0Zj2qJmSu5doKqQdBnNWQrlz96ponxAgClT8xqI8ewCduTN/UhiofNecGge8zbNETzi3vZ2Az+RuR6QrANYYPGKyLMcQUObsQ5aB+JfSMWH1fn8pG55RmuAk7Q8LdRqYS5mD443Q8tdrAo7ySC7WGV0ZOsrMtLdAIfV1YTSKPfVGpX2ANz3a4NyTpClZRr7rxEklWamFKmbQkfV2gWzpKddqI03eHY4B8oikMgISfLfwuc67btWG1+WfIDJyLEIXm+FD45VHzkCUbYi8kIoQY3TpG1Grh2VrWEp/Mx+9z/Vjb6buini7wshc9ao24JVMrOQmxJF7K3SNg1sbdVC7cADue9ANJ0fWQYm0144YQpdzL38YZBhK49qJAloar9SBGyPuuVkj/hjhKfHtP3ySBKprzhDT/VxEwkPK3phXn4L3D4PhTvxOA3r88RJ/dG31SKlS52IAR9mPSKyOQmXh4EDdNXcC+M5IRH2dc7Wfye3O/m3GDVgdAOZ5PhqH6Xf4RYTvYpI7D+vQ0V86ByKnRXIq8DHDj4+anAFA4jGiX1s0dfAg==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(346002)(39860400002)(396003)(376002)(136003)(230922051799003)(451199024)(186009)(64100799003)(82310400011)(1800799012)(46966006)(40470700004)(36840700001)(40460700003)(2616005)(16526019)(107886003)(26005)(6666004)(53546011)(426003)(336012)(82740400003)(4326008)(8676002)(8936002)(5660300002)(31696002)(86362001)(478600001)(316002)(70206006)(70586007)(110136005)(54906003)(16576012)(36860700001)(83380400001)(47076005)(7636003)(356005)(31686004)(4744005)(41300700001)(40480700001)(36756003)(2906002)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Nov 2023 07:51:16.8271
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: dd6486ea-ad3f-47d1-ad23-08dbef1da2fc
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS2PEPF00003440.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6211
 
-This patch separates the rx and tx global coalescing moderation
-commands to support netdim switches in subsequent patches.
+On 13/11/2023 12:06, Michael S. Tsirkin wrote:
+> On Mon, Nov 13, 2023 at 10:02:13AM +0200, Yishai Hadas wrote:
+>> This series introduce a vfio driver over virtio devices to support the
+>> legacy interface functionality for VFs.
+> Because of LPC, pls allow a bit more time for review. Thanks!
+>
+Hi Michael and Alex,
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+Are we fine to proceed towards merging the series ?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0ad2894e6a5e..0285301caf78 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3266,10 +3266,10 @@ static int virtnet_get_link_ksettings(struct net_device *dev,
- 	return 0;
- }
- 
--static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
--				       struct ethtool_coalesce *ec)
-+static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
-+					  struct ethtool_coalesce *ec)
- {
--	struct scatterlist sgs_tx, sgs_rx;
-+	struct scatterlist sgs_tx;
- 	int i;
- 
- 	vi->ctrl->coal_tx.tx_usecs = cpu_to_le32(ec->tx_coalesce_usecs);
-@@ -3289,6 +3289,15 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
- 		vi->sq[i].intr_coal.max_packets = ec->tx_max_coalesced_frames;
- 	}
- 
-+	return 0;
-+}
-+
-+static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
-+					  struct ethtool_coalesce *ec)
-+{
-+	struct scatterlist sgs_rx;
-+	int i;
-+
- 	vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
- 	vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
- 	sg_init_one(&sgs_rx, &vi->ctrl->coal_rx, sizeof(vi->ctrl->coal_rx));
-@@ -3309,6 +3318,22 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
- 	return 0;
- }
- 
-+static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
-+				       struct ethtool_coalesce *ec)
-+{
-+	int err;
-+
-+	err = virtnet_send_tx_notf_coal_cmds(vi, ec);
-+	if (err)
-+		return err;
-+
-+	err = virtnet_send_rx_notf_coal_cmds(vi, ec);
-+	if (err)
-+		return err;
-+
-+	return 0;
-+}
-+
- static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
- 					 u16 vqn, u32 max_usecs, u32 max_packets)
- {
--- 
-2.19.1.6.gb485710b
+ From my side, I plan to send V4 which will include:
+- Rebase on top of the below patch from the Virtio area [1].
+- Fix a leftover typo in Vfio (i.e. drop 'acc' from 
+virtiovf_acc_vfio_pci_tran_ops).
+
+[1] commit 3503895788d402d6a3814085ed582c364ec3e903
+Author: Michael S. Tsirkin mst@redhat.com
+Date:   Tue Oct 31 12:02:06 2023 -0400
+
+     virtio_pci: move structure to a header
+
+Yishai
 
