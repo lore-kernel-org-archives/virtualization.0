@@ -1,195 +1,208 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 075F74D5AB
-	for <virtualization@lists.linux-foundation.org>; Tue, 28 Nov 2023 12:37:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53C9A39AFF
+	for <virtualization@lists.linux.dev>; Tue, 28 Nov 2023 20:49:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=soleen.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=soleen.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="HUrtoyW3"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5EF2D819F6
-	for <virtualization@lists.linux-foundation.org>; Tue, 28 Nov 2023 12:37:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5EF2D819F6
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=HUrtoyW3
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id f8yOefyh5s_Y
-	for <virtualization@lists.linux-foundation.org>;
-	Tue, 28 Nov 2023 12:37:21 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E44ED8196A
-	for <virtualization@lists.linux-foundation.org>; Tue, 28 Nov 2023 12:37:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E44ED8196A
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id A64ED66017A7;
-	Tue, 28 Nov 2023 12:37:16 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701175037;
-	bh=lUwoFImFc7lmJuNp+eDWdZh4k60TMdNkbVoZ37tKKEw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=HUrtoyW334hiwg7m6r5OfJ6YeexY97cVAVI65jSfGGtKi2cQGPChvF/mG/sPrzlPe
-	 12pG3bmFU6VIeHioT6XVnB5p/960z2qXw2zHZLwtS5glXm0ocPUB+hh9gB8vJn0Weh
-	 VclkMRGrHBkMIHngWijmK+LaxJuziOSEZy15w7FC6XOeLNMMIj9mx7wv4y/IEP+Qdq
-	 xs0ClHlst7tTwSa//pqMy4kjbA27QQByAtVEMIM5ZcCN64cWlptpuUxbtZ59X57seX
-	 xO2+ND2rg6Ok9FIIXw0k9khxJEg2s+xrd4x5a04kN3QR2c/4s4d8/o0OF8OK/86gzo
-	 wGCqvXwihns4A==
-Date: Tue, 28 Nov 2023 13:37:12 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Maxime Ripard <mripard@kernel.org>
-Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
- <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter
- <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
- <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
- <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel@collabora.com,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
- functions
-Message-ID: <20231128133712.53a6f6cb@collabora.com>
-In-Reply-To: <kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-5-dmitry.osipenko@collabora.com>
-	<wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
-	<20231124115911.79ab24af@collabora.com>
-	<kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
-Organization: Collabora
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=soleen.com header.i=@soleen.com header.b="c32zEHeM"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-77dbdc184fdso16915285a.1
+        for <virtualization@lists.linux.dev>; Tue, 28 Nov 2023 12:49:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=soleen.com; s=google; t=1701204581; x=1701809381; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=FsBQ1c03W+bPyqjQatoY3AtDcRPwnaylyTF2JWK/6Qg=;
+        b=c32zEHeM/mpAwa3CPGOpr+7istNGA5i4zeTkIwRb9gHtQ05RjP8DQD/GQ9KOjksnSg
+         HjMMU7Z+Zs6Qg1HWITUQMOEdC00GfzJnoX5wZOlEnj+jhhnO2n65W2Ko7iQt4pAvO+yX
+         AD08WaBIoPmf+vreaaT9w9eyt8HnoIhQwGpn38ooV71ERWCXHwzTlabXIjIfbmQQnogT
+         wYeKDpjpCGrZkc9AYMjKValkfMDxOoWgX18Nv/z2t5e568vn7pkUlorXhHXf1ROqSNSF
+         zizLUQhZkIcMstWGxhvIVdIWvuuMk4UKq49waN2pqGgRSgVjiLZlPDo+qHdtIK68vo15
+         42cA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701204581; x=1701809381;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FsBQ1c03W+bPyqjQatoY3AtDcRPwnaylyTF2JWK/6Qg=;
+        b=c/dStlEvm4f3mwjj+tq+ePHntcrFgaa1co4RpQWZfpWa75G7jB+ZilL7MDZTs97/2k
+         gtWeN4DfzRP2cMsTAq2k66gxrc0p28pf5rw1INK43+b1rVe7oTnbrGYsL8vNrKCyx1oM
+         STQ7ozpKCyk/TYqaapmhwGLchhoXAMIOpv6amKi5RLkFiAlvONXjpBK4krxKfVgft9cv
+         zue3pOqI00PrXh0cVPP3WdYuBzvQ3mt9KYKsC7u9P0loK1ULIyZI/WoqMJ4Q5bN0BEoP
+         4CayMYL5t3nDp8I9u2lZdNFX6Z04H7ifynFhN3FkkGH2mbfGFI6TMkNQTZii8bWNvGsu
+         hgzw==
+X-Gm-Message-State: AOJu0YynkwWn07wLzUQRXc41f5spbe23F4qHgT/wkc2U1D1PODD1wYBZ
+	9Ok8mCgwRBn+Zk292ezpYWza/A==
+X-Google-Smtp-Source: AGHT+IEGKj81OhPPfZGrAMOrKOsHXDo+wy0whZdL8ikR2KmUyXglOYylmfrRjMDC83oWuy4vndr7lg==
+X-Received: by 2002:a05:620a:1452:b0:77d:c593:f63c with SMTP id i18-20020a05620a145200b0077dc593f63cmr2543824qkl.24.1701204581121;
+        Tue, 28 Nov 2023 12:49:41 -0800 (PST)
+Received: from soleen.c.googlers.com.com (55.87.194.35.bc.googleusercontent.com. [35.194.87.55])
+        by smtp.gmail.com with ESMTPSA id d11-20020a0cfe8b000000b0067a56b6adfesm1056863qvs.71.2023.11.28.12.49.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Nov 2023 12:49:40 -0800 (PST)
+From: Pasha Tatashin <pasha.tatashin@soleen.com>
+To: akpm@linux-foundation.org,
+	alex.williamson@redhat.com,
+	alim.akhtar@samsung.com,
+	alyssa@rosenzweig.io,
+	asahi@lists.linux.dev,
+	baolu.lu@linux.intel.com,
+	bhelgaas@google.com,
+	cgroups@vger.kernel.org,
+	corbet@lwn.net,
+	david@redhat.com,
+	dwmw2@infradead.org,
+	hannes@cmpxchg.org,
+	heiko@sntech.de,
+	iommu@lists.linux.dev,
+	jasowang@redhat.com,
+	jernej.skrabec@gmail.com,
+	jgg@ziepe.ca,
+	jonathanh@nvidia.com,
+	joro@8bytes.org,
+	kevin.tian@intel.com,
+	krzysztof.kozlowski@linaro.org,
+	kvm@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-rockchip@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org,
+	lizefan.x@bytedance.com,
+	marcan@marcan.st,
+	mhiramat@kernel.org,
+	mst@redhat.com,
+	m.szyprowski@samsung.com,
+	netdev@vger.kernel.org,
+	pasha.tatashin@soleen.com,
+	paulmck@kernel.org,
+	rdunlap@infradead.org,
+	robin.murphy@arm.com,
+	samuel@sholland.org,
+	suravee.suthikulpanit@amd.com,
+	sven@svenpeter.dev,
+	thierry.reding@gmail.com,
+	tj@kernel.org,
+	tomas.mudrunka@gmail.com,
+	vdumpa@nvidia.com,
+	virtualization@lists.linux.dev,
+	wens@csie.org,
+	will@kernel.org,
+	yu-cheng.yu@intel.com
+Subject: [PATCH 00/16] IOMMU memory observability
+Date: Tue, 28 Nov 2023 20:49:22 +0000
+Message-ID: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
+X-Mailer: git-send-email 2.43.0.rc2.451.g8631bc7472-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 28 Nov 2023 12:14:42 +0100
-Maxime Ripard <mripard@kernel.org> wrote:
+From: Pasha Tatashin <tatashin@google.com>
 
-> Hi,
-> 
-> On Fri, Nov 24, 2023 at 11:59:11AM +0100, Boris Brezillon wrote:
-> > On Fri, 24 Nov 2023 11:40:06 +0100
-> > Maxime Ripard <mripard@kernel.org> wrote:
-> >   
-> > > On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:  
-> > > > Add locked and remove unlocked postfixes from drm-shmem function names,
-> > > > making names consistent with the drm/gem core code.
-> > > > 
-> > > > Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > > > Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-> > > > Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>    
-> > > 
-> > > This contradicts my earlier ack on a patch but...
-> > >   
-> > > > ---
-> > > >  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----------
-> > > >  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
-> > > >  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
-> > > >  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
-> > > >  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
-> > > >  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
-> > > >  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
-> > > >  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
-> > > >  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
-> > > >  9 files changed, 64 insertions(+), 64 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > > index 0d61f2b3e213..154585ddae08 100644
-> > > > --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > > +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> > > > @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
-> > > >  	.pin = drm_gem_shmem_object_pin,
-> > > >  	.unpin = drm_gem_shmem_object_unpin,
-> > > >  	.get_sg_table = drm_gem_shmem_object_get_sg_table,
-> > > > -	.vmap = drm_gem_shmem_object_vmap,
-> > > > -	.vunmap = drm_gem_shmem_object_vunmap,
-> > > > +	.vmap = drm_gem_shmem_object_vmap_locked,
-> > > > +	.vunmap = drm_gem_shmem_object_vunmap_locked,    
-> > > 
-> > > While I think we should indeed be consistent with the names, I would
-> > > also expect helpers to get the locking right by default.  
-> > 
-> > Wait, actually I think this patch does what you suggest already. The
-> > _locked() prefix tells the caller: "you should take care of the locking,
-> > I expect the lock to be held when this is hook/function is called". So
-> > helpers without the _locked() prefix take care of the locking (which I
-> > guess matches your 'helpers get the locking right' expectation), and
-> > those with the _locked() prefix don't.  
-> 
-> What I meant by "getting the locking right" is indeed a bit ambiguous,
-> sorry. What I'm trying to say I guess is that, in this particular case,
-> I don't think you can expect the vmap implementation to be called with
-> or without the locks held. The doc for that function will say that it's
-> either one or the other, but not both.
-> 
-> So helpers should follow what is needed to provide a default vmap/vunmap
-> implementation, including what locking is expected from a vmap/vunmap
-> implementation.
+IOMMU subsystem may contain state that is in gigabytes. Majority of that
+state is iommu page tables. Yet, there is currently, no way to observe
+how much memory is actually used by the iommu subsystem.
 
-Hm, yeah, I think that's a matter of taste. When locking is often
-deferrable, like it is in DRM, I find it beneficial for funcions and
-function pointers to reflect the locking scheme, rather than relying on
-people properly reading the doc, especially when this is the only
-outlier in the group of drm_gem_object_funcs we already have, and it's
-not event documented at the drm_gem_object_funcs level [1] :P.
+This patch series solves this problem by adding both observability to
+all pages that are allocated by IOMMU, and also accountability, so
+admins can limit the amount if via cgroups.
 
-> 
-> If that means that vmap is always called with the locks taken, then
-> drm_gem_shmem_object_vmap can just assume that it will be called with
-> the locks taken and there's no need to mention it in the name (and you
-> can probably sprinkle a couple of lockdep assertion to make sure the
-> locking is indeed consistent).
+The system-wide observability is using /proc/meminfo:
+SecPageTables:    438176 kB
 
-Things get very confusing when you end up having drm_gem_shmem helpers
-that are suffixed with _locked() to encode the fact locking is the
-caller's responsibility and no suffix for the
-callee-takes-care-of-the-locking semantics, while other helpers that are
-not suffixed at all actually implement the
-caller-should-take-care-of-the-locking semantics.
+Contains IOMMU and KVM memory.
 
-> 
-> > > I'm not sure how reasonable it is, but I think I'd prefer to turn this
-> > > around and keep the drm_gem_shmem_object_vmap/unmap helpers name, and
-> > > convert whatever function needs to be converted to the unlock suffix so
-> > > we get a consistent naming.  
-> > 
-> > That would be an _unlocked() prefix if we do it the other way around. I
-> > think the main confusion comes from the names of the hooks in
-> > drm_gem_shmem_funcs. Some of them, like drm_gem_shmem_funcs::v[un]map()
-> > are called with the GEM resv lock held, and locking is handled by the
-> > core, others, like drm_gem_shmem_funcs::[un]pin() are called
-> > without the GEM resv lock held, and locking is deferred to the
-> > implementation. As I said, I don't mind prefixing hooks/helpers with
-> > _unlocked() for those that take care of the locking, and no prefix for
-> > those that expects locks to be held, as long as it's consistent, but I
-> > just wanted to make sure we're on the same page :-).  
-> 
-> What about _nolock then? It's the same number of characters than
-> _locked, plus it expresses what the function is (not) doing, not what
-> context it's supposed to be called in?
+Per-node observability:
+/sys/devices/system/node/nodeN/meminfo
+Node N SecPageTables:    422204 kB
 
-Just did a quick
+Contains IOMMU and KVM memory memory in the given NUMA node.
 
-  git grep _nolock drivers/gpu/drm
+Per-node IOMMU only observability:
+/sys/devices/system/node/nodeN/vmstat
+nr_iommu_pages 105555
 
-and it returns zero result, where the _locked/_unlocked pattern seems
-to already be widely used. Not saying we shouldn't change that, but it
-doesn't feel like a change we should do as part of this series.
+Contains number of pages IOMMU allocated in the given node.
 
-Regards,
+Accountability: using sec_pagetables cgroup-v2 memory.stat entry.
 
-Boris
+With the change, iova_stress[1] stops as limit is reached:
 
-[1]https://elixir.bootlin.com/linux/v6.7-rc3/source/include/drm/drm_gem.h#L155
+# ./iova_stress
+iova space:     0T      free memory:   497G
+iova space:     1T      free memory:   495G
+iova space:     2T      free memory:   493G
+iova space:     3T      free memory:   491G
+
+stops as limit is reached.
+
+This series encorporates suggestions that came from the discussion
+at LPC [2].
+
+[1] https://github.com/soleen/iova_stress
+[2] https://lpc.events/event/17/contributions/1466
+
+Pasha Tatashin (16):
+  iommu/vt-d: add wrapper functions for page allocations
+  iommu/amd: use page allocation function provided by iommu-pages.h
+  iommu/io-pgtable-arm: use page allocation function provided by
+    iommu-pages.h
+  iommu/io-pgtable-dart: use page allocation function provided by
+    iommu-pages.h
+  iommu/io-pgtable-arm-v7s: use page allocation function provided by
+    iommu-pages.h
+  iommu/dma: use page allocation function provided by iommu-pages.h
+  iommu/exynos: use page allocation function provided by iommu-pages.h
+  iommu/fsl: use page allocation function provided by iommu-pages.h
+  iommu/iommufd: use page allocation function provided by iommu-pages.h
+  iommu/rockchip: use page allocation function provided by iommu-pages.h
+  iommu/sun50i: use page allocation function provided by iommu-pages.h
+  iommu/tegra-smmu: use page allocation function provided by
+    iommu-pages.h
+  iommu: observability of the IOMMU allocations
+  iommu: account IOMMU allocated memory
+  vhost-vdpa: account iommu allocations
+  vfio: account iommu allocations
+
+ Documentation/admin-guide/cgroup-v2.rst |   2 +-
+ Documentation/filesystems/proc.rst      |   4 +-
+ drivers/iommu/amd/amd_iommu.h           |   8 -
+ drivers/iommu/amd/init.c                |  91 +++++-----
+ drivers/iommu/amd/io_pgtable.c          |  13 +-
+ drivers/iommu/amd/io_pgtable_v2.c       |  20 +-
+ drivers/iommu/amd/iommu.c               |  13 +-
+ drivers/iommu/dma-iommu.c               |   8 +-
+ drivers/iommu/exynos-iommu.c            |  14 +-
+ drivers/iommu/fsl_pamu.c                |   5 +-
+ drivers/iommu/intel/dmar.c              |  10 +-
+ drivers/iommu/intel/iommu.c             |  47 ++---
+ drivers/iommu/intel/iommu.h             |   2 -
+ drivers/iommu/intel/irq_remapping.c     |  10 +-
+ drivers/iommu/intel/pasid.c             |  12 +-
+ drivers/iommu/intel/svm.c               |   7 +-
+ drivers/iommu/io-pgtable-arm-v7s.c      |   9 +-
+ drivers/iommu/io-pgtable-arm.c          |   7 +-
+ drivers/iommu/io-pgtable-dart.c         |  37 ++--
+ drivers/iommu/iommu-pages.h             | 231 ++++++++++++++++++++++++
+ drivers/iommu/iommufd/iova_bitmap.c     |   6 +-
+ drivers/iommu/rockchip-iommu.c          |  14 +-
+ drivers/iommu/sun50i-iommu.c            |   7 +-
+ drivers/iommu/tegra-smmu.c              |  18 +-
+ drivers/vfio/vfio_iommu_type1.c         |   8 +-
+ drivers/vhost/vdpa.c                    |   3 +-
+ include/linux/mmzone.h                  |   5 +-
+ mm/vmstat.c                             |   3 +
+ 28 files changed, 415 insertions(+), 199 deletions(-)
+ create mode 100644 drivers/iommu/iommu-pages.h
+
+-- 
+2.43.0.rc2.451.g8631bc7472-goog
+
