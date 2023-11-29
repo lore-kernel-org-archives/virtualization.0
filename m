@@ -1,243 +1,231 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D791A71B
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:20:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 950F118AE9
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:47:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RoKAa9th"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="muQA55Nb"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1021643542
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:20:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1021643542
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=RoKAa9th
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1AC838208E
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:47:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1AC838208E
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=muQA55Nb
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fubTjorw_XLA
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UpSkXI3O_Gp9
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 10:20:47 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 825B040272
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:20:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 825B040272
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701253246;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8eOgmnDcAOuHVjx4FQ/wfnS7taAjkRaDPrb33RzRzvo=;
-	b=RoKAa9thTFudFZum+4f7YUA5OukHa+eTRJugicXcCy6glBn8fn3JA63nEzPbCHQ86/0bOg
-	R5xoyghtTj6QC5vsQ1s4Rl5WS1VwgmQG0BXmHybUfpp/XJO4TqnS4Je+iGrwyGW6wf2Uvp
-	LnHM26UMvzM3v7LUJ06xSMVscBoSTM8=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-183-nr4Nu-27N2urBI1MRp6Uxg-1; Wed, 29 Nov 2023 05:20:44 -0500
-X-MC-Unique: nr4Nu-27N2urBI1MRp6Uxg-1
-Received: by mail-lj1-f200.google.com with SMTP id 38308e7fff4ca-2c99d7d6820so29060151fa.2
-        for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 02:20:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701253243; x=1701858043;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8eOgmnDcAOuHVjx4FQ/wfnS7taAjkRaDPrb33RzRzvo=;
-        b=OtGbPBtdAlNBHtm8M3HN2OX4lN9+eUnfWv6eaQoL6XxCLQtHa/3HCq1mVdilsxVYgc
-         g+2zlCxJm9UC42aNA8M/ZceD8MQnEFHgSf3353ZFkhP70KNSBnqi7G49tnVt6Rh94xR2
-         0Yrq6EO0HuMsBZqOzUCl7wIkbPC8NdWXa/frAag+nY3RVCiwqO7rfXoSCr1RbwbTi1h0
-         dkNXDtvMh7shM9QIO1IOa5JtbtcGLorPXEeW5nH2K++rqJGNWYONxk1ZQKYpLsyeC//h
-         tXMhJbxayPO4ZkUSEaNOXyEFm9fhDOA32yxZCz4O2BRCTUv76mDWKxvt8q6E8Ie8q3xZ
-         0jDA==
-X-Gm-Message-State: AOJu0YzRJsE4fZi3JnRrODC7h363N7bkS8+xSY5oslR9VxonKj5ZT23x
-	ss82a9SZceG+3fpiIRYM7gwhA/k059wvCUgeJPm8mGsLLtAXdBziy+tWCsVjZKHmwixyskI0YDU
-	QiftXB/mYyRlASLyzZjEcS/hdrJGsdvR24yvIWUjSF6QFNQ/F8pz7sqvvqQ==
-X-Received: by 2002:a05:6512:220a:b0:507:cb04:59d4 with SMTP id h10-20020a056512220a00b00507cb0459d4mr12336129lfu.8.1701253243251;
-        Wed, 29 Nov 2023 02:20:43 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHo6suNvwReIN0wIUEmAKInanQPmGpK3eFZ68I+bpu7dfH9YCETv8WG6Wc9xZCDDfErzyYtBX/TPf0eCASyd2Y=
-X-Received: by 2002:a05:6512:220a:b0:507:cb04:59d4 with SMTP id
- h10-20020a056512220a00b00507cb0459d4mr12336107lfu.8.1701253242868; Wed, 29
- Nov 2023 02:20:42 -0800 (PST)
+	Wed, 29 Nov 2023 10:47:30 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 96F6A8206D
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 10:47:30 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 96F6A8206D
+Received: from [10.3.2.161] (zone.collabora.co.uk [167.235.23.81])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: dmitry.osipenko)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 082296602021;
+	Wed, 29 Nov 2023 10:47:25 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1701254847;
+	bh=G7oY6lpVSeNxefRPC0Bb+0Q6Gm15NLlalNVXTAW9g3Y=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=muQA55Nb63Lw1xMy0n+wARPHfzfkseDjZ/SYcT8VHWQpT6hAkgfmg5Uq6PAhoj6rm
+	 tEq5CNDfNwDrgqICY6HGRGA6WfWPD2OXXLnlrp2SCaBp1cbNjF9F33TZKGmzKC0k/s
+	 qsDvk5aOOwhcytZkDxrpsgxX3YfFOvfoYKC7h022bP8ne2dkGeinUjsYDzRGwWn6az
+	 pVq/RvwgccPG4sJvo8myCO4ZLmcr/Brh6HolrVkA9Pj/k6aFR7kkhko0FWWKmGwJ6G
+	 1MyZctnnGIqXCb0rewiNgwBn4Lv223tp605BL8/HlVGLqXt+QNt4ZC1EVzVQ5pz0QF
+	 IsKE+C0PKXabw==
+Message-ID: <bcc8013d-d107-934f-71fa-98ab2e0275ee@collabora.com>
+Date: Wed, 29 Nov 2023 13:47:21 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20230903181338-mutt-send-email-mst@kernel.org>
- <647701d8-c99b-4ca8-9817-137eaefda237@linux.intel.com> <CACGkMEvoGOO0jtq5T7arAjRoB_0_fHB2+hPJe1JsPqcAuvr98w@mail.gmail.com>
- <6f84bbad-62f9-43df-8134-a6836cc3b66c@linux.intel.com>
-In-Reply-To: <6f84bbad-62f9-43df-8134-a6836cc3b66c@linux.intel.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 29 Nov 2023 18:20:31 +0800
-Message-ID: <CACGkMEvtus2BseZec8at6YORO=As1v9r9p=xtZjE1e2i=uhwhA@mail.gmail.com>
-Subject: Re: [GIT PULL] virtio: features
-To: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, xuanzhuo@linux.alibaba.com, 
-	Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, eperezma@redhat.com, shannon.nelson@amd.com, 
-	yuanyaogoog@chromium.org, yuehaibing@huawei.com, 
-	kirill.shutemov@linux.intel.com, sathyanarayanan.kuppuswamy@linux.intel.com, 
-	alexander.shishkin@linux.intel.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/mixed; boundary="0000000000003705f2060b47e303"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.15.1
+Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
+ functions
+Content-Language: en-US
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>,
+ Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>,
+ dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+ kernel@collabora.com, virtualization@lists.linux-foundation.org
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+ <20231029230205.93277-5-dmitry.osipenko@collabora.com>
+ <wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
+ <20231124115911.79ab24af@collabora.com>
+ <kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
+ <20231128133712.53a6f6cb@collabora.com>
+ <37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
+ <20231129085330.7ccb35d3@collabora.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20231129085330.7ccb35d3@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
---0000000000003705f2060b47e303
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On 11/29/23 10:53, Boris Brezillon wrote:
+> On Wed, 29 Nov 2023 01:05:14 +0300
+> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> 
+>> On 11/28/23 15:37, Boris Brezillon wrote:
+>>> On Tue, 28 Nov 2023 12:14:42 +0100
+>>> Maxime Ripard <mripard@kernel.org> wrote:
+>>>   
+>>>> Hi,
+>>>>
+>>>> On Fri, Nov 24, 2023 at 11:59:11AM +0100, Boris Brezillon wrote:  
+>>>>> On Fri, 24 Nov 2023 11:40:06 +0100
+>>>>> Maxime Ripard <mripard@kernel.org> wrote:
+>>>>>     
+>>>>>> On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:    
+>>>>>>> Add locked and remove unlocked postfixes from drm-shmem function names,
+>>>>>>> making names consistent with the drm/gem core code.
+>>>>>>>
+>>>>>>> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+>>>>>>> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+>>>>>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>      
+>>>>>>
+>>>>>> This contradicts my earlier ack on a patch but...
+>>>>>>     
+>>>>>>> ---
+>>>>>>>  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----------
+>>>>>>>  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
+>>>>>>>  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+>>>>>>>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
+>>>>>>>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
+>>>>>>>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
+>>>>>>>  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
+>>>>>>>  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
+>>>>>>>  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
+>>>>>>>  9 files changed, 64 insertions(+), 64 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>>>>>> index 0d61f2b3e213..154585ddae08 100644
+>>>>>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>>>>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+>>>>>>> @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+>>>>>>>  	.pin = drm_gem_shmem_object_pin,
+>>>>>>>  	.unpin = drm_gem_shmem_object_unpin,
+>>>>>>>  	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+>>>>>>> -	.vmap = drm_gem_shmem_object_vmap,
+>>>>>>> -	.vunmap = drm_gem_shmem_object_vunmap,
+>>>>>>> +	.vmap = drm_gem_shmem_object_vmap_locked,
+>>>>>>> +	.vunmap = drm_gem_shmem_object_vunmap_locked,      
+>>>>>>
+>>>>>> While I think we should indeed be consistent with the names, I would
+>>>>>> also expect helpers to get the locking right by default.    
+>>>>>
+>>>>> Wait, actually I think this patch does what you suggest already. The
+>>>>> _locked() prefix tells the caller: "you should take care of the locking,
+>>>>> I expect the lock to be held when this is hook/function is called". So
+>>>>> helpers without the _locked() prefix take care of the locking (which I
+>>>>> guess matches your 'helpers get the locking right' expectation), and
+>>>>> those with the _locked() prefix don't.    
+>>>>
+>>>> What I meant by "getting the locking right" is indeed a bit ambiguous,
+>>>> sorry. What I'm trying to say I guess is that, in this particular case,
+>>>> I don't think you can expect the vmap implementation to be called with
+>>>> or without the locks held. The doc for that function will say that it's
+>>>> either one or the other, but not both.
+>>>>
+>>>> So helpers should follow what is needed to provide a default vmap/vunmap
+>>>> implementation, including what locking is expected from a vmap/vunmap
+>>>> implementation.  
+>>>
+>>> Hm, yeah, I think that's a matter of taste. When locking is often
+>>> deferrable, like it is in DRM, I find it beneficial for funcions and
+>>> function pointers to reflect the locking scheme, rather than relying on
+>>> people properly reading the doc, especially when this is the only
+>>> outlier in the group of drm_gem_object_funcs we already have, and it's
+>>> not event documented at the drm_gem_object_funcs level [1] :P.
+>>>   
+>>>>
+>>>> If that means that vmap is always called with the locks taken, then
+>>>> drm_gem_shmem_object_vmap can just assume that it will be called with
+>>>> the locks taken and there's no need to mention it in the name (and you
+>>>> can probably sprinkle a couple of lockdep assertion to make sure the
+>>>> locking is indeed consistent).  
+>>>
+>>> Things get very confusing when you end up having drm_gem_shmem helpers
+>>> that are suffixed with _locked() to encode the fact locking is the
+>>> caller's responsibility and no suffix for the
+>>> callee-takes-care-of-the-locking semantics, while other helpers that are
+>>> not suffixed at all actually implement the
+>>> caller-should-take-care-of-the-locking semantics.
+>>>   
+>>>>  
+>>>>>> I'm not sure how reasonable it is, but I think I'd prefer to turn this
+>>>>>> around and keep the drm_gem_shmem_object_vmap/unmap helpers name, and
+>>>>>> convert whatever function needs to be converted to the unlock suffix so
+>>>>>> we get a consistent naming.    
+>>>>>
+>>>>> That would be an _unlocked() prefix if we do it the other way around. I
+>>>>> think the main confusion comes from the names of the hooks in
+>>>>> drm_gem_shmem_funcs. Some of them, like drm_gem_shmem_funcs::v[un]map()
+>>>>> are called with the GEM resv lock held, and locking is handled by the
+>>>>> core, others, like drm_gem_shmem_funcs::[un]pin() are called
+>>>>> without the GEM resv lock held, and locking is deferred to the
+>>>>> implementation. As I said, I don't mind prefixing hooks/helpers with
+>>>>> _unlocked() for those that take care of the locking, and no prefix for
+>>>>> those that expects locks to be held, as long as it's consistent, but I
+>>>>> just wanted to make sure we're on the same page :-).    
+>>>>
+>>>> What about _nolock then? It's the same number of characters than
+>>>> _locked, plus it expresses what the function is (not) doing, not what
+>>>> context it's supposed to be called in?  
+>>>
+>>> Just did a quick
+>>>
+>>>   git grep _nolock drivers/gpu/drm
+>>>
+>>> and it returns zero result, where the _locked/_unlocked pattern seems
+>>> to already be widely used. Not saying we shouldn't change that, but it
+>>> doesn't feel like a change we should do as part of this series.
+>>>
+>>> Regards,
+>>>
+>>> Boris
+>>>
+>>> [1]https://elixir.bootlin.com/linux/v6.7-rc3/source/include/drm/drm_gem.h#L155  
+>>
+>> I'm fine with dropping the _locked() postfix from the common GEM helpers
+>> and documenting the locking rule in drm_gem. Thank you all for the
+>> suggestions :)
+> 
+> Sorry to disagree, but I think a proper function name/suffix is
+> sometimes worth a few lines of doc. Not saying we should do one or the
+> other, I think we should do both. But when I see a function suffixed
+> _locked, _unlocked or _nolock, I can immediately tell if this function
+> defers the locking to the caller or not, and then go check which lock
+> in the function doc.
+> 
+> And the second thing I'm not happy with, is the fact we go back to an
+> inconsistent naming in drm_gem_shmem_helper.c, where some functions
+> deferring the locking to the caller are suffixed _locked and others are
+> not, because ultimately, you need a different name when you expose the
+> two variants...
 
-On Wed, Nov 29, 2023 at 6:12=E2=80=AFPM Ning, Hongyu
-<hongyu.ning@linux.intel.com> wrote:
->
->
-> On 2023/11/29 17:16, Jason Wang wrote:
-> > On Wed, Nov 29, 2023 at 5:05=E2=80=AFPM Ning, Hongyu
-> > <hongyu.ning@linux.intel.com> wrote:
-> >>
-> >>
-> >>
-> >> On 2023/9/4 6:13, Michael S. Tsirkin wrote:
-> >>> The following changes since commit 2dde18cd1d8fac735875f2e4987f11817c=
-c0bc2c:
-> >>>
-> >>>     Linux 6.5 (2023-08-27 14:49:51 -0700)
-> >>>
-> >>> are available in the Git repository at:
-> >>>
-> >>>     https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tag=
-s/for_linus
-> >>>
-> >>> for you to fetch changes up to 1acfe2c1225899eab5ab724c91b7e1eb2881b9=
-ab:
-> >>>
-> >>>     virtio_ring: fix avail_wrap_counter in virtqueue_add_packed (2023=
--09-03 18:10:24 -0400)
-> >>>
-> >>> ----------------------------------------------------------------
-> >>> virtio: features
-> >>>
-> >>> a small pull request this time around, mostly because the
-> >>> vduse network got postponed to next relase so we can be sure
-> >>> we got the security store right.
-> >>>
-> >>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >>>
-> >>> ----------------------------------------------------------------
-> >>> Eugenio P=C3=A9rez (4):
-> >>>         vdpa: add VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK flag
-> >>>         vdpa: accept VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK backend f=
-eature
-> >>>         vdpa: add get_backend_features vdpa operation
-> >>>         vdpa_sim: offer VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK
-> >>>
-> >>> Jason Wang (1):
-> >>>         virtio_vdpa: build affinity masks conditionally
-> >>>
-> >>> Xuan Zhuo (12):
-> >>>         virtio_ring: check use_dma_api before unmap desc for indirect
-> >>>         virtio_ring: put mapping error check in vring_map_one_sg
-> >>>         virtio_ring: introduce virtqueue_set_dma_premapped()
-> >>>         virtio_ring: support add premapped buf
-> >>>         virtio_ring: introduce virtqueue_dma_dev()
-> >>>         virtio_ring: skip unmap for premapped
-> >>>         virtio_ring: correct the expression of the description of vir=
-tqueue_resize()
-> >>>         virtio_ring: separate the logic of reset/enable from virtqueu=
-e_resize
-> >>>         virtio_ring: introduce virtqueue_reset()
-> >>>         virtio_ring: introduce dma map api for virtqueue
-> >>>         virtio_ring: introduce dma sync api for virtqueue
-> >>>         virtio_net: merge dma operations when filling mergeable buffe=
-rs
-> >>
-> >> Hi,
-> >> above patch (upstream commit 295525e29a5b) seems causing a virtnet
-> >> related Call Trace after WARNING from kernel/dma/debug.c.
-> >>
-> >> details (log and test setup) tracked in
-> >> https://bugzilla.kernel.org/show_bug.cgi?id=3D218204
-> >>
-> >> it's recently noticed in a TDX guest testing since v6.6.0 release cycl=
-e
-> >> and can still be reproduced in latest v6.7.0-rc3.
-> >>
-> >> as local bisects results show, above WARNING and Call Trace is linked
-> >> with this patch, do you mind to take a look?
-> >
-> > Looks like virtqueue_dma_sync_single_range_for_cpu() use
-> > DMA_BIDIRECTIONAL unconditionally.
-> >
-> > We should use dir here.
-> >
-> > Mind to try?
-> >
-> > Thanks
-> >
->
-> sure, but what I see in the code
-> virtqueue_dma_sync_single_range_for_cpu() is using DMA_FROM_DEVICE,
-> probably I misunderstood your point?
->
-> Please let me know any patch/setting to try here.
+By the `common GEM helpers` I meant the .vmap drm-shmem common helpers
+used for drm_gem_object_funcs, like was suggested by Maxime. The rest of
+functions will retain the _locked part. Sorry for the confusion :)
 
-Something like attached.  (Not even compiling test).
-
-Thanks
-
->
->
-> >>
-> >>>
-> >>> Yuan Yao (1):
-> >>>         virtio_ring: fix avail_wrap_counter in virtqueue_add_packed
-> >>>
-> >>> Yue Haibing (1):
-> >>>         vdpa/mlx5: Remove unused function declarations
-> >>>
-> >>>    drivers/net/virtio_net.c           | 230 ++++++++++++++++++---
-> >>>    drivers/vdpa/mlx5/core/mlx5_vdpa.h |   3 -
-> >>>    drivers/vdpa/vdpa_sim/vdpa_sim.c   |   8 +
-> >>>    drivers/vhost/vdpa.c               |  15 +-
-> >>>    drivers/virtio/virtio_ring.c       | 412 +++++++++++++++++++++++++=
-+++++++-----
-> >>>    drivers/virtio/virtio_vdpa.c       |  17 +-
-> >>>    include/linux/vdpa.h               |   4 +
-> >>>    include/linux/virtio.h             |  22 ++
-> >>>    include/uapi/linux/vhost_types.h   |   4 +
-> >>>    9 files changed, 625 insertions(+), 90 deletions(-)
-> >>>
-> >>
-> >
->
-
---0000000000003705f2060b47e303
-Content-Type: application/octet-stream; 
-	name="0001-virtio_ring-fix-DMA-dir-during-sync.patch"
-Content-Disposition: attachment; 
-	filename="0001-virtio_ring-fix-DMA-dir-during-sync.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_lpjm8ipj0>
-X-Attachment-Id: f_lpjm8ipj0
-
-RnJvbSBmZjVhNTQwMmExMjA5Y2FjNzNhNGIwZTdjMTkzNzM3ODhiNDE3N2Y5IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgpEYXRl
-OiBXZWQsIDI5IE5vdiAyMDIzIDE3OjE0OjE1ICswODAwClN1YmplY3Q6IFtQQVRDSF0gdmlydGlv
-X3Jpbmc6IGZpeCBETUEgZGlyIGR1cmluZyBzeW5jCkNvbnRlbnQtdHlwZTogdGV4dC9wbGFpbgoK
-U2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KLS0tCiBkcml2
-ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0
-aW9uKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKaW5kZXggODFlY2IyOWM4OGYx
-Li45MWQ4Njk4MTQzNzMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
-KysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwpAQCAtMzIyMCw3ICszMjIwLDcgQEAg
-dm9pZCB2aXJ0cXVldWVfZG1hX3N5bmNfc2luZ2xlX3JhbmdlX2Zvcl9jcHUoc3RydWN0IHZpcnRx
-dWV1ZSAqX3ZxLAogCQlyZXR1cm47CiAKIAlkbWFfc3luY19zaW5nbGVfcmFuZ2VfZm9yX2NwdShk
-ZXYsIGFkZHIsIG9mZnNldCwgc2l6ZSwKLQkJCQkgICAgICBETUFfQklESVJFQ1RJT05BTCk7CisJ
-CQkJICAgICAgZGlyKTsKIH0KIEVYUE9SVF9TWU1CT0xfR1BMKHZpcnRxdWV1ZV9kbWFfc3luY19z
-aW5nbGVfcmFuZ2VfZm9yX2NwdSk7CiAKLS0gCjIuNDIuMAoK
---0000000000003705f2060b47e303--
+-- 
+Best regards,
+Dmitry
 
