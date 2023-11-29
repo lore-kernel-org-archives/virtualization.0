@@ -1,307 +1,136 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C99E14A87
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:25:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="SJrfKwT9"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3712E12B83
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:26:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D508D419B3
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:25:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D508D419B3
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=SJrfKwT9
+	by smtp3.osuosl.org (Postfix) with ESMTP id 92C4B61AC1
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:26:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 92C4B61AC1
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -4.198
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HHb7SS-UM7AP
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qdhv6SGADmc1
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 09:24:59 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 506E640272
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:24:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 506E640272
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id F3D79100019;
-	Wed, 29 Nov 2023 12:24:55 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru F3D79100019
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701249896;
-	bh=eVwndGgq0W0UsSKxBhx+5YPBwXU+EeeXoPsonuNv8sE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=SJrfKwT9bR/NZ/ynUGUOKSpVvGjZCplqJNTnMkVFpGqOvWvGUp3lxOvraoDaJBQ8d
-	 /p+9Ww/2LojwNx+jMcVknSBemkHQASMW2VzvIdYnfODtcrJSbzh1md+BEfsDyOL7MI
-	 A7iL5FyJ+229888p5lwvLRzPmoSl+bfPBG/aX+XNDkqjyC7uj4jVB/3Y2rOGAW4OSt
-	 1SM07hKJYT1VQ7+Ykok8S9ftDS9vzatzSpAZNO6lBzGmI3Sj70Zz/+vpAeH4r5h3Lw
-	 18DZp/VoeSDWK8k/V1XhJSbOiggS4baHWMSiZva3wtisqPOg+N6Tv1ynhP28QbBxH/
-	 gDOqeHdMzDsWw==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed, 29 Nov 2023 12:24:55 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Wed, 29 Nov 2023 12:24:55 +0300
-Message-ID: <be8b1d3e-7032-76dc-042c-9513a933a0f3@salutedevices.com>
-Date: Wed, 29 Nov 2023 12:16:54 +0300
+	Wed, 29 Nov 2023 09:26:31 +0000 (UTC)
+X-Greylist: delayed 1020 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 Nov 2023 09:26:30 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A3DD361AB9
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A3DD361AB9
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 09:26:30 +0000 (UTC)
+Received: from mail.maildlp.com (unknown [172.18.186.231])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4SgD5t3LfDz6HJkv;
+	Wed, 29 Nov 2023 17:09:06 +0800 (CST)
+Received: from lhrpeml100002.china.huawei.com (unknown [7.191.160.241])
+	by mail.maildlp.com (Postfix) with ESMTPS id 93A30140EE7;
+	Wed, 29 Nov 2023 17:08:25 +0800 (CST)
+Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
+ lhrpeml100002.china.huawei.com (7.191.160.241) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 29 Nov 2023 09:08:21 +0000
+Received: from lhrpeml500005.china.huawei.com ([7.191.163.240]) by
+ lhrpeml500005.china.huawei.com ([7.191.163.240]) with mapi id 15.01.2507.035;
+ Wed, 29 Nov 2023 09:08:21 +0000
+From: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+	"Kevin Tian" <kevin.tian@intel.com>, Joerg Roedel <joro@8bytes.org>, Will
+ Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Jean-Philippe
+ Brucker <jean-philippe@linaro.org>, Nicolin Chen <nicolinc@nvidia.com>, Yi
+ Liu <yi.l.liu@intel.com>, Jacob Pan <jacob.jun.pan@linux.intel.com>
+CC: "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+Thread-Topic: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+Thread-Index: AQHaB7eiyREckpQTNkq/zZ6Gqko1E7CRNsbw
+Date: Wed, 29 Nov 2023 09:08:21 +0000
+Message-ID: <55ed1ac0f2024c429b396cb751773d62@huawei.com>
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+In-Reply-To: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [RFC PATCH v3 3/3] vsock/test: SO_RCVLOWAT + deferred credit
- update test
-Content-Language: en-US
-To: Stefano Garzarella <sgarzare@redhat.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller"
-	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
-	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
-	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
-References: <20231122180510.2297075-1-avkrasnov@salutedevices.com>
- <20231122180510.2297075-4-avkrasnov@salutedevices.com>
- <mklk6i6frkms33qntatlejbyl2czf7sp4quorkuxy6lpwmmlcn@foknxen36olr>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <mklk6i6frkms33qntatlejbyl2czf7sp4quorkuxy6lpwmmlcn@foknxen36olr>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181677 [Nov 29 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, 100.64.160.123:7.1.2;salutedevices.com:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/29 05:52:00 #22570775
-X-KSMG-AntiVirus-Status: Clean, skipped
 
 
 
-On 29.11.2023 12:16, Stefano Garzarella wrote:
-> On Wed, Nov 22, 2023 at 09:05:10PM +0300, Arseniy Krasnov wrote:
->> Test which checks, that updating SO_RCVLOWAT value also sends credit
->> update message. Otherwise mutual hungup may happen when receiver didn't
->> send credit update and then calls 'poll()' with non default SO_RCVLOWAT
->> value (e.g. waiting enough bytes to read), while sender waits for free
->> space at receiver's side. Important thing is that this test relies on
->> kernel's define for maximum packet size for virtio transport and this
->> value is not exported to user: VIRTIO_VSOCK_MAX_PKT_BUF_SIZE (this
->> define is used to control moment when to send credit update message).
->> If this value or its usage will be changed in kernel - this test may
->> become useless/broken.
->>
->> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->> ---
->> Changelog:
->> v1 -> v2:
->>  * Update commit message by removing 'This patch adds XXX' manner.
->>  * Update commit message by adding details about dependency for this
->>    test from kernel internal define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
->>  * Add comment for this dependency in 'vsock_test.c' where this define
->>    is duplicated.
->> v2 -> v3:
->>  * Replace synchronization based on control TCP socket with vsock
->>    data socket - this is needed to allow sender transmit data only
->>    when new buffer size of receiver is visible to sender. Otherwise
->>    there is race and test fails sometimes.
->>
->> tools/testing/vsock/vsock_test.c | 142 +++++++++++++++++++++++++++++++
->> 1 file changed, 142 insertions(+)
->>
->> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->> index 5b0e93f9996c..773a71260fba 100644
->> --- a/tools/testing/vsock/vsock_test.c
->> +++ b/tools/testing/vsock/vsock_test.c
->> @@ -1225,6 +1225,143 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
->>     }
->> }
->>
->> +#define RCVLOWAT_CREDIT_UPD_BUF_SIZE    (1024 * 128)
->> +/* This define is the same as in 'include/linux/virtio_vsock.h':
->> + * it is used to decide when to send credit update message during
->> + * reading from rx queue of a socket. Value and its usage in
->> + * kernel is important for this test.
->> + */
->> +#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE    (1024 * 64)
->> +
->> +static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opts)
->> +{
->> +    size_t buf_size;
->> +    void *buf;
->> +    int fd;
->> +
->> +    fd = vsock_stream_connect(opts->peer_cid, 1234);
->> +    if (fd < 0) {
->> +        perror("connect");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    /* Send 1 byte more than peer's buffer size. */
->> +    buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE + 1;
->> +
->> +    buf = malloc(buf_size);
->> +    if (!buf) {
->> +        perror("malloc");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    /* Wait until peer sets needed buffer size. */
->> +    recv_byte(fd, 1, 0);
->> +
->> +    if (send(fd, buf, buf_size, 0) != buf_size) {
->> +        perror("send failed");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    free(buf);
->> +    close(fd);
->> +}
->> +
->> +static void test_stream_rcvlowat_def_cred_upd_server(const struct test_opts *opts)
->> +{
->> +    size_t recv_buf_size;
->> +    struct pollfd fds;
->> +    size_t buf_size;
->> +    void *buf;
->> +    int fd;
->> +
->> +    fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
->> +    if (fd < 0) {
->> +        perror("accept");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
->> +
->> +    if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
->> +               &buf_size, sizeof(buf_size))) {
->> +        perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    /* Send one dummy byte here, because 'setsockopt()' above also
->> +     * sends special packet which tells sender to update our buffer
->> +     * size. This 'send_byte()' will serialize such packet with data
->> +     * reads in a loop below. Sender starts transmission only when
->> +     * it receives this single byte.
->> +     */
->> +    send_byte(fd, 1, 0);
->> +
->> +    buf = malloc(buf_size);
->> +    if (!buf) {
->> +        perror("malloc");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    /* Wait until there will be 128KB of data in rx queue. */
->> +    while (1) {
->> +        ssize_t res;
->> +
->> +        res = recv(fd, buf, buf_size, MSG_PEEK);
->> +        if (res == buf_size)
->> +            break;
->> +
->> +        if (res <= 0) {
->> +            fprintf(stderr, "unexpected 'recv()' return: %zi\n", res);
->> +            exit(EXIT_FAILURE);
->> +        }
->> +    }
->> +
->> +    /* There is 128KB of data in the socket's rx queue,
->> +     * dequeue first 64KB, credit update is not sent.
->> +     */
->> +    recv_buf_size = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
->> +    recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
->> +    recv_buf_size++;
->> +
->> +    /* Updating SO_RCVLOWAT will send credit update. */
->> +    if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
->> +               &recv_buf_size, sizeof(recv_buf_size))) {
->> +        perror("setsockopt(SO_RCVLOWAT)");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    memset(&fds, 0, sizeof(fds));
->> +    fds.fd = fd;
->> +    fds.events = POLLIN | POLLRDNORM | POLLERR |
->> +             POLLRDHUP | POLLHUP;
->> +
->> +    /* This 'poll()' will return once we receive last byte
->> +     * sent by client.
->> +     */
->> +    if (poll(&fds, 1, -1) < 0) {
->> +        perror("poll");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    if (fds.revents & POLLERR) {
->> +        fprintf(stderr, "'poll()' error\n");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    if (fds.revents & (POLLIN | POLLRDNORM)) {
->> +        recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
-> 
-> Should we set the socket non-blocking?
-> 
-> Otherwise, here poll() might wake up even if there are not all the
-> expected bytes due to some bug and recv() block waiting for the
-> remaining bytes, so we might not notice the bug.
+> -----Original Message-----
+> From: Lu Baolu [mailto:baolu.lu@linux.intel.com]
+> Sent: 26 October 2023 03:49
+> To: Jason Gunthorpe <jgg@ziepe.ca>; Kevin Tian <kevin.tian@intel.com>;
+> Joerg Roedel <joro@8bytes.org>; Will Deacon <will@kernel.org>; Robin
+> Murphy <robin.murphy@arm.com>; Jean-Philippe Brucker
+> <jean-philippe@linaro.org>; Nicolin Chen <nicolinc@nvidia.com>; Yi Liu
+> <yi.l.liu@intel.com>; Jacob Pan <jacob.jun.pan@linux.intel.com>
+> Cc: iommu@lists.linux.dev; linux-kselftest@vger.kernel.org;
+> virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org; =
+Lu
+> Baolu <baolu.lu@linux.intel.com>
+> Subject: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+>=20
+> Hi folks,
+>=20
+> This series implements the functionality of delivering IO page faults to
+> user space through the IOMMUFD framework for nested translation. Nested
+> translation is a hardware feature that supports two-stage translation
+> tables for IOMMU. The second-stage translation table is managed by the
+> host VMM, while the first-stage translation table is owned by user
+> space. This allows user space to control the IOMMU mappings for its
+> devices.
+>=20
+> When an IO page fault occurs on the first-stage translation table, the
+> IOMMU hardware can deliver the page fault to user space through the
+> IOMMUFD framework. User space can then handle the page fault and
+> respond
+> to the device top-down through the IOMMUFD. This allows user space to
+> implement its own IO page fault handling policies.
+>=20
+> User space indicates its capability of handling IO page faults by
+> setting the IOMMU_HWPT_ALLOC_IOPF_CAPABLE flag when allocating a
+> hardware page table (HWPT). IOMMUFD will then set up its infrastructure
+> for page fault delivery. On a successful return of HWPT allocation, the
+> user can retrieve and respond to page faults by reading and writing to
+> the file descriptor (FD) returned in out_fault_fd.
+>=20
+> The iommu selftest framework has been updated to test the IO page fault
+> delivery and response functionality.
+>=20
+> This series is based on the latest implementation of nested translation
+> under discussion [1] and the page fault handling framework refactoring in
+> the IOMMU core [2].
+>=20
+> The series and related patches are available on GitHub: [3]
+>=20
+> [1]
+> https://lore.kernel.org/linux-iommu/20230921075138.124099-1-yi.l.liu@int
+> el.com/
+> [2]
+> https://lore.kernel.org/linux-iommu/20230928042734.16134-1-baolu.lu@li
+> nux.intel.com/
+> [3]
+> https://github.com/LuBaolu/intel-iommu/commits/iommufd-io-pgfault-deliv
+> ery-v2
 
-Good point! or just use MSG_DONTWAIT flag for only this 'recv()'.
+Hi Baolu,
 
-Thanks, Arseniy
+Do you have a corresponding Qemu git to share? I could give it a spin on ou=
+r ARM=20
+platform. Please let me know.
 
-> 
-> Stefano
-> 
->> +    } else {
->> +        /* These flags must be set, as there is at
->> +         * least 64KB of data ready to read.
->> +         */
->> +        fprintf(stderr, "POLLIN | POLLRDNORM expected\n");
->> +        exit(EXIT_FAILURE);
->> +    }
->> +
->> +    free(buf);
->> +    close(fd);
->> +}
->> +
->> static struct test_case test_cases[] = {
->>     {
->>         .name = "SOCK_STREAM connection reset",
->> @@ -1335,6 +1472,11 @@ static struct test_case test_cases[] = {
->>         .run_client = test_double_bind_connect_client,
->>         .run_server = test_double_bind_connect_server,
->>     },
->> +    {
->> +        .name = "SOCK_STREAM virtio SO_RCVLOWAT + deferred cred update",
->> +        .run_client = test_stream_rcvlowat_def_cred_upd_client,
->> +        .run_server = test_stream_rcvlowat_def_cred_upd_server,
->> +    },
->>     {},
->> };
->>
->> -- 
->> 2.25.1
->>
-> 
+Thanks,
+Shameer
+
