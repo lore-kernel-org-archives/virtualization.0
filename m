@@ -1,406 +1,258 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F8CE208AB
-	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 13:34:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 103391FBB
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:46:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Q34sQ5cY"
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="AZLgQ56o"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6F66081E6D
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:46:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 6F66081E6D
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=AZLgQ56o
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fZnN3Qfg5QWF
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 29 Nov 2023 13:46:17 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BB03881447
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:46:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BB03881447
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 5028A1FCE6;
-	Wed, 29 Nov 2023 13:34:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1701264859; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ubJkMQ3bJM1M1oqNOhKbV6Ls4YI1RdRoIlEotgJ7Ja8=;
-	b=Q34sQ5cYfQBMmXxnbsLfnNclguCLvpQGXr1gnmOdLsK5QxIGxAwJLchCVMECxkDn0YUKDm
-	rAn4n0AA1OBk7+khDtHgrv9Bq7kN9FElZ/ps03YFRjTmeyZg3ZOMYdTek+pjt7VYXxACRj
-	Cz0F0K3ZQ+ED/LD0OOs0i88eCrc/Sdg=
-Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id F130A1376F;
-	Wed, 29 Nov 2023 13:34:18 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id bHVyOdo9Z2WoHwAAn2gu4w
-	(envelope-from <jgross@suse.com>); Wed, 29 Nov 2023 13:34:18 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev
-Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <akaher@vmware.com>,
-	Alexey Makhalov <amakhalov@vmware.com>,
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v5 5/5] x86/paravirt: remove no longer needed paravirt patching code
-Date: Wed, 29 Nov 2023 14:33:32 +0100
-Message-Id: <20231129133332.31043-6-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20231129133332.31043-1-jgross@suse.com>
-References: <20231129133332.31043-1-jgross@suse.com>
+	(Authenticated sender: bbrezillon)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 8F4F96602F2A;
+	Wed, 29 Nov 2023 13:46:12 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1701265573;
+	bh=cPrdHiYFM6hWb9ovweIlhFYJQT5IeERY0rZ3lJOJTdI=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=AZLgQ56oeWFfTMEJAqzBGdw1QGd8KK96rkEqcbEe4trdn7Thr5oXG8Z8qHYVDZmAi
+	 3MBMxJNUN7QwJXWBYAO664A7Vwq0jD6rA1MmHtk+TRWCHaXA0lAUaurZZ3apSpRzUr
+	 I+J4gx5wXcZWHgCGBwLgWw1FDBAd3AhLRHJ/zthC+ef5/dvhw0A97tTg7SXyAVHrWG
+	 VFERw1C71DayL5JOrmQZEi9ngMZiOwT8iy69rXsm9oNyrMxrQgbFGADdfNTlE02cxu
+	 X4NOWc3raSu3iRIGepfYoQtiRB5k4/bGt8irN9Pa72PglH4Ay8VTPjmrqeIDQ0cqlh
+	 HyVuNUKZ8Nqgg==
+Date: Wed, 29 Nov 2023 14:46:09 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Maxime Ripard <mripard@kernel.org>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
+ <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
+ <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter
+ <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
+ <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
+ <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
+ functions
+Message-ID: <20231129144609.7544e773@collabora.com>
+In-Reply-To: <ioqghyaeftyo7tuyfecn252ykxwgltrkhh2pwktjejqhewntbb@bym3rsjxnxfp>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-5-dmitry.osipenko@collabora.com>
+	<wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
+	<20231124115911.79ab24af@collabora.com>
+	<kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
+	<20231128133712.53a6f6cb@collabora.com>
+	<37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
+	<20231129085330.7ccb35d3@collabora.com>
+	<ioqghyaeftyo7tuyfecn252ykxwgltrkhh2pwktjejqhewntbb@bym3rsjxnxfp>
+Organization: Collabora
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out2.suse.de;
-	none
-X-Spam-Level: 
-X-Spam-Score: -3.10
-X-Spamd-Result: default: False [-3.10 / 50.00];
-	 ARC_NA(0.00)[];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 FROM_HAS_DN(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 R_MISSING_CHARSET(2.50)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 REPLY(-4.00)[];
-	 BROKEN_CONTENT_TYPE(1.50)[];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	 RCPT_COUNT_TWELVE(0.00)[13];
-	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[infradead.org:email,suse.com:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 RCVD_TLS_ALL(0.00)[];
-	 BAYES_HAM(-3.00)[100.00%]
-X-Spam-Flag: NO
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Now that paravirt is using the alternatives patching infrastructure,
-remove the paravirt patching code.
+On Wed, 29 Nov 2023 14:09:47 +0100
+Maxime Ripard <mripard@kernel.org> wrote:
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/x86/include/asm/paravirt.h       | 16 -------
- arch/x86/include/asm/paravirt_types.h | 38 ---------------
- arch/x86/include/asm/text-patching.h  | 12 -----
- arch/x86/kernel/alternative.c         | 67 +--------------------------
- arch/x86/kernel/paravirt.c            | 30 ------------
- arch/x86/kernel/vmlinux.lds.S         | 13 ------
- arch/x86/tools/relocs.c               |  2 +-
- 7 files changed, 3 insertions(+), 175 deletions(-)
+> On Wed, Nov 29, 2023 at 08:53:30AM +0100, Boris Brezillon wrote:
+> > On Wed, 29 Nov 2023 01:05:14 +0300
+> > Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+> >   
+> > > On 11/28/23 15:37, Boris Brezillon wrote:  
+> > > > On Tue, 28 Nov 2023 12:14:42 +0100
+> > > > Maxime Ripard <mripard@kernel.org> wrote:
+> > > >     
+> > > >> Hi,
+> > > >>
+> > > >> On Fri, Nov 24, 2023 at 11:59:11AM +0100, Boris Brezillon wrote:    
+> > > >>> On Fri, 24 Nov 2023 11:40:06 +0100
+> > > >>> Maxime Ripard <mripard@kernel.org> wrote:
+> > > >>>       
+> > > >>>> On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:      
+> > > >>>>> Add locked and remove unlocked postfixes from drm-shmem function names,
+> > > >>>>> making names consistent with the drm/gem core code.
+> > > >>>>>
+> > > >>>>> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > > >>>>> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > > >>>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>        
+> > > >>>>
+> > > >>>> This contradicts my earlier ack on a patch but...
+> > > >>>>       
+> > > >>>>> ---
+> > > >>>>>  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----------
+> > > >>>>>  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
+> > > >>>>>  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+> > > >>>>>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
+> > > >>>>>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
+> > > >>>>>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
+> > > >>>>>  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
+> > > >>>>>  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
+> > > >>>>>  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
+> > > >>>>>  9 files changed, 64 insertions(+), 64 deletions(-)
+> > > >>>>>
+> > > >>>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > >>>>> index 0d61f2b3e213..154585ddae08 100644
+> > > >>>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > >>>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > > >>>>> @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+> > > >>>>>  	.pin = drm_gem_shmem_object_pin,
+> > > >>>>>  	.unpin = drm_gem_shmem_object_unpin,
+> > > >>>>>  	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> > > >>>>> -	.vmap = drm_gem_shmem_object_vmap,
+> > > >>>>> -	.vunmap = drm_gem_shmem_object_vunmap,
+> > > >>>>> +	.vmap = drm_gem_shmem_object_vmap_locked,
+> > > >>>>> +	.vunmap = drm_gem_shmem_object_vunmap_locked,        
+> > > >>>>
+> > > >>>> While I think we should indeed be consistent with the names, I would
+> > > >>>> also expect helpers to get the locking right by default.      
+> > > >>>
+> > > >>> Wait, actually I think this patch does what you suggest already. The
+> > > >>> _locked() prefix tells the caller: "you should take care of the locking,
+> > > >>> I expect the lock to be held when this is hook/function is called". So
+> > > >>> helpers without the _locked() prefix take care of the locking (which I
+> > > >>> guess matches your 'helpers get the locking right' expectation), and
+> > > >>> those with the _locked() prefix don't.      
+> > > >>
+> > > >> What I meant by "getting the locking right" is indeed a bit ambiguous,
+> > > >> sorry. What I'm trying to say I guess is that, in this particular case,
+> > > >> I don't think you can expect the vmap implementation to be called with
+> > > >> or without the locks held. The doc for that function will say that it's
+> > > >> either one or the other, but not both.
+> > > >>
+> > > >> So helpers should follow what is needed to provide a default vmap/vunmap
+> > > >> implementation, including what locking is expected from a vmap/vunmap
+> > > >> implementation.    
+> > > > 
+> > > > Hm, yeah, I think that's a matter of taste. When locking is often
+> > > > deferrable, like it is in DRM, I find it beneficial for funcions and
+> > > > function pointers to reflect the locking scheme, rather than relying on
+> > > > people properly reading the doc, especially when this is the only
+> > > > outlier in the group of drm_gem_object_funcs we already have, and it's
+> > > > not event documented at the drm_gem_object_funcs level [1] :P.
+> > > >     
+> > > >>
+> > > >> If that means that vmap is always called with the locks taken, then
+> > > >> drm_gem_shmem_object_vmap can just assume that it will be called with
+> > > >> the locks taken and there's no need to mention it in the name (and you
+> > > >> can probably sprinkle a couple of lockdep assertion to make sure the
+> > > >> locking is indeed consistent).    
+> > > > 
+> > > > Things get very confusing when you end up having drm_gem_shmem helpers
+> > > > that are suffixed with _locked() to encode the fact locking is the
+> > > > caller's responsibility and no suffix for the
+> > > > callee-takes-care-of-the-locking semantics, while other helpers that are
+> > > > not suffixed at all actually implement the
+> > > > caller-should-take-care-of-the-locking semantics.
+> > > >     
+> > > >>    
+> > > >>>> I'm not sure how reasonable it is, but I think I'd prefer to turn this
+> > > >>>> around and keep the drm_gem_shmem_object_vmap/unmap helpers name, and
+> > > >>>> convert whatever function needs to be converted to the unlock suffix so
+> > > >>>> we get a consistent naming.      
+> > > >>>
+> > > >>> That would be an _unlocked() prefix if we do it the other way around. I
+> > > >>> think the main confusion comes from the names of the hooks in
+> > > >>> drm_gem_shmem_funcs. Some of them, like drm_gem_shmem_funcs::v[un]map()
+> > > >>> are called with the GEM resv lock held, and locking is handled by the
+> > > >>> core, others, like drm_gem_shmem_funcs::[un]pin() are called
+> > > >>> without the GEM resv lock held, and locking is deferred to the
+> > > >>> implementation. As I said, I don't mind prefixing hooks/helpers with
+> > > >>> _unlocked() for those that take care of the locking, and no prefix for
+> > > >>> those that expects locks to be held, as long as it's consistent, but I
+> > > >>> just wanted to make sure we're on the same page :-).      
+> > > >>
+> > > >> What about _nolock then? It's the same number of characters than
+> > > >> _locked, plus it expresses what the function is (not) doing, not what
+> > > >> context it's supposed to be called in?    
+> > > > 
+> > > > Just did a quick
+> > > > 
+> > > >   git grep _nolock drivers/gpu/drm
+> > > > 
+> > > > and it returns zero result, where the _locked/_unlocked pattern seems
+> > > > to already be widely used. Not saying we shouldn't change that, but it
+> > > > doesn't feel like a change we should do as part of this series.
+> > > > 
+> > > > Regards,
+> > > > 
+> > > > Boris
+> > > > 
+> > > > [1]https://elixir.bootlin.com/linux/v6.7-rc3/source/include/drm/drm_gem.h#L155    
+> > > 
+> > > I'm fine with dropping the _locked() postfix from the common GEM helpers
+> > > and documenting the locking rule in drm_gem. Thank you all for the
+> > > suggestions :)  
+> > 
+> > Sorry to disagree, but I think a proper function name/suffix is
+> > sometimes worth a few lines of doc. Not saying we should do one or the
+> > other, I think we should do both. But when I see a function suffixed
+> > _locked, _unlocked or _nolock, I can immediately tell if this function
+> > defers the locking to the caller or not, and then go check which lock
+> > in the function doc.
+> > 
+> > And the second thing I'm not happy with, is the fact we go back to an
+> > inconsistent naming in drm_gem_shmem_helper.c, where some functions
+> > deferring the locking to the caller are suffixed _locked and others are
+> > not, because ultimately, you need a different name when you expose the
+> > two variants...  
+> 
+> I guess one of the point I was trying to make was also: why do you need
+> both?
+> 
+> If one is better than the other (whatever better means here), then all
+> drivers should use it.
+> 
+> The counterpart being that if provided a choice, you can be sure that a
+> lot of people will get it wrong. The one example I have in mind for
+> example was the drm_atomic_helper_commit_tail vs
+> drm_atomic_helper_commit_tail_rpm. The latter is now widely used, and
+> most of it is cargo-cult.
+> 
+> I think you were referring to the locks being deferred vs taken right
+> now before, why do we need to have the choice between the two?
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 88bb5c34a171..f09acce9432c 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -725,29 +725,13 @@ void native_pv_lock_init(void) __init;
- 
- #else  /* __ASSEMBLY__ */
- 
--#define _PVSITE(ptype, ops)			\
--771:;						\
--	ops;					\
--772:;						\
--	.pushsection .parainstructions,"a";	\
--	 .long 771b-.;				\
--	 .byte ptype;				\
--	 .byte 772b-771b;			\
--	.popsection
--
--
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
- #ifdef CONFIG_DEBUG_ENTRY
- 
--#define PARA_PATCH(off)		((off) / 8)
--#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops)
- #define PARA_INDIRECT(addr)	*addr(%rip)
- 
- .macro PARA_IRQ_save_fl
--	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),
--		  ANNOTATE_RETPOLINE_SAFE;
--		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);)
- 	ANNOTATE_RETPOLINE_SAFE;
- 	call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);
- .endm
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 9cad536fc08d..d8e85d2cf8d5 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -2,15 +2,6 @@
- #ifndef _ASM_X86_PARAVIRT_TYPES_H
- #define _ASM_X86_PARAVIRT_TYPES_H
- 
--#ifndef __ASSEMBLY__
--/* These all sit in the .parainstructions section to tell us what to patch. */
--struct paravirt_patch_site {
--	s32 instr_offset;	/* original instructions */
--	u8 type;		/* type of this instruction */
--	u8 len;			/* length of original instruction */
--} __packed;
--#endif
--
- #ifdef CONFIG_PARAVIRT
- 
- #ifndef __ASSEMBLY__
-@@ -250,32 +241,6 @@ struct paravirt_patch_template {
- extern struct pv_info pv_info;
- extern struct paravirt_patch_template pv_ops;
- 
--#define PARAVIRT_PATCH(x)					\
--	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
--
--#define paravirt_type(op)				\
--	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
--	[paravirt_opptr] "m" (pv_ops.op)
--/*
-- * Generate some code, and mark it as patchable by the
-- * apply_paravirt() alternate instruction patcher.
-- */
--#define _paravirt_alt(insn_string, type)		\
--	"771:\n\t" insn_string "\n" "772:\n"		\
--	".pushsection .parainstructions,\"a\"\n"	\
--	"  .long 771b-.\n"				\
--	"  .byte " type "\n"				\
--	"  .byte 772b-771b\n"				\
--	".popsection\n"
--
--/* Generate patchable code, with the default asm parameters. */
--#define paravirt_alt(insn_string)					\
--	_paravirt_alt(insn_string, "%c[paravirt_typenum]")
--
--/* Simple instruction patching code. */
--#define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
--
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr, unsigned int len);
- #define paravirt_ptr(op)	[paravirt_opptr] "m" (pv_ops.op)
- 
- int paravirt_disable_iospace(void);
-@@ -555,9 +520,6 @@ unsigned long pv_native_read_cr2(void);
- 
- #define paravirt_nop	((void *)nop_func)
- 
--extern struct paravirt_patch_site __parainstructions[],
--	__parainstructions_end[];
--
- #endif	/* __ASSEMBLY__ */
- 
- #define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index 29832c338cdc..0b70653a98c1 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -6,18 +6,6 @@
- #include <linux/stddef.h>
- #include <asm/ptrace.h>
- 
--struct paravirt_patch_site;
--#ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch_site *start,
--		    struct paravirt_patch_site *end);
--#else
--static inline void apply_paravirt(struct paravirt_patch_site *start,
--				  struct paravirt_patch_site *end)
--{}
--#define __parainstructions	NULL
--#define __parainstructions_end	NULL
--#endif
--
- /*
-  * Currently, the max observed size in the kernel code is
-  * JUMP_LABEL_NOP_SIZE/RELATIVEJUMP_SIZE, which are 5.
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 1f605079f982..4781f781f7db 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1467,48 +1467,6 @@ int alternatives_text_reserved(void *start, void *end)
- }
- #endif /* CONFIG_SMP */
- 
--#ifdef CONFIG_PARAVIRT
--
--/* Use this to add nops to a buffer, then text_poke the whole buffer. */
--static void __init_or_module add_nops(void *insns, unsigned int len)
--{
--	while (len > 0) {
--		unsigned int noplen = len;
--		if (noplen > ASM_NOP_MAX)
--			noplen = ASM_NOP_MAX;
--		memcpy(insns, x86_nops[noplen], noplen);
--		insns += noplen;
--		len -= noplen;
--	}
--}
--
--void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
--				     struct paravirt_patch_site *end)
--{
--	struct paravirt_patch_site *p;
--	char insn_buff[MAX_PATCH_LEN];
--	u8 *instr;
--
--	for (p = start; p < end; p++) {
--		unsigned int used;
--
--		instr = (u8 *)&p->instr_offset + p->instr_offset;
--		BUG_ON(p->len > MAX_PATCH_LEN);
--		/* prep the buffer with the original instructions */
--		memcpy(insn_buff, instr, p->len);
--		used = paravirt_patch(p->type, insn_buff, (unsigned long)instr, p->len);
--
--		BUG_ON(used > p->len);
--
--		/* Pad the rest with nops */
--		add_nops(insn_buff + used, p->len - used);
--		text_poke_early(instr, insn_buff, p->len);
--	}
--}
--extern struct paravirt_patch_site __start_parainstructions[],
--	__stop_parainstructions[];
--#endif	/* CONFIG_PARAVIRT */
--
- /*
-  * Self-test for the INT3 based CALL emulation code.
-  *
-@@ -1644,28 +1602,11 @@ void __init alternative_instructions(void)
- 	 */
- 
- 	/*
--	 * Paravirt patching and alternative patching can be combined to
--	 * replace a function call with a short direct code sequence (e.g.
--	 * by setting a constant return value instead of doing that in an
--	 * external function).
--	 * In order to make this work the following sequence is required:
--	 * 1. set (artificial) features depending on used paravirt
--	 *    functions which can later influence alternative patching
--	 * 2. apply paravirt patching (generally replacing an indirect
--	 *    function call with a direct one)
--	 * 3. apply alternative patching (e.g. replacing a direct function
--	 *    call with a custom code sequence)
--	 * Doing paravirt patching after alternative patching would clobber
--	 * the optimization of the custom code with a function call again.
-+	 * Make sure to set (artificial) features depending on used paravirt
-+	 * functions which can later influence alternative patching.
- 	 */
- 	paravirt_set_cap();
- 
--	/*
--	 * First patch paravirt functions, such that we overwrite the indirect
--	 * call with the direct call.
--	 */
--	apply_paravirt(__parainstructions, __parainstructions_end);
--
- 	__apply_fineibt(__retpoline_sites, __retpoline_sites_end,
- 			__cfi_sites, __cfi_sites_end, true);
- 
-@@ -1676,10 +1617,6 @@ void __init alternative_instructions(void)
- 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
- 	apply_returns(__return_sites, __return_sites_end);
- 
--	/*
--	 * Then patch alternatives, such that those paravirt calls that are in
--	 * alternatives can be overwritten by their immediate fragments.
--	 */
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
- 	/*
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index acc5b1004f0f..5358d43886ad 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -43,14 +43,6 @@ void __init default_banner(void)
- 	       pv_info.name);
- }
- 
--static unsigned paravirt_patch_call(void *insn_buff, const void *target,
--				    unsigned long addr, unsigned len)
--{
--	__text_gen_insn(insn_buff, CALL_INSN_OPCODE,
--			(void *)addr, target, CALL_INSN_SIZE);
--	return CALL_INSN_SIZE;
--}
--
- #ifdef CONFIG_PARAVIRT_XXL
- DEFINE_ASM_FUNC(_paravirt_ident_64, "mov %rdi, %rax", .text);
- DEFINE_ASM_FUNC(pv_native_save_fl, "pushf; pop %rax", .noinstr.text);
-@@ -73,28 +65,6 @@ static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
- 	tlb_remove_page(tlb, table);
- }
- 
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr,
--			    unsigned int len)
--{
--	/*
--	 * Neat trick to map patch type back to the call within the
--	 * corresponding structure.
--	 */
--	void *opfunc = *((void **)&pv_ops + type);
--	unsigned ret;
--
--	if (opfunc == NULL)
--		/* If there's no function, patch it with BUG_func() */
--		ret = paravirt_patch_call(insn_buff, BUG_func, addr, len);
--	else if (opfunc == nop_func)
--		ret = 0;
--	else
--		/* Otherwise call the function. */
--		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
--
--	return ret;
--}
--
- struct static_key paravirt_steal_enabled;
- struct static_key paravirt_steal_rq_enabled;
- 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 54a5596adaa6..a349dbfc6d5a 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -267,19 +267,6 @@ SECTIONS
- 	}
- #endif
- 
--	/*
--	 * start address and size of operations which during runtime
--	 * can be patched with virtualization friendly instructions or
--	 * baremetal native ones. Think page table operations.
--	 * Details in paravirt_types.h
--	 */
--	. = ALIGN(8);
--	.parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
--		__parainstructions = .;
--		*(.parainstructions)
--		__parainstructions_end = .;
--	}
--
- #ifdef CONFIG_RETPOLINE
- 	/*
- 	 * List of instructions that call/jmp/jcc to retpoline thunks
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index d30949e25ebd..a3bae2b24626 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -66,7 +66,7 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
- 	[S_REL] =
- 	"^(__init_(begin|end)|"
- 	"__x86_cpu_dev_(start|end)|"
--	"(__parainstructions|__alt_instructions)(_end)?|"
-+	"__alt_instructions(_end)?|"
- 	"(__iommu_table|__apicdrivers|__smp_locks)(_end)?|"
- 	"__(start|end)_pci_.*|"
- #if CONFIG_FW_LOADER
--- 
-2.35.3
+Because DRM locking is complex, and you sometimes have to call some
+helpers in a context where you already hold the GEM dma_resv lock.
+That's not the case for _v[un]map(), because the core always takes the
+lock for us if we call drm_gem_vmap_unlocked(). Now, let's assume we
+drop the _locked() suffix on drm_gem_shmem_v[un]map(), but keep it on
+other helpers that need both variants. This results in an inconsistent
+naming scheme inside the same source file, which I find utterly
+confusing.
 
+Note that the initial reason I asked Dmitry if he could add the
+_locked suffix to drm_gem_shmem_vmap() is because I started using
+drm_gem_shmem_vmap() in powervr, before realizing this version wasn't
+taking the lock, and I should have used drm_gem_vmap_unlocked()
+instead, so this is not something I'm making up. Not saying the
+confusion only comes from the naming, because the various layers of
+indirection we have clearly don't help, but having a name reflecting
+the fact the locking is deferred to the caller would have helped, I
+think.
