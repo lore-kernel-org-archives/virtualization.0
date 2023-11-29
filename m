@@ -1,46 +1,46 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E65F1C6B4
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A9411DA31
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZlcAr09N"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="f2BYXI/u"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D8CBA614EB
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D8CBA614EB
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8A13D60B1D
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8A13D60B1D
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ZlcAr09N
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=f2BYXI/u
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PRl01pGhgl9t
+	with ESMTP id igDUiR0qDuT8
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 12:19:14 +0000 (UTC)
+	Wed, 29 Nov 2023 12:19:22 +0000 (UTC)
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1B35C613FB
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1B35C613FB
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E7A5560C31
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:21 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E7A5560C31
 Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: vignesh)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 499E9660732D;
-	Wed, 29 Nov 2023 12:19:07 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 529E16607326;
+	Wed, 29 Nov 2023 12:19:15 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701260350;
-	bh=XbUCir+Q+reYtoCNT9JJRGJKk8rBQGhuHezJANZbYUg=;
+	s=mail; t=1701260358;
+	bh=H13PVkV6eP93AzIoNhD0cOJWUDbRbvEN1IuP+0EAl74=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZlcAr09NKt7amm/Vd93mbWaQHA7q5GuqlcykLoA9w6OmIhBXsiKfSicDzo9XZFph1
-	 M/TuOKWX2qsIn7CGk9aHvf1ah73Pyy3meN1rPZpvbsCEGZnjVp0k15usSNezvWy/zh
-	 SLqJ8NUpmunbg+K+mA0YcGjCP+0FMfXgYrsJEk+wbPwFfKakHwjnXibzYfXAhs8moT
-	 PBrS7Q28VGydkhvQL5v1gB34/08C29x9x5n6EdoG4p2S58mUCxCP/grLpl9S7R/jby
-	 GTNSs7TW7XOhU5n13vvR9XLFr1ekFVyMY0c4gNuvmErYVwSh8OOxQBXjnvtBUbhfQs
-	 2M0IfV2QWlJew==
+	b=f2BYXI/usX+luXIuDlnTUmGLvpk8aKD8/G+FHPv3JgrCgSadJ5bpWBvxdLiM6jg/R
+	 r8j+GuhFzcffI9/LAp6LhVRi0faHRf9iaLDEN1glK36RhTBU1ygBDK17McV1yJNO0W
+	 1Y0HxAoeTpWtzumD5kobODYrZalzbCrAS4UnizkLpHbk9thEQ4Mk29aTEksfLq1QQE
+	 K8AQX8jhQieOzksaKSWm6qiCJf/6yRBaiem3xCvRV2djSacqnRVmfwvcc+B/kFEKQ/
+	 4ryMphd72tdnp1FkwGaGwSbOld8S/77vNqNLzzxpxUVTCsb2uAUdW3QfPA0VHkzFB7
+	 vwN4TT51DpuWQ==
 From: Vignesh Raman <vignesh.raman@collabora.com>
 To: helen.koike@collabora.com,
 	airlied@gmail.com,
@@ -58,9 +58,9 @@ Cc: david.heidelberg@collabora.com,
 	virtualization@lists.linux-foundation.org,
 	linux-rockchip@lists.infradead.org,
 	linux-arm-msm@vger.kernel.org
-Subject: [PATCH v6 04/10] drm: ci: Enable new jobs
-Date: Wed, 29 Nov 2023 17:48:35 +0530
-Message-Id: <20231129121841.253223-5-vignesh.raman@collabora.com>
+Subject: [PATCH v6 06/10] drm: ci: mediatek: Set IGT_FORCE_DRIVER for mt8173
+Date: Wed, 29 Nov 2023 17:48:37 +0530
+Message-Id: <20231129121841.253223-7-vignesh.raman@collabora.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231129121841.253223-1-vignesh.raman@collabora.com>
 References: <20231129121841.253223-1-vignesh.raman@collabora.com>
@@ -72,74 +72,38 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Enable the following jobs, as the issues noted in the
-TODO comments have been resolved. This will ensure that these jobs
-are now included and executed as part of the CI/CD pipeline.
+Expected driver for mt8173 is "mediatek" and for mt8183
+it is "panfrost". Set IGT_FORCE_DRIVER to 'mediatek' as
+the expected driver for mt8173.
 
-msm:apq8016:
-TODO: current issue: it is not fiding the NFS root. Fix and remove this rule.
-
-mediatek:mt8173:
-TODO: current issue: device is hanging. Fix and remove this rule.
-
-virtio_gpu:none:
-TODO: current issue: malloc(): corrupted top size. Fix and remove this rule.
-
-Acked-by: Helen Koike <helen.koike@collabora.com>
 Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 ---
 
-v2:
-  - Reworded the commit message
-
-v3:
-  - No changes
-
-v4:
-  - No changes
-
 v5:
-  - No changes
+  - Added a new patch in the series to set IGT_FORCE_DRIVER to 'mediatek' for mt8173
 
 v6:
-  - No changes
+  - Use GPU_VERSION instead of CI_JOB_NAME to check if it is mt8173
 
 ---
- drivers/gpu/drm/ci/test.yml | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/gpu/drm/ci/igt_runner.sh | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-index 4af10f0ff82d..e0fdc55c9b69 100644
---- a/drivers/gpu/drm/ci/test.yml
-+++ b/drivers/gpu/drm/ci/test.yml
-@@ -108,9 +108,6 @@ msm:apq8016:
-     RUNNER_TAG: google-freedreno-db410c
-   script:
-     - ./install/bare-metal/fastboot.sh
--  rules:
--    # TODO: current issue: it is not fiding the NFS root. Fix and remove this rule.
--    - when: never
+diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
+index c6cf963592c5..70a0f84021a1 100755
+--- a/drivers/gpu/drm/ci/igt_runner.sh
++++ b/drivers/gpu/drm/ci/igt_runner.sh
+@@ -30,6 +30,10 @@ case "$DRIVER_NAME" in
+         ;;
+ esac
  
- msm:apq8096:
-   extends:
-@@ -280,9 +277,6 @@ mediatek:mt8173:
-     DEVICE_TYPE: mt8173-elm-hana
-     GPU_VERSION: mt8173
-     RUNNER_TAG: mesa-ci-x86-64-lava-mt8173-elm-hana
--  rules:
--    # TODO: current issue: device is hanging. Fix and remove this rule.
--    - when: never
- 
- mediatek:mt8183:
-   extends:
-@@ -340,6 +334,3 @@ virtio_gpu:none:
-     - debian/x86_64_test-gl
-     - testing:x86_64
-     - igt:x86_64
--  rules:
--    # TODO: current issue: malloc(): corrupted top size. Fix and remove this rule.
--    - when: never
-\ No newline at end of file
++if [ "$GPU_VERSION" = "mt8173" ]; then
++    export IGT_FORCE_DRIVER=${DRIVER_NAME}
++fi
++
+ if [ -e "/install/xfails/$DRIVER_NAME-$GPU_VERSION-skips.txt" ]; then
+     IGT_SKIPS="--skips /install/xfails/$DRIVER_NAME-$GPU_VERSION-skips.txt"
+ fi
 -- 
 2.40.1
 
