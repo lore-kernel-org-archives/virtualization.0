@@ -1,217 +1,219 @@
-Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E9B186A;
-	Wed, 29 Nov 2023 07:49:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CDC711184
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 07:53:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="WS0m9G0n";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rQPYt4rH"
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-	by mailnew.nyi.internal (Postfix) with ESMTP id 9064C580A2F;
-	Wed, 29 Nov 2023 02:49:50 -0500 (EST)
-Received: from imap53 ([10.202.2.103])
-  by compute1.internal (MEProxy); Wed, 29 Nov 2023 02:49:50 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
-	:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:sender
-	:subject:subject:to:to; s=fm3; t=1701244190; x=1701251390; bh=ww
-	kE8lsdD1lmCvJ6vHeRL3ETi3+Yj2miubjiEiAIJqc=; b=WS0m9G0nx6dD9iEji/
-	fBqlaAFY/rMIvdHqXU7tZxzaCT6/WaZqN24lhBSrCWbph5RWVn8OG0wIE3vLDiA7
-	dOWPtjwm4K1LXbVSgViqbhQnGAqsI7zVo/p5C5Cc2lkcP6BvkMMbJJPRLlk6Obqn
-	AHfiWue+I4lT9KO4M5IqOwcDkJ9k3rIoOQzzkgfdeVW+FPwIkWR8otEXHsC4vN5M
-	YRFUR7qjaXjm+/zVf+gwWpzm9l6TfNicjYV48mg69Jf51d7lmUwmWy0QDMagwX+h
-	my8WMJddQ84zOCl6wx49JlxbWBkrLfSX8dsYvVyefTTM6PDNHjgdqGvgdPI98pTh
-	CeVQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:sender:subject
-	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-	:x-sasl-enc; s=fm1; t=1701244190; x=1701251390; bh=wwkE8lsdD1lmC
-	vJ6vHeRL3ETi3+Yj2miubjiEiAIJqc=; b=rQPYt4rH1AA0LiTAAnJGE//YvqNCw
-	0qwLht7gsUZGiRgP8vOuUojrK3gXdkIqqQy8kh1RU6M48Z+Q1F0tnQhr+VVyl2w5
-	NmyzspDEFgY404mNlejNyplFYnmca/DQjbd3xvYN1Ln64vKHdITrMssLqBon8Ujn
-	P7Qb4qPDUzh92GrFKk6+AzOXk04amTS8z6iqjc442y/87PjOdgE3r4Ts0YSlpbOW
-	dquGLaB3VxWfcHpWrswAQY2/Rw9xn8Jq2WVIEzpZjj1/JtoUjjzbJm94BlKfxFeu
-	aDZFAe2s9qDxCwDO/RDxvPYqUWrMro5Rq5vNlH5XTTV2LcBscKUpE50kw==
-X-ME-Sender: <xms:HO1mZWwi-0PHwgZ7UGdDg2Nfu1cPQBmbtYZcjowlgAyQ0BQky2hXjA>
-    <xme:HO1mZSTMYD4qqQdTonZ8IGVDTRfv30PWEOnWS8uEzYlouq8tMUIbuyDbZitdKhK-h
-    lPnAf3-fMz25n81ToA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudeigedguddutdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedflfgr
-    nhhnvgcuifhruhhnrghufdcuoehjsehjrghnnhgruhdrnhgvtheqnecuggftrfgrthhtvg
-    hrnhepteeugeeltdelffetleetudejgfejieegudekleekleeifffffefgfefgfeeukeef
-    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhesjh
-    grnhhnrghurdhnvght
-X-ME-Proxy: <xmx:HO1mZYWbL-dzWpMIvCrcF_hkcPxVblMr6At8rrdkDOd5QKecybyP8A>
-    <xmx:HO1mZcghfi5RLWq0pFjhso2VXNF7V40Fof9Xj8XlOYXvC_owwh5wlQ>
-    <xmx:HO1mZYDWse66_RKIUSsZ-t0CzxR6dHcZEVv_0jTO_L-qPjoGwVzSYQ>
-    <xmx:Hu1mZerEKP658mX4LK_6tKFnkmAWe_WKTSc7PfS_s-S-h8Msb1Q_lw>
-Feedback-ID: i47b949f6:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 5DF0E3640069; Wed, 29 Nov 2023 02:49:48 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.9.0-alpha0-1234-gac66594aae-fm-20231122.001-gac66594a
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="NfoE20/0"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1797741817
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 07:53:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1797741817
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=NfoE20/0
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ySIO2D9tfDGU
+	for <virtualization@lists.linux-foundation.org>;
+	Wed, 29 Nov 2023 07:53:48 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 616C241753
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 07:53:46 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 616C241753
+Received: from localhost (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: bbrezillon)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 74A4E66072B4;
+	Wed, 29 Nov 2023 07:53:34 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1701244415;
+	bh=XkmLRTHhwkpDeiBdgys6ZY0vdei/VhUADifyqniIuRA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=NfoE20/0jqky+pPakm5WtafclQpN+6ZbId1ksG7Pg2dJ8d6O4I//CKyRi514MvpyA
+	 bP23X0xkwZV84YDilQeh1f5d95KpvaYywuEAN0lw+wYyJAbjAOb5+F7wmpJ6/HRw3X
+	 ytEo370hP9Eq+Vd02/0R930dVjhXWA29q25v98RpmeTJajnw7ERQY3uegUbIZeIwYD
+	 De6zGsKH4kLJ2k/PIfl3ekhe8kW/ylmlMwV1lxJt2L8qP6si8Ny+VnQ9Y+QLk3Lozi
+	 3kLS9O/fDrPntLtlaPteOTQuEzbobQuXt5g+rYr9EzvHPusPTZy+NgKh1Xf3GYzOpT
+	 Aqkcv+j05BJwQ==
+Date: Wed, 29 Nov 2023 08:53:30 +0100
+From: Boris Brezillon <boris.brezillon@collabora.com>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
+ <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter
+ <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
+ <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
+ <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, kernel@collabora.com,
+ virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
+ functions
+Message-ID: <20231129085330.7ccb35d3@collabora.com>
+In-Reply-To: <37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+	<20231029230205.93277-5-dmitry.osipenko@collabora.com>
+	<wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
+	<20231124115911.79ab24af@collabora.com>
+	<kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
+	<20231128133712.53a6f6cb@collabora.com>
+	<37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
+Organization: Collabora
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <ca7a025d-8154-4509-b8ab-2a17e53ccbef@app.fastmail.com>
-In-Reply-To: <20231128204938.1453583-5-pasha.tatashin@soleen.com>
-References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
- <20231128204938.1453583-5-pasha.tatashin@soleen.com>
-Date: Wed, 29 Nov 2023 08:49:18 +0100
-From: "Janne Grunau" <j@jannau.net>
-To: "Pasha Tatashin" <pasha.tatashin@soleen.com>, akpm@linux-foundation.org,
- alex.williamson@redhat.com, alim.akhtar@samsung.com,
- "Alyssa Rosenzweig" <alyssa@rosenzweig.io>, asahi@lists.linux.dev,
- "Lu Baolu" <baolu.lu@linux.intel.com>, bhelgaas@google.com,
- cgroups@vger.kernel.org, corbet@lwn.net, david@redhat.com,
- "David Woodhouse" <dwmw2@infradead.org>, hannes@cmpxchg.org,
- heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com,
- jernej.skrabec@gmail.com, jgg@ziepe.ca, jonathanh@nvidia.com,
- "Joerg Roedel" <joro@8bytes.org>, "Kevin Tian" <kevin.tian@intel.com>,
- krzysztof.kozlowski@linaro.org, kvm@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
- linux-mm@kvack.org, linux-rockchip@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
- linux-tegra@vger.kernel.org, lizefan.x@bytedance.com,
- "Hector Martin" <marcan@marcan.st>, mhiramat@kernel.org, mst@redhat.com,
- m.szyprowski@samsung.com, netdev@vger.kernel.org, paulmck@kernel.org,
- rdunlap@infradead.org, "Robin Murphy" <robin.murphy@arm.com>,
- samuel@sholland.org, suravee.suthikulpanit@amd.com,
- "Sven Peter" <sven@svenpeter.dev>, thierry.reding@gmail.com,
- tj@kernel.org, tomas.mudrunka@gmail.com, vdumpa@nvidia.com,
- virtualization@lists.linux.dev, wens@csie.org,
- "Will Deacon" <will@kernel.org>, yu-cheng.yu@intel.com
-Subject: Re: [PATCH 04/16] iommu/io-pgtable-dart: use page allocation function provided
- by iommu-pages.h
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hej,
+On Wed, 29 Nov 2023 01:05:14 +0300
+Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
 
-On Tue, Nov 28, 2023, at 21:49, Pasha Tatashin wrote:
-> Convert iommu/io-pgtable-dart.c to use the new page allocation functions
-> provided in iommu-pages.h.
->
-> Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-> ---
->  drivers/iommu/io-pgtable-dart.c | 37 +++++++++++++--------------------
->  1 file changed, 14 insertions(+), 23 deletions(-)
->
-> diff --git a/drivers/iommu/io-pgtable-dart.c b/drivers/iommu/io-pgtable-dart.c
-> index 74b1ef2b96be..ad28031e1e93 100644
-> --- a/drivers/iommu/io-pgtable-dart.c
-> +++ b/drivers/iommu/io-pgtable-dart.c
-> @@ -23,6 +23,7 @@
->  #include <linux/types.h>
+> On 11/28/23 15:37, Boris Brezillon wrote:
+> > On Tue, 28 Nov 2023 12:14:42 +0100
+> > Maxime Ripard <mripard@kernel.org> wrote:
+> >   
+> >> Hi,
+> >>
+> >> On Fri, Nov 24, 2023 at 11:59:11AM +0100, Boris Brezillon wrote:  
+> >>> On Fri, 24 Nov 2023 11:40:06 +0100
+> >>> Maxime Ripard <mripard@kernel.org> wrote:
+> >>>     
+> >>>> On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:    
+> >>>>> Add locked and remove unlocked postfixes from drm-shmem function names,
+> >>>>> making names consistent with the drm/gem core code.
+> >>>>>
+> >>>>> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> >>>>> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+> >>>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>      
+> >>>>
+> >>>> This contradicts my earlier ack on a patch but...
+> >>>>     
+> >>>>> ---
+> >>>>>  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----------
+> >>>>>  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
+> >>>>>  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+> >>>>>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
+> >>>>>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
+> >>>>>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
+> >>>>>  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
+> >>>>>  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
+> >>>>>  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
+> >>>>>  9 files changed, 64 insertions(+), 64 deletions(-)
+> >>>>>
+> >>>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >>>>> index 0d61f2b3e213..154585ddae08 100644
+> >>>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >>>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> >>>>> @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+> >>>>>  	.pin = drm_gem_shmem_object_pin,
+> >>>>>  	.unpin = drm_gem_shmem_object_unpin,
+> >>>>>  	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> >>>>> -	.vmap = drm_gem_shmem_object_vmap,
+> >>>>> -	.vunmap = drm_gem_shmem_object_vunmap,
+> >>>>> +	.vmap = drm_gem_shmem_object_vmap_locked,
+> >>>>> +	.vunmap = drm_gem_shmem_object_vunmap_locked,      
+> >>>>
+> >>>> While I think we should indeed be consistent with the names, I would
+> >>>> also expect helpers to get the locking right by default.    
+> >>>
+> >>> Wait, actually I think this patch does what you suggest already. The
+> >>> _locked() prefix tells the caller: "you should take care of the locking,
+> >>> I expect the lock to be held when this is hook/function is called". So
+> >>> helpers without the _locked() prefix take care of the locking (which I
+> >>> guess matches your 'helpers get the locking right' expectation), and
+> >>> those with the _locked() prefix don't.    
+> >>
+> >> What I meant by "getting the locking right" is indeed a bit ambiguous,
+> >> sorry. What I'm trying to say I guess is that, in this particular case,
+> >> I don't think you can expect the vmap implementation to be called with
+> >> or without the locks held. The doc for that function will say that it's
+> >> either one or the other, but not both.
+> >>
+> >> So helpers should follow what is needed to provide a default vmap/vunmap
+> >> implementation, including what locking is expected from a vmap/vunmap
+> >> implementation.  
+> > 
+> > Hm, yeah, I think that's a matter of taste. When locking is often
+> > deferrable, like it is in DRM, I find it beneficial for funcions and
+> > function pointers to reflect the locking scheme, rather than relying on
+> > people properly reading the doc, especially when this is the only
+> > outlier in the group of drm_gem_object_funcs we already have, and it's
+> > not event documented at the drm_gem_object_funcs level [1] :P.
+> >   
+> >>
+> >> If that means that vmap is always called with the locks taken, then
+> >> drm_gem_shmem_object_vmap can just assume that it will be called with
+> >> the locks taken and there's no need to mention it in the name (and you
+> >> can probably sprinkle a couple of lockdep assertion to make sure the
+> >> locking is indeed consistent).  
+> > 
+> > Things get very confusing when you end up having drm_gem_shmem helpers
+> > that are suffixed with _locked() to encode the fact locking is the
+> > caller's responsibility and no suffix for the
+> > callee-takes-care-of-the-locking semantics, while other helpers that are
+> > not suffixed at all actually implement the
+> > caller-should-take-care-of-the-locking semantics.
+> >   
+> >>  
+> >>>> I'm not sure how reasonable it is, but I think I'd prefer to turn this
+> >>>> around and keep the drm_gem_shmem_object_vmap/unmap helpers name, and
+> >>>> convert whatever function needs to be converted to the unlock suffix so
+> >>>> we get a consistent naming.    
+> >>>
+> >>> That would be an _unlocked() prefix if we do it the other way around. I
+> >>> think the main confusion comes from the names of the hooks in
+> >>> drm_gem_shmem_funcs. Some of them, like drm_gem_shmem_funcs::v[un]map()
+> >>> are called with the GEM resv lock held, and locking is handled by the
+> >>> core, others, like drm_gem_shmem_funcs::[un]pin() are called
+> >>> without the GEM resv lock held, and locking is deferred to the
+> >>> implementation. As I said, I don't mind prefixing hooks/helpers with
+> >>> _unlocked() for those that take care of the locking, and no prefix for
+> >>> those that expects locks to be held, as long as it's consistent, but I
+> >>> just wanted to make sure we're on the same page :-).    
+> >>
+> >> What about _nolock then? It's the same number of characters than
+> >> _locked, plus it expresses what the function is (not) doing, not what
+> >> context it's supposed to be called in?  
+> > 
+> > Just did a quick
+> > 
+> >   git grep _nolock drivers/gpu/drm
+> > 
+> > and it returns zero result, where the _locked/_unlocked pattern seems
+> > to already be widely used. Not saying we shouldn't change that, but it
+> > doesn't feel like a change we should do as part of this series.
+> > 
+> > Regards,
+> > 
+> > Boris
+> > 
+> > [1]https://elixir.bootlin.com/linux/v6.7-rc3/source/include/drm/drm_gem.h#L155  
 > 
->  #include <asm/barrier.h>
-> +#include "iommu-pages.h"
-> 
->  #define DART1_MAX_ADDR_BITS	36
-> 
-> @@ -106,18 +107,12 @@ static phys_addr_t iopte_to_paddr(dart_iopte pte,
->  	return paddr;
->  }
-> 
-> -static void *__dart_alloc_pages(size_t size, gfp_t gfp,
-> -				    struct io_pgtable_cfg *cfg)
-> +static void *__dart_alloc_pages(size_t size, gfp_t gfp)
->  {
->  	int order = get_order(size);
-> -	struct page *p;
-> 
->  	VM_BUG_ON((gfp & __GFP_HIGHMEM));
-> -	p = alloc_pages(gfp | __GFP_ZERO, order);
-> -	if (!p)
-> -		return NULL;
-> -
-> -	return page_address(p);
-> +	return iommu_alloc_pages(gfp, order);
->  }
-> 
->  static int dart_init_pte(struct dart_io_pgtable *data,
-> @@ -262,13 +257,13 @@ static int dart_map_pages(struct io_pgtable_ops 
-> *ops, unsigned long iova,
-> 
->  	/* no L2 table present */
->  	if (!pte) {
-> -		cptep = __dart_alloc_pages(tblsz, gfp, cfg);
-> +		cptep = __dart_alloc_pages(tblsz, gfp);
->  		if (!cptep)
->  			return -ENOMEM;
-> 
->  		pte = dart_install_table(cptep, ptep, 0, data);
->  		if (pte)
-> -			free_pages((unsigned long)cptep, get_order(tblsz));
-> +			iommu_free_pages(cptep, get_order(tblsz));
-> 
->  		/* L2 table is present (now) */
->  		pte = READ_ONCE(*ptep);
-> @@ -419,8 +414,7 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
-> *cfg, void *cookie)
->  	cfg->apple_dart_cfg.n_ttbrs = 1 << data->tbl_bits;
-> 
->  	for (i = 0; i < cfg->apple_dart_cfg.n_ttbrs; ++i) {
-> -		data->pgd[i] = __dart_alloc_pages(DART_GRANULE(data), GFP_KERNEL,
-> -					   cfg);
-> +		data->pgd[i] = __dart_alloc_pages(DART_GRANULE(data), GFP_KERNEL);
->  		if (!data->pgd[i])
->  			goto out_free_data;
->  		cfg->apple_dart_cfg.ttbr[i] = virt_to_phys(data->pgd[i]);
-> @@ -429,9 +423,10 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
-> *cfg, void *cookie)
->  	return &data->iop;
-> 
->  out_free_data:
-> -	while (--i >= 0)
-> -		free_pages((unsigned long)data->pgd[i],
-> -			   get_order(DART_GRANULE(data)));
-> +	while (--i >= 0) {
-> +		iommu_free_pages(data->pgd[i],
-> +				 get_order(DART_GRANULE(data)));
-> +	}
->  	kfree(data);
->  	return NULL;
->  }
-> @@ -439,6 +434,7 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
-> *cfg, void *cookie)
->  static void apple_dart_free_pgtable(struct io_pgtable *iop)
->  {
->  	struct dart_io_pgtable *data = io_pgtable_to_data(iop);
-> +	int order = get_order(DART_GRANULE(data));
->  	dart_iopte *ptep, *end;
->  	int i;
-> 
-> @@ -449,15 +445,10 @@ static void apple_dart_free_pgtable(struct 
-> io_pgtable *iop)
->  		while (ptep != end) {
->  			dart_iopte pte = *ptep++;
-> 
-> -			if (pte) {
-> -				unsigned long page =
-> -					(unsigned long)iopte_deref(pte, data);
-> -
-> -				free_pages(page, get_order(DART_GRANULE(data)));
-> -			}
-> +			if (pte)
-> +				iommu_free_pages(iopte_deref(pte, data), order);
->  		}
-> -		free_pages((unsigned long)data->pgd[i],
-> -			   get_order(DART_GRANULE(data)));
-> +		iommu_free_pages(data->pgd[i], order);
->  	}
-> 
->  	kfree(data);
+> I'm fine with dropping the _locked() postfix from the common GEM helpers
+> and documenting the locking rule in drm_gem. Thank you all for the
+> suggestions :)
 
-Reviewed-by: Janne Grunau <j@jannau.net>
+Sorry to disagree, but I think a proper function name/suffix is
+sometimes worth a few lines of doc. Not saying we should do one or the
+other, I think we should do both. But when I see a function suffixed
+_locked, _unlocked or _nolock, I can immediately tell if this function
+defers the locking to the caller or not, and then go check which lock
+in the function doc.
 
-Janne
+And the second thing I'm not happy with, is the fact we go back to an
+inconsistent naming in drm_gem_shmem_helper.c, where some functions
+deferring the locking to the caller are suffixed _locked and others are
+not, because ultimately, you need a different name when you expose the
+two variants...
+
