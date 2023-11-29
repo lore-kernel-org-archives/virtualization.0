@@ -1,832 +1,506 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BACDB315AB
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:39:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4A511CA82
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:56:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="le1WH5xZ"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="wPcPr6Q4"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5B002414A1
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:39:22 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5B002414A1
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=le1WH5xZ
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2B6AE614E9
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:56:35 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 2B6AE614E9
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=wPcPr6Q4
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uBrjPP-Lyta3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YuXH3vn5MMQE
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 14:39:20 +0000 (UTC)
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on20625.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e89::625])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 91D5040926
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:39:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 91D5040926
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TOvyryj2Jf904Denf7gxGY8dNtdn8PFD/n1JkztsS0lXAYBvdil7flnwoL27yVgSbQtAZoXjSeCxGx/KQYODzeylkYHcKIsN4afP2TtEUY48nPV3Up1an+3byPxbNTWMHxmTvhvqZSzbp7Z+pG0b0VRPqZRJN59dPzHw5UEA4dVYu+aMdzGfhGbuP9085gQfK3QNAUYqv7tCCvjZ4gqWMZ9UITgAIKvUAXKqbAlBegEnvUbPvVXxhe6D47m1MRPr3888kZZwMDrU11BRc6nBjiV7VlM+UQrHI6Gfpu/UUFPT3I8FNRvXODfWvaLf2BlVPRQpG/o5mZFelutt78mWeQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GbljYkUs3I3azKAV2Q23xV3PFihzAXGRC8z5We2Ffyg=;
- b=Jsb9o/9LKkxcZTvtmSFrnSxIW+AQU25L5joEuTlNY1Mgev+8hhnKIV9Ae//n6mV7UvZn1BGt20++QpleFbD6rhV/UvSfh2/1y2zCPQ0yTsND/axDQX0HMp3hmxp2TwnNezztEV1v0/j8J9xBu2q3qfeTKUrm6qD+EN3T0FZLO9po8ZY67s7luJAgLkFwFpnxekWykDH837i3gMriLYsk6APqtrlQT6f4j9E47/lkAL+Pnk0IvhmLEDZmMZLSoO4NNK96gYEdbL9mDnHDxcN81U8A5vlgTb37u2GL3xmATnavSlsCHRKD6ex7BKP2phjfurpGH6SK6YsxbSV4XmNWLQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GbljYkUs3I3azKAV2Q23xV3PFihzAXGRC8z5We2Ffyg=;
- b=le1WH5xZnGW6Ucv+O0UM7NTPdaGvji4RJSMRLgwrWALDrskGTICa2hQDaxqnMhZK7YmcXX9TQspv9c7gT1wjdHjiXPVYmd/zimz3DgD36EgmYOivQ7Tj/Xx/cxkKjIFLW3cR1AfG0D7sMXtWRH63kbbXjW0K63b12shJHW40GV4iLy7nU5XnPha5Fv9UwiHQUsS30PYSfVSW8Gw4tMJGZ31paRCu3ipA3jhKWHUhVjORNmTsQOv/Yf/U1AbWp75KjYEXiaID1nqKBZFlsPuCzPi0ZkYEKSdyjH7dBM4TnSvtKyoT2wQNAbyBDbSpYcIW4QAhubWkx0D0H+jClMRyDQ==
-Received: from DM6PR03CA0087.namprd03.prod.outlook.com (2603:10b6:5:333::20)
- by SJ1PR12MB6289.namprd12.prod.outlook.com (2603:10b6:a03:458::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.23; Wed, 29 Nov
- 2023 14:39:16 +0000
-Received: from CY4PEPF0000EDD1.namprd03.prod.outlook.com
- (2603:10b6:5:333:cafe::7c) by DM6PR03CA0087.outlook.office365.com
- (2603:10b6:5:333::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.23 via Frontend
- Transport; Wed, 29 Nov 2023 14:39:16 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- CY4PEPF0000EDD1.mail.protection.outlook.com (10.167.241.205) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7046.17 via Frontend Transport; Wed, 29 Nov 2023 14:39:16 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 29 Nov
- 2023 06:39:02 -0800
-Received: from drhqmail203.nvidia.com (10.126.190.182) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.41; Wed, 29 Nov 2023 06:39:02 -0800
-Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com
- (10.126.190.182) with Microsoft SMTP Server id 15.2.986.41 via Frontend
- Transport; Wed, 29 Nov 2023 06:38:58 -0800
-From: Yishai Hadas <yishaih@nvidia.com>
-To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
-	<jgg@nvidia.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
-	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
-	<leonro@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>
-Subject: [PATCH V4 vfio 9/9] vfio/virtio: Introduce a vfio driver over virtio devices
-Date: Wed, 29 Nov 2023 16:37:46 +0200
-Message-ID: <20231129143746.6153-10-yishaih@nvidia.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20231129143746.6153-1-yishaih@nvidia.com>
-References: <20231129143746.6153-1-yishaih@nvidia.com>
+	Wed, 29 Nov 2023 14:56:33 +0000 (UTC)
+X-Greylist: delayed 324 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 Nov 2023 14:56:33 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 238B0614DF
+Received: from out-172.mta0.migadu.com (out-172.mta0.migadu.com [91.218.175.172])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 238B0614DF
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 14:56:32 +0000 (UTC)
+Message-ID: <c745f67e-91e6-4a32-93f2-dc715056eb51@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1701269464;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iTvKnajKmX2EJUP2ABehvajFN+y91i1e+YEVT6oSGG8=;
+	b=wPcPr6Q4NioT6wTnZgfbmdvXzFQD1FqrNVFFeV92SBz7mQ3Rq1/NQb3jUCY/3W8/yFqedg
+	d4LA03UVs+4lu3YXCO+GvgFv/MDGJooKfd0bZA95H5KPffO3WtuC/NDaTw1LnL1fhM2bj6
+	m1zauw8sCugIav2Sk/1xocjLKiY3zow=
+Date: Wed, 29 Nov 2023 22:50:57 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Subject: Re: [PATCH net-next 2/5] virtio_net: Add page_pool support to improve
+ performance
+To: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com,
+ mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com, kuba@kernel.org,
+ edumazet@google.com, davem@davemloft.net, pabeni@redhat.com,
+ alexander.duyck@gmail.com
+References: <20230526054621.18371-1-liangchen.linux@gmail.com>
+ <20230526054621.18371-2-liangchen.linux@gmail.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20230526054621.18371-2-liangchen.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY4PEPF0000EDD1:EE_|SJ1PR12MB6289:EE_
-X-MS-Office365-Filtering-Correlation-Id: b5288521-ee6c-4d2b-fa80-08dbf0e8f67e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	RMEIULt02R+Ut69HfPVa7DIYZdgYGqMV8URQsfh8d6N5Xb/wWhLwJnPipb6lPOYYJFnXgk5zSb4NQ+DDn+I+brlQAWUA2VOxEmBbQQzepFvRtxZDjcIyCXIPtdSiFSwtO5ky5INOMbHDOTm0cQjNPvlLpH9p7SLZb91PJIxMUaXV8Cwsez2KWhDVg8E0XXDrXtaFIisRo5qu3ZyGIKsazBpq2P7ZTB65mq9kVdQm/MUPWJ+loV8xnYR5vPeDkyW2unCthZo0aBddUEJAYGzUgLpRV0VMJqCaq0gyrH6JYRFY+4Lx66cITrfEHALutRQTfPjB3sWhL4Jk2DLtWUFuCEotswcLUMUyHGe7u0hGkqnCY6TF/nA49vqkTiSTJPlHEUW7ChLXtdu+chjWaiWKrX5xgWQxckQX65LSnuQW3fBlnaI4GFwTvTs83zi2VRooKuPykJlEalkps3I+Z6y/7NgAsQWT2srMozCpOKS1GmvNENGlaYZA41Q452zO7ZRc17zmfvRiTAg5bP8kdvvdm9J84OJpUJQmi8xp2E6rUHkdsCnvE1tF4a6lSIiUL5GF9dXTS8Ooaf+qkkdEd5+MXEGB4zParX82V3wKzhlo+DWAXZFPOPJvVtf0x7NuLowWLZSTgux9jvmyL7SHWK+4hptgQfQYGYpFP510oV0CyJsHL8AVIzIdZ2S2fAyJSSTnyT+sBTUwvuBjEb1yGMYi9VT092fzIWgC9sXZM4hHV2NQyywrHBvnffaMfF3E+9jheIDy0vMCmrkfmAMwDJM/aCJlnxIGyU4XzOqrL2hELKe+q08HqqVzUbRCucSW5xEU
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(136003)(396003)(376002)(346002)(39860400002)(230922051799003)(64100799003)(82310400011)(186009)(1800799012)(451199024)(40470700004)(46966006)(36840700001)(6666004)(7696005)(83380400001)(36860700001)(40480700001)(7636003)(36756003)(47076005)(356005)(5660300002)(4326008)(8676002)(478600001)(82740400003)(966005)(8936002)(41300700001)(70586007)(2616005)(70206006)(107886003)(54906003)(110136005)(1076003)(40460700003)(26005)(30864003)(86362001)(6636002)(316002)(336012)(426003)(2906002)(2101003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2023 14:39:16.0715
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: b5288521-ee6c-4d2b-fa80-08dbf0e8f67e
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CY4PEPF0000EDD1.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6289
+X-Migadu-Flow: FLOW_OUT
 
-Introduce a vfio driver over virtio devices to support the legacy
-interface functionality for VFs.
+在 2023/5/26 13:46, Liang Chen 写道:
+> The implementation at the moment uses one page per packet in both the
+> normal and XDP path. In addition, introducing a module parameter to enable
+> or disable the usage of page pool (disabled by default).
+> 
+> In single-core vm testing environments, it gives a modest performance gain
+> in the normal path.
+>    Upstream codebase: 47.5 Gbits/sec
+>    Upstream codebase + page_pool support: 50.2 Gbits/sec
+> 
+> In multi-core vm testing environments, The most significant performance
+> gain is observed in XDP cpumap:
+>    Upstream codebase: 1.38 Gbits/sec
+>    Upstream codebase + page_pool support: 9.74 Gbits/sec
+> 
+> With this foundation, we can further integrate page pool fragmentation and
+> DMA map/unmap support.
+> 
+> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> ---
+>   drivers/net/virtio_net.c | 188 ++++++++++++++++++++++++++++++---------
+>   1 file changed, 146 insertions(+), 42 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c5dca0d92e64..99c0ca0c1781 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -31,6 +31,9 @@ module_param(csum, bool, 0444);
+>   module_param(gso, bool, 0444);
+>   module_param(napi_tx, bool, 0644);
+>   
+> +static bool page_pool_enabled;
+> +module_param(page_pool_enabled, bool, 0400);
+> +
+>   /* FIXME: MTU in config. */
+>   #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>   #define GOOD_COPY_LEN	128
+> @@ -159,6 +162,9 @@ struct receive_queue {
+>   	/* Chain pages by the private ptr. */
+>   	struct page *pages;
+>   
+> +	/* Page pool */
+> +	struct page_pool *page_pool;
+> +
+>   	/* Average packet length for mergeable receive buffers. */
+>   	struct ewma_pkt_len mrg_avg_pkt_len;
+>   
+> @@ -459,6 +465,14 @@ static struct sk_buff *virtnet_build_skb(void *buf, unsigned int buflen,
+>   	return skb;
+>   }
+>   
+> +static void virtnet_put_page(struct receive_queue *rq, struct page *page)
+> +{
+> +	if (rq->page_pool)
+> +		page_pool_put_full_page(rq->page_pool, page, true);
+> +	else
+> +		put_page(page);
+> +}
+> +
+>   /* Called from bottom half context */
+>   static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   				   struct receive_queue *rq,
+> @@ -555,7 +569,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   	hdr = skb_vnet_hdr(skb);
+>   	memcpy(hdr, hdr_p, hdr_len);
+>   	if (page_to_free)
+> -		put_page(page_to_free);
+> +		virtnet_put_page(rq, page_to_free);
+>   
+>   	return skb;
+>   }
+> @@ -802,7 +816,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>   	return ret;
+>   }
+>   
+> -static void put_xdp_frags(struct xdp_buff *xdp)
+> +static void put_xdp_frags(struct xdp_buff *xdp, struct receive_queue *rq)
+>   {
+>   	struct skb_shared_info *shinfo;
+>   	struct page *xdp_page;
+> @@ -812,7 +826,7 @@ static void put_xdp_frags(struct xdp_buff *xdp)
+>   		shinfo = xdp_get_shared_info_from_buff(xdp);
+>   		for (i = 0; i < shinfo->nr_frags; i++) {
+>   			xdp_page = skb_frag_page(&shinfo->frags[i]);
+> -			put_page(xdp_page);
+> +			virtnet_put_page(rq, xdp_page);
+>   		}
+>   	}
+>   }
+> @@ -903,7 +917,11 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+>   	if (page_off + *len + tailroom > PAGE_SIZE)
+>   		return NULL;
+>   
+> -	page = alloc_page(GFP_ATOMIC);
+> +	if (rq->page_pool)
+> +		page = page_pool_dev_alloc_pages(rq->page_pool);
+> +	else
+> +		page = alloc_page(GFP_ATOMIC);
+> +
+>   	if (!page)
+>   		return NULL;
+>   
+> @@ -926,21 +944,24 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+>   		 * is sending packet larger than the MTU.
+>   		 */
+>   		if ((page_off + buflen + tailroom) > PAGE_SIZE) {
+> -			put_page(p);
+> +			virtnet_put_page(rq, p);
+>   			goto err_buf;
+>   		}
+>   
+>   		memcpy(page_address(page) + page_off,
+>   		       page_address(p) + off, buflen);
+>   		page_off += buflen;
+> -		put_page(p);
+> +		virtnet_put_page(rq, p);
+>   	}
+>   
+>   	/* Headroom does not contribute to packet length */
+>   	*len = page_off - VIRTIO_XDP_HEADROOM;
+>   	return page;
+>   err_buf:
+> -	__free_pages(page, 0);
+> +	if (rq->page_pool)
+> +		page_pool_put_full_page(rq->page_pool, page, true);
+> +	else
+> +		__free_pages(page, 0);
+>   	return NULL;
+>   }
+>   
+> @@ -1144,7 +1165,7 @@ static void mergeable_buf_free(struct receive_queue *rq, int num_buf,
+>   		}
+>   		stats->bytes += len;
+>   		page = virt_to_head_page(buf);
+> -		put_page(page);
+> +		virtnet_put_page(rq, page);
+>   	}
+>   }
+>   
+> @@ -1264,7 +1285,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+>   		cur_frag_size = truesize;
+>   		xdp_frags_truesz += cur_frag_size;
+>   		if (unlikely(len > truesize - room || cur_frag_size > PAGE_SIZE)) {
+> -			put_page(page);
+> +			virtnet_put_page(rq, page);
+>   			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+>   				 dev->name, len, (unsigned long)(truesize - room));
+>   			dev->stats.rx_length_errors++;
+> @@ -1283,7 +1304,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+>   	return 0;
+>   
+>   err:
+> -	put_xdp_frags(xdp);
+> +	put_xdp_frags(xdp, rq);
+>   	return -EINVAL;
+>   }
+>   
+> @@ -1344,7 +1365,10 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+>   		if (*len + xdp_room > PAGE_SIZE)
+>   			return NULL;
+>   
+> -		xdp_page = alloc_page(GFP_ATOMIC);
+> +		if (rq->page_pool)
+> +			xdp_page = page_pool_dev_alloc_pages(rq->page_pool);
+> +		else
+> +			xdp_page = alloc_page(GFP_ATOMIC);
+>   		if (!xdp_page)
+>   			return NULL;
+>   
+> @@ -1354,7 +1378,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+>   
+>   	*frame_sz = PAGE_SIZE;
+>   
+> -	put_page(*page);
+> +	virtnet_put_page(rq, *page);
+>   
+>   	*page = xdp_page;
+>   
+> @@ -1400,6 +1424,8 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
+>   		if (unlikely(!head_skb))
+>   			break;
+> +		if (rq->page_pool)
+> +			skb_mark_for_recycle(head_skb);
+>   		return head_skb;
+>   
+>   	case XDP_TX:
+> @@ -1410,10 +1436,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   		break;
+>   	}
+>   
+> -	put_xdp_frags(&xdp);
+> +	put_xdp_frags(&xdp, rq);
+>   
+>   err_xdp:
+> -	put_page(page);
+> +	virtnet_put_page(rq, page);
+>   	mergeable_buf_free(rq, num_buf, dev, stats);
+>   
+>   	stats->xdp_drops++;
+> @@ -1467,6 +1493,9 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
+>   	curr_skb = head_skb;
+>   
+> +	if (rq->page_pool)
+> +		skb_mark_for_recycle(curr_skb);
+> +
+>   	if (unlikely(!curr_skb))
+>   		goto err_skb;
+>   	while (--num_buf) {
+> @@ -1509,6 +1538,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   			curr_skb = nskb;
+>   			head_skb->truesize += nskb->truesize;
+>   			num_skb_frags = 0;
+> +			if (rq->page_pool)
+> +				skb_mark_for_recycle(curr_skb);
+>   		}
+>   		if (curr_skb != head_skb) {
+>   			head_skb->data_len += len;
+> @@ -1517,7 +1548,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   		}
+>   		offset = buf - page_address(page);
+>   		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
+> -			put_page(page);
+> +			virtnet_put_page(rq, page);
+>   			skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
+>   					     len, truesize);
+>   		} else {
+> @@ -1530,7 +1561,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   	return head_skb;
+>   
+>   err_skb:
+> -	put_page(page);
+> +	virtnet_put_page(rq, page);
+>   	mergeable_buf_free(rq, num_buf, dev, stats);
+>   
+>   err_buf:
+> @@ -1737,31 +1768,40 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+>   	 * disabled GSO for XDP, it won't be a big issue.
+>   	 */
+>   	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> -	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> -		return -ENOMEM;
+> +	if (rq->page_pool) {
+> +		struct page *page;
+>   
+> -	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> -	buf += headroom; /* advance address leaving hole at front of pkt */
+> -	get_page(alloc_frag->page);
+> -	alloc_frag->offset += len + room;
+> -	hole = alloc_frag->size - alloc_frag->offset;
+> -	if (hole < len + room) {
+> -		/* To avoid internal fragmentation, if there is very likely not
+> -		 * enough space for another buffer, add the remaining space to
+> -		 * the current buffer.
+> -		 * XDP core assumes that frame_size of xdp_buff and the length
+> -		 * of the frag are PAGE_SIZE, so we disable the hole mechanism.
+> -		 */
+> -		if (!headroom)
+> -			len += hole;
+> -		alloc_frag->offset += hole;
+> -	}
+> +		page = page_pool_dev_alloc_pages(rq->page_pool);
+> +		if (unlikely(!page))
+> +			return -ENOMEM;
+> +		buf = (char *)page_address(page);
+> +		buf += headroom; /* advance address leaving hole at front of pkt */
+> +	} else {
+> +		if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> +			return -ENOMEM;
+>   
+> +		buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> +		buf += headroom; /* advance address leaving hole at front of pkt */
+> +		get_page(alloc_frag->page);
+> +		alloc_frag->offset += len + room;
+> +		hole = alloc_frag->size - alloc_frag->offset;
+> +		if (hole < len + room) {
+> +			/* To avoid internal fragmentation, if there is very likely not
+> +			 * enough space for another buffer, add the remaining space to
+> +			 * the current buffer.
+> +			 * XDP core assumes that frame_size of xdp_buff and the length
+> +			 * of the frag are PAGE_SIZE, so we disable the hole mechanism.
+> +			 */
+> +			if (!headroom)
+> +				len += hole;
+> +			alloc_frag->offset += hole;
+> +		}
+> +	}
+>   	sg_init_one(rq->sg, buf, len);
+>   	ctx = mergeable_len_to_ctx(len + room, headroom);
+>   	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+>   	if (err < 0)
+> -		put_page(virt_to_head_page(buf));
+> +		virtnet_put_page(rq, virt_to_head_page(buf));
+>   
+>   	return err;
+>   }
+> @@ -1994,8 +2034,15 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>   	if (err < 0)
+>   		return err;
+>   
+> -	err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> -					 MEM_TYPE_PAGE_SHARED, NULL);
+> +	if (vi->rq[qp_index].page_pool)
+> +		err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> +						 MEM_TYPE_PAGE_POOL,
+> +						 vi->rq[qp_index].page_pool);
+> +	else
+> +		err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> +						 MEM_TYPE_PAGE_SHARED,
+> +						 NULL);
+> +
+>   	if (err < 0)
+>   		goto err_xdp_reg_mem_model;
+>   
+> @@ -2951,6 +2998,7 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+>   				ethtool_sprintf(&p, "tx_queue_%u_%s", i,
+>   						virtnet_sq_stats_desc[j].desc);
+>   		}
+> +		page_pool_ethtool_stats_get_strings(p);
+>   		break;
+>   	}
+>   }
+> @@ -2962,12 +3010,30 @@ static int virtnet_get_sset_count(struct net_device *dev, int sset)
+>   	switch (sset) {
+>   	case ETH_SS_STATS:
+>   		return vi->curr_queue_pairs * (VIRTNET_RQ_STATS_LEN +
+> -					       VIRTNET_SQ_STATS_LEN);
+> +					       VIRTNET_SQ_STATS_LEN +
+> +						(page_pool_enabled && vi->mergeable_rx_bufs ?
+> +						 page_pool_ethtool_stats_get_count() : 0));
 
-Background, from the virtio spec [1].
---------------------------------------------------------------------
-In some systems, there is a need to support a virtio legacy driver with
-a device that does not directly support the legacy interface. In such
-scenarios, a group owner device can provide the legacy interface
-functionality for the group member devices. The driver of the owner
-device can then access the legacy interface of a member device on behalf
-of the legacy member device driver.
+vi->curr_queue_pairs should not multiply 
+page_pool_ethtool_stats_get_count().
 
-For example, with the SR-IOV group type, group members (VFs) can not
-present the legacy interface in an I/O BAR in BAR0 as expected by the
-legacy pci driver. If the legacy driver is running inside a virtual
-machine, the hypervisor executing the virtual machine can present a
-virtual device with an I/O BAR in BAR0. The hypervisor intercepts the
-legacy driver accesses to this I/O BAR and forwards them to the group
-owner device (PF) using group administration commands.
---------------------------------------------------------------------
-
-Specifically, this driver adds support for a virtio-net VF to be exposed
-as a transitional device to a guest driver and allows the legacy IO BAR
-functionality on top.
-
-This allows a VM which uses a legacy virtio-net driver in the guest to
-work transparently over a VF which its driver in the host is that new
-driver.
-
-The driver can be extended easily to support some other types of virtio
-devices (e.g virtio-blk), by adding in a few places the specific type
-properties as was done for virtio-net.
-
-For now, only the virtio-net use case was tested and as such we introduce
-the support only for such a device.
-
-Practically,
-Upon probing a VF for a virtio-net device, in case its PF supports
-legacy access over the virtio admin commands and the VF doesn't have BAR
-0, we set some specific 'vfio_device_ops' to be able to simulate in SW a
-transitional device with I/O BAR in BAR 0.
-
-The existence of the simulated I/O bar is reported later on by
-overwriting the VFIO_DEVICE_GET_REGION_INFO command and the device
-exposes itself as a transitional device by overwriting some properties
-upon reading its config space.
-
-Once we report the existence of I/O BAR as BAR 0 a legacy driver in the
-guest may use it via read/write calls according to the virtio
-specification.
-
-Any read/write towards the control parts of the BAR will be captured by
-the new driver and will be translated into admin commands towards the
-device.
-
-Any data path read/write access (i.e. virtio driver notifications) will
-be forwarded to the physical BAR which its properties were supplied by
-the admin command VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO upon the
-probing/init flow.
-
-With that code in place a legacy driver in the guest has the look and
-feel as if having a transitional device with legacy support for both its
-control and data path flows.
-
-[1]
-https://github.com/oasis-tcs/virtio-spec/commit/03c2d32e5093ca9f2a17797242fbef88efe94b8c
-
-Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
----
- MAINTAINERS                      |   7 +
- drivers/vfio/pci/Kconfig         |   2 +
- drivers/vfio/pci/Makefile        |   2 +
- drivers/vfio/pci/virtio/Kconfig  |  16 +
- drivers/vfio/pci/virtio/Makefile |   4 +
- drivers/vfio/pci/virtio/main.c   | 554 +++++++++++++++++++++++++++++++
- 6 files changed, 585 insertions(+)
- create mode 100644 drivers/vfio/pci/virtio/Kconfig
- create mode 100644 drivers/vfio/pci/virtio/Makefile
- create mode 100644 drivers/vfio/pci/virtio/main.c
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 012df8ccf34e..b246b769092d 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -22872,6 +22872,13 @@ L:	kvm@vger.kernel.org
- S:	Maintained
- F:	drivers/vfio/pci/mlx5/
- 
-+VFIO VIRTIO PCI DRIVER
-+M:	Yishai Hadas <yishaih@nvidia.com>
-+L:	kvm@vger.kernel.org
-+L:	virtualization@lists.linux-foundation.org
-+S:	Maintained
-+F:	drivers/vfio/pci/virtio
-+
- VFIO PCI DEVICE SPECIFIC DRIVERS
- R:	Jason Gunthorpe <jgg@nvidia.com>
- R:	Yishai Hadas <yishaih@nvidia.com>
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index 8125e5f37832..18c397df566d 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -65,4 +65,6 @@ source "drivers/vfio/pci/hisilicon/Kconfig"
- 
- source "drivers/vfio/pci/pds/Kconfig"
- 
-+source "drivers/vfio/pci/virtio/Kconfig"
-+
- endmenu
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index 45167be462d8..046139a4eca5 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -13,3 +13,5 @@ obj-$(CONFIG_MLX5_VFIO_PCI)           += mlx5/
- obj-$(CONFIG_HISI_ACC_VFIO_PCI) += hisilicon/
- 
- obj-$(CONFIG_PDS_VFIO_PCI) += pds/
-+
-+obj-$(CONFIG_VIRTIO_VFIO_PCI) += virtio/
-diff --git a/drivers/vfio/pci/virtio/Kconfig b/drivers/vfio/pci/virtio/Kconfig
-new file mode 100644
-index 000000000000..3a6707639220
---- /dev/null
-+++ b/drivers/vfio/pci/virtio/Kconfig
-@@ -0,0 +1,16 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+config VIRTIO_VFIO_PCI
-+        tristate "VFIO support for VIRTIO NET PCI devices"
-+        depends on VIRTIO_PCI
-+        select VFIO_PCI_CORE
-+        help
-+          This provides support for exposing VIRTIO NET VF devices which support
-+          legacy IO access, using the VFIO framework that can work with a legacy
-+          virtio driver in the guest.
-+          Based on PCIe spec, VFs do not support I/O Space; thus, VF BARs shall
-+          not indicate I/O Space.
-+          As of that this driver emulated I/O BAR in software to let a VF be
-+          seen as a transitional device in the guest and let it work with
-+          a legacy driver.
-+
-+          If you don't know what to do here, say N.
-diff --git a/drivers/vfio/pci/virtio/Makefile b/drivers/vfio/pci/virtio/Makefile
-new file mode 100644
-index 000000000000..2039b39fb723
---- /dev/null
-+++ b/drivers/vfio/pci/virtio/Makefile
-@@ -0,0 +1,4 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+obj-$(CONFIG_VIRTIO_VFIO_PCI) += virtio-vfio-pci.o
-+virtio-vfio-pci-y := main.o
-+
-diff --git a/drivers/vfio/pci/virtio/main.c b/drivers/vfio/pci/virtio/main.c
-new file mode 100644
-index 000000000000..3ca19c891673
---- /dev/null
-+++ b/drivers/vfio/pci/virtio/main.c
-@@ -0,0 +1,554 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/pci.h>
-+#include <linux/pm_runtime.h>
-+#include <linux/types.h>
-+#include <linux/uaccess.h>
-+#include <linux/vfio.h>
-+#include <linux/vfio_pci_core.h>
-+#include <linux/virtio_pci.h>
-+#include <linux/virtio_net.h>
-+#include <linux/virtio_pci_admin.h>
-+
-+struct virtiovf_pci_core_device {
-+	struct vfio_pci_core_device core_device;
-+	u8 bar0_virtual_buf_size;
-+	u8 *bar0_virtual_buf;
-+	/* synchronize access to the virtual buf */
-+	struct mutex bar_mutex;
-+	void __iomem *notify_addr;
-+	u64 notify_offset;
-+	__le32 pci_base_addr_0;
-+	__le16 pci_cmd;
-+	u8 notify_bar;
-+};
-+
-+static int
-+virtiovf_issue_legacy_rw_cmd(struct virtiovf_pci_core_device *virtvdev,
-+			     loff_t pos, char __user *buf,
-+			     size_t count, bool read)
-+{
-+	bool msix_enabled =
-+		(virtvdev->core_device.irq_type == VFIO_PCI_MSIX_IRQ_INDEX);
-+	struct pci_dev *pdev = virtvdev->core_device.pdev;
-+	u8 *bar0_buf = virtvdev->bar0_virtual_buf;
-+	bool common;
-+	u8 offset;
-+	int ret;
-+
-+	common = pos < VIRTIO_PCI_CONFIG_OFF(msix_enabled);
-+	/* offset within the relevant configuration area */
-+	offset = common ? pos : pos - VIRTIO_PCI_CONFIG_OFF(msix_enabled);
-+	mutex_lock(&virtvdev->bar_mutex);
-+	if (read) {
-+		if (common)
-+			ret = virtio_pci_admin_legacy_common_io_read(pdev, offset,
-+					count, bar0_buf + pos);
-+		else
-+			ret = virtio_pci_admin_legacy_device_io_read(pdev, offset,
-+					count, bar0_buf + pos);
-+		if (ret)
-+			goto out;
-+		if (copy_to_user(buf, bar0_buf + pos, count))
-+			ret = -EFAULT;
-+	} else {
-+		if (copy_from_user(bar0_buf + pos, buf, count)) {
-+			ret = -EFAULT;
-+			goto out;
-+		}
-+
-+		if (common)
-+			ret = virtio_pci_admin_legacy_common_io_write(pdev, offset,
-+					count, bar0_buf + pos);
-+		else
-+			ret = virtio_pci_admin_legacy_device_io_write(pdev, offset,
-+					count, bar0_buf + pos);
-+	}
-+out:
-+	mutex_unlock(&virtvdev->bar_mutex);
-+	return ret;
-+}
-+
-+static int
-+translate_io_bar_to_mem_bar(struct virtiovf_pci_core_device *virtvdev,
-+			    loff_t pos, char __user *buf,
-+			    size_t count, bool read)
-+{
-+	struct vfio_pci_core_device *core_device = &virtvdev->core_device;
-+	u16 queue_notify;
-+	int ret;
-+
-+	if (pos + count > virtvdev->bar0_virtual_buf_size)
-+		return -EINVAL;
-+
-+	switch (pos) {
-+	case VIRTIO_PCI_QUEUE_NOTIFY:
-+		if (count != sizeof(queue_notify))
-+			return -EINVAL;
-+		if (read) {
-+			ret = vfio_pci_ioread16(core_device, true, &queue_notify,
-+						virtvdev->notify_addr);
-+			if (ret)
-+				return ret;
-+			if (copy_to_user(buf, &queue_notify,
-+					 sizeof(queue_notify)))
-+				return -EFAULT;
-+		} else {
-+			if (copy_from_user(&queue_notify, buf, count))
-+				return -EFAULT;
-+			ret = vfio_pci_iowrite16(core_device, true, queue_notify,
-+						 virtvdev->notify_addr);
-+		}
-+		break;
-+	default:
-+		ret = virtiovf_issue_legacy_rw_cmd(virtvdev, pos, buf, count,
-+						   read);
-+	}
-+
-+	return ret ? ret : count;
-+}
-+
-+static bool range_intersect_range(loff_t range1_start, size_t count1,
-+				  loff_t range2_start, size_t count2,
-+				  loff_t *start_offset,
-+				  size_t *intersect_count,
-+				  size_t *register_offset)
-+{
-+	if (range1_start <= range2_start &&
-+	    range1_start + count1 > range2_start) {
-+		*start_offset = range2_start - range1_start;
-+		*intersect_count = min_t(size_t, count2,
-+					 range1_start + count1 - range2_start);
-+		*register_offset = 0;
-+		return true;
-+	}
-+
-+	if (range1_start > range2_start &&
-+	    range1_start < range2_start + count2) {
-+		*start_offset = 0;
-+		*intersect_count = min_t(size_t, count1,
-+					 range2_start + count2 - range1_start);
-+		*register_offset = range1_start - range2_start;
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+static ssize_t virtiovf_pci_read_config(struct vfio_device *core_vdev,
-+					char __user *buf, size_t count,
-+					loff_t *ppos)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	size_t register_offset;
-+	loff_t copy_offset;
-+	size_t copy_count;
-+	__le32 val32;
-+	__le16 val16;
-+	u8 val8;
-+	int ret;
-+
-+	ret = vfio_pci_core_read(core_vdev, buf, count, ppos);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (range_intersect_range(pos, count, PCI_DEVICE_ID, sizeof(val16),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		val16 = cpu_to_le16(VIRTIO_TRANS_ID_NET);
-+		if (copy_to_user(buf + copy_offset, (void *)&val16 + register_offset, copy_count))
-+			return -EFAULT;
-+	}
-+
-+	if ((le16_to_cpu(virtvdev->pci_cmd) & PCI_COMMAND_IO) &&
-+	    range_intersect_range(pos, count, PCI_COMMAND, sizeof(val16),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		if (copy_from_user((void *)&val16 + register_offset, buf + copy_offset,
-+				   copy_count))
-+			return -EFAULT;
-+		val16 |= cpu_to_le16(PCI_COMMAND_IO);
-+		if (copy_to_user(buf + copy_offset, (void *)&val16 + register_offset,
-+				 copy_count))
-+			return -EFAULT;
-+	}
-+
-+	if (range_intersect_range(pos, count, PCI_REVISION_ID, sizeof(val8),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		/* Transional needs to have revision 0 */
-+		val8 = 0;
-+		if (copy_to_user(buf + copy_offset, &val8, copy_count))
-+			return -EFAULT;
-+	}
-+
-+	if (range_intersect_range(pos, count, PCI_BASE_ADDRESS_0, sizeof(val32),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		u8 log_bar_size = ilog2(roundup_pow_of_two(virtvdev->bar0_virtual_buf_size));
-+		u32 mask_size = ~((BIT(log_bar_size) - 1));
-+		u32 pci_base_addr_0 = le32_to_cpu(virtvdev->pci_base_addr_0);
-+
-+		val32 = cpu_to_le32((pci_base_addr_0 & mask_size) | PCI_BASE_ADDRESS_SPACE_IO);
-+		if (copy_to_user(buf + copy_offset, (void *)&val32 + register_offset, copy_count))
-+			return -EFAULT;
-+	}
-+
-+	if (range_intersect_range(pos, count, PCI_SUBSYSTEM_ID, sizeof(val16),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		/*
-+		 * Transitional devices use the PCI subsystem device id as
-+		 * virtio device id, same as legacy driver always did.
-+		 */
-+		val16 = cpu_to_le16(VIRTIO_ID_NET);
-+		if (copy_to_user(buf + copy_offset, (void *)&val16 + register_offset,
-+				 copy_count))
-+			return -EFAULT;
-+	}
-+
-+	if (range_intersect_range(pos, count, PCI_SUBSYSTEM_VENDOR_ID, sizeof(val16),
-+				  &copy_offset, &copy_count, &register_offset)) {
-+		val16 = cpu_to_le16(PCI_VENDOR_ID_REDHAT_QUMRANET);
-+		if (copy_to_user(buf + copy_offset, (void *)&val16 + register_offset,
-+				 copy_count))
-+			return -EFAULT;
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t
-+virtiovf_pci_core_read(struct vfio_device *core_vdev, char __user *buf,
-+		       size_t count, loff_t *ppos)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	struct pci_dev *pdev = virtvdev->core_device.pdev;
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	int ret;
-+
-+	if (!count)
-+		return 0;
-+
-+	if (index == VFIO_PCI_CONFIG_REGION_INDEX)
-+		return virtiovf_pci_read_config(core_vdev, buf, count, ppos);
-+
-+	if (index != VFIO_PCI_BAR0_REGION_INDEX)
-+		return vfio_pci_core_read(core_vdev, buf, count, ppos);
-+
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
-+	if (ret) {
-+		pci_info_ratelimited(pdev, "runtime resume failed %d\n",
-+				     ret);
-+		return -EIO;
-+	}
-+
-+	ret = translate_io_bar_to_mem_bar(virtvdev, pos, buf, count, true);
-+	pm_runtime_put(&pdev->dev);
-+	return ret;
-+}
-+
-+static ssize_t
-+virtiovf_pci_core_write(struct vfio_device *core_vdev, const char __user *buf,
-+			size_t count, loff_t *ppos)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	struct pci_dev *pdev = virtvdev->core_device.pdev;
-+	unsigned int index = VFIO_PCI_OFFSET_TO_INDEX(*ppos);
-+	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
-+	int ret;
-+
-+	if (!count)
-+		return 0;
-+
-+	if (index == VFIO_PCI_CONFIG_REGION_INDEX) {
-+		size_t register_offset;
-+		loff_t copy_offset;
-+		size_t copy_count;
-+
-+		if (range_intersect_range(pos, count, PCI_COMMAND, sizeof(virtvdev->pci_cmd),
-+					  &copy_offset, &copy_count,
-+					  &register_offset)) {
-+			if (copy_from_user((void *)&virtvdev->pci_cmd + register_offset,
-+					   buf + copy_offset,
-+					   copy_count))
-+				return -EFAULT;
-+		}
-+
-+		if (range_intersect_range(pos, count, PCI_BASE_ADDRESS_0,
-+					  sizeof(virtvdev->pci_base_addr_0),
-+					  &copy_offset, &copy_count,
-+					  &register_offset)) {
-+			if (copy_from_user((void *)&virtvdev->pci_base_addr_0 + register_offset,
-+					   buf + copy_offset,
-+					   copy_count))
-+				return -EFAULT;
-+		}
-+	}
-+
-+	if (index != VFIO_PCI_BAR0_REGION_INDEX)
-+		return vfio_pci_core_write(core_vdev, buf, count, ppos);
-+
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
-+	if (ret) {
-+		pci_info_ratelimited(pdev, "runtime resume failed %d\n", ret);
-+		return -EIO;
-+	}
-+
-+	ret = translate_io_bar_to_mem_bar(virtvdev, pos, (char __user *)buf, count, false);
-+	pm_runtime_put(&pdev->dev);
-+	return ret;
-+}
-+
-+static int
-+virtiovf_pci_ioctl_get_region_info(struct vfio_device *core_vdev,
-+				   unsigned int cmd, unsigned long arg)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	unsigned long minsz = offsetofend(struct vfio_region_info, offset);
-+	void __user *uarg = (void __user *)arg;
-+	struct vfio_region_info info = {};
-+
-+	if (copy_from_user(&info, uarg, minsz))
-+		return -EFAULT;
-+
-+	if (info.argsz < minsz)
-+		return -EINVAL;
-+
-+	switch (info.index) {
-+	case VFIO_PCI_BAR0_REGION_INDEX:
-+		info.offset = VFIO_PCI_INDEX_TO_OFFSET(info.index);
-+		info.size = virtvdev->bar0_virtual_buf_size;
-+		info.flags = VFIO_REGION_INFO_FLAG_READ |
-+			     VFIO_REGION_INFO_FLAG_WRITE;
-+		return copy_to_user(uarg, &info, minsz) ? -EFAULT : 0;
-+	default:
-+		return vfio_pci_core_ioctl(core_vdev, cmd, arg);
-+	}
-+}
-+
-+static long
-+virtiovf_vfio_pci_core_ioctl(struct vfio_device *core_vdev, unsigned int cmd,
-+			     unsigned long arg)
-+{
-+	switch (cmd) {
-+	case VFIO_DEVICE_GET_REGION_INFO:
-+		return virtiovf_pci_ioctl_get_region_info(core_vdev, cmd, arg);
-+	default:
-+		return vfio_pci_core_ioctl(core_vdev, cmd, arg);
-+	}
-+}
-+
-+static int
-+virtiovf_set_notify_addr(struct virtiovf_pci_core_device *virtvdev)
-+{
-+	struct vfio_pci_core_device *core_device = &virtvdev->core_device;
-+	int ret;
-+
-+	/*
-+	 * Setup the BAR where the 'notify' exists to be used by vfio as well
-+	 * This will let us mmap it only once and use it when needed.
-+	 */
-+	ret = vfio_pci_core_setup_barmap(core_device,
-+					 virtvdev->notify_bar);
-+	if (ret)
-+		return ret;
-+
-+	virtvdev->notify_addr = core_device->barmap[virtvdev->notify_bar] +
-+			virtvdev->notify_offset;
-+	return 0;
-+}
-+
-+static int virtiovf_pci_open_device(struct vfio_device *core_vdev)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	struct vfio_pci_core_device *vdev = &virtvdev->core_device;
-+	int ret;
-+
-+	ret = vfio_pci_core_enable(vdev);
-+	if (ret)
-+		return ret;
-+
-+	if (virtvdev->bar0_virtual_buf) {
-+		/*
-+		 * Upon close_device() the vfio_pci_core_disable() is called
-+		 * and will close all the previous mmaps, so it seems that the
-+		 * valid life cycle for the 'notify' addr is per open/close.
-+		 */
-+		ret = virtiovf_set_notify_addr(virtvdev);
-+		if (ret) {
-+			vfio_pci_core_disable(vdev);
-+			return ret;
-+		}
-+	}
-+
-+	vfio_pci_core_finish_enable(vdev);
-+	return 0;
-+}
-+
-+static int virtiovf_get_device_config_size(unsigned short device)
-+{
-+	/* Network card */
-+	return offsetofend(struct virtio_net_config, status);
-+}
-+
-+static int virtiovf_read_notify_info(struct virtiovf_pci_core_device *virtvdev)
-+{
-+	u64 offset;
-+	int ret;
-+	u8 bar;
-+
-+	ret = virtio_pci_admin_legacy_io_notify_info(virtvdev->core_device.pdev,
-+				VIRTIO_ADMIN_CMD_NOTIFY_INFO_FLAGS_OWNER_MEM,
-+				&bar, &offset);
-+	if (ret)
-+		return ret;
-+
-+	virtvdev->notify_bar = bar;
-+	virtvdev->notify_offset = offset;
-+	return 0;
-+}
-+
-+static int virtiovf_pci_init_device(struct vfio_device *core_vdev)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+	struct pci_dev *pdev;
-+	int ret;
-+
-+	ret = vfio_pci_core_init_dev(core_vdev);
-+	if (ret)
-+		return ret;
-+
-+	pdev = virtvdev->core_device.pdev;
-+	ret = virtiovf_read_notify_info(virtvdev);
-+	if (ret)
-+		return ret;
-+
-+	/* Being ready with a buffer that supports MSIX */
-+	virtvdev->bar0_virtual_buf_size = VIRTIO_PCI_CONFIG_OFF(true) +
-+				virtiovf_get_device_config_size(pdev->device);
-+	virtvdev->bar0_virtual_buf = kzalloc(virtvdev->bar0_virtual_buf_size,
-+					     GFP_KERNEL);
-+	if (!virtvdev->bar0_virtual_buf)
-+		return -ENOMEM;
-+	mutex_init(&virtvdev->bar_mutex);
-+	return 0;
-+}
-+
-+static void virtiovf_pci_core_release_dev(struct vfio_device *core_vdev)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = container_of(
-+		core_vdev, struct virtiovf_pci_core_device, core_device.vdev);
-+
-+	kfree(virtvdev->bar0_virtual_buf);
-+	vfio_pci_core_release_dev(core_vdev);
-+}
-+
-+static const struct vfio_device_ops virtiovf_vfio_pci_tran_ops = {
-+	.name = "virtio-vfio-pci-trans",
-+	.init = virtiovf_pci_init_device,
-+	.release = virtiovf_pci_core_release_dev,
-+	.open_device = virtiovf_pci_open_device,
-+	.close_device = vfio_pci_core_close_device,
-+	.ioctl = virtiovf_vfio_pci_core_ioctl,
-+	.read = virtiovf_pci_core_read,
-+	.write = virtiovf_pci_core_write,
-+	.mmap = vfio_pci_core_mmap,
-+	.request = vfio_pci_core_request,
-+	.match = vfio_pci_core_match,
-+	.bind_iommufd = vfio_iommufd_physical_bind,
-+	.unbind_iommufd = vfio_iommufd_physical_unbind,
-+	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-+};
-+
-+static const struct vfio_device_ops virtiovf_vfio_pci_ops = {
-+	.name = "virtio-vfio-pci",
-+	.init = vfio_pci_core_init_dev,
-+	.release = vfio_pci_core_release_dev,
-+	.open_device = virtiovf_pci_open_device,
-+	.close_device = vfio_pci_core_close_device,
-+	.ioctl = vfio_pci_core_ioctl,
-+	.device_feature = vfio_pci_core_ioctl_feature,
-+	.read = vfio_pci_core_read,
-+	.write = vfio_pci_core_write,
-+	.mmap = vfio_pci_core_mmap,
-+	.request = vfio_pci_core_request,
-+	.match = vfio_pci_core_match,
-+	.bind_iommufd = vfio_iommufd_physical_bind,
-+	.unbind_iommufd = vfio_iommufd_physical_unbind,
-+	.attach_ioas = vfio_iommufd_physical_attach_ioas,
-+};
-+
-+static bool virtiovf_bar0_exists(struct pci_dev *pdev)
-+{
-+	struct resource *res = pdev->resource;
-+
-+	return res->flags ? true : false;
-+}
-+
-+static int virtiovf_pci_probe(struct pci_dev *pdev,
-+			      const struct pci_device_id *id)
-+{
-+	const struct vfio_device_ops *ops = &virtiovf_vfio_pci_ops;
-+	struct virtiovf_pci_core_device *virtvdev;
-+	int ret;
-+
-+	if (pdev->is_virtfn && virtio_pci_admin_has_legacy_io(pdev) &&
-+	    !virtiovf_bar0_exists(pdev))
-+		ops = &virtiovf_vfio_pci_tran_ops;
-+
-+	virtvdev = vfio_alloc_device(virtiovf_pci_core_device, core_device.vdev,
-+				     &pdev->dev, ops);
-+	if (IS_ERR(virtvdev))
-+		return PTR_ERR(virtvdev);
-+
-+	dev_set_drvdata(&pdev->dev, &virtvdev->core_device);
-+	ret = vfio_pci_core_register_device(&virtvdev->core_device);
-+	if (ret)
-+		goto out;
-+	return 0;
-+out:
-+	vfio_put_device(&virtvdev->core_device.vdev);
-+	return ret;
-+}
-+
-+static void virtiovf_pci_remove(struct pci_dev *pdev)
-+{
-+	struct virtiovf_pci_core_device *virtvdev = dev_get_drvdata(&pdev->dev);
-+
-+	vfio_pci_core_unregister_device(&virtvdev->core_device);
-+	vfio_put_device(&virtvdev->core_device.vdev);
-+}
-+
-+static const struct pci_device_id virtiovf_pci_table[] = {
-+	/* Only virtio-net is supported/tested so far */
-+	{ PCI_DRIVER_OVERRIDE_DEVICE_VFIO(PCI_VENDOR_ID_REDHAT_QUMRANET, 0x1041) },
-+	{}
-+};
-+
-+MODULE_DEVICE_TABLE(pci, virtiovf_pci_table);
-+
-+static struct pci_driver virtiovf_pci_driver = {
-+	.name = KBUILD_MODNAME,
-+	.id_table = virtiovf_pci_table,
-+	.probe = virtiovf_pci_probe,
-+	.remove = virtiovf_pci_remove,
-+	.err_handler = &vfio_pci_core_err_handlers,
-+	.driver_managed_dma = true,
-+};
-+
-+module_pci_driver(virtiovf_pci_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Yishai Hadas <yishaih@nvidia.com>");
-+MODULE_DESCRIPTION(
-+	"VIRTIO VFIO PCI - User Level meta-driver for VIRTIO NET devices");
--- 
-2.27.0
+Zhu Yanjun
+>   	default:
+>   		return -EOPNOTSUPP;
+>   	}
+>   }
+>   
+> +static void virtnet_get_page_pool_stats(struct net_device *dev, u64 *data)
+> +{
+> +#ifdef CONFIG_PAGE_POOL_STATS
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +	struct page_pool_stats pp_stats = {};
+> +	int i;
+> +
+> +	for (i = 0; i < vi->curr_queue_pairs; i++) {
+> +		if (!vi->rq[i].page_pool)
+> +			continue;
+> +		page_pool_get_stats(vi->rq[i].page_pool, &pp_stats);
+> +	}
+> +	page_pool_ethtool_stats_get(data, &pp_stats);
+> +#endif /* CONFIG_PAGE_POOL_STATS */
+> +}
+> +
+>   static void virtnet_get_ethtool_stats(struct net_device *dev,
+>   				      struct ethtool_stats *stats, u64 *data)
+>   {
+> @@ -3003,6 +3069,8 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
+>   		} while (u64_stats_fetch_retry(&sq->stats.syncp, start));
+>   		idx += VIRTNET_SQ_STATS_LEN;
+>   	}
+> +
+> +	virtnet_get_page_pool_stats(dev, &data[idx]);
+>   }
+>   
+>   static void virtnet_get_channels(struct net_device *dev,
+> @@ -3623,6 +3691,8 @@ static void virtnet_free_queues(struct virtnet_info *vi)
+>   	for (i = 0; i < vi->max_queue_pairs; i++) {
+>   		__netif_napi_del(&vi->rq[i].napi);
+>   		__netif_napi_del(&vi->sq[i].napi);
+> +		if (vi->rq[i].page_pool)
+> +			page_pool_destroy(vi->rq[i].page_pool);
+>   	}
+>   
+>   	/* We called __netif_napi_del(),
+> @@ -3679,12 +3749,19 @@ static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+>   	struct virtnet_info *vi = vq->vdev->priv;
+>   	int i = vq2rxq(vq);
+>   
+> -	if (vi->mergeable_rx_bufs)
+> -		put_page(virt_to_head_page(buf));
+> -	else if (vi->big_packets)
+> +	if (vi->mergeable_rx_bufs) {
+> +		if (vi->rq[i].page_pool) {
+> +			page_pool_put_full_page(vi->rq[i].page_pool,
+> +						virt_to_head_page(buf),
+> +						true);
+> +		} else {
+> +			put_page(virt_to_head_page(buf));
+> +		}
+> +	} else if (vi->big_packets) {
+>   		give_pages(&vi->rq[i], buf);
+> -	else
+> +	} else {
+>   		put_page(virt_to_head_page(buf));
+> +	}
+>   }
+>   
+>   static void free_unused_bufs(struct virtnet_info *vi)
+> @@ -3718,6 +3795,26 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
+>   	virtnet_free_queues(vi);
+>   }
+>   
+> +static void virtnet_alloc_page_pool(struct receive_queue *rq)
+> +{
+> +	struct virtio_device *vdev = rq->vq->vdev;
+> +
+> +	struct page_pool_params pp_params = {
+> +		.order = 0,
+> +		.pool_size = rq->vq->num_max,
+> +		.nid = dev_to_node(vdev->dev.parent),
+> +		.dev = vdev->dev.parent,
+> +		.offset = 0,
+> +	};
+> +
+> +	rq->page_pool = page_pool_create(&pp_params);
+> +	if (IS_ERR(rq->page_pool)) {
+> +		dev_warn(&vdev->dev, "page pool creation failed: %ld\n",
+> +			 PTR_ERR(rq->page_pool));
+> +		rq->page_pool = NULL;
+> +	}
+> +}
+> +
+>   /* How large should a single buffer be so a queue full of these can fit at
+>    * least one full packet?
+>    * Logic below assumes the mergeable buffer header is used.
+> @@ -3801,6 +3898,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>   		vi->rq[i].vq = vqs[rxq2vq(i)];
+>   		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
+>   		vi->sq[i].vq = vqs[txq2vq(i)];
+> +
+> +		if (page_pool_enabled && vi->mergeable_rx_bufs)
+> +			virtnet_alloc_page_pool(&vi->rq[i]);
+> +		else
+> +			dev_warn(&vi->vdev->dev,
+> +				 "page pool only support mergeable mode\n");
+> +
+>   	}
+>   
+>   	/* run here: ret == 0. */
 
