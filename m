@@ -1,46 +1,46 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 238421DA31
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3611CABF
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="c6fI4hK3"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="JBI4zugh"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A35B041A00
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org A35B041A00
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2503441A06
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 2503441A06
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=c6fI4hK3
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=JBI4zugh
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GDBUz9W_Vjxl
+	with ESMTP id CwkPCVd1Xk8K
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 12:19:37 +0000 (UTC)
+	Wed, 29 Nov 2023 12:25:36 +0000 (UTC)
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 0D9B740432
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:19:37 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0D9B740432
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1721740432
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1721740432
 Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: vignesh)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 9992D6607349;
-	Wed, 29 Nov 2023 12:19:30 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 51A836607323;
+	Wed, 29 Nov 2023 12:19:11 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701260373;
-	bh=/+sdprsWkKCN5CJr21VSx0uUyY/KGPHXt0II8sDgBEU=;
+	s=mail; t=1701260354;
+	bh=LAiI9Zj6sblQ9PE3ddYSUkjK2felt6gCjLGE+jeFyco=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=c6fI4hK3s/zcF8LNqjM8q71cX/vCgNayrKVEDVc28lLt+JkDhIeID/Qrcf9L4pJIE
-	 SxY7jqPRAiDmCR7x1zZEnwtzOjd077mWKFC/qn2iBJXRnUueh4STX4YLvIC8tfPjO3
-	 E2NxEiqZtvB87ewg3j9MmoYW1LRMD1zpkCNi9BgCvERNiz6xtfqX5/4iZvajgIX0QP
-	 AdnMwQF9cez2OfUPQjLQoQzLWi1MbqXXvul40RNIoc+YBvWn2BU6DHIzFWjppl+TPu
-	 xyDoWj/agKP+wbP8Lw3v1auhnxjz6iIwlwoKh5nbMmf4xwlthJ6GAbsjefxj/aYG7E
-	 yRCMMVnB5J7rA==
+	b=JBI4zughUA/jDHu5gvDlkhlQ5iGsI0NYo5djTinqxMvhvHuDL9bSt1DDeaRw3TBAT
+	 ZiribR2NUqhV0adE8O1YoMaTEFRKv0yVj3zAmRa2W9wlPxBNBssuJACW/srDajZ1O4
+	 iG9tvVfFGLM+nz4d0IfGEM8z+WXFDNn5wOvScmCRaVzjfzH5oUjg7AdsyK4PhFoBdA
+	 FTWe8m5UzZNrL1u7FY3c1Y5tXX97pTHJSl8PQEPYT+mZ6gIUR3dT45aiEPBLbXsKn7
+	 UWvTMSQiBFwEkd2znzd6OkgY89FvIvgUxk8ik8lU5tMiQwK1Yc1wywyq3u5haVFEEh
+	 /waf/05mDmOwA==
 From: Vignesh Raman <vignesh.raman@collabora.com>
 To: helen.koike@collabora.com,
 	airlied@gmail.com,
@@ -58,9 +58,9 @@ Cc: david.heidelberg@collabora.com,
 	virtualization@lists.linux-foundation.org,
 	linux-rockchip@lists.infradead.org,
 	linux-arm-msm@vger.kernel.org
-Subject: [PATCH v6 10/10] drm: ci: Update xfails
-Date: Wed, 29 Nov 2023 17:48:41 +0530
-Message-Id: <20231129121841.253223-11-vignesh.raman@collabora.com>
+Subject: [PATCH v6 05/10] drm: ci: Use scripts/config to enable/disable configs
+Date: Wed, 29 Nov 2023 17:48:36 +0530
+Message-Id: <20231129121841.253223-6-vignesh.raman@collabora.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231129121841.253223-1-vignesh.raman@collabora.com>
 References: <20231129121841.253223-1-vignesh.raman@collabora.com>
@@ -72,14 +72,17 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Update msm-apq8016-fails, mediatek-mt8173-fails and
-virtio_gpu-none-fails to include the tests which fail.
+Instead of modifying files in git to enable/disable
+configs, use scripts/config on the .config file which
+will be used for building the kernel.
 
+Acked-by: Helen Koike <helen.koike@collabora.com>
+Suggested-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 ---
 
 v2:
-  - No changes
+  - Added a new patch in the series to use scripts/config to enable/disable configs
 
 v3:
   - No changes
@@ -88,139 +91,46 @@ v4:
   - No changes
 
 v5:
-  - Generate fails and flakes file with the updated xfails script - https://www.spinics.net/lists/kernel/msg4959630.html
+  - No changes
 
 v6:
-  - Generate fails file with drm-misc-next
+  - No changes
 
 ---
- .../drm/ci/xfails/mediatek-mt8173-fails.txt   | 13 ++++--
- .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |  5 ++
- .../drm/ci/xfails/virtio_gpu-none-fails.txt   | 46 +++++++++++++++++++
- 3 files changed, 61 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/ci/build.sh | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
-index 671916067dba..ef0cb7c3698c 100644
---- a/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
-+++ b/drivers/gpu/drm/ci/xfails/mediatek-mt8173-fails.txt
-@@ -1,5 +1,4 @@
- kms_3d,Fail
--kms_addfb_basic@addfb25-bad-modifier,Fail
- kms_bw@linear-tiling-1-displays-1920x1080p,Fail
- kms_bw@linear-tiling-1-displays-2560x1440p,Fail
- kms_bw@linear-tiling-1-displays-3840x2160p,Fail
-@@ -9,13 +8,19 @@ kms_bw@linear-tiling-2-displays-3840x2160p,Fail
- kms_bw@linear-tiling-3-displays-1920x1080p,Fail
- kms_bw@linear-tiling-3-displays-2560x1440p,Fail
- kms_bw@linear-tiling-3-displays-3840x2160p,Fail
-+kms_color@invalid-gamma-lut-sizes,Fail
- kms_color@pipe-A-invalid-gamma-lut-sizes,Fail
- kms_color@pipe-B-invalid-gamma-lut-sizes,Fail
--kms_force_connector_basic@force-connector-state,Fail
-+kms_cursor_legacy@cursor-vs-flip-atomic,Fail
-+kms_cursor_legacy@cursor-vs-flip-legacy,Fail
-+kms_flip@flip-vs-modeset-vs-hang,Fail
-+kms_flip@flip-vs-panning-vs-hang,Fail
-+kms_flip@flip-vs-suspend,Fail
-+kms_flip@flip-vs-suspend-interruptible,Fail
- kms_force_connector_basic@force-edid,Fail
- kms_force_connector_basic@force-load-detect,Fail
- kms_force_connector_basic@prune-stale-modes,Fail
--kms_invalid_mode@int-max-clock,Fail
-+kms_hdmi_inject@inject-4k,Fail
- kms_plane_scaling@planes-upscale-20x20,Fail
- kms_plane_scaling@planes-upscale-20x20-downscale-factor-0-25,Fail
- kms_plane_scaling@planes-upscale-20x20-downscale-factor-0-5,Fail
-@@ -27,3 +32,5 @@ kms_properties@get_properties-sanity-atomic,Fail
- kms_properties@plane-properties-atomic,Fail
- kms_properties@plane-properties-legacy,Fail
- kms_rmfb@close-fd,Fail
-+kms_selftest@drm_format,Timeout
-+kms_selftest@drm_format_helper,Timeout
-diff --git a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
-index 9981682feab2..d39d254c935e 100644
---- a/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
-+++ b/drivers/gpu/drm/ci/xfails/msm-apq8016-fails.txt
-@@ -6,10 +6,15 @@ kms_cursor_legacy@all-pipes-single-bo,Fail
- kms_cursor_legacy@all-pipes-single-move,Fail
- kms_cursor_legacy@all-pipes-torture-bo,Fail
- kms_cursor_legacy@all-pipes-torture-move,Fail
-+kms_cursor_legacy@forked-bo,Fail
-+kms_cursor_legacy@forked-move,Fail
- kms_cursor_legacy@pipe-A-forked-bo,Fail
- kms_cursor_legacy@pipe-A-forked-move,Fail
- kms_cursor_legacy@pipe-A-single-bo,Fail
- kms_cursor_legacy@pipe-A-single-move,Fail
- kms_cursor_legacy@pipe-A-torture-bo,Fail
- kms_cursor_legacy@pipe-A-torture-move,Fail
-+kms_force_connector_basic@force-edid,Fail
- kms_hdmi_inject@inject-4k,Fail
-+kms_selftest@drm_format,Timeout
-+kms_selftest@drm_format_helper,Timeout
-diff --git a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
-index 9586b2339f6f..007f21e56d89 100644
---- a/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
-+++ b/drivers/gpu/drm/ci/xfails/virtio_gpu-none-fails.txt
-@@ -10,6 +10,49 @@ kms_bw@linear-tiling-1-displays-3840x2160p,Fail
- kms_bw@linear-tiling-2-displays-1920x1080p,Fail
- kms_bw@linear-tiling-2-displays-2560x1440p,Fail
- kms_bw@linear-tiling-2-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-3-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-3-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-3-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-4-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-4-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-4-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-5-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-5-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-5-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-6-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-6-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-6-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-7-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-7-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-7-displays-3840x2160p,Fail
-+kms_bw@linear-tiling-8-displays-1920x1080p,Fail
-+kms_bw@linear-tiling-8-displays-2560x1440p,Fail
-+kms_bw@linear-tiling-8-displays-3840x2160p,Fail
-+kms_flip@absolute-wf_vblank,Fail
-+kms_flip@absolute-wf_vblank-interruptible,Fail
-+kms_flip@basic-flip-vs-wf_vblank,Fail
-+kms_flip@blocking-absolute-wf_vblank,Fail
-+kms_flip@blocking-absolute-wf_vblank-interruptible,Fail
-+kms_flip@blocking-wf_vblank,Fail
-+kms_flip@busy-flip,Fail
-+kms_flip@dpms-vs-vblank-race,Fail
-+kms_flip@dpms-vs-vblank-race-interruptible,Fail
-+kms_flip@flip-vs-absolute-wf_vblank,Fail
-+kms_flip@flip-vs-absolute-wf_vblank-interruptible,Fail
-+kms_flip@flip-vs-blocking-wf-vblank,Fail
-+kms_flip@flip-vs-expired-vblank,Fail
-+kms_flip@flip-vs-expired-vblank-interruptible,Fail
-+kms_flip@flip-vs-modeset-vs-hang,Fail
-+kms_flip@flip-vs-panning-vs-hang,Fail
-+kms_flip@flip-vs-wf_vblank-interruptible,Fail
-+kms_flip@modeset-vs-vblank-race,Fail
-+kms_flip@modeset-vs-vblank-race-interruptible,Fail
-+kms_flip@plain-flip-fb-recreate,Fail
-+kms_flip@plain-flip-fb-recreate-interruptible,Fail
-+kms_flip@plain-flip-ts-check,Fail
-+kms_flip@plain-flip-ts-check-interruptible,Fail
-+kms_flip@wf_vblank-ts-check,Fail
-+kms_flip@wf_vblank-ts-check-interruptible,Fail
- kms_invalid_mode@int-max-clock,Fail
- kms_plane_scaling@downscale-with-modifier-factor-0-25,Fail
- kms_plane_scaling@downscale-with-rotation-factor-0-25,Fail
-@@ -22,6 +65,9 @@ kms_plane_scaling@upscale-with-modifier-factor-0-25,Fail
- kms_plane_scaling@upscale-with-pixel-format-20x20,Fail
- kms_plane_scaling@upscale-with-pixel-format-factor-0-25,Fail
- kms_plane_scaling@upscale-with-rotation-20x20,Fail
-+kms_selftest@drm_format,Timeout
-+kms_selftest@drm_format_helper,Timeout
-+kms_setmode@basic,Fail
- kms_vblank@crtc-id,Fail
- kms_vblank@invalid,Fail
- kms_vblank@pipe-A-accuracy-idle,Fail
+diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
+index e2260b4a1c67..97ff43759b91 100644
+--- a/drivers/gpu/drm/ci/build.sh
++++ b/drivers/gpu/drm/ci/build.sh
+@@ -75,19 +75,19 @@ else
+     fi
+ fi
+ 
+-for opt in $ENABLE_KCONFIGS; do
+-  echo CONFIG_$opt=y >> drivers/gpu/drm/ci/${KERNEL_ARCH}.config
+-done
+-for opt in $DISABLE_KCONFIGS; do
+-  echo CONFIG_$opt=n >> drivers/gpu/drm/ci/${KERNEL_ARCH}.config
+-done
+-
+ if [[ -n "${MERGE_FRAGMENT}" ]]; then
+     ./scripts/kconfig/merge_config.sh ${DEFCONFIG} drivers/gpu/drm/ci/${MERGE_FRAGMENT}
+ else
+     make `basename ${DEFCONFIG}`
+ fi
+ 
++for opt in $ENABLE_KCONFIGS; do
++    ./scripts/config --enable CONFIG_$opt
++done
++for opt in $DISABLE_KCONFIGS; do
++    ./scripts/config --disable CONFIG_$opt
++done
++
+ make ${KERNEL_IMAGE_NAME}
+ 
+ mkdir -p /lava-files/
 -- 
 2.40.1
 
