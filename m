@@ -1,117 +1,277 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F80F1DA3A
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F3A1DFDE
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:09:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="cESTV4V4"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="adfO+nP8"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3127540432
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3127540432
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=cESTV4V4
+	by smtp3.osuosl.org (Postfix) with ESMTP id D571B60B89
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:09:55 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D571B60B89
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=adfO+nP8
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -4.401
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TLVkbe8xwhMv
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id o97wlEzMwls6
 	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 12:25:36 +0000 (UTC)
-X-Greylist: delayed 388 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 Nov 2023 12:25:36 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3309441A05
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3309441A05
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 12:25:36 +0000 (UTC)
-Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: vignesh)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 22BC86602F24;
-	Wed, 29 Nov 2023 12:19:02 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701260346;
-	bh=jtOx/7NoZzqOMAnpBtB9GJItxRHHHlEm6yj66jXJL6A=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=cESTV4V42mPAKCChVMQlOKBvZnr5RUqPtiSeZcNslr5Eq+AxJMuxPERH+C7xtlPnW
-	 dPVqExtF+ejvtER9rbMHr3G4rNwNAg21bw8xK8dFddqpduHkonsvjfMFOownugQodp
-	 8L37fo5S9JOvGp8l5oqEi+RzHHaj1fWegtX3dlgGYj+mfVFz6uGfFhLRV+9mBtTYYG
-	 JyMD0KI9DSeYL4g2/ZqheCJIBDdx9Og9rjaDSxHd3wl4JE8LfvLASY62b9TbmH0ar8
-	 XbL06cPJP1rO7IHo2+Q12XMGHe6bN+/b/tSSCS2Cad6bB3EEFL7kyL4ZGrvYcIC20j
-	 y/FTJ7V5AP5IQ==
-From: Vignesh Raman <vignesh.raman@collabora.com>
-To: helen.koike@collabora.com,
-	airlied@gmail.com,
-	daniel@ffwll.ch
-Cc: david.heidelberg@collabora.com,
-	sergi.blanch.torne@collabora.com,
-	guilherme.gallo@collabora.com,
-	daniels@collabora.com,
-	gustavo.padovan@collabora.com,
-	emma@anholt.net,
-	robdclark@gmail.com,
-	dri-devel@lists.freedesktop.org,
-	linux-kernel@vger.kernel.org,
-	linux-mediatek@lists.infradead.org,
-	virtualization@lists.linux-foundation.org,
-	linux-rockchip@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org
-Subject: [PATCH v6 03/10] drm: ci: arm64.config: Enable DA9211 regulator
-Date: Wed, 29 Nov 2023 17:48:34 +0530
-Message-Id: <20231129121841.253223-4-vignesh.raman@collabora.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231129121841.253223-1-vignesh.raman@collabora.com>
-References: <20231129121841.253223-1-vignesh.raman@collabora.com>
+	Wed, 29 Nov 2023 13:09:54 +0000 (UTC)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4365360B50
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 13:09:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4365360B50
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by ams.source.kernel.org (Postfix) with ESMTP id E009DB83EB9;
+	Wed, 29 Nov 2023 13:09:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D5DC433C7;
+	Wed, 29 Nov 2023 13:09:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1701263390;
+	bh=FcQeM2JW0pjz/qIZ9iJf3ARTCkbeamq2sZ+rfbVwJ78=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=adfO+nP8B+tVqAa7DCLXrG5jzIDzuIcnffcWyWxe5P8FpNuz7n+03zStpJsg3prnz
+	 Ep9Aamqr7xUxxbMucrQUimNguhqrX05Ke1I4WHWUmTXbUc5NMsHIPscshwJsJnp0RP
+	 48UnBZ+4PUsgOL9AStGB5Xgq5YCEkgSMwBVaOzbU1EKTmypo+CR2N4CSezj7YSDph8
+	 SVod70ImVNS4EuiYv5hcidAX+82+F3syAbySXnuttBMCCmLeSTj2N0AH3MKeGm3thG
+	 giPR9zUj9E7s2JdSpk9hEpNbdsXU/OV/xb4pk44GCEvRWPgu5Poo1lGC8eAAronD6W
+	 KsoNsDKX+PvlA==
+Date: Wed, 29 Nov 2023 14:09:47 +0100
+From: Maxime Ripard <mripard@kernel.org>
+To: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+	David Airlie <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price <steven.price@arm.com>, 
+	Emma Anholt <emma@anholt.net>, Melissa Wen <mwen@igalia.com>, dri-devel@lists.freedesktop.org, 
+	linux-kernel@vger.kernel.org, kernel@collabora.com, virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
+ functions
+Message-ID: <ioqghyaeftyo7tuyfecn252ykxwgltrkhh2pwktjejqhewntbb@bym3rsjxnxfp>
+References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
+ <20231029230205.93277-5-dmitry.osipenko@collabora.com>
+ <wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
+ <20231124115911.79ab24af@collabora.com>
+ <kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
+ <20231128133712.53a6f6cb@collabora.com>
+ <37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
+ <20231129085330.7ccb35d3@collabora.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zn7b5h5ehnk335hq"
+Content-Disposition: inline
+In-Reply-To: <20231129085330.7ccb35d3@collabora.com>
 
-Mediatek mt8173 board fails to boot with DA9211 regulator disabled.
-Enable CONFIG_REGULATOR_DA9211=y in arm64.config to fix mt8173 boot
-issue.
 
-Acked-by: Helen Koike <helen.koike@collabora.com>
-Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
----
+--zn7b5h5ehnk335hq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-v2:
-  - No changes
+On Wed, Nov 29, 2023 at 08:53:30AM +0100, Boris Brezillon wrote:
+> On Wed, 29 Nov 2023 01:05:14 +0300
+> Dmitry Osipenko <dmitry.osipenko@collabora.com> wrote:
+>=20
+> > On 11/28/23 15:37, Boris Brezillon wrote:
+> > > On Tue, 28 Nov 2023 12:14:42 +0100
+> > > Maxime Ripard <mripard@kernel.org> wrote:
+> > >  =20
+> > >> Hi,
+> > >>
+> > >> On Fri, Nov 24, 2023 at 11:59:11AM +0100, Boris Brezillon wrote: =20
+> > >>> On Fri, 24 Nov 2023 11:40:06 +0100
+> > >>> Maxime Ripard <mripard@kernel.org> wrote:
+> > >>>    =20
+> > >>>> On Mon, Oct 30, 2023 at 02:01:43AM +0300, Dmitry Osipenko wrote:  =
+ =20
+> > >>>>> Add locked and remove unlocked postfixes from drm-shmem function =
+names,
+> > >>>>> making names consistent with the drm/gem core code.
+> > >>>>>
+> > >>>>> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > >>>>> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > >>>>> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>   =
+  =20
+> > >>>>
+> > >>>> This contradicts my earlier ack on a patch but...
+> > >>>>    =20
+> > >>>>> ---
+> > >>>>>  drivers/gpu/drm/drm_gem_shmem_helper.c        | 64 +++++++++----=
+------
+> > >>>>>  drivers/gpu/drm/lima/lima_gem.c               |  8 +--
+> > >>>>>  drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
+> > >>>>>  drivers/gpu/drm/panfrost/panfrost_gem.c       |  6 +-
+> > >>>>>  .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
+> > >>>>>  drivers/gpu/drm/panfrost/panfrost_mmu.c       |  2 +-
+> > >>>>>  drivers/gpu/drm/v3d/v3d_bo.c                  |  4 +-
+> > >>>>>  drivers/gpu/drm/virtio/virtgpu_object.c       |  4 +-
+> > >>>>>  include/drm/drm_gem_shmem_helper.h            | 36 +++++------
+> > >>>>>  9 files changed, 64 insertions(+), 64 deletions(-)
+> > >>>>>
+> > >>>>> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu=
+/drm/drm_gem_shmem_helper.c
+> > >>>>> index 0d61f2b3e213..154585ddae08 100644
+> > >>>>> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > >>>>> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> > >>>>> @@ -43,8 +43,8 @@ static const struct drm_gem_object_funcs drm_ge=
+m_shmem_funcs =3D {
+> > >>>>>  	.pin =3D drm_gem_shmem_object_pin,
+> > >>>>>  	.unpin =3D drm_gem_shmem_object_unpin,
+> > >>>>>  	.get_sg_table =3D drm_gem_shmem_object_get_sg_table,
+> > >>>>> -	.vmap =3D drm_gem_shmem_object_vmap,
+> > >>>>> -	.vunmap =3D drm_gem_shmem_object_vunmap,
+> > >>>>> +	.vmap =3D drm_gem_shmem_object_vmap_locked,
+> > >>>>> +	.vunmap =3D drm_gem_shmem_object_vunmap_locked,     =20
+> > >>>>
+> > >>>> While I think we should indeed be consistent with the names, I wou=
+ld
+> > >>>> also expect helpers to get the locking right by default.   =20
+> > >>>
+> > >>> Wait, actually I think this patch does what you suggest already. The
+> > >>> _locked() prefix tells the caller: "you should take care of the loc=
+king,
+> > >>> I expect the lock to be held when this is hook/function is called".=
+ So
+> > >>> helpers without the _locked() prefix take care of the locking (whic=
+h I
+> > >>> guess matches your 'helpers get the locking right' expectation), and
+> > >>> those with the _locked() prefix don't.   =20
+> > >>
+> > >> What I meant by "getting the locking right" is indeed a bit ambiguou=
+s,
+> > >> sorry. What I'm trying to say I guess is that, in this particular ca=
+se,
+> > >> I don't think you can expect the vmap implementation to be called wi=
+th
+> > >> or without the locks held. The doc for that function will say that i=
+t's
+> > >> either one or the other, but not both.
+> > >>
+> > >> So helpers should follow what is needed to provide a default vmap/vu=
+nmap
+> > >> implementation, including what locking is expected from a vmap/vunmap
+> > >> implementation. =20
+> > >=20
+> > > Hm, yeah, I think that's a matter of taste. When locking is often
+> > > deferrable, like it is in DRM, I find it beneficial for funcions and
+> > > function pointers to reflect the locking scheme, rather than relying =
+on
+> > > people properly reading the doc, especially when this is the only
+> > > outlier in the group of drm_gem_object_funcs we already have, and it's
+> > > not event documented at the drm_gem_object_funcs level [1] :P.
+> > >  =20
+> > >>
+> > >> If that means that vmap is always called with the locks taken, then
+> > >> drm_gem_shmem_object_vmap can just assume that it will be called with
+> > >> the locks taken and there's no need to mention it in the name (and y=
+ou
+> > >> can probably sprinkle a couple of lockdep assertion to make sure the
+> > >> locking is indeed consistent). =20
+> > >=20
+> > > Things get very confusing when you end up having drm_gem_shmem helpers
+> > > that are suffixed with _locked() to encode the fact locking is the
+> > > caller's responsibility and no suffix for the
+> > > callee-takes-care-of-the-locking semantics, while other helpers that =
+are
+> > > not suffixed at all actually implement the
+> > > caller-should-take-care-of-the-locking semantics.
+> > >  =20
+> > >> =20
+> > >>>> I'm not sure how reasonable it is, but I think I'd prefer to turn =
+this
+> > >>>> around and keep the drm_gem_shmem_object_vmap/unmap helpers name, =
+and
+> > >>>> convert whatever function needs to be converted to the unlock suff=
+ix so
+> > >>>> we get a consistent naming.   =20
+> > >>>
+> > >>> That would be an _unlocked() prefix if we do it the other way aroun=
+d. I
+> > >>> think the main confusion comes from the names of the hooks in
+> > >>> drm_gem_shmem_funcs. Some of them, like drm_gem_shmem_funcs::v[un]m=
+ap()
+> > >>> are called with the GEM resv lock held, and locking is handled by t=
+he
+> > >>> core, others, like drm_gem_shmem_funcs::[un]pin() are called
+> > >>> without the GEM resv lock held, and locking is deferred to the
+> > >>> implementation. As I said, I don't mind prefixing hooks/helpers with
+> > >>> _unlocked() for those that take care of the locking, and no prefix =
+for
+> > >>> those that expects locks to be held, as long as it's consistent, bu=
+t I
+> > >>> just wanted to make sure we're on the same page :-).   =20
+> > >>
+> > >> What about _nolock then? It's the same number of characters than
+> > >> _locked, plus it expresses what the function is (not) doing, not what
+> > >> context it's supposed to be called in? =20
+> > >=20
+> > > Just did a quick
+> > >=20
+> > >   git grep _nolock drivers/gpu/drm
+> > >=20
+> > > and it returns zero result, where the _locked/_unlocked pattern seems
+> > > to already be widely used. Not saying we shouldn't change that, but it
+> > > doesn't feel like a change we should do as part of this series.
+> > >=20
+> > > Regards,
+> > >=20
+> > > Boris
+> > >=20
+> > > [1]https://elixir.bootlin.com/linux/v6.7-rc3/source/include/drm/drm_g=
+em.h#L155 =20
+> >=20
+> > I'm fine with dropping the _locked() postfix from the common GEM helpers
+> > and documenting the locking rule in drm_gem. Thank you all for the
+> > suggestions :)
+>=20
+> Sorry to disagree, but I think a proper function name/suffix is
+> sometimes worth a few lines of doc. Not saying we should do one or the
+> other, I think we should do both. But when I see a function suffixed
+> _locked, _unlocked or _nolock, I can immediately tell if this function
+> defers the locking to the caller or not, and then go check which lock
+> in the function doc.
+>=20
+> And the second thing I'm not happy with, is the fact we go back to an
+> inconsistent naming in drm_gem_shmem_helper.c, where some functions
+> deferring the locking to the caller are suffixed _locked and others are
+> not, because ultimately, you need a different name when you expose the
+> two variants...
 
-v3:
-  - Remove CONFIG_RTC_DRV_MT6397=y as it is already enabled in defconfig
+I guess one of the point I was trying to make was also: why do you need
+both?
 
-v4:
-  - No changes
+If one is better than the other (whatever better means here), then all
+drivers should use it.
 
-v5:
-  - No changes
+The counterpart being that if provided a choice, you can be sure that a
+lot of people will get it wrong. The one example I have in mind for
+example was the drm_atomic_helper_commit_tail vs
+drm_atomic_helper_commit_tail_rpm. The latter is now widely used, and
+most of it is cargo-cult.
 
-v6:
-  - Updated commit message
+I think you were referring to the locks being deferred vs taken right
+now before, why do we need to have the choice between the two?
 
----
- drivers/gpu/drm/ci/arm64.config | 1 +
- 1 file changed, 1 insertion(+)
+Maxime
 
-diff --git a/drivers/gpu/drm/ci/arm64.config b/drivers/gpu/drm/ci/arm64.config
-index b4f653417883..8dbce9919a57 100644
---- a/drivers/gpu/drm/ci/arm64.config
-+++ b/drivers/gpu/drm/ci/arm64.config
-@@ -186,6 +186,7 @@ CONFIG_HW_RANDOM_MTK=y
- CONFIG_MTK_DEVAPC=y
- CONFIG_PWM_MTK_DISP=y
- CONFIG_MTK_CMDQ=y
-+CONFIG_REGULATOR_DA9211=y
- 
- # For nouveau.  Note that DRM must be a module so that it's loaded after NFS is up to provide the firmware.
- CONFIG_ARCH_TEGRA=y
--- 
-2.40.1
+--zn7b5h5ehnk335hq
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iHQEABYKAB0WIQRcEzekXsqa64kGDp7j7w1vZxhRxQUCZWc4GwAKCRDj7w1vZxhR
+xVncAQCtMh5CKO38Mc9v9Nwxs5iWT7DQzCblQKsI9Q56bmYZ5gD4lQd6ZqippxDh
+iVlD3jO8k5m/lih2vEs8Ku5NIxwlCw==
+=M3GF
+-----END PGP SIGNATURE-----
+
+--zn7b5h5ehnk335hq--
