@@ -1,193 +1,123 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4607E38F8B
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 15:47:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="aUmILl2r"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BF10861525
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 15:47:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org BF10861525
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=aUmILl2r
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4fR6E5Ncsz3p
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 15:47:13 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3A33D60ADD
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 15:47:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3A33D60ADD
-Received: from localhost (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bbrezillon)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 1B8466602F24;
-	Wed, 29 Nov 2023 15:47:09 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701272830;
-	bh=9UgtxghB5ZsKV/j1SgrmWTsqD9lNpLOncvoxfSi/wv0=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=aUmILl2rTZ4ng0+NeRJ11u7hvQIAvX5CbKqyxTC/gDzr+OF8drVqd8JmJtlM0vLTB
-	 8mKREqaa9vvPJp0a7ug5iVFBMSuxY/nvQiSd3fBNQoVP6SdBB2FwnYbh6U8aR6kszY
-	 AEb/xAJ1jtcs+ZWh5uSJOz8SMxc0EtfiFo8eA2Aq7CnV+057lYtef9n/Hxy81Ksxv8
-	 gciTffEVC2xJ120AKYuN75FY6s1+fsTmkEuCoEJtsZ2cHDxnpqNeQwqQuZt2z2ToUe
-	 9XbxNe+tEUsHOV2Z3t+wMi+U0kvbrr6Olt4iL6XArGnnSfzSQmmvCaK0Lgw9kukVDa
-	 MBngokkWdluvA==
-Date: Wed, 29 Nov 2023 16:47:05 +0100
-From: Boris Brezillon <boris.brezillon@collabora.com>
-To: Maxime Ripard <mripard@kernel.org>
-Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>, David Airlie
- <airlied@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Gurchetan Singh
- <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter
- <daniel@ffwll.ch>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Thomas Zimmermann <tzimmermann@suse.de>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Qiang Yu <yuq825@gmail.com>, Steven Price
- <steven.price@arm.com>, Emma Anholt <emma@anholt.net>, Melissa Wen
- <mwen@igalia.com>, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org, kernel@collabora.com,
- virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH v18 04/26] drm/shmem-helper: Refactor locked/unlocked
- functions
-Message-ID: <20231129164705.7461a294@collabora.com>
-In-Reply-To: <6da6mzwfzwbn5rhiebypo5e2v6rhtpn2fovwvfnoo333zjgobf@bgtuwhum3trp>
-References: <20231029230205.93277-1-dmitry.osipenko@collabora.com>
-	<20231029230205.93277-5-dmitry.osipenko@collabora.com>
-	<wboljiwogeus7pwgaqzxaltt3xdavy2dzisygn6pdpoiwlnwgc@mwaiukjguzat>
-	<20231124115911.79ab24af@collabora.com>
-	<kw5bho3jx73d3glvtewmjvqt4qty4khju6dcwypuh25ya3gi4b@7slmijjqdi4p>
-	<20231128133712.53a6f6cb@collabora.com>
-	<37208c72-7908-0a78-fc89-2fa9b8d756a5@collabora.com>
-	<20231129085330.7ccb35d3@collabora.com>
-	<ioqghyaeftyo7tuyfecn252ykxwgltrkhh2pwktjejqhewntbb@bym3rsjxnxfp>
-	<20231129144609.7544e773@collabora.com>
-	<6da6mzwfzwbn5rhiebypo5e2v6rhtpn2fovwvfnoo333zjgobf@bgtuwhum3trp>
-Organization: Collabora
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 8FF3839854;
+	Wed, 29 Nov 2023 16:48:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 96AD0C15;
+	Wed, 29 Nov 2023 08:49:40 -0800 (PST)
+Received: from [10.1.196.40] (e121345-lin.cambridge.arm.com [10.1.196.40])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 69D1A3F73F;
+	Wed, 29 Nov 2023 08:48:47 -0800 (PST)
+Message-ID: <52de3aca-41b1-471e-8f87-1a77de547510@arm.com>
+Date: Wed, 29 Nov 2023 16:48:43 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 08/16] iommu/fsl: use page allocation function provided by
+ iommu-pages.h
+Content-Language: en-GB
+To: Jason Gunthorpe <jgg@ziepe.ca>, Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc: akpm@linux-foundation.org, alex.williamson@redhat.com,
+ alim.akhtar@samsung.com, alyssa@rosenzweig.io, asahi@lists.linux.dev,
+ baolu.lu@linux.intel.com, bhelgaas@google.com, cgroups@vger.kernel.org,
+ corbet@lwn.net, david@redhat.com, dwmw2@infradead.org, hannes@cmpxchg.org,
+ heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com,
+ jernej.skrabec@gmail.com, jonathanh@nvidia.com, joro@8bytes.org,
+ kevin.tian@intel.com, krzysztof.kozlowski@linaro.org, kvm@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mm@kvack.org, linux-rockchip@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, lizefan.x@bytedance.com, marcan@marcan.st,
+ mhiramat@kernel.org, mst@redhat.com, m.szyprowski@samsung.com,
+ netdev@vger.kernel.org, paulmck@kernel.org, rdunlap@infradead.org,
+ samuel@sholland.org, suravee.suthikulpanit@amd.com, sven@svenpeter.dev,
+ thierry.reding@gmail.com, tj@kernel.org, tomas.mudrunka@gmail.com,
+ vdumpa@nvidia.com, virtualization@lists.linux.dev, wens@csie.org,
+ will@kernel.org, yu-cheng.yu@intel.com
+References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
+ <20231128204938.1453583-9-pasha.tatashin@soleen.com>
+ <1c6156de-c6c7-43a7-8c34-8239abee3978@arm.com>
+ <CA+CK2bCOtwZxTUS60PHOQ3szXdCzau7OpopgFEbbC6a9Frxafg@mail.gmail.com>
+ <20231128235037.GC1312390@ziepe.ca>
+From: Robin Murphy <robin.murphy@arm.com>
+In-Reply-To: <20231128235037.GC1312390@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, 29 Nov 2023 16:15:27 +0100
-Maxime Ripard <mripard@kernel.org> wrote:
-
-> > Now, let's assume we drop the _locked() suffix on
-> > drm_gem_shmem_v[un]map(), but keep it on other helpers that need both
-> > variants. This results in an inconsistent naming scheme inside the
-> > same source file, which I find utterly confusing.
-> >
-> > Note that the initial reason I asked Dmitry if he could add the
-> > _locked suffix to drm_gem_shmem_vmap() is because I started using
-> > drm_gem_shmem_vmap() in powervr, before realizing this version wasn't
-> > taking the lock, and I should have used drm_gem_vmap_unlocked()
-> > instead, so this is not something I'm making up.  
+On 28/11/2023 11:50 pm, Jason Gunthorpe wrote:
+> On Tue, Nov 28, 2023 at 06:00:13PM -0500, Pasha Tatashin wrote:
+>> On Tue, Nov 28, 2023 at 5:53 PM Robin Murphy <robin.murphy@arm.com> wrote:
+>>>
+>>> On 2023-11-28 8:49 pm, Pasha Tatashin wrote:
+>>>> Convert iommu/fsl_pamu.c to use the new page allocation functions
+>>>> provided in iommu-pages.h.
+>>>
+>>> Again, this is not a pagetable. This thing doesn't even *have* pagetables.
+>>>
+>>> Similar to patches #1 and #2 where you're lumping in configuration
+>>> tables which belong to the IOMMU driver itself, as opposed to pagetables
+>>> which effectively belong to an IOMMU domain's user. But then there are
+>>> still drivers where you're *not* accounting similar configuration
+>>> structures, so I really struggle to see how this metric is useful when
+>>> it's so completely inconsistent in what it's counting :/
+>>
+>> The whole IOMMU subsystem allocates a significant amount of kernel
+>> locked memory that we want to at least observe. The new field in
+>> vmstat does just that: it reports ALL buddy allocator memory that
+>> IOMMU allocates. However, for accounting purposes, I agree, we need to
+>> do better, and separate at least iommu pagetables from the rest.
+>>
+>> We can separate the metric into two:
+>> iommu pagetable only
+>> iommu everything
+>>
+>> or into three:
+>> iommu pagetable only
+>> iommu dma
+>> iommu everything
+>>
+>> What do you think?
 > 
-> Sorry if I gave you the impression I thought that you're making that up,
-> I'm not.
+> I think I said this at LPC - if you want to have fine grained
+> accounting of memory by owner you need to go talk to the cgroup people
+> and come up with something generic. Adding ever open coded finer
+> category breakdowns just for iommu doesn't make alot of sense.
 > 
-> Thanks for the explanation btw, I think I get what you're saying now:
-> 
->  - drm_gem_shmem_vmap() is never taking the locks because the core
->    expects to take them before calling them.
-> 
->  - drm_gem_shmem_vunmap() is never taking the locks because the core
->    expects to take them before calling them.
+> You can make some argument that the pagetable memory should be counted
+> because kvm counts it's shadow memory, but I wouldn't go into further
+> detail than that with hand coded counters..
 
-Correct.
+Right, pagetable memory is interesting since it's something that any 
+random kernel user can indirectly allocate via iommu_domain_alloc() and 
+iommu_map(), and some of those users may even be doing so on behalf of 
+userspace. I have no objection to accounting and potentially applying 
+limits to *that*.
 
-> 
->  - Some other code path can still call those helpers in drivers, and the
->    locking isn't handled by the core anymore.
+Beyond that, though, there is nothing special about "the IOMMU 
+subsystem". The amount of memory an IOMMU driver needs to allocate for 
+itself in order to function is not of interest beyond curiosity, it just 
+is what it is; limiting it would only break the IOMMU, and if a user 
+thinks it's "too much", the only actionable thing that might help is to 
+physically remove devices from the system. Similar for DMA buffers; it 
+might be intriguing to account those, but it's not really an actionable 
+metric - in the overwhelming majority of cases you can't simply tell a 
+driver to allocate less than what it needs. And that is of course 
+assuming if we were to account *all* DMA buffers, since whether they 
+happen to have an IOMMU translation or not is irrelevant (we'd have 
+already accounted the pagetables as pagetables if so).
 
-They can, if they want to v[un]map a BO and they already acquired the
-GEM resv lock. But I'm not sure anyone needs to do that yet. The main
-reason for exposing these helpers is if one driver needs to overload the
-default gem_shmem_funcs.
+I bet "the networking subsystem" also consumes significant memory on the 
+same kind of big systems where IOMMU pagetables would be of any concern. 
+I believe some of the some of the "serious" NICs can easily run up 
+hundreds of megabytes if not gigabytes worth of queues, SKB pools, etc. 
+- would you propose accounting those too?
 
-> 
->  - We now have _vmap/vunmap_unlocked functions to take those locks for
->    those code paths
-
-We don't have drm_gem_shmem_vmap/vunmap_unlocked(), we have
-drm_gem_shmem_vmap/vunmap_locked(), which can be called directly, but
-are mainly used to populate the drm_gem_object_funcs vtable. If drivers
-want to v[un]map in a path where the resv lock is not held, they should
-call drm_gem_vmap/vunmap_unlocked() (which are renamed
-drm_gem_vmap/vunmap() in patch 1 of this series). Mind the **drm_gem_**
-vs **drm_gem_shmem_** difference in the helper names. drm_gem_ helpers
-are provided by drm_gem.c and call drm_gem_object_funcs callback, which
-are supposed to be populated with drm_gem_shmem helpers.
-
-> 
->  - And the variant names are now confusing, making people use the
->    lockless version in situations where they should have use the locked
->    one.
-
-That's what happened to me, at least.
-
-> 
-> Is that a correct summary?
-
-Almost ;-).
-
-> 
-> If so, then I agree that we need to change the name.
-
-Cool.
-
-> 
-> We discussed it some more on IRC, and we agree that the "default"
-> function should handle the locking properly and that's what the most
-> common case should use.
-
-Agree if by 'default' you mean the lock is always acquired by the
-helper, not 'let's decide based on what users do most of the time with
-this specific helper', because otherwise we'd be back to a situation
-where the name doesn't clearly encode the function behavior.
-
-> 
-> So that means than drm_gem_shmem_vmap/vunmap() should take the lock
-> itself, and drm_gem_shmem_vmap/vunmap_nolock/unlocked never does.
-
-Not sure we have a need for drm_gem_shmem_vmap/vunmap(), but if we ever
-add such helpers, they would acquire the resv lock, indeed.
-
-Just to be clear, _nolock == _locked in the current semantics :-).
-_nolock means 'don't take the lock', and _locked means 'lock is already
-held'.
-
-> 
-> I think I'd prefer the nolock variant over unlocked still.
-
-Okay, that means s/_locked/_nolock/ in drm_gem_shmem_helpers.{c,h}, I
-guess.
-
-> 
-> And I also think we can improve the documentation and add lockdep calls
-
-Lockdep asserts are already there, I think.
-
-> to make sure that the difference between variants is clear in the doc,
-> and if someone still get confused we can catch it.
-> 
-> Does that sound like a plan?
-
-Assuming I understood it correctly, yes. Can you just confirm my
-understanding is correct though?
-
-Regards,
-
-Boris
-
+Thanks,
+Robin.
