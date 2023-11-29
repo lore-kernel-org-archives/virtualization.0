@@ -1,152 +1,118 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D161374F7
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 19:47:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86A431DFCE
+	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 20:03:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="m2zcYwwK"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9A26E41DA2
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 19:47:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9A26E41DA2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=m2zcYwwK
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -17.502
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 73SFdyALEoPa
-	for <virtualization@lists.linux-foundation.org>;
-	Wed, 29 Nov 2023 19:47:12 +0000 (UTC)
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E2A6841DA1
-	for <virtualization@lists.linux-foundation.org>; Wed, 29 Nov 2023 19:47:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E2A6841DA1
-Received: from [192.168.4.26] (unknown [47.186.13.91])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 170A820B74C0;
-	Wed, 29 Nov 2023 11:47:08 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 170A820B74C0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1701287230;
-	bh=/AE04joHGbexNg6/1EM+o2YovtZhSbAJbfvFr6KppsI=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=m2zcYwwKjEICCbmm6pNwRqAhVUCXZ16/8j+Rm7KklfOt+2Ayb4zeushfGcTbZxznq
-	 3hN7N2zKM0A0/gQ44k2UL+nPl6XrqJsEKFGafJpDqPaapCdFHry5gFf1f4pq+6pJ/l
-	 apo4cqq0Sd+X0a18QxRWb+mfxOTM3r6ttMVsuAlE=
-Message-ID: <e430efa3-6a7a-44c8-a1d2-9943c76f748e@linux.microsoft.com>
-Date: Wed, 29 Nov 2023 13:47:07 -0600
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="lwJY8R1u"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-1fa619735c1so53394fac.0
+        for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 12:03:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google; t=1701288187; x=1701892987; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=oFOuz3/DxdhVTy2MXC00IZ5cc+fO6ZXycOtXt73BBek=;
+        b=lwJY8R1u6up3c1zb34W5OWgUy5d95BnGkvPU6cy3/mvuceYaY8EeRXvwKHqbhVtvKs
+         ASSFE96pZUvM+SHDP9QLOZLsJ4rFEw1m62UoWYzSGcWPLaBH3FudnsMGg2L+4jYeYZ2O
+         PPwdTg8TfGXKyZu2g/buaG0OVqFbFA/7I+vABJ/SufIUi0V/RjBV4fKmQwzDPNK5JpHl
+         SZC3wGkn5jxLpTYCHsttBajfH0K6kUi9M2fwHN4rxOmyM4xW4Gs+YdjV6l8pL81cpKBA
+         AncFLSTSXMr4M0zU2luu07YvgmxFvMuoSQDgigHOev+n+9PLzt6fTSIvOFRPvuUu5iah
+         XEZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701288187; x=1701892987;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oFOuz3/DxdhVTy2MXC00IZ5cc+fO6ZXycOtXt73BBek=;
+        b=m2+lZlkPdjP2kcIQaFsVR4YZZznAUlH60LBX8GsVsOAT8lpln8+Fj2IIcpsNRd+YQf
+         Mg+fcV/fhUYddOGwwSTXs87bZWoZ1Cwy1JYFw+Q8gczU+oiJgHPitO/aoyMPixYfLo8S
+         xYTRN679vQ/mWpSTwOjErchOWUyOSNNGaZIBuOk+hv3orIWd5b1dDxU01eip5M2T0uj+
+         ncl9JT3CIKslcJADT0hKkdgTWkmn/AyyvitGY3AVkQgIMwWx76kQT5cXdW+r1ZcrhiVq
+         T8n0hEAC49j/R64fDi9YRZjuq+g1bYrx0ZiaADwjNdbh2RRg9wNC4oRMws+NhMWUIvDq
+         jpIg==
+X-Gm-Message-State: AOJu0YxwTTPlzIE2QPZdteqAzkS6TTIZb5rAOF8ZUX+l2HC2vPnQVwFi
+	Nnyhv93/Et/RsJDGzXyRrinDoQ==
+X-Google-Smtp-Source: AGHT+IHhptM9jGiKnASdRwicfnuRd8rDMhOAWz7BQW7PJi3eFPiHvWovE7BfQ4zpeMeNVsilXqTyVQ==
+X-Received: by 2002:a05:6870:6c0b:b0:1f9:571e:f80f with SMTP id na11-20020a0568706c0b00b001f9571ef80fmr27454829oab.13.1701288187396;
+        Wed, 29 Nov 2023 12:03:07 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-134-23-187.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.134.23.187])
+        by smtp.gmail.com with ESMTPSA id s12-20020a056830438c00b006ce2f0818d3sm2098526otv.22.2023.11.29.12.03.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Nov 2023 12:03:06 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1r8Qm1-005pNS-Mg;
+	Wed, 29 Nov 2023 16:03:05 -0400
+Date: Wed, 29 Nov 2023 16:03:05 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc: Robin Murphy <robin.murphy@arm.com>, akpm@linux-foundation.org,
+	alex.williamson@redhat.com, alim.akhtar@samsung.com,
+	alyssa@rosenzweig.io, asahi@lists.linux.dev,
+	baolu.lu@linux.intel.com, bhelgaas@google.com,
+	cgroups@vger.kernel.org, corbet@lwn.net, david@redhat.com,
+	dwmw2@infradead.org, hannes@cmpxchg.org, heiko@sntech.de,
+	iommu@lists.linux.dev, jasowang@redhat.com,
+	jernej.skrabec@gmail.com, jonathanh@nvidia.com, joro@8bytes.org,
+	kevin.tian@intel.com, krzysztof.kozlowski@linaro.org,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-rockchip@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org, lizefan.x@bytedance.com,
+	marcan@marcan.st, mhiramat@kernel.org, mst@redhat.com,
+	m.szyprowski@samsung.com, netdev@vger.kernel.org,
+	paulmck@kernel.org, rdunlap@infradead.org, samuel@sholland.org,
+	suravee.suthikulpanit@amd.com, sven@svenpeter.dev,
+	thierry.reding@gmail.com, tj@kernel.org, tomas.mudrunka@gmail.com,
+	vdumpa@nvidia.com, virtualization@lists.linux.dev, wens@csie.org,
+	will@kernel.org, yu-cheng.yu@intel.com
+Subject: Re: [PATCH 08/16] iommu/fsl: use page allocation function provided
+ by iommu-pages.h
+Message-ID: <20231129200305.GI1312390@ziepe.ca>
+References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
+ <20231128204938.1453583-9-pasha.tatashin@soleen.com>
+ <1c6156de-c6c7-43a7-8c34-8239abee3978@arm.com>
+ <CA+CK2bCOtwZxTUS60PHOQ3szXdCzau7OpopgFEbbC6a9Frxafg@mail.gmail.com>
+ <20231128235037.GC1312390@ziepe.ca>
+ <52de3aca-41b1-471e-8f87-1a77de547510@arm.com>
+ <CA+CK2bCcfS1Fo8RvTeGXj_ejPRX9--sh5Jz8nzhkZnut4juDmg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 18/19] heki: x86: Protect guest kernel memory using
- the KVM hypervisor
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
- Kees Cook <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>,
- Sean Christopherson <seanjc@google.com>, Thomas Gleixner
- <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Wanpeng Li <wanpengli@tencent.com>, Alexander Graf <graf@amazon.com>,
- Chao Peng <chao.p.peng@linux.intel.com>,
- "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
- Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
- James Morris <jamorris@linux.microsoft.com>,
- John Andersen <john.s.andersen@intel.com>,
- Marian Rotariu <marian.c.rotariu@gmail.com>,
- =?UTF-8?Q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
- =?UTF-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
- Thara Gopinath <tgopinath@microsoft.com>,
- Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>,
- Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>,
- Zahra Tarkhani <ztarkhani@microsoft.com>,
- =?UTF-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
- dev@lists.cloudhypervisor.org, kvm@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
- x86@kernel.org, xen-devel@lists.xenproject.org
-References: <20231113022326.24388-1-mic@digikod.net>
- <20231113022326.24388-19-mic@digikod.net>
- <20231113085403.GC16138@noisy.programming.kicks-ass.net>
- <b1dc0963-ab99-4a79-af19-ef5ed981fa60@linux.microsoft.com>
- <20231127200308.GY3818@noisy.programming.kicks-ass.net>
-Content-Language: en-US
-From: "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>
-In-Reply-To: <20231127200308.GY3818@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+CK2bCcfS1Fo8RvTeGXj_ejPRX9--sh5Jz8nzhkZnut4juDmg@mail.gmail.com>
 
+On Wed, Nov 29, 2023 at 02:45:03PM -0500, Pasha Tatashin wrote:
 
-
-On 11/27/23 14:03, Peter Zijlstra wrote:
-> On Mon, Nov 27, 2023 at 11:05:23AM -0600, Madhavan T. Venkataraman wrote:
->> Apologies for the late reply. I was on vacation. Please see my response below:
->>
->> On 11/13/23 02:54, Peter Zijlstra wrote:
->>> On Sun, Nov 12, 2023 at 09:23:25PM -0500, Mickaël Salaün wrote:
->>>> From: Madhavan T. Venkataraman <madvenka@linux.microsoft.com>
->>>>
->>>> Implement a hypervisor function, kvm_protect_memory() that calls the
->>>> KVM_HC_PROTECT_MEMORY hypercall to request the KVM hypervisor to
->>>> set specified permissions on a list of guest pages.
->>>>
->>>> Using the protect_memory() function, set proper EPT permissions for all
->>>> guest pages.
->>>>
->>>> Use the MEM_ATTR_IMMUTABLE property to protect the kernel static
->>>> sections and the boot-time read-only sections. This enables to make sure
->>>> a compromised guest will not be able to change its main physical memory
->>>> page permissions. However, this also disable any feature that may change
->>>> the kernel's text section (e.g., ftrace, Kprobes), but they can still be
->>>> used on kernel modules.
->>>>
->>>> Module loading/unloading, and eBPF JIT is allowed without restrictions
->>>> for now, but we'll need a way to authenticate these code changes to
->>>> really improve the guests' security. We plan to use module signatures,
->>>> but there is no solution yet to authenticate eBPF programs.
->>>>
->>>> Being able to use ftrace and Kprobes in a secure way is a challenge not
->>>> solved yet. We're looking for ideas to make this work.
->>>>
->>>> Likewise, the JUMP_LABEL feature cannot work because the kernel's text
->>>> section is read-only.
->>>
->>> What is the actual problem? As is the kernel text map is already RO and
->>> never changed.
->>
->> For the JUMP_LABEL optimization, the text needs to be patched at some point.
->> That patching requires a writable mapping of the text page at the time of
->> patching.
->>
->> In this Heki feature, we currently lock down the kernel text at the end of
->> kernel boot just before kicking off the init process. The lockdown is
->> implemented by setting the permissions of a text page to R_X in the extended
->> page table and not allowing write permissions in the EPT after that. So, jump label
->> patching during kernel boot is not a problem. But doing it after kernel
->> boot is a problem.
+> > same kind of big systems where IOMMU pagetables would be of any concern.
+> > I believe some of the some of the "serious" NICs can easily run up
+> > hundreds of megabytes if not gigabytes worth of queues, SKB pools, etc.
+> > - would you propose accounting those too?
 > 
-> But you see, that's exactly what the kernel already does with the normal
-> permissions. They get set to RX after init and are never changed.
-> 
-> See the previous patch, we establish a read-write alias and write there.
-> 
-> You seem to lack basic understanding of how the kernel works in this
-> regard, which makes me very nervous about you touching any of this.
-> 
-> I must also say I really dislike your extra/random permssion calls all
-> over the place. They don't really get us anything afaict. Why can't you
-> plumb into the existing set_memory_*() family?
+> Yes. Any kind of kernel memory that is proportional to the workload
+> should be accountable. Someone is using those resources compared to
+> the idling system, and that someone should be charged.
 
-I have responded to your comments on your other email. Please read my
-response there.
+There is a difference between charged and accounted
 
-Thanks.
+You should be running around adding GFP_KERNEL_ACCOUNT, yes. I already
+did a bunch of that work. Split that out from this series and send it
+to the right maintainers.
 
-Madhavan
+Adding a counter for allocations and showing in procfs is a very
+different question. IMHO that should not be done in micro, the
+threshold to add a new counter should be high.
+
+There is definately room for a generic debugging feature to break down
+GFP_KERNEL_ACCOUNT by owernship somehow. Maybe it can already be done
+with BPF. IDK
+
+Jason
