@@ -1,137 +1,186 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA8105240
-	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 02:37:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
-X-UUID: ae9a38e80c5a4d8c8348b3be7a1253f7-20231129
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.33,REQID:5948b2d2-88b2-414e-b5b3-a4b420605a2c,IP:25,
-	URL:0,TC:0,Content:-25,EDM:-30,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,
-	ACTION:release,TS:-45
-X-CID-INFO: VERSION:1.1.33,REQID:5948b2d2-88b2-414e-b5b3-a4b420605a2c,IP:25,UR
-	L:0,TC:0,Content:-25,EDM:-30,RT:0,SF:-15,FILE:0,BULK:0,RULE:Release_Ham,AC
-	TION:release,TS:-45
-X-CID-META: VersionHash:364b77b,CLOUDID:0ab5ed95-10ce-4e4b-85c2-c9b5229ff92b,B
-	ulkID:231129103218F9XVODIW,BulkQuantity:0,Recheck:0,SF:66|38|24|17|19|44|1
-	02,TC:0,Content:0,EDM:2,IP:-2,URL:0,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-	,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0
-X-CID-BVR: 0
-X-CID-BAS: 0,_,0,_
-X-CID-FACTOR: TF_CID_SPAM_FSI,TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD
-X-UUID: ae9a38e80c5a4d8c8348b3be7a1253f7-20231129
-Received: from node4.com.cn [(39.156.73.12)] by mailgw
-	(envelope-from <heminhong@kylinos.cn>)
-	(Generic MTA)
-	with ESMTP id 1963753895; Wed, 29 Nov 2023 10:32:18 +0800
-Received: from node4.com.cn (localhost [127.0.0.1])
-	by node4.com.cn (NSMail) with SMTP id D9AC516001CC8;
-	Wed, 29 Nov 2023 10:32:17 +0800 (CST)
-Received: by node4.com.cn (NSMail, from userid 0)
-	id CCD3516001CC8; Wed, 29 Nov 2023 10:32:17 +0800 (CST)
-From: =?UTF-8?B?5L2V5pWP57qi?= <heminhong@kylinos.cn>
-Subject: =?UTF-8?B?RnJpZW5kbHkgcGluZy4gSSB0aGluayB0aGlzIHBhdGNoIHdhcyBmb3Jnb3R0ZW4uLy/lm57lpI06IFtQQVRDSF0gZHJtL3F4bDogcmVtb3ZlIHVudXNlZCBkZWNsYXJhdGlvbg==?=
-To: 	=?UTF-8?B?5L2V5pWP57qi?= <heminhong@kylinos.cn>,
-	=?UTF-8?B?YWlybGllZA==?= <airlied@redhat.com>,
-	=?UTF-8?B?a3JheGVs?= <kraxel@redhat.com>,
-	=?UTF-8?B?bWFhcnRlbi5sYW5raG9yc3Q=?= <maarten.lankhorst@linux.intel.com>,
-	=?UTF-8?B?bXJpcGFyZA==?= <mripard@kernel.org>,
-	=?UTF-8?B?dHppbW1lcm1hbm4=?= <tzimmermann@suse.de>,
-	=?UTF-8?B?YWlybGllZA==?= <airlied@gmail.com>,
-	=?UTF-8?B?ZGFuaWVs?= <daniel@ffwll.ch>,
-Cc: 	=?UTF-8?B?dmlydHVhbGl6YXRpb24=?= <virtualization@lists.linux.dev>,
-	=?UTF-8?B?c3BpY2UtZGV2ZWw=?= <spice-devel@lists.freedesktop.org>,
-	=?UTF-8?B?ZHJpLWRldmVs?= <dri-devel@lists.freedesktop.org>,
-	=?UTF-8?B?bGludXgta2VybmVs?= <linux-kernel@vger.kernel.org>,
-	=?UTF-8?B?5L2V5pWP57qi?= <heminhong@kylinos.cn>,
-Date: Wed, 29 Nov 2023 10:32:17 +0800
-X-Mailer: NSMAIL 7.0.0
-Message-ID: <1290mcwo8vf-129368jicj0@nsmail7.0.0--kylin--1>
-References: 20231110055031.57360-1-heminhong@kylinos.cn
-X-Israising: 0
-X-Seclevel-1: 0
-X-Seclevel: 0
-X-Delaysendtime: Wed, 29 Nov 2023 10:32:17 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468D810A09
+	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 06:31:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jqcrY24A"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT6Rr0G003878;
+	Wed, 29 Nov 2023 06:31:05 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=SUZRHLlSRdF3IEamOtrEvhT6fD/d+NFPZWKQqCzpmbA=;
+ b=jqcrY24AZWqR+CF9jnuvLLNVfL/dj+NKnK+BKSQlsvRD9WXLWyTduGByOaivyNpZWHen
+ CVv1xD+KUkRLJqsyE5fszAQB8DVigbgjHakMQlgLHAku4fyudxgzy52aW7mF/V8Izbvq
+ qXdReb5nbMph+fnCy3Cb6uox/ZvKn2lA5xM2gSYhcAxPxfYVieXFJ13XYqCqKKJR5bFy
+ wpmtLZVjF8Qpaahlxqu61jW+b78V3n44ErH3+VRrMvJ03poyWolGYbikVUIW1/EEBxUZ
+ MMgMcrjL8Q+ngW0zx31r6g1fLEumly+mhF6LYnEsxNxt6J6sJ8bGuvXZCem5t0lbihQO aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up02381tx-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 06:31:05 +0000
+Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AT6UMA8009948;
+	Wed, 29 Nov 2023 06:31:04 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up02381tf-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 06:31:04 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT5G5sb028329;
+	Wed, 29 Nov 2023 06:31:04 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukv8nng8y-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 29 Nov 2023 06:31:03 +0000
+Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AT6V1e845744780
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 29 Nov 2023 06:31:02 GMT
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id D55EA2004D;
+	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
+Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ABBC820040;
+	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
+Received: from DESKTOP-2CCOB1S. (unknown [9.171.203.35])
+	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
+Date: Wed, 29 Nov 2023 07:31:01 +0100
+From: Tobias Huschle <huschle@linux.ibm.com>
+To: Abel Wu <wuyun.abel@bytedance.com>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
+        jasowang@redhat.com
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <ZWbapeL34Z8AMR5f@DESKTOP-2CCOB1S.>
+References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
+ <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
+ <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
+ <20231117123759.GP8262@noisy.programming.kicks-ass.net>
+ <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
+ <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+ <20231122100016.GO8262@noisy.programming.kicks-ass.net>
+ <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
+ <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary=nsmail-1618ncacani-1619xa3rchb
-X-ns-mid: webmail-6566a2b1-15tnkbev
-X-ope-from: <heminhong@kylinos.cn>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: MWQRo9A2y_8bYd4lGwrLhaqCYQTrINad
+X-Proofpoint-GUID: mTSe3wItw0uj9WgQnE43wzWgGLmNSKJT
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-11-29_03,2023-11-27_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
+ malwarescore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
+ bulkscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311060000 definitions=main-2311290046
 
-This message is in MIME format.
+On Tue, Nov 28, 2023 at 04:55:11PM +0800, Abel Wu wrote:
+> On 11/27/23 9:56 PM, Tobias Huschle Wrote:
+> > On Wed, Nov 22, 2023 at 11:00:16AM +0100, Peter Zijlstra wrote:
+> > > On Tue, Nov 21, 2023 at 02:17:21PM +0100, Tobias Huschle wrote:
 
---nsmail-1618ncacani-1619xa3rchb
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: base64
+[...]
 
-PHByZSBjbGFzcz0ianNfbWVzc2FnZV9wbGFpbiBuZy1iaW5kaW5nIiBzdHls
-ZT0ibWFyZ2luLXRvcDogMHB4OyBtYXJnaW4tYm90dG9tOiAwcHg7IGZvbnQt
-ZmFtaWx5OiBpbmhlcml0OyBmb250LXNpemU6IDE0cHg7IHdoaXRlLXNwYWNl
-OiBwcmUtd3JhcDsgd29yZC1icmVhazogbm9ybWFsOyBiYWNrZ3JvdW5kLWNv
-bG9yOiAjZmZmZmZmOyI+RnJpZW5kbHkgcGluZy4gSSB0aGluayB0aGlzIHBh
-dGNoIHdhcyBmb3Jnb3R0ZW4uPC9wcmU+CjxwPjxicj4tLS0tPC9wPgo8ZGl2
-IGlkPSJjczJjX21haWxfc2lnYXR1cmUiPjwvZGl2Pgo8cD4mbmJzcDs8L3A+
-CjxkaXYgaWQ9InJlIiBzdHlsZT0ibWFyZ2luLWxlZnQ6IDAuNWVtOyBwYWRk
-aW5nLWxlZnQ6IDAuNWVtOyBib3JkZXItbGVmdDogMXB4IHNvbGlkIGdyZWVu
-OyI+PGJyPjxicj48YnI+CjxkaXYgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6
-ICNmNWY3ZmE7Ij48c3Ryb25nPuS4u+OAgOmimO+8mjwvc3Ryb25nPjxzcGFu
-IGlkPSJzdWJqZWN0Ij5bUEFUQ0hdIGRybS9xeGw6IHJlbW92ZSB1bnVzZWQg
-ZGVjbGFyYXRpb248L3NwYW4+IDxicj48c3Ryb25nPuaXpeOAgOacn++8mjwv
-c3Ryb25nPjxzcGFuIGlkPSJkYXRlIj4yMDIzLTExLTEwIDEzOjUwPC9zcGFu
-PiA8YnI+PHN0cm9uZz7lj5Hku7bkurrvvJo8L3N0cm9uZz48c3BhbiBpZD0i
-ZnJvbSI+5L2V5pWP57qiPC9zcGFuPiA8YnI+PHN0cm9uZz7mlLbku7bkurrv
-vJo8L3N0cm9uZz48c3BhbiBpZD0idG8iIHN0eWxlPSJ3b3JkLWJyZWFrOiBi
-cmVhay1hbGw7Ij5haXJsaWVkO2tyYXhlbDttYWFydGVuLmxhbmtob3JzdDtt
-cmlwYXJkO3R6aW1tZXJtYW5uO2FpcmxpZWQ7ZGFuaWVsOzwvc3Bhbj48L2Rp
-dj4KPGJyPgo8ZGl2IGlkPSJjb250ZW50Ij4KPGRpdiBjbGFzcz0idmlld2Vy
-X3BhcnQiIHN0eWxlPSJwb3NpdGlvbjogcmVsYXRpdmU7Ij4KPGRpdj5Tb21l
-IGZ1bmN0aW9ucyBhcmUgbmV2ZXIgdXNlZCBieSB0aGUgZHJpdmVyLDxicj5y
-ZW1vdmluZyB0aGUgZnVuY3Rpb25zIGRlY2xhcmF0aW9uLCBpdCBjYW4gYmUg
-cmVkdWNpbmcgcHJvZ3JhbSBzaXplLDxicj5hbmQgaW1wcm92aW5nIGNvZGUg
-cmVhZGFiaWxpdHkgYW5kIG1haW50YWluYWJpbGl0eS48YnI+PGJyPlNpZ25l
-ZC1vZmYtYnk6IGhlbWluaG9uZyA8YnI+LS0tPGJyPmRyaXZlcnMvZ3B1L2Ry
-bS9xeGwvcXhsX2Rydi5oIHwgNyAtLS0tLS0tPGJyPjEgZmlsZSBjaGFuZ2Vk
-LCA3IGRlbGV0aW9ucygtKTxicj48YnI+ZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Z3B1L2RybS9xeGwvcXhsX2Rydi5oIGIvZHJpdmVycy9ncHUvZHJtL3F4bC9x
-eGxfZHJ2Lmg8YnI+aW5kZXggMzA3YTg5MGZkZTEzLi4zMjA2OWFjZDkzZjgg
-MTAwNjQ0PGJyPi0tLSBhL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rydi5o
-PGJyPisrKyBiL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2Rydi5oPGJyPkBA
-IC0xMTksNyArMTE5LDYgQEAgc3RydWN0IHF4bF9vdXRwdXQgezxicj48YnI+
-I2RlZmluZSB0b19xeGxfY3J0Yyh4KSBjb250YWluZXJfb2YoeCwgc3RydWN0
-IHF4bF9jcnRjLCBiYXNlKTxicj4jZGVmaW5lIGRybV9jb25uZWN0b3JfdG9f
-cXhsX291dHB1dCh4KSBjb250YWluZXJfb2YoeCwgc3RydWN0IHF4bF9vdXRw
-dXQsIGJhc2UpPGJyPi0jZGVmaW5lIGRybV9lbmNvZGVyX3RvX3F4bF9vdXRw
-dXQoeCkgY29udGFpbmVyX29mKHgsIHN0cnVjdCBxeGxfb3V0cHV0LCBlbmMp
-PGJyPjxicj5zdHJ1Y3QgcXhsX21tYW4gezxicj5zdHJ1Y3QgdHRtX2Rldmlj
-ZSBiZGV2Ozxicj5AQCAtMjU2LDggKzI1NSw2IEBAIHN0cnVjdCBxeGxfZGV2
-aWNlIHs8YnI+PGJyPiNkZWZpbmUgdG9fcXhsKGRldikgY29udGFpbmVyX29m
-KGRldiwgc3RydWN0IHF4bF9kZXZpY2UsIGRkZXYpPGJyPjxicj4taW50IHF4
-bF9kZWJ1Z2ZzX2ZlbmNlX2luaXQoc3RydWN0IHF4bF9kZXZpY2UgKnJkZXYp
-Ozxicj4tPGJyPmludCBxeGxfZGV2aWNlX2luaXQoc3RydWN0IHF4bF9kZXZp
-Y2UgKnFkZXYsIHN0cnVjdCBwY2lfZGV2ICpwZGV2KTs8YnI+dm9pZCBxeGxf
-ZGV2aWNlX2Zpbmkoc3RydWN0IHF4bF9kZXZpY2UgKnFkZXYpOzxicj48YnI+
-QEAgLTM0NCw4ICszNDEsNiBAQCBxeGxfaW1hZ2VfYWxsb2Nfb2JqZWN0cyhz
-dHJ1Y3QgcXhsX2RldmljZSAqcWRldiw8YnI+aW50IGhlaWdodCwgaW50IHN0
-cmlkZSk7PGJyPnZvaWQgcXhsX2ltYWdlX2ZyZWVfb2JqZWN0cyhzdHJ1Y3Qg
-cXhsX2RldmljZSAqcWRldiwgc3RydWN0IHF4bF9kcm1faW1hZ2UgKmRpbWFn
-ZSk7PGJyPjxicj4tdm9pZCBxeGxfdXBkYXRlX3NjcmVlbihzdHJ1Y3QgcXhs
-X2RldmljZSAqcXhsKTs8YnI+LTxicj4vKiBxeGwgaW8gb3BlcmF0aW9ucyAo
-cXhsX2NtZC5jKSAqLzxicj48YnI+dm9pZCBxeGxfaW9fY3JlYXRlX3ByaW1h
-cnkoc3RydWN0IHF4bF9kZXZpY2UgKnFkZXYsPGJyPkBAIC00NDUsOCArNDQw
-LDYgQEAgaW50IHF4bF9od19zdXJmYWNlX2RlYWxsb2Moc3RydWN0IHF4bF9k
-ZXZpY2UgKnFkZXYsPGJyPjxicj5pbnQgcXhsX2JvX2NoZWNrX2lkKHN0cnVj
-dCBxeGxfZGV2aWNlICpxZGV2LCBzdHJ1Y3QgcXhsX2JvICpibyk7PGJyPjxi
-cj4tc3RydWN0IHF4bF9kcnZfc3VyZmFjZSAqPGJyPi1xeGxfc3VyZmFjZV9s
-b29rdXAoc3RydWN0IGRybV9kZXZpY2UgKmRldiwgaW50IHN1cmZhY2VfaWQp
-Ozxicj52b2lkIHF4bF9zdXJmYWNlX2V2aWN0KHN0cnVjdCBxeGxfZGV2aWNl
-ICpxZGV2LCBzdHJ1Y3QgcXhsX2JvICpzdXJmLCBib29sIGZyZWVpbmcpOzxi
-cj48YnI+LyogcXhsX2lvY3RsLmMgKi88YnI+LS0gPGJyPjIuMjUuMTxicj48
-YnI+PC9kaXY+CjwvZGl2Pgo8L2Rpdj4KPC9kaXY+
+> > - At depth 4, the cgroup shows the observed vruntime value which is smaller
+> >    by a factor of 20, but depth 0 seems to be running with values of the
+> >    correct magnitude.
+> 
+> A child is running means its parent also being the cfs->curr, but
+> not vice versa if there are more than one child.
+> 
+> > - cgroup at depth 0 has zero lag, with higher depth, there are large lag
+> >    values (as observed 606.338267 onwards)
+> 
+> These values of se->vlag means 'run this entity to parity' to avoid
+> excess context switch, which is what RUN_TO_PARITY does, or nothing
+> when !RUN_TO_PARITY. In short, se->vlag is not vlag when se->on_rq.
+> 
 
---nsmail-1618ncacani-1619xa3rchb--
+Thanks for clarifying that. This makes things clearer to me.
+
+> > 
+> > Now the following occurs, triggered by the vhost:
+> > - The kworker gets placed again with:
+> >                      vruntime      deadline
+> >     cgroup        56117619190   57650477291 -> depth 0, last known value
+> >     kworker       56117885776   56120885776 -> lag of -725
+> > - vhost continues executing and updates its vruntime accordingly, here
+> >    I would need to enhance the trace to also print the vruntimes of the
+> >    parent sched_entities to see the progress of their vruntime/deadline/lag
+> >    values as well
+> > - It is a bit irritating that the EEVDF algorithm would not pick the kworker
+> >    over the cgroup as its deadline is smaller.
+> >    But, the kworker has negative lag, which might cause EEVDF to not pick
+> >    the kworker.
+> >    The cgroup at depth 0 has no lag, all deeper layers have a significantly
+> >    positve lag (last known values, might have changed in the meantime).
+> >    At this point I would see the option that the vhost task is stuck
+> >    somewhere or EEVDF just does not see the kworker as a eligible option.
+> 
+> IMHO such lag should not introduce that long delay. Can you run the
+> test again with NEXT_BUDDY disabled?
+
+I added a trace event to the next buddy path, it does not get triggered, so I'd 
+assume that no buddies are selected.
+
+> 
+> > 
+> > - Once the vhost is migrated off the cpu, the update_entity_lag function
+> >    works with the following values at 606.467022: sched_update
+> >    For the cgroup at depth 0
+> >    - vruntime = 57104166665 --> this is in line with the amount of new timeslices
+> >                                 vhost got assigned while the kworker was waiting
+> >    - vlag     =   -62439022 --> the scheduler knows that the cgroup was
+> >                                 overconsuming, but no runtime for the kworker
+> >    For the cfs_rq we have
+> >    - min_vruntime =  56117885776 --> this matches the vruntime of the kworker
+> >    - avg_vruntime = 161750065796 --> this is rather large in comparison, but I
+> >                                      might access this value at a bad time
+> 
+> Use avg_vruntime() instead.
+
+Fair.
+
+[...]
+
+> > 
+> > ######################### full trace #########################
+> > 
+> > sched_bestvnode: v=vruntime,d=deadline,l=vlag,md=min_deadline,dp=depth
+> > --> during __pick_eevdf, prints values for best and the first node loop variable, second loop is never executed
+> > 
+> > sched_place/sched_update: sev=se->vruntime,sed=se->deadline,sev=se->vlag,avg=cfs_rq->avg_vruntime,min=cfs_rq->min_vruntime
+> 
+> It would be better replace cfs_rq->avg_vruntime with avg_vruntime().
+> Although we can get real @avg by (vruntime + vlag), I am not sure
+> vlag (@lag in trace) is se->vlag or the local variable in the place
+> function which is scaled and no longer be the true vlag.
+> 
+
+Oh my bad, sev is the vlag value of the sched_entity, lag is the local variable.
+
+[...]
+
+> >      vhost-2931-2953    [013] d....   606.338313: sched_wakeup: comm=kworker/13:1 pid=168 prio=120 target_cpu=013
+> > --> kworker set to runnable, but vhost keeps on executing
+> 
+> What are the weights of the two entities?
+
+I'll do another run and look at those values.
+
+[...]
