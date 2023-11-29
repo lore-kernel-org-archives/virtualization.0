@@ -1,186 +1,217 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from new1-smtp.messagingengine.com (new1-smtp.messagingengine.com [66.111.4.221])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 468D810A09
-	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 06:31:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7E9B186A;
+	Wed, 29 Nov 2023 07:49:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jannau.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jannau.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="jqcrY24A"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT6Rr0G003878;
-	Wed, 29 Nov 2023 06:31:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=SUZRHLlSRdF3IEamOtrEvhT6fD/d+NFPZWKQqCzpmbA=;
- b=jqcrY24AZWqR+CF9jnuvLLNVfL/dj+NKnK+BKSQlsvRD9WXLWyTduGByOaivyNpZWHen
- CVv1xD+KUkRLJqsyE5fszAQB8DVigbgjHakMQlgLHAku4fyudxgzy52aW7mF/V8Izbvq
- qXdReb5nbMph+fnCy3Cb6uox/ZvKn2lA5xM2gSYhcAxPxfYVieXFJ13XYqCqKKJR5bFy
- wpmtLZVjF8Qpaahlxqu61jW+b78V3n44ErH3+VRrMvJ03poyWolGYbikVUIW1/EEBxUZ
- MMgMcrjL8Q+ngW0zx31r6g1fLEumly+mhF6LYnEsxNxt6J6sJ8bGuvXZCem5t0lbihQO aQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up02381tx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 06:31:05 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3AT6UMA8009948;
-	Wed, 29 Nov 2023 06:31:04 GMT
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3up02381tf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 06:31:04 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3AT5G5sb028329;
-	Wed, 29 Nov 2023 06:31:04 GMT
-Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ukv8nng8y-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 29 Nov 2023 06:31:03 +0000
-Received: from smtpav07.fra02v.mail.ibm.com (smtpav07.fra02v.mail.ibm.com [10.20.54.106])
-	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3AT6V1e845744780
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Nov 2023 06:31:02 GMT
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D55EA2004D;
-	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
-Received: from smtpav07.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ABBC820040;
-	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.203.35])
-	by smtpav07.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Wed, 29 Nov 2023 06:31:01 +0000 (GMT)
-Date: Wed, 29 Nov 2023 07:31:01 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: Abel Wu <wuyun.abel@bytedance.com>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
-        jasowang@redhat.com
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <ZWbapeL34Z8AMR5f@DESKTOP-2CCOB1S.>
-References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
- <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
- <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
- <20231117123759.GP8262@noisy.programming.kicks-ass.net>
- <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
- <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
- <20231122100016.GO8262@noisy.programming.kicks-ass.net>
- <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
- <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+	dkim=pass (2048-bit key) header.d=jannau.net header.i=@jannau.net header.b="WS0m9G0n";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rQPYt4rH"
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+	by mailnew.nyi.internal (Postfix) with ESMTP id 9064C580A2F;
+	Wed, 29 Nov 2023 02:49:50 -0500 (EST)
+Received: from imap53 ([10.202.2.103])
+  by compute1.internal (MEProxy); Wed, 29 Nov 2023 02:49:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=jannau.net; h=cc
+	:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:sender
+	:subject:subject:to:to; s=fm3; t=1701244190; x=1701251390; bh=ww
+	kE8lsdD1lmCvJ6vHeRL3ETi3+Yj2miubjiEiAIJqc=; b=WS0m9G0nx6dD9iEji/
+	fBqlaAFY/rMIvdHqXU7tZxzaCT6/WaZqN24lhBSrCWbph5RWVn8OG0wIE3vLDiA7
+	dOWPtjwm4K1LXbVSgViqbhQnGAqsI7zVo/p5C5Cc2lkcP6BvkMMbJJPRLlk6Obqn
+	AHfiWue+I4lT9KO4M5IqOwcDkJ9k3rIoOQzzkgfdeVW+FPwIkWR8otEXHsC4vN5M
+	YRFUR7qjaXjm+/zVf+gwWpzm9l6TfNicjYV48mg69Jf51d7lmUwmWy0QDMagwX+h
+	my8WMJddQ84zOCl6wx49JlxbWBkrLfSX8dsYvVyefTTM6PDNHjgdqGvgdPI98pTh
+	CeVQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:sender:subject
+	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+	:x-sasl-enc; s=fm1; t=1701244190; x=1701251390; bh=wwkE8lsdD1lmC
+	vJ6vHeRL3ETi3+Yj2miubjiEiAIJqc=; b=rQPYt4rH1AA0LiTAAnJGE//YvqNCw
+	0qwLht7gsUZGiRgP8vOuUojrK3gXdkIqqQy8kh1RU6M48Z+Q1F0tnQhr+VVyl2w5
+	NmyzspDEFgY404mNlejNyplFYnmca/DQjbd3xvYN1Ln64vKHdITrMssLqBon8Ujn
+	P7Qb4qPDUzh92GrFKk6+AzOXk04amTS8z6iqjc442y/87PjOdgE3r4Ts0YSlpbOW
+	dquGLaB3VxWfcHpWrswAQY2/Rw9xn8Jq2WVIEzpZjj1/JtoUjjzbJm94BlKfxFeu
+	aDZFAe2s9qDxCwDO/RDxvPYqUWrMro5Rq5vNlH5XTTV2LcBscKUpE50kw==
+X-ME-Sender: <xms:HO1mZWwi-0PHwgZ7UGdDg2Nfu1cPQBmbtYZcjowlgAyQ0BQky2hXjA>
+    <xme:HO1mZSTMYD4qqQdTonZ8IGVDTRfv30PWEOnWS8uEzYlouq8tMUIbuyDbZitdKhK-h
+    lPnAf3-fMz25n81ToA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudeigedguddutdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefofgggkfgjfhffhffvufgtsehttdertderredtnecuhfhrohhmpedflfgr
+    nhhnvgcuifhruhhnrghufdcuoehjsehjrghnnhgruhdrnhgvtheqnecuggftrfgrthhtvg
+    hrnhepteeugeeltdelffetleetudejgfejieegudekleekleeifffffefgfefgfeeukeef
+    necuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepjhesjh
+    grnhhnrghurdhnvght
+X-ME-Proxy: <xmx:HO1mZYWbL-dzWpMIvCrcF_hkcPxVblMr6At8rrdkDOd5QKecybyP8A>
+    <xmx:HO1mZcghfi5RLWq0pFjhso2VXNF7V40Fof9Xj8XlOYXvC_owwh5wlQ>
+    <xmx:HO1mZYDWse66_RKIUSsZ-t0CzxR6dHcZEVv_0jTO_L-qPjoGwVzSYQ>
+    <xmx:Hu1mZerEKP658mX4LK_6tKFnkmAWe_WKTSc7PfS_s-S-h8Msb1Q_lw>
+Feedback-ID: i47b949f6:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 5DF0E3640069; Wed, 29 Nov 2023 02:49:48 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-1234-gac66594aae-fm-20231122.001-gac66594a
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: MWQRo9A2y_8bYd4lGwrLhaqCYQTrINad
-X-Proofpoint-GUID: mTSe3wItw0uj9WgQnE43wzWgGLmNSKJT
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-11-29_03,2023-11-27_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- malwarescore=0 phishscore=0 lowpriorityscore=0 priorityscore=1501
- bulkscore=0 adultscore=0 mlxscore=0 mlxlogscore=999 impostorscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311060000 definitions=main-2311290046
+Message-Id: <ca7a025d-8154-4509-b8ab-2a17e53ccbef@app.fastmail.com>
+In-Reply-To: <20231128204938.1453583-5-pasha.tatashin@soleen.com>
+References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
+ <20231128204938.1453583-5-pasha.tatashin@soleen.com>
+Date: Wed, 29 Nov 2023 08:49:18 +0100
+From: "Janne Grunau" <j@jannau.net>
+To: "Pasha Tatashin" <pasha.tatashin@soleen.com>, akpm@linux-foundation.org,
+ alex.williamson@redhat.com, alim.akhtar@samsung.com,
+ "Alyssa Rosenzweig" <alyssa@rosenzweig.io>, asahi@lists.linux.dev,
+ "Lu Baolu" <baolu.lu@linux.intel.com>, bhelgaas@google.com,
+ cgroups@vger.kernel.org, corbet@lwn.net, david@redhat.com,
+ "David Woodhouse" <dwmw2@infradead.org>, hannes@cmpxchg.org,
+ heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com,
+ jernej.skrabec@gmail.com, jgg@ziepe.ca, jonathanh@nvidia.com,
+ "Joerg Roedel" <joro@8bytes.org>, "Kevin Tian" <kevin.tian@intel.com>,
+ krzysztof.kozlowski@linaro.org, kvm@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+ linux-mm@kvack.org, linux-rockchip@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+ linux-tegra@vger.kernel.org, lizefan.x@bytedance.com,
+ "Hector Martin" <marcan@marcan.st>, mhiramat@kernel.org, mst@redhat.com,
+ m.szyprowski@samsung.com, netdev@vger.kernel.org, paulmck@kernel.org,
+ rdunlap@infradead.org, "Robin Murphy" <robin.murphy@arm.com>,
+ samuel@sholland.org, suravee.suthikulpanit@amd.com,
+ "Sven Peter" <sven@svenpeter.dev>, thierry.reding@gmail.com,
+ tj@kernel.org, tomas.mudrunka@gmail.com, vdumpa@nvidia.com,
+ virtualization@lists.linux.dev, wens@csie.org,
+ "Will Deacon" <will@kernel.org>, yu-cheng.yu@intel.com
+Subject: Re: [PATCH 04/16] iommu/io-pgtable-dart: use page allocation function provided
+ by iommu-pages.h
+Content-Type: text/plain
 
-On Tue, Nov 28, 2023 at 04:55:11PM +0800, Abel Wu wrote:
-> On 11/27/23 9:56 PM, Tobias Huschle Wrote:
-> > On Wed, Nov 22, 2023 at 11:00:16AM +0100, Peter Zijlstra wrote:
-> > > On Tue, Nov 21, 2023 at 02:17:21PM +0100, Tobias Huschle wrote:
+Hej,
 
-[...]
-
-> > - At depth 4, the cgroup shows the observed vruntime value which is smaller
-> >    by a factor of 20, but depth 0 seems to be running with values of the
-> >    correct magnitude.
+On Tue, Nov 28, 2023, at 21:49, Pasha Tatashin wrote:
+> Convert iommu/io-pgtable-dart.c to use the new page allocation functions
+> provided in iommu-pages.h.
+>
+> Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+> ---
+>  drivers/iommu/io-pgtable-dart.c | 37 +++++++++++++--------------------
+>  1 file changed, 14 insertions(+), 23 deletions(-)
+>
+> diff --git a/drivers/iommu/io-pgtable-dart.c b/drivers/iommu/io-pgtable-dart.c
+> index 74b1ef2b96be..ad28031e1e93 100644
+> --- a/drivers/iommu/io-pgtable-dart.c
+> +++ b/drivers/iommu/io-pgtable-dart.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/types.h>
 > 
-> A child is running means its parent also being the cfs->curr, but
-> not vice versa if there are more than one child.
+>  #include <asm/barrier.h>
+> +#include "iommu-pages.h"
 > 
-> > - cgroup at depth 0 has zero lag, with higher depth, there are large lag
-> >    values (as observed 606.338267 onwards)
+>  #define DART1_MAX_ADDR_BITS	36
 > 
-> These values of se->vlag means 'run this entity to parity' to avoid
-> excess context switch, which is what RUN_TO_PARITY does, or nothing
-> when !RUN_TO_PARITY. In short, se->vlag is not vlag when se->on_rq.
+> @@ -106,18 +107,12 @@ static phys_addr_t iopte_to_paddr(dart_iopte pte,
+>  	return paddr;
+>  }
 > 
-
-Thanks for clarifying that. This makes things clearer to me.
-
-> > 
-> > Now the following occurs, triggered by the vhost:
-> > - The kworker gets placed again with:
-> >                      vruntime      deadline
-> >     cgroup        56117619190   57650477291 -> depth 0, last known value
-> >     kworker       56117885776   56120885776 -> lag of -725
-> > - vhost continues executing and updates its vruntime accordingly, here
-> >    I would need to enhance the trace to also print the vruntimes of the
-> >    parent sched_entities to see the progress of their vruntime/deadline/lag
-> >    values as well
-> > - It is a bit irritating that the EEVDF algorithm would not pick the kworker
-> >    over the cgroup as its deadline is smaller.
-> >    But, the kworker has negative lag, which might cause EEVDF to not pick
-> >    the kworker.
-> >    The cgroup at depth 0 has no lag, all deeper layers have a significantly
-> >    positve lag (last known values, might have changed in the meantime).
-> >    At this point I would see the option that the vhost task is stuck
-> >    somewhere or EEVDF just does not see the kworker as a eligible option.
+> -static void *__dart_alloc_pages(size_t size, gfp_t gfp,
+> -				    struct io_pgtable_cfg *cfg)
+> +static void *__dart_alloc_pages(size_t size, gfp_t gfp)
+>  {
+>  	int order = get_order(size);
+> -	struct page *p;
 > 
-> IMHO such lag should not introduce that long delay. Can you run the
-> test again with NEXT_BUDDY disabled?
-
-I added a trace event to the next buddy path, it does not get triggered, so I'd 
-assume that no buddies are selected.
-
+>  	VM_BUG_ON((gfp & __GFP_HIGHMEM));
+> -	p = alloc_pages(gfp | __GFP_ZERO, order);
+> -	if (!p)
+> -		return NULL;
+> -
+> -	return page_address(p);
+> +	return iommu_alloc_pages(gfp, order);
+>  }
 > 
-> > 
-> > - Once the vhost is migrated off the cpu, the update_entity_lag function
-> >    works with the following values at 606.467022: sched_update
-> >    For the cgroup at depth 0
-> >    - vruntime = 57104166665 --> this is in line with the amount of new timeslices
-> >                                 vhost got assigned while the kworker was waiting
-> >    - vlag     =   -62439022 --> the scheduler knows that the cgroup was
-> >                                 overconsuming, but no runtime for the kworker
-> >    For the cfs_rq we have
-> >    - min_vruntime =  56117885776 --> this matches the vruntime of the kworker
-> >    - avg_vruntime = 161750065796 --> this is rather large in comparison, but I
-> >                                      might access this value at a bad time
+>  static int dart_init_pte(struct dart_io_pgtable *data,
+> @@ -262,13 +257,13 @@ static int dart_map_pages(struct io_pgtable_ops 
+> *ops, unsigned long iova,
 > 
-> Use avg_vruntime() instead.
-
-Fair.
-
-[...]
-
-> > 
-> > ######################### full trace #########################
-> > 
-> > sched_bestvnode: v=vruntime,d=deadline,l=vlag,md=min_deadline,dp=depth
-> > --> during __pick_eevdf, prints values for best and the first node loop variable, second loop is never executed
-> > 
-> > sched_place/sched_update: sev=se->vruntime,sed=se->deadline,sev=se->vlag,avg=cfs_rq->avg_vruntime,min=cfs_rq->min_vruntime
+>  	/* no L2 table present */
+>  	if (!pte) {
+> -		cptep = __dart_alloc_pages(tblsz, gfp, cfg);
+> +		cptep = __dart_alloc_pages(tblsz, gfp);
+>  		if (!cptep)
+>  			return -ENOMEM;
 > 
-> It would be better replace cfs_rq->avg_vruntime with avg_vruntime().
-> Although we can get real @avg by (vruntime + vlag), I am not sure
-> vlag (@lag in trace) is se->vlag or the local variable in the place
-> function which is scaled and no longer be the true vlag.
+>  		pte = dart_install_table(cptep, ptep, 0, data);
+>  		if (pte)
+> -			free_pages((unsigned long)cptep, get_order(tblsz));
+> +			iommu_free_pages(cptep, get_order(tblsz));
 > 
-
-Oh my bad, sev is the vlag value of the sched_entity, lag is the local variable.
-
-[...]
-
-> >      vhost-2931-2953    [013] d....   606.338313: sched_wakeup: comm=kworker/13:1 pid=168 prio=120 target_cpu=013
-> > --> kworker set to runnable, but vhost keeps on executing
+>  		/* L2 table is present (now) */
+>  		pte = READ_ONCE(*ptep);
+> @@ -419,8 +414,7 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
+> *cfg, void *cookie)
+>  	cfg->apple_dart_cfg.n_ttbrs = 1 << data->tbl_bits;
 > 
-> What are the weights of the two entities?
+>  	for (i = 0; i < cfg->apple_dart_cfg.n_ttbrs; ++i) {
+> -		data->pgd[i] = __dart_alloc_pages(DART_GRANULE(data), GFP_KERNEL,
+> -					   cfg);
+> +		data->pgd[i] = __dart_alloc_pages(DART_GRANULE(data), GFP_KERNEL);
+>  		if (!data->pgd[i])
+>  			goto out_free_data;
+>  		cfg->apple_dart_cfg.ttbr[i] = virt_to_phys(data->pgd[i]);
+> @@ -429,9 +423,10 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
+> *cfg, void *cookie)
+>  	return &data->iop;
+> 
+>  out_free_data:
+> -	while (--i >= 0)
+> -		free_pages((unsigned long)data->pgd[i],
+> -			   get_order(DART_GRANULE(data)));
+> +	while (--i >= 0) {
+> +		iommu_free_pages(data->pgd[i],
+> +				 get_order(DART_GRANULE(data)));
+> +	}
+>  	kfree(data);
+>  	return NULL;
+>  }
+> @@ -439,6 +434,7 @@ apple_dart_alloc_pgtable(struct io_pgtable_cfg 
+> *cfg, void *cookie)
+>  static void apple_dart_free_pgtable(struct io_pgtable *iop)
+>  {
+>  	struct dart_io_pgtable *data = io_pgtable_to_data(iop);
+> +	int order = get_order(DART_GRANULE(data));
+>  	dart_iopte *ptep, *end;
+>  	int i;
+> 
+> @@ -449,15 +445,10 @@ static void apple_dart_free_pgtable(struct 
+> io_pgtable *iop)
+>  		while (ptep != end) {
+>  			dart_iopte pte = *ptep++;
+> 
+> -			if (pte) {
+> -				unsigned long page =
+> -					(unsigned long)iopte_deref(pte, data);
+> -
+> -				free_pages(page, get_order(DART_GRANULE(data)));
+> -			}
+> +			if (pte)
+> +				iommu_free_pages(iopte_deref(pte, data), order);
+>  		}
+> -		free_pages((unsigned long)data->pgd[i],
+> -			   get_order(DART_GRANULE(data)));
+> +		iommu_free_pages(data->pgd[i], order);
+>  	}
+> 
+>  	kfree(data);
 
-I'll do another run and look at those values.
+Reviewed-by: Janne Grunau <j@jannau.net>
 
-[...]
+Janne
