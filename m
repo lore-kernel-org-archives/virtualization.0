@@ -1,98 +1,117 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5C6B4CB2F
-	for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 22:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=soleen.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=soleen.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04599184
+	for <virtualization@lists.linux.dev>; Thu, 30 Nov 2023 00:03:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ziepe.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ziepe.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=soleen.com header.i=@soleen.com header.b="if/y/fFG"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-423dcd5d060so2417141cf.0
-        for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 14:00:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="C/nICsSF"
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-1fa4e47f6c0so697737fac.0
+        for <virtualization@lists.linux.dev>; Wed, 29 Nov 2023 16:03:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google; t=1701295220; x=1701900020; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=aiOfm5uGDMrP0UYnHwC5BRUcA0oU3b2DbcdcIFPiI/Q=;
-        b=if/y/fFGh+maTAsAyHGQijIB5fH2tqMDIQW93wh3rI1RcQ8Qkr0rwyioeCLwqY3kyC
-         /xTB3kKaHibPnw/aLf42p0Yd+J8bSoCd5bvv7G0xTcqhmKlU3XRYLp72cw8mZIP6stUC
-         JQqHKdVtWq6TFYIxfgg9ASBqyXeVvrZ7x4e28c16PzO1UT1H0uJAYu+Xq6xa4V5PKlTD
-         tBLSsPMfvE4ze7H+q6YYI+oinmpkILsgAq3rkUc6vK9wfpQzT0J8Oog52jYUsQ8GnD3e
-         t3izOtOjkuV85yFaeaKtXCYMlzZPNPNQBIPGDbk5tRb7sOqLLM7hgkr7FgwKuslrqHxG
-         UbDA==
+        d=ziepe.ca; s=google; t=1701302581; x=1701907381; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=iqaBGyfV5ntKwlfmxQAMawFx8i861c6WUBXKE0OU9B4=;
+        b=C/nICsSF4lFjwshOSfbWzqrGk+h/4sCvAhcWsbpXXRmSm1AWeuRGHAlmVxymvvwH/L
+         ns5/eL2Yw8chmfFv2gyUgHNJ0bpa1PzoH2Y6rr1YHrHw+VMqrRsSwwiMnMTavVu5IDo2
+         zYw36NQWhljOlbso37etAzEbC4I+u2atseF2JRm3FeNYTgH0n1VwjKmOh5SJkBuhxj2J
+         0PZdS8Cfj8GJyc9+dNcFCnQGEdvDYPHHl6/jaDO9WNZO2/iH7BejCrOwi2kDp8U/dzPM
+         g47Ey7aqdhYFXf/mDPF6nvB0By1ZzyhX+42F8gU7RPQThBN58oukfJ4Y5Xfz0N/xcMln
+         ij3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701295220; x=1701900020;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=aiOfm5uGDMrP0UYnHwC5BRUcA0oU3b2DbcdcIFPiI/Q=;
-        b=sl7+scsRTSJonFfBOG5QTbBEBpLASA7VnZZUTtyrZm+/xHBZ6Mn8tx7XpxTlXl1gkF
-         t8w2D8CcQgWmoveKvRFujMnjtbSJwKVRboTEZGQ9iQcts9h8kbqp21gk75b2HyFawbD9
-         dphRhPGEFVEl0Gw7EHmDs1pNZqvgHd09xRzrqP7ziFZ92XGalm7Y6FoL5VaHyaMbihig
-         pWyDowiSxMiPKUk40769gzLM9Wv5Y9q34HxlOS9YJS2uazadRkCaAgy02mQty06LGuxB
-         ze9oLTbfUBiWgobWTuATn2X0TDYWYs0CR1X/AchAF/3t7anQSbfqr4bn9aGg53kpo84t
-         yfKg==
-X-Gm-Message-State: AOJu0YwG8gQCalsGX4U9W2YNxakIakMCAlw8FG4hVTc5Q0MV0ofiUMHT
-	1y2wLRintEtE7SITfSrs8XJ7HTz/S/15x+IiehHwSw==
-X-Google-Smtp-Source: AGHT+IGmE/x/Q9wBAAP4WSVeu6Pzwkh80gJNXkwIoavJV9VXufokUhNCLXMfXFExg6GRm7Q1Y/p8TrFXYkay1vjqtA4=
-X-Received: by 2002:ac8:5ac4:0:b0:41c:d62b:fb51 with SMTP id
- d4-20020ac85ac4000000b0041cd62bfb51mr39263562qtd.26.1701295220560; Wed, 29
- Nov 2023 14:00:20 -0800 (PST)
+        d=1e100.net; s=20230601; t=1701302581; x=1701907381;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iqaBGyfV5ntKwlfmxQAMawFx8i861c6WUBXKE0OU9B4=;
+        b=P/f9UlRdpRHl3OUbn5ep7LSPK9bwgdb8i6KT5vBvql5FuTqNjbo8HD+9A69sZdZU3a
+         qCmqZpb2l7uu/hI0L+q/wAG8N2AH3D3709XU0aOrwV58pJH9fHS7De+iNwKXvF4R4+4m
+         l2gaovZET7ibEgVVfclSxz5cIChrMpoAHG0b1I2s2TlsQCyenMvbty7re+eTdLutUG0K
+         rcJwW70iDxQ30qCJ2ett4+KT2My6kFwEW8sP/OoBsfMkNDCvgUD6bsIos7k5y6eWYHkm
+         fUPNGKXhHazwuZxrF8b9pSbUbuuNY+MFMA+kWdAL7VL6v+iyve4wjxhTN1816yMC4K/n
+         eThg==
+X-Gm-Message-State: AOJu0YwC2C0aXd5qv6KtdZp2fKuV81G9qJNCaJDfvwIIfHRFkbmMHplU
+	Az7y6YauACLlmOqzc1tO2NqREQ==
+X-Google-Smtp-Source: AGHT+IH9mJrgeBca3QDmdqlZSO64E6UWuuZZMjhMVoz9rZsKA5pWXiF1aXxzzo/4HFbYhkfRvbso7A==
+X-Received: by 2002:a05:6870:1603:b0:1f9:eb7e:6621 with SMTP id b3-20020a056870160300b001f9eb7e6621mr10166623oae.18.1701302580971;
+        Wed, 29 Nov 2023 16:03:00 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-142-134-23-187.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.134.23.187])
+        by smtp.gmail.com with ESMTPSA id ry4-20020a056871208400b001efa3446d4esm3609159oab.43.2023.11.29.16.03.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Nov 2023 16:03:00 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+	(envelope-from <jgg@ziepe.ca>)
+	id 1r8UWB-005qQQ-Hz;
+	Wed, 29 Nov 2023 20:02:59 -0400
+Date: Wed, 29 Nov 2023 20:02:59 -0400
+From: Jason Gunthorpe <jgg@ziepe.ca>
+To: Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc: akpm@linux-foundation.org, alex.williamson@redhat.com,
+	alim.akhtar@samsung.com, alyssa@rosenzweig.io,
+	asahi@lists.linux.dev, baolu.lu@linux.intel.com,
+	bhelgaas@google.com, cgroups@vger.kernel.org, corbet@lwn.net,
+	david@redhat.com, dwmw2@infradead.org, hannes@cmpxchg.org,
+	heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com,
+	jernej.skrabec@gmail.com, jonathanh@nvidia.com, joro@8bytes.org,
+	kevin.tian@intel.com, krzysztof.kozlowski@linaro.org,
+	kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+	linux-rockchip@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev,
+	linux-tegra@vger.kernel.org, lizefan.x@bytedance.com,
+	marcan@marcan.st, mhiramat@kernel.org, mst@redhat.com,
+	m.szyprowski@samsung.com, netdev@vger.kernel.org,
+	paulmck@kernel.org, rdunlap@infradead.org, robin.murphy@arm.com,
+	samuel@sholland.org, suravee.suthikulpanit@amd.com,
+	sven@svenpeter.dev, thierry.reding@gmail.com, tj@kernel.org,
+	tomas.mudrunka@gmail.com, vdumpa@nvidia.com,
+	virtualization@lists.linux.dev, wens@csie.org, will@kernel.org,
+	yu-cheng.yu@intel.com
+Subject: Re: [PATCH 09/16] iommu/iommufd: use page allocation function
+ provided by iommu-pages.h
+Message-ID: <20231130000259.GS1312390@ziepe.ca>
+References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
+ <20231128204938.1453583-10-pasha.tatashin@soleen.com>
+ <20231128235254.GE1312390@ziepe.ca>
+ <CA+CK2bC=vMU54wXz1GSzpOcLFCuX5vuE6tD49JF8cMbz4tis-g@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231128204938.1453583-1-pasha.tatashin@soleen.com>
- <20231128204938.1453583-10-pasha.tatashin@soleen.com> <20231128235254.GE1312390@ziepe.ca>
-In-Reply-To: <20231128235254.GE1312390@ziepe.ca>
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
-Date: Wed, 29 Nov 2023 16:59:43 -0500
-Message-ID: <CA+CK2bC=vMU54wXz1GSzpOcLFCuX5vuE6tD49JF8cMbz4tis-g@mail.gmail.com>
-Subject: Re: [PATCH 09/16] iommu/iommufd: use page allocation function
- provided by iommu-pages.h
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: akpm@linux-foundation.org, alex.williamson@redhat.com, 
-	alim.akhtar@samsung.com, alyssa@rosenzweig.io, asahi@lists.linux.dev, 
-	baolu.lu@linux.intel.com, bhelgaas@google.com, cgroups@vger.kernel.org, 
-	corbet@lwn.net, david@redhat.com, dwmw2@infradead.org, hannes@cmpxchg.org, 
-	heiko@sntech.de, iommu@lists.linux.dev, jasowang@redhat.com, 
-	jernej.skrabec@gmail.com, jonathanh@nvidia.com, joro@8bytes.org, 
-	kevin.tian@intel.com, krzysztof.kozlowski@linaro.org, kvm@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-doc@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-mm@kvack.org, linux-rockchip@lists.infradead.org, 
-	linux-samsung-soc@vger.kernel.org, linux-sunxi@lists.linux.dev, 
-	linux-tegra@vger.kernel.org, lizefan.x@bytedance.com, marcan@marcan.st, 
-	mhiramat@kernel.org, mst@redhat.com, m.szyprowski@samsung.com, 
-	netdev@vger.kernel.org, paulmck@kernel.org, rdunlap@infradead.org, 
-	robin.murphy@arm.com, samuel@sholland.org, suravee.suthikulpanit@amd.com, 
-	sven@svenpeter.dev, thierry.reding@gmail.com, tj@kernel.org, 
-	tomas.mudrunka@gmail.com, vdumpa@nvidia.com, virtualization@lists.linux.dev, 
-	wens@csie.org, will@kernel.org, yu-cheng.yu@intel.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+CK2bC=vMU54wXz1GSzpOcLFCuX5vuE6tD49JF8cMbz4tis-g@mail.gmail.com>
 
-On Tue, Nov 28, 2023 at 6:52=E2=80=AFPM Jason Gunthorpe <jgg@ziepe.ca> wrot=
-e:
->
-> On Tue, Nov 28, 2023 at 08:49:31PM +0000, Pasha Tatashin wrote:
-> > Convert iommu/iommufd/* files to use the new page allocation functions
-> > provided in iommu-pages.h.
+On Wed, Nov 29, 2023 at 04:59:43PM -0500, Pasha Tatashin wrote:
+> On Tue, Nov 28, 2023 at 6:52 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
 > >
-> > Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
-> > ---
-> >  drivers/iommu/iommufd/iova_bitmap.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> This is a short term allocation, it should not be counted, that is why
-> it is already not using GFP_KERNEL_ACCOUNT.
+> > On Tue, Nov 28, 2023 at 08:49:31PM +0000, Pasha Tatashin wrote:
+> > > Convert iommu/iommufd/* files to use the new page allocation functions
+> > > provided in iommu-pages.h.
+> > >
+> > > Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+> > > ---
+> > >  drivers/iommu/iommufd/iova_bitmap.c | 4 ++--
+> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > This is a short term allocation, it should not be counted, that is why
+> > it is already not using GFP_KERNEL_ACCOUNT.
+> 
+> I made this change for completeness. I changed all calls to
+> get_free_page/alloc_page etc under driver/iommu to use the
+> iommu_alloc_* variants, this also helps future developers in this area
+> to use the right allocation functions.
+> The accounting is implemented using cheap per-cpu counters, so should
+> not affect the performance, I think it is OK to keep them here.
 
-I made this change for completeness. I changed all calls to
-get_free_page/alloc_page etc under driver/iommu to use the
-iommu_alloc_* variants, this also helps future developers in this area
-to use the right allocation functions.
-The accounting is implemented using cheap per-cpu counters, so should
-not affect the performance, I think it is OK to keep them here.
+Except it is a mis use of an API that should only be used for page
+table memory :(
+
+Jason
