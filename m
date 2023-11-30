@@ -1,341 +1,512 @@
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2072.outbound.protection.outlook.com [40.107.223.72])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA9971C299
-	for <virtualization@lists.linux.dev>; Thu, 30 Nov 2023 07:02:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A66017991
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 07:17:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="KCnvIpPh"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IR+2x4cgGy9JrHzc7m+qHBg2EW6ed/UjNJpf9BxQ4WFega6ffMTDt5WrNYCsy9+e1KiipG8lk/TVGAX8oG8RahmNDZjWlh3s13NZay041DlcfdnKdLYkYpJCCziPG6aUqm5fY+GHKzjy97WvdZ4DTTme4odiSg7cXAd37JWMBrW+bTzFQCqmAtjP0kfFsffK4qXW4ulZ5ZYxhZSE17H0dCVJSXnw4HsrdZifGE+rlWWoXejGjN2R/TXaabsCtOvZgYWsG/iQXbWP+YKQymYuBhkD91gV3+Xhsgi9ruwVDLa1EBJBCYp0T+JPt48YQCXFOiy4rzxvoa0ncZ+FOcy5fQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=LK3IwY+tYpt0nNR7jQ/wuEds0lfJ9yxkjpomecQ5hIA=;
- b=l0+0PgRe37SOhkPFngJAcsJajJZoGOwL9YU0mPXcZOCVKYbmsKDmhWEVEsKpjT1u3asBiwvaNPAb+xv65hVzOO50y9JHkiCyebg7UZKJ9MDCpBt5PD+CE2l5hW0pCK/cKPjUW60TXq960yOAYf1goXFQSiwhpIZcgZL2kMR95tIe7St2q6vrPfT1lmiCXU/iLrYwWJxXH4N/ME/j544aHHQHEAnDhnXmUF1yJ7Fpt6JGHYdaV4UgxOBbY64JmLVuglrbObh1BII9SGyI0ivNana8RLFYDbKAtUhyQM0TOkTYASBtzZL0EvLnS3Vu4AgjmHRMrEQgBQnb0cmmPiaEWA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.161) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LK3IwY+tYpt0nNR7jQ/wuEds0lfJ9yxkjpomecQ5hIA=;
- b=KCnvIpPhqLxZ6cxoKQnWASadi+dwoBJhHqqubg+fYTqGzENw/JQI2nE3WYaWELm8xWC1CW3waF2Ds9HEBLjEZZPY7soy+LeCNb4yAaWY84cEiS4sGKT0nzKfYCGQKypoOJkuNk2Tr5w6kP7U/fsDCrP6YGROD2wVv6QZUahwpDdacUzHKKqUD4PK536CbYpzAhyBzfmuE547OOPYB4BugRVmSVFf7QvM1l/ytx5PYrbTsayzmy1H7/0xiByUtazDmF8553V8DSXh8GI+8HOkKiOjP87urqYRiXT/x5tj05DHgTFO4qnrrXxKLOg73dVHxQsxym/fqqomqc7L8uMX5Q==
-Received: from BN9PR03CA0229.namprd03.prod.outlook.com (2603:10b6:408:f8::24)
- by SA1PR12MB8985.namprd12.prod.outlook.com (2603:10b6:806:377::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.24; Thu, 30 Nov
- 2023 07:02:05 +0000
-Received: from SA2PEPF0000150A.namprd04.prod.outlook.com
- (2603:10b6:408:f8:cafe::7e) by BN9PR03CA0229.outlook.office365.com
- (2603:10b6:408:f8::24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.23 via Frontend
- Transport; Thu, 30 Nov 2023 07:02:05 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.161) by
- SA2PEPF0000150A.mail.protection.outlook.com (10.167.242.42) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7046.17 via Frontend Transport; Thu, 30 Nov 2023 07:02:05 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 29 Nov
- 2023 23:01:52 -0800
-Received: from dev.nvidia.com (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 29 Nov
- 2023 23:01:51 -0800
-From: Chaitanya Kulkarni <kch@nvidia.com>
-To: <virtualization@lists.linux.dev>, <linux-block@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-CC: <mst@redhat.com>, <hch@lst.de>, <jasowang@redhat.com>,
-	<pbonzini@redhat.com>, <stefanha@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<axboe@kernel.dk>, Chaitanya Kulkarni <kch@nvidia.com>
-Subject: [RFC PATCH 1/1] virtio-blk: process block layer timedout request
-Date: Wed, 29 Nov 2023 23:01:33 -0800
-Message-ID: <20231130070133.8059-2-kch@nvidia.com>
-X-Mailer: git-send-email 2.40.0
-In-Reply-To: <20231130070133.8059-1-kch@nvidia.com>
-References: <20231130070133.8059-1-kch@nvidia.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="kZ6fbmpE"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id BB43641993
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 07:17:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BB43641993
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=kZ6fbmpE
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.1
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aRF_Ov6LTcol
+	for <virtualization@lists.linux-foundation.org>;
+	Thu, 30 Nov 2023 07:17:12 +0000 (UTC)
+Received: from out-184.mta1.migadu.com (out-184.mta1.migadu.com [IPv6:2001:41d0:203:375::b8])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E739141991
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 07:17:11 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E739141991
+Message-ID: <d1492e5e-886a-46c4-afb5-206dc5eaff18@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1701328628;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D729cC6k70TznjjCB9lkdjWvmvmLt6Dy3kyZ4CJ/jgk=;
+	b=kZ6fbmpELlTrf9uAJolN5zEjB2rX5q7gQQEfpH9mjHi6dMgYb8tV0NKt8j4crEMNUfoBIK
+	ChYBGqcExJ8V8KgPzPjWM+Ay0Y24IbEJHith90Vyic4ec/BvXQUeqHV4sbcQEczSskAwVY
+	tp1NHwGioTrc1ScWzDQVp4OhZ3UTAIA=
+Date: Thu, 30 Nov 2023 15:17:01 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Subject: Re: [PATCH net-next 2/5] virtio_net: Add page_pool support to improve
+ performance
+To: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com,
+ mst@redhat.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, xuanzhuo@linux.alibaba.com, kuba@kernel.org,
+ edumazet@google.com, davem@davemloft.net, pabeni@redhat.com,
+ alexander.duyck@gmail.com
+References: <20230526054621.18371-1-liangchen.linux@gmail.com>
+ <20230526054621.18371-2-liangchen.linux@gmail.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <20230526054621.18371-2-liangchen.linux@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail202.nvidia.com (10.129.68.7) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA2PEPF0000150A:EE_|SA1PR12MB8985:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2acd1a97-1971-4327-17af-08dbf17242d5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	FfffZ2tnn6+xMIDR5l9MVHTzhjt6Vp9ApSO+wvXiR0AcvEUd9Nt8wxMRcmUEaGGOTL+MkDn9P80hbrU9Ay2GKJUF1LKwz8zXsoWb5XrofZeCrg53VLoQ2HIJWCknHvuzK5AHxwUTZpq9vsD/cnqXgtM99iN+aCho64erqpUTI1ze0wvSCc84um8u3UvTpyCqGAsU/wCczGhdLgeR6qzPWe5M6sz5QJIFpu0Q85ZiEjclUrOhdOAMnc6PUafL5iE/0wbV1JMgT6RCJ0FYb4J0PJWJaw3/fRnlXolpa/8HNcXKaI0xKORfGq6rGylEHJkM0cNtJ1vcRMOaEqfp0egldx4SKeo/N7RMTLHBP7GOqT2IHkYPZmyV6RDMKc4RCOd/tB3uzk0fljmc90Uxd1+3mY2VJIQ4tC0v8AzT/7zl8Wr2BEohdyAClnbvMOaJ74rkFBT8/kMg18qLshUIwTFcQWrnxG/HoBLeiY6Y6AAcZHahwWiPf+oNctkWQBBNedpMwJi5rXk5i17nL1e0+iSELtAXd69LpgLBAcN27Z0HR+hxkRfbabE91gzRyY+1FfUUgwX8N5F8JoO8xL4PaqGM64Tvq1qwh6LOrlpBuug2HLmXa/H+vxJrq001+j7+sacOLFMYd0dTccEtTIvq0Wo5O+jFBncQpGDLQbFCo3C+ZM2OXj4umt+WA4UiuIm6JyztjHmCwMTgHZm9Ll93BklFUTyWgSe6avVsDyH28cFJ0My5XFOgqXz+nPxHXBIDeDFRrLuXL2JK8b+ur8FgL6HmRf3i3+zElDursN9N6HRQ+S0=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(396003)(376002)(346002)(136003)(39860400002)(230922051799003)(64100799003)(186009)(82310400011)(451199024)(1800799012)(40470700004)(46966006)(36840700001)(40480700001)(66899024)(40460700003)(202311291699003)(70586007)(70206006)(54906003)(7636003)(356005)(82740400003)(36756003)(36860700001)(47076005)(426003)(83380400001)(107886003)(1076003)(336012)(26005)(2616005)(6666004)(7696005)(2906002)(110136005)(316002)(16526019)(478600001)(5660300002)(8676002)(4326008)(41300700001)(7416002)(8936002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2023 07:02:05.1478
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2acd1a97-1971-4327-17af-08dbf17242d5
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SA2PEPF0000150A.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR12MB8985
+X-Migadu-Flow: FLOW_OUT
 
-Improve block layer request handling by implementing a timeout handler.
-Current implementation assums that request will never timeout and will
-be completed by underlaying transport. However, this assumption can
-cause issues under heavy load especially when dealing with different
-subsystems and real hardware.
+在 2023/5/26 13:46, Liang Chen 写道:
+> The implementation at the moment uses one page per packet in both the
+> normal and XDP path. In addition, introducing a module parameter to enable
+> or disable the usage of page pool (disabled by default).
+> 
+> In single-core vm testing environments, it gives a modest performance gain
+> in the normal path.
+>    Upstream codebase: 47.5 Gbits/sec
+>    Upstream codebase + page_pool support: 50.2 Gbits/sec
+> 
+> In multi-core vm testing environments, The most significant performance
+> gain is observed in XDP cpumap:
+>    Upstream codebase: 1.38 Gbits/sec
+>    Upstream codebase + page_pool support: 9.74 Gbits/sec
+> 
+> With this foundation, we can further integrate page pool fragmentation and
+> DMA map/unmap support.
+> 
+> Signed-off-by: Liang Chen <liangchen.linux@gmail.com>
+> ---
+>   drivers/net/virtio_net.c | 188 ++++++++++++++++++++++++++++++---------
+>   1 file changed, 146 insertions(+), 42 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c5dca0d92e64..99c0ca0c1781 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -31,6 +31,9 @@ module_param(csum, bool, 0444);
+>   module_param(gso, bool, 0444);
+>   module_param(napi_tx, bool, 0644);
+>   
+> +static bool page_pool_enabled;
+> +module_param(page_pool_enabled, bool, 0400);
+> +
+>   /* FIXME: MTU in config. */
+>   #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>   #define GOOD_COPY_LEN	128
+> @@ -159,6 +162,9 @@ struct receive_queue {
+>   	/* Chain pages by the private ptr. */
+>   	struct page *pages;
+>   
+> +	/* Page pool */
+> +	struct page_pool *page_pool;
+> +
+>   	/* Average packet length for mergeable receive buffers. */
+>   	struct ewma_pkt_len mrg_avg_pkt_len;
+>   
+> @@ -459,6 +465,14 @@ static struct sk_buff *virtnet_build_skb(void *buf, unsigned int buflen,
+>   	return skb;
+>   }
+>   
+> +static void virtnet_put_page(struct receive_queue *rq, struct page *page)
+> +{
+> +	if (rq->page_pool)
+> +		page_pool_put_full_page(rq->page_pool, page, true);
+> +	else
+> +		put_page(page);
+> +}
+> +
+>   /* Called from bottom half context */
+>   static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   				   struct receive_queue *rq,
+> @@ -555,7 +569,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>   	hdr = skb_vnet_hdr(skb);
+>   	memcpy(hdr, hdr_p, hdr_len);
+>   	if (page_to_free)
+> -		put_page(page_to_free);
+> +		virtnet_put_page(rq, page_to_free);
+>   
+>   	return skb;
+>   }
+> @@ -802,7 +816,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>   	return ret;
+>   }
+>   
+> -static void put_xdp_frags(struct xdp_buff *xdp)
+> +static void put_xdp_frags(struct xdp_buff *xdp, struct receive_queue *rq)
+>   {
+>   	struct skb_shared_info *shinfo;
+>   	struct page *xdp_page;
+> @@ -812,7 +826,7 @@ static void put_xdp_frags(struct xdp_buff *xdp)
+>   		shinfo = xdp_get_shared_info_from_buff(xdp);
+>   		for (i = 0; i < shinfo->nr_frags; i++) {
+>   			xdp_page = skb_frag_page(&shinfo->frags[i]);
+> -			put_page(xdp_page);
+> +			virtnet_put_page(rq, xdp_page);
+>   		}
+>   	}
+>   }
+> @@ -903,7 +917,11 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+>   	if (page_off + *len + tailroom > PAGE_SIZE)
+>   		return NULL;
+>   
+> -	page = alloc_page(GFP_ATOMIC);
+> +	if (rq->page_pool)
+> +		page = page_pool_dev_alloc_pages(rq->page_pool);
+> +	else
+> +		page = alloc_page(GFP_ATOMIC);
+> +
+>   	if (!page)
+>   		return NULL;
+>   
+> @@ -926,21 +944,24 @@ static struct page *xdp_linearize_page(struct receive_queue *rq,
+>   		 * is sending packet larger than the MTU.
+>   		 */
+>   		if ((page_off + buflen + tailroom) > PAGE_SIZE) {
+> -			put_page(p);
+> +			virtnet_put_page(rq, p);
+>   			goto err_buf;
+>   		}
+>   
+>   		memcpy(page_address(page) + page_off,
+>   		       page_address(p) + off, buflen);
+>   		page_off += buflen;
+> -		put_page(p);
+> +		virtnet_put_page(rq, p);
+>   	}
+>   
+>   	/* Headroom does not contribute to packet length */
+>   	*len = page_off - VIRTIO_XDP_HEADROOM;
+>   	return page;
+>   err_buf:
+> -	__free_pages(page, 0);
+> +	if (rq->page_pool)
+> +		page_pool_put_full_page(rq->page_pool, page, true);
+> +	else
+> +		__free_pages(page, 0);
+>   	return NULL;
+>   }
+>   
+> @@ -1144,7 +1165,7 @@ static void mergeable_buf_free(struct receive_queue *rq, int num_buf,
+>   		}
+>   		stats->bytes += len;
+>   		page = virt_to_head_page(buf);
+> -		put_page(page);
+> +		virtnet_put_page(rq, page);
+>   	}
+>   }
+>   
+> @@ -1264,7 +1285,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+>   		cur_frag_size = truesize;
+>   		xdp_frags_truesz += cur_frag_size;
+>   		if (unlikely(len > truesize - room || cur_frag_size > PAGE_SIZE)) {
+> -			put_page(page);
+> +			virtnet_put_page(rq, page);
+>   			pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
+>   				 dev->name, len, (unsigned long)(truesize - room));
+>   			dev->stats.rx_length_errors++;
+> @@ -1283,7 +1304,7 @@ static int virtnet_build_xdp_buff_mrg(struct net_device *dev,
+>   	return 0;
+>   
+>   err:
+> -	put_xdp_frags(xdp);
+> +	put_xdp_frags(xdp, rq);
+>   	return -EINVAL;
+>   }
+>   
+> @@ -1344,7 +1365,10 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+>   		if (*len + xdp_room > PAGE_SIZE)
+>   			return NULL;
+>   
+> -		xdp_page = alloc_page(GFP_ATOMIC);
+> +		if (rq->page_pool)
+> +			xdp_page = page_pool_dev_alloc_pages(rq->page_pool);
+> +		else
+> +			xdp_page = alloc_page(GFP_ATOMIC);
+>   		if (!xdp_page)
+>   			return NULL;
+>   
+> @@ -1354,7 +1378,7 @@ static void *mergeable_xdp_get_buf(struct virtnet_info *vi,
+>   
+>   	*frame_sz = PAGE_SIZE;
+>   
+> -	put_page(*page);
+> +	virtnet_put_page(rq, *page);
+>   
+>   	*page = xdp_page;
+>   
+> @@ -1400,6 +1424,8 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   		head_skb = build_skb_from_xdp_buff(dev, vi, &xdp, xdp_frags_truesz);
+>   		if (unlikely(!head_skb))
+>   			break;
+> +		if (rq->page_pool)
+> +			skb_mark_for_recycle(head_skb);
+>   		return head_skb;
+>   
+>   	case XDP_TX:
+> @@ -1410,10 +1436,10 @@ static struct sk_buff *receive_mergeable_xdp(struct net_device *dev,
+>   		break;
+>   	}
+>   
+> -	put_xdp_frags(&xdp);
+> +	put_xdp_frags(&xdp, rq);
+>   
+>   err_xdp:
+> -	put_page(page);
+> +	virtnet_put_page(rq, page);
+>   	mergeable_buf_free(rq, num_buf, dev, stats);
+>   
+>   	stats->xdp_drops++;
+> @@ -1467,6 +1493,9 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, headroom);
+>   	curr_skb = head_skb;
+>   
+> +	if (rq->page_pool)
+> +		skb_mark_for_recycle(curr_skb);
+> +
+>   	if (unlikely(!curr_skb))
+>   		goto err_skb;
+>   	while (--num_buf) {
+> @@ -1509,6 +1538,8 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   			curr_skb = nskb;
+>   			head_skb->truesize += nskb->truesize;
+>   			num_skb_frags = 0;
+> +			if (rq->page_pool)
+> +				skb_mark_for_recycle(curr_skb);
+>   		}
+>   		if (curr_skb != head_skb) {
+>   			head_skb->data_len += len;
+> @@ -1517,7 +1548,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   		}
+>   		offset = buf - page_address(page);
+>   		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
+> -			put_page(page);
+> +			virtnet_put_page(rq, page);
+>   			skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
+>   					     len, truesize);
+>   		} else {
+> @@ -1530,7 +1561,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   	return head_skb;
+>   
+>   err_skb:
+> -	put_page(page);
+> +	virtnet_put_page(rq, page);
+>   	mergeable_buf_free(rq, num_buf, dev, stats);
+>   
+>   err_buf:
+> @@ -1737,31 +1768,40 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+>   	 * disabled GSO for XDP, it won't be a big issue.
+>   	 */
+>   	len = get_mergeable_buf_len(rq, &rq->mrg_avg_pkt_len, room);
+> -	if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> -		return -ENOMEM;
+> +	if (rq->page_pool) {
+> +		struct page *page;
+>   
+> -	buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> -	buf += headroom; /* advance address leaving hole at front of pkt */
+> -	get_page(alloc_frag->page);
+> -	alloc_frag->offset += len + room;
+> -	hole = alloc_frag->size - alloc_frag->offset;
+> -	if (hole < len + room) {
+> -		/* To avoid internal fragmentation, if there is very likely not
+> -		 * enough space for another buffer, add the remaining space to
+> -		 * the current buffer.
+> -		 * XDP core assumes that frame_size of xdp_buff and the length
+> -		 * of the frag are PAGE_SIZE, so we disable the hole mechanism.
+> -		 */
+> -		if (!headroom)
+> -			len += hole;
+> -		alloc_frag->offset += hole;
+> -	}
+> +		page = page_pool_dev_alloc_pages(rq->page_pool);
+> +		if (unlikely(!page))
+> +			return -ENOMEM;
+> +		buf = (char *)page_address(page);
+> +		buf += headroom; /* advance address leaving hole at front of pkt */
+> +	} else {
+> +		if (unlikely(!skb_page_frag_refill(len + room, alloc_frag, gfp)))
+> +			return -ENOMEM;
+>   
+> +		buf = (char *)page_address(alloc_frag->page) + alloc_frag->offset;
+> +		buf += headroom; /* advance address leaving hole at front of pkt */
+> +		get_page(alloc_frag->page);
+> +		alloc_frag->offset += len + room;
+> +		hole = alloc_frag->size - alloc_frag->offset;
+> +		if (hole < len + room) {
+> +			/* To avoid internal fragmentation, if there is very likely not
+> +			 * enough space for another buffer, add the remaining space to
+> +			 * the current buffer.
+> +			 * XDP core assumes that frame_size of xdp_buff and the length
+> +			 * of the frag are PAGE_SIZE, so we disable the hole mechanism.
+> +			 */
+> +			if (!headroom)
+> +				len += hole;
+> +			alloc_frag->offset += hole;
+> +		}
+> +	}
+>   	sg_init_one(rq->sg, buf, len);
+>   	ctx = mergeable_len_to_ctx(len + room, headroom);
+>   	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+>   	if (err < 0)
+> -		put_page(virt_to_head_page(buf));
+> +		virtnet_put_page(rq, virt_to_head_page(buf));
+>   
+>   	return err;
+>   }
+> @@ -1994,8 +2034,15 @@ static int virtnet_enable_queue_pair(struct virtnet_info *vi, int qp_index)
+>   	if (err < 0)
+>   		return err;
+>   
+> -	err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> -					 MEM_TYPE_PAGE_SHARED, NULL);
+> +	if (vi->rq[qp_index].page_pool)
+> +		err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> +						 MEM_TYPE_PAGE_POOL,
+> +						 vi->rq[qp_index].page_pool);
+> +	else
+> +		err = xdp_rxq_info_reg_mem_model(&vi->rq[qp_index].xdp_rxq,
+> +						 MEM_TYPE_PAGE_SHARED,
+> +						 NULL);
+> +
+>   	if (err < 0)
+>   		goto err_xdp_reg_mem_model;
+>   
+> @@ -2951,6 +2998,7 @@ static void virtnet_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+>   				ethtool_sprintf(&p, "tx_queue_%u_%s", i,
+>   						virtnet_sq_stats_desc[j].desc);
+>   		}
+> +		page_pool_ethtool_stats_get_strings(p);
+>   		break;
+>   	}
+>   }
+> @@ -2962,12 +3010,30 @@ static int virtnet_get_sset_count(struct net_device *dev, int sset)
+>   	switch (sset) {
+>   	case ETH_SS_STATS:
+>   		return vi->curr_queue_pairs * (VIRTNET_RQ_STATS_LEN +
+> -					       VIRTNET_SQ_STATS_LEN);
+> +					       VIRTNET_SQ_STATS_LEN +
+> +						(page_pool_enabled && vi->mergeable_rx_bufs ?
+> +						 page_pool_ethtool_stats_get_count() : 0));
+>   	default:
+>   		return -EOPNOTSUPP;
+>   	}
+>   }
+>   
+> +static void virtnet_get_page_pool_stats(struct net_device *dev, u64 *data)
+> +{
+> +#ifdef CONFIG_PAGE_POOL_STATS
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +	struct page_pool_stats pp_stats = {};
+> +	int i;
+> +
+> +	for (i = 0; i < vi->curr_queue_pairs; i++) {
+> +		if (!vi->rq[i].page_pool)
+> +			continue;
+> +		page_pool_get_stats(vi->rq[i].page_pool, &pp_stats);
+> +	}
+> +	page_pool_ethtool_stats_get(data, &pp_stats);
+> +#endif /* CONFIG_PAGE_POOL_STATS */
+> +}
+> +
+>   static void virtnet_get_ethtool_stats(struct net_device *dev,
+>   				      struct ethtool_stats *stats, u64 *data)
+>   {
+> @@ -3003,6 +3069,8 @@ static void virtnet_get_ethtool_stats(struct net_device *dev,
+>   		} while (u64_stats_fetch_retry(&sq->stats.syncp, start));
+>   		idx += VIRTNET_SQ_STATS_LEN;
+>   	}
+> +
+> +	virtnet_get_page_pool_stats(dev, &data[idx]);
 
-To solve this, add a block layer request timeout handler that will
-complete timed-out requests in the same context if the virtio device
-has a VIRTIO_CONFIG_S_DRIVER_OK status. If the device has any other
-status, we'll stop the block layer request queue and proceed with the
-teardown sequence, allowing applications waiting for I/O to exit
-gracefully with appropriate error.
+virtnet_get_page_pool_stats(dev, &data[idx]); should be moved to between 
+SQ and RQ.
 
-Also, add two new module parameters that allows user to specify the
-I/O timeout for the tagset when allocating the disk and a teardown limit
-for the timed out requeets before we initiate device teardown from the
-timeout handler. These changes will improve the stability and
-reliability of our system under request timeout scenario.
+Combined with the correct page_pool_ethtool_stats_get_count, ethtool can 
+get page_pool statistics. But all the values about page_pool are zero. 
+It is interesting.
 
-Signed-off-by: Chaitanya Kulkarni <kch@nvidia.com>
----
- drivers/block/virtio_blk.c      | 122 ++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_blk.h |   1 +
- 2 files changed, 123 insertions(+)
+I will delve into this and find out why.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 4689ac2e0c0e..da26c2bf933b 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -16,6 +16,7 @@
- #include <linux/blk-mq-virtio.h>
- #include <linux/numa.h>
- #include <linux/vmalloc.h>
-+#include <linux/xarray.h>
- #include <uapi/linux/virtio_ring.h>
- 
- #define PART_BITS 4
-@@ -31,6 +32,15 @@
- #define VIRTIO_BLK_INLINE_SG_CNT	2
- #endif
- 
-+static unsigned int io_timeout = 20;
-+module_param(io_timeout, uint, 0644);
-+MODULE_PARM_DESC(io_timeout, "timeout in seconds for I/O requests. Default:20");
-+
-+static unsigned int timeout_teardown_limit = 2;
-+module_param(timeout_teardown_limit, uint, 0644);
-+MODULE_PARM_DESC(timeout_teardown_limit,
-+		"request timeout teardown limit for stable dev. Default:2");
-+
- static unsigned int num_request_queues;
- module_param(num_request_queues, uint, 0644);
- MODULE_PARM_DESC(num_request_queues,
-@@ -84,6 +94,20 @@ struct virtio_blk {
- 
- 	/* For zoned device */
- 	unsigned int zone_sectors;
-+
-+	/*
-+	 * Block layer Request timeout teardown limit when device is in the
-+	 * stable state, i.e. it has VIRTIO_CONFIG_S_DRIVER_OK value for its
-+	 * config status. Once this limit is reached issue
-+	 * virtblk_teardown_work to teardown the device in the block lyaer
-+	 * request timeout callback.
-+	 */
-+	atomic_t rq_timeout_count;
-+	/* avoid tear down race between remove and teardown work */
-+	struct mutex teardown_mutex;
-+	/* tear down work to be scheduled from block layer request handler */
-+	struct work_struct teardown_work;
-+
- };
- 
- struct virtblk_req {
-@@ -117,6 +141,8 @@ static inline blk_status_t virtblk_result(u8 status)
- 	case VIRTIO_BLK_S_OK:
- 		return BLK_STS_OK;
- 	case VIRTIO_BLK_S_UNSUPP:
-+	case VIRTIO_BLK_S_TIMEOUT:
-+		return BLK_STS_TIMEOUT;
- 		return BLK_STS_NOTSUPP;
- 	case VIRTIO_BLK_S_ZONE_OPEN_RESOURCE:
- 		return BLK_STS_ZONE_OPEN_RESOURCE;
-@@ -926,6 +952,7 @@ static void virtblk_free_disk(struct gendisk *disk)
- 	struct virtio_blk *vblk = disk->private_data;
- 
- 	ida_free(&vd_index_ida, vblk->index);
-+	mutex_destroy(&vblk->teardown_mutex);
- 	mutex_destroy(&vblk->vdev_mutex);
- 	kfree(vblk);
- }
-@@ -1287,6 +1314,86 @@ static int virtblk_poll(struct blk_mq_hw_ctx *hctx, struct io_comp_batch *iob)
- 	return found;
- }
- 
-+static bool virtblk_cancel_request(struct request *rq, void *data)
-+{
-+	struct virtblk_req *vbr = blk_mq_rq_to_pdu(rq);
-+
-+	vbr->in_hdr.status = VIRTIO_BLK_S_TIMEOUT;
-+	if (blk_mq_request_started(rq) && !blk_mq_request_completed(rq))
-+		blk_mq_complete_request(rq);
-+
-+	return true;
-+}
-+
-+static void virtblk_teardown_work(struct work_struct *w)
-+{
-+	struct virtio_blk *vblk =
-+		container_of(w, struct virtio_blk, teardown_work);
-+	struct request_queue *q = vblk->disk->queue;
-+	struct virtio_device *vdev = vblk->vdev;
-+	struct blk_mq_hw_ctx *hctx;
-+	unsigned long idx;
-+
-+	mutex_lock(&vblk->teardown_mutex);
-+	if (!vblk->vdev)
-+		goto unlock;
-+
-+	blk_mq_quiesce_queue(q);
-+
-+	/* Process any outstanding request from device. */
-+	xa_for_each(&q->hctx_table, idx, hctx)
-+		virtblk_poll(hctx, NULL);
-+
-+	blk_sync_queue(q);
-+	blk_mq_tagset_busy_iter(&vblk->tag_set, virtblk_cancel_request, vblk);
-+	blk_mq_tagset_wait_completed_request(&vblk->tag_set);
-+
-+	/*
-+	 * Unblock any pending dispatch I/Os before we destroy device. From
-+	 * del_gendisk() -> __blk_mark_disk_dead(disk) will set GD_DEAD flag,
-+	 * that will make sure any new I/O from bio_queue_enter() to fail.
-+	 */
-+	blk_mq_unquiesce_queue(q);
-+	del_gendisk(vblk->disk);
-+	blk_mq_free_tag_set(&vblk->tag_set);
-+
-+	mutex_lock(&vblk->vdev_mutex);
-+	flush_work(&vblk->config_work);
-+
-+	virtio_reset_device(vdev);
-+
-+	vblk->vdev = NULL;
-+
-+	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
-+
-+	mutex_unlock(&vblk->vdev_mutex);
-+
-+	put_disk(vblk->disk);
-+
-+unlock:
-+	mutex_unlock(&vblk->teardown_mutex);
-+}
-+
-+static enum blk_eh_timer_return virtblk_timeout(struct request *req)
-+{
-+	struct virtio_blk *vblk = req->mq_hctx->queue->queuedata;
-+	struct virtio_device *vdev = vblk->vdev;
-+	bool ok = vdev->config->get_status(vdev) & VIRTIO_CONFIG_S_DRIVER_OK;
-+
-+	if ((atomic_dec_return(&vblk->rq_timeout_count) != 0) && ok) {
-+		virtblk_cancel_request(req, NULL);
-+		return BLK_EH_DONE;
-+	}
-+
-+	dev_err(&vdev->dev, "%s:%s initiating teardown\n", __func__,
-+		vblk->disk->disk_name);
-+
-+	queue_work(virtblk_wq, &vblk->teardown_work);
-+
-+	return BLK_EH_RESET_TIMER;
-+}
-+
- static const struct blk_mq_ops virtio_mq_ops = {
- 	.queue_rq	= virtio_queue_rq,
- 	.queue_rqs	= virtio_queue_rqs,
-@@ -1294,6 +1401,7 @@ static const struct blk_mq_ops virtio_mq_ops = {
- 	.complete	= virtblk_request_done,
- 	.map_queues	= virtblk_map_queues,
- 	.poll		= virtblk_poll,
-+	.timeout	= virtblk_timeout,
- };
- 
- static unsigned int virtblk_queue_depth;
-@@ -1365,6 +1473,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
- 	vblk->tag_set.ops = &virtio_mq_ops;
- 	vblk->tag_set.queue_depth = queue_depth;
-+	vblk->tag_set.timeout = io_timeout * HZ;
- 	vblk->tag_set.numa_node = NUMA_NO_NODE;
- 	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
- 	vblk->tag_set.cmd_size =
-@@ -1387,6 +1496,10 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	}
- 	q = vblk->disk->queue;
- 
-+	mutex_init(&vblk->teardown_mutex);
-+	INIT_WORK(&vblk->teardown_work, virtblk_teardown_work);
-+	atomic_set(&vblk->rq_timeout_count, timeout_teardown_limit);
-+
- 	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
- 
- 	vblk->disk->major = major;
-@@ -1598,6 +1711,12 @@ static void virtblk_remove(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 
-+	mutex_lock(&vblk->teardown_mutex);
-+
-+	/* we did the cleanup in the timeout handler */
-+	if (!vblk->vdev)
-+		goto unlock;
-+
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vblk->config_work);
- 
-@@ -1618,6 +1737,9 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	mutex_unlock(&vblk->vdev_mutex);
- 
- 	put_disk(vblk->disk);
-+
-+unlock:
-+	mutex_unlock(&vblk->teardown_mutex);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-index 3744e4da1b2a..ed864195ab26 100644
---- a/include/uapi/linux/virtio_blk.h
-+++ b/include/uapi/linux/virtio_blk.h
-@@ -317,6 +317,7 @@ struct virtio_scsi_inhdr {
- #define VIRTIO_BLK_S_OK		0
- #define VIRTIO_BLK_S_IOERR	1
- #define VIRTIO_BLK_S_UNSUPP	2
-+#define VIRTIO_BLK_S_TIMEOUT	3
- 
- /* Error codes that are specific to zoned block devices */
- #define VIRTIO_BLK_S_ZONE_INVALID_CMD     3
--- 
-2.40.0
+Zhu Yanjun
+
+>   }
+>   
+>   static void virtnet_get_channels(struct net_device *dev,
+> @@ -3623,6 +3691,8 @@ static void virtnet_free_queues(struct virtnet_info *vi)
+>   	for (i = 0; i < vi->max_queue_pairs; i++) {
+>   		__netif_napi_del(&vi->rq[i].napi);
+>   		__netif_napi_del(&vi->sq[i].napi);
+> +		if (vi->rq[i].page_pool)
+> +			page_pool_destroy(vi->rq[i].page_pool);
+>   	}
+>   
+>   	/* We called __netif_napi_del(),
+> @@ -3679,12 +3749,19 @@ static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+>   	struct virtnet_info *vi = vq->vdev->priv;
+>   	int i = vq2rxq(vq);
+>   
+> -	if (vi->mergeable_rx_bufs)
+> -		put_page(virt_to_head_page(buf));
+> -	else if (vi->big_packets)
+> +	if (vi->mergeable_rx_bufs) {
+> +		if (vi->rq[i].page_pool) {
+> +			page_pool_put_full_page(vi->rq[i].page_pool,
+> +						virt_to_head_page(buf),
+> +						true);
+> +		} else {
+> +			put_page(virt_to_head_page(buf));
+> +		}
+> +	} else if (vi->big_packets) {
+>   		give_pages(&vi->rq[i], buf);
+> -	else
+> +	} else {
+>   		put_page(virt_to_head_page(buf));
+> +	}
+>   }
+>   
+>   static void free_unused_bufs(struct virtnet_info *vi)
+> @@ -3718,6 +3795,26 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
+>   	virtnet_free_queues(vi);
+>   }
+>   
+> +static void virtnet_alloc_page_pool(struct receive_queue *rq)
+> +{
+> +	struct virtio_device *vdev = rq->vq->vdev;
+> +
+> +	struct page_pool_params pp_params = {
+> +		.order = 0,
+> +		.pool_size = rq->vq->num_max,
+> +		.nid = dev_to_node(vdev->dev.parent),
+> +		.dev = vdev->dev.parent,
+> +		.offset = 0,
+> +	};
+> +
+> +	rq->page_pool = page_pool_create(&pp_params);
+> +	if (IS_ERR(rq->page_pool)) {
+> +		dev_warn(&vdev->dev, "page pool creation failed: %ld\n",
+> +			 PTR_ERR(rq->page_pool));
+> +		rq->page_pool = NULL;
+> +	}
+> +}
+> +
+>   /* How large should a single buffer be so a queue full of these can fit at
+>    * least one full packet?
+>    * Logic below assumes the mergeable buffer header is used.
+> @@ -3801,6 +3898,13 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+>   		vi->rq[i].vq = vqs[rxq2vq(i)];
+>   		vi->rq[i].min_buf_len = mergeable_min_buf_len(vi, vi->rq[i].vq);
+>   		vi->sq[i].vq = vqs[txq2vq(i)];
+> +
+> +		if (page_pool_enabled && vi->mergeable_rx_bufs)
+> +			virtnet_alloc_page_pool(&vi->rq[i]);
+> +		else
+> +			dev_warn(&vi->vdev->dev,
+> +				 "page pool only support mergeable mode\n");
+> +
+>   	}
+>   
+>   	/* run here: ret == 0. */
 
