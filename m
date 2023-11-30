@@ -1,133 +1,175 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DEE338DDA
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 12:42:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dkim=none
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 310733C683
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="kkSaKDXY"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B9A548446C
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 12:42:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B9A548446C
+	by smtp1.osuosl.org (Postfix) with ESMTP id AAC5F84537
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org AAC5F84537
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=kkSaKDXY
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id doEgJf2CTfi6
+	with ESMTP id tC4QQSqFHQUR
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 30 Nov 2023 12:42:37 +0000 (UTC)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EA36C8444D
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 12:42:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EA36C8444D
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R621e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VxRYdGL_1701348150;
-Received: from 30.222.48.140(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0VxRYdGL_1701348150)
-          by smtp.aliyun-inc.com;
-          Thu, 30 Nov 2023 20:42:31 +0800
-Message-ID: <dd8d0c1f-f1ef-42e3-b6a9-24fb5c82f881@linux.alibaba.com>
-Date: Thu, 30 Nov 2023 20:42:27 +0800
+	Thu, 30 Nov 2023 13:17:59 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2007882027
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:17:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2007882027
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 8F53B120006;
+	Thu, 30 Nov 2023 16:17:55 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 8F53B120006
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1701350275;
+	bh=t/kjl2Vjg1LdCA2ZU1r92JWEZ4RRp+5azAC7FUXgjBk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=kkSaKDXYU1teWCOMfDqb9Ej+MHhswTSmINezxxx2BEFD+smcIC6j+wbWbyy93uRLR
+	 cjjUuRA2VCEiXUW6AKOJg/2hetBdf9ECCJlxWnOTz/0z5+bFcPtXDfn+3lf54XqTmb
+	 uY897lvlRIh1ZmU3oarmfwmhXJRRZrDnHH48ocxmTmAZ1vQnCI3JdJ3cGOiscOSiou
+	 0pRsNQMBt4Sfh98FHfwWoK/5ZTBSJItYOdNreEE6fWW5z3WnoxsWMvfSO6kh5JV12R
+	 +Xv/SJwpLL7LBLd6m1Lf2B+f14PhayxSkpQc6EU/mlWDMoV3/cu3XudqYmI9VFNnyI
+	 TPo/LDZiQIA1A==
+Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Thu, 30 Nov 2023 16:17:55 +0300 (MSK)
+Received: from localhost.localdomain (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Thu, 30 Nov 2023 16:17:55 +0300
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
+Subject: [PATCH net-next v5 1/3] vsock: update SO_RCVLOWAT setting callback
+Date: Thu, 30 Nov 2023 16:08:38 +0300
+Message-ID: <20231130130840.253733-2-avkrasnov@salutedevices.com>
+X-Mailer: git-send-email 2.35.0
+In-Reply-To: <20231130130840.253733-1-avkrasnov@salutedevices.com>
+References: <20231130130840.253733-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v5 4/4] virtio-net: support rx netdim
-To: Paolo Abeni <pabeni@redhat.com>,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: jasowang@redhat.com, mst@redhat.com, kuba@kernel.org,
- edumazet@google.com, davem@davemloft.net, hawk@kernel.org,
- john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org,
- xuanzhuo@linux.alibaba.com, yinjun.zhang@corigine.com
-References: <cover.1701050450.git.hengqi@linux.alibaba.com>
- <12c0a070d31f29e394b78a8abb4c009274b8a88c.1701050450.git.hengqi@linux.alibaba.com>
- <8d2ee27f10a7a6c9414f10e8c0155c090b5f11e3.camel@redhat.com>
- <6f78d5e0-a8a8-463e-938c-9a9b49cf106f@linux.alibaba.com>
- <4608e204307b1fb16e1f98e0a9c52e6ce2d0a3db.camel@redhat.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <4608e204307b1fb16e1f98e0a9c52e6ce2d0a3db.camel@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 181736 [Nov 30 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/30 11:05:00 #22583687
+X-KSMG-AntiVirus-Status: Clean, skipped
 
+Do not return if transport callback for SO_RCVLOWAT is set (only in
+error case). In this case we don't need to set 'sk_rcvlowat' field in
+each transport - only in 'vsock_set_rcvlowat()'. Also, if 'sk_rcvlowat'
+is now set only in af_vsock.c, change callback name from 'set_rcvlowat'
+to 'notify_set_rcvlowat'.
 
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ Changelog:
+ v3 -> v4:
+  * Rename 'set_rcvlowat' to 'notify_set_rcvlowat'.
+  * Commit message updated.
 
-在 2023/11/30 下午8:23, Paolo Abeni 写道:
-> On Thu, 2023-11-30 at 20:09 +0800, Heng Qi wrote:
->> 在 2023/11/30 下午5:33, Paolo Abeni 写道:
->>> On Mon, 2023-11-27 at 10:55 +0800, Heng Qi wrote:
->>>> @@ -4738,11 +4881,14 @@ static void remove_vq_common(struct virtnet_info *vi)
->>>>    static void virtnet_remove(struct virtio_device *vdev)
->>>>    {
->>>>    	struct virtnet_info *vi = vdev->priv;
->>>> +	int i;
->>>>    
->>>>    	virtnet_cpu_notif_remove(vi);
->>>>    
->>>>    	/* Make sure no work handler is accessing the device. */
->>>>    	flush_work(&vi->config_work);
->>>> +	for (i = 0; i < vi->max_queue_pairs; i++)
->>>> +		cancel_work(&vi->rq[i].dim.work);
->>> If the dim work is still running here, what prevents it from completing
->>> after the following unregister/free netdev?
->> Yes, no one here is trying to stop it,
-> So it will cause UaF, right?
->
->> the situation is like
->> unregister/free netdev
->> when rss are being set, so I think this is ok.
->   
-> Could you please elaborate more the point?
+ include/net/af_vsock.h           | 2 +-
+ net/vmw_vsock/af_vsock.c         | 9 +++++++--
+ net/vmw_vsock/hyperv_transport.c | 4 ++--
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
-If I'm not wrong, I think the following 2 scenarios are similar:
-
-Scen2 1:
-1. User uses ethtool to configure rss settings
-2. ethtool core holds rtnl_lock
-2. virtnet_remove() is called
-3. virtnet_send_command() is called.
-
-Scene 2:
-1. virtnet_poll() queues a virtnet_rx_dim_work()
-1. virtnet_rx_dim_work() is called and holds rtnl_lock
-2. virtnet_remove() is called
-3. virtnet_send_command() is called.
-
-So I think it's ok to use cancel_work() here.
-What do you think? :)
-
->
->>> It looks like you want need to call cancel_work_sync here?
->> In v4, Yinjun Zhang mentioned that _sync() can cause deadlock[1].
->> Therefore, cancel_work() is used here instead of cancel_work_sync() to
->> avoid possible deadlock.
->>
->> [1]
->> https://lore.kernel.org/all/20231122092939.1005591-1-yinjun.zhang@corigine.com/
-> Here the call to cancel_work() happens while the caller does not held
-> the rtnl lock, the deadlock reported above will not be triggered.
-
-There's cancel_work_sync() in v4 and I did reproduce the deadlock.
-
-rtnl_lock held -> .ndo_stop() -> cancel_work_sync() -> 
-virtnet_rx_dim_work(),
-the work acquires the rtnl_lock again, then a deadlock occurs.
-
-I tested the scenario of ctrl cmd/.remove/.ndo_stop()/dim_work when there is
-a big concurrency, and cancel_work() works well.
-
-Thanks!
-
->
->>> Additionally the later remove_vq_common() will needless call
->>> cancel_work() again;
->> Yes. remove_vq_common() now does not call cancel_work().
-> I'm sorry, I missread the context in a previous chunk.
->
-> The other point should still apply.
->
-> Cheers,
->
-> Paolo
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index e302c0e804d0..535701efc1e5 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -137,7 +137,6 @@ struct vsock_transport {
+ 	u64 (*stream_rcvhiwat)(struct vsock_sock *);
+ 	bool (*stream_is_active)(struct vsock_sock *);
+ 	bool (*stream_allow)(u32 cid, u32 port);
+-	int (*set_rcvlowat)(struct vsock_sock *vsk, int val);
+ 
+ 	/* SEQ_PACKET. */
+ 	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
+@@ -168,6 +167,7 @@ struct vsock_transport {
+ 		struct vsock_transport_send_notify_data *);
+ 	/* sk_lock held by the caller */
+ 	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
++	int (*notify_set_rcvlowat)(struct vsock_sock *vsk, int val);
+ 
+ 	/* Shutdown. */
+ 	int (*shutdown)(struct vsock_sock *, int);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 816725af281f..54ba7316f808 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -2264,8 +2264,13 @@ static int vsock_set_rcvlowat(struct sock *sk, int val)
+ 
+ 	transport = vsk->transport;
+ 
+-	if (transport && transport->set_rcvlowat)
+-		return transport->set_rcvlowat(vsk, val);
++	if (transport && transport->notify_set_rcvlowat) {
++		int err;
++
++		err = transport->notify_set_rcvlowat(vsk, val);
++		if (err)
++			return err;
++	}
+ 
+ 	WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
+ 	return 0;
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 7cb1a9d2cdb4..e2157e387217 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -816,7 +816,7 @@ int hvs_notify_send_post_enqueue(struct vsock_sock *vsk, ssize_t written,
+ }
+ 
+ static
+-int hvs_set_rcvlowat(struct vsock_sock *vsk, int val)
++int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
+ {
+ 	return -EOPNOTSUPP;
+ }
+@@ -856,7 +856,7 @@ static struct vsock_transport hvs_transport = {
+ 	.notify_send_pre_enqueue  = hvs_notify_send_pre_enqueue,
+ 	.notify_send_post_enqueue = hvs_notify_send_post_enqueue,
+ 
+-	.set_rcvlowat             = hvs_set_rcvlowat
++	.notify_set_rcvlowat      = hvs_notify_set_rcvlowat
+ };
+ 
+ static bool hvs_check_transport(struct vsock_sock *vsk)
+-- 
+2.25.1
 
