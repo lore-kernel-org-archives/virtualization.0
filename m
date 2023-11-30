@@ -1,142 +1,123 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DDFE36AFC
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:35:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394FD3C076
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:45:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="H434yxt+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gQ5xgUIL"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C0EF76F508
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:35:31 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C0EF76F508
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=H434yxt+
+	by smtp2.osuosl.org (Postfix) with ESMTP id C908943597
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:45:54 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C908943597
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gQ5xgUIL
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VRb85-H4A_No
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sBG90YVIsmz1
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 30 Nov 2023 10:35:31 +0000 (UTC)
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on20622.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::622])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id CE8006F4F8
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:35:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CE8006F4F8
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=e5XNulks3L2Wb+zB3l6j9t5dN+mMZW+Smm2gVJcnjDt7l5FePdRcipsPfAO+YM0t633eHVPb++h+ifMVklAdMfNbk1SqE3xDp7jV6eKkBsqtJhRBM7zwUy8c0bVESC4b3+adQwSFUGI8FhJWGNLBClrf3fnITrlNMohNKF4mbE0blfVnHK/zd7dmUIbVfcB2u/+0XJxNJjtAO0x89QeylPThuzwZprpXix7xuNQJKAbqLeA0Y+61pcDpNjJsET3weki5TUYXqMmrPIjFmjqtkYAj22LQntijCsew7Ix2EfJxE2WLuyjuRq+syr7BxThcOeiUVxTZ05iSwuy1MAqcZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9DUPxF2LKB6in+WIqUyrYbxCRlnJZLppUIn05THCmb4=;
- b=GyS4ZZ3iWOF5JLQHKIQxOw4wAhuQfHjVGEsWdwWuFOLMUopnb44J1bs9eAKdI9X1KiEZ2cc2JVRN4BgrnDDFASMaTbnNC4FK9n8IylVCgnFOmtrfwpzBtl6JQXQjRBbK4tBBBilLV1TYLqe81fOSV7Qy/dKfpuWCmsbfnOnLt555pOsefJMQDnB32siXtaXI51Fi53AKKXjVUYsDe9oe3ndWpy6zrqLCnUVsoEpZxctsXXJO8h/nLN9GZdYfawGP5xn5DQo6Ciyh3hMabVcLumUY8kL2YcRiY/L/4TYA4vAtlV/3vZBWeumHE5eH0CIgXj/8F/6g9yxe7k1e+dnS6Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9DUPxF2LKB6in+WIqUyrYbxCRlnJZLppUIn05THCmb4=;
- b=H434yxt+xoL5MHmDOTNa4ekUIFxFSWLDFMg/R8dcXFVV6dUVLKlWELt/5efVKqiaNIBX4/BhrpY1pIy0fxHNI2/RFbNsAYCxDau+Yr16Yi5429M3Buz4Pq8rKucZ2z/q0/2OyHWHMYmk97jGAfUjKZQ9QjBV7QKM2aBNDydHRig0cq0MQ1kg4HCGVHnmt/UCsqUDk/9Aa1zis5A4SMgx9NBvinTLg0oIRj7gw/Gu8MSiyrNESDBky5wUKWwc5m636J4npI3R4JxBpaWQT6Vgkggczdy4/YveRrO9e4T5IR5jqpT2VD0c1IZa9IOFM3rh2g9AZVygxeOs2VrMauzJrw==
-Received: from MW4PR03CA0299.namprd03.prod.outlook.com (2603:10b6:303:b5::34)
- by CY8PR12MB7682.namprd12.prod.outlook.com (2603:10b6:930:85::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.24; Thu, 30 Nov
- 2023 10:35:28 +0000
-Received: from MWH0EPF000989EA.namprd02.prod.outlook.com
- (2603:10b6:303:b5:cafe::2b) by MW4PR03CA0299.outlook.office365.com
- (2603:10b6:303:b5::34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.29 via Frontend
- Transport; Thu, 30 Nov 2023 10:35:27 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- MWH0EPF000989EA.mail.protection.outlook.com (10.167.241.137) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7046.17 via Frontend Transport; Thu, 30 Nov 2023 10:35:27 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 30 Nov
- 2023 02:35:14 -0800
-Received: from [172.27.21.28] (10.126.231.35) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Thu, 30 Nov
- 2023 02:35:09 -0800
-Message-ID: <aaa83d6a-779d-44cb-a72e-83ba9c8db76b@nvidia.com>
-Date: Thu, 30 Nov 2023 12:35:09 +0200
+	Thu, 30 Nov 2023 10:45:53 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5E96840116
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 10:45:53 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 5E96840116
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701341152;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=B+/fVsomVnX5cZm/evhOjmLgbPyA21ZG8SCMHLJVHq4=;
+	b=gQ5xgUILeCTeLo31FT7Ldt7U/qiQKRT0hnklTv7ZcELY6BxDsUfnpYHBYfjdxSeN22f1/y
+	rdVdBz1b8bk0roGDck3c30iGGk4S2TNndVGXuNXWN956qt3JSdCk/R+wnFcpfmN9mbNh7B
+	LtwzUW6jSAcgAbl7GaZeRRG4jWuaL2Y=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-351-OLZFXKnQP1Crrsx30t4GhA-1; Thu, 30 Nov 2023 05:45:48 -0500
+X-MC-Unique: OLZFXKnQP1Crrsx30t4GhA-1
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-332fcd4b871so555054f8f.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 02:45:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701341147; x=1701945947;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B+/fVsomVnX5cZm/evhOjmLgbPyA21ZG8SCMHLJVHq4=;
+        b=hbA+CGfyIu5/A6YVTwIGU8gpFDdKPLc5BJ8CiYJR5aoRrBoaLBjabtxTe3l+bUe/bq
+         GxtFynL+IfGusEKpadmaI/dLZ/9VNckOO4Mm4OBqg89CqomjIaSstrIyJ9/tejIXBONV
+         F74NJEJsVZ19EITZ6lTBjMUkufj1Y2cKFG2F2BSvbr/ZgFz0A6VGrnZDujNn+mLjcWaK
+         aU0hBc1Ix0f2GQlHl+SNW8JyO8FsH9bvst5Ccu99hT3nAHeuI27oULDPUQS8wqLjRVAm
+         BlrAMM+m96HpYt2XIjY0fh6j1IKt6zit3cYs4ovAAT7BDifMT2hsm6utY8o8o9yi65Wq
+         Af5A==
+X-Gm-Message-State: AOJu0YwgoNdQq6OKV6Y2h5mRJRhjsjJJdvQx245XoqJ6HN8Jcm9OOXC3
+	r2n96bFx8b79YF7bWjl324twvXucNSRo/LOASmFz2V8LZJqDb98rN0XTYyhqp3zx4rQZLLSludV
+	p34Lo9jjr21VA9otWtQFy+FizOI9yJS7n8ir4A5ZuZw==
+X-Received: by 2002:adf:e847:0:b0:333:a20:f824 with SMTP id d7-20020adfe847000000b003330a20f824mr6187505wrn.17.1701341146989;
+        Thu, 30 Nov 2023 02:45:46 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IECV7SLySk5Xo4ac8CHxyIpb+No3gMIcORmfV3LcmSIsbK8lAAd+6tPhREEsDfpfWv2FoUlIg==
+X-Received: by 2002:adf:e847:0:b0:333:a20:f824 with SMTP id d7-20020adfe847000000b003330a20f824mr6187483wrn.17.1701341146606;
+        Thu, 30 Nov 2023 02:45:46 -0800 (PST)
+Received: from redhat.com ([2.55.10.128])
+        by smtp.gmail.com with ESMTPSA id x4-20020a5d60c4000000b00332cbd59f8bsm1185570wrt.25.2023.11.30.02.45.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Nov 2023 02:45:45 -0800 (PST)
+Date: Thu, 30 Nov 2023 05:45:42 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: alex.williamson@redhat.com, jasowang@redhat.com, jgg@nvidia.com,
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	parav@nvidia.com, feliu@nvidia.com, jiri@nvidia.com,
+	kevin.tian@intel.com, joao.m.martins@oracle.com,
+	si-wei.liu@oracle.com, leonro@nvidia.com, maorg@nvidia.com
+Subject: Re: [PATCH V4 vfio 4/9] virtio-pci: Introduce admin commands
+Message-ID: <20231130054453-mutt-send-email-mst@kernel.org>
+References: <20231129143746.6153-1-yishaih@nvidia.com>
+ <20231129143746.6153-5-yishaih@nvidia.com>
+ <20231130044910-mutt-send-email-mst@kernel.org>
+ <aaa83d6a-779d-44cb-a72e-83ba9c8db76b@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V4 vfio 4/9] virtio-pci: Introduce admin commands
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: <alex.williamson@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
-	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
-	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
-	<leonro@nvidia.com>, <maorg@nvidia.com>
-References: <20231129143746.6153-1-yishaih@nvidia.com>
- <20231129143746.6153-5-yishaih@nvidia.com>
- <20231130044910-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Yishai Hadas <yishaih@nvidia.com>
-In-Reply-To: <20231130044910-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000989EA:EE_|CY8PR12MB7682:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1f9b685b-98e0-43d7-d3e6-08dbf19011c5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	60VQ0ShIifOflwFR2A+Bt+d0X4QFANF6xupIyVKNyHtHu0qwHibQ2q6AUVhwjie4Kxa4y2vfaE6CYZwVYdMn2KuL/VMyn0bwazBsMHuJC5huEFjCz7NE9YqdBvED0s7d1fLRilPgomwId6qltiLq0Vnaf1u7p9YTQbjzwCt3lqWhURjlMPUTpmbcOp35H8eIiLzjaLj1Uo6vO2jr/pSSIrOm0yGnYGFE1fwwOUzoODEXlQGGVUiCpUyuKKPqwcJuL/f+gdPMj8eTU8Z88+3zrfskRZ7J6vtXMB5+1hf5zxZAaEjAXX28yVMYv5yB/Obx2ADuGHdylQJ/jCnT46DUtlRQa8zbykyutBn/6CpSOHH9tsbg7Fqc5nJtbk/HDynOpvPmsEDmhkZvTV8/Qqnaer50nZUD2AXAuXx1yyw7F3gFJctC5bqkRvcVGmLX5XP8bCtiLZPiBAi+DhJwzRU27j09rmeqRY6JqGYI0PDBSc2rp0+BhPnxT6Qk6vAE5cQmtY+hE5Rgh1QoNKRbYkr3c5/rWcq7qo6B8KrYNquS9gh2uUxVtfqD89pSaeq6lNOSw2k7pBDjsSKOkr2UYzrHHNdGW7Lc/dYm4RkiELBcRNGIr40bDWMcJWEuwdNRVz00qcj49I3nnmJUaFlSzzDUpnZz01s9HjMvTLKKVv7yBgxI6iiF7zYwJ7XsvXnmg5RWiWrYXBC/Eg2uU13dyBxIEWll5SPdVyprJvCf84ibvmTzLvsAK0wRojCJXr7whMSFy02eo5PtUMXiu1Ynf/WIkJ9Swq47kbLt2KxaJDCsE0akKPZNc7W0E/3RvIW9pkLc
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(396003)(346002)(136003)(376002)(230922051799003)(1800799012)(186009)(64100799003)(451199024)(82310400011)(36840700001)(40470700004)(46966006)(40460700003)(16526019)(26005)(336012)(83380400001)(426003)(107886003)(53546011)(2616005)(36860700001)(47076005)(5660300002)(4326008)(8676002)(8936002)(41300700001)(4744005)(2906002)(478600001)(316002)(16576012)(6916009)(54906003)(70206006)(70586007)(202311291699003)(31696002)(86362001)(36756003)(7636003)(82740400003)(356005)(40480700001)(31686004)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2023 10:35:27.7881
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1f9b685b-98e0-43d7-d3e6-08dbf19011c5
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000989EA.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR12MB7682
+In-Reply-To: <aaa83d6a-779d-44cb-a72e-83ba9c8db76b@nvidia.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 30/11/2023 11:52, Michael S. Tsirkin wrote:
-> On Wed, Nov 29, 2023 at 04:37:41PM +0200, Yishai Hadas wrote:
->> +/* Transitional device admin command. */
->> +#define VIRTIO_ADMIN_CMD_LEGACY_COMMON_CFG_WRITE	0x2
->> +#define VIRTIO_ADMIN_CMD_LEGACY_COMMON_CFG_READ		0x3
->> +#define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_WRITE		0x4
->> +#define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ		0x5
->> +#define VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO		0x6
->> +
->> +/* Increment MAX_OPCODE to next value when new opcode is added */
->> +#define VIRTIO_ADMIN_MAX_CMD_OPCODE			0x6
+On Thu, Nov 30, 2023 at 12:35:09PM +0200, Yishai Hadas wrote:
+> On 30/11/2023 11:52, Michael S. Tsirkin wrote:
+> > On Wed, Nov 29, 2023 at 04:37:41PM +0200, Yishai Hadas wrote:
+> > > +/* Transitional device admin command. */
+> > > +#define VIRTIO_ADMIN_CMD_LEGACY_COMMON_CFG_WRITE	0x2
+> > > +#define VIRTIO_ADMIN_CMD_LEGACY_COMMON_CFG_READ		0x3
+> > > +#define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_WRITE		0x4
+> > > +#define VIRTIO_ADMIN_CMD_LEGACY_DEV_CFG_READ		0x5
+> > > +#define VIRTIO_ADMIN_CMD_LEGACY_NOTIFY_INFO		0x6
+> > > +
+> > > +/* Increment MAX_OPCODE to next value when new opcode is added */
+> > > +#define VIRTIO_ADMIN_MAX_CMD_OPCODE			0x6
+> > 
+> > Does anything need VIRTIO_ADMIN_MAX_CMD_OPCODE? Not in this
+> > patchset...
+> > 
 > 
-> Does anything need VIRTIO_ADMIN_MAX_CMD_OPCODE? Not in this
-> patchset...
+> Right, once you suggested to move to 'u64 supported_cmds' it's not any more
+> in use.
 > 
+> It still can be used in the future, however I can drop it if it's worth a V5
+> sending.
+> 
+> Yishai
 
-Right, once you suggested to move to 'u64 supported_cmds' it's not any 
-more in use.
+If you don't need it then yea, we need to be careful about what we put in uapi headers.
+wait with v5 until others can review v4 though.
 
-It still can be used in the future, however I can drop it if it's worth 
-a V5 sending.
+-- 
+MST
 
-Yishai
