@@ -1,257 +1,188 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D34B584E7
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 17:57:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D06222063
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 19:20:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="WAT5oDG7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BmUxWtMK"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A1F5641EE4
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 17:57:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org A1F5641EE4
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=WAT5oDG7
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8CB8F6F563
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 19:20:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8CB8F6F563
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=BmUxWtMK
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -0.599
 X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GAe_MbfKM7gg
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AZsdaGlYOXzY
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 30 Nov 2023 17:57:13 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8470C41E7F
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 17:57:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8470C41E7F
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 9BE2310000C;
-	Thu, 30 Nov 2023 20:57:08 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 9BE2310000C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701367028;
-	bh=GQ+XJH7YnidtbHQaeaS0PeBL7Kso+nmuqzoHzSKei08=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=WAT5oDG7EWHGRtCF3+fWOeNq4o/9hGg/zbaTEtx+L2DxaeCbRLzTRHJZ0nTTpB3Sc
-	 8TmresZUJHN3C+Ob+rd74J4Gp1ATwwWeCuLmmUEPpODmQ3ldHNGOT3MCNUDhwwdeKi
-	 /olwbmnbVzFSw3cl1ImM2A7eW2TMOKJayaX+auiSSxyjaZ2GJ4g4CrTRhnHsqGcCo4
-	 m2VpRraAmYsj1GBdvk/9B5zOUydd+YQzhPPItlB3BUx9wfIAAnwPe7tSjR0cEeQs3A
-	 aD/+68BIqYvXbvgXdiBaWLV+GMa13Gyzm8hrCWPkJT8PukuavC1+kzjgdD4h2tpyb5
-	 /UFIqgNR8xiMg==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Thu, 30 Nov 2023 20:57:08 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 30 Nov 2023 20:57:07 +0300
-Message-ID: <71d18598-1793-0c6c-7de6-f546befc47c1@salutedevices.com>
-Date: Thu, 30 Nov 2023 20:49:09 +0300
+	Thu, 30 Nov 2023 19:20:20 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CF54A60B29
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 19:20:19 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CF54A60B29
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701372018;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gI+NHy4QsgVzIpGUJkuvfP+tzzElBrBrYlrvCXuyd6c=;
+	b=BmUxWtMKUcErcnayyXU1z26Cqj5USXiecxIEldZyeFRRXNPbTrtLv4kvH3yD9sPL3e3CRD
+	WmO9QbQQ2ZkKDW/Cy8BMCmqWPKxkKSHTnvA7fm9mNBSQIUTTf8lSuAsRrM6Zf0Bclf3WTH
+	eCc6LnipA2bq9yAsLfWUsfkWSv7OS5c=
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com
+ [209.85.166.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-19-98sW-ZWvMc2Qv5IGcJPeug-1; Thu, 30 Nov 2023 14:20:13 -0500
+X-MC-Unique: 98sW-ZWvMc2Qv5IGcJPeug-1
+Received: by mail-io1-f72.google.com with SMTP id ca18e2360f4ac-7b3f80e659aso118655139f.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 11:20:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701372013; x=1701976813;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gI+NHy4QsgVzIpGUJkuvfP+tzzElBrBrYlrvCXuyd6c=;
+        b=glAKQG1PBJ/N+LUwHI2XB78kEeOZxmjGQ5z1IAeqfhkWsm1PRIEFrHCA5BMJjgMkLW
+         nxe+5aUYmWMhnHb0FzFzUiCPQwFBsm1CubbWcVrE7iSDnlfmoHJQ2u/jTCCi8hHOH40Q
+         A1U++gSh3M1tJK8OeqC16u0C620RqK4OgMkoGZf5Epz2bqVdbpQD1ZeDNo0BLqbZTkBU
+         dZRv4YMW5byeF0xvEW+lrYTK6q/thT/traFOxRnB7/f0FPXOLNsD7LHfH0qTf0FApiEg
+         6Soe7V6MDfeR0O2Ka+2xmzz6yxxJYbvEcVlMfJImBdLG2KriPQGRg38z3ERqQlvo2e1Y
+         iyNA==
+X-Gm-Message-State: AOJu0YyIHD6eelPhmfm0Za61zisvPlUqmIZMNTACxhxR74uKPPlUlhfE
+	p7v++TwJByltkB2HJxZSeNwS4tJKY1YEetX8MIftAnXMxoFQjh2QLxh2fqTLjV//R5y9r1tCiW3
+	166mEdkqhR+/RqZvT+rNA29XGMXEx2SuFAHFl9dmJ5Q==
+X-Received: by 2002:a5e:8613:0:b0:791:16ba:d764 with SMTP id z19-20020a5e8613000000b0079116bad764mr25053634ioj.16.1701372013014;
+        Thu, 30 Nov 2023 11:20:13 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFWZAGlxOOtEZV4cyIfR8XEUIGJn/VBf5TbyQKFfZMrEfeBiouv9jSp1k1yGD0s6K3Fb1D2/A==
+X-Received: by 2002:a5e:8613:0:b0:791:16ba:d764 with SMTP id z19-20020a5e8613000000b0079116bad764mr25053595ioj.16.1701372012621;
+        Thu, 30 Nov 2023 11:20:12 -0800 (PST)
+Received: from redhat.com ([38.15.60.12])
+        by smtp.gmail.com with ESMTPSA id cc14-20020a056602424e00b007b35739a580sm509939iob.27.2023.11.30.11.20.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Nov 2023 11:20:12 -0800 (PST)
+Date: Thu, 30 Nov 2023 12:20:10 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+ <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
+ <si-wei.liu@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH V4 vfio 8/9] vfio/pci: Expose
+ vfio_pci_iowrite/read##size()
+Message-ID: <20231130122010.3563bdee.alex.williamson@redhat.com>
+In-Reply-To: <20231129143746.6153-9-yishaih@nvidia.com>
+References: <20231129143746.6153-1-yishaih@nvidia.com>
+	<20231129143746.6153-9-yishaih@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH net-next v5 2/3] virtio/vsock: send credit update during
- setting SO_RCVLOWAT
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
-	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
-References: <20231130130840.253733-1-avkrasnov@salutedevices.com>
- <20231130130840.253733-3-avkrasnov@salutedevices.com>
- <20231130084044-mutt-send-email-mst@kernel.org>
- <02de8982-ec4a-b3b2-e8e5-1bca28cfc01b@salutedevices.com>
- <20231130085445-mutt-send-email-mst@kernel.org>
- <pbkiwezwlf6dmogx7exur6tjrtcfzxyn7eqlehqxivqifbkojv@xlziiuzekon4>
- <b3fa2aaa-9fdc-30a2-4c87-53eb106900ee@salutedevices.com>
- <20231130123653-mutt-send-email-mst@kernel.org>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20231130123653-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181746 [Nov 30 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;100.64.160.123:7.1.2;lore.kernel.org:7.1.1;salutedevices.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean, bases: 2023/11/30 16:58:00
-X-KSMG-LinksScanning: Clean, bases: 2023/11/30 17:45:00
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/30 16:54:00 #22587452
-X-KSMG-AntiVirus-Status: Clean, skipped
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
+On Wed, 29 Nov 2023 16:37:45 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-
-On 30.11.2023 20:37, Michael S. Tsirkin wrote:
-> On Thu, Nov 30, 2023 at 06:41:56PM +0300, Arseniy Krasnov wrote:
->>
->>
->> On 30.11.2023 17:11, Stefano Garzarella wrote:
->>> On Thu, Nov 30, 2023 at 08:58:58AM -0500, Michael S. Tsirkin wrote:
->>>> On Thu, Nov 30, 2023 at 04:43:34PM +0300, Arseniy Krasnov wrote:
->>>>>
->>>>>
->>>>> On 30.11.2023 16:42, Michael S. Tsirkin wrote:
->>>>>> On Thu, Nov 30, 2023 at 04:08:39PM +0300, Arseniy Krasnov wrote:
->>>>>>> Send credit update message when SO_RCVLOWAT is updated and it is bigger
->>>>>>> than number of bytes in rx queue. It is needed, because 'poll()' will
->>>>>>> wait until number of bytes in rx queue will be not smaller than
->>>>>>> SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
->>>>>>> for tx/rx is possible: sender waits for free space and receiver is
->>>>>>> waiting data in 'poll()'.
->>>>>>>
->>>>>>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>>>>>> ---
->>>>>>>   Changelog:
->>>>>>>   v1 -> v2:
->>>>>>>    * Update commit message by removing 'This patch adds XXX' manner.
->>>>>>>    * Do not initialize 'send_update' variable - set it directly during
->>>>>>>      first usage.
->>>>>>>   v3 -> v4:
->>>>>>>    * Fit comment in 'virtio_transport_notify_set_rcvlowat()' to 80 chars.
->>>>>>>   v4 -> v5:
->>>>>>>    * Do not change callbacks order in transport structures.
->>>>>>>
->>>>>>>   drivers/vhost/vsock.c                   |  1 +
->>>>>>>   include/linux/virtio_vsock.h            |  1 +
->>>>>>>   net/vmw_vsock/virtio_transport.c        |  1 +
->>>>>>>   net/vmw_vsock/virtio_transport_common.c | 27 +++++++++++++++++++++++++
->>>>>>>   net/vmw_vsock/vsock_loopback.c          |  1 +
->>>>>>>   5 files changed, 31 insertions(+)
->>>>>>>
->>>>>>> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->>>>>>> index f75731396b7e..4146f80db8ac 100644
->>>>>>> --- a/drivers/vhost/vsock.c
->>>>>>> +++ b/drivers/vhost/vsock.c
->>>>>>> @@ -451,6 +451,7 @@ static struct virtio_transport vhost_transport = {
->>>>>>>           .notify_buffer_size       = virtio_transport_notify_buffer_size,
->>>>>>>
->>>>>>>           .read_skb = virtio_transport_read_skb,
->>>>>>> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->>>>>>>       },
->>>>>>>
->>>>>>>       .send_pkt = vhost_transport_send_pkt,
->>>>>>> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->>>>>>> index ebb3ce63d64d..c82089dee0c8 100644
->>>>>>> --- a/include/linux/virtio_vsock.h
->>>>>>> +++ b/include/linux/virtio_vsock.h
->>>>>>> @@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
->>>>>>>   void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
->>>>>>>   int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
->>>>>>>   int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
->>>>>>> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
->>>>>>>   #endif /* _LINUX_VIRTIO_VSOCK_H */
->>>>>>> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>>>>>> index af5bab1acee1..8007593a3a93 100644
->>>>>>> --- a/net/vmw_vsock/virtio_transport.c
->>>>>>> +++ b/net/vmw_vsock/virtio_transport.c
->>>>>>> @@ -539,6 +539,7 @@ static struct virtio_transport virtio_transport = {
->>>>>>>           .notify_buffer_size       = virtio_transport_notify_buffer_size,
->>>>>>>
->>>>>>>           .read_skb = virtio_transport_read_skb,
->>>>>>> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->>>>>>>       },
->>>>>>>
->>>>>>>       .send_pkt = virtio_transport_send_pkt,
->>>>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>>>>>> index f6dc896bf44c..1cb556ad4597 100644
->>>>>>> --- a/net/vmw_vsock/virtio_transport_common.c
->>>>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>>>>>> @@ -1684,6 +1684,33 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
->>>>>>>   }
->>>>>>>   EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
->>>>>>>
->>>>>>> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, >> int val)
->>>>>>> +{
->>>>>>> +    struct virtio_vsock_sock *vvs = vsk->trans;
->>>>>>> +    bool send_update;
->>>>>>> +
->>>>>>> +    spin_lock_bh(&vvs->rx_lock);
->>>>>>> +
->>>>>>> +    /* If number of available bytes is less than new SO_RCVLOWAT value,
->>>>>>> +     * kick sender to send more data, because sender may sleep in >> its
->>>>>>> +     * 'send()' syscall waiting for enough space at our side.
->>>>>>> +     */
->>>>>>> +    send_update = vvs->rx_bytes < val;
->>>>>>> +
->>>>>>> +    spin_unlock_bh(&vvs->rx_lock);
->>>>>>> +
->>>>>>> +    if (send_update) {
->>>>>>> +        int err;
->>>>>>> +
->>>>>>> +        err = virtio_transport_send_credit_update(vsk);
->>>>>>> +        if (err < 0)
->>>>>>> +            return err;
->>>>>>> +    }
->>>>>>> +
->>>>>>> +    return 0;
->>>>>>> +}
->>>>>>
->>>>>>
->>>>>> I find it strange that this will send a credit update
->>>>>> even if nothing changed since this was called previously.
->>>>>> I'm not sure whether this is a problem protocol-wise,
->>>>>> but it certainly was not envisioned when the protocol was
->>>>>> built. WDYT?
->>>>>
->>>>> >From virtio spec I found:
->>>>>
->>>>> It is also valid to send a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet without previously receiving a
->>>>> VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows communicating updates any time a change
->>>>> in buffer space occurs.
->>>>> So I guess there is no limitations to send such type of packet, e.g. it is not
->>>>> required to be a reply for some another packet. Please, correct me if im wrong.
->>>>>
->>>>> Thanks, Arseniy
->>>>
->>>>
->>>> Absolutely. My point was different - with this patch it is possible
->>>> that you are not adding any credits at all since the previous
->>>> VIRTIO_VSOCK_OP_CREDIT_UPDATE.
->>>
->>> I think the problem we're solving here is that since as an optimization we avoid sending the update for every byte we consume, but we put a threshold, then we make sure we update the peer.
->>>
->>> A credit update contains a snapshot and sending it the same as the previous one should not create any problem.
->>>
->>> My doubt now is that we only do this when we set RCVLOWAT , should we also do something when we consume bytes to avoid the optimization we have?
->>
->> @Michael, Stefano just reproduced problem during bytes reading, but there is already old fix for this, which we forget to merge:)
->> I think it must be included to this patchset.
->>
->> https://lore.kernel.org/netdev/f304eabe-d2ef-11b1-f115-6967632f0339@sberdevices.ru/
->>
->> Thanks, Arseniy
+> Expose vfio_pci_iowrite/read##size() to let it be used by drivers.
 > 
+> This functionality is needed to enable direct access to some physical
+> BAR of the device with the proper locks/checks in place.
 > 
-> I generally don't merge patches tagged as RFC.
-> Repost without that tag?
-> Also, it looks like a bugfix we need either way, no?
-
-I'll repost it without RFC as part of this patchset, also i'll add test for it
-
-Thanks, Arseniy
-
+> The next patches from this series will use this functionality on a data
+> path flow when a direct access to the BAR is needed.
 > 
->>>
->>> Stefano
->>>
-> 
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_rdwr.c | 10 ++++++----
+>  include/linux/vfio_pci_core.h    | 19 +++++++++++++++++++
+>  2 files changed, 25 insertions(+), 4 deletions(-)
+
+I don't follow the inconsistency between this and the previous patch.
+Why did we move and rename the code to setup the barmap but we export
+the ioread/write functions in place?  Thanks,
+
+Alex
+
+
+> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+> index 6f08b3ecbb89..817ec9a89123 100644
+> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
+> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+> @@ -38,7 +38,7 @@
+>  #define vfio_iowrite8	iowrite8
+>  
+>  #define VFIO_IOWRITE(size) \
+> -static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+> +int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>  			bool test_mem, u##size val, void __iomem *io)	\
+>  {									\
+>  	if (test_mem) {							\
+> @@ -55,7 +55,8 @@ static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>  		up_read(&vdev->memory_lock);				\
+>  									\
+>  	return 0;							\
+> -}
+> +}									\
+> +EXPORT_SYMBOL_GPL(vfio_pci_iowrite##size);
+>  
+>  VFIO_IOWRITE(8)
+>  VFIO_IOWRITE(16)
+> @@ -65,7 +66,7 @@ VFIO_IOWRITE(64)
+>  #endif
+>  
+>  #define VFIO_IOREAD(size) \
+> -static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+> +int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>  			bool test_mem, u##size *val, void __iomem *io)	\
+>  {									\
+>  	if (test_mem) {							\
+> @@ -82,7 +83,8 @@ static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>  		up_read(&vdev->memory_lock);				\
+>  									\
+>  	return 0;							\
+> -}
+> +}									\
+> +EXPORT_SYMBOL_GPL(vfio_pci_ioread##size);
+>  
+>  VFIO_IOREAD(8)
+>  VFIO_IOREAD(16)
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index 67ac58e20e1d..22c915317788 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -131,4 +131,23 @@ int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar);
+>  pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
+>  						pci_channel_state_t state);
+>  
+> +#define VFIO_IOWRITE_DECLATION(size) \
+> +int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+> +			bool test_mem, u##size val, void __iomem *io);
+> +
+> +VFIO_IOWRITE_DECLATION(8)
+> +VFIO_IOWRITE_DECLATION(16)
+> +VFIO_IOWRITE_DECLATION(32)
+> +#ifdef iowrite64
+> +VFIO_IOWRITE_DECLATION(64)
+> +#endif
+> +
+> +#define VFIO_IOREAD_DECLATION(size) \
+> +int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+> +			bool test_mem, u##size *val, void __iomem *io);
+> +
+> +VFIO_IOREAD_DECLATION(8)
+> +VFIO_IOREAD_DECLATION(16)
+> +VFIO_IOREAD_DECLATION(32)
+> +
+>  #endif /* VFIO_PCI_CORE_H */
+
