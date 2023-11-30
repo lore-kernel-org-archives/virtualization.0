@@ -1,52 +1,52 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E0E3E47F
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E47B47A7A
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="iN9F0Z6E"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="UHNDlAA8"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id ECA2660B0B
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org ECA2660B0B
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=iN9F0Z6E
+	by smtp2.osuosl.org (Postfix) with ESMTP id 399D340012
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:18:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 399D340012
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=UHNDlAA8
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hZkk8pxniYDu
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Ov464T9As1TK
 	for <virtualization@lists.linux-foundation.org>;
 	Thu, 30 Nov 2023 13:18:00 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 384A960AA7
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1F2E0400D9
 	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:17:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 384A960AA7
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 250B5100003;
-	Thu, 30 Nov 2023 16:17:55 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 250B5100003
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F2E0400D9
+Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 136D4120008;
+	Thu, 30 Nov 2023 16:17:56 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 136D4120008
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701350275;
-	bh=vlXcJnJfbzP+KHmyRlwotOspPMF9m/kv8lEKSowqPVA=;
+	s=mail; t=1701350276;
+	bh=IVKUzDEUdXKfLiMx4n+1TpDIQSe+/lzGaUplIjkyZfg=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=iN9F0Z6Ef1WJZLQeMkqojSwFwuTO9Obc7sccnv+seh+l4vPOoutrn7y7YyfUSRN1R
-	 gY8SAs38cduW37dP+B9vgJYqH/FcTxI0dXIWrzXiuqYo2xf+hEvUEMqLAmHLCuHIvX
-	 hQYNIjVTdmR4U+4mi4+hcfOhkpG2CUxdOYLkWYIGXnTJdLU0xijBXpUanR7V/WeIFd
-	 hr3789b2vZ14VsiQp/5E/lQjjsF3iZOkBNtr5kAUjzwkSZrTUZClSuchP5QIP3dwLc
-	 2KoEI+NKwDG8ArCX5B1w0943kgNqfS1h+KhJ//jAF1f2DUQBosvge68SmW6CipoRC/
-	 QHBtehsHtiSJQ==
+	b=UHNDlAA8nS9dHgjy5xw712lFMEnl6B437sBCX/44iAS6+2wfYyMbxZi+RylAbmUyP
+	 ex8KrFvlUEXdlEjkZVwMum3SsP93fM7hkKBPI5PRRmcAts5M2c7oeMuNuAE6yL2fea
+	 snrq5FDmdsIldQKq/rzfCRwboMmIYN1klibUnlB4rssbS1bh8l4d/vgn+BCGOrMM91
+	 90QM51XOS9271XGOELV7W1U9UAqMkKV7qYx6ut4YH80gnfsN7yBJEzwNl5Fj/1OBfL
+	 5xdDr3H7Yraw6yehxfZ9YAXhhjOXKT71C0P/JKPNtMmTKCHTAI17cHKsDQcUBkM4aI
+	 2DNN8yNSHiU5Q==
 Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
 	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Thu, 30 Nov 2023 16:17:54 +0300 (MSK)
+	Thu, 30 Nov 2023 16:17:55 +0300 (MSK)
 Received: from localhost.localdomain (100.64.160.123) by
  p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 30 Nov 2023 16:17:54 +0300
+ 15.2.1118.40; Thu, 30 Nov 2023 16:17:55 +0300
 From: Arseniy Krasnov <avkrasnov@salutedevices.com>
 To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
@@ -56,10 +56,12 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
 	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [PATCH net-next v5 0/3] send credit update during setting SO_RCVLOWAT
-Date: Thu, 30 Nov 2023 16:08:37 +0300
-Message-ID: <20231130130840.253733-1-avkrasnov@salutedevices.com>
+Subject: [PATCH net-next v5 3/3] vsock/test: SO_RCVLOWAT + deferred credit update test
+Date: Thu, 30 Nov 2023 16:08:40 +0300
+Message-ID: <20231130130840.253733-4-avkrasnov@salutedevices.com>
 X-Mailer: git-send-email 2.35.0
+In-Reply-To: <20231130130840.253733-1-avkrasnov@salutedevices.com>
+References: <20231130130840.253733-1-avkrasnov@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,108 +81,209 @@ X-KSMG-AntiSpam-Rate: 0
 X-KSMG-AntiSpam-Status: not_detected
 X-KSMG-AntiSpam-Method: none
 X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;100.64.160.123:7.1.2;git.kernel.org:7.1.1;p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;lore.kernel.org:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
 X-MS-Exchange-Organization-SCL: -1
 X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean, bases: 2023/11/30 10:41:00
-X-KSMG-LinksScanning: Clean, bases: 2023/11/30 10:41:00
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
 X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/11/30 11:05:00 #22583687
 X-KSMG-AntiVirus-Status: Clean, skipped
 
-Hello,
+Test which checks, that updating SO_RCVLOWAT value also sends credit
+update message. Otherwise mutual hungup may happen when receiver didn't
+send credit update and then calls 'poll()' with non default SO_RCVLOWAT
+value (e.g. waiting enough bytes to read), while sender waits for free
+space at receiver's side. Important thing is that this test relies on
+kernel's define for maximum packet size for virtio transport and this
+value is not exported to user: VIRTIO_VSOCK_MAX_PKT_BUF_SIZE (this
+define is used to control moment when to send credit update message).
+If this value or its usage will be changed in kernel - this test may
+become useless/broken.
 
-                               DESCRIPTION
+Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+---
+ Changelog:
+ v1 -> v2:
+  * Update commit message by removing 'This patch adds XXX' manner.
+  * Update commit message by adding details about dependency for this
+    test from kernel internal define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE.
+  * Add comment for this dependency in 'vsock_test.c' where this define
+    is duplicated.
+ v2 -> v3:
+  * Replace synchronization based on control TCP socket with vsock
+    data socket - this is needed to allow sender transmit data only
+    when new buffer size of receiver is visible to sender. Otherwise
+    there is race and test fails sometimes.
+ v3 -> v4:
+  * Replace 'recv_buf()' to 'recv(MSG_DONTWAIT)' in last read operation
+    in server part. This is needed to ensure that 'poll()' wake up us
+    when number of bytes ready to read is equal to SO_RCVLOWAT value.
+ v4 -> v5:
+  * Use 'recv_buf(MSG_DONTWAIT)' instead of 'recv(MSG_DONTWAIT)'.
 
-This patchset fixes old problem with hungup of both rx/tx sides and adds
-test for it. This happens due to non-default SO_RCVLOWAT value and
-deferred credit update in virtio/vsock. Link to previous old patchset:
-https://lore.kernel.org/netdev/39b2e9fd-601b-189d-39a9-914e5574524c@sberdevices.ru/
+ tools/testing/vsock/vsock_test.c | 142 +++++++++++++++++++++++++++++++
+ 1 file changed, 142 insertions(+)
 
-Here is what happens step by step:
-
-                                  TEST
-
-                            INITIAL CONDITIONS
-
-1) Vsock buffer size is 128KB.
-2) Maximum packet size is also 64KB as defined in header (yes it is
-   hardcoded, just to remind about that value).
-3) SO_RCVLOWAT is default, e.g. 1 byte.
-
-
-                                 STEPS
-
-            SENDER                              RECEIVER
-1) sends 128KB + 1 byte in a
-   single buffer. 128KB will
-   be sent, but for 1 byte
-   sender will wait for free
-   space at peer. Sender goes
-   to sleep.
-
-
-2)                                     reads 64KB, credit update not sent
-3)                                     sets SO_RCVLOWAT to 64KB + 1
-4)                                     poll() -> wait forever, there is
-                                       only 64KB available to read.
-
-So in step 4) receiver also goes to sleep, waiting for enough data or
-connection shutdown message from the sender. Idea to fix it is that rx
-kicks tx side to continue transmission (and may be close connection)
-when rx changes number of bytes to be woken up (e.g. SO_RCVLOWAT) and
-this value is bigger than number of available bytes to read.
-
-I've added small test for this, but not sure as it uses hardcoded value
-for maximum packet length, this value is defined in kernel header and
-used to control deferred credit update. And as this is not available to
-userspace, I can't control test parameters correctly (if one day this
-define will be changed - test may become useless). 
-
-Head for this patchset is:
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/?id=f1be1e04c76bb9c44789d3575bba4418cf0ea359
-
-Link to v1:
-https://lore.kernel.org/netdev/20231108072004.1045669-1-avkrasnov@salutedevices.com/
-Link to v2:
-https://lore.kernel.org/netdev/20231119204922.2251912-1-avkrasnov@salutedevices.com/
-Link to v3:
-https://lore.kernel.org/netdev/20231122180510.2297075-1-avkrasnov@salutedevices.com/
-Link to v4:
-https://lore.kernel.org/netdev/20231129212519.2938875-1-avkrasnov@salutedevices.com/
-
-Changelog:
-v1 -> v2:
- * Patchset rebased and tested on new HEAD of net-next (see hash above).
- * New patch is added as 0001 - it removes return from SO_RCVLOWAT set
-   callback in 'af_vsock.c' when transport callback is set - with that
-   we can set 'sk_rcvlowat' only once in 'af_vsock.c' and in future do
-   not copy-paste it to every transport. It was discussed in v1.
- * See per-patch changelog after ---.
-v2 -> v3:
- * See changelog after --- in 0003 only (0001 and 0002 still same).
-v3 -> v4:
- * Patchset rebased and tested on new HEAD of net-next (see hash above).
- * See per-patch changelog after ---.
-v4 -> v5:
- * Change patchset tag 'RFC' -> 'net-next'.
- * See per-patch changelog after ---.
-
-Arseniy Krasnov (3):
-  vsock: update SO_RCVLOWAT setting callback
-  virtio/vsock: send credit update during setting SO_RCVLOWAT
-  vsock/test: SO_RCVLOWAT + deferred credit update test
-
- drivers/vhost/vsock.c                   |   1 +
- include/linux/virtio_vsock.h            |   1 +
- include/net/af_vsock.h                  |   2 +-
- net/vmw_vsock/af_vsock.c                |   9 +-
- net/vmw_vsock/hyperv_transport.c        |   4 +-
- net/vmw_vsock/virtio_transport.c        |   1 +
- net/vmw_vsock/virtio_transport_common.c |  27 +++++
- net/vmw_vsock/vsock_loopback.c          |   1 +
- tools/testing/vsock/vsock_test.c        | 142 ++++++++++++++++++++++++
- 9 files changed, 183 insertions(+), 5 deletions(-)
-
+diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+index 01fa816868bc..d66bc4987026 100644
+--- a/tools/testing/vsock/vsock_test.c
++++ b/tools/testing/vsock/vsock_test.c
+@@ -1232,6 +1232,143 @@ static void test_double_bind_connect_client(const struct test_opts *opts)
+ 	}
+ }
+ 
++#define RCVLOWAT_CREDIT_UPD_BUF_SIZE	(1024 * 128)
++/* This define is the same as in 'include/linux/virtio_vsock.h':
++ * it is used to decide when to send credit update message during
++ * reading from rx queue of a socket. Value and its usage in
++ * kernel is important for this test.
++ */
++#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE	(1024 * 64)
++
++static void test_stream_rcvlowat_def_cred_upd_client(const struct test_opts *opts)
++{
++	size_t buf_size;
++	void *buf;
++	int fd;
++
++	fd = vsock_stream_connect(opts->peer_cid, 1234);
++	if (fd < 0) {
++		perror("connect");
++		exit(EXIT_FAILURE);
++	}
++
++	/* Send 1 byte more than peer's buffer size. */
++	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE + 1;
++
++	buf = malloc(buf_size);
++	if (!buf) {
++		perror("malloc");
++		exit(EXIT_FAILURE);
++	}
++
++	/* Wait until peer sets needed buffer size. */
++	recv_byte(fd, 1, 0);
++
++	if (send(fd, buf, buf_size, 0) != buf_size) {
++		perror("send failed");
++		exit(EXIT_FAILURE);
++	}
++
++	free(buf);
++	close(fd);
++}
++
++static void test_stream_rcvlowat_def_cred_upd_server(const struct test_opts *opts)
++{
++	size_t recv_buf_size;
++	struct pollfd fds;
++	size_t buf_size;
++	void *buf;
++	int fd;
++
++	fd = vsock_stream_accept(VMADDR_CID_ANY, 1234, NULL);
++	if (fd < 0) {
++		perror("accept");
++		exit(EXIT_FAILURE);
++	}
++
++	buf_size = RCVLOWAT_CREDIT_UPD_BUF_SIZE;
++
++	if (setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_SIZE,
++		       &buf_size, sizeof(buf_size))) {
++		perror("setsockopt(SO_VM_SOCKETS_BUFFER_SIZE)");
++		exit(EXIT_FAILURE);
++	}
++
++	/* Send one dummy byte here, because 'setsockopt()' above also
++	 * sends special packet which tells sender to update our buffer
++	 * size. This 'send_byte()' will serialize such packet with data
++	 * reads in a loop below. Sender starts transmission only when
++	 * it receives this single byte.
++	 */
++	send_byte(fd, 1, 0);
++
++	buf = malloc(buf_size);
++	if (!buf) {
++		perror("malloc");
++		exit(EXIT_FAILURE);
++	}
++
++	/* Wait until there will be 128KB of data in rx queue. */
++	while (1) {
++		ssize_t res;
++
++		res = recv(fd, buf, buf_size, MSG_PEEK);
++		if (res == buf_size)
++			break;
++
++		if (res <= 0) {
++			fprintf(stderr, "unexpected 'recv()' return: %zi\n", res);
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	/* There is 128KB of data in the socket's rx queue,
++	 * dequeue first 64KB, credit update is not sent.
++	 */
++	recv_buf_size = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
++	recv_buf(fd, buf, recv_buf_size, 0, recv_buf_size);
++	recv_buf_size++;
++
++	/* Updating SO_RCVLOWAT will send credit update. */
++	if (setsockopt(fd, SOL_SOCKET, SO_RCVLOWAT,
++		       &recv_buf_size, sizeof(recv_buf_size))) {
++		perror("setsockopt(SO_RCVLOWAT)");
++		exit(EXIT_FAILURE);
++	}
++
++	memset(&fds, 0, sizeof(fds));
++	fds.fd = fd;
++	fds.events = POLLIN | POLLRDNORM | POLLERR |
++		     POLLRDHUP | POLLHUP;
++
++	/* This 'poll()' will return once we receive last byte
++	 * sent by client.
++	 */
++	if (poll(&fds, 1, -1) < 0) {
++		perror("poll");
++		exit(EXIT_FAILURE);
++	}
++
++	if (fds.revents & POLLERR) {
++		fprintf(stderr, "'poll()' error\n");
++		exit(EXIT_FAILURE);
++	}
++
++	if (fds.revents & (POLLIN | POLLRDNORM)) {
++		recv_buf(fd, buf, recv_buf_size, MSG_DONTWAIT, recv_buf_size);
++	} else {
++		/* These flags must be set, as there is at
++		 * least 64KB of data ready to read.
++		 */
++		fprintf(stderr, "POLLIN | POLLRDNORM expected\n");
++		exit(EXIT_FAILURE);
++	}
++
++	free(buf);
++	close(fd);
++}
++
+ static struct test_case test_cases[] = {
+ 	{
+ 		.name = "SOCK_STREAM connection reset",
+@@ -1342,6 +1479,11 @@ static struct test_case test_cases[] = {
+ 		.run_client = test_double_bind_connect_client,
+ 		.run_server = test_double_bind_connect_server,
+ 	},
++	{
++		.name = "SOCK_STREAM virtio SO_RCVLOWAT + deferred cred update",
++		.run_client = test_stream_rcvlowat_def_cred_upd_client,
++		.run_server = test_stream_rcvlowat_def_cred_upd_server,
++	},
+ 	{},
+ };
+ 
 -- 
 2.25.1
 
