@@ -1,120 +1,224 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31BC21F93E
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:33:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC3039849
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:44:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T8aMa8e/"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TBTH+U3A"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9B5E041B5B
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:33:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 9B5E041B5B
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0501141B5B
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:44:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0501141B5B
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=T8aMa8e/
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=TBTH+U3A
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tZiMn-vOfEmD
+	with ESMTP id FYhzyVNzU3WT
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 30 Nov 2023 09:33:40 +0000 (UTC)
+	Thu, 30 Nov 2023 09:44:25 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DB6E341946
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:33:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org DB6E341946
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C61D74192A
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 09:44:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org C61D74192A
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701336818;
+	s=mimecast20190719; t=1701337463;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iPGqkxEHuVEp3iIXzHQC/P5fkhQe0pvoNr6L4fEyxzU=;
-	b=T8aMa8e/FxjFGqV5xyQ+r6ngkt4pFc2YvHxWfAsaEU0I73PVOiKrtTV+gZE54TRLZHudVB
-	iOTRWWkPEpmYWmK9fHYi+9yWrfEgl+X9VcTKgr/oA/Vdj1p+P+8Fc4bKzpYjnSjsQEI3WH
-	pTRINOPGgUKoan9ZZWGwORhH2k52KAI=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=CxCSv1JU9Ny4rjT7OLghWcyP96ZpHESLwySqeBe1CEg=;
+	b=TBTH+U3AzvPSJu+zmzOIeAhux3I6LYJNk6w6tsTQIj5LcLW1G5iagRWmjzosW4djGTrE+I
+	d74A580p5+wCzNdXPN36aWqORKfGGNGZl1Dtmxq8iMRL5X1yQeMu9BQFfwxKvQy80AL76O
+	RAhWHH9Ow72pTZtTP/InWWcNUN/Hwoo=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-aTkHHhCaNX2thy7KYilDlQ-1; Thu, 30 Nov 2023 04:33:34 -0500
-X-MC-Unique: aTkHHhCaNX2thy7KYilDlQ-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a183a3b682eso9760866b.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 01:33:34 -0800 (PST)
+ us-mta-198-rEootWOQOsKs_RuDTJRWdg-1; Thu, 30 Nov 2023 04:44:20 -0500
+X-MC-Unique: rEootWOQOsKs_RuDTJRWdg-1
+Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-2c993cf572bso7940381fa.3
+        for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 01:44:19 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701336813; x=1701941613;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aCExvHYEswKuEfeCmLnGAnokX5PwVgkIGHZN/pMhG/0=;
-        b=CoYv1/4mkPd2ik4l6B5IfjWWNlyzRiNGE3BWwXlg9UmB8Xw/cgi4JWz+fwh5QT73ip
-         0dQh32m0bmjUF9XA9HwvDkzoMC7RWsYw6Dv/tJiyWfwkyKO1DgcUNNQTvVkXED+uIWPQ
-         Bpyk9tvvATxhcHrN8ugMeXdwDYdCM8M4g84xVYb4U+ylXSpHl6MbTBlnXpVswRG3xbnB
-         gzhfdd28BIt/L4TqTxw5UgkJ1abFCOPMn2xvsmVHxR5T5sIr/NM9Gl6+CCU4tHF+pS8k
-         bOhUF8m2B0KgMMtf99XpDSf1aKLnBn6lCgRGvST5Ct5ghtHS0FAnYIlQi/tg3WfLcoZ8
-         UMUg==
-X-Gm-Message-State: AOJu0YzorrZpchKC8h5lvJ0V6aowZZhiPFpcnWwRbMlJki9V1YllTShe
-	J8NXRHaSPFK59zRpqAjCY5F5W9jkI5RU9pzZn4zbF48i9R5WjRJqH9IzokNYkjvRcBDy2z2xpOR
-	D5Qw0l74n6xH6fUtu94uEmugb9/I2yOxzVC/qDhG/ZQ==
-X-Received: by 2002:a17:907:390:b0:a01:b9bd:87a with SMTP id ss16-20020a170907039000b00a01b9bd087amr820672ejb.7.1701336813535;
-        Thu, 30 Nov 2023 01:33:33 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEP5pbMR674ut0hyknc6qi/7vtoWZqWf64ILFllSlxQGa/5LjZX7aHjzFBJZ0hRNM8lzBLUKg==
-X-Received: by 2002:a17:907:390:b0:a01:b9bd:87a with SMTP id ss16-20020a170907039000b00a01b9bd087amr820654ejb.7.1701336813204;
-        Thu, 30 Nov 2023 01:33:33 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-254-39.dyn.eolo.it. [146.241.254.39])
-        by smtp.gmail.com with ESMTPSA id ay22-20020a170906d29600b009efe6fdf615sm463853ejb.150.2023.11.30.01.33.31
+        d=1e100.net; s=20230601; t=1701337459; x=1701942259;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CxCSv1JU9Ny4rjT7OLghWcyP96ZpHESLwySqeBe1CEg=;
+        b=OBzU9JXysWJf8ZFinntwYrPfcQBlmptd3GMx3zkTSDggllu0QYuhZKxUNbwBLZkeuP
+         QZEejR9BuhiMJEnQNbOr7TmJJvUndlnepizMRj9iyQyvoizARKVB6dt5k+fZrbgSuili
+         qbNP0iSvNjNyu7mkezVmal0so11xfLVPp4KoldEw80yZZBsIV0lEcnSJNvrezRZpqXBv
+         jShySSzTss4fgCSWPW+pn/DHIRw2k6Qupctgi91Bf8qibGN2oTHDcrYlGC3QDbG5rch9
+         voLEJQmAhqnh7u5PMN5yEobnHe5fYxCpSdorl09ye0bMkHjm4GEvqZMKO5vKZaCrWCl3
+         kcng==
+X-Gm-Message-State: AOJu0YxR2WlLgjTixGzBEzMc9ItMzNKehqAA6czbAxlTrre2qkBF82vZ
+	lQAtPGEMS4N0K21y3NXqe+FBXZf8xR24Zof7I3siU1CM1PPrG35aS7RuVajURDrrW/SiX2CwgUk
+	hjO+4XmNPXhYT/3wcgS2MppYdYUCWmoMfhxvsonQnvw==
+X-Received: by 2002:a2e:80d6:0:b0:2c9:b1ff:f951 with SMTP id r22-20020a2e80d6000000b002c9b1fff951mr5651664ljg.25.1701337458754;
+        Thu, 30 Nov 2023 01:44:18 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGQ3ETQ8qMwSfAMQqyRN2zbxUusE+Cde6ncuv72WYiZ/hQyYq4rhX69dbPlKoUxjc6/4LtSUA==
+X-Received: by 2002:a2e:80d6:0:b0:2c9:b1ff:f951 with SMTP id r22-20020a2e80d6000000b002c9b1fff951mr5651646ljg.25.1701337458370;
+        Thu, 30 Nov 2023 01:44:18 -0800 (PST)
+Received: from redhat.com ([2.55.10.128])
+        by smtp.gmail.com with ESMTPSA id i2-20020adffc02000000b003330aede2aesm1023337wrr.112.2023.11.30.01.44.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Nov 2023 01:33:32 -0800 (PST)
-Message-ID: <8d2ee27f10a7a6c9414f10e8c0155c090b5f11e3.camel@redhat.com>
-Subject: Re: [PATCH net-next v5 4/4] virtio-net: support rx netdim
-From: Paolo Abeni <pabeni@redhat.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: jasowang@redhat.com, mst@redhat.com, kuba@kernel.org,
- edumazet@google.com,  davem@davemloft.net, hawk@kernel.org,
- john.fastabend@gmail.com, ast@kernel.org,  horms@kernel.org,
- xuanzhuo@linux.alibaba.com, yinjun.zhang@corigine.com
-Date: Thu, 30 Nov 2023 10:33:31 +0100
-In-Reply-To: <12c0a070d31f29e394b78a8abb4c009274b8a88c.1701050450.git.hengqi@linux.alibaba.com>
-References: <cover.1701050450.git.hengqi@linux.alibaba.com>
-	 <12c0a070d31f29e394b78a8abb4c009274b8a88c.1701050450.git.hengqi@linux.alibaba.com>
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37)
+        Thu, 30 Nov 2023 01:44:17 -0800 (PST)
+Date: Thu, 30 Nov 2023 04:44:13 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Ning, Hongyu" <hongyu.ning@linux.intel.com>,
+	xuanzhuo@linux.alibaba.com,
+	Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, eperezma@redhat.com,
+	shannon.nelson@amd.com, yuanyaogoog@chromium.org,
+	yuehaibing@huawei.com, kirill.shutemov@linux.intel.com,
+	sathyanarayanan.kuppuswamy@linux.intel.com,
+	alexander.shishkin@linux.intel.com
+Subject: Re: [GIT PULL] virtio: features
+Message-ID: <20231130044045-mutt-send-email-mst@kernel.org>
+References: <20230903181338-mutt-send-email-mst@kernel.org>
+ <647701d8-c99b-4ca8-9817-137eaefda237@linux.intel.com>
+ <CACGkMEvoGOO0jtq5T7arAjRoB_0_fHB2+hPJe1JsPqcAuvr98w@mail.gmail.com>
+ <6f84bbad-62f9-43df-8134-a6836cc3b66c@linux.intel.com>
+ <CACGkMEvtus2BseZec8at6YORO=As1v9r9p=xtZjE1e2i=uhwhA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CACGkMEvtus2BseZec8at6YORO=As1v9r9p=xtZjE1e2i=uhwhA@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, 2023-11-27 at 10:55 +0800, Heng Qi wrote:
-> @@ -4738,11 +4881,14 @@ static void remove_vq_common(struct virtnet_info =
-*vi)
->  static void virtnet_remove(struct virtio_device *vdev)
->  {
->  =09struct virtnet_info *vi =3D vdev->priv;
-> +=09int i;
-> =20
->  =09virtnet_cpu_notif_remove(vi);
-> =20
->  =09/* Make sure no work handler is accessing the device. */
->  =09flush_work(&vi->config_work);
-> +=09for (i =3D 0; i < vi->max_queue_pairs; i++)
-> +=09=09cancel_work(&vi->rq[i].dim.work);
+On Wed, Nov 29, 2023 at 06:20:31PM +0800, Jason Wang wrote:
+> On Wed, Nov 29, 2023 at 6:12 PM Ning, Hongyu
+> <hongyu.ning@linux.intel.com> wrote:
+> >
+> >
+> > On 2023/11/29 17:16, Jason Wang wrote:
+> > > On Wed, Nov 29, 2023 at 5:05 PM Ning, Hongyu
+> > > <hongyu.ning@linux.intel.com> wrote:
+> > >>
+> > >>
+> > >>
+> > >> On 2023/9/4 6:13, Michael S. Tsirkin wrote:
+> > >>> The following changes since commit 2dde18cd1d8fac735875f2e4987f11817cc0bc2c:
+> > >>>
+> > >>>     Linux 6.5 (2023-08-27 14:49:51 -0700)
+> > >>>
+> > >>> are available in the Git repository at:
+> > >>>
+> > >>>     https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> > >>>
+> > >>> for you to fetch changes up to 1acfe2c1225899eab5ab724c91b7e1eb2881b9ab:
+> > >>>
+> > >>>     virtio_ring: fix avail_wrap_counter in virtqueue_add_packed (2023-09-03 18:10:24 -0400)
+> > >>>
+> > >>> ----------------------------------------------------------------
+> > >>> virtio: features
+> > >>>
+> > >>> a small pull request this time around, mostly because the
+> > >>> vduse network got postponed to next relase so we can be sure
+> > >>> we got the security store right.
+> > >>>
+> > >>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >>>
+> > >>> ----------------------------------------------------------------
+> > >>> Eugenio Pérez (4):
+> > >>>         vdpa: add VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK flag
+> > >>>         vdpa: accept VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK backend feature
+> > >>>         vdpa: add get_backend_features vdpa operation
+> > >>>         vdpa_sim: offer VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK
+> > >>>
+> > >>> Jason Wang (1):
+> > >>>         virtio_vdpa: build affinity masks conditionally
+> > >>>
+> > >>> Xuan Zhuo (12):
+> > >>>         virtio_ring: check use_dma_api before unmap desc for indirect
+> > >>>         virtio_ring: put mapping error check in vring_map_one_sg
+> > >>>         virtio_ring: introduce virtqueue_set_dma_premapped()
+> > >>>         virtio_ring: support add premapped buf
+> > >>>         virtio_ring: introduce virtqueue_dma_dev()
+> > >>>         virtio_ring: skip unmap for premapped
+> > >>>         virtio_ring: correct the expression of the description of virtqueue_resize()
+> > >>>         virtio_ring: separate the logic of reset/enable from virtqueue_resize
+> > >>>         virtio_ring: introduce virtqueue_reset()
+> > >>>         virtio_ring: introduce dma map api for virtqueue
+> > >>>         virtio_ring: introduce dma sync api for virtqueue
+> > >>>         virtio_net: merge dma operations when filling mergeable buffers
+> > >>
+> > >> Hi,
+> > >> above patch (upstream commit 295525e29a5b) seems causing a virtnet
+> > >> related Call Trace after WARNING from kernel/dma/debug.c.
+> > >>
+> > >> details (log and test setup) tracked in
+> > >> https://bugzilla.kernel.org/show_bug.cgi?id=218204
+> > >>
+> > >> it's recently noticed in a TDX guest testing since v6.6.0 release cycle
+> > >> and can still be reproduced in latest v6.7.0-rc3.
+> > >>
+> > >> as local bisects results show, above WARNING and Call Trace is linked
+> > >> with this patch, do you mind to take a look?
+> > >
+> > > Looks like virtqueue_dma_sync_single_range_for_cpu() use
+> > > DMA_BIDIRECTIONAL unconditionally.
+> > >
+> > > We should use dir here.
+> > >
+> > > Mind to try?
+> > >
+> > > Thanks
+> > >
+> >
+> > sure, but what I see in the code
+> > virtqueue_dma_sync_single_range_for_cpu() is using DMA_FROM_DEVICE,
+> > probably I misunderstood your point?
+> >
+> > Please let me know any patch/setting to try here.
+> 
+> Something like attached.  (Not even compiling test).
+> 
+> Thanks
 
-If the dim work is still running here, what prevents it from completing
-after the following unregister/free netdev?
+Forwarding it inline for the record - I am not sure all the
+0 day machinery handles attachments. Jason given it's reported to work
+can you please repost properly with a full commit log etc?
+I think we also need to fix virtqueue_dma_sync_single_range_for_device -
+please include that too.
+ 
 
-It looks like you want need to call cancel_work_sync here?
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 29 Nov 2023 17:14:15 +0800
+Subject: [PATCH] virtio_ring: fix DMA dir during sync
+Content-type: text/plain
 
-Additionally the later remove_vq_common() will needless call
-cancel_work() again; possibly is better to consolidate a single (sync)
-call there.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Cheers,
+---
+ drivers/virtio/virtio_ring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Paolo
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 81ecb29c88f1..91d869814373 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3220,7 +3220,7 @@ void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
+ 		return;
+ 
+ 	dma_sync_single_range_for_cpu(dev, addr, offset, size,
+-				      DMA_BIDIRECTIONAL);
++				      dir);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
+ 
+-- 
+2.42.0
 
