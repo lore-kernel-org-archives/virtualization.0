@@ -1,219 +1,94 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F05638DE3
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:43:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF5747A67
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:51:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gSQpTb+H"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="H58wh8CH"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0BC6F40236
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:43:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 0BC6F40236
+	by smtp2.osuosl.org (Postfix) with ESMTP id B5DE2400CF
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:51:01 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B5DE2400CF
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gSQpTb+H
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=H58wh8CH
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.101
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iMtBQPdwEeGd
+	with ESMTP id s27Dt2XfuC0e
 	for <virtualization@lists.linux-foundation.org>;
-	Thu, 30 Nov 2023 13:42:59 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 17058400D9
-	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:42:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 17058400D9
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701351778;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Uy3DbGLAD6/MqJDeL8rt+rWlvOEmyAT8Ng7w858TURY=;
-	b=gSQpTb+Hq9E6l4d2OiRyYygDtq969nscznqhyhbuprcGgQzEusidEEfZLH04qeaXuxPRP4
-	Sbmk6Qw+ukjlnH1jBNPmNLKY9ZZ5Bt6etKqbz8ySrbIIvDCbpYnTM/sT2mdCHkZjo39Pr1
-	qBpim6ht0qjxX8BZcT9H1vlyruOAFBY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-QSJPCxH1Nf2t_r15q5tl1g-1; Thu, 30 Nov 2023 08:42:56 -0500
-X-MC-Unique: QSJPCxH1Nf2t_r15q5tl1g-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40b3dae2285so7520925e9.2
-        for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 05:42:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701351775; x=1701956575;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Uy3DbGLAD6/MqJDeL8rt+rWlvOEmyAT8Ng7w858TURY=;
-        b=n+gEpA9zRJpZ5M8gNo4n5p53YKUjHWG0OJJS/p8L14gTqCgu/HkwfTm4MnZQAZCkKJ
-         rG4k94gRqWq9hYgUP2U9HPmkNlgW2cd/w/Rf8dmWEnYXQxFT5SkIlNFgO8Y+dDbv8p/J
-         fD+SZVIXtLjDw9xzplagVnPekeytDd+PM712YC6DOLwzRSdOB12ZSA5lspUNHZzV1pgG
-         GcwYb93ZNFp2MZXQ00weMXRE4WI6R5LxE6CWDonOY5KT7J8BdBAjvF/sGI0CuTKFtqhd
-         Ekf7uk+UwhQnZ2WgOsDftQEhmWsSQA/Nqc7pEloOt/HBl81/mikKeqUTkcvcDd61qKp1
-         ZVwA==
-X-Gm-Message-State: AOJu0Yw9QEYNnDkmNoxBVR+dl399E7MzpH5NJ812UzpO20JmKnQirOnk
-	3eSCHlXAWVX+Ft230ngmNh5ok6sDCFGuJjpB11uKslfIbPUunbkZUv0GkwYQkBIQzqS712MdhAC
-	2Uv5bzA++QaNlHo7g6IUMmhToxlJl4vSIzMmkKpIreA==
-X-Received: by 2002:a05:600c:3c93:b0:409:6e0e:e948 with SMTP id bg19-20020a05600c3c9300b004096e0ee948mr15037441wmb.1.1701351775678;
-        Thu, 30 Nov 2023 05:42:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEM/gy08YFSforqNM+D8EaAMPSjzZfnQ8ZpsK233LcwLbEQqvchhKz7NIu/y4LteP2ZPySqeg==
-X-Received: by 2002:a05:600c:3c93:b0:409:6e0e:e948 with SMTP id bg19-20020a05600c3c9300b004096e0ee948mr15037419wmb.1.1701351775237;
-        Thu, 30 Nov 2023 05:42:55 -0800 (PST)
-Received: from redhat.com ([2.55.57.48])
-        by smtp.gmail.com with ESMTPSA id s9-20020a05600c45c900b0040b4fca8620sm5775206wmo.37.2023.11.30.05.42.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Nov 2023 05:42:53 -0800 (PST)
-Date: Thu, 30 Nov 2023 08:42:49 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kernel@sberdevices.ru,
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v5 2/3] virtio/vsock: send credit update during
- setting SO_RCVLOWAT
-Message-ID: <20231130084044-mutt-send-email-mst@kernel.org>
-References: <20231130130840.253733-1-avkrasnov@salutedevices.com>
- <20231130130840.253733-3-avkrasnov@salutedevices.com>
+	Thu, 30 Nov 2023 13:51:00 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 41A3F40012
+	for <virtualization@lists.linux-foundation.org>; Thu, 30 Nov 2023 13:51:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 41A3F40012
+Received: from [100.124.219.30] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 037796607345;
+	Thu, 30 Nov 2023 13:50:54 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1701352258;
+	bh=HGnD8bUQWOaK+6RFgKTsVFZmO6HTrfFGIJlJrDox4v8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=H58wh8CHNeyKhFKLgOKBi4cHe/A5GWRrfro7BiyeAt4Jr5iSpHtao56/5Xpa0WFNt
+	 iL9p94K8uIyTXndAwxXyrdNoIHY9sXoa5oBmnefTqKNP3R0jrZm8Swjg7huYA2KQi2
+	 qA2dhqdwQ0MRA5G3Od4dScyaTjrYKG0aYkBzU0D3kIBfKadg5E9uG5RT6kHtSoFYVf
+	 4V0V4odklj4B0h1o/kAGP/l1KaQWj1PwW92dO9KW8DxzbwFbO/+nUqH7C+XFTFeJ/d
+	 058/Sgc7SGQkJBFyU3cqme3tnGtkMBUFdWLM7lBBh92rCW62iY4m/GSvtgeOyxYAOI
+	 yAE7gIc4P+R8w==
+Message-ID: <893192db-0431-4d1f-7281-952da9979345@collabora.com>
+Date: Thu, 30 Nov 2023 19:20:50 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231130130840.253733-3-avkrasnov@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH v6 06/10] drm: ci: mediatek: Set IGT_FORCE_DRIVER for
+ mt8173
+Content-Language: en-US
+To: Daniel Stone <daniel@fooishbar.org>
+Cc: helen.koike@collabora.com, airlied@gmail.com, daniel@ffwll.ch,
+ daniels@collabora.com, emma@anholt.net, gustavo.padovan@collabora.com,
+ linux-arm-msm@vger.kernel.org, guilherme.gallo@collabora.com,
+ sergi.blanch.torne@collabora.com, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ david.heidelberg@collabora.com, linux-mediatek@lists.infradead.org,
+ linux-rockchip@lists.infradead.org
+References: <20231129121841.253223-1-vignesh.raman@collabora.com>
+ <20231129121841.253223-7-vignesh.raman@collabora.com>
+ <CAPj87rPKywWa8KxTCeJQz4vvgTwhPzL+y4aCX9zxZDkkfrvsoQ@mail.gmail.com>
+From: Vignesh Raman <vignesh.raman@collabora.com>
+In-Reply-To: <CAPj87rPKywWa8KxTCeJQz4vvgTwhPzL+y4aCX9zxZDkkfrvsoQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Nov 30, 2023 at 04:08:39PM +0300, Arseniy Krasnov wrote:
-> Send credit update message when SO_RCVLOWAT is updated and it is bigger
-> than number of bytes in rx queue. It is needed, because 'poll()' will
-> wait until number of bytes in rx queue will be not smaller than
-> SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
-> for tx/rx is possible: sender waits for free space and receiver is
-> waiting data in 'poll()'.
+Hi Daniel,
+
+On 29/11/23 18:52, Daniel Stone wrote:
+> Hi Vignesh,
 > 
-> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
-> ---
->  Changelog:
->  v1 -> v2:
->   * Update commit message by removing 'This patch adds XXX' manner.
->   * Do not initialize 'send_update' variable - set it directly during
->     first usage.
->  v3 -> v4:
->   * Fit comment in 'virtio_transport_notify_set_rcvlowat()' to 80 chars.
->  v4 -> v5:
->   * Do not change callbacks order in transport structures.
+> On Wed, 29 Nov 2023 at 12:19, Vignesh Raman <vignesh.raman@collabora.com> wrote:
+>> Expected driver for mt8173 is "mediatek" and for mt8183
+>> it is "panfrost". Set IGT_FORCE_DRIVER to 'mediatek' as
+>> the expected driver for mt8173.
 > 
->  drivers/vhost/vsock.c                   |  1 +
->  include/linux/virtio_vsock.h            |  1 +
->  net/vmw_vsock/virtio_transport.c        |  1 +
->  net/vmw_vsock/virtio_transport_common.c | 27 +++++++++++++++++++++++++
->  net/vmw_vsock/vsock_loopback.c          |  1 +
->  5 files changed, 31 insertions(+)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index f75731396b7e..4146f80db8ac 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -451,6 +451,7 @@ static struct virtio_transport vhost_transport = {
->  		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->  
->  		.read_skb = virtio_transport_read_skb,
-> +		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->  	},
->  
->  	.send_pkt = vhost_transport_send_pkt,
-> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
-> index ebb3ce63d64d..c82089dee0c8 100644
-> --- a/include/linux/virtio_vsock.h
-> +++ b/include/linux/virtio_vsock.h
-> @@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
->  void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
->  int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
->  int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
-> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
->  #endif /* _LINUX_VIRTIO_VSOCK_H */
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index af5bab1acee1..8007593a3a93 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -539,6 +539,7 @@ static struct virtio_transport virtio_transport = {
->  		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->  
->  		.read_skb = virtio_transport_read_skb,
-> +		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->  	},
->  
->  	.send_pkt = virtio_transport_send_pkt,
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index f6dc896bf44c..1cb556ad4597 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1684,6 +1684,33 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
->  }
->  EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
->  
-> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
-> +{
-> +	struct virtio_vsock_sock *vvs = vsk->trans;
-> +	bool send_update;
-> +
-> +	spin_lock_bh(&vvs->rx_lock);
-> +
-> +	/* If number of available bytes is less than new SO_RCVLOWAT value,
-> +	 * kick sender to send more data, because sender may sleep in its
-> +	 * 'send()' syscall waiting for enough space at our side.
-> +	 */
-> +	send_update = vvs->rx_bytes < val;
-> +
-> +	spin_unlock_bh(&vvs->rx_lock);
-> +
-> +	if (send_update) {
-> +		int err;
-> +
-> +		err = virtio_transport_send_credit_update(vsk);
-> +		if (err < 0)
-> +			return err;
-> +	}
-> +
-> +	return 0;
-> +}
+> Actually, for mt8183 it's both. And for mt8173 it will probably be
+> mediatek+pvr pretty soon. Each of these SoCs (like most Arm devices)
+> have a separate display controller and GPU, with different drivers for
+> each. They'll run different tests with different xfails. So we should
+> figure out a way to support igt running for both devices on the one
+> system.
 
+Agree. Will work on separate patch to test both the drivers for these 
+devices.
 
-I find it strange that this will send a credit update
-even if nothing changed since this was called previously.
-I'm not sure whether this is a problem protocol-wise,
-but it certainly was not envisioned when the protocol was
-built. WDYT?
-
-
-> +EXPORT_SYMBOL_GPL(virtio_transport_notify_set_rcvlowat);
-> +
->  MODULE_LICENSE("GPL v2");
->  MODULE_AUTHOR("Asias He");
->  MODULE_DESCRIPTION("common code for virtio vsock");
-> diff --git a/net/vmw_vsock/vsock_loopback.c b/net/vmw_vsock/vsock_loopback.c
-> index 048640167411..9f4b814fbbc7 100644
-> --- a/net/vmw_vsock/vsock_loopback.c
-> +++ b/net/vmw_vsock/vsock_loopback.c
-> @@ -98,6 +98,7 @@ static struct virtio_transport loopback_transport = {
->  		.notify_buffer_size       = virtio_transport_notify_buffer_size,
->  
->  		.read_skb = virtio_transport_read_skb,
-> +		.notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->  	},
->  
->  	.send_pkt = vsock_loopback_send_pkt,
-> -- 
-> 2.25.1
-
+Regards,
+Vignesh
