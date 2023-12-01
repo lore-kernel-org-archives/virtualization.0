@@ -1,161 +1,65 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB4CA1DDCC
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D5MJBxpt"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F35C168DF
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:10:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3838B436C6
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3838B436C6
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=D5MJBxpt
+	by smtp1.osuosl.org (Postfix) with ESMTP id DE40984417
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:10:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DE40984417
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.999
+X-Spam-Score: -1.9
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xmWxLPPTFotg
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5zwJijNhTOkL
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Dec 2023 09:52:15 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C0C91436D0
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0C91436D0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1701424335; x=1732960335;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=geeu2NYVMDCd7ZjnpvzhbwoquOV5Z8KRKEPIoflNzto=;
-  b=D5MJBxptbv2a8PfQkQL7fecsusGHneEAH5QEiB9H/fVVXRL/Pzdn6rqG
-   nm8kpd7Yiq2oJnrb4KYfKPqTNY7/ljECEFMaff6uvfJVkHrQpPm3EtAGt
-   ziq0NZY04Tv5vwO+JPlklZIGd5iDwjfGB/o9OdL83q4hqiej5G8OKqgL5
-   jKg0jWNu7HjCjX4hZ/ThAOY8ehAqxVGe7yQY25zQzX5AbN5czqjcm7y4z
-   xO0nZGh49XJv0X+Z16qtJKkXjALL+eLITACne0+FV2ibLAjjdLTOZlLm4
-   GMA+GXTKDtM8eSIoIfjrJoHF9UlgqKR9b40mMS5QH1ws+CFbfQkJKzOvw
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10910"; a="370438"
-X-IronPort-AV: E=Sophos;i="6.04,241,1695711600"; 
-   d="scan'208";a="370438"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2023 01:52:10 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10910"; a="1101255101"
-X-IronPort-AV: E=Sophos;i="6.04,241,1695711600"; 
-   d="scan'208";a="1101255101"
-Received: from hongyuni-mobl.ccr.corp.intel.com (HELO [10.93.1.78]) ([10.93.1.78])
-  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2023 01:52:08 -0800
-Message-ID: <e4845390-770a-459f-b409-1230cb061b4e@linux.intel.com>
-Date: Fri, 1 Dec 2023 17:52:05 +0800
+	Fri,  1 Dec 2023 10:10:42 +0000 (UTC)
+Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 525678440F
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:10:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 525678440F
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
+	id 1r90Th-005hiX-2F; Fri, 01 Dec 2023 18:10:34 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 01 Dec 2023 18:10:42 +0800
+Date: Fri, 1 Dec 2023 18:10:42 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Gonglei Arei <arei.gonglei@huawei.com>
+Cc: linux-crypto@vger.kernel.org, pasic@linux.ibm.com, mst@redhat.com,
+	jasowang@redhat.com, virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org, wangyangxin1@huawei.com,
+	arei.gonglei@huawei.com
+Subject: Re: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
+Message-ID: <ZWmxInHyFboXMWZ6@gondor.apana.org.au>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH vhost] virtio_ring: fix syncs DMA memory with different
- direction
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- virtualization@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-References: <20231201033303.25141-1-xuanzhuo@linux.alibaba.com>
-Content-Language: en-US
-From: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
-In-Reply-To: <20231201033303.25141-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b2fe5c6a60984a9e91bd9dea419c5154@huawei.com>
+X-Newsgroups: apana.lists.os.linux.cryptoapi,apana.lists.os.linux.kernel,apana.lists.os.linux.virtualization
 
-
-
-On 2023/12/1 11:33, Xuan Zhuo wrote:
-> Now the APIs virtqueue_dma_sync_single_range_for_{cpu,device} ignore
-> the parameter 'dir', that is a mistake.
+Gonglei Arei <arei.gonglei@huawei.com> wrote:
+> Doing ipsec produces a spinlock recursion warning.
+> This is due to crypto_finalize_request() being called in the upper half.
+> Move virtual data queue processing of virtio-crypto driver to tasklet.
 > 
-> [    6.101666] ------------[ cut here ]------------
-> [    6.102079] DMA-API: virtio-pci 0000:00:04.0: device driver syncs DMA memory with different direction [device address=0x00000000ae010000] [size=32752 bytes] [mapped with DMA_FROM_DEVICE] [synced with DMA_BIDIRECTIONAL]
-> [    6.103630] WARNING: CPU: 6 PID: 0 at kernel/dma/debug.c:1125 check_sync+0x53e/0x6c0
-> [    6.107420] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G            E      6.6.0+ #290
-> [    6.108030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
-> [    6.108936] RIP: 0010:check_sync+0x53e/0x6c0
-> [    6.109289] Code: 24 10 e8 f5 d9 74 00 4c 8b 4c 24 10 4c 8b 44 24 18 48 8b 4c 24 20 48 89 c6 41 56 4c 89 ea 48 c7 c7 b0 f1 50 82 e8 32 fc f3 ff <0f> 0b 48 c7 c7 48 4b 4a 82 e8 74 d9 fc ff 8b 73 4c 48 8d 7b 50 31
-> [    6.110750] RSP: 0018:ffffc90000180cd8 EFLAGS: 00010092
-> [    6.111178] RAX: 00000000000000ce RBX: ffff888100aa5900 RCX: 0000000000000000
-> [    6.111744] RDX: 0000000000000104 RSI: ffffffff824c3208 RDI: 00000000ffffffff
-> [    6.112316] RBP: ffffc90000180d40 R08: 0000000000000000 R09: 00000000fffeffff
-> [    6.112893] R10: ffffc90000180b98 R11: ffffffff82f63308 R12: ffffffff83d5af00
-> [    6.113460] R13: ffff888100998200 R14: ffffffff824a4b5f R15: 0000000000000286
-> [    6.114027] FS:  0000000000000000(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
-> [    6.114665] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    6.115128] CR2: 00007f10f1e03030 CR3: 0000000108272004 CR4: 0000000000770ee0
-> [    6.115701] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> [    6.116272] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> [    6.116842] PKRU: 55555554
-> [    6.117069] Call Trace:
-> [    6.117275]  <IRQ>
-> [    6.117452]  ? __warn+0x84/0x140
-> [    6.117727]  ? check_sync+0x53e/0x6c0
-> [    6.118034]  ? __report_bug+0xea/0x100
-> [    6.118353]  ? check_sync+0x53e/0x6c0
-> [    6.118653]  ? report_bug+0x41/0xc0
-> [    6.118944]  ? handle_bug+0x3c/0x70
-> [    6.119237]  ? exc_invalid_op+0x18/0x70
-> [    6.119551]  ? asm_exc_invalid_op+0x1a/0x20
-> [    6.119900]  ? check_sync+0x53e/0x6c0
-> [    6.120199]  ? check_sync+0x53e/0x6c0
-> [    6.120499]  debug_dma_sync_single_for_cpu+0x5c/0x70
-> [    6.120906]  ? dma_sync_single_for_cpu+0xb7/0x100
-> [    6.121291]  virtnet_rq_unmap+0x158/0x170 [virtio_net]
-> [    6.121716]  virtnet_receive+0x196/0x220 [virtio_net]
-> [    6.122135]  virtnet_poll+0x48/0x1b0 [virtio_net]
-> [    6.122524]  __napi_poll+0x29/0x1b0
-> [    6.123083]  net_rx_action+0x282/0x360
-> [    6.123612]  __do_softirq+0xf3/0x2fb
-> [    6.124138]  __irq_exit_rcu+0x8e/0xf0
-> [    6.124663]  common_interrupt+0xbc/0xe0
-> [    6.125202]  </IRQ>
-> 
-> We need to enable CONFIG_DMA_API_DEBUG and work with need sync mode(such
-> as swiotlb) to reproduce this warn.
-> 
-> Fixes: 8bd2f71054bd ("virtio_ring: introduce dma sync api for virtqueue")
-> Reported-by: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
-> Closes: https://lore.kernel.org/all/f37cb55a-6fc8-4e21-8789-46d468325eea@linux.intel.com/
-> Suggested-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Fixes: dbaf0624ffa57 ("crypto: add virtio-crypto driver")
+> Reported-by: Halil Pasic <pasic@linux.ibm.com>
+> Signed-off-by: wangyangxin <wangyangxin1@huawei.com>
+> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
 > ---
->   drivers/virtio/virtio_ring.c | 6 ++----
->   1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 51d8f3299c10..49299b1f9ec7 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -3219,8 +3219,7 @@ void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
->   	if (!vq->use_dma_api)
->   		return;
->   
-> -	dma_sync_single_range_for_cpu(dev, addr, offset, size,
-> -				      DMA_BIDIRECTIONAL);
-> +	dma_sync_single_range_for_cpu(dev, addr, offset, size, dir);
->   }
->   EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
->   
-> @@ -3246,8 +3245,7 @@ void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
->   	if (!vq->use_dma_api)
->   		return;
->   
-> -	dma_sync_single_range_for_device(dev, addr, offset, size,
-> -					 DMA_BIDIRECTIONAL);
-> +	dma_sync_single_range_for_device(dev, addr, offset, size, dir);
->   }
->   EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_device);
->   
+> drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
+> drivers/crypto/virtio/virtio_crypto_core.c   | 23 +++++++++++++----------
+> 2 files changed, 15 insertions(+), 10 deletions(-)
 
-original issue not reproduced based on this patch:
-https://lore.kernel.org/all/647701d8-c99b-4ca8-9817-137eaefda237@linux.intel.com/
-
-Tested-by: Hongyu Ning <hongyu.ning@linux.intel.com>
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
