@@ -1,286 +1,161 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C7C91DA5B
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:49:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB4CA1DDCC
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EPTfLTHJ"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D5MJBxpt"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C0238847A9
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:49:00 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C0238847A9
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=EPTfLTHJ
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3838B436C6
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3838B436C6
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=D5MJBxpt
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -1.999
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hxsWWe7uVZP5
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xmWxLPPTFotg
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Dec 2023 09:48:59 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 96733847A4
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:48:59 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 96733847A4
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701424138;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=i8iLA1+cnpCTtrNyEc8s6LHU24cbF6mW5NQ3ddyP/QI=;
-	b=EPTfLTHJsIOqHG9Ld4K0VWCFNqxYErSPhcHsKS07pmR6SrV323EtqhETVwuX1QEmUCUZT0
-	zckJ/EbVB05HhWeD1bNBxSHuK9PInbUOBJSa85fUzjUzGyWGoayym/CQjI9xnWqHx3h5Rg
-	hNrxPBkbI1Ac1zHXp67DGMrJf6X9VgA=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-586-SKJGqAn3OXeaj3wsD1CkXw-1; Fri, 01 Dec 2023 04:48:56 -0500
-X-MC-Unique: SKJGqAn3OXeaj3wsD1CkXw-1
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-54b4ca7f798so1410274a12.0
-        for <virtualization@lists.linux-foundation.org>; Fri, 01 Dec 2023 01:48:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701424135; x=1702028935;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=i8iLA1+cnpCTtrNyEc8s6LHU24cbF6mW5NQ3ddyP/QI=;
-        b=CH5EYWVKc6cTld4bjhxU2u8+pPBErNTDHcVPdTqYCVM0Q2AbWssc8QbF7kWv9N5WN/
-         U5f9MrlWY2FvegzCP4hmnikFTIdZ9PpBXsO5ByS+5QkNy3Z+2cANlC6ZlvoAp1yui97h
-         Ht0g23o3iRT0cSTHhCE9jG/BlZYsdum9h+8RyOmjfgVJFmkjNSoaQoJPu92JbXJ1MaOa
-         VAdHTI+xzBIG5LrfM3h+L1LZAJcek3ZSgGy0StQ0zP49qW5TzhLcih9fN7ni78xd/jNP
-         zUxwXkxGsiTnE+7GYQQ0bosdneaK/iG4RZhYtJRmQ8/7/MOIvrRDlFnwHi+Qq819R4Z6
-         CuRg==
-X-Gm-Message-State: AOJu0YzbJGNH4nRIZ1+cfHmkiGaRSgS1aXHVAvHl6UORNDAWtJ3JOIx6
-	2G1hzCNwopbfoDxBGIvWkoPhZMZuBwP5LLxOzEYlTWDxoXR5ulA0ciQr2I57Vc9/N7Wu2Db02Z2
-	NC/RgoGcsWgN94lVHi1Ybx7BEkmxxZMggxGB/tC88Cw==
-X-Received: by 2002:a50:8a81:0:b0:54c:4837:9047 with SMTP id j1-20020a508a81000000b0054c48379047mr672670edj.63.1701424135340;
-        Fri, 01 Dec 2023 01:48:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHVROOCmKZs90X9Q7Xm/Lw5a7pVB6CHNrao8Z+IMJt45gdAE3DMDMIFq1ls+WDCJoL1KKBKvQ==
-X-Received: by 2002:a50:8a81:0:b0:54c:4837:9047 with SMTP id j1-20020a508a81000000b0054c48379047mr672661edj.63.1701424134882;
-        Fri, 01 Dec 2023 01:48:54 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-199.retail.telecomitalia.it. [79.46.200.199])
-        by smtp.gmail.com with ESMTPSA id p9-20020a056402044900b0054bcb2b77b3sm1451841edw.70.2023.12.01.01.48.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Dec 2023 01:48:54 -0800 (PST)
-Date: Fri, 1 Dec 2023 10:48:50 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v5 2/3] virtio/vsock: send credit update during
- setting SO_RCVLOWAT
-Message-ID: <vqlspza4hzs6i5eajidxgeqd7wesv43ajpo42mljm4leuxfym4@j3h6ux2xlxbi>
-References: <20231130130840.253733-1-avkrasnov@salutedevices.com>
- <20231130130840.253733-3-avkrasnov@salutedevices.com>
- <20231130084044-mutt-send-email-mst@kernel.org>
- <02de8982-ec4a-b3b2-e8e5-1bca28cfc01b@salutedevices.com>
- <20231130085445-mutt-send-email-mst@kernel.org>
- <pbkiwezwlf6dmogx7exur6tjrtcfzxyn7eqlehqxivqifbkojv@xlziiuzekon4>
- <20231130123815-mutt-send-email-mst@kernel.org>
- <smu77vmxw3ki36xhqnhtvujwswvkg5gkfwnt4vr5bnwljclseh@inbewbwkcqxs>
- <e58cf080-3611-0a19-c6e5-544d7101e975@salutedevices.com>
+	Fri,  1 Dec 2023 09:52:15 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C0C91436D0
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 09:52:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org C0C91436D0
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1701424335; x=1732960335;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=geeu2NYVMDCd7ZjnpvzhbwoquOV5Z8KRKEPIoflNzto=;
+  b=D5MJBxptbv2a8PfQkQL7fecsusGHneEAH5QEiB9H/fVVXRL/Pzdn6rqG
+   nm8kpd7Yiq2oJnrb4KYfKPqTNY7/ljECEFMaff6uvfJVkHrQpPm3EtAGt
+   ziq0NZY04Tv5vwO+JPlklZIGd5iDwjfGB/o9OdL83q4hqiej5G8OKqgL5
+   jKg0jWNu7HjCjX4hZ/ThAOY8ehAqxVGe7yQY25zQzX5AbN5czqjcm7y4z
+   xO0nZGh49XJv0X+Z16qtJKkXjALL+eLITACne0+FV2ibLAjjdLTOZlLm4
+   GMA+GXTKDtM8eSIoIfjrJoHF9UlgqKR9b40mMS5QH1ws+CFbfQkJKzOvw
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10910"; a="370438"
+X-IronPort-AV: E=Sophos;i="6.04,241,1695711600"; 
+   d="scan'208";a="370438"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2023 01:52:10 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10910"; a="1101255101"
+X-IronPort-AV: E=Sophos;i="6.04,241,1695711600"; 
+   d="scan'208";a="1101255101"
+Received: from hongyuni-mobl.ccr.corp.intel.com (HELO [10.93.1.78]) ([10.93.1.78])
+  by fmsmga005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2023 01:52:08 -0800
+Message-ID: <e4845390-770a-459f-b409-1230cb061b4e@linux.intel.com>
+Date: Fri, 1 Dec 2023 17:52:05 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <e58cf080-3611-0a19-c6e5-544d7101e975@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH vhost] virtio_ring: fix syncs DMA memory with different
+ direction
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+References: <20231201033303.25141-1-xuanzhuo@linux.alibaba.com>
+Content-Language: en-US
+From: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
+In-Reply-To: <20231201033303.25141-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Dec 01, 2023 at 11:35:56AM +0300, Arseniy Krasnov wrote:
->
->
->On 01.12.2023 11:27, Stefano Garzarella wrote:
->> On Thu, Nov 30, 2023 at 12:40:43PM -0500, Michael S. Tsirkin wrote:
->>> On Thu, Nov 30, 2023 at 03:11:19PM +0100, Stefano Garzarella wrote:
->>>> On Thu, Nov 30, 2023 at 08:58:58AM -0500, Michael S. Tsirkin wrote:
->>>> > On Thu, Nov 30, 2023 at 04:43:34PM +0300, Arseniy Krasnov wrote:
->>>> > >
->>>> > >
->>>> > > On 30.11.2023 16:42, Michael S. Tsirkin wrote:
->>>> > > > On Thu, Nov 30, 2023 at 04:08:39PM +0300, Arseniy Krasnov wrote:
->>>> > > >> Send credit update message when SO_RCVLOWAT is updated and it is bigger
->>>> > > >> than number of bytes in rx queue. It is needed, because 'poll()' will
->>>> > > >> wait until number of bytes in rx queue will be not smaller than
->>>> > > >> SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
->>>> > > >> for tx/rx is possible: sender waits for free space and receiver is
->>>> > > >> waiting data in 'poll()'.
->>>> > > >>
->>>> > > >> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>>> > > >> ---
->>>> > > >>  Changelog:
->>>> > > >>  v1 -> v2:
->>>> > > >>   * Update commit message by removing 'This patch adds XXX' manner.
->>>> > > >>   * Do not initialize 'send_update' variable - set it directly during
->>>> > > >>     first usage.
->>>> > > >>  v3 -> v4:
->>>> > > >>   * Fit comment in 'virtio_transport_notify_set_rcvlowat()' to 80 chars.
->>>> > > >>  v4 -> v5:
->>>> > > >>   * Do not change callbacks order in transport structures.
->>>> > > >>
->>>> > > >>  drivers/vhost/vsock.c                   |  1 +
->>>> > > >>  include/linux/virtio_vsock.h            |  1 +
->>>> > > >>  net/vmw_vsock/virtio_transport.c        |  1 +
->>>> > > >>  net/vmw_vsock/virtio_transport_common.c | 27 +++++++++++++++++++++++++
->>>> > > >>  net/vmw_vsock/vsock_loopback.c          |  1 +
->>>> > > >>  5 files changed, 31 insertions(+)
->>>> > > >>
->>>> > > >> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->>>> > > >> index f75731396b7e..4146f80db8ac 100644
->>>> > > >> --- a/drivers/vhost/vsock.c
->>>> > > >> +++ b/drivers/vhost/vsock.c
->>>> > > >> @@ -451,6 +451,7 @@ static struct virtio_transport vhost_transport = {
->>>> > > >>          .notify_buffer_size       = virtio_transport_notify_buffer_size,
->>>> > > >>
->>>> > > >>          .read_skb = virtio_transport_read_skb,
->>>> > > >> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->>>> > > >>      },
->>>> > > >>
->>>> > > >>      .send_pkt = vhost_transport_send_pkt,
->>>> > > >> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->>>> > > >> index ebb3ce63d64d..c82089dee0c8 100644
->>>> > > >> --- a/include/linux/virtio_vsock.h
->>>> > > >> +++ b/include/linux/virtio_vsock.h
->>>> > > >> @@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
->>>> > > >>  void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
->>>> > > >>  int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
->>>> > > >>  int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
->>>> > > >> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
->>>> > > >>  #endif /* _LINUX_VIRTIO_VSOCK_H */
->>>> > > >> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->>>> > > >> index af5bab1acee1..8007593a3a93 100644
->>>> > > >> --- a/net/vmw_vsock/virtio_transport.c
->>>> > > >> +++ b/net/vmw_vsock/virtio_transport.c
->>>> > > >> @@ -539,6 +539,7 @@ static struct virtio_transport virtio_transport = {
->>>> > > >>          .notify_buffer_size       = virtio_transport_notify_buffer_size,
->>>> > > >>
->>>> > > >>          .read_skb = virtio_transport_read_skb,
->>>> > > >> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->>>> > > >>      },
->>>> > > >>
->>>> > > >>      .send_pkt = virtio_transport_send_pkt,
->>>> > > >> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>>> > > >> index f6dc896bf44c..1cb556ad4597 100644
->>>> > > >> --- a/net/vmw_vsock/virtio_transport_common.c
->>>> > > >> +++ b/net/vmw_vsock/virtio_transport_common.c
->>>> > > >> @@ -1684,6 +1684,33 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
->>>> > > >>  }
->>>> > > >>  EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
->>>> > > >>
->>>> > > >> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk,
->>>> > > >> int val)
->>>> > > >> +{
->>>> > > >> +    struct virtio_vsock_sock *vvs = vsk->trans;
->>>> > > >> +    bool send_update;
->>>> > > >> +
->>>> > > >> +    spin_lock_bh(&vvs->rx_lock);
->>>> > > >> +
->>>> > > >> +    /* If number of available bytes is less than new SO_RCVLOWAT value,
->>>> > > >> +     * kick sender to send more data, because sender may sleep in
->>>> > > >> its
->>>> > > >> +     * 'send()' syscall waiting for enough space at our side.
->>>> > > >> +     */
->>>> > > >> +    send_update = vvs->rx_bytes < val;
->>>> > > >> +
->>>> > > >> +    spin_unlock_bh(&vvs->rx_lock);
->>>> > > >> +
->>>> > > >> +    if (send_update) {
->>>> > > >> +        int err;
->>>> > > >> +
->>>> > > >> +        err = virtio_transport_send_credit_update(vsk);
->>>> > > >> +        if (err < 0)
->>>> > > >> +            return err;
->>>> > > >> +    }
->>>> > > >> +
->>>> > > >> +    return 0;
->>>> > > >> +}
->>>> > > >
->>>> > > >
->>>> > > > I find it strange that this will send a credit update
->>>> > > > even if nothing changed since this was called previously.
->>>> > > > I'm not sure whether this is a problem protocol-wise,
->>>> > > > but it certainly was not envisioned when the protocol was
->>>> > > > built. WDYT?
->>>> > >
->>>> > > >From virtio spec I found:
->>>> > >
->>>> > > It is also valid to send a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet without previously receiving a
->>>> > > VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows communicating updates any time a change
->>>> > > in buffer space occurs.
->>>> > > So I guess there is no limitations to send such type of packet, e.g. it is not
->>>> > > required to be a reply for some another packet. Please, correct me if im wrong.
->>>> > >
->>>> > > Thanks, Arseniy
->>>> >
->>>> >
->>>> > Absolutely. My point was different - with this patch it is possible
->>>> > that you are not adding any credits at all since the previous
->>>> > VIRTIO_VSOCK_OP_CREDIT_UPDATE.
->>>>
->>>> I think the problem we're solving here is that since as an optimization we
->>>> avoid sending the update for every byte we consume, but we put a threshold,
->>>> then we make sure we update the peer.
->>>>
->>>> A credit update contains a snapshot and sending it the same as the previous
->>>> one should not create any problem.
->>>
->>> Well it consumes a buffer on the other side.
->>
->> Sure, but we are already speculating by not updating the other side when
->> we consume bytes before a certain threshold. This already avoids to
->> consume many buffers.
->>
->> Here we're only sending it once, when the user sets RCVLOWAT, so
->> basically I expect it won't affect performance.
->
->Moreover I think in practice setting RCVLOWAT is rare case, while this patch
->fixes real problem I guess
->
->
->>
->>>
->>>> My doubt now is that we only do this when we set RCVLOWAT , should we also
->>>> do something when we consume bytes to avoid the optimization we have?
->>>>
->>>> Stefano
->>>
->>> Isn't this why we have credit request?
->>
->> Yep, but in practice we never use it. It would also consume 2 buffers,
->> one at the transmitter and one at the receiver.
->>
->> However I agree that maybe we should start using it before we decide not
->> to send any more data.
->>
->> To be compatible with older devices, though, I think for now we also
->> need to send a credit update when the bytes in the receive queue are
->> less than RCVLOWAT, as Arseniy proposed in the other series.
->
->Looks like (in theory of course), that credit request is considered to be
->paired with credit update. While current usage of credit update is something
->like ACK packet in TCP, e.g. telling peer that we are ready to receive more
->data.
 
-I don't honestly know what the original author's choice was, but I think 
-we reduce latency this way.
 
-Effectively though, if we never send any credit update when we consume 
-bytes and always leave it up to the transmitter to ask for an update 
-before transmission, we save even more buffer than the optimization we 
-have, but maybe the latency would grow a lot.
+On 2023/12/1 11:33, Xuan Zhuo wrote:
+> Now the APIs virtqueue_dma_sync_single_range_for_{cpu,device} ignore
+> the parameter 'dir', that is a mistake.
+> 
+> [    6.101666] ------------[ cut here ]------------
+> [    6.102079] DMA-API: virtio-pci 0000:00:04.0: device driver syncs DMA memory with different direction [device address=0x00000000ae010000] [size=32752 bytes] [mapped with DMA_FROM_DEVICE] [synced with DMA_BIDIRECTIONAL]
+> [    6.103630] WARNING: CPU: 6 PID: 0 at kernel/dma/debug.c:1125 check_sync+0x53e/0x6c0
+> [    6.107420] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G            E      6.6.0+ #290
+> [    6.108030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+> [    6.108936] RIP: 0010:check_sync+0x53e/0x6c0
+> [    6.109289] Code: 24 10 e8 f5 d9 74 00 4c 8b 4c 24 10 4c 8b 44 24 18 48 8b 4c 24 20 48 89 c6 41 56 4c 89 ea 48 c7 c7 b0 f1 50 82 e8 32 fc f3 ff <0f> 0b 48 c7 c7 48 4b 4a 82 e8 74 d9 fc ff 8b 73 4c 48 8d 7b 50 31
+> [    6.110750] RSP: 0018:ffffc90000180cd8 EFLAGS: 00010092
+> [    6.111178] RAX: 00000000000000ce RBX: ffff888100aa5900 RCX: 0000000000000000
+> [    6.111744] RDX: 0000000000000104 RSI: ffffffff824c3208 RDI: 00000000ffffffff
+> [    6.112316] RBP: ffffc90000180d40 R08: 0000000000000000 R09: 00000000fffeffff
+> [    6.112893] R10: ffffc90000180b98 R11: ffffffff82f63308 R12: ffffffff83d5af00
+> [    6.113460] R13: ffff888100998200 R14: ffffffff824a4b5f R15: 0000000000000286
+> [    6.114027] FS:  0000000000000000(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
+> [    6.114665] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    6.115128] CR2: 00007f10f1e03030 CR3: 0000000108272004 CR4: 0000000000770ee0
+> [    6.115701] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [    6.116272] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [    6.116842] PKRU: 55555554
+> [    6.117069] Call Trace:
+> [    6.117275]  <IRQ>
+> [    6.117452]  ? __warn+0x84/0x140
+> [    6.117727]  ? check_sync+0x53e/0x6c0
+> [    6.118034]  ? __report_bug+0xea/0x100
+> [    6.118353]  ? check_sync+0x53e/0x6c0
+> [    6.118653]  ? report_bug+0x41/0xc0
+> [    6.118944]  ? handle_bug+0x3c/0x70
+> [    6.119237]  ? exc_invalid_op+0x18/0x70
+> [    6.119551]  ? asm_exc_invalid_op+0x1a/0x20
+> [    6.119900]  ? check_sync+0x53e/0x6c0
+> [    6.120199]  ? check_sync+0x53e/0x6c0
+> [    6.120499]  debug_dma_sync_single_for_cpu+0x5c/0x70
+> [    6.120906]  ? dma_sync_single_for_cpu+0xb7/0x100
+> [    6.121291]  virtnet_rq_unmap+0x158/0x170 [virtio_net]
+> [    6.121716]  virtnet_receive+0x196/0x220 [virtio_net]
+> [    6.122135]  virtnet_poll+0x48/0x1b0 [virtio_net]
+> [    6.122524]  __napi_poll+0x29/0x1b0
+> [    6.123083]  net_rx_action+0x282/0x360
+> [    6.123612]  __do_softirq+0xf3/0x2fb
+> [    6.124138]  __irq_exit_rcu+0x8e/0xf0
+> [    6.124663]  common_interrupt+0xbc/0xe0
+> [    6.125202]  </IRQ>
+> 
+> We need to enable CONFIG_DMA_API_DEBUG and work with need sync mode(such
+> as swiotlb) to reproduce this warn.
+> 
+> Fixes: 8bd2f71054bd ("virtio_ring: introduce dma sync api for virtqueue")
+> Reported-by: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
+> Closes: https://lore.kernel.org/all/f37cb55a-6fc8-4e21-8789-46d468325eea@linux.intel.com/
+> Suggested-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>   drivers/virtio/virtio_ring.c | 6 ++----
+>   1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 51d8f3299c10..49299b1f9ec7 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -3219,8 +3219,7 @@ void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
+>   	if (!vq->use_dma_api)
+>   		return;
+>   
+> -	dma_sync_single_range_for_cpu(dev, addr, offset, size,
+> -				      DMA_BIDIRECTIONAL);
+> +	dma_sync_single_range_for_cpu(dev, addr, offset, size, dir);
+>   }
+>   EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
+>   
+> @@ -3246,8 +3245,7 @@ void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
+>   	if (!vq->use_dma_api)
+>   		return;
+>   
+> -	dma_sync_single_range_for_device(dev, addr, offset, size,
+> -					 DMA_BIDIRECTIONAL);
+> +	dma_sync_single_range_for_device(dev, addr, offset, size, dir);
+>   }
+>   EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_device);
+>   
 
-Stefano
+original issue not reproduced based on this patch:
+https://lore.kernel.org/all/647701d8-c99b-4ca8-9817-137eaefda237@linux.intel.com/
 
+Tested-by: Hongyu Ning <hongyu.ning@linux.intel.com>
