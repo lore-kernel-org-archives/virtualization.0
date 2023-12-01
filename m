@@ -1,229 +1,188 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87EB221A18
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:50:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17E5D21378
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 11:47:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="qBGTlKRS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GPoWitbd"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AA5856F722
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:50:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org AA5856F722
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=qBGTlKRS
+	by smtp1.osuosl.org (Postfix) with ESMTP id 85B4B847FB
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 11:47:26 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 85B4B847FB
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=GPoWitbd
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.103
+X-Spam-Score: -2.099
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2NJuZY6lbb9P
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id I1cv6osmWaTY
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Dec 2023 10:50:06 +0000 (UTC)
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2061e.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eaa::61e])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C8A3A60BBF
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 10:50:05 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C8A3A60BBF
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=g1Uy7AtnTX6+PsciGjfrnHsJYljcQ5zMsampAL/IEZRbsLh0i1WlmZj1TxaG7awjDrTF91Fx8QiaIA6XLKHOaCj4a5bkx7sLnIuoF5qY5rNL38ghbZgNTO+yOqaM/YvXMicOhLXMWBsctdccHJtPQt2IwiQHGSGh7LIciy9cVSey5jTci93zkgVkmPW1E2OHKtCSHVHQ8wfPugqJzqJh/tLtWnFww6OcLE4A8puCBxKWDHI96W7EGd5OILmuZoAWCoaCSDaL+phIvfra2h1ovtnca668bFmtrK2+/erxx5QLq1R53Qd2ChjvDSxmTT3jk9z6QjO+SD+V/mMSsZ/enA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rgPfObaWb0RRVtn7uMUlOSz5sZ2GrOBEfteGvXPSkDE=;
- b=X4fbsM+xtkZiImMcyyP9s2EpszpiGXpEctzk1RMWSSMfzlpjBTeCBwnlOjAR9ay4VgQnUp0tTf+oIrE4k4XFM4HG1Tk3HTNLbqiDJL//YsC7XxE2Qc1dHGXxhCYVi0njGCWzxRk9+Blxn6NXumiuwlBNbqxFjjhC/XoZjwvG1RHWoq9iqzHfDvAiI+ZsXT/NaqFriVV2+Mv/u1HpDqJJw0qCJRGDqPjVxhZ8aY7qpTGr6PvaRF9R/E7rXCBUJlnl16+kQjACIpjzEvqNCQ8kHYCTDseapF2Ga+Mv/2qj8Ue1L/KKboDQ64UWb3+bQdpSfWKW9I87MMche8C7raWOqw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rgPfObaWb0RRVtn7uMUlOSz5sZ2GrOBEfteGvXPSkDE=;
- b=qBGTlKRS5E0coY0PgEelMwcPLj3AjMVFcM+r+eet38YWBSQqkOoBecZezl3BHcD3SnMk8He46F+t5hNb0nqrqnM8TUAdzb3zZUQ7rswXMpcTFnJLL0xJlgTxoD2IQ349X2cEOsPMf31vu6UkVbK9Cb/2voqH5ZiYnBblIBCUwmY9IvAFlo0jbxztyOmVz37LV7e4H8cIyMAfdtm2YHhCls2r9BH3euhQM+uAHtBZoXXtep8gArvdrW8LAoBYEoFC7j/E4zqc1gUB55DN9h+42ydRAfnBgZHLnrYQLmBQjPzIT9pgTrsPYew2ELo425cHg03Cni/pU+HMhyLF9p5TVg==
-Received: from MN2PR02CA0001.namprd02.prod.outlook.com (2603:10b6:208:fc::14)
- by PH7PR12MB8122.namprd12.prod.outlook.com (2603:10b6:510:2b7::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.27; Fri, 1 Dec
- 2023 10:50:02 +0000
-Received: from BL02EPF0001A0FF.namprd03.prod.outlook.com
- (2603:10b6:208:fc:cafe::a8) by MN2PR02CA0001.outlook.office365.com
- (2603:10b6:208:fc::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.24 via Frontend
- Transport; Fri, 1 Dec 2023 10:50:01 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- BL02EPF0001A0FF.mail.protection.outlook.com (10.167.242.106) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7046.17 via Frontend Transport; Fri, 1 Dec 2023 10:50:01 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Fri, 1 Dec 2023
- 02:49:45 -0800
-Received: from rnnvmail204.nvidia.com (10.129.68.6) by rnnvmail201.nvidia.com
- (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Fri, 1 Dec 2023
- 02:49:45 -0800
-Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
- mail.nvidia.com (10.129.68.6) with Microsoft SMTP Server id 15.2.986.41 via
- Frontend Transport; Fri, 1 Dec 2023 02:49:42 -0800
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
-	<si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky
-	<leon@kernel.org>, <virtualization@lists.linux-foundation.org>
-CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Gal Pressman <galp@nvidia.com>, Parav Pandit
-	<parav@nvidia.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: [PATCH vhost 7/7] vdpa/mlx5: Use vq suspend/resume during .set_map
-Date: Fri, 1 Dec 2023 12:48:57 +0200
-Message-ID: <20231201104857.665737-8-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231201104857.665737-1-dtatulea@nvidia.com>
-References: <20231201104857.665737-1-dtatulea@nvidia.com>
+	Fri,  1 Dec 2023 11:47:25 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9470D847F6
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 11:47:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9470D847F6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701431244;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=6uHVtje56LWat5Vmv+PcEyAck+di+XL9VN6HEiOJE+M=;
+	b=GPoWitbd6ghvph4382uGlvJ8gRpNWuWmCjIVumwaw1h0HsuuL3vZk9Z/SRAfxQm8093/eP
+	6XAsJTsKD4UUKAiGhJ8nPxnMgLdAJ3CEburMVmReV4JRaCdh9koEQjvdoQGQdNTpMIMNcv
+	yqSMYV98lc5yxmHculR9LgEhBDsQYE4=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-298-Zbn0bGtLOjuo6g7MGupLiA-1; Fri, 01 Dec 2023 06:47:22 -0500
+X-MC-Unique: Zbn0bGtLOjuo6g7MGupLiA-1
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-5ca61d84dc3so35707867b3.0
+        for <virtualization@lists.linux-foundation.org>; Fri, 01 Dec 2023 03:47:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701431242; x=1702036042;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6uHVtje56LWat5Vmv+PcEyAck+di+XL9VN6HEiOJE+M=;
+        b=FYBzpR2uc0gTsW4j6eikkTH5WDh2+wLy2UQORnlqsMJl/CBazgUS9DLquaWMvxnpqg
+         FOT84NK4pIFd5CMgf6+wslNe/3f3aN2IOpeaHmq4w4ntExuTHVXqBKL+1S1amJwSCZ2C
+         25TLnN76ChkucICEqXt20vQ3felqhu64MvvKathj9kehR6wzBwv2EfIDTnDIdxWCTE39
+         26moFAyF+CN2F2QN2ty1z8tP66KJC3DpSLdvr1lHxYNPBZg9U3Bxv12mMl0U4NMZcEtU
+         BLgzFV9FlURqoKx26qMcLkVUupodXhR0eO3Ob6QVwCGUh274g1hnqbmCB4kq93+iGz02
+         YByQ==
+X-Gm-Message-State: AOJu0YzBo3zKRGCUaRv/947w8oxyrHiFlj2VlHZ01SfRTZl8MQyUlto3
+	pvJFdv/OSQ3b17DIonn537cxTH2B4Ee8iQ7Ffn73wNy3BolKYhmH7zYRWaKvGqJbdDBreVa0hYZ
+	LZx14ZOVSX7F+/hazyc0LtSoGuMM2s23Q+qty4tWlUMQxIIjgJcZZStldwA==
+X-Received: by 2002:a81:b60c:0:b0:5d4:226f:69a4 with SMTP id u12-20020a81b60c000000b005d4226f69a4mr1446074ywh.28.1701431241868;
+        Fri, 01 Dec 2023 03:47:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGg2MuyiMF1tTj3uUQulmb0jD2AozD8K6xVD0pM3BW790ulvznuBYypSmkNfOvOQQkPXQZjksPtzVYkngc8Se0=
+X-Received: by 2002:a81:b60c:0:b0:5d4:226f:69a4 with SMTP id
+ u12-20020a81b60c000000b005d4226f69a4mr1446054ywh.28.1701431241604; Fri, 01
+ Dec 2023 03:47:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A0FF:EE_|PH7PR12MB8122:EE_
-X-MS-Office365-Filtering-Correlation-Id: eb842aa8-2c05-4d55-cd2c-08dbf25b4524
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	lP7yC7mm+hhX2Ew99I4UXE2wLk15YRdAZrewYfe3DLydqEO6VgPeWXFcVn+9wbg1pSpW0REvWWRav/5KjR5HQyipDEXFc1166caUBUu9LZBb/8ZqCnlStQI6KYuaHdhSRFeF+Uqg1RoTbG+sQesyBJ5iApTLU5LVzMCDd3RAf4C38arbbELHsVbmZuNG9OQgNPZyV2h9+3ZW1kPIQSYv3IXZI2uvm2IKFk054ZD+bZJk3jKZyaB74/NhH4eJmLqvC9CH6BmXJKRQ1vkhVV7MNNzHT51TzpJVmYmGxjcah394OmSWtYDFZyZmgf9fMy8/AVBrGPrWsQnAAQxVAMJPcdMW7L5/g4YmjiJazN8q6UMpopAtkyxFmWfgSxqgl14j9D/4rx7KJcPraBXol6Le1Kw8T1UV6HoEbTTNCsMKar7NGvopWwU/adexJDli1P8aLOx7ogEsWQcEudufCemc1rAS4/b0E1lQzWsJdwZJNfQFJQ2vlt4ET31pSkdBq42D8rGeG46R62EyvtCUrhnOVKdFzMFDnw/z9MpXRacjo/kjc7VdXroD36rAynOD7pJhvLVfAfZq/UieLeu6MkLFBHJ252hzbTvb/jt+22+zz2en3oF9GS2DEjc+4VpU7Qq+PawSxd58oQ9+zDxefX1N/g0bfnh8HJLB2O3RuxBQmMBYMAHTaDuTj00gUCy9fMHdIF5vXBdo+d0RnoM4fv7eAQOP9sifU+QjsqGp9vJe5/XKIF/TSdro15q6ti3ohIRagD5sM1iUO2OIt0UvxrQNUg==
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(376002)(346002)(136003)(396003)(230922051799003)(1800799012)(186009)(82310400011)(64100799003)(451199024)(36840700001)(46966006)(40470700004)(1076003)(26005)(2616005)(478600001)(6666004)(47076005)(336012)(426003)(83380400001)(15650500001)(5660300002)(41300700001)(2906002)(110136005)(70586007)(36860700001)(54906003)(70206006)(4326008)(8676002)(8936002)(316002)(7636003)(82740400003)(356005)(86362001)(36756003)(40480700001)(40460700003)(142923001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Dec 2023 10:50:01.7011
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: eb842aa8-2c05-4d55-cd2c-08dbf25b4524
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL02EPF0001A0FF.namprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8122
+References: <20231201104857.665737-1-dtatulea@nvidia.com> <20231201104857.665737-3-dtatulea@nvidia.com>
+In-Reply-To: <20231201104857.665737-3-dtatulea@nvidia.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Fri, 1 Dec 2023 12:46:45 +0100
+Message-ID: <CAJaqyWc3Xa9abmS+MxFbgQHUao0_=tcx4mres2AeDWqvtmZ5Jg@mail.gmail.com>
+Subject: Re: [PATCH vhost 2/7] vdpa/mlx5: Split function into locked and
+ unlocked variants
+To: Dragos Tatulea <dtatulea@nvidia.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
+	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Gal Pressman <galp@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Instead of tearing down and setting up vq resources, use vq
-suspend/resume during .set_map to speed things up a bit.
+On Fri, Dec 1, 2023 at 11:49=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
+> wrote:
+>
+> mlx5_vdpa_destroy_mr contains more logic than _mlx5_vdpa_destroy_mr.
+> There is no reason for this to be the case. All the logic can go into
+> the unlocked variant.
+>
+> Using the unlocked version is needed in a follow-up patch. And it also
+> makes it more consistent with mlx5_vdpa_create_mr.
+>
+> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
 
-The vq mr is updated with the new mapping while the vqs are suspended.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 
-If the device doesn't support resumable vqs, do the old teardown and
-setup dance.
-
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c  | 46 ++++++++++++++++++++++++------
- include/linux/mlx5/mlx5_ifc_vdpa.h |  1 +
- 2 files changed, 39 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 6325aef045e2..eb0ac3d9c9d2 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1206,6 +1206,7 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
- {
- 	int inlen = MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
- 	u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] = {};
-+	struct mlx5_vdpa_dev *mvdev = &ndev->mvdev;
- 	bool state_change = false;
- 	void *obj_context;
- 	void *cmd_hdr;
-@@ -1255,6 +1256,24 @@ static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
- 	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_USED_IDX)
- 		MLX5_SET(virtio_net_q_object, obj_context, hw_used_index, mvq->used_idx);
- 
-+	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY) {
-+		struct mlx5_vdpa_mr *mr = mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_GROUP]];
-+
-+		if (mr)
-+			MLX5_SET(virtio_q, vq_ctx, virtio_q_mkey, mr->mkey);
-+		else
-+			mvq->modified_fields &= ~MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY;
-+	}
-+
-+	if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY) {
-+		struct mlx5_vdpa_mr *mr = mvdev->mr[mvdev->group2asid[MLX5_VDPA_DATAVQ_DESC_GROUP]];
-+
-+		if (mr && MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, desc_group_mkey_supported))
-+			MLX5_SET(virtio_q, vq_ctx, desc_group_mkey, mr->mkey);
-+		else
-+			mvq->modified_fields &= ~MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY;
-+	}
-+
- 	MLX5_SET64(virtio_net_q_object, obj_context, modify_field_select, mvq->modified_fields);
- 	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
- 	if (err)
-@@ -2784,24 +2803,35 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_dev *mvdev,
- 				unsigned int asid)
- {
- 	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
-+	bool teardown = !is_resumable(ndev);
- 	int err;
- 
- 	suspend_vqs(ndev);
--	err = save_channels_info(ndev);
--	if (err)
--		return err;
-+	if (teardown) {
-+		err = save_channels_info(ndev);
-+		if (err)
-+			return err;
- 
--	teardown_driver(ndev);
-+		teardown_driver(ndev);
-+	}
- 
- 	mlx5_vdpa_update_mr(mvdev, new_mr, asid);
- 
-+	for (int i = 0; i < ndev->cur_num_vqs; i++)
-+		ndev->vqs[i].modified_fields |= MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY |
-+						MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY;
-+
- 	if (!(mvdev->status & VIRTIO_CONFIG_S_DRIVER_OK) || mvdev->suspended)
- 		return 0;
- 
--	restore_channels_info(ndev);
--	err = setup_driver(mvdev);
--	if (err)
--		return err;
-+	if (teardown) {
-+		restore_channels_info(ndev);
-+		err = setup_driver(mvdev);
-+		if (err)
-+			return err;
-+	}
-+
-+	resume_vqs(ndev);
- 
- 	return 0;
- }
-diff --git a/include/linux/mlx5/mlx5_ifc_vdpa.h b/include/linux/mlx5/mlx5_ifc_vdpa.h
-index 32e712106e68..40371c916cf9 100644
---- a/include/linux/mlx5/mlx5_ifc_vdpa.h
-+++ b/include/linux/mlx5/mlx5_ifc_vdpa.h
-@@ -148,6 +148,7 @@ enum {
- 	MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_ADDRS           = (u64)1 << 6,
- 	MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_AVAIL_IDX       = (u64)1 << 7,
- 	MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_USED_IDX        = (u64)1 << 8,
-+	MLX5_VIRTQ_MODIFY_MASK_VIRTIO_Q_MKEY            = (u64)1 << 11,
- 	MLX5_VIRTQ_MODIFY_MASK_DESC_GROUP_MKEY          = (u64)1 << 14,
- };
- 
--- 
-2.42.0
+> ---
+>  drivers/vdpa/mlx5/core/mr.c | 31 ++++++++++++++++---------------
+>  1 file changed, 16 insertions(+), 15 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index 2197c46e563a..8c80d9e77935 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -498,32 +498,32 @@ static void destroy_user_mr(struct mlx5_vdpa_dev *m=
+vdev, struct mlx5_vdpa_mr *mr
+>
+>  static void _mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev, struct ml=
+x5_vdpa_mr *mr)
+>  {
+> +       if (!mr)
+> +               return;
+> +
+>         if (mr->user_mr)
+>                 destroy_user_mr(mvdev, mr);
+>         else
+>                 destroy_dma_mr(mvdev, mr);
+>
+> +       for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++) {
+> +               if (mvdev->mr[i] =3D=3D mr)
+> +                       mvdev->mr[i] =3D NULL;
+> +       }
+> +
+>         vhost_iotlb_free(mr->iotlb);
+> +
+> +       kfree(mr);
+>  }
+>
+>  void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev,
+>                           struct mlx5_vdpa_mr *mr)
+>  {
+> -       if (!mr)
+> -               return;
+> -
+>         mutex_lock(&mvdev->mr_mtx);
+>
+>         _mlx5_vdpa_destroy_mr(mvdev, mr);
+>
+> -       for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++) {
+> -               if (mvdev->mr[i] =3D=3D mr)
+> -                       mvdev->mr[i] =3D NULL;
+> -       }
+> -
+>         mutex_unlock(&mvdev->mr_mtx);
+> -
+> -       kfree(mr);
+>  }
+>
+>  void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev,
+> @@ -535,10 +535,7 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev=
+,
+>         mutex_lock(&mvdev->mr_mtx);
+>
+>         mvdev->mr[asid] =3D new_mr;
+> -       if (old_mr) {
+> -               _mlx5_vdpa_destroy_mr(mvdev, old_mr);
+> -               kfree(old_mr);
+> -       }
+> +       _mlx5_vdpa_destroy_mr(mvdev, old_mr);
+>
+>         mutex_unlock(&mvdev->mr_mtx);
+>
+> @@ -546,8 +543,12 @@ void mlx5_vdpa_update_mr(struct mlx5_vdpa_dev *mvdev=
+,
+>
+>  void mlx5_vdpa_destroy_mr_resources(struct mlx5_vdpa_dev *mvdev)
+>  {
+> +       mutex_lock(&mvdev->mr_mtx);
+> +
+>         for (int i =3D 0; i < MLX5_VDPA_NUM_AS; i++)
+> -               mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[i]);
+> +               _mlx5_vdpa_destroy_mr(mvdev, mvdev->mr[i]);
+> +
+> +       mutex_unlock(&mvdev->mr_mtx);
+>
+>         prune_iotlb(mvdev->cvq.iotlb);
+>  }
+> --
+> 2.42.0
+>
 
