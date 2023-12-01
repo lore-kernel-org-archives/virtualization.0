@@ -1,170 +1,130 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F32A17E1
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 02:11:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.b="Xxn6n4eQ"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 755E24409
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 03:33:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A3E27845D9
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 02:11:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A3E27845D9
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=corigine.onmicrosoft.com header.i=@corigine.onmicrosoft.com header.a=rsa-sha256 header.s=selector2-corigine-onmicrosoft-com header.b=Xxn6n4eQ
+	by smtp4.osuosl.org (Postfix) with ESMTP id AAA1A417FE
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 03:33:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AAA1A417FE
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.902
+X-Spam-Score: -9.899
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QMJvL7N9ElPU
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jZN_73F10JbY
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Dec 2023 02:11:13 +0000 (UTC)
-Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on20715.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe5b::715])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B812A845D4
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 02:11:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B812A845D4
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BEUxTQcpFAMT8ebeIaX3qkZf5sUanLx3d4BB/UBPOZIQNr4Nbwmtcaf3DqSnplceqMggXi6YLpCLpo6zrnuxexkvxPZ/LoDPvKn0oaneY/LCOO14pflqrPc88Mp8IR2d2cBvCnLSc6NoMF0LZUpLDrYu9rFNfaEhSrzXXSOqdY0KMpRGWExPO5SvveqBFi39tDhJs1F1CVY5v6SZpyKUQJuGy5vEu1CGJiEUvUdeG5hmsO1hZs8GlyphzQoNXq6JlhQt7GkLVgcl+Q32letuWyEuzrGHcYnB27P3c/l6bKDXszyCNaObYxYpLRoCY19z2l+6FtOCCxHaIcSp8kvBZA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JsKdI9sJKkHx3gvMUjfYVaO6mYOt6ODd+zqv8DVgqP8=;
- b=WN6sL9X1rSnitMu/jKJuIpnJDrGhGEnN0fF/QYtm/kaBLjo35l3LHDvePWkwuRKvkyCC78udPWK6PMmQMLzGnJqg3LMGGkl3nS0prWdtRPtCXE1Uj5yuJ009BQ3KL0oBodooLshSD0E/bGxrQmRnBrrzeDu0MVHaEG0xWPy35MCIbgpqw08yvgjAn16cmKHvxfUkhhYFpjeMnFLhbLvLO2VAS5U8NkZ1SWohex07zKA70t/VyYts5APo5j4pK80Mn4VBAc6TltnbknXDLyUQHxahmLfNNFAjrchjJe1ckEGcKO0m9cBEO6R5QQKMUAwRae+bNE79loi1sGnaDV2rOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=corigine.com; dmarc=pass action=none header.from=corigine.com;
- dkim=pass header.d=corigine.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=corigine.onmicrosoft.com; s=selector2-corigine-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JsKdI9sJKkHx3gvMUjfYVaO6mYOt6ODd+zqv8DVgqP8=;
- b=Xxn6n4eQS99Cid6ox+jQvulTMOPx80Ybr8ZLibPD+uyQGVtbIt+Wc/qyTp3oPxLiqsZQNPIDd7lLc434lvULv7ORD44dit1BRtSz0nQrTKFuruAty7erQekp7I22SiAJDLXiW42pNdBh1BzgWEZ0f1fJAlemEevO/ZepB1IvVJU=
-Received: from CH2PR13MB3702.namprd13.prod.outlook.com (2603:10b6:610:a1::20)
- by MN2PR13MB3759.namprd13.prod.outlook.com (2603:10b6:208:1ee::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7025.29; Fri, 1 Dec
- 2023 02:11:09 +0000
-Received: from CH2PR13MB3702.namprd13.prod.outlook.com
- ([fe80::7fc4:6ff7:e8ef:ac41]) by CH2PR13MB3702.namprd13.prod.outlook.com
- ([fe80::7fc4:6ff7:e8ef:ac41%7]) with mapi id 15.20.7046.023; Fri, 1 Dec 2023
- 02:11:08 +0000
-From: Yinjun Zhang <yinjun.zhang@corigine.com>
-To: Heng Qi <hengqi@linux.alibaba.com>, Paolo Abeni <pabeni@redhat.com>,
-	"virtualization@lists.linux-foundation.org"
-	<virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>
-CC: "jasowang@redhat.com" <jasowang@redhat.com>, "mst@redhat.com"
-	<mst@redhat.com>, "kuba@kernel.org" <kuba@kernel.org>, "edumazet@google.com"
-	<edumazet@google.com>, "davem@davemloft.net" <davem@davemloft.net>,
-	"hawk@kernel.org" <hawk@kernel.org>, "john.fastabend@gmail.com"
-	<john.fastabend@gmail.com>, "ast@kernel.org" <ast@kernel.org>,
-	"horms@kernel.org" <horms@kernel.org>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>
-Subject: RE: [PATCH net-next v5 4/4] virtio-net: support rx netdim
-Thread-Topic: [PATCH net-next v5 4/4] virtio-net: support rx netdim
-Thread-Index: AQHaIN0+BAadrdO1YU2B1u3z93vvGLCSntWAgAArngCAAAP5gIAABTKAgADcSxA=
-Date: Fri, 1 Dec 2023 02:11:08 +0000
-Message-ID:
- <CH2PR13MB3702FCD8EF0BDF8F08EB9689FC81A@CH2PR13MB3702.namprd13.prod.outlook.com>
-References: <cover.1701050450.git.hengqi@linux.alibaba.com>
- <12c0a070d31f29e394b78a8abb4c009274b8a88c.1701050450.git.hengqi@linux.alibaba.com>
- <8d2ee27f10a7a6c9414f10e8c0155c090b5f11e3.camel@redhat.com>
- <6f78d5e0-a8a8-463e-938c-9a9b49cf106f@linux.alibaba.com>
- <4608e204307b1fb16e1f98e0a9c52e6ce2d0a3db.camel@redhat.com>
- <dd8d0c1f-f1ef-42e3-b6a9-24fb5c82f881@linux.alibaba.com>
-In-Reply-To: <dd8d0c1f-f1ef-42e3-b6a9-24fb5c82f881@linux.alibaba.com>
-Accept-Language: en-US, zh-CN
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=corigine.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: CH2PR13MB3702:EE_|MN2PR13MB3759:EE_
-x-ms-office365-filtering-correlation-id: a1899c72-f47d-417c-baac-08dbf212c84d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- 0JibX4f3a4yMxzEhPJIVtrKYyKm+ivq+fgife043o/HPLpVxjI8Pl27b/qJYLM4XCMhYUJET2x6FxHVMxfbyhwwdogDAduf9VRAowEZA6Vx4eXyx1peN50O83Y+3vYnOFrmdMjlTb519Qz1PfDrFXbWCtV1qIlExJ2paAE8787X6uWyDRPvWYr0bbU/whpfFolu3HEoFztLtWO5gvd6n/0jFBh2pyWPdWMIXpMXJBC2putQdmOpiGMNOK3ew9AVe0gw4W86DUnjw9amGUUrrGvLdE107h1qwYe/iUKqczKuaX4yS3dFB/X8wQghKcOcYhCWMyPxw90B7EVZM7/O5SpRCWHQhAA5+S1DTormKn4e/tPCEXwfNIAYnNgzXv3Jt6pjj+yICwoZ8C32acqbeeGRwqfz33Ys7qNNwNJIm4LrVcSt4ot30snqu0rkjc6s5YI5Sj8PljpQX2WhgVRDUlzPD12mZZ143luPzTWUJ7BjCHPLjeBphCFRzW8hJD5Q1/ww6MShO1qLnqxJbv1KiGC7hYuuHyk8hocszINkl3Y/UQnNBzuzHsn/sLv2j88SAE8Z7OPvXKC0OeYHLKgUB74q+rYzNY7qUuzX3jEduH7gF/sCRH0TcQ5J2esxBc4rGqrVersjwUmV8x59IJ3RNmMtIDbv/nFBfadG1nuvJyNE=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR13MB3702.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39840400004)(346002)(396003)(376002)(366004)(136003)(230922051799003)(186009)(1800799012)(64100799003)(451199024)(7416002)(5660300002)(55016003)(44832011)(52536014)(4326008)(8936002)(8676002)(2906002)(41300700001)(316002)(66556008)(64756008)(54906003)(66476007)(76116006)(66946007)(66446008)(110136005)(6506007)(478600001)(86362001)(71200400001)(53546011)(38070700009)(83380400001)(122000001)(9686003)(33656002)(7696005)(38100700002);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?MDBlbitpd2t6WHNVYUtxWi9IZElTa0NueXhKU1VGWERBb2RjNlpZamxncUdP?=
- =?utf-8?B?REdNT2cxMVBsRmordlk0M28wWHZRTkt0YlZtZDBtQnl5MzdISXVGbWp4ZzUy?=
- =?utf-8?B?Ulk3bE9NSWdHNkdPdEZGclBlWGhYcXJZZW1jbWdCNnEyWm5BQWIxekJzWExu?=
- =?utf-8?B?N2ZydERtUFdmRjZXYncyc2N0K053K0NXaDdGL3d5WFJnQmRUY0xJS0daMUxB?=
- =?utf-8?B?UWc5TStrUnNZRTczNG5BMVhtUTNZc2tOZzZncEpOdDBCQnFOYVkzOU0vMHBX?=
- =?utf-8?B?cStBd0lVNUFUeE8xSFUwRmo2QWdKMVVVOUY2UGlhTGdYYkt0RUhGNzRlSGFM?=
- =?utf-8?B?WTRKb3MxYURJd21nTzBTOHNsQk8vMGNpUzFoUEg0NXllSEMwUlBrK0NJemdv?=
- =?utf-8?B?RXVjRGdoTWF2K1ZoM3JsNnVXVnY5ZkRCajhVRW1sTWNxaVJaZ2NJNE5mMXNZ?=
- =?utf-8?B?QXFYdUV4REZPWTRNdHVkc3VCWmpUTmFmMDRuajZJUWI3aDYvRHN4elVNUEgy?=
- =?utf-8?B?MHlNRHhZK2kxRDZGUUNwVk1mL3pBczhpbmFMR0VONXg4YlRDZTU1dGhQVUgx?=
- =?utf-8?B?b1RzU3ZYWitxQWFmTVEzUXpYa3lzKytINFFGTkFESDFCTUlaR05DVnNHNTBC?=
- =?utf-8?B?ZE1YMDFJQytKZE9pWjRqdmFjU0t1bFJHNldUSEg1VVp4UGFWeDBhMHFEV2FS?=
- =?utf-8?B?MllLbjJXeCtHdHBzZk9TTjg3MEQzQUczR0c3bXBHcy85dktKYXREVVRHb3px?=
- =?utf-8?B?VFpYNVh0VkhsTUppdkFhS0tEbFE3dWRRMGVVWXE3RVVpQktlS1dlZEFVdDRk?=
- =?utf-8?B?Q0FNcGdCQmlCRGpxWkJlQ2ZaYVZaa2tpbEM2RElRNDMrQmI1YmNlSnpDMGJ6?=
- =?utf-8?B?bjhjQ0VGSHM2OHlzMkJWOHZ4N1A1bXZMdDVLMWwxbmF1Tko4QjNmMjY1OG5G?=
- =?utf-8?B?TmZGK3VacFdtdHp0SzU5cVN2c1RaUExZa1FXS08yZEtEbjNrT3pYMFhiMkpo?=
- =?utf-8?B?VWYzVVoySmpPUjdRVG9YVjhTclJQdUltemNYSW9ZSHJNREJ3bVVMT0Jjdk90?=
- =?utf-8?B?Y3VLbVpsSTRpWVpGMW5JYzRMTjd4OXZXK0JlM3JxbHY2Y2hyc0RPZ3NiOFFS?=
- =?utf-8?B?aFJ2NjcydVprZTlHcjF2NzdGZzRkRGJaaTI2RTRUVjh4NGNjTExuNGdsbG9J?=
- =?utf-8?B?ZmhERWJuM25zT1MwMThZQ1c4Mi83bDNZcCtmTG1MZU4wSkwzdHRBakN2cmpj?=
- =?utf-8?B?VkJuaEZ4NG5tdkZmR3Fvc0NKM2w0YmhjNFJ5UmxkUFRYaWQzRXlpVmY2dUFv?=
- =?utf-8?B?S291T3doTG9pZnViMzdBMWVOYWNvaVpHL0xjNzloVU5HVU1wMnhrU0RacENY?=
- =?utf-8?B?WDRzS3hKb3FaL1EzbTcxMi9ZMXdpSzFzTlhqQVp3MFFmZE5ZanlhaGQ1Y05K?=
- =?utf-8?B?TEtrUmZIQUlpY0ZwM29OOEx1SnlWQi9DaTBLVnV6L2xjNGVLSzc3TG90L2Nw?=
- =?utf-8?B?eVVNVHFldWtzUlAxS1ZDUHhYeE5lK3ZkQXVmS2RzVmwveGdmTmhsS3d6M0tN?=
- =?utf-8?B?Rm42bnZtYitmRmFBVk9uWElvMlBnQ0g0THlZSEJYNXdKVFpwMTFicWtFOG9Z?=
- =?utf-8?B?L1MvYlhRaVVJd0s4ZUhPY25ZOE1zcW5vVUtUeFhGM1NKL2lveFRRbjRYWmJp?=
- =?utf-8?B?MnlZcWdvR1BCUmRDaG1mbkFnMzl1aEkzeWdwOFpPTGNKWWE1aG5RbmRWY2VP?=
- =?utf-8?B?SHc1cXR2bStBaThYR20rWktwMXNSLzhjMEVFcU9Gb1RyM1B0V3NZcWlaVndt?=
- =?utf-8?B?Ti9GNDI3Sjk0NDliWVZ1czg3blhzdWl4Q0VVWldlTnJGUTJBTzY5ZXM2MHNt?=
- =?utf-8?B?VTB2RWwyNXFDbEdVelkyS3JWdXQ4SHlJYnhrUjZXR290amFEL2UyL3pibEwz?=
- =?utf-8?B?WjdYQ0prY3c2dXNIZlM2eTA0ZWRqc1hOaWFpMlo4YllnVDRPaG9QVGY1NmdF?=
- =?utf-8?B?WThBeGFhUnFmN0xsS3pvdjJOcTdHNXBFbitXQWJYeW1xR0ZRRUFkYU9rdWpD?=
- =?utf-8?B?bGRFcUdpa1RvSjFtTmZlM3E3elpLd1JSU0tWbnE1UXljZ0dRS3FNV2ZXVXhL?=
- =?utf-8?Q?08rc=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	Fri,  1 Dec 2023 03:33:15 +0000 (UTC)
+Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E07384146F
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 03:33:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E07384146F
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0VxTrjJL_1701401583;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VxTrjJL_1701401583)
+          by smtp.aliyun-inc.com;
+          Fri, 01 Dec 2023 11:33:04 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"Ning, Hongyu" <hongyu.ning@linux.intel.com>
+Subject: [PATCH vhost] virtio_ring: fix syncs DMA memory with different direction
+Date: Fri,  1 Dec 2023 11:33:03 +0800
+Message-Id: <20231201033303.25141-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: corigine.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH2PR13MB3702.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a1899c72-f47d-417c-baac-08dbf212c84d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Dec 2023 02:11:08.6471
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: fe128f2c-073b-4c20-818e-7246a585940c
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nvI0sehGnmEW2TrSbbhZUOgVxnYndsP0PqPfOQyHVYtQhzjcBaMh43ZfCYYMDlBoLqGMqoOLBHRo32bhqQHfLMn8EKkJKX3Qo2E5f1bXDWQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR13MB3759
+X-Git-Hash: 6b5105bf6121
+Content-Transfer-Encoding: 8bit
 
-T24gVGh1cnNkYXksIE5vdmVtYmVyIDMwLCAyMDIzIDg6NDIgUE0sIEhlbmcgUWkgd3JvdGU6DQo8
-Li4uPg0KPiA+Pj4+ICAgIHN0YXRpYyB2b2lkIHZpcnRuZXRfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9f
-ZGV2aWNlICp2ZGV2KQ0KPiA+Pj4+ICAgIHsNCj4gPj4+PiAgICAgICAgICAgIHN0cnVjdCB2aXJ0
-bmV0X2luZm8gKnZpID0gdmRldi0+cHJpdjsNCj4gPj4+PiArICBpbnQgaTsNCj4gPj4+Pg0KPiA+
-Pj4+ICAgICAgICAgICAgdmlydG5ldF9jcHVfbm90aWZfcmVtb3ZlKHZpKTsNCj4gPj4+Pg0KPiA+
-Pj4+ICAgICAgICAgICAgLyogTWFrZSBzdXJlIG5vIHdvcmsgaGFuZGxlciBpcyBhY2Nlc3Npbmcg
-dGhlIGRldmljZS4gKi8NCj4gPj4+PiAgICAgICAgICAgIGZsdXNoX3dvcmsoJnZpLT5jb25maWdf
-d29yayk7DQo+ID4+Pj4gKyAgZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkr
-KykNCj4gPj4+PiArICAgICAgICAgIGNhbmNlbF93b3JrKCZ2aS0+cnFbaV0uZGltLndvcmspOw0K
-PC4uLj4gDQo+IFRoZXJlJ3MgY2FuY2VsX3dvcmtfc3luYygpIGluIHY0IGFuZCBJIGRpZCByZXBy
-b2R1Y2UgdGhlIGRlYWRsb2NrLg0KPiANCj4gcnRubF9sb2NrIGhlbGQgLT4gLm5kb19zdG9wKCkg
-LT4gY2FuY2VsX3dvcmtfc3luYygpIC0+DQo+IHZpcnRuZXRfcnhfZGltX3dvcmsoKSwNCj4gdGhl
-IHdvcmsgYWNxdWlyZXMgdGhlIHJ0bmxfbG9jayBhZ2FpbiwgdGhlbiBhIGRlYWRsb2NrIG9jY3Vy
-cy4NCj4gDQo+IEkgdGVzdGVkIHRoZSBzY2VuYXJpbyBvZiBjdHJsIGNtZC8ucmVtb3ZlLy5uZG9f
-c3RvcCgpL2RpbV93b3JrIHdoZW4gdGhlcmUNCj4gaXMNCj4gYSBiaWcgY29uY3VycmVuY3ksIGFu
-ZCBjYW5jZWxfd29yaygpIHdvcmtzIHdlbGwuDQoNCkkgdGhpbmsgdGhlIHF1ZXN0aW9uIGhlcmUg
-aXMgd2h5IGRvIHlvdSBuZWVkIGNhbGwgYGNhbmNlbF93b3JrKClgIGluIGByZW1vdmUoKWA/DQpZ
-b3UgYWxyZWFkeSBjYWxsIGl0IGluIGBjbG9zZSgpYCwgYW5kIHRoZSBjYWxsc3RhY2sgaXM6DQpy
-ZW1vdmUoKSAtPiAgdW5yZWdpc3Rlcl9uZXRkZXYoKSAtPiBydG5sX2xvY2soKSAtPiBuZG9fc3Rv
-cCgpIC0+IGNsb3NlKCkNCg0KQW5kIHNpbWlsYXJseSwgeW91IGRvbid0IG5lZWQgaXQgaW4gdGhl
-IHVud2luZCBwYXRoIGluIGBwcm9iZSgpYCBlaXRoZXIuDQoNCj4gDQo8Li4uPg0K
+Now the APIs virtqueue_dma_sync_single_range_for_{cpu,device} ignore
+the parameter 'dir', that is a mistake.
+
+[    6.101666] ------------[ cut here ]------------
+[    6.102079] DMA-API: virtio-pci 0000:00:04.0: device driver syncs DMA memory with different direction [device address=0x00000000ae010000] [size=32752 bytes] [mapped with DMA_FROM_DEVICE] [synced with DMA_BIDIRECTIONAL]
+[    6.103630] WARNING: CPU: 6 PID: 0 at kernel/dma/debug.c:1125 check_sync+0x53e/0x6c0
+[    6.107420] CPU: 6 PID: 0 Comm: swapper/6 Tainted: G            E      6.6.0+ #290
+[    6.108030] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.16.0-0-gd239552ce722-prebuilt.qemu.org 04/01/2014
+[    6.108936] RIP: 0010:check_sync+0x53e/0x6c0
+[    6.109289] Code: 24 10 e8 f5 d9 74 00 4c 8b 4c 24 10 4c 8b 44 24 18 48 8b 4c 24 20 48 89 c6 41 56 4c 89 ea 48 c7 c7 b0 f1 50 82 e8 32 fc f3 ff <0f> 0b 48 c7 c7 48 4b 4a 82 e8 74 d9 fc ff 8b 73 4c 48 8d 7b 50 31
+[    6.110750] RSP: 0018:ffffc90000180cd8 EFLAGS: 00010092
+[    6.111178] RAX: 00000000000000ce RBX: ffff888100aa5900 RCX: 0000000000000000
+[    6.111744] RDX: 0000000000000104 RSI: ffffffff824c3208 RDI: 00000000ffffffff
+[    6.112316] RBP: ffffc90000180d40 R08: 0000000000000000 R09: 00000000fffeffff
+[    6.112893] R10: ffffc90000180b98 R11: ffffffff82f63308 R12: ffffffff83d5af00
+[    6.113460] R13: ffff888100998200 R14: ffffffff824a4b5f R15: 0000000000000286
+[    6.114027] FS:  0000000000000000(0000) GS:ffff88842fd80000(0000) knlGS:0000000000000000
+[    6.114665] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    6.115128] CR2: 00007f10f1e03030 CR3: 0000000108272004 CR4: 0000000000770ee0
+[    6.115701] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    6.116272] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    6.116842] PKRU: 55555554
+[    6.117069] Call Trace:
+[    6.117275]  <IRQ>
+[    6.117452]  ? __warn+0x84/0x140
+[    6.117727]  ? check_sync+0x53e/0x6c0
+[    6.118034]  ? __report_bug+0xea/0x100
+[    6.118353]  ? check_sync+0x53e/0x6c0
+[    6.118653]  ? report_bug+0x41/0xc0
+[    6.118944]  ? handle_bug+0x3c/0x70
+[    6.119237]  ? exc_invalid_op+0x18/0x70
+[    6.119551]  ? asm_exc_invalid_op+0x1a/0x20
+[    6.119900]  ? check_sync+0x53e/0x6c0
+[    6.120199]  ? check_sync+0x53e/0x6c0
+[    6.120499]  debug_dma_sync_single_for_cpu+0x5c/0x70
+[    6.120906]  ? dma_sync_single_for_cpu+0xb7/0x100
+[    6.121291]  virtnet_rq_unmap+0x158/0x170 [virtio_net]
+[    6.121716]  virtnet_receive+0x196/0x220 [virtio_net]
+[    6.122135]  virtnet_poll+0x48/0x1b0 [virtio_net]
+[    6.122524]  __napi_poll+0x29/0x1b0
+[    6.123083]  net_rx_action+0x282/0x360
+[    6.123612]  __do_softirq+0xf3/0x2fb
+[    6.124138]  __irq_exit_rcu+0x8e/0xf0
+[    6.124663]  common_interrupt+0xbc/0xe0
+[    6.125202]  </IRQ>
+
+We need to enable CONFIG_DMA_API_DEBUG and work with need sync mode(such
+as swiotlb) to reproduce this warn.
+
+Fixes: 8bd2f71054bd ("virtio_ring: introduce dma sync api for virtqueue")
+Reported-by: "Ning, Hongyu" <hongyu.ning@linux.intel.com>
+Closes: https://lore.kernel.org/all/f37cb55a-6fc8-4e21-8789-46d468325eea@linux.intel.com/
+Suggested-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/virtio/virtio_ring.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 51d8f3299c10..49299b1f9ec7 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -3219,8 +3219,7 @@ void virtqueue_dma_sync_single_range_for_cpu(struct virtqueue *_vq,
+ 	if (!vq->use_dma_api)
+ 		return;
+ 
+-	dma_sync_single_range_for_cpu(dev, addr, offset, size,
+-				      DMA_BIDIRECTIONAL);
++	dma_sync_single_range_for_cpu(dev, addr, offset, size, dir);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_cpu);
+ 
+@@ -3246,8 +3245,7 @@ void virtqueue_dma_sync_single_range_for_device(struct virtqueue *_vq,
+ 	if (!vq->use_dma_api)
+ 		return;
+ 
+-	dma_sync_single_range_for_device(dev, addr, offset, size,
+-					 DMA_BIDIRECTIONAL);
++	dma_sync_single_range_for_device(dev, addr, offset, size, dir);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_dma_sync_single_range_for_device);
+ 
+-- 
+2.32.0.3.g01195cf9f
+
