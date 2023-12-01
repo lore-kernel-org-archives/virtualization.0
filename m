@@ -1,295 +1,186 @@
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E72B3125D7
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:47:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 506D44695
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:51:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c+LkHCZV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtOBrj03"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6F99D6FAC2
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:47:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6F99D6FAC2
+	by smtp3.osuosl.org (Postfix) with ESMTP id 62E5E6FAC7
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:51:25 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 62E5E6FAC7
 Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=c+LkHCZV
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=gtOBrj03
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PIgFyRjFGjT8
+	with ESMTP id fKsD5bYN8EU2
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  1 Dec 2023 14:47:56 +0000 (UTC)
+	Fri,  1 Dec 2023 14:51:24 +0000 (UTC)
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7DE5A6FAB4
-	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:47:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7DE5A6FAB4
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9F0476FAB4
+	for <virtualization@lists.linux-foundation.org>; Fri,  1 Dec 2023 14:51:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9F0476FAB4
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701442075;
+	s=mimecast20190719; t=1701442283;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=o0DKYjK3dHbWdZnT5RD7tpOx0HUXsQyGhREUzJYhZ0I=;
-	b=c+LkHCZVbrmD+xZFzTUtlpM41Zrv/gBzoLKyygco7gQkQ4VduBw1EqKbL8VXDxbXCtGmKN
-	D4UwHOi+iy+vOdebw2UIIExE7UdqlOXOGPBCDD807UW/Jcf51B6Bfbr35bjwc0Hidz0WEv
-	4IVZ6x5mtLcKdfa/vJPeJfMnUj0ak1I=
-Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
- [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=F6+fTNyVfQbvpv0mXBsvFlerCoSqluEuKgG50iz8c2Q=;
+	b=gtOBrj030a1bxEoGeAchjZY27qCQK/ybYlFg4niH4lNwrYB17XEuu4UgxXA4LEAxC2cIqj
+	XX2fGP2pi9Eduhj8F+817l4hxNspdOHrlOpWPhrI8cAW3J427BJ3DX0rRcDHsJQZYBiK5q
+	vn1DN9EloXkJEtivEiEiY5Q4moU1nUI=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-190-6sRDmF4lOp6YmLTwN1JKNQ-1; Fri, 01 Dec 2023 09:47:53 -0500
-X-MC-Unique: 6sRDmF4lOp6YmLTwN1JKNQ-1
-Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-5d3aa625542so11890547b3.1
-        for <virtualization@lists.linux-foundation.org>; Fri, 01 Dec 2023 06:47:53 -0800 (PST)
+ us-mta-460-h73pCD15OUKXkaMRHQdq0A-1; Fri, 01 Dec 2023 09:51:22 -0500
+X-MC-Unique: h73pCD15OUKXkaMRHQdq0A-1
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-40b3d4d6417so15113695e9.0
+        for <virtualization@lists.linux-foundation.org>; Fri, 01 Dec 2023 06:51:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701442072; x=1702046872;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=o0DKYjK3dHbWdZnT5RD7tpOx0HUXsQyGhREUzJYhZ0I=;
-        b=J1112gekQtzxRLD/+2GayILlKF85DYCFo+4n9QOmOAVWPiAIk9vOHyyB9cuNS8PTNU
-         p+g1dh5zPgK4QRkfBMVwLah36TWlbqgVDJjKWkTcfEMr3ir80YAz9/r3AGOV09b9jPg8
-         TJ0s5JCo0ptIDv6vbrtbMnjpRSdNhR+3CBJ7/mJ2qv55EENq24wGgVSRRbnTd0uFyIrv
-         h2wGH/aUHLGOVSbYlm1XNdf6J7UL8MzmRi/Z7v+4IHr3iOVACwxkvhtc7DxAnK34n04l
-         BZxcPcD5i8eI3LShDqTpJI8fg2E2YVqC90ysNWlEuoFbfr5Cuv3suK9nECD7HwswG0Rd
-         Q4Qw==
-X-Gm-Message-State: AOJu0YyT3m/gbkRLMBOejbwF6Jp5VVb3VhJY40lCuj5kLP9CL/JSrRTH
-	M2kEYW3ZbernR+NSXeejbTal12NEUE4zALQqEHEBUV0XOTdrvCCgPnVz+VmrmeEq8bKCv484Elr
-	FSGig7mYkvFHQdjipwK1nyDfXy8Wtat3vvILhjPxkZpMqY4ts9COWKlKAow==
-X-Received: by 2002:a05:690c:2e07:b0:5ce:723:ae79 with SMTP id et7-20020a05690c2e0700b005ce0723ae79mr18248082ywb.15.1701442072629;
-        Fri, 01 Dec 2023 06:47:52 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IE6DQyuGDAakubhth8noPl0UkdPsVbsGwXorIpn7CGnUTxYiRgTbbU+n27HzNui0D93AvLxUvxPpOLJR7x6Jy0=
-X-Received: by 2002:a05:690c:2e07:b0:5ce:723:ae79 with SMTP id
- et7-20020a05690c2e0700b005ce0723ae79mr18248067ywb.15.1701442072363; Fri, 01
- Dec 2023 06:47:52 -0800 (PST)
+        d=1e100.net; s=20230601; t=1701442281; x=1702047081;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=F6+fTNyVfQbvpv0mXBsvFlerCoSqluEuKgG50iz8c2Q=;
+        b=qKOw6bSeHVBTsVaSPwYvDot3V+RaTpuFNf3QvtHTXpZDJ3RLNGt2pVCUbnLoIq1k4/
+         DJLCz7SoBjxLuq4/2c+JD3xj4nwmIHn7qpu0n6SV6ZUZDfYK3OV/3un197GlENtfOXhD
+         Radpjhyw+dpBXJGK4mhD2c6vDnEfx+yNXfVYWdxpEIlBUzOWW+UfpSK4ux7msGJta7kY
+         qYumiVPoiMr0P3ISNUhFMTzLdSzyh7eG2U/MqAYnYI04ognZxlSEyWYSfDXFDcn6PA+i
+         aS4te6AbiYT4WeDHQfXVoBLrC8GuuJlesFY1Y6Mev3JxULkheS03nKhaJ8oegdu6OMZq
+         amig==
+X-Gm-Message-State: AOJu0YzgoZ8Slg1P4nWkDUqlfq1EXfRScSLcxJusSIWlKuivMYkO5FtS
+	1R2twgKtUpptDPVA+L83EdQyNkyroAfdm3eixURnTQt4UpeGbx9KvgipGZlKtZis5fQpqqI2sPM
+	891E3zAj/X26KvX8bO4el7FfCcIenc4tsbVgyi7wh6g==
+X-Received: by 2002:a05:600c:20cb:b0:40b:5e59:f747 with SMTP id y11-20020a05600c20cb00b0040b5e59f747mr254910wmm.185.1701442281101;
+        Fri, 01 Dec 2023 06:51:21 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHncDO0+zubuDh1bCnaDyIbO8GXaUPF25vZ6m/789yYxQkh40rx+2WA/B7iuPeVv2rjMudyJw==
+X-Received: by 2002:a05:600c:20cb:b0:40b:5e59:f747 with SMTP id y11-20020a05600c20cb00b0040b5e59f747mr254905wmm.185.1701442280788;
+        Fri, 01 Dec 2023 06:51:20 -0800 (PST)
+Received: from redhat.com ([2a06:c701:73e1:6f00:c7ce:b553:4096:d504])
+        by smtp.gmail.com with ESMTPSA id fs20-20020a05600c3f9400b0040b5517ae31sm8521738wmb.6.2023.12.01.06.51.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Dec 2023 06:51:19 -0800 (PST)
+Date: Fri, 1 Dec 2023 09:51:17 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>,
+	"linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+	Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>,
+	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	wangyangxin <wangyangxin1@huawei.com>
+Subject: Re: [PATCH] crypto: virtio-crypto: Handle dataq logic  with tasklet
+Message-ID: <20231201095024-mutt-send-email-mst@kernel.org>
+References: <b2fe5c6a60984a9e91bd9dea419c5154@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231201104857.665737-1-dtatulea@nvidia.com> <20231201104857.665737-4-dtatulea@nvidia.com>
-In-Reply-To: <20231201104857.665737-4-dtatulea@nvidia.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 1 Dec 2023 15:47:16 +0100
-Message-ID: <CAJaqyWe_VZ8CsG5j75oAD1FdNi7dc4rLJwjm5AoQNBm4ABfAZA@mail.gmail.com>
-Subject: Re: [PATCH vhost 3/7] vdpa/mlx5: Allow modifying multiple vq fields
- in one modify command
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Si-Wei Liu <si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, 
-	Leon Romanovsky <leon@kernel.org>, virtualization@lists.linux-foundation.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Gal Pressman <galp@nvidia.com>, Parav Pandit <parav@nvidia.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+In-Reply-To: <b2fe5c6a60984a9e91bd9dea419c5154@huawei.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Dec 1, 2023 at 11:49=E2=80=AFAM Dragos Tatulea <dtatulea@nvidia.com=
-> wrote:
->
-> Add a bitmask variable that tracks hw vq field changes that
-> are supposed to be modified on next hw vq change command.
->
-> This will be useful to set multiple vq fields when resuming the vq.
->
-> The state needs to remain as a parameter as it doesn't make sense to
-> make it part of the vq struct: fw_state is updated only after a
-> successful command.
->
-
-I don't get this paragraph, "modified_fields" is a member of
-"mlx5_vdpa_virtqueue". Am I missing something?
-
-
-> Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
+On Mon, Nov 20, 2023 at 11:49:45AM +0000, Gonglei (Arei) wrote:
+> Doing ipsec produces a spinlock recursion warning.
+> This is due to crypto_finalize_request() being called in the upper half.
+> Move virtual data queue processing of virtio-crypto driver to tasklet.
+> 
+> Fixes: dbaf0624ffa57 ("crypto: add virtio-crypto driver")
+> Reported-by: Halil Pasic <pasic@linux.ibm.com>
+> Signed-off-by: wangyangxin <wangyangxin1@huawei.com>
+> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 48 +++++++++++++++++++++++++------
->  1 file changed, 40 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/ml=
-x5_vnet.c
-> index 12ac3397f39b..d06285e46fe2 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -120,6 +120,9 @@ struct mlx5_vdpa_virtqueue {
->         u16 avail_idx;
->         u16 used_idx;
->         int fw_state;
-> +
-> +       u64 modified_fields;
-> +
->         struct msi_map map;
->
->         /* keep last in the struct */
-> @@ -1181,7 +1184,19 @@ static bool is_valid_state_change(int oldstate, in=
-t newstate)
->         }
+>  drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
+>  drivers/crypto/virtio/virtio_crypto_core.c   | 23 +++++++++++++----------
+>  2 files changed, 15 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/crypto/virtio/virtio_crypto_common.h b/drivers/crypto/virtio/virtio_crypto_common.h
+> index 59a4c02..5c17c6e 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_common.h
+> +++ b/drivers/crypto/virtio/virtio_crypto_common.h
+> @@ -10,6 +10,7 @@
+>  #include <linux/virtio.h>
+>  #include <linux/crypto.h>
+>  #include <linux/spinlock.h>
+> +#include <linux/interrupt.h>
+>  #include <crypto/aead.h>
+>  #include <crypto/aes.h>
+>  #include <crypto/engine.h>
+> @@ -28,6 +29,7 @@ struct data_queue {
+>  	char name[32];
+>  
+>  	struct crypto_engine *engine;
+> +	struct tasklet_struct done_task;
+>  };
+>  
+>  struct virtio_crypto {
+> diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+> index 1198bd3..e747f4f 100644
+> --- a/drivers/crypto/virtio/virtio_crypto_core.c
+> +++ b/drivers/crypto/virtio/virtio_crypto_core.c
+> @@ -72,27 +72,28 @@ int virtio_crypto_ctrl_vq_request(struct virtio_crypto *vcrypto, struct scatterl
+>  	return 0;
 >  }
->
-> -static int modify_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa=
-_virtqueue *mvq, int state)
-> +static bool modifiable_virtqueue_fields(struct mlx5_vdpa_virtqueue *mvq)
-> +{
-> +       /* Only state is always modifiable */
-> +       if (mvq->modified_fields & ~MLX5_VIRTQ_MODIFY_MASK_STATE)
-> +               return mvq->fw_state =3D=3D MLX5_VIRTIO_NET_Q_OBJECT_STAT=
-E_INIT ||
-> +                      mvq->fw_state =3D=3D MLX5_VIRTIO_NET_Q_OBJECT_STAT=
-E_SUSPEND;
-> +
-> +       return true;
+>  
+> -static void virtcrypto_dataq_callback(struct virtqueue *vq)
+> +static void virtcrypto_done_task(unsigned long data)
+>  {
+> -	struct virtio_crypto *vcrypto = vq->vdev->priv;
+> +	struct data_queue *data_vq = (struct data_queue *)data;
+> +	struct virtqueue *vq = data_vq->vq;
+>  	struct virtio_crypto_request *vc_req;
+> -	unsigned long flags;
+>  	unsigned int len;
+> -	unsigned int qid = vq->index;
+>  
+> -	spin_lock_irqsave(&vcrypto->data_vq[qid].lock, flags);
+>  	do {
+>  		virtqueue_disable_cb(vq);
+>  		while ((vc_req = virtqueue_get_buf(vq, &len)) != NULL) {
+> -			spin_unlock_irqrestore(
+> -				&vcrypto->data_vq[qid].lock, flags);
+>  			if (vc_req->alg_cb)
+>  				vc_req->alg_cb(vc_req, len);
+> -			spin_lock_irqsave(
+> -				&vcrypto->data_vq[qid].lock, flags);
+>  		}
+>  	} while (!virtqueue_enable_cb(vq));
+> -	spin_unlock_irqrestore(&vcrypto->data_vq[qid].lock, flags);
 > +}
 > +
-> +static int modify_virtqueue(struct mlx5_vdpa_net *ndev,
-> +                           struct mlx5_vdpa_virtqueue *mvq,
-> +                           int state)
->  {
->         int inlen =3D MLX5_ST_SZ_BYTES(modify_virtio_net_q_in);
->         u32 out[MLX5_ST_SZ_DW(modify_virtio_net_q_out)] =3D {};
-> @@ -1193,6 +1208,9 @@ static int modify_virtqueue(struct mlx5_vdpa_net *n=
-dev, struct mlx5_vdpa_virtque
->         if (mvq->fw_state =3D=3D MLX5_VIRTIO_NET_Q_OBJECT_NONE)
->                 return 0;
->
-> +       if (!modifiable_virtqueue_fields(mvq))
-> +               return -EINVAL;
-> +
-
-I'm ok with this change, but since modified_fields is (or will be) a
-bitmap tracking changes to state, addresses, mkey, etc, doesn't have
-more sense to check it like:
-
-if (modified_fields & 1<<change_1_flag)
-  // perform change 1
-if (modified_fields & 1<<change_2_flag)
-  // perform change 2
-if (modified_fields & 1<<change_3_flag)
-  // perform change 13
----
-
-Instead of:
-if (!modified_fields)
-  return
-
-if (modified_fields & 1<<change_1_flag)
-  // perform change 1
-if (modified_fields & 1<<change_2_flag)
-  // perform change 2
-
-// perform change 3, no checking, as it is the only possible value of
-modified_fields
----
-
-Or am I missing something?
-
-The rest looks good to me.
-
->         if (!is_valid_state_change(mvq->fw_state, state))
->                 return -EINVAL;
->
-> @@ -1208,17 +1226,28 @@ static int modify_virtqueue(struct mlx5_vdpa_net =
-*ndev, struct mlx5_vdpa_virtque
->         MLX5_SET(general_obj_in_cmd_hdr, cmd_hdr, uid, ndev->mvdev.res.ui=
-d);
->
->         obj_context =3D MLX5_ADDR_OF(modify_virtio_net_q_in, in, obj_cont=
-ext);
-> -       MLX5_SET64(virtio_net_q_object, obj_context, modify_field_select,
-> -                  MLX5_VIRTQ_MODIFY_MASK_STATE);
-> -       MLX5_SET(virtio_net_q_object, obj_context, state, state);
-> +       if (mvq->modified_fields & MLX5_VIRTQ_MODIFY_MASK_STATE)
-> +               MLX5_SET(virtio_net_q_object, obj_context, state, state);
-> +
-> +       MLX5_SET64(virtio_net_q_object, obj_context, modify_field_select,=
- mvq->modified_fields);
->         err =3D mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(ou=
-t));
->         kfree(in);
->         if (!err)
->                 mvq->fw_state =3D state;
->
-> +       mvq->modified_fields =3D 0;
-> +
->         return err;
->  }
->
-> +static int modify_virtqueue_state(struct mlx5_vdpa_net *ndev,
-> +                                 struct mlx5_vdpa_virtqueue *mvq,
-> +                                 unsigned int state)
+> +static void virtcrypto_dataq_callback(struct virtqueue *vq)
 > +{
-> +       mvq->modified_fields |=3D MLX5_VIRTQ_MODIFY_MASK_STATE;
-> +       return modify_virtqueue(ndev, mvq, state);
-> +}
+> +	struct virtio_crypto *vcrypto = vq->vdev->priv;
+> +	struct data_queue *dq = &vcrypto->data_vq[vq->index];
 > +
->  static int counter_set_alloc(struct mlx5_vdpa_net *ndev, struct mlx5_vdp=
-a_virtqueue *mvq)
->  {
->         u32 in[MLX5_ST_SZ_DW(create_virtio_q_counters_in)] =3D {};
-> @@ -1347,7 +1376,7 @@ static int setup_vq(struct mlx5_vdpa_net *ndev, str=
-uct mlx5_vdpa_virtqueue *mvq)
->                 goto err_vq;
->
->         if (mvq->ready) {
-> -               err =3D modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJ=
-ECT_STATE_RDY);
-> +               err =3D modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET=
-_Q_OBJECT_STATE_RDY);
->                 if (err) {
->                         mlx5_vdpa_warn(&ndev->mvdev, "failed to modify to=
- ready vq idx %d(%d)\n",
->                                        idx, err);
-> @@ -1382,7 +1411,7 @@ static void suspend_vq(struct mlx5_vdpa_net *ndev, =
-struct mlx5_vdpa_virtqueue *m
->         if (mvq->fw_state !=3D MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY)
->                 return;
->
-> -       if (modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_SU=
-SPEND))
-> +       if (modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_ST=
-ATE_SUSPEND))
->                 mlx5_vdpa_warn(&ndev->mvdev, "modify to suspend failed\n"=
-);
->
->         if (query_virtqueue(ndev, mvq, &attr)) {
-> @@ -1407,6 +1436,7 @@ static void teardown_vq(struct mlx5_vdpa_net *ndev,=
- struct mlx5_vdpa_virtqueue *
->                 return;
->
->         suspend_vq(ndev, mvq);
-> +       mvq->modified_fields =3D 0;
->         destroy_virtqueue(ndev, mvq);
->         dealloc_vector(ndev, mvq);
->         counter_set_dealloc(ndev, mvq);
-> @@ -2207,7 +2237,7 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_devi=
-ce *vdev, u16 idx, bool ready
->         if (!ready) {
->                 suspend_vq(ndev, mvq);
->         } else {
-> -               err =3D modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJ=
-ECT_STATE_RDY);
-> +               err =3D modify_virtqueue_state(ndev, mvq, MLX5_VIRTIO_NET=
-_Q_OBJECT_STATE_RDY);
->                 if (err) {
->                         mlx5_vdpa_warn(mvdev, "modify VQ %d to ready fail=
-ed (%d)\n", idx, err);
->                         ready =3D false;
-> @@ -2804,8 +2834,10 @@ static void clear_vqs_ready(struct mlx5_vdpa_net *=
-ndev)
->  {
->         int i;
->
-> -       for (i =3D 0; i < ndev->mvdev.max_vqs; i++)
-> +       for (i =3D 0; i < ndev->mvdev.max_vqs; i++) {
->                 ndev->vqs[i].ready =3D false;
-> +               ndev->vqs[i].modified_fields =3D 0;
-> +       }
->
->         ndev->mvdev.cvq.ready =3D false;
+> +	tasklet_schedule(&dq->done_task);
 >  }
-> --
-> 2.42.0
 >
+
+Don't we then need to wait for tasklet to complete on
+device remove?
+
+  
+>  static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+> @@ -150,6 +151,8 @@ static int virtcrypto_find_vqs(struct virtio_crypto *vi)
+>  			ret = -ENOMEM;
+>  			goto err_engine;
+>  		}
+> +		tasklet_init(&vi->data_vq[i].done_task, virtcrypto_done_task,
+> +				(unsigned long)&vi->data_vq[i]);
+>  	}
+>  
+>  	kfree(names);
+> -- 
+> 1.8.3.1
+> 
+> 
 
