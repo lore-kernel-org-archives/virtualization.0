@@ -1,137 +1,234 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A91931CABD
-	for <virtualization@lists.linux-foundation.org>; Sat,  2 Dec 2023 20:26:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68CF211C8F
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 14:14:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WjohETuy"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PDfnCoQf"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 29CC3822FE
-	for <virtualization@lists.linux-foundation.org>; Sat,  2 Dec 2023 20:26:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29CC3822FE
+	by smtp1.osuosl.org (Postfix) with ESMTP id D5F8B81BE3
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 14:14:32 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D5F8B81BE3
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=WjohETuy
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=PDfnCoQf
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.103
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TkWZn4ZRBlYP
+	with ESMTP id KMK0K0krYMg1
 	for <virtualization@lists.linux-foundation.org>;
-	Sat,  2 Dec 2023 20:26:15 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 347AA822FC
-	for <virtualization@lists.linux-foundation.org>; Sat,  2 Dec 2023 20:26:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 347AA822FC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701548773;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=iZJKmBTJ+Rbbpx8uaCWzSm8u5JZ8h0qLae0DxmI9+YE=;
-	b=WjohETuyYMZohx9UabLQRTp7bYywPzrBF8RvrjA3jXGDJf+elacBtY/gIwQ/XR+ptjyW9j
-	SU229D01Ma89V2oVgFcg1XW/aUI5XWYMJELLxmc/lYQFVIwofvW6/l+jEjyiV3IXNYTBnh
-	b/jXZlNMZsQEpVet18Iyu+kjHieTxq8=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-404-iIhh2PX1Mu-z-m7AhmuWfA-1; Sat, 02 Dec 2023 15:26:11 -0500
-X-MC-Unique: iIhh2PX1Mu-z-m7AhmuWfA-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-333405020f3so199322f8f.1
-        for <virtualization@lists.linux-foundation.org>; Sat, 02 Dec 2023 12:26:10 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701548770; x=1702153570;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iZJKmBTJ+Rbbpx8uaCWzSm8u5JZ8h0qLae0DxmI9+YE=;
-        b=GLdu+aJmH4TLYq1h4M6JRu2wjfUyFLnfZHn+Y1Qt5vnhDD9xdXeIJWjiIj66WF0g8R
-         6VbvB9m768nHoPEXdYuJz5+fFsYt3gNqQ4+0ye0Sft+RzQFPUmfvEuK5DHyX5gmotf8T
-         GaOQFc2tRTfXd9+jlQPhDfjSV+BFVrnTV/1inUqYBTPHd8AEW3CCH16HaMOrOd+tdEm9
-         6MaklrWbPaHBPXesRei6pdsZqGTyvi9aDGNRVAKR7i7SOyv077TDAqZa0ZGWaRJfgIzR
-         P4pCpbbE7A+rX7qIFFIxncbyp5fao2A213bdenHPE8Aqn9rxQeJralnjD7TGI9v68+0K
-         nC6Q==
-X-Gm-Message-State: AOJu0YzPQluESKJvV84L0ZBogNewBrF3gUNKgtRLG9X04lodVm1QTwPb
-	LfgqgJSl7/8aIF+nTbD0AtP9oGR5UajkiAXEyPDjwAijuk3W9HtjqPjeApvzCYDcp2HHQREu5Dj
-	nplo6Fwan7oAGTaQP/AVtQvHfwQAs3GEhNCmtZScD/Q==
-X-Received: by 2002:a5d:5485:0:b0:332:d11d:527c with SMTP id h5-20020a5d5485000000b00332d11d527cmr1940789wrv.8.1701548770112;
-        Sat, 02 Dec 2023 12:26:10 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGWSenljZ8Gq1p+cvw45tJ66/qyTEFm/51Rm7X9PzXUkLubJG54yM5edqJ1p/+3klDKGwcuJA==
-X-Received: by 2002:a5d:5485:0:b0:332:d11d:527c with SMTP id h5-20020a5d5485000000b00332d11d527cmr1940784wrv.8.1701548769779;
-        Sat, 02 Dec 2023 12:26:09 -0800 (PST)
-Received: from redhat.com ([2.55.57.48])
-        by smtp.gmail.com with ESMTPSA id e5-20020a5d4e85000000b0033333bee379sm4281524wru.107.2023.12.02.12.26.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 02 Dec 2023 12:26:08 -0800 (PST)
-Date: Sat, 2 Dec 2023 15:26:05 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Eugenio Perez Martin <eperezma@redhat.com>,
-	Si-Wei Liu <si-wei.liu@oracle.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Leon Romanovsky <leon@kernel.org>,
-	virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Gal Pressman <galp@nvidia.com>,
-	Parav Pandit <parav@nvidia.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH vhost 0/7] vdpa/mlx5: Add support for resumable vqs
-Message-ID: <20231202152523-mutt-send-email-mst@kernel.org>
-References: <20231201104857.665737-1-dtatulea@nvidia.com>
+	Sun,  3 Dec 2023 14:14:31 +0000 (UTC)
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2061b.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e8a::61b])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9716D81BD9
+	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 14:14:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9716D81BD9
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=SKcHNk27fRRRF1v+luh2/QvUmclgx7WoXFm7WhB9AFzZg07wiguLrgPdFL9MiT9YQd4qnrh3YSICdovMurCd2Ey4t3CeFq80WqvnG4Q407HDOH3SoHXyq+A3prYELBcdVUcLaqkUqzlQska0fg9TIP+4ppVb6EFD6ezSq3TCGZ19pJgwB44IFJIs8/rfT1RFT3/AxPBrp91fvhIzxh4y5Ahyeps1uvvHh7RZlgFf5MAzGF/7sTAjmpMWxzU1zxAA1VaqErutrC/2HW0lpvVtno5aoXnonKa3Lg2I65Vhl/jFCPvqcFK96lIh4gH4bg/127gk0nWCykVLH9TTEe8sxA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=z57a1RPrGAXeCULu9WjXF2e1BwLscT4E3hJ4y8rwL7M=;
+ b=HM8N62BQu5dVioM74MAxMykr/J2y2bejns4+YGxN4PnkLnuXgFVIbywCMejurr5Xszoys99QuutT/JjRu6tDMb7mF8RVOJwYW9fvJtcbAc96bXHxOywkWNFypOfQtDn2r374gv2a+/b+iLmwkvHR5sB1Q3SC+3mCPdgsIC5OpNgElOUp9fJ8vCPTL1xjJQ+GQdLwCSBOiTgWvtk3IB6DEDoMH5x6Nste8ieCrnSQDpUBtGh7GgBL/czU2IhmfRCFw+JAZHYnexzdnGf/ybZoAAYZhWXplxotibaWKKmZs5w2rSYe7GxeaDy0o8k9PXxp+uTmKSY3P7Uk/kCwC9Tztg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=z57a1RPrGAXeCULu9WjXF2e1BwLscT4E3hJ4y8rwL7M=;
+ b=PDfnCoQfzqVz9KwjO2DsbFF3i+DOXr1mbh3glkL+OxPwINPHkmOED0uZRJfFO+L/bBnuQQWLUG5U9PRrvncFcpVIWxWrHZeZVaAllRx8Uyp++AuoMiJlXOVtd41UtPBxKdeh7tHFvkw0oU4DyhRBuJ6y2ueDsNeOV2JCeJS4kn05hNCUu0Xd/HiMDtaRb0AR8aiNTiZEW/FxDRGwkB9NIB4MLuBEeukrSGNRj9keQoz9KPy+xlt/AjEiEr8cW3MsGZhkvfXCndSbwpPPMxWff+7nyAqDKFdUv7dJufTw46VpL41Ju4gqSbF4bFP3vOsJS/j1SqPCbw9EhnP1smiYRQ==
+Received: from DM6PR05CA0065.namprd05.prod.outlook.com (2603:10b6:5:335::34)
+ by DM6PR12MB4481.namprd12.prod.outlook.com (2603:10b6:5:2af::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.33; Sun, 3 Dec
+ 2023 14:14:26 +0000
+Received: from DS2PEPF00003441.namprd04.prod.outlook.com
+ (2603:10b6:5:335:cafe::f7) by DM6PR05CA0065.outlook.office365.com
+ (2603:10b6:5:335::34) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7068.22 via Frontend
+ Transport; Sun, 3 Dec 2023 14:14:26 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ DS2PEPF00003441.mail.protection.outlook.com (10.167.17.68) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7068.20 via Frontend Transport; Sun, 3 Dec 2023 14:14:26 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 3 Dec 2023
+ 06:14:22 -0800
+Received: from [172.27.21.98] (10.126.231.35) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Sun, 3 Dec 2023
+ 06:14:18 -0800
+Message-ID: <13c56c54-50ff-4894-833a-6c75ca604399@nvidia.com>
+Date: Sun, 3 Dec 2023 16:14:15 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231201104857.665737-1-dtatulea@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH V4 vfio 8/9] vfio/pci: Expose
+ vfio_pci_iowrite/read##size()
+Content-Language: en-US
+To: Alex Williamson <alex.williamson@redhat.com>
+CC: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+	<kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
+	<leonro@nvidia.com>, <maorg@nvidia.com>
+References: <20231129143746.6153-1-yishaih@nvidia.com>
+ <20231129143746.6153-9-yishaih@nvidia.com>
+ <20231130122010.3563bdee.alex.williamson@redhat.com>
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20231130122010.3563bdee.alex.williamson@redhat.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS2PEPF00003441:EE_|DM6PR12MB4481:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9c035b65-05a9-4d59-b343-08dbf40a2863
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	2Xt1qOt33nkMlWpCsID51p0nlz2LY0tkUixkytC46Rd1pZUJTqzSKPI5KJEa5PABrywxJ7YlXHu+RPgvHxKjJ3MTnDMz9aJCsh90y6g9TUmXA1pcCSGN+Q0UErXBngZ0AOJ28K4TxAT9HeQB0OrzYDv7fAryDDiFQZnrKpIk2YnINpJtyDhsH4IjfKozc2S1QsAlnKS+4dkF4UVIMESdFPwhzqszs5aUs5K+ADAlFD09AEXjNKkMV8U+W4T4mGq49f9QiYuQV57jQl6yaBHTlSeFd14w4XcSdMYTu2gmfANnk+qdYe6bNw8SeVLJb/x0zoJjwFReJCe89vuXlRRkAJuseK6jcRRWOmV9O2hOCumx+B+eySW08Q8UuohzkXE1wxgVEHbrJqdpTWWbdIYiZsto4e68J9d8hVkiOCuYBPYTMgi0WmfBYLwx/GoOq/XoK6/YRveaR++5G61zshjqTnm7FT/klRHmy6D+d21FZyx835wsax03R9ae8wEDUSnLa+m7CxcUt7T/tnx7hq88Gevs7upgiHUy+LDtKzkFuy6BsAYcnBgU5fdDDdJuB9Ecvt3ZmlLaGV37RbX23AmfmyRKEvlcRlh+NZ/UBaKJrqaAl1yPsZG3ZOKTcj/DF0Han/AtTWsL5rRlcBJttrQhVRadnnJx9wh7HHpiNvH/ljBSx/uXGP5tGVA3Iwc3kCxWQU23nrHu2GCd8apyhp0ISXm74sIvE3vhBZEe/43yTQ3bzIJR32mMRV6yH/77h2/yUYPOpUeu3TzzymMIAz1OO29z/4vcqC4+mmENz5qE6PU=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(376002)(136003)(396003)(39860400002)(346002)(230922051799003)(451199024)(186009)(82310400011)(64100799003)(1800799012)(40470700004)(46966006)(36840700001)(107886003)(31686004)(2616005)(8936002)(8676002)(4326008)(53546011)(47076005)(40480700001)(7636003)(356005)(83380400001)(36860700001)(426003)(336012)(82740400003)(16526019)(26005)(478600001)(40460700003)(6666004)(54906003)(70206006)(70586007)(316002)(6916009)(16576012)(2906002)(41300700001)(36756003)(86362001)(31696002)(5660300002)(21314003)(43740500002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Dec 2023 14:14:26.6123
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9c035b65-05a9-4d59-b343-08dbf40a2863
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS2PEPF00003441.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4481
 
-On Fri, Dec 01, 2023 at 12:48:50PM +0200, Dragos Tatulea wrote:
-> Add support for resumable vqs in the driver. This is a firmware feature
-> that can be used for the following benefits:
-> - Full device .suspend/.resume.
-> - .set_map doesn't need to destroy and create new vqs anymore just to
->   update the map. When resumable vqs are supported it is enough to
->   suspend the vqs, set the new maps, and then resume the vqs.
+On 30/11/2023 21:20, Alex Williamson wrote:
+> On Wed, 29 Nov 2023 16:37:45 +0200
+> Yishai Hadas <yishaih@nvidia.com> wrote:
 > 
-> The first patch exposes the relevant bits in mlx5_ifc.h. That means it
-> needs to be applied to the mlx5-vhost tree [0] first.
+>> Expose vfio_pci_iowrite/read##size() to let it be used by drivers.
+>>
+>> This functionality is needed to enable direct access to some physical
+>> BAR of the device with the proper locks/checks in place.
+>>
+>> The next patches from this series will use this functionality on a data
+>> path flow when a direct access to the BAR is needed.
+>>
+>> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+>> ---
+>>   drivers/vfio/pci/vfio_pci_rdwr.c | 10 ++++++----
+>>   include/linux/vfio_pci_core.h    | 19 +++++++++++++++++++
+>>   2 files changed, 25 insertions(+), 4 deletions(-)
+> 
+> I don't follow the inconsistency between this and the previous patch.
+> Why did we move and rename the code to setup the barmap but we export
+> the ioread/write functions in place?  Thanks,
+> 
+> Alex
 
-I didn't get this. Why does this need to go through that tree?
-Is there a dependency on some other commit from that tree?
+The mount of code for barmap setup was quite small compared to the 
+ioread/write functions.
 
-> Once applied
-> there, the change has to be pulled from mlx5-vhost into the vhost tree
-> and only then the remaining patches can be applied. Same flow as the vq
-> descriptor mappings patchset [1].
+However, I agree, we can be consistent here and export in both cases the 
+functions in place as part of vfio_pci_rdwr.c which is already part of 
+vfio_pci_core.ko
+
+I may also rename in current patch vfio_pci_iowrite/read<xxx> to have 
+the 'core' prefix as part of the functions names (i.e. 
+vfio_pci_core_iowrite/read<xxx>) to be consistent with other exported 
+core functions and adapt the callers to this name.
+
+Makes sense ?
+
+Yishai
+
 > 
-> To be able to use resumable vqs properly, support for selectively modifying
-> vq parameters was needed. This is what the middle part of the series
-> consists of.
 > 
-> [0] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
-> [1] https://lore.kernel.org/virtualization/20231018171456.1624030-2-dtatulea@nvidia.com/
+>> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+>> index 6f08b3ecbb89..817ec9a89123 100644
+>> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
+>> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+>> @@ -38,7 +38,7 @@
+>>   #define vfio_iowrite8	iowrite8
+>>   
+>>   #define VFIO_IOWRITE(size) \
+>> -static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>> +int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>>   			bool test_mem, u##size val, void __iomem *io)	\
+>>   {									\
+>>   	if (test_mem) {							\
+>> @@ -55,7 +55,8 @@ static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>>   		up_read(&vdev->memory_lock);				\
+>>   									\
+>>   	return 0;							\
+>> -}
+>> +}									\
+>> +EXPORT_SYMBOL_GPL(vfio_pci_iowrite##size);
+>>   
+>>   VFIO_IOWRITE(8)
+>>   VFIO_IOWRITE(16)
+>> @@ -65,7 +66,7 @@ VFIO_IOWRITE(64)
+>>   #endif
+>>   
+>>   #define VFIO_IOREAD(size) \
+>> -static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>> +int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>>   			bool test_mem, u##size *val, void __iomem *io)	\
+>>   {									\
+>>   	if (test_mem) {							\
+>> @@ -82,7 +83,8 @@ static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>>   		up_read(&vdev->memory_lock);				\
+>>   									\
+>>   	return 0;							\
+>> -}
+>> +}									\
+>> +EXPORT_SYMBOL_GPL(vfio_pci_ioread##size);
+>>   
+>>   VFIO_IOREAD(8)
+>>   VFIO_IOREAD(16)
+>> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+>> index 67ac58e20e1d..22c915317788 100644
+>> --- a/include/linux/vfio_pci_core.h
+>> +++ b/include/linux/vfio_pci_core.h
+>> @@ -131,4 +131,23 @@ int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar);
+>>   pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
+>>   						pci_channel_state_t state);
+>>   
+>> +#define VFIO_IOWRITE_DECLATION(size) \
+>> +int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>> +			bool test_mem, u##size val, void __iomem *io);
+>> +
+>> +VFIO_IOWRITE_DECLATION(8)
+>> +VFIO_IOWRITE_DECLATION(16)
+>> +VFIO_IOWRITE_DECLATION(32)
+>> +#ifdef iowrite64
+>> +VFIO_IOWRITE_DECLATION(64)
+>> +#endif
+>> +
+>> +#define VFIO_IOREAD_DECLATION(size) \
+>> +int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>> +			bool test_mem, u##size *val, void __iomem *io);
+>> +
+>> +VFIO_IOREAD_DECLATION(8)
+>> +VFIO_IOREAD_DECLATION(16)
+>> +VFIO_IOREAD_DECLATION(32)
+>> +
+>>   #endif /* VFIO_PCI_CORE_H */
 > 
-> Dragos Tatulea (7):
->   vdpa/mlx5: Expose resumable vq capability
->   vdpa/mlx5: Split function into locked and unlocked variants
->   vdpa/mlx5: Allow modifying multiple vq fields in one modify command
->   vdpa/mlx5: Introduce per vq and device resume
->   vdpa/mlx5: Mark vq addrs for modification in hw vq
->   vdpa/mlx5: Mark vq state for modification in hw vq
->   vdpa/mlx5: Use vq suspend/resume during .set_map
-> 
->  drivers/vdpa/mlx5/core/mr.c        |  31 +++---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 172 +++++++++++++++++++++++++----
->  include/linux/mlx5/mlx5_ifc.h      |   3 +-
->  include/linux/mlx5/mlx5_ifc_vdpa.h |   4 +
->  4 files changed, 174 insertions(+), 36 deletions(-)
-> 
-> -- 
-> 2.42.0
 
