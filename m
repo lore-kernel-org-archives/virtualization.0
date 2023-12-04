@@ -1,310 +1,250 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB7EA28DC4
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 14:30:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3DE2C190
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 15:13:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QuA9TjZj"
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="MM+RUq0U"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 32230416B6
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 14:30:28 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 32230416B6
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1FD8E4096A
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 15:13:29 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1FD8E4096A
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QuA9TjZj
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=MM+RUq0U
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -7.101
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RtfXzQFuxlyu
+	with ESMTP id IU2Df6nq61GP
 	for <virtualization@lists.linux-foundation.org>;
-	Mon,  4 Dec 2023 14:30:27 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E43B841745
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 14:30:26 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E43B841745
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701700225;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RSBmlOR1UqkHD0oYidhVbBfvIzTzf5U/uh3kWBx8ItM=;
-	b=QuA9TjZjqbIZ01MScjUmJpC2pQehbyriHgYmKBYgJH2kkWZM2GbbMWA9wyD91jjKDrEEP5
-	3Eistrg7EarC7Ye7YyN6qxP+x5yjYDrA7xIeyZyCf9UDgQA66Kmip7Iaz7XfLOc/qb5lw5
-	wAGnCO8GqDW7EL9h4yUV4tKipNmJ6xM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-156-8AZSEJVEOC23nt1ed9trrg-1; Mon, 04 Dec 2023 09:30:23 -0500
-X-MC-Unique: 8AZSEJVEOC23nt1ed9trrg-1
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-40a4c765d3bso25108735e9.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 04 Dec 2023 06:30:23 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701700222; x=1702305022;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=RSBmlOR1UqkHD0oYidhVbBfvIzTzf5U/uh3kWBx8ItM=;
-        b=lv6rHIFywq7moPSuyacPJMUSso+c1T5WRt1Eo/3h37WH8JWSZZUsv08DUKK9N4m2w8
-         AajAVR21XB/2R3XJCg+kRx4chNkjl6got4QiJwjx05LsnImOe3qYQ7o9QZTCMaYMEfEE
-         s9znWl39cr1nLeN8uBvRP03IUKzHiC8tX4kAdKpf6MfFESvNgkfLoUY/ZBJCDG9iLRMj
-         /kyrlX31yJ2wxrR9MWlv9wzmI5lz9Ms/zFrgDk9d/85omdSk+xyikqVqaw5KAujk99ne
-         c3VzxewcX0vMLawRGf7Nz5TqS9fjM9mYmvWHze1tFHM5/PwQsGc7zQpDGylhRSbK4iGo
-         Bmww==
-X-Gm-Message-State: AOJu0YxOIpM9wjc3LG0xVxBzbqquotI31AeUuInJJu1kEiUGxQRIfW9w
-	Nj4VMxfGZDWqYWIxkzZU25SWWV4IBy5te7SmXvGt6bVAE2EtIiwWCqeY0HTyxorziZnCojc+F+c
-	rZXAvwPIJrJfKA2U57jrotNpwqO9g2IJDhqqIFt1C+g==
-X-Received: by 2002:a05:600c:4711:b0:40b:5e26:237a with SMTP id v17-20020a05600c471100b0040b5e26237amr3023492wmo.43.1701700222509;
-        Mon, 04 Dec 2023 06:30:22 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGsObmpgovFZtPLsGHM5UifZVuJ4qnoaZ7VOE5NY2SN7kfGCeEjXNr5c5SpPhNfltQzb52PdA==
-X-Received: by 2002:a05:600c:4711:b0:40b:5e26:237a with SMTP id v17-20020a05600c471100b0040b5e26237amr3023478wmo.43.1701700222099;
-        Mon, 04 Dec 2023 06:30:22 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-125.retail.telecomitalia.it. [79.46.200.125])
-        by smtp.gmail.com with ESMTPSA id x18-20020adff0d2000000b003333b67f58csm6444882wro.48.2023.12.04.06.30.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Dec 2023 06:30:21 -0800 (PST)
-Date: Mon, 4 Dec 2023 15:30:16 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Arseniy Krasnov <avkrasnov@salutedevices.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v5 2/3] virtio/vsock: send credit update during
- setting SO_RCVLOWAT
-Message-ID: <g7fcjjohedsc4dldrzzlmvegakim3rwarlkh3hgqqvm4qwyld3@h7cqwi7jqq6o>
-References: <20231130084044-mutt-send-email-mst@kernel.org>
- <02de8982-ec4a-b3b2-e8e5-1bca28cfc01b@salutedevices.com>
- <20231130085445-mutt-send-email-mst@kernel.org>
- <pbkiwezwlf6dmogx7exur6tjrtcfzxyn7eqlehqxivqifbkojv@xlziiuzekon4>
- <20231130123815-mutt-send-email-mst@kernel.org>
- <smu77vmxw3ki36xhqnhtvujwswvkg5gkfwnt4vr5bnwljclseh@inbewbwkcqxs>
- <e58cf080-3611-0a19-c6e5-544d7101e975@salutedevices.com>
- <vqlspza4hzs6i5eajidxgeqd7wesv43ajpo42mljm4leuxfym4@j3h6ux2xlxbi>
- <214df55d-89e3-2c1d-250a-7428360b6b1b@salutedevices.com>
- <20231202152108-mutt-send-email-mst@kernel.org>
+	Mon,  4 Dec 2023 15:13:26 +0000 (UTC)
+X-Greylist: delayed 335 seconds by postgrey-1.37 at util1.osuosl.org; Mon, 04 Dec 2023 15:13:25 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8B7E740936
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8B7E740936
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 15:13:25 +0000 (UTC)
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20231204150748euoutp02612dc70d95eb7aa494fda7f09bc801a2~dqWECJvV02140321403euoutp02I;
+	Mon,  4 Dec 2023 15:07:48 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20231204150748euoutp02612dc70d95eb7aa494fda7f09bc801a2~dqWECJvV02140321403euoutp02I
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1701702468;
+	bh=UduKPnQm68cXoxlHdEmWZOKtyfnkbxFsmJeY5avud44=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=MM+RUq0UtMW7ws7H0S0Ou7vD5Bb+wBju4aAGFv4Kt7/pWjTu95F68zZDBmZ1ugg/U
+	 k/jFoeaGx2CjCIHbRFzDpe1BpW2vZ0XAkLZVShqt9wHehoNAoLx600dSQhE52i/PiN
+	 M8QwqPB9bqLZas0CYERPA4zKDRM0HZy4dTBNIhRA=
+Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+	20231204150747eucas1p26333e09142452af0e86679cdc4da337d~dqWDs4D2V2804828048eucas1p2u;
+	Mon,  4 Dec 2023 15:07:47 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges2new.samsung.com (EUCPMTA) with SMTP id 8D.C6.09814.34BED656; Mon,  4
+	Dec 2023 15:07:47 +0000 (GMT)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20231204150747eucas1p2365e92a7ac33ba99b801d7c800acaf6a~dqWDIvRbe0222702227eucas1p23;
+	Mon,  4 Dec 2023 15:07:47 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20231204150747eusmtrp15777265caed2d957daeb1957804eccf0~dqWDIBHpR2293022930eusmtrp1Q;
+	Mon,  4 Dec 2023 15:07:47 +0000 (GMT)
+X-AuditID: cbfec7f4-711ff70000002656-8f-656deb4362d0
+Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id B0.F6.09274.34BED656; Mon,  4
+	Dec 2023 15:07:47 +0000 (GMT)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20231204150747eusmtip12a603491717507856a186d16753c948c~dqWC6ygJe0939309393eusmtip1X;
+	Mon,  4 Dec 2023 15:07:47 +0000 (GMT)
+Received: from localhost (106.110.32.133) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Mon, 4 Dec 2023 15:07:46 +0000
+Date: Mon, 4 Dec 2023 16:07:44 +0100
+From: Joel Granados <j.granados@samsung.com>
+To: Lu Baolu <baolu.lu@linux.intel.com>
+CC: Jason Gunthorpe <jgg@ziepe.ca>, Kevin Tian <kevin.tian@intel.com>, Joerg
+	Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy
+	<robin.murphy@arm.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>,
+	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>, Jacob Pan
+	<jacob.jun.pan@linux.intel.com>, <iommu@lists.linux.dev>,
+	<linux-kselftest@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+Message-ID: <20231204150744.db3hfpq4v55cuavn@localhost>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20231202152108-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="g7qzvqsc57itqwgz"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFupkk+LIzCtJLcpLzFFi42LZduzneV3n17mpBvf+mVhsnriVzeLXFwuL
+	pQfXs1g0rL7AajFzxglGi87ZG9gtlr7dym5xedccNovpd96zWex9+pjN4uCHJ6wWy8/OY7No
+	uWNqMffnNRYHPo8nB+cxeayZt4bRY/Gel0wem1Z1snncubaHzWPeyUCPyTeWM3q82DyT0aO3
+	+R2bx+dNch5bP99mCeCO4rJJSc3JLEst0rdL4MpYtvgGS8F0jYofLQ9ZGhibFLsYOTkkBEwk
+	9p6bzN7FyMUhJLCCUeLSkn1sEM4XRonGk0uYQKqEBD4zShx97gDT0bP6BhNE0XJGiVOTlkJ1
+	ABX92XEFytnMKLFk8TQWkBYWARWJ2e2rGEFsNgEdifNv7jB3MXJwiAioSzz7EgBSzyxwh1ni
+	1It7rCA1wgKeEu/XH2MDsXkFzCU6rz5nh7AFJU7OfMIC0sssUCGx72IkhCktsfwfB0gFp4C9
+	xPEzT1khDlWS+PqmF8qulTi15RbY0RIC3zgl/rxsZ4JIuEhsfbyUHcIWlnh1fAuULSNxenIP
+	C0TDZEaJ/f8+sEM4qxklljV+heq2lmi58oQd5AoJAUeJnVdZIEw+iRtvBUEqmIHMSdumM0OE
+	eSU62oQgGtUkVt97wzKBUXkWksdmITw2C+GxWWBzdCQW7P7EhiGsLbFs4WtmCNtWYt269ywL
+	GNlXMYqnlhbnpqcWG+WllusVJ+YWl+al6yXn525iBKbQ0/+Of9nBuPzVR71DjEwcjIcYVYCa
+	H21YfYFRiiUvPy9VSYR33q3sVCHelMTKqtSi/Pii0pzU4kOM0hwsSuK8qinyqUIC6Yklqdmp
+	qQWpRTBZJg5OqQam2JwKBifhK68PO+dEnDTi0FKXfP0ktf39R86q6oMTRE8/Sd8d6V60dsvP
+	wyeY3swo4Nf9wsW44Ooe6xcNrwoaSj0tHhhWWIUbij7SYvFb5DFrRZaWtqbjR0vxO4/XJfh9
+	n2eotpTBiW3Dv32W/7sfW3PmfnhwpJPzUWr7m0nyagkGC2b/5FEOWmS1sP3Q71y/xje1liH2
+	ywr9ezf4T5OtmtBbxblquqiRZLv2wojrz56K5186Pf1N8Df3b64Hud4obJ/5js9MbdrEN/43
+	s7/dKUsomffzecn81q5Ky6tzn7zhusK95/j3lILWvu/SXO+el7mvsj+lMI/Pt/0I35XkhiID
+	v6LrNbr7dr8vb29XYinOSDTUYi4qTgQAyRVWRBwEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrGKsWRmVeSWpSXmKPExsVy+t/xu7rOr3NTDU5+4rPYPHErm8WvLxYW
+	Sw+uZ7FoWH2B1WLmjBOMFp2zN7BbLH27ld3i8q45bBbT77xns9j79DGbxcEPT1gtlp+dx2bR
+	csfUYu7PaywOfB5PDs5j8lgzbw2jx+I9L5k8Nq3qZPO4c20Pm8e8k4Eek28sZ/R4sXkmo0dv
+	8zs2j8+b5Dy2fr7NEsAdpWdTlF9akqqQkV9cYqsUbWhhpGdoaaFnZGKpZ2hsHmtlZKqkb2eT
+	kpqTWZZapG+XoJdx4cMP1oKpGhWTl2xgbGBsUOxi5OSQEDCR6Fl9g6mLkYtDSGApo0Tfz0es
+	EAkZiY1frkLZwhJ/rnWxQRR9ZJR48rWDBcLZzChxeP1uZpAqFgEVidntqxhBbDYBHYnzb+4A
+	xTk4RATUJZ59CQCpZxa4wyxx8MduFpAaYQFPiffrj7GB2LwC5hKdV5+zg9hCAnYSzz5uZIeI
+	C0qcnPmEBWQOs0CZROe/fAhTWmL5Pw6QCk4Be4njZ55C3akk8fVNL5RdK/H57zPGCYzCs5AM
+	moUwaBbCIJAKZgEtiRv/XjJhCGtLLFv4mhnCtpVYt+49ywJG9lWMIqmlxbnpucVGesWJucWl
+	eel6yfm5mxiBiWTbsZ9bdjCufPVR7xAjEwfjIUYVoM5HG1ZfYJRiycvPS1US4Z13KztViDcl
+	sbIqtSg/vqg0J7X4EKMpMAgnMkuJJucDU1xeSbyhmYGpoYmZpYGppZmxkjivZ0FHopBAemJJ
+	anZqakFqEUwfEwenVAPTCrfSs7NnXSxIdCgx+NG18kLPBK28pQmLBDg858YE/ZFjKmt/0J2j
+	Wf9Rje9E2hmliT42M3Q1Ut65G3ex75+1QCtX/rzPlYP/oh4e368f61jPriUnzvnterehi+Tc
+	74fXKj5/frScj3vq3bxqBRtFltaJpyx9WkWrrzX26H2cIX+hjdn8gorbyq3X2c3KDuxKj605
+	eLbEtX7uLIcSxaqoS67X8jbaPtorvcRUYMIUmfLbWdESnMWPb1+885Tr0gsWnjfrVs713cLc
+	d1z+0qEnOsuSwu3yH21mifNxkrnwteb+h0OXXqVc/Rbxz/Xi/nnM3x4Zr7l2PE2hZ5IPx5yz
+	UaV8iberChceZfexXF2vxFKckWioxVxUnAgAWaTaSbkDAAA=
+X-CMS-MailID: 20231204150747eucas1p2365e92a7ac33ba99b801d7c800acaf6a
+X-Msg-Generator: CA
+X-RootMTR: 20231204150747eucas1p2365e92a7ac33ba99b801d7c800acaf6a
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20231204150747eucas1p2365e92a7ac33ba99b801d7c800acaf6a
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+	<CGME20231204150747eucas1p2365e92a7ac33ba99b801d7c800acaf6a@eucas1p2.samsung.com>
 
-On Sat, Dec 02, 2023 at 03:22:39PM -0500, Michael S. Tsirkin wrote:
->On Fri, Dec 01, 2023 at 01:40:41PM +0300, Arseniy Krasnov wrote:
->>
->>
->> On 01.12.2023 12:48, Stefano Garzarella wrote:
->> > On Fri, Dec 01, 2023 at 11:35:56AM +0300, Arseniy Krasnov wrote:
->> >>
->> >>
->> >> On 01.12.2023 11:27, Stefano Garzarella wrote:
->> >>> On Thu, Nov 30, 2023 at 12:40:43PM -0500, Michael S. Tsirkin wrote:
->> >>>> On Thu, Nov 30, 2023 at 03:11:19PM +0100, Stefano Garzarella wrote:
->> >>>>> On Thu, Nov 30, 2023 at 08:58:58AM -0500, Michael S. Tsirkin wrote:
->> >>>>> > On Thu, Nov 30, 2023 at 04:43:34PM +0300, Arseniy Krasnov wrote:
->> >>>>> > >
->> >>>>> > >
->> >>>>> > > On 30.11.2023 16:42, Michael S. Tsirkin wrote:
->> >>>>> > > > On Thu, Nov 30, 2023 at 04:08:39PM +0300, Arseniy Krasnov wrote:
->> >>>>> > > >> Send credit update message when SO_RCVLOWAT is updated and it is bigger
->> >>>>> > > >> than number of bytes in rx queue. It is needed, because 'poll()' will
->> >>>>> > > >> wait until number of bytes in rx queue will be not smaller than
->> >>>>> > > >> SO_RCVLOWAT, so kick sender to send more data. Otherwise mutual hungup
->> >>>>> > > >> for tx/rx is possible: sender waits for free space and receiver is
->> >>>>> > > >> waiting data in 'poll()'.
->> >>>>> > > >>
->> >>>>> > > >> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->> >>>>> > > >> ---
->> >>>>> > > >>  Changelog:
->> >>>>> > > >>  v1 -> v2:
->> >>>>> > > >>   * Update commit message by removing 'This patch adds XXX' manner.
->> >>>>> > > >>   * Do not initialize 'send_update' variable - set it directly during
->> >>>>> > > >>     first usage.
->> >>>>> > > >>  v3 -> v4:
->> >>>>> > > >>   * Fit comment in 'virtio_transport_notify_set_rcvlowat()' to 80 chars.
->> >>>>> > > >>  v4 -> v5:
->> >>>>> > > >>   * Do not change callbacks order in transport structures.
->> >>>>> > > >>
->> >>>>> > > >>  drivers/vhost/vsock.c                   |  1 +
->> >>>>> > > >>  include/linux/virtio_vsock.h            |  1 +
->> >>>>> > > >>  net/vmw_vsock/virtio_transport.c        |  1 +
->> >>>>> > > >>  net/vmw_vsock/virtio_transport_common.c | 27 +++++++++++++++++++++++++
->> >>>>> > > >>  net/vmw_vsock/vsock_loopback.c          |  1 +
->> >>>>> > > >>  5 files changed, 31 insertions(+)
->> >>>>> > > >>
->> >>>>> > > >> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->> >>>>> > > >> index f75731396b7e..4146f80db8ac 100644
->> >>>>> > > >> --- a/drivers/vhost/vsock.c
->> >>>>> > > >> +++ b/drivers/vhost/vsock.c
->> >>>>> > > >> @@ -451,6 +451,7 @@ static struct virtio_transport vhost_transport = {
->> >>>>> > > >>          .notify_buffer_size       = virtio_transport_notify_buffer_size,
->> >>>>> > > >>
->> >>>>> > > >>          .read_skb = virtio_transport_read_skb,
->> >>>>> > > >> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->> >>>>> > > >>      },
->> >>>>> > > >>
->> >>>>> > > >>      .send_pkt = vhost_transport_send_pkt,
->> >>>>> > > >> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->> >>>>> > > >> index ebb3ce63d64d..c82089dee0c8 100644
->> >>>>> > > >> --- a/include/linux/virtio_vsock.h
->> >>>>> > > >> +++ b/include/linux/virtio_vsock.h
->> >>>>> > > >> @@ -256,4 +256,5 @@ void virtio_transport_put_credit(struct virtio_vsock_sock *vvs, u32 credit);
->> >>>>> > > >>  void virtio_transport_deliver_tap_pkt(struct sk_buff *skb);
->> >>>>> > > >>  int virtio_transport_purge_skbs(void *vsk, struct sk_buff_head *list);
->> >>>>> > > >>  int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t read_actor);
->> >>>>> > > >> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk, int val);
->> >>>>> > > >>  #endif /* _LINUX_VIRTIO_VSOCK_H */
->> >>>>> > > >> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->> >>>>> > > >> index af5bab1acee1..8007593a3a93 100644
->> >>>>> > > >> --- a/net/vmw_vsock/virtio_transport.c
->> >>>>> > > >> +++ b/net/vmw_vsock/virtio_transport.c
->> >>>>> > > >> @@ -539,6 +539,7 @@ static struct virtio_transport virtio_transport = {
->> >>>>> > > >>          .notify_buffer_size       = virtio_transport_notify_buffer_size,
->> >>>>> > > >>
->> >>>>> > > >>          .read_skb = virtio_transport_read_skb,
->> >>>>> > > >> +        .notify_set_rcvlowat      = virtio_transport_notify_set_rcvlowat
->> >>>>> > > >>      },
->> >>>>> > > >>
->> >>>>> > > >>      .send_pkt = virtio_transport_send_pkt,
->> >>>>> > > >> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> >>>>> > > >> index f6dc896bf44c..1cb556ad4597 100644
->> >>>>> > > >> --- a/net/vmw_vsock/virtio_transport_common.c
->> >>>>> > > >> +++ b/net/vmw_vsock/virtio_transport_common.c
->> >>>>> > > >> @@ -1684,6 +1684,33 @@ int virtio_transport_read_skb(struct vsock_sock *vsk, skb_read_actor_t recv_acto
->> >>>>> > > >>  }
->> >>>>> > > >>  EXPORT_SYMBOL_GPL(virtio_transport_read_skb);
->> >>>>> > > >>
->> >>>>> > > >> +int virtio_transport_notify_set_rcvlowat(struct vsock_sock *vsk,
->> >>>>> > > >> int val)
->> >>>>> > > >> +{
->> >>>>> > > >> +    struct virtio_vsock_sock *vvs = vsk->trans;
->> >>>>> > > >> +    bool send_update;
->> >>>>> > > >> +
->> >>>>> > > >> +    spin_lock_bh(&vvs->rx_lock);
->> >>>>> > > >> +
->> >>>>> > > >> +    /* If number of available bytes is less than new SO_RCVLOWAT value,
->> >>>>> > > >> +     * kick sender to send more data, because sender may sleep in
->> >>>>> > > >> its
->> >>>>> > > >> +     * 'send()' syscall waiting for enough space at our side.
->> >>>>> > > >> +     */
->> >>>>> > > >> +    send_update = vvs->rx_bytes < val;
->> >>>>> > > >> +
->> >>>>> > > >> +    spin_unlock_bh(&vvs->rx_lock);
->> >>>>> > > >> +
->> >>>>> > > >> +    if (send_update) {
->> >>>>> > > >> +        int err;
->> >>>>> > > >> +
->> >>>>> > > >> +        err = virtio_transport_send_credit_update(vsk);
->> >>>>> > > >> +        if (err < 0)
->> >>>>> > > >> +            return err;
->> >>>>> > > >> +    }
->> >>>>> > > >> +
->> >>>>> > > >> +    return 0;
->> >>>>> > > >> +}
->> >>>>> > > >
->> >>>>> > > >
->> >>>>> > > > I find it strange that this will send a credit update
->> >>>>> > > > even if nothing changed since this was called previously.
->> >>>>> > > > I'm not sure whether this is a problem protocol-wise,
->> >>>>> > > > but it certainly was not envisioned when the protocol was
->> >>>>> > > > built. WDYT?
->> >>>>> > >
->> >>>>> > > >From virtio spec I found:
->> >>>>> > >
->> >>>>> > > It is also valid to send a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet without previously receiving a
->> >>>>> > > VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows communicating updates any time a change
->> >>>>> > > in buffer space occurs.
->> >>>>> > > So I guess there is no limitations to send such type of packet, e.g. it is not
->> >>>>> > > required to be a reply for some another packet. Please, correct me if im wrong.
->> >>>>> > >
->> >>>>> > > Thanks, Arseniy
->> >>>>> >
->> >>>>> >
->> >>>>> > Absolutely. My point was different - with this patch it is possible
->> >>>>> > that you are not adding any credits at all since the previous
->> >>>>> > VIRTIO_VSOCK_OP_CREDIT_UPDATE.
->> >>>>>
->> >>>>> I think the problem we're solving here is that since as an optimization we
->> >>>>> avoid sending the update for every byte we consume, but we put a threshold,
->> >>>>> then we make sure we update the peer.
->> >>>>>
->> >>>>> A credit update contains a snapshot and sending it the same as the previous
->> >>>>> one should not create any problem.
->> >>>>
->> >>>> Well it consumes a buffer on the other side.
->> >>>
->> >>> Sure, but we are already speculating by not updating the other side when
->> >>> we consume bytes before a certain threshold. This already avoids to
->> >>> consume many buffers.
->> >>>
->> >>> Here we're only sending it once, when the user sets RCVLOWAT, so
->> >>> basically I expect it won't affect performance.
->> >>
->> >> Moreover I think in practice setting RCVLOWAT is rare case, while this patch
->> >> fixes real problem I guess
->> >>
->> >>
->> >>>
->> >>>>
->> >>>>> My doubt now is that we only do this when we set RCVLOWAT , should we also
->> >>>>> do something when we consume bytes to avoid the optimization we have?
->> >>>>>
->> >>>>> Stefano
->> >>>>
->> >>>> Isn't this why we have credit request?
->> >>>
->> >>> Yep, but in practice we never use it. It would also consume 2 buffers,
->> >>> one at the transmitter and one at the receiver.
->> >>>
->> >>> However I agree that maybe we should start using it before we decide not
->> >>> to send any more data.
->> >>>
->> >>> To be compatible with older devices, though, I think for now we also
->> >>> need to send a credit update when the bytes in the receive queue are
->> >>> less than RCVLOWAT, as Arseniy proposed in the other series.
->> >>
->> >> Looks like (in theory of course), that credit request is considered to be
->> >> paired with credit update. While current usage of credit update is something
->> >> like ACK packet in TCP, e.g. telling peer that we are ready to receive more
->> >> data.
->> >
->> > I don't honestly know what the original author's choice was, but I think we reduce latency this way.
->>
->> Ah I see,ok
->>
->> >
->> > Effectively though, if we never send any credit update when we consume bytes and always leave it up to the transmitter to ask for an update before transmission, we save even more buffer than the optimization we have, but maybe the latency would grow a lot.
->>
->> I think:
->> 1) Way where sender must request current credit status before sending packet requires rework of kernel part, and for me this approach is not
->>    so clear than current simple implementation (send RW, reply with CREDIT_UPDATE if needed).
->> 2) In theory yes, we need one more buffer for such CREDIT_UPDATE, but in practice I don't know how big is this trouble.
->>
->> Thanks, Arseniy
->
->I just worry that yes, normal users will only call RCVLOWAT once,
->but a bad user might call it many times causing a ton of
->credit updates. This is why I feel it's prudent to at least
->keep track of last credit update and if nothing changed
->do not resend it on a repeated RCVLOWAT.
+--g7qzvqsc57itqwgz
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Okay, now I get you!
+On Thu, Oct 26, 2023 at 10:49:24AM +0800, Lu Baolu wrote:
+> Hi folks,
+>=20
+> This series implements the functionality of delivering IO page faults to
+> user space through the IOMMUFD framework for nested translation. Nested
+Does this mean the IOPF_CAPABLE HWPT needs to be parented by a HWPT
+created with IOMMU_HWPT_ALLOC_NEST_PARENT set?
 
-Yeah, absolutely, we already have `last_fwd_cnt` in `struct 
-virtio_vsock_sock` to do that check.
+> translation is a hardware feature that supports two-stage translation
+> tables for IOMMU. The second-stage translation table is managed by the
+> host VMM, while the first-stage translation table is owned by user
+> space. This allows user space to control the IOMMU mappings for its
+> devices.
+>=20
+> When an IO page fault occurs on the first-stage translation table, the
+> IOMMU hardware can deliver the page fault to user space through the
+> IOMMUFD framework. User space can then handle the page fault and respond
+> to the device top-down through the IOMMUFD. This allows user space to
+> implement its own IO page fault handling policies.
+>=20
+> User space indicates its capability of handling IO page faults by
+> setting the IOMMU_HWPT_ALLOC_IOPF_CAPABLE flag when allocating a
+> hardware page table (HWPT). IOMMUFD will then set up its infrastructure
+> for page fault delivery. On a successful return of HWPT allocation, the
+> user can retrieve and respond to page faults by reading and writing to
+> the file descriptor (FD) returned in out_fault_fd.
+>=20
+> The iommu selftest framework has been updated to test the IO page fault
+> delivery and response functionality.
+>=20
+> This series is based on the latest implementation of nested translation
+> under discussion [1] and the page fault handling framework refactoring in
+> the IOMMU core [2].
+>=20
+> The series and related patches are available on GitHub: [3]
+>=20
+> [1] https://lore.kernel.org/linux-iommu/20230921075138.124099-1-yi.l.liu@=
+intel.com/
+> [2] https://lore.kernel.org/linux-iommu/20230928042734.16134-1-baolu.lu@l=
+inux.intel.com/
+> [3] https://github.com/LuBaolu/intel-iommu/commits/iommufd-io-pgfault-del=
+ivery-v2
+>=20
+> Best regards,
+> baolu
+>=20
+> Change log:
+> v2:
+>  - Move all iommu refactoring patches into a sparated series and discuss
+>    it in a different thread. The latest patch series [v6] is available at
+>    https://lore.kernel.org/linux-iommu/20230928042734.16134-1-baolu.lu@li=
+nux.intel.com/
+>  - We discussed the timeout of the pending page fault messages. We
+>    agreed that we shouldn't apply any timeout policy for the page fault
+>    handling in user space.
+>    https://lore.kernel.org/linux-iommu/20230616113232.GA84678@myrica/
+>  - Jason suggested that we adopt a simple file descriptor interface for
+>    reading and responding to I/O page requests, so that user space
+>    applications can improve performance using io_uring.
+>    https://lore.kernel.org/linux-iommu/ZJWjD1ajeem6pK3I@ziepe.ca/
+>=20
+> v1: https://lore.kernel.org/linux-iommu/20230530053724.232765-1-baolu.lu@=
+linux.intel.com/
+>=20
+> Lu Baolu (6):
+>   iommu: Add iommu page fault cookie helpers
+>   iommufd: Add iommu page fault uapi data
+>   iommufd: Initializing and releasing IO page fault data
+>   iommufd: Deliver fault messages to user space
+>   iommufd/selftest: Add IOMMU_TEST_OP_TRIGGER_IOPF test support
+>   iommufd/selftest: Add coverage for IOMMU_TEST_OP_TRIGGER_IOPF
+>=20
+>  include/linux/iommu.h                         |   9 +
+>  drivers/iommu/iommu-priv.h                    |  15 +
+>  drivers/iommu/iommufd/iommufd_private.h       |  12 +
+>  drivers/iommu/iommufd/iommufd_test.h          |   8 +
+>  include/uapi/linux/iommufd.h                  |  65 +++++
+>  tools/testing/selftests/iommu/iommufd_utils.h |  66 ++++-
+>  drivers/iommu/io-pgfault.c                    |  50 ++++
+>  drivers/iommu/iommufd/device.c                |  69 ++++-
+>  drivers/iommu/iommufd/hw_pagetable.c          | 260 +++++++++++++++++-
+>  drivers/iommu/iommufd/selftest.c              |  56 ++++
+>  tools/testing/selftests/iommu/iommufd.c       |  24 +-
+>  .../selftests/iommu/iommufd_fail_nth.c        |   2 +-
+>  12 files changed, 620 insertions(+), 16 deletions(-)
+>=20
+> --=20
+> 2.34.1
+>=20
 
-Thanks,
-Stefano
+--=20
 
+Joel Granados
+
+--g7qzvqsc57itqwgz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAABCgAdFiEErkcJVyXmMSXOyyeQupfNUreWQU8FAmVt6zgACgkQupfNUreW
+QU/YxAv/amK6Yf/ek3gmC/YYj6UNyrZPgjipdI6JkSodKr8gwAAS/1zf9pAmXTwT
+3REQr0utcNlpQ8kpoAEuuufpScq9cG3QiVMZfH3XggOywuWLv3nhPsiynQnkBauq
+90r7lEUWUZd+fRZdM3IjaC96IqYDxQ1yKeIZ15ZJ3G5cf313NmTOP2nCUJoIb953
+MMY8L9R0fCkYpFo8R1rIh0sDJKc9V4jD6nQfhfGWG4Ip1jKSoI4ZrGlSVX+Apnqd
+bv/4+n0pypUK6h6jfVTDH5WTN+gpHGK3JxMuYVOh27rnkzZc/W5t5gEdcYK12ZzV
+T60qTF2kGs6rCNveylvvV62fN7LofVfxsYcHiak9+He/W0C1PhHwfgp399315kKo
+cNtIK+bk1EKyQJqct9h89mWcYIXsXl2jBeXY8O57u+Q7IRxST5KXiWNkc5XJowJq
+hSnK4E6QPJ4gFF6Vq1MYhjdYZyDD2n+UHY4cfjO9HXEmZ8zUya61u18uPRdy0Ils
+VPflK8/n
+=5JsO
+-----END PGP SIGNATURE-----
+
+--g7qzvqsc57itqwgz--
