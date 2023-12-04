@@ -1,148 +1,77 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4009468B
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="bnSB12l7"
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 677658F49
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 07:23:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F03DB60B22
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:41 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F03DB60B22
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bnSB12l7
+	by smtp2.osuosl.org (Postfix) with ESMTP id D99EB40A07
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 07:23:39 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D99EB40A07
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -9.9
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6oqe34ujGVoa
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HVFSH2r7fj2d
 	for <virtualization@lists.linux-foundation.org>;
-	Mon,  4 Dec 2023 05:24:40 +0000 (UTC)
-Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9C4C960807
-	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9C4C960807
-Message-ID: <b6ad5935-eb31-43f6-8573-0f07343876e8@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1701667477;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=u0n2D/tnKgjpK2IUTwVrFHT+iGyrOIMwpCUFmx4lMTU=;
-	b=bnSB12l7yn8qLQ9sVFvz8Gy4jPgIDLSnGlmeiELwTQMNSv1zPVlmP3/sYWhcg+DmjNbscD
-	O3RdF1TahhVPmYdEzaPBJydGbmC7cnj0+U7NKN1bRJDsqS+Dw+7/Gx1FUl6ws6oks+SKNZ
-	H3sKARcUQk0Zw/ORM1cy6Fie+iJhZkA=
-Date: Mon, 4 Dec 2023 13:24:28 +0800
+	Mon,  4 Dec 2023 07:23:38 +0000 (UTC)
+Received: from out30-133.freemail.mail.aliyun.com (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 12DA840179
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 07:23:37 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 12DA840179
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VxkmuBS_1701674611;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VxkmuBS_1701674611)
+          by smtp.aliyun-inc.com;
+          Mon, 04 Dec 2023 15:23:32 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: virtualization@lists.linux-foundation.org
+Cc: Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Subject: [RFC v1 0/4] virtio helper: collect dma info from virtio core
+Date: Mon,  4 Dec 2023 15:23:27 +0800
+Message-Id: <20231204072331.73776-1-xuanzhuo@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0.3.g01195cf9f
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH net-next 2/5] virtio_net: Add page_pool support to improve
- performance
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, kuba@kernel.org, edumazet@google.com,
- davem@davemloft.net, pabeni@redhat.com, alexander.duyck@gmail.com,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20230526054621.18371-1-liangchen.linux@gmail.com>
- <20230526054621.18371-2-liangchen.linux@gmail.com>
- <c745f67e-91e6-4a32-93f2-dc715056eb51@linux.dev>
- <20231129095825-mutt-send-email-mst@kernel.org>
- <b699fbc8-260a-48e9-b6cc-8bfecd09afed@linux.dev>
- <0c2efe49-03db-4616-a4e5-26ff0434e323@linux.dev>
- <1701311694.1163726-1-xuanzhuo@linux.alibaba.com>
- <c4397388-dc39-4799-b386-93ce5956c106@linux.dev>
- <1701394709.904543-1-xuanzhuo@linux.alibaba.com>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Zhu Yanjun <yanjun.zhu@linux.dev>
-In-Reply-To: <1701394709.904543-1-xuanzhuo@linux.alibaba.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+X-Git-Hash: a973224d7b9a
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-在 2023/12/1 9:38, Xuan Zhuo 写道:
-> On Thu, 30 Nov 2023 13:30:40 +0800, Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
->>
->> 在 2023/11/30 10:34, Xuan Zhuo 写道:
->>> On Wed, 29 Nov 2023 23:29:10 +0800, Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
->>>> 在 2023/11/29 23:22, Zhu Yanjun 写道:
->>>>> 在 2023/11/29 22:59, Michael S. Tsirkin 写道:
->>>>>> On Wed, Nov 29, 2023 at 10:50:57PM +0800, Zhu Yanjun wrote:
->>>>>>> 在 2023/5/26 13:46, Liang Chen 写道:
->>>>>> what made you respond to a patch from May, now?
->>>>> I want to apply page_pool to our virtio_net. This virtio_net works on
->>>>> our device.
->>>>>
->>>>> I want to verify whether page_pool on virtio_net with our device can
->>>>> improve the performance or not.
->>>>>
->>>>> And I found that ethtool is wrong.
->>>>>
->>>>> I use virtio_net on our device. I found that page member variable in
->>>>> rq is not used in recv path.
->>>>>
->>>>> When virtio_net is modprobe, I checked page member variable in rq with
->>>>> kprobe or crash tool.  page member variable in rq is always NULL.
->>>>>
->>>>> But sg in recv path is used.
->>>>>
->>>>> So how to use page member variable in rq? If page member variable in
->>>>> rq is always NULL, can we remove it?
->>>>>
->>>>> BTW, I use ping and iperf tool to make tests with virtio_net. In the
->>>>> tests, page member variable in rq is always NULL.
->>>>
->>>> And I replaced page member variable in rq with page_pool, but the
->>>> statistics of page_pool are always 0.
->>>>
->>>> It is interesting that page_pool member variable in rq is not used in
->>>> ping and iperf tests.
->>>>
->>>> I am not sure what tests can make page member variable not NULL. ^_^
->>> Do you mean rq->pages?
->>>
->>> That is for big mode.
->>
->> Hi, Xuan
->>
->> Got it. What is big mode? Do you mean big packet size? I run iperf with
->> the packet size 2^23.
->>
->> The rq->pages is still NULL.
->>
->> It is interesting.
-> 
-> You may need to check the code of virtnet_probe().
+For the virtio net send queue, if it supports premapped mode,
+then we need to collect the dma info of every desc of this buf
+to do unmap inside the driver. The key is that one xmit may
+contains multiple dma address. (A skb may contain 19 dma address)
 
-Thanks a lot. From virtnet_probe, big mode and mergeable mode can be found.
+Here I introduce a new helper to resolve this. And we also need
+to consider the virtqueue_resize and free the unused buffers.
 
-Zhu Yanjun
+For on the same page of the API design before other job, I post this RFC patch
+set.
 
-> 
-> Thanks.
-> 
-> 
->>
->> Zhu Yanjun
->>
->>
->>>
->>> Thanks.
->>>
->>>
->>>> Best Regards,
->>>>
->>>> Zhu Yanjun
->>>>
->>>>
->>>>> It is interesting.
->>>>>
->>>>> Zhu Yanjun
->>>>>
+Thanks.
+
+v1:
+    1. introduce new struct virtio_dma_head to replace the scatterlist
+    2. fix some small problems
+
+
+Xuan Zhuo (4):
+  virtio_ring: introduce virtqueue_get_buf_ctx_dma()
+  virtio_ring: virtqueue_disable_and_recycle let the callback detach
+    bufs
+  virtio_ring: introduce virtqueue_detach_unused_buf_premapped
+  virtio_net: sq support premapped mode
+
+ drivers/net/virtio/main.c       | 145 +++++++++++++++++++----
+ drivers/net/virtio/virtio_net.h |   2 +
+ drivers/virtio/virtio_ring.c    | 196 +++++++++++++++++++++-----------
+ include/linux/virtio.h          |  21 +++-
+ 4 files changed, 277 insertions(+), 87 deletions(-)
+
+--
+2.32.0.3.g01195cf9f
 
