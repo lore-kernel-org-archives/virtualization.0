@@ -1,154 +1,148 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0592B15AE2
-	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 16:24:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4009468B
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KVrxEqa6"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="bnSB12l7"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 853E781B70
-	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 16:24:02 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 853E781B70
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KVrxEqa6
+	by smtp3.osuosl.org (Postfix) with ESMTP id F03DB60B22
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org F03DB60B22
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=linux.dev header.i=@linux.dev header.a=rsa-sha256 header.s=key1 header.b=bnSB12l7
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kjrSJEXmWE1c
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6oqe34ujGVoa
 	for <virtualization@lists.linux-foundation.org>;
-	Sun,  3 Dec 2023 16:24:01 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 754BB81AF5
-	for <virtualization@lists.linux-foundation.org>; Sun,  3 Dec 2023 16:24:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 754BB81AF5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701620640;
+	Mon,  4 Dec 2023 05:24:40 +0000 (UTC)
+Received: from out-176.mta0.migadu.com (out-176.mta0.migadu.com [91.218.175.176])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9C4C960807
+	for <virtualization@lists.linux-foundation.org>; Mon,  4 Dec 2023 05:24:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 9C4C960807
+Message-ID: <b6ad5935-eb31-43f6-8573-0f07343876e8@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1701667477;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lnZvOG5O1XML8m5bdEgP0BLaNE6m6L+TFl+VYXFF/Gc=;
-	b=KVrxEqa6e8Wi2KaLwjJhDYWBv3KGd6Epv25VDyJCqMPRq2wkMAVMWXBqherD6IVwRlBru3
-	xlTDi4aJE3hd+/3EA3Q86/hByvTjQHp1y3RtJCYC3SdeduIgD3USWX7Elbb4QYYjTGOh7G
-	BdTECb1aJhaPZv4qWD9rItax7kSkrt0=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-695-Ze3S3-mmOLa1AL57DltTDg-1; Sun, 03 Dec 2023 11:23:57 -0500
-X-MC-Unique: Ze3S3-mmOLa1AL57DltTDg-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40b3487fa9eso31421775e9.2
-        for <virtualization@lists.linux-foundation.org>; Sun, 03 Dec 2023 08:23:56 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701620636; x=1702225436;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lnZvOG5O1XML8m5bdEgP0BLaNE6m6L+TFl+VYXFF/Gc=;
-        b=WdqihrX5s96XQdbXZL8npq+sFc/9mpQ8a7Q8VTu2Y/nkeJ+3l7yH398GyrCtX8SOr8
-         Jd58O2SLIyDhJYWsGx0GBx5t4qhmsF0o3/kP7tG+6vbR+BpH9kjgBp8kPRY1jtvtJ2Ra
-         5V7z3VbvElq55K2mXUVnVeem6z6lSydcaC8IKQQ2WwmIj6gd7rsZc8I/KV84KZt0mXCr
-         17u/C7uMcW6u+RS5i6aaxjSUuesFPUov+SqP7LTis7nqCxU8C62zr/Yriinezy74a+Ms
-         u32gmifpTKMpl/LkLusWlK/5UzPEhrQ5MskVqB4A9Xk7IoVCwJIGzvRej8s+Cb+l/p0h
-         o8Ww==
-X-Gm-Message-State: AOJu0YyXqI/pvL4wnSX7Jeyxp/d9TL/d7uLHYR4jDZwqeek/Mdo+wWKL
-	pbYi4+GtBzvzJjpEvM6oGJs5VqwqwK9mt1Zgo4sl51l2teZ7VCLpZKBLE/YC1hPdpilO2A7e1C6
-	5aqobLIq2W6LHmd8z9oaUDXKlozBtZY6UhAGD/mB9yA==
-X-Received: by 2002:a05:600c:705:b0:40b:5e21:dd4f with SMTP id i5-20020a05600c070500b0040b5e21dd4fmr1874532wmn.125.1701620635910;
-        Sun, 03 Dec 2023 08:23:55 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGKP9eXqXIJINqxrVU9tyc8Z3UHQwADTnS0+oYOUt7wpJ1p/7gUBKwhI0K0i3D0cbqq7yqUBw==
-X-Received: by 2002:a05:600c:705:b0:40b:5e21:dd4f with SMTP id i5-20020a05600c070500b0040b5e21dd4fmr1874523wmn.125.1701620635528;
-        Sun, 03 Dec 2023 08:23:55 -0800 (PST)
-Received: from redhat.com ([2.55.11.133])
-        by smtp.gmail.com with ESMTPSA id jg23-20020a05600ca01700b0040b30be6244sm12148007wmb.24.2023.12.03.08.23.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Dec 2023 08:23:54 -0800 (PST)
-Date: Sun, 3 Dec 2023 11:23:50 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	Parav Pandit <parav@nvidia.com>,
-	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"si-wei.liu@oracle.com" <si-wei.liu@oracle.com>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	"galp@nvidia.com" <galp@nvidia.com>,
-	"leon@kernel.org" <leon@kernel.org>
-Subject: Re: [PATCH vhost 0/7] vdpa/mlx5: Add support for resumable vqs
-Message-ID: <20231203112324-mutt-send-email-mst@kernel.org>
-References: <20231201104857.665737-1-dtatulea@nvidia.com>
- <20231202152523-mutt-send-email-mst@kernel.org>
- <aff0361edcb0fd0c384bf297e71d25fb77570e15.camel@nvidia.com>
+	bh=u0n2D/tnKgjpK2IUTwVrFHT+iGyrOIMwpCUFmx4lMTU=;
+	b=bnSB12l7yn8qLQ9sVFvz8Gy4jPgIDLSnGlmeiELwTQMNSv1zPVlmP3/sYWhcg+DmjNbscD
+	O3RdF1TahhVPmYdEzaPBJydGbmC7cnj0+U7NKN1bRJDsqS+Dw+7/Gx1FUl6ws6oks+SKNZ
+	H3sKARcUQk0Zw/ORM1cy6Fie+iJhZkA=
+Date: Mon, 4 Dec 2023 13:24:28 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aff0361edcb0fd0c384bf297e71d25fb77570e15.camel@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: Re: [PATCH net-next 2/5] virtio_net: Add page_pool support to improve
+ performance
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Liang Chen <liangchen.linux@gmail.com>, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kuba@kernel.org, edumazet@google.com,
+ davem@davemloft.net, pabeni@redhat.com, alexander.duyck@gmail.com,
+ "Michael S. Tsirkin" <mst@redhat.com>
+References: <20230526054621.18371-1-liangchen.linux@gmail.com>
+ <20230526054621.18371-2-liangchen.linux@gmail.com>
+ <c745f67e-91e6-4a32-93f2-dc715056eb51@linux.dev>
+ <20231129095825-mutt-send-email-mst@kernel.org>
+ <b699fbc8-260a-48e9-b6cc-8bfecd09afed@linux.dev>
+ <0c2efe49-03db-4616-a4e5-26ff0434e323@linux.dev>
+ <1701311694.1163726-1-xuanzhuo@linux.alibaba.com>
+ <c4397388-dc39-4799-b386-93ce5956c106@linux.dev>
+ <1701394709.904543-1-xuanzhuo@linux.alibaba.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Zhu Yanjun <yanjun.zhu@linux.dev>
+In-Reply-To: <1701394709.904543-1-xuanzhuo@linux.alibaba.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, Dec 03, 2023 at 03:21:01PM +0000, Dragos Tatulea wrote:
-> On Sat, 2023-12-02 at 15:26 -0500, Michael S. Tsirkin wrote:
-> > On Fri, Dec 01, 2023 at 12:48:50PM +0200, Dragos Tatulea wrote:
-> > > Add support for resumable vqs in the driver. This is a firmware feature
-> > > that can be used for the following benefits:
-> > > - Full device .suspend/.resume.
-> > > - .set_map doesn't need to destroy and create new vqs anymore just to
-> > >   update the map. When resumable vqs are supported it is enough to
-> > >   suspend the vqs, set the new maps, and then resume the vqs.
-> > > 
-> > > The first patch exposes the relevant bits in mlx5_ifc.h. That means it
-> > > needs to be applied to the mlx5-vhost tree [0] first.
-> > 
-> > I didn't get this. Why does this need to go through that tree?
-> > Is there a dependency on some other commit from that tree?
-> > 
-> To avoid merge issues in Linus's tree in mlx5_ifc.h. The idea is the same as for
-> the "vq descriptor mappings" patchset [1].
+在 2023/12/1 9:38, Xuan Zhuo 写道:
+> On Thu, 30 Nov 2023 13:30:40 +0800, Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
+>>
+>> 在 2023/11/30 10:34, Xuan Zhuo 写道:
+>>> On Wed, 29 Nov 2023 23:29:10 +0800, Zhu Yanjun <yanjun.zhu@linux.dev> wrote:
+>>>> 在 2023/11/29 23:22, Zhu Yanjun 写道:
+>>>>> 在 2023/11/29 22:59, Michael S. Tsirkin 写道:
+>>>>>> On Wed, Nov 29, 2023 at 10:50:57PM +0800, Zhu Yanjun wrote:
+>>>>>>> 在 2023/5/26 13:46, Liang Chen 写道:
+>>>>>> what made you respond to a patch from May, now?
+>>>>> I want to apply page_pool to our virtio_net. This virtio_net works on
+>>>>> our device.
+>>>>>
+>>>>> I want to verify whether page_pool on virtio_net with our device can
+>>>>> improve the performance or not.
+>>>>>
+>>>>> And I found that ethtool is wrong.
+>>>>>
+>>>>> I use virtio_net on our device. I found that page member variable in
+>>>>> rq is not used in recv path.
+>>>>>
+>>>>> When virtio_net is modprobe, I checked page member variable in rq with
+>>>>> kprobe or crash tool.  page member variable in rq is always NULL.
+>>>>>
+>>>>> But sg in recv path is used.
+>>>>>
+>>>>> So how to use page member variable in rq? If page member variable in
+>>>>> rq is always NULL, can we remove it?
+>>>>>
+>>>>> BTW, I use ping and iperf tool to make tests with virtio_net. In the
+>>>>> tests, page member variable in rq is always NULL.
+>>>>
+>>>> And I replaced page member variable in rq with page_pool, but the
+>>>> statistics of page_pool are always 0.
+>>>>
+>>>> It is interesting that page_pool member variable in rq is not used in
+>>>> ping and iperf tests.
+>>>>
+>>>> I am not sure what tests can make page member variable not NULL. ^_^
+>>> Do you mean rq->pages?
+>>>
+>>> That is for big mode.
+>>
+>> Hi, Xuan
+>>
+>> Got it. What is big mode? Do you mean big packet size? I run iperf with
+>> the packet size 2^23.
+>>
+>> The rq->pages is still NULL.
+>>
+>> It is interesting.
 > 
-> Thanks,
-> Dragos
+> You may need to check the code of virtnet_probe().
 
-Are there other changes in that area that will cause non-trivial merge
-conflicts?
+Thanks a lot. From virtnet_probe, big mode and mergeable mode can be found.
 
-> > > Once applied
-> > > there, the change has to be pulled from mlx5-vhost into the vhost tree
-> > > and only then the remaining patches can be applied. Same flow as the vq
-> > > descriptor mappings patchset [1].
-> > > 
-> > > To be able to use resumable vqs properly, support for selectively modifying
-> > > vq parameters was needed. This is what the middle part of the series
-> > > consists of.
-> > > 
-> > > [0] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
-> > > [1] https://lore.kernel.org/virtualization/20231018171456.1624030-2-dtatulea@nvidia.com/
-> > > 
-> > > Dragos Tatulea (7):
-> > >   vdpa/mlx5: Expose resumable vq capability
-> > >   vdpa/mlx5: Split function into locked and unlocked variants
-> > >   vdpa/mlx5: Allow modifying multiple vq fields in one modify command
-> > >   vdpa/mlx5: Introduce per vq and device resume
-> > >   vdpa/mlx5: Mark vq addrs for modification in hw vq
-> > >   vdpa/mlx5: Mark vq state for modification in hw vq
-> > >   vdpa/mlx5: Use vq suspend/resume during .set_map
-> > > 
-> > >  drivers/vdpa/mlx5/core/mr.c        |  31 +++---
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 172 +++++++++++++++++++++++++----
-> > >  include/linux/mlx5/mlx5_ifc.h      |   3 +-
-> > >  include/linux/mlx5/mlx5_ifc_vdpa.h |   4 +
-> > >  4 files changed, 174 insertions(+), 36 deletions(-)
-> > > 
-> > > -- 
-> > > 2.42.0
-> > 
+Zhu Yanjun
+
 > 
+> Thanks.
+> 
+> 
+>>
+>> Zhu Yanjun
+>>
+>>
+>>>
+>>> Thanks.
+>>>
+>>>
+>>>> Best Regards,
+>>>>
+>>>> Zhu Yanjun
+>>>>
+>>>>
+>>>>> It is interesting.
+>>>>>
+>>>>> Zhu Yanjun
+>>>>>
 
