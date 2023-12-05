@@ -1,180 +1,159 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C9061FD7
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 14:23:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DAE26928F
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 17:07:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R+ghoSYI"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Wp9IbtM8"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1F3224037E
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 14:23:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 1F3224037E
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=R+ghoSYI
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8C4576137D
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 17:07:18 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8C4576137D
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=Wp9IbtM8
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -0.599
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8D9Eg4NZdnsc
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cJwommBFdg63
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 14:23:31 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DB535402EB
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 14:23:30 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org DB535402EB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701786209;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=g9IZpMPIi3jSZTsC7HLeV6BNERkHoH4xs1hFKXipffA=;
-	b=R+ghoSYIZBn8W+jzvlq5pXxoUaUhJ6Me4ZlgEMviDHLfAbIhcGrtCVMTohy/qw2pa5mfHG
-	KnEtTgAehmyFkehaeVzxYO29XuQf1XHQuQjXyH326ATV1zeiWnljmrWh+QjRup8NH10cK9
-	8NEwLxLuWbg0jtX9PNiBLrpCLiZhVRw=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-462-djlE2Zo2OZuyh4f3KsxdDQ-1; Tue, 05 Dec 2023 09:22:16 -0500
-X-MC-Unique: djlE2Zo2OZuyh4f3KsxdDQ-1
-Received: by mail-ot1-f71.google.com with SMTP id 46e09a7af769-6d87f0b71aeso4021197a34.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 06:22:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701786136; x=1702390936;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g9IZpMPIi3jSZTsC7HLeV6BNERkHoH4xs1hFKXipffA=;
-        b=QOpfQCsKySNRQzQq526SGCr4PR5TtERSTBXynTIOBATbdp4st+kD7VTFeeDIfF7luh
-         Hq1lducXC4Pot7EYWqyjlMp298p+tVsjWgWGVzMIu7rDIwIP64E1Spj29Onl+NClkzl0
-         a+ZCWI2fz+m/ndlHHSFhwdotPBe+SvWqvQCz8utqZ6H2diHD7m4dJ8PvDCaEub5huJ8S
-         Bb1O4KcoE6hH+1zpbXQzI8qdHxANCN13T22dlhzhEfvyoaA8skxN1crV6csNhIwrhYc2
-         TmRbcS4nU5GV9N5bct9dbwgrwhyCMRFMdwUB5dLSYmQkqgAaTLeggBVzZ3JJM7VMuB2O
-         sP5g==
-X-Gm-Message-State: AOJu0YyFcfFbXCWjfVJq5aWoSV+a/vLMV2rSfmMOgkUbP6NuB1VH/9E3
-	j3I9iAhgNPgJrbWmLmEGIasO5BkF1cDMCqZAOsGwc4OsmrXQaAufkB2RlCDArmbUv1NxfgvZjas
-	RdQrGBLqDDZX+gbAH4DOv8XfBtCa9s5mkc0mSyrl4og==
-X-Received: by 2002:a9d:6f82:0:b0:6d8:7afe:7867 with SMTP id h2-20020a9d6f82000000b006d87afe7867mr4894136otq.73.1701786135912;
-        Tue, 05 Dec 2023 06:22:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFQM0DUJ5PkREYuL7J0Iqz04MrH5aEKcLNe4Q826QNJ3Y8wTHvA1ssEqjnGPP+m4NlCYhCYxg==
-X-Received: by 2002:a9d:6f82:0:b0:6d8:7afe:7867 with SMTP id h2-20020a9d6f82000000b006d87afe7867mr4894106otq.73.1701786135338;
-        Tue, 05 Dec 2023 06:22:15 -0800 (PST)
-Received: from sgarzare-redhat (host-79-46-200-125.retail.telecomitalia.it. [79.46.200.125])
-        by smtp.gmail.com with ESMTPSA id f17-20020ac84651000000b00423dbb19262sm5169011qto.78.2023.12.05.06.22.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Dec 2023 06:22:14 -0800 (PST)
-Date: Tue, 5 Dec 2023 15:21:55 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
-	oxffffaa@gmail.com
-Subject: Re: [PATCH net-next v6 3/4] virtio/vsock: fix logic which reduces
- credit update messages
-Message-ID: <gqrfreguavurkb7betm2utzdfnefrxgxyoilyveowvmspbwpes@45s6jshyelui>
-References: <20231205064806.2851305-1-avkrasnov@salutedevices.com>
- <20231205064806.2851305-4-avkrasnov@salutedevices.com>
- <v335g4fjrn5f6tsw4nysztaklze2obnjwpezps3jgb2xickpge@ea5woxob52nc>
- <809a8962-0082-6443-4e59-549eb28b9a82@salutedevices.com>
+	Tue,  5 Dec 2023 17:07:18 +0000 (UTC)
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on20611.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e83::611])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D42ED611F6
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 17:07:17 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D42ED611F6
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VZPFW9TEaSQNON+QYZ+aLlxtDoFdpCtRoZBkE9olXdDyPlEqMZ16rj6YQ1vj2fwfD3iPtrllBw0sWIUqmgF6r2pxBZwVlLP6BtS6Mcj98Cu/MBu0X64jKJejtaQdPcx8SQZJ/h5T/2emI+Sn+ewATEr3URynRUkHvX5W/lWUUdkvtrzKpkcVpKgI285eHngm8IyBffmlTU/5YuCk9CIw06H7jK4fTa5YheMwDreXl0rpPLeWLf5bd4fXTLr5HdPgfRzUYa9VHLz/INMmzSyCgXrQ9dtnplbbyWOYOYgMNlGw8hBlLdZswz03NuI5rdFmylDVRmj/TFuJdO+CtgNCtw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=PKXdP4e9wCMr8uuruZPEmhEI0IVCVj4kOprvMCLu77FOFqpkZboLwtdXn3B0JbELW7iMghbj8javkIutz7uyV1cNMSjjHdS8u7e+RWx96cnIrZMNJM2nvc6lmQLEJhKvPPpKHkJTJq7ilnJcAjxEIWbr1q4qqgBlrveyMf6wRZT/wNz2+ac3sVPCGrw7Tw1lVqOFXesnQXXHKyFmefd/yFkhVio9PPAYX0humfrQdrAQk0pggTMpPJkzQKasxCRqzz9vsEmvC5VA/awIDn01GvkQ8musMS37h13KUzdTkI3YBcUbxuqx+h5ABtG2uJR6dp3qFu+DTHNSqrHQ8KKewA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=Wp9IbtM8xMjAGAaYTJUD/6j03T2vRf6kET8XySwSOK0zWC89CRyCqNIg4EbPcvh76KSXFLp2QbUmBpYgdDB31PamsNk0bvr52PNEZunccBvzEnSNIae0Szf3Z46VCD0yDxmy4XYrzeEI56uBtsWcN5XMnrN+9ZZUcTIBqJ7ladqRHyhDGSzTdk+SLLF2mCQiq4LrV+PX74sWbW2nFqae8J7ECmMJ6G927ktscRERLlmDIMYFs1xwD/Degv/sCo1QOpusPX147Q6DvNGmzE6/DUt/Pai8VNKIiV5s2Zeq9jL905Qwb4P+ISEpvomuXomwBG5ls9pTPvEfxu9qobmqJA==
+Received: from MW4PR03CA0025.namprd03.prod.outlook.com (2603:10b6:303:8f::30)
+ by CH2PR12MB4326.namprd12.prod.outlook.com (2603:10b6:610:af::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34; Tue, 5 Dec
+ 2023 17:07:13 +0000
+Received: from CO1PEPF000044F9.namprd21.prod.outlook.com
+ (2603:10b6:303:8f:cafe::28) by MW4PR03CA0025.outlook.office365.com
+ (2603:10b6:303:8f::30) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34 via Frontend
+ Transport; Tue, 5 Dec 2023 17:07:13 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CO1PEPF000044F9.mail.protection.outlook.com (10.167.241.199) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7091.2 via Frontend Transport; Tue, 5 Dec 2023 17:07:13 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 5 Dec 2023
+ 09:06:58 -0800
+Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 5 Dec 2023
+ 09:06:57 -0800
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com (10.129.68.7)
+ with Microsoft SMTP Server id 15.2.986.41 via Frontend Transport; Tue, 5 Dec
+ 2023 09:06:54 -0800
+From: Yishai Hadas <yishaih@nvidia.com>
+To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<jgg@nvidia.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
+	<leonro@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>
+Subject: [PATCH V5 vfio 1/9] virtio: Define feature bit for administration virtqueue
+Date: Tue, 5 Dec 2023 19:06:15 +0200
+Message-ID: <20231205170623.197877-2-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20231205170623.197877-1-yishaih@nvidia.com>
+References: <20231205170623.197877-1-yishaih@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <809a8962-0082-6443-4e59-549eb28b9a82@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF000044F9:EE_|CH2PR12MB4326:EE_
+X-MS-Office365-Filtering-Correlation-Id: 22cce92b-429d-4f25-ffd4-08dbf5b4a039
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	js7/hRrGTmcM7i4XY0k+vNWIi2gCgsqaQndoQ1sp5VoBJTNpFVwrc3In1gVrCWHhIbSM9rWh90UE/myIQ1rup2KVjy6V3YN7NG59OFFuFh4LhGBi3j7BVemIqI9c60gKAERAl9hcSEQFQV+cyUfDgPfexbHk/9RnNB/ItgiyqYXSmoXX508TwqGhbKRW7dnjY565D8smOnyYFUeS6EMaAB9cuvuEAlrX+J96uU9ivC093o2iE5ZEtiRKJA4wqtYGMWWEqzIgTjFXrAUTLEzPexCp0xiNy+RbkWDFzEThW8v7xehBRysdgKhYUAksUaoreqk14hO5fXrxJivq6tTdt4WAT343hS5NttQ3I5/Kh0xgV4NDKq0Z35p0WkPtiq2nOgcgncW7qcQ4iLB9haTR3lakuEsybo8uo8qObbwCWgfHXTtaaKejFELiVr7DqPzcRy5gGzODVlJsOUlCd0D4tAwqQqHOLoe/vXmz1WvjLi1aZYAKpDEAMmACoNARJ1PjzfTjnCrzSSQTrc/m7E6wKnT774KBb15ZdXC/oIKpHxFzlC9v6WhlzgsTXqrpxrD5wTFyRoYY2auTn+zzBLaoCETcjo/rYYjWzxODhc25WkIrCa5cpd2qgzj+IaSgfVzqccdhQv//hiWfF75KeJda2EWwAAcmsAty3xYL3b44uE2Y+x66GYX0uOQtVOaYKLxiBNiELM95uYg+2rIddzaGY10DgfxhgpOWLVK2MojkATgEYXs2/ZBhZLs6+a4b7ooGL7DsYwTXodPgT6w+OMXo4g==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(376002)(136003)(39860400002)(396003)(346002)(230922051799003)(64100799003)(451199024)(186009)(1800799012)(82310400011)(36840700001)(46966006)(40470700004)(40480700001)(40460700003)(478600001)(7696005)(8676002)(1076003)(107886003)(7636003)(47076005)(2616005)(6666004)(26005)(336012)(110136005)(6636002)(426003)(4326008)(54906003)(70206006)(70586007)(83380400001)(8936002)(316002)(36756003)(41300700001)(82740400003)(356005)(5660300002)(86362001)(36860700001)(2906002)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Dec 2023 17:07:13.2724
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 22cce92b-429d-4f25-ffd4-08dbf5b4a039
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF000044F9.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4326
 
-On Tue, Dec 05, 2023 at 03:07:47PM +0300, Arseniy Krasnov wrote:
->
->
->On 05.12.2023 13:54, Stefano Garzarella wrote:
->> On Tue, Dec 05, 2023 at 09:48:05AM +0300, Arseniy Krasnov wrote:
->>> Add one more condition for sending credit update during dequeue from
->>> stream socket: when number of bytes in the rx queue is smaller than
->>> SO_RCVLOWAT value of the socket. This is actual for non-default value
->>> of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
->>> transmission, because we need at least SO_RCVLOWAT bytes in our rx
->>> queue to wake up user for reading data (in corner case it is also
->>> possible to stuck both tx and rx sides, this is why 'Fixes' is used).
->>>
->>> Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
->>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>> ---
->>> net/vmw_vsock/virtio_transport_common.c | 9 +++++++--
->>> 1 file changed, 7 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>> index e137d740804e..461c89882142 100644
->>> --- a/net/vmw_vsock/virtio_transport_common.c
->>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>> @@ -558,6 +558,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->>>     struct virtio_vsock_sock *vvs = vsk->trans;
->>>     size_t bytes, total = 0;
->>>     struct sk_buff *skb;
->>> +    bool low_rx_bytes;
->>>     int err = -EFAULT;
->>>     u32 free_space;
->>>
->>> @@ -602,6 +603,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->>>     }
->>>
->>>     free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
->>> +    low_rx_bytes = (vvs->rx_bytes <
->>> +            sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
->>
->> As in the previous patch, should we avoid the update it if `fwd_cnt` and `last_fwd_cnt` are the same?
->>
->> Now I'm thinking if it is better to add that check directly in virtio_transport_send_credit_update().
->
->Good point, but I think, that it is better to keep this check here, because access to 'fwd_cnt' and 'last_fwd_cnt'
->requires taking rx_lock - so I guess it is better to avoid taking this lock every time in 'virtio_transport_send_credit_update()'.
+From: Feng Liu <feliu@nvidia.com>
 
-Yeah, I agree.
+Introduce VIRTIO_F_ADMIN_VQ which is used for administration virtqueue
+support.
 
->So may be we can do something like:
->
->
->fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
->free_space = vvs->buf_alloc - fwd_cnt_delta;
+Signed-off-by: Feng Liu <feliu@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+---
+ include/uapi/linux/virtio_config.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Pre-existing issue, but should we handle the wrap (e.g. fwd_cnt wrapped, 
-but last_fwd_cnt not yet?). Maybe in that case we can foce the status
-update.
-
->
->and then, after lock is released:
->
->if (fwd_cnt_delta && (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE ||
->    low_rx_bytes))
->        virtio_transport_send_credit_update(vsk);
->
->WDYT?
-
-Yep, I agree.
-
->
->Also, I guess that next idea to update this optimization(in next patchset), is to make
->threshold depends on vvs->buf_alloc. Because if someone changes minimum buffer size to
->for example 32KB, and then sets buffer size to 32KB, then free_space will be always
->non-zero, thus optimization is off now and credit update is sent on 
->every read.
-
-But does it make sense to allow a buffer smaller than 
-VIRTIO_VSOCK_MAX_PKT_BUF_SIZE?
-
-Maybe we should fail in virtio_transport_notify_buffer_size() or use it 
-as minimum.
-
-Stefano
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 8881aea60f6f..2445f365bce7 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		41
++#define VIRTIO_TRANSPORT_F_END		42
+ 
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -114,4 +114,10 @@
+  * This feature indicates that the driver can reset a queue individually.
+  */
+ #define VIRTIO_F_RING_RESET		40
++
++/*
++ * This feature indicates that the device support administration virtqueues.
++ */
++#define VIRTIO_F_ADMIN_VQ		41
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+-- 
+2.27.0
 
