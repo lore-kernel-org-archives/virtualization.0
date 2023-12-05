@@ -1,131 +1,178 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20B5D6A343
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:08:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C34C6A333
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="FksvE4Ga"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="TVsJOXfQ"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 53F22400D0
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:08:23 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 53F22400D0
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=FksvE4Ga
+	by smtp3.osuosl.org (Postfix) with ESMTP id CABE161052
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CABE161052
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=TVsJOXfQ
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hww97aNML_z3
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pi3NvL5ErZVN
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 18:08:21 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 25BB64044C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:08:21 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 25BB64044C
-Received: from [100.95.196.25] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: koike)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 3F433660715D;
-	Tue,  5 Dec 2023 18:00:51 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701799256;
-	bh=RgkVHjxMEsdXllUes00vbSqVmLybs60goWYS6kaWos8=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FksvE4Ga17Z+a4BzWvMY/16U6sbJxavWMiB1tuCqhvG2l/iOMPypzK0mWMcq0yjTQ
-	 bhX/HsWwRYZHkW8QgV14rI4VOvDjYtTH01HaqZR0rqOwr3B35KNPl4Tgq0UaWn2/hQ
-	 agqC7hEHzp7ekxcJX6CbAb0xtepUiCUkaUTm3zM7CaR1aF3teuzGmGtzaJV7eUUzB1
-	 oAgJuZlvXBgdK3hIsLxIEjBFaWjsOg+GLAyutPNqQvZS29FMf6a/1DmN6etZfVfxlS
-	 4RIsFTFctyCuX+dBSDMNrU4wTwAfIm1MbdFFv+209MYurr+5GIbWWHgpGKW/nq0low
-	 DnpSecXjQGzTQ==
-Message-ID: <03724cf8-e7c1-462a-80a4-587f5df202ef@collabora.com>
-Date: Tue, 5 Dec 2023 15:00:50 -0300
+	Tue,  5 Dec 2023 18:11:24 +0000 (UTC)
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A73E560E64
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:23 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A73E560E64
+Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2ca00dffc23so35366761fa.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 10:11:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google; t=1701799881; x=1702404681; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Xd6mnNZNXMrACqsw59eZFOMt01rSUh441zyM1SI9n9U=;
+        b=TVsJOXfQR7rvmTcrEMs4CetNl/iDPNNHtyJNtQ7FB5UanLX3C6d0f6lFyF9FuZ+U+K
+         MBIKcsCCBx/u3QwdKebyEot4yyAL6SIhr8AkNDL1O+ruDxxu+aEkUkQ4zccc75QAHnk+
+         TVDbOoiIS9ofwX7HXw0cUheOf8ZnjeKmv/q2cv1EGcnGh5+0vXkvw0CPcsF/zu0jbQpJ
+         Wk+rw0JJlJhj7HemQFnHcK8AEu73XU94nKcKxQfPEDRAXhFdFvPZEqfvQTscM1Gfb3vg
+         gE3tJgrtVHAGw3vQPZ+VTjiBqU5Hut7XVcx98TIK/zZcTaVISiIiiVs/EMTPH5EbFEmi
+         9mwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701799881; x=1702404681;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Xd6mnNZNXMrACqsw59eZFOMt01rSUh441zyM1SI9n9U=;
+        b=QwoSlOU9qWJqbiCqCVZiZi5lLi+QiRGD6glzuKij9jWO4u1NH/ZC017Nysxho7/eLA
+         wIetK5/+/NpC/uHDQ9ues+qUcHITScDz+3zeQ713v7eHOdyxti0TCq8cn4uCNjZajFS0
+         k/dCLeTkVHzv5aCbIX6jpEXtRO3Qm7Fg2tzskr8prJt5rWKT4/K+BWe16cPibHrT9KU0
+         dZz4JA0/NIWNMo1b7krBRd3MOOFRRPo2+RRFOspvPs62JDyD5coCoKg8WJ5By/0QHReC
+         ws1yWJ07PJLq8DN/GoiSfsZtOv9CuaQ+Zut+BD90LJesKv2nRX9ul0/80XQcfBh/RRmv
+         WWlQ==
+X-Gm-Message-State: AOJu0YyhqHlo5ze3W5gTZZHds8AE8f71BU1weYAP7h1wwJpyg6FJ9jTt
+	yBiM+E7tJ9LseEtFcHmMr2Hhdw==
+X-Google-Smtp-Source: AGHT+IGsOdi3SYNPl10ZLJRZP3ymPfonq+AFt3Kng2XtRFYN1/x+m4gzmIQItJqp4WK64uK1pN49Vw==
+X-Received: by 2002:a2e:9a94:0:b0:2ca:fa5:83f1 with SMTP id p20-20020a2e9a94000000b002ca0fa583f1mr1333052lji.20.1701799881071;
+        Tue, 05 Dec 2023 10:11:21 -0800 (PST)
+Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
+        by smtp.gmail.com with ESMTPSA id v19-20020a170906565300b00a19644675aasm6339368ejr.23.2023.12.05.10.11.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Dec 2023 10:11:20 -0800 (PST)
+From: Andrew Jones <ajones@ventanamicro.com>
+To: kvm-riscv@lists.infradead.org,
+	linux-riscv@lists.infradead.org,
+	virtualization@lists.linux-foundation.org
+Cc: anup@brainfault.org,
+	atishp@atishpatra.org,
+	pbonzini@redhat.com,
+	paul.walmsley@sifive.com,
+	palmer@dabbelt.com,
+	aou@eecs.berkeley.edu,
+	jgross@suse.com,
+	srivatsa@csail.mit.edu,
+	guoren@kernel.org
+Subject: [PATCH v1 00/14] RISC-V: Add steal-time support
+Date: Tue,  5 Dec 2023 19:11:20 +0100
+Message-ID: <20231205181119.207204-16-ajones@ventanamicro.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 08/10] drm: ci: uprev IGT
-Content-Language: en-US
-To: Vignesh Raman <vignesh.raman@collabora.com>, airlied@gmail.com,
- daniel@ffwll.ch
-Cc: david.heidelberg@collabora.com, sergi.blanch.torne@collabora.com,
- guilherme.gallo@collabora.com, daniels@collabora.com,
- gustavo.padovan@collabora.com, emma@anholt.net, robdclark@gmail.com,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- linux-mediatek@lists.infradead.org,
- virtualization@lists.linux-foundation.org,
- linux-rockchip@lists.infradead.org, linux-arm-msm@vger.kernel.org
-References: <20231129121841.253223-1-vignesh.raman@collabora.com>
- <20231129121841.253223-9-vignesh.raman@collabora.com>
-From: Helen Koike <helen.koike@collabora.com>
-In-Reply-To: <20231129121841.253223-9-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 
+One frequently touted benefit of virtualization is the ability to
+consolidate machines, increasing resource utilization.  It may even be
+desirable to overcommit, at the risk of one or more VCPUs having to wait.
+Hypervisors which have interfaces for guests to retrieve the amount of
+time each VCPU had to wait give observers within the guests ways to
+account for less progress than would otherwise be expected. The SBI STA
+extension[1] provides a standard interface for guest VCPUs to retrieve
+the amount of time "stolen".
+
+This series has three parts:
+ 1) Patches 01-04 - Add paravirt support to RISC-V and implement
+                    steal-time accounting support using the SBI STA
+                    extension.
+ 2) Patches 05-10 - Implement SBI STA in KVM so KVM guests, such as
+                    Linux guests which enable the paravirt steal-time
+                    support, can be enlightened about stolen time.
+ 3) Patches 11-14 - Add RISC-V support to the KVM selftests steal_time
+                    test and the SBI extension regs in the get-reg-list
+                    test.
+
+These patches are based on the make SBI uapi consistent with the ISA
+uapi KVM series, which is based on Anup's riscv_kvm_more_exts_v1 branch.
+Based-on: 20231130183537.55203-8-ajones@ventanamicro.com
+
+[1] https://github.com/riscv-non-isa/riscv-sbi-doc/blob/master/src/ext-steal-time.adoc
+
+This patches are also available here
+https://github.com/jones-drew/linux/commits/kvm/steal-time-v1
+
+Changes since RFC:
+ - Rebased on v6.7-rc3 (plus the patches mentioned above)
+ - Added defines for the -1's [Conor]
+ - Added a comment to the steal read sequence [Conor]
+ - Only do the steal read sequence for 32-bit and added READ_ONCE's
+ - Check for SBI v2.0 implementation
+ - Rename set_steal_time_shmem to steal_time_set_shmem
+ - Add get-reg-list support and test with get-reg-list kselftest
+ - A few other minor improvements
+ - Picked up one r-b from Conor
+
+Thanks,
+drew
 
 
-On 29/11/2023 09:18, Vignesh Raman wrote:
-> virtio-gpu kernel driver reports 16 for count_crtcs
-> which exceeds IGT_MAX_PIPES set to 8 in igt-gpu-tools.
-> This results in below memory corruption,
-> 
->   malloc(): corrupted top size
->   Received signal SIGABRT.
->   Stack trace:
->    #0 [fatal_sig_handler+0x17b]
->    #1 [__sigaction+0x40]
->    #2 [pthread_key_delete+0x14c]
->    #3 [gsignal+0x12]
->    #4 [abort+0xd3]
->    #5 [__fsetlocking+0x290]
->    #6 [timer_settime+0x37a]
->    #7 [__default_morecore+0x1f1b]
->    #8 [__libc_calloc+0x161]
->    #9 [drmModeGetPlaneResources+0x44]
->    #10 [igt_display_require+0x194]
->    #11 [__igt_unique____real_main1356+0x93c]
->    #12 [main+0x3f]
->    #13 [__libc_init_first+0x8a]
->    #14 [__libc_start_main+0x85]
->    #15 [_start+0x21]
->   
-> This is fixed in igt-gpu-tools by increasing IGT_MAX_PIPES to 16.
-> https://patchwork.freedesktop.org/series/126327/
->   
-> Uprev IGT to include the patches which fixes this issue.
-> 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+Andrew Jones (14):
+  RISC-V: paravirt: Add skeleton for pv-time support
+  RISC-V: Add SBI STA extension definitions
+  RISC-V: paravirt: Implement steal-time support
+  RISC-V: paravirt: Add kconfigs
+  RISC-V: KVM: Add SBI STA extension skeleton
+  RISC-V: KVM: Add steal-update vcpu request
+  RISC-V: KVM: Add SBI STA info to vcpu_arch
+  RISC-V: KVM: Add support for SBI extension registers
+  RISC-V: KVM: Add support for SBI STA registers
+  RISC-V: KVM: Implement SBI STA extension
+  RISC-V: KVM: selftests: Move sbi_ecall to processor.c
+  RISC-V: KVM: selftests: Add guest_sbi_probe_extension
+  RISC-V: KVM: selftests: Add steal_time test support
+  RISC-V: KVM: selftests: Add get-reg-list test for STA registers
 
-Acked-by: Helen Koike <helen.koike@collabora.com>
+ .../admin-guide/kernel-parameters.txt         |   6 +-
+ arch/riscv/Kconfig                            |  19 ++
+ arch/riscv/include/asm/kvm_host.h             |   9 +
+ arch/riscv/include/asm/kvm_vcpu_sbi.h         |   6 +
+ arch/riscv/include/asm/paravirt.h             |  28 +++
+ arch/riscv/include/asm/paravirt_api_clock.h   |   1 +
+ arch/riscv/include/asm/sbi.h                  |  17 ++
+ arch/riscv/include/uapi/asm/kvm.h             |  13 ++
+ arch/riscv/kernel/Makefile                    |   1 +
+ arch/riscv/kernel/paravirt.c                  | 138 ++++++++++++
+ arch/riscv/kernel/time.c                      |   3 +
+ arch/riscv/kvm/Kconfig                        |   1 +
+ arch/riscv/kvm/Makefile                       |   1 +
+ arch/riscv/kvm/vcpu.c                         |   7 +
+ arch/riscv/kvm/vcpu_onereg.c                  | 105 +++++++++
+ arch/riscv/kvm/vcpu_sbi.c                     |   4 +
+ arch/riscv/kvm/vcpu_sbi_sta.c                 | 202 ++++++++++++++++++
+ tools/testing/selftests/kvm/Makefile          |   5 +-
+ .../selftests/kvm/include/riscv/processor.h   |  22 ++
+ .../selftests/kvm/lib/riscv/processor.c       |  45 ++++
+ tools/testing/selftests/kvm/lib/riscv/ucall.c |  26 ---
+ .../selftests/kvm/riscv/get-reg-list.c        |  43 ++++
+ tools/testing/selftests/kvm/steal_time.c      |  99 +++++++++
+ 23 files changed, 770 insertions(+), 31 deletions(-)
+ create mode 100644 arch/riscv/include/asm/paravirt.h
+ create mode 100644 arch/riscv/include/asm/paravirt_api_clock.h
+ create mode 100644 arch/riscv/kernel/paravirt.c
+ create mode 100644 arch/riscv/kvm/vcpu_sbi_sta.c
 
-Thanks
-Helen
+-- 
+2.43.0
 
-> ---
-> 
-> v6:
->    - Added a new patch in the series to uprev IGT to fix memory corruption
-> 
-> ---
->   drivers/gpu/drm/ci/gitlab-ci.yml | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/ci/gitlab-ci.yml b/drivers/gpu/drm/ci/gitlab-ci.yml
-> index aeb9bab1b069..dac92cc2777c 100644
-> --- a/drivers/gpu/drm/ci/gitlab-ci.yml
-> +++ b/drivers/gpu/drm/ci/gitlab-ci.yml
-> @@ -5,7 +5,7 @@ variables:
->     UPSTREAM_REPO: git://anongit.freedesktop.org/drm/drm
->     TARGET_BRANCH: drm-next
->   
-> -  IGT_VERSION: d1db7333d9c5fbbb05e50b0804123950d9dc1c46
-> +  IGT_VERSION: d2af13d9f5be5ce23d996e4afd3e45990f5ab977
->   
->     DEQP_RUNNER_GIT_URL: https://gitlab.freedesktop.org/anholt/deqp-runner.git
->     DEQP_RUNNER_GIT_TAG: v0.15.0
