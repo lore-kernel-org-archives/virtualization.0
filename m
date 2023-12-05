@@ -1,156 +1,148 @@
-Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99B186E5AB
-	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 21:41:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92ED3FE50
+	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 22:43:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="hiEGrKFz"
-Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-58e28e0461bso2261727eaf.1
-        for <virtualization@lists.linux.dev>; Tue, 05 Dec 2023 13:41:29 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="hnN/yFOk"
+Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6ce403523e5so1935944b3a.3
+        for <virtualization@lists.linux.dev>; Tue, 05 Dec 2023 14:43:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1701812488; x=1702417288; darn=lists.linux.dev;
-        h=content-language:in-reply-to:autocrypt:from:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=5lTYwIubHQaV5E5T6aUEz+uUHrWFy5zBX2hYxAm8Zqs=;
-        b=hiEGrKFzp2aKD5ahpdRKhwI7+ji5gKRyCvVOLVYbgKmIAboWP+swQWERj6fiNxWdgT
-         S3FdHj6oxckBcXBKSMRj0dehT3IT68RbbSpxXpkivZSdFjdb3SfcONlNBFB6kQeB2a71
-         iWFIQTnmBPFQGUyc8qhITmWcijxRnA2aYtG7Q=
+        d=broadcom.com; s=google; t=1701816208; x=1702421008; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=s5PDjvnXiofAm+LfrZr5GVjzdYbiyiT62E/CMkJfzm4=;
+        b=hnN/yFOkh9Nc13gP3LGog//8UnKKbVPPZeUofblrD3iNF/okZ1M7v0dKr3BO66uxZ8
+         vd86o45YCXDljG8bja2HqYWPtVfc9MPEYRzeMMS14EfbC3bS5FhvTmoFsx3ScYljX7GL
+         2AM33COSchclmjsdVvOt9XTAZqDjUc11CwbZ4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701812488; x=1702417288;
-        h=content-language:in-reply-to:autocrypt:from:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=5lTYwIubHQaV5E5T6aUEz+uUHrWFy5zBX2hYxAm8Zqs=;
-        b=t26DyOrmLurt5J+8ZKf8zrtQWu+dIhahhQVmlWlWyhTcXEHBtucLeXNHDM7tUV2DGX
-         MjVvgJFKXt/O0Uf6pdlBR+z4HVx4iyu++nsdgAMQLxdZKyNQVqYbHE1G4s6zB1506N/7
-         NVQgoPOiJrwbbU3PPeu7OnObtiHr2ctDRJUJ2gdnSwfTDizA4iIAa+3FQCfmxZnbJ3vR
-         YDdPCT+fWRbMf3UNu5SeKTN3zBE3nvYf0GnIICvqQHOxr6GBBD0885U42B1yyEb9c9tP
-         SiAl/hNMTvbIrQltapUwv0cJ4yOtsigoZPP7t7T6bhhSDcvnSYATyNrnzn0bHJzUa0l3
-         WO2g==
-X-Gm-Message-State: AOJu0Yzb+7LMpFB9JddcJppHf56RFNLMECcMmvd4p5e2NLbjqrYQ0xAU
-	mfJDsmNNZn8mRkP4eQKOEprfKhtpdus8T/RAq7YWCnHd82eZVIkCyAh6HA2HnI63Q3xkugzDEtn
-	crRAgPS/39NJr5BA+Wg==
-X-Google-Smtp-Source: AGHT+IGrSD1QCLOvXJeAIN3MVd3BGbcWv5kJwN+NTnHMdMsscIynvdKGgNKboyxYDtxzuaKfuCyLSQ==
-X-Received: by 2002:a05:6358:e4a8:b0:170:698:3fe with SMTP id by40-20020a056358e4a800b00170069803femr8180354rwb.9.1701812488549;
-        Tue, 05 Dec 2023 13:41:28 -0800 (PST)
-Received: from [10.62.14.168] ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id g34-20020a635662000000b005c19c586cb7sm9738086pgm.33.2023.12.05.13.41.24
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 05 Dec 2023 13:41:26 -0800 (PST)
-Message-ID: <204f743d-2901-4ad2-bbcc-a7857a8644e7@broadcom.com>
-Date: Tue, 5 Dec 2023 13:41:22 -0800
+        d=1e100.net; s=20230601; t=1701816208; x=1702421008;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=s5PDjvnXiofAm+LfrZr5GVjzdYbiyiT62E/CMkJfzm4=;
+        b=lVfn7HHoDOkJLaYpc1f20pgndHVRnV5t3dKYwooT44m9oRvKGNsH4S7t46CuNtCKQ3
+         0vR5OP8HH8WvVp8P/u5dJe1Na2DhGvXGMQuQJ/nTr5ltnqRWGJ0R4IUbclcqKe00SFi6
+         giiYj6Ib+PVeIr1l3YwI6sCVuIlrYbHSsCEXdjK/N7lkPsrscikaHxudjfODAQ56NSv/
+         fa94nGX1C3RlPiU83emou6BB3SJk5UeBBCnddNtBHUPM881XF4gele+hHrLX6EOI1i8Y
+         CK0DslHo2cwB2Y3vxf0YJNUgHfsNMcyGy1YKDxxlum350Takp4LFN0IyVLiyj0HUYHdA
+         qoGw==
+X-Gm-Message-State: AOJu0YyH0CVYIyyNso4W91id2lgn9HkB31UgKLN4Eg7UQsZpE70puh2c
+	2i/S6jHrI3/vx3kT9oLScy90fzuO9n1LPofcMpZRS8jL4ZqoMsArpbpilDLhlJB8VohleU3nHh0
+	7LVJpoBVQ0Qb0rz8qwKpaL28kesa2xOaYzg==
+X-Google-Smtp-Source: AGHT+IGLyjhmShxcrztf4iUASVXKLIZrQvbl2nOMjR/Yv9SysVtwrvaOGSlk/eSVNbluuvrw8muVoWkRUp1fFXY/kkM=
+X-Received: by 2002:a05:6a20:1608:b0:18c:b6:ab4f with SMTP id
+ l8-20020a056a20160800b0018c00b6ab4fmr4318468pzj.48.1701816207958; Tue, 05 Dec
+ 2023 14:43:27 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20231122233058.185601-8-amakhalov@vmware.com> <20231201232452.220355-1-amakhalov@vmware.com>
+ <20231201232452.220355-7-amakhalov@vmware.com> <20231204103100.GYZW2qZE9tbGMtuVgY@fat_crate.local>
+ <c2519c9a-8518-403a-9bca-cb79a5f2a6e9@intel.com> <204f743d-2901-4ad2-bbcc-a7857a8644e7@broadcom.com>
+In-Reply-To: <204f743d-2901-4ad2-bbcc-a7857a8644e7@broadcom.com>
+From: Tim Merrifield <tim.merrifield@broadcom.com>
+Date: Tue, 5 Dec 2023 16:43:16 -0600
+Message-ID: <CAJfbqWyeubVofe4BHQC+a3wacwk0kMPECa8mxZ7gkzhBJ3d5LA@mail.gmail.com>
 Subject: Re: [PATCH v2 6/6] x86/vmware: Add TDX hypercall support
-To: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>,
- Alexey Makhalov <amakhalov@vmware.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
- hpa@zytor.com, dave.hansen@linux.intel.co, bp@alien8.d, mingo@redhat.com,
- tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
- richardcochran@gmail.com, linux-input@vger.kernel.org,
- dmitry.torokhov@gmail.com, zackr@vmware.com,
- linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
- namit@vmware.com, timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com,
- dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
- tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- horms@kernel.org
-References: <20231122233058.185601-8-amakhalov@vmware.com>
- <20231201232452.220355-1-amakhalov@vmware.com>
- <20231201232452.220355-7-amakhalov@vmware.com>
- <20231204103100.GYZW2qZE9tbGMtuVgY@fat_crate.local>
- <c2519c9a-8518-403a-9bca-cb79a5f2a6e9@intel.com>
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Autocrypt: addr=alexey.makhalov@broadcom.com; keydata=
- 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 EuY0
-In-Reply-To: <c2519c9a-8518-403a-9bca-cb79a5f2a6e9@intel.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>
+Cc: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>, 
+	Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, hpa@zytor.com, dave.hansen@linux.intel.co, 
+	mingo@redhat.com, tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org, 
+	richardcochran@gmail.com, linux-input@vger.kernel.org, 
+	dmitry.torokhov@gmail.com, zackr@vmware.com, 
+	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com, namit@vmware.com, 
+	timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com, 
+	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com, 
+	tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com, 
+	horms@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+Hi Dave and Alexey,
+
+Regarding VMware-specific checks, it may be beneficial to add some
+additional checks
+such as ensuring that the hypervisor vendor is VMware,
+r12=3D=3DVMWARE_HYPERVISOR_MAGIC,
+r10=3D=3DVMWARE_TDX_VENDOR_LEAF, r11=3D=3DVMWARE_TDX_HCALL_FUNC and r13 (co=
+mmand) is
+restricted to those few commands we expect to be invoked from the
+kernel or drivers by VMware-specific
+code.
+
+If we add these checks, would folks be OK with exporting this function?
 
 
+On Tue, Dec 5, 2023 at 3:41=E2=80=AFPM Alexey Makhalov
+<alexey.makhalov@broadcom.com> wrote:
+>
+>
+>
+> On 12/5/23 1:24 PM, Dave Hansen wrote:
+> > On 12/4/23 02:31, Borislav Petkov wrote:
+> >> On Fri, Dec 01, 2023 at 03:24:52PM -0800, Alexey Makhalov wrote:
+> >>> +#ifdef CONFIG_INTEL_TDX_GUEST
+> >>> +/* __tdx_hypercall() is not exported. So, export the wrapper */
+> >>> +void vmware_tdx_hypercall_args(struct tdx_module_args *args)
+> >>> +{
+> >>> +   __tdx_hypercall(args);
+> >>> +}
+> >>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall_args);
+> >> Uuuh, lovely. I'd like to see what the TDX folks think about this
+> >> export first.
+> >
+> > I don't really like it much.  This does a generic thing (make a TDX
+> > hypercall) with a specific name ("vmware_").  If you want to make an
+> > argument that a certain chunk of the __tdx_hypercall() space is just fo=
+r
+> > VMWare and you also add a VMWare-specific check and then export *that*,
+> > it might be acceptable.
+> >
+> > But I don't want random modules able to make random, unrestricted TDX
+> > hypercalls.  That's asking for trouble.
+>
+> Considering exporting of __tdx_hypercall for random modules is not an
+> option, what VMware specific checks you are suggesting?
+>
+> --
+> This electronic communication and the information and any files transmitt=
+ed
+> with it, or attached to it, are confidential and are intended solely for
+> the use of the individual or entity to whom it is addressed and may conta=
+in
+> information that is confidential, legally privileged, protected by privac=
+y
+> laws, or otherwise restricted from disclosure to anyone else. If you are
+> not the intended recipient or the person responsible for delivering the
+> e-mail to the intended recipient, you are hereby notified that any use,
+> copying, distributing, dissemination, forwarding, printing, or copying of
+> this e-mail is strictly prohibited. If you received this e-mail in error,
+> please return the e-mail to the sender, delete it from your computer, and
+> destroy any printed copy of it.
 
-On 12/5/23 1:24 PM, Dave Hansen wrote:
-> On 12/4/23 02:31, Borislav Petkov wrote:
->> On Fri, Dec 01, 2023 at 03:24:52PM -0800, Alexey Makhalov wrote:
->>> +#ifdef CONFIG_INTEL_TDX_GUEST
->>> +/* __tdx_hypercall() is not exported. So, export the wrapper */
->>> +void vmware_tdx_hypercall_args(struct tdx_module_args *args)
->>> +{
->>> +	__tdx_hypercall(args);
->>> +}
->>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall_args);
->> Uuuh, lovely. I'd like to see what the TDX folks think about this
->> export first.
-> 
-> I don't really like it much.  This does a generic thing (make a TDX
-> hypercall) with a specific name ("vmware_").  If you want to make an
-> argument that a certain chunk of the __tdx_hypercall() space is just for
-> VMWare and you also add a VMWare-specific check and then export *that*,
-> it might be acceptable.
-> 
-> But I don't want random modules able to make random, unrestricted TDX
-> hypercalls.  That's asking for trouble.
-
-Considering exporting of __tdx_hypercall for random modules is not an 
-option, what VMware specific checks you are suggesting?
-
--- 
-This electronic communication and the information and any files transmitted 
-with it, or attached to it, are confidential and are intended solely for 
-the use of the individual or entity to whom it is addressed and may contain 
-information that is confidential, legally privileged, protected by privacy 
-laws, or otherwise restricted from disclosure to anyone else. If you are 
-not the intended recipient or the person responsible for delivering the 
-e-mail to the intended recipient, you are hereby notified that any use, 
-copying, distributing, dissemination, forwarding, printing, or copying of 
-this e-mail is strictly prohibited. If you received this e-mail in error, 
-please return the e-mail to the sender, delete it from your computer, and 
+--=20
+This electronic communication and the information and any files transmitted=
+=20
+with it, or attached to it, are confidential and are intended solely for=20
+the use of the individual or entity to whom it is addressed and may contain=
+=20
+information that is confidential, legally privileged, protected by privacy=
+=20
+laws, or otherwise restricted from disclosure to anyone else. If you are=20
+not the intended recipient or the person responsible for delivering the=20
+e-mail to the intended recipient, you are hereby notified that any use,=20
+copying, distributing, dissemination, forwarding, printing, or copying of=
+=20
+this e-mail is strictly prohibited. If you received this e-mail in error,=
+=20
+please return the e-mail to the sender, delete it from your computer, and=
+=20
 destroy any printed copy of it.
