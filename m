@@ -1,108 +1,188 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81D86A342
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:00:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFCE66A327
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:02:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="ZrmM49No"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="M1M/EbTI"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 86A114044C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:00:11 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 86A114044C
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=ZrmM49No
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3484541B23
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:02:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 3484541B23
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=M1M/EbTI
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.1
+X-Spam-Score: -2.101
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jYwg5RDTRHlT
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8NC6MVqawU-e
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 18:00:10 +0000 (UTC)
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 815F3402F2
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:00:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 815F3402F2
-Received: from [100.95.196.25] (cola.collaboradmins.com [195.201.22.229])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	Tue,  5 Dec 2023 18:02:14 +0000 (UTC)
+Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 7764541B1B
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:02:12 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 7764541B1B
+Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 7F79F100063;
+	Tue,  5 Dec 2023 21:02:06 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 7F79F100063
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1701799326;
+	bh=kJPNpaPQJ7RGTdtlQqziQuoW67Ryk4NCeRVNex7iG3w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=M1M/EbTIPphn7G/rA0tLP9Tg/cq6TOY3vv24zoXrttMenpSc4iIdIWVKC9dT/otC6
+	 sl9KQznCS8L4apdjRjTjBk2uQYp2AJ3NQOE6SO4CZPLBfgxbKfl9acmqv8j2Z1Wl7B
+	 1X4cwFL1XnGz5lgtpvIiDmTTd3LzyQj92RvrGq44SEXe1xZ72pfqlGCjCSerq6jwcO
+	 FvB7b77zuFSCT3gedMufJa975tIMHbnPKTGSHaOyuAKkPMiZ0nGCL0Qh+TBZaDYYe3
+	 Be9iwVI+lX6nSaX4QoZvOxs6IccJRa2B1NSVtn99gEkjqL0W+ix9eg8t7ozCRYVxNG
+	 DrsbTMMba+ObA==
+Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	(Authenticated sender: koike)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id CFBE6660715D;
-	Tue,  5 Dec 2023 18:00:03 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701799208;
-	bh=BJnfYEP4jnzEj4xC3SBzSpdhlHMoXjr4hMbNgToqNCg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZrmM49NoOB3x8hr/saLAgZ24NK1r5XWWETIfoXyilPXQw0teXOUfW/q9LhuUIpsEP
-	 RXlGXacDZ5FwLpr1yhlqHD3schTPsf5KHXDlFbxPtnQN78DuT4kADVCfdIvry2bRSE
-	 WSlVcOqqrUWHsHOv2SDEizYb9ROTxZ1coDO/bdOIRO0Dw3ssvk8/hcWg9lzZIs62cF
-	 svBTTfCxg3O8YBLRGac9/7HiYDyjQ5de5yWPAFi+zk2ba+pR1ZEa/axQtGTgVoB/0a
-	 0xsf0Ys2vZOz6chQenCg1G3WCGcBSHTRAeNvTNqkRPyb9Ou2SX3wcjXhz2rbDFw3Dx
-	 EDTTvY+oEWndQ==
-Message-ID: <92256a4b-f957-40ac-af90-d5ea03da497b@collabora.com>
-Date: Tue, 5 Dec 2023 15:00:03 -0300
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Tue,  5 Dec 2023 21:02:05 +0300 (MSK)
+Received: from [192.168.0.106] (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Tue, 5 Dec 2023 21:02:05 +0300
+Message-ID: <52f8fa72-4ab1-6c3d-37ef-c99d2487d366@salutedevices.com>
+Date: Tue, 5 Dec 2023 20:53:57 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 07/10] drm: ci: virtio: Make artifacts available
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH net-next v6 3/4] virtio/vsock: fix logic which reduces
+ credit update messages
 Content-Language: en-US
-To: Vignesh Raman <vignesh.raman@collabora.com>, airlied@gmail.com,
- daniel@ffwll.ch
-Cc: david.heidelberg@collabora.com, sergi.blanch.torne@collabora.com,
- guilherme.gallo@collabora.com, daniels@collabora.com,
- gustavo.padovan@collabora.com, emma@anholt.net, robdclark@gmail.com,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- linux-mediatek@lists.infradead.org,
- virtualization@lists.linux-foundation.org,
- linux-rockchip@lists.infradead.org, linux-arm-msm@vger.kernel.org
-References: <20231129121841.253223-1-vignesh.raman@collabora.com>
- <20231129121841.253223-8-vignesh.raman@collabora.com>
-From: Helen Koike <helen.koike@collabora.com>
-In-Reply-To: <20231129121841.253223-8-vignesh.raman@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller"
+	<davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+	<kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
+	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
+References: <20231205064806.2851305-1-avkrasnov@salutedevices.com>
+ <20231205064806.2851305-4-avkrasnov@salutedevices.com>
+ <v335g4fjrn5f6tsw4nysztaklze2obnjwpezps3jgb2xickpge@ea5woxob52nc>
+ <809a8962-0082-6443-4e59-549eb28b9a82@salutedevices.com>
+ <gqrfreguavurkb7betm2utzdfnefrxgxyoilyveowvmspbwpes@45s6jshyelui>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <gqrfreguavurkb7betm2utzdfnefrxgxyoilyveowvmspbwpes@45s6jshyelui>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 181873 [Dec 05 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;100.64.160.123:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/05 15:03:00 #22610656
+X-KSMG-AntiVirus-Status: Clean, skipped
 
 
 
-On 29/11/2023 09:18, Vignesh Raman wrote:
-> There were no artifacts available for virtio job.
-> So make the artifacts available in the pipeline job.
+On 05.12.2023 17:21, Stefano Garzarella wrote:
+> On Tue, Dec 05, 2023 at 03:07:47PM +0300, Arseniy Krasnov wrote:
+>>
+>>
+>> On 05.12.2023 13:54, Stefano Garzarella wrote:
+>>> On Tue, Dec 05, 2023 at 09:48:05AM +0300, Arseniy Krasnov wrote:
+>>>> Add one more condition for sending credit update during dequeue from
+>>>> stream socket: when number of bytes in the rx queue is smaller than
+>>>> SO_RCVLOWAT value of the socket. This is actual for non-default value
+>>>> of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
+>>>> transmission, because we need at least SO_RCVLOWAT bytes in our rx
+>>>> queue to wake up user for reading data (in corner case it is also
+>>>> possible to stuck both tx and rx sides, this is why 'Fixes' is used).
+>>>>
+>>>> Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
+>>>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+>>>> ---
+>>>> net/vmw_vsock/virtio_transport_common.c | 9 +++++++--
+>>>> 1 file changed, 7 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>>> index e137d740804e..461c89882142 100644
+>>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>>> @@ -558,6 +558,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>     struct virtio_vsock_sock *vvs = vsk->trans;
+>>>>     size_t bytes, total = 0;
+>>>>     struct sk_buff *skb;
+>>>> +    bool low_rx_bytes;
+>>>>     int err = -EFAULT;
+>>>>     u32 free_space;
+>>>>
+>>>> @@ -602,6 +603,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>     }
+>>>>
+>>>>     free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
+>>>> +    low_rx_bytes = (vvs->rx_bytes <
+>>>> +            sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
+>>>
+>>> As in the previous patch, should we avoid the update it if `fwd_cnt` and `last_fwd_cnt` are the same?
+>>>
+>>> Now I'm thinking if it is better to add that check directly in virtio_transport_send_credit_update().
+>>
+>> Good point, but I think, that it is better to keep this check here, because access to 'fwd_cnt' and 'last_fwd_cnt'
+>> requires taking rx_lock - so I guess it is better to avoid taking this lock every time in 'virtio_transport_send_credit_update()'.
 > 
-> Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
+> Yeah, I agree.
+> 
+>> So may be we can do something like:
+>>
+>>
+>> fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
+>> free_space = vvs->buf_alloc - fwd_cnt_delta;
+> 
+> Pre-existing issue, but should we handle the wrap (e.g. fwd_cnt wrapped, but last_fwd_cnt not yet?). Maybe in that case we can foce the status
+> update.
 
-Acked-by: Helen Koike <helen.koike@collabora.com>
+Agree, I'll add this logic!
 
-Thanks
-Helen
+> 
+>>
+>> and then, after lock is released:
+>>
+>> if (fwd_cnt_delta && (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE ||
+>>    low_rx_bytes))
+>>        virtio_transport_send_credit_update(vsk);
+>>
+>> WDYT?
+> 
+> Yep, I agree.
+> 
+>>
+>> Also, I guess that next idea to update this optimization(in next patchset), is to make
+>> threshold depends on vvs->buf_alloc. Because if someone changes minimum buffer size to
+>> for example 32KB, and then sets buffer size to 32KB, then free_space will be always
+>> non-zero, thus optimization is off now and credit update is sent on every read.
+> 
+> But does it make sense to allow a buffer smaller than VIRTIO_VSOCK_MAX_PKT_BUF_SIZE?
+> 
+> Maybe we should fail in virtio_transport_notify_buffer_size() or use it as minimum.
 
-> ---
+Yes, currently there is no limitation in this transport callback - only for maximum.
+
+Thanks, Arseniy
+
 > 
-> v5:
->    - Added a new patch in the series to make artifacts available for virtio jobs
+> Stefano
 > 
-> v6:
->    - No changes
-> 
-> ---
->   drivers/gpu/drm/ci/test.yml | 2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/ci/test.yml b/drivers/gpu/drm/ci/test.yml
-> index e0fdc55c9b69..2c9a1838e728 100644
-> --- a/drivers/gpu/drm/ci/test.yml
-> +++ b/drivers/gpu/drm/ci/test.yml
-> @@ -329,6 +329,8 @@ virtio_gpu:none:
->     script:
->       - ln -sf $CI_PROJECT_DIR/install /install
->       - mv install/bzImage /lava-files/bzImage
-> +    - mkdir -p $CI_PROJECT_DIR/results
-> +    - ln -sf $CI_PROJECT_DIR/results /results
->       - install/crosvm-runner.sh install/igt_runner.sh
->     needs:
->       - debian/x86_64_test-gl
