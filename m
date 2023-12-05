@@ -1,108 +1,171 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2C63D963
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA6F95789B
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 10:46:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QJLyu44S"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rUQuPML2"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9DA4B821B9
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:09 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9DA4B821B9
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QJLyu44S
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C4F761054
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 10:46:38 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 3C4F761054
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=rUQuPML2
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.099
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NSeMq3x1k3wN
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XK0Xes_QDdok
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 08:36:08 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 430AB82197
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 430AB82197
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701765367;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=JHfdVOUnOL0Qlr54vUu/fMOtlv7Ai14q0h8egmUjQtw=;
-	b=QJLyu44SpumKwgO2PmMXaYzqFdzjL5no3B7z+9L6W77Uuq0MhuUkgr+prGFMxRwUXZLpfZ
-	s24ylrZfjNFjPffFSWX0wlV8Zj1U+v8ZwNTDUKdhPYn/dIgg2T5juZsmUeN6ff1/40Kkso
-	bsQx6wl7JbJk/uxGjIYFj0nqiyq5Bxc=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-402-FiAHKFm7PW2_t9LVAnHr7g-1; Tue, 05 Dec 2023 03:36:05 -0500
-X-MC-Unique: FiAHKFm7PW2_t9LVAnHr7g-1
-Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-50be5899082so2803575e87.2
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 00:36:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701765364; x=1702370164;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JHfdVOUnOL0Qlr54vUu/fMOtlv7Ai14q0h8egmUjQtw=;
-        b=SmxDJ0nUBLnyig43SUIBxJyoD/wMl/lO7aMzG1qhuvem+cltD1kxI6BxykkADjYjNt
-         zqmFArYfjVN017TdezRomce/5OpBDYNrVzRp7VI/SqNehjN0D4jVfBu+zh3MD3pEUoKn
-         9r9XoZnAEXtLxfTNbBj+EUfVSd2En6fAFA4KjQh+P0Q0U4pG5LQVuhZuYWkrsRLB/GkL
-         oT7acFSEOKESonQSkLKR6xTvCrPdQIBhOnxjuyCEF6Hd4h4cMt+T7gyRpvPKzzyjXPLd
-         WUiS7K+sPmCy4wZJoxfEui6T4BObjAE3/PlqrntDqeo8yfpxo+OUemGg4EgeAf43ZuAE
-         INsQ==
-X-Gm-Message-State: AOJu0Yw3cJ9sVrsFbGdbQtSxrqcVhWZUVI4gQGmeY/CsRxP6c80CGCnv
-	g/o7Iv8FTk5xwB507NffbIDJ5cUt/5Kq+PuqIESn43MDPJ+Laii+yiX/NQ8cNCCRXj/+6M+N4wi
-	fK7+497w6opkhxBvP3aKNI3hl9CGorW9VK7AW5poPBsyk+mTYPBCvzBuplA==
-X-Received: by 2002:a05:6512:5c2:b0:50b:ec63:8cf with SMTP id o2-20020a05651205c200b0050bec6308cfmr1484083lfo.21.1701765364333;
-        Tue, 05 Dec 2023 00:36:04 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IEFFzTieeIVfCJJxqgO1jKvlJv6tH/20cnndeMd22aW4CQhkD8o+6+mVywjHMgfTJ+1DDzEnSckk2WXYMA10N0=
-X-Received: by 2002:a05:6512:5c2:b0:50b:ec63:8cf with SMTP id
- o2-20020a05651205c200b0050bec6308cfmr1484074lfo.21.1701765364002; Tue, 05 Dec
- 2023 00:36:04 -0800 (PST)
+	Tue,  5 Dec 2023 10:46:37 +0000 (UTC)
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060c.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eaa::60c])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E1BC460B94
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 10:46:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E1BC460B94
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GPa4rh7tDMi4GvB4TI2Qp7e0yz74u5aFMav0OI/l/Pjp/YAyNAEHWwHk9zfQsXM/F9nHtf6UQr5PXXxPYqV/mKTYW1IjqEJTYUa8UuPrX4RGxsvCkebyv36Gbd8mU4u/j8neAwSIm8Sv2YxC8wfLEe4UoRS0sMmftUXhLZkHY3RB9K8DMVNVuw1gyn7s/OyToO/DGFWzuJWhVScam0d4ReZ6MCJJHhqz4gzB/iWYMY6vB09EvXN2W1GZ+eFg4+SM9Y693esABzDh5JE7hyYj3K2iHxsgBBox9b6B6krr7JHEW2OUkeYJDvg3v6GpHDnieI4U6Ti/mbwZcLnWFTNUXw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=vP/LvjnSZ752aHpWJ8nKH7P9dJccsbTvl1cJE+SL04c=;
+ b=jIw0pOheqwo84YTgvImzmdYHU1UFD5E8Nd2hnQRcYzXBrWbPbkPN1iNY841oiZGjWRggSw110vwCTqLSQm8WBonOsFEycTj158JwgNigxWBDY9OZNfAqrljrUKk32/H6909UzOgLcCjWHSLkcAfVMuf4NagHk07me7uGe+974XfsOdEhOBYzCWnu6XkBAg++v9yuSHlCf0PFHe+eQeqwJ9KMx9tN18Ae1KpeaV/38/IIpyj2wGLJTUirua7lSDdnC1lo6fQlW3v9T8c3OoHGmBMbIiWFzKUAufwo8d5r6I0MkhetA1HKXyfJO4+ufiuRoEqWDsL6j7xCKLSReO1YMg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=vP/LvjnSZ752aHpWJ8nKH7P9dJccsbTvl1cJE+SL04c=;
+ b=rUQuPML2JWYUKsPkoIlwc3+ByCJ69thf64PluqUyQ8bamlpn8tHwj6/dpMg1uUACe9iv/Kjkgo/GK1rOLnf36AZgJKdTKFjGUH4h0v7quC7BcJzlZzSsN4vrEC8nYV6gE1ZN2+MIUM+LsGHiGod41cUT6GXKzj6jlQfvyASPeG+FomK+LQD+bktBEHeXDAxZUBJE8IwSJycN4LcZ6EWiSdyQXBW6indkhmC+LObZJBiugyPFDG6e13Ur8gldhqaGI/S/6ejoRVhgO4tkyAkzvhr4uEK27q6RKY4+gSeamb1Edxl4wUZBnVI6tTERqzb0rBp3z5woLWlvMLHQ210FwQ==
+Received: from DS0PR17CA0007.namprd17.prod.outlook.com (2603:10b6:8:191::14)
+ by DS7PR12MB9043.namprd12.prod.outlook.com (2603:10b6:8:db::9) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7046.34; Tue, 5 Dec 2023 10:46:33 +0000
+Received: from DS3PEPF000099D6.namprd04.prod.outlook.com
+ (2603:10b6:8:191:cafe::19) by DS0PR17CA0007.outlook.office365.com
+ (2603:10b6:8:191::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34 via Frontend
+ Transport; Tue, 5 Dec 2023 10:46:33 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ DS3PEPF000099D6.mail.protection.outlook.com (10.167.17.7) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7068.20 via Frontend Transport; Tue, 5 Dec 2023 10:46:32 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 5 Dec 2023
+ 02:46:19 -0800
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 5 Dec 2023
+ 02:46:19 -0800
+Received: from c-237-113-220-225.mtl.labs.mlnx (10.127.8.12) by
+ mail.nvidia.com (10.129.68.8) with Microsoft SMTP Server id 15.2.986.41 via
+ Frontend Transport; Tue, 5 Dec 2023 02:46:16 -0800
+From: Dragos Tatulea <dtatulea@nvidia.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Eugenio Perez Martin <eperezma@redhat.com>, Si-Wei Liu
+	<si-wei.liu@oracle.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky
+	<leon@kernel.org>, <virtualization@lists.linux-foundation.org>, Gal Pressman
+	<gal@nvidia.com>
+CC: Dragos Tatulea <dtatulea@nvidia.com>, <kvm@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Parav Pandit <parav@nvidia.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>
+Subject: [PATCH vhost v2 0/8] vdpa/mlx5: Add support for resumable vqs
+Date: Tue, 5 Dec 2023 12:46:01 +0200
+Message-ID: <20231205104609.876194-1-dtatulea@nvidia.com>
+X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <cover.1701762688.git.hengqi@linux.alibaba.com> <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
-In-Reply-To: <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 5 Dec 2023 16:35:52 +0800
-Message-ID: <CACGkMEurTAGj+mSEtAiYtGfqy=6sU33xVskAZH47qUi+GcyvWA@mail.gmail.com>
-Subject: Re: [PATCH net-next v6 4/5] virtio-net: add spin lock for ctrl cmd access
-To: Heng Qi <hengqi@linux.alibaba.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	mst@redhat.com, pabeni@redhat.com, kuba@kernel.org, yinjun.zhang@corigine.com, 
-	edumazet@google.com, davem@davemloft.net, hawk@kernel.org, 
-	john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org, 
-	xuanzhuo@linux.alibaba.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS3PEPF000099D6:EE_|DS7PR12MB9043:EE_
+X-MS-Office365-Filtering-Correlation-Id: 14da9271-6146-4a00-9284-08dbf57f724e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	LKJCrBV9zwcpCW+h/pZLcZWmsNJDUQ2vwCDyx2HzGKpibQ1mVzY7bB7yCDLhuF9ROKsEJVqrxbGFN7MIwEIeTctGG0lsCJZzfZv36fJamOGljzbtfHmNzZjmOzGNch4zUx2t7bX7N/MSie9MNHyaMt8I99veAHQxHQp7ToF45OMmU9ySuP2tOKTalJmdhCNMEfUSGLk5+XQyMFfG0P+fbpVz6cu5IXZZEkzARrsdBk3G5WS8Z+yg2VdYejYkXdM8LG6Xu/34pkQXqBSinVmuDJ5ClHe3TLP9qm5JwKxjT0KXSXyhcbjc9np5Sn8ymkaxihrCwuuiHkLieRSiZnuullXTAmiShVa1gEyPePBEj4bMYiDgMVGevpFiF3+TpICCM0qxbwDsTGL7mXMvHSSRQBJfj3x9nm4MxFkYzke+ZGd0foo/7mRb7SPOxsLDXxwZXVw+3RsRPw4mHs3syxjAzuFe5eXip4fCbBiFgOfSmLCNT3C2t8d2mnSKzZplMsr32AWq8wSHssSqqKQhgnELmdVYgrSYT/R4YPcfQ6tADakgL+4+pI74fqKlCLTCHVOzdsCd252LGjMuDTQP5cF4isrIWAYQHH+ORkT1mC6gsVhHTNS2Bfmruv07DhUXmX6A4QGiSVQmUMRA2G4Bqdgw8eKWxkhx3R0QUaflQWavxdH3S/JLvVivb6suoAMG/n/d0ETGglRGYIhtxImuScZ8UwulHss7HqoXryZD5m0VSoRXQzbT49+6V/4vNYY5O4B5BxZ3xu27p/FVK82tlIH5OHXRbO0IYGJZA+5NpXu9JUM=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(346002)(396003)(376002)(230922051799003)(64100799003)(82310400011)(1800799012)(186009)(451199024)(36840700001)(40470700004)(46966006)(40480700001)(82740400003)(83380400001)(336012)(426003)(36756003)(41300700001)(47076005)(7636003)(356005)(36860700001)(2906002)(26005)(2616005)(1076003)(6666004)(478600001)(966005)(40460700003)(5660300002)(70586007)(70206006)(86362001)(110136005)(54906003)(6636002)(316002)(8936002)(8676002)(4326008);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Dec 2023 10:46:32.9054
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 14da9271-6146-4a00-9284-08dbf57f724e
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS3PEPF000099D6.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB9043
 
-On Tue, Dec 5, 2023 at 4:02=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> w=
-rote:
->
-> Currently access to ctrl cmd is globally protected via rtnl_lock and work=
-s
-> fine. But if dim work's access to ctrl cmd also holds rtnl_lock, deadlock
-> may occur due to cancel_work_sync for dim work.
+Add support for resumable vqs in the driver. This is a firmware feature
+that can be used for the following benefits:
+- Full device .suspend/.resume.
+- .set_map doesn't need to destroy and create new vqs anymore just to
+  update the map. When resumable vqs are supported it is enough to
+  suspend the vqs, set the new maps, and then resume the vqs.
 
-Can you explain why?
+The first patch exposes the relevant bits in mlx5_ifc.h. That means it
+needs to be applied to the mlx5-vhost tree [0] first. Once applied
+there, the change has to be pulled from mlx5-vhost into the vhost tree
+and only then the remaining patches can be applied. Same flow as the vq
+descriptor mappings patchset [1].
 
-> Therefore, treating
-> ctrl cmd as a separate protection object of the lock is the solution and
-> the basis for the next patch.
+To be able to use resumable vqs properly, support for selectively modifying
+vq parameters was needed. This is what the second part of the series
+consists of.
 
-Let's don't do that. Reasons are:
+The middle part adds support for resumable vqs.
 
-1) virtnet_send_command() may wait for cvq commands for an indefinite time
-2) hold locks may complicate the future hardening works around cvq
+The last part of the series introduces reference counting for mrs which
+is necessary to avoid freeing mkeys too early or leaking them.
 
-Thanks
+* Changes in v2:
+- Added mr refcounting patches.
+- Deleted unnecessary patch: "vdpa/mlx5: Split function into locked and
+  unlocked variants"
+- Small print improvement in "Introduce per vq and device resume"
+  patch.
+- Patch 1/7 has been applied to mlx5-vhost branch.
+
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git/log/?h=mlx5-vhost
+[1] https://lore.kernel.org/virtualization/20231018171456.1624030-2-dtatulea@nvidia.com/
+
+
+Dragos Tatulea (8):
+  vdpa/mlx5: Expose resumable vq capability
+  vdpa/mlx5: Allow modifying multiple vq fields in one modify command
+  vdpa/mlx5: Introduce per vq and device resume
+  vdpa/mlx5: Mark vq addrs for modification in hw vq
+  vdpa/mlx5: Mark vq state for modification in hw vq
+  vdpa/mlx5: Use vq suspend/resume during .set_map
+  vdpa/mlx5: Introduce reference counting to mrs
+  vdpa/mlx5: Add mkey leak detection
+
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h |  10 +-
+ drivers/vdpa/mlx5/core/mr.c        |  69 ++++++++--
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 209 ++++++++++++++++++++++++++---
+ include/linux/mlx5/mlx5_ifc.h      |   3 +-
+ include/linux/mlx5/mlx5_ifc_vdpa.h |   4 +
+ 5 files changed, 257 insertions(+), 38 deletions(-)
+
+-- 
+2.42.0
 
