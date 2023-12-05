@@ -1,460 +1,108 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7927535F04
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:02:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2C63D963
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QJLyu44S"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7F46781ECF
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:02:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 7F46781ECF
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9DA4B821B9
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 9DA4B821B9
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=QJLyu44S
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.099
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Uv4tpVUU41-Z
+	with ESMTP id NSeMq3x1k3wN
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 08:02:33 +0000 (UTC)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 995E781F16
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:02:32 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 995E781F16
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R191e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vxtr0Aj_1701763346;
-Received: from localhost(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vxtr0Aj_1701763346)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Dec 2023 16:02:27 +0800
-From: Heng Qi <hengqi@linux.alibaba.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Cc: jasowang@redhat.com,
-	mst@redhat.com,
-	pabeni@redhat.com,
-	kuba@kernel.org,
-	yinjun.zhang@corigine.com,
-	edumazet@google.com,
-	davem@davemloft.net,
-	hawk@kernel.org,
-	john.fastabend@gmail.com,
-	ast@kernel.org,
-	horms@kernel.org,
-	xuanzhuo@linux.alibaba.com
-Subject: [PATCH net-next v6 5/5] virtio-net: support rx netdim
-Date: Tue,  5 Dec 2023 16:02:19 +0800
-Message-Id: <dcde158f91bbd6712a452be707f9466d79434ccf.1701762688.git.hengqi@linux.alibaba.com>
-X-Mailer: git-send-email 2.19.1.6.gb485710b
-In-Reply-To: <cover.1701762688.git.hengqi@linux.alibaba.com>
-References: <cover.1701762688.git.hengqi@linux.alibaba.com>
+	Tue,  5 Dec 2023 08:36:08 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 430AB82197
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 08:36:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 430AB82197
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701765367;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=JHfdVOUnOL0Qlr54vUu/fMOtlv7Ai14q0h8egmUjQtw=;
+	b=QJLyu44SpumKwgO2PmMXaYzqFdzjL5no3B7z+9L6W77Uuq0MhuUkgr+prGFMxRwUXZLpfZ
+	s24ylrZfjNFjPffFSWX0wlV8Zj1U+v8ZwNTDUKdhPYn/dIgg2T5juZsmUeN6ff1/40Kkso
+	bsQx6wl7JbJk/uxGjIYFj0nqiyq5Bxc=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-402-FiAHKFm7PW2_t9LVAnHr7g-1; Tue, 05 Dec 2023 03:36:05 -0500
+X-MC-Unique: FiAHKFm7PW2_t9LVAnHr7g-1
+Received: by mail-lf1-f70.google.com with SMTP id 2adb3069b0e04-50be5899082so2803575e87.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 00:36:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701765364; x=1702370164;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JHfdVOUnOL0Qlr54vUu/fMOtlv7Ai14q0h8egmUjQtw=;
+        b=SmxDJ0nUBLnyig43SUIBxJyoD/wMl/lO7aMzG1qhuvem+cltD1kxI6BxykkADjYjNt
+         zqmFArYfjVN017TdezRomce/5OpBDYNrVzRp7VI/SqNehjN0D4jVfBu+zh3MD3pEUoKn
+         9r9XoZnAEXtLxfTNbBj+EUfVSd2En6fAFA4KjQh+P0Q0U4pG5LQVuhZuYWkrsRLB/GkL
+         oT7acFSEOKESonQSkLKR6xTvCrPdQIBhOnxjuyCEF6Hd4h4cMt+T7gyRpvPKzzyjXPLd
+         WUiS7K+sPmCy4wZJoxfEui6T4BObjAE3/PlqrntDqeo8yfpxo+OUemGg4EgeAf43ZuAE
+         INsQ==
+X-Gm-Message-State: AOJu0Yw3cJ9sVrsFbGdbQtSxrqcVhWZUVI4gQGmeY/CsRxP6c80CGCnv
+	g/o7Iv8FTk5xwB507NffbIDJ5cUt/5Kq+PuqIESn43MDPJ+Laii+yiX/NQ8cNCCRXj/+6M+N4wi
+	fK7+497w6opkhxBvP3aKNI3hl9CGorW9VK7AW5poPBsyk+mTYPBCvzBuplA==
+X-Received: by 2002:a05:6512:5c2:b0:50b:ec63:8cf with SMTP id o2-20020a05651205c200b0050bec6308cfmr1484083lfo.21.1701765364333;
+        Tue, 05 Dec 2023 00:36:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEFFzTieeIVfCJJxqgO1jKvlJv6tH/20cnndeMd22aW4CQhkD8o+6+mVywjHMgfTJ+1DDzEnSckk2WXYMA10N0=
+X-Received: by 2002:a05:6512:5c2:b0:50b:ec63:8cf with SMTP id
+ o2-20020a05651205c200b0050bec6308cfmr1484074lfo.21.1701765364002; Tue, 05 Dec
+ 2023 00:36:04 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <cover.1701762688.git.hengqi@linux.alibaba.com> <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
+In-Reply-To: <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 5 Dec 2023 16:35:52 +0800
+Message-ID: <CACGkMEurTAGj+mSEtAiYtGfqy=6sU33xVskAZH47qUi+GcyvWA@mail.gmail.com>
+Subject: Re: [PATCH net-next v6 4/5] virtio-net: add spin lock for ctrl cmd access
+To: Heng Qi <hengqi@linux.alibaba.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	mst@redhat.com, pabeni@redhat.com, kuba@kernel.org, yinjun.zhang@corigine.com, 
+	edumazet@google.com, davem@davemloft.net, hawk@kernel.org, 
+	john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org, 
+	xuanzhuo@linux.alibaba.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-By comparing the traffic information in the complete napi processes,
-let the virtio-net driver automatically adjust the coalescing
-moderation parameters of each receive queue.
+On Tue, Dec 5, 2023 at 4:02=E2=80=AFPM Heng Qi <hengqi@linux.alibaba.com> w=
+rote:
+>
+> Currently access to ctrl cmd is globally protected via rtnl_lock and work=
+s
+> fine. But if dim work's access to ctrl cmd also holds rtnl_lock, deadlock
+> may occur due to cancel_work_sync for dim work.
 
-Signed-off-by: Heng Qi <hengqi@linux.alibaba.com>
----
-v5->v5:
-- Use spin lock and cancel_work_sync to synchronize
+Can you explain why?
 
-v4->v5:
-- Fix possible synchronization issues using cancel_work().
-- Reduce if/else nesting levels
+> Therefore, treating
+> ctrl cmd as a separate protection object of the lock is the solution and
+> the basis for the next patch.
 
-v2->v3:
-- Some minor modifications.
+Let's don't do that. Reasons are:
 
-v1->v2:
-- Improved the judgment of dim switch conditions.
-- Cancel the work when vq reset.
+1) virtnet_send_command() may wait for cvq commands for an indefinite time
+2) hold locks may complicate the future hardening works around cvq
 
- drivers/net/virtio_net.c | 199 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 167 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0dd09c4f8d89..882761c64db4 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -19,6 +19,7 @@
- #include <linux/average.h>
- #include <linux/filter.h>
- #include <linux/kernel.h>
-+#include <linux/dim.h>
- #include <net/route.h>
- #include <net/xdp.h>
- #include <net/net_failover.h>
-@@ -172,6 +173,17 @@ struct receive_queue {
- 
- 	struct virtnet_rq_stats stats;
- 
-+	/* The number of rx notifications */
-+	u16 calls;
-+
-+	/* Is dynamic interrupt moderation enabled? */
-+	bool dim_enabled;
-+
-+	/* Dynamic Interrupt Moderation */
-+	struct dim dim;
-+
-+	u32 packets_in_napi;
-+
- 	struct virtnet_interrupt_coalesce intr_coal;
- 
- 	/* Chain pages by the private ptr. */
-@@ -308,6 +320,9 @@ struct virtnet_info {
- 	u8 duplex;
- 	u32 speed;
- 
-+	/* Is rx dynamic interrupt moderation enabled? */
-+	bool rx_dim_enabled;
-+
- 	/* Interrupt coalescing settings */
- 	struct virtnet_interrupt_coalesce intr_coal_tx;
- 	struct virtnet_interrupt_coalesce intr_coal_rx;
-@@ -2004,6 +2019,7 @@ static void skb_recv_done(struct virtqueue *rvq)
- 	struct virtnet_info *vi = rvq->vdev->priv;
- 	struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
- 
-+	rq->calls++;
- 	virtqueue_napi_schedule(&rq->napi, rvq);
- }
- 
-@@ -2144,6 +2160,26 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 	}
- }
- 
-+static void virtnet_rx_dim_work(struct work_struct *work);
-+
-+static void virtnet_rx_dim_update(struct virtnet_info *vi, struct receive_queue *rq)
-+{
-+	struct dim_sample cur_sample = {};
-+
-+	if (!rq->packets_in_napi)
-+		return;
-+
-+	u64_stats_update_begin(&rq->stats.syncp);
-+	dim_update_sample(rq->calls,
-+			  u64_stats_read(&rq->stats.packets),
-+			  u64_stats_read(&rq->stats.bytes),
-+			  &cur_sample);
-+	u64_stats_update_end(&rq->stats.syncp);
-+
-+	net_dim(&rq->dim, cur_sample);
-+	rq->packets_in_napi = 0;
-+}
-+
- static int virtnet_poll(struct napi_struct *napi, int budget)
- {
- 	struct receive_queue *rq =
-@@ -2152,17 +2188,22 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	struct send_queue *sq;
- 	unsigned int received;
- 	unsigned int xdp_xmit = 0;
-+	bool napi_complete;
- 
- 	virtnet_poll_cleantx(rq);
- 
- 	received = virtnet_receive(rq, budget, &xdp_xmit);
-+	rq->packets_in_napi += received;
- 
- 	if (xdp_xmit & VIRTIO_XDP_REDIR)
- 		xdp_do_flush();
- 
- 	/* Out of packets? */
--	if (received < budget)
--		virtqueue_napi_complete(napi, rq->vq, received);
-+	if (received < budget) {
-+		napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
-+		if (napi_complete && rq->dim_enabled)
-+			virtnet_rx_dim_update(vi, rq);
-+	}
- 
- 	if (xdp_xmit & VIRTIO_XDP_TX) {
- 		sq = virtnet_xdp_get_sq(vi);
-@@ -2233,8 +2274,11 @@ static int virtnet_open(struct net_device *dev)
- 	disable_delayed_refill(vi);
- 	cancel_delayed_work_sync(&vi->refill);
- 
--	for (i--; i >= 0; i--)
-+	for (i--; i >= 0; i--) {
- 		virtnet_disable_queue_pair(vi, i);
-+		cancel_work_sync(&vi->rq[i].dim.work);
-+	}
-+
- 	return err;
- }
- 
-@@ -2396,8 +2440,10 @@ static int virtnet_rx_resize(struct virtnet_info *vi,
- 
- 	qindex = rq - vi->rq;
- 
--	if (running)
-+	if (running) {
- 		napi_disable(&rq->napi);
-+		cancel_work_sync(&rq->dim.work);
-+	}
- 
- 	err = virtqueue_resize(rq->vq, ring_num, virtnet_rq_free_unused_buf);
- 	if (err)
-@@ -2652,8 +2698,10 @@ static int virtnet_close(struct net_device *dev)
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
- 
--	for (i = 0; i < vi->max_queue_pairs; i++)
-+	for (i = 0; i < vi->max_queue_pairs; i++) {
- 		virtnet_disable_queue_pair(vi, i);
-+		cancel_work_sync(&vi->rq[i].dim.work);
-+	}
- 
- 	return 0;
- }
-@@ -2905,20 +2953,25 @@ static int virtnet_send_rx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
- 	return 0;
- }
- 
--static int virtnet_send_tx_ctrl_coal_vq_cmd(struct virtnet_info *vi,
--					    u16 queue, u32 max_usecs,
--					    u32 max_packets)
-+static int virtnet_send_tx_notf_coal_vq_cmds(struct virtnet_info *vi,
-+					     u16 queue, u32 max_usecs,
-+					     u32 max_packets)
- {
- 	int err;
- 
-+	spin_lock(&vi->ctrl_lock);
- 	err = virtnet_send_ctrl_coal_vq_cmd(vi, txq2vq(queue),
- 					    max_usecs, max_packets);
--	if (err)
-+	if (err) {
-+		spin_unlock(&vi->ctrl_lock);
- 		return err;
-+	}
- 
- 	vi->sq[queue].intr_coal.max_usecs = max_usecs;
- 	vi->sq[queue].intr_coal.max_packets = max_packets;
- 
-+	spin_unlock(&vi->ctrl_lock);
-+
- 	return 0;
- }
- 
-@@ -2935,9 +2988,6 @@ static void virtnet_get_ringparam(struct net_device *dev,
- 	ring->tx_pending = virtqueue_get_vring_size(vi->sq[0].vq);
- }
- 
--static int virtnet_send_ctrl_coal_vq_cmd(struct virtnet_info *vi,
--					 u16 vqn, u32 max_usecs, u32 max_packets);
--
- static int virtnet_set_ringparam(struct net_device *dev,
- 				 struct ethtool_ringparam *ring,
- 				 struct kernel_ethtool_ringparam *kernel_ring,
-@@ -2979,15 +3029,11 @@ static int virtnet_set_ringparam(struct net_device *dev,
- 			 * through the VIRTIO_NET_CTRL_NOTF_COAL_TX_SET command, or, if the driver
- 			 * did not set any TX coalescing parameters, to 0.
- 			 */
--			spin_lock(&vi->ctrl_lock);
--			err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, i,
--							       vi->intr_coal_tx.max_usecs,
--							       vi->intr_coal_tx.max_packets);
--			if (err) {
--				spin_unlock(&vi->ctrl_lock);
-+			err = virtnet_send_tx_notf_coal_vq_cmds(vi, i,
-+								vi->intr_coal_tx.max_usecs,
-+								vi->intr_coal_tx.max_packets);
-+			if (err)
- 				return err;
--			}
--			spin_unlock(&vi->ctrl_lock);
- 		}
- 
- 		if (ring->rx_pending != rx_pending) {
-@@ -3379,9 +3425,34 @@ static int virtnet_send_tx_notf_coal_cmds(struct virtnet_info *vi,
- static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 					  struct ethtool_coalesce *ec)
- {
-+	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
- 	struct scatterlist sgs_rx;
- 	int i;
- 
-+	if (rx_ctrl_dim_on && !virtio_has_feature(vi->vdev, VIRTIO_NET_F_VQ_NOTF_COAL))
-+		return -EOPNOTSUPP;
-+
-+	if (rx_ctrl_dim_on && (ec->rx_coalesce_usecs != vi->intr_coal_rx.max_usecs ||
-+			       ec->rx_max_coalesced_frames != vi->intr_coal_rx.max_packets))
-+		return -EINVAL;
-+
-+	if (rx_ctrl_dim_on && !vi->rx_dim_enabled) {
-+		vi->rx_dim_enabled = true;
-+		for (i = 0; i < vi->max_queue_pairs; i++)
-+			vi->rq[i].dim_enabled = true;
-+		return 0;
-+	}
-+
-+	if (!rx_ctrl_dim_on && vi->rx_dim_enabled) {
-+		vi->rx_dim_enabled = false;
-+		for (i = 0; i < vi->max_queue_pairs; i++)
-+			vi->rq[i].dim_enabled = false;
-+	}
-+
-+	/* Since the per-queue coalescing params can be set,
-+	 * we need apply the global new params even if they
-+	 * are not updated.
-+	 */
- 	spin_lock(&vi->ctrl_lock);
- 	vi->ctrl->coal_rx.rx_usecs = cpu_to_le32(ec->rx_coalesce_usecs);
- 	vi->ctrl->coal_rx.rx_max_packets = cpu_to_le32(ec->rx_max_coalesced_frames);
-@@ -3394,7 +3465,6 @@ static int virtnet_send_rx_notf_coal_cmds(struct virtnet_info *vi,
- 		return -EINVAL;
- 	}
- 
--	/* Save parameters */
- 	vi->intr_coal_rx.max_usecs = ec->rx_coalesce_usecs;
- 	vi->intr_coal_rx.max_packets = ec->rx_max_coalesced_frames;
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
-@@ -3423,13 +3493,36 @@ static int virtnet_send_notf_coal_cmds(struct virtnet_info *vi,
- 	return 0;
- }
- 
--static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
--					  struct ethtool_coalesce *ec,
--					  u16 queue)
-+static int virtnet_send_rx_notf_coal_vq_cmds(struct virtnet_info *vi,
-+					     struct ethtool_coalesce *ec,
-+					     u16 queue)
- {
-+	bool rx_ctrl_dim_on = !!ec->use_adaptive_rx_coalesce;
-+	bool cur_rx_dim = vi->rq[queue].dim_enabled;
-+	u32 max_usecs, max_packets;
- 	int err;
- 
- 	spin_lock(&vi->ctrl_lock);
-+	max_usecs = vi->rq[queue].intr_coal.max_usecs;
-+	max_packets = vi->rq[queue].intr_coal.max_packets;
-+	if (rx_ctrl_dim_on && (ec->rx_coalesce_usecs != max_usecs ||
-+			       ec->rx_max_coalesced_frames != max_packets)) {
-+		spin_unlock(&vi->ctrl_lock);
-+		return -EINVAL;
-+	}
-+
-+	if (rx_ctrl_dim_on && !cur_rx_dim) {
-+		vi->rq[queue].dim_enabled = true;
-+		spin_unlock(&vi->ctrl_lock);
-+		return 0;
-+	}
-+
-+	if (!rx_ctrl_dim_on && cur_rx_dim)
-+		vi->rq[queue].dim_enabled = false;
-+
-+	/* If no params are updated, userspace ethtool will
-+	 * reject the modification.
-+	 */
- 	err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, queue,
- 					       ec->rx_coalesce_usecs,
- 					       ec->rx_max_coalesced_frames);
-@@ -3438,19 +3531,56 @@ static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
- 		return err;
- 	}
- 
--	err = virtnet_send_tx_ctrl_coal_vq_cmd(vi, queue,
--					       ec->tx_coalesce_usecs,
--					       ec->tx_max_coalesced_frames);
--	if (err) {
--		spin_unlock(&vi->ctrl_lock);
-+	spin_unlock(&vi->ctrl_lock);
-+
-+	return 0;
-+}
-+
-+static int virtnet_send_notf_coal_vq_cmds(struct virtnet_info *vi,
-+					  struct ethtool_coalesce *ec,
-+					  u16 queue)
-+{
-+	int err;
-+
-+	err = virtnet_send_rx_notf_coal_vq_cmds(vi, ec, queue);
-+	if (err)
- 		return err;
--	}
- 
--	spin_unlock(&vi->ctrl_lock);
-+	err = virtnet_send_tx_notf_coal_vq_cmds(vi, queue,
-+						ec->tx_coalesce_usecs,
-+						ec->tx_max_coalesced_frames);
-+	if (err)
-+		return err;
- 
- 	return 0;
- }
- 
-+static void virtnet_rx_dim_work(struct work_struct *work)
-+{
-+	struct dim *dim = container_of(work, struct dim, work);
-+	struct receive_queue *rq = container_of(dim,
-+			struct receive_queue, dim);
-+	struct virtnet_info *vi = rq->vq->vdev->priv;
-+	struct net_device *dev = vi->dev;
-+	struct dim_cq_moder update_moder;
-+	int qnum = rq - vi->rq, err;
-+
-+	update_moder = net_dim_get_rx_moderation(dim->mode, dim->profile_ix);
-+	spin_lock(&vi->ctrl_lock);
-+	if (update_moder.usec != vi->rq[qnum].intr_coal.max_usecs ||
-+	    update_moder.pkts != vi->rq[qnum].intr_coal.max_packets) {
-+		err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
-+						       update_moder.usec,
-+						       update_moder.pkts);
-+		if (err)
-+			pr_debug("%s: Failed to send dim parameters on rxq%d\n",
-+				 dev->name, (int)(rq - vi->rq));
-+	}
-+
-+	spin_unlock(&vi->ctrl_lock);
-+	dim->state = DIM_START_MEASURE;
-+}
-+
- static int virtnet_coal_params_supported(struct ethtool_coalesce *ec)
- {
- 	/* usecs coalescing is supported only if VIRTIO_NET_F_NOTF_COAL
-@@ -3532,6 +3662,7 @@ static int virtnet_get_coalesce(struct net_device *dev,
- 		ec->tx_coalesce_usecs = vi->intr_coal_tx.max_usecs;
- 		ec->tx_max_coalesced_frames = vi->intr_coal_tx.max_packets;
- 		ec->rx_max_coalesced_frames = vi->intr_coal_rx.max_packets;
-+		ec->use_adaptive_rx_coalesce = vi->rx_dim_enabled;
- 	} else {
- 		ec->rx_max_coalesced_frames = 1;
- 
-@@ -3589,6 +3720,7 @@ static int virtnet_get_per_queue_coalesce(struct net_device *dev,
- 		ec->tx_coalesce_usecs = vi->sq[queue].intr_coal.max_usecs;
- 		ec->tx_max_coalesced_frames = vi->sq[queue].intr_coal.max_packets;
- 		ec->rx_max_coalesced_frames = vi->rq[queue].intr_coal.max_packets;
-+		ec->use_adaptive_rx_coalesce = vi->rq[queue].dim_enabled;
- 	} else {
- 		ec->rx_max_coalesced_frames = 1;
- 
-@@ -3714,7 +3846,7 @@ static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
- 
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES |
--		ETHTOOL_COALESCE_USECS,
-+		ETHTOOL_COALESCE_USECS | ETHTOOL_COALESCE_USE_ADAPTIVE_RX,
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-@@ -4308,6 +4440,9 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 					 virtnet_poll_tx,
- 					 napi_tx ? napi_weight : 0);
- 
-+		INIT_WORK(&vi->rq[i].dim.work, virtnet_rx_dim_work);
-+		vi->rq[i].dim.mode = DIM_CQ_PERIOD_MODE_START_FROM_EQE;
-+
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
- 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
- 		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
--- 
-2.19.1.6.gb485710b
+Thanks
 
