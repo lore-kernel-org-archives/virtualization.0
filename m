@@ -1,87 +1,111 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701805576C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 11:06:13 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D52DC8213C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 11:06:12 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D52DC8213C
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -9.899
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ecOr547z15G9
-	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 11:06:11 +0000 (UTC)
-Received: from out30-119.freemail.mail.aliyun.com (out30-119.freemail.mail.aliyun.com [115.124.30.119])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id DDA8F820B0
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 11:06:10 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org DDA8F820B0
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R161e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018045192;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0VxuSk2Z_1701774362;
-Received: from 30.221.148.177(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0VxuSk2Z_1701774362)
-          by smtp.aliyun-inc.com;
-          Tue, 05 Dec 2023 19:06:04 +0800
-Message-ID: <ad02f02a-b08f-4061-9aba-cadef02641c8@linux.alibaba.com>
-Date: Tue, 5 Dec 2023 19:05:59 +0800
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A325786F
+	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 11:34:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from dggpemm500005.china.huawei.com (unknown [172.30.72.57])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Skz2G66sczWjJk;
+	Tue,  5 Dec 2023 19:33:58 +0800 (CST)
+Received: from localhost.localdomain (10.69.192.56) by
+ dggpemm500005.china.huawei.com (7.185.36.74) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Tue, 5 Dec 2023 19:34:51 +0800
+From: Yunsheng Lin <linyunsheng@huawei.com>
+To: <davem@davemloft.net>, <kuba@kernel.org>, <pabeni@redhat.com>
+CC: <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Yunsheng Lin
+	<linyunsheng@huawei.com>, Alexander Duyck <alexander.duyck@gmail.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>, Eric Dumazet
+	<edumazet@google.com>, <kvm@vger.kernel.org>,
+	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>
+Subject: [PATCH net-next 2/6] page_frag: unify gfp bit for order 3 page allocation
+Date: Tue, 5 Dec 2023 19:34:40 +0800
+Message-ID: <20231205113444.63015-3-linyunsheng@huawei.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20231205113444.63015-1-linyunsheng@huawei.com>
+References: <20231205113444.63015-1-linyunsheng@huawei.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v6 4/5] virtio-net: add spin lock for ctrl cmd
- access
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
- mst@redhat.com, pabeni@redhat.com, kuba@kernel.org,
- yinjun.zhang@corigine.com, edumazet@google.com, davem@davemloft.net,
- hawk@kernel.org, john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org,
- xuanzhuo@linux.alibaba.com
-References: <cover.1701762688.git.hengqi@linux.alibaba.com>
- <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
- <CACGkMEurTAGj+mSEtAiYtGfqy=6sU33xVskAZH47qUi+GcyvWA@mail.gmail.com>
-From: Heng Qi <hengqi@linux.alibaba.com>
-In-Reply-To: <CACGkMEurTAGj+mSEtAiYtGfqy=6sU33xVskAZH47qUi+GcyvWA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemm500005.china.huawei.com (7.185.36.74)
+X-CFilter-Loop: Reflected
 
+Currently there seems to be three page frag implementions
+which all try to allocate order 3 page, if that fails, it
+then fail back to allocate order 0 page, and each of them
+all allow order 3 page allocation to fail under certain
+condition by using specific gfp bits.
 
+The gfp bits for order 3 page allocation are different
+between different implementation, __GFP_NOMEMALLOC is
+or'd to forbid access to emergency reserves memory for
+__page_frag_cache_refill(), but it is not or'd in other
+implementions, __GFP_DIRECT_RECLAIM is xor'd to avoid
+direct reclaim in skb_page_frag_refill(), but it is not
+xor'd in __page_frag_cache_refill().
 
-在 2023/12/5 下午4:35, Jason Wang 写道:
-> On Tue, Dec 5, 2023 at 4:02 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
->> Currently access to ctrl cmd is globally protected via rtnl_lock and works
->> fine. But if dim work's access to ctrl cmd also holds rtnl_lock, deadlock
->> may occur due to cancel_work_sync for dim work.
-> Can you explain why?
+This patch unifies the gfp bits used between different
+implementions by or'ing __GFP_NOMEMALLOC and xor'ing
+__GFP_DIRECT_RECLAIM for order 3 page allocation to avoid
+possible pressure for mm.
 
-For example, during the bus unbind operation, the following call stack 
-occurs:
-virtnet_remove -> unregister_netdev -> rtnl_lock[1] -> virtnet_close -> 
-cancel_work_sync -> virtnet_rx_dim_work -> rtnl_lock[2] (deadlock occurs).
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+CC: Alexander Duyck <alexander.duyck@gmail.com>
+---
+ drivers/vhost/net.c | 2 +-
+ mm/page_alloc.c     | 4 ++--
+ net/core/sock.c     | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
->> Therefore, treating
->> ctrl cmd as a separate protection object of the lock is the solution and
->> the basis for the next patch.
-> Let's don't do that. Reasons are:
->
-> 1) virtnet_send_command() may wait for cvq commands for an indefinite time
-
-Yes, I took that into consideration. But ndo_set_rx_mode's need for an 
-atomic
-environment rules out the mutex lock.
-
-> 2) hold locks may complicate the future hardening works around cvq
-
-Agree, but I don't seem to have thought of a better way besides passing 
-the lock.
-Do you have any other better ideas or suggestions?
-
-Thanks!
-
->
-> Thanks
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index f2ed7167c848..e574e21cc0ca 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -670,7 +670,7 @@ static bool vhost_net_page_frag_refill(struct vhost_net *net, unsigned int sz,
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 9a16305cf985..1f0b36dd81b5 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4693,8 +4693,8 @@ static struct page *__page_frag_cache_refill(struct page_frag_cache *nc,
+ 	gfp_t gfp = gfp_mask;
+ 
+ #if (PAGE_SIZE < PAGE_FRAG_CACHE_MAX_SIZE)
+-	gfp_mask |= __GFP_COMP | __GFP_NOWARN | __GFP_NORETRY |
+-		    __GFP_NOMEMALLOC;
++	gfp_mask = (gfp_mask & ~__GFP_DIRECT_RECLAIM) |  __GFP_COMP |
++		   __GFP_NOWARN | __GFP_NORETRY | __GFP_NOMEMALLOC;
+ 	page = alloc_pages_node(NUMA_NO_NODE, gfp_mask,
+ 				PAGE_FRAG_CACHE_MAX_ORDER);
+ 	nc->size = page ? PAGE_FRAG_CACHE_MAX_SIZE : PAGE_SIZE;
+diff --git a/net/core/sock.c b/net/core/sock.c
+index fef349dd72fa..4efa9cae4b0d 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2904,7 +2904,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t gfp)
+ 		/* Avoid direct reclaim but allow kswapd to wake */
+ 		pfrag->page = alloc_pages((gfp & ~__GFP_DIRECT_RECLAIM) |
+ 					  __GFP_COMP | __GFP_NOWARN |
+-					  __GFP_NORETRY,
++					  __GFP_NORETRY | __GFP_NOMEMALLOC,
+ 					  SKB_FRAG_PAGE_ORDER);
+ 		if (likely(pfrag->page)) {
+ 			pfrag->size = PAGE_SIZE << SKB_FRAG_PAGE_ORDER;
+-- 
+2.33.0
 
