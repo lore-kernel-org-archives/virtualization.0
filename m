@@ -1,64 +1,64 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B862468B8B
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE83B68B62
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="HzXIDPIF"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="HYAAUSfK"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 503AE8148B
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:40 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 503AE8148B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=HzXIDPIF
+	by smtp3.osuosl.org (Postfix) with ESMTP id A0B4460E64
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:41 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A0B4460E64
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=HYAAUSfK
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LLe6WbYnQxTw
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HW1wAWeobOYt
 	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 18:11:39 +0000 (UTC)
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5DBD38144C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 5DBD38144C
-Received: by mail-ed1-x532.google.com with SMTP id 4fb4d7f45d1cf-54c67b0da54so5734149a12.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 10:11:39 -0800 (PST)
+	Tue,  5 Dec 2023 18:11:40 +0000 (UTC)
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A6A9060E55
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A6A9060E55
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-a00191363c1so822305766b.0
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 10:11:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1701799897; x=1702404697; darn=lists.linux-foundation.org;
+        d=ventanamicro.com; s=google; t=1701799899; x=1702404699; darn=lists.linux-foundation.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qpfMMaVnqzUKTZ+jKcmqIbb/qIkXcAgoT0iTzjOxQ48=;
-        b=HzXIDPIFW8qkFl9px0ZegoiqmohJ59+/DlucmZ+wfLkm+J2lYMedYsy70jJn9Sp5h0
-         QGU09d0WltXx8VN0qoh+K2Oz9+SMWGw8Lq+UtywDwB3P4w1JPdEyeABq8f2DfX7q+fq0
-         O9jXA7M77EEt1patFO5evQbYfius1em+y4jc5kVTY7BUVkLqwR2aLzS0SnTnXm8nCGAW
-         bXDoLwKGY/sjCxaVmRVzc/MxdxA1R1tKIvyORwYz1T302PkE3PnjSPyAsxzCiUWtcmNe
-         yC0zYRPzBNzn2rFnAOytGsK9NPvhDvAUwNHJ1pSW98rqDnNPZMSzvRACRSdfWJinWlSZ
-         pqwQ==
+        bh=gX5WWhfig998/yZSJ0nntzGN5FS4doIX9lLnxn8Eabk=;
+        b=HYAAUSfKxLxZ+nYBeWRsm9gXa/epxEOcYAD8hMKQS1ga1jcTY3jXosSe877yIYgoRS
+         Nej3xFPZhI0dO9ND+K0ItQoCuOwcbMt7mhPU6cYrZKgIUSomVUSD13vLxxV9XAN7rrDE
+         w+oBrZb9iUUK00d/pcLadscEIdevhEi0g9zTd01FJIG5WH11qmsFpEvWIDbXFhkK9kgH
+         UmrQ57GXxXtcEMzzAdXcM2DrH4/Ro3RP9L19YylJo2XXMFiG0gs2jJxpiXeQPArU06OI
+         nwJmIb/gSqtWLWQ2Tlub7paQPNNARMj3Z6kgnM0KT/Gsf68nGF667Ld0nMVJxej4YgKP
+         hEZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701799897; x=1702404697;
+        d=1e100.net; s=20230601; t=1701799899; x=1702404699;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qpfMMaVnqzUKTZ+jKcmqIbb/qIkXcAgoT0iTzjOxQ48=;
-        b=FP1JiF4A9Vmcpr7s9RWjrVsKB1ZBEczH4EaiG+Of11tzbULeN8bpzo7wToImS6MwWX
-         /+yjERULq6n74ae9nfee75jgRzIrJbsofYhgDYci8nyqji43olo8IcA8gS4vE8Gcf3ZF
-         lUTRWXtSklHB6xWljNqGgnjGVUD69979txo7eJxhEWnnd2gWl4oNAJ+HEBFytHKi64YZ
-         MK+9gX0TOzT+pdqOMYdXETsHGNmO2RW3DJPjw2PHWuTrAHXvcYjnrFsjNN/zAEUvX23g
-         aPAtc4fLo0oYVsIHXS1lQyKKD91A1cxgx3IybiwvLRuKncBJbgcwZdxyybDvAMb86BMq
-         qq0w==
-X-Gm-Message-State: AOJu0YzDk7AUBJbGJZLenVIich2/UeEHi5Sw+BoqjIcf30YolnuBI6lR
-	KZzaFI+cZ8ihlmZQuoAXx5Zwrg==
-X-Google-Smtp-Source: AGHT+IG7j4tkgG9BdEAYgsWiHNE6RETMyX70kzIJ6SCnVEsMXr6DcaKxFt+JsiwBECSXjUhwyamLrg==
-X-Received: by 2002:a17:907:7ea4:b0:a19:a19b:55f0 with SMTP id qb36-20020a1709077ea400b00a19a19b55f0mr871121ejc.128.1701799897601;
-        Tue, 05 Dec 2023 10:11:37 -0800 (PST)
+        bh=gX5WWhfig998/yZSJ0nntzGN5FS4doIX9lLnxn8Eabk=;
+        b=XZiKwAZP8n6MRCYzqecT73yvpaUQpkQ80c+gT+BbLXcXVQBJiZOlwzbFeZXKShK9lX
+         lWtkf5ooMM2871XwSHjBbHkS+gMxKjSrtnoASzKWYJCJKZweIoduLdWujZHNWW8iXrO6
+         nuDurV6I8YDIHPDVSiqsZZ4THpoxCgmexRhoFCPfStMfcms/F44oVY3viyGL3uOsmPjs
+         5+PwoSN9jSviTEXNa8rbuiuh26GQVsx/MNL1EA1aUfT3wzvOB1covCrUnM063IrP86I0
+         5wmEJUNvl5J0j3DTWaRkvjQwmuoG3u4BX/mvNZMVImCzVYMaZRCbE200SgdphXK3xuIL
+         NG1w==
+X-Gm-Message-State: AOJu0Yx1ll7TqbrcW9IsHcVew/mw/Ob2Ak35b9uPUQ92OeXzgQ8WRvtM
+	k9Fz2kmKd4/akSfbyegIeafaKQ==
+X-Google-Smtp-Source: AGHT+IGVDqSAVAc4n/NzKSePh93TSBdvQlfnzm4mjv1k7NCVmXDLW2EClZhu4K7O7TGJV0YruDqlXw==
+X-Received: by 2002:a17:906:209e:b0:a1c:7444:a847 with SMTP id 30-20020a170906209e00b00a1c7444a847mr443883ejq.239.1701799898948;
+        Tue, 05 Dec 2023 10:11:38 -0800 (PST)
 Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id ef3-20020a17090697c300b00a1b75e0e061sm2840625ejb.130.2023.12.05.10.11.36
+        by smtp.gmail.com with ESMTPSA id p4-20020a170906140400b00a1b61096ce6sm3768390ejc.129.2023.12.05.10.11.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Dec 2023 10:11:37 -0800 (PST)
+        Tue, 05 Dec 2023 10:11:38 -0800 (PST)
 From: Andrew Jones <ajones@ventanamicro.com>
 To: kvm-riscv@lists.infradead.org,
 	linux-riscv@lists.infradead.org,
@@ -72,9 +72,9 @@ Cc: anup@brainfault.org,
 	jgross@suse.com,
 	srivatsa@csail.mit.edu,
 	guoren@kernel.org
-Subject: [PATCH v1 12/14] RISC-V: KVM: selftests: Add guest_sbi_probe_extension
-Date: Tue,  5 Dec 2023 19:11:32 +0100
-Message-ID: <20231205181119.207204-28-ajones@ventanamicro.com>
+Subject: [PATCH v1 13/14] RISC-V: KVM: selftests: Add steal_time test support
+Date: Tue,  5 Dec 2023 19:11:33 +0100
+Message-ID: <20231205181119.207204-29-ajones@ventanamicro.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231205181119.207204-16-ajones@ventanamicro.com>
 References: <20231205181119.207204-16-ajones@ventanamicro.com>
@@ -87,90 +87,166 @@ MIME-Version: 1.0
 Content-type: text/plain
 Content-Transfer-Encoding: 8bit
 
-Add guest_sbi_probe_extension(), allowing guest code to probe for
-SBI extensions. As guest_sbi_probe_extension() needs
-SBI_ERR_NOT_SUPPORTED, take the opportunity to bring in all SBI
-error codes. We don't bring in all current extension IDs or base
-extension function IDs though, even though we need one of each,
-because we'd prefer to bring those in as necessary.
+With the introduction of steal-time accounting support for
+RISC-V KVM we can add RISC-V support to the steal_time test.
 
 Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
 ---
- .../selftests/kvm/include/riscv/processor.h   | 21 +++++++++++++++++++
- .../selftests/kvm/lib/riscv/processor.c       | 19 +++++++++++++++++
- 2 files changed, 40 insertions(+)
+ tools/testing/selftests/kvm/Makefile          |  5 +-
+ .../selftests/kvm/include/riscv/processor.h   |  1 +
+ tools/testing/selftests/kvm/steal_time.c      | 99 +++++++++++++++++++
+ 3 files changed, 103 insertions(+), 2 deletions(-)
 
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index a5963ab9215b..ab52bd0c0c5b 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -193,12 +193,13 @@ TEST_GEN_PROGS_s390x += kvm_binary_stats_test
+ 
+ TEST_GEN_PROGS_riscv += demand_paging_test
+ TEST_GEN_PROGS_riscv += dirty_log_test
+-TEST_GEN_PROGS_riscv += guest_print_test
+ TEST_GEN_PROGS_riscv += get-reg-list
++TEST_GEN_PROGS_riscv += guest_print_test
++TEST_GEN_PROGS_riscv += kvm_binary_stats_test
+ TEST_GEN_PROGS_riscv += kvm_create_max_vcpus
+ TEST_GEN_PROGS_riscv += kvm_page_table_test
+ TEST_GEN_PROGS_riscv += set_memory_region_test
+-TEST_GEN_PROGS_riscv += kvm_binary_stats_test
++TEST_GEN_PROGS_riscv += steal_time
+ 
+ SPLIT_TESTS += get-reg-list
+ 
 diff --git a/tools/testing/selftests/kvm/include/riscv/processor.h b/tools/testing/selftests/kvm/include/riscv/processor.h
-index e70ccda2011b..dc50ad62e150 100644
+index dc50ad62e150..a0f9efe5a2a8 100644
 --- a/tools/testing/selftests/kvm/include/riscv/processor.h
 +++ b/tools/testing/selftests/kvm/include/riscv/processor.h
-@@ -108,6 +108,17 @@ static inline uint64_t __kvm_reg_id(uint64_t type, uint64_t subtype,
- #define SATP_ASID_SHIFT				44
- #define SATP_ASID_MASK				_AC(0xFFFF, UL)
+@@ -128,6 +128,7 @@ static inline uint64_t __kvm_reg_id(uint64_t type, uint64_t subtype,
  
-+/* SBI return error codes */
-+#define SBI_SUCCESS				0
-+#define SBI_ERR_FAILURE				-1
-+#define SBI_ERR_NOT_SUPPORTED			-2
-+#define SBI_ERR_INVALID_PARAM			-3
-+#define SBI_ERR_DENIED				-4
-+#define SBI_ERR_INVALID_ADDRESS			-5
-+#define SBI_ERR_ALREADY_AVAILABLE		-6
-+#define SBI_ERR_ALREADY_STARTED			-7
-+#define SBI_ERR_ALREADY_STOPPED			-8
-+
- #define SBI_EXT_EXPERIMENTAL_START		0x08000000
- #define SBI_EXT_EXPERIMENTAL_END		0x08FFFFFF
+ enum sbi_ext_id {
+ 	SBI_EXT_BASE = 0x10,
++	SBI_EXT_STA = 0x535441,
+ };
  
-@@ -115,6 +126,14 @@ static inline uint64_t __kvm_reg_id(uint64_t type, uint64_t subtype,
- #define KVM_RISCV_SELFTESTS_SBI_UCALL		0
- #define KVM_RISCV_SELFTESTS_SBI_UNEXP		1
+ enum sbi_ext_base_fid {
+diff --git a/tools/testing/selftests/kvm/steal_time.c b/tools/testing/selftests/kvm/steal_time.c
+index 171adfb2a6cb..bae0c5026f82 100644
+--- a/tools/testing/selftests/kvm/steal_time.c
++++ b/tools/testing/selftests/kvm/steal_time.c
+@@ -11,7 +11,9 @@
+ #include <pthread.h>
+ #include <linux/kernel.h>
+ #include <asm/kvm.h>
++#ifndef __riscv
+ #include <asm/kvm_para.h>
++#endif
  
-+enum sbi_ext_id {
-+	SBI_EXT_BASE = 0x10,
-+};
-+
-+enum sbi_ext_base_fid {
-+	SBI_EXT_BASE_PROBE_EXT = 3,
-+};
-+
- struct sbiret {
- 	long error;
- 	long value;
-@@ -125,4 +144,6 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
- 			unsigned long arg3, unsigned long arg4,
- 			unsigned long arg5);
- 
-+bool guest_sbi_probe_extension(int extid, long *out_val);
-+
- #endif /* SELFTEST_KVM_PROCESSOR_H */
-diff --git a/tools/testing/selftests/kvm/lib/riscv/processor.c b/tools/testing/selftests/kvm/lib/riscv/processor.c
-index 6905a4348380..7ca736fb4194 100644
---- a/tools/testing/selftests/kvm/lib/riscv/processor.c
-+++ b/tools/testing/selftests/kvm/lib/riscv/processor.c
-@@ -393,3 +393,22 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
- 
- 	return ret;
+ #include "test_util.h"
+ #include "kvm_util.h"
+@@ -203,6 +205,103 @@ static void steal_time_dump(struct kvm_vm *vm, uint32_t vcpu_idx)
+ 	pr_info("    st_time: %ld\n", st->st_time);
  }
+ 
++#elif defined(__riscv)
 +
-+bool guest_sbi_probe_extension(int extid, long *out_val)
++/* SBI STA shmem must have 64-byte alignment */
++#define STEAL_TIME_SIZE		((sizeof(struct sta_struct) + 63) & ~63)
++
++static vm_paddr_t st_gpa[NR_VCPUS];
++
++struct sta_struct {
++	uint32_t sequence;
++	uint32_t flags;
++	uint64_t steal;
++	uint8_t preempted;
++	uint8_t pad[47];
++} __packed;
++
++static void sta_set_shmem(vm_paddr_t gpa, unsigned long flags)
 +{
-+	struct sbiret ret;
++	unsigned long lo = (unsigned long)gpa;
++#if __riscv_xlen == 32
++	unsigned long hi = (unsigned long)(gpa >> 32);
++#else
++	unsigned long hi = gpa == -1 ? -1 : 0;
++#endif
++	struct sbiret ret = sbi_ecall(SBI_EXT_STA, 0, lo, hi, flags, 0, 0, 0);
 +
-+	ret = sbi_ecall(SBI_EXT_BASE, SBI_EXT_BASE_PROBE_EXT, extid,
-+			0, 0, 0, 0, 0);
-+
-+	__GUEST_ASSERT(!ret.error || ret.error == SBI_ERR_NOT_SUPPORTED,
-+		       "ret.error=%ld, ret.value=%ld\n", ret.error, ret.value);
-+
-+	if (ret.error == SBI_ERR_NOT_SUPPORTED)
-+		return false;
-+
-+	if (out_val)
-+		*out_val = ret.value;
-+
-+	return true;
++	GUEST_ASSERT(ret.value == 0 && ret.error == 0);
 +}
++
++static void check_status(struct sta_struct *st)
++{
++	GUEST_ASSERT(!(READ_ONCE(st->sequence) & 1));
++	GUEST_ASSERT(READ_ONCE(st->flags) == 0);
++	GUEST_ASSERT(READ_ONCE(st->preempted) == 0);
++}
++
++static void guest_code(int cpu)
++{
++	struct sta_struct *st = st_gva[cpu];
++	uint32_t sequence;
++	long out_val = 0;
++	bool probe;
++
++	probe = guest_sbi_probe_extension(SBI_EXT_STA, &out_val);
++	GUEST_ASSERT(probe && out_val == 1);
++
++	sta_set_shmem(st_gpa[cpu], 0);
++	GUEST_SYNC(0);
++
++	check_status(st);
++	WRITE_ONCE(guest_stolen_time[cpu], st->steal);
++	sequence = READ_ONCE(st->sequence);
++	check_status(st);
++	GUEST_SYNC(1);
++
++	check_status(st);
++	GUEST_ASSERT(sequence < READ_ONCE(st->sequence));
++	WRITE_ONCE(guest_stolen_time[cpu], st->steal);
++	check_status(st);
++	GUEST_DONE();
++}
++
++static bool is_steal_time_supported(struct kvm_vcpu *vcpu)
++{
++	uint64_t id = RISCV_SBI_EXT_REG(KVM_RISCV_SBI_EXT_STA);
++	unsigned long enabled;
++
++	vcpu_get_reg(vcpu, id, &enabled);
++	TEST_ASSERT(enabled == 0 || enabled == 1, "Expected boolean result");
++
++	return enabled;
++}
++
++static void steal_time_init(struct kvm_vcpu *vcpu, uint32_t i)
++{
++	/* ST_GPA_BASE is identity mapped */
++	st_gva[i] = (void *)(ST_GPA_BASE + i * STEAL_TIME_SIZE);
++	st_gpa[i] = addr_gva2gpa(vcpu->vm, (vm_vaddr_t)st_gva[i]);
++	sync_global_to_guest(vcpu->vm, st_gva[i]);
++	sync_global_to_guest(vcpu->vm, st_gpa[i]);
++}
++
++static void steal_time_dump(struct kvm_vm *vm, uint32_t vcpu_idx)
++{
++	struct sta_struct *st = addr_gva2hva(vm, (ulong)st_gva[vcpu_idx]);
++	int i;
++
++	pr_info("VCPU%d:\n", vcpu_idx);
++	pr_info("    sequence:  %d\n", st->sequence);
++	pr_info("    flags:     %d\n", st->flags);
++	pr_info("    steal:     %"PRIu64"\n", st->steal);
++	pr_info("    preempted: %d\n", st->preempted);
++	pr_info("    pad:      ");
++	for (i = 0; i < 47; ++i)
++		pr_info("%d", st->pad[i]);
++	pr_info("\n");
++}
++
+ #endif
+ 
+ static void *do_steal_time(void *arg)
 -- 
 2.43.0
 
