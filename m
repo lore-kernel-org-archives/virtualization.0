@@ -1,143 +1,157 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2086.outbound.protection.outlook.com [40.107.102.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF82E364D1
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 06:56:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A815CD302
+	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 06:59:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="OR6QVcpO"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 016C541606
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 06:56:39 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 016C541606
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=OR6QVcpO
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qi7eHNYPn75t
-	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 06:56:35 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8ADFA41607
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 06:56:34 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 8ADFA41607
-Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id F3D85120026;
-	Tue,  5 Dec 2023 09:56:29 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru F3D85120026
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701759390;
-	bh=hRb1OWAketAgWsS/ac4IBqv06gfS9pcaRvoWb7Do5Fg=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=OR6QVcpOFCLTZlem67vZ3/D3KJKezBtF2A9wpCNlWLiLi6wokvoI/X5P2y0ZEcnBi
-	 bFvOM4bjUqpx1NtSc+ebn2tY6Li8s+w2hBDOvLSp9tJQrXbDg5S6NDwRebGwmD0UwQ
-	 6VaZDjQJ1Ym+vFEA0K/F0uKPqBa+N/gH4oOsoK7SMJ5rBAQK2TLdFlddzzmRjE4K1Y
-	 qnNTg7y4PdjQLjm+zHgByCx8OZJk5GKQa2ZQGc+OdRFJOeJQ9gURrFlh5YHZWrs3JP
-	 MaFQdXlsIvBhn29eAdLzkmo6YKD8xokEjwOU9NVxdZwuko7pZeBAe4Dw5E4rKfwyeq
-	 1xmxtwgPGuodA==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Tue,  5 Dec 2023 09:56:29 +0300 (MSK)
-Received: from localhost.localdomain (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Tue, 5 Dec 2023 09:56:29 +0300
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
-	<jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [PATCH net-next v6 3/4] virtio/vsock: fix logic which reduces credit update messages
-Date: Tue, 5 Dec 2023 09:48:05 +0300
-Message-ID: <20231205064806.2851305-4-avkrasnov@salutedevices.com>
-X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20231205064806.2851305-1-avkrasnov@salutedevices.com>
-References: <20231205064806.2851305-1-avkrasnov@salutedevices.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="ulbhh//4"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VhWCPZ8CZ5bmoVMmMcMFB7NyfHZi5Fft9dBk+rJM9vDn3wSjPz9z2pZXr24yZoXIc96disNi52acfzOdkpjRt2TsayvvHamQZch+ZM18Gmx8bGDSjSca9/EkNv4tRG8yiCX9BSMOJmRPtxoj4G/502I2ftrh4Zihmb73OoGKpn7OX7j16H7WQZ8esxZ3Efu1yLlfbudtZKkuglcm/0X9kHWLhFUCUzM/c/EckR3DdgPPIrLjsZfpJUkA6gcxj7llZO4UDPokNpFaofcRFftbTyZN1GMPQwwtbvW5g9wKhY6R59Y9xQBuYtbIL8/bHwzZdNKrlqloP7vN1u9ewYBqwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dUFMWE6PUk8+M59G1oan/bVcRn978NHjqAt6bJTeho0=;
+ b=Ac3s4wJFEsZS7IOx2oLbx22/7M1mL9nVfnfXuVrATv2EdIcAMk00O9ZJ3l8/PwxlAdJSZ6BVGueNPou4oMzfIlFXdbgPn3ubSiHoVTHChU8/WTxbgre1mOwpwnq8UNE8gXh0l0vdD1xe6kBf6mEmU91z8izzjJxLv3JI+BHbGpybY0T97D4U0wahH0MrRyzvhTN3BexzRHiZfBfQ25u9IQdvAbeVG4N8L3vvegOg/1wsa7C0t6rPH3m+2zbAHNoVmyVqR5NnjfbhZ04a0xgqyDtqStiIcW+MXGWOA/2bxgaxg30AzJ6fZfQZcwIs7eOfyN1RmGeToskfKYalB7UnRA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dUFMWE6PUk8+M59G1oan/bVcRn978NHjqAt6bJTeho0=;
+ b=ulbhh//4Si2qjBxsDO48SGEs1Oi4s81CuHEYseZ/Dj1bTypK/dC0bO0/e2HusL2zkwgyx1Kp6YACEWQlMKMt3tIH45UuYavQ7f+OSek0inlDPnIH7HIdpvsnzPz3emfSpGSDUDbD2EwPBLUNOwbRyPQGP/wVcdinPLaa1vKNvwIo/yIW2OKJSn6A5fNbKbJimizN1vc9ou2mrPIvO7ng9SuqmHdf4Iof1Qv62s+utxADUR8ni+jcdhcGlTF6MQB3tGMxweXlRBJra4YGiFEbMb+805fo2aK6Q7juYiT59H8bWyYBZCwj+TGBaXBLp0eDaVCiVYoiFwLqU1EGUv2aVw==
+Received: from CYXPR12MB9386.namprd12.prod.outlook.com (2603:10b6:930:de::20)
+ by DM4PR12MB6136.namprd12.prod.outlook.com (2603:10b6:8:a9::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34; Tue, 5 Dec
+ 2023 06:59:17 +0000
+Received: from CYXPR12MB9386.namprd12.prod.outlook.com
+ ([fe80::78d0:a51c:4795:9f64]) by CYXPR12MB9386.namprd12.prod.outlook.com
+ ([fe80::78d0:a51c:4795:9f64%4]) with mapi id 15.20.7046.034; Tue, 5 Dec 2023
+ 06:59:17 +0000
+From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>
+CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, Jason Wang <jasowang@redhat.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jens Axboe
+	<axboe@kernel.dk>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Suwan Kim
+	<suwan.kim027@gmail.com>, kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH] virtio_blk: fix snprintf truncation compiler warning
+Thread-Topic: [PATCH] virtio_blk: fix snprintf truncation compiler warning
+Thread-Index: AQHaJrtLnXj0iDZgFkOkqTing0Ls27CaQ6mA
+Date: Tue, 5 Dec 2023 06:59:17 +0000
+Message-ID: <3b2bfd2f-5306-4a70-b1d9-6c41e72cd939@nvidia.com>
+References: <20231204140743.1487843-1-stefanha@redhat.com>
+In-Reply-To: <20231204140743.1487843-1-stefanha@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Mozilla Thunderbird
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CYXPR12MB9386:EE_|DM4PR12MB6136:EE_
+x-ms-office365-filtering-correlation-id: fcaf174e-cf7b-4a7f-d9e5-08dbf55fb2bc
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ fdijXTgU01v6Dg1sGdw0+qr65+xjG1u8h8bEW11JR0nIRdsOBVTvL6piUwcS8MQBr5r6XFejWAGs3KB7VvzsuT3eXyHnKIPYvxF8xK+094HlJRGPkZSuGKXVpV8ki5Y1pla4CbKvlxgHzV1wtAnb4K3ZxvR7va0LOyNw04s7MzRXWeWMgGHAMbG3prZ+xwnDtpWpiEBzsG8d6HUQ+aDMZ2T5rn0gN+Kfqve1TzTjsBjA+ycXyodRHDXwrmrpGEPAi1y98Kvu29+PblB9q0NVG9c2DKLl5fYOZACAiMNxVLh/VLaLDQeP3OtmpxlU69sN+c+BVq+lVg3/m4ex0HiOvWRH0D8bCJ1IjotpwaxoLbx6MlHQotgl+O21Ynw0wpPCRaljKFRcKYG717dqMvourjdP38WEi9XaxB0qgbG4pEJoFZJ8fK1iIFMbAg9fZ5PXd0gX7hQa8NeK3ooeRkOCRCmOfWnYuQhUQd/5S2gPU+1OoLDfiU9IMxUQPCDhmL8SDNjlkgftwHz+O/8AGazt9nfbgzvK0wgKV8XmC7QvYDyspo6U/OmAecKHiB8FLsUW5mr5mJl7STT+zlM3p3BAijgOzixFfDfSoynK4v+oIbFBAMybUKCXc2HF/7M58poPLkfM2VAiZKM8ekr1E4Iz4J8MJju2w4V2LnyXUO9my2OMLPPmNVjGspcx8javLxncY7Yi207acXj5lbRLdR4hzdCjN1sCfaPHJ9LR5Cg1M6GykIF3OvTeUCJfImBDh+B5IwBWqTk+wsbFxIUbMEpT8Q==
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CYXPR12MB9386.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(136003)(396003)(376002)(346002)(39860400002)(230273577357003)(230922051799003)(230173577357003)(1800799012)(451199024)(186009)(64100799003)(6486002)(966005)(83380400001)(478600001)(6512007)(2616005)(53546011)(6506007)(26005)(71200400001)(316002)(110136005)(66476007)(91956017)(66446008)(64756008)(54906003)(66556008)(76116006)(66946007)(86362001)(8676002)(41300700001)(36756003)(4326008)(8936002)(38070700009)(7416002)(2906002)(31696002)(5660300002)(122000001)(38100700002)(31686004)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?S2NUVi9kR2hWUGVvR0pRM0tyWm9qZUFLdW1IK3BscTFWOHJ3bHRld2p3SzNE?=
+ =?utf-8?B?NjRLT3Z5WHRnMVJPSTAxVGNPT3lIYngrZkYwbHNHVEJXNG5PbFh0enpoeFo0?=
+ =?utf-8?B?Vk1idmZjc01QdUlEakZWbjRpK2wyTzl6SUVhTEVhVythaHFrZTdXMzBnVWN4?=
+ =?utf-8?B?WFd5Nk1YRzljODlRK2VNd0lCSzJHU1hEcFhCVlg4Mkd1bzRCV1RSa0t3SUsw?=
+ =?utf-8?B?UEc2U3AxWXIrUkhNdjdQamlkek1ZRjRVYnpWMmdHdnlLMWg5L0U1T0dJNHFF?=
+ =?utf-8?B?RGdnNUU3MGVicWU1eWRadmhCTjZSbmNSMXBYYnR0bnhhYVhTbkJWU2h1dTMw?=
+ =?utf-8?B?UnJ1V1U5MXdnRzFGK0RIWkpheDZmYnJONWlvTHBUTHdQd0czMDladmFZTTFu?=
+ =?utf-8?B?bVBxTDJpV1cydGp0YkIzckVKYUM0MzV3NUUzTFoxbGpPZzFMZFFTUXlGN0pu?=
+ =?utf-8?B?aHNIcDFCZC9JRmNnQVJPY2VlOEVTbjJQQVhlT1VZM3Zjb0srTjZOVlFVN1Mw?=
+ =?utf-8?B?VW5lVGpXa0JUOVZ4K2pkZFdrcVZMVlZ1dmxYRkJjYkRqbUdaK2drR3dKQmpC?=
+ =?utf-8?B?eDBkU0xRSmd3YlZUME1SeEgvY0ZMTlU3UGJ1K0lLbkF4VCs0YTI3bTB3NHcv?=
+ =?utf-8?B?TGZTbzZUZTlsVFdValgwZmxQOTEyOU9NU1IwN3lCdXg0LzFsTkw3WVdPbmE1?=
+ =?utf-8?B?QmVCK01QUUZWQk5MQ3ZRSEg0YUE3cWFneDBuTFQwcG83dHJaTUM4cmlrWmpo?=
+ =?utf-8?B?eng5SC92NnplTWpHcm15TEtRQUJ1TmhJSC9mcGJOL01pMU9LU01lZXFMMDAr?=
+ =?utf-8?B?ZlF6cFBScWpQYmY1dm5kTFpKTWg1eUFtTWxhV1pDQUZNdlViV2xaRmhLTnds?=
+ =?utf-8?B?R0xUL3pMTEN0Wnc0RUZtbzY2Tm5zS3dPZk5CcWhaZ25EM1huVHozTmZ5bVJX?=
+ =?utf-8?B?cVFpZXNCOU9YelEzcHBudkJXVE83ZlZMMVJ1VVpwTGlxa1kzYWJTay84azZE?=
+ =?utf-8?B?dXFxbEdJVHBBNi9ITFpRRDBWMjRNMDN5amNUR3NZS2ZaekZHQlBuNXFlbWpi?=
+ =?utf-8?B?MlE1ejBsNEdqaGZ0OEhxOVFKdnM3d0hIOTV6dEZhbVdXTzhESnFzZVpjY3hN?=
+ =?utf-8?B?b0NnVjNXWkR5YWNZSWdNQXR3alAycjFMaFBvLzB5WUhQM2gxeHlEbjczVmM2?=
+ =?utf-8?B?diszMDRsYnUySDVpWlRJK1Ayc0dLODVXdm45TTJpaGJyVTJQTWxOSlZlTzds?=
+ =?utf-8?B?NW1SdkhoU2cydDFCVUgvdlBuWjRMWW5CSlF2cE1CcWxObmVFTFYyRXJ2U2Uw?=
+ =?utf-8?B?eG85YU1tWEQ2UmVhK1ovTTZ3MzlPZWN3S3NqeEkzK2l0YTA2UXN2dFVldGky?=
+ =?utf-8?B?RDY5eER6QWVLNXd6YlVkYm5KaEJ6Q2IrT0k0ZTVPRkdFQUpuWjRuSFpyTE9t?=
+ =?utf-8?B?MldhOFZYbzhlU3V0ZlFlTDRJZHViY0ViSnJaeFQzdkZTRFc3S1NwTzBJMWdn?=
+ =?utf-8?B?MDhLeUx6Ulorbm9KUWdBUjR4NE1KaTJiM1BTRWl4NythZkNsUngxbzJTL1c0?=
+ =?utf-8?B?cWxqcHE5MVJNS2JCTFpzK21PSk4xck0wd1JKQlRoUzZOR0dTZXlSbXhkcEFm?=
+ =?utf-8?B?UUdiZlViNjgra3l6aS9HYXpWbk5vRmYwcXg3a2x1MzFIR0VtcnlwLy9vSXNF?=
+ =?utf-8?B?QzFhMmRaSFV6MjBVNzZuWTUyUktXZjZnNUl6QWg0cFZ4ZFFxVkpoYThsNEw1?=
+ =?utf-8?B?S2pPQk50ZExHMjJseUhpSkFkRjhleXBiVi9MWEpSRHZSclR1b3ZGcTVoZFJ0?=
+ =?utf-8?B?WTFWTjVKcW9ZUEwySDFtRUFhYWRSZ3FRNFNrQjRMWXk4VXhsK1F2ejBtd2Na?=
+ =?utf-8?B?Y3l4Z2wvRzBYRm5rQlhFN2duenZzRytrUittSXAzcmVvcnlVWFJBNE0wSE0v?=
+ =?utf-8?B?QnBZdUdTa1NhNkVPNCt4N2taVHp5YjZubndHQklFWFQ1a1hPU2pjdUNFcG1s?=
+ =?utf-8?B?KzV6Snl5RHBWVTcxNVdlaVZaVDlKVnhDUjNXYWs0eFpCcHpJL21acWZncDBu?=
+ =?utf-8?B?bEhROFZVQVlOTUZUYXQ4Z0ZIOWVibkl6eUpCOWtGa1RNcDA5ZEtETjUweXpj?=
+ =?utf-8?Q?YbnEyAEwvaZwYAqJ4tW3DiUvx?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <7D272939CF7C694EB0568164FF21AD53@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181836 [Dec 05 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;p-i-exch-sc-m01.sberdevices.ru:7.1.1,5.0.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/05 03:59:00 #22607474
-X-KSMG-AntiVirus-Status: Clean, skipped
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CYXPR12MB9386.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fcaf174e-cf7b-4a7f-d9e5-08dbf55fb2bc
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Dec 2023 06:59:17.2432
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: smp4DaYjIwO+2rT+PvZS3Gn3jREdhJ6hCA5qtjOakYZU2T+IgFNxjVakeGInG3dAjxa+JHtFBy2pAEqBjE+auw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6136
 
-Add one more condition for sending credit update during dequeue from
-stream socket: when number of bytes in the rx queue is smaller than
-SO_RCVLOWAT value of the socket. This is actual for non-default value
-of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
-transmission, because we need at least SO_RCVLOWAT bytes in our rx
-queue to wake up user for reading data (in corner case it is also
-possible to stuck both tx and rx sides, this is why 'Fixes' is used).
-
-Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
-Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
----
- net/vmw_vsock/virtio_transport_common.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index e137d740804e..461c89882142 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -558,6 +558,7 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	struct virtio_vsock_sock *vvs = vsk->trans;
- 	size_t bytes, total = 0;
- 	struct sk_buff *skb;
-+	bool low_rx_bytes;
- 	int err = -EFAULT;
- 	u32 free_space;
- 
-@@ -602,6 +603,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	}
- 
- 	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
-+	low_rx_bytes = (vvs->rx_bytes <
-+			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
- 
- 	spin_unlock_bh(&vvs->rx_lock);
- 
-@@ -611,9 +614,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
- 	 * too high causes extra messages. Too low causes transmitter
- 	 * stalls. As stalls are in theory more expensive than extra
- 	 * messages, we set the limit to a high value. TODO: experiment
--	 * with different values.
-+	 * with different values. Also send credit update message when
-+	 * number of bytes in rx queue is not enough to wake up reader.
- 	 */
--	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
-+	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE ||
-+	    low_rx_bytes)
- 		virtio_transport_send_credit_update(vsk);
- 
- 	return total;
--- 
-2.25.1
-
+T24gMTIvNC8yMDIzIDY6MDcgQU0sIFN0ZWZhbiBIYWpub2N6aSB3cm90ZToNCj4gQ29tbWl0IDRl
+MDQwMDUyNTY5MSAoInZpcnRpby1ibGs6IHN1cHBvcnQgcG9sbGluZyBJL08iKSB0cmlnZ2VycyB0
+aGUNCj4gZm9sbG93aW5nIGdjYyAxMyBXPTEgd2FybmluZ3M6DQo+IA0KPiBkcml2ZXJzL2Jsb2Nr
+L3ZpcnRpb19ibGsuYzogSW4gZnVuY3Rpb24g4oCYaW5pdF92ceKAmToNCj4gZHJpdmVycy9ibG9j
+ay92aXJ0aW9fYmxrLmM6MTA3Nzo2ODogd2FybmluZzog4oCYJWTigJkgZGlyZWN0aXZlIG91dHB1
+dCBtYXkgYmUgdHJ1bmNhdGVkIHdyaXRpbmcgYmV0d2VlbiAxIGFuZCAxMSBieXRlcyBpbnRvIGEg
+cmVnaW9uIG9mIHNpemUgNyBbLVdmb3JtYXQtdHJ1bmNhdGlvbj1dDQo+ICAgMTA3NyB8ICAgICAg
+ICAgICAgICAgICBzbnByaW50Zih2YmxrLT52cXNbaV0ubmFtZSwgVlFfTkFNRV9MRU4sICJyZXFf
+cG9sbC4lZCIsIGkpOw0KPiAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXn4NCj4gZHJpdmVycy9ibG9jay92
+aXJ0aW9fYmxrLmM6MTA3Nzo1ODogbm90ZTogZGlyZWN0aXZlIGFyZ3VtZW50IGluIHRoZSByYW5n
+ZSBbLTIxNDc0ODM2NDgsIDY1NTM0XQ0KPiAgIDEwNzcgfCAgICAgICAgICAgICAgICAgc25wcmlu
+dGYodmJsay0+dnFzW2ldLm5hbWUsIFZRX05BTUVfTEVOLCAicmVxX3BvbGwuJWQiLCBpKTsNCj4g
+ICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgXn5+fn5+fn5+fn5+fg0KPiBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYzoxMDc3
+OjE3OiBub3RlOiDigJhzbnByaW50ZuKAmSBvdXRwdXQgYmV0d2VlbiAxMSBhbmQgMjEgYnl0ZXMg
+aW50byBhIGRlc3RpbmF0aW9uIG9mIHNpemUgMTYNCj4gICAxMDc3IHwgICAgICAgICAgICAgICAg
+IHNucHJpbnRmKHZibGstPnZxc1tpXS5uYW1lLCBWUV9OQU1FX0xFTiwgInJlcV9wb2xsLiVkIiwg
+aSk7DQo+ICAgICAgICB8ICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQo+IA0KPiBUaGlzIGlzIGEgZmFsc2Ug
+cG9zaXRpdmUgYmVjYXVzZSB0aGUgbG93ZXIgYm91bmQgLTIxNDc0ODM2NDggaXMNCj4gaW5jb3Jy
+ZWN0LiBUaGUgdHJ1ZSByYW5nZSBvZiBpIGlzIFswLCBudW1fdnFzIC0gMV0gd2hlcmUgMCA8IG51
+bV92cXMgPA0KPiA2NTUzNi4NCj4gDQo+IFRoZSBjb2RlIG1peGVzIGludCwgdW5zaWduZWQgc2hv
+cnQsIGFuZCB1bnNpZ25lZCBpbnQgdHlwZXMgaW4gYWRkaXRpb24NCj4gdG8gdXNpbmcgIiVkIiBm
+b3IgYW4gdW5zaWduZWQgdmFsdWUuIFVzZSB1bnNpZ25lZCBzaG9ydCBhbmQgIiV1Ig0KPiBjb25z
+aXN0ZW50bHkgdG8gc29sdmUgdGhlIGNvbXBpbGVyIHdhcm5pbmcuDQo+IA0KPiBDYzogU3V3YW4g
+S2ltIDxzdXdhbi5raW0wMjdAZ21haWwuY29tPg0KPiBSZXBvcnRlZC1ieToga2VybmVsIHRlc3Qg
+cm9ib3QgPGxrcEBpbnRlbC5jb20+DQo+IENsb3NlczogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcv
+b2Uta2J1aWxkLWFsbC8yMDIzMTIwNDE1MDkuREl5dkV0OWgtbGtwQGludGVsLmNvbS8NCj4gU2ln
+bmVkLW9mZi1ieTogU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQuY29tPg0KPiAtLS0N
+Cg0KTG9va3MgZ29vZC4NCg0KUmV2aWV3ZWQtYnk6IENoYWl0YW55YSBLdWxrYXJuaSA8a2NoQG52
+aWRpYS5jb20+DQoNCi1jaw0KDQoNCg==
