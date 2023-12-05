@@ -1,148 +1,269 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B92ED3FE50
-	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 22:43:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F783405C2
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 22:52:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="hnN/yFOk"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-6ce403523e5so1935944b3a.3
-        for <virtualization@lists.linux.dev>; Tue, 05 Dec 2023 14:43:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1701816208; x=1702421008; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=s5PDjvnXiofAm+LfrZr5GVjzdYbiyiT62E/CMkJfzm4=;
-        b=hnN/yFOkh9Nc13gP3LGog//8UnKKbVPPZeUofblrD3iNF/okZ1M7v0dKr3BO66uxZ8
-         vd86o45YCXDljG8bja2HqYWPtVfc9MPEYRzeMMS14EfbC3bS5FhvTmoFsx3ScYljX7GL
-         2AM33COSchclmjsdVvOt9XTAZqDjUc11CwbZ4=
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZG6ABtKt"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7572361412
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 22:52:03 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7572361412
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=ZG6ABtKt
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HuA08ndiJvNK
+	for <virtualization@lists.linux-foundation.org>;
+	Tue,  5 Dec 2023 22:52:00 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7CD0661411
+	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 22:52:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 7CD0661411
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701816719;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bp190EtfGjWCeA3brdN4OZ/TodkB+7ZXGXpd4KD/R9A=;
+	b=ZG6ABtKt8QNMdGVEjTic6laOVcdJgqGXkVmh0OQuagKlWciq46EWrX3uyWd/QIUU6Mw9Sf
+	7CRPuquB8kE19yYVAF4+jlHXW2ZaFvat9HDlhZjWUmepJHh8yBbHQM7p+72eeXODBKoUDA
+	nawi886hAra/6NPlYrsZ7P372akNGFw=
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
+ [209.85.161.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-212-g640zjSuPq62mh14-HpdAw-1; Tue, 05 Dec 2023 17:51:57 -0500
+X-MC-Unique: g640zjSuPq62mh14-HpdAw-1
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-58d5657b6bbso334125eaf.1
+        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 14:51:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701816208; x=1702421008;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1701816716; x=1702421516;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=s5PDjvnXiofAm+LfrZr5GVjzdYbiyiT62E/CMkJfzm4=;
-        b=lVfn7HHoDOkJLaYpc1f20pgndHVRnV5t3dKYwooT44m9oRvKGNsH4S7t46CuNtCKQ3
-         0vR5OP8HH8WvVp8P/u5dJe1Na2DhGvXGMQuQJ/nTr5ltnqRWGJ0R4IUbclcqKe00SFi6
-         giiYj6Ib+PVeIr1l3YwI6sCVuIlrYbHSsCEXdjK/N7lkPsrscikaHxudjfODAQ56NSv/
-         fa94nGX1C3RlPiU83emou6BB3SJk5UeBBCnddNtBHUPM881XF4gele+hHrLX6EOI1i8Y
-         CK0DslHo2cwB2Y3vxf0YJNUgHfsNMcyGy1YKDxxlum350Takp4LFN0IyVLiyj0HUYHdA
-         qoGw==
-X-Gm-Message-State: AOJu0YyH0CVYIyyNso4W91id2lgn9HkB31UgKLN4Eg7UQsZpE70puh2c
-	2i/S6jHrI3/vx3kT9oLScy90fzuO9n1LPofcMpZRS8jL4ZqoMsArpbpilDLhlJB8VohleU3nHh0
-	7LVJpoBVQ0Qb0rz8qwKpaL28kesa2xOaYzg==
-X-Google-Smtp-Source: AGHT+IGLyjhmShxcrztf4iUASVXKLIZrQvbl2nOMjR/Yv9SysVtwrvaOGSlk/eSVNbluuvrw8muVoWkRUp1fFXY/kkM=
-X-Received: by 2002:a05:6a20:1608:b0:18c:b6:ab4f with SMTP id
- l8-20020a056a20160800b0018c00b6ab4fmr4318468pzj.48.1701816207958; Tue, 05 Dec
- 2023 14:43:27 -0800 (PST)
+        bh=bp190EtfGjWCeA3brdN4OZ/TodkB+7ZXGXpd4KD/R9A=;
+        b=oeKV/IsNnzv9+Xukr11Br2Eu3EO0qX0absPNTfuxZjwW8mJgMxGv35x9D/RjMksjz3
+         +9Hqn4c8LLOXzImrP47YS1c3FwtZpHrMy9LvDEjkrlL1K76quvDw2YeqXteQZYRzx6pm
+         hiqgGhEFOUucuslIrzv51X0ROezlUoQRo7UrGl9BW98LnoYUlbuczl6WTrGS7qU0kluY
+         RO8pBQFqVZtFFjyCMbGBf3cCJDdlRZkdqHR5eLW6TK4mG00f+Halffbeyxxt1+DY62WX
+         GhGANM4nEyiRyi8pM2pn6ukKsGl3AKaus1+xaigitbAeysOegG+2YK2ODFIqU6X6PJ0D
+         5Ucg==
+X-Gm-Message-State: AOJu0YyMpG//M13HPEcTkix2SVRNYjcNWrgA0DFEbsS3dyK83VJY2dPZ
+	RGrY6P0X1aGptTGubeYSDHMCmQPTUIqrpM2ertiW2Ul/ox+x4VJnaN8NG+QZ9J3A0gX5M/AR3oH
+	2pbq0mIMOoCa3kVZBX9Tid8vErzWMnPQjBjO8Tu5kZQ==
+X-Received: by 2002:a05:6870:b14d:b0:1fb:788:e8a3 with SMTP id a13-20020a056870b14d00b001fb0788e8a3mr1044681oal.30.1701816716690;
+        Tue, 05 Dec 2023 14:51:56 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHX+wy1tCPko5PNZEieZRXLMkP4wf5109/rs8kmfxtsW8LCRjq2ZZRbnCa0Y7fVkzda+iRfsA==
+X-Received: by 2002:a05:6870:b14d:b0:1fb:788:e8a3 with SMTP id a13-20020a056870b14d00b001fb0788e8a3mr1044670oal.30.1701816716352;
+        Tue, 05 Dec 2023 14:51:56 -0800 (PST)
+Received: from redhat.com ([38.15.60.12])
+        by smtp.gmail.com with ESMTPSA id pb15-20020a0568701e8f00b001fb17559927sm2426720oab.48.2023.12.05.14.51.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 Dec 2023 14:51:55 -0800 (PST)
+Date: Tue, 5 Dec 2023 15:51:53 -0700
+From: Alex Williamson <alex.williamson@redhat.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: <mst@redhat.com>, <jasowang@redhat.com>, <jgg@nvidia.com>,
+ <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+ <parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+ <kevin.tian@intel.com>, <joao.m.martins@oracle.com>,
+ <si-wei.liu@oracle.com>, <leonro@nvidia.com>, <maorg@nvidia.com>
+Subject: Re: [PATCH V5 vfio 8/9] vfio/pci: Expose
+ vfio_pci_core_iowrite/read##size()
+Message-ID: <20231205155153.2d5aceab.alex.williamson@redhat.com>
+In-Reply-To: <20231205170623.197877-9-yishaih@nvidia.com>
+References: <20231205170623.197877-1-yishaih@nvidia.com>
+	<20231205170623.197877-9-yishaih@nvidia.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231122233058.185601-8-amakhalov@vmware.com> <20231201232452.220355-1-amakhalov@vmware.com>
- <20231201232452.220355-7-amakhalov@vmware.com> <20231204103100.GYZW2qZE9tbGMtuVgY@fat_crate.local>
- <c2519c9a-8518-403a-9bca-cb79a5f2a6e9@intel.com> <204f743d-2901-4ad2-bbcc-a7857a8644e7@broadcom.com>
-In-Reply-To: <204f743d-2901-4ad2-bbcc-a7857a8644e7@broadcom.com>
-From: Tim Merrifield <tim.merrifield@broadcom.com>
-Date: Tue, 5 Dec 2023 16:43:16 -0600
-Message-ID: <CAJfbqWyeubVofe4BHQC+a3wacwk0kMPECa8mxZ7gkzhBJ3d5LA@mail.gmail.com>
-Subject: Re: [PATCH v2 6/6] x86/vmware: Add TDX hypercall support
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>, 
-	Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, hpa@zytor.com, dave.hansen@linux.intel.co, 
-	mingo@redhat.com, tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org, 
-	richardcochran@gmail.com, linux-input@vger.kernel.org, 
-	dmitry.torokhov@gmail.com, zackr@vmware.com, 
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com, namit@vmware.com, 
-	timothym@vmware.com, akaher@vmware.com, jsipek@vmware.com, 
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com, 
-	tzimmermann@suse.de, mripard@kernel.org, maarten.lankhorst@linux.intel.com, 
-	horms@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi Dave and Alexey,
+On Tue, 5 Dec 2023 19:06:22 +0200
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-Regarding VMware-specific checks, it may be beneficial to add some
-additional checks
-such as ensuring that the hypervisor vendor is VMware,
-r12=3D=3DVMWARE_HYPERVISOR_MAGIC,
-r10=3D=3DVMWARE_TDX_VENDOR_LEAF, r11=3D=3DVMWARE_TDX_HCALL_FUNC and r13 (co=
-mmand) is
-restricted to those few commands we expect to be invoked from the
-kernel or drivers by VMware-specific
-code.
+> Expose vfio_pci_core_iowrite/read##size() to let it be used by drivers.
+> 
+> This functionality is needed to enable direct access to some physical
+> BAR of the device with the proper locks/checks in place.
+> 
+> The next patches from this series will use this functionality on a data
+> path flow when a direct access to the BAR is needed.
+> 
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_rdwr.c | 46 +++++++++++++++++---------------
+>  include/linux/vfio_pci_core.h    | 19 +++++++++++++
+>  2 files changed, 43 insertions(+), 22 deletions(-)
+> 
+> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+> index a9887fd6de46..448ee90a3bb1 100644
+> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
+> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+> @@ -38,7 +38,7 @@
+>  #define vfio_iowrite8	iowrite8
+>  
+>  #define VFIO_IOWRITE(size) \
+> -static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+> +int vfio_pci_core_iowrite##size(struct vfio_pci_core_device *vdev,	\
+>  			bool test_mem, u##size val, void __iomem *io)	\
+>  {									\
+>  	if (test_mem) {							\
+> @@ -55,7 +55,8 @@ static int vfio_pci_iowrite##size(struct vfio_pci_core_device *vdev,		\
+>  		up_read(&vdev->memory_lock);				\
+>  									\
+>  	return 0;							\
+> -}
+> +}									\
+> +EXPORT_SYMBOL_GPL(vfio_pci_core_iowrite##size);
+>  
+>  VFIO_IOWRITE(8)
+>  VFIO_IOWRITE(16)
+> @@ -65,7 +66,7 @@ VFIO_IOWRITE(64)
+>  #endif
+>  
+>  #define VFIO_IOREAD(size) \
+> -static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+> +int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
+>  			bool test_mem, u##size *val, void __iomem *io)	\
+>  {									\
+>  	if (test_mem) {							\
+> @@ -82,7 +83,8 @@ static int vfio_pci_ioread##size(struct vfio_pci_core_device *vdev,		\
+>  		up_read(&vdev->memory_lock);				\
+>  									\
+>  	return 0;							\
+> -}
+> +}									\
+> +EXPORT_SYMBOL_GPL(vfio_pci_core_ioread##size);
+>  
+>  VFIO_IOREAD(8)
+>  VFIO_IOREAD(16)
+> @@ -119,13 +121,13 @@ static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+>  				if (copy_from_user(&val, buf, 4))
+>  					return -EFAULT;
+>  
+> -				ret = vfio_pci_iowrite32(vdev, test_mem,
+> -							 val, io + off);
+> +				ret = vfio_pci_core_iowrite32(vdev, test_mem,
+> +							      val, io + off);
+>  				if (ret)
+>  					return ret;
+>  			} else {
+> -				ret = vfio_pci_ioread32(vdev, test_mem,
+> -							&val, io + off);
+> +				ret = vfio_pci_core_ioread32(vdev, test_mem,
+> +							     &val, io + off);
+>  				if (ret)
+>  					return ret;
+>  
+> @@ -141,13 +143,13 @@ static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+>  				if (copy_from_user(&val, buf, 2))
+>  					return -EFAULT;
+>  
+> -				ret = vfio_pci_iowrite16(vdev, test_mem,
+> -							 val, io + off);
+> +				ret = vfio_pci_core_iowrite16(vdev, test_mem,
+> +							      val, io + off);
+>  				if (ret)
+>  					return ret;
+>  			} else {
+> -				ret = vfio_pci_ioread16(vdev, test_mem,
+> -							&val, io + off);
+> +				ret = vfio_pci_core_ioread16(vdev, test_mem,
+> +							     &val, io + off);
+>  				if (ret)
+>  					return ret;
+>  
+> @@ -163,13 +165,13 @@ static ssize_t do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
+>  				if (copy_from_user(&val, buf, 1))
+>  					return -EFAULT;
+>  
+> -				ret = vfio_pci_iowrite8(vdev, test_mem,
+> -							val, io + off);
+> +				ret = vfio_pci_core_iowrite8(vdev, test_mem,
+> +							     val, io + off);
+>  				if (ret)
+>  					return ret;
+>  			} else {
+> -				ret = vfio_pci_ioread8(vdev, test_mem,
+> -						       &val, io + off);
+> +				ret = vfio_pci_core_ioread8(vdev, test_mem,
+> +							    &val, io + off);
+>  				if (ret)
+>  					return ret;
+>  
+> @@ -364,16 +366,16 @@ static void vfio_pci_ioeventfd_do_write(struct vfio_pci_ioeventfd *ioeventfd,
+>  {
+>  	switch (ioeventfd->count) {
+>  	case 1:
+> -		vfio_pci_iowrite8(ioeventfd->vdev, test_mem,
+> -				  ioeventfd->data, ioeventfd->addr);
+> +		vfio_pci_core_iowrite8(ioeventfd->vdev, test_mem,
+> +				       ioeventfd->data, ioeventfd->addr);
+>  		break;
+>  	case 2:
+> -		vfio_pci_iowrite16(ioeventfd->vdev, test_mem,
+> -				   ioeventfd->data, ioeventfd->addr);
+> +		vfio_pci_core_iowrite16(ioeventfd->vdev, test_mem,
+> +					ioeventfd->data, ioeventfd->addr);
+>  		break;
+>  	case 4:
+> -		vfio_pci_iowrite32(ioeventfd->vdev, test_mem,
+> -				   ioeventfd->data, ioeventfd->addr);
+> +		vfio_pci_core_iowrite32(ioeventfd->vdev, test_mem,
+> +					ioeventfd->data, ioeventfd->addr);
+>  		break;
+>  #ifdef iowrite64
+>  	case 8:
 
-If we add these checks, would folks be OK with exporting this function?
+There's a vfio_pci_iowrite64() call just below here that was missed.
+Otherwise the vfio parts of the series looks ok to me.  We still need
+to recruit another reviewer though.
 
+My preferred merge approach would be that virtio maintainers take
+patches 1-6 and provide a branch or tag I can merge to bring 7-9 in
+through the vfio tree.  Thanks,
 
-On Tue, Dec 5, 2023 at 3:41=E2=80=AFPM Alexey Makhalov
-<alexey.makhalov@broadcom.com> wrote:
->
->
->
-> On 12/5/23 1:24 PM, Dave Hansen wrote:
-> > On 12/4/23 02:31, Borislav Petkov wrote:
-> >> On Fri, Dec 01, 2023 at 03:24:52PM -0800, Alexey Makhalov wrote:
-> >>> +#ifdef CONFIG_INTEL_TDX_GUEST
-> >>> +/* __tdx_hypercall() is not exported. So, export the wrapper */
-> >>> +void vmware_tdx_hypercall_args(struct tdx_module_args *args)
-> >>> +{
-> >>> +   __tdx_hypercall(args);
-> >>> +}
-> >>> +EXPORT_SYMBOL_GPL(vmware_tdx_hypercall_args);
-> >> Uuuh, lovely. I'd like to see what the TDX folks think about this
-> >> export first.
-> >
-> > I don't really like it much.  This does a generic thing (make a TDX
-> > hypercall) with a specific name ("vmware_").  If you want to make an
-> > argument that a certain chunk of the __tdx_hypercall() space is just fo=
-r
-> > VMWare and you also add a VMWare-specific check and then export *that*,
-> > it might be acceptable.
-> >
-> > But I don't want random modules able to make random, unrestricted TDX
-> > hypercalls.  That's asking for trouble.
->
-> Considering exporting of __tdx_hypercall for random modules is not an
-> option, what VMware specific checks you are suggesting?
->
-> --
-> This electronic communication and the information and any files transmitt=
-ed
-> with it, or attached to it, are confidential and are intended solely for
-> the use of the individual or entity to whom it is addressed and may conta=
-in
-> information that is confidential, legally privileged, protected by privac=
-y
-> laws, or otherwise restricted from disclosure to anyone else. If you are
-> not the intended recipient or the person responsible for delivering the
-> e-mail to the intended recipient, you are hereby notified that any use,
-> copying, distributing, dissemination, forwarding, printing, or copying of
-> this e-mail is strictly prohibited. If you received this e-mail in error,
-> please return the e-mail to the sender, delete it from your computer, and
-> destroy any printed copy of it.
+Alex
 
---=20
-This electronic communication and the information and any files transmitted=
-=20
-with it, or attached to it, are confidential and are intended solely for=20
-the use of the individual or entity to whom it is addressed and may contain=
-=20
-information that is confidential, legally privileged, protected by privacy=
-=20
-laws, or otherwise restricted from disclosure to anyone else. If you are=20
-not the intended recipient or the person responsible for delivering the=20
-e-mail to the intended recipient, you are hereby notified that any use,=20
-copying, distributing, dissemination, forwarding, printing, or copying of=
-=20
-this e-mail is strictly prohibited. If you received this e-mail in error,=
-=20
-please return the e-mail to the sender, delete it from your computer, and=
-=20
-destroy any printed copy of it.
+> diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+> index 67ac58e20e1d..85e84b92751b 100644
+> --- a/include/linux/vfio_pci_core.h
+> +++ b/include/linux/vfio_pci_core.h
+> @@ -131,4 +131,23 @@ int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar);
+>  pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
+>  						pci_channel_state_t state);
+>  
+> +#define VFIO_IOWRITE_DECLATION(size) \
+> +int vfio_pci_core_iowrite##size(struct vfio_pci_core_device *vdev,	\
+> +			bool test_mem, u##size val, void __iomem *io);
+> +
+> +VFIO_IOWRITE_DECLATION(8)
+> +VFIO_IOWRITE_DECLATION(16)
+> +VFIO_IOWRITE_DECLATION(32)
+> +#ifdef iowrite64
+> +VFIO_IOWRITE_DECLATION(64)
+> +#endif
+> +
+> +#define VFIO_IOREAD_DECLATION(size) \
+> +int vfio_pci_core_ioread##size(struct vfio_pci_core_device *vdev,	\
+> +			bool test_mem, u##size *val, void __iomem *io);
+> +
+> +VFIO_IOREAD_DECLATION(8)
+> +VFIO_IOREAD_DECLATION(16)
+> +VFIO_IOREAD_DECLATION(32)
+> +
+>  #endif /* VFIO_PCI_CORE_H */
+
