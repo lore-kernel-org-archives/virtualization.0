@@ -1,114 +1,142 @@
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A5545E0C4
-	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 13:54:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-315-RudkEP8NNOKGvji7MwR1Vg-1; Tue, 05 Dec 2023 13:51:53 +0000
-X-MC-Unique: RudkEP8NNOKGvji7MwR1Vg-1
-Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
- (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Tue, 5 Dec
- 2023 13:51:39 +0000
-Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
- id 15.00.1497.048; Tue, 5 Dec 2023 13:51:39 +0000
-From: David Laight <David.Laight@ACULAB.COM>
-To: 'Stefan Hajnoczi' <stefanha@redhat.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>
-CC: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, Jason Wang <jasowang@redhat.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jens Axboe
-	<axboe@kernel.dk>, "linux-block@vger.kernel.org"
-	<linux-block@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Suwan Kim
-	<suwan.kim027@gmail.com>, kernel test robot <lkp@intel.com>
-Subject: RE: [PATCH] virtio_blk: fix snprintf truncation compiler warning
-Thread-Topic: [PATCH] virtio_blk: fix snprintf truncation compiler warning
-Thread-Index: AQHaJrs9NwtZ5IUyyEqvz6e+TUwc/LCatUxg
-Date: Tue, 5 Dec 2023 13:51:39 +0000
-Message-ID: <1c1d57ba13c2497f99e5e0a9c5954667@AcuMS.aculab.com>
-References: <20231204140743.1487843-1-stefanha@redhat.com>
-In-Reply-To: <20231204140743.1487843-1-stefanha@redhat.com>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F24665EA1
+	for <virtualization@lists.linux.dev>; Tue,  5 Dec 2023 14:19:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="inUejDd6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701785957;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=g2FwUnRexMbJ1eWu7b0mx103R9bklO0D/KfjDegM/pc=;
+	b=inUejDd68N1MTFllxFfD2lQtoXLNQKiN2MDtpROEaTtniyuFZNfHnhKQcYZ+az0Gdju610
+	pYAb5hdimDQv9+zl07moSfqd8hlA8N0Sj+U0t55rO+fQ02W7zEn1PPCBero/fhGaueNp77
+	kFd5gzfy+Itg6T4erXFoCLd+eSCnIwg=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-692-Hw2K6gyFNtS8WtP7wZHbSQ-1; Tue,
+ 05 Dec 2023 09:18:43 -0500
+X-MC-Unique: Hw2K6gyFNtS8WtP7wZHbSQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9218638130AC;
+	Tue,  5 Dec 2023 14:18:42 +0000 (UTC)
+Received: from localhost (unknown [10.39.195.85])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 117495B7C;
+	Tue,  5 Dec 2023 14:18:41 +0000 (UTC)
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David.Laight@aculab.com,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-block@vger.kernel.org,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	Jason Wang <jasowang@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Suwan Kim <suwan.kim027@gmail.com>,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v2] virtio_blk: fix snprintf truncation compiler warning
+Date: Tue,  5 Dec 2023 09:18:40 -0500
+Message-ID: <20231205141840.1854409-1-stefanha@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
-RnJvbTogU3RlZmFuIEhham5vY3ppDQo+IFNlbnQ6IDA0IERlY2VtYmVyIDIwMjMgMTQ6MDgNCj4g
-DQo+IENvbW1pdCA0ZTA0MDA1MjU2OTEgKCJ2aXJ0aW8tYmxrOiBzdXBwb3J0IHBvbGxpbmcgSS9P
-IikgdHJpZ2dlcnMgdGhlDQo+IGZvbGxvd2luZyBnY2MgMTMgVz0xIHdhcm5pbmdzOg0KPiANCj4g
-ZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmM6IEluIGZ1bmN0aW9uIOKAmGluaXRfdnHigJk6DQo+
-IGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jOjEwNzc6Njg6IHdhcm5pbmc6IOKAmCVk4oCZIGRp
-cmVjdGl2ZSBvdXRwdXQgbWF5IGJlIHRydW5jYXRlZCB3cml0aW5nIGJldHdlZW4gMQ0KPiBhbmQg
-MTEgYnl0ZXMgaW50byBhIHJlZ2lvbiBvZiBzaXplIDcgWy1XZm9ybWF0LXRydW5jYXRpb249XQ0K
-PiAgMTA3NyB8ICAgICAgICAgICAgICAgICBzbnByaW50Zih2YmxrLT52cXNbaV0ubmFtZSwgVlFf
-TkFNRV9MRU4sICJyZXFfcG9sbC4lZCIsIGkpOw0KPiAgICAgICB8ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBefg0KPiBk
-cml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYzoxMDc3OjU4OiBub3RlOiBkaXJlY3RpdmUgYXJndW1l
-bnQgaW4gdGhlIHJhbmdlIFstMjE0NzQ4MzY0OCwgNjU1MzRdDQo+ICAxMDc3IHwgICAgICAgICAg
-ICAgICAgIHNucHJpbnRmKHZibGstPnZxc1tpXS5uYW1lLCBWUV9OQU1FX0xFTiwgInJlcV9wb2xs
-LiVkIiwgaSk7DQo+ICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+fg0KPiBkcml2ZXJzL2Jsb2NrL3ZpcnRp
-b19ibGsuYzoxMDc3OjE3OiBub3RlOiDigJhzbnByaW50ZuKAmSBvdXRwdXQgYmV0d2VlbiAxMSBh
-bmQgMjEgYnl0ZXMgaW50byBhIGRlc3RpbmF0aW9uDQo+IG9mIHNpemUgMTYNCj4gIDEwNzcgfCAg
-ICAgICAgICAgICAgICAgc25wcmludGYodmJsay0+dnFzW2ldLm5hbWUsIFZRX05BTUVfTEVOLCAi
-cmVxX3BvbGwuJWQiLCBpKTsNCj4gICAgICAgfCAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+
-fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fg0KPiANCj4gVGhp
-cyBpcyBhIGZhbHNlIHBvc2l0aXZlIGJlY2F1c2UgdGhlIGxvd2VyIGJvdW5kIC0yMTQ3NDgzNjQ4
-IGlzDQo+IGluY29ycmVjdC4gVGhlIHRydWUgcmFuZ2Ugb2YgaSBpcyBbMCwgbnVtX3ZxcyAtIDFd
-IHdoZXJlIDAgPCBudW1fdnFzIDwNCj4gNjU1MzYuDQo+IA0KPiBUaGUgY29kZSBtaXhlcyBpbnQs
-IHVuc2lnbmVkIHNob3J0LCBhbmQgdW5zaWduZWQgaW50IHR5cGVzIGluIGFkZGl0aW9uDQo+IHRv
-IHVzaW5nICIlZCIgZm9yIGFuIHVuc2lnbmVkIHZhbHVlLiBVc2UgdW5zaWduZWQgc2hvcnQgYW5k
-ICIldSINCj4gY29uc2lzdGVudGx5IHRvIHNvbHZlIHRoZSBjb21waWxlciB3YXJuaW5nLg0KPiAN
-Cj4gQ2M6IFN1d2FuIEtpbSA8c3V3YW4ua2ltMDI3QGdtYWlsLmNvbT4NCj4gUmVwb3J0ZWQtYnk6
-IGtlcm5lbCB0ZXN0IHJvYm90IDxsa3BAaW50ZWwuY29tPg0KPiBDbG9zZXM6IGh0dHBzOi8vbG9y
-ZS5rZXJuZWwub3JnL29lLWtidWlsZC1hbGwvMjAyMzEyMDQxNTA5LkRJeXZFdDloLWxrcEBpbnRl
-bC5jb20vDQo+IFNpZ25lZC1vZmYtYnk6IFN0ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0
-LmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyB8IDggKysrKy0tLS0N
-Cj4gIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQo+IA0K
-PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgYi9kcml2ZXJzL2Jsb2Nr
-L3ZpcnRpb19ibGsuYw0KPiBpbmRleCBkNTNkNmFhOGVlNjkuLjQ3NTU2ZDhjY2MzMiAxMDA2NDQN
-Cj4gLS0tIGEvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMNCj4gKysrIGIvZHJpdmVycy9ibG9j
-ay92aXJ0aW9fYmxrLmMNCj4gQEAgLTEwMTksMTIgKzEwMTksMTIgQEAgc3RhdGljIHZvaWQgdmly
-dGJsa19jb25maWdfY2hhbmdlZChzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikNCj4gIHN0YXRp
-YyBpbnQgaW5pdF92cShzdHJ1Y3QgdmlydGlvX2JsayAqdmJsaykNCj4gIHsNCj4gIAlpbnQgZXJy
-Ow0KPiAtCWludCBpOw0KPiArCXVuc2lnbmVkIHNob3J0IGk7DQo+ICAJdnFfY2FsbGJhY2tfdCAq
-KmNhbGxiYWNrczsNCj4gIAljb25zdCBjaGFyICoqbmFtZXM7DQo+ICAJc3RydWN0IHZpcnRxdWV1
-ZSAqKnZxczsNCj4gIAl1bnNpZ25lZCBzaG9ydCBudW1fdnFzOw0KPiAtCXVuc2lnbmVkIGludCBu
-dW1fcG9sbF92cXM7DQo+ICsJdW5zaWduZWQgc2hvcnQgbnVtX3BvbGxfdnFzOw0KPiAgCXN0cnVj
-dCB2aXJ0aW9fZGV2aWNlICp2ZGV2ID0gdmJsay0+dmRldjsNCj4gIAlzdHJ1Y3QgaXJxX2FmZmlu
-aXR5IGRlc2MgPSB7IDAsIH07DQo+IA0KPiBAQCAtMTA2OCwxMyArMTA2OCwxMyBAQCBzdGF0aWMg
-aW50IGluaXRfdnEoc3RydWN0IHZpcnRpb19ibGsgKnZibGspDQo+IA0KPiAgCWZvciAoaSA9IDA7
-IGkgPCBudW1fdnFzIC0gbnVtX3BvbGxfdnFzOyBpKyspIHsNCg0KVWdnIGRvaW5nIGFyaXRobWV0
-aWMgb24gY2hhci9zaG9ydCBpcyBsaWtlbHkgdG8gZ2VuZXJhdGUgaG9ycmlkDQpjb2RlIChlc3Bl
-Y2lhbGx5IG9uIG5vbi14ODYpLg0KSGludCwgdGhlcmUgd2lsbCBiZSBleHBsaWNpdCBtYXNraW5n
-IGFuZC9vciBzaWduL3plcm8gZXh0ZW5zaW9uLg0KDQpFdmVuIHRoZSBhcnJheSBpbmRleCBtaWdo
-dCBhZGQgZXh0cmEgY29kZSAoYWx0aG91Z2ggdGhlcmUnbGwgYmUNCmFuIGV4cGxpY2l0IHNpZ24g
-ZXh0ZW5kIHRvIDY0Yml0IHdpdGggdGhlIGN1cnJlbnQgY29kZSkuDQoNClRoZXJlIHJlYWxseSBv
-dWdodCB0byBiZSBhIGJldHRlciB3YXkgdG8gbWFrZSBnY2MgU1RGVS4NCg0KSW4gdGhpcyBjYXNl
-ICd1bnNpZ25lZCBpbnQgaScgbWlnaHQgYmUgZW5vdWdoIHNpbmNlIGdjYyBzZWVtcw0KdG8gaGF2
-ZSBhIHNtYWxsIGVub3VnaCB1cHBlciBib3VuZC4NCg0KCURhdmlkDQoNCg0KPiAgCQljYWxsYmFj
-a3NbaV0gPSB2aXJ0YmxrX2RvbmU7DQo+IC0JCXNucHJpbnRmKHZibGstPnZxc1tpXS5uYW1lLCBW
-UV9OQU1FX0xFTiwgInJlcS4lZCIsIGkpOw0KPiArCQlzbnByaW50Zih2YmxrLT52cXNbaV0ubmFt
-ZSwgVlFfTkFNRV9MRU4sICJyZXEuJXUiLCBpKTsNCj4gIAkJbmFtZXNbaV0gPSB2YmxrLT52cXNb
-aV0ubmFtZTsNCj4gIAl9DQo+IA0KPiAgCWZvciAoOyBpIDwgbnVtX3ZxczsgaSsrKSB7DQo+ICAJ
-CWNhbGxiYWNrc1tpXSA9IE5VTEw7DQo+IC0JCXNucHJpbnRmKHZibGstPnZxc1tpXS5uYW1lLCBW
-UV9OQU1FX0xFTiwgInJlcV9wb2xsLiVkIiwgaSk7DQo+ICsJCXNucHJpbnRmKHZibGstPnZxc1tp
-XS5uYW1lLCBWUV9OQU1FX0xFTiwgInJlcV9wb2xsLiV1IiwgaSk7DQo+ICAJCW5hbWVzW2ldID0g
-dmJsay0+dnFzW2ldLm5hbWU7DQo+ICAJfQ0KPiANCj4gLS0NCj4gMi40My4wDQoNCi0NClJlZ2lz
-dGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24g
-S2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+Commit 4e0400525691 ("virtio-blk: support polling I/O") triggers the
+following gcc 13 W=1 warnings:
+
+drivers/block/virtio_blk.c: In function ‘init_vq’:
+drivers/block/virtio_blk.c:1077:68: warning: ‘%d’ directive output may be truncated writing between 1 and 11 bytes into a region of size 7 [-Wformat-truncation=]
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                                                                    ^~
+drivers/block/virtio_blk.c:1077:58: note: directive argument in the range [-2147483648, 65534]
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                                                          ^~~~~~~~~~~~~
+drivers/block/virtio_blk.c:1077:17: note: ‘snprintf’ output between 11 and 21 bytes into a destination of size 16
+ 1077 |                 snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is a false positive because the lower bound -2147483648 is
+incorrect. The true range of i is [0, num_vqs - 1] where 0 < num_vqs <
+65536.
+
+The code mixes int, unsigned short, and unsigned int types in addition
+to using "%d" for an unsigned value. The only place where a 16-bit value
+is needed is during the config space access. Use unsigned int and "%u"
+consistently to solve the compiler warning and clean up the code.
+
+Cc: Suwan Kim <suwan.kim027@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202312041509.DIyvEt9h-lkp@intel.com/
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/block/virtio_blk.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+v2:
+- Use unsigned int instead of unsigned short [David]
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index d53d6aa8ee69..dc69a40fbf08 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -1019,20 +1019,23 @@ static void virtblk_config_changed(struct virtio_device *vdev)
+ static int init_vq(struct virtio_blk *vblk)
+ {
+ 	int err;
+-	int i;
++	unsigned int i;
+ 	vq_callback_t **callbacks;
+ 	const char **names;
+ 	struct virtqueue **vqs;
+-	unsigned short num_vqs;
++	unsigned int num_vqs;
+ 	unsigned int num_poll_vqs;
+ 	struct virtio_device *vdev = vblk->vdev;
+ 	struct irq_affinity desc = { 0, };
++	u16 num_vqs_u16;
+ 
+ 	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_MQ,
+ 				   struct virtio_blk_config, num_queues,
+-				   &num_vqs);
++				   &num_vqs_u16);
+ 	if (err)
+ 		num_vqs = 1;
++	else
++		num_vqs = num_vqs_u16;
+ 
+ 	if (!err && !num_vqs) {
+ 		dev_err(&vdev->dev, "MQ advertised but zero queues reported\n");
+@@ -1068,13 +1071,13 @@ static int init_vq(struct virtio_blk *vblk)
+ 
+ 	for (i = 0; i < num_vqs - num_poll_vqs; i++) {
+ 		callbacks[i] = virtblk_done;
+-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%d", i);
++		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req.%u", i);
+ 		names[i] = vblk->vqs[i].name;
+ 	}
+ 
+ 	for (; i < num_vqs; i++) {
+ 		callbacks[i] = NULL;
+-		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%d", i);
++		snprintf(vblk->vqs[i].name, VQ_NAME_LEN, "req_poll.%u", i);
+ 		names[i] = vblk->vqs[i].name;
+ 	}
+ 
+-- 
+2.43.0
 
