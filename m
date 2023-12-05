@@ -1,202 +1,246 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03ED868B91
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47E3D6ABA6;
+	Tue,  5 Dec 2023 19:57:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="GXoNEznT"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 833A08148B
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 833A08148B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=GXoNEznT
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.092
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L3-S9GaqLIfq
-	for <virtualization@lists.linux-foundation.org>;
-	Tue,  5 Dec 2023 18:11:42 +0000 (UTC)
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 95ACA8144C
-	for <virtualization@lists.linux-foundation.org>; Tue,  5 Dec 2023 18:11:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 95ACA8144C
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-50bfa5a6cffso2940954e87.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 05 Dec 2023 10:11:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1701799900; x=1702404700; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=54dOBArJKp7H863L0eXVfYXJABME55rgcZGQ9JXxtZ4=;
-        b=GXoNEznTZy5n/4vM6zf/OADP4+HsZST5JFOU9Diz+UVHig5WpHGZLej1QDEhbsKQoS
-         aAP39vEY2G5PmOQpISj7jfnY2G4xFSVueST/WbTxKTNs6x2QmXRsNd5mV19m5tcBVj84
-         dZPrYIg6otbMzQTy7rgXiNiHTWsv3sf+gKbzcnmyFcrKKH1mTxJ4l63rzlKhmKJ6Z424
-         GCtII6sUyhuXETeRbXCVNOzC3nKG2Fg8XUqsHiGpRwiJmba/o7nM9Bn/pDhhKO9RGvDE
-         WtcnceNneY6fpry7GtFDm5FXaOScEl7itO9knQYHHJiJ9MGUuIfrcAd1xxAt4aMbc5mJ
-         yxjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701799900; x=1702404700;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=54dOBArJKp7H863L0eXVfYXJABME55rgcZGQ9JXxtZ4=;
-        b=byMbIxVTxIIEzsX5xRX9saxBiOpnV0pSGYMgd++8mt/s8BrbPI5BTIjYUt0/tbknbV
-         wPzlqlS+VB45Q8VVeMXOTD1JCkLwO76SjwP1G4R2AOAgv0gqs9rOroYg6i1tMEQaKNTq
-         n7mF7X6ty11VY8ts3P2GY/yMKce1u8XxPZcA5P34oV/jhN3NU3S1UyEXZWsXXLdG7S+b
-         gpQtES34zkV2wdAr6NrhVZg5dy5FBmVVfxkZ+xDA+qAP9uOQOh2uXamLmUIQaTUwGV7r
-         b3H5W6ehte4ZEbM1hqlVXMArey6ebuC3F4ySP+4UyE1Sxgdq46OGuB5mvPmH2WJSaVWD
-         rhhQ==
-X-Gm-Message-State: AOJu0YxRCXqcOO5rieVfEnhL2PI07Uzk+Jb/tMPi1+/8krK1wxM9IRyv
-	LFU3flgLWnsX84ZLeUcTGjbfiQ==
-X-Google-Smtp-Source: AGHT+IHHKyw8JRV68p6zLrHDCyZCkEw1gGLFrxLBWRgDrQkOZF72iwT//KRa35ZFCGLmWq6Ptg8vvg==
-X-Received: by 2002:a05:6512:104e:b0:50b:c9cb:305d with SMTP id c14-20020a056512104e00b0050bc9cb305dmr4842640lfb.35.1701799900380;
-        Tue, 05 Dec 2023 10:11:40 -0800 (PST)
-Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id h16-20020aa7de10000000b0054cc61f0412sm1407362edv.24.2023.12.05.10.11.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Dec 2023 10:11:39 -0800 (PST)
-From: Andrew Jones <ajones@ventanamicro.com>
-To: kvm-riscv@lists.infradead.org,
-	linux-riscv@lists.infradead.org,
-	virtualization@lists.linux-foundation.org
-Cc: anup@brainfault.org,
-	atishp@atishpatra.org,
-	pbonzini@redhat.com,
-	paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	aou@eecs.berkeley.edu,
-	jgross@suse.com,
-	srivatsa@csail.mit.edu,
-	guoren@kernel.org
-Subject: [PATCH v1 14/14] RISC-V: KVM: selftests: Add get-reg-list test for STA registers
-Date: Tue,  5 Dec 2023 19:11:34 +0100
-Message-ID: <20231205181119.207204-30-ajones@ventanamicro.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231205181119.207204-16-ajones@ventanamicro.com>
-References: <20231205181119.207204-16-ajones@ventanamicro.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EVOdDuKV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1701806274; x=1733342274;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=8+xl7o993QHoQJuM8EvkCoX7M+DgfwFuc3rXwdvt3a8=;
+  b=EVOdDuKVGvdsV/ui+HX3qRRHDXuTXsljIViaojz+VjeHvRi4MZBCE9dq
+   VXfltzI+zs80ILDSNdys7Sg9OhlPgbGPgXGUIzR8pdA9qUNmZLYLizWa+
+   TkLQqNjgTKlF0svbZx8Tn7pSydIMwcnFxSRh+XfqADsrYxDkEm2GmdSIb
+   ZzozjMd81FLyJWr2irkSyp8zwkiTuXNxoA9/uzW1tyzPpNoFGy4BgXPhO
+   nrYtoAX7tZDFYfXhvuR1fecskS7IgBV7XQcYVy2T3qSCt6u/e8N27LP+q
+   TacanICyXib2WDCdjH7RNArqKZKGvh4M98zRcPaZP8Jqhl1GCisGm7n64
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10915"; a="378973720"
+X-IronPort-AV: E=Sophos;i="6.04,253,1695711600"; 
+   d="scan'208";a="378973720"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Dec 2023 11:57:53 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.04,253,1695711600"; 
+   d="scan'208";a="12449683"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by orviesa002.jf.intel.com with ESMTP; 05 Dec 2023 11:57:47 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rAbY8-0009eY-2M;
+	Tue, 05 Dec 2023 19:57:44 +0000
+Date: Wed, 6 Dec 2023 03:57:38 +0800
+From: kernel test robot <lkp@intel.com>
+To: Alexey Makhalov <amakhalov@vmware.com>, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, hpa@zytor.com,
+	dave.hansen@linux.intel.co, bp@alien8.d, mingo@redhat.com,
+	tglx@linutronix.de
+Cc: oe-kbuild-all@lists.linux.dev, x86@kernel.org, netdev@vger.kernel.org,
+	richardcochran@gmail.com, linux-input@vger.kernel.org,
+	dmitry.torokhov@gmail.com, zackr@vmware.com,
+	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+	namit@vmware.com, timothym@vmware.com, akaher@vmware.com,
+	jsipek@vmware.com, dri-devel@lists.freedesktop.org, daniel@ffwll.ch,
+	airlied@gmail.com, tzimmermann@suse.de, mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com, horms@kernel.org
+Subject: Re: [PATCH v2 6/6] x86/vmware: Add TDX hypercall support
+Message-ID: <202312060350.Paq0JYin-lkp@intel.com>
+References: <20231201232452.220355-7-amakhalov@vmware.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231201232452.220355-7-amakhalov@vmware.com>
 
-Add SBI STA and its two registers to the get-reg-list test.
+Hi Alexey,
 
-Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
----
- .../selftests/kvm/riscv/get-reg-list.c        | 43 +++++++++++++++++++
- 1 file changed, 43 insertions(+)
+kernel test robot noticed the following build errors:
 
-diff --git a/tools/testing/selftests/kvm/riscv/get-reg-list.c b/tools/testing/selftests/kvm/riscv/get-reg-list.c
-index bd21991f5d99..6fc849284573 100644
---- a/tools/testing/selftests/kvm/riscv/get-reg-list.c
-+++ b/tools/testing/selftests/kvm/riscv/get-reg-list.c
-@@ -98,6 +98,7 @@ bool filter_reg(__u64 reg)
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_HSM:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_PMU:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_DBCN:
-+	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_STA:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_EXPERIMENTAL:
- 	case KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_VENDOR:
- 		return true;
-@@ -515,6 +516,7 @@ static const char *sbi_ext_single_id_to_str(__u64 reg_off)
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_SRST),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_HSM),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_PMU),
-+		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_STA),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_EXPERIMENTAL),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_VENDOR),
- 		KVM_SBI_EXT_ARR(KVM_RISCV_SBI_EXT_DBCN),
-@@ -563,6 +565,32 @@ static const char *sbi_ext_id_to_str(const char *prefix, __u64 id)
- 	return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, reg_off);
- }
- 
-+static const char *sbi_sta_id_to_str(__u64 reg_off)
-+{
-+	switch (reg_off) {
-+	case 0: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_lo)";
-+	case 1: return "KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_hi)";
-+	}
-+	return strdup_printf("KVM_REG_RISCV_SBI_STA | %lld /* UNKNOWN */", reg_off);
-+}
-+
-+static const char *sbi_id_to_str(const char *prefix, __u64 id)
-+{
-+	__u64 reg_off = id & ~(REG_MASK | KVM_REG_RISCV_SBI);
-+	__u64 reg_subtype = reg_off & KVM_REG_RISCV_SUBTYPE_MASK;
-+
-+	assert((id & KVM_REG_RISCV_TYPE_MASK) == KVM_REG_RISCV_SBI);
-+
-+	reg_off &= ~KVM_REG_RISCV_SUBTYPE_MASK;
-+
-+	switch (reg_subtype) {
-+	case KVM_REG_RISCV_SBI_STA:
-+		return sbi_sta_id_to_str(reg_off);
-+	}
-+
-+	return strdup_printf("%lld | %lld /* UNKNOWN */", reg_subtype, reg_off);
-+}
-+
- void print_reg(const char *prefix, __u64 id)
- {
- 	const char *reg_size = NULL;
-@@ -618,6 +646,10 @@ void print_reg(const char *prefix, __u64 id)
- 		printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI_EXT | %s,\n",
- 				reg_size, sbi_ext_id_to_str(prefix, id));
- 		break;
-+	case KVM_REG_RISCV_SBI:
-+		printf("\tKVM_REG_RISCV | %s | KVM_REG_RISCV_SBI | %s,\n",
-+				reg_size, sbi_id_to_str(prefix, id));
-+		break;
- 	default:
- 		printf("\tKVM_REG_RISCV | %s | 0x%llx /* UNKNOWN */,",
- 				reg_size, id & REG_MASK);
-@@ -703,6 +735,12 @@ static __u64 sbi_base_regs[] = {
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_VENDOR,
- };
- 
-+static __u64 sbi_sta_regs[] = {
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI_EXT | KVM_REG_RISCV_SBI_SINGLE | KVM_RISCV_SBI_EXT_STA,
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_lo),
-+	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_SBI | KVM_REG_RISCV_SBI_STA | KVM_REG_RISCV_SBI_STA_REG(shmem_hi),
-+};
-+
- static __u64 zicbom_regs[] = {
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_CONFIG | KVM_REG_RISCV_CONFIG_REG(zicbom_block_size),
- 	KVM_REG_RISCV | KVM_REG_SIZE_ULONG | KVM_REG_RISCV_ISA_EXT | KVM_REG_RISCV_ISA_SINGLE | KVM_RISCV_ISA_EXT_ZICBOM,
-@@ -809,6 +847,9 @@ static __u64 fp_d_regs[] = {
- #define SUBLIST_SBI_BASE \
- 	{"sbi-base", .feature_type = VCPU_FEATURE_SBI_EXT, .feature = KVM_RISCV_SBI_EXT_V01, \
- 	 .regs = sbi_base_regs, .regs_n = ARRAY_SIZE(sbi_base_regs),}
-+#define SUBLIST_SBI_STA \
-+	{"sbi-sta", .feature_type = VCPU_FEATURE_SBI_EXT, .feature = KVM_RISCV_SBI_EXT_STA, \
-+	 .regs = sbi_sta_regs, .regs_n = ARRAY_SIZE(sbi_sta_regs),}
- #define SUBLIST_ZICBOM \
- 	{"zicbom", .feature = KVM_RISCV_ISA_EXT_ZICBOM, .regs = zicbom_regs, .regs_n = ARRAY_SIZE(zicbom_regs),}
- #define SUBLIST_ZICBOZ \
-@@ -884,6 +925,7 @@ static struct vcpu_reg_list config_sbi_##ext = {		\
- /* Note: The below list is alphabetically sorted. */
- 
- KVM_SBI_EXT_SUBLIST_CONFIG(base, BASE);
-+KVM_SBI_EXT_SUBLIST_CONFIG(sta, STA);
- KVM_SBI_EXT_SIMPLE_CONFIG(pmu, PMU);
- KVM_SBI_EXT_SIMPLE_CONFIG(dbcn, DBCN);
- 
-@@ -937,6 +979,7 @@ KVM_ISA_EXT_SIMPLE_CONFIG(zvkt, ZVKT);
- 
- struct vcpu_reg_list *vcpu_configs[] = {
- 	&config_sbi_base,
-+	&config_sbi_sta,
- 	&config_sbi_pmu,
- 	&config_sbi_dbcn,
- 	&config_aia,
+[auto build test ERROR on drm-misc/drm-misc-next]
+[also build test ERROR on dtor-input/next dtor-input/for-linus linus/master v6.7-rc4 next-20231205]
+[cannot apply to tip/x86/vmware]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Alexey-Makhalov/x86-vmware-Move-common-macros-to-vmware-h/20231202-072821
+base:   git://anongit.freedesktop.org/drm/drm-misc drm-misc-next
+patch link:    https://lore.kernel.org/r/20231201232452.220355-7-amakhalov%40vmware.com
+patch subject: [PATCH v2 6/6] x86/vmware: Add TDX hypercall support
+config: x86_64-buildonly-randconfig-003-20231203 (https://download.01.org/0day-ci/archive/20231206/202312060350.Paq0JYin-lkp@intel.com/config)
+compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231206/202312060350.Paq0JYin-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312060350.Paq0JYin-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+   In file included from drivers/gpu/drm/vmwgfx/vmwgfx_msg_x86.h:38,
+                    from drivers/gpu/drm/vmwgfx/vmwgfx_msg.c:37:
+>> arch/x86/include/asm/vmware.h:46:46: warning: 'struct tdx_module_args' declared inside parameter list will not be visible outside of this definition or declaration
+      46 | extern void vmware_tdx_hypercall_args(struct tdx_module_args *args);
+         |                                              ^~~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h: In function 'vmware_tdx_hypercall':
+>> arch/x86/include/asm/vmware.h:61:9: error: variable 'args' has initializer but incomplete type
+      61 |  struct tdx_module_args args = {
+         |         ^~~~~~~~~~~~~~~
+>> arch/x86/include/asm/vmware.h:62:4: error: 'struct tdx_module_args' has no member named 'r10'
+      62 |   .r10 = VMWARE_TDX_VENDOR_LEAF,
+         |    ^~~
+>> arch/x86/include/asm/vmware.h:43:32: warning: excess elements in struct initializer
+      43 | #define VMWARE_TDX_VENDOR_LEAF 0x1AF7E4909ULL
+         |                                ^~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:62:10: note: in expansion of macro 'VMWARE_TDX_VENDOR_LEAF'
+      62 |   .r10 = VMWARE_TDX_VENDOR_LEAF,
+         |          ^~~~~~~~~~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:43:32: note: (near initialization for 'args')
+      43 | #define VMWARE_TDX_VENDOR_LEAF 0x1AF7E4909ULL
+         |                                ^~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:62:10: note: in expansion of macro 'VMWARE_TDX_VENDOR_LEAF'
+      62 |   .r10 = VMWARE_TDX_VENDOR_LEAF,
+         |          ^~~~~~~~~~~~~~~~~~~~~~
+>> arch/x86/include/asm/vmware.h:63:4: error: 'struct tdx_module_args' has no member named 'r11'
+      63 |   .r11 = VMWARE_TDX_HCALL_FUNC,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:44:32: warning: excess elements in struct initializer
+      44 | #define VMWARE_TDX_HCALL_FUNC  1
+         |                                ^
+   arch/x86/include/asm/vmware.h:63:10: note: in expansion of macro 'VMWARE_TDX_HCALL_FUNC'
+      63 |   .r11 = VMWARE_TDX_HCALL_FUNC,
+         |          ^~~~~~~~~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:44:32: note: (near initialization for 'args')
+      44 | #define VMWARE_TDX_HCALL_FUNC  1
+         |                                ^
+   arch/x86/include/asm/vmware.h:63:10: note: in expansion of macro 'VMWARE_TDX_HCALL_FUNC'
+      63 |   .r11 = VMWARE_TDX_HCALL_FUNC,
+         |          ^~~~~~~~~~~~~~~~~~~~~
+>> arch/x86/include/asm/vmware.h:64:4: error: 'struct tdx_module_args' has no member named 'r12'
+      64 |   .r12 = VMWARE_HYPERVISOR_MAGIC,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:31:34: warning: excess elements in struct initializer
+      31 | #define VMWARE_HYPERVISOR_MAGIC  0x564D5868U
+         |                                  ^~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:64:10: note: in expansion of macro 'VMWARE_HYPERVISOR_MAGIC'
+      64 |   .r12 = VMWARE_HYPERVISOR_MAGIC,
+         |          ^~~~~~~~~~~~~~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:31:34: note: (near initialization for 'args')
+      31 | #define VMWARE_HYPERVISOR_MAGIC  0x564D5868U
+         |                                  ^~~~~~~~~~~
+   arch/x86/include/asm/vmware.h:64:10: note: in expansion of macro 'VMWARE_HYPERVISOR_MAGIC'
+      64 |   .r12 = VMWARE_HYPERVISOR_MAGIC,
+         |          ^~~~~~~~~~~~~~~~~~~~~~~
+>> arch/x86/include/asm/vmware.h:65:4: error: 'struct tdx_module_args' has no member named 'r13'
+      65 |   .r13 = cmd,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:65:10: warning: excess elements in struct initializer
+      65 |   .r13 = cmd,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:65:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:66:4: error: 'struct tdx_module_args' has no member named 'rbx'
+      66 |   .rbx = in1,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:66:10: warning: excess elements in struct initializer
+      66 |   .rbx = in1,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:66:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:67:4: error: 'struct tdx_module_args' has no member named 'rdx'
+      67 |   .rdx = in3,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:67:10: warning: excess elements in struct initializer
+      67 |   .rdx = in3,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:67:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:68:4: error: 'struct tdx_module_args' has no member named 'rsi'
+      68 |   .rsi = in4,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:68:10: warning: excess elements in struct initializer
+      68 |   .rsi = in4,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:68:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:69:4: error: 'struct tdx_module_args' has no member named 'rdi'
+      69 |   .rdi = in5,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:69:10: warning: excess elements in struct initializer
+      69 |   .rdi = in5,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:69:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:70:4: error: 'struct tdx_module_args' has no member named 'r14'
+      70 |   .r14 = in6,
+         |    ^~~
+   arch/x86/include/asm/vmware.h:70:10: warning: excess elements in struct initializer
+      70 |   .r14 = in6,
+         |          ^~~
+   arch/x86/include/asm/vmware.h:70:10: note: (near initialization for 'args')
+>> arch/x86/include/asm/vmware.h:61:25: error: storage size of 'args' isn't known
+      61 |  struct tdx_module_args args = {
+         |                         ^~~~
+>> arch/x86/include/asm/vmware.h:61:25: warning: unused variable 'args' [-Wunused-variable]
+
+
+vim +/args +61 arch/x86/include/asm/vmware.h
+
+    42	
+  > 43	#define VMWARE_TDX_VENDOR_LEAF 0x1AF7E4909ULL
+    44	#define VMWARE_TDX_HCALL_FUNC  1
+    45	
+  > 46	extern void vmware_tdx_hypercall_args(struct tdx_module_args *args);
+    47	
+    48	/*
+    49	 * TDCALL[TDG.VP.VMCALL] uses rax (arg0) and rcx (arg2), while the use of
+    50	 * rbp (arg6) is discouraged by the TDX specification. Therefore, we
+    51	 * remap those registers to r12, r13 and r14, respectively.
+    52	 */
+    53	static inline
+    54	unsigned long vmware_tdx_hypercall(unsigned long cmd, unsigned long in1,
+    55					   unsigned long in3, unsigned long in4,
+    56					   unsigned long in5, unsigned long in6,
+    57					   uint32_t *out1, uint32_t *out2,
+    58					   uint32_t *out3, uint32_t *out4,
+    59					   uint32_t *out5, uint32_t *out6)
+    60	{
+  > 61		struct tdx_module_args args = {
+  > 62			.r10 = VMWARE_TDX_VENDOR_LEAF,
+  > 63			.r11 = VMWARE_TDX_HCALL_FUNC,
+  > 64			.r12 = VMWARE_HYPERVISOR_MAGIC,
+  > 65			.r13 = cmd,
+  > 66			.rbx = in1,
+  > 67			.rdx = in3,
+  > 68			.rsi = in4,
+  > 69			.rdi = in5,
+  > 70			.r14 = in6,
+    71		};
+    72	
+    73		vmware_tdx_hypercall_args(&args);
+    74	
+    75		if (out1)
+    76			*out1 = args.rbx;
+    77		if (out2)
+    78			*out2 = args.r13;
+    79		if (out3)
+    80			*out3 = args.rdx;
+    81		if (out4)
+    82			*out4 = args.rsi;
+    83		if (out5)
+    84			*out5 = args.rdi;
+    85		if (out6)
+    86			*out6 = args.r14;
+    87	
+    88		return args.r12;
+    89	}
+    90	
+
 -- 
-2.43.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
