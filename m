@@ -1,78 +1,81 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A9141840
-	for <virtualization@lists.linux.dev>; Wed,  6 Dec 2023 18:29:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF963DBB4
+	for <virtualization@lists.linux.dev>; Wed,  6 Dec 2023 18:49:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KN/3Pq+D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701887369;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jnuem6msgUvZR/qtC3Ankzp7FYXj3vJHjUZIQQCp0oc=;
-	b=KN/3Pq+DWY5uMRiEXinjv7WW2ZuvirGTvKVPtw9e97FujdFIh7Q+SYs4CzKyVh6U1GgS7m
-	Qc8X5kRhMn/MdoGRARfJUpdVvtmiMHsCugCArmM731kxGCSeHMaZfNf+yoG+W36FSJbYIe
-	+CoaU7pFKJfyMuqdlLJVbNT7mjWX4RE=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-325-lkjZuTveMZmSpSNVsC-Pzg-1; Wed, 06 Dec 2023 13:28:37 -0500
-X-MC-Unique: lkjZuTveMZmSpSNVsC-Pzg-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-33331e69698so79133f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 10:28:25 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701887304; x=1702492104;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jnuem6msgUvZR/qtC3Ankzp7FYXj3vJHjUZIQQCp0oc=;
-        b=gQhpntHv4OSHhovJXj8l7yA7+GNHZOzb1lq2fon6iFjDh/R8MgAjaWU9M4+ov3N61D
-         Vh7pH6BInjhVzhXGgdNqApXG9roj7OQAU4v/DsBYNDgDy3RxmfJeyoqBZNMz2iHP6mjX
-         GhUC31nlSgctwp2HoVyP6nmVtvCvAoZ+yZLEqJYcGKcK5inMu9fNvbWyFywsIqWUCAIo
-         5A8XUMjd7LFW8GYuVnmvBnBTsI+MNOvXdRf/8XA1vtDFzd4kf//bRW/Qg/BDsoQbrtOP
-         R3eY3R/gC/WVD43eSGoumFzHR7xicKjDII9H9cjyv7ECF4rjvxlizomQ+iF0ffyIMzGH
-         5k3A==
-X-Gm-Message-State: AOJu0YxISo+4EMoMltR5IYSsFTsrATQBpmxOjAZeq1wqi/YePKtsZvv7
-	EBwAL1MxciW3eySVILRfXCZLpeZj33pTJKXryvzdC4ssIHt3IscbckON2paWwMgPlpBPp7dJga0
-	3kHwR7Bouych207ltFl5p67Rc/VQ=
-X-Received: by 2002:adf:f752:0:b0:333:2fd2:3be2 with SMTP id z18-20020adff752000000b003332fd23be2mr563997wrp.155.1701887303903;
-        Wed, 06 Dec 2023 10:28:23 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGPfF7salzTJo8Tl0XEOHa4Kq1FjBjVSq+If3zpML0Un6nfo5ZCrIh/61l68acpETq59NVYPA==
-X-Received: by 2002:adf:f752:0:b0:333:2fd2:3be2 with SMTP id z18-20020adff752000000b003332fd23be2mr563984wrp.155.1701887303527;
-        Wed, 06 Dec 2023 10:28:23 -0800 (PST)
-Received: from redhat.com ([2.55.57.48])
-        by smtp.gmail.com with ESMTPSA id lg18-20020a170906f89200b00a1b7f4c22a7sm267591ejb.82.2023.12.06.10.28.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Dec 2023 10:28:22 -0800 (PST)
-Date: Wed, 6 Dec 2023 13:28:18 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	virtualization@lists.linux.dev,
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-	Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: fix "comparison of distinct pointer
- types lacks a cast" warning
-Message-ID: <20231206132803-mutt-send-email-mst@kernel.org>
-References: <20231206164143.281107-1-sgarzare@redhat.com>
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="AAV+fcuh"
+Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 32B6710008B;
+	Wed,  6 Dec 2023 21:42:37 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 32B6710008B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1701888157;
+	bh=PAf3gWYNr1X6Etoo5fn0Vczq30SXtQKZGFNGORjRGC8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=AAV+fcuhHm0Evps55dof7IXXSARFQOz4XCrLKyDmqV/MHnMv+FBbH20vGfXDcx+DZ
+	 vVGUzbH1+BI16V3d8jpitWxYN/JE+rvI2+PlqHJPY0b4tw+oYpbcIJnp3fZiFDoNCH
+	 0BZoEqwFlLTZ36xUwhqX2A32xzhPAhMJ0kbFG+TXn53QKR6RncJ62fnvp9u+kYYrOj
+	 ZeksIl0PPQx2XYMQjx3O2yejtKDzcx7/UF1Z5nHc3pXOCrXUr+KMU/Jj3hyKvZ0EZM
+	 7TgUzpJ4nNNEx810vz6MtHB701dA/QCLJRiMBLOK8zwezjeAk0e7Rr1qAVJvFJ6D+a
+	 2fQBHpWr1thXA==
+Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Wed,  6 Dec 2023 21:42:36 +0300 (MSK)
+Received: from [192.168.0.106] (100.64.160.123) by
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Wed, 6 Dec 2023 21:42:36 +0300
+Message-ID: <44c8b8dd-24e4-24c9-c7f9-3d7db892095d@salutedevices.com>
+Date: Wed, 6 Dec 2023 21:34:27 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH net] vsock/virtio: fix "comparison of distinct pointer
+ types lacks a cast" warning
+Content-Language: en-US
+To: Stefano Garzarella <sgarzare@redhat.com>, <netdev@vger.kernel.org>
+CC: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+	<virtualization@lists.linux.dev>, "Michael S. Tsirkin" <mst@redhat.com>,
+	<kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Stefan Hajnoczi
+	<stefanha@redhat.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
+	<pabeni@redhat.com>
+References: <20231206164143.281107-1-sgarzare@redhat.com>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
 In-Reply-To: <20231206164143.281107-1-sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
+ p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 181917 [Dec 06 2023]
+X-KSMG-AntiSpam-Version: 6.0.0.2
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;salutedevices.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/06 17:41:00 #22621737
+X-KSMG-AntiVirus-Status: Clean, skipped
 
-On Wed, Dec 06, 2023 at 05:41:43PM +0100, Stefano Garzarella wrote:
+
+
+On 06.12.2023 19:41, Stefano Garzarella wrote:
 > After backporting commit 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY
 > flag support") in CentOS Stream 9, CI reported the following error:
 > 
@@ -81,20 +84,20 @@ On Wed, Dec 06, 2023 at 05:41:43PM +0100, Stefano Garzarella wrote:
 >                      from ./include/linux/preempt.h:11,
 >                      from ./include/linux/spinlock.h:56,
 >                      from net/vmw_vsock/virtio_transport_common.c:9:
->     net/vmw_vsock/virtio_transport_common.c: In function ???virtio_transport_can_zcopy???:
+>     net/vmw_vsock/virtio_transport_common.c: In function ‘virtio_transport_can_zcopy‘:
 >     ./include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast [-Werror]
 >        20 |         (!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
 >           |                                   ^~
->     ./include/linux/minmax.h:26:18: note: in expansion of macro ???__typecheck???
+>     ./include/linux/minmax.h:26:18: note: in expansion of macro ‘__typecheck‘
 >        26 |                 (__typecheck(x, y) && __no_side_effects(x, y))
 >           |                  ^~~~~~~~~~~
->     ./include/linux/minmax.h:36:31: note: in expansion of macro ???__safe_cmp???
+>     ./include/linux/minmax.h:36:31: note: in expansion of macro ‘__safe_cmp‘
 >        36 |         __builtin_choose_expr(__safe_cmp(x, y), \
 >           |                               ^~~~~~~~~~
->     ./include/linux/minmax.h:45:25: note: in expansion of macro ???__careful_cmp???
+>     ./include/linux/minmax.h:45:25: note: in expansion of macro ‘__careful_cmp‘
 >        45 | #define min(x, y)       __careful_cmp(x, y, <)
 >           |                         ^~~~~~~~~~~~~
->     net/vmw_vsock/virtio_transport_common.c:63:37: note: in expansion of macro ???min???
+>     net/vmw_vsock/virtio_transport_common.c:63:37: note: in expansion of macro ‘min‘
 >        63 |                 int pages_to_send = min(pages_in_iov, MAX_SKB_FRAGS);
 > 
 > We could solve it by using min_t(), but this operation seems entirely
@@ -107,8 +110,7 @@ On Wed, Dec 06, 2023 at 05:41:43PM +0100, Stefano Garzarella wrote:
 > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
 
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
 >  net/vmw_vsock/virtio_transport_common.c | 3 +--
 >  1 file changed, 1 insertion(+), 2 deletions(-)
@@ -127,6 +129,3 @@ Acked-by: Michael S. Tsirkin <mst@redhat.com>
 >  
 >  		/* +1 is for packet header. */
 >  		return t_ops->can_msgzerocopy(pages_to_send + 1);
-> -- 
-> 2.43.0
-
