@@ -1,52 +1,52 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEC816F63F
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F13BD6FCFC
 	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 21:27:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="Cuzk563T"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="n8esJVfM"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6CB9E61568
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6A50B41EAF
 	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 21:27:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6CB9E61568
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=Cuzk563T
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6A50B41EAF
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=n8esJVfM
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FzPIK0TahRaE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id I0pH2i8jEQ60
 	for <virtualization@lists.linux-foundation.org>;
 	Wed,  6 Dec 2023 21:27:15 +0000 (UTC)
 Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1AB266155E
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 1A34141BB7
 	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 21:27:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 1AB266155E
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1A34141BB7
 Received: from p-infra-ksmg-sc-msk02 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 0ACFD120037;
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 7EDFC120066;
 	Thu,  7 Dec 2023 00:27:10 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 0ACFD120037
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 7EDFC120066
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
 	s=mail; t=1701898030;
-	bh=t/kjl2Vjg1LdCA2ZU1r92JWEZ4RRp+5azAC7FUXgjBk=;
+	bh=GHNWtOPMCbudLrNVAc3MZd8FL3ABIjio3CjPcM+SRoM=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
-	b=Cuzk563TF7WxIIc4ol+sKU/bjzg6wXZS9/h7FAy4laFmOySQmoUXjOLwZjfdgUWDH
-	 JJe5lJ3/rSPMv4+vhIgWV4M+yuDTBAKCIb1452QiPfvjWxfqQT3nd4ajcJfpFZwa/v
-	 JusSd1atwfGNnb+gOd9vMzk8znAPO08NGaqQe6FzW+J36X0jK4GiQlE266Ae1hemk9
-	 gNHBTQ0ySJEgyPCNRuQpyv0F4Hk+nvGYObDrsxAd9lnUjxdyr9dO94w9t5BO44S8Wg
-	 h7bWQ6ANN4m6BGO3ALRnE0etomgqgicZ2at+MjhHfqlmUOfuXEiXm3qAtI8WbhVK5Q
-	 QnCP3pEsjXWgQ==
+	b=n8esJVfMhQwGDoRuF912rYf1+AWbKOjfkBXWNiFGLr418uHCc8qupouUhRs7n+r0Y
+	 t1jpV7C86ZSdnY7sqEf50J1DSHQ4JkgZBqJTWO3mweXGxXiteB0lYofMESuPsscfd8
+	 JcBjmvybZSxGoT3B2fYfN4dAAlDkhKMKZu9VLrJAkQM9NEzxH5uLtSTOW08D4lg/Ol
+	 Oa3oRBW/yB85O0s/ZJx0EY9YUl8tBY1FmiAc04yEVYEOxX/BErK8Q7Vxu6fZkOSUjd
+	 8KRmz1MpPpGd/0zS7DIq6AjHNRL3NpuI0Rg9x/OI72bz+AeytEaiFNxhTKhyMxsqeZ
+	 GIfy5EbNOEHow==
 Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
 	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Thu,  7 Dec 2023 00:27:09 +0300 (MSK)
+	Thu,  7 Dec 2023 00:27:10 +0300 (MSK)
 Received: from localhost.localdomain (100.64.160.123) by
  p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 7 Dec 2023 00:27:09 +0300
+ 15.2.1118.40; Thu, 7 Dec 2023 00:27:10 +0300
 From: Arseniy Krasnov <avkrasnov@salutedevices.com>
 To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
@@ -56,9 +56,9 @@ To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
 CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
 	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
 	<kernel@sberdevices.ru>, <oxffffaa@gmail.com>, <avkrasnov@salutedevices.com>
-Subject: [PATCH net-next v7 1/4] vsock: update SO_RCVLOWAT setting callback
-Date: Thu, 7 Dec 2023 00:18:46 +0300
-Message-ID: <20231206211849.2707151-2-avkrasnov@salutedevices.com>
+Subject: [PATCH net-next v7 3/4] virtio/vsock: fix logic which reduces credit update messages
+Date: Thu, 7 Dec 2023 00:18:48 +0300
+Message-ID: <20231206211849.2707151-4-avkrasnov@salutedevices.com>
 X-Mailer: git-send-email 2.35.0
 In-Reply-To: <20231206211849.2707151-1-avkrasnov@salutedevices.com>
 References: <20231206211849.2707151-1-avkrasnov@salutedevices.com>
@@ -89,87 +89,71 @@ X-KSMG-LinksScanning: Clean
 X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/06 19:07:00 #22622451
 X-KSMG-AntiVirus-Status: Clean, skipped
 
-Do not return if transport callback for SO_RCVLOWAT is set (only in
-error case). In this case we don't need to set 'sk_rcvlowat' field in
-each transport - only in 'vsock_set_rcvlowat()'. Also, if 'sk_rcvlowat'
-is now set only in af_vsock.c, change callback name from 'set_rcvlowat'
-to 'notify_set_rcvlowat'.
+Add one more condition for sending credit update during dequeue from
+stream socket: when number of bytes in the rx queue is smaller than
+SO_RCVLOWAT value of the socket. This is actual for non-default value
+of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
+transmission, because we need at least SO_RCVLOWAT bytes in our rx
+queue to wake up user for reading data (in corner case it is also
+possible to stuck both tx and rx sides, this is why 'Fixes' is used).
+Also handle case when 'fwd_cnt' wraps, while 'last_fwd_cnt' is still
+not.
 
+Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
 Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
  Changelog:
- v3 -> v4:
-  * Rename 'set_rcvlowat' to 'notify_set_rcvlowat'.
-  * Commit message updated.
+ v6 -> v7:
+  * Handle wrap of 'fwd_cnt'.
+  * Do to send credit update when 'fwd_cnt' == 'last_fwd_cnt'.
 
- include/net/af_vsock.h           | 2 +-
- net/vmw_vsock/af_vsock.c         | 9 +++++++--
- net/vmw_vsock/hyperv_transport.c | 4 ++--
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index e302c0e804d0..535701efc1e5 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -137,7 +137,6 @@ struct vsock_transport {
- 	u64 (*stream_rcvhiwat)(struct vsock_sock *);
- 	bool (*stream_is_active)(struct vsock_sock *);
- 	bool (*stream_allow)(u32 cid, u32 port);
--	int (*set_rcvlowat)(struct vsock_sock *vsk, int val);
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index e137d740804e..39f8660d825d 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -558,6 +558,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+ 	struct virtio_vsock_sock *vvs = vsk->trans;
+ 	size_t bytes, total = 0;
+ 	struct sk_buff *skb;
++	u32 fwd_cnt_delta;
++	bool low_rx_bytes;
+ 	int err = -EFAULT;
+ 	u32 free_space;
  
- 	/* SEQ_PACKET. */
- 	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
-@@ -168,6 +167,7 @@ struct vsock_transport {
- 		struct vsock_transport_send_notify_data *);
- 	/* sk_lock held by the caller */
- 	void (*notify_buffer_size)(struct vsock_sock *, u64 *);
-+	int (*notify_set_rcvlowat)(struct vsock_sock *vsk, int val);
+@@ -601,7 +603,15 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+ 		}
+ 	}
  
- 	/* Shutdown. */
- 	int (*shutdown)(struct vsock_sock *, int);
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 816725af281f..54ba7316f808 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -2264,8 +2264,13 @@ static int vsock_set_rcvlowat(struct sock *sk, int val)
- 
- 	transport = vsk->transport;
- 
--	if (transport && transport->set_rcvlowat)
--		return transport->set_rcvlowat(vsk, val);
-+	if (transport && transport->notify_set_rcvlowat) {
-+		int err;
+-	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
++	/* Handle wrap of 'fwd_cnt'. */
++	if (vvs->fwd_cnt < vvs->last_fwd_cnt)
++		fwd_cnt_delta = vvs->fwd_cnt + (U32_MAX - vvs->last_fwd_cnt);
++	else
++		fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
 +
-+		err = transport->notify_set_rcvlowat(vsk, val);
-+		if (err)
-+			return err;
-+	}
++	free_space = vvs->buf_alloc - fwd_cnt_delta;
++	low_rx_bytes = (vvs->rx_bytes <
++			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
  
- 	WRITE_ONCE(sk->sk_rcvlowat, val ? : 1);
- 	return 0;
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 7cb1a9d2cdb4..e2157e387217 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -816,7 +816,7 @@ int hvs_notify_send_post_enqueue(struct vsock_sock *vsk, ssize_t written,
- }
+ 	spin_unlock_bh(&vvs->rx_lock);
  
- static
--int hvs_set_rcvlowat(struct vsock_sock *vsk, int val)
-+int hvs_notify_set_rcvlowat(struct vsock_sock *vsk, int val)
- {
- 	return -EOPNOTSUPP;
- }
-@@ -856,7 +856,7 @@ static struct vsock_transport hvs_transport = {
- 	.notify_send_pre_enqueue  = hvs_notify_send_pre_enqueue,
- 	.notify_send_post_enqueue = hvs_notify_send_post_enqueue,
+@@ -611,9 +621,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+ 	 * too high causes extra messages. Too low causes transmitter
+ 	 * stalls. As stalls are in theory more expensive than extra
+ 	 * messages, we set the limit to a high value. TODO: experiment
+-	 * with different values.
++	 * with different values. Also send credit update message when
++	 * number of bytes in rx queue is not enough to wake up reader.
+ 	 */
+-	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
++	if (fwd_cnt_delta &&
++	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE || low_rx_bytes))
+ 		virtio_transport_send_credit_update(vsk);
  
--	.set_rcvlowat             = hvs_set_rcvlowat
-+	.notify_set_rcvlowat      = hvs_notify_set_rcvlowat
- };
- 
- static bool hvs_check_transport(struct vsock_sock *vsk)
+ 	return total;
 -- 
 2.25.1
 
