@@ -1,78 +1,44 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E523111A9
-	for <virtualization@lists.linux.dev>; Wed,  6 Dec 2023 07:15:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB5C410A25;
+	Wed,  6 Dec 2023 07:37:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="MuvbCykz"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-5c66bbb3d77so2132406a12.0
-        for <virtualization@lists.linux.dev>; Tue, 05 Dec 2023 23:15:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1701846931; x=1702451731; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vEXkb7RcLOhQOzgtH+aAjv/qiW7MZwXrdo2K4Kz8Ir4=;
-        b=MuvbCykzh6NX0vjyE3jcst1Ml25KK4rAfLLSpggOpFi+sDwr7J4hB0e0lwseQqW6ZX
-         cjbyGTIbh+RGRpDW4mMUaVh9D/EjoZd1sLyl4you6mbtgrcw7tCEwUvxATnUMxIksHky
-         CnB1XFelBpr3r4XZKLEUycHkP24RIlzrD3RLQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701846931; x=1702451731;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vEXkb7RcLOhQOzgtH+aAjv/qiW7MZwXrdo2K4Kz8Ir4=;
-        b=TlLtPc002iW62eRqpztsTb+VXtCazuSypfnPlzh+P1w7sKxlKRjZZYbI2zhrfbvuRP
-         +lPT233hPhHiPepMmVR/LEdbL9K6ctyeNk7V+NTuS5X+xFGWOCz3QW+V6pxfUuYDCm+N
-         9MY2LgoSS0txEHVYjl7qGNLuGliXGY++so2dT7UfQRQ1EMqfjuV/9cZQac4WoaNo+Vin
-         ioH/gSVXSEgH0Fg9PH967dXzDIa64oSM7LjAjSts4POKUy7Fpecn4/TrqRcnoYp3PVXK
-         dzc2BfFTm5fJTlHAcOyYSNduIpuezEwHiD0qoCezy4ZfP3Eg15qmQxQN+txDLLJnjE4z
-         1hPg==
-X-Gm-Message-State: AOJu0YwvQ+mBBfsxGcODBH4ElmYqx0hxlIs5p5QdK5SAkZzdyoi6nxC3
-	f3zMCLsvJZXH08j2HeGUUtUUYg==
-X-Google-Smtp-Source: AGHT+IHS/CX3frLLXF6gU7wRnzFuV71agPlBUrAK65X9MJWz50+3bfdK4aocLGNC5Z7qIpfdViwjoA==
-X-Received: by 2002:a17:90b:4b11:b0:286:6cc1:2cbd with SMTP id lx17-20020a17090b4b1100b002866cc12cbdmr310756pjb.71.1701846931498;
-        Tue, 05 Dec 2023 23:15:31 -0800 (PST)
-Received: from amakhalov-build-vm.eng.vmware.com ([64.186.27.43])
-        by smtp.gmail.com with ESMTPSA id 28-20020a17090a191c00b0028591079e6fsm13721185pjg.24.2023.12.05.23.15.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Dec 2023 23:15:30 -0800 (PST)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JPL4Vi6N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C6B6C433CA;
+	Wed,  6 Dec 2023 07:37:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1701848266;
+	bh=NBVGfqVBHtAx9X1sh3B08SNoMFLKVcpgb4FXXBWHsyo=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=JPL4Vi6NNgX0+0tCKtbzdc6ew3vUTYwk1DSCwubQJi5d2S5vcnba2Vn6Tz7P5ZzK7
+	 xQ7komMKBfd3RmPvmAtyjXDGj8gKz82+cMmt3jhZYGJgSY4f/zi9KPc5vvUKBYCHDo
+	 sAO1MmZEPALJaj4aAovbZRF2EaBVGaqKCmL/W/XlsxpX0n4KDfHSJyOvFHM+9hFb4o
+	 OAVd/9ve1j2R6k7zmhYFicvHyJstnGx+T7O76bXRQB5H7ccxepsaLoJMzmbNPqXu8w
+	 J3tt2eB/ggpQtrrJhwBucFXuE5qJzb12C8/KPKaA/b3L1pRRNSX2XNxZsOdwAJNgj3
+	 MBG7Yg+O65tBQ==
+From: "Jiri Slaby (SUSE)" <jirislaby@kernel.org>
+To: gregkh@linuxfoundation.org
+Cc: linux-serial@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	"Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <christophe.leroy@csgroup.eu>,
+	Amit Shah <amit@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Paul Walmsley <paul.walmsley@sifive.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>,
+	Albert Ou <aou@eecs.berkeley.edu>,
+	linuxppc-dev@lists.ozlabs.org,
 	virtualization@lists.linux.dev,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.co,
-	bp@alien8.d,
-	mingo@redhat.com,
-	tglx@linutronix.de,
-	dave.hansen@linux.intel.com
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	namit@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org
-Subject: [PATCH] x86/vmware: Add TDX hypercall support
-Date: Tue,  5 Dec 2023 23:15:27 -0800
-Message-Id: <20231206071527.59171-1-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <ef8d3e17-7028-47fd-ad31-54dadbb6796d@broadcom.com>
-References: <ef8d3e17-7028-47fd-ad31-54dadbb6796d@broadcom.com>
+	linux-riscv@lists.infradead.org
+Subject: [PATCH 12/27] tty: hvc: convert to u8 and size_t
+Date: Wed,  6 Dec 2023 08:36:57 +0100
+Message-ID: <20231206073712.17776-13-jirislaby@kernel.org>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20231206073712.17776-1-jirislaby@kernel.org>
+References: <20231206073712.17776-1-jirislaby@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -81,169 +47,713 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+Switch character types to u8 and sizes to size_t. To conform to
+characters/sizes in the rest of the tty layer.
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
-
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
-
-Co-developed-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Amit Shah <amit@kernel.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: virtualization@lists.linux.dev
+Cc: linux-riscv@lists.infradead.org
 ---
- arch/x86/include/asm/vmware.h | 72 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 10 +++++
- 2 files changed, 82 insertions(+)
+ arch/powerpc/include/asm/hvconsole.h       |  4 ++--
+ arch/powerpc/include/asm/hvsi.h            | 18 ++++++++--------
+ arch/powerpc/include/asm/opal.h            |  8 +++++---
+ arch/powerpc/platforms/powernv/opal.c      | 14 +++++++------
+ arch/powerpc/platforms/pseries/hvconsole.c |  4 ++--
+ drivers/char/virtio_console.c              | 10 ++++-----
+ drivers/tty/hvc/hvc_console.h              |  4 ++--
+ drivers/tty/hvc/hvc_dcc.c                  | 24 +++++++++++-----------
+ drivers/tty/hvc/hvc_iucv.c                 | 18 ++++++++--------
+ drivers/tty/hvc/hvc_opal.c                 |  5 +++--
+ drivers/tty/hvc/hvc_riscv_sbi.c            |  9 ++++----
+ drivers/tty/hvc/hvc_rtas.c                 | 11 +++++-----
+ drivers/tty/hvc/hvc_udbg.c                 |  9 ++++----
+ drivers/tty/hvc/hvc_vio.c                  | 18 ++++++++--------
+ drivers/tty/hvc/hvc_xen.c                  | 23 +++++++++++----------
+ drivers/tty/hvc/hvsi_lib.c                 | 20 ++++++++++--------
+ 16 files changed, 107 insertions(+), 92 deletions(-)
 
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 17091eba68cb..cd58ff8ef1af 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -40,6 +40,54 @@
+diff --git a/arch/powerpc/include/asm/hvconsole.h b/arch/powerpc/include/asm/hvconsole.h
+index ccb2034506f0..d841a97010a0 100644
+--- a/arch/powerpc/include/asm/hvconsole.h
++++ b/arch/powerpc/include/asm/hvconsole.h
+@@ -21,8 +21,8 @@
+  * Vio firmware always attempts to fetch MAX_VIO_GET_CHARS chars.  The 'count'
+  * parm is included to conform to put_chars() function pointer template
+  */
+-extern int hvc_get_chars(uint32_t vtermno, char *buf, int count);
+-extern int hvc_put_chars(uint32_t vtermno, const char *buf, int count);
++extern ssize_t hvc_get_chars(uint32_t vtermno, u8 *buf, size_t count);
++extern ssize_t hvc_put_chars(uint32_t vtermno, const u8 *buf, size_t count);
  
- extern u8 vmware_hypercall_mode;
+ /* Provided by HVC VIO */
+ void hvc_vio_init_early(void);
+diff --git a/arch/powerpc/include/asm/hvsi.h b/arch/powerpc/include/asm/hvsi.h
+index 464a7519ed64..9058edcb632b 100644
+--- a/arch/powerpc/include/asm/hvsi.h
++++ b/arch/powerpc/include/asm/hvsi.h
+@@ -64,7 +64,7 @@ struct hvsi_priv {
+ 	unsigned int	inbuf_len;	/* data in input buffer */
+ 	unsigned char	inbuf[HVSI_INBUF_SIZE];
+ 	unsigned int	inbuf_cur;	/* Cursor in input buffer */
+-	unsigned int	inbuf_pktlen;	/* packet length from cursor */
++	size_t		inbuf_pktlen;	/* packet length from cursor */
+ 	atomic_t	seqno;		/* packet sequence number */
+ 	unsigned int	opened:1;	/* driver opened */
+ 	unsigned int	established:1;	/* protocol established */
+@@ -72,24 +72,26 @@ struct hvsi_priv {
+ 	unsigned int	mctrl_update:1;	/* modem control updated */
+ 	unsigned short	mctrl;		/* modem control */
+ 	struct tty_struct *tty;		/* tty structure */
+-	int (*get_chars)(uint32_t termno, char *buf, int count);
+-	int (*put_chars)(uint32_t termno, const char *buf, int count);
++	ssize_t (*get_chars)(uint32_t termno, u8 *buf, size_t count);
++	ssize_t (*put_chars)(uint32_t termno, const u8 *buf, size_t count);
+ 	uint32_t	termno;
+ };
  
-+#define VMWARE_TDX_VENDOR_LEAF 0x1AF7E4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern void vmware_tdx_hypercall_args(struct tdx_module_args *args);
-+
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses rax (arg0) and rcx (arg2), while the use of
-+ * rbp (arg6) is discouraged by the TDX specification. Therefore, we
-+ * remap those registers to r12, r13 and r14, respectively.
-+ */
-+static inline
-+unsigned long vmware_tdx_hypercall(unsigned long cmd, unsigned long in1,
-+				   unsigned long in3, unsigned long in4,
-+				   unsigned long in5, unsigned long in6,
-+				   uint32_t *out1, uint32_t *out2,
-+				   uint32_t *out3, uint32_t *out4,
-+				   uint32_t *out5, uint32_t *out6)
-+{
-+	struct tdx_module_args args = {
-+		.r10 = VMWARE_TDX_VENDOR_LEAF,
-+		.r11 = VMWARE_TDX_HCALL_FUNC,
-+		.r12 = VMWARE_HYPERVISOR_MAGIC,
-+		.r13 = cmd,
-+		.rbx = in1,
-+		.rdx = in3,
-+		.rsi = in4,
-+		.rdi = in5,
-+		.r14 = in6,
-+	};
-+
-+	vmware_tdx_hypercall_args(&args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+	if (out6)
-+		*out6 = args.r14;
-+
-+	return args.r12;
-+}
-+
- /*
-  * The low bandwidth call. The low word of edx is presumed to have OUT bit
-  * set. The high word of edx may contain input data from the caller.
-@@ -67,6 +115,10 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
- 	unsigned long out0;
+ /* hvsi lib functions */
+ struct hvc_struct;
+ extern void hvsilib_init(struct hvsi_priv *pv,
+-			 int (*get_chars)(uint32_t termno, char *buf, int count),
+-			 int (*put_chars)(uint32_t termno, const char *buf,
+-					  int count),
++			 ssize_t (*get_chars)(uint32_t termno, u8 *buf,
++					      size_t count),
++			 ssize_t (*put_chars)(uint32_t termno, const u8 *buf,
++					      size_t count),
+ 			 int termno, int is_console);
+ extern int hvsilib_open(struct hvsi_priv *pv, struct hvc_struct *hp);
+ extern void hvsilib_close(struct hvsi_priv *pv, struct hvc_struct *hp);
+ extern int hvsilib_read_mctrl(struct hvsi_priv *pv);
+ extern int hvsilib_write_mctrl(struct hvsi_priv *pv, int dtr);
+ extern void hvsilib_establish(struct hvsi_priv *pv);
+-extern int hvsilib_get_chars(struct hvsi_priv *pv, char *buf, int count);
+-extern int hvsilib_put_chars(struct hvsi_priv *pv, const char *buf, int count);
++extern ssize_t hvsilib_get_chars(struct hvsi_priv *pv, u8 *buf, size_t count);
++extern ssize_t hvsilib_put_chars(struct hvsi_priv *pv, const u8 *buf,
++				 size_t count);
  
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0, 0, NULL, NULL,
-+					    NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -85,6 +137,10 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
+ #endif /* _HVSI_H */
+diff --git a/arch/powerpc/include/asm/opal.h b/arch/powerpc/include/asm/opal.h
+index b66b0c615f4f..af304e6cb486 100644
+--- a/arch/powerpc/include/asm/opal.h
++++ b/arch/powerpc/include/asm/opal.h
+@@ -313,9 +313,11 @@ extern int early_init_dt_scan_recoverable_ranges(unsigned long node,
+ 				 const char *uname, int depth, void *data);
+ void __init opal_configure_cores(void);
  
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0, 0, out1, out2,
-+					    NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -104,6 +160,10 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
+-extern int opal_get_chars(uint32_t vtermno, char *buf, int count);
+-extern int opal_put_chars(uint32_t vtermno, const char *buf, int total_len);
+-extern int opal_put_chars_atomic(uint32_t vtermno, const char *buf, int total_len);
++extern ssize_t opal_get_chars(uint32_t vtermno, u8 *buf, size_t count);
++extern ssize_t opal_put_chars(uint32_t vtermno, const u8 *buf,
++			      size_t total_len);
++extern ssize_t opal_put_chars_atomic(uint32_t vtermno, const u8 *buf,
++				     size_t total_len);
+ extern int opal_flush_chars(uint32_t vtermno, bool wait);
+ extern int opal_flush_console(uint32_t vtermno);
  
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, 0, 0, 0, 0, out1, out2,
-+					    out3, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -123,6 +183,10 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5, 0, NULL,
-+					    out2, NULL, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -145,6 +209,10 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, 0, 0, 0, NULL, out2,
-+					    out3, out4, out5, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
- 		  "=D" (*out5)
-@@ -166,6 +234,10 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall(cmd, in1, in3, in4, in5, 0, out1,
-+					    out2, out3, NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 3aa1adaed18f..29a31d4eaa27 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -428,6 +428,16 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & BIT(VCPU_LEGACY_X2APIC));
+diff --git a/arch/powerpc/platforms/powernv/opal.c b/arch/powerpc/platforms/powernv/opal.c
+index cdf3838f08d3..45dd77e3ccf6 100644
+--- a/arch/powerpc/platforms/powernv/opal.c
++++ b/arch/powerpc/platforms/powernv/opal.c
+@@ -424,7 +424,7 @@ static int __init opal_message_init(struct device_node *opal_node)
+ 	return 0;
  }
  
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+/* Export tdx hypercall and allow it only for VMware guests. */
-+void vmware_tdx_hypercall_args(struct tdx_module_args *args)
-+{
-+	if (hypervisor_is_type(X86_HYPER_VMWARE))
-+		__tdx_hypercall(args);
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall_args);
-+#endif
+-int opal_get_chars(uint32_t vtermno, char *buf, int count)
++ssize_t opal_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	s64 rc;
+ 	__be64 evt, len;
+@@ -441,10 +441,11 @@ int opal_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return 0;
+ }
+ 
+-static int __opal_put_chars(uint32_t vtermno, const char *data, int total_len, bool atomic)
++static ssize_t __opal_put_chars(uint32_t vtermno, const u8 *data,
++				size_t total_len, bool atomic)
+ {
+ 	unsigned long flags = 0 /* shut up gcc */;
+-	int written;
++	ssize_t written;
+ 	__be64 olen;
+ 	s64 rc;
+ 
+@@ -484,7 +485,7 @@ static int __opal_put_chars(uint32_t vtermno, const char *data, int total_len, b
+ 		if (atomic) {
+ 			/* Should not happen */
+ 			pr_warn("atomic console write returned partial "
+-				"len=%d written=%d\n", total_len, written);
++				"len=%zu written=%zd\n", total_len, written);
+ 		}
+ 		if (!written)
+ 			written = -EAGAIN;
+@@ -497,7 +498,7 @@ static int __opal_put_chars(uint32_t vtermno, const char *data, int total_len, b
+ 	return written;
+ }
+ 
+-int opal_put_chars(uint32_t vtermno, const char *data, int total_len)
++ssize_t opal_put_chars(uint32_t vtermno, const u8 *data, size_t total_len)
+ {
+ 	return __opal_put_chars(vtermno, data, total_len, false);
+ }
+@@ -508,7 +509,8 @@ int opal_put_chars(uint32_t vtermno, const char *data, int total_len)
+  * true at the moment because console space can race with OPAL's console
+  * writes.
+  */
+-int opal_put_chars_atomic(uint32_t vtermno, const char *data, int total_len)
++ssize_t opal_put_chars_atomic(uint32_t vtermno, const u8 *data,
++			      size_t total_len)
+ {
+ 	return __opal_put_chars(vtermno, data, total_len, true);
+ }
+diff --git a/arch/powerpc/platforms/pseries/hvconsole.c b/arch/powerpc/platforms/pseries/hvconsole.c
+index 1ac52963e08b..8803c947998e 100644
+--- a/arch/powerpc/platforms/pseries/hvconsole.c
++++ b/arch/powerpc/platforms/pseries/hvconsole.c
+@@ -25,7 +25,7 @@
+  *	firmware.
+  * @count: not used?
+  */
+-int hvc_get_chars(uint32_t vtermno, char *buf, int count)
++ssize_t hvc_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	long ret;
+ 	unsigned long retbuf[PLPAR_HCALL_BUFSIZE];
+@@ -52,7 +52,7 @@ EXPORT_SYMBOL(hvc_get_chars);
+  *	firmware. Must be at least 16 bytes, even if count is less than 16.
+  * @count: Send this number of characters.
+  */
+-int hvc_put_chars(uint32_t vtermno, const char *buf, int count)
++ssize_t hvc_put_chars(uint32_t vtermno, const u8 *buf, size_t count)
+ {
+ 	unsigned long *lbuf = (unsigned long *) buf;
+ 	long ret;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 8abe599c1c07..035f89f1a251 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -650,7 +650,7 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+  * Give out the data that's requested from the buffer that we have
+  * queued up.
+  */
+-static ssize_t fill_readbuf(struct port *port, char __user *out_buf,
++static ssize_t fill_readbuf(struct port *port, u8 __user *out_buf,
+ 			    size_t out_count, bool to_user)
+ {
+ 	struct port_buffer *buf;
+@@ -669,7 +669,7 @@ static ssize_t fill_readbuf(struct port *port, char __user *out_buf,
+ 		if (ret)
+ 			return -EFAULT;
+ 	} else {
+-		memcpy((__force char *)out_buf, buf->buf + buf->offset,
++		memcpy((__force u8 *)out_buf, buf->buf + buf->offset,
+ 		       out_count);
+ 	}
+ 
+@@ -1104,7 +1104,7 @@ static const struct file_operations port_fops = {
+  * it to finish: inefficient in theory, but in practice
+  * implementations will do it immediately.
+  */
+-static int put_chars(u32 vtermno, const char *buf, int count)
++static ssize_t put_chars(u32 vtermno, const u8 *buf, size_t count)
+ {
+ 	struct port *port;
+ 	struct scatterlist sg[1];
+@@ -1132,7 +1132,7 @@ static int put_chars(u32 vtermno, const char *buf, int count)
+  * We call out to fill_readbuf that gets us the required data from the
+  * buffers that are queued up.
+  */
+-static int get_chars(u32 vtermno, char *buf, int count)
++static ssize_t get_chars(u32 vtermno, u8 *buf, size_t count)
+ {
+ 	struct port *port;
+ 
+@@ -1143,7 +1143,7 @@ static int get_chars(u32 vtermno, char *buf, int count)
+ 	/* If we don't have an input queue yet, we can't get input. */
+ 	BUG_ON(!port->in_vq);
+ 
+-	return fill_readbuf(port, (__force char __user *)buf, count, false);
++	return fill_readbuf(port, (__force u8 __user *)buf, count, false);
+ }
+ 
+ static void resize_console(struct port *port)
+diff --git a/drivers/tty/hvc/hvc_console.h b/drivers/tty/hvc/hvc_console.h
+index 4062f8ad84df..cf4c1af08a7c 100644
+--- a/drivers/tty/hvc/hvc_console.h
++++ b/drivers/tty/hvc/hvc_console.h
+@@ -52,8 +52,8 @@ struct hvc_struct {
+ 
+ /* implemented by a low level driver */
+ struct hv_ops {
+-	int (*get_chars)(uint32_t vtermno, char *buf, int count);
+-	int (*put_chars)(uint32_t vtermno, const char *buf, int count);
++	ssize_t (*get_chars)(uint32_t vtermno, u8 *buf, size_t count);
++	ssize_t (*put_chars)(uint32_t vtermno, const u8 *buf, size_t count);
+ 	int (*flush)(uint32_t vtermno, bool wait);
+ 
+ 	/* Callbacks for notification. Called in open, close and hangup */
+diff --git a/drivers/tty/hvc/hvc_dcc.c b/drivers/tty/hvc/hvc_dcc.c
+index 1751108cf763..e34505385ff6 100644
+--- a/drivers/tty/hvc/hvc_dcc.c
++++ b/drivers/tty/hvc/hvc_dcc.c
+@@ -26,10 +26,10 @@
+ /* Lock to serialize access to DCC fifo */
+ static DEFINE_SPINLOCK(dcc_lock);
+ 
+-static DEFINE_KFIFO(inbuf, unsigned char, DCC_INBUF_SIZE);
+-static DEFINE_KFIFO(outbuf, unsigned char, DCC_OUTBUF_SIZE);
++static DEFINE_KFIFO(inbuf, u8, DCC_INBUF_SIZE);
++static DEFINE_KFIFO(outbuf, u8, DCC_OUTBUF_SIZE);
+ 
+-static void dcc_uart_console_putchar(struct uart_port *port, unsigned char ch)
++static void dcc_uart_console_putchar(struct uart_port *port, u8 ch)
+ {
+ 	while (__dcc_getstatus() & DCC_STATUS_TX)
+ 		cpu_relax();
+@@ -54,9 +54,9 @@ static int __init dcc_early_console_setup(struct earlycon_device *device,
+ 
+ EARLYCON_DECLARE(dcc, dcc_early_console_setup);
+ 
+-static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
++static ssize_t hvc_dcc_put_chars(uint32_t vt, const u8 *buf, size_t count)
+ {
+-	int i;
++	size_t i;
+ 
+ 	for (i = 0; i < count; i++) {
+ 		while (__dcc_getstatus() & DCC_STATUS_TX)
+@@ -68,9 +68,9 @@ static int hvc_dcc_put_chars(uint32_t vt, const char *buf, int count)
+ 	return count;
+ }
+ 
+-static int hvc_dcc_get_chars(uint32_t vt, char *buf, int count)
++static ssize_t hvc_dcc_get_chars(uint32_t vt, u8 *buf, size_t count)
+ {
+-	int i;
++	size_t i;
+ 
+ 	for (i = 0; i < count; ++i)
+ 		if (__dcc_getstatus() & DCC_STATUS_RX)
+@@ -149,8 +149,8 @@ static DECLARE_WORK(dcc_pwork, dcc_put_work);
+  */
+ static void dcc_get_work(struct work_struct *work)
+ {
+-	unsigned char ch;
+ 	unsigned long irqflags;
++	u8 ch;
+ 
+ 	/*
+ 	 * Read characters from DCC and put them into the input FIFO, as
+@@ -172,10 +172,10 @@ static DECLARE_WORK(dcc_gwork, dcc_get_work);
+  * Write characters directly to the DCC if we're on core 0 and the FIFO
+  * is empty, or write them to the FIFO if we're not.
+  */
+-static int hvc_dcc0_put_chars(u32 vt, const char *buf, int count)
++static ssize_t hvc_dcc0_put_chars(u32 vt, const u8 *buf, size_t count)
+ {
+-	int len;
+ 	unsigned long irqflags;
++	ssize_t len;
+ 
+ 	if (!IS_ENABLED(CONFIG_HVC_DCC_SERIALIZE_SMP))
+ 		return hvc_dcc_put_chars(vt, buf, count);
+@@ -211,10 +211,10 @@ static int hvc_dcc0_put_chars(u32 vt, const char *buf, int count)
+  * Read characters directly from the DCC if we're on core 0 and the FIFO
+  * is empty, or read them from the FIFO if we're not.
+  */
+-static int hvc_dcc0_get_chars(u32 vt, char *buf, int count)
++static ssize_t hvc_dcc0_get_chars(u32 vt, u8 *buf, size_t count)
+ {
+-	int len;
+ 	unsigned long irqflags;
++	ssize_t len;
+ 
+ 	if (!IS_ENABLED(CONFIG_HVC_DCC_SERIALIZE_SMP))
+ 		return hvc_dcc_get_chars(vt, buf, count);
+diff --git a/drivers/tty/hvc/hvc_iucv.c b/drivers/tty/hvc/hvc_iucv.c
+index 543f35ddf523..fdecc0d63731 100644
+--- a/drivers/tty/hvc/hvc_iucv.c
++++ b/drivers/tty/hvc/hvc_iucv.c
+@@ -215,11 +215,11 @@ static void destroy_tty_buffer_list(struct list_head *list)
+  * If the IUCV path has been severed, then -EPIPE is returned to cause a
+  * hang up (that is issued by the HVC layer).
+  */
+-static int hvc_iucv_write(struct hvc_iucv_private *priv,
+-			  char *buf, int count, int *has_more_data)
++static ssize_t hvc_iucv_write(struct hvc_iucv_private *priv,
++			      u8 *buf, size_t count, int *has_more_data)
+ {
+ 	struct iucv_tty_buffer *rb;
+-	int written;
++	ssize_t written;
+ 	int rc;
+ 
+ 	/* immediately return if there is no IUCV connection */
+@@ -312,10 +312,10 @@ static int hvc_iucv_write(struct hvc_iucv_private *priv,
+  *		the routine locks the struct hvc_iucv_private->lock to call
+  *		helper functions.
+  */
+-static int hvc_iucv_get_chars(uint32_t vtermno, char *buf, int count)
++static ssize_t hvc_iucv_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	struct hvc_iucv_private *priv = hvc_iucv_get_private(vtermno);
+-	int written;
++	ssize_t written;
+ 	int has_more_data;
+ 
+ 	if (count <= 0)
+@@ -352,8 +352,8 @@ static int hvc_iucv_get_chars(uint32_t vtermno, char *buf, int count)
+  * If an existing IUCV communicaton path has been severed, -EPIPE is returned
+  * (that can be passed to HVC layer to cause a tty hangup).
+  */
+-static int hvc_iucv_queue(struct hvc_iucv_private *priv, const char *buf,
+-			  int count)
++static ssize_t hvc_iucv_queue(struct hvc_iucv_private *priv, const u8 *buf,
++			      size_t count)
+ {
+ 	size_t len;
+ 
+@@ -455,12 +455,12 @@ static void hvc_iucv_sndbuf_work(struct work_struct *work)
+  * Locking:	The method gets called under an irqsave() spinlock; and
+  *		locks struct hvc_iucv_private->lock.
+  */
+-static int hvc_iucv_put_chars(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvc_iucv_put_chars(uint32_t vtermno, const u8 *buf, size_t count)
+ {
+ 	struct hvc_iucv_private *priv = hvc_iucv_get_private(vtermno);
+ 	int queued;
+ 
+-	if (count <= 0)
++	if (!count)
+ 		return 0;
+ 
+ 	if (!priv)
+diff --git a/drivers/tty/hvc/hvc_opal.c b/drivers/tty/hvc/hvc_opal.c
+index 2cdf66e395cc..095c33ad10f8 100644
+--- a/drivers/tty/hvc/hvc_opal.c
++++ b/drivers/tty/hvc/hvc_opal.c
+@@ -58,7 +58,7 @@ static const struct hv_ops hvc_opal_raw_ops = {
+ 	.notifier_hangup = notifier_hangup_irq,
+ };
+ 
+-static int hvc_opal_hvsi_get_chars(uint32_t vtermno, char *buf, int count)
++static ssize_t hvc_opal_hvsi_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	struct hvc_opal_priv *pv = hvc_opal_privs[vtermno];
+ 
+@@ -68,7 +68,8 @@ static int hvc_opal_hvsi_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return hvsilib_get_chars(&pv->hvsi, buf, count);
+ }
+ 
+-static int hvc_opal_hvsi_put_chars(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvc_opal_hvsi_put_chars(uint32_t vtermno, const u8 *buf,
++				       size_t count)
+ {
+ 	struct hvc_opal_priv *pv = hvc_opal_privs[vtermno];
+ 
+diff --git a/drivers/tty/hvc/hvc_riscv_sbi.c b/drivers/tty/hvc/hvc_riscv_sbi.c
+index 31f53fa77e4a..a72591279f86 100644
+--- a/drivers/tty/hvc/hvc_riscv_sbi.c
++++ b/drivers/tty/hvc/hvc_riscv_sbi.c
+@@ -15,9 +15,9 @@
+ 
+ #include "hvc_console.h"
+ 
+-static int hvc_sbi_tty_put(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvc_sbi_tty_put(uint32_t vtermno, const u8 *buf, size_t count)
+ {
+-	int i;
++	size_t i;
+ 
+ 	for (i = 0; i < count; i++)
+ 		sbi_console_putchar(buf[i]);
+@@ -25,9 +25,10 @@ static int hvc_sbi_tty_put(uint32_t vtermno, const char *buf, int count)
+ 	return i;
+ }
+ 
+-static int hvc_sbi_tty_get(uint32_t vtermno, char *buf, int count)
++static ssize_t hvc_sbi_tty_get(uint32_t vtermno, u8 *buf, size_t count)
+ {
+-	int i, c;
++	size_t i;
++	int c;
+ 
+ 	for (i = 0; i < count; i++) {
+ 		c = sbi_console_getchar();
+diff --git a/drivers/tty/hvc/hvc_rtas.c b/drivers/tty/hvc/hvc_rtas.c
+index 184d325abeed..a0b90275b37f 100644
+--- a/drivers/tty/hvc/hvc_rtas.c
++++ b/drivers/tty/hvc/hvc_rtas.c
+@@ -31,10 +31,10 @@ static struct hvc_struct *hvc_rtas_dev;
+ static int rtascons_put_char_token = RTAS_UNKNOWN_SERVICE;
+ static int rtascons_get_char_token = RTAS_UNKNOWN_SERVICE;
+ 
+-static inline int hvc_rtas_write_console(uint32_t vtermno, const char *buf,
+-		int count)
++static ssize_t hvc_rtas_write_console(uint32_t vtermno, const u8 *buf,
++				      size_t count)
+ {
+-	int i;
++	size_t i;
+ 
+ 	for (i = 0; i < count; i++) {
+ 		if (rtas_call(rtascons_put_char_token, 1, 1, NULL, buf[i]))
+@@ -44,9 +44,10 @@ static inline int hvc_rtas_write_console(uint32_t vtermno, const char *buf,
+ 	return i;
+ }
+ 
+-static int hvc_rtas_read_console(uint32_t vtermno, char *buf, int count)
++static ssize_t hvc_rtas_read_console(uint32_t vtermno, u8 *buf, size_t count)
+ {
+-	int i, c;
++	size_t i;
++	int c;
+ 
+ 	for (i = 0; i < count; i++) {
+ 		if (rtas_call(rtascons_get_char_token, 0, 2, &c))
+diff --git a/drivers/tty/hvc/hvc_udbg.c b/drivers/tty/hvc/hvc_udbg.c
+index ff0dcc56413c..fdc2699b78dc 100644
+--- a/drivers/tty/hvc/hvc_udbg.c
++++ b/drivers/tty/hvc/hvc_udbg.c
+@@ -19,9 +19,9 @@
+ 
+ static struct hvc_struct *hvc_udbg_dev;
+ 
+-static int hvc_udbg_put(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvc_udbg_put(uint32_t vtermno, const u8 *buf, size_t count)
+ {
+-	int i;
++	size_t i;
+ 
+ 	for (i = 0; i < count && udbg_putc; i++)
+ 		udbg_putc(buf[i]);
+@@ -29,9 +29,10 @@ static int hvc_udbg_put(uint32_t vtermno, const char *buf, int count)
+ 	return i;
+ }
+ 
+-static int hvc_udbg_get(uint32_t vtermno, char *buf, int count)
++static ssize_t hvc_udbg_get(uint32_t vtermno, u8 *buf, size_t count)
+ {
+-	int i, c;
++	size_t i;
++	int c;
+ 
+ 	if (!udbg_getc_poll)
+ 		return 0;
+diff --git a/drivers/tty/hvc/hvc_vio.c b/drivers/tty/hvc/hvc_vio.c
+index 736b230f5ec0..47930601a26a 100644
+--- a/drivers/tty/hvc/hvc_vio.c
++++ b/drivers/tty/hvc/hvc_vio.c
+@@ -58,20 +58,20 @@ struct hvterm_priv {
+ 	hv_protocol_t		proto;	/* Raw data or HVSI packets */
+ 	struct hvsi_priv	hvsi;	/* HVSI specific data */
+ 	spinlock_t		buf_lock;
+-	char			buf[SIZE_VIO_GET_CHARS];
+-	int			left;
+-	int			offset;
++	u8			buf[SIZE_VIO_GET_CHARS];
++	size_t			left;
++	size_t			offset;
+ };
+ static struct hvterm_priv *hvterm_privs[MAX_NR_HVC_CONSOLES];
+ /* For early boot console */
+ static struct hvterm_priv hvterm_priv0;
+ 
+-static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
++static ssize_t hvterm_raw_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+ 	unsigned long i;
+ 	unsigned long flags;
+-	int got;
++	size_t got;
+ 
+ 	if (WARN_ON(!pv))
+ 		return 0;
+@@ -115,7 +115,8 @@ static int hvterm_raw_get_chars(uint32_t vtermno, char *buf, int count)
+  *       you are sending fewer chars.
+  * @count: number of chars to send.
+  */
+-static int hvterm_raw_put_chars(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvterm_raw_put_chars(uint32_t vtermno, const u8 *buf,
++				    size_t count)
+ {
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+ 
+@@ -133,7 +134,7 @@ static const struct hv_ops hvterm_raw_ops = {
+ 	.notifier_hangup = notifier_hangup_irq,
+ };
+ 
+-static int hvterm_hvsi_get_chars(uint32_t vtermno, char *buf, int count)
++static ssize_t hvterm_hvsi_get_chars(uint32_t vtermno, u8 *buf, size_t count)
+ {
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+ 
+@@ -143,7 +144,8 @@ static int hvterm_hvsi_get_chars(uint32_t vtermno, char *buf, int count)
+ 	return hvsilib_get_chars(&pv->hvsi, buf, count);
+ }
+ 
+-static int hvterm_hvsi_put_chars(uint32_t vtermno, const char *buf, int count)
++static ssize_t hvterm_hvsi_put_chars(uint32_t vtermno, const u8 *buf,
++				     size_t count)
+ {
+ 	struct hvterm_priv *pv = hvterm_privs[vtermno];
+ 
+diff --git a/drivers/tty/hvc/hvc_xen.c b/drivers/tty/hvc/hvc_xen.c
+index 34c01874f45b..0e497501f8e3 100644
+--- a/drivers/tty/hvc/hvc_xen.c
++++ b/drivers/tty/hvc/hvc_xen.c
+@@ -84,13 +84,13 @@ static inline void notify_daemon(struct xencons_info *cons)
+ 	notify_remote_via_evtchn(cons->evtchn);
+ }
+ 
+-static int __write_console(struct xencons_info *xencons,
+-		const char *data, int len)
++static ssize_t __write_console(struct xencons_info *xencons,
++			       const u8 *data, size_t len)
+ {
+ 	XENCONS_RING_IDX cons, prod;
+ 	struct xencons_interface *intf = xencons->intf;
+-	int sent = 0;
+ 	unsigned long flags;
++	size_t sent = 0;
+ 
+ 	spin_lock_irqsave(&xencons->ring_lock, flags);
+ 	cons = intf->out_cons;
+@@ -115,10 +115,11 @@ static int __write_console(struct xencons_info *xencons,
+ 	return sent;
+ }
+ 
+-static int domU_write_console(uint32_t vtermno, const char *data, int len)
++static ssize_t domU_write_console(uint32_t vtermno, const u8 *data, size_t len)
+ {
+-	int ret = len;
+ 	struct xencons_info *cons = vtermno_to_xencons(vtermno);
++	size_t ret = len;
 +
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
+ 	if (cons == NULL)
+ 		return -EINVAL;
+ 
+@@ -129,7 +130,7 @@ static int domU_write_console(uint32_t vtermno, const char *data, int len)
+ 	 * kernel is crippled.
+ 	 */
+ 	while (len) {
+-		int sent = __write_console(cons, data, len);
++		ssize_t sent = __write_console(cons, data, len);
+ 
+ 		if (sent < 0)
+ 			return sent;
+@@ -144,14 +145,14 @@ static int domU_write_console(uint32_t vtermno, const char *data, int len)
+ 	return ret;
+ }
+ 
+-static int domU_read_console(uint32_t vtermno, char *buf, int len)
++static ssize_t domU_read_console(uint32_t vtermno, u8 *buf, size_t len)
+ {
+ 	struct xencons_interface *intf;
+ 	XENCONS_RING_IDX cons, prod;
+-	int recv = 0;
+ 	struct xencons_info *xencons = vtermno_to_xencons(vtermno);
+ 	unsigned int eoiflag = 0;
+ 	unsigned long flags;
++	size_t recv = 0;
+ 
+ 	if (xencons == NULL)
+ 		return -EINVAL;
+@@ -209,7 +210,7 @@ static const struct hv_ops domU_hvc_ops = {
+ 	.notifier_hangup = notifier_hangup_irq,
+ };
+ 
+-static int dom0_read_console(uint32_t vtermno, char *buf, int len)
++static ssize_t dom0_read_console(uint32_t vtermno, u8 *buf, size_t len)
+ {
+ 	return HYPERVISOR_console_io(CONSOLEIO_read, len, buf);
+ }
+@@ -218,9 +219,9 @@ static int dom0_read_console(uint32_t vtermno, char *buf, int len)
+  * Either for a dom0 to write to the system console, or a domU with a
+  * debug version of Xen
+  */
+-static int dom0_write_console(uint32_t vtermno, const char *str, int len)
++static ssize_t dom0_write_console(uint32_t vtermno, const u8 *str, size_t len)
+ {
+-	int rc = HYPERVISOR_console_io(CONSOLEIO_write, len, (char *)str);
++	int rc = HYPERVISOR_console_io(CONSOLEIO_write, len, (u8 *)str);
+ 	if (rc < 0)
+ 		return rc;
+ 
+diff --git a/drivers/tty/hvc/hvsi_lib.c b/drivers/tty/hvc/hvsi_lib.c
+index 09289c8154ae..22e1bc4d8a66 100644
+--- a/drivers/tty/hvc/hvsi_lib.c
++++ b/drivers/tty/hvc/hvsi_lib.c
+@@ -12,7 +12,7 @@ static int hvsi_send_packet(struct hvsi_priv *pv, struct hvsi_header *packet)
+ 	packet->seqno = cpu_to_be16(atomic_inc_return(&pv->seqno));
+ 
+ 	/* Assumes that always succeeds, works in practice */
+-	return pv->put_chars(pv->termno, (char *)packet, packet->len);
++	return pv->put_chars(pv->termno, (u8 *)packet, packet->len);
+ }
+ 
+ static void hvsi_start_handshake(struct hvsi_priv *pv)
+@@ -178,9 +178,10 @@ static int hvsi_get_packet(struct hvsi_priv *pv)
+ 	return 0;
+ }
+ 
+-int hvsilib_get_chars(struct hvsi_priv *pv, char *buf, int count)
++ssize_t hvsilib_get_chars(struct hvsi_priv *pv, u8 *buf, size_t count)
+ {
+-	unsigned int tries, read = 0;
++	unsigned int tries;
++	size_t read = 0;
+ 
+ 	if (WARN_ON(!pv))
+ 		return -ENXIO;
+@@ -199,7 +200,7 @@ int hvsilib_get_chars(struct hvsi_priv *pv, char *buf, int count)
+ 	for (tries = 1; count && tries < 2; tries++) {
+ 		/* Consume existing data packet */
+ 		if (pv->inbuf_pktlen) {
+-			unsigned int l = min(count, (int)pv->inbuf_pktlen);
++			size_t l = min(count, pv->inbuf_pktlen);
+ 			memcpy(&buf[read], &pv->inbuf[pv->inbuf_cur], l);
+ 			pv->inbuf_cur += l;
+ 			pv->inbuf_pktlen -= l;
+@@ -228,10 +229,11 @@ int hvsilib_get_chars(struct hvsi_priv *pv, char *buf, int count)
+ 	return read;
+ }
+ 
+-int hvsilib_put_chars(struct hvsi_priv *pv, const char *buf, int count)
++ssize_t hvsilib_put_chars(struct hvsi_priv *pv, const u8 *buf, size_t count)
+ {
+ 	struct hvsi_data dp;
+-	int rc, adjcount = min(count, HVSI_MAX_OUTGOING_DATA);
++	size_t adjcount = min_t(size_t, count, HVSI_MAX_OUTGOING_DATA);
++	int rc;
+ 
+ 	if (WARN_ON(!pv))
+ 		return -ENODEV;
+@@ -411,9 +413,9 @@ void hvsilib_close(struct hvsi_priv *pv, struct hvc_struct *hp)
+ }
+ 
+ void hvsilib_init(struct hvsi_priv *pv,
+-		  int (*get_chars)(uint32_t termno, char *buf, int count),
+-		  int (*put_chars)(uint32_t termno, const char *buf,
+-				   int count),
++		  ssize_t (*get_chars)(uint32_t termno, u8 *buf, size_t count),
++		  ssize_t (*put_chars)(uint32_t termno, const u8 *buf,
++				       size_t count),
+ 		  int termno, int is_console)
+ {
+ 	memset(pv, 0, sizeof(*pv));
 -- 
-2.39.0
+2.43.0
 
