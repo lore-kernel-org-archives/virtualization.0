@@ -1,131 +1,128 @@
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF963DBB4
-	for <virtualization@lists.linux.dev>; Wed,  6 Dec 2023 18:49:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=salutedevices.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34E383FB12
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 18:52:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="AAV+fcuh"
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 32B6710008B;
-	Wed,  6 Dec 2023 21:42:37 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 32B6710008B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701888157;
-	bh=PAf3gWYNr1X6Etoo5fn0Vczq30SXtQKZGFNGORjRGC8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=AAV+fcuhHm0Evps55dof7IXXSARFQOz4XCrLKyDmqV/MHnMv+FBbH20vGfXDcx+DZ
-	 vVGUzbH1+BI16V3d8jpitWxYN/JE+rvI2+PlqHJPY0b4tw+oYpbcIJnp3fZiFDoNCH
-	 0BZoEqwFlLTZ36xUwhqX2A32xzhPAhMJ0kbFG+TXn53QKR6RncJ62fnvp9u+kYYrOj
-	 ZeksIl0PPQx2XYMQjx3O2yejtKDzcx7/UF1Z5nHc3pXOCrXUr+KMU/Jj3hyKvZ0EZM
-	 7TgUzpJ4nNNEx810vz6MtHB701dA/QCLJRiMBLOK8zwezjeAk0e7Rr1qAVJvFJ6D+a
-	 2fQBHpWr1thXA==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Wed,  6 Dec 2023 21:42:36 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Wed, 6 Dec 2023 21:42:36 +0300
-Message-ID: <44c8b8dd-24e4-24c9-c7f9-3d7db892095d@salutedevices.com>
-Date: Wed, 6 Dec 2023 21:34:27 +0300
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="B5DPzN5J"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id A518A60AEF
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 18:52:24 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org A518A60AEF
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.a=rsa-sha256 header.s=casper.20170209 header.b=B5DPzN5J
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.398
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PF2EZqecesIK
+	for <virtualization@lists.linux-foundation.org>;
+	Wed,  6 Dec 2023 18:52:21 +0000 (UTC)
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DB12860AED
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 18:52:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DB12860AED
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=TgX+PmuAr5QRkCmSx0BsqqI+xnwWnFusCDa4CHApM4Y=; b=B5DPzN5JWKoYuSlpoDnvFq5zOY
+	dzy+/0VlFQNrT2wh4LgPvSRluDKGcHlGhouKPTNRY/3vVEEFJ+IKrhPccE1kFE7jLARo3gHWsRE+m
+	hyfobf0yCSUyHM9U1jb0+6DpKrPKsPx7L/YNpn8cKZHkYmiUO8SIvkZZWuqobDpGSal/sOYVBv7Vm
+	XT8/adblz9WvVW6ebYI03bIYngMaLuIkVlBSScKOXh19/Mb231q3/GTdydkZEPlwte5TTgs3iRX+0
+	AJ5UeGPpggFN+1gIc3zDpXpuIDmBzRjbLYup40yo3omwimvD2/V3tK6zybuhECjs7PtpcykiFidbn
+	db/iU80A==;
+Received: from j130084.upc-j.chello.nl ([24.132.130.84] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+	id 1rAwzg-003AJI-8e; Wed, 06 Dec 2023 18:51:36 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id E0501300451; Wed,  6 Dec 2023 19:51:34 +0100 (CET)
+Date: Wed, 6 Dec 2023 19:51:34 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>
+Cc: =?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+	Kees Cook <keescook@chromium.org>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>,
+	Alexander Graf <graf@amazon.com>,
+	Chao Peng <chao.p.peng@linux.intel.com>,
+	"Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
+	Forrest Yuan Yu <yuanyu@google.com>,
+	James Gowans <jgowans@amazon.com>,
+	James Morris <jamorris@linux.microsoft.com>,
+	John Andersen <john.s.andersen@intel.com>,
+	Marian Rotariu <marian.c.rotariu@gmail.com>,
+	Mihai =?utf-8?B?RG9uyJt1?= <mdontu@bitdefender.com>,
+	=?utf-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
+	Thara Gopinath <tgopinath@microsoft.com>,
+	Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>,
+	Will Deacon <will@kernel.org>,
+	Yu Zhang <yu.c.zhang@linux.intel.com>,
+	Zahra Tarkhani <ztarkhani@microsoft.com>,
+	=?utf-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
+	dev@lists.cloudhypervisor.org, kvm@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+	qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+	x86@kernel.org, xen-devel@lists.xenproject.org
+Subject: Re: [RFC PATCH v2 17/19] heki: x86: Update permissions counters
+ during text patching
+Message-ID: <20231206185134.GA9899@noisy.programming.kicks-ass.net>
+References: <20231113022326.24388-1-mic@digikod.net>
+ <20231113022326.24388-18-mic@digikod.net>
+ <20231113081929.GA16138@noisy.programming.kicks-ass.net>
+ <a52d8885-43cc-4a4e-bb47-9a800070779e@linux.microsoft.com>
+ <20231127200841.GZ3818@noisy.programming.kicks-ass.net>
+ <ea63ae4e-e8ea-4fbf-9383-499e14de2f5e@linux.microsoft.com>
+ <20231130113315.GE20191@noisy.programming.kicks-ass.net>
+ <624a310b-c0d2-406c-a4a7-d851b3cc68f5@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH net] vsock/virtio: fix "comparison of distinct pointer
- types lacks a cast" warning
-Content-Language: en-US
-To: Stefano Garzarella <sgarzare@redhat.com>, <netdev@vger.kernel.org>
-CC: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
-	<virtualization@lists.linux.dev>, "Michael S. Tsirkin" <mst@redhat.com>,
-	<kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>, Stefan Hajnoczi
-	<stefanha@redhat.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni
-	<pabeni@redhat.com>
-References: <20231206164143.281107-1-sgarzare@redhat.com>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20231206164143.281107-1-sgarzare@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181917 [Dec 06 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1;100.64.160.123:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;salutedevices.com:7.1.1, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/06 17:41:00 #22621737
-X-KSMG-AntiVirus-Status: Clean, skipped
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <624a310b-c0d2-406c-a4a7-d851b3cc68f5@linux.microsoft.com>
 
-
-
-On 06.12.2023 19:41, Stefano Garzarella wrote:
-> After backporting commit 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY
-> flag support") in CentOS Stream 9, CI reported the following error:
+On Wed, Dec 06, 2023 at 10:37:33AM -0600, Madhavan T. Venkataraman wrote:
 > 
->     In file included from ./include/linux/kernel.h:17,
->                      from ./include/linux/list.h:9,
->                      from ./include/linux/preempt.h:11,
->                      from ./include/linux/spinlock.h:56,
->                      from net/vmw_vsock/virtio_transport_common.c:9:
->     net/vmw_vsock/virtio_transport_common.c: In function ‘virtio_transport_can_zcopy‘:
->     ./include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast [-Werror]
->        20 |         (!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
->           |                                   ^~
->     ./include/linux/minmax.h:26:18: note: in expansion of macro ‘__typecheck‘
->        26 |                 (__typecheck(x, y) && __no_side_effects(x, y))
->           |                  ^~~~~~~~~~~
->     ./include/linux/minmax.h:36:31: note: in expansion of macro ‘__safe_cmp‘
->        36 |         __builtin_choose_expr(__safe_cmp(x, y), \
->           |                               ^~~~~~~~~~
->     ./include/linux/minmax.h:45:25: note: in expansion of macro ‘__careful_cmp‘
->        45 | #define min(x, y)       __careful_cmp(x, y, <)
->           |                         ^~~~~~~~~~~~~
->     net/vmw_vsock/virtio_transport_common.c:63:37: note: in expansion of macro ‘min‘
->        63 |                 int pages_to_send = min(pages_in_iov, MAX_SKB_FRAGS);
 > 
-> We could solve it by using min_t(), but this operation seems entirely
-> unnecessary, because we also pass MAX_SKB_FRAGS to iov_iter_npages(),
-> which performs almost the same check, returning at most MAX_SKB_FRAGS
-> elements. So, let's eliminate this unnecessary comparison.
+> On 11/30/23 05:33, Peter Zijlstra wrote:
+> > On Wed, Nov 29, 2023 at 03:07:15PM -0600, Madhavan T. Venkataraman wrote:
+> > 
+> >> Kernel Lockdown
+> >> ---------------
+> >>
+> >> But, we must provide at least some security in V2. Otherwise, it is useless.
+> >>
+> >> So, we have implemented what we call a kernel lockdown. At the end of kernel
+> >> boot, Heki establishes permissions in the extended page table as mentioned
+> >> before. Also, it adds an immutable attribute for kernel text and kernel RO data.
+> >> Beyond that point, guest requests that attempt to modify permissions on any of
+> >> the immutable pages will be denied.
+> >>
+> >> This means that features like FTrace and KProbes will not work on kernel text
+> >> in V2. This is a temporary limitation. Once authentication is in place, the
+> >> limitation will go away.
+> > 
+> > So either you're saying your patch 17 / text_poke is broken (so why
+> > include it ?!?) or your statement above is incorrect. Pick one.
+> > 
 > 
-> Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
-> Cc: avkrasnov@salutedevices.com
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
+> It has been included so that people can be aware of the changes.
+> 
+> I will remove the text_poke() changes from the patchset and send it later when
+> I have some authentication in place. It will make sense then.
 
-Reviewed-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
-
->  net/vmw_vsock/virtio_transport_common.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index f6dc896bf44c..c8e162c9d1df 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -59,8 +59,7 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
->  	t_ops = virtio_transport_get_ops(info->vsk);
->  
->  	if (t_ops->can_msgzerocopy) {
-> -		int pages_in_iov = iov_iter_npages(iov_iter, MAX_SKB_FRAGS);
-> -		int pages_to_send = min(pages_in_iov, MAX_SKB_FRAGS);
-> +		int pages_to_send = iov_iter_npages(iov_iter, MAX_SKB_FRAGS);
->  
->  		/* +1 is for packet header. */
->  		return t_ops->can_msgzerocopy(pages_to_send + 1);
+If you know its broken then fucking say so in the Changelog instead of
+wasting everybody's time.. OMG.
