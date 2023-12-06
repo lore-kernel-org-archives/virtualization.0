@@ -1,330 +1,159 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E5F117721
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 07:53:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56F3A804
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 08:39:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="L25wHKBB"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EC21882560
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 07:53:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org EC21882560
+	by smtp4.osuosl.org (Postfix) with ESMTP id AB4814076E
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 08:39:58 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AB4814076E
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=L25wHKBB
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rYnbJwCwncsm
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S_SlOlZwtinJ
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  6 Dec 2023 07:53:02 +0000 (UTC)
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 40CCE8230F
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 07:53:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 40CCE8230F
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R841e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046050;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0VxxG6eW_1701849173;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0VxxG6eW_1701849173)
-          by smtp.aliyun-inc.com;
-          Wed, 06 Dec 2023 15:52:54 +0800
-Message-ID: <1701848864.0588148-3-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 4/4] virtio_net: sq support premapped mode
-Date: Wed, 6 Dec 2023 15:47:44 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org,
- "Michael S. Tsirkin" <mst@redhat.com>
-References: <20231204072331.73776-1-xuanzhuo@linux.alibaba.com>
- <20231204072331.73776-5-xuanzhuo@linux.alibaba.com>
- <CACGkMEvT--4jgba4WHFzSqNgKhExPJVSrmhuUzrbeMf=9XeUGw@mail.gmail.com>
-In-Reply-To: <CACGkMEvT--4jgba4WHFzSqNgKhExPJVSrmhuUzrbeMf=9XeUGw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	Wed,  6 Dec 2023 08:39:57 +0000 (UTC)
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2060f.outbound.protection.outlook.com [IPv6:2a01:111:f400:7eaa::60f])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AE8864062E
+	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 08:39:57 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org AE8864062E
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=c97BoA+Ua7FLSotydEv371usB/ybCZ4b9I4198o7NxPxYIVivR/ZHX7rgxCwnJVNGPE9LOVHGpcGgswAtvBlJ2ZY7kM771IdHWQjbrpnThhZ5YHaHa8oZrgBzaMJIiV0aEnMCK32EGI9jHdONvrEOuCTjVbwfyhqLCZScmsVDFVQpkhd8aZOLRdZmQhBuCxUw63x+24e1g0QkVcYM8l4i88MZ4+TuIlstwVyC9LDeoszjW92/LOhndr38IvlJMoCdFByR7tmvUzPTxLihnIj8wIyRQxkXt1RyWOomnyAs+VYLMd8Hu0r1isUY8QJBC/DFcYWfx5uIWIW3FjzjbQ+dA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=nBuj38EPNNMIfHqVa2sZj1sO60tghzRCgvMCMj8PqwRyS1IgXWLCK6q825U83oJ6csQBl3/2fEGVv4V4/sC94u0L+kFl8X8PmH/iB09PP178CXkrutOBd39Kdk9FllCfnwm9ol7U+iJvDdsjaLrzEvnSlB3SKWlObKmgGIfCbUAuQR+mdQPAq/u+4VOYG00KdIz8vOudjK44Qb/sb87xQ+vRWEoxAcQlUdBE1ObtxAYJSdzgGY/DVDRMZJOa8eI0acBE18BI11J9vCQ9sV/bEWIUtktMAbAm6SjKfZvzqob+T6z78JiyDLfCEi+poqVeB6nmdQUlTuzoUMlUuaydRQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8ixQtpvTNaYyDToUTw43Dlrc0d/yTizWm3gUpC5jls0=;
+ b=L25wHKBBrx8X6pC2zbfHhpm9N9+TWjkGsb0H/KK6VJi3bgkEhHHl/GkaAl6Fvmo+59NUwcpDx/bY4joWVdHIQOtAQQOOY8rk0/rVS9ku0VPha+FTz37pToRhVQ3ZEmRp2erE6AP3aS4yHxX2Z99nFn+t3F1jX0s1TxqMzUtbJtccgIJnOnoNTu6nknhSDXOTdiAki/YEqoKnI4ToBqJQgdCL19WbaHFe3UNXQ3UrHslNgGaCswr+g0HpWGmO+Jy/k7vc6NztE/hjx/gEGKDK6qCKN2dt3lTElICgYc737P/OBn77Dm+gmLgelyAc8jUFNEyTJT5X2B3qWWYIpz6g4A==
+Received: from PH0PR07CA0109.namprd07.prod.outlook.com (2603:10b6:510:4::24)
+ by SJ0PR12MB8614.namprd12.prod.outlook.com (2603:10b6:a03:47d::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34; Wed, 6 Dec
+ 2023 08:39:53 +0000
+Received: from SN1PEPF0002BA4C.namprd03.prod.outlook.com
+ (2603:10b6:510:4:cafe::c2) by PH0PR07CA0109.outlook.office365.com
+ (2603:10b6:510:4::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34 via Frontend
+ Transport; Wed, 6 Dec 2023 08:39:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ SN1PEPF0002BA4C.mail.protection.outlook.com (10.167.242.69) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.7068.20 via Frontend Transport; Wed, 6 Dec 2023 08:39:53 +0000
+Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 6 Dec 2023
+ 00:39:43 -0800
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by rnnvmail203.nvidia.com
+ (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Wed, 6 Dec 2023
+ 00:39:42 -0800
+Received: from vdi.nvidia.com (10.127.8.10) by mail.nvidia.com (10.129.68.8)
+ with Microsoft SMTP Server id 15.2.986.41 via Frontend Transport; Wed, 6 Dec
+ 2023 00:39:38 -0800
+From: Yishai Hadas <yishaih@nvidia.com>
+To: <alex.williamson@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+	<jgg@nvidia.com>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux-foundation.org>,
+	<parav@nvidia.com>, <feliu@nvidia.com>, <jiri@nvidia.com>,
+	<kevin.tian@intel.com>, <joao.m.martins@oracle.com>, <si-wei.liu@oracle.com>,
+	<leonro@nvidia.com>, <yishaih@nvidia.com>, <maorg@nvidia.com>
+Subject: [PATCH V6 vfio 1/9] virtio: Define feature bit for administration virtqueue
+Date: Wed, 6 Dec 2023 10:38:49 +0200
+Message-ID: <20231206083857.241946-2-yishaih@nvidia.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20231206083857.241946-1-yishaih@nvidia.com>
+References: <20231206083857.241946-1-yishaih@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SN1PEPF0002BA4C:EE_|SJ0PR12MB8614:EE_
+X-MS-Office365-Filtering-Correlation-Id: 85a900c3-0dd1-414a-a64b-08dbf636eb14
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	QPVLcKavussH3otTdzPeaSfzsej2xQhW/5F3AOwSLshoGAD4ZnLzC9YRYTZPWCo9/a2L61SwKSX66sZNvfIo9M0WyqBFL3bpyon8Dm62MGXWUTIBJyQDGwhfMoPfK/sp62s6wqBnZ0qwyRfSzD8nN7yoAPn50wk3X+6/xqHXAUOu9zOXnzFl44m/ZmfnF93uexPpyCPJLsJUrLwwejPWMy8+hCDGgmiHy2IypAcKIvgmP8+VG/mGRBBa40Knhhs+ZfCNrG15jvScGHA+LpBZkdFjQDvPAe38lHVUhK2ArLdJ3eTJvEREbBCWAeYUm3EhrNy+gddvrV2u3OlIs64JMR/VakD1CgTlMUAbVwTdkZogdpJWfZCoFZtVxxHPi3+gWxeNigrgIZgX6oda5iq+wdqpMt5rlizcDFKVKikWJobQO3VB6HBF3zfJe0gWjppqhf7EWG9tcEoNuJGrDMkSnQgWr5lS2ytKs9Fo3UMg9upGRE1nmgnoon1I1yviFL2oDgurKZ7Yxu6k41g7zg+nKPBXCUMo24ZuT/oIGKOFts/Pbcdpj2llzWniBG4XSrQz29ZnIEZfn8QtwKx3f1Xj7wVXUf8sQJghHOm1Hkkk0tt9hDEXCgH88WL0+973UHwSI0ZNz2W8ANOLzClVrQ8MquxDopBFeDqnZQiFm7O7a3EWdG/m+C+sGCcsuMRJGGiey1+D7XV79A/pPv0mnq+WK/xskBeXXqcS6fxxoDC/9n/3YcUDv8W2RIpmmMpK5soyNn0wsIwsh6w1jzrhmgttYw==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230031)(4636009)(346002)(376002)(396003)(39860400002)(136003)(230922051799003)(1800799012)(186009)(64100799003)(82310400011)(451199024)(46966006)(36840700001)(40470700004)(107886003)(1076003)(2616005)(4326008)(8676002)(8936002)(7696005)(83380400001)(47076005)(356005)(7636003)(40480700001)(36860700001)(426003)(336012)(82740400003)(26005)(478600001)(40460700003)(6666004)(70586007)(70206006)(110136005)(316002)(54906003)(6636002)(2906002)(41300700001)(36756003)(86362001)(5660300002)(2101003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2023 08:39:53.4316
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85a900c3-0dd1-414a-a64b-08dbf636eb14
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SN1PEPF0002BA4C.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB8614
 
-On Tue, 5 Dec 2023 15:12:09 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Mon, Dec 4, 2023 at 3:23=E2=80=AFPM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
-> >
-> > If the xsk is enabling, the xsk tx will share the send queue.
-> > But the xsk requires that the send queue use the premapped mode.
-> > So the send queue must support premapped mode.
-> >
-> > command: pktgen_sample01_simple.sh -i eth0 -s 16/1400 -d 10.0.0.123 -m =
-00:16:3e:12:e1:3e -n 0 -p 100
-> > matchine:  ecs.ebmg6e.26xlarge of Aliyun
-> > cpu: Intel(R) Xeon(R) Platinum 8269CY CPU @ 2.50GHz
-> > iommu mode: intel_iommu=3Don iommu.strict=3D1 iommu=3Dnopt
-> >
-> >                       |        iommu off           |        iommu on
-> > ----------------------|------------------------------------------------=
------
-> >                       | 16         |  1400         | 16         | 1400
-> > ----------------------|------------------------------------------------=
------
-> > Before:               |1716796.00  |  1581829.00   | 390756.00  | 37449=
-3.00
-> > After(premapped off): |1733794.00  |  1576259.00   | 390189.00  | 37812=
-8.00
-> > After(premapped on):  |1707107.00  |  1562917.00   | 385667.00  | 37358=
-4.00
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio/main.c       | 116 ++++++++++++++++++++++++++++----
-> >  drivers/net/virtio/virtio_net.h |   2 +
-> >  2 files changed, 105 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
-> > index d81ee75142e0..fa77a85d1d37 100644
-> > --- a/drivers/net/virtio/main.c
-> > +++ b/drivers/net/virtio/main.c
-> > @@ -167,13 +167,32 @@ static struct xdp_frame *ptr_to_xdp(void *ptr)
-> >         return (struct xdp_frame *)((unsigned long)ptr & ~VIRTIO_XDP_FL=
-AG);
-> >  }
-> >
-> > +static void virtnet_sq_unmap_buf(struct virtnet_sq *sq, struct virtio_=
-dma_head *dma)
-> > +{
-> > +       int i;
-> > +
-> > +       for (i =3D 0; i < dma->next; ++i)
-> > +               virtqueue_dma_unmap_single_attrs(sq->vq,
-> > +                                                dma->items[i].addr,
-> > +                                                dma->items[i].length,
-> > +                                                DMA_TO_DEVICE, 0);
-> > +       dma->next =3D 0;
->
-> I'd suggest to check vring_use_dma_api() then we can avoid the unnecessar=
-y loop.
+From: Feng Liu <feliu@nvidia.com>
 
-If the virtio core not add items, then the dma->next is 0.
+Introduce VIRTIO_F_ADMIN_VQ which is used for administration virtqueue
+support.
 
->
-> > +}
-> > +
-> >  static void __free_old_xmit(struct virtnet_sq *sq, bool in_napi,
-> >                             u64 *bytes, u64 *packets)
-> >  {
-> > +       struct virtio_dma_head *dma;
-> >         unsigned int len;
-> >         void *ptr;
-> >
-> > -       while ((ptr =3D virtqueue_get_buf(sq->vq, &len)) !=3D NULL) {
-> > +       dma =3D (typeof(dma))sq->sg;
->
-> This seems tricky, people may forget to check the sizeof when they
-> want to extend the dma in the future.
->
-> Can we use union here?
+Signed-off-by: Feng Liu <feliu@nvidia.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+---
+ include/uapi/linux/virtio_config.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Yes.
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index 8881aea60f6f..2445f365bce7 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -52,7 +52,7 @@
+  * rest are per-device feature bits.
+  */
+ #define VIRTIO_TRANSPORT_F_START	28
+-#define VIRTIO_TRANSPORT_F_END		41
++#define VIRTIO_TRANSPORT_F_END		42
+ 
+ #ifndef VIRTIO_CONFIG_NO_LEGACY
+ /* Do we get callbacks when the ring is completely used, even if we've
+@@ -114,4 +114,10 @@
+  * This feature indicates that the driver can reset a queue individually.
+  */
+ #define VIRTIO_F_RING_RESET		40
++
++/*
++ * This feature indicates that the device support administration virtqueues.
++ */
++#define VIRTIO_F_ADMIN_VQ		41
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+-- 
+2.27.0
 
-
->
-> > +       dma->num =3D ARRAY_SIZE(sq->sg);
-> > +       dma->next =3D 0;
-> > +
-> > +       while ((ptr =3D virtqueue_get_buf_ctx_dma(sq->vq, &len, dma, NU=
-LL)) !=3D NULL) {
-> > +               virtnet_sq_unmap_buf(sq, dma);
->
-> Can we allow passing NULL then core can just don't bother with
-> collecting DMA information?
-
-Will fix
-
->
-> > +
-> >                 if (!is_xdp_frame(ptr)) {
-> >                         struct sk_buff *skb =3D ptr;
-> >
-> > @@ -567,20 +586,79 @@ static void *virtnet_rq_alloc(struct virtnet_rq *=
-rq, u32 size, gfp_t gfp)
-> >         return buf;
-> >  }
-> >
-> > -static void virtnet_rq_set_premapped(struct virtnet_info *vi)
-> > +static void virtnet_set_premapped(struct virtnet_info *vi)
-> >  {
-> > +       struct virtio_dma_head dma;
-> > +       struct virtnet_sq *sq;
-> >         int i;
-> >
-> > -       /* disable for big mode */
-> > -       if (!vi->mergeable_rx_bufs && vi->big_packets)
-> > -               return;
-> > +       sq =3D &vi->sq[0];
-> > +
-> > +       BUG_ON(sizeof(sq->sg) < sizeof(dma) + sizeof(dma.items[0]) * AR=
-RAY_SIZE(sq->sg));
-> >
-> >         for (i =3D 0; i < vi->max_queue_pairs; i++) {
-> > -               if (virtqueue_set_dma_premapped(vi->rq[i].vq))
-> > -                       continue;
-> > +               if (!virtqueue_set_dma_premapped(vi->sq[i].vq))
-> > +                       vi->sq[i].do_dma =3D true;
-> > +
-> > +               /* disable for big mode */
-> > +               if (vi->mergeable_rx_bufs || !vi->big_packets) {
-> > +                       if (!virtqueue_set_dma_premapped(vi->rq[i].vq))
-> > +                               vi->rq[i].do_dma =3D true;
-> > +               }
-> > +       }
-> > +}
-> > +
-> > +static void virtnet_sq_unmap_sg(struct virtnet_sq *sq, u32 num)
-> > +{
-> > +       struct scatterlist *sg;
-> > +       u32 i;
-> > +
-> > +       for (i =3D 0; i < num; ++i) {
-> > +               sg =3D &sq->sg[i];
-> > +
-> > +               virtqueue_dma_unmap_single_attrs(sq->vq,
-> > +                                                sg->dma_address,
-> > +                                                sg->length,
-> > +                                                DMA_TO_DEVICE, 0);
-> > +       }
-> > +}
-> > +
-> > +static int virtnet_sq_map_sg(struct virtnet_sq *sq, u32 num)
-> > +{
-> > +       struct scatterlist *sg;
-> > +       u32 i;
-> > +
-> > +       for (i =3D 0; i < num; ++i) {
-> > +               sg =3D &sq->sg[i];
-> > +               sg->dma_address =3D virtqueue_dma_map_single_attrs(sq->=
-vq, sg_virt(sg),
-> > +                                                                sg->le=
-ngth,
-> > +                                                                DMA_TO=
-_DEVICE, 0);
-> > +               if (virtqueue_dma_mapping_error(sq->vq, sg->dma_address=
-))
-> > +                       goto err;
-> > +       }
-> > +
-> > +       return 0;
-> > +
-> > +err:
-> > +       virtnet_sq_unmap_sg(sq, i);
-> > +       return -ENOMEM;
-> > +}
-> > +
-> > +static int virtnet_add_outbuf(struct virtnet_sq *sq, u32 num, void *da=
-ta)
-> > +{
-> > +       int ret;
-> >
-> > -               vi->rq[i].do_dma =3D true;
-> > +       if (sq->do_dma) {
-> > +               ret =3D virtnet_sq_map_sg(sq, num);
-> > +               if (ret)
-> > +                       return -ENOMEM;
-> >         }
-> > +
-> > +       ret =3D virtqueue_add_outbuf(sq->vq, sq->sg, num, data, GFP_ATO=
-MIC);
-> > +       if (ret && sq->do_dma)
-> > +               virtnet_sq_unmap_sg(sq, num);
-> > +
-> > +       return ret;
-> >  }
-> >
-> >  static void free_old_xmit(struct virtnet_sq *sq, bool in_napi)
-> > @@ -686,8 +764,7 @@ static int __virtnet_xdp_xmit_one(struct virtnet_in=
-fo *vi,
-> >                             skb_frag_size(frag), skb_frag_off(frag));
-> >         }
-> >
-> > -       err =3D virtqueue_add_outbuf(sq->vq, sq->sg, nr_frags + 1,
-> > -                                  xdp_to_ptr(xdpf), GFP_ATOMIC);
-> > +       err =3D virtnet_add_outbuf(sq, nr_frags + 1, xdp_to_ptr(xdpf));
-> >         if (unlikely(err))
-> >                 return -ENOSPC; /* Caller handle free/refcnt */
-> >
-> > @@ -2126,7 +2203,7 @@ static int xmit_skb(struct virtnet_sq *sq, struct=
- sk_buff *skb)
-> >                         return num_sg;
-> >                 num_sg++;
-> >         }
-> > -       return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_AT=
-OMIC);
-> > +       return virtnet_add_outbuf(sq, num_sg, skb);
-> >  }
-> >
-> >  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *=
-dev)
-> > @@ -3852,10 +3929,23 @@ static void virtnet_rq_free_unused_buf(struct v=
-irtqueue *vq, void *buf)
-> >
-> >  static void virtnet_sq_free_unused_bufs(struct virtqueue *vq)
-> >  {
-> > +       struct virtnet_info *vi =3D vq->vdev->priv;
-> > +       struct virtio_dma_head *dma;
-> > +       struct virtnet_sq *sq;
-> > +       int i =3D vq2txq(vq);
-> >         void *buf;
-> >
-> > -       while ((buf =3D virtqueue_detach_unused_buf(vq)) !=3D NULL)
-> > +       sq =3D &vi->sq[i];
-> > +
-> > +       dma =3D (typeof(dma))sq->sg;
-> > +       dma->num =3D ARRAY_SIZE(sq->sg);
-> > +       dma->next =3D 0;
-> > +
-> > +       while ((buf =3D virtqueue_detach_unused_buf_premapped(vq, dma))=
- !=3D NULL) {
-> > +               virtnet_sq_unmap_buf(sq, dma);
-> > +
-> >                 virtnet_sq_free_unused_buf(vq, buf);
-> > +       }
-> >  }
-> >
-> >  static void virtnet_rq_free_unused_bufs(struct virtqueue *vq)
-> > @@ -4052,7 +4142,7 @@ static int init_vqs(struct virtnet_info *vi)
-> >         if (ret)
-> >                 goto err_free;
-> >
-> > -       virtnet_rq_set_premapped(vi);
-> > +       virtnet_set_premapped(vi);
-> >
-> >         cpus_read_lock();
-> >         virtnet_set_affinity(vi);
-> > diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virti=
-o_net.h
-> > index ebf9f344648a..870855a829a0 100644
-> > --- a/drivers/net/virtio/virtio_net.h
-> > +++ b/drivers/net/virtio/virtio_net.h
-> > @@ -67,6 +67,8 @@ struct virtnet_sq {
-> >
-> >         /* Record whether sq is in reset state. */
-> >         bool reset;
-> > +
-> > +       bool do_dma;
->
-> Could we have a core helper for this? It can benefit for other driver
-> like virtio-fs.
-
-I like to let the driver keeps this. But you and Michael both think so. I w=
-ill a
-helper in next version.
-
-Thanks.
-
-
->
-> Thanks
->
->
-> >  };
-> >
-> >  /* Internal representation of a receive virtqueue */
-> > --
-> > 2.32.0.3.g01195cf9f
-> >
->
