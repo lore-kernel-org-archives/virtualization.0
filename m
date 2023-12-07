@@ -1,223 +1,145 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6BBE70963
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 22:58:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F91063F
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 00:56:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="AzQhnpoO"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="PasUswlR"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EB2E361583
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 22:58:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org EB2E361583
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.a=rsa-sha256 header.s=mail header.b=AzQhnpoO
+	by smtp1.osuosl.org (Postfix) with ESMTP id BDFB281CD0
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 00:56:00 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org BDFB281CD0
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=Nvidia.com header.i=@Nvidia.com header.a=rsa-sha256 header.s=selector2 header.b=PasUswlR
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -2.103
 X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ar9FhzJSa9DN
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4MVCUTTv6kqP
 	for <virtualization@lists.linux-foundation.org>;
-	Wed,  6 Dec 2023 22:58:20 +0000 (UTC)
-Received: from mx1.sberdevices.ru (mx1.sberdevices.ru [37.18.73.165])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6507F61566
-	for <virtualization@lists.linux-foundation.org>; Wed,  6 Dec 2023 22:58:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 6507F61566
-Received: from p-infra-ksmg-sc-msk01 (localhost [127.0.0.1])
-	by mx1.sberdevices.ru (Postfix) with ESMTP id 5BD2210008C;
-	Thu,  7 Dec 2023 01:58:15 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 5BD2210008C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=mail; t=1701903495;
-	bh=GR8f5v1JtQpcmatJwQW8QuK09rw3Xh9UYk7P6i0iyVM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=AzQhnpoOzA4m2YKkhoWWERtGsDzcrnUQe3FV5rtHJyV1bYtfWo6T318SQ5w0eC5uk
-	 7X07K3w3BmjqaYSTzRcSunBOejtlSfUw9artgMdP+5g6urR4maqCMd9vHJoBjCsWlX
-	 v55Jg4FzRTpQPQGsIL1rKB/sMS/eROUhypQi1psETG1O1zvx9t8K0sSxcel7lPnIhe
-	 6p1blDrLGQ+a80Jm3uu164REeEIpmUTii7I550b2PONkcjVuAuWcK6mjbSF2YVKGVE
-	 AxezUAY4My3w8AyoakHMgwTul5Rzy7BOQxsNcmx2ZT35jBv3ExgsMuiK6q9SSBPYsU
-	 cJPVsa3N/ugbw==
-Received: from p-i-exch-sc-m01.sberdevices.ru (p-i-exch-sc-m01.sberdevices.ru [172.16.192.107])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by mx1.sberdevices.ru (Postfix) with ESMTPS;
-	Thu,  7 Dec 2023 01:58:15 +0300 (MSK)
-Received: from [192.168.0.106] (100.64.160.123) by
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.40; Thu, 7 Dec 2023 01:58:14 +0300
-Message-ID: <d30a1df7-ecda-652d-8c98-853308a560c9@salutedevices.com>
-Date: Thu, 7 Dec 2023 01:50:05 +0300
+	Thu,  7 Dec 2023 00:55:59 +0000 (UTC)
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2062a.outbound.protection.outlook.com [IPv6:2a01:111:f400:7e88::62a])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E64D81990
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 00:55:59 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2E64D81990
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=iA8wuYMY8nRkS8tQ967Me9uott2xgPf/skWm8QTLSFA8FrgxRAYf3A1f5gMWlZy5zvuanbRQFt9+vGuZZoSc8seEtm0hvcVhIznlkYPOcOGzyTGIsyl/70WehogZosLUQoJ3Ao1J5W2uJkYE01NPfvVTteTzafzQfNCrnxGpwndFnQyV9mLLcg0GOjAjcU3mY2in0nV8qWNJaPRsh9jD/Cw3TzFC7UVmWTSzkmsMtsajZzJtsecPfbBaRV36JqqVgazYXjpbcpnHtRQ4yYlR7RJ4HM1YKuSWDKHQ1BaZZPGn+PYemVQCly2BspeuO3/tJw9sxBbDrN5Dftnz6VBk4A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=adC4YfgKRjl3DjCNoQUtuZhWaKlp2IWaUwHYz8pSgQM=;
+ b=gDi8oivXi9dHVnehFoiUaQZAVMr1XVNqaa2IpNAhiKgayW1lslRshNmNfalvalZwVtPg2tDznYQlGwEpyPbtELR7wxAKabd1ztHKiV3KFUjH3dGyTo4CpVKofhlfMv0xRTfUYwOJgaxbOsnnhODTrczalezwOqxLrzh0O3EAZq1UNPiMiHq0ggBcE1UJYE/lD7o34gxkF5ow5f7rZshqY4TttnGdjsgyqTZP+3oHCfbcl+gIYXwpG4G2qPhF9rTvlir/d5f+w+gnHJa51LND3QUSxB1E8bKGSBNnBdxkiagSjXDVi6eEy5u4pivbxNvs0zvhoAMkGBr4kd1veEqGCQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=adC4YfgKRjl3DjCNoQUtuZhWaKlp2IWaUwHYz8pSgQM=;
+ b=PasUswlR/Ug4VeXj5k2C+dGorX33x8qhdDUD7+Cvc3fQoP7bL7EA3G0a44t5pAKlzCR1nq+P4IgmGvnHqIp34xcAuKNt4avEW1cmirFzkg/vD909k+6iT1gCZPe+mE0pTDMo8hXkQ2iv853PpgKq4mURK+zDxFOLddoRyZ/17c6xBLWN+JKWRIQ9Pkybq6XfDlB4ljaVGf64SlwU3D6njyPjptHVymhAitHj1MyzNi68C6uNVdFKdYF6Dn+sesMJs8igK2Va6i8B7UsviJ2xludEwnrKktSSjZj2u40KWw4ep0d8nm3CxK0GOv8DDyWc/aGmQMiRSDh4AuuxO1HYKw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com (2603:10b6:408:176::16)
+ by BY5PR12MB4243.namprd12.prod.outlook.com (2603:10b6:a03:20f::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7046.34; Thu, 7 Dec
+ 2023 00:55:55 +0000
+Received: from LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::60d4:c1e3:e1aa:8f93]) by LV2PR12MB5869.namprd12.prod.outlook.com
+ ([fe80::60d4:c1e3:e1aa:8f93%4]) with mapi id 15.20.7046.034; Thu, 7 Dec 2023
+ 00:55:54 +0000
+Date: Wed, 6 Dec 2023 20:55:53 -0400
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+Cc: alex.williamson@redhat.com, mst@redhat.com, jasowang@redhat.com,
+	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+	parav@nvidia.com, feliu@nvidia.com, jiri@nvidia.com,
+	kevin.tian@intel.com, joao.m.martins@oracle.com,
+	si-wei.liu@oracle.com, leonro@nvidia.com, maorg@nvidia.com
+Subject: Re: [PATCH V6 vfio 7/9] vfio/pci: Expose vfio_pci_core_setup_barmap()
+Message-ID: <20231207005553.GE2692119@nvidia.com>
+References: <20231206083857.241946-1-yishaih@nvidia.com>
+ <20231206083857.241946-8-yishaih@nvidia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231206083857.241946-8-yishaih@nvidia.com>
+X-ClientProxiedBy: BL1PR13CA0163.namprd13.prod.outlook.com
+ (2603:10b6:208:2bd::18) To LV2PR12MB5869.namprd12.prod.outlook.com
+ (2603:10b6:408:176::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH net-next v7 3/4] virtio/vsock: fix logic which reduces
- credit update messages
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
-	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
-	<bobby.eshleman@bytedance.com>, <kvm@vger.kernel.org>,
-	<virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <kernel@sberdevices.ru>, <oxffffaa@gmail.com>
-References: <20231206211849.2707151-1-avkrasnov@salutedevices.com>
- <20231206211849.2707151-4-avkrasnov@salutedevices.com>
- <20231206165045-mutt-send-email-mst@kernel.org>
- <d9d1ec6a-dd9b-61d9-9211-52e9437cbb1f@salutedevices.com>
- <20231206170640-mutt-send-email-mst@kernel.org>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20231206170640-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-i-exch-sc-m01.sberdevices.ru (172.16.192.107) To
- p-i-exch-sc-m01.sberdevices.ru (172.16.192.107)
-X-KSMG-Rule-ID: 10
-X-KSMG-Message-Action: clean
-X-KSMG-AntiSpam-Lua-Profiles: 181917 [Dec 06 2023]
-X-KSMG-AntiSpam-Version: 6.0.0.2
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Info: LuaCore: 5 0.3.5 98d108ddd984cca1d7e65e595eac546a62b0144b, {Tracking_from_domain_doesnt_match_to}, p-i-exch-sc-m01.sberdevices.ru:5.0.1,7.1.1;salutedevices.com:7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;100.64.160.123:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
-X-MS-Exchange-Organization-SCL: -1
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiPhishing: Clean
-X-KSMG-LinksScanning: Clean
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2023/12/06 20:57:00 #22623256
-X-KSMG-AntiVirus-Status: Clean, skipped
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV2PR12MB5869:EE_|BY5PR12MB4243:EE_
+X-MS-Office365-Filtering-Correlation-Id: 74e2e2b9-fbec-4d7a-0035-08dbf6bf4426
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	Nh8juBYos+qaSF2RTa4IzJJTr9vfk9Ya6rLRRBfAUzK5JqTQjV4JlJJi7ggV/nf4lvC/BbRdt2H8a0tmAe2LGZjtqorfoFjbntUQNSbDxiFOSNfp72ehlaHsOI+Mol7FdfOtg42yBqWvDm+Q9rB9+rtr6l+mbrp4vzduQ6bakoWqwwUVxird/XxVxRBvffdQiibqEeMg1ajisqT8vzYD9kDnkQrCibYUsBsxqvcLzwlS2PQCVPdNmV8jeuhu4DBF2LiPKK2+ARHVyLFsV9j3UYSsnJL8o4H39UR+IgKSHgONEdFLJNVLkdlPY2UFYKcurMmedIRUQRO+JRZmtnolZa/Vml+FEL5Sn6CVZ6dLw06OivVdoy3WDxEgfCKIYtwLUMsaZVcdt5R6/17yoG8l5YtqAaDOcB9iIrXhQnpyqLZEvY3uf9PGic4SPIg3GsBKVrGjHFGixjfGBWzq8IxMw26na5DzBD0/ab6pLz64ZeFXztivX7z+Lxqw4a1FUO+3Dzj27g8hxPlY087Qlrn7YVyjOANJGv1ahYZEeOSeq+jXzdBnWtfeg+H6HxnesqvR
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV2PR12MB5869.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(346002)(366004)(39860400002)(396003)(376002)(230922051799003)(186009)(451199024)(1800799012)(64100799003)(33656002)(4326008)(41300700001)(36756003)(316002)(37006003)(66556008)(86362001)(8676002)(8936002)(6862004)(6486002)(6636002)(66476007)(478600001)(66946007)(4744005)(2906002)(5660300002)(38100700002)(2616005)(26005)(1076003)(6506007)(107886003)(83380400001)(6512007);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?T5jMl6SqzX+vPbzeT6Pf1YdbH3eYX1AUs/ZEMcwN8+l18o90YDzBt/ivNiqa?=
+ =?us-ascii?Q?yZrfmUx+blcS+rm9eYtm3gIpxNmpwfWoJi1Z1fPFUL2dUztF+g/o0SBnMmBf?=
+ =?us-ascii?Q?BAc77txQB055CXb+S3zoZwjUAWZzIq0FO1T1hm8PUgoY2A1gLeFphC3DQEn3?=
+ =?us-ascii?Q?3piFzWg52dxhzxkaddd1mTGs26f9HmsuhM84nK11b3A3w1MiTg1VnAFJg5wU?=
+ =?us-ascii?Q?lUAfQeH5nFPuHxA2K1f/Sn+8alHQf1F++HrGI9Kcuyc3puaXCcMwJbUXjCSu?=
+ =?us-ascii?Q?nabpzfKj6WirCWWT+r8CO3DST8wSpj0iPJQTtvBL55pEJA+qJDkPJeeAyD/I?=
+ =?us-ascii?Q?T3+8Nf812QrTpeo10U766cYzTSCP0O9ukCETjtOMZHDykObxQV1dqlgUYEYC?=
+ =?us-ascii?Q?ubB9fyAkRrbWWXwl16XHPT+qj1ojFKYzDsUV7RF6OSGx1px4PvkW7fgaOqYb?=
+ =?us-ascii?Q?pfDsHEJoaS3xmc4FbbFMpkHSzjYUnv7bPWsrLwYL//BpjhHDUOGesPndpolR?=
+ =?us-ascii?Q?BphlfQzgedpzUPrhhISWi7QAIUv7xAcecRv6fHAYl66KNKrLjAtoPJ0EfBHu?=
+ =?us-ascii?Q?YqDrGpW0F5YyLjrSCYLkBjaQk5o8MISTKYdI2jsZEzSMEeWAPzDFIdhJ9Mz/?=
+ =?us-ascii?Q?AwC7FJyZSFp68wGfGYEwTfOXz9ct82NZZEIB1M9qmANs6yGOX/4Vl2rdK4t7?=
+ =?us-ascii?Q?EiT6JRmFbhi7fP5h09GnTCvMnBW4RGS77qaXkX5oZH/0xIGcx8sQjAJE7P2V?=
+ =?us-ascii?Q?hg0Evz3UOd7/EuiGzkbb0hPPKOEtu0LH02kqguROmIG0NJv1ope+m52xLJrD?=
+ =?us-ascii?Q?HUDp4z7OVbBj6RBEh6Tz2NQVcp6S4sqKj6IzmOFscjBeFFqbKpGPiWICaxi/?=
+ =?us-ascii?Q?FWzVxGUquMenz/GUUnP/N8Qwl4Kd0ZqpmshDIOIPh/YLM/p66/Qvf2yS7HLN?=
+ =?us-ascii?Q?jVQ/Kk3kxfZL3BppOvJMJRRw7FANnhDcCvszKHo4h7eXMEEtetMslMjyfiIs?=
+ =?us-ascii?Q?w0RC4KIM3OMtcHkrPDOSZCUWRz/i4GrcTft1wZbGnSHIW/izUsHryFsHOyNv?=
+ =?us-ascii?Q?h0chNhOtCH2VcTb1hOKmyUxwt25WYyK2FmaxB4jVgMa+2g7rNXoUjQTB8N73?=
+ =?us-ascii?Q?Qt9FHCgOjCbFOO6yZGd11FMAlreGksOF5uQcDaRgxShU8zH31fPVkjNfEpWS?=
+ =?us-ascii?Q?QVdegqeTS7gbR/MUVACkS1PNh/i+yrp1vSudgucgNLcHSnL/yxc9/FPWiNix?=
+ =?us-ascii?Q?fsQwybwGHTdzEdPgGroPOPSRRezFqZiF0tHJMmMMn4JpFVcVg71XKOV+0yUR?=
+ =?us-ascii?Q?t1/Mj9RzRf57kAows9UPyDubdvJyDIwLOHKa4sG9j2yAwSXegewQP7Md12Ly?=
+ =?us-ascii?Q?5QfUA0rEVxt+mfmvBEz5DHoQtF4NxNMEi3cezuoCU+rCbZV9bvvCCMfkKHO6?=
+ =?us-ascii?Q?PLIJdcPzVGr5CR7Lhy4cg4H/EVb/x2qoVQowVz+0FGFardYQlVO3N0mj2sBP?=
+ =?us-ascii?Q?520y9Hfxr1wyxfWDfFCLckfHyCi2hxPkjiENdd3syCpiHHBZSr8A2nR88cCv?=
+ =?us-ascii?Q?/7+xfb4hgKskrYUQIBVHcqoUsELBjU1W3AmyWo8M?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 74e2e2b9-fbec-4d7a-0035-08dbf6bf4426
+X-MS-Exchange-CrossTenant-AuthSource: LV2PR12MB5869.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Dec 2023 00:55:54.7098
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6PuHR0iw3uJVJeDJdG0+fJwmIJ4ksEm5Fl3j5TO0u/1/DF+ozdi00JQB49ZQEEbY
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4243
 
-
-
-On 07.12.2023 01:08, Michael S. Tsirkin wrote:
-> On Thu, Dec 07, 2023 at 12:52:51AM +0300, Arseniy Krasnov wrote:
->>
->>
->> On 07.12.2023 00:53, Michael S. Tsirkin wrote:
->>> On Thu, Dec 07, 2023 at 12:18:48AM +0300, Arseniy Krasnov wrote:
->>>> Add one more condition for sending credit update during dequeue from
->>>> stream socket: when number of bytes in the rx queue is smaller than
->>>> SO_RCVLOWAT value of the socket. This is actual for non-default value
->>>> of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
->>>> transmission, because we need at least SO_RCVLOWAT bytes in our rx
->>>> queue to wake up user for reading data (in corner case it is also
->>>> possible to stuck both tx and rx sides, this is why 'Fixes' is used).
->>>> Also handle case when 'fwd_cnt' wraps, while 'last_fwd_cnt' is still
->>>> not.
->>>>
->>>> Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
->>>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>>> ---
->>>>  Changelog:
->>>>  v6 -> v7:
->>>>   * Handle wrap of 'fwd_cnt'.
->>>>   * Do to send credit update when 'fwd_cnt' == 'last_fwd_cnt'.
->>>>
->>>>  net/vmw_vsock/virtio_transport_common.c | 18 +++++++++++++++---
->>>>  1 file changed, 15 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>>> index e137d740804e..39f8660d825d 100644
->>>> --- a/net/vmw_vsock/virtio_transport_common.c
->>>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>>> @@ -558,6 +558,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->>>>  	struct virtio_vsock_sock *vvs = vsk->trans;
->>>>  	size_t bytes, total = 0;
->>>>  	struct sk_buff *skb;
->>>> +	u32 fwd_cnt_delta;
->>>> +	bool low_rx_bytes;
->>>>  	int err = -EFAULT;
->>>>  	u32 free_space;
->>>>  
->>>> @@ -601,7 +603,15 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->>>>  		}
->>>>  	}
->>>>  
->>>> -	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
->>>> +	/* Handle wrap of 'fwd_cnt'. */
->>>> +	if (vvs->fwd_cnt < vvs->last_fwd_cnt)
->>>> +		fwd_cnt_delta = vvs->fwd_cnt + (U32_MAX - vvs->last_fwd_cnt);
->>>
->>> Are you sure there's no off by one here? for example if fwd_cnt is 0
->>> and last_fwd_cnt is 0xfffffffff then apparently delta is 0.
->>
->> Seems yes, I need +1 here
+On Wed, Dec 06, 2023 at 10:38:55AM +0200, Yishai Hadas wrote:
+> Expose vfio_pci_core_setup_barmap() to be used by drivers.
 > 
-> And then you will get a nop, because assigning U32_MAX + 1 to u32
-> gives you 0. Adding () does nothing to change the result,
-> + and - are commutative.
-
-Ahh, unsigned here, yes.
-
-@Stefano, what did You mean about wrapping here?
-
-I think Michael is right, for example
-
-vvs->fwd_cnt wraps and now == 5
-vvs->last_fwd_cnt == 0xffffffff
-
-now delta before this patch will be 6 - correct value
-
-May be I didn't get your idea, so implement it very naive?
-
-Thanks, Arseniy
-
+> This will let drivers to mmap a BAR and re-use it from both vfio and the
+> driver when it's applicable.
 > 
+> This API will be used in the next patches by the vfio/virtio coming
+> driver.
 > 
->>>
->>>
->>>> +	else
->>>> +		fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
->>>
->>> I actually don't see what is wrong with just
->>> 	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt
->>> 32 bit unsigned math will I think handle wrap around correctly.
->>>
->>> And given buf_alloc is also u32 - I don't see where the bug is in
->>> the original code.
->>
->> I think problem is when fwd_cnt wraps, while last_fwd_cnt is not. In this
->> case fwd_cnt_delta will be too big, so we won't send credit update which
->> leads to stall for sender
->>
->> Thanks, Arseniy
-> 
-> Care coming up with an example?
-> 
-> 
->>>
->>>
->>>> +
->>>> +	free_space = vvs->buf_alloc - fwd_cnt_delta;
->>>> +	low_rx_bytes = (vvs->rx_bytes <
->>>> +			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
->>>>  
->>>>  	spin_unlock_bh(&vvs->rx_lock);
->>>>  
->>>> @@ -611,9 +621,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
->>>>  	 * too high causes extra messages. Too low causes transmitter
->>>>  	 * stalls. As stalls are in theory more expensive than extra
->>>>  	 * messages, we set the limit to a high value. TODO: experiment
->>>> -	 * with different values.
->>>> +	 * with different values. Also send credit update message when
->>>> +	 * number of bytes in rx queue is not enough to wake up reader.
->>>>  	 */
->>>> -	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
->>>> +	if (fwd_cnt_delta &&
->>>> +	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE || low_rx_bytes))
->>>>  		virtio_transport_send_credit_update(vsk);
->>>>  
->>>>  	return total;
->>>> -- 
->>>> 2.25.1
->>>
-> 
+> Signed-off-by: Yishai Hadas <yishaih@nvidia.com>
+> ---
+>  drivers/vfio/pci/vfio_pci_rdwr.c | 7 ++++---
+>  include/linux/vfio_pci_core.h    | 1 +
+>  2 files changed, 5 insertions(+), 3 deletions(-)
+
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+
+Jason
