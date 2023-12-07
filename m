@@ -1,107 +1,113 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2450A40C0F
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:15:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2E7639AEE
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:44:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="YPdgsVhe"
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="noB2k/cA"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B0940404D5
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:15:33 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org B0940404D5
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.a=rsa-sha256 header.s=mchp header.b=YPdgsVhe
+	by smtp1.osuosl.org (Postfix) with ESMTP id 22A3C83C29
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:44:40 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 22A3C83C29
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=noB2k/cA
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.401
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NLAmAGSu2mgn
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CXHW8XbKMwIJ
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 14:15:32 +0000 (UTC)
-X-Greylist: delayed 427 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 07 Dec 2023 14:15:32 UTC
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 89440404B0
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 89440404B0
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:15:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1701958533; x=1733494533;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=GKKiprSC301Q/AIeayiNtJoUwjj/0Z6QsX3HsdR0aTM=;
-  b=YPdgsVheBnXREPg9yA8RKw/gh4EkSCzrvXZ4PW0uXhT9DYk0U08jEZ2T
-   +T4z+syCYGG/uYK4VMxLWZcN/P/KzMWCv+FS6ufcP2rxXSBjSMBamAmLC
-   hUdXQ1CCoYTA+tCJQrR7s2J8EKqmlsuXFLAGWtKJJxSZZ1/0pJexuirds
-   jfl4HRrYLOi6Oc/iEdEvYxwv8ut16bWySwolc6HU+A5BkzoJc7pii0fuQ
-   m6Zn/rOvEgAtJSoNG6nBfRM3RZKazvU4OtM1elK7zYsPX1rkTZ+OfMRFr
-   bL8dgyKOkYGp4fxsvU2k0Rp6AdTpynnJ+wnYDPshBi4vqJv/lK0ilkSCM
-   Q==;
-X-CSE-ConnectionGUID: m2fZxj86SumexGQMB9uwOQ==
-X-CSE-MsgGUID: B0qPIv/8T4KE8pZ2VLe+tA==
-X-ThreatScanner-Verdict: Negative
-X-IronPort-AV: E=Sophos;i="6.04,256,1695711600"; 
-   d="asc'?scan'208";a="12934293"
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 07 Dec 2023 07:08:25 -0700
-Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Thu, 7 Dec 2023 07:08:01 -0700
-Received: from wendy (10.10.85.11) by chn-vm-ex01.mchp-main.com (10.10.85.143)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35 via Frontend
- Transport; Thu, 7 Dec 2023 07:07:58 -0700
-Date: Thu, 7 Dec 2023 14:07:28 +0000
-From: Conor Dooley <conor.dooley@microchip.com>
-To: Andrew Jones <ajones@ventanamicro.com>
-CC: <kvm-riscv@lists.infradead.org>, <linux-riscv@lists.infradead.org>,
-	<virtualization@lists.linux-foundation.org>, <anup@brainfault.org>,
-	<atishp@atishpatra.org>, <pbonzini@redhat.com>, <paul.walmsley@sifive.com>,
-	<palmer@dabbelt.com>, <aou@eecs.berkeley.edu>, <jgross@suse.com>,
-	<srivatsa@csail.mit.edu>, <guoren@kernel.org>
-Subject: Re: [PATCH v1 04/14] RISC-V: paravirt: Add kconfigs
-Message-ID: <20231207-unsealed-bunkhouse-bd79271b4896@wendy>
+	Thu,  7 Dec 2023 14:44:37 +0000 (UTC)
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0864883BA3
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:44:36 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0864883BA3
+Received: by mail-wm1-x332.google.com with SMTP id 5b1f17b1804b1-40c0fc1cf3dso10759935e9.0
+        for <virtualization@lists.linux-foundation.org>; Thu, 07 Dec 2023 06:44:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google; t=1701960275; x=1702565075; darn=lists.linux-foundation.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q2X1VjbagCGmP0A1RPcv7u0Lj03h4h1kkYCRRs2Iz0c=;
+        b=noB2k/cAfOp4qLCamkgw5D4U7seOxvcnx4KFq9WsVjo69G9Ys4dUQCRCqYLWN1BYl7
+         9DtHTX8x6dxYY5afofsrnXQbpk4dFQ/lX9N+Lb3QjNliJKmLglW2HuN82NLp55q01hzz
+         tkAEfmNzoujVx9caItskSPzqTW53OJXwe7mo3avDMxlH7r12oH4tHtNRyBLTToyjjjd/
+         jNGeqFUdNL2LOqdGVCkCOSCU8Hyb5ngDMeYdBOwnKru++TrBGElMIEJOAMCYjlwtRJEH
+         4o0Z2oVBWqrVODsMRpX7kOyljVIE17bKxomIkSHaGaV/U+/Ncyo6NIiaKi3L3i3JuHgR
+         lLWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701960275; x=1702565075;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q2X1VjbagCGmP0A1RPcv7u0Lj03h4h1kkYCRRs2Iz0c=;
+        b=jrmYpmeJxv9mvdHmgYum6uEqeuFaYQx2cHfmKjUGCnbd/rGFQvZdf/zF6cCimLuSU/
+         9Kih9i3kM9Lk3sNYw5T2k/gA5lM4uHuaNMRjN02Am6T9uA/ngHemHqT7BGZlFa/SFOYT
+         Vu++CL4AgCWqKlty/6GVsgrYJ1YTDSdiQvk+UaBeJqIsRkB5gglMFhyKqL0YjbaLbRwf
+         ckxN1M+I05XEooXAQQsdRVLr/GC78+qn6SkFaxqMsguep8E8mIl5yoii+S3K8pAq+4Ej
+         49Gh3td0cfpeycdqzbft7jWDeqc21qtugllS16/nyDKbxwxazLEWj3/BRDpl4vxhlMT5
+         JeXg==
+X-Gm-Message-State: AOJu0YwYOZtVrUn9yOyM5UWZXoThnN9WFrwJtuS0AkX5UekA1YqXQr7a
+	BHVXU5Fm4SkIdrM3Ucdbi4izJw==
+X-Google-Smtp-Source: AGHT+IGEefXECWySBl1DPw63VSb3ikjm82ZQvh2LqQu8KuTy/Eok7OvFLg1vm/cjL9Q+g3zwWxniqQ==
+X-Received: by 2002:a05:600c:3149:b0:40b:5e21:d362 with SMTP id h9-20020a05600c314900b0040b5e21d362mr1858824wmo.107.1701960275098;
+        Thu, 07 Dec 2023 06:44:35 -0800 (PST)
+Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
+        by smtp.gmail.com with ESMTPSA id q9-20020a05600c46c900b0040b347d90d0sm2180722wmo.12.2023.12.07.06.44.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Dec 2023 06:44:34 -0800 (PST)
+Date: Thu, 7 Dec 2023 15:44:33 +0100
+From: Andrew Jones <ajones@ventanamicro.com>
+To: Conor Dooley <conor.dooley@microchip.com>
+Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
+	virtualization@lists.linux-foundation.org, anup@brainfault.org, atishp@atishpatra.org, pbonzini@redhat.com, 
+	paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, jgross@suse.com, 
+	srivatsa@csail.mit.edu, guoren@kernel.org
+Subject: Re: [PATCH v1 03/14] RISC-V: paravirt: Implement steal-time support
+Message-ID: <20231207-42f318822ee01650e550c663@orel>
 References: <20231205181119.207204-16-ajones@ventanamicro.com>
- <20231205181119.207204-20-ajones@ventanamicro.com>
+ <20231205181119.207204-19-ajones@ventanamicro.com>
+ <20231207-kindling-upgrade-22d29116ccf3@wendy>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="f2Nei8/R6cqxLGD+"
-Content-Disposition: inline
-In-Reply-To: <20231205181119.207204-20-ajones@ventanamicro.com>
-
---f2Nei8/R6cqxLGD+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20231207-kindling-upgrade-22d29116ccf3@wendy>
 
-On Tue, Dec 05, 2023 at 07:11:24PM +0100, Andrew Jones wrote:
-> Now that we can support steal-time accounting, add the kconfig
-> knobs allowing it to be enabled.
->=20
-> Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
-> Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+On Thu, Dec 07, 2023 at 02:06:37PM +0000, Conor Dooley wrote:
+> On Tue, Dec 05, 2023 at 07:11:23PM +0100, Andrew Jones wrote:
+> 
+> > +static int sbi_sta_steal_time_set_shmem(unsigned long lo, unsigned long hi,
+> > +					unsigned long flags)
+> >  {
+> > +	struct sbiret ret;
+> > +
+> > +	ret = sbi_ecall(SBI_EXT_STA, SBI_EXT_STA_STEAL_TIME_SET_SHMEM,
+> > +			lo, hi, flags, 0, 0, 0);
+> > +	if (ret.error) {
+> > +		if (lo == SBI_STA_SHMEM_DISABLE && hi == SBI_STA_SHMEM_DISABLE)
+> > +			pr_warn("Failed to disable steal-time shmem");
+> > +		else
+> > +			pr_warn("Failed to set steal-time shmem");
+> > +		return -ENOMEM;
+> 
+> btw, how come this is an ENOMEM and not a propagation of the error from
+> the ecall?
 
-In hindsight, should this be squashed with the code actually adding the
-support?
+Hmm, I can't recall why I did that. I think I should have used
+sbi_err_map_linux_errno() to convert the possible SBI_ERR_INVALID_PARAM
+and SBI_ERR_INVALID_ADDRESS errors appropriately instead. I don't much
+like how SBI_ERR_FAILURE gets converted to ENOTSUPP, but I don't suppose
+it matters much in practice anyway, and at least, in this case, it has a
+1-to-1 mapping which is good for debug.
 
---f2Nei8/R6cqxLGD+
-Content-Type: application/pgp-signature; name="signature.asc"
+I'll change this for v2.
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZXHRoAAKCRB4tDGHoIJi
-0qUfAQCqwJvSwf/igC0LLRE8vbiSENZiLROkCzNiXFQVBy2CXAD+J8Bq9Z5EDEBC
-tchBjiYy3HOQKbc+BqTmd6Wq3zjSDwk=
-=Wn6E
------END PGP SIGNATURE-----
-
---f2Nei8/R6cqxLGD+--
+Thanks,
+drew
