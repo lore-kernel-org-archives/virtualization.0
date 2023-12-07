@@ -1,46 +1,46 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3C633090
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA2833CC1
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="bTUvobIn"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="Bc4qjA9T"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D47A68174A
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org D47A68174A
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2523F83298
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:08 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 2523F83298
 Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=bTUvobIn
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=Bc4qjA9T
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -2.1
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kTGCsvt036Wu
+	with ESMTP id sB1roCG-8klA
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 09:19:04 +0000 (UTC)
+	Thu,  7 Dec 2023 09:19:07 +0000 (UTC)
 Received: from madras.collabora.co.uk (madras.collabora.co.uk [46.235.227.172])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1D56C8149D
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:04 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1D56C8149D
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 58E7183168
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:19:07 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 58E7183168
 Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: vignesh)
-	by madras.collabora.co.uk (Postfix) with ESMTPSA id 4514C6607391;
-	Thu,  7 Dec 2023 09:18:59 +0000 (GMT)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id CAC7A660739B;
+	Thu,  7 Dec 2023 09:19:02 +0000 (GMT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1701940742;
-	bh=Mr77Mnfxx47EKwKczlFzG/RZhOtpwmigpFeB8yxRJNU=;
+	s=mail; t=1701940745;
+	bh=FI7vvMbXu6jw/8V7yXWu5M1HVFfmnKGFMWLn6Tl2uAw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=bTUvobInVnqFWIb2QNHJRRJNPkSZc+hRREr6bY2gUx0L2dWCjW2capjl7Y2G9Wh/k
-	 wyIBPyZzm3wDAgZWkJnWj6pzW2CUuhncd7Rv7P92k8JM4FQ0J7/gl/5rMYqJ9GWwCY
-	 gGjXt0mkqmCFZo7UPHKSxD83DsBrJNl1jm6jIyR3IU6aqcbV52TWf6IxERHAAUU+YZ
-	 63erHer9VGzMYnmAKaVpWsOOwa3DavdvXpiJ4KNKN7byEwIgIM1YUZcMFQRimn3xKo
-	 yXNvnZNPzmE4so92v652EUABTXHRlrlDFY6nPBK6E6zQGFjFa9XUdrHyYnVzphj8Hr
-	 cNS+9f4iCs/Pg==
+	b=Bc4qjA9TxkLS3NJOdvzQjV+8p6+K/mNbdEUkQRGrDgCxj+vR1BTD9G8EIC1Dr0y7F
+	 NRa3+ZxR/e1uR7rThkSZ6SLCKrzUeAuCp85mz2kg3lNhyKl3kz7EDNf3jH1vyVTi2I
+	 H7ByDIJ/kzpIc8xZFEzwNUQqyoRAeyTLttFHVElO34ZVjbo0wsGuMfLr/jQTIiNq0G
+	 IowVm/oItYDlR0ZVJp2qrxRtNHxugUc8j45jRMsuHO81TfgBRxvuxhAJGkLr4h1XQH
+	 7h05n7Bu3PSMdDs7p2yrOeKuFOVPcaR3dY+i2ZkOycSr8Ga34LLYDP+XBKtQ5jAsB7
+	 2CEUg+1OYLf4g==
 From: Vignesh Raman <vignesh.raman@collabora.com>
 To: helen.koike@collabora.com,
 	airlied@gmail.com,
@@ -57,9 +57,9 @@ Cc: david.heidelberg@collabora.com,
 	linux-mediatek@lists.infradead.org,
 	virtualization@lists.linux-foundation.org,
 	linux-arm-msm@vger.kernel.org
-Subject: [PATCH v7 05/10] drm: ci: Use scripts/config to enable/disable configs
-Date: Thu,  7 Dec 2023 14:48:26 +0530
-Message-Id: <20231207091831.660054-6-vignesh.raman@collabora.com>
+Subject: [PATCH v7 06/10] drm: ci: mt8173: Do not set IGT_FORCE_DRIVER to panfrost
+Date: Thu,  7 Dec 2023 14:48:27 +0530
+Message-Id: <20231207091831.660054-7-vignesh.raman@collabora.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231207091831.660054-1-vignesh.raman@collabora.com>
 References: <20231207091831.660054-1-vignesh.raman@collabora.com>
@@ -71,68 +71,55 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Instead of modifying files in git to enable/disable
-configs, use scripts/config on the .config file which
-will be used for building the kernel.
+Mediatek 8173 and 8183 SOCs have a separate display controller
+and GPU with different drivers for each. For mt8173, the GPU
+driver is powervr and the display driver is mediatek. In the
+case of mt8183, the GPU driver is panfrost and the display
+driver is mediatek. Setting IGT_FORCE_DRIVER to panfrost for
+mt8173 is not the expected driver. So set mediatek for mt8173.
+
+Support to test both GPU and display drivers for these ARM SOCs
+will be added in the next patch series to increase test coverage.
 
 Acked-by: Helen Koike <helen.koike@collabora.com>
-Suggested-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Vignesh Raman <vignesh.raman@collabora.com>
 ---
 
-v2:
-  - Added a new patch in the series to use scripts/config to enable/disable configs
-
-v3:
-  - No changes
-
-v4:
-  - No changes
-
 v5:
-  - No changes
+  - Added a new patch in the series to set IGT_FORCE_DRIVER to 'mediatek' for mt8173
 
 v6:
-  - No changes
+  - Use GPU_VERSION instead of CI_JOB_NAME to check if it is mt8173
 
 v7:
-  - No changes
+  - Rework the fix and reword commit message
 
 ---
- drivers/gpu/drm/ci/build.sh | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/ci/igt_runner.sh | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/ci/build.sh b/drivers/gpu/drm/ci/build.sh
-index e2260b4a1c67..97ff43759b91 100644
---- a/drivers/gpu/drm/ci/build.sh
-+++ b/drivers/gpu/drm/ci/build.sh
-@@ -75,19 +75,19 @@ else
-     fi
- fi
+diff --git a/drivers/gpu/drm/ci/igt_runner.sh b/drivers/gpu/drm/ci/igt_runner.sh
+index c6cf963592c5..f1a08b9b146f 100755
+--- a/drivers/gpu/drm/ci/igt_runner.sh
++++ b/drivers/gpu/drm/ci/igt_runner.sh
+@@ -20,9 +20,16 @@ cat /sys/kernel/debug/dri/*/state
+ set -e
  
--for opt in $ENABLE_KCONFIGS; do
--  echo CONFIG_$opt=y >> drivers/gpu/drm/ci/${KERNEL_ARCH}.config
--done
--for opt in $DISABLE_KCONFIGS; do
--  echo CONFIG_$opt=n >> drivers/gpu/drm/ci/${KERNEL_ARCH}.config
--done
--
- if [[ -n "${MERGE_FRAGMENT}" ]]; then
-     ./scripts/kconfig/merge_config.sh ${DEFCONFIG} drivers/gpu/drm/ci/${MERGE_FRAGMENT}
- else
-     make `basename ${DEFCONFIG}`
- fi
- 
-+for opt in $ENABLE_KCONFIGS; do
-+    ./scripts/config --enable CONFIG_$opt
-+done
-+for opt in $DISABLE_KCONFIGS; do
-+    ./scripts/config --disable CONFIG_$opt
-+done
-+
- make ${KERNEL_IMAGE_NAME}
- 
- mkdir -p /lava-files/
+ case "$DRIVER_NAME" in
+-    rockchip|mediatek|meson)
++    rockchip|meson)
+         export IGT_FORCE_DRIVER="panfrost"
+         ;;
++    mediatek)
++        if [ "$GPU_VERSION" = "mt8173" ]; then
++            export IGT_FORCE_DRIVER=${DRIVER_NAME}
++        elif [ "$GPU_VERSION" = "mt8183" ]; then
++            export IGT_FORCE_DRIVER="panfrost"
++        fi
++        ;;
+     amdgpu)
+         # Cannot use HWCI_KERNEL_MODULES as at that point we don't have the module in /lib
+         mv /install/modules/lib/modules/* /lib/modules/.
 -- 
 2.40.1
 
