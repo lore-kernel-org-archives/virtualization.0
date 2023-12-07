@@ -1,93 +1,227 @@
-Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD18107B2
-	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 04:33:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=smartx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=smartx.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=smartx-com.20230601.gappssmtp.com header.i=@smartx-com.20230601.gappssmtp.com header.b="V3ob07ZX"
-Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-3b84e328327so434687b6e.2
-        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 20:33:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=smartx-com.20230601.gappssmtp.com; s=20230601; t=1701923582; x=1702528382; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=f/Lf0+IIfQE0io2nHdmDYhVLqD8zUaOijlO0hMGWTXo=;
-        b=V3ob07ZXGsuO0Zr09ulHiIQRgUdI7ChmPUCCIwCjVlbOJnAXG6Dd0pq0ih9ssnFUxt
-         k1WNrlGjk7fkn+Em+qkAGDykfktiINENBp1v/R8PFj5CX7S+KiXsYCLzNXpqI4UADKNy
-         ykmpwT5BdBFC4cOnautHiagkrnlhnHnPkiDueNQp7gPv95D2Y26aJnTHHqcVXPjpx55W
-         AoQ7BvNxDj1IEuPowhYWREq20IRYwooW2fzRM4Jfl1XdtYOEpa9J0kRIJheG+SkZftks
-         re+PvbLcCUbS6JvMNXhlqTfGiRYKuw0ouR4kOG2YAXEZ9t3Tj5ew5eWBe8I38bFO7AfV
-         b0Kg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701923582; x=1702528382;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=f/Lf0+IIfQE0io2nHdmDYhVLqD8zUaOijlO0hMGWTXo=;
-        b=Xt6+C5T3QKl50zlOGgNeg9Wz7SwGFsxz3g1YlSBjZJq7GscjCcGO6+cfEBVGR5bR9T
-         jn93QkiYDMOH1gyOn2LXNR77cVBHRCqa7gOn2DBhzKT57Rq11ZAz6c58tRWKS/UO3oGf
-         kvW62TehQbrm/KWDD/QV2tG7Iw8Cv+h/EE2OwKJkIipV/T3xJjVoB48I3LBRkhHabGOV
-         KHp3NYmaXYjOs+/XsLI1tXzkIs8DksR0pudZVU7fQ+xA74QWY0j5DGyTJnoIWuqUA8cG
-         TNY/4MpuI/KwpKAcP2Gj5iQIT4E+xnpv36Xoepl3udlgPq8HtalZ7aAj2ihlWyWnktYx
-         PQ1Q==
-X-Gm-Message-State: AOJu0Yy8GxmukI7+OABwYqEW/lmsq79awWTzI8c3lsFhP4cg+awjL/9j
-	AiG/pNCPpP+45fp/bEoXgHtkFw==
-X-Google-Smtp-Source: AGHT+IHJYbFIUTZB44VBOizgu6C4ZjGpZ8ov/2VlLfUy+pzKCRy95+hHpycf+1VuZxTdnNIi7xPU9A==
-X-Received: by 2002:aca:1b02:0:b0:3b9:dcf0:63b9 with SMTP id b2-20020aca1b02000000b003b9dcf063b9mr615047oib.23.1701923581661;
-        Wed, 06 Dec 2023 20:33:01 -0800 (PST)
-Received: from localhost.localdomain.localdomain ([8.210.91.195])
-        by smtp.gmail.com with ESMTPSA id v19-20020aa78513000000b006cea1e12564sm332971pfn.81.2023.12.06.20.32.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Dec 2023 20:33:01 -0800 (PST)
-From: Li Feng <fengli@smartx.com>
-To: Jens Axboe <axboe@kernel.dk>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	linux-block@vger.kernel.org (open list:BLOCK LAYER),
-	linux-kernel@vger.kernel.org (open list),
-	virtualization@lists.linux.dev (open list:VIRTIO BLOCK AND SCSI DRIVERS)
-Cc: Li Feng <fengli@smartx.com>
-Subject: [PATCH] virtio_blk: set the default scheduler to none
-Date: Thu,  7 Dec 2023 12:31:05 +0800
-Message-ID: <20231207043118.118158-1-fengli@smartx.com>
-X-Mailer: git-send-email 2.42.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93A2715B9
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 04:47:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id E545C60BED
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 04:47:22 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E545C60BED
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -9.899
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 60mzezBH6z5p
+	for <virtualization@lists.linux-foundation.org>;
+	Thu,  7 Dec 2023 04:47:21 +0000 (UTC)
+Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D367960BC5
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 04:47:20 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org D367960BC5
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=hengqi@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0Vy-PG7k_1701924433;
+Received: from 30.221.146.167(mailfrom:hengqi@linux.alibaba.com fp:SMTPD_---0Vy-PG7k_1701924433)
+          by smtp.aliyun-inc.com;
+          Thu, 07 Dec 2023 12:47:14 +0800
+Message-ID: <d2cc8026-eaa8-46d2-ac61-9d228bc409cf@linux.alibaba.com>
+Date: Thu, 7 Dec 2023 12:47:09 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v6 4/5] virtio-net: add spin lock for ctrl cmd
+ access
+To: Jason Wang <jasowang@redhat.com>
+Cc: Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, mst@redhat.com, kuba@kernel.org,
+ yinjun.zhang@corigine.com, edumazet@google.com, davem@davemloft.net,
+ hawk@kernel.org, john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org,
+ xuanzhuo@linux.alibaba.com
+References: <cover.1701762688.git.hengqi@linux.alibaba.com>
+ <245ea32fe5de5eb81b1ed8ec9782023af074e137.1701762688.git.hengqi@linux.alibaba.com>
+ <CACGkMEurTAGj+mSEtAiYtGfqy=6sU33xVskAZH47qUi+GcyvWA@mail.gmail.com>
+ <ad02f02a-b08f-4061-9aba-cadef02641c8@linux.alibaba.com>
+ <f36e686e13142d885a6e34f0a4dc2e33567ef287.camel@redhat.com>
+ <fbea1040-cf84-45e0-b0f5-1d7752339479@linux.alibaba.com>
+ <CACGkMEuU18fn8oC=DPNP3Dk=uE0Rutwib7jkoXEZXV+H4H6VcA@mail.gmail.com>
+From: Heng Qi <hengqi@linux.alibaba.com>
+In-Reply-To: <CACGkMEuU18fn8oC=DPNP3Dk=uE0Rutwib7jkoXEZXV+H4H6VcA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-virtio-blk is generally used in cloud computing scenarios, where the
-performance of virtual disks is very important. The mq-deadline scheduler
-has a big performance drop compared to none with single queue. In my tests,
-mq-deadline 4k readread iops were 270k compared to 450k for none. So here
-the default scheduler of virtio-blk is set to "none".
 
-Signed-off-by: Li Feng <fengli@smartx.com>
----
- drivers/block/virtio_blk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index d53d6aa8ee69..5183ec8e00be 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -1367,7 +1367,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	vblk->tag_set.ops = &virtio_mq_ops;
- 	vblk->tag_set.queue_depth = queue_depth;
- 	vblk->tag_set.numa_node = NUMA_NO_NODE;
--	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
-+	vblk->tag_set.flags = BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_NO_SCHED_BY_DEFAULT;
- 	vblk->tag_set.cmd_size =
- 		sizeof(struct virtblk_req) +
- 		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
--- 
-2.42.0
+在 2023/12/7 下午12:19, Jason Wang 写道:
+> On Wed, Dec 6, 2023 at 9:03 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>>
+>>
+>> 在 2023/12/6 下午8:27, Paolo Abeni 写道:
+>>> On Tue, 2023-12-05 at 19:05 +0800, Heng Qi wrote:
+>>>> 在 2023/12/5 下午4:35, Jason Wang 写道:
+>>>>> On Tue, Dec 5, 2023 at 4:02 PM Heng Qi <hengqi@linux.alibaba.com> wrote:
+>>>>>> Currently access to ctrl cmd is globally protected via rtnl_lock and works
+>>>>>> fine. But if dim work's access to ctrl cmd also holds rtnl_lock, deadlock
+>>>>>> may occur due to cancel_work_sync for dim work.
+>>>>> Can you explain why?
+>>>> For example, during the bus unbind operation, the following call stack
+>>>> occurs:
+>>>> virtnet_remove -> unregister_netdev -> rtnl_lock[1] -> virtnet_close ->
+>>>> cancel_work_sync -> virtnet_rx_dim_work -> rtnl_lock[2] (deadlock occurs).
+>>>>
+>>>>>> Therefore, treating
+>>>>>> ctrl cmd as a separate protection object of the lock is the solution and
+>>>>>> the basis for the next patch.
+>>>>> Let's don't do that. Reasons are:
+>>>>>
+>>>>> 1) virtnet_send_command() may wait for cvq commands for an indefinite time
+>>>> Yes, I took that into consideration. But ndo_set_rx_mode's need for an
+>>>> atomic
+>>>> environment rules out the mutex lock.
+>>>>
+>>>>> 2) hold locks may complicate the future hardening works around cvq
+>>>> Agree, but I don't seem to have thought of a better way besides passing
+>>>> the lock.
+>>>> Do you have any other better ideas or suggestions?
+>>> What about:
+>>>
+>>> - using the rtnl lock only
+>>> - virtionet_close() invokes cancel_work(), without flushing the work
+>>> - virtnet_remove() calls flush_work() after unregister_netdev(),
+>>> outside the rtnl lock
+>>>
+>>> Should prevent both the deadlock and the UaF.
+>>
+>> Hi, Paolo and Jason!
+>>
+>> Thank you very much for your effective suggestions, but I found another
+>> solution[1],
+>> based on the ideas of rtnl_trylock and refill_work, which works very well:
+>>
+>> [1]
+>> +static void virtnet_rx_dim_work(struct work_struct *work)
+>> +{
+>> +    struct dim *dim = container_of(work, struct dim, work);
+>> +    struct receive_queue *rq = container_of(dim,
+>> +            struct receive_queue, dim);
+>> +    struct virtnet_info *vi = rq->vq->vdev->priv;
+>> +    struct net_device *dev = vi->dev;
+>> +    struct dim_cq_moder update_moder;
+>> +    int i, qnum, err;
+>> +
+>> +    if (!rtnl_trylock())
+>> +        return;
+> Don't we need to reschedule here?
+>
+> like
+>
+> if (rq->dim_enabled)
+>         sechedule_work()
+>
+> ?
+
+I think no, we don't need this.
+
+The work of each queue will be called by "net_dim()->schedule_work()"
+when napi traffic changes (before schedule_work(), the dim->profile_ix
+of the corresponding rxq has been updated).
+So we only need to traverse and update the profiles of all rxqs in the
+work which is obtaining the rtnl_lock.
+
+Thanks!
+
+>
+> Thanks
+>
+>> +
+>> +    for (i = 0; i < vi->curr_queue_pairs; i++) {
+>> +        rq = &vi->rq[i];
+>> +        dim = &rq->dim;
+>> +        qnum = rq - vi->rq;
+>> +
+>> +        if (!rq->dim_enabled)
+>> +            continue;
+>> +
+>> +        update_moder = net_dim_get_rx_moderation(dim->mode,
+>> dim->profile_ix);
+>> +        if (update_moder.usec != rq->intr_coal.max_usecs ||
+>> +            update_moder.pkts != rq->intr_coal.max_packets) {
+>> +            err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
+>> +                                   update_moder.usec,
+>> +                                   update_moder.pkts);
+>> +            if (err)
+>> +                pr_debug("%s: Failed to send dim parameters on rxq%d\n",
+>> +                     dev->name, qnum);
+>> +            dim->state = DIM_START_MEASURE;
+>> +        }
+>> +    }
+>> +
+>> +    rtnl_unlock();
+>> +}
+>>
+>>
+>> In addition, other optimizations[2] have been tried, but it may be due
+>> to the sparsely
+>> scheduled work that the retry condition is always satisfied, affecting
+>> performance,
+>> so [1] is the final solution:
+>>
+>> [2]
+>>
+>> +static void virtnet_rx_dim_work(struct work_struct *work)
+>> +{
+>> +    struct dim *dim = container_of(work, struct dim, work);
+>> +    struct receive_queue *rq = container_of(dim,
+>> +            struct receive_queue, dim);
+>> +    struct virtnet_info *vi = rq->vq->vdev->priv;
+>> +    struct net_device *dev = vi->dev;
+>> +    struct dim_cq_moder update_moder;
+>> +    int i, qnum, err, count;
+>> +
+>> +    if (!rtnl_trylock())
+>> +        return;
+>> +retry:
+>> +    count = vi->curr_queue_pairs;
+>> +    for (i = 0; i < vi->curr_queue_pairs; i++) {
+>> +        rq = &vi->rq[i];
+>> +        dim = &rq->dim;
+>> +        qnum = rq - vi->rq;
+>> +        update_moder = net_dim_get_rx_moderation(dim->mode,
+>> dim->profile_ix);
+>> +        if (update_moder.usec != rq->intr_coal.max_usecs ||
+>> +            update_moder.pkts != rq->intr_coal.max_packets) {
+>> +            --count;
+>> +            err = virtnet_send_rx_ctrl_coal_vq_cmd(vi, qnum,
+>> +                                   update_moder.usec,
+>> +                                   update_moder.pkts);
+>> +            if (err)
+>> +                pr_debug("%s: Failed to send dim parameters on rxq%d\n",
+>> +                     dev->name, qnum);
+>> +            dim->state = DIM_START_MEASURE;
+>> +        }
+>> +    }
+>> +
+>> +    if (need_resched()) {
+>> +        rtnl_unlock();
+>> +        schedule();
+>> +    }
+>> +
+>> +    if (count)
+>> +        goto retry;
+>> +
+>> +    rtnl_unlock();
+>> +}
+>>
+>> Thanks a lot!
+>>
+>>> Side note: for this specific case any functional test with a
+>>> CONFIG_LOCKDEP enabled build should suffice to catch the deadlock
+>>> scenario above.
+>>>
+>>> Cheers,
+>>>
+>>> Paolo
 
