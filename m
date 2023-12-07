@@ -1,98 +1,134 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6CA0101DE
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:46:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7506341C88
+	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 14:52:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.b="LI2U3N8Y"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1BE4C423E2
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:46:20 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 1BE4C423E2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ventanamicro.com header.i=@ventanamicro.com header.a=rsa-sha256 header.s=google header.b=LI2U3N8Y
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c9wZZd1f2Y_x
-	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 14:46:19 +0000 (UTC)
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4659D4227B
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 14:46:19 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4659D4227B
-Received: by mail-wm1-x32d.google.com with SMTP id 5b1f17b1804b1-40c2d50bfbfso2036975e9.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Dec 2023 06:46:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google; t=1701960377; x=1702565177; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=F+SZx05QL8DvnaBiqNo+wDKuA3Gr0caBrn6hcV+55hc=;
-        b=LI2U3N8YkbJMXSwd5iQSDiOB2b51oq+Ih00QtWdlcOuZfsxl22DW8deiSvr/aK5160
-         iloKGVc0ISB4Qd1EQSacImPZmz1j0wFPr6P1iO4zdyHk1vlw9l5Vmlr5LGt6SfJbE/d+
-         NxBBNikkRqPgdf8jiCEoTOBcq8AkrtjXJQNrNeA65ejtTnTzTJFEa8abmc9hWO9LPQB1
-         j7lCyky6GvxgiAXKh39X5kACB+Fwwl1cGENlzLxB7yC+UW4Ic2ry1Fqhkb+9oQ1reh1e
-         xq9TOn2xh6YJ2TYQiFCXCu20i5na2j69DS8ogsfsy2lultpH55c0UvTYLFcSAUriwlh8
-         uQJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701960377; x=1702565177;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F+SZx05QL8DvnaBiqNo+wDKuA3Gr0caBrn6hcV+55hc=;
-        b=btJKeXKfJW9d1pZVQApOQD3IWqqcyPOPxFRQMpUHKiTPOztcEJbJChQKiLazuAMVYe
-         E08/rg9hXHNQqGbjVJK3SK8DZj1winkB19wjae/yfF4N5T9NOnvjPU84CcuWufmJBQJ0
-         x7MMKkv0EQif5SaWV1hlPktx6p8gaKbP6JVR0aHhV8pdmfmXpXyHRki4BlB7PdslxQHa
-         5a1w8hxjqif8UZAyQISpQb61JTXtvFqPqUO5YCRGvt+xNRls5XIp2Dqf8RWIvflmZFR8
-         j6jESh2kNwtmXVqc81kPsmBiDVceTkMbAr/7mQOlThqCzlnKVePErZeqj0wNEie+ULyH
-         7/7w==
-X-Gm-Message-State: AOJu0YzbgezaTXiSF9bQxF2Am5WWl0xSFRd9zOtLGQwcRRYBTbk3qQ4Y
-	GDTuY4MptbuIDhy98whbPL8Vfg==
-X-Google-Smtp-Source: AGHT+IHVym4Nz6MBkeoRJw8LxZvSVQ6n6JQRhDlWhvCA++GrRUuK2yBbo0vI0w9nDC38Cf7gzYDwog==
-X-Received: by 2002:a05:600c:548a:b0:40b:5e4a:2347 with SMTP id iv10-20020a05600c548a00b0040b5e4a2347mr2748346wmb.73.1701960377359;
-        Thu, 07 Dec 2023 06:46:17 -0800 (PST)
-Received: from localhost (2001-1ae9-1c2-4c00-20f-c6b4-1e57-7965.ip6.tmcz.cz. [2001:1ae9:1c2:4c00:20f:c6b4:1e57:7965])
-        by smtp.gmail.com with ESMTPSA id r20-20020a05600c459400b0040b349c91acsm2182749wmo.16.2023.12.07.06.46.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Dec 2023 06:46:16 -0800 (PST)
-Date: Thu, 7 Dec 2023 15:46:16 +0100
-From: Andrew Jones <ajones@ventanamicro.com>
-To: Conor Dooley <conor.dooley@microchip.com>
-Cc: kvm-riscv@lists.infradead.org, linux-riscv@lists.infradead.org, 
-	virtualization@lists.linux-foundation.org, anup@brainfault.org, atishp@atishpatra.org, pbonzini@redhat.com, 
-	paul.walmsley@sifive.com, palmer@dabbelt.com, aou@eecs.berkeley.edu, jgross@suse.com, 
-	srivatsa@csail.mit.edu, guoren@kernel.org
-Subject: Re: [PATCH v1 04/14] RISC-V: paravirt: Add kconfigs
-Message-ID: <20231207-963f31814d2502cbc058647c@orel>
-References: <20231205181119.207204-16-ajones@ventanamicro.com>
- <20231205181119.207204-20-ajones@ventanamicro.com>
- <20231207-unsealed-bunkhouse-bd79271b4896@wendy>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FuKfeZdU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1701960735;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=V0xpo2ryVhd+3GXnE5ml+fwWQScftYbSzd+a1VvBh0k=;
+	b=FuKfeZdUXKx5sTAN0otRT/l0ljBtdZhVqyW1s9ZrBg8q5a4Jksc+IVU51e+Nd9kAyg8gem
+	qdxTIJiNq7nQuX6U0ehjnT9XVhSWUe4JgE9ZfWfa03sD4PueceSFTnnXizOhW1ZNHcxlqc
+	NbHzAphb9UinCX1T9CJk13aCvT438F8=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-592-2V5E8xUnMuWEVomgn9XDhg-1; Thu,
+ 07 Dec 2023 09:52:08 -0500
+X-MC-Unique: 2V5E8xUnMuWEVomgn9XDhg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id DCC7E1C01724;
+	Thu,  7 Dec 2023 14:52:07 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.22])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 205F1492BE6;
+	Thu,  7 Dec 2023 14:52:06 +0000 (UTC)
+Date: Thu, 7 Dec 2023 09:51:59 -0500
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Li Feng <fengli@smartx.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>,
+	Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
+Message-ID: <20231207145159.GB2147383@fedora>
+References: <20231207043118.118158-1-fengli@smartx.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="jzahsJkBdAiW+nf1"
+Content-Disposition: inline
+In-Reply-To: <20231207043118.118158-1-fengli@smartx.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.10
+
+
+--jzahsJkBdAiW+nf1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231207-unsealed-bunkhouse-bd79271b4896@wendy>
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Dec 07, 2023 at 02:07:28PM +0000, Conor Dooley wrote:
-> On Tue, Dec 05, 2023 at 07:11:24PM +0100, Andrew Jones wrote:
-> > Now that we can support steal-time accounting, add the kconfig
-> > knobs allowing it to be enabled.
-> > 
-> > Signed-off-by: Andrew Jones <ajones@ventanamicro.com>
-> > Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-> 
-> In hindsight, should this be squashed with the code actually adding the
-> support?
+On Thu, Dec 07, 2023 at 12:31:05PM +0800, Li Feng wrote:
+> virtio-blk is generally used in cloud computing scenarios, where the
+> performance of virtual disks is very important. The mq-deadline scheduler
+> has a big performance drop compared to none with single queue. In my test=
+s,
+> mq-deadline 4k readread iops were 270k compared to 450k for none. So here
+> the default scheduler of virtio-blk is set to "none".
+>=20
+> Signed-off-by: Li Feng <fengli@smartx.com>
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yeah, this can be squashed, particularly because the configs are off by
-default anyway. Will do.
+This seems similar to commit f8b12e513b95 ("virtio_blk: revert
+QUEUE_FLAG_VIRT addition") where changing the default sounded good in
+theory but exposed existing users to performance regressions.
 
-Thanks,
-drew
+Christoph's suggestion back in 2009 was to introduce a flag in the
+virtio-blk hardware interface so that the device can provide a hint from
+the host side.
+
+Do you have more performance data aside from 4k randread? My suggestion
+would be for everyone with an interest to collect and share data so
+there's more evidence that this new default works well for a range of
+configurations.
+
+I don't want to be overly conservative. The virtio_blk driver has
+undergone changes in this regard from the legacy block layer to blk-mq
+(without an I/O scheduler) to blk-mq (mq-deadline). Performance changed
+at each step and that wasn't a showstopper, so I think we could default
+to 'none' without a lot of damage. Let's just get more data.
+
+Stefan
+
+>=20
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index d53d6aa8ee69..5183ec8e00be 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -1367,7 +1367,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	vblk->tag_set.ops =3D &virtio_mq_ops;
+>  	vblk->tag_set.queue_depth =3D queue_depth;
+>  	vblk->tag_set.numa_node =3D NUMA_NO_NODE;
+> -	vblk->tag_set.flags =3D BLK_MQ_F_SHOULD_MERGE;
+> +	vblk->tag_set.flags =3D BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_NO_SCHED_BY_DE=
+FAULT;
+>  	vblk->tag_set.cmd_size =3D
+>  		sizeof(struct virtblk_req) +
+>  		sizeof(struct scatterlist) * VIRTIO_BLK_INLINE_SG_CNT;
+> --=20
+> 2.42.0
+>=20
+
+--jzahsJkBdAiW+nf1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmVx3A8ACgkQnKSrs4Gr
+c8iW7Af/SwZCn/GpSj7j9V527PVV437hXYHQ04RyKzmI6js4NU3gfzqaV/hqy4O4
+LMD9gAUovQGx9OhvYRtCkpEw+gLhn51wwUxNYX77y3eaHGEyxb4btN0DetBu3LDp
+Rz4caz4YiFMxFcSB9yHt84Q/noT97Iy4lar3xNiy8OEOdleVKGhuv351zvwdMnJ5
+lBiP9yNaSUgapXJbD6nAmrt765aR3ByQInkS/kxjLURF4gFQKlx76kUcFlC7FquV
++Pwk1QQr1tT8vfKCzYm8YeDl8tNecPEm+N3gtnAbMv+1dAtnI+7b4P8K3+GPiE7d
+6Ze512aHSeonNEi6hUqQpiUb2ae2pw==
+=FsbK
+-----END PGP SIGNATURE-----
+
+--jzahsJkBdAiW+nf1--
+
