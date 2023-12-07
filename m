@@ -1,126 +1,86 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B29AD433B9
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 17:17:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 657814D13F;
+	Thu,  7 Dec 2023 18:20:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="LQBBy9+B"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 443CB60AB1
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 17:17:47 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 443CB60AB1
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.a=rsa-sha256 header.s=google header.b=LQBBy9+B
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.1
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c25PXlM1N727
-	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 17:17:45 +0000 (UTC)
-Received: from mail-qt1-x831.google.com (mail-qt1-x831.google.com [IPv6:2607:f8b0:4864:20::831])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E903960A5A
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 17:17:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E903960A5A
-Received: by mail-qt1-x831.google.com with SMTP id d75a77b69052e-42588e94019so11035981cf.0
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 Dec 2023 09:17:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google; t=1701969463; x=1702574263; darn=lists.linux-foundation.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BfZC4BeoCbD48i78H7pAT4Ky0OQzCC++X2uJD5yU/sg=;
-        b=LQBBy9+B9RSOgfiTOEixPiHFMuDd5Z4Y/fAaTX92w1YUwoOLL5E+7t2+dbcFKdNClN
-         V4dWxJjih+qq4kCeix1nzZ65knL5bcUOeuGvVN+fqStJSKSd+wiqW9a6q3UzmEz9TnOZ
-         mqoOQTuMZYp112ehodoat5XxCnvmf2+Y5ClB+Q1RbyaAeS9JrpRe/KC6Rq2ZQnsLj1eB
-         6q5QuJhlGCDyHtO63O8bMzAKuiyt11VbOqF/r4G40ps+pc/JQoA4z5EKwe06AQ4IRCfc
-         FidA3FMwDlQUYA1kOcgk9y+zubDcl2CHwIXbUnbHGwp3MWAKxDHCgIDPwH/RqyXA9JH/
-         tb/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701969463; x=1702574263;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BfZC4BeoCbD48i78H7pAT4Ky0OQzCC++X2uJD5yU/sg=;
-        b=TY0JsnDypYp7B/9vvXpa00+teO0aowyug0DNUBjeVV6wI8UrXzr6jgWgcUEzBs8yHx
-         Fr97mzPhEX+zgjpeob9v1Tg8gZZrefF625RCx1uOnxBVBa3sNWUES4GThGPDCJO4Hk88
-         pT8FztXgfg3szmInl4NxUz5+6Pul8fCzK6kDWdKI+3dIMkRKYKsy0EuvgxK97TY9KKcb
-         dEkHM9B9+vLTKuFsiFeXAA2nQevrxC+fem2kArIRmV0ATvKWH4hyvALEy9a7M9dQhEy3
-         oIRPbKPVbErWPGtQCD196dY+tjUgtFeCUodV042QhBydKbS38ZIzNyzzEJJTFCzVMCMQ
-         Dziw==
-X-Gm-Message-State: AOJu0YwRiEOYRbam99vAQDMHaU1RGrJzhOBTjeG7dwuHRAiZWtI1HAkf
-	Qp7o/6hh6ent6E7r0f6tKwNosw==
-X-Google-Smtp-Source: AGHT+IFZla2NtPfquQTzU6hdOuHOkG1umIFAlj7i5uyx6faPcX4R7PtWVD+lIF+qCRz3hijffJ+Kvg==
-X-Received: by 2002:ac8:4e83:0:b0:423:e097:3b14 with SMTP id 3-20020ac84e83000000b00423e0973b14mr6734973qtp.10.1701969463718;
-        Thu, 07 Dec 2023 09:17:43 -0800 (PST)
-Received: from ziepe.ca (hlfxns017vw-142-134-23-187.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.134.23.187])
-        by smtp.gmail.com with ESMTPSA id n2-20020a0cec42000000b0067a10672b80sm66393qvq.48.2023.12.07.09.17.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Dec 2023 09:17:42 -0800 (PST)
-Received: from jgg by wakko with local (Exim 4.95)
-	(envelope-from <jgg@ziepe.ca>)
-	id 1rBI0M-00C1FU-8T;
-	Thu, 07 Dec 2023 13:17:42 -0400
-Date: Thu, 7 Dec 2023 13:17:42 -0400
-From: Jason Gunthorpe <jgg@ziepe.ca>
-To: Joel Granados <j.granados@samsung.com>
-Cc: Lu Baolu <baolu.lu@linux.intel.com>, Kevin Tian <kevin.tian@intel.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Robin Murphy <robin.murphy@arm.com>,
-	Jean-Philippe Brucker <jean-philippe@linaro.org>,
-	Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
-	Jacob Pan <jacob.jun.pan@linux.intel.com>, iommu@lists.linux.dev,
-	linux-kselftest@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 4/6] iommufd: Deliver fault messages to user space
-Message-ID: <20231207171742.GU1489931@ziepe.ca>
-References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
- <20231026024930.382898-5-baolu.lu@linux.intel.com>
- <CGME20231207163412eucas1p2fa912b4923031804c27c764e5c8d67e7@eucas1p2.samsung.com>
- <20231207163410.ap3w4faii6wkgwed@localhost>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WolHTfrn"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E35F0C433C9;
+	Thu,  7 Dec 2023 18:20:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1701973229;
+	bh=0KcANSyv1sr9UhGc/vinHfJbi1QB9ETNOHuMpKsQkMk=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=WolHTfrnuD59oo7UIECAYiJGuyiZL+9nfNxgrnrVMoUaQt1DvlLzpFIeeXZmOXihU
+	 7Ins/SIsy8rBda6rEfMi5kztLjQEtxOlxLUA/6qDs42rW2CPVNSs480pWBmyWbMBCC
+	 TwGraVPrfqxWyWaoKTyVKw9el7oY/GnONTQ/Y9PAkNF0kA0a2zQKiVPNq4Jr/drr9W
+	 GeBAPNWNmf2TdBKPpH0tp7sE+9D+LEXamJuNPb5bDe7+9hMVVPW0fIzDO408bR1ctJ
+	 2Qu43EG3IZdqdfu5YlrDakPNMfAQb4vvKQEcPHXXr1IsP4USVTFd/vbxeGNeQCsK2/
+	 r6VxGwAoK6WUg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CC0C0C4314C;
+	Thu,  7 Dec 2023 18:20:28 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231207163410.ap3w4faii6wkgwed@localhost>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] vsock/virtio: fix "comparison of distinct pointer types
+ lacks a cast" warning
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <170197322883.20147.5857598481880040072.git-patchwork-notify@kernel.org>
+Date: Thu, 07 Dec 2023 18:20:28 +0000
+References: <20231206164143.281107-1-sgarzare@redhat.com>
+In-Reply-To: <20231206164143.281107-1-sgarzare@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, kuba@kernel.org, davem@davemloft.net,
+ virtualization@lists.linux.dev, mst@redhat.com, avkrasnov@salutedevices.com,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org, stefanha@redhat.com,
+ edumazet@google.com, pabeni@redhat.com
 
-On Thu, Dec 07, 2023 at 05:34:10PM +0100, Joel Granados wrote:
-> > @@ -58,6 +255,8 @@ static void hw_pagetable_fault_free(struct hw_pgtable_fault *fault)
-> >  	WARN_ON(!list_empty(&fault->deliver));
-> >  	WARN_ON(!list_empty(&fault->response));
-> >  
-> > +	fput(fault->fault_file);
-> > +	put_unused_fd(fault->fault_fd);
+Hello:
 
-> I have resolved this in a naive way by just not calling the
-> put_unused_fd function.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-That is correct.
+On Wed,  6 Dec 2023 17:41:43 +0100 you wrote:
+> After backporting commit 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY
+> flag support") in CentOS Stream 9, CI reported the following error:
+> 
+>     In file included from ./include/linux/kernel.h:17,
+>                      from ./include/linux/list.h:9,
+>                      from ./include/linux/preempt.h:11,
+>                      from ./include/linux/spinlock.h:56,
+>                      from net/vmw_vsock/virtio_transport_common.c:9:
+>     net/vmw_vsock/virtio_transport_common.c: In function ‘virtio_transport_can_zcopy‘:
+>     ./include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast [-Werror]
+>        20 |         (!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
+>           |                                   ^~
+>     ./include/linux/minmax.h:26:18: note: in expansion of macro ‘__typecheck‘
+>        26 |                 (__typecheck(x, y) && __no_side_effects(x, y))
+>           |                  ^~~~~~~~~~~
+>     ./include/linux/minmax.h:36:31: note: in expansion of macro ‘__safe_cmp‘
+>        36 |         __builtin_choose_expr(__safe_cmp(x, y), \
+>           |                               ^~~~~~~~~~
+>     ./include/linux/minmax.h:45:25: note: in expansion of macro ‘__careful_cmp‘
+>        45 | #define min(x, y)       __careful_cmp(x, y, <)
+>           |                         ^~~~~~~~~~~~~
+>     net/vmw_vsock/virtio_transport_common.c:63:37: note: in expansion of macro ‘min‘
+>        63 |                 int pages_to_send = min(pages_in_iov, MAX_SKB_FRAGS);
+> 
+> [...]
 
-put_unused_fd() should only be called on error paths prior to the
-syscall return.
+Here is the summary with links:
+  - [net] vsock/virtio: fix "comparison of distinct pointer types lacks a cast" warning
+    https://git.kernel.org/netdev/net/c/b0a930e8d90c
 
-The design of a FD must follow this pattern
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
- syscall():
-   fdno = get_unused_fd_flags(O_CLOEXEC);
-   filep = [..]
- 
-   // syscall MUST succeed after this statement:
-   fd_install(fdno, filep);
-   return 0;
 
-  err:
-    put_unused_fd(fdno)
-    return -ERRNO
-
-Also the refcounting looks a little strange, the filep reference is
-consumed by fd_install, so what is that fput pairing with in fault_free?
-
-Jason
