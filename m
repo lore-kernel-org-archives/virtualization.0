@@ -1,37 +1,39 @@
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930BD1E49A
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E22301E49A
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 165F382F57
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:03 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 165F382F57
+	by smtp1.osuosl.org (Postfix) with ESMTP id 25D5182333
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 25D5182333
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
 X-Spam-Score: -9.899
 X-Spam-Level:
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DfStLElQdPHZ
+	with ESMTP id jCSANsm7GxKt
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 08:03:59 +0000 (UTC)
-Received: from out30-100.freemail.mail.aliyun.com (out30-100.freemail.mail.aliyun.com [115.124.30.100])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 4466180C50
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:03:58 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 4466180C50
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R351e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046051;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Vy.49hc_1701936233;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vy.49hc_1701936233)
+	Thu,  7 Dec 2023 08:04:03 +0000 (UTC)
+Received: from out30-124.freemail.mail.aliyun.com (out30-124.freemail.mail.aliyun.com [115.124.30.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8767483022
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:02 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 8767483022
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R141e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046060;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Vy.4s6A_1701936237;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vy.4s6A_1701936237)
           by smtp.aliyun-inc.com;
-          Thu, 07 Dec 2023 16:03:53 +0800
+          Thu, 07 Dec 2023 16:03:57 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org
 Cc: Jason Wang <jasowang@redhat.com>,
 	"Michael S. Tsirkin" <mst@redhat.com>
-Subject: [RFC v2 0/5] virtio helper: collect dma info from virtio core
-Date: Thu,  7 Dec 2023 16:03:48 +0800
-Message-Id: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v2 4/5] virtio_ring: introduce virtqueue_get_dma_premapped()
+Date: Thu,  7 Dec 2023 16:03:52 +0800
+Message-Id: <20231207080353.6575-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.32.0.3.g01195cf9f
+In-Reply-To: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com>
+References: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -41,46 +43,158 @@ MIME-Version: 1.0
 X-Git-Hash: b3688db07ee6
 Content-Transfer-Encoding: 8bit
 
-For the virtio net send queue, if it supports premapped mode,
-then we need to collect the dma info of every desc of this buf
-to do unmap inside the driver. The key is that one xmit may
-contains multiple dma address. (A skb may contain 19 dma address)
+Introduce helper virtqueue_get_dma_premapped(), then the driver
+can know whether dma unmap is needed.
 
-Here I introduce a new helper to resolve this. And we also need
-to consider the virtqueue_resize and free the unused buffers.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio/main.c       | 22 +++++++++-------------
+ drivers/net/virtio/virtio_net.h |  3 ---
+ drivers/virtio/virtio_ring.c    | 22 ++++++++++++++++++++++
+ include/linux/virtio.h          |  1 +
+ 4 files changed, 32 insertions(+), 16 deletions(-)
 
-For on the same page of the API design before other job, I post this RFC patch
-set.
-
-Thanks.
-
-v2:
-    1. use union to reuse the sq-sg
-    2. introduce virtqueue_get_dma_premapped()
-    3. move WARN_ON_ONCE() to the detach_buf_{split,packed}
-    4. rename the  virtqueue_detach_unused_buf_premapped() to virtqueue_detach_unused_buf_dma()
-
-
-v1:
-    1. introduce new struct virtio_dma_head to replace the scatterlist
-    2. fix some small problems
-
-
-
-Xuan Zhuo (5):
-  virtio_ring: introduce virtqueue_get_buf_ctx_dma()
-  virtio_ring: virtqueue_disable_and_recycle let the callback detach
-    bufs
-  virtio_ring: introduce virtqueue_detach_unused_buf_dma()
-  virtio_ring: introduce virtqueue_get_dma_premapped()
-  virtio_net: sq support premapped mode
-
- drivers/net/virtio/main.c       | 163 ++++++++++++++++++----
- drivers/net/virtio/virtio_net.h |  13 +-
- drivers/virtio/virtio_ring.c    | 231 +++++++++++++++++++++++---------
- include/linux/virtio.h          |  22 ++-
- 4 files changed, 334 insertions(+), 95 deletions(-)
-
---
+diff --git a/drivers/net/virtio/main.c b/drivers/net/virtio/main.c
+index d81ee75142e0..83f24de00497 100644
+--- a/drivers/net/virtio/main.c
++++ b/drivers/net/virtio/main.c
+@@ -478,7 +478,7 @@ static void *virtnet_rq_get_buf(struct virtnet_rq *rq, u32 *len, void **ctx)
+ 	void *buf;
+ 
+ 	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+-	if (buf && rq->do_dma)
++	if (buf && virtqueue_get_dma_premapped(rq->vq))
+ 		virtnet_rq_unmap(rq, buf, *len);
+ 
+ 	return buf;
+@@ -491,7 +491,7 @@ static void virtnet_rq_init_one_sg(struct virtnet_rq *rq, void *buf, u32 len)
+ 	u32 offset;
+ 	void *head;
+ 
+-	if (!rq->do_dma) {
++	if (!virtqueue_get_dma_premapped(rq->vq)) {
+ 		sg_init_one(rq->sg, buf, len);
+ 		return;
+ 	}
+@@ -521,7 +521,7 @@ static void *virtnet_rq_alloc(struct virtnet_rq *rq, u32 size, gfp_t gfp)
+ 
+ 	head = page_address(alloc_frag->page);
+ 
+-	if (rq->do_dma) {
++	if (virtqueue_get_dma_premapped(rq->vq)) {
+ 		dma = head;
+ 
+ 		/* new pages */
+@@ -575,12 +575,8 @@ static void virtnet_rq_set_premapped(struct virtnet_info *vi)
+ 	if (!vi->mergeable_rx_bufs && vi->big_packets)
+ 		return;
+ 
+-	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		if (virtqueue_set_dma_premapped(vi->rq[i].vq))
+-			continue;
+-
+-		vi->rq[i].do_dma = true;
+-	}
++	for (i = 0; i < vi->max_queue_pairs; i++)
++		virtqueue_set_dma_premapped(vi->rq[i].vq);
+ }
+ 
+ static void free_old_xmit(struct virtnet_sq *sq, bool in_napi)
+@@ -1638,7 +1634,7 @@ static int add_recvbuf_small(struct virtnet_info *vi, struct virtnet_rq *rq,
+ 
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (virtqueue_get_dma_premapped(rq->vq))
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -1753,7 +1749,7 @@ static int add_recvbuf_mergeable(struct virtnet_info *vi,
+ 	ctx = mergeable_len_to_ctx(len + room, headroom);
+ 	err = virtqueue_add_inbuf_ctx(rq->vq, rq->sg, 1, buf, ctx, gfp);
+ 	if (err < 0) {
+-		if (rq->do_dma)
++		if (virtqueue_get_dma_premapped(rq->vq))
+ 			virtnet_rq_unmap(rq, buf, 0);
+ 		put_page(virt_to_head_page(buf));
+ 	}
+@@ -3822,7 +3818,7 @@ static void free_receive_page_frags(struct virtnet_info *vi)
+ 	int i;
+ 	for (i = 0; i < vi->max_queue_pairs; i++)
+ 		if (vi->rq[i].alloc_frag.page) {
+-			if (vi->rq[i].do_dma && vi->rq[i].last_dma)
++			if (virtqueue_get_dma_premapped(vi->rq[i].vq) && vi->rq[i].last_dma)
+ 				virtnet_rq_unmap(&vi->rq[i], vi->rq[i].last_dma, 0);
+ 			put_page(vi->rq[i].alloc_frag.page);
+ 		}
+@@ -3844,7 +3840,7 @@ static void virtnet_rq_free_unused_buf(struct virtqueue *vq, void *buf)
+ 
+ 	rq = &vi->rq[i];
+ 
+-	if (rq->do_dma)
++	if (virtqueue_get_dma_premapped(rq->vq))
+ 		virtnet_rq_unmap(rq, buf, 0);
+ 
+ 	virtnet_rq_free_buf(vi, rq, buf);
+diff --git a/drivers/net/virtio/virtio_net.h b/drivers/net/virtio/virtio_net.h
+index ebf9f344648a..2ca968db6153 100644
+--- a/drivers/net/virtio/virtio_net.h
++++ b/drivers/net/virtio/virtio_net.h
+@@ -104,9 +104,6 @@ struct virtnet_rq {
+ 
+ 	/* Record the last dma info to free after new pages is allocated. */
+ 	struct virtnet_rq_dma *last_dma;
+-
+-	/* Do dma by self */
+-	bool do_dma;
+ };
+ 
+ struct virtnet_info {
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 59e6f970776a..e1e61a4ffa7c 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2901,6 +2901,28 @@ int virtqueue_set_dma_premapped(struct virtqueue *_vq)
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_set_dma_premapped);
+ 
++/**
++ * virtqueue_get_dma_premapped - get the vring premapped mode
++ * @_vq: the struct virtqueue we're talking about.
++ *
++ * Get the premapped mode of the vq.
++ *
++ * Returns bool for the vq premapped mode.
++ */
++bool virtqueue_get_dma_premapped(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	bool premapped;
++
++	START_USE(vq);
++	premapped = vq->premapped;
++	END_USE(vq);
++
++	return premapped;
++
++}
++EXPORT_SYMBOL_GPL(virtqueue_get_dma_premapped);
++
+ /**
+  * virtqueue_reset - detach and recycle all unused buffers
+  * @_vq: the struct virtqueue we're talking about.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 2596f0e7e395..3e9a2bb75af6 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -98,6 +98,7 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+ unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
+ 
+ int virtqueue_set_dma_premapped(struct virtqueue *_vq);
++bool virtqueue_get_dma_premapped(struct virtqueue *_vq);
+ 
+ bool virtqueue_poll(struct virtqueue *vq, unsigned);
+ 
+-- 
 2.32.0.3.g01195cf9f
 
