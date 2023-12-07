@@ -1,233 +1,164 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2086.outbound.protection.outlook.com [40.107.94.86])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D6D511187
-	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 06:27:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBBDB12E43
+	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 06:28:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="TLbOs0wu"
-Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B76Qnhl017882;
-	Thu, 7 Dec 2023 06:26:56 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=d5jbmnW0EkD6CSJajfUaQ5SYiRswnWaio3/w8qMt2xU=;
- b=TLbOs0wuIXlfOt3U7HolEky3DYFoJTWrcDdVEZkJIwt7fmLvzXDbtbRYea5PFcul5JlE
- 813End/Lsnd1UvqSL0CYt2joXmqriVYDk+ahGXIJqgVRL+7zdHzphr+IK1TjsovizYwG
- jmXnkf6aRyEXEXKNXxlHbI8jSEgnwIAV97cv+YdA7EJZKMv/l20XWsa4qQ6lznb8KrE2
- VmhkQ6fV5/xpEnbB+8nO/Sf2QNonxYghTlFdmGaFHB74JonDWf2HoxxsgimoZNR+A4AZ
- tysTAdpxBDo5zCTgsZ1dVSdcy9+dZqqObssMRd0rPK0HLQMo+xNrbI2piRu3d6B+/A2X EA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uu8ehggd4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Dec 2023 06:26:56 +0000
-Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B76QtYG018851;
-	Thu, 7 Dec 2023 06:26:55 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uu8ehgfxt-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Dec 2023 06:26:55 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B74Vfci013754;
-	Thu, 7 Dec 2023 06:22:24 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utau49dss-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 07 Dec 2023 06:22:24 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B76MMdj12517954
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 7 Dec 2023 06:22:22 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id F41942004E;
-	Thu,  7 Dec 2023 06:22:21 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id BECC52004B;
-	Thu,  7 Dec 2023 06:22:21 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.170.249])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu,  7 Dec 2023 06:22:21 +0000 (GMT)
-Date: Thu, 7 Dec 2023 07:22:12 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: Abel Wu <wuyun.abel@bytedance.com>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
-        jasowang@redhat.com
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <ZXFklCgF3EjeKXDC@DESKTOP-2CCOB1S.>
-References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
- <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
- <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
- <20231117123759.GP8262@noisy.programming.kicks-ass.net>
- <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
- <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
- <20231122100016.GO8262@noisy.programming.kicks-ass.net>
- <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
- <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RV4nSZYy"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JMDOTfarph20+EcG0K6yiXIqp0ekWF4cuFF13JZBe/onOTrWn3GQA+Dxd7imfDh5So4V4W1Q7CHNi9mLJeDRBBTnIiJk/vgbtNPYV1jx6cvjHLiGCS5Lhq3wSjaDNx+U6QNvX4jw9MS4+tIC2FteyoGyAsOsNEyGS8hfQhHy1t0FG6expRmNV+ZY04rP/k0LOzdwf39JFEqKiWhji+ZwjXiNvirDSxMy/T835FaigUTQqP9MJ4CkrzlnP2W67AsDk0VX3HX1kQzUq1K+TEruxZiJ3PuDocJ7V0KI35G9vSJJ1aymiyJclZnkx6K5iKQJRx0MbwXm9boZV9lZd9Tgwg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=P/uQfrHaBU4ga9QEBKnG1X5uZNqXoNxYj1GjgnmH2ks=;
+ b=O8pbWLMKrPcWYtaj9cVyzyD2WV/yESGRQ8WFVi70ruGSvws4uph+fJVO9nepQ/4nfoTuekKIGxaysIEfunMRaFQW/Y27P9JuNmQad6ux+ZYXHfa0lWgXX7n0GW+r/icDvwo2Vg2VvrUUiAF7fK0ds/V4YEax/Z67R2cAR7xbshdbKAOGzWb+Pq6TO5/aenP8z5l0YUuWS2Pd+nRVWMSN/2r250NOQnsuuInXtYffVl3W8IubLld4yo+HOk6roTmSSxkBNP972exQ9MyMDfXHb/L94GV+OcUhmp9XIRu8O2wrQ1psXJY/10cK/kPKIYVloL2lB7nMoECo1fpI500kCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=P/uQfrHaBU4ga9QEBKnG1X5uZNqXoNxYj1GjgnmH2ks=;
+ b=RV4nSZYym/G9I+OyB3DRZHXAn5BjD+WKxkSLplEBXzwGUfTURNhXSWCiXPG9uCCgeu8h4KfzJYxCE8hJAGdx08sxdXsEp5PZUT5Ka5LGisslhw4hRPqUTnEgmnNto6t4YzL562DL5pKvaMKLmExGWI6Nk45PpOGz0hzbJJTgpWqpE8OEdvNDfgzRGmEQVj/KYMm9ZXmKaPgomfwMawstxBeprs6GA6OhEK6rVHpVKHL6dpl2nBfsj5L/7Tme8vQJV0AlXcdlX6rVy1Bh7dA22cKHRVfhluWtThxaYzM5QNKJu5cG+BS9N/oSRx9/7rBQmosj+KLniSYBoLxs8KoqbQ==
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com (2603:10b6:408:219::9)
+ by BY5PR12MB4034.namprd12.prod.outlook.com (2603:10b6:a03:205::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7068.27; Thu, 7 Dec
+ 2023 06:28:28 +0000
+Received: from LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::efb1:c686:d73d:2762]) by LV3PR12MB9404.namprd12.prod.outlook.com
+ ([fe80::efb1:c686:d73d:2762%7]) with mapi id 15.20.7068.027; Thu, 7 Dec 2023
+ 06:28:27 +0000
+From: Chaitanya Kulkarni <chaitanyak@nvidia.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>
+CC: "David.Laight@aculab.com" <David.Laight@aculab.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Jens
+ Axboe <axboe@kernel.dk>, Jason Wang <jasowang@redhat.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Suwan Kim
+	<suwan.kim027@gmail.com>, kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v2] virtio_blk: fix snprintf truncation compiler warning
+Thread-Topic: [PATCH v2] virtio_blk: fix snprintf truncation compiler warning
+Thread-Index: AQHaJ4YQFWCj1fIPJUKjt0JD/6eG9LCdXh8A
+Date: Thu, 7 Dec 2023 06:28:26 +0000
+Message-ID: <250e4d5d-77c8-4c48-9410-53a63d471fae@nvidia.com>
+References: <20231205141840.1854409-1-stefanha@redhat.com>
+In-Reply-To: <20231205141840.1854409-1-stefanha@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+user-agent: Mozilla Thunderbird
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LV3PR12MB9404:EE_|BY5PR12MB4034:EE_
+x-ms-office365-filtering-correlation-id: 86e8dc83-045c-47f0-2ecc-08dbf6edb8a8
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info:
+ EIDKNWPn5GKAAKzGlhp+NY834KhHYcioB+LuMzIYLV0hGLfWoVis/irFtUQHlDIP6//Eg0TY4cNYMrzyXBhaolZyQe2SdQ4giYKs3cRkiywjrY1XZRWXaVxM0c8z+LEN5jhWuXrsL6Kme3BRe6CfDdu52Fcre15WPjlrcDrl4Ck7TwGpG17v3/6fu8KW43PBlIwHmcA8iL+5DkDLvQsLdKERp1Hb7EqK1RBOIkYaqwwpRYgoNaFWYmMDYiK+K6XAgo1Ec9w5uazstGhlfssWx+NdJNEHsSOcJTMdpf4OLT/tMlL5vryGlEdnzDU9b1cjUWEIIjRVj1AwFftpGntP7LyVRAqHgGZqcqP5dGXXqy2IHrpyErOPWJ2pGVFV8WNV3ZbjoXYzTVCoz7YlbOTTdtNy5HQWZOF12LYY7Sbq5nHeCbusVKLqONtmPz+XbH/ULUQSi67EEBMqS26WIQ7DgkRCLVLwwugF5fLNOCA2MTjRy0G2dn28/lZgGC9HEiphXwFdGRqWx8RCIaZ4Ol0ch1w1OHe/Fl02O/qhQEaHHx+1C84+8soKt7hUmhD4nj0ivgd89CiwDBfrm2Vh52iwXA30kl5FmPmtE6Niby0S6QD5LiiDcQB+fkxDdSZynsP5XsMGvqgT5Gxk6YtdOLciN8Iv4LRMMUbszokYuMTcmXPmZxAgXpC01y0Z8keSz6NcoKXH8xLQDL+3LGEDPqE2pg1FDfZrr6TrbroHMnmSbNZnTl+Q0IfjSAbgg+oTepSyiI/uVbzxddVGtkGxMqwyrw==
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9404.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(366004)(136003)(396003)(376002)(39860400002)(346002)(230922051799003)(230273577357003)(230173577357003)(64100799003)(1800799012)(451199024)(186009)(38100700002)(31686004)(122000001)(8936002)(8676002)(31696002)(86362001)(71200400001)(4326008)(316002)(76116006)(110136005)(54906003)(64756008)(66446008)(66476007)(66556008)(66946007)(966005)(6486002)(38070700009)(7416002)(5660300002)(53546011)(6506007)(6512007)(478600001)(91956017)(2616005)(2906002)(83380400001)(41300700001)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?MEFkajc2b09ndjlPMTI3MXlxMU1pamJmZUJCYTFKeTY0SW10VkpBVWFZMFhZ?=
+ =?utf-8?B?Vi81eHdWS2RPZStTWFhXS2daV002ZUFZem5xcldFb3lraUdzZUZGNWRNZUE5?=
+ =?utf-8?B?ZDRHM01JRU9lOWZ1VHRHQTRsZTVhY3JuN1NWSkZ0UXNyZWs2UUFhUHc5Y1RM?=
+ =?utf-8?B?ek16Q2VOekJPMmhqMEZlUTl4WE5TM0NyMjRSU3pnVnY3N0tMdzZhSVFmek5h?=
+ =?utf-8?B?M0NsRWUwQ3ZHOFlFUDdYaGgwQmppcGFlZjdsYTFBKzZwOGQrVDZEblFqRm96?=
+ =?utf-8?B?QUV5aUc2WnZtOU5DdjQrUlVsU2N3c2l6ZWRFS21paE5YUVIzcTNNcVMzWCs2?=
+ =?utf-8?B?TzRXWnEyNTA3WU9HazAvaTdwN2RySy95OHFLcVovY2RwRHRRb2JVcndNWFJN?=
+ =?utf-8?B?M0hFMy85MWNRYjdyblAvcnFZVlNtSHJqb29rU1BDMGd2WDRxVnA0YXJBdTk4?=
+ =?utf-8?B?OW05OGhBajZ5Y0tDcmdvUVhNM0tPSDk1NUZNSDdrSEtsU2V5Nis0R2NwRmJs?=
+ =?utf-8?B?OTRaejNHYk1veC9PSFRYZE9ucjMrbW5mbVNkcENHV2p3RnJJZWFSSWdZMHBN?=
+ =?utf-8?B?MGtwTXA1Vk0vc3VPdjE0SlQwTG1STjVwSllNVkI2SU9HVTFaOGZGOW1IbVFa?=
+ =?utf-8?B?M3h2RjFaSXBsSk9Vcm1UbWJsaHJRKzFNSjFUWFhoYjhmYWRlTUdYd3FxRWVz?=
+ =?utf-8?B?SC9DalhXVmp5aFdFZk5OeXJtTitLU1o5bm9LU1c2dzJRQVhMVWY0WitZK2o0?=
+ =?utf-8?B?T00yQ1Y2emNLU0ZRbGhTQjE2SnNQeXovOFBheFMyUjd0elhqU0dzRnM2SkJs?=
+ =?utf-8?B?L0syZG9tTHlXTjdjY2I0YVFlc1hYZEl0ODNzcTgyU0ZGdjZQWlN1N1JiaCsy?=
+ =?utf-8?B?SDRtWFFjcDVITEw5V1pLWUpGSE5xQVlvZnFIK3pEdVNLZEM3TjBVenQ1UVpT?=
+ =?utf-8?B?NEZuYzZkOVBrMU1BRTF3cW5ZbkU2VGl3ZTNISGFJQnhGdzFSY3VNUjNXTXFF?=
+ =?utf-8?B?TS9FZmhpM0QvWlBwbHM4L2tyT3RyS1dGeEhXSjMxUk5ndS9wTVZDRDRRZmtE?=
+ =?utf-8?B?blBuczR0WlZYU090MnNrZHhPZXhXbmZCM2NaSGF5WGIvcUFQYVlUYytYRGEv?=
+ =?utf-8?B?RExBVEU1YUxxNTBNZ2hVcGFZM0JBTGN1c0dPRlRicEpmLy8xZllOdndyY3I0?=
+ =?utf-8?B?bGhXRjg1ZlVUT3JObXNxd0ZiLzk0VGpTbmxxM2RyRkF3UDdWaTRRVFE0RFN4?=
+ =?utf-8?B?ZlkrSnpvclo4R0FFVGdrTG44UTh2Qk5BR0xFc3ZuYXJZSXBXczQyaW1NUUFO?=
+ =?utf-8?B?WC8vdHpuTG5nZWdOVTA0VWZhUVhMa2lUKzE4K2UrMWRhWlRjQjRuR01MSXVy?=
+ =?utf-8?B?QWVnektrLzJYbittUkVZNElQWmhQSnk0bkJyTEFieUpJTW9tcHRnTWdFcE5r?=
+ =?utf-8?B?dEUxMFN6a3pMeEQrOHRTeUk3V2V5WU9nUHVoZWRTbTNyZnpuNWdqMTBHWEg3?=
+ =?utf-8?B?dE9NV05QczJqcTRnbGlYQUQwYUpyeXFxdkZaQXNKb0ZyRFllbi80R2Y2Nmhr?=
+ =?utf-8?B?RzJ0TUpiT1orS1lzUk8zSGJ3ZElBcW1QaXdaaUJCVnJKcHp2S1c0TXBvNHpH?=
+ =?utf-8?B?bWU1aTFXSGJVQ0dLWmVRcjlPbnZxYnBteTd3NHlidW5KN25sdmdXTmlZMVNM?=
+ =?utf-8?B?NzlrcC90TFZ6RmpHUWhWSTJYN1lOejZXSXViQjlSWVp2NnBtYnZONFNFUVV1?=
+ =?utf-8?B?bTBnbllZakR4aGU0SWJ2RElrcjVFcW5zMUhzVThmaUhRZittOTl1dEVFOHdU?=
+ =?utf-8?B?aVJSVEpRK01Qbi92RFJSM2VqSmVaNDRWRDlIQXdFVk5CdDVDWWN3bGZZN1pE?=
+ =?utf-8?B?UkdpSXdnTWgyM3hZKzNPeTdKRFBpaGlUS0JGeUVGVmNiT2ZvbFJhZkZoOGdn?=
+ =?utf-8?B?Zjl6U2hZU1ExM1R3emFQc3d4bURoNXlCczB1SHp0c2hPWVZRWkpkY1doWE9i?=
+ =?utf-8?B?cVFmWnZGczBPRHFDWThmU0hEVVNieG55VDh2MkVmS2RBcExsN1BZbUYwM3lQ?=
+ =?utf-8?B?Y1VQQW5nQWYyanRCc3NmZjduNUhxb3NDTDZQVHhsUk4xZDArRzlIRkVFVjBE?=
+ =?utf-8?B?cnBGcjhkd2JCbVNIb3hlWTFad0p3UHJ5SlBqbEtjZ0hKUXFpZlZJMVRyUkxK?=
+ =?utf-8?Q?+Oimo0rD0Nobza7DVmwvaBuDK7UCkfLnhHmJZ+oWfi1s?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <901022F598E9794281C42DBF94FFFA12@namprd12.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: YxWBNA5v8kUE6HWP3YpGbeQa24-QPgfk
-X-Proofpoint-GUID: BFw7w5Nrp5y0zSu7NHsfReZy4aazozqE
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-07_03,2023-12-06_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 mlxscore=0
- suspectscore=0 clxscore=1015 mlxlogscore=999 lowpriorityscore=0
- phishscore=0 adultscore=0 impostorscore=0 priorityscore=1501 spamscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312070050
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9404.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 86e8dc83-045c-47f0-2ecc-08dbf6edb8a8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Dec 2023 06:28:26.8449
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 2BCrN/oYvvsxcQ77D0ByvLuRhSXUdOxCuiLrvqVe06AGaDvOSpv49Ya9vWqu4CC0reNeGLJ4HKxMEDeUZCl++w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4034
 
-On Tue, Nov 28, 2023 at 04:55:11PM +0800, Abel Wu wrote:
-> On 11/27/23 9:56 PM, Tobias Huschle Wrote:
-> > On Wed, Nov 22, 2023 at 11:00:16AM +0100, Peter Zijlstra wrote:
-> > > On Tue, Nov 21, 2023 at 02:17:21PM +0100, Tobias Huschle wrote:
-[...]
-> 
-> What are the weights of the two entities?
-> 
-
-Both entities have the same weights (I saw 1048576 for both of them).
-The story looks different when we look at the cgroup hierarchy though:
-
-sew := weight of the sched entity (se->load.weight)
-
-     CPU 6/KVM-2360    [011] d....  1158.884473: sched_place: comm=vhost-2961 pid=2984 sev=3595548386 sed=3598548386 sel=0 sew=1048576 avg=3595548386 min=3595548386 cpu=11 nr=0 vru=3595548386 lag=0
-     CPU 6/KVM-2360    [011] d....  1158.884473: sched_place: comm= pid=0 sev=19998138425 sed=20007532920 sel=0 sew=335754 avg=19998138425 min=19998138425 cpu=11 nr=0 vru=19998138425 lag=0
-     CPU 6/KVM-2360    [011] d....  1158.884474: sched_place: comm= pid=0 sev=37794158943 sed=37807515464 sel=0 sew=236146 avg=37794158943 min=37794158943 cpu=11 nr=0 vru=37794158943 lag=0
-     CPU 6/KVM-2360    [011] d....  1158.884474: sched_place: comm= pid=0 sev=50387168150 sed=50394482435 sel=0 sew=430665 avg=50387168150 min=50387168150 cpu=11 nr=0 vru=50387168150 lag=0
-     CPU 6/KVM-2360    [011] d....  1158.884474: sched_place: comm= pid=0 sev=76600751247 sed=77624751246 sel=0 sew=3876 avg=76600751247 min=76600751247 cpu=11 nr=0 vru=76600751247 lag=0
-<...>
-    vhost-2961-2984    [011] d....  1158.884487: sched_place: comm=kworker/11:2 pid=202 sev=76603905961 sed=76606905961 sel=0 sew=1048576 avg=76603905961 min=76603905961 cpu=11 nr=1 vru=76603905961 lag=0
-
-Here we can see the following weights:
-kworker     -> 1048576
-vhost       -> 1048576
-cgroup root ->    3876
-
-kworker and vhost weights remain the same. The weights of the nodes in the cgroup vary.
-
-
-I also spent some more thought on this and have some more observations:
-
-1. kworker lag after short runtime
-
-    vhost-2961-2984    [011] d....  1158.884486: sched_waking: comm=kworker/11:2 pid=202 prio=120 target_cpu=011
-    vhost-2961-2984    [011] d....  1158.884487: sched_place: comm=kworker/11:2 pid=202 sev=76603905961 sed=76606905961 sel=0 sew=1048576 avg=76603905961 min=76603905961 cpu=11 nr=1 vru=76603905961 lag=0
-<...>                                                                                                                   ^^^^^
-    vhost-2961-2984    [011] d....  1158.884490: sched_switch: prev_comm=vhost-2961 prev_pid=2984 prev_prio=120 prev_state=R+ ==> next_comm=kworker/11:2 next_pid=202 next_prio=120
-   kworker/11:2-202    [011] d....  1158.884491: sched_waking: comm=CPU 0/KVM pid=2988 prio=120 target_cpu=009
-   kworker/11:2-202    [011] d....  1158.884492: sched_stat_runtime: comm=kworker/11:2 pid=202 runtime=5150 [ns] vruntime=76603911111 [ns] deadline=76606905961 [ns] lag=76606905961
-                                                                                               ^^^^^^^^^^^^^^^^
-   kworker/11:2-202    [011] d....  1158.884492: sched_update: comm=kworker/11:2 pid=202 sev=76603911111 sed=76606905961 sel=-1128 sew=1048576 avg=76603909983 min=76603905961 cpu=11 nr=2 lag=-1128 lim=10000000
-                                                                                                                         ^^^^^^^^^
-   kworker/11:2-202    [011] d....  1158.884494: sched_stat_wait: comm=vhost-2961 pid=2984 delay=5150 [ns]
-   kworker/11:2-202    [011] d....  1158.884494: sched_switch: prev_comm=kworker/11:2 prev_pid=202 prev_prio=120 prev_state=I ==> next_comm=vhost-2961 next_pid=2984 next_prio=120
-
-In the sequence above, the kworker gets woken up by the vhost and placed on the timeline with 0 lag.
-The kworker then executes for 5150ns and returns control to the vhost.
-Unfortunately, this short runtime earns the kworker a negative lag of -1128.
-This in turn, causes the kworker to not be selected by check_preempt_wakeup_fair.
-
-My naive understanding of lag is, that only those entities get negative lag, which consume
-more time than they should. Why is the kworker being punished for running only a tiny
-portion of time?
-
-In the majority of cases, the kworker finishes after a 4-digit number of ns.
-There are occassional outliers with 5-digit numbers. I would therefore not 
-expect negative lag for the kworker.
-
-It is fair to say that the kworker was executing while the vhost was not.
-kworker gets put on the queue with no lag, so it essentially has its vruntime
-set to avg_vruntime.
-After giving up its timeslice the kworker has now a vruntime which is larger
-than the avg_vruntime. Hence the negative lag might make sense here from an
-algorithmic standpoint. 
-
-
-2a/b. vhost getting increased deadlines over time, no call of pick_eevdf
-
-    vhost-2961-2984    [011] d.h..  1158.892878: sched_stat_runtime: comm=vhost-2961 pid=2984 runtime=8385872 [ns] vruntime=3603948448 [ns] deadline=3606948448 [ns] lag=3598548386
-    vhost-2961-2984    [011] d.h..  1158.892879: sched_stat_runtime: comm= pid=0 runtime=8385872 [ns] vruntime=76604158567 [ns] deadline=77624751246 [ns] lag=77624751246
-<..>
-    vhost-2961-2984    [011] d.h..  1158.902877: sched_stat_runtime: comm=vhost-2961 pid=2984 runtime=9999435 [ns] vruntime=3613947883 [ns] deadline=3616947883 [ns] lag=3598548386
-    vhost-2961-2984    [011] d.h..  1158.902878: sched_stat_runtime: comm= pid=0 runtime=9999435 [ns] vruntime=76633826282 [ns] deadline=78137144356 [ns] lag=77624751246
-<..>
-    vhost-2961-2984    [011] d.h..  1158.912877: sched_stat_runtime: comm=vhost-2961 pid=2984 runtime=9999824 [ns] vruntime=3623947707 [ns] deadline=3626947707 [ns] lag=3598548386
-    vhost-2961-2984    [011] d.h..  1158.912878: sched_stat_runtime: comm= pid=0 runtime=9999824 [ns] vruntime=76688003113 [ns] deadline=78161723086 [ns] lag=77624751246
-<..>
-<..>
-    vhost-2961-2984    [011] dN...  1159.152927: sched_stat_runtime: comm=vhost-2961 pid=2984 runtime=40402 [ns] vruntime=3863988069 [ns] deadline=3866947667 [ns] lag=3598548386
-    vhost-2961-2984    [011] dN...  1159.152928: sched_stat_runtime: comm= pid=0 runtime=40402 [ns] vruntime=78355923791 [ns] deadline=78393801472 [ns] lag=77624751246
-
-In the sequence above, I extended the tracing of sched_stat_runtime to use 
-for_each_sched_entity to also output the values for the cgroup hierarchy.
-The first entry represents the actual task, the second entry represents
-the root for that particular cgroup. I dropped the levels in between
-for readability.
-
-The first three groupings are happening in sequence. The fourth grouping
-is the last sched_stat_runtime update before the vhost gets migrated off
-the CPU. The ones in between repeat the same pattern.
-
-Interestingly, the vruntimes of the root grow faster than the actual tasks.
-I assume this is intended.
-At the same time, the deadlines keep on growing for vhost and the cgroup root.
-At the same time, the kworker is left starving with its negative lag.
-At no point in this sequence, pick_eevdf is being called.
-
-The only time pick_eevdf is being called is right when the kworker is woken up.
-So check_preempt_wakeup_fair seems to be the only chance for the kworker to get
-scheduled in time.
-
-For reference:
-    vhost-2961-2984    [011] d....  1158.884563: sched_place: comm=kworker/11:2 pid=202 sev=76604163719 sed=76607163719 sel=-1128 sew=1048576 avg=76604158567 min=76604158567 cpu=11 nr=1 vru=76604158567 lag=-5152
-
-The kworker has a deadline which is definitely smaller than the one of vhost
-in later stages. So, I would assume it should get scheduled at some point.
-If vhost is running in kernel space and is therefore not preemptable,
-this would be expected behavior though.
-
-
-3. vhost looping endlessly, waiting for kworker to be scheduled
-
-I dug a little deeper on what the vhost is doing. I'm not an expert on
-virtio whatsoever, so these are just educated guesses that maybe
-someone can verify/correct. Please bear with me probably messing up 
-the terminology.
-
-- vhost is looping through available queues.
-- vhost wants to wake up a kworker to process a found queue.
-- kworker does something with that queue and terminates quickly.
-
-What I found by throwing in some very noisy trace statements was that,
-if the kworker is not woken up, the vhost just keeps looping accross
-all available queues (and seems to repeat itself). So it essentially
-relies on the scheduler to schedule the kworker fast enough. Otherwise
-it will just keep on looping until it is migrated off the CPU.
-
-
-SUMMARY 
-
-1 and 2a/b have some more or less plausible potential explanations, 
-where the EEVDF scheduler might just do what it is designed to do.
-
-3 is more tricky since I'm not familiar with the topic. If the vhost just
-relies on the kworker pre-empting the vhost, than this sounds a bit
-counter-intuitive. But there might also be a valid design decision
-behind this.
-
-If 1 and 2 are indeed plausible, path 3 is probably the
-one to go in order to figure out if we have a problem there.
-[...]
+T24gMTIvNS8yMyAwNjoxOCwgU3RlZmFuIEhham5vY3ppIHdyb3RlOg0KPiBDb21taXQgNGUwNDAw
+NTI1NjkxICgidmlydGlvLWJsazogc3VwcG9ydCBwb2xsaW5nIEkvTyIpIHRyaWdnZXJzIHRoZQ0K
+PiBmb2xsb3dpbmcgZ2NjIDEzIFc9MSB3YXJuaW5nczoNCj4NCj4gZHJpdmVycy9ibG9jay92aXJ0
+aW9fYmxrLmM6IEluIGZ1bmN0aW9uIOKAmGluaXRfdnHigJk6DQo+IGRyaXZlcnMvYmxvY2svdmly
+dGlvX2Jsay5jOjEwNzc6Njg6IHdhcm5pbmc6IOKAmCVk4oCZIGRpcmVjdGl2ZSBvdXRwdXQgbWF5
+IGJlIHRydW5jYXRlZCB3cml0aW5nIGJldHdlZW4gMSBhbmQgMTEgYnl0ZXMgaW50byBhIHJlZ2lv
+biBvZiBzaXplIDcgWy1XZm9ybWF0LXRydW5jYXRpb249XQ0KPiAgIDEwNzcgfCAgICAgICAgICAg
+ICAgICAgc25wcmludGYodmJsay0+dnFzW2ldLm5hbWUsIFZRX05BTUVfTEVOLCAicmVxX3BvbGwu
+JWQiLCBpKTsNCj4gICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIF5+DQo+IGRyaXZlcnMvYmxvY2svdmlydGlv
+X2Jsay5jOjEwNzc6NTg6IG5vdGU6IGRpcmVjdGl2ZSBhcmd1bWVudCBpbiB0aGUgcmFuZ2UgWy0y
+MTQ3NDgzNjQ4LCA2NTUzNF0NCj4gICAxMDc3IHwgICAgICAgICAgICAgICAgIHNucHJpbnRmKHZi
+bGstPnZxc1tpXS5uYW1lLCBWUV9OQU1FX0xFTiwgInJlcV9wb2xsLiVkIiwgaSk7DQo+ICAgICAg
+ICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIF5+fn5+fn5+fn5+fn4NCj4gZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmM6MTA3NzoxNzog
+bm90ZTog4oCYc25wcmludGbigJkgb3V0cHV0IGJldHdlZW4gMTEgYW5kIDIxIGJ5dGVzIGludG8g
+YSBkZXN0aW5hdGlvbiBvZiBzaXplIDE2DQo+ICAgMTA3NyB8ICAgICAgICAgICAgICAgICBzbnBy
+aW50Zih2YmxrLT52cXNbaV0ubmFtZSwgVlFfTkFNRV9MRU4sICJyZXFfcG9sbC4lZCIsIGkpOw0K
+PiAgICAgICAgfCAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fg0KPg0KPiBUaGlzIGlzIGEgZmFsc2UgcG9zaXRp
+dmUgYmVjYXVzZSB0aGUgbG93ZXIgYm91bmQgLTIxNDc0ODM2NDggaXMNCj4gaW5jb3JyZWN0LiBU
+aGUgdHJ1ZSByYW5nZSBvZiBpIGlzIFswLCBudW1fdnFzIC0gMV0gd2hlcmUgMCA8IG51bV92cXMg
+PA0KPiA2NTUzNi4NCj4NCj4gVGhlIGNvZGUgbWl4ZXMgaW50LCB1bnNpZ25lZCBzaG9ydCwgYW5k
+IHVuc2lnbmVkIGludCB0eXBlcyBpbiBhZGRpdGlvbg0KPiB0byB1c2luZyAiJWQiIGZvciBhbiB1
+bnNpZ25lZCB2YWx1ZS4gVGhlIG9ubHkgcGxhY2Ugd2hlcmUgYSAxNi1iaXQgdmFsdWUNCj4gaXMg
+bmVlZGVkIGlzIGR1cmluZyB0aGUgY29uZmlnIHNwYWNlIGFjY2Vzcy4gVXNlIHVuc2lnbmVkIGlu
+dCBhbmQgIiV1Ig0KPiBjb25zaXN0ZW50bHkgdG8gc29sdmUgdGhlIGNvbXBpbGVyIHdhcm5pbmcg
+YW5kIGNsZWFuIHVwIHRoZSBjb2RlLg0KPg0KPiBDYzogU3V3YW4gS2ltIDxzdXdhbi5raW0wMjdA
+Z21haWwuY29tPg0KPiBSZXBvcnRlZC1ieToga2VybmVsIHRlc3Qgcm9ib3QgPGxrcEBpbnRlbC5j
+b20+DQo+IENsb3NlczogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvb2Uta2J1aWxkLWFsbC8yMDIz
+MTIwNDE1MDkuREl5dkV0OWgtbGtwQGludGVsLmNvbS8NCj4gU2lnbmVkLW9mZi1ieTogU3RlZmFu
+IEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQuY29tPg0KPiAtLS0NCj4gICBkcml2ZXJzL2Jsb2Nr
+L3ZpcnRpb19ibGsuYyB8IDEzICsrKysrKysrLS0tLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgOCBp
+bnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQ0KPg0KPiB2MjoNCj4gLSBVc2UgdW5zaWduZWQg
+aW50IGluc3RlYWQgb2YgdW5zaWduZWQgc2hvcnQgW0RhdmlkXQ0KPg0KPg0KDQpMb29rcyBnb29k
+Lg0KDQpSZXZpZXdlZC1ieTogQ2hhaXRhbnlhIEt1bGthcm5pIDxrY2hAbnZpZGlhLmNvbT4NCg0K
+LWNrDQoNCg0K
