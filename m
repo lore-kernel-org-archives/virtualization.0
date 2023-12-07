@@ -1,109 +1,108 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B011ED1
-	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 06:38:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8941314016
+	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 06:48:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F8SpE+xT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fHe///dg"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701931124;
+	s=mimecast20190719; t=1701931728;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zWU3XhY3SGz8Nm4Q405d0erGPeXKkfHuFXSX394aJLk=;
-	b=F8SpE+xTqNcOxnosIq2kwiHdPxTGD1nykvYX5r11gyU17crEKzI2QI07h0hPo8xtDY4duV
-	L7oOYwh6Uw2oKRJWpEvRx62S/4qc78d2dKfLlGX8SSw053Erv9acqfOgCSrJ5qJmfvKYaT
-	/NVlbHVBnMbNWoBQ4tQYbvCmtIy7VEY=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=UFOBgtGuzzS/PcpQyRYcdxas2wCmUyPkxn+UwmQBEoo=;
+	b=fHe///dgLPTjTfTNpAPaIAQJ8t73AHRlLnxBbKDX6IWOgt08T8Czwu84QkV3vBTk8TaKnv
+	OQW2b+OzMj1zMZrBXcnRapBWarSj8uEyOJanFs1mIS7ud331WEhas2jkBqXIcGX0APjBVI
+	RNOaMKlexhROyXn1vfXXH1DL3AkSEOU=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-298-1xbO7vR3MQCqfuQzlCVPQA-1; Thu, 07 Dec 2023 01:38:42 -0500
-X-MC-Unique: 1xbO7vR3MQCqfuQzlCVPQA-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a0c510419caso27649166b.1
-        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 22:38:42 -0800 (PST)
+ us-mta-595-Zl3AsLnWOeG_hRnZP0Nfog-1; Thu, 07 Dec 2023 01:48:46 -0500
+X-MC-Unique: Zl3AsLnWOeG_hRnZP0Nfog-1
+Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-54c95f36750so248946a12.3
+        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 22:48:46 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701931121; x=1702535921;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=zWU3XhY3SGz8Nm4Q405d0erGPeXKkfHuFXSX394aJLk=;
-        b=pEIJXZxrGZFcuD+emilx0Df0XQIFNO7RA2dTWmthlFgqzjMZzYIgW25xHx9Z/KSbx6
-         s1Z27GJqR3iYK7nu9DvMGZVCoe7dLz+FIFsLyNj8rMCu33k8G9cmhsKmZQcfpHqGqNy6
-         8Ok/iQD276LFcuyocpAdybdoWx179THTmlwntefc7MBmomRsTY8shudw2wiYR3uAjF01
-         /bZhU0oJ2mySWhWGcZbSbmGMk7rLhzLet0QUHzTOeGNj8t2dL0RQULESFfiT6z7CQY+a
-         e/RQiJwtj/2oh1K3H+QKqFCb1OGTZuzaeAoRztN1dYXPhuD+0zjHsrh217sTnI6il8uV
-         ptHA==
-X-Gm-Message-State: AOJu0Yw9GujhI2JUgX4+q2cUbrsjvZi9hJWaf/dm6K0efOCuZMSh1BlQ
-	XdeZ6p0X+v6I2AhNLiil2lwwtAfpTg+Pa208tsDvZGuNikl+TuTAGmV/MOQq3i/LYkTzKNMfb+I
-	7n8IfEhIsElRcHhPlyrjl/V1xK0I=
-X-Received: by 2002:a17:906:412:b0:a19:a1ba:8cdf with SMTP id d18-20020a170906041200b00a19a1ba8cdfmr1283529eja.125.1701931121419;
-        Wed, 06 Dec 2023 22:38:41 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHhiBhaS+kmbU1JKx2cAFUfZmT6awaVyiVkat1D9D0v41JMF0DlUXomnGzVKOZQPNjGyvsaNQ==
-X-Received: by 2002:a17:906:412:b0:a19:a1ba:8cdf with SMTP id d18-20020a170906041200b00a19a1ba8cdfmr1283523eja.125.1701931121146;
-        Wed, 06 Dec 2023 22:38:41 -0800 (PST)
-Received: from redhat.com ([2.55.11.67])
-        by smtp.gmail.com with ESMTPSA id s6-20020a170906c30600b00a1dee0289b4sm376148ejz.169.2023.12.06.22.38.39
+        d=1e100.net; s=20230601; t=1701931726; x=1702536526;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UFOBgtGuzzS/PcpQyRYcdxas2wCmUyPkxn+UwmQBEoo=;
+        b=rK0QUKWLe8DTaaIRfyJ23nNT/BQz1d/aglPWZXVTVdA8GKKoPxHmVNtJWJg/VWT7Mm
+         o+EK6UeZ6meSSVEG7ZrRVq9+tiJ0nvSy0OMtqpZK9yVZZ2K+/+c5Jr6kkshId5PuBH+Y
+         EPnL5sM29fzYibFkv/p0l/PP797dGmJM5VukO29qSTmSrO1+/+xc++GInNXteL2cVExL
+         sOPWuRd44MsRJa3ZjSnupZI4ve0uYSdiNrHWxUrwzpXg/iqXJKnnUirL1XDDtEGwsw4N
+         wQyBjiPEPLUooNPFafWjjvf1JDUYM04p6VqLQsJKAqREphglU6HObGvfcFLIPTjUdN5K
+         oReQ==
+X-Gm-Message-State: AOJu0YznzT1WGsaNn96R0FQTLqL5D77+JmM3Yl48Q4bsVxbSqlAE3xp/
+	ugTEm0BfF8uusDYZA0WLVzHFUbm17SD70HbA521AwfAaMooTrNZjC7Cq6G1oakckO5U+kQzvPjg
+	ttugFuWx5xYa80QV1tW46fCmm/kY=
+X-Received: by 2002:a50:f698:0:b0:54b:2af0:dee2 with SMTP id d24-20020a50f698000000b0054b2af0dee2mr1288731edn.4.1701931725882;
+        Wed, 06 Dec 2023 22:48:45 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHP+ojkzLMHbSqAu0C2ANg33CShDwPxZTAJjmCw0nO8Gd6wnGRVjFY+tgfoLKlBErzzBy1nOA==
+X-Received: by 2002:a50:f698:0:b0:54b:2af0:dee2 with SMTP id d24-20020a50f698000000b0054b2af0dee2mr1288726edn.4.1701931725570;
+        Wed, 06 Dec 2023 22:48:45 -0800 (PST)
+Received: from redhat.com ([2.55.57.48])
+        by smtp.gmail.com with ESMTPSA id z61-20020a509e43000000b0054ce0b24cfdsm404552ede.23.2023.12.06.22.48.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Dec 2023 22:38:40 -0800 (PST)
-Date: Thu, 7 Dec 2023 01:38:37 -0500
+        Wed, 06 Dec 2023 22:48:44 -0800 (PST)
+Date: Thu, 7 Dec 2023 01:48:40 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Li Feng <fengli@smartx.com>, Jens Axboe <axboe@kernel.dk>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
-Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
-Message-ID: <20231207013617-mutt-send-email-mst@kernel.org>
-References: <20231207043118.118158-1-fengli@smartx.com>
- <CACGkMEt4_T5-aArkS4LOQsndwrMkjm_K-uPjdFnNRvwknQPaPg@mail.gmail.com>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: Abel Wu <wuyun.abel@bytedance.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	jasowang@redhat.com
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <20231207014626-mutt-send-email-mst@kernel.org>
+References: <c7b38bc27cc2c480f0c5383366416455@linux.ibm.com>
+ <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
+ <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
+ <20231117123759.GP8262@noisy.programming.kicks-ass.net>
+ <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
+ <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+ <20231122100016.GO8262@noisy.programming.kicks-ass.net>
+ <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
+ <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+ <07513.123120701265800278@us-mta-474.us.mimecast.lan>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEt4_T5-aArkS4LOQsndwrMkjm_K-uPjdFnNRvwknQPaPg@mail.gmail.com>
+In-Reply-To: <07513.123120701265800278@us-mta-474.us.mimecast.lan>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Thu, Dec 07, 2023 at 02:02:36PM +0800, Jason Wang wrote:
-> On Thu, Dec 7, 2023 at 12:33 PM Li Feng <fengli@smartx.com> wrote:
-> >
-> > virtio-blk is generally used in cloud computing scenarios, where the
-> > performance of virtual disks is very important. The mq-deadline scheduler
-> > has a big performance drop compared to none with single queue.
+On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
+> 3. vhost looping endlessly, waiting for kworker to be scheduled
 > 
-> At least you can choose the scheduler based on if mq is supported or not?
+> I dug a little deeper on what the vhost is doing. I'm not an expert on
+> virtio whatsoever, so these are just educated guesses that maybe
+> someone can verify/correct. Please bear with me probably messing up 
+> the terminology.
 > 
-> Thanks
+> - vhost is looping through available queues.
+> - vhost wants to wake up a kworker to process a found queue.
+> - kworker does something with that queue and terminates quickly.
+> 
+> What I found by throwing in some very noisy trace statements was that,
+> if the kworker is not woken up, the vhost just keeps looping accross
+> all available queues (and seems to repeat itself). So it essentially
+> relies on the scheduler to schedule the kworker fast enough. Otherwise
+> it will just keep on looping until it is migrated off the CPU.
 
-This is already the case:
 
-static struct elevator_type *elevator_get_default(struct request_queue *q)
-{
-        if (q->tag_set && q->tag_set->flags & BLK_MQ_F_NO_SCHED_BY_DEFAULT)
-                return NULL;
+Normally it takes the buffers off the queue and is done with it.
+I am guessing that at the same time guest is running on some other
+CPU and keeps adding available buffers?
 
-        if (q->nr_hw_queues != 1 &&
-            !blk_mq_is_shared_tags(q->tag_set->flags))
-                return NULL;
-
-        return elevator_find_get(q, "mq-deadline");
-}
-
-I guess I agree blk is typically kind of similar to loopback
-so none by default makes sense here same as for loopback.
-
-Stefan care to comment?
 
 -- 
 MST
