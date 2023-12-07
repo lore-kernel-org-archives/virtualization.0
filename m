@@ -1,76 +1,68 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09C461118E
-	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 05:46:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A777E1103
+	for <virtualization@lists.linux.dev>; Thu,  7 Dec 2023 05:52:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ou1eulSy"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U2f6gbCe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1701927993;
+	s=mimecast20190719; t=1701928341;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=QxiqDGFIicHFEtEIHtNQNblDDB+Ip0Yoq6i22AXMcsw=;
-	b=Ou1eulSyabayFdautSHc5oxVnhnZ57YhHzXu1sFulzqCmqtAh73+Ir7nAbtOeeObuTIilg
-	nWIK0hS0Yj0TER8oExh2yQLjLPPp2Y5l685flujCp4dgJDqhu0TOnFP1Bwa7EGG2TmNWJu
-	IbMT9mq2z3S0rD01UctOOKEEJJModyo=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=HSUZB2MS9IXq3JbO5o9diZppcpNs8joa8PI6k/pJS1g=;
+	b=U2f6gbCen4DeIH9SJfftv3dd/9Xf6LqYMLgdx7IBkY3F+b18bTFeYIlvLjixuqBoHACLDo
+	p2y4sR3T+c6EU0XTGd8R57KzQBdXgPrLSJEGR2zRILQiCQO+aD/Q3cHOls4FeADYQybgsA
+	+8LfitEIEQ3Etd4E6TB5/TEA20MGzKU=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-BCqVMj_ZMVuo3npGFc0NVg-1; Thu, 07 Dec 2023 00:46:32 -0500
-X-MC-Unique: BCqVMj_ZMVuo3npGFc0NVg-1
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-28649b11e86so592365a91.0
-        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 21:46:32 -0800 (PST)
+ us-mta-563-Fujztz-zNm-cqe8q_Y54Fw-1; Thu, 07 Dec 2023 00:52:20 -0500
+X-MC-Unique: Fujztz-zNm-cqe8q_Y54Fw-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-286a4fc4e9eso716419a91.2
+        for <virtualization@lists.linux.dev>; Wed, 06 Dec 2023 21:52:20 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701927991; x=1702532791;
+        d=1e100.net; s=20230601; t=1701928339; x=1702533139;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=QxiqDGFIicHFEtEIHtNQNblDDB+Ip0Yoq6i22AXMcsw=;
-        b=nvXqEEpJsr+PPI7FJGPv60EaXIWxECyuEp3ufk4IARCsL78urlBMtnDzPUgXcckbdm
-         m1z2CjdFPQTrRFnU7InORLNN9luYGgSFTqzCQKZxFNyKcz438zpnbO6Eo3SoJWZB7Xn3
-         rvH8IL1+hnJdCn9e8FKyx2W3ghUkRitX0y16ydaJ36iQGj/dNcae7Mdpi5PChFVtjBII
-         d1vonPCOZFxvj9HQxdfy/k4cqFlElLH2fkX/L2USFxB4MNPALyX5ec6bVPE2qObECb52
-         +TRCMez97oV/hrJKJrIx+r0wQFYutk7lS6Dc9sdlZMMAqPPoAvtTkW96YQKhjMK8eXiu
-         3Dtw==
-X-Gm-Message-State: AOJu0YwGGdRH3m4WDu5F1DLkBRo37kZyNpubSqeQl2pbKPF9nOf/onFB
-	IyMsSJSE4Su8AO8f500kP0FzNLWHRrgTduFDm9dfVqDgV5N5CWEXmbSMazG7H6c9QPpL7+lvZFn
-	MN2Kj2Hhl3Wp5sTZgUpTCHhLdVzymkLZiLrecd9nObl0=
-X-Received: by 2002:a17:90b:310b:b0:286:bff2:c41b with SMTP id gc11-20020a17090b310b00b00286bff2c41bmr1876718pjb.23.1701927991075;
-        Wed, 06 Dec 2023 21:46:31 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHUfgjoIKpasl0QD67eKC09rD6Vvob1+V2GPMTPFb8/kThT/w3JyyDRtZYtlMl19xjCR/LXa/IPCZwYXFZnNus=
-X-Received: by 2002:a17:90b:310b:b0:286:bff2:c41b with SMTP id
- gc11-20020a17090b310b00b00286bff2c41bmr1876711pjb.23.1701927990817; Wed, 06
- Dec 2023 21:46:30 -0800 (PST)
+        bh=HSUZB2MS9IXq3JbO5o9diZppcpNs8joa8PI6k/pJS1g=;
+        b=Q741b+fi7l64vx4oXgxilI+FH3P4yyXgv8A4+j/AxSX5jEaZUpmIpKM2LkwPIXc1gc
+         jVwARV7hRoS9JRvFD33jbXM6MkN+gVFvwZpMY0OZdMyExWwvYIhKJ7VB7B+7fr0SC7fW
+         dEHPUVZ68VsLJ5hCug5xuHEgh3xQTs3wD76Mm7izLl2Z8/YNmL7rBgruJP8rTKRsjWtX
+         ONM6ClFuM8r0co6u9R2EI09+5eKpLae6kFT/dz6P9dV2oWYsJe3LEmMvMoxowW4tAOX7
+         5gAZmYSLYMT+zZJJvE7eMSlbqfxVj/cIg8hY2YQTnPeaZoEGfZtgCJPRaCxwpvItsy4C
+         NFjw==
+X-Gm-Message-State: AOJu0YxafXdUmpAsEtBecJ+3dgzjFTQyHY1HOvmRRAYqfuz4XNeG6h/Z
+	GPhl2x2LLS10N9O7u2Pd5Q0rs+Wu2uRVi6RyUaHJ1sHQTjugmVo6zA/bPkdiT4SThd6yHlJkCTp
+	yXFhvY9NYMskNrORJtMIFUS6jJytRYKlqGrkd/zdtR3E=
+X-Received: by 2002:a17:90a:fd09:b0:286:6cc0:cad3 with SMTP id cv9-20020a17090afd0900b002866cc0cad3mr1949098pjb.74.1701928339230;
+        Wed, 06 Dec 2023 21:52:19 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHmSjJEJticrA6iI+yH1lm5XAyMtFr/azBvGsGe1XMJiQigUQ9nLH+oU43aD6xf+IguxCTdguGcxA4sxW4hVuw=
+X-Received: by 2002:a17:90a:fd09:b0:286:6cc0:cad3 with SMTP id
+ cv9-20020a17090afd0900b002866cc0cad3mr1949085pjb.74.1701928338997; Wed, 06
+ Dec 2023 21:52:18 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231205113444.63015-1-linyunsheng@huawei.com> <20231205113444.63015-6-linyunsheng@huawei.com>
-In-Reply-To: <20231205113444.63015-6-linyunsheng@huawei.com>
+References: <20231205113444.63015-1-linyunsheng@huawei.com> <20231205113444.63015-5-linyunsheng@huawei.com>
+In-Reply-To: <20231205113444.63015-5-linyunsheng@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 7 Dec 2023 13:46:19 +0800
-Message-ID: <CACGkMEsiDbZcCAKDxK7hQ=pqWM-GHG2UaKRGM264ozqKVwZRPg@mail.gmail.com>
-Subject: Re: [PATCH net-next 5/6] net: introduce page_frag_cache_drain()
+Date: Thu, 7 Dec 2023 13:52:08 +0800
+Message-ID: <CACGkMEvwG6EvZ3me9ReqA-YSR1Y_6fb_kotT=+PFARaLS1FTmg@mail.gmail.com>
+Subject: Re: [PATCH net-next 4/6] vhost/net: remove vhost_net_page_frag_refill()
 To: Yunsheng Lin <linyunsheng@huawei.com>
 Cc: davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Jeroen de Borst <jeroendb@google.com>, Praveen Kaligineedi <pkaligineedi@google.com>, 
-	Shailend Chand <shailend@google.com>, Eric Dumazet <edumazet@google.com>, Felix Fietkau <nbd@nbd.name>, 
-	John Crispin <john@phrozen.org>, Sean Wang <sean.wang@mediatek.com>, 
-	Mark Lee <Mark-MC.Lee@mediatek.com>, Lorenzo Bianconi <lorenzo@kernel.org>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Keith Busch <kbusch@kernel.org>, 
-	Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@lst.de>, Sagi Grimberg <sagi@grimberg.me>, 
-	Chaitanya Kulkarni <kch@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, linux-mm@kvack.org
+	"Michael S. Tsirkin" <mst@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
@@ -79,14 +71,21 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Dec 5, 2023 at 7:35=E2=80=AFPM Yunsheng Lin <linyunsheng@huawei.com=
 > wrote:
 >
-> When draining a page_frag_cache, most user are doing
-> the similar steps, so introduce an API to avoid code
-> duplication.
+> The page frag in vhost_net_page_frag_refill() uses the
+> 'struct page_frag' from skb_page_frag_refill(), but it's
+> implementation is similar to page_frag_alloc_align() now.
+>
+> This patch removes vhost_net_page_frag_refill() by using
+> 'struct page_frag_cache' instead of 'struct page_frag',
+> and allocating frag using page_frag_alloc_align().
+>
+> The added benefit is that not only unifying the page frag
+> implementation a little, but also having about 0.5% performance
+> boost testing by using the vhost_net_test introduced in the
+> last patch.
 >
 > Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
 > ---
-
-For vhost part:
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
