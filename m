@@ -1,155 +1,135 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93A4E1E4A9
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756FC32C77
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:18:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="NAdK9Prt"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C713881836
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:06 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org C713881836
+	by smtp2.osuosl.org (Postfix) with ESMTP id D97C5403E9
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:18:48 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org D97C5403E9
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.a=rsa-sha256 header.s=mail header.b=NAdK9Prt
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -9.899
+X-Spam-Score: -2.1
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4ioKOPHWcecF
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mg-RVK5A5thG
 	for <virtualization@lists.linux-foundation.org>;
-	Thu,  7 Dec 2023 08:04:02 +0000 (UTC)
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A19828275A
-	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 08:04:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A19828275A
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R221e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046059;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Vy.1xT9_1701936236;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0Vy.1xT9_1701936236)
-          by smtp.aliyun-inc.com;
-          Thu, 07 Dec 2023 16:03:56 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: virtualization@lists.linux-foundation.org
-Cc: Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2 3/5] virtio_ring: introduce virtqueue_detach_unused_buf_dma()
-Date: Thu,  7 Dec 2023 16:03:51 +0800
-Message-Id: <20231207080353.6575-4-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.32.0.3.g01195cf9f
-In-Reply-To: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com>
-References: <20231207080353.6575-1-xuanzhuo@linux.alibaba.com>
+	Thu,  7 Dec 2023 09:18:47 +0000 (UTC)
+Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 60CB840320
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 Dec 2023 09:18:47 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 60CB840320
+Received: from localhost.localdomain (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	(Authenticated sender: vignesh)
+	by madras.collabora.co.uk (Postfix) with ESMTPSA id 39B07660738E;
+	Thu,  7 Dec 2023 09:18:41 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1701940724;
+	bh=FCRCNovtJ9PtQwtKLRu/evUUkfAvUVXGZUmkbsxA9Cg=;
+	h=From:To:Cc:Subject:Date:From;
+	b=NAdK9PrteQ631PcNJB48XuZXbHRETXzxv1TmcD/HUvePpB9GjvOuwtbwZ5EHFw3QV
+	 GD2L6X5Z+vUx/7jXjlib5a3066CcUYUZBGW4xzSWtx+/1r7cPuiqMC4e4vjPpPdISj
+	 njh/krIKbgqLpIFUIIQK5ZXZwfv7e4yFZKTHVJHx8nAN6LjfkPXTbw93ce8hANr3EB
+	 d8axi5ubMVeWKmTTssMVPbNsT8qQatOlBRVa4S3oqfCfbO2E2yHTw8mPYm0LQ6L5pM
+	 aa3SdK3e4dtq4nBIplVe/GtwCG2a47uLq3Hguc4bvpDBWcS036VtHKzLJHOnfiRpH7
+	 bH4GpvZozQ8yQ==
+From: Vignesh Raman <vignesh.raman@collabora.com>
+To: helen.koike@collabora.com,
+	airlied@gmail.com,
+	daniel@ffwll.ch
+Cc: david.heidelberg@collabora.com,
+	sergi.blanch.torne@collabora.com,
+	guilherme.gallo@collabora.com,
+	daniels@collabora.com,
+	gustavo.padovan@collabora.com,
+	emma@anholt.net,
+	robdclark@gmail.com,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	linux-mediatek@lists.infradead.org,
+	virtualization@lists.linux-foundation.org,
+	linux-arm-msm@vger.kernel.org
+Subject: [PATCH v7 00/10] drm: ci: fixes
+Date: Thu,  7 Dec 2023 14:48:21 +0530
+Message-Id: <20231207091831.660054-1-vignesh.raman@collabora.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Git-Hash: b3688db07ee6
 Content-Transfer-Encoding: 8bit
 
-introduce virtqueue_detach_unused_buf_dma() to collect the dma
-info when get buf from virtio core for premapped mode.
+The patch series contains improvements, enabling new ci jobs which
+enables testing for Mediatek MT8173, Qualcomm APQ 8016 and VirtIO GPU,
+fixing issues with the ci jobs and updating the expectation files.
 
-If the virtio queue is premapped mode, the virtio-net send buf may
-have many desc. Every desc dma address need to be unmap. So here we
-introduce a new helper to collect the dma address of the buffer from
-the virtio core.
+v2:
+  - Use fdtoverlay command to merge overlay dtbo with the base dtb instead of modifying the kernel sources
+  - Reworded the commit message for enabling jobs
+  - Added a new patch in the series to use scripts/config to enable/disable configs
 
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
----
- drivers/virtio/virtio_ring.c | 33 +++++++++++++++++++++++++--------
- include/linux/virtio.h       |  1 +
- 2 files changed, 26 insertions(+), 8 deletions(-)
+v3:
+  - New patch in the series to add device tree overlay in arch/arm64/boot/dts/qcom
+  - drm-ci scripts to use device tree overlay from arch/arm64/boot/dts/qcom and compile base device tree with overlay support
+  - New patch in the series to enable CONFIG_REGULATOR_DA9211 in defconfig
+  - Remove CONFIG_RTC_DRV_MT6397=y as it is already enabled in defconfig
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 42d28bee1294..59e6f970776a 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1006,7 +1006,7 @@ static bool virtqueue_enable_cb_delayed_split(struct virtqueue *_vq)
- 	return true;
- }
- 
--static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
-+static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	unsigned int i;
-@@ -1019,7 +1019,7 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
- 			continue;
- 		/* detach_buf_split clears data, so grab it now. */
- 		buf = vq->split.desc_state[i].data;
--		detach_buf_split(vq, i, NULL, NULL);
-+		detach_buf_split(vq, i, dma, NULL);
- 		vq->split.avail_idx_shadow--;
- 		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
- 				vq->split.avail_idx_shadow);
-@@ -1905,7 +1905,7 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
- 	return true;
- }
- 
--static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
-+static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 	unsigned int i;
-@@ -1918,7 +1918,7 @@ static void *virtqueue_detach_unused_buf_packed(struct virtqueue *_vq)
- 			continue;
- 		/* detach_buf clears data, so grab it now. */
- 		buf = vq->packed.desc_state[i].data;
--		detach_buf_packed(vq, i, NULL, NULL);
-+		detach_buf_packed(vq, i, dma, NULL);
- 		END_USE(vq);
- 		return buf;
- 	}
-@@ -2610,19 +2610,36 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- EXPORT_SYMBOL_GPL(virtqueue_enable_cb_delayed);
- 
- /**
-- * virtqueue_detach_unused_buf - detach first unused buffer
-+ * virtqueue_detach_unused_buf_dma - detach first unused buffer
-  * @_vq: the struct virtqueue we're talking about.
-+ * @dma: the head of the array to store the dma info
-+ *
-+ * more see virtqueue_get_buf_ctx_dma()
-  *
-  * Returns NULL or the "data" token handed to virtqueue_add_*().
-  * This is not valid on an active queue; it is useful for device
-  * shutdown or the reset queue.
-  */
--void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
-+void *virtqueue_detach_unused_buf_dma(struct virtqueue *_vq, struct virtio_dma_head *dma)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq) :
--				 virtqueue_detach_unused_buf_split(_vq);
-+	return vq->packed_ring ? virtqueue_detach_unused_buf_packed(_vq, dma) :
-+				 virtqueue_detach_unused_buf_split(_vq, dma);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf_dma);
-+
-+/**
-+ * virtqueue_detach_unused_buf - detach first unused buffer
-+ * @_vq: the struct virtqueue we're talking about.
-+ *
-+ * Returns NULL or the "data" token handed to virtqueue_add_*().
-+ * This is not valid on an active queue; it is useful for device
-+ * shutdown or the reset queue.
-+ */
-+void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
-+{
-+	return virtqueue_detach_unused_buf_dma(_vq, NULL);
- }
- EXPORT_SYMBOL_GPL(virtqueue_detach_unused_buf);
- 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 7a5e9ea7d420..2596f0e7e395 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -104,6 +104,7 @@ bool virtqueue_poll(struct virtqueue *vq, unsigned);
- bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
- 
- void *virtqueue_detach_unused_buf(struct virtqueue *vq);
-+void *virtqueue_detach_unused_buf_dma(struct virtqueue *_vq, struct virtio_dma_head *dma);
- 
- unsigned int virtqueue_get_vring_size(const struct virtqueue *vq);
- 
+v4:
+  - Drop 'enable CONFIG_REGULATOR_DA9211 in defconfig' patch as it is sent upstream as a seperate patch
+  - Use apq8016-sbc-usb-host.dtb which allows the USB controllers to work in host mode.
+    This patch depends on https://lore.kernel.org/lkml/20230911161518.650726-1-vignesh.raman@collabora.com/
+
+v5:
+  - Added a new patch in the series to set IGT_FORCE_DRIVER to 'mediatek' for mt8173
+  - Added a new patch in the series to make artifacts available for virtio jobs
+  - Added a new patch in the series to add pipeline url to fails and flakes files
+  - Generate fails and flakes file with the updated xfails script - https://www.spinics.net/lists/kernel/msg4959630.html
+  - Drop 'virtio: Update ci variables' patch as the tests which causes the malloc issue are skipped
+
+v6:
+  - Updated commit message for enable DA9211 regulator fix 
+  - Use GPU_VERSION instead of CI_JOB_NAME to check if it is mt8173 while setting IGT_FORCE_DRIVER
+  - Added a new patch in the series to uprev IGT to fix memory corruption
+  - Added a new patch in the series to update drm ci documentation
+  - Generate fails file with drm-misc-next
+
+v7:
+  - Fix checkpatch style problems in commit message
+  - Rework mt8173 IGT_FORCE_DRIVER fix and reword the commit message
+
+Vignesh Raman (10):
+  drm: ci: igt_runner: Remove todo
+  drm: ci: Force db410c to host mode
+  drm: ci: arm64.config: Enable DA9211 regulator
+  drm: ci: Enable new jobs
+  drm: ci: Use scripts/config to enable/disable configs
+  drm: ci: mt8173: Do not set IGT_FORCE_DRIVER to panfrost
+  drm: ci: virtio: Make artifacts available
+  drm: ci: uprev IGT
+  drm/doc: ci: Add IGT version details for flaky tests
+  drm: ci: Update xfails
+
+ Documentation/gpu/automated_testing.rst       |  7 +--
+ drivers/gpu/drm/ci/arm64.config               |  1 +
+ drivers/gpu/drm/ci/build.sh                   | 16 +++----
+ drivers/gpu/drm/ci/gitlab-ci.yml              |  2 +-
+ drivers/gpu/drm/ci/igt_runner.sh              | 10 +++-
+ drivers/gpu/drm/ci/test.yml                   | 13 ++----
+ .../drm/ci/xfails/mediatek-mt8173-fails.txt   | 13 ++++--
+ .../gpu/drm/ci/xfails/msm-apq8016-fails.txt   |  5 ++
+ .../drm/ci/xfails/virtio_gpu-none-fails.txt   | 46 +++++++++++++++++++
+ 9 files changed, 86 insertions(+), 27 deletions(-)
+
 -- 
-2.32.0.3.g01195cf9f
+2.40.1
 
