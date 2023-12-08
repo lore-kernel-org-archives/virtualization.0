@@ -1,144 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D48F14A89
-	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 11:07:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5D61B27C
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T9chQko5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MlculCWy"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 29B6781E6B
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:43 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29B6781E6B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MlculCWy
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4Pxw-4Guu5X5
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  8 Dec 2023 11:35:42 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 689CD8187F
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:42 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 689CD8187F
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702033670;
+	s=mimecast20190719; t=1702035341;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MZ68z0Zmw8ZgsbDmEzD6URQldfv+XNMK6DMNEIcDVTU=;
-	b=T9chQko5C6eDGklrJgzJvpyV1fAp0WTLfK0bHXHJBerwzDLqqu65gf2Z4JSwSKHofv6cK3
-	3aR99wEYD3IN6g3ZF9ijsDB3l1FlHAAJnLdc9t5bVwHDpDi/UmAzpay9f05LhneACHxFYJ
-	e0Kw3svKlisookus3A6v6EcB3VYdtiM=
-Received: from mail-vk1-f198.google.com (mail-vk1-f198.google.com
- [209.85.221.198]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=56LbxjAYxWjvG44Vq3GcHH61dclQGaGcbqQRT67zl+k=;
+	b=MlculCWyMVXemfKf27DvP/Pc4105SQsOrzLpUcszZG3whP95aa4fB36yKfqbVKpG6Eq6DI
+	0oUjEEGF4VQR2xbnq/hN91MYVIbP5DycOodHCRqYFO/5DM7eRl8qUdBx4gdXX4mnTXF/Ps
+	5Wt5ahGd8M+WONd9fYxoW+yClWPVWcs=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-696-u31k0aUwM52sDyGMSD6Zcg-1; Fri, 08 Dec 2023 06:07:47 -0500
-X-MC-Unique: u31k0aUwM52sDyGMSD6Zcg-1
-Received: by mail-vk1-f198.google.com with SMTP id 71dfb90a1353d-4b02c393e25so533629e0c.3
-        for <virtualization@lists.linux.dev>; Fri, 08 Dec 2023 03:07:46 -0800 (PST)
+ us-mta-692-ErNhTIuUMiawao47mzafCQ-1; Fri, 08 Dec 2023 06:35:39 -0500
+X-MC-Unique: ErNhTIuUMiawao47mzafCQ-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a1d72320a33so125353966b.2
+        for <virtualization@lists.linux-foundation.org>; Fri, 08 Dec 2023 03:35:39 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702033666; x=1702638466;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MZ68z0Zmw8ZgsbDmEzD6URQldfv+XNMK6DMNEIcDVTU=;
-        b=oKpDOdS0bfpdy6ipW5iK1o3nbKVWsNetSDXWY3qoNapudYBkashNWGfETywVII9+38
-         EUZzVwCN4K50h/3W0BwQ3usBeIlMcI5OC67aCzt/Kckjmy8G1Q11LMmUcgMA48W22jHi
-         zZKLMpDq5lp3r9ZvMh8C7gUlkR9AViuXfE+KtywBoDg/0Pk6D0GoQ9d0yeVTXVQBQwu3
-         DsXgyhKyf9YtEIeKaSaAsx67NLJjCbQqvRMtxqZ2gijXZgIkR5BkHq8asdROKSZxhMJ3
-         FnS3O7ila6Cdy/tBFrKmLBIA3o+BdRLnvWegMOxz3wyrC52BG+5M2Fwbeaedk3yzIPju
-         U3KA==
-X-Gm-Message-State: AOJu0YywBwQ4I3ZUO4TVNgqJrZ80vZrwcs3IUdHMKuQXEwtPyjj86OnV
-	cnVuigsUfJJEPPJwu95Ze8PNE/5L9yDrRemzvunzpAALbWm0oBXSoQP7Qvle16Xly/odMyDPw3+
-	OAM9B42/1nPTTJ2Fk/6pcc47JG+Xf5imQZODIx68dqI8=
-X-Received: by 2002:a05:6122:2a49:b0:4b2:891e:225a with SMTP id fx9-20020a0561222a4900b004b2891e225amr5351324vkb.11.1702033666413;
-        Fri, 08 Dec 2023 03:07:46 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGrUEvJUaFrYyr5PGOydD15wueB/vwO/OYhbev5UD7asruhM4Q4Ek5B68h+qhR0sIfIIlM2RUFm2TU+UMtSssA=
-X-Received: by 2002:a05:6122:2a49:b0:4b2:891e:225a with SMTP id
- fx9-20020a0561222a4900b004b2891e225amr5351317vkb.11.1702033666140; Fri, 08
- Dec 2023 03:07:46 -0800 (PST)
+        d=1e100.net; s=20230601; t=1702035338; x=1702640138;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=56LbxjAYxWjvG44Vq3GcHH61dclQGaGcbqQRT67zl+k=;
+        b=An9l7xaCAY4K0OnzLEx1UxfzFzw/adycjGb6Mc2J66PaJbMX27ASKbsOShR0VZUXJb
+         u56Amz1nEBItrPKZJPqZD7FvwmSs2gg4U+rCY31FsK8Z6dK2xADRNnwdPu3zIhZFsjDt
+         IX3+6T4QxYrB+xdoZrVVquxxRqlg3W4CYOzMxEib5utD1+acHcfldm0rUImXYeUWcS7m
+         unGNXM34XggCe0xC+foaP9/LVTuVXXPR3+K1J7KczW3sIIIKpyZjfOxASnQqcSfGOdoM
+         yyta53o7JE4mYY3Adf1c90ngVO9/p4qITJfg6HPDBzau2uO0gRiaAy1g2qNNvwnQfBoT
+         YasA==
+X-Gm-Message-State: AOJu0YymlLrOaxcFxL+a7gFtdPKwAhChUyHkqpGk1ByhH+fnh1r+7895
+	fxhFHOnFwSMNY1CVNE+yWnzfHcbBJe+bbQ2YWr0ELEcd1kTKMi1KCHXnRnL9KmaV92Ks90JMJO4
+	4o//aASpxZrZ+VFyU6OVnAy227DEx3+8+Gy02aloMDQ==
+X-Received: by 2002:a17:906:189:b0:a02:a2cc:66b8 with SMTP id 9-20020a170906018900b00a02a2cc66b8mr2833875ejb.14.1702035338427;
+        Fri, 08 Dec 2023 03:35:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGIwMj2tOIobb8zgpJMmlUrCA0d6r8aJyQc86j4Rx04MnRIR+/iDl1ClyT7OuhvjQNv/lzFpQ==
+X-Received: by 2002:a17:906:189:b0:a02:a2cc:66b8 with SMTP id 9-20020a170906018900b00a02a2cc66b8mr2833871ejb.14.1702035338098;
+        Fri, 08 Dec 2023 03:35:38 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f0:7466:b10d:58c8:869f:7e91])
+        by smtp.gmail.com with ESMTPSA id cw15-20020a170907160f00b00a1937153bddsm898831ejd.20.2023.12.08.03.35.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Dec 2023 03:35:37 -0800 (PST)
+Date: Fri, 8 Dec 2023 06:35:34 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Wu Zongyong <wuzongyong@linux.alibaba.com>,
+	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] vdpa: Fix an error handling path in eni_vdpa_probe()
+Message-ID: <20231208063520-mutt-send-email-mst@kernel.org>
+References: <a7b0ef1eabd081f1c7c894e9b11de01678e85dee.1666293559.git.christophe.jaillet@wanadoo.fr>
+ <72a89724-9dad-499a-a0ed-ad9d046d235d@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20231207043118.118158-1-fengli@smartx.com> <ZXJ4xNawrSRem2qe@fedora>
- <ZXKDFdzXN4xQAuBm@kbusch-mbp> <ZXKTW7z3UH1kPvod@fedora> <6CB024E3-337C-41F9-9DA1-B54B6E19F78E@smartx.com>
-In-Reply-To: <6CB024E3-337C-41F9-9DA1-B54B6E19F78E@smartx.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Date: Fri, 8 Dec 2023 12:07:33 +0100
-Message-ID: <CABgObfatL_NaPxU4RmmGsx9rz=8EVkpro=7Tpw_nLjKguzMDUQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
-To: Li Feng <fengli@smartx.com>
-Cc: Ming Lei <ming.lei@redhat.com>, Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, 
-	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
+In-Reply-To: <72a89724-9dad-499a-a0ed-ad9d046d235d@wanadoo.fr>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, Dec 8, 2023 at 6:54=E2=80=AFAM Li Feng <fengli@smartx.com> wrote:
->
->
-> Hi,
->
-> I have ran all io pattern on my another host.
-> Notes:
-> q1 means fio iodepth =3D 1
-> j1 means fio num jobs =3D 1
->
-> VCPU =3D 4, VMEM =3D 2GiB, fio using directio.
->
-> The results of most jobs are better than the deadline, and some are lower=
- than the deadline=E3=80=82
+On Thu, Dec 07, 2023 at 10:13:51PM +0100, Christophe JAILLET wrote:
+> Le 20/10/2022 à 21:21, Christophe JAILLET a écrit :
+> > After a successful vp_legacy_probe() call, vp_legacy_remove() should be
+> > called in the error handling path, as already done in the remove function.
+> > 
+> > Add the missing call.
+> > 
+> > Fixes: e85087beedca ("eni_vdpa: add vDPA driver for Alibaba ENI")
+> > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> > ---
+> >   drivers/vdpa/alibaba/eni_vdpa.c | 6 ++++--
+> >   1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
+> > index 5a09a09cca70..cce3d1837104 100644
+> > --- a/drivers/vdpa/alibaba/eni_vdpa.c
+> > +++ b/drivers/vdpa/alibaba/eni_vdpa.c
+> > @@ -497,7 +497,7 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> >   	if (!eni_vdpa->vring) {
+> >   		ret = -ENOMEM;
+> >   		ENI_ERR(pdev, "failed to allocate virtqueues\n");
+> > -		goto err;
+> > +		goto err_remove_vp_legacy;
+> >   	}
+> >   	for (i = 0; i < eni_vdpa->queues; i++) {
+> > @@ -509,11 +509,13 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> >   	ret = vdpa_register_device(&eni_vdpa->vdpa, eni_vdpa->queues);
+> >   	if (ret) {
+> >   		ENI_ERR(pdev, "failed to register to vdpa bus\n");
+> > -		goto err;
+> > +		goto err_remove_vp_legacy;
+> >   	}
+> >   	return 0;
+> > +err_remove_vp_legacy:
+> > +	vp_legacy_remove(&eni_vdpa->ldev);
+> >   err:
+> >   	put_device(&eni_vdpa->vdpa.dev);
+> >   	return ret;
+> 
+> Polite reminder on a (very) old patch.
+> 
+> CJ
 
-I think this analysis is a bit simplistic. In particular:
 
-For low queue depth improvements are relatively small but we also have
-the worst cases:
-
-4k-randread-q1-j1      |    12325  |     13356  |   8.37%
-256k-randread-q1-j1    |     1865  |      1883  |   0.97%
-4k-randwrite-q1-j1     |     9923  |     10163  |   2.42%
-256k-randwrite-q1-j1   |     2762  |      2833  |   2.57%
-4k-read-q1-j1          |    21499  |     22223  |   3.37%
-256k-read-q1-j1        |     1919  |      1951  |   1.67%
-4k-write-q1-j1         |    10120  |     10262  |   1.40%
-256k-write-q1-j1       |     2779  |      2744  |  -1.26%
-4k-randread-q1-j2      |    24238  |     25478  |   5.12%
-256k-randread-q1-j2    |     3656  |      3649  |  -0.19%
-4k-randwrite-q1-j2     |    17096  |     18112  |   5.94%
-256k-randwrite-q1-j2   |     5188  |      4914  |  -5.28%
-4k-read-q1-j2          |    36890  |     31768  | -13.88%
-256k-read-q1-j2        |     3708  |      4028  |   8.63%
-4k-write-q1-j2         |    17786  |     18519  |   4.12%
-256k-write-q1-j2       |     4756  |      5035  |   5.87%
-
-(I ran a paired t-test and it confirms that the improvements overall
-are not statistically significant).
-
-Small, high queue depth I/O is where the improvements are definitely
-significant, but even then the scheduler seems to help in the j2 case:
-
-4k-randread-q128-j1    |   204739  |    319066  |  55.84%
-4k-randwrite-q128-j1   |   137400  |    152081  |  10.68%
-4k-read-q128-j1        |   158806  |    345269  | 117.42%
-4k-write-q128-j1       |    47576  |    209236  | 339.79%
-4k-randread-q128-j2    |   390090  |    577300  |  47.99%
-4k-randwrite-q128-j2   |   143373  |    140560  |  -1.96%
-4k-read-q128-j2        |   399500  |    409857  |   2.59%
-4k-write-q128-j2       |   175756  |    159109  |  -9.47%
-
-At higher sizes, even high queue depth results have high variability.
-There are clear improvements for sequential reads, but not so much for
-everything else:
-
-256k-randread-q128-j1  |    24257  |     22851  |  -5.80%
-256k-randwrite-q128-j1 |     9353  |      9233  |  -1.28%
-256k-read-q128-j1      |    18918  |     23710  |  25.33%
-256k-write-q128-j1     |     9199  |      9337  |   1.50%
-256k-randread-q128-j2  |    21992  |     23437  |   6.57%
-256k-randwrite-q128-j2 |     9423  |      9314  |  -1.16%
-256k-read-q128-j2      |    19360  |     21467  |  10.88%
-256k-write-q128-j2     |     9292  |      9293  |   0.01%
-
-I would focus on small I/O with varying queue depths, to understand at
-which point the performance starts to improve; queue depth of 128 may
-not be representative of common usage, especially high queue depth
-*sequential* access which is where the biggest effects are visibie.
-Maybe you can look at improvements in the scheduler instead?
-
-Paolo
+Tagged now, thanks!
 
