@@ -1,43 +1,52 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB654405
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 03:28:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CA42341989
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 03:28:15 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CA42341989
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.9
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MjKkWqYjh7cs
-	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Dec 2023 03:28:14 +0000 (UTC)
-Received: from abb.hmeau.com (abb.hmeau.com [144.6.53.87])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6192A41928
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 03:28:14 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 6192A41928
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-	id 1rBRX6-008IE0-47; Fri, 08 Dec 2023 11:28:09 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 08 Dec 2023 11:28:17 +0800
-Date: Fri, 8 Dec 2023 11:28:17 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Cc: "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD0F73D7B
+	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 03:54:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XAIZBM2R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702007659;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CMjgdK/2S1PdVSZgnJj0b95Jv4yCNX3anEehreiP6o4=;
+	b=XAIZBM2R/dDJrc40aVsKMdxkn0AxFyJ+1JS1dDYaigrkGhHFUVJDVvtNwGOFJgh7gt9/JX
+	zaRYTIu/oCY+QKw4qUGrm2tb8YR0m0YP5yz3wYKwtbDBFPFOP6XZ9xRb5fs5Q/JQbmrFUO
+	Puw50o5zvu4Bnw8dZRG2TIgnuY/LVKM=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-v257SBM9Ou6VY-NkZGlbJw-1; Thu, 07 Dec 2023 22:54:14 -0500
+X-MC-Unique: v257SBM9Ou6VY-NkZGlbJw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1F0128057FD;
+	Fri,  8 Dec 2023 03:54:14 +0000 (UTC)
+Received: from fedora (unknown [10.72.120.5])
+	by smtp.corp.redhat.com (Postfix) with ESMTPS id 05A5C2166B35;
+	Fri,  8 Dec 2023 03:54:07 +0000 (UTC)
+Date: Fri, 8 Dec 2023 11:54:03 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Keith Busch <kbusch@kernel.org>
+Cc: Li Feng <fengli@smartx.com>, Jens Axboe <axboe@kernel.dk>,
 	"Michael S. Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	"virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	wangyangxin <wangyangxin1@huawei.com>,
-	Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v2] crypto: virtio-crypto: Handle dataq logic  with
- tasklet
-Message-ID: <ZXKNUdXNV7G3ED3P@gondor.apana.org.au>
-References: <ad8c946eb2294a7bb9eef26066c06b72@huawei.com>
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
+Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
+Message-ID: <ZXKTW7z3UH1kPvod@fedora>
+References: <20231207043118.118158-1-fengli@smartx.com>
+ <ZXJ4xNawrSRem2qe@fedora>
+ <ZXKDFdzXN4xQAuBm@kbusch-mbp>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,29 +55,43 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ad8c946eb2294a7bb9eef26066c06b72@huawei.com>
+In-Reply-To: <ZXKDFdzXN4xQAuBm@kbusch-mbp>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.6
 
-On Wed, Dec 06, 2023 at 11:52:51AM +0000, Gonglei (Arei) wrote:
-> Doing ipsec produces a spinlock recursion warning.
-> This is due to crypto_finalize_request() being called in the upper half.
-> Move virtual data queue processing of virtio-crypto driver to tasklet.
+On Thu, Dec 07, 2023 at 07:44:37PM -0700, Keith Busch wrote:
+> On Fri, Dec 08, 2023 at 10:00:36AM +0800, Ming Lei wrote:
+> > On Thu, Dec 07, 2023 at 12:31:05PM +0800, Li Feng wrote:
+> > > virtio-blk is generally used in cloud computing scenarios, where the
+> > > performance of virtual disks is very important. The mq-deadline scheduler
+> > > has a big performance drop compared to none with single queue. In my tests,
+> > > mq-deadline 4k readread iops were 270k compared to 450k for none. So here
+> > > the default scheduler of virtio-blk is set to "none".
+> > 
+> > The test result shows you may not test HDD. backing of virtio-blk.
+> > 
+> > none can lose IO merge capability more or less, so probably sequential IO perf
+> > drops in case of HDD backing.
 > 
-> Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-> Reported-by: Halil Pasic <pasic@linux.ibm.com>
-> Signed-off-by: wangyangxin <wangyangxin1@huawei.com>
-> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-> ---
->  v2: calling tasklet_kill() in virtcrypto_remove(), thanks for MST.
-> 
->  drivers/crypto/virtio/virtio_crypto_common.h |  2 ++
->  drivers/crypto/virtio/virtio_crypto_core.c   | 26 ++++++++++++++++----------
->  2 files changed, 18 insertions(+), 10 deletions(-)
+> More of a curiosity, as I don't immediately even have an HDD to test
+> with! Isn't it more useful for the host providing the backing HDD use an
+> appropriate IO scheduler? virtio-blk has similiarities with a stacking
+> block driver, and we usually don't need to stack IO schedulers.
 
-Your patch has already been merged.  So please send this as
-an incremental patch.
+dm-rq actually uses IO scheduler at high layer, and early merge has some
+benefits:
+
+1) virtio-blk inflight requests are reduced, so less chance to throttle
+inside VM, meantime less IOs(bigger size) are handled by QEMU, and submitted
+to host side queue.
+
+2) early merge in VM is cheap than host side, since there can be more block
+IOs originated from different virtio-blk/scsi devices at the same time and
+all images can be stored in single disk, then these IOs become interleaved in
+host side queue, so sequential IO may become random or hard to merge.
+
+As Jens mentioned, it needs actual test.
+
 
 Thanks,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Ming
+
