@@ -1,55 +1,55 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 784BF7460
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:02:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 719697491
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:29:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dYufYB8m"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KEe79FMD"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E53AA83B90
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:02:08 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org E53AA83B90
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=dYufYB8m
+	by smtp3.osuosl.org (Postfix) with ESMTP id CB7186F50C
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:29:06 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org CB7186F50C
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=KEe79FMD
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -1.999
+X-Spam-Score: -4.299
 X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aX3xIB5FK9Cy
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IW4WTs6MnnXF
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Dec 2023 06:02:07 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A3FE283B56
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:02:07 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A3FE283B56
+	Fri,  8 Dec 2023 06:29:06 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E18F06F504
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:29:05 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org E18F06F504
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1702015328; x=1733551328;
+  t=1702016945; x=1733552945;
   h=message-id:date:mime-version:cc:subject:to:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=8YfUtY53ybfUCrDRuQ3/gMPNDKuhyX3Iq/kRdGPDIQk=;
-  b=dYufYB8mVSLa2e999XpwZC+CU8VOldFJ4qdt87+wbSXu5VJKFXO99jDh
-   Av7GgTxE447unDBi+sFIW/pk+KZELi9sDLJMxak1CVoIwE57/+W63w0vB
-   KsjxTmnvpvpNlLGPWmp4vA6rOivneLIIpRoKBrCLky85XOM9CvMqQVfYK
-   9VySDTmubbF4t8JrwT6C212iv7piD4EpRT1bH0VO4V44w0m1sgAUNOtPT
-   XwKVWbjTD3xgsXgbBCytD9kLipDykixmEbPs7fO8kSSyL1QUG+80DYOvN
-   Qcc3/UJ/qs21RRqLJmgDGBc3wc+7ZeYHbF7jShbAExfspuKr0XT/MGWGd
+  bh=hhwvQW5d3F0DRDnekXHWCaEI+t4hV1ugkZDv0LKCQdU=;
+  b=KEe79FMDWRtimlx7bDVfVrjN3aLFQ8EAvp4EDiOkcRYHDP6B5MRN8t38
+   1rs+ANl9xbvDz+8D2tD0ZC15rRcrsKMFy60861Yxk+VBeJFmwH1yyYZla
+   HkJceMXE6sDEb0onzU0hYQn7jCsoOYeaX0lMHUk2MLFHfwU3FrVcuN1St
+   XBI2S7r8MYWxBn5do6V2Md2SGCNC9lQBErZ2/YlUqgIQvT3TGZdO/nlW7
+   gP0rKwpug8uzcwhP0ea2307RYAKl6qejKByCno8DONWX861LOXky1XXqv
+   H338caozRu0kgcpi4Tb+Ye7oiSZXXTo+dqSSrKqbSTYgFqtcrmHPFDAph
    A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="1467168"
+X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="394103560"
 X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
-   d="scan'208";a="1467168"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2023 22:02:07 -0800
+   d="scan'208";a="394103560"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2023 22:28:59 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="842486903"
+X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="862757803"
 X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
-   d="scan'208";a="842486903"
+   d="scan'208";a="862757803"
 Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
-  by fmsmga004.fm.intel.com with ESMTP; 07 Dec 2023 22:02:03 -0800
-Message-ID: <46c80b4e-9f05-4fb2-a31d-7386a41c895a@linux.intel.com>
-Date: Fri, 8 Dec 2023 13:57:26 +0800
+  by FMSMGA003.fm.intel.com with ESMTP; 07 Dec 2023 22:28:56 -0800
+Message-ID: <e6504514-9e95-4f68-a276-35582db3881e@linux.intel.com>
+Date: Fri, 8 Dec 2023 14:24:19 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,55 +65,63 @@ Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
  Jacob Pan <jacob.jun.pan@linux.intel.com>, iommu@lists.linux.dev,
  linux-kselftest@vger.kernel.org, virtualization@lists.linux-foundation.org,
  linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/6] IOMMUFD: Deliver IO page faults to user space
+Subject: Re: [PATCH v2 1/6] iommu: Add iommu page fault cookie helpers
 Content-Language: en-US
 To: Jason Gunthorpe <jgg@ziepe.ca>
 References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
- <20231201142427.GJ1394392@ziepe.ca>
+ <20231026024930.382898-2-baolu.lu@linux.intel.com>
+ <20231201143810.GK1394392@ziepe.ca>
 From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20231201142427.GJ1394392@ziepe.ca>
+In-Reply-To: <20231201143810.GK1394392@ziepe.ca>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 12/1/23 10:24 PM, Jason Gunthorpe wrote:
-> On Thu, Oct 26, 2023 at 10:49:24AM +0800, Lu Baolu wrote:
->> Hi folks,
->>
->> This series implements the functionality of delivering IO page faults to
->> user space through the IOMMUFD framework for nested translation. Nested
->> translation is a hardware feature that supports two-stage translation
->> tables for IOMMU. The second-stage translation table is managed by the
->> host VMM, while the first-stage translation table is owned by user
->> space. This allows user space to control the IOMMU mappings for its
->> devices.
->>
->> When an IO page fault occurs on the first-stage translation table, the
->> IOMMU hardware can deliver the page fault to user space through the
->> IOMMUFD framework. User space can then handle the page fault and respond
->> to the device top-down through the IOMMUFD. This allows user space to
->> implement its own IO page fault handling policies.
->>
->> User space indicates its capability of handling IO page faults by
->> setting the IOMMU_HWPT_ALLOC_IOPF_CAPABLE flag when allocating a
->> hardware page table (HWPT). IOMMUFD will then set up its infrastructure
->> for page fault delivery. On a successful return of HWPT allocation, the
->> user can retrieve and respond to page faults by reading and writing to
->> the file descriptor (FD) returned in out_fault_fd.
+On 12/1/23 10:38 PM, Jason Gunthorpe wrote:
+> On Thu, Oct 26, 2023 at 10:49:25AM +0800, Lu Baolu wrote:
 > 
-> This is probably backwards, userspace should allocate the FD with a
-> dedicated ioctl and provide it during domain allocation.
+>> +void *iopf_pasid_cookie_get(struct device *dev, ioasid_t pasid)
+>> +{
+>> +	struct iommu_fault_param *iopf_param = iopf_get_dev_fault_param(dev);
+>> +	void *curr;
+>> +
+>> +	if (!iopf_param)
+>> +		return ERR_PTR(-ENODEV);
+>> +
+>> +	xa_lock(&iopf_param->pasid_cookie);
+>> +	curr = xa_load(&iopf_param->pasid_cookie, pasid);
+>> +	xa_unlock(&iopf_param->pasid_cookie);
+> No need for this locking, the caller has to provide some kind of
+> locking to protect the returned pointer.
+> 
+> I'm not sure how this can work really..
+> 
+> What iommfd wants is to increment the device object refcount under
+> this xa_lock.
+> 
+> I'm not sure this is the right arrangement: Basically you want to
+> have a cookie per domain attachment for iopf domains that is forwarded
+> to the handler.
+> 
+> So maybe this entire thing is not quite right, instead of having a
+> generic iopf attached to the domain the iopf should be supplied at
+> domain attach time? Something like:
+> 
+> iommu_domain_attach_iopf(struct iommu_domain *, struct device *,
+>                           ioasid_t pasid, struct iopf *, void *cookie);
+> 
+> The per-attach cookie would be passed to the iopf function
+> automatically by the infrastructure.
+> 
+> Detach would have the necessary locking to ensure that no handler is
+> running across detach
+> 
+> Then the cookie is logically placed in the API and properly protected
+> with natural locking we already need.
 
-Introducing a dedicated fault FD for fault handling seems promising. It
-decouples the fault handling from any specific domain. I suppose we need
-different fault fd for recoverable faults (a.k.a. IO page fault) and
-unrecoverable faults. Do I understand you correctly?
-
-
-> If the userspace wants a fd per domain then it should do that. If it
-> wants to share fds between domains that should work too.
-
-Yes, it's more flexible. The fault message contains the hwpt obj id, so
-user space can recognize the hwpt on which the fault happened.
+Great idea! In a subsequent series, we could arrange the enabling and
+disabling of IOPF in this API, thereby eliminating the calling of
+iommu_dev_enable/disable_feature(dev, IOMMU_DEV_FEAT_IOPF) from the
+device drivers.
 
 Best regards,
 baolu
