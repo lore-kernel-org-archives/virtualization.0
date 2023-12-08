@@ -1,277 +1,62 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B3DB1FBB
-	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 02:32:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27A6815CB;
+	Fri,  8 Dec 2023 02:44:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="ZnS8ATNi"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-5c6b9583dcbso1396441a12.2
-        for <virtualization@lists.linux.dev>; Thu, 07 Dec 2023 18:32:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1702002761; x=1702607561; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sK+dpfhTNn2ryOO3zkIQxrXe0eF4GP377XOMqpOvjVM=;
-        b=ZnS8ATNiX3bvGDb1Ws2HydL7LUv+/FbQdvGA4vTNrbBq9ADsWbV6HT1eCUIpdkshSv
-         u44IEUz3/HmLbBa8YLRUO941ARVjMt/v1jh/SsjTD34cS7/v8bwGhY4S2dvVWN/B718V
-         ug2/XXQMaSypEFREU9nY1VWUtIpPhmKTtIPi8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702002761; x=1702607561;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sK+dpfhTNn2ryOO3zkIQxrXe0eF4GP377XOMqpOvjVM=;
-        b=UOsk4x6kkoR1pg0pgFqnCiX5GKMd/s6WScMU+oQ1W3bwY5qPjUuDlysL2YesgQ5zJs
-         YWICkDsTNDwkTkrlizCYDKAw7j/TXrtShb3xDSkoOzfCQofkqnhWzBFdWOydl3f4KejY
-         D7IYLSWv0pWabBPiflgMrhWgxSfR6Cd2OajaZThojwK34UI8hhhkVL3CAxlWTK8HaSwd
-         a5uVYuLdKLTPOiJnuKBAaH/rWDDfMHQdZXJsdy3kS+Rybpe7KNuGh4wbLXhZCq5EGgbb
-         4XB9xDGwgGuFq6PG1HpTsJtBi+/6EU5GXXdsekMCwSKYL2xdzZlKd8RHgKaKgYflohMP
-         pO1g==
-X-Gm-Message-State: AOJu0Yxuy4PEeOYpSXPmUV09r6H/bM9JsNi7Yd46/CmNX8SnFDBzZBEu
-	MOjjkXLg5C4e0kyqZRugNEdqhw==
-X-Google-Smtp-Source: AGHT+IEzveokbMoywO7bnYhPg9EUBTWQ79PqRORS8/rPU6xUCtgIKr75zOGibzyV7HydSoCKic+JYA==
-X-Received: by 2002:a05:6a20:8f24:b0:18b:4dc2:a4c7 with SMTP id b36-20020a056a208f2400b0018b4dc2a4c7mr4129011pzk.14.1702002761513;
-        Thu, 07 Dec 2023 18:32:41 -0800 (PST)
-Received: from amakhalov-build-vm.eng.vmware.com ([128.177.82.146])
-        by smtp.gmail.com with ESMTPSA id pq18-20020a17090b3d9200b00286dfa09e7asm615887pjb.24.2023.12.07.18.32.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Dec 2023 18:32:41 -0800 (PST)
-From: Alexey Makhalov <alexey.makhalov@broadcom.com>
-To: linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	bp@alien8.de,
-	hpa@zytor.com,
-	dave.hansen@linux.intel.com,
-	mingo@redhat.com,
-	tglx@linutronix.de
-Cc: x86@kernel.org,
-	netdev@vger.kernel.org,
-	richardcochran@gmail.com,
-	linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com,
-	zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com,
-	pv-drivers@vmware.com,
-	namit@vmware.com,
-	timothym@vmware.com,
-	akaher@vmware.com,
-	jsipek@vmware.com,
-	dri-devel@lists.freedesktop.org,
-	daniel@ffwll.ch,
-	airlied@gmail.com,
-	tzimmermann@suse.de,
-	mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com,
-	horms@kernel.org
-Subject: [PATCH] x86/vmware: Add TDX hypercall support
-Date: Thu,  7 Dec 2023 18:32:33 -0800
-Message-Id: <20231208023233.71170-1-alexey.makhalov@broadcom.com>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <64074f04-fd72-488b-831a-ad744bbcd950@broadcom.com>
-References: <64074f04-fd72-488b-831a-ad744bbcd950@broadcom.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pL7RE0MC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFA2FC433C7;
+	Fri,  8 Dec 2023 02:44:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1702003480;
+	bh=wuEMZ81uJKarUyz9kBDH4zgx1rrGtZ2JyolpU+3aRiM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=pL7RE0MChzRmd5+zFgBRqP2gm0x35pQjDnQ/pvXGYQbkFekqXMJF4XBtatGzh6Mw3
+	 DXX1DS3AJ1wUYSsDsQEH62rAJMpMU0OiePmTuAdnJwmQNQxhRgr/tZ9xdhhRmYz/ic
+	 JkDlnfgOfacefgnnOF6C1/t5Yr+9FxoT3VT4frjyUuEvXfA2e+ouWVcilcMHNJ5jaW
+	 554KkpfVUeFErCu85NQXOzaOYPFBXQYu81R3KA4uS9tYeLmafcTQkcWfub+dyP5hi1
+	 PXTWMyXcKOREPs6aFr+QSRcVwE18aQho0GDSUOvDNhUipxsYBz+u4OIOR/V+c9jeiV
+	 jiV1SVn7fO1Qg==
+Date: Thu, 7 Dec 2023 19:44:37 -0700
+From: Keith Busch <kbusch@kernel.org>
+To: Ming Lei <ming.lei@redhat.com>
+Cc: Li Feng <fengli@smartx.com>, Jens Axboe <axboe@kernel.dk>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	"open list:BLOCK LAYER" <linux-block@vger.kernel.org>,
+	open list <linux-kernel@vger.kernel.org>,
+	"open list:VIRTIO BLOCK AND SCSI DRIVERS" <virtualization@lists.linux.dev>
+Subject: Re: [PATCH] virtio_blk: set the default scheduler to none
+Message-ID: <ZXKDFdzXN4xQAuBm@kbusch-mbp>
+References: <20231207043118.118158-1-fengli@smartx.com>
+ <ZXJ4xNawrSRem2qe@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZXJ4xNawrSRem2qe@fedora>
 
-From: Alexey Makhalov <amakhalov@vmware.com>
+On Fri, Dec 08, 2023 at 10:00:36AM +0800, Ming Lei wrote:
+> On Thu, Dec 07, 2023 at 12:31:05PM +0800, Li Feng wrote:
+> > virtio-blk is generally used in cloud computing scenarios, where the
+> > performance of virtual disks is very important. The mq-deadline scheduler
+> > has a big performance drop compared to none with single queue. In my tests,
+> > mq-deadline 4k readread iops were 270k compared to 450k for none. So here
+> > the default scheduler of virtio-blk is set to "none".
+> 
+> The test result shows you may not test HDD. backing of virtio-blk.
+> 
+> none can lose IO merge capability more or less, so probably sequential IO perf
+> drops in case of HDD backing.
 
-VMware hypercalls use I/O port, VMCALL or VMMCALL instructions.
-Add __tdx_hypercall path to support TDX guests.
-
-No change in high bandwidth hypercalls, as only low bandwidth
-ones are supported for TDX guests.
-
-Co-developed-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Tim Merrifield <timothym@vmware.com>
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: Nadav Amit <namit@vmware.com>
----
- arch/x86/include/asm/vmware.h | 83 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/cpu/vmware.c  | 22 ++++++++++
- 2 files changed, 105 insertions(+)
-
-diff --git a/arch/x86/include/asm/vmware.h b/arch/x86/include/asm/vmware.h
-index 719e41260ece..04c698b905ab 100644
---- a/arch/x86/include/asm/vmware.h
-+++ b/arch/x86/include/asm/vmware.h
-@@ -34,12 +34,65 @@
- #define VMWARE_CMD_GETHZ		45
- #define VMWARE_CMD_GETVCPU_INFO		68
- #define VMWARE_CMD_STEALCLOCK		91
-+/*
-+ * Hypercall command mask:
-+ *   bits[6:0] command, range [0, 127]
-+ *   bits[19:16] sub-command, range [0, 15]
-+ */
-+#define VMWARE_CMD_MASK			0xf007fULL
- 
- #define CPUID_VMWARE_FEATURES_ECX_VMMCALL	BIT(0)
- #define CPUID_VMWARE_FEATURES_ECX_VMCALL	BIT(1)
- 
- extern u8 vmware_hypercall_mode;
- 
-+#define VMWARE_TDX_VENDOR_LEAF 0x1af7e4909ULL
-+#define VMWARE_TDX_HCALL_FUNC  1
-+
-+extern unsigned long vmware_tdx_hypercall(struct tdx_module_args *args);
-+
-+/*
-+ * TDCALL[TDG.VP.VMCALL] uses rax (arg0) and rcx (arg2), while the use of
-+ * rbp (arg6) is discouraged by the TDX specification. Therefore, we
-+ * remap those registers to r12, r13 and r14, respectively.
-+ */
-+static inline
-+unsigned long vmware_tdx_hypercall_args(unsigned long cmd, unsigned long in1,
-+					unsigned long in3, unsigned long in4,
-+					unsigned long in5, unsigned long in6,
-+					uint32_t *out1, uint32_t *out2,
-+					uint32_t *out3, uint32_t *out4,
-+					uint32_t *out5, uint32_t *out6)
-+{
-+	unsigned long ret;
-+
-+	struct tdx_module_args args = {
-+		.r13 = cmd,
-+		.rbx = in1,
-+		.rdx = in3,
-+		.rsi = in4,
-+		.rdi = in5,
-+		.r14 = in6,
-+	};
-+
-+	ret = vmware_tdx_hypercall(&args);
-+
-+	if (out1)
-+		*out1 = args.rbx;
-+	if (out2)
-+		*out2 = args.r13;
-+	if (out3)
-+		*out3 = args.rdx;
-+	if (out4)
-+		*out4 = args.rsi;
-+	if (out5)
-+		*out5 = args.rdi;
-+	if (out6)
-+		*out6 = args.r14;
-+
-+	return ret;
-+}
-+
- /*
-  * The low bandwidth call. The low word of edx is presumed to have OUT bit
-  * set. The high word of edx may contain input data from the caller.
-@@ -67,6 +120,11 @@ unsigned long vmware_hypercall1(unsigned long cmd, unsigned long in1)
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0, 0,
-+						 NULL, NULL, NULL,
-+						 NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -85,6 +143,11 @@ unsigned long vmware_hypercall3(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0, 0,
-+						 out1, out2, NULL,
-+						 NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -104,6 +167,11 @@ unsigned long vmware_hypercall4(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, 0, 0, 0, 0,
-+						 out1, out2, out3,
-+						 NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -123,6 +191,11 @@ unsigned long vmware_hypercall5(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5, 0,
-+						 NULL, out2, NULL,
-+						 NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-@@ -145,6 +218,11 @@ unsigned long vmware_hypercall6(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, 0, 0, 0,
-+						 NULL, out2, out3,
-+						 out4, out5, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=c" (*out2), "=d" (*out3), "=S" (*out4),
- 		  "=D" (*out5)
-@@ -166,6 +244,11 @@ unsigned long vmware_hypercall7(unsigned long cmd, unsigned long in1,
- {
- 	unsigned long out0;
- 
-+	if (cpu_feature_enabled(X86_FEATURE_TDX_GUEST))
-+		return vmware_tdx_hypercall_args(cmd, in1, in3, in4, in5, 0,
-+						 out1, out2, out3,
-+						 NULL, NULL, NULL);
-+
- 	asm_inline volatile (VMWARE_HYPERCALL
- 		: "=a" (out0), "=b" (*out1), "=c" (*out2), "=d" (*out3)
- 		: [port] "i" (VMWARE_HYPERVISOR_PORT),
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 3aa1adaed18f..bcf1d0fb3e89 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -428,6 +428,28 @@ static bool __init vmware_legacy_x2apic_available(void)
- 		(eax & BIT(VCPU_LEGACY_X2APIC));
- }
- 
-+#ifdef CONFIG_INTEL_TDX_GUEST
-+unsigned long vmware_tdx_hypercall(struct tdx_module_args *args)
-+{
-+	if (!hypervisor_is_type(X86_HYPER_VMWARE))
-+		return 0;
-+
-+	if (args->r13 & ~VMWARE_CMD_MASK) {
-+		pr_warn("Out of range command %llx\n", args->r13);
-+		return 0;
-+	}
-+
-+	args->r10 = VMWARE_TDX_VENDOR_LEAF;
-+	args->r11 = VMWARE_TDX_HCALL_FUNC;
-+	args->r12 = VMWARE_HYPERVISOR_MAGIC;
-+
-+	__tdx_hypercall(args);
-+
-+	return args->r12;
-+}
-+EXPORT_SYMBOL_GPL(vmware_tdx_hypercall);
-+#endif
-+
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
- 					struct pt_regs *regs)
--- 
-2.39.0
-
+More of a curiosity, as I don't immediately even have an HDD to test
+with! Isn't it more useful for the host providing the backing HDD use an
+appropriate IO scheduler? virtio-blk has similiarities with a stacking
+block driver, and we usually don't need to stack IO schedulers.
