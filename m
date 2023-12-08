@@ -1,66 +1,64 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0762D6D1B
-	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 09:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E71B61A732
+	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 10:31:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="AtTCDJOv"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B886trX024659;
-	Fri, 8 Dec 2023 09:24:22 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=JEAwVKDJqDLzP9w+newjcge67k65+TREqS2ks7je0ko=;
- b=AtTCDJOvj/19nSJWXCeGb4iQB/5NdIlPPkuidfMtuOJCxVaKgqOrYHcv47nmfH++6KHz
- r6Ldum6vLdBPuxKwaLt4fDPvMs451XHLcTcQXn2cR+eTz0PaCzpF8y78IuKwuYxYHSu9
- d1k+b1AVqrdGHUBm7w6+UGpONz0VOBo7nXrkbVa1n6vxWOM+uwjS1VUcU79AfAILyUcv
- 8/Z4Z/w0ewI9neXkG9D33/S9jYUKLQYl8MXI3blxIPbg4tyZF2eFlo6KsSaVV6BvZ4zY
- MDQkcCQx6TDe680GqRBjGV+W1y6L5lHPttfgIF9mADw07BW+AGe36GfKuYG2N3vaR8kQ tg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uuxmnb1qm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 09:24:21 +0000
-Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B89MFGT019807;
-	Fri, 8 Dec 2023 09:24:21 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uuxmnb1q7-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 09:24:21 +0000
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B85umn7015437;
-	Fri, 8 Dec 2023 09:24:20 GMT
-Received: from smtprelay03.fra02v.mail.ibm.com ([9.218.2.224])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 3utavkrrgf-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 09:24:20 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay03.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B89OIYh21627458
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Dec 2023 09:24:18 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id AD5132004B;
-	Fri,  8 Dec 2023 09:24:18 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8177720043;
-	Fri,  8 Dec 2023 09:24:18 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.204.69])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  8 Dec 2023 09:24:18 +0000 (GMT)
-Date: Fri, 8 Dec 2023 10:24:16 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Abel Wu <wuyun.abel@bytedance.com>, Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        jasowang@redhat.com
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cOexIkcr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702031486;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Tcu3WmbH0rDpAmwPqLlBrIXFmcIviRa8i1AFTtWd1Zs=;
+	b=cOexIkcrsNZ589DDTxh3gqIixiNNnP8xZE8+B6motvcNQXDndK2I1SR5fFdBmJ6ybZ6CuJ
+	i1akEtL/YYuLE4MhUbOys7qr1tjSk1fdFmV2cNwDkMMqG5O9ZhjLMv2HXP3FM5x4GZgb8W
+	oLn11H78pl5gUO6HkzHXj45U0Qe+q7E=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-342-nsWh0d8fN2KZl--gnjnJlQ-1; Fri, 08 Dec 2023 05:31:25 -0500
+X-MC-Unique: nsWh0d8fN2KZl--gnjnJlQ-1
+Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-2ca0cf1b72aso13522481fa.2
+        for <virtualization@lists.linux.dev>; Fri, 08 Dec 2023 02:31:24 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702031483; x=1702636283;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Tcu3WmbH0rDpAmwPqLlBrIXFmcIviRa8i1AFTtWd1Zs=;
+        b=v6C5qe0+ldrMlbi01537N7wd7ADhjiRDw24/lQJFZRp5lAUi/g0KJsAYhuuIkR/vhp
+         Ngtv9wN/7URiYwF2dt9HaJ3m6L/YZT7iAyf4Fdwd2pvMJ8sZepIks/biQkbrCamLL9Nc
+         i+uXtrqsRUPF4punOHSpyClunqaP7HVRPC9UzpoJTFP66QxeB634mcRel+wwPv5eZrMn
+         zlzW6Ct6ezllrIH12OS5S4eGgvH5v+1B3fhhVMe+8POm8pGPV9qRXh9S97XM6X0MraRX
+         1Mekt0GeB4oIad0eNfYMX5gU5b4IBh8TPD8nK838SKK2NEWDQvLlWfWDsfIdQ4jNsPcf
+         1iEQ==
+X-Gm-Message-State: AOJu0YzLHU5L3KdjCcWH4WpvV/ObR1YGTbDGbHgKnQOmtSqv2GnagNT3
+	4+dZCVNsbNlQIqeWIb+bRClh/1hrizTNFQ+CfrgnHJHZSPZyHaNVDntZlbnEmMCQc6kYEJ2kdjY
+	dCsobiwI3u/2Jv99nR0opgwWORzI=
+X-Received: by 2002:a2e:8884:0:b0:2ca:56:778f with SMTP id k4-20020a2e8884000000b002ca0056778fmr1257130lji.48.1702031483564;
+        Fri, 08 Dec 2023 02:31:23 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHKcY1LCS/VjPyEMeTLMNoGPvmPdJg2dsZtFpUis0zp6RJwZ5WMd0CWqzm2EoCROz7SrjQSKA==
+X-Received: by 2002:a2e:8884:0:b0:2ca:56:778f with SMTP id k4-20020a2e8884000000b002ca0056778fmr1257123lji.48.1702031483207;
+        Fri, 08 Dec 2023 02:31:23 -0800 (PST)
+Received: from redhat.com ([2a02:14f:1f0:7466:b10d:58c8:869f:7e91])
+        by smtp.gmail.com with ESMTPSA id cu12-20020a170906ba8c00b00a10f3030e11sm829135ejd.1.2023.12.08.02.31.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Dec 2023 02:31:22 -0800 (PST)
+Date: Fri, 8 Dec 2023 05:31:18 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: Abel Wu <wuyun.abel@bytedance.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	jasowang@redhat.com
 Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
  sched/fair: Add lag based placement)
-Message-ID: <ZXLgwLehNbaHy3yb@DESKTOP-2CCOB1S.>
-References: <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
- <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
+Message-ID: <20231208052150-mutt-send-email-mst@kernel.org>
+References: <ZVdbdSXg4qefTNtg@DESKTOP-2CCOB1S.>
  <20231117123759.GP8262@noisy.programming.kicks-ass.net>
  <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
  <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
@@ -69,65 +67,68 @@ References: <20231117092318.GJ8262@noisy.programming.kicks-ass.net>
  <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
  <07513.123120701265800278@us-mta-474.us.mimecast.lan>
  <20231207014626-mutt-send-email-mst@kernel.org>
+ <56082.123120804242300177@us-mta-137.us.mimecast.lan>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <56082.123120804242300177@us-mta-137.us.mimecast.lan>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231207014626-mutt-send-email-mst@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: JiqueMXJHjz1wyoBIUbypaeXSzS3EqBo
-X-Proofpoint-GUID: YLGCvY_lmzt3N6uVod2kg-9xSPS9GBBj
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-08_04,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 spamscore=0
- clxscore=1015 suspectscore=0 lowpriorityscore=0 malwarescore=0
- adultscore=0 mlxscore=0 mlxlogscore=568 priorityscore=1501 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312080077
 
-On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
-> On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
-> > 3. vhost looping endlessly, waiting for kworker to be scheduled
+On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
+> On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
+> > > 3. vhost looping endlessly, waiting for kworker to be scheduled
+> > > 
+> > > I dug a little deeper on what the vhost is doing. I'm not an expert on
+> > > virtio whatsoever, so these are just educated guesses that maybe
+> > > someone can verify/correct. Please bear with me probably messing up 
+> > > the terminology.
+> > > 
+> > > - vhost is looping through available queues.
+> > > - vhost wants to wake up a kworker to process a found queue.
+> > > - kworker does something with that queue and terminates quickly.
+> > > 
+> > > What I found by throwing in some very noisy trace statements was that,
+> > > if the kworker is not woken up, the vhost just keeps looping accross
+> > > all available queues (and seems to repeat itself). So it essentially
+> > > relies on the scheduler to schedule the kworker fast enough. Otherwise
+> > > it will just keep on looping until it is migrated off the CPU.
 > > 
-> > I dug a little deeper on what the vhost is doing. I'm not an expert on
-> > virtio whatsoever, so these are just educated guesses that maybe
-> > someone can verify/correct. Please bear with me probably messing up 
-> > the terminology.
 > > 
-> > - vhost is looping through available queues.
-> > - vhost wants to wake up a kworker to process a found queue.
-> > - kworker does something with that queue and terminates quickly.
+> > Normally it takes the buffers off the queue and is done with it.
+> > I am guessing that at the same time guest is running on some other
+> > CPU and keeps adding available buffers?
 > > 
-> > What I found by throwing in some very noisy trace statements was that,
-> > if the kworker is not woken up, the vhost just keeps looping accross
-> > all available queues (and seems to repeat itself). So it essentially
-> > relies on the scheduler to schedule the kworker fast enough. Otherwise
-> > it will just keep on looping until it is migrated off the CPU.
 > 
-> 
-> Normally it takes the buffers off the queue and is done with it.
-> I am guessing that at the same time guest is running on some other
-> CPU and keeps adding available buffers?
+> It seems to do just that, there are multiple other vhost instances
+> involved which might keep filling up thoses queues. 
 > 
 
-It seems to do just that, there are multiple other vhost instances
-involved which might keep filling up thoses queues. 
+No vhost is ever only draining queues. Guest is filling them.
 
-Unfortunately, this makes the problematic vhost instance to stay on
-the CPU and prevents said kworker to get scheduled. The kworker is
-explicitly woken up by vhost, so it wants it to do something.
+> Unfortunately, this makes the problematic vhost instance to stay on
+> the CPU and prevents said kworker to get scheduled. The kworker is
+> explicitly woken up by vhost, so it wants it to do something.
+> 
+> At this point it seems that there is an assumption about the scheduler
+> in place which is no longer fulfilled by EEVDF. From the discussion so
+> far, it seems like EEVDF does what is intended to do.
+> 
+> Shouldn't there be a more explicit mechanism in use that allows the
+> kworker to be scheduled in favor of the vhost?
+> 
+> It is also concerning that the vhost seems cannot be preempted by the
+> scheduler while executing that loop.
 
-At this point it seems that there is an assumption about the scheduler
-in place which is no longer fulfilled by EEVDF. From the discussion so
-far, it seems like EEVDF does what is intended to do.
 
-Shouldn't there be a more explicit mechanism in use that allows the
-kworker to be scheduled in favor of the vhost?
+Which loop is that, exactly?
 
-It is also concerning that the vhost seems cannot be preempted by the
-scheduler while executing that loop.
+-- 
+MST
+
