@@ -1,193 +1,138 @@
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FAE84C98
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:39:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0B7FD526
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 07:08:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Eh/5mUpC"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SlPqUVns"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 87F694031C
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:39:46 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 87F694031C
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6D6204051A
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 07:08:14 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 6D6204051A
 Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=Eh/5mUpC
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=SlPqUVns
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -4.299
+X-Spam-Score: -2.101
 X-Spam-Level:
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K0Ac7934xlRN
+	with ESMTP id KObylzP9296j
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Dec 2023 06:39:44 +0000 (UTC)
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.65])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 3F5AB40176
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 06:39:44 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 3F5AB40176
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1702017584; x=1733553584;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=g2XYI3wGsgRd94waAtpwRHsl4O1wz+sDDWlsY1kGQdE=;
-  b=Eh/5mUpCn4n7NtkxAmqwpBgs2b5uoQNqJHCDff0sQg996L6GG4OgFGYD
-   mvhBQ9ehKnyzCWrXZ1M7oaohh/wexTwwKDjj2rfI/6Y+gfcZi/8YN9HVW
-   SMxPDlYu/3R27YrJGz+jzNpiAiQW2JS5Q48NCaXMTHMTky7eeKicb9GRq
-   Q6rg/H32+gEwRZ81U2v3vHH+A/n8oBlzG/zO/7cJs5kDeX1L3mJOc4/Gb
-   SX7jfbMK22bdpG4gA+OdM0WVx4zDB3k7ijArLnV2cnfm6ag7I43ROe2NY
-   VPrJbguE78tNCG2ZmT+Tf0DS1O8fnu/KXqjN1Oa5d/ZJsejfjWh8bxaGm
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="398234213"
-X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
-   d="scan'208";a="398234213"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Dec 2023 22:39:43 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="945319532"
-X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
-   d="scan'208";a="945319532"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.127]) ([10.239.159.127])
-  by orsmga005.jf.intel.com with ESMTP; 07 Dec 2023 22:39:39 -0800
-Message-ID: <c0937374-223a-4ff5-800e-c8287f0ee5ad@linux.intel.com>
-Date: Fri, 8 Dec 2023 14:35:02 +0800
+	Fri,  8 Dec 2023 07:08:13 +0000 (UTC)
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 41FA140176
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 07:08:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 41FA140176
+Received: by mail-oi1-x236.google.com with SMTP id 5614622812f47-3b9e2a014e8so878099b6e.2
+        for <virtualization@lists.linux-foundation.org>; Thu, 07 Dec 2023 23:08:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1702019292; x=1702624092; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rG1LJyzQ4WSLAFPo5foe6eDbn3FyZZB8mnOn20irkuY=;
+        b=SlPqUVnsbHU0ye+KyV9ZD9l0c8UJT3bvaxTmHrhzlPZ9k9hsZcbaqjGyniz2F7JD1F
+         0XV4KzmtT0scrgC/WYlOcjrYjYiyvUgxmlQweVluGsrC+uCd7ApWy9hyCHK9rgH3j8Jt
+         DmK8BTpebm2vZ7+x6ucEYCGoLEtf3CcaMMZus=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702019292; x=1702624092;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rG1LJyzQ4WSLAFPo5foe6eDbn3FyZZB8mnOn20irkuY=;
+        b=osxbM+S9D/zqLsmOPTi1WramBLpjTCdO6Eb0JkOz6D2u+5OIgTAzLOPqSHetl4Dkgl
+         q5DDz1N2Ih6KIm2PS8ljzhvDQT9fiHKcQUuNYRbRYz6bgFL/oLhfeNuR9pxItxSXC96f
+         bTa7iLzsFarrzrAKmdQjeJcMeKOtuC8/SsAPkVxLTUcrCxixIvQPW18GVzMkIPJS1jqL
+         hzfmZFRoz5dUK88VPD9zkvBm15wPqCy1BUeLUobF7g+yXuw9TES8XK/rBvYVJ8JfmAM6
+         ToCvcJxLhMMSwO9eFJKPGDVjl1iiqu0hzB4S6nCpRyEcUaHw+tk99TfGKU++Qys+3Iy5
+         SBmA==
+X-Gm-Message-State: AOJu0YziVNYjn4PbsRMthEaeGDBEPghHNPfb0mkZKh57T5z6DOajK2Vy
+	urjayHW4TIP0M8Z9L3689vT55w==
+X-Google-Smtp-Source: AGHT+IGgnjG/3NQ1wEHNyjy2fZFw0CEWGZ97T4Rb4NN9Ky3FyaNkvUXgjl/ynxmXyhcvvJ56IYF95A==
+X-Received: by 2002:a05:6808:2388:b0:3b9:d53f:452a with SMTP id bp8-20020a056808238800b003b9d53f452amr3762370oib.70.1702019292261;
+        Thu, 07 Dec 2023 23:08:12 -0800 (PST)
+Received: from localhost ([2401:fa00:8f:203:e611:1861:4d10:12fc])
+        by smtp.gmail.com with UTF8SMTPSA id e14-20020a056a001a8e00b006ce6bd9703csm877120pfv.194.2023.12.07.23.08.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 Dec 2023 23:08:11 -0800 (PST)
+From: David Stevens <stevensd@chromium.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org,
+	linux-kernel@vger.kernel.org,
+	David Stevens <stevensd@chromium.org>
+Subject: [PATCH v2] virtio: Add support for no-reset virtio PCI PM
+Date: Fri,  8 Dec 2023 16:07:54 +0900
+Message-ID: <20231208070754.3132339-1-stevensd@chromium.org>
+X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
- Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Robin Murphy <robin.murphy@arm.com>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
- Jacob Pan <jacob.jun.pan@linux.intel.com>, iommu@lists.linux.dev,
- linux-kselftest@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/6] iommufd: Add iommu page fault uapi data
-Content-Language: en-US
-To: Jason Gunthorpe <jgg@ziepe.ca>
-References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
- <20231026024930.382898-3-baolu.lu@linux.intel.com>
- <20231201151405.GA1489931@ziepe.ca>
-From: Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <20231201151405.GA1489931@ziepe.ca>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
+If a virtio_pci_device supports native PCI power management and has the
+No_Soft_Reset bit set, then skip resetting and reinitializing the device
+when suspending and restoring the device. This allows system-wide low
+power states like s2idle to be used in systems with stateful virtio
+devices that can't simply be re-initialized (e.g. virtio-fs).
 
-On 12/1/23 11:14 PM, Jason Gunthorpe wrote:
-> On Thu, Oct 26, 2023 at 10:49:26AM +0800, Lu Baolu wrote:
-> 
->> + * @IOMMU_HWPT_ALLOC_IOPF_CAPABLE: User is capable of handling IO page faults.
-> 
-> This does not seem like the best name?
-> 
-> Probably like this given my remark in the cover letter:
-> 
-> --- a/include/uapi/linux/iommufd.h
-> +++ b/include/uapi/linux/iommufd.h
-> @@ -359,6 +359,7 @@ struct iommu_vfio_ioas {
->   enum iommufd_hwpt_alloc_flags {
->          IOMMU_HWPT_ALLOC_NEST_PARENT = 1 << 0,
->          IOMMU_HWPT_ALLOC_DIRTY_TRACKING = 1 << 1,
-> +       IOMMU_HWPT_IOPFD_FD_VALID = 1 << 2,
->   };
->   
->   /**
-> @@ -440,6 +441,7 @@ struct iommu_hwpt_alloc {
->          __u32 data_type;
->          __u32 data_len;
->          __aligned_u64 data_uptr;
-> +       __s32 iopf_fd;
->   };
->   #define IOMMU_HWPT_ALLOC _IO(IOMMUFD_TYPE, IOMMUFD_CMD_HWPT_ALLOC)
+Signed-off-by: David Stevens <stevensd@chromium.org>
+---
+v1 -> v2:
+ - Check the No_Soft_Reset bit
 
-Yes. Agreed.
+ drivers/virtio/virtio_pci_common.c | 34 +++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
 
->> @@ -679,6 +688,62 @@ struct iommu_dev_data_arm_smmuv3 {
->>   	__u32 sid;
->>   };
->>   
->> +/**
->> + * struct iommu_hwpt_pgfault - iommu page fault data
->> + * @size: sizeof(struct iommu_hwpt_pgfault)
->> + * @flags: Combination of IOMMU_PGFAULT_FLAGS_ flags.
->> + *  - PASID_VALID: @pasid field is valid
->> + *  - LAST_PAGE: the last page fault in a group
->> + *  - PRIV_DATA: @private_data field is valid
->> + *  - RESP_NEEDS_PASID: the page response must have the same
->> + *                      PASID value as the page request.
->> + * @dev_id: id of the originated device
->> + * @pasid: Process Address Space ID
->> + * @grpid: Page Request Group Index
->> + * @perm: requested page permissions (IOMMU_PGFAULT_PERM_* values)
->> + * @addr: page address
->> + * @private_data: device-specific private information
->> + */
->> +struct iommu_hwpt_pgfault {
->> +	__u32 size;
->> +	__u32 flags;
->> +#define IOMMU_PGFAULT_FLAGS_PASID_VALID		(1 << 0)
->> +#define IOMMU_PGFAULT_FLAGS_LAST_PAGE		(1 << 1)
->> +#define IOMMU_PGFAULT_FLAGS_PRIV_DATA		(1 << 2)
->> +#define IOMMU_PGFAULT_FLAGS_RESP_NEEDS_PASID	(1 << 3)
->> +	__u32 dev_id;
->> +	__u32 pasid;
->> +	__u32 grpid;
->> +	__u32 perm;
->> +#define IOMMU_PGFAULT_PERM_READ			(1 << 0)
->> +#define IOMMU_PGFAULT_PERM_WRITE		(1 << 1)
->> +#define IOMMU_PGFAULT_PERM_EXEC			(1 << 2)
->> +#define IOMMU_PGFAULT_PERM_PRIV			(1 << 3)
->> +	__u64 addr;
->> +	__u64 private_data[2];
->> +};
-> 
-> This mixed #define is not the style, these should be in enums,
-> possibly with kdocs
-> 
-> Use __aligned_u64 also
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index c2524a7207cf..3a95ecaf12dc 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -492,8 +492,40 @@ static int virtio_pci_restore(struct device *dev)
+ 	return virtio_device_restore(&vp_dev->vdev);
+ }
+ 
++static bool vp_supports_pm_no_reset(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	u16 pmcsr;
++
++	if (!pci_dev->pm_cap)
++		return false;
++
++	pci_read_config_word(pci_dev, pci_dev->pm_cap + PCI_PM_CTRL, &pmcsr);
++	if (PCI_POSSIBLE_ERROR(pmcsr)) {
++		dev_err(dev, "Unable to query pmcsr");
++		return false;
++	}
++
++	return pmcsr & PCI_PM_CTRL_NO_SOFT_RESET;
++}
++
++static int virtio_pci_suspend(struct device *dev)
++{
++	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_freeze(dev);
++}
++
++static int virtio_pci_resume(struct device *dev)
++{
++	return vp_supports_pm_no_reset(dev) ? 0 : virtio_pci_restore(dev);
++}
++
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
++	.suspend = virtio_pci_suspend,
++	.resume = virtio_pci_resume,
++	.freeze = virtio_pci_freeze,
++	.thaw = virtio_pci_restore,
++	.poweroff = virtio_pci_freeze,
++	.restore = virtio_pci_restore,
+ };
+ #endif
+ 
+-- 
+2.43.0.472.g3155946c3a-goog
 
-Sure.
-
-> 
->> +
->> +/**
->> + * struct iommu_hwpt_response - IOMMU page fault response
->> + * @size: sizeof(struct iommu_hwpt_response)
->> + * @flags: Must be set to 0
->> + * @hwpt_id: hwpt ID of target hardware page table for the response
->> + * @dev_id: device ID of target device for the response
->> + * @pasid: Process Address Space ID
->> + * @grpid: Page Request Group Index
->> + * @code: response code. The supported codes include:
->> + *        0: Successful; 1: Response Failure; 2: Invalid Request.
->> + */
->> +struct iommu_hwpt_page_response {
->> +	__u32 size;
->> +	__u32 flags;
->> +	__u32 hwpt_id;
->> +	__u32 dev_id;
->> +	__u32 pasid;
->> +	__u32 grpid;
->> +	__u32 code;
->> +};
-> 
-> Is it OK to have the user pass in all this detailed information? Is it
-> a security problem if the user lies? Ie shouldn't we only ack page
-> faults we actually have outstanding?
-> 
-> IOW should iommu_hwpt_pgfault just have a 'response_cookie' generated
-> by the kernel that should be placed here? The kernel would keep track
-> of all this internal stuff?
-
-The iommu core has already kept the outstanding faults that have been
-awaiting a response. So even if the user lies about a fault, the kernel
-does not send the wrong respond message to the device. {device_id,
-grpid, code} is just enough from the user. This means the user wants to
-respond to the @grpid fault from @device with the @code result.
-
-Best regards,
-baolu
