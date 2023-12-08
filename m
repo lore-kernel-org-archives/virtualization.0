@@ -1,138 +1,160 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5D61B27C
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29BBD537
+	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 11:41:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MlculCWy"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 29B6781E6B
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:43 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 29B6781E6B
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=MlculCWy
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4Pxw-4Guu5X5
-	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Dec 2023 11:35:42 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 689CD8187F
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:35:42 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 689CD8187F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702035341;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=56LbxjAYxWjvG44Vq3GcHH61dclQGaGcbqQRT67zl+k=;
-	b=MlculCWyMVXemfKf27DvP/Pc4105SQsOrzLpUcszZG3whP95aa4fB36yKfqbVKpG6Eq6DI
-	0oUjEEGF4VQR2xbnq/hN91MYVIbP5DycOodHCRqYFO/5DM7eRl8qUdBx4gdXX4mnTXF/Ps
-	5Wt5ahGd8M+WONd9fYxoW+yClWPVWcs=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-692-ErNhTIuUMiawao47mzafCQ-1; Fri, 08 Dec 2023 06:35:39 -0500
-X-MC-Unique: ErNhTIuUMiawao47mzafCQ-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a1d72320a33so125353966b.2
-        for <virtualization@lists.linux-foundation.org>; Fri, 08 Dec 2023 03:35:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702035338; x=1702640138;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=56LbxjAYxWjvG44Vq3GcHH61dclQGaGcbqQRT67zl+k=;
-        b=An9l7xaCAY4K0OnzLEx1UxfzFzw/adycjGb6Mc2J66PaJbMX27ASKbsOShR0VZUXJb
-         u56Amz1nEBItrPKZJPqZD7FvwmSs2gg4U+rCY31FsK8Z6dK2xADRNnwdPu3zIhZFsjDt
-         IX3+6T4QxYrB+xdoZrVVquxxRqlg3W4CYOzMxEib5utD1+acHcfldm0rUImXYeUWcS7m
-         unGNXM34XggCe0xC+foaP9/LVTuVXXPR3+K1J7KczW3sIIIKpyZjfOxASnQqcSfGOdoM
-         yyta53o7JE4mYY3Adf1c90ngVO9/p4qITJfg6HPDBzau2uO0gRiaAy1g2qNNvwnQfBoT
-         YasA==
-X-Gm-Message-State: AOJu0YymlLrOaxcFxL+a7gFtdPKwAhChUyHkqpGk1ByhH+fnh1r+7895
-	fxhFHOnFwSMNY1CVNE+yWnzfHcbBJe+bbQ2YWr0ELEcd1kTKMi1KCHXnRnL9KmaV92Ks90JMJO4
-	4o//aASpxZrZ+VFyU6OVnAy227DEx3+8+Gy02aloMDQ==
-X-Received: by 2002:a17:906:189:b0:a02:a2cc:66b8 with SMTP id 9-20020a170906018900b00a02a2cc66b8mr2833875ejb.14.1702035338427;
-        Fri, 08 Dec 2023 03:35:38 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGIwMj2tOIobb8zgpJMmlUrCA0d6r8aJyQc86j4Rx04MnRIR+/iDl1ClyT7OuhvjQNv/lzFpQ==
-X-Received: by 2002:a17:906:189:b0:a02:a2cc:66b8 with SMTP id 9-20020a170906018900b00a02a2cc66b8mr2833871ejb.14.1702035338098;
-        Fri, 08 Dec 2023 03:35:38 -0800 (PST)
-Received: from redhat.com ([2a02:14f:1f0:7466:b10d:58c8:869f:7e91])
-        by smtp.gmail.com with ESMTPSA id cw15-20020a170907160f00b00a1937153bddsm898831ejd.20.2023.12.08.03.35.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Dec 2023 03:35:37 -0800 (PST)
-Date: Fri, 8 Dec 2023 06:35:34 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Wu Zongyong <wuzongyong@linux.alibaba.com>,
-	Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
-	kernel-janitors@vger.kernel.org,
-	virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH] vdpa: Fix an error handling path in eni_vdpa_probe()
-Message-ID: <20231208063520-mutt-send-email-mst@kernel.org>
-References: <a7b0ef1eabd081f1c7c894e9b11de01678e85dee.1666293559.git.christophe.jaillet@wanadoo.fr>
- <72a89724-9dad-499a-a0ed-ad9d046d235d@wanadoo.fr>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eaOkcqkQ"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8BRl6Q002639;
+	Fri, 8 Dec 2023 11:41:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=pp1; bh=aJQu+Av/3MN6IBG2EPgO6rv8bX3z7cMZ1gb+fobzFr4=;
+ b=eaOkcqkQsCSGZjJcxwYC/y0cKI2coV5IKEch9I9FK1OpDb/C3uiPtMi3jbdMlf7MFIU4
+ 4MnvCFjiSCSAZ1BzWoQ6BOKLcFMRrHxFQHanG0Q0Fr1fqV5Qd8CguMZW0hxou+0nin1Z
+ Ye7IpHTMk85Vx/axBanVSqHMwBtLYyXF9A2clj40T9Hry7cagAqK2X1TMjQNRdCWC/5g
+ kGYgUYLA0PW15X0AVzTmqOL5lPDNdKRc1T85ujAJg5QSzXfgZsMPgyHH3MDUsr4Es95k
+ nUS+FBMmqgWMpE7njQkMLO4dlOihkC+sgP+7GsCCUg/6sVhCoZh31f8fJvceyE5hnjjs bQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv29ggb8q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 11:41:43 +0000
+Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B8Bfh0j012863;
+	Fri, 8 Dec 2023 11:41:43 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv29ggb8g-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 11:41:43 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8A8DZT001591;
+	Fri, 8 Dec 2023 11:41:42 GMT
+Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utav2s9vk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 08 Dec 2023 11:41:42 +0000
+Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
+	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8Bfef717105560
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 8 Dec 2023 11:41:40 GMT
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 731DE20043;
+	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
+Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4882420040;
+	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
+Received: from DESKTOP-2CCOB1S. (unknown [9.171.204.69])
+	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
+	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
+Date: Fri, 8 Dec 2023 12:41:38 +0100
+From: Tobias Huschle <huschle@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Abel Wu <wuyun.abel@bytedance.com>, Peter Zijlstra <peterz@infradead.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev, netdev@vger.kernel.org,
+        jasowang@redhat.com
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <ZXMA8r+T86Is8Ohv@DESKTOP-2CCOB1S.>
+References: <20231117123759.GP8262@noisy.programming.kicks-ass.net>
+ <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
+ <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+ <20231122100016.GO8262@noisy.programming.kicks-ass.net>
+ <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
+ <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+ <07513.123120701265800278@us-mta-474.us.mimecast.lan>
+ <20231207014626-mutt-send-email-mst@kernel.org>
+ <56082.123120804242300177@us-mta-137.us.mimecast.lan>
+ <20231208052150-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <72a89724-9dad-499a-a0ed-ad9d046d235d@wanadoo.fr>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20231208052150-mutt-send-email-mst@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: a1l3gNc8w_7KWEDTL1N2M4KPK0UhgnsI
+X-Proofpoint-ORIG-GUID: 8f6spidwjlhsK31bm9iRrZvQqTJ9wUjF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-08_06,2023-12-07_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
+ mlxlogscore=548 priorityscore=1501 suspectscore=0 lowpriorityscore=0
+ spamscore=0 phishscore=0 clxscore=1015 mlxscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2312080098
 
-On Thu, Dec 07, 2023 at 10:13:51PM +0100, Christophe JAILLET wrote:
-> Le 20/10/2022 à 21:21, Christophe JAILLET a écrit :
-> > After a successful vp_legacy_probe() call, vp_legacy_remove() should be
-> > called in the error handling path, as already done in the remove function.
+On Fri, Dec 08, 2023 at 05:31:18AM -0500, Michael S. Tsirkin wrote:
+> On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
+> > On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
+> > > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
+> > > > 3. vhost looping endlessly, waiting for kworker to be scheduled
+> > > > 
+> > > > I dug a little deeper on what the vhost is doing. I'm not an expert on
+> > > > virtio whatsoever, so these are just educated guesses that maybe
+> > > > someone can verify/correct. Please bear with me probably messing up 
+> > > > the terminology.
+> > > > 
+> > > > - vhost is looping through available queues.
+> > > > - vhost wants to wake up a kworker to process a found queue.
+> > > > - kworker does something with that queue and terminates quickly.
+> > > > 
+> > > > What I found by throwing in some very noisy trace statements was that,
+> > > > if the kworker is not woken up, the vhost just keeps looping accross
+> > > > all available queues (and seems to repeat itself). So it essentially
+> > > > relies on the scheduler to schedule the kworker fast enough. Otherwise
+> > > > it will just keep on looping until it is migrated off the CPU.
+> > > 
+> > > 
+> > > Normally it takes the buffers off the queue and is done with it.
+> > > I am guessing that at the same time guest is running on some other
+> > > CPU and keeps adding available buffers?
+> > > 
 > > 
-> > Add the missing call.
+> > It seems to do just that, there are multiple other vhost instances
+> > involved which might keep filling up thoses queues. 
 > > 
-> > Fixes: e85087beedca ("eni_vdpa: add vDPA driver for Alibaba ENI")
-> > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > ---
-> >   drivers/vdpa/alibaba/eni_vdpa.c | 6 ++++--
-> >   1 file changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
-> > index 5a09a09cca70..cce3d1837104 100644
-> > --- a/drivers/vdpa/alibaba/eni_vdpa.c
-> > +++ b/drivers/vdpa/alibaba/eni_vdpa.c
-> > @@ -497,7 +497,7 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-> >   	if (!eni_vdpa->vring) {
-> >   		ret = -ENOMEM;
-> >   		ENI_ERR(pdev, "failed to allocate virtqueues\n");
-> > -		goto err;
-> > +		goto err_remove_vp_legacy;
-> >   	}
-> >   	for (i = 0; i < eni_vdpa->queues; i++) {
-> > @@ -509,11 +509,13 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-> >   	ret = vdpa_register_device(&eni_vdpa->vdpa, eni_vdpa->queues);
-> >   	if (ret) {
-> >   		ENI_ERR(pdev, "failed to register to vdpa bus\n");
-> > -		goto err;
-> > +		goto err_remove_vp_legacy;
-> >   	}
-> >   	return 0;
-> > +err_remove_vp_legacy:
-> > +	vp_legacy_remove(&eni_vdpa->ldev);
-> >   err:
-> >   	put_device(&eni_vdpa->vdpa.dev);
-> >   	return ret;
 > 
-> Polite reminder on a (very) old patch.
+> No vhost is ever only draining queues. Guest is filling them.
 > 
-> CJ
+> > Unfortunately, this makes the problematic vhost instance to stay on
+> > the CPU and prevents said kworker to get scheduled. The kworker is
+> > explicitly woken up by vhost, so it wants it to do something.
+> > 
+> > At this point it seems that there is an assumption about the scheduler
+> > in place which is no longer fulfilled by EEVDF. From the discussion so
+> > far, it seems like EEVDF does what is intended to do.
+> > 
+> > Shouldn't there be a more explicit mechanism in use that allows the
+> > kworker to be scheduled in favor of the vhost?
+> > 
+> > It is also concerning that the vhost seems cannot be preempted by the
+> > scheduler while executing that loop.
+> 
+> 
+> Which loop is that, exactly?
 
+The loop continously passes translate_desc in drivers/vhost/vhost.c
+That's where I put the trace statements.
 
-Tagged now, thanks!
+The overall sequence seems to be (top to bottom):
 
+handle_rx
+get_rx_bufs
+vhost_get_vq_desc
+vhost_get_avail_head
+vhost_get_avail
+__vhost_get_user_slow
+translate_desc               << trace statement in here
+vhost_iotlb_itree_first
+
+These functions show up as having increased overhead in perf.
+
+There are multiple loops going on in there.
+Again the disclaimer though, I'm not familiar with that code at all.
