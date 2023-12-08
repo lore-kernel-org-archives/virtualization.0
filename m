@@ -1,160 +1,165 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F29BBD537
-	for <virtualization@lists.linux.dev>; Fri,  8 Dec 2023 11:41:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4D01B292
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:43:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="eaOkcqkQ"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8BRl6Q002639;
-	Fri, 8 Dec 2023 11:41:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
- subject : message-id : references : mime-version : content-type :
- in-reply-to; s=pp1; bh=aJQu+Av/3MN6IBG2EPgO6rv8bX3z7cMZ1gb+fobzFr4=;
- b=eaOkcqkQsCSGZjJcxwYC/y0cKI2coV5IKEch9I9FK1OpDb/C3uiPtMi3jbdMlf7MFIU4
- 4MnvCFjiSCSAZ1BzWoQ6BOKLcFMRrHxFQHanG0Q0Fr1fqV5Qd8CguMZW0hxou+0nin1Z
- Ye7IpHTMk85Vx/axBanVSqHMwBtLYyXF9A2clj40T9Hry7cagAqK2X1TMjQNRdCWC/5g
- kGYgUYLA0PW15X0AVzTmqOL5lPDNdKRc1T85ujAJg5QSzXfgZsMPgyHH3MDUsr4Es95k
- nUS+FBMmqgWMpE7njQkMLO4dlOihkC+sgP+7GsCCUg/6sVhCoZh31f8fJvceyE5hnjjs bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv29ggb8q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 11:41:43 +0000
-Received: from m0356516.ppops.net (m0356516.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 3B8Bfh0j012863;
-	Fri, 8 Dec 2023 11:41:43 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3uv29ggb8g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 11:41:43 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 3B8A8DZT001591;
-	Fri, 8 Dec 2023 11:41:42 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3utav2s9vk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 08 Dec 2023 11:41:42 +0000
-Received: from smtpav03.fra02v.mail.ibm.com (smtpav03.fra02v.mail.ibm.com [10.20.54.102])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 3B8Bfef717105560
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 8 Dec 2023 11:41:40 GMT
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 731DE20043;
-	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
-Received: from smtpav03.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4882420040;
-	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
-Received: from DESKTOP-2CCOB1S. (unknown [9.171.204.69])
-	by smtpav03.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Fri,  8 Dec 2023 11:41:40 +0000 (GMT)
-Date: Fri, 8 Dec 2023 12:41:38 +0100
-From: Tobias Huschle <huschle@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Abel Wu <wuyun.abel@bytedance.com>, Peter Zijlstra <peterz@infradead.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev, netdev@vger.kernel.org,
-        jasowang@redhat.com
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <ZXMA8r+T86Is8Ohv@DESKTOP-2CCOB1S.>
-References: <20231117123759.GP8262@noisy.programming.kicks-ass.net>
- <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
- <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
- <20231122100016.GO8262@noisy.programming.kicks-ass.net>
- <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
- <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
- <07513.123120701265800278@us-mta-474.us.mimecast.lan>
- <20231207014626-mutt-send-email-mst@kernel.org>
- <56082.123120804242300177@us-mta-137.us.mimecast.lan>
- <20231208052150-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GOZ1N66u"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id B611D4211C
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:43:34 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org B611D4211C
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=GOZ1N66u
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.299
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id o2Ak830_6dAT
+	for <virtualization@lists.linux-foundation.org>;
+	Fri,  8 Dec 2023 11:43:31 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BFD04420A7
+	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 11:43:31 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org BFD04420A7
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1702035811; x=1733571811;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=ZmkAP0N/gOOmFK2HS73Ar6ckEAFg8Q3aZC+p9EeSO1Y=;
+  b=GOZ1N66uIDbEVMD4+BhgoazD/AoEsfQ94BjrcIkQdHTbZUOB5cnjx47X
+   b64apZQ1fMDcaDzkh8O4CJIpwkdxJr/vhPfEChmsi75RVxt1aXVXXQzxB
+   W+H9MQYM2Ahv6KqGPo4K8vabl7GWHNn3liYDbGfm7tgdjIPL0X8VyGGEw
+   8/vyGDS5TGKwe0JC95SLyOCcTg5zDK1Ezx/wL0qSmaqTuvP9hsK6irLog
+   7MjevueSoiPOw9liSjmTcgQuNXxUFdyT/X+/+S93SEGX8yAN7YdXWojhm
+   WmVN0GCDJ930q5xO0c5jYG+ESr0EJL4l6R23fPTx8oc/zIikDVW4qai2i
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="394134283"
+X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
+   d="scan'208";a="394134283"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2023 03:43:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10917"; a="765465888"
+X-IronPort-AV: E=Sophos;i="6.04,260,1695711600"; 
+   d="scan'208";a="765465888"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.255.31.238]) ([10.255.31.238])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2023 03:43:27 -0800
+Message-ID: <abc94be4-a909-4255-bb08-f0fcf45a21b8@linux.intel.com>
+Date: Fri, 8 Dec 2023 19:43:12 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231208052150-mutt-send-email-mst@kernel.org>
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: a1l3gNc8w_7KWEDTL1N2M4KPK0UhgnsI
-X-Proofpoint-ORIG-GUID: 8f6spidwjlhsK31bm9iRrZvQqTJ9wUjF
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-12-08_06,2023-12-07_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- mlxlogscore=548 priorityscore=1501 suspectscore=0 lowpriorityscore=0
- spamscore=0 phishscore=0 clxscore=1015 mlxscore=0 bulkscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2312080098
+User-Agent: Mozilla Thunderbird
+Cc: baolu.lu@linux.intel.com, Kevin Tian <kevin.tian@intel.com>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+ Robin Murphy <robin.murphy@arm.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Nicolin Chen <nicolinc@nvidia.com>, Yi Liu <yi.l.liu@intel.com>,
+ Jacob Pan <jacob.jun.pan@linux.intel.com>, iommu@lists.linux.dev,
+ linux-kselftest@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 4/6] iommufd: Deliver fault messages to user space
+To: Jason Gunthorpe <jgg@ziepe.ca>
+References: <20231026024930.382898-1-baolu.lu@linux.intel.com>
+ <20231026024930.382898-5-baolu.lu@linux.intel.com>
+ <20231201152459.GB1489931@ziepe.ca>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20231201152459.GB1489931@ziepe.ca>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Dec 08, 2023 at 05:31:18AM -0500, Michael S. Tsirkin wrote:
-> On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
-> > On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
-> > > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
-> > > > 3. vhost looping endlessly, waiting for kworker to be scheduled
-> > > > 
-> > > > I dug a little deeper on what the vhost is doing. I'm not an expert on
-> > > > virtio whatsoever, so these are just educated guesses that maybe
-> > > > someone can verify/correct. Please bear with me probably messing up 
-> > > > the terminology.
-> > > > 
-> > > > - vhost is looping through available queues.
-> > > > - vhost wants to wake up a kworker to process a found queue.
-> > > > - kworker does something with that queue and terminates quickly.
-> > > > 
-> > > > What I found by throwing in some very noisy trace statements was that,
-> > > > if the kworker is not woken up, the vhost just keeps looping accross
-> > > > all available queues (and seems to repeat itself). So it essentially
-> > > > relies on the scheduler to schedule the kworker fast enough. Otherwise
-> > > > it will just keep on looping until it is migrated off the CPU.
-> > > 
-> > > 
-> > > Normally it takes the buffers off the queue and is done with it.
-> > > I am guessing that at the same time guest is running on some other
-> > > CPU and keeps adding available buffers?
-> > > 
-> > 
-> > It seems to do just that, there are multiple other vhost instances
-> > involved which might keep filling up thoses queues. 
-> > 
+On 2023/12/1 23:24, Jason Gunthorpe wrote:
+> On Thu, Oct 26, 2023 at 10:49:28AM +0800, Lu Baolu wrote:
 > 
-> No vhost is ever only draining queues. Guest is filling them.
+>> +static ssize_t hwpt_fault_fops_write(struct file *filep,
+>> +				     const char __user *buf,
+>> +				     size_t count, loff_t *ppos)
+>> +{
+>> +	size_t response_size = sizeof(struct iommu_hwpt_page_response);
+>> +	struct hw_pgtable_fault *fault = filep->private_data;
+>> +	struct iommu_hwpt_page_response response;
+>> +	struct iommufd_hw_pagetable *hwpt;
+>> +	struct iopf_group *iter, *group;
+>> +	struct iommufd_device *idev;
+>> +	size_t done = 0;
+>> +	int rc = 0;
+>> +
+>> +	if (*ppos || count % response_size)
+>> +		return -ESPIPE;
+>> +
+>> +	mutex_lock(&fault->mutex);
+>> +	while (!list_empty(&fault->response) && count > done) {
+>> +		rc = copy_from_user(&response, buf + done, response_size);
+>> +		if (rc)
+>> +			break;
+>> +
+>> +		/* Get the device that this response targets at. */
+>> +		idev = container_of(iommufd_get_object(fault->ictx,
+>> +						       response.dev_id,
+>> +						       IOMMUFD_OBJ_DEVICE),
+>> +				    struct iommufd_device, obj);
+>> +		if (IS_ERR(idev)) {
+>> +			rc = PTR_ERR(idev);
+>> +			break;
+>> +		}
 > 
-> > Unfortunately, this makes the problematic vhost instance to stay on
-> > the CPU and prevents said kworker to get scheduled. The kworker is
-> > explicitly woken up by vhost, so it wants it to do something.
-> > 
-> > At this point it seems that there is an assumption about the scheduler
-> > in place which is no longer fulfilled by EEVDF. From the discussion so
-> > far, it seems like EEVDF does what is intended to do.
-> > 
-> > Shouldn't there be a more explicit mechanism in use that allows the
-> > kworker to be scheduled in favor of the vhost?
-> > 
-> > It is also concerning that the vhost seems cannot be preempted by the
-> > scheduler while executing that loop.
+> See here it might be better to have a per-fd list of outstanding
+> faults per-fd and then the cookie would just index that list, then you
+> get everything in one shot instead of having to do a xarray looking
+> and then a linear list search
+
+Yours is more efficient. I will do it that way in the next version.
+
 > 
+>> +static const struct file_operations hwpt_fault_fops = {
+>> +	.owner		= THIS_MODULE,
+>> +	.read		= hwpt_fault_fops_read,
+>> +	.write		= hwpt_fault_fops_write,
+>> +};
 > 
-> Which loop is that, exactly?
+> nonseekable_open() behavior should be integrated into this
 
-The loop continously passes translate_desc in drivers/vhost/vhost.c
-That's where I put the trace statements.
+Sure.
 
-The overall sequence seems to be (top to bottom):
+> 
+>> +static int hw_pagetable_get_fault_fd(struct hw_pgtable_fault *fault)
+>> +{
+>> +	struct file *filep;
+>> +	int fdno;
+>> +
+>> +	fdno = get_unused_fd_flags(O_CLOEXEC);
+>> +	if (fdno < 0)
+>> +		return fdno;
+>> +
+>> +	filep = anon_inode_getfile("[iommufd-pgfault]", &hwpt_fault_fops,
+>> +				   fault, O_RDWR);
+>> +	if (IS_ERR(filep)) {
+>> +		put_unused_fd(fdno);
+>> +		return PTR_ERR(filep);
+>> +	}
+>> +
+>> +	fd_install(fdno, filep);
+>> +	fault->fault_file = filep;
+>> +	fault->fault_fd = fdno;
+> 
+> fd_install must be the very last thing before returning success from a
+> system call because we cannot undo it.
 
-handle_rx
-get_rx_bufs
-vhost_get_vq_desc
-vhost_get_avail_head
-vhost_get_avail
-__vhost_get_user_slow
-translate_desc               << trace statement in here
-vhost_iotlb_itree_first
+Yes.
 
-These functions show up as having increased overhead in perf.
+> 
+> There are other failure paths before here and the final return
+> 
+> Jason
 
-There are multiple loops going on in there.
-Again the disclaimer though, I'm not familiar with that code at all.
+Best regards,
+baolu
+
