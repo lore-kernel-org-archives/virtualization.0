@@ -1,131 +1,108 @@
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3A7A4CB37
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 18:41:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D0410F6
+	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 03:30:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="YFYB3Wmw"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ngNQEzPN"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5737F418DF
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 18:41:36 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 5737F418DF
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0C5FA428D5
+	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 03:30:04 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 0C5FA428D5
 Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.a=rsa-sha256 header.s=default header.b=YFYB3Wmw
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=ngNQEzPN
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -17.502
+X-Spam-Score: -2.101
 X-Spam-Level:
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7ZTMOFD6BNbD
+	with ESMTP id ejbXcPr9wlNu
 	for <virtualization@lists.linux-foundation.org>;
-	Fri,  8 Dec 2023 18:41:35 +0000 (UTC)
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 93250418B8
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 Dec 2023 18:41:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 93250418B8
-Received: from [192.168.4.26] (unknown [47.186.13.91])
-	by linux.microsoft.com (Postfix) with ESMTPSA id B588020B74C0;
-	Fri,  8 Dec 2023 10:41:32 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B588020B74C0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1702060894;
-	bh=AnIC6fr2QG8zWjE8bckg2NFATj2evZRXlwuerxjzhrk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YFYB3WmwcuV32c52iaz4igd8ovlIWvHBEPQVmbIZEw3i94LbeUVkav4NsxSNfPmIk
-	 iUXKkjZRomhyqjplJTf78F4BLpGH4vEdrl44twJ+PBdhRrhrueH+3FqPyjppZtB4ge
-	 /VJ2zHgNQUxArYnpRJ/nZXtyaTbYEsmb8Xq9ZQ7A=
-Message-ID: <eb41ec87-8e46-4880-9d94-d86849ddadd2@linux.microsoft.com>
-Date: Fri, 8 Dec 2023 12:41:31 -0600
+	Sat,  9 Dec 2023 03:30:02 +0000 (UTC)
+X-Greylist: delayed 427 seconds by postgrey-1.37 at util1.osuosl.org; Sat, 09 Dec 2023 03:30:02 UTC
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 76EC4428D4
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 76EC4428D4
+	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 03:30:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1702092602; x=1733628602;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=FB550rS7SzktM31mvewWBadcGwe+2j2mfx8+REMTGMI=;
+  b=ngNQEzPNjs+Mln30+p5rpg/ZisBrAqPVT4e9/Lj5X1xhmMkO/vrX2zO4
+   jYxHbgV5iDo1luEF0g/j8UdKzci5aJ959lmfjikbQSOhDHyhoHMZOeK48
+   8BxKmoONbuyyd+XwFwlkzoW96yxM/DT5E/IpO3j86tPbDKy5hlLs+nF+M
+   Xo6PIDbqApebKcUTpWTGNcW7O/X147fkeIRmA10SXlQIDfc5xFUu/X2Sh
+   GQa4F44kZezEYUOsKcHI007kqAqLVkGqndP9azaDYd30KZzu07Qx7jFnY
+   VD4XaKuo1wBQp/Gcg7gvdjqUwqNPfgM4/n5w4a0Uz04o0z3evZ/JNyGx2
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10918"; a="1310536"
+X-IronPort-AV: E=Sophos;i="6.04,262,1695711600"; 
+   d="scan'208";a="1310536"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Dec 2023 19:22:53 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10918"; a="1103780107"
+X-IronPort-AV: E=Sophos;i="6.04,262,1695711600"; 
+   d="scan'208";a="1103780107"
+Received: from lkp-server02.sh.intel.com (HELO b07ab15da5fe) ([10.239.97.151])
+  by fmsmga005.fm.intel.com with ESMTP; 08 Dec 2023 19:22:49 -0800
+Received: from kbuild by b07ab15da5fe with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1rBnvS-000El6-0P;
+	Sat, 09 Dec 2023 03:22:46 +0000
+Date: Sat, 9 Dec 2023 11:22:11 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux-foundation.org
+Cc: oe-kbuild-all@lists.linux.dev, jasowang@redhat.com, mst@redhat.com,
+	pabeni@redhat.com, kuba@kernel.org, yinjun.zhang@corigine.com,
+	edumazet@google.com, davem@davemloft.net, hawk@kernel.org,
+	john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH net-next v7 4/4] virtio-net: support rx netdim
+Message-ID: <202312091132.7eR6Cbs9-lkp@intel.com>
+References: <9be20d1e86bea91b373f28401a96401b640ef4d1.1701929854.git.hengqi@linux.alibaba.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 17/19] heki: x86: Update permissions counters
- during text patching
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H . Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
- Kees Cook <keescook@chromium.org>, Paolo Bonzini <pbonzini@redhat.com>,
- Sean Christopherson <seanjc@google.com>, Thomas Gleixner
- <tglx@linutronix.de>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Wanpeng Li <wanpengli@tencent.com>, Alexander Graf <graf@amazon.com>,
- Chao Peng <chao.p.peng@linux.intel.com>,
- "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>,
- Forrest Yuan Yu <yuanyu@google.com>, James Gowans <jgowans@amazon.com>,
- James Morris <jamorris@linux.microsoft.com>,
- John Andersen <john.s.andersen@intel.com>,
- Marian Rotariu <marian.c.rotariu@gmail.com>,
- =?UTF-8?Q?Mihai_Don=C8=9Bu?= <mdontu@bitdefender.com>,
- =?UTF-8?B?TmljdciZb3IgQ8OuyJt1?= <nicu.citu@icloud.com>,
- Thara Gopinath <tgopinath@microsoft.com>,
- Trilok Soni <quic_tsoni@quicinc.com>, Wei Liu <wei.liu@kernel.org>,
- Will Deacon <will@kernel.org>, Yu Zhang <yu.c.zhang@linux.intel.com>,
- Zahra Tarkhani <ztarkhani@microsoft.com>,
- =?UTF-8?Q?=C8=98tefan_=C8=98icleru?= <ssicleru@bitdefender.com>,
- dev@lists.cloudhypervisor.org, kvm@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-hyperv@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
- x86@kernel.org, xen-devel@lists.xenproject.org
-References: <20231113022326.24388-1-mic@digikod.net>
- <20231113022326.24388-18-mic@digikod.net>
- <20231113081929.GA16138@noisy.programming.kicks-ass.net>
- <a52d8885-43cc-4a4e-bb47-9a800070779e@linux.microsoft.com>
- <20231127200841.GZ3818@noisy.programming.kicks-ass.net>
- <ea63ae4e-e8ea-4fbf-9383-499e14de2f5e@linux.microsoft.com>
- <20231130113315.GE20191@noisy.programming.kicks-ass.net>
- <624a310b-c0d2-406c-a4a7-d851b3cc68f5@linux.microsoft.com>
- <20231206185134.GA9899@noisy.programming.kicks-ass.net>
-Content-Language: en-US
-From: "Madhavan T. Venkataraman" <madvenka@linux.microsoft.com>
-In-Reply-To: <20231206185134.GA9899@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9be20d1e86bea91b373f28401a96401b640ef4d1.1701929854.git.hengqi@linux.alibaba.com>
 
+Hi Heng,
 
+kernel test robot noticed the following build errors:
 
-On 12/6/23 12:51, Peter Zijlstra wrote:
-> On Wed, Dec 06, 2023 at 10:37:33AM -0600, Madhavan T. Venkataraman wrote:
->>
->>
->> On 11/30/23 05:33, Peter Zijlstra wrote:
->>> On Wed, Nov 29, 2023 at 03:07:15PM -0600, Madhavan T. Venkataraman wrote:
->>>
->>>> Kernel Lockdown
->>>> ---------------
->>>>
->>>> But, we must provide at least some security in V2. Otherwise, it is useless.
->>>>
->>>> So, we have implemented what we call a kernel lockdown. At the end of kernel
->>>> boot, Heki establishes permissions in the extended page table as mentioned
->>>> before. Also, it adds an immutable attribute for kernel text and kernel RO data.
->>>> Beyond that point, guest requests that attempt to modify permissions on any of
->>>> the immutable pages will be denied.
->>>>
->>>> This means that features like FTrace and KProbes will not work on kernel text
->>>> in V2. This is a temporary limitation. Once authentication is in place, the
->>>> limitation will go away.
->>>
->>> So either you're saying your patch 17 / text_poke is broken (so why
->>> include it ?!?) or your statement above is incorrect. Pick one.
->>>
->>
->> It has been included so that people can be aware of the changes.
->>
->> I will remove the text_poke() changes from the patchset and send it later when
->> I have some authentication in place. It will make sense then.
-> 
-> If you know its broken then fucking say so in the Changelog instead of
-> wasting everybody's time.. OMG.
+[auto build test ERROR on net-next/main]
 
-It is not broken. It addresses one part of the problem. The other part is WIP.
+url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-returns-whether-napi-is-complete/20231207-143044
+base:   net-next/main
+patch link:    https://lore.kernel.org/r/9be20d1e86bea91b373f28401a96401b640ef4d1.1701929854.git.hengqi%40linux.alibaba.com
+patch subject: [PATCH net-next v7 4/4] virtio-net: support rx netdim
+config: nios2-randconfig-r064-20231209 (https://download.01.org/0day-ci/archive/20231209/202312091132.7eR6Cbs9-lkp@intel.com/config)
+compiler: nios2-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231209/202312091132.7eR6Cbs9-lkp@intel.com/reproduce)
 
-I am preparing a detailed response to your comments. I ask you to be patient until then. In fact, I would appreciate your input/suggestions on some problems we are trying to solve in this context. I will mention them in my response.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202312091132.7eR6Cbs9-lkp@intel.com/
 
-Madhavan
+All errors (new ones prefixed by >>):
 
+   nios2-linux-ld: drivers/net/virtio_net.o: in function `virtnet_rx_dim_work':
+   virtio_net.c:(.text+0x21dc): undefined reference to `net_dim_get_rx_moderation'
+>> virtio_net.c:(.text+0x21dc): relocation truncated to fit: R_NIOS2_CALL26 against `net_dim_get_rx_moderation'
+   nios2-linux-ld: drivers/net/virtio_net.o: in function `virtnet_poll':
+   virtio_net.c:(.text+0x97bc): undefined reference to `net_dim'
+>> virtio_net.c:(.text+0x97bc): relocation truncated to fit: R_NIOS2_CALL26 against `net_dim'
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
