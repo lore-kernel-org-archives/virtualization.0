@@ -1,128 +1,215 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B2D8125B6
-	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 10:27:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B47E125B3
+	for <virtualization@lists.linux.dev>; Sat,  9 Dec 2023 10:42:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KLxzU37U"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B897060BA5
-	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 10:27:49 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org B897060BA5
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KLxzU37U
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.099
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yxQk6-C8HWo9
-	for <virtualization@lists.linux-foundation.org>;
-	Sat,  9 Dec 2023 10:27:48 +0000 (UTC)
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 76DD860B10
-	for <virtualization@lists.linux-foundation.org>; Sat,  9 Dec 2023 10:27:48 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 76DD860B10
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="czHkUlaR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702117667;
+	s=mimecast20190719; t=1702118552;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9sgSSZVoHbtMUxorEO7aIxD48351b/dT2/kcqCclHl8=;
-	b=KLxzU37USw+je945nCwWlOIxZ84xCdZOMKml0zgye3DHa4nTZKHbv8BKVm3nSCOGXyDxD+
-	HqiVvz5lDCh3izbpE6XsWbodthaX3iqM20OOlK5ANibeLyq2+uMYQJ+XjH5mAf2VxmZnx8
-	Bf7mWHJ10UeypG627fodUq6EVho5eWM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=jYXGvxRUfrhZD8ZKPprmEb3EjUd1OkMKc/tesKE8NYk=;
+	b=czHkUlaRiaNFarIf6BSDsjk88VT9tvhozYXPxIXUCUsU23g9TIrnlziiDoKha1CmmfKduO
+	fstOCHzGxgW31FGX+UT7NbBStab/JULX1Moikmk0df3Z+R/0IU2oGGeu6bM+GtHKXojTK0
+	zAxPpMNgGAd0ec6MER5K97T9Q7at8bI=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-546-pNSLJUDFPJSWPN0DKRGHfg-1; Sat, 09 Dec 2023 05:27:43 -0500
-X-MC-Unique: pNSLJUDFPJSWPN0DKRGHfg-1
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-333405020f3so2390916f8f.1
-        for <virtualization@lists.linux-foundation.org>; Sat, 09 Dec 2023 02:27:43 -0800 (PST)
+ us-mta-433-6Fvx6rq9N16H80VyVSSdmg-1; Sat, 09 Dec 2023 05:42:30 -0500
+X-MC-Unique: 6Fvx6rq9N16H80VyVSSdmg-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40c27a351e2so17506395e9.2
+        for <virtualization@lists.linux.dev>; Sat, 09 Dec 2023 02:42:30 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702117662; x=1702722462;
+        d=1e100.net; s=20230601; t=1702118549; x=1702723349;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9sgSSZVoHbtMUxorEO7aIxD48351b/dT2/kcqCclHl8=;
-        b=BV0u0z6CCOCBpOj73KELhDRaIEeyfq9tPqAjwwTnHUaVvGO5NzwJD17fRNK/8HYSLs
-         VJ374f1nxViQmv11FFzVzpkP123+4X1fMq0EGVa6fdemtyBoKU6cJ5J14IsRnmz0AeHS
-         f45eLlEffwX6PFX9BCBe3DOtU0ips5JJ6irNqkx8HnFUQ5x/GcNX/zQF+jkPdyrIwupP
-         pUjE3FFBF38VnaQSLecJlYZEg+tAO+cd6qS1CwMSqsL2A6fnte+gl9yEPJ7uXwUh8m4+
-         DwpoVs5ynZpiLoyxv9XRHxHypQcyrkItNgh4aSF2g5DSxDZOq7TCM5j3fSzYybVDiGaU
-         DmjQ==
-X-Gm-Message-State: AOJu0YwAoeHo05e4Ieh85sxpuCkZgR8f3CnQKSPnvBb17nCD+DoI7v92
-	8WoFhGlmG8vRmWyhdAonWB7dlvHOXawGh4sH22SzfeNDLY9QEfcuknD6yjdTW88DDBg5bMOCQ0r
-	HBNs59l33kJXEMx9yLEne9XUt20QFZvHvHzZV1pIdEw==
-X-Received: by 2002:a5d:6611:0:b0:333:4896:100d with SMTP id n17-20020a5d6611000000b003334896100dmr664685wru.8.1702117662543;
-        Sat, 09 Dec 2023 02:27:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGDiHXF4XIUOFxXmVXFha/8eTa6nHvn907AvowQMaqP0gK0hvBFBHsptrwJMLI54FcKEUH+MQ==
-X-Received: by 2002:a5d:6611:0:b0:333:4896:100d with SMTP id n17-20020a5d6611000000b003334896100dmr664676wru.8.1702117662230;
-        Sat, 09 Dec 2023 02:27:42 -0800 (PST)
+        bh=jYXGvxRUfrhZD8ZKPprmEb3EjUd1OkMKc/tesKE8NYk=;
+        b=XZwr13TVKPXFw1249QAvRLZxebIk68MIVfaP/Y+4g+quaJlpGtFNxU5ndPH6WfOALu
+         0WtTdm8G+TKQuVdddwXmRc/1sQqTVvlVDXUAES2NjdDvXq/yj+U1JbY0Q69ndF8+pWbW
+         qwYFF9gmwFinZe53a0reyqwmLDfhdRLjH1n/50HyO8cAZY4QwnUpSYnBMPSN1rcyJ+Lv
+         TxzfX4x4B/imeU0u3mkCdMuuftLLLTpR5xI8vDh/iK+dAcCUnF5Xm/PEwiSqsX6+8PGi
+         25DfDK+kO8Z3Vw3dBjt4b3CtYIf6SNgUU9EnH6RuYGJqPXDj9mNt2xm0lDfHfsg42UCi
+         FDjA==
+X-Gm-Message-State: AOJu0Ywkc0KSlkhV1bdQzKfQV6/R9ptZVV4DuonC+GuO/hdJx9HSYFQM
+	RLgiVvGVQncWLWdT0ZGFj2jYOALlvaT4QWno74aPa9urRSVrwVjKJOhero4YvjcGnkMHel+jRnM
+	DiQPVoo9yzff+UATiHhc1cY9PWVo=
+X-Received: by 2002:a05:600c:808:b0:40c:32df:da03 with SMTP id k8-20020a05600c080800b0040c32dfda03mr347243wmp.305.1702118549569;
+        Sat, 09 Dec 2023 02:42:29 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IGdC86jKPcminvAV1YfnbyeFnlInlsAzYlkskejvPuH6o846ik+MKMa3TBW5xfIsAmcSOb+EA==
+X-Received: by 2002:a05:600c:808:b0:40c:32df:da03 with SMTP id k8-20020a05600c080800b0040c32dfda03mr347239wmp.305.1702118549151;
+        Sat, 09 Dec 2023 02:42:29 -0800 (PST)
 Received: from redhat.com ([2a06:c701:73ff:4f00:b091:120e:5537:ac67])
-        by smtp.gmail.com with ESMTPSA id m1-20020a056000008100b00334b3208700sm3961093wrx.49.2023.12.09.02.27.40
+        by smtp.gmail.com with ESMTPSA id u15-20020a05600c138f00b004060f0a0fd5sm6031663wmf.13.2023.12.09.02.42.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Dec 2023 02:27:41 -0800 (PST)
-Date: Sat, 9 Dec 2023 05:27:38 -0500
+        Sat, 09 Dec 2023 02:42:28 -0800 (PST)
+Date: Sat, 9 Dec 2023 05:42:25 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Cc: Heng Qi <hengqi@linux.alibaba.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux-foundation.org,
-	oe-kbuild-all@lists.linux.dev, jasowang@redhat.com,
-	pabeni@redhat.com, kuba@kernel.org, yinjun.zhang@corigine.com,
-	edumazet@google.com, davem@davemloft.net, hawk@kernel.org,
-	john.fastabend@gmail.com, ast@kernel.org, horms@kernel.org,
-	xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH net-next v7 4/4] virtio-net: support rx netdim
-Message-ID: <20231209052724-mutt-send-email-mst@kernel.org>
-References: <9be20d1e86bea91b373f28401a96401b640ef4d1.1701929854.git.hengqi@linux.alibaba.com>
- <202312091132.7eR6Cbs9-lkp@intel.com>
+To: Tobias Huschle <huschle@linux.ibm.com>
+Cc: Abel Wu <wuyun.abel@bytedance.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	jasowang@redhat.com
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+Message-ID: <20231209053443-mutt-send-email-mst@kernel.org>
+References: <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
+ <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
+ <20231122100016.GO8262@noisy.programming.kicks-ass.net>
+ <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
+ <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
+ <07513.123120701265800278@us-mta-474.us.mimecast.lan>
+ <20231207014626-mutt-send-email-mst@kernel.org>
+ <56082.123120804242300177@us-mta-137.us.mimecast.lan>
+ <20231208052150-mutt-send-email-mst@kernel.org>
+ <53044.123120806415900549@us-mta-342.us.mimecast.lan>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <202312091132.7eR6Cbs9-lkp@intel.com>
+In-Reply-To: <53044.123120806415900549@us-mta-342.us.mimecast.lan>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Sat, Dec 09, 2023 at 11:22:11AM +0800, kernel test robot wrote:
-> Hi Heng,
+On Fri, Dec 08, 2023 at 12:41:38PM +0100, Tobias Huschle wrote:
+> On Fri, Dec 08, 2023 at 05:31:18AM -0500, Michael S. Tsirkin wrote:
+> > On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
+> > > On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
+> > > > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
+> > > > > 3. vhost looping endlessly, waiting for kworker to be scheduled
+> > > > > 
+> > > > > I dug a little deeper on what the vhost is doing. I'm not an expert on
+> > > > > virtio whatsoever, so these are just educated guesses that maybe
+> > > > > someone can verify/correct. Please bear with me probably messing up 
+> > > > > the terminology.
+> > > > > 
+> > > > > - vhost is looping through available queues.
+> > > > > - vhost wants to wake up a kworker to process a found queue.
+> > > > > - kworker does something with that queue and terminates quickly.
+> > > > > 
+> > > > > What I found by throwing in some very noisy trace statements was that,
+> > > > > if the kworker is not woken up, the vhost just keeps looping accross
+> > > > > all available queues (and seems to repeat itself). So it essentially
+> > > > > relies on the scheduler to schedule the kworker fast enough. Otherwise
+> > > > > it will just keep on looping until it is migrated off the CPU.
+> > > > 
+> > > > 
+> > > > Normally it takes the buffers off the queue and is done with it.
+> > > > I am guessing that at the same time guest is running on some other
+> > > > CPU and keeps adding available buffers?
+> > > > 
+> > > 
+> > > It seems to do just that, there are multiple other vhost instances
+> > > involved which might keep filling up thoses queues. 
+> > > 
+> > 
+> > No vhost is ever only draining queues. Guest is filling them.
+> > 
+> > > Unfortunately, this makes the problematic vhost instance to stay on
+> > > the CPU and prevents said kworker to get scheduled. The kworker is
+> > > explicitly woken up by vhost, so it wants it to do something.
+> > > 
+> > > At this point it seems that there is an assumption about the scheduler
+> > > in place which is no longer fulfilled by EEVDF. From the discussion so
+> > > far, it seems like EEVDF does what is intended to do.
+> > > 
+> > > Shouldn't there be a more explicit mechanism in use that allows the
+> > > kworker to be scheduled in favor of the vhost?
+> > > 
+> > > It is also concerning that the vhost seems cannot be preempted by the
+> > > scheduler while executing that loop.
+> > 
+> > 
+> > Which loop is that, exactly?
 > 
-> kernel test robot noticed the following build errors:
+> The loop continously passes translate_desc in drivers/vhost/vhost.c
+> That's where I put the trace statements.
 > 
-> [auto build test ERROR on net-next/main]
+> The overall sequence seems to be (top to bottom):
 > 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Heng-Qi/virtio-net-returns-whether-napi-is-complete/20231207-143044
-> base:   net-next/main
-> patch link:    https://lore.kernel.org/r/9be20d1e86bea91b373f28401a96401b640ef4d1.1701929854.git.hengqi%40linux.alibaba.com
-> patch subject: [PATCH net-next v7 4/4] virtio-net: support rx netdim
-> config: nios2-randconfig-r064-20231209 (https://download.01.org/0day-ci/archive/20231209/202312091132.7eR6Cbs9-lkp@intel.com/config)
-> compiler: nios2-linux-gcc (GCC) 13.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231209/202312091132.7eR6Cbs9-lkp@intel.com/reproduce)
+> handle_rx
+> get_rx_bufs
+> vhost_get_vq_desc
+> vhost_get_avail_head
+> vhost_get_avail
+> __vhost_get_user_slow
+> translate_desc               << trace statement in here
+> vhost_iotlb_itree_first
+
+I wonder why do you keep missing cache and re-translating.
+Is pr_debug enabled for you? If not could you check if it
+outputs anything?
+Or you can tweak:
+
+#define vq_err(vq, fmt, ...) do {                                  \
+                pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
+                if ((vq)->error_ctx)                               \
+                                eventfd_signal((vq)->error_ctx, 1);\
+        } while (0)
+
+to do pr_err if you prefer.
+
+> These functions show up as having increased overhead in perf.
 > 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202312091132.7eR6Cbs9-lkp@intel.com/
-> 
-> All errors (new ones prefixed by >>):
-> 
->    nios2-linux-ld: drivers/net/virtio_net.o: in function `virtnet_rx_dim_work':
->    virtio_net.c:(.text+0x21dc): undefined reference to `net_dim_get_rx_moderation'
-> >> virtio_net.c:(.text+0x21dc): relocation truncated to fit: R_NIOS2_CALL26 against `net_dim_get_rx_moderation'
->    nios2-linux-ld: drivers/net/virtio_net.o: in function `virtnet_poll':
->    virtio_net.c:(.text+0x97bc): undefined reference to `net_dim'
-> >> virtio_net.c:(.text+0x97bc): relocation truncated to fit: R_NIOS2_CALL26 against `net_dim'
+> There are multiple loops going on in there.
+> Again the disclaimer though, I'm not familiar with that code at all.
 
 
-Looks like select DIMLIB is missing?
+So there's a limit there: vhost_exceeds_weight should requeue work:
 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
+        } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
+
+then we invoke scheduler each time before re-executing it:
+
+
+{       
+        struct vhost_worker *worker = data;
+        struct vhost_work *work, *work_next;
+        struct llist_node *node;
+        
+        node = llist_del_all(&worker->work_list);
+        if (node) {
+                __set_current_state(TASK_RUNNING);
+
+                node = llist_reverse_order(node);
+                /* make sure flag is seen after deletion */
+                smp_wmb();
+                llist_for_each_entry_safe(work, work_next, node, node) {
+                        clear_bit(VHOST_WORK_QUEUED, &work->flags);
+                        kcov_remote_start_common(worker->kcov_handle);
+                        work->fn(work);
+                        kcov_remote_stop();
+                        cond_resched();
+                }
+        }
+
+        return !!node;
+}       
+
+These are the byte and packet limits:
+
+/* Max number of bytes transferred before requeueing the job.
+ * Using this limit prevents one virtqueue from starving others. */
+#define VHOST_NET_WEIGHT 0x80000
+
+/* Max number of packets transferred before requeueing the job.
+ * Using this limit prevents one virtqueue from starving others with small
+ * pkts.
+ */
+#define VHOST_NET_PKT_WEIGHT 256
+
+
+Try reducing the VHOST_NET_WEIGHT limit and see if that improves things any?
+
+-- 
+MST
 
