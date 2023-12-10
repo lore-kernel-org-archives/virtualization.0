@@ -1,215 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B47E125B3
-	for <virtualization@lists.linux.dev>; Sat,  9 Dec 2023 10:42:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71F0B46A5
+	for <virtualization@lists.linux.dev>; Sun, 10 Dec 2023 06:21:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="czHkUlaR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1702118552;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jYXGvxRUfrhZD8ZKPprmEb3EjUd1OkMKc/tesKE8NYk=;
-	b=czHkUlaRiaNFarIf6BSDsjk88VT9tvhozYXPxIXUCUsU23g9TIrnlziiDoKha1CmmfKduO
-	fstOCHzGxgW31FGX+UT7NbBStab/JULX1Moikmk0df3Z+R/0IU2oGGeu6bM+GtHKXojTK0
-	zAxPpMNgGAd0ec6MER5K97T9Q7at8bI=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-433-6Fvx6rq9N16H80VyVSSdmg-1; Sat, 09 Dec 2023 05:42:30 -0500
-X-MC-Unique: 6Fvx6rq9N16H80VyVSSdmg-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-40c27a351e2so17506395e9.2
-        for <virtualization@lists.linux.dev>; Sat, 09 Dec 2023 02:42:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702118549; x=1702723349;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jYXGvxRUfrhZD8ZKPprmEb3EjUd1OkMKc/tesKE8NYk=;
-        b=XZwr13TVKPXFw1249QAvRLZxebIk68MIVfaP/Y+4g+quaJlpGtFNxU5ndPH6WfOALu
-         0WtTdm8G+TKQuVdddwXmRc/1sQqTVvlVDXUAES2NjdDvXq/yj+U1JbY0Q69ndF8+pWbW
-         qwYFF9gmwFinZe53a0reyqwmLDfhdRLjH1n/50HyO8cAZY4QwnUpSYnBMPSN1rcyJ+Lv
-         TxzfX4x4B/imeU0u3mkCdMuuftLLLTpR5xI8vDh/iK+dAcCUnF5Xm/PEwiSqsX6+8PGi
-         25DfDK+kO8Z3Vw3dBjt4b3CtYIf6SNgUU9EnH6RuYGJqPXDj9mNt2xm0lDfHfsg42UCi
-         FDjA==
-X-Gm-Message-State: AOJu0Ywkc0KSlkhV1bdQzKfQV6/R9ptZVV4DuonC+GuO/hdJx9HSYFQM
-	RLgiVvGVQncWLWdT0ZGFj2jYOALlvaT4QWno74aPa9urRSVrwVjKJOhero4YvjcGnkMHel+jRnM
-	DiQPVoo9yzff+UATiHhc1cY9PWVo=
-X-Received: by 2002:a05:600c:808:b0:40c:32df:da03 with SMTP id k8-20020a05600c080800b0040c32dfda03mr347243wmp.305.1702118549569;
-        Sat, 09 Dec 2023 02:42:29 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGdC86jKPcminvAV1YfnbyeFnlInlsAzYlkskejvPuH6o846ik+MKMa3TBW5xfIsAmcSOb+EA==
-X-Received: by 2002:a05:600c:808:b0:40c:32df:da03 with SMTP id k8-20020a05600c080800b0040c32dfda03mr347239wmp.305.1702118549151;
-        Sat, 09 Dec 2023 02:42:29 -0800 (PST)
-Received: from redhat.com ([2a06:c701:73ff:4f00:b091:120e:5537:ac67])
-        by smtp.gmail.com with ESMTPSA id u15-20020a05600c138f00b004060f0a0fd5sm6031663wmf.13.2023.12.09.02.42.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 Dec 2023 02:42:28 -0800 (PST)
-Date: Sat, 9 Dec 2023 05:42:25 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Tobias Huschle <huschle@linux.ibm.com>
-Cc: Abel Wu <wuyun.abel@bytedance.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	jasowang@redhat.com
-Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
- sched/fair: Add lag based placement)
-Message-ID: <20231209053443-mutt-send-email-mst@kernel.org>
-References: <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
- <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.>
- <20231122100016.GO8262@noisy.programming.kicks-ass.net>
- <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
- <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com>
- <07513.123120701265800278@us-mta-474.us.mimecast.lan>
- <20231207014626-mutt-send-email-mst@kernel.org>
- <56082.123120804242300177@us-mta-137.us.mimecast.lan>
- <20231208052150-mutt-send-email-mst@kernel.org>
- <53044.123120806415900549@us-mta-342.us.mimecast.lan>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Sa5kv9s/";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Sa5kv9s/"
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 0EFA421FB5;
+	Sun, 10 Dec 2023 06:21:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1702189301; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eMbINGogkyxk7Eq7pz90fULe5xNfa98e3nj/JUFDdnE=;
+	b=Sa5kv9s/RLfuNkHAGfZA47cCUM3t1TguXEd4UUr8PBVXwVuxvRUrGvbSmcMM82986I9yEJ
+	N5Hd6l3hgU0llsK4NZE7q74PIPMoL5IEl2SSvd1WyPQ49Ii3T+9azPmY0E7SmSLO24kM0j
+	dnrZ2iAYVmtgxX4miD6yeSQn9kytD2M=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1702189301; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=eMbINGogkyxk7Eq7pz90fULe5xNfa98e3nj/JUFDdnE=;
+	b=Sa5kv9s/RLfuNkHAGfZA47cCUM3t1TguXEd4UUr8PBVXwVuxvRUrGvbSmcMM82986I9yEJ
+	N5Hd6l3hgU0llsK4NZE7q74PIPMoL5IEl2SSvd1WyPQ49Ii3T+9azPmY0E7SmSLO24kM0j
+	dnrZ2iAYVmtgxX4miD6yeSQn9kytD2M=
+Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 8B5AC13240;
+	Sun, 10 Dec 2023 06:21:40 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap2.dmz-prg2.suse.org with ESMTPSA
+	id JTVQIPRYdWUFewAAn2gu4w
+	(envelope-from <jgross@suse.com>); Sun, 10 Dec 2023 06:21:40 +0000
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <akaher@vmware.com>,
+	Alexey Makhalov <amakhalov@vmware.com>,
+	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Wanpeng Li <wanpengli@tencent.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	xen-devel@lists.xenproject.org
+Subject: [PATCH v6 0/5] 86/paravirt: Get rid of paravirt patching
+Date: Sun, 10 Dec 2023 07:21:33 +0100
+Message-Id: <20231210062138.2417-1-jgross@suse.com>
+X-Mailer: git-send-email 2.35.3
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <53044.123120806415900549@us-mta-342.us.mimecast.lan>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Spam-Level: ****************
+X-Spam-Flag: NO
+X-Spam-Score: 16.72
+X-Spam-Level: 
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b="Sa5kv9s/";
+	dmarc=pass (policy=quarantine) header.from=suse.com;
+	spf=fail (smtp-out1.suse.de: domain of jgross@suse.com does not designate 2a07:de40:b281:104:10:150:64:98 as permitted sender) smtp.mailfrom=jgross@suse.com
+X-Rspamd-Server: rspamd2
+X-Spamd-Result: default: False [-3.91 / 50.00];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 R_MISSING_CHARSET(2.50)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_TRACE(0.00)[suse.com:+];
+	 MX_GOOD(-0.01)[];
+	 DMARC_POLICY_ALLOW(0.00)[suse.com,quarantine];
+	 DMARC_POLICY_ALLOW_WITH_FAILURES(-0.50)[];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 BAYES_HAM(-3.00)[100.00%];
+	 ARC_NA(0.00)[];
+	 R_SPF_FAIL(0.00)[-all];
+	 R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	 FROM_HAS_DN(0.00)[];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
+	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_SPAM_SHORT(2.90)[0.968];
+	 DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	 WHITELIST_DMARC(-7.00)[suse.com:D:+];
+	 RCPT_COUNT_TWELVE(0.00)[18];
+	 MID_CONTAINS_FROM(1.00)[];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 RCVD_TLS_ALL(0.00)[]
+X-Spam-Score: -3.91
+X-Rspamd-Queue-Id: 0EFA421FB5
+X-Spam-Flag: NO
 
-On Fri, Dec 08, 2023 at 12:41:38PM +0100, Tobias Huschle wrote:
-> On Fri, Dec 08, 2023 at 05:31:18AM -0500, Michael S. Tsirkin wrote:
-> > On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
-> > > On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
-> > > > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
-> > > > > 3. vhost looping endlessly, waiting for kworker to be scheduled
-> > > > > 
-> > > > > I dug a little deeper on what the vhost is doing. I'm not an expert on
-> > > > > virtio whatsoever, so these are just educated guesses that maybe
-> > > > > someone can verify/correct. Please bear with me probably messing up 
-> > > > > the terminology.
-> > > > > 
-> > > > > - vhost is looping through available queues.
-> > > > > - vhost wants to wake up a kworker to process a found queue.
-> > > > > - kworker does something with that queue and terminates quickly.
-> > > > > 
-> > > > > What I found by throwing in some very noisy trace statements was that,
-> > > > > if the kworker is not woken up, the vhost just keeps looping accross
-> > > > > all available queues (and seems to repeat itself). So it essentially
-> > > > > relies on the scheduler to schedule the kworker fast enough. Otherwise
-> > > > > it will just keep on looping until it is migrated off the CPU.
-> > > > 
-> > > > 
-> > > > Normally it takes the buffers off the queue and is done with it.
-> > > > I am guessing that at the same time guest is running on some other
-> > > > CPU and keeps adding available buffers?
-> > > > 
-> > > 
-> > > It seems to do just that, there are multiple other vhost instances
-> > > involved which might keep filling up thoses queues. 
-> > > 
-> > 
-> > No vhost is ever only draining queues. Guest is filling them.
-> > 
-> > > Unfortunately, this makes the problematic vhost instance to stay on
-> > > the CPU and prevents said kworker to get scheduled. The kworker is
-> > > explicitly woken up by vhost, so it wants it to do something.
-> > > 
-> > > At this point it seems that there is an assumption about the scheduler
-> > > in place which is no longer fulfilled by EEVDF. From the discussion so
-> > > far, it seems like EEVDF does what is intended to do.
-> > > 
-> > > Shouldn't there be a more explicit mechanism in use that allows the
-> > > kworker to be scheduled in favor of the vhost?
-> > > 
-> > > It is also concerning that the vhost seems cannot be preempted by the
-> > > scheduler while executing that loop.
-> > 
-> > 
-> > Which loop is that, exactly?
-> 
-> The loop continously passes translate_desc in drivers/vhost/vhost.c
-> That's where I put the trace statements.
-> 
-> The overall sequence seems to be (top to bottom):
-> 
-> handle_rx
-> get_rx_bufs
-> vhost_get_vq_desc
-> vhost_get_avail_head
-> vhost_get_avail
-> __vhost_get_user_slow
-> translate_desc               << trace statement in here
-> vhost_iotlb_itree_first
+This is a small series getting rid of paravirt patching by switching
+completely to alternative patching for the same functionality.
 
-I wonder why do you keep missing cache and re-translating.
-Is pr_debug enabled for you? If not could you check if it
-outputs anything?
-Or you can tweak:
+The basic idea is to add the capability to switch from indirect to
+direct calls via a special alternative patching option.
 
-#define vq_err(vq, fmt, ...) do {                                  \
-                pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
-                if ((vq)->error_ctx)                               \
-                                eventfd_signal((vq)->error_ctx, 1);\
-        } while (0)
+This removes _some_ of the paravirt macro maze, but most of it needs
+to stay due to the need of hiding the call instructions from the
+compiler in order to avoid needless register save/restore.
 
-to do pr_err if you prefer.
+What is going away is the nasty stacking of alternative and paravirt
+patching and (of course) the special .parainstructions linker section.
 
-> These functions show up as having increased overhead in perf.
-> 
-> There are multiple loops going on in there.
-> Again the disclaimer though, I'm not familiar with that code at all.
+I have tested the series on bare metal and as Xen PV domain to still
+work.
 
+Note that objtool might need some changes to cope with the new
+indirect call patching mechanism. Additionally some paravirt handling
+can probably be removed from it.
 
-So there's a limit there: vhost_exceeds_weight should requeue work:
+Changes in V6:
+- addressed Boris' comments
 
-        } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)));
+Changes in V5:
+- addressed Boris' comments
+- rebased on top of the tip/master branch
 
-then we invoke scheduler each time before re-executing it:
+Changes in V4:
+- addressed Boris' comments in patch 1
+- fixed bugs found by kernel test robot (patch 2)
 
+Changes in V3:
+- split v2 patch 3 into 2 patches as requested by Peter and Ingo
 
-{       
-        struct vhost_worker *worker = data;
-        struct vhost_work *work, *work_next;
-        struct llist_node *node;
-        
-        node = llist_del_all(&worker->work_list);
-        if (node) {
-                __set_current_state(TASK_RUNNING);
+Changes in V2:
+- split last patch into 2
+- rebase of patch 2 as suggested by Peter
+- addressed Peter's comments for patch 3
 
-                node = llist_reverse_order(node);
-                /* make sure flag is seen after deletion */
-                smp_wmb();
-                llist_for_each_entry_safe(work, work_next, node, node) {
-                        clear_bit(VHOST_WORK_QUEUED, &work->flags);
-                        kcov_remote_start_common(worker->kcov_handle);
-                        work->fn(work);
-                        kcov_remote_stop();
-                        cond_resched();
-                }
-        }
+Juergen Gross (5):
+  x86/paravirt: introduce ALT_NOT_XEN
+  x86/paravirt: move some functions and defines to alternative
+  x86/alternative: add indirect call patching
+  x86/paravirt: switch mixed paravirt/alternative calls to alternative_2
+  x86/paravirt: remove no longer needed paravirt patching code
 
-        return !!node;
-}       
-
-These are the byte and packet limits:
-
-/* Max number of bytes transferred before requeueing the job.
- * Using this limit prevents one virtqueue from starving others. */
-#define VHOST_NET_WEIGHT 0x80000
-
-/* Max number of packets transferred before requeueing the job.
- * Using this limit prevents one virtqueue from starving others with small
- * pkts.
- */
-#define VHOST_NET_PKT_WEIGHT 256
-
-
-Try reducing the VHOST_NET_WEIGHT limit and see if that improves things any?
+ arch/x86/include/asm/alternative.h        |  30 ++++-
+ arch/x86/include/asm/paravirt.h           |  77 ++++--------
+ arch/x86/include/asm/paravirt_types.h     |  85 +++++---------
+ arch/x86/include/asm/qspinlock_paravirt.h |   4 +-
+ arch/x86/include/asm/text-patching.h      |  12 --
+ arch/x86/kernel/alternative.c             | 136 +++++++++++-----------
+ arch/x86/kernel/callthunks.c              |  17 ++-
+ arch/x86/kernel/kvm.c                     |   4 +-
+ arch/x86/kernel/module.c                  |  20 +---
+ arch/x86/kernel/paravirt.c                |  54 +--------
+ arch/x86/kernel/vmlinux.lds.S             |  13 ---
+ arch/x86/tools/relocs.c                   |   2 +-
+ arch/x86/xen/irq.c                        |   2 +-
+ 13 files changed, 169 insertions(+), 287 deletions(-)
 
 -- 
-MST
+2.35.3
 
