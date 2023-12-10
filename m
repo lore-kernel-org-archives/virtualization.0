@@ -1,424 +1,221 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BCDB6AA2
-	for <virtualization@lists.linux.dev>; Sun, 10 Dec 2023 06:22:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B37512914
+	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="NcKYVCfz";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="NcKYVCfz"
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 901171F823;
-	Sun, 10 Dec 2023 06:22:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1702189329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bj8Ua4p2HhHtwr3TovE7YoEsBnbIDxPlJwJXb4fnZdM=;
-	b=NcKYVCfzJ8ZEe6Jm4sJUm0l0xEWpVmQwi3CEf4zLlC1dekC9Ied8xAoy48au3GmFUb1Rck
-	e4z6ARbCVHOC3nyXNAUXwKS+L9hHEo5J8Dza3xQlnqGPxOKBuqzRveTfE3qnNbJvb/Qv29
-	RkoFrBWQqs6jOjOCm3oDBA0v4hC+vxA=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1702189329; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bj8Ua4p2HhHtwr3TovE7YoEsBnbIDxPlJwJXb4fnZdM=;
-	b=NcKYVCfzJ8ZEe6Jm4sJUm0l0xEWpVmQwi3CEf4zLlC1dekC9Ied8xAoy48au3GmFUb1Rck
-	e4z6ARbCVHOC3nyXNAUXwKS+L9hHEo5J8Dza3xQlnqGPxOKBuqzRveTfE3qnNbJvb/Qv29
-	RkoFrBWQqs6jOjOCm3oDBA0v4hC+vxA=
-Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 3AB8913240;
-	Sun, 10 Dec 2023 06:22:09 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id 7xUJDRFZdWU0ewAAn2gu4w
-	(envelope-from <jgross@suse.com>); Sun, 10 Dec 2023 06:22:09 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev
-Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <akaher@vmware.com>,
-	Alexey Makhalov <amakhalov@vmware.com>,
-	VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v6 5/5] x86/paravirt: remove no longer needed paravirt patching code
-Date: Sun, 10 Dec 2023 07:21:38 +0100
-Message-Id: <20231210062138.2417-6-jgross@suse.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20231210062138.2417-1-jgross@suse.com>
-References: <20231210062138.2417-1-jgross@suse.com>
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="3HY8Vk7B"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 208C760FF8
+	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:16 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 208C760FF8
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=3HY8Vk7B
+X-Virus-Scanned: amavisd-new at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.898
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aHlv0JuHkkeq
+	for <virtualization@lists.linux-foundation.org>;
+	Sun, 10 Dec 2023 07:03:14 +0000 (UTC)
+Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com [IPv6:2001:4860:4864:20::32])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C6CA160FF1
+	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:13 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C6CA160FF1
+Received: by mail-oa1-x32.google.com with SMTP id 586e51a60fabf-1fb9c24a16aso2435637fac.0
+        for <virtualization@lists.linux-foundation.org>; Sat, 09 Dec 2023 23:03:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702191792; x=1702796592; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ZjIsRqTNDf1ZUfBCKqHqKSty0Nok+i7FEmnwcARKdLI=;
+        b=3HY8Vk7BvGHeWt5wutEhQ6TBvD8Ik4BYSdlR0uHiHL/5/zdJfzsbURyvstDLmd+l8F
+         UpPu/gOBzOgtQqDKIlPGqhdPTbAIDGZf8za475v+FQjrOXJUZ1w4RXvlv+5sYq3p7R9K
+         tFWtGOIrjaPBPGcjb6l2GW4IFSxaLJWqG2N4Q++rmjoZGxPkvYjFIv9dgJ3rxYS0zLkZ
+         IWg56up8MRo28Rb0DYj4BpApl4bFlaPl/GTiPCTL3un4vT0ZsrBpqBLkXqiCewnVc0a4
+         1UP/TbOHeBmB+azhi7FNEFWyYx5B1GIxkZzESGTLNUkzuwYx9o1b0UgkSZ37OPtM0bFN
+         ssfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1702191792; x=1702796592;
+        h=content-transfer-encoding:in-reply-to:references:cc:to:from
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZjIsRqTNDf1ZUfBCKqHqKSty0Nok+i7FEmnwcARKdLI=;
+        b=ord/EqbpEXLnO6rqbr9k5Njis2d7VRIl7+17UJUAmUhcBOr9POGllnOEroTyxz0MdS
+         R0hrBm3M5o+HUw1CH49egBaGY6dqxYeFuDQVOkQLjMR+2zLLn4SOXInOsfa9nRq52BcH
+         oub88m9NwT/7UobczpZvYd0NnT+ghbksAUNCw3aqTX7n33npIlSikiOBJakFCWEK0SLe
+         2hyueIibo3rVV2cG3B6a0oJzTitX71XM7p5D30QteWQtmxyFcSRng7n7DaKb6w3u/CPC
+         BmZjUVecp3LLvmY867I2cZTdx/YrT3L+OCsATurPdUPcerLZ1X0iqxhDfQyZd5ET1wq4
+         IFjg==
+X-Gm-Message-State: AOJu0YyXnTjDcTYNtC5QjlojVo5tMhaOcK8nToKNV5tpvD5B3W74VsP+
+	/mqeFxR3TiJsqeHv3ykKdcO+Jg==
+X-Google-Smtp-Source: AGHT+IF7dbPeSGNYzf+4zTjIef4l3Kxy13SD9t8mjadsfNI4Blcv83g93Y/1lOsphUYUl/vxKi2YvA==
+X-Received: by 2002:a05:6871:521f:b0:1fb:75b:2fdf with SMTP id ht31-20020a056871521f00b001fb075b2fdfmr3174064oac.118.1702191792580;
+        Sat, 09 Dec 2023 23:03:12 -0800 (PST)
+Received: from [157.82.205.15] ([157.82.205.15])
+        by smtp.gmail.com with ESMTPSA id r9-20020a63ec49000000b005b9083b81f0sm4261259pgj.36.2023.12.09.23.03.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 09 Dec 2023 23:03:12 -0800 (PST)
+Message-ID: <d30a038b-d10f-468d-8879-478a6c5b814b@daynix.com>
+Date: Sun, 10 Dec 2023 16:03:05 +0900
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
+Content-Language: en-US
+From: Akihiko Odaki <akihiko.odaki@daynix.com>
+To: Song Liu <song@kernel.org>
+Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+ Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
+ Martin KaFai Lau <martin.lau@linux.dev>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
+ Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>,
+ "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
+ Yuri Benditovich <yuri.benditovich@daynix.com>,
+ Andrew Melnychenko <andrew@daynix.com>
+References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
+ <20231015141644.260646-2-akihiko.odaki@daynix.com>
+ <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
+ <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com>
+ <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
+ <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
+ <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
+ <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com>
+ <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
+ <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
+ <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com>
+ <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
+ <a1f09866-a443-4f74-8025-6cdb32eb1d2c@daynix.com>
+ <CAPhsuW4o5o41a+jVjgGP+Ck3eUD8w6coLXMTYewXKJYmciLLnQ@mail.gmail.com>
+ <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com>
+In-Reply-To: <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Spam-Level: ****************
-X-Spam-Score: 17.00
-X-Spam-Flag: NO
-X-Spam-Level: 
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=NcKYVCfz;
-	dmarc=pass (policy=quarantine) header.from=suse.com;
-	spf=fail (smtp-out2.suse.de: domain of jgross@suse.com does not designate 2a07:de40:b281:104:10:150:64:98 as permitted sender) smtp.mailfrom=jgross@suse.com
-X-Rspamd-Server: rspamd2
-X-Spamd-Result: default: False [-3.94 / 50.00];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 TO_DN_SOME(0.00)[];
-	 R_MISSING_CHARSET(2.50)[];
-	 BROKEN_CONTENT_TYPE(1.50)[];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_TRACE(0.00)[suse.com:+];
-	 MX_GOOD(-0.01)[];
-	 DMARC_POLICY_ALLOW(0.00)[suse.com,quarantine];
-	 DMARC_POLICY_ALLOW_WITH_FAILURES(-0.50)[];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 BAYES_HAM(-3.00)[100.00%];
-	 ARC_NA(0.00)[];
-	 R_SPF_FAIL(0.00)[-all];
-	 R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	 FROM_HAS_DN(0.00)[];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 MIME_GOOD(-0.10)[text/plain];
-	 NEURAL_SPAM_SHORT(2.87)[0.958];
-	 DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	 WHITELIST_DMARC(-7.00)[suse.com:D:+];
-	 RCPT_COUNT_TWELVE(0.00)[13];
-	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim,suse.com:email,infradead.org:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 RCVD_TLS_ALL(0.00)[]
-X-Spam-Score: -3.94
-X-Rspamd-Queue-Id: 901171F823
-X-Spam-Flag: NO
 
-Now that paravirt is using the alternatives patching infrastructure,
-remove the paravirt patching code.
+On 2023/11/22 14:36, Akihiko Odaki wrote:
+> On 2023/11/22 14:25, Song Liu wrote:
+>> On Mon, Nov 20, 2023 at 12:05 AM Akihiko Odaki 
+>> <akihiko.odaki@daynix.com> wrote:
+>>>
+>>> On 2023/11/20 6:02, Song Liu wrote:
+>> [...]
+>>>>> In contrast, our intended use case is more like a normal application.
+>>>>> So, for example, a user may download a container and run QEMU 
+>>>>> (including
+>>>>> the BPF program) installed in the container. As such, it is nice if 
+>>>>> the
+>>>>> ABI is stable across kernel releases, but it is not guaranteed for
+>>>>> kfuncs. Such a use case is already covered with the eBPF steering
+>>>>> program so I want to maintain it if possible.
+>>>>
+>>>> TBH, I don't think stability should be a concern for kfuncs used by 
+>>>> QEMU.
+>>>> Many core BPF APIs are now implemented as kfuncs: bpf_dynptr_*,
+>>>> bpf_rcu_*, etc. As long as there are valid use cases,these kfuncs will
+>>>> be supported.
+>>>
+>>> Documentation/bpf/kfuncs.rst still says:
+>>>   > kfuncs provide a kernel <-> kernel API, and thus are not bound by 
+>>> any
+>>>   > of the strict stability restrictions associated with kernel <-> user
+>>>   > UAPIs.
+>>>
+>>> Is it possible to change the statement like as follows:
+>>> "Most kfuncs provide a kernel <-> kernel API, and thus are not bound by
+>>> any of the strict stability restrictions associated with kernel <-> user
+>>> UAPIs. kfuncs that have same stability restrictions associated with
+>>> UAPIs are exceptional, and must be carefully reviewed by subsystem (and
+>>> BPF?) maintainers as any other UAPIs are."
+>>
+>> I am afraid this is against the intention to not guarantee UAPI-level 
+>> stability
+>> for kfuncs.
+> 
+> Is it possible to ensure that a QEMU binary with the eBPF program 
+> included works on different kernel versions without UAPI-level stability 
+> then? Otherwise, I think we need to think of the minimal UAPI addition 
+> that exposes the feature I propose, and the two options I presented 
+> first are the candidates of such: the stable BPF change or tuntap 
+> interface change.
+> 
+> Regards,
+> Akihiko Odaki
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/x86/include/asm/paravirt.h       | 13 ------
- arch/x86/include/asm/paravirt_types.h | 38 ---------------
- arch/x86/include/asm/text-patching.h  | 12 -----
- arch/x86/kernel/alternative.c         | 67 +--------------------------
- arch/x86/kernel/paravirt.c            | 30 ------------
- arch/x86/kernel/vmlinux.lds.S         | 13 ------
- arch/x86/tools/relocs.c               |  2 +-
- 7 files changed, 3 insertions(+), 172 deletions(-)
+Now the discussion is stale again so let me summarize the discussion:
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 973c2ac2d25c..8bcf7584e7dd 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -725,23 +725,10 @@ void native_pv_lock_init(void) __init;
- 
- #else  /* __ASSEMBLY__ */
- 
--#define _PVSITE(ptype, ops)			\
--771:;						\
--	ops;					\
--772:;						\
--	.pushsection .parainstructions,"a";	\
--	 .long 771b-.;				\
--	 .byte ptype;				\
--	 .byte 772b-771b;			\
--	.popsection
--
--
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
- #ifdef CONFIG_DEBUG_ENTRY
- 
--#define PARA_PATCH(off)		((off) / 8)
--#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops)
- #define PARA_INDIRECT(addr)	*addr(%rip)
- 
- .macro PARA_IRQ_save_fl
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 9cad536fc08d..d8e85d2cf8d5 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -2,15 +2,6 @@
- #ifndef _ASM_X86_PARAVIRT_TYPES_H
- #define _ASM_X86_PARAVIRT_TYPES_H
- 
--#ifndef __ASSEMBLY__
--/* These all sit in the .parainstructions section to tell us what to patch. */
--struct paravirt_patch_site {
--	s32 instr_offset;	/* original instructions */
--	u8 type;		/* type of this instruction */
--	u8 len;			/* length of original instruction */
--} __packed;
--#endif
--
- #ifdef CONFIG_PARAVIRT
- 
- #ifndef __ASSEMBLY__
-@@ -250,32 +241,6 @@ struct paravirt_patch_template {
- extern struct pv_info pv_info;
- extern struct paravirt_patch_template pv_ops;
- 
--#define PARAVIRT_PATCH(x)					\
--	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
--
--#define paravirt_type(op)				\
--	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
--	[paravirt_opptr] "m" (pv_ops.op)
--/*
-- * Generate some code, and mark it as patchable by the
-- * apply_paravirt() alternate instruction patcher.
-- */
--#define _paravirt_alt(insn_string, type)		\
--	"771:\n\t" insn_string "\n" "772:\n"		\
--	".pushsection .parainstructions,\"a\"\n"	\
--	"  .long 771b-.\n"				\
--	"  .byte " type "\n"				\
--	"  .byte 772b-771b\n"				\
--	".popsection\n"
--
--/* Generate patchable code, with the default asm parameters. */
--#define paravirt_alt(insn_string)					\
--	_paravirt_alt(insn_string, "%c[paravirt_typenum]")
--
--/* Simple instruction patching code. */
--#define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
--
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr, unsigned int len);
- #define paravirt_ptr(op)	[paravirt_opptr] "m" (pv_ops.op)
- 
- int paravirt_disable_iospace(void);
-@@ -555,9 +520,6 @@ unsigned long pv_native_read_cr2(void);
- 
- #define paravirt_nop	((void *)nop_func)
- 
--extern struct paravirt_patch_site __parainstructions[],
--	__parainstructions_end[];
--
- #endif	/* __ASSEMBLY__ */
- 
- #define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index 29832c338cdc..0b70653a98c1 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -6,18 +6,6 @@
- #include <linux/stddef.h>
- #include <asm/ptrace.h>
- 
--struct paravirt_patch_site;
--#ifdef CONFIG_PARAVIRT
--void apply_paravirt(struct paravirt_patch_site *start,
--		    struct paravirt_patch_site *end);
--#else
--static inline void apply_paravirt(struct paravirt_patch_site *start,
--				  struct paravirt_patch_site *end)
--{}
--#define __parainstructions	NULL
--#define __parainstructions_end	NULL
--#endif
--
- /*
-  * Currently, the max observed size in the kernel code is
-  * JUMP_LABEL_NOP_SIZE/RELATIVEJUMP_SIZE, which are 5.
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index ab829b3d028d..2cad05ff7656 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1472,48 +1472,6 @@ int alternatives_text_reserved(void *start, void *end)
- }
- #endif /* CONFIG_SMP */
- 
--#ifdef CONFIG_PARAVIRT
--
--/* Use this to add nops to a buffer, then text_poke the whole buffer. */
--static void __init_or_module add_nops(void *insns, unsigned int len)
--{
--	while (len > 0) {
--		unsigned int noplen = len;
--		if (noplen > ASM_NOP_MAX)
--			noplen = ASM_NOP_MAX;
--		memcpy(insns, x86_nops[noplen], noplen);
--		insns += noplen;
--		len -= noplen;
--	}
--}
--
--void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
--				     struct paravirt_patch_site *end)
--{
--	struct paravirt_patch_site *p;
--	char insn_buff[MAX_PATCH_LEN];
--	u8 *instr;
--
--	for (p = start; p < end; p++) {
--		unsigned int used;
--
--		instr = (u8 *)&p->instr_offset + p->instr_offset;
--		BUG_ON(p->len > MAX_PATCH_LEN);
--		/* prep the buffer with the original instructions */
--		memcpy(insn_buff, instr, p->len);
--		used = paravirt_patch(p->type, insn_buff, (unsigned long)instr, p->len);
--
--		BUG_ON(used > p->len);
--
--		/* Pad the rest with nops */
--		add_nops(insn_buff + used, p->len - used);
--		text_poke_early(instr, insn_buff, p->len);
--	}
--}
--extern struct paravirt_patch_site __start_parainstructions[],
--	__stop_parainstructions[];
--#endif	/* CONFIG_PARAVIRT */
--
- /*
-  * Self-test for the INT3 based CALL emulation code.
-  *
-@@ -1649,28 +1607,11 @@ void __init alternative_instructions(void)
- 	 */
- 
- 	/*
--	 * Paravirt patching and alternative patching can be combined to
--	 * replace a function call with a short direct code sequence (e.g.
--	 * by setting a constant return value instead of doing that in an
--	 * external function).
--	 * In order to make this work the following sequence is required:
--	 * 1. set (artificial) features depending on used paravirt
--	 *    functions which can later influence alternative patching
--	 * 2. apply paravirt patching (generally replacing an indirect
--	 *    function call with a direct one)
--	 * 3. apply alternative patching (e.g. replacing a direct function
--	 *    call with a custom code sequence)
--	 * Doing paravirt patching after alternative patching would clobber
--	 * the optimization of the custom code with a function call again.
-+	 * Make sure to set (artificial) features depending on used paravirt
-+	 * functions which can later influence alternative patching.
- 	 */
- 	paravirt_set_cap();
- 
--	/*
--	 * First patch paravirt functions, such that we overwrite the indirect
--	 * call with the direct call.
--	 */
--	apply_paravirt(__parainstructions, __parainstructions_end);
--
- 	__apply_fineibt(__retpoline_sites, __retpoline_sites_end,
- 			__cfi_sites, __cfi_sites_end, true);
- 
-@@ -1681,10 +1622,6 @@ void __init alternative_instructions(void)
- 	apply_retpolines(__retpoline_sites, __retpoline_sites_end);
- 	apply_returns(__return_sites, __return_sites_end);
- 
--	/*
--	 * Then patch alternatives, such that those paravirt calls that are in
--	 * alternatives can be overwritten by their immediate fragments.
--	 */
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
- 	/*
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index acc5b1004f0f..5358d43886ad 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -43,14 +43,6 @@ void __init default_banner(void)
- 	       pv_info.name);
- }
- 
--static unsigned paravirt_patch_call(void *insn_buff, const void *target,
--				    unsigned long addr, unsigned len)
--{
--	__text_gen_insn(insn_buff, CALL_INSN_OPCODE,
--			(void *)addr, target, CALL_INSN_SIZE);
--	return CALL_INSN_SIZE;
--}
--
- #ifdef CONFIG_PARAVIRT_XXL
- DEFINE_ASM_FUNC(_paravirt_ident_64, "mov %rdi, %rax", .text);
- DEFINE_ASM_FUNC(pv_native_save_fl, "pushf; pop %rax", .noinstr.text);
-@@ -73,28 +65,6 @@ static void native_tlb_remove_table(struct mmu_gather *tlb, void *table)
- 	tlb_remove_page(tlb, table);
- }
- 
--unsigned int paravirt_patch(u8 type, void *insn_buff, unsigned long addr,
--			    unsigned int len)
--{
--	/*
--	 * Neat trick to map patch type back to the call within the
--	 * corresponding structure.
--	 */
--	void *opfunc = *((void **)&pv_ops + type);
--	unsigned ret;
--
--	if (opfunc == NULL)
--		/* If there's no function, patch it with BUG_func() */
--		ret = paravirt_patch_call(insn_buff, BUG_func, addr, len);
--	else if (opfunc == nop_func)
--		ret = 0;
--	else
--		/* Otherwise call the function. */
--		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
--
--	return ret;
--}
--
- struct static_key paravirt_steal_enabled;
- struct static_key paravirt_steal_rq_enabled;
- 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 54a5596adaa6..a349dbfc6d5a 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -267,19 +267,6 @@ SECTIONS
- 	}
- #endif
- 
--	/*
--	 * start address and size of operations which during runtime
--	 * can be patched with virtualization friendly instructions or
--	 * baremetal native ones. Think page table operations.
--	 * Details in paravirt_types.h
--	 */
--	. = ALIGN(8);
--	.parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
--		__parainstructions = .;
--		*(.parainstructions)
--		__parainstructions_end = .;
--	}
--
- #ifdef CONFIG_RETPOLINE
- 	/*
- 	 * List of instructions that call/jmp/jcc to retpoline thunks
-diff --git a/arch/x86/tools/relocs.c b/arch/x86/tools/relocs.c
-index d30949e25ebd..a3bae2b24626 100644
---- a/arch/x86/tools/relocs.c
-+++ b/arch/x86/tools/relocs.c
-@@ -66,7 +66,7 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
- 	[S_REL] =
- 	"^(__init_(begin|end)|"
- 	"__x86_cpu_dev_(start|end)|"
--	"(__parainstructions|__alt_instructions)(_end)?|"
-+	"__alt_instructions(_end)?|"
- 	"(__iommu_table|__apicdrivers|__smp_locks)(_end)?|"
- 	"__(start|end)_pci_.*|"
- #if CONFIG_FW_LOADER
--- 
-2.35.3
+A tuntap device can have an eBPF steering program to let the userspace 
+decide which tuntap queue should be used for each packet. QEMU uses this 
+feature to implement the RSS algorithm for virtio-net emulation. Now, 
+the virtio specification has a new feature to report hash values 
+calculated with the RSS algorithm. The goal of this RFC is to report 
+such hash values from the eBPF steering program to the userspace.
 
+There are currently three ideas to implement the proposal:
+
+1. Abandon eBPF steering program and implement RSS in the kernel.
+
+It is possible to implement the RSS algorithm in the kernel as it's 
+strictly defined in the specification. However, there are proposals for 
+relevant virtio specification changes, and abandoning eBPF steering 
+program will loose the ability to implement those changes in the 
+userspace. There are concerns that this lead to more UAPI changes in the 
+end.
+
+2. Add BPF kfuncs.
+
+Adding BPF kfuncs is *the* standard way to add BPF interfaces. hid-bpf 
+is a good reference for this.
+
+The problem with BPF kfuncs is that kfuncs are not considered as stable 
+as UAPI. In my understanding, it is not problematic for things like 
+hid-bpf because programs using those kfuncs affect the entire system 
+state and expected to be centrally managed. Such BPF programs can be 
+updated along with the kernel in a manner similar to kernel modules.
+
+The use case of tuntap steering/hash reporting is somewhat different 
+though; the eBPF program is more like a part of application (QEMU or 
+potentially other VMM) and thus needs to be portable. For example, a 
+user may expect a Debian container with QEMU installed to work on Fedora.
+
+BPF kfuncs do still provide some level of stability, but there is no 
+documentation that tell how stable they are. The worst case scenario I 
+can imagine is that a future legitimate BPF change breaks QEMU, letting 
+the "no regressions" rule force the change to be reverted. Some 
+assurance that kind scenario will not happen is necessary in my opinion.
+
+3. Add BPF program type derived from the conventional steering program type
+
+In principle, it's just to add a feature to report four more bytes to 
+the conventional steering program. However, BPF program types are frozen 
+for feature additions and the proposed change will break the feature freeze.
+
+So what's next? I'm inclined to option 3 due to its minimal ABI/API 
+change, but I'm also fine with option 2 if it is possible to guarantee 
+the ABI/API stability necessary to run pre-built QEMUs on future kernel 
+versions by e.g., explicitly stating the stability of kfuncs. If no 
+objection arises, I'll resend this series with the RFC prefix dropped 
+for upstream inclusion. If it's decided to go for option 1 or 2, I'll 
+post a new version of the series implementing the idea.
+
+Regards,
+Akihiko Odaki
