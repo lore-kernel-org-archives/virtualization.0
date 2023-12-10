@@ -1,221 +1,247 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from terminus.zytor.com (terminus.zytor.com [198.137.202.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B37512914
-	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE1588829
+	for <virtualization@lists.linux.dev>; Sun, 10 Dec 2023 11:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="3HY8Vk7B"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 208C760FF8
-	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:16 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 208C760FF8
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=3HY8Vk7B
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aHlv0JuHkkeq
-	for <virtualization@lists.linux-foundation.org>;
-	Sun, 10 Dec 2023 07:03:14 +0000 (UTC)
-Received: from mail-oa1-x32.google.com (mail-oa1-x32.google.com [IPv6:2001:4860:4864:20::32])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C6CA160FF1
-	for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 07:03:13 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org C6CA160FF1
-Received: by mail-oa1-x32.google.com with SMTP id 586e51a60fabf-1fb9c24a16aso2435637fac.0
-        for <virtualization@lists.linux-foundation.org>; Sat, 09 Dec 2023 23:03:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702191792; x=1702796592; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZjIsRqTNDf1ZUfBCKqHqKSty0Nok+i7FEmnwcARKdLI=;
-        b=3HY8Vk7BvGHeWt5wutEhQ6TBvD8Ik4BYSdlR0uHiHL/5/zdJfzsbURyvstDLmd+l8F
-         UpPu/gOBzOgtQqDKIlPGqhdPTbAIDGZf8za475v+FQjrOXJUZ1w4RXvlv+5sYq3p7R9K
-         tFWtGOIrjaPBPGcjb6l2GW4IFSxaLJWqG2N4Q++rmjoZGxPkvYjFIv9dgJ3rxYS0zLkZ
-         IWg56up8MRo28Rb0DYj4BpApl4bFlaPl/GTiPCTL3un4vT0ZsrBpqBLkXqiCewnVc0a4
-         1UP/TbOHeBmB+azhi7FNEFWyYx5B1GIxkZzESGTLNUkzuwYx9o1b0UgkSZ37OPtM0bFN
-         ssfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702191792; x=1702796592;
-        h=content-transfer-encoding:in-reply-to:references:cc:to:from
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZjIsRqTNDf1ZUfBCKqHqKSty0Nok+i7FEmnwcARKdLI=;
-        b=ord/EqbpEXLnO6rqbr9k5Njis2d7VRIl7+17UJUAmUhcBOr9POGllnOEroTyxz0MdS
-         R0hrBm3M5o+HUw1CH49egBaGY6dqxYeFuDQVOkQLjMR+2zLLn4SOXInOsfa9nRq52BcH
-         oub88m9NwT/7UobczpZvYd0NnT+ghbksAUNCw3aqTX7n33npIlSikiOBJakFCWEK0SLe
-         2hyueIibo3rVV2cG3B6a0oJzTitX71XM7p5D30QteWQtmxyFcSRng7n7DaKb6w3u/CPC
-         BmZjUVecp3LLvmY867I2cZTdx/YrT3L+OCsATurPdUPcerLZ1X0iqxhDfQyZd5ET1wq4
-         IFjg==
-X-Gm-Message-State: AOJu0YyXnTjDcTYNtC5QjlojVo5tMhaOcK8nToKNV5tpvD5B3W74VsP+
-	/mqeFxR3TiJsqeHv3ykKdcO+Jg==
-X-Google-Smtp-Source: AGHT+IF7dbPeSGNYzf+4zTjIef4l3Kxy13SD9t8mjadsfNI4Blcv83g93Y/1lOsphUYUl/vxKi2YvA==
-X-Received: by 2002:a05:6871:521f:b0:1fb:75b:2fdf with SMTP id ht31-20020a056871521f00b001fb075b2fdfmr3174064oac.118.1702191792580;
-        Sat, 09 Dec 2023 23:03:12 -0800 (PST)
-Received: from [157.82.205.15] ([157.82.205.15])
-        by smtp.gmail.com with ESMTPSA id r9-20020a63ec49000000b005b9083b81f0sm4261259pgj.36.2023.12.09.23.03.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 09 Dec 2023 23:03:12 -0800 (PST)
-Message-ID: <d30a038b-d10f-468d-8879-478a6c5b814b@daynix.com>
-Date: Sun, 10 Dec 2023 16:03:05 +0900
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="mkQYtXpm"
+Received: from [127.0.0.1] ([98.35.210.218])
+	(authenticated bits=0)
+	by mail.zytor.com (8.17.2/8.17.1) with ESMTPSA id 3BAAt0bZ1297998
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Sun, 10 Dec 2023 02:55:00 -0800
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 3BAAt0bZ1297998
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2023111101; t=1702205701;
+	bh=hKtmGh1jrH1gZPQncn17Hlwa1+rCcV8nOX/wJY7DxlU=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=mkQYtXpmbQ3exLVv9lPx3DMrz6argRNJOfAnm/J0zjxVdffes+6kp4LvcS/Md7E1v
+	 ts+okI+dMjs+4wZn6gxVLAXy+i4r88ym4xI+yTaPK7mA/qyJJ1fYtS4t9nknnuJL1/
+	 oUladxpLKB2oE6jIqRMtqKHUmYBdPi0JN6J0klYWwoD8ex1bID2r3IKqCmcfg+sWKd
+	 qo9vULC7tN22vlRlDYE5O/aB4h15ypTK4gQIrIH3RyHedOCPHgQVwkyB/QTEj5fVMw
+	 bClxpUEGryJrG80n1Nji4aqnztRLCDvYCvv+58bc3wWTD/vyT8NhmXZ+65a7olREni
+	 r5WZcUXGX5o3w==
+Date: Sun, 10 Dec 2023 02:54:56 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org,
+        x86@kernel.org, virtualization@lists.linux.dev
+CC: Ajay Kaher <akaher@vmware.com>, Alexey Makhalov <amakhalov@vmware.com>,
+        VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v6 1/5] x86/paravirt: introduce ALT_NOT_XEN
+User-Agent: K-9 Mail for Android
+In-Reply-To: <20231210062138.2417-2-jgross@suse.com>
+References: <20231210062138.2417-1-jgross@suse.com> <20231210062138.2417-2-jgross@suse.com>
+Message-ID: <BD586C10-CBFB-437F-85DE-A694AC8264AA@zytor.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-To: Song Liu <song@kernel.org>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>
-References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
- <20231015141644.260646-2-akihiko.odaki@daynix.com>
- <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
- <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com>
- <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
- <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
- <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
- <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com>
- <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
- <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
- <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com>
- <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
- <a1f09866-a443-4f74-8025-6cdb32eb1d2c@daynix.com>
- <CAPhsuW4o5o41a+jVjgGP+Ck3eUD8w6coLXMTYewXKJYmciLLnQ@mail.gmail.com>
- <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com>
-In-Reply-To: <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 2023/11/22 14:36, Akihiko Odaki wrote:
-> On 2023/11/22 14:25, Song Liu wrote:
->> On Mon, Nov 20, 2023 at 12:05 AM Akihiko Odaki 
->> <akihiko.odaki@daynix.com> wrote:
->>>
->>> On 2023/11/20 6:02, Song Liu wrote:
->> [...]
->>>>> In contrast, our intended use case is more like a normal application.
->>>>> So, for example, a user may download a container and run QEMU 
->>>>> (including
->>>>> the BPF program) installed in the container. As such, it is nice if 
->>>>> the
->>>>> ABI is stable across kernel releases, but it is not guaranteed for
->>>>> kfuncs. Such a use case is already covered with the eBPF steering
->>>>> program so I want to maintain it if possible.
->>>>
->>>> TBH, I don't think stability should be a concern for kfuncs used by 
->>>> QEMU.
->>>> Many core BPF APIs are now implemented as kfuncs: bpf_dynptr_*,
->>>> bpf_rcu_*, etc. As long as there are valid use cases,these kfuncs will
->>>> be supported.
->>>
->>> Documentation/bpf/kfuncs.rst still says:
->>>   > kfuncs provide a kernel <-> kernel API, and thus are not bound by 
->>> any
->>>   > of the strict stability restrictions associated with kernel <-> user
->>>   > UAPIs.
->>>
->>> Is it possible to change the statement like as follows:
->>> "Most kfuncs provide a kernel <-> kernel API, and thus are not bound by
->>> any of the strict stability restrictions associated with kernel <-> user
->>> UAPIs. kfuncs that have same stability restrictions associated with
->>> UAPIs are exceptional, and must be carefully reviewed by subsystem (and
->>> BPF?) maintainers as any other UAPIs are."
->>
->> I am afraid this is against the intention to not guarantee UAPI-level 
->> stability
->> for kfuncs.
-> 
-> Is it possible to ensure that a QEMU binary with the eBPF program 
-> included works on different kernel versions without UAPI-level stability 
-> then? Otherwise, I think we need to think of the minimal UAPI addition 
-> that exposes the feature I propose, and the two options I presented 
-> first are the candidates of such: the stable BPF change or tuntap 
-> interface change.
-> 
-> Regards,
-> Akihiko Odaki
+On December 9, 2023 10:21:34 PM PST, Juergen Gross <jgross@suse=2Ecom> wrot=
+e:
+>Introduce the macro ALT_NOT_XEN as a short form of
+>ALT_NOT(X86_FEATURE_XENPV)=2E
+>
+>Suggested-by: Peter Zijlstra (Intel) <peterz@infradead=2Eorg>
+>Signed-off-by: Juergen Gross <jgross@suse=2Ecom>
+>---
+>V3:
+>- split off from next patch
+>V5:
+>- move patch to the start of the series (Boris Petkov)
+>---
+> arch/x86/include/asm/paravirt=2Eh       | 42 ++++++++++++---------------
+> arch/x86/include/asm/paravirt_types=2Eh |  3 ++
+> 2 files changed, 21 insertions(+), 24 deletions(-)
+>
+>diff --git a/arch/x86/include/asm/paravirt=2Eh b/arch/x86/include/asm/par=
+avirt=2Eh
+>index 693c61dbdd9c=2E=2Eaa76ac7c806c 100644
+>--- a/arch/x86/include/asm/paravirt=2Eh
+>+++ b/arch/x86/include/asm/paravirt=2Eh
+>@@ -142,8 +142,7 @@ static inline void write_cr0(unsigned long x)
+> static __always_inline unsigned long read_cr2(void)
+> {
+> 	return PVOP_ALT_CALLEE0(unsigned long, mmu=2Eread_cr2,
+>-				"mov %%cr2, %%rax;",
+>-				ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%cr2, %%rax;", ALT_NOT_XEN);
+> }
+>=20
+> static __always_inline void write_cr2(unsigned long x)
+>@@ -154,13 +153,12 @@ static __always_inline void write_cr2(unsigned long=
+ x)
+> static inline unsigned long __read_cr3(void)
+> {
+> 	return PVOP_ALT_CALL0(unsigned long, mmu=2Eread_cr3,
+>-			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_XENPV));
+>+			      "mov %%cr3, %%rax;", ALT_NOT_XEN);
+> }
+>=20
+> static inline void write_cr3(unsigned long x)
+> {
+>-	PVOP_ALT_VCALL1(mmu=2Ewrite_cr3, x,
+>-			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_XENPV));
+>+	PVOP_ALT_VCALL1(mmu=2Ewrite_cr3, x, "mov %%rdi, %%cr3", ALT_NOT_XEN);
+> }
+>=20
+> static inline void __write_cr4(unsigned long x)
+>@@ -182,7 +180,7 @@ extern noinstr void pv_native_wbinvd(void);
+>=20
+> static __always_inline void wbinvd(void)
+> {
+>-	PVOP_ALT_VCALL0(cpu=2Ewbinvd, "wbinvd", ALT_NOT(X86_FEATURE_XENPV));
+>+	PVOP_ALT_VCALL0(cpu=2Ewbinvd, "wbinvd", ALT_NOT_XEN);
+> }
+>=20
+> static inline u64 paravirt_read_msr(unsigned msr)
+>@@ -390,27 +388,25 @@ static inline void paravirt_release_p4d(unsigned lo=
+ng pfn)
+> static inline pte_t __pte(pteval_t val)
+> {
+> 	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, mmu=2Emake_pte, val,
+>-					  "mov %%rdi, %%rax",
+>-					  ALT_NOT(X86_FEATURE_XENPV)) };
+>+					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
+> }
+>=20
+> static inline pteval_t pte_val(pte_t pte)
+> {
+> 	return PVOP_ALT_CALLEE1(pteval_t, mmu=2Epte_val, pte=2Epte,
+>-				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%rdi, %%rax", ALT_NOT_XEN);
+> }
+>=20
+> static inline pgd_t __pgd(pgdval_t val)
+> {
+> 	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, mmu=2Emake_pgd, val,
+>-					  "mov %%rdi, %%rax",
+>-					  ALT_NOT(X86_FEATURE_XENPV)) };
+>+					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
+> }
+>=20
+> static inline pgdval_t pgd_val(pgd_t pgd)
+> {
+> 	return PVOP_ALT_CALLEE1(pgdval_t, mmu=2Epgd_val, pgd=2Epgd,
+>-				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%rdi, %%rax", ALT_NOT_XEN);
+> }
+>=20
+> #define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
+>@@ -444,14 +440,13 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
+> static inline pmd_t __pmd(pmdval_t val)
+> {
+> 	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, mmu=2Emake_pmd, val,
+>-					  "mov %%rdi, %%rax",
+>-					  ALT_NOT(X86_FEATURE_XENPV)) };
+>+					  "mov %%rdi, %%rax", ALT_NOT_XEN) };
+> }
+>=20
+> static inline pmdval_t pmd_val(pmd_t pmd)
+> {
+> 	return PVOP_ALT_CALLEE1(pmdval_t, mmu=2Epmd_val, pmd=2Epmd,
+>-				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%rdi, %%rax", ALT_NOT_XEN);
+> }
+>=20
+> static inline void set_pud(pud_t *pudp, pud_t pud)
+>@@ -464,7 +459,7 @@ static inline pud_t __pud(pudval_t val)
+> 	pudval_t ret;
+>=20
+> 	ret =3D PVOP_ALT_CALLEE1(pudval_t, mmu=2Emake_pud, val,
+>-			       "mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+			       "mov %%rdi, %%rax", ALT_NOT_XEN);
+>=20
+> 	return (pud_t) { ret };
+> }
+>@@ -472,7 +467,7 @@ static inline pud_t __pud(pudval_t val)
+> static inline pudval_t pud_val(pud_t pud)
+> {
+> 	return PVOP_ALT_CALLEE1(pudval_t, mmu=2Epud_val, pud=2Epud,
+>-				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%rdi, %%rax", ALT_NOT_XEN);
+> }
+>=20
+> static inline void pud_clear(pud_t *pudp)
+>@@ -492,8 +487,7 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
+> static inline p4d_t __p4d(p4dval_t val)
+> {
+> 	p4dval_t ret =3D PVOP_ALT_CALLEE1(p4dval_t, mmu=2Emake_p4d, val,
+>-					"mov %%rdi, %%rax",
+>-					ALT_NOT(X86_FEATURE_XENPV));
+>+					"mov %%rdi, %%rax", ALT_NOT_XEN);
+>=20
+> 	return (p4d_t) { ret };
+> }
+>@@ -501,7 +495,7 @@ static inline p4d_t __p4d(p4dval_t val)
+> static inline p4dval_t p4d_val(p4d_t p4d)
+> {
+> 	return PVOP_ALT_CALLEE1(p4dval_t, mmu=2Ep4d_val, p4d=2Ep4d,
+>-				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
+>+				"mov %%rdi, %%rax", ALT_NOT_XEN);
+> }
+>=20
+> static inline void __set_pgd(pgd_t *pgdp, pgd_t pgd)
+>@@ -687,17 +681,17 @@ bool __raw_callee_save___native_vcpu_is_preempted(l=
+ong cpu);
+> static __always_inline unsigned long arch_local_save_flags(void)
+> {
+> 	return PVOP_ALT_CALLEE0(unsigned long, irq=2Esave_fl, "pushf; pop %%rax=
+;",
+>-				ALT_NOT(X86_FEATURE_XENPV));
+>+				ALT_NOT_XEN);
+> }
+>=20
+> static __always_inline void arch_local_irq_disable(void)
+> {
+>-	PVOP_ALT_VCALLEE0(irq=2Eirq_disable, "cli;", ALT_NOT(X86_FEATURE_XENPV)=
+);
+>+	PVOP_ALT_VCALLEE0(irq=2Eirq_disable, "cli;", ALT_NOT_XEN);
+> }
+>=20
+> static __always_inline void arch_local_irq_enable(void)
+> {
+>-	PVOP_ALT_VCALLEE0(irq=2Eirq_enable, "sti;", ALT_NOT(X86_FEATURE_XENPV))=
+;
+>+	PVOP_ALT_VCALLEE0(irq=2Eirq_enable, "sti;", ALT_NOT_XEN);
+> }
+>=20
+> static __always_inline unsigned long arch_local_irq_save(void)
+>@@ -769,7 +763,7 @@ void native_pv_lock_init(void) __init;
+> =2Eendm
+>=20
+> #define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", =
+\
+>-				    ALT_NOT(X86_FEATURE_XENPV)
+>+				    ALT_NOT_XEN
+> #endif
+> #endif /* CONFIG_PARAVIRT_XXL */
+> #endif	/* CONFIG_X86_64 */
+>diff --git a/arch/x86/include/asm/paravirt_types=2Eh b/arch/x86/include/a=
+sm/paravirt_types=2Eh
+>index f4fb2e3ec7b8=2E=2E483e19e5ca7a 100644
+>--- a/arch/x86/include/asm/paravirt_types=2Eh
+>+++ b/arch/x86/include/asm/paravirt_types=2Eh
+>@@ -557,5 +557,8 @@ extern struct paravirt_patch_site __parainstructions[=
+],
+> 	__parainstructions_end[];
+>=20
+> #endif	/* __ASSEMBLY__ */
+>+
+>+#define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
+>+
+> #endif  /* CONFIG_PARAVIRT */
+> #endif	/* _ASM_X86_PARAVIRT_TYPES_H */
 
-Now the discussion is stale again so let me summarize the discussion:
-
-A tuntap device can have an eBPF steering program to let the userspace 
-decide which tuntap queue should be used for each packet. QEMU uses this 
-feature to implement the RSS algorithm for virtio-net emulation. Now, 
-the virtio specification has a new feature to report hash values 
-calculated with the RSS algorithm. The goal of this RFC is to report 
-such hash values from the eBPF steering program to the userspace.
-
-There are currently three ideas to implement the proposal:
-
-1. Abandon eBPF steering program and implement RSS in the kernel.
-
-It is possible to implement the RSS algorithm in the kernel as it's 
-strictly defined in the specification. However, there are proposals for 
-relevant virtio specification changes, and abandoning eBPF steering 
-program will loose the ability to implement those changes in the 
-userspace. There are concerns that this lead to more UAPI changes in the 
-end.
-
-2. Add BPF kfuncs.
-
-Adding BPF kfuncs is *the* standard way to add BPF interfaces. hid-bpf 
-is a good reference for this.
-
-The problem with BPF kfuncs is that kfuncs are not considered as stable 
-as UAPI. In my understanding, it is not problematic for things like 
-hid-bpf because programs using those kfuncs affect the entire system 
-state and expected to be centrally managed. Such BPF programs can be 
-updated along with the kernel in a manner similar to kernel modules.
-
-The use case of tuntap steering/hash reporting is somewhat different 
-though; the eBPF program is more like a part of application (QEMU or 
-potentially other VMM) and thus needs to be portable. For example, a 
-user may expect a Debian container with QEMU installed to work on Fedora.
-
-BPF kfuncs do still provide some level of stability, but there is no 
-documentation that tell how stable they are. The worst case scenario I 
-can imagine is that a future legitimate BPF change breaks QEMU, letting 
-the "no regressions" rule force the change to be reverted. Some 
-assurance that kind scenario will not happen is necessary in my opinion.
-
-3. Add BPF program type derived from the conventional steering program type
-
-In principle, it's just to add a feature to report four more bytes to 
-the conventional steering program. However, BPF program types are frozen 
-for feature additions and the proposed change will break the feature freeze.
-
-So what's next? I'm inclined to option 3 due to its minimal ABI/API 
-change, but I'm also fine with option 2 if it is possible to guarantee 
-the ABI/API stability necessary to run pre-built QEMUs on future kernel 
-versions by e.g., explicitly stating the stability of kfuncs. If no 
-objection arises, I'll resend this series with the RFC prefix dropped 
-for upstream inclusion. If it's decided to go for option 1 or 2, I'll 
-post a new version of the series implementing the idea.
-
-Regards,
-Akihiko Odaki
+X86_FEATURE_NOT_XEN ;)
