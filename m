@@ -1,230 +1,240 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC1701C6A8
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 05:04:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2977E1F609
+	for <virtualization@lists.linux.dev>; Mon, 11 Dec 2023 07:27:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.b="LUXPliKy"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 290424172A
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 05:04:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 290424172A
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key) header.d=daynix-com.20230601.gappssmtp.com header.i=@daynix-com.20230601.gappssmtp.com header.a=rsa-sha256 header.s=20230601 header.b=LUXPliKy
-X-Virus-Scanned: amavisd-new at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -1.898
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fx31kr-8tdKq
-	for <virtualization@lists.linux-foundation.org>;
-	Mon, 11 Dec 2023 05:04:35 +0000 (UTC)
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ADEBA4171C
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 05:04:35 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org ADEBA4171C
-Received: by mail-oo1-xc33.google.com with SMTP id 006d021491bc7-58cf894544cso2489106eaf.3
-        for <virtualization@lists.linux-foundation.org>; Sun, 10 Dec 2023 21:04:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=daynix-com.20230601.gappssmtp.com; s=20230601; t=1702271074; x=1702875874; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=BalHLDcooMB+t0Ag91tFQwsYCexpEQu0oQz20kE5Mf0=;
-        b=LUXPliKyQL9TO4ErhBVhZuj0fiAxNvufLyu1wTzbYBdnBjHwudN36IMf7HN52xkgp2
-         5HRWbkr2E+1CibecZul0Rll70vFWbzM708Yf/VBP5m+S4o/E352IArcWlGh2304pGCDq
-         CwuSX1/NFnm1XaQcAw63o+r1+oiMQS6uy+PZijxPPy3yb04JDe6ltQs87GfUcuTtHpB9
-         mJANfy3k0bDspi/2mo81+s2N+o1DYBQFVK07w+K99RBa+AloJ1wzVYAyAI2ilOavKeHk
-         4GU5bW7wHDOoizIGWa4NTGMHWpdCaJVDGJ+vdt1S9YnbTixEOoD2cJGYyXXirnqPcB2I
-         DtAw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TCs/ceZN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702279620;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=yzl/uXMUGCBrEhgpFoMPCiMftRl1HpCdIgUDcqQab60=;
+	b=TCs/ceZNlUmBJnaQ+aFgAjYutP5EfaS/DBUVVF8MtyTtsNgUPkQwoCDvOe3xjnOPRwKq/P
+	pnn0cqBTHybSw9gZiErd+uwSKBcnbu86Igq6J49XsRvVSDnFsNAMJp/Mk2Xrw3GWlE+4VR
+	bdqPSQm9GBBgasUvtGBdtdjGza2jGpQ=
+Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
+ [209.85.215.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-454-wKjhwG3COSSJ1eyvLYzfcg-1; Mon, 11 Dec 2023 02:26:58 -0500
+X-MC-Unique: wKjhwG3COSSJ1eyvLYzfcg-1
+Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-5c1af03481bso2168957a12.1
+        for <virtualization@lists.linux.dev>; Sun, 10 Dec 2023 23:26:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702271074; x=1702875874;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BalHLDcooMB+t0Ag91tFQwsYCexpEQu0oQz20kE5Mf0=;
-        b=GjUI1IAiauEI9UO3pa92COi1eFbXnj/ucKS6map7eXQ3hk/npTQrv7Cy8O0XMZQHNQ
-         ogH0S153hENkN9oEhZMR2WFZ8gfn5pA6k/YhOUisJx+ZdiP+fwd+5dpKOG7zRZlWkwwt
-         neP+bVNsMR1Zaqg6lbDw9HwWeUjenI7xsbumI6JedYlKaNv9ICdqSYyaf9BJglMwUT6s
-         bZ6PHAelcB7xCaK+7WL99qTiI4OMP17P0HNKQmuLDKncOT+/U94xX7yH4Ac7nlSw4kJ5
-         lUIhiOIajfW/ZjcI8GdqNjxElob6A9u1LQLwgD8+SVxsloOTCKVO/rvZ7hwgB8F9RIaA
-         fHfw==
-X-Gm-Message-State: AOJu0YyYBi35r+PDYkoMDABI5FxftUhA+A/ztEq6Jrm3sn2J8+LecCa+
-	D4m30XB1XRy4UBawWDPekfzZQg==
-X-Google-Smtp-Source: AGHT+IFbeF3A7DLdDMfJ3IuSv7d/fBWbSg/shs7sqh7U8sgQtsov7aRO9AuKG9LBEd16Y4e//COENw==
-X-Received: by 2002:a05:6359:1b05:b0:170:756:90fd with SMTP id up5-20020a0563591b0500b00170075690fdmr2599052rwb.19.1702271074519;
-        Sun, 10 Dec 2023 21:04:34 -0800 (PST)
-Received: from [157.82.205.15] ([157.82.205.15])
-        by smtp.gmail.com with ESMTPSA id k189-20020a6324c6000000b005bcea1bf43bsm5314561pgk.12.2023.12.10.21.04.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 10 Dec 2023 21:04:34 -0800 (PST)
-Message-ID: <49a5b971-ae97-4118-ae20-f651ad14bed7@daynix.com>
-Date: Mon, 11 Dec 2023 14:04:27 +0900
+        d=1e100.net; s=20230601; t=1702279617; x=1702884417;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yzl/uXMUGCBrEhgpFoMPCiMftRl1HpCdIgUDcqQab60=;
+        b=vxEgQFkrllFOSz961xTrP0EjsH4iEUbuE4hwK4moUkKxJjsnCDegXpJKaLO4ztk0iF
+         XGwqn8URgEiHe7RCKd1fxWwBwql6IJsE8HtFMF+HnCN3IPRU681XyTNc7eUeqjbO2Ok8
+         9WzreUDe5QAP3cXO4txL6TiGXkbrhBLPboQ+jzlIPw8j4aU1+2NQnDNSa3EXFDt5yTY3
+         FH3znvMzu6HGVBwhaP+StbKYCEQ0N0os3m+z3UTuhFwBDudgQQK6VSOlngSTIr7imV4E
+         NT8KMUuJqy+mO+dt9i2Jc5dZfc1HLhti0C1U+DeIEmFwhRGZJ+m/jk1UGG9p2KIsGlFk
+         Pcsg==
+X-Gm-Message-State: AOJu0Yx6FwM2knh9j3TxC0hqFbz5aI1hlpRUTT5aKxUGaS9CaPxTvjZ+
+	F+1jr0cYomuHs4V3uNenqS/vvL+oNCZurILUSQWa+V1olP7fheVKwfuZk/avay5GEbJAbBlEHuF
+	VCka7E0WI130NO8eBF3JBofK9jMRZS/3yS4DSbeV3tqA=
+X-Received: by 2002:a05:6a20:2448:b0:18f:97c:ba1a with SMTP id t8-20020a056a20244800b0018f097cba1amr1702200pzc.116.1702279617592;
+        Sun, 10 Dec 2023 23:26:57 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFtMCW4/nYLJbNDFq92ZIWWhnreabLLEHm6wAXBKkoi7VBSJcNSpG3StpjW99D/ZfXuO/jDlH3z/lbO+PhUoEo=
+X-Received: by 2002:a05:6a20:2448:b0:18f:97c:ba1a with SMTP id
+ t8-20020a056a20244800b0018f097cba1amr1702190pzc.116.1702279617283; Sun, 10
+ Dec 2023 23:26:57 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 1/7] bpf: Introduce BPF_PROG_TYPE_VNET_HASH
-To: Song Liu <song@kernel.org>
-Cc: Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Jason Wang <jasowang@redhat.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Xuan Zhuo
- <xuanzhuo@linux.alibaba.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, bpf <bpf@vger.kernel.org>,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Network Development <netdev@vger.kernel.org>, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
- Andrew Melnychenko <andrew@daynix.com>
-References: <20231015141644.260646-1-akihiko.odaki@daynix.com>
- <CAADnVQLfUDmgYng8Cw1hiZOMfWNWLjbn7ZGc4yOEz-XmeFEz5Q@mail.gmail.com>
- <2594bb24-74dc-4785-b46d-e1bffcc3e7ed@daynix.com>
- <CAADnVQ+J+bOtvEfdvgUse_Rr07rM5KOZ5DtAmHDgRmi70W68+g@mail.gmail.com>
- <CACGkMEs22078F7rSLEz6eQabkZZ=kujSONUNMThZz5Gp=YiidQ@mail.gmail.com>
- <CAADnVQLt8NWvP8qGWMPx=12PwWWE69P7aS2dbm=khAJkCnJEoQ@mail.gmail.com>
- <9a4853ad-5ef4-4b15-a49e-9edb5ae4468e@daynix.com>
- <6253fb6b-9a53-484a-9be5-8facd46c051e@daynix.com>
- <CAPhsuW5JYoM-Mkehdy=FQsG1nvjbYGzwRZx8BkpG1P7cHdD=eQ@mail.gmail.com>
- <dba89d4b-84aa-4c9f-b016-56fd3ade04b2@daynix.com>
- <CAPhsuW5KLgt_gsih7zi+T99iYVbt7hk7=OCwYzin-H3=OhF54Q@mail.gmail.com>
- <a1f09866-a443-4f74-8025-6cdb32eb1d2c@daynix.com>
- <CAPhsuW4o5o41a+jVjgGP+Ck3eUD8w6coLXMTYewXKJYmciLLnQ@mail.gmail.com>
- <664003d3-aadb-4938-80f6-67fab1c9dcdd@daynix.com>
- <d30a038b-d10f-468d-8879-478a6c5b814b@daynix.com>
- <CAPhsuW5CMYiOMUDCgfQyo=K31igZZ+BgXyL6yfq1OG3r2CzQ4g@mail.gmail.com>
-Content-Language: en-US
-From: Akihiko Odaki <akihiko.odaki@daynix.com>
-In-Reply-To: <CAPhsuW5CMYiOMUDCgfQyo=K31igZZ+BgXyL6yfq1OG3r2CzQ4g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <46a997c2-5a38-4b60-b589-6073b1fac677@bytedance.com>
+ <ZVyt4UU9+XxunIP7@DESKTOP-2CCOB1S.> <20231122100016.GO8262@noisy.programming.kicks-ass.net>
+ <6564a012.c80a0220.adb78.f0e4SMTPIN_ADDED_BROKEN@mx.google.com>
+ <d4110c79-d64f-49bd-9f69-0a94369b5e86@bytedance.com> <07513.123120701265800278@us-mta-474.us.mimecast.lan>
+ <20231207014626-mutt-send-email-mst@kernel.org> <56082.123120804242300177@us-mta-137.us.mimecast.lan>
+ <20231208052150-mutt-send-email-mst@kernel.org> <53044.123120806415900549@us-mta-342.us.mimecast.lan>
+ <20231209053443-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20231209053443-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 11 Dec 2023 15:26:46 +0800
+Message-ID: <CACGkMEuSGT-e-i-8U7hum-N_xEnsEKL+_07Mipf6gMLFFhj2Aw@mail.gmail.com>
+Subject: Re: Re: Re: EEVDF/vhost regression (bisected to 86bfbb7ce4f6
+ sched/fair: Add lag based placement)
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Tobias Huschle <huschle@linux.ibm.com>, Abel Wu <wuyun.abel@bytedance.com>, 
+	Peter Zijlstra <peterz@infradead.org>, Linux Kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Sat, Dec 9, 2023 at 6:42=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com> =
+wrote:
+>
+> On Fri, Dec 08, 2023 at 12:41:38PM +0100, Tobias Huschle wrote:
+> > On Fri, Dec 08, 2023 at 05:31:18AM -0500, Michael S. Tsirkin wrote:
+> > > On Fri, Dec 08, 2023 at 10:24:16AM +0100, Tobias Huschle wrote:
+> > > > On Thu, Dec 07, 2023 at 01:48:40AM -0500, Michael S. Tsirkin wrote:
+> > > > > On Thu, Dec 07, 2023 at 07:22:12AM +0100, Tobias Huschle wrote:
+> > > > > > 3. vhost looping endlessly, waiting for kworker to be scheduled
+> > > > > >
+> > > > > > I dug a little deeper on what the vhost is doing. I'm not an ex=
+pert on
+> > > > > > virtio whatsoever, so these are just educated guesses that mayb=
+e
+> > > > > > someone can verify/correct. Please bear with me probably messin=
+g up
+> > > > > > the terminology.
+> > > > > >
+> > > > > > - vhost is looping through available queues.
+> > > > > > - vhost wants to wake up a kworker to process a found queue.
+> > > > > > - kworker does something with that queue and terminates quickly=
+.
+> > > > > >
+> > > > > > What I found by throwing in some very noisy trace statements wa=
+s that,
+> > > > > > if the kworker is not woken up, the vhost just keeps looping ac=
+cross
+> > > > > > all available queues (and seems to repeat itself). So it essent=
+ially
+> > > > > > relies on the scheduler to schedule the kworker fast enough. Ot=
+herwise
+> > > > > > it will just keep on looping until it is migrated off the CPU.
+> > > > >
+> > > > >
+> > > > > Normally it takes the buffers off the queue and is done with it.
+> > > > > I am guessing that at the same time guest is running on some othe=
+r
+> > > > > CPU and keeps adding available buffers?
+> > > > >
+> > > >
+> > > > It seems to do just that, there are multiple other vhost instances
+> > > > involved which might keep filling up thoses queues.
+> > > >
+> > >
+> > > No vhost is ever only draining queues. Guest is filling them.
+> > >
+> > > > Unfortunately, this makes the problematic vhost instance to stay on
+> > > > the CPU and prevents said kworker to get scheduled. The kworker is
+> > > > explicitly woken up by vhost, so it wants it to do something.
+
+It looks to me vhost doesn't use workqueue but the worker by itself.
+
+> > > >
+> > > > At this point it seems that there is an assumption about the schedu=
+ler
+> > > > in place which is no longer fulfilled by EEVDF. From the discussion=
+ so
+> > > > far, it seems like EEVDF does what is intended to do.
+> > > >
+> > > > Shouldn't there be a more explicit mechanism in use that allows the
+> > > > kworker to be scheduled in favor of the vhost?
+
+Vhost did a brunch of copy_from_user() which should trigger
+__might_fault() so a __might_sleep() most of the case.
+
+> > > >
+> > > > It is also concerning that the vhost seems cannot be preempted by t=
+he
+> > > > scheduler while executing that loop.
+> > >
+> > >
+> > > Which loop is that, exactly?
+> >
+> > The loop continously passes translate_desc in drivers/vhost/vhost.c
+> > That's where I put the trace statements.
+> >
+> > The overall sequence seems to be (top to bottom):
+> >
+> > handle_rx
+> > get_rx_bufs
+> > vhost_get_vq_desc
+> > vhost_get_avail_head
+> > vhost_get_avail
+> > __vhost_get_user_slow
+> > translate_desc               << trace statement in here
+> > vhost_iotlb_itree_first
+>
+> I wonder why do you keep missing cache and re-translating.
+> Is pr_debug enabled for you? If not could you check if it
+> outputs anything?
+> Or you can tweak:
+>
+> #define vq_err(vq, fmt, ...) do {                                  \
+>                 pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
+>                 if ((vq)->error_ctx)                               \
+>                                 eventfd_signal((vq)->error_ctx, 1);\
+>         } while (0)
+>
+> to do pr_err if you prefer.
+>
+> > These functions show up as having increased overhead in perf.
+> >
+> > There are multiple loops going on in there.
+> > Again the disclaimer though, I'm not familiar with that code at all.
+>
+>
+> So there's a limit there: vhost_exceeds_weight should requeue work:
+>
+>         } while (likely(!vhost_exceeds_weight(vq, ++recv_pkts, total_len)=
+));
+>
+> then we invoke scheduler each time before re-executing it:
+>
+>
+> {
+>         struct vhost_worker *worker =3D data;
+>         struct vhost_work *work, *work_next;
+>         struct llist_node *node;
+>
+>         node =3D llist_del_all(&worker->work_list);
+>         if (node) {
+>                 __set_current_state(TASK_RUNNING);
+>
+>                 node =3D llist_reverse_order(node);
+>                 /* make sure flag is seen after deletion */
+>                 smp_wmb();
+>                 llist_for_each_entry_safe(work, work_next, node, node) {
+>                         clear_bit(VHOST_WORK_QUEUED, &work->flags);
+>                         kcov_remote_start_common(worker->kcov_handle);
+>                         work->fn(work);
+>                         kcov_remote_stop();
+>                         cond_resched();
+>                 }
+>         }
+>
+>         return !!node;
+> }
+>
+> These are the byte and packet limits:
+>
+> /* Max number of bytes transferred before requeueing the job.
+>  * Using this limit prevents one virtqueue from starving others. */
+> #define VHOST_NET_WEIGHT 0x80000
+>
+> /* Max number of packets transferred before requeueing the job.
+>  * Using this limit prevents one virtqueue from starving others with smal=
+l
+>  * pkts.
+>  */
+> #define VHOST_NET_PKT_WEIGHT 256
+>
+>
+> Try reducing the VHOST_NET_WEIGHT limit and see if that improves things a=
+ny?
+
+Or a dirty hack like cond_resched() in translate_desc().
+
+Thanks
 
 
+>
+> --
+> MST
+>
 
-On 2023/12/11 10:40, Song Liu wrote:
-> On Sat, Dec 9, 2023 at 11:03 PM Akihiko Odaki <akihiko.odaki@daynix.com> wrote:
->>
->> On 2023/11/22 14:36, Akihiko Odaki wrote:
->>> On 2023/11/22 14:25, Song Liu wrote:
-> [...]
->>
->> Now the discussion is stale again so let me summarize the discussion:
->>
->> A tuntap device can have an eBPF steering program to let the userspace
->> decide which tuntap queue should be used for each packet. QEMU uses this
->> feature to implement the RSS algorithm for virtio-net emulation. Now,
->> the virtio specification has a new feature to report hash values
->> calculated with the RSS algorithm. The goal of this RFC is to report
->> such hash values from the eBPF steering program to the userspace.
->>
->> There are currently three ideas to implement the proposal:
->>
->> 1. Abandon eBPF steering program and implement RSS in the kernel.
->>
->> It is possible to implement the RSS algorithm in the kernel as it's
->> strictly defined in the specification. However, there are proposals for
->> relevant virtio specification changes, and abandoning eBPF steering
->> program will loose the ability to implement those changes in the
->> userspace. There are concerns that this lead to more UAPI changes in the
->> end.
->>
->> 2. Add BPF kfuncs.
->>
->> Adding BPF kfuncs is *the* standard way to add BPF interfaces. hid-bpf
->> is a good reference for this.
->>
->> The problem with BPF kfuncs is that kfuncs are not considered as stable
->> as UAPI. In my understanding, it is not problematic for things like
->> hid-bpf because programs using those kfuncs affect the entire system
->> state and expected to be centrally managed. Such BPF programs can be
->> updated along with the kernel in a manner similar to kernel modules.
->>
->> The use case of tuntap steering/hash reporting is somewhat different
->> though; the eBPF program is more like a part of application (QEMU or
->> potentially other VMM) and thus needs to be portable. For example, a
->> user may expect a Debian container with QEMU installed to work on Fedora.
->>
->> BPF kfuncs do still provide some level of stability, but there is no
->> documentation that tell how stable they are. The worst case scenario I
->> can imagine is that a future legitimate BPF change breaks QEMU, letting
->> the "no regressions" rule force the change to be reverted. Some
->> assurance that kind scenario will not happen is necessary in my opinion.
-> 
-> I don't think we can provide stability guarantees before seeing something
-> being used in the field. How do we know it will be useful forever? If a
-> couple years later, there is only one person using it somewhere in the
-> world, why should we keep supporting it? If there are millions of virtual
-> machines using it, why would you worry about it being removed?
-
-I have a different opinion about providing stability guarantees; I 
-believe it is safe to provide such a guarantee without actual use in a 
-field. We develop features expecting there are real uses, and if it 
-turns out otherwise, we can break the stated guarantee since there is no 
-real use cases anyway. It is fine even breaking UAPIs in such a case, 
-which is stated in Documentation/admin-guide/reporting-regressions.rst.
-
-So I rather feel easy about guaranteeing UAPI stability; we can just 
-guarantee the UAPI-level stability for a particular kfunc and use it 
-from QEMU expecting the stability. If the feature is found not useful, 
-QEMU and the kernel can just remove it.
-
-I'm more concerned about the other case, which means that there will be 
-wide uses of this feature. A kernel developer may assume the stability 
-of the interface is like one of kernel internal APIs 
-(Documentation/bpf/kfuncs.rst says kfuncs are like EXPORT_SYMBOL_GPL) 
-and decide to change it, breaking old QEMU binaries and that's something 
-I would like to avoid.
-
-Regarding the breakage scenario, I think we can avoid the kfuncs removal 
-just by saying "we won't remove them". I'm more worried the case that a 
-change in the BPF kfunc infrastucture requires to recompile the binary.
-
-So, in short, I don't think we can say "kfuncs are like 
-EXPORT_SYMBOL_GPL" and "you can freely use kfuncs in a normal userspace 
-application like QEMU" at the same time.
-
-> 
->>
->> 3. Add BPF program type derived from the conventional steering program type
->>
->> In principle, it's just to add a feature to report four more bytes to
->> the conventional steering program. However, BPF program types are frozen
->> for feature additions and the proposed change will break the feature freeze.
->>
->> So what's next? I'm inclined to option 3 due to its minimal ABI/API
->> change, but I'm also fine with option 2 if it is possible to guarantee
->> the ABI/API stability necessary to run pre-built QEMUs on future kernel
->> versions by e.g., explicitly stating the stability of kfuncs. If no
->> objection arises, I'll resend this series with the RFC prefix dropped
->> for upstream inclusion. If it's decided to go for option 1 or 2, I'll
->> post a new version of the series implementing the idea.
-> 
-> Probably a dumb question, but does this RFC fall into option 3? If
-> that's the case, I seriously don't think it's gonna happen.
-
-Yes, it's option 3.
-
-> 
-> I would recommend you give option 2 a try and share the code. This is
-> probably the best way to move the discussion forward.
-
-I'd like to add a documentation change to say the added kfuncs are 
-exceptional cases that are not like EXPORT_SYMBOL_GPL in that case. Will 
-it work?
-
-Regards,
-Akihiko Odaki
