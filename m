@@ -1,198 +1,234 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C9D7374D1
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 11:43:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580FE38FB2
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 12:01:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LwC7usLK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E9/Dxd9m"
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F082A43539
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 11:43:57 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org F082A43539
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.a=rsa-sha256 header.s=google header.b=LwC7usLK
+	by smtp3.osuosl.org (Postfix) with ESMTP id DFD5461413
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 12:01:50 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org DFD5461413
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=E9/Dxd9m
 X-Virus-Scanned: amavisd-new at osuosl.org
 X-Spam-Flag: NO
-X-Spam-Score: -2.101
+X-Spam-Score: -0.599
 X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VKTir1jZR3e5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UBsOCr4AzTsZ
 	for <virtualization@lists.linux-foundation.org>;
-	Mon, 11 Dec 2023 11:43:57 +0000 (UTC)
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BF3124028D
-	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 11:43:56 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org BF3124028D
-Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-1d32c5ce32eso1515955ad.0
-        for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 03:43:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1702295036; x=1702899836; darn=lists.linux-foundation.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=HWSOqTGWbN7/1kah/VavpIcFubAITMhMWD90A/nR/50=;
-        b=LwC7usLKWtLdwP1qiZzgs1gadRvCR+upb5fw1DAgR19ZA49lDlmzvNJ9apHQWs7oXT
-         4E7dWOD4yZS9ACXVVGauAJSouKTYbDDAWcRRHBWuhgIchuka6djDefuM/pHVrLRvYVNd
-         SA6DgzWdkyx0NJt47tAkArcG80EGXzeOlPXjw=
+	Mon, 11 Dec 2023 12:01:49 +0000 (UTC)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8DA8D61411
+	for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 12:01:49 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 8DA8D61411
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1702296108;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bqzvj1BVA/xUscvTFwnIQ16B6kfl78jXgo5T95qDUwM=;
+	b=E9/Dxd9mvCgfL6uQPEBenTc/UVLMOwN9ELCCQncTNzwTLih1ISskxe67l5tE4f4mo7cNab
+	yA0Fm//Aq/cc+1Pt+UHsHiuWmqoOMCqG3RGr1eTcj79W5AbVRGv8qK2OCQUPDRiDnKW/s4
+	pUx8phtqjOmFbIlD1E9jh5yjQjVjvd8=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-82-Fj3P0-7kMECJaHb2eqydQg-1; Mon, 11 Dec 2023 07:01:47 -0500
+X-MC-Unique: Fj3P0-7kMECJaHb2eqydQg-1
+Received: by mail-qv1-f69.google.com with SMTP id 6a1803df08f44-67ec592bc29so23267666d6.0
+        for <virtualization@lists.linux-foundation.org>; Mon, 11 Dec 2023 04:01:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702295036; x=1702899836;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HWSOqTGWbN7/1kah/VavpIcFubAITMhMWD90A/nR/50=;
-        b=CWGKQVh3vqI1GOuPrOb0r6U/4jvlcgulPyUDhMM5c/DhR2X44ax6RJ1C4RS7Xextwm
-         oS2xqQz9TG6Fasgh7A9aMsu8aVXSWm+isBjmBb7YdgX9aD9C7UV+NfvQOrpanJ6XQrzB
-         d0HDkciTASiDLcmwjNkQgk22LDGQ2vuzK/giP4fp5dZS/h0TA4R5s5vi2YwRH5BbIXLN
-         1eAhBHUvTZeUsrE8SJrqqtWkZyqfTKk4MJdCRY/vMekqYyDvpWh1PsGAa3gq4CuBhfp5
-         KE3G+Br2/cAB9z4f2oMBTezHoFtYdU35AeX6jFrtKhSFwtVf3zoErSaiv4zxq9NGJhvv
-         HBCg==
-X-Gm-Message-State: AOJu0YyTFyRa7xYOj9vEHJi9Sh2vLUA10OhDj0V1P7MIR2tZgmsT3Iqk
-	IhklMYzi5MJPVYCgtTTqXQCx4Q==
-X-Google-Smtp-Source: AGHT+IH7Xh1az1wiQpVmjLradIRIrBROYVFJjrZ2ymcEvhmwqw1W9rUCiU1B3MJGvYEVoR+YJZt6iA==
-X-Received: by 2002:a17:902:ecc4:b0:1d0:7b67:c535 with SMTP id a4-20020a170902ecc400b001d07b67c535mr5058442plh.17.1702295036027;
-        Mon, 11 Dec 2023 03:43:56 -0800 (PST)
-Received: from localhost ([2401:fa00:8f:203:f046:fcb8:db69:41ed])
-        by smtp.gmail.com with UTF8SMTPSA id n2-20020a170902d2c200b001cfd0ddc5b9sm6388253plc.262.2023.12.11.03.43.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Dec 2023 03:43:55 -0800 (PST)
-From: David Stevens <stevensd@chromium.org>
-X-Google-Original-From: David Stevens <stevensd@google.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	David Hildenbrand <david@redhat.com>
-Cc: virtualization@lists.linux-foundation.org,
-	linux-kernel@vger.kernel.org,
-	David Stevens <stevensd@chromium.org>
-Subject: [PATCH] virtio_balloon: stay awake while adjusting balloon
-Date: Mon, 11 Dec 2023 20:43:46 +0900
-Message-ID: <20231211114346.1132386-1-stevensd@google.com>
-X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
+        d=1e100.net; s=20230601; t=1702296106; x=1702900906;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bqzvj1BVA/xUscvTFwnIQ16B6kfl78jXgo5T95qDUwM=;
+        b=goE3382sHBH1SvueDnjun8P01oN4wzmV+6yd0EENjfAeoaZvTkXQVUzqT0hBs3aUTH
+         Pt8gIsvl6ycEF1rcfrf6adfjsT3XuuO9s+lMSXiALrdgLUWv6HXLTbc8JqA6qZly4xTq
+         i+gsCgCaIrdEdCeGYZsDN+U4WRAB7lw67RWPfwRJcFUG0viAzYL1TJKtyP2dSlhwH7wV
+         6ACTUqVJL0H4f1uAdLrTB+8G908zQ4fCzGVhvNPClk6rCDiDmZDChfA3UPl+d6ODZ8dV
+         D8TzbXYekxya84aXJNTUqg5eC885UW7SZQZPtQQBcEdEcp1/PTQGbXH628hgqmNzZNQE
+         0F2w==
+X-Gm-Message-State: AOJu0YyY+ig6iKFxnWqAYwQz7FvLlX8e3leuhkJMt7cbu1YxHMIUD7DJ
+	aJcYZtWRFYpyQL6f84FvIvJKtfI0njlVOMz3eUJnrfOUIx7J2zm9KJvw1bnSKhblggE+QXEcYwp
+	m7ZQSDoWbKHBtaDkCDOpGTB/NDTDERzEAuOyx8eHBrA==
+X-Received: by 2002:a05:6214:f66:b0:67a:b963:5ae with SMTP id iy6-20020a0562140f6600b0067ab96305aemr9074357qvb.45.1702296106730;
+        Mon, 11 Dec 2023 04:01:46 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEJe0L6QdS4nGwvEb9tjBx33wTgJG4fosHSmbpSVi1Tq8yvZi8qUQYj5rcbM7XZsEBl/CmTNw==
+X-Received: by 2002:a05:6214:f66:b0:67a:b963:5ae with SMTP id iy6-20020a0562140f6600b0067ab96305aemr9074332qvb.45.1702296106415;
+        Mon, 11 Dec 2023 04:01:46 -0800 (PST)
+Received: from sgarzare-redhat ([95.131.45.143])
+        by smtp.gmail.com with ESMTPSA id v16-20020a0cf910000000b0067a53aa6df2sm3232285qvn.46.2023.12.11.04.01.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Dec 2023 04:01:46 -0800 (PST)
+Date: Mon, 11 Dec 2023 13:01:16 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kernel@sberdevices.ru, 
+	oxffffaa@gmail.com
+Subject: Re: [PATCH net-next v7 3/4] virtio/vsock: fix logic which reduces
+ credit update messages
+Message-ID: <s5v5hbr2memhwoqm3fxbkq6qsocs43qgyhx432zzy6ugbqhuu2@rsnm3kiwfwjm>
+References: <20231206211849.2707151-1-avkrasnov@salutedevices.com>
+ <20231206211849.2707151-4-avkrasnov@salutedevices.com>
+ <20231206165045-mutt-send-email-mst@kernel.org>
+ <d9d1ec6a-dd9b-61d9-9211-52e9437cbb1f@salutedevices.com>
+ <20231206170640-mutt-send-email-mst@kernel.org>
+ <d30a1df7-ecda-652d-8c98-853308a560c9@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d30a1df7-ecda-652d-8c98-853308a560c9@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-From: David Stevens <stevensd@chromium.org>
+On Thu, Dec 07, 2023 at 01:50:05AM +0300, Arseniy Krasnov wrote:
+>
+>
+>On 07.12.2023 01:08, Michael S. Tsirkin wrote:
+>> On Thu, Dec 07, 2023 at 12:52:51AM +0300, Arseniy Krasnov wrote:
+>>>
+>>>
+>>> On 07.12.2023 00:53, Michael S. Tsirkin wrote:
+>>>> On Thu, Dec 07, 2023 at 12:18:48AM +0300, Arseniy Krasnov wrote:
+>>>>> Add one more condition for sending credit update during dequeue from
+>>>>> stream socket: when number of bytes in the rx queue is smaller than
+>>>>> SO_RCVLOWAT value of the socket. This is actual for non-default value
+>>>>> of SO_RCVLOWAT (e.g. not 1) - idea is to "kick" peer to continue data
+>>>>> transmission, because we need at least SO_RCVLOWAT bytes in our rx
+>>>>> queue to wake up user for reading data (in corner case it is also
+>>>>> possible to stuck both tx and rx sides, this is why 'Fixes' is used).
+>>>>> Also handle case when 'fwd_cnt' wraps, while 'last_fwd_cnt' is still
+>>>>> not.
+>>>>>
+>>>>> Fixes: b89d882dc9fc ("vsock/virtio: reduce credit update messages")
+>>>>> Signed-off-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+>>>>> ---
+>>>>>  Changelog:
+>>>>>  v6 -> v7:
+>>>>>   * Handle wrap of 'fwd_cnt'.
+>>>>>   * Do to send credit update when 'fwd_cnt' == 'last_fwd_cnt'.
+>>>>>
+>>>>>  net/vmw_vsock/virtio_transport_common.c | 18 +++++++++++++++---
+>>>>>  1 file changed, 15 insertions(+), 3 deletions(-)
+>>>>>
+>>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>>>> index e137d740804e..39f8660d825d 100644
+>>>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>>>> @@ -558,6 +558,8 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>>  	struct virtio_vsock_sock *vvs = vsk->trans;
+>>>>>  	size_t bytes, total = 0;
+>>>>>  	struct sk_buff *skb;
+>>>>> +	u32 fwd_cnt_delta;
+>>>>> +	bool low_rx_bytes;
+>>>>>  	int err = -EFAULT;
+>>>>>  	u32 free_space;
+>>>>>
+>>>>> @@ -601,7 +603,15 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>>  		}
+>>>>>  	}
+>>>>>
+>>>>> -	free_space = vvs->buf_alloc - (vvs->fwd_cnt - vvs->last_fwd_cnt);
+>>>>> +	/* Handle wrap of 'fwd_cnt'. */
+>>>>> +	if (vvs->fwd_cnt < vvs->last_fwd_cnt)
+>>>>> +		fwd_cnt_delta = vvs->fwd_cnt + (U32_MAX - vvs->last_fwd_cnt);
+>>>>
+>>>> Are you sure there's no off by one here? for example if fwd_cnt is 0
+>>>> and last_fwd_cnt is 0xfffffffff then apparently delta is 0.
+>>>
+>>> Seems yes, I need +1 here
+>>
+>> And then you will get a nop, because assigning U32_MAX + 1 to u32
+>> gives you 0. Adding () does nothing to change the result,
+>> + and - are commutative.
+>
+>Ahh, unsigned here, yes.
 
-Add a wakeup event for when the balloon is inflating or deflating.
-Userspace can enable this wakeup event to prevent the system from
-suspending while the balloon is being adjusted. This allows
-/sys/power/wakeup_count to be used without breaking virtio_balloon's
-cooperative memory management.
+Ooops, sorry I was confused here!
 
-Signed-off-by: David Stevens <stevensd@chromium.org>
----
- drivers/virtio/virtio_balloon.c | 59 +++++++++++++++++++++++++++------
- 1 file changed, 49 insertions(+), 10 deletions(-)
+>
+>@Stefano, what did You mean about wrapping here?
+>
+>I think Michael is right, for example
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 1fe93e93f5bc..811d8937246a 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -119,6 +119,11 @@ struct virtio_balloon {
- 	/* Free page reporting device */
- 	struct virtqueue *reporting_vq;
- 	struct page_reporting_dev_info pr_dev_info;
-+
-+	/* State for keeping the wakeup_source active while adjusting the balloon */
-+	spinlock_t adjustment_lock;
-+	u32 adjustment_seqno;
-+	bool adjustment_in_progress;
- };
- 
- static const struct virtio_device_id id_table[] = {
-@@ -437,6 +442,31 @@ static void virtio_balloon_queue_free_page_work(struct virtio_balloon *vb)
- 	queue_work(vb->balloon_wq, &vb->report_free_page_work);
- }
- 
-+static void start_update_balloon_size(struct virtio_balloon *vb)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vb->adjustment_lock, flags);
-+	vb->adjustment_seqno++;
-+	if (!vb->adjustment_in_progress) {
-+		vb->adjustment_in_progress = true;
-+		pm_stay_awake(&vb->vdev->dev);
-+	}
-+	spin_unlock_irqrestore(&vb->adjustment_lock, flags);
-+
-+	queue_work(system_freezable_wq, &vb->update_balloon_size_work);
-+}
-+
-+static void end_update_balloon_size(struct virtio_balloon *vb, u32 seqno)
-+{
-+	spin_lock(&vb->adjustment_lock);
-+	if (vb->adjustment_seqno == seqno && vb->adjustment_in_progress) {
-+		vb->adjustment_in_progress = false;
-+		pm_relax(&vb->vdev->dev);
-+	}
-+	spin_unlock(&vb->adjustment_lock);
-+}
-+
- static void virtballoon_changed(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
-@@ -444,8 +474,7 @@ static void virtballoon_changed(struct virtio_device *vdev)
- 
- 	spin_lock_irqsave(&vb->stop_update_lock, flags);
- 	if (!vb->stop_update) {
--		queue_work(system_freezable_wq,
--			   &vb->update_balloon_size_work);
-+		start_update_balloon_size(vb);
- 		virtio_balloon_queue_free_page_work(vb);
- 	}
- 	spin_unlock_irqrestore(&vb->stop_update_lock, flags);
-@@ -473,22 +502,29 @@ static void update_balloon_size_func(struct work_struct *work)
- {
- 	struct virtio_balloon *vb;
- 	s64 diff;
-+	u32 seqno;
- 
- 	vb = container_of(work, struct virtio_balloon,
- 			  update_balloon_size_work);
--	diff = towards_target(vb);
- 
--	if (!diff)
--		return;
-+	spin_lock(&vb->adjustment_lock);
-+	seqno = vb->adjustment_seqno;
-+	spin_unlock(&vb->adjustment_lock);
- 
--	if (diff > 0)
--		diff -= fill_balloon(vb, diff);
--	else
--		diff += leak_balloon(vb, -diff);
--	update_balloon_size(vb);
-+	diff = towards_target(vb);
-+
-+	if (diff) {
-+		if (diff > 0)
-+			diff -= fill_balloon(vb, diff);
-+		else
-+			diff += leak_balloon(vb, -diff);
-+		update_balloon_size(vb);
-+	}
- 
- 	if (diff)
- 		queue_work(system_freezable_wq, work);
-+	else
-+		end_update_balloon_size(vb, seqno);
- }
- 
- static int init_vqs(struct virtio_balloon *vb)
-@@ -992,6 +1028,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 			goto out_unregister_oom;
- 	}
- 
-+	spin_lock_init(&vb->adjustment_lock);
-+	device_set_wakeup_capable(&vb->vdev->dev, true);
-+
- 	virtio_device_ready(vdev);
- 
- 	if (towards_target(vb))
--- 
-2.43.0.472.g3155946c3a-goog
+Yep, I agree!
+Sorry for this wrong suggestion!
+
+Stefano
+
+>
+>vvs->fwd_cnt wraps and now == 5
+>vvs->last_fwd_cnt == 0xffffffff
+>
+>now delta before this patch will be 6 - correct value
+>
+>May be I didn't get your idea, so implement it very naive?
+>
+>Thanks, Arseniy
+>
+>>
+>>
+>>>>
+>>>>
+>>>>> +	else
+>>>>> +		fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt;
+>>>>
+>>>> I actually don't see what is wrong with just
+>>>> 	fwd_cnt_delta = vvs->fwd_cnt - vvs->last_fwd_cnt
+>>>> 32 bit unsigned math will I think handle wrap around correctly.
+>>>>
+>>>> And given buf_alloc is also u32 - I don't see where the bug is in
+>>>> the original code.
+>>>
+>>> I think problem is when fwd_cnt wraps, while last_fwd_cnt is not. In this
+>>> case fwd_cnt_delta will be too big, so we won't send credit update which
+>>> leads to stall for sender
+>>>
+>>> Thanks, Arseniy
+>>
+>> Care coming up with an example?
+>>
+>>
+>>>>
+>>>>
+>>>>> +
+>>>>> +	free_space = vvs->buf_alloc - fwd_cnt_delta;
+>>>>> +	low_rx_bytes = (vvs->rx_bytes <
+>>>>> +			sock_rcvlowat(sk_vsock(vsk), 0, INT_MAX));
+>>>>>
+>>>>>  	spin_unlock_bh(&vvs->rx_lock);
+>>>>>
+>>>>> @@ -611,9 +621,11 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>>  	 * too high causes extra messages. Too low causes transmitter
+>>>>>  	 * stalls. As stalls are in theory more expensive than extra
+>>>>>  	 * messages, we set the limit to a high value. TODO: experiment
+>>>>> -	 * with different values.
+>>>>> +	 * with different values. Also send credit update message when
+>>>>> +	 * number of bytes in rx queue is not enough to wake up reader.
+>>>>>  	 */
+>>>>> -	if (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE)
+>>>>> +	if (fwd_cnt_delta &&
+>>>>> +	    (free_space < VIRTIO_VSOCK_MAX_PKT_BUF_SIZE || low_rx_bytes))
+>>>>>  		virtio_transport_send_credit_update(vsk);
+>>>>>
+>>>>>  	return total;
+>>>>> --
+>>>>> 2.25.1
+>>>>
+>>
+>
 
